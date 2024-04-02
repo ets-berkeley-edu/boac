@@ -23,8 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.models.cohort_filter import CohortFilter
-from bea.test_utils import boa_utils
+from bea.models.cohorts_and_groups.cohort_filter import CohortFilter
 from bea.test_utils import utils
 from boac.externals import data_loch
 from flask import current_app as app
@@ -35,7 +34,7 @@ from flask import current_app as app
 
 def select_from(sort=None):
     if sort and (sort['col'] != 'first_name'):
-        select = f", {sort['select']}" or f", {sort['table']}.{sort['col']}"
+        select = f", {sort['select']}" if sort['select'] else f", {sort['table']}.{sort['col']}"
     else:
         select = ''
     return f"""SELECT DISTINCT student.student_profile_index.sid,
@@ -57,7 +56,7 @@ def cohort_units_in_prog_sub_query():
     return f"""(SELECT student.student_enrollment_terms.enrolled_units
                 FROM student.student_enrollment_terms
                WHERE student.student_enrollment_terms.sid = student_profile_index.sid
-                 AND student.student_enrollment_terms.term_id = '{boa_utils.get_term_code()}') AS units_in_progress
+                 AND student.student_enrollment_terms.term_id = '{utils.get_current_term().sis_id}') AS units_in_progress
             """
 
 
@@ -65,7 +64,7 @@ def user_list_units_in_prog_sub_query():
     return f"""COALESCE((SELECT student.student_enrollment_terms.enrolled_units
                            FROM student.student_enrollment_terms
                           WHERE student.student_enrollment_terms.sid = student_profile_index.sid
-                            AND student.student_enrollment_terms.term_id = '{boa_utils.get_term_code()}'), 0) AS units_in_progress
+                            AND student.student_enrollment_terms.term_id = '{utils.get_current_term().sis_id}'), 0) AS units_in_progress
             """
 
 
@@ -105,7 +104,7 @@ def career_status_cond(cohort_filter, conditions_list):
 
 def college_cond(cohort_filter, conditions_list):
     if cohort_filter.colleges:
-        conditions_list.append(f'student.student_majors.college IN ({utils.in_op(cohort_filter.college)})')
+        conditions_list.append(f'student.student_majors.college IN ({utils.in_op(cohort_filter.colleges)})')
 
 
 def degree_awarded_cond(cohort_filter, conditions_list):
@@ -141,7 +140,7 @@ def gpa_last_term_cond(cohort_filter, conditions_list):
     if cohort_filter.gpa_ranges_last_term:
         ranges = list(map(lambda r: f"(student.student_term_gpas.gpa BETWEEN {r['min']} AND {r['max']})",
                           cohort_filter.gpa_ranges_last_term))
-        cond = f"""student.student_term_gpas.term_id = '{boa_utils.get_prev_term_sis_id()}'
+        cond = f"""student.student_term_gpas.term_id = '{utils.get_prev_term_sis_id()}'
                AND student.student_term_gpas.units_taken_for_gpa != '0.0'
                AND ({' OR '.join(ranges)})"""
         conditions_list.append(cond)
@@ -150,8 +149,8 @@ def gpa_last_term_cond(cohort_filter, conditions_list):
 def grading_basis_epn_cond(cohort_filter, conditions_list):
     if cohort_filter.grading_basis_epn:
         epn_conditions_list = f"""student.student_enrollment_terms.term_id IN ({utils.in_op(cohort_filter.grading_basis_epn)})
-                          AND (student.student_enrollment_terms.enrollment_term LIKE '%"gradingBasis": "EPN"%'
-                            OR student.student_enrollment_terms.enrollment_term LIKE '%"gradingBasis": "CPN"%')"""
+                          AND (student.student_enrollment_terms.enrollment_term LIKE '%%"gradingBasis": "EPN"%%'
+                            OR student.student_enrollment_terms.enrollment_term LIKE '%%"gradingBasis": "CPN"%%')"""
         conditions_list.append(epn_conditions_list)
 
 
@@ -199,9 +198,9 @@ def level_cond(cohort_filter, conditions_list):
 def major_cond(cohort_filter, conditions_list):
     majors = []
     if cohort_filter.majors:
-        majors.append(cohort_filter.majors)
+        majors.extend(cohort_filter.majors)
     if cohort_filter.graduate_plans:
-        majors.append(cohort_filter.graduate_plans)
+        majors.extend(cohort_filter.graduate_plans)
     if majors:
         conditions_list.append(f'student.student_majors.major IN ({utils.in_op(majors)})')
 
@@ -210,13 +209,13 @@ def minor_cond(cohort_filter, conditions_list):
     if cohort_filter.minors:
         conditions_list.append(f"""student.minors.minor IN ({utils.in_op(cohort_filter.minors)})
                                AND student.student_profile_index.level != 'GR'
-                               AND student.student_majors.college NOT LIKE 'Graduate%'""")
+                               AND student.student_majors.college NOT LIKE 'Graduate%%'""")
 
 
 def midpoint_deficient_cond(cohort_filter, conditions_list):
     if cohort_filter.mid_point_deficient:
         conditions_list.append(f"""student.student_enrollment_terms.midpoint_deficient_grade IS TRUE
-                               AND student.student_enrollment_terms.term_id = '{boa_utils.get_term_code()}'""")
+                               AND student.student_enrollment_terms.term_id = '{utils.get_current_term().sis_id}'""")
 
 
 def transfer_cond(cohort_filter, conditions_list):
@@ -270,11 +269,11 @@ def last_name_cond(cohort_filter, conditions_list):
         ranges = []
         for initials in cohort_filter.last_name:
             if initials['min'] == initials['max']:
-                ranges.append(f"LOWER(student.student_profile_index.last_name) LIKE '{initials['min']}'%")
+                ranges.append(f"LOWER(student.student_profile_index.last_name) LIKE '{initials['min']}'%%")
             else:
                 ranges.append(
                     f"LOWER(student.student_profile_index.last_name) BETWEEN '{initials['min']}' AND '{initials['max']}zz'")
-        conditions_list.append(f"({' OR '.join(ranges)}")
+        conditions_list.append(f"{' OR '.join(ranges)}")
 
 
 def my_students_cond(cohort_filter, conditions_list, test):
@@ -434,9 +433,9 @@ def filter_join_clauses(cohort_filter):
         joins.append(advisor_student_join)
 
     if cohort_filter.mid_point_deficient:
-        enroll_term_join = f"""LEFT JOIN student.student_enrollment_term
+        enroll_term_join = f"""LEFT JOIN student.student_enrollment_terms
                                       ON {sid} = student.student_enrollment_terms.sid
-                                     AND student.student_enrollment_terms.term_id = '{boa_utils.get_term_code()}'"""
+                                     AND student.student_enrollment_terms.term_id = '{utils.get_current_term().sis_id}'"""
         joins.append(enroll_term_join)
 
     if cohort_filter.gpa_ranges_last_term:
@@ -508,7 +507,7 @@ def get_cohort_result(test, cohort_filter, sort=None):
               {join(filter_join_clauses(cohort_filter), sort)}
               {where(test, cohort_filter)}
               {group_by(sort)}
-              {order_by(sort)};"""
+              {order_by(sort)}"""
     app.logger.info(sql)
     results = data_loch.safe_execute_rds(sql)
     return [r['sid'] for r in results]
@@ -517,7 +516,7 @@ def get_cohort_result(test, cohort_filter, sort=None):
 # Last Name
 
 def cohort_by_last_name(test, cohort_filter):
-    get_cohort_result(test, cohort_filter)
+    return get_cohort_result(test, cohort_filter)
 
 
 # First name
@@ -527,7 +526,7 @@ def cohort_by_first_name(test, cohort_filter):
         'table': 'student.student_profile_index',
         'col': 'first_name',
     }
-    get_cohort_result(test, cohort_filter, sort)
+    return get_cohort_result(test, cohort_filter, sort)
 
 
 # Level
@@ -538,7 +537,7 @@ def cohort_by_level(test, cohort_filter):
         'col': 'level',
         'group_by': True,
     }
-    get_cohort_result(test, cohort_filter, sort)
+    return get_cohort_result(test, cohort_filter, sort)
 
 
 # Major
@@ -552,7 +551,7 @@ def cohort_by_major(test, cohort_filter):
         'order_by': 'major',
         'group_by': False,
     }
-    get_cohort_result(test, cohort_filter, sort)
+    return get_cohort_result(test, cohort_filter, sort)
 
 
 # Entering term
@@ -564,7 +563,7 @@ def cohort_by_matriculation(test, cohort_filter):
         'nulls': ' NULLS LAST',
         'group_by': True,
     }
-    get_cohort_result(test, cohort_filter, sort)
+    return get_cohort_result(test, cohort_filter, sort)
 
 
 def cohort_by_expected_grad(test, cohort_filter):
@@ -574,7 +573,7 @@ def cohort_by_expected_grad(test, cohort_filter):
         'nulls': ' NULLS LAST',
         'group_by': True,
     }
-    get_cohort_result(test, cohort_filter, sort)
+    return get_cohort_result(test, cohort_filter, sort)
 
 
 # Team
@@ -588,7 +587,7 @@ def cohort_by_team(test, cohort_filter):
         'order_by': 'team',
         'group_by': False,
     }
-    get_cohort_result(test, cohort_filter, sort)
+    return get_cohort_result(test, cohort_filter, sort)
 
 
 # GPA - cumulative
@@ -604,13 +603,13 @@ def cohort_by_gpa_sort():
 def cohort_by_gpa_asc(test, cohort_filter):
     gpa_sort = cohort_by_gpa_sort()
     gpa_sort.update({'direction': ' ASC', 'nulls': ' NULLS FIRST'})
-    get_cohort_result(test, cohort_filter, gpa_sort)
+    return get_cohort_result(test, cohort_filter, gpa_sort)
 
 
 def cohort_by_gpa_desc(test, cohort_filter):
     gpa_sort = cohort_by_gpa_sort()
     gpa_sort.update({'direction': ' DESC', 'nulls': ' NULLS FIRST'})
-    get_cohort_result(test, cohort_filter, gpa_sort)
+    return get_cohort_result(test, cohort_filter, gpa_sort)
 
 
 # GPA - previous term
@@ -626,34 +625,18 @@ def cohort_by_prev_term_gpa_sort(term):
     }
 
 
-def cohort_by_gpa_last_term_asc(test, cohort_filter):
-    term = boa_utils.get_prev_term_sis_id()
-    gpa_sort = cohort_by_prev_term_gpa_sort(term)
+def cohort_by_gpa_last_term_asc(test, cohort_filter, term=None):
+    term = term or utils.get_previous_term()
+    gpa_sort = cohort_by_prev_term_gpa_sort(term.sis_id)
     gpa_sort.update({'direction': ' ASC', 'order_by': 'gpa_last_term'})
-    get_cohort_result(test, cohort_filter, gpa_sort)
+    return get_cohort_result(test, cohort_filter, gpa_sort)
 
 
-def cohort_by_gpa_last_term_desc(test, cohort_filter):
-    term = boa_utils.get_prev_term_sis_id()
-    gpa_sort = cohort_by_prev_term_gpa_sort(term)
+def cohort_by_gpa_last_term_desc(test, cohort_filter, term=None):
+    term = term or utils.get_previous_term()
+    gpa_sort = cohort_by_prev_term_gpa_sort(term.sis_id)
     gpa_sort.update({'direction': ' DESC', 'order_by': 'gpa_last_term'})
-    get_cohort_result(test, cohort_filter, gpa_sort)
-
-
-def cohort_by_gpa_last_last_term_asc(test, cohort_filter):
-    prev_term = boa_utils.get_prev_term_sis_id()
-    term = boa_utils.get_prev_term_sis_id(prev_term)
-    gpa_sort = cohort_by_prev_term_gpa_sort(term)
-    gpa_sort.update({'direction': ' ASC', 'order_by': 'gpa_last_term'})
-    get_cohort_result(test, cohort_filter, gpa_sort)
-
-
-def cohort_by_gpa_last_last_term_desc(test, cohort_filter):
-    prev_term = boa_utils.get_prev_term_sis_id()
-    term = boa_utils.get_prev_term_sis_id(prev_term)
-    gpa_sort = cohort_by_prev_term_gpa_sort(term)
-    gpa_sort.update({'direction': ' DESC', 'order_by': 'gpa_last_term'})
-    get_cohort_result(test, cohort_filter, gpa_sort)
+    return get_cohort_result(test, cohort_filter, gpa_sort)
 
 
 # Terms in attendance
@@ -670,13 +653,13 @@ def cohort_by_terms_in_attend_sort():
 def cohort_by_terms_in_attend_asc(test, cohort_filter):
     terms_sort = cohort_by_terms_in_attend_sort()
     terms_sort.update({'direction': ' ASC'})
-    get_cohort_result(test, cohort_filter, terms_sort)
+    return get_cohort_result(test, cohort_filter, terms_sort)
 
 
 def cohort_by_terms_in_attend_desc(test, cohort_filter):
     terms_sort = cohort_by_terms_in_attend_sort()
     terms_sort.update({'direction': ' DESC'})
-    get_cohort_result(test, cohort_filter, terms_sort)
+    return get_cohort_result(test, cohort_filter, terms_sort)
 
 
 # Units in progress
@@ -687,7 +670,7 @@ def cohort_by_units_in_prog_sort():
         'col': 'enrolled_units',
         'nulls': ' NULLS LAST',
         'select': cohort_units_in_prog_sub_query,
-        'term_id': boa_utils.get_term_code(),
+        'term_id': utils.get_current_term().sis_id,
         'order_by': 'units_in_progress',
         'group_by': True,
     }
@@ -696,13 +679,13 @@ def cohort_by_units_in_prog_sort():
 def cohort_by_units_in_prog_asc(test, cohort_filter):
     units_sort = cohort_by_units_in_prog_sort()
     units_sort.update({'direction': ' ASC'})
-    get_cohort_result(test, cohort_filter, units_sort)
+    return get_cohort_result(test, cohort_filter, units_sort)
 
 
 def cohort_by_units_in_prog_desc(test, cohort_filter):
     units_sort = cohort_by_units_in_prog_sort()
     units_sort.update({'direction': ' DESC'})
-    get_cohort_result(test, cohort_filter, units_sort)
+    return get_cohort_result(test, cohort_filter, units_sort)
 
 
 # Units complete
@@ -718,13 +701,13 @@ def cohort_by_units_complete_sort():
 def cohort_by_units_complete_asc(test, cohort_filter):
     units_sort = cohort_by_units_complete_sort()
     units_sort.update({'direction': ' ASC', 'nulls': ' NULLS LAST'})
-    get_cohort_result(test, cohort_filter, units_sort)
+    return get_cohort_result(test, cohort_filter, units_sort)
 
 
 def cohort_by_units_complete_desc(test, cohort_filter):
     units_sort = cohort_by_units_complete_sort()
     units_sort.update({'direction': ' DESC', 'nulls': ' NULLS LAST'})
-    get_cohort_result(test, cohort_filter, units_sort)
+    return get_cohort_result(test, cohort_filter, units_sort)
 
 
 # QUERIES - USER LISTS
@@ -764,16 +747,21 @@ def get_list_result(sids, sort=None, opts=None):
 # Last name
 
 def list_by_last_name_asc(sids):
-    get_list_result(sids)
+    return get_list_result(sids)
 
 
 def list_by_last_name_desc(sids):
     sort = {
         'table': 'student.student_profile_index',
         'col': 'last_name',
+        'select': '',
+        'nulls': '',
+        'term_id': '',
+        'order_by': '',
         'direction': ' DESC',
+        'group_by': '',
     }
-    get_list_result(sids, sort)
+    return get_list_result(sids, sort)
 
 
 # Major
@@ -783,7 +771,10 @@ def list_by_major_sort():
         'table': 'student.student_majors',
         'col': 'major',
         'select': '(ARRAY_AGG(student.student_majors.major ORDER BY student.student_majors.major))[1] AS major',
+        'nulls': '',
+        'term_id': '',
         'order_by': 'major',
+        'direction': '',
         'group_by': False,
     }
 
@@ -791,13 +782,13 @@ def list_by_major_sort():
 def list_by_major_asc(sids):
     major_sort = list_by_major_sort()
     major_sort.update({'nulls': ' NULLS FIRST', 'direction': ' ASC'})
-    get_list_result(sids, major_sort, {'active': True})
+    return get_list_result(sids, major_sort, {'active': True})
 
 
 def list_by_major_desc(sids):
     major_sort = list_by_major_sort()
     major_sort.update({'nulls': ' NULLS LAST', 'direction': ' DESC'})
-    get_list_result(sids, major_sort, {'active': True})
+    return get_list_result(sids, major_sort, {'active': True})
 
 
 # Grad term
@@ -806,9 +797,11 @@ def list_by_grad_term_sort():
     return {
         'table': 'student.student_profile_index',
         'col': 'expected_grad_term',
-        'nulls': ' NULLS FIRST',
         'select': 'student.student_profile_index.expected_grad_term AS term',
+        'nulls': ' NULLS FIRST',
+        'term_id': '',
         'order_by': 'term',
+        'direction': '',
         'group_by': True,
     }
 
@@ -816,13 +809,13 @@ def list_by_grad_term_sort():
 def list_by_grad_term_asc(sids):
     grad_sort = list_by_grad_term_sort()
     grad_sort.update({'direction': ' ASC'})
-    get_list_result(sids, grad_sort)
+    return get_list_result(sids, grad_sort)
 
 
 def list_by_grad_term_desc(sids):
     grad_sort = list_by_grad_term_sort()
     grad_sort.update({'direction': ' DESC'})
-    get_list_result(sids, grad_sort)
+    return get_list_result(sids, grad_sort)
 
 
 # GPA
@@ -831,6 +824,11 @@ def list_by_gpa_sort():
     return {
         'table': 'student.student_profile_index',
         'col': 'gpa',
+        'select': '',
+        'nulls': '',
+        'term_id': '',
+        'order_by': '',
+        'direction': '',
         'group_by': True,
     }
 
@@ -838,13 +836,13 @@ def list_by_gpa_sort():
 def list_by_gpa_asc(sids):
     gpa_sort = list_by_gpa_sort()
     gpa_sort.update({'nulls': ' NULLS FIRST', 'direction': ' ASC'})
-    get_list_result(sids, gpa_sort)
+    return get_list_result(sids, gpa_sort)
 
 
 def list_by_gpa_desc(sids):
     gpa_sort = list_by_gpa_sort()
     gpa_sort.update({'nulls': ' NULLS LAST', 'direction': ' DESC'})
-    get_list_result(sids, gpa_sort)
+    return get_list_result(sids, gpa_sort)
 
 
 # Units in progress
@@ -853,9 +851,11 @@ def list_by_units_in_prog_sort():
     return {
         'table': 'student.student_enrollment_terms',
         'col': 'enrolled_units',
-        'select': user_list_units_in_prog_sub_query,
-        'term_id': boa_utils.get_term_code(),
+        'select': user_list_units_in_prog_sub_query(),
+        'nulls': '',
+        'term_id': utils.get_current_term().sis_id,
         'order_by': 'units_in_progress',
+        'direction': '',
         'group_by': True,
     }
 
@@ -863,13 +863,13 @@ def list_by_units_in_prog_sort():
 def list_by_units_in_prog_asc(sids):
     units_sort = list_by_units_in_prog_sort()
     units_sort.update({'nulls': ' NULLS FIRST', 'direction': ' ASC'})
-    get_list_result(sids, units_sort)
+    return get_list_result(sids, units_sort)
 
 
 def list_by_units_in_prog_desc(sids):
     units_sort = list_by_units_in_prog_sort()
     units_sort.update({'nulls': ' NULLS LAST', 'direction': ' DESC'})
-    get_list_result(sids, units_sort)
+    return get_list_result(sids, units_sort)
 
 
 # Units complete
@@ -878,6 +878,11 @@ def list_by_units_complete_sort():
     return {
         'table': 'student.student_profile_index',
         'col': 'units',
+        'select': '',
+        'nulls': '',
+        'term_id': '',
+        'order_by': '',
+        'direction': '',
         'group_by': True,
     }
 
@@ -885,10 +890,10 @@ def list_by_units_complete_sort():
 def list_by_units_complete_asc(sids):
     units_sort = list_by_units_complete_sort()
     units_sort.update({'nulls': ' NULLS FIRST', 'direction': ' ASC'})
-    get_list_result(sids, units_sort)
+    return get_list_result(sids, units_sort)
 
 
 def list_by_units_complete_desc(sids):
     units_sort = list_by_units_complete_sort()
     units_sort.update({'nulls': ' NULLS LAST', 'direction': ' DESC'})
-    get_list_result(sids, units_sort)
+    return get_list_result(sids, units_sort)

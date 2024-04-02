@@ -87,6 +87,7 @@ class Page(object):
 
     def is_present(self, locator):
         try:
+            app.logger.info(f'Checking existence of element at {locator}')
             self.element(locator).size
             return True
         except (AttributeError, exceptions.NoSuchElementException, exceptions.StaleElementReferenceException):
@@ -129,6 +130,20 @@ class Page(object):
             tries += 1
             try:
                 assert string in self.element(locator).get_attribute('innerText')
+                break
+            except AssertionError:
+                if tries == retries:
+                    raise
+                else:
+                    time.sleep(1)
+
+    def wait_for_element_attribute(self, locator, attribute):
+        tries = 0
+        retries = utils.get_short_timeout()
+        while tries <= retries:
+            tries += 1
+            try:
+                assert self.element(locator).get_attribute(attribute)
                 break
             except AssertionError:
                 if tries == retries:
@@ -216,6 +231,12 @@ class Page(object):
         else:
             select_el.select_by_visible_text(option_str)
 
+    def matching_option(self, select_el_loc, option_str):
+        select_el = Select(self.element(select_el_loc))
+        for o in select_el.options:
+            if o.text.strip() == option_str or o.get_attribute('value') == option_str or f'-{option_str.lower()}' in o.get_attribute('id'):
+                return o
+
     # PAGE TITLE AND HEADING
 
     def title(self):
@@ -286,7 +307,7 @@ class Page(object):
         self.driver.close()
         self.driver.switch_to.window(self.window_handles()[0])
 
-    def external_link_valid(self, locator, expected_page_title):
+    def is_external_link_valid(self, locator, expected_page_title):
         self.wait_for_element_and_click(locator)
         time.sleep(1)
         try:

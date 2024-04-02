@@ -23,34 +23,18 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.models.note_template import NoteTemplate
+from bea.models.notes_and_appts.timeline_note_appt import TimelineNoteAppt
 
 
-class Note(NoteTemplate):
-
-    @property
-    def is_draft(self):
-        return self.data['is_draft']
-
-    @is_draft.setter
-    def is_draft(self, value):
-        self.data['is_draft'] = value
+class NoteTemplate(TimelineNoteAppt):
 
     @property
-    def source_body_empty(self):
-        return self.data['source_body_empty']
-
-    @source_body_empty.setter
-    def source_body_empty(self, value):
-        self.data['source_body_empty'] = value
-
-    @property
-    def set_date(self):
+    def is_private(self):
         try:
-            return self.data['set_date']
+            return self.data['is_private']
         except KeyError:
-            return None
+            return False
 
-    @set_date.setter
-    def set_date(self, value):
-        self.data['set_date'] = value
+    @is_private.setter
+    def is_private(self, value):
+        self.data['is_private'] = value

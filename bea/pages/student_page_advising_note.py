@@ -27,7 +27,7 @@ import re
 import time
 
 from bea.models.department import Department
-from bea.models.timeline_record_source import TimelineRecordSource
+from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.pages.create_note_modal import CreateNoteModal
 from bea.pages.student_page_timeline import StudentPageTimeline
 from bea.test_utils import utils

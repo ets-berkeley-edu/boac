@@ -23,48 +23,21 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.models.timeline_record import TimelineRecord
+from bea.pages.cohort_pages import CohortPages
+from bea.test_utils import nessie_filter_utils
 
 
-class TimelineNoteAppt(TimelineRecord):
+class FilteredStudentsPageResults(CohortPages):
 
-    @property
-    def advisor(self):
-        return self.data['advisor']
+    def wait_for_search_results(self):
+        self.wait_for_spinner()
+        return self.results_count()
 
-    @advisor.setter
-    def advisor(self, value):
-        self.data['advisor'] = value
+    # TODO - ADMIT FILTERS
 
-    @property
-    def attachments(self):
-        try:
-            return self.data['attachments']
-        except KeyError:
-            return []
+    # TODO - ADMIT SORTING
 
-    @attachments.setter
-    def attachments(self, value):
-        self.data['attachments'] = value
-
-    @property
-    def topics(self):
-        try:
-            return self.data['topics']
-        except KeyError:
-            return []
-
-    @topics.setter
-    def topics(self, value):
-        self.data['topics'] = value
-
-    @property
-    def contact_type(self):
-        try:
-            return self.data['contact_type']
-        except KeyError:
-            return None
-
-    @contact_type.setter
-    def contact_type(self, value):
-        self.data['contact_type'] = value
+    @staticmethod
+    def set_cohort_members(test, cohort):
+        expected_sids = nessie_filter_utils.cohort_by_last_name(test, cohort.search_criteria)
+        cohort.members = list(map(lambda s: s.sid in expected_sids, test.students))

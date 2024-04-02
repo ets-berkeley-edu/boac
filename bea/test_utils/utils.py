@@ -34,6 +34,8 @@ from dateutil import tz
 from flask import current_app as app
 
 
+# Driver config
+
 def get_browser():
     return app.config['BROWSER']
 
@@ -45,6 +47,8 @@ def get_browser_chrome_binary_path():
 def browser_is_headless():
     return app.config['BROWSER_HEADLESS']
 
+
+# Timeouts
 
 def get_click_sleep():
     return app.config['CLICK_SLEEP']
@@ -62,6 +66,8 @@ def get_long_timeout():
     return app.config['TIMEOUT_LONG']
 
 
+# Users
+
 def get_admin_uid():
     return app.config['ADMIN_UID']
 
@@ -74,37 +80,10 @@ def get_admin_password():
     return os.getenv('PASSWORD')
 
 
+# Test configs and utils
+
 def get_test_identifier():
     return f'QA TEST {calendar.timegm(dt.now().timetuple())}'
-
-
-def default_download_dir():
-    return f'{app.config["BASE_DIR"]}/bea/downloads'
-
-
-def attachments_dir():
-    return f'{app.config["BASE_DIR"]}/bea/assets'
-
-
-def get_current_term():
-    term_data = {
-        'code': app.config['TERM_CODE'],
-        'name': app.config['TERM_NAME'],
-        'sis_id': app.config['TERM_SIS_ID'],
-    }
-    return Term(term_data)
-
-
-def get_previous_term_code(current_term_id):
-    d1 = '2'
-    d2_3 = str(int(current_term_id[1:3]) - 1) if (current_term_id[-1] == '2') else current_term_id[1:3]
-    if current_term_id[3] == '8':
-        d4 = '5'
-    elif current_term_id[3] == '5':
-        d4 = '2'
-    else:
-        d4 = '8'
-    return d1 + d2_3 + d4
 
 
 def parse_test_data():
@@ -112,13 +91,12 @@ def parse_test_data():
         return json.load(f)
 
 
-def date_to_local_tz(date):
-    return date.astimezone(tz.gettz('Los Angeles'))
+def attachments_dir():
+    return f'{app.config["BASE_DIR"]}/bea/assets'
 
 
-def in_op(arr):
-    arr = list(map(lambda i: f"'{i}'", arr))
-    return ', '.join(arr)
+def default_download_dir():
+    return f'{app.config["BASE_DIR"]}/bea/downloads'
 
 
 def prepare_download_dir():
@@ -135,3 +113,60 @@ def is_download_dir_empty():
 def assert_equivalence(actual, expected):
     app.logger.info(f'Expecting {expected}, got {actual}')
     assert actual == expected
+
+
+def date_to_local_tz(date):
+    return date.astimezone(tz.gettz('Los Angeles'))
+
+
+def in_op(arr):
+    arr = list(map(lambda i: f"'{i}'", arr))
+    return ', '.join(arr)
+
+
+# Terms
+
+def get_current_term():
+    return Term({
+        'code': app.config['TERM_CODE'],
+        'name': app.config['TERM_NAME'],
+        'sis_id': app.config['TERM_SIS_ID'],
+    })
+
+
+def get_previous_term(term=None):
+    term = term or get_current_term()
+    sis_id = get_prev_term_sis_id(term.sis_id)
+    return Term({
+        'code': get_previous_term_code(sis_id),
+        'name': term_sis_id_to_term_name(sis_id),
+        'sis_id': sis_id,
+    })
+
+
+def get_prev_term_sis_id(sis_id=None):
+    current_sis_id = int(sis_id) if sis_id else int(app.config['TERM_SIS_ID'])
+    previous_sis_id = current_sis_id - (4 if (current_sis_id % 10 == 2) else 3)
+    return f'{previous_sis_id}'
+
+
+def get_previous_term_code(term_sis_id):
+    d1 = '2'
+    d2_3 = str(int(term_sis_id[1:3]) - 1) if (term_sis_id[-1] == '2') else term_sis_id[1:3]
+    if term_sis_id[3] == '8':
+        d4 = '5'
+    elif term_sis_id[3] == '5':
+        d4 = '2'
+    else:
+        d4 = '8'
+    return d1 + d2_3 + d4
+
+
+def term_sis_id_to_term_name(term_sis_id):
+    year = f'{term_sis_id[0]}0{term_sis_id[1]}{term_sis_id[2]}'
+    if term_sis_id[3] == 2:
+        return f'Spring {year}'
+    elif term_sis_id[3] == 5:
+        return f'Summer {year}'
+    else:
+        return f'Fall {year}'

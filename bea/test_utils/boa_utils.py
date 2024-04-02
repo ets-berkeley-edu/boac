@@ -28,12 +28,13 @@ import re
 
 
 from bea.models.advisor_role import AdvisorRole
+from bea.models.alert import Alert
+from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.degree_progress_perm import DegreeProgressPerm
 from bea.models.department import Department
 from bea.models.department_membership import DepartmentMembership
-from bea.models.note import Note
-from bea.models.note_attachment import NoteAttachment
-from bea.models.term import Term
+from bea.models.notes_and_appts.note import Note
+from bea.models.notes_and_appts.note_attachment import NoteAttachment
 from bea.models.user import User
 from bea.test_utils import utils
 from boac import db, std_commit
@@ -44,28 +45,6 @@ from sqlalchemy import text
 
 def get_boa_base_url():
     return app.config['BASE_URL']
-
-
-def get_term_code():
-    return app.config['TERM_CODE']
-
-
-def get_term_sis_id():
-    return app.config['TERM_SIS_ID']
-
-
-def get_current_term():
-    return Term({
-        'code': get_term_code(),
-        'name': app.config['TERM_NAME'],
-        'sis_id': get_term_sis_id(),
-    })
-
-
-def get_prev_term_sis_id(sis_id=None):
-    current_sis_id = int(sis_id) if sis_id else int(app.config['TERM_SIS_ID'])
-    previous_sis_id = current_sis_id - (4 if (current_sis_id % 10 == 2) else 3)
-    return f'{previous_sis_id}'
 
 
 # USERS
@@ -303,6 +282,29 @@ def get_advising_data_advisor(dept, test_advisor):
     return advisors[0]
 
 
+def get_user_filtered_cohorts(user, admits=False):
+    cohorts = []
+    domain = 'admitted_students' if admits else 'default'
+    sql = f"""SELECT cohort_filters.id AS cohort_id,
+                     cohort_filters.name AS cohort_name,
+                     cohort_filters.filter_criteria AS criteria
+                FROM cohort_filters
+                JOIN authorized_users ON authorized_users.id = cohort_filters.owner_id
+               WHERE cohort_filters.domain = '{domain}'
+                 AND authorized_users.uid = '{user.uid}'"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    for row in results:
+        cohort = FilteredCohort({
+            'cohort_id': row['cohort_id'],
+            'name': row['cohort_name'],
+            'owner_uid': user.uid,
+        })
+        cohorts.append(cohort)
+    return cohorts
+
+
 # NOTES
 
 
@@ -412,3 +414,91 @@ def get_attachment_id_by_file_name(note, attachment):
     std_commit(allow_test_environment=True)
     ids = [row['id'] for row in result]
     attachment.attachment_id = ids[-1]
+
+
+# COHORTS
+
+def set_filtered_cohort_id(cohort):
+    sql = f"""SELECT id
+                FROM cohort_filters
+               WHERE name = '{cohort.name}'"""
+    app.logger.info(sql)
+    result = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    cohort_id = [row['id'] for row in result][0]
+    app.logger.info(f'Filtered cohort {cohort.name} ID is {cohort_id}')
+    cohort.cohort_id = cohort_id
+
+
+# ALERTS
+
+def get_students_alerts(users):
+    sids = utils.in_op(list(map(lambda u: u.sid, users)))
+    sql = f"""SELECT id,
+                     sid,
+                     alert_type,
+                     message,
+                     created_at,
+                     updated_at
+                FROM alerts
+               WHERE sid IN ({sids})
+                 AND deleted_at IS NULL
+                 AND key LIKE '{utils.get_current_term().sis_id}%'
+                 AND alert_type != 'hold'"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    alerts = []
+    for r in results:
+        if r['alert_type'] in ['midterm', 'withdrawal']:
+            date = r['created_at']
+        else:
+            date = r['updated_at']
+        student = User({
+            'sid': r['sid'],
+        })
+        alert = Alert({
+            'alert_id': r['id'],
+            'date': date,
+            'message': re.sub(r'\s+', ' ', r['message']),
+            'student': student,
+            'alert_type': r['alert_type'],
+        })
+        alerts.append(alert)
+    alerts.sort(key=lambda a: a.message)
+    return alerts
+
+
+def get_un_dismissed_users_alerts(students, advisor=None):
+    alerts = get_students_alerts(students)
+    dismissed = get_dismissed_alerts(alerts, advisor)
+    return list(set(alerts) - set(dismissed))
+
+
+def get_dismissed_alerts(alerts, advisor=None):
+    if alerts:
+        alert_ids = utils.in_op(list(map(lambda a: a.alert_id, alerts)))
+        uid = advisor.uid if advisor else utils.get_admin_uid()
+        sql = f"""SELECT alert_views.alert_id
+                    FROM alert_views
+                    JOIN authorized_users ON authorized_users.id = alert_views.viewer_id
+                   WHERE alert_views.alert_id IN ({alert_ids})
+                     AND authorized_users.uid = '{uid}'"""
+        app.logger.info(sql)
+        results = db.session.execute(text(sql))
+        std_commit(allow_test_environment=True)
+        dismissed = []
+        for r in results:
+            dismissed.append(str(r['alert_id']))
+        return list(filter(lambda a: a.alert_id in dismissed, alerts))
+    else:
+        return []
+
+
+def get_members_with_alerts(cohort, cohort_member_alerts):
+    alert_members = []
+    for member in cohort.members:
+        member.alert_count = len(list(filter(lambda a: a.student.sid == member.sid, cohort_member_alerts)))
+        if member.alert_count != 0:
+            alert_members.append(member)
+    return alert_members

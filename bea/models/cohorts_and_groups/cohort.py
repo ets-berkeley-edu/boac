@@ -31,11 +31,11 @@ class Cohort(object):
 
     @property
     def cohort_id(self):
-        return self.data['id']
+        return self.data['cohort_id']
 
     @cohort_id.setter
     def cohort_id(self, value):
-        self.data['id'] = value
+        self.data['cohort_id'] = value
 
     @property
     def name(self):
@@ -63,7 +63,7 @@ class Cohort(object):
 
     @property
     def members(self):
-        return self.data['members']
+        return self.data['members'] or []
 
     @members.setter
     def members(self, value):
