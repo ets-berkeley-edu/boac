@@ -67,6 +67,9 @@
 .font-weight-700 {
   font-weight: 700;
 }
+.has-error {
+  color: #cf1715;
+}
 .list-no-bullets {
   list-style-type: none;
 }

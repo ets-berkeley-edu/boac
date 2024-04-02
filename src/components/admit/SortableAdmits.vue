@@ -1,79 +1,79 @@
 <template>
   <div>
-    <b-table
+    <v-data-table-virtual
       :borderless="true"
-      :fields="fields"
+      density="compact"
+      :headers="headers"
       :items="admittedStudents"
       :no-sort-reset="true"
-      :small="true"
-      :sort-by.sync="sortBy"
+      :sort-by="[sortBy]"
       :sort-compare="sortCompare"
       :sort-desc.sync="sortDescending"
       stacked="md"
       thead-class="sortable-table-header text-no-wrap"
     >
-      <template #cell(curated)="row">
+      <template #item.curated="{item}">
         <CuratedStudentCheckbox
           domain="admitted_students"
-          :student="row.item"
+          :student="item"
         />
       </template>
 
-      <template #cell(lastName)="row">
+      <template #item.lastName="{item}">
         <span class="sr-only">Admitted student name</span>
         <router-link
-          :id="`link-to-admit-${row.item.csEmplId}`"
+          :id="`link-to-admit-${item.csEmplId}`"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
-          :to="admitRoutePath(row.item.csEmplId)"
-          v-html="fullName(row.item)"
+          :to="admitRoutePath(item.csEmplId)"
+          v-html="fullName(item)"
         ></router-link>
       </template>
 
-      <template #cell(csEmplId)="row">
+      <template #item.csEmplId="{item}">
         <span class="sr-only">C S I D </span>
-        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ row.item.csEmplId }}</span>
+        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.csEmplId }}</span>
       </template>
 
-      <template #cell(currentSir)="row">
+      <template #item.currentSir="{item}">
         <span class="sr-only">S I R</span>
-        {{ row.item.currentSir }}
+        {{ item.currentSir }}
       </template>
 
-      <template #cell(specialProgramCep)="row">
+      <template #item.specialProgramCep="{item}">
         <span class="sr-only">C E P</span>
-        {{ row.item.specialProgramCep }}
+        {{ item.specialProgramCep }}
       </template>
 
-      <template #cell(reentryStatus)="row">
+      <template #item.reentryStatus="{item}">
         <span class="sr-only">Re-entry</span>
-        {{ row.item.reentryStatus }}
+        {{ item.reentryStatus }}
       </template>
 
-      <template #cell(firstGenerationCollege)="row">
+      <template #item.firstGenerationCollege="{item}">
         <span class="sr-only">First generation</span>
-        {{ row.item.firstGenerationCollege }}
+        {{ item.firstGenerationCollege }}
       </template>
 
-      <template #cell(urem)="row">
+      <template #item.urem="{item}">
         <span class="sr-only">U R E M</span>
-        {{ row.item.urem }}
+        {{ item.urem }}
       </template>
 
-      <template #cell(applicationFeeWaiverFlag)="row">
+      <template #item.applicationFeeWaiverFlag="{item}">
         <span class="sr-only">Waiver</span>
-        {{ row.item.applicationFeeWaiverFlag }}
+        {{ item.applicationFeeWaiverFlag }}
       </template>
 
-      <template #cell(residencyCategory)="row">
+      <template #item.residencyCategory="{item}">
         <span class="sr-only">Residency</span>
-        {{ row.item.residencyCategory }}
+        {{ item.residencyCategory }}
       </template>
 
-      <template #cell(freshmanOrTransfer)="row">
+      <template #item.freshmanOrTransfer="{item}">
         <span class="sr-only">Freshman or Transfer</span>
-        {{ row.item.freshmanOrTransfer }}
+        {{ item.freshmanOrTransfer }}
       </template>
-    </b-table>
+    </v-data-table-virtual>
   </div>
 </template>
 
@@ -95,7 +95,7 @@ export default {
   },
   data() {
     return {
-      fields: undefined,
+      headers: undefined,
       sortBy: 'lastName',
       sortDescending: false
     }
@@ -109,18 +109,18 @@ export default {
     }
   },
   created() {
-    this.fields = [
-      {key: 'curated', label: ''},
-      {key: 'lastName', label: 'Name', sortable: true},
-      {key: 'csEmplId', label: 'CS ID', sortable: true},
-      {key: 'currentSir', label: 'SIR', sortable: false},
-      {key: 'specialProgramCep', label: 'CEP', sortable: false},
-      {key: 'reentryStatus', label: 'Re-entry', sortable: false},
-      {key: 'firstGenerationCollege', label: '1st Gen', sortable: false},
-      {key: 'urem', label: 'UREM', sortable: false},
-      {key: 'applicationFeeWaiverFlag', label: 'Waiver', sortable: false},
-      {key: 'residencyCategory', label: 'Residency', sortable: false},
-      {key: 'freshmanOrTransfer', label: 'Freshman/Transfer', sortable: false},
+    this.headers = [
+      {key: 'curated', title: ''},
+      {key: 'lastName', title: 'Name', sortable: true},
+      {key: 'csEmplId', title: 'CS ID', sortable: true},
+      {key: 'currentSir', title: 'SIR', sortable: false},
+      {key: 'specialProgramCep', title: 'CEP', sortable: false},
+      {key: 'reentryStatus', title: 'Re-entry', sortable: false},
+      {key: 'firstGenerationCollege', title: '1st Gen', sortable: false},
+      {key: 'urem', title: 'UREM', sortable: false},
+      {key: 'applicationFeeWaiverFlag', title: 'Waiver', sortable: false},
+      {key: 'residencyCategory', title: 'Residency', sortable: false},
+      {key: 'freshmanOrTransfer', title: 'Freshman/Transfer', sortable: false},
     ]
   },
   methods: {
@@ -135,8 +135,8 @@ export default {
       return this._isString(value) ? value.toLowerCase() : value
     },
     onChangeSortBy() {
-      const field = this._find(this.fields, ['key', this.sortBy])
-      this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
+      const header = this._find(this.headers, ['key', this.sortBy])
+      this.alertScreenReader(`Sorted by ${header.title}${this.sortDescending ? ', descending' : ''}`)
     },
     sortCompare(a, b, sortBy, sortDesc) {
       let aValue = this.normalizeForSort(this._get(a, sortBy))

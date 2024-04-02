@@ -44,7 +44,7 @@ export const useSearchStore = defineStore('search', {
       if (_.get(currentUser, 'canAccessAdmittedStudents')) {
         domain.push('admits')
       }
-      this.domain = domain
+      this.domain = domain || []
       this.author = null
       this.fromDate = null
       this.postedBy = 'anyone'
