@@ -46,7 +46,7 @@
         :id="`filter-range-date-picker-${position}`"
         class="vc-zindex-fix d-flex pr-1"
       >
-        <VCDatePicker
+        <elegant-date-picker
           ref="datePicker"
           v-model.range.string="range"
           hide-header
@@ -125,7 +125,7 @@
               </v-tooltip>
             </div>
           </template>
-        </VCDatePicker>
+        </elegant-date-picker>
       </div>
       <div v-if="isUX('range') && filter.value.validation !== 'date'" class="d-flex pr-1">
         <label

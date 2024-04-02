@@ -8,7 +8,7 @@
       Manually Set Date
     </label>
     <div class="d-flex pt-2">
-      <VCDatePicker
+      <elegant-date-picker
         v-model="manuallySetDate"
         :max-date="maxDate"
         popover-visibility="focus"
@@ -28,9 +28,9 @@
             type="text"
             variant="outlined"
             v-on="inputEvents"
-          ></v-text-field>
+          />
         </template>
-      </VCDatePicker>
+      </elegant-date-picker>
       <v-btn
         v-if="manuallySetDate"
         id="manually-set-date-clear"

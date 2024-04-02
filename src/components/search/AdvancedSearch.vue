@@ -104,7 +104,7 @@ export default {
       useSearchStore().setSearchHistory(history)
       if (this.currentUser.canAccessAdvisingData) {
         getAllTopics(true).then(rows => {
-          const topicOptions = []
+          const topicOptions = [{text: 'Any topic', value: null}]
           each(rows, row => {
             const topic = row['topic']
             topicOptions.push({

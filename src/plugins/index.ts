@@ -15,7 +15,7 @@ export function registerPlugins (app: App) {
     .use(setupCalendar, {})
     .use(vuetify)
     .use(defaultExport)
-    .component('FocusTrap', FocusTrap)
-    .component('VCCalendar', Calendar)
-    .component('VCDatePicker', DatePicker)
+    .component('focus-trap', FocusTrap)
+    .component('elegant-calendar', Calendar)
+    .component('elegant-date-picker', DatePicker)
 }
