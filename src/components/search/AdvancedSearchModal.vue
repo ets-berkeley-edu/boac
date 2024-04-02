@@ -45,11 +45,15 @@
         </div>
         <AdvancedSearchCheckboxes />
         <v-expand-transition v-if="currentUser.canAccessAdvisingData">
-          <v-card v-show="includeNotes" variant="outlined" color="primary">
+          <v-card
+            v-show="includeNotes"
+            color="primary"
+            variant="outlined"
+          >
             <v-card-title>
               <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
             </v-card-title>
-            <v-card-actions>
+            <v-card-text class="w-75">
               <div class="px-3">
                 <label class="form-control-label" for="search-option-note-filters-topic">Topic</label>
                 <div>
@@ -107,7 +111,9 @@
                 </div>
                 <div class="mt-2 w-75">
                   <label class="form-control-label" for="search-options-note-filters-author">Advisor</label>
-                  <span id="notes-search-author-input-label" class="sr-only">Select note author from list of suggested advisors.</span>
+                  <span id="notes-search-author-input-label" class="sr-only">
+                    Select note author from list of suggested advisors.
+                  </span>
                   <Autocomplete
                     id="search-options-note-filters-author"
                     v-model="author"
@@ -121,8 +127,12 @@
                   />
                 </div>
                 <div class="mt-3 w-75">
-                  <label class="form-control-label" for="search-options-note-filters-student">Student (name or SID)</label>
-                  <span id="notes-search-student-input-label" class="sr-only">Select a student for notes-related search. Expect auto-suggest as you type name or SID.</span>
+                  <label class="form-control-label" for="search-options-note-filters-student">
+                    Student (name or SID)
+                  </label>
+                  <span id="notes-search-student-input-label" class="sr-only">
+                    Select a student for notes-related search. Expect auto-suggest as you type name or SID.
+                  </span>
                   <Autocomplete
                     id="search-options-note-filters-student"
                     v-model="student"
@@ -134,105 +144,79 @@
                   />
                 </div>
                 <div class="mt-3">
-                  <label class="form-control-label" for="search-options-note-filters-last-updated-from">Date Range</label>
-                  <div class="d-flex">
+                  <label class="form-control-label" for="search-options-note-filters-last-updated-from">
+                    Date Range
+                  </label>
+                  <div class="align-center d-flex">
                     <label
                       id="note-filters-date-from-label"
-                      class="text-black"
+                      class="text-black mr-2"
                       for="search-options-note-filters-last-updated-from"
                     >
                       <span class="sr-only">Date</span>
                       From
                     </label>
-                    <VCDatePicker v-model="fromDate" :input-debounce="500">
+                    <elegant-date-picker v-model="fromDate" :input-debounce="500">
                       <template #default="{inputValue, inputEvents}">
                         <v-text-field
                           id="search-options-note-filters-last-updated-from"
+                          clearable
+                          base-color="black"
+                          color="black"
+                          density="compact"
+                          :disabled="isSearching"
+                          hide-details
+                          placeholder="MM/DD/YYYY"
                           :value="inputValue"
+                          variant="outlined"
                           v-on="inputEvents"
                         />
                       </template>
-                    </VCDatePicker>
-                    <!--
-                    <template #default="{inputValue, inputEvents}">
-                      <input
-                        id="search-options-note-filters-last-updated-from"
-                        aria-labelledby="note-filters-date-from-label"
-                        class="form-control"
-                        :disabled="isSearching"
-                        name="note-filters-date-from"
-                        placeholder="MM/DD/YYYY"
-                        type="text"
-                        :value="inputValue"
-                        v-on="inputEvents"
-                      />
-                    </template>
-                    -->
+                    </elegant-date-picker>
                     <div class="sr-only">
                       <v-btn
                         id="search-options-note-filters-last-updated-from-clear"
                         :disabled="!fromDate"
-                        icon
-                        @click="() => setFromDate(null)"
-                      >
-                        <span class="sr-only">Clear the 'from' date.</span>
-                        <v-icon
-                          class="font-size-14"
-                          :icon="mdiClose"
-                          size="sm"
-                        />
-                      </v-btn>
+                        text="Clear the 'from' date."
+                        @click="() => fromDate = null"
+                      />
                     </div>
                     <label
                       id="note-filters-date-to-label"
                       for="search-options-note-filters-last-updated-to"
-                      class="text-black"
+                      class="mx-2 text-black"
                     >
                       <span class="sr-only">Date</span>
                       to
                     </label>
-                    <VCDatePicker v-model="toDate" :input-debounce="500">
+                    <elegant-date-picker v-model="toDate" :input-debounce="500">
                       <template #default="{inputValue, inputEvents}">
-                        <VCBaseInput
+                        <v-text-field
                           id="search-options-note-filters-last-updated-to"
-                          :value="inputValue"
-                          v-on="inputEvents"
-                        />
-                      </template>
-                    </VCDatePicker>
-                    <!--
-                      <template #default="{inputValue, inputEvents}">
-                        <input
-                          id="search-options-note-filters-last-updated-to"
-                          aria-labelledby="note-filters-date-to-label"
-                          class="form-control"
+                          clearable
+                          density="compact"
                           :disabled="isSearching"
-                          name="note-filters-date-to"
+                          hide-details
                           placeholder="MM/DD/YYYY"
-                          type="text"
                           :value="inputValue"
+                          variant="outlined"
                           v-on="inputEvents"
                         />
                       </template>
-                    -->
-                    <v-btn
-                      id="search-options-note-filters-last-updated-to-clear"
-                      class="sr-only"
-                      :disabled="!toDate"
-                      icon
-                      @click="toDate = null"
-                    >
-                      Clear the 'to' date.
-                      <v-icon
-                        class="font-size-14"
-                        :icon="mdiClose"
-                        size="sm"
+                    </elegant-date-picker>
+                    <div class="sr-only">
+                      <v-btn
+                        id="search-options-note-filters-last-updated-to-clear"
+                        :disabled="isNil(toDate)"
+                        text="Clear the 'to' date"
+                        variant="text"
+                        @click="toDate = null"
                       />
-                    </v-btn>
+                    </div>
                   </div>
                 </div>
               </div>
-            </v-card-actions>
+            </v-card-text>
           </v-card>
         </v-expand-transition>
         <div class="align-center d-flex my-2 pr-2">
@@ -281,7 +265,8 @@ import AdvancedSearchCheckboxes from '@/components/search/AdvancedSearchCheckbox
 import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
 import Autocomplete from '@/components/util/Autocomplete.vue'
 import {findStudentsByNameOrSid} from '@/api/student'
-import {mdiClose, mdiTune} from '@mdi/js'
+import {isNil} from 'lodash'
+import {mdiTune} from '@mdi/js'
 import {useSearchStore} from '@/stores/search'
 </script>
 
@@ -333,11 +318,6 @@ export default {
       this.resetAutocompleteInput()
       setTimeout(this.reset, 100)
     },
-    // onChangeAutocomplete(input) {
-    //   this.queryText = input
-    //   const q = this._trim(input && input.toLowerCase())
-    //   return q.length ? this.searchHistory.filter(s => s.toLowerCase().startsWith(q)) : this.searchHistory
-    // },
     openAdvancedSearch() {
       this.showAdvancedSearch = true
       this.alertScreenReader('Advanced search is open')
@@ -420,8 +400,5 @@ export default {
   color: #337ab7;
   font-size: 18px;
   font-weight: bolder;
-}
-.z-index-0 {
-  z-index: 0;
 }
 </style>
