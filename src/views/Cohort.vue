@@ -159,10 +159,8 @@ export default {
     }
   },
   mounted() {
-    // TODO: BOAC-5167
-    // const forwardPath = this.$routerHistory.hasForward() && this._get(this.$routerHistory.next(), 'path')
-    // (this._startsWith(forwardPath, '/student') || this._startsWith(forwardPath, '/admit/student')) && this._size(this.filters)
-    const continueExistingSession = false
+    const forwardPath = window.history.state.forward
+    const continueExistingSession = (this._startsWith(forwardPath, '/student') || this._startsWith(forwardPath, '/admit/student')) && this._size(this.filters)
     if (continueExistingSession) {
       this.showFilters = !this.isCompactView
       this.pageNumber = this.pagination.currentPage
