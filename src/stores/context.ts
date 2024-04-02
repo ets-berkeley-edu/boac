@@ -29,6 +29,7 @@ export const useContextStore = defineStore('context', {
     applicationState: $_getDefaultApplicationState(),
     config: undefined as BoaConfig | undefined,
     currentUser: {
+      canAccessAdvisingData: false,
       inDemoMode: false,
       myCohorts: [] as Array<any>,
       myCuratedGroups: [] as Array<any>,

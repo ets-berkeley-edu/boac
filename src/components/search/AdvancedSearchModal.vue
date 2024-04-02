@@ -18,8 +18,8 @@
       </v-btn>
     </template>
   </v-tooltip>
-  <v-dialog v-model="showAdvancedSearch">
-    <v-card max-width="800">
+  <v-dialog v-model="showAdvancedSearch" max-width="800">
+    <v-card>
       <v-card-title class="pb-0 ml-2">
         <AdvancedSearchModalHeader :on-click-close="cancel" />
       </v-card-title>
@@ -156,7 +156,11 @@
                       <span class="sr-only">Date</span>
                       From
                     </label>
-                    <elegant-date-picker v-model="fromDate" :input-debounce="500">
+                    <elegant-date-picker
+                      v-model="fromDate"
+                      :input-debounce="500"
+                      :max-date="toDate || new Date()"
+                    >
                       <template #default="{inputValue, inputEvents}">
                         <v-text-field
                           id="search-options-note-filters-last-updated-from"
@@ -189,7 +193,12 @@
                       <span class="sr-only">Date</span>
                       to
                     </label>
-                    <elegant-date-picker v-model="toDate" :input-debounce="500">
+                    <elegant-date-picker
+                      v-model="toDate"
+                      :input-debounce="500"
+                      :min-date="fromDate || new Date()"
+                      :max-date="new Date()"
+                    >
                       <template #default="{inputValue, inputEvents}">
                         <v-text-field
                           id="search-options-note-filters-last-updated-to"
@@ -219,7 +228,7 @@
             </v-card-text>
           </v-card>
         </v-expand-transition>
-        <div class="align-center d-flex my-2 pr-2">
+        <div class="align-center d-flex mb-2 mt-4 pr-2">
           <div v-if="includeNotes && isDirty" class="flex-grow-1">
             <v-btn
               id="reset-advanced-search-form-btn"
