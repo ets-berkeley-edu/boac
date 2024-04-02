@@ -6,7 +6,7 @@ export const useSearchStore = defineStore('search', {
   state: () => ({
     author: undefined as string | null | undefined,
     autocompleteInputResetKey: 0,
-    domain: undefined as string[] | undefined,
+    domain: [] as string[],
     fromDate: undefined as string | null | undefined,
     includeAdmits: false,
     includeCourses: false,
@@ -64,7 +64,7 @@ export const useSearchStore = defineStore('search', {
     },
     resetAutocompleteInput() {this.autocompleteInputResetKey++},
     setAuthor(value: string | null) {this.author = value},
-    setFromDate(value: string) {this.fromDate = value},
+    setFromDate(value: string | null) {this.fromDate = value},
     setIncludeAdmits(value: boolean) {this.includeAdmits = value},
     setIncludeCourses(value: boolean) {this.includeCourses = value},
     setIncludeNotes(value: boolean) {this.includeNotes = value},
@@ -75,9 +75,9 @@ export const useSearchStore = defineStore('search', {
     setQueryText(queryText: string) {this.queryText = queryText},
     setSearchHistory(history: string[]) {this.searchHistory = history || []},
     setShowAdvancedSearch(show: boolean) {this.showAdvancedSearch = show},
-    setStudent(value: string) {this.student = value},
-    setToDate(value: string) {this.toDate = value},
-    setTopic(value: string) {this.topic = value},
+    setStudent(value: string | null) {this.student = value},
+    setToDate(value: string | null) {this.toDate = value},
+    setTopic(value: string | null) {this.topic = value},
     setTopicOptions(topicOptions: any[]) {this.topicOptions = topicOptions}
   }
 })
