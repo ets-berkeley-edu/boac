@@ -144,15 +144,15 @@
                       <span class="sr-only">Date</span>
                       From
                     </label>
-                    <VDatePicker v-model="fromDate" :input-debounce="500">
+                    <VCDatePicker v-model="fromDate" :input-debounce="500">
                       <template #default="{inputValue, inputEvents}">
-                        <VBaseInput
+                        <v-text-field
                           id="search-options-note-filters-last-updated-from"
                           :value="inputValue"
                           v-on="inputEvents"
                         />
                       </template>
-                    </VDatePicker>
+                    </VCDatePicker>
                     <!--
                     <template #default="{inputValue, inputEvents}">
                       <input
@@ -191,15 +191,15 @@
                       <span class="sr-only">Date</span>
                       to
                     </label>
-                    <VDatePicker v-model="toDate" :input-debounce="500">
+                    <VCDatePicker v-model="toDate" :input-debounce="500">
                       <template #default="{inputValue, inputEvents}">
-                        <VBaseInput
+                        <VCBaseInput
                           id="search-options-note-filters-last-updated-to"
                           :value="inputValue"
                           v-on="inputEvents"
                         />
                       </template>
-                    </VDatePicker>
+                    </VCDatePicker>
                     <!--
                       <template #default="{inputValue, inputEvents}">
                         <input

@@ -41,13 +41,20 @@
           :v-model-object="selectedOption"
         />
       </div>
-      <div v-if="isUX('range') && filter.value.validation === 'date'" :id="`filter-range-date-picker-${position}`" class="d-flex pr-1">
-        <v-date-picker
+      <div
+        v-if="isUX('range') && filter.value.validation === 'date'"
+        :id="`filter-range-date-picker-${position}`"
+        class="vc-zindex-fix d-flex pr-1"
+      >
+        <VCDatePicker
           ref="datePicker"
-          v-model="range"
-          :attributes="[{key: 'today', dot: true, dates: new Date()}]"
-          is-range
-          :model-config="{type: 'string', mask: 'YYYY-MM-DD'}"
+          v-model.range.string="range"
+          hide-header
+          is-required
+          mode="date"
+          :masks="{modelValue: 'YYYY-MM-DD'}"
+          :popover="{visibility: 'focus', autoHide: false}"
+          :select-attribute="{key: 'today', dot: true, dates: new Date()}"
           @popover-did-show="onPopoverShown"
         >
           <template #default="{ inputValue, inputEvents }">
@@ -60,15 +67,16 @@
                 {{ rangeMinLabel() }}
               </label>
               <div>
-                <input
+                <v-text-field
                   :id="`filter-range-min-${position}`"
-                  :value="inputValue.start"
                   aria-label="beginning of range"
                   :aria-describedby="`filter-range-min-placeholder-${position}`"
                   class="filter-range-input"
-                  maxlength="10"
+                  density="compact"
+                  hide-details
+                  :model-value="inputValue.start"
                   :placeholder="placeholder()"
-                  size="12"
+                  variant="outlined"
                   v-on="inputEvents.start"
                   @focus="appendPopover"
                   @mouseover="appendPopover"
@@ -83,15 +91,16 @@
                 {{ rangeMaxLabel() }}
               </label>
               <div>
-                <input
+                <v-text-field
                   :id="`filter-range-max-${position}`"
-                  :value="inputValue.end"
                   aria-label="end of range"
                   :aria-describedby="`filter-range-max-placeholder-${position}`"
                   class="filter-range-input"
-                  maxlength="10"
+                  density="compact"
+                  hide-details
+                  :model-value="inputValue.end"
                   :placeholder="placeholder()"
-                  size="12"
+                  variant="outlined"
                   v-on="inputEvents.end"
                   @focus="appendPopover"
                   @mouseover="appendPopover"
@@ -100,23 +109,23 @@
                 <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">MM/DD/YYYY</span>
               </div>
               <div
-                v-if="_size(errorPerRangeInput)"
+                v-if="size(errorPerRangeInput)"
                 class="sr-only"
                 aria-live="polite"
               >
                 Error: {{ errorPerRangeInput }}
               </div>
-              <!-- <b-popover
-                v-if="_size(errorPerRangeInput)"
+              <v-tooltip
+                v-if="size(errorPerRangeInput)"
                 :show="true"
                 :target="`filter-range-max-${position}`"
                 placement="top"
               >
                 <span class="has-error">{{ errorPerRangeInput }}</span>
-              </b-popover> -->
+              </v-tooltip>
             </div>
           </template>
-        </v-date-picker>
+        </VCDatePicker>
       </div>
       <div v-if="isUX('range') && filter.value.validation !== 'date'" class="d-flex pr-1">
         <label
@@ -153,14 +162,14 @@
           />
         </div>
         <div
-          v-if="_size(errorPerRangeInput)"
+          v-if="size(errorPerRangeInput)"
           class="sr-only"
           aria-live="polite"
         >
           Error: {{ errorPerRangeInput }}
         </div>
         <!-- <b-popover
-          v-if="_size(errorPerRangeInput)"
+          v-if="size(errorPerRangeInput)"
           :show="true"
           :target="`filter-range-max-${position}`"
           placement="top"
@@ -173,7 +182,7 @@
       <v-btn
         v-if="showAdd"
         id="unsaved-filter-add"
-        class="btn-primary-color-override ml-2"
+        class="ml-2"
         color="primary"
         @click="onClickAddButton"
       >
@@ -181,19 +190,18 @@
       </v-btn>
     </div>
     <div
-      v-if="isModifyingFilter && _get(filter, 'value.type.ux') && !isExistingFilter"
+      v-if="isModifyingFilter && get(filter, 'value.type.ux') && !isExistingFilter"
       class="filter-row-column-04"
     >
       <v-btn
         id="unsaved-filter-reset"
-        class="p-0"
         variant="text"
         @click="reset"
       >
         Cancel
       </v-btn>
     </div>
-    <div v-if="isOwnedByCurrentUser && isExistingFilter" class="ml-auto p-2">
+    <div v-if="useCohortStore().isOwnedByCurrentUser && isExistingFilter" class="ml-auto p-2">
       <div v-if="!isModifyingFilter" class="d-flex flex-row">
         <span v-if="!isUX('boolean')">
           <v-btn
@@ -220,7 +228,6 @@
         <v-btn
           :id="`update-added-filter-${position}`"
           :disabled="disableUpdateButton"
-          class="btn-primary-color-override"
           color="primary"
           size="sm"
           @click="onClickUpdateButton"
@@ -242,22 +249,38 @@
 </template>
 
 <script setup>
-import {each} from 'lodash'
+import {
+  cloneDeep,
+  get,
+  each,
+  find,
+  flatten,
+  isNaN,
+  isNil,
+  isNumber,
+  isString,
+  isUndefined,
+  mapValues,
+  noop,
+  size,
+  trim,
+  unset,
+  values
+} from 'lodash'
+import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useContextStore} from '@/stores/context'
 </script>
 
 <script>
-import CohortEditSession from '@/mixins/CohortEditSession'
-import Context from '@/mixins/Context'
 import FilterSelect from '@/components/cohort/FilterSelect'
-import Util from '@/mixins/Util'
-import {updateFilterOptions} from '@/stores/cohort-edit-session/utils'
 import {DateTime} from 'luxon'
-
+import {nextTick} from 'vue'
+import {putFocusNextTick} from '@/lib/utils'
+import {updateFilterOptions} from '@/stores/cohort-edit-session/utils'
 
 export default {
   name: 'FilterRow',
   components: {FilterSelect},
-  mixins: [CohortEditSession, Context, Util],
   props: {
     position: {
       default: 'new',
@@ -287,7 +310,7 @@ export default {
   watch: {
     editMode(newEditMode) {
       // Reset the current filter-row if an edit session is initiated elsewhere.
-      if (this._isNil(newEditMode)) {
+      if (isNil(newEditMode)) {
         // Nothing is being edited. Let's make sure this row is in default state.
         this.reset()
         this.showRow = true
@@ -316,7 +339,7 @@ export default {
       handler(rangeObject) {
         this.disableUpdateButton = false
         this.errorPerRangeInput = undefined
-        const trimToNil = v => this._isUndefined(v) ? v : this._trim(v) || undefined
+        const trimToNil = v => isUndefined(v) ? v : trim(v) || undefined
         // Convert v-calendar's non-customizable attribute names
         if (!rangeObject.min && rangeObject.start) {
           rangeObject.min = rangeObject.start
@@ -326,11 +349,11 @@ export default {
         }
         let min = trimToNil(rangeObject.min)
         let max = trimToNil(rangeObject.max)
-        const isNilOrNan = v => this._isNil(v) || this._isNaN(v)
-        const validation = this._get(this.filter, 'value.validation')
+        const isNilOrNan = v => isNil(v) || isNaN(v)
+        const validation = get(this.filter, 'value.validation')
         if (validation === 'dependents') {
           const isInt = v => /^\d+$/.test(v)
-          const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || this._isNaN(v)
+          const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || isNaN(v)
           if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
             this.errorPerRangeInput = 'Dependents must be an integer greater than or equal to 0.'
           } else if (parseInt(min, 10) > parseInt(max, 10)) {
@@ -340,10 +363,10 @@ export default {
         } else if (validation === 'gpa') {
           min = min && parseFloat(min)
           max = max && parseFloat(max)
-          const isDefinedAndInvalid = v => (this._isNumber(v) && v < 0 || v > 4) || this._isNaN(v)
+          const isDefinedAndInvalid = v => (isNumber(v) && v < 0 || v > 4) || isNaN(v)
           if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
             this.errorPerRangeInput = 'GPA must be a number in the range 0 to 4.'
-          } else if (this._isNumber(min) && this._isNumber(max) && min > max) {
+          } else if (isNumber(min) && isNumber(max) && min > max) {
             this.errorPerRangeInput = 'GPA inputs must be in ascending order.'
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
@@ -356,9 +379,9 @@ export default {
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
         } else if (validation === 'date') {
-          const startDate = DateTime.fromJSDate(min)
-          const endDate = DateTime.fromJSDate(max)
-          if (!(startDate && endDate && startDate.isSameOrBefore(endDate, 'day'))) {
+          const startDate = DateTime.fromISO(min)
+          const endDate = DateTime.fromISO(max)
+          if (!(startDate && endDate && startDate <= endDate)) {
             // Invalid data or values are descending.
             this.errorPerRangeInput = 'Requires end date after start date.'
           }
@@ -380,14 +403,14 @@ export default {
   },
   created() {
     this.reset()
-    this.valueOriginal = this.filter && this._cloneDeep(this.filter)
+    this.valueOriginal = this.filter && cloneDeep(this.filter)
   },
   methods: {
     appendPopover(e) {
       // Place v-calendar date picker popover where it belongs in the tab order
       const el = document.getElementById(`filter-range-date-picker-${this.position}`)
       const container = e.target.parentElement.querySelector('.filter-range-popover-container')
-      this.nextTick(() => {
+      nextTick(() => {
         const popover = el ? el.querySelector('.vc-popover-content-wrapper') : null
         if (container && popover) {
           container.replaceChildren(popover)
@@ -396,49 +419,49 @@ export default {
     },
     formatGPA(value) {
       // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
-      const gpa = '0' + this._trim(value)
+      const gpa = '0' + trim(value)
       return parseFloat(gpa).toFixed(3)
     },
     getDropdownSelectedLabel() {
       if (Array.isArray(this.filter.value.options)) {
-        const option = this._find(this.filter.value.options, ['value', this.filter.selectedOption])
-        return this._get(option, 'name')
+        const option = find(this.filter.value.options, ['value', this.filter.selectedOption])
+        return get(option, 'name')
       } else {
         let label = ''
-        this._each(this.filter.value.options, (options, group) => {
-          const option = this._find(options, ['value', this.filter.selectedOption])
-          label = option && `${this._get(option, 'name')} (${group})`
+        each(this.filter.value.options, (options, group) => {
+          const option = find(options, ['value', this.filter.selectedOption])
+          label = option && `${get(option, 'name')} (${group})`
           return !option
         })
         return label
       }
     },
     isUX(type) {
-      return this._get(this.filter, 'value.type.ux') === type
+      return get(this.filter, 'value.type.ux') === type
     },
     onClickAddButton() {
-      switch (this._get(this.filter, 'value.type.ux')) {
+      switch (get(this.filter, 'value.type.ux')) {
       case 'dropdown':
-        this.alertScreenReader(`Added ${this.filter.name} filter with value ${this.getDropdownSelectedLabel()}`)
+        useContextStore().alertScreenReader(`Added ${this.filter.name} filter with value ${this.getDropdownSelectedLabel()}`)
         break
       case 'boolean':
-        this.alertScreenReader(`Added ${this.filter.name}`)
+        useContextStore().alertScreenReader(`Added ${this.filter.name}`)
         this.filter.selectedOption = true
         break
       case 'range':
-        this.alertScreenReader(`Added ${this.filter.name} filter, ${this.range.min} to ${this.range.max}`)
+        useContextStore().alertScreenReader(`Added ${this.filter.name} filter, ${this.range.min} to ${this.range.max}`)
         this.updateRangeFilter()
         this.range.min = this.range.max = undefined
         break
       }
-      this._unset(this.filter, 'value.start')
-      this._unset(this.filter, 'value.end')
+      unset(this.filter, 'value.start')
+      unset(this.filter, 'value.end')
       this.addFilter(this.filter)
       this.setModifiedSinceLastSearch(true)
       this.reset()
     },
     onClickCancelEdit() {
-      this.alertScreenReader('Canceled')
+      useContextStore().alertScreenReader('Canceled')
       this.isModifyingFilter = false
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
@@ -447,11 +470,11 @@ export default {
       this.disableUpdateButton = false
       if (this.isUX('dropdown')) {
         // Populate select options, with selected option based on current filter.value.
-        const flatten = optGroup => this._flatten(this._values(optGroup))
-        const find = (options, value) => this._find(options, ['value', value])
-        const options = this._find(flatten(this.filterOptionGroups), ['key', this.filter.value.key]).options
+        const flattenOptions = optGroup => flatten(values(optGroup))
+        const find = (options, value) => find(options, ['value', value])
+        const options = find(flattenOptions(useCohortStore().filterOptionGroups), ['key', this.filter.value.key]).options
         this.filter.value.options = options
-        this.selectedOption = Array.isArray(options) ? find(options, this.filter.selectedOption) : find(flatten(options), this.filter.selectedOption)
+        this.selectedOption = Array.isArray(options) ? find(options, this.filter.selectedOption) : find(flattenOptions(options), this.filter.selectedOption)
         this.putFocusSecondaryDropdown()
       } else if (this.isUX('range')) {
         this.range.min = this.range.start = this.filter.value.min
@@ -460,7 +483,7 @@ export default {
       }
       this.isModifyingFilter = true
       this.setEditMode(`edit-${this.position}`)
-      this.alertScreenReader(`Begin edit of ${this.filter.name} filter`)
+      useContextStore().alertScreenReader(`Begin edit of ${this.filter.name} filter`)
     },
     onClickUpdateButton() {
       if (this.isUX('range')) {
@@ -468,38 +491,38 @@ export default {
       }
       this.updateExistingFilter({index: this.position, updatedFilter: this.filter})
       this.setModifiedSinceLastSearch(true)
-      updateFilterOptions(this.domain, this.cohortOwner(), this.filters).then(() => {
+      updateFilterOptions(this.domain, this.cohortOwner(), useCohortStore().filters).then(() => {
         this.isModifyingFilter = false
         this.setEditMode(null)
-        this.alertScreenReader(`${this.filter.name} filter updated`)
+        useContextStore().alertScreenReader(`${this.filter.name} filter updated`)
       })
     },
     onSelectFilter() {
       this.selectedOption = undefined
-      this.filter = this._cloneDeep(this.selectedFilter)
+      this.filter = cloneDeep(this.selectedFilter)
       if (this.filter) {
-        const type = this._get(this.filter, 'value.type.ux')
+        const type = get(this.filter, 'value.type.ux')
         this.showAdd = type === 'boolean'
-        this.alertScreenReader(`${this.filter.name} selected`)
+        useContextStore().alertScreenReader(`${this.filter.name} selected`)
         switch (type) {
         case 'dropdown':
           this.putFocusSecondaryDropdown()
           break
         case 'boolean':
-          this.putFocusNextTick('unsaved-filter-add')
+          putFocusNextTick('unsaved-filter-add')
           break
         case 'range':
-          this.putFocusNextTick(`filter-range-min-${this.position}`)
+          putFocusNextTick(`filter-range-min-${this.position}`)
           break
         }
       }
     },
     onSelectFilterOption() {
-      this.filter.selectedOption = this._get(this.selectedOption, 'value')
+      this.filter.selectedOption = get(this.selectedOption, 'value')
       this.showAdd = !!this.selectedOption
       if (this.selectedOption) {
-        this.putFocusNextTick('unsaved-filter-add')
-        this.alertScreenReader(`${this.selectedOption.name} selected`)
+        putFocusNextTick('unsaved-filter-add')
+        useContextStore().alertScreenReader(`${this.selectedOption.name} selected`)
       }
     },
     onPopoverShown(popoverContent) {
@@ -538,7 +561,7 @@ export default {
         weeks.setAttribute('aria-labelledby', `filter-range-popover-title-${this.position}`)
         weeks.role = 'grid'
       }
-      this._each(weekdayLabels, (label, index) => {
+      each(weekdayLabels, (label, index) => {
         label.abbr = weekdays[index]
       })
     },
@@ -551,9 +574,9 @@ export default {
     },
     prepareFilterOptionGroups() {
       // If we have only one option-group then flatten the object to an array of options.
-      const flatten = this._size(this.filterOptionGroups) === 1
+      const flatten = size(useCohortStore().filterOptionGroups) === 1
       let options = []
-      each(this.filterOptionGroups, (items, group) => {
+      each(useCohortStore().filterOptionGroups, (items, group) => {
         if (!flatten) {
           options.push({
             header: group,
@@ -572,17 +595,17 @@ export default {
       return options
     },
     putFocusNewFilterDropdown() {
-      this.putFocusNextTick('filter-select-primary-new')
+      putFocusNextTick('filter-select-primary-new')
     },
     putFocusRange() {
-      this.putFocusNextTick(`filter-range-min-${this.position}`)
+      putFocusNextTick(`filter-range-min-${this.position}`)
     },
     putFocusSecondaryDropdown() {
-      this.putFocusNextTick(`filter-select-secondary-${this.position}`)
+      putFocusNextTick(`filter-select-secondary-${this.position}`)
     },
     rangeInputSize() {
       let maxLength = undefined
-      const validation = this._get(this.filter, 'value.validation')
+      const validation = get(this.filter, 'value.validation')
       if (validation === 'char[2]') {
         maxLength = 2
       } else if (validation === 'gpa' || validation === 'dependents') {
@@ -595,19 +618,19 @@ export default {
       if (this.isModifyingFilter) {
         snippet = this.filter.value.label.range[1]
       } else {
-        let max = this._get(this.filter, 'selectedOption.max')
+        let max = get(this.filter, 'selectedOption.max')
         if (max && this.filter.value.validation === 'date') {
           max = DateTime.fromJSDate(max).toFormat('MMM DD, YYYY')
         }
-        const labels = this._get(this.filter.value.label, 'range')
+        const labels = get(this.filter.value.label, 'range')
         snippet = this.rangeMinEqualsMax(this.filter) ? '' : `${labels[1]} ${max}`
       }
       return snippet
     },
     rangeMinEqualsMax(filter) {
       const normalize = key => {
-        let value = this._get(filter, key)
-        return this._isString(value) ? value.toUpperCase() : value
+        let value = get(filter, key)
+        return isString(value) ? value.toUpperCase() : value
       }
       return normalize('selectedOption.min') === normalize('selectedOption.max')
     },
@@ -616,29 +639,29 @@ export default {
       if (this.isModifyingFilter) {
         snippet = this.filter.value.label.range[0]
       } else {
-        let min = this._get(this.filter, 'selectedOption.min')
+        let min = get(this.filter, 'selectedOption.min')
         if (min && this.filter.value.validation === 'date') {
           min = DateTime.fromJSDate(min).toFormat('MMM DD, YYYY')
         }
-        const labels = this._get(this.filter.value.label, 'range')
-        snippet = this.rangeMinEqualsMax(this.filter) ? this._get(this.filter.value.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
+        const labels = get(this.filter.value.label, 'range')
+        snippet = this.rangeMinEqualsMax(this.filter) ? get(this.filter.value.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
       }
       return snippet
     },
     remove() {
       this.removeFilter(this.position)
-      updateFilterOptions(this.domain, this.cohortOwner(), this.filters).then(this._noop)
+      updateFilterOptions(this.domain, this.cohortOwner(), useCohortStore().filters).then(noop)
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
-      this.alertScreenReader(`${this.filter.value.label.primary} filter removed`)
+      useContextStore().alertScreenReader(`${this.filter.value.label.primary} filter removed`)
     },
     reset() {
       this.selectedFilter = this.selectedOption = undefined
       this.disableUpdateButton = false
       this.showAdd = false
-      this.range = this._mapValues(this.range, () => undefined)
+      this.range = mapValues(this.range, () => undefined)
       this.isExistingFilter = this.position !== 'new'
-      this.filter = this.isExistingFilter ? this._cloneDeep(this.filters[this.position]) : {}
+      this.filter = this.isExistingFilter ? cloneDeep(useCohortStore().filters[this.position]) : {}
       this.isModifyingFilter = !this.isExistingFilter
       this.putFocusNewFilterDropdown()
     },
@@ -695,11 +718,9 @@ export default {
   width: 80px;
 }
 .filter-row-column-04 {
+  align-items: center;
+  display: flex;
   flex: 1;
-  vertical-align: middle;
-}
-.filter-row-column-04 button {
-  margin: 12px 0 0 12px;
 }
 .existing-filter-name {
   width: 260px;
@@ -711,12 +732,6 @@ export default {
   padding: 10px 8px 0 10px;
 }
 .filter-range-input {
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-  color: #333;
-  font-size: 18px;
-  height: 40px;
-  padding: 6px 12px 6px 12px;
+  min-width: 125px;
 }
 </style>

@@ -8,7 +8,7 @@
       Manually Set Date
     </label>
     <div class="d-flex pt-2">
-      <DatePicker
+      <VCDatePicker
         v-model="manuallySetDate"
         :max-date="maxDate"
         popover-visibility="focus"
@@ -30,7 +30,7 @@
             v-on="inputEvents"
           ></v-text-field>
         </template>
-      </DatePicker>
+      </VCDatePicker>
       <v-btn
         v-if="manuallySetDate"
         id="manually-set-date-clear"
@@ -48,7 +48,6 @@
 </template>
 
 <script setup>
-import {DatePicker} from 'v-calendar'
 import {mdiClose} from '@mdi/js'
 </script>
 
@@ -57,7 +56,6 @@ import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'ManuallySetDate',
-  components: {DatePicker},
   data: () => ({
     maxDate: new Date()
   }),

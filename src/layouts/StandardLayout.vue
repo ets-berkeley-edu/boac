@@ -1,5 +1,5 @@
 <template>
-  <v-layout style="overflow: visible !important">
+  <v-layout class="h-100" style="overflow: visible !important">
     <v-app-bar color="primary" role="banner">
       <StandardHeaderLayout />
     </v-app-bar>

@@ -187,6 +187,10 @@
     overflow: hidden !important;
   }
 }
+.vc-zindex-fix .vc-popover-content-wrapper, .vc-zindex-fix .vc-popover-content {
+  overflow: visible;
+  z-index: 1000 !important;
+}
 .vh-100 {
   height: 100vh !important;
 }

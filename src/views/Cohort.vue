@@ -10,6 +10,7 @@
         <v-card
           v-show="showFilters"
           id="show-hide-filters"
+          class="overflow-visible"
           flat
           tile
         >
@@ -194,7 +195,7 @@ export default {
     this.removeEventHandler('termId-user-preference-change', this.onChangeTerm)
   },
   methods: {
-    filterRowUniqueKey: (filter, index) => `${filter.key}-${filter.value}-${index}`,
+    filterRowUniqueKey: (filter, index) => `${filter.value.key}-${index}`,
     getLoadedAlert() {
       if (!this.cohortId) {
         return 'Create cohort page has loaded'
