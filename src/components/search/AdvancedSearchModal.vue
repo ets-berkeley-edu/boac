@@ -285,7 +285,6 @@ import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {scrollToTop} from '@/lib/utils'
-import {DateTime} from 'luxon'
 
 export default {
   name: 'AdvancedSearchModal',
@@ -368,22 +367,15 @@ export default {
             query.noteTopic = this.topic
           }
           if (this.fromDate) {
-            query.noteDateFrom = DateTime.fromJSDate(this.fromDate).toFormat('YYYY-MM-DD')
+            query.noteDateFrom = this.fromDate.toLocaleString('YYYY-MM-DD')
           }
           if (this.toDate) {
-            query.noteDateTo = DateTime.fromJSDate(this.toDate).toFormat('YYYY-MM-DD')
-
+            query.noteDateTo = this.toDate.toLocaleString('YYYY-MM-DD')
           }
         }
-        this.$router.push(
-          {
-            path: '/search',
-            query: query
-          },
-          () => {
-            this.showAdvancedSearch = false
-          }
-        )
+        this.$router.push({path: '/search', query: query}).then(() => {
+          this.showAdvancedSearch = false
+        })
         if (q) {
           addToSearchHistory(q).then(history => {
             this.searchHistory = history
