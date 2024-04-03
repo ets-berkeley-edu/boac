@@ -3,8 +3,8 @@
     <Spinner />
     <div v-if="!loading">
       <div class="align-items-center d-flex pb-3">
-        <div class="pr-3">
-          <font-awesome :style="{color: '#3b7ea5'}" icon="plane-departure" size="2x" />
+        <div class="pr-3 pt-1">
+          <v-icon :icon="mdiAirplaneTakeoff" :style="{color: '#3b7ea5'}" size="x-large"></v-icon>
         </div>
         <div class="pt-2">
           <h1 class="page-section-header">BOA v{{ boa.version }} Flight Deck</h1>
@@ -22,7 +22,7 @@
       </div>
       <div class="mt-2 pt-5">
         <h2 id="manage-topics-header" class="page-section-header-sub">Manage Topics</h2>
-        <!-- <ManageTopics /> -->
+        <ManageTopics />
       </div>
       <div class="mt-2 pt-5">
         <div class="pb-3 pt-3">
@@ -65,11 +65,15 @@
   </div>
 </template>
 
+<script setup>
+import {mdiAirplaneTakeoff} from '@mdi/js'
+</script>
+
 <script>
 import Context from '@/mixins/Context'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement'
-// import ManageTopics from '@/components/topics/ManageTopics'
+import ManageTopics from '@/components/topics/ManageTopics'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getVersion} from '@/api/config'
@@ -79,7 +83,7 @@ export default {
   components: {
     DemoModeToggle,
     EditServiceAnnouncement,
-    // ManageTopics,
+    ManageTopics,
     Spinner
   },
   mixins: [Context, Util],

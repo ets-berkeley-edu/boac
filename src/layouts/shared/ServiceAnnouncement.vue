@@ -1,6 +1,6 @@
 <template>
   <div v-if="announcement && announcement.isPublished">
-    <div v-if="!dismissedServiceAnnouncement" class="align-center d-flex service-announcement">
+    <div v-if="!dismissedServiceAnnouncement" class="pa-3 align-center d-flex service-announcement">
       <div class="d-inline-block pb-0 pl-3 pr-1 pt-3 w-100">
         <div class="sr-only" role="heading">BOA Service Alert</div>
         <span
@@ -23,7 +23,7 @@
         </v-btn>
       </div>
     </div>
-    <v-btn v-if="dismissedServiceAnnouncement" id="restore-service-announcement" class="sr-only">Restore alert</v-btn>
+    <v-btn v-if="dismissedServiceAnnouncement" id="restore-service-announcement" class="d-sr-only">Restore alert</v-btn>
   </div>
 </template>
 
@@ -46,6 +46,7 @@ export default {
         this.putFocusNextTick('service-announcement-banner')
       } else {
         this.dismissServiceAnnouncement()
+        this.dismissedServiceAnnouncement = false
         this.alertScreenReader('Dismissed')
         this.putFocusNextTick('toggle-service-announcement')
       }
@@ -54,3 +55,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.service-announcement {
+  background-color: #f0ad4e;
+    font-weight: 500;
+}
+</style>

@@ -1,80 +1,62 @@
 <template>
-  <b-modal
-    v-model="showEditTopicModal"
-    body-class="pl-0 pr-0"
-    hide-footer
-    hide-header
-    :no-close-on-backdrop="true"
-    :ok-disabled="isSaving"
-    @cancel.prevent="cancel"
-    @hide.prevent="cancel"
-    @shown="putFocusNextTick('modal-header')"
-  >
-    <div>
-      <ModalHeader>
-        Create Topic
-      </ModalHeader>
-      <div class="modal-body pl-4 pr-5">
-        <div class="topic-label-input-container">
-          <label for="topic-label" class="font-size-18 font-weight-bolder mb-1">Label</label>
-          <!-- TODO: Fix vue/no-mutating-props offenders below. -->
-          <!-- eslint-disable vue/no-mutating-props -->
-          <b-form-input
+  <v-dialog v-model="showEditTopicModal" width="auto">
+    <v-card
+      max-width="400"
+      title="Create Topic"
+    >
+      <v-card-actions>
+        <div class="text-field-width d-block">
+          <v-text-field
             id="topic-label"
             v-model="topic"
             aria-describedby="input-live-help topic-label-error"
-            :maxlength="maxLabelLength"
-            :state="!isLabelReserved && isValidLabel"
+            variant="outlined"
             required
-            size="lg"
-          ></b-form-input>
-          <b-form-invalid-feedback id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
-            <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
-            <span v-if="isLabelReserved">Sorry, the label '{{ _trim(topic) }}' is assigned to an existing topic.</span>
-          </b-form-invalid-feedback>
-          <div class="faint-text font-size-14 pl-2 pt-2">
-            <span v-if="!isLabelReserved && isValidLabel" id="input-live-help">
-              {{ maxLabelLength }} character limit <span v-if="topic.length">({{ maxLabelLength - topic.length }} left)</span>
-            </span>
-          </div>
+          >
+          </v-text-field>
         </div>
+      </v-card-actions>
+      <div id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
+        <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
+        <span v-if="isLabelReserved">Sorry, the label '{{ _trim(topic) }}' is assigned to an existing topic.</span>
       </div>
-      <!-- eslint-enable vue/no-mutating-props -->
-      <div class="modal-footer">
+      <div class="faint-text font-size-14 pl-2 pt-2">
+        <span v-if="!isLabelReserved && isValidLabel" id="input-live-help">
+          {{ maxLabelLength }} character limit <span v-if="topic.length">({{ maxLabelLength - topic.length }} left)</span>
+        </span>
+      </div>
+      <v-spacer></v-spacer>
+      <v-card-actions>
         <form @submit.prevent="save">
-          <b-btn
+          <v-btn
             id="topic-save"
-            class="btn-primary-color-override"
+            variant="flat"
             :disabled="disableSaveButton"
-            variant="primary"
             @click.prevent="save"
           >
             Save
-          </b-btn>
-          <b-btn
+          </v-btn>
+          <v-btn
             id="cancel"
-            class="pl-3"
+            variant="outlined"
             :disabled="isSaving"
-            variant="link"
             @click.stop="cancel"
           >
             Cancel
-          </b-btn>
+          </v-btn>
         </form>
-      </div>
-    </div>
-  </b-modal>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 import Context from '@/mixins/Context'
-import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import {createTopic} from '@/api/topics'
 
 export default {
   name: 'EditTopicModal',
-  components: {ModalHeader},
   mixins: [Context, Util],
   props: {
     afterSave: {
@@ -137,5 +119,9 @@ export default {
 <style scoped>
 .topic-label-input-container {
   min-height: 110px;
+}
+
+.text-field-width {
+  width: 350px;
 }
 </style>

@@ -2,81 +2,78 @@
   <div v-if="hasLoadedTopics">
     <div class="d-flex justify-content-between">
       <div class="pb-3 pl-3 pt-2 w-50">
-        <b-input-group size="sm">
-          <b-form-input
-            id="filter-topics"
-            v-model="filter"
-            type="search"
-            placeholder="Search"
-          ></b-form-input>
-          <b-input-group-append>
-            <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-          </b-input-group-append>
-        </b-input-group>
-      </div>
-      <div class="pr-3 pt-3">
-        <b-btn
-          id="new-note-button"
-          class="p-0 pb-1"
-          :disabled="isEditTopicModalOpen"
-          variant="link"
-          @click="openCreateTopicModal"
+        <v-text-field
+          v-model="filter"
+          class="d-inline"
+          density="compact"
+          label="Search"
+          variant="outlined"
         >
-          <font-awesome icon="plus-square" />
-          Create New Topic
-        </b-btn>
+        </v-text-field>
+      </div>
+
+      <div class="pr-3 pt-2">
+        <v-btn
+          class="ml-2"
+          @click="filter = ''"
+        >
+          Clear
+        </v-btn>
       </div>
     </div>
+
+    <v-btn
+      id="new-note-button"
+      class="p-0 pb-1"
+      :disabled="isEditTopicModalOpen"
+      @click="openCreateTopicModal"
+    >
+      <v-icon :icon="mdiPlusBox"></v-icon>
+      Create New Topic
+    </v-btn>
+
     <div class="pt-2">
-      <b-table
-        empty-filtered-text="No topic matches your search."
-        :fields="fields"
-        :filter="filter"
-        :filter-included-fields="['topic']"
-        :items="topics"
-        :no-border-collapse="true"
-        show-empty
-        sticky-header
-        thead-class="sortable-table-header border-bottom"
+      <v-table
+        density="compact"
+        height="350px"
+        fixed-header
       >
-        <template #thead-top="{}">
-          <b-tr>
-            <b-th class="border-top-0"><span class="sr-only">Topic</span></b-th>
-            <b-th class="border-top-0"><span class="sr-only">Deleted?</span></b-th>
-            <b-th class="border-top-0"></b-th>
-          </b-tr>
-        </template>
-        <template #cell(actions)="row">
-          <div class="d-flex justify-content-end">
-            <b-button
-              v-if="row.item.deletedAt"
-              class="pr-0"
-              variant="link"
-              @click="undelete(row.item)"
-            >
-              <font-awesome
-                aria-label="Un-delete"
-                class="text-warning"
-                icon="trash-restore"
-                title="Un-delete"
-              />
-            </b-button>
-            <b-button
-              v-if="!row.item.deletedAt"
-              class="pr-0"
-              variant="link"
-              @click="openDeleteTopicModal(row.item)"
-            >
-              <font-awesome
-                icon="trash-alt"
-                aria-label="Delete"
-                class="text-secondary"
-                title="Delete"
-              />
-            </b-button>
-          </div>
-        </template>
-      </b-table>
+        <thead>
+          <tr>
+            <th class="border-top-0"><span>Topic</span></th>
+            <th class="border-top-0"><span>Deleted?</span></th>
+            <th class="border-top-0"><span>Usage</span></th>
+            <th class="border-top-0"><span>Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in filteredTable"
+            :key="item.name"
+          >
+            <td>{{ item.topic }}</td>
+            <td>{{ item.deletedAt ? 'Yes' : 'No' }}</td>
+            <td>{{ item.countNotes }}</td>
+            <td>
+              <v-btn
+                v-if="!item.deletedAt"
+                :icon="mdiTrashCanOutline"
+                density="compact"
+                @click="openDeleteTopicModal(item)"
+              >
+              </v-btn>
+
+              <v-btn
+                v-if="item.deletedAt"
+                :icon="mdiDeleteRestore"
+                density="compact"
+                @click="undelete(item)"
+              >
+              </v-btn>
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
     </div>
     <EditTopicModal
       v-if="isEditTopicModalOpen"
@@ -88,25 +85,37 @@
       v-if="isDeleteTopicModalOpen"
       :function-cancel="deleteCancel"
       :function-confirm="deleteConfirm"
-      :modal-body="`Are you sure you want to delete <b>'${topicDelete.topic}'</b>?`"
       :show-modal="isDeleteTopicModalOpen"
       button-label-confirm="Delete"
       modal-header="Delete Topic"
-    />
+    >
+      <span> Are you sure you want to delete <b>{{ topicDelete.topic }}</b>? </span>
+    </AreYouSureModal>
   </div>
 </template>
 
+<script setup>
+import {mdiDeleteRestore} from '@mdi/js'
+import {mdiTrashCanOutline} from '@mdi/js'
+import {mdiPlusBox} from '@mdi/js'
+import {useContextStore} from '@/stores/context'
+
+</script>
+
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import Context from '@/mixins/Context'
+// import Context from '@/mixins/Context'
 import EditTopicModal from '@/components/topics/EditTopicModal'
 import Util from '@/mixins/Util'
 import {deleteTopic, getAllTopics, getUsageStatistics, undeleteTopic} from '@/api/topics'
+import {putFocusNextTick} from '@/lib/utils'
+import {DateTime} from 'luxon'
+
 
 export default {
   name: 'ManageTopics',
   components: {AreYouSureModal, EditTopicModal},
-  mixins: [Context, Util],
+  mixins: [Util],
   data() {
     return {
       fields: [
@@ -149,6 +158,14 @@ export default {
       topics: undefined
     }
   },
+  computed: {
+    filteredTable() {
+      if (this.filter === null) {
+        return this.topics
+      }
+      return this.topics.filter(item => item.topic.toLowerCase().includes(this.filter.toLowerCase()))
+    },
+  },
   mounted() {
     this.refresh()
   },
@@ -158,11 +175,11 @@ export default {
       const focusTarget = `topic-${topic.id}`
       if (match) {
         Object.assign(match, topic)
-        this.alertScreenReader(`Topic '${topic.topic}' updated.`)
-        this.putFocusNextTick(focusTarget)
+        useContextStore().alertScreenReader(`Topic '${topic.topic}' updated.`)
+        putFocusNextTick(focusTarget)
       } else {
         this.refresh(focusTarget)
-        this.alertScreenReader(`Topic '${topic.topic}' created.`)
+        useContextStore().alertScreenReader(`Topic '${topic.topic}' created.`)
       }
       this.topicEdit = null
       this.isEditTopicModalOpen = false
@@ -171,22 +188,22 @@ export default {
     deleteCancel() {
       this.isDeleteTopicModalOpen = false
       this.topicDelete = undefined
-      this.alertScreenReader('Canceled')
-      this.putFocusNextTick('filter-topics')
+      useContextStore().alertScreenReader('Canceled')
+      putFocusNextTick('filter-topics')
     },
     deleteConfirm() {
       return deleteTopic(this.topicDelete.id).then(() => {
         this.isDeleteTopicModalOpen = false
-        this.topicDelete.deletedAt = this.moment()
-        this.alertScreenReader(`Topic '${this.topicDelete.topic}' deleted.`)
-        this.putFocusNextTick(`topic-${this.topicDelete.id}`)
+        this.topicDelete.deletedAt = DateTime.now()
+        useContextStore().alertScreenReader(`Topic '${this.topicDelete.topic}' deleted.`)
+        putFocusNextTick(`topic-${this.topicDelete.id}`)
         this.topicDelete = undefined
       })
     },
     onCancelEdit() {
       this.isEditTopicModalOpen = false
-      this.alertScreenReader('Canceled')
-      this.putFocusNextTick('filter-topics')
+      useContextStore().alertScreenReader('Canceled')
+      putFocusNextTick('filter-topics')
       this.topicEdit = null
     },
     openCreateTopicModal() {
@@ -194,12 +211,12 @@ export default {
         topic: ''
       }
       this.isEditTopicModalOpen = true
-      this.alertScreenReader('Opened modal to create new topic.')
+      useContextStore().alertScreenReader('Opened modal to create new topic.')
     },
     openDeleteTopicModal(topic) {
       this.topicDelete = topic
       this.isDeleteTopicModalOpen = true
-      this.alertScreenReader('Opened modal to confirm delete.')
+      useContextStore().alertScreenReader('Opened modal to confirm delete.')
     },
     refresh(focusTarget) {
       getAllTopics(true).then(data => {
@@ -209,15 +226,15 @@ export default {
             topic.countNotes = statistics.notes[topic.id] || 0
           })
           this.hasLoadedTopics = true
-          this.putFocusNextTick(focusTarget)
+          putFocusNextTick(focusTarget)
         })
       })
     },
     undelete(topic) {
       undeleteTopic(topic.id).then(() => {
         topic.deletedAt = null
-        this.alertScreenReader(`Topic ${topic.topic} un-deleted.`)
-        this.putFocusNextTick(`topic-${topic.id}`)
+        useContextStore().alertScreenReader(`Topic ${topic.topic} un-deleted.`)
+        putFocusNextTick(`topic-${topic.id}`)
       })
     }
   }
