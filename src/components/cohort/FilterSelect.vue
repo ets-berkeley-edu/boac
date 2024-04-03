@@ -10,6 +10,7 @@
       eager
       hide-details
       item-title="name"
+      item-value="key"
       :items="options"
       persistent-hint
       return-object
@@ -25,7 +26,7 @@
         </v-list-subheader>
         <v-list-item
           v-else
-          :id="listItemId(item.raw.value)"
+          :id="listItemId(item.raw)"
           v-bind="props"
           :aria-describedby="item.raw.group ? listItemId({header: item.raw.group}) : false"
           class="min-height-unset py-1 pl-8"

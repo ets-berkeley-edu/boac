@@ -4,7 +4,7 @@ import {useCohortStore} from '@/stores/cohort-edit-session/index'
 
 export function updateFilterOptions(domain: string, owner: string | undefined, existingFilters: any[]) {
   return new Promise<void>(resolve => {
-    getCohortFilterOptions(domain, owner, existingFilters).then(data => {
+    getCohortFilterOptions(domain, owner, existingFilters).then((data: any) => {
       useCohortStore().updateFilterOptions(data)
       resolve()
     })
@@ -55,7 +55,7 @@ export function loadCohort(cohortId: number, orderBy: string, termId: string) {
       if (cohort) {
         useCohortStore().setDomain(cohort.domain)
         const owner = cohort.isOwnedByCurrentUser ? 'me' : get(cohort, 'owner.uid')
-        translateToFilterOptions(cohort.domain, owner, cohort.criteria).then(filters => {
+        translateToFilterOptions(cohort.domain, owner, cohort.criteria).then((filters: any[]) => {
           useCohortStore().updateSession(cohort, filters, cohort.students, cohort.totalStudentCount)
           useCohortStore().stashOriginalFilters()
           updateFilterOptions(cohort.domain, owner, filters).then(resolve)
