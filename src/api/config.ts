@@ -17,14 +17,14 @@ export function getVersion() {
 export function getServiceAnnouncement() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/service_announcement`)
-    .then(response => response.data)
+    .then(response => response)
 }
 
 export function publishAnnouncement(publish) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/service_announcement/publish`, {publish: publish})
     .then(response => {
-      const data = response.data
+      const data = response
       useContextStore().setServiceAnnouncement(data)
       return data
     })
@@ -35,7 +35,7 @@ export function updateAnnouncement(text) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/service_announcement/update`, {text: text})
     .then(response => {
-      const data = response.data
+      const data = response
       useContextStore().setServiceAnnouncement(data)
       return data
     })
