@@ -229,8 +229,9 @@
           </v-card>
         </v-expand-transition>
         <div class="align-center d-flex mb-2 mt-4 pr-2">
-          <div v-if="includeNotes && isDirty" class="flex-grow-1">
+          <div class="flex-grow-1">
             <v-btn
+              v-if="includeNotes && isDirty"
               id="reset-advanced-search-form-btn"
               :disabled="isSearching"
               text="Reset"

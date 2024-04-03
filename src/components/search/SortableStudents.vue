@@ -1,20 +1,34 @@
 <template>
   <v-data-table-virtual
-    :id="id"
     v-resize="onResize"
-    :class="{'stacked-table': stackTable}"
+    borderless
+    :cell-props="{
+      class: 'pl-0'
+    }"
+    density="compact"
+    :header-props="{
+      class: 'pl-0 text-no-wrap'
+    }"
     :headers="headers"
     :items="students"
-    :items-per-page="50"
+    no-sort-reset
     :sort-by="[sortBy]"
     :sort-compare="sortCompare"
+    stacked="md"
   >
     <template #header.avatar="{column}">
       <span class="sr-only">{{ column.title }}</span>
     </template>
+
     <template #item.curated="{item}">
-      <CuratedStudentCheckbox v-if="options.includeCuratedCheckbox" :domain="domain" :student="item" />
+      <CuratedStudentCheckbox
+        v-if="options.includeCuratedCheckbox"
+        class="mb-2"
+        :domain="domain"
+        :student="item"
+      />
     </template>
+
     <template #item.avatar="{item}">
       <StudentAvatar
         :key="item.sid"
@@ -25,8 +39,9 @@
         <ManageStudent domain="default" :is-button-variant-link="true" :student="item" />
       </div>
     </template>
+
     <template #item.name="{item}">
-      <div>
+      <div class="text-no-wrap">
         <span class="sr-only">Student name</span>
         <router-link
           v-if="item.uid"
@@ -63,69 +78,57 @@
         </span>
       </div>
     </template>
+
     <template #item.sid="{item}">
-      <div>
-        <span class="sr-only">S I D </span>
-        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.sid }}</span>
-      </div>
+      <span class="sr-only">S I D </span>
+      <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.sid }}</span>
     </template>
+
     <template v-if="!options.compact" #item.major="{item}">
-      <div>
-        <span class="sr-only">Major</span>
-        <div v-if="!item.majors || item.majors.length === 0">--<span class="sr-only">No data</span></div>
-        <div
-          v-for="major in item.majors"
-          :key="major"
-        >
-          {{ major }}
-        </div>
-      </div>
+      <span class="sr-only">Major</span>
+      <div v-if="!item.majors || item.majors.length === 0">--<span class="sr-only">No data</span></div>
+      <div v-for="major in item.majors" :key="major">{{ major }}</div>
     </template>
+
     <template v-if="!options.compact" #item.expectedGraduationTerm="{item}">
-      <div>
-        <span class="sr-only">Expected graduation term</span>
-        <div v-if="!item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
-        <span class="text-no-wrap">{{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}</span>
-      </div>
+      <span class="sr-only">Expected graduation term</span>
+      <div v-if="!item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
+      <span class="text-no-wrap">{{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}</span>
     </template>
+
     <template v-if="!options.compact" #item.enrolledUnits="{item}">
-      <div>
-        <span class="sr-only">Term units</span>
-        <div>{{ _get(item.term, 'enrolledUnits', 0) }}</div>
-      </div>
+      <span class="sr-only">Term units</span>
+      {{ _get(item.term, 'enrolledUnits', 0) }}
     </template>
+
     <template v-if="!options.compact" #item.cumulativeUnits="{item}">
-      <div>
-        <span class="sr-only">Units completed</span>
-        <div v-if="!item.cumulativeUnits">--<span class="sr-only">No data</span></div>
-        <div v-if="item.cumulativeUnits">{{ numFormat(item.cumulativeUnits, '0.00') }}</div>
-      </div>
+      <span class="sr-only">Units completed</span>
+      <div v-if="!item.cumulativeUnits">--<span class="sr-only">No data</span></div>
+      <div v-if="item.cumulativeUnits">{{ numFormat(item.cumulativeUnits, '0.00') }}</div>
     </template>
+
     <template v-if="!options.compact" #item.cumulativeGPA="{item}">
-      <div>
-        <span class="sr-only">GPA</span>
-        <div v-if="_isNil(item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
-        <div v-if="!_isNil(item.cumulativeGPA)">{{ round(item.cumulativeGPA, 3) }}</div>
-      </div>
+      <span class="sr-only">GPA</span>
+      <div v-if="_isNil(item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
+      <div v-if="!_isNil(item.cumulativeGPA)">{{ round(item.cumulativeGPA, 3) }}</div>
     </template>
+
     <template #item.alertCount="{item}">
-      <div>
-        <span class="sr-only">Issue count</span>
-        <PillAlert
-          :aria-label="`${item.alertCount || 'No'} alerts for ${item.name}`"
-          :color="item.alertCount ? 'grey' : 'warning'"
-          outlined
-        >
-          {{ item.alertCount || 0 }}
-        </PillAlert>
-      </div>
+      <span class="sr-only">Issue count</span>
+      <PillAlert
+        :aria-label="`${item.alertCount || 'No'} alerts for ${item.name}`"
+        :color="item.alertCount ? 'grey' : 'warning'"
+        outlined
+      >
+        {{ item.alertCount || 0 }}
+      </PillAlert>
     </template>
   </v-data-table-virtual>
 </template>
 
 <script setup>
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
-import {mdiInformationOutline} from '@mdi/js'
+import {mdiSchool, mdiInformationOutline} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 </script>
 
@@ -151,11 +154,6 @@ export default {
   props: {
     domain: {
       required: true,
-      type: String
-    },
-    id: {
-      default: 'sortable-group-students',
-      required: false,
       type: String
     },
     options: {
