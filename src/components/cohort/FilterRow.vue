@@ -9,7 +9,7 @@
       :id="`existing-filter-${position}`"
       class="existing-filter-name px-2"
     >
-      {{ get(filter, 'value.label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
+      {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
     <div
       v-if="isModifyingFilter && !isExistingFilter"
@@ -35,14 +35,14 @@
         <FilterSelect
           :filter-row-index="position"
           :labelledby="`filter-secondary-${position}-label`"
-          :options="filter.value.options"
+          :options="filter.options"
           :set-model-object="value => (selectedOption = value)"
           type="secondary"
           :v-model-object="selectedOption"
         />
       </div>
       <div
-        v-if="isUX('range') && filter.value.validation === 'date'"
+        v-if="isUX('range') && filter.validation === 'date'"
         :id="`filter-range-date-picker-${position}`"
         class="vc-zindex-fix d-flex pr-1"
       >
@@ -127,7 +127,7 @@
           </template>
         </elegant-date-picker>
       </div>
-      <div v-if="isUX('range') && filter.value.validation !== 'date'" class="d-flex pr-1">
+      <div v-if="isUX('range') && filter.validation !== 'date'" class="d-flex pr-1">
         <label
           :for="`filter-range-min-${position}`"
           class="pb-2"
@@ -179,18 +179,19 @@
       </div>
     </div>
     <div v-if="!isExistingFilter" class="filter-row-column-03 mt-1 pl-0">
-      <v-btn
+      <ProgressButton
         v-if="showAdd"
         id="unsaved-filter-add"
+        :action="onClickAddButton"
         class="ml-2"
-        color="primary"
-        @click="onClickAddButton"
+        :disabled="isSaving"
+        :in-progress="isSaving"
       >
         Add
-      </v-btn>
+      </ProgressButton>
     </div>
     <div
-      v-if="isModifyingFilter && get(filter, 'value.type.ux') && !isExistingFilter"
+      v-if="isModifyingFilter && get(filter, 'type.ux') && !isExistingFilter"
       class="filter-row-column-04"
     >
       <v-btn
@@ -258,6 +259,7 @@ import {
   isNaN,
   isNil,
   isNumber,
+  isPlainObject,
   isString,
   isUndefined,
   mapValues,
@@ -273,6 +275,7 @@ import {useContextStore} from '@/stores/context'
 
 <script>
 import FilterSelect from '@/components/cohort/FilterSelect'
+import ProgressButton from '@/components/util/ProgressButton'
 import {DateTime} from 'luxon'
 import {nextTick} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
@@ -280,7 +283,7 @@ import {updateFilterOptions} from '@/stores/cohort-edit-session/utils'
 
 export default {
   name: 'FilterRow',
-  components: {FilterSelect},
+  components: {FilterSelect, ProgressButton},
   props: {
     position: {
       default: 'new',
@@ -294,7 +297,8 @@ export default {
     filter: undefined,
     isExistingFilter: undefined,
     isMenuOpen: false,
-    isModifyingFilter: undefined,
+    isModifyingFilter: false,
+    isSaving: false,
     range: {
       min: undefined,
       max: undefined,
@@ -350,7 +354,7 @@ export default {
         let min = trimToNil(rangeObject.min)
         let max = trimToNil(rangeObject.max)
         const isNilOrNan = v => isNil(v) || isNaN(v)
-        const validation = get(this.filter, 'value.validation')
+        const validation = get(this.filter, 'validation')
         if (validation === 'dependents') {
           const isInt = v => /^\d+$/.test(v)
           const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || isNaN(v)
@@ -423,13 +427,13 @@ export default {
       return parseFloat(gpa).toFixed(3)
     },
     getDropdownSelectedLabel() {
-      if (Array.isArray(this.filter.value.options)) {
-        const option = find(this.filter.value.options, ['value', this.filter.selectedOption])
+      if (Array.isArray(this.filter.options)) {
+        const option = find(this.filter.options, ['value', this.filter.value])
         return get(option, 'name')
       } else {
         let label = ''
-        each(this.filter.value.options, (options, group) => {
-          const option = find(options, ['value', this.filter.selectedOption])
+        each(this.filter.options, (options, group) => {
+          const option = find(options, ['value', this.filter.value])
           label = option && `${get(option, 'name')} (${group})`
           return !option
         })
@@ -437,16 +441,17 @@ export default {
       }
     },
     isUX(type) {
-      return get(this.filter, 'value.type.ux') === type
+      return get(this.filter, 'type.ux') === type
     },
     onClickAddButton() {
-      switch (get(this.filter, 'value.type.ux')) {
+      this.isSaving = true
+      switch (get(this.filter, 'type.ux')) {
       case 'dropdown':
         useContextStore().alertScreenReader(`Added ${this.filter.name} filter with value ${this.getDropdownSelectedLabel()}`)
         break
       case 'boolean':
         useContextStore().alertScreenReader(`Added ${this.filter.name}`)
-        this.filter.selectedOption = true
+        this.filter.value = true
         break
       case 'range':
         useContextStore().alertScreenReader(`Added ${this.filter.name} filter, ${this.range.min} to ${this.range.max}`)
@@ -454,16 +459,16 @@ export default {
         this.range.min = this.range.max = undefined
         break
       }
-      unset(this.filter, 'value.start')
-      unset(this.filter, 'value.end')
-      this.addFilter(this.filter)
-      this.setModifiedSinceLastSearch(true)
+      unset(this.filter, 'start')
+      unset(this.filter, 'end')
+      useCohortStore().addFilter(this.filter)
+      useCohortStore().setModifiedSinceLastSearch(true)
       this.reset()
     },
     onClickCancelEdit() {
       useContextStore().alertScreenReader('Canceled')
       this.isModifyingFilter = false
-      this.setEditMode(null)
+      useCohortStore().setEditMode(null)
       this.putFocusNewFilterDropdown()
     },
     onClickEditButton() {
@@ -471,29 +476,29 @@ export default {
       if (this.isUX('dropdown')) {
         // Populate select options, with selected option based on current filter.value.
         const flattenOptions = optGroup => flatten(values(optGroup))
-        const find = (options, value) => find(options, ['value', value])
-        const options = find(flattenOptions(useCohortStore().filterOptionGroups), ['key', this.filter.value.key]).options
-        this.filter.value.options = options
-        this.selectedOption = Array.isArray(options) ? find(options, this.filter.selectedOption) : find(flattenOptions(options), this.filter.selectedOption)
+        const findOption = (options, value) => find(options, ['value', value])
+        const options = find(flattenOptions(useCohortStore().filterOptionGroups), ['key', this.filter.key]).options
+        this.filter.options = options
+        this.selectedOption = Array.isArray(options) ? findOption(options, this.filter.value) : find(flattenOptions(options), this.filter.value)
         this.putFocusSecondaryDropdown()
       } else if (this.isUX('range')) {
-        this.range.min = this.range.start = this.filter.value.min
-        this.range.max = this.range.end = this.filter.value.max
+        this.range.min = this.range.start = this.filter.min
+        this.range.max = this.range.end = this.filter.max
         this.putFocusRange()
       }
       this.isModifyingFilter = true
-      this.setEditMode(`edit-${this.position}`)
+      useCohortStore().setEditMode(`edit-${this.position}`)
       useContextStore().alertScreenReader(`Begin edit of ${this.filter.name} filter`)
     },
     onClickUpdateButton() {
       if (this.isUX('range')) {
         this.updateRangeFilter()
       }
-      this.updateExistingFilter({index: this.position, updatedFilter: this.filter})
-      this.setModifiedSinceLastSearch(true)
-      updateFilterOptions(this.domain, this.cohortOwner(), useCohortStore().filters).then(() => {
+      useCohortStore().updateExistingFilter({index: this.position, updatedFilter: this.filter})
+      useCohortStore().setModifiedSinceLastSearch(true)
+      updateFilterOptions(this.domain, useCohortStore().cohortOwner(), useCohortStore().filters).then(() => {
         this.isModifyingFilter = false
-        this.setEditMode(null)
+        useCohortStore().setEditMode(null)
         useContextStore().alertScreenReader(`${this.filter.name} filter updated`)
       })
     },
@@ -501,7 +506,7 @@ export default {
       this.selectedOption = undefined
       this.filter = cloneDeep(this.selectedFilter)
       if (this.filter) {
-        const type = get(this.filter, 'value.type.ux')
+        const type = get(this.filter, 'type.ux')
         this.showAdd = type === 'boolean'
         useContextStore().alertScreenReader(`${this.filter.name} selected`)
         switch (type) {
@@ -518,7 +523,7 @@ export default {
       }
     },
     onSelectFilterOption() {
-      this.filter.selectedOption = get(this.selectedOption, 'value')
+      this.filter.value = get(this.selectedOption, 'value')
       this.showAdd = !!this.selectedOption
       if (this.selectedOption) {
         putFocusNextTick('unsaved-filter-add')
@@ -566,7 +571,7 @@ export default {
       })
     },
     placeholder() {
-      if (this.filter.value.validation === 'date') {
+      if (this.filter.validation === 'date') {
         return 'MM/DD/YYYY'
       } else {
         return ''
@@ -575,24 +580,44 @@ export default {
     prepareFilterOptionGroups() {
       // If we have only one option-group then flatten the object to an array of options.
       const flatten = size(useCohortStore().filterOptionGroups) === 1
-      let options = []
+      let preparedOptions = []
       each(useCohortStore().filterOptionGroups, (items, group) => {
         if (!flatten) {
-          options.push({
+          preparedOptions.push({
             header: group,
             name: group,
-            value: group
+            key: group
           })
         }
-        each(items, option => {
-          options.push({
+        each(items, item => {
+          if (isPlainObject(item.options)) {
+            let subOptions = []
+            each(item.options, (subItems, subGroup) => {
+              if (!flatten) {
+                subOptions.push({
+                  header: subGroup,
+                  name: subGroup,
+                  key: subGroup
+                })
+              }
+              each(subItems, subItem => {
+                subOptions.push({
+                  group: flatten ? null : subGroup,
+                  name: subItem.name,
+                  key: subItem.value
+                })
+              })
+            })
+            item.options = subOptions
+          }
+          preparedOptions.push({
             group: flatten ? null : group,
-            name: option.label.primary,
-            value: option
+            name: item.label.primary,
+            ...item
           })
         })
       })
-      return options
+      return preparedOptions
     },
     putFocusNewFilterDropdown() {
       putFocusNextTick('filter-select-primary-new')
@@ -605,7 +630,7 @@ export default {
     },
     rangeInputSize() {
       let maxLength = undefined
-      const validation = get(this.filter, 'value.validation')
+      const validation = get(this.filter, 'validation')
       if (validation === 'char[2]') {
         maxLength = 2
       } else if (validation === 'gpa' || validation === 'dependents') {
@@ -616,13 +641,13 @@ export default {
     rangeMaxLabel() {
       let snippet = undefined
       if (this.isModifyingFilter) {
-        snippet = this.filter.value.label.range[1]
+        snippet = this.filter.label.range[1]
       } else {
-        let max = get(this.filter, 'selectedOption.max')
-        if (max && this.filter.value.validation === 'date') {
+        let max = get(this.filter, 'value.max')
+        if (max && this.filter.validation === 'date') {
           max = DateTime.fromJSDate(max).toFormat('MMM DD, YYYY')
         }
-        const labels = get(this.filter.value.label, 'range')
+        const labels = get(this.filter.label, 'range')
         snippet = this.rangeMinEqualsMax(this.filter) ? '' : `${labels[1]} ${max}`
       }
       return snippet
@@ -632,28 +657,28 @@ export default {
         let value = get(filter, key)
         return isString(value) ? value.toUpperCase() : value
       }
-      return normalize('selectedOption.min') === normalize('selectedOption.max')
+      return normalize('value.min') === normalize('value.max')
     },
     rangeMinLabel() {
       let snippet = undefined
       if (this.isModifyingFilter) {
-        snippet = this.filter.value.label.range[0]
+        snippet = this.filter.label.range[0]
       } else {
-        let min = get(this.filter, 'selectedOption.min')
-        if (min && this.filter.value.validation === 'date') {
+        let min = get(this.filter, 'value.min')
+        if (min && this.filter.validation === 'date') {
           min = DateTime.fromJSDate(min).toFormat('MMM DD, YYYY')
         }
-        const labels = get(this.filter.value.label, 'range')
-        snippet = this.rangeMinEqualsMax(this.filter) ? get(this.filter.value.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
+        const labels = get(this.filter.label, 'range')
+        snippet = this.rangeMinEqualsMax(this.filter) ? get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
       }
       return snippet
     },
     remove() {
-      this.removeFilter(this.position)
-      updateFilterOptions(this.domain, this.cohortOwner(), useCohortStore().filters).then(noop)
-      this.setEditMode(null)
+      useCohortStore().removeFilter(this.position)
+      updateFilterOptions(this.domain, useCohortStore().cohortOwner(), useCohortStore().filters).then(noop)
+      useCohortStore().setEditMode(null)
       this.putFocusNewFilterDropdown()
-      useContextStore().alertScreenReader(`${this.filter.value.label.primary} filter removed`)
+      useContextStore().alertScreenReader(`${this.filter.label.primary} filter removed`)
     },
     reset() {
       this.selectedFilter = this.selectedOption = undefined
@@ -663,16 +688,17 @@ export default {
       this.isExistingFilter = this.position !== 'new'
       this.filter = this.isExistingFilter ? cloneDeep(useCohortStore().filters[this.position]) : {}
       this.isModifyingFilter = !this.isExistingFilter
+      this.isSaving = false
       this.putFocusNewFilterDropdown()
     },
     updateRangeFilter() {
-      this.filter.selectedOption = {
+      this.filter.value = {
         min: this.range.min,
         max: this.range.max
       }
-      if (this.filter.value.validation === 'gpa') {
-        this.filter.selectedOption.min = this.formatGPA(this.filter.selectedOption.min)
-        this.filter.selectedOption.max = this.formatGPA(this.filter.selectedOption.max)
+      if (this.filter.validation === 'gpa') {
+        this.filter.value.min = this.formatGPA(this.filter.value.min)
+        this.filter.value.max = this.formatGPA(this.filter.value.max)
       }
     }
   }

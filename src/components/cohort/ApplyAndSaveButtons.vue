@@ -1,15 +1,15 @@
 <template>
   <div class="pt-4">
-    <v-btn
+    <ProgressButton
       v-if="useCohortStore().showApplyButton()"
       id="unsaved-filter-apply"
-      :disabled="!!useCohortStore().editMode"
+      :action="apply"
       class="mr-2"
-      color="primary"
-      @click="apply"
+      :disabled="!!useCohortStore().editMode"
+      :in-progress="isPerforming === 'search'"
     >
       Apply
-    </v-btn>
+    </ProgressButton>
     <v-btn
       v-if="useCohortStore().showApplyButton()"
       id="unsaved-filter-reset"
@@ -19,19 +19,20 @@
     >
       Reset
     </v-btn>
-    <div v-if="isPerforming !== 'search'">
-      <v-btn
+    <div v-if="isPerforming !== 'search' && !useCohortStore().showApplyButton()">
+      <ProgressButton
         id="save-button"
+        :action="save"
         class="mr-2"
         :color="saveButtonColor"
         :disabled="!!useCohortStore().editMode || showCreateModal || !!isPerforming"
-        @click="save"
+        :in-progress="isPerforming === 'save'"
       >
         <span v-if="isPerforming === 'acknowledgeSave'">Saved</span>
-        <span v-if="isPerforming === 'save'"><v-progress-circular size="small" /> Saving</span>
+        <span v-if="isPerforming === 'save'">Saving</span>
         <span v-if="!isPerforming && useCohortStore().cohortId">Save Cohort</span>
         <span v-if="!isPerforming && !useCohortStore().cohortId">Save</span>
-      </v-btn>
+      </ProgressButton>
       <v-btn
         v-if="!isPerforming && useCohortStore().cohortId"
         id="reset-to-saved-cohort"
@@ -51,21 +52,22 @@
 </template>
 
 <script setup>
-import {get} from 'lodash'
-import {putFocusNextTick} from '@/lib/utils'
+import {get, map} from 'lodash'
 </script>
 
 <script>
 import CreateCohortModal from '@/components/cohort/CreateCohortModal'
+import ProgressButton from '@/components/util/ProgressButton'
 import {applyFilters, loadCohort, resetFiltersToLastApply} from '@/stores/cohort-edit-session/utils'
 import {createCohort, saveCohort} from '@/api/cohort'
+import {putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
 import {useRouter} from 'vue-router'
 
 export default {
   name: 'ApplyAndSaveButtons',
-  components: {CreateCohortModal},
+  components: {CreateCohortModal, ProgressButton},
   data: () => ({
     isPerforming: undefined,
     showCreateModal: false
@@ -82,7 +84,6 @@ export default {
       context.broadcast('cohort-apply-filters')
       this.isPerforming = 'search'
       context.alertScreenReader('Searching for students')
-      cohort.setModifiedSinceLastSearch(false)
       const orderBy = get(
         context.currentUser.preferences,
         cohort.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
@@ -91,6 +92,7 @@ export default {
       applyFilters(orderBy, termId).then(() => {
         putFocusNextTick('cohort-results-header')
         context.alertScreenReader(`Results include ${cohort.totalStudentCount} student${cohort.totalStudentCount === 1 ? '' : 's'}`)
+        cohort.setModifiedSinceLastSearch(false)
         this.isPerforming = null
       })
     },
@@ -104,13 +106,13 @@ export default {
       this.showCreateModal = false
       this.isPerforming = 'save'
       context.alertScreenReader('Creating cohort')
-      return createCohort(cohortStore.domain, name, cohortStore.filters).then(async cohort => {
+      return createCohort(cohortStore.domain, name, map(cohortStore.filters, 'value')).then(async cohort => {
         if (cohort) {
           cohortStore.updateSession(cohort, cohortStore.filters, cohortStore.students, cohort.totalStudentCount)
           cohortStore.stashOriginalFilters()
           cohortStore.setModifiedSinceLastSearch(null)
           this.savedCohortCallback(`Cohort "${cohortStore.cohortName}" created`)
-          context.setPageTitle(cohortStore.cohortName)
+          setPageTitle(cohortStore.cohortName)
           await useRouter().push(`/cohort/${cohortStore.cohortId}`)
           window.history.replaceState({...window.history.state, ...{}}, null)
           this.isPerforming = null
@@ -138,7 +140,7 @@ export default {
       if (cohort.cohortId) {
         useContextStore().alertScreenReader(`Saving changes to cohort ${cohort.cohortName}`)
         this.isPerforming = 'save'
-        saveCohort(cohort.cohortId, cohort.cohortName, cohort.filters).then(() => {
+        saveCohort(cohort.cohortId, cohort.cohortName, map(cohort.filters, 'value')).then(() => {
           cohort.setModifiedSinceLastSearch(null)
           this.savedCohortCallback(`Cohort "${cohort.cohortName}" saved`)
         })
