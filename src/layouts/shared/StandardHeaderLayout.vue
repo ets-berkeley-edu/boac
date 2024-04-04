@@ -1,6 +1,5 @@
 <template>
   <v-container
-    v-shortkey="['ctrl', 'alt', 's']"
     class="my-2 py-0"
     fluid
     @shortkey="() => putFocusNextTick('search-students-input')"

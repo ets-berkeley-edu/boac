@@ -89,15 +89,21 @@ import SearchSession from '@/mixins/SearchSession'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
 import {getAllTopics} from '@/api/topics'
 import {useSearchStore} from '@/stores/search'
-import {scrollToTop} from '@/lib/utils'
-import {each, noop, trim} from 'lodash'
+import {putFocusNextTick, scrollToTop} from '@/lib/utils'
+import {each, get, noop, trim} from 'lodash'
 
 export default {
-  name: 'StandardHeaderLayout',
+  name: 'AdvancedSearch',
   mixins: [Context, SearchSession],
   data: () => ({
     showErrorPopover: false
   }),
+  mounted() {
+    document.addEventListener('keyup', this.onKeyUp)
+  },
+  beforeUnmount() {
+    document.removeEventListener('keyup', this.onKeyUp)
+  },
   created() {
     useSearchStore().resetAdvancedSearch(this.$route.query.q)
     getMySearchHistory().then(history => {
@@ -122,6 +128,15 @@ export default {
   methods: {
     hideError() {
       this.showErrorPopover = false
+    },
+    onKeyUp(event) {
+      if (event.keyCode === 191) {
+        const el = get(event, 'currentTarget.activeElement')
+        const ignore = ['textbox'].includes(get(el, 'role')) || ['INPUT'].includes(get(el, 'tagName'))
+        if (!ignore) {
+          putFocusNextTick('search-students-input')
+        }
+      }
     },
     search() {
       const q = trim(this.queryText)
@@ -176,21 +191,4 @@ export default {
   border-color: white;
   color: #3b7ea5;
 }
-/*
-.simple-typeahead {
-  display: inline-block;
-  onClickClearflex-basis: 0%;
-  onClickClearflex-grow: 1;
-  onClickClearflex-shrink: 1;
-  onClickClearfont-feature-settings: normal;
-  onClickClearfont-kerning: auto;
-  onClickClearfont-optical-sizing: auto;
-  onClickClearfont-size: 16px;
-  onClickClearheight: 50px;
-  onClickClearmargin: 0;
-  onClickClearoutline-offset: -2px;
-  onClickClearoverflow-x: visible;
-  onClickClearoverflow-y: visible;
-}
-*/
 </style>

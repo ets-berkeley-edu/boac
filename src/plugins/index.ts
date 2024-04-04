@@ -2,7 +2,6 @@ import 'v-calendar/style.css'
 import axios from '@/plugins/axios'
 import {Calendar, DatePicker, setupCalendar} from 'v-calendar'
 import CKEditor from '@ckeditor/ckeditor5-vue'
-import defaultExport from 'vue3-shortkey'
 import type {App} from 'vue'
 import vuetify from './vuetify'
 import {createPinia} from 'pinia'
@@ -14,7 +13,6 @@ export function registerPlugins (app: App) {
     .use(createPinia())
     .use(setupCalendar, {})
     .use(vuetify)
-    .use(defaultExport)
     .component('focus-trap', FocusTrap)
     .component('elegant-calendar', Calendar)
     .component('elegant-date-picker', DatePicker)
