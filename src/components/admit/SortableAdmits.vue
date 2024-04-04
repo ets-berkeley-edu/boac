@@ -1,80 +1,86 @@
 <template>
-  <div>
-    <v-data-table-virtual
-      :borderless="true"
-      density="compact"
-      :headers="headers"
-      :items="admittedStudents"
-      :no-sort-reset="true"
-      :sort-by="[sortBy]"
-      :sort-compare="sortCompare"
-      :sort-desc.sync="sortDescending"
-      stacked="md"
-      thead-class="sortable-table-header text-no-wrap"
-    >
-      <template #item.curated="{item}">
-        <CuratedStudentCheckbox
-          domain="admitted_students"
-          :student="item"
-        />
-      </template>
+  <v-data-table-virtual
+    borderless
+    :cell-props="{
+      class: 'pl-0'
+    }"
+    density="compact"
+    :header-props="{
+      class: 'pl-0 text-no-wrap'
+    }"
+    :headers="headers"
+    :items="admittedStudents"
+    no-sort-reset
+    :sort-by="[sortBy]"
+    :sort-compare="sortCompare"
+    :sort-desc="sortDescending"
+    stacked="md"
+  >
+    <template #item.curated="{item}">
+      <CuratedStudentCheckbox
+        class="mb-2"
+        domain="admitted_students"
+        :student="item"
+      />
+    </template>
 
-      <template #item.lastName="{item}">
+    <template #item.lastName="{item}">
+      <div class="text-no-wrap">
         <span class="sr-only">Admitted student name</span>
         <router-link
           :id="`link-to-admit-${item.csEmplId}`"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
           :to="admitRoutePath(item.csEmplId)"
           v-html="fullName(item)"
-        ></router-link>
-      </template>
+        />
+      </div>
+    </template>
 
-      <template #item.csEmplId="{item}">
-        <span class="sr-only">C S I D </span>
-        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.csEmplId }}</span>
-      </template>
+    <template #item.csEmplId="{item}">
+      <span class="sr-only">C S I D </span>
+      <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.csEmplId }}</span>
+    </template>
 
-      <template #item.currentSir="{item}">
-        <span class="sr-only">S I R</span>
-        {{ item.currentSir }}
-      </template>
+    <template #item.currentSir="{item}">
+      <span class="sr-only">S I R</span>
+      {{ item.currentSir }}
+    </template>
 
-      <template #item.specialProgramCep="{item}">
-        <span class="sr-only">C E P</span>
-        {{ item.specialProgramCep }}
-      </template>
+    <template #item.specialProgramCep="{item}">
+      <span class="sr-only">C E P</span>
+      {{ item.specialProgramCep }}
+    </template>
 
-      <template #item.reentryStatus="{item}">
-        <span class="sr-only">Re-entry</span>
-        {{ item.reentryStatus }}
-      </template>
+    <template #item.reentryStatus="{item}">
+      <span class="sr-only">Re-entry</span>
+      {{ item.reentryStatus }}
+    </template>
 
-      <template #item.firstGenerationCollege="{item}">
-        <span class="sr-only">First generation</span>
-        {{ item.firstGenerationCollege }}
-      </template>
+    <template #item.firstGenerationCollege="{item}">
+      <span class="sr-only">First generation</span>
+      {{ item.firstGenerationCollege }}
+    </template>
 
-      <template #item.urem="{item}">
-        <span class="sr-only">U R E M</span>
-        {{ item.urem }}
-      </template>
+    <template #item.urem="{item}">
+      <span class="sr-only">U R E M</span>
+      {{ item.urem }}
+    </template>
 
-      <template #item.applicationFeeWaiverFlag="{item}">
-        <span class="sr-only">Waiver</span>
-        {{ item.applicationFeeWaiverFlag }}
-      </template>
+    <template #item.applicationFeeWaiverFlag="{item}">
+      <span class="sr-only">Waiver</span>
+      {{ item.applicationFeeWaiverFlag }}
+    </template>
 
-      <template #item.residencyCategory="{item}">
-        <span class="sr-only">Residency</span>
-        {{ item.residencyCategory }}
-      </template>
+    <template #item.residencyCategory="{item}">
+      <span class="sr-only">Residency</span>
+      {{ item.residencyCategory }}
+    </template>
 
-      <template #item.freshmanOrTransfer="{item}">
-        <span class="sr-only">Freshman or Transfer</span>
-        {{ item.freshmanOrTransfer }}
-      </template>
-    </v-data-table-virtual>
-  </div>
+    <template #item.freshmanOrTransfer="{item}">
+      <span class="sr-only">Freshman or Transfer</span>
+      {{ item.freshmanOrTransfer }}
+    </template>
+  </v-data-table-virtual>
 </template>
 
 <script>

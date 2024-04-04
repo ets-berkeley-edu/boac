@@ -123,43 +123,6 @@
   white-space: nowrap;
   border: 0;
 }
-.stacked-table {
-  thead {
-    display: none;
-  }
-  tbody, tbody>tr, tbody>tr>td {
-    display: block;
-  }
-  tbody>tr {
-    margin-bottom: 12px;
-  }
-  tbody>tr>td {
-    height: unset !important;
-
-    &::after {
-      display: block;
-      clear: both;
-      content: "";
-    }
-    &::before {
-      content: attr(data-label);
-      width: 40%;
-      float: left;
-      text-align: right;
-      overflow-wrap: break-word;
-      font-weight: 700;
-      font-style: normal;
-      padding: 0 0.5rem 0 0;
-      margin: 0;
-    }
-    &>div {
-      display: inline-block;
-      width: 60%;
-      padding: 0 0 0 0.5rem;
-      margin: 0;
-    }
-  }
-}
 .truncate-with-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;

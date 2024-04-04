@@ -77,7 +77,6 @@
         </div>
         <div class="pt-4">
           <SortableStudents
-            :id="`${id}-students`"
             domain="default"
             :students="studentsWithAlerts"
             :options="sortableGroupOptions"
@@ -135,15 +134,13 @@ export default {
   data: () => ({
     buttonHasFocus: false,
     groupTypeName: undefined,
+    id: undefined,
     isFetching: false,
     isOpen: false,
     keyword: undefined,
     studentsWithAlerts: undefined
   }),
   computed: {
-    id() {
-      return `sortable-${this.keyword}-${this.group.id}`
-    },
     openAndLoaded: {
       get: function() {
         return this.isOpen && !this.isFetching
@@ -164,6 +161,7 @@ export default {
   mounted() {
     this.keyword = this.isCohort ? 'cohort' : 'curated'
     this.groupTypeName = this.isCohort ? 'cohort' : 'curated group'
+    this.id = `sortable-${this.keyword}-${this.group.id}`
   },
   methods: {
     fetchStudents(param) {
