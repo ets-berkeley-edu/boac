@@ -8,13 +8,13 @@
         class="sidebar-create-link"
         path="/cohort/new"
       >
-        <v-icon color="white" :icon="mdiPlus" size="large" />
+        <v-icon color="white" :icon="mdiPlus" size="24" />
       </NavLink>
     </div>
     <div
-      v-for="cohort in cohorts"
+      v-for="cohort in props.cohorts"
       :key="cohort.id"
-      class="d-flex justify-space-between align-center pl-1 sidebar-row-link"
+      class="d-flex justify-space-between align-center pl-2 sidebar-row-link"
     >
       <NavLink
         :id="`sidebar-cohort-${cohort.id}`"
@@ -24,7 +24,7 @@
       >
         {{ cohort.name }}
       </NavLink>
-      <div class="pl-1 pr-2">
+      <div class="pl-1 pr-3">
         <span
           :id="`sidebar-cohort-${cohort.id}-total-student-count`"
           class="sidebar-pill"
@@ -36,24 +36,14 @@
 </template>
 
 <script setup>
-import {mdiPlus} from '@mdi/js'
-</script>
-
-<script>
 import NavLink from '@/components/util/NavLink'
+import {mdiPlus} from '@mdi/js'
 import {pluralize} from '@/lib/utils'
 
-export default {
-  name: 'Cohorts',
-  components: {NavLink},
-  props: {
-    cohorts: {
-      type: Array,
-      required: true
-    }
-  },
-  methods: {
-    pluralize
+const props = defineProps({
+  cohorts: {
+    type: Array,
+    required: true
   }
-}
+})
 </script>

@@ -1,73 +1,66 @@
 <template>
-  <v-navigation-drawer
-    class="sidebar"
-    color="tertiary"
-    permanent
-    :scrim="false"
-  >
-    <div class="bg-tertiary pt-3">
-      <div aria-label="Cohorts and Curated Groups">
-        <div v-if="myCohorts">
-          <Cohorts :cohorts="myCohorts" />
-          <hr class="ml-2 mr-2 section-divider" />
-        </div>
-        <div v-if="myCuratedGroups">
-          <CuratedGroups domain="default" />
-          <hr class="ml-2 mr-2 section-divider" />
-        </div>
-        <div v-if="get(useContextStore().currentUser, 'canAccessAdmittedStudents')">
-          <div class="ml-2 sidebar-header">
-            Admitted Students
-          </div>
-          <div class="ml-1">
-            <div v-if="myAdmitCohorts" class="py-2">
-              <MyAdmitCohorts :cohorts="myAdmitCohorts" />
-            </div>
-            <div v-if="myCuratedGroups">
-              <div class="pt-2">
-                <CuratedGroups domain="admitted_students" header-class="sidebar-sub-header" />
-              </div>
-            </div>
-          </div>
-          <hr class="mx-2 section-divider" />
-        </div>
-        <div class="mb-2 px-1 sidebar-row-link">
-          <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
-        </div>
-        <div class="mb-2 px-1 sidebar-row-link">
-          <router-link id="groups-all" to="/groups/all">Everyone's Groups</router-link>
-        </div>
+  <v-navigation-drawer class="bg-tertiary" permanent>
+    <v-list-item v-if="myCohorts" class="list-item" nav>
+      <Cohorts class="mt-2" :cohorts="myCohorts" />
+    </v-list-item>
+    <hr class="mx-2 section-divider" />
+    <v-list-item v-if="myCuratedGroups" class="list-item">
+      <CuratedGroups domain="default" />
+    </v-list-item>
+    <hr class="mx-2 section-divider" />
+    <v-list-item v-if="canAccessAdmittedStudents" class="list-item">
+      <div class="ml-2 sidebar-header">
+        Admitted Students
       </div>
-      <v-banner
-        v-if="get(useContextStore().currentUser, 'canAccessAdvisingData')"
-        aria-label="Notes"
-        :border="'tertiary'"
-        class="sidebar-sticky bg-tertiary px-0 py-3"
-        sticky
+      <MyAdmitCohorts v-if="myAdmitCohorts" :cohorts="myAdmitCohorts" />
+    </v-list-item>
+    <v-list-item v-if="canAccessAdmittedStudents && myCuratedGroups" class="list-item">
+      <CuratedGroups v-if="myCuratedGroups" domain="admitted_students" header-class="sidebar-sub-header" />
+    </v-list-item>
+    <hr class="mx-2 section-divider" />
+    <v-list-item class="list-item">
+      <div class="sidebar-row-link">
+        <router-link
+          id="cohorts-all"
+          class="ml-1 mr-2"
+          to="/cohorts/all"
+        >
+          Everyone's Cohorts
+        </router-link>
+      </div>
+    </v-list-item>
+    <v-list-item class="list-item">
+      <div class="sidebar-row-link">
+        <router-link
+          id="groups-all"
+          class="ml-1 mr-2"
+          to="/groups/all"
+        >
+          Everyone's Groups
+        </router-link>
+      </div>
+    </v-list-item>
+    <v-list-item v-if="canAccessAdvisingData" class="list-item mt-12">
+      <LinkToDraftNotes />
+      <v-btn
+        v-if="!get(useContextStore().currentUser, 'isAdmin')"
+        id="batch-note-button"
+        class="mx-3 mt-1"
+        color="primary"
+        :disabled="!!useNoteStore().mode"
+        variant="flat"
+        @click="isCreateNoteModalOpen = true"
       >
-        <div class="d-flex flex-column w-100">
-          <LinkToDraftNotes />
-          <v-btn
-            v-if="!get(useContextStore().currentUser, 'isAdmin')"
-            id="batch-note-button"
-            class="mx-3 mt-1"
-            color="primary"
-            :disabled="!!useNoteStore().mode"
-            variant="flat"
-            @click="isCreateNoteModalOpen = true"
-          >
-            <v-icon class="mr-1" :icon="mdiFileDocument" />
-            New Note
-          </v-btn>
-        </div>
-        <EditBatchNoteModal
-          initial-mode="createBatch"
-          :is-open="isCreateNoteModalOpen"
-          :on-close="onCreateNoteModalClose"
-          :toggle-show="toggleCreateNoteModal"
-        />
-      </v-banner>
-    </div>
+        <v-icon class="mr-1" :icon="mdiFileDocument" />
+        New Note
+      </v-btn>
+      <EditBatchNoteModal
+        initial-mode="createBatch"
+        :is-open="isCreateNoteModalOpen"
+        :on-close="onCreateNoteModalClose"
+        :toggle-show="toggleCreateNoteModal"
+      />
+    </v-list-item>
   </v-navigation-drawer>
 </template>
 
@@ -96,6 +89,8 @@ export default {
     MyAdmitCohorts
   },
   data: () => ({
+    canAccessAdmittedStudents: false,
+    canAccessAdvisingData: false,
     isCreateNoteModalOpen: false
   }),
   computed: {
@@ -108,6 +103,10 @@ export default {
     myCuratedGroups() {
       return get(useContextStore().currentUser, 'myCuratedGroups')
     }
+  },
+  created() {
+    this.canAccessAdmittedStudents = get(useContextStore().currentUser, 'canAccessAdmittedStudents')
+    this.canAccessAdvisingData = get(useContextStore().currentUser, 'canAccessAdvisingData')
   },
   methods: {
     get,
@@ -123,64 +122,9 @@ export default {
 }
 </script>
 
-<style>
-.sidebar.v-navigation-drawer .v-navigation-drawer__content {
-  overflow: unset !important;
-}
-.sidebar-sticky {
-  bottom: 0px;
-  box-shadow: 0px -20px 30px -15px rgba(var(--v-theme-tertiary), 0.7);
-}
-.sidebar-header {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 800;
-}
-.sidebar-sub-header {
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-}
-.sidebar-pill {
-  background-color: rgb(var(--v-theme-secondary));
-  border-radius: 10px;
-  color: rgb(var(--v-theme-quaternary));
-  display: inline-block;
-  font-size: 16px;
-  font-weight: 800;
-  height: 20px;
-  line-height: 20px;
-  padding: 0 4px 0 4px;
-  text-align: center;
-}
-.sidebar-row-link {
-  border-left: 6px solid transparent;
-  color: rgb(var(--v-theme-secondary));
-  font-size: 16px;
-  line-height: 24px;
-}
-.sidebar-row-link:hover,
-.sidebar-row-link:focus,
-.sidebar-row-link:focus-within,
-.sidebar-row-link:active {
-  background-color: rgb(var(--v-theme-quaternary));
-  border: 0;
-  border-left: 6px solid rgb(var(--v-theme-warning)) !important;
-  color: rgb(var(--v-theme-warning));
-  text-decoration: none;
-  outline-style: none;
-}
-.sidebar-row-link:hover .sidebar-pill,
-.sidebar-row-link:focus .sidebar-pill,
-.sidebar-row-link:focus-within .sidebar-pill,
-.sidebar-row-link:active .sidebar-pill {
-  background-color: rgb(var(--v-theme-warning));
-}
-.sidebar-row-link a:link,
-.sidebar-row-link a:visited {
-  text-decoration: none;
-  border: 0;
-  color: inherit;
-  outline-style: none;
+<style scoped>
+.list-item {
+  padding: 0;
+  margin-top: 2px;
 }
 </style>

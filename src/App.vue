@@ -1,9 +1,5 @@
 <template>
-  <v-app class="vh-100">
-    <v-main class="h-100">
-      <router-view />
-    </v-main>
-  </v-app>
+  <router-view />
 </template>
 
 <style>
