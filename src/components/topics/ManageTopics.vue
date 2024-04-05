@@ -3,6 +3,7 @@
     <div class="d-flex justify-content-between">
       <div class="pb-3 pl-3 pt-2 w-50">
         <v-text-field
+          id="filter-topics"
           v-model="filter"
           class="d-inline"
           density="compact"

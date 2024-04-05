@@ -37,6 +37,7 @@
         <div class="align-items-center d-flex">
           <div class="pb-1 pl-2">
             [<v-btn
+              id="flight-deck-show-hide-configs"
               class="m-0 p-0"
               :class="{'collapsed': showConfigs}"
               aria-controls="collapse-configs"
