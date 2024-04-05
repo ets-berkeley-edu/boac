@@ -11,13 +11,13 @@
         path="/curate"
         :query-args="{'domain': domain}"
       >
-        <v-icon color="white" :icon="mdiPlus" size="large" />
+        <v-icon color="white" :icon="mdiPlus" size="24" />
       </NavLink>
     </div>
     <div
       v-for="(group, index) in filter(get(useContextStore().currentUser, 'myCuratedGroups'), ['domain', domain])"
       :key="group.id"
-      class="d-flex justify-space-between align-center pl-1 sidebar-row-link"
+      class="d-flex justify-space-between align-center pl-2 sidebar-row-link"
     >
       <NavLink
         :id="`sidebar-${idFragment}-${index}`"
@@ -27,7 +27,7 @@
       >
         {{ group.name }}
       </NavLink>
-      <div class="pl-1 pr-2">
+      <div class="pl-1 pr-3">
         <span
           :id="`sidebar-${idFragment}-${index}-count`"
           class="sidebar-pill"

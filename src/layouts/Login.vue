@@ -1,6 +1,6 @@
 <template>
-  <div class="background-blue-sky font-size-14 vh-100">
-    <div class="container w-100 px-4 mx-auto">
+  <v-app class="background-blue-sky font-size-14 vh-100">
+    <v-main class="container w-100 px-4 mx-auto">
       <div class="stripe"></div>
       <div class="avatar-container">
         <img src="@/assets/airplane.svg" alt="Airplane logo" class="avatar-airplane" />
@@ -48,8 +48,8 @@
       <div class="copyright pt-2" role="contentinfo">
         <span class="font-size-12 text-white">&copy; {{ new Date().getFullYear() }} The Regents of the University of California</span>
       </div>
-    </div>
-  </div>
+    </v-main>
+  </v-app>
 </template>
 
 <script>

@@ -1,18 +1,18 @@
 <template>
-  <div>
-    <span
-      class="cloud-background ma-0 pa-0 h-100 w-100"
-      aria-live="polite"
-      role="alert"
-      :style="{backgroundImage: `url(${cloudBackground})`, backgroundRepeat: 'repeat'}"
-    ><span class="sr-only">Sorry, page not found. Contact us if the system is misbehaving.</span></span>
-    <div class="ticket-container text-center">
-      <img
-        alt="A silly boarding pass with the text, 'Error 404: Flight not found'"
-        class="ticket-to-nowhere w-75"
-        src="@/assets/boa-boarding-ticket.png"
-      />
-    </div>
+  <span
+    class="cloud-background ma-0 pa-0 h-100 w-100"
+    aria-live="polite"
+    role="alert"
+    :style="{backgroundImage: `url(${cloudBackground})`, backgroundRepeat: 'repeat'}"
+  >
+    <span class="sr-only">Sorry, page not found. Contact us if the system is misbehaving.</span>
+  </span>
+  <div class="ticket-container text-center">
+    <img
+      alt="A silly boarding pass with the text, 'Error 404: Flight not found'"
+      class="ticket-to-nowhere w-75"
+      src="@/assets/boa-boarding-ticket.png"
+    />
   </div>
 </template>
 
@@ -44,9 +44,8 @@ export default {
   z-index: -1;
 }
 .ticket-container {
-  align-content: center;
   min-height: 100vh;
-  padding-top: 10%;
+  padding-top: 20%;
 }
 .ticket-to-nowhere {
   z-index: 999;
