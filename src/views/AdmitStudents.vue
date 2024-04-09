@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-3 mt-3">
+  <div class="pl-3 pt-3">
     <Spinner />
     <div v-if="!loading">
       <div class="d-flex flex-wrap justify-content-between">

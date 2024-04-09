@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-3 mt-3">
+  <div class="pl-3 pr-2 pt-3">
     <Spinner />
     <div v-if="!useContextStore().loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
@@ -28,7 +28,7 @@
       <div v-if="!showHistory && showStudentsSection">
         <div class="align-center d-flex justify-content-between mr-3 pt-4">
           <CuratedGroupSelector
-            :context-description="useCohortStore().domain === 'default' ? `Cohort ${cohortName || ''}` : `Admitted Students Cohort ${cohortName || ''}`"
+            :context-description="useCohortStore().domain === 'default' ? `Cohort ${useCohortStore().cohortName || ''}` : `Admitted Students Cohort ${useCohortStore().cohortName || ''}`"
             :domain="useCohortStore().domain"
             :on-create-curated-group="resetFiltersToLastApply"
             :students="useCohortStore().students"
@@ -36,21 +36,20 @@
           <div class="d-flex flex-wrap justify-content-end">
             <TermSelector v-if="useCohortStore().domain === 'default'" />
             <div class="pl-4">
-              <SortBy v-if="showSortBy" :domain="useCohortStore().domain" />
+              <SortBy v-if="useCohortStore().showSortBy" :domain="useCohortStore().domain" />
             </div>
           </div>
         </div>
         <div v-if="useCohortStore().totalStudentCount > useCohortStore().pagination.itemsPerPage" class="pt-1">
-          <hr class="filters-section-separator mr-3" />
-          <div class="mt-3">
-            <Pagination
-              :click-handler="goToPage"
-              :init-page-number="pageNumber"
-              :limit="10"
-              :per-page="useCohortStore().pagination.itemsPerPage"
-              :total-rows="useCohortStore().totalStudentCount"
-            />
-          </div>
+          <hr />
+          <Pagination
+            class="my-3"
+            :click-handler="goToPage"
+            :init-page-number="pageNumber"
+            :limit="10"
+            :per-page="useCohortStore().pagination.itemsPerPage"
+            :total-rows="useCohortStore().totalStudentCount"
+          />
         </div>
         <div v-if="useCohortStore().domain === 'default'" id="cohort-students" class="list-group mr-2">
           <StudentRow
@@ -67,20 +66,19 @@
           />
         </div>
         <div v-if="useCohortStore().domain === 'admitted_students'">
-          <div class="pb-1">
-            <hr class="filters-section-separator" />
-          </div>
+          <hr />
           <AdmitStudentsTable :include-curated-checkbox="true" :students="useCohortStore().students" />
+          <hr />
         </div>
-        <div v-if="useCohortStore().totalStudentCount > useCohortStore().pagination.itemsPerPage" class="p-3">
-          <Pagination
-            :click-handler="goToPage"
-            :init-page-number="pageNumber"
-            :limit="10"
-            :per-page="useCohortStore().pagination.itemsPerPage"
-            :total-rows="useCohortStore().totalStudentCount"
-          />
-        </div>
+        <Pagination
+          v-if="useCohortStore().totalStudentCount > useCohortStore().pagination.itemsPerPage"
+          :click-handler="goToPage"
+          :index="1"
+          :init-page-number="pageNumber"
+          :limit="10"
+          :per-page="useCohortStore().pagination.itemsPerPage"
+          :total-rows="useCohortStore().totalStudentCount"
+        />
       </div>
       <div v-if="showHistory">
         <CohortHistory />
@@ -161,7 +159,7 @@ export default {
     if (continueExistingSession) {
       this.showFilters = !this.isCompactView
       this.pageNumber = useCohortStore().pagination.currentPage
-      setPageTitle(this.cohortName)
+      setPageTitle(useCohortStore().cohortName)
       useContextStore().loadingComplete(this.getLoadedAlert())
     } else {
       const cohortId = toInt(get(useRoute(), 'params.id'))
@@ -171,7 +169,7 @@ export default {
       this.init(cohortId, domain, orderBy, termId).then(() => {
         this.showFilters = !this.isCompactView
         this.pageNumber = useCohortStore().pagination.currentPage
-        const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
+        const pageTitle = this.cohortId ? useCohortStore().cohortName : 'Create Cohort'
         setPageTitle(pageTitle)
         useContextStore().loadingComplete(this.getLoadedAlert())
         putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
@@ -196,7 +194,7 @@ export default {
         return 'Create cohort page has loaded'
       } else {
         const sortByOption = translateSortByOption(get(useContextStore().currentUser.preferences, this.sortByKey))
-        return `Cohort ${this.cohortName || ''}, sorted by ${sortByOption}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+        return `Cohort ${useCohortStore().cohortName || ''}, sorted by ${sortByOption}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
       }
     },
     init(cohortId, domain, orderBy, termId) {
@@ -272,7 +270,7 @@ export default {
 .filter-row {
   align-items: center;
   background-color: #f3f3f3;
-  border-left: 6px solid #3b7ea5 !important;
+  border-left: 6px solid rgb(var(--v-theme-primary)) !important;
   min-height: 46px;
 }
 </style>

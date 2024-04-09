@@ -729,7 +729,7 @@ export default {
   white-space: nowrap;
 }
 .filter-row-column-01 {
-  border-left: 6px solid #3b7ea5;
+  border-left: 6px solid rgb(var(--v-theme-primary));
   flex: 0 0 240px;
 }
 .filter-row-column-02 {

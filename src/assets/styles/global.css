@@ -2,13 +2,16 @@
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
 }
+.border-primary {
+  border-color: rgb(var(--v-theme-primary)) !important;
+}
 .choose-attachment-file-wrapper {
   position: relative;
   align-items: center;
   overflow: hidden;
   display: inline-block;
   background-color: #f7f7f7;
-  border: 1px solid #E0E0E0;
+  border: 1px solid rgb(var(--v-theme-faint));
   border-radius: 4px;
   text-align: center;
 }
@@ -161,6 +164,7 @@
   font-size: 12px;
   font-weight: 700;
   min-width: unset;
+  text-align: left;
   text-transform: uppercase !important;
   vertical-align: top;
 }

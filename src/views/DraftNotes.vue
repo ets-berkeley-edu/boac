@@ -1,5 +1,5 @@
 <template>
-  <div class="p-3">
+  <div class="pa-3">
     <Spinner />
     <h1 class="page-section-header pl-2 pt-2">
       {{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}

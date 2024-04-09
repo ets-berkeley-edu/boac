@@ -1,5 +1,5 @@
 <template>
-  <div class="ma-3">
+  <div class="pa-3">
     <Spinner />
     <SearchResultsHeader :results="results" />
     <div v-if="!loading && _size(results.admits)">
