@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-layout class="h-100" style="overflow: visible !important">
-      <v-app-bar color="primary" role="banner">
+      <v-app-bar color="primary" elevation="0" role="banner">
         <StandardHeaderLayout />
       </v-app-bar>
       <Sidebar />

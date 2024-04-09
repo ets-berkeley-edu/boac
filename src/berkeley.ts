@@ -3,7 +3,7 @@ import _ from 'lodash'
 import {DateTime} from 'luxon'
 import {useContextStore} from '@/stores/context'
 
-export function describeCuratedGroupDomain(domain, capitalize) {
+export function describeCuratedGroupDomain(domain, capitalize?) {
   const format = s => capitalize ? _.capitalize(s) : s
   return format(domain === 'admitted_students' ? 'admissions ' : 'curated ') + format('group')
 }
