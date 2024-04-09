@@ -1,6 +1,6 @@
 <template>
   <div class="mb-2">
-    <div class="font-weight-bolder">
+    <div class="font-weight-bold">
       <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
       <a
         v-if="plan.degreeProgramUrl"
@@ -13,7 +13,7 @@
     <div v-if="plan.program" class="text-muted">
       {{ plan.program }}
     </div>
-    <div v-if="!active" class="font-weight-bolder has-error small text-uppercase">
+    <div v-if="!active" class="font-weight-bold has-error small text-uppercase">
       {{ plan.status }}
     </div>
   </div>

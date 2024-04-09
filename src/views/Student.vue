@@ -2,7 +2,7 @@
   <div>
     <Spinner />
     <div v-if="!loading">
-      <div class="light-blue-background border-bottom">
+      <div class="light-blue-background border-b-sm">
         <StudentProfileHeader :student="student" />
       </div>
       <h2 class="sr-only">Academic Status</h2>
