@@ -12,6 +12,10 @@ const decodeHtml = (snippet: string) => {
   }
 }
 
+export function isNilOrBlank(s: string | null | undefined) {
+  return _.isNil(s) || _.trim(s) === ''
+}
+
 export function numFormat(num, format=null) {
   numeral(num).format(format)
 }
