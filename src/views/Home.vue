@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-6 mt-6">
+  <div class="pl-6 pt-6">
     <h1 class="sr-only">Welcome to BOA</h1>
     <Spinner />
     <div v-if="!loading" class="home-content">
