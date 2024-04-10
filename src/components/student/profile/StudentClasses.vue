@@ -57,7 +57,7 @@
         :pressed="null"
         variant="link"
       >
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-space-between">
           <div class="align-items-start d-flex">
             <div class="pr-3">
               <v-icon :icon="mdiMenuRight" class="when-academic-year-open" />

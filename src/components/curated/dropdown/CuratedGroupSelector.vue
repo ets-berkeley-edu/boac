@@ -53,7 +53,7 @@
       <v-card density="compact">
         <v-list density="compact" variant="flat">
           <v-list-item v-if="!myCuratedGroups.length">
-            <span class="text-no-wrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
+            <span class="text-grey px-3 py-1 text-no-wrap">You have no {{ domainLabel(false) }}s.</span>
           </v-list-item>
           <v-list-item
             v-for="group in myCuratedGroups"

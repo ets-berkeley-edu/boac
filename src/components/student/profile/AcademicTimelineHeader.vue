@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 class="font-size-24 font-weight-bold">Academic Timeline</h2>
-    <div class="d-flex justify-content-between flex-wrap ml-2">
+    <div class="d-flex justify-space-between flex-wrap ml-2">
       <div>
         <div class="d-flex my-2">
           <div class="align-self-center sr-only">Filter Type:</div>

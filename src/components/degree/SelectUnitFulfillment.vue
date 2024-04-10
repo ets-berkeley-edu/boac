@@ -33,7 +33,7 @@
           :id="`column-${position}-unit-requirement-${index}`"
           :key="index"
         >
-          <div class="align-center d-flex justify-content-between mr-3 mt-2 pill-unit-requirement">
+          <div class="align-center d-flex justify-space-between mr-3 mt-2 pill-unit-requirement">
             <div>
               {{ unitRequirement.name }}
             </div>

@@ -1,6 +1,6 @@
 <template>
   <div :id="`category-column-${position}`">
-    <div v-if="!sid" class="d-flex justify-content-between pb-3">
+    <div v-if="!sid" class="d-flex justify-space-between pb-3">
       <div class="pill bg-grey no-wrap px-2 text-uppercase text-white">Column {{ position }}</div>
       <b-btn
         v-if="currentUser.canEditDegreeProgress"
@@ -10,7 +10,7 @@
         variant="link"
         @click="add"
       >
-        <div class="align-center d-flex justify-content-between">
+        <div class="align-center d-flex justify-space-between">
           <div class="pr-2 text-no-wrap">
             Add column {{ position }} requirement
           </div>

@@ -39,7 +39,7 @@
             @keypress.enter="onSubmit"
           />
           <div class="pl-1">
-            <span class="faint-text font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
+            <span class="text-grey font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
             <span v-if="name.length === 255" class="sr-only" aria-live="polite">
               Fulfillment requirement name cannot exceed 255 characters.
             </span>

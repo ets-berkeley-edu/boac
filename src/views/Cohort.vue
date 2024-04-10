@@ -26,7 +26,7 @@
       </v-expand-transition>
       <SectionSpinner :loading="useCohortStore().editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
-        <div class="align-center d-flex justify-content-between mr-3 pt-4">
+        <div class="align-center d-flex justify-space-between mr-3 pt-4">
           <CuratedGroupSelector
             :context-description="useCohortStore().domain === 'default' ? `Cohort ${useCohortStore().cohortName || ''}` : `Admitted Students Cohort ${useCohortStore().cohortName || ''}`"
             :domain="useCohortStore().domain"

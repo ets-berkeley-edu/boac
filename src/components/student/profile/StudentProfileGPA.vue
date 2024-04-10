@@ -11,7 +11,7 @@
       </div>
       <div id="gpa-trends" class="border-left gpa-trends py-2">
         <div id="gpa-chart" class="ml-4">
-          <div class="align-items-end d-flex justify-content-between">
+          <div class="align-items-end d-flex justify-space-between">
             <h4 class="font-weight-bold gpa-trends-label mb-1 text-uppercase">GPA Trends</h4>
             <v-btn
               v-if="!_isEmpty(student.termGpa)"

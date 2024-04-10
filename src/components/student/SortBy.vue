@@ -19,7 +19,7 @@
         @shown="alertScreenReader('Sort-by menu opened')"
       >
         <template #button-content>
-          <div class="d-flex dropdown-width justify-content-between text-dark">
+          <div class="d-flex dropdown-width justify-space-between text-dark">
             <div v-if="dropdownLabel">
               <span class="sr-only">Students sorted by </span>{{ dropdownLabel }}<span class="sr-only">. Hit enter to open menu</span>
             </div>

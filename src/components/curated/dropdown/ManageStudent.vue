@@ -3,21 +3,18 @@
     <v-menu
       :id="dropdownId"
       :aria-label="`${domainLabel(true)}s for ${student.name}`"
-      :class="{'pa-0': isButtonVariantLink}"
+      :class="{'groups-menu-class pa-0': isButtonVariantLink}"
       :disabled="disableSelector"
-      :menu-class="isButtonVariantLink ? '' : 'groups-menu-class'"
-      no-caret
-      :right="alignDropdownRight"
-      size="sm"
-      :toggle-class="isButtonVariantLink ? '' : 'b-dd-override b-dd-narrow btn-primary-color-override'"
-      :variant="dropdownVariant"
     >
       <template #activator="{props}">
         <v-btn
           :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)"
           v-bind="props"
+          color="primary"
+          variant="flat"
+          width="160"
         >
-          <div v-if="!isAdding && !isRemoving" class="d-flex justify-content-between">
+          <div v-if="!isAdding && !isRemoving" class="align-center d-flex justify-space-between">
             <div :class="labelClass">
               {{ label }}
             </div>
@@ -25,7 +22,8 @@
               <v-progress-circular
                 v-if="disableSelector || groupsLoading"
                 indeterminate
-                size="small"
+                size="14"
+                width="2"
               />
               <v-icon v-if="!disableSelector && !groupsLoading" :icon="mdiMenuDown" />
             </div>
@@ -38,37 +36,41 @@
           </span>
         </v-btn>
       </template>
-      <v-card min-width="300">
-        <v-list>
+      <v-card v-if="!groupsLoading" density="compact">
+        <v-list density="compact" variant="flat">
           <v-list-item v-if="!_filter(currentUser.myCuratedGroups, ['domain', domain]).length">
-            <span class="text-no-wrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
+            <span class="text-grey px-3 py-1 text-no-wrap">You have no {{ domainLabel(false) }}s.</span>
           </v-list-item>
-          <div v-if="!groupsLoading" class="pt-1">
-            <v-list-item
-              v-for="group in _filter(currentUser.myCuratedGroups, ['domain', domain])"
-              :id="`${idFragment}-${group.id}-menu-item`"
-              :key="group.id"
-              @click="groupCheckboxClick(group)"
-              @keyup.enter="groupCheckboxClick(group)"
-            >
+          <v-list-item
+            v-for="group in _filter(currentUser.myCuratedGroups, ['domain', domain])"
+            :key="group.id"
+            density="compact"
+            @click="groupCheckboxClick(group)"
+            @keyup.enter="groupCheckboxClick(group)"
+          >
+            <template #prepend>
               <v-checkbox
                 :id="`${idFragment}-${group.id}-checkbox`"
                 v-model="checkedGroups"
                 :aria-label="_includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
+                class="mr-2"
+                density="compact"
+                hide-details
                 :value="group.id"
               >
-                <span class="sr-only">{{ domainLabel(true) }} </span>{{ group.name }}<span class="sr-only"> {{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
+                <span class="sr-only">{{ domainLabel(true) }} </span>
+                {{ group.name }}<span class="sr-only"> {{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
               </v-checkbox>
-            </v-list-item>
-          </div>
-          <v-divider />
-          <v-list-item
-            :id="`create-${idFragment}`"
-            :aria-label="`Create a new ${domainLabel(false)}`"
-            class="create-new-button mb-0 pl-0 text-dark"
-            @click="showModal = true"
-          >
-            <v-icon :icon="mdiPlus" /> Create New {{ domainLabel(true) }}
+            </template>
+          </v-list-item>
+          <v-list-item class="border-t-sm mt-2 pt-2" density="compact">
+            <v-btn
+              :id="`create-${idFragment}`"
+              :aria-label="`Create a new ${domainLabel(false)}`"
+              :prepend-icon="mdiPlus"
+              :text="`Create New ${domainLabel(true)}`"
+              @click="showModal = true"
+            />
           </v-list-item>
         </v-list>
       </v-card>

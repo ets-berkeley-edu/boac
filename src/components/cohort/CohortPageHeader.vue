@@ -20,7 +20,7 @@
         {{ cohort.cohortName }}
         <span
           v-if="cohort.editMode !== 'apply' && cohort.totalStudentCount !== undefined"
-          class="faint-text ml-2"
+          class="text-grey ml-2"
         >{{ pluralize(cohort.domain === 'admitted_students' ? 'admit' : 'student', cohort.totalStudentCount) }}</span>
       </h1>
       <h1
@@ -43,7 +43,7 @@
         </v-btn>
         <div
           v-if="cohort.cohortId && cohort.isOwnedByCurrentUser && size(cohort.filters)"
-          class="faint-text"
+          class="text-grey"
           role="separator"
         >
           |
@@ -60,7 +60,7 @@
         </v-btn>
         <div
           v-if="cohort.cohortId && cohort.isOwnedByCurrentUser"
-          class="faint-text"
+          class="text-grey"
           role="separator"
         >
           |
@@ -77,7 +77,7 @@
         </v-btn>
         <div
           v-if="(cohort.cohortId && cohort.isOwnedByCurrentUser) || (cohort.cohortId && size(cohort.filters))"
-          class="faint-text"
+          class="text-grey"
           role="separator"
         >
           |
@@ -106,7 +106,7 @@
         </v-btn>
         <div
           v-if="isHistorySupported"
-          class="faint-text"
+          class="text-grey"
           role="separator"
         >
           |

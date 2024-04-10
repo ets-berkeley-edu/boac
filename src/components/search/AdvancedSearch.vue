@@ -13,7 +13,7 @@
           aria-labelledby="search-input-label"
           bg-color="white"
           :class="{
-            'faint-text': !queryText,
+            'text-grey': !queryText,
             'search-focus-in': isFocusOnSearch || queryText,
             'search-focus-out': !isFocusOnSearch && !queryText
           }"

@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="d-flex flex-wrap justify-content-between">
+    <div class="d-flex flex-wrap justify-space-between">
       <div v-if="mode !== 'rename'">
         <h1 id="curated-group-name" class="page-section-header mb-0 mt-0">
           {{ curatedGroupName || domainLabel(true) }}
-          <span v-if="!_isNil(totalStudentCount)" class="faint-text">
+          <span v-if="!_isNil(totalStudentCount)" class="text-grey">
             ({{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount, {1: '1'}) }})
           </span>
         </h1>
@@ -27,7 +27,7 @@
           </form>
         </div>
         <div v-if="renameError" class="has-error mb-2">{{ renameError }}</div>
-        <div class="faint-text ma-2">255 character limit <span v-if="_size(renameInput)">({{ 255 - _size(renameInput) }} left)</span></div>
+        <div class="text-grey ma-2">255 character limit <span v-if="_size(renameInput)">({{ 255 - _size(renameInput) }} left)</span></div>
         <div class="sr-only" aria-live="polite">{{ renameError }}</div>
         <div
           v-if="_size(renameInput) === 255"
@@ -69,7 +69,7 @@
             Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}
           </v-btn>
         </div>
-        <div v-if="isOwnedByCurrentUser" class="faint-text">|</div>
+        <div v-if="isOwnedByCurrentUser" class="text-grey">|</div>
         <div v-if="isOwnedByCurrentUser">
           <v-btn
             id="rename-button"
@@ -80,7 +80,7 @@
             Rename
           </v-btn>
         </div>
-        <div v-if="isOwnedByCurrentUser" class="faint-text">|</div>
+        <div v-if="isOwnedByCurrentUser" class="text-grey">|</div>
         <div v-if="isOwnedByCurrentUser">
           <v-btn
             id="delete-button"
@@ -153,7 +153,7 @@
             </template>
           </b-modal>
         </div>
-        <div v-if="isOwnedByCurrentUser" class="faint-text">|</div>
+        <div v-if="isOwnedByCurrentUser" class="text-grey">|</div>
         <div>
           <v-btn
             v-if="domain === 'default'"

@@ -2,7 +2,7 @@
   <b-container v-if="render" class="pl-0" fluid>
     <b-row>
       <b-col>
-        <div class="align-items-start d-flex flex-row justify-content-between">
+        <div class="align-items-start d-flex flex-row justify-space-between">
           <h3
             class="font-weight-bold pb-0 pr-2 text-no-wrap"
             :class="{'font-size-14': printable, 'font-size-20': !printable}"
@@ -17,7 +17,7 @@
               variant="link"
               @click.prevent="onClickAdd"
             >
-              <div class="align-center d-flex justify-content-between">
+              <div class="align-center d-flex justify-space-between">
                 <div class="pr-2 text-no-wrap">
                   Add unit requirement
                 </div>
@@ -73,7 +73,7 @@
               <div
                 v-if="row.item.isExpanded && row.item.type === 'unitRequirement' && !row.item.children.length"
                 :id="`unit-requirement-${row.item.id}-no-courses`"
-                class="faint-text pb-1 pl-4 pt-1"
+                class="text-grey pb-1 pl-4 pt-1"
               >
                 No courses
               </div>

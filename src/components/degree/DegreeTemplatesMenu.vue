@@ -14,7 +14,7 @@
       :disabled="disabled"
       :lazy="true"
       menu-class="w-100"
-      toggle-class="d-flex justify-content-between align-center"
+      toggle-class="d-flex justify-space-between align-center"
       variant="outline-dark"
     >
       <template #button-content>

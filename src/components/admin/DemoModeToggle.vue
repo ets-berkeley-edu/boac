@@ -28,7 +28,7 @@
           </div>
         </div>
         <div
-          class="faint-text"
+          class="text-grey"
           :class="{'text-description': !isToggling}"
         >
           In demo mode, student profile pictures and sensitive data will be blurred.

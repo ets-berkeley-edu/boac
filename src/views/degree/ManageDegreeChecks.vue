@@ -65,7 +65,7 @@
           <template #cell(name)="row">
             <div
               v-if="row.item.id === _get(templateForEdit, 'id')"
-              class="align-center d-flex flex-wrap justify-content-between mt-2 rename-template"
+              class="align-center d-flex flex-wrap justify-space-between mt-2 rename-template"
             >
               <div class="flex-grow-1 mr-2">
                 <div>
@@ -84,7 +84,7 @@
                   />
                 </div>
                 <div class="pl-2">
-                  <span class="faint-text font-size-12">255 character limit <span v-if="templateForEdit.name.length">({{ 255 - templateForEdit.name.length }} left)</span></span>
+                  <span class="text-grey font-size-12">255 character limit <span v-if="templateForEdit.name.length">({{ 255 - templateForEdit.name.length }} left)</span></span>
                   <span
                     v-if="templateForEdit.name.length === 255"
                     aria-live="polite"

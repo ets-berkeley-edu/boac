@@ -153,7 +153,7 @@
           <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="font-size-14 text-no-wrap">
             <div v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
               <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-              <span class="faint-text">
+              <span class="text-grey">
                 (Max: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
               </span>
             </div>
@@ -195,7 +195,7 @@
           <div v-if="!canvasSite.analytics.currentScore.boxPlottable" class="font-size-14">
             <div v-if="canvasSite.analytics.currentScore.courseDeciles">
               Score: <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
-              <div class="faint-text">
+              <div class="text-grey">
                 (Max: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
               </div>
             </div>
