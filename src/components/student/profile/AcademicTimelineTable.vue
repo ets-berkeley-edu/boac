@@ -97,14 +97,14 @@
               <div class="mr-2">
                 <v-icon :icon="mdiSync" spin />
               </div>
-              <div class="text-muted">
+              <div class="text-grey-darken-2">
                 {{ creatingNoteEvent.subject }}
               </div>
             </div>
           </td>
           <td></td>
           <td>
-            <div class="align-top pr-2 float-right text-no-wrap text-muted">
+            <div class="align-top pr-2 float-right text-no-wrap text-grey-darken-2">
               <TimelineDate
                 :date="new Date()"
                 :include-time-of-day="false"
@@ -255,7 +255,7 @@
               </div>
               <div v-if="_includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)">
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
-                  <div class="text-muted">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
+                  <div class="text-grey-darken-2">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-created-at`"
                     :date="message.createdAt"
@@ -270,7 +270,7 @@
                   </div>
                 </div>
                 <div v-if="displayUpdatedAt(message)">
-                  <div class="mt-2 text-muted">Updated:</div>
+                  <div class="mt-2 text-grey-darken-2">Updated:</div>
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-updated-at`"
                     :date="message.updatedAt"
@@ -280,14 +280,14 @@
                   />
                 </div>
                 <div v-if="message.setDate">
-                  <div class="mt-2 text-muted">Set Date:</div>
+                  <div class="mt-2 text-grey-darken-2">Set Date:</div>
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-set-date`"
                     :date="message.setDate"
                     class="mb-2"
                   />
                 </div>
-                <div class="text-muted">
+                <div class="text-grey-darken-2">
                   <router-link
                     v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                     :id="`advising-${message.type}-permalink-${message.id}`"

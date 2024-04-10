@@ -1,25 +1,24 @@
 <template>
   <div>
     <div>
-      <div v-if="linkToStudentProfile">
-        <router-link :to="`/student/${student.uid}`">
-          <h1
-            :class="{
-              'demo-mode-blur': currentUser.inDemoMode,
-              'font-size-20 font-weight-bolder mb-1': compact,
-              'student-section-header': !compact
-            }"
-            v-html="student.name"
-          />
-        </router-link>
-      </div>
+      <router-link v-if="linkToStudentProfile" :to="`/student/${student.uid}`">
+        <h1
+          class="mb-1"
+          :class="{
+            'demo-mode-blur': currentUser.inDemoMode,
+            'font-size-20 font-weight-bolder mb-1': compact,
+            'student-section-header': !compact
+          }"
+          v-html="student.name"
+        />
+      </router-link>
       <h1
         v-if="!linkToStudentProfile"
         id="student-name-header"
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
-        class="student-section-header"
+        class="mb-1 student-section-header"
         v-html="student.name"
-      ></h1>
+      />
       <h2 class="sr-only">Profile</h2>
       <div
         v-if="student.sisProfile.preferredName !== student.name"
@@ -79,7 +78,7 @@
       <h3 class="sr-only">Level</h3>
       <div class="font-weight-medium">{{ _get(student, 'sisProfile.level.description') }}</div>
     </div>
-    <div class="text-muted">
+    <div class="text-grey-darken-2">
       <div v-if="student.sisProfile.termsInAttendance" id="student-bio-terms-in-attendance">
         {{ pluralize('Term', student.sisProfile.termsInAttendance) }} in Attendance
       </div>

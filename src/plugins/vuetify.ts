@@ -15,6 +15,7 @@ import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
 import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
 import {VDialog} from 'vuetify/components/VDialog'
 import {VDivider} from 'vuetify/components/VDivider'
+import {VExpandTransition} from 'vuetify/components/transitions'
 import {VExpansionPanel, VExpansionPanels, VExpansionPanelText, VExpansionPanelTitle} from 'vuetify/components/VExpansionPanel'
 import {VFileInput} from 'vuetify/components/VFileInput'
 import {VFooter} from 'vuetify/components/VFooter'
@@ -60,6 +61,7 @@ export default createVuetify({
     VDataTableVirtual,
     VDialog,
     VDivider,
+    VExpandTransition,
     VExpansionPanel,
     VExpansionPanels,
     VExpansionPanelText,
@@ -125,6 +127,7 @@ export default createVuetify({
           quaternary: '#083456',
           red: colors.red.darken1,
           secondary: '#96C3DE',
+          'sky-blue': '#e3f5ff',
           success: '#437F4B',
           tertiary: '#125074',
           warning: '#f0ad4e'

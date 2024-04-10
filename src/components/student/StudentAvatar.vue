@@ -99,9 +99,9 @@ export default {
   right: 5%;
 }
 .student-avatar-large {
-  border-radius: 65px;
-  height: 130px;
-  width: 130px;
+  border-radius: 75px;
+  height: 150px;
+  width: 150px;
 }
 .student-avatar-medium {
   border-radius: 50px;

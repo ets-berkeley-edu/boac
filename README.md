@@ -36,7 +36,7 @@ flask initdb
 
 ### Create local configurations
 
-If you plan to use any resources outside localhost, put your configurations in a separately encrypted area:
+If you plan to use any resources outside localhost, put your configurations in an encrypted volume:
 
 ```
 mkdir /Volumes/XYZ/boac_config

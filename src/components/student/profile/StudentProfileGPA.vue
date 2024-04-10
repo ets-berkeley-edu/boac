@@ -57,8 +57,8 @@
             class="term-gpa-table w-100"
           >
             <tr>
-              <th class="pt-0 pb-3 text-muted">Term</th>
-              <th class="pt-0 pb-3 text-muted text-right">GPA</th>
+              <th class="pt-0 pb-3 text-grey-darken-2">Term</th>
+              <th class="pt-0 pb-3 text-grey-darken-2 text-right">GPA</th>
             </tr>
             <tr
               v-for="(term, index) in student.termGpa"

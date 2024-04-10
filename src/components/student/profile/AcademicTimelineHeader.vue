@@ -24,7 +24,7 @@
               :class="{
                 'tab-active text-white': type === filter && countsPerType[type],
                 'tab-inactive text-dark': type !== filter && countsPerType[type],
-                'tab-disabled text-muted': !countsPerType[type]
+                'tab-disabled text-grey-darken-2': !countsPerType[type]
               }"
               aria-controls="timeline-messages"
               :aria-selected="type === filter"
