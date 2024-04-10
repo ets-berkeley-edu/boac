@@ -14,7 +14,7 @@
         maxlength="255"
         size="md"
       />
-      <div class="faint-text mb-2"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
+      <div class="text-grey mb-2"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
       <div
         v-if="error"
         id="create-error"

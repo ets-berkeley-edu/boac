@@ -53,7 +53,7 @@
       </div>
     </div>
     <b-collapse :visible="!!errorMessage">
-      <span class="has-error faint-text font-size-12">
+      <span class="has-error text-grey font-size-12">
         {{ errorMessage }}
       </span>
     </b-collapse>

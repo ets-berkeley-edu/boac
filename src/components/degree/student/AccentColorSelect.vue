@@ -15,7 +15,7 @@
         block
         class="mb-2 ml-0"
         menu-class="w-100"
-        :toggle-class="`align-center border-base border-color-${selected ? selected.toLowerCase() : 'lightgrey'} d-flex justify-content-between transparent`"
+        :toggle-class="`align-center border-base border-color-${selected ? selected.toLowerCase() : 'lightgrey'} d-flex justify-space-between transparent`"
         variant="close-white"
       >
         <template #button-content>

@@ -12,7 +12,7 @@
           maxlength="255"
           size="lg"
         />
-        <div class="faint-text my-3">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
+        <div class="text-grey my-3">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
         <div
           v-if="error"
           id="create-error"

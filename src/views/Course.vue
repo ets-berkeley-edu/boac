@@ -3,7 +3,7 @@
     <Spinner />
     <div v-if="!loading && error">
       <h1 class="page-section-header">Error</h1>
-      <div class="faint-text">
+      <div class="text-grey">
         <span v-if="error.message">{{ error.message }}</span>
         <span v-if="!error.message">Sorry, there was an error retrieving data.</span>
       </div>

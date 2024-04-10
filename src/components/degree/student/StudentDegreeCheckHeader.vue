@@ -36,7 +36,7 @@
       <b-row>
         <b-col cols="8">
           <h2 class="mb-1 page-section-header">{{ degreeName }}</h2>
-          <div class="faint-text font-size-16 font-weight-500 pb-2">
+          <div class="text-grey font-size-16 font-weight-500 pb-2">
             {{ updatedAtDescription }}
           </div>
         </b-col>
@@ -82,12 +82,12 @@
     <b-container class="border-bottom border-warning my-2 mx-0 px-0" fluid>
       <b-row align-v="start">
         <b-col cols="8">
-          <div v-if="isEditingNote || noteBody" class="d-flex justify-content-between">
+          <div v-if="isEditingNote || noteBody" class="d-flex justify-space-between">
             <div>
               <h3 class="font-size-20 font-weight-bold text-no-wrap">Degree Notes</h3>
             </div>
             <div class="align-items-baseline d-flex justify-content-end">
-              <label for="degree-note-print-toggle" class="faint-text font-weight-500 pr-3">
+              <label for="degree-note-print-toggle" class="text-grey font-weight-500 pr-3">
                 Show notes when printed
               </label>
               <div :class="{'text-success': includeNotesWhenPrint, 'text-danger': !includeNotesWhenPrint}">
@@ -125,10 +125,10 @@
         <b-col cols="8">
           <div v-if="noteBody && !isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="d-flex font-size-14">
             <div v-if="noteUpdatedBy" class="pr-2 text-no-wrap">
-              <span v-if="noteUpdatedBy" class="faint-text font-weight-normal">
+              <span v-if="noteUpdatedBy" class="text-grey font-weight-normal">
                 <span id="degree-note-updated-by">{{ noteUpdatedBy }}</span>
               </span>
-              <span v-if="noteUpdatedAt" class="faint-text">
+              <span v-if="noteUpdatedAt" class="text-grey">
                 {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
                 <span v-if="isToday(noteUpdatedAt)"> today.</span>
                 <span v-if="!isToday(noteUpdatedAt)">
@@ -220,7 +220,7 @@
               </div>
             </template>
           </b-table>
-          <span v-if="!courses.inProgress.length" class="faint-text pl-1">None</span>
+          <span v-if="!courses.inProgress.length" class="text-grey pl-1">None</span>
         </b-col>
       </b-row>
     </b-container>

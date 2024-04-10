@@ -59,7 +59,7 @@
       </div>
     </b-card-body>
     <b-card-footer footer-bg-variant="transparent" footer-class="student-term-footer">
-      <div class="d-flex justify-content-between">
+      <div class="d-flex justify-space-between">
         <div :id="`term-${term.termId}-gpa`">
           <span class="student-course-label mr-1">Term GPA: </span>
           <span v-if="round(_get(term, 'termGpa.gpa', 0), 3) > 0" class="font-size-14">{{ round(_get(term, 'termGpa.gpa', 0), 3) }}</span>

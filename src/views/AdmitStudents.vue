@@ -2,12 +2,12 @@
   <div class="pl-3 pt-3">
     <Spinner />
     <div v-if="!loading">
-      <div class="d-flex flex-wrap justify-content-between">
+      <div class="d-flex flex-wrap justify-space-between">
         <h1 id="cohort-name" class="page-section-header">
           CE3 Admissions
           <span
             v-if="totalAdmitCount !== undefined"
-            class="faint-text"
+            class="text-grey"
           >{{ pluralize('admitted student', totalAdmitCount) }}</span>
         </h1>
         <a
@@ -31,7 +31,7 @@
           >
             Create Cohort
           </NavLink>
-          <div class="faint-text">|</div>
+          <div class="text-grey">|</div>
           <b-btn
             id="export-student-list-button"
             v-b-modal="'export-admits-modal'"

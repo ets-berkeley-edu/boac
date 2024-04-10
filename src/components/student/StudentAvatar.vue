@@ -2,11 +2,11 @@
   <div class="position-relative">
     <img
       :id="`student-avatar-${student.uid}-img`"
-      :class="avatarStyle"
-      :aria-label="ariaLabel"
       :alt="ariaLabel"
-      :src="avatarUrl"
+      :aria-label="ariaLabel"
       class="avatar"
+      :class="avatarStyle"
+      :src="avatarUrl"
       :style="{backgroundImage: `url(${avatarUrl})`, backgroundRepeat: 'repeat'}"
       @error="avatarError"
     />
@@ -99,9 +99,9 @@ export default {
   right: 5%;
 }
 .student-avatar-large {
-  border-radius: 75px;
-  height: 150px;
-  width: 150px;
+  border-radius: 65px;
+  height: 130px;
+  width: 130px;
 }
 .student-avatar-medium {
   border-radius: 50px;

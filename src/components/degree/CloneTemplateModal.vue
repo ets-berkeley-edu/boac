@@ -25,7 +25,7 @@
           @keyup.esc="cancel"
         />
         <div class="pl-2 pt-1">
-          <span class="faint-text font-size-12"><span class="sr-only">Degree name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
+          <span class="text-grey font-size-12"><span class="sr-only">Degree name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
           <span
             v-if="name.length === 255"
             aria-live="polite"

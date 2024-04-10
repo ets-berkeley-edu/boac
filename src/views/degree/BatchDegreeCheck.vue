@@ -1,7 +1,7 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
-    <div class="d-flex flex-wrap align-items-baseline justify-content-between">
+    <div class="d-flex flex-wrap align-items-baseline justify-space-between">
       <h1 id="page-header" class="page-section-header text-no-wrap mr-2">Batch Degree Checks</h1>
       <router-link id="manage-degrees-link" to="/degrees">
         <div class="text-no-wrap">

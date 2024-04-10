@@ -14,7 +14,7 @@
       @dragstart="onDrag($event, 'start')"
       @drop="onDropCourse($event)"
     >
-      <div class="align-center d-flex justify-content-between w-100">
+      <div class="align-center d-flex justify-space-between w-100">
         <h3
           v-if="category.categoryType === 'Category'"
           class="category-header"

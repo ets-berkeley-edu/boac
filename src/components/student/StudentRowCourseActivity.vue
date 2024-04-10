@@ -88,7 +88,7 @@
         </b-td>
       </b-tr>
       <b-tr v-if="!termEnrollments.length">
-        <b-td class="col-course faint-text">
+        <b-td class="col-course text-grey">
           No {{ termNameForSisId(termId) }} enrollments
         </b-td>
         <b-td class="col-units">

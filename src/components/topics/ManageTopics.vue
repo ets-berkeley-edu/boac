@@ -1,6 +1,6 @@
 <template>
   <div v-if="hasLoadedTopics">
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-space-between">
       <div class="pb-3 pl-3 pt-2 w-50">
         <v-text-field
           id="filter-topics"

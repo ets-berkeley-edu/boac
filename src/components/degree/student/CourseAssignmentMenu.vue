@@ -18,7 +18,7 @@
           'accent-color-orange': course.accentColor === 'Orange',
           'accent-color-purple': course.accentColor === 'Purple',
           'accent-color-red': course.accentColor === 'Red',
-          'faint-text': !course.accentColor,
+          'text-grey': !course.accentColor,
           'text-white': isUserDragging(course.id)
         }"
         :icon="mdiDrag"

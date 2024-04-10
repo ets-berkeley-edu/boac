@@ -19,13 +19,13 @@
         @keypress.enter="() => unitRequirement ? update() : create()"
       />
       <div class="pl-2">
-        <span class="faint-text font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
+        <span class="text-grey font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
         <span v-if="name.length === 255" class="sr-only" aria-live="polite">
           Fulfillment requirement name cannot exceed 255 characters.
         </span>
       </div>
       <b-collapse :visible="!!nameErrorMessage">
-        <span class="has-error faint-text font-size-12">
+        <span class="has-error text-grey font-size-12">
           {{ nameErrorMessage }}
         </span>
       </b-collapse>

@@ -9,7 +9,7 @@
       >
         {{ fullName }}
       </h1>
-      <div class="d-flex justify-content-between">
+      <div class="d-flex justify-space-between">
         <div>
           <div v-if="admit.studentUid" class="pt-2 pb-3">
             <router-link

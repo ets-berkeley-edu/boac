@@ -1,57 +1,55 @@
 <template>
-  <div id="student-profile-header">
-    <div class="d-flex justify-space-between mr-4" :class="{'pb-0 pt-2': compact, 'pb-2 pt-4': !compact}">
-      <div class="d-flex flex-row-reverse" :class="{'ml-3': compact, 'ml-5': !compact}">
-        <div :class="{'mr-2 pr-2': compact, 'mr-4 pr-4': !compact}">
-          <StudentProfileHeaderBio
-            :compact="compact"
-            :link-to-student-profile="linkToStudentProfile"
-            :student="student"
-          />
-        </div>
-        <div class="text-center" :class="{'column-with-avatar-compact': compact, 'column-with-avatar': !compact}">
-          <StudentAvatar class="mb-2" :size="compact ? 'medium' : 'large'" :student="student" />
-          <ManageStudent
-            v-if="!compact"
-            domain="default"
-            label-class="px-2"
-            :student="student"
-          />
-        </div>
+  <div class="d-flex justify-space-between mr-4" :class="{'pb-0 pt-2': compact, 'pb-2 pt-4': !compact}">
+    <div class="d-flex flex-row-reverse" :class="{'ml-3': compact, 'ml-5': !compact}">
+      <div :class="{'mr-2 pr-2': compact, 'mr-4 pr-4': !compact}">
+        <StudentProfileHeaderBio
+          :compact="compact"
+          :link-to-student-profile="linkToStudentProfile"
+          :student="student"
+        />
       </div>
-      <div class="mr-5">
-        <StudentProfileHeaderAcademics
-          :discontinued-subplans="discontinuedSubplans"
-          :plans-minor-partitioned-by-status="plansMinorPartitionedByStatus"
-          :plans-partitioned-by-status="plansPartitionedByStatus"
+      <div class="text-center" :class="{'column-with-avatar-compact': compact, 'column-with-avatar': !compact}">
+        <StudentAvatar class="mb-2" :size="compact ? 'medium' : 'large'" :student="student" />
+        <ManageStudent
+          v-if="!compact"
+          domain="default"
+          label-class="px-2"
           :student="student"
         />
       </div>
     </div>
-    <div v-if="!compact">
-      <div class="d-flex justify-space-between pb-2">
-        <div>
-          <v-btn
-            id="show-hide-personal-details"
-            :aria-expanded="isShowingPersonalDetails"
-            class="text-no-wrap"
-            variant="link"
-            @click="toggleShowDetails"
-          >
-            <v-icon :icon="isShowingPersonalDetails ? mdiMenuDown : mdiMenuRight" :class="isShowingPersonalDetails ? 'mr-1' : 'ml-1 mr-1'" />
-            {{ isShowingPersonalDetails ? 'Hide' : 'Show' }} Personal Details
-          </v-btn>
-        </div>
-      </div>
+    <div class="mr-5">
+      <StudentProfileHeaderAcademics
+        :discontinued-subplans="discontinuedSubplans"
+        :plans-minor-partitioned-by-status="plansMinorPartitionedByStatus"
+        :plans-partitioned-by-status="plansPartitionedByStatus"
+        :student="student"
+      />
+    </div>
+  </div>
+  <div v-if="!compact">
+    <div class="d-flex justify-space-between pb-2">
       <div>
-        <StudentPersonalDetails
-          :inactive-majors="plansPartitionedByStatus[0].length ? plansPartitionedByStatus[1] : []"
-          :inactive-minors="plansMinorPartitionedByStatus[0].length ? plansMinorPartitionedByStatus[1] : []"
-          :inactive-subplans="plansPartitionedByStatus[0].length ? discontinuedSubplans : []"
-          :is-open="isShowingPersonalDetails"
-          :student="student"
-        />
+        <v-btn
+          id="show-hide-personal-details"
+          :aria-expanded="isShowingPersonalDetails"
+          class="text-no-wrap"
+          variant="link"
+          @click="toggleShowDetails"
+        >
+          <v-icon :icon="isShowingPersonalDetails ? mdiMenuDown : mdiMenuRight" :class="isShowingPersonalDetails ? 'mr-1' : 'ml-1 mr-1'" />
+          {{ isShowingPersonalDetails ? 'Hide' : 'Show' }} Personal Details
+        </v-btn>
       </div>
+    </div>
+    <div>
+      <StudentPersonalDetails
+        :inactive-majors="plansPartitionedByStatus[0].length ? plansPartitionedByStatus[1] : []"
+        :inactive-minors="plansMinorPartitionedByStatus[0].length ? plansMinorPartitionedByStatus[1] : []"
+        :inactive-subplans="plansPartitionedByStatus[0].length ? discontinuedSubplans : []"
+        :is-open="isShowingPersonalDetails"
+        :student="student"
+      />
     </div>
   </div>
 </template>

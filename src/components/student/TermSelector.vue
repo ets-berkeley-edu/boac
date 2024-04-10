@@ -19,7 +19,7 @@
         @shown="alertScreenReader('Term select menu opened')"
       >
         <template #button-content>
-          <div class="d-flex dropdown-width justify-content-between text-dark">
+          <div class="d-flex dropdown-width justify-space-between text-dark">
             <div v-if="selectedTermLabel">
               <span class="sr-only">Showing enrollments for </span>{{ selectedTermLabel }}<span class="sr-only">. Hit enter to open menu</span>
             </div>

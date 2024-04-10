@@ -76,7 +76,7 @@
               <td
                 class="font-size-14 pl-0"
                 :class="{
-                  'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
+                  'text-grey font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-name-printable': printable,
                   'font-size-14 td-name': !printable
                 }"
@@ -119,7 +119,7 @@
                 v-if="!isCampusRequirements"
                 class="td-units"
                 :class="{
-                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle)
+                  'text-grey font-italic': !bundle.course && !getAccentColor(bundle)
                 }"
               >
                 <v-icon
@@ -143,7 +143,7 @@
               <td v-if="sid && !isCampusRequirements" class="td-grade">
                 <span
                   :class="{
-                    'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
+                    'text-grey font-italic': !bundle.course && !getAccentColor(bundle),
                     'font-size-12': printable,
                     'font-size-14 text-no-wrap': !printable
                   }"
@@ -167,7 +167,7 @@
               <td
                 v-if="sid"
                 :class="{
-                  'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
+                  'text-grey font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-note-printable': printable,
                   'ellipsis-if-overflow font-size-14 td-note': !printable
                 }"
@@ -201,13 +201,13 @@
                 v-if="!sid && !isCampusRequirements"
                 class="align-middle td-max-width-0"
                 :class="{
-                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
+                  'text-grey font-italic': !bundle.course && !getAccentColor(bundle),
                   'font-size-12': printable,
                   'font-size-14': !printable
                 }"
                 :title="oxfordJoin(_map(bundle.unitRequirements, 'name'), 'None')"
               >
-                <div class="align-items-start d-flex justify-content-between">
+                <div class="align-items-start d-flex justify-space-between">
                   <div class="ellipsis-if-overflow">
                     <span>
                       {{ oxfordJoin(_map(bundle.unitRequirements, 'name'), '&mdash;') }}
@@ -307,7 +307,7 @@
             <b-td class="p-2" :class="{'pb-3': !sid}" colspan="5">
               <span
                 :id="emptyCategoryId"
-                class="faint-text font-italic"
+                class="text-grey font-italic"
                 :class="{
                   'font-size-14': printable,
                   'font-size-16': !printable

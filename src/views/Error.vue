@@ -6,7 +6,7 @@
       <div
         id="error-message"
         aria-live="polite"
-        class="faint-text mt-3"
+        class="text-grey mt-3"
         role="alert"
       >
         <div v-html="message" />
