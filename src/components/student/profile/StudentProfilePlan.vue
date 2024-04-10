@@ -1,7 +1,7 @@
 <template>
   <div class="mb-2">
     <div class="font-weight-bold">
-      <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
+      <span v-if="!plan.degreeProgramUrl" class="text-no-wrap">{{ plan.description }}</span>
       <a
         v-if="plan.degreeProgramUrl"
         :href="plan.degreeProgramUrl"

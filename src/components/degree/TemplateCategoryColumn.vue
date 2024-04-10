@@ -1,7 +1,7 @@
 <template>
   <div :id="`category-column-${position}`">
     <div v-if="!sid" class="d-flex justify-space-between pb-3">
-      <div class="pill bg-grey no-wrap px-2 text-uppercase text-white">Column {{ position }}</div>
+      <div class="pill bg-grey text-no-wrap px-2 text-uppercase text-white">Column {{ position }}</div>
       <b-btn
         v-if="currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"
