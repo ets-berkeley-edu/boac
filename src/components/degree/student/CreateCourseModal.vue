@@ -40,7 +40,7 @@
             <div
               v-if="error"
               id="create-error"
-              class="has-error"
+              class="text-error"
               aria-live="polite"
               role="alert"
             >

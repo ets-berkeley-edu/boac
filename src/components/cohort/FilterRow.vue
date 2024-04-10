@@ -121,7 +121,7 @@
                 :target="`filter-range-max-${position}`"
                 placement="top"
               >
-                <span class="has-error">{{ errorPerRangeInput }}</span>
+                <span class="text-error">{{ errorPerRangeInput }}</span>
               </v-tooltip>
             </div>
           </template>
@@ -174,7 +174,7 @@
           :target="`filter-range-max-${position}`"
           placement="top"
         >
-          <span class="has-error">{{ errorPerRangeInput }}</span>
+          <span class="text-error">{{ errorPerRangeInput }}</span>
         </b-popover> -->
       </div>
     </div>
@@ -196,6 +196,7 @@
     >
       <v-btn
         id="unsaved-filter-reset"
+        class="ml-1"
         variant="text"
         @click="reset"
       >

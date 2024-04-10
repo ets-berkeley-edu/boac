@@ -1,5 +1,5 @@
 <template>
-  <div class="align-center d-flex">
+  <div class="add-to-curated-group-container d-flex align-center">
     <label id="add-all-checkbox-label" :for="checkboxId" class="sr-only">
       Select all students to add to a {{ domainLabel(false) }}
     </label>
@@ -22,37 +22,38 @@
       </div>
     </div>
     <v-menu
-      v-if="!!_size(sids)"
+      v-if="!!size(sids)"
       :id="dropdownId"
       :disabled="isConfirming || isSaving"
     >
       <template #activator="{props}">
         <v-btn
           :id="isSaving ? `add-to-${idFragment}-confirmation` : `add-to-${idFragment}`"
-          :color="isConfirming || isSaving ? 'success' : 'primary'"
+          :color="isConfirming ? 'success' : 'primary'"
+          slim
           variant="flat"
           v-bind="props"
         >
           <div class="align-center d-flex">
-            <div v-if="!isConfirming" class="pr-2">
-              {{ isSaving ? 'Adding' : 'Add' }} to {{ domainLabel(true) }}
-            </div>
             <v-progress-circular
-              v-if="isSaving"
+              v-if="isSaving && !isConfirming"
               indeterminate
               size="14"
               width="2"
             />
-            <v-icon v-if="!isSaving" :icon="mdiMenuDown" />
-            <div v-if="isConfirming">
-              <v-icon :icon="mdiCheckBold" /> Added to {{ domainLabel(true) }}
+            <div v-if="!isConfirming" class="ml-1">
+              {{ isSaving ? 'Adding' : 'Add' }} to {{ domainLabel(true) }}
+            </div>
+            <v-icon v-if="!isSaving && !isConfirming" :icon="mdiMenuDown" />
+            <div v-if="isConfirming" class="align-center d-flex">
+              <v-icon class="mr-1" :icon="mdiCheckBold" size="14" /><span>Added to {{ domainLabel(true) }}</span>
             </div>
           </div>
         </v-btn>
       </template>
       <v-card density="compact">
         <v-list density="compact" variant="flat">
-          <v-list-item v-if="!myCuratedGroups.length">
+          <v-list-item v-if="!size(myCuratedGroups)">
             <span class="text-grey px-3 py-1 text-no-wrap">You have no {{ domainLabel(false) }}s.</span>
           </v-list-item>
           <v-list-item
@@ -92,37 +93,30 @@
         </v-list>
       </v-card>
     </v-menu>
-    <v-dialog
-      v-model="showModal"
-      body-class="pl-0 pr-0"
-      hide-footer
-      hide-header
-      @shown="putFocusNextTick('modal-header')"
-    >
-      <CreateCuratedGroupModal
-        :cancel="modalCancel"
-        :create="modalCreateCuratedGroup"
-        :domain="domain"
-      />
-    </v-dialog>
+    <CreateCuratedGroupModal
+      :cancel="modalCancel"
+      :create="modalCreateCuratedGroup"
+      :domain="domain"
+      :show-modal="showModal"
+    />
   </div>
 </template>
 
 <script setup>
+import {each, filter, inRange, remove, size} from 'lodash'
 import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
+import {putFocusNextTick} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 </script>
 
 <script>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
 import {addStudentsToCuratedGroup, createCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
   name: 'CuratedGroupSelector',
   components: {CreateCuratedGroupModal},
-  mixins: [Context, Util],
   props: {
     contextDescription: {
       required: true,
@@ -155,39 +149,39 @@ export default {
   }),
   computed: {
     myCuratedGroups() {
-      return this._filter(this.currentUser.myCuratedGroups, ['domain', this.domain])
+      return filter(useContextStore().currentUser.myCuratedGroups, ['domain', this.domain])
     }
   },
   created() {
     this.idFragment = this.domainLabel(false).replace(' ', '-')
     this.checkboxId = `add-all-to-${this.idFragment}`
     this.dropdownId = `${this.idFragment}-dropdown-select`
-    this.setEventHandler('curated-group-checkbox-checked', this.onCheckboxChecked)
-    this.setEventHandler('curated-group-checkbox-unchecked', this.onCheckboxUnchecked)
+    useContextStore().setEventHandler('curated-group-checkbox-checked', this.onCheckboxChecked)
+    useContextStore().setEventHandler('curated-group-checkbox-unchecked', this.onCheckboxUnchecked)
   },
   unmounted() {
-    this.removeEventHandler('curated-group-checkbox-checked', this.onCheckboxChecked)
-    this.removeEventHandler('curated-group-checkbox-unchecked', this.onCheckboxUnchecked)
+    useContextStore().removeEventHandler('curated-group-checkbox-checked', this.onCheckboxChecked)
+    useContextStore().removeEventHandler('curated-group-checkbox-unchecked', this.onCheckboxUnchecked)
   },
   methods: {
     afterAddStudents(group) {
-      this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to ${this.domainLabel(true)} "${group.name}".`)
+      useContextStore().alertScreenReader(`${size(this.sids)} student${size(this.sids) === 1 ? '' : 's'} added to ${this.domainLabel(true)} "${group.name}".`)
       this.sids = []
       this.isSelectAllChecked = this.indeterminate = false
-      this.broadcast('curated-group-deselect-all', this.domain)
+      useContextStore().broadcast('curated-group-deselect-all', this.domain)
     },
     afterCreateGroup() {
       this.sids = []
       this.refresh()
       this.toggle(false)
-      this.putFocusNextTick(this.checkboxId)
+      putFocusNextTick(this.checkboxId)
       this.onCreateCuratedGroup()
     },
     afterCreateGroupModalCancel() {
       this.sids = []
       this.refresh()
       this.toggle(false)
-      this.putFocusNextTick(this.checkboxId)
+      putFocusNextTick(this.checkboxId)
     },
     curatedGroupCheckboxClick(group) {
       this.isSaving = true
@@ -199,7 +193,7 @@ export default {
           () => {
             this.isConfirming = false
             this.afterAddStudents(group)
-            this.alertScreenReader(`Student${this.sids.length === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${group.name}`)
+            useContextStore().alertScreenReader(`Student${size(this.sids) === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${group.name}`)
           },
           2000
         )
@@ -209,25 +203,25 @@ export default {
       return describeCuratedGroupDomain(this.domain, capitalize)
     },
     refresh() {
-      this.indeterminate = this._inRange(this._size(this.sids), 1, this._size(this.students))
-      this.isSelectAllChecked = this._size(this.sids) === this._size(this.students)
+      this.indeterminate = inRange(size(this.sids), 1, size(this.students))
+      this.isSelectAllChecked = size(this.sids) === size(this.students)
     },
     modalCancel() {
       this.showModal = false
-      this.alertScreenReader('Canceled')
+      useContextStore().alertScreenReader('Canceled')
     },
     modalCreateCuratedGroup(name) {
       this.isSaving = true
-      this.showModal = false
-      createCuratedGroup(this.domain, name, this.sids).then(() => {
+      return createCuratedGroup(this.domain, name, this.sids).then(() => {
+        this.showModal = false
         this.isSaving = false
         this.isConfirming = true
+        useContextStore().alertScreenReader(`Student${size(this.sids) === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${name}`)
       }).finally(() => {
         setTimeout(
           () => {
             this.afterCreateGroup()
             this.isConfirming = false
-            this.alertScreenReader(`Student${this.sids.length === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${name}`)
           },
           2000
         )
@@ -241,22 +235,22 @@ export default {
     },
     onCheckboxUnchecked(args) {
       if (this.domain === args.domain) {
-        this.sids = this._remove(this.sids, s => s !== args.sid)
+        this.sids = remove(this.sids, s => s !== args.sid)
         this.refresh()
       }
     },
     toggle(checked) {
       this.sids = []
       if (checked) {
-        this._each(this.students, student => {
+        each(this.students, student => {
           this.sids.push(student.sid || student.csEmplId)
         })
-        this.broadcast('curated-group-select-all', this.domain)
-        this.putFocusNextTick(this.dropdownId, 'button')
-        this.alertScreenReader('All students on this page selected.')
+        useContextStore().broadcast('curated-group-select-all', this.domain)
+        putFocusNextTick(this.dropdownId, 'button')
+        useContextStore().alertScreenReader('All students on this page selected.')
       } else {
-        this.broadcast('curated-group-deselect-all', this.domain)
-        this.alertScreenReader('All students on this page deselected.')
+        useContextStore().broadcast('curated-group-deselect-all', this.domain)
+        useContextStore().alertScreenReader('All students on this page deselected.')
       }
     }
   }
@@ -267,6 +261,9 @@ export default {
 label {
   font-size: 14px;
   margin-bottom: 0;
+}
+.add-to-curated-group-container {
+  min-width: 270px;
 }
 .select-all-checkbox {
   z-index: 100;

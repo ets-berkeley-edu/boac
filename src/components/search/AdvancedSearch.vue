@@ -56,7 +56,7 @@
           <span
             id="popover-error-message"
             aria-live="polite"
-            class="has-error"
+            class="text-error"
             role="alert"
           >
             <v-icon :icon="mdiAlertCircle" class="text-warning pr-1" /> Search input is required

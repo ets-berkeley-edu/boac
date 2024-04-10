@@ -1,30 +1,25 @@
 <template>
-  <b-table-simple
-    borderless
-    hover
-    responsive
-    small
-  >
-    <b-thead>
-      <b-tr>
-        <b-th class="col-course">Class</b-th>
-        <b-th class="col-units">Units</b-th>
-        <b-th v-if="currentUser.canAccessCanvasData" class="col-bcourses">
+  <table>
+    <thead>
+      <tr>
+        <th class="col-course">Class</th>
+        <th class="col-units">Units</th>
+        <th v-if="currentUser.canAccessCanvasData" class="col-bcourses">
           <span aria-hidden="true">bCourses Activity</span>
           <span class="sr-only">Most recent B Courses activity</span>
-        </b-th>
-        <b-th class="col-midterm">
+        </th>
+        <th class="col-midterm">
           <span aria-hidden="true">Mid</span>
           <span class="sr-only">Midpoint grade</span>
-        </b-th>
-        <b-th class="col-final">
+        </th>
+        <th class="col-final">
           <span>Final<span class="sr-only"> grade</span></span>
-        </b-th>
-      </b-tr>
-    </b-thead>
-    <b-tbody>
-      <b-tr v-for="(enrollment, index) in termEnrollments" :key="index">
-        <b-td class="col-course">
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(enrollment, index) in termEnrollments" :key="index">
+        <td class="col-course">
           <span :id="`row-${rowIndex}-student-enrollment-name-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">
             {{ enrollment.displayName }}
           </span>
@@ -37,11 +32,11 @@
           <span v-if="enrollment.waitlisted" class="sr-only">
             Waitlisted
           </span>
-        </b-td>
-        <b-td class="col-units pl-2">
+        </td>
+        <td class="col-units pl-2">
           {{ enrollment.units || '&mdash;' }}
-        </b-td>
-        <b-td v-if="currentUser.canAccessCanvasData" class="col-bcourses pl-1">
+        </td>
+        <td v-if="currentUser.canAccessCanvasData" class="col-bcourses pl-1">
           <div
             v-for="(canvasSite, cIndex) in enrollment.canvasSites"
             :key="cIndex"
@@ -57,13 +52,13 @@
           <div v-if="!_get(enrollment, 'canvasSites').length">
             <span class="sr-only">No data </span>&mdash;
           </div>
-        </b-td>
-        <b-td class="col-midterm">
+        </td>
+        <td class="col-midterm">
           <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="font-weight-bold"></span>
           <v-icon v-if="isAlertGrade(enrollment.midtermGrade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
           <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
-        </b-td>
-        <b-td class="col-final">
+        </td>
+        <td class="col-final">
           <span
             v-if="enrollment.grade"
             v-accessible-grade="enrollment.grade"
@@ -85,27 +80,27 @@
             class="cohort-grading-basis"
           >{{ enrollment.gradingBasis }}</span>
           <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
-        </b-td>
-      </b-tr>
-      <b-tr v-if="!termEnrollments.length">
-        <b-td class="col-course text-grey">
+        </td>
+      </tr>
+      <tr v-if="!termEnrollments.length">
+        <td class="col-course text-grey">
           No {{ termNameForSisId(termId) }} enrollments
-        </b-td>
-        <b-td class="col-units">
+        </td>
+        <td class="col-units">
           <span class="sr-only">No data</span>&mdash;
-        </b-td>
-        <b-td v-if="currentUser.canAccessCanvasData" class="col-bcourses">
+        </td>
+        <td v-if="currentUser.canAccessCanvasData" class="col-bcourses">
           <span class="sr-only">No data</span>&mdash;
-        </b-td>
-        <b-td class="col-midterm">
+        </td>
+        <td class="col-midterm">
           <span class="sr-only">No data</span>&mdash;
-        </b-td>
-        <b-td class="col-final">
+        </td>
+        <td class="col-final">
           <span class="sr-only">No data</span>&mdash;
-        </b-td>
-      </b-tr>
-    </b-tbody>
-  </b-table-simple>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script setup>

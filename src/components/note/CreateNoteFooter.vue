@@ -27,7 +27,6 @@
           v-if="useNoteStore().mode === 'editTemplate'"
           id="btn-update-template"
           :action="updateTemplate"
-          class="mr-1"
           :disabled="useNoteStore().isSaving || !useNoteStore().model.subject"
           :in-progress="useNoteStore().isSaving"
         >
@@ -36,7 +35,7 @@
         <v-btn
           v-if="useNoteStore().model.isDraft"
           id="save-as-draft-button"
-          class="mr-1"
+          class="mx-1"
           color="primary"
           :disabled="useNoteStore().isSaving || (!trim(useNoteStore().model.subject) && !trim(useNoteStore().model.body))"
           variant="text"
@@ -48,7 +47,6 @@
           v-if="!['editTemplate'].includes(useNoteStore().mode)"
           id="create-note-button"
           :action="publish"
-          :class="{'mr-2': useNoteStore().mode !== 'editDraft'}"
           :disabled="useNoteStore().isSaving || isEmpty(useNoteStore().completeSidSet) || !trim(useNoteStore().model.subject)"
           :in-progress="useNoteStore().isSaving"
         >
@@ -57,6 +55,7 @@
         <v-btn
           v-if="useNoteStore().mode !== 'editDraft'"
           id="create-note-cancel"
+          class="ml-1"
           color="error"
           :disabled="useNoteStore().isSaving"
           variant="outlined"

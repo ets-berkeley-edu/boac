@@ -21,7 +21,7 @@
         </v-checkbox>
       </div>
       <div>
-        <div v-if="error" class="mt-2 has-error w-100">
+        <div v-if="error" class="mt-2 text-error w-100">
           <span aria-live="polite" role="alert">{{ error }}</span>
         </div>
         <RichTextEditor

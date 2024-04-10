@@ -3,7 +3,8 @@
     v-if="sectionsWithIncompleteStatus.length"
     :id="`term-${termId}-course-${index}-has-incomplete-status`"
     :aria-label="ariaLabel"
-    class="has-error ml-1"
+    class="ml-1"
+    color="error"
     :icon="mdiInformationOutline"
     :title="ariaLabel"
   />

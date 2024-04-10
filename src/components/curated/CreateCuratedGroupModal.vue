@@ -1,68 +1,81 @@
 <template>
-  <div>
-    <ModalHeader :text="`Name Your ${domainLabel(true)}`" />
-    <form @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
-      <div class="ma-3">
-        <label id="label-of-create-input" for="create-input" tabindex="-1"><span class="sr-only">{{ domainLabel(true) }} </span>Name:</label>
-        <b-form-input
-          id="create-input"
-          v-model="name"
-          aria-labelledby="label-of-create-input"
-          class="cohort-create-input-name"
-          maxlength="255"
-          size="lg"
-        />
-        <div class="text-grey my-3">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
-        <div
-          v-if="error"
-          id="create-error"
-          class="has-error"
-          aria-live="polite"
-          role="alert"
-        >
-          {{ error }}
+  <v-overlay
+    v-model="showModalProxy"
+    class="justify-center overflow-auto"
+    persistent
+    width="100%"
+    @update:model-value="onToggle"
+  >
+    <v-card
+      class="modal-content"
+      min-width="400"
+      max-width="600"
+    >
+      <ModalHeader :text="`Name Your ${domainLabel(true)}`" />
+      <hr />
+      <form class="w-100 mb-2" @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
+        <div class="px-4 py-2">
+          <v-text-field
+            id="create-input"
+            v-model="name"
+            :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
+            aria-required="true"
+            class="v-input-details-override mr-2"
+            counter="255"
+            density="compact"
+            :disabled="isSaving"
+            label="Name"
+            maxlength="255"
+            required
+            type="text"
+            persistent-counter
+            :rules="[validationRules.valid]"
+            validate-on="lazy input"
+            variant="outlined"
+            @keyup.esc="cancel"
+          >
+            <template #counter="{max, value}">
+              <div id="name-create-cohort-counter" aria-live="polite" class="font-size-13 text-no-wrap ml-2 mt-1">
+                <span class="sr-only">{{ domainLabel(true) }} name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+              </div>
+            </template>
+          </v-text-field>
         </div>
-        <div
-          v-if="name.length === 255"
-          class="sr-only"
-          aria-live="polite"
-        >
-          {{ _capitalize(domainLabel(false)) }} name cannot exceed 255 characters.
+        <hr />
+        <div class="d-flex justify-end px-4 py-2">
+          <ProgressButton
+            id="create-confirm"
+            :action="createCuratedGroup"
+            :disabled="!name.length"
+            :in-progress="isSaving"
+          >
+            Save
+          </ProgressButton>
+          <v-btn
+            id="create-cancel"
+            class="ml-1"
+            :disabled="isSaving"
+            variant="plain"
+            @click="cancelModal"
+          >
+            Cancel
+          </v-btn>
         </div>
-      </div>
-      <div class="modal-footer mb-0 pb-0 pl-0 mr-2">
-        <v-btn
-          id="create-confirm"
-          :disabled="!name.length"
-          class="btn-primary-color-override"
-          variant="primary"
-          @click.prevent="createCuratedGroup"
-        >
-          Save
-        </v-btn>
-        <v-btn
-          id="create-cancel"
-          variant="link"
-          @click="cancelModal"
-        >
-          Cancel
-        </v-btn>
-      </div>
-    </form>
-  </div>
+      </form>
+    </v-card>
+  </v-overlay>
 </template>
 
 <script>
-import Context from '@/mixins/Context'
 import ModalHeader from '@/components/util/ModalHeader'
-import Util from '@/mixins/Util'
+import ProgressButton from '@/components/util/ProgressButton'
+import {putFocusNextTick} from '@/lib/utils'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CreateCuratedGroupModal',
-  components: {ModalHeader},
-  mixins: [Context, Util],
+  components: {ModalHeader, ProgressButton},
   props: {
     cancel: {
       required: true,
@@ -75,15 +88,31 @@ export default {
     domain: {
       required: true,
       type: String
+    },
+    showModal: {
+      required: true,
+      type: Boolean
     }
   },
   data: () => ({
     name: '',
-    error: undefined
+    isSaving: false,
+    validationRules: {}
   }),
-  watch: {
-    name() {
-      this.error = undefined
+  computed: {
+    showModalProxy: {
+      get() {
+        return this.showModal
+      }
+    }
+  },
+  created() {
+    this.validationRules = {
+      valid: name => {
+        const valid = validateCohortName({name})
+        this.isInvalid = true !== valid
+        return valid
+      }
     }
   },
   methods: {
@@ -92,18 +121,28 @@ export default {
       this.reset()
     },
     createCuratedGroup: function() {
-      this.error = validateCohortName({name: this.name})
-      if (!this.error) {
-        this.create(this.name)
-        this.reset()
+      if (true !== validateCohortName({name: this.name})) {
+        putFocusNextTick('create-cohort-input')
+      } else {
+        this.isSaving = true
+        this.create(this.name).then(() => {
+          this.reset()
+        })
       }
     },
     domainLabel(capitalize) {
       return describeCuratedGroupDomain(this.domain, capitalize)
     },
+    onToggle(isOpen) {
+      if (isOpen) {
+        putFocusNextTick('modal-header')
+      } else {
+        this.cancelModal()
+      }
+    },
     reset() {
+      this.isSaving = false
       this.name = ''
-      this.error = undefined
     }
   }
 }

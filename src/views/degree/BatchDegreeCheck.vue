@@ -14,7 +14,7 @@
         <span
           v-if="!_isEmpty(sidsToInclude)"
           id="target-student-count-alert"
-          :class="{'has-error': sidsToInclude.length >= 250, 'font-weight-bolder': sidsToInclude.length >= 500}"
+          :class="{'text-error': sidsToInclude.length >= 250, 'font-weight-bolder': sidsToInclude.length >= 500}"
         >
           Degree check will be added to {{ pluralize('student record', sidsToInclude.length) }}.
           <span v-if="sidsToInclude.length >= 500">Are you sure?</span>
@@ -72,7 +72,11 @@
               :disabled="isSaving"
               @click.prevent="removeStudent(addedStudent)"
             >
-              <v-icon :icon="mdiCloseCircleOutline" class="font-size-20 has-error pl-2" />
+              <v-icon
+                :icon="mdiCloseCircleOutline"
+                class="font-size-20 pl-2"
+                color="error"
+              />
               <span class="sr-only">Remove {{ addedStudent.label }} from degree check</span>
             </b-btn>
           </span>

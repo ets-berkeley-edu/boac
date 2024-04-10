@@ -41,7 +41,11 @@
             :disabled="disabled"
             @click.prevent="remove(addedObject)"
           >
-            <v-icon :icon="mdiCloseCircleOutline" class="font-size-20 has-error pl-2" />
+            <v-icon
+              :icon="mdiCloseCircleOutline"
+              class="font-size-20 pl-2"
+              color="error"
+            />
             <span class="sr-only">Remove</span>
           </b-btn>
         </span>

@@ -85,7 +85,7 @@
             >
               <v-icon
                 aria-label="Delete"
-                :class="isDeleting ? 'text-medium-emphasis' : 'has-error'"
+                :class="isDeleting ? 'text-medium-emphasis' : 'text-error'"
                 :icon="mdiTrashCanOutline"
                 title="Delete"
               />

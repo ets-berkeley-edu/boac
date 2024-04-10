@@ -76,7 +76,7 @@
       <div v-if="!loading">
         <h2 class="sr-only">Students</h2>
         <div v-if="!section.totalStudentCount" class="d-flex ml-3 mt-3">
-          <span class="has-error"><v-icon :icon="mdiAlertRhombus" /></span>
+          <v-icon :icon="mdiAlertRhombus" color="error" />
           <span class="container-error">No students advised by your department are enrolled in this section.</span>
         </div>
         <div v-if="section.totalStudentCount" class="align-items-start d-flex mb-2 ml-3 mt-3">

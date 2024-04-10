@@ -4,7 +4,6 @@
       v-if="useCohortStore().showApplyButton()"
       id="unsaved-filter-apply"
       :action="apply"
-      class="mr-2"
       :disabled="!!useCohortStore().editMode"
       :in-progress="isPerforming === 'search'"
     >
@@ -13,6 +12,7 @@
     <v-btn
       v-if="useCohortStore().showApplyButton()"
       id="unsaved-filter-reset"
+      class="ml-1"
       :disabled="!!useCohortStore().editMode"
       variant="text"
       @click="resetToLastApply"
@@ -23,7 +23,6 @@
       <ProgressButton
         id="save-button"
         :action="save"
-        class="mr-2"
         :color="saveButtonColor"
         :disabled="!!useCohortStore().editMode || showCreateModal || !!isPerforming"
         :in-progress="isPerforming === 'save'"
@@ -36,6 +35,7 @@
       <v-btn
         v-if="!isPerforming && useCohortStore().cohortId"
         id="reset-to-saved-cohort"
+        class="ml-1"
         :disabled="!!useCohortStore().editMode"
         variant="text"
         @click="resetToSaved"

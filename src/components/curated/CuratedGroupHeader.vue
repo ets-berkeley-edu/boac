@@ -26,7 +26,7 @@
             />
           </form>
         </div>
-        <div v-if="renameError" class="has-error mb-2">{{ renameError }}</div>
+        <div v-if="renameError" class="text-error mb-2">{{ renameError }}</div>
         <div class="text-grey ma-2">255 character limit <span v-if="_size(renameInput)">({{ 255 - _size(renameInput) }} left)</span></div>
         <div class="sr-only" aria-live="polite">{{ renameError }}</div>
         <div
