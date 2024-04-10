@@ -100,11 +100,11 @@
           class="d-flex flex-wrap"
         >
           <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 student-gpa">{{ student.term.minTermUnitsAllowed }}</div>
-          <div class="no-wrap student-text">Min&nbsp;Approved</div>
+          <div class="text-no-wrap student-text">Min&nbsp;Approved</div>
         </div>
         <div v-if="!_isNil(_get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== config.defaultTermUnitsAllowed.max">
           <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 student-gpa">{{ student.term.maxTermUnitsAllowed }}</span>
-          <span class="no-wrap student-text">Max&nbsp;Approved</span>
+          <span class="text-no-wrap student-text">Max&nbsp;Approved</span>
         </div>
         <div v-if="isCurrentTerm" class="d-flex flex-wrap">
           <div
@@ -121,7 +121,7 @@
           >
             &mdash;<span class="sr-only"> No data</span>
           </div>
-          <div class="no-wrap student-text">Units Completed</div>
+          <div class="text-no-wrap student-text">Units Completed</div>
         </div>
       </v-col>
       <v-col class="float-right ml-5 ml-xl-0" xl="4" md="8">

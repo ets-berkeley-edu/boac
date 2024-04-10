@@ -12,7 +12,7 @@
           :icon="allExpanded ? mdiMenuDown : mdiMenuRight"
           class="toggle-expand-all-caret"
         />
-        <span class="no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
+        <span class="text-no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
       </v-btn>
       <div v-if="showDownloadNotesLink">
         | <a id="download-notes-link" class="p-2" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${filter}`">Download {{ filter }}s</a>
@@ -216,7 +216,7 @@
                     <div class="mr-1">
                       <v-icon :icon="mdiCloseCircleOutline" class="font-size-24" />
                     </div>
-                    <div class="no-wrap">
+                    <div class="text-no-wrap">
                       Close Message
                     </div>
                   </div>
@@ -308,7 +308,7 @@
       <div v-if="offerShowAll" class="text-center">
         <v-btn
           :id="`timeline-tab-${activeTab}-previous-messages`"
-          class="no-wrap pr-2 pt-0"
+          class="text-no-wrap pr-2 pt-0"
           variant="link"
           @click="isShowingAll = !isShowingAll"
         >

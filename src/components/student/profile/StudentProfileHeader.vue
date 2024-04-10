@@ -1,8 +1,8 @@
 <template>
   <div class="d-flex justify-space-between mr-4" :class="{'pb-0 pt-2': compact, 'pb-2 pt-4': !compact}">
-    <div class="d-flex flex-row-reverse" :class="{'ml-3': compact, 'ml-12': !compact}">
+    <div class="d-flex flex-row-reverse ml-3">
       <StudentProfileHeaderBio
-        :class="{'mx-2 pr-2': compact, 'mx-4 pr-4': !compact}"
+        class="pr-2"
         :compact="compact"
         :link-to-student-profile="linkToStudentProfile"
         :student="student"
@@ -16,7 +16,7 @@
         />
       </div>
     </div>
-    <div class="mr-5">
+    <div class="mr-3">
       <StudentProfileHeaderAcademics
         :discontinued-subplans="discontinuedSubplans"
         :plans-minor-partitioned-by-status="plansMinorPartitionedByStatus"

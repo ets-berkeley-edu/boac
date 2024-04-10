@@ -291,7 +291,7 @@
                   <span class="sr-only">Note: </span>
                   {{ getNote(bundle) }}
                 </span>
-                <span class="font-size-12 ml-1 no-wrap">
+                <span class="font-size-12 ml-1 text-no-wrap">
                   [<b-btn
                     :id="`column-${position}-${bundle.key}-hide-note-btn`"
                     class="px-0 py-1"

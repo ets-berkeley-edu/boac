@@ -185,7 +185,7 @@
         </div>
         <div v-if="size(existingAttachments) < config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
           <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
-          <div :id="`note-${note.id}-attachment-dropzone`" class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
+          <div :id="`note-${note.id}-attachment-dropzone`" class="choose-attachment-file-wrapper pl-3 pr-3 text-no-wrap w-100">
             Add attachment:
             <v-btn
               id="choose-file-for-note-attachment"
@@ -204,7 +204,7 @@
               :state="Boolean(attachments && attachments.length)"
               :multiple="true"
               :plain="true"
-            ></b-form-file>
+            />
           </div>
         </div>
         <div v-if="size(existingAttachments) === config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">

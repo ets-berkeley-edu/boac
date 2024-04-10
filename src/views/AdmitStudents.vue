@@ -23,7 +23,7 @@
         <div class="d-flex align-self-baseline mr-4">
           <NavLink
             id="admitted-students-cohort-show-filters"
-            class="btn btn-link no-wrap pl-0 pr-1 pt-0"
+            class="btn btn-link text-no-wrap pl-0 pr-1 pt-0"
             aria-label="Create a CE3 Admissions cohort"
             path="/cohort/new"
             :default-counter="counter"
@@ -36,7 +36,7 @@
             id="export-student-list-button"
             v-b-modal="'export-admits-modal'"
             :disabled="!exportEnabled || !totalAdmitCount"
-            class="no-wrap pl-1 pr-0 pt-0"
+            class="text-no-wrap pl-1 pr-0 pt-0"
             variant="link"
           >
             Export List

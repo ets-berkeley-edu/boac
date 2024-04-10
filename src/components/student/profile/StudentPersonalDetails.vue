@@ -17,7 +17,7 @@
     </v-btn>
   </div>
   <v-expand-transition>
-    <v-card v-show="isExpanded" class="expanded-card">
+    <v-card v-show="isExpanded" class="expanded-card pa-2">
       <v-container fluid>
         <v-row>
           <v-col cols="4">
@@ -75,6 +75,7 @@
             <div
               v-if="student.sisProfile.transfer || student.sisProfile.matriculation || visaDescription || hasCalCentralProfile"
               id="additional-information-outer"
+              class="mt-5"
             >
               <h3 class="student-profile-h3">
                 Additional Information
@@ -92,21 +93,26 @@
                 <div v-if="visaDescription" id="student-profile-visa">
                   {{ visaDescription }}
                 </div>
-                <div v-if="hasCalCentralProfile" class="no-wrap">
+                <div v-if="hasCalCentralProfile">
                   <a
                     id="link-to-calcentral"
+                    aria-label="Open CalCentral in new window"
+                    class="text-no-wrap"
                     :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
                     target="_blank"
-                    aria-label="Open CalCentral in new window"
-                  >Student profile in CalCentral <v-icon :icon="mdiOpenInNew" class="pl-1" /></a>
+                  >
+                    Student profile in CalCentral <v-icon class="mb-1" :icon="mdiOpenInNew" size="18" />
+                  </a>
                 </div>
-                <div>
+                <div class="mt-2">
                   <a
                     id="link-to-perceptive-content"
+                    aria-label="Open Perceptive Content (Image Now) documents in new window"
                     :href="`https://imagine-content.berkeley.edu/#documents/view/321Z05B_01EFZBH4W0004XD?simplemode=true&constraint=[field1] = '${student.sid}'`"
                     target="_blank"
-                    aria-label="Open Perceptive Content (Image Now) documents in new window"
-                  >Perceptive Content (Image Now) documents <v-icon :icon="mdiOpenInNew" class="pl-1" /></a>
+                  >
+                    Perceptive Content (Image Now) documents <v-icon class="mb-1" :icon="mdiOpenInNew" size="18" />
+                  </a>
                 </div>
               </div>
             </div>
@@ -118,7 +124,7 @@
               <div id="student-details-intended-majors">
                 <div v-for="plan in student.sisProfile.intendedMajors" :key="plan.description">
                   <div class="font-weight-bolder">
-                    <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
+                    <span v-if="!plan.degreeProgramUrl" class="text-no-wrap">{{ plan.description }}</span>
                     <a
                       v-if="plan.degreeProgramUrl"
                       :href="plan.degreeProgramUrl"
