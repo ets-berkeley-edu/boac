@@ -8,23 +8,18 @@
       <div v-if="!cumulativeUnits" class="data-number">--<span class="sr-only">No data</span></div>
       <div class="cumulative-units-label text-uppercase">Units Completed</div>
     </div>
-    <div v-if="!isGraduate(student)" id="units-chart" class="border-left units-chart py-2">
+    <div v-if="!isGraduate(student)" id="units-chart" class="border-s-sm units-chart py-2">
       <div class="ml-4">
         <h4 class="font-weight-bold mb-1 unit-totals-label">Unit Totals</h4>
-        <div>
-          <StudentUnitsChart
-            v-if="cumulativeUnits || currentEnrolledUnits"
-            class="student-units-chart"
-            :cumulative-units="cumulativeUnits"
-            :current-enrolled-units="currentEnrolledUnits || 0"
-            :student="student"
-          />
-          <div
-            v-if="!cumulativeUnits && !currentEnrolledUnits"
-            class="section-label"
-          >
-            Units Not Yet Available
-          </div>
+        <StudentUnitsChart
+          v-if="cumulativeUnits || currentEnrolledUnits"
+          class="student-units-chart"
+          :cumulative-units="cumulativeUnits"
+          :current-enrolled-units="currentEnrolledUnits || 0"
+          :student="student"
+        />
+        <div v-if="!cumulativeUnits && !currentEnrolledUnits" class="section-label">
+          Units Not Yet Available
         </div>
         <div
           v-if="cumulativeUnits || currentEnrolledUnits"
@@ -35,7 +30,7 @@
         </div>
       </div>
     </div>
-    <div v-if="isGraduate(student)" class="units currently-enrolled-units text-center border-left py-2">
+    <div v-if="isGraduate(student)" class="units currently-enrolled-units text-center border-s-sm py-2">
       <div id="units-currently-enrolled" class="data-number">{{ currentEnrolledUnits || '0' }}</div>
       <div class="cumulative-units-label text-uppercase">Currently Enrolled Units</div>
     </div>

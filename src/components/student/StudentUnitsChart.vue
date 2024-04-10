@@ -1,11 +1,10 @@
 <template>
-  <div v-if="options">
-    <highcharts
-      id="student-chart-units-container"
-      class="student-chart-units-container"
-      :options="options"
-    />
-  </div>
+  <highcharts
+    v-if="options"
+    id="student-chart-units-container"
+    class="student-chart-units-container"
+    :options="options"
+  />
 </template>
 
 <script>

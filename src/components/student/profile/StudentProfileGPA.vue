@@ -46,18 +46,17 @@
       </div>
     </div>
     <div>
-      <b-collapse
+      <v-expand-transition
         id="term-gpa-collapse"
-        v-model="showTermGpa"
-        class="border-top mr-3"
+        class="border-t-sm mr-3"
       >
-        <div class="px-4">
+        <v-card v-show="showTermGpa" class="px-4" elevation="0">
           <table
             id="table-with-gpa-per-term"
             class="term-gpa-table w-100"
           >
             <tr>
-              <th class="pt-0 pb-3 text-grey-darken-2">Term</th>
+              <th class="text-left pt-0 pb-3 text-grey-darken-2">Term</th>
               <th class="pt-0 pb-3 text-grey-darken-2 text-right">GPA</th>
             </tr>
             <tr
@@ -83,8 +82,8 @@
               <td>--</td>
             </tr>
           </table>
-        </div>
-      </b-collapse>
+        </v-card>
+      </v-expand-transition>
     </div>
   </div>
 </template>
