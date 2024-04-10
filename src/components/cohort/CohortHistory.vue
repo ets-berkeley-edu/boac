@@ -1,35 +1,32 @@
 <template>
   <div>
     <SectionSpinner :loading="loading" />
-    <div v-if="!loading && totalEventsCount > itemsPerPage">
-      <div class="pt-3">
-        <Pagination
-          :click-handler="goToPage"
-          :init-page-number="currentPage"
-          :limit="10"
-          :per-page="itemsPerPage"
-          :total-rows="totalEventsCount"
-        />
-      </div>
-      <hr class="filters-section-separator " />
+    <div v-if="!loading && totalEventsCount > itemsPerPage" class="pt-3">
+      <Pagination
+        :click-handler="goToPage"
+        :init-page-number="currentPage"
+        :limit="10"
+        :per-page="itemsPerPage"
+        :total-rows="totalEventsCount"
+      />
+      <hr />
     </div>
-    <b-table-simple
-      v-if="!loading && !_isEmpty(events)"
+    <table
+      v-if="!loading && !isEmpty(events)"
       id="cohort-history-table"
-      class="cohort-history-table mt-3"
-      :borderless="true"
+      class="w-100 mt-5"
     >
-      <b-thead>
-        <b-tr>
-          <b-th class="p-1 pb-2 sortable-table-header">Status</b-th>
-          <b-th class="p-1 pb-2 sortable-table-header">Change Date</b-th>
-          <b-th class="p-1 pb-2 sortable-table-header">Name</b-th>
-          <b-th class="p-1 pb-2 sortable-table-header">SID</b-th>
-        </b-tr>
-      </b-thead>
-      <b-tbody>
-        <b-tr v-for="(event, index) in events" :key="index">
-          <b-td class="p-1">
+      <thead class="sortable-table-header">
+        <tr>
+          <th class="pr-2 pb-2">Status</th>
+          <th class="pr-2 pb-2 text-no-wrap">Change Date</th>
+          <th class="pr-2 pb-2">Name</th>
+          <th class="pr-2 pb-2">SID</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(event, index) in events" :key="index">
+          <td class="pr-2 py-1 text-no-wrap">
             <div
               :id="`event-${index}-status`"
               class="pill-membership-change"
@@ -37,16 +34,16 @@
             >
               {{ event.eventType }}
             </div>
-          </b-td>
-          <b-td class="p-1">
-            <div :id="`event-${index}-date`">{{ DateTime.fromJSDate(event.createdAt).toFormat('MMM D, YYYY') }}</div>
-          </b-td>
-          <b-td class="p-1">
+          </td>
+          <td class="pr-2 py-1 text-no-wrap">
+            <div :id="`event-${index}-date`">{{ DateTime.fromISO(event.createdAt).toLocaleString(DateTime.DATE_MED) }}</div>
+          </td>
+          <td class="pr-2 py-1 text-no-wrap">
             <router-link
               v-if="event.uid"
               :id="`event-${index}-student-name`"
-              :class="{'demo-mode-blur': currentUser.inDemoMode}"
-              :to="studentRoutePath(event.uid, currentUser.inDemoMode)"
+              :class="{'demo-mode-blur': get(useContextStore().currentUser, 'inDemoMode')}"
+              :to="studentRoutePath(event.uid, get(useContextStore().currentUser, 'inDemoMode'))"
             >
               <span v-html="lastNameFirst(event)" />
             </router-link>
@@ -56,41 +53,49 @@
             >
               Not available
             </div>
-          </b-td>
-          <b-td class="p-1">
+          </td>
+          <td class="pr-2 py-1 text-no-wrap">
             <div
               :id="`event-${index}-sid`"
-              :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              :class="{'demo-mode-blur': get(useContextStore().currentUser, 'inDemoMode')}"
             >
               {{ event.sid }}
             </div>
-          </b-td>
-        </b-tr>
-      </b-tbody>
-    </b-table-simple>
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <div v-if="!loading && totalEventsCount > itemsPerPage" class="p-3">
+      <hr />
       <Pagination
         :click-handler="goToPage"
+        :index="1"
         :init-page-number="currentPage"
         :limit="10"
         :per-page="itemsPerPage"
         :total-rows="totalEventsCount"
       />
     </div>
-    <div v-if="!loading && _isEmpty(events)" id="cohort-history-no-events" class="mt-3">
+    <div v-if="!loading && isEmpty(events)" id="cohort-history-no-events" class="pt-3">
       This cohort has no history available.
     </div>
   </div>
 </template>
 
+<script setup>
+import {get, isEmpty} from 'lodash'
+import {DateTime} from 'luxon'
+import {lastNameFirst, studentRoutePath} from '@/lib/utils'
+import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useContextStore} from '@/stores/context'
+</script>
+
 <script>
-import CohortEditSession from '@/mixins/CohortEditSession'
-import Context from '@/mixins/Context'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
-import Util from '@/mixins/Util'
 import {getCohortEvents} from '@/api/cohort'
 import {scrollToTop} from '@/lib/utils'
+
 
 export default {
   name: 'CohortHistory',
@@ -98,7 +103,6 @@ export default {
     Pagination,
     SectionSpinner
   },
-  mixins: [CohortEditSession, Context, Util],
   data: () => ({
     currentPage: 1,
     events: [],
@@ -118,13 +122,13 @@ export default {
     },
     loadEvents() {
       this.loading = true
-      this.alertScreenReader('Cohort history is loading')
+      useContextStore().alertScreenReader('Cohort history is loading')
       scrollToTop(10)
-      getCohortEvents(this.cohortId, this.offset, this.itemsPerPage).then((response) => {
+      getCohortEvents(useCohortStore().cohortId, this.offset, this.itemsPerPage).then((response) => {
         this.totalEventsCount = response.count
         this.events = response.events
         this.loading = false
-        this.alertScreenReader('Cohort history has loaded')
+        useContextStore().alertScreenReader('Cohort history has loaded')
       })
     }
   },
@@ -132,9 +136,6 @@ export default {
 </script>
 
 <style scoped>
-.cohort-history-table {
-  max-width: 700px;
-}
 .pill-membership-change {
   border-radius: 5px;
   display: inline-block;
@@ -149,11 +150,11 @@ export default {
   white-space: nowrap;
 }
 .pill-added {
-  background-color: #c0ecff;
-  color: #285d8b;
+  background-color: rgb(var(--v-theme-light-blue));
+  color: rgb(var(--v-theme-tertiary));
 }
 .pill-removed {
-  background-color: #ffecc0;
-  color: #857103;
+  background-color: rgb(var(--v-theme-light-yellow));
+  color: rgb(var(--v-theme-gold));
 }
 </style>
