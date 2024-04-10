@@ -30,7 +30,10 @@ export const useContextStore = defineStore('context', {
     config: undefined as BoaConfig | undefined,
     currentUser: {
       canAccessAdvisingData: false,
+      canReadDegreeProgress: false,
       inDemoMode: false,
+      isAdmin: false,
+      isAuthenticated: false,
       myCohorts: [] as Array<any>,
       myCuratedGroups: [] as Array<any>,
       myDraftNoteCount: undefined as number | undefined,

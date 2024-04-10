@@ -73,6 +73,9 @@
 .has-error {
   color: #cf1715;
 }
+.light-blue-background {
+  background: #e3f5ff;
+}
 .list-no-bullets {
   list-style-type: none;
 }
@@ -98,6 +101,18 @@
   font-size: 18px;
   font-weight: bold;
   line-height: 1.2;
+}
+.position-relative {
+  position: relative;
+}
+.red-flag-status {
+  color: #d0021b;
+  font-weight: bold;
+}
+.red-flag-small {
+  color: #d0021b;
+  font-size: 12px;
+  font-weight: bold;
 }
 .section-divider {
   background-color: #4a90e2;
@@ -138,6 +153,43 @@
   clip: rect(0,0,0,0);
   white-space: nowrap;
   border: 0;
+}
+.student-column {
+  flex: 0 0 120px;
+  margin-left: 15px;
+}
+.student-name {
+  color: #49b;
+  font-size: 16px;
+  margin: 0;
+}
+.student-profile-h3 {
+  border-bottom: 1px #999 solid;
+  color: #6e6e6e;
+  font-size: 12px;
+  font-weight: bold;
+  margin: 0 0 5px 0;
+  padding: 0 0 5px 0;
+  text-transform: uppercase;
+}
+.student-section-header {
+  font-size: 24px;
+  font-weight: bold;
+}
+.student-sid {
+  font-size: 11px;
+  font-weight: bold;
+  margin: 5px 0;
+}
+.student-teams-container {
+  margin-top: 5px;
+}
+.student-text {
+  color: #6e6e6e;
+  font-size: 13px;
+}
+.text-muted {
+  color: #bfbfbf !important;
 }
 .truncate-with-ellipsis {
   overflow: hidden;
@@ -185,8 +237,14 @@ a:hover {
   color: #0056b3;
   text-decoration: underline
 }
-body,html {
+body,
+html {
   height: 100%
+}
+h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 0 10px 0;
 }
 hr {
   margin-top: 1rem;

@@ -42,9 +42,9 @@ const $_isCE3 = user => !!size(filter(user.departments, d => d.code === 'ZCEEE' 
 
 const $_requiresDegreeProgress = (to: any, from: any, next: any) => {
   const currentUser = useContextStore().currentUser
-  if (get(currentUser, 'canReadDegreeProgress')) {
+  if (currentUser.canReadDegreeProgress) {
     next()
-  } else if (get(currentUser, 'isAuthenticated')) {
+  } else if (currentUser.isAuthenticated) {
     next({path: '/404'})
   } else {
     $_goToLogin(to, next)
@@ -65,10 +65,10 @@ const routes:RouteRecordRaw[] = [
     component: Login,
     beforeEnter: (to: any, from: any, next: any) => {
       const currentUser = useContextStore().currentUser
-      if (get(currentUser, 'isAuthenticated')) {
+      if (currentUser.isAuthenticated) {
         if (trim(to.query.redirect)) {
           next(to.query.redirect)
-        } else if (isAdvisor(currentUser) || isDirector(currentUser) || get(currentUser, 'isAdmin')) {
+        } else if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
           next('/home')
         } else {
           next({path: '/404'})
@@ -87,8 +87,8 @@ const routes:RouteRecordRaw[] = [
     beforeEnter: (to: any, from: any, next: any) => {
       // Requires Advisor
       const currentUser = useContextStore().currentUser
-      if (get(currentUser, 'isAuthenticated')) {
-        if (isAdvisor(currentUser) || isDirector(currentUser) || get(currentUser, 'isAdmin')) {
+      if (currentUser.isAuthenticated) {
+        if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
           next()
         } else {
           next({path: '/404'})
@@ -178,8 +178,8 @@ const routes:RouteRecordRaw[] = [
     beforeEnter: (to: any, from: any, next: any) => {
       // Requires CE3
       const currentUser = useContextStore().currentUser
-      if (get(currentUser, 'isAuthenticated')) {
-        if (get(currentUser, 'isAdmin') || $_isCE3(currentUser)) {
+      if (currentUser.isAuthenticated) {
+        if (currentUser.isAdmin || $_isCE3(currentUser)) {
           next()
         } else {
           next({path: '/404'})

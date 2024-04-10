@@ -10,7 +10,7 @@
               'student-section-header': !compact
             }"
             v-html="student.name"
-          ></h1>
+          />
         </router-link>
       </div>
       <h1
@@ -27,7 +27,7 @@
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
       >
         <span class="sr-only">Preferred name</span>
-        <span v-html="student.sisProfile.preferredName"></span>
+        <span v-html="student.sisProfile.preferredName" />
       </div>
       <div
         v-if="_get(student, 'sisProfile.pronouns.description')"
@@ -57,7 +57,7 @@
       </div>
       <StudentAcademicStanding v-if="_get(student, 'sisProfile.academicStanding')" :standing="student.sisProfile.academicStanding" />
       <div v-if="!compact">
-        <div v-if="student.sisProfile.emailAddress" class="mt-2">
+        <div v-if="student.sisProfile.emailAddress">
           <a
             id="student-mailto"
             :href="`mailto:${student.sisProfile.emailAddress}`"
@@ -77,7 +77,7 @@
     </div>
     <div id="student-bio-level" :class="{'mt-2': !compact}">
       <h3 class="sr-only">Level</h3>
-      <div class="font-weight-bolder">{{ _get(student, 'sisProfile.level.description') }}</div>
+      <div class="font-weight-medium">{{ _get(student, 'sisProfile.level.description') }}</div>
     </div>
     <div class="text-muted">
       <div v-if="student.sisProfile.termsInAttendance" id="student-bio-terms-in-attendance">

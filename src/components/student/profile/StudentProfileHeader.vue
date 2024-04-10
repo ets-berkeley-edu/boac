@@ -1,6 +1,6 @@
 <template>
   <div id="student-profile-header">
-    <div class="d-flex justify-content-between mr-4" :class="{'pb-0 pt-2': compact, 'pb-2 pt-4': !compact}">
+    <div class="d-flex justify-space-between mr-4" :class="{'pb-0 pt-2': compact, 'pb-2 pt-4': !compact}">
       <div class="d-flex flex-row-reverse" :class="{'ml-3': compact, 'ml-5': !compact}">
         <div :class="{'mr-2 pr-2': compact, 'mr-4 pr-4': !compact}">
           <StudentProfileHeaderBio
@@ -29,12 +29,12 @@
       </div>
     </div>
     <div v-if="!compact">
-      <div class="d-flex justify-content-center pb-2">
+      <div class="d-flex justify-space-between pb-2">
         <div>
           <v-btn
             id="show-hide-personal-details"
             :aria-expanded="isShowingPersonalDetails"
-            class="no-wrap"
+            class="text-no-wrap"
             variant="link"
             @click="toggleShowDetails"
           >
