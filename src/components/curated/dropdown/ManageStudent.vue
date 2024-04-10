@@ -12,20 +12,19 @@
           v-bind="props"
           color="primary"
           variant="flat"
-          width="160"
         >
           <div v-if="!isAdding && !isRemoving" class="align-center d-flex justify-space-between">
             <div :class="labelClass">
               {{ label }}
             </div>
-            <div v-if="!isButtonVariantLink" class="pr-2">
+            <div v-if="!isButtonVariantLink">
               <v-progress-circular
                 v-if="disableSelector || groupsLoading"
                 indeterminate
                 size="14"
                 width="2"
               />
-              <v-icon v-if="!disableSelector && !groupsLoading" :icon="mdiMenuDown" />
+              <v-icon v-if="!disableSelector && !groupsLoading" :icon="mdiMenuDown" size="24" />
             </div>
           </div>
           <span v-if="isRemoving" :class="{'text-danger': isButtonVariantLink, 'text-white': !isButtonVariantLink}">

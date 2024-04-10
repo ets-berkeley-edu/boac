@@ -185,9 +185,6 @@
   color: #6e6e6e;
   font-size: 13px;
 }
-.text-muted {
-  color: #bfbfbf !important;
-}
 .truncate-with-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;

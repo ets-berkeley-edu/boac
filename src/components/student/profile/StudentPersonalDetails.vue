@@ -1,169 +1,187 @@
 <template>
-  <transition name="drawer">
-    <div v-show="isOpen" :aria-expanded="isOpen" class="drawer">
-      <div class="ml-4 mr-4 pb-4 pt-4 row">
-        <div class="col-sm mr-2 pr-2">
-          <h3 class="student-profile-h3">
-            Advisor(s)
-          </h3>
-          <div v-if="_size(student.advisors)" id="student-profile-advisors">
-            <div
-              v-for="(advisor, index) in advisorsSorted"
-              :id="`student-profile-advisor-${index}`"
-              :key="index"
-              class="mb-2"
-            >
-              <div :id="`student-profile-advisor-${index}-role`">
-                <strong>{{ advisor.role }}</strong>
-              </div>
-              <div :id="`student-profile-advisor-${index}-plan`" class="text-muted">
-                {{ advisor.plan }}
-              </div>
-              <div :id="`student-profile-advisor-${index}-name`" class="text-muted">
-                {{ advisorName(advisor) }}
-              </div>
-              <div :id="`student-profile-advisor-${index}-email`" class="text-muted">
-                {{ advisor.email }}
-              </div>
-            </div>
-          </div>
-          <div v-if="!_size(student.advisors)" id="student-profile-advisors-none">
-            None assigned.
-          </div>
+  <div class="mb-1 text-center w-100">
+    <v-btn
+      id="show-hide-personal-details"
+      :aria-expanded="isExpanded"
+      class="text-no-wrap"
+      color="sky-blue"
+      variant="flat"
+      @click="toggle"
+    >
+      <div class="align-center d-flex text-primary">
+        <v-icon :icon="isExpanded ? mdiMenuDown : mdiMenuRight" size="24" />
+        <div>
+          {{ isExpanded ? 'Hide' : 'Show' }} Personal Details
         </div>
-        <div class="col-sm mr-2 pr-2">
-          <div id="contact-information-outer" class="mb-4">
+      </div>
+    </v-btn>
+  </div>
+  <v-expand-transition>
+    <v-card v-show="isExpanded" class="expanded-card">
+      <v-container fluid>
+        <v-row>
+          <v-col cols="4">
             <h3 class="student-profile-h3">
-              Contact Information
+              Advisor(s)
             </h3>
-            <div v-if="student.sisProfile.emailAddressAlternate" id="student-profile-other-email-outer" class="mb-2">
-              <div>
-                <strong>Other Email (preferred)</strong>
-              </div>
-              <div id="student-profile-other-email" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-                {{ student.sisProfile.emailAddressAlternate }}
-              </div>
-            </div>
-            <div v-if="student.sisProfile.phoneNumber" id="student-profile-phone-number-outer" class="mb-2">
-              <div class="font-weight-bold">Phone</div>
-              <a
-                id="student-phone-number"
-                :aria-label="`Link to student phone number ${student.sisProfile.phoneNumber}`"
-                :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                :href="`tel:${student.sisProfile.phoneNumber}`"
-              >
-                {{ student.sisProfile.phoneNumber }}</a>
-            </div>
-          </div>
-          <div
-            v-if="student.sisProfile.transfer || student.sisProfile.matriculation || visaDescription || hasCalCentralProfile"
-            id="additional-information-outer"
-          >
-            <h3 class="student-profile-h3">
-              Additional Information
-            </h3>
-            <div class="text-muted">
-              <div v-if="student.sisProfile.transfer" id="student-profile-transfer">
-                Transfer
-              </div>
+            <div v-if="_size(student.advisors)" id="student-profile-advisors">
               <div
-                v-if="student.sisProfile.matriculation"
-                id="student-bio-matriculation"
+                v-for="(advisor, index) in advisorsSorted"
+                :id="`student-profile-advisor-${index}`"
+                :key="index"
               >
-                Entered {{ student.sisProfile.matriculation }}
-              </div>
-              <div v-if="visaDescription" id="student-profile-visa">
-                {{ visaDescription }}
-              </div>
-              <div v-if="hasCalCentralProfile" class="no-wrap mt-1">
-                <a
-                  id="link-to-calcentral"
-                  :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
-                  target="_blank"
-                  aria-label="Open CalCentral in new window"
-                >Student profile in CalCentral <v-icon :icon="mdiOpenInNew" class="pl-1" /></a>
-              </div>
-              <div>
-                <a
-                  id="link-to-perceptive-content"
-                  :href="`https://imagine-content.berkeley.edu/#documents/view/321Z05B_01EFZBH4W0004XD?simplemode=true&constraint=[field1] = '${student.sid}'`"
-                  target="_blank"
-                  aria-label="Open Perceptive Content (Image Now) documents in new window"
-                >Perceptive Content (Image Now) documents <v-icon :icon="mdiOpenInNew" class="pl-1" /></a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm pr-2 mr-2">
-          <div v-if="student.sisProfile.intendedMajors" id="student-details-intended-majors-outer" class="mb-4">
-            <h3 v-if="isGraduate(student)" class="student-profile-h3">Intended Academic Plan</h3>
-            <h3 v-if="!isGraduate(student)" class="student-profile-h3">Intended Major</h3>
-            <div id="student-details-intended-majors">
-              <div v-for="plan in student.sisProfile.intendedMajors" :key="plan.description" class="mb-2">
-                <div class="font-weight-bolder">
-                  <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
-                  <a
-                    v-if="plan.degreeProgramUrl"
-                    :href="plan.degreeProgramUrl"
-                    :aria-label="`Open ${plan.description} program page in new window`"
-                    target="_blank"
-                  >
-                    {{ plan.description }}</a>
+                <div :id="`student-profile-advisor-${index}-role`" class="font-weight-bold">
+                  {{ advisor.role }}
+                </div>
+                <div :id="`student-profile-advisor-${index}-plan`" class="text-grey-darken-2">
+                  {{ advisor.plan }}
+                </div>
+                <div :id="`student-profile-advisor-${index}-name`" class="text-grey-darken-2">
+                  {{ advisorName(advisor) }}
+                </div>
+                <div :id="`student-profile-advisor-${index}-email`" class="text-grey-darken-2">
+                  {{ advisor.email }}
                 </div>
               </div>
             </div>
-          </div>
-          <div v-if="inactiveMajors.length" id="student-details-discontinued-majors-outer" class="mb-3">
-            <h3 class="student-profile-h3">
-              Discontinued Major(s)
-            </h3>
-            <div id="student-details-discontinued-majors">
-              <StudentProfilePlan
-                v-for="plan in inactiveMajors"
-                :key="plan.description"
-                :plan="plan"
-                :active="false"
-              />
+            <div v-if="!_size(student.advisors)" id="student-profile-advisors-none">
+              None assigned.
             </div>
-          </div>
-          <div v-if="inactiveMinors.length" id="student-details-discontinued-minors-outer" class="mb-3">
-            <h3 class="student-profile-h3">
-              Discontinued Minor(s)
-            </h3>
-            <div id="student-details-discontinued-minors">
-              <StudentProfilePlan
-                v-for="plan in inactiveMinors"
-                :key="plan.description"
-                :plan="plan"
-                :active="false"
-              />
+          </v-col>
+          <v-col cols="4">
+            <div id="contact-information-outer">
+              <h3 class="student-profile-h3">
+                Contact Information
+              </h3>
+              <div v-if="student.sisProfile.emailAddressAlternate" id="student-profile-other-email-outer">
+                <div class="font-weight-bold">
+                  Other Email (preferred)
+                </div>
+                <div id="student-profile-other-email" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+                  {{ student.sisProfile.emailAddressAlternate }}
+                </div>
+              </div>
+              <div v-if="student.sisProfile.phoneNumber" id="student-profile-phone-number-outer">
+                <div class="font-weight-bold">Phone</div>
+                <a
+                  id="student-phone-number"
+                  :aria-label="`Link to student phone number ${student.sisProfile.phoneNumber}`"
+                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                  :href="`tel:${student.sisProfile.phoneNumber}`"
+                >
+                  {{ student.sisProfile.phoneNumber }}</a>
+              </div>
             </div>
-          </div>
-          <div v-if="inactiveSubplans.length" id="student-bio-subplans" class="mb-3">
-            <h3 class="student-profile-h3">Discontinued Subplan(s)</h3>
             <div
-              v-for="(subplan, index) in inactiveSubplans"
-              :key="index"
-              class="font-weight-bolder mb-2"
+              v-if="student.sisProfile.transfer || student.sisProfile.matriculation || visaDescription || hasCalCentralProfile"
+              id="additional-information-outer"
             >
-              {{ subplan }}
+              <h3 class="student-profile-h3">
+                Additional Information
+              </h3>
+              <div class="text-grey-darken-2">
+                <div v-if="student.sisProfile.transfer" id="student-profile-transfer">
+                  Transfer
+                </div>
+                <div
+                  v-if="student.sisProfile.matriculation"
+                  id="student-bio-matriculation"
+                >
+                  Entered {{ student.sisProfile.matriculation }}
+                </div>
+                <div v-if="visaDescription" id="student-profile-visa">
+                  {{ visaDescription }}
+                </div>
+                <div v-if="hasCalCentralProfile" class="no-wrap">
+                  <a
+                    id="link-to-calcentral"
+                    :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
+                    target="_blank"
+                    aria-label="Open CalCentral in new window"
+                  >Student profile in CalCentral <v-icon :icon="mdiOpenInNew" class="pl-1" /></a>
+                </div>
+                <div>
+                  <a
+                    id="link-to-perceptive-content"
+                    :href="`https://imagine-content.berkeley.edu/#documents/view/321Z05B_01EFZBH4W0004XD?simplemode=true&constraint=[field1] = '${student.sid}'`"
+                    target="_blank"
+                    aria-label="Open Perceptive Content (Image Now) documents in new window"
+                  >Perceptive Content (Image Now) documents <v-icon :icon="mdiOpenInNew" class="pl-1" /></a>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </transition>
+          </v-col>
+          <v-col cols="4">
+            <div v-if="student.sisProfile.intendedMajors" id="student-details-intended-majors-outer">
+              <h3 v-if="isGraduate(student)" class="student-profile-h3">Intended Academic Plan</h3>
+              <h3 v-if="!isGraduate(student)" class="student-profile-h3">Intended Major</h3>
+              <div id="student-details-intended-majors">
+                <div v-for="plan in student.sisProfile.intendedMajors" :key="plan.description">
+                  <div class="font-weight-bolder">
+                    <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
+                    <a
+                      v-if="plan.degreeProgramUrl"
+                      :href="plan.degreeProgramUrl"
+                      :aria-label="`Open ${plan.description} program page in new window`"
+                      target="_blank"
+                    >
+                      {{ plan.description }}</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-if="inactiveMajors.length" id="student-details-discontinued-majors-outer">
+              <h3 class="student-profile-h3">
+                Discontinued Major(s)
+              </h3>
+              <div id="student-details-discontinued-majors">
+                <StudentProfilePlan
+                  v-for="plan in inactiveMajors"
+                  :key="plan.description"
+                  :plan="plan"
+                  :active="false"
+                />
+              </div>
+            </div>
+            <div v-if="inactiveMinors.length" id="student-details-discontinued-minors-outer">
+              <h3 class="student-profile-h3">
+                Discontinued Minor(s)
+              </h3>
+              <div id="student-details-discontinued-minors">
+                <StudentProfilePlan
+                  v-for="plan in inactiveMinors"
+                  :key="plan.description"
+                  :plan="plan"
+                  :active="false"
+                />
+              </div>
+            </div>
+            <div v-if="inactiveSubplans.length" id="student-bio-subplans">
+              <h3 class="student-profile-h3">Discontinued Subplan(s)</h3>
+              <div
+                v-for="(subplan, index) in inactiveSubplans"
+                :key="index"
+                class="font-weight-bolder mb-2"
+              >
+                {{ subplan }}
+              </div>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-card>
+  </v-expand-transition>
 </template>
 
 <script setup>
-import {mdiOpenInNew} from '@mdi/js'
+import {isGraduate} from '@/berkeley'
+import {mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
 </script>
 
 <script>
 import Context from '@/mixins/Context'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import Util from '@/mixins/Util'
-import {isGraduate} from '@/berkeley'
 
 export default {
   name: 'StudentPersonalDetails',
@@ -182,17 +200,14 @@ export default {
       required: true,
       type: Array
     },
-    isOpen: {
-      required: true,
-      type: Boolean
-    },
     student: {
       required: true,
       type: Object
     }
   },
   data: () => ({
-    hasCalCentralProfile: undefined
+    hasCalCentralProfile: undefined,
+    isExpanded: false
   }),
   computed: {
     advisorsSorted() {
@@ -235,13 +250,16 @@ export default {
       const mostRecent = this._find(this.student.enrollmentTerms, e => hasCompletedSection(e))
       return mostRecent && (this.config.currentEnrollmentTermId - this.toInt(mostRecent.termId) <= 20)
     },
-    isGraduate
+    toggle() {
+      this.isExpanded = !this.isExpanded
+      this.alertScreenReader(`Student details are ${this.isExpanded ? 'showing' : 'hidden'}.`)
+    }
   }
 }
 </script>
 
 <style scoped>
-.drawer {
+.expanded-card {
   background-color: #f5fbff;
 }
 </style>

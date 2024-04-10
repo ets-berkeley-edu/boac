@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="text-muted">Date Range</div>
+    <div class="text-grey-darken-2">Date Range</div>
     <b-form @submit="onSubmit">
       <b-form-group>
         <div class="align-items-end d-flex pt-2">
