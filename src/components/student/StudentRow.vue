@@ -1,5 +1,5 @@
 <template>
-  <b-container
+  <v-container
     class="px-0"
     fluid
     @focusin="hover = true"
@@ -7,8 +7,8 @@
     @mouseover="hover = true"
     @mouseleave="hover = false"
   >
-    <b-row>
-      <b-col class="pb-3 pb-xl-0" xl="4" md="6">
+    <v-row>
+      <v-col class="pb-3 pb-xl-0" xl="4" md="6">
         <div class="align-center d-flex">
           <div v-if="listType === 'curatedGroupForOwner'">
             <button
@@ -23,19 +23,19 @@
           </div>
           <div class="d-flex flex-column flex-sm-row">
             <div>
-              <div class="align-center d-flex">
-                <div v-if="listType === 'cohort'" class="mr-3">
-                  <CuratedStudentCheckbox domain="default" :student="student" />
-                </div>
-                <div>
-                  <StudentAvatar
-                    :alert-count="student.alertCount"
-                    size="medium"
-                    :student="student"
-                  />
-                </div>
+              <div class="align-center d-flex pr-2">
+                <CuratedStudentCheckbox
+                  v-if="listType === 'cohort'"
+                  domain="default"
+                  :student="student"
+                />
+                <StudentAvatar
+                  :alert-count="student.alertCount"
+                  size="medium"
+                  :student="student"
+                />
               </div>
-              <div v-if="listType === 'cohort'" class="float-right manage-curated-student mb-1">
+              <div v-if="listType === 'cohort'" class="float-right">
                 <ManageStudent
                   domain="default"
                   :is-button-variant-link="true"
@@ -53,8 +53,8 @@
             </div>
           </div>
         </div>
-      </b-col>
-      <b-col class="student-gpa-col ml-5 ml-md-0 pb-3 pb-md-0" md="2" sm="4">
+      </v-col>
+      <v-col class="student-gpa-col ml-5 ml-md-0 pb-3 pb-md-0" md="2" sm="4">
         <div>
           <span
             v-if="_isNil(student.cumulativeGPA)"
@@ -89,8 +89,8 @@
             :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'"
           >{{ round(student.termGpa[0].gpa, 3) }}</strong>
         </div>
-      </b-col>
-      <b-col class="ml-5 ml-sm-0 pb-3 pb-md-0" md="2" sm="4">
+      </v-col>
+      <v-col class="ml-5 ml-sm-0 pb-3 pb-md-0" md="2" sm="4">
         <div class="d-flex flex-wrap">
           <div :id="`row-${rowIndex}-student-enrolled-units`" class="mr-1 student-gpa">{{ _get(student.term, 'enrolledUnits', 0) }}</div>
           <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
@@ -123,16 +123,16 @@
           </div>
           <div class="no-wrap student-text">Units Completed</div>
         </div>
-      </b-col>
-      <b-col class="float-right ml-5 ml-xl-0" xl="4" md="8">
+      </v-col>
+      <v-col class="float-right ml-5 ml-xl-0" xl="4" md="8">
         <StudentRowCourseActivity
           :row-index="rowIndex"
           :student="student"
           :term-id="termId"
         />
-      </b-col>
-    </b-row>
-  </b-container>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
@@ -207,11 +207,6 @@ export default {
 <style scoped>
 .cohort-student-name-container div:first-child {
   flex-basis: 70%;
-}
-.manage-curated-student {
-  height: 24px;
-  margin-right: 18px;
-  width: 92px;
 }
 .profile-gpa-alert {
   color: #d0021b;

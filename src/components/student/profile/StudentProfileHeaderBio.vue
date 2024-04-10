@@ -67,10 +67,10 @@
           </a>
         </div>
       </div>
-      <div v-if="isAscInactive" id="student-bio-inactive-asc" class="font-weight-bolder has-error">
+      <div v-if="isAscInactive" id="student-bio-inactive-asc" class="font-weight-bolder text-error">
         ASC INACTIVE
       </div>
-      <div v-if="isCoeInactive" id="student-bio-inactive-coe" class="font-weight-bolder has-error">
+      <div v-if="isCoeInactive" id="student-bio-inactive-coe" class="font-weight-bolder text-error">
         CoE INACTIVE
       </div>
     </div>

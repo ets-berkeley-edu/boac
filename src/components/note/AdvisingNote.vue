@@ -165,7 +165,11 @@
               class="p-0"
               @click.prevent="removeAttachment(index)"
             >
-              <v-icon :icon="mdiCloseCircleOutline" class="font-size-20 has-error pl-2" />
+              <v-icon
+                :icon="mdiCloseCircleOutline"
+                class="font-size-20 pl-2"
+                color="error"
+              />
               <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
             </v-btn>
           </span>

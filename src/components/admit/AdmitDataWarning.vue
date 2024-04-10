@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="align-center d-flex font-size-16 has-error">
+  <div v-if="show" class="align-center d-flex font-size-16 text-error">
     <v-icon class="mr-1" :icon="mdiAlert" />
     <div aria-live="polite" class="font-weight-500" role="alert">Admit data was last updated on {{ localUpdatedAt }}</div>
   </div>

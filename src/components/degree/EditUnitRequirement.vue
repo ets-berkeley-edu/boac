@@ -25,7 +25,7 @@
         </span>
       </div>
       <b-collapse :visible="!!nameErrorMessage">
-        <span class="has-error text-grey font-size-12">
+        <span class="text-error text-grey font-size-12">
           {{ nameErrorMessage }}
         </span>
       </b-collapse>

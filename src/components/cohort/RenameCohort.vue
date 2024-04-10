@@ -44,6 +44,7 @@
         </ProgressButton>
         <v-btn
           id="rename-cancel"
+          class="ml-1"
           :disabled="isSaving"
           variant="plain"
           @click="cancel"

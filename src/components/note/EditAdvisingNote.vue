@@ -1,6 +1,6 @@
 <template>
   <form class="edit-note-form" @submit.prevent="save">
-    <div v-if="useNoteStore().model.isDraft" class="font-size-18 has-error p-2">
+    <div v-if="useNoteStore().model.isDraft" class="font-size-18 text-error p-2">
       <v-icon :icon="mdiAlertRhombus" class="pr-1" />
       You are editing a draft note.
     </div>
@@ -120,7 +120,7 @@
       aria-live="polite"
       role="alert"
     >
-      <span id="popover-error-message" class="has-error">{{ error }}</span>
+      <span id="popover-error-message" class="text-error">{{ error }}</span>
     </b-popover>
   </form>
 </template>

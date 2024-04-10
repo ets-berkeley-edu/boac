@@ -26,7 +26,7 @@
             </v-btn>
           </template>
           <span
-            class="has-error"
+            class="text-error"
             aria-live="polite"
             v-html="error"
           ></span>

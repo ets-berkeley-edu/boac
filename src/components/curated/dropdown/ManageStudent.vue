@@ -11,9 +11,10 @@
           :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)"
           v-bind="props"
           color="primary"
-          variant="flat"
+          size="x-small"
+          variant="text"
         >
-          <div v-if="!isAdding && !isRemoving" class="align-center d-flex justify-space-between">
+          <span v-if="!isAdding && !isRemoving" class="align-center d-flex justify-space-between">
             <div :class="labelClass">
               {{ label }}
             </div>
@@ -26,7 +27,7 @@
               />
               <v-icon v-if="!disableSelector && !groupsLoading" :icon="mdiMenuDown" size="24" />
             </div>
-          </div>
+          </span>
           <span v-if="isRemoving" :class="{'text-danger': isButtonVariantLink, 'text-white': !isButtonVariantLink}">
             <v-icon :icon="mdiClose" /> Removed
           </span>
@@ -74,19 +75,12 @@
         </v-list>
       </v-card>
     </v-menu>
-    <v-dialog
-      v-model="showModal"
-      body-class="pl-0 pr-0"
-      hide-footer
-      hide-header
-      @shown="putFocusNextTick('modal-header')"
-    >
-      <CreateCuratedGroupModal
-        :cancel="onModalCancel"
-        :create="onCreateCuratedGroup"
-        :domain="domain"
-      />
-    </v-dialog>
+    <CreateCuratedGroupModal
+      :cancel="onModalCancel"
+      :create="onCreateCuratedGroup"
+      :domain="domain"
+      :show-modal="showModal"
+    />
   </div>
 </template>
 
@@ -130,7 +124,7 @@ export default {
       type: String
     },
     labelClass: {
-      default: 'font-size-14 px-2',
+      default: 'font-size-14',
       required: false,
       type: String
     },

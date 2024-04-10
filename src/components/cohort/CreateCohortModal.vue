@@ -53,6 +53,7 @@
           </ProgressButton>
           <v-btn
             id="create-cancel"
+            class="ml-1"
             :disabled="isSaving"
             variant="plain"
             @click="cancelModal"
@@ -111,10 +112,6 @@ export default {
     }
   },
   methods: {
-    reset() {
-      this.isSaving = false
-      this.name = ''
-    },
     cancelModal() {
       this.cancel()
       this.reset()
@@ -135,6 +132,10 @@ export default {
       } else {
         this.cancel()
       }
+    },
+    reset() {
+      this.isSaving = false
+      this.name = ''
     }
   }
 }

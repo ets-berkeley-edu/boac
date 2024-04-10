@@ -28,6 +28,7 @@
           </ProgressButton>
           <v-btn
             id="are-you-sure-cancel"
+            class="ml-1"
             :disabled="isProcessing"
             variant="plain"
             @click.stop="functionCancel"
