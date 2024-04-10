@@ -16,6 +16,10 @@ export function isNilOrBlank(s: string | null | undefined) {
   return _.isNil(s) || _.trim(s) === ''
 }
 
+export function lastNameFirst(u: {firstName?: string, lastName?: string}) {
+  return u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName || '')
+}
+
 export function numFormat(num, format=null) {
   numeral(num).format(format)
 }
@@ -91,6 +95,10 @@ export function stripHtmlAndTrim(html) {
   let text = html && html.replace(/<([^>]+)>/ig,'')
   text = text && text.replace(/&nbsp;/g, '')
   return _.trim(text)
+}
+
+export function studentRoutePath(uid: string, inDemoMode: boolean) {
+  return inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`
 }
 
 export function toInt(value, defaultValue = null) {

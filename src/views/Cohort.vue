@@ -131,11 +131,13 @@ export default {
   },
   data: () => ({
     pageNumber: undefined,
-    showFilters: false,
     showHistory: false
   }),
   computed: {
     anchor: () => location.hash,
+    showFilters() {
+      return !useCohortStore().isCompactView
+    },
     showStudentsSection() {
       return size(useCohortStore().students) && useCohortStore().editMode !== 'apply'
     },
@@ -148,16 +150,12 @@ export default {
       useContextStore().removeEventHandler('admitSortBy-user-preference-change', this.onChangeSortBy)
       useContextStore().removeEventHandler('sortBy-user-preference-change', this.onChangeSortBy)
       useContextStore().setEventHandler(`${newVal === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, this.onChangeSortBy)
-    },
-    isCompactView() {
-      this.showFilters = !this.isCompactView
     }
   },
   mounted() {
     const forwardPath = window.history.state.forward
     const continueExistingSession = (startsWith(forwardPath, '/student') || startsWith(forwardPath, '/admit/student')) && size(useCohortStore().filters)
     if (continueExistingSession) {
-      this.showFilters = !this.isCompactView
       this.pageNumber = useCohortStore().pagination.currentPage
       setPageTitle(useCohortStore().cohortName)
       useContextStore().loadingComplete(this.getLoadedAlert())
@@ -167,7 +165,6 @@ export default {
       const orderBy = get(useContextStore().currentUser.preferences, this.sortByKey)
       const termId = get(useContextStore().currentUser.preferences, 'termId')
       this.init(cohortId, domain, orderBy, termId).then(() => {
-        this.showFilters = !this.isCompactView
         this.pageNumber = useCohortStore().pagination.currentPage
         const pageTitle = this.cohortId ? useCohortStore().cohortName : 'Create Cohort'
         setPageTitle(pageTitle)
@@ -255,7 +252,7 @@ export default {
     },
     toggleShowHistory(value) {
       this.showHistory = value
-      if (value && !this.isCompactView) {
+      if (value && !useCohortStore().isCompactView) {
         useCohortStore().toggleCompactView()
       }
       if (!value) {
