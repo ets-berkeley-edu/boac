@@ -1,34 +1,32 @@
 <template>
-  <div>
-    <Spinner />
-    <div v-if="!loading">
-      <div class="light-blue-background border-b-sm">
-        <StudentProfileHeader :student="student" />
+  <Spinner />
+  <div v-if="!loading">
+    <div class="light-blue-background border-b-sm">
+      <StudentProfileHeader :student="student" />
+    </div>
+    <h2 class="sr-only">Academic Status</h2>
+    <div class="border-b-sm d-flex flex-wrap">
+      <div class="border-e-sm w-50">
+        <h3 class="sr-only">Units</h3>
+        <StudentProfileUnits :student="student" />
       </div>
-      <h2 class="sr-only">Academic Status</h2>
-      <div class="flex-row flex-wrap border-bottom mx-3">
-        <div class="w-50">
-          <h3 class="sr-only">Units</h3>
-          <StudentProfileUnits :student="student" />
-        </div>
-        <div class="border-left w-50">
-          <h3 class="sr-only">GPA</h3>
-          <StudentProfileGPA :student="student" />
-        </div>
+      <div class="w-50">
+        <h3 class="sr-only">GPA</h3>
+        <StudentProfileGPA :student="student" />
       </div>
-      <div class="ma-3">
-        <AcademicTimeline :student="student" />
-        <AreYouSureModal
-          v-if="showAreYouSureModal"
-          :function-cancel="cancelTheCancel"
-          :function-confirm="cancelConfirmed"
-          :show-modal="showAreYouSureModal"
-          modal-header="Discard unsaved note?"
-        />
-      </div>
-      <div>
-        <StudentClasses :student="student" />
-      </div>
+    </div>
+    <div class="ma-3">
+      <AcademicTimeline :student="student" />
+      <AreYouSureModal
+        v-if="showAreYouSureModal"
+        :function-cancel="cancelTheCancel"
+        :function-confirm="cancelConfirmed"
+        :show-modal="showAreYouSureModal"
+        modal-header="Discard unsaved note?"
+      />
+    </div>
+    <div>
+      <StudentClasses :student="student" />
     </div>
   </div>
 </template>
