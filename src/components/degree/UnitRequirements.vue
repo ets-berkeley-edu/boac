@@ -45,7 +45,7 @@
             :items="_filter(items, item => item.type === 'unitRequirement' || item.isExpanded)"
             small
             :tbody-tr-attr="getTableRowAttributes"
-            thead-class="sortable-table-header text-no-wrap border-bottom"
+            thead-class="text-no-wrap border-bottom"
           >
             <template v-if="sid && !printable" #cell(name)="row">
               <div v-if="row.item.type === 'course'" class="pl-3">

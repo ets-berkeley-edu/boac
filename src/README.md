@@ -94,6 +94,7 @@ Example: src/components/search/SortableStudents.vue
 - VDataTableVirtual seems to be the only way to get rid of VDataTable's default pagination.
 - Vuetify tables are not automatically responsive like Bootstrap tables. The `stacked_table` class in global.scss attempts to replicate Bootstrap's behavior. It can be applied conditionally using the `v-resize` directive.
 - In Vuetify tables with sortable headers, the default table headers need to be overridden so that they contain buttons for the benefit of screen readers.
+- To highlight rows when you hover over them, add class `.table-hover`.
 
 ### b-popover to v-tooltip
 

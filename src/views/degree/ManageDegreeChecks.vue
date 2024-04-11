@@ -60,7 +60,7 @@
           small
           stacked="md"
           striped
-          thead-class="sortable-table-header text-no-wrap"
+          thead-class="text-no-wrap"
         >
           <template #cell(name)="row">
             <div

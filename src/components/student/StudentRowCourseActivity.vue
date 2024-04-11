@@ -1,10 +1,10 @@
 <template>
-  <table>
-    <thead>
+  <table class="table-hover w-100">
+    <thead class="text-none">
       <tr>
         <th class="col-course">Class</th>
         <th class="col-units">Units</th>
-        <th v-if="currentUser.canAccessCanvasData" class="col-bcourses">
+        <th v-if="useContextStore().currentUser.canAccessCanvasData" class="col-bcourses">
           <span aria-hidden="true">bCourses Activity</span>
           <span class="sr-only">Most recent B Courses activity</span>
         </th>
@@ -20,7 +20,7 @@
     <tbody>
       <tr v-for="(enrollment, index) in termEnrollments" :key="index">
         <td class="col-course">
-          <span :id="`row-${rowIndex}-student-enrollment-name-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+          <span :id="`row-${rowIndex}-student-enrollment-name-${index}`" :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}">
             {{ enrollment.displayName }}
           </span>
           <span
@@ -36,7 +36,7 @@
         <td class="col-units pl-2">
           {{ enrollment.units || '&mdash;' }}
         </td>
-        <td v-if="currentUser.canAccessCanvasData" class="col-bcourses pl-1">
+        <td v-if="useContextStore().currentUser.canAccessCanvasData" class="col-bcourses pl-1">
           <div
             v-for="(canvasSite, cIndex) in enrollment.canvasSites"
             :key="cIndex"
@@ -49,7 +49,7 @@
             </span>
             {{ lastActivityDays(canvasSite.analytics) }}
           </div>
-          <div v-if="!_get(enrollment, 'canvasSites').length">
+          <div v-if="!get(enrollment, 'canvasSites').length">
             <span class="sr-only">No data </span>&mdash;
           </div>
         </td>
@@ -89,7 +89,7 @@
         <td class="col-units">
           <span class="sr-only">No data</span>&mdash;
         </td>
-        <td v-if="currentUser.canAccessCanvasData" class="col-bcourses">
+        <td v-if="useContextStore().currentUser.canAccessCanvasData" class="col-bcourses">
           <span class="sr-only">No data</span>&mdash;
         </td>
         <td class="col-midterm">
@@ -104,13 +104,7 @@
 </template>
 
 <script setup>
-import {mdiAlertRhombus} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
-import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
-import Util from '@/mixins/Util'
+import {each, get} from 'lodash'
 import {
   getSectionsWithIncompleteStatus,
   isAlertGrade,
@@ -118,11 +112,16 @@ import {
   setWaitlistedStatus,
   termNameForSisId
 } from '@/berkeley'
+import {mdiAlertRhombus} from '@mdi/js'
+import {useContextStore} from '@/stores/context'
+</script>
+
+<script>
+import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 
 export default {
   name: 'StudentRowCourseActivity',
   components: {IncompleteGradeAlertIcon},
-  mixins: [Context, Util],
   props: {
     rowIndex: {
       required: true,
@@ -139,30 +138,23 @@ export default {
   },
   computed: {
     termEnrollments() {
-      const termEnrollments = this._get(this.student.term, 'enrollments', [])
-      this._each(termEnrollments, setWaitlistedStatus)
+      const termEnrollments = get(this.student.term, 'enrollments', [])
+      each(termEnrollments, setWaitlistedStatus)
       return termEnrollments
     }
-  },
-  methods: {
-    getSectionsWithIncompleteStatus,
-    isAlertGrade,
-    lastActivityDays,
-    termNameForSisId
   }
 }
 </script>
 
 <style scoped>
 td {
-  font-size: 12px;
-  line-height: 1.4em;
-  vertical-align: top;
+  font-size: 13px;
+  line-height: 1.1em;
+  padding: 0.2rem 0.3rem;
 }
 th {
-  color: #aaa;
-  font-size: 12px;
-  vertical-align: bottom;
+  line-height: 1.1em;
+  padding: 0.2rem 0.3rem;
 }
 .col-course {
   min-width: 80px;

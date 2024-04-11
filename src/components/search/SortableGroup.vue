@@ -38,7 +38,7 @@
             </h3>
           </div>
           <div class="count d-flex align-center">
-            <div v-if="!compact" class="pr-2 sortable-table-header">
+            <div v-if="!compact" class="pr-2">
               Total Alerts:
             </div>
             <PillAlert

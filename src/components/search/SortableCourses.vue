@@ -14,7 +14,7 @@
         <th>
           <button
             id="column-sort-button-section"
-            class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
+            class="btn btn-link table-header-text cursor-pointer table-cell"
             @click="courseSort('section')"
             @keyup.enter="courseSort('section')"
           >
@@ -27,7 +27,7 @@
         <th>
           <button
             id="column-sort-button-title"
-            class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
+            class="btn btn-link table-header-text cursor-pointer table-cell"
             @click="courseSort('title')"
             @keyup.enter="courseSort('title')"
           >
@@ -37,7 +37,7 @@
             </span>
           </button>
         </th>
-        <th class="sortable-table-header table-cell">
+        <th class="table-cell">
           <span class="table-header-text">Instructor(s)</span>
         </th>
       </tr>
