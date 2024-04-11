@@ -27,9 +27,9 @@ import os
 import random
 
 from bea.config.bea_test_config import BEATestConfig
-from bea.models.note import Note
-from bea.models.topic import Topic
-from bea.models.topic import Topics
+from bea.models.notes_and_appts.note import Note
+from bea.models.notes_and_appts.topic import Topic
+from bea.models.notes_and_appts.topic import Topics
 from bea.test_utils import boa_utils
 from bea.test_utils import nessie_timeline_utils
 from bea.test_utils import utils

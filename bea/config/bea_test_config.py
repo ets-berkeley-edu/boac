@@ -30,13 +30,13 @@ import random
 
 from bea.models.academic_standings import AcademicStandings
 from bea.models.advisor_role import AdvisorRole
-from bea.models.cohort_filter import CohortFilter
+from bea.models.cohorts_and_groups.cohort_filter import CohortFilter
+from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.department import Department
 from bea.models.department_membership import DepartmentMembership
-from bea.models.filtered_cohort import FilteredCohort
 from bea.models.incomplete_grades import IncompleteGrades
-from bea.models.note_attachment import NoteAttachment
-from bea.models.timeline_record_source import TimelineRecordSource
+from bea.models.notes_and_appts.note_attachment import NoteAttachment
+from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.user import User
 from bea.test_utils import boa_utils
 from bea.test_utils import nessie_filter_utils
@@ -184,6 +184,7 @@ class BEATestConfig(object):
             self.students = [s for s in self.students if s.status == 'active']
 
     def set_base_configs(self, dept=None, opts=None):
+        self.term = utils.get_current_term()
         self.set_dept(dept)
         self.set_advisor()
         self.set_students(opts=opts)
@@ -257,7 +258,7 @@ class BEATestConfig(object):
             # Use students with enrollments in the current term
             if opts.get('enrollments'):
                 app.logger.info('Running tests using students with enrollments')
-                enrolled_sids = nessie_utils.get_sids_with_enrollments(boa_utils.get_term_sis_id())
+                enrolled_sids = nessie_utils.get_sids_with_enrollments(self.term.sis_id)
                 random.shuffle(enrolled_sids)
                 test_sids.extend(enrolled_sids[:count])
 
@@ -273,14 +274,14 @@ class BEATestConfig(object):
             # Use students with incomplete grades, one student for each
             if opts.get('incomplete_grades'):
                 app.logger.info('Running tests using students with various incomplete grades')
-                term_0 = boa_utils.get_prev_term_sis_id()
-                term_1 = boa_utils.get_prev_term_sis_id(term_0)
-                term_2 = boa_utils.get_prev_term_sis_id(term_1)
-                term_3 = boa_utils.get_prev_term_sis_id(term_2)
-                term_codes = [term_2, term_3]
+                term_id_0 = utils.get_prev_term_sis_id()
+                term_id_1 = utils.get_prev_term_sis_id(term_id_0)
+                term_id_2 = utils.get_prev_term_sis_id(term_id_1)
+                term_id_3 = utils.get_prev_term_sis_id(term_id_2)
+                term_ids = [term_id_2, term_id_3]
                 for incomplete in IncompleteGrades:
-                    frozen_sids = nessie_utils.get_sids_with_incomplete_grades(incomplete, term_codes, True)
-                    thawed_sids = nessie_utils.get_sids_with_incomplete_grades(incomplete, term_codes, False)
+                    frozen_sids = nessie_utils.get_sids_with_incomplete_grades(incomplete, term_ids, True)
+                    thawed_sids = nessie_utils.get_sids_with_incomplete_grades(incomplete, term_ids, False)
                     if frozen_sids:
                         random.shuffle(frozen_sids)
                         test_sids.append(frozen_sids[0])
@@ -333,7 +334,7 @@ class BEATestConfig(object):
             if opts.get('standing'):
                 app.logger.info('Running tests using students with various standing')
                 for standing in AcademicStandings:
-                    standing_sids = nessie_utils.get_sids_with_standing(standing, boa_utils.get_current_term())
+                    standing_sids = nessie_utils.get_sids_with_standing(standing, self.term())
                     if standing_sids:
                         random.shuffle(standing_sids)
                         test_sids.append(standing_sids[0])
@@ -360,19 +361,28 @@ class BEATestConfig(object):
 
     def set_search_cohorts(self, opts):
         test_data = utils.parse_test_data()
-        filters = []
-
+        self.searches = []
         if opts['students']:
-            for search in test_data['filters']['students']:
-                filters.append(CohortFilter(search, self.dept))
-
+            data = test_data['filters']['students']
         elif opts['admits']:
-            for search in test_data['filters']['admits']:
-                filters.append(CohortFilter(search, self.dept))
-
+            data = test_data['filters']['admits']
         else:
             app.logger.error('Unable to determine search cohorts')
             raise
+
+        for test_case in data:
+            search_criteria = CohortFilter(test_case, self.dept)
+            sids = nessie_filter_utils.get_cohort_result(self, search_criteria)
+            cohort_members = []
+            for student in self.students:
+                if student.sid in sids:
+                    cohort_members.append(student)
+            cohort = FilteredCohort({
+                'name': f'Test Cohort {data.index(test_case)} {self.test_id}',
+                'members': cohort_members,
+                'search_criteria': search_criteria,
+            })
+            self.searches.append(cohort)
 
     # TODO set_test_admits
 
@@ -390,6 +400,27 @@ class BEATestConfig(object):
         self.attachments = attachments
 
     # CONFIGURATION FOR SPECIFIC TEST SCRIPTS #
+
+    def filtered_cohorts(self):
+        self.set_base_configs(dept=Department.ADMIN, opts={'include_inactive': True})
+        self.set_search_cohorts({'students': True})
+
+        # Set a default cohort to exercise editing and removing filters
+        if self.dept == Department.COE:
+            colleges = [{'college': 'Undergrad Engineering'}]
+        else:
+            colleges = [{'college': 'Undergrad Letters & Science'}]
+        coe_advisor = boa_utils.get_dept_advisors(Department.COE)[0]
+        filters = {
+            'colleges': colleges,
+            'holds': True,
+            'coe_advisors': [{'advisor': coe_advisor.uid}],
+        }
+        editing_test_search_criteria = CohortFilter(filters, self.dept)
+        self.cohort = FilteredCohort({
+            'name': f'Default cohort {self.test_id}',
+            'search_criteria': editing_test_search_criteria,
+        })
 
     def note_mgmt(self):
         self.set_note_attachments()

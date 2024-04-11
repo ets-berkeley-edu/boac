@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from bea.models.user import User
-from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from boac.externals import data_loch
 from flask import current_app as app
@@ -36,7 +35,7 @@ def get_all_students(opts=None):
         clause = f"""
                 JOIN student.student_enrollment_terms
                   ON student.student_enrollment_terms.sid = student.student_profile_index.sid
-               WHERE student.student_enrollment_terms.term_id = '{boa_utils.get_term_code()}'
+               WHERE student.student_enrollment_terms.term_id = '{utils.get_current_term().code}'
         """
     elif opts and opts.get('include_inactive'):
         clause = ''
@@ -131,3 +130,19 @@ def get_admits():
         })
         admits.append(admit)
     return admits
+
+
+# ADVISORS
+
+def get_academic_plans(advisor):
+    sql = f"""SELECT DISTINCT boac_advisor.advisor_students.academic_plan_code AS plan_code
+                FROM boac_advisor.advisor_students
+                JOIN boac_advising_notes.advising_note_authors
+                  ON boac_advising_notes.advising_note_authors.uid = '{advisor.uid}'
+                 AND boac_advising_notes.advising_note_authors.sid = boac_advisor.advisor_students.advisor_sid
+                JOIN student.student_profiles
+                  ON student.student_profiles.sid = boac_advisor.advisor_students.student_sid
+            ORDER BY boac_advisor.advisor_students.academic_plan_code"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    return list(map(lambda r: r['plan_code'], results))

@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.models.cohort import Cohort
+from bea.models.cohorts_and_groups.cohort import Cohort
 
 
 class FilteredCohort(Cohort):

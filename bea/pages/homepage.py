@@ -24,8 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from datetime import datetime
+import time
 
-from bea.pages.boa_pages import BoaPages
+from bea.pages.user_list_pages import UserListPages
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
@@ -34,7 +35,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
-class Homepage(BoaPages):
+class Homepage(UserListPages):
 
     SIGN_IN_BUTTON = (By.ID, 'sign-in')
     DEV_AUTH_UID_INPUT = (By.ID, 'dev-auth-uid')
@@ -72,3 +73,78 @@ class Homepage(BoaPages):
     def dev_auth(self, user=None):
         self.enter_dev_auth_creds(user)
         self.wait_for_boa_title('Home')
+
+    # FILTERED COHORTS AND CURATED GROUPS
+
+    NO_FILTERED_COHORTS_MSG = By.ID, 'no-cohorts-header'
+    FILTERED_COHORT = By.XPATH, '//div[contains(@id,"sortable-cohort")]//h3'
+    CURATED_GROUP = By.XPATH, '//div[contains(@id,"sortable-curated")]//h3'
+
+    @staticmethod
+    def user_rows(xpath):
+        return By.XPATH, f'{xpath}//tbody/tr'
+
+    def filtered_cohorts(self):
+        Wait(self.driver, utils.get_medium_timeout()).until(ec.presence_of_all_elements_located(self.FILTERED_COHORT))
+        els = self.elements(self.FILTERED_COHORT)
+        return list(map(lambda el: el.text.replace('Show details for cohort', '').split('(')[0].strip(), els))
+
+    def curated_groups(self):
+        Wait(self.driver, utils.get_medium_timeout()).until(ec.presence_of_all_elements_located(self.CURATED_GROUP))
+        els = self.elements(self.CURATED_GROUP)
+        return list(map(lambda el: el.text.replace('Show details for curated group', '').split('(')[0].strip(), els))
+
+    @staticmethod
+    def view_all_members_link_loc(cohort):
+        if cohort.__class__.__name__ == 'FilteredCohort':
+            return By.ID, f'sortable-cohort-{cohort.cohort_id}-view-all'
+        else:
+            return By.ID, f'sortable-curated-{cohort.cohort_id}-view-all'
+
+    def expand_member_rows(self, cohort):
+        time.sleep(2)
+        if not self.is_present(self.view_all_members_link_loc(cohort)):
+            if cohort.__class__.__name__ == 'FilteredCohort':
+                self.wait_for_element_and_click((By.ID, f'sortable-cohort-{cohort.cohort_id}-toggle'))
+            else:
+                self.wait_for_element_and_click((By.ID, f'sortable-curated-{cohort.cohort_id}-toggle'))
+
+    def member_rows(self, cohort):
+        if cohort.__class__.__name__ == 'FilteredCohort':
+            return self.user_rows(self.filtered_cohort_xpath(cohort))
+        else:
+            return self.user_rows(self.curated_group_xpath(cohort))
+
+    def member_count(self, cohort):
+        if cohort.__class__.__name__ == 'FilteredCohort':
+            loc = By.ID, f'sortable-cohort-{cohort.cohort_id}-total-student-count'
+        else:
+            loc = By.ID, f'{self.curated_group_xpath(cohort)}//h3/span[2]'
+        return int(self.element(loc).text) if self.is_present(loc) else None
+
+    def verify_member_alerts(self, cohort, advisor, cohort_members_with_alerts=None):
+        if cohort.members:
+            member_alerts = boa_utils.get_un_dismissed_users_alerts(cohort.members, advisor)
+        else:
+            member_alerts = []
+        alert_members = cohort_members_with_alerts or boa_utils.get_members_with_alerts(cohort, member_alerts)
+        alert_members.sort(key=lambda m: (m.last_name, m.first_name, m.sid), reverse=False)
+        alert_members.sort(key=lambda m: m.alert_count, reverse=True)
+        alert_members = alert_members[0:50]
+
+        # Verify the total cohort/group alert-bearing member count
+        Wait(self.driver, utils.get_short_timeout()).until(
+            ec.visibility_of_element_located(self.view_all_members_link_loc(cohort)),
+        )
+        rows = self.elements(self.member_rows(cohort))
+        utils.assert_equivalence(len(rows), len(alert_members))
+
+        # Verify the alert count per expected member
+        for member in alert_members:
+            app.logger.info(f'Checking cohort row for SID {member.sid}')
+            utils.assert_equivalence(self.user_row_data(member.sid, cohort)['alert_count'], str(member.alert_count))
+
+    def click_filtered_cohort(self, cohort):
+        app.logger.info(f'Clicking link to my cohort {cohort.name}')
+        Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.FILTERED_COHORT))
+        self.wait_for_element_and_click(self.view_all_members_link_loc(cohort))

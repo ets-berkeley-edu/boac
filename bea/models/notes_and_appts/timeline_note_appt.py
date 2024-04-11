@@ -23,18 +23,48 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.models.timeline_note_appt import TimelineNoteAppt
+from bea.models.notes_and_appts.timeline_record import TimelineRecord
 
 
-class NoteTemplate(TimelineNoteAppt):
+class TimelineNoteAppt(TimelineRecord):
 
     @property
-    def is_private(self):
-        try:
-            return self.data['is_private']
-        except KeyError:
-            return False
+    def advisor(self):
+        return self.data['advisor']
 
-    @is_private.setter
-    def is_private(self, value):
-        self.data['is_private'] = value
+    @advisor.setter
+    def advisor(self, value):
+        self.data['advisor'] = value
+
+    @property
+    def attachments(self):
+        try:
+            return self.data['attachments']
+        except KeyError:
+            return []
+
+    @attachments.setter
+    def attachments(self, value):
+        self.data['attachments'] = value
+
+    @property
+    def topics(self):
+        try:
+            return self.data['topics']
+        except KeyError:
+            return []
+
+    @topics.setter
+    def topics(self, value):
+        self.data['topics'] = value
+
+    @property
+    def contact_type(self):
+        try:
+            return self.data['contact_type']
+        except KeyError:
+            return None
+
+    @contact_type.setter
+    def contact_type(self, value):
+        self.data['contact_type'] = value

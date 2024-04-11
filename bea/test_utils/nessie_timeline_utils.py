@@ -24,9 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 from itertools import groupby
 
-from bea.models.note import Note
-from bea.models.note_attachment import NoteAttachment
-from bea.models.timeline_record_source import TimelineRecordSource
+from bea.models.notes_and_appts.note import Note
+from bea.models.notes_and_appts.note_attachment import NoteAttachment
+from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.user import User
 from bea.test_utils import utils
 from boac.externals import data_loch
