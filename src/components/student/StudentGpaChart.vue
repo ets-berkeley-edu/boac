@@ -1,9 +1,9 @@
 <template>
   <div v-if="options">
-    <!-- <highcharts
+    <highcharts
       :id="`student-chart-gpa-container-${student.uid}`"
       :options="options"
-    /> -->
+    />
   </div>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isReady" class="align-center d-flex pb-1">
+  <div v-if="isReady" class="align-center d-flex pb-2 pr-3">
     <label id="sort-by" class="font-size-16 pr-2 text-no-wrap text-medium-emphasis" for="students-sort-by">
       Sort<span class="sr-only"> students</span> by
     </label>
@@ -22,6 +22,7 @@
           <template v-if="item">
             <span class="sr-only">Students sorted by </span>{{ item.title }}<span class="sr-only"></span>
           </template>
+          <template v-else>Select...</template>
         </div>
       </template>
       <template #item="{props, item}">
@@ -35,7 +36,7 @@
           v-else
           :id="`sort-by-option-${item.value}`"
           v-bind="props"
-          :aria-describedby="item.group ? `sort-by-option-group-${item.group}` : false"
+          :aria-describedby="item.raw.group ? `sort-by-option-group-${item.raw.group}` : false"
           class="min-height-unset py-1 pl-8"
           density="compact"
           role="option"

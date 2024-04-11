@@ -1,5 +1,5 @@
 <template>
-  <div class="add-to-curated-group-container d-flex align-center">
+  <div class="add-to-curated-group-container d-flex align-end">
     <label id="add-all-checkbox-label" :for="checkboxId" class="sr-only">
       Select all students to add to a {{ domainLabel(false) }}
     </label>
@@ -264,6 +264,7 @@ label {
 }
 .add-to-curated-group-container {
   min-width: 270px;
+  padding-bottom: 9px;
 }
 .select-all-checkbox {
   z-index: 100;

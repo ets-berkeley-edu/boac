@@ -1,60 +1,55 @@
 <template>
-  <div v-if="isReady" class="align-center d-flex pb-1">
-    <div>
-      <label id="term-select-label" class="font-size-16 mb-0 pr-2 text-medium-emphasis" for="students-term-select">
-        <span class="sr-only">Select </span>Term
-      </label>
-    </div>
-    <div class="dropdown">
-      <b-dropdown
-        id="students-term-select"
-        aria-labelledby="term-select-label"
-        block
-        left
-        menu-class="w-100"
-        no-caret
-        toggle-class="dd-override"
-        variant="link"
-        @hidden="alertScreenReader('Term select menu closed')"
-        @shown="alertScreenReader('Term select menu opened')"
-      >
-        <template #button-content>
-          <div class="d-flex dropdown-width justify-space-between text-dark">
-            <div v-if="selectedTermLabel">
-              <span class="sr-only">Showing enrollments for </span>{{ selectedTermLabel }}<span class="sr-only">. Hit enter to open menu</span>
-            </div>
-            <div v-if="!selectedTermLabel">Select...</div>
-            <div class="ml-2">
-              <v-icon :icon="mdiTriangleSmallDown" class="menu-caret" />
-            </div>
-          </div>
-        </template>
-        <b-dropdown-item-button
-          v-for="(option, index) in selectTermOptions"
-          :id="`term-select-option-${option.value}`"
-          :key="`select-term-option-${index}`"
-          @click="onSelectTerm(option.value)"
-        >
-          {{ option.label }}
-        </b-dropdown-item-button>
-      </b-dropdown>
-    </div>
+  <div v-if="isReady" class="align-center d-flex pb-2 pr-3">
+    <label id="term-select-label" class="font-size-16 pr-2 text-medium-emphasis" for="students-term-select">
+      <span class="sr-only">Select </span>Term
+    </label>
+    <v-select
+      id="students-term-select"
+      class="students-term-select"
+      density="compact"
+      eager
+      hide-details
+      item-title="label"
+      :items="options"
+      :model-value="selectedOption"
+      single-line
+      variant="outlined"
+      @update:menu="onToggleMenu"
+      @update:model-value="onSelectTerm"
+    >
+      <template #selection="{item}">
+        <div class="text-no-wrap">
+          <template v-if="item">
+            <span class="sr-only">Showing enrollments for </span>{{ selectedOption.label }}<span class="sr-only">. Hit enter to open menu</span>
+          </template>
+          <template v-else>Select...</template>
+        </div>
+      </template>
+      <template #item="{props, item}">
+        <v-list-item
+          :id="`term-select-option-${item.value}`"
+          v-bind="props"
+          class="min-height-unset py-1 pl-8"
+          density="compact"
+          role="option"
+          :title="item.title"
+        ></v-list-item>
+      </template>
+    </v-select>
   </div>
 </template>
 
 <script setup>
-import {mdiTriangleSmallDown} from '@mdi/js'
+import {get, map} from 'lodash'
+import {useContextStore} from '@/stores/context'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
+import {nextTick} from 'vue'
 import {previousSisTermId, termNameForSisId} from '@/berkeley'
-import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'TermSelector',
-  mixins: [Context, Util],
   props: {
     domain: {
       default: undefined,
@@ -64,20 +59,20 @@ export default {
   },
   data: () => ({
     isReady: false,
-    selectTermOptions: undefined,
-    selectedTermId: undefined,
-    selectedTermLabel: undefined,
+    options: []
   }),
+  computed: {
+    selectedOption() {
+      return this.termOptionForId(get(useContextStore().currentUser, 'preferences.termId'))
+    }
+  },
   created() {
-    this.selectTermOptions = this.getSelectTermOptions()
-    const selectedTermOption = this.termOptionForId(this._get(this.currentUser.preferences, 'termId'))
-    this.selectedTermId = selectedTermOption.value
-    this.selectedTermLabel = selectedTermOption.label
+    this.options = this.getTermOptions()
     this.isReady = true
   },
   methods: {
-    getSelectTermOptions() {
-      const currentTermId = `${this.config.currentEnrollmentTermId}`
+    getTermOptions() {
+      const currentTermId = `${useContextStore().config.currentEnrollmentTermId}`
       const termIds = [
         this.nextSisTermId(this.nextSisTermId(currentTermId)),
         this.nextSisTermId(currentTermId),
@@ -85,7 +80,7 @@ export default {
         previousSisTermId(currentTermId),
         previousSisTermId(previousSisTermId(currentTermId))
       ]
-      return this._map(termIds, this.termOptionForId)
+      return map(termIds, this.termOptionForId)
     },
     nextSisTermId(termId) {
       let nextTermId = ''
@@ -107,17 +102,20 @@ export default {
       return nextTermId
     },
     onSelectTerm(value) {
-      if (value !== this._get(this.currentUser.preferences, 'termId')) {
-        this.selectedTermId = value
-        this.selectedTermLabel = termNameForSisId(value)
-        this.alertScreenReader(`${this.selectedTermLabel} selected`)
-        useContextStore().updateCurrentUserPreference('termId', this.selectedTermId)
-        this.broadcast('termId-user-preference-change', value)
+      if (value !== get(useContextStore().currentUser, 'preferences.termId')) {
+        useContextStore().updateCurrentUserPreference('termId', value)
+        useContextStore().broadcast('termId-user-preference-change', value)
+        nextTick(() => {
+          useContextStore().alertScreenReader(`${this.selectedOption.label} selected`)
+        })
       }
+    },
+    onToggleMenu(isOpen) {
+      useContextStore().alertScreenReader(`Term menu ${isOpen ? 'opened' : 'closed'}`)
     },
     termOptionForId(termId) {
       let label = termNameForSisId(termId)
-      if (termId === `${this.config.currentEnrollmentTermId}`) {
+      if (termId === `${useContextStore().config.currentEnrollmentTermId}`) {
         label += ' (current)'
       }
       return {
@@ -130,15 +128,7 @@ export default {
 </script>
 
 <style scoped>
-.dropdown {
-  background-color: #fefefe;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  color: #000;
-  height: 42px;
-  text-align: left;
-  vertical-align: middle;
-  white-space: nowrap;
-  width: 280px;
+.students-term-select {
+  min-width: 310px;
 }
 </style>
