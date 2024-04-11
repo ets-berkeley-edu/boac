@@ -25,14 +25,15 @@
       />
     </div>
   </div>
-  <StudentPersonalDetails
-    v-if="!compact"
-    class="my-1 text-center"
-    :inactive-majors="plansPartitionedByStatus[0].length ? plansPartitionedByStatus[1] : []"
-    :inactive-minors="plansMinorPartitionedByStatus[0].length ? plansMinorPartitionedByStatus[1] : []"
-    :inactive-subplans="plansPartitionedByStatus[0].length ? discontinuedSubplans : []"
-    :student="student"
-  />
+  <div class="my-1 text-center">
+    <StudentPersonalDetails
+      v-if="!compact"
+      :inactive-majors="plansPartitionedByStatus[0].length ? plansPartitionedByStatus[1] : []"
+      :inactive-minors="plansMinorPartitionedByStatus[0].length ? plansMinorPartitionedByStatus[1] : []"
+      :inactive-subplans="plansPartitionedByStatus[0].length ? discontinuedSubplans : []"
+      :student="student"
+    />
+  </div>
 </template>
 
 <script>

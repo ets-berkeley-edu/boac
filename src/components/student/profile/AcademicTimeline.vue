@@ -9,17 +9,15 @@
         :student="student"
       />
     </div>
-    <div>
-      <AcademicTimelineTable
-        :counts-per-type="countsPerType"
-        :filter="filter"
-        :filter-types="filterTypes"
-        :messages="messages"
-        :on-create-new-note="onCreateNewNote"
-        :sort-messages="sortMessages"
-        :student="student"
-      />
-    </div>
+    <AcademicTimelineTable
+      :counts-per-type="countsPerType"
+      :filter="filter"
+      :filter-types="filterTypes"
+      :messages="messages"
+      :on-create-new-note="onCreateNewNote"
+      :sort-messages="sortMessages"
+      :student="student"
+    />
   </div>
 </template>
 
@@ -56,14 +54,14 @@ export default {
   created() {
     this.messages = []
     this.filterTypes = {
-      alert: {name: 'Alert', tab: 'Alerts'},
-      hold: {name: 'Hold', tab: 'Holds'},
-      requirement: {name: 'Requirement', tab: 'Reqs'}
+      alert: {name: 'Alert', tab: 'Alerts', tabWidth: 65},
+      hold: {name: 'Hold', tab: 'Holds', tabWidth: 62},
+      requirement: {name: 'Requirement', tab: 'Reqs', tabWidth: 58}
     }
     if (this.currentUser.canAccessAdvisingData) {
-      this.filterTypes.eForm = {name: 'EForm', tab: 'eForms'}
-      this.filterTypes.note = {name: 'Advising Note', tab: 'Notes'}
-      this.filterTypes.appointment = {name: 'Appointment', tab: 'Appointments'}
+      this.filterTypes.eForm = {name: 'EForm', tab: 'eForms', tabWidth: 76}
+      this.filterTypes.note = {name: 'Advising Note', tab: 'Notes', tabWidth: 64}
+      this.filterTypes.appointment = {name: 'Appointment', tab: 'Appointments', tabWidth: 126}
     }
     this._each(this._keys(this.filterTypes), (type, typeIndex) => {
       let notifications = this.student.notifications[type]

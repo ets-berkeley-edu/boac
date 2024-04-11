@@ -96,6 +96,52 @@
   font-weight: bold;
   line-height: 1.2;
 }
+.pill {
+  background-color: #fff;
+  border: 1px solid #999;
+  border-radius: 5px;
+  color: #666;
+  font-size: 12px;
+  height: 24px;
+  margin-top: 2px;
+  padding-top: 2px;
+  width: auto;
+}
+.pill-attachment {
+  display: inline-block;
+  height: 26px !important;
+  padding: 0 8px 1px 8px;
+}
+.pill-attachment button {
+  margin-top: .02rem;
+}
+.pill-list {
+  list-style-type: none;
+}
+.pill-list-header {
+  font-size: 16px;
+  font-weight: 800;
+}
+.pill-alerts {
+  border-radius: 10px;
+  color: #fff;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 800;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 4px 0 4px;
+  text-align: center;
+}
+.pill-alerts-nonzero {
+  background-color: #f0ad4e;
+}
+.pill-alerts-zero {
+  background-color: #ccc;
+}
+.pill-alerts-per-student {
+  color: #f0ad4e;
+}
 .position-relative {
   position: relative;
 }
