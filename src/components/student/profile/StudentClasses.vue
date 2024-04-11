@@ -8,13 +8,12 @@
         <v-btn
           v-if="enrollmentTermsByYear.length > 1"
           id="toggle-collapse-all-years"
-          v-b-toggle="expanded ? collapsed : uncollapsed"
-          variant="link"
-          @click="updateCollapseStates"
+          variant="text"
+          @click="toggle"
         >
-          <v-icon v-if="expanded" :icon="mdiMenuDown" />
-          <v-icon v-if="!expanded" :icon="mdiMenuRight" />
-          {{ expanded ? 'Collapse' : 'Expand' }} all years
+          <v-icon v-if="panelsExpanded.length" :icon="mdiMenuDown" />
+          <v-icon v-if="!panelsExpanded.length" :icon="mdiMenuRight" />
+          {{ panelsExpanded.length ? 'Collapse' : 'Expand' }} all years
         </v-btn>
       </div>
       <div v-if="enrollmentTermsByYear.length > 1">|</div>
@@ -22,7 +21,7 @@
         <v-btn
           v-if="enrollmentTermsByYear.length > 1"
           id="sort-academic-year"
-          variant="link"
+          variant="text"
           @click="setOrder"
         >
           Sort academic year
@@ -44,55 +43,38 @@
         </router-link>
       </div>
     </div>
-    <div
-      v-for="year in enrollmentTermsByYear"
-      :id="`academic-year-${year.label}-container`"
-      :key="year.label"
-    >
-      <v-btn
-        :id="`academic-year-${year.label}-toggle`"
-        v-b-toggle="`academic-year-${year.label}`"
-        block
-        class="profile-academic-year-toggle background-light"
-        :pressed="null"
-        variant="link"
+    <v-expansion-panels v-model="panelsExpanded" multiple>
+      <v-expansion-panel
+        v-for="year in enrollmentTermsByYear"
+        :id="`academic-year-${year.label}-container`"
+        :key="year.label"
+        :value="year.label"
       >
-        <div class="d-flex justify-space-between">
-          <div class="align-items-start d-flex">
-            <div class="pr-3">
-              <v-icon :icon="mdiMenuRight" class="when-academic-year-open" />
-              <v-icon :icon="mdiMenuDown" class="when-academic-year-closed" />
-            </div>
+        <v-expansion-panel-title>
+          <div class="d-flex justify-space-between">
             <h3 class="page-section-header-sub ma-0">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
+            <div class="color-black">{{ totalUnits(year) || 0 }} Units</div>
           </div>
-          <div class="align-center d-flex justify-content-end">
-            <span class="color-black">{{ totalUnits(year) || 0 }} Units</span>
-          </div>
-        </div>
-      </v-btn>
-      <b-collapse
-        :id="`academic-year-${year.label}`"
-        :ref="`academic-year-${year.label}`"
-        class="mr-3 mb-2 w-100"
-        :visible="includesCurrentTerm(year)"
-      >
-        <b-card-group deck class="d-flex flex-column flex-xl-row ma-0">
-          <StudentEnrollmentTerm
-            :id="`term-fall-${year.label - 1}`"
-            :student="student"
-            :term="getTerm(`Fall ${year.label - 1}`, year)"
-          /><StudentEnrollmentTerm
-            :id="`term-spring-${year.label}`"
-            :student="student"
-            :term="getTerm(`Spring ${year.label}`, year)"
-          /><StudentEnrollmentTerm
-            :id="`term-summer-${year.label}`"
-            :student="student"
-            :term="getTerm(`Summer ${year.label}`, year)"
-          />
-        </b-card-group>
-      </b-collapse>
-    </div>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
+          <v-card>
+            <StudentEnrollmentTerm
+              :id="`term-fall-${year.label - 1}`"
+              :student="student"
+              :term="getTerm(`Fall ${year.label - 1}`, year)"
+            /><StudentEnrollmentTerm
+              :id="`term-spring-${year.label}`"
+              :student="student"
+              :term="getTerm(`Spring ${year.label}`, year)"
+            /><StudentEnrollmentTerm
+              :id="`term-summer-${year.label}`"
+              :student="student"
+              :term="getTerm(`Summer ${year.label}`, year)"
+            />
+          </v-card>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
   </div>
 </template>
 
@@ -104,6 +86,7 @@ import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight} from '@mdi/
 import Context from '@/mixins/Context'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import Util from '@/mixins/Util'
+import {map} from 'lodash'
 import {sisIdForTermName} from '@/berkeley'
 
 export default {
@@ -118,9 +101,7 @@ export default {
   },
   data: () => ({
     currentOrder: undefined,
-    expanded: undefined,
-    collapsed: [],
-    uncollapsed: []
+    panelsExpanded: []
   }),
   computed: {
     enrollmentTermsByYear() {
@@ -138,7 +119,6 @@ export default {
   },
   created() {
     this.currentOrder = 'desc'
-    this.expanded = false
   },
   methods: {
     includesCurrentTerm(year) {
@@ -171,12 +151,15 @@ export default {
       this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'
       this.alertScreenReader(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
     },
-    updateCollapseStates() {
-      this.collapsed = this._filter(this.$refs, year => !year[0].$data.show).map(year => year[0].id)
-      this.uncollapsed = this._filter(this.$refs, year => year[0].$data.show).map(year => year[0].id)
-      this.expanded = !this.expanded
-      this.alertScreenReader(`All of the academic years have been ${this.expanded ? 'collapsed' : 'expanded'}`)
+    toggle() {
+      this.panelsExpanded = this.panelsExpanded.length ? [] : map(this.student.enrollmentTerms, 'academicYear')
     }
+    // updateCollapseStates() {
+    //   this.collapsed = this._filter(this.$refs, year => !year[0].$data.show).map(year => year[0].id)
+    //   this.uncollapsed = this._filter(this.$refs, year => year[0].$data.show).map(year => year[0].id)
+    //   this.expanded = !this.expanded
+    //   this.alertScreenReader(`All of the academic years have been ${this.expanded ? 'collapsed' : 'expanded'}`)
+    // }
   }
 }
 </script>

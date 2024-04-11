@@ -27,12 +27,11 @@
       </label>
     </div>
     <div class="pr-1">
-      <b-input
+      <v-text-field
         :id="`timeline-${filter}s-query-input`"
         v-model="timelineQuery"
         :aria-labelledby="`timeline-${filter}s-query-label`"
         class="pl-2 pr-2 timeline-query-input"
-        trim
         type="search"
       />
     </div>
@@ -136,7 +135,7 @@
               <v-btn
                 :id="`edit-note-${message.id}-button`"
                 :disabled="disableNewNoteButton"
-                variant="link"
+                variant="text"
                 class="p-0 edit-note-button"
                 @keypress.enter.stop="editNote(message)"
                 @click.stop="editNote(message)"
@@ -150,7 +149,7 @@
               <v-btn
                 :id="`delete-note-button-${message.id}`"
                 :disabled="disableNewNoteButton"
-                variant="link"
+                variant="text"
                 class="p-0 edit-note-button"
                 @keypress.enter.stop="deleteNote(message)"
                 @click.stop="deleteNote(message)"
@@ -205,7 +204,7 @@
             <div v-if="_includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
               <v-btn
                 :id="`${activeTab}-close-message-${message.id}`"
-                variant="link"
+                variant="text"
                 @keyup.enter.stop="close(message, true)"
                 @click.stop="close(message, true)"
               >
@@ -306,7 +305,7 @@
       <v-btn
         :id="`timeline-tab-${activeTab}-previous-messages`"
         class="text-no-wrap pr-2 pt-0"
-        variant="link"
+        variant="text"
         @click="isShowingAll = !isShowingAll"
       >
         <v-icon :icon="isShowingAll ? mdiMenuUp : mdiMenuRight" />

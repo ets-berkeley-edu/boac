@@ -1,11 +1,11 @@
 <template>
-  <b-card
+  <v-card
     no-body
     border-variant="white"
     class="student-term"
     :class="{'background-light student-term-current': config.currentEnrollmentTermId === parseInt(term.termId)}"
   >
-    <b-card-header header-bg-variant="transparent" header-class="student-term-header">
+    <v-card-title header-bg-variant="transparent" header-class="student-term-header">
       <h3 :id="`term-${term.termId}-header`" class="font-size-18 mb-0 mr-2">{{ term.termName }}</h3>
       <span v-if="isConcurrent" class="font-size-14 text-grey-darken-2 ml-1 mr-3">UCBX</span>
       <StudentAcademicStanding
@@ -19,8 +19,8 @@
         :term-id="term.termId"
         class="font-size-14"
       />
-    </b-card-header>
-    <b-card-body body-class="p-0" role="table">
+    </v-card-title>
+    <v-card-text body-class="p-0" role="table">
       <div role="rowgroup">
         <div role="row" class="student-course-label student-course-header text-no-wrap">
           <div role="columnheader" class="student-course-column-name">Course</div>
@@ -57,8 +57,8 @@
           </div>
         </div>
       </div>
-    </b-card-body>
-    <b-card-footer footer-bg-variant="transparent" footer-class="student-term-footer">
+    </v-card-text>
+    <v-card-subtitle footer-bg-variant="transparent" footer-class="student-term-footer">
       <div class="d-flex justify-space-between">
         <div :id="`term-${term.termId}-gpa`">
           <span class="student-course-label mr-1">Term GPA: </span>
@@ -87,8 +87,8 @@
           <div :id="`term-${term.termId}-max-units`" class="font-size-14 units-total">{{ numFormat(term.maxTermUnitsAllowed, '0.0') }}</div>
         </div>
       </div>
-    </b-card-footer>
-  </b-card>
+    </v-card-subtitle>
+  </v-card>
 </template>
 
 <script>
