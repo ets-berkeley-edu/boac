@@ -1,68 +1,62 @@
 <template>
   <div v-if="isReady" class="align-center d-flex pb-1">
-    <div>
-      <label id="sort-by" class="font-size-16 mb-0 pr-2 text-no-wrap text-medium-emphasis" for="students-sort-by">
-        Sort<span class="sr-only"> students</span> by
-      </label>
-    </div>
-    <div class="dropdown">
-      <b-dropdown
-        id="students-sort-by"
-        aria-labelledby="sort-by"
-        block
-        left
-        menu-class="w-100"
-        no-caret
-        toggle-class="dd-override"
-        variant="link"
-        @hidden="alertScreenReader('Sort-by menu closed')"
-        @shown="alertScreenReader('Sort-by menu opened')"
-      >
-        <template #button-content>
-          <div class="d-flex dropdown-width justify-space-between text-dark">
-            <div v-if="dropdownLabel">
-              <span class="sr-only">Students sorted by </span>{{ dropdownLabel }}<span class="sr-only">. Hit enter to open menu</span>
-            </div>
-            <div v-if="!dropdownLabel">Select...</div>
-            <div class="ml-2">
-              <v-icon :icon="mdiTriangleSmallDown" class="menu-caret" />
-            </div>
-          </div>
-        </template>
-        <b-dropdown-group
-          v-for="(group, gIndex) in optionGroups"
-          :id="`sort-by-option-group-${group.label}`"
-          :key="`group-${gIndex}`"
-          :header="group.label"
+    <label id="sort-by" class="font-size-16 pr-2 text-no-wrap text-medium-emphasis" for="students-sort-by">
+      Sort<span class="sr-only"> students</span> by
+    </label>
+    <v-select
+      id="students-sort-by"
+      class="students-sort-by"
+      density="compact"
+      eager
+      hide-details
+      item-title="label"
+      :items="options"
+      :model-value="selectedOption"
+      single-line
+      variant="outlined"
+      @update:menu="onToggleMenu"
+      @update:model-value="onSelect"
+    >
+      <template #selection="{item}">
+        <div class="text-no-wrap">
+          <template v-if="item">
+            <span class="sr-only">Students sorted by </span>{{ item.title }}<span class="sr-only"></span>
+          </template>
+        </div>
+      </template>
+      <template #item="{props, item}">
+        <v-list-subheader
+          v-if="item.raw.header"
+          :id="`sort-by-option-group-${item.raw.header}`"
         >
-          <b-dropdown-item-button
-            v-for="(option, index) in group.options"
-            :id="`sort-by-option-${option.value}`"
-            :key="`group-option-${index}`"
-            class="pl-3"
-            @click="onSelect(option.value)"
-          >
-            &nbsp;&nbsp;{{ option.label }}
-          </b-dropdown-item-button>
-        </b-dropdown-group>
-      </b-dropdown>
-    </div>
+          {{ item.title }}
+        </v-list-subheader>
+        <v-list-item
+          v-else
+          :id="`sort-by-option-${item.value}`"
+          v-bind="props"
+          :aria-describedby="item.group ? `sort-by-option-group-${item.group}` : false"
+          class="min-height-unset py-1 pl-8"
+          density="compact"
+          role="option"
+          :title="item.title"
+        ></v-list-item>
+      </template>
+    </v-select>
   </div>
 </template>
 
 <script setup>
-import {mdiTriangleSmallDown} from '@mdi/js'
+import {find, get, includes} from 'lodash'
+import {useContextStore} from '@/stores/context'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
 import {myDeptCodes, previousSisTermId, termNameForSisId} from '@/berkeley'
-import {useContextStore} from '@/stores/context'
+import {nextTick} from 'vue'
 
 export default {
   name: 'SortBy',
-  mixins: [Context, Util],
   props: {
     domain: {
       default: undefined,
@@ -71,114 +65,77 @@ export default {
     }
   },
   data: () => ({
-    dropdownLabel: undefined,
     isReady: false,
-    optionGroups: undefined
+    options: []
   }),
+  computed: {
+    selectedOptionLabel() {
+      const option = find(this.options, {value: this.selectedOption})
+      return get(option, 'label')
+    },
+    selectedOption() {
+      const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+      return get(useContextStore().currentUser.preferences, sortByKey)
+    }
+  },
   created() {
-    this.optionGroups = this.getSortByOptionGroups(this.domain)
-    const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    const sortBy = this._get(this.currentUser.preferences, sortByKey)
-    this.dropdownLabel = this.getSortByOptionLabel(sortBy)
+    this.options = this.getSortByOptions(this.domain)
     this.isReady = true
   },
   methods: {
-    getSortBy() {
-      const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-      return this._get(this.currentUser.preferences, sortByKey)
-    },
-    getSortByOptionGroups(domain) {
-      const optionGroups = []
+    getSortByOptions(domain) {
+      const options = [
+        {header: 'Profile', label: 'Profile'},
+        {group: 'Profile', label: 'First Name', value: 'first_name'},
+        {group: 'Profile', label: 'Last Name', value: 'last_name'}
+      ]
       if (domain === 'admitted_students') {
-        optionGroups.push({
-          label: 'Profile',
-          options: [
-            {label: 'First Name', value: 'first_name'},
-            {label: 'Last Name', value: 'last_name'},
-            {label: 'CS ID', value: 'cs_empl_id'}
-          ]
-        })
+        options.push({group: 'Profile', label: 'CS ID', value: 'cs_empl_id'})
       } else {
-        const previousTermId = previousSisTermId(this.config.currentEnrollmentTermId)
+        const previousTermId = previousSisTermId(useContextStore().config.currentEnrollmentTermId)
         const previousPreviousTermId = previousSisTermId(previousTermId)
-        optionGroups.push({
-          label: 'Profile',
-          options: [
-            {label: 'First Name', value: 'first_name'},
-            {label: 'Last Name', value: 'last_name'},
-            {label: 'Level', value: 'level'},
-            {label: 'Major', value: 'major'}
-          ]
-        })
-        if (this.currentUser.isAdmin || this._includes(myDeptCodes(['advisor', 'director']), 'UWASC')) {
-          optionGroups[0].options.push({label: 'Team', value: 'group_name'})
+        options.push({group: 'Profile', label: 'Level', value: 'level'})
+        options.push({group: 'Profile', label: 'Major', value: 'major'})
+        if (get(useContextStore().currentUser, 'isAdmin') || includes(myDeptCodes(['advisor', 'director']), 'UWASC')) {
+          options[0].options.push({group: 'Profile', label: 'Team', value: 'group_name'})
         }
-        optionGroups.push({
-          label: 'Terms',
-          options: [
-            {label: 'Entering Term', value: 'entering_term'},
-            {label: 'Expected Graduation Term', value: 'expected_grad_term'},
-            {label: 'Terms in Attendance, ascending', value: 'terms_in_attendance'},
-            {label: 'Terms in Attendance, descending', value: 'terms_in_attendance desc'}
-          ]
-        })
-        optionGroups.push({
-          label: 'GPA',
-          options: [
-            {label: `${termNameForSisId(previousPreviousTermId)}, ascending`, value: `term_gpa_${previousPreviousTermId}`},
-            {label: `${termNameForSisId(previousPreviousTermId)}, descending`, value: `term_gpa_${previousPreviousTermId} desc`},
-            {label: `${termNameForSisId(previousTermId)}, ascending`, value: `term_gpa_${previousTermId}`},
-            {label: `${termNameForSisId(previousTermId)}, descending`, value: `term_gpa_${previousTermId} desc`},
-            {label: 'Cumulative, ascending', value: 'gpa'},
-            {label: 'Cumulative, descending', value: 'gpa desc'}
-          ]
-        })
-        optionGroups.push({
-          label: 'Units',
-          options: [
-            {label: 'In Progress, ascending', value: 'enrolled_units'},
-            {label: 'In Progress, descending', value: 'enrolled_units desc'},
-            {label: 'Completed, ascending', value: 'units'},
-            {label: 'Completed, descending', value: 'units desc'}
-          ]
-        })
+        options.push({header: 'Terms', label: 'Terms'})
+        options.push({group: 'Terms', label: 'Entering Term', value: 'entering_term'})
+        options.push({group: 'Terms', label: 'Expected Graduation Term', value: 'expected_grad_term'})
+        options.push({group: 'Terms', label: 'Terms in Attendance, ascending', value: 'terms_in_attendance'})
+        options.push({group: 'Terms', label: 'Terms in Attendance, descending', value: 'terms_in_attendance desc'})
+        options.push({header: 'GPA', label: 'GPA'})
+        options.push({group: 'GPA', label: `${termNameForSisId(previousPreviousTermId)}, ascending`, value: `term_gpa_${previousPreviousTermId}`})
+        options.push({group: 'GPA', label: `${termNameForSisId(previousPreviousTermId)}, descending`, value: `term_gpa_${previousPreviousTermId} esc`})
+        options.push({group: 'GPA', label: `${termNameForSisId(previousTermId)}, ascending`, value: `term_gpa_${previousTermId}`})
+        options.push({group: 'GPA', label: `${termNameForSisId(previousTermId)}, descending`, value: `term_gpa_${previousTermId} desc`})
+        options.push({group: 'GPA', label: 'Cumulative, ascending', value: 'gpa'})
+        options.push({group: 'GPA', label: 'Cumulative, descending', value: 'gpa desc'})
+        options.push({header: 'Units', label: 'Units'})
+        options.push({group: 'Units', label: 'In Progress, ascending', value: 'enrolled_units'})
+        options.push({group: 'Units', label: 'In Progress, descending', value: 'enrolled_units desc'})
+        options.push({group: 'Units', label: 'Completed, ascending', value: 'units'})
+        options.push({group: 'Units', label: 'Completed, descending', value: 'units desc'})
       }
-      return optionGroups
-    },
-    getSortByOptionLabel(sortBy) {
-      let label = undefined
-      this._each(this.optionGroups, group => {
-        this._each(group.options, option => {
-          if (sortBy === option.value) {
-            label = option.label
-          }
-          return !label
-        })
-        return !label
-      })
-      return label
+      return options
     },
     onSelect(sortBy) {
       const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
       useContextStore().updateCurrentUserPreference(sortByKey, sortBy)
-      this.broadcast(`${sortByKey}-user-preference-change`, sortBy)
-      this.dropdownLabel = this.getSortByOptionLabel(sortBy)
-      this.alertScreenReader(`${this.dropdownLabel} selected`)
+      useContextStore().broadcast(`${sortByKey}-user-preference-change`, sortBy)
+      nextTick(() => {
+        useContextStore().alertScreenReader(`${this.selectedOptionLabel} selected`)
+      })
+    },
+    onToggleMenu(isOpen) {
+      useContextStore().alertScreenReader(`Sort-by menu ${isOpen ? 'opened' : 'closed'}`)
     }
   }
 }
 </script>
 
 <style scoped>
-.dropdown {
-  background-color: #fefefe;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  color: #000;
-  height: 42px;
-  text-align: left;
-  vertical-align: middle;
-  white-space: nowrap;
-  width: 280px;
+.students-sort-by {
+  min-width: 310px;
 }
 </style>

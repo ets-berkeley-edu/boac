@@ -26,18 +26,16 @@
       </v-expand-transition>
       <SectionSpinner :loading="useCohortStore().editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
-        <div class="align-center d-flex justify-space-between mr-3 pt-4">
+        <div class="align-center d-flex w-100 mr-3 pt-4">
           <CuratedGroupSelector
             :context-description="useCohortStore().domain === 'default' ? `Cohort ${useCohortStore().cohortName || ''}` : `Admitted Students Cohort ${useCohortStore().cohortName || ''}`"
             :domain="useCohortStore().domain"
             :on-create-curated-group="resetFiltersToLastApply"
             :students="useCohortStore().students"
           />
-          <div class="d-flex flex-wrap justify-content-end">
+          <div class="d-flex flex-wrap justify-end w-50">
             <TermSelector v-if="useCohortStore().domain === 'default'" />
-            <div class="pl-4">
-              <SortBy v-if="useCohortStore().showSortBy" :domain="useCohortStore().domain" />
-            </div>
+            <SortBy v-if="useCohortStore().showSortBy" :domain="useCohortStore().domain" />
           </div>
         </div>
         <div v-if="useCohortStore().totalStudentCount > useCohortStore().pagination.itemsPerPage" class="pt-1">
