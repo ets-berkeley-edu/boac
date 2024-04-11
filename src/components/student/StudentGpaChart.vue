@@ -1,10 +1,110 @@
 <template>
-  <div v-if="options">
-    <highcharts
-      :id="`student-chart-gpa-container-${student.uid}`"
-      :options="options"
-    />
-  </div>
+  <highcharts
+    :id="`student-chart-gpa-container-${student.uid}`"
+    :options="{
+      accessibility: {
+        description: chartDescription,
+        enabled: true,
+        keyboardNavigation: {
+          enabled: true
+        }
+      },
+      title: {
+        style: {display: 'none'},
+        text: chartDescription,
+        useHTML: true
+      },
+      credits: false,
+      chart: {
+        height: 50,
+        type: 'area',
+        width: width
+      },
+      yAxis: {
+        accessibility: {
+          description: 'GPA',
+          enabled: true
+        },
+        endOnTick: false,
+        startOnTick: false,
+        labels: {
+          enabled: false
+        },
+        title: {
+          text: null
+        },
+        softMin: 1.9,
+        plotLines: [
+          {
+            color: '#888',
+            dashStyle: 'dot',
+            width: 1,
+            value: 2
+          }
+        ],
+        tickPositions: []
+      },
+      xAxis: {
+        accessibility: {
+          description: 'Time',
+          enabled: true
+        },
+        labels: {
+          enabled: false
+        },
+        title: {
+          text: null
+        },
+        startOnTick: false,
+        endOnTick: false,
+        tickPositions: [],
+        visible: false
+      },
+      legend: {
+        enabled: false
+      },
+      tooltip: {
+        enabled: false
+      },
+      plotOptions: {
+        accessibility: {
+          description: chartDescription,
+          enabled: true,
+          keyboardNavigation: {
+            enabled: true
+          },
+          valueDescriptionFormat: point => `${point.index + 1}. ${point.name} (y value: ${point.y})`
+        },
+        line: {
+          states: {
+            hover: {
+              enabled: true
+            }
+          }
+        },
+        series: {
+          marker: {
+            enabled: true,
+            radius: 0
+          }
+        }
+      },
+      series: [
+        {
+          accessibility: {
+            description: chartDescription,
+            enabled: true,
+            keyboardNavigation: {
+              enabled: true
+            }
+          },
+          type: 'line',
+          data: generateGpaDataSeries()
+        }
+      ],
+      colors: ['#4a90e2']
+    }"
+  />
 </template>
 
 <script>
@@ -27,12 +127,6 @@ export default {
       required: false,
       type: Number
     }
-  },
-  data: () => ({
-    options: undefined
-  }),
-  mounted() {
-    this.options = this.getOptions()
   },
   methods: {
     generateGpaDataSeries() {
@@ -61,111 +155,6 @@ export default {
         }
       }
       return series
-    },
-    getOptions() {
-      return {
-        accessibility: {
-          description: this.chartDescription,
-          enabled: true,
-          keyboardNavigation: {
-            enabled: true
-          }
-        },
-        title: {
-          style: {display: 'none'},
-          text: this.chartDescription,
-          useHTML: true
-        },
-        credits: false,
-        chart: {
-          height: 50,
-          type: 'area',
-          width: this.width
-        },
-        yAxis: {
-          accessibility: {
-            description: 'GPA',
-            enabled: true
-          },
-          endOnTick: false,
-          startOnTick: false,
-          labels: {
-            enabled: false
-          },
-          title: {
-            text: null
-          },
-          softMin: 1.9,
-          plotLines: [
-            {
-              color: '#888',
-              dashStyle: 'dot',
-              width: 1,
-              value: 2
-            }
-          ],
-          tickPositions: []
-        },
-        xAxis: {
-          accessibility: {
-            description: 'Time',
-            enabled: true
-          },
-          labels: {
-            enabled: false
-          },
-          title: {
-            text: null
-          },
-          startOnTick: false,
-          endOnTick: false,
-          tickPositions: [],
-          visible: false
-        },
-        legend: {
-          enabled: false
-        },
-        tooltip: {
-          enabled: false
-        },
-        plotOptions: {
-          accessibility: {
-            description: this.chartDescription,
-            enabled: true,
-            keyboardNavigation: {
-              enabled: true
-            },
-            valueDescriptionFormat: point => `${point.index + 1}. ${point.name} (y value: ${point.y})`
-          },
-          line: {
-            states: {
-              hover: {
-                enabled: true
-              }
-            }
-          },
-          series: {
-            marker: {
-              enabled: true,
-              radius: 0
-            }
-          }
-        },
-        series: [
-          {
-            accessibility: {
-              description: this.chartDescription,
-              enabled: true,
-              keyboardNavigation: {
-                enabled: true
-              }
-            },
-            type: 'line',
-            data: this.generateGpaDataSeries()
-          }
-        ],
-        colors: ['#4a90e2']
-      }
     }
   }
 }

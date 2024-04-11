@@ -12,7 +12,7 @@
               class="tab pl-2 pr-2"
               aria-controls="timeline-messages"
               :aria-selected="!filter"
-              variant="link"
+              variant="text"
               @click="setFilter(null)"
             >
               All
@@ -30,7 +30,7 @@
               :aria-selected="type === filter"
               :disabled="!countsPerType[type]"
               class="tab ml-2 pl-2 pr-2 text-center"
-              variant="link"
+              variant="text"
               @click="setFilter(type)"
             >
               {{ filterTypes[type].tab }}
@@ -41,7 +41,7 @@
       <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="my-2">
         <v-btn
           id="new-note-button"
-          :disabled="!!mode"
+          :disabled="isEditingNote"
           class="mr-2 btn-primary-color-override btn-primary-color-override-opaque"
           variant="primary"
           @click="isEditingNote = true"

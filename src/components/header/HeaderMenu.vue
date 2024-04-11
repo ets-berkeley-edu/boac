@@ -1,13 +1,15 @@
 <template>
-  <div>
+  <div class="d-flex justify-space-around">
     <v-menu
       id="header-dropdown-under-name"
+      transition="slide-y-transition"
       variant="link"
     >
       <template #activator="{ props }">
         <v-btn
-          class="font-size-16 font-weight-bold"
+          class="font-size-16 text-body-1"
           color="white"
+          size="large"
           v-bind="props"
           variant="text"
         >
@@ -15,11 +17,11 @@
           <v-icon :icon="mdiMenuDown" size="24" />
         </v-btn>
       </template>
-      <v-list class="pt-3">
+      <v-list variant="flat">
         <v-list-item-action v-if="currentUser.canReadDegreeProgress">
           <v-btn
             id="header-menu-degree-check"
-            class="text-body text-decoration-none"
+            class="justify-start w-100"
             to="/degrees"
             variant="text"
           >
@@ -30,7 +32,7 @@
           <v-btn
             id="header-menu-analytics"
             :to="currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${myDirectorDepartment.toLowerCase()}`"
-            class="text-body text-decoration-none"
+            class="justify-start w-100"
             variant="text"
           >
             Flight Data Recorder
@@ -39,7 +41,7 @@
         <v-list-item-action v-if="currentUser.isAdmin">
           <v-btn
             id="header-menu-flight-deck"
-            class="text-body text-decoration-none"
+            class="justify-start w-100"
             to="/admin"
             variant="text"
           >
@@ -49,7 +51,7 @@
         <v-list-item-action v-if="currentUser.isAdmin">
           <v-btn
             id="header-menu-passengers"
-            class="text-body text-decoration-none"
+            class="justify-start w-100"
             to="/admin/passengers"
             variant="text"
           >
@@ -61,7 +63,7 @@
         >
           <v-btn
             id="header-menu-profile"
-            class="text-body text-decoration-none"
+            class="justify-start w-100"
             to="/profile"
             variant="text"
           >
@@ -71,6 +73,7 @@
         <v-list-item-action>
           <v-btn
             aria-label="Send email to the BOA team"
+            class="justify-start w-100"
             :href="`mailto:${config.supportEmailAddress}`"
             target="_blank"
             variant="text"
@@ -81,7 +84,7 @@
         <v-list-item-action>
           <v-btn
             id="header-menu-log-out"
-            href="#"
+            class="justify-start w-100"
             variant="text"
             @click="logOut"
           >
