@@ -1,69 +1,56 @@
 <template>
-  <div>
+  <div class="mb-1">
     <h2 class="font-size-24 font-weight-bold">Academic Timeline</h2>
-    <div class="d-flex justify-space-between flex-wrap ml-2">
-      <div>
-        <div class="d-flex my-2">
-          <div class="align-self-center sr-only">Filter Type:</div>
-          <div>
-            <v-btn
-              id="timeline-tab-all"
-              :class="{'tab-active text-white': !filter, 'tab-inactive text-dark': filter}"
-              class="tab pl-2 pr-2"
-              aria-controls="timeline-messages"
-              :aria-selected="!filter"
-              variant="text"
-              @click="setFilter(null)"
-            >
-              All
-            </v-btn>
-          </div>
-          <div v-for="type in _keys(filterTypes)" :key="type" role="tablist">
-            <v-btn
-              :id="`timeline-tab-${type}`"
-              :class="{
-                'tab-active text-white': type === filter && countsPerType[type],
-                'tab-inactive text-dark': type !== filter && countsPerType[type],
-                'tab-disabled text-grey-darken-2': !countsPerType[type]
-              }"
-              aria-controls="timeline-messages"
-              :aria-selected="type === filter"
-              :disabled="!countsPerType[type]"
-              class="tab ml-2 pl-2 pr-2 text-center"
-              variant="text"
-              @click="setFilter(type)"
-            >
-              {{ filterTypes[type].tab }}
-            </v-btn>
-          </div>
-        </div>
-      </div>
-      <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="my-2">
-        <v-btn
-          id="new-note-button"
-          :disabled="isEditingNote"
-          class="mr-2 btn-primary-color-override btn-primary-color-override-opaque"
-          variant="primary"
-          @click="isEditingNote = true"
-        >
-          <span class="ma-1">
-            <v-icon :icon="mdiFileOutline" />
-            New Note
-          </span>
-        </v-btn>
-      </div>
-    </div>
-    <EditBatchNoteModal
-      v-if="isEditingNote"
-      initial-mode="createNote"
-      :on-close="onModalClose"
-      :sid="student.sid"
-    />
   </div>
+  <div class="d-flex flex-wrap w-100">
+    <v-btn-toggle
+      class="border-md font-weight-bold"
+      color="primary"
+      divided
+      rounded="lg"
+    >
+      <v-btn
+        id="timeline-tab-all"
+        :ripple="false"
+        @click="setFilter(null)"
+      >
+        <span class="sr-only">Show </span>All
+      </v-btn>
+      <v-btn
+        v-for="type in _keys(filterTypes)"
+        :id="`timeline-tab-${type}`"
+        :key="type"
+        :class="{'border-surface border-s-sm': !countsPerType[type]}"
+        :disabled="!countsPerType[type]"
+        :ripple="false"
+        @click="setFilter(type)"
+      >
+        <span class="sr-only">Show </span>{{ filterTypes[type].tab }}
+      </v-btn>
+    </v-btn-toggle>
+    <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="ms-auto">
+      <v-btn
+        id="new-note-button"
+        class="border-e-sm"
+        color="primary"
+        :disabled="isEditingNote"
+        :prepend-icon="mdiFileDocument"
+        size="large"
+        text="New Note"
+        @click="isEditingNote = true"
+      />
+    </div>
+  </div>
+  <EditBatchNoteModal
+    v-if="isEditingNote"
+    initial-mode="createNote"
+    :on-close="onModalClose"
+    :sid="student.sid"
+  />
 </template>
 
 <script setup>
-import {mdiFileOutline} from '@mdi/js'
+import {mdiFileDocument} from '@mdi/js'
 </script>
 
 <script>
@@ -110,13 +97,8 @@ export default {
 }
 </script>
 
+<!--
 <style scoped>
-.tab {
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: 800;
-  height: 40px;
-}
 .tab-active {
   background-color: #555;
 }
@@ -137,3 +119,4 @@ export default {
   background-color: #ddd;
 }
 </style>
+-->
