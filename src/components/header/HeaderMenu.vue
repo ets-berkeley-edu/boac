@@ -7,7 +7,7 @@
     >
       <template #activator="{ props }">
         <v-btn
-          class="font-size-16 text-body-1"
+          class="menu-activator-btn text-body-1"
           color="white"
           size="large"
           v-bind="props"
@@ -121,3 +121,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.menu-activator-btn {
+  padding-left: 10px;
+  padding-right: 4px;
+}
+</style>

@@ -6,10 +6,10 @@ const SKIP_REDIRECT_ON_ERROR = ['/api/user/create_or_update']
 
 const axiosErrorHandler = (error, axios) => {
   const errorStatus = get(error, 'response.status')
-  const user = useContextStore().currentUser
-  if (!get(user, 'isAuthenticated')) {
+  const currentUser = useContextStore().currentUser
+  if (!currentUser.isAuthenticated) {
     router.push({
-      path: '/login',
+      path: '/',
       query: {
         m: 'Your session has expired'
       }

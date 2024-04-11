@@ -43,6 +43,7 @@
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {devAuthLogIn} from '@/api/auth'
+import {noop} from 'lodash'
 
 export default {
   name: 'DevAuth',
@@ -70,7 +71,7 @@ export default {
         devAuthLogIn(uid, password).then(() => {
           if (this.currentUser.isAuthenticated) {
             const redirect = this._get(this.$router, 'currentRoute.query.redirect')
-            this.$router.push({path: redirect || '/'}, this._noop)
+            this.$router.push({path: redirect || '/home'}, noop)
           } else {
             this.reportError('Sorry, user is not authorized to use BOA.')
             this.isLoggingIn = false
