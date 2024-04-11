@@ -75,7 +75,7 @@
             View all {{ group.totalStudentCount }} students in {{ groupTypeName }} "{{ group.name }}"
           </router-link>
         </div>
-        <div class="pt-4">
+        <div class="pt-4 pl-3">
           <SortableStudents
             domain="default"
             :students="studentsWithAlerts"

@@ -27,7 +27,7 @@
           </div>
           <div class="d-flex flex-column flex-sm-row">
             <div>
-              <div class="align-center d-flex pr-2">
+              <div class="align-center d-flex">
                 <CuratedStudentCheckbox
                   v-if="listType === 'cohort'"
                   domain="default"
@@ -35,20 +35,20 @@
                 />
                 <StudentAvatar
                   :alert-count="student.alertCount"
+                  class="mr-2"
                   size="medium"
                   :student="student"
                 />
               </div>
-              <div v-if="listType === 'cohort'" class="float-right">
-                <ManageStudent
-                  domain="default"
-                  :is-button-variant-link="true"
-                  :sr-only="!hover"
-                  :student="student"
-                />
-              </div>
+              <ManageStudent
+                v-if="listType === 'cohort'"
+                class="d-flex justify-center ml-6"
+                domain="default"
+                :sr-only="!hover"
+                :student="student"
+              />
             </div>
-            <div class="ml-4">
+            <div class="pl-2">
               <StudentRowBioColumn
                 :row-index="rowIndex"
                 :student="student"

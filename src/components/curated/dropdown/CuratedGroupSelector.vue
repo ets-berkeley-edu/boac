@@ -51,47 +51,47 @@
           </div>
         </v-btn>
       </template>
-      <v-card density="compact">
-        <v-list density="compact" variant="flat">
-          <v-list-item v-if="!size(myCuratedGroups)">
-            <span class="text-grey px-3 py-1 text-no-wrap">You have no {{ domainLabel(false) }}s.</span>
-          </v-list-item>
-          <v-list-item
-            v-for="group in myCuratedGroups"
-            :key="group.id"
-            density="compact"
-            @click="curatedGroupCheckboxClick(group)"
-          >
-            <template #prepend>
-              <v-checkbox
-                :id="`${idFragment}-${group.id}-checkbox`"
-                class="mr-2"
-                density="compact"
-                hide-details
-                @click="curatedGroupCheckboxClick(group)"
-                @keyup.enter="curatedGroupCheckboxClick(group)"
-              >
-                <template #label>
-                  <span class="ml-2">
-                    {{ group.name }}
-                  </span>
-                </template>
-              </v-checkbox>
-            </template>
-          </v-list-item>
-          <v-list-item class="border-t-sm mt-2 pt-2" density="compact">
-            <v-btn
-              :id="`create-${idFragment}`"
-              :aria-label="`Create a new ${domainLabel(false)}`"
+      <v-list density="compact" variant="flat">
+        <v-list-item v-if="!size(myCuratedGroups)" disabled>
+          <span class="px-3 py-1 text-no-wrap">You have no {{ domainLabel(false) }}s.</span>
+        </v-list-item>
+        <v-list-item
+          v-for="group in myCuratedGroups"
+          :key="group.id"
+          class="py-0"
+          density="compact"
+          @click="curatedGroupCheckboxClick(group)"
+          @keyup.enter="curatedGroupCheckboxClick(group)"
+        >
+          <template #prepend>
+            <v-checkbox
+              :id="`${idFragment}-${group.id}-checkbox`"
               color="primary"
-              :prepend-icon="mdiPlus"
-              :text="`Create New ${domainLabel(true)}`"
-              variant="text"
-              @click="showModal = true"
-            />
-          </v-list-item>
-        </v-list>
-      </v-card>
+              density="compact"
+              hide-details
+              @click="curatedGroupCheckboxClick(group)"
+              @keyup.enter="curatedGroupCheckboxClick(group)"
+            >
+              <template #label>
+                <span class="ml-2">
+                  {{ group.name }}
+                </span>
+              </template>
+            </v-checkbox>
+          </template>
+        </v-list-item>
+        <v-list-item class="border-t-sm mt-2 pt-2" density="compact">
+          <v-btn
+            :id="`create-${idFragment}`"
+            :aria-label="`Create a new ${domainLabel(false)}`"
+            color="primary"
+            :prepend-icon="mdiPlus"
+            :text="`Create New ${domainLabel(true)}`"
+            variant="text"
+            @click="showModal = true"
+          />
+        </v-list-item>
+      </v-list>
     </v-menu>
     <CreateCuratedGroupModal
       :cancel="modalCancel"

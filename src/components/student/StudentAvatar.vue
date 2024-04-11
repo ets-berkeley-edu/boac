@@ -1,39 +1,44 @@
 <template>
-  <div class="position-relative">
+  <div class="avatar position-relative">
     <img
       :id="`student-avatar-${student.uid}-img`"
       :alt="ariaLabel"
       :aria-label="ariaLabel"
-      class="avatar"
+      class="avatar-img"
       :class="avatarStyle"
       :src="avatarUrl"
       :style="{backgroundImage: `url(${avatarUrl})`, backgroundRepeat: 'repeat'}"
       @error="avatarError"
     />
-    <div
+    <PillAlert
       v-if="alertCount"
-      aria-hidden="true"
+      :aria-label="alertText"
       class="student-avatar-alert-count"
+      color="warning"
     >
+      {{ alertCount }}
       <v-tooltip
         :id="`student-avatar-${student.uid}-tooltip`"
         activator="parent"
+        aria-hidden="true"
         location="bottom"
-        :title="`${alertCount} alert${alertCount === 1 ? '' : 's'}`"
-      >
-        {{ alertCount }}
-      </v-tooltip>
-    </div>
+        :text="alertText"
+      ></v-tooltip>
+    </PillAlert>
   </div>
 </template>
 
+<script setup>
+import {isNil} from 'lodash'
+import {useContextStore} from '@/stores/context'
+</script>
+
 <script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
+import PillAlert from '@/components/util/PillAlert'
 
 export default {
   name: 'StudentAvatar',
-  mixins: [Context, Util],
+  components: {PillAlert},
   props: {
     size: {
       required: true,
@@ -55,14 +60,19 @@ export default {
     avatarStyle: undefined,
     avatarUrl: undefined
   }),
+  computed: {
+    alertText() {
+      return `${this.alertCount} alert${this.alertCount === 1 ? '' : 's'}`
+    }
+  },
   created() {
     this.ariaLabel = `Photo of ${this.student.firstName} ${this.student.lastName}`
-    if (!this._isNil(this.alertCount)) {
+    if (!isNil(this.alertCount)) {
       this.ariaLabel += this.alertCount === 1 ? ' (one alert)' : ` (${this.alertCount} alerts)`
     }
     this.avatarUrl = this.student.photoUrl
     this.avatarStyle = `student-avatar-${this.size} ${
-      this.currentUser.inDemoMode ? 'img-blur' : ''
+      useContextStore().currentUser.inDemoMode ? 'img-blur' : ''
     }`
   },
   methods: {
@@ -74,7 +84,7 @@ export default {
 </script>
 
 <style scoped>
-.avatar {
+.avatar-img {
   background-size: cover;
   border: 5px solid #ccc;
   border-radius: 30px;
@@ -82,15 +92,14 @@ export default {
   object-fit: cover;
   width: 60px;
 }
-.student-avatar-alert-count {
-  background-color: rgb(var(--v-theme-warning));
-  border-radius: 15px;
+.avatar .student-avatar-alert-count {
+  display: block;
   border: 2px solid #fff;
-  color: #fff;
-  font-size: 14px;
+  font-size: 14px !important;
   font-weight: 500;
+  margin: 0px auto;
   object-fit: cover;
-  padding-top: 2px;
+  padding: 2px !important;
   position: absolute;
   text-align: center;
   height: 30px;
