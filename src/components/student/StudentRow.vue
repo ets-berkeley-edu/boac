@@ -1,14 +1,18 @@
 <template>
   <v-container
     class="px-0"
-    fluid
     @focusin="hover = true"
     @focusout="hover = false"
     @mouseover="hover = true"
     @mouseleave="hover = false"
   >
-    <v-row>
-      <v-col class="pb-3 pb-xl-0" xl="4" md="6">
+    <v-row class="pb-3">
+      <v-col
+        class="pb-0"
+        lg="4"
+        md="6"
+        sm="8"
+      >
         <div class="align-center d-flex">
           <div v-if="listType === 'curatedGroupForOwner'">
             <button
@@ -54,19 +58,23 @@
           </div>
         </div>
       </v-col>
-      <v-col class="student-gpa-col ml-5 ml-md-0 pb-3 pb-md-0" md="2" sm="4">
+      <v-col
+        class="font-size-13 student-gpa-col ml-10 ml-md-0 pb-0"
+        md="2"
+        sm="4"
+      >
         <div>
           <span
             v-if="_isNil(student.cumulativeGPA)"
             :id="`row-${rowIndex}-student-cumulative-gpa`"
-            class="student-gpa"
+            class="font-weight-bold "
           >--<span class="sr-only">No data</span></span>
           <span
             v-if="!_isNil(student.cumulativeGPA)"
             :id="`row-${rowIndex}-student-cumulative-gpa`"
             class="student-gpa"
           >{{ round(student.cumulativeGPA, 3) }}</span>
-          <span class="student-text"> GPA (Cumulative)</span>
+          <span class="text-medium-emphasis"> GPA (Cumulative)</span>
         </div>
         <StudentGpaChart
           v-if="_size(student.termGpa) > 1"
@@ -90,41 +98,46 @@
           >{{ round(student.termGpa[0].gpa, 3) }}</strong>
         </div>
       </v-col>
-      <v-col class="ml-5 ml-sm-0 pb-3 pb-md-0" md="2" sm="4">
-        <div class="d-flex flex-wrap">
-          <div :id="`row-${rowIndex}-student-enrolled-units`" class="mr-1 student-gpa">{{ _get(student.term, 'enrolledUnits', 0) }}</div>
-          <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
+      <v-col
+        class="font-size-13 ml-10 ml-sm-0 pb-0"
+        lg="2"
+        md="3"
+        sm="4"
+      >
+        <div class="d-flex flex-wrap align-baseline">
+          <div :id="`row-${rowIndex}-student-enrolled-units`" class="mr-1 font-weight-bold ">{{ _get(student.term, 'enrolledUnits', 0) }}</div>
+          <div class="text-medium-emphasis">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
         </div>
         <div
           v-if="!_isNil(_get(student.term, 'minTermUnitsAllowed')) && student.term.minTermUnitsAllowed !== config.defaultTermUnitsAllowed.min"
-          class="d-flex flex-wrap"
+          class="d-flex flex-wrap align-baseline"
         >
-          <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 student-gpa">{{ student.term.minTermUnitsAllowed }}</div>
-          <div class="text-no-wrap student-text">Min&nbsp;Approved</div>
+          <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 font-weight-bold ">{{ student.term.minTermUnitsAllowed }}</div>
+          <div class="text-no-wrap text-medium-emphasis">Min&nbsp;Approved</div>
         </div>
         <div v-if="!_isNil(_get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== config.defaultTermUnitsAllowed.max">
-          <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 student-gpa">{{ student.term.maxTermUnitsAllowed }}</span>
-          <span class="text-no-wrap student-text">Max&nbsp;Approved</span>
+          <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 font-weight-bold ">{{ student.term.maxTermUnitsAllowed }}</span>
+          <span class="text-no-wrap text-medium-emphasis">Max&nbsp;Approved</span>
         </div>
-        <div v-if="isCurrentTerm" class="d-flex flex-wrap">
+        <div v-if="isCurrentTerm" class="d-flex flex-wrap align-baseline">
           <div
             v-if="!_isUndefined(student.cumulativeUnits)"
             :id="`row-${rowIndex}-student-cumulative-units`"
-            class="mr-1 student-gpa"
+            class="mr-1 font-weight-bold "
           >
             {{ student.cumulativeUnits }}
           </div>
           <div
             v-if="_isUndefined(student.cumulativeUnits)"
             :id="`row-${rowIndex}-student-cumulative-units`"
-            class="student-gpa"
+            class="font-weight-bold"
           >
             &mdash;<span class="sr-only"> No data</span>
           </div>
-          <div class="text-no-wrap student-text">Units Completed</div>
+          <div class="text-no-wrap text-medium-emphasis">Units Completed</div>
         </div>
       </v-col>
-      <v-col class="float-right ml-5 ml-xl-0" xl="4" md="8">
+      <v-col class="ml-10 pl-2 ml-md-auto pl-md-4 pl-lg-0 ml-lg-0 pb-0" lg="4" md="10">
         <StudentRowCourseActivity
           :row-index="rowIndex"
           :student="student"
@@ -224,10 +237,6 @@ export default {
   font-size: 13px;
   font-weight: 300;
   text-transform: uppercase;
-}
-.student-gpa {
-  font-size: 13px;
-  font-weight: bold;
 }
 .student-gpa-col {
   min-width: 155px;

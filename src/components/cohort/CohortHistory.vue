@@ -16,7 +16,7 @@
       id="cohort-history-table"
       class="w-100 mt-5"
     >
-      <thead class="sortable-table-header">
+      <thead>
         <tr>
           <th class="pr-2 pb-2">Status</th>
           <th class="pr-2 pb-2 text-no-wrap">Change Date</th>

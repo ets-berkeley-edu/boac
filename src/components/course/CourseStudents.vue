@@ -6,7 +6,7 @@
     :small="true"
     :tbody-tr-class="rowClass"
     stacked="md"
-    thead-class="sortable-table-header border-bottom"
+    thead-class="border-bottom"
     @row-hovered="rowHovered"
     @row-unhovered="rowUnhovered"
   >

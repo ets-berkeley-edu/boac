@@ -1,6 +1,6 @@
 <template>
   <table id="cohort-admitted-students">
-    <thead class="sortable-table-header">
+    <thead>
       <tr>
         <th v-if="includeCuratedCheckbox || removeStudent" class="pt-3"></th>
         <th class="pt-3">Name</th>

@@ -174,15 +174,6 @@
   padding: 0 4px 0 4px;
   text-align: center;
 }
-.sortable-table-header {
-  color: #666;
-  font-size: 12px;
-  font-weight: 700;
-  min-width: unset;
-  text-align: left;
-  text-transform: uppercase !important;
-  vertical-align: top;
-}
 .sr-only {
   position: absolute;
   width: 1px;
@@ -291,4 +282,17 @@ hr {
 }
 table, th, td {
   border: none !important;
+  border-spacing: 0;
+}
+table.table-hover tr:hover {
+  background-color: rgba(0, 0, 0, .075);
+}
+table thead {
+  color: #666;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: unset;
+  text-align: left;
+  text-transform: uppercase !important;
+  vertical-align: top;
 }

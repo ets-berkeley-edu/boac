@@ -8,7 +8,7 @@
         small
       >
         <b-thead class="border-bottom">
-          <b-tr class="sortable-table-header text-no-wrap">
+          <b-tr class="text-no-wrap">
             <b-th v-if="hasAssignedCourses && canEdit" class="px-0 th-course-assignment-menu">
               <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
               <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
