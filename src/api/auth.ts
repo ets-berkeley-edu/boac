@@ -4,13 +4,8 @@ import utils from '@/api/api-utils'
 
 export function devAuthLogIn(uid: string, password: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/auth/dev_auth_login`, {
-      uid: uid,
-      password: password
-    })
-    .then(data => {
-      useContextStore().setCurrentUser(data)
-    }, error => error)
+    .post(`${utils.apiBaseUrl()}/api/auth/dev_auth_login`, {uid, password})
+    .then(useContextStore().setCurrentUser, error => error)
 }
 
 export function getCasLoginURL() {

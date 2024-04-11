@@ -30,7 +30,7 @@ import {useContextStore} from '@/stores/context'
 
 const $_goToLogin = (to: any, next: any) => {
   next({
-    path: '/login',
+    path: '/',
     query: {
       error: to.query.error,
       redirect: to.name === 'Home' ? undefined : to.fullPath
@@ -54,25 +54,11 @@ const $_requiresDegreeProgress = (to: any, from: any, next: any) => {
 const routes:RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/home'
-  },
-  {
-    component: Login,
-    path: '/login',
-  },
-  {
-    path: '/login',
     component: Login,
     beforeEnter: (to: any, from: any, next: any) => {
       const currentUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
-        if (trim(to.query.redirect)) {
-          next(to.query.redirect)
-        } else if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
-          next('/home')
-        } else {
-          next({path: '/404'})
-        }
+        next(trim(to.query.redirect) || '/home')
       } else {
         next()
       }
