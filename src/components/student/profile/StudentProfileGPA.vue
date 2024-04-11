@@ -18,7 +18,7 @@
               id="show-hide-term-gpa-button"
               aria-controls="term-gpa-collapse"
               class="gpa-trends-more-button col-auto"
-              variant="link"
+              variant="text"
               @click="showHideTermGpa"
             >
               {{ showTermGpa ? 'Less' : 'More' }}
@@ -50,7 +50,7 @@
         id="term-gpa-collapse"
         class="border-t-sm mr-3"
       >
-        <v-card v-show="showTermGpa" class="px-4" elevation="0">
+        <v-card v-if="showTermGpa" class="px-4" elevation="0">
           <table
             id="table-with-gpa-per-term"
             class="term-gpa-table w-100"

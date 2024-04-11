@@ -67,8 +67,8 @@
           </div>
         </div>
       </v-list-item>
+      <hr v-if="currentUser.canAccessAdmittedStudents" class="sidebar-section-divider" />
       <v-list-item v-if="currentUser.canAccessAdmittedStudents" class="mt-2 pa-0">
-        <hr class="sidebar-section-divider" />
         <div class="font-size-18 font-weight-bold pl-3">
           Admitted Students
         </div>

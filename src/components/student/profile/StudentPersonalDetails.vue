@@ -17,7 +17,7 @@
     </v-btn>
   </div>
   <v-expand-transition>
-    <v-card v-show="isExpanded" class="expanded-card pa-2">
+    <v-card v-if="isExpanded" class="expanded-card pa-2">
       <v-container fluid>
         <v-row>
           <v-col cols="4">
