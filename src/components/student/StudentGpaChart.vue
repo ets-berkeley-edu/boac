@@ -102,17 +102,19 @@
           data: generateGpaDataSeries()
         }
       ],
-      colors: ['#4a90e2']
+      colors: [primaryColor]
     }"
   />
 </template>
 
-<script>
-import Util from '@/mixins/Util'
+<script setup>
+import {eachRight} from 'lodash'
+import {useTheme} from 'vuetify'
+</script>
 
+<script>
 export default {
   name: 'StudentGpaChart',
-  mixins: [Util],
   props: {
     chartDescription: {
       required: true,
@@ -128,11 +130,19 @@ export default {
       type: Number
     }
   },
+  data: () => ({
+    errorColor: undefined,
+    primaryColor: undefined
+  }),
+  created() {
+    this.errorColor = useTheme().current.value.colors.error
+    this.primaryColor = useTheme().current.value.colors.primary
+  },
   methods: {
     generateGpaDataSeries() {
       const series = []
       let i = 0
-      this._eachRight(this.student.termGpa, term => {
+      eachRight(this.student.termGpa, term => {
         series.push({
           accessibility: {
             description: `${term.gpa} GPA`
@@ -147,7 +157,7 @@ export default {
       })
       if (series.length) {
         const lastElement = series[series.length - 1]
-        const fillColor = lastElement.y < 2 ? '#d0021b' : '#3b7ea5'
+        const fillColor = lastElement.y < 2 ? this.errorColor : this.primaryColor
         lastElement.marker = {
           enabled: true,
           fillColor: fillColor,
