@@ -1,53 +1,37 @@
 <template>
-  <v-app class="background-blue-sky font-size-14 vh-100">
-    <v-main class="container w-100 px-4 mx-auto">
-      <div class="stripe"></div>
-      <div class="avatar-container">
-        <img src="@/assets/airplane.svg" alt="Airplane logo" class="avatar-airplane" />
-      </div>
-      <div class="sign-in" role="main">
-        <v-tooltip
-          id="login-tooltip"
-          v-model="showError"
-          location="top"
-          open-on-focus
-          offset="5"
-          @update:model-value="onHidden"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              id="sign-in"
-              v-bind="props"
-              class="btn-sign-in"
-              color="primary"
-              @click.stop="logIn"
-            >
-              Sign In
-            </v-btn>
-          </template>
-          <span
-            class="text-error"
-            aria-live="polite"
-            v-html="error"
-          ></span>
-        </v-tooltip>
-        <div class="contact-us">
-          Questions or feedback? Contact us at
-          <a
-            :href="`mailto:${config.supportEmailAddress}`"
-            target="_blank"
-          >{{ config.supportEmailAddress }}<span class="sr-only"> (link will open new browser tab)</span></a>
+  <v-app class="background-blue-sky vh-100">
+    <v-main class="align-center d-flex flex-column">
+      <div class="logo-container">
+        <div class="stripe" />
+        <div class="airplane-container">
+          <img src="@/assets/airplane.svg" alt="Airplane logo" class="airplane" />
         </div>
-        <DevAuth v-if="config.devAuthEnabled" :report-error="reportError" />
       </div>
-      <div class="box-container" role="banner">
-        <div class="header">
+      <v-card class="card" rounded="0">
+        <v-card-title class="card-title">
           <h1>BOA</h1>
-        </div>
-      </div>
-      <div class="copyright pt-2" role="contentinfo">
-        <span class="font-size-12 text-white">&copy; {{ new Date().getFullYear() }} The Regents of the University of California</span>
-      </div>
+        </v-card-title>
+        <v-card-text class="pa-0 text-center">
+          <v-btn
+            id="sign-in"
+            class="sign-in"
+            color="primary"
+            @click.stop="logIn"
+          >
+            Sign In
+          </v-btn>
+          <div v-if="config.devAuthEnabled" class="mt-3">
+            <DevAuth :report-error="reportError" />
+          </div>
+          <div class="contact-us">
+            If you have questions or feedback then contact us at
+            <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">
+              {{ config.supportEmailAddress }}<span class="sr-only"> (link will open new browser tab)</span>
+            </a>
+          </div>
+        </v-card-text>
+      </v-card>
+      <div class="copyright">&copy; {{ new Date().getFullYear() }} The Regents of the University of California</div>
     </v-main>
   </v-app>
 </template>
@@ -89,92 +73,73 @@ export default {
 </script>
 
 <style scoped>
-.avatar-airplane {
+h1 {
+  color: rgb(var(--v-theme-primary));
+  font-weight: 200;
+  font-size: 81px;
+  letter-spacing: 8px;
+  padding-top: 14px;
+}
+.airplane {
   background-color: #fff;
-  border: 10px solid #0275d8;
+  border: 10px solid rgb(var(--v-theme-primary));
   border-radius: 50px;
   object-fit: scale-down;
   width: 96px;
 }
-.avatar-container {
-  align-items: center;
-  display: flex;
-  flex: 0 0 100px;
+.airplane-container {
+  left: 110px;
   position: absolute;
-  top: 205px;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 30px
 }
 .background-blue-sky {
-  background: url('@/assets/blue-sky-background.jpg') no-repeat center center
-    fixed;
+  background: url('@/assets/blue-sky-background.jpg') no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
 }
-.btn-sign-in {
-  height: 50px;
-  width: 256px;
-  font-size: 20px;
-  text-transform: capitalize;
-}
-.box-container {
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.5);
-  flex: 1;
-  height: 360px;
-  min-height: 360px;
-  width: 320px;
+.card {
   opacity: 0.8;
-  padding: 0 25px 0 25px;
-  z-index: -1;
+  width: 320px;
+}
+.card-title {
+  margin: 64px 0 32px 0;
+  text-align: center;
 }
 .contact-us {
-  font-weight: 400;
-  padding: 20px 40px 10px 40px;
-  width: 320px;
+  margin: 33px 33px 12px 33px;
   text-align: left;
 }
-.container {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 24em;
-  padding-top: 200px;
-  position: relative;
-  z-index: 999;
-}
 .copyright {
-  background-color: #3b80bf;
+  background-color: rgb(var(--v-theme-primary));
+  font-size: 12px;
+  color: white;
   height: 40px;
-  width: 320px;
   padding-top: 10px;
+  width: 320px;
   text-align: center;
-  white-space: nowrap;
+  z-index: 1;
 }
-.header {
-  padding-top: 40px;
-  text-align: center;
+.logo-container {
+  padding-top: 72px;
+  position: relative;
+  width: 320px;
+  z-index: 1;
 }
 .sign-in {
-  position: absolute;
-  top: 460px;
-  left: 50%;
-  text-align: center;
-  transform: translate(-50%, -50%);
+  font-size: 20px;
+  height: 50px;
+  width: 264px;
+  text-transform: capitalize;
+  z-index: 1;
 }
 .stripe {
-  background-color: #0275d8;
+  background-color: rgb(var(--v-theme-primary));
   height: 10px;
+  max-height: 10px !important;
+  position:relative;
   width: 320px;
-}
-h1 {
-  color: #0275d8;
-  font-weight: 200;
-  font-size: 81px;
-  letter-spacing: 8px;
-  padding-top: 14px;
+  max-width: 320px !important;
 }
 </style>
