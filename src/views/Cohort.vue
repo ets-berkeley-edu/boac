@@ -38,7 +38,7 @@
             <SortBy v-if="useCohortStore().showSortBy" :domain="useCohortStore().domain" />
           </div>
         </div>
-        <hr class="my-2" />
+        <hr class="mt-2 mb-0" />
         <div v-if="useCohortStore().totalStudentCount > useCohortStore().pagination.itemsPerPage" class="pt-1">
           <Pagination
             class="my-3"
@@ -48,19 +48,20 @@
             :per-page="useCohortStore().pagination.itemsPerPage"
             :total-rows="useCohortStore().totalStudentCount"
           />
+          <hr class="mt-4 mb-0" />
         </div>
         <v-container v-if="useCohortStore().domain === 'default'" id="cohort-students" class="px-3">
           <StudentRow
             v-for="(student, index) in useCohortStore().students"
             :id="`student-${student.uid}`"
             :key="student.sid"
-            :row-index="index"
-            :student="student"
-            :sorted-by="useContextStore().currentUser.preferences.sortBy"
-            :term-id="useContextStore().currentUser.preferences.termId"
+            class="border-right-0 list-group-item border-left-0 pl-0"
             :class="{'list-group-item-info': anchor === `#${student.uid}`}"
             list-type="cohort"
-            class="border-right-0 list-group-item border-left-0 pl-0"
+            :row-index="index"
+            :sorted-by="useContextStore().currentUser.preferences.sortBy"
+            :student="student"
+            :term-id="useContextStore().currentUser.preferences.termId"
           />
         </v-container>
         <div v-if="useCohortStore().domain === 'admitted_students'">

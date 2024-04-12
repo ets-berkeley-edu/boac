@@ -62,26 +62,27 @@
       sm="4"
     >
       <div>
-        <span
-          v-if="_isNil(student.cumulativeGPA)"
-          :id="`row-${rowIndex}-student-cumulative-gpa`"
-          class="font-weight-bold "
-        >--<span class="sr-only">No data</span></span>
-        <span
-          v-if="!_isNil(student.cumulativeGPA)"
-          :id="`row-${rowIndex}-student-cumulative-gpa`"
-          class="font-weight-bold"
-        >{{ round(student.cumulativeGPA, 3) }}</span>
+        <template v-if="isNil(student.cumulativeGPA)">
+          <span :id="`row-${rowIndex}-student-cumulative-gpa`" class="font-weight-bold">
+            --
+            <span class="sr-only">No data</span>
+          </span>
+        </template>
+        <template v-else>
+          <span :id="`row-${rowIndex}-student-cumulative-gpa`" class="font-weight-bold">
+            {{ round(student.cumulativeGPA, 3) }}
+          </span>
+        </template>
         <span class="text-medium-emphasis"> GPA (Cumulative)</span>
       </div>
       <StudentGpaChart
-        v-if="_size(student.termGpa) > 1"
+        v-if="size(student.termGpa) > 1"
         :chart-description="`Chart of GPA over time. ${student.name}'s cumulative GPA is ${round(student.cumulativeGPA, 3)}`"
         :student="student"
         :width="130"
       />
       <div
-        v-if="_size(student.termGpa)"
+        v-if="size(student.termGpa)"
         class="d-flex flex-wrap flex-lg-nowrap align-center text-uppercase text-medium-emphasis font-weight-light profile-last-term-gpa pl-0"
       >
         <v-icon
@@ -91,10 +92,10 @@
           color="warning"
           size="small"
         />
-        <span :id="`row-${rowIndex}-student-gpa-term-name`" class="text-no-wrap mr-1">{{ student.termGpa[0].termName }}</span> GPA:
+        <span :id="`row-${rowIndex}-student-gpa-term-name`" class="text-no-wrap mr-1">{{ student.termGpa[0].termName }}</span><span class="mr-1"> GPA:</span>
         <strong
           :id="`row-${rowIndex}-student-term-gpa`"
-          class="text-high-emphasis font-weight-regular ml-lg-1"
+          class="text-high-emphasis font-weight-regular"
           :class="{'text-error': student.termGpa[0].gpa < 2}"
         >{{ round(student.termGpa[0].gpa, 3) }}</strong>
       </div>
@@ -106,30 +107,30 @@
       sm="4"
     >
       <div class="d-flex flex-wrap align-baseline">
-        <div :id="`row-${rowIndex}-student-enrolled-units`" class="mr-1 font-weight-bold ">{{ _get(student.term, 'enrolledUnits', 0) }}</div>
+        <div :id="`row-${rowIndex}-student-enrolled-units`" class="mr-1 font-weight-bold ">{{ get(student.term, 'enrolledUnits', 0) }}</div>
         <div class="text-medium-emphasis">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
       </div>
       <div
-        v-if="!_isNil(_get(student.term, 'minTermUnitsAllowed')) && student.term.minTermUnitsAllowed !== config.defaultTermUnitsAllowed.min"
+        v-if="!isNil(get(student.term, 'minTermUnitsAllowed')) && student.term.minTermUnitsAllowed !== useContextStore().config.defaultTermUnitsAllowed.min"
         class="d-flex flex-wrap align-baseline"
       >
         <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 font-weight-bold ">{{ student.term.minTermUnitsAllowed }}</div>
         <div class="text-no-wrap text-medium-emphasis">Min&nbsp;Approved</div>
       </div>
-      <div v-if="!_isNil(_get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== config.defaultTermUnitsAllowed.max">
+      <div v-if="!isNil(get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== useContextStore().config.defaultTermUnitsAllowed.max">
         <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 font-weight-bold ">{{ student.term.maxTermUnitsAllowed }}</span>
         <span class="text-no-wrap text-medium-emphasis">Max&nbsp;Approved</span>
       </div>
       <div v-if="isCurrentTerm" class="d-flex flex-wrap align-baseline">
         <div
-          v-if="!_isUndefined(student.cumulativeUnits)"
+          v-if="!isUndefined(student.cumulativeUnits)"
           :id="`row-${rowIndex}-student-cumulative-units`"
           class="mr-1 font-weight-bold "
         >
           {{ student.cumulativeUnits }}
         </div>
         <div
-          v-if="_isUndefined(student.cumulativeUnits)"
+          v-if="isUndefined(student.cumulativeUnits)"
           :id="`row-${rowIndex}-student-cumulative-units`"
           class="font-weight-bold"
         >
@@ -149,18 +150,19 @@
 </template>
 
 <script setup>
+import {get, isNil, isUndefined, size} from 'lodash'
 import {mdiAlertRhombus, mdiCloseCircleOutline} from '@mdi/js'
+import {round} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentGpaChart from '@/components/student/StudentGpaChart'
-import StudentRowBioColumn from '@/components/student/StudentRowBioColumn.vue'
-import StudentRowCourseActivity from '@/components/student/StudentRowCourseActivity.vue'
-import Util from '@/mixins/Util'
+import StudentRowBioColumn from '@/components/student/StudentRowBioColumn'
+import StudentRowCourseActivity from '@/components/student/StudentRowCourseActivity'
 
 export default {
   name: 'StudentRow',
@@ -172,7 +174,6 @@ export default {
     StudentRowBioColumn,
     StudentRowCourseActivity
   },
-  mixins: [Context, Util],
   props: {
     listType: {
       required: true,
@@ -205,13 +206,13 @@ export default {
   }),
   computed: {
     isCurrentTerm() {
-      return this.termId === `${this.config.currentEnrollmentTermId}`
+      return this.termId === `${useContextStore().config.currentEnrollmentTermId}`
     }
   },
   methods: {
     onClickRemoveStudent(student) {
       this.removeStudent(student.sid)
-      this.alertScreenReader(`Removed ${student.firstName} ${student.lastName} from group`)
+      useContextStore().alertScreenReader(`Removed ${student.firstName} ${student.lastName} from group`)
     }
   }
 }
@@ -221,33 +222,11 @@ export default {
 .student-row{
   border-bottom: 1px solid rgb(var(--v-theme-faint));
 }
-.cohort-student-name-container div:first-child {
-  flex-basis: 70%;
-}
 .profile-last-term-gpa {
   padding-left: 5px;
   text-align: left;
 }
 .student-gpa-col {
   min-width: 155px;
-}
-</style>
-
-<style>
-.cohort-boxplot-container .highcharts-tooltip {
-  background-color: #000;
-  border-color: #000;
-  border-radius: 6px;
-  padding: 8px;
-  width: 250px;
-}
-.cohort-boxplot-container g.highcharts-tooltip {
-  display: none !important;
-}
-.cohort-boxplot-container .highcharts-tooltip span {
-  position: relative !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: auto !important;
 }
 </style>

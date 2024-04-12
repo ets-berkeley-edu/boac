@@ -51,6 +51,10 @@ export function putFocusNextTick(id: string, cssSelector?: string) {
   })
 }
 
+export function round(value: number, decimals: number) {
+  return (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals)
+}
+
 export function setPageTitle(phrase: string) {
   document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`
 }

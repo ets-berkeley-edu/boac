@@ -54,7 +54,7 @@
           </div>
         </td>
         <td class="col-midterm">
-          <dev class="d-flex align-center">
+          <div class="d-flex align-center">
             <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="font-weight-bold"></span>
             <v-icon
               v-if="isAlertGrade(enrollment.midtermGrade)"
@@ -63,7 +63,7 @@
               size="small"
             />
             <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
-          </dev>
+          </div>
         </td>
         <td class="col-final">
           <div class="d-flex align-center">

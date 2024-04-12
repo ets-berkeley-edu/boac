@@ -17,14 +17,15 @@
   </div>
 </template>
 
+<script setup>
+import {useContextStore} from '@/stores/context'
+</script>
+
 <script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
 import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
   name: 'CuratedStudentCheckbox',
-  mixins: [Context, Util],
   props: {
     domain: {
       required: true,
@@ -52,12 +53,12 @@ export default {
     this.sid = this.student.sid || this.student.csEmplId
     this.checkboxId = `${this.domain === 'admitted_students' ? 'admit' : 'student'}-${this.sid}-${idFragment}-checkbox`
     this.studentName = `${this.student.firstName} ${this.student.lastName}`
-    this.setEventHandler('curated-group-select-all', this.onSelectAll)
-    this.setEventHandler('curated-group-deselect-all', this.onDeselectAll)
+    useContextStore().setEventHandler('curated-group-select-all', this.onSelectAll)
+    useContextStore().setEventHandler('curated-group-deselect-all', this.onDeselectAll)
   },
   unmounted() {
-    this.removeEventHandler('curated-group-select-all', this.onSelectAll)
-    this.removeEventHandler('curated-group-deselect-all', this.onDeselectAll)
+    useContextStore().removeEventHandler('curated-group-select-all', this.onSelectAll)
+    useContextStore().removeEventHandler('curated-group-deselect-all', this.onDeselectAll)
   },
   methods: {
     onDeselectAll(domain) {
@@ -72,8 +73,8 @@ export default {
     },
     toggle(checked) {
       const eventName = checked ? 'curated-group-checkbox-checked' : 'curated-group-checkbox-unchecked'
-      this.broadcast(eventName, {domain: this.domain, sid: this.sid})
-      this.alertScreenReader(`${this.studentName} ${checked ? 'selected' : 'deselected'}`)
+      useContextStore().broadcast(eventName, {domain: this.domain, sid: this.sid})
+      useContextStore().alertScreenReader(`${this.studentName} ${checked ? 'selected' : 'deselected'}`)
     }
   }
 }
