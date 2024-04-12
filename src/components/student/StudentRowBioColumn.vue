@@ -1,97 +1,83 @@
 <template>
   <div>
     <div>
-      <div>
-        <router-link
-          v-if="student.uid"
-          :id="`link-to-student-${student.uid}`"
-          :to="studentRoutePath(student.uid, currentUser.inDemoMode)"
+      <router-link
+        v-if="student.uid"
+        :id="`link-to-student-${student.uid}`"
+        :to="studentRoutePath(student.uid, useContextStore().currentUser.inDemoMode)"
+      >
+        <h3
+          :id="`row-${rowIndex}-student-name`"
+          class="font-size-16"
+          :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
         >
-          <h3
-            v-if="sortedBy !== 'first_name'"
-            :id="`row-${rowIndex}-student-name`"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            class="student-name"
-            v-html="lastNameFirst(student)"
-          />
-          <h3
-            v-if="sortedBy === 'first_name'"
-            :id="`row-${rowIndex}-student-name`"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            class="student-name"
-          >
-            {{ student.firstName }} {{ student.lastName }}
-          </h3>
-        </router-link>
-        <span v-if="!student.uid">
-          <span
-            v-if="sortedBy === 'first_name'"
-            :id="`student-${student.sid}-has-no-uid`"
-            class="font-weight-500 student-name"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            v-html="lastNameFirst(student)"
-          />
-          <span
-            v-if="sortedBy !== 'first_name'"
-            :id="`student-${student.sid}-has-no-uid`"
-            class="font-size-16 ma-0"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
-          >
-            {{ student.firstName }} {{ student.lastName }}
-          </span>
-        </span>
-      </div>
+          {{ studentName }}
+        </h3>
+      </router-link>
+      <span
+        v-if="!student.uid"
+        :id="`student-${student.sid}-has-no-uid`"
+        class="font-size-16 font-weight-500"
+        :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
+      >
+        {{ studentName }}
+      </span>
     </div>
-    <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="d-flex student-sid">
+    <div
+      :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
+      class="d-flex align-center font-weight-bold font-size-13"
+    >
       <div :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</div>
       <div
         v-if="student.academicCareerStatus === 'Inactive'"
         :id="`row-${rowIndex}-inactive`"
-        class="red-flag-status ml-1"
+        class="text-error ml-1"
       >
         INACTIVE
       </div>
-      <div
+      <v-icon
         v-if="student.academicCareerStatus === 'Completed'"
+        aria-label="Graduated"
         class="ml-1"
-        uib-tooltip="Graduated"
-        tooltip-placement="bottom"
-      >
-        <v-icon :icon="mdiSchool" />
-      </div>
+        :icon="mdiSchool"
+        size="small"
+      />
     </div>
     <div
       v-if="displayAsAscInactive(student)"
       :id="`row-${rowIndex}-inactive-asc`"
-      class="d-flex student-sid red-flag-status"
+      class="text-error font-weight-bold font-size-13 text-no-wrap"
     >
       ASC INACTIVE
     </div>
     <div
       v-if="displayAsCoeInactive(student)"
       :id="`row-${rowIndex}-inactive-coe`"
-      class="d-flex student-sid red-flag-status"
+      class="text-error font-weight-bold font-size-13 text-no-wrap"
     >
       CoE INACTIVE
     </div>
-    <div v-if="student.withdrawalCancel" :id="`row-${rowIndex}-withdrawal-cancel`">
-      <span class="red-flag-small">
-        {{ student.withdrawalCancel.description }}
-        {{ DateTime.fromJSDate(student.withdrawalCancel.date).toFormat('MMM DD, YYYY') }}
-      </span>
+    <div
+      v-if="student.withdrawalCancel"
+      :id="`row-${rowIndex}-withdrawal-cancel`"
+      class="text-error font-weight-bold font-size-13 text-no-wrap"
+    >
+      {{ student.withdrawalCancel.description }}
+      {{ DateTime.fromSQL(student.withdrawalCancel.date).toLocaleString(DateTime.DATE_MED) }}
     </div>
-    <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding" :row-index="`row-${rowIndex}`" />
-    <div v-if="student.academicCareerStatus !== 'Completed'">
-      <div
-        :id="`row-${rowIndex}-student-level`"
-        class="student-text"
-      >
+    <StudentAcademicStanding
+      v-if="student.academicStanding"
+      class="font-size-14"
+      :standing="student.academicStanding"
+      :row-index="`row-${rowIndex}`"
+    />
+    <div v-if="student.academicCareerStatus !== 'Completed'" class="font-size-13 text-medium-emphasis">
+      <div :id="`row-${rowIndex}-student-level`">
         {{ student.level }}
       </div>
       <div
         v-if="student.matriculation"
         :id="`row-${rowIndex}-student-matriculation`"
-        class="student-text"
         aria-label="Entering term"
       >
         Entered {{ student.matriculation }}
@@ -99,7 +85,6 @@
       <div
         v-if="student.expectedGraduationTerm"
         :id="`row-${rowIndex}-student-grad-term`"
-        class="student-text"
         aria-label="Expected graduation term"
       >
         Grad:&nbsp;{{ student.expectedGraduationTerm.name }}
@@ -107,38 +92,31 @@
       <div
         v-if="student.termsInAttendance"
         :id="`row-${rowIndex}-student-terms-in-attendance`"
-        class="student-text"
         aria-label="Terms in attendance"
       >
         Terms in Attendance:&nbsp;{{ student.termsInAttendance }}
       </div>
-      <div
-        v-for="(major, index) in student.majors"
-        :key="index"
-        class="student-text"
-      >
+      <div v-for="(major, index) in student.majors" :key="index">
         <span :id="`row-${rowIndex}-student-major-${index}`">{{ major }}</span>
       </div>
     </div>
-    <div v-if="student.academicCareerStatus === 'Completed'">
+    <div v-if="student.academicCareerStatus === 'Completed'" class="font-size-13 text-medium-emphasis">
       <div
         v-if="student.matriculation"
         :id="`row-${rowIndex}-student-matriculation`"
-        class="student-text"
         aria-label="Entering term"
       >
         Entered {{ student.matriculation }}
       </div>
       <DegreesAwarded :student="student" />
-      <div v-for="owner in degreePlanOwners" :key="owner" class="student-text">
-        <span class="student-text">{{ owner }}</span>
+      <div v-for="(owner, index) in degreePlanOwners" :key="owner">
+        <span :id="`row-${rowIndex}-student-degree-plan-owner-${index}`">{{ owner }}</span>
       </div>
     </div>
-    <div v-if="student.athleticsProfile" class="student-teams-container">
+    <div v-if="student.athleticsProfile" class="student-teams-container font-size-13 text-medium-emphasis">
       <div
         v-for="(team, index) in student.athleticsProfile.athletics"
         :key="index"
-        class="student-text"
       >
         <span :id="`row-${rowIndex}-student-team-${index}`">{{ team.groupName }}</span>
         <span v-if="student.athleticsProfile.isActiveAsc === false"> (Inactive)</span>
@@ -148,21 +126,21 @@
 </template>
 
 <script setup>
+import {DateTime} from 'luxon'
+import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
+import {get, map, uniq} from 'lodash'
+import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {mdiSchool} from '@mdi/js'
+import {useContextStore} from '@/stores/context'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
-import Util from '@/mixins/Util.vue'
-import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
-import {DateTime} from 'luxon'
 
 export default {
   name: 'StudentRowBioColumn',
   components: {DegreesAwarded, StudentAcademicStanding},
-  mixins: [Context, Util],
   props: {
     rowIndex: {
       required: true,
@@ -179,17 +157,16 @@ export default {
   },
   computed: {
     degreePlanOwners() {
-      const plans = this._get(this.student, 'degree.plans')
+      const plans = get(this.student, 'degree.plans')
       if (plans) {
-        return this._uniq(this._map(plans, 'group'))
+        return uniq(map(plans, 'group'))
       } else {
         return []
       }
+    },
+    studentName() {
+      return this.sortedBy === 'first_name' ? `${this.student.firstName} ${this.student.lastName}` : lastNameFirst(this.student)
     }
-  },
-  methods: {
-    displayAsAscInactive,
-    displayAsCoeInactive
   }
 }
 </script>

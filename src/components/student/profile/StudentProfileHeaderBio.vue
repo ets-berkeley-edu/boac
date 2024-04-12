@@ -40,7 +40,7 @@
         <span
           v-if="academicCareerStatus === 'Inactive'"
           id="student-bio-inactive"
-          class="red-flag-status ml-1"
+          class="error font-weight-bold ml-1"
         >
           INACTIVE
         </span>

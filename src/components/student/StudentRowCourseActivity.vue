@@ -1,5 +1,5 @@
 <template>
-  <table class="table-hover w-100">
+  <table class="student-row-courses table-hover w-100">
     <thead class="text-none">
       <tr>
         <th class="col-course">Class</th>
@@ -27,16 +27,16 @@
             v-if="enrollment.waitlisted"
             :id="`student-${student.uid}-waitlisted-for-${enrollment.sections.length ? enrollment.sections[0].ccn : enrollment.displayName}`"
             aria-hidden="true"
-            class="pl-1 red-flag-status"
+            class="pl-1 text-error font-weight-bold"
           >(W)</span>
           <span v-if="enrollment.waitlisted" class="sr-only">
             Waitlisted
           </span>
         </td>
-        <td class="col-units pl-2">
+        <td class="col-units">
           {{ enrollment.units || '&mdash;' }}
         </td>
-        <td v-if="useContextStore().currentUser.canAccessCanvasData" class="col-bcourses pl-1">
+        <td v-if="useContextStore().currentUser.canAccessCanvasData" class="col-bcourses">
           <div
             v-for="(canvasSite, cIndex) in enrollment.canvasSites"
             :key="cIndex"
@@ -54,32 +54,43 @@
           </div>
         </td>
         <td class="col-midterm">
-          <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="font-weight-bold"></span>
-          <v-icon v-if="isAlertGrade(enrollment.midtermGrade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
-          <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
+          <dev class="d-flex align-center">
+            <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="font-weight-bold"></span>
+            <v-icon
+              v-if="isAlertGrade(enrollment.midtermGrade)"
+              :icon="mdiAlertRhombus"
+              color="warning"
+              size="small"
+            />
+            <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
+          </dev>
         </td>
         <td class="col-final">
-          <span
-            v-if="enrollment.grade"
-            v-accessible-grade="enrollment.grade"
-            class="font-weight-bold"
-          ></span>
-          <v-icon
-            v-if="isAlertGrade(enrollment.grade)"
-            :icon="mdiAlertRhombus"
-            class="boac-exclamation ml-1"
-          />
-          <IncompleteGradeAlertIcon
-            v-if="getSectionsWithIncompleteStatus(enrollment.sections).length"
-            :course="enrollment"
-            :index="index"
-            :term-id="termId"
-          />
-          <span
-            v-if="!enrollment.grade"
-            class="cohort-grading-basis"
-          >{{ enrollment.gradingBasis }}</span>
-          <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
+          <div class="d-flex align-center">
+            <span
+              v-if="enrollment.grade"
+              v-accessible-grade="enrollment.grade"
+              class="font-weight-bold"
+            ></span>
+            <v-icon
+              v-if="isAlertGrade(enrollment.grade)"
+              :icon="mdiAlertRhombus"
+              class="grade-alert"
+              color="warning"
+              size="small"
+            />
+            <IncompleteGradeAlertIcon
+              v-if="getSectionsWithIncompleteStatus(enrollment.sections).length"
+              :course="enrollment"
+              :index="index"
+              :term-id="termId"
+            />
+            <span
+              v-if="!enrollment.grade"
+              class="cohort-grading-basis"
+            >{{ enrollment.gradingBasis }}</span>
+            <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
+          </div>
         </td>
       </tr>
       <tr v-if="!termEnrollments.length">
@@ -146,30 +157,34 @@ export default {
 }
 </script>
 
-<style scoped>
-td {
-  font-size: 13px;
-  line-height: 1.1em;
-  padding: 0.2rem 0.3rem;
-}
-th {
-  line-height: 1.1em;
-  padding: 0.2rem 0.3rem;
-}
-.col-course {
-  min-width: 80px;
-  padding-right: 15px;
-}
-.col-bcourses {
-  min-width: 120px;
-}
-.col-final {
-  min-width: 40px;
-}
-.col-midterm {
-  min-width: 40px;
-}
-.col-units {
-  min-width: 40px;
+<style lang="scss" scoped>
+.student-row-courses {
+  min-width: 380px;
+  td {
+    font-size: 13px;
+    line-height: 1.1em;
+    padding: 0.2rem 0.3rem;
+    vertical-align: baseline;
+  }
+  th {
+    line-height: 1.1em;
+    padding: 0.2rem 0.3rem;
+  }
+  .col-course {
+    min-width: 80px;
+    padding-right: 15px;
+  }
+  .col-bcourses {
+    min-width: 120px;
+  }
+  .col-final {
+    min-width: 40px;
+  }
+  .col-midterm {
+    min-width: 40px;
+  }
+  .col-units {
+    min-width: 40px
+  }
 }
 </style>

@@ -213,7 +213,7 @@
                 <div
                   v-if="data.item.enrollmentStatus === 'W'"
                   :id="`in-progress-course-${data.item.termId}-${data.item.sectionId}-waitlisted`"
-                  class="font-size-14 red-flag-status text-uppercase"
+                  class="font-size-14 error font-weight-bold text-uppercase"
                 >
                   (W<span class="sr-only">aitlisted</span>)
                 </div>

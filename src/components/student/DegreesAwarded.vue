@@ -1,21 +1,21 @@
 <template>
-  <div v-if="_size(degreesAwarded)">
-    <div
-      v-for="(plans, dateAwarded) in degreesAwarded"
-      :key="dateAwarded"
-      class="student-text"
-    >
-      Graduated {{ DateTime.fromJSDate(dateAwarded).toFormat('MMM DD, YYYY') }} ({{ _join(plans, '; ') }})
-    </div>
+  <div
+    v-for="(plans, dateAwarded) in degreesAwarded"
+    :key="dateAwarded"
+    class="student-text"
+  >
+    Graduated {{ DateTime.fromSQL(dateAwarded).toLocaleString(DateTime.DATE_MED) }} ({{ join(plans, '; ') }})
   </div>
 </template>
 
-<script>
-import Util from '@/mixins/Util'
+<script setup>
+import {DateTime} from 'luxon'
+import {each, filter, includes, join, map} from 'lodash'
+</script>
 
+<script>
 export default {
   name: 'DegreesAwarded',
-  mixins: [Util],
   props: {
     student: {
       required: true,
@@ -24,18 +24,17 @@ export default {
   },
   data: () => ({
     acceptedPlanTypes: ['CRT', 'HS', 'MAJ', 'SP', 'SS'],
-    degreesAwarded: undefined
+    degreesAwarded: {}
   }),
   created() {
-    this.degreesAwarded = {}
-    this._each(this.student.degrees || [], degree => {
+    each(this.student.degrees || [], degree => {
       const key = degree.dateAwarded
       if (key) {
-        const plans = this._filter(degree.plans || [], plan => {
-          return this._includes(this.acceptedPlanTypes, plan.type)
+        const plans = filter(degree.plans || [], plan => {
+          return includes(this.acceptedPlanTypes, plan.type)
         })
         if (plans.length) {
-          this.degreesAwarded[key] = (this.degreesAwarded[key] || []).concat(this._map(plans, 'plan'))
+          this.degreesAwarded[key] = (this.degreesAwarded[key] || []).concat(map(plans, 'plan'))
         }
       }
     })
