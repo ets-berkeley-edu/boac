@@ -19,4 +19,12 @@ export function registerPlugins (app: App) {
     .component('focus-trap', FocusTrap)
     .component('elegant-calendar', Calendar)
     .component('elegant-date-picker', DatePicker)
+    .directive('accessibleGrade', {
+      beforeMount(el, binding) {
+        el.innerHTML = binding.value && binding.value.replace('-', '&minus;').replace('+', '&plus;')
+      },
+      unmounted(el) {
+        el.innerHTML = ''
+      }
+    })
 }

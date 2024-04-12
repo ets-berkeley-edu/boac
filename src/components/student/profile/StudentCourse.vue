@@ -30,7 +30,7 @@
         <div
           v-if="course.waitlisted"
           :id="`waitlisted-for-${termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
-          class="ml-4 red-flag-status student-course-waitlisted text-uppercase"
+          class="ml-4 error font-weight-bold student-course-waitlisted text-uppercase"
           :class="{'my-2 position-absolute': detailsVisible}"
         >
           Waitlisted

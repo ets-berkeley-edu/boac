@@ -1,6 +1,5 @@
 <template>
   <v-icon
-    v-if="sectionsWithIncompleteStatus.length"
     :id="`term-${termId}-course-${index}-has-incomplete-status`"
     :aria-label="ariaLabel"
     class="ml-1"

@@ -49,7 +49,7 @@
             :total-rows="useCohortStore().totalStudentCount"
           />
         </div>
-        <div v-if="useCohortStore().domain === 'default'" id="cohort-students" class="pr-2">
+        <v-container v-if="useCohortStore().domain === 'default'" id="cohort-students" class="px-3">
           <StudentRow
             v-for="(student, index) in useCohortStore().students"
             :id="`student-${student.uid}`"
@@ -62,7 +62,7 @@
             list-type="cohort"
             class="border-right-0 list-group-item border-left-0 pl-0"
           />
-        </div>
+        </v-container>
         <div v-if="useCohortStore().domain === 'admitted_students'">
           <hr />
           <AdmitStudentsTable :include-curated-checkbox="true" :students="useCohortStore().students" />

@@ -145,15 +145,6 @@
 .position-relative {
   position: relative;
 }
-.red-flag-status {
-  color: #d0021b;
-  font-weight: bold;
-}
-.red-flag-small {
-  color: #d0021b;
-  font-size: 12px;
-  font-weight: bold;
-}
 .section-divider {
   background-color: #4a90e2;
   border: none;
@@ -188,11 +179,6 @@
 .student-column {
   flex: 0 0 120px;
   margin-left: 15px;
-}
-.student-name {
-  color: #49b;
-  font-size: 16px;
-  margin: 0;
 }
 .student-profile-h3 {
   border-bottom: 1px #999 solid;

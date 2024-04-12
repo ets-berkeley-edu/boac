@@ -1,22 +1,25 @@
 <template>
-  <div
-    v-if="_get(standing, 'status') && standing.status !== 'GST'"
-    class="student-academic-standing"
-  >
-    <span :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${termId}`" class="red-flag-status">
-      {{ config.academicStandingDescriptions[standing.status] || standing.status }} <span class="text-no-wrap">({{ termName }})</span>
+  <div>
+    <span
+      v-if="get(standing, 'status') && standing.status !== 'GST'"
+      :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${termId}`"
+      class="text-error font-weight-bold mb-1"
+    >
+      {{ standingStatus }} <span class="text-no-wrap">({{ termName }})</span>
     </span>
   </div>
 </template>
 
+<script setup>
+import {get} from 'lodash'
+import {useContextStore} from '@/stores/context'
+</script>
+
 <script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
 import {sisIdForTermName, termNameForSisId} from '@/berkeley'
 
 export default {
   name: 'StudentAcademicStanding',
-  mixins: [Context, Util],
   props: {
     rowIndex: {
       default: undefined,
@@ -29,6 +32,9 @@ export default {
     }
   },
   computed: {
+    standingStatus() {
+      return get(useContextStore().config, `academicStandingDescriptions.${this.standing.status}`, this.standing.status)
+    },
     termId() {
       return this.standing.termId || sisIdForTermName(this.standing.termName)
     },
@@ -38,10 +44,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.student-academic-standing {
-  display: inline-block;
-  margin-bottom: 5px;
-}
-</style>
