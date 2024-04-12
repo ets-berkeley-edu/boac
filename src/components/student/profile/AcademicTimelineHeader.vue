@@ -1,34 +1,33 @@
 <template>
-  <div class="mb-1">
-    <h2 class="font-size-24 font-weight-bold">Academic Timeline</h2>
-  </div>
-  <div class="d-flex flex-wrap w-100">
-    <v-btn-toggle
-      class="border-md font-weight-bold"
-      color="primary"
-      divided
-      rounded="lg"
-    >
-      <v-btn
-        id="timeline-tab-all"
-        :ripple="false"
-        @click="setFilter(null)"
+  <h2 class="font-size-24 font-weight-bold">Academic Timeline</h2>
+  <div class="d-flex flex-wrap justify-space-between w-100">
+    <div class="mt-1">
+      <v-btn-toggle
+        class="border-md"
+        color="primary"
+        divided
       >
-        <span class="sr-only">Show </span>All
-      </v-btn>
-      <v-btn
-        v-for="type in _keys(filterTypes)"
-        :id="`timeline-tab-${type}`"
-        :key="type"
-        :class="{'border-surface border-s-sm': !countsPerType[type]}"
-        :disabled="!countsPerType[type]"
-        :ripple="false"
-        @click="setFilter(type)"
-      >
-        <span class="sr-only">Show </span>{{ filterTypes[type].tab }}
-      </v-btn>
-    </v-btn-toggle>
-    <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="ms-auto">
+        <v-btn
+          id="timeline-tab-all"
+          :ripple="false"
+          @click="setFilter(null)"
+        >
+          <span class="sr-only">Show </span>All
+        </v-btn>
+        <v-btn
+          v-for="type in _keys(filterTypes)"
+          :id="`timeline-tab-${type}`"
+          :key="type"
+          :class="{'border-surface border-s-sm': !countsPerType[type]}"
+          :disabled="!countsPerType[type]"
+          :ripple="false"
+          @click="setFilter(type)"
+        >
+          <span class="sr-only">Show </span>{{ filterTypes[type].tab }}
+        </v-btn>
+      </v-btn-toggle>
+    </div>
+    <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="mt-1">
       <v-btn
         id="new-note-button"
         class="border-e-sm"
@@ -96,27 +95,3 @@ export default {
   }
 }
 </script>
-
-<!--
-<style scoped>
-.tab-active {
-  background-color: #555;
-}
-.tab-active:active,
-.tab-active:focus,
-.tab-active:hover {
-  background-color: #444;
-}
-.tab-disabled {
-  background-color: #ccc;
-}
-.tab-inactive {
-  background-color: #eee;
-}
-.tab-inactive:hover,
-.tab-inactive:hover,
-.tab-inactive:hover {
-  background-color: #ddd;
-}
-</style>
--->
