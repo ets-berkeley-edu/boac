@@ -11,7 +11,7 @@
         hide-details
         placeholder="UID"
         variant="outlined"
-      ></v-text-field>
+      />
       <v-text-field
         id="dev-auth-password"
         v-model="password"
@@ -25,12 +25,13 @@
         placeholder="Password"
         type="password"
         variant="outlined"
-      ></v-text-field>
+      />
       <v-btn
         id="dev-auth-submit"
         class="btn-dev-auth"
         color="primary"
         :disabled="isLoggingIn"
+        elevation="0"
         type="submit"
       >
         DevAuth!
