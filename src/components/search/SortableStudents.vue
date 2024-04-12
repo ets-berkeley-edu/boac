@@ -1,10 +1,10 @@
 <template>
   <v-data-table-virtual
     v-resize="onResize"
-    borderless
     :cell-props="{
       class: 'pl-0'
     }"
+    class="bg-transparent font-size-16"
     density="compact"
     :header-props="{
       class: 'pl-0 text-no-wrap'
@@ -14,7 +14,6 @@
     no-sort-reset
     :sort-by="[sortBy]"
     :sort-compare="sortCompare"
-    stacked="md"
   >
     <template #header.avatar="{column}">
       <span class="sr-only">{{ column.title }}</span>
@@ -36,7 +35,7 @@
         :student="item"
       />
       <div v-if="options.includeCuratedCheckbox" class="sr-only">
-        <ManageStudent domain="default" :is-button-variant-link="true" :student="item" />
+        <ManageStudent domain="default" :student="item" />
       </div>
     </template>
 
@@ -114,13 +113,12 @@
     </template>
 
     <template #item.alertCount="{item}">
-      <span class="sr-only">Issue count</span>
       <PillAlert
         :aria-label="`${item.alertCount || 'No'} alerts for ${item.name}`"
-        :color="item.alertCount ? 'grey' : 'warning'"
+        :color="item.alertCount ? 'warning' : 'grey'"
         outlined
       >
-        {{ item.alertCount || 0 }}
+        {{ item.alertCount || 0 }} <span class="sr-only">alerts</span>
       </PillAlert>
     </template>
   </v-data-table-virtual>

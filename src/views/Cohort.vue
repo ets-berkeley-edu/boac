@@ -49,7 +49,7 @@
             :total-rows="useCohortStore().totalStudentCount"
           />
         </div>
-        <div v-if="useCohortStore().domain === 'default'" id="cohort-students" class="list-group mr-2">
+        <div v-if="useCohortStore().domain === 'default'" id="cohort-students" class="pr-2">
           <StudentRow
             v-for="(student, index) in useCohortStore().students"
             :id="`student-${student.uid}`"

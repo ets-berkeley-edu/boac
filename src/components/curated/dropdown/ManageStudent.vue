@@ -3,77 +3,84 @@
     <v-menu
       :id="dropdownId"
       :aria-label="`${domainLabel(true)}s for ${student.name}`"
-      :class="{'groups-menu-class pa-0': isButtonVariantLink}"
       :disabled="disableSelector"
     >
       <template #activator="{props}">
         <v-btn
           :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)"
           v-bind="props"
-          color="primary"
+          class="manage-student-btn"
+          :color="buttonColor"
           size="x-small"
           variant="text"
         >
-          <span v-if="!isAdding && !isRemoving" class="align-center d-flex justify-space-between">
-            <div :class="labelClass">
+          <div v-if="!disableSelector" class="align-center d-flex" :class="labelClass">
+            <v-progress-circular
+              v-if="groupsLoading"
+              indeterminate
+              size="14"
+              width="2"
+            />
+            <div class="ml-1">
               {{ label }}
             </div>
-            <div v-if="!isButtonVariantLink">
-              <v-progress-circular
-                v-if="disableSelector || groupsLoading"
-                indeterminate
-                size="14"
-                width="2"
-              />
-              <v-icon v-if="!disableSelector && !groupsLoading" :icon="mdiMenuDown" size="24" />
-            </div>
-          </span>
-          <span v-if="isRemoving" :class="{'text-danger': isButtonVariantLink, 'text-white': !isButtonVariantLink}">
-            <v-icon :icon="mdiClose" /> Removed
-          </span>
-          <span v-if="isAdding" :class="{'text-success': isButtonVariantLink}">
-            <v-icon :icon="mdiCheckBold" /> Added
-          </span>
+            <v-icon v-if="!groupsLoading" :icon="mdiMenuDown" size="24" />
+          </div>
+          <div v-if="isRemoving" :class="labelClass">
+            <v-icon class="mr-1" :icon="mdiClose" />Removed
+          </div>
+          <div v-if="isAdding" :class="labelClass">
+            <v-icon class="mr-1" :icon="mdiCheckBold" />Added
+          </div>
         </v-btn>
       </template>
-      <v-card v-if="!groupsLoading" density="compact">
-        <v-list density="compact" variant="flat">
-          <v-list-item v-if="!_filter(currentUser.myCuratedGroups, ['domain', domain]).length">
-            <span class="text-grey px-3 py-1 text-no-wrap">You have no {{ domainLabel(false) }}s.</span>
-          </v-list-item>
-          <v-list-item
-            v-for="group in _filter(currentUser.myCuratedGroups, ['domain', domain])"
-            :key="group.id"
+      <v-list
+        v-if="!groupsLoading"
+        density="compact"
+        variant="flat"
+      >
+        <v-list-item v-if="!filter(useContextStore().currentUser.myCuratedGroups, ['domain', domain]).length" disabled>
+          <span class="px-3 py-1 text-no-wrap">You have no {{ domainLabel(false) }}s.</span>
+        </v-list-item>
+        <v-list-item
+          v-for="group in filter(useContextStore().currentUser.myCuratedGroups, ['domain', domain])"
+          :key="group.id"
+          density="compact"
+          class="py-0"
+          @click="groupCheckboxClick(group)"
+          @keyup.enter="groupCheckboxClick(group)"
+        >
+          <v-checkbox
+            :id="`${idFragment}-${group.id}-checkbox`"
+            v-model="checkedGroups"
+            :aria-label="includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
+            color="primary"
             density="compact"
+            hide-details
+            :value="group.id"
             @click="groupCheckboxClick(group)"
             @keyup.enter="groupCheckboxClick(group)"
           >
-            <template #prepend>
-              <v-checkbox
-                :id="`${idFragment}-${group.id}-checkbox`"
-                v-model="checkedGroups"
-                :aria-label="_includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
-                class="mr-2"
-                density="compact"
-                hide-details
-                :value="group.id"
-              >
+            <template #label>
+              <div class="ml-2">
                 <span class="sr-only">{{ domainLabel(true) }} </span>
                 {{ group.name }}<span class="sr-only"> {{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
-              </v-checkbox>
+              </div>
             </template>
-          </v-list-item>
-          <v-list-item class="border-t-sm mt-2 pt-2" density="compact">
-            <v-btn
-              :id="`create-${idFragment}`"
-              :aria-label="`Create a new ${domainLabel(false)}`"
-              :prepend-icon="mdiPlus"
-              :text="`Create New ${domainLabel(true)}`"
-              @click="showModal = true"
-            />
-          </v-list-item>
-        </v-list>
-      </v-card>
+          </v-checkbox>
+        </v-list-item>
+        <v-list-item class="align-center border-t-sm mt-2 pt-2" density="compact">
+          <v-btn
+            :id="`create-${idFragment}`"
+            color="primary"
+            :prepend-icon="mdiPlus"
+            variant="text"
+            @click="showModal = true"
+          >
+            Create New {{ domainLabel(true) }}
+          </v-btn>
+        </v-list-item>
+      </v-list>
     </v-menu>
     <CreateCuratedGroupModal
       :cancel="onModalCancel"
@@ -85,13 +92,14 @@
 </template>
 
 <script setup>
+import {filter, includes, map, without} from 'lodash'
 import {mdiCheckBold, mdiClose, mdiMenuDown, mdiPlus} from '@mdi/js'
+import {putFocusNextTick} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
-import Util from '@/mixins/Util'
 import {
   addStudentsToCuratedGroup,
   createCuratedGroup,
@@ -104,7 +112,6 @@ export default {
   components: {
     CreateCuratedGroupModal
   },
-  mixins: [Context, Util],
   props: {
     alignDropdownRight: {
       required: false,
@@ -113,10 +120,6 @@ export default {
     domain: {
       required: true,
       type: String
-    },
-    isButtonVariantLink: {
-      required: false,
-      type: Boolean
     },
     label: {
       default: 'Add to Group',
@@ -148,34 +151,34 @@ export default {
     showModal: false
   }),
   computed: {
+    buttonColor() {
+      return this.isAdding ? 'success' : (this.isRemoving ? 'red' : 'primary')
+    },
     disableSelector() {
       return this.isAdding || this.isRemoving
-    },
-    dropdownVariant() {
-      return this.isButtonVariantLink ? 'link' : (this.isAdding ? 'success' : (this.isRemoving ? 'warning' : 'primary'))
     }
   },
   created() {
     this.idFragment = this.domainLabel(false).replace(' ', '-')
     this.dropdownId = `${this.idFragment}-dropdown-${this.student.sid}`
     this.refresh()
-    this.setEventHandler('my-curated-groups-updated', this.onUpdateMyCuratedGroups)
+    useContextStore().setEventHandler('my-curated-groups-updated', this.onUpdateMyCuratedGroups)
   },
   unmounted() {
-    this.removeEventHandler('my-curated-groups-updated', this.onUpdateMyCuratedGroups)
+    useContextStore().removeEventHandler('my-curated-groups-updated', this.onUpdateMyCuratedGroups)
   },
   methods: {
     domainLabel(capitalize) {
       return describeCuratedGroupDomain(this.domain, capitalize)
     },
     groupCheckboxClick(group) {
-      if (this._includes(this.checkedGroups, group.id)) {
+      if (includes(this.checkedGroups, group.id)) {
         this.isRemoving = true
         const done = () => {
-          this.checkedGroups = this._without(this.checkedGroups, group.id)
+          this.checkedGroups = without(this.checkedGroups, group.id)
           this.isRemoving = false
-          this.putFocusNextTick(this.dropdownId, 'button')
-          this.alertScreenReader(`${this.student.name} removed from "${group.name}"`)
+          putFocusNextTick(this.dropdownId, 'button')
+          useContextStore().alertScreenReader(`${this.student.name} removed from "${group.name}"`)
         }
         removeFromCuratedGroup(group.id, this.student.sid).finally(() =>
           setTimeout(done, this.confirmationTimeout)
@@ -185,8 +188,8 @@ export default {
         const done = () => {
           this.checkedGroups.push(group.id)
           this.isAdding = false
-          this.putFocusNextTick(this.dropdownId, 'button')
-          this.alertScreenReader(`${this.student.name} added to "${group.name}"`)
+          putFocusNextTick(this.dropdownId, 'button')
+          useContextStore().alertScreenReader(`${this.student.name} added to "${group.name}"`)
         }
         addStudentsToCuratedGroup(group.id, [this.student.sid]).finally(() => setTimeout(done, this.confirmationTimeout))
       }
@@ -195,19 +198,19 @@ export default {
       this.isAdding = true
       this.showModal = false
       const done = () => {
-        this.putFocusNextTick(this.dropdownId, 'button')
+        putFocusNextTick(this.dropdownId, 'button')
         this.isAdding = false
       }
       createCuratedGroup(this.domain, name, [this.student.sid]).then(group => {
         this.checkedGroups.push(group.id)
-        this.alertScreenReader(`${this.student.name} added to new ${this.domainLabel(false)}, "${name}".`)
+        useContextStore().alertScreenReader(`${this.student.name} added to new ${this.domainLabel(false)}, "${name}".`)
         setTimeout(done, this.confirmationTimeout)
       })
     },
     onModalCancel() {
       this.showModal = false
-      this.alertScreenReader('Canceled')
-      this.putFocusNextTick(this.dropdownId, 'button')
+      useContextStore().alertScreenReader('Canceled')
+      putFocusNextTick(this.dropdownId, 'button')
     },
     onUpdateMyCuratedGroups(domain) {
       if (domain === this.domain) {
@@ -216,9 +219,9 @@ export default {
     },
     refresh() {
       const containsSid = group => {
-        return this._includes(group.sids, this.student.sid)
+        return includes(group.sids, this.student.sid)
       }
-      this.checkedGroups = this._map(this._filter(this.currentUser.myCuratedGroups, containsSid), 'id')
+      this.checkedGroups = map(filter(useContextStore().currentUser.myCuratedGroups, containsSid), 'id')
       this.groupsLoading = false
     }
   }
@@ -226,13 +229,9 @@ export default {
 </script>
 
 <style scoped>
-.create-new-button {
-  font-size: 16px;
-}
-.groups-menu-class {
-  height: 35px !important;
-  min-width: 160px !important;
-  width: 160px !important;
+.manage-student-btn {
+  height: 24px;
+  width: 8.5rem;
 }
 .opacity-zero {
   opacity: 0;

@@ -19,7 +19,6 @@
           <StudentAvatar :key="row.item.sid" size="medium" :student="row.item" />
           <ManageStudent
             domain="default"
-            :is-button-variant-link="true"
             :sr-only="hoverSid !== row.item.sid"
             :student="row.item"
           />
