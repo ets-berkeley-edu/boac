@@ -98,7 +98,6 @@ export default {
     putFocusNextTick,
     round: (value, decimals) => (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals),
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
-    stripAnchorRef: fullPath => _.split(fullPath, '#', 1)[0],
     stripHtmlAndTrim,
     studentRoutePath: (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`,
     toBoolean: value => value && value !== 'false',
