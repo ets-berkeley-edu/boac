@@ -1,31 +1,34 @@
 <template>
-  <h2 class="font-size-24 font-weight-bold">Academic Timeline</h2>
-  <div class="d-flex flex-wrap justify-space-between w-100">
-    <div class="mt-1">
-      <v-btn-toggle
-        class="border-md"
+  <div class="align-bottom border-b-sm d-flex flex-wrap justify-space-between mt-2 w-100">
+    <div>
+      <h2 class="font-size-24 font-weight-bold">Academic Timeline</h2>
+      <v-tabs
+        v-model="selectedTab"
+        class="mt-2"
         color="primary"
-        divided
+        density="compact"
+        :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
+        selected-class="bg-sky-blue font-weight-bold"
+        @update:model-value="onUpdateTabsModel"
       >
-        <v-btn
-          id="timeline-tab-all"
-          :ripple="false"
-          @click="setFilter(null)"
-        >
+        <v-tab id="timeline-tab-all" class="border-s-sm" value="all">
           <span class="sr-only">Show </span>All
-        </v-btn>
-        <v-btn
-          v-for="type in _keys(filterTypes)"
+        </v-tab>
+        <v-tab
+          v-for="(type, index) in _keys(filterTypes)"
           :id="`timeline-tab-${type}`"
           :key="type"
-          :class="{'border-surface border-s-sm': !countsPerType[type]}"
+          :class="{
+            'border-s-sm': countsPerType[type],
+            'border-s-md': !countsPerType[type],
+            'border-e-sm': index + 1 === _keys(filterTypes).length
+          }"
           :disabled="!countsPerType[type]"
-          :ripple="false"
-          @click="setFilter(type)"
+          :value="type"
         >
           <span class="sr-only">Show </span>{{ filterTypes[type].tab }}
-        </v-btn>
-      </v-btn-toggle>
+        </v-tab>
+      </v-tabs>
     </div>
     <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="mt-1">
       <v-btn
@@ -85,12 +88,16 @@ export default {
     }
   },
   data: () => ({
-    isEditingNote: false
+    isEditingNote: false,
+    selectedTab: undefined
   }),
   methods: {
     onModalClose(note) {
       this.isEditingNote = false
       this.putFocusNextTick(note && this._includes(['all', 'note'], this.activeTab) ? `timeline-tab-${this.activeTab}-message-0` : 'new-note-button')
+    },
+    onUpdateTabsModel(value) {
+      this.setFilter(value === 'all' ? null : value)
     }
   }
 }
