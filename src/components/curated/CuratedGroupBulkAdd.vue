@@ -7,7 +7,7 @@
           <span v-if="sids.length"> {{ sidsNotFound.length === 1 ? 'Remove from list?' : 'Remove these from your list?' }}</span>
           <v-btn
             id="remove-invalid-sids-btn"
-            class="font-weight-bolder mb-1 pl-2"
+            class="font-weight-700 mb-1 pl-2"
             variant="link"
             @click="scrub"
           >

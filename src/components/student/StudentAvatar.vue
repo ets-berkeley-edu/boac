@@ -23,7 +23,7 @@
         aria-hidden="true"
         location="bottom"
         :text="alertText"
-      ></v-tooltip>
+      />
     </PillAlert>
   </div>
 </template>

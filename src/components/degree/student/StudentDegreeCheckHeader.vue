@@ -5,7 +5,7 @@
         <b-col>
           <div class="align-items-start d-flex mb-3 p-3 warning-message-container">
             <div class="d-inline-block pr-2 w-100">
-              <span class="font-weight-bolder">Note:</span> Revisions to the
+              <span class="font-weight-700">Note:</span> Revisions to the
               <router-link
                 id="original-degree-template"
                 target="_blank"

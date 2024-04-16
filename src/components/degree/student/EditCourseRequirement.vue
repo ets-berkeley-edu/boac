@@ -1,7 +1,7 @@
 <template>
   <div class="pb-3 pl-2 pt-2">
     <div v-if="!isCampusRequirement(category)" class="mb-2">
-      <label for="recommended-course-checkbox" class="font-size-14 font-weight-bolder mb-1">Course Indicators</label>
+      <label for="recommended-course-checkbox" class="font-size-14 font-weight-700 mb-1">Course Indicators</label>
       <div class="pl-1">
         <b-form-checkbox
           id="recommended-course-checkbox"

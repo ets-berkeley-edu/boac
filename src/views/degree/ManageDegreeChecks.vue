@@ -11,7 +11,7 @@
       role="alert"
       variant="outlined"
     >
-      <span class="font-weight-bolder">Success!</span> {{ successMessage }}
+      <span class="font-weight-700">Success!</span> {{ successMessage }}
     </v-alert>
     <h1 id="page-header" class="page-section-header">
       Degree Checks

@@ -123,7 +123,7 @@
               <h3 v-if="!isGraduate(student)" class="student-profile-h3">Intended Major</h3>
               <div id="student-details-intended-majors">
                 <div v-for="plan in student.sisProfile.intendedMajors" :key="plan.description">
-                  <div class="font-weight-bolder">
+                  <div class="font-weight-700">
                     <span v-if="!plan.degreeProgramUrl" class="text-no-wrap">{{ plan.description }}</span>
                     <a
                       v-if="plan.degreeProgramUrl"
@@ -167,7 +167,7 @@
               <div
                 v-for="(subplan, index) in inactiveSubplans"
                 :key="index"
-                class="font-weight-bolder mb-2"
+                class="font-weight-700 mb-2"
               >
                 {{ subplan }}
               </div>

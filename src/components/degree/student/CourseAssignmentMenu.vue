@@ -48,7 +48,7 @@
       :key="option.id"
       :disabled="option.disabled"
       :link-class="{
-        'font-weight-bolder': !option.disabled && option.categoryType === 'Category',
+        'font-weight-700': !option.disabled && option.categoryType === 'Category',
         'font-weight-500': !option.disabled && option.categoryType === 'Subcategory',
         'font-weight-lighter': option.disabled,
         'font-size-15 pl-3': option.categoryType === 'Category',

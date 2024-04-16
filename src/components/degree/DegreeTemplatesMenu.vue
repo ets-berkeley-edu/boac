@@ -3,7 +3,7 @@
     <div>
       <label
         for="degree-template-select"
-        class="font-weight-bolder input-label mt-2 text"
+        class="font-weight-700 input-label mt-2 text"
       >Add Degree Check</label>
     </div>
     <b-dropdown

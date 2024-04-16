@@ -14,7 +14,7 @@
         <span
           v-if="!_isEmpty(sidsToInclude)"
           id="target-student-count-alert"
-          :class="{'text-error': sidsToInclude.length >= 250, 'font-weight-bolder': sidsToInclude.length >= 500}"
+          :class="{'text-error': sidsToInclude.length >= 250, 'font-weight-700': sidsToInclude.length >= 500}"
         >
           Degree check will be added to {{ pluralize('student record', sidsToInclude.length) }}.
           <span v-if="sidsToInclude.length >= 500">Are you sure?</span>
@@ -36,7 +36,7 @@
           for="degree-check-add-student-input"
           class="input-label text mt-1"
         >
-          <div class="font-weight-bolder">Student</div>
+          <div class="font-weight-700">Student</div>
           <span class="font-size-14">Type or paste a list of SID numbers below. Example: 9999999990, 9999999991</span>
         </label>
         <div class="mb-2">
@@ -63,7 +63,7 @@
           </b-btn>
         </div>
         <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-3">
-          <span class="font-weight-bolder truncate pill pill-attachment text-uppercase text-no-wrap pl-2">
+          <span class="font-weight-700 truncate pill pill-attachment text-uppercase text-no-wrap pl-2">
             <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ addedStudent.label }}</span>
             <b-btn
               :id="`remove-student-from-batch-${index}`"
