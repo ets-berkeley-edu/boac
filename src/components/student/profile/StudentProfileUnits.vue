@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-wrap h-100 py-2">
+  <div class="align-center d-flex flex-wrap h-100 py-2">
     <div
       id="cumulative-units"
       class="cumulative-units text-center units py-2"
