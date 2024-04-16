@@ -115,13 +115,12 @@
         </div>
       </div>
       <div v-if="note.topics && size(note.topics)">
-        <div class="pill-list-header mt-3 mb-1">{{ size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
+        <div class="pill-list-header mt-3">{{ size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
         <ul class="pill-list pl-0">
           <li
             v-for="(topic, index) in note.topics"
             :id="`note-${note.id}-topic-${index}`"
             :key="topic"
-            class="mt-2"
           >
             <span class="pill pill-attachment text-uppercase text-no-wrap">{{ topic }}</span>
           </li>
