@@ -1,7 +1,7 @@
 <template>
   <div class="py-2">
-    <div class="d-flex flex-wrap h-100">
-      <div class="gpa text-center py-2">
+    <div class="align-center d-flex flex-wrap h-100">
+      <div class="border-e-sm gpa ml-0 py-2 text-center">
         <div id="cumulative-gpa" class="data-number">
           <span v-if="!_isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
           <span v-if="_isNil(cumulativeGPA)">--</span>
@@ -10,86 +10,96 @@
         <div class="gpa-label text-uppercase">Cumulative GPA</div>
       </div>
       <div id="gpa-trends" class="border-left gpa-trends py-2">
-        <div id="gpa-chart" class="ml-4">
-          <div class="align-items-end d-flex justify-space-between">
-            <h4 class="font-weight-bold gpa-trends-label mb-1 text-uppercase">GPA Trends</h4>
-            <v-btn
-              v-if="!_isEmpty(student.termGpa)"
-              id="show-hide-term-gpa-button"
-              aria-controls="term-gpa-collapse"
-              class="gpa-trends-more-button col-auto"
-              variant="text"
-              @click="showHideTermGpa"
-            >
-              {{ showTermGpa ? 'Less' : 'More' }}
-            </v-btn>
-          </div>
+        <div id="gpa-chart">
+          <h4 class="font-weight-bold gpa-trends-label ml-6 mt-1 text-uppercase">
+            GPA Trends
+          </h4>
           <StudentGpaChart
             v-if="_get(student, 'termGpa.length') > 1"
             :chart-description="`Chart of GPA over time. ${student.name}'s `"
-            class="gpa-trends-chart"
+            class="ml-4 gpa-trends-chart"
             :student="student"
           />
-          <div v-if="_isEmpty(student.termGpa)" class="gpa-trends-label">
-            GPA Not Yet Available
-          </div>
-          <div v-if="!_isEmpty(student.termGpa)" id="current-term-gpa" class="current-term-gpa">
-            <span class="gpa-label text-uppercase">{{ student.termGpa[0].name }} GPA:</span>
-            <span
-              :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}"
-              class="font-weight-bold"
+          <div class="ml-6">
+            <div v-if="_isEmpty(student.termGpa)" class="gpa-trends-label">
+              GPA Not Yet Available
+            </div>
+            <div
+              v-if="!_isEmpty(student.termGpa)"
+              id="current-term-gpa"
+              class="align-end d-flex"
             >
-              {{ round(student.termGpa[0].gpa, 3) }}
-            </span>
+              <div class="mr-2">
+                <span class="gpa-label text-uppercase mr-1">{{ student.termGpa[0].name }} GPA:</span>
+                <span
+                  :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}"
+                  class="font-weight-bold"
+                >
+                  {{ round(student.termGpa[0].gpa, 3) }}
+                </span>
+              </div>
+              <div>
+                <v-btn
+                  v-if="!_isEmpty(student.termGpa)"
+                  id="show-hide-term-gpa-button"
+                  aria-controls="term-gpa-collapse"
+                  class="pa-0 show-more-term-gpa-btn"
+                  color="primary"
+                  variant="plain"
+                  @click="showHideTermGpa"
+                >
+                  <v-icon :icon="showTermGpa ? mdiMenuDown : mdiMenuRight" size="14" />
+                  Show {{ showTermGpa ? 'less' : 'more' }}
+                </v-btn>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div>
-      <v-expand-transition
-        id="term-gpa-collapse"
-        class="border-t-sm mr-3"
-      >
-        <v-card v-if="showTermGpa" class="px-4" elevation="0">
-          <table
-            id="table-with-gpa-per-term"
-            class="term-gpa-table w-100"
+    <v-expand-transition
+      id="term-gpa-collapse"
+      class="border-t-sm mr-3"
+    >
+      <v-card v-if="showTermGpa" class="px-4" elevation="0">
+        <table
+          id="table-with-gpa-per-term"
+          class="term-gpa-table w-100"
+        >
+          <tr>
+            <th class="border-b-md pl-2 py-2 text-grey-darken-2 text-left">Term</th>
+            <th class="border-b-md pr-3 py-2 text-grey-darken-2 text-right">GPA</th>
+          </tr>
+          <tr
+            v-for="(term, index) in student.termGpa"
+            :key="index"
+            :class="{'bg-sky-blue': index % 2 === 0}"
           >
-            <tr>
-              <th class="text-left pt-0 pb-3 text-grey-darken-2">Term</th>
-              <th class="pt-0 pb-3 text-grey-darken-2 text-right">GPA</th>
-            </tr>
-            <tr
-              v-for="(term, index) in student.termGpa"
-              :key="index"
-              :class="{'bg-light': index % 2 === 0}"
-            >
-              <td class="text-no-wrap">{{ term.name }}</td>
-              <td class="text-no-wrap text-right">
-                <v-icon v-if="term.gpa < 2" :icon="mdiAlertRhombus" class="text-danger pr-2" />
-                <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
-                <span
-                  :id="`student-gpa-term-${term.name}`"
-                  :class="{'text-danger': term.gpa < 2}"
-                >{{ round(term.gpa, 3) }}</span>
-              </td>
-            </tr>
-            <tr
-              v-if="_isEmpty(student.termGpa)"
-              id="student-gpa-no-terms"
-            >
-              <td>No previous terms</td>
-              <td>--</td>
-            </tr>
-          </table>
-        </v-card>
-      </v-expand-transition>
-    </div>
+            <td class="font-weight-500 pl-2 py-1 text-no-wrap">{{ term.name }}</td>
+            <td class="pr-2 text-no-wrap text-right">
+              <v-icon v-if="term.gpa < 2" :icon="mdiAlertRhombus" class="text-danger pr-2" />
+              <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
+              <span
+                :id="`student-gpa-term-${term.name}`"
+                :class="{'text-danger': term.gpa < 2}"
+              >{{ round(term.gpa, 3) }}</span>
+            </td>
+          </tr>
+          <tr
+            v-if="_isEmpty(student.termGpa)"
+            id="student-gpa-no-terms"
+          >
+            <td>No previous terms</td>
+            <td>&mdash;</td>
+          </tr>
+        </table>
+      </v-card>
+    </v-expand-transition>
   </div>
 </template>
 
 <script setup>
-import {mdiAlertRhombus} from '@mdi/js'
+import {mdiAlertRhombus, mdiMenuDown, mdiMenuRight} from '@mdi/js'
 </script>
 
 <script>
@@ -126,9 +136,6 @@ export default {
 </script>
 
 <style scoped>
-.current-term-gpa {
-  line-height: 1;
-}
 .data-number {
   font-size: 28px;
   line-height: 1.4em;
@@ -145,7 +152,7 @@ export default {
   font-size: 11px;
 }
 .gpa-label {
-  color: #999;
+  color: #666;
   font-size: 11px;
 }
 .gpa-last-term {
@@ -165,14 +172,9 @@ export default {
   color: #555;
   font-size: 11px;
 }
-.gpa-trends-more-button {
-  border: 0;
-  font-size: 12px;
-  padding: 0;
-  text-align: right;
-}
-.show-hide-caret {
-  width: 12px;
+.show-more-term-gpa-btn {
+  font-size: 11px;
+  height: 14px;
 }
 .term-gpa-table {
   line-height: 1.2em;

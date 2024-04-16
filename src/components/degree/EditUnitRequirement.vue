@@ -4,7 +4,7 @@
       <label
         id="label-of-name-input"
         for="unit-requirement-name-input"
-        class="font-weight-bolder"
+        class="font-weight-700"
       >Fulfillment Requirement Name (required)</label>
       <input
         id="unit-requirement-name-input"

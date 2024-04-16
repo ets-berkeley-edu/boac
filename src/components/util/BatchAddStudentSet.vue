@@ -3,7 +3,7 @@
     <div>
       <label
         :for="`batch-degree-check-${objectType}`"
-        class="font-weight-bolder input-label mt-1 text"
+        class="font-weight-700 input-label mt-1 text"
       ><span class="sr-only">Select a </span>{{ header }}</label>
     </div>
     <b-dropdown
@@ -32,7 +32,7 @@
     </b-dropdown>
     <div>
       <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
-        <span class="font-weight-bolder pill pill-attachment pl-2 text-uppercase text-no-wrap">
+        <span class="font-weight-700 pill pill-attachment pl-2 text-uppercase text-no-wrap">
           <span :id="`batch-degree-check-${objectType}-${index}`">{{ _truncate(addedObject.name) }}</span>
           <b-btn
             :id="`remove-${objectType}-from-batch-${index}`"

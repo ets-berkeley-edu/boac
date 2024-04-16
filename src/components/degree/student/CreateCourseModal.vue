@@ -25,7 +25,7 @@
           <div>
             <label
               for="course-name-input"
-              class="font-weight-bolder mb-1"
+              class="font-weight-700 mb-1"
             >
               <span class="sr-only">Course </span>Name
             </label>
@@ -59,14 +59,14 @@
               :disable="isSaving"
               :error-message="unitsErrorMessage"
               input-id="course-units-input"
-              label-class="font-weight-bolder mb-1 pr-2"
+              label-class="font-weight-700 mb-1 pr-2"
               :on-submit="save"
               :set-units-lower="setUnits"
               :units-lower="units"
             />
           </div>
           <div class="pb-3">
-            <label id="units-grade-label" for="course-grade-input" class="font-weight-bolder mb-1 pr-2">
+            <label id="units-grade-label" for="course-grade-input" class="font-weight-700 mb-1 pr-2">
               Grade
             </label>
             <b-form-input
@@ -86,7 +86,7 @@
               :on-change="value => accentColor = value"
             />
           </div>
-          <label for="course-note-textarea" class="font-weight-bolder">
+          <label for="course-note-textarea" class="font-weight-700">
             Note
           </label>
           <div class="pb-2">

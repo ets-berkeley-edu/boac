@@ -1,12 +1,6 @@
 <template>
-  <div class="d-flex justify-space-between mr-4" :class="{'pb-0 pt-2': compact, 'pb-2 pt-4': !compact}">
-    <div class="d-flex flex-row-reverse ml-3">
-      <StudentProfileHeaderBio
-        class="pr-2"
-        :compact="compact"
-        :link-to-student-profile="linkToStudentProfile"
-        :student="student"
-      />
+  <div class="d-flex flex-wrap mr-4" :class="{'pb-0 pt-2': compact, 'pb-2 pt-4': !compact}">
+    <div class="d-flex ml-3 me-auto">
       <div class="text-center" :class="{'column-with-avatar-compact': compact, 'column-with-avatar': !compact}">
         <StudentAvatar :size="compact ? 'medium' : 'large'" :student="student" />
         <ManageStudent
@@ -15,8 +9,13 @@
           :student="student"
         />
       </div>
+      <StudentProfileHeaderBio
+        :compact="compact"
+        :link-to-student-profile="linkToStudentProfile"
+        :student="student"
+      />
     </div>
-    <div class="mr-3">
+    <div class="ml-3 mr-12">
       <StudentProfileHeaderAcademics
         :discontinued-subplans="discontinuedSubplans"
         :plans-minor-partitioned-by-status="plansMinorPartitionedByStatus"
@@ -88,7 +87,7 @@ export default {
 
 <style>
 .column-with-avatar {
-  margin: 0 64px 0 20px;
+  margin: 0 48px;
   vertical-align: center;
 }
 .column-with-avatar-compact {

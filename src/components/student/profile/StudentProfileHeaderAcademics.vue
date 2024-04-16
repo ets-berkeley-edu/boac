@@ -25,7 +25,7 @@
       <div
         v-for="(subplan, index) in activeSubplans"
         :key="index"
-        class="font-weight-bolder mb-2"
+        class="font-weight-700 mb-2"
       >
         {{ subplan }}
       </div>
@@ -61,7 +61,7 @@
       <div
         v-for="(subplan, index) in discontinuedSubplans"
         :key="index"
-        class="font-weight-bolder mb-2"
+        class="font-weight-700 mb-2"
       >
         {{ subplan }}
       </div>
@@ -70,7 +70,7 @@
   <div v-if="academicCareerStatus === 'Completed' && _size(student.sisProfile.degrees)" class="mb-3">
     <h3 class="student-profile-h3">Degree{{ _size(student.sisProfile.degrees) === 1 ? '' : 's' }}</h3>
     <div v-for="(degree, index) in student.sisProfile.degrees" :key="degree.plan">
-      <div :id="`student-bio-degree-type-${index}`" class="font-weight-bolder" :class="{'mt-2': index > 0}">
+      <div :id="`student-bio-degree-type-${index}`" class="font-weight-700" :class="{'mt-2': index > 0}">
         <span v-if="!_includes(degree.planOwners, 'Graduate Division')">
           {{ degree.description }} in
         </span>
@@ -86,7 +86,7 @@
         <h3 v-if="degree.minorPlans.length === 1" class="student-profile-h3 mt-3">Minor</h3>
         <h3 v-if="degree.minorPlans.length > 1" class="student-profile-h3 mt-3">Minors</h3>
         <div v-for="minorPlan in degree.minorPlans" :key="minorPlan">
-          <div id="student-bio-degree-type" class="font-weight-bolder">
+          <div id="student-bio-degree-type" class="font-weight-700">
             {{ minorPlan + " UG" }}
           </div>
         </div>

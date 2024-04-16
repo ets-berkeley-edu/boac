@@ -5,12 +5,12 @@
       <StudentProfileHeader :student="student" />
     </div>
     <h2 class="sr-only">Academic Status</h2>
-    <div class="border-b-sm d-flex flex-wrap">
-      <div class="border-e-sm w-50">
+    <div class="border-b-sm d-flex flex-wrap w-100">
+      <div class="border-e-sm" :class="$vuetify.display.mdAndUp ? 'w-50' : 'w-100'">
         <h3 class="sr-only">Units</h3>
         <StudentProfileUnits :student="student" />
       </div>
-      <div class="w-50">
+      <div :class="$vuetify.display.mdAndUp ? 'w-50' : 'w-100'">
         <h3 class="sr-only">GPA</h3>
         <StudentProfileGPA :student="student" />
       </div>
