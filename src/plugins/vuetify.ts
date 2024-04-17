@@ -121,18 +121,18 @@ export default createVuetify({
           gold: '#857103',
           error: '#cf1715',
           faint: '#e0e0e0',
-          info: '#367DA1',
+          info: '#367da1',
           'light-blue': '#c0ecff',
           'light-yellow': '#ffecc0',
           'pale-blue': '#f3fbff',
           primary: '#3b7ea5',
           quaternary: '#083456',
           red: colors.red.darken1,
-          secondary: '#96C3DE',
+          secondary: '#96C3de',
           'sky-blue': '#e3f5ff',
-          success: '#437F4B',
+          success: '#437f4b',
           tertiary: '#125074',
-          warning: '#f0ad4e'
+          warning: colors.orange.accent4
         }
       }
     }

@@ -29,7 +29,6 @@ import Util from '@/mixins/Util'
 import {getNote} from '@/api/notes'
 import {DateTime} from 'luxon'
 
-
 export default {
   name: 'AcademicTimeline',
   components: {

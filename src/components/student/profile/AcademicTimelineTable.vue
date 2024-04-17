@@ -17,11 +17,11 @@
       <a id="download-notes-link" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${filter}`">Download {{ filter }}s</a>
     </div>
     <div class="mx-3">|</div>
-    <div class="mr-1">
+    <div>
       <label
         :id="`timeline-${filter}s-query-label`"
         :for="`timeline-${filter}s-query-input`"
-        class="font-weight-medium mb-0 mr-1 text-no-wrap v-btn--variant-plain"
+        class="font-weight-bold mb-0 mr-1 text-no-wrap v-btn--variant-plain"
       >
         Search {{ filter === 'eForm' ? 'eForm' : capitalize(filter) }}s:
       </label>
@@ -44,9 +44,9 @@
     <div class="mx-3">|</div>
     <div v-if="showMyNotesToggle">
       <div class="align-center d-flex font-weight-bold">
-        <div class="mr-3" :class="showMyNotesOnly ? 'text-grey' : 'text-primary'">
+        <label for="toggle-my-notes-button" class="mr-3" :class="showMyNotesOnly ? 'text-grey' : 'text-primary'">
           All {{ filter }}s
-        </div>
+        </label>
         <div class="mr-3">
           <v-switch
             id="toggle-my-notes-button"
@@ -56,18 +56,21 @@
             hide-details
           />
         </div>
-        <div :class="showMyNotesOnly ? 'text-primary' : 'text-grey'">
+        <label for="toggle-my-notes-button" :class="showMyNotesOnly ? 'text-primary' : 'text-grey'">
           My {{ filter }}s
-        </div>
+        </label>
       </div>
     </div>
   </div>
 
-  <div v-if="!countPerActiveTab" class="pb-4 pl-2">
-    <h3 id="zero-messages" class="messages-none">
-      <span v-if="filter">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
-      <span v-if="!filter">None</span>
-    </h3>
+  <div
+    v-if="!searchResults && !messagesVisible.length"
+    id="zero-messages"
+    class="font-size-16 font-weight-700 ml-6 my-4 text-warning"
+  >
+    <span v-if="filter && showMyNotesOnly">No {{ filterTypes[filter].name.toLowerCase() }}s authored by you.</span>
+    <span v-if="filter && !showMyNotesOnly">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
+    <span v-if="!filter">None</span>
   </div>
 
   <div v-if="searchResults" class="ml-3 my-2">
@@ -230,14 +233,14 @@
             </div>
           </div>
         </td>
-        <td class="column-right align-top pt-1 pr-1">
+        <td class="column-right align-content-top pr-1">
           <div v-if="!includes(openMessages, message.transientId) && message.type === 'appointment'">
             <div
               v-if="message.createdBy === 'YCBM' && message.status === 'cancelled'"
               :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
-              class="collapsed-cancelled-icon"
+              class="collapsed-cancelled-icon text-red-lighten-2"
             >
-              <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon " />
+              <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon" />
               Canceled
             </div>
           </div>
@@ -602,10 +605,8 @@ export default {
       this.putFocusNextTick('edit-note-subject')
     },
     getSameDayDate(message) {
-      let startsAt = DateTime.fromJSDate(message.createdAt).setZone(this.config.timezone).toFormat('h:mma')
-      let endsAt = DateTime.fromJSDate(message.endsAt).setZone(this.config.timezone).toFormat('h:mma')
-
-      return `${startsAt}-${endsAt}`
+      const format = isoDate => DateTime.fromISO(isoDate).setZone(this.config.timezone).toFormat('h:mm a')
+      return `${format(message.createdAt)} - ${format(message.endsAt)}`
     },
     id(rowIndex) {
       return `timeline-tab-${this.activeTab}-message-${rowIndex}`
@@ -630,7 +631,7 @@ export default {
         return this.messages
       } else if (this.showMyNotesToggle && this.showMyNotesOnly) {
         return this._filter(this.messages, m => {
-          let uid = (m.author && m.author.uid) || (m.advisor && m.advisor.uid)
+          const uid = (m.author && m.author.uid) || (m.advisor && m.advisor.uid)
           return m.type === type && uid === this.currentUser.uid
         })
       } else {
@@ -716,11 +717,15 @@ export default {
 <style>
 .academic-timeline-search-input input {
   max-height: 30px !important;
-  width: 200px;
+  min-height: 30px !important;
+  padding: 0 10px;
 }
 </style>
 
 <style scoped>
+.academic-timeline-search-input {
+  width: 200px;
+}
 .close-message {
   width: 100%;
   order: -1;
@@ -728,8 +733,7 @@ export default {
 .collapsed-cancelled-icon {
   font-size: 14px;
   min-width: 108px;
-  padding-top: 6px;
-  padding-right: 6px;
+  padding-right: 8px;
   text-transform: uppercase;
 }
 .column-message {
@@ -749,10 +753,6 @@ export default {
 }
 .edit-note-button {
   font-size: 15px;
-}
-.messages-none {
-  font-size: 16px;
-  font-weight: bolder;
 }
 .message-open {
   flex-flow: row wrap;
