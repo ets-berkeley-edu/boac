@@ -1,6 +1,6 @@
 <template>
   <div :id="`note-${note.id}-outer`" class="advising-note-outer">
-    <div :id="`note-${note.id}-is-closed`" :class="{'truncate-with-ellipsis': !isOpen}" aria-label="Advising note">
+    <div :id="`note-${note.id}-is-closed`" :class="{'note-snippet-when-closed truncate-with-ellipsis': !isOpen}" aria-label="Advising note">
       <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`">
         <span class="pr-2">
           <v-badge rounded color="warning">Draft</v-badge>
@@ -9,7 +9,10 @@
       </span>
       <span v-if="!note.isDraft">
         <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
-        <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
+        <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-subject`">
+          <span v-if="isOpen" v-html="note.message" />
+          <span v-if="!isOpen" v-html="stripHtmlAndTrim(note.message).replace(/\n\r/g, ' ')" />
+        </span>
         <span v-if="!note.subject && !size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
         <span v-if="!note.subject && !size(note.message) && !note.category && !note.eForm" :id="`note-${note.id}-category-closed`">{{ !isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
           advisor {{ author.name }}<span v-if="note.topics && size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
@@ -79,7 +82,7 @@
           </div>
         </dl>
       </div>
-      <div v-if="!isNil(author) && !author.name && !author.email && !note.eForm" class="mt-2 text-black-50 advisor-profile-not-found">
+      <div v-if="!isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 mt-2 text-black-50">
         Advisor profile not found
         <span v-if="note.legacySource" class="font-italic">
           (note imported from {{ note.legacySource }})
@@ -149,7 +152,7 @@
           :key="attachment.name"
           class="mt-2"
         >
-          <span class="pill pill-attachment text-no-wrap">
+          <span class="pill text-no-wrap">
             <a
               :id="`note-${note.id}-attachment-${index}`"
               :href="downloadUrl(attachment)"
@@ -221,6 +224,7 @@
 <script setup>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {mdiAlertRhombus, mdiCloseCircleOutline, mdiPaperclip, mdiSync} from '@mdi/js'
+import {stripHtmlAndTrim} from '@/lib/utils'
 </script>
 
 <script>
@@ -424,7 +428,10 @@ export default {
 .advising-note-outer {
   flex-basis: 100%;
 }
-.advisor-profile-not-found {
-  font-size: 14px;
+.note-snippet-when-closed {
+  height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

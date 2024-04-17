@@ -205,6 +205,12 @@
   color: #6e6e6e;
   font-size: 13px;
 }
+.truncate {
+  height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .truncate-with-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;

@@ -1,14 +1,12 @@
 <template>
   <div v-if="!isTimelineLoading">
-    <div class="mb-2">
-      <AcademicTimelineHeader
-        :counts-per-type="countsPerType"
-        :filter="filter"
-        :filter-types="filterTypes"
-        :set-filter="setFilter"
-        :student="student"
-      />
-    </div>
+    <AcademicTimelineHeader
+      :counts-per-type="countsPerType"
+      :filter="filter"
+      :filter-types="filterTypes"
+      :set-filter="setFilter"
+      :student="student"
+    />
     <AcademicTimelineTable
       :counts-per-type="countsPerType"
       :filter="filter"

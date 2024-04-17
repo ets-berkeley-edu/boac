@@ -30,6 +30,7 @@ export const useContextStore = defineStore('context', {
     config: undefined as BoaConfig | undefined,
     currentUser: {
       canAccessAdvisingData: false,
+      canEditDegreeProgress: false,
       canReadDegreeProgress: false,
       inDemoMode: false,
       isAdmin: false,
