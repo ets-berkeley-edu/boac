@@ -1,21 +1,19 @@
 <template>
-  <div v-if="loading" id="spinner-when-loading" class="spinner">
-    <v-progress-circular
-      class="spinner"
-      :size="50"
-      color="primary"
-      indeterminate
-    />
-  </div>
+  <v-progress-circular
+    v-if="loading"
+    id="spinner-when-loading"
+    class="spinner"
+    :size="50"
+    color="primary"
+    indeterminate
+  />
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
+import {computed} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'Spinner',
-  mixins: [Context],
-}
+const loading = computed(() => useContextStore().loading)
 </script>
 
 <style scoped>

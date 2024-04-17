@@ -24,12 +24,10 @@
       </div>
 
       <div class="d-flex align-center mt-1 mb-3">
-        <div v-if="appointment.status === 'cancelled'" class="mt-2">
-          <div>
-            <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon" />
-            <span class=" ml-1">
-              Canceled
-            </span>
+        <div v-if="appointment.status === 'cancelled'">
+          <div class="font-size-14 my-3 text-red-lighten-2 text-uppercase">
+            <v-icon :icon="mdiCalendarMinus" />
+            Canceled
           </div>
           <div v-if="appointment.cancelReason" class="mt-1">
             <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
@@ -99,12 +97,15 @@
   </div>
 </template>
 
+<script setup>
+import {mdiCalendarMinus} from '@mdi/js'
+</script>
+
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {DateTime} from 'luxon'
-
 
 export default {
   name: 'AdvisingAppointment',
@@ -186,9 +187,5 @@ export default {
 <style scoped>
 .advising-appointment-outer {
   flex-basis: 100%;
-}
-.status-cancelled-icon {
-  color: rgb(var(--v-theme-warning));
-  width: 18px;
 }
 </style>
