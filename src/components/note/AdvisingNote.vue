@@ -3,7 +3,7 @@
     <div :id="`note-${note.id}-is-closed`" :class="{'truncate-with-ellipsis': !isOpen}" aria-label="Advising note">
       <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`">
         <span class="pr-2">
-          <b-badge pill variant="danger">Draft</b-badge>
+          <v-badge rounded color="warning">Draft</v-badge>
         </span>
         <span :id="`note-${note.id}-subject`">{{ note.subject || config.draftNoteSubjectPlaceholder }}</span>
       </span>
@@ -196,13 +196,17 @@
             >
               Select File
             </v-btn>
-            <b-form-file
+            <v-file-input
               ref="attachment-file-input"
               v-model="attachments"
+              density="comfortable"
               :disabled="size(existingAttachments) === config.maxAttachmentsPerNote"
-              :state="Boolean(attachments && attachments.length)"
-              :multiple="true"
-              :plain="true"
+              flat
+              hide-details
+              multiple
+              :prepend-icon="null"
+              single-line
+              variant="solo-filled"
             />
           </div>
         </div>
@@ -215,11 +219,11 @@
 </template>
 
 <script setup>
+import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {mdiAlertRhombus, mdiCloseCircleOutline, mdiPaperclip, mdiSync} from '@mdi/js'
 </script>
 
 <script>
-import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
 import {cloneDeep, each, get, isEmpty, isNil, map, orderBy, size} from 'lodash'
@@ -231,7 +235,6 @@ import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'AdvisingNote',
-  components: {AreYouSureModal},
   props: {
     afterSaved: {
       required: true,
@@ -268,6 +271,9 @@ export default {
   computed: {
     authorDepartments() {
       return orderBy(map(this.author.departments, 'name'))
+    },
+    currentUser() {
+      return useContextStore().currentUser
     },
     isEditable() {
       return !this.note.legacySource

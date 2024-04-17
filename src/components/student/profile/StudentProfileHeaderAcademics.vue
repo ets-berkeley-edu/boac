@@ -77,7 +77,7 @@
         {{ degree.plans.filter(plan => planTypes.includes(plan.type)).map(degree => degree.plan).join(', ') }}
       </div>
       <div class="student-text">
-        Awarded {{ DateTime.fromJSDate(degree.dateAwarded).toFormat('MMM DD, YYYY') }}
+        Awarded {{ DateTime.fromISO(degree.dateAwarded).toFormat('MMM DD, YYYY') }}
       </div>
       <div v-for="owner in degree.planOwners" :key="owner" class="student-text">
         {{ owner }}
@@ -90,11 +90,15 @@
             {{ minorPlan + " UG" }}
           </div>
         </div>
-        <span class="student-text">Awarded {{ DateTime.fromJSDate(degree.dateAwarded).toFormat('MMM DD, YYYY') }}</span>
+        <span class="student-text">Awarded {{ DateTime.fromISO(degree.dateAwarded).toFormat('MMM DD, YYYY') }}</span>
       </div>
     </div>
   </div>
 </template>
+
+<script setup>
+import {DateTime} from 'luxon'
+</script>
 
 <script>
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'

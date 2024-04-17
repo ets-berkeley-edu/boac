@@ -10,7 +10,7 @@
       :text="attachmentError"
       type="error"
       variant="tonal"
-    ></v-alert>
+    />
     <v-file-input
       id="choose-file-for-note-attachment"
       ref="attachment-file-input"

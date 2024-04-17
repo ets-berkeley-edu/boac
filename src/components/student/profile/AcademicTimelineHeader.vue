@@ -41,28 +41,28 @@
         text="New Note"
         @click="isEditingNote = true"
       />
+      <EditBatchNoteModal
+        v-if="isEditingNote"
+        initial-mode="createNote"
+        is-open="isEditingNote"
+        :on-close="onModalClose"
+        :sid="student.sid"
+      />
     </div>
   </div>
-  <EditBatchNoteModal
-    v-if="isEditingNote"
-    initial-mode="createNote"
-    :on-close="onModalClose"
-    :sid="student.sid"
-  />
 </template>
 
 <script setup>
+import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import {mdiFileDocument} from '@mdi/js'
 </script>
 
 <script>
 import Context from '@/mixins/Context'
-import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AcademicTimelineHeader',
-  components: {EditBatchNoteModal},
   mixins: [Context, Util],
   props: {
     countsPerType: {
