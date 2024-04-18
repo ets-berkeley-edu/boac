@@ -159,7 +159,7 @@
                   No Assignments
                 </span>
               </td>
-              <td class="profile-boxplot-container">
+              <td class="boxplot-container boxplot-container-width">
                 <StudentBoxplot
                   v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
                   :chart-description="`Boxplot of ${student.name}'s assignments submitted in ${canvasSite.courseCode}`"
@@ -207,7 +207,7 @@
                   No Grades
                 </span>
               </td>
-              <td class="profile-boxplot-container">
+              <td class="boxplot-container boxplot-container-width">
                 <StudentBoxplot
                   v-if="canvasSite.analytics.currentScore.boxPlottable"
                   :chart-description="`Boxplot of ${student.name}'s assignment grades in ${canvasSite.courseCode}`"
@@ -256,7 +256,7 @@
             </tr>
           </table>
         </div>
-        <div v-if="_isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-grey-darken-2">
+        <div v-if="isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-grey-darken-2">
           No additional information
         </div>
       </div>
@@ -280,6 +280,7 @@
 
 <script setup>
 import {mdiAlertRhombus, mdiInformationOutline, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
+import {isEmpty} from 'lodash'
 </script>
 
 <script>
@@ -391,7 +392,7 @@ export default {
 .not-collapsed > .when-course-closed {
   display: none;
 }
-.profile-boxplot-container {
+.boxplot-container-width {
   min-width: 13em;
 }
 .student-bcourses {

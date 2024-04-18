@@ -14,12 +14,12 @@
         <span class="text-no-wrap">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
       </v-btn>
     </div>
-    <div v-if="showDownloadNotesLink">
-      <div class="ml-3">|</div>
+    <div v-if="showDownloadNotesLink" class="ml-3">|</div>
+    <div v-if="showDownloadNotesLink" class="ml-3">
       <a id="download-notes-link" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${filter}`">Download {{ filter }}s</a>
     </div>
     <div class="ml-3">|</div>
-    <div class="ml-3">
+    <div class="align-center d-flex ml-3">
       <label
         :id="`timeline-${filter}s-query-label`"
         :for="`timeline-${filter}s-query-input`"
@@ -27,8 +27,6 @@
       >
         Search {{ filter === 'eForm' ? 'eForm' : capitalize(filter) }}s:
       </label>
-    </div>
-    <div>
       <v-text-field
         :id="`timeline-${filter}s-query-input`"
         v-model="timelineQuery"

@@ -12,6 +12,10 @@ const $_getDefaultApplicationState = () => ({
 
 export type BoaConfig = {
   currentEnrollmentTermId: undefined,
+  defaultTermUnitsAllowed: {
+    max: undefined,
+    min: undefined
+  },
   isProduction: boolean,
   maxAttachmentsPerNote: number
 }
