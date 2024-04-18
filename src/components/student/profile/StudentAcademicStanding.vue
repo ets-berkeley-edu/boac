@@ -3,7 +3,7 @@
     <span
       v-if="get(standing, 'status') && standing.status !== 'GST'"
       :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${termId}`"
-      class="text-error font-weight-bold mb-1"
+      class="text-error font-weight-bold"
     >
       {{ standingStatus }} <span class="text-no-wrap">({{ termName }})</span>
     </span>

@@ -11,6 +11,7 @@ const $_getDefaultApplicationState = () => ({
 })
 
 export type BoaConfig = {
+  currentEnrollmentTerm: undefined,
   currentEnrollmentTermId: undefined,
   defaultTermUnitsAllowed: {
     max: undefined,
