@@ -1,48 +1,50 @@
 <template>
   <v-card
-    border="white"
-    class="ma-0"
-    :class="{'background-light student-term-current': config.currentEnrollmentTermId === parseInt(term.termId)}"
+    :class="{'bg-light-blue student-term-current': config.currentEnrollmentTermId === parseInt(term.termId)}"
+    density="compact"
+    elevation="0"
     min-width="300"
   >
-    <v-card-title header-bg-variant="transparent" header-class="student-term-header">
-      <h3 :id="`term-${term.termId}-header`" class="font-size-18 mb-0 mr-2">{{ term.termName }}</h3>
-      <span v-if="isConcurrent" class="font-size-14 text-grey-darken-2 ml-1 mr-3">UCBX</span>
-      <StudentAcademicStanding
-        v-if="term.academicStanding"
-        :standing="term.academicStanding"
-        class="font-size-14"
-      />
-      <StudentWithdrawalCancel
-        v-if="student.sisProfile.withdrawalCancel"
-        :withdrawal="student.sisProfile.withdrawalCancel"
-        :term-id="term.termId"
-        class="font-size-14"
-      />
-    </v-card-title>
-    <v-card-text body-class="p-0" role="table">
-      <div role="rowgroup">
-        <div role="row" class="student-course-label student-course-header text-no-wrap">
-          <div role="columnheader" class="student-course-column-name">Course</div>
-          <div role="columnheader" class="student-course-column-grade">Mid</div>
-          <div role="columnheader" class="student-course-column-grade">Final</div>
-          <div role="columnheader" class="student-course-column-units">Units</div>
-        </div>
-      </div>
-      <div role="rowgroup" class="pt-2">
-        <div v-if="isEmpty(term.enrollments)" role="row">
-          <div :id="`term-${term.termId}-no-enrollments`" role="cell" class="student-term-empty">{{ `No ${term.termName} enrollments` }}</div>
-        </div>
-        <StudentCourse
-          v-for="(course, courseIndex) in term.enrollments"
-          :key="courseIndex"
-          :course="course"
-          :index="courseIndex"
-          :student="student"
-          :term-id="term.termId"
-          :year="term.academicYear"
+    <v-card-title class="pt-3 student-term-header">
+      <div class="align-baseline d-flex flex-wrap">
+        <h3 :id="`term-${term.termId}-header`" class="font-size-18">{{ term.termName }}</h3>
+        <div v-if="isConcurrent" class="font-size-14 text-grey-darken-2">&nbsp;UCBX</div>
+        <StudentAcademicStanding
+          v-if="term.academicStanding"
+          class="font-size-14 ml-1"
+          :standing="term.academicStanding"
         />
-        <div>
+        <StudentWithdrawalCancel
+          v-if="student.sisProfile.withdrawalCancel"
+          class="font-size-14 ml-1"
+          :term-id="term.termId"
+          :withdrawal="student.sisProfile.withdrawalCancel"
+        />
+      </div>
+    </v-card-title>
+    <v-card-text class="pb-3">
+      <div role="table">
+        <div role="rowgroup">
+          <div role="row" class="student-course-label student-course-header text-no-wrap">
+            <div role="columnheader" class="width-60-percent">Course</div>
+            <div role="columnheader" class="width-15-percent">Mid</div>
+            <div role="columnheader" class="width-15-percent">Final</div>
+            <div role="columnheader" class="text-right width-15-percent">Units</div>
+          </div>
+        </div>
+        <div class="pt-3" role="rowgroup">
+          <div v-if="isEmpty(term.enrollments)" role="row">
+            <div :id="`term-${term.termId}-no-enrollments`" role="cell" class="ml-3 student-term-empty">{{ `No ${term.termName} enrollments` }}</div>
+          </div>
+          <StudentCourse
+            v-for="(course, courseIndex) in term.enrollments"
+            :key="courseIndex"
+            :course="course"
+            :index="courseIndex"
+            :student="student"
+            :term-id="term.termId"
+            :year="term.academicYear"
+          />
           <div
             v-for="(droppedSection, droppedIndex) in term.droppedSections"
             :key="droppedIndex"
@@ -58,33 +60,44 @@
         </div>
       </div>
     </v-card-text>
-    <v-card-subtitle footer-bg-variant="transparent" footer-class="student-term-footer">
-      <div class="d-flex justify-space-between">
-        <div :id="`term-${term.termId}-gpa`">
-          <span class="student-course-label mr-1">Term GPA: </span>
-          <span v-if="round(_get(term, 'termGpa.gpa', 0), 3) > 0" class="font-size-14">{{ round(_get(term, 'termGpa.gpa', 0), 3) }}</span>
-          <span v-else>&mdash;</span>
-        </div>
-        <div :id="`term-${term.termId}-units`" class="align-center d-flex justify-content-end">
-          <div class="student-course-label align-right mr-1">Total Units: </div>
-          <div class="font-size-14 text-right" :class="{'units-total': showMinUnits || showMaxUnits}">
-            <span v-if="_get(term, 'enrolledUnits', 0) !== 0">{{ numFormat(term.enrolledUnits, '0.0') }}</span>
+    <v-card-subtitle class="pb-3">
+      <div class="pt-3 student-term-footer">
+        <div class="d-flex justify-space-between">
+          <div :id="`term-${term.termId}-gpa`">
+            <span class="student-course-label">Term GPA: </span>
+            <span
+              v-if="round(get(term, 'termGpa.gpa', 0), 3) > 0"
+              class="font-size-14"
+            >
+              {{ round(get(term, 'termGpa.gpa', 0), 3) }}
+            </span>
             <span v-else>&mdash;</span>
           </div>
+          <div :id="`term-${term.termId}-units`" class="align-center d-flex justify-content-end">
+            <div class="student-course-label align-right">Total Units: </div>
+            <div class="font-size-14 text-right" :class="{'units-total': showMinUnits || showMaxUnits}">
+              <span v-if="get(term, 'enrolledUnits', 0) !== 0">{{ numFormat(term.enrolledUnits, '0.0') }}</span>
+              <span v-else>&mdash;</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div
-        v-if="showMinUnits || showMaxUnits"
-        :id="`term-${term.termId}-units-allowed`"
-        class="text-right"
-      >
-        <div v-if="showMinUnits" class="align-center d-flex justify-content-end">
-          <div class="student-course-label align-right mr-1">Exception Min Units: </div>
-          <div :id="`term-${term.termId}-min-units`" class="font-size-14 units-total">{{ numFormat(term.minTermUnitsAllowed, '0.0') }}</div>
-        </div>
-        <div v-if="showMaxUnits" class="align-center d-flex justify-content-end">
-          <div class="student-course-label align-right mr-1">Exception Max Units: </div>
-          <div :id="`term-${term.termId}-max-units`" class="font-size-14 units-total">{{ numFormat(term.maxTermUnitsAllowed, '0.0') }}</div>
+        <div
+          v-if="showMinUnits || showMaxUnits"
+          :id="`term-${term.termId}-units-allowed`"
+          class="text-right"
+        >
+          <div v-if="showMinUnits" class="align-center d-flex justify-content-end">
+            <div class="student-course-label align-right">Exception Min Units: </div>
+            <div :id="`term-${term.termId}-min-units`" class="font-size-14 units-total">
+              {{ numFormat(term.minTermUnitsAllowed, '0.0') || '&mdash;' }}
+            </div>
+          </div>
+          <div v-if="showMaxUnits" class="align-center d-flex justify-content-end">
+            <div class="student-course-label align-right">Exception Max Units: </div>
+            <div :id="`term-${term.termId}-max-units`" class="font-size-14 units-total">
+              {{ numFormat(term.maxTermUnitsAllowed, '0.0') || '&mdash;' }}
+            </div>
+          </div>
         </div>
       </div>
     </v-card-subtitle>
@@ -95,8 +108,8 @@
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentCourse from '@/components/student/profile/StudentCourse'
 import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
-import {isEmpty, isNil, some} from 'lodash'
-import {numFormat} from '@/lib/utils'
+import {get, isEmpty, isNil, some} from 'lodash'
+import {numFormat, round} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -110,6 +123,7 @@ const props = defineProps({
   }
 })
 const config = useContextStore().config
+const currentUser = useContextStore().currentUser
 const maxUnits = props.term.maxTermUnitsAllowed
 const minUnits = props.term.minTermUnitsAllowed
 const isConcurrent = some(props.term.enrollments, {'academicCareer': 'UCBX'})
@@ -118,31 +132,21 @@ const showMinUnits = !isNil(minUnits) && minUnits !== config.defaultTermUnitsAll
 </script>
 
 <style scoped>
-.student-course-column-grade {
-  display: flex;
-  justify-content: space-between;
+.width-15-percent {
   width: 15%;
 }
-.student-course-column-name {
+.width-60-percent {
   width: 60%;
-}
-.student-course-column-units {
-  text-align: right;
-  width: 15%;
 }
 .student-course-dropped {
   color: #666;
   font-weight: 500;
-  line-height: 1.1;
-  padding: 8px 15px;
 }
 .student-course-header {
   border-bottom: 1px #999 solid;
   display: flex;
   flex-direction: row;
   line-height: 1.1;
-  margin: 0 10px;
-  padding: 8px 0;
 }
 .student-course-label {
   color: #666;
@@ -152,13 +156,10 @@ const showMinUnits = !isNil(minUnits) && minUnits !== config.defaultTermUnitsAll
 }
 .student-term-current {
   border: 1px #999 solid !important;
-  border-radius: 0;
 }
 .student-term-empty {
   color: #666;
   font-style: italic;
-  height: 2.2em;
-  padding: 3px 10px 0;
 }
 .student-term-header {
   align-items: baseline;
@@ -166,14 +167,9 @@ const showMinUnits = !isNil(minUnits) && minUnits !== config.defaultTermUnitsAll
   display: flex;
   flex-wrap: wrap;
   font-weight: 700;
-  height: 2.8em;
-  line-height: 1.1;
-  padding: 10px 10px 0;
 }
 .student-term-footer {
   border-top: 1px #999 solid !important;
-  margin: 10px;
-  padding: 10px 0 0;
 }
 .units-total {
   min-width: 30px;

@@ -47,7 +47,7 @@
       >
         <Sidebar />
       </v-navigation-drawer>
-      <v-main>
+      <v-main id="content">
         <ServiceAnnouncement />
         <router-view :key="split($route.fullPath, '#', 1)[0]" />
       </v-main>

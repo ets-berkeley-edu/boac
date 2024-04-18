@@ -38,7 +38,6 @@
         v-for="year in enrollmentTermsByYear"
         :id="`academic-year-${year.label}-container`"
         :key="year.label"
-        bg-color="white"
         class="pa-0"
         elevation="0"
         hide-actions
@@ -96,7 +95,7 @@ import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight} from '@mdi/
 import Context from '@/mixins/Context'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import Util from '@/mixins/Util'
-import {groupBy, map, orderBy} from 'lodash'
+import {each, groupBy, includes, map, orderBy} from 'lodash'
 import {sisIdForTermName} from '@/berkeley'
 
 export default {
@@ -122,6 +121,13 @@ export default {
   },
   created() {
     this.currentOrder = 'desc'
+    const currentEnrollmentTerm = this.config.currentEnrollmentTerm
+    each(this.enrollmentTermsByYear, year => {
+      const academicYear = [`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`]
+      if (includes(academicYear, currentEnrollmentTerm)) {
+        this.panelsExpanded.push(year.label)
+      }
+    })
   },
   methods: {
     getTerm(termName, year) {

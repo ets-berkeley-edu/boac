@@ -81,7 +81,22 @@ export default {
   },
   mixins: [Context, NoteEditSession, Util],
   beforeRouteLeave(to, from, next) {
-    this.confirmExitAndEndSession(next)
+    if (useNoteStore().mode) {
+      this.alertScreenReader('Are you sure you want to discard unsaved changes?')
+      this.cancelConfirmed = () => {
+        exitSession(true)
+        return next()
+      }
+      this.cancelTheCancel = () => {
+        this.alertScreenReader('Please save changes before exiting the page.')
+        this.showAreYouSureModal = false
+        next(false)
+      }
+      this.showAreYouSureModal = true
+    } else {
+      exitSession(true)
+      next()
+    }
   },
   data: () => ({
     cancelTheCancel: undefined,
@@ -114,24 +129,6 @@ export default {
     }
   },
   methods: {
-    confirmExitAndEndSession(next) {
-      if (useNoteStore().mode) {
-        this.alertScreenReader('Are you sure you want to discard unsaved changes?')
-        this.cancelConfirmed = () => {
-          exitSession(true)
-          return next()
-        }
-        this.cancelTheCancel = () => {
-          this.alertScreenReader('Please save changes before exiting the page.')
-          this.showAreYouSureModal = false
-          next(false)
-        }
-        this.showAreYouSureModal = true
-      } else {
-        exitSession(true)
-        next()
-      }
-    },
     getDegreeCheckPath() {
       const currentDegreeCheck = find(this.student.degreeChecks, 'isCurrent')
       if (currentDegreeCheck) {
