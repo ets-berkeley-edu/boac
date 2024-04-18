@@ -172,7 +172,7 @@
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
-          class="profile-boxplot-container"
+          class="boxplot-container"
         >
           <span v-if="row.item.enrollment.canvasSites.length > 1" class="sr-only">
             {{ canvasSite.courseCode }}
@@ -212,7 +212,7 @@
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
-          class="profile-boxplot-container"
+          class="boxplot-container"
         >
           <span v-if="row.item.enrollment.canvasSites.length > 1" class="sr-only">
             {{ canvasSite.courseCode }}

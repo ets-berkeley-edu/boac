@@ -38,9 +38,10 @@
         v-for="year in enrollmentTermsByYear"
         :id="`academic-year-${year.label}-container`"
         :key="year.label"
-        bg-color="pale-blue"
+        bg-color="white"
         class="pa-0"
         elevation="0"
+        hide-actions
         :value="year.label"
       >
         <v-expansion-panel-title>
@@ -61,21 +62,26 @@
           <template #actions />
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <v-card>
+          <div class="align-start d-flex flex-wrap justify-lg-space-evenly w-100">
             <StudentEnrollmentTerm
               :id="`term-fall-${year.label - 1}`"
+              class="student-enrollment-term"
               :student="student"
               :term="getTerm(`Fall ${year.label - 1}`, year)"
-            /><StudentEnrollmentTerm
+            />
+            <StudentEnrollmentTerm
               :id="`term-spring-${year.label}`"
+              class="student-enrollment-term"
               :student="student"
               :term="getTerm(`Spring ${year.label}`, year)"
-            /><StudentEnrollmentTerm
+            />
+            <StudentEnrollmentTerm
               :id="`term-summer-${year.label}`"
+              class="student-enrollment-term"
               :student="student"
               :term="getTerm(`Summer ${year.label}`, year)"
             />
-          </v-card>
+          </div>
         </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -90,7 +96,7 @@ import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight} from '@mdi/
 import Context from '@/mixins/Context'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import Util from '@/mixins/Util'
-import {map} from 'lodash'
+import {groupBy, map, orderBy} from 'lodash'
 import {sisIdForTermName} from '@/berkeley'
 
 export default {
@@ -109,25 +115,15 @@ export default {
   }),
   computed: {
     enrollmentTermsByYear() {
-      const enrollmentTermsByYear = this._map(
-        this._groupBy(this.student.enrollmentTerms, 'academicYear'),
-        (terms, label) => {
-          return {
-            label: label,
-            terms: terms
-          }
-        }
-      )
-      return this._orderBy(enrollmentTermsByYear, 'label', this.currentOrder)
+      const grouped = groupBy(this.student.enrollmentTerms, 'academicYear')
+      const enrollmentTermsByYear = map(grouped, (terms, label) => ({label, terms}))
+      return orderBy(enrollmentTermsByYear, 'label', this.currentOrder)
     },
   },
   created() {
     this.currentOrder = 'desc'
   },
   methods: {
-    includesCurrentTerm(year) {
-      return this._includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.config.currentEnrollmentTerm)
-    },
     getTerm(termName, year) {
       const term = this._find(year.terms, {'termName': termName})
       if (!term) {
@@ -138,68 +134,30 @@ export default {
       }
       return term
     },
-    totalUnits(year) {
-      return this._sumBy(year.terms, 'enrolledUnits')
+    includesCurrentTerm(year) {
+      return this._includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.config.currentEnrollmentTerm)
     },
     setOrder() {
       this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'
       this.alertScreenReader(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
     },
     toggle() {
-      this.panelsExpanded = this.panelsExpanded.length ? [] : map(this.student.enrollmentTerms, 'academicYear')
+      const hasSomeExpanded = this.panelsExpanded.length
+      this.panelsExpanded = hasSomeExpanded ? [] : map(this.student.enrollmentTerms, 'academicYear')
+      this.alertScreenReader(`All academic years have been ${hasSomeExpanded ? 'collapsed' : 'expanded'}`)
+    },
+    totalUnits(year) {
+      return this._sumBy(year.terms, 'enrolledUnits')
     }
-    // updateCollapseStates() {
-    //   this.collapsed = this._filter(this.$refs, year => !year[0].$data.show).map(year => year[0].id)
-    //   this.uncollapsed = this._filter(this.$refs, year => year[0].$data.show).map(year => year[0].id)
-    //   this.expanded = !this.expanded
-    //   this.alertScreenReader(`All of the academic years have been ${this.expanded ? 'collapsed' : 'expanded'}`)
-    // }
   }
 }
 </script>
-
-<style>
-.profile-boxplot-container {
-  align-items: flex-end;
-  display: flex;
-}
-.profile-boxplot-container .highcharts-tooltip {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  line-height: 1.4em;
-  min-width: 200px;
-  padding: 0;
-}
-.profile-boxplot-container .highcharts-tooltip::after {
-  background: #fff;
-  border: 1px solid #aaa;
-  border-width: 0 1px 1px 0;
-  content: '';
-  display: block;
-  height: 10px;
-  position: absolute;
-  top: 75px;
-  left: -6px;
-  transform: rotate(135deg);
-  width: 10px;
-}
-.profile-boxplot-container g.highcharts-tooltip {
-  display: none !important;
-}
-.profile-boxplot-container .highcharts-tooltip span {
-  position: relative !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: auto !important;
-}
-</style>
 
 <style scoped>
 .expansion-panel-icon {
   margin-left: -10px;
 }
-.color-black {
-  color: #000;
+.student-enrollment-term {
+  width: 33.3%;
 }
 </style>

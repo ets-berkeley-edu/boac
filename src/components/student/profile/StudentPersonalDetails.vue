@@ -20,7 +20,7 @@
     <v-card v-if="isExpanded" class="expanded-card pa-2">
       <v-container fluid>
         <v-row>
-          <v-col cols="4">
+          <v-col class="text-left" cols="4">
             <h3 class="student-profile-h3">
               Advisor(s)
             </h3>
@@ -48,7 +48,7 @@
               None assigned.
             </div>
           </v-col>
-          <v-col cols="4">
+          <v-col class="text-left" cols="4">
             <div id="contact-information-outer">
               <h3 class="student-profile-h3">
                 Contact Information
@@ -117,7 +117,7 @@
               </div>
             </div>
           </v-col>
-          <v-col cols="4">
+          <v-col class="text-left" cols="4">
             <div v-if="student.sisProfile.intendedMajors" id="student-details-intended-majors-outer">
               <h3 v-if="isGraduate(student)" class="student-profile-h3">Intended Academic Plan</h3>
               <h3 v-if="!isGraduate(student)" class="student-profile-h3">Intended Major</h3>

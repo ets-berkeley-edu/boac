@@ -1,9 +1,9 @@
 <template>
   <v-card
-    no-body
-    border-variant="white"
-    class="student-term"
+    border="white"
+    class="ma-0"
     :class="{'background-light student-term-current': config.currentEnrollmentTermId === parseInt(term.termId)}"
+    min-width="300"
   >
     <v-card-title header-bg-variant="transparent" header-class="student-term-header">
       <h3 :id="`term-${term.termId}-header`" class="font-size-18 mb-0 mr-2">{{ term.termName }}</h3>
@@ -30,7 +30,7 @@
         </div>
       </div>
       <div role="rowgroup" class="pt-2">
-        <div v-if="_isEmpty(term.enrollments)" role="row">
+        <div v-if="isEmpty(term.enrollments)" role="row">
           <div :id="`term-${term.termId}-no-enrollments`" role="cell" class="student-term-empty">{{ `No ${term.termName} enrollments` }}</div>
         </div>
         <StudentCourse
@@ -91,44 +91,30 @@
   </v-card>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentCourse from '@/components/student/profile/StudentCourse'
 import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
-import Util from '@/mixins/Util'
+import {isEmpty, isNil, some} from 'lodash'
+import {numFormat} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'StudentEnrollmentTerm',
-  components: {
-    StudentAcademicStanding,
-    StudentCourse,
-    StudentWithdrawalCancel
+const props = defineProps({
+  student: {
+    required: true,
+    type: Object
   },
-  mixins: [Context, Util],
-  props: {
-    student: {
-      required: true,
-      type: Object
-    },
-    term: {
-      required: true,
-      type: Object
-    }
-  },
-  data: () => ({
-    isConcurrent: false,
-    showMaxUnits: undefined,
-    showMinUnits: undefined,
-  }),
-  created() {
-    const maxUnits = this.term.maxTermUnitsAllowed
-    const minUnits = this.term.minTermUnitsAllowed
-    this.showMaxUnits = !this._isNil(maxUnits) && maxUnits !== this.config.defaultTermUnitsAllowed.max
-    this.showMinUnits = !this._isNil(minUnits) && minUnits !== this.config.defaultTermUnitsAllowed.min
-    this.isConcurrent = this._some(this.term.enrollments, {'academicCareer': 'UCBX'})
+  term: {
+    required: true,
+    type: Object
   }
-}
+})
+const config = useContextStore().config
+const maxUnits = props.term.maxTermUnitsAllowed
+const minUnits = props.term.minTermUnitsAllowed
+const isConcurrent = some(props.term.enrollments, {'academicCareer': 'UCBX'})
+const showMaxUnits = isNil(maxUnits) && maxUnits !== config.defaultTermUnitsAllowed.max
+const showMinUnits = !isNil(minUnits) && minUnits !== config.defaultTermUnitsAllowed.min
 </script>
 
 <style scoped>
@@ -163,10 +149,6 @@ export default {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-}
-.student-term {
-  margin: 0;
-  min-width: 300px;
 }
 .student-term-current {
   border: 1px #999 solid !important;
