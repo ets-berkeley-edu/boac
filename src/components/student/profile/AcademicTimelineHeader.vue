@@ -1,7 +1,30 @@
 <template>
-  <div class="align-bottom border-b-sm d-flex flex-wrap justify-space-between mt-2 w-100">
+  <div class="align-end d-flex flex-wrap justify-space-between py-1 w-100">
     <div>
-      <h2 class="font-size-24 font-weight-bold">Academic Timeline</h2>
+      <h2 class="font-size-24 font-weight-bold py-0 text-primary">Academic Timeline</h2>
+    </div>
+    <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="mt-1">
+      <v-btn
+        id="new-note-button"
+        class="border-e-sm"
+        color="primary"
+        :disabled="isEditingNote"
+        :prepend-icon="mdiFileDocument"
+        size="large"
+        text="New Note"
+        @click="isEditingNote = true"
+      />
+      <EditBatchNoteModal
+        v-if="isEditingNote"
+        initial-mode="createNote"
+        is-open="isEditingNote"
+        :on-close="onModalClose"
+        :sid="student.sid"
+      />
+    </div>
+  </div>
+  <div class="border-b-sm d-flex flex-wrap justify-space-between w-100">
+    <div>
       <v-tabs
         v-model="selectedTab"
         class="mt-2"
@@ -29,25 +52,6 @@
           <span class="sr-only">Show </span>{{ filterTypes[type].tab }}
         </v-tab>
       </v-tabs>
-    </div>
-    <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="mt-1">
-      <v-btn
-        id="new-note-button"
-        class="border-e-sm"
-        color="primary"
-        :disabled="isEditingNote"
-        :prepend-icon="mdiFileDocument"
-        size="large"
-        text="New Note"
-        @click="isEditingNote = true"
-      />
-      <EditBatchNoteModal
-        v-if="isEditingNote"
-        initial-mode="createNote"
-        is-open="isEditingNote"
-        :on-close="onModalClose"
-        :sid="student.sid"
-      />
     </div>
   </div>
 </template>

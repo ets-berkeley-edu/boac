@@ -1,14 +1,16 @@
 <template>
-  <div id="student-terms-container" class="ma-3 pa-0">
-    <div class="align-center d-flex mb-2 px-2">
-      <div class="pt-1">
-        <h2 class="student-section-header mr-2">Classes</h2>
+  <div id="student-terms-container">
+    <div class="align-center d-flex flex-wrap">
+      <div class="pb-1">
+        <h2 class="student-section-header text-primary">Classes</h2>
       </div>
       <div>
         <v-btn
           v-if="enrollmentTermsByYear.length > 1"
           id="toggle-collapse-all-years"
-          variant="text"
+          class="pr-2"
+          density="compact"
+          variant="plain"
           @click="toggle"
         >
           <v-icon v-if="panelsExpanded.length" :icon="mdiMenuDown" />
@@ -17,30 +19,18 @@
         </v-btn>
       </div>
       <div v-if="enrollmentTermsByYear.length > 1">|</div>
-      <div class="flex-grow-1">
+      <div>
         <v-btn
           v-if="enrollmentTermsByYear.length > 1"
           id="sort-academic-year"
-          variant="text"
+          class="pl-2"
+          density="compact"
+          variant="plain"
           @click="setOrder"
         >
+          <v-icon :icon="currentOrder === 'desc' ? mdiArrowDownThin : mdiArrowUpThin" />
           Sort academic year
-          <span v-if="currentOrder === 'desc' ">
-            <v-icon :icon="mdiArrowDownThin" />
-          </span>
-          <span v-if="currentOrder === 'asc' ">
-            <v-icon :icon="mdiArrowUpThin" />
-          </span>
         </v-btn>
-      </div>
-      <div v-if="currentUser.canReadDegreeProgress" class="flex-shrink-1">
-        <router-link
-          id="view-degree-checks-link"
-          target="_blank"
-          :to="getDegreeCheckPath()"
-        >
-          Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
-        </router-link>
       </div>
     </div>
     <v-expansion-panels v-model="panelsExpanded" multiple>
@@ -48,13 +38,27 @@
         v-for="year in enrollmentTermsByYear"
         :id="`academic-year-${year.label}-container`"
         :key="year.label"
+        bg-color="pale-blue"
+        class="pa-0"
+        elevation="0"
         :value="year.label"
       >
         <v-expansion-panel-title>
-          <div class="d-flex justify-space-between">
-            <h3 class="page-section-header-sub ma-0">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
-            <div class="color-black">{{ totalUnits(year) || 0 }} Units</div>
-          </div>
+          <template #default="{expanded}">
+            <v-icon
+              class="expansion-panel-icon"
+              color="primary"
+              :icon="expanded ? mdiMenuDown : mdiMenuRight"
+              size="24"
+            />
+            <div class="align-center d-flex justify-space-between w-100">
+              <div>
+                <h3 class="text-primary page-section-header-sub ma-0">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
+              </div>
+              <div class="font-weight-500 text-grey-darken-1">{{ totalUnits(year) || 0 }} Units</div>
+            </div>
+          </template>
+          <template #actions />
         </v-expansion-panel-title>
         <v-expansion-panel-text>
           <v-card>
@@ -124,16 +128,6 @@ export default {
     includesCurrentTerm(year) {
       return this._includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.config.currentEnrollmentTerm)
     },
-    getDegreeCheckPath() {
-      const currentDegreeCheck = this._find(this.student.degreeChecks, 'isCurrent')
-      if (currentDegreeCheck) {
-        return `/student/degree/${currentDegreeCheck.id}`
-      } else if (this.currentUser.canEditDegreeProgress) {
-        return `${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}/degree/create`
-      } else {
-        return `${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}/degree/history`
-      }
-    },
     getTerm(termName, year) {
       const term = this._find(year.terms, {'termName': termName})
       if (!term) {
@@ -202,18 +196,10 @@ export default {
 </style>
 
 <style scoped>
-.background-light {
-  background-color: #f9f9f9;
-}
-.collapsed .when-academic-year-closed,
-.not-collapsed .when-academic-year-open {
-  display: none;
+.expansion-panel-icon {
+  margin-left: -10px;
 }
 .color-black {
   color: #000;
-}
-.profile-academic-year-toggle {
-  margin-bottom: 15px;
-  padding: 10px;
 }
 </style>

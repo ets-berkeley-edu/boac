@@ -16,20 +16,39 @@
       </div>
     </div>
     <div class="ma-3">
-      <AcademicTimeline :student="student" />
-      <AreYouSureModal
-        v-if="showAreYouSureModal"
-        :function-cancel="cancelTheCancel"
-        :function-confirm="cancelConfirmed"
-        :show-modal="showAreYouSureModal"
-        modal-header="Discard unsaved note?"
-      />
+      <div class="border-b-sm pb-3">
+        <AcademicTimeline :student="student" />
+      </div>
+      <div v-if="currentUser.canReadDegreeProgress" class="float-end mr-3 mt-3">
+        <router-link
+          id="view-degree-checks-link"
+          class="font-weight-medium"
+          target="_blank"
+          :to="getDegreeCheckPath()"
+        >
+          <div class="align-center d-flex">
+            <div>
+              Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
+            </div>
+            <v-icon class="ml-1" :icon="mdiOpenInNew" size="18" />
+          </div>
+        </router-link>
+      </div>
+      <StudentClasses class="mt-5" :student="student" />
     </div>
-    <div>
-      <StudentClasses :student="student" />
-    </div>
+    <AreYouSureModal
+      v-if="showAreYouSureModal"
+      :function-cancel="cancelTheCancel"
+      :function-confirm="cancelConfirmed"
+      :show-modal="showAreYouSureModal"
+      modal-header="Discard unsaved note?"
+    />
   </div>
 </template>
+
+<script setup>
+import {mdiOpenInNew} from '@mdi/js'
+</script>
 
 <script>
 import AcademicTimeline from '@/components/student/profile/AcademicTimeline'
@@ -47,6 +66,7 @@ import {getStudentByUid} from '@/api/student'
 import {scrollToTop} from '@/lib/utils'
 import {setWaitlistedStatus} from '@/berkeley'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {find} from 'lodash'
 
 export default {
   name: 'Student',
@@ -110,6 +130,16 @@ export default {
       } else {
         exitSession(true)
         next()
+      }
+    },
+    getDegreeCheckPath() {
+      const currentDegreeCheck = find(this.student.degreeChecks, 'isCurrent')
+      if (currentDegreeCheck) {
+        return `/student/degree/${currentDegreeCheck.id}`
+      } else if (this.currentUser.canEditDegreeProgress) {
+        return `${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}/degree/create`
+      } else {
+        return `${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}/degree/history`
       }
     },
     parseEnrollmentTerm(term) {

@@ -1,23 +1,25 @@
 <template>
-  <div v-if="isExpandAllAvailable" class="align-center d-flex font-size-14">
+  <div v-if="isExpandAllAvailable" class="align-center d-flex flex-wrap font-size-14 mt-2">
     <h3 class="sr-only">Quick Links</h3>
-    <v-btn
-      :id="`toggle-expand-all-${filter}s`"
-      class="px-0"
-      density="compact"
-      :disabled="!messagesVisible.length"
-      variant="plain"
-      @click.prevent="toggleExpandAll"
-    >
-      <v-icon :icon="allExpanded ? mdiMenuDown : mdiMenuRight" />
-      <span class="text-no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
-    </v-btn>
+    <div class="ml-2">
+      <v-btn
+        :id="`toggle-expand-all-${filter}s`"
+        class="px-0"
+        density="compact"
+        :disabled="!messagesVisible.length"
+        variant="plain"
+        @click.prevent="toggleExpandAll"
+      >
+        <v-icon :icon="allExpanded ? mdiMenuDown : mdiMenuRight" />
+        <span class="text-no-wrap">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
+      </v-btn>
+    </div>
     <div v-if="showDownloadNotesLink">
-      <div class="mx-3">|</div>
+      <div class="ml-3">|</div>
       <a id="download-notes-link" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${filter}`">Download {{ filter }}s</a>
     </div>
-    <div class="mx-3">|</div>
-    <div>
+    <div class="ml-3">|</div>
+    <div class="ml-3">
       <label
         :id="`timeline-${filter}s-query-label`"
         :for="`timeline-${filter}s-query-input`"
@@ -41,8 +43,8 @@
         variant="outlined"
       />
     </div>
-    <div class="mx-3">|</div>
-    <div v-if="showMyNotesToggle">
+    <div class="ml-3">|</div>
+    <div v-if="showMyNotesToggle" class="ml-3">
       <div class="align-center d-flex font-weight-bold">
         <label for="toggle-my-notes-button" class="mr-3" :class="showMyNotesOnly ? 'text-grey' : 'text-primary'">
           All {{ filter }}s
@@ -66,7 +68,7 @@
   <div
     v-if="!searchResults && !messagesVisible.length"
     id="zero-messages"
-    class="font-size-16 font-weight-700 ml-6 my-4 text-warning"
+    class="font-size-16 font-weight-700 ml-6 my-4 text-grey-darken-1"
   >
     <span v-if="filter && showMyNotesOnly">No {{ filterTypes[filter].name.toLowerCase() }}s authored by you.</span>
     <span v-if="filter && !showMyNotesOnly">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
@@ -90,7 +92,7 @@
         <th>Details</th>
         <th>Date</th>
       </tr>
-      <tr v-if="creatingNoteEvent" class="message-row-read message-row border-top border-bottom">
+      <tr v-if="creatingNoteEvent" class="message-row border-t-sm border-b-sm">
         <td class="column-pill align-top p-2">
           <div class="pill text-center text-uppercase text-white pill-note">
             <span class="sr-only">Creating new</span> advising note
@@ -120,8 +122,7 @@
         v-for="(message, index) in messagesVisible"
         :id="`permalink-${message.type}-${message.id}`"
         :key="index"
-        :class="{'message-row-read': message.read}"
-        class="message-row border-top border-bottom"
+        class="message-row"
       >
         <td class="column-pill align-top p-2">
           <div
@@ -245,7 +246,7 @@
             </div>
           </div>
           <div v-if="['appointment', 'eForm', 'note'].includes(message.type)">
-            <v-icon v-if="size(message.attachments)" :icon="mdiPaperclip" class="mt-2" />
+            <v-icon v-if="size(message.attachments)" color="info" :icon="mdiPaperclip" />
             <span class="sr-only">{{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
           </div>
         </td>
@@ -318,6 +319,8 @@
       <v-btn
         :id="`timeline-tab-${activeTab}-previous-messages`"
         class="text-no-wrap pr-2 pt-0"
+        color="primary"
+        density="compact"
         variant="text"
         @click="isShowingAll = !isShowingAll"
       >
@@ -766,9 +769,6 @@ export default {
 .message-row:focus,
 .message-row:hover {
   background-color: #e3f5ff;
-}
-.message-row-read {
-  background-color: #f9f9f9;
 }
 .pill-alert {
   background-color: #eb9d3e;
