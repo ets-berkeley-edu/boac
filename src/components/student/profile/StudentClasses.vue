@@ -38,7 +38,7 @@
         v-for="year in enrollmentTermsByYear"
         :id="`academic-year-${year.label}-container`"
         :key="year.label"
-        class="pa-0 student-classes-expansion-panel"
+        class="mt-0 pa-0 student-classes-expansion-panel"
         hide-actions
         :value="year.label"
       >

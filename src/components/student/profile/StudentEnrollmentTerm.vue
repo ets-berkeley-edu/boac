@@ -6,7 +6,7 @@
     min-width="300"
   >
     <v-card-title class="pt-3 student-term-header">
-      <div class="align-baseline d-flex flex-wrap">
+      <div class="align-baseline d-flex flex-wrap mb-1">
         <h3 :id="`term-${term.termId}-header`" class="font-size-18">{{ term.termName }}</h3>
         <div v-if="isConcurrent" class="font-size-14 text-grey-darken-2">&nbsp;UCBX</div>
         <StudentAcademicStanding
@@ -54,7 +54,7 @@
           >
             <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
               {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
-              (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromJSDate(droppedSection.dropDate).toFormat('MMM D, YYYY') }}</span>)
+              (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromSQL(droppedSection.dropDate) }}</span>)
             </div>
           </div>
         </div>
@@ -108,6 +108,7 @@
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentCourse from '@/components/student/profile/StudentCourse'
 import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
+import {DateTime} from 'luxon'
 import {get, isEmpty, isNil, some} from 'lodash'
 import {numFormat, round} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'

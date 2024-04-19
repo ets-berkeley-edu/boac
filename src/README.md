@@ -99,3 +99,7 @@ Example: src/components/search/SortableStudents.vue
 ### b-popover to v-tooltip
 
 TODO: notes
+
+### b-toggle to v-expansion-panels, with v-btn to trigger
+
+TODO: notes

@@ -7,7 +7,6 @@
 
 <script setup lang="ts">
 import {DateTime} from 'luxon'
-import {defineProps} from 'vue'
 import {mdiAlert} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 

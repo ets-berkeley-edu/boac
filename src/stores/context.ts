@@ -18,7 +18,8 @@ export type BoaConfig = {
     min: undefined
   },
   isProduction: boolean,
-  maxAttachmentsPerNote: number
+  maxAttachmentsPerNote: number,
+  timezone: string
 }
 
 export function alertScreenReader(message: string, politeness?: string) {
