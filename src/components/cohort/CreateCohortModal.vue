@@ -96,10 +96,8 @@ export default {
     validationRules: {}
   }),
   computed: {
-    showModalProxy: {
-      get() {
-        return this.showModal
-      }
+    showModalProxy() {
+      return this.showModal
     }
   },
   created() {

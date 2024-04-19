@@ -8,12 +8,11 @@
       <div role="cell" class="student-course-column-name overflow-hidden">
         <v-btn
           :id="`term-${termId}-course-${index}-toggle`"
-          v-b-toggle="`term-${termId}-course-${index}-details`"
-          class="d-flex flex-row-reverse student-course-collapse-button"
-          variant="link"
-          block
-          :aria-expanded="detailsVisible ? 'true' : 'false'"
           :aria-controls="`term-${termId}-course-${index}-details`"
+          :aria-expanded="detailsVisible ? 'true' : 'false'"
+          class="d-flex flex-row-reverse student-course-collapse-button w-100"
+          variant="plain"
+          @click="() => showDetailsPanel = !showDetailsPanel"
         >
           <div
             :id="`term-${termId}-course-${index}-name`"
@@ -82,211 +81,216 @@
         <span :id="`term-${termId}-course-${index}-units`">{{ numFormat(course.units, '0.0') }}</span>
       </div>
     </div>
-    <b-collapse :id="`term-${termId}-course-${index}-spacer`" :visible="showSpacer">
-      <div :style="{height: spacerHeight + 'px'}" class="d-none d-xl-block" />
-    </b-collapse>
-    <b-collapse
-      :id="`term-${termId}-course-${index}-details`"
-      ref="details"
-      role="row"
-      class="student-course-details"
-      accordion="student-course-detail-accordion"
-      @show="onShow"
-      @shown="onShown"
-      @hide="onHide"
-      @hidden="onHidden"
-    >
-      <div
-        :id="`term-${termId}-course-${index}-details-name`"
-        class="student-course-details-name"
-        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+    <v-expansion-panels v-model="expansionPanels">
+      <v-expansion-panel
+        :id="`term-${termId}-course-${index}-spacer`"
+        value="spacer"
       >
-        {{ course.displayName }}
-      </div>
-      <div class="student-course-sections">
-        <span
-          v-for="(section, sectionIndex) in course.sections"
-          :key="sectionIndex"
-        >
-          <span v-if="section.displayName" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-            <span v-if="sectionIndex === 0"></span><!--
-              --><router-link
-              v-if="section.isViewableOnCoursePage"
-              :id="`term-${termId}-section-${section.ccn}`"
-              :to="`/course/${termId}/${section.ccn}?u=${student.uid}`"
-              :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            ><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
-              --><span v-if="!section.isViewableOnCoursePage">{{ section.displayName }}</span><!--
-              --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
-              --><span v-if="sectionIndex === course.sections.length - 1"></span>
-          </span>
-        </span>
-      </div>
-      <div :id="`term-${termId}-course-${index}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
-      <div v-if="course.courseRequirements">
-        <div v-for="requirement in course.courseRequirements" :key="requirement" class="student-course-requirements">
-          <v-icon :icon="mdiStar" class="text-warning" /> {{ requirement }}
-        </div>
-      </div>
-      <div v-if="currentUser.canAccessCanvasData">
+        <div :style="{height: spacerHeight + 'px'}" class="d-none d-xl-block" />
+      </v-expansion-panel>
+      <v-expansion-panel
+        :id="`term-${termId}-course-${index}-details`"
+        accordion="student-course-detail-accordion"
+        class="student-course-details"
+        role="row"
+        value="details"
+        @show="onShow"
+        @shown="onShown"
+        @hide="onHide"
+        @hidden="onHidden"
+      >
         <div
-          v-for="(canvasSite, canvasSiteIdx) in course.canvasSites"
-          :key="canvasSiteIdx"
-          class="student-bcourses-wrapper"
+          :id="`term-${termId}-course-${index}-details-name`"
+          class="student-course-details-name"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
         >
-          <h5
-            :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}`"
-            class="student-bcourses-site-code"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          {{ course.displayName }}
+        </div>
+        <div class="student-course-sections">
+          <span
+            v-for="(section, sectionIndex) in course.sections"
+            :key="sectionIndex"
           >
-            <span class="sr-only">Course Site</span>
-            {{ canvasSite.courseCode }}
-          </h5>
-          <table class="student-bcourses">
-            <tr class="d-flex flex-column d-sm-table-row py-2">
-              <th class="student-bcourses-legend" scope="row">
-                Assignments Submitted
-              </th>
-              <td class="student-bcourses-summary">
-                <span v-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-submitted`">
-                  <strong>{{ canvasSite.analytics.assignmentsSubmitted.displayPercentile }}</strong> percentile
-                </span>
-                <span
-                  v-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile"
-                  :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-submitted`"
-                  class="font-italic text-grey-darken-2"
-                >
-                  No Assignments
-                </span>
-              </td>
-              <td class="boxplot-container boxplot-container-width">
-                <StudentBoxplot
-                  v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
-                  :chart-description="`Boxplot of ${student.name}'s assignments submitted in ${canvasSite.courseCode}`"
-                  :dataset="canvasSite.analytics.assignmentsSubmitted"
-                  :numeric-id="canvasSite.canvasCourseId.toString()"
-                />
-                <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
-                  <div>User score: {{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</div>
-                  <div>Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }}</div>
-                  <div>70th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[7] }}</div>
-                  <div>50th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[5] }}</div>
-                  <div>30th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[3] }}</div>
-                  <div>Minimum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[0] }}</div>
-                </div>
-                <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-assignments-score`">
-                  <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
-                    Score:
-                    <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-                    <span class="text-grey-darken-2 text-no-wrap">
-                      (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
-                    </span>
+            <span v-if="section.displayName" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+              <span v-if="sectionIndex === 0"></span><!--
+                --><router-link
+                v-if="section.isViewableOnCoursePage"
+                :id="`term-${termId}-section-${section.ccn}`"
+                :to="`/course/${termId}/${section.ccn}?u=${student.uid}`"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              ><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
+                --><span v-if="!section.isViewableOnCoursePage">{{ section.displayName }}</span><!--
+                --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
+                --><span v-if="sectionIndex === course.sections.length - 1"></span>
+            </span>
+          </span>
+        </div>
+        <div :id="`term-${termId}-course-${index}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
+        <div v-if="course.courseRequirements">
+          <div v-for="requirement in course.courseRequirements" :key="requirement" class="student-course-requirements">
+            <v-icon :icon="mdiStar" class="text-warning" /> {{ requirement }}
+          </div>
+        </div>
+        <div v-if="currentUser.canAccessCanvasData">
+          <div
+            v-for="(canvasSite, canvasSiteIdx) in course.canvasSites"
+            :key="canvasSiteIdx"
+            class="student-bcourses-wrapper"
+          >
+            <h5
+              :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}`"
+              class="student-bcourses-site-code"
+              :class="{'demo-mode-blur': currentUser.inDemoMode}"
+            >
+              <span class="sr-only">Course Site</span>
+              {{ canvasSite.courseCode }}
+            </h5>
+            <table class="student-bcourses">
+              <tr class="d-flex flex-column d-sm-table-row py-2">
+                <th class="student-bcourses-legend" scope="row">
+                  Assignments Submitted
+                </th>
+                <td class="student-bcourses-summary">
+                  <span v-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-submitted`">
+                    <strong>{{ canvasSite.analytics.assignmentsSubmitted.displayPercentile }}</strong> percentile
                   </span>
                   <span
-                    v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles"
+                    v-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile"
+                    :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-submitted`"
                     class="font-italic text-grey-darken-2"
                   >
-                    No Data
+                    No Assignments
                   </span>
-                </div>
-              </td>
-            </tr>
-            <tr class="d-flex flex-column d-sm-table-row py-2">
-              <th class="student-bcourses-legend" scope="row">
-                Assignment Grades
-              </th>
-              <td class="student-bcourses-summary">
-                <span v-if="canvasSite.analytics.currentScore.displayPercentile" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades`">
-                  <strong>{{ canvasSite.analytics.currentScore.displayPercentile }}</strong> percentile
-                </span>
-                <span
-                  v-if="!canvasSite.analytics.currentScore.displayPercentile"
-                  :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades`"
-                  class="font-italic text-grey-darken-2"
-                >
-                  No Grades
-                </span>
-              </td>
-              <td class="boxplot-container boxplot-container-width">
-                <StudentBoxplot
-                  v-if="canvasSite.analytics.currentScore.boxPlottable"
-                  :chart-description="`Boxplot of ${student.name}'s assignment grades in ${canvasSite.courseCode}`"
-                  :dataset="canvasSite.analytics.currentScore"
-                  :numeric-id="canvasSite.canvasCourseId.toString()"
-                />
-                <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
-                  <div>User score: {{ canvasSite.analytics.currentScore.student.raw }}</div>
-                  <div>Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }}</div>
-                  <div>70th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[7] }}</div>
-                  <div>50th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[5] }}</div>
-                  <div>30th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[3] }}</div>
-                  <div>Minimum: {{ canvasSite.analytics.currentScore.courseDeciles[0] }}</div>
-                </div>
-                <div v-if="!canvasSite.analytics.currentScore.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades-score`">
-                  <span v-if="canvasSite.analytics.currentScore.courseDeciles">
-                    Score:
-                    <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
-                    <span class="text-grey-darken-2 text-no-wrap">
-                      (Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
+                </td>
+                <td class="boxplot-container boxplot-container-width">
+                  <StudentBoxplot
+                    v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
+                    :chart-description="`Boxplot of ${student.name}'s assignments submitted in ${canvasSite.courseCode}`"
+                    :dataset="canvasSite.analytics.assignmentsSubmitted"
+                    :numeric-id="canvasSite.canvasCourseId.toString()"
+                  />
+                  <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
+                    <div>User score: {{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</div>
+                    <div>Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }}</div>
+                    <div>70th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[7] }}</div>
+                    <div>50th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[5] }}</div>
+                    <div>30th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[3] }}</div>
+                    <div>Minimum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[0] }}</div>
+                  </div>
+                  <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-assignments-score`">
+                    <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
+                      Score:
+                      <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
+                      <span class="text-grey-darken-2 text-no-wrap">
+                        (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
+                      </span>
                     </span>
+                    <span
+                      v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles"
+                      class="font-italic text-grey-darken-2"
+                    >
+                      No Data
+                    </span>
+                  </div>
+                </td>
+              </tr>
+              <tr class="d-flex flex-column d-sm-table-row py-2">
+                <th class="student-bcourses-legend" scope="row">
+                  Assignment Grades
+                </th>
+                <td class="student-bcourses-summary">
+                  <span v-if="canvasSite.analytics.currentScore.displayPercentile" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades`">
+                    <strong>{{ canvasSite.analytics.currentScore.displayPercentile }}</strong> percentile
                   </span>
                   <span
-                    v-if="!canvasSite.analytics.currentScore.courseDeciles"
-                    class="font-italic text-grey-darken-2 text-no-wrap"
+                    v-if="!canvasSite.analytics.currentScore.displayPercentile"
+                    :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades`"
+                    class="font-italic text-grey-darken-2"
                   >
-                    No Data
+                    No Grades
                   </span>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="config.currentEnrollmentTermId === parseInt(termId, 10)" class="d-flex flex-column d-sm-table-row py-2">
-              <th class="student-bcourses-legend" scope="row">
-                Last bCourses Activity
-              </th>
-              <td colspan="2">
-                <div v-if="!canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-activity`">
-                  <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span> has never visited this course site.
-                </div>
-                <div v-if="canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-activity`">
-                  <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
-                  last visited the course site {{ lastActivityDays(canvasSite.analytics).toLowerCase() }}.
-                  {{ lastActivityInContext(canvasSite.analytics) }}
-                </div>
-              </td>
-            </tr>
-          </table>
+                </td>
+                <td class="boxplot-container boxplot-container-width">
+                  <StudentBoxplot
+                    v-if="canvasSite.analytics.currentScore.boxPlottable"
+                    :chart-description="`Boxplot of ${student.name}'s assignment grades in ${canvasSite.courseCode}`"
+                    :dataset="canvasSite.analytics.currentScore"
+                    :numeric-id="canvasSite.canvasCourseId.toString()"
+                  />
+                  <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
+                    <div>User score: {{ canvasSite.analytics.currentScore.student.raw }}</div>
+                    <div>Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }}</div>
+                    <div>70th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[7] }}</div>
+                    <div>50th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[5] }}</div>
+                    <div>30th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[3] }}</div>
+                    <div>Minimum: {{ canvasSite.analytics.currentScore.courseDeciles[0] }}</div>
+                  </div>
+                  <div v-if="!canvasSite.analytics.currentScore.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades-score`">
+                    <span v-if="canvasSite.analytics.currentScore.courseDeciles">
+                      Score:
+                      <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
+                      <span class="text-grey-darken-2 text-no-wrap">
+                        (Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
+                      </span>
+                    </span>
+                    <span
+                      v-if="!canvasSite.analytics.currentScore.courseDeciles"
+                      class="font-italic text-grey-darken-2 text-no-wrap"
+                    >
+                      No Data
+                    </span>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="config.currentEnrollmentTermId === parseInt(termId, 10)" class="d-flex flex-column d-sm-table-row py-2">
+                <th class="student-bcourses-legend" scope="row">
+                  Last bCourses Activity
+                </th>
+                <td colspan="2">
+                  <div v-if="!canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-activity`">
+                    <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span> has never visited this course site.
+                  </div>
+                  <div v-if="canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-activity`">
+                    <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
+                    last visited the course site {{ lastActivityDays(canvasSite.analytics).toLowerCase() }}.
+                    {{ lastActivityInContext(canvasSite.analytics) }}
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div v-if="isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-grey-darken-2">
+            No additional information
+          </div>
         </div>
-        <div v-if="isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-grey-darken-2">
-          No additional information
+        <div
+          v-for="section in sectionsWithIncompleteStatus"
+          :key="section.ccn"
+          class="align-center d-flex pb-2"
+        >
+          <div class="align-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-no-wrap">
+            <v-icon class="mr-1" :icon="mdiInformationOutline" size="sm" />
+            <span class="font-size-12">Incomplete Grade</span>
+          </div>
+          <div :id="`term-${termId}-section-${section.ccn}-has-incomplete-grade`" class="font-size-14">
+            {{ sectionsWithIncompleteStatus.length > 1 ? `${section.displayName} :` : '' }}
+            {{ getIncompleteGradeDescription(course.displayName, [section]) }}
+          </div>
         </div>
-      </div>
-      <div
-        v-for="section in sectionsWithIncompleteStatus"
-        :key="section.ccn"
-        class="align-center d-flex pb-2"
-      >
-        <div class="align-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-no-wrap">
-          <v-icon class="mr-1" :icon="mdiInformationOutline" size="sm" />
-          <span class="font-size-12">Incomplete Grade</span>
-        </div>
-        <div :id="`term-${termId}-section-${section.ccn}-has-incomplete-grade`" class="font-size-14">
-          {{ sectionsWithIncompleteStatus.length > 1 ? `${section.displayName} :` : '' }}
-          {{ getIncompleteGradeDescription(course.displayName, [section]) }}
-        </div>
-      </div>
-    </b-collapse>
+      </v-expansion-panel>
+    </v-expansion-panels>
   </div>
 </template>
 
 <script setup>
+import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
+import StudentBoxplot from '@/components/student/StudentBoxplot'
 import {mdiAlertRhombus, mdiInformationOutline, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {isEmpty} from 'lodash'
 </script>
 
 <script>
 import Context from '@/mixins/Context'
-import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
-import StudentBoxplot from '@/components/student/StudentBoxplot'
 import Util from '@/mixins/Util'
 import {
   getIncompleteGradeDescription,
@@ -294,10 +298,10 @@ import {
   isAlertGrade,
   lastActivityDays
 } from '@/berkeley'
+import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'StudentCourse',
-  components: {IncompleteGradeAlertIcon, StudentBoxplot},
   mixins: [Context, Util],
   props: {
     course: {
@@ -324,20 +328,30 @@ export default {
   data: () => ({
     detailsVisible: false,
     sectionsWithIncompleteStatus: undefined,
+    showDetailsPanel: false,
     spacerHeight: 0
   }),
   computed: {
+    expansionPanels() {
+      const panels = this.detailsVisible && this.spacerHeight ? ['spacer'] : []
+      if (this.showDetailsPanel) {
+        panels.push('details')
+      }
+      return panels
+    },
     showSpacer: vm => !vm.detailsVisible && !!vm.spacerHeight
   },
   mounted() {
-    this.$root.$on(`year-${this.year}-course-${this.index}-show`, () => this.spacerHeight = 120)
-    this.$root.$on(`year-${this.year}-course-${this.index}-shown`, offsetHeight => this.spacerHeight = offsetHeight)
-    this.$root.$on(`year-${this.year}-course-${this.index}-hide`, () => this.spacerHeight = 0)
+    const eventHub = useContextStore().eventHub
+    eventHub.on(`year-${this.year}-course-${this.index}-show`, () => this.spacerHeight = 120)
+    eventHub.on(`year-${this.year}-course-${this.index}-shown`, offsetHeight => this.spacerHeight = offsetHeight)
+    eventHub.on(`year-${this.year}-course-${this.index}-hide`, () => this.spacerHeight = 0)
   },
   beforeDestroy() {
-    this.$root.$off(`year-${this.year}-course-${this.index}-show`)
-    this.$root.$off(`year-${this.year}-course-${this.index}-shown`)
-    this.$root.$off(`year-${this.year}-course-${this.index}-hide`)
+    const eventHub = useContextStore().eventHub
+    eventHub.off(`year-${this.year}-course-${this.index}-show`)
+    eventHub.off(`year-${this.year}-course-${this.index}-shown`)
+    eventHub.off(`year-${this.year}-course-${this.index}-hide`)
   },
   created() {
     this.sectionsWithIncompleteStatus = getSectionsWithIncompleteStatus(this.course.sections)
@@ -356,17 +370,17 @@ export default {
       return describe
     },
     onHide() {
-      this.$root.$emit(`year-${this.year}-course-${this.index}-hide`)
+      useContextStore().eventHub.emit(`year-${this.year}-course-${this.index}-hide`)
     },
     onHidden() {
       this.detailsVisible = false
     },
     onShow() {
-      this.$root.$emit(`year-${this.year}-course-${this.index}-show`)
+      useContextStore().eventHub.emit(`year-${this.year}-course-${this.index}-show`)
       this.detailsVisible = true
     },
     onShown() {
-      this.$root.$emit(`year-${this.year}-course-${this.index}-shown`, this.$refs.details.$el.offsetHeight)
+      useContextStore().eventHub.emit(`year-${this.year}-course-${this.index}-shown`, this.$refs.details.$el.offsetHeight)
     }
   }
 }

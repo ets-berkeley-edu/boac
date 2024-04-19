@@ -2,6 +2,7 @@ import 'v-calendar/style.css'
 import axios from '@/plugins/axios'
 import CKEditor from '@ckeditor/ckeditor5-vue'
 import Highcharts from 'highcharts'
+import more from 'highcharts/highcharts-more'
 import VueHighcharts from 'vue-highcharts'
 import vuetify from './vuetify'
 import type {App} from 'vue'
@@ -27,4 +28,5 @@ export function registerPlugins (app: App) {
         el.innerHTML = ''
       }
     })
+  more(Highcharts)
 }
