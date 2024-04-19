@@ -5,7 +5,7 @@
       role="row"
       class="student-course-row"
     >
-      <div role="cell" class="student-course-column-name overflow-hidden pt-1 pl-1 pr-2">
+      <div role="cell" class="student-course-column-name overflow-hidden">
         <v-btn
           :id="`term-${termId}-course-${index}-toggle`"
           v-b-toggle="`term-${termId}-course-${index}-details`"
@@ -41,7 +41,7 @@
           v-if="course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
           v-accessible-grade="course.midtermGrade"
-        ></span>
+        />
         <span
           v-if="!course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
@@ -430,7 +430,6 @@ export default {
 .student-course {
   display: flex;
   flex-direction: column;
-  padding: 3px 10px 0 !important;
   position: relative
 }
 .student-course-collapse-button {

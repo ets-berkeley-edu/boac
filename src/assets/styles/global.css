@@ -210,6 +210,12 @@
   white-space: nowrap;
   border: 0;
 }
+.student-classes-expansion-panel button {
+  padding: 0 9px 0 9px;
+}
+.student-classes-expansion-text div {
+  padding: 0 3px 0 3px;
+}
 .student-column {
   flex: 0 0 120px;
   margin-left: 15px;
