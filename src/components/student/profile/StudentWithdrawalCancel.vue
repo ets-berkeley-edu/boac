@@ -1,29 +1,30 @@
 <template>
   <div v-if="!termId || toInt(withdrawal.termId) === toInt(termId)">
-    <span :id="`withdrawal-term-${termId}`" class="error font-weight-bold">
+    <span :id="`withdrawal-term-${termId}`" class="text-error font-weight-bold">
       {{ withdrawal.description }}
       ({{ withdrawal.reason }})
-      <span class="text-no-wrap">{{ DateTime.fromJSDate(withdrawal.date).toFormat('MMM DD, YYYY') }}</span>
+      <span v-if="withdrawalDate" class="text-no-wrap">{{ withdrawalDate.toFormat('DD') }}</span>
     </span>
   </div>
 </template>
 
-<script>
-import Util from '@/mixins/Util'
+<script setup>
+import {DateTime} from 'luxon'
+import {toInt} from '@/lib/utils'
 
-export default {
-  name: 'StudentWithdrawalCancel',
-  mixins: [Util],
-  props: {
-    termId: {
-      required: false,
-      default: undefined,
-      type: String
-    },
-    withdrawal: {
-      required: true,
-      type: Object
-    }
+const props = defineProps({
+  termId: {
+    required: false,
+    default: undefined,
+    type: String
+  },
+  withdrawal: {
+    required: true,
+    type: Object
   }
-}
+})
+
+const termId = props.termId
+const withdrawal = props.withdrawal
+const withdrawalDate = DateTime.fromSQL(withdrawal.date)
 </script>

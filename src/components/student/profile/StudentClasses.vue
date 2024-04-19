@@ -33,13 +33,12 @@
         </v-btn>
       </div>
     </div>
-    <v-expansion-panels v-model="panelsExpanded" multiple>
+    <v-expansion-panels v-model="panelsExpanded" flat multiple>
       <v-expansion-panel
         v-for="year in enrollmentTermsByYear"
         :id="`academic-year-${year.label}-container`"
         :key="year.label"
-        class="pa-0"
-        elevation="0"
+        class="pa-0 student-classes-expansion-panel"
         hide-actions
         :value="year.label"
       >
@@ -60,7 +59,7 @@
           </template>
           <template #actions />
         </v-expansion-panel-title>
-        <v-expansion-panel-text>
+        <v-expansion-panel-text class="student-classes-expansion-text">
           <div class="align-start d-flex flex-wrap justify-lg-space-evenly w-100">
             <StudentEnrollmentTerm
               :id="`term-fall-${year.label - 1}`"
@@ -117,7 +116,7 @@ export default {
       const grouped = groupBy(this.student.enrollmentTerms, 'academicYear')
       const enrollmentTermsByYear = map(grouped, (terms, label) => ({label, terms}))
       return orderBy(enrollmentTermsByYear, 'label', this.currentOrder)
-    },
+    }
   },
   created() {
     this.currentOrder = 'desc'
