@@ -62,22 +62,12 @@
         <v-expansion-panel-text class="student-classes-expansion-text">
           <div class="align-start d-flex flex-wrap justify-lg-space-evenly w-100">
             <StudentEnrollmentTerm
+              v-for="termName in [`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`]"
               :id="`term-fall-${year.label - 1}`"
+              :key="termName"
               class="student-enrollment-term"
               :student="student"
-              :term="getTerm(`Fall ${year.label - 1}`, year)"
-            />
-            <StudentEnrollmentTerm
-              :id="`term-spring-${year.label}`"
-              class="student-enrollment-term"
-              :student="student"
-              :term="getTerm(`Spring ${year.label}`, year)"
-            />
-            <StudentEnrollmentTerm
-              :id="`term-summer-${year.label}`"
-              class="student-enrollment-term"
-              :student="student"
-              :term="getTerm(`Summer ${year.label}`, year)"
+              :term="getTerm(termName, year)"
             />
           </div>
         </v-expansion-panel-text>
