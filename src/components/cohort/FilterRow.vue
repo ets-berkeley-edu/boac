@@ -11,12 +11,10 @@
     >
       {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
-    <div
-      v-if="isModifyingFilter && !isExistingFilter"
-      class="filter-row-column-01 mt-1 pr-2"
-    >
+    <div v-if="isModifyingFilter && !isExistingFilter" class="mt-1 pr-2">
       <FilterSelect
         :filter-row-index="position"
+        :has-left-border-style="true"
         :labelledby="`new-filter-${position}-label`"
         :options="prepareFilterOptionGroups()"
         :set-model-object="value => (selectedFilter = value)"
@@ -717,24 +715,6 @@ export default {
   text-transform: uppercase;
   font-size: 0.8em;
   padding: 4px 1px 5px 5px;
-}
-.filter-row-column-01 .custom-select,
-.filter-row-column-02 .custom-select {
-  background-color: #f3f3f3;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  color: #000;
-  height: 42px;
-  text-align: left;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-.filter-row-column-01 {
-  border-left: 6px solid rgb(var(--v-theme-primary));
-  flex: 0 0 240px;
-}
-.filter-row-column-02 {
-  flex: 0;
 }
 .filter-row-column-03 {
   flex-basis: auto;

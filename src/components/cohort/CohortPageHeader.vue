@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!cohort.cohortId && cohort.totalStudentCount === undefined" class="pb-3">
+    <div v-if="!cohort.cohortId && cohort.totalStudentCount === undefined">
       <h1 id="create-cohort-h1" class="page-section-header">
         Create {{ cohort.domain === 'default' ? 'a Cohort' : 'an admissions cohort' }}
       </h1>
@@ -11,7 +11,7 @@
         Find a set of admitted students using the filters below.
       </div>
     </div>
-    <div v-if="!renameMode" class="d-flex flex-wrap justify-space-between pb-3">
+    <div v-if="!renameMode" class="d-flex flex-wrap justify-space-between">
       <h1
         v-if="cohort.cohortName"
         id="cohort-name"
@@ -138,7 +138,7 @@
     <RenameCohort
       :cancel="cancelRename"
       :is-open="renameMode"
-    ></RenameCohort>
+    />
     <DeleteCohortModal
       id="confirm-delete-modal"
       :cancel-delete-modal="cancelDeleteModal"
@@ -165,30 +165,25 @@
 </template>
 
 <script setup>
-import {get, size} from 'lodash'
-import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
-import {pluralize} from '@/lib/utils'
-import {putFocusNextTick} from '@/lib/utils'
-import router from '@/router'
-import {useCohortStore} from '@/stores/cohort-edit-session'
-import {useContextStore} from '@/stores/context'
-</script>
-
-<script>
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal'
 import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import RenameCohort from '@/components/cohort/RenameCohort'
+import {size} from 'lodash'
+import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
+import {pluralize} from '@/lib/utils'
+</script>
+
+<script>
+import router from '@/router'
 import {deleteCohort, downloadCohortCsv, downloadCsv} from '@/api/cohort'
+import {get} from 'lodash'
+import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useContextStore} from '@/stores/context'
+import {putFocusNextTick} from '@/lib/utils'
 
 export default {
   name: 'CohortPageHeader',
-  components: {
-    DeleteCohortModal,
-    ExportListModal,
-    FerpaReminderModal,
-    RenameCohort
-  },
   props: {
     showHistory: {
       type: Boolean,
