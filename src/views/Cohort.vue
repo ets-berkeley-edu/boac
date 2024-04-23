@@ -87,10 +87,6 @@
 </template>
 
 <script setup>
-import {get, size, startsWith} from 'lodash'
-</script>
-
-<script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons'
@@ -104,7 +100,11 @@ import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
+</script>
+
+<script>
 import {applyFilters, loadCohort, resetFiltersToLastApply, updateFilterOptions} from '@/stores/cohort-edit-session/utils'
+import {get, size, startsWith} from 'lodash'
 import {putFocusNextTick, scrollToTop, setPageTitle, toInt} from '@/lib/utils'
 import {translateSortByOption} from '@/berkeley'
 import {useCohortStore} from '@/stores/cohort-edit-session'
@@ -113,21 +113,6 @@ import {useRoute} from 'vue-router'
 
 export default {
   name: 'Cohort',
-  components: {
-    AdmitDataWarning,
-    AdmitStudentsTable,
-    ApplyAndSaveButtons,
-    CohortHistory,
-    CohortPageHeader,
-    CuratedGroupSelector,
-    FilterRow,
-    Pagination,
-    SectionSpinner,
-    SortBy,
-    Spinner,
-    StudentRow,
-    TermSelector
-  },
   data: () => ({
     pageNumber: undefined,
     showHistory: false

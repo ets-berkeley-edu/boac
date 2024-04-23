@@ -1,48 +1,53 @@
 <template>
-  <div>
-    <v-select
-      :id="`filter-select-${type}-${filterRowIndex}`"
-      v-model="vModelProxy"
-      :aria-labelledby="labelledby"
-      class="select-menu"
-      density="compact"
-      :disabled="!options"
-      eager
-      hide-details
-      item-title="name"
-      item-value="key"
-      :items="options"
-      persistent-hint
-      return-object
-      single-line
-      variant="outlined"
-    >
-      <template #item="{props, item}">
-        <v-list-subheader
-          v-if="item.raw.header"
-          :id="listItemId(item)"
-        >
-          {{ item.raw.header }}
-        </v-list-subheader>
-        <v-list-item
-          v-else
-          :id="listItemId(item.raw)"
-          v-bind="props"
-          :aria-describedby="item.raw.group ? listItemId({header: item.raw.group}) : false"
-          class="min-height-unset py-1 pl-8"
-          density="compact"
-          role="option"
-          :title="item.title"
-        ></v-list-item>
-      </template>
-    </v-select>
-  </div>
+  <v-select
+    :id="`filter-select-${type}-${filterRowIndex}`"
+    v-model="vModelProxy"
+    :aria-labelledby="labelledby"
+    class="filter-select"
+    :class="{'border-left-primary': hasLeftBorderStyle}"
+    color="primary"
+    density="comfortable"
+    :disabled="!options"
+    eager
+    hide-details
+    item-title="name"
+    item-value="key"
+    :items="options"
+    persistent-hint
+    placeholder="Select.."
+    return-object
+    single-line
+    variant="outlined"
+  >
+    <template #item="{props, item}">
+      <v-list-subheader
+        v-if="item.raw.header"
+        :id="listItemId(item)"
+      >
+        {{ item.raw.header }}
+      </v-list-subheader>
+      <v-list-item
+        v-if="!item.raw.header"
+        :id="listItemId(item.raw)"
+        v-bind="props"
+        :aria-describedby="item.raw.group ? listItemId({header: item.raw.group}) : false"
+        class="min-height-unset py-1 pl-8"
+        density="comfortable"
+        role="option"
+        :title="item.title"
+      ></v-list-item>
+    </template>
+  </v-select>
 </template>
 
 <script>
 export default {
   name: 'FilterSelect',
   props: {
+    hasLeftBorderStyle: {
+      required: false,
+      type: Boolean
+    },
     filterRowIndex: {
       required: true,
       type: [Number, String]
@@ -94,10 +99,19 @@ export default {
 }
 </script>
 
+<style>
+.border-left-primary .v-field {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  border-left: 6px solid rgb(var(--v-theme-primary));
+}
+</style>
+
 <style scoped>
-.select-menu {
+.filter-select {
   background-color: #fff;
   height: 44px;
+  white-space: nowrap;
   width: 320px;
 }
 </style>
