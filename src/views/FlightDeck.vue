@@ -21,14 +21,14 @@
         <EditServiceAnnouncement />
       </div>
       <div class="mt-2 pt-5">
-        <h2 id="manage-topics-header" class="page-section-header-sub">Manage Topics</h2>
+        <h2 id="manage-topics-header mb-3" class="page-section-header-sub">Manage Topics</h2>
         <ManageTopics />
       </div>
       <div class="mt-2 pt-5">
         <div class="pb-3 pt-3">
           <h2 class="mb-0 page-section-header-sub">Application Profile</h2>
         </div>
-        <ul v-if="boa.build">
+        <ul v-if="boa.build" class="ml-6">
           <li>Artifact: {{ boa.build.artifact || '&mdash;' }}</li>
           <li v-if="boa.build.gitCommit">Git commit: <a :href="`https://github.com/ets-berkeley-edu/boac/commit/${boa.build.gitCommit}`">{{ boa.build.gitCommit }}</a></li>
         </ul>

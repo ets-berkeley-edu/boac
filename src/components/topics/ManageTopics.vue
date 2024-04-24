@@ -13,25 +13,24 @@
         </v-text-field>
       </div>
 
-      <div class="pr-3 pt-2">
-        <v-btn
-          class="ml-2"
-          @click="filter = ''"
-        >
-          Clear
-        </v-btn>
-      </div>
+      <v-btn
+        class="button-position ml-2 mr-4"
+        color="secondary"
+        @click="filter = ''"
+      >
+        Clear
+      </v-btn>
+      <v-btn
+        id="new-note-button"
+        class="button-position d-inline p-0 pb-1 mr-3"
+        color="primary"
+        :disabled="isEditTopicModalOpen"
+        @click="openCreateTopicModal"
+      >
+        <v-icon :icon="mdiPlusBox"></v-icon>
+        Create New Topic
+      </v-btn>
     </div>
-
-    <v-btn
-      id="new-note-button"
-      class="p-0 pb-1"
-      :disabled="isEditTopicModalOpen"
-      @click="openCreateTopicModal"
-    >
-      <v-icon :icon="mdiPlusBox"></v-icon>
-      Create New Topic
-    </v-btn>
 
     <div class="pt-2 mt-4">
       <v-table
@@ -80,21 +79,31 @@
             <td>{{ item.deletedAt ? 'Yes' : 'No' }}</td>
             <td>{{ item.countNotes }}</td>
             <td>
-              <v-btn
-                v-if="!item.deletedAt"
-                :icon="mdiTrashCanOutline"
-                density="compact"
-                @click="openDeleteTopicModal(item)"
-              >
-              </v-btn>
+              <v-tooltip v-if="!item.deletedAt" location="left" text="Delete">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    icon
+                    density="compact"
+                    @click="openDeleteTopicModal(item)"
+                  >
+                    <v-icon :icon="mdiTrashCanOutline"></v-icon>
+                  </v-btn>
+                </template>
+              </v-tooltip>
 
-              <v-btn
-                v-if="item.deletedAt"
-                :icon="mdiDeleteRestore"
-                density="compact"
-                @click="undelete(item)"
-              >
-              </v-btn>
+              <v-tooltip v-if="item.deletedAt" location="left" text="Undelete">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    icon
+                    density="compxact"
+                    @click="undelete(item)"
+                  >
+                    <v-icon :icon="mdiDeleteRestore" color="warning"></v-icon>
+                  </v-btn>
+                </template>
+              </v-tooltip>
             </td>
           </tr>
         </tbody>
@@ -323,3 +332,18 @@ export default {
   }
 }
 </script>
+
+
+<style scoped>
+#new-note-button {
+  margin-left: auto;
+}
+
+.top-box {
+  box-sizing: border-box;
+}
+
+.button-position {
+  top: 8px;
+}
+</style>
