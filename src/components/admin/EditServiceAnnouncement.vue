@@ -35,7 +35,9 @@
           <v-btn
             id="button-update-service-announcement"
             :disabled="text === originalText"
+            color="primary"
             class="btn-primary-color-override mt-2"
+            variant="flat"
             @click="updateText"
           >
             <span v-if="isSaving">
