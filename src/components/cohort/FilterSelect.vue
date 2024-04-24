@@ -3,6 +3,7 @@
     :id="`filter-select-${type}-${filterRowIndex}`"
     v-model="vModelProxy"
     :aria-labelledby="labelledby"
+    bg-color="white"
     class="filter-select"
     :class="{'border-left-primary': hasLeftBorderStyle}"
     color="primary"
@@ -35,7 +36,7 @@
         density="comfortable"
         role="option"
         :title="item.title"
-      ></v-list-item>
+      />
     </template>
   </v-select>
 </template>
@@ -109,8 +110,7 @@ export default {
 
 <style scoped>
 .filter-select {
-  background-color: #fff;
-  height: 44px;
+  height: 56px;
   white-space: nowrap;
   width: 320px;
 }

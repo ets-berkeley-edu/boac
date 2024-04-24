@@ -19,7 +19,7 @@
     >
       Reset
     </v-btn>
-    <div v-if="isPerforming !== 'search' && !cohort.showApplyButton">
+    <div v-if="cohort.showSaveButton && isPerforming !== 'search'">
       <ProgressButton
         id="save-button"
         :action="save"

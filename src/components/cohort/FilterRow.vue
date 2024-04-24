@@ -2,12 +2,12 @@
   <div
     v-if="showRow"
     :class="{'pt-2': !isExistingFilter}"
-    class="d-flex flex-wrap"
+    class="align-center d-flex flex-wrap mr-3"
   >
     <div
       v-if="isExistingFilter"
       :id="`existing-filter-${position}`"
-      class="existing-filter-name px-2"
+      class="existing-filter-name pl-4 pr-2"
     >
       {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
@@ -176,7 +176,7 @@
         </b-popover> -->
       </div>
     </div>
-    <div v-if="!isExistingFilter" class="filter-row-column-03 mt-1 pl-0">
+    <div v-if="!isExistingFilter" class="filter-row-column-03 pl-2">
       <ProgressButton
         v-if="showAdd"
         id="unsaved-filter-add"
@@ -194,14 +194,13 @@
     >
       <v-btn
         id="unsaved-filter-reset"
-        class="ml-1"
         variant="text"
         @click="reset"
       >
         Cancel
       </v-btn>
     </div>
-    <div v-if="useCohortStore().isOwnedByCurrentUser && isExistingFilter" class="ml-auto p-2">
+    <div v-if="useCohortStore().isOwnedByCurrentUser && isExistingFilter" class="ml-auto pr-4">
       <div v-if="!isModifyingFilter" class="d-flex flex-row">
         <span v-if="!isUX('boolean')">
           <v-btn
@@ -227,9 +226,10 @@
       <div v-if="isModifyingFilter" class="d-flex flex-row">
         <v-btn
           :id="`update-added-filter-${position}`"
-          :disabled="disableUpdateButton"
+          class="mr-2"
           color="primary"
-          size="sm"
+          :disabled="disableUpdateButton"
+          variant="flat"
           @click="onClickUpdateButton"
         >
           Update
@@ -495,7 +495,7 @@ export default {
       }
       useCohortStore().updateExistingFilter({index: this.position, updatedFilter: this.filter})
       useCohortStore().setModifiedSinceLastSearch(true)
-      updateFilterOptions(this.domain, useCohortStore().cohortOwner(), useCohortStore().filters).then(() => {
+      updateFilterOptions(this.domain, useCohortStore().cohortOwner, useCohortStore().filters).then(() => {
         this.isModifyingFilter = false
         useCohortStore().setEditMode(null)
         useContextStore().alertScreenReader(`${this.filter.name} filter updated`)
@@ -674,7 +674,7 @@ export default {
     },
     remove() {
       useCohortStore().removeFilter(this.position)
-      updateFilterOptions(this.domain, useCohortStore().cohortOwner(), useCohortStore().filters).then(noop)
+      updateFilterOptions(this.domain, useCohortStore().cohortOwner, useCohortStore().filters).then(noop)
       useCohortStore().setEditMode(null)
       this.putFocusNewFilterDropdown()
       useContextStore().alertScreenReader(`${this.filter.label.primary} filter removed`)
