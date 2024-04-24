@@ -1,5 +1,5 @@
-import _ from 'lodash'
 import {defineStore} from 'pinia'
+import {get} from 'lodash'
 import {useContextStore} from '@/stores/context'
 
 export const useSearchStore = defineStore('search', {
@@ -12,14 +12,6 @@ export const useSearchStore = defineStore('search', {
     includeCourses: false,
     includeNotes: false,
     includeStudents: false,
-    isDirty() {
-      const currentUser = useContextStore().currentUser
-      return (_.get(currentUser, 'canAccessCanvasData') && !this.includeCourses)
-        || (_.get(currentUser, 'canAccessCanvasData') && !this.includeNotes)
-        || (_.get(currentUser, 'canAccessAdmittedStudents') && !this.includeAdmits)
-        || !!this.author || !!this.fromDate || this.postedBy !== 'anyone'
-        || !!this.student || !!this.toDate || !!this.topic
-    },
     isFocusOnSearch: false,
     isSearching: false,
     postedBy: 'anyone',
@@ -31,17 +23,27 @@ export const useSearchStore = defineStore('search', {
     topic: undefined as string | null | undefined,
     topicOptions: [] as string[]
   }),
+  getters: {
+    isDirty: state => {
+      const currentUser = useContextStore().currentUser
+      return (get(currentUser, 'canAccessCanvasData') && !state.includeCourses)
+        || (get(currentUser, 'canAccessCanvasData') && !state.includeNotes)
+        || (get(currentUser, 'canAccessAdmittedStudents') && !state.includeAdmits)
+        || !!state.author || !!state.fromDate || state.postedBy !== 'anyone'
+        || !!state.student || !!state.toDate || !!state.topic
+    }
+  },
   actions: {
     resetAdvancedSearch(queryText?: string) {
       const currentUser = useContextStore().currentUser
       const domain = ['students']
-      if (_.get(currentUser, 'canAccessCanvasData')) {
+      if (get(currentUser, 'canAccessCanvasData')) {
         domain.push('courses')
       }
-      if (_.get(currentUser, 'canAccessAdvisingData')) {
+      if (get(currentUser, 'canAccessAdvisingData')) {
         domain.push('notes')
       }
-      if (_.get(currentUser, 'canAccessAdmittedStudents')) {
+      if (get(currentUser, 'canAccessAdmittedStudents')) {
         domain.push('admits')
       }
       this.domain = domain || []

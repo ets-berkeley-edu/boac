@@ -1,7 +1,7 @@
 <template>
   <div class="pt-4">
     <ProgressButton
-      v-if="cohort.showApplyButton()"
+      v-if="cohort.showApplyButton"
       id="unsaved-filter-apply"
       :action="apply"
       :disabled="!!cohort.editMode"
@@ -10,7 +10,7 @@
       Apply
     </ProgressButton>
     <v-btn
-      v-if="cohort.showApplyButton()"
+      v-if="cohort.showApplyButton"
       id="unsaved-filter-reset"
       class="ml-1"
       :disabled="!!cohort.editMode"

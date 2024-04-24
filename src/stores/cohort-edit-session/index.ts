@@ -7,9 +7,6 @@ export const useCohortStore = defineStore('cohort', {
   state: () => ({
     cohortId: undefined as number | undefined,
     cohortName: undefined as string | null | undefined,
-    cohortOwner() {
-      return this.isOwnedByCurrentUser ? 'me' : this.cohortOwnerUid
-    },
     cohortOwnerUid: undefined,
     domain: undefined as string | null | undefined,
     editMode: undefined as string | null | undefined,
@@ -24,19 +21,16 @@ export const useCohortStore = defineStore('cohort', {
       currentPage: undefined as number | null | undefined,
       itemsPerPage: 50
     },
-    showApplyButton() {
-      return this.isModifiedSinceLastSearch === true && !!size(this.filters)
-    },
-    showSaveButton() {
-      return this.isModifiedSinceLastSearch === false
-    },
-    showSortBy() {
-      return !this.isModifiedSinceLastSearch && (this.totalStudentCount || 0) > 1
-    },
     students: undefined,
     termId: undefined,
     totalStudentCount: undefined
   }),
+  getters: {
+    cohortOwner: state => state.isOwnedByCurrentUser ? 'me' : state.cohortOwnerUid,
+    showApplyButton: state => state.isModifiedSinceLastSearch === true && !!size(state.filters),
+    showSaveButton: state => state.isModifiedSinceLastSearch === false,
+    showSortBy: state => !state.isModifiedSinceLastSearch && (state.totalStudentCount || 0) > 1
+  },
   actions: {
     addFilter(filter: any) {
       return this.filters.push(filter)
