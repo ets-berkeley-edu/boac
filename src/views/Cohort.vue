@@ -1,5 +1,5 @@
 <template>
-  <div class="pl-3 pr-2 pt-3">
+  <div class="pa-3">
     <Spinner />
     <div v-if="!useContextStore().loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
