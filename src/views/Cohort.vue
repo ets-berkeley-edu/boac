@@ -228,7 +228,6 @@ export default {
         get(useContextStore().currentUser.preferences, 'termId')
       )
     },
-    resetFiltersToLastApply,
     resetPagination() {
       this.setPagination(1)
     },
@@ -254,6 +253,6 @@ export default {
   align-items: center;
   background-color: #f3f3f3;
   border-left: 6px solid rgb(var(--v-theme-primary)) !important;
-  min-height: 46px;
+  min-height: 56px;
 }
 </style>
