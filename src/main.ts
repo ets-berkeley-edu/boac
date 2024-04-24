@@ -7,6 +7,7 @@ import {get, trim} from 'lodash'
 import {initializeAxios} from './utils'
 import {registerPlugins} from '@/plugins'
 import {useContextStore} from '@/stores/context'
+import {getServiceAnnouncement} from '@/api/config'
 
 const app = createApp(App)
 
@@ -29,6 +30,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(data => {
       apiBaseUrl,
       isVueAppDebugMode: trim(import.meta.env.VITE_APP_DEBUG).toLowerCase() === 'true'
     })
+    getServiceAnnouncement().then(data => useContextStore().setServiceAnnouncement(data))
     app.use(router).config.errorHandler = function (error, vm, info) {
       const message = get(error, 'message') || info
       const stacktrace = get(error, 'stack', null)
