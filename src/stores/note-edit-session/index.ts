@@ -1,4 +1,3 @@
-
 import {cloneDeep, find, isNil, sortBy} from 'lodash'
 import {defineStore} from 'pinia'
 import {DateTime} from 'luxon'
@@ -52,9 +51,6 @@ export const useNoteStore = defineStore('note', {
     autoSaveJob: undefined as number | null | undefined,
     boaSessionExpired: false,
     completeSidSet: new Set<string>(),
-    disableNewNoteButton() {
-      return !!this.mode
-    },
     isFocusLockDisabled: false,
     isAutoSavingDraftNote: false,
     isSaving: false,
@@ -66,6 +62,9 @@ export const useNoteStore = defineStore('note', {
     recipients: $_getDefaultRecipients(),
     template: undefined
   }),
+  getters: {
+    disableNewNoteButton: state => !!state.mode
+  },
   actions: {
     addTopic(topic: string) {
       this.model.topics.push(topic)

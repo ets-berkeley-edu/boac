@@ -1,5 +1,5 @@
-import _ from 'lodash'
 import {defineStore} from 'pinia'
+import {get} from 'lodash'
 
 export type DegreeProgressCourses = {
   assigned: any[],
@@ -30,36 +30,33 @@ export const useDegreeProgressStore = defineStore('degree', {
     degreeName: undefined,
     degreeNote: undefined,
     disableButtons: false,
-    dismissedAlerts: [],
+    dismissedAlerts: [] as number[],
     draggingContext: {
       course: undefined,
       dragContext: undefined,
       target: undefined
     },
-    degreeEditSessionToString() {
-      return {
-        categories: this.categories,
-        courses: this.courses,
-        degreeName: this.degreeName,
-        degreeNote: this.degreeNote,
-        disableButtons: this.disableButtons,
-        templateId: this.templateId,
-        unitRequirements: this.unitRequirements
-      }
-    },
     includeNotesWhenPrint: true,
-    isUserDragging() {
-      return (courseId: number) => !!courseId && _.get(this.draggingContext.course, 'id') === courseId
-    },
-    lastPageRefreshAt: undefined,
+    lastPageRefreshAt: undefined as Date | undefined,
     parentTemplateId: undefined,
     parentTemplateUpdatedAt: undefined,
     sid: undefined,
-    templateId: NaN,
+    templateId: NaN as number | undefined,
     unitRequirements: undefined,
     updatedAt: undefined,
     updatedBy: undefined
   }),
+  getters: {
+    degreeEditSessionToString: state => ({
+      categories: state.categories,
+      courses: state.courses,
+      degreeName: state.degreeName,
+      degreeNote: state.degreeNote,
+      disableButtons: state.disableButtons,
+      templateId: state.templateId,
+      unitRequirements: state.unitRequirements
+    })
+  },
   actions: {
     draggingContextReset() {
       this.draggingContext = $_getDefaultDraggingContext()
@@ -70,6 +67,7 @@ export const useDegreeProgressStore = defineStore('degree', {
     dismissAlert(templateId: number) {
       this.dismissedAlerts.push(templateId)
     },
+    isUserDragging: (courseId: number) => !!courseId && get(this.draggingContext, 'course.id') === courseId,
     resetSession(template: any) {
       this.disableButtons = false
       this.draggingContext = $_getDefaultDraggingContext()

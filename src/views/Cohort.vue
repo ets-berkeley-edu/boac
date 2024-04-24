@@ -180,23 +180,25 @@ export default {
     },
     init(cohortId, domain, orderBy, termId) {
       return new Promise(resolve => {
-        useCohortStore().resetSession()
-        useCohortStore().setCompactView(!!cohortId)
-        useCohortStore().setModifiedSinceLastSearch(undefined)
-        useContextStore().updateCurrentUserPreference(domain === 'admitted_students' ? 'admitSortBy' : 'sortBy', orderBy)
-        useContextStore().updateCurrentUserPreference('termId', termId)
+        const cohortStore = useCohortStore()
+        const contextStore = useContextStore()
+        cohortStore.resetSession()
+        cohortStore.setCompactView(!!cohortId)
+        cohortStore.setModifiedSinceLastSearch(undefined)
+        contextStore.updateCurrentUserPreference(domain === 'admitted_students' ? 'admitSortBy' : 'sortBy', orderBy)
+        contextStore.updateCurrentUserPreference('termId', termId)
 
         if (cohortId) {
           loadCohort(cohortId, orderBy, termId).then(resolve)
         } else {
           if (domain) {
-            useCohortStore().setDomain(domain)
+            cohortStore.setDomain(domain)
           } else {
             throw new TypeError('\'domain\' is required when creating a new cohort.')
           }
-          updateFilterOptions(useCohortStore().domain, useCohortStore().cohortOwner(), []).then(() => {
-            useCohortStore().resetSession()
-            useCohortStore().stashOriginalFilters()
+          updateFilterOptions(cohortStore.domain, cohortStore.cohortOwner, []).then(() => {
+            cohortStore.resetSession()
+            cohortStore.stashOriginalFilters()
             resolve()
           })
         }
