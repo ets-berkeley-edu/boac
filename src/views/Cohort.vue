@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-3">
+  <div class="ma-5">
     <Spinner />
     <div v-if="!useContextStore().loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
@@ -10,7 +10,7 @@
         <v-card
           v-show="showFilters"
           id="show-hide-filters"
-          class="overflow-visible"
+          class="overflow-visible pt-2"
           flat
           tile
         >

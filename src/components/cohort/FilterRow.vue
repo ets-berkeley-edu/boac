@@ -1,17 +1,13 @@
 <template>
-  <div
-    v-if="showRow"
-    :class="{'pt-2': !isExistingFilter}"
-    class="align-center d-flex flex-wrap"
-  >
+  <div v-if="showRow" class="align-center d-flex flex-wrap mt-2">
     <div
       v-if="isExistingFilter"
       :id="`existing-filter-${position}`"
-      class="existing-filter-name pl-4 pr-2"
+      class="existing-filter-name font-weight-500 ml-4"
     >
       {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
-    <div v-if="isModifyingFilter && !isExistingFilter" class="mt-1 pr-2">
+    <div v-if="isModifyingFilter && !isExistingFilter" class="mr-2">
       <FilterSelect
         :filter-row-index="position"
         :has-left-border-style="true"
@@ -22,12 +18,12 @@
         :v-model-object="selectedFilter"
       />
     </div>
-    <div v-if="!isModifyingFilter" class="mr-2">
+    <div v-if="!isModifyingFilter" class="font-weight-500">
       <span class="sr-only">Selected filter value is </span>
       <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
       <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
     </div>
-    <div v-if="isModifyingFilter" class="filter-row-column-02 mr-2 mt-1">
+    <div v-if="isModifyingFilter" class="mr-2">
       <div v-if="isUX('dropdown')">
         <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
         <FilterSelect
@@ -42,26 +38,21 @@
       <div
         v-if="isUX('range') && filter.validation === 'date'"
         :id="`filter-range-date-picker-${position}`"
-        class="vc-zindex-fix d-flex pr-1"
+        class="align-center d-flex vc-zindex-fix"
       >
         <elegant-date-picker
-          ref="datePicker"
           v-model.range.string="range"
           hide-header
           is-required
-          mode="date"
           :masks="{modelValue: 'YYYY-MM-DD'}"
+          mode="date"
           :popover="{visibility: 'focus', autoHide: false}"
           :select-attribute="{key: 'today', dot: true, dates: new Date()}"
           @popover-did-show="onPopoverShown"
         >
           <template #default="{ inputValue, inputEvents }">
-            <div class="d-flex pr-1">
-              <label
-                :for="`filter-range-min-${position}`"
-                class="pb-2"
-                :class="rangeMinLabel() ? 'filter-range-label-min' : ''"
-              >
+            <div class="d-flex">
+              <label :for="`filter-range-min-${position}`">
                 {{ rangeMinLabel() }}
               </label>
               <div>
@@ -69,7 +60,6 @@
                   :id="`filter-range-min-${position}`"
                   aria-label="beginning of range"
                   :aria-describedby="`filter-range-min-placeholder-${position}`"
-                  class="filter-range-input"
                   density="compact"
                   hide-details
                   :model-value="inputValue.start"
@@ -82,10 +72,7 @@
                 <div class="filter-range-popover-container" />
                 <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">MM/DD/YYYY</span>
               </div>
-              <label
-                :for="`filter-range-max-${position}`"
-                class="filter-range-label-max pb-2"
-              >
+              <label :for="`filter-range-max-${position}`">
                 {{ rangeMaxLabel() }}
               </label>
               <div>
@@ -93,7 +80,6 @@
                   :id="`filter-range-max-${position}`"
                   aria-label="end of range"
                   :aria-describedby="`filter-range-max-placeholder-${position}`"
-                  class="filter-range-input"
                   density="compact"
                   hide-details
                   :model-value="inputValue.end"
@@ -125,38 +111,36 @@
           </template>
         </elegant-date-picker>
       </div>
-      <div v-if="isUX('range') && filter.validation !== 'date'" class="d-flex pr-1">
-        <label
-          :for="`filter-range-min-${position}`"
-          class="pb-2"
-          :class="rangeMinLabel() ? 'filter-range-label-min' : ''"
-        >
+      <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex mr-3">
+        <label class="px-2" :for="`filter-range-min-${position}`">
           {{ rangeMinLabel() }}<span class="sr-only"> beginning of range</span>
         </label>
         <div>
-          <input
+          <v-text-field
             :id="`filter-range-min-${position}`"
             v-model="range.min"
+            bg-color="white"
+            hide-details
             :maxlength="rangeInputSize()"
-            :size="rangeInputSize()"
             :placeholder="placeholder()"
-            class="filter-range-input"
+            :size="rangeInputSize()"
+            variant="outlined"
           />
         </div>
-        <label
-          :for="`filter-range-max-${position}`"
-          class="filter-range-label-max pb-2"
-        >
-          {{ rangeMaxLabel() }}<span class="sr-only"> (end of range)</span>
+        <label :for="`filter-range-max-${position}`" class="font-size-16 px-2">
+          {{ rangeMaxLabel() }}
+          <span class="sr-only"> (end of range)</span>
         </label>
         <div>
-          <input
+          <v-text-field
             :id="`filter-range-max-${position}`"
             v-model="range.max"
+            bg-color="white"
+            hide-details
             :maxlength="rangeInputSize()"
-            :size="rangeInputSize()"
             :placeholder="placeholder()"
-            class="filter-range-input"
+            :size="rangeInputSize()"
+            variant="outlined"
           />
         </div>
         <div
@@ -176,62 +160,70 @@
         </b-popover> -->
       </div>
     </div>
-    <div v-if="!isExistingFilter" class="filter-row-column-03">
-      <ProgressButton
-        v-if="showAdd"
-        id="unsaved-filter-add"
-        :action="onClickAddButton"
-        :disabled="isSaving"
-        :in-progress="isSaving"
-      >
-        Add
-      </ProgressButton>
+    <div v-if="!isExistingFilter" class="align-center d-flex ml-auto mr-2">
+      <div>
+        <ProgressButton
+          v-if="showAdd"
+          id="unsaved-filter-add"
+          :action="onClickAddButton"
+          :disabled="isSaving"
+          :in-progress="isSaving"
+        >
+          Add
+        </ProgressButton>
+      </div>
+      <div v-if="isModifyingFilter && get(filter, 'type.ux')">
+        <v-btn
+          id="unsaved-filter-reset"
+          color="primary"
+          size="large"
+          variant="text"
+          @click="reset"
+        >
+          Cancel
+        </v-btn>
+      </div>
     </div>
-    <div
-      v-if="isModifyingFilter && get(filter, 'type.ux') && !isExistingFilter"
-      class="filter-row-column-04"
-    >
-      <v-btn
-        id="unsaved-filter-reset"
-        variant="text"
-        @click="reset"
-      >
-        Cancel
-      </v-btn>
-    </div>
-    <div v-if="useCohortStore().isOwnedByCurrentUser && isExistingFilter" class="ml-auto pr-4">
-      <div v-if="!isModifyingFilter" class="d-flex flex-row">
-        <span v-if="!isUX('boolean')">
+    <div v-if="useCohortStore().isOwnedByCurrentUser && isExistingFilter" class="ml-auto mr-3">
+      <div v-if="!isModifyingFilter" class="align-center d-flex justify-space-between">
+        <div v-if="!isUX('boolean')">
           <v-btn
             :id="`edit-added-filter-${position}`"
-            class="btn-cohort-added-filter"
-            variant="plain"
+            class="text-uppercase"
+            color="primary"
+            variant="text"
             @click="onClickEditButton"
           >
             Edit
-          </v-btn> |
-        </span>
-        <v-btn
-          :id="`remove-added-filter-${position}`"
-          class="btn-cohort-added-filter"
-          variant="plain"
-          @click="remove"
-        >
-          Remove
-        </v-btn>
+          </v-btn>
+        </div>
+        <div v-if="!isUX('boolean')" class="mb-1">|</div>
+        <div>
+          <v-btn
+            :id="`remove-added-filter-${position}`"
+            class="text-uppercase"
+            color="primary"
+            variant="text"
+            @click="remove"
+          >
+            Remove
+          </v-btn>
+        </div>
       </div>
-      <div v-if="isModifyingFilter" class="d-flex flex-row">
+      <div v-if="isModifyingFilter" class="d-flex">
         <v-btn
           :id="`update-added-filter-${position}`"
           color="primary"
           :disabled="disableUpdateButton"
+          size="large"
           @click="onClickUpdateButton"
         >
           Update
         </v-btn>
         <v-btn
           :id="`cancel-edit-added-filter-${position}`"
-          class="btn-cohort-added-filter"
+          class="font-size-14 text-uppercase"
+          size="large"
           variant="plain"
           @click="onClickCancelEdit"
         >
@@ -707,31 +699,7 @@ export default {
 </style>
 
 <style scoped>
-.btn-cohort-added-filter {
-  text-transform: uppercase;
-}
-.filter-row-column-03 {
-  flex-basis: auto;
-}
-.filter-row-column-03 button {
-  height: 40px;
-  width: 80px;
-}
-.filter-row-column-04 {
-  align-items: center;
-  display: flex;
-  flex: 1;
-}
 .existing-filter-name {
-  width: 260px;
-}
-.filter-range-label-min {
-  padding: 10px 8px 0 0;
-}
-.filter-range-label-max {
-  padding: 10px 8px 0 10px;
-}
-.filter-range-input {
-  min-width: 125px;
+  width: 26%;
 }
 </style>
