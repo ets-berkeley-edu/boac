@@ -91,7 +91,7 @@ export function getCohort(
 ) {
   $_track('view')
   const url = `${utils.apiBaseUrl()}/api/cohort/${id}?includeStudents=${includeStudents}&limit=${limit}&offset=${offset}&orderBy=${orderBy}&termId=${termId}`
-  return axios.get(url).then(response => response)
+  return axios.get(url).then(data => data)
 }
 
 export function getCohortEvents(id: number, offset: number, limit: number) {

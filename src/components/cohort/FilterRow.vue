@@ -2,7 +2,7 @@
   <div
     v-if="showRow"
     :class="{'pt-2': !isExistingFilter}"
-    class="align-center d-flex flex-wrap mr-3"
+    class="align-center d-flex flex-wrap"
   >
     <div
       v-if="isExistingFilter"
@@ -22,12 +22,12 @@
         :v-model-object="selectedFilter"
       />
     </div>
-    <div v-if="!isModifyingFilter">
+    <div v-if="!isModifyingFilter" class="mr-2">
       <span class="sr-only">Selected filter value is </span>
       <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
       <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
     </div>
-    <div v-if="isModifyingFilter" class="filter-row-column-02 mt-1">
+    <div v-if="isModifyingFilter" class="filter-row-column-02 mr-2 mt-1">
       <div v-if="isUX('dropdown')">
         <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
         <FilterSelect
@@ -176,12 +176,11 @@
         </b-popover> -->
       </div>
     </div>
-    <div v-if="!isExistingFilter" class="filter-row-column-03 pl-2">
+    <div v-if="!isExistingFilter" class="filter-row-column-03">
       <ProgressButton
         v-if="showAdd"
         id="unsaved-filter-add"
         :action="onClickAddButton"
-        class="ml-2"
         :disabled="isSaving"
         :in-progress="isSaving"
       >
@@ -205,9 +204,8 @@
         <span v-if="!isUX('boolean')">
           <v-btn
             :id="`edit-added-filter-${position}`"
-            class="btn-cohort-added-filter pr-1"
+            class="btn-cohort-added-filter"
             variant="plain"
-            size="sm"
             @click="onClickEditButton"
           >
             Edit
@@ -215,9 +213,8 @@
         </span>
         <v-btn
           :id="`remove-added-filter-${position}`"
-          class="btn-cohort-added-filter pl-2 pr-0"
+          class="btn-cohort-added-filter"
           variant="plain"
-          size="sm"
           @click="remove"
         >
           Remove
@@ -226,10 +223,8 @@
       <div v-if="isModifyingFilter" class="d-flex flex-row">
         <v-btn
           :id="`update-added-filter-${position}`"
-          class="mr-2"
           color="primary"
           :disabled="disableUpdateButton"
-          variant="flat"
           @click="onClickUpdateButton"
         >
           Update
@@ -237,8 +232,7 @@
         <v-btn
           :id="`cancel-edit-added-filter-${position}`"
           class="btn-cohort-added-filter"
-          variant="text"
-          size="sm"
+          variant="plain"
           @click="onClickCancelEdit"
         >
           Cancel
@@ -248,7 +242,11 @@
   </div>
 </template>
 
-<script setup>
+<script>
+import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useContextStore} from '@/stores/context'
+import FilterSelect from '@/components/cohort/FilterSelect'
+import ProgressButton from '@/components/util/ProgressButton'
 import {
   cloneDeep,
   get,
@@ -268,13 +266,6 @@ import {
   unset,
   values
 } from 'lodash'
-import {useCohortStore} from '@/stores/cohort-edit-session'
-import {useContextStore} from '@/stores/context'
-</script>
-
-<script>
-import FilterSelect from '@/components/cohort/FilterSelect'
-import ProgressButton from '@/components/util/ProgressButton'
 import {DateTime} from 'luxon'
 import {nextTick} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
@@ -425,6 +416,7 @@ export default {
       const gpa = '0' + trim(value)
       return parseFloat(gpa).toFixed(3)
     },
+    get,
     getDropdownSelectedLabel() {
       if (Array.isArray(this.filter.options)) {
         const option = find(this.filter.options, ['value', this.filter.value])
@@ -444,24 +436,26 @@ export default {
     },
     onClickAddButton() {
       this.isSaving = true
+      const cohortStore = useCohortStore()
+      const contextStore = useContextStore()
       switch (get(this.filter, 'type.ux')) {
       case 'dropdown':
-        useContextStore().alertScreenReader(`Added ${this.filter.name} filter with value ${this.getDropdownSelectedLabel()}`)
+        contextStore.alertScreenReader(`Added ${this.filter.name} filter with value ${this.getDropdownSelectedLabel()}`)
         break
       case 'boolean':
-        useContextStore().alertScreenReader(`Added ${this.filter.name}`)
+        contextStore.alertScreenReader(`Added ${this.filter.name}`)
         this.filter.value = true
         break
       case 'range':
-        useContextStore().alertScreenReader(`Added ${this.filter.name} filter, ${this.range.min} to ${this.range.max}`)
+        contextStore.alertScreenReader(`Added ${this.filter.name} filter, ${this.range.min} to ${this.range.max}`)
         this.updateRangeFilter()
         this.range.min = this.range.max = undefined
         break
       }
       unset(this.filter, 'start')
       unset(this.filter, 'end')
-      useCohortStore().addFilter(this.filter)
-      useCohortStore().setModifiedSinceLastSearch(true)
+      cohortStore.addFilter(this.filter)
+      cohortStore.setModifiedSinceLastSearch(true)
       this.reset()
     },
     onClickCancelEdit() {
@@ -690,6 +684,7 @@ export default {
       this.isSaving = false
       this.putFocusNewFilterDropdown()
     },
+    size,
     updateRangeFilter() {
       this.filter.value = {
         min: this.range.min,
@@ -699,7 +694,8 @@ export default {
         this.filter.value.min = this.formatGPA(this.filter.value.min)
         this.filter.value.max = this.formatGPA(this.filter.value.max)
       }
-    }
+    },
+    useCohortStore
   }
 }
 </script>
@@ -713,15 +709,12 @@ export default {
 <style scoped>
 .btn-cohort-added-filter {
   text-transform: uppercase;
-  font-size: 0.8em;
-  padding: 4px 1px 5px 5px;
 }
 .filter-row-column-03 {
   flex-basis: auto;
 }
 .filter-row-column-03 button {
   height: 40px;
-  margin-left: 12px;
   width: 80px;
 }
 .filter-row-column-04 {
