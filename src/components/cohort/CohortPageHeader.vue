@@ -34,7 +34,7 @@
         <v-btn
           v-if="cohort.cohortId && size(cohort.filters)"
           id="show-hide-details-button"
-          class="font-size-15 text-no-wrap px-2"
+          class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           variant="text"
           @click="toggleShowHideDetails"
@@ -51,7 +51,7 @@
         <v-btn
           v-if="cohort.cohortId && cohort.isOwnedByCurrentUser"
           id="rename-button"
-          class="font-size-15 px-2"
+          class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           variant="text"
           @click="beginRename"
@@ -68,7 +68,7 @@
         <v-btn
           v-if="cohort.cohortId && cohort.isOwnedByCurrentUser"
           id="delete-button"
-          class="font-size-15 px-2"
+          class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           variant="text"
           @click="showDeleteModal = true"
@@ -86,7 +86,7 @@
           v-if="cohort.domain === 'default' && (cohort.cohortId || cohort.totalStudentCount !== undefined)"
           id="export-student-list-button"
           :disabled="!exportEnabled || !cohort.totalStudentCount || cohort.isModifiedSinceLastSearch"
-          class="font-size-15 text-no-wrap px-2"
+          class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           variant="text"
           @click="showExportStudentsModal = true"
@@ -96,7 +96,7 @@
         <v-btn
           v-if="cohort.domain === 'admitted_students' && (cohort.cohortId || cohort.totalStudentCount !== undefined)"
           id="export-student-list-button"
-          class="font-size-15 text-no-wrap px-2"
+          class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           :disabled="!exportEnabled || !cohort.totalStudentCount || cohort.isModifiedSinceLastSearch"
           variant="text"
@@ -114,7 +114,7 @@
         <v-btn
           v-if="isHistorySupported"
           id="show-cohort-history-button"
-          class="font-size-15 px-2"
+          class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           :disabled="cohort.isModifiedSinceLastSearch"
           variant="text"
@@ -126,7 +126,7 @@
       <div v-if="showHistory" class="d-flex align-self-baseline mr-4">
         <v-btn
           id="show-cohort-history-button"
-          class="font-size-15 text-no-wrap px-2"
+          class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           variant="text"
           @click="toggleShowHistory(false)"

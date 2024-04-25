@@ -3,15 +3,16 @@
     :id="id"
     :color="color"
     :disabled="disabled"
+    size="large"
     @click.prevent="action"
   >
-    <div class="d-flex align-baseline">
+    <div class="align-center d-flex">
       <div v-if="inProgress" class="pr-1">
-        <v-progress-circular indeterminate size="18" />
+        <v-progress-circular indeterminate size="16" width="2" />
       </div>
-      <span class="text-no-wrap">
-        <slot></slot>
-      </span>
+      <div class="text-no-wrap">
+        <slot />
+      </div>
     </div>
   </v-btn>
 </template>
