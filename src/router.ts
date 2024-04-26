@@ -16,6 +16,7 @@ const Home = () => import('@/views/Home.vue')
 const Login = () => import('./layouts/Login.vue')
 const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
 const NotFound = () => import('@/views/NotFound.vue')
+const PassengerManifest = () => import('@/views/PassengerManifest.vue')
 const Profile = () => import('@/views/Profile.vue')
 const SearchResults = () => import('@/views/SearchResults.vue')
 const Student = () => import('@/views/Student.vue')
@@ -155,6 +156,11 @@ const routes:RouteRecordRaw[] = [
         path: '/admin',
         component: FlightDeck,
         name: 'Flight Deck'
+      },
+      {
+        path: '/admin/passengers',
+        component: PassengerManifest,
+        name: 'Passenger Manifest'
       }
     ]
   },
