@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-2">
+  <div class="mt-4">
     <ProgressButton
       v-if="cohort.showApplyButton"
       id="unsaved-filter-apply"
@@ -12,7 +12,9 @@
     <v-btn
       v-if="cohort.showApplyButton"
       id="unsaved-filter-reset"
+      color="primary"
       :disabled="!!cohort.editMode"
+      size="large"
       variant="text"
       @click="resetToLastApply"
     >
@@ -53,6 +55,7 @@
 <script setup>
 import CreateCohortModal from '@/components/cohort/CreateCohortModal'
 import ProgressButton from '@/components/util/ProgressButton'
+import router from '@/router'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {applyFilters, loadCohort, resetFiltersToLastApply} from '@/stores/cohort-edit-session/utils'
 import {createCohort, saveCohort} from '@/api/cohort'
@@ -60,7 +63,6 @@ import {get} from 'lodash'
 import {putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {useRouter} from 'vue-router'
 
 const cohort = useCohortStore()
 const context = useContextStore()
@@ -100,7 +102,7 @@ const create = name => {
       cohort.setModifiedSinceLastSearch(null)
       savedCohortCallback(`Cohort "${cohort.cohortName}" created`)
       setPageTitle(cohort.cohortName)
-      await useRouter().push(`/cohort/${cohort.cohortId}`)
+      await router.push(`/cohort/${cohort.cohortId}`)
       window.history.replaceState({...window.history.state, ...{}}, null)
       currentAction.value = null
     }

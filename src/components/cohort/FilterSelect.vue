@@ -7,7 +7,6 @@
     class="filter-select"
     :class="{'border-left-primary': hasLeftBorderStyle}"
     color="primary"
-    density="comfortable"
     :disabled="!options"
     eager
     hide-details
