@@ -52,18 +52,16 @@
             :action="createTemplate"
             :disabled="isSaving || !title.length || title.length > 255 || useNoteStore().boaSessionExpired"
             :in-progress="isSaving"
-          >
-            {{ isSaving ? 'Saving' : 'Save' }}
-          </ProgressButton>
+            :text="isSaving ? 'Saving' : 'Save'"
+          />
           <v-btn
             id="cancel-template-create"
             class="ml-1"
             :disabled="isSaving"
+            text="Cancel"
             variant="plain"
             @click="cancelModal"
-          >
-            Cancel
-          </v-btn>
+          />
         </div>
       </form>
     </v-card>

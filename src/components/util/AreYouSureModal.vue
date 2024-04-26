@@ -23,18 +23,16 @@
             :action="confirm"
             :disabled="isProcessing"
             :in-progress="isProcessing"
-          >
-            {{ buttonLabelConfirm }}
-          </ProgressButton>
+            :text="buttonLabelConfirm"
+          />
           <v-btn
             id="are-you-sure-cancel"
             class="ml-1"
             :disabled="isProcessing"
+            :text="buttonLabelCancel"
             variant="plain"
             @click.stop="functionCancel"
-          >
-            {{ buttonLabelCancel }}
-          </v-btn>
+          />
         </div>
       </form>
     </v-card>

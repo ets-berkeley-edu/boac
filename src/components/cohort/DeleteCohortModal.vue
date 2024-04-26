@@ -27,24 +27,23 @@
           :text="error"
           title="Error"
           variant="tonal"
-        ></v-alert>
+        />
       </div>
       <div class="d-flex justify-end px-4 py-2">
         <ProgressButton
           id="delete-cohort-confirm"
           :action="onConfirm"
           :in-progress="isDeleting"
-        >
-          Delete
-        </ProgressButton>
+          size="large"
+          text="Delete"
+        />
         <v-btn
           id="delete-cohort-cancel"
           class="ml-1"
+          text="Cancel"
           variant="plain"
           @click="cancelDeleteModal"
-        >
-          Cancel
-        </v-btn>
+        />
       </div>
     </v-card>
   </v-overlay>

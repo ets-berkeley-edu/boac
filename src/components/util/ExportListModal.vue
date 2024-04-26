@@ -34,7 +34,7 @@
               hide-details
               :label="option.text"
               @update:model-value="isChecked => onChange(option.value, isChecked)"
-            ></v-checkbox>
+            />
           </template>
         </div>
         <div>
@@ -52,7 +52,7 @@
           :text="error"
           title="Error"
           variant="tonal"
-        ></v-alert>
+        />
       </div>
       <div class="d-flex justify-end px-4 py-2">
         <ProgressButton
@@ -60,17 +60,15 @@
           :action="onSubmit"
           :disabled="!selected.length"
           :in-progress="isExporting"
-        >
-          Export
-        </ProgressButton>
+          text="Export"
+        />
         <v-btn
           id="export-list-cancel"
           class="ml-1"
+          text="Close"
           variant="plain"
           @click="cancel"
-        >
-          Close
-        </v-btn>
+        />
       </div>
     </v-card>
   </v-overlay>

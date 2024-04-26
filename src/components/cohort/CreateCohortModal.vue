@@ -47,9 +47,9 @@
               :action="createCohort"
               :disabled="!name.length"
               :in-progress="isSaving"
-            >
-              Save
-            </ProgressButton>
+              size="large"
+              text="Save"
+            />
             <v-btn
               id="create-cancel"
               :disabled="isSaving"

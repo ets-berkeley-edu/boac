@@ -52,18 +52,16 @@
             :action="renameTemplate"
             :disabled="isSaving || !title.length || title.length > 255"
             :in-progress="isSaving"
-          >
-            {{ isSaving ? 'Renaming' : 'Rename' }}
-          </ProgressButton>
+            :text="isSaving ? 'Renaming' : 'Rename'"
+          />
           <v-btn
             id="cancel-rename-template"
             class="ml-1"
             :disabled="isSaving"
+            text="Cancel"
             variant="plain"
             @click="cancelModal"
-          >
-            Cancel
-          </v-btn>
+          />
         </div>
       </form>
     </v-card>

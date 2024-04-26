@@ -38,7 +38,7 @@
       <div
         v-if="isUX('range') && filter.validation === 'date'"
         :id="`filter-range-date-picker-${position}`"
-        class="align-center d-flex vc-zindex-fix"
+        class="vc-zindex-fix"
       >
         <elegant-date-picker
           v-model.range.string="range"
@@ -51,8 +51,8 @@
           @popover-did-show="onPopoverShown"
         >
           <template #default="{ inputValue, inputEvents }">
-            <div class="d-flex">
-              <label :for="`filter-range-min-${position}`">
+            <div class="align-center d-flex">
+              <label class="px-2" :for="`filter-range-min-${position}`">
                 {{ rangeMinLabel() }}
               </label>
               <div>
@@ -60,10 +60,10 @@
                   :id="`filter-range-min-${position}`"
                   aria-label="beginning of range"
                   :aria-describedby="`filter-range-min-placeholder-${position}`"
-                  density="compact"
                   hide-details
                   :model-value="inputValue.start"
                   :placeholder="placeholder()"
+                  size="12"
                   variant="outlined"
                   v-on="inputEvents.start"
                   @focus="appendPopover"
@@ -72,7 +72,7 @@
                 <div class="filter-range-popover-container" />
                 <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">MM/DD/YYYY</span>
               </div>
-              <label :for="`filter-range-max-${position}`">
+              <label class="px-2" :for="`filter-range-max-${position}`">
                 {{ rangeMaxLabel() }}
               </label>
               <div>
@@ -80,10 +80,10 @@
                   :id="`filter-range-max-${position}`"
                   aria-label="end of range"
                   :aria-describedby="`filter-range-max-placeholder-${position}`"
-                  density="compact"
                   hide-details
                   :model-value="inputValue.end"
                   :placeholder="placeholder()"
+                  size="12"
                   variant="outlined"
                   v-on="inputEvents.end"
                   @focus="appendPopover"
@@ -92,6 +92,8 @@
                 <div class="filter-range-popover-container" />
                 <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">MM/DD/YYYY</span>
               </div>
+              <!--
+              TODO
               <div
                 v-if="size(errorPerRangeInput)"
                 class="sr-only"
@@ -101,12 +103,14 @@
               </div>
               <v-tooltip
                 v-if="size(errorPerRangeInput)"
+                :attach="`filter-range-max-${position}`"
+                class="text-error"
+                placement="top"
                 :show="true"
                 :target="`filter-range-max-${position}`"
-                placement="top"
-              >
-                <span class="text-error">{{ errorPerRangeInput }}</span>
-              </v-tooltip>
+                :text="errorPerRangeInput"
+              />
+              -->
             </div>
           </template>
         </elegant-date-picker>
@@ -127,7 +131,7 @@
             variant="outlined"
           />
         </div>
-        <label :for="`filter-range-max-${position}`" class="font-size-16 px-2">
+        <label class="font-size-16 px-2" :for="`filter-range-max-${position}`">
           {{ rangeMaxLabel() }}
           <span class="sr-only"> (end of range)</span>
         </label>
@@ -143,6 +147,8 @@
             variant="outlined"
           />
         </div>
+        <!--
+        TODO
         <div
           v-if="size(errorPerRangeInput)"
           class="sr-only"
@@ -150,14 +156,15 @@
         >
           Error: {{ errorPerRangeInput }}
         </div>
-        <!-- <b-popover
-          v-if="size(errorPerRangeInput)"
+        <v-tooltip
+          v-model="errorPerRangeInput"
           :show="true"
           :target="`filter-range-max-${position}`"
           placement="top"
         >
           <span class="text-error">{{ errorPerRangeInput }}</span>
-        </b-popover> -->
+        </v-tooltip>
+        -->
       </div>
     </div>
     <div v-if="!isExistingFilter" class="align-center d-flex ml-auto mr-2">
@@ -168,20 +175,19 @@
           :action="onClickAddButton"
           :disabled="isSaving"
           :in-progress="isSaving"
-        >
-          Add
-        </ProgressButton>
+          size="large"
+          text="Add"
+        />
       </div>
       <div v-if="isModifyingFilter && get(filter, 'type.ux')">
         <v-btn
           id="unsaved-filter-reset"
+          class="text-uppercase"
           color="primary"
-          size="large"
+          text="Cancel"
           variant="text"
           @click="reset"
-        >
-          Cancel
-        </v-btn>
+        />
       </div>
     </div>
     <div v-if="useCohortStore().isOwnedByCurrentUser && isExistingFilter" class="ml-auto mr-3">
@@ -191,11 +197,10 @@
             :id="`edit-added-filter-${position}`"
             class="text-uppercase"
             color="primary"
+            text="Edit"
             variant="text"
             @click="onClickEditButton"
-          >
-            Edit
-          </v-btn>
+          />
         </div>
         <div v-if="!isUX('boolean')" class="mb-1">|</div>
         <div>
@@ -203,11 +208,10 @@
             :id="`remove-added-filter-${position}`"
             class="text-uppercase"
             color="primary"
+            text="Remove"
             variant="text"
             @click="remove"
-          >
-            Remove
-          </v-btn>
+          />
         </div>
       </div>
       <div v-if="isModifyingFilter" class="d-flex">
@@ -216,19 +220,17 @@
           color="primary"
           :disabled="disableUpdateButton"
           size="large"
+          text="Update"
           @click="onClickUpdateButton"
-        >
-          Update
-        </v-btn>
+        />
         <v-btn
           :id="`cancel-edit-added-filter-${position}`"
           class="font-size-14 text-uppercase"
           size="large"
+          text="Cancel"
           variant="plain"
           @click="onClickCancelEdit"
-        >
-          Cancel
-        </v-btn>
+        />
       </div>
     </div>
   </div>
