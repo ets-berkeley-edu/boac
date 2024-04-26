@@ -3,7 +3,7 @@
     :id="id"
     :color="color"
     :disabled="disabled"
-    size="large"
+    :size="size"
     @click.prevent="action"
   >
     <div class="align-center d-flex">
@@ -11,6 +11,7 @@
         <v-progress-circular indeterminate size="16" width="2" />
       </div>
       <div class="text-no-wrap">
+        {{ text }}
         <slot />
       </div>
     </div>
@@ -40,6 +41,16 @@ export default {
     },
     inProgress: {
       type: Boolean,
+      required: false
+    },
+    size: {
+      default: 'default',
+      type: [String, Number],
+      required: false
+    },
+    text: {
+      default: undefined,
+      type: String,
       required: false
     }
   }

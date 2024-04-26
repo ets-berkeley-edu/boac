@@ -29,40 +29,36 @@
           :action="updateTemplate"
           :disabled="useNoteStore().isSaving || !useNoteStore().model.subject"
           :in-progress="useNoteStore().isSaving"
-        >
-          Update Template
-        </ProgressButton>
+          text="Update Template"
+        />
         <v-btn
           v-if="useNoteStore().model.isDraft"
           id="save-as-draft-button"
           class="mx-1"
           color="primary"
           :disabled="useNoteStore().isSaving || (!trim(useNoteStore().model.subject) && !trim(useNoteStore().model.body))"
+          text="Save and Close Draft"
           variant="text"
           @click.prevent="updateNote"
-        >
-          Save and Close Draft
-        </v-btn>
+        />
         <ProgressButton
           v-if="!['editTemplate'].includes(useNoteStore().mode)"
           id="create-note-button"
           :action="publish"
           :disabled="useNoteStore().isSaving || isEmpty(useNoteStore().completeSidSet) || !trim(useNoteStore().model.subject)"
           :in-progress="useNoteStore().isSaving"
-        >
-          Publish Note
-        </ProgressButton>
+          text="Publish Note"
+        />
         <v-btn
           v-if="useNoteStore().mode !== 'editDraft'"
           id="create-note-cancel"
           class="ml-1"
           color="error"
           :disabled="useNoteStore().isSaving"
+          text="Discard"
           variant="outlined"
           @click.prevent="cancel"
-        >
-          Discard
-        </v-btn>
+        />
       </div>
     </div>
   </div>

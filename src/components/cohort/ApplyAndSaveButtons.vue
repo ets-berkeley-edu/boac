@@ -4,22 +4,21 @@
       v-if="cohort.showApplyButton"
       id="unsaved-filter-apply"
       :action="apply"
+      class="text-uppercase"
       :disabled="!!cohort.editMode"
       :in-progress="currentAction === 'search'"
-    >
-      Apply
-    </ProgressButton>
+      text="Apply"
+    />
     <v-btn
       v-if="cohort.showApplyButton"
       id="unsaved-filter-reset"
+      class="text-uppercase"
       color="primary"
       :disabled="!!cohort.editMode"
-      size="large"
+      text="Reset"
       variant="text"
       @click="resetToLastApply"
-    >
-      Reset
-    </v-btn>
+    />
     <div v-if="cohort.showSaveButton && currentAction !== 'search'">
       <ProgressButton
         id="save-button"
@@ -27,6 +26,7 @@
         :color="currentAction === 'acknowledgeSave' ? 'success' : 'primary'"
         :disabled="!!cohort.editMode || showCreateModal || !!currentAction"
         :in-progress="currentAction === 'save'"
+        size="large"
       >
         <span v-if="currentAction === 'acknowledgeSave'">Saved</span>
         <span v-if="currentAction === 'save'">Saving</span>
@@ -38,11 +38,10 @@
         id="reset-to-saved-cohort"
         class="ml-1"
         :disabled="!!cohort.editMode"
+        text="Reset"
         variant="text"
         @click="resetToSaved"
-      >
-        Reset
-      </v-btn>
+      />
       <CreateCohortModal
         :cancel="cancelCreateModal"
         :create="create"

@@ -48,18 +48,16 @@
             :action="createCuratedGroup"
             :disabled="!name.length"
             :in-progress="isSaving"
-          >
-            Save
-          </ProgressButton>
+            text="Save"
+          />
           <v-btn
             id="create-cancel"
             class="ml-1"
             :disabled="isSaving"
+            text="Cancel"
             variant="plain"
             @click="cancelModal"
-          >
-            Cancel
-          </v-btn>
+          />
         </div>
       </form>
     </v-card>
