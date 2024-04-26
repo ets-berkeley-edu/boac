@@ -17,7 +17,6 @@
           <FilterRow
             v-for="(filter, index) in useCohortStore().filters"
             :key="filterRowUniqueKey(filter, index)"
-            class="filter-row"
             :position="index"
           />
           <FilterRow v-if="useCohortStore().isOwnedByCurrentUser" />
@@ -247,12 +246,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.filter-row {
-  align-items: center;
-  background-color: #f3f3f3;
-  border-left: 6px solid rgb(var(--v-theme-primary)) !important;
-  min-height: 56px;
-}
-</style>

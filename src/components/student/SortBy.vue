@@ -41,20 +41,17 @@
           density="compact"
           role="option"
           :title="item.title"
-        ></v-list-item>
+        />
       </template>
     </v-select>
   </div>
 </template>
 
-<script setup>
-import {find, get, includes} from 'lodash'
-import {useContextStore} from '@/stores/context'
-</script>
-
 <script>
+import {find, get, includes} from 'lodash'
 import {myDeptCodes, previousSisTermId, termNameForSisId} from '@/berkeley'
 import {nextTick} from 'vue'
+import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'SortBy',
@@ -98,7 +95,7 @@ export default {
         options.push({group: 'Profile', label: 'Level', value: 'level'})
         options.push({group: 'Profile', label: 'Major', value: 'major'})
         if (get(useContextStore().currentUser, 'isAdmin') || includes(myDeptCodes(['advisor', 'director']), 'UWASC')) {
-          options[0].options.push({group: 'Profile', label: 'Team', value: 'group_name'})
+          options.push({group: 'Profile', label: 'Team', value: 'group_name'})
         }
         options.push({header: 'Terms', label: 'Terms'})
         options.push({group: 'Terms', label: 'Entering Term', value: 'entering_term'})
