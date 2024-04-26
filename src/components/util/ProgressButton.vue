@@ -7,7 +7,7 @@
     @click.prevent="action"
   >
     <div class="align-center d-flex">
-      <div v-if="inProgress" class="pr-1">
+      <div v-if="inProgress" class="pr-2">
         <v-progress-circular indeterminate size="16" width="2" />
       </div>
       <div class="text-no-wrap">

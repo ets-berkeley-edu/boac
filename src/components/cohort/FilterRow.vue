@@ -1,5 +1,9 @@
 <template>
-  <div v-if="showRow" class="align-center d-flex flex-wrap mt-2">
+  <div
+    v-if="showRow"
+    class="align-center d-flex flex-wrap mt-2"
+    :class="{'filter-row': isExistingFilter}"
+  >
     <div
       v-if="isExistingFilter"
       :id="`existing-filter-${position}`"
@@ -41,7 +45,7 @@
         class="vc-zindex-fix"
       >
         <elegant-date-picker
-          v-model.range.string="range"
+          v-model.range="range"
           hide-header
           is-required
           :masks="{modelValue: 'YYYY-MM-DD'}"
@@ -50,74 +54,52 @@
           :select-attribute="{key: 'today', dot: true, dates: new Date()}"
           @popover-did-show="onPopoverShown"
         >
-          <template #default="{ inputValue, inputEvents }">
+          <template #default="{inputValue, inputEvents}">
             <div class="align-center d-flex">
-              <label class="px-2" :for="`filter-range-min-${position}`">
+              <label class="font-weight-500 pl-0 pr-2" :for="`filter-range-min-${position}`">
                 {{ rangeMinLabel() }}
               </label>
               <div>
+                <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">
+                  Start of range in format MM/DD/YYYY
+                </span>
                 <v-text-field
                   :id="`filter-range-min-${position}`"
-                  aria-label="beginning of range"
+                  v-model="inputValue.start"
                   :aria-describedby="`filter-range-min-placeholder-${position}`"
                   hide-details
-                  :model-value="inputValue.start"
                   :placeholder="placeholder()"
                   size="12"
                   variant="outlined"
                   v-on="inputEvents.start"
-                  @focus="appendPopover"
-                  @mouseover="appendPopover"
                 />
-                <div class="filter-range-popover-container" />
-                <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">MM/DD/YYYY</span>
               </div>
-              <label class="px-2" :for="`filter-range-max-${position}`">
+              <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
                 {{ rangeMaxLabel() }}
               </label>
               <div>
+                <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">
+                  End of range in format MM/DD/YYYY
+                </span>
                 <v-text-field
                   :id="`filter-range-max-${position}`"
+                  v-model="inputValue.end"
                   aria-label="end of range"
                   :aria-describedby="`filter-range-max-placeholder-${position}`"
                   hide-details
-                  :model-value="inputValue.end"
                   :placeholder="placeholder()"
                   size="12"
                   variant="outlined"
                   v-on="inputEvents.end"
-                  @focus="appendPopover"
-                  @mouseover="appendPopover"
                 />
-                <div class="filter-range-popover-container" />
-                <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">MM/DD/YYYY</span>
               </div>
-              <!--
-              TODO
-              <div
-                v-if="size(errorPerRangeInput)"
-                class="sr-only"
-                aria-live="polite"
-              >
-                Error: {{ errorPerRangeInput }}
-              </div>
-              <v-tooltip
-                v-if="size(errorPerRangeInput)"
-                :attach="`filter-range-max-${position}`"
-                class="text-error"
-                placement="top"
-                :show="true"
-                :target="`filter-range-max-${position}`"
-                :text="errorPerRangeInput"
-              />
-              -->
             </div>
           </template>
         </elegant-date-picker>
       </div>
       <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex mr-3">
-        <label class="px-2" :for="`filter-range-min-${position}`">
-          {{ rangeMinLabel() }}<span class="sr-only"> beginning of range</span>
+        <label class="font-weight-500 ml-2 pr-2" :for="`filter-range-min-${position}`">
+          {{ rangeMinLabel() }}<span class="sr-only"> starting at</span>
         </label>
         <div>
           <v-text-field
@@ -131,9 +113,8 @@
             variant="outlined"
           />
         </div>
-        <label class="font-size-16 px-2" :for="`filter-range-max-${position}`">
-          {{ rangeMaxLabel() }}
-          <span class="sr-only"> (end of range)</span>
+        <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
+          {{ rangeMaxLabel() }}<span class="sr-only"> end of range</span>
         </label>
         <div>
           <v-text-field
@@ -147,24 +128,6 @@
             variant="outlined"
           />
         </div>
-        <!--
-        TODO
-        <div
-          v-if="size(errorPerRangeInput)"
-          class="sr-only"
-          aria-live="polite"
-        >
-          Error: {{ errorPerRangeInput }}
-        </div>
-        <v-tooltip
-          v-model="errorPerRangeInput"
-          :show="true"
-          :target="`filter-range-max-${position}`"
-          placement="top"
-        >
-          <span class="text-error">{{ errorPerRangeInput }}</span>
-        </v-tooltip>
-        -->
       </div>
     </div>
     <div v-if="!isExistingFilter" class="align-center d-flex ml-auto mr-2">
@@ -234,6 +197,19 @@
       </div>
     </div>
   </div>
+  <v-expand-transition class="mb-4 mt-1 mr-4">
+    <v-card v-show="errorPerRangeInput" flat>
+      <v-alert
+        aria-live="polite"
+        color="red"
+        density="compact"
+        role="alert"
+        :text="errorPerRangeInput"
+        type="warning"
+        variant="outlined"
+      />
+    </v-card>
+  </v-expand-transition>
 </template>
 
 <script>
@@ -261,7 +237,6 @@ import {
   values
 } from 'lodash'
 import {DateTime} from 'luxon'
-import {nextTick} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
 import {updateFilterOptions} from '@/stores/cohort-edit-session/utils'
 
@@ -363,7 +338,7 @@ export default {
           const isBadData = (min && !isValid(min)) || (max && !isValid(max))
           if (isBadData || (min && max && min.toUpperCase() > max.toUpperCase())) {
             // Invalid data or values are descending.
-            this.errorPerRangeInput = 'Requires letters in ascending order.'
+            this.errorPerRangeInput = 'Letters must be in ascending order.'
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
         } else if (validation === 'date') {
@@ -394,17 +369,6 @@ export default {
     this.valueOriginal = this.filter && cloneDeep(this.filter)
   },
   methods: {
-    appendPopover(e) {
-      // Place v-calendar date picker popover where it belongs in the tab order
-      const el = document.getElementById(`filter-range-date-picker-${this.position}`)
-      const container = e.target.parentElement.querySelector('.filter-range-popover-container')
-      nextTick(() => {
-        const popover = el ? el.querySelector('.vc-popover-content-wrapper') : null
-        if (container && popover) {
-          container.replaceChildren(popover)
-        }
-      })
-    },
     formatGPA(value) {
       // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
       const gpa = '0' + trim(value)
@@ -453,6 +417,7 @@ export default {
       this.reset()
     },
     onClickCancelEdit() {
+      this.errorPerRangeInput = undefined
       useContextStore().alertScreenReader('Canceled')
       this.isModifyingFilter = false
       useCohortStore().setEditMode(null)
@@ -469,6 +434,7 @@ export default {
         this.selectedOption = Array.isArray(options) ? findOption(options, this.filter.value) : find(flattenOptions(options), this.filter.value)
         this.putFocusSecondaryDropdown()
       } else if (this.isUX('range')) {
+        console.log(`filter.min: ${this.filter.min}`)
         this.range.min = this.range.start = this.filter.min
         this.range.max = this.range.end = this.filter.max
         this.putFocusRange()
@@ -668,7 +634,7 @@ export default {
       useContextStore().alertScreenReader(`${this.filter.label.primary} filter removed`)
     },
     reset() {
-      this.selectedFilter = this.selectedOption = undefined
+      this.errorPerRangeInput = this.selectedFilter = this.selectedOption = undefined
       this.disableUpdateButton = false
       this.showAdd = false
       this.range = mapValues(this.range, () => undefined)
@@ -703,5 +669,11 @@ export default {
 <style scoped>
 .existing-filter-name {
   width: 26%;
+}
+.filter-row {
+  align-items: center;
+  background-color: #f3f3f3;
+  border-left: 6px solid rgb(var(--v-theme-primary)) !important;
+  min-height: 56px;
 }
 </style>
