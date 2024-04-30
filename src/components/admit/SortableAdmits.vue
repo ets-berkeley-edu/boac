@@ -1,20 +1,17 @@
 <template>
   <v-data-table-virtual
-    borderless
     :cell-props="{
-      class: 'pl-0'
+      class: 'pl-0 vertical-top',
+      style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     }"
-    density="compact"
-    :header-props="{
-      class: 'pl-0 text-no-wrap'
-    }"
+    :header-props="{class: 'pl-0'}"
     :headers="headers"
     :items="admittedStudents"
+    mobile-breakpoint="md"
     no-sort-reset
     :sort-by="[sortBy]"
     :sort-compare="sortCompare"
     :sort-desc="sortDescending"
-    stacked="md"
   >
     <template #item.curated="{item}">
       <CuratedStudentCheckbox
@@ -25,19 +22,17 @@
     </template>
 
     <template #item.lastName="{item}">
-      <div class="text-no-wrap">
-        <span class="sr-only">Admitted student name</span>
-        <router-link
-          :id="`link-to-admit-${item.csEmplId}`"
-          :class="{'demo-mode-blur': currentUser.inDemoMode}"
-          :to="admitRoutePath(item.csEmplId)"
-          v-html="fullName(item)"
-        />
-      </div>
+      <span class="sr-only">Admitted student name</span>
+      <router-link
+        :id="`link-to-admit-${item.csEmplId}`"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+        :to="admitRoutePath(item.csEmplId)"
+        v-html="fullName(item)"
+      />
     </template>
 
     <template #item.csEmplId="{item}">
-      <span class="sr-only">C S I D </span>
+      <span class="sr-only">C S I D&nbsp;</span>
       <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.csEmplId }}</span>
     </template>
 

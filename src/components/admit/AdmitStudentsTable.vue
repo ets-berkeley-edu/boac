@@ -30,7 +30,6 @@
         <td v-if="removeStudent" class="pa-1">
           <v-btn
             :id="`row-${index}-remove-student-from-curated-group`"
-            icon
             size="small"
             variant="text"
             @click="curatedGroupRemoveStudent(student)"
@@ -52,7 +51,7 @@
           </router-link>
         </td>
         <td class="pa-1">
-          <span class="sr-only">C S I D </span>
+          <span class="sr-only">C S I D&nbsp;</span>
           <span :id="`row-${index}-cs-empl-id`" :class="{'demo-mode-blur': get(useContextStore().currentUser, 'inDemoMode')}">{{ getSid(student) }}</span>
         </td>
         <td class="pa-1">

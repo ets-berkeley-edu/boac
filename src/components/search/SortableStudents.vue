@@ -1,15 +1,13 @@
 <template>
   <v-data-table-virtual
-    v-resize="onResize"
     :cell-props="{
-      class: 'pl-0'
+      class: 'pl-0 vertical-top',
+      style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     }"
-    class="font-size-16"
-    :header-props="{
-      class: 'pl-0 text-no-wrap'
-    }"
+    :header-props="{class: 'pl-0'}"
     :headers="headers"
     :items="students"
+    mobile-breakpoint="md"
     no-sort-reset
     :sort-by="[sortBy]"
     :sort-compare="sortCompare"
@@ -39,7 +37,7 @@
     </template>
 
     <template #item.name="{item}">
-      <div class="text-no-wrap">
+      <div>
         <span class="sr-only">Student name</span>
         <router-link
           v-if="item.uid"
@@ -170,8 +168,7 @@ export default {
   data: () => ({
     headers: undefined,
     sortBy: undefined,
-    sortDescending: undefined,
-    stackTable: false
+    sortDescending: undefined
   }),
   watch: {
     sortBy() {
@@ -180,9 +177,6 @@ export default {
     sortDescending() {
       this.onChangeSortBy()
     }
-  },
-  mounted() {
-    this.onResize()
   },
   created() {
     this.sortBy = this.options.sortBy
@@ -218,9 +212,6 @@ export default {
       if (field) {
         this.alertScreenReader(`Sorted by ${field.title}${this.sortDescending ? ', descending' : ''}`)
       }
-    },
-    onResize() {
-      this.stackTable = this.$vuetify.display.mdAndDown
     },
     sortCompare(a, b, sortBy, sortDesc) {
       let aValue = get(a, sortBy)

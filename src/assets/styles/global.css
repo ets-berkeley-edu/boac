@@ -285,6 +285,9 @@
   overflow: visible;
   z-index: 1000 !important;
 }
+.vertical-top {
+  vertical-align: top !important;
+}
 .vh-100 {
   height: 100vh !important;
 }
