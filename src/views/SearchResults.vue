@@ -33,6 +33,7 @@
         <v-tabs
           v-model="tab"
           color="primary"
+          :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
           :items="tabs"
           slider-color="primary"
         >
@@ -47,15 +48,44 @@
           <template #item="{ item }">
             <v-tabs-window-item :value="item.key" class="pa-4">
               <div v-if="item.key === 'admit'">
-                <AdmittedStudentResults
-                  :results="results"
-                  :search-phrase="searchPhraseSubmitted"
-                />
+                <h2 id="admit-results-page-header" class="font-size-18">
+                  {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="searchPhraseSubmitted">  matching '{{ searchPhraseSubmitted }}'</span>
+                </h2>
+                <div v-if="results.totalAdmitCount">
+                  <div class="mb-2 ml-1">
+                    <AdmitDataWarning :updated-at="_get(results.admits, '[0].updatedAt')" />
+                  </div>
+                  <div v-if="_size(results.admits) < results.totalAdmitCount" class="mb-2">
+                    Showing the first {{ _size(results.admits) }} admitted students.
+                  </div>
+                  <CuratedGroupSelector
+                    context-description="Search"
+                    domain="admitted_students"
+                    :students="results.admits"
+                  />
+                  <SortableAdmits :admitted-students="results.admits" />
+                </div>
               </div>
               <div v-if="item.key === 'student'">
-                <StudentResults
-                  :results="results"
-                  :search-phrase="searchPhraseSubmitted"
+                <h2 id="student-results-page-header" class="font-size-18">
+                  {{ pluralize('student', results.totalStudentCount) }}<span v-if="searchPhraseSubmitted">  matching '{{ searchPhraseSubmitted }}'</span>
+                </h2>
+                <div v-if="results.totalStudentCount > 50" class="mb-2">
+                  Showing the first 50 students.
+                </div>
+                <CuratedGroupSelector
+                  context-description="Search"
+                  domain="default"
+                  :students="results.students"
+                />
+                <SortableStudents
+                  domain="default"
+                  :students="results.students"
+                  :options="{
+                    includeCuratedCheckbox: true,
+                    sortBy: 'lastName',
+                    reverse: false
+                  }"
                 />
               </div>
               <div v-if="item.key === 'course'">
@@ -119,15 +149,17 @@
 </template>
 
 <script>
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
 import AppointmentSnippet from '@/components/search/AppointmentSnippet'
 import Context from '@/mixins/Context'
-import AdmittedStudentResults from '@/components/search/AdmittedStudentResults'
+import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import SearchSession from '@/mixins/SearchSession'
 import SectionSpinner from '@/components/util/SectionSpinner'
+import SortableAdmits from '@/components/admit/SortableAdmits'
 import SortableCourses from '@/components/search/SortableCourses'
+import SortableStudents from '@/components/search/SortableStudents'
 import Spinner from '@/components/util/Spinner'
-import StudentResults from '@/components/search/StudentResults'
 import Util from '@/mixins/Util'
 import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
 import {pluralize} from '@/lib/utils'
@@ -136,13 +168,15 @@ import {search, searchAdmittedStudents} from '@/api/search'
 export default {
   name: 'SearchResults',
   components: {
-    AdmittedStudentResults,
+    AdmitDataWarning,
     AdvisingNoteSnippet,
     AppointmentSnippet,
+    CuratedGroupSelector,
+    SortableStudents,
     SectionSpinner,
+    SortableAdmits,
     SortableCourses,
-    Spinner,
-    StudentResults
+    Spinner
   },
   mixins: [Context, SearchSession, Util],
   data: () => ({
