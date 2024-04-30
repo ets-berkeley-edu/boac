@@ -32,7 +32,7 @@
     </template>
 
     <template #item.csEmplId="{item}">
-      <span class="sr-only">C S I D&nbsp;</span>
+      <span class="sr-only">C S I D<span aria-hidden="true">&nbsp;</span></span>
       <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.csEmplId }}</span>
     </template>
 

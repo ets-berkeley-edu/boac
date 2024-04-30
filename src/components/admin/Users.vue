@@ -199,7 +199,7 @@
         </v-btn>
       </template>
       <template #cell(uid)="row">
-        <span class="sr-only">U I D </span>
+        <span class="sr-only">U I D<span aria-hidden="true">&nbsp;</span></span>
         <span :id="`uid-${row.item.uid}`">{{ row.item.uid }}</span>
       </template>
       <template #cell(edit)="row">
