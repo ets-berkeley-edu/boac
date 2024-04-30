@@ -4,8 +4,7 @@
     :cell-props="{
       class: 'pl-0'
     }"
-    class="bg-transparent font-size-16"
-    density="compact"
+    class="font-size-16"
     :header-props="{
       class: 'pl-0 text-no-wrap'
     }"

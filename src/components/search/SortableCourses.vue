@@ -9,7 +9,7 @@
     <div v-if="courses.length < totalCourseCount">
       Showing the first {{ courses.length }} classes.
     </div>
-    <table class="table-full-width">
+    <table v-if="totalCourseCount" class="table-full-width">
       <tr>
         <th>
           <button
