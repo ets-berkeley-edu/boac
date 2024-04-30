@@ -1,75 +1,119 @@
 <template>
   <div class="pa-3">
     <Spinner />
-    <SearchResultsHeader :results="results" />
-    <div v-if="!loading && _size(results.admits)">
-      <hr class="section-divider" />
-      <AdmittedStudentResults
-        :results="results"
-        :search-phrase="searchPhraseSubmitted"
-      />
-    </div>
-    <div v-if="!loading && results.totalStudentCount">
-      <hr class="section-divider" />
-      <StudentResults
-        :results="results"
-        :search-phrase="searchPhraseSubmitted"
-      />
-    </div>
-    <div v-if="!loading && results.totalCourseCount" class="pt-4">
-      <hr class="section-divider" />
-      <SortableCourses
-        :courses="results.courses"
-        :header-class-name="!results.totalStudentCount && !!results.totalCourseCount && !_size(results.notes) ? 'page-section-header' : 'font-size-18'"
-        :search-phrase="searchPhraseSubmitted"
-        :total-course-count="results.totalCourseCount"
-      />
-    </div>
-    <div v-if="!loading && _size(results.notes)" class="pt-4">
-      <hr class="section-divider" />
-      <h2 id="note-results-page-header" class="font-size-18">
-        {{ _size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
-        {{ _size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
-        <span v-if="searchPhraseSubmitted"> with '{{ searchPhraseSubmitted }}'</span>
-      </h2>
-      <AdvisingNoteSnippet
-        v-for="advisingNote in results.notes"
-        :key="advisingNote.id"
-        :note="advisingNote"
-      />
-      <div class="text-center">
-        <v-btn
-          v-if="!completeNoteResults"
-          id="fetch-more-notes"
-          text="Show additional advising notes"
+    <div class="align-center d-flex">
+      <div class="mr-2">
+        <h1 class="page-section-header">Search Results</h1>
+      </div>
+      <div v-if="!loading && isDirty" class="pb-1">
+        [<v-btn
+          id="edit-search-btn"
+          class="mb-1 px-0"
+          color="primary"
+          text="edit search"
           variant="text"
-          @click.prevent="fetchMoreNotes"
-        />
-        <SectionSpinner :loading="loadingAdditionalNotes" />
+          @click.prevent="openAdvancedSearch"
+        />]
       </div>
     </div>
-    <div v-if="!loading && _size(results.appointments)" class="pt-4">
-      <hr class="section-divider" />
-      <h2 id="appointment-results-page-header" class="font-size-18">
-        {{ _size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
-        {{ _size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
-        <span v-if="searchPhraseSubmitted"> with '{{ searchPhraseSubmitted }}'</span>
-      </h2>
-      <AppointmentSnippet
-        v-for="appointment in results.appointments"
-        :key="appointment.id"
-        :appointment="appointment"
-      />
-      <div class="text-center">
-        <v-btn
-          v-if="!completeAppointmentResults"
-          id="fetch-more-appointments"
-          text="Show additional advising appointments"
-          variant="text"
-          @click.prevent="fetchMoreAppointments"
-        />
-        <SectionSpinner :loading="loadingAdditionalAppointments" />
+    <div v-if="!loading">
+      <div v-if="!hasSearchResults" id="page-header-no-results">
+        <div class="font-weight-500 pt-2">No matching records found.</div>
+        <div>Suggestions:</div>
+        <ul>
+          <li>Keep your search term simple.</li>
+          <li>Check your spelling and try again.</li>
+          <li>Search classes by section title, e.g., <strong>AMERSTD 10</strong>.</li>
+          <li>Avoid using generic terms, such as <strong>test</strong> or <strong>enrollment</strong>.</li>
+          <li>Longer search terms may refine results; <strong>registration fees</strong> instead of <strong>registration</strong>.</li>
+          <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
+        </ul>
       </div>
+      <v-sheet v-if="results.totalStudentCount">
+        <v-tabs
+          v-model="tab"
+          color="primary"
+          :items="tabs"
+          slider-color="primary"
+        >
+          <template #tab="{ item }">
+            <v-tab
+              :prepend-icon="item.icon"
+              :text="item.text"
+              :value="item.key"
+              class="text-none"
+            />
+          </template>
+          <template #item="{ item }">
+            <v-tabs-window-item :value="item.key" class="pa-4">
+              <div v-if="item.key === 'admit'">
+                <AdmittedStudentResults
+                  :results="results"
+                  :search-phrase="searchPhraseSubmitted"
+                />
+              </div>
+              <div v-if="item.key === 'student'">
+                <StudentResults
+                  :results="results"
+                  :search-phrase="searchPhraseSubmitted"
+                />
+              </div>
+              <div v-if="item.key === 'course'">
+                <SortableCourses
+                  :courses="results.courses"
+                  :header-class-name="!results.totalStudentCount && !!results.totalCourseCount && !_size(results.notes) ? 'page-section-header' : 'font-size-18'"
+                  :search-phrase="searchPhraseSubmitted"
+                  :total-course-count="results.totalCourseCount"
+                />
+              </div>
+              <div v-if="item.key === 'note'">
+                <h2 id="note-results-page-header" class="font-size-18">
+                  {{ _size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
+                  {{ _size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
+                  <span v-if="searchPhraseSubmitted"> with '{{ searchPhraseSubmitted }}'</span>
+                </h2>
+                <AdvisingNoteSnippet
+                  v-for="advisingNote in results.notes"
+                  :key="advisingNote.id"
+                  :note="advisingNote"
+                />
+                <div class="text-center">
+                  <v-btn
+                    v-if="!completeNoteResults"
+                    id="fetch-more-notes"
+                    text="Show additional advising notes"
+                    variant="text"
+                    @click.prevent="fetchMoreNotes"
+                  />
+                  <SectionSpinner :loading="loadingAdditionalNotes" />
+                </div>
+              </div>
+              <div v-if="item.key === 'appointment'">
+                <h2 id="appointment-results-page-header" class="font-size-18">
+                  {{ _size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
+                  {{ _size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
+                  <span v-if="searchPhraseSubmitted"> with '{{ searchPhraseSubmitted }}'</span>
+                </h2>
+                <AppointmentSnippet
+                  v-for="appointment in results.appointments"
+                  :key="appointment.id"
+                  :appointment="appointment"
+                />
+                <div class="text-center">
+                  <v-btn
+                    v-if="!completeAppointmentResults"
+                    id="fetch-more-appointments"
+                    text="Show additional advising appointments"
+                    variant="text"
+                    @click.prevent="fetchMoreAppointments"
+                  />
+                  <SectionSpinner :loading="loadingAdditionalAppointments" />
+                </div>
+              </div>
+            </v-tabs-window-item>
+          </template>
+        </v-tabs>
+      </v-sheet>
     </div>
   </div>
 </template>
@@ -79,13 +123,14 @@ import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
 import AppointmentSnippet from '@/components/search/AppointmentSnippet'
 import Context from '@/mixins/Context'
 import AdmittedStudentResults from '@/components/search/AdmittedStudentResults'
-import SearchResultsHeader from '@/components/search/SearchResultsHeader'
 import SearchSession from '@/mixins/SearchSession'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortableCourses from '@/components/search/SortableCourses'
 import Spinner from '@/components/util/Spinner'
 import StudentResults from '@/components/search/StudentResults'
 import Util from '@/mixins/Util'
+import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
+import {pluralize} from '@/lib/utils'
 import {search, searchAdmittedStudents} from '@/api/search'
 
 export default {
@@ -94,7 +139,6 @@ export default {
     AdmittedStudentResults,
     AdvisingNoteSnippet,
     AppointmentSnippet,
-    SearchResultsHeader,
     SectionSpinner,
     SortableCourses,
     Spinner,
@@ -129,7 +173,8 @@ export default {
       totalCourseCount: null,
       totalStudentCount: null
     },
-    searchPhraseSubmitted: undefined
+    searchPhraseSubmitted: undefined,
+    tab: undefined
   }),
   computed: {
     completeAppointmentResults() {
@@ -137,6 +182,27 @@ export default {
     },
     completeNoteResults() {
       return this._size(this.results.notes) < this.noteOptions.limit + this.noteOptions.offset
+    },
+    tabs() {
+      const tabs = []
+      const push = (key, count, included, icon) => {
+        if (included) {
+          tabs.push({icon, key, text: pluralize(key, count)})
+        }
+      }
+      push('admit', this.results.totalAdmitCount || 0, this.includeAdmits, mdiHumanGreeting)
+      push('student', this.results.totalStudentCount || 0, this.includeStudents, mdiAccountSchool)
+      push('course', this.results.totalCourseCount || 0, this.includeCourses, mdiHumanMaleBoardPoll)
+      push('note', this._size(this.results.notes), this.includeNotes, mdiNoteEditOutline)
+      push('appointment', this._size(this.results.appointments), this.includeNotes, mdiCalendarCheck)
+      return tabs
+    },
+    hasSearchResults() {
+      return this.results.totalStudentCount
+        || this.results.totalCourseCount
+        || this.results.totalAdmitCount
+        || this._size(this.results.notes)
+        || this._size(this.results.appointments)
     }
   },
   mounted() {
@@ -241,6 +307,10 @@ export default {
           this.results.notes = this._concat(this.results.notes, data.notes)
           this.loadingAdditionalNotes = false
         })
+    },
+    openAdvancedSearch() {
+      this.showAdvancedSearch = true
+      this.alertScreenReader('Advanced search is open')
     }
   }
 }
