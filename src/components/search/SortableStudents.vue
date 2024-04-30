@@ -76,7 +76,7 @@
     </template>
 
     <template #item.sid="{item}">
-      <span class="sr-only">S I D </span>
+      <span class="sr-only">S I D<span aria-hidden="true">&nbsp;</span></span>
       <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.sid }}</span>
     </template>
 
@@ -200,7 +200,7 @@ export default {
         {key: 'enrolledUnits', sortable, title: 'Term units', value: 'term.enrolledUnits'},
         {key: 'cumulativeUnits', sortable, title: 'Units completed', value: 'cumulativeUnits'},
         {key: 'cumulativeGPA', sortable, title: 'GPA', value: 'cumulativeGPA'},
-        {align: 'end', key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'}
+        {align: 'end', class: 'alert-count', key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'}
       ])
     }
   },
@@ -239,8 +239,8 @@ export default {
 </script>
 
 <style>
-th.alert-count {
-  padding-right: 15px;
+th {
+  height: 36px !important;
 }
 .sortable-students-icon {
   margin-left: 5px;

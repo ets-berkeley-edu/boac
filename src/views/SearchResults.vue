@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-3">
+  <div class="ma-4">
     <Spinner />
     <div class="align-center d-flex">
       <div class="mr-2">
@@ -17,8 +17,15 @@
       </div>
     </div>
     <div v-if="!loading">
+      <div v-if="hasSearchResults" aria-live="polite" role="alert">
+        Search results include {{ describe('Admits', results.totalAdmitCount) }}
+        {{ describe('student', results.totalStudentCount) }}
+        {{ describe('course', results.totalCourseCount) }}
+        {{ describe('note', _size(results.notes)) }}
+        {{ describe('appointment', _size(results.appointments)) }}
+      </div>
       <div v-if="!hasSearchResults" id="page-header-no-results">
-        <div class="font-weight-500 pt-2">No matching records found.</div>
+        <div class="pb-4 pt-2">No matching records found.</div>
         <div>Suggestions:</div>
         <ul>
           <li>Keep your search term simple.</li>
@@ -46,32 +53,18 @@
             />
           </template>
           <template #item="{ item }">
-            <v-tabs-window-item :value="item.key" class="pa-4">
-              <div v-if="item.key === 'admit'">
-                <h2 id="admit-results-page-header" class="font-size-18">
-                  {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="searchPhraseSubmitted">  matching '{{ searchPhraseSubmitted }}'</span>
-                </h2>
-                <div v-if="results.totalAdmitCount">
-                  <div class="mb-2 ml-1">
-                    <AdmitDataWarning :updated-at="_get(results.admits, '[0].updatedAt')" />
-                  </div>
-                  <div v-if="_size(results.admits) < results.totalAdmitCount" class="mb-2">
-                    Showing the first {{ _size(results.admits) }} admitted students.
-                  </div>
-                  <CuratedGroupSelector
-                    context-description="Search"
-                    domain="admitted_students"
-                    :students="results.admits"
-                  />
-                  <SortableAdmits :admitted-students="results.admits" />
-                </div>
-              </div>
+            <v-tabs-window-item :value="item.key">
               <div v-if="item.key === 'student'">
-                <h2 id="student-results-page-header" class="font-size-18">
-                  {{ pluralize('student', results.totalStudentCount) }}<span v-if="searchPhraseSubmitted">  matching '{{ searchPhraseSubmitted }}'</span>
-                </h2>
-                <div v-if="results.totalStudentCount > 50" class="mb-2">
-                  Showing the first 50 students.
+                <div class="my-3">
+                  <h2 id="student-results-page-header" class="font-size-18 font-weight-regular">
+                    {{ pluralize('student', results.totalStudentCount) }}
+                    <span v-if="searchPhraseSubmitted">
+                      matching <span class="font-weight-500">{{ searchPhraseSubmitted }}</span>
+                    </span>
+                  </h2>
+                  <div v-if="results.totalStudentCount > 50" class="font-size-14">
+                    Showing the first 50 students.
+                  </div>
                 </div>
                 <CuratedGroupSelector
                   context-description="Search"
@@ -87,6 +80,28 @@
                     reverse: false
                   }"
                 />
+              </div>
+              <div v-if="item.key === 'admit'">
+                <div class="mb-3">
+                  <h2 id="admit-results-page-header" class="font-size-18 font-weight-regular">
+                    {{ pluralize('admitted student', results.totalAdmitCount) }}
+                    <span v-if="searchPhraseSubmitted"> matching <span class="font-weight-500">{{ searchPhraseSubmitted }}</span></span>
+                  </h2>
+                  <div v-if="results.totalAdmitCount" class="mb-2 ml-1">
+                    <AdmitDataWarning :updated-at="_get(results.admits, '[0].updatedAt')" />
+                  </div>
+                </div>
+                <div v-if="results.totalAdmitCount">
+                  <div v-if="_size(results.admits) < results.totalAdmitCount" class="mb-2">
+                    Showing the first {{ _size(results.admits) }} admitted students.
+                  </div>
+                  <CuratedGroupSelector
+                    context-description="Search"
+                    domain="admitted_students"
+                    :students="results.admits"
+                  />
+                  <SortableAdmits :admitted-students="results.admits" />
+                </div>
               </div>
               <div v-if="item.key === 'course'">
                 <SortableCourses
@@ -224,8 +239,8 @@ export default {
           tabs.push({icon, key, text: pluralize(key, count)})
         }
       }
-      push('admit', this.results.totalAdmitCount || 0, this.includeAdmits, mdiHumanGreeting)
       push('student', this.results.totalStudentCount || 0, this.includeStudents, mdiAccountSchool)
+      push('admit', this.results.totalAdmitCount || 0, this.includeAdmits, mdiHumanGreeting)
       push('course', this.results.totalCourseCount || 0, this.includeCourses, mdiHumanMaleBoardPoll)
       push('note', this._size(this.results.notes), this.includeNotes, mdiNoteEditOutline)
       push('appointment', this._size(this.results.appointments), this.includeNotes, mdiCalendarCheck)
@@ -285,7 +300,7 @@ export default {
         })
       })
         .then(() => {
-          this.loadingComplete(this.describeResults())
+          this.loadingComplete()
           const totalCount = this.toInt(this.results.totalCourseCount, 0) + this.toInt(this.results.totalStudentCount, 0)
           const focusId = totalCount ? 'page-header' : 'page-header-no-results'
           this.putFocusNextTick(focusId)
@@ -297,15 +312,7 @@ export default {
     }
   },
   methods: {
-    describeResults() {
-      const describe = (noun, count) => count > 0 ? `${count} ${noun}${count === 1 ? '' : 's'}, ` : ''
-      let alert = `Search results include ${describe('Admits', this.results.totalAdmitCount)}`
-      alert += describe('student', this.results.totalStudentCount)
-      alert += describe('course', this.results.totalCourseCount)
-      alert += describe('note', this._size(this.results.notes))
-      alert += describe('appointment', this._size(this.results.appointments))
-      return alert
-    },
+    describe: (noun, count) => count > 0 ? `${count} ${noun}${count === 1 ? '' : 's'}, ` : '',
     fetchMoreAppointments() {
       this.appointmentOptions.offset = this.appointmentOptions.offset + this.appointmentOptions.limit
       this.appointmentOptions.limit = 20
@@ -349,3 +356,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+li {
+  margin-left: 24px;
+  padding-top: 6px;
+}
+</style>

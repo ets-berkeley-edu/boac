@@ -45,7 +45,7 @@
             <span class="font-weight-bolder">Error:</span> {{ error }}
           </div>
           <div v-if="!isExistingUser" class="align-items-center mb-3 ml-4 mt-3">
-            <label for="uid-input" class="sr-only">U I D </label>
+            <label for="uid-input" class="sr-only">U I D<span aria-hidden="true">&nbsp;</span></label>
             <b-form-input
               id="uid-input"
               v-model="userProfile.uid"
