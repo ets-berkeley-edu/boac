@@ -1,15 +1,6 @@
 <template>
   <div>
-    <h2
-      id="course-results-page-h1"
-      :class="headerClassName"
-    >
-      {{ pluralize('class', totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
-    </h2>
-    <div v-if="courses.length < totalCourseCount">
-      Showing the first {{ courses.length }} classes.
-    </div>
-    <table v-if="totalCourseCount" class="table-full-width">
+    <table class="table-full-width">
       <tr>
         <th>
           <button
@@ -73,19 +64,6 @@ export default {
     courses: {
       required: true,
       type: Array
-    },
-    headerClassName: {
-      required: true,
-      type: String
-    },
-    searchPhrase: {
-      required: true,
-      type: String,
-      validator: v => typeof v === 'string' || [null, undefined].includes(v)
-    },
-    totalCourseCount: {
-      required: true,
-      type: Number
     }
   },
   data: () => ({

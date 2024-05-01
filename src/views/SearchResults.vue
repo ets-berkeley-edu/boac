@@ -1,30 +1,40 @@
 <template>
-  <div class="ma-4">
+  <div class="bg-sky-blue">
     <Spinner />
-    <div class="align-center d-flex">
-      <div class="mr-2">
-        <h1 class="page-section-header">Search Results</h1>
+    <div class="pt-4 px-4">
+      <div class="align-center d-flex">
+        <div class="mr-2">
+          <h1 class="page-section-header">Search Results</h1>
+        </div>
+        <div v-if="!loading && isDirty" class="pb-1">
+          [<v-btn
+            id="edit-search-btn"
+            class="mb-1 px-0"
+            color="primary"
+            text="edit search"
+            variant="text"
+            @click.prevent="openAdvancedSearch"
+          />]
+        </div>
       </div>
-      <div v-if="!loading && isDirty" class="pb-1">
-        [<v-btn
-          id="edit-search-btn"
-          class="mb-1 px-0"
-          color="primary"
-          text="edit search"
-          variant="text"
-          @click.prevent="openAdvancedSearch"
-        />]
+      <div class="font-weight-500 pb-3">
+        Showing results for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>
       </div>
     </div>
     <div v-if="!loading">
-      <div v-if="hasSearchResults" aria-live="polite" role="alert">
+      <div
+        v-if="hasSearchResults"
+        aria-live="polite"
+        class="sr-only"
+        role="alert"
+      >
         Search results include {{ describe('Admits', results.totalAdmitCount) }}
         {{ describe('student', results.totalStudentCount) }}
         {{ describe('course', results.totalCourseCount) }}
         {{ describe('note', _size(results.notes)) }}
         {{ describe('appointment', _size(results.appointments)) }}
       </div>
-      <div v-if="!hasSearchResults" id="page-header-no-results">
+      <div v-if="!hasSearchResults" id="page-header-no-results" class="bg-white pt-4 px-4">
         <div class="pb-4 pt-2">No matching records found.</div>
         <div>Suggestions:</div>
         <ul>
@@ -36,24 +46,45 @@
           <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
         </ul>
       </div>
-      <v-sheet v-if="results.totalStudentCount">
+      <div v-if="results.totalStudentCount">
         <v-tabs
           v-model="tab"
-          color="primary"
+          density="comfortable"
           :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
           :items="tabs"
-          slider-color="primary"
+          mobile-breakpoint="md"
         >
-          <template #tab="{ item }">
+          <template #tab="{item}">
             <v-tab
-              :prepend-icon="item.icon"
-              :text="item.text"
+              class="bg-white border-s-sm border-e-sm border-t-sm mx-1 rounded-t-lg"
+              :class="{
+                'border-b-0': item.key === tab,
+                'border-b-sm': item.key !== tab,
+                'ml-3': item.key === 'student'
+              }"
+              color="white"
+              :hide-slider="item.key === tab"
+              min-width="120"
               :value="item.key"
-              class="text-none"
-            />
+              variant="text"
+            >
+              <template #default>
+                <div class="d-flex flex-row-reverse font-size-12 font-weight-bold text-black">
+                  <div>
+                    {{ item.count }}
+                  </div>
+                  <div
+                    class="mr-1 text-uppercase"
+                    :class="{'text-black': item.key === tab, 'text-primary': item.key !== tab}"
+                  >
+                    {{ item.key }}s
+                  </div>
+                </div>
+              </template>
+            </v-tab>
           </template>
           <template #item="{ item }">
-            <v-tabs-window-item :value="item.key">
+            <v-tabs-window-item class="bg-white pt-2 px-4" :value="item.key">
               <div v-if="item.key === 'student'">
                 <div class="my-3">
                   <h2 id="student-results-page-header" class="font-size-18 font-weight-regular">
@@ -83,8 +114,8 @@
               </div>
               <div v-if="item.key === 'admit'">
                 <div class="mb-3">
-                  <h2 id="admit-results-page-header" class="font-size-18 font-weight-regular">
-                    {{ pluralize('admitted student', results.totalAdmitCount) }}
+                  <h2 id="admit-results-page-header" class="font-size-18 font-weight-regular mb-3">
+                    {{ pluralize('admitted student', results.totalAdmitCount, {0: 'Zero', 1: 'One'}) }}
                     <span v-if="searchPhraseSubmitted"> matching <span class="font-weight-500">{{ searchPhraseSubmitted }}</span></span>
                   </h2>
                   <div v-if="results.totalAdmitCount" class="mb-2 ml-1">
@@ -104,18 +135,27 @@
                 </div>
               </div>
               <div v-if="item.key === 'course'">
+                <h2
+                  id="course-results-page-h1"
+                  class="font-size-18 font-weight-regular mb-3"
+                  :class="!results.totalStudentCount && !!results.totalCourseCount && !_size(results.notes) ? 'page-section-header' : 'font-size-18'"
+                >
+                  {{ pluralize('class', results.totalCourseCount, {0: 'Zero', 1: 'One'}, 'es') }}
+                  matching <span class="font-weight-500">{{ searchPhraseSubmitted }}</span>
+                </h2>
+                <div v-if="results.courses.length < results.totalCourseCount">
+                  Showing the first {{ results.courses.length }} classes.
+                </div>
                 <SortableCourses
+                  v-if="results.courses.length"
                   :courses="results.courses"
-                  :header-class-name="!results.totalStudentCount && !!results.totalCourseCount && !_size(results.notes) ? 'page-section-header' : 'font-size-18'"
-                  :search-phrase="searchPhraseSubmitted"
-                  :total-course-count="results.totalCourseCount"
                 />
               </div>
               <div v-if="item.key === 'note'">
-                <h2 id="note-results-page-header" class="font-size-18">
+                <h2 id="note-results-page-header" class="font-size-18 font-weight-regular mb-3">
                   {{ _size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
                   {{ _size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
-                  <span v-if="searchPhraseSubmitted"> with '{{ searchPhraseSubmitted }}'</span>
+                  <span v-if="searchPhraseSubmitted"> with <span class="font-weight-500">{{ searchPhraseSubmitted }}</span></span>
                 </h2>
                 <AdvisingNoteSnippet
                   v-for="advisingNote in results.notes"
@@ -134,10 +174,10 @@
                 </div>
               </div>
               <div v-if="item.key === 'appointment'">
-                <h2 id="appointment-results-page-header" class="font-size-18">
+                <h2 id="appointment-results-page-header" class="font-size-18 font-weight-regular mb-3">
                   {{ _size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
                   {{ _size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
-                  <span v-if="searchPhraseSubmitted"> with '{{ searchPhraseSubmitted }}'</span>
+                  <span v-if="searchPhraseSubmitted"> with <span class="font-weight-500">{{ searchPhraseSubmitted }}</span></span>
                 </h2>
                 <AppointmentSnippet
                   v-for="appointment in results.appointments"
@@ -158,7 +198,7 @@
             </v-tabs-window-item>
           </template>
         </v-tabs>
-      </v-sheet>
+      </div>
     </div>
   </div>
 </template>
@@ -177,7 +217,6 @@ import SortableStudents from '@/components/search/SortableStudents'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
-import {pluralize} from '@/lib/utils'
 import {search, searchAdmittedStudents} from '@/api/search'
 
 export default {
@@ -236,7 +275,7 @@ export default {
       const tabs = []
       const push = (key, count, included, icon) => {
         if (included) {
-          tabs.push({icon, key, text: pluralize(key, count)})
+          tabs.push({count, icon, key})
         }
       }
       push('student', this.results.totalStudentCount || 0, this.includeStudents, mdiAccountSchool)
@@ -312,7 +351,9 @@ export default {
     }
   },
   methods: {
-    describe: (noun, count) => count > 0 ? `${count} ${noun}${count === 1 ? '' : 's'}, ` : '',
+    describe(noun, count) {
+      return count > 0 ? `${count} ${this._capitalize(noun)}${count === 1 ? '' : 's'}, ` : ''
+    },
     fetchMoreAppointments() {
       this.appointmentOptions.offset = this.appointmentOptions.offset + this.appointmentOptions.limit
       this.appointmentOptions.limit = 20
