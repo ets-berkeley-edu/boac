@@ -181,14 +181,23 @@
         <v-btn
           :id="`update-added-filter-${position}`"
           color="primary"
-          :disabled="disableUpdateButton"
+          :disabled="disableUpdateButton || isUpdatingExistingFilter"
           size="large"
-          text="Update"
           @click="onClickUpdateButton"
-        />
+        >
+          <div class="align-center d-flex">
+            <div v-if="isUpdatingExistingFilter" class="pr-2">
+              <v-progress-circular indeterminate size="16" width="2" />
+            </div>
+            <div>
+              {{ isUpdatingExistingFilter ? 'Updating' : 'Update' }}
+            </div>
+          </div>
+        </v-btn>
         <v-btn
           :id="`cancel-edit-added-filter-${position}`"
           class="font-size-14 text-uppercase"
+          :disabled="isUpdatingExistingFilter"
           size="large"
           text="Cancel"
           variant="plain"
@@ -213,10 +222,10 @@
 </template>
 
 <script>
-import {useCohortStore} from '@/stores/cohort-edit-session'
-import {useContextStore} from '@/stores/context'
 import FilterSelect from '@/components/cohort/FilterSelect'
 import ProgressButton from '@/components/util/ProgressButton'
+import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useContextStore} from '@/stores/context'
 import {
   cloneDeep,
   get,
@@ -257,6 +266,7 @@ export default {
     isExistingFilter: undefined,
     isMenuOpen: false,
     isModifyingFilter: false,
+    isUpdatingExistingFilter: false,
     isSaving: false,
     range: {
       min: undefined,
@@ -267,8 +277,7 @@ export default {
     selectedFilter: undefined,
     selectedOption: undefined,
     showAdd: false,
-    showRow: true,
-    valueOriginal: undefined
+    showRow: true
   }),
   watch: {
     editMode(newEditMode) {
@@ -366,7 +375,6 @@ export default {
   },
   created() {
     this.reset()
-    this.valueOriginal = this.filter && cloneDeep(this.filter)
   },
   methods: {
     formatGPA(value) {
@@ -434,7 +442,6 @@ export default {
         this.selectedOption = Array.isArray(options) ? findOption(options, this.filter.value) : find(flattenOptions(options), this.filter.value)
         this.putFocusSecondaryDropdown()
       } else if (this.isUX('range')) {
-        console.log(`filter.min: ${this.filter.min}`)
         this.range.min = this.range.start = this.filter.min
         this.range.max = this.range.end = this.filter.max
         this.putFocusRange()
@@ -444,6 +451,7 @@ export default {
       useContextStore().alertScreenReader(`Begin edit of ${this.filter.name} filter`)
     },
     onClickUpdateButton() {
+      this.isUpdatingExistingFilter = true
       if (this.isUX('range')) {
         this.updateRangeFilter()
       }
@@ -453,6 +461,7 @@ export default {
         this.isModifyingFilter = false
         useCohortStore().setEditMode(null)
         useContextStore().alertScreenReader(`${this.filter.name} filter updated`)
+        this.isUpdatingExistingFilter = false
       })
     },
     onSelectFilter() {

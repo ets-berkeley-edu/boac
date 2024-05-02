@@ -10,11 +10,12 @@
     :disabled="!options"
     eager
     hide-details
+    :item-props="item => item"
     item-title="name"
     item-value="key"
     :items="options"
     persistent-hint
-    placeholder="Select.."
+    placeholder="Select..."
     return-object
     single-line
     variant="outlined"
