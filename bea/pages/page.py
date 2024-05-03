@@ -93,6 +93,9 @@ class Page(object):
         except (AttributeError, exceptions.NoSuchElementException, exceptions.StaleElementReferenceException):
             return False
 
+    def when_present(self, locator, timeout):
+        Wait(self.driver, timeout).until(ec.presence_of_element_located(locator))
+
     def when_not_present(self, locator, timeout):
         tries = 0
         while tries <= timeout:

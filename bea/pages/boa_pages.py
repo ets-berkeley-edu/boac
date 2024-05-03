@@ -69,6 +69,9 @@ class BoaPages(Page):
     CANCEL_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-cancel')
     STUDENT_NAME_HEADING = (By.ID, 'student-name-header')
 
+    SERVICE_ALERT_BANNER = By.ID, 'service-announcement-banner'
+    DISMISS_ALERT_BUTTON = By.ID, 'dismiss-service-announcement'
+
     def click_header_dropdown(self):
         self.wait_for_element_and_click(BoaPages.HEADER_DROPDOWN)
 

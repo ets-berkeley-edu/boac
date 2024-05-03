@@ -416,6 +416,17 @@ def get_attachment_id_by_file_name(note, attachment):
     attachment.attachment_id = ids[-1]
 
 
+def get_topic_id(topic):
+    sql = f"""SELECT id
+                FROM topics
+               WHERE topic = '{topic.name}'"""
+    app.logger.info(sql)
+    result = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    topic.topic_id = [row['id'] for row in result][0]
+    return topic.topic_id
+
+
 # COHORTS
 
 def set_filtered_cohort_id(cohort):
