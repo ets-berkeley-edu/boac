@@ -140,10 +140,43 @@
       <span v-if="totalUserCount > 0">{{ pluralize('user', totalUserCount) }}</span>
     </div>
     <v-data-table-server
+      v-model:expanded="expanded"
       :items="users"
+      :items-length="totalUserCount"
       :headers="tableHeaders"
+      :loading="totalUserCount === undefined"
       item-value="uid"
+      show-expand
     >
+      <template #item.uid="{ item }">
+        <span> {{ item.uid }}</span>
+      </template>
+
+      <template #expanded-row="{ columns, item }">
+        <tr>
+          <td :colspan="columns.length">
+            <pre>{{ JSON.stringify(item, null, 2) }}</pre>
+          </td>
+        </tr>
+      </template>
+
+      <template #item.name="{ item }">
+        <div v-if="!item.name">
+          <span class="faint-text">(Name unavailable)</span>
+        </div>
+        <div v-if="item.name">
+          <a
+            :id="`directory-link-${item.uid}`"
+            :aria-label="`Go to UC Berkeley Directory page of ${item.name}`"
+            :href="`https://www.berkeley.edu/directory/results?search-term=${item.name}`"
+            class="m-0"
+            target="_blank"
+          >
+            {{ item.name }}
+          </a>
+        </div>
+      </template>
+
       <template #item.departments="{ item }">
         <div v-for="(department, index) in item.departments" :key="department.code">
           {{ department.name }} - {{ department.role }}
@@ -156,7 +189,37 @@
           {{ status }}
         </div>
       </template>
+
+      <template #item.lastLogin="{ item }">
+        <span :id="`user-last-login-${item.uid}`">
+          <span v-if="item.lastLogin">{{ DateTime.fromISO(item.lastLogin).toFormat('DD') }}</span>
+          <!-- <span v-if="item.lastLogin">{{ moment(item.lastLogin).format('MMM D, YYYY') }}</span> -->
+          <span v-if="!item.lastLogin">&mdash;</span>
+        </span>
+      </template>
+
+      <template #item.campusEmail="{ item }">
+        <a
+          :aria-label="`Send email to ${item.name}`"
+          :href="`mailto:${item.campusEmail}`"
+          target="_blank"
+        >
+          <v-icon :icon="mdiEmail"></v-icon>
+          <span class="sr-only"> (will open new browser tab)</span>
+        </a>
+
+        <v-btn
+          v-if="canBecome(item)"
+          :id="'become-' + item.uid"
+          variant="plain"
+          @click="become(item.uid)"
+        >
+          <v-icon :icon="mdiLoginVariant"></v-icon>
+          <span class="sr-only">Log in as {{ item.name }}</span>
+        </v-btn>
+      </template>
     </v-data-table-server>
+
     <v-table
       id="users-table"
       ref="users"
@@ -199,7 +262,7 @@
         </v-btn>
       </template>
       <template #cell(uid)="row">
-        <span class="sr-only">U I D<span aria-hidden="true">&nbsp;</span></span>
+        <span class="sr-only">U I D </span>
         <span :id="`uid-${row.item.uid}`">{{ row.item.uid }}</span>
       </template>
       <template #cell(edit)="row">
@@ -311,6 +374,11 @@
   </div>
 </template>
 
+<script setup>
+import {mdiEmail} from '@mdi/js'
+import {mdiLoginVariant} from '@mdi/js'
+</script>
+
 <script>
 import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
@@ -318,6 +386,7 @@ import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import Util from '@/mixins/Util'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 import {getBoaUserRoles} from '@/berkeley'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'Users',
@@ -334,6 +403,7 @@ export default {
     }
   },
   data: () => ({
+    expanded: [],
     currentPage: 1,
     filterBy: {
       deptCode: 'QCADV',
@@ -345,7 +415,7 @@ export default {
     isBusy: false,
     sortBy: 'lastName',
     sortDescending: false,
-    totalUserCount: undefined,
+    totalUserCount: 0,
     userSelection: undefined,
     departmentSelectionList: [],
     users: [],
@@ -405,29 +475,39 @@ export default {
     ],
     tableHeaders: [
       {
+        title: '',
+        key: 'data-table-expand',
+        align: 'start'
+      },
+      {
         title: 'UID',
         key: 'uid',
-        align: 'end'
+        align: 'start'
       },
       {
         title: 'Name',
         key: 'name',
-        align: 'end'
+        align: 'start'
       },
       {
         title: 'Departments',
         key: 'departments',
-        align: 'end'
+        align: 'start'
       },
       {
         title: 'Status',
         key: 'deletedAt',
-        align: 'end'
+        align: 'start'
+      },
+      {
+        title: 'Last Login',
+        key: 'lastLogin',
+        align: 'start'
       },
       {
         title: 'Email',
         key: 'campusEmail',
-        align: 'end'
+        align: 'start'
       }
     ]
   }),
@@ -454,6 +534,14 @@ export default {
     this.usersProvider()
   },
   methods: {
+    clickColumn(slotData) {
+      const indexExpanded = this.expanded.findIndex(i => i === slotData)
+      if (indexExpanded > -1) {
+        this.expanded.splice(indexExpanded, 1)
+      } else {
+        this.expanded.push(slotData)
+      }
+    },
     afterUpdateUser(profile) {
       this.alertScreenReader(`${profile.name} profile updated.`)
       if (this.filterType === 'search') {
