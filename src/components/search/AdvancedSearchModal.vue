@@ -286,7 +286,7 @@ import Context from '@/mixins/Context'
 import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
-import {scrollToTop} from '@/lib/utils'
+import {alertScreenReader, scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'AdvancedSearchModal',
@@ -330,7 +330,7 @@ export default {
     },
     openAdvancedSearch() {
       this.showAdvancedSearch = true
-      this.alertScreenReader('Advanced search is open')
+      alertScreenReader('Advanced search is open')
     },
     reset(force) {
       if (force || !this.$route.path.startsWith('/search')) {
@@ -384,7 +384,7 @@ export default {
           })
         }
       } else {
-        this.alertScreenReader('Search input is required')
+        alertScreenReader('Search input is required')
         this.putFocusNextTick('search-students-input')
       }
       scrollToTop()

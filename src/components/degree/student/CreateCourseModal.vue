@@ -135,6 +135,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import ModalHeader from '@/components/util/ModalHeader'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {createCourse} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {validateUnitRange} from '@/lib/degree-progress'
@@ -174,7 +175,7 @@ export default {
   methods: {
     cancel() {
       this.closeModal()
-      this.alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
     },
     closeModal() {
       this.accentColor = undefined,
@@ -191,7 +192,7 @@ export default {
     openModal() {
       this.showModal = true
       this.setDisableButtons(true)
-      this.alertScreenReader('Create course dialog opened')
+      alertScreenReader('Create course dialog opened')
     },
     save() {
       if (!this.disableSaveButton) {
@@ -209,7 +210,7 @@ export default {
         ).then(course => {
           refreshDegreeTemplate(this.templateId).then(() => {
             this.closeModal()
-            this.alertScreenReader(`Course ${course.name} created`)
+            alertScreenReader(`Course ${course.name} created`)
             this.putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')
           })
         })

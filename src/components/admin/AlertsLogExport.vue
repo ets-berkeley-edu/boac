@@ -71,6 +71,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {downloadAlertsCSV} from '@/api/reports'
 
 export default {
@@ -91,7 +92,7 @@ export default {
         this.moment(this.fromDate).format(this.dateInputFormat),
         this.moment(this.toDate).format(this.dateInputFormat)
       ).then(() => {
-        this.alertScreenReader('Alerts CSV file downloaded')
+        alertScreenReader('Alerts CSV file downloaded')
         this.isDownloading = false
       })
     }

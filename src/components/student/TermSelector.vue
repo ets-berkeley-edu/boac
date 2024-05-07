@@ -39,14 +39,12 @@
   </div>
 </template>
 
-<script setup>
-import {get, map} from 'lodash'
-import {useContextStore} from '@/stores/context'
-</script>
-
 <script>
+import {alertScreenReader} from '@/lib/utils'
+import {get, map} from 'lodash'
 import {nextTick} from 'vue'
 import {previousSisTermId, termNameForSisId} from '@/berkeley'
+import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'TermSelector',
@@ -106,12 +104,12 @@ export default {
         useContextStore().updateCurrentUserPreference('termId', value)
         useContextStore().broadcast('termId-user-preference-change', value)
         nextTick(() => {
-          useContextStore().alertScreenReader(`${this.selectedOption.label} selected`)
+          alertScreenReader(`${this.selectedOption.label} selected`)
         })
       }
     },
     onToggleMenu(isOpen) {
-      useContextStore().alertScreenReader(`Term menu ${isOpen ? 'opened' : 'closed'}`)
+      alertScreenReader(`Term menu ${isOpen ? 'opened' : 'closed'}`)
     },
     termOptionForId(termId) {
       let label = termNameForSisId(termId)

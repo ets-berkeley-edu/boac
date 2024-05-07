@@ -109,6 +109,7 @@ import CoursesTable from '@/components/degree/CoursesTable'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {getItemsForCoursesTable} from '@/lib/degree-progress'
 
 export default {
@@ -127,14 +128,14 @@ export default {
   }),
   methods: {
     add() {
-      this.alertScreenReader('Add category')
+      alertScreenReader('Add category')
       this.isAddingCategory = true
       this.setDisableButtons(true)
     },
     edit(category) {
       this.categoryForEdit = category
       this.setDisableButtons(true)
-      this.alertScreenReader(`Edit ${category.categoryType} "${category.name}"`)
+      alertScreenReader(`Edit ${category.categoryType} "${category.name}"`)
       this.putFocusNextTick(`column-${this.position}-name-input`)
     },
     getItemsForCoursesTable,

@@ -41,6 +41,7 @@ import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import Spinner from '@/components/util/Spinner'
 import Users from '@/components/admin/Users'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {getDepartments} from '@/api/user'
 
 export default {
@@ -60,7 +61,7 @@ export default {
   methods: {
     afterCreateUser(name) {
       this.refreshUsers = true
-      this.alertScreenReader(`${name} has been added to BOA.`)
+      alertScreenReader(`${name} has been added to BOA.`)
     }
   }
 }

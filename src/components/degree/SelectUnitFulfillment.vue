@@ -68,6 +68,7 @@ import {mdiCloseCircleOutline} from '@mdi/js'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'SelectUnitFulfillment',
@@ -100,7 +101,7 @@ export default {
   },
   methods: {
     onChangeUnitRequirement(option) {
-      this.alertScreenReader(option ? `${option.name} selected` : 'Unselected')
+      alertScreenReader(option ? `${option.name} selected` : 'Unselected')
       if (option) {
         this.selected.push(option)
         this.onUnitRequirementsChange(this.selected)
@@ -108,7 +109,7 @@ export default {
       }
     },
     removeUnitRequirement(item) {
-      this.alertScreenReader(`${item.name} removed`)
+      alertScreenReader(`${item.name} removed`)
       this.selected = this._remove(this.selected, selected => selected.id !== item.id)
       this.onUnitRequirementsChange(this.selected)
     }

@@ -384,6 +384,7 @@ import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 import {getBoaUserRoles} from '@/berkeley'
 import {DateTime} from 'luxon'
@@ -543,7 +544,7 @@ export default {
       }
     },
     afterUpdateUser(profile) {
-      this.alertScreenReader(`${profile.name} profile updated.`)
+      alertScreenReader(`${profile.name} profile updated.`)
       if (this.filterType === 'search') {
         this.userSelection = profile
       }

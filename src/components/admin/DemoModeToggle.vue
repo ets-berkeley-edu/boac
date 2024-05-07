@@ -40,9 +40,10 @@
 
 <script>
 import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
-import {setDemoMode} from '@/api/user'
 import sampleBlurAvatar from '@/assets/sampleBlurAvatar.jpg'
+import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
+import {setDemoMode} from '@/api/user'
 
 export default {
   name: 'DemoModeToggle',
@@ -60,7 +61,7 @@ export default {
       this.isToggling = true
       setDemoMode(this.inDemoMode).then(() => {
         this.isToggling = false
-        this.alertScreenReader(`Switching demo mode ${this.inDemoMode ? 'off' : 'on' }`)
+        alertScreenReader(`Switching demo mode ${this.inDemoMode ? 'off' : 'on' }`)
       })
     }
   }

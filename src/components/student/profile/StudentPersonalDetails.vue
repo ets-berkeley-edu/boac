@@ -188,6 +188,7 @@ import {mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
 import Context from '@/mixins/Context'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'StudentPersonalDetails',
@@ -258,7 +259,7 @@ export default {
     },
     toggle() {
       this.isExpanded = !this.isExpanded
-      this.alertScreenReader(`Student details are ${this.isExpanded ? 'showing' : 'hidden'}.`)
+      alertScreenReader(`Student details are ${this.isExpanded ? 'showing' : 'hidden'}.`)
     }
   }
 }

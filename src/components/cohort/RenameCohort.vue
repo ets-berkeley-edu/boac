@@ -58,17 +58,17 @@
 
 <script setup>
 import ProgressButton from '@/components/util/ProgressButton'
-import {putFocusNextTick, setPageTitle} from '@/lib/utils'
-import {saveCohort} from '@/api/cohort'
-import {useCohortStore} from '@/stores/cohort-edit-session'
-import {useContextStore} from '@/stores/context'
-import {validateCohortName} from '@/lib/cohort'
 </script>
 
 <script>
+import {alertScreenReader} from '@/lib/utils'
+import {putFocusNextTick, setPageTitle} from '@/lib/utils'
+import {saveCohort} from '@/api/cohort'
+import {useCohortStore} from '@/stores/cohort-edit-session'
+import {validateCohortName} from '@/lib/cohort'
+
 export default {
   name: 'RenameCohort',
-  components: {ProgressButton},
   props: {
     cancel: {
       type: Function,
@@ -108,11 +108,11 @@ export default {
         putFocusNextTick('rename-cohort-input')
       } else {
         this.isSaving = true
-        useContextStore().alertScreenReader('Renaming cohort')
+        alertScreenReader('Renaming cohort')
         cohort.renameCohort(this.name)
         saveCohort(cohort.cohortId, cohort.cohortName, cohort.filters).then(() => {
           this.isSaving = false
-          useContextStore().alertScreenReader(`Cohort renamed to '${this.name}'`)
+          alertScreenReader(`Cohort renamed to '${this.name}'`)
           setPageTitle(this.name)
           cohort.setEditMode(null)
           putFocusNextTick('cohort-name')

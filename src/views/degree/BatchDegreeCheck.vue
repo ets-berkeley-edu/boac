@@ -167,6 +167,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {createBatchDegreeCheck, getStudents} from '@/api/degree'
 import {getDistinctSids, getStudentsBySids} from '@/api/student'
 
@@ -220,7 +221,7 @@ export default {
   },
   mounted() {
     this.loadingComplete()
-    this.alertScreenReader('Batch degree checks loaded')
+    alertScreenReader('Batch degree checks loaded')
   },
   methods: {
     addCohort(cohort) {
@@ -244,10 +245,10 @@ export default {
             const notFound = this._difference(uniqueSids, this._map(students, 'sid'))
             if (notFound.length === 1) {
               this.warning = `Student ${notFound[0]} not found.`
-              this.alertScreenReader(this.warning)
+              alertScreenReader(this.warning)
             } else if (notFound.length > 1) {
               this.warning = `${notFound.length} students not found: <ul class="mt-1 mb-0"><li>${this._join(notFound, '</li><li>')}</li></ul>`
-              this.alertScreenReader(`${notFound.length} student IDs not found: ${this.oxfordJoin(notFound)}`)
+              alertScreenReader(`${notFound.length} student IDs not found: ${this.oxfordJoin(notFound)}`)
             }
             this.isValidating = false
             this.textarea = undefined
@@ -255,9 +256,9 @@ export default {
           })
         } else {
           if (this.error) {
-            this.alertScreenReader(`Error: ${this.error}`)
+            alertScreenReader(`Error: ${this.error}`)
           } else if (this.warning) {
-            this.alertScreenReader(`Warning: ${this.warning}`)
+            alertScreenReader(`Warning: ${this.warning}`)
           }
           this.nextTick(() => this.isValidating = false)
           reject()
@@ -269,7 +270,7 @@ export default {
         this.addedStudents.push(...students)
         this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then( () => {
           const obj = students.length === 1 ? `${students[0].label}` : this.pluralize('student', students.length)
-          this.alertScreenReader(`${obj} added to degree check`)
+          alertScreenReader(`${obj} added to degree check`)
         })
       }
       this.putFocusNextTick('degree-check-add-student-input')
@@ -279,7 +280,7 @@ export default {
       this.findStudentsWithDegreeCheck()
     },
     cancel() {
-      this.alertScreenReader('Canceled. Nothing saved.')
+      alertScreenReader('Canceled. Nothing saved.')
       this.$router.push('/degrees')
     },
     clearErrors() {
@@ -334,12 +335,12 @@ export default {
       const index = this._indexOf(this.addedStudents, student)
       if (index !== -1) {
         this.addedStudents.splice(index, 1)
-        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(() => this.alertScreenReader(`${student.label} removed`))
+        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(() => alertScreenReader(`${student.label} removed`))
       }
     },
     save() {
       this.isSaving = true
-      this.alertScreenReader('Saving.')
+      alertScreenReader('Saving.')
       createBatchDegreeCheck(this.sidsToInclude, this._get(this.selectedTemplate, 'id')).then(() => {
         this.nextTick(() => {
           this.$router.push({

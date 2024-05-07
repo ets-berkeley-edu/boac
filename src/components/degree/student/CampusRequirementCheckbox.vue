@@ -27,6 +27,7 @@ import {mdiCheckboxMarkedOutline, mdiSquareOutline} from '@mdi/js'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {toggleCampusRequirement} from '@/api/degree'
 
@@ -60,7 +61,7 @@ export default {
       this.setDisableButtons(true)
       toggleCampusRequirement(this.campusRequirement.category.id, this.isSatisfied).then(() => {
         refreshDegreeTemplate(this.templateId)
-        this.alertScreenReader(`${this.campusRequirement.name} requirement ${this.isSatisfied ? 'satisfied' : 'unsatisfied'}`)
+        alertScreenReader(`${this.campusRequirement.name} requirement ${this.isSatisfied ? 'satisfied' : 'unsatisfied'}`)
         this.putFocusNextTick(`column-${this.position}-${this.campusRequirement.key}-satisfy-checkbox`)
         this.setDisableButtons(false)
       })

@@ -60,6 +60,7 @@
 <script>
 import RichTextEditor from '@/components/util/RichTextEditor'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {getServiceAnnouncement, publishAnnouncement, updateAnnouncement} from '@/api/config'
 import {useContextStore} from '@/stores/context'
 
@@ -96,7 +97,7 @@ export default {
         publishAnnouncement(this.isPublished).then(data => {
           this.isPublished = data.isPublished
           this.isTogglingPublish = false
-          useContextStore().alertScreenReader(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`)
+          alertScreenReader(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`)
         })
       }
     },
@@ -111,7 +112,7 @@ export default {
           this.originalText = this.text = data.text
           this.isPublished = data.isPublished
           this.isSaving = false
-          useContextStore().alertScreenReader('The service announcement has been updated.')
+          alertScreenReader('The service announcement has been updated.')
         })
       }
     }

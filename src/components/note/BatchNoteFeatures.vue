@@ -64,9 +64,9 @@
 <script>
 import BatchNoteAddCohort from '@/components/note/BatchNoteAddCohort'
 import BatchNoteAddStudent from '@/components/note/BatchNoteAddStudent'
+import {alertScreenReader, pluralize} from '@/lib/utils'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {capitalize, differenceBy, findIndex, reject, size} from 'lodash'
-import {pluralize} from '@/lib/utils'
 import {setNoteRecipients} from '@/stores/note-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -104,7 +104,7 @@ export default {
         useNoteStore().recipients.curatedGroups,
         useNoteStore().recipients.sids
       ).then(() => {
-        useContextStore().alertScreenReader(`Removed cohort '${cohort.name}'`)
+        alertScreenReader(`Removed cohort '${cohort.name}'`)
       })
     },
     removeCuratedGroup(curatedGroup) {
@@ -115,7 +115,7 @@ export default {
         useNoteStore().recipients.curatedGroups,
         useNoteStore().recipients.sids
       ).then(() => {
-        useContextStore().alertScreenReader(`Removed ${capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}'`)
+        alertScreenReader(`Removed ${capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}'`)
       })
     },
     size,
@@ -127,7 +127,7 @@ export default {
           useNoteStore().recipients.curatedGroups,
           useNoteStore().recipients.sids
         ).then(() => {
-          useContextStore().alertScreenReader(`Added cohort '${cohort.name}'`)
+          alertScreenReader(`Added cohort '${cohort.name}'`)
         })
       } else {
         this.removeCohort(cohort)
@@ -141,7 +141,7 @@ export default {
           useNoteStore().recipients.curatedGroups.concat(curatedGroup),
           useNoteStore().recipients.sids
         ).then(() => {
-          useContextStore().alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
+          alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
         })
       } else {
         this.removeCuratedGroup(curatedGroup)

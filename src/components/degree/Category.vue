@@ -91,6 +91,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 import {deleteCategory, onDrop} from '@/stores/degree-edit-session/utils'
 
@@ -132,13 +133,13 @@ export default {
   methods: {
     deleteCanceled() {
       this.isDeleting = false
-      this.alertScreenReader('Canceled. Nothing deleted.')
+      alertScreenReader('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
       this.putFocusNextTick(`column-${this.position}-delete-category-${this.category.id}-btn`)
     },
     deleteConfirmed() {
       return deleteCategory(this.category.id).then(() => {
-        this.alertScreenReader(`${this.category.name} deleted.`)
+        alertScreenReader(`${this.category.name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)
         this.putFocusNextTick(`column-${this.position}-create-btn`)
@@ -147,10 +148,10 @@ export default {
     deleteDegreeCategory() {
       this.setDisableButtons(true)
       this.isDeleting = true
-      this.alertScreenReader(`Delete ${this.category.name}`)
+      alertScreenReader(`Delete ${this.category.name}`)
     },
     edit() {
-      this.alertScreenReader(`Edit ${this.category.name}`)
+      alertScreenReader(`Edit ${this.category.name}`)
       this.onClickEdit(this.category)
     },
     isDroppable() {

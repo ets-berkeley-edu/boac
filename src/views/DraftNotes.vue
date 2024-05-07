@@ -129,6 +129,7 @@ import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import Spinner from '@/components/util/Spinner'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
 
 export default {
@@ -270,7 +271,7 @@ export default {
     openDeleteModal(draftNote) {
       this.activeOperation = 'delete'
       this.selectedDraftNote = draftNote
-      this.alertScreenReader('Please confirm draft note deletion.')
+      alertScreenReader('Please confirm draft note deletion.')
     },
     openEditModal(noteDraft) {
       this.activeOperation = 'edit'

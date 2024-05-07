@@ -64,6 +64,7 @@
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {isValidUnits} from '@/lib/degree-progress'
 
 export default {
@@ -153,7 +154,7 @@ export default {
         this.setUnitsUpper(undefined)
       }
       this.putFocusNextTick(this.showUnitsUpperInput && this.unitsLower ? `upper-${this.inputId}` : this.inputId)
-      this.alertScreenReader(`Enter ${this.showUnitsUpperInput ? 'end' : 'start'} value of range.`)
+      alertScreenReader(`Enter ${this.showUnitsUpperInput ? 'end' : 'start'} value of range.`)
     }
   }
 }

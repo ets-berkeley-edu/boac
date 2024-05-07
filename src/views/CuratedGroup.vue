@@ -99,7 +99,7 @@ import Util from '@/mixins/Util'
 import {addStudentsToCuratedGroup, removeFromCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
 import {goToCuratedGroup} from '@/stores/curated-group/utils'
-import {scrollTo} from '@/lib/utils'
+import {alertScreenReader, scrollTo} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
 
@@ -171,7 +171,7 @@ export default {
     bulkAddSids(sids) {
       useCuratedGroupStore().resetMode()
       if (this._size(sids)) {
-        this.alertScreenReader(`Adding ${sids.length} students`)
+        alertScreenReader(`Adding ${sids.length} students`)
         useContextStore().updateCurrentUserPreference('sortBy', 'last_name')
         addStudentsToCuratedGroup(this.curatedGroupId, sids, true).then(() => {
           goToCuratedGroup(this.curatedGroupId, 1).then(() => {
@@ -180,7 +180,7 @@ export default {
           })
         })
       } else {
-        this.alertScreenReader('Canceled bulk add of students')
+        alertScreenReader('Canceled bulk add of students')
         this.putFocusNextTick('curated-group-name')
       }
     },

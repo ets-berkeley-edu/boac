@@ -100,6 +100,7 @@ import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import UnitsInput from '@/components/degree/UnitsInput'
+import {alertScreenReader} from '@/lib/utils'
 import {isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
 import {putFocusNextTick} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
@@ -163,7 +164,7 @@ export default {
       if (!this.disableSaveButton) {
         this.isSaving = true
         const done = () => {
-          this.alertScreenReader('Requirement updated')
+          alertScreenReader('Requirement updated')
           this.isSaving = false
           this.afterSave()
         }

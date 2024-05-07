@@ -1,57 +1,74 @@
 <template>
-  <v-select
-    :id="`filter-select-${type}-${filterRowIndex}`"
-    v-model="vModelProxy"
-    :aria-labelledby="labelledby"
-    bg-color="white"
-    class="filter-select"
-    :class="{'border-left-primary': hasLeftBorderStyle}"
-    color="primary"
-    :disabled="!options"
-    eager
-    hide-details
-    :item-props="item => item"
-    item-title="name"
-    item-value="key"
-    :items="options"
-    persistent-hint
-    placeholder="Select..."
-    return-object
-    single-line
-    variant="outlined"
-  >
-    <template #item="{props, item}">
-      <v-list-subheader
-        v-if="item.raw.header"
-        :id="listItemId(item)"
-      >
-        {{ item.raw.header }}
-      </v-list-subheader>
-      <v-list-item
-        v-if="!item.raw.header"
-        :id="listItemId(item.raw)"
-        v-bind="props"
-        :aria-describedby="item.raw.group ? listItemId({header: item.raw.group}) : false"
-        class="min-height-unset py-1 pl-8"
-        density="comfortable"
-        role="option"
-        :title="item.title"
-      />
-    </template>
-  </v-select>
+  <pre v-if="optionGroups && false">
+    {{ options }}
+  </pre>
+  <div :class="{'border-left-primary': hasLeftBorderStyle}">
+    <select
+      :id="`filter-select-${type}-${filterRowIndex}`"
+      v-model="vModelProxy"
+      class="bg-white select-menu custom-select"
+      :aria-labelledby="labelledby"
+      :disabled="!options.length"
+    >
+      <option :id="`${type}-option-null`" :value="undefined">
+        Select...
+      </option>
+      <template v-if="hasOptGroups">
+        <option value="1">HAS OPT GROUPS</option>
+        <optgroup
+          v-for="(groupOptions, label) in optionGroups"
+          :id="normalizeId(`${type}-option-group-${label}`)"
+          :key="label"
+          :label="label"
+        >
+          <option
+            v-for="option in groupOptions"
+            :id="normalizeId(`${type}-option-${option.value}`)"
+            :key="option.key"
+            :aria-disabled="option.disabled"
+            class="h-100 min-height-unset py-1 pl-8"
+            :disabled="option.disabled"
+            :value="option"
+          >
+            {{ option.name }}
+          </option>
+        </optgroup>
+      </template>
+      <template v-if="!hasOptGroups">
+        <option value="1">NO OPT GROUPS</option>
+        <option
+          v-for="option in options"
+          :id="normalizeId(`${type}-option-${option.value}`)"
+          :key="option.key"
+          :aria-disabled="option.disabled"
+          class="h-100 min-height-unset py-1 pl-8"
+          :disabled="option.disabled"
+          :value="option"
+        >
+          {{ getLabel(option) }}
+        </option>
+      </template>
+    </select>
+  </div>
 </template>
 
 <script>
+import {each, includes} from 'lodash'
+
 export default {
   name: 'FilterSelect',
   props: {
+    filterRowIndex: {
+      required: true,
+      type: [Number, String]
+    },
     hasLeftBorderStyle: {
       required: false,
       type: Boolean
     },
-    filterRowIndex: {
-      required: true,
-      type: [Number, String]
+    hasOptGroups: {
+      required: false,
+      type: Boolean
     },
     labelledby: {
       required: true,
@@ -77,6 +94,9 @@ export default {
       type: Object
     }
   },
+  data: () => ({
+    optionGroups: undefined
+  }),
   computed: {
     vModelProxy: {
       get() {
@@ -85,6 +105,18 @@ export default {
       set(value) {
         this.setModelObject(value)
       }
+    }
+  },
+  created() {
+    if (this.hasOptGroups) {
+      this.optionGroups = {}
+      each(this.options, option => {
+        if (option.header && !includes(this.optionGroups, option.header)) {
+          this.optionGroups[option.key] = []
+        } else {
+          this.optionGroups[option.group].push(option)
+        }
+      })
     }
   },
   methods: {
@@ -101,7 +133,7 @@ export default {
 </script>
 
 <style>
-.border-left-primary .v-field {
+.border-left-primary {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
   border-left: 6px solid rgb(var(--v-theme-primary));
@@ -109,9 +141,25 @@ export default {
 </style>
 
 <style scoped>
-.filter-select {
-  height: 56px;
-  white-space: nowrap;
+.custom-select {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: .25rem;
+  border: 1px solid #ced4da;
+  color: #495057;
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 400;
+  height: calc(1.5em + .75rem + 2px);
+  line-height: 1.5;
+  padding: .375rem 1.75rem .375rem .75rem;
+  vertical-align: middle;
+  width: 100%;
+}
+.select-menu {
+  background-color: #fff;
+  height: 44px;
   width: 320px;
 }
 </style>

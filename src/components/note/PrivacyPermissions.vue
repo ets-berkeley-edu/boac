@@ -31,8 +31,8 @@
 
 <script>
 import {isUndefined} from 'lodash'
-import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'PrivacyPermissions',
@@ -55,7 +55,7 @@ export default {
   methods: {
     isUndefined,
     onChange() {
-      useContextStore().alertScreenReader(this.isPrivate ? 'Available only to CE3' : 'Available to all advisors')
+      alertScreenReader(this.isPrivate ? 'Available only to CE3' : 'Available to all advisors')
     }
   }
 }

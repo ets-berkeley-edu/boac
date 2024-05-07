@@ -61,12 +61,12 @@ import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
 import Util from '@/mixins/Util'
+import {alertScreenReader, scrollToTop} from '@/lib/utils'
 import {exitSession} from '@/stores/note-edit-session/utils'
+import {find} from 'lodash'
 import {getStudentByUid} from '@/api/student'
-import {scrollToTop} from '@/lib/utils'
 import {setWaitlistedStatus} from '@/berkeley'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {find} from 'lodash'
 
 export default {
   name: 'Student',
@@ -82,13 +82,13 @@ export default {
   mixins: [Context, NoteEditSession, Util],
   beforeRouteLeave(to, from, next) {
     if (useNoteStore().mode) {
-      this.alertScreenReader('Are you sure you want to discard unsaved changes?')
+      alertScreenReader('Are you sure you want to discard unsaved changes?')
       this.cancelConfirmed = () => {
         exitSession(true)
         return next()
       }
       this.cancelTheCancel = () => {
-        this.alertScreenReader('Please save changes before exiting the page.')
+        alertScreenReader('Please save changes before exiting the page.')
         this.showAreYouSureModal = false
         next(false)
       }

@@ -56,6 +56,7 @@ import {mdiMenuDown, mdiMenuUp} from '@mdi/js'
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'SortableCourses',
@@ -92,7 +93,7 @@ export default {
         this.sort.reverse[sortBy] = !this.sort.reverse[sortBy]
         this.sortedCourses = this.sortedCourses.reverse()
       }
-      this.alertScreenReader(`Courses sorted by ${this.sort.by === 'section' ? 'section' : 'course name'} ${this.describeReverse(this.sort.reverse[this.sort.by])}`)
+      alertScreenReader(`Courses sorted by ${this.sort.by === 'section' ? 'section' : 'course name'} ${this.describeReverse(this.sort.reverse[this.sort.by])}`)
     },
     courseComparator(c1, c2) {
       if (this.sort.by === 'title' && c1.courseTitle !== c2.courseTitle) {

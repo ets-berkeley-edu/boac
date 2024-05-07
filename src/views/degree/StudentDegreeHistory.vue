@@ -92,6 +92,7 @@ import Context from '@/mixins/Context'
 import Spinner from '@/components/util/Spinner'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {getDegreeChecks} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
 import {DateTime} from 'luxon'
@@ -123,7 +124,7 @@ export default {
         })
         const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
         this.loadingComplete()
-        this.alertScreenReader(`${studentName} Degree History`)
+        alertScreenReader(`${studentName} Degree History`)
       })
     })
   }

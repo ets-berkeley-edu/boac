@@ -34,10 +34,9 @@ export function createCohort(
       name,
       filters
     })
-    .then(response => {
-      const cohort = response
-      $_onCreate(cohort)
-      return cohort
+    .then(data => {
+      $_onCreate(data)
+      return data
     }, () => null)
 }
 
@@ -63,7 +62,7 @@ export function downloadCohortCsv(cohortId: number, cohortName: string, csvColum
       csvColumnsSelected,
       termId
     })
-    .then(response => fileDownload(toPlainObject(response), `${filename}.csv`))
+    .then(data => fileDownload(toPlainObject(data), `${filename}.csv`))
 }
 
 export function downloadCsv(domain: string, cohortName: string, filters: any[], csvColumnsSelected: any[]) {
@@ -78,7 +77,7 @@ export function downloadCsv(domain: string, cohortName: string, filters: any[], 
     filters,
     termId
   })
-  .then(response => fileDownload(toPlainObject(response), `${filename}.csv`))
+  .then(data => fileDownload(toPlainObject(data), `${filename}.csv`))
 }
 
 export function getCohort(
@@ -96,7 +95,7 @@ export function getCohort(
 
 export function getCohortEvents(id: number, offset: number, limit: number) {
   const url = `${utils.apiBaseUrl()}/api/cohort/${id}/events?offset=${offset}&limit=${limit}`
-  return axios.get(url).then(response => response, () => null)
+  return axios.get(url).then(data => data, () => null)
 }
 
 export function getCohortFilterOptions(domain: string, owner: string | undefined, existingFilters: any[]) {
@@ -106,7 +105,7 @@ export function getCohortFilterOptions(domain: string, owner: string | undefined
       domain: domain,
       existingFilters: existingFilters
     })
-    .then(response => response, () => null)
+    .then(data => data, () => null)
 }
 
 export function getStudentsPerFilters(
@@ -126,16 +125,16 @@ export function getStudentsPerFilters(
       offset,
       limit
     })
-    .then(response => response, () => null)
+    .then(data => data, () => null)
 }
 
 export function getStudentsWithAlerts(cohortId) {
   const url = `${utils.apiBaseUrl()}/api/cohort/${cohortId}/students_with_alerts`
-  return axios.get(url).then(response => response, () => null)
+  return axios.get(url).then(data => data, () => null)
 }
 
 export function getUsersWithCohorts() {
-  return axios.get(`${utils.apiBaseUrl()}/api/cohorts/all`).then(response => response, () => null)
+  return axios.get(`${utils.apiBaseUrl()}/api/cohorts/all`).then(data => data, () => null)
 }
 
 export function saveCohort(
@@ -149,10 +148,9 @@ export function saveCohort(
       name,
       filters
     })
-    .then(response => {
-      const cohort = response
-      $_onUpdate(cohort)
-      return cohort
+    .then(data => {
+      $_onUpdate(data)
+      return data
     }, () => null)
 }
 
@@ -162,5 +160,5 @@ export function translateToFilterOptions(domain: string, owner: string, criteria
     domain
   }
   const url = `${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options/${owner}`
-  return axios.post(url, data).then(response => response, () => null)
+  return axios.post(url, data).then(data => data, () => null)
 }

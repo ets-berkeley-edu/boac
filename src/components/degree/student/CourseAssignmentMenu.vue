@@ -75,6 +75,7 @@ import {mdiDrag} from '@mdi/js'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {assignCourse} from '@/api/degree'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
@@ -137,9 +138,9 @@ export default {
         refreshDegreeTemplate(this.templateId).then(courseAssigned => {
           this.setDisableButtons(false)
           if (category) {
-            this.alertScreenReader(`${category.name} selected for ${this.course.name}`)
+            alertScreenReader(`${category.name} selected for ${this.course.name}`)
           } else {
-            this.alertScreenReader(`Moved to ${ignore ? this.junkDrawerName : 'Unassigned'}`)
+            alertScreenReader(`Moved to ${ignore ? this.junkDrawerName : 'Unassigned'}`)
           }
           this.afterCourseAssignment(courseAssigned)
         })

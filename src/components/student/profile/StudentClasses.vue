@@ -84,6 +84,7 @@ import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight} from '@mdi/
 import Context from '@/mixins/Context'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {each, groupBy, includes, map, orderBy} from 'lodash'
 import {sisIdForTermName} from '@/berkeley'
 
@@ -129,17 +130,14 @@ export default {
       }
       return term
     },
-    includesCurrentTerm(year) {
-      return this._includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.config.currentEnrollmentTerm)
-    },
     setOrder() {
       this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'
-      this.alertScreenReader(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
+      alertScreenReader(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
     },
     toggle() {
       const hasSomeExpanded = this.panelsExpanded.length
       this.panelsExpanded = hasSomeExpanded ? [] : map(this.student.enrollmentTerms, 'academicYear')
-      this.alertScreenReader(`All academic years have been ${hasSomeExpanded ? 'collapsed' : 'expanded'}`)
+      alertScreenReader(`All academic years have been ${hasSomeExpanded ? 'collapsed' : 'expanded'}`)
     },
     totalUnits(year) {
       return this._sumBy(year.terms, 'enrolledUnits')

@@ -237,6 +237,7 @@ import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
 import {useCuratedGroupStore} from '@/stores/curated-group'
@@ -279,7 +280,7 @@ export default {
   methods: {
     cancelExportModal() {
       this.showExportAdmitsModal = this.showExportStudentsModal = false
-      this.alertScreenReader(`Cancel export of ${this.name} ${this.domainLabel(false)}`)
+      alertScreenReader(`Cancel export of ${this.name} ${this.domainLabel(false)}`)
     },
     enterBulkAddMode() {
       useCuratedGroupStore().setMode('bulkAdd')
@@ -296,10 +297,10 @@ export default {
     },
     exportGroup(csvColumnsSelected) {
       this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
-      this.alertScreenReader(`Exporting ${this.name} ${this.domainLabel(false)}`)
+      alertScreenReader(`Exporting ${this.name} ${this.domainLabel(false)}`)
       downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
         this.exportEnabled = true
-        this.alertScreenReader('Export is done.')
+        alertScreenReader('Export is done.')
       })
     },
     deleteGroup() {

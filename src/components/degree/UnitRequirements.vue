@@ -136,6 +136,7 @@ import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditUnitRequirement from '@/components/degree/EditUnitRequirement'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {deleteUnitRequirement} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {useDegreeProgressStore} from '@/stores/degree-edit-session'
@@ -201,7 +202,7 @@ export default {
     deleteCanceled() {
       this.isDeleting = false
       this.putFocusNextTick(`unit-requirement-${this._get(this.selected, 'id')}-delete-btn`)
-      this.alertScreenReader('Canceled. Nothing deleted.')
+      alertScreenReader('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
     },
     deleteConfirmed() {
@@ -209,7 +210,7 @@ export default {
       const templateId = useDegreeProgressStore().templateId
       deleteUnitRequirement(this.selected.id).then(() => {
         refreshDegreeTemplate(templateId).then(() => {
-          this.alertScreenReader(`${name} deleted.`)
+          alertScreenReader(`${name} deleted.`)
           this.isDeleting = false
           this.setDisableButtons(false)
           this.putFocusNextTick('unit-requirement-create-link')

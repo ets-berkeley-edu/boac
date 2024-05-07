@@ -77,8 +77,9 @@ import Context from '@/mixins/Context'
 import Spinner from '@/components/util/Spinner'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import Util from '@/mixins/Util'
-import {getStudentByUid} from '@/api/student'
+import {alertScreenReader} from '@/lib/utils'
 import {createDegreeCheck, getDegreeTemplates} from '@/api/degree'
+import {getStudentByUid} from '@/api/student'
 
 export default {
   name: 'StudentDegreeCreate',
@@ -102,24 +103,24 @@ export default {
       getDegreeTemplates().then(data => {
         this.templates = data
         this.loadingComplete()
-        this.alertScreenReader(`Add Degree Check for ${this.student.name}`)
+        alertScreenReader(`Add Degree Check for ${this.student.name}`)
       })
     })
   },
   methods: {
     cancel() {
-      this.alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       this.$router.push(`${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}`)
     },
     onChangeSelect(option) {
       if (option) {
-        this.alertScreenReader(`${this.selectedOption.name} selected`)
+        alertScreenReader(`${this.selectedOption.name} selected`)
         this.putFocusNextTick('save-degree-check-btn')
       }
     },
     onClickSave() {
       this.isSaving = true
-      this.alertScreenReader('Saving')
+      alertScreenReader('Saving')
       createDegreeCheck(this.student.sid, this.selectedOption.id).then(data => {
         this.isSaving = false
         this.$router.push(`/student/degree/${data.id}`)

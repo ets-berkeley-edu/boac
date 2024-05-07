@@ -55,12 +55,12 @@
 import CreateCohortModal from '@/components/cohort/CreateCohortModal'
 import ProgressButton from '@/components/util/ProgressButton'
 import router from '@/router'
-import {useCohortStore} from '@/stores/cohort-edit-session'
+import {alertScreenReader, putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {applyFilters, loadCohort, resetFiltersToLastApply} from '@/stores/cohort-edit-session/utils'
 import {createCohort, saveCohort} from '@/api/cohort'
 import {get} from 'lodash'
-import {putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {ref} from 'vue'
+import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
 
 const cohort = useCohortStore()
@@ -71,7 +71,7 @@ const showCreateModal = ref(false)
 const apply = () => {
   context.broadcast('cohort-apply-filters')
   currentAction.value = 'search'
-  context.alertScreenReader('Searching for students')
+  alertScreenReader('Searching for students')
   const orderBy = get(
     context.currentUser.preferences,
     cohort.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
@@ -79,21 +79,21 @@ const apply = () => {
   const termId = get(context.currentUser.preferences, 'termId')
   applyFilters(orderBy, termId).then(() => {
     putFocusNextTick('cohort-results-header')
-    context.alertScreenReader(`Results include ${cohort.totalStudentCount} student${cohort.totalStudentCount === 1 ? '' : 's'}`)
+    alertScreenReader(`Results include ${cohort.totalStudentCount} student${cohort.totalStudentCount === 1 ? '' : 's'}`)
     cohort.setModifiedSinceLastSearch(false)
     currentAction.value = null
   })
 }
 
 const cancelCreateModal = () => {
-  context.alertScreenReader('Canceled')
+  alertScreenReader('Canceled')
   showCreateModal.value = false
 }
 
 const create = name => {
   showCreateModal.value = false
   currentAction.value = 'save'
-  context.alertScreenReader('Creating cohort')
+  alertScreenReader('Creating cohort')
   return createCohort(cohort.domain, name, cohort.filters).then(async data => {
     if (data) {
       cohort.updateSession(data, cohort.filters, cohort.students, cohort.totalStudentCount)
@@ -109,7 +109,7 @@ const create = name => {
 }
 
 const resetToLastApply = () => {
-  context.alertScreenReader('Resetting filters')
+  alertScreenReader('Resetting filters')
   resetFiltersToLastApply()
 }
 
@@ -120,14 +120,14 @@ const resetToSaved = () => {
   cohort.setEditMode('apply')
   loadCohort(cohort.cohortId, cohort.orderBy, cohort.termId).then(() => {
     cohort.setEditMode(null)
-    context.alertScreenReader('Filters reset')
+    alertScreenReader('Filters reset')
     currentAction.value = null
   })
 }
 
 const save = () => {
   if (cohort.cohortId) {
-    context.alertScreenReader(`Saving changes to cohort ${cohort.cohortName}`)
+    alertScreenReader(`Saving changes to cohort ${cohort.cohortName}`)
     currentAction.value = 'save'
     saveCohort(cohort.cohortId, cohort.cohortName, cohort.filters).then(() => {
       cohort.setModifiedSinceLastSearch(null)
@@ -135,12 +135,12 @@ const save = () => {
     })
   } else {
     showCreateModal.value = true
-    context.alertScreenReader('Create cohort form is open')
+    alertScreenReader('Create cohort form is open')
   }
 }
 
 const savedCohortCallback = updateStatus => {
-  context.alertScreenReader(updateStatus)
+  alertScreenReader(updateStatus)
   currentAction.value = 'acknowledgeSave'
   setTimeout(() => (currentAction.value = null), 2000)
 }

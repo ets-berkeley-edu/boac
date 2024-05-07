@@ -105,6 +105,7 @@ import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {getAllAdmits} from '@/api/admit'
 import {downloadCsv} from '@/api/cohort'
 import {getAdmitCsvExportColumns} from '@/berkeley'
@@ -149,14 +150,14 @@ export default {
   methods: {
     cancelExportModal() {
       this.showExportListModal = false
-      this.alertScreenReader('Export canceled')
+      alertScreenReader('Export canceled')
     },
     exportCohort() {
       const name = 'CE3 Admissions'
       const fields = this._map(getAdmitCsvExportColumns(), 'value')
       this.showExportListModal = false
       this.exportEnabled = false
-      this.alertScreenReader(`Exporting cohort ${name}`)
+      alertScreenReader(`Exporting cohort ${name}`)
       downloadCsv('admitted_students', name, [], fields).then(() => {
         this.exportEnabled = true
       })
@@ -164,7 +165,7 @@ export default {
     goToPage(page) {
       if (page !== this.pagination.currentPage) {
         if (this.pagination.currentPage) {
-          this.alertScreenReader(`Loading page ${page} of this cohort's students`)
+          alertScreenReader(`Loading page ${page} of this cohort's students`)
         }
         this.pagination.currentPage = page
         this.$router.push({
@@ -200,7 +201,7 @@ export default {
       this.loadAdmits()
       if (!this.loading) {
         this.goToPage(1)
-        this.alertScreenReader(`Sort admitted students by ${sortBy}`)
+        alertScreenReader(`Sort admitted students by ${sortBy}`)
       }
     }
   }
