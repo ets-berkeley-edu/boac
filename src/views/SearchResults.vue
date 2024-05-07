@@ -56,6 +56,7 @@
         >
           <template #tab="{item}">
             <v-tab
+              :id="`search-results-tab-${item.key}s`"
               class="bg-white border-s-sm border-e-sm border-t-sm mx-1 rounded-t-lg"
               :class="{
                 'border-b-0': item.key === tab,
@@ -70,7 +71,7 @@
             >
               <template #default>
                 <div class="d-flex flex-row-reverse font-size-12 font-weight-bold text-black">
-                  <div>
+                  <div :id="`search-results-count-${item.key}s`">
                     {{ item.count }}
                   </div>
                   <div
