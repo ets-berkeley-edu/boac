@@ -1,19 +1,19 @@
-import {defineStore} from 'pinia'
+import {defineStore, StoreDefinition} from 'pinia'
 import {find, isNil} from 'lodash'
 
 const VALID_MODES = ['bulkAdd', 'rename']
 
-export const useCuratedGroupStore = defineStore('curatedGroup', {
+export const useCuratedGroupStore: StoreDefinition = defineStore('curatedGroup', {
   state: () => ({
-    curatedGroupId: undefined,
-    curatedGroupName: undefined,
-    domain: undefined,
+    curatedGroupId: NaN as number,
+    curatedGroupName: undefined as string,
+    domain: undefined as string,
     itemsPerPage: 50,
-    mode: undefined,
+    mode: undefined as undefined | string,
     ownerId: undefined,
     pageNumber: undefined,
     referencingCohortIds: undefined,
-    students: undefined,
+    students: undefined as any[],
     totalStudentCount: undefined
   }),
   actions: {

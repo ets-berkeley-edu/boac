@@ -1,5 +1,5 @@
 import {cloneDeep, find, isNil, sortBy} from 'lodash'
-import {defineStore} from 'pinia'
+import {defineStore, StoreDefinition} from 'pinia'
 import {DateTime} from 'luxon'
 
 const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
@@ -46,7 +46,7 @@ function $_getDefaultRecipients(): NoteRecipients {
   }
 }
 
-export const useNoteStore = defineStore('note', {
+export const useNoteStore: StoreDefinition = defineStore('note', {
   state: () => ({
     autoSaveJob: undefined as number | null | undefined,
     boaSessionExpired: false,

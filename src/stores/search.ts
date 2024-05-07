@@ -1,8 +1,8 @@
-import {defineStore} from 'pinia'
+import {defineStore, StoreDefinition} from 'pinia'
 import {get} from 'lodash'
 import {useContextStore} from '@/stores/context'
 
-export const useSearchStore = defineStore('search', {
+export const useSearchStore: StoreDefinition = defineStore('search', {
   state: () => ({
     author: undefined as string | null | undefined,
     autocompleteInputResetKey: 0,

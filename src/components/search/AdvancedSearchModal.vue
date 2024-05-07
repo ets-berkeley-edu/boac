@@ -31,6 +31,7 @@
             :key="autocompleteInputResetKey"
             v-model="queryText"
             :aria-required="searchInputRequired"
+            autocomplete="off"
             clearable
             :disabled="isSearching || validDateRange === false"
             hide-details

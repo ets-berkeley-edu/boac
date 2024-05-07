@@ -1,6 +1,14 @@
-import _ from 'lodash'
+import {concat, head, initial, isNil, isNumber, join, last, noop, trim} from 'lodash'
 import {nextTick} from 'vue'
 import numeral from 'numeral'
+import {useContextStore} from '@/stores/context'
+
+export function alertScreenReader(message: string, politeness?: string) {
+  useContextStore().setScreenReaderAlert({message: ''})
+  nextTick(() => {
+    useContextStore().setScreenReaderAlert({message, politeness})
+  }).then(noop)
+}
 
 const decodeHtml = (snippet: string) => {
   if (snippet && snippet.indexOf('&') > 0) {
@@ -13,7 +21,7 @@ const decodeHtml = (snippet: string) => {
 }
 
 export function isNilOrBlank(s: string | null | undefined) {
-  return _.isNil(s) || _.trim(s) === ''
+  return isNil(s) || trim(s) === ''
 }
 
 export function lastNameFirst(u: {firstName?: string, lastName?: string}) {
@@ -26,10 +34,10 @@ export function numFormat(num, format=null) {
 
 export function oxfordJoin(arr, zeroString) {
   switch((arr || []).length) {
-    case 0: return _.isNil(zeroString) ? '' : zeroString
-    case 1: return _.head(arr)
-    case 2: return `${_.head(arr)} and ${_.last(arr)}`
-    default: return _.join(_.concat(_.initial(arr), `and ${_.last(arr)}`), ', ')
+    case 0: return isNil(zeroString) ? '' : zeroString
+    case 1: return head(arr)
+    case 2: return `${head(arr)} and ${last(arr)}`
+    default: return join(concat(initial(arr), `and ${last(arr)}`), ', ')
   }
 }
 
@@ -74,13 +82,13 @@ export function scrollToTop() {
 }
 
 export function sortComparator(a, b, nullFirst=true) {
-  if (_.isNil(a) || _.isNil(b)) {
+  if (isNil(a) || isNil(b)) {
     if (nullFirst) {
-      return _.isNil(a) ? (_.isNil(b) ? 0 : -1) : 1
+      return isNil(a) ? (isNil(b) ? 0 : -1) : 1
     } else {
-      return _.isNil(b) ? (_.isNil(a) ? 0 : -1) : 1
+      return isNil(b) ? (isNil(a) ? 0 : -1) : 1
     }
-  } else if (_.isNumber(a) && _.isNumber(b)) {
+  } else if (isNumber(a) && isNumber(b)) {
     return a < b ? -1 : a > b ? 1 : 0
   } else {
     const aInt = toInt(a)
@@ -98,7 +106,7 @@ export function sortComparator(a, b, nullFirst=true) {
 export function stripHtmlAndTrim(html) {
   let text = html && html.replace(/<([^>]+)>/ig,'')
   text = text && text.replace(/&nbsp;/g, '')
-  return _.trim(text)
+  return trim(text)
 }
 
 export function studentRoutePath(uid: string, inDemoMode: boolean) {

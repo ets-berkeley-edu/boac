@@ -11,6 +11,7 @@
           :key="autocompleteInputResetKey"
           v-model="queryText"
           aria-labelledby="search-input-label"
+          autocomplete="off"
           bg-color="white"
           :class="{
             'text-grey': !queryText,
@@ -22,6 +23,7 @@
           hide-details
           hide-no-data
           :items="useSearchStore().searchHistory"
+          :menu="isFocusOnSearch"
           :menu-icon="null"
           placeholder="/ to search"
           type="search"
@@ -34,18 +36,28 @@
             <v-btn
               v-if="!isSearching && size(trim(queryText))"
               aria-label="Clear search input"
-              icon
+              :icon="mdiClose"
               size="x-small"
               @click="() => queryText = null"
-            >
-              <v-icon :icon="mdiClose" />
-            </v-btn>
+            />
             <v-progress-circular
               v-if="isSearching"
               indeterminate
               size="x-small"
               width="2"
             />
+          </template>
+          <template #item="{index, item}">
+            <v-list-item
+              :id="`search-history-${index}`"
+              class="font-size-18"
+              @click="() => {
+                queryText = item.value
+                search()
+              }"
+            >
+              {{ item.value }}
+            </v-list-item>
           </template>
         </v-combobox>
         <v-tooltip
@@ -89,7 +101,7 @@ import SearchSession from '@/mixins/SearchSession'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
 import {getAllTopics} from '@/api/topics'
 import {useSearchStore} from '@/stores/search'
-import {putFocusNextTick, scrollToTop} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, scrollToTop} from '@/lib/utils'
 import {each, get, noop, trim} from 'lodash'
 
 export default {
@@ -157,8 +169,8 @@ export default {
         addToSearchHistory(q).then(history => useSearchStore().setSearchHistory(history))
       } else {
         this.showErrorPopover = true
-        this.alertScreenReader('Search input is required')
-        this.putFocusNextTick('search-students-input')
+        alertScreenReader('Search input is required')
+        putFocusNextTick('search-students-input')
       }
       scrollToTop()
     }

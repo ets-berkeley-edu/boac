@@ -1,7 +1,8 @@
-import _ from 'lodash'
+import {get, noop, sortBy} from 'lodash'
 import mitt from 'mitt'
 import router from '@/router'
-import {defineStore} from 'pinia'
+import {alertScreenReader} from '@/lib/utils'
+import {defineStore, StoreDefinition} from 'pinia'
 import {nextTick} from 'vue'
 
 const $_getDefaultApplicationState = () => ({
@@ -18,18 +19,12 @@ export type BoaConfig = {
     min: undefined
   },
   isProduction: boolean,
+  isVueAppDebugMode: boolean,
   maxAttachmentsPerNote: number,
   timezone: string
 }
 
-export function alertScreenReader(message: string, politeness?: string) {
-  useContextStore().setScreenReaderAlert({message: ''})
-  nextTick(() => {
-    useContextStore().setScreenReaderAlert({message, politeness})
-  }).then(_.noop)
-}
-
-export const useContextStore = defineStore('context', {
+export const useContextStore: StoreDefinition = defineStore('context', {
   state: () => ({
     announcement: undefined,
     applicationState: $_getDefaultApplicationState(),
@@ -64,13 +59,13 @@ export const useContextStore = defineStore('context', {
     },
     addMyCuratedGroup(curatedGroup: any) {
       this.currentUser.myCuratedGroups.push(curatedGroup)
-      this.currentUser.myCuratedGroups = _.sortBy(this.currentUser.myCuratedGroups, 'name')
+      this.currentUser.myCuratedGroups = sortBy(this.currentUser.myCuratedGroups, 'name')
     },
     alertScreenReader(message: string, politeness='polite') {
       this.screenReaderAlert.message = ''
       nextTick(() => {
         this.screenReaderAlert = {message, politeness}
-      }).then(_.noop)
+      }).then(noop)
     },
     broadcast(eventType, data?) {
       this.eventHub.emit(eventType, data)
@@ -82,11 +77,11 @@ export const useContextStore = defineStore('context', {
       this.dismissedServiceAnnouncement = true
     },
     loadingComplete(srAlert?: any) {
-      if (!_.get(this.config, 'isProduction')) {
+      if (!get(this.config, 'isProduction')) {
         console.log(`Page loaded in ${(new Date().getTime() - (this.loadingStartTime || 0)) / 1000} seconds`)
       }
       this.loading = false
-      this.alertScreenReader(srAlert || `${String(_.get(router.currentRoute, 'name', ''))} page loaded.`)
+      alertScreenReader(srAlert || `${String(get(router.currentRoute, 'name', ''))} page loaded.`)
 
       const callable = () => {
         const elements = document.getElementsByTagName('h1')
@@ -99,12 +94,12 @@ export const useContextStore = defineStore('context', {
       nextTick(() => {
         let counter = 0
         const job = setInterval(() => (callable() || ++counter > 3) && clearInterval(job), 500)
-      }).then(_.noop)
+      }).then(noop)
     },
     loadingStart(route?: string|Object) {
       this.loading = true
       this.loadingStartTime = new Date().getTime()
-      this.alertScreenReader(`${String(_.get(route, 'name', ''))} page is loading`)
+      alertScreenReader(`${String(get(route, 'name', ''))} page is loading`)
     },
     removeEventHandler(type, handler) {
       this.eventHub.off(type, handler)
