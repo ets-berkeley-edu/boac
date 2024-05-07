@@ -1,4 +1,4 @@
-import {defineStore} from 'pinia'
+import {defineStore, StoreDefinition} from 'pinia'
 import {get} from 'lodash'
 
 export type DegreeProgressCourses = {
@@ -20,7 +20,7 @@ function $_getDefaultDraggingContext(): DraggingContext {
   }
 }
 
-export const useDegreeProgressStore = defineStore('degree', {
+export const useDegreeProgressStore: StoreDefinition = defineStore('degree', {
   state: () => ({
     addCourseMenuOptions: undefined,
     categories: undefined,
@@ -41,7 +41,7 @@ export const useDegreeProgressStore = defineStore('degree', {
     parentTemplateId: undefined,
     parentTemplateUpdatedAt: undefined,
     sid: undefined,
-    templateId: NaN as number | undefined,
+    templateId: NaN as number,
     unitRequirements: undefined,
     updatedAt: undefined,
     updatedBy: undefined
@@ -55,7 +55,10 @@ export const useDegreeProgressStore = defineStore('degree', {
       disableButtons: state.disableButtons,
       templateId: state.templateId,
       unitRequirements: state.unitRequirements
-    })
+    }),
+    isUserDragging: (state, courseId: number) => {
+      return !!courseId && get(state.draggingContext, 'course.id') === courseId
+    }
   },
   actions: {
     draggingContextReset() {
@@ -67,7 +70,6 @@ export const useDegreeProgressStore = defineStore('degree', {
     dismissAlert(templateId: number) {
       this.dismissedAlerts.push(templateId)
     },
-    isUserDragging: (courseId: number) => !!courseId && get(this.draggingContext, 'course.id') === courseId,
     resetSession(template: any) {
       this.disableButtons = false
       this.draggingContext = $_getDefaultDraggingContext()
@@ -88,7 +90,8 @@ export const useDegreeProgressStore = defineStore('degree', {
       } else {
         this.categories = this.createdAt = this.createdBy = this.degreeName = this.degreeNote = undefined
         this.parentTemplateId = this.parentTemplateUpdatedAt = undefined
-        this.templateId = this.sid = this.unitRequirements = this.updatedAt = this.updatedBy = undefined
+        this.templateId = NaN
+        this.sid = this.unitRequirements = this.updatedAt = this.updatedBy = undefined
       }
       this.lastPageRefreshAt = new Date()
     },

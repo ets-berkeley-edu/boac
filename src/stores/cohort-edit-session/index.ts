@@ -1,9 +1,9 @@
 import {cloneDeep, find, isNil, size} from 'lodash'
-import {defineStore} from 'pinia'
+import {defineStore, StoreDefinition} from 'pinia'
 
 const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 
-export const useCohortStore = defineStore('cohort', {
+export const useCohortStore: StoreDefinition = defineStore('cohort', {
   state: () => ({
     cohortId: undefined as number | undefined,
     cohortName: undefined as string | null | undefined,

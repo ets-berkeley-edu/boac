@@ -13,6 +13,7 @@ import {VCard, VCardActions, VCardSubtitle, VCardText, VCardTitle} from 'vuetify
 import {VCheckbox} from 'vuetify/components/VCheckbox'
 import {VChip} from 'vuetify/components/VChip'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
+import {VCombobox} from 'vuetify/components/VCombobox'
 import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
 import {VDialog} from 'vuetify/components/VDialog'
 import {VDivider} from 'vuetify/components/VDivider'
@@ -58,6 +59,7 @@ export default createVuetify({
     VCheckbox,
     VChip,
     VCol,
+    VCombobox,
     VContainer,
     VDataTable,
     VDataTableVirtual,

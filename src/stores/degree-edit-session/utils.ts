@@ -1,4 +1,4 @@
-import {alertScreenReader} from '@/stores/context'
+import {alertScreenReader} from '@/lib/utils'
 import {assignCourse, deleteDegreeCategory, deleteDegreeCourse, getDegreeTemplate} from '@/api/degree'
 import {get, includes, map} from 'lodash'
 import {useContextStore} from '@/stores/context'
@@ -23,7 +23,7 @@ const $_allowCourseDrop = (category, course, context): boolean => {
 const $_dropToAssign = (categoryId: number | null, course: any, ignore: boolean) => {
   useDegreeProgressStore().setDisableButtons(true)
   return assignCourse(course.id, categoryId, ignore).then(() => {
-    const templateId = useDegreeProgressStore().templateId
+    const templateId: number = useDegreeProgressStore().templateId
     refreshDegreeTemplate(templateId).then(() => {
       useDegreeProgressStore().draggingContextReset()
       useDegreeProgressStore().setDisableButtons(false)
