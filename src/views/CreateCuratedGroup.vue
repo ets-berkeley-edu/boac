@@ -30,6 +30,7 @@ import Context from '@/mixins/Context'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {createCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain} from '@/berkeley'
 
@@ -56,14 +57,14 @@ export default {
     cancel() {
       this.showCreateModal = false
       this.isSaving = false
-      this.alertScreenReader(`You have canceled the operation to create a new ${describeCuratedGroupDomain(this.domain)}.`)
+      alertScreenReader(`You have canceled the operation to create a new ${describeCuratedGroupDomain(this.domain)}.`)
       this.putFocusNextTick('curated-group-bulk-add-sids')
     },
     create(name) {
       this.showCreateModal = false
       createCuratedGroup(this.domain, name, this.sids)
         .then(group => {
-          this.alertScreenReader(`Curated group '${name}' created. It has ${this.sids.length} students.`)
+          alertScreenReader(`Curated group '${name}' created. It has ${this.sids.length} students.`)
           this.isSaving = false
           this.$router.push(`/curated/${group.id}`)
         })

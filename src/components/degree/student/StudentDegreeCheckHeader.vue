@@ -235,6 +235,7 @@ import {mdiClose, mdiOpenInNew, mdiPrinterOutline} from '@mdi/js'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {getCalnetProfileByUserId} from '@/api/user'
 import {updateDegreeNote} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
@@ -277,7 +278,7 @@ export default {
     cancel() {
       this.isEditingNote = false
       this.noteBody = this._get(this.degreeNote, 'body')
-      this.alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       this.setDisableButtons(false)
       this.putFocusNextTick('create-degree-note-btn')
     },
@@ -285,7 +286,7 @@ export default {
       this.setDisableButtons(true)
       this.isEditingNote = true
       this.putFocusNextTick('degree-note-input')
-      this.alertScreenReader('Enter note in textarea')
+      alertScreenReader('Enter note in textarea')
     },
     getInProgressCourses() {
       const courses = []
@@ -308,7 +309,7 @@ export default {
     },
     onToggleNotesWhenPrint(flag) {
       this.setIncludeNotesWhenPrint(flag)
-      this.alertScreenReader(`Note will ${flag ? '' : 'not'} be included in printable page.`)
+      alertScreenReader(`Note will ${flag ? '' : 'not'} be included in printable page.`)
     },
     saveNote() {
       this.isSaving = true
@@ -317,7 +318,7 @@ export default {
           this.isEditingNote = false
           this.initNote()
           this.setDisableButtons(false)
-          this.alertScreenReader('Note saved')
+          alertScreenReader('Note saved')
           this.putFocusNextTick('create-degree-note-btn')
         })
       })

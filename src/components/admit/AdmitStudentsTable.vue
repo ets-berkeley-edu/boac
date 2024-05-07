@@ -109,6 +109,7 @@ import {useContextStore} from '@/stores/context'
 
 <script>
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'AdmitStudentsTable',
@@ -135,7 +136,7 @@ export default {
     },
     curatedGroupRemoveStudent(student) {
       this.removeStudent(this.getSid(student))
-      useContextStore().alertScreenReader(`Removed ${this.fullName(student)} from group`)
+      alertScreenReader(`Removed ${this.fullName(student)} from group`)
     },
     fullName(student) {
       const firstName = student.firstName

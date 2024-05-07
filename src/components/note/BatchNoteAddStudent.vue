@@ -91,7 +91,7 @@ import {
   without
 } from 'lodash'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
-import {putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -148,7 +148,7 @@ export default {
             useNoteStore().recipients.curatedGroups,
             uniq(useNoteStore().recipients.sids.concat(sidList))
           ).then(() => {
-            useContextStore().alertScreenReader(`${sidList.length} students added to batch note`)
+            alertScreenReader(`${sidList.length} students added to batch note`)
             const sidsNotFound = differenceWith(this.sidsManuallyAdded, sidList, isEqual)
             console.log(`sidsNotFound: ${sidsNotFound}`)
             if (sidsNotFound.length) {
@@ -170,7 +170,7 @@ export default {
         useNoteStore().setIsRecalculating(true)
         this.addedStudents.push(student)
         setNoteRecipient(sid).then(() => {
-          useContextStore().alertScreenReader(`${student.label} added to batch note`)
+          alertScreenReader(`${student.label} added to batch note`)
           this.resetAutocomplete()
         })
       } else {
@@ -209,7 +209,7 @@ export default {
             putFocusNextTick('create-note-add-student-input')
           })
         }
-        useContextStore().alertScreenReader(`${student.label} removed from batch note`)
+        alertScreenReader(`${student.label} removed from batch note`)
       }
     },
     resetAutocomplete() {

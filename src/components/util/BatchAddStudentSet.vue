@@ -61,6 +61,7 @@ import {mdiCloseCircleOutline} from '@mdi/js'
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'BatchAddStudentSet',
@@ -103,12 +104,12 @@ export default {
     add(object) {
       this.added.push(object)
       this.addObject(object)
-      this.alertScreenReader(`${this.header} '${object.name}' added to batch`)
+      alertScreenReader(`${this.header} '${object.name}' added to batch`)
     },
     remove(object) {
       this.added = this._filter(this.added, a => a.id !== object.id)
       this.removeObject(object)
-      this.alertScreenReader(`${this.header} '${object.name}' removed`)
+      alertScreenReader(`${this.header} '${object.name}' removed`)
       this.putFocusNextTick(`batch-degree-check-${this.objectType}`, 'button')
     }
   }

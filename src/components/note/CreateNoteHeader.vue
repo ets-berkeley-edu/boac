@@ -142,8 +142,7 @@ import {applyNoteTemplate} from '@/api/notes'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/utils'
 import {get, size} from 'lodash'
-import {putFocusNextTick} from '@/lib/utils'
-import {useContextStore} from '@/stores/context'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
@@ -203,7 +202,7 @@ export default {
       this.showDeleteTemplateModal = false
       this.showRenameTemplateModal = false
       this.targetTemplate = null
-      useContextStore().alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       putFocusNextTick('create-note-subject')
       enableFocusLock()
     },
@@ -211,7 +210,7 @@ export default {
       return deleteNoteTemplate(this.targetTemplate.id).then(() => {
         this.showDeleteTemplateModal = false
         this.targetTemplate = null
-        useContextStore().alertScreenReader('Template deleted.')
+        alertScreenReader('Template deleted.')
         putFocusNextTick('create-note-subject')
         enableFocusLock()
       })
@@ -220,42 +219,42 @@ export default {
       useNoteStore().setModel(template)
       useNoteStore().setMode('editTemplate')
       putFocusNextTick('create-note-subject')
-      useContextStore().alertScreenReader(`Edit template ${template.title}.`)
+      alertScreenReader(`Edit template ${template.title}.`)
     },
     get,
     loadTemplate(template) {
       applyNoteTemplate(useNoteStore().model.id, template.id).then(note => {
         useNoteStore().setModel(note)
         putFocusNextTick('create-note-subject')
-        useContextStore().alertScreenReader(`Template ${template.title} loaded.`)
+        alertScreenReader(`Template ${template.title} loaded.`)
       })
     },
     onToggleTemplatesMenu(isOpen) {
       if (isOpen) {
         let count = size(useNoteStore().noteTemplates)
         const suffix = count === 1 ? 'one saved template' : `${count || 'no'} saved templates`
-        useContextStore().alertScreenReader(`Template menu open. You have ${suffix}.`)
+        alertScreenReader(`Template menu open. You have ${suffix}.`)
       } else {
-        useContextStore().alertScreenReader('Templates menu closed.')
+        alertScreenReader('Templates menu closed.')
       }
     },
     openDeleteTemplateModal(template) {
       this.targetTemplate = template
       disableFocusLock()
       this.showDeleteTemplateModal = true
-      useContextStore().alertScreenReader('Delete template modal opened.')
+      alertScreenReader('Delete template modal opened.')
     },
     openRenameTemplateModal(template) {
       this.targetTemplate = template
       disableFocusLock()
       this.showRenameTemplateModal = true
-      useContextStore().alertScreenReader('Rename template modal opened.')
+      alertScreenReader('Rename template modal opened.')
     },
     renameTemplate(title) {
       renameNoteTemplate(this.targetTemplate.id, title).then(() => {
         this.targetTemplate = null
         this.showRenameTemplateModal = false
-        useContextStore().alertScreenReader(`Template renamed '${title}'.`)
+        alertScreenReader(`Template renamed '${title}'.`)
         enableFocusLock()
       })
     },
@@ -263,7 +262,7 @@ export default {
       this.showRenameTemplateModal = show
       const toggle = show ? disableFocusLock : enableFocusLock
       toggle()
-      useContextStore().alertScreenReader(`Dialog ${show ? 'opened' : 'closed'}.`)
+      alertScreenReader(`Dialog ${show ? 'opened' : 'closed'}.`)
     },
     useNoteStore
   }

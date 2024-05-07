@@ -93,6 +93,7 @@ import {mdiAlert, mdiCloseCircle, mdiPaperclip} from '@mdi/js'
 
 <script>
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
+import {alertScreenReader} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -128,13 +129,13 @@ export default {
       this.$refs['attachment-file-input'].$el.click()
     },
     deleteAttachmentByIndex(index) {
-      useContextStore().alertScreenReader(`Attachment '${useNoteStore().model.attachments[index].name}' removed`)
+      alertScreenReader(`Attachment '${useNoteStore().model.attachments[index].name}' removed`)
       useNoteStore().removeAttachmentByIndex(index)
     },
     onAttachmentsInput(files) {
       if (size(files)) {
         this.isAdding = true
-        useContextStore().alertScreenReader(`Adding ${files.length} attachments`)
+        alertScreenReader(`Adding ${files.length} attachments`)
         this.attachmentError = validateAttachment(files, useNoteStore().model.attachments)
         if (!this.attachmentError) {
           const attachments = []
@@ -143,7 +144,7 @@ export default {
             attachments.push(attachment)
           })
           this.addAttachments(attachments).then(() => {
-            useContextStore().alertScreenReader('Attachments added')
+            alertScreenReader('Attachments added')
             this.isAdding = false
           })
         } else {

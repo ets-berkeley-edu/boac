@@ -52,6 +52,7 @@ import {find, get, includes} from 'lodash'
 import {myDeptCodes, previousSisTermId, termNameForSisId} from '@/berkeley'
 import {nextTick} from 'vue'
 import {useContextStore} from '@/stores/context'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'SortBy',
@@ -122,11 +123,11 @@ export default {
       useContextStore().updateCurrentUserPreference(sortByKey, sortBy)
       useContextStore().broadcast(`${sortByKey}-user-preference-change`, sortBy)
       nextTick(() => {
-        useContextStore().alertScreenReader(`${this.selectedOptionLabel} selected`)
+        alertScreenReader(`${this.selectedOptionLabel} selected`)
       })
     },
     onToggleMenu(isOpen) {
-      useContextStore().alertScreenReader(`Sort-by menu ${isOpen ? 'opened' : 'closed'}`)
+      alertScreenReader(`Sort-by menu ${isOpen ? 'opened' : 'closed'}`)
     }
   }
 }

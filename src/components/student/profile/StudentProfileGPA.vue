@@ -106,6 +106,7 @@ import {mdiAlertRhombus, mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import StudentGpaChart from '@/components/student/StudentGpaChart'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'StudentProfileGPA',
@@ -129,7 +130,7 @@ export default {
   methods: {
     showHideTermGpa() {
       this.showTermGpa = !this.showTermGpa
-      this.alertScreenReader(`The table with GPA per term is now ${this.showTermGpa ? 'visible' : 'hidden'}.`)
+      alertScreenReader(`The table with GPA per term is now ${this.showTermGpa ? 'visible' : 'hidden'}.`)
     }
   }
 }

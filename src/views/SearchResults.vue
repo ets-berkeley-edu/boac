@@ -217,6 +217,7 @@ import SortableCourses from '@/components/search/SortableCourses'
 import SortableStudents from '@/components/search/SortableStudents'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
 import {search, searchAdmittedStudents} from '@/api/search'
 
@@ -313,7 +314,7 @@ export default {
     }
     if (this.queryText || this.includeNotesAndAppointments) {
       this.isSearching = true
-      this.alertScreenReader(`Searching for '${this.queryText}'`)
+      alertScreenReader(`Searching for '${this.queryText}'`)
       let queries = []
       if (this.includeCourses || this.includeNotesAndAppointments || this.includeStudents) {
         queries.push(
@@ -393,7 +394,7 @@ export default {
     },
     openAdvancedSearch() {
       this.showAdvancedSearch = true
-      this.alertScreenReader('Advanced search is open')
+      alertScreenReader('Advanced search is open')
     }
   }
 }

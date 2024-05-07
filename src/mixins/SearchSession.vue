@@ -2,7 +2,7 @@
 import {mapActions, mapState} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
-import {oxfordJoin} from '@/lib/utils'
+import {alertScreenReader, oxfordJoin} from '@/lib/utils'
 
 export default {
   name: 'SearchSession',
@@ -43,28 +43,28 @@ export default {
       },
       set: v => {
         useSearchStore().setIncludeAdmits(v)
-        useContextStore().alertScreenReader(`Search ${v ? 'will' : 'will not'} include admits.`)
+        alertScreenReader(`Search ${v ? 'will' : 'will not'} include admits.`)
       }
     },
     includeCourses: {
       get: () => useSearchStore().includeCourses,
       set: v => {
         useSearchStore().setIncludeCourses(v)
-        useContextStore().alertScreenReader(`Search ${v ? 'will' : 'will not'} include courses.`)
+        alertScreenReader(`Search ${v ? 'will' : 'will not'} include courses.`)
       }
     },
     includeNotes: {
       get: () => useSearchStore().includeNotes,
       set: v => {
         useSearchStore().setIncludeNotes(v)
-        useContextStore().alertScreenReader(`Search will include ${v ? 'notes and' : 'neither notes nor'} appointments.`)
+        alertScreenReader(`Search will include ${v ? 'notes and' : 'neither notes nor'} appointments.`)
       }
     },
     includeStudents: {
       get: () => useSearchStore().includeStudents,
       set: v => {
         useSearchStore().setIncludeStudents(v)
-        useContextStore().alertScreenReader(`Search ${v ? 'will' : 'will not'} include students.`)
+        alertScreenReader(`Search ${v ? 'will' : 'will not'} include students.`)
       }
     },
     isSearching: {

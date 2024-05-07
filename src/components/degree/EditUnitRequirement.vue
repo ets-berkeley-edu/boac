@@ -78,6 +78,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
 import {addUnitRequirement, updateUnitRequirement} from '@/api/degree'
+import {alertScreenReader} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {validateUnitRange} from '@/lib/degree-progress'
 
@@ -117,7 +118,7 @@ export default {
         const existingNames = this._map(this.otherUnitRequirements, u => u.name.toLowerCase())
         if (existingNames.findIndex(existingName => lowerCase === existingName) > -1) {
           message = 'Name cannot match the name of an existing Unit Requirement.'
-          this.alertScreenReader(message)
+          alertScreenReader(message)
         }
       }
       return message
@@ -130,16 +131,16 @@ export default {
       this.otherUnitRequirements = this._filter(this.unitRequirements, u => {
         return u.id !== this.unitRequirement.id
       })
-      this.alertScreenReader(`Edit unit requirement ${this.name}`)
+      alertScreenReader(`Edit unit requirement ${this.name}`)
     } else {
       this.otherUnitRequirements = this.unitRequirements
-      this.alertScreenReader('Create unit requirement')
+      alertScreenReader('Create unit requirement')
     }
     this.putFocusNextTick('unit-requirement-name-input')
   },
   methods: {
     cancel() {
-      this.alertScreenReader('Canceled.')
+      alertScreenReader('Canceled.')
       this.isSaving = false
       this.onExit()
     },
@@ -147,11 +148,11 @@ export default {
       if (this.disableSaveButton) {
         this.putFocusRequiredField()
       } else {
-        this.alertScreenReader('Saving')
+        alertScreenReader('Saving')
         this.isSaving = true
         addUnitRequirement(this.templateId, this.name, this.minUnits).then(() => {
           refreshDegreeTemplate(this.templateId).then(() => {
-            this.alertScreenReader(`Created ${this.name}.`)
+            alertScreenReader(`Created ${this.name}.`)
             this.onExit()
           })
         })
@@ -159,7 +160,7 @@ export default {
     },
     putFocusRequiredField() {
       this.putFocusNextTick(this.name ? 'unit-requirement-min-units-input' : 'unit-requirement-name-input')
-      this.alertScreenReader(`${this.name ? 'Units value' : 'Name'} required.`)
+      alertScreenReader(`${this.name ? 'Units value' : 'Name'} required.`)
     },
     setMinUnits(units) {
       this.minUnits = units
@@ -168,12 +169,12 @@ export default {
       if (this.disableSaveButton) {
         this.putFocusRequiredField()
       } else {
-        this.alertScreenReader('Saving')
+        alertScreenReader('Saving')
         this.isSaving = true
         updateUnitRequirement(this.unitRequirement.id, this.name, this.minUnits).then(() => {
           refreshDegreeTemplate(this.templateId).then(() => {
             this.isSaving = false
-            this.alertScreenReader(`Updated ${this.name}.`)
+            alertScreenReader(`Updated ${this.name}.`)
             this.onExit()
           })
         })

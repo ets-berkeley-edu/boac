@@ -54,8 +54,7 @@ import {mdiCloseCircle} from '@mdi/js'
 <script>
 import {differenceBy, each, size} from 'lodash'
 import {getTopicsForNotes} from '@/api/topics'
-import {putFocusNextTick} from '@/lib/utils'
-import {useContextStore} from '@/stores/context'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
@@ -104,7 +103,7 @@ export default {
       if (topic) {
         useNoteStore().addTopic(topic)
         putFocusNextTick('add-topic-select-list')
-        useContextStore().alertScreenReader(`Topic ${topic} added.`)
+        alertScreenReader(`Topic ${topic} added.`)
       }
     },
     onClickRemove(topic) {
@@ -115,7 +114,7 @@ export default {
     },
     remove(topic) {
       useNoteStore().removeTopic(topic)
-      useContextStore().alertScreenReader(`Removed topic ${topic}.`)
+      alertScreenReader(`Removed topic ${topic}.`)
       putFocusNextTick('add-topic-select-list')
     }
   }

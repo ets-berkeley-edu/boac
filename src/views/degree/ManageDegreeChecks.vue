@@ -222,6 +222,7 @@ import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/api/degree'
 import {DateTime} from 'luxon'
 
@@ -252,7 +253,7 @@ export default {
       this.degreeTemplates = data
       this.successMessage = this.$route.query.m
       this.loadingComplete()
-      this.alertScreenReader('Managing Degree Checks loaded')
+      alertScreenReader('Managing Degree Checks loaded')
     })
   },
   methods: {
@@ -261,7 +262,7 @@ export default {
       getDegreeTemplates().then(data => {
         this.degreeTemplates = data
         this.isBusy = false
-        this.alertScreenReader('Degree copy is complete.')
+        alertScreenReader('Degree copy is complete.')
         this.putFocusNextTick(`degree-check-${clone.id}-link`)
       })
     },
@@ -269,31 +270,31 @@ export default {
       this.putFocusNextTick(`degree-check-${this.templateForEdit.id}-link`)
       this.templateForEdit = null
       this.isBusy = false
-      this.alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
     },
     cloneCanceled() {
       this.putFocusNextTick(`degree-check-${this.templateToClone.id}-link`)
       this.templateToClone = null
       this.isBusy = false
-      this.alertScreenReader('Copy canceled.')
+      alertScreenReader('Copy canceled.')
     },
     deleteCanceled() {
       this.putFocusNextTick(`degree-check-${this.templateForDelete.id}-link`)
       this.deleteModalBody = this.templateForDelete = null
       this.isBusy = false
-      this.alertScreenReader('Canceled. Nothing deleted.')
+      alertScreenReader('Canceled. Nothing deleted.')
     },
     deleteConfirmed() {
       return deleteDegreeTemplate(this.templateForDelete.id).then(getDegreeTemplates).then(data => {
         this.degreeTemplates = data
-        this.alertScreenReader(`${this.templateForDelete.name} deleted.`)
+        alertScreenReader(`${this.templateForDelete.name} deleted.`)
         this.putFocusNextTick('page-header')
         this.deleteModalBody = this.templateForDelete = null
         this.isBusy = false
       })
     },
     edit(template) {
-      this.alertScreenReader(`Rename ${template.name}`)
+      alertScreenReader(`Rename ${template.name}`)
       this.templateForEdit = this._clone(template)
       this.isBusy = true
       this.putFocusNextTick('rename-template-input')
@@ -304,7 +305,7 @@ export default {
       return this._map(templates, 'name').findIndex(t => t.toLowerCase() === lower) === -1
     },
     openCreateCloneModal(template) {
-      this.alertScreenReader('Create a copy.')
+      alertScreenReader('Create a copy.')
       this.templateToClone = template
       this.isBusy = true
     },
@@ -314,7 +315,7 @@ export default {
         this.templateForEdit = null
         getDegreeTemplates().then(data => {
           this.degreeTemplates = data
-          this.alertScreenReader('Template updated')
+          alertScreenReader('Template updated')
           this.isBusy = false
           this.putFocusNextTick(`degree-check-${templateId}-link`)
         })
@@ -322,7 +323,7 @@ export default {
     },
     showDeleteModal(template) {
       this.deleteModalBody = `Are you sure you want to delete <b>"${template.name}"</b>?`
-      this.alertScreenReader('Please confirm delete.')
+      alertScreenReader('Please confirm delete.')
       this.templateForDelete = template
       this.isBusy = true
     }

@@ -59,8 +59,8 @@
           <v-btn
             id="save-note-button"
             class="btn-primary-color-override"
+            color="primary"
             :disabled="!recipients.sids.length || !trim(useNoteStore().model.subject)"
-            variant="primary"
             @click="() => save(false)"
           >
             {{ useNoteStore().model.isDraft ? 'Publish' : 'Save' }}
@@ -69,7 +69,7 @@
         <div v-if="useNoteStore().model.isDraft">
           <v-btn
             id="update-draft-note-button"
-            variant="link"
+            variant="text"
             @click="() => save(true)"
           >
             Update Draft
@@ -78,7 +78,7 @@
         <div>
           <v-btn
             id="cancel-edit-note-button"
-            variant="link"
+            variant="text"
             @click.stop="cancelRequested"
             @keypress.enter.stop="cancelRequested"
           >
@@ -137,11 +137,11 @@ import ManuallySetDate from '@/components/note/ManuallySetDate'
 import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import SessionExpired from '@/components/note/SessionExpired'
+import {alertScreenReader, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {exitSession, setNoteRecipient, setSubjectPerEvent} from '@/stores/note-edit-session/utils'
 import {getNote, updateNote} from '@/api/notes'
 import {getUserProfile} from '@/api/user'
 import {DateTime} from 'luxon'
-import {putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {size, trim} from 'lodash'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -182,7 +182,7 @@ export default {
       const onFinish = () => {
         useNoteStore().setMode('editNote')
         putFocusNextTick('edit-note-subject')
-        useContextStore().alertScreenReader('Edit note form is open.')
+        alertScreenReader('Edit note form is open.')
       }
       useNoteStore().resetModel()
       useNoteStore().setModel(note)
@@ -213,11 +213,11 @@ export default {
     },
     cancelConfirmed() {
       this.afterCancel()
-      useContextStore().alertScreenReader('Edit note form canceled.')
+      alertScreenReader('Edit note form canceled.')
       this.exit(true)
     },
     cancelTheCancel() {
-      useContextStore().alertScreenReader('Continue editing note.')
+      alertScreenReader('Continue editing note.')
       this.showAreYouSureModal = false
       putFocusNextTick('edit-note-subject')
     },
@@ -249,13 +249,13 @@ export default {
             this.model.topics
           ).then(updatedNote => {
             this.afterSaved(updatedNote)
-            useContextStore().alertScreenReader('Changes to note have been saved')
+            alertScreenReader('Changes to note have been saved')
             this.exit(false)
           })
         } else {
           this.error = 'Subject is required'
           this.showErrorPopover = true
-          useContextStore().alertScreenReader(`Validation failed: ${this.error}`)
+          alertScreenReader(`Validation failed: ${this.error}`)
           putFocusNextTick('edit-note-subject')
         }
       }

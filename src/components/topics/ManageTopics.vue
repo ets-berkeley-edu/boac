@@ -9,8 +9,7 @@
           density="compact"
           label="Search"
           variant="outlined"
-        >
-        </v-text-field>
+        />
       </div>
 
       <v-btn
@@ -27,7 +26,7 @@
         :disabled="isEditTopicModalOpen"
         @click="openCreateTopicModal"
       >
-        <v-icon :icon="mdiPlusBox"></v-icon>
+        <v-icon :icon="mdiPlusBox" />
         Create New Topic
       </v-btn>
     </div>
@@ -43,29 +42,29 @@
             <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('topic')">
               <span>Topic</span>
               <template v-if="sortBy === 'topic'">
-                <v-icon v-if="sortByMap.get('topic') === false" class="position-absolute mb-1" :icon="mdiMenuDown"></v-icon>
-                <v-icon v-if="sortByMap.get('topic') === true" class="position-absolute mb-1" :icon="mdiMenuUp"></v-icon>
+                <v-icon v-if="sortByMap.get('topic') === false" class="position-absolute mb-1" :icon="mdiMenuDown" />
+                <v-icon v-if="sortByMap.get('topic') === true" class="position-absolute mb-1" :icon="mdiMenuUp" />
               </template>
             </th>
             <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('deleted')">
               <span>Deleted?</span>
               <template v-if="sortBy === 'deleted'">
-                <v-icon v-if="sortByMap.get('deleted') === false" class="position-absolute mb-1" :icon="mdiMenuDown"></v-icon>
-                <v-icon v-if="sortByMap.get('deleted') === true" class="position-absolute mb-1" :icon="mdiMenuUp"></v-icon>
+                <v-icon v-if="sortByMap.get('deleted') === false" class="position-absolute mb-1" :icon="mdiMenuDown" />
+                <v-icon v-if="sortByMap.get('deleted') === true" class="position-absolute mb-1" :icon="mdiMenuUp" />
               </template>
             </th>
             <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('usage')">
               <span>Usage</span>
               <template v-if="sortBy === 'usage'">
-                <v-icon v-if="sortByMap.get('usage') === false" class="position-absolute mb-1" :icon="mdiMenuDown"></v-icon>
-                <v-icon v-if="sortByMap.get('usage') === true" class="position-absolute mb-1" :icon="mdiMenuUp"></v-icon>
+                <v-icon v-if="sortByMap.get('usage') === false" class="position-absolute mb-1" :icon="mdiMenuDown" />
+                <v-icon v-if="sortByMap.get('usage') === true" class="position-absolute mb-1" :icon="mdiMenuUp" />
               </template>
             </th>
             <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('deleted')">
               <span>Actions</span>
               <template v-if="sortBy === 'deleted'">
-                <v-icon v-if="sortByMap.get('deleted') === false" class="position-absolute mb-1" :icon="mdiMenuDown"></v-icon>
-                <v-icon v-if="sortByMap.get('deleted') === true" class="position-absolute mb-1" :icon="mdiMenuUp"></v-icon>
+                <v-icon v-if="sortByMap.get('deleted') === false" class="position-absolute mb-1" :icon="mdiMenuDown" />
+                <v-icon v-if="sortByMap.get('deleted') === true" class="position-absolute mb-1" :icon="mdiMenuUp" />
               </template>
             </th>
           </tr>
@@ -87,7 +86,7 @@
                     density="compact"
                     @click="openDeleteTopicModal(item)"
                   >
-                    <v-icon :icon="mdiTrashCanOutline"></v-icon>
+                    <v-icon :icon="mdiTrashCanOutline" />
                   </v-btn>
                 </template>
               </v-tooltip>
@@ -100,7 +99,7 @@
                     density="compxact"
                     @click="undelete(item)"
                   >
-                    <v-icon :icon="mdiDeleteRestore" color="warning"></v-icon>
+                    <v-icon :icon="mdiDeleteRestore" color="warning" />
                   </v-btn>
                 </template>
               </v-tooltip>
@@ -134,20 +133,15 @@ import {mdiTrashCanOutline} from '@mdi/js'
 import {mdiPlusBox} from '@mdi/js'
 import {mdiMenuDown} from '@mdi/js'
 import {mdiMenuUp} from '@mdi/js'
-
-import {useContextStore} from '@/stores/context'
-
 </script>
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-// import Context from '@/mixins/Context'
 import EditTopicModal from '@/components/topics/EditTopicModal'
 import Util from '@/mixins/Util'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {deleteTopic, getAllTopics, getUsageStatistics, undeleteTopic} from '@/api/topics'
-import {putFocusNextTick} from '@/lib/utils'
 import {DateTime} from 'luxon'
-
 
 export default {
   name: 'ManageTopics',
@@ -222,11 +216,11 @@ export default {
       const focusTarget = `topic-${topic.id}`
       if (match) {
         Object.assign(match, topic)
-        useContextStore().alertScreenReader(`Topic '${topic.topic}' updated.`)
+        alertScreenReader(`Topic '${topic.topic}' updated.`)
         putFocusNextTick(focusTarget)
       } else {
         this.refresh(focusTarget)
-        useContextStore().alertScreenReader(`Topic '${topic.topic}' created.`)
+        alertScreenReader(`Topic '${topic.topic}' created.`)
       }
       this.topicEdit = null
       this.isEditTopicModalOpen = false
@@ -235,21 +229,21 @@ export default {
     deleteCancel() {
       this.isDeleteTopicModalOpen = false
       this.topicDelete = undefined
-      useContextStore().alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       putFocusNextTick('filter-topics')
     },
     deleteConfirm() {
       return deleteTopic(this.topicDelete.id).then(() => {
         this.isDeleteTopicModalOpen = false
         this.topicDelete.deletedAt = DateTime.now()
-        useContextStore().alertScreenReader(`Topic '${this.topicDelete.topic}' deleted.`)
+        alertScreenReader(`Topic '${this.topicDelete.topic}' deleted.`)
         putFocusNextTick(`topic-${this.topicDelete.id}`)
         this.topicDelete = undefined
       })
     },
     onCancelEdit() {
       this.isEditTopicModalOpen = false
-      useContextStore().alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       putFocusNextTick('filter-topics')
       this.topicEdit = null
     },
@@ -258,12 +252,12 @@ export default {
         topic: ''
       }
       this.isEditTopicModalOpen = true
-      useContextStore().alertScreenReader('Opened modal to create new topic.')
+      alertScreenReader('Opened modal to create new topic.')
     },
     openDeleteTopicModal(topic) {
       this.topicDelete = topic
       this.isDeleteTopicModalOpen = true
-      useContextStore().alertScreenReader('Opened modal to confirm delete.')
+      alertScreenReader('Opened modal to confirm delete.')
     },
     refresh(focusTarget) {
       getAllTopics(true).then(data => {
@@ -280,7 +274,7 @@ export default {
     undelete(topic) {
       undeleteTopic(topic.id).then(() => {
         topic.deletedAt = null
-        useContextStore().alertScreenReader(`Topic ${topic.topic} un-deleted.`)
+        alertScreenReader(`Topic ${topic.topic} un-deleted.`)
         putFocusNextTick(`topic-${topic.id}`)
       })
     },
@@ -338,11 +332,6 @@ export default {
 #new-note-button {
   margin-left: auto;
 }
-
-.top-box {
-  box-sizing: border-box;
-}
-
 .button-position {
   top: 8px;
 }

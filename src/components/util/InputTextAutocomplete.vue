@@ -184,7 +184,7 @@ export default {
   methods: {
     closeSuggestions() {
       // if (this.isOpen) {
-      //   this.alertScreenReader('Closing auto-suggest dropdown')
+      //   alertScreenReader('Closing auto-suggest dropdown')
       // }
       // this.isOpen = false
       // this.nextTick(() => {

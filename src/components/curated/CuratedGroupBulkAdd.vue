@@ -56,6 +56,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {validateSids} from '@/api/student'
 
 export default {
@@ -109,14 +110,14 @@ export default {
     scrub() {
       this.sids = this._uniq(this.sids)
       this.textarea = this.sids.length ? this.sids.join(', ') : ''
-      this.alertScreenReader(`${this.sidsNotFound.length} invalid SIDs removed from textarea.`)
+      alertScreenReader(`${this.sidsNotFound.length} invalid SIDs removed from textarea.`)
       this.sidsNotFound = []
       this.clearWarning()
     },
     setWarning(message) {
       this.warning = message
       this.showWarning = true
-      this.alertScreenReader(message)
+      alertScreenReader(message)
     },
     submit() {
       this.sids = []

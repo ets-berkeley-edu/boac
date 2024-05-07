@@ -86,6 +86,7 @@ import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnassignedCourses from '@/components/degree/student/UnassignedCourses'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {getStudentBySid} from '@/api/student'
 import {onDrop, refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 
@@ -119,7 +120,7 @@ export default {
         const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
         this.setPageTitle(`${studentName} - ${this.degreeName}`)
         this.loadingComplete()
-        this.alertScreenReader(`${this.degreeName} for ${this.student.name}`)
+        alertScreenReader(`${this.degreeName} for ${this.student.name}`)
       })
     })
   },

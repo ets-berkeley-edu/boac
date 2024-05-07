@@ -134,6 +134,7 @@ import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import PillAlert from '@/components/util/PillAlert'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {find, get, isNil, isNumber} from 'lodash'
 import {sortComparator} from '@/lib/utils'
 
@@ -210,7 +211,7 @@ export default {
     onChangeSortBy() {
       const field = find(this.headers, ['value', get(this.sortBy, 0)])
       if (field) {
-        this.alertScreenReader(`Sorted by ${field.title}${this.sortDescending ? ', descending' : ''}`)
+        alertScreenReader(`Sorted by ${field.title}${this.sortDescending ? ', descending' : ''}`)
       }
     },
     sortCompare(a, b, sortBy, sortDesc) {

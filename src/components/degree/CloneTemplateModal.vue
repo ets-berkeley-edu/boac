@@ -67,6 +67,7 @@
 import Context from '@/mixins/Context.vue'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import Util from '@/mixins/Util.vue'
+import {alertScreenReader} from '@/lib/utils'
 import {cloneDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 
 export default {
@@ -118,14 +119,14 @@ export default {
       getDegreeTemplates().then(data => {
         const lower = this.name.trim().toLowerCase()
         if (this._map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
-          this.alertScreenReader('Cloning template')
+          alertScreenReader('Cloning template')
           cloneDegreeTemplate(this.templateToClone.id, this.name).then(data => {
             this.afterCreate(data)
             this.isSaving = false
           })
         } else {
           this.error = `A degree named <span class="font-weight-500">${this.name}</span> already exists. Please choose a different name.`
-          this.alertScreenReader(this.error)
+          alertScreenReader(this.error)
           this.isSaving = false
         }
       })

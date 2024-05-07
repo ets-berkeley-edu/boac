@@ -86,15 +86,15 @@
 import {get, isEmpty} from 'lodash'
 import {DateTime} from 'luxon'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
-import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
 </script>
 
 <script>
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
+import {alertScreenReader, scrollToTop} from '@/lib/utils'
 import {getCohortEvents} from '@/api/cohort'
-import {scrollToTop} from '@/lib/utils'
+import {useCohortStore} from '@/stores/cohort-edit-session'
 
 
 export default {
@@ -122,13 +122,13 @@ export default {
     },
     loadEvents() {
       this.loading = true
-      useContextStore().alertScreenReader('Cohort history is loading')
+      alertScreenReader('Cohort history is loading')
       scrollToTop(10)
       getCohortEvents(useCohortStore().cohortId, this.offset, this.itemsPerPage).then((response) => {
         this.totalEventsCount = response.count
         this.events = response.events
         this.loading = false
-        useContextStore().alertScreenReader('Cohort history has loaded')
+        alertScreenReader('Cohort history has loaded')
       })
     }
   },

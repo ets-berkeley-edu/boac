@@ -367,7 +367,7 @@ import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
 import {markAppointmentRead} from '@/api/appointments'
 import {isDirector} from '@/berkeley'
-import {scrollTo} from '@/lib/utils'
+import {alertScreenReader, scrollTo} from '@/lib/utils'
 import {DateTime} from 'luxon'
 import {capitalize, each, find, includes, map, remove, size, slice} from 'lodash'
 
@@ -463,11 +463,11 @@ export default {
       this.openMessages = []
       this.searchResults = null
       this.timelineQuery = ''
-      this.alertScreenReader(this.describeTheActiveTab())
+      alertScreenReader(this.describeTheActiveTab())
       this.refreshSearchIndex()
     },
     isShowingAll() {
-      this.alertScreenReader(this.describeTheActiveTab())
+      alertScreenReader(this.describeTheActiveTab())
     },
     timelineQuery() {
       if (this.timelineQuery) {
@@ -498,7 +498,7 @@ export default {
       })
     }
     this.sortMessages()
-    this.alertScreenReader(`${this.student.name} profile loaded.`)
+    alertScreenReader(`${this.student.name} profile loaded.`)
   },
   mounted() {
     if (this.anchor) {
@@ -552,7 +552,7 @@ export default {
       this.editModeNoteId = null
     },
     cancelTheDelete() {
-      this.alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       this.putFocusNextTick(`delete-note-button-${this.messageForDelete.id}`)
       this.messageForDelete = undefined
     },
@@ -570,12 +570,12 @@ export default {
         this.allExpanded = false
       }
       if (notifyScreenReader) {
-        this.alertScreenReader(`${capitalize(message.type)} closed`)
+        alertScreenReader(`${capitalize(message.type)} closed`)
       }
     },
     deleteNote(message) {
       // The following opens the "Are you sure?" modal
-      this.alertScreenReader('Please confirm delete')
+      alertScreenReader('Please confirm delete')
       this.messageForDelete = message
     },
     deleteConfirmed() {
@@ -586,7 +586,7 @@ export default {
       remove(this.openMessages, value => transientId === value)
       this.messageForDelete = undefined
       return deleteNote(note).then(() => {
-        this.alertScreenReader('Note deleted')
+        alertScreenReader('Note deleted')
         this.refreshSearchIndex()
       })
     },
@@ -656,7 +656,7 @@ export default {
         this.allExpanded = true
       }
       if (notifyScreenReader) {
-        this.alertScreenReader(`${capitalize(message.type)} opened`)
+        alertScreenReader(`${capitalize(message.type)} opened`)
       }
     },
     refreshNote(updatedNote) {
@@ -705,10 +705,10 @@ export default {
       this.allExpanded = !this.allExpanded
       if (this.allExpanded) {
         each(this.messagesPerType(this.filter), this.open)
-        this.alertScreenReader(`All ${this.filter}s expanded`)
+        alertScreenReader(`All ${this.filter}s expanded`)
       } else {
         each(this.messagesPerType(this.filter), this.close)
-        this.alertScreenReader(`All ${this.filter}s collapsed`)
+        alertScreenReader(`All ${this.filter}s collapsed`)
       }
     }
   }

@@ -67,6 +67,7 @@ import {mdiSquareOutline} from '@mdi/js'
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'AccentColorSelect',
@@ -91,7 +92,7 @@ export default {
     setSelected(value) {
       this.selected = value
       this.onChange(this.selected)
-      this.alertScreenReader(`${this.selected} selected`)
+      alertScreenReader(`${this.selected} selected`)
     }
   }
 }

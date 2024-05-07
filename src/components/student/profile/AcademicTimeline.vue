@@ -24,6 +24,7 @@ import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelin
 import AcademicTimelineTable from '@/components/student/profile/AcademicTimelineTable'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {getNote} from '@/api/notes'
 import {DateTime} from 'luxon'
 
@@ -93,7 +94,7 @@ export default {
           this.messages.push(note)
           this.updateCountsPerType('note', this.countsPerType.note + 1)
           this.sortMessages()
-          this.alertScreenReader(`New advising note created for student ${this.student.name}.`)
+          alertScreenReader(`New advising note created for student ${this.student.name}.`)
         }
       }
     },

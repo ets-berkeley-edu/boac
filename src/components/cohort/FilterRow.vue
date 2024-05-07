@@ -15,8 +15,9 @@
       <FilterSelect
         :filter-row-index="position"
         :has-left-border-style="true"
+        :has-opt-groups="true"
         :labelledby="`new-filter-${position}-label`"
-        :options="prepareFilterOptionGroups()"
+        :options="primaryOptions"
         :set-model-object="value => (selectedFilter = value)"
         type="primary"
         :v-model-object="selectedFilter"
@@ -32,6 +33,7 @@
         <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
         <FilterSelect
           :filter-row-index="position"
+          :has-opt-groups="!!filter.options[0].header"
           :labelledby="`filter-secondary-${position}-label`"
           :options="filter.options"
           :set-model-object="value => (selectedOption = value)"
@@ -225,7 +227,6 @@
 import FilterSelect from '@/components/cohort/FilterSelect'
 import ProgressButton from '@/components/util/ProgressButton'
 import {useCohortStore} from '@/stores/cohort-edit-session'
-import {useContextStore} from '@/stores/context'
 import {
   cloneDeep,
   get,
@@ -246,7 +247,7 @@ import {
   values
 } from 'lodash'
 import {DateTime} from 'luxon'
-import {putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {updateFilterOptions} from '@/stores/cohort-edit-session/utils'
 
 export default {
@@ -279,6 +280,50 @@ export default {
     showAdd: false,
     showRow: true
   }),
+  computed: {
+    primaryOptions() {
+      // If we have only one option-group then flatten the object to an array of options.
+      const flatten = size(useCohortStore().filterOptionGroups) === 1
+      const preparedOptions = []
+      each(useCohortStore().filterOptionGroups, (items, group) => {
+        if (!flatten) {
+          preparedOptions.push({
+            header: group,
+            name: group,
+            key: group
+          })
+        }
+        each(items, item => {
+          if (isPlainObject(item.options)) {
+            let subOptions = []
+            each(item.options, (subItems, subGroup) => {
+              if (!flatten) {
+                subOptions.push({
+                  header: subGroup,
+                  name: subGroup,
+                  key: subGroup
+                })
+              }
+              each(subItems, subItem => {
+                subOptions.push({
+                  group: flatten ? null : subGroup,
+                  name: subItem.name,
+                  key: subItem.value
+                })
+              })
+            })
+            item.options = subOptions
+          }
+          preparedOptions.push({
+            group: flatten ? null : group,
+            name: item.label.primary,
+            ...item
+          })
+        })
+      })
+      return preparedOptions
+    }
+  },
   watch: {
     editMode(newEditMode) {
       // Reset the current filter-row if an edit session is initiated elsewhere.
@@ -384,7 +429,9 @@ export default {
     },
     get,
     getDropdownSelectedLabel() {
-      if (Array.isArray(this.filter.options)) {
+      if (!this.filter.options[0].header) {
+        console.log(`this.selectedOption: ${this.selectedOption}`)
+        // console.log(`getDropdownSelectedLabel: ${JSON.stringify(this.filter)}`)
         const option = find(this.filter.options, ['value', this.filter.value])
         return get(option, 'name')
       } else {
@@ -403,17 +450,16 @@ export default {
     onClickAddButton() {
       this.isSaving = true
       const cohortStore = useCohortStore()
-      const contextStore = useContextStore()
       switch (get(this.filter, 'type.ux')) {
       case 'dropdown':
-        contextStore.alertScreenReader(`Added ${this.filter.name} filter with value ${this.getDropdownSelectedLabel()}`)
+        // alertScreenReader(`Added ${this.filter.name} filter with value ${this.getDropdownSelectedLabel()}`)
         break
       case 'boolean':
-        contextStore.alertScreenReader(`Added ${this.filter.name}`)
+        alertScreenReader(`Added ${this.filter.name}`)
         this.filter.value = true
         break
       case 'range':
-        contextStore.alertScreenReader(`Added ${this.filter.name} filter, ${this.range.min} to ${this.range.max}`)
+        alertScreenReader(`Added ${this.filter.name} filter, ${this.range.min} to ${this.range.max}`)
         this.updateRangeFilter()
         this.range.min = this.range.max = undefined
         break
@@ -426,7 +472,7 @@ export default {
     },
     onClickCancelEdit() {
       this.errorPerRangeInput = undefined
-      useContextStore().alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       this.isModifyingFilter = false
       useCohortStore().setEditMode(null)
       this.putFocusNewFilterDropdown()
@@ -448,7 +494,7 @@ export default {
       }
       this.isModifyingFilter = true
       useCohortStore().setEditMode(`edit-${this.position}`)
-      useContextStore().alertScreenReader(`Begin edit of ${this.filter.name} filter`)
+      alertScreenReader(`Begin edit of ${this.filter.name} filter`)
     },
     onClickUpdateButton() {
       this.isUpdatingExistingFilter = true
@@ -460,7 +506,7 @@ export default {
       updateFilterOptions(this.domain, useCohortStore().cohortOwner, useCohortStore().filters).then(() => {
         this.isModifyingFilter = false
         useCohortStore().setEditMode(null)
-        useContextStore().alertScreenReader(`${this.filter.name} filter updated`)
+        alertScreenReader(`${this.filter.name} filter updated`)
         this.isUpdatingExistingFilter = false
       })
     },
@@ -470,7 +516,7 @@ export default {
       if (this.filter) {
         const type = get(this.filter, 'type.ux')
         this.showAdd = type === 'boolean'
-        useContextStore().alertScreenReader(`${this.filter.name} selected`)
+        alertScreenReader(`${this.filter.name} selected`)
         switch (type) {
         case 'dropdown':
           this.putFocusSecondaryDropdown()
@@ -489,7 +535,7 @@ export default {
       this.showAdd = !!this.selectedOption
       if (this.selectedOption) {
         putFocusNextTick('unsaved-filter-add')
-        useContextStore().alertScreenReader(`${this.selectedOption.name} selected`)
+        alertScreenReader(`${this.selectedOption.name} selected`)
       }
     },
     onPopoverShown(popoverContent) {
@@ -538,48 +584,6 @@ export default {
       } else {
         return ''
       }
-    },
-    prepareFilterOptionGroups() {
-      // If we have only one option-group then flatten the object to an array of options.
-      const flatten = size(useCohortStore().filterOptionGroups) === 1
-      let preparedOptions = []
-      each(useCohortStore().filterOptionGroups, (items, group) => {
-        if (!flatten) {
-          preparedOptions.push({
-            header: group,
-            name: group,
-            key: group
-          })
-        }
-        each(items, item => {
-          if (isPlainObject(item.options)) {
-            let subOptions = []
-            each(item.options, (subItems, subGroup) => {
-              if (!flatten) {
-                subOptions.push({
-                  header: subGroup,
-                  name: subGroup,
-                  key: subGroup
-                })
-              }
-              each(subItems, subItem => {
-                subOptions.push({
-                  group: flatten ? null : subGroup,
-                  name: subItem.name,
-                  key: subItem.value
-                })
-              })
-            })
-            item.options = subOptions
-          }
-          preparedOptions.push({
-            group: flatten ? null : group,
-            name: item.label.primary,
-            ...item
-          })
-        })
-      })
-      return preparedOptions
     },
     putFocusNewFilterDropdown() {
       putFocusNextTick('filter-select-primary-new')
@@ -640,7 +644,7 @@ export default {
       updateFilterOptions(this.domain, useCohortStore().cohortOwner, useCohortStore().filters).then(noop)
       useCohortStore().setEditMode(null)
       this.putFocusNewFilterDropdown()
-      useContextStore().alertScreenReader(`${this.filter.label.primary} filter removed`)
+      alertScreenReader(`${this.filter.label.primary} filter removed`)
     },
     reset() {
       this.errorPerRangeInput = this.selectedFilter = this.selectedOption = undefined

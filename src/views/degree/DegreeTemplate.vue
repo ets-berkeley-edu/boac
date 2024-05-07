@@ -37,6 +37,7 @@ import Spinner from '@/components/util/Spinner'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 
 export default {
@@ -56,7 +57,7 @@ export default {
       } else {
         this.setPageTitle(this.degreeName)
         this.loadingComplete()
-        this.alertScreenReader(this.templateId ? `Degree ${this.degreeName} has loaded` : 'Create degree page has loaded')
+        alertScreenReader(this.templateId ? `Degree ${this.degreeName} has loaded` : 'Create degree page has loaded')
         this.putFocusNextTick('add-unit-requirement')
       }
     })

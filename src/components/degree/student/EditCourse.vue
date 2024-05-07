@@ -128,6 +128,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {updateCourse} from '@/api/degree'
 import {validateUnitRange} from '@/lib/degree-progress'
@@ -187,7 +188,7 @@ export default {
   },
   methods: {
     cancel() {
-      this.alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       this.afterCancel()
     },
     onUnitRequirementsChange(unitRequirements) {
@@ -209,7 +210,7 @@ export default {
           this.units
         ).then(data => {
           refreshDegreeTemplate(this.templateId).then(() => {
-            this.alertScreenReader('Course updated')
+            alertScreenReader('Course updated')
             this.afterSave(data)
           })
         })

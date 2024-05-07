@@ -82,7 +82,7 @@
 import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import Util from '@/mixins/Util'
-import {sortComparator} from '@/lib/utils'
+import {alertScreenReader, sortComparator} from '@/lib/utils'
 
 export default {
   name: 'SortableAdmits',
@@ -137,7 +137,7 @@ export default {
     },
     onChangeSortBy() {
       const header = this._find(this.headers, ['key', this.sortBy])
-      this.alertScreenReader(`Sorted by ${header.title}${this.sortDescending ? ', descending' : ''}`)
+      alertScreenReader(`Sorted by ${header.title}${this.sortDescending ? ', descending' : ''}`)
     },
     sortCompare(a, b, sortBy, sortDesc) {
       let aValue = this.normalizeForSort(this._get(a, sortBy))

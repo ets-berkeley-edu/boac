@@ -34,6 +34,7 @@ import {mdiClose} from '@mdi/js'
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'ServiceAnnouncement',
@@ -42,12 +43,12 @@ export default {
     toggle() {
       if (this.dismissedServiceAnnouncement) {
         this.restoreServiceAnnouncement()
-        this.alertScreenReader('Alert restored')
+        alertScreenReader('Alert restored')
         this.putFocusNextTick('service-announcement-banner')
       } else {
         this.dismissServiceAnnouncement()
         this.dismissedServiceAnnouncement = false
-        this.alertScreenReader('Dismissed')
+        alertScreenReader('Dismissed')
         this.putFocusNextTick('toggle-service-announcement')
       }
     },

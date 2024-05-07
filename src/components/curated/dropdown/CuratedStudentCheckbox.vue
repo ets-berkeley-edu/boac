@@ -17,12 +17,10 @@
   </div>
 </template>
 
-<script setup>
-import {useContextStore} from '@/stores/context'
-</script>
-
 <script>
+import {alertScreenReader} from '@/lib/utils'
 import {describeCuratedGroupDomain} from '@/berkeley'
+import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'CuratedStudentCheckbox',
@@ -74,7 +72,7 @@ export default {
     toggle(checked) {
       const eventName = checked ? 'curated-group-checkbox-checked' : 'curated-group-checkbox-unchecked'
       useContextStore().broadcast(eventName, {domain: this.domain, sid: this.sid})
-      useContextStore().alertScreenReader(`${this.studentName} ${checked ? 'selected' : 'deselected'}`)
+      alertScreenReader(`${this.studentName} ${checked ? 'selected' : 'deselected'}`)
     }
   }
 }

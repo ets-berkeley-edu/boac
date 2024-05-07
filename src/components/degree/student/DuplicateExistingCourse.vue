@@ -86,6 +86,7 @@ import {mdiPlus} from '@mdi/js'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {copyCourse} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 
@@ -107,29 +108,29 @@ export default {
     cancel() {
       this.isMenuOpen = this.isSaving = false
       this.setDisableButtons(false)
-      this.alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       this.putFocusNextTick('duplicate-existing-course')
     },
     onClickSave() {
       this.isSaving = true
-      this.alertScreenReader('Saving')
+      alertScreenReader('Saving')
       copyCourse(this.selected.id).then(course => {
         refreshDegreeTemplate(this.templateId).then(() => {
           this.isMenuOpen = this.isSaving = false
           this.selected = null
           this.setDisableButtons(false)
-          this.alertScreenReader('Course duplicated and put in the list of Unassigned.')
+          alertScreenReader('Course duplicated and put in the list of Unassigned.')
           this.putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
         })
       })
     },
     onSelect() {
-      this.alertScreenReader(this.selected ? `${this.selected.name} selected` : 'Selection set to null.')
+      alertScreenReader(this.selected ? `${this.selected.name} selected` : 'Selection set to null.')
     },
     openMenu() {
       this.setDisableButtons(true)
       this.isMenuOpen = true
-      this.alertScreenReader('The \'Duplicate Course\' menu is open.')
+      alertScreenReader('The \'Duplicate Course\' menu is open.')
       this.putFocusNextTick('add-course-select')
     }
   }

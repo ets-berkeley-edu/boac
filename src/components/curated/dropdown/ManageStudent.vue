@@ -94,7 +94,6 @@
 <script setup>
 import {filter, includes, map, without} from 'lodash'
 import {mdiCheckBold, mdiClose, mdiMenuDown, mdiPlus} from '@mdi/js'
-import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 </script>
 
@@ -105,7 +104,9 @@ import {
   createCuratedGroup,
   removeFromCuratedGroup
 } from '@/api/curated'
+import {alertScreenReader} from '@/lib/utils'
 import {describeCuratedGroupDomain} from '@/berkeley'
+import {putFocusNextTick} from '@/lib/utils'
 
 export default {
   name: 'ManageStudent',
@@ -178,7 +179,7 @@ export default {
           this.checkedGroups = without(this.checkedGroups, group.id)
           this.isRemoving = false
           putFocusNextTick(this.dropdownId, 'button')
-          useContextStore().alertScreenReader(`${this.student.name} removed from "${group.name}"`)
+          alertScreenReader(`${this.student.name} removed from "${group.name}"`)
         }
         removeFromCuratedGroup(group.id, this.student.sid).finally(() =>
           setTimeout(done, this.confirmationTimeout)
@@ -189,7 +190,7 @@ export default {
           this.checkedGroups.push(group.id)
           this.isAdding = false
           putFocusNextTick(this.dropdownId, 'button')
-          useContextStore().alertScreenReader(`${this.student.name} added to "${group.name}"`)
+          alertScreenReader(`${this.student.name} added to "${group.name}"`)
         }
         addStudentsToCuratedGroup(group.id, [this.student.sid]).finally(() => setTimeout(done, this.confirmationTimeout))
       }
@@ -203,13 +204,13 @@ export default {
       }
       createCuratedGroup(this.domain, name, [this.student.sid]).then(group => {
         this.checkedGroups.push(group.id)
-        useContextStore().alertScreenReader(`${this.student.name} added to new ${this.domainLabel(false)}, "${name}".`)
+        alertScreenReader(`${this.student.name} added to new ${this.domainLabel(false)}, "${name}".`)
         setTimeout(done, this.confirmationTimeout)
       })
     },
     onModalCancel() {
       this.showModal = false
-      useContextStore().alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       putFocusNextTick(this.dropdownId, 'button')
     },
     onUpdateMyCuratedGroups(domain) {

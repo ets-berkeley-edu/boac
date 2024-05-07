@@ -179,8 +179,7 @@ import router from '@/router'
 import {deleteCohort, downloadCohortCsv, downloadCsv} from '@/api/cohort'
 import {get} from 'lodash'
 import {useCohortStore} from '@/stores/cohort-edit-session'
-import {useContextStore} from '@/stores/context'
-import {putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 
 export default {
   name: 'CohortPageHeader',
@@ -234,30 +233,30 @@ export default {
     beginRename() {
       this.name = this.cohort.cohortName
       this.cohort.setEditMode('rename')
-      useContextStore().alertScreenReader(`Renaming cohort '${this.name}'`)
+      alertScreenReader(`Renaming cohort '${this.name}'`)
       putFocusNextTick('rename-cohort-input')
     },
     cancelDeleteModal() {
       this.showDeleteModal = false
-      useContextStore().alertScreenReader(`Cancel deletion of cohort '${this.name}'`)
+      alertScreenReader(`Cancel deletion of cohort '${this.name}'`)
     },
     cancelExportModal() {
       this.showExportAdmitsModal = this.showExportStudentsModal = false
-      useContextStore().alertScreenReader(`Cancel export of cohort '${this.name}'`)
+      alertScreenReader(`Cancel export of cohort '${this.name}'`)
     },
     cancelRename() {
       this.name = this.cohort.cohortName
       this.cohort.setEditMode(null)
-      useContextStore().alertScreenReader(`Cancel renaming of cohort '${this.name}'`)
+      alertScreenReader(`Cancel renaming of cohort '${this.name}'`)
     },
     cohortDelete() {
-      useContextStore().alertScreenReader(`Deleting cohort '${this.name}'`)
+      alertScreenReader(`Deleting cohort '${this.name}'`)
       return deleteCohort(this.cohort.cohortId).then(() => {
         this.showDeleteModal = false
-        useContextStore().alertScreenReader(`Deleted cohort '${this.name}'`)
+        alertScreenReader(`Deleted cohort '${this.name}'`)
         router.push({path: '/'})
       }, error => {
-        useContextStore().alertScreenReader(`Failed to delete cohort '${this.name}'`)
+        alertScreenReader(`Failed to delete cohort '${this.name}'`)
         this.handleError(error)
       })
     },
@@ -272,13 +271,13 @@ export default {
       })
     },
     exportStudents(csvColumnsSelected) {
-      useContextStore().alertScreenReader(`Exporting cohort '${this.name}'`)
+      alertScreenReader(`Exporting cohort '${this.name}'`)
       return this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
         this.exportEnabled = true
         this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
-        useContextStore().alertScreenReader(`Downloading cohort '${this.name}'`)
+        alertScreenReader(`Downloading cohort '${this.name}'`)
       }, error => {
-        useContextStore().alertScreenReader(`Failed to export cohort '${this.name}'`)
+        alertScreenReader(`Failed to export cohort '${this.name}'`)
         this.handleError(error)
       })
     },
@@ -287,7 +286,7 @@ export default {
     },
     toggleShowHideDetails() {
       this.cohort.toggleCompactView()
-      useContextStore().alertScreenReader(this.cohort.isCompactView ? 'Filters are hidden' : 'Filters are visible')
+      alertScreenReader(this.cohort.isCompactView ? 'Filters are hidden' : 'Filters are visible')
     }
   }
 }

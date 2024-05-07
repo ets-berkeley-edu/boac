@@ -105,14 +105,15 @@
 <script setup>
 import {each, filter, inRange, remove, size} from 'lodash'
 import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
-import {putFocusNextTick} from '@/lib/utils'
-import {useContextStore} from '@/stores/context'
 </script>
 
 <script>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import {addStudentsToCuratedGroup, createCuratedGroup} from '@/api/curated'
+import {alertScreenReader} from '@/lib/utils'
 import {describeCuratedGroupDomain} from '@/berkeley'
+import {putFocusNextTick} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'CuratedGroupSelector',
@@ -165,7 +166,7 @@ export default {
   },
   methods: {
     afterAddStudents(group) {
-      useContextStore().alertScreenReader(`${size(this.sids)} student${size(this.sids) === 1 ? '' : 's'} added to ${this.domainLabel(true)} "${group.name}".`)
+      alertScreenReader(`${size(this.sids)} student${size(this.sids) === 1 ? '' : 's'} added to ${this.domainLabel(true)} "${group.name}".`)
       this.sids = []
       this.isSelectAllChecked = this.indeterminate = false
       useContextStore().broadcast('curated-group-deselect-all', this.domain)
@@ -193,7 +194,7 @@ export default {
           () => {
             this.isConfirming = false
             this.afterAddStudents(group)
-            useContextStore().alertScreenReader(`Student${size(this.sids) === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${group.name}`)
+            alertScreenReader(`Student${size(this.sids) === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${group.name}`)
           },
           2000
         )
@@ -208,7 +209,7 @@ export default {
     },
     modalCancel() {
       this.showModal = false
-      useContextStore().alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
     },
     modalCreateCuratedGroup(name) {
       this.isSaving = true
@@ -216,7 +217,7 @@ export default {
         this.showModal = false
         this.isSaving = false
         this.isConfirming = true
-        useContextStore().alertScreenReader(`Student${size(this.sids) === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${name}`)
+        alertScreenReader(`Student${size(this.sids) === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${name}`)
       }).finally(() => {
         setTimeout(
           () => {
@@ -247,10 +248,10 @@ export default {
         })
         useContextStore().broadcast('curated-group-select-all', this.domain)
         putFocusNextTick(this.dropdownId, 'button')
-        useContextStore().alertScreenReader('All students on this page selected.')
+        alertScreenReader('All students on this page selected.')
       } else {
         useContextStore().broadcast('curated-group-deselect-all', this.domain)
-        useContextStore().alertScreenReader('All students on this page deselected.')
+        alertScreenReader('All students on this page deselected.')
       }
     }
   }

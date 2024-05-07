@@ -172,6 +172,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {createDegreeCategory, updateCategory} from '@/api/degree'
 import {
   findCategoriesByTypes,
@@ -276,7 +277,7 @@ export default {
         || (category && !this._isEmpty(category.courseRequirements) && this._every(category.courseRequirements, isCampusRequirement))
     },
     onChangeCategorySelect(option) {
-      this.alertScreenReader(option ? `${this.selectedCategoryType} selected` : 'Unselected')
+      alertScreenReader(option ? `${this.selectedCategoryType} selected` : 'Unselected')
       if (option) {
         if (this.selectedCategoryType === 'Campus Requirements') {
           this.name = 'Campus Requirements'
@@ -290,7 +291,7 @@ export default {
       }
     },
     onChangeParentCategory(option) {
-      this.alertScreenReader(option ? `${this.selectedParentCategory.name} selected` : 'Unselected')
+      alertScreenReader(option ? `${this.selectedParentCategory.name} selected` : 'Unselected')
       const existingUnitRequirements = this.selectedUnitRequirements
       const parentUnitRequirements = this._get(this.selectedParentCategory, 'unitRequirements')
 
@@ -310,7 +311,7 @@ export default {
         const parentCategoryId = this.selectedParentCategory && this.selectedParentCategory.id
         const unitRequirementIds = this._map(this.selectedUnitRequirements, 'id')
         const done = () => {
-          this.alertScreenReader(`${this.selectedCategoryType} ${this.existingCategory ? 'updated' : 'created'}`)
+          alertScreenReader(`${this.selectedCategoryType} ${this.existingCategory ? 'updated' : 'created'}`)
           this.afterSave()
         }
         if (this.existingCategory) {

@@ -1,3 +1,4 @@
+import {alertScreenReader} from '@/lib/utils'
 import {get, isString, map, trim} from 'lodash'
 import {deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
@@ -144,7 +145,7 @@ export function removeAttachmentByIndex(index: number) {
     useNoteStore().removeAttachmentByIndex(index)
     if (isAutoSaveMode(mode)) {
       removeAttachment(model.id, attachmentId).then(() => {
-        useContextStore().alertScreenReader('Attachment removed', 'assertive')
+        alertScreenReader('Attachment removed', 'assertive')
       })
     }
   }

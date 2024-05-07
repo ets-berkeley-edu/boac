@@ -163,6 +163,7 @@ import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentGpaChart from '@/components/student/StudentGpaChart'
 import StudentRowBioColumn from '@/components/student/StudentRowBioColumn'
 import StudentRowCourseActivity from '@/components/student/StudentRowCourseActivity'
+import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'StudentRow',
@@ -212,7 +213,7 @@ export default {
   methods: {
     onClickRemoveStudent(student) {
       this.removeStudent(student.sid)
-      useContextStore().alertScreenReader(`Removed ${student.firstName} ${student.lastName} from group`)
+      alertScreenReader(`Removed ${student.firstName} ${student.lastName} from group`)
     }
   }
 }

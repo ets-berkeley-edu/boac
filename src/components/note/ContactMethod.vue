@@ -16,7 +16,7 @@
       :disabled="disabled"
       hide-details
       :ripple="false"
-      @change="useContextStore().alertScreenReader(contactType)"
+      @change="alertScreenReader(contactType)"
     >
       <v-radio
         id="contact-option-none-radio-button"
@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import {alertScreenReader} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -69,6 +70,7 @@ export default {
     }
   },
   methods: {
+    alertScreenReader,
     useContextStore
   }
 }

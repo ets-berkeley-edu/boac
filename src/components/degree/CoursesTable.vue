@@ -358,6 +358,7 @@ import EditCategory from '@/components/degree/EditCategory'
 import EditCourse from '@/components/degree/student/EditCourse'
 import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {isAlertGrade} from '@/berkeley'
 import {deleteCategory, deleteCourse, onDrop} from '@/stores/degree-edit-session/utils'
 import {
@@ -451,13 +452,13 @@ export default {
   },
   methods: {
     afterCancel() {
-      this.alertScreenReader('Canceled')
+      alertScreenReader('Canceled')
       this.putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
     },
     afterSave() {
-      this.alertScreenReader(`Updated ${this.bundleForEdit.type} ${this.bundleForEdit.name}`)
+      alertScreenReader(`Updated ${this.bundleForEdit.type} ${this.bundleForEdit.name}`)
       this.putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
@@ -468,13 +469,13 @@ export default {
     deleteCanceled() {
       this.putFocusNextTick(`column-${this.position}-delete-${this.bundleForDelete.key}-btn`)
       this.bundleForDelete = null
-      this.alertScreenReader('Canceled. Nothing deleted.')
+      alertScreenReader('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
     },
     deleteConfirmed() {
       const name = this.bundleForDelete.name
       const done = () => {
-        this.alertScreenReader(`${name} deleted.`)
+        alertScreenReader(`${name} deleted.`)
         const putFocus = this.sid ? `column-${this.position}-add-course-to-category-${this.parentCategory.id}` : 'page-header'
         this.bundleForDelete = null
         this.setDisableButtons(false)
@@ -500,7 +501,7 @@ export default {
       this.hideNote(bundle, false)
       this.hoverCourseId = null
       this.setDisableButtons(true)
-      this.alertScreenReader(`Edit ${bundle.name}`)
+      alertScreenReader(`Edit ${bundle.name}`)
       this.bundleForEdit = bundle
     },
     getAccentColor: bundle => bundle.course ? bundle.course.accentColor : bundle.category.accentColor,
@@ -527,7 +528,7 @@ export default {
     hideNote(bundle, srAlert=true) {
       this.notesVisible = this._remove(this.notesVisible, key => bundle.key !== key)
       if (srAlert) {
-        this.alertScreenReader('Note hidden')
+        alertScreenReader('Note hidden')
       }
     },
     isAlertGrade,
@@ -579,7 +580,7 @@ export default {
       this.hoverCourseId = null
       this.setDisableButtons(true)
       this.bundleForDelete = bundle
-      this.alertScreenReader(`Delete ${bundle.name}`)
+      alertScreenReader(`Delete ${bundle.name}`)
     },
     onDrag(event, stage, bundle) {
       switch (stage) {
@@ -636,7 +637,7 @@ export default {
     },
     showNote(bundle) {
       this.notesVisible.push(bundle.key)
-      this.alertScreenReader(`Showing note of ${bundle.name}`)
+      alertScreenReader(`Showing note of ${bundle.name}`)
     },
     unitsWereEdited
   }

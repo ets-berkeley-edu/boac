@@ -230,11 +230,11 @@ import {stripHtmlAndTrim} from '@/lib/utils'
 <script>
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
+import {alertScreenReader, numFormat, oxfordJoin, toInt} from '@/lib/utils'
 import {cloneDeep, each, get, isEmpty, isNil, map, orderBy, size} from 'lodash'
 import {DateTime} from 'luxon'
 import {getBoaUserRoles, termNameForSisId} from '@/berkeley'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
-import {numFormat, oxfordJoin, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 export default {
@@ -296,17 +296,17 @@ export default {
           this.clearErrors()
           each(files, attachment => {
             attachment.displayName = attachment.name
-            useContextStore().alertScreenReader(`Uploading attachment '${attachment.displayName}'`)
+            alertScreenReader(`Uploading attachment '${attachment.displayName}'`)
           })
           this.uploadingAttachment = true
           addAttachments(this.note.id, files).then(updatedNote => {
-            useContextStore().alertScreenReader(`${size(files)} ${size(files) === 1 ? 'attachment' : 'attachments'} added.`)
+            alertScreenReader(`${size(files)} ${size(files) === 1 ? 'attachment' : 'attachments'} added.`)
             this.afterSaved(updatedNote)
             this.resetAttachments()
             this.uploadingAttachment = false
           })
             .catch(error => {
-              useContextStore().alertScreenReader()
+              alertScreenReader()
               this.attachmentError = get(error, 'message')
               this.uploadingAttachment = false
               this.resetFileInput()
@@ -394,7 +394,7 @@ export default {
       if (attachment && attachment.id) {
         this.existingAttachments.splice(this.deleteAttachmentIndex, 1)
         return removeAttachment(this.note.id, attachment.id).then(updatedNote => {
-          useContextStore().alertScreenReader(`Attachment '${attachment.displayName}' removed`)
+          alertScreenReader(`Attachment '${attachment.displayName}' removed`)
           this.afterSaved(updatedNote)
         })
       }

@@ -148,7 +148,7 @@ import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/
 import {disableFocusLock, enableFocusLock, exitSession, isAutoSaveMode, setSubjectPerEvent, updateAdvisingNote} from '@/stores/note-edit-session/utils'
 import {filter, size, trim, xor, xorBy} from 'lodash'
 import {getUserProfile} from '@/api/user'
-import {putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -222,7 +222,7 @@ export default {
           this.setIsSaving(true)
           addAttachments(useNoteStore().model.id, attachments).then(response => {
             useNoteStore().setAttachments(response.attachments)
-            useContextStore().alertScreenReader('Attachment added', 'assertive')
+            alertScreenReader('Attachment added', 'assertive')
             this.setIsSaving(false)
             resolve()
           })
@@ -268,7 +268,7 @@ export default {
     cancelDiscardNote() {
       this.showDiscardNoteModal = false
       enableFocusLock()
-      useContextStore().alertScreenReader('Continue editing note.')
+      alertScreenReader('Continue editing note.')
       putFocusNextTick('create-note-subject')
     },
     cancelDiscardTemplate() {
@@ -302,12 +302,12 @@ export default {
     },
     discardNote() {
       enableFocusLock()
-      useContextStore().alertScreenReader('Canceled create new note')
+      alertScreenReader('Canceled create new note')
       this.exit(true)
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false
-      useContextStore().alertScreenReader('Canceled create template.')
+      alertScreenReader('Canceled create template.')
       this.exit(true)
     },
     dismissAlert(seconds) {
@@ -353,7 +353,7 @@ export default {
         this.init().then(note => {
           const onFinish = () => {
             useNoteStore().setMode(this.initialMode)
-            useContextStore().alertScreenReader(useNoteStore().mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
+            alertScreenReader(useNoteStore().mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
             putFocusNextTick(this.sid ? 'create-note-subject' : 'modal-header-note')
             useContextStore().setEventHandler('user-session-expired', useNoteStore().onBoaSessionExpires)
           }
@@ -399,7 +399,7 @@ export default {
           this.showAlert('Creating note...', 60)
           updateAdvisingNote().then(() => {
             this.setIsSaving(false)
-            useContextStore().alertScreenReader(useNoteStore().mode.includes('create') ? 'Note created' : 'Note saved')
+            alertScreenReader(useNoteStore().mode.includes('create') ? 'Note created' : 'Note saved')
             this.exit(false)
           })
         }
@@ -425,7 +425,7 @@ export default {
         useNoteStore().model.topics,
       ).then(template => {
         this.setIsSaving(false)
-        useContextStore().alertScreenReader(`Template '${template.title}' updated`)
+        alertScreenReader(`Template '${template.title}' updated`)
         this.exit(false)
       })
     },

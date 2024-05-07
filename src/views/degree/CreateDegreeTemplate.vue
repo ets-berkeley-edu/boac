@@ -43,6 +43,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {createDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 
 export default {
@@ -60,7 +61,7 @@ export default {
   },
   mounted() {
     this.loadingComplete()
-    this.alertScreenReader('Create degree template')
+    alertScreenReader('Create degree template')
   },
   methods: {
     create() {
@@ -68,14 +69,14 @@ export default {
       getDegreeTemplates().then(data => {
         const lower = this.templateName.trim().toLowerCase()
         if (this._map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
-          this.alertScreenReader('Creating template')
+          alertScreenReader('Creating template')
           createDegreeTemplate(this.templateName).then(data => {
             this.$router.push(`/degree/${data.id}`)
             this.isBusy = false
           })
         } else {
           this.error = `A degree named <span class="font-weight-500">${this.templateName}</span> already exists. Please choose a different name.`
-          this.alertScreenReader(this.error)
+          alertScreenReader(this.error)
           this.isBusy = false
         }
       })

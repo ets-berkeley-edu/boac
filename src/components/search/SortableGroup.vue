@@ -111,6 +111,7 @@ import Context from '@/mixins/Context'
 import PillAlert from '@/components/util/PillAlert'
 import SortableStudents from '@/components/search/SortableStudents'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/lib/utils'
 import {getStudentsWithAlerts as getCohortStudentsWithAlerts} from '@/api/cohort'
 import {getStudentsWithAlerts as getCuratedStudentsWithAlerts} from '@/api/curated'
 
@@ -172,7 +173,7 @@ export default {
         apiCall(this.group.id).then(students => {
           this.studentsWithAlerts = students
           this.isFetching = false
-          this.alertScreenReader(`Loaded students with alerts who are in ${this.groupTypeName} ${this.group.name}`)
+          alertScreenReader(`Loaded students with alerts who are in ${this.groupTypeName} ${this.group.name}`)
         })
       }
     },
