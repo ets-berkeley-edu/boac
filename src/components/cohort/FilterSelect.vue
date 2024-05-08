@@ -1,20 +1,16 @@
 <template>
-  <pre v-if="optionGroups && false">
-    {{ options }}
-  </pre>
   <div :class="{'border-left-primary': hasLeftBorderStyle}">
     <select
       :id="`filter-select-${type}-${filterRowIndex}`"
-      v-model="vModelProxy"
-      class="bg-white select-menu custom-select"
+      v-model="model"
       :aria-labelledby="labelledby"
+      class="bg-white select-menu custom-select"
       :disabled="!options.length"
     >
       <option :id="`${type}-option-null`" :value="undefined">
         Select...
       </option>
       <template v-if="hasOptGroups">
-        <option value="1">HAS OPT GROUPS</option>
         <optgroup
           v-for="(groupOptions, label) in optionGroups"
           :id="normalizeId(`${type}-option-group-${label}`)"
@@ -26,7 +22,6 @@
             :id="normalizeId(`${type}-option-${option.value}`)"
             :key="option.key"
             :aria-disabled="option.disabled"
-            class="h-100 min-height-unset py-1 pl-8"
             :disabled="option.disabled"
             :value="option"
           >
@@ -35,100 +30,70 @@
         </optgroup>
       </template>
       <template v-if="!hasOptGroups">
-        <option value="1">NO OPT GROUPS</option>
         <option
           v-for="option in options"
           :id="normalizeId(`${type}-option-${option.value}`)"
           :key="option.key"
           :aria-disabled="option.disabled"
-          class="h-100 min-height-unset py-1 pl-8"
           :disabled="option.disabled"
           :value="option"
         >
-          {{ getLabel(option) }}
+          {{ option.name || option.label.primary }}
         </option>
       </template>
     </select>
   </div>
 </template>
 
-<script>
+<script setup>
 import {each, includes} from 'lodash'
 
-export default {
-  name: 'FilterSelect',
-  props: {
-    filterRowIndex: {
-      required: true,
-      type: [Number, String]
-    },
-    hasLeftBorderStyle: {
-      required: false,
-      type: Boolean
-    },
-    hasOptGroups: {
-      required: false,
-      type: Boolean
-    },
-    labelledby: {
-      required: true,
-      type: String
-    },
-    options: {
-      default: () => [],
-      required: false,
-      type: [Object, Array]
-    },
-    type: {
-      required: true,
-      type: String,
-      validator: s => ['primary', 'secondary'].indexOf(s) > -1
-    },
-    setModelObject: {
-      required: true,
-      type: Function
-    },
-    vModelObject: {
-      default: undefined,
-      required: false,
-      type: Object
-    }
+const props = defineProps({
+  filterRowIndex: {
+    required: true,
+    type: [Number, String]
   },
-  data: () => ({
-    optionGroups: undefined
-  }),
-  computed: {
-    vModelProxy: {
-      get() {
-        return this.vModelObject
-      },
-      set(value) {
-        this.setModelObject(value)
-      }
-    }
+  hasLeftBorderStyle: {
+    required: false,
+    type: Boolean
   },
-  created() {
-    if (this.hasOptGroups) {
-      this.optionGroups = {}
-      each(this.options, option => {
-        if (option.header && !includes(this.optionGroups, option.header)) {
-          this.optionGroups[option.key] = []
-        } else {
-          this.optionGroups[option.group].push(option)
-        }
-      })
-    }
+  hasOptGroups: {
+    required: false,
+    type: Boolean
   },
-  methods: {
-    getLabel: option => option.name || option.label.primary,
-    listItemId(item) {
-      if (item.header) {
-        return this.normalizeId(`${this.type}-option-group-${item.header}`)
-      }
-      return this.normalizeId(`${this.type}-option-${item.key}`)
-    },
-    normalizeId: id => id.toLowerCase().replace(/\W/g, ' ').trim().replace(/[ ]+/g, '-')
+  labelledby: {
+    required: true,
+    type: String
+  },
+  options: {
+    default: () => [],
+    required: false,
+    type: [Object, Array]
+  },
+  type: {
+    required: true,
+    type: String,
+    validator: s => ['primary', 'secondary'].indexOf(s) > -1
   }
+})
+
+// eslint-disable-next-line vue/require-prop-types
+const model = defineModel()
+
+const optionGroups = props.hasOptGroups ? {} : undefined
+
+if (props.hasOptGroups) {
+  each(props.options, option => {
+    if (option.header && !includes(optionGroups, option.header)) {
+      optionGroups[option.key] = []
+    } else {
+      optionGroups[option.group].push(option)
+    }
+  })
+}
+
+const normalizeId = id => {
+  return id.toLowerCase().replace(/\W/g, ' ').trim().replace(/ +/g, '-')
 }
 </script>
 
