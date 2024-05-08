@@ -2,7 +2,7 @@ import {get, noop, sortBy} from 'lodash'
 import mitt from 'mitt'
 import router from '@/router'
 import {alertScreenReader} from '@/lib/utils'
-import {defineStore, StoreDefinition} from 'pinia'
+import {defineStore} from 'pinia'
 import {nextTick} from 'vue'
 
 const $_getDefaultApplicationState = () => ({
@@ -18,13 +18,14 @@ export type BoaConfig = {
     max: undefined,
     min: undefined
   },
+  fixedWarningOnAllPages: boolean,
   isProduction: boolean,
   isVueAppDebugMode: boolean,
   maxAttachmentsPerNote: number,
   timezone: string
 }
 
-export const useContextStore: StoreDefinition = defineStore('context', {
+export const useContextStore = defineStore('context', {
   state: () => ({
     announcement: undefined,
     applicationState: $_getDefaultApplicationState(),
