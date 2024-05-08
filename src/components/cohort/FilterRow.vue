@@ -13,14 +13,13 @@
     </div>
     <div v-if="isModifyingFilter && !isExistingFilter" class="mr-2">
       <FilterSelect
+        v-model="selectedFilter"
         :filter-row-index="position"
         :has-left-border-style="true"
         :has-opt-groups="true"
         :labelledby="`new-filter-${position}-label`"
         :options="primaryOptions"
-        :set-model-object="value => (selectedFilter = value)"
         type="primary"
-        :v-model-object="selectedFilter"
       />
     </div>
     <div v-if="!isModifyingFilter" class="font-weight-500">
@@ -32,13 +31,12 @@
       <div v-if="isUX('dropdown')">
         <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
         <FilterSelect
+          v-model="selectedOption"
           :filter-row-index="position"
           :has-opt-groups="!!filter.options[0].header"
           :labelledby="`filter-secondary-${position}-label`"
           :options="filter.options"
-          :set-model-object="value => (selectedOption = value)"
           type="secondary"
-          :v-model-object="selectedOption"
         />
       </div>
       <div
@@ -430,8 +428,6 @@ export default {
     get,
     getDropdownSelectedLabel() {
       if (!this.filter.options[0].header) {
-        console.log(`this.selectedOption: ${this.selectedOption}`)
-        // console.log(`getDropdownSelectedLabel: ${JSON.stringify(this.filter)}`)
         const option = find(this.filter.options, ['value', this.filter.value])
         return get(option, 'name')
       } else {
@@ -452,7 +448,7 @@ export default {
       const cohortStore = useCohortStore()
       switch (get(this.filter, 'type.ux')) {
       case 'dropdown':
-        // alertScreenReader(`Added ${this.filter.name} filter with value ${this.getDropdownSelectedLabel()}`)
+        alertScreenReader(`Added ${this.filter.name} filter with value ${this.getDropdownSelectedLabel()}`)
         break
       case 'boolean':
         alertScreenReader(`Added ${this.filter.name}`)
