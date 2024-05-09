@@ -60,20 +60,6 @@
             </v-list-item>
           </template>
         </v-combobox>
-        <v-tooltip
-          v-model="showErrorPopover"
-          target="search-students-input"
-          location="top"
-        >
-          <span
-            id="popover-error-message"
-            aria-live="polite"
-            class="text-error"
-            role="alert"
-          >
-            <v-icon :icon="mdiAlertCircle" class="text-warning pr-1" /> Search input is required
-          </span>
-        </v-tooltip>
       </div>
       <v-btn
         v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData"
@@ -91,7 +77,7 @@
 
 <script setup>
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
-import {mdiAlertCircle, mdiClose} from '@mdi/js'
+import {mdiClose} from '@mdi/js'
 import {size} from 'lodash'
 </script>
 
@@ -101,15 +87,12 @@ import SearchSession from '@/mixins/SearchSession'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
 import {getAllTopics} from '@/api/topics'
 import {useSearchStore} from '@/stores/search'
-import {alertScreenReader, putFocusNextTick, scrollToTop} from '@/lib/utils'
+import {putFocusNextTick, scrollToTop} from '@/lib/utils'
 import {each, get, noop, trim} from 'lodash'
 
 export default {
   name: 'AdvancedSearch',
   mixins: [Context, SearchSession],
-  data: () => ({
-    showErrorPopover: false
-  }),
   mounted() {
     document.addEventListener('keyup', this.onKeyUp)
   },
@@ -133,14 +116,9 @@ export default {
           useSearchStore().setTopicOptions(topicOptions)
         })
       }
-      document.addEventListener('keydown', this.hideError)
-      document.addEventListener('click', this.hideError)
     })
   },
   methods: {
-    hideError() {
-      this.showErrorPopover = false
-    },
     onKeyUp(event) {
       if (event.keyCode === 191) {
         const el = get(event, 'currentTarget.activeElement')
@@ -168,8 +146,6 @@ export default {
         )
         addToSearchHistory(q).then(history => useSearchStore().setSearchHistory(history))
       } else {
-        this.showErrorPopover = true
-        alertScreenReader('Search input is required')
         putFocusNextTick('search-students-input')
       }
       scrollToTop()
