@@ -1,63 +1,59 @@
 <template>
   <v-card
     v-show="isOpen"
-    class="py-3"
     flat
   >
-    <div class="d-flex flex-column flex-md-row align-top">
-      <form class="w-100 mb-2" @submit.prevent="submitRename">
-        <v-text-field
-          v-if="isOpen"
-          id="rename-cohort-input"
-          v-model="name"
-          aria-label="Cohort name, 255 characters or fewer"
-          aria-required="true"
-          class="v-input-details-override mr-2"
-          counter="255"
-          density="compact"
-          :disabled="isSaving"
-          label="Cohort Name"
-          maxlength="255"
-          required
-          type="text"
-          persistent-counter
-          :rules="[validationRules.valid]"
-          validate-on="lazy input"
-          variant="outlined"
-          @keyup.esc="cancel"
-        >
-          <template #counter="{max, value}">
-            <div id="name-cohort-counter" aria-live="polite" class="font-size-13 text-no-wrap ml-2 mt-1">
-              <span class="sr-only">Cohort name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
-            </div>
-          </template>
-        </v-text-field>
-      </form>
+    <div class="align-center d-flex flex-column flex-md-row align-top">
+      <v-text-field
+        v-if="isOpen"
+        id="rename-cohort-input"
+        v-model="name"
+        aria-label="Cohort name, 255 characters or fewer"
+        aria-required="true"
+        class="v-input-details-override mr-3"
+        counter="255"
+        density="comfortable"
+        :disabled="isSaving"
+        hide-details
+        label="Cohort Name"
+        :maxlength="maxlength"
+        persistent-counter
+        required
+        :rules="[validationRules.valid]"
+        type="text"
+        validate-on="lazy input"
+        variant="outlined"
+        @keyup.enter="submit"
+        @keyup.esc="cancel"
+      />
       <div class="d-flex justify-end">
         <ProgressButton
           id="rename-confirm"
           :action="submit"
           :disabled="isInvalid || isSaving"
           :in-progress="isSaving"
-        >
-          Rename
-        </ProgressButton>
+          size="large"
+          text="Rename"
+        />
         <v-btn
           id="rename-cancel"
-          class="ml-1"
           :disabled="isSaving"
+          size="large"
+          text="Cancel"
           variant="plain"
           @click="cancel"
-        >
-          Cancel
-        </v-btn>
+        />
       </div>
+    </div>
+    <div id="name-cohort-counter" aria-live="polite" class="text-left font-size-13 text-no-wrap ml-4 mt-1">
+      <span class="sr-only">Cohort name has a </span>{{ maxlength }} character limit <span v-if="size(name)">({{ maxlength - size(name) }} left)</span>
     </div>
   </v-card>
 </template>
 
 <script setup>
 import ProgressButton from '@/components/util/ProgressButton'
+import {size} from 'lodash'
 </script>
 
 <script>
@@ -82,6 +78,7 @@ export default {
   data: () => ({
     isInvalid: true,
     isSaving: false,
+    maxlength: 255,
     name: '',
     validationRules: {}
   }),

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import ga from '@/lib/ga'
-import {get, toPlainObject} from 'lodash'
+import {get} from 'lodash'
 import {DateTime} from 'luxon'
 import fileDownload from 'js-file-download'
 import utils from '@/api/api-utils'
@@ -51,7 +51,7 @@ export function deleteCohort(id) {
 }
 
 export function downloadCohortCsv(cohortId: number, cohortName: string, csvColumnsSelected: any[]) {
-  const now = DateTime.now().toFormat('YYYY-MM-DD_HH-mm-ss')
+  const now = DateTime.now().toFormat('yyyy-MM-dd_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
   const termId = useContextStore().currentUser.preferences.termId || get(useContextStore().config, 'currentEnrollmentTermId')
 
@@ -62,11 +62,11 @@ export function downloadCohortCsv(cohortId: number, cohortName: string, csvColum
       csvColumnsSelected,
       termId
     })
-    .then(data => fileDownload(toPlainObject(data), `${filename}.csv`))
+    .then(response => fileDownload(response.data, `${filename}.csv`))
 }
 
 export function downloadCsv(domain: string, cohortName: string, filters: any[], csvColumnsSelected: any[]) {
-  const now = DateTime.now().toFormat('YYYY-MM-DD_HH-mm-ss')
+  const now = DateTime.now().toFormat('yyyy-MM-dd_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
   const termId = useContextStore().currentUser.preferences.termId || get(useContextStore().config, 'currentEnrollmentTermId')
   $_track('download', filename)
@@ -77,7 +77,7 @@ export function downloadCsv(domain: string, cohortName: string, filters: any[], 
     filters,
     termId
   })
-  .then(data => fileDownload(toPlainObject(data), `${filename}.csv`))
+  .then(response => fileDownload(response.data, `${filename}.csv`))
 }
 
 export function getCohort(

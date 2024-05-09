@@ -137,6 +137,7 @@
     </div>
     <RenameCohort
       :cancel="cancelRename"
+      class="mb-1 pt-1"
       :is-open="renameMode"
     />
     <DeleteCohortModal

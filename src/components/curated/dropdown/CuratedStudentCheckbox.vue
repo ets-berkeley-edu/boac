@@ -1,19 +1,13 @@
 <template>
-  <div class="student-checkbox-container">
-    <div class="student-checkbox-layer" />
-    <div class="student-checkbox-layer">
-      <v-checkbox
-        :id="checkboxId"
-        v-model="status"
-        :aria-label="ariaLabel"
-        base-color="primary"
-        class="student-checkbox"
-        color="primary"
-        density="compact"
-        hide-details
-        @update:model-value="toggle"
-      />
-    </div>
+  <div class="checkbox-container" :class="{'checked-checkbox-container': status}">
+    <input
+      :id="checkboxId"
+      v-model="status"
+      :aria-label="ariaLabel"
+      class="checkbox"
+      type="checkbox"
+      @update:model-value="toggle"
+    />
   </div>
 </template>
 
@@ -79,23 +73,22 @@ export default {
 </script>
 
 <style scoped>
-.student-checkbox {
-  z-index: 100;
+.checkbox {
+  accent-color: #3b7ea5;
+  height: 18px;
+  width: 18px;
 }
-.student-checkbox-container {
+.checked-checkbox-container {
+  background-color: #96C3de !important;
+}
+.checkbox-container {
   background-color: #eee;
-  border: 1px solid #aaa;
-  border-radius: 36px;
-  height: 36px;
+  border: 1px solid #666;
+  border-radius: 6px;
+  height: 28px;
   margin-right: 8px;
-  position: relative;
-  width: 36px;
-}
-.student-checkbox-layer {
-  bottom: 3px;
-  height: 100%;
-  position: absolute;
-  left: 3px;
-  width: 100%;
+  padding-top: 5px;
+  text-align: center;
+  width: 28px;
 }
 </style>
