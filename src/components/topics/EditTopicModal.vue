@@ -11,6 +11,7 @@
             v-model="topic"
             aria-describedby="input-live-help topic-label-error"
             variant="outlined"
+            :maxlength="50"
             required
           >
           </v-text-field>

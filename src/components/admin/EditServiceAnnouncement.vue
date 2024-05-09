@@ -6,8 +6,7 @@
           :size="25"
           color="primary"
           indeterminate
-        >
-        </v-progress-circular>
+        />
         {{ isPublished ? 'Posting...' : 'Unposting...' }}
       </div>
       <div v-if="!isTogglingPublish">
@@ -17,8 +16,7 @@
           :disabled="isSaving || !originalText || !originalText.length"
           :label="isPublished ? 'Posted' : 'Post'"
           @change="togglePublish"
-        >
-        </v-checkbox>
+        />
       </div>
       <div>
         <div v-if="error" class="mt-2 text-error w-100">
@@ -45,8 +43,7 @@
                 :size="25"
                 color="primary"
                 indeterminate
-              >
-              </v-progress-circular>
+              />
               Update...
             </span>
             <span v-if="!isSaving">Update</span>
