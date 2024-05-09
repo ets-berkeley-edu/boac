@@ -49,7 +49,7 @@
           />
           <hr class="mt-4 mb-0" />
         </div>
-        <v-container v-if="cohort.domain === 'default'" id="cohort-students" class="px-3">
+        <v-container v-if="cohort.domain === 'default'" id="cohort-students" fluid>
           <StudentRow
             v-for="(student, index) in cohort.students"
             :id="`student-${student.uid}`"

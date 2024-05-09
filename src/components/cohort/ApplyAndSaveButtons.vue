@@ -4,7 +4,7 @@
       v-if="cohort.showApplyButton"
       id="unsaved-filter-apply"
       :action="apply"
-      class="text-uppercase"
+      class="mr-2 text-uppercase"
       :disabled="!!cohort.editMode"
       :in-progress="currentAction === 'search'"
       text="Apply"
@@ -13,10 +13,9 @@
       v-if="cohort.showApplyButton"
       id="unsaved-filter-reset"
       class="text-uppercase"
-      color="primary"
+      color="grey"
       :disabled="!!cohort.editMode"
       text="Reset"
-      variant="text"
       @click="resetToLastApply"
     />
     <div v-if="cohort.showSaveButton && currentAction !== 'search'">

@@ -97,7 +97,7 @@
           </template>
         </elegant-date-picker>
       </div>
-      <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex mr-3">
+      <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
         <label class="font-weight-500 ml-2 pr-2" :for="`filter-range-min-${position}`">
           {{ rangeMinLabel() }}<span class="sr-only"> starting at</span>
         </label>
@@ -106,6 +106,7 @@
             :id="`filter-range-min-${position}`"
             v-model="range.min"
             bg-color="white"
+            density="compact"
             hide-details
             :maxlength="rangeInputSize()"
             :placeholder="placeholder()"
@@ -121,6 +122,7 @@
             :id="`filter-range-max-${position}`"
             v-model="range.max"
             bg-color="white"
+            density="compact"
             hide-details
             :maxlength="rangeInputSize()"
             :placeholder="placeholder()"
@@ -130,7 +132,7 @@
         </div>
       </div>
     </div>
-    <div v-if="!isExistingFilter" class="align-center d-flex ml-auto mr-2">
+    <div v-if="!isExistingFilter" class="align-center d-flex">
       <div>
         <ProgressButton
           v-if="showAdd"
@@ -138,7 +140,6 @@
           :action="onClickAddButton"
           :disabled="isSaving"
           :in-progress="isSaving"
-          size="large"
           text="Add"
         />
       </div>
