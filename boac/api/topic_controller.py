@@ -53,6 +53,8 @@ def create_topic():
     topic = params.get('topic', '').strip()
     if not topic:
         raise BadRequestError('Required parameters are missing.')
+    if len(topic) > 50:
+        raise BadRequestError('Exceeded maximum character length.')
     topic = Topic.create_topic(topic)
     return tolerant_jsonify(topic.to_api_json())
 

@@ -105,6 +105,12 @@ class TestCreateTopic:
         assert api_json['topic'] == topic
         assert api_json['deletedAt'] is None
 
+    def test_create_topic_max_length(self, client, fake_auth):
+        """Topics cannot exceed max length."""
+        fake_auth.login(admin_uid)
+        topic = 'This is a flight deck topic with over fifty characters!!'
+        _api_create_topic(client, expected_status_code=400, topic=topic)
+
 
 class TestDeleteTopic:
 
