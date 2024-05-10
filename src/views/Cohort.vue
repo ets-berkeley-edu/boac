@@ -143,11 +143,11 @@ export default {
       setPageTitle(this.cohort.cohortName)
       this.context.loadingComplete(this.getLoadedAlert())
     } else {
-      const cohortId = toInt(get(useRoute(), 'params.id'))
+      this.cohortId = toInt(get(useRoute(), 'params.id'))
       const domain = useRoute().query.domain || 'default'
       const orderBy = get(this.context.currentUser.preferences, this.sortByKey)
       const termId = get(this.context.currentUser.preferences, 'termId')
-      this.init(cohortId, domain, orderBy, termId).then(() => {
+      this.init(this.cohortId, domain, orderBy, termId).then(() => {
         this.pageNumber = this.cohort.pagination.currentPage
         const pageTitle = this.cohortId ? this.cohort.cohortName : 'Create Cohort'
         setPageTitle(pageTitle)

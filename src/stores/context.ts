@@ -22,6 +22,7 @@ export type BoaConfig = {
   isProduction: boolean,
   isVueAppDebugMode: boolean,
   maxAttachmentsPerNote: number,
+  supportEmailAddress: string,
   timezone: string
 }
 
