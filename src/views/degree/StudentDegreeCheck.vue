@@ -1,6 +1,5 @@
 <template>
   <div :class="{'cursor-grabbing': draggingContext.course}" @drag="scrollTo">
-    <Spinner />
     <div v-if="!loading">
       <div class="border-bottom light-blue-background py-2">
         <StudentProfileHeader
@@ -79,7 +78,6 @@ import Context from '@/mixins/Context'
 import DebugTemplate from '@/components/degree/DebugTemplate'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DuplicateExistingCourse from '@/components/degree/student/DuplicateExistingCourse'
-import Spinner from '@/components/util/Spinner'
 import StudentDegreeCheckHeader from '@/components/degree/student/StudentDegreeCheckHeader'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
@@ -95,7 +93,6 @@ export default {
   components: {
     DuplicateExistingCourse,
     DebugTemplate,
-    Spinner,
     StudentDegreeCheckHeader,
     StudentProfileHeader,
     TemplateCategoryColumn,

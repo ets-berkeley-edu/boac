@@ -1,5 +1,4 @@
 <template>
-  <Spinner />
   <div v-if="!loading">
     <div class="light-blue-background border-b-sm">
       <StudentProfileHeader :student="student" />
@@ -54,7 +53,6 @@ import {mdiOpenInNew} from '@mdi/js'
 import AcademicTimeline from '@/components/student/profile/AcademicTimeline'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
-import Spinner from '@/components/util/Spinner'
 import StudentClasses from '@/components/student/profile/StudentClasses'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'
@@ -73,7 +71,6 @@ export default {
   components: {
     AcademicTimeline,
     AreYouSureModal,
-    Spinner,
     StudentClasses,
     StudentProfileGPA,
     StudentProfileHeader,

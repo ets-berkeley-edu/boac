@@ -1,6 +1,5 @@
 <template>
-  <div class="w-100">
-    <Spinner />
+  <div>
     <div v-if="!loading && error">
       <h1 class="page-section-header">Error</h1>
       <div class="text-grey">
@@ -142,7 +141,6 @@ import CourseStudents from '@/components/course/CourseStudents'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
-import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {scrollToTop} from '@/lib/utils'
 import {DateTime} from 'luxon'
@@ -153,8 +151,7 @@ export default {
     CourseStudents,
     Pagination,
     SectionSpinner,
-    CuratedGroupSelector,
-    Spinner
+    CuratedGroupSelector
   },
   mixins: [Context, Util],
   data: () => ({

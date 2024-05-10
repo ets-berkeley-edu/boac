@@ -4,33 +4,34 @@
     :bg-color="isOpen ? 'pale-blue' : 'transparent'"
     class="sortable-group"
     :class="isOpen ? 'border-1' : 'border-0'"
-    elevation="0"
+    hide-actions
     rounded
     @group:selected="fetchStudents"
   >
     <v-expansion-panel-title
       :id="`${id}-expand-btn`"
-      class="bg-transparent px-3 w-100"
+      class="bg-transparent pl-2 py-1 w-100"
       hide-actions
     >
       <template #default="{expanded}">
-        <div class="d-flex justify-space-between align-baseline w-100">
-          <div class="text-primary d-flex align-center">
-            <div class="pr-2">
+        <div class="d-flex justify-space-between w-100">
+          <div class="align-center d-flex">
+            <div class="expand-icon-container">
               <v-progress-circular
-                v-if="isFetching"
+                v-if="isFetching && group.alertCount > 0"
                 color="primary"
                 indeterminate
-                size="small"
+                size="x-small"
+                width="2"
               />
               <v-icon
                 v-if="!isFetching"
                 color="primary"
                 :icon="expanded ? mdiMenuDown : mdiMenuRight"
-                size="x-large"
+                size="large"
               />
             </div>
-            <h3 class="page-section-header-sub">
+            <h3 class="page-section-header-sub text-primary">
               <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${groupTypeName} ` }}</span>
               {{ group.name }}
               (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ group.totalStudentCount }}</span>
@@ -75,8 +76,9 @@
             View all {{ group.totalStudentCount }} students in {{ groupTypeName }} "{{ group.name }}"
           </router-link>
         </div>
-        <div class="pt-4 pl-3">
+        <div class="ma-4">
           <SortableStudents
+            class="bg-pale-blue"
             domain="default"
             :students="studentsWithAlerts"
             :options="sortableGroupOptions"
@@ -187,6 +189,11 @@ export default {
 <style scoped>
 .count {
   min-width: 130px;
+}
+.expand-icon-container {
+  max-width: 40px;
+  text-align: center;
+  width: 40px;
 }
 .sortable-group {
   border: 1px solid #007bff;

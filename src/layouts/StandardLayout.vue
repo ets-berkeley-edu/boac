@@ -48,11 +48,21 @@
         <Sidebar />
       </v-navigation-drawer>
       <v-main id="content">
-        <ServiceAnnouncement />
-        <router-view :key="split($route.fullPath, '#', 1)[0]" />
+        <v-progress-circular
+          v-if="loading"
+          id="spinner-when-loading"
+          class="spinner"
+          :size="50"
+          color="primary"
+          indeterminate
+        />
+        <div class="pa-4 w-100">
+          <ServiceAnnouncement />
+          <router-view :key="split($route.fullPath, '#', 1)[0]" />
+        </div>
       </v-main>
-      <v-footer app color="transparent">
-        <div v-if="!loading" class="d-flex flex-wrap justify-space-between px-3 pt-10 pb-4 w-100">
+      <v-footer v-if="!loading" app color="transparent">
+        <div class="d-flex flex-wrap justify-space-between px-3 pt-10 pb-4 w-100">
           <div>
             <img alt="UC Berkeley logo" src="@/assets/uc-berkeley-logo.svg" />
           </div>
@@ -103,6 +113,18 @@ putFocusNextTick('home-header')
 .header-text h1 {
   font-size: inherit;
   font-weight: inherit;
+}
+.spinner {
+  bottom: 0;
+  height: 2em;
+  left: 0;
+  margin: auto;
+  overflow: visible;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 2em;
+  z-index: 999;
 }
 @media (max-width: 600px) {
   .hide-in-narrow-viewport {

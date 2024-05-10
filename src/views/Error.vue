@@ -1,18 +1,15 @@
 <template>
-  <div class="ma-2 pa-3">
-    <Spinner />
-    <div v-if="!loading">
-      <h1 class="page-section-header">{{ title }}</h1>
-      <div
-        id="error-message"
-        aria-live="polite"
-        class="text-grey mt-3"
-        role="alert"
-      >
-        <div v-html="message" />
-        <div v-if="!config.isProduction && errorStatus" class="mt-3">
-          HTTP error status: {{ errorStatus }}
-        </div>
+  <div v-if="!loading">
+    <h1 class="page-section-header">{{ title }}</h1>
+    <div
+      id="error-message"
+      aria-live="polite"
+      class="text-grey mt-3"
+      role="alert"
+    >
+      <div v-html="message" />
+      <div v-if="!config.isProduction && errorStatus" class="mt-3">
+        HTTP error status: {{ errorStatus }}
       </div>
     </div>
   </div>
@@ -20,12 +17,10 @@
 
 <script>
 import Context from '@/mixins/Context'
-import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'Error',
-  components: {Spinner},
   mixins: [Context, Util],
   data: () => ({
     errorStatus: undefined,

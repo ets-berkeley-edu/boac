@@ -1,7 +1,6 @@
 <template>
   <div class="bg-sky-blue">
-    <Spinner />
-    <div class="pt-4 px-4">
+    <div>
       <div class="align-center d-flex">
         <div class="mr-2">
           <h1 class="page-section-header">Search Results</h1>
@@ -215,7 +214,6 @@ import SectionSpinner from '@/components/util/SectionSpinner'
 import SortableAdmits from '@/components/admit/SortableAdmits'
 import SortableCourses from '@/components/search/SortableCourses'
 import SortableStudents from '@/components/search/SortableStudents'
-import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
 import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
@@ -231,8 +229,7 @@ export default {
     SortableStudents,
     SectionSpinner,
     SortableAdmits,
-    SortableCourses,
-    Spinner
+    SortableCourses
   },
   mixins: [Context, SearchSession, Util],
   data: () => ({
