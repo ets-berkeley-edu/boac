@@ -42,8 +42,8 @@
             <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('topic')">
               <span>Topic</span>
               <template v-if="sortBy === 'topic'">
-                <v-icon v-if="sortByMap.get('topic') === false" class="position-absolute mb-1" :icon="mdiMenuDown" />
-                <v-icon v-if="sortByMap.get('topic') === true" class="position-absolute mb-1" :icon="mdiMenuUp" />
+                <v-icon v-if="sortByMap.get('topic') === true" class="position-absolute mb-1" :icon="mdiMenuDown" />
+                <v-icon v-if="sortByMap.get('topic') === false" class="position-absolute mb-1" :icon="mdiMenuUp" />
               </template>
             </th>
             <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('deleted')">
@@ -56,8 +56,8 @@
             <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('usage')">
               <span>Usage</span>
               <template v-if="sortBy === 'usage'">
-                <v-icon v-if="sortByMap.get('usage') === false" class="position-absolute mb-1" :icon="mdiMenuDown" />
-                <v-icon v-if="sortByMap.get('usage') === true" class="position-absolute mb-1" :icon="mdiMenuUp" />
+                <v-icon v-if="sortByMap.get('usage') === true" class="position-absolute mb-1" :icon="mdiMenuDown" />
+                <v-icon v-if="sortByMap.get('usage') === false" class="position-absolute mb-1" :icon="mdiMenuUp" />
               </template>
             </th>
             <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('deleted')">
@@ -96,7 +96,7 @@
                   <v-btn
                     v-bind="props"
                     icon
-                    density="compxact"
+                    density="compact"
                     @click="undelete(item)"
                   >
                     <v-icon :icon="mdiDeleteRestore" color="warning" />

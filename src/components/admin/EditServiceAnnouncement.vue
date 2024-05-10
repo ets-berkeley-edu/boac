@@ -24,7 +24,7 @@
         </div>
         <RichTextEditor
           id="textarea-update-service-announcement"
-          :initial-value="originalText"
+          :initial-value="originalText ? originalText : ''"
           :disabled="isSaving"
           label="Service alert input"
           :on-value-update="onEditorUpdate"
