@@ -1,93 +1,90 @@
 <template>
-  <div class="pl-3 pt-3">
-    <Spinner />
-    <div v-if="!loading">
-      <div class="d-flex flex-wrap justify-space-between">
-        <h1 id="cohort-name" class="page-section-header">
-          CE3 Admissions
-          <span
-            v-if="totalAdmitCount !== undefined"
-            class="text-grey"
-          >{{ pluralize('admitted student', totalAdmitCount) }}</span>
-        </h1>
-        <a
-          v-if="totalAdmitCount > pagination.itemsPerPage"
-          id="skip-to-pagination-widget"
-          class="sr-only"
-          href="#pagination-widget"
-          @click="alertScreenReader('Go to another page of search results')"
-          @keyup.enter="alertScreenReader('Go to another page of search results')"
+  <div v-if="!loading">
+    <div class="d-flex flex-wrap justify-space-between">
+      <h1 id="cohort-name" class="page-section-header">
+        CE3 Admissions
+        <span
+          v-if="totalAdmitCount !== undefined"
+          class="text-grey"
+        >{{ pluralize('admitted student', totalAdmitCount) }}</span>
+      </h1>
+      <a
+        v-if="totalAdmitCount > pagination.itemsPerPage"
+        id="skip-to-pagination-widget"
+        class="sr-only"
+        href="#pagination-widget"
+        @click="alertScreenReader('Go to another page of search results')"
+        @keyup.enter="alertScreenReader('Go to another page of search results')"
+      >
+        Skip to bottom, other pages of search results
+      </a>
+      <div class="d-flex align-self-baseline mr-4">
+        <NavLink
+          id="admitted-students-cohort-show-filters"
+          class="btn btn-link text-no-wrap pl-0 pr-1 pt-0"
+          aria-label="Create a CE3 Admissions cohort"
+          path="/cohort/new"
+          :default-counter="counter"
+          :query-args="{domain: 'admitted_students'}"
         >
-          Skip to bottom, other pages of search results
-        </a>
-        <div class="d-flex align-self-baseline mr-4">
-          <NavLink
-            id="admitted-students-cohort-show-filters"
-            class="btn btn-link text-no-wrap pl-0 pr-1 pt-0"
-            aria-label="Create a CE3 Admissions cohort"
-            path="/cohort/new"
-            :default-counter="counter"
-            :query-args="{domain: 'admitted_students'}"
-          >
-            Create Cohort
-          </NavLink>
-          <div class="text-grey">|</div>
-          <b-btn
-            id="export-student-list-button"
-            v-b-modal="'export-admits-modal'"
-            :disabled="!exportEnabled || !totalAdmitCount"
-            class="text-no-wrap pl-1 pr-0 pt-0"
-            variant="link"
-          >
-            Export List
-          </b-btn>
-          <b-modal
-            id="export-admits-modal"
-            v-model="showExportListModal"
-            body-class="pl-0 pr-0"
-            hide-footer
-            hide-header
-            @shown="putFocusNextTick('modal-header')"
-          >
-            <FerpaReminderModal
-              :cancel="cancelExportModal"
-              :confirm="exportCohort"
-            />
-          </b-modal>
-        </div>
+          Create Cohort
+        </NavLink>
+        <div class="text-grey">|</div>
+        <b-btn
+          id="export-student-list-button"
+          v-b-modal="'export-admits-modal'"
+          :disabled="!exportEnabled || !totalAdmitCount"
+          class="text-no-wrap pl-1 pr-0 pt-0"
+          variant="link"
+        >
+          Export List
+        </b-btn>
+        <b-modal
+          id="export-admits-modal"
+          v-model="showExportListModal"
+          body-class="pl-0 pr-0"
+          hide-footer
+          hide-header
+          @shown="putFocusNextTick('modal-header')"
+        >
+          <FerpaReminderModal
+            :cancel="cancelExportModal"
+            :confirm="exportCohort"
+          />
+        </b-modal>
       </div>
-      <div v-if="admits" class="pb-2">
-        <AdmitDataWarning :updated-at="_get(admits, '[0].updatedAt')" />
-      </div>
-      <SectionSpinner :loading="sorting" />
-      <div v-if="!sorting">
-        <div class="align-center d-flex justify-content-end mr-3 py-1">
-          <div class="mr-auto">
-            <CuratedGroupSelector
-              context-description="Admit Students"
-              domain="admitted_students"
-              :students="admits"
-            />
-          </div>
-          <div class="mr-4">
-            <SortBy domain="admitted_students" />
-          </div>
-        </div>
-
-        <AdmitStudentsTable
-          :include-curated-checkbox="true"
-          :students="admits"
-        />
-
-        <div v-if="totalAdmitCount > pagination.itemsPerPage" class="p-3">
-          <Pagination
-            :click-handler="goToPage"
-            :init-page-number="pagination.currentPage"
-            :limit="10"
-            :per-page="pagination.itemsPerPage"
-            :total-rows="totalAdmitCount"
+    </div>
+    <div v-if="admits" class="pb-2">
+      <AdmitDataWarning :updated-at="_get(admits, '[0].updatedAt')" />
+    </div>
+    <SectionSpinner :loading="sorting" />
+    <div v-if="!sorting">
+      <div class="align-center d-flex justify-content-end mr-3 py-1">
+        <div class="mr-auto">
+          <CuratedGroupSelector
+            context-description="Admit Students"
+            domain="admitted_students"
+            :students="admits"
           />
         </div>
+        <div class="mr-4">
+          <SortBy domain="admitted_students" />
+        </div>
+      </div>
+
+      <AdmitStudentsTable
+        :include-curated-checkbox="true"
+        :students="admits"
+      />
+
+      <div v-if="totalAdmitCount > pagination.itemsPerPage" class="p-3">
+        <Pagination
+          :click-handler="goToPage"
+          :init-page-number="pagination.currentPage"
+          :limit="10"
+          :per-page="pagination.itemsPerPage"
+          :total-rows="totalAdmitCount"
+        />
       </div>
     </div>
   </div>
@@ -103,7 +100,6 @@ import NavLink from '@/components/util/NavLink'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
-import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
 import {getAllAdmits} from '@/api/admit'
@@ -120,8 +116,7 @@ export default {
     NavLink,
     Pagination,
     SectionSpinner,
-    SortBy,
-    Spinner
+    SortBy
   },
   mixins: [Context, Util],
   data: () => ({

@@ -1,6 +1,5 @@
 <template>
-  <div class="ml-3 mr-3 mt-3">
-    <Spinner />
+  <div>
     <div class="d-flex flex-wrap align-items-baseline justify-space-between">
       <h1 id="page-header" class="page-section-header text-no-wrap mr-2">Batch Degree Checks</h1>
       <router-link id="manage-degrees-link" to="/degrees">
@@ -165,7 +164,6 @@ import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
-import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
 import {createBatchDegreeCheck, getStudents} from '@/api/degree'
@@ -175,8 +173,7 @@ export default {
   name: 'BatchDegreeCheck',
   components: {
     BatchAddStudentSet,
-    DegreeTemplatesMenu,
-    Spinner
+    DegreeTemplatesMenu
   },
   mixins: [Context, DegreeEditSession, Util],
   data: () => ({

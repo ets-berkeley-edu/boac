@@ -1,6 +1,5 @@
 <template>
-  <div class="ml-3 mr-3 mt-3">
-    <Spinner />
+  <div>
     <v-alert
       id="alert-batch-created"
       v-model="successMessage"
@@ -220,7 +219,6 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CloneTemplateModal from '@/components/degree/CloneTemplateModal'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
-import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
 import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/api/degree'
@@ -228,7 +226,7 @@ import {DateTime} from 'luxon'
 
 export default {
   name: 'ManageDegreeChecks',
-  components: {AreYouSureModal, CloneTemplateModal, Spinner},
+  components: {AreYouSureModal, CloneTemplateModal},
   mixins: [Context, DegreeEditSession, Util],
   data: () => ({
     deleteModalBody: undefined,

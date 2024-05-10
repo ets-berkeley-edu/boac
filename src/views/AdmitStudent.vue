@@ -1,6 +1,5 @@
 <template>
   <div>
-    <Spinner />
     <div v-if="!loading" class="ma-3">
       <h1
         id="admit-name-header"
@@ -293,7 +292,6 @@
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import Context from '@/mixins/Context'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
-import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getAdmitBySid} from '@/api/admit'
 import {scrollToTop} from '@/lib/utils'
@@ -301,7 +299,7 @@ import {DateTime} from 'luxon'
 
 export default {
   name: 'AdmitStudent',
-  components: {AdmitDataWarning, ManageStudent, Spinner},
+  components: {AdmitDataWarning, ManageStudent},
   mixins: [Context, Util],
   data: () => ({
     admit: {}

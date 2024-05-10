@@ -7,7 +7,6 @@
         :student="student"
       />
     </div>
-    <Spinner />
     <div v-if="!loading">
       <div class="ma-3 pt-2">
         <b-container class="px-0 mx-0" :fluid="true">
@@ -89,7 +88,6 @@ import {mdiAlertRhombus} from '@mdi/js'
 
 <script>
 import Context from '@/mixins/Context'
-import Spinner from '@/components/util/Spinner'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
@@ -99,7 +97,7 @@ import {DateTime} from 'luxon'
 
 export default {
   name: 'StudentDegreeHistory',
-  components: {Spinner, StudentProfileHeader},
+  components: {StudentProfileHeader},
   mixins: [Context, Util],
   data: () => ({
     degreeChecks: undefined,

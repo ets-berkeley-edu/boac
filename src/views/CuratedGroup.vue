@@ -1,24 +1,59 @@
 <template>
-  <div class="pa-3">
-    <Spinner />
-    <div v-if="!loading">
-      <CuratedGroupHeader />
-      <AdmitDataWarning
-        v-if="domain === 'admitted_students' && students && mode !== 'bulkAdd'"
-        :updated-at="_get(students, '[0].updatedAt')"
-      />
-      <div v-show="mode !== 'bulkAdd'">
-        <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
-        <div>
-          <div class="d-flex flex-wrap justify-content-end pt-2">
-            <div v-if="totalStudentCount && domain === 'default'">
-              <TermSelector />
+  <div v-if="!loading">
+    <CuratedGroupHeader />
+    <AdmitDataWarning
+      v-if="domain === 'admitted_students' && students && mode !== 'bulkAdd'"
+      :updated-at="_get(students, '[0].updatedAt')"
+    />
+    <div v-show="mode !== 'bulkAdd'">
+      <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
+      <div>
+        <div class="d-flex flex-wrap justify-content-end pt-2">
+          <div v-if="totalStudentCount && domain === 'default'">
+            <TermSelector />
+          </div>
+          <div v-if="totalStudentCount > 1" class="pl-4">
+            <SortBy :domain="domain" />
+          </div>
+        </div>
+        <div v-if="totalStudentCount > itemsPerPage">
+          <Pagination
+            :click-handler="onClickPagination"
+            :init-page-number="pageNumber"
+            :limit="10"
+            :per-page="itemsPerPage"
+            :total-rows="totalStudentCount"
+          />
+        </div>
+        <div v-if="_size(students)" class="mt-2">
+          <div id="curated-cohort-students">
+            <div v-if="domain === 'default'">
+              <StudentRow
+                v-for="(student, index) in students"
+                :id="`student-${student.uid}`"
+                :key="student.sid"
+                class="border-bottom border-top pb-2 pt-3"
+                :class="{'list-group-item-info': anchor === `#${student.uid}`}"
+                :list-type="ownerId === currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
+                :remove-student="removeStudent"
+                :row-index="index"
+                :sorted-by="currentUser.preferences.sortBy"
+                :student="student"
+                :term-id="currentUser.preferences.termId"
+              />
             </div>
-            <div v-if="totalStudentCount > 1" class="pl-4">
-              <SortBy :domain="domain" />
+            <div v-if="domain === 'admitted_students'">
+              <div class="pb-1">
+                <hr class="filters-section-separator" />
+              </div>
+              <AdmitStudentsTable
+                :include-curated-checkbox="false"
+                :remove-student="removeStudent"
+                :students="students"
+              />
             </div>
           </div>
-          <div v-if="totalStudentCount > itemsPerPage">
+          <div v-if="totalStudentCount > itemsPerPage" class="mr-3">
             <Pagination
               :click-handler="onClickPagination"
               :init-page-number="pageNumber"
@@ -27,58 +62,20 @@
               :total-rows="totalStudentCount"
             />
           </div>
-          <div v-if="_size(students)" class="mt-2">
-            <div id="curated-cohort-students">
-              <div v-if="domain === 'default'">
-                <StudentRow
-                  v-for="(student, index) in students"
-                  :id="`student-${student.uid}`"
-                  :key="student.sid"
-                  class="border-bottom border-top pb-2 pt-3"
-                  :class="{'list-group-item-info': anchor === `#${student.uid}`}"
-                  :list-type="ownerId === currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
-                  :remove-student="removeStudent"
-                  :row-index="index"
-                  :sorted-by="currentUser.preferences.sortBy"
-                  :student="student"
-                  :term-id="currentUser.preferences.termId"
-                />
-              </div>
-              <div v-if="domain === 'admitted_students'">
-                <div class="pb-1">
-                  <hr class="filters-section-separator" />
-                </div>
-                <AdmitStudentsTable
-                  :include-curated-checkbox="false"
-                  :remove-student="removeStudent"
-                  :students="students"
-                />
-              </div>
-            </div>
-            <div v-if="totalStudentCount > itemsPerPage" class="mr-3">
-              <Pagination
-                :click-handler="onClickPagination"
-                :init-page-number="pageNumber"
-                :limit="10"
-                :per-page="itemsPerPage"
-                :total-rows="totalStudentCount"
-              />
-            </div>
-          </div>
         </div>
       </div>
-      <div v-if="!loading && mode === 'bulkAdd'" class="pt-2">
-        <h2 class="page-section-header-sub my-2">Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}</h2>
-        <div class="w-75">
-          <div>Type or paste a list of {{ domain === 'admitted_students' ? 'CS ID' : 'Student Identification (SID)' }} numbers numbers below.</div>
-          <div class="text-medium-emphasis">Example: 9999999990, 9999999991</div>
-        </div>
-        <CuratedGroupBulkAdd
-          :bulk-add-sids="bulkAddSids"
-          :curated-group-id="curatedGroupId"
-          :domain="domain"
-        />
+    </div>
+    <div v-if="!loading && mode === 'bulkAdd'" class="pt-2">
+      <h2 class="page-section-header-sub my-2">Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}</h2>
+      <div class="w-75">
+        <div>Type or paste a list of {{ domain === 'admitted_students' ? 'CS ID' : 'Student Identification (SID)' }} numbers numbers below.</div>
+        <div class="text-medium-emphasis">Example: 9999999990, 9999999991</div>
       </div>
+      <CuratedGroupBulkAdd
+        :bulk-add-sids="bulkAddSids"
+        :curated-group-id="curatedGroupId"
+        :domain="domain"
+      />
     </div>
   </div>
 </template>
@@ -92,7 +89,6 @@ import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader'
 import Pagination from '@/components/util/Pagination'
 import SortBy from '@/components/student/SortBy'
-import Spinner from '@/components/util/Spinner'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
@@ -112,7 +108,6 @@ export default {
     CuratedGroupHeader,
     Pagination,
     SortBy,
-    Spinner,
     StudentRow,
     TermSelector
   },

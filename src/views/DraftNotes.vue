@@ -1,6 +1,5 @@
 <template>
-  <div class="pa-3">
-    <Spinner />
+  <div>
     <h1 class="page-section-header pl-2 pt-2">
       {{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}
     </h1>
@@ -126,7 +125,6 @@ import {mdiPaperclip, mdiTrashCanOutline} from '@mdi/js'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
-import Spinner from '@/components/util/Spinner'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
@@ -134,7 +132,7 @@ import {deleteNote, getMyDraftNotes} from '@/api/notes'
 
 export default {
   name: 'DraftNotes',
-  components: {AreYouSureModal, EditBatchNoteModal, Spinner, TimelineDate},
+  components: {AreYouSureModal, EditBatchNoteModal, TimelineDate},
   mixins: [Context, Util],
   data: () => ({
     activeOperation: undefined,

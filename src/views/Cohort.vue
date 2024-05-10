@@ -1,88 +1,85 @@
 <template>
-  <div class="mx-5 my-4">
-    <Spinner />
-    <div v-if="!context.loading">
-      <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
-      <div v-if="cohort.domain === 'admitted_students' && cohort.students" class="pb-2">
-        <AdmitDataWarning :updated-at="get(cohort.students, '[0].updatedAt')" />
+  <div v-if="!context.loading">
+    <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
+    <div v-if="cohort.domain === 'admitted_students' && cohort.students" class="pb-2">
+      <AdmitDataWarning :updated-at="get(cohort.students, '[0].updatedAt')" />
+    </div>
+    <v-expand-transition>
+      <v-card
+        v-if="showFilters"
+        id="show-hide-filters"
+        flat
+      >
+        <FilterRow
+          v-for="(filter, index) in cohort.filters"
+          :key="`${filter.key}-${index}`"
+          :position="index"
+        />
+        <FilterRow v-if="cohort.isOwnedByCurrentUser" />
+        <ApplyAndSaveButtons v-if="cohort.isOwnedByCurrentUser" />
+      </v-card>
+    </v-expand-transition>
+    <SectionSpinner :loading="cohort.editMode === 'apply'" />
+    <div v-if="!showHistory && showStudentsSection">
+      <div class="align-center d-flex flex-column flex-column-reverse flex-sm-row justify-space-between w-100 pt-2">
+        <CuratedGroupSelector
+          :context-description="cohort.domain === 'default' ? `Cohort ${cohort.cohortName || ''}` : `Admitted Students Cohort ${cohort.cohortName || ''}`"
+          :domain="cohort.domain"
+          :on-create-curated-group="resetFiltersToLastApply"
+          :students="cohort.students"
+        />
+        <div class="d-flex flex-wrap justify-end pr-3">
+          <TermSelector v-if="cohort.domain === 'default'" class="mr-5" />
+          <SortBy v-if="cohort.showSortBy" :domain="cohort.domain" />
+        </div>
       </div>
-      <v-expand-transition>
-        <v-card
-          v-if="showFilters"
-          id="show-hide-filters"
-          flat
-        >
-          <FilterRow
-            v-for="(filter, index) in cohort.filters"
-            :key="`${filter.key}-${index}`"
-            :position="index"
-          />
-          <FilterRow v-if="cohort.isOwnedByCurrentUser" />
-          <ApplyAndSaveButtons v-if="cohort.isOwnedByCurrentUser" />
-        </v-card>
-      </v-expand-transition>
-      <SectionSpinner :loading="cohort.editMode === 'apply'" />
-      <div v-if="!showHistory && showStudentsSection">
-        <div class="align-center d-flex flex-column flex-column-reverse flex-sm-row justify-space-between w-100 pt-2">
-          <CuratedGroupSelector
-            :context-description="cohort.domain === 'default' ? `Cohort ${cohort.cohortName || ''}` : `Admitted Students Cohort ${cohort.cohortName || ''}`"
-            :domain="cohort.domain"
-            :on-create-curated-group="resetFiltersToLastApply"
-            :students="cohort.students"
-          />
-          <div class="d-flex flex-wrap justify-end pr-3">
-            <TermSelector v-if="cohort.domain === 'default'" class="mr-5" />
-            <SortBy v-if="cohort.showSortBy" :domain="cohort.domain" />
-          </div>
-        </div>
-        <hr class="mb-0 mx-3 mt-4" />
-        <div v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage" class="pt-1">
-          <Pagination
-            class="my-3"
-            :click-handler="goToPage"
-            :init-page-number="pageNumber"
-            :limit="10"
-            :per-page="cohort.pagination.itemsPerPage"
-            :total-rows="cohort.totalStudentCount"
-          />
-          <hr class="mt-4 mb-0" />
-        </div>
-        <v-container
-          v-if="cohort.domain === 'default'"
-          id="cohort-students"
-          class="pl-3"
-          fluid
-        >
-          <StudentRow
-            v-for="(student, index) in cohort.students"
-            :id="`student-${student.uid}`"
-            :key="student.sid"
-            :class="{'list-group-item-info': anchor === `#${student.uid}`}"
-            list-type="cohort"
-            :row-index="index"
-            :sorted-by="context.currentUser.preferences.sortBy"
-            :student="student"
-            :term-id="context.currentUser.preferences.termId"
-          />
-        </v-container>
-        <div v-if="cohort.domain === 'admitted_students'">
-          <hr />
-          <AdmitStudentsTable :include-curated-checkbox="true" :students="cohort.students" />
-          <hr />
-        </div>
+      <hr class="mb-0 mx-3 mt-4" />
+      <div v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage" class="pt-1">
         <Pagination
-          v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage"
+          class="my-3"
           :click-handler="goToPage"
-          :index="1"
           :init-page-number="pageNumber"
           :limit="10"
           :per-page="cohort.pagination.itemsPerPage"
           :total-rows="cohort.totalStudentCount"
         />
+        <hr class="mt-4 mb-0" />
       </div>
-      <div v-if="showHistory">
-        <CohortHistory />
+      <v-container
+        v-if="cohort.domain === 'default'"
+        id="cohort-students"
+        class="pl-3"
+        fluid
+      >
+        <StudentRow
+          v-for="(student, index) in cohort.students"
+          :id="`student-${student.uid}`"
+          :key="student.sid"
+          :class="{'list-group-item-info': anchor === `#${student.uid}`}"
+          list-type="cohort"
+          :row-index="index"
+          :sorted-by="context.currentUser.preferences.sortBy"
+          :student="student"
+          :term-id="context.currentUser.preferences.termId"
+        />
+      </v-container>
+      <div v-if="cohort.domain === 'admitted_students'">
+        <hr />
+        <AdmitStudentsTable :include-curated-checkbox="true" :students="cohort.students" />
+        <hr />
       </div>
+      <Pagination
+        v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage"
+        :click-handler="goToPage"
+        :index="1"
+        :init-page-number="pageNumber"
+        :limit="10"
+        :per-page="cohort.pagination.itemsPerPage"
+        :total-rows="cohort.totalStudentCount"
+      />
+    </div>
+    <div v-if="showHistory">
+      <CohortHistory />
     </div>
   </div>
 </template>
@@ -98,7 +95,6 @@ import FilterRow from '@/components/cohort/FilterRow'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
-import Spinner from '@/components/util/Spinner'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 </script>
