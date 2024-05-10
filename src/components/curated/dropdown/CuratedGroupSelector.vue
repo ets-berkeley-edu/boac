@@ -271,7 +271,7 @@ label {
   border-radius: 6px;
   height: 36px;
   margin-right: 8px;
-  padding-top: 7px;
+  padding-top: 8px;
   text-align: center;
   width: 36px;
 }
