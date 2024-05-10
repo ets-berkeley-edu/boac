@@ -28,6 +28,7 @@
             <div class="align-center d-flex">
               <CuratedStudentCheckbox
                 v-if="listType === 'cohort'"
+                class="mr-3"
                 domain="default"
                 :student="student"
               />

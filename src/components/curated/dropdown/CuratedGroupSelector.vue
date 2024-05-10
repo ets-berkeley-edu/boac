@@ -1,25 +1,19 @@
 <template>
-  <div class="add-to-curated-group-container d-flex align-end">
+  <div class="d-flex align-end">
     <label id="add-all-checkbox-label" :for="checkboxId" class="sr-only">
       Select all students to add to a {{ domainLabel(false) }}
     </label>
-    <div class="select-all-checkbox-container">
-      <div class="select-all-checkbox-layer" />
-      <div class="select-all-checkbox-layer">
-        <v-checkbox-btn
-          :id="checkboxId"
-          v-model="isSelectAllChecked"
-          :aria-controls="dropdownId"
-          base-color="primary"
-          class="select-all-checkbox"
-          color="primary"
-          density="comfortable"
-          :disabled="isSaving"
-          hide-details
-          :indeterminate="indeterminate"
-          @update:model-value="toggle"
-        />
-      </div>
+    <div class="checkbox-container" :class="{'checked-checkbox-container': size(sids)}">
+      <input
+        :id="checkboxId"
+        v-model="isSelectAllChecked"
+        type="checkbox"
+        :aria-controls="dropdownId"
+        class="checkbox"
+        :disabled="isSaving"
+        :indeterminate="indeterminate"
+        @update:model-value="toggle"
+      />
     </div>
     <v-menu
       v-if="!!size(sids)"
@@ -263,27 +257,22 @@ label {
   font-size: 14px;
   margin-bottom: 0;
 }
-.add-to-curated-group-container {
-  min-width: 270px;
-  padding-bottom: 9px;
+.checkbox {
+  accent-color: #3b7ea5;
+  height: 20px;
+  width: 20px;
 }
-.select-all-checkbox {
-  z-index: 100;
+.checked-checkbox-container {
+  background-color: #96C3de !important;
 }
-.select-all-checkbox-container {
+.checkbox-container {
   background-color: #eee;
-  border: 1px solid #aaa;
-  border-radius: 36px;
+  border: 1px solid #666;
+  border-radius: 6px;
   height: 36px;
   margin-right: 8px;
-  position: relative;
+  padding-top: 7px;
+  text-align: center;
   width: 36px;
-}
-.select-all-checkbox-layer {
-  bottom: 1px;
-  height: 100%;
-  position: absolute;
-  right: 1px;
-  width: 100%;
 }
 </style>

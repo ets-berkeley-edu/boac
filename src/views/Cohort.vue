@@ -1,5 +1,5 @@
 <template>
-  <div class="ma-5">
+  <div class="mx-5 my-4">
     <Spinner />
     <div v-if="!context.loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
@@ -8,11 +8,9 @@
       </div>
       <v-expand-transition>
         <v-card
-          v-show="showFilters"
+          v-if="showFilters"
           id="show-hide-filters"
-          class="overflow-visible pt-2"
           flat
-          tile
         >
           <FilterRow
             v-for="(filter, index) in cohort.filters"
@@ -25,19 +23,19 @@
       </v-expand-transition>
       <SectionSpinner :loading="cohort.editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
-        <div class="d-flex flex-column flex-column-reverse flex-sm-row justify-space-between w-100 pt-4">
+        <div class="align-center d-flex flex-column flex-column-reverse flex-sm-row justify-space-between w-100 pt-2">
           <CuratedGroupSelector
             :context-description="cohort.domain === 'default' ? `Cohort ${cohort.cohortName || ''}` : `Admitted Students Cohort ${cohort.cohortName || ''}`"
             :domain="cohort.domain"
             :on-create-curated-group="resetFiltersToLastApply"
             :students="cohort.students"
           />
-          <div class="d-flex flex-wrap justify-end">
-            <TermSelector v-if="cohort.domain === 'default'" />
+          <div class="d-flex flex-wrap justify-end pr-3">
+            <TermSelector v-if="cohort.domain === 'default'" class="mr-5" />
             <SortBy v-if="cohort.showSortBy" :domain="cohort.domain" />
           </div>
         </div>
-        <hr class="mt-2 mb-0" />
+        <hr class="mb-0 mx-3 mt-4" />
         <div v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage" class="pt-1">
           <Pagination
             class="my-3"
@@ -49,12 +47,16 @@
           />
           <hr class="mt-4 mb-0" />
         </div>
-        <v-container v-if="cohort.domain === 'default'" id="cohort-students" fluid>
+        <v-container
+          v-if="cohort.domain === 'default'"
+          id="cohort-students"
+          class="pl-3"
+          fluid
+        >
           <StudentRow
             v-for="(student, index) in cohort.students"
             :id="`student-${student.uid}`"
             :key="student.sid"
-            class="border-right-0 list-group-item border-left-0 pl-0"
             :class="{'list-group-item-info': anchor === `#${student.uid}`}"
             list-type="cohort"
             :row-index="index"

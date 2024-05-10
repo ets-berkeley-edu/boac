@@ -9,12 +9,12 @@
         <v-btn
           :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)"
           v-bind="props"
-          class="manage-student-btn"
           :color="buttonColor"
-          size="x-small"
-          variant="text"
+          :ripple="false"
+          size="small"
+          variant="plain"
         >
-          <div v-if="!disableSelector" class="align-center d-flex" :class="labelClass">
+          <div v-if="!disableSelector" :class="labelClass">
             <v-progress-circular
               v-if="groupsLoading"
               indeterminate
@@ -24,7 +24,6 @@
             <div class="ml-1">
               {{ label }}
             </div>
-            <v-icon v-if="!groupsLoading" :icon="mdiMenuDown" size="24" />
           </div>
           <div v-if="isRemoving" :class="labelClass">
             <v-icon class="mr-1" :icon="mdiClose" />Removed
@@ -93,7 +92,7 @@
 
 <script setup>
 import {filter, includes, map, without} from 'lodash'
-import {mdiCheckBold, mdiClose, mdiMenuDown, mdiPlus} from '@mdi/js'
+import {mdiCheckBold, mdiClose, mdiPlus} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 </script>
 
@@ -230,10 +229,6 @@ export default {
 </script>
 
 <style scoped>
-.manage-student-btn {
-  height: 24px;
-  width: 8.5rem;
-}
 .opacity-zero {
   opacity: 0;
 }
