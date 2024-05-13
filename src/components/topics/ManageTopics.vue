@@ -78,31 +78,35 @@
             <td>{{ item.deletedAt ? 'Yes' : 'No' }}</td>
             <td>{{ item.countNotes }}</td>
             <td>
-              <v-tooltip v-if="!item.deletedAt" location="left" text="Delete">
-                <template #activator="{ props }">
-                  <v-btn
-                    v-bind="props"
-                    icon
-                    density="compact"
-                    @click="openDeleteTopicModal(item)"
-                  >
-                    <v-icon :icon="mdiTrashCanOutline" />
-                  </v-btn>
-                </template>
-              </v-tooltip>
+              <v-btn
+                v-if="!item.deletedAt"
+                icon
+                density="compact"
+                @click="openDeleteTopicModal(item)"
+              >
+                <v-icon :icon="mdiTrashCanOutline" />
+                <v-tooltip
+                  activator="parent"
+                  location="start"
+                >
+                  Delete
+                </v-tooltip>
+              </v-btn>
 
-              <v-tooltip v-if="item.deletedAt" location="left" text="Undelete">
-                <template #activator="{ props }">
-                  <v-btn
-                    v-bind="props"
-                    icon
-                    density="compact"
-                    @click="undelete(item)"
-                  >
-                    <v-icon :icon="mdiDeleteRestore" color="warning" />
-                  </v-btn>
-                </template>
-              </v-tooltip>
+              <v-btn
+                v-if="item.deletedAt"
+                icon
+                density="compact"
+                @click="undelete(item)"
+              >
+                <v-icon :icon="mdiDeleteRestore" color="warning" />
+                <v-tooltip
+                  activator="parent"
+                  location="start"
+                >
+                  Undelete
+                </v-tooltip>
+              </v-btn>
             </td>
           </tr>
         </tbody>

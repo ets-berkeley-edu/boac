@@ -128,3 +128,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+:deep(.ck-content ul) {
+  padding-left: 25px !important;
+}
+
+:deep(.ck-content ol) {
+  padding-left: 25px !important;
+}
+</style>
