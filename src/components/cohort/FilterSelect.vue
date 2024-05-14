@@ -46,6 +46,7 @@
 </template>
 
 <script setup>
+import {computed} from 'vue'
 import {each, includes} from 'lodash'
 
 const props = defineProps({
@@ -80,17 +81,19 @@ const props = defineProps({
 // eslint-disable-next-line vue/require-prop-types
 const model = defineModel()
 
-const optionGroups = props.hasOptGroups ? {} : undefined
-
-if (props.hasOptGroups) {
-  each(props.options, option => {
-    if (option.header && !includes(optionGroups, option.header)) {
-      optionGroups[option.key] = []
-    } else {
-      optionGroups[option.group].push(option)
-    }
-  })
-}
+const optionGroups = computed(() => {
+  const value = props.hasOptGroups ? {} : undefined
+  if (props.hasOptGroups) {
+    each(props.options, option => {
+      if (option.header && !includes(value, option.header)) {
+        value[option.key] = []
+      } else {
+        value[option.group].push(option)
+      }
+    })
+  }
+  return value
+})
 
 const normalizeId = id => {
   return id.toLowerCase().replace(/\W/g, ' ').trim().replace(/ +/g, '-')
