@@ -74,6 +74,7 @@
                   :id="`filter-range-min-${position}`"
                   v-model="inputValue.start"
                   :aria-describedby="`filter-range-min-placeholder-${position}`"
+                  density="compact"
                   hide-details
                   :placeholder="placeholder()"
                   size="12"
@@ -93,6 +94,7 @@
                   v-model="inputValue.end"
                   aria-label="end of range"
                   :aria-describedby="`filter-range-max-placeholder-${position}`"
+                  density="compact"
                   hide-details
                   :placeholder="placeholder()"
                   size="12"
@@ -497,8 +499,8 @@ export default {
         this.selectedOption = Array.isArray(options) ? findOption(options, this.filter.value) : find(flattenOptions(options), this.filter.value)
         this.putFocusSecondaryDropdown()
       } else if (this.isUX('range')) {
-        this.range.min = this.range.start = this.filter.min
-        this.range.max = this.range.end = this.filter.max
+        this.range.min = this.range.start = this.filter.value.min
+        this.range.max = this.range.end = this.filter.value.max
         this.putFocusRange()
       }
       this.isModifyingFilter = true

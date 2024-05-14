@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-sky-blue default-margins">
-    <div>
+  <div class="bg-sky-blue">
+    <div class="pt-4 px-4">
       <div class="align-center d-flex">
         <div class="mr-2">
           <h1 class="page-section-header">Search Results</h1>

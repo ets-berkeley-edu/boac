@@ -24,7 +24,7 @@ export const useSearchStore: StoreDefinition = defineStore('search', {
     topicOptions: [] as string[]
   }),
   getters: {
-    isDirty: state => {
+    isDirty: (state: any): boolean => {
       const currentUser = useContextStore().currentUser
       return (get(currentUser, 'canAccessCanvasData') && !state.includeCourses)
         || (get(currentUser, 'canAccessCanvasData') && !state.includeNotes)
