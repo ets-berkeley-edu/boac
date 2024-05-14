@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-4">
+  <div class="my-2">
     <ProgressButton
       v-if="cohort.showApplyButton"
       id="unsaved-filter-apply"

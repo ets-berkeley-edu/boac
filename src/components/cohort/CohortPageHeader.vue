@@ -20,7 +20,7 @@
         {{ cohort.cohortName }}
         <span
           v-if="cohort.editMode !== 'apply' && cohort.totalStudentCount !== undefined"
-          class="text-grey ml-2"
+          class="text-grey ml-1"
         >{{ pluralize(cohort.domain === 'admitted_students' ? 'admit' : 'student', cohort.totalStudentCount) }}</span>
       </h1>
       <h1

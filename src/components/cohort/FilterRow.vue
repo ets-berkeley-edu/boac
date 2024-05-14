@@ -27,7 +27,14 @@
       <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
       <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
     </div>
-    <div v-if="isModifyingFilter" class="mr-2">
+    <div
+      v-if="isModifyingFilter"
+      :class="{
+        'mr-4': showAdd && isUX('boolean'),
+        'mr-6': showAdd && !isUX('boolean'),
+        'mr-2': !showAdd
+      }"
+    >
       <div v-if="isUX('dropdown')">
         <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
         <FilterSelect
@@ -133,9 +140,8 @@
       </div>
     </div>
     <div v-if="!isExistingFilter" class="align-center d-flex">
-      <div>
+      <div v-if="showAdd">
         <ProgressButton
-          v-if="showAdd"
           id="unsaved-filter-add"
           :action="onClickAddButton"
           :disabled="isSaving"
@@ -304,10 +310,12 @@ export default {
                 })
               }
               each(subItems, subItem => {
+                const value = subItem.value
                 subOptions.push({
                   group: flatten ? null : subGroup,
+                  key: value,
                   name: subItem.name,
-                  key: subItem.value
+                  value
                 })
               })
             })
@@ -433,10 +441,9 @@ export default {
         return get(option, 'name')
       } else {
         let label = ''
-        each(this.filter.options, (options, group) => {
-          const option = find(options, ['value', this.filter.value])
-          label = option && `${get(option, 'name')} (${group})`
-          return !option
+        each(this.filter.options, option => {
+          label = option.value === this.filter.value ? `${get(option, 'name')} (${option.group})` : null
+          return !label
         })
         return label
       }
@@ -449,6 +456,7 @@ export default {
       const cohortStore = useCohortStore()
       switch (get(this.filter, 'type.ux')) {
       case 'dropdown':
+        this.filter.value = this.selectedOption.value
         alertScreenReader(`Added ${this.filter.name} filter with value ${this.getDropdownSelectedLabel()}`)
         break
       case 'boolean':
