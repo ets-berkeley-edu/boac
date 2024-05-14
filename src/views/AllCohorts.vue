@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div v-if="!loading" class="default-margins">
     <div class="mb-4">
       <h1 class="page-section-header">Everyone's Cohorts</h1>
       <div v-if="includesAdmittedStudents" class="pl-1">

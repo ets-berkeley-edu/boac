@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="default-margins">
     <div v-if="student" class="border-bottom light-blue-background pb-2">
       <StudentProfileHeader
         :compact="true"

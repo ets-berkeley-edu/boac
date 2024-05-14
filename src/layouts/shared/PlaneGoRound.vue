@@ -1,8 +1,8 @@
 <template>
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="230"
     height="230"
+    width="230"
   >
     <path
       class="contrails"
@@ -38,12 +38,12 @@ svg {
   fill: #3b7ea5;
 }
 @keyframes loader-spin {
-  to{
+  to {
     transform: rotate(360deg);
   }
 }
 @keyframes loader-path {
-  0%{
+  0% {
     stroke-dasharray:  0, 580, 0, 0, 0, 0, 0, 0, 0;
   }
   50%{

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div v-if="!loading" class="default-margins">
     <div class="mb-4">
       <h1 class="page-section-header">Everyone's Groups</h1>
       <div v-if="_find(_flatten(_map(rows, 'groups')), g => g.domain === 'admitted_students')" class="pl-1">

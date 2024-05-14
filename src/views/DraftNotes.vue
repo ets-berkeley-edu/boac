@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="default-margins">
     <h1 class="page-section-header pl-2 pt-2">
       {{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}
     </h1>

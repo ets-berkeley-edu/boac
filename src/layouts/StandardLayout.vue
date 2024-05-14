@@ -21,7 +21,7 @@
         <v-main id="content">
           <div class="h-100" :class="{'align-center d-flex justify-center': loading}">
             <PlaneGoRound v-if="loading" />
-            <div v-show="!loading" class="pa-4 w-100">
+            <div v-show="!loading" class="h-100 w-100">
               <ServiceAnnouncement />
               <router-view :key="split($route.fullPath, '#', 1)[0]" />
             </div>
@@ -41,11 +41,12 @@ import AppFooter from '@/layouts/shared/AppFooter'
 import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
 import Sidebar from '@/components/sidebar/Sidebar'
-import {computed} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
 import {split} from 'lodash'
+import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 
-const loading = computed(() => useContextStore().loading)
+const {loading} = storeToRefs(useContextStore())
+
 putFocusNextTick('home-header')
 </script>

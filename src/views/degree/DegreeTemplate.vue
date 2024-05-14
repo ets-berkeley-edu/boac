@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div v-if="!loading" class="default-margins">
     <div class="border-bottom pb-3">
       <h1 class="page-section-header">{{ degreeName || 'Degree Builder' }}</h1>
     </div>

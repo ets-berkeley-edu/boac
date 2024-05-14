@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="default-margins">
     <h1 class="page-section-header">Create {{ domain === 'admitted_students' ? 'CE3' : 'Curated' }} Group</h1>
     <div>
       Type or paste a list of Student Identification (SID) numbers below. Example: 9999999990, 9999999991

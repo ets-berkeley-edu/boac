@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div v-if="!loading" class="default-margins">
     <div class="d-flex flex-wrap justify-space-between">
       <h1 id="cohort-name" class="page-section-header">
         CE3 Admissions

@@ -76,11 +76,11 @@ export function getCuratedGroup(
   limit: number,
   offset: number,
   orderBy: string,
-  termId: string
+  termId: string | undefined
 ) {
   $_track('view')
   const url = `${utils.apiBaseUrl()}/api/curated_group/${curatedGroupId}?orderBy=${orderBy}&termId=${termId}&offset=${offset}&limit=${limit}`
-  return axios.get(url).then(response => response.data, () => null)
+  return axios.get(url).then(data => data, () => null)
 }
 
 export function getUsersWithCuratedGroups() {

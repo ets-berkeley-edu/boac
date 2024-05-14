@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div v-if="!loading" class="default-margins">
     <h1 class="page-section-header">Degree Builder</h1>
     <div id="create-degree-description">
       To begin the degree check creation process, input a name below and click enter.

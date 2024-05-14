@@ -63,6 +63,9 @@
   color: #333;
   background-color: #eee;
 }
+.default-margins {
+  margin: 16px;
+}
 .demo-mode-blur {
   color: transparent !important;
   text-shadow: 0 0 15px rgba(0, 0, 0, 0.5) !important;

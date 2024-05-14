@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'cursor-grabbing': draggingContext.course}" @drag="scrollTo">
+  <div class="default-margins" :class="{'cursor-grabbing': draggingContext.course}" @drag="scrollTo">
     <div v-if="!loading">
       <div class="border-bottom light-blue-background py-2">
         <StudentProfileHeader

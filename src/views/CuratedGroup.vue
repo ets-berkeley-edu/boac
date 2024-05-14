@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div v-if="!loading" class="default-margins">
     <CuratedGroupHeader />
     <AdmitDataWarning
       v-if="domain === 'admitted_students' && students && mode !== 'bulkAdd'"
@@ -93,11 +93,13 @@ import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
 import {addStudentsToCuratedGroup, removeFromCuratedGroup} from '@/api/curated'
+import {alertScreenReader, scrollTo, toInt} from '@/lib/utils'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
+import {get} from 'lodash'
 import {goToCuratedGroup} from '@/stores/curated-group/utils'
-import {alertScreenReader, scrollTo} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
+import {useRoute} from 'vue-router'
 
 export default {
   name: 'CuratedGroup',
@@ -131,8 +133,9 @@ export default {
     }
   },
   created() {
+    const curatedGroupId = toInt(get(useRoute(), 'params.id'))
     useCuratedGroupStore().resetMode()
-    useCuratedGroupStore().setCuratedGroupId(parseInt(this.id))
+    useCuratedGroupStore().setCuratedGroupId(parseInt(curatedGroupId))
     goToCuratedGroup(this.curatedGroupId, 1).then(group => {
       if (group) {
         this.loadingComplete(this.getLoadedAlert())

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="default-margins">
     <div v-if="!loading && error">
       <h1 class="page-section-header">Error</h1>
       <div class="text-grey">
