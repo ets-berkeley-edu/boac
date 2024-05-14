@@ -288,9 +288,10 @@ export default {
   computed: {
     primaryOptions() {
       // If we have only one option-group then flatten the object to an array of options.
-      const flatten = size(useCohortStore().filterOptionGroups) === 1
+      const optionGroups = useCohortStore().filterOptionGroups
+      const flatten = size(optionGroups) === 1
       const preparedOptions = []
-      each(useCohortStore().filterOptionGroups, (items, group) => {
+      each(optionGroups, (items, group) => {
         if (!flatten) {
           preparedOptions.push({
             header: group,
@@ -312,6 +313,7 @@ export default {
               each(subItems, subItem => {
                 const value = subItem.value
                 subOptions.push({
+                  disabled: subItem.disabled,
                   group: flatten ? null : subGroup,
                   key: value,
                   name: subItem.name,
@@ -474,6 +476,7 @@ export default {
       cohortStore.addFilter(this.filter)
       cohortStore.setModifiedSinceLastSearch(true)
       this.reset()
+      updateFilterOptions(this.domain, cohortStore.cohortOwner, cohortStore.filters).then(noop)
     },
     onClickCancelEdit() {
       this.errorPerRangeInput = undefined
@@ -484,11 +487,12 @@ export default {
     },
     onClickEditButton() {
       this.disableUpdateButton = false
+      const cohortStore = useCohortStore()
       if (this.isUX('dropdown')) {
         // Populate select options, with selected option based on current filter.value.
         const flattenOptions = optGroup => flatten(values(optGroup))
         const findOption = (options, value) => find(options, ['value', value])
-        const options = find(flattenOptions(useCohortStore().filterOptionGroups), ['key', this.filter.key]).options
+        const options = find(flattenOptions(cohortStore.filterOptionGroups), ['key', this.filter.key]).options
         this.filter.options = options
         this.selectedOption = Array.isArray(options) ? findOption(options, this.filter.value) : find(flattenOptions(options), this.filter.value)
         this.putFocusSecondaryDropdown()
@@ -498,7 +502,7 @@ export default {
         this.putFocusRange()
       }
       this.isModifyingFilter = true
-      useCohortStore().setEditMode(`edit-${this.position}`)
+      cohortStore.setEditMode(`edit-${this.position}`)
       alertScreenReader(`Begin edit of ${this.filter.name} filter`)
     },
     onClickUpdateButton() {
@@ -506,11 +510,12 @@ export default {
       if (this.isUX('range')) {
         this.updateRangeFilter()
       }
-      useCohortStore().updateExistingFilter({index: this.position, updatedFilter: this.filter})
-      useCohortStore().setModifiedSinceLastSearch(true)
-      updateFilterOptions(this.domain, useCohortStore().cohortOwner, useCohortStore().filters).then(() => {
+      const cohortStore = useCohortStore()
+      cohortStore.updateExistingFilter({index: this.position, updatedFilter: this.filter})
+      cohortStore.setModifiedSinceLastSearch(true)
+      updateFilterOptions(this.domain, cohortStore.cohortOwner, cohortStore.filters).then(() => {
         this.isModifyingFilter = false
-        useCohortStore().setEditMode(null)
+        cohortStore.setEditMode(null)
         alertScreenReader(`${this.filter.name} filter updated`)
         this.isUpdatingExistingFilter = false
       })
