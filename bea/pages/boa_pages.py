@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import time
 
-from bea.pages.page import Page
+from bea.pages.search_form import SearchForm
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
@@ -35,7 +35,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
-class BoaPages(Page):
+class BoaPages(SearchForm):
 
     SPINNER = (By.ID, 'spinner-when-loading')
     MODAL = (By.CLASS_NAME, 'modal-content')
@@ -131,10 +131,10 @@ class BoaPages(Page):
         link.click()
 
     @staticmethod
-    def sidebar_cohort_member_count_loc(cohort):
+    def sidebar_member_count_loc(cohort):
         return By.XPATH, f'//div[contains(@class, "sidebar-row-link")][contains(.,"{cohort.name}")]//span[@class="sr-only"]'
 
-    def wait_for_sidebar_cohort_member_count(self, cohort):
+    def wait_for_sidebar_member_count(self, cohort):
         app.logger.info(f'Waiting for cohort {cohort.name} member count of {len(cohort.members)}')
         tries = utils.get_short_timeout()
         while tries > 0:
@@ -142,15 +142,89 @@ class BoaPages(Page):
                 tries -= 1
                 self.driver.get(self.driver.current_url)
                 Wait(self.driver, utils.get_short_timeout()).until(
-                    ec.presence_of_element_located(self.sidebar_cohort_member_count_loc(cohort)),
+                    ec.presence_of_element_located(self.sidebar_member_count_loc(cohort)),
                 )
-                el = self.element(self.sidebar_cohort_member_count_loc(cohort))
+                el = self.element(self.sidebar_member_count_loc(cohort))
                 assert el.text.replace(' admitted', '').replace(' students', '') == f'{len(cohort.members)}'
                 break
             except (AssertionError, TimeoutError):
                 if tries == 0:
                     raise
 
+    #   SIDEBAR - CURATED GROUPS
+
+    CREATE_CURATED_GROUP_LINK = By.ID, 'create-curated-group-from-sidebar'
+    VIEW_EVERYONE_GROUPS_LINK = By.ID, 'groups-all'
+    SIDEBAR_GROUP_LINK = By.XPATH, '//a[contains(@id, "sidebar-curated-group")]'
+
+    CREATE_ADMIT_GROUP_LINK = By.ID, 'create-admissions-group-from-sidebar'
+    SIDEBAR_ADMIT_GROUP_LINK = By.XPATH, '//a[contains(@id, "sidebar-admissions-group")]'
+
+    def click_sidebar_create_student_group(self):
+        app.logger.info('Clicking sidebar button to create a curated group')
+        self.wait_for_page_and_click(self.CREATE_CURATED_GROUP_LINK)
+        time.sleep(1)
+
+    def click_sidebar_create_admit_group(self):
+        app.logger.info('Clicking sidebar button to create an admit group')
+        self.wait_for_page_and_click(self.CREATE_ADMIT_GROUP_LINK)
+        time.sleep(1)
+
+    def sidebar_student_groups(self):
+        time.sleep(utils.get_click_sleep())
+        list(map(lambda a: a.text, self.elements(self.SIDEBAR_GROUP_LINK)))
+
+    def sidebar_admit_groups(self):
+        time.sleep(utils.get_click_sleep())
+        list(map(lambda a: a.text, self.elements(self.SIDEBAR_ADMIT_GROUP_LINK)))
+
+    def click_view_everyone_groups(self):
+        time.sleep(1)
+        self.wait_for_page_and_click(self.VIEW_EVERYONE_GROUPS_LINK)
+        self.wait_for_boa_title('All Groups')
+
+    def click_sidebar_group_link(self, group):
+        els = self.elements(self.SIDEBAR_ADMIT_GROUP_LINK) if group.is_ce3 else self.elements(self.SIDEBAR_GROUP_LINK)
+        link = next(filter(lambda a: a.text == group.name, els))
+        link.click()
+
+    def wait_for_sidebar_group(self, group):
+        self.wait_for_sidebar_member_count(group)
+        if group.is_ce3:
+            assert group.name in self.sidebar_admit_groups()
+        else:
+            assert group.name in self.sidebar_student_groups()
+
+    # BOX_PLOTS
+
+    @staticmethod
+    def boxplot_xpath():
+        return '//*[name()="svg"]/*[name()="g"][@class="highcharts-series-group"]'
+
+    def boxplot_trigger_xpath(self):
+        return f'{self.boxplot_xpath()}/*[name()="g"]/*[name()="g"]/*[name()="path"][3]'
+
     # BATCH NOTES
 
     BATCH_NOTE_BUTTON = By.ID, 'batch-note-button'
+
+    # SID LIST ENTRY
+
+    def enter_sid_list(self, el, sids):
+        app.logger.info(f'Entering SIDs {sids}')
+        self.wait_for_textbox_and_type(el, sids)
+
+    def enter_comma_sep_sids(self, el, students):
+        sids = list(map(lambda s: s.sid, students))
+        string = ', '.join(sids)
+        self.enter_sid_list(el, string)
+
+    def enter_line_sep_sids(self, el, students):
+        sids = list(map(lambda s: s.sid, students))
+        string = '\n'.join(sids)
+        self.enter_sid_list(el, string)
+
+    def enter_space_sep_sids(self, el, students):
+        sids = list(map(lambda s: s.sid, students))
+        string = ' '.join(sids)
+        self.enter_sid_list(el, string)

@@ -23,48 +23,31 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from bea.pages.page import Page
+from flask import current_app as app
+from selenium.webdriver.common.by import By
 
-class Cohort(object):
 
-    def __init__(self, data):
-        self.data = data
+class CuratedModal(Page):
 
-    @property
-    def cohort_id(self):
-        return self.data['cohort_id']
+    GROUP_NAME_INPUT = By.ID, 'create-input'
+    GROUP_SAVE_BUTTON = By.ID, 'create-confirm'
+    GROUP_CANCEL_BUTTON = By.ID, 'create-cancel'
+    DUPE_GROUP_NAME_MSG = By.XPATH, '//div[contains(text(), "You have an existing curated group with this name")]'
+    NO_CHARS_LEFT_MSG = By.XPATH, '//span[text()="(0 left)"]'
 
-    @cohort_id.setter
-    def cohort_id(self, value):
-        self.data['cohort_id'] = value
+    def enter_group_name(self, group):
+        app.logger.info(f'Entering group name {group.name}')
+        self.wait_for_element_and_type(self.GROUP_NAME_INPUT, group.name)
 
-    @property
-    def name(self):
-        return self.data['name']
+    def name_and_save_group(self, group):
+        self.enter_group_name(group)
+        self.wait_for_element_and_click(self.GROUP_SAVE_BUTTON)
 
-    @name.setter
-    def name(self, value):
-        self.data['name'] = value
+    def cancel_group(self):
+        self.wait_for_element_and_click(self.GROUP_CANCEL_BUTTON)
+        self.when_not_present(self.GROUP_CANCEL_BUTTON, 1)
 
-    @property
-    def is_ce3(self):
-        return self.data['is_ce3']
-
-    @is_ce3.setter
-    def is_ce3(self, value):
-        self.data['is_ce3'] = value
-
-    @property
-    def owner_uid(self):
-        return self.data['owner_uid']
-
-    @owner_uid.setter
-    def owner_uid(self, value):
-        self.data['owner_uid'] = value
-
-    @property
-    def members(self):
-        return self.data['members'] or []
-
-    @members.setter
-    def members(self, value):
-        self.data['members'] = value
+    def cancel_group_if_modal(self):
+        if self.is_present(self.GROUP_CANCEL_BUTTON):
+            self.cancel_group()

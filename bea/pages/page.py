@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import glob
+import json
 import time
 
 from bea.test_utils import utils
@@ -278,8 +279,10 @@ class Page(object):
         self.driver.execute_script('arguments[0].scrollIntoView(true);', element)
         time.sleep(0.5)
 
-    def mouseover(self, element):
-        ActionChains(self.driver).move_to_element(element).perform()
+    def mouseover(self, element, horizontal_offset=None, vertical_offset=None):
+        horizontal_offset = horizontal_offset or 0
+        vertical_offset = vertical_offset or 0
+        ActionChains(self.driver).move_to_element_with_offset(element, horizontal_offset, vertical_offset).perform()
         time.sleep(0.5)
 
     def hit_delete(self):
@@ -348,3 +351,8 @@ class Page(object):
                     raise
                 else:
                     time.sleep(1)
+
+    def parse_json(self):
+        loc = By.XPATH, '//pre'
+        self.when_present(loc, utils.get_medium_timeout())
+        return json.loads(self.element(loc).text)

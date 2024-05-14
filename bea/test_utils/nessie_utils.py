@@ -29,6 +29,8 @@ from boac.externals import data_loch
 from flask import current_app as app
 
 
+# STUDENTS
+
 def get_all_students(opts=None):
     students = []
     if opts and opts.get('enrolled'):
@@ -108,6 +110,8 @@ def get_sids_with_standing(standing, term):
     app.logger.info(f"There are {len(sids)} students with academic standing '{standing.value['descrip']}' in term {term.name}")
     return sids
 
+
+# ADMITS
 
 def get_admits():
     admits = []

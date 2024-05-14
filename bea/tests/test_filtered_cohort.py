@@ -365,7 +365,7 @@ class TestFilteredCohortValidation:
 class TestFilteredCohortEdits:
 
     def test_edit_college_filter(self):
-        self.filtered_students_page.search_and_create_new_cohort(test.cohort)
+        self.filtered_students_page.search_and_create_new_student_cohort(test.cohort)
         test.cohort.search_criteria.colleges = [{'college': 'Undergrad Chemistry'}]
         self.filtered_students_page.edit_filter('College', test.cohort.search_criteria.colleges[0])
         self.filtered_students_page.verify_student_filters_present(test.cohort)

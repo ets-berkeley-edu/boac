@@ -29,6 +29,7 @@ import re
 
 from bea.models.advisor_role import AdvisorRole
 from bea.models.alert import Alert
+from bea.models.cohorts_and_groups.cohort import Cohort
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.degree_progress_perm import DegreeProgressPerm
 from bea.models.department import Department
@@ -298,11 +299,36 @@ def get_user_filtered_cohorts(user, admits=False):
     for row in results:
         cohort = FilteredCohort({
             'cohort_id': row['cohort_id'],
+            'is_ce3': admits,
             'name': row['cohort_name'],
             'owner_uid': user.uid,
         })
         cohorts.append(cohort)
     return cohorts
+
+
+def get_user_curated_groups(user, admits=False, deleted=False):
+    groups = []
+    domain = 'admitted_students' if admits else 'default'
+    clause = '' if deleted else ' AND student_groups.deleted_at IS NULL'
+    sql = f"""SELECT student_groups.id AS cohort_id,
+                     student_groups.name AS group_name
+                FROM student_groups
+                JOIN authorized_users ON authorized_users.id = cohort_filters.owner_id
+               WHERE student_groups.domain = '{domain}'
+                 AND authorized_users.uid = '{user.uid}'{clause}"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    for row in results:
+        group = Cohort({
+            'cohort_id': row['cohort_id'],
+            'is_ce3': admits,
+            'name': row['group_name'],
+            'owner_uid': user.uid,
+        })
+        groups.append(group)
+    return groups
 
 
 # NOTES
@@ -441,6 +467,14 @@ def set_filtered_cohort_id(cohort):
     cohort.cohort_id = cohort_id
 
 
+# GROUPS
+
+def append_new_members_to_group(group, members):
+    for m in members:
+        if m not in group.members:
+            group.members.append(m)
+
+
 # ALERTS
 
 def get_students_alerts(users):
@@ -513,3 +547,19 @@ def get_members_with_alerts(cohort, cohort_member_alerts):
         if member.alert_count != 0:
             alert_members.append(member)
     return alert_members
+
+
+# DEGREE PROGRESS
+
+def set_degree_sis_course_id(degree, course):
+    sql = f"""SELECT id
+                FROM degree_progress_courses
+               WHERE degree_check_id = '{degree.degree_id}'
+                 AND term_id = '{course.term_id}'
+                 AND section_id = '{course.ccn}'"""
+    app.logger.info(sql)
+    result = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    course_id = [row['id'] for row in result][0]
+    app.logger.info(f'Term {course.term_id} course {course.ccn} ID is {course_id}')
+    course.course_id = course_id
