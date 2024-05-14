@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="default-margins">
     <h1 class="sr-only">Welcome to BOA</h1>
     <div v-if="!loading">
       <div class="mb-6">

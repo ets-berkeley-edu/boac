@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-sky-blue">
+  <div class="bg-sky-blue default-margins">
     <div>
       <div class="align-center d-flex">
         <div class="mr-2">

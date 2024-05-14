@@ -14,7 +14,7 @@
         <StudentProfileGPA :student="student" />
       </div>
     </div>
-    <div class="ma-3">
+    <div class="default-margins">
       <div class="border-b-sm pb-3">
         <AcademicTimeline :student="student" />
       </div>

@@ -1,4 +1,11 @@
 <template>
+  <div class="align-center d-flex h-100 justify-center">
+    <img
+      alt="A silly boarding pass with the text, 'Error 404: Flight not found'"
+      class="ticket-to-nowhere w-66"
+      src="@/assets/boa-boarding-ticket.png"
+    />
+  </div>
   <span
     class="cloud-background ma-0 pa-0 h-100 w-100"
     aria-live="polite"
@@ -7,13 +14,6 @@
   >
     <span class="sr-only">Sorry, page not found. Contact us if the system is misbehaving.</span>
   </span>
-  <div class="ticket-container text-center">
-    <img
-      alt="A silly boarding pass with the text, 'Error 404: Flight not found'"
-      class="ticket-to-nowhere w-75"
-      src="@/assets/boa-boarding-ticket.png"
-    />
-  </div>
 </template>
 
 <script setup>
@@ -38,16 +38,13 @@ export default {
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
+  left: 0;
+  opacity: 0.7;
   position: fixed;
   top:0;
-  left:0;
   z-index: -1;
 }
-.ticket-container {
-  min-height: 100vh;
-  padding-top: 20%;
-}
 .ticket-to-nowhere {
-  z-index: 999;
+  opacity: 0.7;
 }
 </style>

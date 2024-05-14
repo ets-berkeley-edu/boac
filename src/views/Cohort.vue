@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!context.loading">
+  <div v-if="!context.loading" class="default-margins">
     <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
     <div v-if="cohort.domain === 'admitted_students' && cohort.students" class="pb-2">
       <AdmitDataWarning :updated-at="get(cohort.students, '[0].updatedAt')" />

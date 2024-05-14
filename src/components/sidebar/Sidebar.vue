@@ -109,7 +109,7 @@
         </div>
       </div>
     </v-list-item>
-    <v-list-item v-if="currentUser.canAccessAdmittedStudents" class="mt-3 pa-0">
+    <v-list-item v-if="currentUser.canAccessAdmittedStudents" class="pa-0">
       <div class="align-center d-flex font-weight-bold justify-space-between pretty-hover">
         <div>
           CE3 Groups

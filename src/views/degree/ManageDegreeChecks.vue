@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="default-margins">
     <v-alert
       id="alert-batch-created"
       v-model="successMessage"

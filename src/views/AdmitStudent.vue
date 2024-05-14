@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="default-margins">
     <div v-if="!loading" class="ma-3">
       <h1
         id="admit-name-header"

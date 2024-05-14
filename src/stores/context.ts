@@ -32,6 +32,7 @@ export const useContextStore = defineStore('context', {
     applicationState: $_getDefaultApplicationState(),
     config: undefined as BoaConfig | undefined,
     currentUser: {
+      canAccessAdmittedStudents: false,
       canAccessAdvisingData: false,
       canEditDegreeProgress: false,
       canReadDegreeProgress: false,

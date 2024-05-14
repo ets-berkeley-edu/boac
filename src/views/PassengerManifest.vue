@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div v-if="!loading" class="default-margins">
     <div class="list-group">
       <div class="align-items-baseline d-flex mb-3 mt-2">
         <div class="pr-2">

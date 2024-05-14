@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div v-if="!loading" class="default-margins">
     <div class="align-items-center d-flex pb-3">
       <div class="pr-3 pt-1">
         <v-icon :icon="mdiAirplaneTakeoff" :style="{color: '#3b7ea5'}" size="x-large"></v-icon>
