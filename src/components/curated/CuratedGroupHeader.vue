@@ -10,22 +10,23 @@
         </h1>
       </div>
       <div v-if="mode === 'rename'" class="w-100 mr-3">
-        <div>
-          <form @submit.prevent="rename">
-            <input
-              id="rename-input"
-              v-model="renameInput"
-              :aria-invalid="!renameInput"
-              class="form-control"
-              :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
-              aria-required="true"
-              maxlength="255"
-              required
-              type="text"
-              @keyup.esc="exitRenameMode"
-            />
-          </form>
-        </div>
+        <v-text-field
+          id="rename-input"
+          v-model="renameInput"
+          :aria-invalid="!renameInput"
+          :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
+          :aria-required="true"
+          class="v-input-details-override mr-3"
+          counter="255"
+          density="comfortable"
+          :disabled="isSaving"
+          maxlength="255"
+          persistent-counter
+          required
+          type="text"
+          @keyup.enter="rename"
+          @keyup.esc="exitRenameMode"
+        />
         <div v-if="renameError" class="text-error mb-2">{{ renameError }}</div>
         <div class="text-grey ma-2">255 character limit <span v-if="_size(renameInput)">({{ 255 - _size(renameInput) }} left)</span></div>
         <div class="sr-only" aria-live="polite">{{ renameError }}</div>
@@ -40,56 +41,71 @@
       <div v-if="mode === 'rename'" class="d-flex align-self-baseline mr-2">
         <v-btn
           id="rename-confirm"
+          class="font-size-15 px-1 text-no-wrap"
+          color="primary"
           :disabled="!_size(renameInput)"
-          class="btn-primary-color-override rename-btn"
-          size="sm"
-          variant="primary"
-          @click.stop="rename"
-        >
-          Rename
-        </v-btn>
+          size="large"
+          text="Rename"
+          @click="rename"
+        />
         <v-btn
           id="rename-cancel"
-          class="rename-btn"
-          size="sm"
-          variant="link"
+          :disabled="isSaving"
+          size="large"
+          text="Cancel"
+          variant="plain"
           @click="exitRenameMode"
-        >
-          Cancel
-        </v-btn>
+        />
       </div>
       <div v-if="!mode" class="d-flex align-center">
         <div v-if="isOwnedByCurrentUser">
           <v-btn
             id="bulk-add-sids-button"
             class="px-1"
-            variant="link"
+            color="anchor"
+            variant="text"
             @click="enterBulkAddMode"
           >
             Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}
           </v-btn>
         </div>
-        <div v-if="isOwnedByCurrentUser" class="text-grey">|</div>
+        <div
+          v-if="isOwnedByCurrentUser"
+          class="text-grey"
+          role="separator"
+        >
+          |
+        </div>
         <div v-if="isOwnedByCurrentUser">
           <v-btn
             id="rename-button"
-            class="px-1"
-            variant="link"
+            class="font-size-15 px-1"
+            color="anchor"
+            text="Rename"
+            variant="text"
             @click="enterRenameMode"
-          >
-            Rename
-          </v-btn>
+          />
         </div>
         <div v-if="isOwnedByCurrentUser" class="text-grey">|</div>
         <div v-if="isOwnedByCurrentUser">
           <v-btn
             id="delete-button"
-            v-b-modal="referencingCohorts.length ? 'cohort-warning-modal' : 'confirm-delete-modal'"
-            class="px-1"
-            variant="link"
-          >
-            Delete
-          </v-btn>
+            class="font-size-15 px-1"
+            color="anchor"
+            text="Delete"
+            variant="text"
+            @click="() => {
+              const hasReferencingCohorts = !!referencingCohorts.length
+              isCohortWarningModalOpen = hasReferencingCohorts
+              isDeleteModalOpen = !hasReferencingCohorts
+            }"
+          />
+          <AreYouSureModal
+            :show-modal="isDeleteModalOpen"
+            :function-confirm="deleteGroup"
+            function-cancel="() => isDeleteModalOpen = false"
+          />
+          <!--
           <b-modal
             id="confirm-delete-modal"
             v-model="isDeleteModalOpen"
@@ -118,63 +134,65 @@
               </v-btn>
             </template>
           </b-modal>
-          <b-modal
-            id="cohort-warning-modal"
+          -->
+          <v-overlay
             v-model="isCohortWarningModalOpen"
-            hide-header
-            @shown="putFocusNextTick('modal-header')"
+            persistent
+            width="100%"
           >
-            <ModalHeader text="This group is in use as a cohort filter" />
-            <div
-              id="cohort-warning-body"
-              class="modal-body pt-0"
-              aria-live="polite"
-              role="alert"
+            <v-card
+              class="modal-content"
+              min-width="400"
+              max-width="600"
             >
-              Sorry, you cannot delete this {{ domainLabel(false) }} until you have removed the filter
-              from
-              <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-700">{{ referencingCohorts[0].name }}</span>.</span>
-              <span v-if="referencingCohorts.length > 1">cohorts:</span>
-              <ul v-if="referencingCohorts.length > 1" class="mb-0 mt-2">
-                <li v-for="cohort in referencingCohorts" :key="cohort.id">
-                  <span class="font-weight-700">{{ cohort.name }}</span>
-                </li>
-              </ul>
-            </div>
-            <template #modal-footer>
-              <v-btn
-                id="cohort-warning-modal-close"
-                class="mb-1 mr-3"
-                variant="link"
-                @click="isCohortWarningModalOpen = false"
+              <ModalHeader text="This group is in use as a cohort filter" />
+              <div
+                id="cohort-warning-body"
+                aria-live="polite"
+                role="alert"
               >
-                Close
-              </v-btn>
-            </template>
-          </b-modal>
+                Sorry, you cannot delete this {{ domainLabel(false) }} until you have removed the filter from
+                <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-700">{{ referencingCohorts[0].name }}</span>.</span>
+                <span v-if="referencingCohorts.length > 1">cohorts:</span>
+                <ul v-if="referencingCohorts.length > 1" class="mb-0 mt-2">
+                  <li v-for="cohort in referencingCohorts" :key="cohort.id">
+                    <span class="font-weight-700">{{ cohort.name }}</span>
+                  </li>
+                </ul>
+              </div>
+              <hr />
+              <div class="d-flex justify-end py-3 px-4">
+                <v-btn
+                  id="cohort-warning-modal-close"
+                  @click="isCohortWarningModalOpen = false"
+                >
+                  Close
+                </v-btn>
+              </div>
+            </v-card>
+          </v-overlay>
         </div>
         <div v-if="isOwnedByCurrentUser" class="text-grey">|</div>
         <div>
           <v-btn
             v-if="domain === 'default'"
             id="export-student-list-button"
-            v-b-modal="'export-students-modal'"
             class="px-1"
             :disabled="!exportEnabled || !totalStudentCount"
-            variant="link"
-          >
-            Export List
-          </v-btn>
+            text="Export List"
+            variant="text"
+            @click="() => showExportStudentsModal = true"
+          />
           <v-btn
             v-if="domain === 'admitted_students'"
             id="export-student-list-button"
             v-b-modal="'export-admits-modal'"
             class="px-1"
             :disabled="!exportEnabled || !totalStudentCount"
-            variant="link"
-          >
-            Export List
-          </v-btn>
+            text="Export List"
+            variant="text"
+            @click="() => showExportAdmitsModal = true"
+          />
           <b-modal
             id="export-admits-modal"
             v-model="showExportAdmitsModal"
@@ -231,6 +249,7 @@
 </template>
 
 <script>
+import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import ExportListModal from '@/components/util/ExportListModal'
@@ -245,12 +264,13 @@ import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CuratedGroupHeader',
-  components: {ExportListModal, FerpaReminderModal, ModalHeader},
+  components: {AreYouSureModal, ExportListModal, FerpaReminderModal, ModalHeader},
   mixins: [Context, CuratedEditSession, Util],
   data: () => ({
     exportEnabled: true,
     isCohortWarningModalOpen: false,
     isDeleteModalOpen: false,
+    isSaving: false,
     referencingCohorts: [],
     renameError: undefined,
     renameInput: undefined,
@@ -325,10 +345,12 @@ export default {
       if (this.renameError) {
         this.putFocusNextTick('rename-input')
       } else {
+        this.isSaving = true
         renameCuratedGroup(this.curatedGroupId, this.renameInput).then(curatedGroup => {
           useCuratedGroupStore().setCuratedGroupName(curatedGroup.name)
           this.setPageTitle(curatedGroup.name)
           this.exitRenameMode()
+          this.isSaving = false
           this.putFocusNextTick('curated-group-name')
         })
       }
@@ -343,8 +365,5 @@ export default {
 }
 .modal-header {
   border-bottom: none;
-}
-.rename-btn {
-  height: 38px;
 }
 </style>

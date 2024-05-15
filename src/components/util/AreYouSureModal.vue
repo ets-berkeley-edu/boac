@@ -16,25 +16,23 @@
         <slot></slot>
       </div>
       <hr />
-      <form @submit.prevent="confirm">
-        <div class="d-flex justify-end py-3 px-4">
-          <ProgressButton
-            id="are-you-sure-confirm"
-            :action="confirm"
-            :disabled="isProcessing"
-            :in-progress="isProcessing"
-            :text="buttonLabelConfirm"
-          />
-          <v-btn
-            id="are-you-sure-cancel"
-            class="ml-1"
-            :disabled="isProcessing"
-            :text="buttonLabelCancel"
-            variant="plain"
-            @click.stop="functionCancel"
-          />
-        </div>
-      </form>
+      <div class="d-flex justify-end py-3 px-4">
+        <ProgressButton
+          id="are-you-sure-confirm"
+          :action="confirm"
+          :disabled="isProcessing"
+          :in-progress="isProcessing"
+          :text="buttonLabelConfirm"
+        />
+        <v-btn
+          id="are-you-sure-cancel"
+          class="ml-1"
+          :disabled="isProcessing"
+          :text="buttonLabelCancel"
+          variant="plain"
+          @click.stop="functionCancel"
+        />
+      </div>
     </v-card>
   </v-overlay>
 </template>
