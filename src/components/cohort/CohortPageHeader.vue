@@ -36,11 +36,10 @@
           id="show-hide-details-button"
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
+          :text="`${cohort.isCompactView ? 'Show' : 'Hide'} Filters`"
           variant="text"
           @click="toggleShowHideDetails"
-        >
-          {{ cohort.isCompactView ? 'Show' : 'Hide' }} Filters
-        </v-btn>
+        />
         <div
           v-if="cohort.cohortId && cohort.isOwnedByCurrentUser && size(cohort.filters)"
           class="text-grey"
@@ -51,13 +50,12 @@
         <v-btn
           v-if="cohort.cohortId && cohort.isOwnedByCurrentUser"
           id="rename-button"
-          class="font-size-15 px-1 text-no-wrap"
+          class="font-size-15 px-1"
           color="anchor"
+          text="Rename"
           variant="text"
           @click="beginRename"
-        >
-          Rename
-        </v-btn>
+        />
         <div
           v-if="cohort.cohortId && cohort.isOwnedByCurrentUser"
           class="text-grey"
@@ -68,13 +66,12 @@
         <v-btn
           v-if="cohort.cohortId && cohort.isOwnedByCurrentUser"
           id="delete-button"
-          class="font-size-15 px-1 text-no-wrap"
+          class="font-size-15 px-1"
           color="anchor"
+          text="Delete"
           variant="text"
           @click="showDeleteModal = true"
-        >
-          Delete
-        </v-btn>
+        />
         <div
           v-if="(cohort.cohortId && cohort.isOwnedByCurrentUser) || (cohort.cohortId && size(cohort.filters))"
           class="text-grey"
@@ -88,22 +85,20 @@
           :disabled="!exportEnabled || !cohort.totalStudentCount || cohort.isModifiedSinceLastSearch"
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
+          text="Export List"
           variant="text"
           @click="showExportStudentsModal = true"
-        >
-          Export List
-        </v-btn>
+        />
         <v-btn
           v-if="cohort.domain === 'admitted_students' && (cohort.cohortId || cohort.totalStudentCount !== undefined)"
           id="export-student-list-button"
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           :disabled="!exportEnabled || !cohort.totalStudentCount || cohort.isModifiedSinceLastSearch"
+          text="Export List"
           variant="text"
           @click="showExportAdmitsModal = true"
-        >
-          Export List
-        </v-btn>
+        />
         <div
           v-if="isHistorySupported"
           class="text-grey"
@@ -117,22 +112,20 @@
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           :disabled="cohort.isModifiedSinceLastSearch"
+          text="History"
           variant="text"
           @click="toggleShowHistory(true)"
-        >
-          History
-        </v-btn>
+        />
       </div>
       <div v-if="showHistory" class="d-flex align-self-baseline mr-4">
         <v-btn
           id="show-cohort-history-button"
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
+          text="Back to Cohort"
           variant="text"
           @click="toggleShowHistory(false)"
-        >
-          Back to Cohort
-        </v-btn>
+        />
       </div>
     </div>
     <RenameCohort

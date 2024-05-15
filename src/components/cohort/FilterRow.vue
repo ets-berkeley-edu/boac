@@ -11,7 +11,7 @@
     >
       {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
-    <div v-if="isModifyingFilter && !isExistingFilter" class="mr-2">
+    <div v-if="isModifyingFilter && !isExistingFilter" class="mr-4">
       <FilterSelect
         v-model="selectedFilter"
         :filter-row-index="position"

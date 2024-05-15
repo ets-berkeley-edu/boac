@@ -9,7 +9,7 @@
         id="rename-cohort-input"
         v-model="name"
         aria-label="Cohort name, 255 characters or fewer"
-        aria-required="true"
+        :aria-required="true"
         class="v-input-details-override mr-3"
         counter="255"
         density="comfortable"
@@ -20,7 +20,6 @@
         persistent-counter
         required
         :rules="[validationRules.valid]"
-        type="text"
         validate-on="lazy input"
         variant="outlined"
         @keyup.enter="submit"
