@@ -23,13 +23,18 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from bea.pages.curated_add_selector import CuratedAddSelector
+from bea.pages.curated_modal import CuratedModal
 from bea.pages.search_form import SearchForm
 from bea.pages.student_page_advising_note import StudentPageAdvisingNote
 from bea.test_utils import boa_utils
 from flask import current_app as app
 
 
-class StudentPage(SearchForm, StudentPageAdvisingNote):
+class StudentPage(CuratedAddSelector,
+                  CuratedModal,
+                  SearchForm,
+                  StudentPageAdvisingNote):
 
     def load_page(self, student):
         app.logger.info(f'Loading student page for UID {student.uid}')

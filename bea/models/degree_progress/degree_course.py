@@ -24,18 +24,34 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-class Cohort(object):
+class DegreeCourse(object):
 
     def __init__(self, data):
         self.data = data
 
     @property
-    def cohort_id(self):
-        return self.data['cohort_id']
+    def course_id(self):
+        return self.data['course_id']
 
-    @cohort_id.setter
-    def cohort_id(self, value):
-        self.data['cohort_id'] = value
+    @course_id.setter
+    def course_id(self, value):
+        self.data['course_id'] = value
+
+    @property
+    def color(self):
+        return self.data['color']
+
+    @color.setter
+    def color(self, value):
+        self.data['color'] = value
+
+    @property
+    def column_num(self):
+        return self.data['column_num']
+
+    @column_num.setter
+    def column_num(self, value):
+        self.data['column_num'] = value
 
     @property
     def name(self):
@@ -46,25 +62,25 @@ class Cohort(object):
         self.data['name'] = value
 
     @property
-    def is_ce3(self):
-        return self.data['is_ce3']
+    def transfer_course(self):
+        return self.data['transfer_course']
 
-    @is_ce3.setter
-    def is_ce3(self, value):
-        self.data['is_ce3'] = value
-
-    @property
-    def owner_uid(self):
-        return self.data['owner_uid']
-
-    @owner_uid.setter
-    def owner_uid(self, value):
-        self.data['owner_uid'] = value
+    @transfer_course.setter
+    def transfer_course(self, value):
+        self.data['transfer_course'] = value
 
     @property
-    def members(self):
-        return self.data['members'] or []
+    def units(self):
+        return self.data['units']
 
-    @members.setter
-    def members(self, value):
-        self.data['members'] = value
+    @units.setter
+    def units(self, value):
+        self.data['units'] = value
+
+    @property
+    def units_reqts(self):
+        return self.data['units_reqts']
+
+    @units_reqts.setter
+    def units_reqts(self, value):
+        self.data['units_reqts'] = value

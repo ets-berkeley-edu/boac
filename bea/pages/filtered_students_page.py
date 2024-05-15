@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.pages.cohort_and_group_student_pages import CohortAndGroupStudentPages
+from bea.pages.curated_modal import CuratedModal
 from bea.pages.filtered_students_page_filters import FilteredStudentsPageFilters
 from bea.pages.filtered_students_page_results import FilteredStudentsPageResults
 from bea.test_utils import boa_utils
@@ -35,7 +36,15 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
-class FilteredStudentsPage(CohortAndGroupStudentPages, FilteredStudentsPageFilters, FilteredStudentsPageResults):
+class FilteredStudentsPage(CohortAndGroupStudentPages,
+                           FilteredStudentsPageFilters,
+                           FilteredStudentsPageResults,
+                           CuratedModal):
+
+    def search_and_create_new_student_cohort(self, cohort):
+        self.click_sidebar_create_filtered()
+        self.perform_student_search(cohort)
+        self.create_new_cohort(cohort)
 
     EVERYONE_COHORT_LINK = By.XPATH, '//h1[text()="Everyone\'s Cohorts"]/../following-sibling::div//a'
     HISTORY_BUTTON = By.XPATH, '//button[contains(text(), "Back to Cohort")]'

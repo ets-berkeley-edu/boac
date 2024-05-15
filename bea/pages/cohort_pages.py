@@ -101,13 +101,6 @@ class CohortPages(BoaPages):
         self.save_and_name_cohort(cohort)
         self.wait_for_filtered_cohort(cohort)
 
-    def search_and_create_new_cohort(self, cohort, admits=False):
-        # TODO filtered admits - click sidebar link, perform search
-        if not admits:
-            self.click_sidebar_create_filtered()
-            self.perform_student_search(cohort)
-        self.create_new_cohort(cohort)
-
     # RENAME
 
     RENAME_COHORT_BUTTON = By.ID, 'rename-button'

@@ -23,48 +23,63 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from bea.models.notes_and_appts.timeline_note_appt import TimelineNoteAppt
 
-class Cohort(object):
 
-    def __init__(self, data):
-        self.data = data
-
-    @property
-    def cohort_id(self):
-        return self.data['cohort_id']
-
-    @cohort_id.setter
-    def cohort_id(self, value):
-        self.data['cohort_id'] = value
+class Appointment(TimelineNoteAppt):
 
     @property
-    def name(self):
-        return self.data['name']
+    def cancel_detail(self):
+        return self.data['cancel_detail']
 
-    @name.setter
-    def name(self, value):
-        self.data['name'] = value
-
-    @property
-    def is_ce3(self):
-        return self.data['is_ce3']
-
-    @is_ce3.setter
-    def is_ce3(self, value):
-        self.data['is_ce3'] = value
+    @cancel_detail.setter
+    def cancel_detail(self, value):
+        self.data['cancel_detail'] = value
 
     @property
-    def owner_uid(self):
-        return self.data['owner_uid']
+    def cancel_reason(self):
+        return self.data['cancel_reason']
 
-    @owner_uid.setter
-    def owner_uid(self, value):
-        self.data['owner_uid'] = value
+    @cancel_reason.setter
+    def cancel_reason(self, value):
+        self.data['cancel_reason'] = value
 
     @property
-    def members(self):
-        return self.data['members'] or []
+    def detail(self):
+        return self.data['detail']
 
-    @members.setter
-    def members(self, value):
-        self.data['members'] = value
+    @detail.setter
+    def detail(self, value):
+        self.data['detail'] = value
+
+    @property
+    def end_time(self):
+        return self.data['end_time']
+
+    @end_time.setter
+    def end_time(self, value):
+        self.data['end_time'] = value
+
+    @property
+    def start_time(self):
+        return self.data['start_time']
+
+    @start_time.setter
+    def start_time(self, value):
+        self.data['start_time'] = value
+
+    @property
+    def status(self):
+        return self.data['status']
+
+    @status.setter
+    def status(self, value):
+        self.data['status'] = value
+
+    @property
+    def status_date(self):
+        return self.data['status_date']
+
+    @status_date.setter
+    def status_date(self, value):
+        self.data['status_date'] = value

@@ -401,6 +401,11 @@ class BEATestConfig(object):
 
     # CONFIGURATION FOR SPECIFIC TEST SCRIPTS #
 
+    def curated_groups(self):
+        self.set_base_configs(opts={'include_inactive': True})
+        self.set_default_cohort(opts={'include_inactive': True})
+        self.set_test_students(count=50)
+
     def filtered_cohorts(self):
         self.set_base_configs(dept=Department.ADMIN, opts={'include_inactive': True})
         self.set_search_cohorts({'students': True})

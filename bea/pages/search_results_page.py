@@ -24,7 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import time
 
-from bea.pages.search_form import SearchForm
+from bea.pages.boa_pages import BoaPages
+from bea.pages.curated_add_selector import CuratedAddSelector
+from bea.pages.curated_modal import CuratedModal
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
@@ -32,93 +34,90 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
-class SearchResultsPage(SearchForm):
+class SearchResultsPage(BoaPages, CuratedAddSelector, CuratedModal):
 
     RESULTS_LOADED_MSG = By.XPATH, '//h1[text()="Search Results"]'
-    NO_RESULTS_MSG = By.ID, 'page-header-no-results'
-    EDIT_SEARCH_BUTTON = By.ID, 'edit-search-btn'
-
-    def results_count(self, locator):
-        time.sleep(utils.get_click_sleep())
-        Wait(self.driver, utils.get_short_timeout()).until(ec.any_of(
-            ec.presence_of_element_located(self.RESULTS_LOADED_MSG),
-            ec.presence_of_element_located(self.NO_RESULTS_MSG),
-        ))
-        time.sleep(1)
-        if self.is_present(self.NO_RESULTS_MSG):
-            app.logger.info('No results found')
-            return 0
-        elif self.is_present(self.RESULTS_LOADED_MSG) and not self.is_present(locator):
-            app.logger.info('There are some results, but not the right category of results')
-            return 0
-        else:
-            if 'One' in self.element(locator).text:
-                count = 1
-            else:
-                count = int(self.element(locator).text.split(' ')[0].replace('+', ''))
-            app.logger.info(f'Results count: {count}')
-            return count
+    NO_RESULTS_MSG = By.XPATH, '//div[text()="No matching records found."]'
 
     def wait_for_no_results(self):
         self.when_visible(self.NO_RESULTS_MSG, utils.get_short_timeout())
 
-    def click_edit_search(self):
-        app.logger.info('Clicking edit search button')
-        self.hit_escape()
-        self.wait_for_element_and_click(self.EDIT_SEARCH_BUTTON)
-
     # ADMIT SEARCH
 
-    ADMIT_RESULTS_COUNT = By.ID, 'admit-results-page-header'
+    ADMIT_RESULTS_BUTTON = By.ID, 'search_results-tab-admits'
+    ADMIT_RESULTS_COUNT = By.ID, 'search-results-count-admits'
 
     def admit_search_results_count(self):
-        return self.results_count(self.ADMIT_RESULTS_COUNT)
+        self.wait_for_spinner()
+        return int(self.element(self.ADMIT_RESULTS_COUNT).text)
 
-    # TODO def is_admit_in_search_result(self, admit):
+    @staticmethod
+    def admit_link_loc(admit):
+        return By.ID, f'link-to-admit-{admit.sid}'
+
+    def is_admit_in_search_result(self, admit):
+        self.wait_for_element_and_click(self.ADMIT_RESULTS_BUTTON)
+        time.sleep(1)
+        return self.is_present(self.admit_link_loc(admit))
 
     def click_admit_result(self, admit):
-        admit_link_loc = By.ID, f'link-to-admit--{admit.sid}'
-        self.wait_for_element_and_click(admit_link_loc)
+        self.wait_for_element_and_click(self.ADMIT_RESULTS_BUTTON)
+        self.wait_for_element_and_click(self.admit_link_loc(admit))
         self.wait_for_spinner()
 
     # STUDENT SEARCH
 
-    STUDENT_RESULTS_COUNT = By.ID, 'student-results-page-header'
+    STUDENT_RESULTS_BUTTON = By.ID, 'search-results-tab-students'
+    STUDENT_RESULTS_COUNT = By.ID, 'search-results-count-students'
 
     def student_search_results_count(self):
-        self.results_count(self.STUDENT_RESULTS_COUNT)
+        self.wait_for_spinner()
+        return int(self.element(self.STUDENT_RESULTS_COUNT).text)
 
-    # TODO def is_student_in_search_result(self, student):
+    @staticmethod
+    def student_link_loc(student):
+        return By.ID, f'link-to-student-{student.uid}'
+
+    def is_student_in_search_result(self, student):
+        self.wait_for_element_and_click(self.STUDENT_RESULTS_BUTTON)
+        time.sleep(1)
+        return self.is_present(self.student_link_loc(student))
 
     def click_student_result(self, student):
-        student_link_loc = By.ID, f'link-to-student-{student.uid}'
-        self.wait_for_element_and_click(student_link_loc)
+        self.wait_for_element_and_click(self.STUDENT_RESULTS_BUTTON)
+        self.wait_for_element_and_click(self.student_link_loc(student))
         self.wait_for_spinner()
 
     # CLASS SEARCH
 
-    CLASS_RESULTS_COUNT = By.XPATH, '//*[contains(@id, "course-results-page-h")]'
+    CLASS_RESULTS_BUTTON = By.ID, 'search-results-tab-courses'
+    CLASS_RESULTS_COUNT = By.ID, 'search-results-count-courses'
     CLASS_ROW = By.XPATH, '//*[contains(@id, "course-results-page-h")]/../following-sibling::table/tr'
     PARTIAL_RESULTS_MSG = By.XPATH, '//div[text()=" Showing the first 50 classes. "]'
-
-    # TODO def is_class_in_search_result(self, course_code, section_number):
 
     @staticmethod
     def class_link(course_code, section_number):
         return By.XPATH, f'//a[contains(.,"{course_code}")][contains(.,"{section_number}")]'
 
+    def is_class_in_search_result(self, course_code, section_number):
+        self.wait_for_element_and_click(self.CLASS_RESULTS_BUTTON)
+        time.sleep(1)
+        return self.is_present(self.class_link(course_code, section_number))
+
     def click_class_result(self, course_code, section_number):
+        self.wait_for_element_and_click(self.CLASS_RESULTS_BUTTON)
         self.wait_for_element_and_click(self.class_link(course_code, section_number))
         self.wait_for_spinner()
 
     # NOTES
 
-    NOTE_RESULTS_COUNT_HEADING = By.ID, 'note-results-page-header'
+    NOTE_RESULTS_BUTTON = By.ID, 'search-results-tab-notes'
+    NOTE_RESULTS_COUNT = By.ID, 'search-results-count-notes'
     NOTE_SEARCH_RESULT = By.XPATH, '//div[@class="advising-note-search-result"]//a'
 
     def note_results_count(self):
         self.wait_for_spinner()
-        return self.results_count(self.NOTE_RESULTS_COUNT_HEADING)
+        return int(self.element(self.NOTE_RESULTS_COUNT).text)
 
     def wait_for_note_search_result_rows(self):
         Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.NOTE_SEARCH_RESULT))
@@ -128,16 +127,9 @@ class SearchResultsPage(SearchForm):
         return By.XPATH, f'//a[contains(@href, "note-{note.record_id}")]'
 
     def is_note_in_search_result(self, note):
-        count = self.note_results_count()
-        if count == 0:
-            return False
-        else:
-            try:
-                self.wait_for_note_search_result_rows()
-                Wait(self.driver, 2).until(ec.presence_of_element_located(self.note_link(note)))
-                return True
-            except TimeoutError:
-                return False
+        self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
+        time.sleep(1)
+        return self.is_present(self.note_link(note))
 
     def note_result(self, student, note):
         Wait(self.driver, utils.get_short_timeout()).until(ec.visibility_of_element_located(self.note_link(note)))
@@ -167,12 +159,13 @@ class SearchResultsPage(SearchForm):
 
     # APPOINTMENTS
 
-    APPT_RESULTS_COUNT_HEADING = By.ID, 'appointment-results-page-header'
+    APPT_RESULTS_BUTTON = By.ID, 'search-results-tab-appointments'
+    APPT_RESULTS_COUNT = By.ID, 'search-results-count-appointments'
     APPT_SEARCH_RESULT = By.XPATH, '//div[contains(@id, "appointment-search-result-")]//a'
 
     def appt_results_count(self):
         self.wait_for_spinner()
-        return self.results_count(self.APPT_RESULTS_COUNT_HEADING)
+        return int(self.element(self.APPT_RESULTS_COUNT).text)
 
     def wait_for_appt_search_result_rows(self):
         Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.APPT_SEARCH_RESULT))
@@ -221,10 +214,30 @@ class SearchResultsPage(SearchForm):
 
     # GROUPS
 
-    # TODO def select_students_to_add(students)
+    @staticmethod
+    def student_checkbox_loc(student):
+        return By.XPATH, f'//input[@id="student-{student.sid}-curated-group-checkbox"]/..'
 
-    # TODO def select_and_add_students_to_grp(students, group)
+    def select_students_to_add(self, students):
+        app.logger.info(f'Selecting SIDs to add to group: {list(map(lambda s: s.sis, students))}')
+        for s in students:
+            self.wait_for_element_and_click(self.student_checkbox_loc(s))
 
-    # TODO def select_and_add_students_to_new_grp(students, group)
+    def select_and_add_students_to_grp(self, students, group):
+        self.select_students_to_add(students)
+        self.add_members_to_grp(students, group)
 
-    # TODO def select_and_add_all_students_to_grp(all_students, group)
+    def select_and_add_students_to_new_grp(self, students, group):
+        self.select_students_to_add(students)
+        self.add_members_to_new_grp(students, group)
+
+    def select_and_add_all_students_to_grp(self, all_students, group):
+        Wait(self.driver, utils.get_short_timeout()).until(
+            ec.presence_of_all_elements_located(self.ADD_INDIVIDUAL_TO_GROUP_CBX),
+        )
+        self.wait_for_element_and_click(self.ADD_ALL_TO_GROUP_CBX)
+        els = self.elements(self.ADD_INDIVIDUAL_TO_GROUP_CBX)
+        app.logger.info(f'There are {len(els)} individual checkboxes')
+        visible_sids = list(map(lambda el: el.get_attribute('id').split('-')[1], els))
+        students = list(filter(lambda s: s.sid in visible_sids, all_students))
+        self.add_members_to_grp(students, group)
