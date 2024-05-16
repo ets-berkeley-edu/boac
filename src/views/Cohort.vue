@@ -5,11 +5,7 @@
       <AdmitDataWarning :updated-at="get(cohort.students, '[0].updatedAt')" />
     </div>
     <v-expand-transition>
-      <v-card
-        v-if="showFilters"
-        id="show-hide-filters"
-        flat
-      >
+      <div v-if="showFilters">
         <FilterRow
           v-for="(filter, index) in cohort.filters"
           :key="`${filter.key}-${index}`"
@@ -17,7 +13,7 @@
         />
         <FilterRow v-if="cohort.isOwnedByCurrentUser" />
         <ApplyAndSaveButtons v-if="cohort.isOwnedByCurrentUser" />
-      </v-card>
+      </div>
     </v-expand-transition>
     <SectionSpinner :loading="cohort.editMode === 'apply'" />
     <div v-if="!showHistory && showStudentsSection">

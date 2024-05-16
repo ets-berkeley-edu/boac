@@ -48,61 +48,64 @@
       </div>
       <div
         v-if="isUX('range') && filter.validation === 'date'"
-        :id="`filter-range-date-picker-${position}`"
-        class="vc-zindex-fix"
+        class="align-center d-flex"
       >
         <elegant-date-picker
-          v-model.range="range"
-          hide-header
+          v-model.string="rangeMin"
           is-required
-          :masks="{modelValue: 'YYYY-MM-DD'}"
-          mode="date"
+          :masks="{modelValue: 'iso'}"
           :popover="{visibility: 'focus', autoHide: false}"
           :select-attribute="{key: 'today', dot: true, dates: new Date()}"
           @popover-did-show="onPopoverShown"
         >
           <template #default="{inputValue, inputEvents}">
-            <div class="align-center d-flex">
-              <label class="font-weight-500 pl-0 pr-2" :for="`filter-range-min-${position}`">
-                {{ rangeMinLabel() }}
-              </label>
-              <div>
-                <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">
-                  Start of range in format MM/DD/YYYY
-                </span>
-                <v-text-field
-                  :id="`filter-range-min-${position}`"
-                  v-model="inputValue.start"
-                  :aria-describedby="`filter-range-min-placeholder-${position}`"
-                  density="compact"
-                  hide-details
-                  :placeholder="placeholder()"
-                  size="12"
-                  variant="outlined"
-                  v-on="inputEvents.start"
-                />
-              </div>
-              <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
-                {{ rangeMaxLabel() }}
-              </label>
-              <div>
-                <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">
-                  End of range in format MM/DD/YYYY
-                </span>
-                <v-text-field
-                  :id="`filter-range-max-${position}`"
-                  v-model="inputValue.end"
-                  aria-label="end of range"
-                  :aria-describedby="`filter-range-max-placeholder-${position}`"
-                  density="compact"
-                  hide-details
-                  :placeholder="placeholder()"
-                  size="12"
-                  variant="outlined"
-                  v-on="inputEvents.end"
-                />
-              </div>
-            </div>
+            <label class="font-weight-500 pl-0 pr-2" :for="`filter-range-min-${position}`">
+              {{ rangeMinLabel() }}
+            </label>
+            <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">
+              Start of range in format MM/DD/YYYY
+            </span>
+            <v-text-field
+              :id="`filter-range-min-${position}`"
+              :aria-describedby="`filter-range-min-placeholder-${position}`"
+              autocomplete="off"
+              density="compact"
+              hide-details
+              placeholder="MM/DD/YYYY"
+              size="12"
+              :value="inputValue"
+              variant="outlined"
+              v-on="inputEvents"
+            />
+          </template>
+        </elegant-date-picker>
+        <elegant-date-picker
+          v-model.string="rangeMax"
+          is-required
+          :masks="{modelValue: 'iso'}"
+          :popover="{visibility: 'focus', autoHide: false}"
+          :select-attribute="{key: 'today', dot: true, dates: new Date()}"
+          @popover-did-show="onPopoverShown"
+        >
+          <template #default="{inputValue, inputEvents}">
+            <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
+              {{ rangeMaxLabel() }}
+            </label>
+            <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">
+              End of range in format MM/DD/YYYY
+            </span>
+            <v-text-field
+              :id="`filter-range-max-${position}`"
+              :aria-describedby="`filter-range-max-placeholder-${position}`"
+              autocomplete="off"
+              density="compact"
+              hide-details
+              placeholder="MM/DD/YYYY"
+              size="12"
+              :value="inputValue"
+              variant="outlined"
+              v-on="inputEvents"
+            />
           </template>
         </elegant-date-picker>
       </div>
@@ -113,12 +116,11 @@
         <div>
           <v-text-field
             :id="`filter-range-min-${position}`"
-            v-model="range.min"
+            v-model="rangeMin"
             bg-color="white"
             density="compact"
             hide-details
             :maxlength="rangeInputSize()"
-            :placeholder="placeholder()"
             :size="rangeInputSize()"
             variant="outlined"
           />
@@ -129,12 +131,11 @@
         <div>
           <v-text-field
             :id="`filter-range-max-${position}`"
-            v-model="range.max"
+            v-model="rangeMax"
             bg-color="white"
             density="compact"
             hide-details
             :maxlength="rangeInputSize()"
-            :placeholder="placeholder()"
             :size="rangeInputSize()"
             variant="outlined"
           />
@@ -215,10 +216,11 @@
       </div>
     </div>
   </div>
-  <v-expand-transition class="mb-4 mt-1 mr-4">
+  <v-expand-transition class="mx-2 my-4">
     <v-card v-show="errorPerRangeInput" flat>
       <v-alert
         aria-live="polite"
+        class="bg-red-lighten-5"
         color="red"
         density="compact"
         role="alert"
@@ -246,11 +248,11 @@ import {
   isPlainObject,
   isString,
   isUndefined,
+  toLower,
   mapValues,
   noop,
   size,
   trim,
-  unset,
   values
 } from 'lodash'
 import {DateTime} from 'luxon'
@@ -276,12 +278,8 @@ export default {
     isModifyingFilter: false,
     isUpdatingExistingFilter: false,
     isSaving: false,
-    range: {
-      min: undefined,
-      max: undefined,
-      start: undefined,
-      end: undefined
-    },
+    rangeMax: undefined,
+    rangeMin: undefined,
     selectedFilter: undefined,
     selectedOption: undefined,
     showAdd: false,
@@ -363,64 +361,11 @@ export default {
         this.reset()
       }
     },
-    range: {
-      handler(rangeObject) {
-        this.disableUpdateButton = false
-        this.errorPerRangeInput = undefined
-        const trimToNil = v => isUndefined(v) ? v : trim(v) || undefined
-        // Convert v-calendar's non-customizable attribute names
-        if (!rangeObject.min && rangeObject.start) {
-          rangeObject.min = rangeObject.start
-        }
-        if (!rangeObject.max && rangeObject.end) {
-          rangeObject.max = rangeObject.end
-        }
-        let min = trimToNil(rangeObject.min)
-        let max = trimToNil(rangeObject.max)
-        const isNilOrNan = v => isNil(v) || isNaN(v)
-        const validation = get(this.filter, 'validation')
-        if (validation === 'dependents') {
-          const isInt = v => /^\d+$/.test(v)
-          const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || isNaN(v)
-          if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
-            this.errorPerRangeInput = 'Dependents must be an integer greater than or equal to 0.'
-          } else if (parseInt(min, 10) > parseInt(max, 10)) {
-            this.errorPerRangeInput = 'Dependents inputs must be in ascending order.'
-          }
-          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
-        } else if (validation === 'gpa') {
-          min = min && parseFloat(min)
-          max = max && parseFloat(max)
-          const isDefinedAndInvalid = v => (isNumber(v) && v < 0 || v > 4) || isNaN(v)
-          if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
-            this.errorPerRangeInput = 'GPA must be a number in the range 0 to 4.'
-          } else if (isNumber(min) && isNumber(max) && min > max) {
-            this.errorPerRangeInput = 'GPA inputs must be in ascending order.'
-          }
-          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
-        } else if (validation === 'char[2]') {
-          const isValid = s => /^[a-zA-Z][a-zA-Z]?$/.test(s)
-          const isBadData = (min && !isValid(min)) || (max && !isValid(max))
-          if (isBadData || (min && max && min.toUpperCase() > max.toUpperCase())) {
-            // Invalid data or values are descending.
-            this.errorPerRangeInput = 'Letters must be in ascending order.'
-          }
-          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
-        } else if (validation === 'date') {
-          const startDate = DateTime.fromISO(min)
-          const endDate = DateTime.fromISO(max)
-          if (!(startDate && endDate && startDate <= endDate)) {
-            // Invalid data or values are descending.
-            this.errorPerRangeInput = 'Requires end date after start date.'
-          }
-          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max)
-        } else if (validation) {
-          this.disableUpdateButton = true
-          this.errorPerRangeInput = `Unrecognized range type: ${validation}`
-        }
-        this.showAdd = !this.errorPerRangeInput && !isNilOrNan(min) && !isNilOrNan(max)
-      },
-      deep: true
+    rangeMax() {
+      this.onRangeUpdate()
+    },
+    rangeMin() {
+      this.onRangeUpdate()
     },
     selectedFilter() {
       this.onSelectFilter()
@@ -468,13 +413,11 @@ export default {
         this.filter.value = true
         break
       case 'range':
-        alertScreenReader(`Added ${this.filter.name} filter, ${this.range.min} to ${this.range.max}`)
+        alertScreenReader(`Added ${this.filter.name} filter, ${this.rangeMin} to ${this.rangeMax}`)
         this.updateRangeFilter()
-        this.range.min = this.range.max = undefined
+        this.rangeMin = this.rangeMax = undefined
         break
       }
-      unset(this.filter, 'start')
-      unset(this.filter, 'end')
       cohortStore.addFilter(this.filter)
       cohortStore.setModifiedSinceLastSearch(true)
       this.reset()
@@ -499,8 +442,8 @@ export default {
         this.selectedOption = Array.isArray(options) ? findOption(options, this.filter.value) : find(flattenOptions(options), this.filter.value)
         this.putFocusSecondaryDropdown()
       } else if (this.isUX('range')) {
-        this.range.min = this.range.start = this.filter.value.min
-        this.range.max = this.range.end = this.filter.value.max
+        this.rangeMin = this.filter.value.min
+        this.rangeMax = this.filter.value.max
         this.putFocusRange()
       }
       this.isModifyingFilter = true
@@ -521,6 +464,56 @@ export default {
         alertScreenReader(`${this.filter.name} filter updated`)
         this.isUpdatingExistingFilter = false
       })
+    },
+    onRangeUpdate() {
+      this.disableUpdateButton = false
+      this.errorPerRangeInput = undefined
+      const trimToNil = v => isUndefined(v) ? v : trim(v) || undefined
+      // Convert v-calendar's non-customizable attribute names
+      let min = trimToNil(this.rangeMin)
+      let max = trimToNil(this.rangeMax)
+      const isNilOrNan = v => isNil(v) || isNaN(v)
+      const validation = get(this.filter, 'validation')
+      if (validation === 'dependents') {
+        const isInt = v => /^\d+$/.test(v)
+        const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || isNaN(v)
+        if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
+          this.errorPerRangeInput = 'Dependents must be an integer greater than or equal to 0.'
+        } else if (parseInt(min, 10) > parseInt(max, 10)) {
+          this.errorPerRangeInput = 'Dependents inputs must be in ascending order.'
+        }
+        this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
+      } else if (validation === 'gpa') {
+        min = min && parseFloat(min)
+        max = max && parseFloat(max)
+        const isDefinedAndInvalid = v => (isNumber(v) && v < 0 || v > 4) || isNaN(v)
+        if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
+          this.errorPerRangeInput = 'GPA must be a number in the range 0 to 4.'
+        } else if (isNumber(min) && isNumber(max) && min > max) {
+          this.errorPerRangeInput = 'GPA inputs must be in ascending order.'
+        }
+        this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
+      } else if (validation === 'char[2]') {
+        const isValid = s => /^[a-zA-Z][a-zA-Z]?$/.test(s)
+        const isBadData = (min && !isValid(min)) || (max && !isValid(max))
+        if (isBadData || (min && max && min.toUpperCase() > max.toUpperCase())) {
+          // Invalid data or values are descending.
+          this.errorPerRangeInput = 'Letters must be in ascending order.'
+        }
+        this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
+      } else if (validation === 'date') {
+        const startDate = DateTime.fromISO(min)
+        const endDate = DateTime.fromISO(max)
+        if (startDate && endDate && startDate > endDate) {
+          // Invalid data or values are descending.
+          this.errorPerRangeInput = 'Requires end date after start date.'
+        }
+        this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max)
+      } else if (validation) {
+        this.disableUpdateButton = true
+        this.errorPerRangeInput = `Unrecognized range type: ${validation}`
+      }
+      this.showAdd = !this.errorPerRangeInput && !isNilOrNan(min) && !isNilOrNan(max)
     },
     onSelectFilter() {
       this.selectedOption = undefined
@@ -590,13 +583,6 @@ export default {
         label.abbr = weekdays[index]
       })
     },
-    placeholder() {
-      if (this.filter.validation === 'date') {
-        return 'MM/DD/YYYY'
-      } else {
-        return ''
-      }
-    },
     putFocusNewFilterDropdown() {
       putFocusNextTick('filter-select-primary-new')
     },
@@ -619,11 +605,11 @@ export default {
     rangeMaxLabel() {
       let snippet = undefined
       if (this.isModifyingFilter) {
-        snippet = this.filter.label.range[1]
+        snippet = toLower(this.filter.label.range[1])
       } else {
         let max = get(this.filter, 'value.max')
         if (max && this.filter.validation === 'date') {
-          max = DateTime.fromJSDate(max).toFormat('MMM DD, YYYY')
+          max = DateTime.fromISO(max).toFormat('DD')
         }
         const labels = get(this.filter.label, 'range')
         snippet = this.rangeMinEqualsMax(this.filter) ? '' : `${labels[1]} ${max}`
@@ -640,11 +626,11 @@ export default {
     rangeMinLabel() {
       let snippet = undefined
       if (this.isModifyingFilter) {
-        snippet = this.filter.label.range[0]
+        snippet = toLower(this.filter.label.range[0])
       } else {
         let min = get(this.filter, 'value.min')
         if (min && this.filter.validation === 'date') {
-          min = DateTime.fromJSDate(min).toFormat('MMM DD, YYYY')
+          min = DateTime.fromISO(min).toFormat('DD')
         }
         const labels = get(this.filter.label, 'range')
         snippet = this.rangeMinEqualsMax(this.filter) ? get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
@@ -671,13 +657,21 @@ export default {
     },
     size,
     updateRangeFilter() {
-      this.filter.value = {
-        min: this.range.min,
-        max: this.range.max
-      }
       if (this.filter.validation === 'gpa') {
-        this.filter.value.min = this.formatGPA(this.filter.value.min)
-        this.filter.value.max = this.formatGPA(this.filter.value.max)
+        this.filter.value = {
+          min: this.formatGPA(this.rangeMin),
+          max: this.formatGPA(this.rangeMax)
+        }
+      } else if (this.filter.validation === 'date') {
+        this.filter.value = {
+          min: this.rangeMin.substring(0, 10),
+          max: this.rangeMax.substring(0, 10)
+        }
+      } else {
+        this.filter.value = {
+          min: this.rangeMin,
+          max: this.rangeMax
+        }
       }
     },
     useCohortStore

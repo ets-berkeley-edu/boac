@@ -284,10 +284,6 @@
     overflow: hidden !important;
   }
 }
-.vc-zindex-fix .vc-popover-content-wrapper, .vc-zindex-fix .vc-popover-content {
-  overflow: visible;
-  z-index: 1000 !important;
-}
 .vertical-top {
   vertical-align: top !important;
 }

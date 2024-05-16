@@ -38,7 +38,7 @@
               <span class="sr-only">&nbsp;students</span>)
             </h3>
           </div>
-          <div class="count d-flex align-center">
+          <div class="d-flex align-center">
             <div v-if="!compact" class="pr-2">
               Total Alerts:
             </div>
@@ -187,9 +187,6 @@ export default {
 </script>
 
 <style scoped>
-.count {
-  min-width: 130px;
-}
 .expand-icon-container {
   max-width: 40px;
   text-align: center;
