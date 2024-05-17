@@ -157,7 +157,7 @@
                       <span class="sr-only">Date</span>
                       From
                     </label>
-                    <elegant-date-picker
+                    <DatePicker
                       v-model="fromDate"
                       :input-debounce="500"
                       :max-date="toDate || new Date()"
@@ -177,7 +177,7 @@
                           v-on="inputEvents"
                         />
                       </template>
-                    </elegant-date-picker>
+                    </DatePicker>
                     <div class="sr-only">
                       <v-btn
                         id="search-options-note-filters-last-updated-from-clear"
@@ -194,7 +194,7 @@
                       <span class="sr-only">Date</span>
                       to
                     </label>
-                    <elegant-date-picker
+                    <DatePicker
                       v-model="toDate"
                       :input-debounce="500"
                       :min-date="fromDate || new Date()"
@@ -213,7 +213,7 @@
                           v-on="inputEvents"
                         />
                       </template>
-                    </elegant-date-picker>
+                    </DatePicker>
                     <div class="sr-only">
                       <v-btn
                         id="search-options-note-filters-last-updated-to-clear"

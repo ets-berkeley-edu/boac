@@ -1,17 +1,43 @@
+import 'v-calendar/style.css'
 import App from './App.vue'
+import axiosPlugin from '@/plugins/axios'
 import axios from 'axios'
-import {DateTime} from 'luxon'
+import CKEditor from '@ckeditor/ckeditor5-vue'
+import Highcharts from 'highcharts'
+import more from 'highcharts/highcharts-more'
 import router from '@/router'
+import VueHighcharts from 'vue-highcharts'
+import vuetify from '@/plugins/vuetify'
+import {DatePicker, setupCalendar} from 'v-calendar'
 import {createApp} from 'vue'
+import {createPinia} from 'pinia'
+import {DateTime} from 'luxon'
+import {FocusTrap} from 'focus-trap-vue'
 import {get, trim} from 'lodash'
-import {initializeAxios} from './utils'
-import {registerPlugins} from '@/plugins'
-import {useContextStore} from '@/stores/context'
 import {getServiceAnnouncement} from '@/api/config'
+import {initializeAxios} from './utils'
+import {useContextStore} from '@/stores/context'
 
 const app = createApp(App)
+  .use(axiosPlugin, {baseUrl: import.meta.env.VITE_APP_API_BASE_URL})
+  .use(CKEditor)
+  .use(createPinia())
+  .use(setupCalendar, {})
+  .use(VueHighcharts, {Highcharts})
+  .use(vuetify)
+  .component('focus-trap', FocusTrap)
+  .component('DatePicker', DatePicker)
+  .directive('accessibleGrade', {
+    beforeMount(el, binding) {
+      el.innerHTML = binding.value && binding.value.replace('-', '&minus;').replace('+', '&plus;')
+    },
+    unmounted(el) {
+      el.innerHTML = ''
+    }
+  })
 
-registerPlugins(app)
+more(Highcharts)
+
 initializeAxios(app, axios)
 
 // Globals

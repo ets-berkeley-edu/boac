@@ -1,9 +1,9 @@
 <template>
   <div class="bg-sky-blue">
-    <div class="pt-4 px-4">
+    <div class="pa-4">
       <div class="align-center d-flex">
         <div class="mr-2">
-          <h1 class="page-section-header">Search Results</h1>
+          <h1 class="mb-0 page-section-header">Search Results</h1>
         </div>
         <div v-if="!loading && isDirty" class="pb-1">
           [<v-btn
@@ -16,8 +16,8 @@
           />]
         </div>
       </div>
-      <div class="font-weight-500 pb-3">
-        Showing results for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>
+      <div v-if="!hasSearchResults" class="pt-2">
+        No results found for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>.
       </div>
     </div>
     <div v-if="!loading">
@@ -30,12 +30,11 @@
         Search results include {{ describe('Admits', results.totalAdmitCount) }}
         {{ describe('student', results.totalStudentCount) }}
         {{ describe('course', results.totalCourseCount) }}
-        {{ describe('note', _size(results.notes)) }}
-        {{ describe('appointment', _size(results.appointments)) }}
+        {{ describe('note', _size(results.notes)) }}{{ completeNoteResults ? '' : '+' }}
+        {{ describe('appointment', _size(results.appointments)) }}{{ completeAppointmentResults ? '' : '+' }}
       </div>
       <div v-if="!hasSearchResults" id="page-header-no-results" class="bg-white pt-4 px-4">
-        <div class="pb-4 pt-2">No matching records found.</div>
-        <div>Suggestions:</div>
+        <h3>Suggestions</h3>
         <ul>
           <li>Keep your search term simple.</li>
           <li>Check your spelling and try again.</li>
@@ -71,7 +70,7 @@
               <template #default>
                 <div class="d-flex flex-row-reverse font-size-12 font-weight-bold text-black">
                   <div :id="`search-results-count-${item.key}s`">
-                    {{ item.count }}
+                    {{ item.count }}<span v-if="item.key === 'note' && !completeNoteResults">+</span><span v-if="item.key === 'appointment' && !completeAppointmentResults">+</span>
                   </div>
                   <div
                     class="mr-1 text-uppercase"
@@ -86,17 +85,13 @@
           <template #item="{ item }">
             <v-tabs-window-item class="bg-white pt-2 px-4" :value="item.key">
               <div v-if="item.key === 'student'">
-                <div class="my-3">
-                  <h2 id="student-results-page-header" class="font-size-18 font-weight-regular">
-                    {{ pluralize('student', results.totalStudentCount) }}
-                    <span v-if="searchPhraseSubmitted">
-                      matching <span class="font-weight-500">{{ searchPhraseSubmitted }}</span>
-                    </span>
-                  </h2>
-                  <div v-if="results.totalStudentCount > 50" class="font-size-14">
-                    Showing the first 50 students.
-                  </div>
-                </div>
+                <SearchResultsHeader
+                  class="my-2"
+                  :count-in-view="50"
+                  :count-total="results.totalStudentCount"
+                  :results-type="item.key"
+                  :search-phrase="searchPhraseSubmitted"
+                />
                 <CuratedGroupSelector
                   context-description="Search"
                   domain="default"
@@ -113,19 +108,19 @@
                 />
               </div>
               <div v-if="item.key === 'admit'">
-                <div class="mb-3">
-                  <h2 id="admit-results-page-header" class="font-size-18 font-weight-regular mb-3">
-                    {{ pluralize('admitted student', results.totalAdmitCount, {0: 'Zero', 1: 'One'}) }}
-                    <span v-if="searchPhraseSubmitted"> matching <span class="font-weight-500">{{ searchPhraseSubmitted }}</span></span>
-                  </h2>
-                  <div v-if="results.totalAdmitCount" class="mb-2 ml-1">
+                <div class="align-center d-flex justify-space-between">
+                  <SearchResultsHeader
+                    class="my-2"
+                    :count-in-view="_size(results.admits)"
+                    :count-total="results.totalAdmitCount"
+                    :results-type="item.key"
+                    :search-phrase="searchPhraseSubmitted"
+                  />
+                  <div v-if="results.totalAdmitCount" class="mr-8">
                     <AdmitDataWarning :updated-at="_get(results.admits, '[0].updatedAt')" />
                   </div>
                 </div>
                 <div v-if="results.totalAdmitCount">
-                  <div v-if="_size(results.admits) < results.totalAdmitCount" class="mb-2">
-                    Showing the first {{ _size(results.admits) }} admitted students.
-                  </div>
                   <CuratedGroupSelector
                     context-description="Search"
                     domain="admitted_students"
@@ -135,28 +130,25 @@
                 </div>
               </div>
               <div v-if="item.key === 'course'">
-                <h2
-                  id="course-results-page-h1"
-                  class="font-size-18 font-weight-regular mb-3"
-                  :class="!results.totalStudentCount && !!results.totalCourseCount && !_size(results.notes) ? 'page-section-header' : 'font-size-18'"
-                >
-                  {{ pluralize('class', results.totalCourseCount, {0: 'Zero', 1: 'One'}, 'es') }}
-                  matching <span class="font-weight-500">{{ searchPhraseSubmitted }}</span>
-                </h2>
-                <div v-if="results.courses.length < results.totalCourseCount">
-                  Showing the first {{ results.courses.length }} classes.
-                </div>
+                <SearchResultsHeader
+                  class="my-2"
+                  :count-in-view="_size(results.courses)"
+                  :count-total="results.totalCourseCount"
+                  :results-type="item.key"
+                  :search-phrase="searchPhraseSubmitted"
+                />
                 <SortableCourses
                   v-if="results.courses.length"
                   :courses="results.courses"
                 />
               </div>
               <div v-if="item.key === 'note'">
-                <h2 id="note-results-page-header" class="font-size-18 font-weight-regular mb-3">
-                  {{ _size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
-                  {{ _size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
-                  <span v-if="searchPhraseSubmitted"> with <span class="font-weight-500">{{ searchPhraseSubmitted }}</span></span>
-                </h2>
+                <SearchResultsHeader
+                  class="my-4"
+                  :count-in-view="`${_size(results.notes)}${completeNoteResults ? '' : '+'}`"
+                  :results-type="item.key"
+                  :search-phrase="searchPhraseSubmitted"
+                />
                 <AdvisingNoteSnippet
                   v-for="advisingNote in results.notes"
                   :key="advisingNote.id"
@@ -174,11 +166,12 @@
                 </div>
               </div>
               <div v-if="item.key === 'appointment'">
-                <h2 id="appointment-results-page-header" class="font-size-18 font-weight-regular mb-3">
-                  {{ _size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
-                  {{ _size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
-                  <span v-if="searchPhraseSubmitted"> with <span class="font-weight-500">{{ searchPhraseSubmitted }}</span></span>
-                </h2>
+                <SearchResultsHeader
+                  class="my-4"
+                  :count-in-view="`${_size(results.appointments)}${completeAppointmentResults ? '' : '+'}`"
+                  :results-type="item.key"
+                  :search-phrase="searchPhraseSubmitted"
+                />
                 <AppointmentSnippet
                   v-for="appointment in results.appointments"
                   :key="appointment.id"
@@ -209,6 +202,7 @@ import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
 import AppointmentSnippet from '@/components/search/AppointmentSnippet'
 import Context from '@/mixins/Context'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
+import SearchResultsHeader from '@/components/search/SearchResultsHeader'
 import SearchSession from '@/mixins/SearchSession'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortableAdmits from '@/components/admit/SortableAdmits'
@@ -227,6 +221,7 @@ export default {
     AppointmentSnippet,
     CuratedGroupSelector,
     SortableStudents,
+    SearchResultsHeader,
     SectionSpinner,
     SortableAdmits,
     SortableCourses

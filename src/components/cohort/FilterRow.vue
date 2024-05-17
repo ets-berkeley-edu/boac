@@ -11,7 +11,7 @@
     >
       {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
-    <div v-if="isModifyingFilter && !isExistingFilter" class="mr-4">
+    <div v-if="isModifyingFilter && !isExistingFilter" class="mr-3">
       <FilterSelect
         v-model="selectedFilter"
         :filter-row-index="position"
@@ -29,11 +29,7 @@
     </div>
     <div
       v-if="isModifyingFilter"
-      :class="{
-        'mr-4': showAdd && isUX('boolean'),
-        'mr-6': showAdd && !isUX('boolean'),
-        'mr-2': !showAdd
-      }"
+      :class="{'mr-4': showAdd, 'mr-2': !showAdd}"
     >
       <div v-if="isUX('dropdown')">
         <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
@@ -50,10 +46,11 @@
         v-if="isUX('range') && filter.validation === 'date'"
         class="align-center d-flex"
       >
-        <elegant-date-picker
+        <DatePicker
           v-model.string="rangeMin"
           is-required
           :masks="{modelValue: 'iso'}"
+          :max-date="rangeMax && dateTimeFromISO(rangeMax)"
           :popover="{visibility: 'focus', autoHide: false}"
           :select-attribute="{key: 'today', dot: true, dates: new Date()}"
           @popover-did-show="onPopoverShown"
@@ -78,11 +75,12 @@
               v-on="inputEvents"
             />
           </template>
-        </elegant-date-picker>
-        <elegant-date-picker
+        </DatePicker>
+        <DatePicker
           v-model.string="rangeMax"
           is-required
           :masks="{modelValue: 'iso'}"
+          :min-date="rangeMin && dateTimeFromISO(rangeMin)"
           :popover="{visibility: 'focus', autoHide: false}"
           :select-attribute="{key: 'today', dot: true, dates: new Date()}"
           @popover-did-show="onPopoverShown"
@@ -107,7 +105,7 @@
               v-on="inputEvents"
             />
           </template>
-        </elegant-date-picker>
+        </DatePicker>
       </div>
       <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
         <label class="font-weight-500 ml-2 pr-2" :for="`filter-range-min-${position}`">
@@ -378,6 +376,7 @@ export default {
     this.reset()
   },
   methods: {
+    dateTimeFromISO: DateTime.fromISO,
     formatGPA(value) {
       // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
       const gpa = '0' + trim(value)
