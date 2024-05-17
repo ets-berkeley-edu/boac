@@ -23,6 +23,6 @@ let localUpdatedAt = undefined
 if (props.updatedAt) {
   const timezone = useContextStore().config.timezone
   localUpdatedAt = DateTime.fromISO(props.updatedAt).setZone(timezone).toLocaleString(DateTime.DATE_MED)
-  show = DateTime.now().diff(localUpdatedAt, 'hours') >= 24
+  show = true || DateTime.now().diff(localUpdatedAt, 'hours') >= 24
 }
 </script>
