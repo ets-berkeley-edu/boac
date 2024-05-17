@@ -33,27 +33,31 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 class Pagination(BoaPages):
 
-    PAGE_ONE_LINK = By.XPATH, '(//div[@id="pagination-widget-outer"])[1]//button[@aria-label="Go to page 1"]'
-    GO_TO_FIRST_PAGE_LINK = By.XPATH, '(//div[@id="pagination-widget-outer"])[1]//button[@aria-label="Go to first page"]'
-    GO_TO_NEXT_PAGE_LINK = By.XPATH, '(//div[@id="pagination-widget-outer"])[1]//button[@aria-label="Go to next page"]'
-    GO_TO_LAST_PAGE_LINK = By.XPATH, '(//div[@id="pagination-widget-outer"])[1]//button[@aria-label="Go to last page"]'
-    GO_TO_PAGE_LINK = By.XPATH, '(//div[@id="pagination-widget-outer"])[1]//button[contains(@aria-label,"Go to page")]'
+    PAGE_ONE_LINK = By.ID, 'pagination-widget-0-btn-1'
+    GO_TO_FIRST_PAGE_LINK = By.ID, 'pagination-widget-0-btn-first'
+    GO_TO_NEXT_PAGE_LINK = By.ID, 'pagination-widget-0-btn-next'
+    GO_TO_LAST_PAGE_LINK = By.ID, 'pagination-widget-0-btn-last'
+    GO_TO_PAGE_LINK = By.XPATH, '//button[contains(@id, "pagination-widget-0-btn-")]'
 
     def go_to_first_page(self):
         if self.is_present(self.GO_TO_FIRST_PAGE_LINK):
             self.wait_for_element_and_click(self.GO_TO_FIRST_PAGE_LINK)
         Wait(self.driver, utils.get_short_timeout()).until(ec.visibility_of_element_located(self.PAGE_ONE_LINK))
-        self.wait_for_element_attribute(self.PAGE_ONE_LINK, 'aria-checked')
+
+    @staticmethod
+    def go_to_page_link(page_number):
+        return By.ID, f'pagination-widget-0-btn-{page_number}'
 
     def list_view_page_count(self):
-        if self.is_present(self.GO_TO_LAST_PAGE_LINK):
-            self.wait_for_element_and_click(self.GO_TO_LAST_PAGE_LINK)
-            time.sleep(1)
-            Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.GO_TO_PAGE_LINK))
-            count = self.elements(self.GO_TO_PAGE_LINK)[-1].text
+        if self.is_present(self.GO_TO_PAGE_LINK):
+            if self.is_present(self.GO_TO_LAST_PAGE_LINK):
+                self.wait_for_element_and_click(self.GO_TO_LAST_PAGE_LINK)
+                time.sleep(1)
+                Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.GO_TO_PAGE_LINK))
+            pages = list(map(lambda el: el.get_attribute('id').split('-')[-1], self.elements(self.GO_TO_PAGE_LINK)))
+            pages = [page for page in pages if page not in ['first', 'prev', 'next', 'last']]
+            count = pages[-1]
             self.go_to_first_page()
             return int(count)
-        elif self.elements(self.GO_TO_PAGE_LINK):
-            return len(self.elements(self.GO_TO_PAGE_LINK))
         else:
             return 1
