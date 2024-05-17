@@ -34,7 +34,8 @@ from flask import current_app as app
 
 def select_from(sort=None):
     if sort and (sort['col'] != 'first_name'):
-        select = f", {sort['select']}" if sort['select'] else f", {sort['table']}.{sort['col']}"
+        sort_select = sort_value(sort, 'select')
+        select = f', {sort_select}' if sort_select else f", {sort['table']}.{sort['col']}"
     else:
         select = ''
     return f"""SELECT DISTINCT student.student_profile_index.sid,
@@ -469,7 +470,7 @@ def join(cohort_filter_joins, sort=None, opts=None):
 # GROUP BY
 
 def group_by(sort=None):
-    if sort and sort['group_by'] and (sort['col'] != 'first_name'):
+    if sort and sort_value(sort, 'group_by') and (sort['col'] != 'first_name'):
         group = f", {sort['table']}.{sort['col']}"
     else:
         group = ''
@@ -481,6 +482,13 @@ def group_by(sort=None):
 # ORDER BY
 
 
+def sort_value(sort, key):
+    try:
+        return sort[f'{key}']
+    except KeyError:
+        return ''
+
+
 def order_by(sort):
     default_sort = """LOWER(student.student_profile_index.last_name),
                       LOWER(student.student_profile_index.first_name),
@@ -490,11 +498,11 @@ def order_by(sort):
             return """ORDER BY LOWER(student.student_profile_index.first_name),
                                LOWER(student.student_profile_index.last_name),
                                student.student_profile_index.sid"""
-        elif sort['order_by']:
-            return f"""ORDER BY {sort['order_by']}{sort['direction']}{sort['nulls']},
+        elif sort_value(sort, 'order_by'):
+            return f"""ORDER BY {sort_value(sort, 'order_by')}{sort_value(sort, 'direction')}{sort_value(sort, 'nulls')},
                                 {default_sort}"""
         else:
-            return f"""ORDER BY {sort['table']}.{sort['col']}{sort['direction']}{sort['nulls']},
+            return f"""ORDER BY {sort['table']}.{sort['col']}{sort_value(sort, 'direction')}{sort_value(sort, 'nulls')},
                                 {default_sort}"""
     else:
         return f'ORDER BY {default_sort}'
@@ -525,6 +533,7 @@ def cohort_by_first_name(test, cohort_filter):
     sort = {
         'table': 'student.student_profile_index',
         'col': 'first_name',
+        'group_by': False,
     }
     return get_cohort_result(test, cohort_filter, sort)
 
@@ -669,7 +678,7 @@ def cohort_by_units_in_prog_sort():
         'table': 'student.student_enrollment_terms',
         'col': 'enrolled_units',
         'nulls': ' NULLS LAST',
-        'select': cohort_units_in_prog_sub_query,
+        'select': cohort_units_in_prog_sub_query(),
         'term_id': utils.get_current_term().sis_id,
         'order_by': 'units_in_progress',
         'group_by': True,
@@ -718,14 +727,14 @@ def order_by_list(sort):
                       student.student_profile_index.sid ASC"""
     if sort:
         if sort['col'] == 'last_name':
-            return f"""ORDER BY LOWER(student.student_profile_index.last_name){sort['direction']}{sort['nulls']},
+            return f"""ORDER BY LOWER(student.student_profile_index.last_name){sort_value(sort, 'direction')}{sort_value(sort, 'nulls')},
                                 LOWER(student.student_profile_index.first_name),
                                 student.student_profile_index.sid"""
-        elif sort['order_by']:
-            return f"""ORDER BY {sort['order_by']}{sort['direction']}{sort['nulls']},
+        elif sort_value(sort, 'order_by'):
+            return f"""ORDER BY {sort_value(sort, 'order_by')}{sort_value(sort, 'direction')}{sort_value(sort, 'nulls')},
                                 {default_sort}"""
         else:
-            return f"""ORDER BY {sort['table']}.{sort['col']}{sort['direction']}{sort['nulls']},
+            return f"""ORDER BY {sort['table']}.{sort['col']}{sort_value(sort, 'direction')}{sort_value(sort, 'nulls')},
                                 {default_sort}"""
     else:
         return f'ORDER BY {default_sort}'
@@ -754,12 +763,7 @@ def list_by_last_name_desc(sids):
     sort = {
         'table': 'student.student_profile_index',
         'col': 'last_name',
-        'select': '',
-        'nulls': '',
-        'term_id': '',
-        'order_by': '',
         'direction': ' DESC',
-        'group_by': '',
     }
     return get_list_result(sids, sort)
 
@@ -771,10 +775,7 @@ def list_by_major_sort():
         'table': 'student.student_majors',
         'col': 'major',
         'select': '(ARRAY_AGG(student.student_majors.major ORDER BY student.student_majors.major))[1] AS major',
-        'nulls': '',
-        'term_id': '',
         'order_by': 'major',
-        'direction': '',
         'group_by': False,
     }
 
@@ -799,9 +800,7 @@ def list_by_grad_term_sort():
         'col': 'expected_grad_term',
         'select': 'student.student_profile_index.expected_grad_term AS term',
         'nulls': ' NULLS FIRST',
-        'term_id': '',
         'order_by': 'term',
-        'direction': '',
         'group_by': True,
     }
 
@@ -824,11 +823,6 @@ def list_by_gpa_sort():
     return {
         'table': 'student.student_profile_index',
         'col': 'gpa',
-        'select': '',
-        'nulls': '',
-        'term_id': '',
-        'order_by': '',
-        'direction': '',
         'group_by': True,
     }
 
@@ -852,10 +846,8 @@ def list_by_units_in_prog_sort():
         'table': 'student.student_enrollment_terms',
         'col': 'enrolled_units',
         'select': user_list_units_in_prog_sub_query(),
-        'nulls': '',
         'term_id': utils.get_current_term().sis_id,
         'order_by': 'units_in_progress',
-        'direction': '',
         'group_by': True,
     }
 
@@ -878,11 +870,6 @@ def list_by_units_complete_sort():
     return {
         'table': 'student.student_profile_index',
         'col': 'units',
-        'select': '',
-        'nulls': '',
-        'term_id': '',
-        'order_by': '',
-        'direction': '',
         'group_by': True,
     }
 

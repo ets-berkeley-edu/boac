@@ -77,12 +77,12 @@ class Homepage(UserListPages):
     # FILTERED COHORTS AND CURATED GROUPS
 
     NO_FILTERED_COHORTS_MSG = By.ID, 'no-cohorts-header'
-    FILTERED_COHORT = By.XPATH, '//div[contains(@id,"sortable-cohort")]//h3'
+    FILTERED_COHORT = By.XPATH, '//button[contains(@id,"sortable-cohort")]//h3'
     CURATED_GROUP = By.XPATH, '//div[contains(@id,"sortable-curated")]//h3'
 
     @staticmethod
     def user_rows(xpath):
-        return By.XPATH, f'{xpath}//tbody/tr'
+        return By.XPATH, f'{xpath}//tbody/tr[@class="v-data-table__tr"]'
 
     def filtered_cohorts(self):
         Wait(self.driver, utils.get_medium_timeout()).until(ec.presence_of_all_elements_located(self.FILTERED_COHORT))
@@ -103,11 +103,12 @@ class Homepage(UserListPages):
 
     def expand_member_rows(self, cohort):
         time.sleep(2)
-        if not self.is_present(self.view_all_members_link_loc(cohort)):
+        if not (self.is_present(self.view_all_members_link_loc(cohort)) and self.element(
+                self.view_all_members_link_loc(cohort)).is_displayed()):
             if cohort.__class__.__name__ == 'FilteredCohort':
-                self.wait_for_element_and_click((By.ID, f'sortable-cohort-{cohort.cohort_id}-toggle'))
+                self.wait_for_element_and_click((By.ID, f'sortable-cohort-{cohort.cohort_id}-expand-btn'))
             else:
-                self.wait_for_element_and_click((By.ID, f'sortable-curated-{cohort.cohort_id}-toggle'))
+                self.wait_for_element_and_click((By.ID, f'sortable-curated-{cohort.cohort_id}-expand-btn'))
 
     def member_rows(self, cohort):
         if cohort.__class__.__name__ == 'FilteredCohort':

@@ -32,29 +32,29 @@ class UserListPages(BoaPages):
 
     @staticmethod
     def filtered_cohort_xpath(cohort):
-        return f'//div[@id="sortable-cohort-{cohort.cohort_id}"]'
+        return f'//div[@id="sortable-cohort-{cohort.cohort_id}-details"]'
 
     @staticmethod
     def curated_group_xpath(group):
-        return f'//div[@id="sortable-curated-{group.cohort_id}"]'
+        return f'//div[@id="sortable-curated-{group.cohort_id}-details"]'
 
     def all_row_sids(self, cohort=None):
         xpath = self.filtered_cohort_xpath(cohort) if cohort and cohort.__class__.__name__ == 'FilteredCohort' else ''
-        els = self.elements((By.XPATH, f'{xpath}//span[text()=\"S I D \"]/following-sibling::span'))
+        els = self.elements((By.XPATH, f'{xpath}//span[contains(text(), \"S I D\")]/following-sibling::span'))
         return list(map(lambda el: el.text, els))
 
     def user_row_data(self, sid, cohort=None):
         xpath = self.filtered_cohort_xpath(cohort) if cohort and cohort.__class__.__name__ == 'FilteredCohort' else ''
         row_xpath = f'{xpath}//tr[contains(., "{sid}")]'
-        name_loc = By.XPATH, f'{row_xpath}//span[text()=\"Student name\"]/following-sibling::a'
-        sid_loc = By.XPATH, f'{row_xpath}//span[text()=\"S I D \"]/following-sibling::span'
-        major_loc = By.XPATH, f'{row_xpath}//span[text()=\"Major\"]/following-sibling::div'
-        term_units_loc = By.XPATH, f'{row_xpath}//span[text()=\"Term units\"]/following-sibling::div'
-        cumul_units_loc = By.XPATH, f'{row_xpath}//span[text()=\"Units completed\"]/following-sibling::div'
-        no_cumul_units_loc = By.XPATH, f'{row_xpath}//span[text()=\"Units completed\"]/following-sibling::div/span'
-        gpa_loc = By.XPATH, f'{row_xpath}//span[text()=\"GPA\"]/following-sibling::div'
-        no_gpa_loc = By.XPATH, f'{row_xpath}//span[text()=\"GPA\"]/following-sibling::div/span'
-        alerts_loc = By.XPATH, f'{row_xpath}//span[text()=\"Issue count\"]/following-sibling::div'
+        name_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Student name\")]/following-sibling::a'
+        sid_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"S I D\")]/following-sibling::span'
+        major_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Major\")]/following-sibling::div'
+        term_units_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Term units\")]/following-sibling::div'
+        cumul_units_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Units completed\")]/following-sibling::div'
+        no_cumul_units_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Units completed\")]/following-sibling::div/span'
+        gpa_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"GPA\")]/following-sibling::div'
+        no_gpa_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"GPA\")]/following-sibling::div/span'
+        alerts_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Issue count\")]/following-sibling::div'
         if self.is_present(cumul_units_loc):
             units = self.element(cumul_units_loc).text
         elif self.is_present(no_cumul_units_loc):

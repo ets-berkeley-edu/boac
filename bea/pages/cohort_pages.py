@@ -29,7 +29,6 @@ from bea.pages.boa_pages import BoaPages
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
@@ -64,7 +63,7 @@ class CohortPages(BoaPages):
     # SAVE/CREATE
 
     SAVE_COHORT_BUTTON_ONE = By.ID, 'save-button'
-    COHORT_NAME_INPUT = By.ID, 'create-input'
+    COHORT_NAME_INPUT = By.ID, 'create-cohort-input'
     SAVE_COHORT_BUTTON_TWO = By.ID, 'create-confirm'
     CANCEL_COHORT_BUTTON = By.ID, 'create-cancel'
     APPLY_BUTTON = By.ID, 'unsaved-filter-apply'
@@ -90,11 +89,12 @@ class CohortPages(BoaPages):
         boa_utils.set_filtered_cohort_id(cohort)
 
     def cancel_cohort(self):
-        try:
-            self.wait_for_element_and_click(self.CANCEL_COHORT_BUTTON)
-            self.when_not_present(self.MODAL, utils.get_short_timeout())
-        except NoSuchElementException:
-            app.logger.info('No cancel button to click')
+        self.wait_for_element_and_click(self.CANCEL_COHORT_BUTTON)
+        self.when_not_present(self.MODAL, utils.get_short_timeout())
+
+    def cancel_cohort_if_modal(self):
+        if self.is_present(self.CANCEL_COHORT_BUTTON):
+            self.cancel_cohort()
 
     def create_new_cohort(self, cohort):
         app.logger.info(f'Creating a new cohort named {cohort.name}')
@@ -112,7 +112,7 @@ class CohortPages(BoaPages):
         app.logger.info(f'Changing the name of cohort ID {cohort.cohort_id} to {new_name}')
         self.load_cohort(cohort)
         self.wait_for_page_and_click(self.RENAME_COHORT_BUTTON)
-        self.wait_for_element_and_type(self.RENAME_COHORT_INPUT, new_name)
+        self.wait_for_textbox_and_type(self.RENAME_COHORT_INPUT, new_name)
         self.wait_for_element_and_click(self.RENAME_COHORT_CONFIRM_BUTTON)
         cohort.name = new_name
         self.wait_for_element(self.cohort_heading_loc(cohort), utils.get_short_timeout())
@@ -120,8 +120,8 @@ class CohortPages(BoaPages):
     # DELETE
 
     DELETE_COHORT_BUTTON = By.ID, 'delete-button'
-    CONFIRM_DELETE_BUTTON = By.ID, 'delete-confirm'
-    CANCEL_DELETE_BUTTON = By.ID, 'delete-cancel'
+    CONFIRM_DELETE_BUTTON = By.ID, 'delete-cohort-confirm'
+    CANCEL_DELETE_BUTTON = By.ID, 'delete-cohort-cancel'
 
     def delete_cohort(self, cohort):
         app.logger.info(f'Deleting a cohort named {cohort.name}')
@@ -139,11 +139,11 @@ class CohortPages(BoaPages):
 
     # SORTING
 
-    COHORT_SORT_BUTTON = By.ID, 'students-sort-by__BV_toggle_'
+    COHORT_SORT_BUTTON = By.ID, 'students-sort-by'
 
     @staticmethod
     def sort_option_loc(option):
-        return By.XPATH, f'//button[@id="sort-by-option-{option}"]'
+        return By.XPATH, f'//div[@id="sort-by-option-{option}"]'
 
     def sort_by(self, option):
         app.logger.info(f'Sorting by {option}')

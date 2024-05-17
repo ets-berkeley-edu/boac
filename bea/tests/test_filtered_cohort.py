@@ -56,7 +56,7 @@ class TestFilteredCohortResults:
 
     def test_cohort_search_results_default_by_last_name(self, cohort):
         app.logger.info(f'Testing cohort {test.searches.index(cohort)} with criteria {vars(cohort.search_criteria)}')
-        self.filtered_students_page.cancel_cohort()
+        self.filtered_students_page.cancel_cohort_if_modal()
         self.filtered_students_page.click_sidebar_create_filtered()
         self.filtered_students_page.perform_student_search(cohort)
         expected = nessie_filter_utils.cohort_by_last_name(test, cohort.search_criteria)

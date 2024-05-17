@@ -24,9 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import time
 
-from bea.pages.boa_pages import BoaPages
 from bea.pages.curated_add_selector import CuratedAddSelector
-from bea.pages.curated_modal import CuratedModal
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
@@ -34,7 +32,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
-class SearchResultsPage(BoaPages, CuratedAddSelector, CuratedModal):
+class SearchResultsPage(CuratedAddSelector):
 
     RESULTS_LOADED_MSG = By.XPATH, '//h1[text()="Search Results"]'
     NO_RESULTS_MSG = By.XPATH, '//div[text()="No matching records found."]'
