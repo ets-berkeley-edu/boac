@@ -54,15 +54,17 @@ class SearchForm(Page):
     def enter_simple_search_and_hit_enter(self, string):
         self.enter_simple_search(string)
         self.hit_enter()
-        self.wait_for_spinner()
 
     def click_simple_search_button(self):
         app.logger.info('Clicking search button')
         self.wait_for_element_and_click(self.SEARCH_BUTTON)
 
+    def clear_simple_search_input(self):
+        self.clear_input(self.SEARCH_INPUT)
+
     # Search history
 
-    SEARCH_HISTORY_ITEM = (By.XPATH, '//li[@class="autocomplete-result"]')
+    SEARCH_HISTORY_ITEM = (By.XPATH, '//div[contains(@id, "search-history-")]')
 
     def visible_search_history(self):
         time.sleep(1)
@@ -71,8 +73,7 @@ class SearchForm(Page):
     def select_history_item(self, search_string):
         time.sleep(1)
         item = next(filter(lambda el: el.text.strip() == search_string, self.elements(self.SEARCH_HISTORY_ITEM)))
-        self.wait_for_element_and_click(item)
-        self.wait_for_spinner()
+        item.click()
 
     # ADVANCED SEARCH
 
@@ -97,7 +98,6 @@ class SearchForm(Page):
     def enter_adv_search_and_hit_enter(self, string=None):
         self.enter_adv_search(string)
         self.hit_enter()
-        self.wait_for_spinner()
 
     # Search types
 
