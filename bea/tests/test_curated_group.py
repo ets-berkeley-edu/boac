@@ -95,6 +95,7 @@ class TestCuratedGroup:
     def test_create_group_from_search_results_group_selector(self):
         group = Cohort({'name': f'Group created from search results {self.test.test_id}'})
         self.homepage.enter_simple_search_and_hit_enter(self.test_student.sid)
+        self.homepage.wait_for_spinner()
         self.search_results_page.select_and_add_members_to_new_grp([self.test_student], group)
 
     def test_create_group_from_student_page_group_selector(self):
@@ -232,12 +233,14 @@ class TestCuratedGroup:
 
     def test_group_members_can_be_added_from_search_results_using_select_all(self):
         self.homepage.enter_simple_search_and_hit_enter(self.test_student.first_name)
+        self.homepage.wait_for_spinner()
         self.search_results_page.select_and_add_all_students_to_grp(self.test.students, self.group_7)
         self.curated_students_page.load_page(self.group_7)
         self.curated_students_page.assert_visible_students_match_expected(self.group_7)
 
     def test_group_members_can_be_added_from_search_results_using_select_some(self):
         self.curated_students_page.enter_simple_search_and_hit_enter(self.test_student.sid)
+        self.curated_students_page.wait_for_spinner()
         self.search_results_page.select_and_add_students_to_grp([self.test_student], self.group_8)
         self.curated_students_page.load_page(self.group_8)
         self.curated_students_page.assert_visible_students_match_expected(self.group_8)

@@ -461,7 +461,7 @@ class TestNoteMgmt:
         self.homepage.load_page()
         self.homepage.log_out()
         self.homepage.dev_auth(self.test.advisor)
-        self.student_page.enter_simple_search_and_hit_enter(self.note_1.subject)
+        self.homepage.enter_simple_search_and_hit_enter(self.note_1.subject)
         self.search_results_page.wait_for_note_search_result_rows()
         assert self.search_results_page.is_present(self.search_results_page.note_link(self.note_1))
 

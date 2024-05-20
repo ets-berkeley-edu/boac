@@ -348,12 +348,11 @@ class BEATestConfig(object):
                 active.append(s) if s.status == 'active' else inactive.append(s)
             random.shuffle(active)
             random.shuffle(inactive)
-            test_sids.extend(active[:count])
-            test_sids.extend(inactive[:count])
+            test_sids.extend(list(map(lambda st: st.sid, active[:count])))
+            test_sids.extend(list(map(lambda st: st.sid, inactive[:count])))
 
         if test_sids:
             app.logger.info(f'Pre-de-duped SIDs {test_sids}')
-            test_sids = list(dict.fromkeys(test_sids))
             students_to_add = list(filter(lambda st: st.sid in test_sids, self.students))
             self.test_students.extend(students_to_add)
 
@@ -430,3 +429,7 @@ class BEATestConfig(object):
     def note_mgmt(self):
         self.set_note_attachments()
         self.set_base_configs()
+
+    def search_students(self):
+        self.set_base_configs()
+        self.set_test_students(count=app.config['MAX_SEARCH_STUDENTS_COUNT'])
