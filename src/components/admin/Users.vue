@@ -19,15 +19,16 @@
         </v-col>
         <v-col v-if="filterType === 'search'" cols="10">
           <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
-          <InputTextAutocomplete
-            id="search-user"
+          <Autocomplete
+            id="search-options-note-filters-author"
             v-model="userSelection"
-            class="w-50"
+            :compact="true"
             :disabled="isBusy"
-            dropdown-class="w-100"
-            input-labelled-by=""
-            placeholder="Name or UID..."
-            :source="autocompleteUsers"
+            :fetch="userAutocomplete"
+            option-label-key="label"
+            option-value-key="uid"
+            placeholder="Enter name..."
+            @user-selected="userSelected"
           />
         </v-col>
         <v-col v-if="filterType === 'filter'">
@@ -134,19 +135,24 @@
         </v-btn>
       </div>
     </div>
-    <div class="font-size-14 mv-3 ml-4 total-user-count">
+    <div class="font-size-14 mv-3 ml-4 total-user-count mb-4">
       <span v-if="totalUserCount === undefined">Loading...</span>
       <span v-if="totalUserCount === 0">No users found</span>
       <span v-if="totalUserCount > 0">{{ pluralize('user', totalUserCount) }}</span>
     </div>
     <v-data-table-server
       v-model:expanded="expanded"
+      v-model:items-per-page="itemsPerPage"
       :items="users"
       :items-length="totalUserCount"
+      :items-per-page="0"
       :headers="tableHeaders"
+      loading-text="Loading users... Please wait."
       :loading="totalUserCount === undefined"
       item-value="uid"
       show-expand
+      :hide-default-footer="true"
+      disable-pagination
     >
       <template #item.uid="{ item }">
         <span> {{ item.uid }}</span>
@@ -158,6 +164,14 @@
             <pre>{{ JSON.stringify(item, null, 2) }}</pre>
           </td>
         </tr>
+      </template>
+
+      <template #item.edit="{ item }">
+        <EditUserProfileModal
+          :after-update-user="afterUpdateUser"
+          :departments="departments"
+          :profile="item"
+        />
       </template>
 
       <template #item.name="{ item }">
@@ -218,171 +232,21 @@
           <span class="sr-only">Log in as {{ item.name }}</span>
         </v-btn>
       </template>
+      <template #bottom></template>
     </v-data-table-server>
-
-    <v-table
-      id="users-table"
-      ref="users"
-      :busy.sync="isBusy"
-      :fields="[
-        {key: 'toggleDetails', label: '', class: 'column-toggle-details'},
-        {key: 'uid', class: 'column-uid'},
-        {key: 'edit', class: 'column-edit', thClass: 'color-transparent', variant: 'primary'},
-        {key: 'lastName', class: 'column-name font-weight-bolder pl-1', sortable: true, variant: 'primary'},
-        {key: 'depts', label: 'Department(s)'},
-        {key: 'status', class: 'column-status'},
-        {key: 'lastLogin', class: 'column-last-login', sortable: true, variant: 'info'},
-        {key: 'email', class: 'column-email text-center'},
-        {key: 'actions', class: 'p-0 pt-1 column-actions', label: ''}
-      ]"
-      :items="usersProvider"
-      :current-page="currentPage"
-      :sort-by.sync="sortBy"
-      :no-sort-reset="true"
-      :sort-desc.sync="sortDescending"
-      fixed
-      hover
-      responsive
-      sort-icon-left
-      stacked="md"
-      striped
-      thead-class="sortable-table-header text-nowrap"
-    >
-      <template #cell(toggleDetails)="row">
-        <v-btn
-          :id="`user-${row.item.uid}-details-toggle`"
-          class="column-toggle-details-button"
-          variant="link"
-          @click="row.toggleDetails"
-        >
-          <!-- <font-awesome v-if="!row.detailsShowing" icon="caret-right" /> -->
-          <span v-if="!row.detailsShowing" class="sr-only">Show user details</span>
-          <!-- <font-awesome v-if="row.detailsShowing" icon="caret-down" /> -->
-          <span v-if="row.detailsShowing" class="sr-only">Hide user details</span>
-        </v-btn>
-      </template>
-      <template #cell(uid)="row">
-        <span class="sr-only">U I D </span>
-        <span :id="`uid-${row.item.uid}`">{{ row.item.uid }}</span>
-      </template>
-      <template #cell(edit)="row">
-        <EditUserProfileModal
-          :after-update-user="afterUpdateUser"
-          :departments="departments"
-          :profile="row.item"
-        />
-      </template>
-      <template #cell(lastName)="row">
-        <div class="d-flex">
-          <div v-if="!row.item.canAccessCanvasData" class="text-secondary pr-2 position-relative">
-            <span>C</span>
-            <!-- <font-awesome
-              :id="`permission-canvas-data-${row.item.uid}`"
-              class="icon-slash"
-              title="Cannot access Canvas data"
-              icon="slash"
-            /> -->
-          </div>
-          <div v-if="!row.item.canAccessAdvisingData" class="text-secondary pr-2 position-relative">
-            <!-- <font-awesome
-              :id="`permission-advising-data-${row.item.uid}`"
-              :icon="['far', 'sticky-note']"
-            />
-            <font-awesome
-              :id="`permission-advising-data-${row.item.uid}`"
-              class="icon-slash"
-              title="Cannot access Advising data"
-              icon="slash"
-            /> -->
-          </div>
-          <div v-if="row.item.name">
-            <span class="sr-only">Name</span>
-            <a
-              :id="`directory-link-${row.item.uid}`"
-              :aria-label="`Go to UC Berkeley Directory page of ${row.item.name}`"
-              :href="`https://www.berkeley.edu/directory/results?search-term=${row.item.name}`"
-              class="m-0"
-              target="_blank"
-            >
-              {{ row.item.name }}
-            </a>
-          </div>
-          <div v-if="!row.item.name">
-            <span class="faint-text">(Name unavailable)</span>
-          </div>
-        </div>
-      </template>
-      <template #cell(depts)="row">
-        <div v-for="department in row.item.departments" :key="department.code" class="pv-1">
-          <!-- <font-awesome
-            v-if="!department.automateMembership"
-            class="text-warning pr-1"
-            title="Membership is not automated"
-            icon="exclamation-triangle"
-          /> -->
-          <span :id="`dept-${department.code}-${row.item.uid}`">
-            <span class="dept-name">{{ department.name }}</span> &mdash; {{ oxfordJoin(getBoaUserRoles(row.item, department)) }}
-          </span>
-        </div>
-        <div v-if="row.item.degreeProgressPermission" class="faint-text">
-          <span class="font-weight-500">Degree Progress</span> &mdash;
-          <span id="degree-progress-permission">{{ row.item.degreeProgressPermission.replace('_', '/') }}</span>
-          <span
-            v-if="row.item.automateDegreeProgressPermission"
-            id="degree-progress-permission-is-automated"
-          > (automated)</span>
-        </div>
-        <div v-if="row.item.isAdmin" class="dept-name">BOA Admin</div>
-      </template>
-      <template #cell(status)="row">
-        <span :id="`user-status-${row.item.uid}`">{{ oxfordJoin(getUserStatuses(row.item)) }}</span>
-      </template>
-      <template #cell(lastLogin)="row">
-        <span :id="`user-last-login-${row.item.uid}`">
-          <span v-if="row.item.lastLogin">{{ moment(row.item.lastLogin).format('MMM D, YYYY') }}</span>
-          <span v-if="!row.item.lastLogin">&mdash;</span>
-        </span>
-      </template>
-      <template #cell(email)="row">
-        <span :id="`user-email-${row.item.uid}`">
-          <a
-            :aria-label="`Send email to ${row.item.name}`"
-            :href="`mailto:${row.item.campusEmail}`"
-            target="_blank"
-          >
-            <span class="sr-only"> (will open new browser tab)</span>
-          </a>
-        </span>
-      </template>
-      <template #row-details="row">
-        <v-card>
-          <pre :id="`user-details-${row.item.uid}`">{{ row.item }}</pre>
-        </v-card>
-      </template>
-      <template #cell(actions)="row">
-        <v-btn
-          v-if="canBecome(row.item)"
-          :id="'become-' + row.item.uid"
-          variant="link"
-          @click="become(row.item.uid)"
-        >
-          <!-- <font-awesome icon="sign-in-alt" /> -->
-          <span class="sr-only">Log in as {{ row.item.name }}</span>
-        </v-btn>
-      </template>
-    </v-table>
   </div>
 </template>
 
 <script setup>
 import {mdiEmail} from '@mdi/js'
 import {mdiLoginVariant} from '@mdi/js'
+import {ref} from 'vue'
 </script>
 
 <script>
 import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
-import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
+import Autocomplete from '@/components/util/Autocomplete.vue'
 import Util from '@/mixins/Util'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 import {getBoaUserRoles} from '@/berkeley'
@@ -390,7 +254,7 @@ import {DateTime} from 'luxon'
 
 export default {
   name: 'Users',
-  components: {EditUserProfileModal, InputTextAutocomplete},
+  components: {EditUserProfileModal, Autocomplete},
   mixins: [Context, Util],
   props: {
     departments: {
@@ -405,6 +269,7 @@ export default {
   data: () => ({
     expanded: [],
     currentPage: 1,
+    itemsPerPage: 10,
     filterBy: {
       deptCode: 'QCADV',
       role: null,
@@ -419,6 +284,7 @@ export default {
     userSelection: undefined,
     departmentSelectionList: [],
     users: [],
+    items: ref([]),
     filterTypeOptions: [
       {
         name: 'Search',
@@ -485,6 +351,11 @@ export default {
         align: 'start'
       },
       {
+        title: '',
+        key: 'edit',
+        align: 'end'
+      },
+      {
         title: 'Name',
         key: 'name',
         align: 'start'
@@ -517,9 +388,10 @@ export default {
         this.refreshUsers()
       }
     },
-    userSelection(u) {
-      if (u) {
+    userSelection(newVal) {
+      if (newVal) {
         this.refreshUsers()
+        this.onUpdateSearch()
       }
     }
   },
@@ -558,7 +430,7 @@ export default {
     canBecome(user) {
       const isNotMe = user.uid !== this.currentUser.uid
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
-      const hasAnyRole = user.isAdmin || this._find(user.departments, (dept) => !this._isNil(dept.role))
+      const hasAnyRole = user?.isAdmin || this._find(user.departments, (dept) => !this._isNil(dept.role))
       return this.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
     },
     getBoaUserRoles,
@@ -586,29 +458,24 @@ export default {
       this.refreshUsers()
     },
     refreshUsers() {
-      console.log('this.$refs', this.$refs)
-      console.log('this.$refs.users', this.$refs.users)
-      // console.log('this.$refs', this.$refs)
-
-      // if (this.$refs.users) {
-      //   this.$refs.users.refresh()
-      // }
       this.usersProvider()
     },
+    userSelected(selectedUser) {
+      this.userSelection = selectedUser
+    },
     usersProvider() {
-      console.log('usersProvider', this.filterType)
-      this.totalUserCount = undefined
       let promise = undefined
       switch(this.filterType) {
       case 'admins':
+        this.totalUserCount = undefined
         promise = getAdminUsers(this.sortBy, this.sortDescending, false).then(data => {
           this.totalUserCount = data.totalUserCount
           this.users = data.users
-          console.log('data 1', this.users)
           return data.users
         })
         break
       case 'filter':
+        this.totalUserCount = undefined
         promise = getUsers(
           this._isNil(this.filterBy.status) ? null : this.filterBy.status === 'blocked',
           this._isNil(this.filterBy.status) ? null : this.filterBy.status === 'deleted',
@@ -619,17 +486,16 @@ export default {
         ).then(data => {
           this.totalUserCount = data.totalUserCount
           this.users = data.users
-          console.log('data 2', this.users)
           return data.users
         })
         break
       case 'search':
+        this.totalUserCount = 0
         if (this.userSelection) {
-          promise = getUserByUid(this.userSelection.uid, false).then(data => {
+          promise = getUserByUid(this.userSelection, false).then(data => {
             this.totalUserCount = 1
             this.userSelection = undefined
             this.users = [data]
-            console.log('data 3', this.users)
             return [data]
           })
         } else {
@@ -641,7 +507,7 @@ export default {
         promise = new Promise(resolve => resolve([]))
       }
       return promise
-    }
+    },
   }
 }
 </script>

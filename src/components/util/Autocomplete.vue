@@ -2,6 +2,7 @@
   <div class="align-center d-flex">
     <v-autocomplete
       :id="id"
+      v-model="selected"
       bg-color="transparent"
       :clearable="!isFetching"
       base-color="black"
@@ -20,8 +21,7 @@
       :menu-icon="null"
       variant="outlined"
       @click:clear="onClear"
-      @update:focused="onFocused"
-      @update:menu="s => console.log(`@update:menu: ${s}`)"
+      @update:menu="s => s ? null : $emit('user-selected', selected)"
       @update:search="onUpdateSearch"
     >
       <template #append-inner>
@@ -52,6 +52,7 @@ import {mdiPlus} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {find, map, noop} from 'lodash'
 import {ref} from 'vue'
+import _ from 'lodash'
 
 const props = defineProps({
   ariaRequired: {
@@ -108,6 +109,11 @@ const props = defineProps({
     default: query => query && query.length > 1,
     required: false,
     type: Function
+  },
+  selection: {
+    default: undefined,
+    required: false,
+    type: Object
   }
 })
 
@@ -123,16 +129,16 @@ const onClear = () => {
 const onClickAdd = () => {
   const item = find(items, [props.optionValueKey, selected])
   if (item) {
-    props.onClickAddButton(item)
-    isFetching.value = false
+    if (props.onClickAddButton) {
+      props.onClickAddButton(item)
+      isFetching.value = false
+    }
+    // props.onClickAddButton(item)
+    // isFetching.value = false
   }
 }
 
-const onFocused = () => {
-  isFetching.value = false
-}
-
-const onUpdateSearch = args => {
+const onUpdateSearch = _.debounce(args => {
   isFetching.value = true
   if (props.suggestWhen(args)) {
     const controller = new AbortController()
@@ -141,7 +147,8 @@ const onUpdateSearch = args => {
       isFetching.value = false
     })
   }
-}
+}, 500)
+
 </script>
 
 <style scoped>

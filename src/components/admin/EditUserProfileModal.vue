@@ -1,14 +1,15 @@
 <template>
   <div>
-    <v-btn
+    <v-icon
       v-if="isExistingUser"
       :id="`edit-${profile.uid}`"
-      class="pl-1 pr-1"
-      :prepend-icon="mdiNoteEditOutline"
+      class="pl-1 pr-1 cursor-pointer"
+      :icon="mdiNoteEditOutline"
+      size="x-large"
       @click="openEditUserModal"
     >
       <span class="sr-only"> Edit profile of {{ profile.name }}</span>
-    </v-btn>
+    </v-icon>
     <v-btn
       v-if="!isExistingUser"
       id="add-new-user-btn"
@@ -29,32 +30,32 @@
       width="auto"
     >
       <v-card
-        max-width="500"
+        min-width="600"
+        max-width="600"
       >
-        <v-card-title>Create User</v-card-title>
         <v-card-text>
+          <h2>Create User</h2>
           <div class="modal-body m-0 p-0">
-            <div class="pt-2">
+            <div>
               <div
                 v-if="error"
                 class="align-items-center has-error mb-3 ml-4 mt-1"
                 aria-live="polite"
                 role="alert"
               >
-                <span class="font-weight-bolder">Error:</span> {{ error }}
+                <span class="font-weight-bolder text-red">Error: {{ error }}</span>
               </div>
-              <div v-if="!isExistingUser" class="align-items-center mb-3 ml-4 mt-3">
+              <div v-if="!isExistingUser" class="align-items-center ml-0 mt-3">
                 <label for="uid-input" class="sr-only">U I D </label>
-                <!-- <b-form-input
-                  id="uid-input"
+                <v-text-field
                   v-model="userProfile.uid"
-                  class="w-260px"
-                  maxlength="10"
-                  placeholder="UID"
-                  size="lg"
-                ></b-form-input> -->
+                  label="UID"
+                  variant="outlined"
+                  density="compact"
+                >
+                </v-text-field>
               </div>
-              <v-container fluid class="ml-0">
+              <div class="ml-0 mt-0">
                 <v-checkbox
                   id="is-admin"
                   v-model="userProfile.isAdmin"
@@ -92,15 +93,17 @@
                 >
                 </v-checkbox>
                 <v-row v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission">
-                  <v-col class="mr-3">
+                  <v-col class="mr-3" no-gutters>
                     <!-- <label for="degree-progress-permission">Degree Progress Permission</label> -->
-                    <div class="mb-3 mt-1">
+                    <div class="mt-1 ">
                       <v-select
                         v-model="userProfile.degreeProgressPermission"
                         label="Degree Progress Permission"
                         :items="degreeProgressPermissionItems"
                         item-title="text"
                         item-value="value"
+                        density="compact"
+                        variant="outlined"
                       ></v-select>
                       <!-- <b-select
                         id="degree-progress-permission-select"
@@ -125,7 +128,7 @@
                     </div>
                   </v-col>
                 </v-row>
-              </v-container>
+              </div>
             </div>
             <hr class="mb-1 ml-0 mr-0 mt-1" />
             <div class="ml-3 mr-2 pt-2">
@@ -133,7 +136,7 @@
               <div
                 v-for="dept in memberships"
                 :key="dept.code"
-                class="ml-2 mt-2"
+                class="ml-0 mt-2"
               >
                 <div class="align-items-center d-flex">
                   <div>
@@ -142,16 +145,16 @@
                     </h4>
                   </div>
                   <div class="mb-1">
-                    <v-btn
+                    <v-icon
                       :id="`remove-department-${dept.code}`"
-                      variant="link"
-                      class="p-0"
+                      :icon="mdiCloseCircleOutline"
+                      class="pl-2 pb-1"
+                      size="x-large"
+                      color="error"
                       @click.prevent="removeDepartment(dept.code)"
                     >
-                      <v-icon :icon="mdiCloseCircleOutline" class="pl-2"></v-icon>
-                      <!-- <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" /> -->
                       <span class="sr-only">Remove department '{{ dept.name }}'</span>
-                    </v-btn>
+                    </v-icon>>
                   </div>
                 </div>
                 <div class="pl-4">
@@ -162,10 +165,13 @@
                     <v-select
                       :id="`select-department-${dept.code}-role`"
                       v-model="dept.role"
+                      class="w-260px"
                       label="Role: "
                       :items="departmentItems"
                       item-title="text"
                       item-value="value"
+                      density="compact"
+                      variant="outlined"
                     >
                     </v-select>
                     <!-- <select
@@ -180,49 +186,55 @@
                       <option value="director">Director</option>
                     </select> -->
                   </div>
-                  <div class="d-flex pt-2">
-                    <div class="font-weight-500">
+                  <div class="d-flex">
+                    <!-- <div class="font-weight-500">
                       <label :for="`is-automated-membership-${dept.code}`">Automated</label>
-                    </div>
-                    <div class="pl-1">
+                    </div> -->
+                    <div class="mb-1">
                       <!-- <b-form-checkbox :id="`is-automate-membership-${dept.code}`" v-model="dept.automateMembership"></b-form-checkbox> -->
+                      <v-checkbox
+                        :id="`is-automate-membership-${dept.code}`"
+                        v-model="dept.automateMembership"
+                        label="Automated"
+                        hide-details="true"
+                      >
+                      </v-checkbox>
                     </div>
                   </div>
                 </div>
               </div>
               <div v-if="memberships.length >= 3" class="m-3">
-                <span class="text-info"><font-awesome icon="check" /> Three departments is enough!</span>
+                <span class="text-info"><v-icon class="mb-1" :icon="mdiCheckBold" /> Three departments is enough!</span>
               </div>
-              <div v-if="memberships.length < 3" class="mb-3 ml-0 mr-2 p-2">
-                <v-select
-                  id="department-select-list"
-                  v-model="deptCode"
-                  :items="departmentOptions"
-                  item-title="text"
-                  item-value="value"
-                  density="compact"
-                >
-                </v-select>
 
-                <v-btn id="add-department-button" @click="addDepartment"> Add Department</v-btn>
-                <!-- <select
-                  id="department-select-list"
-                  v-model="deptCode"
-                  aria-label="Use up and down arrows to review departments. Hit enter to select a department."
-                  class="w-auto"
-                  style="font-size: 16px;"
-                  @change="addDepartment"
-                >
-                  <option :value="undefined">Add department...</option>
-                  <option
-                    v-for="department in departmentOptions"
-                    :key="department.value"
-                    :disabled="department.disabled"
-                    :value="department.value"
-                  >
-                    {{ department.text }}
-                  </option>
-                </select> -->
+              <div v-if="memberships.length < 3" class="ml-0 mr-2 p-2 mt-4">
+                <v-row no-gutters>
+                  <v-col cols="12" md="10">
+                    <v-select
+                      id="department-select-list"
+                      v-model="deptCode"
+                      label="Add Department"
+                      :items="departmentOptions"
+                      item-title="text"
+                      item-value="value"
+                      density="compact"
+                      variant="outlined"
+                    >
+                    </v-select>
+                  </v-col>
+
+                  <v-col cols="12" md="2">
+                    <v-btn
+                      id="add-department-button"
+                      class="ml-2 pb-1"
+                      icon
+                      variant="text"
+                      @click="addDepartment"
+                    >
+                      <v-icon :icon="mdiPlus"></v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
               </div>
             </div>
           </div>
@@ -281,6 +293,9 @@
 <script setup>
 import {mdiNoteEditOutline} from '@mdi/js'
 import {mdiPlus} from '@mdi/js'
+import {mdiCloseCircleOutline} from '@mdi/js'
+import {mdiCheckBold} from '@mdi/js'
+
 </script>
 
 <script>
@@ -430,5 +445,25 @@ export default {
 <style scoped>
 .w-260px {
   width: 260px;
+  max-width: 260px;
+}
+
+.max-width{
+  width: 300px;
+  max-width: 300px;
+}
+
+:deep(.v-input__details) {
+  min-height: 0px !important;
+  max-height: 6px !important;
+}
+
+/* Scoped styles for checkbox */
+.v-input--density-default {
+  --v-input-control-height: 0 !important;
+}
+
+.v-input--checkbox .v-input--selection-controls__input {
+  margin: 0;
 }
 </style>
