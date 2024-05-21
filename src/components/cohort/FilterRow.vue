@@ -52,7 +52,7 @@
           :masks="{modelValue: 'iso'}"
           :max-date="rangeMax && dateTimeFromISO(rangeMax)"
           :popover="{visibility: 'focus', autoHide: false}"
-          :select-attribute="{key: 'today', dot: true, dates: new Date()}"
+          :select-attribute="{key: 'today'}"
           @popover-did-show="onPopoverShown"
         >
           <template #default="{inputValue, inputEvents}">
@@ -62,16 +62,15 @@
             <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">
               Start of range in format MM/DD/YYYY
             </span>
-            <v-text-field
+            <input
               :id="`filter-range-min-${position}`"
               :aria-describedby="`filter-range-min-placeholder-${position}`"
               autocomplete="off"
-              density="compact"
-              hide-details
+              class="data-picker-text-input"
               placeholder="MM/DD/YYYY"
               size="12"
+              type="text"
               :value="inputValue"
-              variant="outlined"
               v-on="inputEvents"
             />
           </template>
@@ -92,16 +91,15 @@
             <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">
               End of range in format MM/DD/YYYY
             </span>
-            <v-text-field
+            <input
               :id="`filter-range-max-${position}`"
               :aria-describedby="`filter-range-max-placeholder-${position}`"
               autocomplete="off"
-              density="compact"
-              hide-details
+              class="data-picker-text-input"
               placeholder="MM/DD/YYYY"
               size="12"
+              type="text"
               :value="inputValue"
-              variant="outlined"
               v-on="inputEvents"
             />
           </template>
@@ -685,6 +683,11 @@ export default {
 </style>
 
 <style scoped>
+.data-picker-text-input {
+  border: 1px solid darkgrey;
+  border-radius: 5px;
+  padding: 7px 15px;
+}
 .existing-filter-name {
   width: 26%;
 }
