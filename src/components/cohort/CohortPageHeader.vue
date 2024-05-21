@@ -82,7 +82,7 @@
         <v-btn
           v-if="cohort.domain === 'default' && (cohort.cohortId || cohort.totalStudentCount !== undefined)"
           id="export-student-list-button"
-          :disabled="!exportEnabled || !cohort.totalStudentCount || cohort.isModifiedSinceLastSearch"
+          :disabled="isDownloadingCSV || !cohort.totalStudentCount || cohort.isModifiedSinceLastSearch"
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           text="Export List"
@@ -94,7 +94,7 @@
           id="export-student-list-button"
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
-          :disabled="!exportEnabled || !cohort.totalStudentCount || cohort.isModifiedSinceLastSearch"
+          :disabled="isDownloadingCSV || !cohort.totalStudentCount || cohort.isModifiedSinceLastSearch"
           text="Export List"
           variant="text"
           @click="showExportAdmitsModal = true"
@@ -189,7 +189,7 @@ export default {
   },
   data: () => ({
     error: undefined,
-    exportEnabled: true,
+    isDownloadingCSV: false,
     isHistorySupported: true,
     name: undefined,
     renameError: undefined,
@@ -265,10 +265,10 @@ export default {
       })
     },
     exportStudents(csvColumnsSelected) {
+      this.isDownloadingCSV = true
       alertScreenReader(`Exporting cohort '${this.name}'`)
       return this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
-        this.exportEnabled = true
-        this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
+        this.showExportAdmitsModal = this.showExportStudentsModal = this.isDownloadingCSV = false
         alertScreenReader(`Downloading cohort '${this.name}'`)
       }, error => {
         alertScreenReader(`Failed to export cohort '${this.name}'`)
