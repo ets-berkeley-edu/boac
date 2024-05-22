@@ -11,6 +11,7 @@
         hide-details
         placeholder="UID"
         variant="outlined"
+        @update:model-value="() => reportError(null)"
       />
       <v-text-field
         id="dev-auth-password"
@@ -25,6 +26,7 @@
         placeholder="Password"
         type="password"
         variant="outlined"
+        @update:model-value="() => reportError(null)"
       />
       <v-btn
         id="dev-auth-submit"
@@ -69,14 +71,20 @@ export default {
       let password = this._trim(this.password)
       if (uid && password) {
         this.isLoggingIn = true
-        devAuthLogIn(uid, password).then(() => {
-          if (this.currentUser.isAuthenticated) {
-            const redirect = this._get(this.$router, 'currentRoute.query.redirect')
-            this.$router.push({path: redirect || '/home'}, noop)
-          } else {
-            this.reportError('Sorry, user is not authorized to use BOA.')
-            this.isLoggingIn = false
+        devAuthLogIn(uid, password).then(
+          () => {
+            if (this.currentUser.isAuthenticated) {
+              const redirect = this._get(this.$router, 'currentRoute.query.redirect')
+              this.$router.push({path: redirect || '/home'}, noop)
+            } else {
+              this.reportError('Sorry, user is not authorized to use BOA.')
+            }
+          },
+          error => {
+            this.reportError(error)
           }
+        ).finally(() => {
+          this.isLoggingIn = false
         })
       } else if (uid) {
         this.reportError('Password required')

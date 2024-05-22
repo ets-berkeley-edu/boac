@@ -8,7 +8,7 @@
         </div>
       </div>
       <v-card class="card" rounded="0">
-        <v-card-title class="card-title">
+        <v-card-title class="card-title pb-0">
           <h1>BOA</h1>
         </v-card-title>
         <v-card-text class="pa-0 text-center">
@@ -22,6 +22,9 @@
           </v-btn>
           <div v-if="config.devAuthEnabled" class="mt-3">
             <DevAuth :report-error="reportError" />
+          </div>
+          <div class="error-message font-size-14 text-error">
+            {{ error }}
           </div>
           <div class="contact-us">
             If you have questions or feedback then contact us at
@@ -47,8 +50,7 @@ export default {
   components: {DevAuth},
   mixins: [Context, Util],
   data: () => ({
-    error: undefined,
-    showError: false
+    error: undefined
   }),
   created() {
     this.nextTick(() => this.reportError(this.$route.query.error))
@@ -57,16 +59,8 @@ export default {
     logIn() {
       getCasLoginURL().then(data => window.location.href = data.casLoginUrl)
     },
-    onHidden() {
-      this.error = null
-      this.showError = false
-    },
     reportError(error) {
-      error = this._trim(error)
-      if (error.length) {
-        this.error = error
-        this.showError = true
-      }
+      this.error = this._trim(error) || null
     }
   }
 }
@@ -78,6 +72,7 @@ h1 {
   font-weight: 200;
   font-size: 81px;
   letter-spacing: 8px;
+  margin-bottom: 0;
   padding-top: 14px;
 }
 .airplane {
@@ -90,7 +85,7 @@ h1 {
 .airplane-container {
   left: 110px;
   position: absolute;
-  top: 30px
+  top: 64px
 }
 .background-blue-sky {
   background: url('@/assets/blue-sky-background.jpg') no-repeat center center fixed;
@@ -104,11 +99,10 @@ h1 {
   width: 320px;
 }
 .card-title {
-  margin: 64px 0 32px 0;
   text-align: center;
 }
 .contact-us {
-  margin: 33px 33px 12px 33px;
+  margin: 0px 33px 12px 33px;
   text-align: left;
 }
 .copyright {
@@ -121,8 +115,15 @@ h1 {
   text-align: center;
   z-index: 1;
 }
+.error-message {
+  color: rgb(var(--v-theme-error));
+  font-weight: 500;
+  height: 24px;
+  min-height: 24px;
+  margin: 10px 0 8px 0;
+}
 .logo-container {
-  padding-top: 72px;
+  padding-top: 106px;
   position: relative;
   width: 320px;
   z-index: 1;
