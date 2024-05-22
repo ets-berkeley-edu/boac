@@ -118,7 +118,6 @@ h1 {
 .error-message {
   color: rgb(var(--v-theme-error));
   font-weight: 500;
-  height: 24px;
   min-height: 24px;
   margin: 10px 0 8px 0;
 }

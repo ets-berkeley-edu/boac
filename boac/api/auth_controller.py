@@ -55,20 +55,14 @@ def cas_login():
 
     if user_id is None:
         logger.error(f'UID {uid} is not an authorized user.')
-        param = ('error', f"""
-            Sorry, you are not registered to use BOA.
-            Please <a href="mailto:{app.config['BOAC_SUPPORT_EMAIL']}">email us</a> for assistance.
-        """)
+        param = ('error', 'Sorry, you are not registered to use BOA.')
         redirect_url = add_param_to_url('/', param)
 
     else:
         user = UserSession(user_id=user_id, flush_cached=True)
         if not user.is_active:
             logger.error(f'UID {uid} is in the BOA db but is not authorized to use the tool.')
-            param = ('error', f"""
-                Sorry, you are not registered to use BOA.
-                Please <a href="mailto:{app.config['BOAC_SUPPORT_EMAIL']}">email us</a> for assistance.
-            """)
+            param = ('error', 'Sorry, you are not registered to use BOA.')
             redirect_url = add_param_to_url('/', param)
         else:
             login_user(user)
