@@ -1,7 +1,7 @@
 <template>
   <div v-if="!context.loading" class="default-margins">
     <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
-    <div v-if="cohort.domain === 'admitted_students' && cohort.students" class="pb-2">
+    <div v-if="cohort.domain === 'admitted_students' && cohort.students">
       <AdmitDataWarning :updated-at="get(cohort.students, '[0].updatedAt')" />
     </div>
     <v-expand-transition>
@@ -29,8 +29,7 @@
           <SortBy v-if="cohort.showSortBy" :domain="cohort.domain" />
         </div>
       </div>
-      <hr class="mb-0 mx-3 mt-4" />
-      <div v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage" class="pt-1">
+      <div v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage" :class="{'mt-6': cohort.domain === 'default'}">
         <Pagination
           class="my-3"
           :click-handler="goToPage"
@@ -39,8 +38,8 @@
           :per-page="cohort.pagination.itemsPerPage"
           :total-rows="cohort.totalStudentCount"
         />
-        <hr class="mt-4 mb-0" />
       </div>
+      <hr class="my-4" />
       <v-container
         v-if="cohort.domain === 'default'"
         id="cohort-students"
@@ -60,19 +59,20 @@
         />
       </v-container>
       <div v-if="cohort.domain === 'admitted_students'">
-        <hr />
         <AdmitStudentsTable :include-curated-checkbox="true" :students="cohort.students" />
         <hr />
       </div>
-      <Pagination
-        v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage"
-        :click-handler="goToPage"
-        :index="1"
-        :init-page-number="pageNumber"
-        :limit="10"
-        :per-page="cohort.pagination.itemsPerPage"
-        :total-rows="cohort.totalStudentCount"
-      />
+      <div class="mt-3">
+        <Pagination
+          v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage"
+          :click-handler="goToPage"
+          :index="1"
+          :init-page-number="pageNumber"
+          :limit="10"
+          :per-page="cohort.pagination.itemsPerPage"
+          :total-rows="cohort.totalStudentCount"
+        />
+      </div>
     </div>
     <div v-if="showHistory">
       <CohortHistory />
@@ -109,6 +109,7 @@ export default {
   data: () => ({
     cohort: undefined,
     context: undefined,
+    page: 1,
     pageNumber: undefined,
     showHistory: false
   }),

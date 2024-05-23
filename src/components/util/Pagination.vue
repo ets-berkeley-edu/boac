@@ -1,20 +1,24 @@
 <template>
-  <div :id="`pagination-widget-${index}-outer`" class="d-flex justify-start">
-    <span class="sr-only"><span id="total-rows">{{ totalPages }}</span>
-      pages of search results</span>
+  <div class="d-flex justify-start">
+    <span class="sr-only"><span id="total-rows">{{ totalPages }}</span> pages of search results</span>
     <v-pagination
-      :id="`pagination-widget-${index}`"
+      :id="`pagination-${index}`"
       v-model="currentPage"
+      active-color="primary"
       aria-label="Pagination"
-      density="compact"
-      :show-first-last-page="totalPages >= 3"
+      density="comfortable"
       :length="totalPages"
-      :total-visible="totalVisible"
-      variant="outlined"
+      rounded="md"
+      :show-first-last-page="totalPages >= showFirstLastButtonsWhen"
+      :total-visible="7"
+      variant="flat"
+      @next="() => onClick('next')"
+      @prev="() => onClick('prev')"
+      @update:model-value="v => onClick(v)"
     >
       <template #first="{disabled}">
         <v-btn
-          :id="`pagination-widget-${index}-btn-first`"
+          :id="`pagination-${index}-first-page`"
           class="font-size-14 rounded-e-0"
           :class="{'text-primary': !disabled}"
           :disabled="disabled"
@@ -27,149 +31,145 @@
       </template>
       <template #prev="{disabled}">
         <v-btn
-          :id="`pagination-widget-${index}-btn-prev`"
-          class="font-size-14 rounded-0"
-          :class="{'text-primary': !disabled}"
+          :id="`pagination-${index}-previous-page`"
+          aria-label="Previous"
+          class="chevron-button rounded-e-0 rounded-s-lg"
+          :class="{
+            'text-primary': !disabled,
+            'rounded-0': totalPages >= showFirstLastButtonsWhen,
+            'rounded-e-0': totalPages < showFirstLastButtonsWhen
+          }"
           :disabled="disabled"
-          slim
-          variant="outlined"
-          @click="onClick('prev')"
-        >
-          Prev
-        </v-btn>
-      </template>
-      <template #item="{isActive, key, page}">
-        <v-btn
-          :id="`pagination-widget-${index}-btn-${key}`"
-          :aria-hidden="hideButton(key)"
-          class="page-number font-size-14 px-0"
-          :class="{'bg-primary border-primary text-white': isActive, 'text-primary': !isActive, 'd-none': hideButton(key)}"
-          slim
+          :icon="mdiChevronLeft"
           tile
           variant="outlined"
-          @click="onClick(page)"
-        >
-          {{ page }}
-        </v-btn>
+          @click="onClick('prev')"
+        />
       </template>
+      <!--
+      <template #item="{isActive, key, page, props}">
+        <v-btn
+          :id="`pagination-widget-${index}-btn-${key}`"
+          class="page-number"
+          :class="{'bg-primary border-primary text-white': isActive, 'text-primary': !isActive, 'd-none': hideButton(key)}"
+          :text="page"
+          tile
+          variant="outlined"
+          @click="() => console.log(props)"
+        />
+      </template>
+      -->
       <template #next="{disabled}">
         <v-btn
-          :id="`pagination-widget-${index}-btn-next`"
-          class="font-size-14 rounded-0"
-          :class="{'text-primary': !disabled}"
+          :id="`pagination-${index}-next-page`"
+          class="chevron-button rounded-s-0"
+          :class="{
+            'text-primary': !disabled,
+            'rounded-0': totalPages >= showFirstLastButtonsWhen,
+            'rounded-s-0': totalPages < showFirstLastButtonsWhen
+          }"
           :disabled="disabled"
-          slim
+          :icon="mdiChevronRight"
           variant="outlined"
           @click="onClick('next')"
-        >
-          Next
-        </v-btn>
+        />
       </template>
       <template #last="{disabled}">
         <v-btn
-          :id="`pagination-widget-${index}-btn-last`"
-          class="font-size-14 rounded-s-0"
+          :id="`pagination-${index}-last-page`"
+          class="font-size-14 rounded-e-lg rounded-s-0"
           :class="{'text-primary': !disabled}"
           :disabled="disabled"
           slim
+          text="Last"
           variant="outlined"
           @click="onClick(totalPages)"
-        >
-          Last
-        </v-btn>
+        />
       </template>
     </v-pagination>
   </div>
 </template>
 
 <script setup>
-import {startsWith, toNumber} from 'lodash'
-</script>
+import {computed} from 'vue'
+import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
+import {each, toNumber} from 'lodash'
 
-<script>
-export default {
-  name: 'Pagination',
-  props: {
-    clickHandler: {
-      required: true,
-      type: Function
-    },
-    index: {
-      type: Number,
-      default: 0
-    },
-    initPageNumber: {
-      type: Number,
-      default: 1
-    },
-    limit: {
-      required: true,
-      type: Number
-    },
-    perPage: {
-      required: true,
-      type: Number
-    },
-    size: {
-      default: undefined,
-      required: false,
-      type: String
-    },
-    totalRows: {
-      required: true,
-      type: Number
-    }
+const props = defineProps({
+  clickHandler: {
+    required: true,
+    type: Function
   },
-  data: () => ({
-    currentPage: undefined
-  }),
-  computed: {
-    totalPages() {
-      return Math.ceil(this.totalRows / this.perPage)
-    },
-    totalVisible() {
-      // Account for extra buttons that will be suppressed. For the first n pages, only the ellipsis button needs to be hidden.
-      if (this.currentPage <= (this.limit + 2) / 2) {
-        return this.limit + 1
-      } else {
-        return this.limit + 3
-      }
-    }
+  index: {
+    type: Number,
+    default: 0
   },
-  created() {
-    this.currentPage = this.initPageNumber
+  initPageNumber: {
+    type: Number,
+    default: 1
   },
-  methods: {
-    hideButton(key) {
-      // Suppress extra buttons to hide ellipsis and prevent gaps between page numbers.
-      const midpoint = Math.ceil(this.totalVisible / 2)
-      if (startsWith(key, 'ellipsis')) {
-        return true
-      } else if (this.currentPage <= midpoint) {
-        return key < (this.currentPage - midpoint) || key > (this.limit)
-      } else if (this.currentPage >= this.totalPages - midpoint) {
-        return key <= (this.totalPages - this.limit)
-      } else {
-        return key <= (this.currentPage - midpoint) || key >= (this.currentPage + midpoint)
+  limit: {
+    required: true,
+    type: Number
+  },
+  perPage: {
+    required: true,
+    type: Number
+  },
+  size: {
+    default: undefined,
+    required: false,
+    type: String
+  },
+  totalRows: {
+    required: true,
+    type: Number
+  }
+})
+
+const showFirstLastButtonsWhen = 11
+const currentPage = props.initPageNumber
+const totalPages = computed(() =>Math.ceil(props.totalRows / props.perPage))
+
+const intervalId = setInterval(() => {
+  const elements = document.querySelectorAll('ul li.v-pagination__item button[ellipsis]')
+  if (elements.length) {
+    clearInterval(intervalId)
+    each(elements, (element, page) => {
+      const isEllipsis = element.getAttribute('ellipsis') === 'true'
+      element.id = `pagination-${props.index}-page-${isEllipsis ? 'ellipsis' : page}-btn`
+      if (isEllipsis) {
+        element.setAttribute('style', 'color: #fff !important')
+        element.lastElementChild.classList.add('text-grey-darken-2')
+      } else if (element.ariaCurrent !== 'true') {
+        element.classList.add('text-primary')
       }
-    },
-    onClick(page) {
-      if (page === 'prev') {
-        this.clickHandler(toNumber(this.currentPage - 1))
-      } else if (page === 'next') {
-        this.clickHandler(toNumber(this.currentPage + 1))
-      } else {
-        this.clickHandler(toNumber(page))
-      }
-    }
+      each(['border-1', 'px-5', 'rounded-0'], className => element.classList.add(className))
+    })
+  }
+}, 300)
+
+const onClick = page => {
+  if (page === 'prev') {
+    props.clickHandler(toNumber(currentPage - 1))
+  } else if (page === 'next') {
+    props.clickHandler(toNumber(currentPage + 1))
+  } else {
+    props.clickHandler(toNumber(page))
   }
 }
 </script>
 
 <style lang="scss">
+.chevron-button {
+  height: 36px !important;
+}
+.color-white {
+  color: white;
+}
 .v-pagination {
   ul li {
-    margin: 0px;
+    margin: 0;
     button {
       border: 1px solid rgb(var(--v-theme-faint));
       height: 40px;
