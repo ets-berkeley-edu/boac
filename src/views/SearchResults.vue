@@ -44,7 +44,7 @@
           <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
         </ul>
       </div>
-      <div v-if="results.totalStudentCount">
+      <div v-if="results.totalStudentCount || results.totalCourseCount || _size(results.appointments) || _size(results.notes)">
         <v-tabs
           v-model="tab"
           density="comfortable"
@@ -82,26 +82,28 @@
               </template>
             </v-tab>
           </template>
-          <template #item="{ item }">
+          <template #item="{item}">
             <v-tabs-window-item class="bg-white pt-2 px-4" :value="item.key">
               <div v-if="item.key === 'student'">
                 <SearchResultsHeader
                   class="my-2"
-                  :count-in-view="50"
+                  :count-in-view="results.students.length"
                   :count-total="results.totalStudentCount"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
                 />
-                <CuratedGroupSelector
-                  context-description="Search"
-                  domain="default"
-                  :students="results.students"
-                />
-                <SortableStudents
-                  domain="default"
-                  :include-curated-checkbox="true"
-                  :students="results.students"
-                />
+                <div v-if="results.students.length">
+                  <CuratedGroupSelector
+                    context-description="Search"
+                    domain="default"
+                    :students="results.students"
+                  />
+                  <SortableStudents
+                    domain="default"
+                    :include-curated-checkbox="true"
+                    :students="results.students"
+                  />
+                </div>
               </div>
               <div v-if="item.key === 'admit'">
                 <div class="align-center d-flex justify-space-between">
@@ -276,11 +278,11 @@ export default {
       return tabs
     },
     hasSearchResults() {
-      return this.results.totalStudentCount
+      return !!(this.results.totalStudentCount
         || this.results.totalCourseCount
         || this.results.totalAdmitCount
         || this._size(this.results.notes)
-        || this._size(this.results.appointments)
+        || this._size(this.results.appointments))
     }
   },
   mounted() {
