@@ -4,13 +4,12 @@
       class: 'pl-0 vertical-top',
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     }"
-    :header-props="{class: 'pl-0'}"
     :headers="headers"
-    :items="students"
+    :header-props="{class: 'pl-0'}"
+    :items="items"
     mobile-breakpoint="md"
-    no-sort-reset
-    :sort-by="[sortBy]"
-    :sort-compare="sortCompare"
+    must-sort
+    @update:sort-by="onUpdateSortBy"
   >
     <template #header.avatar="{column}">
       <span class="sr-only">{{ column.title }}</span>
@@ -18,7 +17,7 @@
 
     <template #item.curated="{item}">
       <CuratedStudentCheckbox
-        v-if="options.includeCuratedCheckbox"
+        v-if="includeCuratedCheckbox"
         class="mb-2"
         :domain="domain"
         :student="item"
@@ -31,12 +30,12 @@
         size="small"
         :student="item"
       />
-      <div v-if="options.includeCuratedCheckbox" class="sr-only">
+      <div v-if="includeCuratedCheckbox" class="sr-only">
         <ManageStudent domain="default" :student="item" />
       </div>
     </template>
 
-    <template #item.name="{item}">
+    <template #item.lastName="{item}">
       <div>
         <span class="sr-only">Student name</span>
         <router-link
@@ -80,30 +79,30 @@
       <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.sid }}</span>
     </template>
 
-    <template v-if="!options.compact" #item.major="{item}">
+    <template v-if="!compact" #item.major="{item}">
       <span class="sr-only">Major</span>
       <div v-if="!item.majors || item.majors.length === 0">--<span class="sr-only">No data</span></div>
       <div v-for="major in item.majors" :key="major">{{ major }}</div>
     </template>
 
-    <template v-if="!options.compact" #item.expectedGraduationTerm="{item}">
+    <template v-if="!compact" #item.expectedGraduationTerm="{item}">
       <span class="sr-only">Expected graduation term</span>
       <div v-if="!item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
       <span class="text-no-wrap">{{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}</span>
     </template>
 
-    <template v-if="!options.compact" #item.enrolledUnits="{item}">
+    <template v-if="!compact" #item.enrolledUnits="{item}">
       <span class="sr-only">Term units</span>
       {{ _get(item.term, 'enrolledUnits', 0) }}
     </template>
 
-    <template v-if="!options.compact" #item.cumulativeUnits="{item}">
+    <template v-if="!compact" #item.cumulativeUnits="{item}">
       <span class="sr-only">Units completed</span>
       <div v-if="!item.cumulativeUnits">--<span class="sr-only">No data</span></div>
       <div v-if="item.cumulativeUnits">{{ numFormat(item.cumulativeUnits, '0.00') }}</div>
     </template>
 
-    <template v-if="!options.compact" #item.cumulativeGPA="{item}">
+    <template v-if="!compact" #item.cumulativeGPA="{item}">
       <span class="sr-only">GPA</span>
       <div v-if="_isNil(item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
       <div v-if="!_isNil(item.cumulativeGPA)">{{ round(item.cumulativeGPA, 3) }}</div>
@@ -111,7 +110,7 @@
 
     <template #item.alertCount="{item}">
       <PillAlert
-        :aria-label="`${item.alertCount || 'No'} alerts for ${item.name}`"
+        :aria-label="`${item.alertCount || 'No'} alerts for ${item.firstName} ${item.lastName}`"
         :color="item.alertCount ? 'warning' : 'grey'"
         outlined
       >
@@ -135,8 +134,7 @@ import PillAlert from '@/components/util/PillAlert'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
-import {find, get, isNil, isNumber} from 'lodash'
-import {sortComparator} from '@/lib/utils'
+import {concat, map, orderBy} from 'lodash'
 
 export default {
   name: 'SortableStudents',
@@ -148,18 +146,21 @@ export default {
   },
   mixins: [Context, Util],
   props: {
+    compact: {
+      required: false,
+      type: Boolean
+    },
     domain: {
       required: true,
       type: String
     },
-    options: {
-      type: Object,
-      default: () => ({
-        compact: false,
-        includeCuratedCheckbox: false,
-        reverse: false,
-        sortBy: 'lastName'
-      })
+    includeCuratedCheckbox: {
+      required: false,
+      type: Boolean
+    },
+    sortBy: {
+      default: () => ({key: 'lastName', order: 'asc'}),
+      type: Object
     },
     students: {
       required: true,
@@ -168,31 +169,21 @@ export default {
   },
   data: () => ({
     headers: undefined,
-    sortBy: undefined,
-    sortDescending: undefined
+    items: undefined
   }),
-  watch: {
-    sortBy() {
-      this.onChangeSortBy()
-    },
-    sortDescending() {
-      this.onChangeSortBy()
-    }
-  },
   created() {
-    this.sortBy = this.options.sortBy
-    this.sortDescending = this.options.reverse
+    this.onUpdateSortBy([this.sortBy])
     this.headers = []
-    if (this.options.includeCuratedCheckbox) {
+    if (this.includeCuratedCheckbox) {
       this.headers.push({align: 'start', cellProps: {width: 0}, key: 'curated', sortable: false, value: 'curated', headerProps: {width: 0}})
     }
     const sortable = this.students.length > 1
     this.headers = this.headers.concat([
       {align: 'start', key: 'avatar', sortable: false, title: 'Photo', value: 'photo'},
-      {key: 'name', sortable, title: 'Name', value: 'lastName'},
+      {key: 'lastName', sortable, title: 'Name', value: 'lastName'},
       {key: 'sid', sortable, title: 'SID', value: 'sid'}
     ])
-    if (this.options.compact) {
+    if (this.compact) {
       this.headers.push({key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'})
     } else {
       this.headers = this.headers.concat([
@@ -207,33 +198,19 @@ export default {
   },
   methods: {
     abbreviateTermName: termName => termName && termName.replace('20', ' \'').replace('Spring', 'Spr').replace('Summer', 'Sum'),
-    normalizeForSort: value => this._isString(value) ? value.toLowerCase() : value,
-    onChangeSortBy() {
-      const field = find(this.headers, ['value', get(this.sortBy, 0)])
-      if (field) {
-        alertScreenReader(`Sorted by ${field.title}${this.sortDescending ? ', descending' : ''}`)
+    onUpdateSortBy(primarySortBy) {
+      const sortBy = concat(
+        primarySortBy,
+        {key: 'lastName', order: 'asc'},
+        {key: 'firstName', order: 'asc'},
+        {key: 'sid', order: 'asc'}
+      )
+      this.items = orderBy(this.students, map(sortBy, 'key'), map(sortBy, 'order'))
+      const key = primarySortBy[0].key
+      if (key in map(this.headers, 'key')) {
+        const header = this.headers.get(key)
+        alertScreenReader(`Sorted by ${header.title}, ${primarySortBy[0].order}ending`)
       }
-    },
-    sortCompare(a, b, sortBy, sortDesc) {
-      let aValue = get(a, sortBy)
-      let bValue = get(b, sortBy)
-      // If column type is number then nil is treated as zero.
-      aValue = isNil(aValue) && isNumber(bValue) ? 0 : this.normalizeForSort(aValue)
-      bValue = isNil(bValue) && isNumber(aValue) ? 0 : this.normalizeForSort(bValue)
-      let result = sortComparator(aValue, bValue)
-      if (result === 0) {
-        this._each(['lastName', 'firstName', 'sid'], field => {
-          result = sortComparator(
-            this.normalizeForSort(get(a, field)),
-            this.normalizeForSort(get(b, field))
-          )
-          // Secondary sort is always ascending
-          result *= sortDesc ? -1 : 1
-          // Break from loop if comparator result is non-zero
-          return result === 0
-        })
-      }
-      return result
     }
   }
 }
