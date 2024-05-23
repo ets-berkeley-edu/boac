@@ -79,9 +79,10 @@
         <div class="ma-4">
           <SortableStudents
             class="bg-pale-blue"
+            :compact="compact"
             domain="default"
+            :sort-by="{key: 'alertCount', order: 'desc'}"
             :students="studentsWithAlerts"
-            :options="sortableGroupOptions"
           />
         </div>
       </div>
@@ -150,14 +151,6 @@ export default {
       },
       set: function(value) {
         this.isOpen = value
-      }
-    },
-    sortableGroupOptions() {
-      return {
-        compact: this.compact,
-        includeCuratedCheckbox: false,
-        reverse: true,
-        sortBy: ['alertCount']
       }
     }
   },

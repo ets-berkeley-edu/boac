@@ -110,7 +110,10 @@
       </div>
     </v-list-item>
     <v-list-item v-if="currentUser.canAccessAdmittedStudents" class="pa-0">
-      <div class="align-center d-flex font-weight-bold justify-space-between pretty-hover">
+      <div
+        class="align-center d-flex font-weight-bold justify-space-between pretty-hover"
+        :class="{'mt-2': myAdmitCohorts.length}"
+      >
         <div>
           CE3 Groups
         </div>

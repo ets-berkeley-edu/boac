@@ -99,12 +99,8 @@
                 />
                 <SortableStudents
                   domain="default"
+                  :include-curated-checkbox="true"
                   :students="results.students"
-                  :options="{
-                    includeCuratedCheckbox: true,
-                    sortBy: 'lastName',
-                    reverse: false
-                  }"
                 />
               </div>
               <div v-if="item.key === 'admit'">
