@@ -2,7 +2,7 @@
   <v-fade-transition>
     <v-app>
       <a id="skip-to-content-link" href="#content" class="sr-only">Skip to main content</a>
-      <v-layout>
+      <v-layout :key="$vuetify.display.mdAndUp">
         <v-app-bar
           color="primary"
           elevation="0"
@@ -11,9 +11,10 @@
           <AppBar />
         </v-app-bar>
         <v-navigation-drawer
+          v-if="$vuetify.display.mdAndUp"
           absolute
           class="bg-tertiary pt-1"
-          :location="$vuetify.display.mdAndUp ? 'start' : 'top'"
+          location="start"
           permanent
         >
           <Sidebar />
@@ -21,6 +22,7 @@
         <v-main id="content">
           <div class="h-100" :class="{'align-center d-flex justify-center': loading}">
             <PlaneGoRound v-if="loading" />
+            <Sidebar v-if="!$vuetify.display.mdAndUp" class="bg-tertiary" />
             <div v-show="!loading" class="h-100 w-100">
               <ServiceAnnouncement />
               <router-view :key="split($route.fullPath, '#', 1)[0]" />
