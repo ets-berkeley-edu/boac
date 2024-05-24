@@ -127,8 +127,8 @@ const props = defineProps({
   }
 })
 
-const showFirstLastButtonsWhen = 11
 const currentPage = props.initPageNumber
+const showFirstLastButtonsWhen = 11
 const totalPages = computed(() =>Math.ceil(props.totalRows / props.perPage))
 
 const intervalId = setInterval(() => {

@@ -162,10 +162,10 @@
     </v-list-item>
     <v-list-item
       v-if="currentUser.canAccessAdvisingData"
-      class="batch-note-button fixed-bottom-sidebar px-3 py-0 w-100"
-      :class="{'z-index-0': !loading}"
+      class="batch-note-button px-3 py-0 w-100"
+      :class="{'z-index-0': !loading, 'fixed-bottom-sidebar': $vuetify.display.mdAndUp}"
     >
-      <LinkToDraftNotes :class="{'mb-4': currentUser.isAdmin}" />
+      <LinkToDraftNotes :class="{'mb-4': currentUser.isAdmin, 'mt-4': !$vuetify.display.mdAndUp}" />
       <v-btn
         v-if="!currentUser.isAdmin"
         id="batch-note-button"

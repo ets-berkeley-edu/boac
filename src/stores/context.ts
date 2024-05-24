@@ -4,6 +4,7 @@ import router from '@/router'
 import {alertScreenReader} from '@/lib/utils'
 import {defineStore} from 'pinia'
 import {nextTick} from 'vue'
+import vuetify from '@/plugins/vuetify'
 
 const $_getDefaultApplicationState = () => ({
   message: undefined,
@@ -88,7 +89,7 @@ export const useContextStore = defineStore('context', {
 
       const callable = () => {
         const elements = document.getElementsByTagName('h1')
-        if (elements.length > 0) {
+        if (vuetify.display.mdAndUp.value && elements.length > 0) {
           elements[0].setAttribute('tabindex', '-1')
           elements[0].focus()
         }
