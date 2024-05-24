@@ -69,7 +69,7 @@
       <hr />
       <Pagination
         :click-handler="goToPage"
-        :index="1"
+        id-prefix="auxiliary-pagination"
         :init-page-number="currentPage"
         :limit="10"
         :per-page="itemsPerPage"
