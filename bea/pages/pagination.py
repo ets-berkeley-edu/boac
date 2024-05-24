@@ -33,11 +33,11 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 class Pagination(BoaPages):
 
-    PAGE_ONE_LINK = By.ID, 'pagination-widget-0-btn-1'
-    GO_TO_FIRST_PAGE_LINK = By.ID, 'pagination-widget-0-btn-first'
-    GO_TO_NEXT_PAGE_LINK = By.ID, 'pagination-widget-0-btn-next'
-    GO_TO_LAST_PAGE_LINK = By.ID, 'pagination-widget-0-btn-last'
-    GO_TO_PAGE_LINK = By.XPATH, '//button[contains(@id, "pagination-widget-0-btn-")]'
+    PAGE_ONE_LINK = By.ID, 'pagination-1'
+    GO_TO_FIRST_PAGE_LINK = By.ID, 'pagination-first'
+    GO_TO_NEXT_PAGE_LINK = By.ID, 'pagination-next'
+    GO_TO_LAST_PAGE_LINK = By.ID, 'pagination-last'
+    GO_TO_PAGE_LINK = By.XPATH, '//button[contains(@id, "pagination-")]'
 
     def go_to_first_page(self):
         if self.is_present(self.GO_TO_FIRST_PAGE_LINK):

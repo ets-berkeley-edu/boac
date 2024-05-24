@@ -66,7 +66,7 @@
         <Pagination
           v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage"
           :click-handler="goToPage"
-          :index="1"
+          id-prefix="auxiliary-pagination"
           :init-page-number="pageNumber"
           :limit="10"
           :per-page="cohort.pagination.itemsPerPage"

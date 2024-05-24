@@ -2,7 +2,7 @@
   <div class="d-flex justify-start">
     <span class="sr-only"><span id="total-rows">{{ totalPages }}</span> pages of search results</span>
     <v-pagination
-      :id="`pagination-${index}`"
+      :id="`${idPrefix}-widget`"
       v-model="currentPage"
       active-color="primary"
       aria-label="Pagination"
@@ -18,22 +18,21 @@
     >
       <template #first="{disabled}">
         <v-btn
-          :id="`pagination-${index}-first-page`"
-          class="font-size-14 rounded-e-0"
+          :id="`${idPrefix}-first`"
+          class="font-size-14 rounded-e-0 rounded-s-lg"
           :class="{'text-primary': !disabled}"
           :disabled="disabled"
           slim
+          text="First"
           variant="outlined"
           @click="onClick(1)"
-        >
-          First
-        </v-btn>
+        />
       </template>
       <template #prev="{disabled}">
         <v-btn
-          :id="`pagination-${index}-previous-page`"
+          :id="`${idPrefix}-previous`"
           aria-label="Previous"
-          class="chevron-button rounded-e-0 rounded-s-lg"
+          class="chevron-button"
           :class="{
             'text-primary': !disabled,
             'rounded-0': totalPages >= showFirstLastButtonsWhen,
@@ -46,22 +45,9 @@
           @click="onClick('prev')"
         />
       </template>
-      <!--
-      <template #item="{isActive, key, page, props}">
-        <v-btn
-          :id="`pagination-widget-${index}-btn-${key}`"
-          class="page-number"
-          :class="{'bg-primary border-primary text-white': isActive, 'text-primary': !isActive, 'd-none': hideButton(key)}"
-          :text="page"
-          tile
-          variant="outlined"
-          @click="() => console.log(props)"
-        />
-      </template>
-      -->
       <template #next="{disabled}">
         <v-btn
-          :id="`pagination-${index}-next-page`"
+          :id="`${idPrefix}-next`"
           class="chevron-button rounded-s-0"
           :class="{
             'text-primary': !disabled,
@@ -76,8 +62,8 @@
       </template>
       <template #last="{disabled}">
         <v-btn
-          :id="`pagination-${index}-last-page`"
-          class="font-size-14 rounded-e-lg rounded-s-0"
+          :id="`${idPrefix}-last`"
+          class="font-size-14 rounded-s-0 rounded-e-lg"
           :class="{'text-primary': !disabled}"
           :disabled="disabled"
           slim
@@ -100,9 +86,10 @@ const props = defineProps({
     required: true,
     type: Function
   },
-  index: {
-    type: Number,
-    default: 0
+  idPrefix: {
+    default: 'pagination',
+    required: false,
+    type: String
   },
   initPageNumber: {
     type: Number,
@@ -128,16 +115,17 @@ const props = defineProps({
 })
 
 const currentPage = props.initPageNumber
-const showFirstLastButtonsWhen = 11
+const showFirstLastButtonsWhen = 3
 const totalPages = computed(() =>Math.ceil(props.totalRows / props.perPage))
 
 const intervalId = setInterval(() => {
-  const elements = document.querySelectorAll('ul li.v-pagination__item button[ellipsis]')
+  const elements = document.querySelectorAll(`#${props.idPrefix}-widget button[ellipsis]`)
   if (elements.length) {
     clearInterval(intervalId)
-    each(elements, (element, page) => {
+    each(elements, element => {
       const isEllipsis = element.getAttribute('ellipsis') === 'true'
-      element.id = `pagination-${props.index}-page-${isEllipsis ? 'ellipsis' : page}-btn`
+      const suffix = isEllipsis ? 'ellipsis' : `page-${(element.ariaLabel || 'unknown').match(/\d+/)[0]}`
+      element.id = `${props.idPrefix}-${suffix}`
       if (isEllipsis) {
         element.setAttribute('style', 'color: #fff !important')
         element.lastElementChild.classList.add('text-grey-darken-2')

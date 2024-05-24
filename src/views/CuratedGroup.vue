@@ -56,6 +56,7 @@
           <div v-if="totalStudentCount > itemsPerPage" class="mr-3">
             <Pagination
               :click-handler="onClickPagination"
+              id-prefix="auxiliary-pagination"
               :init-page-number="pageNumber"
               :limit="10"
               :per-page="itemsPerPage"
