@@ -144,7 +144,7 @@ export function getIncompleteGradeDescription(courseDisplayName, sections) {
         const statusCode = _.toUpper(section.incompleteStatusCode)
         let lapseDate
         if (section.incompleteLapseGradeDate) {
-          lapseDate = DateTime.fromObject(section.incompleteLapseGradeDate).toLocaleString(DateTime.DATE_MED)
+          lapseDate = DateTime.fromFormat(section.incompleteLapseGradeDate, 'yyyy-MM-dd hh:mm:ss').toLocaleString(DateTime.DATE_MED)
         }
         switch(statusCode) {
         case 'I': {
