@@ -36,40 +36,28 @@
       v-html="appointment.detailsSnippet"
     >
     </div>
-    <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="advising-note-search-result-footer">
+    <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="advising-note-search-result-footer mb-2">
       <span v-if="appointment.advisorName" :id="`appointment-search-result-advisor-${appointment.id}`">
         {{ appointment.advisorName }} -
       </span>
-      <span v-if="createdAt">{{ DateTime.fromJSDate(createdAt).toFormat('MMM D, YYYY') }}</span>
+      <span v-if="createdAt">{{ DateTime.fromISO(createdAt, 'yyyy-MM-dd').setZone(timezone).toLocaleString(DateTime.DATE_MED) }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
 import {DateTime} from 'luxon'
-</script>
+import {get} from 'lodash'
+import {studentRoutePath} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
-
-export default {
-  name: 'AppointmentSnippet',
-  mixins: [Context, Util],
-  props: {
-    appointment: {
-      required: true,
-      type: Object
-    },
-  },
-  data: () => ({
-    createdAt: undefined
-  }),
-  created() {
-    const timestamp = this._get(this.appointment, 'createdAt')
-    if (timestamp) {
-      this.createdAt = DateTime.fromJSDate(timestamp).setZone(this.config.timezone)
-    }
+const props = defineProps({
+  appointment: {
+    required: true,
+    type: Object
   }
-}
+})
+const currentUser = useContextStore().currentUser
+const createdAt = get(props.appointment, 'createdAt')
+const timezone = useContextStore().config.timezone
 </script>
