@@ -9,19 +9,12 @@
       :domain="domain"
       :is-saving="isSaving"
     />
-    <b-modal
-      v-model="showCreateModal"
-      body-class="pl-0 pr-0"
-      hide-footer
-      hide-header
-      @shown="putFocusNextTick('modal-header')"
-    >
-      <CreateCuratedGroupModal
-        :cancel="cancel"
-        :create="create"
-        :domain="domain"
-      />
-    </b-modal>
+    <CreateCuratedGroupModal
+      :cancel="cancel"
+      :create="create"
+      :domain="domain"
+      :show-modal="showCreateModal"
+    />
   </div>
 </template>
 

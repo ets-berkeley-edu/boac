@@ -35,7 +35,7 @@ export const useCuratedGroupStore: StoreDefinition = defineStore('curatedGroup',
     setDomain(domain: string) {
       this.domain = domain
     },
-    setMode(state: any, mode: string) {
+    setMode(mode: string) {
       if (isNil(mode)) {
         this.mode = undefined
       } else if (find(VALID_MODES, type => mode.match(type))) {
