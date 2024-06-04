@@ -3,7 +3,7 @@
     <div class="pa-4">
       <div class="align-center d-flex">
         <div class="mr-2">
-          <h1 class="mb-0 page-section-header">Search Results</h1>
+          <h1 class="mb-0 page-section-header">{{isSearching ? 'Searching...' : 'Search Results' }}</h1>
         </div>
         <div v-if="!loading && isDirty" class="pb-1">
           [<v-btn
@@ -16,7 +16,7 @@
           />]
         </div>
       </div>
-      <div v-if="!hasSearchResults" class="pt-2">
+      <div v-if="!hasSearchResults && !isSearching" class="pt-2">
         No results found for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>.
       </div>
     </div>

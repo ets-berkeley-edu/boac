@@ -1,5 +1,6 @@
 <template>
   <v-data-table-virtual
+    id="sortable-students"
     :cell-props="{
       class: 'pl-0 vertical-top',
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
@@ -55,7 +56,7 @@
         />
         <span
           v-if="item.academicCareerStatus === 'Inactive' || displayAsAscInactive(item) || displayAsCoeInactive(item)"
-          class="inactive-info-icon sortable-students-icon"
+          class="inactive-info-icon"
           uib-tooltip="Inactive"
           aria-label="Inactive"
           tooltip-placement="bottom"
@@ -217,10 +218,36 @@ export default {
 </script>
 
 <style>
-th {
-  height: 36px !important;
-}
-.sortable-students-icon {
-  margin-left: 5px;
+@media screen and (max-width: 600px) {
+  #sortable-students.v-data-table {
+    thead {
+      border: none;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+    td {
+      display: block;
+      height: 32px !important;
+      padding-top: 8px;
+    }
+    tr:last-child {
+      margin-bottom: 8px;
+    }
+    td:last-child {
+      border-bottom: 1px solid #0f172a !important;
+      margin-bottom: 12px;
+      padding-bottom: 36px !important;
+    }
+    td::before {
+      content: attr(data-label);
+      float: left;
+      font-weight: bold;
+    }
+  }
 }
 </style>
