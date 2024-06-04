@@ -29,7 +29,7 @@ from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 
-__version__ = '5.24'
+__version__ = '5.26'
 
 db = SQLAlchemy()
 
