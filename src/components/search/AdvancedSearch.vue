@@ -65,6 +65,7 @@
         v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData"
         id="go-search"
         class="btn-search"
+        :disabled="isSearching"
         text="Search"
         variant="outlined"
         @keydown.enter="search"

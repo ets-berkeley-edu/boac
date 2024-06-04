@@ -37,7 +37,6 @@ import AdvancedSearch from '@/components/search/AdvancedSearch'
 import HeaderMenu from '@/components/header/HeaderMenu'
 import {mdiHome} from '@mdi/js'
 import {startsWith} from 'lodash'
-
 </script>
 
 <style scoped>

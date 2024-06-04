@@ -20,7 +20,7 @@
         No results found for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>.
       </div>
     </div>
-    <div v-if="!loading">
+    <div v-if="!loading && !isSearching">
       <div
         v-if="hasSearchResults"
         aria-live="polite"
@@ -70,7 +70,7 @@
               <template #default>
                 <div class="d-flex flex-row-reverse font-size-12 font-weight-bold text-black">
                   <div :id="`search-results-count-${item.key}s`">
-                    {{ item.count }}<span v-if="item.key === 'note' && !completeNoteResults">+</span><span v-if="item.key === 'appointment' && !completeAppointmentResults">+</span>
+                    {{ getTabLabel(item) }}
                   </div>
                   <div
                     class="mr-1 text-uppercase"
@@ -83,7 +83,7 @@
             </v-tab>
           </template>
           <template #item="{item}">
-            <v-tabs-window-item class="bg-white pt-2 px-4" :value="item.key">
+            <v-tabs-window-item class="bg-white px-4" :value="item.key">
               <div v-if="item.key === 'student'">
                 <SearchResultsHeader
                   class="my-2"
@@ -92,7 +92,7 @@
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
                 />
-                <div v-if="results.students.length">
+                <div v-if="results.students.length" class="mt-1">
                   <CuratedGroupSelector
                     context-description="Search"
                     domain="default"
@@ -106,35 +106,36 @@
                 </div>
               </div>
               <div v-if="item.key === 'admit'">
-                <div class="align-center d-flex justify-space-between">
-                  <SearchResultsHeader
-                    class="my-2"
-                    :count-in-view="_size(results.admits)"
-                    :count-total="results.totalAdmitCount"
-                    :results-type="item.key"
-                    :search-phrase="searchPhraseSubmitted"
-                  />
-                  <div v-if="results.totalAdmitCount" class="mr-8">
-                    <AdmitDataWarning :updated-at="_get(results.admits, '[0].updatedAt')" />
-                  </div>
+                <div v-if="results.totalAdmitCount" class="mt-3">
+                  <AdmitDataWarning :updated-at="_get(results.admits, '[0].updatedAt')" />
                 </div>
+                <SearchResultsHeader
+                  class="mb-2"
+                  :count-in-view="_size(results.admits)"
+                  :count-total="results.totalAdmitCount"
+                  :results-type="item.key"
+                  :search-phrase="searchPhraseSubmitted"
+                />
                 <div v-if="results.totalAdmitCount">
-                  <CuratedGroupSelector
-                    context-description="Search"
-                    domain="admitted_students"
-                    :students="results.admits"
-                  />
+                  <div class="mb-2">
+                    <CuratedGroupSelector
+                      context-description="Search"
+                      domain="admitted_students"
+                      :students="results.admits"
+                    />
+                  </div>
                   <SortableAdmits :admitted-students="results.admits" />
                 </div>
               </div>
               <div v-if="item.key === 'course'">
-                <SearchResultsHeader
-                  class="my-2"
-                  :count-in-view="_size(results.courses)"
-                  :count-total="results.totalCourseCount"
-                  :results-type="item.key"
-                  :search-phrase="searchPhraseSubmitted"
-                />
+                <div class="mb-4 mt-3">
+                  <SearchResultsHeader
+                    :count-in-view="_size(results.courses)"
+                    :count-total="results.totalCourseCount"
+                    :results-type="item.key"
+                    :search-phrase="searchPhraseSubmitted"
+                  />
+                </div>
                 <SortableCourses
                   v-if="results.courses.length"
                   :courses="results.courses"
@@ -142,7 +143,7 @@
               </div>
               <div v-if="item.key === 'note'">
                 <SearchResultsHeader
-                  class="my-4"
+                  class="mb-3 mt-2"
                   :count-in-view="`${_size(results.notes)}${completeNoteResults ? '' : '+'}`"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
@@ -165,7 +166,7 @@
               </div>
               <div v-if="item.key === 'appointment'">
                 <SearchResultsHeader
-                  class="my-4"
+                  class="mb-3 mt-2"
                   :count-in-view="`${_size(results.appointments)}${completeAppointmentResults ? '' : '+'}`"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
@@ -343,6 +344,27 @@ export default {
     }
   },
   methods: {
+    getTabLabel(item) {
+      let label
+      switch (item.key) {
+      case 'admit':
+        label = `${this.results.admits.length}${this.results.admits.length === this.results.totalAdmitCount ? '' : '+' }`
+        break
+      case 'appointment':
+        label = `${item.count}${this.completeAppointmentResults ? '' : '+'}`
+        break
+      case 'course':
+        label = `${this.results.courses.length}${this.results.courses.length === this.results.totalCourseCount ? '' : '+' }`
+        break
+      case 'note':
+        label = `${item.count}${this.completeNoteResults ? '' : '+'}`
+        break
+      case 'student':
+        label = `${this.results.students.length}${this.results.students.length === this.results.totalStudentCount ? '' : '+' }`
+        break
+      }
+      return label
+    },
     describe(noun, count) {
       return count > 0 ? `${count} ${this._capitalize(noun)}${count === 1 ? '' : 's'}, ` : ''
     },
