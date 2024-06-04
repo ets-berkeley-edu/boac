@@ -100,41 +100,34 @@
               isDeleteModalOpen = !hasReferencingCohorts
             }"
           />
-          <AreYouSureModal
-            :show-modal="isDeleteModalOpen"
-            :function-confirm="deleteGroup"
-            function-cancel="() => isDeleteModalOpen = false"
-          />
-          <!--
-          <b-modal
-            id="confirm-delete-modal"
+          <v-dialog
             v-model="isDeleteModalOpen"
-            hide-header
-            @shown="putFocusNextTick('modal-header')"
+            width="auto"
           >
-            <ModalHeader :text="`Delete ${domainLabel(true)}`" />
-            <div class="modal-body">
-              Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
-            </div>
-            <template #modal-footer>
-              <v-btn
-                id="delete-confirm"
-                class="btn-primary-color-override"
-                variant="primary"
-                @click="deleteGroup"
-              >
-                Delete
-              </v-btn>
-              <v-btn
-                id="delete-cancel"
-                variant="link"
-                @click="isDeleteModalOpen = false"
-              >
-                Cancel
-              </v-btn>
-            </template>
-          </b-modal>
-          -->
+            <v-card
+              max-width="400"
+              title="Delete Curated Group"
+            >
+              <v-card-text>
+                <div class="modal-body">
+                  Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
+                </div>
+              </v-card-text>
+              <template #actions>
+                <v-btn
+                  class="ms-auto"
+                  text="Delete"
+                  color="blue-darken-4"
+                  @click="deleteGroup"
+                ></v-btn>
+                <v-btn
+                  class="ms-auto"
+                  text="Cancel"
+                  @click="isDeleteModalOpen = false"
+                ></v-btn>
+              </template>
+            </v-card>
+          </v-dialog>
           <v-overlay
             v-model="isCohortWarningModalOpen"
             persistent
@@ -150,6 +143,7 @@
                 id="cohort-warning-body"
                 aria-live="polite"
                 role="alert"
+                class="pa-4"
               >
                 Sorry, you cannot delete this {{ domainLabel(false) }} until you have removed the filter from
                 <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-700">{{ referencingCohorts[0].name }}</span>.</span>
@@ -161,7 +155,7 @@
                 </ul>
               </div>
               <hr />
-              <div class="d-flex justify-end py-3 px-4">
+              <div class="d-flex justify-end px-4">
                 <v-btn
                   id="cohort-warning-modal-close"
                   @click="isCohortWarningModalOpen = false"
@@ -186,41 +180,27 @@
           <v-btn
             v-if="domain === 'admitted_students'"
             id="export-student-list-button"
-            v-b-modal="'export-admits-modal'"
             class="px-1"
             :disabled="!exportEnabled || !totalStudentCount"
             text="Export List"
             variant="text"
             @click="() => showExportAdmitsModal = true"
           />
-          <b-modal
-            id="export-admits-modal"
-            v-model="showExportAdmitsModal"
-            body-class="pl-0 pr-0"
-            hide-footer
-            hide-header
-            @shown="putFocusNextTick('modal-header')"
-          >
-            <FerpaReminderModal
-              :cancel="cancelExportModal"
-              :confirm="() => exportGroup(getCsvExportColumnsSelected(domain))"
-            />
-          </b-modal>
-          <b-modal
+          <ExportListModal
             id="export-students-modal"
-            v-model="showExportStudentsModal"
-            body-class="pl-0 pr-0"
-            hide-footer
-            hide-header
-            @shown="putFocusNextTick('modal-header')"
-          >
-            <ExportListModal
-              :cancel="cancelExportModal"
-              :csv-columns="getCsvExportColumns(domain)"
-              :csv-columns-selected="getCsvExportColumnsSelected(domain)"
-              :export="exportGroup"
-            />
-          </b-modal>
+            :cancel="cancelExportModal"
+            :csv-columns="getCsvExportColumns(domain)"
+            :csv-columns-selected="getCsvExportColumnsSelected(domain)"
+            :export="exportGroup"
+            :show-modal="showExportStudentsModal"
+          />
+
+          <FerpaReminderModal
+            id="export-admits-modal"
+            :show-modal="showExportAdmitsModal"
+            :cancel="cancelExportModal"
+            :confirm="() => exportGroup(getCsvExportColumnsSelected(domain))"
+          />
         </div>
       </div>
     </div>
@@ -249,7 +229,6 @@
 </template>
 
 <script>
-import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import ExportListModal from '@/components/util/ExportListModal'
@@ -264,8 +243,12 @@ import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CuratedGroupHeader',
-  components: {AreYouSureModal, ExportListModal, FerpaReminderModal, ModalHeader},
+  components: {ExportListModal, FerpaReminderModal, ModalHeader},
   mixins: [Context, CuratedEditSession, Util],
+  setup() {
+    const curatedGroupStore = useCuratedGroupStore()
+    return {curatedGroupStore}
+  },
   data: () => ({
     exportEnabled: true,
     isCohortWarningModalOpen: false,
@@ -288,7 +271,7 @@ export default {
     }
   },
   mounted() {
-    if (this.referencingCohortIds.length) {
+    if (this.referencingCohortIds?.length) {
       this._each(this.referencingCohortIds, cohortId => {
         const cohort = this._find(this.currentUser.myCohorts, ['id', cohortId])
         this.referencingCohorts.push(cohort)
@@ -303,7 +286,7 @@ export default {
       alertScreenReader(`Cancel export of ${this.name} ${this.domainLabel(false)}`)
     },
     enterBulkAddMode() {
-      useCuratedGroupStore().setMode('bulkAdd')
+      this.curatedGroupStore.setMode('bulkAdd')
     },
     enterRenameMode() {
       this.renameInput = this.curatedGroupName
@@ -318,7 +301,7 @@ export default {
     exportGroup(csvColumnsSelected) {
       this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
       alertScreenReader(`Exporting ${this.name} ${this.domainLabel(false)}`)
-      downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
+      return downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
         this.exportEnabled = true
         alertScreenReader('Export is done.')
       })
@@ -342,7 +325,7 @@ export default {
       this.renameError = validateCohortName({
         name: this.renameInput
       })
-      if (this.renameError) {
+      if (this.renameError !== true) {
         this.putFocusNextTick('rename-input')
       } else {
         this.isSaving = true

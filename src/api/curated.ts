@@ -4,8 +4,9 @@ import ga from '@/lib/ga'
 import {DateTime} from 'luxon'
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
+import fileDownload from 'js-file-download'
 
-const $_track = action => ga.curated(action)
+const $_track = (action, label?) => ga.cohort(action, label)
 
 const $_onCreate = (group: any) => {
   useContextStore().addMyCuratedGroup(group)
@@ -62,13 +63,18 @@ export function deleteCuratedGroup(domain: string, curatedGroupId: number) {
 }
 
 export function downloadCuratedGroupCsv(curatedGroupId: number, name: string, csvColumnsSelected: any[]) {
-  $_track('download')
-  const fileDownload = require('js-file-download')
-  const now = DateTime.now().toFormat('YYYY-MM-DD_HH-mm-ss')
-  const termId = get(useContextStore().currentUser, 'preferences.termId') || get(useContextStore().config, 'currentEnrollmentTermId')
-  const url = `${utils.apiBaseUrl()}/api/curated_group/${curatedGroupId}/download_csv`
-  return axios.post(url, {csvColumnsSelected, termId})
-    .then(data => fileDownload(data, `${name}-students-${now}.csv`), () => null)
+  const now = DateTime.now().toFormat('yyyy-MM-dd_HH-mm-ss')
+  const filename = name ? `${name}-students-${now}` : `students-${now}`
+  const termId = useContextStore().currentUser.preferences.termId || get(useContextStore().config, 'currentEnrollmentTermId')
+
+  $_track('download', filename)
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/curated_group/${curatedGroupId}/download_csv`, {
+      curatedGroupId,
+      csvColumnsSelected,
+      termId
+    })
+    .then(response => fileDownload(response.data, `${filename}.csv`))
 }
 
 export function getCuratedGroup(
@@ -104,9 +110,8 @@ export function renameCuratedGroup(curatedGroupId: number, name: string) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/curated_group/rename`, {id: curatedGroupId, name})
     .then(response => {
-      const group = response.data
-      $_onUpdate(group)
-      return group
+      $_onUpdate(response)
+      return response
     })
     .catch(error => error)
 }

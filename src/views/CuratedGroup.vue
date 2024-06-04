@@ -2,10 +2,10 @@
   <div v-if="!loading" class="default-margins">
     <CuratedGroupHeader />
     <AdmitDataWarning
-      v-if="domain === 'admitted_students' && students && mode !== 'bulkAdd'"
+      v-if="domain === 'admitted_students' && students && curatedGroupStore.mode !== 'bulkAdd'"
       :updated-at="_get(students, '[0].updatedAt')"
     />
-    <div v-show="mode !== 'bulkAdd'">
+    <div v-if="curatedGroupStore.mode !== 'bulkAdd'">
       <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
       <div>
         <div class="d-flex flex-wrap justify-content-end pt-2">
@@ -66,7 +66,7 @@
         </div>
       </div>
     </div>
-    <div v-if="!loading && mode === 'bulkAdd'" class="pt-2">
+    <div v-if="!loading && curatedGroupStore.mode === 'bulkAdd'" class="pt-2">
       <h2 class="page-section-header-sub my-2">Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}</h2>
       <div class="w-75">
         <div>Type or paste a list of {{ domain === 'admitted_students' ? 'CS ID' : 'Student Identification (SID)' }} numbers numbers below.</div>
@@ -125,7 +125,8 @@ export default {
     error: undefined
   }),
   computed: {
-    anchor: () => location.hash
+    anchor: () => location.hash,
+    curatedGroupStore: () => useCuratedGroupStore()
   },
   watch: {
     domain(newVal, oldVal) {
@@ -156,6 +157,7 @@ export default {
     this.removeEventHandler('termId-user-preference-change', this.onChangeTerm)
   },
   mounted() {
+    useContextStore().loadingStart()
     this.nextTick(function() {
       if (!location.hash) {
         return false
@@ -174,7 +176,7 @@ export default {
         useContextStore().updateCurrentUserPreference('sortBy', 'last_name')
         addStudentsToCuratedGroup(this.curatedGroupId, sids, true).then(() => {
           goToCuratedGroup(this.curatedGroupId, 1).then(() => {
-            this.loadingComplete(`${sids.length} students added to group '${this.name}'`)
+            useContextStore().loadingComplete(`${sids.length} students added to group '${this.name}'`)
             this.putFocusNextTick('curated-group-name')
           })
         })
@@ -189,25 +191,25 @@ export default {
       return `${label}, sorted by ${sortedBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },
     onChangeSortBy() {
-      if (!this.loading) {
-        this.loadingStart()
+      if (!useContextStore().loading) {
+        useContextStore().loadingStart()
         goToCuratedGroup(this.curatedGroupId, 1).then(() => {
-          this.loadingComplete(this.getLoadedAlert())
+          useContextStore().loadingComplete(this.getLoadedAlert())
         })
       }
     },
     onChangeTerm() {
-      if (!this.loading) {
-        this.loadingStart()
+      if (!useContextStore().loading) {
+        useContextStore().loadingStart()
         goToCuratedGroup(this.curatedGroupId, this.pageNumber).then(() => {
-          this.loadingComplete(this.getLoadedAlert())
+          useContextStore().loadingComplete(this.getLoadedAlert())
         })
       }
     },
     onClickPagination(pageNumber) {
-      this.loadingStart()
+      useContextStore().loadingStart()
       goToCuratedGroup(this.curatedGroupId, pageNumber).then(() => {
-        this.loadingComplete(this.getLoadedAlert())
+        useContextStore().loadingComplete(this.getLoadedAlert())
       })
     },
     removeStudent(sid) {

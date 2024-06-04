@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mt-3 w-75">
-      <b-collapse v-model="showWarning" class="alert-box p-3 mt-2 mb-3 w-100 warning">
+      <div v-if="showWarning" class="alert-box p-3 mt-2 mb-3 w-100 warning">
         <span v-if="warning">{{ warning }}</span>
         <span v-if="!sids.length || sidsNotFound.length">
           <span v-if="sids.length"> {{ sidsNotFound.length === 1 ? 'Remove from list?' : 'Remove these from your list?' }}</span>
@@ -17,24 +17,25 @@
         <ul v-if="sids.length && sidsNotFound.length && (sidsNotFound.length <= magicNumber)" id="sids-not-found" class="mb-0 mt-1">
           <li v-for="sid in sidsNotFound" :key="sid">{{ sid }}</li>
         </ul>
-      </b-collapse>
+      </div>
       <div>
-        <b-form-textarea
+        <v-textarea
           id="curated-group-bulk-add-sids"
           v-model="textarea"
-          :aria-label="`Type or paste ${domain === 'admitted_students' ? 'admit CS ID' : 'student identification (SID)'} numbers here`"
+          label="Enter SID's here"
+          variant="outlined"
           :disabled="isValidating || isSaving"
-          rows="8"
-          max-rows="30"
-          @keydown.esc="cancel"
-        ></b-form-textarea>
+          clearable
+        >
+        </v-textarea>
       </div>
       <div class="d-flex justify-content-end mt-3">
         <v-btn
           id="btn-curated-group-bulk-add-sids"
           class="px-3"
           :disabled="!_trim(textarea) || isValidating || isSaving"
-          variant="primary"
+          color="blue-darken-4"
+          variant="flat"
           @click="submit"
         >
           <span v-if="isValidating || isSaving"><v-progress-circular size="small" /> <span class="pl-1">Adding</span></span>
@@ -177,5 +178,8 @@ export default {
 .warning {
   background-color: #fbf7dc;
   color: #795f31;
+  margin-bottom: 18px !important;
+  padding: 10px 20px;
+  border-radius: 4px;
 }
 </style>
