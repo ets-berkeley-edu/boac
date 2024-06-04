@@ -2,7 +2,7 @@
 import _ from 'lodash'
 import numeral from 'numeral'
 import {nextTick} from 'vue'
-import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, toInt} from '@/lib/utils'
+import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, studentRoutePath, toInt} from '@/lib/utils'
 import {
   assign, capitalize, clone, cloneDeep, compact, concat, debounce, difference, differenceBy, each, eachRight, every,
   extend, filter, find, findIndex, flatten, get, groupBy, includes, indexOf, inRange, isEmpty, isEqual, isNaN, isNil, isNumber,
@@ -99,7 +99,7 @@ export default {
     round: (value, decimals) => (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals),
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
     stripHtmlAndTrim,
-    studentRoutePath: (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`,
+    studentRoutePath,
     toBoolean: value => value && value !== 'false',
     toInt
   }
