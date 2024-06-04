@@ -4,7 +4,7 @@
       class: 'pl-0 vertical-top',
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     }"
-    :header-props="{class: 'pl-0'}"
+    :header-props="{class: 'pl-0 text-no-wrap'}"
     :headers="headers"
     :items="admittedStudents"
     mobile-breakpoint="md"
@@ -15,7 +15,7 @@
   >
     <template #item.curated="{item}">
       <CuratedStudentCheckbox
-        class="mb-2"
+        class="mb-4"
         domain="admitted_students"
         :student="item"
       />
@@ -43,7 +43,7 @@
 
     <template #item.specialProgramCep="{item}">
       <span class="sr-only">C E P</span>
-      {{ item.specialProgramCep }}
+      {{ item.specialProgramCep || '&mdash;' }}
     </template>
 
     <template #item.reentryStatus="{item}">
@@ -112,7 +112,7 @@ export default {
   created() {
     this.headers = [
       {key: 'curated', title: ''},
-      {key: 'lastName', title: 'Name', sortable: true},
+      {key: 'lastName', title: 'Name', sortable: true, width: '220px'},
       {key: 'csEmplId', title: 'CS ID', sortable: true},
       {key: 'currentSir', title: 'SIR', sortable: false},
       {key: 'specialProgramCep', title: 'CEP', sortable: false},

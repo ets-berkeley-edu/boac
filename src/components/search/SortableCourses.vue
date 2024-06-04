@@ -1,62 +1,45 @@
 <template>
-  <div>
-    <table class="table-full-width">
-      <tr>
-        <th>
-          <button
-            id="column-sort-button-section"
-            class="btn btn-link table-header-text cursor-pointer table-cell"
-            @click="courseSort('section')"
-            @keyup.enter="courseSort('section')"
-          >
-            Section
-            <span v-if="sort.by === 'section'">
-              <v-icon :icon="sort.reverse.section ? mdiMenuDown : mdiMenuUp" />
-            </span>
-          </button>
-        </th>
-        <th>
-          <button
-            id="column-sort-button-title"
-            class="btn btn-link table-header-text cursor-pointer table-cell"
-            @click="courseSort('title')"
-            @keyup.enter="courseSort('title')"
-          >
-            Course Name
-            <span v-if="sort.by === 'title'">
-              <v-icon :icon="sort.reverse.title ? mdiMenuDown : mdiMenuUp" />
-            </span>
-          </button>
-        </th>
-        <th class="table-cell">
-          <span class="table-header-text">Instructor(s)</span>
-        </th>
-      </tr>
-      <tr v-for="course in sortedCourses" :key="course.id">
-        <td class="table-cell">
-          <span class="sr-only">Section</span>
-          <router-link :to="`/course/${course.termId}/${course.sectionId}`">
-            {{ course.courseName }} - {{ course.instructionFormat }} {{ course.sectionNum }}
-          </router-link>
-        </td>
-        <td class="table-cell">
-          <span class="sr-only">Course Name</span>
-          {{ course.courseTitle }}
-        </td>
-        <td class="table-cell">{{ course.instructors }}</td>
-      </tr>
-    </table>
-  </div>
+  <v-data-table-virtual
+    :cell-props="{
+      class: 'pl-0 vertical-top',
+      style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+    }"
+    density="comfortable"
+    :header-props="{class: 'pl-0'}"
+    :headers="[
+      {key: 'section', sortable: false, title: 'Section', width: '220px'},
+      {key: 'courseName', sortable: false, title: 'Course Name', width: '360px'},
+      {key: 'instructors', sortable: false, title: 'Instructor(s)'}
+    ]"
+    :items="items"
+    mobile-breakpoint="md"
+    no-sort-reset
+  >
+    <template #item.section="{item}">
+      <span class="sr-only">Section</span>
+      <router-link :to="`/course/${item.termId}/${item.sectionId}`">
+        {{ item.courseName }} - {{ item.instructionFormat }} {{ item.sectionNum }}
+      </router-link>
+    </template>
+    <template #item.courseName="{item}">
+      <span class="sr-only">Course Name</span>
+      {{ item.courseTitle }}
+    </template>
+    <template #item.instructors="{item}">
+      <span v-if="item.instructors.length">
+        {{ item.instructors }}
+      </span>
+      {{ item.instructors.length }}
+      <span v-if="!item.instructors.length">
+        &mdash;xxx
+      </span>
+    </template>
+  </v-data-table-virtual>
 </template>
-
-<script setup>
-import {mdiMenuDown, mdiMenuUp} from '@mdi/js'
-</script>
 
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
 
 export default {
   name: 'SortableCourses',
@@ -68,37 +51,13 @@ export default {
     }
   },
   data: () => ({
-    sort: {
-      by: null,
-      reverse: {
-        section: false,
-        title: false
-      }
-    },
-    sortedCourses: []
+    items: []
   }),
   created() {
-    this.sort.by = 'section'
-    // TODO: do not mutate prop
-    this.sortedCourses = this.courses.sort(this.courseComparator) // eslint-disable-line vue/no-mutating-props
+    this.items = this.courses.sort(this.courseComparator) // eslint-disable-line vue/no-mutating-props
   },
   methods: {
-    courseSort(sortBy) {
-      if (this.sort.by !== sortBy) {
-        this.sort.by = sortBy
-        this.sort.reverse[sortBy] = false
-        // TODO: do not mutate prop
-        this.sortedCourses = this.courses.sort(this.courseComparator) // eslint-disable-line vue/no-mutating-props
-      } else {
-        this.sort.reverse[sortBy] = !this.sort.reverse[sortBy]
-        this.sortedCourses = this.sortedCourses.reverse()
-      }
-      alertScreenReader(`Courses sorted by ${this.sort.by === 'section' ? 'section' : 'course name'} ${this.describeReverse(this.sort.reverse[this.sort.by])}`)
-    },
     courseComparator(c1, c2) {
-      if (this.sort.by === 'title' && c1.courseTitle !== c2.courseTitle) {
-        return c1.courseTitle > c2.courseTitle ? 1 : -1
-      }
       // If sorting by section name, attempt to compare by subject area.
       let split1 = this.splitCourseName(c1)
       let split2 = this.splitCourseName(c2)
@@ -136,8 +95,7 @@ export default {
     splitCourseName(course) {
       let split = course.courseName.split(' ')
       return [split.slice(0, -1).join(' '), split[split.length - 1]]
-    },
-    describeReverse: reverse => (reverse ? 'descending' : '')
+    }
   }
 }
 </script>

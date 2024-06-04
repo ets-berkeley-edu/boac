@@ -7,7 +7,7 @@
         class="px-0"
         :class="{'border-0': !isFocusAdvSearchButton}"
         color="white"
-        icon
+        :disabled="isSearching"
         variant="text"
         @click="openAdvancedSearch"
         @focusin="() => isFocusAdvSearchButton = true"

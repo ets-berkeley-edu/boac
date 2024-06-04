@@ -11,6 +11,9 @@
     <span v-if="!countTotal">
       Showing {{ countInView }} {{ resultsType }}s<span v-if="searchPhrase"> matching <span class="font-weight-500">{{ searchPhrase }}</span></span>.
     </span>
+    <span v-if="!countTotal || countTotal > countInView">
+      Refine your search if you have too many results.
+    </span>
   </h2>
 </template>
 
