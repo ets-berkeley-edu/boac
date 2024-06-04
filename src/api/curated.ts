@@ -110,7 +110,6 @@ export function renameCuratedGroup(curatedGroupId: number, name: string) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/curated_group/rename`, {id: curatedGroupId, name})
     .then(response => {
-      // const group = response.data
       $_onUpdate(response)
       return response
     })
