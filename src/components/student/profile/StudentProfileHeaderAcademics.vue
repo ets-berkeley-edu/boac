@@ -77,7 +77,7 @@
         {{ degree.plans.filter(plan => planTypes.includes(plan.type)).map(degree => degree.plan).join(', ') }}
       </div>
       <div class="student-text">
-        Awarded {{ DateTime.fromISO(degree.dateAwarded).toFormat('MMM DD, YYYY') }}
+        Awarded {{ DateTime.fromISO(degree.dateAwarded).toLocaleString(DateTime.DATE_MED) }}
       </div>
       <div v-for="owner in degree.planOwners" :key="owner" class="student-text">
         {{ owner }}
