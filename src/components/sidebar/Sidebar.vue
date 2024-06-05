@@ -179,8 +179,8 @@
         New Note
       </v-btn>
       <EditBatchNoteModal
+        v-model="isCreateNoteModalOpen"
         initial-mode="createBatch"
-        :is-open="isCreateNoteModalOpen"
         :on-close="() => {
           isCreateNoteModalOpen = false
           putFocusNextTick('batch-note-button')
@@ -196,17 +196,14 @@ import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes.vue'
 import NavLink from '@/components/util/NavLink'
 import {capitalize} from 'lodash'
+import {computed, ref} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
+import {filter} from 'lodash'
 import {mdiFileDocument, mdiPlus} from '@mdi/js'
 import {pluralize} from '@/lib/utils'
 import {putFocusNextTick} from '@/lib/utils'
-</script>
-
-<script lang="ts">
-import {computed, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {filter} from 'lodash'
 
 const extract = (domain: string, objects: any[]) => filter(objects, ['domain', domain])
 const currentUser = useContextStore().currentUser

@@ -7,15 +7,17 @@
       :set-filter="setFilter"
       :student="student"
     />
-    <AcademicTimelineTable
-      :counts-per-type="countsPerType"
-      :filter="filter"
-      :filter-types="filterTypes"
-      :messages="messages"
-      :on-create-new-note="onCreateNewNote"
-      :sort-messages="sortMessages"
-      :student="student"
-    />
+    <div class="pt-3">
+      <AcademicTimelineTable
+        :counts-per-type="countsPerType"
+        :filter="filter"
+        :filter-types="filterTypes"
+        :messages="messages"
+        :on-create-new-note="onCreateNewNote"
+        :sort-messages="sortMessages"
+        :student="student"
+      />
+    </div>
   </div>
 </template>
 
@@ -125,7 +127,7 @@ export default {
     sortDate(message) {
       if (message.type === 'appointment' || message.type === 'note') {
         if (message.setDate) {
-          return DateTime.fromJSDate(message.setDate).setZone(this.config.timezone).toUTC()
+          return DateTime.fromJSDate(message.setDate).setZone(this.config.timezone).toUTC().toString()
         } else {
           return message.createdAt
         }
