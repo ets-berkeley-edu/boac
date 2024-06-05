@@ -23,18 +23,19 @@ export function enableFocusLock(): void {
 
 export function exitSession(revert: boolean): Promise<NoteEditSessionModel | undefined> {
   return new Promise<NoteEditSessionModel | undefined>(resolve => {
-    const mode: string | undefined = useNoteStore().mode
-    const model: NoteEditSessionModel = useNoteStore().model
-    const originalModel: NoteEditSessionModel = useNoteStore().originalModel
+    const noteStore = useNoteStore()
+    const mode: string | undefined = noteStore.mode
+    const model: NoteEditSessionModel = noteStore.model
+    const originalModel: NoteEditSessionModel = noteStore.originalModel
     const done = (note?: NoteEditSessionModel) => {
-      useNoteStore().exitSession()
+      noteStore.exitSession()
       resolve(note)
     }
     if (revert) {
       if (model.id && mode && ['createBatch', 'createNote'].includes(mode)) {
         deleteNote(model).then(() => done())
       } else if (mode === 'editNote' && model.isDraft) {
-        useNoteStore().setModel(originalModel)
+        noteStore.setModel(originalModel)
         updateAdvisingNote().then(done)
       } else {
         done(model)

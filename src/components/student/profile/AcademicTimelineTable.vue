@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isExpandAllAvailable" class="align-center d-flex flex-wrap font-size-14 mt-2">
+  <div v-if="isExpandAllAvailable" class="align-center d-flex flex-wrap font-size-14">
     <h3 class="sr-only">Quick Links</h3>
     <div class="ml-2">
       <v-btn
@@ -41,7 +41,7 @@
         variant="outlined"
       />
     </div>
-    <div class="ml-3">|</div>
+    <div v-if="showMyNotesToggle" class="ml-3">|</div>
     <div v-if="showMyNotesToggle" class="ml-3">
       <div class="align-center d-flex font-weight-bold">
         <label for="toggle-my-notes-button" class="mr-3" :class="showMyNotesOnly ? 'text-grey' : 'text-primary'">

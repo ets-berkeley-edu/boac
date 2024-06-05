@@ -79,7 +79,7 @@
               v-if="!row.item.deletedAt"
               class="mr-2 py-0"
               :disabled="isDeleting"
-              variant="link"
+              variant="plain"
               @click="openDeleteModal(row.item)"
             >
               <v-icon
@@ -107,7 +107,6 @@
       </AreYouSureModal>
     </div>
     <EditBatchNoteModal
-      v-if="showEditModal"
       v-model="showEditModal"
       initial-mode="editDraft"
       :note-id="selectedDraftNote.id"
