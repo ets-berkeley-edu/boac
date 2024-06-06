@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-header py-0">
+  <div class="py-0">
     <h3
       :id="headerId"
       class="font-size-24 font-weight-medium"
@@ -7,7 +7,7 @@
       tabindex="0"
     >
       {{ text }}
-      <slot></slot>
+      <slot />
     </h3>
   </div>
 </template>
@@ -34,12 +34,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.modal-header {
-  align-items: flex-start;
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem 1rem;
-}
-</style>

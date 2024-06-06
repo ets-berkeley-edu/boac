@@ -22,9 +22,8 @@ export function getNote(noteId) {
 }
 
 export function getMyDraftNotes() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/notes/my_drafts`)
-    .then(response => response, () => null)
+  const url = `${utils.apiBaseUrl()}/api/notes/my_drafts`
+  return axios.get(url).then(data => data, () => null)
 }
 
 export function markNoteRead(noteId) {

@@ -64,7 +64,7 @@
   background-color: #eee;
 }
 .default-margins {
-  margin: 16px;
+  margin: 16px 16px 16px 22px;
 }
 .demo-mode-blur {
   color: transparent !important;
@@ -329,4 +329,37 @@ table thead {
   text-align: left;
   text-transform: uppercase !important;
   vertical-align: top;
+}
+
+@media screen and (max-width: 600px) {
+  #responsive-data-table.v-data-table {
+    thead {
+      border: none;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+    td {
+      display: block;
+      height: 32px !important;
+      padding-top: 8px;
+    }
+    tr:last-child {
+      margin-bottom: 8px;
+    }
+    td:last-child {
+      border-bottom: 1px solid #0f172a !important;
+      margin-bottom: 12px;
+      padding-bottom: 36px !important;
+    }
+    td::before {
+      content: attr(data-label);
+      float: left;
+      font-weight: bold;
+    }
+  }
 }
