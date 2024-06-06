@@ -1,10 +1,6 @@
 <template>
-  <v-overlay
-    v-model="isOpen"
-    class="justify-center overflow-auto"
-    persistent
-    scroll-strategy="reposition"
-    width="100%"
+  <v-dialog
+    v-model="dialogModel"
   >
     <v-card
       id="new-note-modal-container"
@@ -68,7 +64,6 @@
         />
         <div id="note-details">
           <RichTextEditor
-            v-if="isOpen"
             :disabled="isSaving || boaSessionExpired"
             :initial-value="model.body || ''"
             :is-in-modal="true"
@@ -122,7 +117,7 @@
       :show-modal="showDiscardTemplateModal"
       modal-header="Discard unsaved template?"
     />
-  </v-overlay>
+  </v-dialog>
 </template>
 
 <script setup>
@@ -183,12 +178,12 @@ let showDiscardNoteModal = false
 let showDiscardTemplateModal = false
 
 // eslint-disable-next-line vue/require-prop-types
-const isOpen = defineModel()
+const dialogModel = defineModel()
 const noteStore = useNoteStore()
 const {boaSessionExpired, completeSidSet, isSaving, mode, model, noteTemplates} = storeToRefs(noteStore)
 
-watch(isOpen, () => {
-  if (isOpen.value) {
+watch(dialogModel, () => {
+  if (dialogModel.value) {
     // remove scrollbar for content behind the modal
     document.documentElement.classList.add('modal-open')
     getMyNoteTemplates().then(noteStore.setNoteTemplates)
