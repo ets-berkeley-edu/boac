@@ -1,8 +1,7 @@
 import axios from 'axios'
 import utils from '@/api/api-utils'
 
-export function getSection(termId, sectionId, offset, limit, featured) {
-  let url = `${utils.apiBaseUrl()}/api/section/${termId}/${sectionId}`
+export function getSection(termId: number, sectionId: number, offset: number, limit: number, featured: boolean) {
   const params: string[] = []
   if (offset || limit) {
     params.push('offset=' + (offset || 0) + '&limit=' + (limit || 50))
@@ -10,8 +9,6 @@ export function getSection(termId, sectionId, offset, limit, featured) {
   if (featured) {
     params.push('featured=' + featured)
   }
-  if (params.length) {
-    url += '?' + params.join('&')
-  }
-  return axios.get(url).then(response => response.data, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/section/${termId}/${sectionId}?${params.join('&')}`
+  return axios.get(url).then(response => response.data)
 }

@@ -4,43 +4,42 @@ import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
 
 export function getDepartments(excludeEmpty?: boolean) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/users/departments?excludeEmpty=${excludeEmpty}`)
-    .then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/users/departments?excludeEmpty=${excludeEmpty}`
+  return axios.get(url).then(response => response.data)
 }
 
 export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDeleted?: boolean) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/users/admins`, {
-      ignoreDeleted: isNil(ignoreDeleted) ? null : ignoreDeleted,
-      sortBy,
-      sortDescending
-    })
-    .then(response => response, () => null)
+  const data = {
+    ignoreDeleted: isNil(ignoreDeleted) ? null : ignoreDeleted,
+    sortBy,
+    sortDescending
+  }
+  return axios.post(`${utils.apiBaseUrl()}/api/users/admins`, data).then(response => response.data)
 }
 
 export function getUserProfile() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/profile/my`)
-    .then(response => {
-      const user = response
-      if (!get(user, 'isAuthenticated')) {
-        useContextStore().broadcast('user-session-expired')
-      }
-      return user
-    }, () => null)
+  return axios.get(`${utils.apiBaseUrl()}/api/profile/my`).then(response => {
+    const data = response.data
+    if (!get(data, 'isAuthenticated')) {
+      useContextStore().broadcast('user-session-expired')
+    }
+    return data
+  })
 }
 
 export function getCalnetProfileByCsid(csid) {
-  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_csid/${csid}`).then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/user/calnet_profile/by_csid/${csid}`
+  return axios.get(url).then(response => response.data)
 }
 
 export function getCalnetProfileByUserId(userId) {
-  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_user_id/${userId}`).then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/user/calnet_profile/by_user_id/${userId}`
+  return axios.get(url).then(response => response.data)
 }
 
 export function getCalnetProfileByUid(uid) {
-  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_uid/${uid}`).then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/user/calnet_profile/by_uid/${uid}`
+  return axios.get(url).then(response => response.data)
 }
 
 export function getUserByUid(uid, ignoreDeleted?: boolean) {
@@ -48,7 +47,7 @@ export function getUserByUid(uid, ignoreDeleted?: boolean) {
   if (!isNil(ignoreDeleted)) {
     url += `?ignoreDeleted=${ignoreDeleted}`
   }
-  return axios.get(url).then(response => response, () => null)
+  return axios.get(url).then(response => response.data)
 }
 
 export function getUsers(
@@ -59,44 +58,33 @@ export function getUsers(
     sortBy: string,
     sortDescending: boolean
   ) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/users`, {
-      blocked,
-      deleted,
-      deptCode,
-      role,
-      sortBy,
-      sortDescending
-    })
-    .then(response => response, () => null)
+  const data = {
+    blocked,
+    deleted,
+    deptCode,
+    role,
+    sortBy,
+    sortDescending
+  }
+  return axios.post(`${utils.apiBaseUrl()}/api/users`, data).then(response => response.data)
 }
 
 export function userAutocomplete(snippet: string) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/users/autocomplete`, {snippet: snippet})
-    .then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/users/autocomplete`
+  return axios.post(url, {snippet}).then(response => response.data)
 }
 
 export function becomeUser(uid: string) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/auth/become_user`, {uid: uid})
-    .then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/auth/become_user`
+  return axios.post(url, {uid}).then(response => response.data)
 }
 
 export function setDemoMode(demoMode: boolean) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/user/demo_mode`, {demoMode: demoMode})
-    .then(() => {
-      useContextStore().setDemoMode(demoMode)
-    })
+  const url: string = `${utils.apiBaseUrl()}/api/user/demo_mode`
+  return axios.post(url, {demoMode}).then(() => useContextStore().setDemoMode(demoMode))
 }
 
 export function createOrUpdateUser(profile: any, memberships: any[], deleteAction: boolean) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/user/create_or_update`, {
-      deleteAction,
-      profile,
-      memberships
-    })
-    .then(response => response)
+  const url: string = `${utils.apiBaseUrl()}/api/user/create_or_update`
+  return axios.post(url, {deleteAction, profile, memberships}).then(response => response.data)
 }

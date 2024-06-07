@@ -1,6 +1,6 @@
 <template>
   <div v-if="!loading" class="default-margins">
-    <div class="mb-8">
+    <div class="mb-6">
       <h1 class="page-section-header">Everyone's Cohorts</h1>
       <div v-if="includesAdmittedStudents" class="pl-1">
         <v-icon
@@ -25,7 +25,7 @@
             <v-icon aria-label="Star icon" color="warning" :icon="mdiStar" />
             <span class="sr-only">Admitted Students</span>
           </span>
-          <router-link :to="'/cohort/' + cohort.id">{{ cohort.name }}</router-link> ({{ cohort.totalStudentCount }})
+          <router-link :to="`/cohort/${cohort.id}`">{{ cohort.name }}</router-link> ({{ cohort.totalStudentCount }})
         </li>
       </ul>
     </div>

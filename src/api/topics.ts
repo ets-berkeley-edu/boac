@@ -1,35 +1,31 @@
 import axios from 'axios'
 import utils from '@/api/api-utils'
 
-export function createTopic(topic) {
-  return axios.post(`${utils.apiBaseUrl()}/api/topic/create`, {
-    topic
-  }).then(response => response, () => null)
+export function createTopic(topic: string) {
+  const url: string = `${utils.apiBaseUrl()}/api/topic/create`
+  return axios.post(url, {topic}).then(response => response.data)
 }
 
-export function deleteTopic(id) {
+export function deleteTopic(id: number) {
   return axios.delete(`${utils.apiBaseUrl()}/api/topic/delete/${id}`)
 }
 
 export function getAllTopics(includeDeleted?: boolean) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/topics/all?includeDeleted=${includeDeleted}`)
-    .then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/topics/all?includeDeleted=${includeDeleted}`
+  return axios.get(url).then(response => response.data)
 }
 
 export function getTopicsForNotes(includeDeleted?: boolean) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/topics/for_notes?includeDeleted=${includeDeleted}`)
-    .then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/topics/for_notes?includeDeleted=${includeDeleted}`
+  return axios.get(url).then(response => response.data)
 }
 
 export function getUsageStatistics() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/topics/usage_statistics`)
-    .then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/topics/usage_statistics`
+  return axios.get(url).then(response => response.data)
 }
 
 export function undeleteTopic(id) {
-  return axios.post(`${utils.apiBaseUrl()}/api/topic/undelete`, {id})
-      .then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/topic/undelete`
+  return axios.post(url, {id}).then(response => response.data)
 }

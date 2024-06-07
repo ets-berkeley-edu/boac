@@ -15,7 +15,7 @@ import {DateTime} from 'luxon'
 import {FocusTrap} from 'focus-trap-vue'
 import {get, trim} from 'lodash'
 import {getServiceAnnouncement} from '@/api/config'
-import {initializeAxios} from './utils'
+import {initializeAxios} from './main-utils'
 import {useContextStore} from '@/stores/context'
 
 const app = createApp(App)
@@ -47,12 +47,12 @@ app.config.globalProperties.$ready = (focusTarget?: string) => useContextStore()
 
 const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL
 
-axios.get(`${apiBaseUrl}/api/profile/my`).then(data => {
-  useContextStore().setCurrentUser(data)
+axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
+  useContextStore().setCurrentUser(response.data)
 
-  axios.get(`${apiBaseUrl}/api/config`).then(data => {
+  axios.get(`${apiBaseUrl}/api/config`).then(response => {
     useContextStore().setConfig({
-      ...data,
+      ...response.data,
       apiBaseUrl,
       isVueAppDebugMode: trim(import.meta.env.VITE_APP_DEBUG).toLowerCase() === 'true'
     })
