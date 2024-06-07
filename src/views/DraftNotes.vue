@@ -1,24 +1,22 @@
 <template>
   <div class="default-margins">
-    <h1>{{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}</h1>
+    <h1 class="mb-0">{{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}</h1>
     <div v-if="!contextStore.loading">
       <div v-if="size(myDraftNotes)">
-        <div v-if="!currentUser.isAdmin" class="font-weight-700 pb-3 pl-2 text-medium-emphasis">
+        <div v-if="!currentUser.isAdmin" class="font-weight-700 pb-3 text-medium-emphasis">
           A draft note is only visible to its author.
         </div>
         <v-data-table
           id="responsive-data-table"
           :cell-props="{
-            class: 'font-size-14 pl-0 vertical-top',
+            class: 'font-size-14 vertical-baseline',
             style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
           }"
-          density="comfortable"
           disable-sort
           :headers="headers"
-          :header-props="{class: 'font-size-14 font-weight-bold pl-0 text-primary'}"
+          :header-props="{class: 'data-table-header-cell'}"
           hide-default-footer
           hide-no-data
-          hover
           :items="myDraftNotes || []"
           :items-per-page="-1"
           mobile-breakpoint="md"
@@ -53,8 +51,9 @@
                 <v-btn
                   v-if="item.author.uid === currentUser.uid"
                   :id="`open-draft-note-${item.id}`"
-                  class="border-0 p-0 text-left"
+                  class="pl-0 text-primary"
                   :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                  density="compact"
                   variant="text"
                   @click="() => openEditModal(item)"
                 >
@@ -77,19 +76,20 @@
             />
           </template>
           <template #item.delete="{item}">
-            <v-btn
-              class="mr-2 py-0"
-              :disabled="isDeleting"
-              variant="text"
-              @click="() => openDeleteModal(item)"
-            >
-              <v-icon
-                aria-label="Delete"
-                :class="isDeleting ? 'text-medium-emphasis' : 'text-error'"
-                :icon="mdiTrashCan"
-                title="Delete"
-              />
-            </v-btn>
+            <div class="float-right">
+              <v-btn
+                :disabled="isDeleting"
+                variant="text"
+                @click="() => openDeleteModal(item)"
+              >
+                <v-icon
+                  aria-label="Delete"
+                  :class="isDeleting ? 'text-medium-emphasis' : 'text-error'"
+                  :icon="mdiTrashCan"
+                  title="Delete"
+                />
+              </v-btn>
+            </div>
           </template>
         </v-data-table>
       </div>
@@ -139,7 +139,7 @@ if (currentUser.isAdmin) {
 }
 headers.push(
   {align: 'start', key: 'updatedAt', title: 'Date', width: 100},
-  {align: 'start', key: 'delete', title: 'Delete', width: 100}
+  {align: 'center', key: 'delete', title: 'Delete', width: 100}
 )
 
 let activeOperation
@@ -235,3 +235,14 @@ onUnmounted(() => {
   each(eventHandlers || {}, (handler, eventType) => contextStore.removeEventHandler(eventType, handler))
 })
 </script>
+
+<style>
+tbody tr:nth-of-type(odd) {
+ background-color: rgba(0, 0, 0, .05);
+}
+.data-table-header-cell {
+  font-size: 14px;
+  font-weight: bold;
+  height: 32px !important;
+}
+</style>
