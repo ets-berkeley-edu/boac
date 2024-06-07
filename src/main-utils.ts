@@ -35,7 +35,7 @@ const axiosErrorHandler = (error, axios) => {
 export function initializeAxios(app: any, axios: any) {
   axios.defaults.withCredentials = true
   axios.interceptors.response.use(
-    (response: any) => response.headers['content-type'] === 'application/json' ? response.data : response,
+    (response: any) => response,
     (error: any) => {
       const errorStatus = get(error, 'response.status')
       if (includes([401, 403], errorStatus)) {

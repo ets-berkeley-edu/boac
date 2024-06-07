@@ -77,22 +77,19 @@
             />
           </template>
           <template #item.delete="{item}">
-            <div class="min-width-100 pl-2 pr-1">
-              <v-btn
-                v-if="!item.deletedAt"
-                class="mr-2 py-0"
-                :disabled="isDeleting"
-                variant="text"
-                @click="openDeleteModal(item)"
-              >
-                <v-icon
-                  aria-label="Delete"
-                  :class="isDeleting ? 'text-medium-emphasis' : 'text-error'"
-                  :icon="mdiTrashCan"
-                  title="Delete"
-                />
-              </v-btn>
-            </div>
+            <v-btn
+              class="mr-2 py-0"
+              :disabled="isDeleting"
+              variant="text"
+              @click="() => openDeleteModal(item)"
+            >
+              <v-icon
+                aria-label="Delete"
+                :class="isDeleting ? 'text-medium-emphasis' : 'text-error'"
+                :icon="mdiTrashCan"
+                title="Delete"
+              />
+            </v-btn>
           </template>
         </v-data-table>
       </div>
@@ -173,7 +170,10 @@ const deleteDraftNote = () => {
   })
 }
 
-const deselectDraftNote = () => selectedDraftNote = activeOperation = null
+const deselectDraftNote = () => {
+  console.log('deselectDraftNote')
+  selectedDraftNote = activeOperation = null
+}
 
 const onDeleteNote = noteId => {
   if (find(myDraftNotes, ['id', noteId])) {

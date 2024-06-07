@@ -1,45 +1,40 @@
-import _ from 'lodash'
+import {each, size, toNumber} from 'lodash'
 import axios from 'axios'
 import ga from '@/lib/ga'
 import {useContextStore} from '@/stores/context'
 import utils from '@/api/api-utils'
 
 const $_refreshMyDraftNoteCount = () => {
-  axios
-    .get(`${utils.apiBaseUrl()}/api/notes/my_draft_note_count`)
-    .then(
-      response => useContextStore().setMyDraftNoteCount(_.toNumber(response)),
-      () => null
-    )
+  axios.get(`${utils.apiBaseUrl()}/api/notes/my_draft_note_count`).then(response => {
+    useContextStore().setMyDraftNoteCount(toNumber(response.data))
+  })
 }
 const $_track = action => ga.note(action)
 
-export function getNote(noteId) {
+export function getNote(noteId: number) {
   $_track('view')
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/note/${noteId}`)
-    .then(response => response, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/note/${noteId}`
+  return axios.get(url).then(response => response.data)
 }
 
 export function getMyDraftNotes() {
-  const url = `${utils.apiBaseUrl()}/api/notes/my_drafts`
-  return axios.get(url).then(data => data, () => null)
+  const url: string = `${utils.apiBaseUrl()}/api/notes/my_drafts`
+  return axios.get(url).then(response => response.data)
 }
 
-export function markNoteRead(noteId) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/notes/${noteId}/mark_read`)
-    .then(response => {
-      $_track('read')
-      return response
-    }, () => null)
+export function markNoteRead(noteId: number) {
+  return axios.post(`${utils.apiBaseUrl()}/api/notes/${noteId}/mark_read`).then(response => {
+    $_track('read')
+    return response.data
+  })
 }
 
 export function createDraftNote(sid: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/note/create_draft`, {sid}).then(response => {
-    useContextStore().broadcast('note-created',response)
+    const data = response.data
+    useContextStore().broadcast('note-created', data)
     $_refreshMyDraftNoteCount()
-    return response
+    return data
   })
 }
 
@@ -57,7 +52,7 @@ export function updateNote(
     templateAttachmentIds?: number[],
     topics?: string[]
 ) {
-  const data = {
+  const args = {
     id: noteId,
     body,
     cohortIds,
@@ -71,43 +66,41 @@ export function updateNote(
     templateAttachmentIds,
     topics
   }
-  return utils.postMultipartFormData('/api/notes/update', data).then(response => {
-    const eventType = _.size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
-    useContextStore().broadcast(eventType, response)
+  return utils.postMultipartFormData('/api/notes/update', args).then(response => {
+    const eventType = size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
+    const data = response.data
+    useContextStore().broadcast(eventType, data)
     $_track('update')
     $_refreshMyDraftNoteCount()
-    return response
+    return data
   })
 }
 
 export function applyNoteTemplate(noteId: number, templateId: number) {
   return axios.post(`${utils.apiBaseUrl()}/api/note/apply_template`, {noteId, templateId}).then(response => {
-    useContextStore().broadcast('note-updated', response)
+    const data = response.data
+    useContextStore().broadcast('note-updated', data)
     $_track('update')
     $_refreshMyDraftNoteCount()
-    return response
+    return data
   })
 }
 
 export function deleteNote(note: any) {
   $_track('delete')
-  return axios
-    .delete(`${utils.apiBaseUrl()}/api/notes/delete/${note.id}`)
-    .then(response => {
-      useContextStore().broadcast('note-deleted', note.id)
-      $_refreshMyDraftNoteCount()
-      return response.data
-    })
+  return axios.delete(`${utils.apiBaseUrl()}/api/notes/delete/${note.id}`).then(response => {
+    useContextStore().broadcast('note-deleted', note.id)
+    $_refreshMyDraftNoteCount()
+    return response.data
+  })
 }
 
 export function addAttachments(noteId: number, attachments: any[]) {
   const data = {}
-  _.each(attachments, (attachment, index) => data[`attachment[${index}]`] = attachment)
+  each(attachments, (attachment, index) => data[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData(`/api/notes/${noteId}/attachments`, data)
 }
 
 export function removeAttachment(noteId: number, attachmentId: number) {
-  return axios
-    .delete(`${utils.apiBaseUrl()}/api/notes/${noteId}/attachment/${attachmentId}`)
-    .then(response => response.data)
+  return axios.delete(`${utils.apiBaseUrl()}/api/notes/${noteId}/attachment/${attachmentId}`).then(response => response.data)
 }

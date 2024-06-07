@@ -4,38 +4,33 @@ import ga from '@/lib/ga'
 import utils from '@/api/api-utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 
-const $_refreshNoteEditSession = () => {
-  getMyNoteTemplates().then(templates => useNoteStore().setNoteTemplates(templates))
-}
+const $_refreshNoteEditSession = () => getMyNoteTemplates().then(data => useNoteStore().setNoteTemplates(data))
 
 const $_track = action => ga.noteTemplate(action)
 
 export function getMyNoteTemplates() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/note_templates/my`)
-    .then(response => response, () => null)
+  return axios.get(`${utils.apiBaseUrl()}/api/note_templates/my`).then(response => response.data)
 }
 
 export function createNoteTemplate(noteId: number, title: string) {
-  return axios.post(`${utils.apiBaseUrl()}/api/note_template/create`, {noteId, title}).then(template => {
+  const url: string = `${utils.apiBaseUrl()}/api/note_template/create`
+  return axios.post(url, {noteId, title}).then(response => {
     $_refreshNoteEditSession()
     $_track('create')
-    return template
+    return response.data
   })
 }
 
 export function deleteNoteTemplate(templateId: number) {
-  return axios
-    .delete(`${utils.apiBaseUrl()}/api/note_template/delete/${templateId}`)
-    .then($_refreshNoteEditSession)
+  return axios.delete(`${utils.apiBaseUrl()}/api/note_template/delete/${templateId}`).then($_refreshNoteEditSession)
 }
 
 export function renameNoteTemplate(noteTemplateId: number, title: string) {
-  const data = {id: noteTemplateId, title: title}
-  return axios.post(`${utils.apiBaseUrl()}/api/note_template/rename`, data).then(template => {
-    useNoteStore().onUpdateTemplate(template)
+  return axios.post(`${utils.apiBaseUrl()}/api/note_template/rename`, {id: noteTemplateId, title}).then(response => {
+    const data = response.data
+    useNoteStore().onUpdateTemplate(data)
     $_track('update')
-    return template
+    return data
   })
 }
 
@@ -48,7 +43,7 @@ export function updateNoteTemplate(
     subject: string,
     topics: string[]
 ) {
-  const data = {
+  const args = {
     body,
     deleteAttachmentIds: deleteAttachmentIds || [],
     id: noteTemplateId,
@@ -56,10 +51,11 @@ export function updateNoteTemplate(
     subject,
     topics,
   }
-  each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
-  return utils.postMultipartFormData('/api/note_template/update', data).then(template => {
-    useNoteStore().onUpdateTemplate(template)
+  each(newAttachments || [], (attachment, index) => args[`attachment[${index}]`] = attachment)
+  return utils.postMultipartFormData('/api/note_template/update', args).then(response => {
+    const data = response.data
+    useNoteStore().onUpdateTemplate(data)
     $_track('update')
-    return template
+    return data
   })
 }

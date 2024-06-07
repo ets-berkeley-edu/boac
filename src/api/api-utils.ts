@@ -1,13 +1,10 @@
-import {each, get, isNil} from 'lodash'
 import axios from 'axios'
+import {each, get, isNil} from 'lodash'
 import {useContextStore} from '@/stores/context'
 
 export default {
   apiBaseUrl: () => get(useContextStore().config, 'apiBaseUrl'),
-  postMultipartFormData: (
-    path: string,
-    data: object
-  ) => {
+  postMultipartFormData: (path: string, data: object) => {
     const formData = new FormData()
     each(data, (value, key) => {
       if (!isNil(value)) {
@@ -15,22 +12,13 @@ export default {
       }
     })
     const apiBaseUrl = get(useContextStore().config, 'apiBaseUrl')
-    return axios
-        .post(
-            `${apiBaseUrl}${path}`,
-            formData,
-            {
-              headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            })
-        .then(response => {
-          return response
-        })
-        .catch(error => {
-          console.log(error)
-          return error
-        }
-      )
+    const config = {headers: {'Content-Type': 'multipart/form-data'}}
+    return axios.post(`${apiBaseUrl}${path}`, formData, config)
+      .then(response => response)
+      .catch(error => {
+        console.log(error)
+        return error
+      }
+    )
   }
 }
