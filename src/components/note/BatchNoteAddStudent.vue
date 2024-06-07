@@ -2,7 +2,7 @@
   <div>
     <label
       for="create-note-add-student-input"
-      class="font-size-14 font-weight-bold"
+      class="font-size-16 font-weight-700"
     >
       Student
     </label>
@@ -10,12 +10,13 @@
       Type a name, individual Student Identification (SID), or paste a list of SID numbers below.
       (Example: 9999999990, 9999999991)
     </div>
-    <div class="align-center d-flex pb-2">
+    <div class="align-center d-flex">
       <v-autocomplete
         id="create-note-add-student"
         :key="vAutocompleteKey"
         aria-describedby="create-note-add-student-desc"
         auto-select-first
+        autocomplete="off"
         class="autocomplete-students autocomplete-with-add-button"
         :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
         density="comfortable"
@@ -48,7 +49,7 @@
         </template>
       </v-autocomplete>
     </div>
-    <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="pb-1">
+    <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mt-2">
       <v-chip
         :id="`batch-note-student-${index}`"
         class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-no-wrap truncate-with-ellipsis"
@@ -62,7 +63,7 @@
       >
         <span class="truncate-with-ellipsis">{{ addedStudent.label }}</span>
         <template #close>
-          <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
+          <v-icon color="error" :icon="mdiCloseCircle" />
         </template>
       </v-chip>
     </div>

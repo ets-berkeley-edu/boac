@@ -21,7 +21,7 @@
         </transition>
       </div>
     </div>
-    <div class="mr-4">
+    <div>
       <v-select
         v-if="useNoteStore().mode !== 'editTemplate'"
         id="my-templates-button"
@@ -78,7 +78,7 @@
                       Rename<span class="sr-only"> template {{ item.raw.title }}</span>
                     </v-btn>
                   </div>
-                  <div aria-role="separator">
+                  <div role="separator">
                     |
                   </div>
                   <div>
@@ -92,7 +92,7 @@
                       Edit<span class="sr-only"> template {{ item.raw.title }}</span>
                     </v-btn>
                   </div>
-                  <div aria-role="separator">
+                  <div role="separator">
                     |
                   </div>
                   <div>

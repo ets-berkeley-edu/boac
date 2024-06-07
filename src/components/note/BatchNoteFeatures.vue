@@ -41,9 +41,7 @@
         </span>
       </span>
     </div>
-    <BatchNoteAddStudent
-      :on-esc-form-input="cancel"
-    />
+    <BatchNoteAddStudent :on-esc-form-input="cancel" />
     <BatchNoteAddCohort
       v-if="size(nonAdmitCohorts)"
       :is-curated-groups-mode="false"

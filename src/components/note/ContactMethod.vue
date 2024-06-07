@@ -2,76 +2,64 @@
   <div>
     <label
       id="contact-type-label"
-      class="font-weight-bold font-size-14"
+      class="font-size-16 font-weight-700"
       for="contact-type-options"
     >
       Contact Method
     </label>
-    <v-radio-group
-      id="contact-type-options"
-      :model-value="contactType"
-      aria-describedby="contact-type-label"
-      color="primary"
-      density="comfortable"
-      :disabled="disabled"
-      hide-details
-      :ripple="false"
-      @change="alertScreenReader(contactType)"
-    >
-      <v-radio
-        id="contact-option-none-radio-button"
-        label="None"
+    <div class="mt-2">
+      <v-radio-group
+        id="contact-type-options"
+        aria-describedby="contact-type-label"
+        color="primary"
+        density="compact"
+        :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
+        hide-details
+        :model-value="contactType"
         :ripple="false"
-        :value="null"
-      ></v-radio>
-      <template v-for="(contactOption, index) in contactOptions" :key="contactOption">
+        @change="alertScreenReader(contactType)"
+      >
         <v-radio
-          :id="`contact-option-${index}-radio-button`"
-          :label="contactOption"
+          id="contact-option-none-radio-button"
+          label="None"
           :ripple="false"
-          :value="contactOption"
-        >
-        </v-radio>
-      </template>
-    </v-radio-group>
+          :value="null"
+        />
+        <template v-for="(contactOption, index) in contactOptions" :key="contactOption">
+          <v-radio
+            :id="`contact-option-${index}-radio-button`"
+            :label="contactOption"
+            :ripple="false"
+            :value="contactOption"
+          >
+          </v-radio>
+        </template>
+      </v-radio-group>
+    </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import {alertScreenReader} from '@/lib/utils'
-import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {computed} from 'vue'
 
-export default {
-  name: 'ContactMethod',
-
-  data: () => ({
-    contactOptions: [
-      'Email',
-      'Phone',
-      'Online same day',
-      'Online scheduled',
-      'In-person same day',
-      'In person scheduled',
-      'Admin'
-    ]
-  }),
-  computed: {
-    contactType: {
-      get() {
-        return useNoteStore().model.contactType
-      },
-      set(value) {
-        useNoteStore().setContactType(value)
-      }
-    },
-    disabled() {
-      return !!(useNoteStore().isSaving || useNoteStore().boaSessionExpired)
-    }
+const noteStore = useNoteStore()
+const contactOptions = [
+  'Email',
+  'Phone',
+  'Online same day',
+  'Online scheduled',
+  'In-person same day',
+  'In person scheduled',
+  'Admin'
+]
+const contactType = computed({
+  get() {
+    return noteStore.model.contactType
   },
-  methods: {
-    alertScreenReader,
-    useContextStore
+  set(value) {
+    noteStore.setContactType(value)
   }
-}
+})
 </script>

@@ -18,7 +18,7 @@
     <div
       :id="ckElementId"
       :aria-labelledby="`${ckElementId}-label`"
-      class="mt-1"
+      class="mt-2"
       role="textbox"
     >
       <ckeditor

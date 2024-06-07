@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-1 px-3 pb-0">
+  <div>
     <div
       v-if="boaSessionExpired"
       id="uh-oh-session-time-out"
@@ -14,13 +14,13 @@
         <v-btn
           v-if="!['editTemplate'].includes(mode)"
           id="btn-save-as-template"
+          class="pl-0"
           color="primary"
           :disabled="isSaving || !trim(model.subject) || !!model.setDate || !!model.contactType"
+          text="Save as template"
           variant="text"
           @click="saveAsTemplate"
-        >
-          Save as template
-        </v-btn>
+        />
       </div>
       <div class="d-flex justify-end">
         <ProgressButton
@@ -34,7 +34,6 @@
         <v-btn
           v-if="model.isDraft"
           id="save-as-draft-button"
-          class="mx-1"
           color="primary"
           :disabled="isSaving || (!trim(model.subject) && !trim(model.body))"
           text="Save and Close Draft"
@@ -52,7 +51,7 @@
         <v-btn
           v-if="mode !== 'editDraft'"
           id="create-note-cancel"
-          class="ml-1"
+          class="ml-2"
           color="error"
           :disabled="isSaving"
           text="Discard"

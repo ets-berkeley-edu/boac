@@ -1,123 +1,124 @@
 <template>
   <v-dialog
     v-model="dialogModel"
+    persistent
+    width="800"
   >
-    <v-card
-      id="new-note-modal-container"
-      class="modal-content mt-3"
-      :class="{
-        'mt-4': ['createBatch', 'editDraft'].includes(mode)
-      }"
-      min-width="500"
-    >
-      <CreateNoteHeader :cancel-primary-modal="cancelRequested" />
-      <hr />
-      <div class="px-4">
-        <Transition v-if="['createBatch', 'editDraft'].includes(mode)" name="batch-transition">
-          <div v-show="mode !== 'editTemplate'">
-            <BatchNoteFeatures :cancel="cancelRequested" />
-          </div>
-        </Transition>
-      </div>
-      <hr v-if="mode !== 'editTemplate'" />
-      <div class="px-4">
-        <v-alert
-          id="alert-in-note-modal"
-          :model-value="alert && !!dismissAlertSeconds"
-          aria-live="polite"
-          class="font-weight-bold w-100 mb-2"
-          closable
-          color="info"
-          density="comfortable"
-          role="alert"
-          variant="tonal"
-          @click:close="dismissAlert"
-        >
-          <div class="d-flex">
-            <div v-if="isSaving" class="mr-2">
-              <v-icon :icon="mdiSync" spin />
+    <v-card id="new-note-modal-container">
+      <div
+        class="default-margins mb-6 mr-6"
+        :class="{'mt-4': ['createBatch', 'editDraft'].includes(mode)}"
+      >
+        <CreateNoteHeader :cancel-primary-modal="cancelRequested" />
+        <hr />
+        <div>
+          <Transition v-if="['createBatch', 'editDraft'].includes(mode)" name="batch-transition">
+            <div v-show="mode !== 'editTemplate'">
+              <BatchNoteFeatures :cancel="cancelRequested" />
             </div>
-            <div>{{ alert }}</div>
-          </div>
-        </v-alert>
-        <label
-          id="create-note-subject-label"
-          for="create-note-subject"
-          class="font-size-14 font-weight-bold"
-        >
-          <span class="sr-only">Note </span>Subject
-        </label>
-        <v-text-field
-          id="create-note-subject"
-          :model-value="model.subject"
-          aria-labelledby="create-note-subject-label"
-          class="mt-2"
-          :class="{'bg-light': isSaving}"
-          color="primary"
-          density="compact"
-          :disabled="isSaving || boaSessionExpired"
-          maxlength="255"
-          type="text"
-          variant="outlined"
-          @input="setSubjectPerEvent"
-          @keydown.esc="cancelRequested"
-        />
-        <div id="note-details">
-          <RichTextEditor
+          </Transition>
+        </div>
+        <hr v-if="mode !== 'editTemplate'" />
+        <div>
+          <v-alert
+            v-if="alert"
+            id="alert-in-note-modal"
+            :model-value="alert && !!dismissAlertSeconds"
+            aria-live="polite"
+            class="font-weight-bold w-100 mb-2"
+            closable
+            color="info"
+            density="comfortable"
+            role="alert"
+            variant="tonal"
+            @click:close="dismissAlert"
+          >
+            <div class="d-flex">
+              <div v-if="isSaving" class="mr-2">
+                <v-icon :icon="mdiSync" spin />
+              </div>
+              <div>{{ alert }}</div>
+            </div>
+          </v-alert>
+          <label
+            id="create-note-subject-label"
+            for="create-note-subject"
+            class="font-size-16 font-weight-700"
+          >
+            <span class="sr-only">Note </span>Subject
+          </label>
+          <v-text-field
+            id="create-note-subject"
+            :model-value="model.subject"
+            aria-labelledby="create-note-subject-label"
+            class="mt-2"
+            :class="{'bg-light': isSaving}"
+            color="primary"
+            density="compact"
             :disabled="isSaving || boaSessionExpired"
-            :initial-value="model.body || ''"
-            :is-in-modal="true"
-            label="Note Details"
-            :on-value-update="useNoteStore().setBody"
-            :show-advising-note-best-practices="true"
+            maxlength="255"
+            type="text"
+            variant="outlined"
+            @input="setSubjectPerEvent"
+            @keydown.esc="cancelRequested"
           />
-        </div>
-      </div>
-      <div class="pa-4">
-        <AdvisingNoteTopics :key="mode" />
-        <PrivacyPermissions v-if="useContextStore().currentUser.canAccessPrivateNotes" />
-        <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
-          <div key="0" class="pt-4">
-            <ContactMethod />
+          <div id="note-details">
+            <RichTextEditor
+              :disabled="isSaving || boaSessionExpired"
+              :initial-value="model.body || ''"
+              :is-in-modal="true"
+              label="Note Details"
+              :on-value-update="useNoteStore().setBody"
+              :show-advising-note-best-practices="true"
+            />
           </div>
-          <div key="1" class="pt-4">
-            <ManuallySetDate />
-          </div>
-        </TransitionGroup>
-        <div class="pt-5">
-          <AdvisingNoteAttachments :add-attachments="addNoteAttachments" />
         </div>
+        <div class="py-4">
+          <AdvisingNoteTopics :key="mode" />
+          <PrivacyPermissions v-if="useContextStore().currentUser.canAccessPrivateNotes" />
+          <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
+            <div key="0" class="pt-4">
+              <ContactMethod />
+            </div>
+            <div key="1" class="pt-4">
+              <ManuallySetDate />
+            </div>
+          </TransitionGroup>
+          <div class="pt-5">
+            <AdvisingNoteAttachments :add-attachments="addNoteAttachments" />
+          </div>
+        </div>
+        <hr class="mt-0" />
+        <CreateNoteFooter
+          :cancel="cancelRequested"
+          :save-as-template="saveAsTemplate"
+          :update-note="updateNote"
+          :update-template="updateTemplate"
+        />
       </div>
-      <hr class="mt-0" />
-      <CreateNoteFooter
-        :cancel="cancelRequested"
-        :save-as-template="saveAsTemplate"
-        :update-note="updateNote"
-        :update-template="updateTemplate"
-      />
     </v-card>
-    <AreYouSureModal
-      v-if="showDiscardNoteModal"
-      :function-cancel="cancelDiscardNote"
-      :function-confirm="discardNote"
-      :show-modal="showDiscardNoteModal"
-      modal-header="Discard unsaved note?"
-    />
-    <CreateTemplateModal
-      :show-modal="showCreateTemplateModal"
-      :cancel="cancelCreateTemplate"
-      :create="createTemplate"
-      :on-hidden="() => noteStore.setIsSaving(false)"
-      :toggle-show="toggleShowCreateTemplateModal"
-    />
-    <AreYouSureModal
-      v-if="showDiscardTemplateModal"
-      :function-cancel="cancelDiscardTemplate"
-      :function-confirm="discardTemplate"
-      :show-modal="showDiscardTemplateModal"
-      modal-header="Discard unsaved template?"
-    />
   </v-dialog>
+  <AreYouSureModal
+    v-if="showDiscardNoteModal"
+    :function-cancel="cancelDiscardNote"
+    :function-confirm="discardNote"
+    :show-modal="showDiscardNoteModal"
+    modal-header="Discard unsaved note?"
+  />
+  <CreateTemplateModal
+    :show-modal="showCreateTemplateModal"
+    :cancel="cancelCreateTemplate"
+    :create="createTemplate"
+    :on-hidden="() => noteStore.setIsSaving(false)"
+    :toggle-show="toggleShowCreateTemplateModal"
+  />
+  <AreYouSureModal
+    v-if="showDiscardTemplateModal"
+    :function-cancel="cancelDiscardTemplate"
+    :function-confirm="discardTemplate"
+    :show-modal="showDiscardTemplateModal"
+    modal-header="Discard unsaved template?"
+  />
 </template>
 
 <script setup>

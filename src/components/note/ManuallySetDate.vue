@@ -2,12 +2,12 @@
   <div>
     <label
       id="manually-set-date-label"
-      class="font-weight-bold font-size-14"
+      class="font-size-16 font-weight-700"
       for="manually-set-date-input"
     >
       Manually Set Date
     </label>
-    <div class="d-flex pt-2">
+    <div class="d-flex mt-2">
       <DatePicker
         v-model="manuallySetDate"
         :max-date="maxDate"
