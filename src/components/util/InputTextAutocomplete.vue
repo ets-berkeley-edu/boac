@@ -213,17 +213,12 @@ export default {
     makeSuggestions() {
       this.selectedSuggestion = null
       this.$emit('input', null)
-      console.log('makeSuggestions', this.query)
       if (this.suggestWhen(this.query)) {
-        console.log('suggestWhen')
-
         this.isOpen = true
         this.isLoading = true
         this.suggestions = []
         const q = this.query && this.escapeForRegExp(this.query).replace(/[^\w ]+/g, '')
         this.source(q, this.limit).then(results => {
-          console.log('q', results)
-
           if (this.suggestWhen(this.query)) {
             this.populateSuggestions(results)
           } else {
@@ -306,9 +301,6 @@ export default {
       })
     },
     selectSuggestion(suggestion) {
-      console.log('suggestion', suggestion)
-      console.log('suggestion.label', suggestion.label)
-
       this.isOpen = false
       this.query = suggestion.label
       this.selectedQuery = suggestion.label

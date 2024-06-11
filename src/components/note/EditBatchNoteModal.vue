@@ -1,5 +1,6 @@
 <template>
   <v-dialog
+    v-if="mode"
     v-model="dialogModel"
     persistent
     width="800"
@@ -9,7 +10,7 @@
         class="default-margins mb-6 mr-6"
         :class="{'mt-4': ['createBatch', 'editDraft'].includes(mode)}"
       >
-        <CreateNoteHeader :cancel-primary-modal="cancelRequested" />
+        <CreateNoteHeader />
         <hr />
         <div>
           <Transition v-if="['createBatch', 'editDraft'].includes(mode)" name="batch-transition">

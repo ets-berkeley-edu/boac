@@ -354,7 +354,6 @@ export default {
   },
   methods: {
     addDepartment() {
-      console.log('addDepartment')
       if (this.deptCode) {
         const dept = this._find(this.departments, ['code', this.deptCode])
         this.memberships.push({

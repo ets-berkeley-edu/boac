@@ -151,6 +151,7 @@ export default {
           ).then(() => {
             alertScreenReader(`${sidList.length} students added to batch note`)
             const sidsNotFound = differenceWith(this.sidsManuallyAdded, sidList, isEqual)
+            // eslint-disable-next-line no-console
             console.log(`sidsNotFound: ${sidsNotFound}`)
             if (sidsNotFound.length) {
               const suffix = sidsNotFound.length === 1 ? '' : 's'

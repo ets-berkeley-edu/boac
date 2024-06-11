@@ -60,6 +60,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     app.use(router).config.errorHandler = function (error, vm, info) {
       const message = get(error, 'message') || info
       const stacktrace = get(error, 'stack', null)
+      // eslint-disable-next-line no-console
       console.log(`\n${message}\n${stacktrace}\n`)
       useContextStore().setApplicationState(500, message, stacktrace)
     }

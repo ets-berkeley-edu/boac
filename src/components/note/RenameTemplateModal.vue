@@ -1,24 +1,20 @@
 <template>
-  <v-overlay
-    v-model="showModalProxy"
+  <v-dialog
+    v-model="dialog"
     aria-label="Rename Your Template"
     class="justify-center overflow-auto"
     persistent
     width="100%"
     @update:model-value="onToggle"
   >
-    <v-card
-      class="modal-content"
-      min-width="400"
-      max-width="600"
-    >
-      <ModalHeader text="Rename Your Template" />
+    <v-card width="600">
+      <ModalHeader header-id="rename-template-modal-header" text="Rename Your Template" />
       <hr />
       <form @submit.prevent="renameTemplate">
         <div class="px-4 py-2">
           <v-text-field
             id="rename-template-input"
-            :model-value="title"
+            v-model="title"
             class="v-input-details-override"
             counter="255"
             density="compact"
@@ -26,7 +22,10 @@
             label="Template name"
             maxlength="255"
             persistent-counter
-            :rules="[validationRules.required, validationRules.maxLength]"
+            :rules="[
+              v => !!v || 'Template name is required',
+              v => !v || v.length <= 255 || 'Template name cannot exceed 255 characters.'
+            ]"
             variant="outlined"
           >
             <template #counter="{max, value}">
@@ -60,96 +59,54 @@
             :disabled="isSaving"
             text="Cancel"
             variant="plain"
-            @click="cancelModal"
+            @click="cancel"
           />
         </div>
       </form>
     </v-card>
-  </v-overlay>
+  </v-dialog>
 </template>
 
-<script>
+<script setup>
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {putFocusNextTick} from '@/lib/utils'
 import {validateTemplateTitle} from '@/lib/note'
+import {watch} from 'vue'
 
-export default {
-  name: 'RenameTemplateModal',
-  components: {ModalHeader, ProgressButton},
-  props: {
-    cancel: {
-      type: Function,
-      required: true
-    },
-    rename: {
-      type: Function,
-      required: true
-    },
-    showModal: {
-      type: Boolean,
-      required: true
-    },
-    template: {
-      type: Object,
-      required: true
-    },
-    toggleShow: {
-      type: Function,
-      required: true
-    }
+const props = defineProps({
+  cancel: {
+    type: Function,
+    required: true
   },
-  data: () => ({
-    title: '',
-    error: undefined,
-    isSaving: false,
-    validationRules: {
-      required: value => !!value || 'Template name is required',
-      maxLength: value => (!value || value.length <= 255) || 'Template name cannot exceed 255 characters.',
-    }
-  }),
-  computed: {
-    showModalProxy: {
-      get() {
-        return this.showModal
-      },
-      set(value) {
-        this.toggleShow(value)
-      }
-    }
+  rename: {
+    type: Function,
+    required: true
   },
-  watch: {
-    title() {
-      this.error = undefined
-    }
-  },
-  mounted() {
-    this.title = this.template.title
-  },
-  methods: {
-    reset() {
-      this.title = ''
-      this.error = undefined
-      this.isSaving = false
-    },
-    cancelModal() {
-      this.cancel()
-      this.reset()
-    },
-    onToggle(isOpen) {
-      if (isOpen) {
-        putFocusNextTick('modal-header')
-      }
-    },
-    renameTemplate: function() {
-      this.isSaving = true
-      this.error = validateTemplateTitle({id: this.template.id, title: this.title})
-      if (!this.error) {
-        this.rename(this.title)
-      } else {
-        this.isSaving = false
-      }
-    }
+  template: {
+    type: Object,
+    required: true
+  }
+})
+
+let title = props.template.title
+let error = undefined
+let isSaving = false
+
+// eslint-disable-next-line vue/require-prop-types
+const dialog = defineModel()
+
+watch(title, () => error = undefined)
+
+putFocusNextTick('rename-template-modal-header')
+
+const renameTemplate = () => {
+  isSaving = true
+  error = validateTemplateTitle({id: props.template.id, title: title})
+  if (error) {
+    isSaving = false
+  } else {
+    props.rename(title)
   }
 }
 </script>
