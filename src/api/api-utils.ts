@@ -16,6 +16,7 @@ export default {
     return axios.post(`${apiBaseUrl}${path}`, formData, config)
       .then(response => response)
       .catch(error => {
+        // eslint-disable-next-line no-console
         console.log(error)
         return error
       }

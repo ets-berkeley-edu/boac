@@ -14,7 +14,7 @@ module.exports = {
     'array-bracket-spacing': 2,
     'eqeqeq': 2,
     'key-spacing': 2,
-    'no-console': 1,
+    'no-console': 2,
     'no-debugger': 2,
     'no-multi-spaces': 2,
     'no-trailing-spaces': 2,

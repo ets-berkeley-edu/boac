@@ -8,17 +8,11 @@ import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 export function disableFocusLock(): void {
-  const onNextTick = () => {
-    useNoteStore().setFocusLockDisabled(true)
-  }
-  nextTick(onNextTick)
+  nextTick(() => useNoteStore().setFocusLockDisabled(true))
 }
 
 export function enableFocusLock(): void {
-  const onNextTick = () => {
-    useNoteStore().setFocusLockDisabled(true)
-  }
-  nextTick(onNextTick)
+  nextTick(() => useNoteStore().setFocusLockDisabled(true))
 }
 
 export function exitSession(revert: boolean): Promise<NoteEditSessionModel | undefined> {

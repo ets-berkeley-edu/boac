@@ -46,6 +46,7 @@ export function deleteCourse(courseId: number): Promise<any> {
 }
 
 export function log(message: string) {
+  // eslint-disable-next-line no-console
   useContextStore().config.isVueAppDebugMode && console.log(message)
 }
 

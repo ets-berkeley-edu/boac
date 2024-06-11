@@ -31,7 +31,7 @@ export const useContextStore = defineStore('context', {
   state: () => ({
     announcement: undefined,
     applicationState: $_getDefaultApplicationState(),
-    config: undefined as BoaConfig | undefined,
+    config: {} as BoaConfig,
     currentUser: {
       canAccessAdmittedStudents: false,
       canAccessAdvisingData: false,
@@ -82,6 +82,7 @@ export const useContextStore = defineStore('context', {
     },
     loadingComplete(srAlert?: any) {
       if (!get(this.config, 'isProduction')) {
+        // eslint-disable-next-line no-console
         console.log(`Page loaded in ${(new Date().getTime() - (this.loadingStartTime || 0)) / 1000} seconds`)
       }
       this.loading = false

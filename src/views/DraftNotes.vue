@@ -170,10 +170,7 @@ const deleteDraftNote = () => {
   })
 }
 
-const deselectDraftNote = () => {
-  console.log('deselectDraftNote')
-  selectedDraftNote = activeOperation = null
-}
+const deselectDraftNote = () => selectedDraftNote = activeOperation = null
 
 const onDeleteNote = noteId => {
   if (find(myDraftNotes, ['id', noteId])) {

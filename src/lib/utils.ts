@@ -68,9 +68,7 @@ export function setPageTitle(phrase: string) {
 }
 
 export function scroll(anchor) {
-  // TODO: Implement anchor
-  console.log(`TODO: Scroll to ${anchor}`)
-  window.scrollTo(0, 0)
+  location.hash = `#${anchor}`
 }
 
 export function scrollTo(anchor) {
