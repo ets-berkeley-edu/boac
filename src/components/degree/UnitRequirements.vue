@@ -114,11 +114,10 @@
       </b-col>
     </b-row>
     <AreYouSureModal
-      v-if="isDeleting"
+      v-model="isDeleting"
+      button-label-confirm="Delete"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
-      :show-modal="isDeleting"
-      button-label-confirm="Delete"
       modal-header="Delete Unit Requirement"
     >
       Are you sure you want to delete <strong>{{ _get(selected, 'name') }}</strong>?

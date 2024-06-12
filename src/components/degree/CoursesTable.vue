@@ -324,11 +324,10 @@
       <CreateCourseModal :parent-category="parentCategory" />
     </div>
     <AreYouSureModal
-      v-if="bundleForDelete"
+      v-model="isDeleting"
+      button-label-confirm="Delete"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
-      :show-modal="!!bundleForDelete"
-      button-label-confirm="Delete"
       modal-header="Delete Course"
     >
       Are you sure you want to delete <strong>&quot;{{ bundleForDelete.name }}&quot;</strong>
@@ -405,6 +404,7 @@ export default {
     canEdit: undefined,
     emptyCategoryId: undefined,
     hoverCourseId: undefined,
+    isDeleting: false,
     notesVisible: []
   }),
   computed: {
@@ -468,6 +468,7 @@ export default {
     },
     deleteCanceled() {
       this.putFocusNextTick(`column-${this.position}-delete-${this.bundleForDelete.key}-btn`)
+      this.isDeleting = false
       this.bundleForDelete = null
       alertScreenReader('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
@@ -477,6 +478,7 @@ export default {
       const done = () => {
         alertScreenReader(`${name} deleted.`)
         const putFocus = this.sid ? `column-${this.position}-add-course-to-category-${this.parentCategory.id}` : 'page-header'
+        this.isDeleting = false
         this.bundleForDelete = null
         this.setDisableButtons(false)
         this.putFocusNextTick(putFocus)
@@ -580,6 +582,7 @@ export default {
       this.hoverCourseId = null
       this.setDisableButtons(true)
       this.bundleForDelete = bundle
+      this.isDeleting = true
       alertScreenReader(`Delete ${bundle.name}`)
     },
     onDrag(event, stage, bundle) {

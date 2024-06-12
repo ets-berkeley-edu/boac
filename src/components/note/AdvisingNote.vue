@@ -135,11 +135,10 @@
       </div>
     </div>
     <AreYouSureModal
-      v-if="showConfirmDeleteAttachment"
+      v-model="showConfirmDeleteAttachment"
+      button-label-confirm="Delete"
       :function-cancel="cancelRemoveAttachment"
       :function-confirm="confirmedRemoveAttachment"
-      :show-modal="showConfirmDeleteAttachment"
-      button-label-confirm="Delete"
       modal-header="Delete Attachment"
     >
       Are you sure you want to delete the <strong>'{{ displayName(existingAttachments, deleteAttachmentIndex) }}'</strong> attachment?

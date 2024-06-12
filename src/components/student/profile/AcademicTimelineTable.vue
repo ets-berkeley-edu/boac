@@ -328,11 +328,10 @@
     </div>
   </div>
   <AreYouSureModal
-    v-if="showDeleteConfirmModal"
+    v-model="showDeleteConfirmModal"
+    button-label-confirm="Delete"
     :function-cancel="cancelTheDelete"
     :function-confirm="deleteConfirmed"
-    :show-modal="showDeleteConfirmModal"
-    button-label-confirm="Delete"
     modal-header="Delete note"
   >
     {{ deleteConfirmModalBody }}

@@ -88,10 +88,9 @@
       </div>
     </div>
     <AreYouSureModal
-      v-if="showAreYouSureModal"
+      v-model="showAreYouSureModal"
       :function-cancel="cancelTheCancel"
       :function-confirm="cancelConfirmed"
-      :show-modal="showAreYouSureModal"
       modal-header="Discard unsaved changes?"
     />
     <div v-if="size(useNoteStore().model.attachments)">

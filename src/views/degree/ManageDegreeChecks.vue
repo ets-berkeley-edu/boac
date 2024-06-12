@@ -192,7 +192,7 @@
       </div>
     </div>
     <AreYouSureModal
-      v-if="templateForDelete"
+      v-model="isDeleting"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
       :show-modal="!!templateForDelete"
@@ -232,6 +232,7 @@ export default {
     deleteModalBody: undefined,
     degreeTemplates: undefined,
     isBusy: false,
+    isDeleting: false,
     successMessage: undefined,
     templateForDelete: undefined,
     templateForEdit: undefined,
@@ -279,7 +280,7 @@ export default {
     deleteCanceled() {
       this.putFocusNextTick(`degree-check-${this.templateForDelete.id}-link`)
       this.deleteModalBody = this.templateForDelete = null
-      this.isBusy = false
+      this.isBusy = this.isDeleting = false
       alertScreenReader('Canceled. Nothing deleted.')
     },
     deleteConfirmed() {
@@ -288,7 +289,7 @@ export default {
         alertScreenReader(`${this.templateForDelete.name} deleted.`)
         this.putFocusNextTick('page-header')
         this.deleteModalBody = this.templateForDelete = null
-        this.isBusy = false
+        this.isBusy = this.isDeleting = false
       })
     },
     edit(template) {
@@ -323,7 +324,7 @@ export default {
       this.deleteModalBody = `Are you sure you want to delete <b>"${template.name}"</b>?`
       alertScreenReader('Please confirm delete.')
       this.templateForDelete = template
-      this.isBusy = true
+      this.isBusy = this.isDeleting = true
     }
   }
 }

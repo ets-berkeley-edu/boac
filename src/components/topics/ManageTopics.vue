@@ -119,11 +119,10 @@
       :on-cancel="onCancelEdit"
     />
     <AreYouSureModal
-      v-if="isDeleteTopicModalOpen"
+      v-model="isDeleteTopicModalOpen"
+      button-label-confirm="Delete"
       :function-cancel="deleteCancel"
       :function-confirm="deleteConfirm"
-      :show-modal="isDeleteTopicModalOpen"
-      button-label-confirm="Delete"
       modal-header="Delete Topic"
     >
       <span> Are you sure you want to delete <b>{{ topicDelete.topic }}</b>? </span>

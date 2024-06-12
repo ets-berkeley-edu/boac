@@ -1,20 +1,19 @@
 <template>
   <v-dialog
-    v-model="showAreYouSureModal"
+    v-model="model"
     persistent
+    width="auto"
     @update:model-value="onToggle"
   >
-    <v-card
-      class="modal-content"
-      min-width="400"
-      max-width="600"
-    >
-      <div class="mx-10 my-4">
-        <ModalHeader :text="modalHeader" />
-        <div class="mb-6 mt-2">
+    <v-card class="modal-content" min-width="600">
+      <div>
+        <v-card-title class="px-8">
+          <ModalHeader :text="modalHeader" />
+        </v-card-title>
+        <v-card-text class="px-8 pb-3">
           <slot />
-        </div>
-        <div class="float-right">
+        </v-card-text>
+        <v-card-actions class="float-right pr-6">
           <ProgressButton
             id="are-you-sure-confirm"
             :action="confirm"
@@ -30,7 +29,7 @@
             variant="plain"
             @click="functionCancel"
           />
-        </div>
+        </v-card-actions>
       </div>
     </v-card>
   </v-dialog>
@@ -40,7 +39,6 @@
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {putFocusNextTick} from '@/lib/utils'
-import {watch} from 'vue'
 
 const props = defineProps({
   buttonLabelCancel: {
@@ -65,16 +63,12 @@ const props = defineProps({
     type: String,
     required: false,
     default: 'Are you sure?'
-  },
-  showModal: {
-    type: Boolean,
-    required: true
   }
 })
 let isProcessing = false
-let showAreYouSureModal = props.showModal
 
-watch(() => props.showModal, value => showAreYouSureModal = value)
+// eslint-disable-next-line vue/require-prop-types
+const model = defineModel()
 
 const confirm = () => {
   isProcessing = true
