@@ -4,6 +4,7 @@
     :color="color"
     :disabled="disabled"
     :size="size"
+    :variant="variant"
     @click.prevent="action"
   >
     <div class="align-center d-flex">
@@ -50,6 +51,11 @@ export default {
     },
     text: {
       default: undefined,
+      type: String,
+      required: false
+    },
+    variant: {
+      default: 'flat',
       type: String,
       required: false
     }
