@@ -3,7 +3,7 @@
     <div class="flex-grow-1">
       <div class="align-center d-flex">
         <ModalHeader
-          header-id="modal-header-note"
+          header-id="dialog-header-note"
           :text="{
             createBatch: 'Create Note(s)',
             createNote: 'Create Note',
@@ -26,7 +26,7 @@
         </transition>
       </div>
     </div>
-    <div>
+    <div id="templates-menu">
       <v-menu
         v-if="noteStore.mode !== 'editTemplate'"
         :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
@@ -61,17 +61,78 @@
                 </v-col>
                 <v-col>
                   <div class="align-center d-flex float-right">
-                    <v-btn
-                      :id="`btn-rename-note-template-${template.id}`"
-                      class="font-size-14"
-                      color="primary"
-                      density="compact"
-                      size="sm"
-                      variant="text"
-                      @click="() => openRenameTemplateModal(template)"
-                    >
-                      Rename<span class="sr-only"> template {{ template.title }}</span>
-                    </v-btn>
+                    <v-dialog v-model="template.isRenameDialogOpen" retain-focus>
+                      <template #activator="{props: activatorProps}">
+                        <v-btn
+                          v-bind="activatorProps"
+                          :id="`btn-rename-note-template-${template.id}`"
+                          class="font-size-14"
+                          color="primary"
+                          density="compact"
+                          :disabled="isSaving"
+                          size="sm"
+                          variant="text"
+                          @click="openRenameTemplateDialog(template)"
+                        >
+                          Rename<span class="sr-only"> template {{ template.title }}</span>
+                        </v-btn>
+                      </template>
+                      <v-card width="600">
+                        <v-card-title class="pl-6 pt-5">
+                          <ModalHeader header-id="rename-template-dialog-header" text="Rename Your Template" />
+                        </v-card-title>
+                        <v-card-text class="pr-8 py-2">
+                          <v-text-field
+                            id="rename-template-input"
+                            v-model="updatedTemplateTitle"
+                            counter="255"
+                            density="compact"
+                            :disabled="isSaving"
+                            label="Template name"
+                            maxlength="255"
+                            persistent-counter
+                            :rules="[
+                              v => !!v || 'Template name is required',
+                              v => !v || v.length <= 255 || 'Template name cannot exceed 255 characters.'
+                            ]"
+                            variant="outlined"
+                            @keyup.enter="() => renameTemplate(template)"
+                          >
+                            <template #counter="{max, value}">
+                              <div id="rename-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">
+                                <span class="sr-only">Template name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+                              </div>
+                            </template>
+                          </v-text-field>
+                          <div
+                            v-if="error"
+                            id="rename-template-error"
+                            aria-live="polite"
+                            class="text-error font-size-13 font-weight-regular"
+                            role="alert"
+                          >
+                            {{ error }}
+                          </div>
+                        </v-card-text>
+                        <v-card-actions class="pb-4 pr-8">
+                          <ProgressButton
+                            id="rename-template-confirm"
+                            :action="() => renameTemplate(template)"
+                            :disabled="isSaving || !size(updatedTemplateTitle) || size(updatedTemplateTitle) > 255"
+                            :in-progress="isSaving"
+                            :text="isSaving ? 'Renaming' : 'Rename'"
+                          />
+                          <v-btn
+                            id="cancel-rename-template"
+                            class="ml-1"
+                            :disabled="isSaving"
+                            text="Cancel"
+                            variant="plain"
+                            @click="() => cancel(template)"
+                          />
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
                     <div class="mx-1" role="separator">
                       |
                     </div>
@@ -96,10 +157,20 @@
                       density="compact"
                       size="sm"
                       variant="text"
-                      @click="openDeleteTemplateModal(template)"
+                      @click="openDeleteTemplateDialog(template)"
                     >
                       Delete<span class="sr-only"> template {{ template.title }}</span>
                     </v-btn>
+                    <AreYouSureModal
+                      v-if="template.isDeleteDialogOpen"
+                      :function-cancel="() => cancel(template)"
+                      :function-confirm="() => deleteTemplateConfirmed(template)"
+                      :show-modal="template.isDeleteDialogOpen"
+                      button-label-confirm="Delete"
+                      dialog-header="Delete Template"
+                    >
+                      Are you sure you want to delete the <strong>'{{ get(template, 'title') }}'</strong> template?
+                    </AreYouSureModal>
                   </div>
                 </v-col>
               </v-row>
@@ -114,30 +185,13 @@
         </div>
       </v-menu>
     </div>
-    <RenameTemplateModal
-      v-model="isRenamingTemplate"
-      :cancel="cancel"
-      :rename="renameTemplate"
-      :template="targetTemplate"
-      @update:model-value="setRenameTemplateDialog"
-    />
-    <AreYouSureModal
-      v-if="showDeleteTemplateModal"
-      :function-cancel="cancel"
-      :function-confirm="deleteTemplateConfirmed"
-      :show-modal="showDeleteTemplateModal"
-      button-label-confirm="Delete"
-      modal-header="Delete Template"
-    >
-      Are you sure you want to delete the <strong>'{{ get(targetTemplate, 'title') }}'</strong> template?
-    </AreYouSureModal>
   </div>
 </template>
 
 <script setup>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import ModalHeader from '@/components/util/ModalHeader'
-import RenameTemplateModal from '@/components/note/RenameTemplateModal'
+import ProgressButton from '@/components/util/ProgressButton.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {applyNoteTemplate} from '@/api/notes'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
@@ -145,28 +199,29 @@ import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/util
 import {get, size} from 'lodash'
 import {mdiMenuDown} from '@mdi/js'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {validateTemplateTitle} from '@/lib/note'
 import {watch} from 'vue'
 
+let error
+let isSaving = false
 const noteStore = useNoteStore()
-let showDeleteTemplateModal = false
-let isRenamingTemplate = false
+let updatedTemplateTitle
 let suppressAutoSaveDraftNoteAlert = false
-let targetTemplate = undefined
 
 watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert = true, 5000))
 
-const cancel = () => {
-  showDeleteTemplateModal = isRenamingTemplate = false
-  targetTemplate = null
+const cancel = template => {
+  resetTemplate(template, template.title)
   alertScreenReader('Canceled')
   putFocusNextTick('create-note-subject')
   enableFocusLock()
 }
 
-const deleteTemplateConfirmed = () => {
-  return deleteNoteTemplate(targetTemplate.id).then(() => {
-    showDeleteTemplateModal = false
-    targetTemplate = null
+const deleteTemplateConfirmed = template => {
+  isSaving = true
+  return deleteNoteTemplate(template.id).then(() => {
+    isSaving = false
+    resetTemplate(template, template.title)
     alertScreenReader('Template deleted.')
     putFocusNextTick('create-note-subject')
     enableFocusLock()
@@ -181,10 +236,10 @@ const editTemplate = template => {
 }
 
 const loadTemplate = template => {
-  applyNoteTemplate(noteStore.model.id, template.id).then(note => {
-    noteStore.setModel(note)
+  applyNoteTemplate(noteStore.model.id, template.id).then(data => {
+    noteStore.setModel(data)
     putFocusNextTick('create-note-subject')
-    alertScreenReader(`Template ${template.title} loaded.`)
+    alertScreenReader(`Template ${data.title} loaded.`)
   })
 }
 
@@ -198,33 +253,38 @@ const onToggleTemplatesMenu = isOpen => {
   }
 }
 
-const openDeleteTemplateModal = template => {
-  targetTemplate = template
+const openDeleteTemplateDialog = template => {
+  template.isDeleteDialogOpen = true
   disableFocusLock()
-  showDeleteTemplateModal = true
-  alertScreenReader('Delete template modal opened.')
-}
-const openRenameTemplateModal = template => {
-  targetTemplate = template
-  disableFocusLock()
-  isRenamingTemplate = true
-  alertScreenReader('Rename template modal opened.')
+  alertScreenReader('Delete template dialog opened.')
 }
 
-const renameTemplate = title => {
-  renameNoteTemplate(targetTemplate.id, title).then(() => {
-    targetTemplate = null
-    isRenamingTemplate = false
-    alertScreenReader(`Template renamed '${title}'.`)
-    enableFocusLock()
-  })
+const openRenameTemplateDialog = template => {
+  updatedTemplateTitle = template.title
+  template.isRenameDialogOpen = true
+  disableFocusLock()
+  alertScreenReader('Rename template dialog opened.')
 }
 
-const setRenameTemplateDialog = show => {
-  isRenamingTemplate = show
-  const toggle = show ? disableFocusLock : enableFocusLock
-  toggle()
-  alertScreenReader(`Dialog ${show ? 'opened' : 'closed'}.`)
+const renameTemplate = template => {
+  isSaving = true
+  error = validateTemplateTitle({id: template.id, title: updatedTemplateTitle})
+  if (error) {
+    isSaving = false
+  } else {
+    renameNoteTemplate(template.id, updatedTemplateTitle).then(() => {
+      isSaving = false
+      resetTemplate(template, updatedTemplateTitle)
+      alertScreenReader(`Template renamed '${template.title}'.`)
+      enableFocusLock()
+    })
+  }
+}
+
+const resetTemplate = (template, title) => {
+  template.isDeleteDialogOpen = template.isRenameDialogOpen = false
+  template.title = title
+  updatedTemplateTitle = null
 }
 </script>
 
