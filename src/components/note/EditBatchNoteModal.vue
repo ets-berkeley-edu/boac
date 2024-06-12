@@ -100,10 +100,9 @@
     </v-card>
   </v-dialog>
   <AreYouSureModal
-    v-if="showDiscardNoteModal"
+    v-model="showDiscardNoteModal"
     :function-cancel="cancelDiscardNote"
     :function-confirm="discardNote"
-    :show-modal="showDiscardNoteModal"
     modal-header="Discard unsaved note?"
   />
   <CreateTemplateModal
@@ -114,10 +113,9 @@
     :toggle-show="toggleShowCreateTemplateModal"
   />
   <AreYouSureModal
-    v-if="showDiscardTemplateModal"
+    v-model="showDiscardTemplateModal"
     :function-cancel="cancelDiscardTemplate"
     :function-confirm="discardTemplate"
-    :show-modal="showDiscardTemplateModal"
     modal-header="Discard unsaved template?"
   />
 </template>

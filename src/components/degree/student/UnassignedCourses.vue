@@ -193,10 +193,9 @@
       </b-table-simple>
     </div>
     <AreYouSureModal
-      v-if="courseForDelete"
+      v-model="isDeleting"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
-      :show-modal="!!courseForDelete"
       button-label-confirm="Delete"
       modal-header="Delete Course"
     >
@@ -241,6 +240,7 @@ export default {
     courseForDelete: undefined,
     courseForEdit: undefined,
     hoverCourseId: undefined,
+    isDeleting: false,
     key: undefined,
     notesVisible: []
   }),
@@ -278,6 +278,7 @@ export default {
     },
     deleteCanceled() {
       this.putFocusNextTick(`delete-${this.courseForDelete.id}-btn`)
+      this.isDeleting = false
       this.courseForDelete = null
       alertScreenReader('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
@@ -285,6 +286,7 @@ export default {
     deleteConfirmed() {
       return deleteCourse(this.courseForDelete.id).then(() => {
         alertScreenReader(`${this.courseForDelete.name} deleted.`)
+        this.isDeleting = false
         this.courseForDelete = null
         this.setDisableButtons(false)
         this.putFocusNextTick('create-course-button')
@@ -306,6 +308,7 @@ export default {
     onDelete(course) {
       this.setDisableButtons(true)
       this.courseForDelete = course
+      this.isDeleting = true
       alertScreenReader(`Delete ${course.name}`)
     },
     onDrag(event, stage, course) {

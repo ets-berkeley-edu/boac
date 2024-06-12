@@ -61,7 +61,7 @@
                 </v-col>
                 <v-col>
                   <div class="align-center d-flex float-right">
-                    <v-dialog v-model="template.isRenameDialogOpen" retain-focus>
+                    <v-dialog v-model="template.isRenameDialogOpen" retain-focus width="auto">
                       <template #activator="{props: activatorProps}">
                         <v-btn
                           v-bind="activatorProps"
@@ -114,7 +114,7 @@
                             {{ error }}
                           </div>
                         </v-card-text>
-                        <v-card-actions class="pb-4 pr-8">
+                        <v-card-actions class="pb-6 pr-8">
                           <ProgressButton
                             id="rename-template-confirm"
                             :action="() => renameTemplate(template)"
@@ -162,12 +162,11 @@
                       Delete<span class="sr-only"> template {{ template.title }}</span>
                     </v-btn>
                     <AreYouSureModal
-                      v-if="template.isDeleteDialogOpen"
-                      :function-cancel="() => cancel(template)"
-                      :function-confirm="() => deleteTemplateConfirmed(template)"
-                      :show-modal="template.isDeleteDialogOpen"
+                      v-model="template.isDeleteDialogOpen"
                       button-label-confirm="Delete"
                       dialog-header="Delete Template"
+                      :function-cancel="() => cancel(template)"
+                      :function-confirm="() => deleteTemplateConfirmed(template)"
                     >
                       Are you sure you want to delete the <strong>'{{ get(template, 'title') }}'</strong> template?
                     </AreYouSureModal>

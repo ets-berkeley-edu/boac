@@ -36,10 +36,9 @@
       <StudentClasses class="mt-5" :student="student" />
     </div>
     <AreYouSureModal
-      v-if="showAreYouSureModal"
+      v-model="showAreYouSureModal"
       :function-cancel="cancelTheCancel"
       :function-confirm="cancelConfirmed"
-      :show-modal="showAreYouSureModal"
       modal-header="Discard unsaved note?"
     />
   </div>
