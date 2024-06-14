@@ -3,13 +3,13 @@
     <h1 class="mb-0">{{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}</h1>
     <div v-if="!contextStore.loading">
       <div v-if="size(myDraftNotes)">
-        <div v-if="!currentUser.isAdmin" class="font-weight-700 pb-3 text-medium-emphasis">
+        <div v-if="!currentUser.isAdmin" class="mb-4 mt-1">
           A draft note is only visible to its author.
         </div>
         <v-data-table
           id="responsive-data-table"
           :cell-props="{
-            class: 'font-size-14 vertical-baseline',
+            class: 'font-size-16 vertical-baseline',
             style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
           }"
           disable-sort
@@ -45,19 +45,21 @@
           <template #item.subject="{item}">
             <div class="align-center d-flex justify-space-between">
               <div>
-                <div v-if="item.author.uid !== currentUser.uid" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+                <div v-if="item.author.uid !== currentUser.uid" class="font-size-16" :class="{'demo-mode-blur': currentUser.inDemoMode}">
                   {{ trim(item.subject) || contextStore.config.draftNoteSubjectPlaceholder }}
                 </div>
                 <v-btn
                   v-if="item.author.uid === currentUser.uid"
                   :id="`open-draft-note-${item.id}`"
-                  class="pl-0 text-primary"
+                  class="pl-0 py-2 text-left text-primary"
                   :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                  density="compact"
+                  size="lg"
                   variant="text"
-                  @click="() => openEditModal(item)"
+                  @click="() => openEditDialog(item)"
                 >
-                  {{ trim(item.subject) || contextStore.config.draftNoteSubjectPlaceholder }}
+                  <div class="align-start text-wrap">
+                    {{ trim(item.subject) || contextStore.config.draftNoteSubjectPlaceholder }}
+                  </div>
                 </v-btn>
               </div>
               <div v-if="size(item.attachments)">
@@ -76,44 +78,40 @@
             />
           </template>
           <template #item.delete="{item}">
-            <div class="float-right">
-              <v-btn
-                :disabled="isDeleting"
-                variant="text"
-                @click="() => openDeleteModal(item)"
-              >
-                <v-icon
-                  aria-label="Delete"
-                  :class="isDeleting ? 'text-medium-emphasis' : 'text-error'"
-                  :icon="mdiTrashCan"
-                  title="Delete"
-                />
-              </v-btn>
-            </div>
+            <v-btn
+              :id="`delete-draft-note-${item.id}`"
+              aria-label="Delete"
+              class="bg-transparent text-red"
+              :disabled="isDeleteDialogOpen || isDeleting || isEditDialogOpen"
+              :icon="mdiTrashCan"
+              size="md"
+              title="Delete"
+              variant="flat"
+              @click="() => openDeleteDialog(item)"
+            />
           </template>
         </v-data-table>
       </div>
-      <div v-if="!size(myDraftNotes)" class="pl-2 pt-2">
+      <div v-if="!size(myDraftNotes)" class="pt-2">
         {{ currentUser.isAdmin ? 'No' : 'You have no' }} saved drafts.
       </div>
-      <AreYouSureModal
-        :button-label-confirm="isDeleting ? 'Deleting' : 'Delete'"
-        :function-cancel="deselectDraftNote"
-        :function-confirm="deleteDraftNote"
-        modal-header="Are you sure?"
-        :show-modal="!!selectedDraftNote && activeOperation === 'delete'"
-      >
-        {{ deleteModalBodyText }}
-      </AreYouSureModal>
     </div>
-    <EditBatchNoteModal
-      v-model="showEditModal"
-      initial-mode="editDraft"
-      :note-id="get(selectedDraftNote, 'id')"
-      :on-close="afterEditDraft"
-      :sid="get(selectedDraftNote, 'sid')"
-    />
   </div>
+  <AreYouSureModal
+    v-model="isDeleteDialogOpen"
+    :button-label-confirm="isDeleting ? 'Deleting' : 'Delete'"
+    :function-cancel="cancel"
+    :function-confirm="deleteDraftNote"
+    modal-header="Are you sure?"
+    :text="deleteDialogBodyText"
+  />
+  <EditBatchNoteModal
+    v-model="isEditDialogOpen"
+    initial-mode="editDraft"
+    :note-id="get(selectedNote, 'id')"
+    :on-close="afterEditDraft"
+    :sid="get(selectedNote, 'sid')"
+  />
 </template>
 
 <script setup>
@@ -121,7 +119,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import {alertScreenReader, studentRoutePath} from '@/lib/utils'
-import {computed, onUnmounted} from 'vue'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
 import {each, find, get, size, trim} from 'lodash'
 import {mdiPaperclip, mdiTrashCan} from '@mdi/js'
@@ -134,6 +132,7 @@ const headers = [
   {align: 'start', key: 'sid', title: 'SID', width: 150},
   {align: 'start', key: 'subject', title: 'Subject'}
 ]
+
 if (currentUser.isAdmin) {
   headers.push({align: 'start', key: 'author', title: 'Author', width: 200})
 }
@@ -142,35 +141,42 @@ headers.push(
   {align: 'center', key: 'delete', title: 'Delete', width: 100}
 )
 
-let activeOperation
-let isDeleting = false
-let myDraftNotes = undefined
-let selectedDraftNote = undefined
+const isDeleteDialogOpen = ref(false)
+const isEditDialogOpen = ref(false)
+const isDeleting = ref(false)
+const myDraftNotes = ref(undefined)
+const selectedNote = ref(undefined)
+const reloadDraftNotes = () => getMyDraftNotes().then(data => myDraftNotes.value = data)
+
+onMounted(() => reloadDraftNotes().then(() => contextStore.loadingComplete('Draft notes list is ready.')))
 
 const afterEditDraft = data => {
   const existing = find(myDraftNotes, ['id', data.id])
   if (existing) {
     Object.assign(existing, data)
-    reloadDraftNotes().then(deselectDraftNote)
+    reloadDraftNotes().then(() => isEditDialogOpen.value = false)
   } else {
-    deselectDraftNote()
+    isEditDialogOpen.value = false
   }
+}
+
+const cancel = () => {
+  isDeleteDialogOpen.value = isEditDialogOpen.value = false
+  selectedNote.value = undefined
 }
 
 const deleteDraftNote = () => {
   return new Promise(resolve => {
-    isDeleting = true
-    deleteNote(selectedDraftNote).then(() => {
-      reloadDraftNotes('Draft note deleted').then(() => {
-        deselectDraftNote()
-        isDeleting = false
+    isDeleting.value = true
+    deleteNote(selectedNote.value).then(() => {
+      reloadDraftNotes().then(() => {
+        isDeleting.value = isDeleteDialogOpen.value = false
+        alertScreenReader('Draft note deleted')
         resolve()
       })
     })
   })
 }
-
-const deselectDraftNote = () => selectedDraftNote = activeOperation = null
 
 const onDeleteNote = noteId => {
   if (find(myDraftNotes, ['id', noteId])) {
@@ -184,39 +190,29 @@ const onUpdateNote = note => {
   }
 }
 
-const openDeleteModal = draftNote => {
-  activeOperation = 'delete'
-  selectedDraftNote = draftNote
+const openDeleteDialog = draftNote => {
+  selectedNote.value = draftNote
+  isDeleteDialogOpen.value = true
   alertScreenReader('Please confirm draft note deletion.')
 }
 
-const openEditModal = noteDraft => {
-  activeOperation = 'edit'
-  selectedDraftNote = noteDraft
+const openEditDialog = noteDraft => {
+  isEditDialogOpen.value = true
+  selectedNote.value = noteDraft
 }
 
-const deleteModalBodyText = computed(() => {
+const deleteDialogBodyText = computed(() => {
   let message
-  if (selectedDraftNote) {
-    const student = selectedDraftNote.student
-    const style = currentUser.inDemoMode ? 'demo-mode-blur' : ''
-    message = 'Please confirm the deletion of the draft note '
-    message += student ? `for <b class="${style}">${student.firstName} ${student.lastName}</b>.` : `with subject ${selectedDraftNote.subject}.`
+  if (selectedNote.value) {
+    const student = selectedNote.value.student
+    const subject = selectedNote.value.subject
+    if (student) {
+      message = `Delete draft note for <b class="${currentUser.inDemoMode ? 'demo-mode-blur' : ''}">${student.firstName} ${student.lastName}</b>.`
+    } else {
+      message = `Delete draft note with subject ${subject || contextStore.config.draftNoteSubjectPlaceholder}.`
+    }
   }
   return message
-})
-
-const reloadDraftNotes = () => {
-  return getMyDraftNotes().then(data => myDraftNotes = data)
-}
-
-const showEditModal = computed({
-  get() {
-    return !!selectedDraftNote && activeOperation === 'edit'
-  },
-  set(value) {
-    !value && deselectDraftNote()
-  }
 })
 
 const eventHandlers = {
@@ -226,11 +222,7 @@ const eventHandlers = {
 }
 each(eventHandlers, (handler, eventType) => contextStore.setEventHandler(eventType, handler))
 
-reloadDraftNotes().then(() => contextStore.loadingComplete('Draft notes list is ready.'))
-
-onUnmounted(() => {
-  each(eventHandlers || {}, (handler, eventType) => contextStore.removeEventHandler(eventType, handler))
-})
+onUnmounted(() => each(eventHandlers || {}, (handler, eventType) => contextStore.removeEventHandler(eventType, handler)))
 </script>
 
 <style>
