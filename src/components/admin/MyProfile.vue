@@ -1,12 +1,10 @@
-My profile
-
 <template>
   <v-container class="mr-5" fluid>
     <v-row
       v-for="(value, key) in profile"
       :key="key"
       align-v="start"
-      class="border-bottom"
+      no-gutters
     >
       <v-col class="font-weight-bold" cols="5">
         {{ key }}
@@ -16,7 +14,7 @@ My profile
       </v-col>
       <v-divider class="border-opacity-100"></v-divider>
     </v-row>
-    <v-row align-v="start">
+    <v-row align-v="start" no-gutters>
       <v-col class="font-weight-bold" cols="5">
         Roles
       </v-col>
@@ -24,55 +22,32 @@ My profile
         <div v-if="currentUser.isAdmin" class="pv-3">You are a BOA Admin user.</div>
         <div v-if="!currentUser.canAccessCanvasData" class="pv-3">You do not have access to bCourses (LMS) data.</div>
         <div v-if="!currentUser.canAccessAdvisingData" class="pv-3">You do not have access to advising notes or appointments.</div>
-        <div
-          v-for="department in currentUser.departments"
-          :key="department.code"
-          class="flex-row pv-3"
-        >
-          <div id="my-dept-roles">{{ _upperFirst(department.role) }} in {{ department.name }}</div>
+        <div v-for="department in currentUser.departments" :key="department.code">
+          <div id="my-dept-roles">{{ upperFirst(department.role) }} in {{ department.name }}</div>
         </div>
       </v-col>
+      <v-divider class="border-opacity-100"></v-divider>
     </v-row>
   </v-container>
 </template>
 
-<script>
-import {useContextStore} from '@/stores/context'
-import Util from '@/mixins/Util'
+<script setup>
+import {capitalize, filter, map, upperFirst} from 'lodash'
 import {isCoe} from '@/berkeley'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'MyProfile',
-  mixins: [Util],
-  data: () => ({
-    profile: undefined,
-    currentUser: undefined
-  }),
-  created() {
-    this.profile = {
-      Name: useContextStore().currentUser.name,
-      UID: useContextStore().currentUser.uid,
-      'Campus Solutions ID': useContextStore().currentUser.csid,
-      Email: useContextStore().currentUser.email,
-    }
-    this.currentUser = {
-      isAdmin: useContextStore().currentUser.isAdmin,
-      canAccessCanvasData: useContextStore().currentUser.canAccessCanvasData,
-      canAccessAdvisingData: useContextStore().currentUser.canAccessAdvisingData,
-      departments: useContextStore().currentUser.departments
-    }
-    const memberships = []
-    this._each(useContextStore().currentUser.departments, d => {
-      if (d.role) {
-        memberships.push({code: d.code, role: d.role})
-      }
-    })
-    const permission = useContextStore().currentUser.degreeProgressPermission
-    if (isCoe({departments: memberships}) || permission) {
-      const permission = permission && this._capitalize(permission.replace('_', '/'))
-      const automated = useContextStore().currentUser.automateDegreeProgressPermission
-      this.profile['Degree Progress'] = permission ? `${permission} permission${automated ? ', per SIS profile data' : ' (managed by BOA service lead)'}` : '&mdash;'
-    }
-  }
+const currentUser = useContextStore().currentUser
+const memberships = map(filter(currentUser.departments, 'role'), d => ({code: d.code, role: d.role}))
+const profile = {
+  Name: currentUser.name,
+  UID: currentUser.uid,
+  'SIS ID': currentUser.csid,
+  Email: currentUser.email,
+}
+
+if (isCoe({departments: memberships}) || currentUser.degreeProgressPermission) {
+  const permission = currentUser.degreeProgressPermission && capitalize(currentUser.degreeProgressPermission.replace('_', '/'))
+  const automated = currentUser.automateDegreeProgressPermission
+  profile['Degree Progress'] = permission ? `${permission} permission${automated ? ', per SIS profile data' : ' (managed by BOA service lead)'}` : '&mdash;'
 }
 </script>

@@ -19,6 +19,7 @@ export type BoaConfig = {
     max: undefined,
     min: undefined
   },
+  draftNoteSubjectPlaceholder: string,
   fixedWarningOnAllPages: boolean,
   isProduction: boolean,
   isVueAppDebugMode: boolean,
