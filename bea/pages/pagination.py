@@ -37,7 +37,7 @@ class Pagination(BoaPages):
     GO_TO_FIRST_PAGE_LINK = By.ID, 'pagination-first'
     GO_TO_NEXT_PAGE_LINK = By.ID, 'pagination-next'
     GO_TO_LAST_PAGE_LINK = By.ID, 'pagination-last'
-    GO_TO_PAGE_LINK = By.XPATH, '//button[contains(@id, "pagination-")]'
+    GO_TO_PAGE_LINK = By.XPATH, '//button[starts-with(@id, "pagination-")]'
 
     def go_to_first_page(self):
         if self.is_present(self.GO_TO_FIRST_PAGE_LINK):
@@ -46,7 +46,7 @@ class Pagination(BoaPages):
 
     @staticmethod
     def go_to_page_link(page_number):
-        return By.ID, f'pagination-widget-0-btn-{page_number}'
+        return By.ID, f'pagination-{page_number}'
 
     def list_view_page_count(self):
         if self.is_present(self.GO_TO_PAGE_LINK):

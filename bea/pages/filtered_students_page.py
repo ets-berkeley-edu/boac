@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.pages.cohort_and_group_student_pages import CohortAndGroupStudentPages
+from bea.pages.curated_add_selector import CuratedAddSelector
 from bea.pages.curated_modal import CuratedModal
 from bea.pages.filtered_students_page_filters import FilteredStudentsPageFilters
 from bea.pages.filtered_students_page_results import FilteredStudentsPageResults
@@ -39,6 +40,7 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 class FilteredStudentsPage(CohortAndGroupStudentPages,
                            FilteredStudentsPageFilters,
                            FilteredStudentsPageResults,
+                           CuratedAddSelector,
                            CuratedModal):
 
     def search_and_create_new_student_cohort(self, cohort):
@@ -54,9 +56,13 @@ class FilteredStudentsPage(CohortAndGroupStudentPages,
         return f'{boa_utils.get_boa_base_url()}/cohort/{cohort_id}'
 
     def load_cohort(self, cohort):
-        app.logger.info(f'Loading cohort {cohort.name}')
+        app.logger.info(f"Loading cohort id {cohort.cohort_id}, '{cohort.name}'")
         self.driver.get(self.filtered_cohort_base_url(cohort.cohort_id))
         self.wait_for_boa_title(cohort.name)
+
+    def load_and_delete_cohort(self, cohort):
+        self.driver.get(self.filtered_cohort_base_url(cohort.cohort_id))
+        self.delete_cohort(cohort)
 
     def hit_non_auth_cohort(self, cohort):
         self.driver.get(self.filtered_cohort_base_url(cohort.cohort_id))

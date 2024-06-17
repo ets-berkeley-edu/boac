@@ -84,11 +84,13 @@ class CuratedAddSelector(BoaPages, CuratedModal):
     def click_create_new_grp(self, group):
         if group.is_ce3:
             app.logger.info('Clicking group selector button to create a new CE3 group')
-            self.wait_for_element_and_click(self.SELECTOR_CREATE_CE3_GROUP_BUTTON)
+            self.when_present(self.SELECTOR_CREATE_CE3_GROUP_BUTTON, utils.get_short_timeout())
+            self.click_element_js(self.SELECTOR_CREATE_CE3_GROUP_BUTTON)
         else:
             app.logger.info('Clicking group selector button to create a new group')
-            self.wait_for_page_and_click(self.SELECTOR_CREATE_GROUP_BUTTON)
-        self.when_visible(self.GROUP_NAME_INPUT, utils.get_short_timeout())
+            self.when_present(self.SELECTOR_CREATE_GROUP_BUTTON, utils.get_short_timeout())
+            self.click_element_js(self.SELECTOR_CREATE_GROUP_BUTTON)
+        self.when_present(self.GROUP_NAME_INPUT, utils.get_short_timeout())
 
     def select_members_to_add(self, members, group):
         sids = list(map(lambda member: member.sid, members))

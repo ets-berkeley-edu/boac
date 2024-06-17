@@ -307,16 +307,15 @@ def get_user_filtered_cohorts(user, admits=False):
     return cohorts
 
 
-def get_user_curated_groups(user, admits=False, deleted=False):
+def get_user_curated_groups(user, admits=False):
     groups = []
     domain = 'admitted_students' if admits else 'default'
-    clause = '' if deleted else ' AND student_groups.deleted_at IS NULL'
     sql = f"""SELECT student_groups.id AS cohort_id,
                      student_groups.name AS group_name
                 FROM student_groups
-                JOIN authorized_users ON authorized_users.id = cohort_filters.owner_id
+                JOIN authorized_users ON authorized_users.id = student_groups.owner_id
                WHERE student_groups.domain = '{domain}'
-                 AND authorized_users.uid = '{user.uid}'{clause}"""
+                 AND authorized_users.uid = '{user.uid}'"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)

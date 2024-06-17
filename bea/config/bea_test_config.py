@@ -95,11 +95,11 @@ class BEATestConfig(object):
         self.data['attachments'] = value
 
     @property
-    def cohort(self):
+    def default_cohort(self):
         return self.data['cohort']
 
-    @cohort.setter
-    def cohort(self, value):
+    @default_cohort.setter
+    def default_cohort(self, value):
         self.data['cohort'] = value
 
     @property
@@ -204,11 +204,11 @@ class BEATestConfig(object):
                     'intended_majors': [{'major': app.config['TEST_DEFAULT_COHORT_MAJOR']}],
                 }
             cohort_filter = CohortFilter(dept=self.dept, data=data)
-            self.cohort = FilteredCohort
-            self.cohort.name = f'Cohort {self.test_id}'
-            self.cohort.search_criteria = cohort_filter
-            filtered_sids = nessie_filter_utils.get_cohort_result(self, self.cohort.search_criteria)
-            self.cohort.members = [s for s in self.students if s.sid in filtered_sids]
+            self.default_cohort = FilteredCohort
+            self.default_cohort.name = f'Cohort {self.test_id}'
+            self.default_cohort.search_criteria = cohort_filter
+            filtered_sids = nessie_filter_utils.get_cohort_result(self, self.default_cohort.search_criteria)
+            self.default_cohort.members = [s for s in self.students if s.sid in filtered_sids]
 
     def set_test_students(self, count, opts=None):
         self.test_students = []
@@ -226,8 +226,8 @@ class BEATestConfig(object):
             # Use a cohort of students
             if opts.get('cohort_members'):
                 app.logger.info('Running tests using students within a cohort')
-                random.shuffle(self.cohort.members)
-                self.test_students.extend(self.cohort.members[:count])
+                random.shuffle(self.default_cohort.members)
+                self.test_students.extend(self.default_cohort.members[:count])
 
             # Use students with active career status
             if opts.get('active'):
@@ -421,7 +421,7 @@ class BEATestConfig(object):
             'coe_advisors': [{'advisor': coe_advisor.uid}],
         }
         editing_test_search_criteria = CohortFilter(filters, self.dept)
-        self.cohort = FilteredCohort({
+        self.default_cohort = FilteredCohort({
             'name': f'Default cohort {self.test_id}',
             'search_criteria': editing_test_search_criteria,
         })
