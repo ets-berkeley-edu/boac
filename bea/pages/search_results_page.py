@@ -224,7 +224,7 @@ class SearchResultsPage(CuratedAddSelector):
         return By.XPATH, f'//input[@id="student-{student.sid}-curated-group-checkbox"]/..'
 
     def select_students_to_add(self, students):
-        app.logger.info(f'Selecting SIDs to add to group: {list(map(lambda s: s.sis, students))}')
+        app.logger.info(f'Selecting SIDs to add to group: {list(map(lambda st: st.sid, students))}')
         for s in students:
             self.wait_for_element_and_click(self.student_checkbox_loc(s))
 

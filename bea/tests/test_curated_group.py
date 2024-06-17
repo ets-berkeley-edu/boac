@@ -40,9 +40,7 @@ class TestCuratedGroup:
     advisor = test.advisor
     pre_existing_cohorts = boa_utils.get_user_filtered_cohorts(advisor)
     pre_existing_groups = boa_utils.get_user_curated_groups(advisor)
-    test_student = test.cohort.members[-1]
-    term = None
-    course = None
+    test_student = test.default_cohort.members[-1]
     app.logger.info(f'Test student is UID {test_student.uid}')
 
     group_1 = Cohort({'name': f'Group 1 {test.test_id}'})
@@ -59,33 +57,31 @@ class TestCuratedGroup:
     def test_get_test_student_enrollment(self):
         self.homepage.dev_auth(self.advisor)
         self.api_student_page.load_data(self.test_student)
-        self.term = self.api_student_page.terms()[0]
-        self.course = self.api_student_page.courses(self.term)[0]
 
     def test_delete_pre_existing_cohorts(self):
         for c in self.pre_existing_cohorts:
-            self.filtered_students_page.load_cohort(c)
-            self.filtered_students_page.delete_cohort(c)
+            self.filtered_students_page.load_and_delete_cohort(c)
 
     def test_create_default_cohort(self):
-        self.filtered_students_page.search_and_create_new_student_cohort(self.test.cohort)
+        self.filtered_students_page.search_and_create_new_student_cohort(self.test.default_cohort)
 
     def test_delete_pre_existing_groups(self):
         for g in self.pre_existing_groups:
             self.curated_students_page.load_page(g)
-            self.curated_students_page.delete_cohort(g)
+            self.curated_students_page.delete_group(g)
 
     def test_create_group_from_cohort_page_group_selector(self):
         group = Cohort({'name': f'Group created from filtered cohort {self.test.test_id}'})
-        self.filtered_students_page.load_cohort(self.test.cohort)
+        self.filtered_students_page.load_cohort(self.test.default_cohort)
         self.filtered_students_page.wait_for_student_list()
         sids = self.filtered_students_page.list_view_sids()
         visible_members = list(filter(lambda s: s.sid in sids, self.test.students))
         self.filtered_students_page.select_and_add_members_to_new_grp(visible_members[0:9], group)
 
     def test_create_group_from_class_page_group_selector(self):
-        term_id = self.api_student_page.term_id(self.term)
-        ccn = self.api_student_page.course_section_ccns(self.course)[0]
+        term = self.api_student_page.terms()[0]
+        term_id = self.api_student_page.term_id(term)
+        ccn = self.api_student_page.course_section_ccns(self.api_student_page.courses(term)[0])[0]
         group = Cohort({'name': f'Group created from class page {self.test.test_id}'})
         self.class_page.load_page(term_id, ccn)
         sids = self.class_page.list_view_sids()
@@ -107,22 +103,23 @@ class TestCuratedGroup:
         students = self.test.students[0:51]
         group = Cohort({'name': f'Group created with bulk SIDs {self.test.test_id}'})
         self.homepage.click_sidebar_create_student_group()
-        self.curated_students_page.create_group_with_bulk_sids(students, group)
+        self.curated_students_page.create_group_with_bulk_sids(group, students)
         self.curated_students_page.wait_for_sidebar_group(group)
         self.curated_students_page.when_visible(self.curated_students_page.group_name_heading(group),
                                                 utils.get_medium_timeout())
 
     def test_group_name_required(self):
+        group = Cohort({'name': None})
         self.student_page.load_page(self.test_student)
-        self.student_page.click_add_to_grp_button()
-        self.student_page.click_create_new_grp()
+        self.student_page.click_add_to_group_button(group)
+        self.student_page.click_create_new_grp(group)
         assert not self.student_page.element(self.student_page.GROUP_SAVE_BUTTON).is_enabled()
 
     def test_group_name_truncated_255_chars(self):
         self.student_page.cancel_group_if_modal()
         group = Cohort({'name': ('A llooooong title ' * 15)})
-        self.student_page.click_add_to_grp_button()
-        self.student_page.click_create_new_grp()
+        self.student_page.click_add_to_group_button(group)
+        self.student_page.click_create_new_grp(group)
         self.student_page.enter_group_name(group)
         self.student_page.when_present(self.student_page.NO_CHARS_LEFT_MSG, 1)
 
@@ -133,8 +130,8 @@ class TestCuratedGroup:
         self.student_page.add_members_to_new_grp([self.test_student], existing_group)
 
         new_group = Cohort({'name': existing_group.name})
-        self.student_page.click_add_to_grp_button()
-        self.student_page.click_create_new_grp()
+        self.student_page.click_add_to_group_button()
+        self.student_page.click_create_new_grp(new_group)
         self.student_page.name_and_save_group(new_group)
         self.student_page.when_visible(self.student_page.DUPE_GROUP_NAME_MSG, utils.get_short_timeout())
 
@@ -145,12 +142,12 @@ class TestCuratedGroup:
             'name': f'Existing Filtered Cohort {self.test.test_id}',
             'search_criteria': filters,
         })
-        self.student_page.click_sidebar_created_filtered()
+        self.student_page.click_sidebar_create_filtered()
         self.filtered_students_page.perform_student_search(existing_cohort)
         self.filtered_students_page.create_new_cohort(existing_cohort)
 
         new_group = Cohort({'name': existing_cohort.name})
-        self.filtered_students_page.click_add_to_grp_button()
+        self.filtered_students_page.click_add_to_group_button()
         self.filtered_students_page.click_create_new_grp()
         self.filtered_students_page.name_and_save_group(new_group)
         self.filtered_students_page.when_visible(self.filtered_students_page.DUPE_FILTERED_NAME_MSG,
@@ -160,9 +157,9 @@ class TestCuratedGroup:
         self.filtered_students_page.cancel_group_if_modal()
         deleted_group = Cohort({'name': f'Deleted Group {self.test.test_id}'})
         self.student_page.load_page(self.test_student)
-        self.student_page.add_members_to_new_grp(self.test_student, deleted_group)
+        self.student_page.add_members_to_new_grp([self.test_student], deleted_group)
         self.curated_students_page.load_page(deleted_group)
-        self.curated_students_page.delete_cohort(deleted_group)
+        self.curated_students_page.delete_group(deleted_group)
 
         new_group = Cohort({'name': deleted_group.name})
         self.student_page.load_page(self.test_student)
@@ -174,25 +171,25 @@ class TestCuratedGroup:
         self.curated_students_page.rename_group(group, f'{group.name} Renamed')
 
     def test_group_members_can_be_added_from_student_page(self):
-        self.test.cohort.members.pop(-1)
+        self.test.default_cohort.members.pop(-1)
         self.student_page.load_page(self.test_student)
         for g in self.advisor_groups:
-            self.student_page.add_members_to_new_grp(self.test_student, g)
+            self.student_page.add_members_to_new_grp([self.test_student], g)
 
     def test_group_members_can_be_added_from_cohort_using_select_all(self):
-        self.filtered_students_page.load_cohort(self.test.cohort)
+        self.filtered_students_page.load_cohort(self.test.default_cohort)
         self.filtered_students_page.select_and_add_all_visible_to_grp(self.test.students, self.group_1)
         self.curated_students_page.load_page(self.group_1)
         self.curated_students_page.assert_visible_students_match_expected(self.group_1)
 
     def test_group_members_can_be_added_from_cohort_using_select_some(self):
-        self.filtered_students_page.load_cohort(self.test.cohort)
+        self.filtered_students_page.load_cohort(self.test.default_cohort)
         group_uids = list(map(lambda m: m.uid, self.group_2.members))
         visible_uids = self.filtered_students_page.list_view_uids()
         visible_uids = list(set(visible_uids) - set(group_uids))
-        self.test.cohort.members = list(filter(lambda m: m.uid in visible_uids, self.test.cohort.members))
+        self.test.default_cohort.members = list(filter(lambda m: m.uid in visible_uids, self.test.default_cohort.members))
 
-        self.filtered_students_page.select_and_add_members_to_grp(self.test.cohort.members[0:-2], self.group_2)
+        self.filtered_students_page.select_and_add_members_to_grp(self.test.default_cohort.members[0:-2], self.group_2)
         self.curated_students_page.load_page(self.group_2)
         self.curated_students_page.assert_visible_students_match_expected(self.group_2)
 
@@ -216,16 +213,18 @@ class TestCuratedGroup:
         assert not missing_sids
 
     def test_group_members_can_be_added_from_class_page_using_select_all(self):
-        term_id = self.api_student_page.term_id(self.term)
-        ccn = self.api_student_page.course_section_ccns(self.course)[0]
+        term = self.api_student_page.terms()[0]
+        term_id = self.api_student_page.term_id(term)
+        ccn = self.api_student_page.course_section_ccns(self.api_student_page.courses(term)[0])[0]
         self.class_page.load_page(term_id, ccn)
         self.class_page.select_and_add_all_visible_to_grp(self.test.students, self.group_5)
         self.curated_students_page.load_page(self.group_5)
         self.curated_students_page.assert_visible_students_match_expected(self.group_5)
 
     def test_group_members_can_be_added_from_class_page_using_select_some(self):
-        term_id = self.api_student_page.term_id(self.term)
-        ccn = self.api_student_page.course_section_ccns(self.course)[0]
+        term = self.api_student_page.terms()[0]
+        term_id = self.api_student_page.term_id(term)
+        ccn = self.api_student_page.course_section_ccns(self.api_student_page.courses(term)[0])[0]
         self.class_page.load_page(term_id, ccn)
         self.class_page.select_and_add_members_to_grp([self.test_student], self.group_6)
         self.curated_students_page.load_page(self.group_6)
@@ -247,7 +246,7 @@ class TestCuratedGroup:
 
     def test_group_membership_shown_on_student_page(self):
         self.student_page.load_page(self.group_1.members[0])
-        self.student_page.click_add_to_grp_button()
+        self.student_page.click_add_to_group_button()
         assert self.student_page.is_group_selected()
 
     def test_group_membership_can_be_removed_on_group_page(self):
@@ -332,7 +331,7 @@ class TestCuratedGroup:
 
     def test_group_deletion_can_be_canceled(self):
         self.curated_students_page.load_page(self.group_1)
-        self.curated_students_page.cancel_cohort_deletion(self.group_1)
+        self.curated_students_page.cancel_group_deletion(self.group_1)
 
     def test_homepage_shows_group_name(self):
         self.homepage.load_page()

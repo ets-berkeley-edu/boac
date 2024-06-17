@@ -365,35 +365,35 @@ class TestFilteredCohortValidation:
 class TestFilteredCohortEdits:
 
     def test_edit_college_filter(self):
-        self.filtered_students_page.search_and_create_new_student_cohort(test.cohort)
-        test.cohort.search_criteria.colleges = [{'college': 'Undergrad Chemistry'}]
-        self.filtered_students_page.edit_filter('College', test.cohort.search_criteria.colleges[0])
-        self.filtered_students_page.verify_student_filters_present(test.cohort)
+        self.filtered_students_page.search_and_create_new_student_cohort(test.default_cohort)
+        test.default_cohort.search_criteria.colleges = [{'college': 'Undergrad Chemistry'}]
+        self.filtered_students_page.edit_filter('College', test.default_cohort.search_criteria.colleges[0])
+        self.filtered_students_page.verify_student_filters_present(test.default_cohort)
 
     def test_remove_college_filter(self):
         self.filtered_students_page.cancel_cohort_update()
-        test.cohort.search_criteria.colleges = []
+        test.default_cohort.search_criteria.colleges = []
         self.filtered_students_page.remove_filter_of_type('College')
-        self.filtered_students_page.verify_student_filters_present(test.cohort)
+        self.filtered_students_page.verify_student_filters_present(test.default_cohort)
 
     def test_remove_holds_filter(self):
         self.filtered_students_page.cancel_cohort_update()
-        test.cohort.search_criteria.holds = None
+        test.default_cohort.search_criteria.holds = None
         self.filtered_students_page.remove_filter_of_type('Holds')
-        self.filtered_students_page.verify_student_filters_present(test.cohort)
+        self.filtered_students_page.verify_student_filters_present(test.default_cohort)
 
     def test_edit_advisor_coe_filter(self):
         self.filtered_students_page.cancel_cohort_update()
         uid = boa_utils.get_dept_advisors(Department.COE)[-1].uid
-        test.cohort.search_criteria.coe_advisor = [str(uid)]
-        self.filtered_students_page.edit_filter('Advisor (COE)', test.cohort.search_criteria.coe_advisors[0])
-        self.filtered_students_page.verify_student_filters_present(test.cohort)
+        test.default_cohort.search_criteria.coe_advisor = [str(uid)]
+        self.filtered_students_page.edit_filter('Advisor (COE)', test.default_cohort.search_criteria.coe_advisors[0])
+        self.filtered_students_page.verify_student_filters_present(test.default_cohort)
 
     def test_remove_advisor_coe_filter(self):
         self.filtered_students_page.cancel_cohort_update()
-        test.cohort.search_criteria.coe_advisors = []
+        test.default_cohort.search_criteria.coe_advisors = []
         self.filtered_students_page.remove_filter_of_type('Advisor (COE)')
-        self.filtered_students_page.verify_student_filters_present(test.cohort)
+        self.filtered_students_page.verify_student_filters_present(test.default_cohort)
 
     def test_rename_cohort(self):
         cohort = test.searches[0]

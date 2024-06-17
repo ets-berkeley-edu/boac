@@ -33,13 +33,13 @@ from bea.models.degree_progress.degree_completed_course import DegreeCompletedCo
 from bea.models.notes_and_appts.appointment import Appointment
 from bea.models.notes_and_appts.note import Note
 from bea.models.user import User
-from bea.pages.page import Page
+from bea.pages.api_page import ApiPage
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 
 
-class ApiStudentPage(Page):
+class ApiStudentPage(ApiPage):
 
     def __init__(self, driver, headless):
         super().__init__(driver, headless)
@@ -49,14 +49,14 @@ class ApiStudentPage(Page):
         app.logger.info(f'Getting data for UID {student.uid}')
         self.driver.get(f'{boa_utils.get_boa_base_url()}/api/student/by_uid/{student.uid}')
         self.parsed = self.parse_json()
-        if self.parsed['message'] and self.parsed['message'] == 'Unknown student':
+        if self._safe_key(self.parsed, 'message') == 'Unknown student':
             app.logger.info(f'BOA does not recognize UID {student.uid}')
             self.parsed = None
 
     # Athletics Profile
 
     def asc_profile(self):
-        return self.parsed['athleticsProfile']
+        return self._safe_key(self.parsed, 'athleticsProfile')
 
     def asc_teams(self):
         if self.asc_profile():
@@ -68,50 +68,51 @@ class ApiStudentPage(Page):
     # CoE Profile
 
     def coe_profile(self):
-        profile = self.parsed and self.parsed['coeProfile']
+        profile = self._safe_key(self.parsed, 'coeProfile')
         return {
-            'coe_advisor': (profile and profile['advisorUid']),
-            'ethnicity': (profile and profile['ethnicity']),
-            'coe_underrepresented_minority': (profile and profile['minority']),
-            'coe_prep': (profile and profile['didPrep']),
-            'prep_elig': (profile and profile['prepEligible']),
-            't_prep': (profile and profile['didTprep']),
-            't_prep_elig': (profile and profile['tprepEligible']),
+            'coe_advisor': self._safe_key(profile, 'advisorUid'),
+            'ethnicity': self._safe_key(profile, 'ethnicity'),
+            'coe_underrepresented_minority': self._safe_key(profile, 'minority'),
+            'coe_prep': self._safe_key(profile, 'didPrep'),
+            'prep_elig': self._safe_key(profile, 'prepEligible'),
+            't_prep': self._safe_key(profile, 'didTprep'),
+            't_prep_elig': self._safe_key(profile, 'tprepEligible'),
         }
 
     # SIS Profile
 
     def sis_profile(self):
-        return self.parsed and self.parsed['sisProfile']
+        return self._safe_key(self.parsed, 'sisProfile')
 
     def sis_profile_data(self):
         profile = self.sis_profile()
         reqts = self.degree_progress()
+        grad_term = self._safe_key(profile, 'expectedGraduationTerm')
         return {
-            'name': (profile and profile['primaryName']),
-            'preferred_name': (profile and profile['preferredName']),
-            'email': (profile and profile['emailAddress']),
-            'email_alternate': (profile and profile['emailAddressAlternate']),
-            'phone': (profile and profile['phoneNumber'] and f"{profile['phoneNumber']}"),
-            'cumulative_units': (profile and self.formatted_units(profile['cumulativeUnits'])),
-            'cumulative_gpa': (profile and ('{:.3f}'.format(profile['cumulativeGPA']) if profile['cumulativeGPA'] else '--')),
+            'name': self._safe_key(profile, 'primaryName'),
+            'preferred_name': self._safe_key(profile, 'preferredName'),
+            'email': self._safe_key(profile, 'emailAddress'),
+            'email_alternate': self._safe_key(profile, 'emailAddressAlternate'),
+            'phone': (self._safe_key(profile, 'phoneNumber') and f"{profile['phoneNumber']}"),
+            'cumulative_units': (self._safe_key(profile, 'cumulativeUnits') and self.formatted_units(profile['cumulativeUnits'])),
+            'cumulative_gpa': ('{:.3f}'.format(profile['cumulativeGPA']) if self._safe_key(profile, 'cumulativeGPA') else '--'),
             'majors': self.majors(),
             'minors': self.minors(),
-            'level': (profile and profile['level'] and profile['level']['description']),
-            'transfer': (profile and profile['transfer']),
-            'terms_in_attendance': (profile and f"{profile['termsInAttendance']}"),
-            'entered_term': (profile and profile['matriculation']),
+            'level': (self._safe_key(profile, 'level') and self._safe_key(profile['level'], 'description')),
+            'transfer': self._safe_key(profile, 'transfer'),
+            'terms_in_attendance': (self._safe_key(profile, 'termsInAttendance') and f"{profile['termsInAttendance']}"),
+            'entered_term': self._safe_key(profile, 'matriculation'),
             'intended_majors': self.intended_majors(),
-            'expected_grad_term_id': (profile and profile['expectedGraduationTerm'] and profile['expectedGraduationTerm']['id']),
-            'expected_grad_term_name': (profile and profile['expectedGraduationTerm'] and profile['expectedGraduationTerm']['name']),
+            'expected_grad_term_id': (grad_term and grad_term['id']),
+            'expected_grad_term_name': (grad_term and grad_term['name']),
             'withdrawal': self.withdrawal(),
-            'academic_standing': (profile and profile['academicStanding']),
-            'academic_career': (profile and profile['academicCareer']),
-            'academic_career_status': (profile and profile['academicCareerStatus']),
-            'reqt_writing': (reqts and reqts['writing']),
-            'reqt_history': (reqts and reqts['history']),
-            'reqt_institutions': (reqts and reqts['institutions']),
-            'reqt_cultures': (reqts and reqts['cultures']),
+            'academic_standing': self._safe_key(profile, 'academicStanding'),
+            'academic_career': self._safe_key(profile, 'academicCareer'),
+            'academic_career_status': self._safe_key(profile, 'academicCareerStatus'),
+            'reqt_writing': self._safe_key(reqts, 'writing'),
+            'reqt_history': self._safe_key(reqts, 'history'),
+            'reqt_institutions': self._safe_key(reqts, 'institutions'),
+            'reqt_cultures': self._safe_key(reqts, 'cultures'),
         }
 
     @staticmethod
@@ -128,23 +129,26 @@ class ApiStudentPage(Page):
     def graduations(self):
         profile = self.sis_profile()
         graduations = []
-        degrees = (profile and profile['degrees']) or []
+        degrees = self._safe_key(profile, 'degrees') or []
         for d in degrees:
             majors = []
             minors = []
-            for p in d['plans']:
-                if p['type'] == 'MAJ':
+            plans = self._safe_key(d, 'plans') or []
+            for p in plans:
+                plan = self._safe_key(p, 'plan')
+                plan_type = self._safe_key(p, 'type')
+                if plan_type == 'MAJ':
                     majors.append({
-                        'college': p['group'],
-                        'plan': p['plan'],
+                        'college': self._safe_key(p, 'group'),
+                        'plan': plan,
                     })
-                elif p['type'] == 'MIN':
+                elif plan_type == 'MIN':
                     minors.append({
-                        'plan': p['plan'].replace('Minor in ', ''),
+                        'plan': plan.replace('Minor in ', ''),
                     })
             graduations.append({
-                'date': datetime.strptime(d['dateAwarded'], '%Y-%m-%d'),
-                'degree': d['description'],
+                'date': (self._safe_key(d, 'dateAwarded') and datetime.strptime(d['dateAwarded'], '%Y-%m-%d')),
+                'degree': self._safe_key(d, 'description'),
                 'majors': majors,
                 'minors': minors,
             })
@@ -153,7 +157,7 @@ class ApiStudentPage(Page):
     def majors(self):
         profile = self.sis_profile()
         majors = []
-        if profile and profile['plans']:
+        if self._safe_key(profile, 'plans'):
             for p in profile['plans']:
                 majors.append({
                     'active': (p['status'] == 'Active'),
@@ -165,12 +169,12 @@ class ApiStudentPage(Page):
         return majors
 
     def sub_plans(self):
-        return self.sis_profile() and self.sis_profile()['subplans']
+        return self.sis_profile() and self._safe_key(self.sis_profile(), 'subplans')
 
     def minors(self):
         profile = self.sis_profile()
         minors = []
-        if profile and profile['plansMinor']:
+        if self._safe_key(profile, 'plansMinor'):
             for p in profile['plansMinor']:
                 minors.append({
                     'active': (p['status'] == 'Active'),
@@ -183,15 +187,15 @@ class ApiStudentPage(Page):
     def intended_majors(self):
         profile = self.sis_profile()
         intended_majors = []
-        profile_majors = (profile and profile['intendedMajors']) or []
+        profile_majors = self._safe_key(profile, 'intendedMajors') or []
         for m in profile_majors:
-            if m['description']:
+            if self._safe_key(m, 'description'):
                 intended_majors.append(m['description'])
         return intended_majors
 
     def withdrawal(self):
         profile = self.sis_profile()
-        withdrawal = profile and profile['withdrawalCancel']
+        withdrawal = self._safe_key(profile, 'withdrawalCancel')
         return withdrawal and {
             'desc': withdrawal['description'],
             'reason': withdrawal['reason'],
@@ -199,7 +203,7 @@ class ApiStudentPage(Page):
         }
 
     def academic_standing_profile(self):
-        standing = self.sis_profile_data()['academic_standing']
+        standing = self._safe_key(self.sis_profile_data(), 'academic_standing')
         if standing:
             status = next(filter(lambda s: s.value['code'] == standing['status'], AcademicStandings))
             return {
@@ -211,11 +215,11 @@ class ApiStudentPage(Page):
         standings = []
         terms = self.terms() or []
         for t in terms:
-            term_standing = t['academicStanding']
+            term_standing = self._safe_key(t, 'academicStanding')
             if term_standing:
                 standing = next(filter(lambda s: s.code == term_standing['status'], AcademicStandings))
                 standings.append(AcademicStanding({
-                    'code': (term_standing['status'] or ''),
+                    'code': (self._safe_key(term_standing, 'status') or ''),
                     'descrip': (standing and standing.value['descrip']),
                     'term_id': term_standing['termId'],
                     'term_name': self.term_name(t),
@@ -225,7 +229,7 @@ class ApiStudentPage(Page):
 
     def degree_progress(self):
         profile = self.sis_profile()
-        progress = profile and profile['degreeProgress'] and profile['degreeProgress']['requirements']
+        progress = self._safe_key(profile, 'degreeProgress') and self._safe_key(profile['degreeProgress'], 'requirements')
         return progress and {
             'date': progress['reportDate'],
             'writing': f"{progress['entryLevelWriting']['name']} {progress['entryLevelWriting']['status']}",
@@ -237,13 +241,13 @@ class ApiStudentPage(Page):
     # Demographics
 
     def demographics(self):
-        data = self.parsed and self.parsed['demographics']
+        data = self._safe_key(self.parsed, 'demographics')
         if data:
             return {
                 'ethnicities': data['ethnicities'],
                 'nationalities': data['nationalities'],
                 'underrepresented': data['underrepresented'],
-                'visa': (data['visa'] and {
+                'visa': (self._safe_key(data, 'visa') and {
                     'status': data['visa']['status'],
                     'type': data['visa']['type'],
                 }),
@@ -252,7 +256,7 @@ class ApiStudentPage(Page):
     # Advisors
 
     def advisors(self):
-        advisor_data = (self.parsed and self.parsed['advisors']) or []
+        advisor_data = self._safe_key(self.parsed, 'advisors') or []
         advisors = []
         for a in advisor_data:
             advisors.append({
@@ -268,13 +272,14 @@ class ApiStudentPage(Page):
     def terms(self):
         return self.parsed['enrollmentTerms']
 
-    @staticmethod
-    def term_id(term):
-        return term['termId']
+    def term(self, term):
+        return
 
-    @staticmethod
-    def term_name(term):
-        return term['termName']
+    def term_id(self, term):
+        return self._safe_key(term, 'termId')
+
+    def term_name(self, term):
+        return self._safe_key(term, 'termName')
 
     def current_term(self):
         return next(filter(lambda t: self.term_name(t) == utils.get_current_term().name, self.terms()))
@@ -300,13 +305,11 @@ class ApiStudentPage(Page):
     def term_units_min(self, term):
         return self.formatted_units(term['minTermUnitsAllowed'])
 
-    @staticmethod
-    def term_gpa(term):
-        return term['termGpa'] and term['termGpa']['gpa']
+    def term_gpa(self, term):
+        return self._safe_key(term, 'termGpa') and self._safe_key(term['termGpa'], 'gpa')
 
-    @staticmethod
-    def term_gpa_units(term):
-        return term['termGpa'] and term['termGpa']['unitsTakenForGpa']
+    def term_gpa_units(self, term):
+        return self._safe_key(term, 'termGpa') and self._safe_key(term['termGpa'], 'unitsTakenForGpa')
 
     @staticmethod
     def courses(term):
@@ -320,29 +323,28 @@ class ApiStudentPage(Page):
     def course_display_name(course):
         return course['displayName']
 
-    @staticmethod
-    def sis_section_data(section):
+    def sis_section_data(self, section):
         return {
             'ccn': f"{section['ccn']}",
             'number': f"{section['sectionNumber']}",
             'component': section['component'],
-            'units_completed': f"{section['units'].floor() if section['units'].floor() == section['units'] else section['units']}",
+            'units_completed': f"{(section['units'] // 1) if (section['units'] // 1) == section['units'] else section['units']}",
             'primary': section['primary'],
             'status': section['enrollmentStatus'],
-            'incomplete_code': section['incompleteStatusCode'],
-            'incomplete_frozen': section['incompleteFrozenFlag'],
-            'incomplete_lapse_date': section['incompleteLapseGradeDate'],
+            'incomplete_code': self._safe_key(section, 'incompleteStatusCode'),
+            'incomplete_frozen': self._safe_key(section, 'incompleteFrozenFlag'),
+            'incomplete_lapse_date': self._safe_key(section, 'incompleteLapseGradeDate'),
         }
 
     def sis_course_data(self, course):
-        reqts = course['courseRequirements'] and list(
+        reqts = self._safe_key(course, 'courseRequirements') and list(
             map(lambda req: re.sub(r'\s+', ' ', req), course['courseRequirements']))
         return {
             'code': self.course_display_name(course),
             'title': (re.sub(r'\s+', ' ', course['title'])),
             'units_completed_float': f"{float(course['units'])}",
-            'units_completed': f"{course['units'].floor() if course['units'].floor() == course['units'] else course['units']}",
-            'midpoint': (course['midtermGrade'] and course['midtermGrade'].replace('-', '−')),
+            'units_completed': f"{(course['units'] // 1) if (course['units'] // 1) == course['units'] else course['units']}",
+            'midpoint': (self._safe_key(course, 'midtermGrade') and course['midtermGrade'].replace('-', '−')),
             'grade': (course['grade'] and course['grade'].replace('-', '−')),
             'grading_basis': course['gradingBasis'],
             'reqts': reqts,
@@ -381,10 +383,9 @@ class ApiStudentPage(Page):
     def course_primary_section(self, course):
         return next(filter(lambda s: self.sis_section_data(s)['primary'], self.sections(course)))
 
-    @staticmethod
-    def dropped_sections(term):
+    def dropped_sections(self, term):
         sections = []
-        section_data = term['droppedSections'] or []
+        section_data = self._safe_key(term, 'droppedSections') or []
         for s in section_data:
             sections.append({
                 'title': s['displayName'],
@@ -397,17 +398,17 @@ class ApiStudentPage(Page):
     # REGISTRATIONS
 
     def term_registration(self):
-        reg_data = self.sis_profile()['currentRegistration']
+        reg_data = self._safe_key(self.sis_profile(), 'currentRegistration')
         if reg_data:
-            begin_term = reg_data['academicLevels'] and next(
+            begin_term = self._safe_key(reg_data, 'academicLevels') and next(
                 filter(lambda level: level['type']['code'] == 'BOT', reg_data['academicLevels']))
-            end_term = reg_data['academicLevels'] and next(
+            end_term = self._safe_key(reg_data, 'academicLevels') and next(
                 filter(lambda level: level['type']['code'] == 'EOT', reg_data['academicLevels']))
             return {
                 'term_id': reg_data['term']['id'],
                 'career': reg_data['academicCareer']['code'],
-                'begin_term': (begin_term and begin_term['level']['description']),
-                'end_term': (end_term and end_term['level']['description']),
+                'begin_term': (begin_term and self._safe_key(begin_term['level'], 'description')),
+                'end_term': (end_term and self._safe_key(end_term['level'], 'description')),
             }
 
     # COURSE SITES
@@ -428,23 +429,20 @@ class ApiStudentPage(Page):
             'site_id': site['canvasCourseId'],
         }
 
-    @staticmethod
-    def analytics(site):
-        return site['analytics']
+    def analytics(self, site):
+        return self._safe_key(site, 'analytics')
 
     def site_scores(self, site):
-        return self.analytics(site) and self.analytics(site)['courseCurrentScore']
+        return self.analytics(site) and self._safe_key(self.analytics(site), 'courseCurrentScore')
 
-    @staticmethod
-    def student_data(analytics):
-        return analytics['student']
+    def student_data(self, analytics):
+        return self._safe_key(analytics, 'student')
 
-    @staticmethod
-    def course_deciles(analytics):
-        return analytics['courseDeciles']
+    def course_deciles(self, analytics):
+        return self._safe_key(analytics, 'courseDeciles')
 
     def score(self, analytics):
-        score = self.student_data(analytics) and self.student_data(analytics)['raw']
+        score = self.student_data(analytics) and self._safe_key(self.student_data(analytics), 'raw')
         if score and score == score.floor():
             return f'{score.floor()}'
         else:
@@ -473,7 +471,7 @@ class ApiStudentPage(Page):
         return self.site_statistics(self.analytics(site))['currentScore'].update({'type': 'Assignment Grades'})
 
     def last_activity_day(self, site):
-        epoch = self.site_statistics(self.analytics(site)['lastActivity'])['score']
+        epoch = self._safe_key(self.site_statistics(self.analytics(site)['lastActivity']), 'score')
         if not epoch or int(epoch) == 0:
             return 'Never'
         else:
@@ -531,7 +529,7 @@ class ApiStudentPage(Page):
     # TIMELINE
 
     def notifications(self):
-        return self.parsed['notifications']
+        return self._safe_key(self.parsed, 'notifications')
 
     def alerts(self, opts=None):
         alerts = self.notifications() and list(map(lambda a: a['message'], self.notifications()['alert']))
@@ -542,11 +540,12 @@ class ApiStudentPage(Page):
         return alerts
 
     def holds(self):
-        return self.notifications() and list(map(lambda h: h['message'], self.notifications()['hold']))
+        hold_data = self.notifications() and self._safe_key(self.notifications(), 'hold') or []
+        return self.notifications() and list(map(lambda h: h['message'], hold_data))
 
     def notes(self):
         notes = []
-        note_data = (self.notifications() and self.notifications()['note']) or []
+        note_data = (self.notifications() and self._safe_key(self.notifications(), 'note')) or []
         for n in note_data:
             author = n['author']
             advisor = author and User({
@@ -555,17 +554,18 @@ class ApiStudentPage(Page):
                 'email': author['email'],
                 'depts': (list(map(lambda d: d['name'], author['departments']))),
             })
-            attachments = n['attachments'] and list(map(lambda f: f['filename'] or f['sisFilename'], n['attachments']))
+            attachment_data = self._safe_key(n, 'attachments') or []
+            attachments = attachment_data and list(map(lambda f: self._safe_key(f, 'filename') or self._safe_key(f, 'sisFilename'), attachment_data))
             attachments = [a for a in attachments if a]
-            topics = n['topics'] or []
+            topics = self._safe_key(n, 'topics') or []
             topics.sort()
             notes.append(Note({
                 'advisor': advisor,
                 'attachments': attachments,
-                'body': (n['body'] or ''),
+                'body': (self._safe_key(n, 'body') or ''),
                 'created_date': n['createdAt'],
                 'record_id': f"{n['id']}",
-                'subject': (n['subject'] or ''),
+                'subject': (self._safe_key(n, 'subject') or ''),
                 'topics': topics,
                 'updated_date': n['updatedAt'],
             }))
@@ -573,23 +573,24 @@ class ApiStudentPage(Page):
 
     def appointments(self):
         appts = []
-        appt_data = (self.notifications() and self.notifications()['appointment']) or []
+        appt_data = (self.notifications() and self._safe_key(self.notifications(), 'appointment')) or []
         for a in appt_data:
-            author = a['advisor']
+            author = self._safe_key(a, 'advisor')
             advisor = author and User({
                 'uid': author['uid'],
                 'full_name': author['name'],
                 'depts': author['departments'],
             })
-            attachments = a['attachments'] and list(map(lambda f: f['filename'] or f['sisFilename'], a['attachments']))
+            attachment_data = self._safe_key(a, 'attachments') or []
+            attachments = attachment_data and list(map(lambda f: self._safe_key(f, 'filename') or self._safe_key(f, 'sisFilename'), attachment_data))
             attachments = [a for a in attachments if a]
             appts.append(Appointment({
                 'advisor': advisor,
                 'attachments': attachments,
                 'created_date': a['createdAt'],
-                'detail': (a['details'] or ''),
+                'detail': (self._safe_key(a, 'details') or ''),
                 'record_id': f"{a['id']}",
-                'subject': (a['appointmentTitle'] or ''),
+                'subject': (self._safe_key(a, 'appointmentTitle') or ''),
                 'updated_date': a['updatedAt'],
             }))
         return appts

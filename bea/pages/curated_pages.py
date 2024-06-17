@@ -23,14 +23,19 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import time
+
 from bea.pages.cohort_pages import CohortPages
+from bea.pages.curated_modal import CuratedModal
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
-class CuratedPages(CohortPages):
+class CuratedPages(CohortPages, CuratedModal):
 
     RENAME_GROUP_INPUT = By.ID, 'rename-input'
 
@@ -51,6 +56,26 @@ class CuratedPages(CohortPages):
         self.wait_for_element_and_click(self.RENAME_COHORT_CONFIRM_BUTTON)
         group.name = new_name
         self.when_present(self.cohort_heading_loc(group), utils.get_short_timeout())
+
+    # DELETE
+
+    DELETE_GROUP_BUTTON = By.ID, 'delete-button'
+    CONFIRM_DELETE_GROUP_BUTTON = By.XPATH, '//div[@class="v-card-actions"]//button[contains(., "Delete")]'
+    CANCEL_DELETE_GROUP_BUTTON = By.XPATH, '//div[@class="v-card-actions"]//button[contains(., "Cancel")]'
+
+    def delete_group(self, group):
+        app.logger.info(f'Deleting a group named {group.name}')
+        self.wait_for_page_and_click(self.DELETE_GROUP_BUTTON)
+        self.wait_for_element_and_click(self.CONFIRM_DELETE_GROUP_BUTTON)
+        Wait(self.driver, utils.get_short_timeout()).until(ec.url_contains(f'{boa_utils.get_boa_base_url()}/home'))
+        time.sleep(utils.get_click_sleep())
+
+    def cancel_group_deletion(self, group):
+        app.logger.info(f'Canceling the deletion of cohort {group.name}')
+        self.wait_for_page_and_click(self.DELETE_GROUP_BUTTON)
+        self.wait_for_element_and_click(self.CANCEL_DELETE_GROUP_BUTTON)
+        self.when_not_present(self.CONFIRM_DELETE_GROUP_BUTTON, utils.get_short_timeout())
+        Wait(self.driver, 1).until(ec.url_contains(f'{group.cohort_id}'))
 
     # ADD STUDENTS / ADMITS
 
@@ -76,9 +101,8 @@ class CuratedPages(CohortPages):
     def create_group_with_bulk_sids(self, group, members):
         self.enter_comma_sep_sids(self.CREATE_GROUP_TEXTAREA_SIDS, members)
         self.click_add_sids_to_group_button()
-        self.save_and_name_cohort(group)
+        self.name_and_save_group(group)
         boa_utils.append_new_members_to_group(group, members)
-        self.wait_for_sidebar_group(group)
 
     def enter_text_in_sids_input(self, sids_string):
         self.click_add_sids_button()

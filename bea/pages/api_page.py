@@ -23,57 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from bea.pages.page import Page
 
-class Cohort(object):
 
-    def __init__(self, data):
-        self.data = data
+class ApiPage(Page):
 
-    @property
-    def cohort_id(self):
+    @staticmethod
+    def _safe_key(parsed, key):
         try:
-            return self.data['cohort_id']
+            return parsed[key]
         except KeyError:
             return None
-
-    @cohort_id.setter
-    def cohort_id(self, value):
-        self.data['cohort_id'] = value
-
-    @property
-    def name(self):
-        return self.data['name']
-
-    @name.setter
-    def name(self, value):
-        self.data['name'] = value
-
-    @property
-    def is_ce3(self):
-        try:
-            return self.data['is_ce3']
-        except KeyError:
-            return False
-
-    @is_ce3.setter
-    def is_ce3(self, value):
-        self.data['is_ce3'] = value
-
-    @property
-    def owner_uid(self):
-        return self.data['owner_uid']
-
-    @owner_uid.setter
-    def owner_uid(self, value):
-        self.data['owner_uid'] = value
-
-    @property
-    def members(self):
-        try:
-            return self.data['members']
-        except KeyError:
-            return []
-
-    @members.setter
-    def members(self, value):
-        self.data['members'] = value
