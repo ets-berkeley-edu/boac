@@ -2,6 +2,7 @@ import {concat, head, initial, isNil, isNumber, join, last, noop, trim} from 'lo
 import {nextTick} from 'vue'
 import numeral from 'numeral'
 import {useContextStore} from '@/stores/context'
+import {getUserProfile} from '@/api/user'
 
 export function alertScreenReader(message: string, politeness?: string) {
   useContextStore().setScreenReaderAlert({message: ''})
@@ -18,6 +19,16 @@ const decodeHtml = (snippet: string) => {
   } else {
     return snippet
   }
+}
+
+export function invokeIfAuthenticated(callback: Function, onReject = () => {}) {
+  getUserProfile().then(data => {
+    if (data.isAuthenticated) {
+      callback()
+    } else {
+      onReject()
+    }
+  })
 }
 
 export function isNilOrBlank(s: string | null | undefined) {

@@ -3,7 +3,7 @@
     <div class="pa-4">
       <div class="align-center d-flex">
         <div class="mr-2">
-          <h1 class="mb-0 page-section-header">{{isSearching ? 'Searching...' : 'Search Results' }}</h1>
+          <h1 class="mb-0 page-section-header">{{ isSearching ? 'Searching...' : 'Search Results' }}</h1>
         </div>
         <div v-if="!loading && isDirty" class="pb-1">
           [<v-btn

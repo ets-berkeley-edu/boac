@@ -13,7 +13,7 @@
             variant="outlined"
             density="compact"
             style="font-size: 16px;"
-            @update:modelValue="refreshUsers"
+            @update:model-value="refreshUsers"
           >
           </v-select>
         </v-col>
@@ -45,7 +45,7 @@
                 variant="outlined"
                 density="compact"
                 style="font-size: 16px;"
-                @update:modelValue="refreshUsers"
+                @update:model-value="refreshUsers"
               >
                 <!-- <option :value="null">All</option>
                 <option
@@ -68,7 +68,7 @@
                 variant="outlined"
                 density="compact"
                 style="font-size: 16px;"
-                @update:modelValue="refreshUsers"
+                @update:model-value="refreshUsers"
               >
               </v-select>
             </div>
@@ -83,7 +83,7 @@
                 variant="outlined"
                 density="compact"
                 style="font-size: 16px;"
-                @update:modelValue="refreshUsers"
+                @update:model-value="refreshUsers"
               >
               </v-select>
             </div>
