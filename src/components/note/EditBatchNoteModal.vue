@@ -142,7 +142,7 @@ import {mdiSync} from '@mdi/js'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {watch} from 'vue'
+import {ref, watch} from 'vue'
 
 const props = defineProps({
   initialMode: {
@@ -171,11 +171,11 @@ const props = defineProps({
   }
 })
 
-let alert = undefined
-let dismissAlertSeconds = undefined
-let showCreateTemplateModal = false
-let showDiscardNoteModal = false
-let showDiscardTemplateModal = false
+const alert = ref(undefined)
+const dismissAlertSeconds = ref(undefined)
+const showCreateTemplateModal = ref(false)
+const showDiscardNoteModal = ref(false)
+const showDiscardTemplateModal = ref(false)
 
 // eslint-disable-next-line vue/require-prop-types
 const dialogModel = defineModel()
@@ -237,7 +237,7 @@ const cancelRequested = () => {
     if (noDiff) {
       discardTemplate()
     } else {
-      showDiscardTemplateModal = true
+      showDiscardTemplateModal.value = true
       disableFocusLock()
     }
   } else {
@@ -247,7 +247,7 @@ const cancelRequested = () => {
       || size(model.attachments)
       || completeSidSet.length
     if (unsavedChanges) {
-      showDiscardNoteModal = true
+      showDiscardNoteModal.value = true
       disableFocusLock()
     } else {
       discardNote()
@@ -257,19 +257,19 @@ const cancelRequested = () => {
 
 const cancelCreateTemplate = () => {
   noteStore.setIsSaving(false)
-  showCreateTemplateModal = false
+  showCreateTemplateModal.value = false
   enableFocusLock()
 }
 
 const cancelDiscardNote = () => {
-  showDiscardNoteModal = false
+  showDiscardNoteModal.value = false
   enableFocusLock()
   alertScreenReader('Continue editing note.')
   putFocusNextTick('create-note-subject')
 }
 
 const cancelDiscardTemplate = () => {
-  showDiscardTemplateModal = false
+  showDiscardTemplateModal.value = false
   putFocusNextTick('create-note-subject')
   enableFocusLock()
 }
@@ -277,7 +277,7 @@ const cancelDiscardTemplate = () => {
 const createTemplate = title => {
   noteStore.setIsSaving(true)
   const ifAuthenticated = () => {
-    showCreateTemplateModal = false
+    showCreateTemplateModal.value = false
     enableFocusLock()
     // File upload might take time; alert will be overwritten when API call is done.
     showAlert('Creating template...', 60)
@@ -294,7 +294,7 @@ const createTemplate = title => {
     })
   }
   invokeIfAuthenticated(ifAuthenticated, () => {
-    showCreateTemplateModal = false
+    showCreateTemplateModal.value = false
     noteStore.setIsSaving(false)
   })
 }
@@ -306,21 +306,21 @@ const discardNote = () => {
 }
 
 const discardTemplate = () => {
-  showDiscardTemplateModal = false
+  showDiscardTemplateModal.value = false
   alertScreenReader('Canceled create template.')
   exit(true)
 }
 
 const dismissAlert = seconds => {
-  dismissAlertSeconds = seconds
+  dismissAlertSeconds.value = seconds
   if (seconds === 0) {
-    alert = undefined
+    alert.value = undefined
   }
 }
 
 const exit = revert => {
-  alert = dismissAlertSeconds = undefined
-  showCreateTemplateModal = showDiscardNoteModal = showDiscardTemplateModal = false
+  alert.value = dismissAlertSeconds.value = undefined
+  showCreateTemplateModal.value = showDiscardNoteModal.value = showDiscardTemplateModal.value = false
   exitSession(revert).then(props.onClose)
 }
 
@@ -352,19 +352,19 @@ const invokeIfAuthenticated = (callback, onReject = () => {}) => {
 const saveAsTemplate = () => {
   noteStore.setIsSaving(true)
   const ifAuthenticated = () => {
-    showCreateTemplateModal = true
+    showCreateTemplateModal.value = true
     disableFocusLock()
   }
   invokeIfAuthenticated(ifAuthenticated)
 }
 
 const showAlert = (value, seconds=3) => {
-  alert = value
-  dismissAlertSeconds = seconds
+  alert.value = value
+  dismissAlertSeconds.value = seconds
 }
 
 const toggleShowCreateTemplateModal = show => {
-  showCreateTemplateModal = show
+  showCreateTemplateModal.value = show
   const toggle = show ? disableFocusLock : enableFocusLock
   toggle()
 }

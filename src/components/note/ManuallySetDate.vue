@@ -20,7 +20,7 @@
             class="search-input-date"
             :class="{'rounded-e-0': manuallySetDate}"
             density="compact"
-            :disabled="useNoteStore().isSaving || useNoteStore().boaSessionExpired"
+            :disabled="isSaving || boaSessionExpired"
             hide-details
             :model-value="inputValue"
             name="manually-set-date-input"
@@ -36,7 +36,7 @@
         id="manually-set-date-clear"
         class="clear-btn px-0"
         color="btn-secondary"
-        :disabled="useNoteStore().isSaving || useNoteStore().boaSessionExpired"
+        :disabled="isSaving || boaSessionExpired"
         variant="flat"
         @click="manuallySetDate = null"
       >
@@ -48,34 +48,23 @@
 </template>
 
 <script setup>
+import {computed} from 'vue'
 import {mdiClose} from '@mdi/js'
-</script>
-
-<script>
+import {storeToRefs} from 'pinia'
 import {useNoteStore} from '@/stores/note-edit-session'
 
-export default {
-  name: 'ManuallySetDate',
-  data: () => ({
-    maxDate: new Date()
-  }),
-  computed: {
-    disabled() {
-      return !!(useNoteStore().isSaving || useNoteStore().boaSessionExpired)
-    },
-    manuallySetDate: {
-      get() {
-        return useNoteStore().model.setDate ? useNoteStore().model.setDate.toJSDate() : null
-      },
-      set(value) {
-        useNoteStore().setSetDate(value)
-      }
-    }
+const noteStore = useNoteStore()
+const {boaSessionExpired, isSaving, model} = storeToRefs(noteStore)
+
+const maxDate = new Date()
+const manuallySetDate = computed({
+  get() {
+    return model.setDate ? model.setDate.toJSDate() : null
   },
-  methods: {
-    useNoteStore
+  set(value) {
+    noteStore.setSetDate(value)
   }
-}
+})
 </script>
 
 <style scoped>

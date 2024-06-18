@@ -199,15 +199,15 @@ import {get, size} from 'lodash'
 import {mdiMenuDown} from '@mdi/js'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
-import {watch} from 'vue'
+import {ref, watch} from 'vue'
 
-let error
-let isSaving = false
+const error = ref('')
+const isSaving = ref(false)
 const noteStore = useNoteStore()
-let updatedTemplateTitle
-let suppressAutoSaveDraftNoteAlert = false
+const updatedTemplateTitle = ref(undefined)
+const suppressAutoSaveDraftNoteAlert = ref(false)
 
-watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert = true, 5000))
+watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = true, 5000))
 
 const cancel = template => {
   resetTemplate(template, template.title)
@@ -217,9 +217,9 @@ const cancel = template => {
 }
 
 const deleteTemplateConfirmed = template => {
-  isSaving = true
+  isSaving.value = true
   return deleteNoteTemplate(template.id).then(() => {
-    isSaving = false
+    isSaving.value = false
     resetTemplate(template, template.title)
     alertScreenReader('Template deleted.')
     putFocusNextTick('create-note-subject')
@@ -259,20 +259,22 @@ const openDeleteTemplateDialog = template => {
 }
 
 const openRenameTemplateDialog = template => {
-  updatedTemplateTitle = template.title
+  updatedTemplateTitle.value = template.title
   template.isRenameDialogOpen = true
   disableFocusLock()
   alertScreenReader('Rename template dialog opened.')
 }
 
 const renameTemplate = template => {
-  isSaving = true
-  error = validateTemplateTitle({id: template.id, title: updatedTemplateTitle})
-  if (error) {
-    isSaving = false
+  error.value = undefined
+  isSaving.value = true
+  const errorMessage = validateTemplateTitle({id: template.id, title: updatedTemplateTitle})
+  if (errorMessage) {
+    error.value = errorMessage
+    isSaving.value = false
   } else {
     renameNoteTemplate(template.id, updatedTemplateTitle).then(() => {
-      isSaving = false
+      isSaving.value = false
       resetTemplate(template, updatedTemplateTitle)
       alertScreenReader(`Template renamed '${template.title}'.`)
       enableFocusLock()
@@ -283,7 +285,7 @@ const renameTemplate = template => {
 const resetTemplate = (template, title) => {
   template.isDeleteDialogOpen = template.isRenameDialogOpen = false
   template.title = title
-  updatedTemplateTitle = null
+  updatedTemplateTitle.value = null
 }
 </script>
 

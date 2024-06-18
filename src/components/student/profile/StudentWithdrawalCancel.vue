@@ -24,7 +24,5 @@ const props = defineProps({
   }
 })
 
-const termId = props.termId
-const withdrawal = props.withdrawal
-const withdrawalDate = DateTime.fromSQL(withdrawal.date)
+const withdrawalDate = DateTime.fromSQL(props.withdrawal.date)
 </script>
