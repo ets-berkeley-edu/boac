@@ -146,12 +146,13 @@ const isEditDialogOpen = ref(false)
 const isDeleting = ref(false)
 const myDraftNotes = ref(undefined)
 const selectedNote = ref(undefined)
+
 const reloadDraftNotes = () => getMyDraftNotes().then(data => myDraftNotes.value = data)
 
 onMounted(() => reloadDraftNotes().then(() => contextStore.loadingComplete('Draft notes list is ready.')))
 
 const afterEditDraft = data => {
-  const existing = find(myDraftNotes, ['id', data.id])
+  const existing = find(myDraftNotes.value, ['id', data.id])
   if (existing) {
     Object.assign(existing, data)
     reloadDraftNotes().then(() => isEditDialogOpen.value = false)
@@ -176,18 +177,6 @@ const deleteDraftNote = () => {
       })
     })
   })
-}
-
-const onDeleteNote = noteId => {
-  if (find(myDraftNotes, ['id', noteId])) {
-    reloadDraftNotes()
-  }
-}
-
-const onUpdateNote = note => {
-  if (find(myDraftNotes, ['id', note.id])) {
-    reloadDraftNotes()
-  }
 }
 
 const openDeleteDialog = draftNote => {
@@ -217,12 +206,12 @@ const deleteDialogBodyText = computed(() => {
 
 const eventHandlers = {
   'note-created': reloadDraftNotes,
-  'note-deleted': onDeleteNote,
-  'note-updated': onUpdateNote
+  'note-deleted': noteId => find(myDraftNotes.value, ['id', noteId]) && reloadDraftNotes(),
+  'note-updated': note => find(myDraftNotes.value, ['id', note.id]) && reloadDraftNotes()
 }
 each(eventHandlers, (handler, eventType) => contextStore.setEventHandler(eventType, handler))
 
-onUnmounted(() => each(eventHandlers || {}, (handler, eventType) => contextStore.removeEventHandler(eventType, handler)))
+onUnmounted(() => each(eventHandlers, (handler, eventType) => contextStore.removeEventHandler(eventType, handler)))
 </script>
 
 <style>

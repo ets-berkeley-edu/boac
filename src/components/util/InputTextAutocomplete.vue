@@ -27,7 +27,7 @@
       @keyup.esc="onEscInput"
       @keyup.down="onArrowDown"
       @click="selectSuggestion($event)"
-      @update:modelValue="selectSuggestion"
+      @update:model-value="selectSuggestion"
     >
     </v-autocomplete>
     <slot name="append"></slot>

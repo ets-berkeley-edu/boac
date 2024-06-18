@@ -29,6 +29,7 @@ module.exports = {
     'vue/camelcase': 2,
     'vue/comma-dangle': 2,
     'vue/component-name-in-template-casing': 2,
+    'vue/component-tags-order': 2,
     'vue/no-deprecated-v-bind-sync': 1,
     'vue/eqeqeq': 2,
     'vue/html-closing-bracket-newline': 2,
@@ -42,6 +43,7 @@ module.exports = {
     'vue/max-attributes-per-line': ['error', {singleline: {max: 3}, multiline: {max: 1}}],
     'vue/multi-word-component-names': 0,
     'vue/multiline-html-element-content-newline': 2,
+    'vue/mustache-interpolation-spacing': 2,
     'vue/no-boolean-default': 2,
     'vue/no-deprecated-destroyed-lifecycle': 1,
     'vue/no-deprecated-slot-attribute': 2,
@@ -69,6 +71,7 @@ module.exports = {
       'allowModifiers': true
     }],
     'vue/v-bind-style': 2,
+    'vue/v-on-event-hyphenation': 2,
     'vue/v-on-function-call': 2,
     'vue/v-on-style': 2,
     'vue/v-slot-style': 2

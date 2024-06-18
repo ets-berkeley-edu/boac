@@ -92,8 +92,9 @@
         <hr class="mt-0" />
         <CreateNoteFooter
           :cancel="cancelRequested"
+          :exit="exit"
           :save-as-template="saveAsTemplate"
-          :update-note="updateNote"
+          :show-alert="showAlert"
           :update-template="updateTemplate"
         />
       </div>
@@ -133,11 +134,18 @@ import ManuallySetDate from '@/components/note/ManuallySetDate'
 import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import {addAttachments, createDraftNote, getNote} from '@/api/notes'
-import {alertScreenReader, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import {alertScreenReader, invokeIfAuthenticated, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/note-templates'
-import {disableFocusLock, enableFocusLock, exitSession, isAutoSaveMode, setSubjectPerEvent, updateAdvisingNote} from '@/stores/note-edit-session/utils'
+import {
+  disableFocusLock,
+  enableFocusLock,
+  exitSession,
+  isAutoSaveMode,
+  setNoteRecipient,
+  setSubjectPerEvent,
+  updateAdvisingNote
+} from '@/stores/note-edit-session/utils'
 import {filter, size, trim, xor, xorBy} from 'lodash'
-import {getUserProfile} from '@/api/user'
 import {mdiSync} from '@mdi/js'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
@@ -171,16 +179,15 @@ const props = defineProps({
   }
 })
 
+const noteStore = useNoteStore()
+const {boaSessionExpired, completeSidSet, isSaving, mode, model, noteTemplates} = storeToRefs(noteStore)
 const alert = ref(undefined)
+// eslint-disable-next-line vue/require-prop-types
+const dialogModel = defineModel()
 const dismissAlertSeconds = ref(undefined)
 const showCreateTemplateModal = ref(false)
 const showDiscardNoteModal = ref(false)
 const showDiscardTemplateModal = ref(false)
-
-// eslint-disable-next-line vue/require-prop-types
-const dialogModel = defineModel()
-const noteStore = useNoteStore()
-const {boaSessionExpired, completeSidSet, isSaving, mode, model, noteTemplates} = storeToRefs(noteStore)
 
 watch(dialogModel, () => {
   if (dialogModel.value) {
@@ -197,7 +204,7 @@ watch(dialogModel, () => {
       }
       noteStore.setModel(note)
       if (note.sid) {
-        noteStore.setNoteRecipient(note.sid).then(onFinish)
+        setNoteRecipient(note.sid).then(onFinish)
       } else {
         onFinish()
       }
@@ -213,7 +220,7 @@ const addNoteAttachments = attachments => {
   return new Promise(resolve => {
     if (isAutoSaveMode(mode)) {
       noteStore.setIsSaving(true)
-      addAttachments(model.id, attachments).then(response => {
+      addAttachments(model.valueid, attachments).then(response => {
         noteStore.setAttachments(response.attachments)
         alertScreenReader('Attachment added', 'assertive')
         noteStore.setIsSaving(false)
@@ -227,13 +234,13 @@ const addNoteAttachments = attachments => {
 }
 
 const cancelRequested = () => {
-  if (mode === 'editTemplate') {
-    const indexOf = noteTemplates.findIndex(t => t.id === model.id)
+  if (mode.value === 'editTemplate') {
+    const indexOf = noteTemplates.value.findIndex(t => t.id === model.value.id)
     const template = noteTemplates[indexOf]
-    const noDiff = trim(model.subject) === template.subject
-      && model.body === template.body
-      && !size(xor(model.topics, template.topics))
-      && !size(xorBy(model.attachments, template.attachments, 'displayName'))
+    const noDiff = trim(model.value.subject) === template.subject
+      && model.value.body === template.body
+      && !size(xor(model.value.topics, template.topics))
+      && !size(xorBy(model.value.attachments, template.attachments, 'displayName'))
     if (noDiff) {
       discardTemplate()
     } else {
@@ -242,10 +249,10 @@ const cancelRequested = () => {
     }
   } else {
     const unsavedChanges = trim(model.subject)
-      || stripHtmlAndTrim(model.body)
-      || size(model.topics)
-      || size(model.attachments)
-      || completeSidSet.length
+      || stripHtmlAndTrim(model.value.body)
+      || size(model.value.topics)
+      || size(model.value.attachments)
+      || completeSidSet.value.length
     if (unsavedChanges) {
       showDiscardNoteModal.value = true
       disableFocusLock()
@@ -283,7 +290,7 @@ const createTemplate = title => {
     showAlert('Creating template...', 60)
     // Save draft before creating template.
     updateAdvisingNote().then(() => {
-      createNoteTemplate(model.id, title).then(() => {
+      createNoteTemplate(model.value.id, title).then(() => {
         showAlert(`Template '${title}' created.`)
         setTimeout(() => {
           // Creating a note-template was the user's purpose so we delete any incidental draft note.
@@ -294,6 +301,7 @@ const createTemplate = title => {
     })
   }
   invokeIfAuthenticated(ifAuthenticated, () => {
+    noteStore.onBoaSessionExpires()
     showCreateTemplateModal.value = false
     noteStore.setIsSaving(false)
   })
@@ -301,14 +309,12 @@ const createTemplate = title => {
 
 const discardNote = () => {
   enableFocusLock()
-  alertScreenReader('Canceled create new note')
-  exit(true)
+  exit(true).then(() => alertScreenReader('Canceled create new note'))
 }
 
 const discardTemplate = () => {
   showDiscardTemplateModal.value = false
-  alertScreenReader('Canceled create template.')
-  exit(true)
+  exit(true).then(() => alertScreenReader('Canceled create template.'))
 }
 
 const dismissAlert = seconds => {
@@ -320,8 +326,9 @@ const dismissAlert = seconds => {
 
 const exit = revert => {
   alert.value = dismissAlertSeconds.value = undefined
-  showCreateTemplateModal.value = showDiscardNoteModal.value = showDiscardTemplateModal.value = false
-  exitSession(revert).then(props.onClose)
+  noteStore.showCreateTemplateModal = noteStore.showDiscardNoteModal = noteStore.showDiscardTemplateModal = false
+  dialogModel.value = null
+  return exitSession(revert).then(props.onClose)
 }
 
 const init = () => {
@@ -334,17 +341,6 @@ const init = () => {
         subject: 'note-creation-is-starting'
       })
       createDraftNote(props.sid).then(resolve)
-    }
-  })
-}
-
-const invokeIfAuthenticated = (callback, onReject = () => {}) => {
-  getUserProfile().then(data => {
-    if (data.isAuthenticated) {
-      callback()
-    } else {
-      noteStore.onBoaSessionExpires()
-      onReject()
     }
   })
 }
@@ -369,43 +365,24 @@ const toggleShowCreateTemplateModal = show => {
   toggle()
 }
 
-const updateNote = () => {
-  noteStore.setIsSaving(true)
-  const ifAuthenticated = () => {
-    if (model.isDraft || (model.subject && size(completeSidSet))) {
-      // File upload might take time; alert will be overwritten when API call is done.
-      showAlert('Creating note...', 60)
-      updateAdvisingNote().then(() => {
-        noteStore.setIsSaving(false)
-        alertScreenReader(mode.includes('create') ? 'Note created' : 'Note saved')
-        exit(false)
-      })
-    }
-  }
-  invokeIfAuthenticated(ifAuthenticated, () => {
-    noteStore.setIsSaving(false)
-  })
-}
-
 const updateTemplate = () => {
   noteStore.setIsSaving(true)
-  const newAttachments = filter(model.attachments, a => !a.id)
+  const newAttachments = filter(model.value.attachments, a => !a.id)
   if (newAttachments.length) {
     // File upload might take time; alert will be overwritten when API call is done.
     showAlert('Updating template...', 60)
   }
   updateNoteTemplate(
-    model.body,
-    model.deleteAttachmentIds,
-    model.isPrivate,
+    model.valuebody,
+    model.valuedeleteAttachmentIds,
+    model.valueisPrivate,
     newAttachments,
-    model.id,
-    model.subject,
-    model.topics,
+    model.valueid,
+    model.valuesubject,
+    model.valuetopics,
   ).then(template => {
     noteStore.setIsSaving(false)
-    alertScreenReader(`Template '${template.title}' updated`)
-    exit(false)
+    exit(false).then(() => alertScreenReader(`Template '${template.title}' updated`))
   })
 }
 </script>
