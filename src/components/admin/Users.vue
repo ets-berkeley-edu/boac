@@ -240,7 +240,6 @@
 <script setup>
 import {mdiEmail} from '@mdi/js'
 import {mdiLoginVariant} from '@mdi/js'
-import {ref} from 'vue'
 </script>
 
 <script>
@@ -285,7 +284,7 @@ export default {
     userSelection: undefined,
     departmentSelectionList: [],
     users: [],
-    items: ref([]),
+    items: [],
     filterTypeOptions: [
       {
         name: 'Search',
@@ -397,7 +396,6 @@ export default {
     }
   },
   created() {
-    // console.log('this.departments', this.departments)
     this.departmentSelectionList = [{
       id: -1, code: null, name: 'All'
     }, ...this.departments]

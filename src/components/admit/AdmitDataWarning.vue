@@ -1,7 +1,10 @@
 <template>
-  <div v-if="show" class="align-center d-flex font-size-16 text-error">
+  <div
+    v-if="localUpdatedAt && DateTime.now().diff(localUpdatedAt, 'hours').hours >= 24"
+    class="align-center d-flex font-size-16 text-error"
+  >
     <v-icon class="mr-1" :icon="mdiAlert" />
-    <div aria-live="polite" class="font-weight-500" role="alert">Admit data was last updated on {{ localUpdatedAt }}</div>
+    <div aria-live="polite" class="font-weight-500" role="alert">Admit data was last updated on {{ localUpdatedAt.toLocaleString(DateTime.DATE_MED) }}</div>
   </div>
 </template>
 
@@ -17,12 +20,6 @@ const props = defineProps({
     type: String
   }
 })
-let show = false
-let localUpdatedAt = undefined
-
-if (props.updatedAt) {
-  const timezone = useContextStore().config.timezone
-  localUpdatedAt = DateTime.fromISO(props.updatedAt).setZone(timezone).toLocaleString(DateTime.DATE_MED)
-  show = true || DateTime.now().diff(localUpdatedAt, 'hours') >= 24
-}
+const timezone = useContextStore().config.timezone
+const localUpdatedAt: DateTime<boolean> | undefined = props.updatedAt ? DateTime.fromISO(props.updatedAt).setZone(timezone) : undefined
 </script>

@@ -28,13 +28,7 @@ const props = defineProps({
     type: String
   }
 })
-let adjustedDate
-let dateFormat
-
-if (props.date) {
-  const date = typeof props.date === 'string' ? new Date(props.date) : props.date
-  const timezone = useContextStore().config.timezone
-  adjustedDate = DateTime.fromJSDate(date).setZone(timezone)
-  dateFormat = adjustedDate.year === DateTime.now().year ? 'MMM d' : 'MMM d, yyyy'
-}
+const date = typeof props.date === 'string' ? new Date(props.date) : props.date
+const adjustedDate = date ? DateTime.fromJSDate(date).setZone(useContextStore().config.timezone) : null
+const dateFormat = adjustedDate && adjustedDate.year === DateTime.now().year ? 'MMM d' : 'MMM d, yyyy'
 </script>

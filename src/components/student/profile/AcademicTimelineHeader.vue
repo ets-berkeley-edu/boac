@@ -57,6 +57,7 @@ import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import {includes, keys} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
 import {putFocusNextTick} from '@/lib/utils'
+import {ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -84,12 +85,12 @@ const props = defineProps({
 })
 
 const currentUser = useContextStore().currentUser
-let isEditingNote = false
-let selectedTab = undefined
+const isEditingNote = ref(false)
+const selectedTab = ref(undefined)
 
 const onModalClose = note => {
-  isEditingNote = false
-  putFocusNextTick(note && includes(['all', 'note'], selectedTab) ? `timeline-tab-${selectedTab}-message-0` : 'new-note-button')
+  isEditingNote.value = false
+  putFocusNextTick(note && includes(['all', 'note'], selectedTab) ? `timeline-tab-${selectedTab.value}-message-0` : 'new-note-button')
 }
 
 const onUpdateTabsModel = value => props.setFilter(value === 'all' ? null : value)
