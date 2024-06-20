@@ -75,7 +75,7 @@
           </div>
         </div>
         <div class="py-4">
-          <AdvisingNoteTopics :key="mode" />
+          <AdvisingNoteTopics />
           <PrivacyPermissions v-if="useContextStore().currentUser.canAccessPrivateNotes" />
           <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
             <div key="0" class="pt-4">

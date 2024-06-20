@@ -164,7 +164,7 @@
               :id="`note-${note.id}-remove-note-attachment-${index}`"
               variant="link"
               class="p-0"
-              @click.prevent="removeAttachment(index)"
+              @click.prevent="removeAttachmentByIndex(index)"
             >
               <v-icon
                 :icon="mdiCloseCircleOutline"
@@ -227,6 +227,7 @@ import {stripHtmlAndTrim} from '@/lib/utils'
 </script>
 
 <script>
+import Context from '@/mixins/Context'
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
 import {alertScreenReader, numFormat, oxfordJoin, toInt} from '@/lib/utils'
@@ -238,6 +239,9 @@ import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'AdvisingNote',
+  mixins: {
+    Context
+  },
   props: {
     afterSaved: {
       required: true,
@@ -370,7 +374,7 @@ export default {
         }
       }
     },
-    removeAttachment(index) {
+    removeAttachmentByIndex(index) {
       this.clearErrors()
       const removeMe = this.existingAttachments[index]
       if (removeMe.id) {

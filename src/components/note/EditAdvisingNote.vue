@@ -27,13 +27,7 @@
       </span>
     </div>
     <div>
-      <AdvisingNoteTopics
-        :disabled="useNoteStore().boaSessionExpired"
-        :add-topic="addTopic"
-        :note-id="useNoteStore().model.id"
-        :remove-topic="removeTopic"
-        :topics="useNoteStore().model.topics"
-      />
+      <AdvisingNoteTopics />
     </div>
     <div v-if="currentUser.canAccessPrivateNotes" class="pb-3">
       <PrivacyPermissions :disabled="useNoteStore().isSaving || useNoteStore().boaSessionExpired" />
