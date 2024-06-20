@@ -3,6 +3,7 @@
     <v-autocomplete
       :id="id"
       v-model="selected"
+      autocomplete="off"
       bg-color="transparent"
       :clearable="!isFetching"
       base-color="black"
@@ -139,13 +140,17 @@ const onClickAdd = () => {
 }
 
 const onUpdateSearch = _.debounce(args => {
-  isFetching.value = true
-  if (props.suggestWhen(args)) {
-    const controller = new AbortController()
-    props.fetch(args, 20, controller).then(results => {
-      items.value = map(results, result => ({title: result.label, value: result.uid}))
-      isFetching.value = false
-    })
+  if (args?.length > 0) {
+    isFetching.value = true
+    if (props.suggestWhen(args)) {
+      const controller = new AbortController()
+      props.fetch(args, 20, controller).then(results => {
+        items.value = map(results, result => ({title: result.label, value: result.uid}))
+        isFetching.value = false
+      })
+    }
+  } else {
+    isFetching.value = false
   }
 }, 500)
 
