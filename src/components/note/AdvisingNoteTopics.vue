@@ -1,81 +1,87 @@
 <template>
-  <div>
-    <label id="add-note-topic-label" class="font-size-16 font-weight-700" for="add-note-topic">
+  <div v-if="size(topicOptions)">
+    <label id="add-note-topic-label" class="font-weight-bold" for="add-note-topic">
       Topic Categories
     </label>
-    <v-select
-      v-if="topicOptions.length"
-      id="add-topic-select-list"
-      class="mt-2"
-      density="compact"
-      :disabled="disabled"
-      hide-details
-      :items="topicOptions"
-      :model-value="selectedTopics"
-      multiple
-      persistent-hint
-      single-line
-      variant="outlined"
-      @update:model-value="onUpdate"
-    >
-      <template #item="{props}">
-        <v-list-item
-          v-bind="props"
-          class="min-height-unset py-1"
-          density="compact"
-        />
-      </template>
-      <template #selection="{item, index}">
-        <v-chip
-          :id="`${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
-          class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-no-wrap"
-          closable
-          :close-label="`Remove ${item}`"
-          density="comfortable"
-          :disabled="disabled"
-          variant="outlined"
-          @click:close="onClickRemove(item)"
-          @keyup.enter="onClickRemove(item)"
+    <div class="pt-3">
+      <select
+        id="add-topic-select-list"
+        :key="topicOptions.length"
+        v-model="selected"
+        aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
+        class="select-menu"
+        :disabled="disabled"
+        @change="onSelectChange"
+      >
+        <option :value="null" disabled>Select...</option>
+        <option
+          v-for="option in topicOptions"
+          :key="option.value"
+          :disabled="option.disabled"
+          :value="option.value"
         >
-          <span class="truncate-with-ellipsis">{{ item.title }}</span>
-          <template #close>
-            <v-icon color="error" :icon="mdiCloseCircle" />
-          </template>
-        </v-chip>
-      </template>
-    </v-select>
+          {{ option.text }}
+        </option>
+      </select>
+    </div>
+    <div>
+      <ul
+        id="note-topics-list"
+        class="mb-2 pill-list pl-0"
+        aria-labelledby="note-topics-label"
+      >
+        <li
+          v-for="(topic, index) in selectedTopics"
+          :id="`${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
+          :key="index"
+          class="list-item"
+        >
+          {{ topic }}
+          <div class="float-right">
+            <v-btn
+              :id="`remove-${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
+              :disabled="disabled"
+              variant="text"
+              class="remove-topic-btn"
+              @click="() => remove(topic)"
+            >
+              <v-icon color="error" :icon="mdiCloseCircle" />
+              <span class="sr-only">Remove</span>
+            </v-btn>
+          </div>
+        </li>
+      </ul>
+      <label id="note-topics-label" class="sr-only" for="note-topics-list">
+        topics
+      </label>
+    </div>
   </div>
 </template>
 
 <script setup>
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {computed} from 'vue'
-import {differenceBy, each, size} from 'lodash'
+import {computed, ref, watch} from 'vue'
+import {each, includes, size} from 'lodash'
 import {getTopicsForNotes} from '@/api/topics'
 import {mdiCloseCircle} from '@mdi/js'
-import {useNoteStore} from '@/stores/note-edit-session'
-
-defineProps({
-  noteId: {
-    default: undefined,
-    type: Number,
-    required: false
-  }
-})
+import {useNoteStore} from '@/stores/note-edit-session/index'
 
 const noteStore = useNoteStore()
 const disabled = computed(() => noteStore.isSaving || noteStore.boaSessionExpired)
-const topicOptions = []
+const noteId = ref(noteStore.model.topics)
+const selected = ref(null)
+const topicOptions = ref([])
+const selectedTopics = ref(noteStore.model.topics)
 
-getTopicsForNotes(false).then(rows => each(rows, row => topicOptions.push(row.topic)))
+watch(selected, async (value) => noteStore.addTopic(value))
 
-const add = topic => {
-  if (topic) {
-    noteStore.addTopic(topic)
-    putFocusNextTick('add-topic-select-list')
-    alertScreenReader(`Topic ${topic} added.`)
-  }
-}
+getTopicsForNotes(false).then(rows => {
+  each(rows, row => {
+    const value = row['topic']
+    const disabled = includes(selectedTopics.value, value)
+    topicOptions.value.push({text: value, value, disabled})
+  })
+})
 
 const remove = topic => {
   noteStore.removeTopic(topic)
@@ -83,22 +89,44 @@ const remove = topic => {
   putFocusNextTick('add-topic-select-list')
 }
 
-const onClickRemove = topic => remove(topic)
-
-const selectedTopics = computed({
-  get() {
-    return noteStore.model.topics
-  },
-  set(topics) {
-    const topicsToAdd = differenceBy(topics, noteStore.model.topics)
-    const topicsToRemove = differenceBy(noteStore.model.topics, topics)
-    if (size(topicsToAdd)) {
-      add(topicsToAdd[0])
-    } else if (size(topicsToRemove)) {
-      remove(topicsToRemove[0])
-    }
+const onSelectChange = () => {
+  if (selected.value) {
+    putFocusNextTick('add-topic-select-list')
+    alertScreenReader(`Topic ${selected.value} added.`)
+    selected.value = null
   }
-})
-
-const onUpdate = topics => selectedTopics.value = topics
+}
 </script>
+
+<style scoped>
+.list-item {
+  background-color: #fff;
+  border-radius: 5px;
+  border: 1px solid #999;
+  color: #666;
+  display: inline-block;
+  height: 36px;
+  margin-top: 6px;
+  padding: 5px 0 0 8px;
+  min-width: 50%;
+}
+.remove-topic-btn {
+  padding: 0 0 10px 0 !important;
+  margin-right: -10px;
+}
+.select-menu {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: .25rem;
+  border: 1px solid #ced4da;
+  color: #495057;
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 400;
+  height: calc(1.5em + .75rem + 2px);
+  line-height: 1.5;
+  padding: .375rem 1.75rem .375rem .75rem;
+  vertical-align: middle;
+}
+</style>
