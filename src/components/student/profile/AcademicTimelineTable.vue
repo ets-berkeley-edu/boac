@@ -158,8 +158,8 @@
                 :disabled="disableNewNoteButton"
                 variant="text"
                 class="p-0 edit-note-button"
-                @keypress.enter.stop="deleteNote(message)"
-                @click.stop="deleteNote(message)"
+                @keydown.enter.stop="onClickDeleteNote(message)"
+                @click.stop="onClickDeleteNote(message)"
               >
                 Delete {{ message.isDraft ? 'Draft' : 'Note' }}
               </v-btn>
@@ -191,7 +191,7 @@
             <AdvisingNote
               v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
               :after-saved="afterNoteEdit"
-              :delete-note="deleteNote"
+              :delete-note="onClickDeleteNote"
               :edit-note="editNote"
               :is-open="includes(openMessages, message.transientId)"
               :note="message"
@@ -300,7 +300,7 @@
                   v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                   :id="`advising-${message.type}-permalink-${message.id}`"
                   :to="`#${message.type}-${message.id}`"
-                  @click.native="scrollToPermalink(message.type, message.id)"
+                  @click="scrollToPermalink(message.type, message.id)"
                 >
                   Permalink <v-icon :icon="mdiLinkVariant" />
                 </router-link>
@@ -320,7 +320,7 @@
         color="primary"
         density="compact"
         variant="text"
-        @click="isShowingAll = !isShowingAll"
+        @click="toggleShowAll"
       >
         <v-icon :icon="isShowingAll ? mdiMenuUp : mdiMenuRight" />
         {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
@@ -374,9 +374,9 @@ export default {
   name: 'AcademicTimelineTable',
   mixins: [Context, Util],
   props: {
-    countsPerType: {
+    countPerActiveTab: {
       required: true,
-      type: Object
+      type: Number
     },
     filter: {
       default: undefined,
@@ -425,9 +425,6 @@ export default {
     anchor() {
       return location.hash
     },
-    countPerActiveTab() {
-      return this.filter ? this.countsPerType[this.filter] : size(this.messages)
-    },
     deleteConfirmModalBody() {
       return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : ''
     },
@@ -464,9 +461,6 @@ export default {
       this.timelineQuery = ''
       alertScreenReader(this.describeTheActiveTab())
       this.refreshSearchIndex()
-    },
-    isShowingAll() {
-      alertScreenReader(this.describeTheActiveTab())
     },
     timelineQuery() {
       if (this.timelineQuery) {
@@ -522,7 +516,7 @@ export default {
       }
     }
   },
-  destroyed() {
+  unmounted() {
     each(this.eventHandlers || {}, (handler, eventType) => {
       this.removeEventHandler(eventType, handler)
     })
@@ -571,11 +565,6 @@ export default {
       if (notifyScreenReader) {
         alertScreenReader(`${capitalize(message.type)} closed`)
       }
-    },
-    deleteNote(message) {
-      // The following opens the "Are you sure?" modal
-      alertScreenReader('Please confirm delete')
-      this.messageForDelete = message
     },
     deleteConfirmed() {
       const transientId = this.messageForDelete.transientId
@@ -637,6 +626,11 @@ export default {
       } else {
         return this._filter(this.messages, ['type', type])
       }
+    },
+    onClickDeleteNote(message) {
+      // The following opens the "Are you sure?" modal
+      alertScreenReader('Please confirm delete')
+      this.messageForDelete = message
     },
     onNoteCreateStartEvent(event) {
       if (includes(event.completeSidSet, this.student.sid)) {
@@ -709,6 +703,10 @@ export default {
         each(this.messagesPerType(this.filter), this.close)
         alertScreenReader(`All ${this.filter}s collapsed`)
       }
+    },
+    toggleShowAll() {
+      this.isShowingAll = !this.isShowingAll
+      alertScreenReader(this.describeTheActiveTab())
     }
   }
 }
@@ -768,20 +766,24 @@ export default {
   background-color: #e3f5ff;
 }
 .pill-alert {
+  /* used by dynamic class attribute  */
   background-color: #eb9d3e;
   width: 60px;
 }
 .pill-appointment {
+  /* used by dynamic class attribute  */
   background-color: #eee;
   color: #666 !important;
   font-weight: bolder;
   width: 100px;
 }
 .pill-eForm {
+  /* used by dynamic class attribute  */
   background-color: #5fbeb6;
   width: 60px;
 }
 .pill-hold {
+  /* used by dynamic class attribute  */
   background-color: #bc74fe;
   width: 60px;
 }
@@ -790,6 +792,7 @@ export default {
   width: 100px;
 }
 .pill-requirement {
+  /* used by dynamic class attribute  */
   background-color: #93c165;
   width: 100px;
 }

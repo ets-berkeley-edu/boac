@@ -56,7 +56,7 @@
           :disabled="isSaving || isUpdatingDraft"
           text="Discard"
           variant="outlined"
-          @click="cancel"
+          @click="discard"
         />
       </div>
     </div>
@@ -74,7 +74,7 @@ import {updateAdvisingNote} from '@/stores/note-edit-session/utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
-  cancel: {
+  discard: {
     required: true,
     type: Function
   },
