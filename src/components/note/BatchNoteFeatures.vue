@@ -41,7 +41,7 @@
         </span>
       </span>
     </div>
-    <BatchNoteAddStudent :on-esc-form-input="cancel" />
+    <BatchNoteAddStudent :on-esc-form-input="discard" />
     <BatchNoteAddCohort
       v-if="size(nonAdmitCohorts)"
       :is-curated-groups-mode="false"
@@ -76,7 +76,7 @@ export default {
     BatchNoteAddStudent
   },
   props: {
-    cancel: {
+    discard: {
       required: true,
       type: Function
     }

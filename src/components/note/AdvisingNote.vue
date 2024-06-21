@@ -326,6 +326,7 @@ export default {
       this.loadAuthorDetails()
     },
     noteAttachments() {
+      // TODO: Here we are "watching" a computed variable. Is this supported in Vue?
       this.resetAttachments()
     }
   },
@@ -339,6 +340,7 @@ export default {
   },
   methods: {
     clickBrowseForAttachment() {
+      // TODO: I don't think Vue 3 supports the old $refs built-in.
       this.$refs['attachment-file-input'].$el.click()
     },
     loadAuthorDetails() {

@@ -24,9 +24,9 @@
             <h3 class="student-profile-h3">
               Advisor(s)
             </h3>
-            <div v-if="_size(student.advisors)" id="student-profile-advisors">
+            <div v-if="size(student.advisors)" id="student-profile-advisors">
               <div
-                v-for="(advisor, index) in advisorsSorted"
+                v-for="(advisor, index) in orderBy(student.advisors, a => a.title && a.title.toLowerCase().includes('director') ? 1 : 0)"
                 :id="`student-profile-advisor-${index}`"
                 :key="index"
               >
@@ -37,14 +37,14 @@
                   {{ advisor.plan }}
                 </div>
                 <div :id="`student-profile-advisor-${index}-name`" class="text-grey-darken-2">
-                  {{ advisorName(advisor) }}
+                  {{ join(remove([advisor.firstName, advisor.lastName]), ' ') }}
                 </div>
                 <div :id="`student-profile-advisor-${index}-email`" class="text-grey-darken-2">
                   {{ advisor.email }}
                 </div>
               </div>
             </div>
-            <div v-if="!_size(student.advisors)" id="student-profile-advisors-none">
+            <div v-if="!size(student.advisors)" id="student-profile-advisors-none">
               None assigned.
             </div>
           </v-col>
@@ -180,88 +180,69 @@
 </template>
 
 <script setup>
+import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
+import {alertScreenReader, toInt} from '@/lib/utils'
 import {isGraduate} from '@/berkeley'
 import {mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
-</script>
+import {find, get, includes, join, orderBy, remove, size} from 'lodash'
+import {ref} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-<script>
-import Context from '@/mixins/Context'
-import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
-
-export default {
-  name: 'StudentPersonalDetails',
-  components: {StudentProfilePlan},
-  mixins: [Context, Util],
-  props: {
-    inactiveMajors: {
-      required: true,
-      type: Array
-    },
-    inactiveMinors: {
-      required: true,
-      type: Array
-    },
-    inactiveSubplans: {
-      required: true,
-      type: Array
-    },
-    student: {
-      required: true,
-      type: Object
-    }
+const props = defineProps({
+  inactiveMajors: {
+    required: true,
+    type: Array
   },
-  data: () => ({
-    hasCalCentralProfile: undefined,
-    isExpanded: false
-  }),
-  computed: {
-    advisorsSorted() {
-      return this._orderBy(this.student.advisors, this.getAdvisorSortOrder)
-    },
-    getAdvisorSortOrder(advisor) {
-      return advisor.title && advisor.title.toLowerCase().includes('director') ? 1 : 0
-    },
-    visaDescription() {
-      if (this._get(this.student, 'demographics.visa.status') !== 'G') {
-        return null
-      }
-      switch (this.student.demographics.visa.type) {
-      case 'F1':
-        return 'F-1 International Student'
-      case 'J1':
-        return 'J-1 International Student'
-      case 'PR':
-        return 'PR Verified International Student'
-      default:
-        return 'Other Verified International Student'
-      }
-    }
+  inactiveMinors: {
+    required: true,
+    type: Array
   },
-  created() {
-    this.hasCalCentralProfile = this.enrolledInPastTwoYears() || this._includes(this.student.sisProfile.calnetAffiliations, 'SIS-EXTENDED')
+  inactiveSubplans: {
+    required: true,
+    type: Array
   },
-  methods: {
-    advisorName(advisor) {
-      return this._join(this._remove([advisor.firstName, advisor.lastName]), ' ')
-    },
-    enrolledInPastTwoYears() {
-      // In the odd scheme of SIS termIds, a diff of 20 is equivalent to a diff of two years.
-      const hasCompletedSection = enrollmentTerm => {
-        const enrollments = enrollmentTerm.enrollments
-        return enrollments.length && this._find(enrollments, e => {
-          return this._size(e.sections) && this._find(e.sections, section => section.enrollmentStatus === 'E')
-        })
-      }
-      const mostRecent = this._find(this.student.enrollmentTerms, e => hasCompletedSection(e))
-      return mostRecent && (this.config.currentEnrollmentTermId - this.toInt(mostRecent.termId) <= 20)
-    },
-    toggle() {
-      this.isExpanded = !this.isExpanded
-      alertScreenReader(`Student details are ${this.isExpanded ? 'showing' : 'hidden'}.`)
-    }
+  student: {
+    required: true,
+    type: Object
   }
+})
+
+const hasCompletedSection = enrollmentTerm => {
+  const enrollments = enrollmentTerm.enrollments
+  return enrollments.length && find(enrollments, e => {
+    return size(e.sections) && find(e.sections, section => section.enrollmentStatus === 'E')
+  })
+}
+
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
+const isExpanded = ref(false)
+const mostRecent = find(props.student.enrollmentTerms, e => hasCompletedSection(e))
+// In the odd scheme of SIS termIds, a diff of 20 is equivalent to a diff of two years.
+const enrolledInPastTwoYears = mostRecent && (contextStore.currentEnrollmentTermId - toInt(mostRecent.termId) <= 20)
+const hasCalCentralProfile = enrolledInPastTwoYears || includes(props.student.sisProfile.calnetAffiliations, 'SIS-EXTENDED')
+let visaDescription
+
+if (get(props.student, 'demographics.visa.status') === 'G') {
+  switch (props.student.demographics.visa.type) {
+  case 'F1':
+    visaDescription = 'F-1 International Student'
+    break
+  case 'J1':
+    visaDescription = 'J-1 International Student'
+    break
+  case 'PR':
+    visaDescription = 'PR Verified International Student'
+    break
+  default:
+    visaDescription = 'Other Verified International Student'
+    break
+  }
+}
+
+const toggle = () => {
+  isExpanded.value = !isExpanded.value
+  alertScreenReader(`Student details are ${isExpanded.value ? 'showing' : 'hidden'}.`)
 }
 </script>
 

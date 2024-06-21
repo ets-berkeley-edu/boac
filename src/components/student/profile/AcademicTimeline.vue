@@ -9,7 +9,7 @@
     />
     <div class="pt-3">
       <AcademicTimelineTable
-        :counts-per-type="countsPerType"
+        :count-per-active-tab="filter ? countsPerType[filter] : _size(messages)"
         :filter="filter"
         :filter-types="filterTypes"
         :messages="messages"

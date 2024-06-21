@@ -11,16 +11,14 @@
         :class="{'mt-4': ['createBatch', 'editDraft'].includes(mode)}"
       >
         <CreateNoteHeader />
-        <hr />
         <div>
           <Transition v-if="['createBatch', 'editDraft'].includes(mode)" name="batch-transition">
             <div v-show="mode !== 'editTemplate'">
-              <BatchNoteFeatures :cancel="cancelRequested" />
+              <BatchNoteFeatures :discard="discardRequested" />
             </div>
           </Transition>
         </div>
-        <hr v-if="mode !== 'editTemplate'" />
-        <div>
+        <div class="pt-3">
           <v-alert
             v-if="alert"
             id="alert-in-note-modal"
@@ -61,7 +59,7 @@
             type="text"
             variant="outlined"
             @input="setSubjectPerEvent"
-            @keydown.esc="cancelRequested"
+            @keydown.esc="discardRequested"
           />
           <div id="note-details">
             <RichTextEditor
@@ -89,9 +87,8 @@
             <AdvisingNoteAttachments :add-attachments="addNoteAttachments" />
           </div>
         </div>
-        <hr class="mt-0" />
         <CreateNoteFooter
-          :cancel="cancelRequested"
+          :discard="discardRequested"
           :exit="exit"
           :save-as-template="saveAsTemplate"
           :show-alert="showAlert"
@@ -233,7 +230,7 @@ const addNoteAttachments = attachments => {
   })
 }
 
-const cancelRequested = () => {
+const discardRequested = () => {
   if (mode.value === 'editTemplate') {
     const indexOf = noteTemplates.value.findIndex(t => t.id === model.value.id)
     const template = noteTemplates[indexOf]
@@ -326,7 +323,7 @@ const dismissAlert = seconds => {
 
 const exit = revert => {
   alert.value = dismissAlertSeconds.value = undefined
-  noteStore.showCreateTemplateModal = noteStore.showDiscardNoteModal = noteStore.showDiscardTemplateModal = false
+  showCreateTemplateModal.value = showDiscardNoteModal.value = showDiscardTemplateModal.value = false
   dialogModel.value = null
   return exitSession(revert).then(props.onClose)
 }
