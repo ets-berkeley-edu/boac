@@ -141,7 +141,7 @@
             <div v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)">
               <v-btn
                 :id="`edit-note-${message.id}-button`"
-                :disabled="disableNewNoteButton"
+                :disabled="useNoteStore().disableNewNoteButton"
                 variant="text"
                 class="p-0 edit-note-button"
                 @keypress.enter.stop="editNote(message)"
@@ -155,7 +155,7 @@
             >
               <v-btn
                 :id="`delete-note-button-${message.id}`"
-                :disabled="disableNewNoteButton"
+                :disabled="useNoteStore().disableNewNoteButton"
                 variant="text"
                 class="p-0 edit-note-button"
                 @keydown.enter.stop="onClickDeleteNote(message)"
@@ -357,6 +357,7 @@ import {
   mdiPaperclip,
   mdiSync
 } from '@mdi/js'
+import {useNoteStore} from '@/stores/note-edit-session/index'
 </script>
 
 <script>
