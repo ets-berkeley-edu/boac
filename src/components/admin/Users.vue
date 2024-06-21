@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container fluid class="mb-2">
+    <v-container fluid>
       <v-row align-v="center" no-gutters>
         <v-col cols="2" class="pr-2">
           <div class="custom-select-container">
@@ -172,7 +172,7 @@
         />
       </template>
 
-      <template #item.name="{ item }">
+      <template #item.lastName="{ item }">
         <div v-if="!item.name">
           <span class="faint-text">(Name unavailable)</span>
         </div>
@@ -191,8 +191,14 @@
 
       <template #item.departments="{ item }">
         <div v-for="(department, index) in item.departments" :key="department.code">
-          {{ department.name }} - {{ department.role }}
+          <span class="green-bold-text">{{ department.name }}</span> - {{ department.role }}
           <div v-if="index !== item.departments.length - 1"></div>
+        </div>
+        <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="gray-text">
+          <span class="bold-text">Degree Progress - </span>
+          <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress"> read/write</span>
+          <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress"> read</span>
+          <span v-if="item.automateDegreeProgressPermission"> (automated)</span>
         </div>
       </template>
 
@@ -350,7 +356,7 @@ export default {
         title: 'UID',
         key: 'uid',
         align: 'start',
-        sortable: true,
+        sortable: false,
         headerProps: {
           class: ['header-text-styling']
         },
@@ -365,8 +371,8 @@ export default {
         },
       },
       {
-        title: 'Name',
-        key: 'name',
+        title: 'Last Name',
+        key: 'lastName',
         align: 'start',
         sortable: true,
         headerProps: {
@@ -380,7 +386,7 @@ export default {
         title: 'Departments',
         key: 'departments',
         align: 'start',
-        sortable: true,
+        sortable: false,
         headerProps: {
           class: ['header-text-styling']
         },
@@ -389,7 +395,7 @@ export default {
         title: 'Status',
         key: 'deletedAt',
         align: 'start',
-        sortable: true,
+        sortable: false,
         headerProps: {
           class: ['header-text-styling']
         },
@@ -417,18 +423,6 @@ export default {
       }
     ]
   }),
-  computed: {
-    sortedUsers() {
-      if (!this.sortBy) return this.users
-
-      return [...this.users].sort((a, b) => {
-        let result = 0
-        if (a[this.sortBy] < b[this.sortBy]) result = -1
-        if (a[this.sortBy] > b[this.sortBy]) result = 1
-        return this.sortDesc ? -result : result
-      })
-    },
-  },
   watch: {
     refresh(value) {
       if (value) {
@@ -451,9 +445,9 @@ export default {
     this.usersProvider()
   },
   methods: {
-    handleSort(sortBy, sortDesc) {
-      this.sortBy = sortBy
-      this.sortDesc = sortDesc
+    handleSort(sortBy) {
+      this.sortBy = sortBy[0].key
+      this.sortDesc = sortBy[0].order === 'asc' ? false : true
       this.usersProvider() // Method to fetch users with new sorting parameters
     },
     clickColumn(slotData) {
@@ -680,5 +674,30 @@ export default {
 .custom-select:disabled {
   background-color: #e9ecef;
   color: #6c757d;
+}
+
+.gray-text {
+  color: gray;
+}
+
+.green-bold-text {
+  color: green;
+  font-weight: 900;
+}
+
+.bold-text {
+  font-weight: 900;
+}
+
+.v-table tbody tr:nth-child(odd) {
+      background-color: rgba(0, 0, 0, .05);
+}
+
+.v-table tbody tr:nth-child(even) {
+      background-color: white;
+}
+
+.v-table tbody tr {
+  padding: 4px 0px;
 }
 </style>
