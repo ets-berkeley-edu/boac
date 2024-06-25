@@ -33,19 +33,23 @@
 </template>
 
 <script setup>
-import {computed} from 'vue'
+import {computed, onMounted} from 'vue'
 import {filter as _filter, find, flatten, map} from 'lodash'
 import {getUsersWithCohorts} from '@/api/cohort'
 import {mdiStar} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 
+const contextStore = useContextStore()
 let includesAdmittedStudents = undefined
-const loading = computed(() => useContextStore().loading)
+const loading = computed(() => contextStore.loading)
 let rows = []
 
-getUsersWithCohorts().then(data => {
-  rows = _filter(data, row => row.cohorts.length)
-  includesAdmittedStudents = find(flatten(map(rows, 'cohorts')), g => g.domain === 'admitted_students')
-  useContextStore().loadingComplete('Everyone\'s Cohorts loaded')
+onMounted(() => {
+  contextStore.loadingStart()
+  getUsersWithCohorts().then(data => {
+    rows = _filter(data, row => row.cohorts.length)
+    includesAdmittedStudents = find(flatten(map(rows, 'cohorts')), g => g.domain === 'admitted_students')
+    contextStore.loadingComplete('Everyone\'s Cohorts loaded')
+  })
 })
 </script>

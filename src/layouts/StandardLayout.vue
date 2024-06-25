@@ -2,7 +2,7 @@
   <v-fade-transition>
     <v-app>
       <a id="skip-to-content-link" href="#content" class="sr-only">Skip to main content</a>
-      <v-layout :key="$vuetify.display.mdAndUp">
+      <v-layout>
         <v-app-bar
           color="primary"
           elevation="0"

@@ -57,7 +57,7 @@ import {exitSession} from '@/stores/note-edit-session/utils'
 import {each, find, get, noop} from 'lodash'
 import {getStudentByUid} from '@/api/student'
 import {onBeforeRouteLeave, useRoute} from 'vue-router'
-import {computed, reactive, ref} from 'vue'
+import {computed, onMounted, reactive, ref} from 'vue'
 import {setWaitlistedStatus} from '@/berkeley'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {useContextStore} from '@/stores/context'
@@ -75,39 +75,42 @@ let student
 // In demo-mode we do not want to expose UID in browser location bar.
 const uid = currentUser.inDemoMode ? window.atob(route.params.uid) : route.params.uid
 
-getStudentByUid(uid).then(data => {
-  student = data
-  setPageTitle(currentUser.inDemoMode ? 'Student' : student.name)
-  each(student.enrollmentTerms, term => {
-    each(term.enrollments, course => {
-      const canAccessCanvasData = currentUser.canAccessCanvasData
-      setWaitlistedStatus(course)
-      each(course.sections, function(section) {
-        course.isOpen = false
-        section.displayName = section.component + ' ' + section.sectionNumber
-        section.isViewableOnCoursePage = section.primary && canAccessCanvasData
+onMounted(() => {
+  contextStore.loadingStart()
+  getStudentByUid(uid).then(data => {
+    student = data
+    setPageTitle(currentUser.inDemoMode ? 'Student' : student.name)
+    each(student.enrollmentTerms, term => {
+      each(term.enrollments, course => {
+        const canAccessCanvasData = currentUser.canAccessCanvasData
+        setWaitlistedStatus(course)
+        each(course.sections, function(section) {
+          course.isOpen = false
+          section.displayName = section.component + ' ' + section.sectionNumber
+          section.isViewableOnCoursePage = section.primary && canAccessCanvasData
+        })
       })
+      if (get(term, 'termGpa.unitsTakenForGpa')) {
+        student.termGpa = student.termGpa || []
+        student.termGpa.push({
+          name: get(term, 'termName'),
+          gpa: get(term, 'termGpa.gpa')
+        })
+      }
     })
-    if (get(term, 'termGpa.unitsTakenForGpa')) {
-      student.termGpa = student.termGpa || []
-      student.termGpa.push({
-        name: get(term, 'termName'),
-        gpa: get(term, 'termGpa.gpa')
-      })
+    const currentDegreeCheck = find(student.degreeChecks, 'isCurrent')
+    if (currentDegreeCheck) {
+      degreeCheckPath = `/student/degree/${currentDegreeCheck.id}`
+    } else if (currentUser.canEditDegreeProgress) {
+      degreeCheckPath = `${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`
+    } else {
+      degreeCheckPath = `${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/history`
+    }
+    contextStore.loadingComplete(`${student.name} loaded`)
+    if (!location.hash) {
+      scrollToTop()
     }
   })
-  const currentDegreeCheck = find(student.degreeChecks, 'isCurrent')
-  if (currentDegreeCheck) {
-    degreeCheckPath = `/student/degree/${currentDegreeCheck.id}`
-  } else if (currentUser.canEditDegreeProgress) {
-    degreeCheckPath = `${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`
-  } else {
-    degreeCheckPath = `${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/history`
-  }
-  contextStore.loadingComplete(`${student.name} loaded`)
-  if (!location.hash) {
-    scrollToTop()
-  }
 })
 
 onBeforeRouteLeave((to, from, next) => {

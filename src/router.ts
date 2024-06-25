@@ -285,7 +285,6 @@ router.afterEach((to: any, from: any) => {
   if (!samePageLink) {
     const context = useContextStore()
     context.resetApplicationState()
-    context.loadingStart(to)
     const pageTitle = get(to, 'name')
     document.title = `${pageTitle || 'Welcome'} | BOA`
   }
