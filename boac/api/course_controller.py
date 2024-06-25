@@ -42,11 +42,9 @@ def get_section(term_id, section_id):
     if not current_user.can_access_canvas_data:
         raise ForbiddenRequestError('Unauthorized to view course data')
     offset = util.get(request.args, 'offset', None)
-    if offset:
-        offset = int(offset)
+    offset = offset and int(offset)
     limit = util.get(request.args, 'limit', None)
-    if limit:
-        limit = int(limit)
+    limit = limit and int(limit)
     featured = util.get(request.args, 'featured', None)
     section = get_sis_section(term_id, section_id)
     if not section:

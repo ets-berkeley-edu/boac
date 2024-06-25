@@ -1,7 +1,7 @@
 import axios from 'axios'
 import utils from '@/api/api-utils'
 
-export function getSection(termId: number, sectionId: number, offset: number, limit: number, featured: boolean) {
+export function getSection(termId: number, sectionId: number, offset: number, limit: number, featured: string) {
   const params: string[] = []
   if (offset || limit) {
     params.push('offset=' + (offset || 0) + '&limit=' + (limit || 50))

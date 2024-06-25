@@ -117,7 +117,8 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
         limit=limit,
     )
     sids = [str(r['sid']) for r in enrollment_rows]
-    if offset or len(sids) >= 50:
+    limit = limit or 50
+    if offset or len(sids) >= limit:
         count_result = data_loch.get_sis_section_enrollments_count(term_id, section_id)
         total_student_count = count_result[0]['count']
     else:

@@ -5,6 +5,7 @@ import {alertScreenReader} from '@/lib/utils'
 import {defineStore} from 'pinia'
 import {nextTick} from 'vue'
 import vuetify from '@/plugins/vuetify'
+import {useRoute} from 'vue-router'
 
 const $_getDefaultApplicationState = () => ({
   message: undefined,
@@ -102,10 +103,10 @@ export const useContextStore = defineStore('context', {
         const job = setInterval(() => (callable() || ++counter > 3) && clearInterval(job), 500)
       }).then(noop)
     },
-    loadingStart(route?: string|Object) {
+    loadingStart() {
       this.loading = true
       this.loadingStartTime = new Date().getTime()
-      alertScreenReader(`${String(get(route, 'name', ''))} page is loading`)
+      alertScreenReader(`${String(get(useRoute().name, 'name', ''))} page is loading`)
     },
     removeEventHandler(type, handler) {
       this.eventHub.off(type, handler)
