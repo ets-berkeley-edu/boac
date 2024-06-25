@@ -106,6 +106,7 @@ export default {
     student: undefined
   }),
   created() {
+    this.loadingStart()
     this.onResize()
     window.addEventListener('resize', this.onResize)
     window.addEventListener('scroll', this.onResize)

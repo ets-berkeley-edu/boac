@@ -104,6 +104,7 @@ export default {
     student: undefined
   }),
   created() {
+    this.loadingStart()
     let uid = this._get(this.$route, 'params.uid')
     if (this.currentUser.inDemoMode) {
       // In demo-mode we do not want to expose UID in browser location bar.

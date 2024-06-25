@@ -132,6 +132,14 @@ export default {
       this.context.setEventHandler(`${newVal === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, this.onChangeSortBy)
     }
   },
+  created() {
+    this.loadingStart()
+    this.cohort = useCohortStore()
+    this.context = useContextStore()
+    this.context.setEventHandler(`${this.sortByKey}-user-preference-change`, this.onChangeSortBy)
+    this.context.setEventHandler('cohort-apply-filters', this.resetPagination)
+    this.context.setEventHandler('termId-user-preference-change', this.onChangeTerm)
+  },
   mounted() {
     const forwardPath = window.history.state.forward
     const continueExistingSession = (startsWith(forwardPath, '/student') || startsWith(forwardPath, '/admit/student')) && size(this.cohort.filters)
@@ -152,13 +160,6 @@ export default {
         putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
       })
     }
-  },
-  created() {
-    this.cohort = useCohortStore()
-    this.context = useContextStore()
-    this.context.setEventHandler(`${this.sortByKey}-user-preference-change`, this.onChangeSortBy)
-    this.context.setEventHandler('cohort-apply-filters', this.resetPagination)
-    this.context.setEventHandler('termId-user-preference-change', this.onChangeTerm)
   },
   unmounted() {
     this.context.removeEventHandler('admitSortBy-user-preference-change', this.onChangeSortBy)

@@ -135,6 +135,7 @@ export default {
     }
   },
   created() {
+    this.loadingStart()
     const curatedGroupId = toInt(get(useRoute(), 'params.id'))
     useCuratedGroupStore().resetMode()
     useCuratedGroupStore().setCuratedGroupId(parseInt(curatedGroupId))

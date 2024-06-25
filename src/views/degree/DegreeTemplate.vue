@@ -45,6 +45,7 @@ export default {
   },
   mixins: [Context, DegreeEditSession, Util],
   mounted() {
+    this.loadingStart()
     const id = this.toInt(this._get(this.$route, 'params.id'))
     refreshDegreeTemplate(id).then(() => {
       if (this.sid) {

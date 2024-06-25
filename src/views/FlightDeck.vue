@@ -1,11 +1,11 @@
 <template>
-  <div v-if="!loading" class="default-margins">
+  <div class="default-margins">
     <div class="align-items-center d-flex pb-3">
       <div class="pr-3 pt-1">
         <v-icon :icon="mdiAirplaneTakeoff" :style="{color: '#3b7ea5'}" size="x-large"></v-icon>
       </div>
       <div class="pt-2">
-        <h1 class="page-section-header">BOA v{{ boa.version }} Flight Deck</h1>
+        <h1 class="page-section-header">BOA v{{ BOA.version }} Flight Deck</h1>
       </div>
     </div>
     <div v-if="config.isDemoModeAvailable">
@@ -26,24 +26,24 @@
       <div class="pb-3 pt-3">
         <h2 class="mb-0 page-section-header-sub">Application Profile</h2>
       </div>
-      <ul v-if="boa.build" class="ml-6">
-        <li>Artifact: {{ boa.build.artifact || '&mdash;' }}</li>
-        <li v-if="boa.build.gitCommit">Git commit: <a :href="`https://github.com/ets-berkeley-edu/boac/commit/${boa.build.gitCommit}`">{{ boa.build.gitCommit }}</a></li>
+      <ul v-if="BOA.build" class="ml-6">
+        <li>Artifact: {{ BOA.build.artifact || '&mdash;' }}</li>
+        <li v-if="BOA.build.gitCommit">Git commit: <a :href="`https://github.com/ets-berkeley-edu/boac/commit/${BOA.build.gitCommit}`">{{ meta.build.gitCommit }}</a></li>
       </ul>
     </div>
     <div class="pl-3">
       <div class="align-items-center d-flex">
         <div class="pb-1 pl-2">
           [<v-btn
-            id="flight-deck-show-hide-configs"
+            id="flight-deck-show-hide-config"
             class="m-0 p-0"
             :class="{'collapsed': showConfigs}"
-            aria-controls="collapse-configs"
+            aria-controls="collapse-config"
             variant="flat"
             @click="showConfigs = !showConfigs"
           >
             <div class="pb-1">
-              {{ showConfigs ? 'Hide' : 'Show' }} configs
+              {{ showConfigs ? 'Hide' : 'Show' }} config
             </div>
           </v-btn>]
         </div>
@@ -51,7 +51,7 @@
       <v-table v-show="showConfigs">
         <tbody>
           <tr
-            v-for="item in configs"
+            v-for="item in config"
             :key="item.key"
           >
             <td>{{ item.key }}</td>
@@ -64,39 +64,18 @@
 </template>
 
 <script setup>
-import {mdiAirplaneTakeoff} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement'
 import ManageTopics from '@/components/topics/ManageTopics'
-import Util from '@/mixins/Util'
 import {getVersion} from '@/api/config'
+import {mdiAirplaneTakeoff} from '@mdi/js'
+import {onMounted, ref} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'Admin',
-  components: {
-    DemoModeToggle,
-    EditServiceAnnouncement,
-    ManageTopics
-  },
-  mixins: [Context, Util],
-  data: () => ({
-    boa: undefined,
-    configs: undefined,
-    showConfigs: false
-  }),
-  mounted() {
-    this.configs = []
-    this._each(this.config, (value, key) => {
-      this.configs.push({key, value})
-    })
-    getVersion().then(data => {
-      this.boa = data
-      this.loadingComplete('Flight Deck has loaded')
-    })
-  }
-}
+let BOA = {}
+const contextStore = useContextStore()
+const config = contextStore.config
+const showConfigs = ref(false)
+
+onMounted(() => getVersion().then(data => BOA = data))
 </script>

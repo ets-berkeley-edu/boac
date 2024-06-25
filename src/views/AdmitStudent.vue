@@ -317,6 +317,7 @@ export default {
     }
   },
   created() {
+    this.loadingStart()
     this.now = DateTime.now()
     let sid = this._get(this.$route, 'params.sid')
     if (this.currentUser.inDemoMode) {

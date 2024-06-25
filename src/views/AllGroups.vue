@@ -43,6 +43,7 @@ const contextStore = useContextStore()
 const loading = computed(() => contextStore.loading)
 let rows
 
+contextStore.loadingStart()
 getUsersWithCuratedGroups().then(data => {
   rows = filter(data, row => row.groups.length)
   contextStore.loadingComplete('Everyone\'s Groups has loaded')

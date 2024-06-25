@@ -21,15 +21,9 @@ import cloudBackground from '@/assets/404-cloud-background.jpg'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
+import {alertScreenReader} from '@/lib/utils'
 
-export default {
-  name: 'NotFound',
-  mixins: [Context],
-  created() {
-    this.loadingComplete('Page not found')
-  }
-}
+alertScreenReader('Page not found')
 </script>
 
 <style scoped>

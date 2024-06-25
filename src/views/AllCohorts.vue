@@ -40,8 +40,8 @@ import {mdiStar} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
-let includesAdmittedStudents = undefined
 const loading = computed(() => contextStore.loading)
+let includesAdmittedStudents = undefined
 let rows = []
 
 onMounted(() => {

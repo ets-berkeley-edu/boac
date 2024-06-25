@@ -149,7 +149,10 @@ const selectedNote = ref(undefined)
 
 const reloadDraftNotes = () => getMyDraftNotes().then(data => myDraftNotes.value = data)
 
-onMounted(() => reloadDraftNotes().then(() => contextStore.loadingComplete('Draft notes list is ready.')))
+onMounted(() => {
+  contextStore.loadingStart()
+  reloadDraftNotes().then(() => contextStore.loadingComplete('Draft notes list is ready.'))
+})
 
 const afterEditDraft = data => {
   const existing = find(myDraftNotes.value, ['id', data.id])
