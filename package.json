@@ -17,8 +17,6 @@
     "@popperjs/core": "2.11.8",
     "axios": "1.7.2",
     "core-js": "3.37.1",
-    "focus-trap": "7.5.4",
-    "focus-trap-vue": "4.0.3",
     "highcharts": "9.3.3",
     "js-file-download": "0.4.12",
     "lodash": "4.17.21",

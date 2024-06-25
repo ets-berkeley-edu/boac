@@ -12,7 +12,6 @@ import {DatePicker, setupCalendar} from 'v-calendar'
 import {createApp} from 'vue'
 import {createPinia} from 'pinia'
 import {DateTime} from 'luxon'
-import {FocusTrap} from 'focus-trap-vue'
 import {get, trim} from 'lodash'
 import {getServiceAnnouncement} from '@/api/config'
 import {initializeAxios} from './main-utils'
@@ -25,7 +24,6 @@ const app = createApp(App)
   .use(setupCalendar, {})
   .use(VueHighcharts, {Highcharts})
   .use(vuetify)
-  .component('focus-trap', FocusTrap)
   .component('DatePicker', DatePicker)
   .directive('accessibleGrade', {
     beforeMount(el, binding) {
