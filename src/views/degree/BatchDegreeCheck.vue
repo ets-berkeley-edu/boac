@@ -8,7 +8,7 @@
         </div>
       </router-link>
     </div>
-    <div v-if="!loading">
+    <div>
       <div aria-live="polite" class="font-italic font-size-14 student-count-alerts" role="alert">
         <span
           v-if="!_isEmpty(sidsToInclude)"
@@ -217,7 +217,6 @@ export default {
     }
   },
   mounted() {
-    this.loadingComplete()
     alertScreenReader('Batch degree checks loaded')
   },
   methods: {

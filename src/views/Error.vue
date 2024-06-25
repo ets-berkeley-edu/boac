@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading" class="default-margins">
+  <div class="default-margins">
     <h1 class="page-section-header">{{ title }}</h1>
     <div
       id="error-message"
@@ -15,23 +15,16 @@
   </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
+<script setup>
+import {capitalize} from 'lodash'
+import {useContextStore} from '@/stores/context'
+import {useRoute} from 'vue-router'
 
-export default {
-  name: 'Error',
-  mixins: [Context, Util],
-  data: () => ({
-    errorStatus: undefined,
-    message: undefined,
-    title: undefined
-  }),
-  mounted() {
-    this.errorStatus = this.$route.query.s
-    this.message = this.$route.query.m || 'Uh oh, there was a problem.'
-    this.title = this.$route.query.t ? `Error: ${this._capitalize(this.$route.query.t)}` : 'Error'
-    this.loadingComplete(this.title)
-  }
-}
+const contextStore = useContextStore()
+const config = contextStore.config
+const route = useRoute()
+
+const errorStatus = route.query.s
+const message = route.query.m || 'Uh oh, there was a problem.'
+const title = route.query.t ? `Error: ${capitalize(route.query.t)}` : 'Error'
 </script>

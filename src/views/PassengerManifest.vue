@@ -49,6 +49,7 @@ export default {
     refreshUsers: false
   }),
   created() {
+    this.loadingStart()
     getDepartments(true).then(departments => {
       this.departments = departments
       this.loadingComplete()

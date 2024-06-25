@@ -131,15 +131,16 @@ export default {
     sorting: false,
     totalAdmitCount: undefined
   }),
+  created() {
+    this.loadingStart()
+    this.setEventHandler('admitSortBy-user-preference-change', this.onAdmitSortByUserPreferenceChange)
+  },
   mounted() {
     this.counter = this.toInt(this.$route.query._, 0)
     this.initPagination()
     this.loadAdmits()
   },
-  created() {
-    this.setEventHandler('admitSortBy-user-preference-change', this.onAdmitSortByUserPreferenceChange)
-  },
-  beforeDestroy() {
+  beforeUnmount() {
     this.removeEventHandler('admitSortBy-user-preference-change', this.onAdmitSortByUserPreferenceChange)
   },
   methods: {

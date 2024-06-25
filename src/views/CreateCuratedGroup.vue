@@ -39,7 +39,6 @@ export default {
   }),
   created() {
     this.domain = this.$route.query.domain || 'default'
-    this.loadingComplete()
   },
   methods: {
     bulkAddSids(sids) {

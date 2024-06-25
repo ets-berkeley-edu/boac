@@ -1,7 +1,7 @@
 <template>
   <div class="default-margins">
     <h1 class="sr-only">Welcome to BOA</h1>
-    <div v-if="!loading">
+    <div>
       <div class="mb-6">
         <div v-if="cohorts.length">
           <h2 class="page-section-header">
@@ -42,27 +42,17 @@
   </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
 import SortableGroup from '@/components/search/SortableGroup.vue'
-import Util from '@/mixins/Util.vue'
+import {filter as _filter} from 'lodash'
 import {scrollToTop} from '@/lib/utils'
+import {reactive} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'Home',
-  components: {SortableGroup},
-  mixins: [Context, Util],
-  computed: {
-    cohorts() {
-      return this._filter(this.currentUser.myCohorts, ['domain', 'default'])
-    },
-    curatedGroups() {
-      return this._filter(this.currentUser.myCuratedGroups, ['domain', 'default'])
-    },
-  },
-  mounted() {
-    this.loadingComplete()
-    scrollToTop()
-  }
-}
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
+const cohorts = reactive(_filter(currentUser.myCohorts, ['domain', 'default']))
+const curatedGroups = reactive(_filter(currentUser.myCuratedGroups, ['domain', 'default']))
+
+scrollToTop()
 </script>

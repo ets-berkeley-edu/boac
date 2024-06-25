@@ -248,6 +248,7 @@ export default {
     }
   },
   mounted() {
+    this.loadingStart()
     getDegreeTemplates().then(data => {
       this.degreeTemplates = data
       this.successMessage = this.$route.query.m

@@ -287,6 +287,7 @@ export default {
     }
   },
   mounted() {
+    this.loadingStart()
     // Update 'queryText' in Vuex store per 'q' arg. If arg is null then preserve existing 'queryText' value.
     this.queryText = this.$route.query.q || this.queryText
     // Take a snapshot of the submitted search phrase. The 'queryText' value (in store) may change.
