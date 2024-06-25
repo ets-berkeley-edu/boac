@@ -4,8 +4,9 @@
       class: 'pl-0 vertical-top',
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     }"
+    density="compact"
     :headers="headers"
-    :header-props="{class: 'pl-0'}"
+    :header-props="{class: 'float-bottom font-weight-bold pl-0'}"
     hover
     :items="section.students"
     mobile-breakpoint="md"
@@ -13,10 +14,30 @@
     @row-hovered="item => hoverSid.value === item.sid"
     @row-unhovered="() => hoverSid.value = null"
   >
+    <template #header.avatar>
+    </template>
+    <template #headers="{columns}">
+      <tr>
+        <template v-for="column in columns" :key="column.key">
+          <td v-if="column.key === 'avatar'" class="pl-2">
+            <CuratedGroupSelector
+              v-if="size(section.students)"
+              class="mb-2"
+              :context-description="`Course ${section.displayName}`"
+              domain="default"
+              :students="section.students"
+            />
+          </td>
+          <td v-if="column.key !== 'avatar'" class="pl-0">
+            <div>{{ column.title }}</div>
+          </td>
+        </template>
+      </tr>
+    </template>
     <template #item.avatar="{item}">
       <div class="align-center d-flex">
         <div class="px-2">
-          <CuratedStudentCheckbox domain="default" :student="item" />
+          <CuratedStudentCheckbox class="mb-8" domain="default" :student="item" />
         </div>
         <div class="mb-1 text-center">
           <StudentAvatar :key="item.sid" size="medium" :student="item" />
@@ -243,13 +264,14 @@
 </template>
 
 <script setup>
+import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
 import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDays} from '@/berkeley'
-import {get, map, uniq} from 'lodash'
+import {get, map, size, uniq} from 'lodash'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {mdiAlertRhombus, mdiSchool} from '@mdi/js'
 import {onMounted, ref} from 'vue'
@@ -274,18 +296,18 @@ const hoverSid = ref(undefined)
 
 onMounted(() => {
   const h = [
-    {key: 'avatar', label: ''},
-    {key: 'profile', label: ''},
-    {key: 'courseSites', label: 'Course Site(s)'},
-    {key: 'assignmentsSubmitted', label: 'Assignments Submitted'},
-    {key: 'assignmentGrades', label: 'Assignment Grades'}
+    {key: 'avatar'},
+    {key: 'profile'},
+    {key: 'courseSites', title: 'Course Site(s)'},
+    {key: 'assignmentsSubmitted', title: 'Assignments Submitted'},
+    {key: 'assignmentGrades', title: 'Assignment Grades'}
   ]
   if (contextStore.config.currentEnrollmentTermId === parseInt(props.section.termId)) {
-    h.push({key: 'bCourses', label: 'bCourses Activity'})
+    h.push({key: 'bCourses', title: 'bCourses Activity'})
   }
   headers.value = h.concat([
-    {key: 'midtermGrade', label: 'Mid'},
-    {key: 'finalGrade', label: 'Final', class: 'pr-3'}
+    {key: 'midtermGrade', title: 'Mid'},
+    {key: 'finalGrade', title: 'Final'}
   ])
   contextStore.loadingComplete()
 })
@@ -300,15 +322,7 @@ const degreePlanOwners = student => {
 .course-sites {
   border-left: 1px solid #ddd;
 }
-.course-list-view-column-profile button {
-  padding: 2px 0 0 5px;
-}
-.flex-col > div {
-  align-items: flex-start;
-  flex: 0 0 50px;
-}
 .student-name {
-  font-size: 16px;
   max-width: 150px;
 }
 </style>
