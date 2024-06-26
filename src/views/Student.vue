@@ -62,21 +62,24 @@ import {setWaitlistedStatus} from '@/berkeley'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {useContextStore} from '@/stores/context'
 
+const contextStore = useContextStore()
+const noteStore = useNoteStore()
+
+
 let cancelTheCancel = noop
 let cancelConfirmed = noop
-const contextStore = useContextStore()
 const currentUser = reactive(contextStore.currentUser)
 let degreeCheckPath
 const loading = computed(() => contextStore.loading)
-const noteStore = useNoteStore()
 const route = useRoute()
 const showAreYouSureModal = ref(false)
 let student
 // In demo-mode we do not want to expose UID in browser location bar.
 const uid = currentUser.inDemoMode ? window.atob(route.params.uid) : route.params.uid
 
+contextStore.loadingStart()
+
 onMounted(() => {
-  contextStore.loadingStart()
   getStudentByUid(uid).then(data => {
     student = data
     setPageTitle(currentUser.inDemoMode ? 'Student' : student.name)

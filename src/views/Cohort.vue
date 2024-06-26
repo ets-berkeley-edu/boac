@@ -133,9 +133,9 @@ export default {
     }
   },
   created() {
-    this.loadingStart()
-    this.cohort = useCohortStore()
     this.context = useContextStore()
+    this.context.loadingStart()
+    this.cohort = useCohortStore()
     this.context.setEventHandler(`${this.sortByKey}-user-preference-change`, this.onChangeSortBy)
     this.context.setEventHandler('cohort-apply-filters', this.resetPagination)
     this.context.setEventHandler('termId-user-preference-change', this.onChangeTerm)

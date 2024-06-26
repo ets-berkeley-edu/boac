@@ -73,7 +73,7 @@ const selected = ref(null)
 const topicOptions = ref([])
 const selectedTopics = ref(noteStore.model.topics)
 
-watch(selected, async (value) => noteStore.addTopic(value))
+watch(selected, async value => value && noteStore.addTopic(value))
 
 getTopicsForNotes(false).then(rows => {
   each(rows, row => {

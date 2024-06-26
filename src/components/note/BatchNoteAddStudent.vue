@@ -20,7 +20,7 @@
         class="autocomplete-students autocomplete-with-add-button"
         :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
         density="comfortable"
-        :disabled="disabled"
+        :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
         :error-messages="autocompleteErrorMessage"
         :hide-details="!size(autocompleteErrorMessage)"
         :hide-no-data="size(autoSuggestedStudents) < 3"
@@ -58,8 +58,8 @@
         :close-label="`Remove ${addedStudent.label} from batch note`"
         density="comfortable"
         variant="outlined"
-        @click:close="remove(addedStudent)"
-        @keyup.enter="remove(addedStudent)"
+        @click:close="removeStudent(addedStudent)"
+        @keyup.enter="removeStudent(addedStudent)"
       >
         <span class="truncate-with-ellipsis">{{ addedStudent.label }}</span>
         <template #close>
@@ -71,10 +71,7 @@
 </template>
 
 <script setup>
-import {mdiCloseCircle, mdiPlus} from '@mdi/js'
-</script>
-
-<script>
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {
   differenceWith,
   each,
@@ -92,135 +89,129 @@ import {
   without
 } from 'lodash'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {mdiCloseCircle, mdiPlus} from '@mdi/js'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {onMounted, ref} from 'vue'
 
-export default {
-  name: 'BatchNoteAddStudent',
-  props: {
-    onEscFormInput: {
-      default: () => {},
-      required: false,
-      type: Function
-    }
-  },
-  data: () => ({
-    addedStudents: [],
-    autocompleteErrorMessage: undefined,
-    autocompleteModel: undefined,
-    autoSuggestedStudents: [],
-    isUpdatingStudentAutocomplete: false,
-    magicNumber: 15,
-    query: undefined,
-    showWarning: false,
-    sidsManuallyAdded: [],
-    warning: undefined,
-    vAutocompleteKey: new Date()
-  }),
-  computed: {
-    disabled() {
-      return useNoteStore().isSaving || useNoteStore().boaSessionExpired
-    }
-  },
-  mounted() {
-    if (useNoteStore().recipients.sids.length) {
-      getStudentsBySids(useNoteStore().recipients.sids).then(students => {
-        each(students, student => {
-          this.onUpdateModel(student.sid)
+defineProps({
+  onEscFormInput: {
+    default: () => {},
+    required: false,
+    type: Function
+  }
+})
+
+const noteStore = useNoteStore()
+
+const autocompleteErrorMessage = ref(undefined)
+const addedStudents = ref([])
+const autoSuggestedStudents = ref([])
+const isUpdatingStudentAutocomplete = ref(false)
+const query = ref(undefined)
+const sidsManuallyAdded = ref([])
+const vAutocompleteKey = ref(new Date())
+
+const resetAutocomplete = () => {
+  autoSuggestedStudents.value = []
+  isUpdatingStudentAutocomplete.value = false
+  query.value = undefined
+  sidsManuallyAdded.value = []
+  vAutocompleteKey.value = new Date()
+}
+
+const onUpdateModel = sid => {
+  const student = sid ? find(autoSuggestedStudents.value, ['sid', sid]) : null
+  if (student && !noteStore.recipients.sids.includes(student.sid)) {
+    noteStore.setIsRecalculating(true)
+    addedStudents.value.push(student)
+    setNoteRecipient(sid).then(() => {
+      alertScreenReader(`${student.label} added to batch note`)
+      resetAutocomplete()
+    })
+  } else {
+    resetAutocomplete()
+  }
+}
+
+onMounted(() => {
+  const sids = noteStore.recipients.sids
+  if (sids.length) {
+    getStudentsBySids(sids).then(students => each(students, s => onUpdateModel(s.sid)))
+  }
+})
+
+const onClickAddButton = () => {
+  const sids = sidsManuallyAdded.value
+  if (sids.length) {
+    return getStudentsBySids(sids).then(data => {
+      noteStore.setIsRecalculating(true)
+      const sidsToAdd = []
+      each(data, student => {
+        addedStudents.value.push(student)
+        sidsToAdd.push(student.sid)
+        remove(sids, s => s === student.sid)
+      })
+      const recipients = noteStore.recipients
+      setNoteRecipients(
+        recipients.cohorts,
+        recipients.curatedGroups,
+        uniq(recipients.sids.concat(sidsToAdd))
+      ).then(() => {
+        alertScreenReader(`${sidsToAdd.length} students added to batch note`)
+        const sidsNotFound = differenceWith(sids, sidsToAdd, isEqual)
+        // eslint-disable-next-line no-console
+        console.log(`sidsNotFound: ${sidsNotFound}`)
+        if (sidsNotFound.length) {
+          const suffix = sidsNotFound.length === 1 ? '' : 's'
+          autocompleteErrorMessage.value = `No student${suffix} found with SID${suffix} ${join(sidsNotFound)}.`
+        }
+        resetAutocomplete()
+        putFocusNextTick('create-note-add-student-input')
+      })
+    })
+  } else {
+    resetAutocomplete()
+    return Promise.resolve()
+  }
+}
+
+const onUpdateSearch = input => {
+  autocompleteErrorMessage.value = undefined
+  input = trim(input, ' ,\n\t')
+  if (input.length) {
+    sidsManuallyAdded.value = /^[0-9,\s]*$/.test(input) ? uniq(split(input, /\s+|,+,/)) : []
+    if (!sidsManuallyAdded.value.length) {
+      query.value = input.replace((/\s+|\r\n|\n|\r/gm),' ')
+      isUpdatingStudentAutocomplete.value = true
+      if (size(query.value) > 1) {
+        findStudentsByNameOrSid(query.value, 20).then(students => {
+          const existingSids = map(addedStudents.value, 'sid')
+          students = filter(students, s => !includes(existingSids, s.sid))
+          autoSuggestedStudents.value = map(students, s => ({label: s.label, sid: s.sid}))
+          isUpdatingStudentAutocomplete.value = false
         })
+      }
+    }
+  }
+}
+
+const removeStudent = student => {
+  if (student) {
+    const index = findIndex(addedStudents.value, {'sid': student.sid})
+    addedStudents.value.splice(index, 1)
+    const recipients = noteStore.recipients
+    if (recipients.sids.includes(student.sid)) {
+      setNoteRecipients(
+        recipients.cohorts,
+        recipients.curatedGroups,
+        without(recipients.sids, student.sid)
+      ).then(() => {
+        putFocusNextTick('create-note-add-student-input')
       })
     }
-  },
-  methods: {
-    onClickAddButton() {
-      if (this.sidsManuallyAdded) {
-        return getStudentsBySids(this.sidsManuallyAdded).then(data => {
-          useNoteStore().setIsRecalculating(true)
-          const sidList = []
-          each(data, student => {
-            this.addedStudents.push(student)
-            sidList.push(student.sid)
-            remove(this.sidsManuallyAdded, s => s === student.sid)
-          })
-          setNoteRecipients(
-            useNoteStore().recipients.cohorts,
-            useNoteStore().recipients.curatedGroups,
-            uniq(useNoteStore().recipients.sids.concat(sidList))
-          ).then(() => {
-            alertScreenReader(`${sidList.length} students added to batch note`)
-            const sidsNotFound = differenceWith(this.sidsManuallyAdded, sidList, isEqual)
-            // eslint-disable-next-line no-console
-            console.log(`sidsNotFound: ${sidsNotFound}`)
-            if (sidsNotFound.length) {
-              const suffix = sidsNotFound.length === 1 ? '' : 's'
-              this.autocompleteErrorMessage = `No student${suffix} found with SID${suffix} ${join(sidsNotFound)}.`
-            }
-            this.resetAutocomplete()
-            putFocusNextTick('create-note-add-student-input')
-          })
-        })
-      } else {
-        this.resetAutocomplete()
-        return Promise.resolve()
-      }
-    },
-    onUpdateModel(sid) {
-      const student = sid ? find(this.autoSuggestedStudents, ['sid', sid]) : null
-      if (student && !useNoteStore().recipients.sids.includes(student.sid)) {
-        useNoteStore().setIsRecalculating(true)
-        this.addedStudents.push(student)
-        setNoteRecipient(sid).then(() => {
-          alertScreenReader(`${student.label} added to batch note`)
-          this.resetAutocomplete()
-        })
-      } else {
-        this.resetAutocomplete()
-      }
-    },
-    onUpdateSearch(input) {
-      this.autocompleteErrorMessage = undefined
-      input = trim(input, ' ,\n\t')
-      if (input.length) {
-        this.sidsManuallyAdded = /^[0-9,\s]*$/.test(input) ? uniq(split(input, /\s+|,+,/)) : []
-        if (!this.sidsManuallyAdded.length) {
-          this.query = input.replace((/\s+|\r\n|\n|\r/gm),' ')
-          this.isUpdatingStudentAutocomplete = true
-          if (size(this.query) > 1) {
-            findStudentsByNameOrSid(this.query, 20).then(students => {
-              const existingSids = map(this.addedStudents, 'sid')
-              students = filter(students, s => !includes(existingSids, s.sid))
-              this.autoSuggestedStudents = map(students, s => ({label: s.label, sid: s.sid}))
-              this.isUpdatingStudentAutocomplete = false
-            })
-          }
-        }
-      }
-    },
-    remove(student) {
-      if (student) {
-        const index = findIndex(this.addedStudents, {'sid': student.sid})
-        this.addedStudents.splice(index, 1)
-        if (useNoteStore().recipients.sids.includes(student.sid)) {
-          setNoteRecipients(
-            useNoteStore().recipients.cohorts,
-            useNoteStore().recipients.curatedGroups,
-            without(useNoteStore().recipients.sids, student.sid)
-          ).then(() => {
-            putFocusNextTick('create-note-add-student-input')
-          })
-        }
-        alertScreenReader(`${student.label} removed from batch note`)
-      }
-    },
-    resetAutocomplete() {
-      this.autoSuggestedStudents = []
-      this.isUpdatingStudentAutocomplete = false
-      this.query = undefined
-      this.sidsManuallyAdded = []
-      this.vAutocompleteKey = new Date()
-    }
+    alertScreenReader(`${student.label} removed from batch note`)
   }
 }
 </script>
@@ -232,14 +223,14 @@ export default {
 </style>
 
 <style scoped>
-autocomplete-students {
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 0;
-}
 .add-button {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
   height: 48px !important;
+}
+.autocomplete-students {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
 }
 </style>
 

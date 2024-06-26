@@ -11,7 +11,7 @@
         <ModalHeader class="ml-2 mt-2" :text="modalHeader" />
       </v-card-title>
       <v-card-text class="py-2">
-        {{ text }}
+        <span v-html="text" />
         <slot />
       </v-card-text>
       <v-card-actions class="float-right pb-5 pr-6">
