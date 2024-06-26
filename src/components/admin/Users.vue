@@ -29,6 +29,7 @@
             :compact="true"
             :disabled="isBusy"
             :fetch="userAutocomplete"
+            :showNoData="true"
             option-label-key="label"
             option-value-key="uid"
             placeholder="Enter name..."
@@ -95,8 +96,8 @@
         <v-btn
           id="quick-link-directors"
           :disabled="isBusy"
-          class="pl-2 pr-2 pb-3"
-          variant="link"
+          class="pl-2 pr-2 pb-3 text-primary"
+          variant="text"
           @click="quickLink('advisor', 'ZCEEE')"
         >
           CE3
@@ -109,8 +110,9 @@
         <v-btn
           id="quick-link-coe-advisors"
           :disabled="isBusy"
-          class="pl-2 pr-2 pb-3"
-          variant="link"
+          class="pl-2 pr-2 pb-3 text-primary"
+          color="	#0096FF"
+          variant="text"
           @click="quickLink('advisor', 'COENG')"
         >
           College of Engineering
@@ -123,8 +125,8 @@
         <v-btn
           id="quick-link-qcadv-advisors"
           :disabled="isBusy"
-          class="pl-2 pr-2 pb-3"
-          variant="link"
+          class="pl-2 pr-2 pb-3 text-primary"
+          variant="text"
           @click="quickLink('advisor', 'QCADV')"
         >
           L&amp;S Advisors
@@ -232,7 +234,7 @@
           variant="plain"
           @click="become(item.uid)"
         >
-          <v-icon :icon="mdiLoginVariant"></v-icon>
+          <v-icon color="primary" :icon="mdiLoginVariant"></v-icon>
           <span class="sr-only">Log in as {{ item.name }}</span>
         </v-btn>
       </template>
@@ -699,5 +701,9 @@ export default {
 
 .v-table tbody tr {
   padding: 4px 0px;
+}
+
+.v-data-table__td--expanded-row {
+  color: #337ab7;
 }
 </style>
