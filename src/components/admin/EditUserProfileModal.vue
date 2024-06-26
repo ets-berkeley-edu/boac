@@ -13,8 +13,8 @@
     <v-btn
       v-if="!isExistingUser"
       id="add-new-user-btn"
-      class="pl-1 pr-1 mr-4"
-      variant="link"
+      class="pl-2 pr-2 mr-4 text-primary"
+      variant="text"
       :prepend-icon="mdiPlus"
       @click="openEditUserModal"
     >
@@ -34,7 +34,8 @@
         max-width="600"
       >
         <v-card-text>
-          <h2>Create User</h2>
+          <h2 v-if="!isExistingUser">Create User</h2>
+          <h2 v-if="isExistingUser">{{ profile.name }}</h2>
           <div class="modal-body m-0 p-0">
             <div>
               <div
@@ -154,7 +155,7 @@
                       @click.prevent="removeDepartment(dept.code)"
                     >
                       <span class="sr-only">Remove department '{{ dept.name }}'</span>
-                    </v-icon>>
+                    </v-icon>
                   </div>
                 </div>
                 <div class="pl-4">
@@ -241,11 +242,23 @@
         </v-card-text>
         <template #actions>
           <v-btn
-            text="Save"
+            color="primary"
+            variant="flat"
+            :disabled="isSaving"
             @click="save"
-          ></v-btn>
+          >
+            <span v-if="!isSaving">Save</span>
+            <v-progress-circular
+              v-if="isSaving"
+              indeterminate
+              :size="18"
+              :width="4"
+            />
+          </v-btn>
           <v-btn
             text="Cancel"
+            color="primary"
+            variant="text"
             @click="cancel"
           ></v-btn>
         </template>

@@ -15,12 +15,13 @@
       density="compact"
       :disabled="disabled"
       hide-details
-      hide-no-data
+      :hide-no-data="!showNoData"
       :items="items"
       :label="placeholder"
       :maxlength="maxlength"
       :menu-icon="null"
       variant="outlined"
+      no-data-text="No Users Found"
       @click:clear="onClear"
       @update:menu="s => s ? null : $emit('user-selected', selected)"
       @update:search="onUpdateSearch"
@@ -115,6 +116,10 @@ const props = defineProps({
     default: undefined,
     required: false,
     type: Object
+  },
+  showNoData: {
+    required: false,
+    type: Boolean
   }
 })
 
