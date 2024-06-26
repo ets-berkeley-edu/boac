@@ -15,6 +15,7 @@ import {VChip} from 'vuetify/components/VChip'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
 import {VCombobox} from 'vuetify/components/VCombobox'
 import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
+import {VDateInput} from 'vuetify/labs/VDateInput'
 import {VDialog} from 'vuetify/components/VDialog'
 import {VDivider} from 'vuetify/components/VDivider'
 import {VExpandTransition, VFadeTransition} from 'vuetify/components/transitions'
@@ -63,6 +64,7 @@ export default createVuetify({
     VContainer,
     VDataTable,
     VDataTableVirtual,
+    VDateInput,
     VDialog,
     VDivider,
     VExpandTransition,
