@@ -199,7 +199,7 @@ const deleteDialogBodyText = computed(() => {
     const student = selectedNote.value.student
     const subject = selectedNote.value.subject
     if (student) {
-      message = `Delete draft note for <b class="${currentUser.inDemoMode ? 'demo-mode-blur' : ''}">${student.firstName} ${student.lastName}</b>.`
+      message = `Delete draft note for <span class="${currentUser.inDemoMode ? 'demo-mode-blur' : ''}">${student.firstName} ${student.lastName}</span>.`
     } else {
       message = `Delete draft note with subject ${subject || contextStore.config.draftNoteSubjectPlaceholder}.`
     }
