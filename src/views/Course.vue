@@ -70,39 +70,38 @@
         </div>
       </div>
     </div>
-    <div v-if="!loading" class="default-margins">
+    <div v-if="!loading">
       <h2 class="sr-only">Students</h2>
       <div v-if="!section.totalStudentCount" class="d-flex ml-3 mt-3">
         <v-icon :icon="mdiAlertRhombus" color="error" />
         <span class="container-error">No students advised by your department are enrolled in this section.</span>
       </div>
-      <div v-if="section.totalStudentCount" class="align-items-start d-flex mb-2 ml-3 mt-3">
-        <div>
-          <CuratedGroupSelector
-            v-if="size(section.students)"
-            :context-description="`Course ${section.displayName}`"
-            domain="default"
-            :students="section.students"
-            class="mr-2"
-          />
+      <div v-if="section.totalStudentCount" class="align-center d-flex mt-3 mx-3">
+        <div v-if="section.totalStudentCount <= pagination.defaultItemsPerPage" class="font-weight-500 ml-auto mb-4 mr-3 mt-1">
+          {{ section.totalStudentCount }} total students
         </div>
-        <div v-if="section.totalStudentCount > pagination.defaultItemsPerPage" class="align-center d-flex ml-auto mr-3">
-          <div id="view-per-page-label" class="pr-1">
+        <div
+          v-if="section.totalStudentCount > pagination.defaultItemsPerPage"
+          class="align-center d-flex ml-auto mr-3"
+        >
+          <div id="view-per-page-label">
             {{ section.totalStudentCount }} total students &mdash; View per page:&nbsp;
           </div>
-          <v-btn-group aria-labelledby="view-per-page-label">
+          <v-btn-group
+            aria-labelledby="view-per-page-label"
+            density="compact"
+            variant="flat"
+          >
             <div v-for="(option, index) in PAGINATION_OPTIONS" :key="index">
               <v-btn
                 :id="`view-per-page-${option}`"
-                class="px-1"
-                :class="{'font-size-16 font-weight-bold text-dark': option === pagination.itemsPerPage}"
+                :class="{'font-weight-bold text-dark': option === pagination.itemsPerPage}"
+                class="items-per-page-btn"
                 :disabled="option === pagination.itemsPerPage"
-                variant="text"
+                :text="option.toString()"
                 @click="resizePage(option)"
                 @keyup.enter="resizePage(option)"
-              >
-                {{ option }}
-              </v-btn>
+              />
               <span v-if="index + 1 < PAGINATION_OPTIONS.length">
                 |
               </span>
@@ -130,7 +129,6 @@
 
 <script setup>
 import CourseStudents from '@/components/course/CourseStudents'
-import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import ga from '@/lib/ga'
 import Pagination from '@/components/util/Pagination'
 import {DateTime} from 'luxon'
@@ -142,43 +140,46 @@ import {pluralize, scrollToTop, setPageTitle} from '@/lib/utils'
 import {useRoute, useRouter} from 'vue-router'
 import {useContextStore} from '@/stores/context'
 
-const DEFAULT_ITEMS_PER_PAGE = 10
+const DEFAULT_ITEMS_PER_PAGE = 50
 const PAGINATION_OPTIONS = [DEFAULT_ITEMS_PER_PAGE, 100]
 const contextStore = useContextStore()
 const params = useRoute().params
+const query = useRoute().query
 
 const currentUser = contextStore.currentUser
 const error = ref(null)
-const featured = toString(params.u)
-const itemsPerPage = isNaN(params.s) ? DEFAULT_ITEMS_PER_PAGE : parseInt(params.s, 10)
+const featured = toString(query.u)
+const itemsPerPage = isNaN(query.s) ? DEFAULT_ITEMS_PER_PAGE : parseInt(query.s, 10)
 const loading = computed(() => contextStore.loading)
 const meetings = ref(undefined)
 const pagination = reactive({
-  currentPage: isNaN(params.p) ? 1 : parseInt(params.p, 10),
+  currentPage: isNaN(query.p) ? 1 : parseInt(query.p, 10),
   defaultItemsPerPage: DEFAULT_ITEMS_PER_PAGE,
   itemsPerPage: PAGINATION_OPTIONS.includes(itemsPerPage) ? itemsPerPage : DEFAULT_ITEMS_PER_PAGE
 })
-const section = ref({
-  students: []
-})
+const section = ref({students: []})
+
 onMounted(() => {
   contextStore.loadingStart()
   const limit = pagination.itemsPerPage
   const offset = pagination.currentPage === 0 ? 0 : (pagination.currentPage - 1) * limit
-  getSection(params.termId, params.sectionId, offset, limit, featured).then(data => {
-    section.value = data
-    meetings.value = orderBy(data.meetings, ['startDate'])
-    const students = union(remove(data.students, student => student.uid === featured), data.students)
-    const displayName = data.displayName
-    // Discrepancies in our loch-hosted SIS data dumps may occasionally result in students without enrollment
-    // objects. A placeholder object keeps the front end from breaking.
-    each(students, student => !student.enrollment && (student.enrollment = {canvasSites: []}))
-    const totalStudentCount = data.totalStudentCount
-    const message = totalStudentCount < pagination.itemsPerPage ? `Showing all ${totalStudentCount} students.` : `Showing ${pagination.itemsPerPage} of ${totalStudentCount} total students.`
-    contextStore.loadingComplete(`Course ${displayName} has loaded ${message}`)
-    ga.course('view', displayName)
-    setPageTitle(displayName)
-  }).then(() => {
+  getSection(params.termId, params.sectionId, offset, limit, featured).then(
+    data => {
+      section.value = data
+      meetings.value = orderBy(data.meetings, ['startDate'])
+      const students = union(remove(data.students, student => student.uid === featured), data.students)
+      const displayName = data.displayName
+      // Discrepancies in our loch-hosted SIS data dumps may occasionally result in students without enrollment
+      // objects. A placeholder object keeps the front end from breaking.
+      each(students, student => !student.enrollment && (student.enrollment = {canvasSites: []}))
+      const totalStudentCount = data.totalStudentCount
+      const message = totalStudentCount < pagination.itemsPerPage ? `Showing all ${totalStudentCount} students.` : `Showing ${pagination.itemsPerPage} of ${totalStudentCount} total students.`
+      contextStore.loadingComplete(`Course ${displayName} has loaded ${message}`)
+      ga.course('view', displayName)
+      setPageTitle(displayName)
+    },
+    e => error.value = e,
+  ).then(() => {
     contextStore.loadingComplete()
     scrollToTop()
   })
@@ -230,5 +231,9 @@ const resizePage = itemsPerPage => {
 .course-term-name {
   font-size: 16px;
   font-weight: bold;
+}
+.items-per-page-btn {
+  padding: 0;
+  width: 12px !important;
 }
 </style>
