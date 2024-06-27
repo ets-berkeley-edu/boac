@@ -148,7 +148,7 @@
                   <label class="form-control-label" for="search-options-note-filters-last-updated-from">
                     Date Range
                   </label>
-                  <div class="align-center d-flex">
+                  <div class="align-center d-flex mt-2">
                     <label
                       id="note-filters-date-from-label"
                       class="text-black mr-2"
@@ -157,27 +157,20 @@
                       <span class="sr-only">Date</span>
                       From
                     </label>
-                    <DatePicker
+                    <v-date-input
+                      id="search-options-note-filters-last-updated-from"
                       v-model="fromDate"
-                      :input-debounce="500"
-                      :max-date="toDate || new Date()"
-                    >
-                      <template #default="{inputValue, inputEvents}">
-                        <v-text-field
-                          id="search-options-note-filters-last-updated-from"
-                          clearable
-                          base-color="black"
-                          color="black"
-                          density="compact"
-                          :disabled="isSearching"
-                          hide-details
-                          placeholder="MM/DD/YYYY"
-                          :value="inputValue"
-                          variant="outlined"
-                          v-on="inputEvents"
-                        />
-                      </template>
-                    </DatePicker>
+                      autocomplete="off"
+                      clearable
+                      density="compact"
+                      :disabled="isSearching"
+                      hide-actions
+                      hide-details
+                      :max="toDate || new Date()"
+                      placeholder="MM/DD/YYYY"
+                      prepend-icon=""
+                      variant="outlined"
+                    />
                     <div class="sr-only">
                       <v-btn
                         id="search-options-note-filters-last-updated-from-clear"
@@ -194,26 +187,21 @@
                       <span class="sr-only">Date</span>
                       to
                     </label>
-                    <DatePicker
+                    <v-date-input
+                      id="search-options-note-filters-last-updated-to"
                       v-model="toDate"
+                      clearable
                       :input-debounce="500"
-                      :min-date="fromDate || new Date()"
-                      :max-date="new Date()"
-                    >
-                      <template #default="{inputValue, inputEvents}">
-                        <v-text-field
-                          id="search-options-note-filters-last-updated-to"
-                          clearable
-                          density="compact"
-                          :disabled="isSearching"
-                          hide-details
-                          placeholder="MM/DD/YYYY"
-                          :value="inputValue"
-                          variant="outlined"
-                          v-on="inputEvents"
-                        />
-                      </template>
-                    </DatePicker>
+                      :min="fromDate || new Date()"
+                      :max="new Date()"
+                      density="compact"
+                      :disabled="isSearching"
+                      hide-actions
+                      hide-details
+                      placeholder="MM/DD/YYYY"
+                      prepend-icon=""
+                      variant="outlined"
+                    />
                     <div class="sr-only">
                       <v-btn
                         id="search-options-note-filters-last-updated-to-clear"
@@ -229,7 +217,7 @@
             </v-card-text>
           </v-card>
         </v-expand-transition>
-        <div class="align-center d-flex mb-2 mt-4 pr-2">
+        <div class="align-center d-flex mt-4">
           <div class="flex-grow-1">
             <v-btn
               v-if="includeNotes && isDirty"
@@ -287,6 +275,7 @@ import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {alertScreenReader, scrollToTop} from '@/lib/utils'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'AdvancedSearchModal',
@@ -369,10 +358,10 @@ export default {
             query.noteTopic = this.topic
           }
           if (this.fromDate) {
-            query.noteDateFrom = this.fromDate.toLocaleString('YYYY-MM-DD')
+            query.noteDateFrom = DateTime.fromJSDate(this.fromDate).toFormat('YYYY-MM-DD')
           }
           if (this.toDate) {
-            query.noteDateTo = this.toDate.toLocaleString('YYYY-MM-DD')
+            query.noteDateTo = DateTime.fromJSDate(this.toDate).toFormat('YYYY-MM-DD')
           }
         }
         this.$router.push({path: '/search', query: query}).then(() => {
@@ -394,6 +383,9 @@ export default {
 </script>
 
 <style scoped>
+.date-input-container {
+  max-width: 240px;
+}
 .form-control-label {
   color: black;
   font-size: 16px;
