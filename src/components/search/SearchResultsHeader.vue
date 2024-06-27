@@ -35,7 +35,8 @@ defineProps({
     type: String
   },
   searchPhrase: {
-    required: true,
+    default: undefined,
+    required: false,
     type: String
   }
 })

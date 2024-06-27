@@ -225,7 +225,7 @@ export default {
     save(isDraft) {
       const ifAuthenticated = () => {
         const trimmedSubject = trim(this.model.subject)
-        const setDate = this.model.setDate ? DateTime.fromJSDate(this.model.setDate).toFormat('YYYY-MM-DD') : null
+        const setDate = this.model.setDate ? DateTime.fromJSDate(this.model.setDate).toFormat('yyyy-MM-dd') : null
         if (trimmedSubject || this.model.isDraft) {
           updateNote(
             this.model.id,

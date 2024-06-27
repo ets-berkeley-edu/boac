@@ -90,7 +90,7 @@
             {{ minorPlan + " UG" }}
           </div>
         </div>
-        <span class="student-text">Awarded {{ DateTime.fromISO(degree.dateAwarded).toFormat('MMM DD, YYYY') }}</span>
+        <span class="student-text">Awarded {{ DateTime.fromISO(degree.dateAwarded).toFormat('MMM dd, yyyy') }}</span>
       </div>
     </div>
   </div>
