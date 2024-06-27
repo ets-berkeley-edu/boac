@@ -32,7 +32,7 @@ const app = createApp(App)
 
 more(Highcharts)
 
-initializeAxios(app, axios)
+initializeAxios(axios)
 
 // Globals
 app.config.globalProperties.$isInIframe = !!window.parent.frames.length

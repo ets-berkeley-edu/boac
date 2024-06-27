@@ -270,7 +270,7 @@ export default {
     const userId = isFresh ? this.createdBy : this.updatedBy
     getCalnetProfileByUserId(userId).then(data => {
       const name = data.name || `${data.uid} (UID)`
-      this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${DateTime.fromJSDate(updatedAtDate).toFormat('MMM D, YYYY')}`
+      this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${DateTime.fromJSDate(updatedAtDate).toFormat('MMM D, yyyy')}`
     })
     this.initNote()
   },

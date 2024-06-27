@@ -190,9 +190,10 @@
                     <v-date-input
                       id="search-options-note-filters-last-updated-to"
                       v-model="toDate"
+                      autocomplete="off"
                       clearable
                       :input-debounce="500"
-                      :min="fromDate || new Date()"
+                      :min="fromDate"
                       :max="new Date()"
                       density="compact"
                       :disabled="isSearching"
@@ -358,10 +359,10 @@ export default {
             query.noteTopic = this.topic
           }
           if (this.fromDate) {
-            query.noteDateFrom = DateTime.fromJSDate(this.fromDate).toFormat('YYYY-MM-DD')
+            query.noteDateFrom = DateTime.fromJSDate(this.fromDate).toFormat('yyyy-MM-dd')
           }
           if (this.toDate) {
-            query.noteDateTo = DateTime.fromJSDate(this.toDate).toFormat('YYYY-MM-DD')
+            query.noteDateTo = DateTime.fromJSDate(this.toDate).toFormat('yyyy-MM-dd')
           }
         }
         this.$router.push({path: '/search', query: query}).then(() => {
@@ -383,9 +384,6 @@ export default {
 </script>
 
 <style scoped>
-.date-input-container {
-  max-width: 240px;
-}
 .form-control-label {
   color: black;
   font-size: 16px;

@@ -53,7 +53,7 @@
             <span v-if="row.item.isCurrent" class="ml-2">(current)</span>
           </template>
           <template #cell(updatedAt)="row">
-            {{ DateTime.fromJSDate(row.item.updatedAt).toFormat('MMM D, YYYY') }}
+            {{ DateTime.fromJSDate(row.item.updatedAt).toFormat('MMM D, yyyy') }}
           </template>
           <template #cell(updatedBy)="row">
             <div class="align-right w-100">

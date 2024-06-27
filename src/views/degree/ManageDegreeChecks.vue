@@ -130,7 +130,7 @@
           </template>
           <template #cell(createdAt)="row">
             <div v-if="row.item.id !== _get(templateForEdit, 'id')">
-              {{ DateTime.fromJSDate(row.item.createdAt).toFormat('MMM D, YYYY') }}
+              {{ DateTime.fromJSDate(row.item.createdAt).toFormat('MMM D, yyyy') }}
             </div>
           </template>
           <template #cell(actions)="row">

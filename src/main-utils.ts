@@ -4,9 +4,11 @@ import {useContextStore} from '@/stores/context'
 
 const SKIP_REDIRECT_ON_ERROR = ['/api/user/create_or_update']
 
-const axiosErrorHandler = (error, axios) => {
+const axiosErrorHandler = (error: any, axios: any): void => {
   const errorStatus = get(error, 'response.status')
-  const currentUser = useContextStore().currentUser
+  const contextStore = useContextStore()
+  const currentUser = contextStore.currentUser
+  contextStore.loadingComplete()
   if (!currentUser.isAuthenticated) {
     router.push({
       path: '/',
@@ -32,7 +34,8 @@ const axiosErrorHandler = (error, axios) => {
     }
   }
 }
-export function initializeAxios(app: any, axios: any) {
+
+export function initializeAxios(axios: any) {
   axios.defaults.withCredentials = true
   axios.interceptors.response.use(
     (response: any) => response,

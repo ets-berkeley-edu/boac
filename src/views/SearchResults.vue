@@ -86,13 +86,13 @@
             <v-tabs-window-item class="bg-white px-4" :value="item.key">
               <div v-if="item.key === 'student'">
                 <SearchResultsHeader
-                  class="my-2"
-                  :count-in-view="results.students.length"
+                  class="mb-2 mt-4"
+                  :count-in-view="_size(results.students)"
                   :count-total="results.totalStudentCount"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
                 />
-                <div v-if="results.students.length" class="mt-1">
+                <div v-if="_size(results.students)" class="mt-1">
                   <CuratedGroupSelector
                     context-description="Search"
                     domain="default"
@@ -110,7 +110,7 @@
                   <AdmitDataWarning :updated-at="_get(results.admits, '[0].updatedAt')" />
                 </div>
                 <SearchResultsHeader
-                  class="mb-2"
+                  class="mb-2 mt-4"
                   :count-in-view="_size(results.admits)"
                   :count-total="results.totalAdmitCount"
                   :results-type="item.key"
@@ -137,13 +137,13 @@
                   />
                 </div>
                 <SortableCourses
-                  v-if="results.courses.length"
+                  v-if="_size(results.courses)"
                   :courses="results.courses"
                 />
               </div>
               <div v-if="item.key === 'note'">
                 <SearchResultsHeader
-                  class="mb-3 mt-2"
+                  class="mb-2 mt-4"
                   :count-in-view="`${_size(results.notes)}${completeNoteResults ? '' : '+'}`"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
@@ -166,7 +166,7 @@
               </div>
               <div v-if="item.key === 'appointment'">
                 <SearchResultsHeader
-                  class="mb-3 mt-2"
+                  class="mb-2 mt-4"
                   :count-in-view="`${_size(results.appointments)}${completeAppointmentResults ? '' : '+'}`"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
@@ -246,11 +246,11 @@ export default {
       offset: 0
     },
     results: {
-      admits: null,
-      appointments: null,
-      courses: null,
-      notes: null,
-      students: null,
+      admits: [],
+      appointments: [],
+      courses: [],
+      notes: [],
+      students: [],
       totalCourseCount: null,
       totalStudentCount: null
     },
@@ -346,22 +346,25 @@ export default {
   },
   methods: {
     getTabLabel(item) {
+      const admitCount = this._size(this.results.admits)
+      const courseCount = this._size(this.results.courses)
+      const studentCount = this._size(this.results.students)
       let label
       switch (item.key) {
       case 'admit':
-        label = `${this.results.admits.length}${this.results.admits.length === this.results.totalAdmitCount ? '' : '+' }`
+        label = `${admitCount}${!admitCount || admitCount === this.results.totalAdmitCount ? '' : '+' }`
         break
       case 'appointment':
         label = `${item.count}${this.completeAppointmentResults ? '' : '+'}`
         break
       case 'course':
-        label = `${this.results.courses.length}${this.results.courses.length === this.results.totalCourseCount ? '' : '+' }`
+        label = `${courseCount}${!courseCount || courseCount === this.results.totalCourseCount ? '' : '+' }`
         break
       case 'note':
         label = `${item.count}${this.completeNoteResults ? '' : '+'}`
         break
       case 'student':
-        label = `${this.results.students.length}${this.results.students.length === this.results.totalStudentCount ? '' : '+' }`
+        label = `${studentCount}${!studentCount || studentCount === this.results.totalStudentCount ? '' : '+' }`
         break
       }
       return label
