@@ -14,6 +14,7 @@
         aria-labelledby="manually-set-date-label"
         autocomplete="off"
         :class="{'rounded-e-0': manuallySetDate}"
+        clearable
         density="compact"
         :disabled="isSaving || boaSessionExpired"
         hide-actions

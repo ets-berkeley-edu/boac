@@ -1,4 +1,3 @@
-import 'v-calendar/style.css'
 import App from './App.vue'
 import axiosPlugin from '@/plugins/axios'
 import axios from 'axios'
@@ -8,7 +7,6 @@ import more from 'highcharts/highcharts-more'
 import router from '@/router'
 import VueHighcharts from 'vue-highcharts'
 import vuetify from '@/plugins/vuetify'
-import {DatePicker, setupCalendar} from 'v-calendar'
 import {createApp} from 'vue'
 import {createPinia} from 'pinia'
 import {DateTime} from 'luxon'
@@ -21,10 +19,8 @@ const app = createApp(App)
   .use(axiosPlugin, {baseUrl: import.meta.env.VITE_APP_API_BASE_URL})
   .use(CKEditor)
   .use(createPinia())
-  .use(setupCalendar, {})
   .use(VueHighcharts, {Highcharts})
   .use(vuetify)
-  .component('DatePicker', DatePicker)
   .directive('accessibleGrade', {
     beforeMount(el, binding) {
       el.innerHTML = binding.value && binding.value.replace('-', '&minus;').replace('+', '&plus;')

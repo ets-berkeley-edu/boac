@@ -46,64 +46,39 @@
         v-if="isUX('range') && filter.validation === 'date'"
         class="align-center d-flex"
       >
-        <DatePicker
+        <label class="font-weight-500 pl-0 pr-2" :for="`filter-range-min-${position}`">
+          {{ rangeMinLabel() }}
+        </label>
+        <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">
+          Start of range in format MM/DD/YYYY
+        </span>
+        <v-date-input
+          :id="`filter-range-min-${position}`"
           v-model.string="rangeMin"
-          is-required
-          :masks="{modelValue: 'iso'}"
-          :max-date="rangeMax && dateTimeFromISO(rangeMax)"
-          :popover="{visibility: 'focus', autoHide: false}"
-          :select-attribute="{key: 'today'}"
-          @popover-did-show="onPopoverShown"
-        >
-          <template #default="{inputValue, inputEvents}">
-            <label class="font-weight-500 pl-0 pr-2" :for="`filter-range-min-${position}`">
-              {{ rangeMinLabel() }}
-            </label>
-            <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">
-              Start of range in format MM/DD/YYYY
-            </span>
-            <input
-              :id="`filter-range-min-${position}`"
-              :aria-describedby="`filter-range-min-placeholder-${position}`"
-              autocomplete="off"
-              class="data-picker-text-input"
-              placeholder="MM/DD/YYYY"
-              size="12"
-              type="text"
-              :value="inputValue"
-              v-on="inputEvents"
-            />
-          </template>
-        </DatePicker>
-        <DatePicker
+          :aria-required="true"
+          :aria-describedby="`filter-range-min-placeholder-${position}`"
+          autocomplete="off"
+          class="data-picker-text-input"
+          :max="rangeMax && dateTimeFromISO(rangeMax)"
+          placeholder="MM/DD/YYYY"
+          type="text"
+        />
+        <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
+          {{ rangeMaxLabel() }}
+        </label>
+        <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">
+          End of range in format MM/DD/YYYY
+        </span>
+        <v-date-input
+          :id="`filter-range-max-${position}`"
           v-model.string="rangeMax"
-          is-required
-          :masks="{modelValue: 'iso'}"
+          :aria-describedby="`filter-range-max-placeholder-${position}`"
+          :aria-required="true"
+          autocomplete="off"
+          class="data-picker-text-input"
           :min-date="rangeMin && dateTimeFromISO(rangeMin)"
-          :popover="{visibility: 'focus', autoHide: false}"
-          :select-attribute="{key: 'today', dot: true, dates: new Date()}"
-          @popover-did-show="onPopoverShown"
-        >
-          <template #default="{inputValue, inputEvents}">
-            <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
-              {{ rangeMaxLabel() }}
-            </label>
-            <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">
-              End of range in format MM/DD/YYYY
-            </span>
-            <input
-              :id="`filter-range-max-${position}`"
-              :aria-describedby="`filter-range-max-placeholder-${position}`"
-              autocomplete="off"
-              class="data-picker-text-input"
-              placeholder="MM/DD/YYYY"
-              size="12"
-              type="text"
-              :value="inputValue"
-              v-on="inputEvents"
-            />
-          </template>
-        </DatePicker>
+          placeholder="MM/DD/YYYY"
+        />
       </div>
       <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
         <label class="font-weight-500 ml-2 pr-2" :for="`filter-range-min-${position}`">
@@ -539,46 +514,6 @@ export default {
         putFocusNextTick('unsaved-filter-add')
         alertScreenReader(`${this.selectedOption.name} selected`)
       }
-    },
-    onPopoverShown(popoverContent) {
-      // Fill accessibility gaps in v-calendar date picker popover
-      const helpContainer = popoverContent.querySelector('[data-helptext]')
-      const nextMonthBtn = popoverContent.querySelector('.is-right')
-      const prevMonthBtn = popoverContent.querySelector('.is-left')
-      const title = popoverContent.querySelector('.vc-title')
-      const weeks = popoverContent.querySelector('.vc-weeks')
-      const weekdayLabels = popoverContent.querySelectorAll('.vc-weekday')
-      const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-      popoverContent.ariaLabel = 'choose date'
-      popoverContent.ariaModal = true
-      popoverContent.role = 'dialog'
-      if (helpContainer) {
-        const helpText = helpContainer.getAttribute('data-helptext')
-        const helpEl = document.createElement('span')
-        helpEl.className = 'sr-only'
-        helpEl.ariaLive = 'polite'
-        helpContainer.prepend(helpEl)
-        setTimeout(() => {
-          helpEl.innerText = helpText
-        }, 200)
-      }
-      if (nextMonthBtn) {
-        nextMonthBtn.ariaLabel = 'previous month'
-      }
-      if (prevMonthBtn) {
-        prevMonthBtn.ariaLabel = 'previous month'
-      }
-      if (title) {
-        title.ariaLive = 'polite'
-        title.id = `filter-range-popover-title-${this.position}`
-      }
-      if (weeks) {
-        weeks.setAttribute('aria-labelledby', `filter-range-popover-title-${this.position}`)
-        weeks.role = 'grid'
-      }
-      each(weekdayLabels, (label, index) => {
-        label.abbr = weekdays[index]
-      })
     },
     putFocusNewFilterDropdown() {
       putFocusNextTick('filter-select-primary-new')
