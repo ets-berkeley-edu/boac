@@ -12,6 +12,7 @@
 node_modules
 
 # Local configs
+boac/.env
 config/*.json
 config/*-local.py
 config/*-local.conf
