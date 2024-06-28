@@ -1,7 +1,7 @@
 <template>
   <v-list density="compact">
     <v-list-item class="pa-0">
-      <div class="align-center d-flex font-size-18 font-weight-bold justify-space-between pretty-hover">
+      <div class="align-center d-flex font-size-18 font-weight-bold justify-space-between mb-1 pretty-hover">
         <div>
           Cohorts
         </div>
@@ -12,27 +12,27 @@
       <div
         v-for="cohort in myCohorts"
         :key="cohort.id"
-        class="align-center d-flex justify-space-between pretty-hover"
+        class="pretty-hover"
       >
         <NavLink
           :id="`sidebar-cohort-${cohort.id}`"
           :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
-          class="font-weight-medium text-secondary truncate-with-ellipsis"
+          class="align-center d-flex font-weight-medium justify-space-between text-secondary w-100"
           :path="`/cohort/${cohort.id}`"
           :title="cohort.name"
         >
-          {{ cohort.name }}
-        </NavLink>
-        <div class="px-1">
-          <span :id="`sidebar-cohort-${cohort.id}-total-student-count`" class="sidebar-pill">
+          <div class="truncate-with-ellipsis">
+            {{ cohort.name }}
+          </div>
+          <div :id="`sidebar-cohort-${cohort.id}-total-student-count`" class="sidebar-pill">
             {{ cohort.totalStudentCount }}<span class="sr-only"> {{ pluralize('student', cohort.totalStudentCount) }}</span>
-          </span>
-        </div>
+          </div>
+        </NavLink>
       </div>
     </v-list-item>
     <hr class="sidebar-section-divider" />
     <v-list-item class="pa-0">
-      <div class="align-center d-flex font-weight-bold justify-space-between pretty-hover">
+      <div class="align-center d-flex font-weight-bold justify-space-between mb-1 pretty-hover">
         <div class="font-size-18">
           Curated Groups
         </div>
@@ -48,22 +48,21 @@
       <div
         v-for="(group, index) in myCuratedGroups"
         :key="group.id"
-        class="align-center d-flex justify-space-between pretty-hover"
+        class="pretty-hover"
       >
         <NavLink
           :id="`sidebar-${describeCuratedGroupDomain('default', false).replace(' ', '-')}-${index}`"
           :aria-label="`${capitalize(describeCuratedGroupDomain('default', false))} ${group.name} has ${group.totalStudentCount} students.`"
-          class="font-weight-medium text-secondary truncate-with-ellipsis"
+          class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
           :path="`/curated/${group.id}`"
         >
-          {{ group.name }}
+          <div class="truncate-with-ellipsis">
+            {{ group.name }}
+          </div>
+          <div :id="`sidebar-curated-${index}-count`" class="sidebar-pill">
+            {{ group.totalStudentCount }}<span class="sr-only"> {{ pluralize('student', group.totalStudentCount) }}</span>
+          </div>
         </NavLink>
-        <div
-          :id="`sidebar-curated-${index}-count`"
-          class="px-1 sidebar-pill"
-        >
-          {{ group.totalStudentCount }}<span class="sr-only"> {{ pluralize('student', group.totalStudentCount) }}</span>
-        </div>
       </div>
     </v-list-item>
     <hr v-if="currentUser.canAccessAdmittedStudents" class="sidebar-section-divider" />
@@ -71,7 +70,7 @@
       <div class="font-size-18 font-weight-bold pl-3">
         Admitted Students
       </div>
-      <div class="align-center d-flex font-weight-bold justify-space-between pretty-hover pt-1">
+      <div class="align-center d-flex font-weight-bold justify-space-between mb-1 pretty-hover pt-1">
         <NavLink
           id="admitted-students-all"
           aria-label="View CE3 Admissions"
@@ -91,27 +90,26 @@
       <div
         v-for="(cohort, index) in myAdmitCohorts"
         :key="cohort.id"
-        class="align-center d-flex justify-space-between pretty-hover"
+        class="pretty-hover"
       >
         <NavLink
           :id="`sidebar-admitted-students-cohort-${index}`"
           :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} admits`"
-          class="font-weight-medium text-secondary truncate-with-ellipsis"
+          class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
           :path="`/cohort/${cohort.id}`"
         >
-          {{ cohort.name }}
+          <div class="truncate-with-ellipsis">
+            {{ cohort.name }}
+          </div>
+          <div :id="`sidebar-admitted-students-cohort-${cohort.id}-total-student-count`" class="sidebar-pill">
+            {{ cohort.totalStudentCount }}<span class="sr-only"> {{ pluralize('admits', cohort.totalStudentCount) }}</span>
+          </div>
         </NavLink>
-        <div
-          :id="`sidebar-admitted-students-cohort-${cohort.id}-total-student-count`"
-          class="px-1 sidebar-pill"
-        >
-          {{ cohort.totalStudentCount }}<span class="sr-only"> {{ pluralize('admits', cohort.totalStudentCount) }}</span>
-        </div>
       </div>
     </v-list-item>
     <v-list-item v-if="currentUser.canAccessAdmittedStudents" class="pa-0">
       <div
-        class="align-center d-flex font-weight-bold justify-space-between pretty-hover"
+        class="align-center d-flex font-weight-bold justify-space-between mb-1 pretty-hover"
         :class="{'mt-2': myAdmitCohorts.length}"
       >
         <div>
@@ -129,22 +127,21 @@
       <div
         v-for="(group, index) in myAdmitCuratedGroups"
         :key="group.id"
-        class="align-center d-flex justify-space-between pretty-hover"
+        class="pretty-hover"
       >
         <NavLink
           :id="`sidebar-admitted-students-curated-${index}`"
           :aria-label="`${capitalize(describeCuratedGroupDomain('admitted_students', false))} ${group.name} has ${group.totalStudentCount} students.`"
-          class="font-weight-medium text-secondary truncate-with-ellipsis"
+          class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
           :path="`/curated/${group.id}`"
         >
-          {{ group.name }}
+          <div class="truncate-with-ellipsis">
+            {{ group.name }}
+          </div>
+          <div :id="`sidebar-admitted-students-curated-${index}-count`" class="sidebar-pill">
+            {{ group.totalStudentCount }}<span class="sr-only"> {{ pluralize('student', group.totalStudentCount) }}</span>
+          </div>
         </NavLink>
-        <div
-          :id="`sidebar-admitted-students-curated-${index}-count`"
-          class="mr-1 px-1 sidebar-pill"
-        >
-          {{ group.totalStudentCount }}<span class="sr-only"> {{ pluralize('student', group.totalStudentCount) }}</span>
-        </div>
       </div>
     </v-list-item>
     <hr class="sidebar-section-divider" />
