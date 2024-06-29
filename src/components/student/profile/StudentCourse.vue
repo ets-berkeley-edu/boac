@@ -402,6 +402,40 @@ export default {
   height: 1.1em;
   width: 10px;
 }
+.boxplot-container {
+  align-items: flex-end;
+  display: flex;
+}
+.boxplot-container .highcharts-tooltip {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  line-height: 1.4em;
+  min-width: 200px;
+  padding: 0;
+}
+.boxplot-container .highcharts-tooltip::after {
+  background: #fff;
+  border: 1px solid #aaa;
+  border-width: 0 1px 1px 0;
+  content: '';
+  display: block;
+  height: 10px;
+  position: absolute;
+  top: 75px;
+  left: -6px;
+  transform: rotate(135deg);
+  width: 10px;
+}
+.boxplot-container g.highcharts-tooltip {
+  display: none !important;
+}
+.boxplot-container .highcharts-tooltip span {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+}
 .collapsed > .when-course-open,
 .not-collapsed > .when-course-closed {
   display: none;

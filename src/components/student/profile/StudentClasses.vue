@@ -1,156 +1,182 @@
 <template>
-  <div id="student-terms-container">
-    <div class="align-center d-flex flex-wrap">
-      <div class="pb-1">
-        <h2 class="student-section-header text-primary">Classes</h2>
+  <div id="student-terms-container" class="m-3 p-0">
+    <div class="align-center d-flex mb-2 px-2">
+      <div class="pt-1">
+        <h2 class="student-section-header mr-2">Classes</h2>
       </div>
       <div>
         <v-btn
           v-if="enrollmentTermsByYear.length > 1"
           id="toggle-collapse-all-years"
-          class="pr-2"
-          density="compact"
-          variant="plain"
-          @click="toggle"
+          variant="text"
+          @click="expandCollapseAll"
         >
-          <v-icon v-if="panelsExpanded.length" :icon="mdiMenuDown" />
-          <v-icon v-if="!panelsExpanded.length" :icon="mdiMenuRight" />
-          {{ panelsExpanded.length ? 'Collapse' : 'Expand' }} all years
+          <v-icon :icon="expanded ? mdiMenuDown : mdiMenuRight" />
+          {{ expanded ? 'Collapse' : 'Expand' }} all years
         </v-btn>
       </div>
       <div v-if="enrollmentTermsByYear.length > 1">|</div>
-      <div>
+      <div class="flex-grow-1">
         <v-btn
           v-if="enrollmentTermsByYear.length > 1"
           id="sort-academic-year"
-          class="pl-2"
-          density="compact"
-          variant="plain"
-          @click="setOrder"
+          variant="text"
+          @click="toggleSortOrder"
         >
-          <v-icon :icon="currentOrder === 'desc' ? mdiArrowDownThin : mdiArrowUpThin" />
           Sort academic year
+          <v-icon :icon="yearSortOrder === 'desc' ? mdiArrowDownThin : mdiArrowUpThin" />
         </v-btn>
       </div>
+      <div v-if="currentUser.canReadDegreeProgress" class="flex-shrink-1">
+        <router-link
+          id="view-degree-checks-link"
+          target="_blank"
+          :to="getDegreeCheckPath()"
+        >
+          Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
+        </router-link>
+      </div>
     </div>
-    <v-expansion-panels v-model="panelsExpanded" flat multiple>
-      <v-expansion-panel
-        v-for="year in enrollmentTermsByYear"
-        :id="`academic-year-${year.label}-container`"
-        :key="year.label"
-        class="mt-0 pa-0 student-classes-expansion-panel"
-        hide-actions
-        :value="year.label"
+    <div
+      v-for="year in enrollmentTermsByYear"
+      :id="`academic-year-${year.label}-container`"
+      :key="year.label"
+      class="pt-3 w-100"
+    >
+      <button
+        :id="`academic-year-${year.label}-toggle`"
+        class="bg-grey-lighten-4 w-100"
+        @click="year.isOpen = !year.isOpen"
       >
-        <v-expansion-panel-title>
-          <template #default="{expanded}">
-            <v-icon
-              class="expansion-panel-icon"
-              color="primary"
-              :icon="expanded ? mdiMenuDown : mdiMenuRight"
-              size="24"
-            />
-            <div class="align-center d-flex justify-space-between w-100">
-              <div>
-                <h3 class="text-primary page-section-header-sub ma-0">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
-              </div>
-              <div class="font-weight-500 text-grey-darken-1">{{ totalUnits(year) || 0 }} Units</div>
-            </div>
-          </template>
-          <template #actions />
-        </v-expansion-panel-title>
-        <v-expansion-panel-text class="student-classes-expansion-text">
-          <div class="align-start d-flex flex-wrap justify-lg-space-evenly w-100">
-            <StudentEnrollmentTerm
-              v-for="termName in [`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`]"
-              :id="`term-fall-${year.label - 1}`"
-              :key="termName"
-              class="student-enrollment-term"
-              :student="student"
-              :term="getTerm(termName, year)"
-            />
-          </div>
-        </v-expansion-panel-text>
-      </v-expansion-panel>
-    </v-expansion-panels>
+        <v-container fluid>
+          <v-row align="center">
+            <v-col class="align-center d-flex px-0 text-left">
+              <v-icon
+                class="mx-2"
+                color="primary"
+                :icon="year.isOpen ? mdiMenuDown : mdiMenuRight"
+                size="large"
+              />
+              <h3 class="page-section-header-sub text-primary">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
+            </v-col>
+            <v-col class="font-weight-500 text-grey-darken-3" cols="1">
+              {{ sumBy(year.terms, 'enrolledUnits') || 0 }} Units
+            </v-col>
+          </v-row>
+        </v-container>
+      </button>
+      <transition name="drawer">
+        <div
+          v-show="year.isOpen"
+          :aria-expanded="year.isOpen"
+          class="drawer"
+        >
+          <v-container class="pa-0" fluid>
+            <v-row no-gutters>
+              <v-col>
+                <StudentEnrollmentTerm
+                  :id="`term-fall-${year.label - 1}`"
+                  :student="student"
+                  :term="getTerm(`Fall ${year.label - 1}`, year)"
+                />
+              </v-col>
+              <v-col>
+                <StudentEnrollmentTerm
+                  :id="`term-spring-${year.label}`"
+                  :student="student"
+                  :term="getTerm(`Spring ${year.label}`, year)"
+                />
+              </v-col>
+              <v-col>
+                <StudentEnrollmentTerm
+                  :id="`term-summer-${year.label}`"
+                  :student="student"
+                  :term="getTerm(`Summer ${year.label}`, year)"
+                />
+              </v-col>
+            </v-row>
+          </v-container>
+        </div>
+      </transition>
+    </div>
   </div>
 </template>
 
 <script setup>
-import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
-import {each, groupBy, includes, map, orderBy} from 'lodash'
+import {alertScreenReader, studentRoutePath} from '@/lib/utils'
+import {each, find, groupBy, includes, map, orderBy, sumBy} from 'lodash'
+import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight} from '@mdi/js'
+import {onMounted, ref} from 'vue'
 import {sisIdForTermName} from '@/berkeley'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'StudentClasses',
-  components: {StudentEnrollmentTerm},
-  mixins: [Context, Util],
-  props: {
-    student: {
-      required: true,
-      type: Object
-    }
-  },
-  data: () => ({
-    currentOrder: undefined,
-    panelsExpanded: []
-  }),
-  computed: {
-    enrollmentTermsByYear() {
-      const grouped = groupBy(this.student.enrollmentTerms, 'academicYear')
-      const enrollmentTermsByYear = map(grouped, (terms, label) => ({label, terms}))
-      return orderBy(enrollmentTermsByYear, 'label', this.currentOrder)
-    }
-  },
-  created() {
-    this.currentOrder = 'desc'
-    const currentEnrollmentTerm = this.config.currentEnrollmentTerm
-    each(this.enrollmentTermsByYear, year => {
-      const academicYear = [`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`]
-      if (includes(academicYear, currentEnrollmentTerm)) {
-        this.panelsExpanded.push(year.label)
-      }
-    })
-  },
-  methods: {
-    getTerm(termName, year) {
-      const term = this._find(year.terms, {'termName': termName})
-      if (!term) {
-        return {
-          termId: sisIdForTermName(termName),
-          termName: termName
-        }
-      }
-      return term
-    },
-    setOrder() {
-      this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'
-      alertScreenReader(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
-    },
-    toggle() {
-      const hasSomeExpanded = this.panelsExpanded.length
-      this.panelsExpanded = hasSomeExpanded ? [] : map(this.student.enrollmentTerms, 'academicYear')
-      alertScreenReader(`All academic years have been ${hasSomeExpanded ? 'collapsed' : 'expanded'}`)
-    },
-    totalUnits(year) {
-      return this._sumBy(year.terms, 'enrolledUnits')
-    }
+const props = defineProps({
+  student: {
+    required: true,
+    type: Object
   }
+})
+
+const contextStore = useContextStore()
+const config = contextStore.config
+const currentUser = contextStore.currentUser
+const enrollmentTermsByYear = ref({})
+const expanded = ref(false)
+const yearSortOrder = ref('desc')
+
+onMounted(() => {
+  const grouped = groupBy(props.student.enrollmentTerms, 'academicYear')
+  const enrollmentTerms = map(grouped, (terms, year) => {
+    const semesters = [`Fall ${year - 1}`, `Spring ${year}`, `Summer ${year}`]
+    return {
+      isOpen: includes(semesters, config.currentEnrollmentTerm),
+      label: year,
+      terms
+    }
+  })
+  sort()
+  enrollmentTermsByYear.value = orderBy(enrollmentTerms, 'label', yearSortOrder.value)
+})
+
+const expandCollapseAll = () => {
+  expanded.value = !expanded.value
+  each(enrollmentTermsByYear.value, year => {
+    year.isOpen = expanded
+  })
+  alertScreenReader(`All of the academic years have been ${expanded.value ? 'collapsed' : 'expanded'}`)
+}
+
+const getDegreeCheckPath = () => {
+  const currentDegreeCheck = find(props.student.degreeChecks, 'isCurrent')
+  if (currentDegreeCheck) {
+    return `/student/degree/${currentDegreeCheck.id}`
+  } else if (currentUser.canEditDegreeProgress) {
+    return `${studentRoutePath(props.student.uid, currentUser.inDemoMode)}/degree/create`
+  } else {
+    return `${studentRoutePath(props.student.uid, currentUser.inDemoMode)}/degree/history`
+  }
+}
+
+const getTerm = (termName, year) => find(year.terms, {'termName': termName}) || {termId: sisIdForTermName(termName), termName}
+
+const sort = () => enrollmentTermsByYear.value = orderBy(enrollmentTermsByYear.value, 'label', yearSortOrder.value)
+
+const toggleSortOrder = () => {
+  yearSortOrder.value = yearSortOrder.value === 'asc' ? 'desc' : 'asc'
+  sort()
+  alertScreenReader(`The sort order of the academic years has changed to ${yearSortOrder.value}ending`)
 }
 </script>
 
 <style scoped>
-.expansion-panel-icon {
-  margin-left: -10px;
+.drawer {
+  background-color: #f5fbff;
 }
-.student-enrollment-term {
-  width: 33.3%;
+</style>
+
+<style scoped>
+.color-black {
+  color: #000;
 }
 </style>
