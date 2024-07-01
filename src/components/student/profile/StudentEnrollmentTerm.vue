@@ -1,36 +1,49 @@
 <template>
   <v-card
-    :class="{'bg-sky-blue student-term-current': config.currentEnrollmentTermId === parseInt(term.termId)}"
-    density="compact"
-    elevation="0"
-    min-width="300"
+    class="student-term"
+    :class="{'background-light student-term-current': config.currentEnrollmentTermId === parseInt(term.termId)}"
   >
-    <v-card-title class="pt-3 student-term-header">
-      <StudentEnrollmentTermAcademicStanding :student="student" :term="term" />
+    <v-card-title>
+      <div class="student-term-header">
+        <h3 :id="`term-${term.termId}-header`" class="font-size-18 mb-0 mr-2">{{ term.termName }}</h3>
+        <span v-if="isConcurrent" class="font-size-14 text-muted ml-1 mr-3">UCBX</span>
+        <StudentAcademicStanding
+          v-if="term.academicStanding"
+          :standing="term.academicStanding"
+          class="font-size-14"
+        />
+        <StudentWithdrawalCancel
+          v-if="student.sisProfile.withdrawalCancel"
+          :withdrawal="student.sisProfile.withdrawalCancel"
+          :term-id="term.termId"
+          class="font-size-14"
+        />
+      </div>
     </v-card-title>
-    <v-card-text class="pb-3">
-      <div role="table">
-        <div role="rowgroup">
-          <div role="row" class="student-course-label student-course-header text-no-wrap">
-            <div role="columnheader" class="width-60-percent">Course</div>
-            <div role="columnheader" class="width-15-percent">Mid</div>
-            <div role="columnheader" class="width-15-percent">Final</div>
-            <div role="columnheader" class="text-right width-15-percent">Units</div>
-          </div>
+    <v-card-text role="table">
+      <!-- TODO: Make this a real table. -->
+      <div role="rowgroup">
+        <div role="row" class="student-course-label student-course-header text-nowrap">
+          <div role="columnheader" class="student-course-column-name">Course</div>
+          <div role="columnheader" class="student-course-column-grade">Mid</div>
+          <div role="columnheader" class="student-course-column-grade">Final</div>
+          <div role="columnheader" class="student-course-column-units">Units</div>
         </div>
-        <div class="pt-3" role="rowgroup">
-          <div v-if="isEmpty(term.enrollments)" role="row">
-            <div :id="`term-${term.termId}-no-enrollments`" role="cell" class="ml-3 student-term-empty">{{ `No ${term.termName} enrollments` }}</div>
-          </div>
-          <StudentCourse
-            v-for="(course, courseIndex) in term.enrollments"
-            :key="courseIndex"
-            :course="course"
-            :index="courseIndex"
-            :student="student"
-            :term-id="term.termId"
-            :year="term.academicYear"
-          />
+      </div>
+      <div role="rowgroup" class="pt-2">
+        <div v-if="isEmpty(term.enrollments)" role="row">
+          <div :id="`term-${term.termId}-no-enrollments`" role="cell" class="student-term-empty">{{ `No ${term.termName} enrollments` }}</div>
+        </div>
+        <StudentCourse
+          v-for="(course, courseIndex) in term.enrollments"
+          :key="courseIndex"
+          :course="course"
+          :index="courseIndex"
+          :student="student"
+          :term-id="term.termId"
+          :year="term.academicYear"
+        />
+        <div>
           <div
             v-for="(droppedSection, droppedIndex) in term.droppedSections"
             :key="droppedIndex"
@@ -40,25 +53,56 @@
           >
             <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
               {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
-              (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromSQL(droppedSection.dropDate) }}</span>)
+              (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromISO(droppedSection.dropDate).toFormat('MMM dd, yyyy') }}</span>)
             </div>
           </div>
         </div>
       </div>
     </v-card-text>
-    <v-card-subtitle class="pb-3">
-      <StudentEnrollmentTermUnits :term="term" />
+    <v-card-subtitle>
+      <div class="student-term-footer">
+        <div class="d-flex justify-content-between">
+          <div :id="`term-${term.termId}-gpa`">
+            <span class="student-course-label mr-1">Term GPA: </span>
+            <span v-if="round(get(term, 'termGpa.gpa', 0), 3) > 0" class="font-size-14">{{ round(get(term, 'termGpa.gpa', 0), 3) }}</span>
+            <span v-else>&mdash;</span>
+          </div>
+          <div :id="`term-${term.termId}-units`" class="align-items-center d-flex justify-content-end">
+            <div class="student-course-label align-right mr-1">Total Units: </div>
+            <div class="font-size-14 text-right" :class="{'units-total': showMinUnits || showMaxUnits}">
+              <span v-if="get(term, 'enrolledUnits', 0) !== 0">{{ numFormat(term.enrolledUnits, '0.0') }}</span>
+              <span v-else>&mdash;</span>
+            </div>
+          </div>
+        </div>
+        <div
+          v-if="showMinUnits || showMaxUnits"
+          :id="`term-${term.termId}-units-allowed`"
+          class="text-right"
+        >
+          <div v-if="showMinUnits" class="align-items-center d-flex justify-content-end">
+            <div class="student-course-label align-right mr-1">Exception Min Units: </div>
+            <div :id="`term-${term.termId}-min-units`" class="font-size-14 units-total">{{ numFormat(term.minTermUnitsAllowed, '0.0') }}</div>
+          </div>
+          <div v-if="showMaxUnits" class="align-items-center d-flex justify-content-end">
+            <div class="student-course-label align-right mr-1">Exception Max Units: </div>
+            <div :id="`term-${term.termId}-max-units`" class="font-size-14 units-total">{{ numFormat(term.maxTermUnitsAllowed, '0.0') }}</div>
+          </div>
+        </div>
+      </div>
     </v-card-subtitle>
   </v-card>
 </template>
 
 <script setup>
+import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentCourse from '@/components/student/profile/StudentCourse'
-import StudentEnrollmentTermAcademicStanding from '@/components/student/profile/StudentEnrollmentTermAcademicStanding.vue'
-import StudentEnrollmentTermUnits from '@/components/student/profile/StudentEnrollmentTermUnits.vue'
-import {DateTime} from 'luxon'
-import {isEmpty} from 'lodash'
+import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
+import {get, isEmpty, isNil, some} from 'lodash'
+import {numFormat, round} from '@/lib/utils'
+import {ref} from 'vue'
 import {useContextStore} from '@/stores/context'
+import {DateTime} from 'luxon'
 
 const props = defineProps({
   student: {
@@ -70,28 +114,43 @@ const props = defineProps({
     type: Object
   }
 })
-const config = useContextStore().config
-const currentUser = useContextStore().currentUser
-const student = props.student
-const term = props.term
+
+const contextStore = useContextStore()
+const config = contextStore.config
+const currentUser = contextStore.currentUser
+const maxUnits = props.term.maxTermUnitsAllowed
+const minUnits = props.term.minTermUnitsAllowed
+const isConcurrent = ref(some(props.term.enrollments, {academicCareer: 'UCBX'}))
+const showMaxUnits = ref(!isNil(maxUnits) && maxUnits !== config.defaultTermUnitsAllowed.max)
+const showMinUnits = ref(!isNil(minUnits) && minUnits !== config.defaultTermUnitsAllowed.min)
 </script>
 
 <style scoped>
-.width-15-percent {
+.student-course-column-grade {
+  display: flex;
+  justify-content: space-between;
   width: 15%;
 }
-.width-60-percent {
+.student-course-column-name {
   width: 60%;
+}
+.student-course-column-units {
+  text-align: right;
+  width: 15%;
 }
 .student-course-dropped {
   color: #666;
   font-weight: 500;
+  line-height: 1.1;
+  padding: 8px 15px;
 }
 .student-course-header {
   border-bottom: 1px #999 solid;
   display: flex;
   flex-direction: row;
   line-height: 1.1;
+  margin: 0 10px;
+  padding: 8px 0;
 }
 .student-course-label {
   color: #666;
@@ -99,12 +158,19 @@ const term = props.term
   font-weight: 700;
   text-transform: uppercase;
 }
+.student-term {
+  margin: 0;
+  min-width: 300px;
+}
 .student-term-current {
   border: 1px #999 solid !important;
+  border-radius: 0;
 }
 .student-term-empty {
   color: #666;
   font-style: italic;
+  height: 2.2em;
+  padding: 3px 10px 0;
 }
 .student-term-header {
   align-items: baseline;
@@ -112,5 +178,16 @@ const term = props.term
   display: flex;
   flex-wrap: wrap;
   font-weight: 700;
+  height: 2.8em;
+  line-height: 1.1;
+  padding: 10px 10px 0;
+}
+.student-term-footer {
+  border-top: 1px #999 solid !important;
+  margin: 10px;
+  padding: 10px 0 0;
+}
+.units-total {
+  min-width: 30px;
 }
 </style>
