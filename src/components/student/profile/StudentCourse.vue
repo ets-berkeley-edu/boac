@@ -5,13 +5,14 @@
       role="row"
       class="student-course-row"
     >
-      <div role="cell" class="student-course-column-name overflow-hidden pt-1 pl-1 pr-2">
+      <div role="cell" class="student-course-column-name overflow-hidden">
         <v-btn
           :id="`term-${termId}-course-${index}-toggle`"
           :aria-expanded="detailsVisible ? 'true' : 'false'"
           :aria-controls="`term-${termId}-course-${index}-details`"
-          block
-          class="align-center d-flex student-course-collapse-button"
+          class="align-center d-flex pl-0"
+          color="primary"
+          density="compact"
           variant="text"
           @click="() => detailsVisible = !detailsVisible"
         >
@@ -19,7 +20,7 @@
           <span class="sr-only">{{ detailsVisible ? 'Hide' : 'Show' }} {{ course.displayName }} class details for {{ student.name }}</span>
           <div
             :id="`term-${termId}-course-${index}-name`"
-            class="text-left truncate-with-ellipsis ml-2 student-course-name"
+            class="text-left truncate-with-ellipsis student-course-name"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
           >
             {{ course.displayName }}
@@ -34,12 +35,12 @@
           Waitlisted
         </div>
       </div>
-      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-nowrap">
+      <div role="cell" class="align-center d-flex pl-1 student-course-column-grade text-nowrap">
         <span
           v-if="course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
           v-accessible-grade="course.midtermGrade"
-        ></span>
+        />
         <span
           v-if="!course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
@@ -51,7 +52,7 @@
           class="boac-exclamation"
         />
       </div>
-      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-nowrap">
+      <div role="cell" class="align-center d-flex student-course-column-grade text-nowrap">
         <span
           v-if="course.grade"
           :id="`term-${termId}-course-${index}-final-grade`"
@@ -66,7 +67,8 @@
           v-if="isAlertGrade(course.grade)"
           :id="`term-${termId}-course-${index}-has-grade-alert`"
           class="boac-exclamation ml-1"
-          :icon="mdiAlertRhombus"
+          color="warning"
+          :icon="mdiAlert"
         />
         <IncompleteGradeAlertIcon
           v-if="sectionsWithIncompleteStatus.length"
@@ -80,17 +82,10 @@
         <span :id="`term-${termId}-course-${index}-units`">{{ numFormat(course.units, '0.0') }}</span>
       </div>
     </div>
-    <transition :id="`term-${termId}-course-${index}-spacer`">
-      <div v-show="!detailsVisible && spacerHeight" :style="{height: `${spacerHeight}px`}" class="d-none d-xl-block" />
-    </transition>
     <transition
       :id="`term-${termId}-course-${index}-details`"
       role="row"
-      class="student-course-details"
-      @after-enter="onShown"
-      @after-leave="onHidden"
       @before-enter="onShow"
-      @before-leave="onHide"
     >
       <div v-if="detailsVisible">
         <div
@@ -285,7 +280,7 @@ import {
   isAlertGrade,
   lastActivityDays
 } from '@/berkeley'
-import {mdiAlertRhombus, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
+import {mdiAlert, mdiAlertRhombus, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {numFormat} from '@/lib/utils'
 import {onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
@@ -318,20 +313,15 @@ const props = defineProps({
   }
 })
 const detailsVisible = ref(false)
-const eventNamePrefix = `year-${props.year}-course-${props.index}`
+const eventWhenShow = `show-student-${props.student.uid}-course`
 const sectionsWithIncompleteStatus = ref(getSectionsWithIncompleteStatus(props.course.sections))
-const spacerHeight = ref(0)
 
 onMounted(() => {
-  contextStore.setEventHandler(`${eventNamePrefix}-show`, () => spacerHeight.value = 120)
-  contextStore.setEventHandler(`${eventNamePrefix}-shown`, offsetHeight => spacerHeight.value = offsetHeight)
-  contextStore.setEventHandler(`${eventNamePrefix}-hide`, () => spacerHeight.value = 0)
+  contextStore.setEventHandler(eventWhenShow, ({index, termId}) => detailsVisible.value = index === props.index && termId === props.termId)
 })
 
 onUnmounted(() => {
-  contextStore.removeEventHandler(`${eventNamePrefix}-show`)
-  contextStore.removeEventHandler(`${eventNamePrefix}-shown`)
-  contextStore.removeEventHandler(`${eventNamePrefix}-hide`)
+  contextStore.removeEventHandler(eventWhenShow)
 })
 
 const lastActivityInContext = analytics => {
@@ -344,41 +334,12 @@ const lastActivityInContext = analytics => {
   return describe
 }
 
-const onHide = () => contextStore.broadcast(`${eventNamePrefix}-hide`)
-
-const onHidden = () => detailsVisible.value = false
-
 const onShow = () => {
-  contextStore.broadcast(`${eventNamePrefix}-show`)
-  detailsVisible.value = true
-}
-
-const onShown = () => {
-  const el = document.getElementById(`term-${props.termId}-course-${props.index}-details`)
-  contextStore.broadcast(`${eventNamePrefix}-shown`, el.offsetHeight)
+  contextStore.broadcast(eventWhenShow, {index: props.index, termId: props.termId})
 }
 </script>
 
 <style scoped>
-@media (min-width: 1200px) {
-  .student-course-details {
-    border: 1px #ccc solid;
-    margin: 0 -11px;
-    padding: 10px 30px !important;
-    width: 316% !important;
-  }
-  .student-course-expanded {
-    border-bottom: 0 !important;
-  }
-}
-.caret {
-  height: 1.1em;
-  width: 10px;
-}
-.collapsed > .when-course-open,
-.not-collapsed > .when-course-closed {
-  display: none;
-}
 .profile-boxplot-container {
   min-width: 13em;
 }
@@ -419,13 +380,6 @@ const onShown = () => {
   flex-direction: column;
   padding: 3px 10px 0 !important;
   position: relative
-}
-.student-course-collapse-button {
-  border: none;
-  color: #337ab7;
-  font-weight: bold;
-  justify-content: flex-end;
-  padding: 0 10px 0 2px;
 }
 .student-course-column-grade {
   width: 15%;

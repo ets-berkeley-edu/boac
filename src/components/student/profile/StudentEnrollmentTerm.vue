@@ -27,39 +27,41 @@
         />
       </div>
     </v-card-title>
-    <v-card-text role="table">
-      <div role="rowgroup">
-        <div role="row" class="student-course-label student-course-header text-nowrap">
-          <div role="columnheader" class="student-course-column-name">Course</div>
-          <div role="columnheader" class="student-course-column-grade">Mid</div>
-          <div role="columnheader" class="student-course-column-grade">Final</div>
-          <div role="columnheader" class="student-course-column-units">Units</div>
+    <v-card-text class="px-2">
+      <div role="table">
+        <div role="rowgroup">
+          <div role="row" class="student-course-label student-course-header text-nowrap">
+            <div role="columnheader" class="student-course-column-name">Course</div>
+            <div role="columnheader" class="student-course-column-grade">Mid</div>
+            <div role="columnheader" class="student-course-column-grade">Final</div>
+            <div role="columnheader" class="student-course-column-units">Units</div>
+          </div>
         </div>
-      </div>
-      <div role="rowgroup" class="pt-2">
-        <div v-if="isEmpty(term.enrollments)" role="row">
-          <div :id="`term-${term.termId}-no-enrollments`" role="cell" class="student-term-empty">{{ `No ${term.termName} enrollments` }}</div>
-        </div>
-        <StudentCourse
-          v-for="(course, courseIndex) in term.enrollments"
-          :key="courseIndex"
-          :course="course"
-          :index="courseIndex"
-          :student="student"
-          :term-id="term.termId"
-          :year="term.academicYear"
-        />
-        <div>
-          <div
-            v-for="(droppedSection, droppedIndex) in term.droppedSections"
-            :key="droppedIndex"
-            class="student-course-dropped"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            role="row"
-          >
-            <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
-              {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
-              (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromISO(droppedSection.dropDate).toFormat('MMM dd, yyyy') }}</span>)
+        <div role="rowgroup" class="pt-2">
+          <div v-if="isEmpty(term.enrollments)" role="row">
+            <div :id="`term-${term.termId}-no-enrollments`" role="cell" class="student-term-empty">{{ `No ${term.termName} enrollments` }}</div>
+          </div>
+          <StudentCourse
+            v-for="(course, courseIndex) in term.enrollments"
+            :key="courseIndex"
+            :course="course"
+            :index="courseIndex"
+            :student="student"
+            :term-id="term.termId"
+            :year="term.academicYear"
+          />
+          <div>
+            <div
+              v-for="(droppedSection, droppedIndex) in term.droppedSections"
+              :key="droppedIndex"
+              class="student-course-dropped"
+              :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              role="row"
+            >
+              <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
+                {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
+                (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromISO(droppedSection.dropDate).toFormat('MMM dd, yyyy') }}</span>)
+              </div>
             </div>
           </div>
         </div>
@@ -73,7 +75,7 @@
             <span v-if="round(get(term, 'termGpa.gpa', 0), 3) > 0" class="font-size-14">{{ round(get(term, 'termGpa.gpa', 0), 3) }}</span>
             <span v-else>&mdash;</span>
           </div>
-          <div :id="`term-${term.termId}-units`" class="align-items-center d-flex justify-content-end">
+          <div :id="`term-${term.termId}-units`" class="align-center d-flex justify-content-end">
             <div class="student-course-label align-right mr-1">Total Units: </div>
             <div class="font-size-14 text-right" :class="{'units-total': showMinUnits || showMaxUnits}">
               <span v-if="get(term, 'enrolledUnits', 0) !== 0">{{ numFormat(term.enrolledUnits, '0.0') }}</span>
@@ -86,11 +88,11 @@
           :id="`term-${term.termId}-units-allowed`"
           class="text-right"
         >
-          <div v-if="showMinUnits" class="align-items-center d-flex justify-content-end">
+          <div v-if="showMinUnits" class="align-center d-flex justify-content-end">
             <div class="student-course-label align-right mr-1">Exception Min Units: </div>
             <div :id="`term-${term.termId}-min-units`" class="font-size-14 units-total">{{ numFormat(term.minTermUnitsAllowed, '0.0') }}</div>
           </div>
-          <div v-if="showMaxUnits" class="align-items-center d-flex justify-content-end">
+          <div v-if="showMaxUnits" class="align-center d-flex justify-content-end">
             <div class="student-course-label align-right mr-1">Exception Max Units: </div>
             <div :id="`term-${term.termId}-max-units`" class="font-size-14 units-total">{{ numFormat(term.maxTermUnitsAllowed, '0.0') }}</div>
           </div>
@@ -156,7 +158,7 @@ const showMinUnits = ref(!isNil(minUnits) && minUnits !== config.defaultTermUnit
   flex-direction: row;
   line-height: 1.1;
   margin: 0 10px;
-  padding: 8px 0;
+  padding: 0 0 8px 0;
 }
 .student-course-label {
   color: #666;
