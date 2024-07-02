@@ -29,7 +29,7 @@
     </div>
     <div
       v-if="isModifyingFilter"
-      :class="{'mr-4': showAdd, 'mr-2': !showAdd}"
+      :class="{'mr-4': showAdd, 'mr-2': !showAdd, 'date-range-container': isUX('range')}"
     >
       <div v-if="isUX('dropdown')">
         <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
@@ -58,10 +58,14 @@
           :aria-required="true"
           :aria-describedby="`filter-range-min-placeholder-${position}`"
           autocomplete="off"
-          class="data-picker-text-input"
+          clearable
+          density="compact"
+          hide-actions
+          hide-details
           :max="rangeMax && dateTimeFromISO(rangeMax)"
           placeholder="MM/DD/YYYY"
-          type="text"
+          prepend-icon=""
+          variant="outlined"
         />
         <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
           {{ rangeMaxLabel() }}
@@ -75,9 +79,14 @@
           :aria-describedby="`filter-range-max-placeholder-${position}`"
           :aria-required="true"
           autocomplete="off"
-          class="data-picker-text-input"
+          clearable
+          density="compact"
+          hide-actions
+          hide-details
           :min-date="rangeMin && dateTimeFromISO(rangeMin)"
           placeholder="MM/DD/YYYY"
+          prepend-icon=""
+          variant="outlined"
         />
       </div>
       <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
@@ -618,10 +627,8 @@ export default {
 </style>
 
 <style scoped>
-.data-picker-text-input {
-  border: 1px solid darkgrey;
-  border-radius: 5px;
-  padding: 7px 15px;
+.date-range-container {
+  min-width: 360px;
 }
 .existing-filter-name {
   width: 26%;
