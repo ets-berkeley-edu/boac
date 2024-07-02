@@ -137,7 +137,7 @@ export default createVuetify({
           'sky-blue': '#e3f5ff',
           success: '#437f4b',
           tertiary: '#125074',
-          warning: colors.orange.accent4
+          warning: '#f0ad4e'
         }
       }
     }
