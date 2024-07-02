@@ -45,19 +45,19 @@
     >
       <button
         :id="`academic-year-${year.label}-toggle`"
-        class="bg-grey-lighten-4 w-100"
+        class="bg-grey-lighten-5 w-100"
         @click="year.isOpen = !year.isOpen"
       >
-        <v-container fluid>
+        <v-container :class="year.isOpen ? 'border-e-thin border-s-thin border-t-thin' : 'border-thin'" fluid>
           <v-row align="center">
-            <v-col class="align-center d-flex px-0 text-left">
+            <v-col class="align-center d-flex px-0 text-left" :class="{'pb-0': year.isOpen}">
               <v-icon
                 class="mx-2"
                 color="primary"
                 :icon="year.isOpen ? mdiMenuDown : mdiMenuRight"
                 size="large"
               />
-              <h3 class="page-section-header-sub text-primary">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
+              <h3 class="font-size-18 text-primary">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
             </v-col>
             <v-col class="font-weight-500 text-grey-darken-3" cols="1">
               {{ sumBy(year.terms, 'enrolledUnits') || 0 }} Units
@@ -69,27 +69,30 @@
         <div
           v-show="year.isOpen"
           :aria-expanded="year.isOpen"
-          class="drawer"
+          class="border-b-thin border-e-thin border-s-thin drawer"
         >
           <v-container class="pa-0" fluid>
             <v-row no-gutters>
-              <v-col>
+              <v-col cols="4">
                 <StudentEnrollmentTerm
                   :id="`term-fall-${year.label - 1}`"
+                  class="bg-grey-lighten-5"
                   :student="student"
                   :term="getTerm(`Fall ${year.label - 1}`, year)"
                 />
               </v-col>
-              <v-col>
+              <v-col cols="4">
                 <StudentEnrollmentTerm
                   :id="`term-spring-${year.label}`"
+                  class="bg-grey-lighten-5"
                   :student="student"
                   :term="getTerm(`Spring ${year.label}`, year)"
                 />
               </v-col>
-              <v-col>
+              <v-col cols="4">
                 <StudentEnrollmentTerm
                   :id="`term-summer-${year.label}`"
+                  class="bg-grey-lighten-5"
                   :student="student"
                   :term="getTerm(`Summer ${year.label}`, year)"
                 />

@@ -108,7 +108,7 @@ export const useContextStore = defineStore('context', {
       this.loadingStartTime = new Date().getTime()
       alertScreenReader(`${String(get(useRoute().name, 'name', ''))} page is loading`)
     },
-    removeEventHandler(type, handler) {
+    removeEventHandler(type: string, handler?: any) {
       this.eventHub.off(type, handler)
     },
     removeMyCohort(cohortId: number) {
@@ -137,7 +137,7 @@ export const useContextStore = defineStore('context', {
     setDemoMode(inDemoMode: any): void {
       this.currentUser.inDemoMode = inDemoMode
     },
-    setEventHandler(type, handler) {
+    setEventHandler(type: string, handler: any) {
       this.eventHub.on(type, handler)
     },
     setMyDraftNoteCount(count: number) {
