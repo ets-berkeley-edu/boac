@@ -2,10 +2,17 @@
   <v-card
     class="student-term"
     :class="{'background-light student-term-current': config.currentEnrollmentTermId === parseInt(term.termId)}"
+    density="compact"
+    elevation="0"
   >
     <v-card-title>
-      <div class="student-term-header">
-        <h3 :id="`term-${term.termId}-header`" class="font-size-18 mb-0 mr-2">{{ term.termName }}</h3>
+      <div class="font-weight-500 text-grey-darken-3">
+        <h3
+          :id="`term-${term.termId}-header`"
+          class="font-size-18 font-weight-500 text-grey-darken-3 mb-0 mr-2"
+        >
+          {{ term.termName }}
+        </h3>
         <span v-if="isConcurrent" class="font-size-14 text-muted ml-1 mr-3">UCBX</span>
         <StudentAcademicStanding
           v-if="term.academicStanding"
@@ -21,7 +28,6 @@
       </div>
     </v-card-title>
     <v-card-text role="table">
-      <!-- TODO: Make this a real table. -->
       <div role="rowgroup">
         <div role="row" class="student-course-label student-course-header text-nowrap">
           <div role="columnheader" class="student-course-column-name">Course</div>
@@ -171,16 +177,6 @@ const showMinUnits = ref(!isNil(minUnits) && minUnits !== config.defaultTermUnit
   font-style: italic;
   height: 2.2em;
   padding: 3px 10px 0;
-}
-.student-term-header {
-  align-items: baseline;
-  border: none;
-  display: flex;
-  flex-wrap: wrap;
-  font-weight: 700;
-  height: 2.8em;
-  line-height: 1.1;
-  padding: 10px 10px 0;
 }
 .student-term-footer {
   border-top: 1px #999 solid !important;

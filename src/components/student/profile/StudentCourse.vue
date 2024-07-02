@@ -5,15 +5,18 @@
       role="row"
       class="student-course-row"
     >
-      <div role="cell" class="student-course-column-name overflow-hidden">
+      <div role="cell" class="student-course-column-name overflow-hidden pt-1 pl-1 pr-2">
         <v-btn
           :id="`term-${termId}-course-${index}-toggle`"
-          :aria-controls="`term-${termId}-course-${index}-details`"
           :aria-expanded="detailsVisible ? 'true' : 'false'"
-          class="d-flex flex-row-reverse student-course-collapse-button w-100"
-          variant="plain"
-          @click="() => showDetailsPanel = !showDetailsPanel"
+          :aria-controls="`term-${termId}-course-${index}-details`"
+          block
+          class="align-center d-flex student-course-collapse-button"
+          variant="text"
+          @click="() => detailsVisible = !detailsVisible"
         >
+          <v-icon :icon="detailsVisible ? mdiMenuDown : mdiMenuRight" />
+          <span class="sr-only">{{ detailsVisible ? 'Hide' : 'Show' }} {{ course.displayName }} class details for {{ student.name }}</span>
           <div
             :id="`term-${termId}-course-${index}-name`"
             class="text-left truncate-with-ellipsis ml-2 student-course-name"
@@ -21,26 +24,22 @@
           >
             {{ course.displayName }}
           </div>
-          <v-icon :icon="mdiMenuRight" class="caret when-course-closed" />
-          <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
-          <v-icon :icon="mdiMenuDown" class="caret when-course-open" />
-          <span class="when-course-open sr-only">Hide {{ course.displayName }} class details for {{ student.name }}</span>
         </v-btn>
         <div
           v-if="course.waitlisted"
           :id="`waitlisted-for-${termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
-          class="ml-4 error font-weight-bold student-course-waitlisted text-uppercase"
+          class="ml-4 red-flag-status student-course-waitlisted text-uppercase"
           :class="{'my-2 position-absolute': detailsVisible}"
         >
           Waitlisted
         </div>
       </div>
-      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-no-wrap">
+      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-nowrap">
         <span
           v-if="course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
           v-accessible-grade="course.midtermGrade"
-        />
+        ></span>
         <span
           v-if="!course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
@@ -52,7 +51,7 @@
           class="boac-exclamation"
         />
       </div>
-      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-no-wrap">
+      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-nowrap">
         <span
           v-if="course.grade"
           :id="`term-${termId}-course-${index}-final-grade`"
@@ -61,7 +60,7 @@
         <span
           v-if="!course.grade"
           :id="`term-${termId}-course-${index}-final-grade`"
-          class="font-italic text-grey-darken-2"
+          class="font-italic text-muted"
         >{{ course.gradingBasis }}</span>
         <v-icon
           v-if="isAlertGrade(course.grade)"
@@ -77,28 +76,23 @@
         />
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
-      <div role="cell" class="student-course-column-units font-size-14 text-no-wrap pt-1 pl-1">
+      <div role="cell" class="student-course-column-units font-size-14 text-nowrap pt-1 pl-1">
         <span :id="`term-${termId}-course-${index}-units`">{{ numFormat(course.units, '0.0') }}</span>
       </div>
     </div>
-    <v-expansion-panels v-model="expansionPanels">
-      <v-expansion-panel
-        :id="`term-${termId}-course-${index}-spacer`"
-        value="spacer"
-      >
-        <div :style="{height: spacerHeight + 'px'}" class="d-none d-xl-block" />
-      </v-expansion-panel>
-      <v-expansion-panel
-        :id="`term-${termId}-course-${index}-details`"
-        accordion="student-course-detail-accordion"
-        class="student-course-details"
-        role="row"
-        value="details"
-        @show="onShow"
-        @shown="onShown"
-        @hide="onHide"
-        @hidden="onHidden"
-      >
+    <transition :id="`term-${termId}-course-${index}-spacer`">
+      <div v-show="!detailsVisible && spacerHeight" :style="{height: `${spacerHeight}px`}" class="d-none d-xl-block" />
+    </transition>
+    <transition
+      :id="`term-${termId}-course-${index}-details`"
+      role="row"
+      class="student-course-details"
+      @after-enter="onShown"
+      @after-leave="onHidden"
+      @before-enter="onShow"
+      @before-leave="onHide"
+    >
+      <div v-if="detailsVisible">
         <div
           :id="`term-${termId}-course-${index}-details-name`"
           class="student-course-details-name"
@@ -128,7 +122,7 @@
         <div :id="`term-${termId}-course-${index}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
         <div v-if="course.courseRequirements">
           <div v-for="requirement in course.courseRequirements" :key="requirement" class="student-course-requirements">
-            <v-icon :icon="mdiStar" class="text-warning" /> {{ requirement }}
+            <v-icon class="text-warning" :icon="mdiStar" /> {{ requirement }}
           </div>
         </div>
         <div v-if="currentUser.canAccessCanvasData">
@@ -157,12 +151,12 @@
                   <span
                     v-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile"
                     :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-submitted`"
-                    class="font-italic text-grey-darken-2"
+                    class="font-italic text-muted"
                   >
                     No Assignments
                   </span>
                 </td>
-                <td class="boxplot-container boxplot-container-width">
+                <td class="profile-boxplot-container">
                   <StudentBoxplot
                     v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
                     :chart-description="`Boxplot of ${student.name}'s assignments submitted in ${canvasSite.courseCode}`"
@@ -181,13 +175,13 @@
                     <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                       Score:
                       <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-                      <span class="text-grey-darken-2 text-no-wrap">
+                      <span class="text-muted text-nowrap">
                         (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
                       </span>
                     </span>
                     <span
                       v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles"
-                      class="font-italic text-grey-darken-2"
+                      class="font-italic text-muted"
                     >
                       No Data
                     </span>
@@ -205,12 +199,12 @@
                   <span
                     v-if="!canvasSite.analytics.currentScore.displayPercentile"
                     :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades`"
-                    class="font-italic text-grey-darken-2"
+                    class="font-italic text-muted"
                   >
                     No Grades
                   </span>
                 </td>
-                <td class="boxplot-container boxplot-container-width">
+                <td class="profile-boxplot-container">
                   <StudentBoxplot
                     v-if="canvasSite.analytics.currentScore.boxPlottable"
                     :chart-description="`Boxplot of ${student.name}'s assignment grades in ${canvasSite.courseCode}`"
@@ -229,13 +223,13 @@
                     <span v-if="canvasSite.analytics.currentScore.courseDeciles">
                       Score:
                       <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
-                      <span class="text-grey-darken-2 text-no-wrap">
+                      <span class="text-muted text-nowrap">
                         (Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
                       </span>
                     </span>
                     <span
                       v-if="!canvasSite.analytics.currentScore.courseDeciles"
-                      class="font-italic text-grey-darken-2 text-no-wrap"
+                      class="font-italic text-muted text-nowrap"
                     >
                       No Data
                     </span>
@@ -259,17 +253,17 @@
               </tr>
             </table>
           </div>
-          <div v-if="isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-grey-darken-2">
+          <div v-if="isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-muted">
             No additional information
           </div>
         </div>
         <div
           v-for="section in sectionsWithIncompleteStatus"
           :key="section.ccn"
-          class="align-center d-flex pb-2"
+          class="align-items-center d-flex pb-2"
         >
-          <div class="align-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-no-wrap">
-            <v-icon class="mr-1" :icon="mdiInformationOutline" size="sm" />
+          <div class="align-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-nowrap">
+            <v-icon class="mr-1" :icon="mdiInformationSlabBox" />
             <span class="font-size-12">Incomplete Grade</span>
           </div>
           <div :id="`term-${termId}-section-${section.ccn}-has-incomplete-grade`" class="font-size-14">
@@ -277,112 +271,91 @@
             {{ getIncompleteGradeDescription(course.displayName, [section]) }}
           </div>
         </div>
-      </v-expansion-panel>
-    </v-expansion-panels>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
-import {mdiAlertRhombus, mdiInformationOutline, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
-import {isEmpty} from 'lodash'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
 import {
   getIncompleteGradeDescription,
   getSectionsWithIncompleteStatus,
   isAlertGrade,
   lastActivityDays
 } from '@/berkeley'
+import {mdiAlertRhombus, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
+import {numFormat} from '@/lib/utils'
+import {onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
+import {isEmpty} from 'lodash'
 
-export default {
-  name: 'StudentCourse',
-  mixins: [Context, Util],
-  props: {
-    course: {
-      required: true,
-      type: Object
-    },
-    index: {
-      required: true,
-      type: Number
-    },
-    student: {
-      required: true,
-      type: Object
-    },
-    termId: {
-      required: true,
-      type: String
-    },
-    year: {
-      required: true,
-      type: String
-    }
+const contextStore = useContextStore()
+const config = contextStore.config
+const currentUser = contextStore.currentUser
+
+const props = defineProps({
+  course: {
+    required: true,
+    type: Object
   },
-  data: () => ({
-    detailsVisible: false,
-    sectionsWithIncompleteStatus: undefined,
-    showDetailsPanel: false,
-    spacerHeight: 0
-  }),
-  computed: {
-    expansionPanels() {
-      const panels = this.detailsVisible && this.spacerHeight ? ['spacer'] : []
-      if (this.showDetailsPanel) {
-        panels.push('details')
-      }
-      return panels
-    },
-    showSpacer: vm => !vm.detailsVisible && !!vm.spacerHeight
+  index: {
+    required: true,
+    type: Number
   },
-  mounted() {
-    const eventHub = useContextStore().eventHub
-    eventHub.on(`year-${this.year}-course-${this.index}-show`, () => this.spacerHeight = 120)
-    eventHub.on(`year-${this.year}-course-${this.index}-shown`, offsetHeight => this.spacerHeight = offsetHeight)
-    eventHub.on(`year-${this.year}-course-${this.index}-hide`, () => this.spacerHeight = 0)
+  student: {
+    required: true,
+    type: Object
   },
-  beforeDestroy() {
-    const eventHub = useContextStore().eventHub
-    eventHub.off(`year-${this.year}-course-${this.index}-show`)
-    eventHub.off(`year-${this.year}-course-${this.index}-shown`)
-    eventHub.off(`year-${this.year}-course-${this.index}-hide`)
+  termId: {
+    required: true,
+    type: String
   },
-  created() {
-    this.sectionsWithIncompleteStatus = getSectionsWithIncompleteStatus(this.course.sections)
-  },
-  methods: {
-    getIncompleteGradeDescription,
-    isAlertGrade,
-    lastActivityDays,
-    lastActivityInContext(analytics) {
-      let describe = ''
-      if (analytics.courseEnrollmentCount) {
-        const total = analytics.courseEnrollmentCount
-        const percentAbove = (100 - analytics.lastActivity.student.roundedUpPercentile) / 100
-        describe += `${Math.round(percentAbove * total)} out of ${total} enrolled students have done so more recently.`
-      }
-      return describe
-    },
-    onHide() {
-      useContextStore().eventHub.emit(`year-${this.year}-course-${this.index}-hide`)
-    },
-    onHidden() {
-      this.detailsVisible = false
-    },
-    onShow() {
-      useContextStore().eventHub.emit(`year-${this.year}-course-${this.index}-show`)
-      this.detailsVisible = true
-    },
-    onShown() {
-      useContextStore().eventHub.emit(`year-${this.year}-course-${this.index}-shown`, this.$refs.details.$el.offsetHeight)
-    }
+  year: {
+    required: true,
+    type: String
   }
+})
+const detailsVisible = ref(false)
+const eventNamePrefix = `year-${props.year}-course-${props.index}`
+const sectionsWithIncompleteStatus = ref(getSectionsWithIncompleteStatus(props.course.sections))
+const spacerHeight = ref(0)
+
+onMounted(() => {
+  contextStore.setEventHandler(`${eventNamePrefix}-show`, () => spacerHeight.value = 120)
+  contextStore.setEventHandler(`${eventNamePrefix}-shown`, offsetHeight => spacerHeight.value = offsetHeight)
+  contextStore.setEventHandler(`${eventNamePrefix}-hide`, () => spacerHeight.value = 0)
+})
+
+onUnmounted(() => {
+  contextStore.removeEventHandler(`${eventNamePrefix}-show`)
+  contextStore.removeEventHandler(`${eventNamePrefix}-shown`)
+  contextStore.removeEventHandler(`${eventNamePrefix}-hide`)
+})
+
+const lastActivityInContext = analytics => {
+  let describe = ''
+  if (analytics.courseEnrollmentCount) {
+    const total = analytics.courseEnrollmentCount
+    const percentAbove = (100 - analytics.lastActivity.student.roundedUpPercentile) / 100
+    describe += `${Math.round(percentAbove * total)} out of ${total} enrolled students have done so more recently.`
+  }
+  return describe
+}
+
+const onHide = () => contextStore.broadcast(`${eventNamePrefix}-hide`)
+
+const onHidden = () => detailsVisible.value = false
+
+const onShow = () => {
+  contextStore.broadcast(`${eventNamePrefix}-show`)
+  detailsVisible.value = true
+}
+
+const onShown = () => {
+  const el = document.getElementById(`term-${props.termId}-course-${props.index}-details`)
+  contextStore.broadcast(`${eventNamePrefix}-shown`, el.offsetHeight)
 }
 </script>
 
@@ -402,45 +375,11 @@ export default {
   height: 1.1em;
   width: 10px;
 }
-.boxplot-container {
-  align-items: flex-end;
-  display: flex;
-}
-.boxplot-container .highcharts-tooltip {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  line-height: 1.4em;
-  min-width: 200px;
-  padding: 0;
-}
-.boxplot-container .highcharts-tooltip::after {
-  background: #fff;
-  border: 1px solid #aaa;
-  border-width: 0 1px 1px 0;
-  content: '';
-  display: block;
-  height: 10px;
-  position: absolute;
-  top: 75px;
-  left: -6px;
-  transform: rotate(135deg);
-  width: 10px;
-}
-.boxplot-container g.highcharts-tooltip {
-  display: none !important;
-}
-.boxplot-container .highcharts-tooltip span {
-  position: relative !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: auto !important;
-}
 .collapsed > .when-course-open,
 .not-collapsed > .when-course-closed {
   display: none;
 }
-.boxplot-container-width {
+.profile-boxplot-container {
   min-width: 13em;
 }
 .student-bcourses {
@@ -478,6 +417,7 @@ export default {
 .student-course {
   display: flex;
   flex-direction: column;
+  padding: 3px 10px 0 !important;
   position: relative
 }
 .student-course-collapse-button {
