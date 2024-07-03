@@ -15,25 +15,10 @@
       </div>
     </div>
     <div class="default-margins">
-      <div class="border-b-sm pb-3">
+      <div class="border-b-sm">
         <AcademicTimeline :student="student" />
       </div>
-      <div v-if="currentUser.canReadDegreeProgress" class="float-end mr-3 mt-3">
-        <router-link
-          id="view-degree-checks-link"
-          class="font-weight-medium"
-          target="_blank"
-          :to="degreeCheckPath"
-        >
-          <div class="align-center d-flex">
-            <div>
-              Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
-            </div>
-            <v-icon class="ml-1" :icon="mdiOpenInNew" size="18" />
-          </div>
-        </router-link>
-      </div>
-      <StudentClasses class="mt-5" :student="student" />
+      <StudentClasses class="mt-3" :student="student" />
     </div>
     <AreYouSureModal
       v-model="showAreYouSureModal"
@@ -45,16 +30,15 @@
 </template>
 
 <script setup>
-import {mdiOpenInNew} from '@mdi/js'
 import AcademicTimeline from '@/components/student/profile/AcademicTimeline'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import StudentClasses from '@/components/student/profile/StudentClasses'
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
-import {alertScreenReader, scrollToTop, setPageTitle, studentRoutePath} from '@/lib/utils'
+import {alertScreenReader, scrollToTop, setPageTitle} from '@/lib/utils'
 import {exitSession} from '@/stores/note-edit-session/utils'
-import {each, find, get, noop} from 'lodash'
+import {each, get, noop} from 'lodash'
 import {getStudentByUid} from '@/api/student'
 import {onBeforeRouteLeave, useRoute} from 'vue-router'
 import {computed, onMounted, reactive, ref} from 'vue'
@@ -69,7 +53,6 @@ const noteStore = useNoteStore()
 let cancelTheCancel = noop
 let cancelConfirmed = noop
 const currentUser = reactive(contextStore.currentUser)
-let degreeCheckPath
 const loading = computed(() => contextStore.loading)
 const route = useRoute()
 const showAreYouSureModal = ref(false)
@@ -101,14 +84,6 @@ onMounted(() => {
         })
       }
     })
-    const currentDegreeCheck = find(student.degreeChecks, 'isCurrent')
-    if (currentDegreeCheck) {
-      degreeCheckPath = `/student/degree/${currentDegreeCheck.id}`
-    } else if (currentUser.canEditDegreeProgress) {
-      degreeCheckPath = `${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`
-    } else {
-      degreeCheckPath = `${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/history`
-    }
     contextStore.loadingComplete(`${student.name} loaded`)
     if (!location.hash) {
       scrollToTop()
