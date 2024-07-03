@@ -54,7 +54,7 @@ module.exports = {
     'vue/no-use-v-if-with-v-for': 2,
     'vue/no-v-html': 0,
     'vue/no-v-for-template-key-on-child': 2,
-    'vue/no-v-text-v-html-on-component': 1,
+    'vue/no-v-text-v-html-on-component': 0,
     'vue/order-in-components': 2,
     'vue/require-default-prop': 2,
     'vue/require-direct-export': 2,

@@ -1,9 +1,7 @@
 <template>
-  <div id="student-terms-container" class="m-3 p-0">
-    <div class="align-center d-flex mb-2 px-2">
-      <div class="pt-1">
-        <h2 class="student-section-header mr-2">Classes</h2>
-      </div>
+  <div id="student-terms-container">
+    <div class="align-center d-flex">
+      <h2 class="student-section-header">Classes</h2>
       <div>
         <v-btn
           v-if="enrollmentTermsByYear.length > 1"
@@ -27,13 +25,18 @@
           <v-icon :icon="yearSortOrder === 'desc' ? mdiArrowDownThin : mdiArrowUpThin" />
         </v-btn>
       </div>
-      <div v-if="currentUser.canReadDegreeProgress" class="flex-shrink-1">
+      <div v-if="currentUser.canReadDegreeProgress">
         <router-link
           id="view-degree-checks-link"
           target="_blank"
           :to="getDegreeCheckPath()"
         >
-          Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
+          <div class="align-center d-flex">
+            <div>
+              Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
+            </div>
+            <v-icon class="ml-1" :icon="mdiOpenInNew" size="18" />
+          </div>
         </router-link>
       </div>
     </div>
@@ -48,18 +51,37 @@
         class="bg-grey-lighten-5 w-100"
         @click="year.isOpen = !year.isOpen"
       >
-        <v-container :class="year.isOpen ? 'border-e-thin border-s-thin border-t-thin' : 'border-thin'" fluid>
-          <v-row align="center">
-            <v-col class="align-center d-flex px-0 text-left" :class="{'pb-0': year.isOpen}">
+        <v-container
+          :class="year.isOpen ? 'border-e-thin border-s-thin border-t-thin' : 'border-thin'"
+          fluid
+        >
+          <v-row>
+            <v-col
+              class="align-center d-flex pt-2 px-0 text-left"
+              :class="{
+                'pb-0': !$vuetify.display.mdAndUp,
+                'pb-2': $vuetify.display.mdAndUp
+              }"
+              :cols="$vuetify.display.mdAndUp ? 11 : 12"
+            >
               <v-icon
-                class="mx-2"
+                class="mx-1"
                 color="primary"
                 :icon="year.isOpen ? mdiMenuDown : mdiMenuRight"
                 size="large"
               />
               <h3 class="font-size-18 text-primary">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
             </v-col>
-            <v-col class="font-weight-500 text-grey-darken-3" cols="1">
+            <v-col
+              class="font-weight-500 pt-2 text-grey-darken-3 text-no-wrap"
+              :class="{
+                'float-right': $vuetify.display.mdAndUp,
+                'pl-9 text-left': !$vuetify.display.mdAndUp,
+                'pb-0': year.isOpen,
+                'pb-2': !year.isOpen
+              }"
+              :cols="$vuetify.display.mdAndUp ? 1 : 12"
+            >
               {{ sumBy(year.terms, 'enrolledUnits') || 0 }} Units
             </v-col>
           </v-row>
@@ -71,9 +93,9 @@
           :aria-expanded="year.isOpen"
           class="border-b-thin border-e-thin border-s-thin drawer"
         >
-          <v-container class="pa-0" fluid>
+          <v-container class="pl-6 pt-0" fluid>
             <v-row no-gutters>
-              <v-col cols="4">
+              <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-fall-${year.label - 1}`"
                   class="bg-grey-lighten-5"
@@ -81,7 +103,7 @@
                   :term="getTerm(`Fall ${year.label - 1}`, year)"
                 />
               </v-col>
-              <v-col cols="4">
+              <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-spring-${year.label}`"
                   class="bg-grey-lighten-5"
@@ -89,7 +111,7 @@
                   :term="getTerm(`Spring ${year.label}`, year)"
                 />
               </v-col>
-              <v-col cols="4">
+              <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-summer-${year.label}`"
                   class="bg-grey-lighten-5"
@@ -109,7 +131,7 @@
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import {alertScreenReader, studentRoutePath} from '@/lib/utils'
 import {each, find, groupBy, includes, map, orderBy, sumBy} from 'lodash'
-import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight} from '@mdi/js'
+import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {sisIdForTermName} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
@@ -175,11 +197,5 @@ const toggleSortOrder = () => {
 <style scoped>
 .drawer {
   background-color: #f5fbff;
-}
-</style>
-
-<style scoped>
-.color-black {
-  color: #000;
 }
 </style>
