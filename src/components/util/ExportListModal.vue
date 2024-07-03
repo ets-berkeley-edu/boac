@@ -12,63 +12,65 @@
       min-width="500"
       max-width="600"
     >
-      <ModalHeader text="Export List" />
-      <hr />
-      <div id="export-list-body" class="px-4 py-2">
-        <div
-          id="csv-column-options"
-          aria-label="Select columns to export"
-          class="d-flex flex-column flex-wrap csv-column-options mb-5"
-          name="csv-column-options"
-          role="group"
-        >
-          <template v-for="(option, index) in csvColumns" :key="index">
-            <v-checkbox
-              :id="`csv-column-options-${index}`"
-              :model-value="includes(selected, option.value)"
-              :aria-label="`${option.text} column included in export`"
-              class="csv-column-option"
-              color="primary"
-              density="compact"
-              :disabled="isExporting"
-              hide-details
-              :label="option.text"
-              @update:model-value="isChecked => onChange(option.value, isChecked)"
-            />
-          </template>
+      <div class="pr-6 pl-6">
+        <ModalHeader text="Export List" />
+        <hr />
+        <div id="export-list-body" class="px-4 py-2">
+          <div
+            id="csv-column-options"
+            aria-label="Select columns to export"
+            class="d-flex flex-column flex-wrap csv-column-options mb-5"
+            name="csv-column-options"
+            role="group"
+          >
+            <template v-for="(option, index) in csvColumns" :key="index">
+              <v-checkbox
+                :id="`csv-column-options-${index}`"
+                :model-value="includes(selected, option.value)"
+                :aria-label="`${option.text} column included in export`"
+                class="csv-column-option"
+                color="primary"
+                density="compact"
+                :disabled="isExporting"
+                hide-details
+                :label="option.text"
+                @update:model-value="isChecked => onChange(option.value, isChecked)"
+              />
+            </template>
+          </div>
+          <div>
+            <span class="font-weight-bold">Reminder:</span> <FerpaReminder />
+          </div>
         </div>
-        <div>
-          <span class="font-weight-bold">Reminder:</span> <FerpaReminder />
+        <hr />
+        <div aria-live="polite">
+          <v-alert
+            v-if="error && !isExporting"
+            class="font-size-15 mx-4 mb-2"
+            color="error"
+            density="compact"
+            :icon="mdiAlert"
+            :text="error"
+            title="Error"
+            variant="tonal"
+          />
         </div>
-      </div>
-      <hr />
-      <div aria-live="polite">
-        <v-alert
-          v-if="error && !isExporting"
-          class="font-size-15 mx-4 mb-2"
-          color="error"
-          density="compact"
-          :icon="mdiAlert"
-          :text="error"
-          title="Error"
-          variant="tonal"
-        />
-      </div>
-      <div class="d-flex justify-end px-4 py-2">
-        <ProgressButton
-          id="export-list-confirm"
-          :action="onSubmit"
-          :disabled="!selected.length"
-          :in-progress="isExporting"
-          text="Export"
-        />
-        <v-btn
-          id="export-list-cancel"
-          class="ml-1"
-          text="Close"
-          variant="plain"
-          @click="cancel"
-        />
+        <div class="d-flex justify-end px-4 py-2">
+          <ProgressButton
+            id="export-list-confirm"
+            :action="onSubmit"
+            :disabled="!selected.length"
+            :in-progress="isExporting"
+            text="Export"
+          />
+          <v-btn
+            id="export-list-cancel"
+            class="ml-1"
+            text="Close"
+            variant="plain"
+            @click="cancel"
+          />
+        </div>
       </div>
     </v-card>
   </v-overlay>
