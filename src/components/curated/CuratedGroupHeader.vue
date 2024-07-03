@@ -17,11 +17,9 @@
           :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
           :aria-required="true"
           class="v-input-details-override mr-3"
-          counter="255"
-          density="comfortable"
+          density="compact "
           :disabled="isSaving"
           maxlength="255"
-          persistent-counter
           required
           type="text"
           @keyup.enter="rename"
@@ -38,20 +36,18 @@
           Name cannot exceed 255 characters.
         </div>
       </div>
-      <div v-if="mode === 'rename'" class="d-flex align-self-baseline mr-2">
+      <div v-if="mode === 'rename'" class="d-flex align-self-baseline mr-2 mb-5">
         <v-btn
           id="rename-confirm"
-          class="font-size-15 px-1 text-no-wrap"
+          class="font-size-14 px-1 text-no-wrap"
           color="primary"
           :disabled="!_size(renameInput)"
-          size="large"
           text="Rename"
           @click="rename"
         />
         <v-btn
           id="rename-cancel"
           :disabled="isSaving"
-          size="large"
           text="Cancel"
           variant="plain"
           @click="exitRenameMode"
@@ -115,13 +111,13 @@
               </v-card-text>
               <template #actions>
                 <v-btn
-                  class="ms-auto"
                   text="Delete"
-                  color="blue-darken-4"
+                  color="#3c6bc9"
+                  variant="flat"
                   @click="deleteGroup"
                 ></v-btn>
                 <v-btn
-                  class="ms-auto"
+                  class="text-primary"
                   text="Cancel"
                   @click="isDeleteModalOpen = false"
                 ></v-btn>
@@ -171,7 +167,7 @@
           <v-btn
             v-if="domain === 'default'"
             id="export-student-list-button"
-            class="px-1"
+            class="px-1 text-primary"
             :disabled="!exportEnabled || !totalStudentCount"
             text="Export List"
             variant="text"
@@ -180,7 +176,7 @@
           <v-btn
             v-if="domain === 'admitted_students'"
             id="export-student-list-button"
-            class="px-1"
+            class="px-1 text-primary"
             :disabled="!exportEnabled || !totalStudentCount"
             text="Export List"
             variant="text"
@@ -348,5 +344,12 @@ export default {
 }
 .modal-header {
   border-bottom: none;
+}
+:deep(.v-input-details-override .v-input__details) {
+  margin-bottom: -25px !important;
+}
+
+:deep(.v-dialog > .v-overlay__content > .v-card > .v-card-text, .v-dialog > .v-overlay__content > form > .v-card > .v-card-text) {
+  padding: 0px !important;
 }
 </style>
