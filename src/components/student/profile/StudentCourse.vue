@@ -1,5 +1,5 @@
 <template>
-  <div class="student-course" :class="{'student-course-expanded': detailsVisible}">
+  <div class="student-course" :class="{'student-course-expanded': showCourseDetails}">
     <div
       :id="`term-${termId}-course-${index}`"
       role="row"
@@ -8,29 +8,29 @@
       <div role="cell" class="student-course-column-name overflow-hidden">
         <v-btn
           :id="`term-${termId}-course-${index}-toggle`"
-          :aria-expanded="detailsVisible ? 'true' : 'false'"
+          :aria-expanded="showCourseDetails ? 'true' : 'false'"
           :aria-controls="`term-${termId}-course-${index}-details`"
           class="align-center d-flex pl-0"
           color="primary"
           density="compact"
           variant="text"
-          @click="() => detailsVisible = !detailsVisible"
+          @click="toggleShowCourseDetails"
         >
-          <v-icon :icon="detailsVisible ? mdiMenuDown : mdiMenuRight" />
-          <span class="sr-only">{{ detailsVisible ? 'Hide' : 'Show' }} {{ course.displayName }} class details for {{ student.name }}</span>
+          <v-icon :icon="showCourseDetails ? mdiMenuDown : mdiMenuRight" />
+          <span class="sr-only">{{ showCourseDetails ? 'Hide' : 'Show' }} {{ course.displayName }} class details for {{ student.name }}</span>
           <div
             :id="`term-${termId}-course-${index}-name`"
             class="text-left truncate-with-ellipsis student-course-name"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
           >
-            {{ course.displayName }}
+            {{ index }} | {{ year }} | {{ course.displayName }}
           </div>
         </v-btn>
         <div
           v-if="course.waitlisted"
           :id="`waitlisted-for-${termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
           class="ml-4 red-flag-status student-course-waitlisted text-uppercase"
-          :class="{'my-2 position-absolute': detailsVisible}"
+          :class="{'my-2 position-absolute': showCourseDetails}"
         >
           Waitlisted
         </div>
@@ -82,12 +82,8 @@
         <span :id="`term-${termId}-course-${index}-units`">{{ numFormat(course.units, '0.0') }}</span>
       </div>
     </div>
-    <transition
-      :id="`term-${termId}-course-${index}-details`"
-      role="row"
-      @before-enter="onShow"
-    >
-      <div v-if="detailsVisible">
+    <v-expand-transition>
+      <div v-if="showCourseDetails">
         <div
           :id="`term-${termId}-course-${index}-details-name`"
           class="student-course-details-name"
@@ -267,7 +263,16 @@
           </div>
         </div>
       </div>
-    </transition>
+    </v-expand-transition>
+    <v-expand-transition>
+      <div
+        v-if="showSpacer"
+        class="bg-pink-lighten-5"
+        style="height: 155px;"
+      >
+        Allo
+      </div>
+    </v-expand-transition>
   </div>
 </template>
 
@@ -312,16 +317,29 @@ const props = defineProps({
     type: String
   }
 })
-const detailsVisible = ref(false)
-const eventWhenShow = `show-student-${props.student.uid}-course`
+const showCourseDetails = ref(false)
+const showSpacer = ref(false)
 const sectionsWithIncompleteStatus = ref(getSectionsWithIncompleteStatus(props.course.sections))
+const toggleEventName = `student-${props.student.uid}-course`
 
 onMounted(() => {
-  contextStore.setEventHandler(eventWhenShow, ({index, termId}) => detailsVisible.value = index === props.index && termId === props.termId)
+  contextStore.setEventHandler(toggleEventName, ({isExpanded, index, termId, year}) => {
+    const isNotThisCourse = index !== props.index || termId !== props.termId || year !== props.year
+    if (isNotThisCourse) {
+      if (isExpanded) {
+        // Hide course details when the details of some other course are shown.
+        showCourseDetails.value = false
+      }
+      const isAlignedHorizontally = index === props.index && year === props.year
+      if (isAlignedHorizontally) {
+        showSpacer.value = isExpanded
+      }
+    }
+  })
 })
 
 onUnmounted(() => {
-  contextStore.removeEventHandler(eventWhenShow)
+  contextStore.removeEventHandler(toggleEventName)
 })
 
 const lastActivityInContext = analytics => {
@@ -334,8 +352,14 @@ const lastActivityInContext = analytics => {
   return describe
 }
 
-const onShow = () => {
-  contextStore.broadcast(eventWhenShow, {index: props.index, termId: props.termId})
+const toggleShowCourseDetails = () => {
+  showCourseDetails.value = !showCourseDetails.value
+  contextStore.broadcast(toggleEventName, {
+    index: props.index,
+    isExpanded: showCourseDetails.value,
+    termId: props.termId,
+    year: props.year
+  })
 }
 </script>
 
