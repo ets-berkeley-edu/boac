@@ -2,64 +2,45 @@
   <div class="default-margins">
     <div class="align-items-center d-flex pb-3">
       <div class="pr-3 pt-1">
-        <v-icon :icon="mdiAirplaneTakeoff" :style="{color: '#3b7ea5'}" size="x-large"></v-icon>
+        <v-icon :icon="mdiAirplaneTakeoff" :style="{color: '#3b7ea5'}" size="x-large" />
       </div>
-      <div class="pt-2">
+      <div class="align-center d-flex pt-2">
         <h1 class="page-section-header">BOA v{{ BOA.version }} Flight Deck</h1>
-      </div>
-    </div>
-    <div v-if="config.isDemoModeAvailable">
-      <div class="pt-3">
-        <h2 class="mb-0 page-section-header-sub">Demo Mode</h2>
-      </div>
-      <DemoModeToggle />
-    </div>
-    <div class="mt-2 pt-4">
-      <h2 id="edit-service-announcement" class="page-section-header-sub">Service Alert</h2>
-      <EditServiceAnnouncement />
-    </div>
-    <div class="mt-2 pt-5">
-      <h2 id="manage-topics-header mb-3" class="page-section-header-sub">Manage Topics</h2>
-      <ManageTopics />
-    </div>
-    <div class="mt-2 pt-5">
-      <div class="pb-3 pt-3">
-        <h2 class="mb-0 page-section-header-sub">Application Profile</h2>
-      </div>
-      <ul v-if="BOA.build" class="ml-6">
-        <li>Artifact: {{ BOA.build.artifact || '&mdash;' }}</li>
-        <li v-if="BOA.build.gitCommit">Git commit: <a :href="`https://github.com/ets-berkeley-edu/boac/commit/${BOA.build.gitCommit}`">{{ meta.build.gitCommit }}</a></li>
-      </ul>
-    </div>
-    <div class="pl-3">
-      <div class="align-items-center d-flex">
-        <div class="pb-1 pl-2">
-          [<v-btn
-            id="flight-deck-show-hide-config"
-            class="m-0 p-0"
-            :class="{'collapsed': showConfigs}"
-            aria-controls="collapse-config"
-            variant="flat"
-            @click="showConfigs = !showConfigs"
-          >
-            <div class="pb-1">
-              {{ showConfigs ? 'Hide' : 'Show' }} config
-            </div>
-          </v-btn>]
+        <div v-if="get(BOA.build, 'gitCommit')">
+          <a :href="`https://github.com/ets-berkeley-edu/boac/commit/${BOA.build.gitCommit}`" target="_blank">
+            <span class="sr-only">Github commit {{ BOA.build.gitCommit }}</span>
+            <v-icon :icon="mdiGithub" />
+          </a>
         </div>
       </div>
-      <v-table v-show="showConfigs">
-        <tbody>
-          <tr
-            v-for="item in config"
-            :key="item.key"
-          >
-            <td>{{ item.key }}</td>
-            <td>{{ item.value }}</td>
-          </tr>
-        </tbody>
-      </v-table>
     </div>
+    <div v-if="config.isDemoModeAvailable" class="mb-4">
+      <h2 class="mb-2 page-section-header-sub text-primary">Demo Mode</h2>
+      <DemoModeToggle />
+    </div>
+    <div class="mb-8">
+      <h2 id="edit-service-announcement" class="page-section-header-sub text-primary">Service Alert</h2>
+      <div class="mx-2">
+        <EditServiceAnnouncement />
+      </div>
+    </div>
+    <div>
+      <h2 id="manage-topics-header" class="mb-4 page-section-header-sub text-primary">Manage Topics</h2>
+      <div class="ml-2">
+        <ManageTopics />
+      </div>
+    </div>
+    <div class="mb-3 mt-10">
+      <h2 class="page-section-header-sub text-primary">Configs</h2>
+    </div>
+    <v-table density="compact" hover>
+      <tbody>
+        <tr v-for="key in Object.keys(config).sort()" :key="key">
+          <td class="pl-0">{{ key }}</td>
+          <td>{{ config[key] || '&mdash;' }}</td>
+        </tr>
+      </tbody>
+    </v-table>
   </div>
 </template>
 
@@ -68,14 +49,14 @@ import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement'
 import ManageTopics from '@/components/topics/ManageTopics'
 import {getVersion} from '@/api/config'
-import {mdiAirplaneTakeoff} from '@mdi/js'
-import {onMounted, ref} from 'vue'
+import {mdiAirplaneTakeoff, mdiGithub} from '@mdi/js'
+import {onMounted} from 'vue'
 import {useContextStore} from '@/stores/context'
+import {get} from 'lodash'
 
 let BOA = {}
 const contextStore = useContextStore()
 const config = contextStore.config
-const showConfigs = ref(false)
 
 onMounted(() => getVersion().then(data => BOA = data))
 </script>

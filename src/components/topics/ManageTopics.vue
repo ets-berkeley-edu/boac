@@ -1,12 +1,13 @@
 <template>
   <div v-if="hasLoadedTopics">
-    <div class="d-flex justify-space-between">
-      <div class="pb-3 pl-3 pt-2 w-50">
+    <div class="align-center d-flex justify-space-between">
+      <div class="w-50">
         <v-text-field
           id="filter-topics"
           v-model="filter"
           class="d-inline"
           density="compact"
+          hide-details
           label="Search"
           variant="outlined"
         />
@@ -14,27 +15,29 @@
 
       <v-btn
         class="button-position ml-2 mr-4"
-        color="secondary"
+        color="primary"
+        :disabled="!filter"
         @click="filter = ''"
       >
         Clear
       </v-btn>
       <v-btn
         id="new-note-button"
-        class="button-position d-inline p-0 pb-1 mr-3"
+        class="mr-3"
         color="primary"
         :disabled="isEditTopicModalOpen"
         @click="openCreateTopicModal"
       >
-        <v-icon :icon="mdiPlusBox" />
+        <v-icon class="mr-1" :icon="mdiPlusBox" />
         Create New Topic
       </v-btn>
     </div>
 
-    <div class="pt-2 mt-4">
+    <div class="border-b-sm mt-4">
       <v-table
         density="compact"
-        height="350px"
+        height="200px"
+        hover
         fixed-header
       >
         <thead>
@@ -80,8 +83,8 @@
             <td>
               <v-btn
                 v-if="!item.deletedAt"
-                icon
                 density="compact"
+                variant="flat"
                 @click="openDeleteTopicModal(item)"
               >
                 <v-icon :icon="mdiTrashCanOutline" />
@@ -95,8 +98,8 @@
 
               <v-btn
                 v-if="item.deletedAt"
-                icon
                 density="compact"
+                variant="flat"
                 @click="undelete(item)"
               >
                 <v-icon :icon="mdiDeleteRestore" color="warning" />
@@ -334,8 +337,5 @@ export default {
 <style scoped>
 #new-note-button {
   margin-left: auto;
-}
-.button-position {
-  top: 8px;
 }
 </style>

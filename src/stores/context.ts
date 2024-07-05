@@ -42,6 +42,7 @@ export const useContextStore = defineStore('context', {
       inDemoMode: false,
       isAdmin: false,
       isAuthenticated: false,
+      isDemoModeAvailable: undefined,
       myCohorts: [] as Array<any>,
       myCuratedGroups: [] as Array<any>,
       myDraftNoteCount: undefined as number | undefined,

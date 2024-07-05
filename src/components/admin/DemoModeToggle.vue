@@ -1,38 +1,44 @@
 <template>
-  <div>
-    <div class="d-flex flex-row mb-2 mr-3 mt-3 pb-4">
-      <div class="ml-2 mr-2">
-        <img
-          id="avatar-verify-blur"
-          :class="{'img-blur': currentUser.inDemoMode}"
-          :src="blurAvatarUrl"
-          alt="Picture of woman demonstrates blur effect when BOA demo mode is on."
-          class="avatar student-avatar-large"
-        />
-      </div>
-      <div class="pl-3 ">
-        <div v-if="!_isNil(currentUser.inDemoMode)">
+  <div class="align-center container d-flex flex-row ml-2 mr-3">
+    <div>
+      <img
+        id="avatar-verify-blur"
+        alt="Picture of woman demonstrates blur effect when BOA demo mode is on."
+        class="avatar student-avatar-large"
+        :class="{'img-blur': currentUser.inDemoMode}"
+        :src="blurAvatarUrl"
+      />
+    </div>
+    <div class="ml-4">
+      <div v-if="!_isNil(currentUser.inDemoMode)">
+        <div class="align-center checkbox-container d-flex">
           <v-checkbox
             v-if="!isToggling"
             id="toggle-demo-mode"
             v-model="inDemoMode"
-            :disabled="isToggling"
-            :label="`${inDemoMode ? 'On' : 'Off'}`"
             :aria-label="`Demo mode is ${inDemoMode ? 'On' : 'Off'}`"
+            color="primary"
+            density="compact"
+            :disabled="isToggling"
+            hide-details
+            :label="`${inDemoMode ? 'On' : 'Off'}`"
             @change="toggle"
-          >
-          </v-checkbox>
-          <div v-if="isToggling" class="demo-mode-label">
-            <v-progress-circular size="small" />
-            Toggling demo mode...
+          />
+          <div v-if="isToggling" class="align-center d-flex font-weight-700 my-1">
+            <v-progress-circular
+              class="mr-1"
+              color="grey"
+              indeterminate
+              size="25"
+            />
+            <span class="text-grey">
+              Toggling demo mode...
+            </span>
           </div>
         </div>
-        <div
-          class="text-grey"
-          :class="{'text-description': !isToggling}"
-        >
-          In demo mode, student profile pictures and sensitive data will be blurred.
-        </div>
+      </div>
+      <div class="ml-1 text-grey">
+        In demo mode, student profile pictures and sensitive data will be blurred.
       </div>
     </div>
   </div>
@@ -69,21 +75,17 @@ export default {
 </script>
 
 <style scoped>
-.demo-mode-label {
-  font-weight: 500;
-  padding-bottom: 3px;
+.checkbox-container {
+  height: 40px;
+  min-height: 40px;
 }
-
+.container {
+  height: 80px;
+  min-height: 80px;
+}
 .img-blur {
   filter: blur(20px);
 }
-
-.text-description {
-  position: relative;
-  top: -20px;
-  left: 10px;
-}
-
 #avatar-verify-blur {
   height: 50px;
   width: auto;
