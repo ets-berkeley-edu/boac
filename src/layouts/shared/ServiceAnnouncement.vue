@@ -1,30 +1,32 @@
 <template>
-  <div v-if="announcement && announcement.isPublished">
-    <div v-if="!dismissedServiceAnnouncement" class="pa-3 align-center d-flex service-announcement">
-      <div class="d-inline-block pb-0 pl-3 pr-1 pt-3 w-100">
-        <div class="sr-only" role="heading">BOA Service Alert</div>
-        <span
-          id="service-announcement-banner"
-          aria-live="polite"
-          role="alert"
-          v-html="announcement.text"
-        >
-        </span>
+  <v-expand-transition>
+    <div v-if="announcement && announcement.isPublished">
+      <div v-if="!dismissedServiceAnnouncement" class="pa-3 align-center d-flex service-announcement">
+        <div class="d-inline-block pb-0 pl-3 pr-1 pt-3 w-100">
+          <div class="sr-only" role="heading">BOA Service Alert</div>
+          <span
+            id="service-announcement-banner"
+            aria-live="polite"
+            role="alert"
+            v-html="announcement.text"
+          >
+          </span>
+        </div>
+        <div class="pr-1">
+          <v-btn
+            id="dismiss-service-announcement"
+            title="Dismiss"
+            variant="plain"
+            @click="toggle"
+          >
+            <v-icon :icon="mdiClose" />
+            <span class="sr-only">Dismiss alert</span>
+          </v-btn>
+        </div>
       </div>
-      <div class="pr-1">
-        <v-btn
-          id="dismiss-service-announcement"
-          title="Dismiss"
-          variant="plain"
-          @click="toggle"
-        >
-          <v-icon :icon="mdiClose" />
-          <span class="sr-only">Dismiss alert</span>
-        </v-btn>
-      </div>
+      <v-btn v-if="dismissedServiceAnnouncement" id="restore-service-announcement" class="d-sr-only">Restore alert</v-btn>
     </div>
-    <v-btn v-if="dismissedServiceAnnouncement" id="restore-service-announcement" class="d-sr-only">Restore alert</v-btn>
-  </div>
+  </v-expand-transition>
 </template>
 
 <script setup>
