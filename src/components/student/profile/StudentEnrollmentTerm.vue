@@ -6,7 +6,7 @@
     elevation="0"
   >
     <v-card-title>
-      <div class="font-weight-500 text-grey-darken-3">
+      <div class="align-baseline d-flex font-weight-500 text-grey-darken-3">
         <h3
           :id="`term-${term.termId}-header`"
           class="font-size-18 font-weight-500 text-grey-darken-3 mb-0 mr-2"
@@ -16,14 +16,14 @@
         <span v-if="isConcurrent" class="font-size-14 text-muted ml-1 mr-3">UCBX</span>
         <StudentAcademicStanding
           v-if="term.academicStanding"
-          :standing="term.academicStanding"
           class="font-size-14"
+          :standing="term.academicStanding"
         />
         <StudentWithdrawalCancel
           v-if="student.sisProfile.withdrawalCancel"
-          :withdrawal="student.sisProfile.withdrawalCancel"
-          :term-id="term.termId"
           class="font-size-14"
+          :term-id="term.termId"
+          :withdrawal="student.sisProfile.withdrawalCancel"
         />
       </div>
     </v-card-title>
@@ -47,7 +47,7 @@
             :course="course"
             :index="courseIndex"
             :student="student"
-            :term-id="term.termId"
+            :term="term"
             :year="term.academicYear"
           />
           <div>

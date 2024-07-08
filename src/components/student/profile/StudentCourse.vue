@@ -23,7 +23,7 @@
             class="text-left truncate-with-ellipsis student-course-name"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
           >
-            {{ index }} | {{ year }} | {{ course.displayName }}
+            {{ course.displayName }}
           </div>
         </v-btn>
         <div
@@ -82,7 +82,7 @@
         <span :id="`term-${termId}-course-${index}-units`">{{ numFormat(course.units, '0.0') }}</span>
       </div>
     </div>
-    <v-expand-transition>
+    <v-expand-transition :id="`course-details-${year}-${termId}-${index}`">
       <div v-if="showCourseDetails">
         <div
           :id="`term-${termId}-course-${index}-details-name`"
@@ -264,15 +264,12 @@
         </div>
       </div>
     </v-expand-transition>
-    <v-expand-transition>
-      <div
-        v-if="showSpacer"
-        class="bg-pink-lighten-5"
-        style="height: 155px;"
-      >
-        Allo
-      </div>
-    </v-expand-transition>
+    <v-spacer
+      v-if="showSpacer"
+      :id="`spacer-${year}-${termId}-${index}`"
+    >
+      &nbsp;
+    </v-spacer>
   </div>
 </template>
 
@@ -287,9 +284,9 @@ import {
 } from '@/berkeley'
 import {mdiAlert, mdiAlertRhombus, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {numFormat} from '@/lib/utils'
-import {onMounted, onUnmounted, ref} from 'vue'
+import {nextTick, onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {isEmpty} from 'lodash'
+import {isEmpty, size} from 'lodash'
 
 const contextStore = useContextStore()
 const config = contextStore.config
@@ -308,31 +305,54 @@ const props = defineProps({
     required: true,
     type: Object
   },
-  termId: {
+  term: {
     required: true,
-    type: String
+    type: Object
   },
   year: {
     required: true,
     type: String
   }
 })
+
+const sectionsWithIncompleteStatus = ref(getSectionsWithIncompleteStatus(props.course.sections))
 const showCourseDetails = ref(false)
 const showSpacer = ref(false)
-const sectionsWithIncompleteStatus = ref(getSectionsWithIncompleteStatus(props.course.sections))
-const toggleEventName = `student-${props.student.uid}-course`
+const termId = props.term.termId
+const toggleEventName = `student-${props.student.uid}`
 
 onMounted(() => {
-  contextStore.setEventHandler(toggleEventName, ({isExpanded, index, termId, year}) => {
-    const isNotThisCourse = index !== props.index || termId !== props.termId || year !== props.year
-    if (isNotThisCourse) {
-      if (isExpanded) {
-        // Hide course details when the details of some other course are shown.
-        showCourseDetails.value = false
-      }
-      const isAlignedHorizontally = index === props.index && year === props.year
-      if (isAlignedHorizontally) {
-        showSpacer.value = isExpanded
+  contextStore.setEventHandler(toggleEventName, clicked => {
+    const isOtherCourse = clicked.index !== props.index || clicked.termId !== termId || clicked.year !== props.year
+    if (isOtherCourse) {
+      showCourseDetails.value = false
+      showSpacer.value = false
+      const isHorizontallyAligned = clicked.index === props.index && clicked.year === props.year
+      const isClickedElementDownUnder = clicked.year === props.year
+        && clicked.termId !== termId
+        && clicked.index > props.index
+        && props.index === size(props.term.enrollments) - 1
+      if (isHorizontallyAligned || isClickedElementDownUnder) {
+        showSpacer.value = true
+        // User just clicked to view details of some other course.
+        nextTick(() => {
+          const clickedElementId = `course-details-${clicked.year}-${clicked.termId}-${clicked.index}`
+          const observer = new ResizeObserver(() => {
+            const e = document.getElementById(clickedElementId)
+            if (e) {
+              nextTick(() => {
+                const spacerId = `spacer-${props.year}-${termId}-${props.index}`
+                const spacer = document.getElementById(spacerId)
+                // TODO: Hard-coded value below should be computed more intelligently.
+                const height = isClickedElementDownUnder ? 200 : e.offsetHeight
+                spacer.setAttribute('style', `height: ${height}px`)
+              })
+            }
+          })
+          observer.observe(document.getElementById(clickedElementId))
+        })
+      } else {
+        showSpacer.value = false
       }
     }
   })
@@ -354,12 +374,13 @@ const lastActivityInContext = analytics => {
 
 const toggleShowCourseDetails = () => {
   showCourseDetails.value = !showCourseDetails.value
-  contextStore.broadcast(toggleEventName, {
+  showSpacer.value = false
+  const clicked = {
     index: props.index,
-    isExpanded: showCourseDetails.value,
-    termId: props.termId,
+    termId,
     year: props.year
-  })
+  }
+  contextStore.broadcast(toggleEventName, clicked)
 }
 </script>
 
