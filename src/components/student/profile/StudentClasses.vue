@@ -48,7 +48,7 @@
     >
       <button
         :id="`academic-year-${year.label}-toggle`"
-        class="bg-grey-lighten-5 w-100"
+        class="w-100"
         @click="year.isOpen = !year.isOpen"
       >
         <v-container
@@ -87,18 +87,17 @@
           </v-row>
         </v-container>
       </button>
-      <transition name="drawer">
+      <v-expand-transition>
         <div
-          v-show="year.isOpen"
+          v-if="year.isOpen"
           :aria-expanded="year.isOpen"
-          class="border-b-thin border-e-thin border-s-thin drawer"
+          class="border-b-thin border-e-thin border-s-thin"
         >
           <v-container class="pl-6 pt-0" fluid>
-            <v-row no-gutters>
+            <v-row>
               <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-fall-${year.label - 1}`"
-                  class="bg-grey-lighten-5"
                   :student="student"
                   :term="getTerm(`Fall ${year.label - 1}`, year)"
                 />
@@ -106,7 +105,6 @@
               <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-spring-${year.label}`"
-                  class="bg-grey-lighten-5"
                   :student="student"
                   :term="getTerm(`Spring ${year.label}`, year)"
                 />
@@ -114,7 +112,6 @@
               <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-summer-${year.label}`"
-                  class="bg-grey-lighten-5"
                   :student="student"
                   :term="getTerm(`Summer ${year.label}`, year)"
                 />
@@ -122,7 +119,7 @@
             </v-row>
           </v-container>
         </div>
-      </transition>
+      </v-expand-transition>
     </div>
   </div>
 </template>
@@ -193,9 +190,3 @@ const toggleSortOrder = () => {
   alertScreenReader(`The sort order of the academic years has changed to ${yearSortOrder.value}ending`)
 }
 </script>
-
-<style scoped>
-.drawer {
-  background-color: #f5fbff;
-}
-</style>

@@ -79,7 +79,7 @@
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div role="cell" class="student-course-column-units font-size-14 text-nowrap pt-1 pl-1">
-        <span :id="`term-${termId}-course-${index}-units`">{{ numFormat(course.units, '0.0') }}</span>
+        <span :id="`term-${termId}-course-${index}-units`">{{ numeral(course.units).format('0.0') }}</span>
       </div>
     </div>
     <v-expand-transition :id="`course-details-${year}-${termId}-${index}`">
@@ -275,6 +275,7 @@
 
 <script setup>
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
+import numeral from 'numeral'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
 import {
   getIncompleteGradeDescription,
@@ -283,14 +284,9 @@ import {
   lastActivityDays
 } from '@/berkeley'
 import {mdiAlert, mdiAlertRhombus, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
-import {numFormat} from '@/lib/utils'
 import {nextTick, onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {isEmpty, size} from 'lodash'
-
-const contextStore = useContextStore()
-const config = contextStore.config
-const currentUser = contextStore.currentUser
 
 const props = defineProps({
   course: {
@@ -315,6 +311,9 @@ const props = defineProps({
   }
 })
 
+const contextStore = useContextStore()
+const config = contextStore.config
+const currentUser = contextStore.currentUser
 const sectionsWithIncompleteStatus = ref(getSectionsWithIncompleteStatus(props.course.sections))
 const showCourseDetails = ref(false)
 const showSpacer = ref(false)
@@ -343,9 +342,11 @@ onMounted(() => {
               nextTick(() => {
                 const spacerId = `spacer-${props.year}-${termId}-${props.index}`
                 const spacer = document.getElementById(spacerId)
-                // TODO: Hard-coded value below should be computed more intelligently.
-                const height = isClickedElementDownUnder ? 200 : e.offsetHeight
-                spacer.setAttribute('style', `height: ${height}px`)
+                if (spacer) {
+                  // TODO: Hard-coded value below should be computed more intelligently.
+                  const height = isClickedElementDownUnder ? 200 : e.offsetHeight
+                  spacer.setAttribute('style', `height: ${height}px`)
+                }
               })
             }
           })
