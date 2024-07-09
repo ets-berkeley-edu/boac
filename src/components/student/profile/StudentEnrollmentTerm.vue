@@ -33,7 +33,7 @@
       <v-card-text class="pt-2 px-0">
         <div role="table">
           <div role="rowgroup">
-            <div role="row" class="align-center d-flex font-size-12 font-weight-700 text-grey border-b-sm text-nowrap text-uppercase">
+            <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-700 mx-1 text-grey text-nowrap text-uppercase">
               <div role="columnheader" class="student-course-column-name">Course</div>
               <div role="columnheader" class="student-course-column-grade">Mid</div>
               <div role="columnheader" class="student-course-column-grade">Final</div>

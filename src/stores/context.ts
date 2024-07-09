@@ -14,11 +14,11 @@ const $_getDefaultApplicationState = () => ({
 })
 
 export type BoaConfig = {
-  currentEnrollmentTerm: undefined,
-  currentEnrollmentTermId: undefined,
+  currentEnrollmentTerm: string,
+  currentEnrollmentTermId: number,
   defaultTermUnitsAllowed: {
-    max: undefined,
-    min: undefined
+    max: number,
+    min: number
   },
   draftNoteSubjectPlaceholder: string,
   fixedWarningOnAllPages: boolean,
