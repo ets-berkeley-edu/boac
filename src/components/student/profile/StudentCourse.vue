@@ -1,5 +1,5 @@
 <template>
-  <div class="course d-flex flex-column" :class="{'course-expanded': showCourseDetails}">
+  <div class="course d-flex flex-column position-relative" :class="{'course-expanded': showCourseDetails}">
     <div
       :id="`term-${termId}-course-${index}`"
       class="align-center course-row d-flex"
@@ -20,7 +20,7 @@
           <span class="sr-only">{{ showCourseDetails ? 'Hide' : 'Show' }} {{ course.displayName }} class details for {{ student.name }}</span>
           <div
             :id="`term-${termId}-course-${index}-name`"
-            class="course-name text-left truncate-with-ellipsis"
+            class="course-name overflow-hidden text-left truncate-with-ellipsis"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
           >
             {{ course.displayName }}
@@ -29,7 +29,7 @@
         <div
           v-if="course.waitlisted"
           :id="`waitlisted-for-${termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
-          class="course-waitlisted font-size-12 ml-5 text-error text-uppercase"
+          class="font-size-12 ml-5 text-error text-uppercase"
         >
           Waitlisted
         </div>
@@ -77,20 +77,20 @@
         />
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
-      <div class="column-units font-size-14 pl-1 pt-1 text-nowrap" role="cell">
+      <div class="column-units font-size-14 pl-1 pt-1 text-nowrap text-right" role="cell">
         <span :id="`term-${termId}-course-${index}-units`">{{ numeral(course.units).format('0.0') }}</span>
       </div>
     </div>
-    <v-expand-transition :id="`course-details-${year}-${termId}-${index}`" class="d-block">
-      <div v-if="showCourseDetails" class="course-details">
+    <v-expand-transition :id="`course-details-${year}-${termId}-${index}`" class="course-details">
+      <div v-if="showCourseDetails">
         <div
           :id="`term-${termId}-course-${index}-details-name`"
-          class="course-details-name"
+          class="font-size-16 font-weight-bold text-grey-darken-2"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
         >
           {{ course.displayName }}
         </div>
-        <div class="course-sections">
+        <div class="d-inline-block font-size-14 font-weight-regular mt-1 text-no-wrap">
           <span
             v-for="(section, sectionIndex) in course.sections"
             :key="sectionIndex"
@@ -101,6 +101,7 @@
                 v-if="section.isViewableOnCoursePage"
                 :id="`term-${termId}-section-${section.ccn}`"
                 :to="`/course/${termId}/${section.ccn}?u=${student.uid}`"
+                class="font-weight-black"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
               ><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
                 --><span v-if="!section.isViewableOnCoursePage">{{ section.displayName }}</span><!--
@@ -111,7 +112,7 @@
         </div>
         <div :id="`term-${termId}-course-${index}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
         <div v-if="course.courseRequirements">
-          <div v-for="requirement in course.courseRequirements" :key="requirement" class="course-requirements">
+          <div v-for="requirement in course.courseRequirements" :key="requirement" class="font-size-14 text-no-wrap">
             <v-icon class="text-warning" :icon="mdiStar" /> {{ requirement }}
           </div>
         </div>
@@ -150,6 +151,7 @@
 <script setup>
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import numeral from 'numeral'
+import StudentCourseCanvasData from '@/components/student/profile/StudentCourseCanvasData.vue'
 import {
   getIncompleteGradeDescription,
   getSectionsWithIncompleteStatus,
@@ -159,7 +161,6 @@ import {mdiAlert, mdiAlertRhombus, mdiInformationSlabBox, mdiMenuDown, mdiMenuRi
 import {nextTick, onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {size} from 'lodash'
-import StudentCourseCanvasData from '@/components/student/profile/StudentCourseCanvasData.vue'
 
 const props = defineProps({
   course: {
@@ -194,10 +195,10 @@ const toggleEventName = `student-${props.student.uid}`
 
 onMounted(() => {
   contextStore.setEventHandler(toggleEventName, clicked => {
+    showSpacer.value = false
     const isOtherCourse = clicked.index !== props.index || clicked.termId !== termId || clicked.year !== props.year
     if (isOtherCourse) {
       showCourseDetails.value = false
-      showSpacer.value = false
       const isHorizontallyAligned = clicked.index === props.index && clicked.year === props.year
       const isClickedElementDownUnder = clicked.year === props.year
         && clicked.termId !== termId
@@ -232,6 +233,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  showCourseDetails.value = false
+  showSpacer.value = false
   contextStore.removeEventHandler(toggleEventName)
 })
 
@@ -248,6 +251,16 @@ const toggleShowCourseDetails = () => {
 </script>
 
 <style scoped>
+@media (min-width: 1200px) {
+  .course-details {
+    border: 1px #ccc solid;
+    margin: 0 -11px;
+    width: 332% !important;
+  }
+  .course-expanded {
+    border-bottom: 0 !important;
+  }
+}
 .column-grade {
   width: 15%;
 }
@@ -255,7 +268,6 @@ const toggleShowCourseDetails = () => {
   width: 60%;
 }
 .column-units {
-  text-align: right;
   width: 15%;
 }
 .course {
@@ -263,15 +275,12 @@ const toggleShowCourseDetails = () => {
   position: relative;
 }
 .course-details {
-  display: block;
-  margin: 5px 0 12px 9px;
-  overflow-wrap: break-word;
+  background-color: #f3fbff;
+  padding: 10px 0 10px 20px;
   position: relative;
-}
-.course-details-name {
-  color: #666;
-  font-size: 16px;
-  font-weight: 700;
+  top: -1px;
+  width: 100%;
+  z-index: 1;
 }
 .course-expanded {
   background-color: #f3fbff;
@@ -287,25 +296,11 @@ const toggleShowCourseDetails = () => {
   max-width: 90%;
   overflow: hidden;
 }
-.course-requirements {
-  font-size: 14px;
-  white-space: nowrap;
-}
 .course-row {
   height: 2.2em;
   line-height: 1.1;
   margin: 0 -10px;
+  overflow-wrap: break-word;
   padding: 0 8px 0 0;
-}
-.course-sections {
-  display: inline-block;
-  font-size: 14px;
-  font-weight: 400;
-  margin-top: 3px;
-  white-space: nowrap;
-}
-.course-waitlisted {
-  font-size: 14px;
-  line-height: .8;
 }
 </style>
