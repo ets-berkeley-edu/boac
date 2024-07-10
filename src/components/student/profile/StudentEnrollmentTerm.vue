@@ -2,7 +2,6 @@
   <div
     class="d-flex flex-column h-100 student-term"
     :class="{'bg-alert elevation-1 pt-3 px-3 rounded-0': isCurrentTerm}"
-    density="compact"
   >
     <div>
       <div class="pa-0">
@@ -51,6 +50,7 @@
           <StudentCourse
             v-for="(course, courseIndex) in term.enrollments"
             :key="courseIndex"
+            :column-index="columnIndex"
             :course="course"
             :index="courseIndex"
             :student="student"
@@ -119,6 +119,10 @@ import {round} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
+  columnIndex: {
+    required: true,
+    type: Number
+  },
   student: {
     required: true,
     type: Object

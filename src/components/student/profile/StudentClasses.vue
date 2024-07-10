@@ -98,6 +98,7 @@
               <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-fall-${year.label - 1}`"
+                  :column-index="0"
                   :student="student"
                   :term="getTerm(`Fall ${year.label - 1}`, year)"
                 />
@@ -105,6 +106,7 @@
               <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-spring-${year.label}`"
+                  :column-index="1"
                   :student="student"
                   :term="getTerm(`Spring ${year.label}`, year)"
                 />
@@ -112,6 +114,7 @@
               <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-summer-${year.label}`"
+                  :column-index="2"
                   :student="student"
                   :term="getTerm(`Summer ${year.label}`, year)"
                 />

@@ -81,7 +81,15 @@
         <span :id="`term-${termId}-course-${index}-units`">{{ numeral(course.units).format('0.0') }}</span>
       </div>
     </div>
-    <v-expand-transition :id="`course-details-${year}-${termId}-${index}`" class="course-details">
+    <v-expand-transition
+      :id="`course-details-${year}-${termId}-${index}`"
+      class="course-details"
+      :class="{
+        'align-self-start': columnIndex === 0,
+        'align-self-center': columnIndex === 1,
+        'align-self-end': columnIndex === 2
+      }"
+    >
       <div v-if="showCourseDetails">
         <div
           :id="`term-${termId}-course-${index}-details-name`"
@@ -163,6 +171,10 @@ import {useContextStore} from '@/stores/context'
 import {size} from 'lodash'
 
 const props = defineProps({
+  columnIndex: {
+    required: true,
+    type: Number
+  },
   course: {
     required: true,
     type: Object
@@ -217,7 +229,7 @@ onMounted(() => {
                 const spacer = document.getElementById(spacerId)
                 if (spacer) {
                   // TODO: Hard-coded value below should be computed more intelligently.
-                  const height = isClickedElementDownUnder ? 200 : e.offsetHeight
+                  const height = isClickedElementDownUnder ? 300 : e.offsetHeight
                   spacer.setAttribute('style', `height: ${height}px`)
                 }
               })
