@@ -1,12 +1,11 @@
 <template>
-  <v-card
+  <div
     class="d-flex flex-column h-100 student-term"
-    :class="{'bg-alert pt-3 px-3 rounded-0': isCurrentTerm}"
+    :class="{'bg-alert elevation-1 pt-3 px-3 rounded-0': isCurrentTerm}"
     density="compact"
-    :elevation="isCurrentTerm ? 1 : 0"
   >
     <div>
-      <v-card-title class="pa-0">
+      <div class="pa-0">
         <div class="align-baseline d-flex font-weight-500 text-grey-darken-3">
           <h3
             :id="`term-${term.termId}-header`"
@@ -27,57 +26,55 @@
             :withdrawal="student.sisProfile.withdrawalCancel"
           />
         </div>
-      </v-card-title>
+      </div>
     </div>
-    <div>
-      <v-card-text class="pt-2 px-0">
-        <div role="table">
-          <div role="rowgroup">
-            <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-700 mx-1 text-grey text-nowrap text-uppercase">
-              <div role="columnheader" class="student-course-column-name">Course</div>
-              <div role="columnheader" class="student-course-column-grade">Mid</div>
-              <div role="columnheader" class="student-course-column-grade">Final</div>
-              <div role="columnheader" class="student-course-column-units">Units</div>
+    <div class="pt-2 px-0">
+      <div role="table">
+        <div role="rowgroup">
+          <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-700 mx-1 text-grey text-nowrap text-uppercase">
+            <div role="columnheader" class="student-course-column-name">Course</div>
+            <div role="columnheader" class="student-course-column-grade">Mid</div>
+            <div role="columnheader" class="student-course-column-grade">Final</div>
+            <div role="columnheader" class="student-course-column-units">Units</div>
+          </div>
+        </div>
+        <div role="rowgroup" class="pt-2">
+          <div v-if="isEmpty(term.enrollments)" role="row">
+            <div
+              :id="`term-${term.termId}-no-enrollments`"
+              role="cell"
+              class="font-italic pl-2  text-grey-darken-2"
+            >
+              {{ `No ${term.termName} enrollments` }}
             </div>
           </div>
-          <div role="rowgroup" class="pt-2">
-            <div v-if="isEmpty(term.enrollments)" role="row">
-              <div
-                :id="`term-${term.termId}-no-enrollments`"
-                role="cell"
-                class="font-italic text-grey-darken-2 pt-2"
-              >
-                {{ `No ${term.termName} enrollments` }}
+          <StudentCourse
+            v-for="(course, courseIndex) in term.enrollments"
+            :key="courseIndex"
+            :course="course"
+            :index="courseIndex"
+            :student="student"
+            :term="term"
+            :year="term.academicYear"
+          />
+          <div
+            v-for="(droppedSection, droppedIndex) in term.droppedSections"
+            :key="droppedIndex"
+            class="student-course-dropped"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
+            role="row"
+          >
+            <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" class="text-grey" role="cell">
+              <div>
+                {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
               </div>
-            </div>
-            <StudentCourse
-              v-for="(course, courseIndex) in term.enrollments"
-              :key="courseIndex"
-              :course="course"
-              :index="courseIndex"
-              :student="student"
-              :term="term"
-              :year="term.academicYear"
-            />
-            <div
-              v-for="(droppedSection, droppedIndex) in term.droppedSections"
-              :key="droppedIndex"
-              class="student-course-dropped"
-              :class="{'demo-mode-blur': currentUser.inDemoMode}"
-              role="row"
-            >
-              <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" class="text-grey" role="cell">
-                <div>
-                  {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
-                </div>
-                <div class="font-size-14">
-                  (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromISO(droppedSection.dropDate).toFormat('MMM dd, yyyy') }}</span>)
-                </div>
+              <div class="font-size-14">
+                (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromISO(droppedSection.dropDate).toFormat('MMM dd, yyyy') }}</span>)
               </div>
             </div>
           </div>
         </div>
-      </v-card-text>
+      </div>
     </div>
     <div class="mt-auto">
       <v-card-subtitle class="border-t-sm font-size-12 pt-2 px-0 student-term-footer text-uppercase">
@@ -108,7 +105,7 @@
         </div>
       </v-card-subtitle>
     </div>
-  </v-card>
+  </div>
 </template>
 
 <script setup>

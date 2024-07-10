@@ -11,7 +11,7 @@
       </h5>
       <table class="bcourses">
         <tr class="d-flex flex-column d-sm-table-row py-2">
-          <th class="bcourses-legend" scope="row">
+          <th class="bcourses-legend text-no-wrap" scope="row">
             Assignments Submitted
           </th>
           <td class="bcourses-summary">
@@ -172,8 +172,7 @@ const lastActivityInContext = (analytics: any) => {
 
 <style scoped>
 .bcourses {
-  line-height: 1.1;
-  width: 100px;
+  background-color: #f3fbff;
 }
 .bcourses td,
 .bcourses th {
@@ -184,9 +183,7 @@ const lastActivityInContext = (analytics: any) => {
 }
 .bcourses-legend {
   color: #666;
-  font-weight: normal;
   min-width: 11em;
-  white-space: nowrap;
   width: 35%;
 }
 .bcourses-site-code {
