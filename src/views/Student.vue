@@ -48,8 +48,6 @@ import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
 const noteStore = useNoteStore()
-
-
 let cancelTheCancel = noop
 let cancelConfirmed = noop
 const currentUser = reactive(contextStore.currentUser)
