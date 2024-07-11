@@ -80,6 +80,10 @@ Example: src/components/note/CreateNoteHeader.vue
 - VSelect has no direct equivalent of `<b-select-header>`; use Vuetify's `prepend-item` slot instead.
 - Unlike `<b-dropdown>`, `<v-select>` shows the selected option in place of the label. Keep the label from disappearing when an option is selected by adding property `persistent-hint`.
 
+### b-table-lite to v-data-table
+
+- https://vuetifyjs.com/en/api/v-data-table/#links
+
 ### b-modal to v-overlay
 
 - Add property `persistent` so the overlay stays open when you click outside.

@@ -1,69 +1,81 @@
 <template>
   <div class="default-margins">
-    <v-alert
-      id="alert-batch-created"
-      v-model="successMessage"
-      aria-live="polite"
-      class="align-center w-100"
-      closable
-      fade
-      role="alert"
-      variant="outlined"
-    >
-      <span class="font-weight-700">Success!</span> {{ successMessage }}
-    </v-alert>
-    <h1 id="page-header" class="page-section-header">
+    <div v-if="successMessage" class="mb-3 mr-3 mt-6">
+      <v-alert
+        id="alert-batch-created"
+        aria-live="polite"
+        class="font-weight-bold"
+        closable
+        color="info"
+        density="compact"
+        fade
+        role="alert"
+        variant="tonal"
+      >
+        <span class="font-weight-bold">Success!</span> {{ successMessage }}
+      </v-alert>
+    </div>
+    <h1 id="page-header" class="mb-2 page-section-header">
       Degree Checks
     </h1>
-    <div v-if="currentUser.canEditDegreeProgress" class="pb-3 w-10">
+    <div v-if="currentUser.canEditDegreeProgress" class="font-weight-medium mb-3">
       <router-link
         id="degree-check-create-link"
         class="w-25"
         to="/degree/new"
       >
-        <div class="align-center d-inline-flex flex-nowrap">
-          <div class="order-2 text-no-wrap">
+        <div class="align-center d-flex flex-row-reverse flex-nowrap float-left">
+          <div class="pl-1 text-no-wrap">
             Create new degree check
           </div>
-          <div class="order-1 pr-2">
-            <v-icon :icon="mdiPlus" />
-          </div>
+          <v-icon :icon="mdiPlus" size="20" />
         </div>
       </router-link>
-      <span v-if="_size(degreeTemplates)" class="p-2">|</span>
+      <span v-if="size(degreeTemplates)" class="mx-2">|</span>
       <router-link
-        v-if="_size(degreeTemplates)"
+        v-if="size(degreeTemplates)"
         id="degree-check-batch-link"
-        class="w-25"
         to="/degree/batch"
       >
         <span class="text-no-wrap">Batch degree checks</span>
       </router-link>
     </div>
-    <div v-if="!loading">
+    <div v-if="!contextStore.loading">
       <div v-if="!degreeTemplates.length">
         There are no degree templates available.
       </div>
-      <div v-if="degreeTemplates.length">
-        <b-table-lite
+      <div v-if="degreeTemplates.length" class="pt-2">
+        <v-data-table
           id="degree-checks-table"
-          :fields="[
-            {key: 'name', label: 'Degree Check', tdClass: 'align-middle', thClass: 'w-50'},
-            {key: 'createdAt', label: 'Created', tdClass: 'align-middle'},
-            {key: 'actions', label: '', thClass: 'w-40'}
+          :cell-props="data => {
+            const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
+            console.log(JSON.stringify(data.column.key === 'name'))
+            const padding = data.column.key === 'name' ? 'pl-4' : 'pl-0'
+            return {class: `${bgColor} font-size-16 ${padding}`}
+          }"
+          :headers="[
+            {key: 'name', headerProps: {class: 'pl-3 manage-degree-checks-column-header'}, width: '50%'},
+            {key: 'createdAt', headerProps: {class: 'manage-degree-checks-column-header'}},
+            {key: 'actions', headerProps: {class: 'manage-degree-checks-column-header'}, width: '40%'}
           ]"
+          :header-props="{class: 'pl-0 text-no-wrap'}"
+          hide-default-footer
           :items="degreeTemplates"
+          :items-per-page="-1"
           borderless
-          fixed
+          density="comfortable"
+          disable-sort
           hover
-          small
-          stacked="md"
-          striped
-          thead-class="text-no-wrap"
         >
-          <template #cell(name)="row">
+          <template #header.name>
+            Degree Check
+          </template>
+          <template #header.createdAt>
+            Created
+          </template>
+          <template #item.name="{item}">
             <div
-              v-if="row.item.id === _get(templateForEdit, 'id')"
+              v-if="item.id === get(templateForEdit, 'id')"
               class="align-center d-flex flex-wrap justify-space-between mt-2 rename-template"
             >
               <div class="flex-grow-1 mr-2">
@@ -72,7 +84,7 @@
                     id="rename-template-input"
                     v-model="templateForEdit.name"
                     :aria-invalid="!templateForEdit.name"
-                    class="rename-input text-dark p-2 w-100"
+                    class="rename-input text-dark pa-2 w-100"
                     aria-label="Input template name, 255 characters or fewer"
                     aria-required="true"
                     maxlength="255"
@@ -95,100 +107,99 @@
                 </div>
               </div>
               <div class="align-center d-flex pb-3 mb-2 mr-2">
-                <b-btn
+                <v-btn
                   id="confirm-rename-btn"
                   :disabled="!templateForEdit.name.trim() || !!errorDuringEdit"
                   class="btn-primary-color-override rename-btn"
-                  variant="primary"
+                  color="primary"
                   size="sm"
+                  text="Rename"
                   @click.prevent="save"
-                >
-                  Rename
-                </b-btn>
-                <b-btn
+                />
+                <v-btn
                   id="rename-cancel-btn"
                   class="rename-btn"
-                  variant="link"
+                  variant="text"
                   size="sm"
+                  text="Cancel"
                   @click="cancelEdit"
-                >
-                  Cancel
-                </b-btn>
+                />
               </div>
-              <div v-if="errorDuringEdit" class="error-message-container mb-3 ml-2 mt-2 p-2">
+              <div v-if="errorDuringEdit" class="error-message-container mb-3 ml-2 mt-2 pa-2">
                 <span v-html="errorDuringEdit"></span>
               </div>
             </div>
-            <div v-if="row.item.id !== _get(templateForEdit, 'id')">
+            <div v-if="item.id !== get(templateForEdit, 'id')">
               <router-link
-                :id="`degree-check-${row.item.id}-link`"
+                :id="`degree-check-${item.id}-link`"
                 :disabled="isBusy"
-                :to="`/degree/${row.item.id}`"
-                v-html="`${row.item.name}`"
+                :to="`/degree/${item.id}`"
+                v-html="`${item.name}`"
               />
             </div>
           </template>
-          <template #cell(createdAt)="row">
-            <div v-if="row.item.id !== _get(templateForEdit, 'id')">
-              {{ DateTime.fromJSDate(row.item.createdAt).toFormat('MMM D, yyyy') }}
+          <template #item.createdAt="{item}">
+            <div>
+              {{ item.id !== get(templateForEdit, 'id') ? DateTime.fromISO(item.createdAt).toFormat('DD') : '&mdash;' }}
             </div>
           </template>
-          <template #cell(actions)="row">
-            <div class="align-right w-100">
-              <div v-if="row.item.id !== _get(templateForEdit, 'id')" class="align-center d-flex flex-wrap">
-                <div>
-                  <router-link
-                    :id="`degree-check-${row.item.id}-print-link`"
-                    class="p-1"
-                    :disabled="isBusy"
-                    target="_blank"
-                    :to="`/degree/${row.item.id}/print`"
-                  >
-                    Print
-                    <span class="sr-only">{{ row.item.name }} (will open new browser tab)</span>
-                  </router-link>
-                </div>
-                <div v-if="currentUser.canEditDegreeProgress">
-                  <span class="separator">|</span>
-                  <b-btn
-                    :id="`degree-check-${row.index}-rename-btn`"
-                    class="p-1"
-                    :disabled="isBusy"
-                    variant="link"
-                    @click="edit(row.item)"
-                  >
-                    Rename<span class="sr-only"> {{ row.item.name }}</span>
-                  </b-btn>
-                </div>
-                <div v-if="currentUser.canEditDegreeProgress">
-                  <span class="separator">|</span>
-                  <b-btn
-                    :id="`degree-check-${row.index}-copy-btn`"
-                    class="p-1"
-                    :disabled="isBusy"
-                    variant="link"
-                    @click="openCreateCloneModal(row.item)"
-                  >
-                    Copy<span class="sr-only"> {{ row.item.name }}</span>
-                  </b-btn>
-                </div>
-                <div v-if="currentUser.canEditDegreeProgress">
-                  <span class="separator">|</span>
-                  <b-btn
-                    :id="`degree-check-${row.index}-delete-btn`"
-                    class="p-1"
-                    :disabled="isBusy"
-                    variant="link"
-                    @click="showDeleteModal(row.item)"
-                    @keypress.enter="showDeleteModal(row.item)"
-                  >
-                    Delete<span class="sr-only"> {{ row.item.name }}</span>
-                  </b-btn>
-                </div>
+          <template #item.actions="{index, item}">
+            <div v-if="item.id !== get(templateForEdit, 'id')" class="align-center d-flex float-right">
+              <v-btn
+                :id="`degree-check-${item.id}-print-link`"
+                :disabled="isBusy"
+                color="primary"
+                target="_blank"
+                variant="text"
+                width="60"
+                :to="`/degree/${item.id}/print`"
+              >
+                Print
+                <span class="sr-only">{{ item.name }} (will open new browser tab)</span>
+              </v-btn>
+              <div v-if="currentUser.canEditDegreeProgress">
+                <span class="separator">|</span>
+                <v-btn
+                  :id="`degree-check-${index}-rename-btn`"
+                  color="primary"
+                  :disabled="isBusy"
+                  variant="text"
+                  width="80"
+                  @click="() => edit(item)"
+                >
+                  Rename<span class="sr-only"> {{ item.name }}</span>
+                </v-btn>
+              </div>
+              <div v-if="currentUser.canEditDegreeProgress">
+                <span class="separator">|</span>
+                <v-btn
+                  :id="`degree-check-${index}-copy-btn`"
+                  color="primary"
+                  :disabled="isBusy"
+                  variant="text"
+                  width="50"
+                  @click="openCreateCloneModal(item)"
+                >
+                  Copy<span class="sr-only"> {{ item.name }}</span>
+                </v-btn>
+              </div>
+              <div v-if="currentUser.canEditDegreeProgress">
+                <span class="separator">|</span>
+                <v-btn
+                  :id="`degree-check-${index}-delete-btn`"
+                  color="primary"
+                  :disabled="isBusy"
+                  variant="text"
+                  width="70"
+                  @click="showDeleteModal(item)"
+                  @keydown.enter="showDeleteModal(item)"
+                >
+                  Delete<span class="sr-only"> {{ item.name }}</span>
+                </v-btn>
               </div>
             </div>
           </template>
-        </b-table-lite>
+        </v-data-table>
       </div>
     </div>
     <AreYouSureModal
@@ -211,125 +222,132 @@
 </template>
 
 <script setup>
-import {mdiPlus} from '@mdi/js'
-</script>
-
-<script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CloneTemplateModal from '@/components/degree/CloneTemplateModal'
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
-import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/api/degree'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {clone, filter as _filter, get, map, size} from 'lodash'
+import {computed, onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
+import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/api/degree'
+import {mdiPlus} from '@mdi/js'
+import {useContextStore} from '@/stores/context'
+import {useRoute} from 'vue-router'
 
-export default {
-  name: 'ManageDegreeChecks',
-  components: {AreYouSureModal, CloneTemplateModal},
-  mixins: [Context, DegreeEditSession, Util],
-  data: () => ({
-    deleteModalBody: undefined,
-    degreeTemplates: undefined,
-    isBusy: false,
-    isDeleting: false,
-    successMessage: undefined,
-    templateForDelete: undefined,
-    templateForEdit: undefined,
-    templateToClone: undefined
-  }),
-  computed: {
-    errorDuringEdit() {
-      if (this.templateForEdit && !this.isNameAvailable(this.templateForEdit.name, this.templateForEdit.id)) {
-        return `A degree named <span class="font-weight-500">${this.templateForEdit.name}</span> already exists. Please choose a different name.`
-      } else {
-        return null
-      }
-    }
-  },
-  mounted() {
-    this.loadingStart()
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
+const deleteModalBody = ref(undefined)
+const degreeTemplates = ref(undefined)
+const isBusy = ref(false)
+const isDeleting = ref(false)
+const successMessage = ref(useRoute().query.m)
+const templateForDelete = ref(undefined)
+const templateForEdit = ref(undefined)
+const templateToClone = ref(undefined)
+
+const errorDuringEdit = computed(() => {
+  const template = templateForEdit.value
+  const exists = template && !isNameAvailable(template.name, template.id)
+  return exists ? `A degree named <span class="font-weight-500">${template.name}</span> already exists. Please choose a different name.` : null
+})
+
+contextStore.loadingStart()
+
+onMounted(() => {
+  getDegreeTemplates().then(data => {
+    degreeTemplates.value = data
+    contextStore.loadingComplete()
+    alertScreenReader('Managing Degree Checks loaded')
+  })
+})
+
+const afterClone = clone => {
+  templateToClone.value = null
+  getDegreeTemplates().then(data => {
+    degreeTemplates.value = data
+    isBusy.value = false
+    alertScreenReader('Degree copy is complete.')
+    putFocusNextTick(`degree-check-${clone.id}-link`)
+  })
+}
+
+const cancelEdit = () => {
+  putFocusNextTick(`degree-check-${templateForEdit.value.id}-link`)
+  templateForEdit.value = null
+  isBusy.value = false
+  alertScreenReader('Canceled')
+}
+
+const cloneCanceled = () => {
+  putFocusNextTick(`degree-check-${templateToClone.value.id}-link`)
+  templateToClone.value = null
+  isBusy.value = false
+  alertScreenReader('Copy canceled.')
+}
+
+const deleteCanceled = () => {
+  putFocusNextTick(`degree-check-${templateForDelete.value.id}-link`)
+  deleteModalBody.value = templateForDelete.value = null
+  isBusy.value = isDeleting.value = false
+  alertScreenReader('Canceled. Nothing deleted.')
+}
+
+const deleteConfirmed = () => {
+  return deleteDegreeTemplate(templateForDelete.value.id).then(getDegreeTemplates).then(data => {
+    degreeTemplates.value = data
+    alertScreenReader(`${templateForDelete.value.name} deleted.`)
+    putFocusNextTick('page-header')
+    deleteModalBody.value = templateForDelete.value = null
+    isBusy.value = isDeleting.value = false
+  })
+}
+
+const edit = template => {
+  alertScreenReader(`Rename ${template.name}`)
+  templateForEdit.value = clone(template)
+  isBusy.value = true
+  putFocusNextTick('rename-template-input')
+}
+
+const isNameAvailable = (name, ignoreTemplateId=null) => {
+  const lower = name.trim().toLowerCase()
+  const templates = ignoreTemplateId ? _filter(degreeTemplates.value, t => t.id !== ignoreTemplateId) : degreeTemplates.value
+  return map(templates, 'name').findIndex(t => t.toLowerCase() === lower) === -1
+}
+
+const openCreateCloneModal = template => {
+  alertScreenReader('Create a copy.')
+  templateToClone.value = template
+  isBusy.value = true
+}
+
+const save = () => {
+  updateDegreeTemplate(templateForEdit.value.id, templateForEdit.value.name.trim()).then(() => {
+    const templateId = templateForEdit.value.id
+    templateForEdit.value = null
     getDegreeTemplates().then(data => {
-      this.degreeTemplates = data
-      this.successMessage = this.$route.query.m
-      this.loadingComplete()
-      alertScreenReader('Managing Degree Checks loaded')
+      degreeTemplates.value = data
+      alertScreenReader('Template updated')
+      isBusy.value = false
+      putFocusNextTick(`degree-check-${templateId}-link`)
     })
-  },
-  methods: {
-    afterClone(clone) {
-      this.templateToClone = null
-      getDegreeTemplates().then(data => {
-        this.degreeTemplates = data
-        this.isBusy = false
-        alertScreenReader('Degree copy is complete.')
-        this.putFocusNextTick(`degree-check-${clone.id}-link`)
-      })
-    },
-    cancelEdit() {
-      this.putFocusNextTick(`degree-check-${this.templateForEdit.id}-link`)
-      this.templateForEdit = null
-      this.isBusy = false
-      alertScreenReader('Canceled')
-    },
-    cloneCanceled() {
-      this.putFocusNextTick(`degree-check-${this.templateToClone.id}-link`)
-      this.templateToClone = null
-      this.isBusy = false
-      alertScreenReader('Copy canceled.')
-    },
-    deleteCanceled() {
-      this.putFocusNextTick(`degree-check-${this.templateForDelete.id}-link`)
-      this.deleteModalBody = this.templateForDelete = null
-      this.isBusy = this.isDeleting = false
-      alertScreenReader('Canceled. Nothing deleted.')
-    },
-    deleteConfirmed() {
-      return deleteDegreeTemplate(this.templateForDelete.id).then(getDegreeTemplates).then(data => {
-        this.degreeTemplates = data
-        alertScreenReader(`${this.templateForDelete.name} deleted.`)
-        this.putFocusNextTick('page-header')
-        this.deleteModalBody = this.templateForDelete = null
-        this.isBusy = this.isDeleting = false
-      })
-    },
-    edit(template) {
-      alertScreenReader(`Rename ${template.name}`)
-      this.templateForEdit = this._clone(template)
-      this.isBusy = true
-      this.putFocusNextTick('rename-template-input')
-    },
-    isNameAvailable(name, ignoreTemplateId=null) {
-      const lower = name.trim().toLowerCase()
-      const templates = ignoreTemplateId ? this._filter(this.degreeTemplates, t => t.id !== ignoreTemplateId) : this.degreeTemplates
-      return this._map(templates, 'name').findIndex(t => t.toLowerCase() === lower) === -1
-    },
-    openCreateCloneModal(template) {
-      alertScreenReader('Create a copy.')
-      this.templateToClone = template
-      this.isBusy = true
-    },
-    save() {
-      updateDegreeTemplate(this.templateForEdit.id, this.templateForEdit.name.trim()).then(() => {
-        const templateId = this.templateForEdit.id
-        this.templateForEdit = null
-        getDegreeTemplates().then(data => {
-          this.degreeTemplates = data
-          alertScreenReader('Template updated')
-          this.isBusy = false
-          this.putFocusNextTick(`degree-check-${templateId}-link`)
-        })
-      })
-    },
-    showDeleteModal(template) {
-      this.deleteModalBody = `Are you sure you want to delete <b>"${template.name}"</b>?`
-      alertScreenReader('Please confirm delete.')
-      this.templateForDelete = template
-      this.isBusy = this.isDeleting = true
-    }
-  }
+  })
+}
+
+const showDeleteModal = template => {
+  deleteModalBody.value = `Are you sure you want to delete <b>"${template.name}"</b>?`
+  alertScreenReader('Please confirm delete.')
+  templateForDelete.value = template
+  isBusy.value = isDeleting.value = true
 }
 </script>
+
+<style>
+.manage-degree-checks-column-header {
+  color: #666;
+  font-weight: 700 !important;
+  height: 30px !important;
+}
+</style>
 
 <style scoped>
 .rename-input {
