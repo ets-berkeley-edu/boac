@@ -216,7 +216,7 @@ onMounted(() => {
         && clicked.termId !== termId
         && clicked.index > props.index
         && props.index === size(props.term.enrollments) - 1
-      if (isHorizontallyAligned || isClickedElementDownUnder) {
+      if (clicked.show && (isHorizontallyAligned || isClickedElementDownUnder)) {
         showSpacer.value = true
         // User just clicked to view details of some other course.
         nextTick(() => {
@@ -237,8 +237,6 @@ onMounted(() => {
           })
           observer.observe(document.getElementById(clickedElementId))
         })
-      } else {
-        showSpacer.value = false
       }
     }
   })
@@ -251,10 +249,12 @@ onUnmounted(() => {
 })
 
 const toggleShowCourseDetails = () => {
-  showCourseDetails.value = !showCourseDetails.value
+  const show = !showCourseDetails.value
+  showCourseDetails.value = show
   showSpacer.value = false
   const clicked = {
     index: props.index,
+    show,
     termId,
     year: props.year
   }
