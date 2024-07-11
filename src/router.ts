@@ -17,6 +17,7 @@ const Login = () => import('./layouts/Login.vue')
 const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
 const NotFound = () => import('@/views/NotFound.vue')
 const PassengerManifest = () => import('@/views/PassengerManifest.vue')
+const PrintableDegreeTemplate = () => import('@/views/degree/PrintableDegreeTemplate.vue')
 const Profile = () => import('@/views/Profile.vue')
 const SearchResults = () => import('@/views/SearchResults.vue')
 const Student = () => import('@/views/Student.vue')
@@ -28,6 +29,7 @@ import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 import {filter, get, includes, size, trim} from 'lodash'
 import {isAdvisor, isDirector} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
+import FlightDataRecorder from '@/views/FlightDataRecorder.vue'
 
 const $_goToLogin = (to: any, next: any) => {
   next({
@@ -164,6 +166,30 @@ const routes:RouteRecordRaw[] = [
       }
     ]
   },
+    {
+      path: '/',
+      component: StandardLayout,
+      beforeEnter: (to: any, from: any, next: any) => {
+        // Requires Director
+        const currentUser = useContextStore().currentUser
+        if (currentUser.isAuthenticated) {
+          if (isDirector(currentUser) || currentUser.isAdmin) {
+            next()
+          } else {
+            next({path: '/404'})
+          }
+        } else {
+          $_goToLogin(to, next)
+        }
+      },
+      children: [
+        {
+          path: '/analytics/:deptCode',
+          component: FlightDataRecorder,
+          name: 'Flight Data Recorder'
+        }
+      ]
+    },
   {
     path: '/',
     component: StandardLayout,
@@ -234,6 +260,15 @@ const routes:RouteRecordRaw[] = [
         name: 'Student Degree Check',
       }
     ]
+  },
+  {
+    beforeEnter: $_requiresDegreeProgress,
+    component: PrintableDegreeTemplate,
+    meta: {
+      printable: true,
+    },
+    name: 'Print Degree Template',
+    path: '/degree/:id/print'
   },
   {
     path: '/',
