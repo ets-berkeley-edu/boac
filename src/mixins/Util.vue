@@ -2,7 +2,7 @@
 import _ from 'lodash'
 import numeral from 'numeral'
 import {nextTick} from 'vue'
-import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, studentRoutePath, toInt} from '@/lib/utils'
+import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, studentRoutePath, toBoolean, toInt} from '@/lib/utils'
 import {
   assign, capitalize, clone, cloneDeep, compact, concat, debounce, difference, differenceBy, each, eachRight, every,
   extend, filter, find, findIndex, flatten, get, groupBy, includes, indexOf, inRange, isEmpty, isEqual, isNaN, isNil, isNumber,
@@ -100,7 +100,7 @@ export default {
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
     stripHtmlAndTrim,
     studentRoutePath,
-    toBoolean: value => value && value !== 'false',
+    toBoolean,
     toInt
   }
 }

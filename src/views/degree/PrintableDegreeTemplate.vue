@@ -112,52 +112,46 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import Category from '@/components/degree/Category.vue'
-import Context from '@/mixins/Context'
 import CoursesTable from '@/components/degree/CoursesTable.vue'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
 import UnitRequirements from '@/components/degree/UnitRequirements'
-import Util from '@/mixins/Util'
 import {getItemsForCoursesTable} from '@/lib/degree-progress'
 import {getStudentBySid} from '@/api/student'
+import {onMounted, ref} from 'vue'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {alertScreenReader, setPageTitle, toBoolean, toInt} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import {useRoute} from 'vue-router'
 
-export default {
-  name: 'PrintableDegreeTemplate',
-  components: {
-    Category,
-    CoursesTable,
-    UnitRequirements
-  },
-  mixins: [Context, DegreeEditSession, Util],
-  data: () => ({
-    includeNote: undefined,
-    student: undefined
-  }),
-  created() {
-    const id = this.toInt(this._get(this.$route, 'params.id'))
-    this.includeNote = this.toBoolean(this.$route.query.includeNote)
-    refreshDegreeTemplate(id).then(() => {
-      if (this.sid) {
-        getStudentBySid(this.sid).then(data => {
-          this.student = data
-          const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
-          this.setPageTitle(`${studentName} - ${this.degreeName}`)
-          this.loadingComplete()
-          this.alertScreenReader(`${this.degreeName} for ${this.student.name}`)
-        })
-      } else {
-        this.setPageTitle(this.degreeName)
-        this.loadingComplete()
-        this.alertScreenReader(`${this.degreeName} is ready to print.`)
-      }
-    })
-  },
-  methods: {
-    getItemsForCoursesTable
-  }
-}
+const includeNote = ref(undefined)
+const student = ref(undefined)
+
+const contextStore = useContextStore()
+contextStore.loadingStart()
+
+onMounted(() => {
+  const route = useRoute()
+  const id = toInt(route.params.id)
+  includeNote.value = toBoolean(route.query.includeNote)
+  refreshDegreeTemplate(id).then(() => {
+    const degreeStore = useDegreeStore()
+    if (degreeStore.sid) {
+      getStudentBySid(this.sid).then(data => {
+        this.student = data
+        const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
+        setPageTitle(`${studentName} - ${this.degreeName}`)
+        contextStore.loadingComplete()
+        alertScreenReader(`${this.degreeName} for ${this.student.name}`)
+      })
+    } else {
+      setPageTitle(this.degreeName)
+      contextStore.loadingComplete()
+      alertScreenReader(`${this.degreeName} is ready to print.`)
+    }
+  })
+})
 </script>
 
 <style scoped>

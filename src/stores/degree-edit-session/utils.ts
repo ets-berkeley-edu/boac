@@ -2,7 +2,7 @@ import {alertScreenReader} from '@/lib/utils'
 import {assignCourse, deleteDegreeCategory, deleteDegreeCourse, getDegreeTemplate} from '@/api/degree'
 import {get, includes, map} from 'lodash'
 import {useContextStore} from '@/stores/context'
-import {useDegreeProgressStore} from '@/stores/degree-edit-session'
+import {useDegreeStore} from '@/stores/degree-edit-session'
 
 const VALID_DRAG_DROP_CONTEXTS: string[] = ['assigned', 'ignored', 'requirement', 'unassigned']
 
@@ -21,26 +21,26 @@ const $_allowCourseDrop = (category, course, context): boolean => {
 }
 
 const $_dropToAssign = (categoryId: number | null, course: any, ignore: boolean) => {
-  useDegreeProgressStore().setDisableButtons(true)
+  useDegreeStore().setDisableButtons(true)
   return assignCourse(course.id, categoryId, ignore).then(() => {
-    const templateId: number = useDegreeProgressStore().templateId
+    const templateId: number = useDegreeStore().templateId
     refreshDegreeTemplate(templateId).then(() => {
-      useDegreeProgressStore().draggingContextReset()
-      useDegreeProgressStore().setDisableButtons(false)
+      useDegreeStore().draggingContextReset()
+      useDegreeStore().setDisableButtons(false)
     })
   })
 }
 
 export function deleteCategory(categoryId: number) {
   return new Promise(resolve => {
-    const templateId: number = useDegreeProgressStore().templateId
+    const templateId: number = useDegreeStore().templateId
     deleteDegreeCategory(categoryId).then(() => refreshDegreeTemplate(templateId)).then(resolve)
   })
 }
 
 export function deleteCourse(courseId: number): Promise<any> {
   return new Promise(resolve => {
-    const templateId: number = useDegreeProgressStore().templateId
+    const templateId: number = useDegreeStore().templateId
     deleteDegreeCourse(courseId).then(() => refreshDegreeTemplate(templateId)).then(resolve)
   })
 }
@@ -52,7 +52,7 @@ export function log(message: string) {
 
 export function onDrop(category: any, context: any) {
   return new Promise<void>(resolve => {
-    const draggingContext = useDegreeProgressStore().draggingContext
+    const draggingContext = useDegreeStore().draggingContext
     const course = draggingContext.course
     const dragContext = draggingContext.dragContext
     const actionByUser = `${dragContext} to ${context}`
@@ -103,14 +103,14 @@ export function onDrop(category: any, context: any) {
           break
         default:
           done(`Unrecognized operation: ${actionByUser}`, true)
-          useDegreeProgressStore().draggingContextReset()
+          useDegreeStore().draggingContextReset()
           throw new TypeError(`Unrecognized transaction type where dragContext = '${dragContext}' and dropContext = '${context}'`)
       }
 
     } else {
       const message = `Invalid context(s): dragContext = '${dragContext}' and dropContext = '${context}'`
       done(message, true)
-      useDegreeProgressStore().draggingContextReset()
+      useDegreeStore().draggingContextReset()
       throw new TypeError(message)
     }
   })
@@ -119,7 +119,7 @@ export function onDrop(category: any, context: any) {
 export function refreshDegreeTemplate(templateId: number): Promise<any> {
   return new Promise<any>(resolve => {
     getDegreeTemplate(templateId).then((template: any) => {
-      useDegreeProgressStore().resetSession(template)
+      useDegreeStore().resetSession(template)
       return resolve(template)
     })
   })

@@ -138,7 +138,7 @@ import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
 import {deleteUnitRequirement} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
-import {useDegreeProgressStore} from '@/stores/degree-edit-session'
+import {useDegreeStore} from '@/stores/degree-edit-session'
 
 export default {
   name: 'UnitRequirements',
@@ -206,7 +206,7 @@ export default {
     },
     deleteConfirmed() {
       const name = this._get(this.selected, 'name')
-      const templateId = useDegreeProgressStore().templateId
+      const templateId = useDegreeStore().templateId
       deleteUnitRequirement(this.selected.id).then(() => {
         refreshDegreeTemplate(templateId).then(() => {
           alertScreenReader(`${name} deleted.`)

@@ -20,7 +20,7 @@ function $_getDefaultDraggingContext(): DraggingContext {
   }
 }
 
-export const useDegreeProgressStore: StoreDefinition = defineStore('degree', {
+export const useDegreeStore: StoreDefinition = defineStore('degree', {
   state: () => ({
     addCourseMenuOptions: undefined,
     categories: undefined,

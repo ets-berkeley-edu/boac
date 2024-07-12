@@ -1,11 +1,11 @@
 <script>
 import {mapActions, mapState} from 'pinia'
-import {useDegreeProgressStore} from '@/stores/degree-edit-session'
+import {useDegreeStore} from '@/stores/degree-edit-session'
 
 export default {
   name: 'DegreeEditSession',
   computed: {
-    ...mapState(useDegreeProgressStore, [
+    ...mapState(useDegreeStore, [
       'addCourseMenuOptions',
       'categories',
       'courses',
@@ -30,14 +30,14 @@ export default {
     ])
   },
   methods: {
-    ...mapActions(useDegreeProgressStore, [
+    ...mapActions(useDegreeStore, [
       'dismissAlert',
       'draggingContextReset',
       'setDisableButtons',
       'setDraggingTarget',
       'setIncludeNotesWhenPrint',
     ]),
-    onDragStart: (course, dragContext) => useDegreeProgressStore().dragStart(course, dragContext)
+    onDragStart: (course, dragContext) => useDegreeStore().dragStart(course, dragContext)
   }
 }
 </script>
