@@ -122,6 +122,10 @@ export function studentRoutePath(uid: string, inDemoMode: boolean) {
   return inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`
 }
 
+export function toBoolean(value: any) {
+  return value && value !== 'false'
+}
+
 export function toInt(value, defaultValue = null) {
   const parsed = parseInt(value, 10)
   return Number.isInteger(parsed) ? parsed : defaultValue

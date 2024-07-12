@@ -27,11 +27,11 @@
               @change="render"
             >
               <option
-                v-for="department in availableDepartments"
-                :key="department.code"
-                :value="department.code"
+                v-for="d in availableDepartments"
+                :key="d.code"
+                :value="d.code"
               >
-                {{ department.name }}
+                {{ d.name }}
               </option>
             </select>
           </div>
@@ -42,40 +42,36 @@
   </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
 import NotesReport from '@/components/reports/NotesReport'
+import router from '@/router'
 import UserReport from '@/components/reports/UserReport'
-import Util from '@/mixins/Util'
+import {find, includes, map, trim} from 'lodash'
 import {getAvailableDepartmentReports} from '@/api/reports'
+import {onMounted, ref} from 'vue'
+import {useRoute} from 'vue-router'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'FlightDataRecorder',
-  components: {
-    NotesReport,
-    UserReport
-  },
-  mixins: [Context, Util],
-  data: () => ({
-    availableDepartments: undefined,
-    department: undefined,
-  }),
-  mounted() {
-    this.deptCode = this._trim(this._get(this.$route, 'params.deptCode')).toUpperCase()
-    getAvailableDepartmentReports().then(departments => {
-      if (this._includes(this._map(departments, 'code'), this.deptCode)) {
-        this.availableDepartments = departments
-        this.render()
-        this.loadingComplete('Reports loaded')
-      } else {
-        this.$router.push({path: '/404'})
-      }
-    })
-  },
-  methods: {
-    render() {
-      this.department = this._find(this.availableDepartments, ['code', this.deptCode])
+const contextStore = useContextStore()
+const availableDepartments = ref(undefined)
+const department = ref(undefined)
+const deptCode = trim(useRoute().params.deptCode || '').toUpperCase()
+
+contextStore.loadingStart()
+
+onMounted(() => {
+  getAvailableDepartmentReports().then(departments => {
+    if (includes(map(departments, 'code'), deptCode)) {
+      availableDepartments.value = departments
+      render()
+      contextStore.loadingComplete('Reports loaded')
+    } else {
+      router.push({path: '/404'})
     }
-  }
+  })
+})
+
+const render = () => {
+  department.value = find(availableDepartments.value, ['code', deptCode])
 }
 </script>

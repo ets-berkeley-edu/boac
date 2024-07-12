@@ -13,6 +13,7 @@ const DraftNotes = () => import('@/views/DraftNotes.vue')
 const Error = () => import('@/views/Error.vue')
 const FlightDeck = () => import('@/views/FlightDeck.vue')
 const Home = () => import('@/views/Home.vue')
+const FlightDataRecorder = () => import('@/views/FlightDataRecorder.vue')
 const Login = () => import('./layouts/Login.vue')
 const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
 const NotFound = () => import('@/views/NotFound.vue')
@@ -29,7 +30,6 @@ import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 import {filter, get, includes, size, trim} from 'lodash'
 import {isAdvisor, isDirector} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
-import FlightDataRecorder from '@/views/FlightDataRecorder.vue'
 
 const $_goToLogin = (to: any, next: any) => {
   next({
@@ -166,30 +166,30 @@ const routes:RouteRecordRaw[] = [
       }
     ]
   },
-    {
-      path: '/',
-      component: StandardLayout,
-      beforeEnter: (to: any, from: any, next: any) => {
-        // Requires Director
-        const currentUser = useContextStore().currentUser
-        if (currentUser.isAuthenticated) {
-          if (isDirector(currentUser) || currentUser.isAdmin) {
-            next()
-          } else {
-            next({path: '/404'})
-          }
-        } else {
-          $_goToLogin(to, next)
-        }
-      },
-      children: [
-        {
-          path: '/analytics/:deptCode',
-          component: FlightDataRecorder,
-          name: 'Flight Data Recorder'
-        }
-      ]
-    },
+  {
+    path: '/',
+    component: StandardLayout,
+    // beforeEnter: (to: any, from: any, next: any) => {
+    //   // Requires Director
+    //   const currentUser = useContextStore().currentUser
+    //   if (currentUser.isAuthenticated) {
+    //     if (isDirector(currentUser) || currentUser.isAdmin) {
+    //       next()
+    //     } else {
+    //       next({path: '/404'})
+    //     }
+    //   } else {
+    //     $_goToLogin(to, next)
+    //   }
+    // },
+    children: [
+      {
+        path: '/analytics/:deptCode',
+        component: FlightDataRecorder,
+        name: 'Flight Data Recorder'
+      }
+    ]
+  },
   {
     path: '/',
     component: StandardLayout,
