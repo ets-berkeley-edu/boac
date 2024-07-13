@@ -1,15 +1,15 @@
 <template>
   <div>
-    <b-container class="border-bottom border-warning my-2 mx-0 px-0" fluid>
-      <b-row v-if="!_includes(dismissedAlerts, templateId) && showRevisionIndicator">
-        <b-col>
+    <v-container class="border-bottom border-warning my-2 mx-0 px-0" fluid>
+      <v-row v-if="!includes(degreeStore.dismissedAlerts, degreeStore.templateId) && showRevisionIndicator">
+        <v-col>
           <div class="align-items-start d-flex mb-3 p-3 warning-message-container">
             <div class="d-inline-block pr-2 w-100">
               <span class="font-weight-700">Note:</span> Revisions to the
               <router-link
                 id="original-degree-template"
                 target="_blank"
-                :to="`/degree/${parentTemplateId}`"
+                :to="`/degree/${degreeStore.parentTemplateId}`"
               >
                 original degree template <v-icon :icon="mdiOpenInNew" class="pr-1" />
                 <span class="sr-only"> (will open new browser tab)</span>
@@ -18,35 +18,35 @@
               degree check. Please update below if necessary.
             </div>
             <div class="align-self-center pr-1">
-              <b-btn
+              <v-btn
                 id="dismiss-alert"
                 class="p-0"
                 size="sm"
                 title="Dismiss"
-                variant="link"
-                @click="dismissAlert(templateId)"
+                variant="text"
+                @click="degreeStore.dismissAlert(templateId)"
               >
                 <v-icon :icon="mdiClose" />
                 <span class="sr-only">Dismiss alert</span>
-              </b-btn>
+              </v-btn>
             </div>
           </div>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col cols="8">
-          <h2 class="mb-1 page-section-header">{{ degreeName }}</h2>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="8">
+          <h2 class="mb-1 page-section-header">{{ degreeStore.degreeName }}</h2>
           <div class="text-grey font-size-16 font-weight-500 pb-2">
             {{ updatedAtDescription }}
           </div>
-        </b-col>
-        <b-col cols="4">
+        </v-col>
+        <v-col cols="4">
           <div class="d-flex flex-wrap py-1">
             <div class="pr-2">
               <router-link
                 id="print-degree-plan"
                 target="_blank"
-                :to="`/degree/${templateId}/print?includeNote=${includeNotesWhenPrint}`"
+                :to="`/degree/${degreeStore.templateId}/print?includeNote=${degreeStore.includeNotesWhenPrint}`"
               >
                 <v-icon class="mr-1" :icon="mdiPrinterOutline" />
                 Print
@@ -76,12 +76,12 @@
               </router-link>
             </div>
           </div>
-        </b-col>
-      </b-row>
-    </b-container>
-    <b-container class="border-bottom border-warning my-2 mx-0 px-0" fluid>
-      <b-row align-v="start">
-        <b-col cols="8">
+        </v-col>
+      </v-row>
+    </v-container>
+    <v-container class="border-bottom border-warning my-2 mx-0 px-0" fluid>
+      <v-row align-v="start">
+        <v-col cols="8">
           <div v-if="isEditingNote || noteBody" class="d-flex justify-space-between">
             <div>
               <h3 class="font-size-20 font-weight-bold text-no-wrap">Degree Notes</h3>
@@ -93,36 +93,39 @@
               <div :class="{'text-success': includeNotesWhenPrint, 'text-danger': !includeNotesWhenPrint}">
                 <div class="d-flex">
                   <div class="toggle-label">
-                    {{ includeNotesWhenPrint ? 'Yes' : 'No' }}
+                    {{ degreeStore.includeNotesWhenPrint ? 'Yes' : 'No' }}
                   </div>
-                  <b-form-checkbox
+                  <v-switch
                     id="degree-note-print-toggle"
-                    :checked="includeNotesWhenPrint"
+                    :checked="degreeStore.includeNotesWhenPrint"
+                    density="compact"
+                    color="primary"
+                    hide-details
                     switch
-                    @keypress.native.enter="onToggleNotesWhenPrint(!includeNotesWhenPrint)"
+                    @keydown.enter="onToggleNotesWhenPrint(!degreeStore.includeNotesWhenPrint)"
                     @change="onToggleNotesWhenPrint"
                   />
                 </div>
               </div>
             </div>
           </div>
-          <b-btn
+          <v-btn
             v-if="currentUser.canEditDegreeProgress && !isEditingNote && !noteBody"
             id="create-degree-note-btn"
             class="pl-0 pt-0"
-            :disabled="disableButtons"
-            variant="link"
+            :disabled="degreeStore.disableButtons"
+            variant="text"
             @click="editNote"
           >
             Create degree note
-          </b-btn>
-        </b-col>
-        <b-col cols="4">
+          </v-btn>
+        </v-col>
+        <v-col cols="4">
           <h3 class="font-size-20 font-weight-bold mb-1 text-no-wrap">In-progress courses</h3>
-        </b-col>
-      </b-row>
-      <b-row align-v="start">
-        <b-col cols="8">
+        </v-col>
+      </v-row>
+      <v-row align-v="start">
+        <v-col cols="8">
           <div v-if="noteBody && !isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="d-flex font-size-14">
             <div v-if="noteUpdatedBy" class="pr-2 text-no-wrap">
               <span v-if="noteUpdatedBy" class="text-grey font-weight-normal">
@@ -145,194 +148,204 @@
                 class="degree-note-body"
                 v-html="noteBody"
               />
-              <b-btn
+              <v-btn
                 v-if="currentUser.canEditDegreeProgress"
                 id="edit-degree-note-btn"
                 class="pl-0"
                 :disabled="disableButtons"
-                variant="link"
+                text="Edit degree note"
+                variant="text"
                 @click="editNote"
-              >
-                <span>Edit degree note</span>
-              </b-btn>
+              />
             </div>
             <div v-if="isEditingNote">
               <div class="px-2">
-                <b-form-textarea
+                <v-textarea
                   id="degree-note-input"
                   v-model.trim="noteBody"
+                  variant="outlined"
+                  clearable
                   :disabled="isSaving"
                   rows="4"
                 />
               </div>
+            </div>
+            <div>
               <div class="d-flex ml-2 my-2">
                 <div>
-                  <b-btn
+                  <v-btn
                     id="save-degree-note-btn"
                     class="btn-primary-color-override"
-                    :disabled="noteBody === _get(degreeNote, 'body') || isSaving"
-                    variant="primary"
+                    color="primary"
+                    :disabled="noteBody === get(degreeStore.degreeNote, 'body') || isSaving"
                     @click="saveNote"
                   >
                     <span v-if="isSaving">
                       <v-progress-circular class="mr-1" size="small" />
                     </span>
                     <span v-if="!isSaving">Save Note</span>
-                  </b-btn>
+                  </v-btn>
                 </div>
                 <div>
-                  <b-btn
+                  <v-btn
                     id="cancel-degree-note-btn"
                     :disabled="isSaving"
-                    variant="link"
+                    text="Cancel"
+                    variant="text"
                     @click="cancel"
-                  >
-                    Cancel
-                  </b-btn>
+                  />
                 </div>
               </div>
             </div>
           </div>
-        </b-col>
-        <b-col class="pb-2" cols="4">
-          <b-table
-            v-if="courses.inProgress.length"
+        </v-col>
+        <v-col class="pb-2" cols="4">
+          <!--
+            TODO:
+            * `class` needs to move out of headers
+            * tbody-class
+            * thead-class
+          -->
+          <v-data-table
+            v-if="degreeStore.courses.inProgress.length"
             id="in-progress-courses"
             borderless
             class="mb-0"
-            :fields="[{key: 'displayName', label: 'Course'}, {class: 'float-right', key: 'units', label: 'Units'}]"
+            :headers="[
+              {key: 'displayName', title: 'Course'},
+              {class: 'float-right', key: 'units', title: 'Units'}
+            ]"
             :items="getInProgressCourses"
             primary-key="primaryKey"
-            small
+            density="compact"
             tbody-class="font-size-14"
             thead-class="border-bottom font-size-14"
           >
-            <template #cell(displayName)="data">
+            <template #item.displayName="{item}">
               <div class="d-flex">
-                <div class="pr-1">{{ data.item.displayName }}</div>
+                <div class="pr-1">{{ item.displayName }}</div>
                 <div
-                  v-if="data.item.enrollmentStatus === 'W'"
-                  :id="`in-progress-course-${data.item.termId}-${data.item.sectionId}-waitlisted`"
+                  v-if="item.enrollmentStatus === 'W'"
+                  :id="`in-progress-course-${item.termId}-${item.sectionId}-waitlisted`"
                   class="font-size-14 error font-weight-bold text-uppercase"
                 >
                   (W<span class="sr-only">aitlisted</span>)
                 </div>
               </div>
             </template>
-          </b-table>
-          <span v-if="!courses.inProgress.length" class="text-grey pl-1">None</span>
-        </b-col>
-      </b-row>
-    </b-container>
+          </v-data-table>
+          <span v-if="!degreeStore.courses.inProgress.length" class="text-grey pl-1">None</span>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script setup>
-import {mdiClose, mdiOpenInNew, mdiPrinterOutline} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
-import {getCalnetProfileByUserId} from '@/api/user'
-import {updateDegreeNote} from '@/api/degree'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
 import {DateTime} from 'luxon'
+import {getCalnetProfileByUserId} from '@/api/user'
+import {mdiClose, mdiOpenInNew, mdiPrinterOutline} from '@mdi/js'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {updateDegreeNote} from '@/api/degree'
+import {computed, onMounted, ref} from 'vue'
+import {useContextStore} from '@/stores/context'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import {each, get} from 'lodash'
 
-export default {
-  name: 'StudentDegreeCheckHeader',
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    student: {
-      required: true,
-      type: Object
-    }
-  },
-  data: () => ({
-    isEditingNote: false,
-    isSaving: false,
-    noteBody: undefined,
-    noteUpdatedBy: undefined,
-    showRevisionIndicator: undefined,
-    updatedAtDescription: undefined
-  }),
-  computed: {
-    noteUpdatedAt() {
-      return this.degreeNote && DateTime.fromJSDate(new Date(this.degreeNote.updatedAt))
-    }
-  },
-  created() {
-    this.showRevisionIndicator = DateTime.fromJSDate(new Date(this.createdAt)) < DateTime.fromJSDate(new Date(this.parentTemplateUpdatedAt))
-    const updatedAtDate = new Date(this.updatedAt)
-    const isFresh = new Date(this.createdAt) === updatedAtDate
-    const userId = isFresh ? this.createdBy : this.updatedBy
-    getCalnetProfileByUserId(userId).then(data => {
-      const name = data.name || `${data.uid} (UID)`
-      this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${DateTime.fromJSDate(updatedAtDate).toFormat('MMM D, yyyy')}`
-    })
-    this.initNote()
-  },
-  methods: {
-    cancel() {
-      this.isEditingNote = false
-      this.noteBody = this._get(this.degreeNote, 'body')
-      alertScreenReader('Canceled')
-      this.setDisableButtons(false)
-      this.putFocusNextTick('create-degree-note-btn')
-    },
-    editNote() {
-      this.setDisableButtons(true)
-      this.isEditingNote = true
-      this.putFocusNextTick('degree-note-input')
-      alertScreenReader('Enter note in textarea')
-    },
-    getInProgressCourses() {
-      const courses = []
-      this._each(this.courses.inProgress, course => {
-        courses.push({...course, primaryKey: `${course.termId}-${course.ccn}`})
-      })
-      return courses
-    },
-    initNote() {
-      if (this.degreeNote) {
-        getCalnetProfileByUserId(this.degreeNote.updatedBy).then(data => {
-          this.noteUpdatedBy = data.name || `${data.uid} (UID)`
-        })
-        this.noteBody = this._get(this.degreeNote, 'body')
-      }
-      this.isSaving = false
-    },
-    isToday: date => {
-      return date.hasSame(DateTime.now(),'day')
-    },
-    onToggleNotesWhenPrint(flag) {
-      this.setIncludeNotesWhenPrint(flag)
-      alertScreenReader(`Note will ${flag ? '' : 'not'} be included in printable page.`)
-    },
-    saveNote() {
-      this.isSaving = true
-      updateDegreeNote(this.templateId, this.noteBody).then(() => {
-        refreshDegreeTemplate(this.templateId).then(() => {
-          this.isEditingNote = false
-          this.initNote()
-          this.setDisableButtons(false)
-          alertScreenReader('Note saved')
-          this.putFocusNextTick('create-degree-note-btn')
-        })
-      })
-    }
+defineProps({
+  student: {
+    required: true,
+    type: Object
   }
+})
+
+const contextStore = useContextStore()
+const degreeStore = useDegreeStore()
+
+const currentUser = contextStore.currentUser
+const isEditingNote = ref(false)
+const isSaving = ref(false)
+const noteBody = ref(undefined)
+const noteUpdatedBy = ref(undefined)
+const showRevisionIndicator = ref(undefined)
+const updatedAtDescription = ref(undefined)
+
+const noteUpdatedAt = computed(() => {
+  return degreeStore.degreeNote && DateTime.fromJSDate(new Date(degreeStore.degreeNote.updatedAt))
+})
+
+onMounted(() => {
+  showRevisionIndicator.value = DateTime.fromJSDate(new Date(degreeStore.createdAt)) < DateTime.fromJSDate(new Date(degreeStore.parentTemplateUpdatedAt))
+  const updatedAtDate = new Date(degreeStore.updatedAt)
+  const isFresh = new Date(degreeStore.createdAt) === updatedAtDate
+  const userId = isFresh ? degreeStore.createdBy : degreeStore.updatedBy
+  getCalnetProfileByUserId(userId).then(data => {
+    const name = data.name || `${data.uid} (UID)`
+    updatedAtDescription.value = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${DateTime.fromJSDate(updatedAtDate).toFormat('MMM D, yyyy')}`
+  })
+  initNote()
+})
+
+const cancel = () => {
+  isEditingNote.value = false
+  noteBody.value = get(degreeStore.degreeNote, 'body')
+  alertScreenReader('Canceled')
+  degreeStore.setDisableButtons(false)
+  putFocusNextTick('create-degree-note-btn')
+}
+
+const editNote = () => {
+  degreeStore.setDisableButtons(true)
+  isEditingNote.value = true
+  putFocusNextTick('degree-note-input')
+  alertScreenReader('Enter note in textarea')
+}
+
+const getInProgressCourses = () => {
+  const courses = []
+  each(degreeStore.courses.inProgress, course => {
+    courses.push({...course, primaryKey: `${course.termId}-${course.ccn}`})
+  })
+  return courses
+}
+
+const initNote = () => {
+  if (degreeStore.degreeNote) {
+    getCalnetProfileByUserId(degreeStore.degreeNote.updatedBy).then(data => {
+      noteUpdatedBy.value = data.name || `${data.uid} (UID)`
+    })
+    noteBody.value = get(degreeStore.degreeNote, 'body')
+  }
+  isSaving.value = false
+}
+
+const isToday = date => {
+  return date.hasSame(DateTime.now(),'day')
+}
+
+const onToggleNotesWhenPrint = flag => {
+  degreeStore.setIncludeNotesWhenPrint(flag)
+  alertScreenReader(`Note will ${flag ? '' : 'not'} be included in printable page.`)
+}
+
+const saveNote = () => {
+  isSaving.value = true
+  updateDegreeNote(degreeStore.templateId, noteBody.value).then(() => {
+    refreshDegreeTemplate(degreeStore.templateId).then(() => {
+      isEditingNote.value = false
+      initNote()
+      degreeStore.setDisableButtons(false)
+      alertScreenReader('Note saved')
+      putFocusNextTick('create-degree-note-btn')
+    })
+  })
 }
 </script>
 
 <style scoped>
 .degree-note-body {
   white-space: pre-line;
-}
-.section-separator {
-  border-bottom: 1px #999 solid;
 }
 .toggle-label {
   font-size: 14px;

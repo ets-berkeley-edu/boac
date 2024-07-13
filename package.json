@@ -30,7 +30,7 @@
     "vue-highcharts": "0.2.0",
     "vue-router": "4.4.0",
     "vue3-smooth-scroll": "0.8.1",
-    "vuetify": "3.6.11",
+    "vuetify": "3.6.12",
     "webfontloader": "1.6.28"
   },
   "devDependencies": {

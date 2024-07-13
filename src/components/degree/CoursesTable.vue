@@ -1,11 +1,16 @@
 <template>
   <div>
     <div>
-      <b-table-simple
+      <!--
+      TODO:
+      borderless
+      -->
+      <v-data-table
         :id="`column-${position}-courses-of-category-${parentCategory.id}`"
         :borderless="!printable"
         class="mb-0"
-        small
+        density="compact"
+        hide-default-footer
       >
         <b-thead class="border-bottom">
           <b-tr class="text-no-wrap">
@@ -318,7 +323,7 @@
             </b-td>
           </b-tr>
         </b-tbody>
-      </b-table-simple>
+      </v-data-table>
     </div>
     <div v-if="sid && canEdit && !isCampusRequirements" class="mb-3" :class="{'mt-1': !items.length}">
       <CreateCourseModal :parent-category="parentCategory" />

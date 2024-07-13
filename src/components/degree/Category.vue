@@ -4,8 +4,8 @@
       id="drop-zone-category"
       class="w-100"
       :class="{
-        'drop-zone-container': !_size(category.subcategories) && !printable,
-        'drop-zone-container-on': isDroppable() && draggingContext.target === category.id
+        'drop-zone-container': !size(category.subcategories) && !printable,
+        'drop-zone-container-on': isDroppable() && degreeStore.draggingContext.target === category.id
       }"
       @dragend="onDrag($event, 'end')"
       @dragenter="onDrag($event, 'enter')"
@@ -29,29 +29,29 @@
         >
           {{ category.name }}
         </h4>
-        <div v-if="!sid && canEdit" class="align-items-start d-flex justify-content-end text-no-wrap">
-          <b-btn
+        <div v-if="!degreeStore.sid && canEdit" class="align-items-start d-flex justify-content-end text-no-wrap">
+          <v-btn
             :id="`column-${position}-edit-category-${category.id}-btn`"
             class="pr-1 pt-0"
             :disabled="disableButtons"
-            size="sm"
-            variant="link"
+            size="small"
+            variant="text"
             @click.prevent="edit"
           >
             <v-icon :icon="mdiNoteEditOutline" />
             <span class="sr-only">Edit {{ category.name }}</span>
-          </b-btn>
-          <b-btn
+          </v-btn>
+          <v-btn
             :id="`column-${position}-delete-category-${category.id}-btn`"
             class="px-0 pt-0"
             :disabled="disableButtons"
             size="sm"
-            variant="link"
+            variant="text"
             @click="deleteDegreeCategory"
           >
             <v-icon :icon="mdiTrashCanOutline" />
             <span class="sr-only">Delete {{ category.name }}</span>
-          </b-btn>
+          </v-btn>
         </div>
       </div>
       <div
@@ -82,115 +82,111 @@
 </template>
 
 <script setup>
-import {mdiNoteEditOutline, mdiTrashCanOutline} from '@mdi/js'
-</script>
-
-<script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 import {deleteCategory, onDrop} from '@/stores/degree-edit-session/utils'
+import {mdiNoteEditOutline, mdiTrashCanOutline} from '@mdi/js'
+import {useContextStore} from '@/stores/context'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import {computed, ref} from 'vue'
+import {every, get, isEmpty, size} from 'lodash'
 
-export default {
-  name: 'Category',
-  components: {AreYouSureModal},
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    category: {
-      required: true,
-      type: Object
-    },
-    position: {
-      required: true,
-      type: Number
-    },
-    onClickEdit: {
-      default: () => {},
-      required: false,
-      type: Function
-    },
-    printable: {
-      required: false,
-      type: Boolean
-    }
+const props = defineProps({
+  category: {
+    required: true,
+    type: Object
   },
-  data: () => ({
-    canEdit: undefined,
-    isDeleting: false
-  }),
-  computed: {
-    isCampusRequirements() {
-      return !this._isEmpty(this.category.courseRequirements) && this._every(this.category.courseRequirements, isCampusRequirement)
-    }
+  position: {
+    required: true,
+    type: Number
   },
-  created() {
-    this.canEdit = this.currentUser.canEditDegreeProgress && !this.printable
+  onClickEdit: {
+    default: () => {},
+    required: false,
+    type: Function
   },
-  methods: {
-    deleteCanceled() {
-      this.isDeleting = false
-      alertScreenReader('Canceled. Nothing deleted.')
-      this.setDisableButtons(false)
-      this.putFocusNextTick(`column-${this.position}-delete-category-${this.category.id}-btn`)
-    },
-    deleteConfirmed() {
-      return deleteCategory(this.category.id).then(() => {
-        alertScreenReader(`${this.category.name} deleted.`)
-        this.isDeleting = false
-        this.setDisableButtons(false)
-        this.putFocusNextTick(`column-${this.position}-create-btn`)
-      })
-    },
-    deleteDegreeCategory() {
-      this.setDisableButtons(true)
-      this.isDeleting = true
-      alertScreenReader(`Delete ${this.category.name}`)
-    },
-    edit() {
-      alertScreenReader(`Edit ${this.category.name}`)
-      this.onClickEdit(this.category)
-    },
-    isDroppable() {
-      return this.category.id === this.draggingContext.target
-        && !this.isCampusRequirements
-        && !this._size(this.category.subcategories)
-        && !categoryHasCourse(this.category, this.draggingContext.course)
-    },
-    onDrag(event, stage) {
-      switch (stage) {
-      case 'end':
-        this.setDraggingTarget(null)
-        this.draggingContextReset()
-        break
-      case 'enter':
-      case 'over':
-        event.stopPropagation()
-        event.preventDefault()
-        this.setDraggingTarget(this.category.id)
-        break
-      case 'leave':
-        if (this._get(event.target, 'id') === 'drop-zone-category') {
-          this.setDraggingTarget(null)
-        }
-        break
-      case 'exit':
-      default:
-        break
-      }
-    },
-    onDropCourse(event) {
-      event.stopPropagation()
-      event.preventDefault()
-      if (this.isDroppable()) {
-        onDrop(this.category, 'requirement')
-      }
-      this.setDraggingTarget(null)
-      return false
-    }
+  printable: {
+    required: false,
+    type: Boolean
   }
+})
+
+const contextStore = useContextStore()
+const degreeStore = useDegreeStore()
+
+const currentUser = contextStore.currentUser
+const canEdit = currentUser.canEditDegreeProgress && !props.printable
+const isCampusRequirements = computed(() => {
+  return !isEmpty(props.category.courseRequirements) && every(props.category.courseRequirements, isCampusRequirement)
+})
+const isDeleting = ref(false)
+
+const deleteCanceled = () => {
+  isDeleting.value = false
+  alertScreenReader('Canceled. Nothing deleted.')
+  degreeStore.setDisableButtons(false)
+  putFocusNextTick(`column-${props.position}-delete-category-${props.category.id}-btn`)
+}
+
+const deleteConfirmed = () => {
+  return deleteCategory(props.category.id).then(() => {
+    alertScreenReader(`${props.category.name} deleted.`)
+    isDeleting.value = false
+    degreeStore.setDisableButtons(false)
+    putFocusNextTick(`column-${props.position}-create-btn`)
+  })
+}
+
+const deleteDegreeCategory = () => {
+  degreeStore.setDisableButtons(true)
+  isDeleting.value = true
+  alertScreenReader(`Delete ${props.category.name}`)
+}
+
+const edit = () => {
+  alertScreenReader(`Edit ${props.category.name}`)
+  props.onClickEdit(props.category)
+}
+
+const isDroppable = () => {
+  return props.category.id === degreeStore.draggingContext.target
+    && !isCampusRequirements.value
+    && !size(props.category.subcategories)
+    && !categoryHasCourse(props.category, degreeStore.draggingContext.course)
+}
+
+const onDrag = (event, stage) => {
+  switch (stage) {
+  case 'end':
+    degreeStore.setDraggingTarget(null)
+    degreeStore.draggingContextReset()
+    break
+  case 'enter':
+  case 'over':
+    event.stopPropagation()
+    event.preventDefault()
+    degreeStore.setDraggingTarget(props.category.id)
+    break
+  case 'leave':
+    if (get(event.target, 'id') === 'drop-zone-category') {
+      degreeStore.setDraggingTarget(null)
+    }
+    break
+  case 'exit':
+  default:
+    break
+  }
+}
+
+const onDropCourse = event => {
+  event.stopPropagation()
+  event.preventDefault()
+  if (isDroppable()) {
+    onDrop(props.category, 'requirement')
+  }
+  degreeStore.setDraggingTarget(null)
+  return false
 }
 </script>
 

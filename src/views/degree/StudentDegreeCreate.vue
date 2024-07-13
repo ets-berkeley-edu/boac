@@ -1,9 +1,9 @@
 <template>
-  <div v-if="!loading" class="default-margins">
+  <div v-if="!loading">
     <div class="border-bottom light-blue-background pb-2">
       <StudentProfileHeader :compact="true" :link-to-student-profile="true" :student="student" />
     </div>
-    <div class="ma-3 pt-2">
+    <div class="default-margins">
       <h2 class="page-section-header">Create <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.firstName }}</span>'s Degree Check</h2>
       <div>
         Choose a new degree check for <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span> from the list of options in the menu below.
@@ -13,50 +13,45 @@
       </div>
       <div v-if="templates.length">
         <div class="my-2 w-30">
-          <b-select
+          <select
             id="degree-template-select"
             v-model="selectedOption"
             aria-label="Select a degree template"
+            class="select-menu"
             :disabled="isSaving"
-            size="md"
             @change="onChangeSelect"
           >
-            <b-select-option id="degree-check-select-option-null" :value="null">Choose...</b-select-option>
-            <b-select-option
+            <option id="degree-check-select-option-null" :value="null">Choose...</option>
+            <option
               v-for="option in templates"
               :id="`degree-check-select-option-${option.id}`"
               :key="option.id"
-              required
               :value="option"
             >
               {{ option.name }}
-            </b-select-option>
-          </b-select>
+            </option>
+          </select>
         </div>
         <div class="d-flex mt-3">
-          <div>
-            <b-btn
+          <div class="mr-1">
+            <ProgressButton
               id="save-degree-check-btn"
-              class="btn-primary-color-override"
+              :action="onClickSave"
+              color="primary"
               :disabled="!selectedOption"
-              variant="primary"
-              @click="onClickSave"
-            >
-              <span v-if="isSaving">
-                <v-progress-circular class="mr-1" /> Saving
-              </span>
-              <span v-if="!isSaving">Save Degree Check</span>
-            </b-btn>
+              :in-progress="isSaving"
+              :text="isSaving ? 'Saving' : 'Save Degree Check'"
+            />
           </div>
           <div>
-            <b-btn
+            <v-btn
               id="cancel-create-degree-check-btn"
               :disabled="isSaving"
-              variant="link"
+              variant="text"
               @click="cancel"
             >
               Cancel
-            </b-btn>
+            </v-btn>
           </div>
         </div>
       </div>
@@ -69,60 +64,62 @@
   </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
+import router from '@/router'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, setPageTitle, studentRoutePath} from '@/lib/utils'
 import {createDegreeCheck, getDegreeTemplates} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
+import {computed, onMounted, ref} from 'vue'
+import {useContextStore} from '@/stores/context'
+import {useRoute} from 'vue-router'
+import ProgressButton from '@/components/util/ProgressButton.vue'
 
-export default {
-  name: 'StudentDegreeCreate',
-  components: {StudentProfileHeader},
-  mixins: [Context, Util],
-  data: () => ({
-    isSaving: false,
-    selectedOption: null,
-    student: undefined,
-    templates: undefined
-  }),
-  created() {
-    this.loadingStart()
-    let uid = this._get(this.$route, 'params.uid')
-    if (this.currentUser.inDemoMode) {
-      // In demo-mode we do not want to expose UID in browser location bar.
-      uid = window.atob(uid)
-    }
-    getStudentByUid(uid, true).then(data => {
-      this.student = data
-      this.setPageTitle(this.currentUser.inDemoMode ? 'Student' : this.student.name)
-      getDegreeTemplates().then(data => {
-        this.templates = data
-        this.loadingComplete()
-        alertScreenReader(`Add Degree Check for ${this.student.name}`)
-      })
-    })
-  },
-  methods: {
-    cancel() {
-      alertScreenReader('Canceled')
-      this.$router.push(`${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}`)
-    },
-    onChangeSelect(option) {
-      if (option) {
-        alertScreenReader(`${this.selectedOption.name} selected`)
-        this.putFocusNextTick('save-degree-check-btn')
-      }
-    },
-    onClickSave() {
-      this.isSaving = true
-      alertScreenReader('Saving')
-      createDegreeCheck(this.student.sid, this.selectedOption.id).then(data => {
-        this.isSaving = false
-        this.$router.push(`/student/degree/${data.id}`)
-      })
-    }
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
+const isSaving = ref(false)
+const loading = computed(() => contextStore.loading)
+const selectedOption = ref(null)
+const student = ref(undefined)
+const templates = ref(undefined)
+
+contextStore.loadingStart()
+
+onMounted(() => {
+  let uid = useRoute().params.uid
+  if (currentUser.inDemoMode) {
+    // In demo-mode we do not want to expose UID in browser location bar.
+    uid = window.atob(uid)
   }
+  getStudentByUid(uid, true).then(data => {
+    student.value = data
+    setPageTitle(currentUser.inDemoMode ? 'Student' : student.value.name)
+    getDegreeTemplates().then(data => {
+      templates.value = data
+      contextStore.loadingComplete()
+      alertScreenReader(`Add Degree Check for ${student.value.name}`)
+    })
+  })
+})
+
+const cancel = () => {
+  alertScreenReader('Canceled')
+  router.push(studentRoutePath(student.value.uid, currentUser.inDemoMode))
+}
+
+const onChangeSelect = option => {
+  if (option) {
+    alertScreenReader(`${selectedOption.value.name} selected`)
+    putFocusNextTick('save-degree-check-btn')
+  }
+}
+
+const onClickSave = () => {
+  isSaving.value = true
+  alertScreenReader('Saving')
+  createDegreeCheck(student.value.sid, selectedOption.value.id).then(data => {
+    isSaving.value = false
+    router.push(`/student/degree/${data.id}`)
+  })
 }
 </script>

@@ -65,6 +65,19 @@ Font Awesome to MDI
 
 ### b-btn to v-btn
 
+* change variant `link` to variant `text`
+* `variant="primary"` becomes `color="primary"`
+### b-form-checkbox to v-checkbox
+
+* If 'switch' is true then use `<v-switch />`
+* Don't forget to `hide-details`
+
+### b-form-textarea to v-textarea
+
+* Use `variant="outlined"`
+
+### b-link to ???
+
 TODO: notes
 
 ### b-collapse to v-expansion-panels
@@ -82,7 +95,9 @@ Example: src/components/note/CreateNoteHeader.vue
 
 ### b-table-lite to v-data-table
 
-- https://vuetifyjs.com/en/api/v-data-table/#links
+See https://vuetifyjs.com/en/api/v-data-table/#links
+
+* `fields` becomes `headers` (therein, `label` becomes `title`) 
 
 ### b-modal to v-overlay
 
@@ -99,6 +114,10 @@ Example: src/components/search/SortableStudents.vue
 - Vuetify tables are not automatically responsive like Bootstrap tables. The `stacked_table` class in global.scss attempts to replicate Bootstrap's behavior. It can be applied conditionally using the `v-resize` directive.
 - In Vuetify tables with sortable headers, the default table headers need to be overridden so that they contain buttons for the benefit of screen readers.
 - To highlight rows when you hover over them, add class `.table-hover`.
+
+### b-table-simple to v-data-table
+
+Use `v-data-table` with header and item slots.
 
 ### b-popover to v-tooltip
 

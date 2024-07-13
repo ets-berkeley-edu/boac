@@ -49,7 +49,6 @@
           id="degree-checks-table"
           :cell-props="data => {
             const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
-            console.log(JSON.stringify(data.column.key === 'name'))
             const padding = data.column.key === 'name' ? 'pl-4' : 'pl-0'
             return {class: `${bgColor} font-size-16 ${padding}`}
           }"

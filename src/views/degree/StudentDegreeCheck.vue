@@ -1,5 +1,5 @@
 <template>
-  <div class="default-margins" :class="{'cursor-grabbing': draggingContext.course}" @drag="scrollTo">
+  <div :class="{'cursor-grabbing': degreeStore.draggingContext.course}" @drag="scrollTo">
     <div v-if="!loading">
       <div class="border-bottom light-blue-background py-2">
         <StudentProfileHeader
@@ -8,14 +8,14 @@
           :student="student"
         />
       </div>
-      <div class="ma-3">
+      <div class="default-margins">
         <StudentDegreeCheckHeader :student="student" />
-        <b-container class="px-0 py-2" fluid>
-          <b-row no-gutters>
-            <b-col cols="4">
+        <v-container class="px-0 py-2" fluid>
+          <v-row no-gutters>
+            <v-col cols="4">
               <UnitRequirements />
-            </b-col>
-            <b-col :cols="courses['ignored'].length ? 4 : 3">
+            </v-col>
+            <v-col :cols="courses['ignored'].length ? 4 : 3">
               <div
                 id="drop-zone-ignored-courses"
                 class="drop-zone"
@@ -31,8 +31,8 @@
                 <h3 id="ignored-header" class="font-size-20 font-weight-bold pb-0 text-no-wrap" tabindex="-1">Other Coursework</h3>
                 <UnassignedCourses :ignored="true" />
               </div>
-            </b-col>
-            <b-col>
+            </v-col>
+            <v-col>
               <div
                 id="drop-zone-unassigned-courses"
                 class="drop-zone"
@@ -51,143 +51,141 @@
                 </div>
                 <UnassignedCourses />
               </div>
-            </b-col>
-          </b-row>
-        </b-container>
+            </v-col>
+          </v-row>
+        </v-container>
         <h3 class="sr-only">Categories</h3>
-        <b-container class="mx-0 pt-3 px-0" :fluid="true">
-          <b-row>
-            <b-col
+        <v-container class="mx-0 pt-3 px-0" :fluid="true">
+          <v-row>
+            <v-col
               v-for="position in [1, 2, 3]"
               :id="`student-degree-check-column-${position}`"
               :key="position"
               class="degree-check-column"
             >
               <TemplateCategoryColumn :position="position" />
-            </b-col>
-          </b-row>
-        </b-container>
+            </v-col>
+          </v-row>
+        </v-container>
         <DebugTemplate v-if="config.isVueAppDebugMode" />
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
 import DebugTemplate from '@/components/degree/DebugTemplate'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DuplicateExistingCourse from '@/components/degree/student/DuplicateExistingCourse'
 import StudentDegreeCheckHeader from '@/components/degree/student/StudentDegreeCheckHeader'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnassignedCourses from '@/components/degree/student/UnassignedCourses'
 import UnitRequirements from '@/components/degree/UnitRequirements'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, setPageTitle} from '@/lib/utils'
+import {config} from 'typescript-eslint'
 import {getStudentBySid} from '@/api/student'
 import {onDrop, refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {useContextStore} from '@/stores/context'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import {useRoute} from 'vue-router'
+import {get} from 'lodash'
 
-export default {
-  name: 'StudentDegreeCheck',
-  components: {
-    DuplicateExistingCourse,
-    DebugTemplate,
-    StudentDegreeCheckHeader,
-    StudentProfileHeader,
-    TemplateCategoryColumn,
-    UnassignedCourses,
-    UnitRequirements
-  },
-  mixins: [Context, DegreeEditSession, Util],
-  data: () => ({
-    previousClientY: 0,
-    scrollHeight: undefined,
-    student: undefined
-  }),
-  created() {
-    this.loadingStart()
-    this.onResize()
-    window.addEventListener('resize', this.onResize)
-    window.addEventListener('scroll', this.onResize)
+const contextStore = useContextStore()
+const degreeStore = useDegreeStore()
+const currentUser = contextStore.currentUser
+const loading = computed(() => contextStore.loading)
+const previousClientY = ref(0)
+const scrollHeight = ref(undefined)
+const student = ref(undefined)
 
-    const degreeId = this._get(this.$route, 'params.id')
-    refreshDegreeTemplate(degreeId).then(() => {
-      getStudentBySid(this.sid, true).then(data => {
-        this.student = data
-        const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
-        this.setPageTitle(`${studentName} - ${this.degreeName}`)
-        this.loadingComplete()
-        alertScreenReader(`${this.degreeName} for ${this.student.name}`)
-      })
+contextStore.loadingStart()
+
+onMounted(() => {
+  onResize()
+  window.addEventListener('resize', onResize)
+  window.addEventListener('scroll', onResize)
+
+  const degreeId = useRoute().params.id
+  refreshDegreeTemplate(degreeId).then(() => {
+    getStudentBySid(degreeStore.sid, true).then(data => {
+      student.value = data
+      const studentName = currentUser.inDemoMode ? 'Student' : student.value.name
+      setPageTitle(`${studentName} - ${degreeStore.degreeName}`)
+      contextStore.loadingComplete()
+      alertScreenReader(`${degreeStore.degreeName} for ${student.value.name}`)
     })
-  },
-  destroyed() {
-    window.removeEventListener('resize', this.onResize)
-    window.removeEventListener('scroll', this.onResize)
-  },
-  methods: {
-    dropToUnassign(event, context) {
-      event.stopPropagation()
-      event.preventDefault()
-      onDrop(null, context)
-      this.setDraggingTarget(null)
-    },
-    isDroppable(target) {
-      const course = this.draggingContext.course
-      let droppable = this.draggingContext.target === target && course
-      if (droppable) {
-        if (target === 'ignored') {
-          droppable = !course.ignore
-        } else {
-          droppable = course.ignore || course.categoryId
-        }
-      }
-      return droppable
-    },
-    onDrag(event, stage, context) {
-      switch (stage) {
-      case 'end':
-        this.setDraggingTarget(null)
-        this.draggingContextReset()
-        break
-      case 'enter':
-      case 'over':
-        event.stopPropagation()
-        event.preventDefault()
-        this.setDraggingTarget(context)
-        break
-      case 'leave':
-        if (this._get(event.target, 'id') === `drop-zone-${context}-courses`) {
-          this.setDraggingTarget(null)
-        }
-        break
-      case 'exit':
-      case 'start':
-      default:
-        break
-      }
-    },
-    scrollTo(event) {
-      // Firefox does not need the intervention below.
-      if (this.draggingContext.course && navigator.userAgent.indexOf('Firefox') === -1) {
-        const eventY = event.clientY
-        // Distance to bottom of viewport
-        const distanceToBottom = window.innerHeight - eventY
-        const magicNumber = 100
-        // The closer to viewport top, or bottom, the faster the scroll.
-        if (eventY >= this.previousClientY && distanceToBottom < magicNumber) {
-          window.scrollTo({behavior: 'smooth', top: this.scrollHeight + magicNumber - distanceToBottom})
-        } else if (eventY <= this.previousClientY && eventY < magicNumber) {
-          window.scrollTo({behavior: 'smooth', top: window.scrollY + eventY - magicNumber})
-        }
-        this.previousClientY = eventY
-      }
-    },
-    onResize() {
-      this.scrollHeight = window.scrollY
+  })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onResize)
+  window.removeEventListener('scroll', onResize)
+})
+
+const dropToUnassign = (event, context) => {
+  event.stopPropagation()
+  event.preventDefault()
+  onDrop(null, context)
+  degreeStore.setDraggingTarget(null)
+}
+
+const isDroppable = target => {
+  const course = degreeStore.draggingContext.course
+  let droppable = degreeStore.draggingContext.target === target && course
+  if (droppable) {
+    if (target === 'ignored') {
+      droppable = !course.ignore
+    } else {
+      droppable = course.ignore || course.categoryId
     }
   }
+  return droppable
+}
+
+const onDrag = (event, stage, context) => {
+  switch (stage) {
+  case 'end':
+    degreeStore.setDraggingTarget(null)
+    degreeStore.draggingContextReset()
+    break
+  case 'enter':
+  case 'over':
+    event.stopPropagation()
+    event.preventDefault()
+    degreeStore.setDraggingTarget(context)
+    break
+  case 'leave':
+    if (get(event.target, 'id') === `drop-zone-${context}-courses`) {
+      degreeStore.setDraggingTarget(null)
+    }
+    break
+  case 'exit':
+  case 'start':
+  default:
+    break
+  }
+}
+
+const scrollTo = event => {
+  // Firefox does not need the intervention below.
+  if (degreeStore.draggingContext.course && navigator.userAgent.indexOf('Firefox') === -1) {
+    const eventY = event.clientY
+    // Distance to bottom of viewport
+    const distanceToBottom = window.innerHeight - eventY
+    const magicNumber = 100
+    // The closer to viewport top, or bottom, the faster the scroll.
+    if (eventY >= previousClientY.value && distanceToBottom < magicNumber) {
+      window.scrollTo({behavior: 'smooth', top: scrollHeight.value + magicNumber - distanceToBottom})
+    } else if (eventY <= previousClientY.value && eventY < magicNumber) {
+      window.scrollTo({behavior: 'smooth', top: window.scrollY + eventY - magicNumber})
+    }
+    previousClientY.value = eventY
+  }
+}
+
+const onResize = () => {
+  scrollHeight.value = window.scrollY
 }
 </script>
 
