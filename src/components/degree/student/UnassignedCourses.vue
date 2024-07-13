@@ -1,9 +1,9 @@
 <template>
   <div v-if="key">
-    <div v-if="!courses[key].length" class="no-data-text">
+    <div v-if="!degreeStore.courses[key].length" class="no-data-text">
       No courses
     </div>
-    <div v-if="courses[key].length" :id="`${key}-courses-container`">
+    <div v-if="degreeStore.courses[key].length" :id="`${key}-courses-container`">
       <b-table-simple
         :id="`${key}-courses-table`"
         borderless
@@ -32,7 +32,7 @@
           </b-tr>
         </b-thead>
         <b-tbody>
-          <template v-for="(course, index) in courses[key]" :key="`tr-${index}`">
+          <template v-for="(course, index) in degreeStore.courses[key]" :key="`tr-${index}`">
             <b-tr
               :id="course.manuallyCreatedBy ? `${key}-course-${course.id}-manually-created` : `${key}-course-${course.termId}-${course.sectionId}`"
               class="tr-course"
@@ -92,7 +92,7 @@
                   size="sm"
                   :title="`Updated from ${pluralize('unit', course.sis.units)}`"
                 />
-                <span class="font-size-14">{{ _isNil(course.units) ? '&mdash;' : course.units }}</span>
+                <span class="font-size-14">{{ isNil(course.units) ? '&mdash;' : course.units }}</span>
                 <span v-if="unitsWereEdited(course)" class="sr-only"> (updated from {{ pluralize('unit', course.sis.units) }})</span>
               </td>
               <td class="td-grade">
@@ -108,7 +108,7 @@
                 <span class="font-size-14">{{ course.termName }}</span>
               </td>
               <td class="td-note">
-                <div v-if="course.note && !isNoteVisible(course) && !isUserDragging(course.id)" class="d-flex justify-content-start">
+                <div v-if="course.note && !isNoteVisible(course) && !degreeStore.isUserDragging(course.id)" class="d-flex justify-content-start">
                   <b-link
                     :id="`course-${course.id}-note`"
                     class="ellipsis-if-overflow"
@@ -122,32 +122,32 @@
               <td v-if="currentUser.canEditDegreeProgress" class="td-course-edit-button">
                 <div class="d-flex justify-content-end">
                   <div v-if="course.manuallyCreatedBy" class="btn-container">
-                    <b-btn
-                      v-if="!isUserDragging(course.id)"
+                    <v-btn
+                      v-if="!degreeStore.isUserDragging(course.id)"
                       :id="`delete-${course.id}-btn`"
                       class="pl-0 pr-1 py-0"
-                      :disabled="disableButtons"
-                      size="sm"
-                      variant="link"
+                      :disabled="degreeStore.disableButtons"
+                      size="small"
+                      variant="text"
                       @click="onDelete(course)"
                     >
                       <v-icon :icon="mdiTrashCanOutline" />
                       <span class="sr-only">Delete {{ course.name }}</span>
-                    </b-btn>
+                    </v-btn>
                   </div>
                   <div class="btn-container">
-                    <b-btn
-                      v-if="!isUserDragging(course.id)"
+                    <v-btn
+                      v-if="!degreeStore.isUserDragging(course.id)"
                       :id="`edit-${key}-course-${course.id}-btn`"
                       class="font-size-14 pl-0 pr-1 py-0"
-                      :disabled="disableButtons"
-                      size="sm"
-                      variant="link"
+                      :disabled="degreeStore.disableButtons"
+                      size="small"
+                      variant="text"
                       @click="edit(course)"
                     >
                       <v-icon :icon="mdiNoteEditOutline" />
                       <span class="sr-only">Edit {{ course.name }}</span>
-                    </b-btn>
+                    </v-btn>
                   </div>
                 </div>
               </td>
@@ -178,13 +178,14 @@
                   {{ course.note }}
                 </span>
                 <span class="font-size-12 ml-1 text-no-wrap">
-                  [<b-btn
+                  [<v-btn
                     :id="`course-${course.id}-hide-note-btn`"
                     class="px-0 py-1"
                     size="sm"
-                    variant="link"
+                    text="Hide note"
+                    variant="text"
                     @click="hideNote(course)"
-                  >Hide note</b-btn>]
+                  />]
                 </span>
               </b-td>
             </b-tr>
@@ -205,6 +206,12 @@
 </template>
 
 <script setup>
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
+import EditCourse from '@/components/degree/student/EditCourse'
+import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
+import {deleteCourse} from '@/stores/degree-edit-session/utils'
+import {isAlertGrade} from '@/berkeley'
 import {
   mdiAlertRhombus,
   mdiCheckCircleOutline,
@@ -212,148 +219,144 @@ import {
   mdiInformationOutline, mdiNoteEditOutline,
   mdiTrashCanOutline
 } from '@mdi/js'
-</script>
-
-<script>
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import Context from '@/mixins/Context'
-import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
-import EditCourse from '@/components/degree/student/EditCourse'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
-import {deleteCourse} from '@/stores/degree-edit-session/utils'
-import {isAlertGrade} from '@/berkeley'
 import {unitsWereEdited} from '@/lib/degree-progress'
+import {useContextStore} from '@/stores/context'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import {computed, ref} from 'vue'
+import {find, get, includes, isNil, remove} from 'lodash'
 
-export default {
-  name: 'UnassignedCourses',
-  components: {AreYouSureModal, CourseAssignmentMenu, EditCourse},
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    ignored: {
-      required: false,
-      type: Boolean
-    }
-  },
-  data: () => ({
-    courseForDelete: undefined,
-    courseForEdit: undefined,
-    hoverCourseId: undefined,
-    isDeleting: false,
-    key: undefined,
-    notesVisible: []
-  }),
-  computed: {
-    hasAnyNotes() {
-      return !!this._find(this.courses[this.key], course => course.note)
-    },
-  },
-  created() {
-    this.key = this.ignored ? 'ignored' : 'unassigned'
-  },
-  methods: {
-    afterCancel() {
-      const putFocus = `edit-${this.key}-course-${this.courseForEdit.id}-btn`
-      alertScreenReader('Canceled')
-      this.courseForEdit = null
-      this.setDisableButtons(false)
-      this.putFocusNextTick(putFocus)
-    },
-    afterSave(course) {
-      this.courseForEdit = null
-      alertScreenReader(`Updated ${this.key} course ${course.name}`)
-      this.setDisableButtons(false)
-      this.putFocusNextTick(`edit-${this.key}-course-${course.id}-btn`)
-    },
-    edit(course) {
-      this.hideNote(course, false)
-      this.setDisableButtons(true)
-      alertScreenReader(`Edit ${this.key} ${course.name}`)
-      this.courseForEdit = course
-      this.putFocusNextTick('name-input')
-    },
-    canDrag() {
-      return !this.disableButtons && this.currentUser.canEditDegreeProgress
-    },
-    deleteCanceled() {
-      this.putFocusNextTick(`delete-${this.courseForDelete.id}-btn`)
-      this.isDeleting = false
-      this.courseForDelete = null
-      alertScreenReader('Canceled. Nothing deleted.')
-      this.setDisableButtons(false)
-    },
-    deleteConfirmed() {
-      return deleteCourse(this.courseForDelete.id).then(() => {
-        alertScreenReader(`${this.courseForDelete.name} deleted.`)
-        this.isDeleting = false
-        this.courseForDelete = null
-        this.setDisableButtons(false)
-        this.putFocusNextTick('create-course-button')
-      })
-    },
-    hideNote(course, srAlert=true) {
-      this.notesVisible = this._remove(this.notesVisible, id => course.id !== id)
-      if (srAlert) {
-        alertScreenReader('Note hidden')
-      }
-    },
-    isAlertGrade,
-    isEditing(course) {
-      return course.sectionId === this._get(this.courseForEdit, 'sectionId')
-    },
-    isNoteVisible(course) {
-      return this._includes(this.notesVisible, course.id)
-    },
-    onDelete(course) {
-      this.setDisableButtons(true)
-      this.courseForDelete = course
-      this.isDeleting = true
-      alertScreenReader(`Delete ${course.name}`)
-    },
-    onDrag(event, stage, course) {
-      switch (stage) {
-      case 'end':
-        if (event.target) {
-          event.target.style.opacity = 1
-        }
-        this.draggingContextReset()
-        break
-      case 'start':
-        if (event.target) {
-          // Required for Safari
-          event.target.style.opacity = 0.9
-        }
-        this.onDragStart(course, this.key)
-        break
-      case 'enter':
-      case 'exit':
-      case 'leave':
-      case 'over':
-      default:
-        break
-      }
-    },
-    onMouse(stage, course) {
-      switch(stage) {
-      case 'enter':
-        if (this.canDrag() && !this.draggingContext.course) {
-          this.hoverCourseId = course.id
-        }
-        break
-      case 'leave':
-        this.hoverCourseId = null
-        break
-      default:
-        break
-      }
-    },
-    showNote(course) {
-      this.notesVisible.push(course.id)
-      alertScreenReader(`Showing note of ${course.name}`)
-    },
-    unitsWereEdited
+const contextStore = useContextStore()
+const degreeStore = useDegreeStore()
+
+const currentUser = contextStore.currentUser
+
+const props = defineProps({
+  ignored: {
+    required: false,
+    type: Boolean
   }
+})
+
+const courseForDelete = ref(undefined)
+const courseForEdit = ref(undefined)
+const hoverCourseId = ref(undefined)
+const isDeleting = ref(false)
+const key = props.ignored ? 'ignored' : 'unassigned'
+const notesVisible = ref([])
+
+const hasAnyNotes = computed(() => {
+  return !!find(degreeStore.courses[key.value], course => course.note)
+})
+
+const afterCancel = () => {
+  const putFocus = `edit-${key}-course-${courseForEdit.value.id}-btn`
+  alertScreenReader('Canceled')
+  courseForEdit.value = null
+  degreeStore.setDisableButtons(false)
+  putFocusNextTick(putFocus)
+}
+
+const afterSave = course => {
+  courseForEdit.value = null
+  alertScreenReader(`Updated ${key} course ${course.name}`)
+  degreeStore.setDisableButtons(false)
+  putFocusNextTick(`edit-${key}-course-${course.id}-btn`)
+}
+
+const edit = course => {
+  hideNote(course, false)
+  degreeStore.setDisableButtons(true)
+  alertScreenReader(`Edit ${key} ${course.name}`)
+  courseForEdit.value = course
+  putFocusNextTick('name-input')
+}
+
+const canDrag = () => {
+  return !degreeStore.disableButtons && currentUser.canEditDegreeProgress
+}
+
+const deleteCanceled = () => {
+  putFocusNextTick(`delete-${courseForDelete.value.id}-btn`)
+  isDeleting.value = false
+  courseForDelete.value = null
+  alertScreenReader('Canceled. Nothing deleted.')
+  degreeStore.setDisableButtons(false)
+}
+
+const deleteConfirmed = () => {
+  return deleteCourse(courseForDelete.value.id).then(() => {
+    alertScreenReader(`${courseForDelete.value.name} deleted.`)
+    isDeleting.value = false
+    courseForDelete.value = null
+    degreeStore.setDisableButtons(false)
+    putFocusNextTick('create-course-button')
+  })
+}
+
+const hideNote = (course, srAlert=true) => {
+  notesVisible.value = remove(notesVisible.value, id => course.id !== id)
+  if (srAlert) {
+    alertScreenReader('Note hidden')
+  }
+}
+
+const isEditing = course => {
+  return course.sectionId === get(courseForEdit.value, 'sectionId')
+}
+
+const isNoteVisible = course => {
+  return includes(notesVisible.value, course.id)
+}
+
+const onDelete = course => {
+  degreeStore.setDisableButtons(true)
+  courseForDelete.value = course
+  isDeleting.value = true
+  alertScreenReader(`Delete ${course.name}`)
+}
+
+const onDrag = (event, stage, course) => {
+  switch (stage) {
+  case 'end':
+    if (event.target) {
+      event.target.style.opacity = 1
+    }
+    degreeStore.draggingContextReset()
+    break
+  case 'start':
+    if (event.target) {
+      // Required for Safari
+      event.target.style.opacity = 0.9
+    }
+    degreeStore.onDragStart(course, key)
+    break
+  case 'enter':
+  case 'exit':
+  case 'leave':
+  case 'over':
+  default:
+    break
+  }
+}
+
+const onMouse = (stage, course) => {
+  switch(stage) {
+  case 'enter':
+    if (canDrag() && !degreeStore.draggingContext.course) {
+      hoverCourseId.value = course.id
+    }
+    break
+  case 'leave':
+    hoverCourseId.value = null
+    break
+  default:
+    break
+  }
+}
+
+const showNote = course => {
+  notesVisible.value.push(course.id)
+  alertScreenReader(`Showing note of ${course.name}`)
 }
 </script>
 

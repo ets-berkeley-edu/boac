@@ -26,8 +26,7 @@
           variant="outlined"
           :disabled="isValidating || isSaving"
           clearable
-        >
-        </v-textarea>
+        />
       </div>
       <div class="d-flex justify-content-end mt-3">
         <v-btn

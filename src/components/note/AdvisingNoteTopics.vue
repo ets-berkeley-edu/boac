@@ -114,19 +114,4 @@ const onSelectChange = () => {
   padding: 0 0 10px 0 !important;
   margin-right: -10px;
 }
-.select-menu {
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
-  border-radius: .25rem;
-  border: 1px solid #ced4da;
-  color: #495057;
-  display: inline-block;
-  font-size: 1rem;
-  font-weight: 400;
-  height: calc(1.5em + .75rem + 2px);
-  line-height: 1.5;
-  padding: .375rem 1.75rem .375rem .75rem;
-  vertical-align: middle;
-}
 </style>

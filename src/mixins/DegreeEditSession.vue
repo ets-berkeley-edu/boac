@@ -18,7 +18,6 @@ export default {
       'dismissedAlerts',
       'draggingContext',
       'includeNotesWhenPrint',
-      'isUserDragging',
       'lastPageRefreshAt',
       'parentTemplateId',
       'parentTemplateUpdatedAt',
@@ -33,6 +32,7 @@ export default {
     ...mapActions(useDegreeStore, [
       'dismissAlert',
       'draggingContextReset',
+      'isUserDragging',
       'setDisableButtons',
       'setDraggingTarget',
       'setIncludeNotesWhenPrint',

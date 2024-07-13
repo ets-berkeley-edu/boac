@@ -5,21 +5,20 @@
         Duplicate Course
       </div>
       <div class="my-2">
-        <b-select
+        <select
           id="add-course-select"
           v-model="selected"
+          class="select-menu"
           :disabled="isSaving || !options.length"
-          :lazy="true"
-          no-caret
         >
-          <b-select-option
+          <option
             id="add-course-select-option-null"
             :value="null"
             @click="onSelect"
           >
             Choose...
-          </b-select-option>
-          <b-form-select-option
+          </option>
+          <option
             v-for="option in options"
             :id="`add-course-select-option-${option.id}`"
             :key="option.id"
@@ -27,44 +26,41 @@
             @click="onSelect"
           >
             {{ option.name }}
-          </b-form-select-option>
-        </b-select>
+          </option>
+        </select>
       </div>
       <div class="d-flex mt-3">
         <div>
-          <b-btn
+          <ProgressButton
             id="add-course-save-btn"
-            class="btn-primary-color-override"
+            :action="onClickSave"
+            color="primary"
             :disabled="isSaving || !selected"
-            variant="primary"
-            @click="onClickSave"
-          >
-            <span v-if="isSaving">
-              <v-progress-circular class="mr-1" size="small" /> Saving
-            </span>
-            <span v-if="!isSaving">Save</span>
-          </b-btn>
+            :in-progress="isSaving"
+            size="small"
+            :text="isSaving ? 'Saving' : 'Save'"
+          />
         </div>
         <div>
-          <b-btn
+          <v-btn
             id="add-course-cancel-btn"
             :disabled="isSaving"
-            variant="link"
+            variant="text"
             @click="cancel"
           >
             Cancel
-          </b-btn>
+          </v-btn>
         </div>
       </div>
     </div>
     <div v-if="!isMenuOpen">
       <span v-if="!options.length" aria-live="polite" class="sr-only">No courses available to copy.</span>
-      <b-btn
+      <v-btn
         v-if="currentUser.canEditDegreeProgress"
         id="duplicate-existing-course"
         class="align-center d-flex flex-row-reverse p-0"
-        :disabled="disableButtons || !options.length"
-        variant="link"
+        :disabled="degreeStore.disableButtons || !options.length"
+        variant="text"
         @click.prevent="openMenu"
       >
         <div class="font-size-16 text-no-wrap">
@@ -73,66 +69,63 @@
         <div class="font-size-14 pr-1">
           <v-icon :icon="mdiPlus" />
         </div>
-      </b-btn>
+      </v-btn>
     </div>
   </div>
 </template>
 
 <script setup>
-import {mdiPlus} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {copyCourse} from '@/api/degree'
+import {mdiPlus} from '@mdi/js'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {computed, ref} from 'vue'
+import {filter as _filter, sortBy} from 'lodash'
+import {useContextStore} from '@/stores/context'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import ProgressButton from '@/components/util/ProgressButton.vue'
 
-export default {
-  name: 'DuplicateExistingCourse',
-  mixins: [Context, DegreeEditSession, Util],
-  data: () => ({
-    isMenuOpen: false,
-    isSaving: false,
-    selected: null
-  }),
-  computed: {
-    options() {
-      const courses = this.courses.assigned.concat(this.courses.unassigned)
-      return this._filter(this._sortBy(courses, [c => c.name.toLowerCase()], ['name', 'id']), c => !c.isCopy)
-    }
-  },
-  methods: {
-    cancel() {
-      this.isMenuOpen = this.isSaving = false
-      this.setDisableButtons(false)
-      alertScreenReader('Canceled')
-      this.putFocusNextTick('duplicate-existing-course')
-    },
-    onClickSave() {
-      this.isSaving = true
-      alertScreenReader('Saving')
-      copyCourse(this.selected.id).then(course => {
-        refreshDegreeTemplate(this.templateId).then(() => {
-          this.isMenuOpen = this.isSaving = false
-          this.selected = null
-          this.setDisableButtons(false)
-          alertScreenReader('Course duplicated and put in the list of Unassigned.')
-          this.putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
-        })
-      })
-    },
-    onSelect() {
-      alertScreenReader(this.selected ? `${this.selected.name} selected` : 'Selection set to null.')
-    },
-    openMenu() {
-      this.setDisableButtons(true)
-      this.isMenuOpen = true
-      alertScreenReader('The \'Duplicate Course\' menu is open.')
-      this.putFocusNextTick('add-course-select')
-    }
-  }
+const contextStore = useContextStore()
+const degreeStore = useDegreeStore()
+
+const currentUser = contextStore.currentUser
+const isMenuOpen = ref(false)
+const isSaving = ref(false)
+const selected = ref(null)
+const options = computed(() => {
+  const courses = degreeStore.courses.value.assigned.concat(degreeStore.courses.value.unassigned)
+  return _filter(sortBy(courses, [c => c.name.toLowerCase()], ['name', 'id']), c => !c.isCopy)
+})
+
+const cancel = () => {
+  isMenuOpen.value = this.isSaving = false
+  degreeStore.setDisableButtons(false)
+  alertScreenReader('Canceled')
+  putFocusNextTick('duplicate-existing-course')
+}
+
+const onClickSave = () => {
+  isSaving.value = true
+  alertScreenReader('Saving')
+  copyCourse(selected.value.id).then(course => {
+    refreshDegreeTemplate(degreeStore.templateId.value).then(() => {
+      isMenuOpen.value = isSaving.value = false
+      selected.value = null
+      degreeStore.setDisableButtons(false)
+      alertScreenReader('Course duplicated and put in the list of Unassigned.')
+      putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
+    })
+  })
+}
+
+const onSelect = () => {
+  alertScreenReader(selected.value ? `${selected.value.name} selected` : 'Selection set to null.')
+}
+
+const openMenu = () => {
+  degreeStore.setDisableButtons(true)
+  isMenuOpen.value = true
+  alertScreenReader('The \'Duplicate Course\' menu is open.')
+  putFocusNextTick('add-course-select')
 }
 </script>

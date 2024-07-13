@@ -1,8 +1,8 @@
 <template>
   <div class="m-4">
-    <b-container v-if="!loading" fluid>
-      <b-row class="pb-2">
-        <b-col v-if="student">
+    <v-container v-if="!loading" fluid>
+      <v-row class="pb-2">
+        <v-col v-if="student">
           <h1 class="font-size-18 font-weight-bold mb-0" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</h1>
           <div class="font-size-14">
             <div class="font-weight-500">
@@ -39,8 +39,8 @@
               </div>
             </div>
           </div>
-        </b-col>
-        <b-col>
+        </v-col>
+        <v-col>
           <div class="unofficial-label-pill">
             <div>UNOFFICIAL DEGREE PROGRESS REPORT</div>
             <div>Printed by {{ currentUser.name }} on {{ moment().format('MMMM D, YYYY') }}</div>
@@ -49,15 +49,15 @@
           <div :class="{'unit-requirements-of-template': !student}">
             <UnitRequirements :printable="true" />
           </div>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col class="pr-0">
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col class="pr-0">
           <div class="mb-3 section-border-major" />
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col
           v-for="position in [1, 2, 3]"
           :key="position"
           :class="{'pr-2': position > 1}"
@@ -100,15 +100,15 @@
               </div>
             </div>
           </div>
-        </b-col>
-      </b-row>
-      <b-row v-if="degreeNote && includeNote">
-        <b-col class="pb-5 pt-3">
+        </v-col>
+      </v-row>
+      <v-row v-if="degreeNote && includeNote">
+        <v-col class="pb-5 pt-3">
           <h3 id="degree-note" class="font-size-12 font-weight-bold">Degree Notes</h3>
           <pre class="text-wrap" v-html="degreeNote.body" />
-        </b-col>
-      </b-row>
-    </b-container>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -118,17 +118,19 @@ import CoursesTable from '@/components/degree/CoursesTable.vue'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import {getItemsForCoursesTable} from '@/lib/degree-progress'
 import {getStudentBySid} from '@/api/student'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {alertScreenReader, setPageTitle, toBoolean, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {useRoute} from 'vue-router'
 
+const contextStore = useContextStore()
+
 const includeNote = ref(undefined)
+const loading = computed(() => contextStore.loading)
 const student = ref(undefined)
 
-const contextStore = useContextStore()
 contextStore.loadingStart()
 
 onMounted(() => {
