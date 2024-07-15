@@ -369,7 +369,7 @@ import {markAppointmentRead} from '@/api/appointments'
 import {isDirector} from '@/berkeley'
 import {alertScreenReader, scrollTo} from '@/lib/utils'
 import {DateTime} from 'luxon'
-import {capitalize, each, find, includes, map, remove, size, slice} from 'lodash'
+import {capitalize, each, find, get, includes, map, remove, size, slice} from 'lodash'
 
 export default {
   name: 'AcademicTimelineTable',
@@ -654,7 +654,7 @@ export default {
       }
     },
     refreshNote(updatedNote) {
-      const note = find(this.messages, ['id', updatedNote.id])
+      const note = get(updatedNote.id) ? find(this.messages, ['id', updatedNote.id]) : null
       if (note) {
         note.attachments = updatedNote.attachments
         note.body = note.message = updatedNote.body

@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div
+  <v-container class="pa-0">
+    <v-row
       v-if="boaSessionExpired"
       id="uh-oh-session-time-out"
       aria-live="polite"
@@ -8,21 +8,32 @@
       role="alert"
     >
       <SessionExpired />
-    </div>
-    <div v-if="!boaSessionExpired" class="d-flex flex-wrap">
-      <div class="flex-grow-1">
-        <v-btn
+    </v-row>
+    <v-row v-if="!boaSessionExpired" class="d-flex flex-wrap" no-gutters>
+      <v-col class="d-flex pt-2">
+        <ProgressButton
           v-if="!['editTemplate'].includes(mode)"
           id="btn-save-as-template"
-          class="pl-0"
-          color="primary"
+          :action="saveTemplate"
           :disabled="isSaving || !trim(model.subject) || !!model.setDate || !!model.contactType"
+          :in-progress="isSavingTemplate"
           text="Save as template"
           variant="text"
-          @click="saveAsTemplate"
         />
-      </div>
-      <div class="d-flex justify-end">
+      </v-col>
+      <v-col class="d-flex justify-end pt-2">
+        <ProgressButton
+          v-if="model.isDraft"
+          id="save-as-draft-button"
+          :action="updateDraft"
+          class="ml-2"
+          :disabled="isSaving || isUpdatingDraft || (!trim(model.subject) && !trim(model.body))"
+          :in-progress="isUpdatingDraft"
+          text="Save and Close Draft"
+          variant="text"
+        />
+      </v-col>
+      <v-col class="d-flex flex-grow-sm-0 justify-end pt-2">
         <ProgressButton
           v-if="mode === 'editTemplate'"
           id="btn-update-template"
@@ -32,18 +43,10 @@
           text="Update Template"
         />
         <ProgressButton
-          v-if="model.isDraft"
-          id="save-as-draft-button"
-          :action="updateDraft"
-          :disabled="isSaving || isUpdatingDraft || (!trim(model.subject) && !trim(model.body))"
-          :in-progress="isUpdatingDraft"
-          text="Save and Close Draft"
-          variant="text"
-        />
-        <ProgressButton
           v-if="!['editTemplate'].includes(mode)"
           id="create-note-button"
           :action="publish"
+          class="ml-2"
           :disabled="isSaving || isEmpty(completeSidSet) || !trim(model.subject)"
           :in-progress="isPublishing"
           text="Publish Note"
@@ -58,9 +61,9 @@
           variant="outlined"
           @click="discard"
         />
-      </div>
-    </div>
-  </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
@@ -99,12 +102,18 @@ const props = defineProps({
 const noteStore = useNoteStore()
 const {boaSessionExpired, completeSidSet, isSaving, mode, model} = storeToRefs(noteStore)
 const isPublishing = ref(false)
+const isSavingTemplate = ref(false)
 const isUpdatingDraft = ref(false)
 
 const publish = () => {
   noteStore.setIsDraft(false)
   isPublishing.value = true
   updateNote().then(() => isPublishing.value = false)
+}
+
+const saveTemplate = () => {
+  isSavingTemplate.value = true
+  props.saveAsTemplate().then(() => isSavingTemplate.value = false)
 }
 
 const updateDraft = () => {

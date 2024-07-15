@@ -72,7 +72,7 @@
             />
           </div>
         </div>
-        <div class="py-4">
+        <div class="py-3">
           <AdvisingNoteTopics />
           <PrivacyPermissions v-if="useContextStore().currentUser.canAccessPrivateNotes" />
           <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
@@ -233,7 +233,7 @@ const addNoteAttachments = attachments => {
 const discardRequested = () => {
   if (mode.value === 'editTemplate') {
     const indexOf = noteTemplates.value.findIndex(t => t.id === model.value.id)
-    const template = noteTemplates[indexOf]
+    const template = noteTemplates.value[indexOf]
     const noDiff = trim(model.value.subject) === template.subject
       && model.value.body === template.body
       && !size(xor(model.value.topics, template.topics))
@@ -343,12 +343,14 @@ const init = () => {
 }
 
 const saveAsTemplate = () => {
-  noteStore.setIsSaving(true)
-  const ifAuthenticated = () => {
-    showCreateTemplateModal.value = true
-    disableFocusLock()
-  }
-  invokeIfAuthenticated(ifAuthenticated)
+  return new Promise(resolve => {
+    noteStore.setIsSaving(true)
+    const ifAuthenticated = () => {
+      showCreateTemplateModal.value = true
+      disableFocusLock()
+    }
+    invokeIfAuthenticated(ifAuthenticated).finally(resolve)
+  })
 }
 
 const showAlert = (value, seconds=3) => {

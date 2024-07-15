@@ -22,7 +22,7 @@ const decodeHtml = (snippet: string) => {
 }
 
 export function invokeIfAuthenticated(callback: Function, onReject = () => {}) {
-  getUserProfile().then(data => {
+  return getUserProfile().then(data => {
     if (data.isAuthenticated) {
       callback()
     } else {
