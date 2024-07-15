@@ -75,6 +75,7 @@ export default {
     this.isTimelineLoading = false
     this.eventHandlers = {
       'note-deleted': this.onDeleteNoteEvent,
+      'note-updated': this.onNoteUpdated,
       'notes-batch-published': this.onPublishBatchNotes
     }
     this._each(this.eventHandlers, (handler, eventType) => {
@@ -105,6 +106,13 @@ export default {
       if (removed) {
         this.updateCountsPerType('note', this.countsPerType.note - 1)
         this.sortMessages()
+      }
+    },
+    onNoteUpdated(note) {
+      if (note.sid === this.student.sid) {
+        getNote(note.id).then(note => {
+          this.onCreateNewNote(note)
+        })
       }
     },
     onPublishBatchNotes(noteIdsBySid) {
