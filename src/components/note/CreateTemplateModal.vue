@@ -12,7 +12,9 @@
       min-width="400"
       max-width="600"
     >
-      <ModalHeader text="Name Your Template" />
+      <v-card-title>
+        <ModalHeader text="Name Your Template" />
+      </v-card-title>
       <hr />
       <form @submit.prevent="createTemplate">
         <div class="px-4 py-2">

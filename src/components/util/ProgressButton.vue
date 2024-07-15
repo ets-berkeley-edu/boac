@@ -11,7 +11,7 @@
       <div v-if="inProgress" class="px-2">
         <v-progress-circular indeterminate size="16" width="2" />
       </div>
-      <div class="px-1 text-no-wrap">
+      <div class="text-no-wrap">
         {{ text }}
         <slot />
       </div>
