@@ -161,8 +161,6 @@ const onClickAddButton = () => {
       ).then(() => {
         alertScreenReader(`${sidsToAdd.length} students added to batch note`)
         const sidsNotFound = differenceWith(sids, sidsToAdd, isEqual)
-        // eslint-disable-next-line no-console
-        console.log(`sidsNotFound: ${sidsNotFound}`)
         if (sidsNotFound.length) {
           const suffix = sidsNotFound.length === 1 ? '' : 's'
           autocompleteErrorMessage.value = `No student${suffix} found with SID${suffix} ${join(sidsNotFound)}.`
