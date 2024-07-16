@@ -135,12 +135,11 @@
     </div>
     <div class="d-flex mt-2">
       <div class="pr-2">
-        <b-btn
+        <v-btn
           :id="`column-${position}-create-requirement-btn`"
-          class="btn-primary-color-override"
+          color="primary"
           :disabled="disableSaveButton"
-          size="sm"
-          variant="primary"
+          size="small"
           @click="onSubmit"
         >
           <span v-if="isSaving">
@@ -148,19 +147,19 @@
           </span>
           <span v-if="existingCategory && !isSaving">Save</span>
           <span v-if="!existingCategory && !isSaving">Create Requirement</span>
-        </b-btn>
+        </v-btn>
       </div>
       <div>
-        <b-btn
+        <v-btn
           :id="`column-${position}-cancel-create-requirement-btn`"
-          class="btn-primary-color-override btn-primary-color-outline-override"
+          color="primary"
           :disabled="isSaving"
           size="sm"
-          variant="outline-primary"
+          variant="outlined"
           @click="cancel"
         >
           Cancel
-        </b-btn>
+        </v-btn>
       </div>
     </div>
   </div>

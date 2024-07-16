@@ -7,7 +7,7 @@
       >
         <span class="sr-only">Course </span>Name
       </label>
-      <b-form-input
+      <v-text-field
         id="course-name-input"
         v-model="name"
         class="cohort-create-input-name"
@@ -60,15 +60,14 @@
       <label id="grade-label" for="course-grade-input" class="font-weight-700 mb-1 pr-2">
         Grade
       </label>
-      <b-form-input
+      <v-text-field
         id="course-grade-input"
         v-model="grade"
         aria-labelledby="grade-label"
         class="grade-input"
         maxlength="3"
         size="sm"
-        trim
-        @keypress.enter="update"
+        @keydown.enter="update"
       />
     </div>
     <div v-if="course.manuallyCreatedBy" class="pb-2">
@@ -81,141 +80,131 @@
       Note
     </label>
     <div class="pb-3">
-      <b-form-textarea
+      <v-textarea
         id="course-note-textarea"
         v-model="note"
         :disabled="isSaving"
         rows="4"
+        variant="outlined"
         @keyup.esc="cancel"
       />
     </div>
     <div class="d-flex">
       <div class="pr-2">
-        <b-btn
+        <v-btn
           id="update-note-btn"
-          class="btn-primary-color-override px-3"
+          class="px-3"
+          color="primary"
           :disabled="disableSaveButton"
-          size="sm"
-          variant="primary"
+          size="small"
           @click="update"
         >
           <span v-if="isSaving">
             <v-progress-circular class="mr-1" size="small" />
           </span>
           <span v-if="!isSaving">Save</span>
-        </b-btn>
+        </v-btn>
       </div>
       <div>
-        <b-btn
+        <v-btn
           id="cancel-update-note-btn"
-          class="btn-primary-color-override btn-primary-color-outline-override"
+          color="primary"
           :disabled="isSaving"
-          size="sm"
-          variant="outline-primary"
+          size="small"
+          text="Cancel"
+          variant="outlined"
           @click="cancel"
-        >
-          Cancel
-        </b-btn>
+        />
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {updateCourse} from '@/api/degree'
 import {validateUnitRange} from '@/lib/degree-progress'
+import {computed, onMounted, ref} from 'vue'
+import {clone, isEmpty as _isEmpty, map, trim} from 'lodash'
 
-export default {
-  name: 'EditCourse',
-  components: {AccentColorSelect, SelectUnitFulfillment, UnitsInput},
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    afterCancel: {
-      required: true,
-      type: Function
-    },
-    afterSave: {
-      required: true,
-      type: Function
-    },
-    course: {
-      required: true,
-      type: Object
-    },
-    position: {
-      required: true,
-      type: Number
-    }
+const props = defineProps({
+  afterCancel: {
+    required: true,
+    type: Function
   },
-  data: () => ({
-    accentColor: undefined,
-    error: undefined,
-    grade: undefined,
-    isSaving: false,
-    name: undefined,
-    note: '',
-    selectedUnitRequirements: [],
-    units: undefined
-  }),
-  computed: {
-    disableSaveButton() {
-      return !!(this.isSaving || this.unitsErrorMessage || (this.course.manuallyCreatedBy && !this._trim(this.name)))
-    },
-    unitsErrorMessage() {
-      const isEmpty = this._isEmpty(this._trim(this.units))
-      if (isEmpty && this.course.manuallyCreatedBy) {
-        return null
-      }
-      return isEmpty ? 'Required' : validateUnitRange(this.units, undefined, 10).message
-    }
+  afterSave: {
+    required: true,
+    type: Function
   },
-  created() {
-    this.accentColor = this.course.accentColor
-    this.grade = this.course.grade
-    this.name = this.course.name
-    this.note = this.course.note
-    this.units = this.course.units
-    this.selectedUnitRequirements = this._clone(this.course.unitRequirements)
-    this.putFocusNextTick(this.course.manuallyCreatedBy ? 'course-name-input' : 'course-units-input')
+  course: {
+    required: true,
+    type: Object
   },
-  methods: {
-    cancel() {
-      alertScreenReader('Canceled')
-      this.afterCancel()
-    },
-    onUnitRequirementsChange(unitRequirements) {
-      this.selectedUnitRequirements = unitRequirements
-    },
-    setUnits(units) {
-      this.units = units
-    },
-    update() {
-      if (!this.disableSaveButton) {
-        this.isSaving = true
-        updateCourse(
-          this.accentColor,
-          this.course.id,
-          this.grade,
-          this.name,
-          this.note,
-          this._map(this.selectedUnitRequirements, 'id'),
-          this.units
-        ).then(data => {
-          refreshDegreeTemplate(this.templateId).then(() => {
-            alertScreenReader('Course updated')
-            this.afterSave(data)
-          })
-        })
-      }
-    }
+  position: {
+    required: true,
+    type: Number
+  }
+})
+
+const accentColor = props.course.accentColor
+const error = ref(undefined)
+const grade = props.course.grade
+const isSaving = ref(false)
+const name = props.course.name
+const note = props.course.note
+const selectedUnitRequirements = clone(props.course.unitRequirements)
+const units = props.course.units
+
+const disableSaveButton = computed(() => {
+  return !!(isSaving.value || unitsErrorMessage.value || (props.course.manuallyCreatedBy && !trim(this.name)))
+})
+
+const unitsErrorMessage = computed(() => {
+  const isEmpty = _isEmpty(trim(units.value))
+  if (isEmpty && props.course.manuallyCreatedBy) {
+    return null
+  }
+  return isEmpty ? 'Required' : validateUnitRange(units.value, undefined, 10).message
+})
+
+onMounted(() => {
+  putFocusNextTick(props.course.manuallyCreatedBy ? 'course-name-input' : 'course-units-input')
+})
+
+const cancel = () => {
+  alertScreenReader('Canceled')
+  props.afterCancel()
+}
+
+const onUnitRequirementsChange = unitRequirements => {
+  selectedUnitRequirements.value = unitRequirements
+}
+
+const setUnits = value => {
+  units.value = value
+}
+
+const update = () => {
+  if (!this.disableSaveButton) {
+    this.isSaving = true
+    updateCourse(
+      accentColor.value,
+      props.course.id,
+      grade.value,
+      name.value,
+      note.value,
+      map(selectedUnitRequirements.value, 'id'),
+      this.units
+    ).then(data => {
+      refreshDegreeTemplate(this.templateId).then(() => {
+        alertScreenReader('Course updated')
+        props.afterSave(data)
+      })
+    })
   }
 }
 </script>

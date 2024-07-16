@@ -3,15 +3,15 @@
     <b-select
       :id="`column-${position}-unit-requirement-select`"
       v-model="model"
-      :disabled="disable || (unitRequirements.length === selected.length)"
+      :disabled="disable || (degreeStore.unitRequirements.length === selected.length)"
       @change="onChangeUnitRequirement"
     >
       <b-select-option :id="`column-${position}-unit-requirement-option-null`" :value="null">Choose...</b-select-option>
       <b-select-option
-        v-for="(option, index) in unitRequirements"
+        v-for="(option, index) in degreeStore.unitRequirements"
         :id="`column-${position}-unit-requirement-option-${index}`"
         :key="index"
-        :disabled="_includes(_map(selected, 'id'), option.id)"
+        :disabled="includes(map(selected, 'id'), option.id)"
         :value="option"
       >
         {{ option.name }}
@@ -38,11 +38,11 @@
               {{ unitRequirement.name }}
             </div>
             <div>
-              <b-btn
+              <v-btn
                 :id="`column-${position}-unit-requirement-remove-${index}`"
                 :disabled="disable"
                 class="pill-list-btn px-0 py-0"
-                variant="link"
+                variant="text"
                 @click="removeUnitRequirement(unitRequirement)"
               >
                 <v-icon
@@ -51,7 +51,7 @@
                   color="error"
                 />
                 <span class="sr-only">Remove</span>
-              </b-btn>
+              </v-btn>
             </div>
           </div>
         </li>
@@ -61,59 +61,49 @@
 </template>
 
 <script setup>
-import {mdiCloseCircleOutline} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
-import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
+import {cloneDeep, includes, map, remove} from 'lodash'
+import {mdiCloseCircleOutline} from '@mdi/js'
+import {ref} from 'vue'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
-export default {
-  name: 'SelectUnitFulfillment',
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    disable: {
-      required: false,
-      type: Boolean
-    },
-    initialUnitRequirements: {
-      default: undefined,
-      required: false,
-      type: Array
-    },
-    onUnitRequirementsChange: {
-      required: true,
-      type: Function
-    },
-    position: {
-      required: true,
-      type: Number
-    }
+const degreeStore = useDegreeStore()
+
+const props = defineProps({
+  disable: {
+    required: false,
+    type: Boolean
   },
-  data: () => ({
-    selected: undefined,
-    model: null
-  }),
-  created() {
-    this.selected = this._cloneDeep(this.initialUnitRequirements)
+  initialUnitRequirements: {
+    default: undefined,
+    required: false,
+    type: Array
   },
-  methods: {
-    onChangeUnitRequirement(option) {
-      alertScreenReader(option ? `${option.name} selected` : 'Unselected')
-      if (option) {
-        this.selected.push(option)
-        this.onUnitRequirementsChange(this.selected)
-        this.model = null
-      }
-    },
-    removeUnitRequirement(item) {
-      alertScreenReader(`${item.name} removed`)
-      this.selected = this._remove(this.selected, selected => selected.id !== item.id)
-      this.onUnitRequirementsChange(this.selected)
-    }
+  onUnitRequirementsChange: {
+    required: true,
+    type: Function
+  },
+  position: {
+    required: true,
+    type: Number
   }
+})
+const selected = ref(cloneDeep(props.initialUnitRequirements))
+const model = ref(null)
+
+const onChangeUnitRequirement = option => {
+  alertScreenReader(option ? `${option.name} selected` : 'Unselected')
+  if (option) {
+    selected.value.push(option)
+    props.onUnitRequirementsChange(selected.value)
+    model.value = null
+  }
+}
+
+const removeUnitRequirement = item => {
+  alertScreenReader(`${item.name} removed`)
+  selected.value = remove(selected.value, selected => selected.id !== item.id)
+  props.onUnitRequirementsChange(selected.value)
 }
 </script>
 

@@ -234,6 +234,7 @@ import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
+
 const deleteModalBody = ref(undefined)
 const degreeTemplates = ref(undefined)
 const isBusy = ref(false)

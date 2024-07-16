@@ -50,25 +50,25 @@
           ></b-form-textarea>
         </div>
         <div class="d-flex justify-content-end">
-          <b-btn
+          <v-btn
             id="degree-check-add-sids-btn"
             class="btn-primary-color-override"
             :disabled="!_trim(textarea) || isBusy"
-            variant="primary"
+            variant="text"
             @click="addSids"
           >
             <span v-if="isValidating"><v-progress-circular size="small" /> <span class="pl-1">Adding</span></span>
             <span v-if="!isValidating">Add</span>
-          </b-btn>
+          </v-btn>
         </div>
         <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-3">
           <span class="font-weight-700 truncate pill pill-attachment text-uppercase text-no-wrap pl-2">
             <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ addedStudent.label }}</span>
-            <b-btn
+            <v-btn
               :id="`remove-student-from-batch-${index}`"
-              variant="link"
               class="p-0"
               :disabled="isSaving"
+              variant="text"
               @click.prevent="removeStudent(addedStudent)"
             >
               <v-icon
@@ -77,7 +77,7 @@
                 color="error"
               />
               <span class="sr-only">Remove {{ addedStudent.label }} from degree check</span>
-            </b-btn>
+            </v-btn>
           </span>
         </div>
       </div>
@@ -131,25 +131,24 @@
         </ul>
       </div>
       <div class="d-flex justify-content-end pt-2 w-75">
-        <b-btn
+        <v-btn
           id="batch-degree-check-save"
-          class="btn-primary-color-override"
+          color="primary"
           :disabled="isBusy || !selectedTemplate || _isEmpty(sidsToInclude)"
-          variant="primary"
           @click="save"
         >
           <span v-if="isSaving"><v-progress-circular class="mr-1" size="small" /> Saving</span>
           <span v-if="!isSaving">Save Degree Check</span>
-        </b-btn>
-        <b-btn
+        </v-btn>
+        <v-btn
           id="batch-degree-check-cancel"
           class="pr-0"
           :disabled="isBusy"
-          variant="link"
+          variant="text"
           @click.prevent="cancel"
         >
           Cancel
-        </b-btn>
+        </v-btn>
       </div>
     </div>
   </div>

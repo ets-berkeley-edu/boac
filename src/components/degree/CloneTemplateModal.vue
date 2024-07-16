@@ -63,75 +63,62 @@
   </b-modal>
 </template>
 
-<script>
-import Context from '@/mixins/Context.vue'
+<script setup>
 import ModalHeader from '@/components/util/ModalHeader.vue'
-import Util from '@/mixins/Util.vue'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {cloneDegreeTemplate, getDegreeTemplates} from '@/api/degree'
+import {computed, ref, watch} from 'vue'
+import {map} from 'lodash'
 
-export default {
-  name: 'CloneTemplateModal',
-  components: {ModalHeader},
-  mixins: [Context, Util],
-  props: {
-    cancel: {
-      required: true,
-      type: Function
-    },
-    afterCreate: {
-      required: true,
-      type: Function
-    },
-    templateToClone: {
-      required: true,
-      type: Object
-    }
+const props = defineProps({
+  cancel: {
+    required: true,
+    type: Function
   },
-  data: () => ({
-    error: undefined,
-    isSaving: false,
-    name: ''
-  }),
-  computed: {
-    showModal: {
-      get() {
-        return !!this.templateToClone
-      },
-      set(value) {
-        if (!value) {
-          this.cancel()
-        }
-      }
-    }
+  afterCreate: {
+    required: true,
+    type: Function
   },
-  watch: {
-    name() {
-      this.error = null
-    }
+  templateToClone: {
+    required: true,
+    type: Object
+  }
+})
+
+const error = ref(undefined)
+const isSaving = ref(false)
+const name = ref(props.templateToClone.name)
+const showModal = computed({
+  get() {
+    return !!props.templateToClone
   },
-  created() {
-    this.name = this.templateToClone.name
-  },
-  methods: {
-    createClone() {
-      this.isSaving = true
-      getDegreeTemplates().then(data => {
-        const lower = this.name.trim().toLowerCase()
-        if (this._map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
-          alertScreenReader('Cloning template')
-          cloneDegreeTemplate(this.templateToClone.id, this.name).then(data => {
-            this.afterCreate(data)
-            this.isSaving = false
-          })
-        } else {
-          this.error = `A degree named <span class="font-weight-500">${this.name}</span> already exists. Please choose a different name.`
-          alertScreenReader(this.error)
-          this.isSaving = false
-        }
-      })
+  set(value) {
+    if (!value) {
+      props.cancel()
     }
   }
+})
+
+watch(name, () => {
+  error.value = null
+})
+
+const createClone = () => {
+  isSaving.value = true
+  getDegreeTemplates().then(data => {
+    const lower = name.value.trim().toLowerCase()
+    if (map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
+      alertScreenReader('Cloning template')
+      cloneDegreeTemplate(props.templateToClone.id, name.value).then(data => {
+        props.afterCreate(data)
+        isSaving.value = false
+      })
+    } else {
+      error.value = `A degree named <span class="font-weight-500">${name.value}</span> already exists. Please choose a different name.`
+      alertScreenReader(this.error)
+      isSaving.value = false
+    }
+  })
 }
 </script>
 

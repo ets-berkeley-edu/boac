@@ -1,7 +1,7 @@
 <template>
-  <b-container v-if="render" class="pl-0" fluid>
-    <b-row>
-      <b-col>
+  <v-container v-if="render" class="pl-0" fluid>
+    <v-row>
+      <v-col>
         <div class="align-items-start d-flex flex-row justify-space-between">
           <h3
             class="font-weight-bold pb-0 pr-2 text-no-wrap"
@@ -9,12 +9,12 @@
           >
             Unit Requirements
           </h3>
-          <div v-if="currentUser.canEditDegreeProgress && !sid && !printable">
-            <b-btn
+          <div v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable">
+            <v-btn
               id="unit-requirement-create-link"
               class="pr-0 py-0"
-              :disabled="disableButtons"
-              variant="link"
+              :disabled="degreeStore.disableButtons"
+              variant="text"
               @click.prevent="onClickAdd"
             >
               <div class="align-center d-flex justify-space-between">
@@ -25,7 +25,7 @@
                   <v-icon class="font-size-16" :icon="mdiPlus" />
                 </div>
               </div>
-            </b-btn>
+            </v-btn>
           </div>
         </div>
         <div v-if="!isEditing">
@@ -47,17 +47,20 @@
             :tbody-tr-attr="getTableRowAttributes"
             thead-class="text-no-wrap border-bottom"
           >
-            <template v-if="sid && !printable" #cell(name)="row">
+            <template v-if="degreeStore.sid && !printable" #cell(name)="row">
               <div v-if="row.item.type === 'course'" class="pl-3">
                 {{ row.item.name }}
               </div>
-              <b-button
+              <!--
+              TODO: v-btn has 'block' equivalent?
+              -->
+              <v-btn
                 v-if="row.item.type === 'unitRequirement'"
                 :id="`unit-requirement-${row.item.id}-toggle`"
                 block
                 class="border-0 p-0"
                 :class="{'shadow-none': !row.item.isExpanded}"
-                variant="link"
+                variant="text"
                 @click.prevent="toggleExpanded(row.item)"
               >
                 <div class="d-flex text-left">
@@ -69,7 +72,7 @@
                     {{ row.item.name }}
                   </div>
                 </div>
-              </b-button>
+              </v-btn>
               <div
                 v-if="row.item.isExpanded && row.item.type === 'unitRequirement' && !row.item.children.length"
                 :id="`unit-requirement-${row.item.id}-no-courses`"
@@ -78,32 +81,32 @@
                 No courses
               </div>
             </template>
-            <template v-if="currentUser.canEditDegreeProgress && !sid && !printable" #cell(actions)="row">
+            <template v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable" #cell(actions)="row">
               <div class="align-center d-flex">
-                <b-btn
+                <v-btn
                   :id="`unit-requirement-${row.item.id}-edit-btn`"
                   class="pr-2 pt-0"
-                  :disabled="disableButtons"
-                  size="sm"
-                  variant="link"
+                  :disabled="degreeStore.disableButtons"
+                  size="small"
+                  variant="text"
                   @click.prevent="onClickEdit(row.item)"
                 >
                   <v-icon :icon="mdiNoteEditOutline" />
                   <span class="sr-only">Edit {{ row.item.name }}</span>
-                </b-btn>
+                </v-btn>
               </div>
               <div>
-                <b-btn
+                <v-btn
                   :id="`unit-requirement-${row.item.id}-delete-btn`"
                   class="px-0 pt-0"
-                  :disabled="disableButtons"
-                  size="sm"
-                  variant="link"
+                  :disabled="degreeStore.disableButtons"
+                  size="small"
+                  variant="text"
                   @click.prevent="onClickDelete(row.item)"
                 >
                   <v-icon :icon="mdiTrashCanOutline" />
                   <span class="sr-only">Delete {{ row.item.name }}</span>
-                </b-btn>
+                </v-btn>
               </div>
             </template>
           </b-table-lite>
@@ -111,8 +114,8 @@
         <div v-if="isEditing" class="mb-3">
           <EditUnitRequirement :on-exit="reset" :unit-requirement="selected" />
         </div>
-      </b-col>
-    </b-row>
+      </v-col>
+    </v-row>
     <AreYouSureModal
       v-model="isDeleting"
       button-label-confirm="Delete"
@@ -122,185 +125,188 @@
     >
       Are you sure you want to delete <strong>{{ _get(selected, 'name') }}</strong>?
     </AreYouSureModal>
-  </b-container>
+  </v-container>
 </template>
 
 <script setup>
-import {mdiMenuDown, mdiMenuRight, mdiNoteEditOutline, mdiPlus, mdiTrashCanOutline} from '@mdi/js'
-</script>
-
-<script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditUnitRequirement from '@/components/degree/EditUnitRequirement'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {deleteUnitRequirement} from '@/api/degree'
+import {mdiMenuDown, mdiMenuRight, mdiNoteEditOutline, mdiPlus, mdiTrashCanOutline} from '@mdi/js'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {useDegreeStore} from '@/stores/degree-edit-session'
+import {useContextStore} from '@/stores/context'
+import {onMounted, ref, watch} from 'vue'
+import {each, filter as _filter, find, get, map, sortBy} from 'lodash'
 
-export default {
-  name: 'UnitRequirements',
-  components: {AreYouSureModal, EditUnitRequirement},
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    printable: {
-      required: false,
-      type: Boolean
-    }
-  },
-  data: () => ({
-    fields: undefined,
-    isDeleting: false,
-    isEditing: false,
-    items: undefined,
-    render: false,
-    selected: undefined
-  }),
-  watch: {
-    lastPageRefreshAt() {
-      this.refresh()
-    }
-  },
-  created() {
-    const tdFontSize = this.printable ? 'font-size-12' : 'font-size-16'
-    this.fields = [
-      {
-        key: 'name',
-        label: 'Fulfillment Requirements',
-        tdClass: `${tdFontSize} pl-0 pr-1 pt-1`,
-        thClass: 'font-size-12 pl-0 pr-1 text-uppercase'
-      },
-      {
-        key: 'minUnits',
-        label: this.sid ? 'Min' : 'Min Units',
-        tdClass: `${tdFontSize} pl-0 pr-1 pt-1 text-right`,
-        thClass: 'font-size-12 pl-0 pr-1 text-right text-uppercase'
-      }
-    ]
-    if (this.sid) {
-      this.fields.push({
-        key: 'completed',
-        label: 'Completed',
-        tdClass: `${tdFontSize} d-flex justify-content-end`,
-        thClass: 'font-size-12 px-0 text-right text-uppercase'
-      })
-    } else if (this.currentUser.canEditDegreeProgress) {
-      this.fields.push({
-        key: 'actions',
-        label: '',
-        tdClass: 'd-flex justify-content-end',
-        thClass: 'font-size-12 px-0 text-uppercase'
-      })
-    }
-    this.refresh()
-    this.render = true
-  },
-  methods: {
-    deleteCanceled() {
-      this.isDeleting = false
-      this.putFocusNextTick(`unit-requirement-${this._get(this.selected, 'id')}-delete-btn`)
-      alertScreenReader('Canceled. Nothing deleted.')
-      this.setDisableButtons(false)
+const contextStore = useContextStore()
+const degreeStore = useDegreeStore()
+
+const props = defineProps({
+  printable: {
+    required: false,
+    type: Boolean
+  }
+})
+
+const currentUser = contextStore.currentUser
+const fields = []
+const isDeleting = ref(false)
+const isEditing = ref(false)
+const items = ref(undefined)
+const render = ref(false)
+const selected = ref(undefined)
+
+watch(() => degreeStore.lastPageRefreshAt, () => {
+  refresh()
+})
+
+onMounted(() => {
+  const tdFontSize = props.printable ? 'font-size-12' : 'font-size-16'
+  fields.push([
+    {
+      key: 'name',
+      label: 'Fulfillment Requirements',
+      tdClass: `${tdFontSize} pl-0 pr-1 pt-1`,
+      thClass: 'font-size-12 pl-0 pr-1 text-uppercase'
     },
-    deleteConfirmed() {
-      const name = this._get(this.selected, 'name')
-      const templateId = useDegreeStore().templateId
-      deleteUnitRequirement(this.selected.id).then(() => {
-        refreshDegreeTemplate(templateId).then(() => {
-          alertScreenReader(`${name} deleted.`)
-          this.isDeleting = false
-          this.setDisableButtons(false)
-          this.putFocusNextTick('unit-requirement-create-link')
-        })
-      })
-    },
-    getTableRowAttributes(item) {
-      const prefix = 'unit-requirement'
-      return {
-        id: item.type === 'course' ? `${prefix}-${item.parent.id}-course-${item.id}` : `${prefix}-${item.id}`
-      }
-    },
-    getUnitsCompleted(unitRequirement) {
-      let count = 0
-      this._each(this.courses, courses => {
-        this._each(courses, course => {
-          if (course.categoryId) {
-            this._each(course.unitRequirements, u => {
-              if (u.id === unitRequirement.id) {
-                count += course.units
-              }
-            })
+    {
+      key: 'minUnits',
+      label: degreeStore.sid ? 'Min' : 'Min Units',
+      tdClass: `${tdFontSize} pl-0 pr-1 pt-1 text-right`,
+      thClass: 'font-size-12 pl-0 pr-1 text-right text-uppercase'
+    }
+  ])
+  if (degreeStore.sid) {
+    fields.push({
+      key: 'completed',
+      label: 'Completed',
+      tdClass: `${tdFontSize} d-flex justify-content-end`,
+      thClass: 'font-size-12 px-0 text-right text-uppercase'
+    })
+  } else if (currentUser.canEditDegreeProgress) {
+    fields.push({
+      key: 'actions',
+      label: '',
+      tdClass: 'd-flex justify-content-end',
+      thClass: 'font-size-12 px-0 text-uppercase'
+    })
+  }
+  refresh()
+  render.value = true
+})
+
+const deleteCanceled = () => {
+  isDeleting.value = false
+  putFocusNextTick(`unit-requirement-${get(selected.value, 'id')}-delete-btn`)
+  alertScreenReader('Canceled. Nothing deleted.')
+  degreeStore.setDisableButtons(false)
+}
+
+const deleteConfirmed = () => {
+  const name = get(selected.value, 'name')
+  const templateId = useDegreeStore().templateId
+  deleteUnitRequirement(selected.value.id).then(() => {
+    refreshDegreeTemplate(templateId).then(() => {
+      alertScreenReader(`${name} deleted.`)
+      isDeleting.value = false
+      degreeStore.setDisableButtons(false)
+      putFocusNextTick('unit-requirement-create-link')
+    })
+  })
+}
+
+const getTableRowAttributes = item => {
+  const prefix = 'unit-requirement'
+  return {
+    id: item.type === 'course' ? `${prefix}-${item.parent.id}-course-${item.id}` : `${prefix}-${item.id}`
+  }
+}
+
+const getUnitsCompleted = unitRequirement => {
+  let count = 0
+  each(degreeStore.courses, courses => {
+    each(courses, course => {
+      if (course.categoryId) {
+        each(course.unitRequirements, u => {
+          if (u.id === unitRequirement.id) {
+            count += course.units
           }
         })
-      })
-      return count
-    },
-    onClickAdd() {
-      this.setDisableButtons(true)
-      this.selected = null
-      this.isEditing = true
-    },
-    onClickDelete(item) {
-      this.setDisableButtons(true)
-      this.selected = item
-      this.isDeleting = true
-    },
-    onClickEdit(item) {
-      this.setDisableButtons(true)
-      this.selected = item
-      this.isEditing = true
-    },
-    refresh() {
-      const expandedIds = this._map((this._filter(this.items, 'isExpanded')), 'id')
-      const items = []
-      this._each(this.unitRequirements, u => {
-        const isExpanded = expandedIds.includes(u.id)
-        const unitRequirement = {
-          id: u.id,
-          children: [],
-          completed: this.getUnitsCompleted(u),
-          isExpanded,
-          minUnits: u.minUnits,
-          name: u.name,
-          type: 'unitRequirement'
-        }
-        items.push(unitRequirement)
-        if (this.sid) {
-          let courses = this._filter(this.courses.assigned, course => {
-            return !!this._find(course.unitRequirements, ['id', u.id])
-          })
-          courses = this._sortBy(courses, ['name', 'id'])
-          this._each(courses, course => {
-            const child = {
-              id: course.id,
-              completed: course.units,
-              isExpanded,
-              name: course.name,
-              parent: {id: unitRequirement.id},
-              type: 'course'
-            }
-            items.push(child)
-            unitRequirement.children.push(child)
-          })
-        }
-      })
-      this.items = items
-    },
-    reset() {
-      this.setDisableButtons(false)
-      this.selected = null
-      this.isEditing = false
-      const focusId = this.selected ? `unit-requirement-${this.selected.id}-edit-btn` : 'unit-requirement-create-link'
-      this.putFocusNextTick(focusId)
-    },
-    toggleExpanded(item) {
-      const value = !item.isExpanded
-      item.isExpanded = value
-      this._each(item.children, child => child.isExpanded = value)
+      }
+    })
+  })
+  return count
+}
+
+const onClickAdd = () => {
+  degreeStore.setDisableButtons(true)
+  selected.value = null
+  isEditing.value = true
+}
+
+const onClickDelete = item => {
+  degreeStore.setDisableButtons(true)
+  selected.value = item
+  isDeleting.value = true
+}
+
+const onClickEdit = item => {
+  degreeStore.setDisableButtons(true)
+  selected.value = item
+  isEditing.value = true
+}
+
+const refresh = () => {
+  const expandedIds = map((_filter(items.value, 'isExpanded')), 'id')
+  const values = []
+  each(degreeStore.unitRequirements, u => {
+    const isExpanded = expandedIds.includes(u.id)
+    const unitRequirement = {
+      id: u.id,
+      children: [],
+      completed: getUnitsCompleted(u),
+      isExpanded,
+      minUnits: u.minUnits,
+      name: u.name,
+      type: 'unitRequirement'
     }
-  }
+    values.push(unitRequirement)
+    if (degreeStore.sid) {
+      let courses = _filter(degreeStore.courses.assigned, course => {
+        return !!find(course.unitRequirements, ['id', u.id])
+      })
+      courses = sortBy(courses, ['name', 'id'])
+      each(courses, course => {
+        const child = {
+          id: course.id,
+          completed: course.units,
+          isExpanded,
+          name: course.name,
+          parent: {id: unitRequirement.id},
+          type: 'course'
+        }
+        values.push(child)
+        unitRequirement.children.push(child)
+      })
+    }
+  })
+  items.value = values
+}
+
+const reset = () => {
+  degreeStore.setDisableButtons(false)
+  selected.value = null
+  isEditing.value = false
+  const focusId = selected.value ? `unit-requirement-${selected.value.id}-edit-btn` : 'unit-requirement-create-link'
+  putFocusNextTick(focusId)
+}
+
+const toggleExpanded = item => {
+  const value = !item.isExpanded
+  item.isExpanded = value
+  each(item.children, child => child.isExpanded = value)
 }
 </script>
 

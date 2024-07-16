@@ -34,11 +34,11 @@
       <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
         <span class="font-weight-700 pill pill-attachment pl-2 text-uppercase text-no-wrap">
           <span :id="`batch-degree-check-${objectType}-${index}`">{{ _truncate(addedObject.name) }}</span>
-          <b-btn
+          <v-btn
             :id="`remove-${objectType}-from-batch-${index}`"
-            variant="plain"
-            class="p-0"
+            class="pa-0"
             :disabled="disabled"
+            variant="plain"
             @click.prevent="remove(addedObject)"
           >
             <v-icon
@@ -47,7 +47,7 @@
               color="error"
             />
             <span class="sr-only">Remove</span>
-          </b-btn>
+          </v-btn>
         </span>
       </div>
     </div>

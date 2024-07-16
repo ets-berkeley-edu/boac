@@ -2,7 +2,7 @@
   <b-dropdown
     :id="`assign-course-${course.id}-dropdown`"
     v-model="selectedOption"
-    :disabled="disableButtons || isSaving"
+    :disabled="degreeStore.disableButtons || isSaving"
     :lazy="true"
     no-caret
     toggle-class="p-0 text-decoration-none"
@@ -19,7 +19,7 @@
           'accent-color-purple': course.accentColor === 'Purple',
           'accent-color-red': course.accentColor === 'Red',
           'text-grey': !course.accentColor,
-          'text-white': isUserDragging(course.id)
+          'text-white': degreeStore.isUserDragging(course.id)
         }"
         :icon="mdiDrag"
       />
@@ -68,84 +68,77 @@
 </template>
 
 <script setup>
-import {mdiDrag} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
-import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
 import {assignCourse} from '@/api/degree'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
+import {mdiDrag} from '@mdi/js'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {computed, ref} from 'vue'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import {cloneDeep, each, every, includes, isEmpty} from 'lodash'
 
-export default {
-  name: 'CourseAssignmentMenu',
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    course: {
-      required: true,
-      type: Object
-    },
-    afterCourseAssignment: {
-      default: () => {},
-      required: false,
-      type: Function
-    }
+const degreeStore = useDegreeStore()
+
+const props = defineProps({
+  course: {
+    required: true,
+    type: Object
   },
-  data: () => ({
-    isSaving: false,
-    junkDrawerName: 'Other Coursework',
-    selectedOption: null
-  }),
-  computed: {
-    options() {
-      const put = (option, parent, grandparent) => {
-        option.disabled = (this.isCourseRequirement(option) && !!option.courses.length)
-          || (option.categoryType === 'Category' && !!option.subcategories.length)
-          || categoryHasCourse(option, this.course)
-        option.lineage = grandparent ? `${grandparent.name} ${parent.name}` : (parent ? parent.name : '')
-        if ((!option.disabled || !this.isCourseRequirement(option)) && !this.isCampusRequirements(option)) {
-          options.push(option)
-        }
-      }
-      const options = []
-      this._each(this._cloneDeep(this.categories), category => {
-        put(category)
-        this._each(category.courseRequirements, courseRequirement => put(courseRequirement, category))
-        this._each(category.subcategories, subcategory => {
-          put(subcategory, category)
-          this._each(subcategory.courseRequirements, course => put(course, subcategory, category))
-        })
-      })
-      return options
-    }
-  },
-  methods: {
-    isCampusRequirement,
-    isCampusRequirements(option) {
-      return isCampusRequirement(option)
-        || (!this._isEmpty(option.courseRequirements) && this._every(option.courseRequirements, isCampusRequirement))
-    },
-    isCourseRequirement(option) {
-      return this._includes(['Course Requirement', 'Placeholder: Course Copy'], option.categoryType)
-    },
-    onSelect(category, ignore) {
-      this.setDisableButtons(true)
-      const categoryId = category && category.id
-      assignCourse(this.course.id, categoryId, ignore).then(() => {
-        refreshDegreeTemplate(this.templateId).then(courseAssigned => {
-          this.setDisableButtons(false)
-          if (category) {
-            alertScreenReader(`${category.name} selected for ${this.course.name}`)
-          } else {
-            alertScreenReader(`Moved to ${ignore ? this.junkDrawerName : 'Unassigned'}`)
-          }
-          this.afterCourseAssignment(courseAssigned)
-        })
-      })
+  afterCourseAssignment: {
+    default: () => {},
+    required: false,
+    type: Function
+  }
+})
+
+const isSaving = ref(false)
+const junkDrawerName = 'Other Coursework'
+const selectedOption = ref(null)
+
+const options = computed(() => {
+  const put = (option, parent, grandparent) => {
+    option.disabled = (isCourseRequirement(option) && !!option.courses.length)
+      || (option.categoryType === 'Category' && !!option.subcategories.length)
+      || categoryHasCourse(option, props.course)
+    option.lineage = grandparent ? `${grandparent.name} ${parent.name}` : (parent ? parent.name : '')
+    if ((!option.disabled || !isCourseRequirement(option)) && !isCampusRequirements(option)) {
+      options.push(option)
     }
   }
+  const options = []
+  each(cloneDeep(this.categories), category => {
+    put(category)
+    each(category.courseRequirements, courseRequirement => put(courseRequirement, category))
+    each(category.subcategories, subcategory => {
+      put(subcategory, category)
+      each(subcategory.courseRequirements, course => put(course, subcategory, category))
+    })
+  })
+  return options
+})
+
+const isCampusRequirements = option => {
+  return isCampusRequirement(option)
+    || (!isEmpty(option.courseRequirements) && every(option.courseRequirements, isCampusRequirement))
+}
+
+const isCourseRequirement = option => {
+  return includes(['Course Requirement', 'Placeholder: Course Copy'], option.categoryType)
+}
+
+const onSelect = (category, ignore) => {
+  degreeStore.setDisableButtons(true)
+  const categoryId = category && category.id
+  assignCourse(props.course.id, categoryId, ignore).then(() => {
+    refreshDegreeTemplate(this.templateId).then(courseAssigned => {
+      this.setDisableButtons(false)
+      if (category) {
+        alertScreenReader(`${category.name} selected for ${props.course.name}`)
+      } else {
+        alertScreenReader(`Moved to ${ignore ? this.junkDrawerName : 'Unassigned'}`)
+      }
+      props.afterCourseAssignment(courseAssigned)
+    })
+  })
 }
 </script>

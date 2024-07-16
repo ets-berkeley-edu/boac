@@ -328,7 +328,7 @@ const onDrag = (event, stage, course) => {
       // Required for Safari
       event.target.style.opacity = 0.9
     }
-    degreeStore.onDragStart(course, key)
+    degreeStore.dragStart(course, key)
     break
   case 'enter':
   case 'exit':

@@ -5,15 +5,14 @@
         {{ label }}
       </label>
       <div v-if="range" class="font-size-12">
-        [<b-btn
+        [<v-btn
           id="show-upper-units-input"
           class="toggle-btn"
           size="sm"
-          variant="link"
+          :text="showUnitsUpperInput ? 'hide range' : 'show range'"
+          variant="text"
           @click="toggle"
-        >
-          {{ showUnitsUpperInput ? 'hide range' : 'show range' }}
-        </b-btn>]
+        />]
       </div>
     </div>
     <div class="d-flex">
