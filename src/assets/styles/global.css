@@ -125,6 +125,11 @@
 .modal-open {
   overflow: hidden;
 }
+.no-data-text {
+  color: #666;
+  font-size: 14px;
+  font-style: italic;
+}
 .page-section-header {
   font-size: 24px;
   font-weight: 700;
@@ -219,6 +224,13 @@
   line-height: 20px;
   padding: 0 4px 0 4px;
   text-align: center;
+}
+.sortable-table-header {
+  color: #666;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  vertical-align: top;
 }
 .sr-only {
   position: absolute;
