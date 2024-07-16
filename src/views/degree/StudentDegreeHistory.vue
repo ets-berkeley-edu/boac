@@ -9,12 +9,12 @@
     </div>
     <div v-if="!loading">
       <div class="ma-3 pt-2">
-        <b-container class="px-0 mx-0" :fluid="true">
-          <b-row>
-            <b-col>
+        <v-container class="px-0 mx-0" :fluid="true">
+          <v-row>
+            <v-col>
               <h1 id="page-header" class="page-section-header">Degree Check History</h1>
-            </b-col>
-            <b-col>
+            </v-col>
+            <v-col>
               <div v-if="currentUser.canEditDegreeProgress" class="d-flex justify-content-end">
                 <div class="pr-2">
                   <router-link
@@ -25,18 +25,27 @@
                   </router-link>
                 </div>
               </div>
-            </b-col>
-          </b-row>
-        </b-container>
+            </v-col>
+          </v-row>
+        </v-container>
       </div>
       <div v-if="degreeChecks.length" class="mx-3">
-        <b-table-lite
+        <!--
+        TODO:
+        tdClass
+        thClass
+        borderless
+        fixed
+        stacked
+        thead-class
+        -->
+        <v-data-table
           id="degree-checks-table"
           :fields="[
-            {key: 'name', label: 'Degree Check', tdClass: 'align-middle', thClass: 'w-50'},
-            {key: 'updatedAt', label: 'Last Updated', tdClass: 'align-top'},
-            {key: 'updatedBy', label: 'Advisor'},
-            {key: 'parentTemplateUpdatedAt', label: 'Template Last Updated', tdClass: 'align-top'}
+            {key: 'name', title: 'Degree Check', tdClass: 'align-middle', thClass: 'w-50'},
+            {key: 'updatedAt', title: 'Last Updated', tdClass: 'align-top'},
+            {key: 'updatedBy', title: 'Advisor'},
+            {key: 'parentTemplateUpdatedAt', title: 'Template Last Updated', tdClass: 'align-top'}
           ]"
           :items="degreeChecks"
           borderless
@@ -73,7 +82,7 @@
               Note: Revisions to the original degree template have been made since the creation of this degree check.
             </div>
           </template>
-        </b-table-lite>
+        </v-data-table>
       </div>
       <div v-if="!degreeChecks.length" class="pl-3">
         Student has no degree checks.
@@ -83,49 +92,48 @@
 </template>
 
 <script setup>
-import {mdiAlertRhombus} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, studentRoutePath} from '@/lib/utils'
+import {DateTime} from 'luxon'
 import {getDegreeChecks} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
-import {DateTime} from 'luxon'
+import {mdiAlertRhombus} from '@mdi/js'
+import {useContextStore} from '@/stores/context'
+import {computed, onMounted, ref} from 'vue'
+import {each, get} from 'lodash'
 
-export default {
-  name: 'StudentDegreeHistory',
-  components: {StudentProfileHeader},
-  mixins: [Context, Util],
-  data: () => ({
-    degreeChecks: undefined,
-    student: undefined
-  }),
-  created() {
-    this.loadingStart()
-    let uid = this._get(this.$route, 'params.uid')
-    if (this.currentUser.inDemoMode) {
-      // In demo-mode we do not want to expose UID in browser location bar.
-      uid = window.atob(uid)
-    }
-    getStudentByUid(uid, true).then(data => {
-      this.student = data
-      getDegreeChecks(uid).then(data => {
-        this.degreeChecks = data
-        this._each(this.degreeChecks, degreeCheck => {
-          if (degreeCheck.parentTemplateUpdatedAt) {
-            degreeCheck.showRevisionIndicator = DateTime.fromJSDate(new Date(degreeCheck.createdAt)) < (new Date(degreeCheck.parentTemplateUpdatedAt))
-          } else {
-            degreeCheck.showRevisionIndicator = false
-          }
-        })
-        const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
-        this.loadingComplete()
-        alertScreenReader(`${studentName} Degree History`)
-      })
-    })
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
+
+const degreeChecks = ref(undefined)
+const loading = computed(() => contextStore.loading)
+const student = ref(undefined)
+
+contextStore.loadingStart()
+
+onMounted(() => {
+  let uid = get(this.$route, 'params.uid')
+  if (currentUser.inDemoMode) {
+    // In demo-mode we do not want to expose UID in browser location bar.
+    uid = window.atob(uid)
   }
-}
+  getStudentByUid(uid, true).then(data => {
+    student.value = data
+    getDegreeChecks(uid).then(data => {
+      degreeChecks.value = data
+      each(degreeChecks.value, degreeCheck => {
+        if (degreeCheck.parentTemplateUpdatedAt) {
+          const parentTemplateUpdatedAt = new Date(degreeChecks.value.parentTemplateUpdatedAt)
+          const createdAt = new Date(degreeChecks.value.createdAt)
+          degreeCheck.showRevisionIndicator = createdAt < parentTemplateUpdatedAt
+        } else {
+          degreeCheck.showRevisionIndicator = false
+        }
+      })
+      const studentName = currentUser.inDemoMode ? 'Student' : student.value.name
+      contextStore.loadingComplete()
+      alertScreenReader(`${studentName} Degree History`)
+    })
+  })
+})
 </script>

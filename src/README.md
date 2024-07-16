@@ -67,10 +67,15 @@ Font Awesome to MDI
 
 * change variant `link` to variant `text`
 * `variant="primary"` becomes `color="primary"`
+
 ### b-form-checkbox to v-checkbox
 
 * If 'switch' is true then use `<v-switch />`
 * Don't forget to `hide-details`
+
+### b-form-input to v-text-field
+
+TODO: notes
 
 ### b-form-textarea to v-textarea
 

@@ -61,40 +61,27 @@
 </template>
 
 <script setup>
-import {mdiSquareOutline} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
+import {mdiSquareOutline} from '@mdi/js'
+import {ref} from 'vue'
 
-export default {
-  name: 'AccentColorSelect',
-  mixins: [Context, Util],
-  props: {
-    accentColor: {
-      default: undefined,
-      type: String
-    },
-    onChange: {
-      required: true,
-      type: Function
-    }
+const props = defineProps({
+  accentColor: {
+    default: undefined,
+    type: String
   },
-  data: () => ({
-    selected: undefined
-  }),
-  created() {
-    this.selected = this.accentColor
-  },
-  methods: {
-    setSelected(value) {
-      this.selected = value
-      this.onChange(this.selected)
-      alertScreenReader(`${this.selected} selected`)
-    }
+  onChange: {
+    required: true,
+    type: Function
   }
+})
+
+const selected = ref(props.accentColor)
+
+const setSelected = value => {
+  selected.value = value
+  props.onChange(selected.value)
+  alertScreenReader(`${selected.value} selected`)
 }
 </script>
 

@@ -33,7 +33,7 @@
           <v-btn
             :id="`column-${position}-edit-category-${category.id}-btn`"
             class="pr-1 pt-0"
-            :disabled="disableButtons"
+            :disabled="degreeStore.disableButtons"
             size="small"
             variant="text"
             @click.prevent="edit"
@@ -44,7 +44,7 @@
           <v-btn
             :id="`column-${position}-delete-category-${category.id}-btn`"
             class="px-0 pt-0"
-            :disabled="disableButtons"
+            :disabled="degreeStore.disableButtons"
             size="sm"
             variant="text"
             @click="deleteDegreeCategory"

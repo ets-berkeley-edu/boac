@@ -21,10 +21,10 @@
             <b-th v-if="!isCampusRequirements" class="pl-0" :class="{'font-size-12': printable}">Course</b-th>
             <b-th v-if="isCampusRequirements" class="pl-0" :class="{'font-size-12': printable}">Requirement</b-th>
             <b-th v-if="!isCampusRequirements" class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
-            <b-th v-if="sid && !isCampusRequirements" :class="{'font-size-12': printable}">Grade</b-th>
-            <b-th v-if="sid && isCampusRequirements" class="pl-0 pr-2 text-center" :class="{'font-size-12': printable}">Satisfied</b-th>
+            <b-th v-if="degreeStore.sid && !isCampusRequirements" :class="{'font-size-12': printable}">Grade</b-th>
+            <b-th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center" :class="{'font-size-12': printable}">Satisfied</b-th>
             <b-th
-              v-if="sid"
+              v-if="degreeStore.sid"
               class="pl-0"
               :class="{
                 'font-size-12': printable,
@@ -33,8 +33,8 @@
             >
               Note
             </b-th>
-            <b-th v-if="!sid && !isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
-            <b-th v-if="canEdit && (sid || !isCampusRequirements)" class="px-0 sr-only">Actions</b-th>
+            <b-th v-if="!degreeStore.sid && !isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
+            <b-th v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="px-0 sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
@@ -51,7 +51,7 @@
                 'cursor-grab': isDraggable(bundle),
                 'drop-zone-on': isDroppable(bundle.category),
                 'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !draggingContext.course,
-                'tr-while-dragging': bundle.course && isUserDragging(bundle.course.id)
+                'tr-while-dragging': bundle.course && degreeStore.isUserDragging(bundle.course.id)
               }"
               :draggable="isDraggable(bundle)"
               @dragend="onDrag($event, 'end', bundle)"
@@ -68,7 +68,7 @@
                 class="pt-1 pl-0 td-course-assignment-menu"
               >
                 <div
-                  v-if="bundle.course && canEdit && !isUserDragging(bundle.course.id)"
+                  v-if="bundle.course && canEdit && !degreeStore.isUserDragging(bundle.course.id)"
                   :id="`assign-course-${bundle.course.id}-menu-container`"
                 >
                   <CourseAssignmentMenu
@@ -98,20 +98,20 @@
                   </div>
                   <div
                     :class="{
-                      'accent-color-purple': _get(bundle.category, 'isSatisfiedByTransferCourse'),
+                      'accent-color-purple': get(bundle.category, 'isSatisfiedByTransferCourse'),
                       'font-weight-500': isEditing(bundle),
-                      'pr-2': _get(bundle.course, 'isCopy')
+                      'pr-2': get(bundle.course, 'isCopy')
                     }"
                   >
                     <span
                       class="pl-1"
-                      :class="{'text-strikethrough': _get(bundle.category, 'isIgnored')}"
+                      :class="{'text-strikethrough': get(bundle.category, 'isIgnored')}"
                     >
                       <!-- Spaces surrounding 'name' make life easier for QA. Do not trim. -->
                       {{ bundle.name }}
                     </span>
                   </div>
-                  <div v-if="_get(bundle.course, 'isCopy')" class="pr-1">
+                  <div v-if="get(bundle.course, 'isCopy')" class="pr-1">
                     <v-icon
                       :icon="mdiContentCopy"
                       size="sm"
@@ -142,10 +142,10 @@
                   size="sm"
                   :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
                 />
-                <span :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ _isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
+                <span :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
                 <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
               </td>
-              <td v-if="sid && !isCampusRequirements" class="td-grade">
+              <td v-if="degreeStore.sid && !isCampusRequirements" class="td-grade">
                 <span
                   :class="{
                     'text-grey font-italic': !bundle.course && !getAccentColor(bundle),
@@ -162,7 +162,7 @@
                   class="boac-exclamation ml-1"
                 />
               </td>
-              <td v-if="sid && isCampusRequirements" class="td-satisfied">
+              <td v-if="degreeStore.sid && isCampusRequirements" class="td-satisfied">
                 <CampusRequirementCheckbox
                   :campus-requirement="bundle"
                   :position="position"
@@ -170,7 +170,7 @@
                 />
               </td>
               <td
-                v-if="sid"
+                v-if="degreeStore.sid"
                 :class="{
                   'text-grey font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-note-printable': printable,
@@ -203,55 +203,55 @@
                 </div>
               </td>
               <td
-                v-if="!sid && !isCampusRequirements"
+                v-if="!degreeStore.sid && !isCampusRequirements"
                 class="align-middle td-max-width-0"
                 :class="{
                   'text-grey font-italic': !bundle.course && !getAccentColor(bundle),
                   'font-size-12': printable,
                   'font-size-14': !printable
                 }"
-                :title="oxfordJoin(_map(bundle.unitRequirements, 'name'), 'None')"
+                :title="oxfordJoin(map(bundle.unitRequirements, 'name'), 'None')"
               >
                 <div class="align-items-start d-flex justify-space-between">
                   <div class="ellipsis-if-overflow">
                     <span>
-                      {{ oxfordJoin(_map(bundle.unitRequirements, 'name'), '&mdash;') }}
+                      {{ oxfordJoin(map(bundle.unitRequirements, 'name'), '&mdash;') }}
                     </span>
                   </div>
-                  <div v-if="_size(bundle.unitRequirements) > 1" class="unit-requirement-count">
+                  <div v-if="size(bundle.unitRequirements) > 1" class="unit-requirement-count">
                     <span class="sr-only">(Has </span>{{ bundle.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
                   </div>
                 </div>
               </td>
-              <td v-if="canEdit && (sid || !isCampusRequirements)" class="td-actions">
+              <td v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="td-actions">
                 <div class="d-flex justify-content-end text-no-wrap">
                   <div class="btn-container">
-                    <b-btn
-                      v-if="!isUserDragging(_get(bundle.course, 'id'))"
+                    <v-btn
+                      v-if="!degreeStore.isUserDragging(get(bundle.course, 'id'))"
                       :id="`column-${position}-edit-${bundle.key}-btn`"
                       class="pl-0 pr-1 py-0"
-                      :disabled="disableButtons"
-                      size="sm"
-                      variant="link"
+                      :disabled="degreeStore.disableButtons"
+                      size="small"
+                      variant="text"
                       @click="edit(bundle)"
                     >
                       <v-icon :icon="mdiNoteEditOutline" />
                       <span class="sr-only">Edit {{ bundle.name }}</span>
-                    </b-btn>
+                    </v-btn>
                   </div>
                   <div class="btn-container">
-                    <b-btn
-                      v-if="!sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && !isUserDragging(_get(bundle.course, 'id'))"
+                    <v-btn
+                      v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && !degreeStore.isUserDragging(get(bundle.course, 'id'))"
                       :id="`column-${position}-delete-${bundle.key}-btn`"
                       class="pl-0 pr-1 py-0"
-                      :disabled="disableButtons"
-                      size="sm"
-                      variant="link"
+                      :disabled="degreeStore.disableButtons"
+                      size="small"
+                      variant="text"
                       @click="onDelete(bundle)"
                     >
                       <v-icon :icon="mdiTrashCanOutline" />
                       <span class="sr-only">Delete {{ bundle.name }}</span>
-                    </b-btn>
+                    </v-btn>
                   </div>
                 </div>
               </td>
@@ -266,14 +266,14 @@
                   :position="position"
                 />
                 <EditCategory
-                  v-if="!bundle.course && !sid"
+                  v-if="!bundle.course && !degreeStore.sid"
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :existing-category="bundle.category"
                   :position="position"
                 />
                 <EditCourseRequirement
-                  v-if="!bundle.course && sid"
+                  v-if="!bundle.course && degreeStore.sid"
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :category="bundle.category"
@@ -297,19 +297,20 @@
                   {{ getNote(bundle) }}
                 </span>
                 <span class="font-size-12 ml-1 text-no-wrap">
-                  [<b-btn
+                  [<v-btn
                     :id="`column-${position}-${bundle.key}-hide-note-btn`"
                     class="px-0 py-1"
-                    size="sm"
-                    variant="link"
+                    size="small"
+                    text="Hide note"
+                    variant="text"
                     @click="hideNote(bundle)"
-                  >Hide note</b-btn>]
+                  />]
                 </span>
               </b-td>
             </b-tr>
           </template>
           <b-tr v-if="!items.length">
-            <b-td class="p-2" :class="{'pb-3': !sid}" colspan="5">
+            <b-td class="p-2" :class="{'pb-3': !degreeStore.sid}" colspan="5">
               <span
                 :id="emptyCategoryId"
                 class="text-grey font-italic"
@@ -325,7 +326,7 @@
         </b-tbody>
       </v-data-table>
     </div>
-    <div v-if="sid && canEdit && !isCampusRequirements" class="mb-3" :class="{'mt-1': !items.length}">
+    <div v-if="degreeStore.sid && canEdit && !isCampusRequirements" class="mb-3" :class="{'mt-1': !items.length}">
       <CreateCourseModal :parent-category="parentCategory" />
     </div>
     <AreYouSureModal
@@ -341,6 +342,25 @@
 </template>
 
 <script setup>
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import CampusRequirementCheckbox from '@/components/degree/student/CampusRequirementCheckbox'
+import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
+import CreateCourseModal from '@/components/degree/student/CreateCourseModal'
+import EditCategory from '@/components/degree/EditCategory'
+import EditCourse from '@/components/degree/student/EditCourse'
+import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
+import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
+import {computed, ref} from 'vue'
+import {deleteCategory, deleteCourse, onDrop} from '@/stores/degree-edit-session/utils'
+import {each, every, find, get, includes, isEmpty, isNil, map, remove, size, xorBy} from 'lodash'
+import {
+  findCategoryById,
+  getAssignedCourses,
+  getCourseKey,
+  isCampusRequirement,
+  unitsWereEdited
+} from '@/lib/degree-progress'
+import {isAlertGrade} from '@/berkeley'
 import {
   mdiAlertRhombus,
   mdiCheckCircleOutline,
@@ -349,306 +369,287 @@ import {
   mdiInformationOutline,
   mdiNoteEditOutline, mdiTrashCanOutline
 } from '@mdi/js'
-</script>
+import {useContextStore} from '@/stores/context'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
-<script>
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import CampusRequirementCheckbox from '@/components/degree/student/CampusRequirementCheckbox'
-import Context from '@/mixins/Context'
-import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
-import CreateCourseModal from '@/components/degree/student/CreateCourseModal'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
-import EditCategory from '@/components/degree/EditCategory'
-import EditCourse from '@/components/degree/student/EditCourse'
-import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
-import {isAlertGrade} from '@/berkeley'
-import {deleteCategory, deleteCourse, onDrop} from '@/stores/degree-edit-session/utils'
-import {
-  findCategoryById,
-  getAssignedCourses,
-  getCourseKey,
-  isCampusRequirement,
-  unitsWereEdited
-} from '@/lib/degree-progress'
+const props = defineProps({
+  items: {
+    required: true,
+    type: Array
+  },
+  parentCategory: {
+    required: true,
+    type: Object
+  },
+  position: {
+    required: true,
+    type: Number
+  },
+  printable: {
+    required: false,
+    type: Boolean
+  }
+})
 
-export default {
-  name: 'CoursesTable',
-  components: {
-    AreYouSureModal,
-    CampusRequirementCheckbox,
-    CourseAssignmentMenu,
-    CreateCourseModal,
-    EditCategory,
-    EditCourse,
-    EditCourseRequirement
-  },
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    items: {
-      required: true,
-      type: Array
-    },
-    parentCategory: {
-      required: true,
-      type: Object
-    },
-    position: {
-      required: true,
-      type: Number
-    },
-    printable: {
-      required: false,
-      type: Boolean
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
+const degreeStore = useDegreeStore()
+const bundleForDelete = ref(undefined)
+const bundleForEdit = ref(undefined)
+const canEdit = currentUser.canEditDegreeProgress && !degreeStore.printable
+const emptyCategoryId = `empty-category-${props.parentCategory.id}`
+const hoverCourseId = ref(undefined)
+const isDeleting = ref(false)
+const notesVisible = ref([])
+
+const categoryCourseBundles = computed(() => {
+  const transformed = []
+  each(props.items, item => {
+    let category
+    let course
+    if (item.categoryType) {
+      category = item
+      course = category.courses.length ? getCourse(category.courses[0].id) : null
+    } else {
+      course = item
+      category = findCategoryById(course.categoryId)
     }
-  },
-  data: () => ({
-    bundleForDelete: undefined,
-    bundleForEdit: undefined,
-    canEdit: undefined,
-    emptyCategoryId: undefined,
-    hoverCourseId: undefined,
-    isDeleting: false,
-    notesVisible: []
-  }),
-  computed: {
-    allCourses() {
-      const bundles = this._filter(this.categoryCourseBundles, b => !!b.course)
-      return this._map(bundles, b => b.course)
-    },
-    categoryCourseBundles() {
-      const transformed = []
-      this._each(this.items, item => {
-        let category
-        let course
-        if (item.categoryType) {
-          category = item
-          course = category.courses.length ? this.getCourse(category.courses[0].id) : null
-        } else {
-          course = item
-          category = findCategoryById(course.categoryId)
-        }
-        transformed.push({
-          category,
-          course,
-          key: course ? `course-${course.id}` : `category-${category.id}`,
-          name: this.getBundleName(course, category),
-          type: course ? 'course' : 'category',
-          units: course ? course.units : this.describeCategoryUnits(category),
-          unitRequirements: (course || category).unitRequirements
-        })
-      })
-      return transformed
-    },
-    hasAnyNotes() {
-      return !!this._find(this.categoryCourseBundles, bundle => this.getNote(bundle))
-    },
-    hasAssignedCourses() {
-      return !!this._find(this.categoryCourseBundles, bundle => bundle.course)
-    },
-    isCampusRequirements() {
-      return !this._isEmpty(this.items) && this._every(this.items, isCampusRequirement)
-    }
-  },
-  created() {
-    this.canEdit = this.currentUser.canEditDegreeProgress && !this.printable
-    this.emptyCategoryId = `empty-category-${this.parentCategory.id}`
-  },
-  methods: {
-    afterCancel() {
-      alertScreenReader('Canceled')
-      this.putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
-      this.bundleForEdit = null
-      this.setDisableButtons(false)
-    },
-    afterSave() {
-      alertScreenReader(`Updated ${this.bundleForEdit.type} ${this.bundleForEdit.name}`)
-      this.putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
-      this.bundleForEdit = null
-      this.setDisableButtons(false)
-    },
-    getCourse(courseId) {
-      return this._find(this.courses.assigned.concat(this.courses.unassigned), ['id', courseId])
-    },
-    deleteCanceled() {
-      this.putFocusNextTick(`column-${this.position}-delete-${this.bundleForDelete.key}-btn`)
-      this.isDeleting = false
-      this.bundleForDelete = null
-      alertScreenReader('Canceled. Nothing deleted.')
-      this.setDisableButtons(false)
-    },
-    deleteConfirmed() {
-      const name = this.bundleForDelete.name
-      const done = () => {
-        alertScreenReader(`${name} deleted.`)
-        const putFocus = this.sid ? `column-${this.position}-add-course-to-category-${this.parentCategory.id}` : 'page-header'
-        this.isDeleting = false
-        this.bundleForDelete = null
-        this.setDisableButtons(false)
-        this.putFocusNextTick(putFocus)
-      }
-      let promise = undefined
-      if (this.sid) {
-        promise = deleteCourse(this.bundleForDelete.course.id).then(done)
-      } else {
-        promise = deleteCategory(this.bundleForDelete.category.id).then(done)
-      }
-      return promise
-    },
-    describeCategoryUnits(category) {
-      if (category) {
-        const showRange = category.unitsUpper && category.unitsLower !== category.unitsUpper
-        return showRange ? `${category.unitsLower}-${category.unitsUpper}` : category.unitsLower
-      } else {
-        return null
-      }
-    },
-    edit(bundle) {
-      this.hideNote(bundle, false)
-      this.hoverCourseId = null
-      this.setDisableButtons(true)
-      alertScreenReader(`Edit ${bundle.name}`)
-      this.bundleForEdit = bundle
-    },
-    getAccentColor: bundle => bundle.course ? bundle.course.accentColor : bundle.category.accentColor,
-    getBundleName(course, category) {
-      let name = (course || category).name
-      if (course && this.printable) {
-        this._each(['COL', 'DIS', 'FLD', 'GRP', 'IND', 'LAB', 'LEC', 'SEM'], format => {
-          const trimmed = name.replace(new RegExp(` ${format} [0-9]+$`), '')
-          if (trimmed !== name) {
-            name = trimmed
-            return false
-          }
-        })
-      }
-      return name
-    },
-    getCourseFulfillments(bundle) {
-      return bundle.course ? this._map(bundle.course.unitRequirements, 'name') : []
-    },
-    getGrade(bundle) {
-      return this._get(bundle.course || bundle.category, 'grade')
-    },
-    getNote: bundle => bundle.course ? bundle.course.note : bundle.category.note,
-    hideNote(bundle, srAlert=true) {
-      this.notesVisible = this._remove(this.notesVisible, key => bundle.key !== key)
-      if (srAlert) {
-        alertScreenReader('Note hidden')
-      }
-    },
-    isAlertGrade,
-    isCourseFulfillmentsEdited(bundle) {
-      if (bundle.category && bundle.course) {
-        const edited = this._xorBy(bundle.category.unitRequirements, bundle.course.unitRequirements, 'id')
-        return edited && edited.length
-      } else {
+    transformed.push({
+      category,
+      course,
+      key: course ? `course-${course.id}` : `category-${category.id}`,
+      name: getBundleName(course, category),
+      type: course ? 'course' : 'category',
+      units: course ? course.units : describeCategoryUnits(category),
+      unitRequirements: (course || category).unitRequirements
+    })
+  })
+  return transformed
+})
+
+const hasAnyNotes = computed(() => {
+  return !!find(categoryCourseBundles.value, bundle => getNote(bundle))
+})
+
+const hasAssignedCourses = computed(() => {
+  return !!find(categoryCourseBundles.value, bundle => bundle.course)
+})
+
+const isCampusRequirements = computed(() => {
+  return !isEmpty(props.items) && every(props.items, isCampusRequirement)
+})
+
+const afterCancel = () => {
+  alertScreenReader('Canceled')
+  putFocusNextTick(`column-${props.position}-edit-${bundleForEdit.value.key}-btn`)
+  bundleForEdit.value = null
+  degreeStore.setDisableButtons(false)
+}
+
+const afterSave = () => {
+  alertScreenReader(`Updated ${bundleForEdit.value.type} ${bundleForEdit.value.name}`)
+  putFocusNextTick(`column-${props.position}-edit-${bundleForEdit.value.key}-btn`)
+  bundleForEdit.value = null
+  degreeStore.setDisableButtons(false)
+}
+
+const getCourse = courseId => {
+  return find(degreeStore.courses.assigned.concat(degreeStore.courses.unassigned), ['id', courseId])
+}
+
+const deleteCanceled = () => {
+  putFocusNextTick(`column-${props.position}-delete-${bundleForDelete.value.key}-btn`)
+  isDeleting.value = false
+  bundleForDelete.value = null
+  alertScreenReader('Canceled. Nothing deleted.')
+  degreeStore.setDisableButtons(false)
+}
+
+const deleteConfirmed = () => {
+  const name = bundleForDelete.value.name
+  const done = () => {
+    alertScreenReader(`${name} deleted.`)
+    const putFocus = degreeStore.sid ? `column-${props.position}-add-course-to-category-${props.parentCategory.id}` : 'page-header'
+    isDeleting.value = false
+    bundleForDelete.value = null
+    degreeStore.setDisableButtons(false)
+    putFocusNextTick(putFocus)
+  }
+  let promise = undefined
+  if (degreeStore.sid) {
+    promise = deleteCourse(bundleForDelete.value.course.id).then(done)
+  } else {
+    promise = deleteCategory(bundleForDelete.value.category.id).then(done)
+  }
+  return promise
+}
+
+const describeCategoryUnits = category => {
+  if (category) {
+    const showRange = category.unitsUpper && category.unitsLower !== category.unitsUpper
+    return showRange ? `${category.unitsLower}-${category.unitsUpper}` : category.unitsLower
+  } else {
+    return null
+  }
+}
+
+const edit = bundle => {
+  hideNote(bundle, false)
+  hoverCourseId.value = null
+  degreeStore.setDisableButtons(true)
+  alertScreenReader(`Edit ${bundle.name}`)
+  bundleForEdit.value = bundle
+}
+
+const getAccentColor = bundle => bundle.course ? bundle.course.accentColor : bundle.category.accentColor
+
+const getBundleName = (course, category) => {
+  let name = (course || category).name
+  if (course && degreeStore.printable) {
+    each(['COL', 'DIS', 'FLD', 'GRP', 'IND', 'LAB', 'LEC', 'SEM'], format => {
+      const trimmed = name.replace(new RegExp(` ${format} [0-9]+$`), '')
+      if (trimmed !== name) {
+        name = trimmed
         return false
       }
-    },
-    isDraggable(bundle) {
-      const draggable =
-        !this.disableButtons
-        && this.hasAssignedCourses
-        && this.canEdit
-        && bundle.course
-        && !this.draggingContext.course
-      return !!draggable
-    },
-    isDroppable(category) {
-      let droppable =
-        !this.isCampusRequirements
-        && category
-        && !category.courses.length
-        && category.id === this.draggingContext.target
-      if (droppable) {
-        const course = this.draggingContext.course
-        const assignedCourses = getAssignedCourses(this.parentCategory, course.id)
-        const courseKeys = this._map(assignedCourses, getCourseKey)
-        droppable = course.categoryId === category.parentCategoryId || !this._includes(courseKeys, getCourseKey(course))
-      }
-      return droppable
-    },
-    isEditing(bundle) {
-      const isMatch = key => {
-        const id = this._get(bundle, `${key}.id`)
-        return id && (id === this._get(this.bundleForEdit, `${key}.id`))
-      }
-      return bundle.course ? isMatch('course') : isMatch('category')
-    },
-    isNoteVisible(bundle) {
-      return this._includes(this.notesVisible, bundle.key)
-    },
-    isSatisfied(bundle) {
-      return bundle.course || this._get(bundle.category, 'categoryType') === 'Campus Requirement, Satisfied'
-    },
-    onDelete(bundle) {
-      this.hoverCourseId = null
-      this.setDisableButtons(true)
-      this.bundleForDelete = bundle
-      this.isDeleting = true
-      alertScreenReader(`Delete ${bundle.name}`)
-    },
-    onDrag(event, stage, bundle) {
-      switch (stage) {
-      case 'end':
-        this.hoverCourseId = null
-        this.draggingContextReset()
-        break
-      case 'enter':
-      case 'over':
-        event.stopPropagation()
-        event.preventDefault()
-        this.setDraggingTarget(bundle ? this._get(bundle.category, 'id') : this.emptyCategoryId)
-        break
-      case 'leave':
-        this.setDraggingTarget(null)
-        break
-      case 'start':
-        if (event.target) {
-          // Required for Safari
-          event.target.style.opacity = 0.9
-        }
-        this.onDragStart(bundle.course, 'assigned')
-        break
-      case 'exit':
-      default:
-        break
-      }
-    },
-    onDropCourse(event, category, context) {
-      event.stopPropagation()
-      event.preventDefault()
-      this.hoverCourseId = null
-      if (this.isDroppable(category)) {
-        onDrop(category, context)
-      }
-      this.setDraggingTarget(null)
-      return false
-    },
-    onMouse(stage, bundle) {
-      if (this.isDraggable(bundle)) {
-        switch(stage) {
-        case 'enter':
-          if (this.isDraggable(bundle)) {
-            this.hoverCourseId = this._get(bundle.course, 'id')
-          }
-          break
-        case 'leave':
-          this.hoverCourseId = null
-          break
-        default:
-          break
-        }
-      }
-    },
-    showNote(bundle) {
-      this.notesVisible.push(bundle.key)
-      alertScreenReader(`Showing note of ${bundle.name}`)
-    },
-    unitsWereEdited
+    })
   }
+  return name
+}
+
+const getCourseFulfillments = bundle => {
+  return bundle.course ? map(bundle.course.unitRequirements, 'name') : []
+}
+
+const getGrade = bundle => {
+  return get(bundle.course || bundle.category, 'grade')
+}
+const getNote = bundle => bundle.course ? bundle.course.note : bundle.category.note
+
+const hideNote = (bundle, srAlert=true) => {
+  notesVisible.value = remove(notesVisible.value, key => bundle.key !== key)
+  if (srAlert) {
+    alertScreenReader('Note hidden')
+  }
+}
+
+const isCourseFulfillmentsEdited = bundle => {
+  if (bundle.category && bundle.course) {
+    const edited = xorBy(bundle.category.unitRequirements, bundle.course.unitRequirements, 'id')
+    return edited && edited.length
+  } else {
+    return false
+  }
+}
+
+const isDraggable = bundle => {
+  const draggable =
+    !degreeStore.disableButtons
+    && hasAssignedCourses.value
+    && canEdit
+    && bundle.course
+    && !degreeStore.draggingContext.course
+  return !!draggable
+}
+
+const isDroppable = category => {
+  let droppable =
+    !isCampusRequirements.value
+    && category
+    && !category.courses.length
+    && category.id === degreeStore.draggingContext.target
+  if (droppable) {
+    const course = degreeStore.draggingContext.course
+    const assignedCourses = getAssignedCourses(props.parentCategory, course.id)
+    const courseKeys = map(assignedCourses, getCourseKey)
+    droppable = course.categoryId === category.parentCategoryId || !includes(courseKeys, getCourseKey(course))
+  }
+  return droppable
+}
+
+const isEditing = bundle => {
+  const isMatch = key => {
+    const id = get(bundle, `${key}.id`)
+    return id && (id === get(bundleForEdit.value, `${key}.id`))
+  }
+  return bundle.course ? isMatch('course') : isMatch('category')
+}
+
+const isNoteVisible = bundle => {
+  return includes(notesVisible.value, bundle.key)
+}
+
+const isSatisfied = bundle => {
+  return bundle.course || get(bundle.category, 'categoryType') === 'Campus Requirement, Satisfied'
+}
+
+const onDelete = bundle => {
+  hoverCourseId.value = null
+  degreeStore.setDisableButtons(true)
+  bundleForDelete.value = bundle
+  isDeleting.value = true
+  alertScreenReader(`Delete ${bundle.name}`)
+}
+
+const onDrag = (event, stage, bundle) => {
+  switch (stage) {
+  case 'end':
+    hoverCourseId.value = null
+    degreeStore.draggingContextReset()
+    break
+  case 'enter':
+  case 'over':
+    event.stopPropagation()
+    event.preventDefault()
+    degreeStore.setDraggingTarget(bundle ? get(bundle.category, 'id') : emptyCategoryId)
+    break
+  case 'leave':
+    degreeStore.setDraggingTarget(null)
+    break
+  case 'start':
+    if (event.target) {
+      // Required for Safari
+      event.target.style.opacity = 0.9
+    }
+    degreeStore.dragStart(bundle.course, 'assigned')
+    break
+  case 'exit':
+  default:
+    break
+  }
+}
+
+const onDropCourse = (event, category, context) => {
+  event.stopPropagation()
+  event.preventDefault()
+  hoverCourseId.value = null
+  if (isDroppable(category)) {
+    onDrop(category, context)
+  }
+  degreeStore.setDraggingTarget(null)
+  return false
+}
+
+const onMouse = (stage, bundle) => {
+  if (isDraggable(bundle)) {
+    switch(stage) {
+    case 'enter':
+      if (isDraggable(bundle)) {
+        hoverCourseId.value = get(bundle.course, 'id')
+      }
+      break
+    case 'leave':
+      hoverCourseId.value = null
+      break
+    default:
+      break
+    }
+  }
+}
+
+const showNote = bundle => {
+  notesVisible.value.push(bundle.key)
+  alertScreenReader(`Showing note of ${bundle.name}`)
 }
 </script>
 

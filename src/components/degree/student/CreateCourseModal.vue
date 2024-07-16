@@ -1,15 +1,15 @@
 <template>
   <div>
     <div class="font-size-14">
-      <b-btn
+      <v-btn
         :id="`create-course-under-parent-category-${parentCategory.id}`"
         class="font-weight-500 p-0"
         :disabled="disableButtons"
-        variant="link"
+        variant="text"
         @click.prevent="openModal"
       >
         <v-icon class="font-size-16" :icon="mdiPlus" /> Manually Create Course
-      </b-btn>
+      </v-btn>
     </div>
     <b-modal
       v-model="showModal"
@@ -125,101 +125,95 @@
 </template>
 
 <script setup>
-import {mdiPlus} from '@mdi/js'
-</script>
-
-<script>
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
 import ModalHeader from '@/components/util/ModalHeader'
 import UnitsInput from '@/components/degree/UnitsInput'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createCourse} from '@/api/degree'
+import {mdiPlus} from '@mdi/js'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {validateUnitRange} from '@/lib/degree-progress'
+import {computed, onUnmounted, ref} from 'vue'
+import {isEmpty as _isEmpty, trim} from 'lodash'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
-export default {
-  name: 'CreateCourseModal',
-  components: {AccentColorSelect, ModalHeader, UnitsInput},
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    parentCategory: {
-      required: true,
-      type: Object
-    }
-  },
-  data: () => ({
-    accentColor: undefined,
-    error: undefined,
-    grade: undefined,
-    isSaving: false,
-    name: '',
-    note: '',
-    showModal: false,
-    units: undefined
-  }),
-  computed: {
-    disableSaveButton() {
-      return this.isSaving || !!this.unitsErrorMessage || !this._trim(this.name)
-    },
-    unitsErrorMessage() {
-      const isEmpty = this._isEmpty(this._trim(this.units))
-      return isEmpty ? null : validateUnitRange(this.units, undefined, 10).message
-    }
-  },
-  destroyed() {
-    this.closeModal()
-  },
-  methods: {
-    cancel() {
-      this.closeModal()
-      alertScreenReader('Canceled')
-    },
-    closeModal() {
-      this.accentColor = undefined,
-      this.error = undefined
-      this.grade = undefined
-      this.isSaving = false
-      this.name = ''
-      this.note = ''
-      this.selectedUnitRequirements = []
-      this.showModal = false
-      this.units = undefined
-      this.setDisableButtons(false)
-    },
-    openModal() {
-      this.showModal = true
-      this.setDisableButtons(true)
-      alertScreenReader('Create course dialog opened')
-    },
-    save() {
-      if (!this.disableSaveButton) {
-        this.isSaving = true
-        createCourse(
-          this.accentColor,
-          this.templateId,
-          this._trim(this.grade),
-          this._trim(this.name),
-          this._trim(this.note),
-          this.parentCategory.id,
-          this.sid,
-          this._map(this.selectedUnitRequirements, 'id'),
-          this.units
-        ).then(course => {
-          refreshDegreeTemplate(this.templateId).then(() => {
-            this.closeModal()
-            alertScreenReader(`Course ${course.name} created`)
-            this.putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')
-          })
-        })
-      }
-    },
-    setUnits(units) {
-      this.units = units
-    }
+const props = defineProps({
+  parentCategory: {
+    required: true,
+    type: Object
   }
+})
+
+const degreeStore = useDegreeStore()
+
+const accentColor = ref(undefined)
+const error = ref(undefined)
+const grade = ref(undefined)
+const isSaving = ref(false)
+const name = ref('')
+const note = ref('')
+const showModal = ref(false)
+const units = ref(undefined)
+
+const disableSaveButton = computed(() => {
+  return isSaving.value || !!unitsErrorMessage.value || !trim(name.value)
+})
+const unitsErrorMessage = computed(() => {
+  const isEmpty = _isEmpty(trim(units.value))
+  return isEmpty ? null : validateUnitRange(this.units, undefined, 10).message
+})
+
+onUnmounted(() => {
+  closeModal()
+})
+
+const cancel = () => {
+  closeModal()
+  alertScreenReader('Canceled')
+}
+
+const closeModal = () => {
+  accentColor.value = undefined
+  error.value = undefined
+  grade.value = undefined
+  isSaving.value = false
+  name.value = ''
+  note.value = ''
+  showModal.value = false
+  units.value = undefined
+  degreeStore.setDisableButtons(false)
+}
+
+const openModal = () => {
+  showModal.value = true
+  degreeStore.setDisableButtons(true)
+  alertScreenReader('Create course dialog opened')
+}
+
+const save = () => {
+  if (!degreeStore.disableSaveButton) {
+    isSaving.value = true
+    createCourse(
+      this.accentColor.value,
+      degreeStore.templateId,
+      trim(grade.value),
+      trim(name.value),
+      trim(note.value),
+      props.parentCategory.id,
+      degreeStore.sid,
+      units.value
+    ).then(course => {
+      refreshDegreeTemplate(degreeStore.templateId).then(() => {
+        closeModal()
+        alertScreenReader(`Course ${course.name} created`)
+        putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')
+      })
+    })
+  }
+}
+
+const setUnits = value => {
+  units.value = value
 }
 </script>
 

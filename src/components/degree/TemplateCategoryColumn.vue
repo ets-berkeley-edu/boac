@@ -1,13 +1,13 @@
 <template>
   <div :id="`category-column-${position}`">
-    <div v-if="!sid" class="d-flex justify-space-between pb-3">
+    <div v-if="!degreeStore.sid" class="d-flex justify-space-between pb-3">
       <div class="pill bg-grey text-no-wrap px-2 text-uppercase text-white">Column {{ position }}</div>
-      <b-btn
+      <v-btn
         v-if="currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"
         class="p-0"
-        :disabled="disableButtons"
-        variant="link"
+        :disabled="degreeStore.disableButtons"
+        variant="text"
         @click="add"
       >
         <div class="align-center d-flex justify-space-between">
@@ -18,7 +18,7 @@
             <v-icon :icon="mdiPlus" />
           </div>
         </div>
-      </b-btn>
+      </v-btn>
     </div>
     <div v-if="isAddingCategory">
       <EditCategory
@@ -28,12 +28,12 @@
       />
     </div>
     <div
-      v-for="category in _filter(categories, c => c.position === position && _isNil(c.parentCategoryId))"
+      v-for="category in _filter(degreeStore.categories, c => c.position === position && isNil(c.parentCategoryId))"
       :id="`column-${position}-category-${category.id}`"
       :key="category.id"
     >
       <Category
-        v-if="category.id !== _get(categoryForEdit, 'id')"
+        v-if="category.id !== get(categoryForEdit, 'id')"
         :category="category"
         :on-click-edit="edit"
         :position="position"
@@ -45,7 +45,7 @@
         to report the problem.
       </div>
       <EditCategory
-        v-if="category.id === _get(categoryForEdit, 'id')"
+        v-if="category.id === get(categoryForEdit, 'id')"
         :after-cancel="onExitEditCategory"
         :after-save="onExitEditCategory"
         :existing-category="category"
@@ -66,13 +66,13 @@
           :key="subcategory.id"
         >
           <Category
-            v-if="subcategory.id !== _get(categoryForEdit, 'id')"
+            v-if="subcategory.id !== get(categoryForEdit, 'id')"
             :category="subcategory"
             :on-click-edit="edit"
             :position="position"
           />
           <EditCategory
-            v-if="subcategory.id === _get(categoryForEdit, 'id')"
+            v-if="subcategory.id === get(categoryForEdit, 'id')"
             :after-cancel="onExitEditCategory"
             :after-save="onExitEditCategory"
             :existing-category="subcategory"
@@ -90,7 +90,7 @@
       </div>
     </div>
     <div
-      v-if="!isAddingCategory && !_filter(categories, c => c.position === position).length"
+      v-if="!isAddingCategory && !_filter(degreeStore.categories, c => c.position === position).length"
       class="no-data-text pb-3"
     >
       None
@@ -99,53 +99,50 @@
 </template>
 
 <script setup>
-import {mdiPlus} from '@mdi/js'
-</script>
-
-<script>
 import Category from '@/components/degree/Category'
-import Context from '@/mixins/Context'
 import CoursesTable from '@/components/degree/CoursesTable'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {getItemsForCoursesTable} from '@/lib/degree-progress'
+import {mdiPlus} from '@mdi/js'
+import {useContextStore} from '@/stores/context'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import {ref} from 'vue'
+import {filter as _filter, get, isNil} from 'lodash'
 
-export default {
-  name: 'TemplateCategoryColumn',
-  components: {Category, CoursesTable, EditCategory},
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    position: {
-      required: true,
-      type: Number
-    }
-  },
-  data: () => ({
-    categoryForEdit: undefined,
-    isAddingCategory: false
-  }),
-  methods: {
-    add() {
-      alertScreenReader('Add category')
-      this.isAddingCategory = true
-      this.setDisableButtons(true)
-    },
-    edit(category) {
-      this.categoryForEdit = category
-      this.setDisableButtons(true)
-      alertScreenReader(`Edit ${category.categoryType} "${category.name}"`)
-      this.putFocusNextTick(`column-${this.position}-name-input`)
-    },
-    getItemsForCoursesTable,
-    onExitEditCategory() {
-      const putFocus = this.categoryForEdit ? `column-${this.position}-edit-category-${this.categoryForEdit.id}-btn` : `column-${this.position}-create-btn`
-      this.categoryForEdit = null
-      this.isAddingCategory = false
-      this.setDisableButtons(false)
-      this.putFocusNextTick(putFocus)
-    }
+const contextStore = useContextStore()
+const degreeStore = useDegreeStore()
+
+const props = defineProps({
+  position: {
+    required: true,
+    type: Number
   }
+})
+
+const categoryForEdit = ref(undefined)
+const config = contextStore.config
+const currentUser = contextStore.currentUser
+const isAddingCategory = ref(false)
+
+const add = () => {
+  alertScreenReader('Add category')
+  isAddingCategory.value = true
+  degreeStore.setDisableButtons(true)
+}
+
+const edit = category => {
+  categoryForEdit.value = category
+  degreeStore.setDisableButtons(true)
+  alertScreenReader(`Edit ${category.categoryType} "${category.name}"`)
+  putFocusNextTick(`column-${props.position}-name-input`)
+}
+
+const onExitEditCategory = () => {
+  const putFocus = categoryForEdit.value ? `column-${props.position}-edit-category-${categoryForEdit.value.id}-btn` : `column-${props.position}-create-btn`
+  categoryForEdit.value = null
+  isAddingCategory.value = false
+  degreeStore.setDisableButtons(false)
+  putFocusNextTick(putFocus)
 }
 </script>

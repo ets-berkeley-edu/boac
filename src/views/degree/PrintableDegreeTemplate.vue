@@ -8,16 +8,16 @@
             <div class="font-weight-500">
               SID <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.sid }}</span>
               <div>
-                {{ _get(student, 'sisProfile.level.description') || 'Level not available' }}
+                {{ get(student, 'sisProfile.level.description') || 'Level not available' }}
               </div>
               <div>
-                <div v-if="_get(student, 'sisProfile.termsInAttendance')">
+                <div v-if="get(student, 'sisProfile.termsInAttendance')">
                   {{ student.sisProfile.termsInAttendance }} Terms in Attendance
                 </div>
-                <div v-if="!_get(student, 'sisProfile.termsInAttendance')">
+                <div v-if="!get(student, 'sisProfile.termsInAttendance')">
                   Terms in Attendance not available
                 </div>
-                <div>Expected graduation {{ _get(student, 'sisProfile.expectedGraduationTerm.name') || 'not available' }}</div>
+                <div>Expected graduation {{ get(student, 'sisProfile.expectedGraduationTerm.name') || 'not available' }}</div>
               </div>
             </div>
             <div v-if="student.sisProfile.plans.length" class="pt-2">
@@ -43,9 +43,9 @@
         <v-col>
           <div class="unofficial-label-pill">
             <div>UNOFFICIAL DEGREE PROGRESS REPORT</div>
-            <div>Printed by {{ currentUser.name }} on {{ moment().format('MMMM D, YYYY') }}</div>
+            <div>Printed by {{ currentUser.name }} on {{ DateTime.now().toFormat('MMM D, yyyy') }}</div>
           </div>
-          <h2 class="font-size-14">{{ degreeName }}</h2>
+          <h2 class="font-size-14">{{ degreeStore.degreeName }}</h2>
           <div :class="{'unit-requirements-of-template': !student}">
             <UnitRequirements :printable="true" />
           </div>
@@ -63,7 +63,7 @@
           :class="{'pr-2': position > 1}"
         >
           <div
-            v-for="category in _filter(categories, c => c.position === position && _isNil(c.parentCategoryId))"
+            v-for="category in _filter(degreeStore.categories, c => c.position === position && isNil(c.parentCategoryId))"
             :key="category.id"
           >
             <Category
@@ -81,7 +81,7 @@
                 :printable="true"
               />
             </div>
-            <div v-if="_size(category.subcategories)">
+            <div v-if="size(category.subcategories)">
               <div v-for="subcategory in category.subcategories" :key="subcategory.id" class="pt-2">
                 <Category
                   v-if="subcategory.id"
@@ -102,10 +102,10 @@
           </div>
         </v-col>
       </v-row>
-      <v-row v-if="degreeNote && includeNote">
+      <v-row v-if="degreeStore.degreeNote && includeNote">
         <v-col class="pb-5 pt-3">
           <h3 id="degree-note" class="font-size-12 font-weight-bold">Degree Notes</h3>
-          <pre class="text-wrap" v-html="degreeNote.body" />
+          <pre class="text-wrap" v-html="degreeStore.degreeNote.body" />
         </v-col>
       </v-row>
     </v-container>
@@ -116,17 +116,20 @@
 import Category from '@/components/degree/Category.vue'
 import CoursesTable from '@/components/degree/CoursesTable.vue'
 import UnitRequirements from '@/components/degree/UnitRequirements'
+import {alertScreenReader, setPageTitle, toBoolean, toInt} from '@/lib/utils'
+import {computed, onMounted, ref} from 'vue'
+import {filter as _filter, get, isNil, size} from 'lodash'
 import {getItemsForCoursesTable} from '@/lib/degree-progress'
 import {getStudentBySid} from '@/api/student'
-import {computed, onMounted, ref} from 'vue'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
-import {alertScreenReader, setPageTitle, toBoolean, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {useRoute} from 'vue-router'
+import {DateTime} from 'luxon'
 
 const contextStore = useContextStore()
-
+const currentUser = contextStore.currentUser
+const degreeStore = useDegreeStore()
 const includeNote = ref(undefined)
 const loading = computed(() => contextStore.loading)
 const student = ref(undefined)
@@ -138,19 +141,18 @@ onMounted(() => {
   const id = toInt(route.params.id)
   includeNote.value = toBoolean(route.query.includeNote)
   refreshDegreeTemplate(id).then(() => {
-    const degreeStore = useDegreeStore()
     if (degreeStore.sid) {
       getStudentBySid(this.sid).then(data => {
         this.student = data
         const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
-        setPageTitle(`${studentName} - ${this.degreeName}`)
+        setPageTitle(`${studentName} - ${degreeStore.degreeName}`)
         contextStore.loadingComplete()
-        alertScreenReader(`${this.degreeName} for ${this.student.name}`)
+        alertScreenReader(`${degreeStore.degreeName} for ${this.student.name}`)
       })
     } else {
-      setPageTitle(this.degreeName)
+      setPageTitle(degreeStore.degreeName)
       contextStore.loadingComplete()
-      alertScreenReader(`${this.degreeName} is ready to print.`)
+      alertScreenReader(`${degreeStore.degreeName} is ready to print.`)
     }
   })
 })
