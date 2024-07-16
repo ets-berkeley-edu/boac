@@ -1,29 +1,22 @@
 <template>
   <div>
     <div>
-      <!--
-      TODO:
-      borderless
-      -->
-      <v-data-table
+      <table
         :id="`column-${position}-courses-of-category-${parentCategory.id}`"
-        :borderless="!printable"
-        class="mb-0"
-        density="compact"
-        hide-default-footer
+        class="mb-0 w-100"
       >
-        <b-thead class="border-bottom">
-          <b-tr class="text-no-wrap">
-            <b-th v-if="hasAssignedCourses && canEdit" class="px-0 th-course-assignment-menu">
+        <thead class="border-b-md">
+          <tr class="sortable-table-header text-no-wrap">
+            <th v-if="hasAssignedCourses && canEdit" class="px-0 th-course-assignment-menu">
               <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
               <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
-            </b-th>
-            <b-th v-if="!isCampusRequirements" class="pl-0" :class="{'font-size-12': printable}">Course</b-th>
-            <b-th v-if="isCampusRequirements" class="pl-0" :class="{'font-size-12': printable}">Requirement</b-th>
-            <b-th v-if="!isCampusRequirements" class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
-            <b-th v-if="degreeStore.sid && !isCampusRequirements" :class="{'font-size-12': printable}">Grade</b-th>
-            <b-th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center" :class="{'font-size-12': printable}">Satisfied</b-th>
-            <b-th
+            </th>
+            <th v-if="!isCampusRequirements" :class="{'font-size-12': printable}">Course</th>
+            <th v-if="isCampusRequirements" :class="{'font-size-12': printable}">Requirement</th>
+            <th v-if="!isCampusRequirements && items.length" class="pr-2 text-right" :class="{'font-size-12': printable}">Units</th>
+            <th v-if="degreeStore.sid && !isCampusRequirements" :class="{'font-size-12': printable}">Grade</th>
+            <th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center" :class="{'font-size-12': printable}">Satisfied</th>
+            <th
               v-if="degreeStore.sid"
               class="pl-0"
               :class="{
@@ -32,14 +25,14 @@
               }"
             >
               Note
-            </b-th>
-            <b-th v-if="!degreeStore.sid && !isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
-            <b-th v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="px-0 sr-only">Actions</b-th>
-          </b-tr>
-        </b-thead>
-        <b-tbody>
+            </th>
+            <th v-if="!degreeStore.sid && !isCampusRequirements && items.length" class="px-0" :class="{'font-size-12': printable}">Fulfillment</th>
+            <th v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="px-0 sr-only">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
           <template v-for="(bundle, index) in categoryCourseBundles" :key="`tr-${index}`">
-            <b-tr
+            <tr
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :class="{
                 'accent-color-blue': getAccentColor(bundle) === 'Blue',
@@ -142,7 +135,7 @@
                   size="sm"
                   :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
                 />
-                <span :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
+                <div :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ isNil(bundle.units) ? '&mdash;' : bundle.units }}</div>
                 <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
               </td>
               <td v-if="degreeStore.sid && !isCampusRequirements" class="td-grade">
@@ -187,10 +180,10 @@
                   v-if="!printable && getNote(bundle) && !isNoteVisible(bundle)"
                   class="d-flex font-size-14 justify-content-start"
                 >
-                  <b-link
+                  <a
                     :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
                     class="ellipsis-if-overflow"
-                    href
+                    href="#"
                     @click="showNote(bundle)"
                     v-html="getNote(bundle)"
                   />
@@ -255,9 +248,9 @@
                   </div>
                 </div>
               </td>
-            </b-tr>
-            <b-tr v-if="isEditing(bundle)" :key="`tr-${index}-edit`">
-              <b-td class="p-0" colspan="6">
+            </tr>
+            <tr v-if="isEditing(bundle)" :key="`tr-${index}-edit`">
+              <td class="pa-0" colspan="6">
                 <EditCourse
                   v-if="bundle.course"
                   :after-cancel="afterCancel"
@@ -279,14 +272,14 @@
                   :category="bundle.category"
                   :position="position"
                 />
-              </b-td>
-            </b-tr>
-            <b-tr
+              </td>
+            </tr>
+            <tr
               v-if="isNoteVisible(bundle)"
               :key="`tr-${index}-note`"
               class="border-bottom border-left border-right"
             >
-              <b-td colspan="5" class="px-2">
+              <td colspan="5" class="px-2">
                 <span
                   :id="bundle.course ? `course-${bundle.course.id}-note` : `category-${bundle.category.id}-note`"
                   aria-live="polite"
@@ -306,11 +299,11 @@
                     @click="hideNote(bundle)"
                   />]
                 </span>
-              </b-td>
-            </b-tr>
+              </td>
+            </tr>
           </template>
-          <b-tr v-if="!items.length">
-            <b-td class="p-2" :class="{'pb-3': !degreeStore.sid}" colspan="5">
+          <tr v-if="!items.length">
+            <td class="pa-2" :class="{'pb-3': !degreeStore.sid}" colspan="5">
               <span
                 :id="emptyCategoryId"
                 class="text-grey font-italic"
@@ -321,10 +314,10 @@
               >
                 No completed requirements
               </span>
-            </b-td>
-          </b-tr>
-        </b-tbody>
-      </v-data-table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div v-if="degreeStore.sid && canEdit && !isCampusRequirements" class="mb-3" :class="{'mt-1': !items.length}">
       <CreateCourseModal :parent-category="parentCategory" />
@@ -396,7 +389,7 @@ const currentUser = contextStore.currentUser
 const degreeStore = useDegreeStore()
 const bundleForDelete = ref(undefined)
 const bundleForEdit = ref(undefined)
-const canEdit = currentUser.canEditDegreeProgress && !degreeStore.printable
+const canEdit = currentUser.canEditDegreeProgress && !props.printable
 const emptyCategoryId = `empty-category-${props.parentCategory.id}`
 const hoverCourseId = ref(undefined)
 const isDeleting = ref(false)
@@ -505,7 +498,7 @@ const getAccentColor = bundle => bundle.course ? bundle.course.accentColor : bun
 
 const getBundleName = (course, category) => {
   let name = (course || category).name
-  if (course && degreeStore.printable) {
+  if (course && props.printable) {
     each(['COL', 'DIS', 'FLD', 'GRP', 'IND', 'LAB', 'LEC', 'SEM'], format => {
       const trimmed = name.replace(new RegExp(` ${format} [0-9]+$`), '')
       if (trimmed !== name) {

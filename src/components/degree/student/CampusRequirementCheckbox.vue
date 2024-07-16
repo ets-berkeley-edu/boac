@@ -12,7 +12,7 @@
         v-if="!canEdit"
         :icon="isSatisfied ? mdiCheckboxMarkedOutline : mdiSquareOutline"
         class="disabled-checkbox"
-        :class="{'fully-opaque': degreeStore.printable}"
+        :class="{'fully-opaque': printable}"
       />
       <span class="sr-only">{{ campusRequirement.name }} is {{ isSatisfied ? 'satisfied' : 'unsatisfied' }}</span>
     </v-checkbox>
@@ -47,7 +47,7 @@ const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
 
 const currentUser = contextStore.currentUser
-const canEdit = currentUser.canEditDegreeProgress && !degreeStore.printable
+const canEdit = currentUser.canEditDegreeProgress && !props.printable
 const isSatisfied = props.campusRequirement.category.categoryType === 'Campus Requirement, Satisfied'
 
 const toggle = () => {

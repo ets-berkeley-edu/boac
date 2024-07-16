@@ -51,12 +51,12 @@
           </div>
         </v-col>
       </v-row>
-      <v-row>
+      <v-row no-gutters>
         <v-col class="pr-0">
-          <div class="mb-3 section-border-major" />
+          <div class="section-border-major" />
         </v-col>
       </v-row>
-      <v-row>
+      <v-row no-gutters>
         <v-col
           v-for="position in [1, 2, 3]"
           :key="position"
@@ -65,6 +65,7 @@
           <div
             v-for="category in _filter(degreeStore.categories, c => c.position === position && isNil(c.parentCategoryId))"
             :key="category.id"
+            class="mt-2"
           >
             <Category
               v-if="category.id"

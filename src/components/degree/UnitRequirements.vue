@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="render" class="pl-0" fluid>
+  <v-container v-if="render" class="pl-0 py-1" fluid>
     <v-row>
       <v-col>
         <div class="align-items-start d-flex flex-row justify-space-between">
@@ -33,83 +33,83 @@
             v-if="!items.length"
             id="unit-requirements-no-data"
             class="no-data-text pl-1"
-            :class="{'font-size-12': printable}"
           >
             No unit requirements created
           </div>
-          <b-table-lite
+          <v-data-table
             v-if="items.length"
             id="unit-requirements-table"
-            borderless
-            :fields="fields"
+            density="compact"
+            :headers="headers"
+            hide-default-footer
             :items="_filter(items, item => item.type === 'unitRequirement' || item.isExpanded)"
             small
             :tbody-tr-attr="getTableRowAttributes"
             thead-class="text-no-wrap border-bottom"
           >
-            <template v-if="degreeStore.sid && !printable" #cell(name)="row">
+            <template v-if="degreeStore.sid && !printable" #item.name="{item}">
               <div v-if="row.item.type === 'course'" class="pl-3">
-                {{ row.item.name }}
+                {{ item.name }}
               </div>
               <!--
               TODO: v-btn has 'block' equivalent?
               -->
               <v-btn
-                v-if="row.item.type === 'unitRequirement'"
-                :id="`unit-requirement-${row.item.id}-toggle`"
+                v-if="item.type === 'unitRequirement'"
+                :id="`unit-requirement-${item.id}-toggle`"
                 block
                 class="border-0 p-0"
-                :class="{'shadow-none': !row.item.isExpanded}"
+                :class="{'shadow-none': !item.isExpanded}"
                 variant="text"
-                @click.prevent="toggleExpanded(row.item)"
+                @click.prevent="toggleExpanded(item)"
               >
                 <div class="d-flex text-left">
                   <div class="caret caret-column pale-blue">
-                    <v-icon :icon="row.item.isExpanded ? mdiMenuDown : mdiMenuRight" />
+                    <v-icon :icon="item.isExpanded ? mdiMenuDown : mdiMenuRight" />
                   </div>
                   <div>
-                    <span class="sr-only">{{ `${row.item.isExpanded ? 'Hide' : 'Show'} fulfillments of ` }}</span>
-                    {{ row.item.name }}
+                    <span class="sr-only">{{ `${item.isExpanded ? 'Hide' : 'Show'} fulfillments of ` }}</span>
+                    {{ item.name }}
                   </div>
                 </div>
               </v-btn>
               <div
-                v-if="row.item.isExpanded && row.item.type === 'unitRequirement' && !row.item.children.length"
-                :id="`unit-requirement-${row.item.id}-no-courses`"
+                v-if="item.isExpanded && item.type === 'unitRequirement' && !item.children.length"
+                :id="`unit-requirement-${item.id}-no-courses`"
                 class="text-grey pb-1 pl-4 pt-1"
               >
                 No courses
               </div>
             </template>
-            <template v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable" #cell(actions)="row">
+            <template v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable" #item.actions="{item}">
               <div class="align-center d-flex">
                 <v-btn
-                  :id="`unit-requirement-${row.item.id}-edit-btn`"
+                  :id="`unit-requirement-${item.id}-edit-btn`"
                   class="pr-2 pt-0"
                   :disabled="degreeStore.disableButtons"
                   size="small"
                   variant="text"
-                  @click.prevent="onClickEdit(row.item)"
+                  @click.prevent="onClickEdit(item)"
                 >
                   <v-icon :icon="mdiNoteEditOutline" />
-                  <span class="sr-only">Edit {{ row.item.name }}</span>
+                  <span class="sr-only">Edit {{ item.name }}</span>
                 </v-btn>
               </div>
               <div>
                 <v-btn
-                  :id="`unit-requirement-${row.item.id}-delete-btn`"
+                  :id="`unit-requirement-${item.id}-delete-btn`"
                   class="px-0 pt-0"
                   :disabled="degreeStore.disableButtons"
                   size="small"
                   variant="text"
-                  @click.prevent="onClickDelete(row.item)"
+                  @click.prevent="onClickDelete(item)"
                 >
                   <v-icon :icon="mdiTrashCanOutline" />
-                  <span class="sr-only">Delete {{ row.item.name }}</span>
+                  <span class="sr-only">Delete {{ item.name }}</span>
                 </v-btn>
               </div>
             </template>
-          </b-table-lite>
+          </v-data-table>
         </div>
         <div v-if="isEditing" class="mb-3">
           <EditUnitRequirement :on-exit="reset" :unit-requirement="selected" />
@@ -151,7 +151,7 @@ const props = defineProps({
 })
 
 const currentUser = contextStore.currentUser
-const fields = []
+const headers = []
 const isDeleting = ref(false)
 const isEditing = ref(false)
 const items = ref(undefined)
@@ -164,31 +164,31 @@ watch(() => degreeStore.lastPageRefreshAt, () => {
 
 onMounted(() => {
   const tdFontSize = props.printable ? 'font-size-12' : 'font-size-16'
-  fields.push([
+  headers.push([
     {
       key: 'name',
-      label: 'Fulfillment Requirements',
+      title: 'Fulfillment Requirements',
       tdClass: `${tdFontSize} pl-0 pr-1 pt-1`,
       thClass: 'font-size-12 pl-0 pr-1 text-uppercase'
     },
     {
       key: 'minUnits',
-      label: degreeStore.sid ? 'Min' : 'Min Units',
+      title: degreeStore.sid ? 'Min' : 'Min Units',
       tdClass: `${tdFontSize} pl-0 pr-1 pt-1 text-right`,
       thClass: 'font-size-12 pl-0 pr-1 text-right text-uppercase'
     }
   ])
   if (degreeStore.sid) {
-    fields.push({
+    headers.push({
       key: 'completed',
-      label: 'Completed',
+      title: 'Completed',
       tdClass: `${tdFontSize} d-flex justify-content-end`,
       thClass: 'font-size-12 px-0 text-right text-uppercase'
     })
   } else if (currentUser.canEditDegreeProgress) {
-    fields.push({
+    headers.push({
       key: 'actions',
-      label: '',
+      title: '',
       tdClass: 'd-flex justify-content-end',
       thClass: 'font-size-12 px-0 text-uppercase'
     })

@@ -100,6 +100,8 @@ Example: src/components/note/CreateNoteHeader.vue
 
 ### b-table-lite to v-data-table
 
+If the code is difficult to migrate then consider converting it to a generic `<table />` without using Vuetify at all.
+
 See https://vuetifyjs.com/en/api/v-data-table/#links
 
 * `fields` becomes `headers` (therein, `label` becomes `title`) 
