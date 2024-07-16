@@ -56,11 +56,15 @@
       </div>
       <div
         v-if="category.description"
-        id="category-header-description"
+        :id="`column-${position}-category-header-description`"
         class="py-1"
         :class="{'font-size-12': printable, 'pl-1': !printable}"
       >
-        <pre v-if="printable" class="text-wrap" v-html="category.description" />
+        <pre
+          v-if="printable"
+          class="text-wrap"
+          v-html="category.description"
+        />
         <span
           v-if="!printable"
           v-linkified
