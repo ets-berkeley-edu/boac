@@ -65,7 +65,7 @@
           <div
             v-for="category in _filter(degreeStore.categories, c => c.position === position && isNil(c.parentCategoryId))"
             :key="category.id"
-            class="mt-3"
+            class="mt-4"
             :class="{'pr-3': position < 3}"
           >
             <Category

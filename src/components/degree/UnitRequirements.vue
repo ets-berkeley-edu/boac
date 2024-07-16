@@ -43,11 +43,15 @@
           <v-data-table
             id="unit-requirements-table"
             :cell-props="data => {
-              const align = data.column.key === 'completed' ? 'text-right' : ''
+              const align = ['minUnits', 'completed'].includes(data.column.key) ? 'float-right' : ''
               const fontSize = printable ? 'font-size-12' : 'font-size-16'
-              const padding = ['name', 'minUnits'].includes(data.column.key) ? 'pl-0 pr-1 pt-1' : 'px-0'
-              return {class: `${align} font-size-12 ${padding} ${fontSize} text-uppercase border-t-sm`}
+              const padding = ['name', 'minUnits'].includes(data.column.key) ? 'pl-0 pr-1 pt-0' : 'px-0'
+              return {
+                style: 'height: 25px !important',
+                class: `${align} font-size-12 ${padding} ${fontSize}`
+              }
             }"
+            class="mt-2"
             density="compact"
             disable-sort
             :headers="headers"
@@ -64,6 +68,15 @@
               }
             }"
           >
+            <template #headers="{columns}">
+              <tr>
+                <template v-for="column in columns" :key="column.key">
+                  <th :class="`${get(column.headerProps, 'class')}`">
+                    {{ column.title }}
+                  </th>
+                </template>
+              </tr>
+            </template>
             <template v-if="degreeStore.sid && !printable" #item.name="{item}">
               <div v-if="item.type === 'course'" class="pl-3">
                 {{ item.name }}
@@ -71,7 +84,7 @@
               <v-btn
                 v-if="item.type === 'unitRequirement'"
                 :id="`unit-requirement-${item.id}-toggle`"
-                class="border-0 p-0 d-block"
+                class="border-0 pa-0"
                 :class="{'shadow-none': !item.isExpanded}"
                 variant="text"
                 @click.prevent="toggleExpanded(item)"
@@ -156,7 +169,7 @@ import {each, filter as _filter, find, get, map, sortBy} from 'lodash'
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
 
-defineProps({
+const props = defineProps({
   printable: {
     required: false,
     type: Boolean
@@ -176,27 +189,27 @@ watch(() => degreeStore.lastPageRefreshAt, () => {
 })
 
 onMounted(() => {
+  const classes = 'border-b-sm font-size-12 text-no-wrap text-uppercase th-height'
   headers.push({
     key: 'name',
-    headerProps: {class: 'font-size-12 pl-0 pr-1 text-no-wrap text-uppercase th-height'},
+    headerProps: {class: `${classes} px-0`},
     title: 'Fulfillment Requirements'
   })
   headers.push({
     key: 'minUnits',
-    headerProps: {class: 'font-size-12 pl-0 pr-1 text-no-wrap text-right text-uppercase th-height'},
-    height: 20,
+    headerProps: {class: `${classes} px-0 float-right`},
     title: degreeStore.sid ? 'Min' : 'Min Units'
   })
   if (degreeStore.sid) {
     headers.push({
       key: 'completed',
-      headerProps: {class: 'font-size-12 px-0 text-no-wrap text-right text-uppercase th-height'},
+      headerProps: {class: `${classes} px-0 float-right`},
       title: 'Completed'
     })
-  } else if (currentUser.canEditDegreeProgress) {
+  } else if (currentUser.canEditDegreeProgress && !degreeStore.sid && !props.printable) {
     headers.push({
       key: 'actions',
-      headerProps: {class: 'font-size-12 px-0 text-no-wrap text-uppercase th-height'}
+      headerProps: {class: `${classes} px-0`}
     })
   }
   refresh()
@@ -312,5 +325,8 @@ const toggleExpanded = item => {
 <style scoped>
 .caret-column {
   width: 1.3rem;
+}
+.th-height {
+  height: 20px !important;
 }
 </style>
