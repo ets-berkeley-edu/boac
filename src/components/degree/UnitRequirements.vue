@@ -36,29 +36,42 @@
           >
             No unit requirements created
           </div>
+          <!--
+          TODO:
+            thead-class="border-bottom"
+          -->
           <v-data-table
-            v-if="items.length"
             id="unit-requirements-table"
+            :cell-props="data => {
+              const align = data.column.key === 'completed' ? 'text-right' : ''
+              const fontSize = printable ? 'font-size-12' : 'font-size-16'
+              const padding = ['name', 'minUnits'].includes(data.column.key) ? 'pl-0 pr-1 pt-1' : 'px-0'
+              return {class: `${align} font-size-12 ${padding} ${fontSize} text-uppercase border-t-sm`}
+            }"
             density="compact"
+            disable-sort
             :headers="headers"
             hide-default-footer
             :items="_filter(items, item => item.type === 'unitRequirement' || item.isExpanded)"
-            small
-            :tbody-tr-attr="getTableRowAttributes"
-            thead-class="text-no-wrap border-bottom"
+            :items-per-page="-1"
+            mobile-breakpoint="md"
+            :row-props="data => {
+              const id = data.item.id
+              // TODO: data.item.parent.id
+              const parentId = 'data.item.parent.id'
+              return {
+                id: data.item.type === 'course' ? `unit-requirement-${parentId}-course-${id}` : `unit-requirement-${id}`
+              }
+            }"
           >
             <template v-if="degreeStore.sid && !printable" #item.name="{item}">
-              <div v-if="row.item.type === 'course'" class="pl-3">
+              <div v-if="item.type === 'course'" class="pl-3">
                 {{ item.name }}
               </div>
-              <!--
-              TODO: v-btn has 'block' equivalent?
-              -->
               <v-btn
                 v-if="item.type === 'unitRequirement'"
                 :id="`unit-requirement-${item.id}-toggle`"
-                block
-                class="border-0 p-0"
+                class="border-0 p-0 d-block"
                 :class="{'shadow-none': !item.isExpanded}"
                 variant="text"
                 @click.prevent="toggleExpanded(item)"
@@ -143,7 +156,7 @@ import {each, filter as _filter, find, get, map, sortBy} from 'lodash'
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
 
-const props = defineProps({
+defineProps({
   printable: {
     required: false,
     type: Boolean
@@ -163,34 +176,27 @@ watch(() => degreeStore.lastPageRefreshAt, () => {
 })
 
 onMounted(() => {
-  const tdFontSize = props.printable ? 'font-size-12' : 'font-size-16'
-  headers.push([
-    {
-      key: 'name',
-      title: 'Fulfillment Requirements',
-      tdClass: `${tdFontSize} pl-0 pr-1 pt-1`,
-      thClass: 'font-size-12 pl-0 pr-1 text-uppercase'
-    },
-    {
-      key: 'minUnits',
-      title: degreeStore.sid ? 'Min' : 'Min Units',
-      tdClass: `${tdFontSize} pl-0 pr-1 pt-1 text-right`,
-      thClass: 'font-size-12 pl-0 pr-1 text-right text-uppercase'
-    }
-  ])
+  headers.push({
+    key: 'name',
+    headerProps: {class: 'font-size-12 pl-0 pr-1 text-no-wrap text-uppercase th-height'},
+    title: 'Fulfillment Requirements'
+  })
+  headers.push({
+    key: 'minUnits',
+    headerProps: {class: 'font-size-12 pl-0 pr-1 text-no-wrap text-right text-uppercase th-height'},
+    height: 20,
+    title: degreeStore.sid ? 'Min' : 'Min Units'
+  })
   if (degreeStore.sid) {
     headers.push({
       key: 'completed',
-      title: 'Completed',
-      tdClass: `${tdFontSize} d-flex justify-content-end`,
-      thClass: 'font-size-12 px-0 text-right text-uppercase'
+      headerProps: {class: 'font-size-12 px-0 text-no-wrap text-right text-uppercase th-height'},
+      title: 'Completed'
     })
   } else if (currentUser.canEditDegreeProgress) {
     headers.push({
       key: 'actions',
-      title: '',
-      tdClass: 'd-flex justify-content-end',
-      thClass: 'font-size-12 px-0 text-uppercase'
+      headerProps: {class: 'font-size-12 px-0 text-no-wrap text-uppercase th-height'}
     })
   }
   refresh()
@@ -215,13 +221,6 @@ const deleteConfirmed = () => {
       putFocusNextTick('unit-requirement-create-link')
     })
   })
-}
-
-const getTableRowAttributes = item => {
-  const prefix = 'unit-requirement'
-  return {
-    id: item.type === 'course' ? `${prefix}-${item.parent.id}-course-${item.id}` : `${prefix}-${item.id}`
-  }
 }
 
 const getUnitsCompleted = unitRequirement => {
