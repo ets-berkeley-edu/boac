@@ -4,6 +4,7 @@
     v-model="dialogModel"
     persistent
     width="800"
+    @keyup.esc.prevent="discardRequested"
   >
     <v-card id="new-note-modal-container">
       <div
@@ -59,7 +60,6 @@
             type="text"
             variant="outlined"
             @input="setSubjectPerEvent"
-            @keydown.esc="discardRequested"
           />
           <div id="note-details">
             <RichTextEditor

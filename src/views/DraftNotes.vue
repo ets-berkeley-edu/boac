@@ -118,7 +118,7 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import TimelineDate from '@/components/student/profile/TimelineDate'
-import {alertScreenReader, studentRoutePath} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
 import {each, find, get, size, trim} from 'lodash'
@@ -162,6 +162,7 @@ const afterEditDraft = data => {
   } else {
     isEditDialogOpen.value = false
   }
+  putFocusNextTick(`open-draft-note-${data.id}`)
 }
 
 const cancel = () => {
