@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from itertools import groupby
 import re
 
-
 from bea.models.advisor_role import AdvisorRole
 from bea.models.alert import Alert
 from bea.models.cohorts_and_groups.cohort import Cohort
@@ -36,6 +35,7 @@ from bea.models.department import Department
 from bea.models.department_membership import DepartmentMembership
 from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_attachment import NoteAttachment
+from bea.models.student import Student
 from bea.models.user import User
 from bea.test_utils import utils
 from boac import db, std_commit
@@ -401,7 +401,7 @@ def get_notes_from_pg_db_result(results):
                     'deleted_at': a['deleted_at'],
                 }))
 
-        student = row['sid'] and User({'sid': row['sid']})
+        student = row['sid'] and Student({'sid': row['sid']})
 
         topics = []
         topic_query = f"SELECT note_id, topic FROM note_topics WHERE note_id = '{row['id']}' AND deleted_at IS NULL"
@@ -498,7 +498,7 @@ def get_students_alerts(users):
             date = r['created_at']
         else:
             date = r['updated_at']
-        student = User({
+        student = Student({
             'sid': r['sid'],
         })
         alert = Alert({

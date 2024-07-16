@@ -24,57 +24,71 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-class Cohort(object):
+class Person(object):
 
     def __init__(self, data):
         self.data = data
-        try:
-            self.members = self.data['members']
-        except KeyError:
-            self.members = []
 
     @property
-    def cohort_id(self):
-        try:
-            return self.data['cohort_id']
-        except KeyError:
-            return None
+    def uid(self):
+        return self.data['uid']
 
-    @cohort_id.setter
-    def cohort_id(self, value):
-        self.data['cohort_id'] = value
+    @uid.setter
+    def uid(self, value):
+        self.data['uid'] = value
 
     @property
-    def name(self):
-        return self.data['name']
+    def active(self):
+        return self.data['active']
 
-    @name.setter
-    def name(self, value):
-        self.data['name'] = value
-
-    @property
-    def is_ce3(self):
-        try:
-            return self.data['is_ce3']
-        except KeyError:
-            return False
-
-    @is_ce3.setter
-    def is_ce3(self, value):
-        self.data['is_ce3'] = value
+    @active.setter
+    def active(self, value):
+        self.data['active'] = value
 
     @property
-    def owner_uid(self):
-        return self.data['owner_uid']
+    def email(self):
+        return self.data['email']
 
-    @owner_uid.setter
-    def owner_uid(self, value):
-        self.data['owner_uid'] = value
+    @email.setter
+    def email(self, value):
+        self.data['email'] = value
 
     @property
-    def members(self):
-        return self.data['members']
+    def first_name(self):
+        return self.data['first_name']
 
-    @members.setter
-    def members(self, value):
-        self.data['members'] = value
+    @first_name.setter
+    def first_name(self, value):
+        self.data['first_name'] = value
+
+    @property
+    def full_name(self):
+        return self.data['full_name']
+
+    @full_name.setter
+    def full_name(self, value):
+        self.data['full_name'] = value
+
+    @property
+    def last_name(self):
+        return self.data['last_name']
+
+    @last_name.setter
+    def last_name(self, value):
+        self.data['last_name'] = value
+
+    @property
+    def sid(self):
+        return self.data['sid']
+
+    @sid.setter
+    def sid(self, value):
+        self.data['sid'] = value
+
+    @property
+    def status(self):
+        return self.data['status']
+
+    @status.setter
+    def status(self, value):
+        self.data['status'] = value

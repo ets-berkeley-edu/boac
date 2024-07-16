@@ -107,9 +107,7 @@ class BoaPages(SearchForm):
 
     CREATE_FILTERED_COHORT_LINK = (By.ID, 'cohort-create')
     VIEW_EVERYONE_COHORTS_LINK = (By.ID, 'cohorts-all')
-    FILTERED_COHORT_LINK = (
-        By.XPATH,
-        '//div[contains(@class,"sidebar-row-link")]//a[contains(@id,"sidebar-filtered-cohort")][contains(@href,"/cohort/")]')
+    FILTERED_COHORT_LINK = (By.XPATH, '//a[contains(@id,"sidebar-cohort")]')
     DUPE_FILTERED_NAME_MSG = (
         By.XPATH,
         '//div[contains(text(), "You have an existing cohort with this name. Please choose a different name.")]')
@@ -132,7 +130,10 @@ class BoaPages(SearchForm):
 
     @staticmethod
     def sidebar_member_count_loc(cohort):
-        return By.XPATH, f'//div[contains(@class, "sidebar-row-link")][contains(.,"{cohort.name}")]//span[@class="sr-only"]'
+        if cohort.__class__.__name__ == 'FilteredCohort':
+            return By.XPATH, f'//a[contains(@id,"sidebar-cohort")][contains(.,"{cohort.name}")]/div[contains(@id, "count")]'
+        else:
+            return By.XPATH, f'//a[contains(@id,"sidebar-curated")][contains(.,"{cohort.name}")]/div[contains(@id, "count")]'
 
     def wait_for_sidebar_member_count(self, cohort):
         app.logger.info(f'Waiting for cohort {cohort.name} member count of {len(cohort.members)}')
@@ -140,22 +141,25 @@ class BoaPages(SearchForm):
         while tries > 0:
             try:
                 tries -= 1
-                self.driver.get(self.driver.current_url)
                 Wait(self.driver, utils.get_short_timeout()).until(
                     ec.presence_of_element_located(self.sidebar_member_count_loc(cohort)),
                 )
                 el = self.element(self.sidebar_member_count_loc(cohort))
-                assert el.text.replace(' admitted', '').replace(' students', '') == f'{len(cohort.members)}'
+                visible = el.text.replace(' admitted', '').replace(' students', '')
+                assert visible and visible.split()[0] == f'{len(cohort.members)}'
                 break
             except (AssertionError, TimeoutError):
                 if tries == 0:
                     raise
+                else:
+                    time.sleep(1)
 
     #   SIDEBAR - CURATED GROUPS
 
     CREATE_CURATED_GROUP_LINK = By.ID, 'create-curated-group-from-sidebar'
     VIEW_EVERYONE_GROUPS_LINK = By.ID, 'groups-all'
     SIDEBAR_GROUP_LINK = By.XPATH, '//a[contains(@id, "sidebar-curated-group")]'
+    SIDEBAR_GROUP_NAME = By.XPATH, '//a[contains(@id, "sidebar-curated-group")]/div'
 
     CREATE_ADMIT_GROUP_LINK = By.ID, 'create-admissions-group-from-sidebar'
     SIDEBAR_ADMIT_GROUP_LINK = By.XPATH, '//a[contains(@id, "sidebar-admissions-group")]'
@@ -172,11 +176,11 @@ class BoaPages(SearchForm):
 
     def sidebar_student_groups(self):
         time.sleep(utils.get_click_sleep())
-        list(map(lambda a: a.text, self.elements(self.SIDEBAR_GROUP_LINK)))
+        return list(map(lambda a: a.text, self.elements(self.SIDEBAR_GROUP_NAME)))
 
     def sidebar_admit_groups(self):
         time.sleep(utils.get_click_sleep())
-        list(map(lambda a: a.text, self.elements(self.SIDEBAR_ADMIT_GROUP_LINK)))
+        return list(map(lambda a: a.text, self.elements(self.SIDEBAR_ADMIT_GROUP_LINK)))
 
     def click_view_everyone_groups(self):
         time.sleep(1)
@@ -189,6 +193,8 @@ class BoaPages(SearchForm):
         link.click()
 
     def wait_for_sidebar_group(self, group):
+        # TODO - remove the page reload when groups dynamically appear in the sidebar
+        self.reload_page()
         self.wait_for_sidebar_member_count(group)
         if group.is_ce3:
             assert group.name in self.sidebar_admit_groups()

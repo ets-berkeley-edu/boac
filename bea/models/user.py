@@ -23,35 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from bea.models.person import Person
 
-class User(object):
 
-    def __init__(self, data):
-        self.data = data
-
-    @property
-    def uid(self):
-        return self.data['uid']
-
-    @uid.setter
-    def uid(self, value):
-        self.data['uid'] = value
-
-    @property
-    def active(self):
-        return self.data['active']
-
-    @active.setter
-    def active(self, value):
-        self.data['active'] = value
-
-    @property
-    def alert_count(self):
-        return self.data['alert_count']
-
-    @alert_count.setter
-    def alert_count(self, value):
-        self.data['alert_count'] = value
+class User(Person):
 
     @property
     def can_access_advising_data(self):
@@ -102,30 +77,6 @@ class User(object):
         self.data['depts'] = value
 
     @property
-    def email(self):
-        return self.data['email']
-
-    @email.setter
-    def email(self, value):
-        self.data['email'] = value
-
-    @property
-    def first_name(self):
-        return self.data['first_name']
-
-    @first_name.setter
-    def first_name(self, value):
-        self.data['first_name'] = value
-
-    @property
-    def full_name(self):
-        return self.data['full_name']
-
-    @full_name.setter
-    def full_name(self, value):
-        self.data['full_name'] = value
-
-    @property
     def is_admin(self):
         return self.data['is_admin']
 
@@ -142,22 +93,6 @@ class User(object):
         self.data['is_blocked'] = value
 
     @property
-    def is_sir(self):
-        return self.data['is_sir']
-
-    @is_sir.setter
-    def is_sir(self, value):
-        self.data['is_sir'] = value
-
-    @property
-    def last_name(self):
-        return self.data['last_name']
-
-    @last_name.setter
-    def last_name(self, value):
-        self.data['last_name'] = value
-
-    @property
     def role(self):
         return self.data['role']
 
@@ -172,22 +107,6 @@ class User(object):
     @role_code.setter
     def role_code(self, value):
         self.data['role_code'] = value
-
-    @property
-    def sid(self):
-        return self.data['sid']
-
-    @sid.setter
-    def sid(self, value):
-        self.data['sid'] = value
-
-    @property
-    def status(self):
-        return self.data['status']
-
-    @status.setter
-    def status(self, value):
-        self.data['status'] = value
 
     @property
     def username(self):
