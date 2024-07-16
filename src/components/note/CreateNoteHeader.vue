@@ -47,19 +47,21 @@
         <v-list v-if="noteStore.noteTemplates.length" variant="flat">
           <v-list-item-action v-for="template in noteStore.noteTemplates" :key="template.id">
             <v-container class="pl-2 pr-4 py-2" fluid>
-              <v-row align="center" no-gutters>
-                <v-col class="pr-8">
+              <v-row class="d-flex flex-nowrap" no-gutters>
+                <v-col cols="8">
                   <v-btn
                     :id="`load-note-template-${template.id}`"
-                    class="font-weight-700 template-dropdown-title text-no-wrap truncate-with-ellipsis"
+                    class="font-weight-700 d-flex justify-start template-dropdown-title"
                     color="primary"
+                    block
                     density="compact"
+                    width="400"
                     :text="template.title"
                     variant="text"
                     @click="loadTemplate(template)"
                   />
                 </v-col>
-                <v-col>
+                <v-col class="pl-8">
                   <div class="align-center d-flex float-right">
                     <v-dialog v-model="template.isRenameDialogOpen" retain-focus width="auto">
                       <template #activator="{props: activatorProps}">
@@ -304,9 +306,6 @@ const resetTemplate = (template, title) => {
   max-width: 300px;
   white-space: normal;
 }
-.template-dropdown-title {
-  max-width: 200px;
-}
 @keyframes bounce-in {
   0% {
     transform: scale(0);
@@ -317,5 +316,15 @@ const resetTemplate = (template, title) => {
   100% {
     transform: scale(1);
   }
+}
+</style>
+
+<style>
+.template-dropdown-title .v-btn__content {
+  display: inline-block;
+  justify-content: start !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
 }
 </style>
