@@ -21,7 +21,7 @@ const $_onDelete = (domain: string, curatedGroupId: number) => {
 }
 
 const $_onUpdate = (curatedGroup: any) => {
-  useContextStore().updateMyCuratedGroup(curatedGroup)
+  useContextStore().updateMyCuratedGroup(curatedGroup.data)
   useContextStore().broadcast('my-curated-groups-updated', curatedGroup.domain)
   $_track('update')
 }
