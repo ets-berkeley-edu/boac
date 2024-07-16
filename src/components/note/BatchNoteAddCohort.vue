@@ -16,6 +16,7 @@
       density="compact"
       :disabled="disabled"
       hide-details
+      hide-selected
       item-title="name"
       item-value="id"
       :items="objects"
