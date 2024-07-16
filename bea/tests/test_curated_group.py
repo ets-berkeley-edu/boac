@@ -40,7 +40,7 @@ class TestCuratedGroup:
     advisor = test.advisor
     pre_existing_cohorts = boa_utils.get_user_filtered_cohorts(advisor)
     pre_existing_groups = boa_utils.get_user_curated_groups(advisor)
-    test_student = test.default_cohort.members[-1]
+    test_student = test.default_cohort.members[0]
     app.logger.info(f'Test student is UID {test_student.uid}')
 
     group_1 = Cohort({'name': f'Group 1 {test.test_id}'})
@@ -56,7 +56,6 @@ class TestCuratedGroup:
 
     def test_get_test_student_enrollment(self):
         self.homepage.dev_auth(self.advisor)
-        self.api_student_page.load_data(self.test_student)
 
     def test_delete_pre_existing_cohorts(self):
         for c in self.pre_existing_cohorts:
@@ -79,9 +78,9 @@ class TestCuratedGroup:
         self.filtered_students_page.select_and_add_members_to_new_grp(visible_members[0:9], group)
 
     def test_create_group_from_class_page_group_selector(self):
-        term = self.api_student_page.terms()[0]
-        term_id = self.api_student_page.term_id(term)
-        ccn = self.api_student_page.course_section_ccns(self.api_student_page.courses(term)[0])[0]
+        term = self.test_student.enrollment_data.enrollment_terms()[0]
+        term_id = self.test_student.enrollment_data.term_id(term)
+        ccn = self.test_student.enrollment_data.course_section_ccns(self.test_student.enrollment_data.courses(term)[0])[0]
         group = Cohort({'name': f'Group created from class page {self.test.test_id}'})
         self.class_page.load_page(term_id, ccn)
         sids = self.class_page.list_view_sids()
@@ -206,25 +205,25 @@ class TestCuratedGroup:
             for sid in missing_sids:
                 app.logger.info(f'Checking data for missing SID {sid}')
                 student = next(filter(lambda m: m.sid == sid, self.group_4.members))
-                if not self.api_student_page.load_data(student):
+                if not self.test_student.enrollment_data:
                     app.logger.info(f'Removing SID {sid} from the group since the student does not appear in BOA')
                     missing_sids.remove(sid)
                     self.group_4.members.remove(student)
         assert not missing_sids
 
     def test_group_members_can_be_added_from_class_page_using_select_all(self):
-        term = self.api_student_page.terms()[0]
-        term_id = self.api_student_page.term_id(term)
-        ccn = self.api_student_page.course_section_ccns(self.api_student_page.courses(term)[0])[0]
+        term = self.test_student.enrollment_data.enrollment_terms()[0]
+        term_id = self.test_student.enrollment_data.term_id(term)
+        ccn = self.test_student.enrollment_data.course_section_ccns(self.test_student.enrollment_data.courses(term)[0])[0]
         self.class_page.load_page(term_id, ccn)
         self.class_page.select_and_add_all_visible_to_grp(self.test.students, self.group_5)
         self.curated_students_page.load_page(self.group_5)
         self.curated_students_page.assert_visible_students_match_expected(self.group_5)
 
     def test_group_members_can_be_added_from_class_page_using_select_some(self):
-        term = self.api_student_page.terms()[0]
-        term_id = self.api_student_page.term_id(term)
-        ccn = self.api_student_page.course_section_ccns(self.api_student_page.courses(term)[0])[0]
+        term = self.test_student.enrollment_data.enrollment_terms()[0]
+        term_id = self.test_student.enrollment_data.term_id(term)
+        ccn = self.test_student.enrollment_data.course_section_ccns(self.test_student.enrollment_data.courses(term)[0])[0]
         self.class_page.load_page(term_id, ccn)
         self.class_page.select_and_add_members_to_grp([self.test_student], self.group_6)
         self.curated_students_page.load_page(self.group_6)
@@ -313,7 +312,7 @@ class TestCuratedGroup:
             for sid in missing_sids:
                 app.logger.info(f'Checking data for missing SID {sid}')
                 student = next(filter(lambda m: m.sid == sid, self.group_4.members))
-                if not self.api_student_page.load_data(student):
+                if not self.test_student.enrollment_data:
                     app.logger.info(f'Removing SID {sid} from the group since the student does not appear in BOA')
                     missing_sids.remove(sid)
                     self.group_4.members.remove(student)

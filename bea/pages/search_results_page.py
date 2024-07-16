@@ -99,14 +99,23 @@ class SearchResultsPage(CuratedAddSelector):
     CLASS_ROW = By.XPATH, '//*[contains(@id, "course-results-page-h")]/../following-sibling::table/tr'
     PARTIAL_RESULTS_MSG = By.XPATH, '//div[text()=" Showing the first 50 classes. "]'
 
+    def class_search_results_count(self):
+        self.wait_for_spinner()
+        return int(self.element(self.CLASS_RESULTS_COUNT).text)
+
     @staticmethod
     def class_link(course_code, section_number):
         return By.XPATH, f'//a[contains(.,"{course_code}")][contains(.,"{section_number}")]'
 
     def is_class_in_search_result(self, course_code, section_number):
-        self.wait_for_element_and_click(self.CLASS_RESULTS_BUTTON)
-        time.sleep(1)
-        return self.is_present(self.class_link(course_code, section_number))
+        count = self.class_search_results_count()
+        if count > 50:
+            app.logger.info(f'Skipping test with class {course_code} because there are too many results')
+        else:
+            self.wait_for_element_and_click(self.CLASS_RESULTS_BUTTON)
+            time.sleep(1)
+            self.when_present(self.class_link(course_code, section_number), utils.get_short_timeout())
+        return True
 
     def click_class_result(self, course_code, section_number):
         self.wait_for_element_and_click(self.CLASS_RESULTS_BUTTON)

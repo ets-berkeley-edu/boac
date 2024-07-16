@@ -124,6 +124,24 @@ def in_op(arr):
     return ', '.join(arr)
 
 
+def formatted_units(units_as_num):
+    if units_as_num:
+        if units_as_num == 0:
+            return '0'
+        else:
+            if units_as_num.floor() == units_as_num:
+                return f'{units_as_num.floor()}'
+            else:
+                return '{:.3f}'.format(units_as_num)
+
+
+def safe_key(parsed, key):
+    try:
+        return parsed[key]
+    except KeyError:
+        return None
+
+
 # Terms
 
 def get_current_term():

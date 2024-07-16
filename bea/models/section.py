@@ -24,57 +24,35 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-class Cohort(object):
+class Section(object):
 
-    def __init__(self, data):
-        self.data = data
-        try:
-            self.members = self.data['members']
-        except KeyError:
-            self.members = []
+    def __init__(self,
+                 ccn,
+                 code,
+                 instructor_uid,
+                 label,
+                 meetings,
+                 mode,
+                 term,
+                 title):
+        self.ccn = ccn
+        self.code = code
+        self.instructor_uid = instructor_uid
+        self.label = label
+        self.meetings = meetings
+        self.mode = mode
+        self.term = term
+        self.title = title
 
-    @property
-    def cohort_id(self):
-        try:
-            return self.data['cohort_id']
-        except KeyError:
-            return None
 
-    @cohort_id.setter
-    def cohort_id(self, value):
-        self.data['cohort_id'] = value
+class SectionMeeting(object):
 
-    @property
-    def name(self):
-        return self.data['name']
-
-    @name.setter
-    def name(self, value):
-        self.data['name'] = value
-
-    @property
-    def is_ce3(self):
-        try:
-            return self.data['is_ce3']
-        except KeyError:
-            return False
-
-    @is_ce3.setter
-    def is_ce3(self, value):
-        self.data['is_ce3'] = value
-
-    @property
-    def owner_uid(self):
-        return self.data['owner_uid']
-
-    @owner_uid.setter
-    def owner_uid(self, value):
-        self.data['owner_uid'] = value
-
-    @property
-    def members(self):
-        return self.data['members']
-
-    @members.setter
-    def members(self, value):
-        self.data['members'] = value
+    def __init__(self,
+                 days,
+                 end_time,
+                 location,
+                 start_time):
+        self.days = days
+        self.end_time = end_time
+        self.location = location
+        self.start_time = start_time

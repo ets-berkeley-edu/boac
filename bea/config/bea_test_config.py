@@ -358,6 +358,14 @@ class BEATestConfig(object):
 
         app.logger.info(f'Test UIDs: {list(map(lambda u: u.uid, self.test_students))}')
 
+    def get_test_student_profiles(self, students=None):
+        students = students or self.test_students
+        nessie_utils.set_student_profiles(students)
+
+    def get_test_student_enrollments(self, students=None):
+        students = students or self.test_students
+        nessie_utils.set_student_term_enrollments(students)
+
     def set_search_cohorts(self, opts):
         test_data = utils.parse_test_data()
         self.searches = []
@@ -404,6 +412,7 @@ class BEATestConfig(object):
         self.set_base_configs(opts={'include_inactive': True})
         self.set_default_cohort(opts={'include_inactive': True})
         self.set_test_students(count=50)
+        self.get_test_student_enrollments(self.default_cohort.members)
 
     def filtered_cohorts(self):
         self.set_base_configs(dept=Department.ADMIN, opts={'include_inactive': True})
@@ -429,6 +438,11 @@ class BEATestConfig(object):
     def note_mgmt(self):
         self.set_note_attachments()
         self.set_base_configs()
+
+    def search_class(self):
+        self.set_base_configs()
+        self.set_test_students(count=app.config['MAX_SEARCH_STUDENTS_COUNT'], opts={'with_enrollments': True})
+        self.get_test_student_enrollments()
 
     def search_students(self):
         self.set_base_configs()

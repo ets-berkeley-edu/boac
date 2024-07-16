@@ -23,58 +23,39 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from bea.models.person import Person
 
-class Cohort(object):
 
-    def __init__(self, data):
-        self.data = data
-        try:
-            self.members = self.data['members']
-        except KeyError:
-            self.members = []
+class Student(Person):
 
     @property
-    def cohort_id(self):
-        try:
-            return self.data['cohort_id']
-        except KeyError:
-            return None
+    def alert_count(self):
+        return self.data['alert_count']
 
-    @cohort_id.setter
-    def cohort_id(self, value):
-        self.data['cohort_id'] = value
+    @alert_count.setter
+    def alert_count(self, value):
+        self.data['alert_count'] = value
 
     @property
-    def name(self):
-        return self.data['name']
+    def enrollment_data(self):
+        return self.data['enrollment_terms']
 
-    @name.setter
-    def name(self, value):
-        self.data['name'] = value
-
-    @property
-    def is_ce3(self):
-        try:
-            return self.data['is_ce3']
-        except KeyError:
-            return False
-
-    @is_ce3.setter
-    def is_ce3(self, value):
-        self.data['is_ce3'] = value
+    @enrollment_data.setter
+    def enrollment_data(self, value):
+        self.data['enrollment_terms'] = value
 
     @property
-    def owner_uid(self):
-        return self.data['owner_uid']
+    def is_sir(self):
+        return self.data['is_sir']
 
-    @owner_uid.setter
-    def owner_uid(self, value):
-        self.data['owner_uid'] = value
+    @is_sir.setter
+    def is_sir(self, value):
+        self.data['is_sir'] = value
 
     @property
-    def members(self):
-        return self.data['members']
+    def profile_data(self):
+        return self.data['profile']
 
-    @members.setter
-    def members(self, value):
-        self.data['members'] = value
+    @profile_data.setter
+    def profile_data(self, value):
+        self.data['profile'] = value
