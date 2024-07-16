@@ -289,6 +289,7 @@ const createTemplate = title => {
     // Save draft before creating template.
     updateAdvisingNote().then(() => {
       createNoteTemplate(model.value.id, title).then(() => {
+        noteStore.setIsSaving(false)
         showAlert(`Template '${title}' created.`)
         setTimeout(() => {
           // Creating a note-template was the user's purpose so we delete any incidental draft note.
