@@ -2,8 +2,9 @@
   <v-dialog
     v-if="mode"
     v-model="dialogModel"
+    min-width="500"
     persistent
-    width="800"
+    width="60%"
     @keyup.esc.prevent="discardRequested"
   >
     <v-card id="new-note-modal-container">
