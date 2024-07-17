@@ -203,14 +203,13 @@
     </div>
     <AreYouSureModal
       v-model="isDeleting"
+      button-label-confirm="Delete"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
-      :show-modal="!!templateForDelete"
-      button-label-confirm="Delete"
       modal-header="Delete Degree"
-    >
-      {{ deleteModalBody }}
-    </AreYouSureModal>
+      :show-modal="!!templateForDelete"
+      :text="deleteModalBody"
+    />
     <CloneTemplateModal
       v-if="templateToClone"
       :after-create="afterClone"
