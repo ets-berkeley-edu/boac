@@ -73,60 +73,37 @@
             Created
           </template>
           <template #item.name="{item}">
-            <div
-              v-if="item.id === get(templateForEdit, 'id')"
-              class="align-center d-flex flex-wrap justify-space-between mt-2 rename-template"
-            >
-              <div class="flex-grow-1 mr-2">
-                <div>
-                  <input
-                    id="rename-template-input"
-                    v-model="templateForEdit.name"
-                    :aria-invalid="!templateForEdit.name"
-                    class="rename-input text-dark pa-2 w-100"
-                    aria-label="Input template name, 255 characters or fewer"
-                    aria-required="true"
-                    maxlength="255"
-                    required
-                    type="text"
-                    @keypress.enter="() => templateForEdit.name.length && save()"
-                    @keyup.esc="cancelEdit"
-                  />
-                </div>
-                <div class="pl-2">
-                  <span class="text-grey font-size-12">255 character limit <span v-if="templateForEdit.name.length">({{ 255 - templateForEdit.name.length }} left)</span></span>
-                  <span
-                    v-if="templateForEdit.name.length === 255"
-                    aria-live="polite"
-                    class="sr-only"
-                    role="alert"
-                  >
-                    Template name cannot exceed 255 characters.
-                  </span>
-                </div>
+            <div v-if="item.id === get(templateForEdit, 'id')" class="py-3">
+              <input
+                id="rename-template-input"
+                v-model="templateForEdit.name"
+                :aria-invalid="!templateForEdit.name"
+                aria-label="Input template name, 255 characters or fewer"
+                aria-required="true"
+                class="bg-white pa-2 rename-input w-100"
+                :disabled="isRenaming"
+                maxlength="255"
+                required
+                type="text"
+                @keydown.enter="() => templateForEdit.name.length && save()"
+                @keyup.esc="cancelEdit"
+              />
+              <div class="pl-2">
+                <span class="font-size-12">255 character limit <span v-if="templateForEdit.name.length">({{ 255 - templateForEdit.name.length }} left)</span></span>
+                <span
+                  v-if="templateForEdit.name.length === 255"
+                  aria-live="polite"
+                  class="sr-only"
+                  role="alert"
+                >
+                  Template name cannot exceed 255 characters.
+                </span>
               </div>
-              <div class="align-center d-flex pb-3 mb-2 mr-2">
-                <v-btn
-                  id="confirm-rename-btn"
-                  :disabled="!templateForEdit.name.trim() || !!errorDuringEdit"
-                  class="btn-primary-color-override rename-btn"
-                  color="primary"
-                  size="sm"
-                  text="Rename"
-                  @click.prevent="save"
-                />
-                <v-btn
-                  id="rename-cancel-btn"
-                  class="rename-btn"
-                  variant="text"
-                  size="sm"
-                  text="Cancel"
-                  @click="cancelEdit"
-                />
-              </div>
-              <div v-if="errorDuringEdit" class="error-message-container mb-3 ml-2 mt-2 pa-2">
-                <span v-html="errorDuringEdit"></span>
-              </div>
+              <div
+                v-if="errorDuringEdit"
+                class="error-message-container ma-2"
+                v-html="errorDuringEdit"
+              />
             </div>
             <div v-if="item.id !== get(templateForEdit, 'id')">
               <router-link
@@ -138,11 +115,34 @@
             </div>
           </template>
           <template #item.createdAt="{item}">
-            <div>
-              {{ item.id !== get(templateForEdit, 'id') ? DateTime.fromISO(item.createdAt).toFormat('DD') : '&mdash;' }}
+            <div v-if="item.id !== get(templateForEdit, 'id')" class="text-no-wrap">
+              {{ DateTime.fromISO(item.createdAt).toFormat('DD') }}
             </div>
           </template>
           <template #item.actions="{index, item}">
+            <div v-if="item.id === get(templateForEdit, 'id')" class="align-start d-flex float-right">
+              <v-btn
+                id="confirm-rename-btn"
+                :disabled="isRenaming || !templateForEdit.name.trim() || !!errorDuringEdit"
+                class="rename-btn mr-3"
+                color="primary"
+                @click.prevent="save"
+              >
+                <div v-if="isRenaming" class="mr-2">
+                  <v-progress-circular indeterminate size="16" width="2" />
+                </div>
+                {{ isRenaming ? 'Saving...' : 'Rename' }}
+              </v-btn>
+              <v-btn
+                id="rename-cancel-btn"
+                class="rename-btn mr-3"
+                :disabled="isRenaming"
+                variant="text"
+                size="sm"
+                text="Cancel"
+                @click="cancelEdit"
+              />
+            </div>
             <div v-if="item.id !== get(templateForEdit, 'id')" class="align-center d-flex float-right">
               <v-btn
                 :id="`degree-check-${item.id}-print-link`"
@@ -239,6 +239,7 @@ const deleteModalBody = ref(undefined)
 const degreeTemplates = ref(undefined)
 const isBusy = ref(false)
 const isDeleting = ref(false)
+const isRenaming = ref(false)
 const successMessage = ref(useRoute().query.m)
 const templateForDelete = ref(undefined)
 const templateForEdit = ref(undefined)
@@ -321,6 +322,7 @@ const openCreateCloneModal = template => {
 }
 
 const save = () => {
+  isRenaming.value = true
   updateDegreeTemplate(templateForEdit.value.id, templateForEdit.value.name.trim()).then(() => {
     const templateId = templateForEdit.value.id
     templateForEdit.value = null
@@ -328,6 +330,7 @@ const save = () => {
       degreeTemplates.value = data
       alertScreenReader('Template updated')
       isBusy.value = false
+      isRenaming.value = false
       putFocusNextTick(`degree-check-${templateId}-link`)
     })
   })
@@ -350,15 +353,13 @@ const showDeleteModal = template => {
 </style>
 
 <style scoped>
+.rename-btn {
+  height: 38px;
+}
 .rename-input {
   box-sizing: border-box;
   border: 2px solid #ccc;
   border-radius: 4px;
-}
-.rename-template {
-  overflow: visible;
-  width: 800px;
-  z-index: 100;
 }
 .separator {
   color: #ccc;
