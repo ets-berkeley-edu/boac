@@ -161,7 +161,7 @@ class Page(object):
     def hide_boa_footer(self):
         if self.is_present(Page.FOOTER) and self.element(Page.FOOTER).is_displayed():
             app.logger.debug('Chasing away the speedbird')
-            self.element(Page.SPEEDBIRD).click()
+            self.click_element_js(Page.SPEEDBIRD)
 
     def click_element(self, locator, addl_pause=None):
         sleep_default = app.config['CLICK_SLEEP']

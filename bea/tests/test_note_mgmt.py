@@ -503,7 +503,7 @@ class TestNoteMgmt:
         self.search_results_page.reopen_and_reset_adv_search()
         self.student_page.select_notes_posted_by_you()
         self.student_page.enter_adv_search_and_hit_enter(self.note_1.subject)
-        assert self.search_results_page.note_results_count() == 0
+        assert self.search_results_page.note_results_count() == '0'
 
     def test_non_author_view_all_student_notes(self):
         asc_notes = nessie_timeline_utils.get_asc_notes(self.test_student)
@@ -577,7 +577,7 @@ class TestNoteMgmt:
         self.student_page.exclude_students()
         self.student_page.exclude_classes()
         self.student_page.enter_adv_search_and_hit_enter(self.note_5.subject)
-        assert self.search_results_page.note_results_count() == 0
+        assert self.search_results_page.note_results_count() == '0'
 
     def test_no_deleted_note_attachment_downloads(self):
         for a in self.note_5.attachments:

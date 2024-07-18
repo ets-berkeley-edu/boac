@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from bea.pages.cohort_pages import CohortPages
-from bea.test_utils import nessie_filter_utils
+from bea.test_utils import nessie_filter_students_utils
 
 
 class FilteredStudentsPageResults(CohortPages):
@@ -39,5 +39,5 @@ class FilteredStudentsPageResults(CohortPages):
 
     @staticmethod
     def set_cohort_members(test, cohort):
-        expected_sids = nessie_filter_utils.cohort_by_last_name(test, cohort.search_criteria)
+        expected_sids = nessie_filter_students_utils.cohort_by_last_name(test, cohort.search_criteria)
         cohort.members = list(map(lambda s: s.sid in expected_sids, test.students))

@@ -23,47 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.models.person import Person
+from bea.pages.curated_add_selector import CuratedAddSelector
+from selenium.webdriver.common.by import By
 
 
-class Student(Person):
+class AdmitPages(CuratedAddSelector):
 
-    @property
-    def admit_data(self):
-        return self.data['admit_data']
-
-    @admit_data.setter
-    def admit_data(self, value):
-        self.data['admit_data'] = value
-
-    @property
-    def alert_count(self):
-        return self.data['alert_count']
-
-    @alert_count.setter
-    def alert_count(self, value):
-        self.data['alert_count'] = value
-
-    @property
-    def enrollment_data(self):
-        return self.data['enrollment_terms']
-
-    @enrollment_data.setter
-    def enrollment_data(self, value):
-        self.data['enrollment_terms'] = value
-
-    @property
-    def is_sir(self):
-        return self.data['is_sir']
-
-    @is_sir.setter
-    def is_sir(self, value):
-        self.data['is_sir'] = value
-
-    @property
-    def profile_data(self):
-        return self.data['profile']
-
-    @profile_data.setter
-    def profile_data(self, value):
-        self.data['profile'] = value
+    def data_update_date_heading(self, date_string):
+        return self.element((By.XPATH, f'//h2[contains(., "Admit data was last updated on #{date_string}")]'))

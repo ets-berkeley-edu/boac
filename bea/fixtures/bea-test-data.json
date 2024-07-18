@@ -335,10 +335,8 @@
             {
                 "family_dependents": [
                     {
-                        "num": {
-                            "min": "7",
-                            "max": "8"
-                        }
+                        "min": "7",
+                        "max": "8"
                     }
                 ],
                 "urem": true
@@ -350,10 +348,8 @@
             {
                 "student_dependents": [
                     {
-                        "num": {
-                            "min": "0",
-                            "max": "1"
-                        }
+                        "min": "0",
+                        "max": "1"
                     }
                 ],
                 "student_single_parent": true

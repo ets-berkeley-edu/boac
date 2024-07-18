@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import time
 
-from bea.pages.curated_add_selector import CuratedAddSelector
+from bea.pages.list_view_admit_pages import ListViewAdmitPages
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
@@ -32,7 +32,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
-class SearchResultsPage(CuratedAddSelector):
+class SearchResultsPage(ListViewAdmitPages):
 
     RESULTS_LOADED_MSG = By.XPATH, '//h1[text()="Search Results"]'
     NO_RESULTS_MSG = By.XPATH, '//div[text()="No matching records found."]'
@@ -42,21 +42,26 @@ class SearchResultsPage(CuratedAddSelector):
 
     # ADMIT SEARCH
 
-    ADMIT_RESULTS_BUTTON = By.ID, 'search_results-tab-admits'
+    ADMIT_RESULTS_BUTTON = By.ID, 'search-results-tab-admits'
     ADMIT_RESULTS_COUNT = By.ID, 'search-results-count-admits'
 
     def admit_search_results_count(self):
         self.wait_for_spinner()
-        return int(self.element(self.ADMIT_RESULTS_COUNT).text)
+        return self.element(self.ADMIT_RESULTS_COUNT).text
 
     @staticmethod
     def admit_link_loc(admit):
         return By.ID, f'link-to-admit-{admit.sid}'
 
     def is_admit_in_search_result(self, admit):
-        self.wait_for_element_and_click(self.ADMIT_RESULTS_BUTTON)
+        self.wait_for_page_and_click(self.ADMIT_RESULTS_BUTTON)
         time.sleep(1)
-        return self.is_present(self.admit_link_loc(admit))
+        count = self.admit_search_results_count()
+        if count == '50+':
+            app.logger.info(f'Skipping test with UID {admit.sid} because there are too many results')
+        else:
+            self.when_present(self.admit_link_loc(admit), utils.get_short_timeout())
+        return True
 
     def click_admit_result(self, admit):
         self.wait_for_element_and_click(self.ADMIT_RESULTS_BUTTON)
@@ -70,7 +75,7 @@ class SearchResultsPage(CuratedAddSelector):
 
     def student_search_results_count(self):
         self.wait_for_spinner()
-        return int(self.element(self.STUDENT_RESULTS_COUNT).text)
+        return self.element(self.STUDENT_RESULTS_COUNT).text
 
     @staticmethod
     def student_link_loc(student):
@@ -81,7 +86,7 @@ class SearchResultsPage(CuratedAddSelector):
         self.wait_for_element_and_click(self.STUDENT_RESULTS_BUTTON)
         time.sleep(1)
         count = self.student_search_results_count()
-        if count > 50:
+        if count == '50+':
             app.logger.info(f'Skipping test with UID {student.uid} because there are too many results')
         else:
             self.when_present(self.student_link_loc(student), utils.get_short_timeout())
@@ -101,7 +106,7 @@ class SearchResultsPage(CuratedAddSelector):
 
     def class_search_results_count(self):
         self.wait_for_spinner()
-        return int(self.element(self.CLASS_RESULTS_COUNT).text)
+        return self.element(self.CLASS_RESULTS_COUNT).text
 
     @staticmethod
     def class_link(course_code, section_number):
@@ -109,7 +114,7 @@ class SearchResultsPage(CuratedAddSelector):
 
     def is_class_in_search_result(self, course_code, section_number):
         count = self.class_search_results_count()
-        if count > 50:
+        if count == '50+':
             app.logger.info(f'Skipping test with class {course_code} because there are too many results')
         else:
             self.wait_for_element_and_click(self.CLASS_RESULTS_BUTTON)
@@ -130,7 +135,7 @@ class SearchResultsPage(CuratedAddSelector):
 
     def note_results_count(self):
         self.wait_for_spinner()
-        return int(self.element(self.NOTE_RESULTS_COUNT).text)
+        return self.element(self.NOTE_RESULTS_COUNT).text
 
     def wait_for_note_search_result_rows(self):
         self.wait_for_spinner()
