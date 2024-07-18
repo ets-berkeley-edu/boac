@@ -65,14 +65,13 @@
 </template>
 
 <script setup>
-import router from '@/router'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import {alertScreenReader, putFocusNextTick, setPageTitle, studentRoutePath} from '@/lib/utils'
 import {createDegreeCheck, getDegreeTemplates} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
 import {computed, onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 
 const contextStore = useContextStore()
@@ -104,7 +103,7 @@ onMounted(() => {
 
 const cancel = () => {
   alertScreenReader('Canceled')
-  router.push(studentRoutePath(student.value.uid, currentUser.inDemoMode))
+  useRouter().push(studentRoutePath(student.value.uid, currentUser.inDemoMode))
 }
 
 const onChangeSelect = option => {
@@ -119,7 +118,7 @@ const onClickSave = () => {
   alertScreenReader('Saving')
   createDegreeCheck(student.value.sid, selectedOption.value.id).then(data => {
     isSaving.value = false
-    router.push(`/student/degree/${data.id}`)
+    useRouter().push(`/student/degree/${data.id}`)
   })
 }
 </script>

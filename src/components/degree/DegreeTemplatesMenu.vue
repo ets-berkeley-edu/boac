@@ -3,67 +3,78 @@
     <div>
       <label
         for="degree-template-select"
-        class="font-weight-700 input-label mt-2 text"
+        class="font-weight-700 input-label mt-2"
       >Add Degree Check</label>
     </div>
-    <b-dropdown
+    <select
       id="degree-template-select"
       v-model="selectedTemplate"
-      class="mb-2 ml-0 transparent"
-      block
+      class="bordered-select d-block mb-2 ml-0 select-menu w-100"
       :disabled="disabled"
-      :lazy="true"
-      menu-class="w-100"
-      toggle-class="d-flex justify-space-between align-center"
-      variant="outline-dark"
     >
-      <template #button-content>
-        <span v-if="!selectedTemplate">Choose<span class="sr-only">&nbsp;degree check</span>...</span>
-        <span v-if="selectedTemplate" class="truncate-with-ellipsis">{{ selectedTemplate.name }}</span>
-      </template>
-      <b-dropdown-item
+      <option
+        v-if="isNil(selectedTemplate)"
+        class="font-weight-black"
+        selected
+        :value="undefined"
+      >
+        Choose<span class="sr-only">&nbsp;degree check</span>...
+      </option>
+      <option
+        v-if="!isNil(selectedTemplate)"
+        class="truncate-with-ellipsis"
+        selected
+        :value="selectedTemplate"
+      >
+        {{ selectedTemplate.name }}
+      </option>
+      <option
         v-for="template in degreeTemplates"
         :id="`degree-template-option-${template.id}`"
         :key="template.id"
-        link-class="truncate-with-ellipsis"
         :aria-label="`Add degree check ${template.name}`"
+        class="truncate-with-ellipsis"
         @click="select(template)"
       >
         {{ template.name }}
-      </b-dropdown-item>
-    </b-dropdown>
+      </option>
+    </select>
   </div>
 </template>
 
-<script>
+<script setup>
 import {getDegreeTemplates} from '@/api/degree'
+import {isNil} from 'lodash'
+import {onMounted, ref} from 'vue'
 
-export default {
-  name: 'DegreeTemplatesMenu',
-  props: {
-    onSelect: {
-      required: true,
-      type: Function
-    },
-    disabled: {
-      required: false,
-      type: Boolean
-    }
+const props = defineProps({
+  onSelect: {
+    required: true,
+    type: Function
   },
-  data: () => ({
-    degreeTemplates: undefined,
-    selectedTemplate: undefined
-  }),
-  mounted() {
-    getDegreeTemplates().then(data => {
-      this.degreeTemplates = data
-    })
-  },
-  methods: {
-    select(template) {
-      this.selectedTemplate = template
-      this.onSelect(template)
-    }
+  disabled: {
+    required: false,
+    type: Boolean
   }
+})
+
+const degreeTemplates = ref(undefined)
+const selectedTemplate = ref(undefined)
+
+onMounted(() => {
+  getDegreeTemplates().then(data => {
+    degreeTemplates.value = data
+  })
+})
+
+const select = template => {
+  selectedTemplate.value = template
+  props.onSelect(template)
 }
 </script>
+
+<style scoped>
+.bordered-select {
+  border: 1px solid #000;
+}
+</style>
