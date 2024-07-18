@@ -27,7 +27,7 @@ from bea.config.bea_test_config import BEATestConfig
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.department import Department
 from bea.test_utils import boa_utils
-from bea.test_utils import nessie_filter_utils
+from bea.test_utils import nessie_filter_students_utils
 from bea.test_utils import utils
 from flask import current_app as app
 import pytest
@@ -59,7 +59,7 @@ class TestFilteredCohortResults:
         self.filtered_students_page.cancel_cohort_if_modal()
         self.filtered_students_page.click_sidebar_create_filtered()
         self.filtered_students_page.perform_student_search(cohort)
-        expected = nessie_filter_utils.cohort_by_last_name(test, cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_last_name(test, cohort.search_criteria)
         if cohort.members:
             visible = self.filtered_students_page.visible_sids(cohort)
             utils.assert_equivalence(visible, expected)
@@ -113,95 +113,95 @@ class TestFilteredCohortSorting:
     def test_sort_cohort_by_first_name(self):
         self.filtered_students_page.load_cohort(self.cohort)
         self.filtered_students_page.sort_by_first_name()
-        expected = nessie_filter_utils.cohort_by_first_name(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_first_name(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_team(self):
         if test.dept in [Department.ADMIN, Department.ASC]:
             self.filtered_students_page.sort_by_team()
-            expected = nessie_filter_utils.cohort_by_team(test, self.cohort.search_criteria)
+            expected = nessie_filter_students_utils.cohort_by_team(test, self.cohort.search_criteria)
             self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_cumulative_gpa_asc(self):
         self.filtered_students_page.sort_by_gpa_cumulative()
-        expected = nessie_filter_utils.cohort_by_gpa_asc(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_gpa_asc(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_cumulative_gpa_desc(self):
         self.filtered_students_page.sort_by_gpa_cumulative_desc()
-        expected = nessie_filter_utils.cohort_by_gpa_desc(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_gpa_desc(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_last_term_gpa_asc(self):
         self.filtered_students_page.sort_by_last_term_gpa()
-        expected = nessie_filter_utils.cohort_by_gpa_last_term_asc(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_gpa_last_term_asc(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_last_term_gpa_desc(self):
         self.filtered_students_page.sort_by_last_term_gpa_desc()
-        expected = nessie_filter_utils.cohort_by_gpa_last_term_desc(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_gpa_last_term_desc(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_last_last_term_gpa_asc(self):
         term = utils.get_previous_term(utils.get_previous_term())
         self.filtered_students_page.sort_by_last_term_gpa(term)
-        expected = nessie_filter_utils.cohort_by_gpa_last_term_asc(test, self.cohort.search_criteria, term)
+        expected = nessie_filter_students_utils.cohort_by_gpa_last_term_asc(test, self.cohort.search_criteria, term)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_last_last_term_gpa_desc(self):
         term = utils.get_previous_term(utils.get_previous_term())
         self.filtered_students_page.sort_by_last_term_gpa_desc()
-        expected = nessie_filter_utils.cohort_by_gpa_last_term_desc(test, self.cohort.search_criteria, term)
+        expected = nessie_filter_students_utils.cohort_by_gpa_last_term_desc(test, self.cohort.search_criteria, term)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_level(self):
         self.filtered_students_page.sort_by_level()
-        expected = nessie_filter_utils.cohort_by_level(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_level(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_major(self):
         self.filtered_students_page.sort_by_major()
-        expected = nessie_filter_utils.cohort_by_major(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_major(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_entering_term(self):
         self.filtered_students_page.sort_by_entering_term()
-        expected = nessie_filter_utils.cohort_by_matriculation(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_matriculation(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_expected_grad_term(self):
         self.filtered_students_page.sort_by_expected_grad()
-        expected = nessie_filter_utils.cohort_by_expected_grad(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_expected_grad(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_terms_in_attendance_asc(self):
         self.filtered_students_page.sort_by_terms_in_attend()
-        expected = nessie_filter_utils.cohort_by_terms_in_attend_asc(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_terms_in_attend_asc(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_terms_in_attendance_desc(self):
         self.filtered_students_page.sort_by_terms_in_attend_desc()
-        expected = nessie_filter_utils.cohort_by_terms_in_attend_desc(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_terms_in_attend_desc(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_units_in_progress_asc(self):
         self.filtered_students_page.sort_by_units_in_progress()
-        expected = nessie_filter_utils.cohort_by_units_in_prog_asc(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_units_in_prog_asc(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_units_in_progress_desc(self):
         self.filtered_students_page.sort_by_units_in_progress_desc()
-        expected = nessie_filter_utils.cohort_by_units_in_prog_desc(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_units_in_prog_desc(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_units_completed_asc(self):
         self.filtered_students_page.sort_by_units_completed()
-        expected = nessie_filter_utils.cohort_by_units_complete_asc(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_units_complete_asc(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_units_completed_desc(self):
         self.filtered_students_page.sort_by_units_completed_desc()
-        expected = nessie_filter_utils.cohort_by_units_complete_desc(test, self.cohort.search_criteria)
+        expected = nessie_filter_students_utils.cohort_by_units_complete_desc(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
 
@@ -238,13 +238,13 @@ class TestFilteredCohortHomepage:
 
     def test_homepage_cohort_name_asc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_last_name_asc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_last_name_asc(self.sids)
             self.homepage.sort_by_name(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_name_desc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_last_name_desc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_last_name_desc(self.sids)
             self.homepage.sort_by_name(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
@@ -262,61 +262,61 @@ class TestFilteredCohortHomepage:
 
     def test_homepage_cohort_major_asc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_major_asc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_major_asc(self.sids)
             self.homepage.sort_by_major(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_major_desc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_major_desc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_major_desc(self.sids)
             self.homepage.sort_by_major(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_grad_date_asc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_grad_term_asc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_grad_term_asc(self.sids)
             self.homepage.sort_by_expected_grad(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_grad_date_desc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_grad_term_desc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_grad_term_desc(self.sids)
             self.homepage.sort_by_expected_grad(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_term_units_asc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_units_in_prog_asc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_units_in_prog_asc(self.sids)
             self.homepage.sort_by_term_units(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_term_units_desc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_units_in_prog_desc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_units_in_prog_desc(self.sids)
             self.homepage.sort_by_term_units(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_cumul_units_asc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_units_complete_asc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_units_complete_asc(self.sids)
             self.homepage.sort_by_cumul_units(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_cumul_units_desc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_units_complete_desc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_units_complete_desc(self.sids)
             self.homepage.sort_by_cumul_units(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_gpa_asc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_gpa_asc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_gpa_asc(self.sids)
             self.homepage.sort_by_gpa(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_gpa_desc(self):
         if self.cohort_alerts:
-            expected_sequence = nessie_filter_utils.list_by_gpa_desc(self.sids)
+            expected_sequence = nessie_filter_students_utils.list_by_gpa_desc(self.sids)
             self.homepage.sort_by_gpa(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 

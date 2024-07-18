@@ -83,7 +83,7 @@ class SearchForm(Page):
     def open_adv_search(self):
         app.logger.info('Opening advanced search')
         self.wait_for_element_and_click(self.OPEN_ADV_SEARCH_BUTTON)
-        Wait(self.driver, 2).until(ec.visibility_of_element_located(self.ADV_SEARCH_STUDENT_INPUT))
+        self.when_present(self.ADV_SEARCH_STUDENT_INPUT, 2)
 
     def clear_adv_search_input(self):
         self.clear_input(self.ADV_SEARCH_STUDENT_INPUT)

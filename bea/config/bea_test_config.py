@@ -30,6 +30,7 @@ import random
 
 from bea.models.academic_standings import AcademicStandings
 from bea.models.advisor_role import AdvisorRole
+from bea.models.cohorts_and_groups.cohort_admit_filter import CohortAdmitFilter
 from bea.models.cohorts_and_groups.cohort_filter import CohortFilter
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.department import Department
@@ -39,7 +40,8 @@ from bea.models.notes_and_appts.note_attachment import NoteAttachment
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.user import User
 from bea.test_utils import boa_utils
-from bea.test_utils import nessie_filter_utils
+from bea.test_utils import nessie_filter_admits_utils
+from bea.test_utils import nessie_filter_students_utils
 from bea.test_utils import nessie_timeline_utils
 from bea.test_utils import nessie_utils
 from bea.test_utils import utils
@@ -51,6 +53,7 @@ class BEATestConfig(object):
     def __init__(self, data=None, dept=None):
         self.data = data or {}
         self.dept = dept or Department.L_AND_S
+        self.test_admits = []
         self.test_id = f'{calendar.timegm(dt.now().timetuple())}'
         self.test_students = []
 
@@ -207,7 +210,7 @@ class BEATestConfig(object):
             self.default_cohort = FilteredCohort
             self.default_cohort.name = f'Cohort {self.test_id}'
             self.default_cohort.search_criteria = cohort_filter
-            filtered_sids = nessie_filter_utils.get_cohort_result(self, self.default_cohort.search_criteria)
+            filtered_sids = nessie_filter_students_utils.get_cohort_result(self, self.default_cohort.search_criteria)
             self.default_cohort.members = [s for s in self.students if s.sid in filtered_sids]
 
     def set_test_students(self, count, opts=None):
@@ -369,21 +372,29 @@ class BEATestConfig(object):
     def set_search_cohorts(self, opts):
         test_data = utils.parse_test_data()
         self.searches = []
-        if opts['students']:
+        if opts.get('students') and opts['students']:
             data = test_data['filters']['students']
-        elif opts['admits']:
+        elif opts.get('admits') and opts['admits']:
             data = test_data['filters']['admits']
         else:
             app.logger.error('Unable to determine search cohorts')
             raise
 
         for test_case in data:
-            search_criteria = CohortFilter(test_case, self.dept)
-            sids = nessie_filter_utils.get_cohort_result(self, search_criteria)
-            cohort_members = []
-            for student in self.students:
-                if student.sid in sids:
-                    cohort_members.append(student)
+            if opts.get('students') and opts['students']:
+                search_criteria = CohortFilter(test_case, self.dept)
+                sids = nessie_filter_students_utils.get_cohort_result(self, search_criteria)
+                cohort_members = []
+                for student in self.students:
+                    if student.sid in sids:
+                        cohort_members.append(student)
+            else:
+                search_criteria = CohortAdmitFilter(test_case)
+                sids = nessie_filter_admits_utils.get_cohort_result(self, search_criteria)
+                cohort_members = []
+                for admit in self.admits:
+                    if admit.sid in sids:
+                        cohort_members.append(admit)
             cohort = FilteredCohort({
                 'name': f'Test Cohort {data.index(test_case)} {self.test_id}',
                 'members': cohort_members,
@@ -391,7 +402,14 @@ class BEATestConfig(object):
             })
             self.searches.append(cohort)
 
-    # TODO set_test_admits
+    def set_test_admits(self, count):
+        sid_string = os.getenv('SIDS')
+        if sid_string:
+            sids = sid_string.split()
+            self.test_admits = list(filter(lambda st: st.sid in sids, self.admits))
+        else:
+            random.shuffle(self.admits)
+            self.test_admits = self.admits[:count]
 
     # TODO set_admit_searchable_data
 
@@ -438,6 +456,13 @@ class BEATestConfig(object):
     def note_mgmt(self):
         self.set_note_attachments()
         self.set_base_configs()
+
+    def search_admits(self):
+        self.set_dept(dept=Department.ZCEEE)
+        self.set_advisor()
+        self.set_admits()
+        self.set_test_admits(count=app.config['MAX_SEARCH_STUDENTS_COUNT'])
+        self.set_search_cohorts(opts={'admits': True})
 
     def search_class(self):
         self.set_base_configs()

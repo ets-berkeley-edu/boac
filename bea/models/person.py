@@ -78,6 +78,14 @@ class Person(object):
         self.data['last_name'] = value
 
     @property
+    def middle_name(self):
+        return self.data['middle_name']
+
+    @middle_name.setter
+    def middle_name(self, value):
+        self.data['middle_name'] = value
+
+    @property
     def sid(self):
         return self.data['sid']
 

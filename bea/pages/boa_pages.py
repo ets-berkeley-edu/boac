@@ -58,13 +58,13 @@ class BoaPages(SearchForm):
     # HEADER
 
     HOME_LINK = (By.ID, 'home-header')
-    HEADER_DROPDOWN = (By.ID, 'header-dropdown-under-name__BV_toggle_')
+    HEADER_DROPDOWN = (By.XPATH, '//button[@aria-owns="header-dropdown-under-name"]')
     FLIGHT_DATA_RECORDER_LINK = (By.ID, 'header-menu-analytics')
     FLIGHT_DECK_LINK = (By.ID, 'header-menu-flight-deck')
     PAX_MANIFEST_LINK = (By.ID, 'header-menu-passengers')
     PROFILE_LINK = (By.ID, 'header-menu-profile')
     FEEDBACK_LINK = (By.XPATH, '//a[contains(text(), "Feedback/Help")]')
-    LOG_OUT_LINK = (By.XPATH, '//a[contains(text(), "Log Out")]')
+    LOG_OUT_LINK = (By.ID, 'header-menu-log-out')
     CONFIRM_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-confirm')
     CANCEL_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-cancel')
     STUDENT_NAME_HEADING = (By.ID, 'student-name-header')

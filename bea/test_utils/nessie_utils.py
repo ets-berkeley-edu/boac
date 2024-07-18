@@ -22,6 +22,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+
+import datetime
 import itertools
 import json
 
@@ -154,6 +156,7 @@ def get_admits():
     admits = []
     sql = """SELECT cs_empl_id AS sid,
                     first_name AS first_name,
+                    middle_name AS middle_name,
                     last_name AS last_name,
                     campus_email_1 AS email,
                     current_sir AS is_sir
@@ -165,12 +168,29 @@ def get_admits():
         admit = Student({
             'sid': row['sid'],
             'first_name': row['first_name'],
+            'middle_name': row['middle_name'],
             'last_name': row['last_name'],
             'email': row['email'],
             'is_sir': (row['is_sir'] == 'Yes'),
         })
         admits.append(admit)
     return admits
+
+
+def get_admit_data(admit):
+    sql = f"""SELECT *
+                FROM boac_advising_oua.student_admits
+               WHERE cs_empl_id = '{admit.sid}'"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    admit.admit_data = results[0]
+
+
+def get_admit_data_update_date():
+    sql = 'SELECT MAX(updated_at) FROM boac_advising_oua.student_admits'
+    app.logger.info(sql)
+    result = data_loch.safe_execute_rds(sql)[0]['max']
+    return datetime.datetime.strftime(result, '%b %-d, %Y')
 
 
 # ADVISORS
