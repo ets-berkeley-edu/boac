@@ -41,8 +41,8 @@
             <v-btn
               :id="`remove-${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
               :disabled="disabled"
-              variant="text"
               class="remove-topic-btn"
+              variant="text"
               @click="() => remove(topic)"
             >
               <v-icon color="error" :icon="mdiCloseCircle" />

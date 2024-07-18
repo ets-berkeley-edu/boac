@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div class="mb-2">
       <label
         for="degree-template-select"
         class="font-weight-700 input-label mt-2"
@@ -11,22 +11,14 @@
       v-model="selectedTemplate"
       class="bordered-select d-block mb-2 ml-0 select-menu w-100"
       :disabled="disabled"
+      @change="() => onSelect(selectedTemplate)"
     >
       <option
-        v-if="isNil(selectedTemplate)"
         class="font-weight-black"
-        selected
+        :selected="selectedTemplate === undefined"
         :value="undefined"
       >
         Choose<span class="sr-only">&nbsp;degree check</span>...
-      </option>
-      <option
-        v-if="!isNil(selectedTemplate)"
-        class="truncate-with-ellipsis"
-        selected
-        :value="selectedTemplate"
-      >
-        {{ selectedTemplate.name }}
       </option>
       <option
         v-for="template in degreeTemplates"
@@ -34,7 +26,8 @@
         :key="template.id"
         :aria-label="`Add degree check ${template.name}`"
         class="truncate-with-ellipsis"
-        @click="select(template)"
+        :selected="get(selectedTemplate, 'id') === template.id"
+        :value="template"
       >
         {{ template.name }}
       </option>
@@ -44,10 +37,10 @@
 
 <script setup>
 import {getDegreeTemplates} from '@/api/degree'
-import {isNil} from 'lodash'
+import {get} from 'lodash'
 import {onMounted, ref} from 'vue'
 
-const props = defineProps({
+defineProps({
   onSelect: {
     required: true,
     type: Function
@@ -66,11 +59,6 @@ onMounted(() => {
     degreeTemplates.value = data
   })
 })
-
-const select = template => {
-  selectedTemplate.value = template
-  props.onSelect(template)
-}
 </script>
 
 <style scoped>

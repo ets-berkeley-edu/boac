@@ -9,7 +9,7 @@
       </router-link>
     </div>
     <div>
-      <div aria-live="polite" class="font-italic font-size-14 student-count-alerts" role="alert">
+      <div aria-live="polite" class="font-italic font-size-14 pb-2 student-count-alerts" role="alert">
         <span
           v-if="!isEmpty(sidsToInclude)"
           id="target-student-count-alert"
@@ -52,35 +52,46 @@
             @keydown.esc="cancel"
           />
         </div>
-        <div class="d-flex mt-3 w-100">
-          <ProgressButton
-            id="degree-check-add-sids-btn"
-            :action="addSids"
-            class="ms-auto"
-            color="primary"
-            :disabled="!trim(textarea) || isBusy"
-            :in-progress="isValidating"
-            :text="isValidating ? 'Adding' : 'Add'"
-          />
-        </div>
-        <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-3">
-          <span class="font-weight-700 pill pill-attachment pl-2 text-uppercase text-no-wrap truncate">
-            <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ addedStudent.label }}</span>
-            <v-btn
-              :id="`remove-student-from-batch-${index}`"
-              class="pa-0"
-              :disabled="isSaving"
-              variant="text"
-              @click.prevent="removeStudent(addedStudent)"
-            >
-              <v-icon
-                :icon="mdiCloseCircleOutline"
-                class="font-size-20 pl-2"
-                color="error"
-              />
-              <span class="sr-only">Remove {{ addedStudent.label }} from degree check</span>
-            </v-btn>
-          </span>
+        <div class="align-start d-flex mt-3 w-100">
+          <div>
+            <ul v-if="addedStudents.length" class="mb-2 pill-list pl-0">
+              <li
+                v-for="(addedStudent, index) in addedStudents"
+                :key="addedStudent.sid"
+                class="added-student-list-item align-center d-flex justify-space-between"
+              >
+                <div
+                  :id="`batch-note-student-${index}`"
+                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                >
+                  {{ addedStudent.label }}
+                </div>
+                <div>
+                  <v-btn
+                    :id="`remove-student-from-batch-${index}`"
+                    class="pr-0"
+                    :disabled="isSaving"
+                    variant="text"
+                    @click="() => removeStudent(addedStudent)"
+                  >
+                    <v-icon color="error" :icon="mdiCloseCircle" />
+                    <span class="sr-only">Remove {{ addedStudent.label }} from degree check</span>
+                  </v-btn>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="ms-auto">
+            <ProgressButton
+              id="degree-check-add-sids-btn"
+              :action="addSids"
+              class="mt-2"
+              color="primary"
+              :disabled="!trim(textarea) || isBusy"
+              :in-progress="isValidating"
+              :text="isValidating ? 'Adding' : 'Add'"
+            />
+          </div>
         </div>
       </div>
       <div
@@ -121,27 +132,26 @@
       </div>
       <div
         v-if="!isRecalculating && !isValidating && !isEmpty(excludedStudents)"
-        class="warning-message-container pa-3 mt-2 mb-3 w-75"
+        class="warning-message-container mt-2 mb-3 pa-5 w-75"
         role="alert"
       >
         <div>{{ excludedStudents.length }} students currently use the {{ selectedTemplate.name }} degree check. The degree check will not be added to their student record.</div>
-        <ul class="mt-1 mb-0">
+        <ul class="ml-5 mt-1 mb-0">
           <li v-for="(student, index) in excludedStudents" :key="index">
             {{ student.firstName }} {{ student.lastName }} ({{ student.sid }})
           </li>
         </ul>
       </div>
       <div class="d-flex pt-2 w-75">
-        <v-btn
+        <ProgressButton
           id="batch-degree-check-save"
+          :action="save"
           class="ms-auto mr-2"
           color="primary"
           :disabled="isBusy || !selectedTemplate || isEmpty(sidsToInclude)"
-          @click="save"
-        >
-          <span v-if="isSaving"><v-progress-circular class="mr-1" size="small" /> Saving</span>
-          <span v-if="!isSaving">Save Degree Check</span>
-        </v-btn>
+          :in-progress="isSaving"
+          :text="isSaving ? 'Saving' : 'Save Degree Check'"
+        />
         <v-btn
           id="batch-degree-check-cancel"
           color="primary"
@@ -160,6 +170,7 @@
 import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import ProgressButton from '@/components/util/ProgressButton'
+import router from '@/router'
 import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
 import {computed, nextTick, onMounted, ref, watch} from 'vue'
 import {createBatchDegreeCheck, getStudents} from '@/api/degree'
@@ -178,9 +189,8 @@ import {
   uniq
 } from 'lodash'
 import {getDistinctSids, getStudentsBySids} from '@/api/student'
-import {mdiCloseCircleOutline} from '@mdi/js'
+import {mdiCloseCircle} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
-import {useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
@@ -278,7 +288,7 @@ const addTemplate = template => {
 
 const cancel = () => {
   alertScreenReader('Canceled. Nothing saved.')
-  useRouter().push('/degrees')
+  router.push('/degrees')
 }
 
 const clearErrors = () => {
@@ -347,7 +357,7 @@ const save = () => {
   alertScreenReader('Saving.')
   createBatchDegreeCheck(sidsToInclude.value, get(selectedTemplate.value, 'id')).then(() => {
     nextTick(() => {
-      useRouter().push({
+      router.push({
         path: '/degrees',
         query: {
           m: `Degree check ${selectedTemplate.value.name} added to ${pluralize('student profile', sidsToInclude.value.length)}.`
@@ -382,6 +392,17 @@ const validateSids = sids => {
 </script>
 
 <style scoped>
+.added-student-list-item {
+  background-color: #fff;
+  border-radius: 5px;
+  border: 1px solid #999;
+  color: #666;
+  display: inline-block;
+  height: 36px;
+  margin-top: 6px;
+  padding: 2px 0 0 8px;
+  min-width: 50%;
+}
 .student-count-alerts {
   line-height: 1.2rem;
   min-height: 1.2rem;
