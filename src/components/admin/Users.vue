@@ -88,7 +88,7 @@
         </v-col>
       </v-row>
     </v-container>
-    <div class="align-items-center d-flex pl-4">
+    <div class="align-items-center d-flex pl-4 quick-links-position">
       <div>
         <strong>Quick links:</strong>
       </div>
@@ -133,113 +133,117 @@
         </v-btn>
       </div>
     </div>
-    <div class="font-size-14 mv-3 ml-4 total-user-count mb-4">
+    <div class="font-size-14 mv-3 ml-4 total-user-count mb-4 on-top-of-table">
       <span v-if="totalUserCount === undefined">Loading...</span>
       <span v-if="totalUserCount === 0">No users found</span>
       <span v-if="totalUserCount > 0">{{ pluralize('user', totalUserCount) }}</span>
     </div>
-    <v-data-table-server
-      v-model:expanded="expanded"
-      v-model:items-per-page="itemsPerPage"
-      :items="users"
-      :items-length="totalUserCount"
-      :items-per-page="0"
-      :headers="tableHeaders"
-      loading-text="Loading users... Please wait."
-      :loading="totalUserCount === undefined"
-      item-value="uid"
-      show-expand
-      :hide-default-footer="true"
-      disable-pagination
-      @update:sort-by="handleSort"
-      @update:sort-desc="handleSort"
-    >
-      <template #item.uid="{ item }">
-        <span> {{ item.uid }}</span>
-      </template>
+    <div class="table-wrapper">
+      <v-data-table-server
+        v-model:expanded="expanded"
+        v-model:items-per-page="itemsPerPage"
+        :items="users"
+        :items-length="totalUserCount"
+        :items-per-page="0"
+        :headers="tableHeaders"
+        loading-text="Loading users... Please wait."
+        :loading="totalUserCount === undefined"
+        item-value="uid"
+        show-expand
+        :hide-default-footer="true"
+        disable-pagination
+        @update:sort-by="handleSort"
+        @update:sort-desc="handleSort"
+      >
+        <template #item.uid="{ item }">
+          <span> {{ item.uid }}</span>
+        </template>
 
-      <template #expanded-row="{ columns, item }">
-        <tr>
-          <td :colspan="columns.length">
-            <pre>{{ JSON.stringify(item, null, 2) }}</pre>
-          </td>
-        </tr>
-      </template>
+        <template #expanded-row="{ columns, item }">
+          <tr>
+            <td :colspan="columns.length">
+              <pre>{{ JSON.stringify(item, null, 2) }}</pre>
+            </td>
+          </tr>
+        </template>
 
-      <template #item.edit="{ item }">
-        <EditUserProfileModal
-          :after-update-user="afterUpdateUser"
-          :departments="departments"
-          :profile="item"
-        />
-      </template>
+        <template #item.edit="{ item }">
+          <EditUserProfileModal
+            :after-update-user="afterUpdateUser"
+            :departments="departments"
+            :profile="item"
+          />
+        </template>
 
-      <template #item.lastName="{ item }">
-        <div v-if="!item.name">
-          <span class="faint-text">(Name unavailable)</span>
-        </div>
-        <div v-if="item.name">
+        <template #item.lastName="{ item }">
+          <div v-if="!item.name">
+            <span class="faint-text text-body-2">(Name unavailable)</span>
+          </div>
+          <div v-if="item.name">
+            <a
+              :id="`directory-link-${item.uid}`"
+              :aria-label="`Go to UC Berkeley Directory page of ${item.name}`"
+              :href="`https://www.berkeley.edu/directory/results?search-term=${item.name}`"
+              class="m-0"
+              target="_blank"
+            >
+              {{ item.name }}
+            </a>
+          </div>
+        </template>
+
+        <template #item.departments="{ item }">
+          <div class="row-padding">
+            <div v-for="(department, index) in item.departments" :key="department.code">
+              <span class="green-bold-text text-body-2">{{ department.name }} - {{ department.role }}</span>
+              <div v-if="index !== item.departments.length - 1"></div>
+            </div>
+            <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="gray-text">
+              <span class="bold-text text-body-2">Degree Progress - </span>
+              <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress" class="text-body-2"> read/write</span>
+              <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress" class="text-body-2"> read</span>
+              <span v-if="item.automateDegreeProgressPermission" class="text-body-2"> (automated)</span>
+            </div>
+          </div>
+        </template>
+
+        <template #item.deletedAt="{ item }">
+          <div v-for="(status, index) in getUserStatuses(item)" :key="index">
+            {{ status }}
+          </div>
+        </template>
+
+        <template #item.lastLogin="{ item }">
+          <span :id="`user-last-login-${item.uid}`">
+            <span v-if="item.lastLogin" class="text-body-2">{{ DateTime.fromISO(item.lastLogin).toFormat('DD') }}</span>
+            <!-- <span v-if="item.lastLogin">{{ moment(item.lastLogin).format('MMM D, YYYY') }}</span> -->
+            <span v-if="!item.lastLogin">&mdash;</span>
+          </span>
+        </template>
+
+        <template #item.campusEmail="{ item }">
           <a
-            :id="`directory-link-${item.uid}`"
-            :aria-label="`Go to UC Berkeley Directory page of ${item.name}`"
-            :href="`https://www.berkeley.edu/directory/results?search-term=${item.name}`"
-            class="m-0"
+            :aria-label="`Send email to ${item.name}`"
+            :href="`mailto:${item.campusEmail}`"
             target="_blank"
           >
-            {{ item.name }}
+            <v-icon :icon="mdiEmail"></v-icon>
+            <span class="sr-only"> (will open new browser tab)</span>
           </a>
-        </div>
-      </template>
 
-      <template #item.departments="{ item }">
-        <div v-for="(department, index) in item.departments" :key="department.code">
-          <span class="green-bold-text">{{ department.name }}</span> - {{ department.role }}
-          <div v-if="index !== item.departments.length - 1"></div>
-        </div>
-        <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="gray-text">
-          <span class="bold-text">Degree Progress - </span>
-          <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress"> read/write</span>
-          <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress"> read</span>
-          <span v-if="item.automateDegreeProgressPermission"> (automated)</span>
-        </div>
-      </template>
-
-      <template #item.deletedAt="{ item }">
-        <div v-for="(status, index) in getUserStatuses(item)" :key="index">
-          {{ status }}
-        </div>
-      </template>
-
-      <template #item.lastLogin="{ item }">
-        <span :id="`user-last-login-${item.uid}`">
-          <span v-if="item.lastLogin">{{ DateTime.fromISO(item.lastLogin).toFormat('DD') }}</span>
-          <!-- <span v-if="item.lastLogin">{{ moment(item.lastLogin).format('MMM D, YYYY') }}</span> -->
-          <span v-if="!item.lastLogin">&mdash;</span>
-        </span>
-      </template>
-
-      <template #item.campusEmail="{ item }">
-        <a
-          :aria-label="`Send email to ${item.name}`"
-          :href="`mailto:${item.campusEmail}`"
-          target="_blank"
-        >
-          <v-icon :icon="mdiEmail"></v-icon>
-          <span class="sr-only"> (will open new browser tab)</span>
-        </a>
-
-        <v-btn
-          v-if="canBecome(item)"
-          :id="'become-' + item.uid"
-          variant="plain"
-          @click="become(item.uid)"
-        >
-          <v-icon color="primary" :icon="mdiLoginVariant"></v-icon>
-          <span class="sr-only">Log in as {{ item.name }}</span>
-        </v-btn>
-      </template>
-      <template #bottom></template>
-    </v-data-table-server>
+          <v-btn
+            v-if="canBecome(item)"
+            :id="'become-' + item.uid"
+            variant="plain"
+            @click="become(item.uid)"
+          >
+            <v-icon color="primary" :icon="mdiLoginVariant"></v-icon>
+            <span class="sr-only">Log in as {{ item.name }}</span>
+          </v-btn>
+        </template>
+        <template #bottom></template>
+      </v-data-table-server>
+    </div>
   </div>
 </template>
 
@@ -368,6 +372,9 @@ export default {
         key: 'edit',
         align: 'end',
         sortable: false,
+        headerProps: {
+          class: ['header-text-styling']
+        },
         cellProps: {
           class: 'purple-background'
         },
@@ -560,6 +567,19 @@ export default {
 </script>
 
 <style>
+.on-top-of-table {
+  z-index: 1000;
+  position: relative;
+  top: -17px;
+}
+.table-wrapper {
+  position: relative;
+  top: -44px;
+}
+.quick-links-position {
+  position: relative;
+  top: -16px;
+}
 .color-transparent {
   color: transparent;
 }
@@ -639,7 +659,9 @@ export default {
 }
 .header-text-styling {
   font-weight: 900;
-  font-size: 16px;
+  font-size: 14px;
+  position: relative;
+  top: 16px;
 }
 .custom-select-container {
   display: flex;
@@ -700,10 +722,18 @@ export default {
 }
 
 .v-table tbody tr {
-  padding: 4px 0px;
+  padding: 12px 0px;
 }
 
 .v-data-table__td--expanded-row {
   color: #337ab7;
 }
+
+.row-padding {
+  padding: 12px !important;
+}
+
+:deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
+      height: 40px !important;
+    }
 </style>

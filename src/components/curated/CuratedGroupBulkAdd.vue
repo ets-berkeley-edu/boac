@@ -22,7 +22,7 @@
         <v-textarea
           id="curated-group-bulk-add-sids"
           v-model="textarea"
-          label="Enter SID's here"
+          label="Enter SIDs here"
           variant="outlined"
           :disabled="isValidating || isSaving"
           clearable
