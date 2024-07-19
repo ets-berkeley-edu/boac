@@ -65,14 +65,15 @@
 </template>
 
 <script setup>
+import ProgressButton from '@/components/util/ProgressButton.vue'
+import router from '@/router'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import {alertScreenReader, putFocusNextTick, setPageTitle, studentRoutePath} from '@/lib/utils'
+import {computed, onMounted, ref} from 'vue'
 import {createDegreeCheck, getDegreeTemplates} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
-import {computed, onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {useRoute, useRouter} from 'vue-router'
-import ProgressButton from '@/components/util/ProgressButton.vue'
+import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
@@ -103,7 +104,7 @@ onMounted(() => {
 
 const cancel = () => {
   alertScreenReader('Canceled')
-  useRouter().push(studentRoutePath(student.value.uid, currentUser.inDemoMode))
+  router.push(studentRoutePath(student.value.uid, currentUser.inDemoMode))
 }
 
 const onChangeSelect = option => {
@@ -118,7 +119,7 @@ const onClickSave = () => {
   alertScreenReader('Saving')
   createDegreeCheck(student.value.sid, selectedOption.value.id).then(data => {
     isSaving.value = false
-    useRouter().push(`/student/degree/${data.id}`)
+    router.push(`/student/degree/${data.id}`)
   })
 }
 </script>

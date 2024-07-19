@@ -131,13 +131,14 @@
 import CourseStudents from '@/components/course/CourseStudents'
 import ga from '@/lib/ga'
 import Pagination from '@/components/util/Pagination'
+import router from '@/router'
 import {DateTime} from 'luxon'
 import {computed, onMounted, reactive, ref} from 'vue'
 import {each, orderBy, remove, size, toString, union} from 'lodash'
 import {getSection} from '@/api/course'
 import {mdiAlertRhombus} from '@mdi/js'
 import {pluralize, scrollToTop, setPageTitle} from '@/lib/utils'
-import {useRoute, useRouter} from 'vue-router'
+import {useRoute} from 'vue-router'
 import {useContextStore} from '@/stores/context'
 
 const DEFAULT_ITEMS_PER_PAGE = 50
@@ -187,7 +188,7 @@ onMounted(() => {
 
 const goToPage = page => {
   pagination.currentPage = page
-  useRouter().push({
+  router.push({
     query: {...params, p: pagination.currentPage}
   })
 }

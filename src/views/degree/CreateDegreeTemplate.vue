@@ -11,9 +11,13 @@
         id="create-degree-input"
         v-model="templateName"
         aria-labelledby="create-degree-label"
-        class="w-50"
+        autocomplete="off"
+        class="mt-2 w-50"
         :disabled="isBusy"
+        hide-details
         maxlength="255"
+        variant="outlined"
+        @keydown.enter="create"
       />
       <div class="pl-2">
         <span class="text-grey font-size-12">255 character limit <span v-if="templateName.length">({{ 255 - templateName.length }} left)</span></span>
@@ -21,31 +25,30 @@
           Degree name cannot exceed 255 characters.
         </span>
       </div>
-      <div v-if="error" class="error-message-container mt-2 p-3">
+      <div v-if="error" class="error-container mt-2 p-3">
         <span v-html="error"></span>
       </div>
-      <div class="mt-0">
-        <v-btn
+      <div class="mt-3">
+        <ProgressButton
           id="start-degree-btn"
-          class="h-100 mr-0 mt-3"
+          :action="create"
           color="primary"
           :disabled="isBusy || !!error || !trim(templateName)"
-          @click.prevent="create"
-        >
-          <span v-if="isBusy"><v-progress-circular class="mr-1" size="small" /> Saving</span>
-          <span v-if="!isBusy">Start Degree</span>
-        </v-btn>
+          :in-progress="isBusy"
+          :text="isBusy ? 'Saving' : 'Start Degree'"
+        />
       </div>
     </form>
   </div>
 </template>
 
 <script setup>
+import ProgressButton from '@/components/util/ProgressButton'
+import router from '@/router'
 import {alertScreenReader} from '@/lib/utils'
 import {createDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 import {onMounted, ref, watch} from 'vue'
 import {map, trim} from 'lodash'
-import {useRouter} from 'vue-router'
 
 const error = ref('')
 const isBusy = ref(false)
@@ -56,20 +59,31 @@ watch(templateName, () => error.value = null)
 onMounted(() => alertScreenReader('Create degree template'))
 
 const create = () => {
-  isBusy.value = true
-  getDegreeTemplates().then(data => {
-    const lower = templateName.value.trim().toLowerCase()
-    if (map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
-      alertScreenReader('Creating template')
-      createDegreeTemplate(templateName.value).then(data => {
-        useRouter().push(`/degree/${data.id}`)
+  if (!error.value && trim(templateName.value)) {
+    isBusy.value = true
+    getDegreeTemplates().then(data => {
+      const lower = trim(templateName.value).toLowerCase()
+      if (map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
+        alertScreenReader('Creating template')
+        createDegreeTemplate(trim(templateName.value)).then(data => {
+          router.push(`/degree/${data.id}`).then(() => {
+            isBusy.value = false
+          })
+        })
+      } else {
+        error.value = `A degree named <span class="font-weight-500">${templateName.value}</span> already exists. Please choose a different name.`
+        alertScreenReader(error.value)
         isBusy.value = false
-      })
-    } else {
-      error.value = `A degree named <span class="font-weight-500">${templateName.value}</span> already exists. Please choose a different name.`
-      alertScreenReader(error.value)
-      isBusy.value = false
-    }
-  })
+      }
+    })
+  }
 }
 </script>
+
+<style scoped>
+.error-container {
+  background-color: #efd6d6;
+  border-radius: 4px;
+  color: #9b393a;
+}
+</style>
