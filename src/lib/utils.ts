@@ -1,8 +1,8 @@
-import {concat, head, initial, isNil, isNumber, join, last, noop, trim} from 'lodash'
-import {nextTick} from 'vue'
 import numeral from 'numeral'
-import {useContextStore} from '@/stores/context'
+import {concat, head, initial, isNil, isNumber, join, last, noop, toLower, trim} from 'lodash'
 import {getUserProfile} from '@/api/user'
+import {nextTick} from 'vue'
+import {useContextStore} from '@/stores/context'
 
 export function alertScreenReader(message: string, politeness?: string) {
   useContextStore().setScreenReaderAlert({message: ''})
@@ -39,11 +39,15 @@ export function lastNameFirst(u: {firstName?: string, lastName?: string}) {
   return u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName || '')
 }
 
+export function normalizeId(id: string) {
+  return toLower(id).replace(/\W/g, ' ').trim().replace(/ +/g, '-')
+}
+
 export function numFormat(num, format=null) {
   numeral(num).format(format)
 }
 
-export function oxfordJoin(arr, zeroString) {
+export function oxfordJoin(arr, zeroString?) {
   switch((arr || []).length) {
     case 0: return isNil(zeroString) ? '' : zeroString
     case 1: return head(arr)
