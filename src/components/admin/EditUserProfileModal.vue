@@ -13,8 +13,8 @@
     <v-btn
       v-if="!isExistingUser"
       id="add-new-user-btn"
-      class="pl-2 pr-2 mr-4 text-primary"
-      variant="text"
+      class="pl-4 pr-4 mr-6"
+      color="primary"
       :prepend-icon="mdiPlus"
       @click="openEditUserModal"
     >

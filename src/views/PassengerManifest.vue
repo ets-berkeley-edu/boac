@@ -12,7 +12,7 @@
               Passenger Manifest
             </h1>
           </div>
-          <div class="pt-0">
+          <div class="pt-1">
             <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${config.apiBaseUrl}/api/users/csv`">download</a>)</span>
           </div>
         </div>
