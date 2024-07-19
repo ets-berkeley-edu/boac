@@ -37,6 +37,7 @@ export const useContextStore = defineStore('context', {
     currentUser: {
       canAccessAdmittedStudents: false,
       canAccessAdvisingData: false,
+      canAccessCanvasData: false,
       canEditDegreeProgress: false,
       canReadDegreeProgress: false,
       inDemoMode: false,

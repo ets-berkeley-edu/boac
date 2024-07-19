@@ -48,6 +48,7 @@
 <script setup>
 import {computed} from 'vue'
 import {each, includes} from 'lodash'
+import {normalizeId} from '@/lib/utils'
 
 const props = defineProps({
   filterRowIndex: {
@@ -94,10 +95,6 @@ const optionGroups = computed(() => {
   }
   return value
 })
-
-const normalizeId = id => {
-  return id.toLowerCase().replace(/\W/g, ' ').trim().replace(/ +/g, '-')
-}
 </script>
 
 <style>
