@@ -12,14 +12,14 @@
     </div>
     <div class="align-center d-flex">
       <v-autocomplete
-        id="create-note-add-student"
+        id="create-note-add-student-input"
         :key="vAutocompleteKey"
         aria-describedby="create-note-add-student-desc"
         auto-select-first
         autocomplete="off"
         class="autocomplete-students autocomplete-with-add-button"
         :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
-        density="comfortable"
+        density="compact"
         :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
         :error-messages="autocompleteErrorMessage"
         :hide-details="!size(autocompleteErrorMessage)"
@@ -29,6 +29,7 @@
         :items="autoSuggestedStudents"
         :menu-icon="null"
         type="search"
+        validate-on="submit"
         variant="outlined"
         @click:append="onClickAddButton"
         @click:clear="resetAutocomplete"
@@ -41,6 +42,7 @@
             id="create-note-add-student-add-button"
             class="add-button"
             color="primary"
+            :disabled="!size(query) && !size(sidsManuallyAdded)"
             :prepend-icon="mdiPlus"
             text="Add"
             variant="flat"
@@ -176,20 +178,22 @@ const onClickAddButton = () => {
 }
 
 const onUpdateSearch = input => {
+  query.value = input
   autocompleteErrorMessage.value = undefined
+  autoSuggestedStudents.value = []
   input = trim(input, ' ,\n\t')
   if (input.length) {
     sidsManuallyAdded.value = /^[0-9,\s]*$/.test(input) ? uniq(split(input, /\s+|,+,/)) : []
-    if (!sidsManuallyAdded.value.length) {
-      query.value = input.replace((/\s+|\r\n|\n|\r/gm),' ')
+    if (sidsManuallyAdded.value.length <= 1) {
+      const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
       isUpdatingStudentAutocomplete.value = true
-      if (size(query.value) > 1) {
-        findStudentsByNameOrSid(query.value, 20).then(students => {
+      if (size(search) > 1) {
+        findStudentsByNameOrSid(search, 20).then(students => {
           const existingSids = map(addedStudents.value, 'sid')
           students = filter(students, s => !includes(existingSids, s.sid))
           autoSuggestedStudents.value = map(students, s => ({label: s.label, sid: s.sid}))
           isUpdatingStudentAutocomplete.value = false
-        })
+        }).catch(() => putFocusNextTick('create-note-add-student-input'))
       }
     }
   }
@@ -221,11 +225,6 @@ const removeStudent = student => {
 </style>
 
 <style scoped>
-.add-button {
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 0;
-  height: 48px !important;
-}
 .autocomplete-students {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;

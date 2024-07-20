@@ -8,7 +8,9 @@ const axiosErrorHandler = (error: any, axios: any): void => {
   const errorStatus = get(error, 'response.status')
   const contextStore = useContextStore()
   const currentUser = contextStore.currentUser
-  contextStore.loadingComplete()
+  if (!axios.isCancel(error)) {
+    contextStore.loadingComplete()
+  }
   if (!currentUser.isAuthenticated) {
     router.push({
       path: '/',

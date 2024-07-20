@@ -1,6 +1,21 @@
+.autocomplete-with-add-button .v-input__append,
+.autocomplete-with-add-button .v-input__control,
+.autocomplete-with-add-button .v-field,
+.autocomplete-with-add-button .add-button {
+  height: 48px !important;
+  padding-top: 0 !important;
+}
 .autocomplete-with-add-button .v-field {
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
+}
+.autocomplete-with-add-button .v-field  .v-field__input {
+  margin-bottom: auto !important;
+  margin-top: auto !important;
+}
+.autocomplete-with-add-button .add-button {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
 }
 .border-primary {
   border-color: rgb(var(--v-theme-primary)) !important;
