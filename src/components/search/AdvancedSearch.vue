@@ -78,6 +78,7 @@
 
 <script setup>
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
+import router from '@/router'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
 import {computed, onMounted, onUnmounted} from 'vue'
 import {each, get, noop, trim} from 'lodash'
@@ -131,16 +132,17 @@ const onKeyUp = event => {
 }
 
 const search = () => {
-  const q = trim(this.queryText)
+  const q = trim(searchStore.queryText)
   if (q) {
-    this.$router.push(
+    const domain = searchStore.domain
+    router.push(
       {
         path: '/search',
         query: {
-          admits: this.domain.includes('admits'),
-          courses: this.domain.includes('courses'),
-          notes: this.domain.includes('notes'),
-          students: this.domain.includes('students'),
+          admits: domain.includes('admits'),
+          courses: domain.includes('courses'),
+          notes: domain.includes('notes'),
+          students: domain.includes('students'),
           q
         }
       },
