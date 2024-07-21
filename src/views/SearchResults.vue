@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-sky-blue">
-    <div class="pa-4">
+  <div :class="{'bg-sky-blue': hasSearchResults}">
+    <div class="pa-4" :class="{'bg-sky-blue': !hasSearchResults}">
       <div class="align-center d-flex">
         <div class="mr-2">
           <h1 class="page-section-header">{{ s.isSearching ? 'Searching...' : 'Search Results' }}</h1>
@@ -16,7 +16,7 @@
           />]
         </div>
       </div>
-      <div v-if="!hasSearchResults && !s.isSearching" class="pt-2">
+      <div v-if="!hasSearchResults && !s.isSearching">
         No results found for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>.
       </div>
     </div>
@@ -33,15 +33,15 @@
         {{ describe('note', size(results.notes)) }}{{ completeNoteResults ? '' : '+' }}
         {{ describe('appointment', size(results.appointments)) }}{{ completeAppointmentResults ? '' : '+' }}
       </div>
-      <div v-if="!hasSearchResults" id="page-header-no-results" class="bg-sky-blue mb-4 px-4">
+      <div v-if="!hasSearchResults" id="page-header-no-results" class="my-4 px-5">
         <h3>Suggestions</h3>
-        <ul>
-          <li>Keep your search term simple.</li>
-          <li>Check your spelling and try again.</li>
-          <li>Search classes by section title, e.g., <strong>AMERSTD 10</strong>.</li>
-          <li>Avoid using generic terms, such as <strong>test</strong> or <strong>enrollment</strong>.</li>
-          <li>Longer search terms may refine results; <strong>registration fees</strong> instead of <strong>registration</strong>.</li>
-          <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
+        <ul class="mt-2">
+          <li class="font-size-15 pt-1">Keep your search term simple.</li>
+          <li class="font-size-15 pt-1">Check your spelling and try again.</li>
+          <li class="font-size-15 pt-1">Search classes by section title, e.g., <strong>AMERSTD 10</strong>.</li>
+          <li class="font-size-15 pt-1">Avoid using generic terms, such as <strong>test</strong> or <strong>enrollment</strong>.</li>
+          <li class="font-size-15 pt-1">Longer search terms may refine results; <strong>registration fees</strong> instead of <strong>registration</strong>.</li>
+          <li class="font-size-15 pt-1">Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
         </ul>
       </div>
       <div v-if="results.totalStudentCount || results.totalCourseCount || size(results.appointments) || size(results.notes)">
@@ -208,7 +208,7 @@ import SortableCourses from '@/components/search/SortableCourses'
 import SortableStudents from '@/components/search/SortableStudents'
 import {alertScreenReader, putFocusNextTick, toBoolean, toInt} from '@/lib/utils'
 import {capitalize, concat, each, extend, get, merge, size, trim} from 'lodash'
-import {computed, onMounted, ref} from 'vue'
+import {computed, onMounted, reactive, ref} from 'vue'
 import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
 import {search, searchAdmittedStudents} from '@/api/search'
 import {useContextStore} from '@/stores/context'
@@ -231,16 +231,16 @@ const hasSearchResults = computed(() => {
 const loading = computed(() => contextStore.loading)
 const loadingAdditionalAppointments = ref(false)
 const loadingAdditionalNotes = ref(false)
-const noteAndAppointmentOptions = {
+const noteAndAppointmentOptions = reactive({
   advisorCsid: undefined,
   advisorUid: undefined,
   studentCsid: undefined,
   topic: undefined,
   dateFrom: undefined,
   dateTo: undefined,
-}
-const noteOptions = {limit: 20, offset: 0}
-const results = {
+})
+const noteOptions = reactive({limit: 20, offset: 0})
+const results = reactive({
   admits: [],
   appointments: [],
   courses: [],
@@ -248,7 +248,7 @@ const results = {
   students: [],
   totalCourseCount: null,
   totalStudentCount: null
-}
+})
 const searchPhraseSubmitted = ref(undefined)
 const tab = ref(undefined)
 const tabs = computed(() => {

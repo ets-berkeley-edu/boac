@@ -1,10 +1,11 @@
 <template>
   <v-data-table-virtual
-    :cell-props="{
+    :cell-props="data => ({
       class: 'pl-0 vertical-top',
+      id: `td-term-${data.item.termId}-section-${data.item.sectionId}-section-${data.item.sectionNum}-column-${data.column.key}`,
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
-    }"
-    density="comfortable"
+    })"
+    density="compact"
     :header-props="{class: 'pl-0'}"
     :headers="[
       {key: 'section', sortable: false, title: 'Section', width: '220px'},
@@ -14,6 +15,9 @@
     :items="items"
     mobile-breakpoint="md"
     no-sort-reset
+    :row-props="data => ({
+      id: `tr-term-${data.item.termId}-section-${data.item.sectionId}-section-${data.item.sectionNum}`
+    })"
   >
     <template #item.section="{item}">
       <span class="sr-only">Section</span>
@@ -26,12 +30,11 @@
       {{ item.courseTitle }}
     </template>
     <template #item.instructors="{item}">
-      <span v-if="item.instructors.length">
+      <span v-if="size(item.instructors)">
         {{ item.instructors }}
       </span>
-      {{ item.instructors.length }}
-      <span v-if="!item.instructors.length">
-        &mdash;xxx
+      <span v-if="!size(item.instructors)">
+        &mdash;
       </span>
     </template>
   </v-data-table-virtual>
@@ -40,6 +43,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {size} from 'lodash'
 
 export default {
   name: 'SortableCourses',
@@ -57,6 +61,7 @@ export default {
     this.items = this.courses.sort(this.courseComparator) // eslint-disable-line vue/no-mutating-props
   },
   methods: {
+    size,
     courseComparator(c1, c2) {
       // If sorting by section name, attempt to compare by subject area.
       let split1 = this.splitCourseName(c1)
