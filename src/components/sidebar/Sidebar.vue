@@ -157,72 +157,28 @@
         </router-link>
       </div>
     </v-list-item>
-    <v-list-item
-      v-if="currentUser.canAccessAdvisingData"
-      class="batch-note-button px-3 py-0 w-100"
-      :class="{'z-index-0': !loading, 'fixed-bottom-sidebar': $vuetify.display.mdAndUp}"
-    >
-      <LinkToDraftNotes :class="{'mb-4': currentUser.isAdmin, 'mt-4': !$vuetify.display.mdAndUp}" />
-      <v-btn
-        v-if="!currentUser.isAdmin"
-        id="batch-note-button"
-        class="mb-5 mt-3 w-100"
-        color="primary"
-        :disabled="!!useNoteStore().mode"
-        variant="flat"
-        @click="isCreateNoteModalOpen = true"
-      >
-        <v-icon class="mr-1" :icon="mdiFileDocument" />
-        New Note
-      </v-btn>
-      <EditBatchNoteModal
-        v-model="isCreateNoteModalOpen"
-        initial-mode="createBatch"
-        :on-close="() => {
-          isCreateNoteModalOpen = false
-          putFocusNextTick('batch-note-button')
-        }"
-        :toggle-show="show => isCreateNoteModalOpen = show"
-      />
-    </v-list-item>
   </v-list>
 </template>
 
 <script lang="ts" setup>
-import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
-import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes.vue'
-import NavLink from '@/components/util/NavLink'
+import NavLink from '@/components/util/NavLink.vue'
 import {capitalize} from 'lodash'
-import {computed, ref} from 'vue'
+import {computed} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {filter} from 'lodash'
-import {mdiFileDocument, mdiPlus} from '@mdi/js'
+import {mdiPlus} from '@mdi/js'
 import {pluralize} from '@/lib/utils'
-import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useNoteStore} from '@/stores/note-edit-session'
 
 const extract = (domain: string, objects: any[]) => filter(objects, ['domain', domain])
 const currentUser = useContextStore().currentUser
-const loading = computed(() => useContextStore().loading)
 const myAdmitCohorts = computed(() => extract('admitted_students', currentUser.myCohorts))
 const myAdmitCuratedGroups = computed(() => extract('admitted_students', currentUser.myCuratedGroups))
 const myCohorts = computed(() => extract('default', currentUser.myCohorts))
 const myCuratedGroups = computed(() => extract('default', currentUser.myCuratedGroups))
-const isCreateNoteModalOpen = ref(false)
 </script>
 
 <style scoped>
-.batch-note-button {
-  background-color: rgb(18, 80, 116);
-  padding-top: 10px;
-  width: 16.6%;
-}
-.fixed-bottom-sidebar {
-  bottom: 0;
-  position: fixed;
-  z-index: 2;
-}
 .pretty-hover {
   border-left: 6px solid transparent;
   padding: 0 8px 0 6px;
