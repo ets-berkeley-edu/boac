@@ -1,15 +1,20 @@
 <template>
   <v-data-table-virtual
     id="responsive-data-table"
-    :cell-props="{
+    :cell-props="data => ({
       class: 'pl-0 vertical-top',
+      id: `td-student-${data.item.sid}-column-${data.column.key}`,
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
-    }"
+    })"
+    density="compact"
     :headers="headers"
     :header-props="{class: 'pl-0'}"
     :items="items"
     mobile-breakpoint="md"
     must-sort
+    :row-props="data => ({
+      id: `tr-student-${data.item.sid}`
+    })"
     @update:sort-by="onUpdateSortBy"
   >
     <template #header.avatar="{column}">

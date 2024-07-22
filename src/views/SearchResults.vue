@@ -1,14 +1,14 @@
 <template>
-  <div class="bg-sky-blue">
-    <div class="pa-4">
+  <div :class="{'bg-sky-blue': hasSearchResults}">
+    <div class="pa-4" :class="{'bg-sky-blue': !hasSearchResults}">
       <div class="align-center d-flex">
         <div class="mr-2">
-          <h1 class="mb-0 page-section-header">{{ isSearching ? 'Searching...' : 'Search Results' }}</h1>
+          <h1 class="page-section-header">{{ s.isSearching ? 'Searching...' : 'Search Results' }}</h1>
         </div>
-        <div v-if="!loading && isDirty" class="pb-1">
+        <div v-if="!loading && s.isDirty" class="pb-1">
           [<v-btn
             id="edit-search-btn"
-            class="mb-1 px-0"
+            class="px-0"
             color="primary"
             text="edit search"
             variant="text"
@@ -16,11 +16,11 @@
           />]
         </div>
       </div>
-      <div v-if="!hasSearchResults && !isSearching" class="pt-2">
+      <div v-if="!hasSearchResults && !s.isSearching">
         No results found for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>.
       </div>
     </div>
-    <div v-if="!loading && !isSearching">
+    <div v-if="!loading && !s.isSearching">
       <div
         v-if="hasSearchResults"
         aria-live="polite"
@@ -30,21 +30,21 @@
         Search results include {{ describe('Admits', results.totalAdmitCount) }}
         {{ describe('student', results.totalStudentCount) }}
         {{ describe('course', results.totalCourseCount) }}
-        {{ describe('note', _size(results.notes)) }}{{ completeNoteResults ? '' : '+' }}
-        {{ describe('appointment', _size(results.appointments)) }}{{ completeAppointmentResults ? '' : '+' }}
+        {{ describe('note', size(results.notes)) }}{{ completeNoteResults ? '' : '+' }}
+        {{ describe('appointment', size(results.appointments)) }}{{ completeAppointmentResults ? '' : '+' }}
       </div>
-      <div v-if="!hasSearchResults" id="page-header-no-results" class="bg-white pt-4 px-4">
+      <div v-if="!hasSearchResults" id="page-header-no-results" class="my-4 px-5">
         <h3>Suggestions</h3>
-        <ul>
-          <li>Keep your search term simple.</li>
-          <li>Check your spelling and try again.</li>
-          <li>Search classes by section title, e.g., <strong>AMERSTD 10</strong>.</li>
-          <li>Avoid using generic terms, such as <strong>test</strong> or <strong>enrollment</strong>.</li>
-          <li>Longer search terms may refine results; <strong>registration fees</strong> instead of <strong>registration</strong>.</li>
-          <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
+        <ul class="mt-2">
+          <li class="font-size-15 pt-1">Keep your search term simple.</li>
+          <li class="font-size-15 pt-1">Check your spelling and try again.</li>
+          <li class="font-size-15 pt-1">Search classes by section title, e.g., <strong>AMERSTD 10</strong>.</li>
+          <li class="font-size-15 pt-1">Avoid using generic terms, such as <strong>test</strong> or <strong>enrollment</strong>.</li>
+          <li class="font-size-15 pt-1">Longer search terms may refine results; <strong>registration fees</strong> instead of <strong>registration</strong>.</li>
+          <li class="font-size-15 pt-1">Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
         </ul>
       </div>
-      <div v-if="results.totalStudentCount || results.totalCourseCount || _size(results.appointments) || _size(results.notes)">
+      <div v-if="results.totalStudentCount || results.totalCourseCount || size(results.appointments) || size(results.notes)">
         <v-tabs
           v-model="tab"
           density="comfortable"
@@ -87,12 +87,12 @@
               <div v-if="item.key === 'student'">
                 <SearchResultsHeader
                   class="mb-2 mt-4"
-                  :count-in-view="_size(results.students)"
+                  :count-in-view="size(results.students)"
                   :count-total="results.totalStudentCount"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
                 />
-                <div v-if="_size(results.students)" class="mt-1">
+                <div v-if="size(results.students)" class="mt-1">
                   <CuratedGroupSelector
                     context-description="Search"
                     domain="default"
@@ -107,11 +107,11 @@
               </div>
               <div v-if="item.key === 'admit'">
                 <div v-if="results.totalAdmitCount" class="mt-3">
-                  <AdmitDataWarning :updated-at="_get(results.admits, '[0].updatedAt')" />
+                  <AdmitDataWarning :updated-at="get(results.admits, '[0].updatedAt')" />
                 </div>
                 <SearchResultsHeader
                   class="mb-2 mt-4"
-                  :count-in-view="_size(results.admits)"
+                  :count-in-view="size(results.admits)"
                   :count-total="results.totalAdmitCount"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
@@ -130,21 +130,21 @@
               <div v-if="item.key === 'course'">
                 <div class="mb-4 mt-3">
                   <SearchResultsHeader
-                    :count-in-view="_size(results.courses)"
+                    :count-in-view="size(results.courses)"
                     :count-total="results.totalCourseCount"
                     :results-type="item.key"
                     :search-phrase="searchPhraseSubmitted"
                   />
                 </div>
                 <SortableCourses
-                  v-if="_size(results.courses)"
+                  v-if="size(results.courses)"
                   :courses="results.courses"
                 />
               </div>
               <div v-if="item.key === 'note'">
                 <SearchResultsHeader
                   class="mb-2 mt-4"
-                  :count-in-view="`${_size(results.notes)}${completeNoteResults ? '' : '+'}`"
+                  :count-in-view="`${size(results.notes)}${completeNoteResults ? '' : '+'}`"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
                 />
@@ -167,7 +167,7 @@
               <div v-if="item.key === 'appointment'">
                 <SearchResultsHeader
                   class="mb-2 mt-4"
-                  :count-in-view="`${_size(results.appointments)}${completeAppointmentResults ? '' : '+'}`"
+                  :count-in-view="`${size(results.appointments)}${completeAppointmentResults ? '' : '+'}`"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
                 />
@@ -195,224 +195,208 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
 import AppointmentSnippet from '@/components/search/AppointmentSnippet'
-import Context from '@/mixins/Context'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
+import router from '@/router'
 import SearchResultsHeader from '@/components/search/SearchResultsHeader'
-import SearchSession from '@/mixins/SearchSession'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortableAdmits from '@/components/admit/SortableAdmits'
 import SortableCourses from '@/components/search/SortableCourses'
 import SortableStudents from '@/components/search/SortableStudents'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toBoolean, toInt} from '@/lib/utils'
+import {capitalize, concat, each, extend, get, merge, size, trim} from 'lodash'
+import {computed, onMounted, reactive, ref} from 'vue'
 import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
 import {search, searchAdmittedStudents} from '@/api/search'
+import {useContextStore} from '@/stores/context'
+import {useRoute} from 'vue-router'
+import {useSearchStore} from '@/stores/search'
 
-export default {
-  name: 'SearchResults',
-  components: {
-    AdmitDataWarning,
-    AdvisingNoteSnippet,
-    AppointmentSnippet,
-    CuratedGroupSelector,
-    SortableStudents,
-    SearchResultsHeader,
-    SectionSpinner,
-    SortableAdmits,
-    SortableCourses
-  },
-  mixins: [Context, SearchSession, Util],
-  data: () => ({
-    appointmentOptions: {
-      limit: 20,
-      offset: 0
-    },
-    loadingAdditionalAppointments: undefined,
-    loadingAdditionalNotes: undefined,
-    noteAndAppointmentOptions: {
-      advisorCsid: undefined,
-      advisorUid: undefined,
-      studentCsid: undefined,
-      topic: undefined,
-      dateFrom: undefined,
-      dateTo: undefined,
-    },
-    noteOptions: {
-      limit: 20,
-      offset: 0
-    },
-    results: {
-      admits: [],
-      appointments: [],
-      courses: [],
-      notes: [],
-      students: [],
-      totalCourseCount: null,
-      totalStudentCount: null
-    },
-    searchPhraseSubmitted: undefined,
-    tab: undefined
-  }),
-  computed: {
-    completeAppointmentResults() {
-      return this._size(this.results.appointments) < this.appointmentOptions.limit + this.appointmentOptions.offset
-    },
-    completeNoteResults() {
-      return this._size(this.results.notes) < this.noteOptions.limit + this.noteOptions.offset
-    },
-    tabs() {
-      const tabs = []
-      const push = (key, count, included, icon) => {
-        if (included) {
-          tabs.push({count, icon, key})
-        }
-      }
-      push('student', this.results.totalStudentCount || 0, this.includeStudents, mdiAccountSchool)
-      push('admit', this.results.totalAdmitCount || 0, this.includeAdmits, mdiHumanGreeting)
-      push('course', this.results.totalCourseCount || 0, this.includeCourses, mdiHumanMaleBoardPoll)
-      push('note', this._size(this.results.notes), this.includeNotes, mdiNoteEditOutline)
-      push('appointment', this._size(this.results.appointments), this.includeNotes, mdiCalendarCheck)
-      return tabs
-    },
-    hasSearchResults() {
-      return !!(this.results.totalStudentCount
-        || this.results.totalCourseCount
-        || this.results.totalAdmitCount
-        || this._size(this.results.notes)
-        || this._size(this.results.appointments))
-    }
-  },
-  mounted() {
-    this.loadingStart()
-    // Update 'queryText' in Vuex store per 'q' arg. If arg is null then preserve existing 'queryText' value.
-    this.queryText = this.$route.query.q || this.queryText
-    // Take a snapshot of the submitted search phrase. The 'queryText' value (in store) may change.
-    this.searchPhraseSubmitted = this.queryText
-    this.includeAdmits = this.toBoolean(this.$route.query.admits)
-    this.includeCourses = this.toBoolean(this.$route.query.courses)
-    this.includeNotesAndAppointments = this.toBoolean(this.$route.query.notes)
-    this.includeStudents = this.toBoolean(this.$route.query.students)
-    if (this.includeNotesAndAppointments) {
-      this.noteAndAppointmentOptions.advisorCsid = this.$route.query.advisorCsid
-      this.noteAndAppointmentOptions.advisorUid = this.$route.query.advisorUid
-      this.noteAndAppointmentOptions.studentCsid = this.$route.query.studentCsid
-      this.noteAndAppointmentOptions.topic = this.$route.query.noteTopic
-      this.noteAndAppointmentOptions.dateFrom = this.$route.query.noteDateFrom
-      this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo
-    }
-    if (this.queryText || this.includeNotesAndAppointments) {
-      this.isSearching = true
-      alertScreenReader(`Searching for '${this.queryText}'`)
-      let queries = []
-      if (this.includeCourses || this.includeNotesAndAppointments || this.includeStudents) {
-        queries.push(
-          search(
-            this.queryText,
-            this.includeNotesAndAppointments,
-            this.includeCourses,
-            this.includeNotesAndAppointments,
-            this.includeStudents,
-            this._extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
-            this._extend({}, this.noteAndAppointmentOptions, this.noteOptions)
-          )
-        )
-      }
-      if (this.includeAdmits && this._trim(this.queryText)) {
-        queries.push(searchAdmittedStudents(this.queryText))
-      }
-      Promise.all(queries).then(responses => {
-        this._each(responses, (response) => this._merge(this.results, response))
-        this._each(this.results.students, student => {
-          student.alertCount = student.alertCount || 0
-          student.term = student.term || {}
-          student.term.enrolledUnits = student.term.enrolledUnits || 0
-        })
-      })
-        .then(() => {
-          this.loadingComplete()
-          const totalCount = this.toInt(this.results.totalCourseCount, 0) + this.toInt(this.results.totalStudentCount, 0)
-          const focusId = totalCount ? 'page-header' : 'page-header-no-results'
-          this.putFocusNextTick(focusId)
-        }).finally(() => {
-          this.isSearching = false
-        })
-    } else {
-      this.$router.push({path: '/'}, this._noop)
-    }
-  },
-  methods: {
-    getTabLabel(item) {
-      const admitCount = this._size(this.results.admits)
-      const courseCount = this._size(this.results.courses)
-      const studentCount = this._size(this.results.students)
-      let label
-      switch (item.key) {
-      case 'admit':
-        label = `${admitCount}${!admitCount || admitCount === this.results.totalAdmitCount ? '' : '+' }`
-        break
-      case 'appointment':
-        label = `${item.count}${this.completeAppointmentResults ? '' : '+'}`
-        break
-      case 'course':
-        label = `${courseCount}${!courseCount || courseCount === this.results.totalCourseCount ? '' : '+' }`
-        break
-      case 'note':
-        label = `${item.count}${this.completeNoteResults ? '' : '+'}`
-        break
-      case 'student':
-        label = `${studentCount}${!studentCount || studentCount === this.results.totalStudentCount ? '' : '+' }`
-        break
-      }
-      return label
-    },
-    describe(noun, count) {
-      return count > 0 ? `${count} ${this._capitalize(noun)}${count === 1 ? '' : 's'}, ` : ''
-    },
-    fetchMoreAppointments() {
-      this.appointmentOptions.offset = this.appointmentOptions.offset + this.appointmentOptions.limit
-      this.appointmentOptions.limit = 20
-      this.loadingAdditionalAppointments = true
-      search(
-        this.queryText,
-        true,
-        false,
-        false,
-        false,
-        this._extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
-        null
-      )
-        .then(data => {
-          this.results.appointments = this._concat(this.results.appointments, data.appointments)
-          this.loadingAdditionalAppointments = false
-        })
-    },
-    fetchMoreNotes() {
-      this.noteOptions.offset = this.noteOptions.offset + this.noteOptions.limit
-      this.noteOptions.limit = 20
-      this.loadingAdditionalNotes = true
-      search(
-        this.queryText,
-        false,
-        false,
-        true,
-        false,
-        null,
-        this._extend({}, this.noteAndAppointmentOptions, this.noteOptions)
-      )
-        .then(data => {
-          this.results.notes = this._concat(this.results.notes, data.notes)
-          this.loadingAdditionalNotes = false
-        })
-    },
-    openAdvancedSearch() {
-      this.showAdvancedSearch = true
-      alertScreenReader('Advanced search is open')
+const contextStore = useContextStore()
+const s = useSearchStore()
+
+const appointmentOptions = {limit: 20, offset: 0}
+const completeAppointmentResults = computed(() => {
+  return size(results.appointments) < appointmentOptions.limit + appointmentOptions.offset
+})
+const completeNoteResults = computed(() => {
+  return size(results.notes) < noteOptions.limit + noteOptions.offset
+})
+const hasSearchResults = computed(() => {
+  return !!(results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments))
+})
+const loading = computed(() => contextStore.loading)
+const loadingAdditionalAppointments = ref(false)
+const loadingAdditionalNotes = ref(false)
+const noteAndAppointmentOptions = reactive({
+  advisorCsid: undefined,
+  advisorUid: undefined,
+  studentCsid: undefined,
+  topic: undefined,
+  dateFrom: undefined,
+  dateTo: undefined,
+})
+const noteOptions = reactive({limit: 20, offset: 0})
+const results = reactive({
+  admits: [],
+  appointments: [],
+  courses: [],
+  notes: [],
+  students: [],
+  totalCourseCount: null,
+  totalStudentCount: null
+})
+const searchPhraseSubmitted = ref(undefined)
+const tab = ref(undefined)
+const tabs = computed(() => {
+  const tabs = []
+  const push = (key, count, included, icon) => {
+    if (included) {
+      tabs.push({count, icon, key})
     }
   }
+  push('student', results.totalStudentCount || 0, s.includeStudents, mdiAccountSchool)
+  push('admit', results.totalAdmitCount || 0, s.includeAdmits, mdiHumanGreeting)
+  push('course', results.totalCourseCount || 0, s.includeCourses, mdiHumanMaleBoardPoll)
+  push('note', size(results.notes), s.includeNotes, mdiNoteEditOutline)
+  push('appointment', size(results.appointments), s.includeNotes, mdiCalendarCheck)
+  return tabs
+})
+
+contextStore.loadingStart()
+
+onMounted(() => {
+  // Update 'queryText' in Vuex store per 'q' arg. If arg is null then preserve existing 'queryText' value.
+  const route = useRoute()
+  s.setQueryText(route.query.q || s.queryText)
+  // Take a snapshot of the submitted search phrase. The 'queryText' value (in store) may change.
+  searchPhraseSubmitted.value = s.queryText
+  s.setIncludeAdmits(toBoolean(route.query.admits))
+  s.setIncludeCourses(toBoolean(route.query.courses))
+  s.setIncludeStudents(toBoolean(route.query.students))
+  const includeNotesAndAppointments = toBoolean(route.query.notes)
+  if (includeNotesAndAppointments) {
+    noteAndAppointmentOptions.advisorCsid = route.query.advisorCsid
+    noteAndAppointmentOptions.advisorUid = route.query.advisorUid
+    noteAndAppointmentOptions.studentCsid = route.query.studentCsid
+    noteAndAppointmentOptions.topic = route.query.noteTopic
+    noteAndAppointmentOptions.dateFrom = route.query.noteDateFrom
+    noteAndAppointmentOptions.dateTo = route.query.noteDateTo
+  }
+  if (s.queryText || includeNotesAndAppointments) {
+    s.setIsSearching(true)
+    alertScreenReader(`Searching for '${s.queryText}'`)
+    const queries = []
+    if (s.includeCourses || includeNotesAndAppointments || s.includeStudents) {
+      queries.push(
+        search(
+          s.queryText,
+          includeNotesAndAppointments,
+          s.includeCourses,
+          includeNotesAndAppointments,
+          s.includeStudents,
+          extend({}, noteAndAppointmentOptions, appointmentOptions),
+          extend({}, noteAndAppointmentOptions, noteOptions)
+        )
+      )
+    }
+    if (s.includeAdmits && trim(s.queryText)) {
+      queries.push(searchAdmittedStudents(s.queryText))
+    }
+    Promise.all(queries).then(responses => {
+      each(responses, (response) => merge(results, response))
+      each(results.students, student => {
+        student.alertCount = student.alertCount || 0
+        student.term = student.term || {}
+        student.term.enrolledUnits = student.term.enrolledUnits || 0
+      })
+    })
+      .then(() => {
+        contextStore.loadingComplete()
+        const totalCount = toInt(results.totalCourseCount, 0) + toInt(results.totalStudentCount, 0)
+        const focusId = totalCount ? 'page-header' : 'page-header-no-results'
+        putFocusNextTick(focusId)
+      }).finally(() => {
+        s.setIsSearching(false)
+      })
+  } else {
+    router.push({path: '/'})
+  }
+})
+
+const getTabLabel = item => {
+  const admitCount = size(results.admits)
+  const courseCount = size(results.courses)
+  const studentCount = size(results.students)
+  let label
+  switch (item.key) {
+  case 'admit':
+    label = `${admitCount}${!admitCount || admitCount === results.totalAdmitCount ? '' : '+' }`
+    break
+  case 'appointment':
+    label = `${item.count}${completeAppointmentResults.value ? '' : '+'}`
+    break
+  case 'course':
+    label = `${courseCount}${!courseCount || courseCount === results.totalCourseCount ? '' : '+' }`
+    break
+  case 'note':
+    label = `${item.count}${completeNoteResults.value ? '' : '+'}`
+    break
+  case 'student':
+    label = `${studentCount}${!studentCount || studentCount === results.totalStudentCount ? '' : '+' }`
+    break
+  }
+  return label
+}
+
+const describe = (noun, count) => {
+  return count > 0 ? `${count} ${capitalize(noun)}${count === 1 ? '' : 's'}, ` : ''
+}
+
+const fetchMoreAppointments = () => {
+  appointmentOptions.offset = appointmentOptions.offset + appointmentOptions.limit
+  appointmentOptions.limit = 20
+  loadingAdditionalAppointments.value = true
+  search(
+    s.queryText,
+    true,
+    false,
+    false,
+    false,
+    extend({}, noteAndAppointmentOptions, appointmentOptions),
+    null
+  )
+    .then(data => {
+      results.appointments = concat(results.appointments, data.appointments)
+      loadingAdditionalAppointments.value = false
+    })
+}
+
+const fetchMoreNotes = () => {
+  noteOptions.offset = noteOptions.offset + noteOptions.limit
+  noteOptions.limit = 20
+  loadingAdditionalNotes.value = true
+  search(
+    s.queryText,
+    false,
+    false,
+    true,
+    false,
+    null,
+    extend({}, noteAndAppointmentOptions, noteOptions)
+  )
+    .then(data => {
+      results.notes = concat(results.notes, data.notes)
+      loadingAdditionalNotes.value = false
+    })
+}
+
+const openAdvancedSearch = () => {
+  s.setShowAdvancedSearch(true)
+  alertScreenReader('Advanced search is open')
 }
 </script>
 
