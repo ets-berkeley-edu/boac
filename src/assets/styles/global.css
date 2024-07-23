@@ -382,7 +382,7 @@ table thead {
 }
 
 @media screen and (max-width: 600px) {
-  #responsive-data-table.v-data-table {
+  .responsive-data-table.v-data-table {
     thead {
       border: none;
       clip: rect(0 0 0 0);

@@ -1,11 +1,11 @@
 <template>
   <v-data-table-virtual
-    id="responsive-data-table"
     :cell-props="data => ({
       class: 'pl-0 vertical-top',
       id: `td-student-${data.item.sid}-column-${data.column.key}`,
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     })"
+    class="responsive-data-table"
     density="compact"
     :headers="headers"
     :header-props="{class: 'pl-0'}"

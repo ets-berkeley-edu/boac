@@ -264,7 +264,6 @@ import {isNil, trim} from 'lodash'
 import {labelForSearchInput} from '@/lib/search'
 import {mdiTune} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
 import {useSearchStore} from '@/stores/search'
 
 const searchStore = useSearchStore()
@@ -324,7 +323,7 @@ const openAdvancedSearch = () => {
 }
 
 const reset = force => {
-  if (force || !useRoute().path.startsWith('/search')) {
+  if (force || !window.location.pathname.startsWith('/search')) {
     searchStore.setQueryText('')
     searchStore.resetAdvancedSearch()
   }
