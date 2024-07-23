@@ -2,7 +2,7 @@
   <v-fade-transition>
     <div class="vh-100">
       <a id="skip-to-content-link" href="#content" class="sr-only">Skip to main content</a>
-      <v-layout>
+      <v-layout class="h-100">
         <v-app-bar
           color="primary"
           elevation="0"
@@ -49,7 +49,7 @@
           <Sidebar />
         </v-navigation-drawer>
         <v-main id="content">
-          <div :class="{'align-center d-flex justify-center': loading}">
+          <div class="h-100" :class="{'align-center d-flex justify-center': loading}">
             <PlaneGoRound v-if="loading" />
             <div v-show="!loading" class="h-100 w-100">
               <ServiceAnnouncement />
