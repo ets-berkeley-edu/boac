@@ -246,11 +246,11 @@ const discardRequested = () => {
       disableFocusLock()
     }
   } else {
-    const unsavedChanges = trim(model.subject)
-      || stripHtmlAndTrim(model.value.body)
+    const unsavedChanges = !!trim(model.value.subject)
+      || !!stripHtmlAndTrim(model.value.body)
       || size(model.value.topics)
       || size(model.value.attachments)
-      || completeSidSet.value.length
+      || completeSidSet.value.size
     if (unsavedChanges) {
       showDiscardNoteModal.value = true
       disableFocusLock()
