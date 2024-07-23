@@ -257,6 +257,9 @@ BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS = {
     'DACED': {
         'program': 'UCED',
     },
+    'DSDDO': {
+        'program': 'UCDSS',
+    },
     'MANRD': {
         'program': 'UCNR',
     },
