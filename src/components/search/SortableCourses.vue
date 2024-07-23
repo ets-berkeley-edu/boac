@@ -2,9 +2,10 @@
   <v-data-table-virtual
     :cell-props="data => ({
       class: 'pl-0 vertical-top',
-      id: `td-term-${data.item.termId}-section-${data.item.sectionId}-section-${data.item.sectionNum}-column-${data.column.key}`,
+      id: `td-term-${data.item.termId}-section-${data.item.sectionId}-column-${data.column.key}`,
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     })"
+    class="responsive-data-table"
     density="compact"
     :header-props="{class: 'pl-0'}"
     :headers="[
@@ -16,7 +17,7 @@
     mobile-breakpoint="md"
     no-sort-reset
     :row-props="data => ({
-      id: `tr-term-${data.item.termId}-section-${data.item.sectionId}-section-${data.item.sectionNum}`
+      id: `tr-term-${data.item.termId}-section-${data.item.sectionId}`
     })"
   >
     <template #item.section="{item}">

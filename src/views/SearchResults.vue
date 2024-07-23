@@ -44,7 +44,7 @@
           <li class="font-size-15 pt-1">Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
         </ul>
       </div>
-      <div v-if="results.totalStudentCount || results.totalCourseCount || size(results.appointments) || size(results.notes)">
+      <div v-if="results.totalAdmitCount || results.totalStudentCount || results.totalCourseCount || size(results.appointments) || size(results.notes)">
         <v-tabs
           v-model="tab"
           density="comfortable"
@@ -106,11 +106,11 @@
                 </div>
               </div>
               <div v-if="item.key === 'admit'">
-                <div v-if="results.totalAdmitCount" class="mt-3">
+                <div v-if="results.totalAdmitCount" class="mt-5">
                   <AdmitDataWarning :updated-at="get(results.admits, '[0].updatedAt')" />
                 </div>
                 <SearchResultsHeader
-                  class="mb-2 mt-4"
+                  class="my-3"
                   :count-in-view="size(results.admits)"
                   :count-total="results.totalAdmitCount"
                   :results-type="item.key"
@@ -246,8 +246,9 @@ const results = reactive({
   courses: [],
   notes: [],
   students: [],
-  totalCourseCount: null,
-  totalStudentCount: null
+  totalAdmitCount: undefined,
+  totalCourseCount: undefined,
+  totalStudentCount: undefined
 })
 const searchPhraseSubmitted = ref(undefined)
 const tab = ref(undefined)

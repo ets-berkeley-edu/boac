@@ -1,12 +1,12 @@
 <template>
   <div class="d-flex justify-space-around">
     <v-menu
-      id="header-dropdown-under-name"
       transition="slide-y-transition"
       variant="link"
     >
       <template #activator="{ props }">
         <v-btn
+          id="header-dropdown-under-name"
           class="menu-activator-btn text-body-1"
           color="white"
           size="large"

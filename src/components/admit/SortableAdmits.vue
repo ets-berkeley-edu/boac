@@ -1,21 +1,26 @@
 <template>
   <v-data-table-virtual
-    :cell-props="{
-      class: 'pl-0 vertical-top',
+    :cell-props="data => ({
+      class: 'pl-0',
+      id: `td-admit-${data.item.csEmplId}-column-${data.column.key}`,
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
-    }"
+    })"
+    class="responsive-data-table"
+    density="compact"
     :header-props="{class: 'pl-0 text-no-wrap'}"
     :headers="headers"
     :items="admittedStudents"
     mobile-breakpoint="md"
     no-sort-reset
+    :row-props="data => ({
+      id: `tr-admit-${data.item.csEmplId}`
+    })"
     :sort-by="[sortBy]"
     :sort-compare="sortCompare"
     :sort-desc="sortDescending"
   >
     <template #item.curated="{item}">
       <CuratedStudentCheckbox
-        class="mb-4"
         domain="admitted_students"
         :student="item"
       />
