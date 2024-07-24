@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container class="pl-0 pr-6" fluid>
+    <v-container class="pb-0 pl-0 pr-6" fluid>
       <v-row align-v="center" class="pt-2" no-gutters>
         <v-col cols="3">
           <div class="mr-3">
@@ -162,9 +162,13 @@
       <v-data-table-server
         v-model:expanded="expanded"
         v-model:items-per-page="itemsPerPage"
-        :cell-props="data => ({
-          id: normalizeId(`td-user-${data.item.uid}-column-${data.column.key}`)
-        })"
+        :cell-props="data => {
+          const padding = ['becomeUser', 'data-table-expand', 'edit'].includes(data.column.key) ? 'px-0' : ''
+          return {
+            class: `${padding}`,
+            id: normalizeId(`td-user-${data.item.uid}-column-${data.column.key}`)
+          }
+        }"
         :headers="tableHeaders"
         :header-props="{class: 'font-size-14 pt-5 text-no-wrap'}"
         :hide-default-footer="true"
@@ -176,9 +180,13 @@
         disable-pagination
         item-value="uid"
         loading-text="Fetching users..."
-        :row-props="data => ({
-          id: `tr-user-${data.item.uid}`
-        })"
+        :row-props="data => {
+          const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
+          return {
+            class: `${bgColor}`,
+            id: `tr-user-${data.item.uid}`
+          }
+        }"
         show-expand
         @update:sort-by="handleSort"
         @update:sort-desc="handleSort"
@@ -242,30 +250,33 @@
         <template #item.lastLogin="{ item }">
           <span :id="`user-last-login-${item.uid}`">
             <span v-if="item.lastLogin" class="text-body-2">{{ DateTime.fromISO(item.lastLogin).toFormat('DD') }}</span>
-            <!-- <span v-if="item.lastLogin">{{ moment(item.lastLogin).format('MMM D, YYYY') }}</span> -->
             <span v-if="!item.lastLogin">&mdash;</span>
           </span>
         </template>
 
         <template #item.campusEmail="{ item }">
-          <a
-            :aria-label="`Send email to ${item.name}`"
-            :href="`mailto:${item.campusEmail}`"
-            target="_blank"
-          >
-            <v-icon :icon="mdiEmail"></v-icon>
-            <span class="sr-only"> (will open new browser tab)</span>
-          </a>
-
+          <div class="text-center">
+            <a
+              :aria-label="`Send email to ${item.name}`"
+              :href="`mailto:${item.campusEmail}`"
+              target="_blank"
+            >
+              <v-icon :icon="mdiEmail"></v-icon>
+              <span class="sr-only"> (will open new browser tab)</span>
+            </a>
+          </div>
+        </template>
+        <template #item.becomeUser="{ item }">
           <v-btn
             v-if="canBecome(item)"
-            :id="'become-' + item.uid"
-            variant="text"
-            @click="become(item.uid)"
-          >
-            <v-icon color="primary" :icon="mdiLoginVariant" />
-            <span class="sr-only">Log in as {{ item.name }}</span>
-          </v-btn>
+            :id="`become-${item.uid}`"
+            :aria-label="`Log in as ${item.name}`"
+            class="text-primary"
+            flat
+            :icon="mdiLoginVariant"
+            size="sm"
+            @click="() => become(item.uid)"
+          />
         </template>
         <template #bottom></template>
       </v-data-table-server>
@@ -395,7 +406,7 @@ export default {
         align: 'end',
         sortable: false,
         cellProps: {
-          class: 'purple-background'
+          class: 'manifest-column-name'
         },
       },
       {
@@ -404,7 +415,7 @@ export default {
         align: 'start',
         sortable: true,
         cellProps: {
-          class: 'purple-background'
+          class: 'manifest-column-name'
         },
       },
       {
@@ -425,7 +436,7 @@ export default {
         align: 'start',
         sortable: true,
         cellProps: {
-          class: 'light-green-background'
+          class: 'manifest-column-last-login'
         }
       },
       {
@@ -433,6 +444,11 @@ export default {
         key: 'campusEmail',
         align: 'start',
         sortable: false,
+      },
+      {
+        title: '',
+        key: 'becomeUser',
+        sortable: false
       }
     ]
   }),
@@ -569,6 +585,18 @@ export default {
   }
 }
 </script>
+
+<style>
+.manifest-column-name {
+  background-color: #9bcbfb;
+  color: #377eb6;
+  font-weight: 900;
+}
+.manifest-column-last-login {
+  background-color: #bee5eb;
+  font-weight: 900;
+}
+</style>
 
 <style scoped>
 .quick-links-label {

@@ -3,9 +3,10 @@
     <v-icon
       v-if="isExistingUser"
       :id="`edit-${profile.uid}`"
-      class="pl-1 pr-1 cursor-pointer"
+      class="cursor-pointer"
+      color="primary"
       :icon="mdiNoteEditOutline"
-      size="x-large"
+      size="large"
       @click="openEditUserModal"
     >
       <span class="sr-only"> Edit profile of {{ profile.name }}</span>
