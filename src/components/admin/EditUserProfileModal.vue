@@ -16,290 +16,233 @@
       class="pl-4 pr-4 mr-6"
       color="primary"
       :prepend-icon="mdiPlus"
+      text="Add New User"
       @click="openEditUserModal"
-    >
-      <div class="d-flex">
-        <div>
-          Add New User
-        </div>
-      </div>
-    </v-btn>
-
+    />
     <v-dialog
       v-model="showEditUserModal"
       width="auto"
+      height="auto"
     >
-      <v-card
-        min-width="600"
-        max-width="600"
-      >
-        <v-card-text>
-          <h2 v-if="!isExistingUser">Create User</h2>
-          <h2 v-if="isExistingUser">{{ profile.name }}</h2>
-          <div class="modal-body m-0 p-0">
-            <div>
-              <div
-                v-if="error"
-                class="align-items-center has-error mb-3 ml-4 mt-1"
-                aria-live="polite"
-                role="alert"
-              >
-                <span class="font-weight-bolder text-red">Error: {{ error }}</span>
-              </div>
-              <div v-if="!isExistingUser" class="align-items-center ml-0 mt-3">
-                <label for="uid-input" class="sr-only">U I D </label>
-                <v-text-field
-                  v-model="userProfile.uid"
-                  label="UID"
-                  variant="outlined"
-                  density="compact"
-                >
-                </v-text-field>
-              </div>
-              <div class="ml-0 mt-0">
-                <v-checkbox
-                  id="is-admin"
-                  v-model="userProfile.isAdmin"
-                  label="Admin"
-                  hide-details="true"
-                >
-                </v-checkbox>
-                <v-checkbox
-                  id="is-blocked"
-                  v-model="userProfile.isBlocked"
-                  label="Blocked"
-                  hide-details="true"
-                >
-                </v-checkbox>
-                <v-checkbox
-                  id="can-access-canvas-data"
-                  v-model="userProfile.canAccessCanvasData"
-                  label="Canvas Data"
-                  hide-details="true"
-                >
-                </v-checkbox>
-                <v-checkbox
-                  id="can-access-advising-data"
-                  v-model="userProfile.canAccessAdvisingData"
-                  label="Notes and Appointments"
-                  hide-details="true"
-                >
-                </v-checkbox>
-                <v-checkbox
-                  v-if="profile.id"
-                  id="is-deleted"
-                  v-model="isDeleted"
-                  label="Deleted"
-                  hide-details="true"
-                >
-                </v-checkbox>
-                <v-row v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission">
-                  <v-col class="mr-3" no-gutters>
-                    <!-- <label for="degree-progress-permission">Degree Progress Permission</label> -->
-                    <div class="mt-1 ">
-                      <v-select
-                        v-model="userProfile.degreeProgressPermission"
-                        label="Degree Progress Permission"
-                        :items="degreeProgressPermissionItems"
-                        item-title="text"
-                        item-value="value"
-                        density="compact"
-                        variant="outlined"
-                      ></v-select>
-                      <!-- <b-select
-                        id="degree-progress-permission-select"
-                        v-model="userProfile.degreeProgressPermission"
-                        :options="[
-                          {value: null, text: 'Select...'},
-                          {value: 'read', text: 'Read-only'},
-                          {value: 'read_write', text: 'Read and write'}
-                        ]"
-                      /> -->
-                      <div class="d-flex pl-1 pt-2">
-                        <div class="pl-1">
-                          <v-checkbox
-                            id="automate-degree-progress-permission"
-                            v-model="userProfile.automateDegreeProgressPermission"
-                            label="Automate Degree Progress permissions"
-                            hide-details="true"
-                          >
-                          </v-checkbox>
-                        </div>
-                      </div>
-                    </div>
-                  </v-col>
-                </v-row>
-              </div>
+      <v-card max-width="600" min-width="600">
+        <v-card-text class="pb-6 pl-6 pr-8">
+          <h2 class="page-section-header">{{ isExistingUser ? profile.name : 'Create User' }}</h2>
+          <div>
+            <div
+              v-if="error"
+              class="has-error mb-2 mt-1"
+              aria-live="polite"
+              role="alert"
+            >
+              <span class="font-weight-bolder text-red">Error: {{ error }}</span>
             </div>
-            <hr class="mb-1 ml-0 mr-0 mt-1" />
-            <div class="ml-3 mr-2 pt-2">
-              <h3 class="color-grey font-size-18 mb-1">Departments</h3>
-              <div
-                v-for="dept in memberships"
-                :key="dept.code"
-                class="ml-0 mt-2"
-              >
-                <div class="align-items-center d-flex">
-                  <div>
-                    <h4 class="font-size-16">
-                      {{ dept.name }} ({{ dept.code }})
-                    </h4>
-                  </div>
-                  <div class="mb-1">
-                    <v-icon
-                      :id="`remove-department-${dept.code}`"
-                      :icon="mdiCloseCircleOutline"
-                      class="pl-2 pb-1"
-                      size="x-large"
-                      color="error"
-                      @click.prevent="removeDepartment(dept.code)"
-                    >
-                      <span class="sr-only">Remove department '{{ dept.name }}'</span>
-                    </v-icon>
-                  </div>
+            <div v-if="!isExistingUser" class="align-items-center mt-3">
+              <label for="uid-input" class="sr-only">U I D </label>
+              <v-text-field
+                v-model="userProfile.uid"
+                density="compact"
+                hide-details
+                label="UID"
+                width="50%"
+                variant="outlined"
+              />
+            </div>
+            <div class="mt-2">
+              <div class="d-flex">
+                <div class="w-50">
+                  <v-checkbox
+                    id="is-admin"
+                    v-model="userProfile.isAdmin"
+                    density="compact"
+                    label="Admin"
+                    hide-details="true"
+                  />
+                  <v-checkbox
+                    id="is-blocked"
+                    v-model="userProfile.isBlocked"
+                    density="compact"
+                    label="Blocked"
+                    hide-details="true"
+                  />
+                  <v-checkbox
+                    v-if="profile.id"
+                    id="is-deleted"
+                    v-model="isDeleted"
+                    density="compact"
+                    label="Deleted"
+                    hide-details="true"
+                  />
                 </div>
-                <div class="pl-4">
-                  <div class="align-items-center d-flex">
-                    <!-- <div class="font-weight-500 pr-2 pt-1">
-                      <label :for="`select-department-${dept.code}-role`">Role:</label>
-                    </div> -->
-                    <v-select
-                      :id="`select-department-${dept.code}-role`"
-                      v-model="dept.role"
-                      class="w-260px"
-                      label="Role: "
-                      :items="departmentItems"
-                      item-title="text"
-                      item-value="value"
-                      density="compact"
-                      variant="outlined"
-                    >
-                    </v-select>
-                    <!-- <select
-                      :id="`select-department-${dept.code}-role`"
-                      v-model="dept.role"
-                      :aria-label="`User's role in department ${dept.name}`"
-                      class="w-260px"
-                      style="font-size: 16px;"
-                    >
-                      <option :value="undefined">Select...</option>
-                      <option value="advisor">Advisor</option>
-                      <option value="director">Director</option>
-                    </select> -->
-                  </div>
-                  <div class="d-flex">
-                    <!-- <div class="font-weight-500">
-                      <label :for="`is-automated-membership-${dept.code}`">Automated</label>
-                    </div> -->
-                    <div class="mb-1">
-                      <!-- <b-form-checkbox :id="`is-automate-membership-${dept.code}`" v-model="dept.automateMembership"></b-form-checkbox> -->
-                      <v-checkbox
-                        :id="`is-automate-membership-${dept.code}`"
-                        v-model="dept.automateMembership"
-                        label="Automated"
-                        hide-details="true"
-                      >
-                      </v-checkbox>
-                    </div>
-                  </div>
+                <div>
+                  <v-checkbox
+                    id="can-access-canvas-data"
+                    v-model="userProfile.canAccessCanvasData"
+                    density="compact"
+                    label="Canvas Data"
+                    hide-details="true"
+                  />
+                  <v-checkbox
+                    id="can-access-advising-data"
+                    v-model="userProfile.canAccessAdvisingData"
+                    density="compact"
+                    label="Notes and Appointments"
+                    hide-details="true"
+                  />
                 </div>
-              </div>
-              <div v-if="memberships.length >= 3" class="m-3">
-                <span class="text-info"><v-icon class="mb-1" :icon="mdiCheckBold" /> Three departments is enough!</span>
-              </div>
-
-              <div v-if="memberships.length < 3" class="ml-0 mr-2 p-2 mt-4">
-                <v-row no-gutters>
-                  <v-col cols="12" md="10">
-                    <v-select
-                      id="department-select-list"
-                      v-model="deptCode"
-                      label="Add Department"
-                      :items="departmentOptions"
-                      item-title="text"
-                      item-value="value"
-                      density="compact"
-                      variant="outlined"
-                    >
-                    </v-select>
-                  </v-col>
-
-                  <v-col cols="12" md="2">
-                    <v-btn
-                      id="add-department-button"
-                      class="ml-2 pb-1"
-                      icon
-                      variant="text"
-                      @click="addDepartment"
-                    >
-                      <v-icon :icon="mdiPlus"></v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
               </div>
             </div>
           </div>
-        </v-card-text>
-        <template #actions>
-          <v-btn
-            color="primary"
-            variant="flat"
-            :disabled="isSaving"
-            @click="save"
+          <hr class="my-3" />
+          <h3 class="font-size-18">Departments</h3>
+          <div
+            v-for="dept in memberships"
+            :key="dept.code"
+            class="mt-2"
           >
-            <span v-if="!isSaving">Save</span>
-            <v-progress-circular
-              v-if="isSaving"
-              indeterminate
-              :size="18"
-              :width="4"
+            <div class="align-items-center d-flex">
+              <div>
+                <h4 class="font-size-16">
+                  {{ dept.name }} ({{ dept.code }})
+                </h4>
+              </div>
+              <div class="mb-1">
+                <v-icon
+                  :id="`remove-department-${dept.code}`"
+                  :icon="mdiCloseCircleOutline"
+                  class="pl-2 pb-1"
+                  size="x-large"
+                  color="error"
+                  @click.prevent="removeDepartment(dept.code)"
+                >
+                  <span class="sr-only">Remove department '{{ dept.name }}'</span>
+                </v-icon>
+              </div>
+            </div>
+            <div class="w-100">
+              <div class="align-center d-flex pl-8 w-100">
+                <label class="font-weight-black mr-2" :for="`select-department-${dept.code}-role`">Role:</label>
+                <select
+                  :id="`select-department-${dept.code}-role`"
+                  v-model="dept.role"
+                  class="select-menu w-50"
+                >
+                  <option
+                    id="department-role-null"
+                    :value="null"
+                  >
+                    Select...
+                  </option>
+                  <option
+                    v-for="option in roles"
+                    :id="`department-role-${lowerCase(option.value)}`"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.text }}
+                  </option>
+                </select>
+              </div>
+              <div class="pl-7">
+                <v-checkbox
+                  :id="`is-automate-membership-${dept.code}`"
+                  v-model="dept.automateMembership"
+                  density="compact"
+                  label="Automated"
+                  hide-details
+                />
+              </div>
+            </div>
+          </div>
+          <div v-if="memberships.length >= 3">
+            <span class="text-info"><v-icon class="mb-1" :icon="mdiCheckBold" /> Three departments is enough!</span>
+          </div>
+          <div v-if="memberships.length < 3" class="align-center d-flex mt-2">
+            <div>
+              <select
+                id="department-select-list"
+                v-model="deptCode"
+                class="select-menu"
+              >
+                <option id="department-null" :value="undefined">Select...</option>
+                <option
+                  v-for="option in departmentOptions"
+                  :id="`department-option-${lowerCase(option.value)}`"
+                  :key="option.value"
+                  :disabled="memberships.findIndex(d => d.code === option.value) >= 0"
+                  :value="option.value"
+                >
+                  {{ option.text }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <v-btn
+                id="add-department-button"
+                :disabled="isNil(deptCode)"
+                :icon="mdiPlus"
+                variant="text"
+                @click="addDepartment"
+              />
+            </div>
+          </div>
+          <div
+            v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission"
+            class="mt-3"
+          >
+            <hr class="mb-3" />
+            <label class="font-weight-black" for="degree-progress-permission-select">Degree Progress Permission</label>
+            <div class="mt-1">
+              <select
+                id="degree-progress-permission-select"
+                v-model="userProfile.degreeProgressPermission"
+                class="select-menu w-100"
+              >
+                <option id="department-null" :value="null">Select...</option>
+                <option
+                  v-for="option in degreeProgressPermissionItems"
+                  :key="option.value"
+                >
+                  {{ option.text }}
+                </option>
+              </select>
+            </div>
+            <div class="mt-1">
+              <v-checkbox
+                id="automate-degree-progress-permission"
+                v-model="userProfile.automateDegreeProgressPermission"
+                density="compact"
+                label="Automate Degree Progress permissions"
+                hide-details="true"
+              />
+            </div>
+          </div>
+        </v-card-text>
+        <v-card-actions class="py-0 pr-8">
+          <div class="mb-6">
+            <v-btn
+              color="primary"
+              :disabled="isSaving || !get(userProfile, 'uid') || memberships.findIndex(d => !d.role) >= 0"
+              variant="flat"
+              @click="save"
+            >
+              <span v-if="!isSaving">Save</span>
+              <v-progress-circular
+                v-if="isSaving"
+                indeterminate
+                :size="18"
+                :width="4"
+              />
+            </v-btn>
+            <v-btn
+              text="Cancel"
+              color="primary"
+              variant="text"
+              @click="cancel"
             />
-          </v-btn>
-          <v-btn
-            text="Cancel"
-            color="primary"
-            variant="text"
-            @click="cancel"
-          ></v-btn>
-        </template>
+          </div>
+        </v-card-actions>
       </v-card>
     </v-dialog>
-
-
-
-    <!-- <v-modal
-      v-if="showEditUserModal"
-      v-model="showEditUserModal"
-      body-class="pl-0 pr-0"
-      hide-footer
-      hide-header
-      @shown="putFocusNextTick('modal-header')"
-    >
-      <ModalHeader :text="isExistingUser ? profile.name : 'Create User'" />
-
-      <div class="modal-footer">
-        <v-btn
-          id="save-changes-to-user-profile"
-          class="btn-primary-color-override"
-          :disabled="isSaving"
-          variant="primary"
-          @click="save"
-        >
-          <span v-if="isSaving"><font-awesome class="mr-1" icon="spinner" spin /> Saving</span>
-          <span v-if="!isSaving">Save</span>
-        </v-btn>
-        <v-btn
-          id="delete-cancel"
-          class="pl-2"
-          :disabled="isSaving"
-          variant="link"
-          @click="cancel"
-          @keyup.enter="cancel"
-        >
-          Cancel
-        </v-btn>
-      </div>
-    </v-modal> -->
   </div>
 </template>
 
@@ -308,6 +251,7 @@ import {mdiNoteEditOutline} from '@mdi/js'
 import {mdiPlus} from '@mdi/js'
 import {mdiCloseCircleOutline} from '@mdi/js'
 import {mdiCheckBold} from '@mdi/js'
+import {get, isNil, lowerCase} from 'lodash'
 
 </script>
 
@@ -316,6 +260,7 @@ import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {createOrUpdateUser} from '@/api/user'
 import {isCoe} from '@/berkeley'
+import {find} from 'lodash'
 
 export default {
   name: 'EditUserProfileModal',
@@ -350,12 +295,10 @@ export default {
     showEditUserModal: false,
     userProfile: undefined,
     degreeProgressPermissionItems: [
-      {value: null, text: 'Select...'},
       {value: 'read', text: 'Read-only'},
       {value: 'read_write', text: 'Read and write'}
     ],
-    departmentItems: [
-      {value: null, text: 'Select...'},
+    roles: [
       {value: 'advisor', text: 'Advisor'},
       {value: 'director', text: 'Director'}
     ]
@@ -368,14 +311,14 @@ export default {
   methods: {
     addDepartment() {
       if (this.deptCode) {
-        const dept = this._find(this.departments, ['code', this.deptCode])
+        const dept = find(this.departments, ['code', this.deptCode])
         this.memberships.push({
           code: dept.code,
           name: dept.name,
-          role: undefined,
+          role: null,
           automateMembership: true
         })
-        const option = this._find(this.departmentOptions, ['value', this.deptCode])
+        const option = find(this.departmentOptions, ['value', this.deptCode])
         option.disabled = true
         this.deptCode = undefined
       }
@@ -389,7 +332,6 @@ export default {
       this.memberships = undefined
       this.showEditUserModal = false
     },
-    isCoe,
     openEditUserModal() {
       this.userProfile = {
         id: this.profile.id,
@@ -453,29 +395,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.w-260px {
-  width: 260px;
-  max-width: 260px;
-}
-
-.max-width{
-  width: 300px;
-  max-width: 300px;
-}
-
-:deep(.v-input__details) {
-  min-height: 0px !important;
-  max-height: 6px !important;
-}
-
-/* Scoped styles for checkbox */
-.v-input--density-default {
-  --v-input-control-height: 0 !important;
-}
-
-.v-input--checkbox .v-input--selection-controls__input {
-  margin: 0;
-}
-</style>
