@@ -2,7 +2,7 @@
   <div v-if="!loading" class="default-margins">
     <div class="align-center d-flex py-2">
       <div class="pr-2">
-        <v-icon :icon="mdiContacts" :style="{color: '#3b7ea5'}" size="x-large" />
+        <v-icon color="primary" :icon="mdiContacts" size="x-large" />
       </div>
       <h1 id="dept-users-section" class="mb-0 mr-3 page-section-header">
         Passenger Manifest

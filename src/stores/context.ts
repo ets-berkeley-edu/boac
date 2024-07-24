@@ -108,7 +108,9 @@ export const useContextStore = defineStore('context', {
     loadingStart() {
       this.loading = true
       this.loadingStartTime = new Date().getTime()
-      alertScreenReader(`${String(get(useRoute().name, 'name', ''))} page is loading`)
+      const route = useRoute()
+      const pageName = route ? get(route.name, 'name', '') : ''
+      alertScreenReader(`${pageName} page is loading`)
     },
     removeEventHandler(type: string, handler?: any) {
       this.eventHub.off(type, handler)
