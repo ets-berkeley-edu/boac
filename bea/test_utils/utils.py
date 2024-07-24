@@ -24,10 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import calendar
+import csv
 from datetime import datetime as dt
+import glob
 import json
 import os
 import shutil
+import time
 
 from bea.models.term import Term
 from dateutil import tz
@@ -108,6 +111,23 @@ def prepare_download_dir():
 
 def is_download_dir_empty():
     return False if os.listdir(default_download_dir()) else True
+
+
+def wait_for_export_csv():
+    tries = 0
+    max_tries = get_medium_timeout()
+    while tries <= max_tries:
+        tries += 1
+        try:
+            assert len(glob.glob(f'{default_download_dir()}/*.csv')) == 1
+            break
+        except AssertionError:
+            if tries == max_tries:
+                raise
+            else:
+                time.sleep(1)
+    file = glob.glob(f'{default_download_dir()}/*.csv')[0]
+    return csv.DictReader(open(file))
 
 
 def assert_equivalence(actual, expected):

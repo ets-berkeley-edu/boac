@@ -24,13 +24,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from bea.models.notes_and_appts.note_template import NoteTemplate
+from bea.test_utils import utils
 
 
 class Note(NoteTemplate):
 
     @property
     def is_draft(self):
-        return self.data['is_draft']
+        return utils.safe_key(self.data, 'is_draft')
 
     @is_draft.setter
     def is_draft(self, value):
@@ -38,7 +39,7 @@ class Note(NoteTemplate):
 
     @property
     def source_body_empty(self):
-        return self.data['source_body_empty']
+        return utils.safe_key(self.data, 'source_body_empty')
 
     @source_body_empty.setter
     def source_body_empty(self, value):
@@ -46,10 +47,7 @@ class Note(NoteTemplate):
 
     @property
     def set_date(self):
-        try:
-            return self.data['set_date']
-        except KeyError:
-            return None
+        return utils.safe_key(self.data, 'set_date')
 
     @set_date.setter
     def set_date(self, value):

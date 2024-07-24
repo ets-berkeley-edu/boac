@@ -160,7 +160,7 @@ class TestFilteredCohortSorting:
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_major(self):
-        self.filtered_students_page.sort_by_major()
+        self.filtered_students_page.sort_by_student_major()
         expected = nessie_filter_students_utils.cohort_by_major(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
@@ -170,7 +170,7 @@ class TestFilteredCohortSorting:
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 
     def test_sort_cohort_by_expected_grad_term(self):
-        self.filtered_students_page.sort_by_expected_grad()
+        self.filtered_students_page.sort_by_expected_graduation()
         expected = nessie_filter_students_utils.cohort_by_expected_grad(test, self.cohort.search_criteria)
         self.filtered_students_page.compare_visible_sid_sorting_to_expected(expected)
 

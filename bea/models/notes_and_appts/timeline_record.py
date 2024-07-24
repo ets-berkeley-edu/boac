@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from bea.test_utils import utils
+
 
 class TimelineRecord(object):
 
@@ -31,10 +33,7 @@ class TimelineRecord(object):
 
     @property
     def record_id(self):
-        try:
-            return f"{self.data['record_id']}"
-        except KeyError:
-            return None
+        return utils.safe_key(self.data, 'record_id')
 
     @record_id.setter
     def record_id(self, value):
@@ -42,10 +41,7 @@ class TimelineRecord(object):
 
     @property
     def body(self):
-        try:
-            return self.data['body']
-        except KeyError:
-            return ''
+        return utils.safe_key(self.data, 'body')
 
     @body.setter
     def body(self, value):
@@ -53,7 +49,7 @@ class TimelineRecord(object):
 
     @property
     def created_date(self):
-        return self.data['created_date']
+        return utils.safe_key(self.data, 'created_date')
 
     @created_date.setter
     def created_date(self, value):
@@ -61,7 +57,7 @@ class TimelineRecord(object):
 
     @property
     def deleted_date(self):
-        return self.data['deleted_date']
+        return utils.safe_key(self.data, 'deleted_date')
 
     @deleted_date.setter
     def deleted_date(self, value):
@@ -69,10 +65,7 @@ class TimelineRecord(object):
 
     @property
     def source(self):
-        try:
-            return self.data['source']
-        except KeyError:
-            return None
+        return utils.safe_key(self.data, 'source')
 
     @source.setter
     def source(self, value):
@@ -80,7 +73,7 @@ class TimelineRecord(object):
 
     @property
     def student(self):
-        return self.data['student']
+        return utils.safe_key(self.data, 'student')
 
     @student.setter
     def student(self, value):
@@ -88,7 +81,7 @@ class TimelineRecord(object):
 
     @property
     def subject(self):
-        return self.data['subject']
+        return utils.safe_key(self.data, 'subject')
 
     @subject.setter
     def subject(self, value):
@@ -96,7 +89,7 @@ class TimelineRecord(object):
 
     @property
     def title(self):
-        return self.data['title']
+        return utils.safe_key(self.data, 'title')
 
     @title.setter
     def title(self, value):
@@ -104,7 +97,7 @@ class TimelineRecord(object):
 
     @property
     def updated_date(self):
-        return self.data['updated_date']
+        return utils.safe_key(self.data, 'updated_date')
 
     @updated_date.setter
     def updated_date(self, value):

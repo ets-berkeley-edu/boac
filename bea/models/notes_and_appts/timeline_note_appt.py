@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from bea.models.notes_and_appts.timeline_record import TimelineRecord
+from bea.test_utils import utils
 
 
 class TimelineNoteAppt(TimelineRecord):
@@ -60,10 +61,7 @@ class TimelineNoteAppt(TimelineRecord):
 
     @property
     def contact_type(self):
-        try:
-            return self.data['contact_type']
-        except KeyError:
-            return None
+        return utils.safe_key(self.data, 'contact_type')
 
     @contact_type.setter
     def contact_type(self, value):
