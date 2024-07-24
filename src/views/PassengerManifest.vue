@@ -1,9 +1,8 @@
 <template>
   <div v-if="!loading" class="default-margins">
     <div class="list-group">
-      <div class="align-items-baseline d-flex mb-3 mt-2">
+      <div class="align-items-baseline d-flex mt-2">
         <div class="pr-2">
-          <!-- <font-awesome :style="{color: '#3b7ea5'}" icon="address-card" size="2x" /> -->
           <v-icon :icon="mdiContacts" :style="{color: '#3b7ea5'}" size="x-large"></v-icon>
         </div>
         <div class="align-items-baseline d-flex">

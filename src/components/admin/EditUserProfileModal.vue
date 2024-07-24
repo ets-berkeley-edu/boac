@@ -24,10 +24,10 @@
       width="auto"
       height="auto"
     >
-      <v-card max-width="600" min-width="600">
+      <v-card v-if="showEditUserModal" max-width="600" min-width="600">
         <v-card-text class="pb-6 pl-6 pr-8">
-          <h2 class="page-section-header">{{ isExistingUser ? profile.name : 'Create User' }}</h2>
-          <div>
+          <h2 class="mt-2 page-section-header">{{ isExistingUser ? profile.name : 'Create User' }}</h2>
+          <div class="mt-2">
             <div
               v-if="error"
               class="has-error mb-2 mt-1"
@@ -39,12 +39,13 @@
             <div v-if="!isExistingUser" class="align-items-center mt-3">
               <label for="uid-input" class="sr-only">U I D </label>
               <v-text-field
+                id="uid-input"
                 v-model="userProfile.uid"
                 density="compact"
                 hide-details
                 label="UID"
-                width="50%"
                 variant="outlined"
+                width="50%"
               />
             </div>
             <div class="mt-2">
@@ -91,6 +92,38 @@
                 </div>
               </div>
             </div>
+            <div
+              v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission"
+              class="mt-3"
+            >
+              <hr class="mb-3" />
+              <label class="font-weight-black" for="degree-progress-permission-select">Degree Progress Permission</label>
+              <div class="mt-1">
+                <select
+                  id="degree-progress-permission-select"
+                  v-model="userProfile.degreeProgressPermission"
+                  class="select-menu w-50"
+                >
+                  <option id="department-null" :value="null">Select...</option>
+                  <option
+                    v-for="option in degreeProgressPermissionItems"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.text }}
+                  </option>
+                </select>
+              </div>
+              <div class="mt-1">
+                <v-checkbox
+                  id="automate-degree-progress-permission"
+                  v-model="userProfile.automateDegreeProgressPermission"
+                  density="compact"
+                  label="Automate Degree Progress permissions"
+                  hide-details="true"
+                />
+              </div>
+            </div>
           </div>
           <hr class="my-3" />
           <h3 class="font-size-18">Departments</h3>
@@ -99,32 +132,25 @@
             :key="dept.code"
             class="mt-2"
           >
-            <div class="align-items-center d-flex">
-              <div>
-                <h4 class="font-size-16">
-                  {{ dept.name }} ({{ dept.code }})
-                </h4>
-              </div>
-              <div class="mb-1">
-                <v-icon
-                  :id="`remove-department-${dept.code}`"
-                  :icon="mdiCloseCircleOutline"
-                  class="pl-2 pb-1"
-                  size="x-large"
-                  color="error"
-                  @click.prevent="removeDepartment(dept.code)"
-                >
-                  <span class="sr-only">Remove department '{{ dept.name }}'</span>
-                </v-icon>
-              </div>
+            <div class="align-center d-flex">
+              <h4 class="font-size-16">{{ dept.name }} ({{ dept.code }})</h4>
+              <v-btn
+                :id="`remove-department-${dept.code}`"
+                :aria-label="`Remove department '${dept.name}'`"
+                class="px-0 text-error"
+                :icon="mdiCloseCircleOutline"
+                variant="flat"
+                @click="() => removeDepartment(dept.code)"
+              >
+              </v-btn>
             </div>
             <div class="w-100">
-              <div class="align-center d-flex pl-8 w-100">
+              <div class="align-center d-flex pl-8">
                 <label class="font-weight-black mr-2" :for="`select-department-${dept.code}-role`">Role:</label>
                 <select
                   :id="`select-department-${dept.code}-role`"
                   v-model="dept.role"
-                  class="select-menu w-50"
+                  class="select-menu w-25"
                 >
                   <option
                     id="department-role-null"
@@ -156,72 +182,32 @@
           <div v-if="memberships.length >= 3">
             <span class="text-info"><v-icon class="mb-1" :icon="mdiCheckBold" /> Three departments is enough!</span>
           </div>
-          <div v-if="memberships.length < 3" class="align-center d-flex mt-2">
-            <div>
-              <select
-                id="department-select-list"
-                v-model="deptCode"
-                class="select-menu"
+          <div v-if="memberships.length < 3" class="mt-2 w-100">
+            <select
+              id="department-select-list"
+              v-model="deptCode"
+              class="select-menu w-100"
+              @change="addDepartment"
+            >
+              <option id="department-null" :value="undefined">Select...</option>
+              <option
+                v-for="option in departmentOptions"
+                :id="`department-option-${lowerCase(option.value)}`"
+                :key="option.value"
+                :disabled="memberships.findIndex(d => d.code === option.value) >= 0"
+                :value="option.value"
               >
-                <option id="department-null" :value="undefined">Select...</option>
-                <option
-                  v-for="option in departmentOptions"
-                  :id="`department-option-${lowerCase(option.value)}`"
-                  :key="option.value"
-                  :disabled="memberships.findIndex(d => d.code === option.value) >= 0"
-                  :value="option.value"
-                >
-                  {{ option.text }}
-                </option>
-              </select>
-            </div>
-            <div>
-              <v-btn
-                id="add-department-button"
-                :disabled="isNil(deptCode)"
-                :icon="mdiPlus"
-                variant="text"
-                @click="addDepartment"
-              />
-            </div>
-          </div>
-          <div
-            v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission"
-            class="mt-3"
-          >
-            <hr class="mb-3" />
-            <label class="font-weight-black" for="degree-progress-permission-select">Degree Progress Permission</label>
-            <div class="mt-1">
-              <select
-                id="degree-progress-permission-select"
-                v-model="userProfile.degreeProgressPermission"
-                class="select-menu w-100"
-              >
-                <option id="department-null" :value="null">Select...</option>
-                <option
-                  v-for="option in degreeProgressPermissionItems"
-                  :key="option.value"
-                >
-                  {{ option.text }}
-                </option>
-              </select>
-            </div>
-            <div class="mt-1">
-              <v-checkbox
-                id="automate-degree-progress-permission"
-                v-model="userProfile.automateDegreeProgressPermission"
-                density="compact"
-                label="Automate Degree Progress permissions"
-                hide-details="true"
-              />
-            </div>
+                {{ option.text }}
+              </option>
+            </select>
           </div>
         </v-card-text>
         <v-card-actions class="py-0 pr-8">
           <div class="mb-6">
             <v-btn
+              id="save-changes-to-user-profile"
               color="primary"
-              :disabled="isSaving || !get(userProfile, 'uid') || memberships.findIndex(d => !d.role) >= 0"
+              :disabled="isSaving || !userProfile.uid || memberships.findIndex(d => !d.role) >= 0"
               variant="flat"
               @click="save"
             >
@@ -234,8 +220,9 @@
               />
             </v-btn>
             <v-btn
-              text="Cancel"
+              id="cancel-changes-to-user-profile"
               color="primary"
+              text="Cancel"
               variant="text"
               @click="cancel"
             />
@@ -251,8 +238,7 @@ import {mdiNoteEditOutline} from '@mdi/js'
 import {mdiPlus} from '@mdi/js'
 import {mdiCloseCircleOutline} from '@mdi/js'
 import {mdiCheckBold} from '@mdi/js'
-import {get, isNil, lowerCase} from 'lodash'
-
+import {lowerCase} from 'lodash'
 </script>
 
 <script>
@@ -327,10 +313,10 @@ export default {
       this.closeModal()
     },
     closeModal() {
+      this.showEditUserModal = false
       this.error = undefined
       this.userProfile = undefined
       this.memberships = undefined
-      this.showEditUserModal = false
     },
     openEditUserModal() {
       this.userProfile = {

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <v-container fluid>
-      <v-row align-v="center" no-gutters>
-        <v-col cols="2" class="pr-2">
-          <div class="custom-select-container">
+    <v-container class="pl-0 pr-6" fluid>
+      <v-row align-v="center" class="pt-2" no-gutters>
+        <v-col cols="3">
+          <div class="mr-3">
             <select
               id="user-filter-options"
               v-model="filterType"
-              class="custom-select"
+              class="select-menu w-100"
               :disabled="isBusy"
               @change="refreshUsers"
             >
@@ -21,142 +21,170 @@
             </select>
           </div>
         </v-col>
-        <v-col v-if="filterType === 'search'" cols="10">
-          <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
-          <Autocomplete
-            id="search-user-input"
-            v-model="userSelection"
-            :compact="true"
-            :disabled="isBusy"
-            :fetch="userAutocomplete"
-            :showNoData="true"
-            option-label-key="label"
-            option-value-key="uid"
-            placeholder="Enter name..."
-            @user-selected="userSelected"
-          />
-        </v-col>
-        <v-col v-if="filterType === 'filter'">
-          <div class="d-flex">
+        <v-col cols="9">
+          <div v-if="filterType === 'search'">
+            <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
+            <Autocomplete
+              id="search-user-input"
+              v-model="userSelection"
+              :compact="true"
+              :disabled="isBusy"
+              :fetch="userAutocomplete"
+              option-label-key="label"
+              option-value-key="uid"
+              placeholder="Enter name..."
+              :show-no-data="true"
+              @user-selected="userSelected"
+            />
+          </div>
+          <div v-if="filterType === 'filter'" class="d-flex">
             <div class="pr-2">
-              <v-select
+              <select
                 id="department-select-list"
                 v-model="filterBy.deptCode"
-                aria-label="Use up and down arrows to review departments. Hit enter to select a department."
+                class="select-menu"
                 :disabled="isBusy"
-                :items="departmentSelectionList"
-                item-title="name"
-                item-value="code"
-                variant="outlined"
-                density="compact"
-                style="font-size: 16px;"
                 @update:model-value="refreshUsers"
               >
-              </v-select>
+                <option
+                  v-for="option in departmentSelectionList"
+                  :id="`department-option-${option.code}`"
+                  :key="option.code"
+                  :value="option.code"
+                >
+                  {{ option.name }}
+                </option>
+              </select>
             </div>
             <div class="pr-2">
-              <v-select
+              <select
                 id="user-permission-options"
                 v-model="filterBy.role"
+                class="select-menu"
                 :disabled="isBusy"
-                :items="userPermissionOptions"
-                item-title="name"
-                item-value="value"
-                variant="outlined"
-                density="compact"
-                style="font-size: 16px;"
                 @update:model-value="refreshUsers"
               >
-              </v-select>
+                <option
+                  v-for="option in userPermissionOptions"
+                  :id="`user-permission-${option.value}`"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.name }}
+                </option>
+              </select>
             </div>
             <div class="pr-2">
-              <v-select
+              <select
                 id="user-status-options"
                 v-model="filterBy.status"
+                class="select-menu"
                 :disabled="isBusy"
-                :items="userStatusOptions"
-                item-title="name"
-                item-value="value"
-                variant="outlined"
-                density="compact"
-                style="font-size: 16px;"
                 @update:model-value="refreshUsers"
               >
-              </v-select>
+                <option
+                  v-for="option in userStatusOptions"
+                  :id="`user-permission-${option.value}`"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.name }}
+                </option>
+              </select>
             </div>
           </div>
         </v-col>
       </v-row>
+      <v-row align="center">
+        <v-col class="align-center d-flex pl-4" cols="10">
+          <div class="quick-links-label">
+            Quick links:
+          </div>
+          <div>
+            <v-btn
+              id="quick-link-directors"
+              class="font-size-16 px-0"
+              color="primary"
+              :disabled="isBusy"
+              min-width="60"
+              variant="text"
+              @click="quickLink('advisor', 'ZCEEE')"
+            >
+              CE3
+            </v-btn>
+          </div>
+          <div>
+            |
+          </div>
+          <div>
+            <v-btn
+              id="quick-link-coe-advisors"
+              class="font-size-16 px-0"
+              color="primary"
+              :disabled="isBusy"
+              exact
+              min-width="220"
+              variant="text"
+              @click="quickLink('advisor', 'COENG')"
+            >
+              College of Engineering
+            </v-btn>
+          </div>
+          <div>
+            |
+          </div>
+          <div>
+            <v-btn
+              id="quick-link-qcadv-advisors"
+              :disabled="isBusy"
+              class="font-size-16 px-0"
+              color="primary"
+              exact
+              min-width="140"
+              variant="text"
+              @click="quickLink('advisor', 'QCADV')"
+            >
+              L&amp;S Advisors
+            </v-btn>
+          </div>
+        </v-col>
+        <v-col>
+          <div
+            v-if="totalUserCount > 0"
+            class="float-right font-size-16 font-weight-medium pr-4 text-grey"
+          >
+            {{ pluralize('user', totalUserCount) }}
+          </div>
+        </v-col>
+      </v-row>
     </v-container>
-    <div class="align-items-center d-flex pl-4 quick-links-position">
-      <div>
-        <strong>Quick links:</strong>
-      </div>
-      <div>
-        <v-btn
-          id="quick-link-directors"
-          :disabled="isBusy"
-          class="pl-2 pr-2 pb-3 text-primary"
-          variant="text"
-          @click="quickLink('advisor', 'ZCEEE')"
-        >
-          CE3
-        </v-btn>
-      </div>
-      <div>
-        |
-      </div>
-      <div>
-        <v-btn
-          id="quick-link-coe-advisors"
-          :disabled="isBusy"
-          class="pl-2 pr-2 pb-3 text-primary"
-          color="	#0096FF"
-          variant="text"
-          @click="quickLink('advisor', 'COENG')"
-        >
-          College of Engineering
-        </v-btn>
-      </div>
-      <div>
-        |
-      </div>
-      <div>
-        <v-btn
-          id="quick-link-qcadv-advisors"
-          :disabled="isBusy"
-          class="pl-2 pr-2 pb-3 text-primary"
-          variant="text"
-          @click="quickLink('advisor', 'QCADV')"
-        >
-          L&amp;S Advisors
-        </v-btn>
-      </div>
-    </div>
-    <div class="font-size-14 mv-3 ml-4 total-user-count mb-4 on-top-of-table">
-      <span v-if="totalUserCount === undefined">Loading...</span>
-      <span v-if="totalUserCount === 0">No users found</span>
-      <span v-if="totalUserCount > 0">{{ pluralize('user', totalUserCount) }}</span>
-    </div>
-    <div class="table-wrapper">
+    <div>
       <v-data-table-server
         v-model:expanded="expanded"
         v-model:items-per-page="itemsPerPage"
-        :items="users"
-        :items-length="totalUserCount"
-        :items-per-page="0"
+        :cell-props="data => ({
+          id: normalizeId(`td-user-${data.item.uid}-column-${data.column.key}`)
+        })"
         :headers="tableHeaders"
-        loading-text="Loading users... Please wait."
-        :loading="totalUserCount === undefined"
-        item-value="uid"
-        show-expand
+        :header-props="{class: 'font-size-14 pt-5 text-no-wrap'}"
         :hide-default-footer="true"
+        hide-no-data
+        :items-length="totalUserCount || 0"
+        :items-per-page="0"
+        :items="users"
+        :loading="totalUserCount === undefined"
         disable-pagination
+        item-value="uid"
+        loading-text="Fetching users..."
+        :row-props="data => ({
+          id: `tr-user-${data.item.uid}`
+        })"
+        show-expand
         @update:sort-by="handleSort"
         @update:sort-desc="handleSort"
       >
         <template #item.uid="{ item }">
-          <span> {{ item.uid }}</span>
+          {{ item.uid }}
         </template>
 
         <template #expanded-row="{ columns, item }">
@@ -193,17 +221,15 @@
         </template>
 
         <template #item.departments="{ item }">
-          <div class="row-padding">
-            <div v-for="(department, index) in item.departments" :key="department.code">
-              <span class="green-bold-text text-body-2">{{ department.name }} - {{ department.role }}</span>
-              <div v-if="index !== item.departments.length - 1"></div>
-            </div>
-            <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="gray-text">
-              <span class="bold-text text-body-2">Degree Progress - </span>
-              <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress" class="text-body-2"> read/write</span>
-              <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress" class="text-body-2"> read</span>
-              <span v-if="item.automateDegreeProgressPermission" class="text-body-2"> (automated)</span>
-            </div>
+          <div v-for="(department, index) in item.departments" :key="department.code">
+            <span class="font-weight-bold text-body-2 text-green">{{ department.name }} - {{ department.role }}</span>
+            <div v-if="index !== item.departments.length - 1"></div>
+          </div>
+          <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="text-grey">
+            <span class="font-weight-bold text-body-2">Degree Progress - </span>
+            <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress" class="text-body-2"> read/write</span>
+            <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress" class="text-body-2"> read</span>
+            <span v-if="item.automateDegreeProgressPermission" class="text-body-2"> (automated)</span>
           </div>
         </template>
 
@@ -234,10 +260,10 @@
           <v-btn
             v-if="canBecome(item)"
             :id="'become-' + item.uid"
-            variant="plain"
+            variant="text"
             @click="become(item.uid)"
           >
-            <v-icon color="primary" :icon="mdiLoginVariant"></v-icon>
+            <v-icon color="primary" :icon="mdiLoginVariant" />
             <span class="sr-only">Log in as {{ item.name }}</span>
           </v-btn>
         </template>
@@ -250,6 +276,7 @@
 <script setup>
 import {mdiEmail} from '@mdi/js'
 import {mdiLoginVariant} from '@mdi/js'
+import {normalizeId} from '@/lib/utils'
 import {ref} from 'vue'
 </script>
 
@@ -355,26 +382,18 @@ export default {
       {
         title: '',
         key: 'data-table-expand',
-        align: 'start',
         sortable: false
       },
       {
         title: 'UID',
         key: 'uid',
-        align: 'start',
-        sortable: false,
-        headerProps: {
-          class: ['header-text-styling']
-        },
+        sortable: false
       },
       {
         title: '',
         key: 'edit',
         align: 'end',
         sortable: false,
-        headerProps: {
-          class: ['header-text-styling']
-        },
         cellProps: {
           class: 'purple-background'
         },
@@ -384,9 +403,6 @@ export default {
         key: 'lastName',
         align: 'start',
         sortable: true,
-        headerProps: {
-          class: ['header-text-styling']
-        },
         cellProps: {
           class: 'purple-background'
         },
@@ -396,27 +412,18 @@ export default {
         key: 'departments',
         align: 'start',
         sortable: false,
-        headerProps: {
-          class: ['header-text-styling']
-        },
       },
       {
         title: 'Status',
         key: 'deletedAt',
         align: 'start',
         sortable: false,
-        headerProps: {
-          class: ['header-text-styling']
-        },
       },
       {
         title: 'Last Login',
         key: 'lastLogin',
         align: 'start',
         sortable: true,
-        headerProps: {
-          class: ['header-text-styling']
-        },
         cellProps: {
           class: 'light-green-background'
         }
@@ -426,9 +433,6 @@ export default {
         key: 'campusEmail',
         align: 'start',
         sortable: false,
-        headerProps: {
-          class: ['header-text-styling']
-        },
       }
     ]
   }),
@@ -566,71 +570,11 @@ export default {
 }
 </script>
 
-<style>
-.on-top-of-table {
-  z-index: 1000;
-  position: relative;
-  top: -17px;
-}
-.table-wrapper {
-  position: relative;
-  top: -44px;
-}
-.quick-links-position {
-  position: relative;
-  top: -16px;
-}
-.color-transparent {
-  color: transparent;
-}
-.column-actions {
-  width: 50px;
-}
-.column-edit {
-  padding: 3px 2px 0 4px !important;
-  width: 30px;
-}
-.column-email {
-  width: 50px;
-}
-.column-last-login {
-  width: 120px;
-}
-.column-name {
-  width: 200px;
-}
-.column-status {
-  width: 100px;
-}
-.column-toggle-details {
-  padding-top: 6px !important;
-  width: 25px;
-}
-.column-toggle-details-button {
-  color: #337ab7;
-  height: 15px;
-  line-height: 1;
-  padding: 0 !important;
-}
-.column-uid {
-  width: 140px;
-}
-.dept-name {
-  color: #484;
-  font-weight: 500;
-}
-.icon-slash {
-  color: #cf1715;
-  left: -4px;
-  position: absolute;
-  top: 4px;
-}
-.position-relative {
-  position: relative;
-}
-.total-user-count {
-  max-height: 20px;
-  min-height: 20px;
+<style scoped>
+.quick-links-label {
+  font-size: 18px;
+  font-weight: 600;
+  padding-bottom: 2px;
 }
 .user-dept-membership-table td {
   border: none;
@@ -642,98 +586,4 @@ export default {
   font-weight: normal;
   padding: 5px 20px 5px 0;
 }
-.color-gray-100 {
-  background-color: #f9f9f9;
-}
-.dark-gray-background {
-  background-color: #e0dede;
-}
-.purple-background {
-  background-color: #9bcbfb;
-  color: #377eb6;
-  font-weight: 900;
-}
-.light-green-background {
-  background-color: #bee5eb;
-  font-weight: 900;
-}
-.header-text-styling {
-  font-weight: 900;
-  font-size: 14px;
-  position: relative;
-  top: 16px;
-}
-.custom-select-container {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 16px;
-}
-
-.custom-select-container label {
-  font-size: 16px;
-  margin-bottom: 8px;
-  color: #6b6b6b; /* Matching Vuetify's label color */
-}
-
-.custom-select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-color: white;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 16px;
-  color: #495057;
-  box-shadow: none;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.custom-select:focus {
-  border-color: #3f51b5; /* Matching Vuetify's focus color */
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.25); /* Matching Vuetify's focus shadow */
-}
-
-.custom-select:disabled {
-  background-color: #e9ecef;
-  color: #6c757d;
-}
-
-.gray-text {
-  color: gray;
-}
-
-.green-bold-text {
-  color: green;
-  font-weight: 900;
-}
-
-.bold-text {
-  font-weight: 900;
-}
-
-.v-table tbody tr:nth-child(odd) {
-      background-color: rgba(0, 0, 0, .05);
-}
-
-.v-table tbody tr:nth-child(even) {
-      background-color: white;
-}
-
-.v-table tbody tr {
-  padding: 12px 0px;
-}
-
-.v-data-table__td--expanded-row {
-  color: #337ab7;
-}
-
-.row-padding {
-  padding: 12px !important;
-}
-
-:deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
-      height: 40px !important;
-    }
 </style>
