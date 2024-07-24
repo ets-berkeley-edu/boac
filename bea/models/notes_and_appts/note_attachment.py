@@ -22,6 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+from bea.test_utils import utils
 
 
 class NoteAttachment(object):
@@ -33,10 +34,7 @@ class NoteAttachment(object):
 
     @property
     def attachment_id(self):
-        try:
-            return self.data['attachment_id']
-        except KeyError:
-            return None
+        return utils.safe_key(self.data, 'attachment_id')
 
     @attachment_id.setter
     def attachment_id(self, value):
@@ -44,10 +42,7 @@ class NoteAttachment(object):
 
     @property
     def deleted_at(self):
-        try:
-            return self.data['deleted_at']
-        except KeyError:
-            return None
+        return utils.safe_key(self.data, 'deleted_at')
 
     @deleted_at.setter
     def deleted_at(self, value):
@@ -55,10 +50,7 @@ class NoteAttachment(object):
 
     @property
     def sis_file_name(self):
-        try:
-            return self.data['sis_file_name']
-        except KeyError:
-            return None
+        return utils.safe_key(self.data, 'sis_file_name')
 
     @sis_file_name.setter
     def sis_file_name(self, value):

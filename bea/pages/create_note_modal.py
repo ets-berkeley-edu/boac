@@ -97,7 +97,7 @@ class CreateNoteModal(BoaPages):
 
     @staticmethod
     def new_note_unsaved_topic_pill(topic):
-        return By.XPATH, f'//li[contains(@id, \"note-topic\")][contains(., \"{topic.name}\")]'
+        return By.XPATH, f'//li[contains(@id, \"-topic\")][contains(., \"{topic.name}\")]'
 
     @staticmethod
     def topic_pill(note, topic):
@@ -105,7 +105,7 @@ class CreateNoteModal(BoaPages):
 
     @staticmethod
     def new_note_unsaved_topic_remove_btn(topic):
-        return By.XPATH, f'//li[contains(@id, \"note-topic\")][contains(., \"{topic.name}\")]//button'
+        return By.XPATH, f'//li[contains(@id, \"-topic\")][contains(., \"{topic.name}\")]//button'
 
     @staticmethod
     def topic_remove_button(note, topic):
@@ -142,12 +142,12 @@ class CreateNoteModal(BoaPages):
     # Attachments
 
     NEW_NOTE_ATTACH_INPUT = By.XPATH, '//div[@id="new-note-modal-container"]//input[@type="file"]'
-    NOTE_ATTACHMENT_SIZE_MSG = By.XPATH, '//span[contains(text(),"Attachments are limited to 20 MB in size.")]'
-    NOTE_DUPE_ATTACHMENT_MSG = By.XPATH, '//span[contains(text(),"Another attachment has the name")]'
+    NOTE_ATTACHMENT_SIZE_MSG = By.XPATH, '//div[contains(text(),"Attachments are limited to 20 MB in size.")]'
+    NOTE_DUPE_ATTACHMENT_MSG = By.XPATH, '//div[contains(text(),"Another attachment has the name")]'
 
     @staticmethod
     def new_note_attachment_delete_button(attachment):
-        return By.XPATH, f'//li[contains(@id, \"new-note-attachment-\")][contains(., \"{attachment.file_name}\")]//button'
+        return By.XPATH, f'//button[@aria-label="Remove attachment {attachment.file_name}"]'
 
     def enter_new_note_attachments(self, file_string):
         Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_element_located(self.NEW_NOTE_ATTACH_INPUT))
@@ -224,13 +224,13 @@ class CreateNoteModal(BoaPages):
     @staticmethod
     def contact_type(note):
         if note.contact_type:
-            return By.XPATH, f'//input[@type="radio"][@value="{note.contact_type}"]/ancestor::div[contains(@class, "custom-radio")]'
+            return By.XPATH, f'//input[@type="radio"][@value="{note.contact_type}"]'
         else:
-            return By.XPATH, '//input[@id="contact-option-none-radio-button"]/ancestor::div[contains(@class, "custom-radio")]'
+            return By.XPATH, '//input[@id="contact-option-none-radio-button"]'
 
     def select_contact_type(self, note):
         app.logger.info(f'Selecting contact type {note.contact_type}')
-        self.wait_for_element_and_click(self.contact_type(note))
+        self.wait_for_page_and_click_js(self.contact_type(note))
 
     # Set date
 
@@ -276,7 +276,7 @@ class CreateNoteModal(BoaPages):
 
     # Cancel
 
-    NEW_NOTE_CANCEL_BUTTON = By.XPATH, '//button[contains(text(), "Discard")]'
+    NEW_NOTE_CANCEL_BUTTON = By.ID, 'create-note-cancel'
 
     def click_cancel_new_note(self):
         self.wait_for_element_and_click(self.NEW_NOTE_CANCEL_BUTTON)

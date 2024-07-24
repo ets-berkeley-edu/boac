@@ -134,9 +134,7 @@ class TestNoteMgmt:
         file_path = f'{utils.attachments_dir()}/{self.too_big_attachments[0].file_name}'
         self.student_page.click_create_new_note()
         self.student_page.enter_new_note_attachments(file_path)
-        Wait(self.driver, utils.get_short_timeout()).until(
-            ec.visibility_of_element_located(self.student_page.NOTE_ATTACHMENT_SIZE_MSG),
-        )
+        self.student_page.when_present(self.student_page.NOTE_ATTACHMENT_SIZE_MSG, utils.get_short_timeout())
 
     def test_create_note_add_remove_topics(self):
         topic_1 = Topic(Topics.COURSE_ADD.value)
@@ -182,13 +180,13 @@ class TestNoteMgmt:
         assert self.search_results_page.is_note_in_search_result(self.note_1)
 
     def test_search_my_new_note_by_body(self):
-        self.search_results_page.click_edit_search()
+        self.search_results_page.reopen_and_reset_adv_search()
         self.search_results_page.enter_adv_search_and_hit_enter(self.note_2.body)
         self.search_results_page.wait_for_note_search_result_rows()
         assert self.search_results_page.is_note_in_search_result(self.note_2)
 
     def test_search_my_new_note_special_characters(self):
-        self.search_results_page.click_edit_search()
+        self.search_results_page.reopen_and_reset_adv_search()
         self.search_results_page.enter_adv_search_and_hit_enter(self.note_3.subject)
         self.search_results_page.wait_for_note_search_result_rows()
         assert self.search_results_page.is_note_in_search_result(self.note_3)
@@ -203,13 +201,13 @@ class TestNoteMgmt:
         assert self.search_results_page.is_note_in_search_result(self.note_1)
 
     def test_search_anyone_new_note_by_body(self):
-        self.search_results_page.click_edit_search()
+        self.search_results_page.reopen_and_reset_adv_search()
         self.search_results_page.enter_adv_search_and_hit_enter(self.note_2.body)
         self.search_results_page.wait_for_note_search_result_rows()
         assert self.search_results_page.is_note_in_search_result(self.note_2)
 
     def test_search_anyone_new_note_special_characters(self):
-        self.search_results_page.click_edit_search()
+        self.search_results_page.reopen_and_reset_adv_search()
         self.search_results_page.enter_adv_search_and_hit_enter(self.note_3.subject)
         self.search_results_page.wait_for_note_search_result_rows()
         assert self.search_results_page.is_note_in_search_result(self.note_3)

@@ -23,10 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import csv
-import glob
-import time
-
 from bea.pages.cohort_pages import CohortPages
 from bea.pages.list_view_student_pages import ListViewStudentPages
 from bea.test_utils import utils
@@ -46,29 +42,12 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         if (is_filtered and not is_filtered_admits) or is_group:
             self.wait_for_element_and_click(self.CONFIRM_EXPORT_LIST_BUTTON)
 
-    @staticmethod
-    def wait_for_export_csv():
-        tries = 0
-        max_tries = utils.get_short_timeout()
-        while tries <= max_tries:
-            tries += 1
-            try:
-                assert len(glob.glob(f'{utils.default_download_dir()}/*.csv')) == 1
-                break
-            except AssertionError:
-                if tries == max_tries:
-                    raise
-                else:
-                    time.sleep(1)
-        file = glob.glob(f'{utils.default_download_dir()}/*.csv')[0]
-        return csv.DictReader(open(file))
-
     def export_default_student_list(self, cohort):
         app.logger.info('Exporting student list with default columns')
         utils.prepare_download_dir()
         self.click_export_list()
         self.confirm_export(cohort)
-        return self.wait_for_export_csv()
+        return utils.wait_for_export_csv()
 
     def export_custom_student_list(self, cohort):
         app.logger.info('Exporting student list with default columns')
@@ -79,7 +58,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
             self.wait_for_element(loc, utils.get_short_timeout())
             self.click_element_js(loc)
         self.confirm_export(cohort)
-        return self.wait_for_export_csv()
+        return utils.wait_for_export_csv()
 
     @staticmethod
     def verify_default_export_student_list(cohort, csv_reader):
@@ -266,13 +245,13 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
     def sort_by_level(self):
         self.sort_by('level')
 
-    def sort_by_major(self):
+    def sort_by_student_major(self):
         self.sort_by('major')
 
     def sort_by_entering_term(self):
         self.sort_by('entering_term')
 
-    def sort_by_expected_grad(self):
+    def sort_by_expected_graduation(self):
         self.sort_by('expected_grad_term')
 
     def sort_by_terms_in_attend(self):
