@@ -1,29 +1,23 @@
 <template>
   <div v-if="!loading" class="default-margins">
-    <div class="list-group">
-      <div class="align-items-baseline d-flex mt-2">
-        <div class="pr-2">
-          <v-icon :icon="mdiContacts" :style="{color: '#3b7ea5'}" size="x-large"></v-icon>
-        </div>
-        <div class="align-items-baseline d-flex">
-          <div class="pr-2">
-            <h1 id="dept-users-section" class="page-section-header">
-              Passenger Manifest
-            </h1>
-          </div>
-          <div class="pt-1">
-            <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${config.apiBaseUrl}/api/users/csv`">download</a>)</span>
-          </div>
-        </div>
-        <div class="flex-grow-1 text-right">
-          <EditUserProfileModal
-            :after-update-user="afterCreateUser"
-            :departments="departments"
-          />
-        </div>
+    <div class="align-center d-flex py-2">
+      <div class="pr-2">
+        <v-icon :icon="mdiContacts" :style="{color: '#3b7ea5'}" size="x-large" />
       </div>
-      <Users :departments="departments" :refresh="refreshUsers" />
+      <h1 id="dept-users-section" class="mb-0 mr-3 page-section-header">
+        Passenger Manifest
+      </h1>
+      <div>
+        <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${config.apiBaseUrl}/api/users/csv`">download</a>)</span>
+      </div>
+      <div class="flex-grow-1 text-right">
+        <EditUserProfileModal
+          :after-update-user="afterCreateUser"
+          :departments="departments"
+        />
+      </div>
     </div>
+    <Users :departments="departments" :refresh="refreshUsers" />
   </div>
 </template>
 
