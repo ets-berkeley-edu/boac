@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="py-2">
+    <div>
       <label
         :for="`batch-note-${type}`"
         class="font-size-14 font-weight-bold"
@@ -8,113 +8,92 @@
         <span class="sr-only">Select a </span>{{ header }}
       </label>
     </div>
-    <v-select
+    <select
       :id="`batch-note-${type}`"
-      v-model="added"
+      v-model="selected"
       :aria-label="`Note will be created for all students in selected ${type}${objects.length === 1 ? '' : 's'}`"
-      class="mb-2 ml-0 transparent"
-      density="compact"
-      :disabled="disabled"
-      hide-details
-      hide-selected
-      item-title="name"
-      item-value="id"
-      :items="objects"
-      :label="isCuratedGroupsMode ? 'Add Group' : 'Add Cohort'"
-      multiple
-      return-object
-      single-line
-      variant="outlined"
-      @update:model-value="onUpdate"
+      class="select-menu mt-1"
+      :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
+      style="min-width: 50%"
+      @change="onChangeSelect"
     >
-      <template #item="{props, item}">
-        <v-list-item v-bind="props">
-          <template #title="{title}">
-            <span
-              :id="`batch-note-${type}-option-${item.value}`"
-              :key="item.value"
-              :aria-label="`Add ${type} ${title}`"
-            >
-              {{ title }}
-            </span>
-          </template>
-        </v-list-item>
-      </template>
-      <template #selection="{item, index}">
-        <v-chip
-          :id="`batch-note-${type}-${index}`"
-          class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-no-wrap"
-          closable
-          :close-label="`Remove ${type} ${item.title}`"
-          density="comfortable"
-          variant="outlined"
-          @click:close="remove(item.raw)"
-          @keyup.enter="remove(item.raw)"
-        >
-          <span class="truncate-with-ellipsis">{{ item.title }}</span>
-          <template #close>
-            <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
-          </template>
-        </v-chip>
-      </template>
-    </v-select>
+      <option :value="null">Select...</option>
+      <option
+        v-for="object in objects"
+        :id="`batch-note-${type}-option-${object.id}`"
+        :key="object.id"
+        :aria-label="`Add ${type} ${object.name}`"
+        :disabled="!!find(added, ['id', object.id])"
+        :value="object"
+      >
+        {{ object.name }}
+      </option>
+    </select>
+    <div v-for="object in added" :key="object.id" class="ml-2 mt-2">
+      <v-chip
+        :id="`batch-note-${type}-${object.id}`"
+        class="v-chip-content-override text-uppercase text-no-wrap"
+        density="compact"
+        variant="outlined"
+        @click:close="() => remove(object)"
+      >
+        <div class="truncate-with-ellipsis">{{ object.name }}</div>
+        <template #close>
+          <v-btn
+            :id="`batch-note-remove-${type}-${object.id}`"
+            :aria-label="`Remove ${type} ${object.name}`"
+            color="error"
+            exact
+            :icon="mdiCloseCircle"
+            variant="text"
+            @click="() => remove(object)"
+          />
+        </template>
+      </v-chip>
+    </div>
   </div>
 </template>
 
 <script setup>
+import {find, findIndex} from 'lodash'
 import {mdiCloseCircle} from '@mdi/js'
-</script>
-
-<script>
-import {findIndex, map} from 'lodash'
+import {ref} from 'vue'
 import {useNoteStore} from '@/stores/note-edit-session'
 
-export default {
-  name: 'BatchNoteAddCohort',
-  props: {
-    objects: {
-      required: true,
-      type: Array
-    },
-    isCuratedGroupsMode: {
-      required: true,
-      type: Boolean
-    },
-    removeObject: {
-      required: true,
-      type: Function
-    },
-    update: {
-      required: true,
-      type: Function
-    }
+const props = defineProps({
+  objects: {
+    required: true,
+    type: Array
   },
-  data: () => ({
-    added: [],
-    header: undefined,
-    type: undefined
-  }),
-  computed: {
-    addedIds() {
-      return map(this.added, 'id')
-    },
-    disabled() {
-      return useNoteStore().isSaving || useNoteStore().boaSessionExpired
-    }
+  isCuratedGroupsMode: {
+    required: true,
+    type: Boolean
   },
-  created() {
-    this.header = this.isCuratedGroupsMode ? 'Curated Group' : 'Cohort'
-    this.type = this.isCuratedGroupsMode ? 'curated' : 'cohort'
+  removeObject: {
+    required: true,
+    type: Function
   },
-  methods: {
-    onUpdate(value) {
-      this.update(value)
-    },
-    remove(object) {
-      const index = findIndex(this.added, {'id': object.id})
-      this.added.splice(index, 1)
-      this.removeObject(object)
-    }
+  update: {
+    required: true,
+    type: Function
   }
+})
+
+const noteStore = useNoteStore()
+const added = ref([])
+const header = props.isCuratedGroupsMode ? 'Curated Group' : 'Cohort'
+const selected = ref(null)
+const type = props.isCuratedGroupsMode ? 'curated' : 'cohort'
+
+const onChangeSelect = () => {
+  added.value.push(selected.value)
+  props.update(added.value)
+  selected.value = null
+}
+
+const remove = object => {
+  const index = findIndex(added.value, {'id': object.id})
+  added.value.splice(index, 1)
+  props.removeObject(object)
 }
 </script>

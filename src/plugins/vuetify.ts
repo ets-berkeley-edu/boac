@@ -33,7 +33,6 @@ import {VOverlay} from 'vuetify/components/VOverlay'
 import {VProgressCircular} from 'vuetify/components/VProgressCircular'
 import {VRadio} from 'vuetify/components/VRadio'
 import {VRadioGroup} from 'vuetify/components/VRadioGroup'
-import {VSelect} from 'vuetify/components/VSelect'
 import {VTable} from 'vuetify/components/VTable'
 import {VTextarea} from 'vuetify/components/VTextarea'
 import {VTextField} from 'vuetify/components/VTextField'
@@ -91,7 +90,6 @@ export default createVuetify({
     VRadio,
     VRadioGroup,
     VRow,
-    VSelect,
     VSpacer,
     VTable,
     VTextarea,
