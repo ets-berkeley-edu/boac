@@ -19,14 +19,20 @@
             aria-label="Select a degree template"
             class="select-menu"
             :disabled="isSaving"
-            @change="onChangeSelect"
           >
-            <option id="degree-check-select-option-null" :value="null">Choose...</option>
+            <option
+              id="degree-check-select-option-null"
+              :value="null"
+              @select="onChangeSelect"
+            >
+              Choose...
+            </option>
             <option
               v-for="option in templates"
               :id="`degree-check-select-option-${option.id}`"
               :key="option.id"
               :value="option"
+              @select="onChangeSelect"
             >
               {{ option.name }}
             </option>

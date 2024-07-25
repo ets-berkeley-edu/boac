@@ -167,7 +167,7 @@
                 :class="{
                   'text-grey font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-note-printable': printable,
-                  'ellipsis-if-overflow font-size-14 td-note': !printable
+                  'truncate-with-ellipsis font-size-14 td-note': !printable
                 }"
               >
                 <div
@@ -182,7 +182,7 @@
                 >
                   <a
                     :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
-                    class="ellipsis-if-overflow"
+                    class="truncate-with-ellipsis"
                     href="#"
                     @click="showNote(bundle)"
                     v-html="getNote(bundle)"
@@ -206,7 +206,7 @@
                 :title="oxfordJoin(map(bundle.unitRequirements, 'name'), 'None')"
               >
                 <div class="align-items-start d-flex justify-space-between">
-                  <div class="ellipsis-if-overflow">
+                  <div class="truncate-with-ellipsis">
                     <span>
                       {{ oxfordJoin(map(bundle.unitRequirements, 'name'), '&mdash;') }}
                     </span>
@@ -662,11 +662,6 @@ table {
   background-color: #ecf5fb;
   cursor: move;
   outline: #8bbdda dashed 0.15em;
-}
-.ellipsis-if-overflow {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .fulfillments-icon {
   color: #00c13a;

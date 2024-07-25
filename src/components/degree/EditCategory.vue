@@ -5,24 +5,29 @@
         Requirement Type (required)
       </div>
       <div class="pb-1">
-        <b-select
+        <select
           :id="`column-${position}-add-category-select`"
           v-model="selectedCategoryType"
           :disabled="isSaving"
-          @change="onChangeCategorySelect"
         >
-          <b-select-option :id="`column-${position}-select-option-null`" :value="null">Choose...</b-select-option>
-          <b-select-option
+          <option
+            :id="`column-${position}-select-option-null`"
+            :value="null"
+            @select="onChangeCategorySelect"
+          >
+            Choose...
+          </option>
+          <option
             v-for="option in config.degreeCategoryTypeOptions"
             :id="`column-${position}-select-option-${option}`"
             :key="option"
             :disabled="disableCategoryOption(option)"
-            required
             :value="option"
+            @select="onChangeCategorySelect"
           >
             {{ option }}
-          </b-select-option>
-        </b-select>
+          </option>
+        </select>
       </div>
     </div>
     <div v-if="selectedCategoryType" class="pb-1">
@@ -106,30 +111,32 @@
           Requirement Location (required)
         </div>
         <div class="pb-1">
-          <b-select
+          <select
             :id="`column-${position}-parent-category-select`"
             v-model="selectedParentCategory"
+            class="select-menu"
             :disabled="isSaving"
             required
-            @change="onChangeParentCategory"
           >
-            <b-select-option
+            <option
               :id="`column-${position}-parent-select-option-null`"
               :value="null"
+              @select="onChangeParentCategory"
             >
               Choose...
-            </b-select-option>
-            <b-select-option
+            </option>
+            <option
               v-for="category in withTypeCategoryOrSubcategory"
               :id="`column-${position}-parent-select-option-${category.name}`"
               :key="category.id"
               :aria-label="`${category.categoryType} ${category.name}`"
               :disabled="disableLocationOption(category)"
               :value="category"
+              @select="onChangeParentCategory"
             >
               {{ category.name }}
-            </b-select-option>
-          </b-select>
+            </option>
+          </select>
         </div>
       </div>
     </div>

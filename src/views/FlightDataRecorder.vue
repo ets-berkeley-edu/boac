@@ -22,14 +22,14 @@
             <select
               id="available-department-reports"
               v-model="deptCode"
-              class="form-control font-size-16 pb-1 pl-2 pr-5 pt-1 w-auto"
-              style="font-size: 16px;"
-              @change="render"
+              class="select-menu font-size-16 py-1 pl-2 pr-5 w-auto"
             >
               <option
                 v-for="d in availableDepartments"
+                :id="`department-report-${d.code}`"
                 :key="d.code"
                 :value="d.code"
+                @select="render"
               >
                 {{ d.name }}
               </option>
