@@ -1,61 +1,75 @@
 <template>
   <div>
-    <div v-if="totalRecipientCount || useNoteStore().recipients.cohorts.length || useNoteStore().recipients.curatedGroups.length" role="alert">
-      <div
-        v-if="!useNoteStore().isRecalculating && totalRecipientCount"
+    <div
+      v-if="totalRecipientCount || useNoteStore().recipients.cohorts.length || useNoteStore().recipients.curatedGroups.length"
+      aria-live="polite"
+      role="alert"
+    >
+      <transition
         id="target-student-count-alert"
         :class="{
           'text-error': useNoteStore().mode !== 'editDraft' && totalRecipientCount >= 250,
           'font-weight-bold': useNoteStore().mode !== 'editDraft' && totalRecipientCount >= 500
         }"
         class="font-size-14 font-italic pb-2"
+        name="alert"
       >
-        <span v-if="useNoteStore().mode !== 'editDraft'">
-          <span v-if="totalRecipientCount < 500">This note will be attached</span>
-          <span v-if="totalRecipientCount >= 500">Are you sure you want to attach this note</span>
-          to {{ pluralize('student record', totalRecipientCount) }}{{ totalRecipientCount >= 500 ? '?' : '.' }}
-        </span>
-        <div v-if="!['editTemplate'].includes(useNoteStore().mode) && totalRecipientCount > 1" class="pt-1">
-          <span class="font-weight-bold text-error">Important: </span>
-          <span class="text-body">
-            {{ useNoteStore().mode === 'editDraft' ? 'Updating this draft' : 'Saving as a draft' }} will retain the content of your note
-            but not the associated students.
+        <div v-if="!useNoteStore().isRecalculating && totalRecipientCount">
+          <span v-if="useNoteStore().mode !== 'editDraft'">
+            <span v-if="totalRecipientCount < 500">This note will be attached</span>
+            <span v-if="totalRecipientCount >= 500">Are you sure you want to attach this note</span>
+            to {{ pluralize('student record', totalRecipientCount) }}{{ totalRecipientCount >= 500 ? '?' : '.' }}
           </span>
+          <div v-if="!['editTemplate'].includes(useNoteStore().mode) && totalRecipientCount > 1" class="pt-1">
+            <span class="font-weight-bold text-error">Important: </span>
+            <span class="text-body">
+              {{ useNoteStore().mode === 'editDraft' ? 'Updating this draft' : 'Saving as a draft' }} will retain the content of your note
+              but not the associated students.
+            </span>
+          </div>
         </div>
-      </div>
-      <span v-if="!totalRecipientCount && (useNoteStore().recipients.cohorts.length || useNoteStore().recipients.curatedGroups.length)" class="font-italic">
-        <span
-          v-if="useNoteStore().recipients.cohorts.length && !useNoteStore().recipients.curatedGroups.length"
-          id="no-students-per-cohorts-alert"
-        >There are no students in the {{ pluralize('cohort', useNoteStore().recipients.cohorts.length, {1: ' '}) }}.</span>
-        <span
-          v-if="useNoteStore().recipients.curatedGroups.length && !useNoteStore().recipients.cohorts.length"
-          id="no-students-per-curated-groups-alert"
-        >There are no students in the {{ pluralize('group', useNoteStore().recipients.curatedGroups.length, {1: ' '}) }}.</span>
-        <span
-          v-if="useNoteStore().recipients.cohorts.length && useNoteStore().recipients.curatedGroups.length"
-          id="no-students-alert"
-        >
-          Neither the {{ pluralize('cohort', useNoteStore().recipients.cohorts.length, {1: ' '}) }}
-          nor the {{ pluralize('group', useNoteStore().recipients.curatedGroups.length, {1: ' '}) }} have students.
+      </transition>
+      <div class="mt-1">
+        <span v-if="!totalRecipientCount && (useNoteStore().recipients.cohorts.length || useNoteStore().recipients.curatedGroups.length)" class="font-italic">
+          <span
+            v-if="useNoteStore().recipients.cohorts.length && !useNoteStore().recipients.curatedGroups.length"
+            id="no-students-per-cohorts-alert"
+          >There are no students in the {{ pluralize('cohort', useNoteStore().recipients.cohorts.length, {1: ' '}) }}.</span>
+          <span
+            v-if="useNoteStore().recipients.curatedGroups.length && !useNoteStore().recipients.cohorts.length"
+            id="no-students-per-curated-groups-alert"
+          >There are no students in the {{ pluralize('group', useNoteStore().recipients.curatedGroups.length, {1: ' '}) }}.</span>
+          <span
+            v-if="useNoteStore().recipients.cohorts.length && useNoteStore().recipients.curatedGroups.length"
+            id="no-students-alert"
+          >
+            Neither the {{ pluralize('cohort', useNoteStore().recipients.cohorts.length, {1: ' '}) }}
+            nor the {{ pluralize('group', useNoteStore().recipients.curatedGroups.length, {1: ' '}) }} have students.
+          </span>
         </span>
-      </span>
+      </div>
     </div>
-    <BatchNoteAddStudent :on-esc-form-input="discard" />
-    <BatchNoteAddCohort
-      v-if="size(nonAdmitCohorts)"
-      :is-curated-groups-mode="false"
-      :objects="nonAdmitCohorts"
-      :remove-object="removeCohort"
-      :update="updateCohorts"
-    />
-    <BatchNoteAddCohort
-      v-if="size(nonAdmitCuratedGroups)"
-      :is-curated-groups-mode="true"
-      :objects="nonAdmitCuratedGroups"
-      :remove-object="removeCuratedGroup"
-      :update="updateCuratedGroups"
-    />
+    <div class="mt-1">
+      <BatchNoteAddStudent :on-esc-form-input="discard" />
+    </div>
+    <div class="mt-2">
+      <BatchNoteAddCohort
+        v-if="size(nonAdmitCohorts)"
+        :is-curated-groups-mode="false"
+        :objects="nonAdmitCohorts"
+        :remove-object="removeCohort"
+        :update="updateCohorts"
+      />
+    </div>
+    <div class="mt-2">
+      <BatchNoteAddCohort
+        v-if="size(nonAdmitCuratedGroups)"
+        :is-curated-groups-mode="true"
+        :objects="nonAdmitCuratedGroups"
+        :remove-object="removeCuratedGroup"
+        :update="updateCuratedGroups"
+      />
+    </div>
   </div>
 </template>
 
@@ -149,3 +163,15 @@ export default {
   }
 }
 </script>
+
+<!-- The CSS 'alert' classes below are used by the 'transition' block above. -->
+<style scoped>
+.alert-enter-active,
+.alert-leave-active {
+  transition: opacity 0.5s ease;
+}
+.alert-enter-from,
+.alert-leave-to {
+  opacity: 0;
+}
+</style>
