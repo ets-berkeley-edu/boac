@@ -15,9 +15,14 @@
       class="select-menu mt-1"
       :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
       style="min-width: 50%"
-      @change="onChangeSelect"
     >
-      <option :value="null">Select...</option>
+      <option
+        :id="`batch-note-${type}-option-null`"
+        :value="null"
+        @select="onChangeSelect"
+      >
+        Select...
+      </option>
       <option
         v-for="object in objects"
         :id="`batch-note-${type}-option-${object.id}`"
@@ -25,6 +30,7 @@
         :aria-label="`Add ${type} ${object.name}`"
         :disabled="!!find(added, ['id', object.id])"
         :value="object"
+        @select="onChangeSelect"
       >
         {{ object.name }}
       </option>

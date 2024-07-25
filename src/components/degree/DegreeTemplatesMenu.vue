@@ -11,12 +11,12 @@
       v-model="selectedTemplate"
       class="bordered-select d-block mb-2 ml-0 select-menu w-100"
       :disabled="disabled"
-      @change="() => onSelect(selectedTemplate)"
     >
       <option
         class="font-weight-black"
         :selected="selectedTemplate === undefined"
         :value="undefined"
+        @select="() => onSelect(selectedTemplate)"
       >
         Choose<span class="sr-only">&nbsp;degree check</span>...
       </option>
@@ -28,6 +28,7 @@
         class="truncate-with-ellipsis"
         :selected="get(selectedTemplate, 'id') === template.id"
         :value="template"
+        @select="() => onSelect(selectedTemplate)"
       >
         {{ template.name }}
       </option>

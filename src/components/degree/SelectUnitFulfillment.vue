@@ -1,22 +1,28 @@
 <template>
   <div>
-    <b-select
+    <select
       :id="`column-${position}-unit-requirement-select`"
       v-model="model"
       :disabled="disable || (degreeStore.unitRequirements.length === selected.length)"
-      @change="onChangeUnitRequirement"
     >
-      <b-select-option :id="`column-${position}-unit-requirement-option-null`" :value="null">Choose...</b-select-option>
-      <b-select-option
+      <option
+        :id="`column-${position}-unit-requirement-option-null`"
+        :value="null"
+        @select="onChangeUnitRequirement"
+      >
+        Choose...
+      </option>
+      <option
         v-for="(option, index) in degreeStore.unitRequirements"
         :id="`column-${position}-unit-requirement-option-${index}`"
         :key="index"
         :disabled="includes(map(selected, 'id'), option.id)"
         :value="option"
+        @select="onChangeUnitRequirement"
       >
         {{ option.name }}
-      </b-select-option>
-    </b-select>
+      </option>
+    </select>
     <div v-if="selected.length">
       <label
         :for="`column-${position}-unit-requirement-list`"

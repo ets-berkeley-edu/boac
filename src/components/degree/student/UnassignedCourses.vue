@@ -111,7 +111,7 @@
                 <div v-if="course.note && !isNoteVisible(course) && !degreeStore.isUserDragging(course.id)" class="d-flex justify-content-start">
                   <b-link
                     :id="`course-${course.id}-note`"
-                    class="ellipsis-if-overflow"
+                    class="truncate-with-ellipsis"
                     href
                     @click="showNote(course)"
                     v-html="course.note"
@@ -371,11 +371,6 @@ table {
 .changed-units-icon {
   color: #00c13a;
   margin-right: 0.3em;
-}
-.ellipsis-if-overflow {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .fulfillments-icon {
   color: #00c13a;

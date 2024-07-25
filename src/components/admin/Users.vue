@@ -9,12 +9,12 @@
               v-model="filterType"
               class="select-menu w-100"
               :disabled="isBusy"
-              @change="refreshUsers"
             >
               <option
                 v-for="option in filterTypeOptions"
                 :key="option.value"
                 :value="option.value"
+                @select="refreshUsers"
               >
                 {{ option.name }}
               </option>

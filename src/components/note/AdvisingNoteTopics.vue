@@ -1,6 +1,6 @@
 <template>
   <div v-if="size(topicOptions)">
-    <label id="add-note-topic-label" class="font-weight-bold" for="add-note-topic">
+    <label id="add-note-topic-label" class="font-weight-bold" for="add-topic-select-list">
       Topic Categories
     </label>
     <div class="pt-3">
@@ -11,14 +11,14 @@
         aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
         class="select-menu"
         :disabled="disabled"
-        @change="onSelectChange"
       >
         <option :value="null" disabled>Select...</option>
         <option
           v-for="option in topicOptions"
           :key="option.value"
-          :disabled="option.disabled"
+          :disabled="!!find(selectedTopics, value => value === option.value)"
           :value="option.value"
+          @select="onSelectChange"
         >
           {{ option.text }}
         </option>
@@ -27,7 +27,7 @@
     <div>
       <ul
         id="note-topics-list"
-        class="mb-2 pill-list pl-0"
+        class="mb-2 pill-list pl-0 w-75"
         aria-labelledby="note-topics-label"
       >
         <li
@@ -36,24 +36,25 @@
           :key="index"
           class="list-item"
         >
-          {{ topic }}
-          <div class="float-right">
-            <v-btn
-              :id="`remove-${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
-              :disabled="disabled"
-              class="remove-topic-btn"
-              variant="text"
-              @click="() => remove(topic)"
-            >
-              <v-icon color="error" :icon="mdiCloseCircle" />
-              <span class="sr-only">Remove</span>
-            </v-btn>
+          <div class="d-flex justify-space-between">
+            <div class="truncate-with-ellipsis w-75">
+              {{ topic }}
+            </div>
+            <div class="float-right">
+              <v-btn
+                :id="`remove-${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
+                :disabled="disabled"
+                class="remove-topic-btn"
+                variant="text"
+                @click="() => remove(topic)"
+              >
+                <v-icon color="error" :icon="mdiCloseCircle" />
+                <span class="sr-only">Remove</span>
+              </v-btn>
+            </div>
           </div>
         </li>
       </ul>
-      <label id="note-topics-label" class="sr-only" for="note-topics-list">
-        topics
-      </label>
     </div>
   </div>
 </template>
@@ -61,14 +62,14 @@
 <script setup>
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {computed, ref, watch} from 'vue'
-import {each, includes, size} from 'lodash'
+import {each, find, includes, size} from 'lodash'
 import {getTopicsForNotes} from '@/api/topics'
 import {mdiCloseCircle} from '@mdi/js'
 import {useNoteStore} from '@/stores/note-edit-session/index'
 
 const noteStore = useNoteStore()
 const disabled = computed(() => noteStore.isSaving || noteStore.boaSessionExpired)
-const noteId = ref(noteStore.model.topics)
+const noteId = ref(noteStore.model.id)
 const selected = ref(null)
 const topicOptions = ref([])
 const selectedTopics = ref(noteStore.model.topics)
@@ -84,6 +85,7 @@ getTopicsForNotes(false).then(rows => {
 })
 
 const remove = topic => {
+
   noteStore.removeTopic(topic)
   alertScreenReader(`Removed topic ${topic}.`)
   putFocusNextTick('add-topic-select-list')
@@ -104,7 +106,6 @@ const onSelectChange = () => {
   border-radius: 5px;
   border: 1px solid #999;
   color: #666;
-  display: inline-block;
   height: 36px;
   margin-top: 6px;
   padding: 5px 0 0 8px;
