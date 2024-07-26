@@ -212,32 +212,46 @@
         </template>
 
         <template #item.lastName="{ item }">
-          <div v-if="!item.name">
-            <span class="faint-text text-body-2">(Name unavailable)</span>
-          </div>
-          <div v-if="item.name">
-            <a
-              :id="`directory-link-${item.uid}`"
-              :aria-label="`Go to UC Berkeley Directory page of ${item.name}`"
-              :href="`https://www.berkeley.edu/directory/results?search-term=${item.name}`"
-              class="m-0"
-              target="_blank"
-            >
-              {{ item.name }}
-            </a>
+          <div class="name-container">
+            <div class="icons">
+              <span v-if="!item.canAccessCanvasData">
+                <span class="c-letter">C</span>
+                <span class="slash">\</span>
+              </span>
+              <span v-if="!item.canAccessAdvisingData" class="advising-data">
+                <span class="slash-2">\</span>
+                <v-icon :icon="mdiNoteOutline" size="small" />
+              </span>
+            </div>
+            <div v-if="!item.name" class="name">
+              <span class="faint-text text-body-2">(Name unavailable)</span>
+            </div>
+            <div v-if="item.name" class="name">
+              <a
+                :id="`directory-link-${item.uid}`"
+                :aria-label="`Go to UC Berkeley Directory page of ${item.name}`"
+                :href="`https://www.berkeley.edu/directory/results?search-term=${item.name}`"
+                class="m-0"
+                target="_blank"
+              >
+                {{ item.name }}
+              </a>
+            </div>
           </div>
         </template>
 
         <template #item.departments="{ item }">
-          <div v-for="(department, index) in item.departments" :key="department.code">
-            <span class="font-weight-bold text-body-2 text-green">{{ department.name }} - {{ department.role }}</span>
-            <div v-if="index !== item.departments.length - 1"></div>
-          </div>
-          <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="text-grey">
-            <span class="font-weight-bold text-body-2">Degree Progress - </span>
-            <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress" class="text-body-2"> read/write</span>
-            <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress" class="text-body-2"> read</span>
-            <span v-if="item.automateDegreeProgressPermission" class="text-body-2"> (automated)</span>
+          <div class="row-padding">
+            <div v-for="(department, index) in item.departments" :key="department.code">
+              <span class="green-bold-text text-body-2">{{ department.name }} - {{ department.role }}</span>
+              <div v-if="index !== item.departments.length - 1"></div>
+            </div>
+            <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="gray-text">
+              <span class="bold-text text-body-2">Degree Progress - </span>
+              <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress" class="text-body-2"> read/write</span>
+              <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress" class="text-body-2"> read</span>
+              <span v-if="item.automateDegreeProgressPermission" class="text-body-2"> (automated)</span>
+            </div>
           </div>
         </template>
 
@@ -288,6 +302,7 @@
 import {mdiEmail} from '@mdi/js'
 import {mdiLoginVariant} from '@mdi/js'
 import {normalizeId} from '@/lib/utils'
+import {mdiNoteOutline} from '@mdi/js'
 import {ref} from 'vue'
 </script>
 
@@ -398,15 +413,22 @@ export default {
       {
         title: 'UID',
         key: 'uid',
-        sortable: false
+        sortable: false,
+        align: 'start',
+        headerProps: {
+          class: ['header-text-styling']
+        }
       },
       {
         title: '',
         key: 'edit',
         align: 'end',
         sortable: false,
+        headerProps: {
+          class: ['header-text-styling']
+        },
         cellProps: {
-          class: 'manifest-column-name'
+          class: ['manifest-column-name', 'purple-background']
         },
       },
       {
@@ -414,8 +436,11 @@ export default {
         key: 'lastName',
         align: 'start',
         sortable: true,
+        headerProps: {
+          class: ['header-text-styling']
+        },
         cellProps: {
-          class: 'manifest-column-name'
+          class: ['manifest-column-name', 'purple-background'],
         },
       },
       {
@@ -423,12 +448,18 @@ export default {
         key: 'departments',
         align: 'start',
         sortable: false,
+        headerProps: {
+          class: ['header-text-styling']
+        },
       },
       {
         title: 'Status',
         key: 'deletedAt',
         align: 'start',
         sortable: false,
+        headerProps: {
+          class: ['header-text-styling']
+        },
       },
       {
         title: 'Last Login',
@@ -437,7 +468,10 @@ export default {
         sortable: true,
         cellProps: {
           class: 'manifest-column-last-login'
-        }
+        },
+        headerProps: {
+          class: ['header-text-styling']
+        },
       },
       {
         title: 'Email',
@@ -448,7 +482,10 @@ export default {
       {
         title: '',
         key: 'becomeUser',
-        sortable: false
+        sortable: false,
+        headerProps: {
+          class: ['header-text-styling']
+        },
       }
     ]
   }),
@@ -595,6 +632,15 @@ export default {
 .manifest-column-last-login {
   background-color: #bee5eb;
   font-weight: 900;
+},
+.on-top-of-table {
+  z-index: 1000;
+  position: relative;
+  top: -17px;
+},
+.table-wrapper {
+  position: relative;
+  top: -44px;
 }
 </style>
 
@@ -603,6 +649,62 @@ export default {
   font-size: 18px;
   font-weight: 600;
   padding-bottom: 2px;
+}
+.quick-links-position {
+  position: relative;
+  top: -16px;
+}
+.color-transparent {
+  color: transparent;
+}
+.column-actions {
+  width: 50px;
+}
+.column-edit {
+  padding: 3px 2px 0 4px !important;
+  width: 30px;
+}
+.column-email {
+  width: 50px;
+}
+.column-last-login {
+  width: 120px;
+}
+.column-name {
+  width: 200px;
+}
+.column-status {
+  width: 100px;
+}
+.column-toggle-details {
+  padding-top: 6px !important;
+  width: 25px;
+}
+.column-toggle-details-button {
+  color: #337ab7;
+  height: 15px;
+  line-height: 1;
+  padding: 0 !important;
+}
+.column-uid {
+  width: 140px;
+}
+.dept-name {
+  color: #484;
+  font-weight: 500;
+}
+.icon-slash {
+  color: #cf1715;
+  left: -4px;
+  position: absolute;
+  top: 4px;
+}
+.position-relative {
+  position: relative;
+}
+.total-user-count {
+  max-height: 20px;
+  min-height: 20px;
 }
 .user-dept-membership-table td {
   border: none;
@@ -613,5 +715,144 @@ export default {
   color: #aaa;
   font-weight: normal;
   padding: 5px 20px 5px 0;
+}
+
+.color-gray-100 {
+  background-color: #f9f9f9;
+}
+.dark-gray-background {
+  background-color: #e0dede;
+}
+.purple-background {
+  background-color: #9bcbfb;
+  color: #377eb6;
+  font-weight: 900;
+}
+.light-green-background {
+  background-color: #bee5eb;
+  font-weight: 900;
+}
+.header-text-styling {
+  font-weight: 900;
+  font-size: 14px;
+  position: relative;
+  top: 16px;
+}
+.custom-select-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.custom-select-container label {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #6b6b6b; /* Matching Vuetify's label color */
+}
+
+.custom-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: white;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 16px;
+  color: #495057;
+  box-shadow: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.custom-select:focus {
+  border-color: #3f51b5; /* Matching Vuetify's focus color */
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.25); /* Matching Vuetify's focus shadow */
+}
+
+.custom-select:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+
+.gray-text {
+  color: gray;
+}
+
+.green-bold-text {
+  color: green;
+  font-weight: 900;
+}
+
+.bold-text {
+  font-weight: 900;
+}
+
+.v-table tbody tr:nth-child(odd) {
+      background-color: rgba(0, 0, 0, .05);
+}
+
+.v-table tbody tr:nth-child(even) {
+      background-color: white;
+}
+
+.v-table tbody tr {
+  padding: 12px 0px;
+}
+
+.v-data-table__td--expanded-row {
+  color: #337ab7;
+}
+
+.row-padding {
+  padding: 12px !important;
+}
+
+:deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
+      height: 40px !important;
+}
+
+.c-letter {
+  position: relative;
+  top: 1px;
+  left: 1px;
+}
+
+.slash {
+  position: relative;
+    top: 4px;
+    left: -8px;
+    font-size: 22px;
+    color: red;
+}
+
+.slash-2 {
+  position: relative;
+  top: 4px;
+  left: 12px;
+  font-size: 22px;
+  color: red;
+  z-index: 10000;
+}
+
+.advising-data {
+  position: relative;
+  left: -8px;
+}
+
+.name-container {
+  position: relative;
+  top: -1px;
+}
+
+.icons {
+  position: relative;
+  top: -1px;
+  display: inline-block;
+}
+
+.name {
+  position: relative;
+  display: inline-block;
 }
 </style>

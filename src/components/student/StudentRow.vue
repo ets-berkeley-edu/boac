@@ -1,6 +1,6 @@
 <template>
   <v-row
-    class="student-row pb-3"
+    class="student-row pb-3 width-96"
     @focusin="hover = true"
     @focusout="hover = false"
     @mouseover="hover = true"
@@ -17,6 +17,7 @@
           v-if="listType === 'curatedGroupForOwner'"
           :id="`row-${rowIndex}-remove-student-from-curated-group`"
           variant="text"
+          color="blue"
           @click="onClickRemoveStudent(student)"
           @keyup.enter="onClickRemoveStudent(student)"
         >
@@ -230,5 +231,8 @@ export default {
 }
 .student-gpa-col {
   min-width: 155px;
+}
+.width-96 {
+  width: 96%;
 }
 </style>

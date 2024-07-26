@@ -7,11 +7,11 @@
     @update:model-value="onToggle"
   >
     <v-card
-      class="modal-content"
+      class="modal-content "
       min-width="400"
       max-width="600"
     >
-      <ModalHeader :text="`Name Your ${domainLabel(true)}`" />
+      <ModalHeader class="pl-5" :text="`Name Your ${domainLabel(true)}`" />
       <hr />
       <form class="w-100 mb-2" @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
         <div class="px-4 py-2">
@@ -24,7 +24,7 @@
             counter="255"
             density="compact"
             :disabled="isSaving"
-            label="Name"
+            label= "Name"
             maxlength="255"
             required
             type="text"

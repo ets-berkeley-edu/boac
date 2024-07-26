@@ -16,7 +16,7 @@
             <SortBy :domain="domain" />
           </div>
         </div>
-        <div v-if="totalStudentCount > itemsPerPage">
+        <div v-if="totalStudentCount > itemsPerPage" class="pa-3">
           <Pagination
             :click-handler="onClickPagination"
             :init-page-number="pageNumber"
@@ -53,7 +53,7 @@
               />
             </div>
           </div>
-          <div v-if="totalStudentCount > itemsPerPage" class="mr-3">
+          <div v-if="totalStudentCount > itemsPerPage" class="mr-3 mt-7">
             <Pagination
               :click-handler="onClickPagination"
               id-prefix="auxiliary-pagination"
