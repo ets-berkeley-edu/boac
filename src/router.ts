@@ -169,19 +169,19 @@ const routes:RouteRecordRaw[] = [
   {
     path: '/',
     component: StandardLayout,
-    // beforeEnter: (to: any, from: any, next: any) => {
-    //   // Requires Director
-    //   const currentUser = useContextStore().currentUser
-    //   if (currentUser.isAuthenticated) {
-    //     if (isDirector(currentUser) || currentUser.isAdmin) {
-    //       next()
-    //     } else {
-    //       next({path: '/404'})
-    //     }
-    //   } else {
-    //     $_goToLogin(to, next)
-    //   }
-    // },
+    beforeEnter: (to: any, from: any, next: any) => {
+      // Requires Director
+      const currentUser = useContextStore().currentUser
+      if (currentUser.isAuthenticated) {
+        if (isDirector(currentUser) || currentUser.isAdmin) {
+          next()
+        } else {
+          next({path: '/404'})
+        }
+      } else {
+        $_goToLogin(to, next)
+      }
+    },
     children: [
       {
         path: '/analytics/:deptCode',
@@ -302,7 +302,7 @@ const routes:RouteRecordRaw[] = [
         name: '404'
       },
       {
-        path: '*',
+        path: '/:pathMatch(.*)*',
         redirect: '/404',
         name: 'Page not found'
       }
