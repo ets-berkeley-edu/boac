@@ -9,8 +9,7 @@
       </label>
     </div>
     <div>
-      <b-dropdown
-        id="color-code-select"
+      <v-menu
         v-model="selected"
         block
         class="mb-2 ml-0"
@@ -18,11 +17,12 @@
         :toggle-class="`align-center border-base border-color-${selected ? selected.toLowerCase() : 'lightgrey'} d-flex justify-space-between transparent`"
         variant="close-white"
       >
-        <template #button-content>
-          <div
-            v-if="selected"
+        <template #activator="{props}">
+          <v-btn
+            id="color-code-select"
             class="align-center d-flex"
             :class="`accent-color-${selected.toLowerCase()}`"
+            v-bind="props"
           >
             <div class="pr-2">
               <v-icon :icon="mdiSquareOutline" />
@@ -30,32 +30,41 @@
             <div>
               {{ selected }}
             </div>
-          </div>
+          </v-btn>
           <span v-if="!selected">Choose...</span>
         </template>
-        <b-dropdown-item
-          v-if="!!selected"
-          id="border-color-none"
-          @click="setSelected(undefined)"
-        >
-          <span class="text-medium-emphasis">-- None --</span>
-        </b-dropdown-item>
-        <b-dropdown-item
-          v-for="(hexCode, colorName) in _omit(config.degreeProgressColorCodes, [selected])"
-          :id="`color-code-${colorName.toLowerCase()}-option`"
-          :key="hexCode"
-          @click="setSelected(colorName)"
-        >
-          <div class="align-center d-flex" :class="`accent-color-${colorName.toLowerCase()}`">
-            <div class="pr-2">
-              <v-icon :icon="mdiSquareOutline" />
-            </div>
-            <div>
-              {{ colorName }}
-            </div>
-          </div>
-        </b-dropdown-item>
-      </b-dropdown>
+        <v-list>
+          <v-list-item-action v-if="!!selected">
+            <v-btn
+              id="border-color-none"
+              class="text-medium-emphasis"
+              variant="flat"
+              @click="setSelected(undefined)"
+            >
+              -- None --
+            </v-btn>
+          </v-list-item-action>
+          <v-list-item-action
+            v-for="(hexCode, colorName) in omit(contextStore.config.degreeProgressColorCodes, [selected])"
+            :key="hexCode"
+          >
+            <v-btn
+              :id="`color-code-${colorName.toLowerCase()}-option`"
+              variant="flat"
+              @click="setSelected(colorName)"
+            >
+              <div class="align-center d-flex" :class="`accent-color-${colorName.toLowerCase()}`">
+                <div class="pr-2">
+                  <v-icon :icon="mdiSquareOutline" />
+                </div>
+                <div>
+                  {{ colorName }}
+                </div>
+              </div>
+            </v-btn>
+          </v-list-item-action>
+        </v-list>
+      </v-menu>
     </div>
   </div>
 </template>
@@ -64,6 +73,8 @@
 import {alertScreenReader} from '@/lib/utils'
 import {mdiSquareOutline} from '@mdi/js'
 import {ref} from 'vue'
+import {useContextStore} from '@/stores/context'
+import {omit} from 'lodash'
 
 const props = defineProps({
   accentColor: {
@@ -76,6 +87,7 @@ const props = defineProps({
   }
 })
 
+const contextStore = useContextStore()
 const selected = ref(props.accentColor)
 
 const setSelected = value => {
