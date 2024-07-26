@@ -317,9 +317,9 @@ export default {
     },
     closeModal() {
       this.showEditUserModal = false
-      this.error = undefined
-      this.userProfile = undefined
-      this.memberships = undefined
+      this.error = {}
+      this.userProfile = {}
+      this.memberships = {}
     },
     openEditUserModal() {
       this.userProfile = {
