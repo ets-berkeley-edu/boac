@@ -107,7 +107,7 @@
       <v-row v-if="degreeStore.degreeNote && includeNote">
         <v-col class="pb-5 pt-3">
           <h3 id="degree-note" class="font-size-12 font-weight-bold">Degree Notes</h3>
-          <pre class="text-wrap" v-html="degreeStore.degreeNote.body" />
+          <pre class="border-0 text-wrap" v-html="degreeStore.degreeNote.body" />
         </v-col>
       </v-row>
     </v-container>
@@ -184,7 +184,7 @@ pre {
   background-color: #000000;
   border-radius: 5px;
   color: #fff;
-  color-adjust: exact;
+  print-color-adjust: exact;
   font-size: 12px;
   font-weight: bold;
   margin-bottom: 12px;

@@ -423,3 +423,10 @@ table thead {
     }
   }
 }
+
+@media print {
+  html,
+  body {
+    height: fit-content;
+  }
+}
