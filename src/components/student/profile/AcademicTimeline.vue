@@ -2,15 +2,15 @@
   <div v-if="!isTimelineLoading">
     <AcademicTimelineHeader
       :counts-per-type="countsPerType"
-      :filter="filter"
+      :filter="selectedFilter"
       :filter-types="filterTypes"
       :set-filter="setFilter"
       :student="student"
     />
     <div class="pt-3">
       <AcademicTimelineTable
-        :count-per-active-tab="filter ? countsPerType[filter] : _size(messages)"
-        :filter="filter"
+        :count-per-active-tab="selectedFilter ? countsPerType[selectedFilter] : size(messages)"
+        :filter="selectedFilter"
         :filter-types="filterTypes"
         :messages="messages"
         :on-create-new-note="onCreateNewNote"
@@ -21,146 +21,147 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelineHeader'
 import AcademicTimelineTable from '@/components/student/profile/AcademicTimelineTable'
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
+import {get, each, findIndex, keys, remove, size} from 'lodash'
 import {getNote} from '@/api/notes'
 import {DateTime} from 'luxon'
+import {onUnmounted, reactive, ref} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'AcademicTimeline',
-  components: {
-    AcademicTimelineTable,
-    AcademicTimelineHeader
-  },
-  mixins: [Context, Util],
-  props: {
-    student: {
-      required: true,
-      type: Object
-    }
-  },
-  data: () => ({
-    countsPerType: {},
-    eventHandlers: undefined,
-    filter: undefined,
-    filterTypes: undefined,
-    isTimelineLoading: true,
-    messages: undefined
-  }),
-  created() {
-    this.messages = []
-    this.filterTypes = {
-      alert: {name: 'Alert', tab: 'Alerts', tabWidth: 65},
-      hold: {name: 'Hold', tab: 'Holds', tabWidth: 62},
-      requirement: {name: 'Requirement', tab: 'Reqs', tabWidth: 58}
-    }
-    if (this.currentUser.canAccessAdvisingData) {
-      this.filterTypes.eForm = {name: 'EForm', tab: 'eForms', tabWidth: 76}
-      this.filterTypes.note = {name: 'Advising Note', tab: 'Notes', tabWidth: 64}
-      this.filterTypes.appointment = {name: 'Appointment', tab: 'Appointments', tabWidth: 126}
-    }
-    this._each(this._keys(this.filterTypes), (type, typeIndex) => {
-      let notifications = this.student.notifications[type]
-      this.countsPerType[type] = this._size(notifications)
-      this._each(notifications, (message, index) => {
-        this.messages.push(message)
-        // If object is not a BOA advising note then generate a transient and non-zero primary key.
-        message.transientId = (typeIndex + 1) * 1000 + index
-      })
+const props = defineProps({
+  student: {
+    required: true,
+    type: Object
+  }
+})
+
+const countsPerType = ref({})
+const currentUser = reactive(useContextStore().currentUser)
+const eventHandlers = ref(undefined)
+const filterTypes = ref(undefined)
+const isTimelineLoading = ref(true)
+const messages = ref(undefined)
+const selectedFilter = ref(undefined)
+
+const init = () => {
+  messages.value = []
+  filterTypes.value = {
+    alert: {name: 'Alert', tab: 'Alerts', tabWidth: 65},
+    hold: {name: 'Hold', tab: 'Holds', tabWidth: 62},
+    requirement: {name: 'Requirement', tab: 'Reqs', tabWidth: 58}
+  }
+  if (currentUser.canAccessAdvisingData) {
+    filterTypes.value.eForm = {name: 'EForm', tab: 'eForms', tabWidth: 76}
+    filterTypes.value.note = {name: 'Advising Note', tab: 'Notes', tabWidth: 64}
+    filterTypes.value.appointment = {name: 'Appointment', tab: 'Appointments', tabWidth: 126}
+  }
+  each(keys(filterTypes.value), (type, typeIndex) => {
+    let notifications = props.student.notifications[type]
+    countsPerType.value[type] = size(notifications)
+    each(notifications, (message, index) => {
+      messages.value.push(message)
+      // If object is not a BOA advising note then generate a transient and non-zero primary key.
+      message.transientId = (typeIndex + 1) * 1000 + index
     })
-    this.isTimelineLoading = false
-    this.eventHandlers = {
-      'note-deleted': this.onDeleteNoteEvent,
-      'note-updated': this.onNoteUpdated,
-      'notes-batch-published': this.onPublishBatchNotes
-    }
-    this._each(this.eventHandlers, (handler, eventType) => {
-      this.setEventHandler(eventType, handler)
-    })
-  },
-  unmounted() {
-    this._each(this.eventHandlers || {}, (handler, eventType) => {
-      this.removeEventHandler(eventType, handler)
-    })
-  },
-  methods: {
-    onCreateNewNote(note) {
-      if (note.sid === this.student.sid) {
-        const currentNoteIds = this._map(this._filter(this.messages, ['type', 'note']), 'id')
-        const isNotInView = !this._includes(currentNoteIds, note.id)
-        if (isNotInView) {
-          note.transientId = note.id
-          this.messages.push(note)
-          this.updateCountsPerType('note', this.countsPerType.note + 1)
-          this.sortMessages()
-          alertScreenReader(`New advising note created for student ${this.student.name}.`)
-        }
-      }
-    },
-    onDeleteNoteEvent(noteId) {
-      const removed = this._remove(this.messages, m => m.type === 'note' && m.id === noteId)
-      if (removed) {
-        this.updateCountsPerType('note', this.countsPerType.note - 1)
-        this.sortMessages()
-      }
-    },
-    onNoteUpdated(note) {
-      if (note.sid === this.student.sid) {
-        getNote(note.id).then(note => {
-          this.onCreateNewNote(note)
-        })
-      }
-    },
-    onPublishBatchNotes(noteIdsBySid) {
-      const noteId = this._get(noteIdsBySid, this.student.sid)
-      if (noteId) {
-        getNote(noteId).then(note => {
-          this.onCreateNewNote(note)
-        })
-      }
-    },
-    setFilter(filter) {
-      this.lastTimelineQuery = null
-      this.searchResults = null
-      this.timelineQuery = null
-      if (filter !== this.filter) {
-        this.filter = filter
-        this.allExpanded = false
-      }
-    },
-    sortDate(message) {
-      if (message.type === 'appointment' || message.type === 'note') {
-        if (message.setDate) {
-          return DateTime.fromJSDate(message.setDate).setZone(this.config.timezone).toUTC().toString()
-        } else {
-          return message.createdAt
-        }
-      } else {
-        return message.updatedAt || message.createdAt
-      }
-    },
-    sortMessages() {
-      this.messages.sort((m1, m2) => {
-        let d1 = this.sortDate(m1)
-        let d2 = this.sortDate(m2)
-        if (d1 && d2 && d1 !== d2) {
-          return d2.localeCompare(d1)
-        } else if (d1 === d2 && m1.id && m2.id) {
-          return m2.id < m1.id ? -1 : 1
-        } else if (!d1 && !d2) {
-          return m2.transientId - m1.transientId
-        } else {
-          return d1 ? -1 : 1
-        }
-      })
-    },
-    updateCountsPerType(type, count) {
-      this.countsPerType[type] = count
+  })
+  isTimelineLoading.value = false
+  eventHandlers.value = {
+    'note-deleted': onDeleteNoteEvent,
+    'note-updated': onNoteUpdated,
+    'notes-batch-published': onPublishBatchNotes
+  }
+  each(eventHandlers.value, (handler, eventType) => {
+    useContextStore().setEventHandler(eventType, handler)
+  })
+}
+
+const onCreateNewNote = note => {
+  if (note.sid === props.student.sid) {
+    const existingNoteIndex = findIndex(messages.value, {'id': note.id})
+    if (existingNoteIndex < 0) {
+      note.transientId = note.id
+      messages.value.push(note)
+      updateCountsPerType('note', countsPerType.value.note + 1)
+      sortMessages()
+      alertScreenReader(`New advising note created for student ${props.student.name}.`)
+    } else {
+      messages.value.splice(existingNoteIndex, 1, note)
     }
   }
 }
+
+const onDeleteNoteEvent = noteId => {
+  const removed = remove(messages.value, m => m.type === 'note' && m.id === noteId)
+  if (removed) {
+    updateCountsPerType('note', countsPerType.value.note - 1)
+    sortMessages()
+  }
+}
+
+const onNoteUpdated = note => {
+  if (note.sid === props.student.sid) {
+    getNote(note.id).then(note => {
+      onCreateNewNote(note)
+    })
+  }
+}
+
+const onPublishBatchNotes = noteIdsBySid => {
+  const noteId = get(noteIdsBySid, props.student.sid)
+  if (noteId) {
+    getNote(noteId).then(note => {
+      onCreateNewNote(note)
+    })
+  }
+}
+
+const setFilter = filter => {
+  if (selectedFilter.value !== filter) {
+    selectedFilter.value = filter
+  }
+}
+
+const sortDate = message => {
+  if (message.type === 'appointment' || message.type === 'note') {
+    if (message.setDate) {
+      return DateTime.fromJSDate(message.setDate).setZone(useContextStore().config.timezone).toUTC().toString()
+    } else {
+      return message.createdAt
+    }
+  } else {
+    return message.updatedAt || message.createdAt
+  }
+}
+
+const sortMessages = () => {
+  messages.value.sort((m1, m2) => {
+    let d1 = sortDate(m1)
+    let d2 = sortDate(m2)
+    if (d1 && d2 && d1 !== d2) {
+      return d2.localeCompare(d1)
+    } else if (d1 === d2 && m1.id && m2.id) {
+      return m2.id < m1.id ? -1 : 1
+    } else if (!d1 && !d2) {
+      return m2.transientId - m1.transientId
+    } else {
+      return d1 ? -1 : 1
+    }
+  })
+}
+
+const updateCountsPerType = (type, count) => {
+  countsPerType.value[type] = count
+}
+
+onUnmounted(() => {
+  each(eventHandlers.value || {}, (handler, eventType) => {
+    useContextStore().removeEventHandler(eventType, handler)
+  })
+})
+
+init()
+
 </script>
