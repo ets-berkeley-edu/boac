@@ -2,7 +2,7 @@
   <v-fade-transition>
     <div class="vh-100">
       <a id="skip-to-content-link" href="#content" class="sr-only">Skip to main content</a>
-      <v-layout class="h-100">
+      <v-layout>
         <v-app-bar
           color="primary"
           elevation="0"
@@ -105,6 +105,7 @@ putFocusNextTick('home-header')
 
 <style>
 .sidebar .v-navigation-drawer__content {
+  padding-bottom: 120px;
   scrollbar-width: none;
 }
 </style>

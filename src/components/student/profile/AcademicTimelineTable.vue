@@ -3,7 +3,7 @@
     <h3 class="sr-only">Quick Links</h3>
     <div class="ml-2">
       <v-btn
-        :id="`toggle-expand-all-${filter}s`"
+        :id="`toggle-expand-all-${selectedFilter}s`"
         class="px-0"
         density="compact"
         :disabled="!messagesVisible.length"
@@ -11,26 +11,26 @@
         @click.prevent="toggleExpandAll"
       >
         <v-icon :icon="allExpanded ? mdiMenuDown : mdiMenuRight" />
-        <span class="text-no-wrap">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
+        <span class="text-no-wrap">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ selectedFilter }}s</span>
       </v-btn>
     </div>
     <div v-if="showDownloadNotesLink" class="ml-3">|</div>
     <div v-if="showDownloadNotesLink" class="ml-3">
-      <a id="download-notes-link" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${filter}`">Download {{ filter }}s</a>
+      <a id="download-notes-link" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${selectedFilter}`">Download {{ selectedFilter }}s</a>
     </div>
     <div class="ml-3">|</div>
     <div class="align-center d-flex ml-3">
       <label
-        :id="`timeline-${filter}s-query-label`"
-        :for="`timeline-${filter}s-query-input`"
+        :id="`timeline-${selectedFilter}s-query-label`"
+        :for="`timeline-${selectedFilter}s-query-input`"
         class="font-weight-bold mb-0 mr-1 text-no-wrap v-btn--variant-plain"
       >
-        Search {{ filter === 'eForm' ? 'eForm' : capitalize(filter) }}s:
+        Search {{ selectedFilter === 'eForm' ? 'eForm' : capitalize(selectedFilter) }}s:
       </label>
       <v-text-field
-        :id="`timeline-${filter}s-query-input`"
+        :id="`timeline-${selectedFilter}s-query-input`"
         v-model="timelineQuery"
-        :aria-labelledby="`timeline-${filter}s-query-label`"
+        :aria-labelledby="`timeline-${selectedFilter}s-query-label`"
         bg-color="pale-blue"
         class="academic-timeline-search-input"
         color="primary"
@@ -45,7 +45,7 @@
     <div v-if="showMyNotesToggle" class="ml-3">
       <div class="align-center d-flex font-weight-bold">
         <label for="toggle-my-notes-button" class="mr-3" :class="showMyNotesOnly ? 'text-grey' : 'text-primary'">
-          All {{ filter }}s
+          All {{ selectedFilter }}s
         </label>
         <div class="mr-3">
           <v-switch
@@ -57,7 +57,7 @@
           />
         </div>
         <label for="toggle-my-notes-button" :class="showMyNotesOnly ? 'text-primary' : 'text-grey'">
-          My {{ filter }}s
+          My {{ selectedFilter }}s
         </label>
       </div>
     </div>
@@ -68,14 +68,14 @@
     id="zero-messages"
     class="font-size-16 font-weight-700 ml-6 my-4 text-grey-darken-1"
   >
-    <span v-if="filter && showMyNotesOnly">No {{ filterTypes[filter].name.toLowerCase() }}s authored by you.</span>
-    <span v-if="filter && !showMyNotesOnly">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
-    <span v-if="!filter">None</span>
+    <span v-if="selectedFilter && showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s authored by you.</span>
+    <span v-if="selectedFilter && !showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s</span>
+    <span v-if="!selectedFilter">None</span>
   </div>
 
   <div v-if="searchResults" class="ml-3 my-2">
     <h3 id="search-results-header" class="messages-none">
-      {{ pluralize(`advising ${filter}`, searchResults.length) }} for&nbsp;
+      {{ pluralize(`advising ${selectedFilter}`, searchResults.length) }} for&nbsp;
       <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
       with '{{ timelineQuery }}'
     </h3>
@@ -341,9 +341,16 @@
 <script setup>
 import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
 import AdvisingNote from '@/components/note/AdvisingNote'
+import {alertScreenReader, pluralize, putFocusNextTick, scrollTo} from '@/lib/utils'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import {capitalize, each, filter, find, get, includes, map, remove, size, slice} from 'lodash'
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
+import {DateTime} from 'luxon'
+import {deleteNote, getNote, markNoteRead} from '@/api/notes'
+import {dismissStudentAlert} from '@/api/student'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
-import TimelineDate from '@/components/student/profile/TimelineDate'
+import {isDirector} from '@/berkeley'
+import {markAppointmentRead} from '@/api/appointments'
 import {
   mdiCalendarMinus,
   mdiCheckBold,
@@ -357,360 +364,356 @@ import {
   mdiPaperclip,
   mdiSync
 } from '@mdi/js'
+import TimelineDate from '@/components/student/profile/TimelineDate'
+import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session/index'
-</script>
 
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
-import {deleteNote, getNote, markNoteRead} from '@/api/notes'
-import {dismissStudentAlert} from '@/api/student'
-import {markAppointmentRead} from '@/api/appointments'
-import {isDirector} from '@/berkeley'
-import {alertScreenReader, scrollTo} from '@/lib/utils'
-import {DateTime} from 'luxon'
-import {capitalize, each, find, get, includes, map, remove, size, slice} from 'lodash'
+const props = defineProps({
+  countPerActiveTab: {
+    required: true,
+    type: Number
+  },
+  selectedFilter: {
+    default: undefined,
+    required: false,
+    type: String
+  },
+  filterTypes: {
+    required: true,
+    type: Object
+  },
+  messages: {
+    required: true,
+    type: Array
+  },
+  onCreateNewNote: {
+    required: true,
+    type: Function
+  },
+  sortMessages: {
+    required: true,
+    type: Function
+  },
+  student: {
+    required: true,
+    type: Object
+  }
+})
 
-export default {
-  name: 'AcademicTimelineTable',
-  mixins: [Context, Util],
-  props: {
-    countPerActiveTab: {
-      required: true,
-      type: Number
-    },
-    filter: {
-      default: undefined,
-      required: false,
-      type: String
-    },
-    filterTypes: {
-      required: true,
-      type: Object
-    },
-    messages: {
-      required: true,
-      type: Array
-    },
-    onCreateNewNote: {
-      required: true,
-      type: Function
-    },
-    sortMessages: {
-      required: true,
-      type: Function
-    },
-    student: {
-      required: true,
-      type: Object
-    }
-  },
-  data: () => ({
-    allExpanded: false,
-    creatingNoteEvent: undefined,
-    defaultShowPerTab: 5,
-    editModeNoteId: undefined,
-    eventHandlers: undefined,
-    isShowingAll: false,
-    messageForDelete: undefined,
-    openMessages: [],
-    searchIndex: undefined,
-    searchResults: undefined,
-    showMyNotesOnly: false,
-    timelineQuery: ''
-  }),
-  computed: {
-    activeTab() {
-      return this.filter || 'all'
-    },
-    anchor() {
-      return location.hash
-    },
-    deleteConfirmModalBody() {
-      return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : ''
-    },
-    isExpandAllAvailable() {
-      return ['appointment', 'eForm', 'note'].includes(this.filter)
-    },
-    messagesVisible() {
-      return (this.searchResults || (this.isShowingAll ? this.messagesPerType(this.filter) : slice(this.messagesPerType(this.filter), 0, this.defaultShowPerTab)))
-    },
-    offerShowAll() {
-      return !this.searchResults && (this.countPerActiveTab > this.defaultShowPerTab)
-    },
-    showDeleteConfirmModal() {
-      return !!this.messageForDelete
-    },
-    showDownloadNotesLink() {
-      const hasNonDrafts = () => {
-        const notes = this.messagesPerType('note')
-        return find(notes, n => !n.isDraft)
+const allExpanded = ref(false)
+const config = useContextStore().config
+const creatingNoteEvent = ref(undefined)
+const currentUser = useContextStore().currentUser
+const defaultShowPerTab = ref(5)
+const editModeNoteId = ref(undefined)
+const eventHandlers = ref(undefined)
+const isShowingAll = ref(false)
+const messageForDelete = ref(undefined)
+const openMessages = ref([])
+const searchIndex = ref(undefined)
+const searchResults = ref(undefined)
+const showMyNotesOnly = ref(false)
+const timelineQuery = ref('')
+
+const activeTab = computed(() => props.selectedFilter || 'all')
+const anchor = computed(() => location.hash)
+const deleteConfirmModalBody = computed(() => messageForDelete.value ? `Are you sure you want to delete the "<b>${messageForDelete.value.subject}</b>" note?` : '')
+const isExpandAllAvailable = computed(() => ['appointment', 'eForm', 'note'].includes(props.selectedFilter))
+const messagesVisible = computed(() => {
+  return (searchResults.value || (isShowingAll.value ? messagesPerType(props.selectedFilter) : slice(messagesPerType(props.selectedFilter), 0, defaultShowPerTab.value)))
+})
+const offerShowAll = computed(() => !searchResults.value && (props.countPerActiveTab > defaultShowPerTab.value))
+const showDeleteConfirmModal = computed(() => !!messageForDelete.value)
+const showDownloadNotesLink = computed(() => {
+  const hasNonDrafts = () => {
+    const notes = messagesPerType('note')
+    return find(notes, n => !n.isDraft)
+  }
+  return ['eForm', 'note'].includes(props.selectedFilter)
+    && (currentUser.isAdmin || isDirector(currentUser))
+    && hasNonDrafts()
+})
+const showMyNotesToggle = computed(() => ['appointment', 'note'].includes(props.selectedFilter))
+
+watch(() => props.selectedFilter, () => {
+  allExpanded.value = false
+  openMessages.value = []
+  searchResults.value = null
+  timelineQuery.value = ''
+  alertScreenReader(describeTheActiveTab())
+  refreshSearchIndex()
+})
+
+watch(timelineQuery, () => {
+  if (timelineQuery.value) {
+    const query = timelineQuery.value.replace(/\s/g, '').toLowerCase()
+    const results = []
+    each(searchIndex.value, entry => {
+      if (entry.idx.indexOf(query) > -1) {
+        results.push(entry.message)
       }
-      return ['eForm', 'note'].includes(this.filter)
-        && (this.currentUser.isAdmin || isDirector(this.currentUser))
-        && hasNonDrafts()
-    },
-    showMyNotesToggle() {
-      return ['appointment', 'note'].includes(this.filter)
-    }
-  },
-  watch: {
-    filter() {
-      this.allExpanded = false
-      this.openMessages = []
-      this.searchResults = null
-      this.timelineQuery = ''
-      alertScreenReader(this.describeTheActiveTab())
-      this.refreshSearchIndex()
-    },
-    timelineQuery() {
-      if (this.timelineQuery) {
-        const query = this.timelineQuery.replace(/\s/g, '').toLowerCase()
-        const results = []
-        each(this.searchIndex, entry => {
-          if (entry.idx.indexOf(query) > -1) {
-            results.push(entry.message)
-          }
-        })
-        this.searchResults = results
-      } else {
-        this.searchResults = null
-      }
-    }
-  },
-  created() {
-    this.refreshSearchIndex()
-    if (this.currentUser.canAccessAdvisingData) {
-      this.eventHandlers = {
-        'note-creation-is-starting': this.onNoteCreateStartEvent,
-        'note-created': this.afterNoteCreated,
-        'note-updated': this.afterNoteEdit,
-        'notes-created': this.afterNotesCreated
-      }
-      each(this.eventHandlers, (handler, eventType) => {
-        this.setEventHandler(eventType, handler)
-      })
-    }
-    this.sortMessages()
-    alertScreenReader(`${this.student.name} profile loaded.`)
-  },
-  mounted() {
-    if (this.anchor) {
-      const match = this.anchor.match(/^#(\w+)-([\d\w-]+)/)
-      if (match && match.length > 2) {
-        const messageType = match[1].toLowerCase()
-        const messageId = match[2]
-        const obj = find(this.messages, function(m) {
-          // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
-          if (m.id && m.id.toString() === messageId && m.type.toLowerCase() === messageType) {
-            return true
-          }
-        })
-        if (obj) {
-          this.isShowingAll = true
-          const onNextTick = () => {
-            this.open(obj, true)
-            this.scrollToPermalink(messageType, messageId)
-          }
-          this.nextTick(onNextTick)
-        }
-      }
-    }
-  },
-  unmounted() {
-    each(this.eventHandlers || {}, (handler, eventType) => {
-      this.removeEventHandler(eventType, handler)
     })
-  },
-  methods: {
-    afterEditAdvisingNote(updatedNote) {
-      this.editModeNoteId = null
-      this.refreshNote(updatedNote)
-    },
-    afterNoteCreated(note) {
-      this.creatingNoteEvent = null
-      this.onCreateNewNote(note)
-      this.refreshSearchIndex()
-    },
-    afterNotesCreated(noteIdsBySid) {
-      const noteId = noteIdsBySid[this.student.sid]
-      if (noteId) {
-        getNote(noteId).then(this.afterNoteCreated)
-      }
-      this.refreshSearchIndex()
-    },
-    afterNoteEdit(updatedNote) {
-      this.refreshNote(updatedNote)
-    },
-    afterNoteEditCancel() {
-      this.editModeNoteId = null
-    },
-    cancelTheDelete() {
-      alertScreenReader('Canceled')
-      this.putFocusNextTick(`delete-note-button-${this.messageForDelete.id}`)
-      this.messageForDelete = undefined
-    },
-    close(message, notifyScreenReader) {
-      if (this.editModeNoteId) {
-        return false
-      }
-      if (includes(this.openMessages, message.transientId)) {
-        this.openMessages = remove(
-          this.openMessages,
-          id => id !== message.transientId
-        )
-      }
-      if (this.openMessages.length === 0) {
-        this.allExpanded = false
-      }
-      if (notifyScreenReader) {
-        alertScreenReader(`${capitalize(message.type)} closed`)
-      }
-    },
-    deleteConfirmed() {
-      const transientId = this.messageForDelete.transientId
-      const predicate = ['transientId', transientId]
-      const note = find(this.messages, predicate)
-      remove(this.messages, predicate)
-      remove(this.openMessages, value => transientId === value)
-      this.messageForDelete = undefined
-      return deleteNote(note).then(() => {
-        alertScreenReader('Note deleted')
-        this.refreshSearchIndex()
-      })
-    },
-    describeTheActiveTab() {
-      const inViewCount = this.isShowingAll || this.countPerActiveTab <= this.defaultShowPerTab ? this.countPerActiveTab : this.defaultShowPerTab
-      const noun = this.filter ? this.filterTypes[this.filter].name.toLowerCase() : 'message'
-      const pluralize = this.pluralize(noun, inViewCount)
-      return this.isShowingAll && inViewCount > this.defaultShowPerTab
-        ? `Showing all ${pluralize}`
-        : `Showing ${this.countPerActiveTab > this.defaultShowPerTab ? 'the first' : ''} ${pluralize}`
-    },
-    displayUpdatedAt(message) {
-      return message.updatedAt && (message.updatedAt !== message.createdAt) && (message.type !== 'appointment')
-    },
-    editNote(note) {
-      this.editModeNoteId = note.id
-      this.putFocusNextTick('edit-note-subject')
-    },
-    getSameDayDate(message) {
-      const format = isoDate => DateTime.fromISO(isoDate).setZone(this.config.timezone).toFormat('h:mm a')
-      return `${format(message.createdAt)} - ${format(message.endsAt)}`
-    },
-    id(rowIndex) {
-      return `timeline-tab-${this.activeTab}-message-${rowIndex}`
-    },
-    isEditable(message) {
-      return message.type === 'note' && !message.legacySource
-    },
-    markRead(message) {
-      if (!message.read) {
-        message.read = true
-        if (includes(['alert', 'hold'], message.type)) {
-          dismissStudentAlert(message.id)
-        } else if (['eForm', 'note'].includes(message.type)) {
-          markNoteRead(message.id)
-        } else if (message.type === 'appointment') {
-          markAppointmentRead(message.id)
+    searchResults.value = results
+  } else {
+    searchResults.value = null
+  }
+})
+
+const init = () => {
+  refreshSearchIndex()
+  if (currentUser.canAccessAdvisingData) {
+    eventHandlers.value = {
+      'note-creation-is-starting': onNoteCreateStartEvent,
+      'note-created': afterNoteCreated,
+      'note-updated': afterNoteEdit,
+      'notes-created': afterNotesCreated
+    }
+    each(eventHandlers.value, (handler, eventType) => {
+      useContextStore().setEventHandler(eventType, handler)
+    })
+  }
+  props.sortMessages()
+  alertScreenReader(`${props.student.name} profile loaded.`)
+}
+
+onMounted(() => {
+  if (anchor.value) {
+    const match = anchor.value.match(/^#(\w+)-([\d\w-]+)/)
+    if (match && match.length > 2) {
+      const messageType = match[1].toLowerCase()
+      const messageId = match[2]
+      const obj = find(props.messages, function(m) {
+        // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
+        if (m.id && m.id.toString() === messageId && m.type.toLowerCase() === messageType) {
+          return true
         }
-      }
-    },
-    messagesPerType(type) {
-      if (!type) {
-        return this.messages
-      } else if (this.showMyNotesToggle && this.showMyNotesOnly) {
-        return this._filter(this.messages, m => {
-          const uid = (m.author && m.author.uid) || (m.advisor && m.advisor.uid)
-          return m.type === type && uid === this.currentUser.uid
-        })
-      } else {
-        return this._filter(this.messages, ['type', type])
-      }
-    },
-    onClickDeleteNote(message) {
-      // The following opens the "Are you sure?" modal
-      alertScreenReader('Please confirm delete')
-      this.messageForDelete = message
-    },
-    onNoteCreateStartEvent(event) {
-      if (includes(event.completeSidSet, this.student.sid)) {
-        this.creatingNoteEvent = event
-      }
-    },
-    open(message, notifyScreenReader) {
-      if (['eForm', 'note'].includes(message.type) && message.id === this.editModeNoteId || message.type === 'requirement') {
-        return false
-      }
-      if (!includes(this.openMessages, message.transientId)) {
-        this.openMessages.push(message.transientId)
-      }
-      this.markRead(message)
-      if (this.isExpandAllAvailable && this.openMessages.length === this.messagesPerType(this.filter).length) {
-        this.allExpanded = true
-      }
-      if (notifyScreenReader) {
-        alertScreenReader(`${capitalize(message.type)} opened`)
-      }
-    },
-    refreshNote(updatedNote) {
-      const note = get(updatedNote.id) ? find(this.messages, ['id', updatedNote.id]) : null
-      if (note) {
-        note.attachments = updatedNote.attachments
-        note.body = note.message = updatedNote.body
-        note.contactType = updatedNote.contactType
-        note.isDraft = updatedNote.isDraft
-        note.isPrivate = updatedNote.isPrivate
-        note.setDate = updatedNote.setDate
-        note.subject = updatedNote.subject
-        note.topics = updatedNote.topics
-        note.updatedAt = updatedNote.updatedAt
-        this.refreshSearchIndex()
-      }
-    },
-    refreshSearchIndex() {
-      this.searchIndex = []
-      const messages = ['appointment', 'eForm', 'note'].includes(this.filter) ? this.messagesPerType(this.filter) : []
-      each(messages, m => {
-        const advisor = m.author || m.advisor
-        const idx = [
-          advisor.name,
-          (map(advisor.departments || [], 'name')).join(),
-          advisor.email,
-          m.body,
-          m.category,
-          m.createdBy,
-          JSON.stringify(m.eForm || {}),
-          m.legacySource,
-          m.message,
-          m.subcategory,
-          m.subject,
-          (m.topics || []).join()
-        ].join().replace(/\s/g, '').toLowerCase()
-        this.searchIndex.push({idx: idx.toLowerCase(), message: m})
       })
-    },
-    scrollToPermalink(messageType, messageId) {
-      scrollTo(`#permalink-${messageType}-${messageId}`)
-      this.putFocusNextTick(`message-row-${messageId}`)
-    },
-    toggleExpandAll() {
-      this.isShowingAll = true
-      this.allExpanded = !this.allExpanded
-      if (this.allExpanded) {
-        each(this.messagesPerType(this.filter), this.open)
-        alertScreenReader(`All ${this.filter}s expanded`)
-      } else {
-        each(this.messagesPerType(this.filter), this.close)
-        alertScreenReader(`All ${this.filter}s collapsed`)
+      if (obj) {
+        isShowingAll.value = true
+        const onNextTick = () => {
+          open(obj, true)
+          scrollToPermalink(messageType, messageId)
+        }
+        nextTick(onNextTick)
       }
-    },
-    toggleShowAll() {
-      this.isShowingAll = !this.isShowingAll
-      alertScreenReader(this.describeTheActiveTab())
+    }
+  }
+})
+
+onUnmounted(() => {
+  each(eventHandlers.value || {}, (handler, eventType) => {
+    useContextStore().removeEventHandler(eventType, handler)
+  })
+})
+
+const afterEditAdvisingNote = updatedNote => {
+  editModeNoteId.value = null
+  refreshNote(updatedNote)
+}
+
+const afterNoteCreated = note => {
+  creatingNoteEvent.value = null
+  props.onCreateNewNote(note)
+  refreshSearchIndex()
+}
+
+const afterNotesCreated = noteIdsBySid => {
+  const noteId = noteIdsBySid[props.student.sid]
+  if (noteId) {
+    getNote(noteId).then(afterNoteCreated)
+  }
+  refreshSearchIndex()
+}
+
+const afterNoteEdit = updatedNote => {
+  refreshNote(updatedNote)
+}
+
+const afterNoteEditCancel = () => {
+  editModeNoteId.value = null
+}
+
+const cancelTheDelete = () => {
+  alertScreenReader('Canceled')
+  putFocusNextTick(`delete-note-button-${messageForDelete.value.id}`)
+  messageForDelete.value = undefined
+}
+
+const close = (message, notifyScreenReader) => {
+  if (editModeNoteId.value) {
+    return false
+  }
+  if (includes(openMessages.value, message.transientId)) {
+    openMessages.value = remove(
+      openMessages.value,
+      id => id !== message.transientId
+    )
+  }
+  if (openMessages.value.length === 0) {
+    allExpanded.value = false
+  }
+  if (notifyScreenReader) {
+    alertScreenReader(`${capitalize(message.type)} closed`)
+  }
+}
+
+const deleteConfirmed = () => {
+  const transientId = messageForDelete.value.transientId
+  const predicate = ['transientId', transientId]
+  const note = find(props.messages, predicate)
+  remove(props.messages, predicate)
+  remove(openMessages.value, value => transientId === value)
+  messageForDelete.value = undefined
+  return deleteNote(note).then(() => {
+    alertScreenReader('Note deleted')
+    refreshSearchIndex()
+  })
+}
+
+const describeTheActiveTab = () => {
+  const inViewCount = isShowingAll.value || props.countPerActiveTab <= defaultShowPerTab.value ? props.countPerActiveTab : defaultShowPerTab.value
+  const noun = props.selectedFilter ? props.filterTypes[props.selectedFilter].name.toLowerCase() : 'message'
+  const pluralized = pluralize(noun, inViewCount)
+  return isShowingAll.value && inViewCount > defaultShowPerTab.value
+    ? `Showing all ${pluralized}`
+    : `Showing ${props.countPerActiveTab > defaultShowPerTab.value ? 'the first' : ''} ${pluralized}`
+}
+
+const displayUpdatedAt = message => {
+  return message.updatedAt && (message.updatedAt !== message.createdAt) && (message.type !== 'appointment')
+}
+
+const editNote = note => {
+  editModeNoteId.value = note.id
+  putFocusNextTick('edit-note-subject')
+}
+
+const getSameDayDate = message => {
+  const format = isoDate => DateTime.fromISO(isoDate).setZone(config.timezone).toFormat('h:mm a')
+  return `${format(message.createdAt)} - ${format(message.endsAt)}`
+}
+
+const isEditable = message => {
+  return message.type === 'note' && !message.legacySource
+}
+
+const markRead = message => {
+  if (!message.read) {
+    message.read = true
+    if (includes(['alert', 'hold'], message.type)) {
+      dismissStudentAlert(message.id)
+    } else if (['eForm', 'note'].includes(message.type)) {
+      markNoteRead(message.id)
+    } else if (message.type === 'appointment') {
+      markAppointmentRead(message.id)
     }
   }
 }
+
+const messagesPerType = type => {
+  if (!type) {
+    return props.messages
+  } else if (showMyNotesToggle.value && showMyNotesOnly.value) {
+    return filter(props.messages, m => {
+      const uid = (m.author && m.author.uid) || (m.advisor && m.advisor.uid)
+      return m.type === type && uid === currentUser.uid
+    })
+  } else {
+    return filter(props.messages, ['type', type])
+  }
+}
+
+const onClickDeleteNote = message => {
+  // The following opens the "Are you sure?" modal
+  alertScreenReader('Please confirm delete')
+  messageForDelete.value = message
+}
+
+const onNoteCreateStartEvent = event => {
+  if (includes(event.completeSidSet, props.student.sid)) {
+    creatingNoteEvent.value = event
+  }
+}
+
+const open = (message, notifyScreenReader) => {
+  if (['eForm', 'note'].includes(message.type) && message.id === editModeNoteId.value || message.type === 'requirement') {
+    return false
+  }
+  if (!includes(openMessages.value, message.transientId)) {
+    openMessages.value.push(message.transientId)
+  }
+  markRead(message)
+  if (isExpandAllAvailable.value && openMessages.value.length === messagesPerType(props.filter).length) {
+    allExpanded.value = true
+  }
+  if (notifyScreenReader) {
+    alertScreenReader(`${capitalize(message.type)} opened`)
+  }
+}
+
+const refreshNote = updatedNote => {
+  const note = get(updatedNote.id) ? find(props.messages, ['id', updatedNote.id]) : null
+  if (note) {
+    note.attachments = updatedNote.attachments
+    note.body = note.message = updatedNote.body
+    note.contactType = updatedNote.contactType
+    note.isDraft = updatedNote.isDraft
+    note.isPrivate = updatedNote.isPrivate
+    note.setDate = updatedNote.setDate
+    note.subject = updatedNote.subject
+    note.topics = updatedNote.topics
+    note.updatedAt = updatedNote.updatedAt
+    refreshSearchIndex()
+  }
+}
+
+const refreshSearchIndex = () => {
+  searchIndex.value = []
+  const messages = ['appointment', 'eForm', 'note'].includes(props.selectedFilter) ? messagesPerType(props.selectedFilter) : []
+  each(messages, m => {
+    const advisor = m.author || m.advisor
+    const idx = [
+      advisor.name,
+      (map(advisor.departments || [], 'name')).join(),
+      advisor.email,
+      m.body,
+      m.category,
+      m.createdBy,
+      JSON.stringify(m.eForm || {}),
+      m.legacySource,
+      m.message,
+      m.subcategory,
+      m.subject,
+      (m.topics || []).join()
+    ].join().replace(/\s/g, '').toLowerCase()
+    searchIndex.value.push({idx: idx.toLowerCase(), message: m})
+  })
+}
+
+const scrollToPermalink = (messageType, messageId) => {
+  scrollTo(`#permalink-${messageType}-${messageId}`)
+  putFocusNextTick(`message-row-${messageId}`)
+}
+
+const toggleExpandAll = () => {
+  isShowingAll.value = true
+  allExpanded.value = !allExpanded.value
+  if (allExpanded.value) {
+    each(messagesPerType(props.selectedFilter), open)
+    alertScreenReader(`All ${props.selectedFilter}s expanded`)
+  } else {
+    each(messagesPerType(props.selectedFilter), close)
+    alertScreenReader(`All ${props.selectedFilter}s collapsed`)
+  }
+}
+
+const toggleShowAll = () => {
+  isShowingAll.value = !isShowingAll.value
+  alertScreenReader(describeTheActiveTab())
+}
+
+init()
+
 </script>
 
 <style>
