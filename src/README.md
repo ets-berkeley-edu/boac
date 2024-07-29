@@ -75,7 +75,9 @@ Font Awesome to MDI
 
 ### b-form-input to v-text-field
 
-TODO: notes
+* Add property `variant="outlined"`
+** If the field is on a colored background, add `bg-color="white"`
+* The default `density` has a lot of padding. Consider using `density="comfortable"` or `density="compact"`
 
 ### b-form-textarea to v-textarea
 
@@ -103,7 +105,7 @@ If the code is difficult to migrate then consider converting it to a generic `<t
 
 See https://vuetifyjs.com/en/api/v-data-table/#links
 
-* `fields` becomes `headers` (therein, `label` becomes `title`) 
+* `fields` becomes `headers` (therein, `label` becomes `title`)
 
 ### b-modal to v-overlay
 
@@ -127,7 +129,7 @@ Use `v-data-table` with header and item slots.
 
 ### b-popover to v-tooltip
 
-TODO: notes
+- Replace property `placement` with `location`.
 
 ### b-toggle to v-expansion-panels, with v-btn to trigger
 
