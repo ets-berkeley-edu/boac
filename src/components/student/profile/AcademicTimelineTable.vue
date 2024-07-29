@@ -1,25 +1,26 @@
 <template>
   <div v-if="isExpandAllAvailable" class="align-center d-flex flex-wrap font-size-14">
     <h3 class="sr-only">Quick Links</h3>
-    <div class="ml-2">
+    <div class="pl-2 pb-2">
       <v-btn
         :id="`toggle-expand-all-${selectedFilter}s`"
-        class="px-0"
+        class="px-1"
+        color="primary"
         density="compact"
         :disabled="!messagesVisible.length"
-        variant="plain"
+        variant="text"
         @click.prevent="toggleExpandAll"
       >
         <v-icon :icon="allExpanded ? mdiMenuDown : mdiMenuRight" />
         <span class="text-no-wrap">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ selectedFilter }}s</span>
       </v-btn>
     </div>
-    <div v-if="showDownloadNotesLink" class="ml-3">|</div>
-    <div v-if="showDownloadNotesLink" class="ml-3">
+    <div v-if="showDownloadNotesLink" class="pl-3 pb-2" role="separator">|</div>
+    <div v-if="showDownloadNotesLink" class="pl-3 pb-2">
       <a id="download-notes-link" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${selectedFilter}`">Download {{ selectedFilter }}s</a>
     </div>
-    <div class="ml-3">|</div>
-    <div class="align-center d-flex ml-3">
+    <div class="pl-3 pb-2" role="separator">|</div>
+    <div class="align-center d-flex pl-3 pb-2">
       <label
         :id="`timeline-${selectedFilter}s-query-label`"
         :for="`timeline-${selectedFilter}s-query-input`"
@@ -41,8 +42,8 @@
         variant="outlined"
       />
     </div>
-    <div v-if="showMyNotesToggle" class="ml-3">|</div>
-    <div v-if="showMyNotesToggle" class="ml-3">
+    <div v-if="showMyNotesToggle" class="pl-3 pb-2" role="separator">|</div>
+    <div v-if="showMyNotesToggle" class="pl-3 pb-2">
       <div class="align-center d-flex font-weight-bold">
         <label for="toggle-my-notes-button" class="mr-3" :class="showMyNotesOnly ? 'text-grey' : 'text-primary'">
           All {{ selectedFilter }}s
@@ -62,7 +63,6 @@
       </div>
     </div>
   </div>
-
   <div
     v-if="!searchResults && !messagesVisible.length"
     id="zero-messages"
@@ -72,7 +72,6 @@
     <span v-if="selectedFilter && !showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s</span>
     <span v-if="!selectedFilter">None</span>
   </div>
-
   <div v-if="searchResults" class="ml-3 my-2">
     <h3 id="search-results-header" class="messages-none">
       {{ pluralize(`advising ${selectedFilter}`, searchResults.length) }} for&nbsp;
@@ -80,7 +79,6 @@
       with '{{ timelineQuery }}'
     </h3>
   </div>
-
   <div v-if="countPerActiveTab">
     <h3 class="sr-only">{{ activeTab === 'all' ? 'All Messages' : `${capitalize(activeTab)}s` }}</h3>
     <table id="timeline-messages" class="w-100">
@@ -90,7 +88,7 @@
         <th>Details</th>
         <th>Date</th>
       </tr>
-      <tr v-if="creatingNoteEvent" class="message-row border-t-sm border-b-sm">
+      <tr v-if="creatingNoteEvent" class="message-row-read message-row border-t-sm border-b-sm">
         <td class="column-pill align-top p-2">
           <div class="pill text-center text-uppercase text-white pill-note">
             <span class="sr-only">Creating new</span> advising note
@@ -120,7 +118,8 @@
         v-for="(message, index) in messagesVisible"
         :id="`permalink-${message.type}-${message.id}`"
         :key="index"
-        class="message-row"
+        :class="{'message-row-read': message.read}"
+        class="message-row border-t-sm border-b-sm"
       >
         <td class="column-pill align-top p-2">
           <div
@@ -138,36 +137,32 @@
             v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
             class="mt-2"
           >
-            <div v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)">
-              <v-btn
-                :id="`edit-note-${message.id}-button`"
-                class="font-size-15 my-1"
-                color="primary"
-                density="compact"
-                :disabled="useNoteStore().disableNewNoteButton"
-                variant="text"
-                @keypress.enter.stop="editNote(message)"
-                @click.stop="editNote(message)"
-              >
-                Edit {{ message.isDraft ? 'Draft' : 'Note' }}
-              </v-btn>
-            </div>
-            <div
-              v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
+            <v-btn
+              v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)"
+              :id="`edit-note-${message.id}-button`"
+              class="font-size-15 my-1"
+              color="primary"
+              density="compact"
+              :disabled="useNoteStore().disableNewNoteButton"
+              variant="text"
+              @keypress.enter.stop="editNote(message)"
+              @click.stop="editNote(message)"
             >
-              <v-btn
-                :id="`delete-note-button-${message.id}`"
-                class="font-size-15 my-1"
-                color="primary"
-                density="compact"
-                :disabled="useNoteStore().disableNewNoteButton"
-                variant="text"
-                @keydown.enter.stop="onClickDeleteNote(message)"
-                @click.stop="onClickDeleteNote(message)"
-              >
-                Delete {{ message.isDraft ? 'Draft' : 'Note' }}
-              </v-btn>
-            </div>
+              Edit {{ message.isDraft ? 'Draft' : 'Note' }}
+            </v-btn>
+            <v-btn
+              v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
+              :id="`delete-note-button-${message.id}`"
+              class="font-size-15 my-1"
+              color="primary"
+              density="compact"
+              :disabled="useNoteStore().disableNewNoteButton"
+              variant="text"
+              @keydown.enter.stop="onClickDeleteNote(message)"
+              @click.stop="onClickDeleteNote(message)"
+            >
+              Delete {{ message.isDraft ? 'Draft' : 'Note' }}
+            </v-btn>
           </div>
         </td>
         <td
@@ -316,20 +311,18 @@
       </tr>
     </table>
   </div>
-  <div :class="{'pb-4': !offerShowAll}">
-    <div v-if="offerShowAll" class="text-center">
-      <v-btn
-        :id="`timeline-tab-${activeTab}-previous-messages`"
-        class="text-no-wrap pr-2 pt-0"
-        color="primary"
-        density="compact"
-        variant="text"
-        @click="toggleShowAll"
-      >
-        <v-icon :icon="isShowingAll ? mdiMenuUp : mdiMenuRight" />
-        {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
-      </v-btn>
-    </div>
+  <div v-if="offerShowAll" class="text-center pb-4">
+    <v-btn
+      :id="`timeline-tab-${activeTab}-previous-messages`"
+      class="text-no-wrap"
+      color="primary"
+      density="comfortable"
+      variant="text"
+      @click="toggleShowAll"
+    >
+      <v-icon :icon="isShowingAll ? mdiMenuUp : mdiMenuRight" />
+      {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
+    </v-btn>
   </div>
   <AreYouSureModal
     v-model="showDeleteConfirmModal"
@@ -771,6 +764,9 @@ init()
 .message-row:hover {
   background-color: #e3f5ff;
 }
+.message-row-read {
+  background-color: rgb(var(--v-theme-light-grey));
+}
 .pill-alert {
   /* used by dynamic class attribute  */
   background-color: #eb9d3e;
@@ -810,5 +806,10 @@ init()
 }
 .text-icon-exclamation {
   color: rgb(var(--v-theme-warning));
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0 0.05em;
+  min-width: 500px;
 }
 </style>

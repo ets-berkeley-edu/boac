@@ -716,13 +716,6 @@ export default {
   font-weight: normal;
   padding: 5px 20px 5px 0;
 }
-
-.color-gray-100 {
-  background-color: #f9f9f9;
-}
-.dark-gray-background {
-  background-color: #e0dede;
-}
 .purple-background {
   background-color: #9bcbfb;
   color: #377eb6;

@@ -31,20 +31,21 @@
       selected-class="bg-sky-blue font-weight-bold"
       @update:model-value="onUpdateTabsModel"
     >
-      <v-tab id="timeline-tab-all" class="border-s-sm border-t-sm" value="all">
+      <v-tab
+        id="timeline-tab-all"
+        class="border-s-sm border-t-sm"
+        value="all"
+        variant="tonal"
+      >
         <span class="sr-only">Show </span>All
       </v-tab>
       <v-tab
-        v-for="(type, index) in keys(filterTypes)"
+        v-for="type in keys(filterTypes)"
         :id="`timeline-tab-${type}`"
         :key="type"
-        :class="{
-          'border-s-sm border-t-sm': countsPerType[type],
-          'border-s-md border-t-md': !countsPerType[type],
-          'border-e-sm': index + 1 === keys(filterTypes).length
-        }"
         :disabled="!countsPerType[type]"
         :value="type"
+        variant="tonal"
       >
         <span class="sr-only">Show </span>{{ filterTypes[type].tab }}
       </v-tab>
