@@ -126,6 +126,7 @@ export default createVuetify({
           faint: '#e0e0e0',
           info: '#367da1',
           'light-blue': '#c0ecff',
+          'light-grey': '#f9f9f9',
           'light-yellow': '#ffecc0',
           'pale-blue': '#f3fbff',
           primary: '#3b7ea5',

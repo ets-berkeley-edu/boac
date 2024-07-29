@@ -18,7 +18,7 @@
       <div class="border-b-sm">
         <AcademicTimeline :student="student" />
       </div>
-      <StudentClasses class="mt-3" :student="student" />
+      <StudentClasses class="mt-4" :student="student" />
     </div>
     <AreYouSureModal
       v-model="showAreYouSureModal"
