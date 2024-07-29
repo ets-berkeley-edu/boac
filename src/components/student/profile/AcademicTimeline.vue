@@ -10,7 +10,7 @@
     <div class="pt-3">
       <AcademicTimelineTable
         :count-per-active-tab="selectedFilter ? countsPerType[selectedFilter] : size(messages)"
-        :filter="selectedFilter"
+        :selected-filter="selectedFilter"
         :filter-types="filterTypes"
         :messages="messages"
         :on-create-new-note="onCreateNewNote"

@@ -13,6 +13,7 @@
         v-model="manuallySetDate"
         aria-labelledby="manually-set-date-label"
         autocomplete="off"
+        bg-color="white"
         :class="{'rounded-e-0': manuallySetDate}"
         clearable
         density="compact"

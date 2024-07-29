@@ -141,9 +141,11 @@
             <div v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)">
               <v-btn
                 :id="`edit-note-${message.id}-button`"
+                class="font-size-15 my-1"
+                color="primary"
+                density="compact"
                 :disabled="useNoteStore().disableNewNoteButton"
                 variant="text"
-                class="p-0 edit-note-button"
                 @keypress.enter.stop="editNote(message)"
                 @click.stop="editNote(message)"
               >
@@ -155,9 +157,11 @@
             >
               <v-btn
                 :id="`delete-note-button-${message.id}`"
+                class="font-size-15 my-1"
+                color="primary"
+                density="compact"
                 :disabled="useNoteStore().disableNewNoteButton"
                 variant="text"
-                class="p-0 edit-note-button"
                 @keydown.enter.stop="onClickDeleteNote(message)"
                 @click.stop="onClickDeleteNote(message)"
               >
@@ -334,7 +338,7 @@
     :function-confirm="deleteConfirmed"
     modal-header="Delete note"
   >
-    {{ deleteConfirmModalBody }}
+    Are you sure you want to delete the <span v-if="messageForDelete">"<b>{{ messageForDelete.subject }}</b>"</span> note?
   </AreYouSureModal>
 </template>
 
@@ -417,7 +421,6 @@ const timelineQuery = ref('')
 
 const activeTab = computed(() => props.selectedFilter || 'all')
 const anchor = computed(() => location.hash)
-const deleteConfirmModalBody = computed(() => messageForDelete.value ? `Are you sure you want to delete the "<b>${messageForDelete.value.subject}</b>" note?` : '')
 const isExpandAllAvailable = computed(() => ['appointment', 'eForm', 'note'].includes(props.selectedFilter))
 const messagesVisible = computed(() => {
   return (searchResults.value || (isShowingAll.value ? messagesPerType(props.selectedFilter) : slice(messagesPerType(props.selectedFilter), 0, defaultShowPerTab.value)))
@@ -509,6 +512,7 @@ onUnmounted(() => {
 const afterEditAdvisingNote = updatedNote => {
   editModeNoteId.value = null
   refreshNote(updatedNote)
+  putFocusNextTick(`edit-note-${updatedNote.id}-button`)
 }
 
 const afterNoteCreated = note => {
@@ -530,6 +534,7 @@ const afterNoteEdit = updatedNote => {
 }
 
 const afterNoteEditCancel = () => {
+  putFocusNextTick(`edit-note-${editModeNoteId.value}-button`)
   editModeNoteId.value = null
 }
 
@@ -643,7 +648,7 @@ const open = (message, notifyScreenReader) => {
     openMessages.value.push(message.transientId)
   }
   markRead(message)
-  if (isExpandAllAvailable.value && openMessages.value.length === messagesPerType(props.filter).length) {
+  if (isExpandAllAvailable.value && openMessages.value.length === messagesPerType(props.selectedFilter).length) {
     allExpanded.value = true
   }
   if (notifyScreenReader) {
@@ -752,9 +757,6 @@ init()
 .column-right {
   text-align: right;
   width: 1%;
-}
-.edit-note-button {
-  font-size: 15px;
 }
 .message-open {
   flex-flow: row wrap;
