@@ -8,50 +8,37 @@
           elevation="0"
           @shortkey="() => putFocusNextTick('search-students-input')"
         >
+          <v-app-bar-nav-icon
+            v-if="!$vuetify.display.mdAndUp"
+            id="app-bar-nav-icon"
+            aria-controls="small-viewport-sidebar"
+            :aria-label="showSidebar ? 'Collapse navigation menu' : 'Expand navigation menu'"
+            @click.stop="showSidebar = !showSidebar"
+          ></v-app-bar-nav-icon>
           <AppBar />
         </v-app-bar>
         <v-navigation-drawer
+          v-if="$vuetify.display.mdAndUp"
           class="bg-tertiary pt-1 sidebar"
           permanent
-          :rail="$vuetify.display.smAndDown"
-          rail-width="200"
+          :scrim="false"
         >
           <template #append>
-            <div
-              v-if="currentUser.canAccessAdvisingData"
-              class="fixed-bottom-sidebar bg-tertiary px-3 py-0 w-100"
-              :class="{'z-index-0': !loading}"
-            >
-              <LinkToDraftNotes class="pt-2" />
-              <v-btn
-                v-if="!currentUser.isAdmin"
-                id="batch-note-button"
-                class="mb-5 mt-3 w-100"
-                color="primary"
-                :disabled="!!useNoteStore().mode"
-                variant="flat"
-                @click="isCreateNoteModalOpen = true"
-              >
-                <v-icon class="mr-1" :icon="mdiFileDocument" />
-                New Note
-              </v-btn>
-              <EditBatchNoteModal
-                v-model="isCreateNoteModalOpen"
-                initial-mode="createBatch"
-                :on-close="() => {
-                  isCreateNoteModalOpen = false
-                  putFocusNextTick('batch-note-button')
-                }"
-                :toggle-show="show => isCreateNoteModalOpen = show"
-              />
-            </div>
+            <SidebarFooter v-if="currentUser.canAccessAdvisingData" />
           </template>
           <Sidebar />
         </v-navigation-drawer>
         <v-main id="content">
           <div class="h-100" :class="{'align-center d-flex justify-center': loading}">
             <PlaneGoRound v-if="loading" />
-            <div v-show="!loading" class="h-100 w-100">
+            <v-expand-transition>
+              <Sidebar
+                v-if="!$vuetify.display.mdAndUp && showSidebar && !loading"
+                id="small-viewport-sidebar"
+                class="bg-tertiary"
+              />
+            </v-expand-transition>
+            <div v-show="!loading" class="w-100">
               <ServiceAnnouncement />
               <router-view :key="split($route.fullPath, '#', 1)[0]" />
             </div>
@@ -59,7 +46,7 @@
           <v-footer
             v-if="!loading"
             absolute
-            class="w-100"
+            class="align-end w-100"
             color="transparent"
             location="bottom"
           >
@@ -74,34 +61,22 @@
 <script setup>
 import AppBar from '@/layouts/shared/AppBar'
 import AppFooter from '@/layouts/shared/AppFooter'
-import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
-import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes.vue'
+import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
 import Sidebar from '@/components/sidebar/Sidebar'
-import {mdiFileDocument} from '@mdi/js'
 import {putFocusNextTick} from '@/lib/utils'
 import {ref} from 'vue'
 import {split} from 'lodash'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
-import {useNoteStore} from '@/stores/note-edit-session'
 
 const currentUser = useContextStore().currentUser
 const {loading} = storeToRefs(useContextStore())
-const isCreateNoteModalOpen = ref(false)
+const showSidebar = ref(true)
 
 putFocusNextTick('home-header')
 </script>
-
-<style scoped>
-.fixed-bottom-sidebar {
-  bottom: 0;
-  box-shadow: 0px -25px 35px -22px rgb(var(--v-theme-tertiary));
-  position: fixed;
-  z-index: 2;
-}
-</style>
 
 <style>
 .sidebar .v-navigation-drawer__content {
