@@ -24,11 +24,11 @@
           Fulfillment requirement name cannot exceed 255 characters.
         </span>
       </div>
-      <b-collapse :visible="!!nameErrorMessage">
-        <span class="text-error text-grey font-size-12">
+      <v-expand-transition>
+        <div v-if="nameErrorMessage" class="text-error text-grey font-size-12">
           {{ nameErrorMessage }}
-        </span>
-      </b-collapse>
+        </div>
+      </v-expand-transition>
     </div>
     <div class="d-flex flex-column pb-3">
       <UnitsInput
@@ -42,33 +42,31 @@
         :units-lower="minUnits"
       />
     </div>
-    <b-btn
+    <v-btn
       v-if="!unitRequirement"
       id="create-unit-requirement-btn"
+      color="primary"
       :disabled="disableSaveButton"
-      class="btn-primary-color-override"
-      variant="primary"
       @click.prevent="create"
     >
       Create Unit Requirement
-    </b-btn>
-    <b-btn
+    </v-btn>
+    <v-btn
       v-if="unitRequirement"
       id="update-unit-requirement-btn"
+      color="primary"
       :disabled="disableSaveButton"
-      class="btn-primary-color-override"
-      variant="primary"
       @click.prevent="update"
     >
       Save Unit Requirement
-    </b-btn>
-    <b-btn
+    </v-btn>
+    <v-btn
       id="cancel-create-unit-requirement-btn"
-      variant="link"
+      variant="text"
       @click.prevent="cancel"
     >
       Cancel
-    </b-btn>
+    </v-btn>
   </form>
 </template>
 

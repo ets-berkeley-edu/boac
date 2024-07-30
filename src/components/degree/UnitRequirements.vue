@@ -28,9 +28,9 @@
             </v-btn>
           </div>
         </div>
-        <div v-if="!isEditing">
+        <div v-if="!isEditing" class="mt-1">
           <div
-            v-if="!items.length"
+            v-if="!size(items)"
             id="unit-requirements-no-data"
             class="no-data-text pl-1"
           >
@@ -40,102 +40,140 @@
           TODO:
             thead-class="border-bottom"
           -->
-          <v-data-table
-            id="unit-requirements-table"
-            :cell-props="data => {
-              const align = ['minUnits', 'completed'].includes(data.column.key) ? 'float-right' : ''
-              const fontSize = printable ? 'font-size-12' : 'font-size-16'
-              const padding = ['name', 'minUnits'].includes(data.column.key) ? 'pl-0 pr-1 pt-0' : 'px-0'
-              return {
-                style: 'height: 25px !important',
-                class: `${align} font-size-12 ${padding} ${fontSize}`
-              }
-            }"
-            class="mt-2"
-            density="compact"
-            disable-sort
-            :headers="headers"
-            hide-default-footer
-            :items="_filter(items, item => item.type === 'unitRequirement' || item.isExpanded)"
-            :items-per-page="-1"
-            mobile-breakpoint="md"
-            :row-props="data => {
-              const id = data.item.id
-              // TODO: data.item.parent.id
-              const parentId = 'data.item.parent.id'
-              return {
-                id: data.item.type === 'course' ? `unit-requirement-${parentId}-course-${id}` : `unit-requirement-${id}`
-              }
-            }"
-          >
-            <template #headers="{columns}">
+          <table id="unit-requirements-table" class="w-100">
+            <thead class="border-b-sm">
               <tr>
-                <template v-for="column in columns" :key="column.key">
-                  <th :class="`${get(column.headerProps, 'class')}`">
-                    {{ column.title }}
-                  </th>
-                </template>
+                <th
+                  id="th-unit-requirements-name"
+                  class="font-size-12 text-no-wrap text-uppercase th-height"
+                >
+                  Fulfillment Requirements
+                </th>
+                <th
+                  id="th-unit-requirements-min-units"
+                  class="float-right font-size-12 pr-3 text-no-wrap text-uppercase th-height"
+                >
+                  {{ degreeStore.sid ? 'Min' : 'Min Units' }}
+                </th>
+                <th
+                  v-if="degreeStore.sid"
+                  id="th-unit-requirements-completed"
+                  class="float-right font-size-12 text-no-wrap text-uppercase th-height"
+                >
+                  Completed
+                </th>
+                <th
+                  v-if="!degreeStore.sid && currentUser.canEditDegreeProgress && !props.printable"
+                  id="th-unit-requirements-actions"
+                  class="px-0 th-height"
+                >
+                  <span class="sr-only">Actions</span>
+                </th>
               </tr>
-            </template>
-            <template v-if="degreeStore.sid && !printable" #item.name="{item}">
-              <div v-if="item.type === 'course'" class="pl-3">
-                {{ item.name }}
-              </div>
-              <v-btn
-                v-if="item.type === 'unitRequirement'"
-                :id="`unit-requirement-${item.id}-toggle`"
-                class="border-0 pa-0"
-                :class="{'shadow-none': !item.isExpanded}"
-                variant="text"
-                @click.prevent="toggleExpanded(item)"
+            </thead>
+            <tbody>
+              <tr
+                v-for="item in _filter(items, row => row.type === 'unitRequirement' || row.isExpanded)"
+                :id="item.type === 'course' ? `unit-requirement-${item.parent.id}-course-${item.id}` : `unit-requirement-${item.id}`"
+                :key="item.id"
               >
-                <div class="d-flex text-left">
-                  <div class="caret caret-column pale-blue">
-                    <v-icon :icon="item.isExpanded ? mdiMenuDown : mdiMenuRight" />
-                  </div>
-                  <div>
-                    <span class="sr-only">{{ `${item.isExpanded ? 'Hide' : 'Show'} fulfillments of ` }}</span>
+                <td
+                  :class="{
+                    'font-size-12': printable,
+                    'font-size-16': !printable
+                  }"
+                >
+                  <div v-if="!degreeStore.sid || printable" class="mr-1">
                     {{ item.name }}
                   </div>
-                </div>
-              </v-btn>
-              <div
-                v-if="item.isExpanded && item.type === 'unitRequirement' && !item.children.length"
-                :id="`unit-requirement-${item.id}-no-courses`"
-                class="text-grey pb-1 pl-4 pt-1"
-              >
-                No courses
-              </div>
-            </template>
-            <template v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable" #item.actions="{item}">
-              <div class="align-center d-flex">
-                <v-btn
-                  :id="`unit-requirement-${item.id}-edit-btn`"
-                  class="pr-2 pt-0"
-                  :disabled="degreeStore.disableButtons"
-                  size="small"
-                  variant="text"
-                  @click.prevent="onClickEdit(item)"
+                  <div v-if="degreeStore.sid && !printable">
+                    <div v-if="item.type === 'course'" class="pl-3">
+                      {{ item.name }}
+                    </div>
+                    <v-btn
+                      v-if="item.type === 'unitRequirement'"
+                      :id="`unit-requirement-${item.id}-toggle`"
+                      class="border-0 pa-0"
+                      :class="{'shadow-none': !item.isExpanded}"
+                      variant="text"
+                      @click.prevent="toggleExpanded(item)"
+                    >
+                      <div class="d-flex text-left">
+                        <div class="caret caret-column pale-blue">
+                          <v-icon :icon="item.isExpanded ? mdiMenuDown : mdiMenuRight" />
+                        </div>
+                        <div>
+                          <span class="sr-only">{{ `${item.isExpanded ? 'Hide' : 'Show'} fulfillments of ` }}</span>
+                          {{ item.name }}
+                        </div>
+                      </div>
+                    </v-btn>
+                    <div
+                      v-if="item.isExpanded && item.type === 'unitRequirement' && !item.children.length"
+                      :id="`unit-requirement-${item.id}-no-courses`"
+                      class="text-grey pb-1 pl-4 pt-1"
+                    >
+                      No courses
+                    </div>
+                  </div>
+                </td>
+                <td
+                  class="pr-3 text-right"
+                  :class="{
+                    'font-size-12': printable,
+                    'font-size-16': !printable
+                  }"
                 >
-                  <v-icon :icon="mdiNoteEditOutline" />
-                  <span class="sr-only">Edit {{ item.name }}</span>
-                </v-btn>
-              </div>
-              <div>
-                <v-btn
-                  :id="`unit-requirement-${item.id}-delete-btn`"
-                  class="px-0 pt-0"
-                  :disabled="degreeStore.disableButtons"
-                  size="small"
-                  variant="text"
-                  @click.prevent="onClickDelete(item)"
+                  <div class="float-end w-100">
+                    {{ item.minUnits }}
+                  </div>
+                </td>
+                <td
+                  v-if="degreeStore.sid"
+                  class="text-right"
+                  :class="{
+                    'font-size-12': printable,
+                    'font-size-16': !printable
+                  }"
                 >
-                  <v-icon :icon="mdiTrashCanOutline" />
-                  <span class="sr-only">Delete {{ item.name }}</span>
-                </v-btn>
-              </div>
-            </template>
-          </v-data-table>
+                  {{ item.completed }}
+                </td>
+                <td
+                  v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable"
+                  class="align-center d-flex font-size-16 justify-end px-0"
+                >
+                  <div>
+                    <v-btn
+                      :id="`unit-requirement-${item.id}-edit-btn`"
+                      :aria-label="`Edit ${item.name}`"
+                      class="mx-1 text-primary"
+                      density="compact"
+                      :disabled="degreeStore.disableButtons"
+                      flat
+                      :icon="mdiNoteEditOutline"
+                      size="small"
+                      title="Edit"
+                      @click.prevent="onClickEdit(item)"
+                    />
+                  </div>
+                  <div>
+                    <v-btn
+                      :id="`unit-requirement-${item.id}-delete-btn`"
+                      :aria-label="`Delete ${item.name}`"
+                      class="text-primary"
+                      density="compact"
+                      :disabled="degreeStore.disableButtons"
+                      flat
+                      :icon="mdiTrashCan"
+                      size="small"
+                      title="Delete"
+                      @click.prevent="onClickDelete(item)"
+                    />
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div v-if="isEditing" class="mb-3">
           <EditUnitRequirement :on-exit="reset" :unit-requirement="selected" />
@@ -159,12 +197,12 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditUnitRequirement from '@/components/degree/EditUnitRequirement'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {deleteUnitRequirement} from '@/api/degree'
-import {mdiMenuDown, mdiMenuRight, mdiNoteEditOutline, mdiPlus, mdiTrashCanOutline} from '@mdi/js'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
-import {useDegreeStore} from '@/stores/degree-edit-session'
-import {useContextStore} from '@/stores/context'
+import {each, filter as _filter, find, get, map, size, sortBy} from 'lodash'
+import {mdiMenuDown, mdiMenuRight, mdiNoteEditOutline, mdiPlus, mdiTrashCan} from '@mdi/js'
 import {onMounted, ref, watch} from 'vue'
-import {each, filter as _filter, find, get, map, sortBy} from 'lodash'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {useContextStore} from '@/stores/context'
+import {useDegreeStore} from '@/stores/degree-edit-session'
 
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
@@ -177,10 +215,9 @@ const props = defineProps({
 })
 
 const currentUser = contextStore.currentUser
-const headers = []
 const isDeleting = ref(false)
 const isEditing = ref(false)
-const items = ref(undefined)
+const items = ref({})
 const render = ref(false)
 const selected = ref(undefined)
 
@@ -189,29 +226,6 @@ watch(() => degreeStore.lastPageRefreshAt, () => {
 })
 
 onMounted(() => {
-  const classes = 'border-b-sm font-size-12 text-no-wrap text-uppercase th-height'
-  headers.push({
-    key: 'name',
-    headerProps: {class: `${classes} px-0`},
-    title: 'Fulfillment Requirements'
-  })
-  headers.push({
-    key: 'minUnits',
-    headerProps: {class: `${classes} px-0 float-right`},
-    title: degreeStore.sid ? 'Min' : 'Min Units'
-  })
-  if (degreeStore.sid) {
-    headers.push({
-      key: 'completed',
-      headerProps: {class: `${classes} px-0 float-right`},
-      title: 'Completed'
-    })
-  } else if (currentUser.canEditDegreeProgress && !degreeStore.sid && !props.printable) {
-    headers.push({
-      key: 'actions',
-      headerProps: {class: `${classes} px-0`}
-    })
-  }
   refresh()
   render.value = true
 })
@@ -323,10 +337,17 @@ const toggleExpanded = item => {
 </script>
 
 <style scoped>
+table {
+  border-collapse: collapse;
+}
+td {
+  height: 25px;
+  vertical-align: top;
+}
+th {
+  height: 20px;
+}
 .caret-column {
   width: 1.3rem;
-}
-.th-height {
-  height: 20px !important;
 }
 </style>
