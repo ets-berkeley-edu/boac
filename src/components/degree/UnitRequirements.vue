@@ -12,20 +12,14 @@
           <div v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable">
             <v-btn
               id="unit-requirement-create-link"
-              class="pr-0 py-0"
+              color="primary"
+              density="compact"
               :disabled="degreeStore.disableButtons"
+              text="Add Unit Requirement"
               variant="text"
+              :append-icon="mdiPlus"
               @click.prevent="onClickAdd"
-            >
-              <div class="align-center d-flex justify-space-between">
-                <div class="pr-2 text-no-wrap">
-                  Add unit requirement
-                </div>
-                <div>
-                  <v-icon class="font-size-16" :icon="mdiPlus" />
-                </div>
-              </div>
-            </v-btn>
+            />
           </div>
         </div>
         <div v-if="!isEditing" class="mt-1">
@@ -36,10 +30,6 @@
           >
             No unit requirements created
           </div>
-          <!--
-          TODO:
-            thead-class="border-bottom"
-          -->
           <table id="unit-requirements-table" class="w-100">
             <thead class="border-b-sm">
               <tr>
@@ -187,7 +177,7 @@
       :function-confirm="deleteConfirmed"
       modal-header="Delete Unit Requirement"
     >
-      Are you sure you want to delete <strong>{{ _get(selected, 'name') }}</strong>?
+      Are you sure you want to delete <strong>{{ get(selected, 'name') }}</strong>?
     </AreYouSureModal>
   </v-container>
 </template>

@@ -1,22 +1,25 @@
 <template>
   <form id="unit-requirement-form" @submit.prevent="create">
-    <div class="d-flex flex-column pb-3">
+    <div>
       <label
         id="label-of-name-input"
         for="unit-requirement-name-input"
-        class="font-weight-700"
-      >Fulfillment Requirement Name (required)</label>
-      <input
+        class="font-weight-700 mb-1"
+      >
+        Fulfillment Requirement Name (required)
+      </label>
+      <v-text-field
         id="unit-requirement-name-input"
-        v-model.trim="name"
-        class="form-control unit-requirement-name"
-        aria-labelledby="label-of-name-input"
+        v-model="name"
         :aria-invalid="!name"
         aria-required="true"
+        class="unit-requirement-name"
+        density="compact"
+        hide-details
         maxlength="255"
         required
-        type="text"
-        @keypress.enter="() => unitRequirement ? update() : create()"
+        variant="outlined"
+        @keydown.enter="unitRequirement ? update : create"
       />
       <div class="pl-2">
         <span class="text-grey font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
@@ -30,43 +33,42 @@
         </div>
       </v-expand-transition>
     </div>
-    <div class="d-flex flex-column pb-3">
+    <div class="mt-3">
       <UnitsInput
         :disable="isSaving"
         :error-message="unitsErrorMessage"
         input-id="unit-requirement-min-units-input"
         label="Minimum Units (required)"
         :max="100"
-        :on-submit="() => unitRequirement ? update() : create()"
+        :on-submit="unitRequirement ? update : create"
         :set-units-lower="setMinUnits"
         :units-lower="minUnits"
       />
     </div>
-    <v-btn
-      v-if="!unitRequirement"
-      id="create-unit-requirement-btn"
-      color="primary"
-      :disabled="disableSaveButton"
-      @click.prevent="create"
-    >
-      Create Unit Requirement
-    </v-btn>
-    <v-btn
-      v-if="unitRequirement"
-      id="update-unit-requirement-btn"
-      color="primary"
-      :disabled="disableSaveButton"
-      @click.prevent="update"
-    >
-      Save Unit Requirement
-    </v-btn>
-    <v-btn
-      id="cancel-create-unit-requirement-btn"
-      variant="text"
-      @click.prevent="cancel"
-    >
-      Cancel
-    </v-btn>
+    <div class="mt-3">
+      <v-btn
+        v-if="!unitRequirement"
+        id="create-unit-requirement-btn"
+        color="primary"
+        :disabled="disableSaveButton"
+        text="Create Unit Requirement"
+        @click.prevent="create"
+      />
+      <v-btn
+        v-if="unitRequirement"
+        id="update-unit-requirement-btn"
+        color="primary"
+        :disabled="disableSaveButton"
+        text="Save Unit Requirement"
+        @click.prevent="update"
+      />
+      <v-btn
+        id="cancel-create-unit-requirement-btn"
+        text="Cancel"
+        variant="text"
+        @click.prevent="cancel"
+      />
+    </div>
   </form>
 </template>
 
@@ -181,9 +183,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.unit-requirement-name {
-  width: 22rem;
-}
-</style>
