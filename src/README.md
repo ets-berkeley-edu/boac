@@ -127,7 +127,7 @@ Example: src/components/search/SortableStudents.vue
 - In Vuetify tables with sortable headers, the default table headers need to be overridden so that they contain buttons for the benefit of screen readers.
 - To highlight rows when you hover over them, add class `.table-hover`.
 
-### b-table-simple to (1) table or (2) v-data-table
+### b-table-simple to (1) native table or (2) v-data-table
 
 A native table may be easier to style. Or, use `v-data-table` with header and item slots.
 
