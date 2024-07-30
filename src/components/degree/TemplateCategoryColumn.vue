@@ -1,26 +1,20 @@
 <template>
   <div :id="`category-column-${position}`">
-    <div v-if="!degreeStore.sid" class="d-flex justify-space-between pb-3">
+    <div v-if="!degreeStore.sid" class="align-center d-flex justify-space-between pb-3">
       <div class="pill bg-grey text-no-wrap px-2 text-uppercase text-white">Column {{ position }}</div>
       <v-btn
         v-if="currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"
-        class="p-0"
+        :append-icon="mdiPlus"
+        density="compact"
         :disabled="degreeStore.disableButtons"
+        color="primary"
+        :text="`Add column ${position} requirement`"
         variant="text"
         @click="add"
-      >
-        <div class="align-center d-flex justify-space-between">
-          <div class="pr-2 text-no-wrap">
-            Add column {{ position }} requirement
-          </div>
-          <div>
-            <v-icon :icon="mdiPlus" />
-          </div>
-        </div>
-      </v-btn>
+      />
     </div>
-    <div v-if="isAddingCategory">
+    <div v-if="isAddingCategory" class="pb-6 pt-3">
       <EditCategory
         :after-cancel="onExitEditCategory"
         :after-save="onExitEditCategory"

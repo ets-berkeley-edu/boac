@@ -3,6 +3,7 @@
     <select
       :id="`column-${position}-unit-requirement-select`"
       v-model="model"
+      class="select-menu"
       :disabled="disable || (degreeStore.unitRequirements.length === selected.length)"
     >
       <option
