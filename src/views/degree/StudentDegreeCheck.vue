@@ -8,9 +8,9 @@
           :student="student"
         />
       </div>
+      <StudentDegreeCheckHeader :student="student" />
       <div class="default-margins">
-        <StudentDegreeCheckHeader :student="student" />
-        <v-container class="px-0 py-2" fluid>
+        <v-container fluid>
           <v-row no-gutters>
             <v-col cols="4">
               <UnitRequirements />
@@ -67,8 +67,8 @@
             </v-col>
           </v-row>
         </v-container>
-        <DebugTemplate v-if="contextStore.config.isVueAppDebugMode" />
       </div>
+      <DebugTemplate v-if="contextStore.config.isVueAppDebugMode" />
     </div>
   </div>
 </template>
