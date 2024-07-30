@@ -1,13 +1,14 @@
 <template>
-  <div :id="`column-${position}-edit-category`" class="pb-3">
+  <div :id="`column-${position}-edit-category`">
     <div v-if="!existingCategory">
       <div class="font-weight-500">
         Requirement Type (required)
       </div>
-      <div class="pb-1">
+      <div>
         <select
           :id="`column-${position}-add-category-select`"
           v-model="selectedCategoryType"
+          class="select-menu"
           :disabled="isSaving"
         >
           <option
@@ -30,18 +31,21 @@
         </select>
       </div>
     </div>
-    <div v-if="selectedCategoryType" class="pb-1">
+    <div v-if="selectedCategoryType" class="mt-3">
       <div v-if="!isCampusRequirements(existingCategory)">
         <div class="font-weight-500">
           {{ selectedCategoryType }} Name (required)
         </div>
-        <div class="pb-1">
-          <b-form-input
+        <div>
+          <v-text-field
             :id="`column-${position}-name-input`"
             v-model="name"
+            density="compact"
             :disabled="isSaving"
+            hide-details
             maxlength="255"
-            @keypress.enter="onSubmit"
+            variant="outlined"
+            @keydown.enter="onSubmit"
           />
           <div class="pl-1">
             <span class="text-grey font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
@@ -51,10 +55,10 @@
           </div>
         </div>
       </div>
-      <div v-if="existingCategory && isCampusRequirements(existingCategory)" class="pb-1">
+      <div v-if="existingCategory && isCampusRequirements(existingCategory)" class="mt-3">
         <h3 :id="`column-${position}-name`" class="font-weight-bold font-size-18">{{ name }}</h3>
       </div>
-      <div v-if="selectedCategoryType === 'Course Requirement'" class="pb-1">
+      <div v-if="selectedCategoryType === 'Course Requirement'">
         <UnitsInput
           :disable="isSaving"
           :error-message="unitsErrorMessage"
@@ -71,19 +75,21 @@
           Transfer Course
         </div>
         <div class="mb-3">
-          <b-form-checkbox
+          <v-checkbox
             id="is-satisfied-by-transfer-course-checkbox"
             v-model="isSatisfiedByTransferCourse"
-          >
-            Mark transfer course as purple
-          </b-form-checkbox>
+            color="primary"
+            density="compact"
+            hide-details
+            label="Mark transfer course as purple"
+          />
         </div>
       </div>
-      <div v-if="unitRequirements.length && !isCampusRequirements(existingCategory)">
-        <div class="font-weight-500 pb-1">
+      <div v-if="unitRequirements.length && !isCampusRequirements(existingCategory)" class="mt-3">
+        <div class="font-weight-500">
           Requirement Fulfillment
         </div>
-        <div class="mb-3">
+        <div>
           <SelectUnitFulfillment
             :ref="`column-${position}-unit-requirement-select`"
             :disable="isSaving"
@@ -93,24 +99,27 @@
           />
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Course Requirement'" class="pb-1">
+      <div v-if="selectedCategoryType !== 'Course Requirement'" class="mt-3">
         <div class="font-weight-500">
           {{ selectedCategoryType }} Description
         </div>
         <div>
-          <b-form-textarea
+          <v-textarea
             :id="`column-${position}-description-input`"
             v-model="descriptionText"
             :disabled="isSaving"
+            hide-details
+            max-rows="10"
             rows="4"
+            variant="outlined"
           />
         </div>
       </div>
-      <div v-if="!_includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="pb-1">
+      <div v-if="!_includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="mt-3">
         <div class="font-weight-500 pb-1">
           Requirement Location (required)
         </div>
-        <div class="pb-1">
+        <div>
           <select
             :id="`column-${position}-parent-category-select`"
             v-model="selectedParentCategory"
@@ -140,29 +149,23 @@
         </div>
       </div>
     </div>
-    <div class="d-flex mt-2">
-      <div class="pr-2">
-        <v-btn
+    <div class="d-flex mt-4">
+      <div class="mr-1">
+        <ProgressButton
           :id="`column-${position}-create-requirement-btn`"
+          :action="onSubmit"
           color="primary"
           :disabled="disableSaveButton"
-          size="small"
-          @click="onSubmit"
-        >
-          <span v-if="isSaving">
-            <v-progress-circular class="mr-1" size="small" /> Saving
-          </span>
-          <span v-if="existingCategory && !isSaving">Save</span>
-          <span v-if="!existingCategory && !isSaving">Create Requirement</span>
-        </v-btn>
+          :in-progress="isSaving"
+          :text="isSaving ? 'Saving...' : (existingCategory ? 'Save' : 'Create Requirement')"
+        />
       </div>
       <div>
         <v-btn
           :id="`column-${position}-cancel-create-requirement-btn`"
           color="primary"
           :disabled="isSaving"
-          size="sm"
-          variant="outlined"
+          variant="text"
           @click="cancel"
         >
           Cancel
@@ -188,10 +191,11 @@ import {
   validateUnitRange
 } from '@/lib/degree-progress'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import ProgressButton from '@/components/util/ProgressButton.vue'
 
 export default {
   name: 'EditCategory',
-  components: {UnitsInput, SelectUnitFulfillment},
+  components: {ProgressButton, UnitsInput, SelectUnitFulfillment},
   mixins: [Context, DegreeEditSession, Util],
   props: {
     afterCancel: {
