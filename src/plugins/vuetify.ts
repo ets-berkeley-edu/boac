@@ -3,7 +3,7 @@ import {aliases, mdi} from 'vuetify/iconsets/mdi-svg'
 import {createVuetify} from 'vuetify'
 import {Intersect, Resize} from 'vuetify/directives'
 import {VAlert} from 'vuetify/components/VAlert'
-import {VAppBar, VAppBarTitle} from 'vuetify/components/VAppBar'
+import {VAppBar, VAppBarNavIcon, VAppBarTitle} from 'vuetify/components/VAppBar'
 import {VApp} from 'vuetify/components/VApp'
 import {VAutocomplete} from 'vuetify/components/VAutocomplete'
 import {VBanner} from 'vuetify/components/VBanner'
@@ -45,6 +45,7 @@ export default createVuetify({
   components: {
     VApp,
     VAppBar,
+    VAppBarNavIcon,
     VAppBarTitle,
     VAlert,
     VAutocomplete,

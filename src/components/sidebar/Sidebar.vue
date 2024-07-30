@@ -157,17 +157,21 @@
         </router-link>
       </div>
     </v-list-item>
+    <v-list-item v-if="!$vuetify.display.mdAndUp" class="px-0 pt-4">
+      <SidebarFooter />
+    </v-list-item>
   </v-list>
 </template>
 
 <script lang="ts" setup>
-import NavLink from '@/components/util/NavLink.vue'
 import {capitalize} from 'lodash'
 import {computed} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {filter} from 'lodash'
 import {mdiPlus} from '@mdi/js'
+import NavLink from '@/components/util/NavLink.vue'
 import {pluralize} from '@/lib/utils'
+import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import {useContextStore} from '@/stores/context'
 
 const extract = (domain: string, objects: any[]) => filter(objects, ['domain', domain])
