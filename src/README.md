@@ -99,6 +99,10 @@ Example: src/components/note/AdvisingNoteTopics.vue
 
 Do NOT use Vuetify `<v-select />` component because it violates web accessibility. Use a native `<select />` HTML element.
 
+### b-link to (1) native anchor tag or (2) v-btn with variant 'text'
+
+TODO: Notes
+
 ### b-table-lite to v-data-table
 
 If the code is difficult to migrate then consider converting it to a generic `<table />` without using Vuetify at all.
@@ -123,9 +127,9 @@ Example: src/components/search/SortableStudents.vue
 - In Vuetify tables with sortable headers, the default table headers need to be overridden so that they contain buttons for the benefit of screen readers.
 - To highlight rows when you hover over them, add class `.table-hover`.
 
-### b-table-simple to v-data-table
+### b-table-simple to (1) table or (2) v-data-table
 
-Use `v-data-table` with header and item slots.
+A native table may be easier to style. Or, use `v-data-table` with header and item slots.
 
 ### b-popover to v-tooltip
 
@@ -134,3 +138,9 @@ Use `v-data-table` with header and item slots.
 ### b-toggle to v-expansion-panels, with v-btn to trigger
 
 TODO: notes
+
+## Web Accessibility
+
+How code and verify the front-end, with accessibility always in mind:
+
+* Use the BOA feature with keyboard-only.

@@ -93,7 +93,7 @@ const isMenuOpen = ref(false)
 const isSaving = ref(false)
 const selected = ref(null)
 const options = computed(() => {
-  const courses = degreeStore.courses.value.assigned.concat(degreeStore.courses.value.unassigned)
+  const courses = degreeStore.courses.assigned.concat(degreeStore.courses.unassigned)
   return _filter(sortBy(courses, [c => c.name.toLowerCase()], ['name', 'id']), c => !c.isCopy)
 })
 

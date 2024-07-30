@@ -4,7 +4,7 @@
       <v-btn
         :id="`create-course-under-parent-category-${parentCategory.id}`"
         class="font-weight-500 p-0"
-        :disabled="disableButtons"
+        :disabled="degreeStore.disableButtons"
         variant="text"
         @click.prevent="openModal"
       >

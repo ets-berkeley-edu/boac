@@ -15,7 +15,7 @@
             <v-col cols="4">
               <UnitRequirements />
             </v-col>
-            <v-col :cols="courses['ignored'].length ? 4 : 3">
+            <v-col :cols="degreeStore.courses['ignored'].length ? 4 : 3">
               <div
                 id="drop-zone-ignored-courses"
                 class="drop-zone"

@@ -4,36 +4,33 @@
       No courses
     </div>
     <div v-if="degreeStore.courses[key].length" :id="`${key}-courses-container`">
-      <b-table-simple
+      <table
         :id="`${key}-courses-table`"
-        borderless
         class="mb-1 w-100 table-layout"
-        responsive="md"
-        small
       >
-        <b-thead class="border-bottom">
-          <b-tr class="text-no-wrap">
-            <b-th v-if="currentUser.canEditDegreeProgress" class="th-course-assignment-menu">
+        <thead class="border-bottom">
+          <tr class="text-no-wrap">
+            <th v-if="currentUser.canEditDegreeProgress" class="th-course-assignment-menu">
               <span class="sr-only">Options to assign course</span>
-            </b-th>
-            <b-th class="pl-0 th-name">Course</b-th>
-            <b-th class="pl-0 text-right">Units</b-th>
-            <b-th class="th-grade">Grade</b-th>
-            <b-th v-if="!ignored" class="pl-0">Term</b-th>
-            <b-th
+            </th>
+            <th class="pl-0 th-name">Course</th>
+            <th class="pl-0 text-right">Units</th>
+            <th class="th-grade">Grade</th>
+            <th v-if="!ignored" class="pl-0">Term</th>
+            <th
               class="pl-0"
               :class="{
                 'th-note': hasAnyNotes
               }"
             >
               Note
-            </b-th>
-            <b-th v-if="currentUser.canEditDegreeProgress"></b-th>
-          </b-tr>
-        </b-thead>
-        <b-tbody>
+            </th>
+            <th v-if="currentUser.canEditDegreeProgress"></th>
+          </tr>
+        </thead>
+        <tbody>
           <template v-for="(course, index) in degreeStore.courses[key]" :key="`tr-${index}`">
-            <b-tr
+            <tr
               :id="course.manuallyCreatedBy ? `${key}-course-${course.id}-manually-created` : `${key}-course-${course.termId}-${course.sectionId}`"
               class="tr-course"
               :class="{
@@ -43,9 +40,9 @@
                 'accent-color-purple': course.accentColor === 'Purple',
                 'accent-color-red': course.accentColor === 'Red',
                 'border-left border-right border-top': isNoteVisible(course),
-                'cursor-grab': canDrag() && !draggingContext.course,
-                'mouseover-grabbable': hoverCourseId === course.id && !draggingContext.course,
-                'tr-while-dragging': isUserDragging(course.id)
+                'cursor-grab': canDrag() && !degreeStore.draggingContext.course,
+                'mouseover-grabbable': hoverCourseId === course.id && !degreeStore.draggingContext.course,
+                'tr-while-dragging': degreeStore.isUserDragging(course.id)
               }"
               :draggable="canDrag()"
               @dragend="onDrag($event, 'end', course)"
@@ -57,7 +54,7 @@
               @mouseleave="onMouse('leave', course)"
             >
               <td v-if="currentUser.canEditDegreeProgress" class="pl-0 td-course-assignment-menu">
-                <div v-if="!isUserDragging(course.id)">
+                <div v-if="!degreeStore.isUserDragging(course.id)">
                   <CourseAssignmentMenu :after-course-assignment="() => putFocusNextTick(`${key}-header`)" :course="course" />
                 </div>
               </td>
@@ -109,7 +106,7 @@
               </td>
               <td class="td-note">
                 <div v-if="course.note && !isNoteVisible(course) && !degreeStore.isUserDragging(course.id)" class="d-flex justify-content-start">
-                  <b-link
+                  <a
                     :id="`course-${course.id}-note`"
                     class="truncate-with-ellipsis"
                     href
@@ -151,23 +148,23 @@
                   </div>
                 </div>
               </td>
-            </b-tr>
-            <b-tr v-if="isEditing(course)" :key="`tr-${index}-edit`">
-              <b-td colspan="7">
+            </tr>
+            <tr v-if="isEditing(course)" :key="`tr-${index}-edit`">
+              <td colspan="7">
                 <EditCourse
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :course="course"
                   :position="0"
                 />
-              </b-td>
-            </b-tr>
-            <b-tr
+              </td>
+            </tr>
+            <tr
               v-if="isNoteVisible(course)"
               :key="`tr-${index}-note`"
               class="border-bottom border-left border-right"
             >
-              <b-td colspan="5" class="px-4">
+              <td colspan="5" class="px-4">
                 <span
                   :id="`${course.id}-note`"
                   aria-live="polite"
@@ -187,11 +184,11 @@
                     @click="hideNote(course)"
                   />]
                 </span>
-              </b-td>
-            </b-tr>
+              </td>
+            </tr>
           </template>
-        </b-tbody>
-      </b-table-simple>
+        </tbody>
+      </table>
     </div>
     <AreYouSureModal
       v-model="isDeleting"
