@@ -38,7 +38,7 @@
             </option>
           </select>
         </div>
-        <div class="d-flex mt-3">
+        <div class="align-center d-flex mt-6">
           <div class="mr-1">
             <ProgressButton
               id="save-degree-check-btn"
@@ -124,8 +124,9 @@ const onClickSave = () => {
   isSaving.value = true
   alertScreenReader('Saving')
   createDegreeCheck(student.value.sid, selectedOption.value.id).then(data => {
-    isSaving.value = false
-    router.push(`/student/degree/${data.id}`)
+    router.push(`/student/degree/${data.id}`).then(() => {
+      isSaving.value = false
+    })
   })
 }
 </script>

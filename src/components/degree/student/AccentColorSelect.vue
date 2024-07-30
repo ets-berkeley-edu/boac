@@ -14,14 +14,14 @@
         block
         class="mb-2 ml-0"
         menu-class="w-100"
-        :toggle-class="`align-center border-base border-color-${selected ? selected.toLowerCase() : 'lightgrey'} d-flex justify-space-between transparent`"
+        :toggle-class="`align-center border-base border-color-${selected ? toLower(selected) : 'lightgrey'} d-flex justify-space-between transparent`"
         variant="close-white"
       >
         <template #activator="{props}">
           <v-btn
             id="color-code-select"
             class="align-center d-flex"
-            :class="`accent-color-${selected.toLowerCase()}`"
+            :class="`accent-color-${toLower(selected)}`"
             v-bind="props"
           >
             <div class="pr-2">
@@ -74,7 +74,7 @@ import {alertScreenReader} from '@/lib/utils'
 import {mdiSquareOutline} from '@mdi/js'
 import {ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {omit} from 'lodash'
+import {omit, toLower} from 'lodash'
 
 const props = defineProps({
   accentColor: {

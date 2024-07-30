@@ -251,7 +251,7 @@ import {updateDegreeNote} from '@/api/degree'
 import {computed, onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {each, get} from 'lodash'
+import {each, get, includes} from 'lodash'
 
 defineProps({
   student: {
