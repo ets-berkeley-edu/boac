@@ -2,7 +2,7 @@
   <div>
     <div
       v-if="!includes(degreeStore.dismissedAlerts, degreeStore.templateId) && showRevisionIndicator"
-      class="align-start d-flex pa-4 warning-message-container"
+      class="align-center border-b-sm d-flex mb-3 pb-3 pt-4 px-4 warning-message-container"
     >
       <div class="d-inline-block pr-2 w-100">
         <span class="font-weight-700">Note:</span> Revisions to the
@@ -17,11 +17,12 @@
         have been made since the creation of <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}'s</span>
         degree check. Please update below if necessary.
       </div>
-      <div class="align-self-center pr-1">
+      <div class="align-self-center pr-1 pt-1">
         <v-btn
           id="dismiss-alert"
           aria-label="Dismiss alert"
           color="transparent"
+          density="comfortable"
           flat
           :icon="mdiClose"
           size="small"
@@ -31,11 +32,11 @@
       </div>
     </div>
     <div class="border-b-md border-color-warning mx-3">
-      <v-container class="pt-2 px-0" fluid>
+      <v-container class="py-2 px-0" fluid>
         <v-row>
           <v-col cols="8">
             <h2 class="mb-1 page-section-header">{{ degreeStore.degreeName }}</h2>
-            <div class="text-grey-darken-2 font-size-16 font-weight-500">
+            <div class="text-grey-darken-2 font-size-16 font-weight-500 pb-2">
               {{ updatedAtDescription }}
             </div>
           </v-col>
@@ -82,7 +83,7 @@
     <div class="border-b-md border-color-warning mx-3">
       <v-container class="border-bottom border-warning px-0" fluid>
         <v-row align="start">
-          <v-col class="pt-0" cols="8">
+          <v-col class="py-1" cols="8">
             <div v-if="isEditingNote || noteBody" class="d-flex justify-space-between">
               <div>
                 <h3 class="font-size-20 font-weight-bold text-no-wrap">Degree Notes</h3>
@@ -91,7 +92,7 @@
                 <label for="degree-note-print-toggle" class="text-grey font-weight-500 pr-3">
                   Show notes when printed
                 </label>
-                <div :class="{'text-success': includeNotesWhenPrint, 'text-danger': !includeNotesWhenPrint}">
+                <div :class="{'text-success': degreeStore.includeNotesWhenPrint, 'text-danger': !degreeStore.includeNotesWhenPrint}">
                   <div class="d-flex">
                     <div class="toggle-label">
                       {{ degreeStore.includeNotesWhenPrint ? 'Yes' : 'No' }}
@@ -113,6 +114,7 @@
             <v-btn
               v-if="currentUser.canEditDegreeProgress && !isEditingNote && !noteBody"
               id="create-degree-note-btn"
+              class="font-size-16 pl-0"
               color="primary"
               :disabled="degreeStore.disableButtons"
               text="Create degree note"
@@ -125,7 +127,7 @@
           </v-col>
         </v-row>
         <v-row align-v="start">
-          <v-col cols="8">
+          <v-col class="py-1" cols="8">
             <div v-if="noteBody && !isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="d-flex font-size-14">
               <div v-if="noteUpdatedBy" class="pr-2 text-no-wrap">
                 <span v-if="noteUpdatedBy" class="text-grey font-weight-normal">
@@ -169,22 +171,16 @@
                     rows="4"
                   />
                 </div>
-              </div>
-              <div>
                 <div class="d-flex ml-2 my-2">
                   <div>
-                    <v-btn
+                    <ProgressButton
                       id="save-degree-note-btn"
-                      class="btn-primary-color-override"
+                      :action="saveNote"
                       color="primary"
                       :disabled="noteBody === get(degreeStore.degreeNote, 'body') || isSaving"
-                      @click="saveNote"
-                    >
-                      <span v-if="isSaving">
-                        <v-progress-circular class="mr-1" size="small" />
-                      </span>
-                      <span v-if="!isSaving">Save Note</span>
-                    </v-btn>
+                      :in-progress="isSaving"
+                      :text="isSaving ? 'Saving...' : 'Save'"
+                    />
                   </div>
                   <div>
                     <v-btn
@@ -199,27 +195,19 @@
               </div>
             </div>
           </v-col>
-          <v-col class="pb-2" cols="4">
-            <!--
-              TODO:
-              * `class` needs to move out of headers
-              * tbody-class
-              * thead-class
-            -->
+          <v-col class="pb-2 pt-1" cols="4">
             <v-data-table
               v-if="degreeStore.courses.inProgress.length"
               id="in-progress-courses"
               borderless
               class="mb-0"
+              density="compact"
               :headers="[
                 {key: 'displayName', title: 'Course'},
                 {class: 'float-right', key: 'units', title: 'Units'}
               ]"
               :items="getInProgressCourses"
               primary-key="primaryKey"
-              density="compact"
-              tbody-class="font-size-14"
-              thead-class="border-bottom font-size-14"
             >
               <template #item.displayName="{item}">
                 <div class="d-flex">
@@ -234,7 +222,7 @@
                 </div>
               </template>
             </v-data-table>
-            <span v-if="!degreeStore.courses.inProgress.length" class="text-grey pl-1">None</span>
+            <span v-if="!degreeStore.courses.inProgress.length" class="text-grey">None</span>
           </v-col>
         </v-row>
       </v-container>
@@ -253,6 +241,7 @@ import {computed, onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {each, get, includes} from 'lodash'
+import ProgressButton from '@/components/util/ProgressButton.vue'
 
 defineProps({
   student: {

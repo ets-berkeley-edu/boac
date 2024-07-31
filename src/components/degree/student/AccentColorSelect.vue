@@ -13,7 +13,7 @@
       v-model="selected"
       class="select-menu w-100"
     >
-      <option class="line2" :value="undefined" @select="setSelected(undefined)">
+      <option :value="undefined" @select="setSelected(undefined)">
         Choose...
       </option>
       <option
@@ -60,15 +60,6 @@ const setSelected = value => {
 </script>
 
 <style>
-option.line1 {
-	background-color: #000000;
-	color: #ffffff;
-}
-
-option.line2 {
-	background-color: #000000;
-	color: #ffff00;
-}
 .border-base {
   border: 1px solid;
 }
