@@ -58,17 +58,14 @@
       <v-btn
         v-if="currentUser.canEditDegreeProgress"
         id="duplicate-existing-course"
-        class="align-center d-flex flex-row-reverse p-0"
+        class="align-center d-flex flex-row-reverse font-size-16 pl-0 text-no-wrap"
+        color="primary"
         :disabled="degreeStore.disableButtons || !options.length"
         variant="text"
         @click.prevent="openMenu"
       >
-        <div class="font-size-16 text-no-wrap">
-          Duplicate Course
-        </div>
-        <div class="font-size-14 pr-1">
-          <v-icon :icon="mdiPlus" />
-        </div>
+        <v-icon :icon="mdiPlus" size="20" />
+        Duplicate Course
       </v-btn>
     </div>
   </div>

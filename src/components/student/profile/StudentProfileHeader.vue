@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-wrap mr-4" :class="{'pb-0 pt-2': compact, 'pb-2 pt-4': !compact}">
+  <div class="d-flex flex-wrap mr-4 pb-2 pt-4">
     <div class="d-flex ml-3 me-auto">
       <div class="text-center" :class="{'column-with-avatar-compact': compact, 'column-with-avatar': !compact}">
         <StudentAvatar :size="compact ? 'medium' : 'large'" :student="student" />
@@ -24,9 +24,10 @@
       />
     </div>
   </div>
-  <div class="my-1 text-center">
+  <div class="text-center">
     <StudentPersonalDetails
       v-if="!compact"
+      class="my-1"
       :inactive-majors="plansPartitionedByStatus[0].length ? plansPartitionedByStatus[1] : []"
       :inactive-minors="plansMinorPartitionedByStatus[0].length ? plansMinorPartitionedByStatus[1] : []"
       :inactive-subplans="plansPartitionedByStatus[0].length ? discontinuedSubplans : []"
