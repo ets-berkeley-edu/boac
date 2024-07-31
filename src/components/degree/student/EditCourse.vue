@@ -11,8 +11,10 @@
         id="course-name-input"
         v-model="name"
         class="cohort-create-input-name"
+        density="compact"
+        hide-details
         maxlength="255"
-        size="md"
+        variant="outlined"
       />
       <div class="text-grey mb-2"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
       <div
@@ -45,7 +47,7 @@
         />
       </div>
     </div>
-    <div class="pb-2">
+    <div>
       <UnitsInput
         :disable="isSaving"
         :error-message="unitsErrorMessage"
@@ -56,8 +58,8 @@
         :units-lower="units"
       />
     </div>
-    <div v-if="course.manuallyCreatedBy" class="pb-2">
-      <label id="grade-label" for="course-grade-input" class="font-weight-700 mb-1 pr-2">
+    <div v-if="course.manuallyCreatedBy" class="mt-2">
+      <label id="grade-label" for="course-grade-input" class="font-weight-700">
         Grade
       </label>
       <v-text-field
@@ -70,41 +72,37 @@
         @keydown.enter="update"
       />
     </div>
-    <div v-if="course.manuallyCreatedBy" class="pb-2">
+    <div v-if="course.manuallyCreatedBy" class="mt-2">
       <AccentColorSelect
         :accent-color="accentColor"
         :on-change="value => accentColor = value"
       />
     </div>
-    <label for="course-note-textarea" class="font-weight-500 pb-0">
-      Note
-    </label>
-    <div class="pb-3">
+    <div class="mt-2">
+      <label for="course-note-textarea" class="font-weight-500">
+        Note
+      </label>
       <v-textarea
         id="course-note-textarea"
         v-model="note"
         :disabled="isSaving"
-        rows="4"
+        hide-details
+        rows="3"
         variant="outlined"
         @keyup.esc="cancel"
       />
     </div>
-    <div class="d-flex">
-      <div class="pr-2">
-        <v-btn
-          id="update-note-btn"
-          class="px-3"
-          color="primary"
-          :disabled="disableSaveButton"
-          size="small"
-          @click="update"
-        >
-          <span v-if="isSaving">
-            <v-progress-circular class="mr-1" size="small" />
-          </span>
-          <span v-if="!isSaving">Save</span>
-        </v-btn>
-      </div>
+    <div class="align-center d-flex mt-2">
+      <ProgressButton
+        id="update-note-btn"
+        :action="update"
+        class="mr-1"
+        color="primary"
+        :disabled="disableSaveButton"
+        :in-progress="isSaving"
+        size="small"
+        :text="isSaving ? 'Saving...' : 'Save'"
+      />
       <div>
         <v-btn
           id="cancel-update-note-btn"
@@ -129,8 +127,9 @@ import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {updateCourse} from '@/api/degree'
 import {validateUnitRange} from '@/lib/degree-progress'
 import {computed, onMounted, ref} from 'vue'
-import {clone, isEmpty as _isEmpty, map, size, trim} from 'lodash'
+import {isEmpty, map, size, trim} from 'lodash'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import ProgressButton from '@/components/util/ProgressButton.vue'
 
 const props = defineProps({
   afterCancel: {
@@ -153,25 +152,25 @@ const props = defineProps({
 
 const degreeStore = useDegreeStore()
 
-const accentColor = props.course.accentColor
+const accentColor = ref(props.course.accentColor)
 const error = ref(undefined)
-const grade = props.course.grade
+const grade = ref(props.course.grade)
 const isSaving = ref(false)
-const name = props.course.name
-const note = props.course.note
-const selectedUnitRequirements = clone(props.course.unitRequirements)
-const units = props.course.units
+const name = ref(props.course.name)
+const note = ref(props.course.note)
+const selectedUnitRequirements = ref(props.course.unitRequirements)
+const units = ref(props.course.units)
 
 const disableSaveButton = computed(() => {
   return !!(isSaving.value || unitsErrorMessage.value || (props.course.manuallyCreatedBy && !trim(name.value)))
 })
 
 const unitsErrorMessage = computed(() => {
-  const isEmpty = _isEmpty(trim(units.value))
-  if (isEmpty && props.course.manuallyCreatedBy) {
+  const isEmptyUnits = isEmpty(trim(units.value))
+  if (isEmptyUnits && props.course.manuallyCreatedBy) {
     return null
   }
-  return isEmpty ? 'Required' : validateUnitRange(units.value, undefined, 10).message
+  return isEmptyUnits ? 'Required' : validateUnitRange(units.value, undefined, 10).message
 })
 
 onMounted(() => {

@@ -222,29 +222,26 @@
                     <v-btn
                       v-if="!degreeStore.isUserDragging(get(bundle.course, 'id'))"
                       :id="`column-${position}-edit-${bundle.key}-btn`"
-                      class="pl-0 pr-1 py-0"
+                      :aria-label="`Edit ${bundle.name}`"
+                      density="compact"
                       :disabled="degreeStore.disableButtons"
+                      :icon="mdiNoteEditOutline"
                       size="small"
-                      variant="text"
                       @click="edit(bundle)"
-                    >
-                      <v-icon :icon="mdiNoteEditOutline" />
-                      <span class="sr-only">Edit {{ bundle.name }}</span>
-                    </v-btn>
+                    />
                   </div>
                   <div class="btn-container">
                     <v-btn
                       v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && !degreeStore.isUserDragging(get(bundle.course, 'id'))"
                       :id="`column-${position}-delete-${bundle.key}-btn`"
-                      class="pl-0 pr-1 py-0"
+                      :aria-label="`Delete ${bundle.name}`"
+                      density="compact"
+                      :icon="mdiTrashCanOutline"
                       :disabled="degreeStore.disableButtons"
                       size="small"
                       variant="text"
                       @click="onDelete(bundle)"
-                    >
-                      <v-icon :icon="mdiTrashCanOutline" />
-                      <span class="sr-only">Delete {{ bundle.name }}</span>
-                    </v-btn>
+                    />
                   </div>
                 </div>
               </td>

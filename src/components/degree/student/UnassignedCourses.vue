@@ -10,22 +10,37 @@
       >
         <thead class="border-bottom">
           <tr class="text-no-wrap">
-            <th v-if="currentUser.canEditDegreeProgress" class="th-course-assignment-menu">
+            <th
+              v-if="currentUser.canEditDegreeProgress"
+              style="{max-width: 28px !important; width: 28px !important;}"
+            >
               <span class="sr-only">Options to assign course</span>
             </th>
-            <th class="pl-0 th-name">Course</th>
-            <th class="pl-0 text-right">Units</th>
-            <th class="th-grade">Grade</th>
-            <th v-if="!ignored" class="pl-0">Term</th>
+            <th style="{max-width: 100px !important; width: 100px !important;}">
+              Course
+            </th>
             <th
-              class="pl-0"
-              :class="{
-                'th-note': hasAnyNotes
-              }"
+              class="pr-1 text-right"
+              style="{max-width: 40px !important; width: 40px !important;}"
             >
+              Units
+            </th>
+            <th style="{max-width: 46px !important; width: 46px !important;}">
+              Grade
+            </th>
+            <th
+              v-if="!ignored"
+              style="{max-width: 44px !important; width: 44px !important;}"
+            >
+              Term
+            </th>
+            <th class="pl-0">
               Note
             </th>
-            <th v-if="currentUser.canEditDegreeProgress"></th>
+            <th
+              v-if="currentUser.canEditDegreeProgress"
+              style="{max-width: 28px !important; width: 28px !important;}"
+            />
           </tr>
         </thead>
         <tbody>
@@ -53,8 +68,8 @@
               @mouseenter="onMouse('enter', course)"
               @mouseleave="onMouse('leave', course)"
             >
-              <td v-if="currentUser.canEditDegreeProgress" class="pl-0 td-course-assignment-menu">
-                <div v-if="!degreeStore.isUserDragging(course.id)">
+              <td v-if="currentUser.canEditDegreeProgress" class="pl-0 td-course-assignment-menu" style="{width: 28px !important;}">
+                <div v-if="!degreeStore.isUserDragging(course.id)" class="mx-1">
                   <CourseAssignmentMenu :after-course-assignment="() => putFocusNextTick(`${key}-header`)" :course="course" />
                 </div>
               </td>
@@ -79,7 +94,7 @@
                   class="fulfillments-icon mr-1 pl-0"
                   :icon="mdiCheckCircleOutline"
                   size="sm"
-                  :title="`Counts towards ${oxfordJoin(_map(course.unitRequirements, 'name'))}`"
+                  :title="`Counts towards ${oxfordJoin(map(course.unitRequirements, 'name'))}`"
                 />
                 <v-icon
                   v-if="unitsWereEdited(course)"
@@ -116,41 +131,46 @@
                 </div>
                 <div v-if="!course.note" :id="`course-${course.id}-note`">&mdash;</div>
               </td>
-              <td v-if="currentUser.canEditDegreeProgress" class="td-course-edit-button">
+              <td
+                v-if="currentUser.canEditDegreeProgress"
+                class="pr-0"
+              >
                 <div class="d-flex justify-content-end">
-                  <div v-if="course.manuallyCreatedBy" class="btn-container">
+                  <div v-if="course.manuallyCreatedBy">
                     <v-btn
                       v-if="!degreeStore.isUserDragging(course.id)"
                       :id="`delete-${course.id}-btn`"
+                      :aria-label="`Delete ${course.name}`"
                       class="pl-0 pr-1 py-0"
+                      color="transparent"
+                      density="compact"
                       :disabled="degreeStore.disableButtons"
+                      flat
+                      :icon="mdiTrashCanOutline"
                       size="small"
-                      variant="text"
                       @click="onDelete(course)"
-                    >
-                      <v-icon :icon="mdiTrashCanOutline" />
-                      <span class="sr-only">Delete {{ course.name }}</span>
-                    </v-btn>
+                    />
                   </div>
-                  <div class="btn-container">
+                  <div>
                     <v-btn
                       v-if="!degreeStore.isUserDragging(course.id)"
                       :id="`edit-${key}-course-${course.id}-btn`"
-                      class="font-size-14 pl-0 pr-1 py-0"
+                      :aria-label="`Edit ${course.name}`"
+                      class="pl-0 pr-1 py-0"
+                      color="transparent"
+                      density="compact"
                       :disabled="degreeStore.disableButtons"
+                      flat
+                      :icon="mdiNoteEditOutline"
                       size="small"
-                      variant="text"
                       @click="edit(course)"
-                    >
-                      <v-icon :icon="mdiNoteEditOutline" />
-                      <span class="sr-only">Edit {{ course.name }}</span>
-                    </v-btn>
+                    />
                   </div>
                 </div>
               </td>
             </tr>
             <tr v-if="isEditing(course)" :key="`tr-${index}-edit`">
-              <td colspan="7">
+              <td class="pl-4 py-2" colspan="7">
                 <EditCourse
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
@@ -219,8 +239,8 @@ import {
 import {unitsWereEdited} from '@/lib/degree-progress'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {computed, ref} from 'vue'
-import {find, get, includes, isNil, remove} from 'lodash'
+import {ref} from 'vue'
+import {get, includes, isNil, remove} from 'lodash'
 
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
@@ -240,10 +260,6 @@ const hoverCourseId = ref(undefined)
 const isDeleting = ref(false)
 const key = props.ignored ? 'ignored' : 'unassigned'
 const notesVisible = ref([])
-
-const hasAnyNotes = computed(() => {
-  return !!find(degreeStore.courses[key.value], course => course.note)
-})
 
 const afterCancel = () => {
   const putFocus = `edit-${key}-course-${courseForEdit.value.id}-btn`
@@ -362,9 +378,6 @@ table {
   border-collapse: separate;
   border-spacing: 0 0.05em;
 }
-.btn-container {
-  min-width: 20px;
-}
 .changed-units-icon {
   color: #00c13a;
   margin-right: 0.3em;
@@ -387,56 +400,32 @@ table {
 .td-course-assignment-menu {
   font-size: 14px;
   padding: 0 0 0 10px;
-  vertical-align: middle;
-  width: 14px;
-}
-.td-course-edit-button {
-  padding-right: 0;
-  vertical-align: middle;
-  width: 24px;
+  vertical-align: top;
 }
 .td-grade {
   padding: 0 0.5em 0 0.4em;
-  vertical-align: middle;
-  width: 30px;
+  vertical-align: top;
 }
 .td-name {
   font-size: 14px;
   line-height: 95%;
   padding: 0.2em 0 0 0.25em;
-  vertical-align: middle;
-  width: 72px;
+  vertical-align: top;
 }
 .td-note {
   max-width: 100px;
   padding: 0 0.5em 0 0;
-  vertical-align: middle;
-  width: 1px;
+  vertical-align: top;
 }
 .td-term {
-  line-height: 90%;
-  vertical-align: middle;
-  width: 36px;
+  line-height: 1.2em;
+  vertical-align: top;
 }
 .td-units {
   text-align: right;
-  padding: 0 0.5em 0 0;
-  vertical-align: middle;
+  padding-right: 0.5em;
+  vertical-align: top;
   white-space: nowrap;
-  width: 50px;
-}
-.th-course-assignment-menu {
-  padding: 0 0.3em 0 0;
-  width: 14px;
-}
-.th-grade {
-  width: 60px;
-}
-.th-name {
-  width: 42px;
-}
-.th-note {
-  width: 100px;
 }
 .tr-course {
   height: 42px;
