@@ -32,7 +32,7 @@
         Course name cannot exceed 255 characters.
       </div>
     </div>
-    <div v-if="course.categoryId || _size(selectedUnitRequirements)">
+    <div v-if="course.categoryId || size(selectedUnitRequirements)">
       <label :for="`column-${position}-unit-requirement-select`" class="font-weight-500">
         Counts Towards Unit Fulfillment
       </label>
@@ -129,7 +129,8 @@ import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {updateCourse} from '@/api/degree'
 import {validateUnitRange} from '@/lib/degree-progress'
 import {computed, onMounted, ref} from 'vue'
-import {clone, isEmpty as _isEmpty, map, trim} from 'lodash'
+import {clone, isEmpty as _isEmpty, map, size, trim} from 'lodash'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
 const props = defineProps({
   afterCancel: {
@@ -150,6 +151,8 @@ const props = defineProps({
   }
 })
 
+const degreeStore = useDegreeStore()
+
 const accentColor = props.course.accentColor
 const error = ref(undefined)
 const grade = props.course.grade
@@ -160,7 +163,7 @@ const selectedUnitRequirements = clone(props.course.unitRequirements)
 const units = props.course.units
 
 const disableSaveButton = computed(() => {
-  return !!(isSaving.value || unitsErrorMessage.value || (props.course.manuallyCreatedBy && !trim(this.name)))
+  return !!(isSaving.value || unitsErrorMessage.value || (props.course.manuallyCreatedBy && !trim(name.value)))
 })
 
 const unitsErrorMessage = computed(() => {
@@ -189,8 +192,8 @@ const setUnits = value => {
 }
 
 const update = () => {
-  if (!this.disableSaveButton) {
-    this.isSaving = true
+  if (!disableSaveButton.value) {
+    isSaving.value = true
     updateCourse(
       accentColor.value,
       props.course.id,
@@ -198,9 +201,9 @@ const update = () => {
       name.value,
       note.value,
       map(selectedUnitRequirements.value, 'id'),
-      this.units
+      units.value
     ).then(data => {
-      refreshDegreeTemplate(this.templateId).then(() => {
+      refreshDegreeTemplate(degreeStore.templateId).then(() => {
         alertScreenReader('Course updated')
         props.afterSave(data)
       })
