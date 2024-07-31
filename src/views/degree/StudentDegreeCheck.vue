@@ -1,7 +1,7 @@
 <template>
   <div :class="{'cursor-grabbing': degreeStore.draggingContext.course}" @drag="scrollTo">
     <div v-if="!loading">
-      <div class="border-bottom light-blue-background py-2">
+      <div class="border-bottom light-blue-background">
         <StudentProfileHeader
           :compact="true"
           :link-to-student-profile="true"
@@ -9,53 +9,56 @@
         />
       </div>
       <StudentDegreeCheckHeader :student="student" />
-      <div class="default-margins">
-        <v-container fluid>
-          <v-row no-gutters>
-            <v-col cols="4">
-              <UnitRequirements />
-            </v-col>
-            <v-col :cols="degreeStore.courses['ignored'].length ? 4 : 3">
-              <div
-                id="drop-zone-ignored-courses"
-                class="drop-zone"
-                :class="isDroppable('ignored') ? 'drop-zone-on' : 'drop-zone-off'"
-                @dragend="onDrag($event, 'end', 'ignored')"
-                @dragenter="onDrag($event,'enter', 'ignored')"
-                @dragleave="onDrag($event, 'leave', 'ignored')"
-                @dragexit="onDrag($event,'exit', 'ignored')"
-                @dragover="onDrag($event,'over', 'ignored')"
-                @dragstart="onDrag($event,'start', 'ignored')"
-                @drop="dropToUnassign($event, 'ignored')"
-              >
-                <h3 id="ignored-header" class="font-size-20 font-weight-bold pb-0 text-no-wrap" tabindex="-1">Other Coursework</h3>
-                <UnassignedCourses :ignored="true" />
+      <v-container fluid>
+        <v-row>
+          <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
+            <UnitRequirements />
+          </v-col>
+          <v-col
+            :class="degreeStore.courses['ignored'].length ? 'TODO-cols-4' : 'TODO-cols-3'"
+            :cols="$vuetify.display.mdAndUp ? 4 : 12"
+          >
+            <div
+              id="drop-zone-ignored-courses"
+              class="drop-zone"
+              :class="isDroppable('ignored') ? 'drop-zone-on' : 'drop-zone-off'"
+              @dragend="onDrag($event, 'end', 'ignored')"
+              @dragenter="onDrag($event,'enter', 'ignored')"
+              @dragleave="onDrag($event, 'leave', 'ignored')"
+              @dragexit="onDrag($event,'exit', 'ignored')"
+              @dragover="onDrag($event,'over', 'ignored')"
+              @dragstart="onDrag($event,'start', 'ignored')"
+              @drop="dropToUnassign($event, 'ignored')"
+            >
+              <h3 id="ignored-header" class="font-size-20 font-weight-bold pb-0 text-no-wrap" tabindex="-1">Other Coursework</h3>
+              <UnassignedCourses :ignored="true" />
+            </div>
+          </v-col>
+          <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
+            <div
+              id="drop-zone-unassigned-courses"
+              class="drop-zone"
+              :class="isDroppable('unassigned') ? 'drop-zone-on' : 'drop-zone-off'"
+              @dragend="onDrag($event, 'end', 'unassigned')"
+              @dragenter="onDrag($event,'enter', 'unassigned')"
+              @dragleave="onDrag($event, 'leave', 'unassigned')"
+              @dragexit="onDrag($event,'exit', 'unassigned')"
+              @dragover="onDrag($event,'over', 'unassigned')"
+              @dragstart="onDrag($event,'start', 'unassigned')"
+              @drop="dropToUnassign($event, 'unassigned')"
+            >
+              <h3 id="unassigned-header" class="font-size-20 font-weight-bold pb-0 text-no-wrap" tabindex="-1">Unassigned Courses</h3>
+              <div v-if="currentUser.canEditDegreeProgress" class="pb-2">
+                <DuplicateExistingCourse />
               </div>
-            </v-col>
-            <v-col>
-              <div
-                id="drop-zone-unassigned-courses"
-                class="drop-zone"
-                :class="isDroppable('unassigned') ? 'drop-zone-on' : 'drop-zone-off'"
-                @dragend="onDrag($event, 'end', 'unassigned')"
-                @dragenter="onDrag($event,'enter', 'unassigned')"
-                @dragleave="onDrag($event, 'leave', 'unassigned')"
-                @dragexit="onDrag($event,'exit', 'unassigned')"
-                @dragover="onDrag($event,'over', 'unassigned')"
-                @dragstart="onDrag($event,'start', 'unassigned')"
-                @drop="dropToUnassign($event, 'unassigned')"
-              >
-                <h3 id="unassigned-header" class="font-size-20 font-weight-bold pb-0 text-no-wrap" tabindex="-1">Unassigned Courses</h3>
-                <div v-if="currentUser.canEditDegreeProgress" class="pb-2">
-                  <DuplicateExistingCourse />
-                </div>
-                <UnassignedCourses />
-              </div>
-            </v-col>
-          </v-row>
-        </v-container>
+              <UnassignedCourses />
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+      <div class="mt-3">
         <h3 class="sr-only">Categories</h3>
-        <v-container class="mx-0 pt-3 px-0" :fluid="true">
+        <v-container fluid>
           <v-row>
             <v-col
               v-for="position in [1, 2, 3]"
@@ -67,8 +70,11 @@
             </v-col>
           </v-row>
         </v-container>
+        <div v-if="contextStore.config.isVueAppDebugMode" class="default-margins">
+          <hr />
+          <DebugTemplate />
+        </div>
       </div>
-      <DebugTemplate v-if="contextStore.config.isVueAppDebugMode" />
     </div>
   </div>
 </template>
@@ -189,6 +195,10 @@ const onResize = () => {
 </script>
 
 <style scoped>
+.column-spacer {
+  max-width: 10px;
+  min-width: 10px;
+}
 .cursor-grabbing {
   cursor: grabbing !important;
 }
