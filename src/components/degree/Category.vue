@@ -32,10 +32,13 @@
         <div v-if="!degreeStore.sid && canEdit" class="align-items-start d-flex justify-content-end text-no-wrap">
           <v-btn
             :id="`column-${position}-edit-category-${category.id}-btn`"
-            class="pr-1 pt-0"
+            :aria-label="`Edit ${category.name}`"
+            class="mr-1 text-primary"
+            density="compact"
             :disabled="degreeStore.disableButtons"
+            flat
+            :icon="mdiNoteEditOutline"
             size="small"
-            variant="text"
             @click.prevent="edit"
           >
             <v-icon :icon="mdiNoteEditOutline" />
@@ -43,15 +46,15 @@
           </v-btn>
           <v-btn
             :id="`column-${position}-delete-category-${category.id}-btn`"
-            class="px-0 pt-0"
+            :aria-label="`Delete ${category.name}`"
+            class="text-primary"
+            density="compact"
             :disabled="degreeStore.disableButtons"
-            size="sm"
-            variant="text"
+            flat
+            :icon="mdiTrashCan"
+            size="small"
             @click="deleteDegreeCategory"
-          >
-            <v-icon :icon="mdiTrashCanOutline" />
-            <span class="sr-only">Delete {{ category.name }}</span>
-          </v-btn>
+          />
         </div>
       </div>
       <div
@@ -90,7 +93,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 import {deleteCategory, onDrop} from '@/stores/degree-edit-session/utils'
-import {mdiNoteEditOutline, mdiTrashCanOutline} from '@mdi/js'
+import {mdiNoteEditOutline, mdiTrashCan} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {computed, ref} from 'vue'

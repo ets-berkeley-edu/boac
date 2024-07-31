@@ -33,7 +33,7 @@
         </div>
       </v-expand-transition>
     </div>
-    <div class="mt-3">
+    <div class="mt-1">
       <UnitsInput
         :disable="isSaving"
         :error-message="unitsErrorMessage"
@@ -45,10 +45,11 @@
         :units-lower="minUnits"
       />
     </div>
-    <div class="mt-3">
+    <div class="mt-2">
       <v-btn
         v-if="!unitRequirement"
         id="create-unit-requirement-btn"
+        class="mr-2"
         color="primary"
         :disabled="disableSaveButton"
         text="Create Unit Requirement"
@@ -57,6 +58,7 @@
       <v-btn
         v-if="unitRequirement"
         id="update-unit-requirement-btn"
+        class="mr-2"
         color="primary"
         :disabled="disableSaveButton"
         text="Save Unit Requirement"
@@ -64,8 +66,9 @@
       />
       <v-btn
         id="cancel-create-unit-requirement-btn"
+        color="primary"
         text="Cancel"
-        variant="text"
+        variant="outlined"
         @click.prevent="cancel"
       />
     </div>

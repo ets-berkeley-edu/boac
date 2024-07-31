@@ -13,29 +13,33 @@
     </div>
     <div class="pb-1">
       <v-btn
-        class="px-0"
+        class="px-0 text-primary"
+        :class="degreeStore.disableButtons ? 'text-primary' : 'text-black-50'"
+        density="compact"
         :disabled="!degreeStore.disableButtons"
+        flat
+        :prepend-icon="mdiPlayCircleOutline"
+        text="Force buttons to enable"
         variant="text"
-        @click="degreeStore.setDisableButtons(false)"
-      >
-        <v-icon
-          :class="degreeStore.disableButtons ? 'text-primary' : 'text-black-50'"
-          :icon="mdiPlayCircleOutline"
-        />
-        Force buttons to enable
-      </v-btn>
+        @click="() => degreeStore.setDisableButtons(false)"
+      />
     </div>
-    <div class="align-center d-flex">
-      <div class="pr-1">
-        <v-icon :icon="mdiBug" />
-      </div>
-      <div class="pr-2">
-        Debug
-      </div>
-      [<v-btn class="ma-0 pa-0" variant="text" @click="showDebug = !showDebug">{{ showDebug ? 'hide' : 'show' }}</v-btn>]
+    <div>
+      <v-btn
+        class="px-0 text-primary"
+        :class="degreeStore.disableButtons ? 'text-primary' : 'text-black-50'"
+        density="compact"
+        flat
+        :prepend-icon="mdiBug"
+        :text="showDebug ? 'Hide debug' : 'Show debug'"
+        variant="text"
+        @click="() => showDebug = !showDebug"
+      />
     </div>
-    <v-expand-transition name="drawer">
-      <pre v-if="showDebug">{{ degreeStore.degreeEditSessionToString }}</pre>
+    <v-expand-transition>
+      <div v-if="showDebug" class="pa-3">
+        <pre>{{ degreeStore.degreeEditSessionToString }}</pre>
+      </div>
     </v-expand-transition>
   </div>
 </template>

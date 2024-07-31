@@ -22,7 +22,7 @@
             />
           </div>
         </div>
-        <div v-if="!isEditing" class="mt-1">
+        <div v-if="!isEditing" class="border-b-sm mt-1 pb-1">
           <div
             v-if="!size(items)"
             id="unit-requirements-no-data"
@@ -143,7 +143,7 @@
                       :icon="mdiNoteEditOutline"
                       size="small"
                       title="Edit"
-                      @click.prevent="onClickEdit(item)"
+                      @click.prevent="() => onClickEdit(item)"
                     />
                   </div>
                   <div>
@@ -332,10 +332,12 @@ table {
 }
 td {
   height: 25px;
+  padding-top: 3px;
   vertical-align: top;
 }
 th {
   height: 20px;
+  padding-bottom: 5px;
 }
 .caret-column {
   width: 1.3rem;

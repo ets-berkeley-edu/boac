@@ -8,7 +8,7 @@
       <UnitRequirements />
     </div>
     <h2 class="sr-only">Categories</h2>
-    <v-container class="mt-4 mx-0 px-0" :fluid="true">
+    <v-container class="mt-2 pa-0" fluid>
       <v-row>
         <v-col
           v-for="position in [1, 2, 3]"

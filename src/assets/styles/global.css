@@ -17,6 +17,9 @@
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
+.border-color-warning {
+  border-bottom-color: rgb(var(--v-theme-warning)) !important;
+}
 .border-primary {
   border-color: rgb(var(--v-theme-primary)) !important;
 }

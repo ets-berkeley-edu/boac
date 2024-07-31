@@ -8,7 +8,7 @@
         <select
           :id="`column-${position}-add-category-select`"
           v-model="selectedCategoryType"
-          class="select-menu"
+          class="select-menu w-100"
           :disabled="isSaving"
         >
           <option
@@ -31,7 +31,7 @@
         </select>
       </div>
     </div>
-    <div v-if="selectedCategoryType" class="mt-3">
+    <div v-if="selectedCategoryType">
       <div v-if="!isCampusRequirements(existingCategory)">
         <div class="font-weight-500">
           {{ selectedCategoryType }} Name (required)
@@ -55,10 +55,10 @@
           </div>
         </div>
       </div>
-      <div v-if="existingCategory && isCampusRequirements(existingCategory)" class="mt-3">
+      <div v-if="existingCategory && isCampusRequirements(existingCategory)" class="mt-2">
         <h3 :id="`column-${position}-name`" class="font-weight-bold font-size-18">{{ name }}</h3>
       </div>
-      <div v-if="selectedCategoryType === 'Course Requirement'">
+      <div v-if="selectedCategoryType === 'Course Requirement'" class="mt-2">
         <UnitsInput
           :disable="isSaving"
           :error-message="unitsErrorMessage"
@@ -70,11 +70,11 @@
           :units-upper="unitsUpper"
         />
       </div>
-      <div v-if="selectedCategoryType === 'Course Requirement'">
-        <div class="font-weight-500 pb-1">
+      <div v-if="selectedCategoryType === 'Course Requirement'" class="mt-2">
+        <div class="font-weight-500">
           Transfer Course
         </div>
-        <div class="mb-3">
+        <div>
           <v-checkbox
             id="is-satisfied-by-transfer-course-checkbox"
             v-model="isSatisfiedByTransferCourse"
@@ -85,7 +85,7 @@
           />
         </div>
       </div>
-      <div v-if="unitRequirements.length && !isCampusRequirements(existingCategory)" class="mt-3">
+      <div v-if="unitRequirements.length && !isCampusRequirements(existingCategory)" class="mt-1">
         <div class="font-weight-500">
           Requirement Fulfillment
         </div>
@@ -99,7 +99,7 @@
           />
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Course Requirement'" class="mt-3">
+      <div v-if="selectedCategoryType !== 'Course Requirement'" class="mt-2">
         <div class="font-weight-500">
           {{ selectedCategoryType }} Description
         </div>
@@ -107,15 +107,17 @@
           <v-textarea
             :id="`column-${position}-description-input`"
             v-model="descriptionText"
+            density="compact"
             :disabled="isSaving"
             hide-details
-            max-rows="10"
+            maxlength="255"
+            max-rows="6"
             rows="4"
             variant="outlined"
           />
         </div>
       </div>
-      <div v-if="!_includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="mt-3">
+      <div v-if="!_includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="mt-2">
         <div class="font-weight-500 pb-1">
           Requirement Location (required)
         </div>
@@ -123,7 +125,7 @@
           <select
             :id="`column-${position}-parent-category-select`"
             v-model="selectedParentCategory"
-            class="select-menu"
+            class="select-menu w-100"
             :disabled="isSaving"
             required
           >
@@ -149,12 +151,13 @@
         </div>
       </div>
     </div>
-    <div class="d-flex mt-4">
+    <div class="d-flex mt-3">
       <div class="mr-1">
         <ProgressButton
           :id="`column-${position}-create-requirement-btn`"
           :action="onSubmit"
           color="primary"
+          density="comfortable"
           :disabled="disableSaveButton"
           :in-progress="isSaving"
           :text="isSaving ? 'Saving...' : (existingCategory ? 'Save' : 'Create Requirement')"
@@ -164,12 +167,12 @@
         <v-btn
           :id="`column-${position}-cancel-create-requirement-btn`"
           color="primary"
+          density="comfortable"
           :disabled="isSaving"
-          variant="text"
+          text="Cancel"
+          variant="outlined"
           @click="cancel"
-        >
-          Cancel
-        </v-btn>
+        />
       </div>
     </div>
   </div>

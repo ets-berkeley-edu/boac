@@ -7,6 +7,9 @@
       <div v-if="range" class="font-size-12">
         [<v-btn
           id="show-upper-units-input"
+          class="px-0 text-primary"
+          density="compact"
+          flat
           size="small"
           :text="showUnitsUpperInput ? 'hide range' : 'show range'"
           variant="text"

@@ -6,8 +6,8 @@
         v-if="currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"
         :append-icon="mdiPlus"
-        density="compact"
         :disabled="degreeStore.disableButtons"
+        class="text-body-2"
         color="primary"
         :text="`Add column ${position} requirement`"
         variant="text"
@@ -45,7 +45,7 @@
         :existing-category="category"
         :position="position"
       />
-      <div v-if="!category.subcategories.length" class="py-1">
+      <div v-if="!category.subcategories.length" class="mt-4">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
           :items="getItemsForCoursesTable(category)"
@@ -53,7 +53,7 @@
           :position="position"
         />
       </div>
-      <div v-if="category.subcategories.length" class="pt-1">
+      <div v-if="category.subcategories.length" class="mt-2">
         <div
           v-for="subcategory in category.subcategories"
           :id="`column-${position}-subcategory-${subcategory.id}`"
@@ -72,7 +72,7 @@
             :existing-category="subcategory"
             :position="position"
           />
-          <div class="py-1">
+          <div class="mt-2">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"
               :items="getItemsForCoursesTable(subcategory)"
