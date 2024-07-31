@@ -1,127 +1,138 @@
 <template>
   <div>
-    <div class="font-size-14">
-      <v-btn
-        :id="`create-course-under-parent-category-${parentCategory.id}`"
-        class="font-weight-500 p-0"
-        :disabled="degreeStore.disableButtons"
-        variant="text"
-        @click.prevent="openModal"
-      >
-        <v-icon class="font-size-16" :icon="mdiPlus" /> Manually Create Course
-      </v-btn>
-    </div>
-    <b-modal
-      v-model="showModal"
-      body-class="pl-0 pr-0"
-      hide-footer
-      hide-header
-      @shown="putFocusNextTick('modal-header')"
-      @hidden="closeModal"
+    <v-btn
+      :id="`create-course-under-parent-category-${parentCategory.id}`"
+      class="font-size-14 font-weight-bold pl-0"
+      color="primary"
+      density="comfortable"
+      :disabled="degreeStore.disableButtons"
+      variant="text"
+      v-bind="props"
+      @click="openModal"
     >
-      <div>
-        <ModalHeader text="Create Course" />
-        <div class="modal-body">
-          <div>
-            <label
-              for="course-name-input"
-              class="font-weight-700 mb-1"
-            >
-              <span class="sr-only">Course </span>Name
-            </label>
-            <b-form-input
-              id="course-name-input"
-              v-model="name"
-              class="cohort-create-input-name"
-              maxlength="255"
-              size="md"
-            />
-            <div class="text-grey mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
-            <div
-              v-if="error"
-              id="create-error"
-              class="text-error"
-              aria-live="polite"
-              role="alert"
-            >
-              {{ error }}
-            </div>
-            <div
-              v-if="name.length === 255"
-              class="sr-only"
-              aria-live="polite"
-            >
-              Course name cannot exceed 255 characters.
-            </div>
-          </div>
-          <div class="pb-2">
-            <UnitsInput
-              :disable="isSaving"
-              :error-message="unitsErrorMessage"
-              input-id="course-units-input"
-              label-class="font-weight-700 mb-1 pr-2"
-              :on-submit="save"
-              :set-units-lower="setUnits"
-              :units-lower="units"
-            />
-          </div>
-          <div class="pb-3">
-            <label id="units-grade-label" for="course-grade-input" class="font-weight-700 mb-1 pr-2">
-              Grade
-            </label>
-            <b-form-input
-              id="course-grade-input"
-              v-model="grade"
-              aria-labelledby="units-grade-label"
-              class="grade-input"
-              maxlength="3"
-              size="sm"
-              trim
-              @keypress.enter="save"
-            />
-          </div>
-          <div class="pb-3">
-            <AccentColorSelect
-              :accent-color="accentColor"
-              :on-change="value => accentColor = value"
-            />
-          </div>
-          <label for="course-note-textarea" class="font-weight-700">
-            Note
-          </label>
-          <div class="pb-2">
-            <b-form-textarea
-              id="course-note-textarea"
-              v-model="note"
-              :disabled="isSaving"
-              rows="4"
-            />
-          </div>
+      <div class="align-center d-flex justify-space-between">
+        <div>
+          <v-icon size="22" :icon="mdiPlus" />
         </div>
-        <div class="modal-footer pb-0">
-          <form @submit.prevent="_noop">
-            <b-btn
-              id="create-course-save-btn"
-              class="btn-primary-color-override"
-              :disabled="disableSaveButton"
-              variant="primary"
-              @click.prevent="save"
-            >
-              Save
-            </b-btn>
-            <b-btn
-              id="create-course-cancel-btn"
-              class="pl-2"
-              variant="link"
-              @click="cancel"
-            >
-              Cancel
-            </b-btn>
-          </form>
+        <div>
+          Manually Create Course
         </div>
       </div>
-    </b-modal>
+    </v-btn>
   </div>
+  <v-dialog
+    v-model="showModal"
+    persistent
+    width="auto"
+    @shown="putFocusNextTick('modal-header')"
+    @hidden="closeModal"
+  >
+    <v-card min-width="600">
+      <v-card-title class="mt-3 mx-2 pb-2">
+        <ModalHeader text="Create Course" />
+      </v-card-title>
+      <v-card-text class="pt-1">
+        <div>
+          <label
+            for="course-name-input"
+            class="font-weight-700 mb-1"
+          >
+            <span class="sr-only">Course </span>Name
+          </label>
+          <v-text-field
+            id="course-name-input"
+            v-model="name"
+            class="cohort-create-input-name"
+            density="comfortable"
+            hide-details
+            maxlength="255"
+            variant="outlined"
+          />
+          <div class="text-grey mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
+          <div
+            v-if="error"
+            id="create-error"
+            class="text-error"
+            aria-live="polite"
+            role="alert"
+          >
+            {{ error }}
+          </div>
+          <div
+            v-if="name.length === 255"
+            class="sr-only"
+            aria-live="polite"
+          >
+            Course name cannot exceed 255 characters.
+          </div>
+        </div>
+        <div class="pb-2">
+          <UnitsInput
+            :disable="isSaving"
+            :error-message="unitsErrorMessage"
+            input-id="course-units-input"
+            label-class="font-weight-700 mb-1 pr-2"
+            :on-submit="save"
+            :set-units-lower="setUnits"
+            :units-lower="units"
+          />
+        </div>
+        <div class="pb-3">
+          <label id="units-grade-label" for="course-grade-input" class="font-weight-700 mb-1 pr-2">
+            Grade
+          </label>
+          <v-text-field
+            id="course-grade-input"
+            v-model="grade"
+            :aria-autocomplete="false"
+            aria-labelledby="units-grade-label"
+            class="grade-input"
+            density="compact"
+            hide-details
+            maxlength="3"
+            variant="outlined"
+            @keydown.enter="save"
+          />
+        </div>
+        <div class="pb-3">
+          <AccentColorSelect
+            :accent-color="accentColor"
+            :on-change="value => accentColor = value"
+          />
+        </div>
+        <label for="course-note-textarea" class="font-weight-700">
+          Note
+        </label>
+        <div class="pb-2">
+          <v-textarea
+            id="course-note-textarea"
+            v-model="note"
+            :disabled="isSaving"
+            hide-details
+            rows="4"
+            variant="outlined"
+          />
+        </div>
+        <div class="mt-3 text-right">
+          <v-btn
+            id="create-course-save-btn"
+            class="mr-1"
+            color="primary"
+            :disabled="disableSaveButton"
+            text="Save"
+            @click="save"
+          />
+          <v-btn
+            id="create-course-cancel-btn"
+            color="primary"
+            text="Cancel"
+            variant="text"
+            @click="cancel"
+          />
+        </div>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
@@ -160,7 +171,7 @@ const disableSaveButton = computed(() => {
 })
 const unitsErrorMessage = computed(() => {
   const isEmpty = _isEmpty(trim(units.value))
-  return isEmpty ? null : validateUnitRange(this.units, undefined, 10).message
+  return isEmpty ? null : validateUnitRange(units.value, undefined, 10).message
 })
 
 onUnmounted(() => {
@@ -194,7 +205,7 @@ const save = () => {
   if (!degreeStore.disableSaveButton) {
     isSaving.value = true
     createCourse(
-      this.accentColor.value,
+      accentColor.value,
       degreeStore.templateId,
       trim(grade.value),
       trim(name.value),

@@ -22,6 +22,7 @@
         <v-text-field
           :id="inputId"
           :aria-invalid="!isValidUnits(unitsLower, max)"
+          :aria-autocomplete="false"
           aria-labelledby="units-input-label"
           density="compact"
           :disabled="disable"

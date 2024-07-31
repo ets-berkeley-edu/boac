@@ -43,7 +43,7 @@
                 'border-left border-right border-top': isNoteVisible(bundle),
                 'cursor-grab': isDraggable(bundle),
                 'drop-zone-on': isDroppable(bundle.category),
-                'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !draggingContext.course,
+                'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !degreeStore.draggingContext.course,
                 'tr-while-dragging': bundle.course && degreeStore.isUserDragging(bundle.course.id)
               }"
               :draggable="isDraggable(bundle)"
