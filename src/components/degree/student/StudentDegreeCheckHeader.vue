@@ -83,31 +83,29 @@
     <div class="border-b-md border-color-warning mx-3">
       <v-container class="border-bottom border-warning px-0" fluid>
         <v-row align="start">
-          <v-col class="py-1" cols="8">
-            <div v-if="isEditingNote || noteBody" class="d-flex justify-space-between">
+          <v-col class="pb-0 pt-1" cols="7">
+            <div v-if="isEditingNote || noteBody" class="align-center d-flex justify-space-between">
               <div>
                 <h3 class="font-size-20 font-weight-bold text-no-wrap">Degree Notes</h3>
               </div>
-              <div class="align-items-baseline d-flex justify-content-end">
-                <label for="degree-note-print-toggle" class="text-grey font-weight-500 pr-3">
-                  Show notes when printed
+              <div class="align-center d-flex justify-content-end">
+                <label for="degree-note-print-toggle" class="font-size-14 font-weight-500 pr-2 text-grey-darken-3">
+                  Show notes when printed?
                 </label>
-                <div :class="{'text-success': degreeStore.includeNotesWhenPrint, 'text-danger': !degreeStore.includeNotesWhenPrint}">
-                  <div class="d-flex">
-                    <div class="toggle-label">
-                      {{ degreeStore.includeNotesWhenPrint ? 'Yes' : 'No' }}
-                    </div>
-                    <v-switch
-                      id="degree-note-print-toggle"
-                      :checked="degreeStore.includeNotesWhenPrint"
-                      density="compact"
-                      color="primary"
-                      hide-details
-                      switch
-                      @keydown.enter="onToggleNotesWhenPrint(!degreeStore.includeNotesWhenPrint)"
-                      @change="onToggleNotesWhenPrint"
-                    />
+                <div
+                  class="align-center d-flex pr-2"
+                  :class="{'text-success': degreeStore.includeNotesWhenPrint, 'text-error': !degreeStore.includeNotesWhenPrint}"
+                >
+                  <div class="font-size-14 font-weight-bold toggle-label-width">
+                    {{ degreeStore.includeNotesWhenPrint ? 'Yes' : 'No' }}
                   </div>
+                  <v-switch
+                    id="degree-note-print-toggle"
+                    v-model="notesWhenPrintModel"
+                    color="success"
+                    density="compact"
+                    hide-details
+                  />
                 </div>
               </div>
             </div>
@@ -122,80 +120,75 @@
               @click="editNote"
             />
           </v-col>
-          <v-col class="py-1" cols="4">
+          <v-col class="py-1" cols="5">
             <h3 class="font-size-20 font-weight-bold text-no-wrap">In-progress courses</h3>
           </v-col>
         </v-row>
         <v-row align-v="start">
-          <v-col class="py-1" cols="8">
-            <div v-if="noteBody && !isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="d-flex font-size-14">
-              <div v-if="noteUpdatedBy" class="pr-2 text-no-wrap">
-                <span v-if="noteUpdatedBy" class="text-grey font-weight-normal">
-                  <span id="degree-note-updated-by">{{ noteUpdatedBy }}</span>
+          <v-col class="py-1" cols="7">
+            <div v-if="noteBody && !isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="font-size-14 pr-2 text-no-wrap">
+              <span
+                v-if="noteUpdatedBy"
+                id="degree-note-updated-by"
+                class="text-grey font-weight-normal"
+              >
+                {{ noteUpdatedBy }}
+              </span>
+              <span v-if="noteUpdatedAt" class="text-grey">
+                {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
+                <span v-if="isToday(noteUpdatedAt)" id="degree-note-updated-at"> today.</span>
+                <span v-if="!isToday(noteUpdatedAt)">
+                  on <span id="degree-note-updated-at">{{ noteUpdatedAt.toFormat('MMM D, YYYY') }}.</span>
                 </span>
-                <span v-if="noteUpdatedAt" class="text-grey">
-                  {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
-                  <span v-if="isToday(noteUpdatedAt)"> today.</span>
-                  <span v-if="!isToday(noteUpdatedAt)">
-                    on <span id="degree-note-updated-at">{{ noteUpdatedAt.toFormat('MMM D, YYYY') }}.</span>
-                  </span>
-                </span>
-              </div>
+              </span>
             </div>
-            <div>
-              <div v-if="noteBody && !isEditingNote">
-                <div
-                  id="degree-note-body"
-                  v-linkified
-                  class="degree-note-body"
-                  v-html="noteBody"
+            <div v-if="noteBody && !isEditingNote">
+              <div
+                id="degree-note-body"
+                v-linkified
+                class="degree-note-body"
+                v-html="noteBody"
+              />
+              <v-btn
+                v-if="currentUser.canEditDegreeProgress"
+                id="edit-degree-note-btn"
+                class="pl-0"
+                :disabled="disableButtons"
+                text="Edit degree note"
+                variant="text"
+                @click="editNote"
+              />
+            </div>
+            <div v-if="isEditingNote">
+              <v-textarea
+                id="degree-note-input"
+                v-model.trim="noteBody"
+                density="compact"
+                :disabled="isSaving"
+                hide-details
+                rows="4"
+                variant="outlined"
+              />
+              <div class="d-flex ml-2 my-2">
+                <ProgressButton
+                  id="save-degree-note-btn"
+                  :action="saveNote"
+                  color="primary"
+                  :disabled="noteBody === get(degreeStore.degreeNote, 'body') || isSaving"
+                  :in-progress="isSaving"
+                  :text="isSaving ? 'Saving...' : 'Save'"
                 />
                 <v-btn
-                  v-if="currentUser.canEditDegreeProgress"
-                  id="edit-degree-note-btn"
-                  class="pl-0"
-                  :disabled="disableButtons"
-                  text="Edit degree note"
+                  id="cancel-degree-note-btn"
+                  :disabled="isSaving"
+                  text="Cancel"
                   variant="text"
-                  @click="editNote"
+                  @click="cancel"
                 />
-              </div>
-              <div v-if="isEditingNote">
-                <div class="px-2">
-                  <v-textarea
-                    id="degree-note-input"
-                    v-model.trim="noteBody"
-                    variant="outlined"
-                    clearable
-                    :disabled="isSaving"
-                    rows="4"
-                  />
-                </div>
-                <div class="d-flex ml-2 my-2">
-                  <div>
-                    <ProgressButton
-                      id="save-degree-note-btn"
-                      :action="saveNote"
-                      color="primary"
-                      :disabled="noteBody === get(degreeStore.degreeNote, 'body') || isSaving"
-                      :in-progress="isSaving"
-                      :text="isSaving ? 'Saving...' : 'Save'"
-                    />
-                  </div>
-                  <div>
-                    <v-btn
-                      id="cancel-degree-note-btn"
-                      :disabled="isSaving"
-                      text="Cancel"
-                      variant="text"
-                      @click="cancel"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </v-col>
-          <v-col class="pb-2 pt-1" cols="4">
+          <v-col class="pb-2 pt-1" cols="5">
             <v-data-table
               v-if="degreeStore.courses.inProgress.length"
               id="in-progress-courses"
@@ -237,7 +230,7 @@ import {getCalnetProfileByUserId} from '@/api/user'
 import {mdiClose, mdiOpenInNew, mdiPrinter} from '@mdi/js'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {updateDegreeNote} from '@/api/degree'
-import {computed, onMounted, ref} from 'vue'
+import {computed, onMounted, ref, watch} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {each, get, includes} from 'lodash'
@@ -258,11 +251,17 @@ const isEditingNote = ref(false)
 const isSaving = ref(false)
 const noteBody = ref(undefined)
 const noteUpdatedBy = ref(undefined)
+const notesWhenPrintModel = ref(degreeStore.includeNotesWhenPrint)
 const showRevisionIndicator = ref(undefined)
 const updatedAtDescription = ref(undefined)
 
 const noteUpdatedAt = computed(() => {
   return degreeStore.degreeNote && DateTime.fromJSDate(new Date(degreeStore.degreeNote.updatedAt))
+})
+
+watch(notesWhenPrintModel, () => {
+  degreeStore.setIncludeNotesWhenPrint(notesWhenPrintModel.value)
+  alertScreenReader(`Note will ${notesWhenPrintModel.value ? '' : 'not'} be included in printable page.`)
 })
 
 onMounted(() => {
@@ -314,11 +313,6 @@ const isToday = date => {
   return date.hasSame(DateTime.now(),'day')
 }
 
-const onToggleNotesWhenPrint = flag => {
-  degreeStore.setIncludeNotesWhenPrint(flag)
-  alertScreenReader(`Note will ${flag ? '' : 'not'} be included in printable page.`)
-}
-
 const saveNote = () => {
   isSaving.value = true
   updateDegreeNote(degreeStore.templateId, noteBody.value).then(() => {
@@ -337,10 +331,7 @@ const saveNote = () => {
 .degree-note-body {
   white-space: pre-line;
 }
-.toggle-label {
-  font-size: 14px;
-  font-weight: bolder;
-  padding: 2px 8px 0 0;
-  width: 30px;
+.toggle-label-width {
+  width: 36px;
 }
 </style>
