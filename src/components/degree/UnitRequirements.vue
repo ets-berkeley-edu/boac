@@ -20,15 +20,15 @@
         />
       </div>
     </div>
-    <div v-if="!isEditing" class="border-b-sm mt-1 pb-1">
+    <div v-if="!isEditing" class="mt-1 pb-1" :class="{'border-b-sm': size(items)}">
       <div
         v-if="!size(items)"
         id="unit-requirements-no-data"
-        class="no-data-text pl-1"
+        class="no-data-text my-2 pl-1"
       >
         No unit requirements created
       </div>
-      <table id="unit-requirements-table" class="w-100">
+      <table v-if="size(items)" id="unit-requirements-table" class="w-100">
         <thead class="border-b-sm">
           <tr>
             <th
