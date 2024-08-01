@@ -1,6 +1,6 @@
 <template>
   <div v-if="key">
-    <div v-if="!degreeStore.courses[key].length" class="no-data-text">
+    <div v-if="!degreeStore.courses[key].length" class="my-2 no-data-text">
       No courses
     </div>
     <div v-if="degreeStore.courses[key].length" :id="`${key}-courses-container`">
@@ -120,20 +120,23 @@
                 <span class="font-size-14">{{ course.termName }}</span>
               </td>
               <td class="td-note">
-                <div v-if="course.note && !isNoteVisible(course) && !degreeStore.isUserDragging(course.id)" class="d-flex justify-content-start">
+                <div
+                  v-if="course.note && !isNoteVisible(course) && !degreeStore.isUserDragging(course.id)"
+                  class="d-flex justify-content-start pl-1"
+                >
                   <a
                     :id="`course-${course.id}-note`"
                     class="truncate-with-ellipsis"
                     href
-                    @click="showNote(course)"
+                    @click.prevent="showNote(course)"
                     v-html="course.note"
                   />
                 </div>
-                <div v-if="!course.note" :id="`course-${course.id}-note`">&mdash;</div>
+                <div v-if="!course.note" :id="`course-${course.id}-note`" class="pl-2">&mdash;</div>
               </td>
               <td
                 v-if="currentUser.canEditDegreeProgress"
-                class="pr-0"
+                class="pr-0 td-action-buttons"
               >
                 <div class="d-flex justify-content-end">
                   <div v-if="course.manuallyCreatedBy">
@@ -400,6 +403,9 @@ table {
 .td-course-assignment-menu {
   font-size: 14px;
   padding: 0 0 0 10px;
+  vertical-align: top;
+}
+.td-action-buttons {
   vertical-align: top;
 }
 .td-grade {

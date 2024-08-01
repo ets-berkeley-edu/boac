@@ -1,14 +1,14 @@
 <template>
   <div>
-    <div v-if="isMenuOpen">
-      <div class="font-size-14 font-weight-500 pt-2">
+    <div v-if="isMenuOpen" class="my-2">
+      <div class="font-size-16 text-grey-darken-5">
         Duplicate Course
       </div>
       <div class="my-2">
         <select
           id="add-course-select"
           v-model="selected"
-          class="select-menu"
+          class="select-menu w-100"
           :disabled="isSaving || !options.length"
         >
           <option
@@ -29,28 +29,23 @@
           </option>
         </select>
       </div>
-      <div class="d-flex mt-3">
-        <div>
-          <ProgressButton
-            id="add-course-save-btn"
-            :action="onClickSave"
-            color="primary"
-            :disabled="isSaving || !selected"
-            :in-progress="isSaving"
-            size="small"
-            :text="isSaving ? 'Saving' : 'Save'"
-          />
-        </div>
-        <div>
-          <v-btn
-            id="add-course-cancel-btn"
-            :disabled="isSaving"
-            variant="text"
-            @click="cancel"
-          >
-            Cancel
-          </v-btn>
-        </div>
+      <div class="d-flex mt-2">
+        <ProgressButton
+          id="add-course-save-btn"
+          :action="onClickSave"
+          color="primary"
+          :disabled="isSaving || !selected"
+          :in-progress="isSaving"
+          :text="isSaving ? 'Saving' : 'Save'"
+        />
+        <v-btn
+          id="add-course-cancel-btn"
+          :disabled="isSaving"
+          variant="text"
+          @click="cancel"
+        >
+          Cancel
+        </v-btn>
       </div>
     </div>
     <div v-if="!isMenuOpen">
@@ -95,7 +90,7 @@ const options = computed(() => {
 })
 
 const cancel = () => {
-  isMenuOpen.value = this.isSaving = false
+  isMenuOpen.value = isSaving.value = false
   degreeStore.setDisableButtons(false)
   alertScreenReader('Canceled')
   putFocusNextTick('duplicate-existing-course')
@@ -105,7 +100,7 @@ const onClickSave = () => {
   isSaving.value = true
   alertScreenReader('Saving')
   copyCourse(selected.value.id).then(course => {
-    refreshDegreeTemplate(degreeStore.templateId.value).then(() => {
+    refreshDegreeTemplate(degreeStore.templateId).then(() => {
       isMenuOpen.value = isSaving.value = false
       selected.value = null
       degreeStore.setDisableButtons(false)

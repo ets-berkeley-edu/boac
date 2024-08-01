@@ -12,12 +12,9 @@
       <v-container fluid>
         <v-row>
           <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
-            <UnitRequirements />
+            <UnitRequirements class="unit-requirements" />
           </v-col>
-          <v-col
-            :class="degreeStore.courses['ignored'].length ? 'TODO-cols-4' : 'TODO-cols-3'"
-            :cols="$vuetify.display.mdAndUp ? 4 : 12"
-          >
+          <v-col :cols="$vuetify.display.mdAndUp ? (degreeStore.courses['ignored'].length ? 4 : 3) : 12">
             <div
               id="drop-zone-ignored-courses"
               class="drop-zone"
@@ -34,7 +31,7 @@
               <UnassignedCourses :ignored="true" />
             </div>
           </v-col>
-          <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
+          <v-col :cols="$vuetify.display.mdAndUp ? (degreeStore.courses['ignored'].length ? 4 : 5) : 12">
             <div
               id="drop-zone-unassigned-courses"
               class="drop-zone"
@@ -219,5 +216,9 @@ const onResize = () => {
 }
 .section-separator {
   border-bottom: 1px #999 solid;
+}
+.unit-requirements {
+  margin-bottom: 0.5em;
+  padding: 0.5em;
 }
 </style>
