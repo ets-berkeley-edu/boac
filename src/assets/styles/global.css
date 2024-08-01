@@ -32,6 +32,9 @@
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
+.boac-exclamation {
+  color: #f0ad4e;
+}
 .border-color-warning {
   border-bottom-color: rgb(var(--v-theme-warning)) !important;
 }

@@ -144,12 +144,12 @@ onMounted(() => {
   includeNote.value = toBoolean(route.query.includeNote)
   refreshDegreeTemplate(id).then(() => {
     if (degreeStore.sid) {
-      getStudentBySid(this.sid).then(data => {
-        this.student = data
-        const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
+      getStudentBySid(degreeStore.sid).then(data => {
+        student.value = data
+        const studentName = currentUser.inDemoMode ? 'Student' : student.value.name
         setPageTitle(`${studentName} - ${degreeStore.degreeName}`)
         contextStore.loadingComplete()
-        alertScreenReader(`${degreeStore.degreeName} for ${this.student.name}`)
+        alertScreenReader(`${degreeStore.degreeName} for ${student.value.name}`)
       })
     } else {
       setPageTitle(degreeStore.degreeName)
