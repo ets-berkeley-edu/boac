@@ -223,8 +223,10 @@
                       v-if="!degreeStore.isUserDragging(get(bundle.course, 'id'))"
                       :id="`column-${position}-edit-${bundle.key}-btn`"
                       :aria-label="`Edit ${bundle.name}`"
+                      color="transparent"
                       density="compact"
                       :disabled="degreeStore.disableButtons"
+                      flat
                       :icon="mdiNoteEditOutline"
                       size="small"
                       @click="edit(bundle)"
@@ -235,11 +237,12 @@
                       v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && !degreeStore.isUserDragging(get(bundle.course, 'id'))"
                       :id="`column-${position}-delete-${bundle.key}-btn`"
                       :aria-label="`Delete ${bundle.name}`"
+                      color="transparent"
                       density="compact"
-                      :icon="mdiTrashCanOutline"
                       :disabled="degreeStore.disableButtons"
+                      flat
+                      :icon="mdiTrashCanOutline"
                       size="small"
-                      variant="text"
                       @click="onDelete(bundle)"
                     />
                   </div>
@@ -316,7 +319,10 @@
         </tbody>
       </table>
     </div>
-    <div v-if="degreeStore.sid && canEdit && !isCampusRequirements" class="mb-3" :class="{'mt-1': !items.length}">
+    <div
+      v-if="degreeStore.sid && canEdit && !isCampusRequirements"
+      class="my-2"
+    >
       <CreateCourseModal :parent-category="parentCategory" />
     </div>
     <AreYouSureModal

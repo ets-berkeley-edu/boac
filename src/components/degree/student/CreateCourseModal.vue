@@ -4,7 +4,6 @@
       :id="`create-course-under-parent-category-${parentCategory.id}`"
       class="font-size-14 font-weight-bold pl-0"
       color="primary"
-      density="comfortable"
       :disabled="degreeStore.disableButtons"
       variant="text"
       v-bind="props"
