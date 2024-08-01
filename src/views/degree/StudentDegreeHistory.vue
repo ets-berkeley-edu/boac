@@ -1,5 +1,5 @@
 <template>
-  <div class="default-margins">
+  <div>
     <div v-if="student" class="border-bottom light-blue-background pb-2">
       <StudentProfileHeader
         :compact="true"
@@ -7,83 +7,79 @@
         :student="student"
       />
     </div>
-    <div v-if="!loading">
-      <div class="ma-3 pt-2">
-        <v-container class="px-0 mx-0" :fluid="true">
-          <v-row>
-            <v-col>
-              <h1 id="page-header" class="page-section-header">Degree Check History</h1>
-            </v-col>
-            <v-col>
-              <div v-if="currentUser.canEditDegreeProgress" class="d-flex justify-content-end">
-                <div class="pr-2">
-                  <router-link
-                    id="create-new-degree"
-                    :to="`${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`"
-                  >
-                    Create New Degree
-                  </router-link>
-                </div>
-              </div>
-            </v-col>
-          </v-row>
-        </v-container>
+    <div v-if="!loading" class="default-margins">
+      <div class="align-center d-flex justify-space-between">
+        <h1 id="page-header" class="page-section-header">Degree Check History</h1>
+        <div v-if="currentUser.canEditDegreeProgress" class="mr-2">
+          <router-link id="create-new-degree" :to="`${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`">
+            Create New Degree
+          </router-link>
+        </div>
       </div>
-      <div v-if="degreeChecks.length" class="mx-3">
-        <!--
-        TODO:
-        tdClass
-        thClass
-        borderless
-        fixed
-        stacked
-        thead-class
-        -->
-        <v-data-table
-          id="degree-checks-table"
-          :fields="[
-            {key: 'name', title: 'Degree Check', tdClass: 'align-middle', thClass: 'w-50'},
-            {key: 'updatedAt', title: 'Last Updated', tdClass: 'align-top'},
-            {key: 'updatedBy', title: 'Advisor'},
-            {key: 'parentTemplateUpdatedAt', title: 'Template Last Updated', tdClass: 'align-top'}
-          ]"
-          :items="degreeChecks"
-          borderless
-          fixed
-          stacked="md"
-          thead-class="text-no-wrap"
-        >
-          <template #cell(name)="row">
-            <router-link
-              :id="`degree-check-${row.item.id}-link`"
-              :to="`/student/degree/${row.item.id}`"
-              v-html="`${row.item.name}`"
-            />
-            <span v-if="row.item.isCurrent" class="ml-2">(current)</span>
-          </template>
-          <template #cell(updatedAt)="row">
-            {{ DateTime.fromJSDate(row.item.updatedAt).toFormat('MMM D, yyyy') }}
-          </template>
-          <template #cell(updatedBy)="row">
-            <div class="align-right w-100">
-              {{ row.item.updatedByName || '&mdash;' }}
-            </div>
-          </template>
-          <template #cell(parentTemplateUpdatedAt)="row">
-            <v-icon
-              v-if="row.item.showRevisionIndicator"
-              class="boac-exclamation mr-1"
-              :icon="mdiAlertRhombus"
-              :title="`Revisions to the original degree template have been made since the creation of this degree check.`"
-            />
-            <span v-if="row.item.parentTemplateUpdatedAt" :class="{'boac-exclamation': row.item.showRevisionIndicator}">{{ DateTime.fromJSDate(row.item.parentTemplateUpdatedAt).toFormat('MMM D, YYYY') }}</span>
-            <span v-if="!row.item.parentTemplateUpdatedAt">&mdash;</span>
-            <div class="sr-only">
-              Note: Revisions to the original degree template have been made since the creation of this degree check.
-            </div>
-          </template>
-        </v-data-table>
-      </div>
+      <v-data-table
+        v-if="degreeChecks.length"
+        id="degree-checks-table"
+        :cell-props="data => {
+          const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
+          return {
+            class: `${bgColor} font-size-16`,
+            id: `td-degree-check-${data.item.id}-column-${data.column.key}`,
+            style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+          }
+        }"
+        class="mt-3"
+        density="comfortable"
+        :headers="[
+          {key: 'name', headerProps: {class: 'degree-history-column-header w-50'}, title: 'Degree Check', thClass: 'w-50'},
+          {key: 'updatedAt', headerProps: {class: 'degree-history-column-header'}, title: 'Last Updated'},
+          {key: 'updatedBy', headerProps: {class: 'degree-history-column-header'}, title: 'Advisor'},
+          {key: 'parentTemplateUpdatedAt', headerProps: {class: 'degree-history-column-header'}, title: 'Template Last Updated'}
+        ]"
+        :header-props="{class: 'font-weight-bold text-no-wrap'}"
+        hide-default-footer
+        disable-sort
+        :items="degreeChecks"
+        :items-per-page="-1"
+        :row-props="data => ({
+          id: `tr-degree-check-${data.item.id}`
+        })"
+      >
+        <template #item.name="{item}">
+          <router-link
+            :id="`degree-check-${item.id}-link`"
+            :to="`/student/degree/${item.id}`"
+            v-html="`${item.name}`"
+          />
+          <span v-if="item.isCurrent" class="ml-2">(current)</span>
+        </template>
+        <template #item.updatedAt="{item}">
+          {{ DateTime.fromISO(item.updatedAt).toFormat('DD') }}
+        </template>
+        <template #item.updatedBy="{item}">
+          <div class="align-right w-100">
+            {{ item.updatedByName || '&mdash;' }}
+          </div>
+        </template>
+        <template #item.parentTemplateUpdatedAt="{item}">
+          <v-icon
+            v-if="true || item.showRevisionIndicator"
+            class="boac-exclamation mr-2"
+            :icon="mdiAlert"
+            size="18"
+            title="Revisions to the original degree template have been made since the creation of this degree check."
+          />
+          <span
+            v-if="item.parentTemplateUpdatedAt"
+            :class="{'boac-exclamation': true || item.showRevisionIndicator}"
+          >
+            {{ DateTime.fromISO(item.parentTemplateUpdatedAt).toFormat('DD') }}
+          </span>
+          <span v-if="!item.parentTemplateUpdatedAt">&mdash;</span>
+          <div class="sr-only">
+            Note: Revisions to the original degree template have been made since the creation of this degree check.
+          </div>
+        </template>
+      </v-data-table>
       <div v-if="!degreeChecks.length" class="pl-3">
         Student has no degree checks.
       </div>
@@ -97,10 +93,11 @@ import {alertScreenReader, studentRoutePath} from '@/lib/utils'
 import {DateTime} from 'luxon'
 import {getDegreeChecks} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
-import {mdiAlertRhombus} from '@mdi/js'
+import {mdiAlert} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {computed, onMounted, ref} from 'vue'
-import {each, get} from 'lodash'
+import {each} from 'lodash'
+import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
@@ -112,7 +109,7 @@ const student = ref(undefined)
 contextStore.loadingStart()
 
 onMounted(() => {
-  let uid = get(this.$route, 'params.uid')
+  let uid = useRoute().params.uid
   if (currentUser.inDemoMode) {
     // In demo-mode we do not want to expose UID in browser location bar.
     uid = window.atob(uid)
@@ -137,3 +134,11 @@ onMounted(() => {
   })
 })
 </script>
+
+<style>
+.degree-history-column-header {
+  color: #666;
+  font-weight: 700 !important;
+  height: 30px !important;
+}
+</style>

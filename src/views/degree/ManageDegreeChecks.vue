@@ -50,8 +50,13 @@
           :cell-props="data => {
             const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
             const padding = data.column.key === 'name' ? 'pl-4' : 'pl-0'
-            return {class: `${bgColor} font-size-16 ${padding}`}
+            return {
+              id: `td-degree-check-${data.item.id}-column-${data.column.key}`,
+              class: `${bgColor} font-size-16 ${padding}`
+            }
           }"
+          density="comfortable"
+          disable-sort
           :headers="[
             {key: 'name', headerProps: {class: 'pl-3 manage-degree-checks-column-header'}, width: '50%'},
             {key: 'createdAt', headerProps: {class: 'manage-degree-checks-column-header'}},
@@ -61,10 +66,9 @@
           hide-default-footer
           :items="degreeTemplates"
           :items-per-page="-1"
-          borderless
-          density="comfortable"
-          disable-sort
-          hover
+          :row-props="data => ({
+            id: `tr-degree-check-${data.item.id}`
+          })"
         >
           <template #header.name>
             Degree Check
