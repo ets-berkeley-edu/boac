@@ -8,35 +8,64 @@
         Color Code
       </label>
     </div>
-    <select
-      id="color-code-select"
-      v-model="selected"
-      class="select-menu w-100"
-    >
-      <option :value="undefined" @select="setSelected(undefined)">
-        Choose...
-      </option>
-      <option
-        v-for="(hexCode, colorName) in contextStore.config.degreeProgressColorCodes"
-        :id="`color-code-${colorName.toLowerCase()}-option`"
-        :key="hexCode"
-        @select="setSelected(colorName)"
-      >
-        <span :class="`accent-color-${toLower(selected)}`">
-          <v-icon :icon="mdiSquareOutline" />
-          {{ colorName }}
-        </span>
-      </option>
-    </select>
+    <v-menu>
+      <template #activator="{props}">
+        <button
+          id="color-code-select"
+          class="border-sm px-3 py-2 rounded-lg v-btn--variant-outlined w-100"
+          :class="`border-color-${selected.value}`"
+          v-bind="props"
+        >
+          <div class="align-center d-flex">
+            <div v-if="!selected.value" class="text-left">{{ selected.title }}</div>
+            <div
+              v-if="selected.value"
+              class="align-center d-flex"
+              :class="`accent-color-${selected.value}`"
+            >
+              <v-icon :icon="mdiSquare" class="mr-2" :class="`accent-color-${selected.value}`" />
+              <div>
+                {{ selected.title }}
+              </div>
+            </div>
+            <div class="ml-auto">
+              <v-icon
+                :color="selected.value"
+                :icon="props['aria-expanded'] === 'true' ? mdiMenuUp : mdiMenuDown"
+              />
+            </div>
+          </div>
+        </button>
+      </template>
+      <v-list>
+        <v-list-item
+          v-for="item in items"
+          :id="`color-code-option-${item.value || 'none'}`"
+          :key="item.value"
+          density="compact"
+          :base-color="item.value"
+          :color="item.value"
+          @click="() => setSelected(item)"
+        >
+          <div v-if="!item.value" class="pl-3">{{ item.title }}</div>
+          <div v-if="item.value" class="align-center d-flex" :class="`accent-color-${selected}`">
+            <v-icon :icon="mdiSquare" class="mr-2" :class="`accent-color-${item.value}`" />
+            <div>
+              {{ item.title }}
+            </div>
+          </div>
+        </v-list-item>
+      </v-list>
+    </v-menu>
   </div>
 </template>
 
 <script setup>
 import {alertScreenReader} from '@/lib/utils'
-import {mdiSquareOutline} from '@mdi/js'
+import {mdiMenuDown, mdiMenuUp, mdiSquare} from '@mdi/js'
 import {ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {toLower} from 'lodash'
+import {map} from 'lodash'
 
 const props = defineProps({
   accentColor: {
@@ -50,7 +79,9 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
-const selected = ref(props.accentColor)
+const noneSelected = {title: '-- None --', value: undefined}
+const items = [noneSelected].concat(map(contextStore.config.degreeProgressColorCodes, (value, key) => ({title: key, value})))
+const selected = ref(props.accentColor || noneSelected)
 
 const setSelected = value => {
   selected.value = value
