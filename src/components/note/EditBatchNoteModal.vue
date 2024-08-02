@@ -84,9 +84,12 @@
               <ManuallySetDate />
             </div>
           </TransitionGroup>
-          <div class="pt-5">
-            <AdvisingNoteAttachments :add-attachments="addNoteAttachments" />
-          </div>
+          <AdvisingNoteAttachments
+            :add-attachments="addNoteAttachments"
+            class="pt-5"
+            :disabled="!!(noteStore.isSaving || noteStore.boaSessionExpired)"
+            :remove-attachment="removeAttachmentByIndex"
+          />
         </div>
         <CreateNoteFooter
           :discard="discardRequested"
@@ -131,7 +134,7 @@ import CreateTemplateModal from '@/components/note/CreateTemplateModal'
 import ManuallySetDate from '@/components/note/ManuallySetDate'
 import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
-import {addAttachments, createDraftNote, getNote} from '@/api/notes'
+import {addAttachments, createDraftNote, getNote, removeAttachment} from '@/api/notes'
 import {alertScreenReader, invokeIfAuthenticated, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/note-templates'
 import {
@@ -196,7 +199,7 @@ watch(dialogModel, () => {
     init().then(note => {
       const onFinish = () => {
         noteStore.setMode(props.initialMode)
-        alertScreenReader(mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
+        alertScreenReader(mode.value === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
         putFocusNextTick(props.sid ? 'create-note-subject' : 'modal-header-note')
         useContextStore().setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
       }
@@ -208,7 +211,7 @@ watch(dialogModel, () => {
       }
     })
   } else {
-    noteStore.setMode(undefined)
+    noteStore.setMode(null)
     document.documentElement.classList.remove('modal-open')
     useContextStore().removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
   }
@@ -216,9 +219,9 @@ watch(dialogModel, () => {
 
 const addNoteAttachments = attachments => {
   return new Promise(resolve => {
-    if (isAutoSaveMode(mode)) {
+    if (isAutoSaveMode(mode.value)) {
       noteStore.setIsSaving(true)
-      addAttachments(model.valueid, attachments).then(response => {
+      addAttachments(model.value.id, attachments).then(response => {
         noteStore.setAttachments(response.attachments)
         alertScreenReader('Attachment added', 'assertive')
         noteStore.setIsSaving(false)
@@ -342,6 +345,18 @@ const init = () => {
       createDraftNote(props.sid).then(resolve)
     }
   })
+}
+
+const removeAttachmentByIndex = index => {
+  const attachment = noteStore.model.attachments[index]
+  if (attachment && attachment.id) {
+    if (isAutoSaveMode(mode.value)) {
+      removeAttachment(model.value.id, attachment.id).then(() => {
+        alertScreenReader(`Attachment '${attachment.displayName}' removed`)
+      })
+    }
+    noteStore.removeAttachmentByIndex(index)
+  }
 }
 
 const saveAsTemplate = () => {

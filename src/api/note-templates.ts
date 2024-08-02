@@ -52,8 +52,7 @@ export function updateNoteTemplate(
     topics,
   }
   each(newAttachments || [], (attachment, index) => args[`attachment[${index}]`] = attachment)
-  return utils.postMultipartFormData('/api/note_template/update', args).then(response => {
-    const data = response.data
+  return utils.postMultipartFormData('/api/note_template/update', args).then(data => {
     useNoteStore().onUpdateTemplate(data)
     $_track('update')
     return data

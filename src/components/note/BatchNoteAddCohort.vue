@@ -41,7 +41,6 @@
         class="v-chip-content-override text-uppercase text-no-wrap"
         density="compact"
         variant="outlined"
-        @click:close="() => remove(object)"
       >
         <div class="truncate-with-ellipsis">{{ object.name }}</div>
         <template #close>
@@ -52,7 +51,8 @@
             exact
             :icon="mdiCloseCircle"
             variant="text"
-            @click="() => remove(object)"
+            @click.stop="() => remove(object)"
+            @keyup.enter.stop="() => remove(object)"
           />
         </template>
       </v-chip>
