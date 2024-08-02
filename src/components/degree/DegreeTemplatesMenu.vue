@@ -16,7 +16,6 @@
         class="font-weight-black"
         :selected="selectedTemplate === undefined"
         :value="undefined"
-        @select="() => onSelect(selectedTemplate)"
       >
         Choose<span class="sr-only">&nbsp;degree check</span>...
       </option>
@@ -26,9 +25,7 @@
         :key="template.id"
         :aria-label="`Add degree check ${template.name}`"
         class="truncate-with-ellipsis"
-        :selected="get(selectedTemplate, 'id') === template.id"
         :value="template"
-        @select="() => onSelect(selectedTemplate)"
       >
         {{ template.name }}
       </option>
@@ -38,10 +35,9 @@
 
 <script setup>
 import {getDegreeTemplates} from '@/api/degree'
-import {get} from 'lodash'
-import {onMounted, ref} from 'vue'
+import {onMounted, ref, watch} from 'vue'
 
-defineProps({
+const props = defineProps({
   onSelect: {
     required: true,
     type: Function
@@ -55,11 +51,10 @@ defineProps({
 const degreeTemplates = ref(undefined)
 const selectedTemplate = ref(undefined)
 
-onMounted(() => {
-  getDegreeTemplates().then(data => {
-    degreeTemplates.value = data
-  })
-})
+watch(selectedTemplate, props.onSelect)
+
+onMounted(() => getDegreeTemplates().then(data => degreeTemplates.value = data))
+
 </script>
 
 <style scoped>
