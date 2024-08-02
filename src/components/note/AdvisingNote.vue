@@ -1,5 +1,5 @@
 <template>
-  <div :id="`note-${note.id}-outer`" class="advising-note-outer">
+  <div :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
     <div :id="`note-${note.id}-is-closed`" :class="{'note-snippet-when-closed truncate-with-ellipsis': !isOpen}" aria-label="Advising note">
       <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`">
         <span class="pr-2">
@@ -141,99 +141,34 @@
       :function-confirm="confirmedRemoveAttachment"
       modal-header="Delete Attachment"
     >
-      Are you sure you want to delete the <strong>'{{ displayName(existingAttachments, deleteAttachmentIndex) }}'</strong> attachment?
+      Are you sure you want to delete the <strong>'{{ displayName(note.attachments, deleteAttachmentIndex) }}'</strong> attachment?
     </AreYouSureModal>
-    <div v-if="isOpen">
-      <ul class="pill-list pl-0 mt-3">
-        <li
-          v-for="(attachment, index) in existingAttachments"
-          :id="`note-${note.id}-attachment-${index}`"
-          :key="attachment.name"
-          class="mt-2"
-        >
-          <span class="pill text-no-wrap">
-            <a
-              :id="`note-${note.id}-attachment-${index}`"
-              :href="downloadUrl(attachment)"
-            >
-              <v-icon :icon="mdiPaperclip" />
-              {{ attachment.displayName }}
-            </a>
-            <v-btn
-              v-if="!note.legacySource && (currentUser.isAdmin || currentUser.uid === author.uid)"
-              :id="`note-${note.id}-remove-note-attachment-${index}`"
-              variant="text"
-              class="p-0"
-              @click.prevent="removeAttachmentByIndex(index)"
-            >
-              <v-icon
-                :icon="mdiCloseCircleOutline"
-                class="font-size-20 pl-2"
-                color="error"
-              />
-              <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
-            </v-btn>
-          </span>
-        </li>
-      </ul>
-      <div v-if="!note.legacySource && currentUser.uid === author.uid">
-        <div v-if="attachmentError" class="mt-3 mb-3 w-100">
-          <v-icon :icon="mdiAlertRhombus" class="text-danger pr-1" />
-          <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
-        </div>
-        <div v-if="uploadingAttachment" class="w-100">
-          <v-icon :icon="mdiSync" spin /> Uploading {{ size(attachments) === 1 ? 'attachment' : 'attachments' }}...
-        </div>
-        <div v-if="size(existingAttachments) < contextStore.config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
-          <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
-          <div :id="`note-${note.id}-attachment-dropzone`" class="choose-attachment-file-wrapper pl-3 pr-3 text-no-wrap w-100">
-            Add attachment:
-            <v-btn
-              id="choose-file-for-note-attachment"
-              class="btn-file-upload mt-2 mb-2"
-              color="primary"
-              size="sm"
-              type="file"
-              variant="outlined"
-              @keydown.enter.prevent="clickBrowseForAttachment"
-            >
-              Select File
-            </v-btn>
-            <v-file-input
-              ref="attachment-file-input"
-              v-model="attachments"
-              density="comfortable"
-              :disabled="size(existingAttachments) === contextStore.config.maxAttachmentsPerNote"
-              flat
-              hide-details
-              multiple
-              :prepend-icon="null"
-              single-line
-              variant="solo-filled"
-            />
-          </div>
-        </div>
-        <div v-if="size(existingAttachments) === contextStore.config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
-          A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.
-        </div>
-      </div>
-    </div>
+    <AdvisingNoteAttachments
+      v-if="isOpen && !note.legacySource && currentUser.uid === author.uid"
+      :add-attachments="addNoteAttachments"
+      class="attachments-edit pt-3"
+      :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
+      downloadable
+      :id-prefix="`note-${note.id}-`"
+      :note="note"
+      :remove-attachment="removeAttachmentByIndex"
+    />
   </div>
 </template>
 
 <script setup>
+import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
-import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
 import {alertScreenReader, numFormat, oxfordJoin, toInt} from '@/lib/utils'
-import {cloneDeep, each, get, isEmpty, isNil, map, orderBy, size} from 'lodash'
-import {computed, onBeforeMount, reactive, ref, watch} from 'vue'
+import {get, isEmpty, isNil, isNumber, map, orderBy, size} from 'lodash'
+import {computed, reactive, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {getBoaUserRoles, termNameForSisId} from '@/berkeley'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
-import {mdiAlertRhombus, mdiCloseCircleOutline, mdiPaperclip, mdiSync} from '@mdi/js'
 import {stripHtmlAndTrim} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
   afterSaved: {
@@ -258,7 +193,48 @@ const props = defineProps({
   }
 })
 
-const clickBrowseForAttachment = () => document.getElementById('attachment-file-input').click()
+const author = ref(get(props.note, 'author'))
+const authorDepartments = computed(() => orderBy(map(author.value.departments, 'name')))
+const contextStore = useContextStore()
+const currentUser = reactive(contextStore.currentUser)
+const deleteAttachmentIndex = ref(undefined)
+const isUpdatingAttachments = ref(false)
+const noteStore = useNoteStore()
+const showConfirmDeleteAttachment = ref(false)
+
+const addNoteAttachments = attachments => {
+  return new Promise(resolve => {
+    isUpdatingAttachments.value = true
+    noteStore.setModel(props.note)
+    addAttachments(props.note.id, attachments).then(updatedNote => {
+      props.afterSaved(updatedNote)
+      noteStore.setAttachments(updatedNote.attachments)
+      alertScreenReader('Attachment added', 'assertive')
+      isUpdatingAttachments.value = false
+      resolve()
+    })
+  })
+}
+
+const cancelRemoveAttachment = () => {
+  showConfirmDeleteAttachment.value = false
+  deleteAttachmentIndex.value = null
+}
+
+const confirmedRemoveAttachment = () => {
+  showConfirmDeleteAttachment.value = false
+  const attachment = props.note.attachments[deleteAttachmentIndex.value]
+  if (attachment && attachment.id) {
+    return removeAttachment(props.note.id, attachment.id).then(updatedNote => {
+      alertScreenReader(`Attachment '${attachment.displayName}' removed`)
+      props.afterSaved(updatedNote)
+    })
+  }
+}
+
+const displayName = (attachments, index) => {
+  return !isNumber(index) || size(attachments) <= index ? '' : attachments[index].displayName
+}
 
 const loadAuthorDetails = () => {
   const requiresLazyLoad = (
@@ -295,114 +271,26 @@ const loadAuthorDetails = () => {
 }
 
 const removeAttachmentByIndex = (index) => {
-  clearErrors()
-  const removeMe = existingAttachments.value[index]
-  if (removeMe.id) {
-    deleteAttachmentIndex.value = index
-    showConfirmDeleteAttachment.value = true
-  } else {
-    existingAttachments.value.splice(index, 1)
-  }
+  deleteAttachmentIndex.value = index
+  showConfirmDeleteAttachment.value = true
 }
-
-const cancelRemoveAttachment = () => {
-  showConfirmDeleteAttachment.value = false
-  deleteAttachmentIndex.value = null
-}
-const clearErrors = () => {
-  attachmentError.value = null
-}
-const confirmedRemoveAttachment = () => {
-  showConfirmDeleteAttachment.value = false
-  const attachment = existingAttachments.value[deleteAttachmentIndex.value]
-  if (attachment && attachment.id) {
-    existingAttachments.value.splice(deleteAttachmentIndex.value, 1)
-    return removeAttachment(props.note.id, attachment.id).then(updatedNote => {
-      alertScreenReader(`Attachment '${attachment.displayName}' removed`)
-      props.afterSaved(updatedNote)
-    })
-  }
-}
-
-const displayName = (attachments, index) => {
-  return size(attachments) <= index ? '' : attachments[index].displayName
-}
-
-const downloadUrl = (attachment) => {
-  return `${contextStore.config.apiBaseUrl}/api/notes/attachment/${attachment.id}`
-}
-
-const resetAttachments = () => {
-  existingAttachments.value = cloneDeep(props.note.attachments)
-}
-
-const resetFileInput = () => {
-  const element = document.getElementById('attachment-file-input')
-  if (element) {
-    element.reset()
-  }
-}
-
-const attachmentError = ref(undefined)
-const attachments = ref([])
-const author = ref(get(props.note, 'author'))
-const authorDepartments = computed(() => orderBy(map(author.value.departments, 'name')))
-const contextStore = useContextStore()
-const currentUser = reactive(contextStore.currentUser)
-const deleteAttachmentIndex = ref(undefined)
-const existingAttachments = ref(undefined)
-const showConfirmDeleteAttachment = ref(false)
-const uploadingAttachment = ref(false)
-
-watch(attachments, files => {
-  if (size(files)) {
-    attachmentError.value = validateAttachment(files, existingAttachments.value)
-    if (this.attachmentError) {
-      resetFileInput()
-    } else {
-      clearErrors()
-      each(files, attachment => {
-        attachment.displayName = attachment.name
-        alertScreenReader(`Uploading attachment '${attachment.displayName}'`)
-      })
-      uploadingAttachment.value = true
-      addAttachments(props.note.id, files).then(updatedNote => {
-        alertScreenReader(`${size(files)} ${size(files) === 1 ? 'attachment' : 'attachments'} added.`)
-        props.afterSaved(updatedNote)
-        resetAttachments()
-        uploadingAttachment.value = false
-      }).catch(error => {
-        alertScreenReader()
-        attachmentError.value = get(error, 'message')
-        uploadingAttachment.value = false
-        resetFileInput()
-      })
-    }
-  }
-})
 
 watch(() => props.isOpen, () => {
-  clearErrors()
   loadAuthorDetails()
 })
-
-watch(() => props.note, () => {
-  resetAttachments()
-  loadAuthorDetails()
-})
-
-watch(() => props.note.attachments, resetAttachments)
-
-onBeforeMount(() => addFileDropEventListeners())
 
 loadAuthorDetails()
-resetAttachments()
 
 </script>
 
 <style scoped>
 .advising-note-outer {
-  flex-basis: 100%;
+  box-sizing: border-box;
+}
+.attachments-edit {
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
 }
 .note-snippet-when-closed {
   height: 24px;

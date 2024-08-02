@@ -66,9 +66,8 @@ export function updateNote(
     templateAttachmentIds,
     topics
   }
-  return utils.postMultipartFormData('/api/notes/update', args).then(response => {
+  return utils.postMultipartFormData('/api/notes/update', args).then(data => {
     const eventType = size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
-    const data = response.data
     useContextStore().broadcast(eventType, data)
     $_track('update')
     $_refreshMyDraftNoteCount()

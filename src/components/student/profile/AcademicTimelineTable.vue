@@ -83,19 +83,19 @@
     <h3 class="sr-only">{{ activeTab === 'all' ? 'All Messages' : `${capitalize(activeTab)}s` }}</h3>
     <table id="timeline-messages" class="w-100">
       <tr class="sr-only">
-        <th>Type</th>
-        <th>Summary</th>
-        <th>Details</th>
-        <th>Date</th>
+        <th class="column-pill">Type</th>
+        <th class="column-message">Summary</th>
+        <th class="column-right">Details</th>
+        <th class="column-right">Date</th>
       </tr>
       <tr v-if="creatingNoteEvent" class="message-row-read message-row border-t-sm border-b-sm">
-        <td class="column-pill align-top p-2">
-          <div class="pill text-center text-uppercase text-white pill-note">
+        <td class="column-pill">
+          <div class="pill text-center text-uppercase text-white pill-note pa-2">
             <span class="sr-only">Creating new</span> advising note
           </div>
         </td>
         <td class="column-message">
-          <div class="d-flex">
+          <div class="d-flex px-2">
             <div class="mr-2">
               <v-icon :icon="mdiSync" spin />
             </div>
@@ -106,7 +106,7 @@
         </td>
         <td></td>
         <td>
-          <div class="align-top pr-2 float-right text-no-wrap text-grey-darken-2">
+          <div class="pr-2 float-right text-no-wrap text-grey-darken-2">
             <TimelineDate
               :date="new Date()"
               :include-time-of-day="false"
@@ -121,59 +121,62 @@
         :class="{'message-row-read': message.read}"
         class="message-row border-t-sm border-b-sm"
       >
-        <td class="column-pill align-top p-2">
-          <div
-            :id="`timeline-tab-${activeTab}-pill-${index}`"
-            :class="`pill-${message.type}`"
-            class="pill text-center text-uppercase text-white"
-            :role="message.type === 'requirement' ? 'cell' : 'button'"
-            :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
-            @keyup.enter="open(message, true)"
-            @click="open(message, true)"
-          >
-            <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
-          </div>
-          <div
-            v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
-            class="mt-2"
-          >
-            <v-btn
-              v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)"
-              :id="`edit-note-${message.id}-button`"
-              class="font-size-15 my-1"
-              color="primary"
-              density="compact"
-              :disabled="useNoteStore().disableNewNoteButton"
-              variant="text"
-              @keypress.enter.stop="editNote(message)"
-              @click.stop="editNote(message)"
+        <td class="column-pill">
+          <div class="pa-2">
+            <div
+              :id="`timeline-tab-${activeTab}-pill-${index}`"
+              :class="`pill-${message.type}`"
+              class="pill text-center text-uppercase text-white"
+              :role="message.type === 'requirement' ? 'cell' : 'button'"
+              :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
+              @keyup.enter="open(message, true)"
+              @click="open(message, true)"
             >
-              Edit {{ message.isDraft ? 'Draft' : 'Note' }}
-            </v-btn>
-            <v-btn
-              v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
-              :id="`delete-note-button-${message.id}`"
-              class="font-size-15 my-1"
-              color="primary"
-              density="compact"
-              :disabled="useNoteStore().disableNewNoteButton"
-              variant="text"
-              @keydown.enter.stop="onClickDeleteNote(message)"
-              @click.stop="onClickDeleteNote(message)"
+              <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
+            </div>
+            <div
+              v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
+              class="mt-2"
             >
-              Delete {{ message.isDraft ? 'Draft' : 'Note' }}
-            </v-btn>
+              <v-btn
+                v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)"
+                :id="`edit-note-${message.id}-button`"
+                class="font-size-15 my-1 px-2"
+                color="primary"
+                density="compact"
+                :disabled="useNoteStore().disableNewNoteButton"
+                variant="text"
+                @keypress.enter.stop="editNote(message)"
+                @click.stop="editNote(message)"
+              >
+                Edit {{ message.isDraft ? 'Draft' : 'Note' }}
+              </v-btn>
+              <v-btn
+                v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
+                :id="`delete-note-button-${message.id}`"
+                class="font-size-15 my-1 px-2"
+                color="primary"
+                density="compact"
+                :disabled="useNoteStore().disableNewNoteButton"
+                variant="text"
+                @keydown.enter.stop="onClickDeleteNote(message)"
+                @click.stop="onClickDeleteNote(message)"
+              >
+                Delete {{ message.isDraft ? 'Draft' : 'Note' }}
+              </v-btn>
+            </div>
           </div>
         </td>
         <td
           :class="{'font-weight-bold': !message.read}"
-          class="column-message align-top"
+          class="column-message"
         >
           <div
             :id="`timeline-tab-${activeTab}-message-${index}`"
             :aria-pressed="includes(openMessages, message.transientId)"
+            class="pl-2"
             :class="{
-              'align-top message-open': includes(openMessages, message.transientId) && message.type !== 'requirement' ,
+              'message-open': includes(openMessages, message.transientId) && message.type !== 'requirement' ,
               'truncate': !includes(openMessages, message.transientId),
               'img-blur': currentUser.inDemoMode && ['appointment', 'eForm', 'note'].includes(message.type)
             }"
@@ -231,8 +234,8 @@
             </div>
           </div>
         </td>
-        <td class="column-right align-content-top pr-1">
-          <div v-if="!includes(openMessages, message.transientId) && message.type === 'appointment'">
+        <td class="column-right">
+          <div v-if="!includes(openMessages, message.transientId) && message.type === 'appointment'" class="pa-2">
             <div
               v-if="message.createdBy === 'YCBM' && message.status === 'cancelled'"
               :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
@@ -242,15 +245,15 @@
               Canceled
             </div>
           </div>
-          <div v-if="['appointment', 'eForm', 'note'].includes(message.type)">
+          <div v-if="['appointment', 'eForm', 'note'].includes(message.type)" class="pa-2">
             <v-icon v-if="size(message.attachments)" color="info" :icon="mdiPaperclip" />
             <span class="sr-only">{{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
           </div>
         </td>
-        <td class="column-right align-content-start">
+        <td class="column-right">
           <div
             :id="`timeline-tab-${activeTab}-date-${index}`"
-            class="pt-2 pr-2 text-no-wrap"
+            class="text-no-wrap py-2 pr-2"
           >
             <div v-if="!includes(openMessages, message.transientId) || !includes(['appointment', 'eForm', 'note'], message.type)">
               <TimelineDate
@@ -262,7 +265,7 @@
             </div>
             <div v-if="includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)">
               <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
-                <div class="text-grey-darken-2">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
+                <div class="text-grey-darken-2 font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
                 <TimelineDate
                   :id="`expanded-${message.type}-${message.id}-created-at`"
                   :date="message.createdAt"
@@ -277,7 +280,7 @@
                 </div>
               </div>
               <div v-if="displayUpdatedAt(message)">
-                <div class="mt-2 text-grey-darken-2">Updated:</div>
+                <div class="mt-2 text-grey-darken-2 font-size-14">Updated:</div>
                 <TimelineDate
                   :id="`expanded-${message.type}-${message.id}-updated-at`"
                   :date="message.updatedAt"
@@ -287,7 +290,7 @@
                 />
               </div>
               <div v-if="message.setDate">
-                <div class="mt-2 text-grey-darken-2">Set Date:</div>
+                <div class="mt-2 text-grey-darken-2 font-size-14">Set Date:</div>
                 <TimelineDate
                   :id="`expanded-${message.type}-${message.id}-set-date`"
                   :date="message.setDate"
@@ -650,7 +653,7 @@ const open = (message, notifyScreenReader) => {
 }
 
 const refreshNote = updatedNote => {
-  const note = get(updatedNote.id) ? find(props.messages, ['id', updatedNote.id]) : null
+  const note = get(updatedNote, 'id') ? find(props.messages, ['id', updatedNote.id]) : null
   if (note) {
     note.attachments = updatedNote.attachments
     note.body = note.message = updatedNote.body
@@ -737,17 +740,16 @@ init()
   text-transform: uppercase;
 }
 .column-message {
-  max-width: 1px;
-  padding: 10px 10px 10px 5px;
   vertical-align: middle;
+  width: 80%;
 }
 .column-pill {
-  padding: 8px;
   vertical-align: top;
   white-space: nowrap;
   width: 100px;
 }
 .column-right {
+  align-content: start;
   text-align: right;
   width: 1%;
 }

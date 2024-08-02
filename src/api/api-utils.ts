@@ -14,7 +14,7 @@ export default {
     const apiBaseUrl = get(useContextStore().config, 'apiBaseUrl')
     const config = {headers: {'Content-Type': 'multipart/form-data'}}
     return axios.post(`${apiBaseUrl}${path}`, formData, config)
-      .then(response => response)
+      .then(response => response.data)
       .catch(error => {
         // eslint-disable-next-line no-console
         console.log(error)
