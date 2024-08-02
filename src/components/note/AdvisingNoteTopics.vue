@@ -16,7 +16,7 @@
         <option
           v-for="option in topicOptions"
           :key="option.value"
-          :disabled="!!find(selectedTopics, value => value === option.value)"
+          :disabled="!!find(noteStore.model.topics, value => value === option.value)"
           :value="option.value"
           @select="onSelectChange"
         >
@@ -27,12 +27,13 @@
     <div>
       <ul
         id="note-topics-list"
+        :key="noteStore.model.topics.length"
         class="mb-2 pill-list pl-0 w-75"
         aria-labelledby="note-topics-label"
       >
         <li
-          v-for="(topic, index) in selectedTopics"
-          :id="`${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
+          v-for="(topic, index) in noteStore.model.topics"
+          :id="`note-topic-${index}`"
           :key="index"
           class="list-item"
         >
@@ -72,20 +73,20 @@ const disabled = computed(() => noteStore.isSaving || noteStore.boaSessionExpire
 const noteId = ref(noteStore.model.id)
 const selected = ref(null)
 const topicOptions = ref([])
-const selectedTopics = ref(noteStore.model.topics)
 
-watch(selected, async value => value && noteStore.addTopic(value))
+watch(selected, value => {
+  noteStore.addTopic(value)
+})
 
 getTopicsForNotes(false).then(rows => {
   each(rows, row => {
     const value = row['topic']
-    const disabled = includes(selectedTopics.value, value)
+    const disabled = includes(noteStore.model.topics, value)
     topicOptions.value.push({text: value, value, disabled})
   })
 })
 
 const remove = topic => {
-
   noteStore.removeTopic(topic)
   alertScreenReader(`Removed topic ${topic}.`)
   putFocusNextTick('add-topic-select-list')
