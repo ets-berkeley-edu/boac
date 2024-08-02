@@ -2,7 +2,7 @@
   <v-fade-transition>
     <div class="vh-100">
       <a id="skip-to-content-link" href="#content" class="sr-only">Skip to main content</a>
-      <v-layout>
+      <v-layout class="h-100">
         <v-app-bar
           color="primary"
           elevation="0"
@@ -14,7 +14,7 @@
             aria-controls="small-viewport-sidebar"
             :aria-label="showSidebar ? 'Collapse navigation menu' : 'Expand navigation menu'"
             @click.stop="showSidebar = !showSidebar"
-          ></v-app-bar-nav-icon>
+          />
           <AppBar />
         </v-app-bar>
         <v-navigation-drawer
