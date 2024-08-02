@@ -135,7 +135,7 @@
                 {{ noteUpdatedBy }}
               </span>
               <span v-if="noteUpdatedAt" class="text-grey">
-                {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
+                {{ noteUpdatedBy ? ' edited this note' : 'Last edited' }}
                 <span v-if="isToday(noteUpdatedAt)" id="degree-note-updated-at"> today.</span>
                 <span v-if="!isToday(noteUpdatedAt)">
                   on <span id="degree-note-updated-at">{{ noteUpdatedAt.toFormat('MMM D, YYYY') }}.</span>
@@ -149,15 +149,18 @@
                 class="degree-note-body"
                 v-html="noteBody"
               />
-              <v-btn
-                v-if="currentUser.canEditDegreeProgress"
-                id="edit-degree-note-btn"
-                class="pl-0"
-                :disabled="disableButtons"
-                text="Edit degree note"
-                variant="text"
-                @click="editNote"
-              />
+              <div class="mt-2">
+                <v-btn
+                  v-if="currentUser.canEditDegreeProgress"
+                  id="edit-degree-note-btn"
+                  class="font-weight-bold pl-0"
+                  color="primary"
+                  :disabled="degreeStore.disableButtons"
+                  text="Edit degree note"
+                  variant="text"
+                  @click="editNote"
+                />
+              </div>
             </div>
             <div v-if="isEditingNote">
               <v-textarea

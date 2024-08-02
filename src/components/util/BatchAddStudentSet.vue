@@ -8,11 +8,15 @@
     </div>
     <select
       :id="`batch-degree-check-${objectType}`"
+      v-model="model"
       :aria-label="`Degree check will be created for all students in selected ${objectType}${objects.length === 1 ? '' : 's'}`"
       class="bordered-select d-block mb-2 ml-0 select-menu w-100"
       :disabled="disabled"
     >
-      <option class="font-weight-black" selected :value="null">
+      <option
+        class="font-weight-black"
+        :value="undefined"
+      >
         {{ objectType === 'cohort' ? 'Add Cohort' : 'Add Group' }}
       </option>
       <option
@@ -21,41 +25,48 @@
         :key="object.id"
         :aria-label="`Add ${objectType} ${object.name}`"
         class="truncate-with-ellipsis"
-        :disabled="includes(addedIds, object.id)"
-        @click="add(object)"
+        :disabled="includes(addedIds, object.id) || !object.totalStudentCount"
+        :value="object"
       >
-        {{ object.name }}
+        {{ object.name }}&nbsp;&nbsp;({{ pluralize('student', object.totalStudentCount) }})
       </option>
     </select>
-    <div>
-      <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
-        <span class="font-weight-700 pill pill-attachment pl-2 text-uppercase text-no-wrap">
-          <span :id="`batch-degree-check-${objectType}-${index}`">{{ truncate(addedObject.name) }}</span>
-          <v-btn
-            :id="`remove-${objectType}-from-batch-${index}`"
-            class="pa-0"
-            :disabled="disabled"
-            variant="plain"
-            @click.prevent="remove(addedObject)"
+    <ul class="mb-2 pill-list pl-0 w-75">
+      <li
+        v-for="(addedObject, index) in added"
+        :key="index"
+        class="list-item"
+      >
+        <div class="d-flex justify-space-between">
+          <div
+            :id="`batch-degree-check-${objectType}-${index}`"
+            class="truncate-with-ellipsis w-75"
           >
-            <v-icon
-              :icon="mdiCloseCircleOutline"
-              class="font-size-20 pl-2"
-              color="error"
-            />
-            <span class="sr-only">Remove</span>
-          </v-btn>
-        </span>
-      </div>
-    </div>
+            {{ addedObject.name }}
+          </div>
+          <div class="float-right">
+            <v-btn
+              :id="`remove-${objectType}-from-batch-${index}`"
+              class="remove-topic-btn"
+              :disabled="disabled"
+              variant="text"
+              @click="() => remove(addedObject)"
+            >
+              <v-icon :icon="mdiCloseCircleOutline" color="error" />
+              <span class="sr-only">Remove</span>
+            </v-btn>
+          </div>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script setup>
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {mdiCloseCircleOutline} from '@mdi/js'
-import {computed, ref} from 'vue'
-import {filter as _filter, includes, map, truncate} from 'lodash'
+import {computed, nextTick, ref, watch} from 'vue'
+import {filter as _filter, includes, map} from 'lodash'
 
 const props = defineProps({
   addObject: {
@@ -86,12 +97,18 @@ const props = defineProps({
 
 const added = ref([])
 const addedIds = computed(() => map(added.value, 'id'))
+const model = ref(undefined)
 
-const add = object => {
-  added.value.push(object)
-  props.addObject(object)
-  alertScreenReader(`${props.header} '${object.name}' added to batch`)
-}
+watch(model, object => {
+  if (object) {
+    model.value = undefined
+    nextTick(() => {
+      added.value.push(object)
+      props.addObject(object)
+      alertScreenReader(`${props.header} '${object.name}' added to batch`)
+    })
+  }
+})
 
 const remove = object => {
   added.value = _filter(added.value, a => a.id !== object.id)
@@ -104,5 +121,19 @@ const remove = object => {
 <style scoped>
 .bordered-select {
   border: 1px solid #000;
+}
+.list-item {
+  background-color: #fff;
+  border-radius: 5px;
+  border: 1px solid #999;
+  color: #666;
+  height: 36px;
+  margin-top: 6px;
+  padding: 5px 0 0 8px;
+  min-width: 50%;
+}
+.remove-topic-btn {
+  padding: 0 0 10px 0 !important;
+  margin-right: -10px;
 }
 </style>

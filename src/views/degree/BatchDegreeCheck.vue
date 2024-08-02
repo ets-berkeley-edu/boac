@@ -82,14 +82,13 @@
             </ul>
           </div>
           <div class="ms-auto">
-            <ProgressButton
+            <v-btn
               id="degree-check-add-sids-btn"
-              :action="addSids"
-              class="mt-2"
               color="primary"
-              :disabled="!trim(textarea) || isBusy"
-              :in-progress="isValidating"
-              :text="isValidating ? 'Adding' : 'Add'"
+              :disabled="!trim(textarea) || isBusy || isValidating"
+              text="Add"
+              variant="flat"
+              @click.prevent="addSids"
             />
           </div>
         </div>
@@ -212,10 +211,8 @@ const addedCohortsEmpty = computed(() => addedCohorts.value.length && every(adde
 const addedGroupsEmpty = computed(() => addedCuratedGroups.value.length && every(addedCuratedGroups.value, {'totalStudentCount': 0}))
 const addedSids = computed(() => map(addedStudents.value, 'sid'))
 const isBusy = computed(() => isSaving.value || isValidating.value || isRecalculating.value)
-const sidsToInclude = computed(() => {
-  const sidsToExclude = map(excludedStudents.value, 'sid')
-  return difference(distinctSids.value, sidsToExclude)
-})
+
+const sidsToInclude = computed(() => difference(distinctSids.value, map(excludedStudents.value, 'sid')))
 
 watch(selectedTemplate, value => {
   findStudentsWithDegreeCheck(value, distinctSids.value)
