@@ -67,11 +67,10 @@
             </v-col>
           </v-row>
         </v-container>
-        <div v-if="contextStore.config.isVueAppDebugMode" class="default-margins">
-          <hr />
-          <DebugTemplate />
-        </div>
       </div>
+    </div>
+    <div v-if="contextStore.config.isVueAppDebugMode">
+      <DebugTemplate />
     </div>
   </div>
 </template>

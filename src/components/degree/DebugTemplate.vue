@@ -1,9 +1,10 @@
 <template>
-  <div class="border-top pt-2">
-    <div class="py-1">
+  <div class="border-t-sm default-margins">
+    <div class="ml-3 mt-4">
       <router-link
         v-if="degreeStore.parentTemplateUpdatedAt"
         id="degree-template-source"
+        class="font-weight-medium"
         target="_blank"
         :to="`/degree/${degreeStore.parentTemplateId}`"
       >
@@ -11,7 +12,7 @@
         <v-icon :icon="mdiOpenInNew" size="14" />
       </router-link>
     </div>
-    <div class="default-margins">
+    <div class="ml-3 mt-4">
       <div class="pb-1">
         <v-btn
           class="px-0 text-primary"
