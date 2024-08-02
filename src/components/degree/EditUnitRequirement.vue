@@ -41,7 +41,7 @@
         label="Minimum Units (required)"
         :max="100"
         :on-submit="unitRequirement ? update : create"
-        :set-units-lower="setMinUnits"
+        :set-units-lower="() => minUnits = units"
         :units-lower="minUnits"
       />
     </div>
@@ -75,114 +75,103 @@
   </form>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
+<script setup>
 import UnitsInput from '@/components/degree/UnitsInput'
-import Util from '@/mixins/Util'
 import {addUnitRequirement, updateUnitRequirement} from '@/api/degree'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {computed, onMounted, ref} from 'vue'
+import {filter as _filter, get, isEmpty, map, trim} from 'lodash'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {validateUnitRange} from '@/lib/degree-progress'
 
-export default {
-  name: 'EditUnitRequirement',
-  components: {UnitsInput},
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    onExit: {
-      required: true,
-      type: Function
-    },
-    unitRequirement: {
-      default: undefined,
-      required: false,
-      type: Object
-    }
+const props = defineProps({
+  onExit: {
+    required: true,
+    type: Function
   },
-  data: () => ({
-    isSaving: false,
-    name: '',
-    minUnits: undefined,
-    otherUnitRequirements: undefined
-  }),
-  computed: {
-    disableSaveButton() {
-      return this.isSaving || !this.name || !!this.unitsErrorMessage || !!this.nameErrorMessage
-    },
-    unitsErrorMessage() {
-      const isEmpty = this._isEmpty(this._trim(this.minUnits))
-      return isEmpty ? 'Required' : validateUnitRange(this.minUnits, undefined, 100).message
-    },
-    nameErrorMessage() {
-      let message = undefined
-      if (this.name) {
-        const lowerCase = this.name.toLowerCase()
-        const existingNames = this._map(this.otherUnitRequirements, u => u.name.toLowerCase())
-        if (existingNames.findIndex(existingName => lowerCase === existingName) > -1) {
-          message = 'Name cannot match the name of an existing Unit Requirement.'
-          alertScreenReader(message)
-        }
-      }
-      return message
+  unitRequirement: {
+    default: undefined,
+    required: false,
+    type: Object
+  }
+})
+
+const degreeStore = useDegreeStore()
+
+const isSaving = ref(false)
+const name = ref(get(props.unitRequirement, 'name'))
+const minUnits = ref(get(degreeStore.unitRequirement, 'minUnits'))
+const otherUnitRequirements = ref(
+  props.unitRequirement ?
+    _filter(degreeStore.unitRequirements, u => u.id !== get(props.unitRequirement, 'id')) :
+    degreeStore.unitRequirements
+)
+
+onMounted(() => {
+  alertScreenReader(props.unitRequirement ? `Edit unit requirement ${name.value}` : 'Create unit requirement')
+  putFocusNextTick('unit-requirement-name-input')
+})
+
+const disableSaveButton = computed(() => {
+  return isSaving.value || !name.value || !!unitsErrorMessage.value || !!nameErrorMessage.value
+})
+
+const unitsErrorMessage = computed(() => {
+  return isEmpty(trim(minUnits.value)) ? 'Required' : validateUnitRange(minUnits.value, undefined, 100).message
+})
+
+const nameErrorMessage = computed(() => {
+  let message = undefined
+  if (name.value) {
+    const lowerCase = name.value.toLowerCase()
+    const existingNames = map(otherUnitRequirements.value, u => u.name.toLowerCase())
+    if (existingNames.findIndex(existingName => lowerCase === existingName) > -1) {
+      message = 'Name cannot match the name of an existing Unit Requirement.'
+      alertScreenReader(message)
     }
-  },
-  created() {
-    if (this.unitRequirement) {
-      this.name = this.unitRequirement.name
-      this.minUnits = this.unitRequirement.minUnits
-      this.otherUnitRequirements = this._filter(this.unitRequirements, u => {
-        return u.id !== this.unitRequirement.id
+  }
+  return message
+})
+
+const cancel = () => {
+  alertScreenReader('Canceled.')
+  isSaving.value = false
+  props.onExit()
+}
+
+const create = () => {
+  if (degreeStore.disableSaveButton) {
+    putFocusRequiredField()
+  } else {
+    alertScreenReader('Saving')
+    isSaving.value = true
+    addUnitRequirement(degreeStore.templateId, name.value, minUnits.value).then(() => {
+      refreshDegreeTemplate(degreeStore.templateId).then(() => {
+        alertScreenReader(`Created ${name.value}.`)
+        props.onExit()
       })
-      alertScreenReader(`Edit unit requirement ${this.name}`)
-    } else {
-      this.otherUnitRequirements = this.unitRequirements
-      alertScreenReader('Create unit requirement')
-    }
-    this.putFocusNextTick('unit-requirement-name-input')
-  },
-  methods: {
-    cancel() {
-      alertScreenReader('Canceled.')
-      this.isSaving = false
-      this.onExit()
-    },
-    create() {
-      if (this.disableSaveButton) {
-        this.putFocusRequiredField()
-      } else {
-        alertScreenReader('Saving')
-        this.isSaving = true
-        addUnitRequirement(this.templateId, this.name, this.minUnits).then(() => {
-          refreshDegreeTemplate(this.templateId).then(() => {
-            alertScreenReader(`Created ${this.name}.`)
-            this.onExit()
-          })
-        })
-      }
-    },
-    putFocusRequiredField() {
-      this.putFocusNextTick(this.name ? 'unit-requirement-min-units-input' : 'unit-requirement-name-input')
-      alertScreenReader(`${this.name ? 'Units value' : 'Name'} required.`)
-    },
-    setMinUnits(units) {
-      this.minUnits = units
-    },
-    update() {
-      if (this.disableSaveButton) {
-        this.putFocusRequiredField()
-      } else {
-        alertScreenReader('Saving')
-        this.isSaving = true
-        updateUnitRequirement(this.unitRequirement.id, this.name, this.minUnits).then(() => {
-          refreshDegreeTemplate(this.templateId).then(() => {
-            this.isSaving = false
-            alertScreenReader(`Updated ${this.name}.`)
-            this.onExit()
-          })
-        })
-      }
-    }
+    })
+  }
+}
+const putFocusRequiredField = () => {
+  putFocusNextTick(name.value ? 'unit-requirement-min-units-input' : 'unit-requirement-name-input')
+  alertScreenReader(`${name.value ? 'Units value' : 'Name'} required.`)
+}
+
+const update = () => {
+  if (degreeStore.disableSaveButton) {
+    putFocusRequiredField()
+  } else {
+    alertScreenReader('Saving')
+    isSaving.value = true
+    updateUnitRequirement(props.unitRequirement.id, name.value, minUnits.value).then(() => {
+      refreshDegreeTemplate(degreeStore.templateId).then(() => {
+        isSaving.value = false
+        alertScreenReader(`Updated ${name.value}.`)
+        props.onExit()
+      })
+    })
   }
 }
 </script>

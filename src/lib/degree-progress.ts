@@ -2,7 +2,23 @@ import {concat, each, filter, find, get, includes, isEmpty, isNil, map, startsWi
 import {DegreeProgressCourses} from '@/stores/degree-edit-session'
 import {useDegreeStore} from '@/stores/degree-edit-session'
 
-const $_flatten = categories => {
+export function categoryHasCourse(category, course): boolean {
+  let courses: any[] = []
+  const extractCourses = c => {
+    courses = courses.concat(c.courses)
+    each(c.courseRequirements, r => courses = courses.concat(r.courses))
+  }
+  extractCourses(category)
+  each(category.subcategories, subcategory => extractCourses(subcategory))
+  return map(courses, getCourseKey).includes(getCourseKey(course))
+}
+
+export function findCategoryById(categoryId) {
+  const categories: any[] = useDegreeStore().categories
+  return categoryId ? find(flattenCategories(categories), ['id', categoryId]) : null
+}
+
+export function flattenCategories(categories): any[] {
   let flattened: any[] = []
   each(categories, category => {
     flattened.push(category)
@@ -16,30 +32,9 @@ const $_flatten = categories => {
   return flattened
 }
 
-export function categoryHasCourse(category, course): any[] {
-  let courses: any[] = []
-  const extractCourses = c => {
-    courses = courses.concat(c.courses)
-    each(c.courseRequirements, r => courses = courses.concat(r.courses))
-  }
-  extractCourses(category)
-  each(category.subcategories, subcategory => extractCourses(subcategory))
-  return map(courses, getCourseKey).includes(getCourseKey(course))
-}
-
-export function findCategoriesByTypes(types, position) {
-  const categories: any[] = useDegreeStore().categories
-  return filter($_flatten(categories), c => (!position || c.position === position) && includes(types, c.categoryType))
-}
-
-export function findCategoryById(categoryId) {
-  const categories: any[] = useDegreeStore().categories
-  return categoryId ? find($_flatten(categories), ['id', categoryId]) : null
-}
-
 export function getAssignedCourses(category, ignoreCourseId): any[] {
   const assigned: any[] = []
-  each($_flatten([category]), c => {
+  each(flattenCategories([category]), c => {
     each(c.courses, course => {
       if ((course.sectionId || course.manuallyCreatedBy) && (!ignoreCourseId || course.id !== ignoreCourseId)) {
         assigned.push(course)

@@ -13,8 +13,7 @@
         >
           <option
             :id="`column-${position}-select-option-null`"
-            :value="null"
-            @select="onChangeCategorySelect"
+            :value="undefined"
           >
             Choose...
           </option>
@@ -24,7 +23,6 @@
             :key="option"
             :disabled="disableCategoryOption(option)"
             :value="option"
-            @select="onChangeCategorySelect"
           >
             {{ option }}
           </option>
@@ -64,8 +62,8 @@
           :error-message="unitsErrorMessage"
           :on-submit="onSubmit"
           :range="true"
-          :set-units-lower="setUnitsLower"
-          :set-units-upper="setUnitsUpper"
+          :set-units-lower="() => unitsLower = units"
+          :set-units-upper="() => unitsUpper = units"
           :units-lower="unitsLower"
           :units-upper="unitsUpper"
         />
@@ -85,7 +83,7 @@
           />
         </div>
       </div>
-      <div v-if="unitRequirements.length && !isCampusRequirements(existingCategory)" class="mt-1">
+      <div v-if="degreeStore.unitRequirements.length && !isCampusRequirements(existingCategory)" class="mt-1">
         <div class="font-weight-500">
           Requirement Fulfillment
         </div>
@@ -94,7 +92,7 @@
             :ref="`column-${position}-unit-requirement-select`"
             :disable="isSaving"
             :initial-unit-requirements="selectedUnitRequirements"
-            :on-unit-requirements-change="onUnitRequirementsChange"
+            :on-unit-requirements-change="() => selectedUnitRequirements = degreeStore.unitRequirements"
             :position="position"
           />
         </div>
@@ -117,7 +115,7 @@
           />
         </div>
       </div>
-      <div v-if="!_includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="mt-2">
+      <div v-if="!includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="mt-2">
         <div class="font-weight-500 pb-1">
           Requirement Location (required)
         </div>
@@ -137,7 +135,7 @@
               Choose...
             </option>
             <option
-              v-for="category in withTypeCategoryOrSubcategory"
+              v-for="category in reject(findCategoriesByTypes(['Category', 'Subcategory'], props.position), isCampusRequirements)"
               :id="`column-${position}-parent-select-option-${category.name}`"
               :key="category.id"
               :aria-label="`${category.categoryType} ${category.name}`"
@@ -178,194 +176,173 @@
   </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
-import DegreeEditSession from '@/mixins/DegreeEditSession'
+<script setup>
+import ProgressButton from '@/components/util/ProgressButton.vue'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {clone, differenceBy, each, every, filter, get, includes, isEmpty, map, reject, some} from 'lodash'
+import {computed, onMounted, ref, watch} from 'vue'
 import {createDegreeCategory, updateCategory} from '@/api/degree'
-import {
-  findCategoriesByTypes,
-  findCategoryById,
-  getItemsForCoursesTable,
-  isCampusRequirement,
-  validateUnitRange
-} from '@/lib/degree-progress'
+import {findCategoryById, flattenCategories, getItemsForCoursesTable, isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
-import ProgressButton from '@/components/util/ProgressButton.vue'
+import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'EditCategory',
-  components: {ProgressButton, UnitsInput, SelectUnitFulfillment},
-  mixins: [Context, DegreeEditSession, Util],
-  props: {
-    afterCancel: {
-      required: true,
-      type: Function
-    },
-    afterSave: {
-      required: true,
-      type: Function
-    },
-    existingCategory: {
-      default: undefined,
-      required: false,
-      type: Object
-    },
-    position: {
-      required: true,
-      type: Number
-    }
+const props = defineProps({
+  afterCancel: {
+    required: true,
+    type: Function
   },
-  data: () => ({
-    descriptionText: undefined,
-    isSatisfiedByTransferCourse: undefined,
-    isSaving: false,
-    name: '',
-    selectedCategoryType: null,
-    selectedParentCategory: null,
-    selectedUnitRequirements: [],
-    unitsLower: undefined,
-    unitsUpper: undefined
-  }),
-  computed: {
-    disableSaveButton() {
-      return this.isSaving
-        || !this.selectedCategoryType
-        || (!this.isCampusRequirements(this.existingCategory) && !this.name.trim())
-        || (!this._includes(['Category', 'Campus Requirements'], this.selectedCategoryType) && !this.selectedParentCategory)
-        || !!this.unitsErrorMessage
-    },
-    hasCampusRequirements() {
-      return this._some(findCategoriesByTypes(['Category']), this.isCampusRequirements)
-    },
-    unitsErrorMessage() {
-      const validate = this.selectedCategoryType === 'Course Requirement' && (!!this.unitsLower || !!this.unitsUpper)
-      return validate ? validateUnitRange(this.unitsLower, this.unitsUpper, 10).message : null
-    },
-    withTypeCategory() {
-      return this._reject(findCategoriesByTypes(['Category'], this.position), this.isCampusRequirements)
-    },
-    withTypeCategoryOrSubcategory() {
-      return this._reject(findCategoriesByTypes(['Category', 'Subcategory'], this.position), this.isCampusRequirements)
-    }
+  afterSave: {
+    required: true,
+    type: Function
   },
-  created() {
-    if (this.existingCategory) {
-      this.descriptionText = this.existingCategory.description
-      this.isSatisfiedByTransferCourse = this.existingCategory.isSatisfiedByTransferCourse
-      this.name = this.existingCategory.name
-      this.selectedCategoryType = this.existingCategory.categoryType
-      this.selectedParentCategory = findCategoryById(this.existingCategory.parentCategoryId)
-      this.selectedUnitRequirements = this._clone(this.existingCategory.unitRequirements)
-      this.unitsLower = this.existingCategory.unitsLower
-      this.unitsUpper = this.existingCategory.unitsUpper
-      this.putFocusNextTick(`column-${this.position}-name-input`)
+  existingCategory: {
+    default: undefined,
+    required: false,
+    type: Object
+  },
+  position: {
+    required: true,
+    type: Number
+  }
+})
+
+const contextStore = useContextStore()
+const degreeStore = useDegreeStore()
+
+const config = contextStore.config
+const descriptionText = ref(props.existingCategory ? props.existingCategory.description : undefined)
+const isSatisfiedByTransferCourse = ref(props.existingCategory ? props.existingCategory.isSatisfiedByTransferCourse : false)
+const isSaving = ref(false)
+const name = ref(props.existingCategory ? props.existingCategory.name : '')
+const selectedCategoryType = ref(undefined)
+const selectedParentCategory = ref(undefined)
+const selectedUnitRequirements = ref(props.existingCategory ? clone(props.existingCategory.unitRequirements) : [])
+const unitsLower = ref(props.existingCategory ? props.existingCategory.unitsLower : undefined)
+const unitsUpper = ref(props.existingCategory ? props.existingCategory.unitsUpper : undefined)
+
+watch(selectedCategoryType, option => {
+  alertScreenReader(option ? `${selectedCategoryType.value} selected` : 'Unselected')
+  if (option) {
+    if (selectedCategoryType.value === 'Campus Requirements') {
+      name.value = 'Campus Requirements'
+      descriptionText.value = 'American History, American Institutions, and American Cultures courses can also count as H/SS courses.'
+      putFocusNextTick(`column-${props.position}-description-input`)
     } else {
-      this.putFocusNextTick(`column-${this.position}-add-category-select`)
+      descriptionText.value = null
+      name.value = ''
+      putFocusNextTick(`column-${props.position}-name-input`)
     }
-  },
-  methods: {
-    cancel() {
-      this.descriptionText = null
-      this.name = ''
-      this.selectedCategoryType = null
-      this.afterCancel()
-    },
-    disableCategoryOption(option) {
-      return (option === 'Campus Requirements' && this.hasCampusRequirements)
-        || (!this.withTypeCategory.length && !this._includes(['Category', 'Campus Requirements'], option))
-    },
-    disableLocationOption(option) {
-      const optionType = option.categoryType
-      const selectedType = this.selectedCategoryType
-      return (selectedType === 'Subcategory' && optionType === 'Subcategory')
-        || (selectedType === 'Subcategory' && optionType === 'Category' && getItemsForCoursesTable(option).length > 0)
-        || (selectedType === 'Course Requirement' && optionType === 'Category' && !!option.subcategories.length)
-    },
-    isCampusRequirements(category) {
-      return this.selectedCategoryType === 'Campus Requirements'
-        || (category && !this._isEmpty(category.courseRequirements) && this._every(category.courseRequirements, isCampusRequirement))
-    },
-    onChangeCategorySelect(option) {
-      alertScreenReader(option ? `${this.selectedCategoryType} selected` : 'Unselected')
-      if (option) {
-        if (this.selectedCategoryType === 'Campus Requirements') {
-          this.name = 'Campus Requirements'
-          this.descriptionText = 'American History, American Institutions, and American Cultures courses can also count as H/SS courses.'
-          this.putFocusNextTick(`column-${this.position}-description-input`)
-        } else {
-          this.descriptionText = null
-          this.name = ''
-          this.putFocusNextTick(`column-${this.position}-name-input`)
-        }
-      }
-    },
-    onChangeParentCategory(option) {
-      alertScreenReader(option ? `${this.selectedParentCategory.name} selected` : 'Unselected')
-      const existingUnitRequirements = this.selectedUnitRequirements
-      const parentUnitRequirements = this._get(this.selectedParentCategory, 'unitRequirements')
+  }
+})
 
-      if (option) {
-        const inheritedUnitRequirements = this._differenceBy(parentUnitRequirements, existingUnitRequirements, 'id')
-        this._each(inheritedUnitRequirements, unitRequirement => {
-          this.$refs[`column-${option.position}-unit-requirement-select`].onChangeUnitRequirement(unitRequirement)
-        })
-        this.putFocusNextTick(`column-${this.position}-create-requirement-btn`)
-      } else {
-        this._each(parentUnitRequirements, unitRequirement => this.removeUnitRequirement(unitRequirement))
-      }
-    },
-    onSubmit() {
-      if (!this.disableSaveButton) {
-        this.isSaving = true
-        const parentCategoryId = this.selectedParentCategory && this.selectedParentCategory.id
-        const unitRequirementIds = this._map(this.selectedUnitRequirements, 'id')
-        const done = () => {
-          alertScreenReader(`${this.selectedCategoryType} ${this.existingCategory ? 'updated' : 'created'}`)
-          this.afterSave()
-        }
-        if (this.existingCategory) {
-          updateCategory(
-            this.existingCategory.id,
-            this.descriptionText,
-            this.isSatisfiedByTransferCourse,
-            this.name,
-            parentCategoryId,
-            unitRequirementIds,
-            this.unitsLower,
-            this.unitsUpper
-          ).then(() => {
-            refreshDegreeTemplate(this.templateId).then(done)
-          })
-        } else {
-          createDegreeCategory(
-            this.selectedCategoryType,
-            this.descriptionText,
-            this.isSatisfiedByTransferCourse,
-            this.name,
-            parentCategoryId,
-            this.position,
-            this.templateId,
-            unitRequirementIds,
-            this.unitsLower,
-            this.unitsUpper
-          ).then(() => {
-            refreshDegreeTemplate(this.templateId).then(done)
-          })
-        }
-      }
-    },
-    onUnitRequirementsChange(unitRequirements) {
-      this.selectedUnitRequirements = unitRequirements
-    },
-    setUnitsLower(units) {
-      this.unitsLower = units
-    },
-    setUnitsUpper(units) {
-      this.unitsUpper = units
+onMounted(() => {
+  selectedCategoryType.value = get(props.existingCategory, 'type')
+  selectedParentCategory.value = props.existingCategory ? findCategoryById(props.existingCategory.parentCategoryId) : null
+  putFocusNextTick(props.existingCategory ? `column-${props.position}-name-input` : `column-${props.position}-add-category-select`)
+})
+
+const disableSaveButton = computed(() => {
+  return isSaving.value
+    || !selectedCategoryType.value
+    || (!isCampusRequirements(props.existingCategory) && !name.value.trim())
+    || (!includes(['Category', 'Campus Requirements'], selectedCategoryType.value) && !selectedParentCategory.value)
+    || !!unitsErrorMessage.value
+})
+
+const unitsErrorMessage = computed(() => {
+  const validate = selectedCategoryType.value === 'Course Requirement' && (!!unitsLower.value || !!unitsUpper.value)
+  return validate ? validateUnitRange(unitsLower.value, unitsUpper.value, 10).message : null
+})
+
+const cancel = () => {
+  descriptionText.value = null
+  name.value = ''
+  selectedCategoryType.value = null
+  props.afterCancel()
+}
+
+const disableCategoryOption = option => {
+  const hasCampusRequirements = some(findCategoriesByTypes(['Category']), isCampusRequirements)
+  const withTypeCategory = reject(findCategoriesByTypes(['Category'], props.position), isCampusRequirements)
+  return (option === 'Campus Requirements' && hasCampusRequirements)
+    || (!withTypeCategory.length && !includes(['Category', 'Campus Requirements'], option))
+}
+
+const disableLocationOption = option => {
+  const optionType = option.categoryType
+  const selectedType = selectedCategoryType.value
+  return (selectedType === 'Subcategory' && optionType === 'Subcategory')
+    || (selectedType === 'Subcategory' && optionType === 'Category' && getItemsForCoursesTable(option).length > 0)
+    || (selectedType === 'Course Requirement' && optionType === 'Category' && !!option.subcategories.length)
+}
+
+const findCategoriesByTypes = (types, position) => {
+  const categories = degreeStore.categories
+  return filter(flattenCategories(categories), c => (!position || c.position === position) && includes(types, c.categoryType))
+}
+
+const isCampusRequirements = category => {
+  return selectedCategoryType.value === 'Campus Requirements'
+    || (category && !isEmpty(category.courseRequirements) && every(category.courseRequirements, isCampusRequirement))
+}
+
+const onChangeParentCategory = option => {
+  alertScreenReader(option ? `${selectedParentCategory.value.name} selected` : 'Unselected')
+  const existingUnitRequirements = selectedUnitRequirements.value
+  const parentUnitRequirements = get(selectedParentCategory.value, 'unitRequirements')
+
+  if (option) {
+    const inheritedUnitRequirements = differenceBy(parentUnitRequirements, existingUnitRequirements, 'id')
+    each(inheritedUnitRequirements, unitRequirement => {
+      this.$refs[`column-${option.position}-unit-requirement-select`].onChangeUnitRequirement(unitRequirement)
+    })
+    putFocusNextTick(`column-${props.position}-create-requirement-btn`)
+  } else {
+    each(parentUnitRequirements, unitRequirement => this.removeUnitRequirement(unitRequirement))
+  }
+}
+
+const onSubmit = () => {
+  if (!disableSaveButton.value) {
+    isSaving.value = true
+    const parentCategoryId = get(selectedParentCategory.value, 'id')
+    const unitRequirementIds = map(selectedUnitRequirements.value, 'id')
+    const done = () => {
+      alertScreenReader(`${selectedCategoryType.value} ${props.existingCategory ? 'updated' : 'created'}`)
+      props.afterSave()
+      isSaving.value = true
+    }
+    if (props.existingCategory) {
+      updateCategory(
+        props.existingCategory.id,
+        descriptionText.value,
+        isSatisfiedByTransferCourse.value,
+        name.value,
+        parentCategoryId,
+        unitRequirementIds,
+        unitsLower.value,
+        unitsUpper.value
+      ).then(() => {
+        refreshDegreeTemplate(degreeStore.templateId).then(done)
+      })
+    } else {
+      createDegreeCategory(
+        selectedCategoryType.value,
+        descriptionText.value,
+        isSatisfiedByTransferCourse.value,
+        name.value,
+        parentCategoryId,
+        props.position,
+        degreeStore.templateId,
+        unitRequirementIds,
+        unitsLower.value,
+        unitsUpper.value
+      ).then(() => {
+        refreshDegreeTemplate(degreeStore.templateId).then(done)
+      })
     }
   }
 }
