@@ -59,16 +59,17 @@
       />
     </div>
     <div v-if="course.manuallyCreatedBy" class="mt-2">
-      <label id="grade-label" for="course-grade-input" class="font-weight-700">
+      <label for="course-grade-input" class="font-weight-700">
         Grade
       </label>
       <v-text-field
         id="course-grade-input"
         v-model="grade"
-        aria-labelledby="grade-label"
         class="grade-input"
+        density="compact"
+        hide-details
         maxlength="3"
-        size="sm"
+        variant="outlined"
         @keydown.enter="update"
       />
     </div>
