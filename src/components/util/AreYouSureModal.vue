@@ -4,7 +4,6 @@
     persistent
     retain-focus
     width="auto"
-    @update:model-value="onToggle"
   >
     <v-card min-width="600">
       <v-card-title>
@@ -39,7 +38,7 @@
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {putFocusNextTick} from '@/lib/utils'
-import {ref} from 'vue'
+import {ref, watch} from 'vue'
 
 const props = defineProps({
   buttonLabelCancel: {
@@ -75,6 +74,10 @@ let isProcessing = ref(false)
 
 // eslint-disable-next-line vue/require-prop-types
 const model = defineModel()
+
+watch(model, () => {
+  onToggle(model.value)
+})
 
 const confirm = () => {
   isProcessing.value = true

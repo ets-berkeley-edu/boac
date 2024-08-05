@@ -108,11 +108,10 @@
     modal-header="Discard unsaved note?"
   />
   <CreateTemplateModal
-    :show-modal="showCreateTemplateModal"
+    v-model="showCreateTemplateModal"
     :cancel="cancelCreateTemplate"
     :create="createTemplate"
     :on-hidden="() => noteStore.setIsSaving(false)"
-    :toggle-show="toggleShowCreateTemplateModal"
   />
   <AreYouSureModal
     v-model="showDiscardTemplateModal"
@@ -267,13 +266,14 @@ const cancelCreateTemplate = () => {
   noteStore.setIsSaving(false)
   showCreateTemplateModal.value = false
   enableFocusLock()
+  putFocusNextTick('btn-save-as-template')
 }
 
 const cancelDiscardNote = () => {
   showDiscardNoteModal.value = false
   enableFocusLock()
   alertScreenReader('Continue editing note.')
-  putFocusNextTick('create-note-subject')
+  putFocusNextTick('create-note-cancel')
 }
 
 const cancelDiscardTemplate = () => {
@@ -285,13 +285,13 @@ const cancelDiscardTemplate = () => {
 const createTemplate = title => {
   noteStore.setIsSaving(true)
   const ifAuthenticated = () => {
-    showCreateTemplateModal.value = false
     enableFocusLock()
     // File upload might take time; alert will be overwritten when API call is done.
     showAlert('Creating template...', 60)
     // Save draft before creating template.
     updateAdvisingNote().then(() => {
       createNoteTemplate(model.value.id, title).then(() => {
+        showCreateTemplateModal.value = false
         noteStore.setIsSaving(false)
         showAlert(`Template '${title}' created.`)
         setTimeout(() => {
@@ -373,12 +373,6 @@ const saveAsTemplate = () => {
 const showAlert = (value, seconds=3) => {
   alert.value = value
   dismissAlertSeconds.value = seconds
-}
-
-const toggleShowCreateTemplateModal = show => {
-  showCreateTemplateModal.value = show
-  const toggle = show ? disableFocusLock : enableFocusLock
-  toggle()
 }
 
 const updateTemplate = () => {
