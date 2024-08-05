@@ -2,7 +2,7 @@
   <v-fade-transition>
     <div class="vh-100">
       <a id="skip-to-content-link" href="#content" class="sr-only">Skip to main content</a>
-      <v-layout class="h-100">
+      <v-layout>
         <v-app-bar
           color="primary"
           elevation="0"
@@ -30,7 +30,11 @@
         </v-navigation-drawer>
         <v-main id="content">
           <div class="h-100" :class="{'align-center d-flex justify-center': loading}">
-            <PlaneGoRound v-if="loading" />
+            <div v-if="loading" class="loading-container d-flex">
+              <div class="my-auto">
+                <PlaneGoRound />
+              </div>
+            </div>
             <v-expand-transition>
               <Sidebar
                 v-if="!$vuetify.display.mdAndUp && showSidebar && !loading"
@@ -77,6 +81,12 @@ const showSidebar = ref(true)
 
 putFocusNextTick('home-header')
 </script>
+
+<style scoped>
+.loading-container {
+  height: calc(100vh - 64px);
+}
+</style>
 
 <style>
 .sidebar .v-navigation-drawer__content {
