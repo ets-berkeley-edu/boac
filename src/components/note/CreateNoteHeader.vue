@@ -38,6 +38,7 @@
             id="my-templates-button"
             class="pr-2"
             color="primary"
+            :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
             v-bind="props"
           >
             <div class="pr-1">Templates</div>

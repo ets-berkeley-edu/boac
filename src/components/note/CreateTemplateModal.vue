@@ -1,11 +1,8 @@
 <template>
-  <v-overlay
-    v-model="showModalProxy"
-    aria-label="Name Your Template"
-    class="justify-center overflow-auto"
+  <v-dialog
+    v-model="dialogModel"
     persistent
     width="100%"
-    @update:model-value="onToggle"
   >
     <v-card
       class="modal-content"
@@ -25,6 +22,7 @@
             counter="255"
             density="compact"
             :disabled="isSaving"
+            :error="!!error"
             label="Template name"
             maxlength="255"
             persistent-counter
@@ -47,7 +45,6 @@
             {{ error }}
           </div>
         </div>
-        <hr class="my-2" />
         <div class="d-flex justify-end px-4 py-2">
           <ProgressButton
             id="create-template-confirm"
@@ -62,97 +59,76 @@
             :disabled="isSaving"
             text="Cancel"
             variant="plain"
-            @click="cancelModal"
+            @click="cancel"
           />
         </div>
       </form>
     </v-card>
-  </v-overlay>
+  </v-dialog>
 </template>
 
-<script>
+<script setup>
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {putFocusNextTick} from '@/lib/utils'
+import {ref, watch} from 'vue'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
 
-export default {
-  name: 'CreateTemplateModal',
-  components: {ModalHeader, ProgressButton},
-  props: {
-    cancel: {
-      type: Function,
-      required: true
-    },
-    create: {
-      type: Function,
-      required: true
-    },
-    onHidden: {
-      type: Function,
-      required: true
-    },
-    showModal: {
-      type: Boolean,
-      required: true
-    },
-    toggleShow: {
-      type: Function,
-      required: true
-    }
+const props = defineProps({
+  cancel: {
+    type: Function,
+    required: true
   },
-  data: () => ({
-    title: '',
-    error: undefined,
-    isSaving: false,
-    validationRules: {
-      required: value => !!value || 'Template name is required',
-      maxLength: value => (!value || value.length <= 255) || 'Template name cannot exceed 255 characters.',
-    }
-  }),
-  computed: {
-    showModalProxy: {
-      get() {
-        return this.showModal
-      },
-      set(value) {
-        this.toggleShow(value)
-      }
-    }
+  create: {
+    type: Function,
+    required: true
   },
-  watch: {
-    title() {
-      this.error = undefined
-    }
-  },
-  methods: {
-    reset() {
-      this.title = ''
-      this.error = undefined
-      this.isSaving = false
-    },
-    cancelModal() {
-      this.cancel()
-      this.reset()
-    },
-    createTemplate() {
-      this.isSaving = true
-      this.error = validateTemplateTitle({title: this.title})
-      if (!this.error) {
-        this.create(this.title)
-      } else {
-        this.isSaving = false
-      }
-    },
-    onToggle(isOpen) {
-      if (isOpen) {
-        putFocusNextTick('modal-header')
-      } else {
-        this.onHidden()
-      }
-    },
-    useNoteStore
+  onHidden: {
+    type: Function,
+    required: true
+  }
+})
+
+const dialogModel = defineModel({type: Boolean})
+const title = ref('')
+const error = ref(undefined)
+const isSaving = ref(false)
+const validationRules = ref({
+  required: value => !!value || 'Template name is required',
+  maxLength: value => (!value || value.length <= 255) || 'Template name cannot exceed 255 characters.',
+})
+
+watch(dialogModel, () => {
+  onToggle(dialogModel.value)
+})
+
+watch(title, () => {
+  error.value = undefined
+})
+
+const reset = () => {
+  title.value = ''
+  error.value = undefined
+  isSaving.value = false
+}
+
+const createTemplate = () => {
+  isSaving.value = true
+  error.value = validateTemplateTitle({title: title.value})
+  if (!error.value) {
+    props.create(title.value)
+  } else {
+    isSaving.value = false
+  }
+}
+
+const onToggle = isOpen => {
+  if (isOpen) {
+    putFocusNextTick('modal-header')
+  } else {
+    reset()
+    props.onHidden()
   }
 }
 </script>
