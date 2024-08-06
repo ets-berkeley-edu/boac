@@ -73,14 +73,17 @@
           variant="outlined"
         >
           <span class="truncate-with-ellipsis">{{ attachment.displayName }}</span>
-          <template #close>
+          <template #append>
             <v-btn
               :id="`${idPrefix}remove-attachment-${index}-btn`"
               :aria-label="`Remove attachment ${attachment.displayName}`"
+              class="pl-4"
               color="error"
+              density="compact"
               :disabled="disabled"
               exact=""
               :icon="mdiCloseCircle"
+              size="20px"
               variant="text"
               @click.stop.prevent="removeAttachment(index)"
               @keyup.enter.stop.prevent="removeAttachment(index)"

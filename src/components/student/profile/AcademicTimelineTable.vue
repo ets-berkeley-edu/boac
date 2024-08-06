@@ -136,12 +136,12 @@
             </div>
             <div
               v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
-              class="mt-2"
+              class="d-flex flex-column mt-2"
             >
               <v-btn
                 v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)"
                 :id="`edit-note-${message.id}-button`"
-                class="font-size-15 my-1 px-2"
+                class="font-size-14 my-1 px-1"
                 color="primary"
                 density="compact"
                 :disabled="useNoteStore().disableNewNoteButton"
@@ -154,7 +154,7 @@
               <v-btn
                 v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
                 :id="`delete-note-button-${message.id}`"
-                class="font-size-15 my-1 px-2"
+                class="font-size-14 my-1 px-1"
                 color="primary"
                 density="compact"
                 :disabled="useNoteStore().disableNewNoteButton"
@@ -744,9 +744,10 @@ init()
   width: 80%;
 }
 .column-pill {
+  max-width: 115px;
   vertical-align: top;
   white-space: nowrap;
-  width: 100px;
+  width: 115px;
 }
 .column-right {
   align-content: start;

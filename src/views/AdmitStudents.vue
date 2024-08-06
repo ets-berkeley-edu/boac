@@ -77,7 +77,7 @@
         :students="admits"
       />
 
-      <div v-if="totalAdmitCount > pagination.itemsPerPage" class="p-3">
+      <div v-if="totalAdmitCount > pagination.itemsPerPage" class="pa-3">
         <Pagination
           :click-handler="goToPage"
           :init-page-number="pagination.currentPage"

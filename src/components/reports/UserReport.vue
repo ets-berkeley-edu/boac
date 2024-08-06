@@ -24,7 +24,7 @@
               :id="`directory-link-${row.item.uid}`"
               :aria-label="`Go to UC Berkeley Directory page of ${row.item.name}`"
               :href="`https://www.berkeley.edu/directory/results?search-term=${row.item.name}`"
-              class="m-0"
+              class="ma-0"
               target="_blank"
             >
               {{ row.item.name }}

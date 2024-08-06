@@ -1,5 +1,5 @@
 <template>
-  <div class="m-4">
+  <div class="ma-4">
     <v-container v-if="!loading" fluid>
       <v-row class="pb-2">
         <v-col v-if="student">
@@ -22,7 +22,7 @@
             </div>
             <div v-if="student.sisProfile.plans.length" class="pt-2">
               <div class="section-border-minor">
-                <span class="font-weight-bold p-0 text-uppercase">Major</span>
+                <span class="font-weight-bold pa-0 text-uppercase">Major</span>
               </div>
               <div v-for="(plan, index) in student.sisProfile.plans" :key="index">
                 <div class="font-weight-bold">{{ plan.description }}</div>
@@ -31,7 +31,7 @@
             </div>
             <div v-if="student.sisProfile.plansMinor.length" class="py-2">
               <div class="section-border-minor">
-                <span class="font-weight-bold mt-2 p-0 text-uppercase">Minor</span>
+                <span class="font-weight-bold mt-2 pa-0 text-uppercase">Minor</span>
               </div>
               <div v-for="minorPlan of student.sisProfile.plansMinor" :key="minorPlan.description">
                 <div class="font-weight-bold">{{ minorPlan.description }}</div>

@@ -10,7 +10,7 @@
       <div v-if="!isLoading" class="font-size-14 text-black-50">
         (<b-btn
           id="show-hide-notes-report"
-          class="p-0"
+          class="pa-0"
           variant="link"
           @click="isShowingReport = !isShowingReport"
         >
