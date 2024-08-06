@@ -40,9 +40,7 @@
                 Degree name cannot exceed 255 characters.
               </span>
             </div>
-            <div v-if="error" class="error-message-container mt-2 pa-3">
-              <span v-html="error" />
-            </div>
+            <div v-if="error" class="mt-2 text-error" v-html="error" />
           </div>
           <div class="modal-footer mb-0 mr-2 pb-0 pl-0">
             <ProgressButton
@@ -121,7 +119,7 @@ const createClone = () => {
       })
     } else {
       error.value = `A degree named <span class="font-weight-500">${name.value}</span> already exists. Please choose a different name.`
-      alertScreenReader(this.error)
+      alertScreenReader(error)
       isSaving.value = false
     }
   })

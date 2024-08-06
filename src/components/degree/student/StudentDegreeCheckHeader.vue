@@ -270,7 +270,7 @@ watch(notesWhenPrintModel, () => {
 onMounted(() => {
   showRevisionIndicator.value = DateTime.fromJSDate(new Date(degreeStore.createdAt)) < DateTime.fromJSDate(new Date(degreeStore.parentTemplateUpdatedAt))
   const updatedAtDate = new Date(degreeStore.updatedAt)
-  const isFresh = new Date(degreeStore.createdAt) === updatedAtDate
+  const isFresh = new Date(degreeStore.createdAt).getTime() === updatedAtDate.getTime()
   const userId = isFresh ? degreeStore.createdBy : degreeStore.updatedBy
   getCalnetProfileByUserId(userId).then(data => {
     const name = data.name || `${data.uid} (UID)`

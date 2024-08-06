@@ -100,7 +100,7 @@ const props = defineProps({
 const degreeStore = useDegreeStore()
 
 const isSaving = ref(false)
-const name = ref(get(props.unitRequirement, 'name'))
+const name = ref(get(props.unitRequirement, 'name') || '')
 const minUnits = ref(get(degreeStore.unitRequirement, 'minUnits'))
 const otherUnitRequirements = ref(
   props.unitRequirement ?

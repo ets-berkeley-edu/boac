@@ -1,15 +1,15 @@
 <template>
   <div class="course d-flex flex-column position-relative" :class="{'course-expanded': showCourseDetails}">
     <div
-      :id="`term-${termId}-course-${index}`"
+      :id="baseElementId"
       class="align-center course-row d-flex"
       role="row"
     >
       <div role="cell" class="column-name" :class="{'': showCourseDetails}">
         <v-btn
-          :id="`term-${termId}-course-${index}-toggle`"
+          :id="`${baseElementId}-toggle`"
           :aria-expanded="showCourseDetails ? 'true' : 'false'"
-          :aria-controls="`term-${termId}-course-${index}-details`"
+          :aria-controls="`${baseElementId}-details`"
           class="align-center d-flex pl-0"
           color="primary"
           density="compact"
@@ -19,7 +19,7 @@
           <v-icon :icon="showCourseDetails ? mdiMenuDown : mdiMenuRight" />
           <span class="sr-only">{{ showCourseDetails ? 'Hide' : 'Show' }} {{ course.displayName }} class details for {{ student.name }}</span>
           <div
-            :id="`term-${termId}-course-${index}-name`"
+            :id="`${baseElementId}-name`"
             class="course-name overflow-hidden text-left truncate-with-ellipsis"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
           >
@@ -37,16 +37,16 @@
       <div class="align-center column-grade d-flex pl-1 text-nowrap" role="cell">
         <span
           v-if="course.midtermGrade"
-          :id="`term-${termId}-course-${index}-midterm-grade`"
+          :id="`${baseElementId}-midterm-grade`"
           v-accessible-grade="course.midtermGrade"
         />
         <span
           v-if="!course.midtermGrade"
-          :id="`term-${termId}-course-${index}-midterm-grade`"
+          :id="`${baseElementId}-midterm-grade`"
         ><span class="sr-only">No data</span>&mdash;</span>
         <v-icon
           v-if="isAlertGrade(course.midtermGrade) && !course.grade"
-          :id="`term-${termId}-course-${index}-has-midterm-grade-alert`"
+          :id="`${baseElementId}-has-midterm-grade-alert`"
           :icon="mdiAlertRhombus"
           class="boac-exclamation"
         />
@@ -54,17 +54,17 @@
       <div class="align-center column-grade d-flex text-nowrap" role="cell">
         <span
           v-if="course.grade"
-          :id="`term-${termId}-course-${index}-final-grade`"
+          :id="`${baseElementId}-final-grade`"
           v-accessible-grade="course.grade"
         />
         <span
           v-if="!course.grade"
-          :id="`term-${termId}-course-${index}-final-grade`"
+          :id="`${baseElementId}-final-grade`"
           class="font-italic text-muted"
         >{{ course.gradingBasis }}</span>
         <v-icon
           v-if="isAlertGrade(course.grade)"
-          :id="`term-${termId}-course-${index}-has-grade-alert`"
+          :id="`${baseElementId}-has-grade-alert`"
           class="boac-exclamation ml-1"
           color="warning"
           :icon="mdiAlert"
@@ -75,10 +75,10 @@
           :index="index"
           :term-id="termId"
         />
-        <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
+        <span v-if="!course.grade && !course.gradingBasis" :id="`${baseElementId}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div class="column-units font-size-14 pl-1 pt-1 text-nowrap text-right" role="cell">
-        <span :id="`term-${termId}-course-${index}-units`">{{ numeral(course.units).format('0.0') }}</span>
+        <span :id="`${baseElementId}-units`">{{ numeral(course.units).format('0.0') }}</span>
       </div>
     </div>
     <v-expand-transition
@@ -92,7 +92,7 @@
     >
       <div v-if="showCourseDetails">
         <div
-          :id="`term-${termId}-course-${index}-details-name`"
+          :id="`${baseElementId}-details-name`"
           class="font-size-16 font-weight-bold text-grey-darken-2"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
         >
@@ -118,7 +118,7 @@
             </span>
           </span>
         </div>
-        <div :id="`term-${termId}-course-${index}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
+        <div :id="`${baseElementId}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
         <div v-if="course.courseRequirements">
           <div v-for="requirement in course.courseRequirements" :key="requirement" class="font-size-14 text-no-wrap">
             <v-icon class="text-warning" :icon="mdiStar" /> {{ requirement }}
@@ -160,6 +160,7 @@
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import numeral from 'numeral'
 import StudentCourseCanvasData from '@/components/student/profile/StudentCourseCanvasData.vue'
+import {get, size} from 'lodash'
 import {
   getIncompleteGradeDescription,
   getSectionsWithIncompleteStatus,
@@ -168,7 +169,6 @@ import {
 import {mdiAlert, mdiAlertRhombus, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {nextTick, onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {size} from 'lodash'
 
 const props = defineProps({
   columnIndex: {
@@ -198,6 +198,8 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
+
+const baseElementId = `term-${props.term.termId}-course-${get(props.course, 'sections[0].ccn')}`
 const currentUser = contextStore.currentUser
 const sectionsWithIncompleteStatus = ref(getSectionsWithIncompleteStatus(props.course.sections))
 const showCourseDetails = ref(false)

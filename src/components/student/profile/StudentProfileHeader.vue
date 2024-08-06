@@ -27,7 +27,6 @@
   <div class="text-center">
     <StudentPersonalDetails
       v-if="!compact"
-      class="my-1"
       :inactive-majors="plansPartitionedByStatus[0].length ? plansPartitionedByStatus[1] : []"
       :inactive-minors="plansMinorPartitionedByStatus[0].length ? plansMinorPartitionedByStatus[1] : []"
       :inactive-subplans="plansPartitionedByStatus[0].length ? discontinuedSubplans : []"
