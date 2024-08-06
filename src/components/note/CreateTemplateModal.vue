@@ -72,6 +72,7 @@ import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {putFocusNextTick} from '@/lib/utils'
 import {ref, watch} from 'vue'
+import {trim} from 'lodash'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
 
@@ -115,9 +116,10 @@ const reset = () => {
 
 const createTemplate = () => {
   isSaving.value = true
-  error.value = validateTemplateTitle({title: title.value})
+  const templateTitle = trim(title.value)
+  error.value = validateTemplateTitle({title: templateTitle})
   if (!error.value) {
-    props.create(title.value)
+    props.create(templateTitle)
   } else {
     isSaving.value = false
   }

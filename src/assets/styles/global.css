@@ -226,6 +226,9 @@
 .position-relative {
   position: relative;
 }
+.scrollbar-gutter-stable {
+  scrollbar-gutter: stable !important;
+}
 .section-divider {
   background-color: #4a90e2;
   border: none;

@@ -42,7 +42,7 @@ export function validateAttachment(attachments: any[], existingAttachments: any[
 }
 
 export function validateTemplateTitle(template: any) {
-  const title = trim(template.title)
+  const title = template.title
   let msg: string | undefined = undefined
   if (isEmpty(title)) {
     msg = 'Required'
@@ -53,7 +53,7 @@ export function validateTemplateTitle(template: any) {
     each(myTemplates, existing => {
       if (
         (!template.id || template.id !== existing.id) &&
-        title.toUpperCase() === existing.title.toUpperCase()
+        title.toUpperCase() === trim(existing.title.toUpperCase())
       ) {
         msg = 'You have an existing template with this name. Please choose a different name.'
         return false

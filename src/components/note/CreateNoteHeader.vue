@@ -45,7 +45,11 @@
             <v-icon :icon="mdiMenuDown" size="24" />
           </v-btn>
         </template>
-        <v-list v-if="noteStore.noteTemplates.length" variant="flat">
+        <v-list
+          v-if="noteStore.noteTemplates.length"
+          class="scrollbar-gutter-stable"
+          variant="flat"
+        >
           <v-list-item-action v-for="template in noteStore.noteTemplates" :key="template.id">
             <v-container class="pl-2 pr-4 py-2" fluid>
               <v-row class="d-flex flex-nowrap" no-gutters>
@@ -56,6 +60,7 @@
                     color="primary"
                     block
                     density="compact"
+                    :disabled="isSaving"
                     width="400"
                     :text="template.title"
                     variant="text"
@@ -64,7 +69,11 @@
                 </v-col>
                 <v-col class="pl-8">
                   <div class="align-center d-flex float-right">
-                    <v-dialog v-model="template.isRenameDialogOpen" retain-focus width="auto">
+                    <v-dialog
+                      v-model="template.isRenameDialogOpen"
+                      persistent
+                      width="auto"
+                    >
                       <template #activator="{props: activatorProps}">
                         <v-btn
                           v-bind="activatorProps"
@@ -144,6 +153,7 @@
                       class="font-size-14"
                       color="primary"
                       density="compact"
+                      :disabled="isSaving"
                       size="sm"
                       variant="text"
                       @click="editTemplate(template)"
@@ -158,21 +168,13 @@
                       class="font-size-14"
                       color="primary"
                       density="compact"
+                      :disabled="isSaving"
                       size="sm"
                       variant="text"
-                      @click="openDeleteTemplateDialog(template)"
+                      @click.stop="openDeleteTemplateDialog(template)"
                     >
                       Delete<span class="sr-only"> template {{ template.title }}</span>
                     </v-btn>
-                    <AreYouSureModal
-                      v-model="template.isDeleteDialogOpen"
-                      button-label-confirm="Delete"
-                      dialog-header="Delete Template"
-                      :function-cancel="() => cancel(template)"
-                      :function-confirm="() => deleteTemplateConfirmed(template)"
-                    >
-                      Are you sure you want to delete the <strong>'{{ get(template, 'title') }}'</strong> template?
-                    </AreYouSureModal>
                   </div>
                 </v-col>
               </v-row>
@@ -187,6 +189,15 @@
         </div>
       </v-menu>
     </div>
+    <AreYouSureModal
+      v-model="isDeleting"
+      button-label-confirm="Delete"
+      dialog-header="Delete Template"
+      :function-cancel="() => cancel(templateToDelete)"
+      :function-confirm="() => deleteTemplateConfirmed()"
+    >
+      Are you sure you want to delete the <strong>'{{ get(templateToDelete, 'title') }}'</strong> template?
+    </AreYouSureModal>
   </div>
 </template>
 
@@ -196,19 +207,24 @@ import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {applyNoteTemplate} from '@/api/notes'
+import {computed, ref, watch} from 'vue'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/utils'
-import {get, size} from 'lodash'
+import {get, size, trim} from 'lodash'
 import {mdiMenuDown} from '@mdi/js'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
-import {ref, watch} from 'vue'
 
 const error = ref('')
 const isSaving = ref(false)
 const noteStore = useNoteStore()
 const updatedTemplateTitle = ref(undefined)
 const suppressAutoSaveDraftNoteAlert = ref(false)
+const templateToDelete = ref(undefined)
+
+const isDeleting = computed(() => {
+  return !!templateToDelete.value
+})
 
 watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = true, 5000))
 
@@ -219,11 +235,11 @@ const cancel = template => {
   enableFocusLock()
 }
 
-const deleteTemplateConfirmed = template => {
+const deleteTemplateConfirmed = () => {
   isSaving.value = true
-  return deleteNoteTemplate(template.id).then(() => {
+  return deleteNoteTemplate(templateToDelete.value.id).then(() => {
     isSaving.value = false
-    resetTemplate(template, template.title)
+    resetTemplate(templateToDelete.value, templateToDelete.value.title)
     alertScreenReader('Template deleted.')
     putFocusNextTick('create-note-subject')
     enableFocusLock()
@@ -256,6 +272,7 @@ const onToggleTemplatesMenu = isOpen => {
 }
 
 const openDeleteTemplateDialog = template => {
+  templateToDelete.value = template
   template.isDeleteDialogOpen = true
   disableFocusLock()
   alertScreenReader('Delete template dialog opened.')
@@ -269,16 +286,17 @@ const openRenameTemplateDialog = template => {
 }
 
 const renameTemplate = template => {
+  const templateTitle = trim(updatedTemplateTitle.value)
   error.value = undefined
   isSaving.value = true
-  const errorMessage = validateTemplateTitle({id: template.id, title: updatedTemplateTitle})
+  const errorMessage = validateTemplateTitle({id: template.id, title: templateTitle})
   if (errorMessage) {
     error.value = errorMessage
     isSaving.value = false
   } else {
-    renameNoteTemplate(template.id, updatedTemplateTitle).then(() => {
+    renameNoteTemplate(template.id, templateTitle).then(() => {
       isSaving.value = false
-      resetTemplate(template, updatedTemplateTitle)
+      resetTemplate(template, templateTitle)
       alertScreenReader(`Template renamed '${template.title}'.`)
       enableFocusLock()
     })
@@ -289,6 +307,7 @@ const resetTemplate = (template, title) => {
   template.isDeleteDialogOpen = template.isRenameDialogOpen = false
   template.title = title
   updatedTemplateTitle.value = null
+  templateToDelete.value = null
 }
 </script>
 
