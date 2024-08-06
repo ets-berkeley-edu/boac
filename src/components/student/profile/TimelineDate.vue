@@ -29,6 +29,6 @@ const props = defineProps({
   }
 })
 const date = typeof props.date === 'string' ? new Date(props.date) : props.date
-const adjustedDate = date ? DateTime.fromJSDate(date).setZone(useContextStore().config.timezone) : null
+const adjustedDate = date ? DateTime.fromISO(props.date).setZone(useContextStore().config.timezone) : null
 const dateFormat = adjustedDate && adjustedDate.year === DateTime.now().year ? 'MMM d' : 'MMM d, yyyy'
 </script>
