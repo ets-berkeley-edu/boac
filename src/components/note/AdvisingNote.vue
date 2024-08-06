@@ -3,7 +3,16 @@
     <div :id="`note-${note.id}-is-closed`" :class="{'note-snippet-when-closed truncate-with-ellipsis': !isOpen}" aria-label="Advising note">
       <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`">
         <span class="pr-2">
-          <v-badge rounded color="warning">Draft</v-badge>
+          <v-chip
+            class="font-weight-black"
+            color="error"
+            density="compact"
+            rounded
+            size="small"
+            variant="flat"
+          >
+            Draft
+          </v-chip>
         </span>
         <span :id="`note-${note.id}-subject`">{{ note.subject || contextStore.config.draftNoteSubjectPlaceholder }}</span>
       </span>
@@ -146,7 +155,7 @@
     <AdvisingNoteAttachments
       v-if="isOpen && !note.legacySource && currentUser.uid === author.uid"
       :add-attachments="addNoteAttachments"
-      class="attachments-edit pt-3"
+      class="attachments-edit py-3"
       :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
       downloadable
       :id-prefix="`note-${note.id}-`"

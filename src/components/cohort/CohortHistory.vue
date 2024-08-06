@@ -65,7 +65,7 @@
         </tr>
       </tbody>
     </table>
-    <div v-if="!loading && totalEventsCount > itemsPerPage" class="p-3">
+    <div v-if="!loading && totalEventsCount > itemsPerPage" class="pa-3">
       <hr />
       <Pagination
         :click-handler="goToPage"

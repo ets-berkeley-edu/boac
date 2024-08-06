@@ -231,7 +231,7 @@
                 :id="`directory-link-${item.uid}`"
                 :aria-label="`Go to UC Berkeley Directory page of ${item.name}`"
                 :href="`https://www.berkeley.edu/directory/results?search-term=${item.name}`"
-                class="m-0"
+                class="ma-0"
                 target="_blank"
               >
                 {{ item.name }}

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-3">
+  <div class="pa-3">
     <div v-if="!loading">
       <div class="d-flex justify-content-between">
         <div>
@@ -15,7 +15,7 @@
       </div>
       <NotesReport :department="department" />
       <div class="pb-4 pt-4">
-        <h2 class="page-section-header-sub m-0 pt-0" :class="{'sr-only': availableDepartments.length !== 1}">{{ department.name }}</h2>
+        <h2 class="page-section-header-sub ma-0 pt-0" :class="{'sr-only': availableDepartments.length !== 1}">{{ department.name }}</h2>
         <div v-if="availableDepartments.length > 1" class="align-items-center d-flex">
           <label class="sr-only" for="available-department-reports">Departments:</label>
           <div>

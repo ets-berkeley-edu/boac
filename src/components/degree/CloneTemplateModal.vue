@@ -40,7 +40,7 @@
                 Degree name cannot exceed 255 characters.
               </span>
             </div>
-            <div v-if="error" class="error-message-container mt-2 p-3">
+            <div v-if="error" class="error-message-container mt-2 pa-3">
               <span v-html="error" />
             </div>
           </div>

@@ -4,7 +4,7 @@
     class="edit-note-form"
     @submit.prevent="save"
   >
-    <div v-if="noteStore.model.isDraft" class="font-size-18 text-error p-2">
+    <div v-if="noteStore.model.isDraft" class="font-size-18 text-error pa-2">
       <v-icon :icon="mdiAlertRhombus" class="pr-1" />
       You are editing a draft note.
     </div>
@@ -35,7 +35,7 @@
         />
       </span>
     </div>
-    <div>
+    <div class="py-3">
       <AdvisingNoteTopics />
     </div>
     <div v-if="currentUser.canAccessPrivateNotes" class="pb-3">

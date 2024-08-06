@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mt-3 w-75">
-      <div v-if="showWarning" class="alert-box p-3 mt-2 mb-3 w-100 warning">
+      <div v-if="showWarning" class="alert-box pa-3 mt-2 mb-3 w-100 warning">
         <span v-if="warning">{{ warning }}</span>
         <span v-if="!sids.length || sidsNotFound.length">
           <span v-if="sids.length"> {{ sidsNotFound.length === 1 ? 'Remove from list?' : 'Remove these from your list?' }}</span>
