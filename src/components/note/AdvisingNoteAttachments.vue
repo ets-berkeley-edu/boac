@@ -59,7 +59,7 @@
     </div>
     <ul aria-label="attachments" class="list-no-bullets mt-1">
       <li
-        v-for="(attachment, index) in model.attachments"
+        v-for="(attachment, index) in modelProxy.attachments"
         :key="index"
       >
         <v-chip
@@ -95,9 +95,10 @@
 <script setup>
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
 import {alertScreenReader, pluralize} from '@/lib/utils'
-import {computed, onBeforeMount, ref} from 'vue'
+import {computed, onBeforeMount, ref, watch} from 'vue'
 import {each, size} from 'lodash'
 import {mdiAlert, mdiCloseCircle, mdiPaperclip} from '@mdi/js'
+import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -136,14 +137,25 @@ const attachmentError = ref(undefined)
 const contextStore = useContextStore()
 const isAdding = ref(false)
 const noteStore = useNoteStore()
-const model = props.note ? ref(props.note) : ref(noteStore.model)
+const {mode, model} = storeToRefs(noteStore)
+let modelProxy = props.note ? ref(props.note) : ref(noteStore.model)
 
 const attachmentLimitReached = computed(() => {
   return size(model.value.attachments) >= contextStore.config.maxAttachmentsPerNote
 })
 
+watch(mode, () => {
+  modelProxy = props.note ? ref(props.note) : ref(noteStore.model)
+  init()
+})
+
+watch(model, () => {
+  modelProxy = props.note ? ref(props.note) : ref(noteStore.model)
+  init()
+})
+
 const init = () => {
-  attachments.value = model.value.attachments
+  attachments.value = modelProxy.value.attachments
 }
 
 const clickBrowseForAttachment = () => {
@@ -159,7 +171,7 @@ const onAttachmentsInput = files => {
     isAdding.value = true
     const pluralized = pluralize('attachment', files.length)
     alertScreenReader(`Adding ${pluralized}`)
-    attachmentError.value = validateAttachment(files, model.value.attachments)
+    attachmentError.value = validateAttachment(files, modelProxy.value.attachments)
     if (!attachmentError.value) {
       const attachments = []
       each(files, attachment => {
