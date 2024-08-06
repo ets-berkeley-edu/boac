@@ -234,14 +234,14 @@ const editTemplate = template => {
   noteStore.setModel(template)
   noteStore.setMode('editTemplate')
   putFocusNextTick('create-note-subject')
-  alertScreenReader(`Edit template ${template.title}.`)
+  alertScreenReader(`Editing template ${template.title}.`)
 }
 
 const loadTemplate = template => {
   applyNoteTemplate(noteStore.model.id, template.id).then(data => {
     noteStore.setModel(data)
     putFocusNextTick('create-note-subject')
-    alertScreenReader(`Template ${data.title} loaded.`)
+    alertScreenReader(`Template ${template.title} loaded.`)
   })
 }
 
@@ -249,7 +249,7 @@ const onToggleTemplatesMenu = isOpen => {
   if (isOpen) {
     let count = size(noteStore.noteTemplates)
     const suffix = count === 1 ? 'one saved template' : `${count || 'no'} saved templates`
-    alertScreenReader(`Template menu open. You have ${suffix}.`)
+    alertScreenReader(`Templates menu open. You have ${suffix}.`)
   } else {
     alertScreenReader('Templates menu closed.')
   }

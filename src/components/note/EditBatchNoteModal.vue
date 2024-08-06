@@ -136,6 +136,7 @@ import RichTextEditor from '@/components/util/RichTextEditor'
 import {addAttachments, createDraftNote, getNote, removeAttachment} from '@/api/notes'
 import {alertScreenReader, invokeIfAuthenticated, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/note-templates'
+import {concat, filter, size, trim, xor, xorBy} from 'lodash'
 import {
   disableFocusLock,
   enableFocusLock,
@@ -145,7 +146,6 @@ import {
   setSubjectPerEvent,
   updateAdvisingNote
 } from '@/stores/note-edit-session/utils'
-import {filter, size, trim, xor, xorBy} from 'lodash'
 import {mdiSync} from '@mdi/js'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
@@ -227,45 +227,17 @@ const addNoteAttachments = attachments => {
         resolve()
       })
     } else {
-      noteStore.setAttachments(attachments)
+      noteStore.setAttachments(concat(model.value.attachments, attachments))
       resolve()
     }
   })
-}
-
-const discardRequested = () => {
-  if (mode.value === 'editTemplate') {
-    const indexOf = noteTemplates.value.findIndex(t => t.id === model.value.id)
-    const template = noteTemplates.value[indexOf]
-    const noDiff = trim(model.value.subject) === template.subject
-      && model.value.body === template.body
-      && !size(xor(model.value.topics, template.topics))
-      && !size(xorBy(model.value.attachments, template.attachments, 'displayName'))
-    if (noDiff) {
-      discardTemplate()
-    } else {
-      showDiscardTemplateModal.value = true
-      disableFocusLock()
-    }
-  } else {
-    const unsavedChanges = !!trim(model.value.subject)
-      || !!stripHtmlAndTrim(model.value.body)
-      || size(model.value.topics)
-      || size(model.value.attachments)
-      || completeSidSet.value.size
-    if (unsavedChanges) {
-      showDiscardNoteModal.value = true
-      disableFocusLock()
-    } else {
-      discardNote()
-    }
-  }
 }
 
 const cancelCreateTemplate = () => {
   noteStore.setIsSaving(false)
   showCreateTemplateModal.value = false
   enableFocusLock()
+  alertScreenReader('Canceled save note as template.')
   putFocusNextTick('btn-save-as-template')
 }
 
@@ -314,6 +286,35 @@ const discardNote = () => {
   exit(true).then(() => alertScreenReader('Canceled create new note'))
 }
 
+const discardRequested = () => {
+  if (mode.value === 'editTemplate') {
+    const indexOf = noteTemplates.value.findIndex(t => t.id === model.value.id)
+    const template = noteTemplates.value[indexOf]
+    const noDiff = trim(model.value.subject) === template.subject
+      && model.value.body === template.body
+      && !size(xor(model.value.topics, template.topics))
+      && !size(xorBy(model.value.attachments, template.attachments, 'displayName'))
+    if (noDiff) {
+      discardTemplate()
+    } else {
+      showDiscardTemplateModal.value = true
+      disableFocusLock()
+    }
+  } else {
+    const unsavedChanges = !!trim(model.value.subject)
+      || !!stripHtmlAndTrim(model.value.body)
+      || size(model.value.topics)
+      || size(model.value.attachments)
+      || completeSidSet.value.size
+    if (unsavedChanges) {
+      showDiscardNoteModal.value = true
+      disableFocusLock()
+    } else {
+      discardNote()
+    }
+  }
+}
+
 const discardTemplate = () => {
   showDiscardTemplateModal.value = false
   exit(true).then(() => alertScreenReader('Canceled create template.'))
@@ -330,6 +331,7 @@ const exit = revert => {
   alert.value = dismissAlertSeconds.value = undefined
   showCreateTemplateModal.value = showDiscardNoteModal.value = showDiscardTemplateModal.value = false
   dialogModel.value = null
+  noteStore.setMode(null)
   return exitSession(revert).then(props.onClose)
 }
 
@@ -383,13 +385,13 @@ const updateTemplate = () => {
     showAlert('Updating template...', 60)
   }
   updateNoteTemplate(
-    model.valuebody,
-    model.valuedeleteAttachmentIds,
-    model.valueisPrivate,
+    model.value.body,
+    model.value.deleteAttachmentIds,
+    model.value.isPrivate,
     newAttachments,
-    model.valueid,
-    model.valuesubject,
-    model.valuetopics,
+    model.value.id,
+    model.value.subject,
+    model.value.topics,
   ).then(template => {
     noteStore.setIsSaving(false)
     exit(false).then(() => alertScreenReader(`Template '${template.title}' updated`))
