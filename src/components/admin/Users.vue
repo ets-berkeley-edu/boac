@@ -158,7 +158,7 @@
         </v-col>
       </v-row>
     </v-container>
-    <div>
+    <div class="mt-3">
       <v-data-table-server
         v-model:expanded="expanded"
         v-model:items-per-page="itemsPerPage"
@@ -170,7 +170,7 @@
           }
         }"
         :headers="tableHeaders"
-        :header-props="{class: 'font-size-14 pt-5 text-no-wrap'}"
+        :header-props="{class: 'font-size-14 py-3 text-no-wrap'}"
         :hide-default-footer="true"
         hide-no-data
         :items-length="totalUserCount || 0"
@@ -231,7 +231,6 @@
                 :id="`directory-link-${item.uid}`"
                 :aria-label="`Go to UC Berkeley Directory page of ${item.name}`"
                 :href="`https://www.berkeley.edu/directory/results?search-term=${item.name}`"
-                class="ma-0"
                 target="_blank"
               >
                 {{ item.name }}
