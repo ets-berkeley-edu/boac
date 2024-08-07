@@ -1,5 +1,5 @@
 <template>
-  <div :id="`column-${position}-edit-category`">
+  <div :id="`column-${position}-edit-category`" class="pb-3">
     <div v-if="!existingCategory">
       <div class="font-weight-500">
         Requirement Type (required)
@@ -217,7 +217,7 @@ const descriptionText = ref(props.existingCategory ? props.existingCategory.desc
 const isSatisfiedByTransferCourse = ref(props.existingCategory ? props.existingCategory.isSatisfiedByTransferCourse : false)
 const isSaving = ref(false)
 const name = ref(props.existingCategory ? props.existingCategory.name : '')
-const selectedCategoryType = ref(undefined)
+const selectedCategoryType = ref(props.existingCategory.categoryType)
 const selectedParentCategory = ref(undefined)
 const selectedUnitRequirements = ref(props.existingCategory ? clone(props.existingCategory.unitRequirements) : [])
 const unitsLower = ref(props.existingCategory ? props.existingCategory.unitsLower : undefined)
@@ -239,7 +239,6 @@ watch(selectedCategoryType, option => {
 })
 
 onMounted(() => {
-  selectedCategoryType.value = get(props.existingCategory, 'type')
   selectedParentCategory.value = props.existingCategory ? findCategoryById(props.existingCategory.parentCategoryId) : null
   putFocusNextTick(props.existingCategory ? `column-${props.position}-name-input` : `column-${props.position}-add-category-select`)
 })
