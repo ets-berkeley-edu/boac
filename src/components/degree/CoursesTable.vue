@@ -243,7 +243,7 @@
                       flat
                       :icon="mdiTrashCanOutline"
                       size="small"
-                      @click="onDelete(bundle)"
+                      @click="() => onDelete(bundle)"
                     />
                   </div>
                 </div>

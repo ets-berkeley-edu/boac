@@ -13,24 +13,24 @@
         <button
           id="color-code-select"
           class="border-sm px-3 py-2 rounded-lg v-btn--variant-outlined w-100"
-          :class="`border-color-${selected.value}`"
+          :class="getCssClass('border', selected)"
           v-bind="props"
         >
           <div class="align-center d-flex">
-            <div v-if="!selected.value" class="text-left">{{ selected.title }}</div>
+            <div v-if="!selected.color" class="text-left">{{ selected.title }}</div>
             <div
-              v-if="selected.value"
+              v-if="selected.color"
               class="align-center d-flex"
-              :class="`accent-color-${selected.value}`"
+              :class="getCssClass('accent', selected)"
             >
-              <v-icon :icon="mdiSquare" class="mr-2" :class="`accent-color-${selected.value}`" />
+              <v-icon :icon="mdiSquare" class="mr-2" :color="selected ? selected.color : 'black'" />
               <div>
                 {{ selected.title }}
               </div>
             </div>
             <div class="ml-auto">
               <v-icon
-                :color="selected.value"
+                :color="selected ? selected.color : 'black'"
                 :icon="props['aria-expanded'] === 'true' ? mdiMenuUp : mdiMenuDown"
               />
             </div>
@@ -40,16 +40,21 @@
       <v-list>
         <v-list-item
           v-for="item in items"
-          :id="`color-code-option-${item.value || 'none'}`"
-          :key="item.value"
+          :id="`color-code-option-${item.color || 'none'}`"
+          :key="item.color"
           density="compact"
-          :base-color="item.value"
-          :color="item.value"
+          :base-color="item.color"
+          :color="item.color"
           @click="() => setSelected(item)"
         >
-          <div v-if="!item.value" class="pl-3">{{ item.title }}</div>
-          <div v-if="item.value" class="align-center d-flex" :class="`accent-color-${selected}`">
-            <v-icon :icon="mdiSquare" class="mr-2" :class="`accent-color-${item.value}`" />
+          <div class="align-center d-flex" :class="getCssClass('accent', item)">
+            <v-icon
+              v-if="item.color"
+              class="mr-2"
+              :class="{'pl-3': !item.color}"
+              :color="item.color"
+              :icon="mdiSquare"
+            />
             <div>
               {{ item.title }}
             </div>
@@ -62,10 +67,10 @@
 
 <script setup>
 import {alertScreenReader} from '@/lib/utils'
+import {find, map, toLower} from 'lodash'
 import {mdiMenuDown, mdiMenuUp, mdiSquare} from '@mdi/js'
 import {ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {map} from 'lodash'
 
 const props = defineProps({
   accentColor: {
@@ -79,14 +84,16 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
-const noneSelected = {title: '-- None --', value: undefined}
-const items = [noneSelected].concat(map(contextStore.config.degreeProgressColorCodes, (value, key) => ({title: key, value})))
-const selected = ref(props.accentColor || noneSelected)
+const noneSelected = {title: '-- None --', color: undefined}
+const items = [noneSelected].concat(map(contextStore.config.degreeProgressColorCodes, (color, title) => ({title, color})))
+const selected = ref(find(items, ['color', props.accentColor ? toLower(props.accentColor) : undefined]))
+
+const getCssClass = (type, option) => `${type}-color-${option ? option.color : 'black'}`
 
 const setSelected = value => {
   selected.value = value
-  props.onChange(selected.value)
-  alertScreenReader(`${selected.value} selected`)
+  props.onChange(selected.value ? selected.value.color : undefined)
+  alertScreenReader(`${selected.value ? selected.value.color : 'None' } selected`)
 }
 </script>
 
