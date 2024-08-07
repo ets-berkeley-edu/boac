@@ -3,14 +3,10 @@
     <select
       :id="`column-${position}-unit-requirement-select`"
       v-model="model"
-      class="select-menu"
-      :disabled="disable || (degreeStore.unitRequirements.length === selected.length)"
+      class="select-menu w-100"
+      :disabled="disable"
     >
-      <option
-        :id="`column-${position}-unit-requirement-option-null`"
-        :value="null"
-        @select="onChangeUnitRequirement"
-      >
+      <option :id="`column-${position}-unit-requirement-option-null`" :value="null">
         Choose...
       </option>
       <option
@@ -19,12 +15,11 @@
         :key="index"
         :disabled="includes(map(selected, 'id'), option.id)"
         :value="option"
-        @select="onChangeUnitRequirement"
       >
         {{ option.name }}
       </option>
     </select>
-    <div v-if="selected.length">
+    <div v-if="selected.length" class="w-100">
       <label
         :for="`column-${position}-unit-requirement-list`"
         class="sr-only"
@@ -33,30 +28,27 @@
       </label>
       <ul
         :id="`column-${position}-unit-requirement-list`"
-        class="pill-list pl-0"
+        class="mb-2 pill-list pl-0"
       >
         <li
           v-for="(unitRequirement, index) in selected"
           :id="`column-${position}-unit-requirement-${index}`"
           :key="index"
+          class="list-item"
         >
-          <div class="align-center d-flex justify-space-between mr-3 mt-2 pill-unit-requirement">
-            <div>
+          <div class="d-flex justify-space-between">
+            <div class="truncate-with-ellipsis">
               {{ unitRequirement.name }}
             </div>
-            <div>
+            <div class="float-right">
               <v-btn
                 :id="`column-${position}-unit-requirement-remove-${index}`"
+                class="remove-item-btn"
                 :disabled="disable"
-                class="pill-list-btn px-0 py-0"
                 variant="text"
-                @click="removeUnitRequirement(unitRequirement)"
+                @click="() => removeUnitRequirement(unitRequirement)"
               >
-                <v-icon
-                  :icon="mdiCloseCircleOutline"
-                  class="font-size-24 pl-2"
-                  color="error"
-                />
+                <v-icon color="error" :icon="mdiCloseCircleOutline" />
                 <span class="sr-only">Remove</span>
               </v-btn>
             </div>
@@ -71,7 +63,7 @@
 import {alertScreenReader} from '@/lib/utils'
 import {cloneDeep, includes, map, remove} from 'lodash'
 import {mdiCloseCircleOutline} from '@mdi/js'
-import {ref} from 'vue'
+import {ref, watch} from 'vue'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
 const degreeStore = useDegreeStore()
@@ -95,17 +87,18 @@ const props = defineProps({
     type: Number
   }
 })
-const selected = ref(cloneDeep(props.initialUnitRequirements))
-const model = ref(null)
 
-const onChangeUnitRequirement = option => {
-  alertScreenReader(option ? `${option.name} selected` : 'Unselected')
-  if (option) {
-    selected.value.push(option)
+const model = ref(null)
+const selected = ref(cloneDeep(props.initialUnitRequirements))
+
+watch(model, () => {
+  alertScreenReader(model.value ? `${model.value.name} selected` : 'Unselected')
+  if (model.value) {
+    selected.value.push(model.value)
     props.onUnitRequirementsChange(selected.value)
     model.value = null
   }
-}
+})
 
 const removeUnitRequirement = item => {
   alertScreenReader(`${item.name} removed`)
@@ -115,16 +108,18 @@ const removeUnitRequirement = item => {
 </script>
 
 <style scoped>
-.pill-list-btn {
-  position: relative;
-  top: 1px;
-}
-.pill-unit-requirement {
+.list-item {
   background-color: #fff;
-  border: 1px solid #999;
   border-radius: 5px;
+  border: 1px solid #999;
   color: #666;
-  padding: 2px 12px 2px 12px;
-  width: auto;
+  height: 36px;
+  margin-top: 6px;
+  padding: 5px 0 0 8px;
+  min-width: 50%;
+}
+.remove-item-btn {
+  padding: 0 0 10px 0 !important;
+  margin-right: -10px;
 }
 </style>
