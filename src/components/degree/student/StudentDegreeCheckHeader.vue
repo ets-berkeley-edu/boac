@@ -121,7 +121,7 @@
             />
           </v-col>
           <v-col class="py-1" cols="5">
-            <h3 class="font-size-20 font-weight-bold text-no-wrap">In-progress courses</h3>
+            <h3 class="font-size-20 font-weight-bold pl-2 text-no-wrap">In-progress courses</h3>
           </v-col>
         </v-row>
         <v-row align-v="start">
@@ -196,21 +196,34 @@
               v-if="degreeStore.courses.inProgress.length"
               id="in-progress-courses"
               borderless
-              class="mb-0"
+              :cell-props="data => {
+                const float = data.column.key === 'units' ? 'float-right' : null
+                return {
+                  class: `${float} vertical-top`,
+                  id: `in-progress-term-${data.item.termId}-section-${data.item.ccn}-column-${data.column.key}`,
+                  style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+                }
+              }"
+              class="mb-0 w-75"
               density="compact"
+              disable-sort
               :headers="[
-                {key: 'displayName', title: 'Course'},
-                {class: 'float-right', key: 'units', title: 'Units'}
+                {headerProps: {class: 'data-table-column-header'}, key: 'displayName', title: 'Course'},
+                {headerProps: {class: 'data-table-column-header float-right'}, key: 'units', title: 'Units'}
               ]"
-              :items="getInProgressCourses"
+              hide-default-footer
+              :items="inProgressCourses"
               primary-key="primaryKey"
+              :row-props="data => ({
+                id: `tr-in-progress-term-${data.item.termId}-section-${data.item.ccn}`
+              })"
             >
               <template #item.displayName="{item}">
                 <div class="d-flex">
                   <div class="pr-1">{{ item.displayName }}</div>
                   <div
                     v-if="item.enrollmentStatus === 'W'"
-                    :id="`in-progress-course-${item.termId}-${item.sectionId}-waitlisted`"
+                    :id="`in-progress-course-${item.termId}-${item.ccn}-waitlisted`"
                     class="font-size-14 error font-weight-bold text-uppercase"
                   >
                     (W<span class="sr-only">aitlisted</span>)
@@ -267,6 +280,14 @@ watch(notesWhenPrintModel, () => {
   alertScreenReader(`Note will ${notesWhenPrintModel.value ? '' : 'not'} be included in printable page.`)
 })
 
+const inProgressCourses = computed(() => {
+  const courses = []
+  each(degreeStore.courses.inProgress, course => {
+    courses.push({...course, primaryKey: `${course.termId}-${course.ccn}`})
+  })
+  return courses
+})
+
 onMounted(() => {
   showRevisionIndicator.value = DateTime.fromJSDate(new Date(degreeStore.createdAt)) < DateTime.fromJSDate(new Date(degreeStore.parentTemplateUpdatedAt))
   const updatedAtDate = new Date(degreeStore.updatedAt)
@@ -292,14 +313,6 @@ const editNote = () => {
   isEditingNote.value = true
   putFocusNextTick('degree-note-input')
   alertScreenReader('Enter note in textarea')
-}
-
-const getInProgressCourses = () => {
-  const courses = []
-  each(degreeStore.courses.inProgress, course => {
-    courses.push({...course, primaryKey: `${course.termId}-${course.ccn}`})
-  })
-  return courses
 }
 
 const initNote = () => {
@@ -329,6 +342,14 @@ const saveNote = () => {
   })
 }
 </script>
+
+<style>
+.data-table-column-header {
+  color: #666;
+  font-weight: 700 !important;
+  height: 30px !important;
+}
+</style>
 
 <style scoped>
 .degree-note-body {
