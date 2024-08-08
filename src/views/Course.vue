@@ -141,7 +141,6 @@
 import CourseStudents from '@/components/course/CourseStudents'
 import ga from '@/lib/ga'
 import Pagination from '@/components/util/Pagination'
-import router from '@/router'
 import {DateTime} from 'luxon'
 import {computed, onMounted, ref, watch} from 'vue'
 import {each, orderBy, size, toString} from 'lodash'
@@ -173,14 +172,7 @@ const section = ref({students: []})
 contextStore.loadingStart()
 
 watch(itemsPerPage, (newValue, oldValue) => {
-  isToggling.value = true
-  contextStore.broadcast('hide-footer', true)
-  currentPage.value = Math.round(currentPage.value * (oldValue / newValue))
-  reload(section.value.sectionId, section.value.termId).then(() => {
-    isToggling.value = false
-    scrollToTop()
-    contextStore.broadcast('hide-footer', false)
-  })
+  goToPage(Math.round(currentPage.value * (oldValue / newValue)))
 })
 
 onMounted(() => {
@@ -191,10 +183,13 @@ onMounted(() => {
 })
 
 const goToPage = page => {
+  isToggling.value = true
+  contextStore.broadcast('hide-footer', true)
   currentPage.value = page
-  router.push({
-    path: `/course/${section.value.termId}/${section.value.sectionId}`,
-    query: {...params, p: currentPage.value}
+  reload(section.value.sectionId, section.value.termId).then(() => {
+    isToggling.value = false
+    scrollToTop()
+    contextStore.broadcast('hide-footer', false)
   })
 }
 
