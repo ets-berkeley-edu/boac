@@ -134,7 +134,7 @@ import Pagination from '@/components/util/Pagination'
 import router from '@/router'
 import {DateTime} from 'luxon'
 import {computed, onMounted, reactive, ref} from 'vue'
-import {each, orderBy, remove, size, toString, union} from 'lodash'
+import {each, orderBy, size, toString} from 'lodash'
 import {getSection} from '@/api/course'
 import {mdiAlertRhombus} from '@mdi/js'
 import {pluralize, scrollToTop, setPageTitle} from '@/lib/utils'
@@ -168,7 +168,7 @@ onMounted(() => {
     data => {
       section.value = data
       meetings.value = orderBy(data.meetings, ['startDate'])
-      const students = union(remove(data.students, student => student.uid === featured), data.students)
+      const students = data.students.sort(s => s.uid === featured ? -1 : 0)
       const displayName = data.displayName
       // Discrepancies in our loch-hosted SIS data dumps may occasionally result in students without enrollment
       // objects. A placeholder object keeps the front end from breaking.

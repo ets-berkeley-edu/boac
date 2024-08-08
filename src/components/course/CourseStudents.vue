@@ -1,16 +1,27 @@
 <template>
-  <v-data-table-virtual
-    :cell-props="{
-      class: 'pl-0 vertical-top',
-      style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+  <v-data-table
+    :cell-props="data => {
+      return {
+        class: 'pl-0 pt-2 vertical-top',
+        id: `td-student-${data.item.uid}-column-${data.column.key}`,
+        style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+      }
     }"
     density="compact"
     :headers="headers"
     :header-props="{class: 'float-bottom font-weight-bold pl-0'}"
+    hide-default-footer
     hover
     :items="section.students"
     mobile-breakpoint="md"
     must-sort
+    :row-props="data => {
+      const highlights = featured === data.item.uid ? 'list-group-item-info' : ''
+      return {
+        class: `${highlights}`,
+        id: `tr-student-${data.item.uid}`
+      }
+    }"
     @row-hovered="item => hoverSid.value === item.sid"
     @row-unhovered="() => hoverSid.value = null"
   >
@@ -260,7 +271,7 @@
         {{ item.enrollment.gradingBasis }}
       </span>
     </template>
-  </v-data-table-virtual>
+  </v-data-table>
 </template>
 
 <script setup>
