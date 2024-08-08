@@ -8,7 +8,7 @@
       aria-label="Pagination"
       density="comfortable"
       :length="totalPages"
-      rounded="md"
+      rounded="0"
       :show-first-last-page="totalPages >= showFirstLastButtonsWhen"
       :total-visible="7"
       variant="flat"
@@ -20,7 +20,7 @@
         <v-btn
           :id="`${idPrefix}-first`"
           class="font-size-14 rounded-e-0 rounded-s-lg"
-          :class="{'text-primary': !disabled}"
+          color="primary"
           :disabled="disabled"
           slim
           text="First"
@@ -33,8 +33,8 @@
           :id="`${idPrefix}-previous`"
           aria-label="Previous"
           class="chevron-button"
+          color="primary"
           :class="{
-            'text-primary': !disabled,
             'rounded-0': totalPages >= showFirstLastButtonsWhen,
             'rounded-e-0': totalPages < showFirstLastButtonsWhen
           }"
@@ -50,10 +50,10 @@
           :id="`${idPrefix}-next`"
           class="chevron-button rounded-s-0"
           :class="{
-            'text-primary': !disabled,
             'rounded-0': totalPages >= showFirstLastButtonsWhen,
             'rounded-s-0': totalPages < showFirstLastButtonsWhen
           }"
+          color="primary"
           :disabled="disabled"
           :icon="mdiChevronRight"
           variant="outlined"
@@ -64,7 +64,7 @@
         <v-btn
           :id="`${idPrefix}-last`"
           class="font-size-14 rounded-s-0 rounded-e-lg"
-          :class="{'text-primary': !disabled}"
+          color="primary"
           :disabled="disabled"
           slim
           text="Last"

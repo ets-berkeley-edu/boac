@@ -48,7 +48,7 @@
             </div>
           </div>
           <v-footer
-            v-if="!loading"
+            v-if="!loading && !hideFooter"
             absolute
             class="align-end w-100"
             color="transparent"
@@ -70,16 +70,19 @@ import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
 import Sidebar from '@/components/sidebar/Sidebar'
 import {putFocusNextTick} from '@/lib/utils'
-import {ref} from 'vue'
+import {computed, ref} from 'vue'
 import {split} from 'lodash'
-import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 
-const currentUser = useContextStore().currentUser
-const {loading} = storeToRefs(useContextStore())
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
+const hideFooter = ref(false)
+const loading = computed(() => contextStore.loading)
 const showSidebar = ref(true)
 
 putFocusNextTick('home-header')
+
+contextStore.setEventHandler('hide-footer', value => hideFooter.value = value)
 </script>
 
 <style scoped>
