@@ -63,8 +63,6 @@
               color="primary"
               density="compact"
               hide-details
-              @click="curatedGroupCheckboxClick(group)"
-              @keyup.enter="curatedGroupCheckboxClick(group)"
             >
               <template #label>
                 <span class="ml-2">

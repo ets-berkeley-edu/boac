@@ -54,7 +54,7 @@ export default {
     },
     create(name) {
       this.showCreateModal = false
-      createCuratedGroup(this.domain, name, this.sids)
+      return createCuratedGroup(this.domain, name, this.sids)
         .then(group => {
           alertScreenReader(`Curated group '${name}' created. It has ${this.sids.length} students.`)
           this.isSaving = false
