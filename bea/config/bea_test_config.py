@@ -28,6 +28,7 @@ from datetime import datetime as dt
 import os
 import random
 
+from bea.config.bea_test_case import BEATestCase
 from bea.models.academic_standings import AcademicStandings
 from bea.models.advisor_role import AdvisorRole
 from bea.models.cohorts_and_groups.cohort_admit_filter import CohortAdmitFilter
@@ -38,6 +39,7 @@ from bea.models.department_membership import DepartmentMembership
 from bea.models.incomplete_grades import IncompleteGrades
 from bea.models.notes_and_appts.note_attachment import NoteAttachment
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
+from bea.models.term import Term
 from bea.models.user import User
 from bea.test_utils import boa_utils
 from bea.test_utils import nessie_filter_admits_utils
@@ -54,6 +56,7 @@ class BEATestConfig(object):
         self.data = data or {}
         self.dept = dept or Department.L_AND_S
         self.test_admits = []
+        self.test_cases = []
         self.test_id = f'{calendar.timegm(dt.now().timetuple())}'
         self.test_students = []
 
@@ -424,7 +427,30 @@ class BEATestConfig(object):
             attachments.append(attachment)
         self.attachments = attachments
 
-    # CONFIGURATION FOR SPECIFIC TEST SCRIPTS #
+    # CONFIGURATION FOR SPECIFIC TEST SCRIPTS
+
+    def class_pages(self):
+        self.set_base_configs(opts={'include_inactive': True})
+        self.set_test_students(count=app.config['MAX_CLASS_PAGE_STUDENTS_COUNT'], opts={'enrollments': True})
+
+        # Generate test cases for parameterized tests
+        nessie_utils.set_student_profiles(self.test_students)
+        nessie_utils.set_student_term_enrollments(self.test_students)
+        for student in self.test_students:
+            for term_data in student.enrollment_data.enrollment_terms()[0:2]:
+                term = Term({
+                    'name': student.enrollment_data.term_name(term_data),
+                    'sis_id': student.enrollment_data.term_id(term_data),
+                })
+                section_ids = []
+                for course_data in student.enrollment_data.courses(term_data):
+                    for section_data in student.enrollment_data.sections(course_data):
+                        section_ids.append(student.enrollment_data.sis_section_data(section_data)['ccn'])
+                if section_ids:
+                    sections = nessie_utils.get_sections(term, section_ids, primary_only=True)
+                    for section in sections:
+                        self.test_cases.append(BEATestCase(student=student,
+                                                           section=section))
 
     def curated_groups(self):
         self.set_base_configs(opts={'include_inactive': True})

@@ -113,6 +113,13 @@ class EnrollmentData(object):
     def course_display_name(course):
         return course['displayName']
 
+    @staticmethod
+    def grade(course, grade_key):
+        if utils.safe_key(course, grade_key):
+            return course[f'{grade_key}'].replace('-', '−')
+        else:
+            return None
+
     def sis_course_data(self, course):
         reqts = utils.safe_key(course, 'courseRequirements') and list(
             map(lambda req: re.sub(r'\s+', ' ', req), course['courseRequirements']))
@@ -121,12 +128,18 @@ class EnrollmentData(object):
             'title': (re.sub(r'\s+', ' ', course['title'])),
             'units_completed_float': f"{float(course['units'])}",
             'units_completed': f"{(course['units'] // 1) if (course['units'] // 1) == course['units'] else course['units']}",
-            'midpoint': (utils.safe_key(course, 'midtermGrade') and course['midtermGrade'].replace('-', '−')),
-            'grade': (course['grade'] and course['grade'].replace('-', '−')),
+            'midpoint': self.grade(course, 'midtermGrade'),
+            'grade': self.grade(course, 'grade'),
             'grading_basis': course['gradingBasis'],
             'reqts': reqts,
             'acad_career': course['academicCareer'],
         }
+
+    def course_by_section_id(self, section):
+        term = next(filter(lambda t: self.term_id(t) == section.term.sis_id, self.enrollment_terms()))
+        for course in self.courses(term):
+            if section.ccn in self.course_section_ccns(course):
+                return course
 
     def term_courses_of_statuses(self, term, statuses):
         course_codes = []
@@ -208,8 +221,8 @@ class EnrollmentData(object):
     @staticmethod
     def site_metadata(site):
         return {
-            'code': site['courseCode'],
-            'title': site['courseName'],
+            'code': re.sub(r'\s+', ' ', site['courseCode']),
+            'title': re.sub(r'\s+', ' ', site['courseName']),
             'site_id': site['canvasCourseId'],
         }
 
@@ -230,10 +243,15 @@ class EnrollmentData(object):
 
     def score(self, analytics):
         score = self.student_data(analytics) and utils.safe_key(self.student_data(analytics), 'raw')
-        if score and score == score.floor():
-            return f'{score.floor()}'
-        else:
+        if score:
+            if score == int(score):
+                return f'{int(score)}'
+            else:
+                return f'{score}'
+        elif score == 0:
             return f'{score}'
+        else:
+            return None
 
     def site_statistics(self, analytics):
         student_data = self.student_data(analytics)
@@ -251,11 +269,14 @@ class EnrollmentData(object):
         }
 
     def assignments_submitted(self, site):
-        return self.site_statistics(self.analytics(site))['assignmentsSubmitted'].update(
-            {'type': 'Assignments Submitted'})
+        data = self.site_statistics(self.analytics(site)['assignmentsSubmitted'])
+        data.update({'type': 'Assignments Submitted'})
+        return data
 
     def assignment_grades(self, site):
-        return self.site_statistics(self.analytics(site))['currentScore'].update({'type': 'Assignment Grades'})
+        data = self.site_statistics(self.analytics(site)['currentScore'])
+        data.update({'type': 'Assignment Grades'})
+        return data
 
     def last_activity_day(self, site):
         epoch = utils.safe_key(self.site_statistics(self.analytics(site)['lastActivity']), 'score')

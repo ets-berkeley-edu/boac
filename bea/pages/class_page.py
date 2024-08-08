@@ -44,7 +44,7 @@ class ClassPage(ListViewStudentPages,
     COURSE_DETAILS = By.XPATH, '//h2[text()="Details"]/..'
     COURSE_TITLE = By.CLASS_NAME, 'course-section-title'
     TERM_NAME = By.CLASS_NAME, 'course-term-name'
-    CCN = By.ID, 'courses-class-number'
+    CCN = By.ID, 'course-class-number'
     MEETING_DIV = By.ID, 'meetings-0'
 
     def hit_class_page_url(self, term_id, ccn, student=None):
@@ -58,19 +58,26 @@ class ClassPage(ListViewStudentPages,
         self.when_visible(self.MEETING_DIV, utils.get_medium_timeout())
         self.hide_boa_footer()
 
-    def visible_course_data(self):
-        return {
-            'code': (self.element(self.COURSE_CODE).text if self.is_present(self.COURSE_CODE) else None),
-            'format': (
-                self.element(self.COURSE_DETAILS).text.split(' ')[1] if self.is_present(self.COURSE_DETAILS) else None),
-            'number': (
-                self.element(self.COURSE_DETAILS).text.split(' ')[2] if self.is_present(self.COURSE_DETAILS) else None),
-            'units_completed': (
-                self.element(self.COURSE_DETAILS).text.split(' ')[4] if self.is_present(self.COURSE_DETAILS) else None),
-            'title': (self.element(self.COURSE_TITLE).text.strip() if self.is_present(self.COURSE_TITLE) else None),
-            'term': (self.element(self.TERM_NAME).text if self.is_present(self.TERM_NAME) else None),
-            'ccn': (self.element(self.CCN).text.split(' ')[-2]),
-        }
+    def course_code(self):
+        return self.el_text_if_exists(self.COURSE_CODE)
+
+    def section_format(self):
+        return self.element(self.COURSE_DETAILS).text.split()[1] if self.is_present(self.COURSE_DETAILS) else None
+
+    def section_number(self):
+        return self.element(self.COURSE_DETAILS).text.split()[2] if self.is_present(self.COURSE_DETAILS) else None
+
+    def course_units_completed(self):
+        return self.element(self.COURSE_DETAILS).text.split('—')[-1].split(' ')[0] if self.is_present(self.COURSE_DETAILS) else None
+
+    def course_title(self):
+        return self.el_text_if_exists(self.COURSE_TITLE)
+
+    def course_term(self):
+        return self.el_text_if_exists(self.TERM_NAME)
+
+    def section_ccn(self):
+        return self.element(self.CCN).text.split(' ')[-1]
 
     # COURSE MEETING DATA
 
@@ -98,14 +105,6 @@ class ClassPage(ListViewStudentPages,
         loc = By.XPATH, f'{self.meeting_schedule_xpath(index)}//div[3]'
         return self.element(loc).text if self.is_present(loc) and self.element(loc).text else None
 
-    def visible_meeting_data(self, index):
-        return {
-            'instructors': self.meeting_instructors(index),
-            'days': self.meeting_days(index),
-            'time': self.meeting_time(index),
-            'location': self.meeting_location(index),
-        }
-
     # STUDENT SIS DATA
 
     STUDENT_LINK = By.XPATH, '//tr//a[contains(@href, "/student/")]'
@@ -120,74 +119,55 @@ class ClassPage(ListViewStudentPages,
 
     @staticmethod
     def student_xpath(student):
-        return f'//tr[contains(.,"{student.sis_id}")]'
+        return f'//tr[contains(.,"{student.sid}")]'
+
+    def is_student_inactive(self, student, section):
+        loc = By.ID, f'student-{student.uid}-inactive-for-{section.term.sis_id}-{section.ccn}'
+        return self.el_text_if_exists(loc) == 'INACTIVE'
 
     def student_level(self, student):
-        loc = By.XPATH, f'{self.student_xpath(student)}//div[contains(@id, "-level")]/span[@class="student-text"]'
-        return self.element(loc).text if self.is_present(loc) else None
-
-    def inactive_label(self, student):
-        loc = By.XPATH, f'{self.student_xpath(student)}//div[contains(@class,"student-sid")]/span[contains(@id,"-inactive")]'
-        return self.element(loc).text.strip() if self.is_present(loc) else None
+        loc = By.ID, f'student-{student.uid}-level'
+        return self.el_text_if_exists(loc)
 
     def student_majors(self, student):
-        loc = By.XPATH, f'{self.student_xpath(student)}//div[contains(@id, "-majors"]/div[@class="student-text"]'
-        return list(map(lambda el: el.text, self.elements(loc)))
+        loc = By.ID, f'student-{student.uid}-majors'
+        majors = self.el_text_if_exists(loc)
+        return majors.split('\n')
 
     def student_sports(self, student):
-        loc = By.XPATH, f'{self.student_xpath(student)}//div[contains(@id, "-teams")]/div[@class="student-text"]'
-        return list(map(lambda el: el.text, self.elements(loc)))
-
-    def student_mid_point_grade(self, student):
-        loc = By.XPATH, f'{self.student_xpath(student)}/td[@data-label="Mid"]//span'
-        return self.element(loc).text if self.is_present(loc) else None
-
-    def student_grading_basis(self, student):
-        loc = By.XPATH, f'{self.student_xpath(student)}/td[@data-label="Final"]//span[@class="cohort-grading-basis"]'
-        return self.element(loc).text if self.is_present(loc) else None
-
-    def student_graduation_colleges(self, student):
-        loc = By.XPATH, f'{self.student_xpath(student)}//div[contains(@id, "-graduated-colleges")]/div[@class="student-text"]'
-        return list(map(lambda el: el.text.strip(), self.elements(loc)))
+        loc = By.ID, f'student-{student.uid}-teams'
+        return self.els_text_if_exist(loc)
 
     def student_graduation(self, student):
         loc = By.XPATH, f'{self.student_xpath(student)}//div[starts-with(text()," Graduated")]'
-        return self.element(loc).text.replace('Graduated', '').strip() if self.is_present(loc) else None
+        return self.els_text_if_exist(loc, text_to_remove='Graduated')
+
+    def student_mid_point_grade(self, student):
+        loc = By.ID, f'td-student-{student.uid}-column-midtermGrade'
+        return self.el_text_if_exists(loc, text_to_remove='No data')
 
     def student_final_grade(self, student):
-        loc = By.XPATH, f'{self.student_xpath(student)}/td[@data-label="Final"]//span'
-        return self.element(loc).text if self.is_present(loc) else None
-
-    def visible_student_sis_data(self, student):
-        return {
-            'level': self.student_level(student),
-            'majors': self.student_majors(student),
-            'graduation': self.student_graduation(student),
-            'sports': self.student_sports(student),
-            'mid_point_grade': self.student_mid_point_grade(student),
-            'grading_basis': self.student_grading_basis(student),
-            'final_grade': self.student_final_grade(student),
-            'inactive': (self.inactive_label(student) == 'INACTIVE'),
-        }
+        loc = By.ID, f'td-student-{student.uid}-column-finalGrade'
+        return self.el_text_if_exists(loc)
 
     # STUDENT SITE DATA
 
     def site_code(self, student, node):
-        loc = By.XPATH, f'{self.student_xpath(student)}/td[@data-label="Course Site(s)"]/div/div/div[{node}]/strong'
-        return self.element(loc).text if self.is_present(loc) else None
+        loc = By.XPATH, f'{self.student_xpath(student)}/td[3]/div/div[{node}]/strong'
+        return self.el_text_if_exists(loc)
 
     def assignment_data(self, score_xpath):
         boxplot_xpath = f'{score_xpath}{self.boxplot_trigger_xpath()}'
-        app.logger.info(f'Checking assignment submission score at {self.boxplot_xpath()}')
+        app.logger.info(f'Checking assignment submission data at {boxplot_xpath}')
         has_boxplot = self.is_present((By.XPATH, boxplot_xpath))
         app.logger.info(f'Has-boxplot is {has_boxplot}')
         if has_boxplot:
             loc = By.XPATH, '//div[@class="highcharts-tooltip-container"][last()]//div[contains(text(), "User Score")]/following-sibling::div'
-            self.mouseover(self.element(self.boxplot_xpath()))
+            self.mouseover(self.element((By.XPATH, boxplot_xpath)))
             if not self.is_present(loc):
-                self.mouseover(self.element(self.boxplot_xpath()), horizontal_offset=-15)
+                self.mouseover(self.element((By.XPATH, boxplot_xpath)), horizontal_offset=-15)
             if not self.is_present(loc):
-                self.mouseover(self.element(self.boxplot_xpath()), horizontal_offset=15)
+                self.mouseover(self.element((By.XPATH, boxplot_xpath)), horizontal_offset=15)
         else:
             loc = By.XPATH, f'{score_xpath}//strong'
         return self.element(loc).text.split(' ')[-1] if self.is_present(loc) else None
@@ -196,8 +176,9 @@ class ClassPage(ListViewStudentPages,
         loc = By.XPATH, f'{xpath}/div[contains(., "No Data")]'
         return self.element(loc).text if self.is_present(loc) else None
 
-    def assigns_submit_xpath(self, student, node):
-        return f'{self.student_xpath(student)}/td[@data-label="Assignments Submitted"]/div/div/div[{node}]'
+    @staticmethod
+    def assigns_submit_xpath(student, node):
+        return f'//td[@id="td-student-{student.uid}-column-assignmentsSubmitted"]/div/div[{node}]'
 
     def assigns_submit_score(self, student, node):
         return self.assignment_data(self.assigns_submit_xpath(student, node))
@@ -205,8 +186,9 @@ class ClassPage(ListViewStudentPages,
     def assigns_submit_no_data(self, student, node):
         return self.assignment_no_data(self.assigns_submit_xpath(student, node))
 
-    def assigns_grade_xpath(self, student, node):
-        return f'{self.student_xpath(student)}/td[@data-label="Assignment Grades"]/div/div/div[{node}]'
+    @staticmethod
+    def assigns_grade_xpath(student, node):
+        return f'//td[@id="td-student-{student.uid}-column-assignmentGrades"]/div/div[{node}]'
 
     def assigns_grade_score(self, student, node):
         return self.assignment_data(self.assigns_grade_xpath(student, node))

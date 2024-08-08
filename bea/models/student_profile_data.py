@@ -72,33 +72,59 @@ class Profile(object):
     def sis_profile(self):
         return utils.safe_key(self.profile, 'sisProfile')
 
-    def sis_profile_data(self):
-        profile = self.sis_profile()
+    def name(self):
+        return utils.safe_key(self.sis_profile(), 'primaryName')
+
+    def preferred_name(self):
+        return utils.safe_key(self.sis_profile(), 'preferredName')
+
+    def email(self):
+        return utils.safe_key(self.sis_profile(), 'emailAddress')
+
+    def email_alternate(self):
+        return utils.safe_key(self.sis_profile(), 'emailAddressAlternate')
+
+    def phone(self):
+        return utils.safe_key(self.sis_profile(), 'phoneNumber') and f"{self.sis_profile()['phoneNumber']}"
+
+    def cumulative_units(self):
+        return utils.safe_key(self.sis_profile(), 'cumulativeUnits') and utils.formatted_units(self.sis_profile()['cumulativeUnits'])
+
+    def cumulative_gpa(self):
+        return '{:.3f}'.format(self.sis_profile()['cumulativeGPA']) if utils.safe_key(self.sis_profile(), 'cumulativeGPA') else '--'
+
+    def level(self):
+        return utils.safe_key(self.sis_profile(), 'level') and utils.safe_key(self.sis_profile()['level'], 'description')
+
+    def transfer(self):
+        return utils.safe_key(self.sis_profile(), 'transfer')
+
+    def terms_in_attendance(self):
+        return utils.safe_key(self.sis_profile(), 'termsInAttendance') and f"{self.sis_profile()['termsInAttendance']}"
+
+    def entered_term(self):
+        return utils.safe_key(self.sis_profile(), 'matriculation')
+
+    def expected_grad_term_id(self):
+        grad_term = utils.safe_key(self.sis_profile(), 'expectedGraduationTerm')
+        return grad_term and grad_term['id']
+
+    def expected_grad_term_name(self):
+        grad_term = utils.safe_key(self.sis_profile(), 'expectedGraduationTerm')
+        return grad_term and grad_term['name']
+
+    def academic_standing(self):
+        return utils.safe_key(self.sis_profile(), 'academicStanding')
+
+    def academic_career(self):
+        return utils.safe_key(self.sis_profile(), 'academicCareer')
+
+    def academic_career_status(self):
+        return utils.safe_key(self.sis_profile(), 'academicCareerStatus')
+
+    def reqts(self):
         reqts = self.degree_progress()
-        grad_term = utils.safe_key(profile, 'expectedGraduationTerm')
         return {
-            'name': utils.safe_key(profile, 'primaryName'),
-            'preferred_name': utils.safe_key(profile, 'preferredName'),
-            'email': utils.safe_key(profile, 'emailAddress'),
-            'email_alternate': utils.safe_key(profile, 'emailAddressAlternate'),
-            'phone': (utils.safe_key(profile, 'phoneNumber') and f"{profile['phoneNumber']}"),
-            'cumulative_units': (
-                utils.safe_key(profile, 'cumulativeUnits') and utils.formatted_units(profile['cumulativeUnits'])),
-            'cumulative_gpa': (
-                '{:.3f}'.format(profile['cumulativeGPA']) if utils.safe_key(profile, 'cumulativeGPA') else '--'),
-            'majors': self.majors(),
-            'minors': self.minors(),
-            'level': (utils.safe_key(profile, 'level') and utils.safe_key(profile['level'], 'description')),
-            'transfer': utils.safe_key(profile, 'transfer'),
-            'terms_in_attendance': (utils.safe_key(profile, 'termsInAttendance') and f"{profile['termsInAttendance']}"),
-            'entered_term': utils.safe_key(profile, 'matriculation'),
-            'intended_majors': self.intended_majors(),
-            'expected_grad_term_id': (grad_term and grad_term['id']),
-            'expected_grad_term_name': (grad_term and grad_term['name']),
-            'withdrawal': self.withdrawal(),
-            'academic_standing': utils.safe_key(profile, 'academicStanding'),
-            'academic_career': utils.safe_key(profile, 'academicCareer'),
-            'academic_career_status': utils.safe_key(profile, 'academicCareerStatus'),
             'reqt_writing': utils.safe_key(reqts, 'writing'),
             'reqt_history': utils.safe_key(reqts, 'history'),
             'reqt_institutions': utils.safe_key(reqts, 'institutions'),
@@ -131,6 +157,7 @@ class Profile(object):
                 'majors': majors,
                 'minors': minors,
             })
+        graduations.sort(key=lambda g: g['date'], reverse=True)
         return graduations
 
     def majors(self):

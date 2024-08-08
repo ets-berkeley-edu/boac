@@ -33,7 +33,7 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 class Pagination(BoaPages):
 
-    PAGE_ONE_LINK = By.ID, 'pagination-1'
+    PAGE_ONE_LINK = By.ID, 'pagination-page-1'
     GO_TO_FIRST_PAGE_LINK = By.ID, 'pagination-first'
     GO_TO_NEXT_PAGE_LINK = By.ID, 'pagination-next'
     GO_TO_LAST_PAGE_LINK = By.ID, 'pagination-last'

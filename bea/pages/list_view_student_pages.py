@@ -60,7 +60,7 @@ class ListViewStudentPages(Pagination, UserListPages):
     def list_view_sids(self):
         self.wait_for_players()
         time.sleep(utils.get_click_sleep())
-        return list(map(lambda el: el.text, self.elements(self.PLAYER_SID)))
+        return list(map(lambda el: el.text.replace(' INACTIVE', ''), self.elements(self.PLAYER_SID)))
 
     @staticmethod
     def student_row_xpath(student):
