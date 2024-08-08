@@ -134,3 +134,11 @@ export function toInt(value, defaultValue = null) {
   const parsed = parseInt(value, 10)
   return Number.isInteger(parsed) ? parsed : defaultValue
 }
+
+export function updateWindowLocationParam(key: string, value: string) {
+  const url = new URL(window.location.toString())
+  const params = new URLSearchParams(url.search)
+  params.set(key, value)
+  url.search = params.toString()
+  window.history.pushState({}, '', url)
+}
