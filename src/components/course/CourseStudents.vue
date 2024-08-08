@@ -9,10 +9,10 @@
     }"
     density="compact"
     :headers="headers"
-    :header-props="{class: 'float-bottom font-weight-bold pl-0'}"
     hide-default-footer
     hover
     :items="section.students"
+    :items-per-page="-1"
     mobile-breakpoint="md"
     must-sort
     :row-props="data => {
@@ -30,16 +30,16 @@
     <template #headers="{columns}">
       <tr>
         <template v-for="column in columns" :key="column.key">
-          <td v-if="column.key === 'avatar'" class="pl-2">
+          <td v-if="column.key === 'avatar'" class="pl-2 vertical-bottom">
             <CuratedGroupSelector
-              v-if="size(section.students)"
+              v-if="size(section.students) > 1"
               class="mb-2"
               :context-description="`Course ${section.displayName}`"
               domain="default"
               :students="section.students"
             />
           </td>
-          <td v-if="column.key !== 'avatar'" class="pl-0">
+          <td v-if="column.key !== 'avatar'" class="font-weight-bold pl-0 vertical-bottom">
             <div>{{ column.title }}</div>
           </td>
         </template>
