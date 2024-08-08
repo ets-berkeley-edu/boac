@@ -23,39 +23,15 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import logging
-import os
 
-ADMIN_PASSWORD = 'secret'
-ADMIN_UID = '123456'
-ADMIN_USERNAME = 'secret'
+class BEATestCase(object):
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-BASE_URL = 'https://boa-qa.berkeley.edu'
-
-BROWSER = 'chrome'
-BROWSER_BINARY_PATH = '/path/to/chrome'
-BROWSER_HEADLESS = False
-
-CLICK_SLEEP = 0.5
-
-LOGGING_LOCATION = 'bea.log'
-LOGGING_LEVEL = logging.INFO
-
-MAX_CLASS_PAGE_CLASS_SIZE = 200
-MAX_CLASS_PAGE_STUDENTS_COUNT = 2
-MAX_SEARCH_STUDENTS_COUNT = 2
-
-TERM_CODE = '2024-B'
-TERM_NAME = 'Spring 2024'
-TERM_SIS_ID = '2242'
-TERM_START_DATE = '2024-01-16'
-
-TEST_DATA = f'{BASE_DIR}/bea/fixtures/bea-test-data.json'
-TEST_DEFAULT_COHORT_MAJOR = 'History BA'
-
-TESTING = True
-
-TIMEOUT_SHORT = 20
-TIMEOUT_MEDIUM = 120
-TIMEOUT_LONG = 500
+    def __init__(self,
+                 student,
+                 appts=None,
+                 notes=None,
+                 section=None):
+        self.student = student
+        self.appts = appts or []
+        self.notes = notes or []
+        self.section = section

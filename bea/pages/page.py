@@ -83,6 +83,22 @@ class Page(object):
         elif strategy == 'xpath':
             return self.driver.find_elements(By.XPATH, target)
 
+    def el_text_if_exists(self, locator, text_to_remove=None):
+        if self.is_present(locator):
+            text = self.element(locator).text
+            if text_to_remove:
+                text = text.replace(text_to_remove, '')
+            return text.strip()
+        else:
+            return None
+
+    def els_text_if_exist(self, locator, text_to_remove=None):
+        els_text = []
+        for el in self.elements(locator):
+            text = el.text.replace(text_to_remove, '') if text_to_remove else el.text
+            els_text.append(text.strip())
+        return els_text
+
     def value(self, locator):
         return self.element(locator).get_attribute('value')
 
@@ -109,6 +125,9 @@ class Page(object):
                     raise
                 else:
                     time.sleep(1)
+
+    def is_visible(self, locator):
+        return self.is_present(locator) and self.element(locator).is_displayed()
 
     def when_visible(self, locator, timeout):
         Wait(self.driver, timeout).until(ec.visibility_of_element_located(locator))

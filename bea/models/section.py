@@ -29,20 +29,22 @@ class Section(object):
     def __init__(self,
                  ccn,
                  code,
-                 instructor_uid,
-                 label,
+                 instruction_format,
+                 is_primary,
                  meetings,
-                 mode,
+                 number,
                  term,
-                 title):
+                 title,
+                 enrollments=None):
         self.ccn = ccn
         self.code = code
-        self.instructor_uid = instructor_uid
-        self.label = label
+        self.instruction_format = instruction_format
+        self.is_primary = is_primary
         self.meetings = meetings
-        self.mode = mode
+        self.number = number
         self.term = term
         self.title = title
+        self.enrollments = enrollments or []
 
 
 class SectionMeeting(object):
@@ -50,9 +52,24 @@ class SectionMeeting(object):
     def __init__(self,
                  days,
                  end_time,
+                 instructors,
                  location,
+                 mode,
                  start_time):
         self.days = days
         self.end_time = end_time
+        self.instructors = instructors
         self.location = location
+        self.mode = mode
         self.start_time = start_time
+
+
+class SectionEnrollment(object):
+
+    def __init__(self,
+                 sid,
+                 status,
+                 uid):
+        self.sid = sid
+        self.status = status
+        self.uid = uid

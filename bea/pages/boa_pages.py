@@ -58,7 +58,7 @@ class BoaPages(SearchForm):
     # HEADER
 
     HOME_LINK = (By.ID, 'home-header')
-    HEADER_DROPDOWN = (By.XPATH, '//button[@aria-owns="header-dropdown-under-name"]')
+    HEADER_DROPDOWN = (By.ID, 'header-dropdown-under-name')
     FLIGHT_DATA_RECORDER_LINK = (By.ID, 'header-menu-analytics')
     FLIGHT_DECK_LINK = (By.ID, 'header-menu-flight-deck')
     PAX_MANIFEST_LINK = (By.ID, 'header-menu-passengers')

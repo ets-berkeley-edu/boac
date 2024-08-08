@@ -23,10 +23,18 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import re
+import time
+
+from bea.pages.class_page import ClassPage
 from bea.pages.curated_add_selector import CuratedAddSelector
 from bea.pages.student_page_advising_note import StudentPageAdvisingNote
 from bea.test_utils import boa_utils
+from bea.test_utils import utils
 from flask import current_app as app
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
 class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
@@ -35,3 +43,327 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
         app.logger.info(f'Loading student page for UID {student.uid}')
         self.driver.get(f'{boa_utils.get_boa_base_url()}/student/{student.uid}')
         self.wait_for_spinner()
+
+    # SIS PROFILE DATA
+
+    NOT_FOUND_MSG = By.XPATH, '//h1[text()="Not Found"]'
+
+    TOGGLE_PERSONAL_DETAILS = By.ID, 'show-hide-personal-details'
+    PREFERRED_NAME = By.XPATH, '//div[@id="student-preferred-name"]/span[2]'
+    SID = By.XPATH, '//div[@id="student-bio-sid"]/span'
+    INACTIVE = By.ID, 'student-bio-inactive'
+    ACADEMIC_STANDING = By.XPATH, '//span[contains(@id, "academic-standing-term-")]'
+    PHONE = By.ID, 'student-phone-number'
+    EMAIL = By.ID, 'student-mailto'
+    CUMULATIVE_UNITS = By.ID, 'cumulative-units'
+    CUMULATIVE_GPA = By.ID, 'cumulative-gpa'
+    INACTIVE_ASC_FLAG = By.ID, 'student-bio-inactive-asc'
+    INACTIVE_COE_FLAG = By.ID, 'student-bio-inactive-coe'
+    MAJOR = By.XPATH, '//div[@id="student-bio-majors"]//div[@class="font-weight-bold"]'
+    SUB_PLAN = By.XPATH, '//div[@id="student-bio-subplans"]/div'
+    MINOR = By.XPATH, '//div[@id="student-bio-minors"]//div[@class="font-weight-bold"]'
+    COLLEGE = By.XPATH, '//div[@id="student-bio-majors"]//div[@class="text-grey-darken-2"]'
+    DISCONTINUED_MAJOR = By.XPATH, '//div[@id="student-details-discontinued-majors"]//div[@class="font-weight-bold"]'
+    DISCONTINUED_COLLEGE = By.XPATH, '//div[@id="student-details-discontinued-majors"]//div[@class="text-grey-darken-2"]'
+    DISCONTINUED_MINOR = By.XPATH, '//div[@id="student-details-discontinued-minors"]//div[@class="font-weight-bold"]'
+    LEVEL = By.XPATH, '//div[@id="student-bio-level"]/div'
+    TRANSFER = By.ID, 'student-profile-transfer'
+    TERMS_IN_ATTENDANCE = By.ID, 'student-bio-terms-in-attendance'
+    ENTERED_TERM = By.ID, 'student-bio-matriculation'
+    VISA = By.ID, 'student-profile-visa'
+    ADVISOR_PLAN = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-plan")]'
+    ADVISOR_NAME = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-name")]'
+    ADVISOR_EMAIL = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-email")]'
+    INTENDED_MAJOR = By.XPATH, '//div[@id="student-details-intended-majors"]/div'
+    EXPECTED_GRADUATION = By.ID, 'student-bio-expected-graduation'
+    ALTERNATE_EMAIL = By.ID, 'student-profile-other-email'
+    ADDITIONAL_INFO_OUTER = By.XPATH, '//h3[text()=" Advisor(s) "]'
+
+    def is_personal_details_expanded(self):
+        return self.element(self.ADDITIONAL_INFO_OUTER).is_displayed()
+
+    def expand_personal_details(self):
+        self.when_present(self.TOGGLE_PERSONAL_DETAILS, utils.get_medium_timeout())
+        if self.is_personal_details_expanded():
+            app.logger.info('Personal details tab is already expanded')
+        else:
+            app.logger.info('Expanding personal details tab')
+            self.wait_for_element_and_click(self.TOGGLE_PERSONAL_DETAILS)
+            self.when_present(self.ADDITIONAL_INFO_OUTER, utils.get_medium_timeout())
+        time.sleep(1)
+
+    def visible_sis_data(self):
+        return {
+            'name': self.el_text_if_exists(self.STUDENT_NAME_HEADING),
+            'preferred_name': self.el_text_if_exists(self.PREFERRED_NAME),
+            'sid': self.el_text_if_exists(self.SID),
+            'email': (self.element(self.EMAIL).text.split()[3] if self.is_present(self.EMAIL) else None),
+            'email_alternate': self.el_text_if_exists(self.ALTERNATE_EMAIL),
+            'phone': self.el_text_if_exists(self.PHONE),
+            'cumulative_units': self.el_text_if_exists(self.CUMULATIVE_UNITS),
+            'cumulative_gpa': self.el_text_if_exists(self.CUMULATIVE_GPA),
+            'majors': self.els_text_if_exist(self.MAJOR),
+            'colleges': list(filter(lambda i: i, self.els_text_if_exist(self.COLLEGE))),
+            'majors_discontinued': self.els_text_if_exist(self.DISCONTINUED_MAJOR),
+            'colleges_discontinued': list(filter(lambda i: i, self.els_text_if_exist(self.DISCONTINUED_COLLEGE))),
+            'sub_plans': self.els_text_if_exist(self.SUB_PLAN),
+            'minors': self.els_text_if_exist(self.MINOR),
+            'minors_discontinued': self.els_text_if_exist(self.DISCONTINUED_MINOR),
+            'level': self.el_text_if_exists(self.LEVEL),
+            'transfer': self.el_text_if_exists(self.TRANSFER),
+            'terms_in_attendance': self.el_text_if_exists(self.TERMS_IN_ATTENDANCE),
+            'visa': self.el_text_if_exists(self.VISA),
+            'entered_term': self.el_text_if_exists(self.ENTERED_TERM, 'Entered'),
+            'intended_majors': self.els_text_if_exist(self.INTENDED_MAJOR),
+            'expected_graduation': self.el_text_if_exists(self.EXPECTED_GRADUATION, 'Expected graduation'),
+            'advisor_plans': self.els_text_if_exist(self.ADVISOR_PLAN),
+            'advisor_names': self.els_text_if_exist(self.ADVISOR_NAME),
+            'advisor_emails': self.els_text_if_exist(self.ADVISOR_EMAIL),
+            'inactive': (self.is_present(self.INACTIVE) and self.el_text_if_exists(self.INACTIVE) == 'INACTIVE'),
+            'academic_standing': self.el_text_if_exists(self.ACADEMIC_STANDING),
+        }
+
+    def visible_degree(self, field):
+        time.sleep(1)
+        xpath = f'//h3[contains(text(), "Degree")]/following-sibling::div[contains(., "{field}")]'
+        deg_type_loc = By.XPATH, f'{xpath}/div[contains(@id, "student-bio-degree-type")]'
+        deg_date_loc = By.XPATH, f'{xpath}/div[contains(@id, "student-bio-degree-date")]'
+        deg_college_loc_1 = By.XPATH, f'{xpath}/div[@class="student-text"][1]'
+        deg_college_loc_2 = By.XPATH, f'{xpath}/div[@class=\"student-text\"][2]'
+        college = self.el_text_if_exists(deg_college_loc_1) or self.el_text_if_exists(deg_college_loc_2)
+        return {
+            'deg_type': self.el_text_if_exists(deg_type_loc),
+            'deg_date': self.el_text_if_exists(deg_date_loc),
+            'deg_college': college,
+        }
+
+    def visible_degree_minor(self, field):
+        xpath = '//h3[contains(text(), "Minor")]/following-sibling::'
+        min_type_loc = By.XPATH, f'{xpath}div[contains(., "{field}")]/div'
+        min_date_loc = By.XPATH, f'{xpath}span'
+        return {
+            'min_type': self.el_text_if_exists(min_type_loc),
+            'min_date': self.el_text_if_exists(min_date_loc),
+        }
+
+    @staticmethod
+    def perceptive_link():
+        return By.XPATH, '//a[contains(text(), "Perceptive Content (Image Now) documents")]'
+
+    @staticmethod
+    def calcentral_link(student):
+        return By.XPATH, f'//a[@href="https://calcentral.berkeley.edu/user/overview/{student.uid}"]'
+
+    # TEAMS
+
+    SQUAD = By.XPATH, '//div[@id="student-bio-athletics"]/div'
+
+    def sports(self):
+        time.sleep(1)
+        return self.els_text_if_exist(self.SQUAD)
+
+    # TIMELINE
+
+    TIMELINE_LOADED_MSG = By.XPATH, '//div[text()="Academic Timeline has loaded"]'
+    TIMELINE_ALL_BUTTON = By.ID, 'timeline-tab-all'
+    SHOW_HIDE_ALL_BUTTON = By.ID, 'timeline-tab-all-previous-messages'
+
+    def wait_for_timeline(self):
+        self.when_visible(self.TIMELINE_ALL_BUTTON, utils.get_short_timeout())
+
+    # Requirements
+
+    REQTS_BUTTON = By.ID, 'timeline-tab-requirement'
+    SHOW_HIDE_REQTS_BUTTON = By.ID, 'timeline-tab-requirement-previous-messages'
+    WRITING_REQT = By.XPATH, '//span[contains(text(),"Entry Level Writing")]'
+    HISTORY_REQT = By.XPATH, '//span[contains(text(),"American History")]'
+    INSTITUTIONS_REQT = By.XPATH, '//span[contains(text(),"American Institutions")]'
+    CULTURES_REQT = By.XPATH, '//span[contains(text(),"American Cultures")]'
+
+    def show_reqts(self):
+        if self.is_present(self.REQTS_BUTTON) and self.element(self.REQTS_BUTTON).is_enabled():
+            self.wait_for_element_and_click(self.REQTS_BUTTON)
+
+    def visible_writing_reqt(self):
+        self.show_reqts()
+        return self.el_text_if_exists(self.WRITING_REQT)
+
+    def visible_history_reqt(self):
+        self.show_reqts()
+        return self.el_text_if_exists(self.HISTORY_REQT)
+
+    def visible_institutions_reqt(self):
+        self.show_reqts()
+        return self.el_text_if_exists(self.INSTITUTIONS_REQT)
+
+    def visible_cultures_reqt(self):
+        self.show_reqts()
+        return self.el_text_if_exists(self.CULTURES_REQT)
+
+    # Holds
+
+    HOLDS_BUTTON = By.ID, 'timeline-tab-hold'
+    SHOW_HIDE_HOLDS_BUTTON = By.ID, 'timeline-tab-hold-previous-messages'
+    HOLD = By.XPATH, '//div[contains(@id,"timeline-tab-hold-message")]/span[1]'
+
+    def visible_holds(self):
+        if self.is_present(self.HOLDS_BUTTON) and self.element(self.HOLDS_BUTTON).is_enabled():
+            self.wait_for_element_and_click(self.HOLDS_BUTTON)
+        if self.is_present(self.SHOW_HIDE_HOLDS_BUTTON) and 'Show' in self.element(self.SHOW_HIDE_HOLDS_BUTTON).text:
+            self.wait_for_element_and_click(self.SHOW_HIDE_HOLDS_BUTTON)
+        return list(map(lambda el: re.sub(r'\W+', '', el.text), self.elements(self.HOLD)))
+
+    # Alerts
+
+    ALERTS_BUTTON = By.ID, 'timeline-tab-alert'
+    SHOW_HIDE_ALERTS_BUTTON = By.ID, 'timeline-tab-alert-previous-messages'
+    ALERT = By.XPATH, '//tr[contains(@id, "permalink-alert-")]'
+    ALERT_TEXT = By.XPATH, '//div[contains(@id,"timeline-tab-alert-message")]/span[1]'
+    ALERT_DATE = By.XPATH, '//tr[contains(@id, "permalink-alert-")]//div[contains(@id, "collapsed-alert-")][contains(@id, "-created-at")]'
+
+    def visible_alerts(self):
+        if self.is_present(self.HOLDS_BUTTON) and self.element(self.HOLDS_BUTTON).is_enabled():
+            self.wait_for_element_and_click(self.HOLDS_BUTTON)
+        if self.is_present(self.SHOW_HIDE_HOLDS_BUTTON) and 'Show' in self.element(self.SHOW_HIDE_HOLDS_BUTTON).text:
+            self.wait_for_element_and_click(self.SHOW_HIDE_HOLDS_BUTTON)
+        alerts = []
+        alert_els = self.elements(self.ALERT)
+        alert_text_els = self.elements(self.ALERT_TEXT)
+        alert_date_els = self.elements(self.ALERT_DATE)
+        for el in alert_els:
+            idx = alert_els.index(el)
+            alerts.append({
+                'text': alert_text_els[idx].text.strip(),
+                'date': alert_date_els[idx].text.replace('Last updated on', '').strip(),
+            })
+        return alerts
+
+    # Notes - see StudentPageAdvisingNote
+
+    # TERM DATA
+
+    DEGREE_CHECKS_LINK = By.ID, 'view-degree-checks-link'
+    WITHDRAWAL_MSG = By.XPATH, '//span[contains(@id, "withdrawal-term-")]'
+    TOGGLE_COLLAPSE_ALL_YEARS = By.ID, 'toggle-collapse-all-years'
+
+    def click_degree_checks_button(self):
+        app.logger.info('Clicking the degree checks link')
+        current_windows = self.driver.window_handles
+        self.wait_for_element_and_click(self.DEGREE_CHECKS_LINK)
+        Wait(self.driver, 2).until(ec.new_window_is_opened(current_windows))
+        self.driver.close()
+        self.driver.switch_to.window(self.driver.window_handles[0])
+
+    @staticmethod
+    def term_data_xpath(term_name):
+        return f'//h3[text()="{term_name}"]'
+
+    def term_data_heading(self, term_name):
+        return By.XPATH, self.term_data_xpath(term_name)
+
+    def click_expand_collapse_years_toggle(self):
+        self.wait_for_element_and_click(self.TOGGLE_COLLAPSE_ALL_YEARS)
+
+    def expand_all_years(self):
+        if self.is_present(self.TOGGLE_COLLAPSE_ALL_YEARS) and 'Expand' in self.element(self.TOGGLE_COLLAPSE_ALL_YEARS).text:
+            self.wait_for_element_and_click(self.TOGGLE_COLLAPSE_ALL_YEARS)
+
+    def expand_academic_year(self, term_name):
+        if self.is_visible(self.term_data_heading(term_name)):
+            app.logger.info(f'Row containing {term_name} is already expanded')
+        else:
+            app.logger.info(f'Expanding row containing {term_name}')
+            year = int(term_name.split(' ')[-1])
+            if 'Fall' in term_name:
+                year = year + 1
+            self.wait_for_element_and_click((By.ID, f'academic-year-{year}-toggle'))
+
+    def wait_for_term_data(self, term_sis_id):
+        self.when_visible((By.ID, f'term-{term_sis_id}-units'), 1)
+
+    def visible_term_units(self, term_sis_id):
+        self.wait_for_term_data(term_sis_id)
+        return self.el_text_if_exists((By.ID, f'term-{term_sis_id}-units'))
+
+    def visible_term_gpa(self, term_sis_id):
+        self.wait_for_term_data(term_sis_id)
+        return self.el_text_if_exists((By.ID, f'term-{term_sis_id}-gpa'))
+
+    def visible_term_units_min(self, term_sis_id):
+        self.wait_for_term_data(term_sis_id)
+        return self.el_text_if_exists((By.ID, f'term-{term_sis_id}-min-units'))
+
+    def visible_term_units_max(self, term_sis_id):
+        self.wait_for_term_data(term_sis_id)
+        return self.el_text_if_exists((By.ID, f'term-{term_sis_id}-max-units'))
+
+    def visible_term_academic_standing(self, term_sis_id):
+        self.wait_for_term_data(term_sis_id)
+        return self.el_text_if_exists((By.ID, f'academic-standing-term-{term_sis_id}'))
+
+    def visible_term_concurrent_enrollment(self, term_sis_id):
+        self.wait_for_term_data(term_sis_id)
+        term_concurrent_enroll_loc = By.XPATH, f'{self.term_data_xpath(term_sis_id)}/following-sibling::span[text()="UCBX"]'
+        return self.is_present(term_concurrent_enroll_loc)
+
+    # COURSES
+
+    @staticmethod
+    def course_row_id(term_sis_id, ccn):
+        return f'term-{term_sis_id}-course-{ccn}'
+
+    def collapsed_course_code(self, term_sis_id, ccn):
+        return self.el_text_if_exists((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-name'))
+
+    def collapsed_course_wait_list_flag(self, term_sis_id, ccn):
+        return self.el_text_if_exists((By.ID, f'waitlisted-for-{term_sis_id}-{ccn}'))
+
+    def collapsed_course_midterm_grade(self, term_sis_id, ccn):
+        return self.el_text_if_exists((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-midterm-grade'), 'No data')
+
+    def collapsed_course_final_grade(self, term_sis_id, ccn):
+        return self.el_text_if_exists((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-final-grade'))
+
+    def collapsed_course_units(self, term_sis_id, ccn):
+        return self.el_text_if_exists((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-units'))
+
+    def expand_course_data(self, term_sis_id, ccn):
+        self.wait_for_element_and_click((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-toggle'))
+
+    def expanded_course_xpath(self, term_sis_id, ccn):
+        return f'//div[@id="{self.course_row_id(term_sis_id, ccn)}-details"]'
+
+    def expanded_course_code(self, term_sis_id, ccn):
+        return self.el_text_if_exists((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-details-name'))
+
+    def expanded_course_title(self, term_sis_id, ccn):
+        return self.el_text_if_exists((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-title'))
+
+    def expanded_course_incomplete_alert(self, term_sis_id, ccn):
+        xpath = self.expanded_course_xpath(term_sis_id, ccn)
+        return self.el_text_if_exists((By.XPATH, f'{xpath}//div[contains(@id, "has-incomplete-grade")]'))
+
+    def expanded_course_reqts(self, term_sis_id, ccn):
+        xpath = self.expanded_course_xpath(term_sis_id, ccn)
+        return self.els_text_if_exist((By.ID, f'{xpath}//div[@class="student-course-requirements"]'))
+
+    CLASS_PAGE_LINKS = By.XPATH, '//a[contains(@href, "/course/")]'
+
+    @staticmethod
+    def class_page_link(term_sis_id, ccn):
+        return By.ID, f'term-{term_sis_id}-section-{ccn}'
+
+    def click_class_page_link(self, term_sis_id, ccn):
+        app.logger.info(f'Clicking link for term {term_sis_id} section {ccn}')
+        if not self.is_present(self.class_page_link(term_sis_id, ccn)):
+            self.expand_all_years()
+            self.expand_course_data(term_sis_id, ccn)
+        self.wait_for_element_and_click(self.class_page_link(term_sis_id, ccn))
+        self.wait_for_spinner()
+        self.when_visible(ClassPage.MEETING_DIV, utils.get_medium_timeout())
+
+    def visible_dropped_section_data(self, term_sis_id, course_code, component, number):
+        xpath = f'//div[contains(@id, "term-{term_sis_id}-dropped-course")][contains(.,"{course_code} - {component} {number}")]'
+        return self.el_text_if_exists((By.XPATH, xpath))
+
+    # TODO - COURSE SITES
