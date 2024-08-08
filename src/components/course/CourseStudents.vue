@@ -7,6 +7,7 @@
         style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
       }
     }"
+    class="responsive-data-table"
     density="compact"
     :headers="headers"
     hide-default-footer
@@ -18,19 +19,20 @@
     :row-props="data => {
       const highlights = featured === data.item.uid ? 'list-group-item-info' : ''
       return {
-        class: `${highlights}`,
+        class: `${highlights} hover-student-${data.item.uid}`,
         id: `tr-student-${data.item.uid}`
       }
     }"
-    @row-hovered="item => hoverSid.value === item.sid"
-    @row-unhovered="() => hoverSid.value = null"
   >
-    <template #header.avatar>
-    </template>
+    <template #header.avatar />
     <template #headers="{columns}">
       <tr>
         <template v-for="column in columns" :key="column.key">
-          <td v-if="column.key === 'avatar'" class="pl-2 vertical-bottom">
+          <td
+            v-if="column.key === 'avatar'"
+            class="pl-2 vertical-bottom"
+            colspan="2"
+          >
             <CuratedGroupSelector
               v-if="size(section.students) > 1"
               class="mb-2"
@@ -39,7 +41,7 @@
               :students="section.students"
             />
           </td>
-          <td v-if="column.key !== 'avatar'" class="font-weight-bold pl-0 vertical-bottom">
+          <td v-if="!['avatar', 'profile'].includes(column.key)" class="font-weight-bold pb-2 pl-0 vertical-bottom">
             <div>{{ column.title }}</div>
           </td>
         </template>
@@ -54,7 +56,8 @@
           <StudentAvatar :key="item.sid" size="medium" :student="item" />
           <ManageStudent
             domain="default"
-            :sr-only="hoverSid !== item.sid"
+            label-class="font-size-14 font-weight-bold"
+            :sr-only="hoverUid !== item.uid"
             :student="item"
           />
         </div>
@@ -282,7 +285,7 @@ import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
 import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDays} from '@/berkeley'
-import {get, map, size, uniq} from 'lodash'
+import {each, get, map, size, split, uniq} from 'lodash'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {mdiAlertRhombus, mdiSchool} from '@mdi/js'
 import {onMounted, ref} from 'vue'
@@ -303,24 +306,26 @@ const props = defineProps({
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const headers = ref([])
-const hoverSid = ref(undefined)
+const hoverUid = ref(undefined)
 
 onMounted(() => {
   const h = [
-    {key: 'avatar'},
-    {key: 'profile'},
-    {key: 'courseSites', title: 'Course Site(s)'},
-    {key: 'assignmentsSubmitted', title: 'Assignments Submitted'},
-    {key: 'assignmentGrades', title: 'Assignment Grades'}
+    {key: 'avatar', headerProps: {class: 'pb-2'}},
+    {key: 'profile', headerProps: {class: 'pb-2'}},
+    {key: 'courseSites', title: 'Course Site(s)', headerProps: {class: 'pb-2'}},
+    {key: 'assignmentsSubmitted', title: 'Assignments Submitted', headerProps: {class: 'pb-2'}},
+    {key: 'assignmentGrades', title: 'Assignment Grades', headerProps: {class: 'pb-2'}}
   ]
   if (contextStore.config.currentEnrollmentTermId === parseInt(props.section.termId)) {
-    h.push({key: 'bCourses', title: 'bCourses Activity'})
+    h.push({key: 'bCourses', title: 'bCourses Activity', headerProps: {class: 'pb-2'}})
   }
   headers.value = h.concat([
-    {key: 'midtermGrade', title: 'Mid'},
-    {key: 'finalGrade', title: 'Final'}
+    {key: 'midtermGrade', title: 'Mid', headerProps: {class: 'pb-2'}},
+    {key: 'finalGrade', title: 'Final', headerProps: {class: 'pb-2'}}
   ])
-  contextStore.loadingComplete()
+  const rows = document.querySelectorAll('tr[id*=\'tr-student-\']')
+  each(rows, row => row.addEventListener('mouseover', () => hoverUid.value = split(row.id, '-').slice(-1)[0]))
+  each(rows, row => row.addEventListener('mouseleave', () => hoverUid.value = null))
 })
 
 const degreePlanOwners = student => {
