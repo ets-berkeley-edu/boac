@@ -72,7 +72,15 @@
   <SectionSpinner :loading="!loading && isToggling" />
   <div v-if="!isToggling && !loading">
     <h2 class="sr-only">Students</h2>
-    <div class="align-center d-flex justify-space-between">
+    <div class="ml-4 mt-4">
+      <CuratedGroupSelector
+        v-if="size(section.students) > 1"
+        :context-description="`Course ${section.displayName}`"
+        domain="default"
+        :students="section.students"
+      />
+    </div>
+    <div class="align-center d-flex flex-wrap justify-space-between">
       <div class="mt-2 ml-4">
         <div v-if="section.totalStudentCount > itemsPerPage">
           <Pagination
@@ -88,13 +96,13 @@
         <v-icon :icon="mdiAlertRhombus" color="error" />
         <span class="container-error">No students advised by your department are enrolled in this section.</span>
       </div>
-      <div v-if="section.totalStudentCount" class="align-center d-flex mt-5 mx-3">
+      <div v-if="section.totalStudentCount" class="align-center d-flex mt-4 mx-4">
         <div v-if="section.totalStudentCount <= defaultItemsPerPage" class="font-weight-500 ml-auto mb-4 mr-3 mt-1">
           {{ section.totalStudentCount }} total students
         </div>
         <div
           v-if="section.totalStudentCount > defaultItemsPerPage"
-          class="align-center d-flex font-size-18 ml-auto mb-2 mr-3"
+          class="align-center d-flex font-size-16 ml-auto mb-2 mr-3"
         >
           <div id="view-per-page-label" class="pr-2">
             <span class="font-weight-medium">{{ section.totalStudentCount }} total students</span> &mdash; View per page:&nbsp;
@@ -139,17 +147,18 @@
 
 <script setup>
 import CourseStudents from '@/components/course/CourseStudents'
+import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector.vue'
 import ga from '@/lib/ga'
 import Pagination from '@/components/util/Pagination'
-import {DateTime} from 'luxon'
+import SectionSpinner from '@/components/util/SectionSpinner.vue'
 import {computed, onMounted, ref, watch} from 'vue'
+import {DateTime} from 'luxon'
 import {each, orderBy, size, toString} from 'lodash'
 import {getSection} from '@/api/course'
 import {mdiAlertRhombus} from '@mdi/js'
 import {pluralize, scrollToTop, setPageTitle, updateWindowLocationParam} from '@/lib/utils'
-import {useRoute} from 'vue-router'
 import {useContextStore} from '@/stores/context'
-import SectionSpinner from '@/components/util/SectionSpinner.vue'
+import {useRoute} from 'vue-router'
 
 const DEFAULT_ITEMS_PER_PAGE = 50
 const PAGINATION_OPTIONS = [DEFAULT_ITEMS_PER_PAGE, 100]
