@@ -82,12 +82,12 @@ export default {
   background-color: #96C3de !important;
 }
 .checkbox-container {
-  background-color: #eee;
-  border: 1px solid #666;
+  background-color: #e3f5ff;
+  border: 1px solid #999;
   border-radius: 6px;
   height: 28px;
   margin-right: 8px;
-  padding-top: 5px;
+  padding-top: 4px;
   text-align: center;
   width: 28px;
 }

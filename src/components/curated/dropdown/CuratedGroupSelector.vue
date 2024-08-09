@@ -95,157 +95,153 @@
 </template>
 
 <script setup>
-import {each, filter, inRange, remove, size} from 'lodash'
-import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
-</script>
-
-<script>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import {addStudentsToCuratedGroup, createCuratedGroup} from '@/api/curated'
 import {alertScreenReader} from '@/lib/utils'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
+import {each, filter as _filter, inRange, remove, size} from 'lodash'
+import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'CuratedGroupSelector',
-  components: {CreateCuratedGroupModal},
-  props: {
-    contextDescription: {
-      required: true,
-      type: String
-    },
-    domain: {
-      required: true,
-      type: String
-    },
-    onCreateCuratedGroup: {
-      default: () => {},
-      required: false,
-      type: Function
-    },
-    students: {
-      required: true,
-      type: Array
-    }
+const props = defineProps({
+  contextDescription: {
+    required: true,
+    type: String
   },
-  data: () => ({
-    checkboxId: undefined,
-    dropdownId: undefined,
-    idFragment: undefined,
-    indeterminate: false,
-    isConfirming: false,
-    isSaving: false,
-    isSelectAllChecked: false,
-    showModal: false,
-    sids: []
-  }),
-  computed: {
-    myCuratedGroups() {
-      return filter(useContextStore().currentUser.myCuratedGroups, ['domain', this.domain])
-    }
+  domain: {
+    required: true,
+    type: String
   },
-  created() {
-    this.idFragment = this.domainLabel(false).replace(' ', '-')
-    this.checkboxId = `add-all-to-${this.idFragment}`
-    this.dropdownId = `${this.idFragment}-dropdown-select`
-    useContextStore().setEventHandler('curated-group-checkbox-checked', this.onCheckboxChecked)
-    useContextStore().setEventHandler('curated-group-checkbox-unchecked', this.onCheckboxUnchecked)
+  onCreateCuratedGroup: {
+    default: () => {},
+    required: false,
+    type: Function
   },
-  unmounted() {
-    useContextStore().removeEventHandler('curated-group-checkbox-checked', this.onCheckboxChecked)
-    useContextStore().removeEventHandler('curated-group-checkbox-unchecked', this.onCheckboxUnchecked)
-  },
-  methods: {
-    afterAddStudents(group) {
-      alertScreenReader(`${size(this.sids)} student${size(this.sids) === 1 ? '' : 's'} added to ${this.domainLabel(true)} "${group.name}".`)
-      this.sids = []
-      this.isSelectAllChecked = this.indeterminate = false
-      useContextStore().broadcast('curated-group-deselect-all', this.domain)
-    },
-    afterCreateGroup() {
-      this.sids = []
-      this.refresh()
-      this.toggle(false)
-      putFocusNextTick(this.checkboxId)
-      this.onCreateCuratedGroup()
-    },
-    afterCreateGroupModalCancel() {
-      this.sids = []
-      this.refresh()
-      this.toggle(false)
-      putFocusNextTick(this.checkboxId)
-    },
-    curatedGroupCheckboxClick(group) {
-      this.isSaving = true
-      addStudentsToCuratedGroup(group.id, this.sids).then(() => {
-        this.isSaving = false
-        this.isConfirming = true
-      }).finally(() => {
-        setTimeout(
-          () => {
-            this.isConfirming = false
-            this.afterAddStudents(group)
-            alertScreenReader(`Student${size(this.sids) === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${group.name}`)
-          },
-          2000
-        )
-      })
-    },
-    domainLabel(capitalize) {
-      return describeCuratedGroupDomain(this.domain, capitalize)
-    },
-    refresh() {
-      this.indeterminate = inRange(size(this.sids), 1, size(this.students))
-      this.isSelectAllChecked = size(this.sids) === size(this.students)
-    },
-    modalCancel() {
-      this.showModal = false
-      alertScreenReader('Canceled')
-    },
-    modalCreateCuratedGroup(name) {
-      this.isSaving = true
-      return createCuratedGroup(this.domain, name, this.sids).then(() => {
-        this.showModal = false
-        this.isSaving = false
-        this.isConfirming = true
-        alertScreenReader(`Student${size(this.sids) === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${name}`)
-      }).finally(() => {
-        setTimeout(
-          () => {
-            this.afterCreateGroup()
-            this.isConfirming = false
-          },
-          2000
-        )
-      })
-    },
-    onCheckboxChecked(args) {
-      if (this.domain === args.domain) {
-        this.sids.push(args.sid)
-        this.refresh()
-      }
-    },
-    onCheckboxUnchecked(args) {
-      if (this.domain === args.domain) {
-        this.sids = remove(this.sids, s => s !== args.sid)
-        this.refresh()
-      }
-    },
-    toggle(checked) {
-      this.sids = []
-      if (checked) {
-        each(this.students, student => {
-          this.sids.push(student.sid || student.csEmplId)
-        })
-        useContextStore().broadcast('curated-group-select-all', this.domain)
-        putFocusNextTick(this.dropdownId, 'button')
-        alertScreenReader('All students on this page selected.')
-      } else {
-        useContextStore().broadcast('curated-group-deselect-all', this.domain)
-        alertScreenReader('All students on this page deselected.')
-      }
-    }
+  students: {
+    required: true,
+    type: Array
+  }
+})
+
+const contextStore = useContextStore()
+
+const idFragment = describeCuratedGroupDomain(props.domain, false).replace(' ', '-')
+const checkboxId = `add-all-to-${idFragment}`
+const currentUser = contextStore.currentUser
+const dropdownId = `${idFragment}-dropdown-select`
+const indeterminate = ref(false)
+const isConfirming = ref(false)
+const isSaving = ref(false)
+const isSelectAllChecked = ref(false)
+const showModal = ref(false)
+const sids = ref([])
+
+const myCuratedGroups = computed(() => {
+  return _filter(currentUser.myCuratedGroups, ['domain', props.domain])
+})
+
+onMounted(() => {
+  contextStore.setEventHandler('curated-group-checkbox-checked', onCheckboxChecked)
+  contextStore.setEventHandler('curated-group-checkbox-unchecked', onCheckboxUnchecked)
+})
+
+onUnmounted(() => {
+  contextStore.removeEventHandler('curated-group-checkbox-checked', onCheckboxChecked)
+  contextStore.removeEventHandler('curated-group-checkbox-unchecked', onCheckboxUnchecked)
+})
+
+const afterAddStudents = group => {
+  alertScreenReader(`${size(sids.value)} student${size(sids.value) === 1 ? '' : 's'} added to ${domainLabel(true)} "${group.name}".`)
+  sids.value = []
+  isSelectAllChecked.value = indeterminate.value = false
+  contextStore.broadcast('curated-group-deselect-all', props.domain)
+}
+
+const afterCreateGroup = () => {
+  sids.value = []
+  refresh()
+  toggle(false)
+  putFocusNextTick(checkboxId)
+  props.onCreateCuratedGroup()
+}
+
+const curatedGroupCheckboxClick = group => {
+  isSaving.value = true
+  addStudentsToCuratedGroup(group.id, sids.value).then(() => {
+    isSaving.value = false
+    isConfirming.value = true
+  }).finally(() => {
+    setTimeout(
+      () => {
+        isConfirming.value = false
+        afterAddStudents(group)
+        alertScreenReader(`Student${size(sids.value) === 1 ? 's' : ''} added to ${domainLabel(false)} ${group.name}`)
+      },
+      2000
+    )
+  })
+}
+
+const domainLabel = capitalize => {
+  return describeCuratedGroupDomain(props.domain, capitalize)
+}
+
+const refresh = () => {
+  indeterminate.value = inRange(size(sids.value), 1, size(props.students))
+  isSelectAllChecked.value = size(sids.value) === size(props.students)
+}
+
+const modalCancel = () => {
+  showModal.value = false
+  alertScreenReader('Canceled')
+}
+
+const modalCreateCuratedGroup = name => {
+  isSaving.value = true
+  return createCuratedGroup(props.domain, name, sids.value).then(() => {
+    showModal.value = false
+    isSaving.value = false
+    isConfirming.value = true
+    alertScreenReader(`Student${size(sids.value) === 1 ? 's' : ''} added to ${domainLabel(false)} ${name}`)
+  }).finally(() => {
+    setTimeout(
+      () => {
+        afterCreateGroup()
+        isConfirming.value = false
+      },
+      2000
+    )
+  })
+}
+
+const onCheckboxChecked = args => {
+  if (props.domain === args.domain) {
+    sids.value.push(args.sid)
+    refresh()
+  }
+}
+
+const onCheckboxUnchecked = args => {
+  if (props.domain === args.domain) {
+    sids.value = remove(sids.value, s => s !== args.sid)
+    refresh()
+  }
+}
+
+const toggle = checked => {
+  sids.value = []
+  if (checked) {
+    each(props.students, student => {
+      sids.value.push(student.sid || student.csEmplId)
+    })
+    contextStore.broadcast('curated-group-select-all', props.domain)
+    putFocusNextTick(dropdownId, 'button')
+    alertScreenReader('All students on this page selected.')
+  } else {
+    contextStore.broadcast('curated-group-deselect-all', props.domain)
+    alertScreenReader('All students on this page deselected.')
   }
 }
 </script>
@@ -264,12 +260,12 @@ label {
   background-color: #96C3de !important;
 }
 .checkbox-container {
-  background-color: #eee;
-  border: 1px solid #666;
+  background-color: #e3f5ff;
+  border: 1px solid #999;
   border-radius: 6px;
   height: 36px;
   margin-right: 8px;
-  padding-top: 8px;
+  padding-top: 7px;
   text-align: center;
   width: 36px;
 }

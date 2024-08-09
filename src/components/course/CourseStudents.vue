@@ -37,7 +37,7 @@
         <div class="pl-3">
           <CuratedStudentCheckbox class="mb-8" domain="default" :student="item" />
         </div>
-        <div class="text-center">
+        <div class="student-avatar-container text-center">
           <StudentAvatar :key="item.sid" size="medium" :student="item" />
           <ManageStudent
             domain="default"
@@ -354,6 +354,9 @@ const degreePlanOwners = student => {
 .height-when-canvas-site-count-5 {
   border-top: 1px solid lightgrey;
   min-height: 20%;
+}
+.student-avatar-container {
+  min-width: 136px;
 }
 .student-name {
   max-width: 190px;
