@@ -21,16 +21,16 @@ const $_onDelete = (domain: string, curatedGroupId: number) => {
 }
 
 const $_onUpdate = (curatedGroup: any) => {
-  useContextStore().updateMyCuratedGroup(curatedGroup.data)
+  useContextStore().updateMyCuratedGroup(curatedGroup)
   useContextStore().broadcast('my-curated-groups-updated', curatedGroup.domain)
   $_track('update')
 }
 
 export function addStudentsToCuratedGroup(curatedGroupId: number, sids: string[], returnStudentProfiles?: boolean) {
   const url: string = `${utils.apiBaseUrl()}/api/curated_group/students/add`
-  return axios.post(url, {curatedGroupId, sids, returnStudentProfiles}).then(data => {
-    $_onUpdate(data)
-    return data
+  return axios.post(url, {curatedGroupId, sids, returnStudentProfiles}).then(response => {
+    $_onUpdate(response.data)
+    return response.data
   })
 }
 

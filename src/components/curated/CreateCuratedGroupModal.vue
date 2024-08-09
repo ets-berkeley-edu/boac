@@ -11,10 +11,10 @@
       min-width="400"
       max-width="600"
     >
-      <ModalHeader class="pl-5" :text="`Name Your ${domainLabel(true)}`" />
+      <ModalHeader class="mx-8" :text="`Name Your ${domainLabel(true)}`" />
       <hr />
       <form class="w-100 mb-2" @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
-        <div class="px-4 py-2">
+        <div class="px-8 pt-2">
           <v-text-field
             id="create-input"
             v-model="name"
@@ -42,7 +42,7 @@
           </v-text-field>
         </div>
         <hr />
-        <div class="d-flex justify-end px-4 py-2">
+        <div class="d-flex justify-end mx-8 pt-0">
           <ProgressButton
             id="create-confirm"
             :action="createCuratedGroup"
@@ -52,7 +52,6 @@
           />
           <v-btn
             id="create-cancel"
-            class="ml-1"
             :disabled="isSaving"
             text="Cancel"
             variant="plain"

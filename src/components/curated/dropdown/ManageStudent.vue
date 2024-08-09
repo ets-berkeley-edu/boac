@@ -25,11 +25,17 @@
               {{ label }}
             </div>
           </div>
-          <div v-if="isRemoving" :class="labelClass">
-            <v-icon class="mr-1" :icon="mdiClose" />Removed
+          <div v-if="isRemoving" class="align-center d-flex" :class="labelClass">
+            <v-icon :icon="mdiCloseThick" />
+            <div>
+              Removed
+            </div>
           </div>
-          <div v-if="isAdding" :class="labelClass">
-            <v-icon class="mr-1" :icon="mdiCheckBold" />Added
+          <div v-if="isAdding" class="align-center d-flex" :class="labelClass">
+            <v-icon :icon="mdiCheckBold" />
+            <div>
+              Added
+            </div>
           </div>
         </v-btn>
       </template>
@@ -46,7 +52,6 @@
           :key="group.id"
           density="compact"
           class="py-0"
-          @click="groupCheckboxClick(group)"
           @keyup.enter="groupCheckboxClick(group)"
         >
           <v-checkbox
@@ -92,7 +97,7 @@
 
 <script setup>
 import {filter, includes, map, without} from 'lodash'
-import {mdiCheckBold, mdiClose, mdiPlus} from '@mdi/js'
+import {mdiCheckBold, mdiCloseThick, mdiPlus} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 </script>
 
