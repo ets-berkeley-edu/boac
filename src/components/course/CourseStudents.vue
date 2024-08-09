@@ -134,13 +134,17 @@
     </template>
 
     <template #item.courseSites="{item}">
-      <div v-if="item.enrollment" class="flex-col font-size-14">
+      <div v-if="item.enrollment" class="border-s-sm flex-col font-size-14 h-100 pl-2">
         <div
           v-for="(canvasSite, index) in item.enrollment.canvasSites"
           :key="index"
-          :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          class="font-weight-medium"
+          :class="{
+            'demo-mode-blur': currentUser.inDemoMode,
+            'pb-4': item.enrollment.canvasSites.length > 1 && index < item.enrollment.canvasSites.length - 1
+          }"
         >
-          <strong>{{ canvasSite.courseCode }}</strong>
+          {{ canvasSite.courseCode }}
         </div>
         <div v-if="!item.enrollment.canvasSites.length">
           No course site
@@ -150,10 +154,13 @@
     </template>
 
     <template #item.assignmentsSubmitted="{item}">
-      <div v-if="item.enrollment && item.enrollment.canvasSites.length" class="flex-col pl-2 pt-1">
+      <div v-if="item.enrollment && item.enrollment.canvasSites.length" class="flex-col pl-2">
         <div
-          v-for="canvasSite in item.enrollment.canvasSites"
+          v-for="(canvasSite, index) in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
+          :class="{
+            'pb-4': item.enrollment.canvasSites.length > 1 && index < item.enrollment.canvasSites.length - 1
+          }"
         >
           <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
             {{ canvasSite.courseCode }}
@@ -189,11 +196,14 @@
     </template>
 
     <template #item.assignmentGrades="{item}">
-      <div v-if="item.enrollment" class="flex-col pl-2 pt-1">
+      <div v-if="item.enrollment" class="flex-col pl-2">
         <div
-          v-for="canvasSite in item.enrollment.canvasSites"
+          v-for="(canvasSite, index) in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
           class="boxplot-container"
+          :class="{
+            'pb-4': item.enrollment.canvasSites.length > 1 && index < item.enrollment.canvasSites.length - 1
+          }"
         >
           <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
             {{ canvasSite.courseCode }}
@@ -201,6 +211,7 @@
           <StudentBoxplot
             v-if="canvasSite.analytics.currentScore.boxPlottable"
             :chart-description="`Chart of ${item.firstName} ${item.lastName}'s assignment grades in ${canvasSite.courseCode}`"
+            class="mt-1"
             :dataset="canvasSite.analytics.currentScore"
             :numeric-id="`${item.uid}-${canvasSite.canvasCourseId}`"
           />
