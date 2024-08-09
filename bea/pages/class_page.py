@@ -132,7 +132,8 @@ class ClassPage(ListViewStudentPages,
     def student_majors(self, student):
         loc = By.ID, f'student-{student.uid}-majors'
         majors = self.el_text_if_exists(loc)
-        return majors.split('\n')
+        majors = list(filter(lambda maj: maj, majors.split('\n')))
+        return majors
 
     def student_sports(self, student):
         loc = By.ID, f'student-{student.uid}-teams'
