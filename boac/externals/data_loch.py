@@ -1292,9 +1292,9 @@ def get_students_query(     # noqa
     ):
         is_active_coe = True
     if is_active_coe is False:
-        query_filter += " AND s.status IN ('D','P','U','W','X','Z')"
+        query_filter += " AND s.status IN ('D','O','P','U','W','X','Z')"
     elif is_active_coe is True:
-        query_filter += " AND s.status NOT IN ('D','P','U','W','X','Z')"
+        query_filter += " AND s.status NOT IN ('D','O','P','U','W','X','Z')"
 
     return query_tables, query_filter, query_bindings
 
