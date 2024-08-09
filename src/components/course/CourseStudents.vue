@@ -2,7 +2,7 @@
   <v-data-table
     :cell-props="data => {
       return {
-        class: 'pl-0 pt-2 vertical-top',
+        class: 'pt-3 px-0 vertical-top',
         id: `td-student-${data.item.uid}-column-${data.column.key}`,
         style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
       }
@@ -24,35 +24,19 @@
       }
     }"
   >
-    <template #header.avatar />
     <template #headers="{columns}">
       <tr>
-        <template v-for="column in columns" :key="column.key">
-          <td
-            v-if="column.key === 'avatar'"
-            class="pl-2 vertical-bottom"
-            colspan="2"
-          >
-            <CuratedGroupSelector
-              v-if="size(section.students) > 1"
-              class="mb-2"
-              :context-description="`Course ${section.displayName}`"
-              domain="default"
-              :students="section.students"
-            />
-          </td>
-          <td v-if="!['avatar', 'profile'].includes(column.key)" class="font-weight-bold pb-2 pl-0 vertical-bottom">
-            <div>{{ column.title }}</div>
-          </td>
-        </template>
+        <td v-for="column in columns" :key="column.key" class="pb-2 pl-0 vertical-bottom">
+          <span v-if="!['avatar', 'profile'].includes(column.key)" class="font-weight-bold">{{ column.title }}</span>
+        </td>
       </tr>
     </template>
     <template #item.avatar="{item}">
       <div class="align-center d-flex">
-        <div class="px-2">
+        <div class="pl-3">
           <CuratedStudentCheckbox class="mb-8" domain="default" :student="item" />
         </div>
-        <div class="mb-1 text-center">
+        <div class="text-center">
           <StudentAvatar :key="item.sid" size="medium" :student="item" />
           <ManageStudent
             domain="default"
@@ -150,7 +134,7 @@
     </template>
 
     <template #item.courseSites="{item}">
-      <div v-if="item.enrollment" class="course-sites flex-col font-size-14 pl-2">
+      <div v-if="item.enrollment" class="flex-col font-size-14">
         <div
           v-for="(canvasSite, index) in item.enrollment.canvasSites"
           :key="index"
@@ -166,7 +150,7 @@
     </template>
 
     <template #item.assignmentsSubmitted="{item}">
-      <div v-if="item.enrollment && item.enrollment.canvasSites.length" class="flex-col">
+      <div v-if="item.enrollment && item.enrollment.canvasSites.length" class="flex-col pl-2 pt-1">
         <div
           v-for="canvasSite in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
@@ -205,7 +189,7 @@
     </template>
 
     <template #item.assignmentGrades="{item}">
-      <div v-if="item.enrollment" class="flex-col">
+      <div v-if="item.enrollment" class="flex-col pl-2 pt-1">
         <div
           v-for="canvasSite in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
@@ -263,36 +247,35 @@
     </template>
 
     <template #item.midtermGrade="{item}">
-      <div v-if="item.enrollment">
+      <div v-if="item.enrollment" class="pl-1">
         <span v-if="item.enrollment.midtermGrade" v-accessible-grade="item.enrollment.midtermGrade" class="font-weight-bold font-size-14"></span>
         <v-icon v-if="isAlertGrade(item.enrollment.midtermGrade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
         <span v-if="!item.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
       </div>
-      <span v-if="!item.enrollment">&mdash;</span>
+      <div v-if="!item.enrollment" class="pl-1">&mdash;</div>
     </template>
 
     <template #item.finalGrade="{item}">
-      <div v-if="item.enrollment">
+      <div v-if="item.enrollment" class="pl-1">
         <span v-if="item.enrollment.grade" v-accessible-grade="item.enrollment.grade" class="font-weight-bold font-size-14"></span>
         <v-icon v-if="isAlertGrade(item.enrollment.grade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
         <span v-if="!item.enrollment.grade" class="cohort-grading-basis">
           {{ item.enrollment.gradingBasis }}
         </span>
       </div>
-      <span v-if="!item.enrollment">&mdash;</span>
+      <div v-if="!item.enrollment" class="pl-1">&mdash;</div>
     </template>
   </v-data-table>
 </template>
 
 <script setup>
-import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
 import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDays} from '@/berkeley'
-import {each, get, map, size, split, uniq} from 'lodash'
+import {each, get, map, split, uniq} from 'lodash'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {mdiAlertRhombus, mdiSchool} from '@mdi/js'
 import {onMounted, ref} from 'vue'
@@ -342,10 +325,7 @@ const degreePlanOwners = student => {
 </script>
 
 <style scoped>
-.course-sites {
-  border-left: 1px solid #ddd;
-}
 .student-name {
-  max-width: 150px;
+  max-width: 190px;
 }
 </style>
