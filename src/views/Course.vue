@@ -146,7 +146,7 @@ import {computed, onMounted, ref, watch} from 'vue'
 import {each, orderBy, size, toString} from 'lodash'
 import {getSection} from '@/api/course'
 import {mdiAlertRhombus} from '@mdi/js'
-import {pluralize, scrollToTop, setPageTitle} from '@/lib/utils'
+import {pluralize, scrollToTop, setPageTitle, updateWindowLocationParam} from '@/lib/utils'
 import {useRoute} from 'vue-router'
 import {useContextStore} from '@/stores/context'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
@@ -186,6 +186,7 @@ const goToPage = page => {
   isToggling.value = true
   contextStore.broadcast('hide-footer', true)
   currentPage.value = page
+  updateWindowLocationParam('p', page)
   reload(section.value.sectionId, section.value.termId).then(() => {
     isToggling.value = false
     scrollToTop()

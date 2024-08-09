@@ -91,7 +91,7 @@
       <div :id="`row-${index}-student-sid`" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="student-sid">
         {{ item.sid }}
         <span
-          v-if="item.enrollment.enrollmentStatus === 'W'"
+          v-if="get(item.enrollment, 'enrollmentStatus') === 'W'"
           :id="`student-${item.uid}-waitlisted-for-${section.termId}-${section.sectionId}`"
           class="error font-weight-bold"
         >WAITLISTED</span>
@@ -150,7 +150,7 @@
     </template>
 
     <template #item.courseSites="{item}">
-      <div class="course-sites flex-col font-size-14 pl-2">
+      <div v-if="item.enrollment" class="course-sites flex-col font-size-14 pl-2">
         <div
           v-for="(canvasSite, index) in item.enrollment.canvasSites"
           :key="index"
@@ -162,10 +162,11 @@
           No course site
         </div>
       </div>
+      <div v-if="!item.enrollment" class="border-s-sm font-size-14 font-weight-medium pa-2">No course site</div>
     </template>
 
     <template #item.assignmentsSubmitted="{item}">
-      <div v-if="item.enrollment.canvasSites.length" class="flex-col">
+      <div v-if="item.enrollment && item.enrollment.canvasSites.length" class="flex-col">
         <div
           v-for="canvasSite in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
@@ -200,13 +201,11 @@
           </div>
         </div>
       </div>
-      <span
-        v-if="!item.enrollment.canvasSites.length"
-      ><span class="sr-only">No data</span>&mdash;</span>
+      <span v-if="!item.enrollment || !item.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
     </template>
 
     <template #item.assignmentGrades="{item}">
-      <div class="flex-col">
+      <div v-if="item.enrollment" class="flex-col">
         <div
           v-for="canvasSite in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
@@ -243,10 +242,11 @@
         </div>
         <span v-if="!item.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
       </div>
+      <span v-if="!item.enrollment">&mdash;</span>
     </template>
 
     <template #item.bCourses="{item}">
-      <div class="flex-col font-size-14">
+      <div v-if="item.enrollment" class="flex-col font-size-14">
         <div
           v-for="canvasSite in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
@@ -259,20 +259,27 @@
         </div>
         <span v-if="!item.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
       </div>
+      <span v-if="!item.enrollment">&mdash;</span>
     </template>
 
     <template #item.midtermGrade="{item}">
-      <span v-if="item.enrollment.midtermGrade" v-accessible-grade="item.enrollment.midtermGrade" class="font-weight-bold font-size-14"></span>
-      <v-icon v-if="isAlertGrade(item.enrollment.midtermGrade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
-      <span v-if="!item.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
+      <div v-if="item.enrollment">
+        <span v-if="item.enrollment.midtermGrade" v-accessible-grade="item.enrollment.midtermGrade" class="font-weight-bold font-size-14"></span>
+        <v-icon v-if="isAlertGrade(item.enrollment.midtermGrade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
+        <span v-if="!item.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
+      </div>
+      <span v-if="!item.enrollment">&mdash;</span>
     </template>
 
     <template #item.finalGrade="{item}">
-      <span v-if="item.enrollment.grade" v-accessible-grade="item.enrollment.grade" class="font-weight-bold font-size-14"></span>
-      <v-icon v-if="isAlertGrade(item.enrollment.grade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
-      <span v-if="!item.enrollment.grade" class="cohort-grading-basis">
-        {{ item.enrollment.gradingBasis }}
-      </span>
+      <div v-if="item.enrollment">
+        <span v-if="item.enrollment.grade" v-accessible-grade="item.enrollment.grade" class="font-weight-bold font-size-14"></span>
+        <v-icon v-if="isAlertGrade(item.enrollment.grade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
+        <span v-if="!item.enrollment.grade" class="cohort-grading-basis">
+          {{ item.enrollment.gradingBasis }}
+        </span>
+      </div>
+      <span v-if="!item.enrollment">&mdash;</span>
     </template>
   </v-data-table>
 </template>
