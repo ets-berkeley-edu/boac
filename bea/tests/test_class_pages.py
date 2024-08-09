@@ -184,6 +184,7 @@ class TestClassPagesSectionInfo:
         if len(tc.section.enrollments) > app.config['MAX_CLASS_PAGE_CLASS_SIZE']:
             app.logger.info('Skipping enrollment verification because class is too big')
         else:
+            self.class_page.load_page(tc.section.term.sis_id, tc.section.ccn)
             expected_sids = list(map(lambda en: en.sid, tc.section.enrollments))
             expected_sids.sort()
             visible_sids = self.class_page.visible_sids()

@@ -297,11 +297,11 @@ def get_sections(term, section_ids, primary_only=False):
 
 def get_section_enrollment(section, students=None):
     sql = f"""SELECT sis_data.sis_enrollments.ldap_uid AS uid,
-                     sis_data.basic_attributes.sid,
+                     student.student_profile_index.sid,
                      sis_data.sis_enrollments.sis_enrollment_status AS status
                 FROM sis_data.sis_enrollments
-                JOIN sis_data.basic_attributes
-                  ON sis_data.basic_attributes.ldap_uid = sis_data.sis_enrollments.ldap_uid
+                JOIN student.student_profile_index
+                  ON student.student_profile_index.uid = sis_data.sis_enrollments.ldap_uid
                WHERE sis_data.sis_enrollments.sis_section_id = '{section.ccn}'
                  AND sis_data.sis_enrollments.sis_term_id = '{section.term.sis_id}'"""
     app.logger.info(sql)
