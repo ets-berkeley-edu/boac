@@ -92,17 +92,13 @@
           />
         </div>
       </div>
-      <div v-if="!section.totalStudentCount" class="d-flex ml-3 mt-5">
-        <v-icon :icon="mdiAlertRhombus" color="error" />
-        <span class="container-error">No students advised by your department are enrolled in this section.</span>
-      </div>
-      <div v-if="section.totalStudentCount" class="align-center d-flex mt-4 mx-4">
+      <div v-if="section.totalStudentCount" class="align-center d-flex mx-4">
         <div v-if="section.totalStudentCount <= defaultItemsPerPage" class="font-weight-500 ml-auto mb-4 mr-3 mt-1">
           {{ section.totalStudentCount }} total students
         </div>
         <div
           v-if="section.totalStudentCount > defaultItemsPerPage"
-          class="align-center d-flex font-size-16 ml-auto mb-2 mr-3"
+          class="align-center d-flex font-size-16 ml-auto"
         >
           <div id="view-per-page-label" class="pr-2">
             <span class="font-weight-medium">{{ section.totalStudentCount }} total students</span> &mdash; View per page:&nbsp;
@@ -128,18 +124,20 @@
         </div>
       </div>
     </div>
-    <div v-if="section.totalStudentCount" class="mx-2">
+    <div v-if="!section.totalStudentCount" class="d-flex ma-3">
+      <v-icon :icon="mdiAlertRhombus" color="error" />
+      <span class="container-error">No students advised by your department are enrolled in this section.</span>
+    </div>
+    <div v-if="section.totalStudentCount" class="mx-2 mt-3">
       <CourseStudents :featured="featured" :section="section" />
-      <div class="mt-2 mx-2">
-        <div v-if="section.totalStudentCount > itemsPerPage">
-          <Pagination
-            :click-handler="goToPage"
-            :init-page-number="currentPage"
-            :limit="20"
-            :per-page="itemsPerPage"
-            :total-rows="section.totalStudentCount"
-          />
-        </div>
+      <div v-if="section.totalStudentCount > itemsPerPage" class="ml-4 mt-6">
+        <Pagination
+          :click-handler="goToPage"
+          :init-page-number="currentPage"
+          :limit="20"
+          :per-page="itemsPerPage"
+          :total-rows="section.totalStudentCount"
+        />
       </div>
     </div>
   </div>

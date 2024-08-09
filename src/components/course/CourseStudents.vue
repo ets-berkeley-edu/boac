@@ -1,8 +1,9 @@
 <template>
   <v-data-table
+    id="course-students"
     :cell-props="data => {
       return {
-        class: 'pt-3 px-0 vertical-top',
+        class: 'py-2 px-0 vertical-top',
         id: `td-student-${data.item.uid}-column-${data.column.key}`,
         style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
       }
@@ -19,7 +20,7 @@
     :row-props="data => {
       const highlights = featured === data.item.uid ? 'list-group-item-info' : ''
       return {
-        class: `${highlights} hover-student-${data.item.uid}`,
+        class: `border-b-sm border-t-sm ${highlights} hover-student-${data.item.uid}`,
         id: `tr-student-${data.item.uid}`
       }
     }"
@@ -134,33 +135,30 @@
     </template>
 
     <template #item.courseSites="{item}">
-      <div v-if="item.enrollment" class="border-s-sm flex-col font-size-14 h-100 pl-2">
-        <div
-          v-for="(canvasSite, index) in item.enrollment.canvasSites"
-          :key="index"
-          class="font-weight-medium"
-          :class="{
-            'demo-mode-blur': currentUser.inDemoMode,
-            'pb-4': item.enrollment.canvasSites.length > 1 && index < item.enrollment.canvasSites.length - 1
-          }"
-        >
-          {{ canvasSite.courseCode }}
+      <div class="border-info border-s-md flex-col font-size-14 h-100">
+        <div v-if="item.enrollment" class="pl-2">
+          <div
+            v-for="(canvasSite, index) in item.enrollment.canvasSites"
+            :key="index"
+            class="font-weight-medium"
+            :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length}`"
+          >
+            <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ canvasSite.courseCode }}</span>
+          </div>
+          <div v-if="!item.enrollment.canvasSites.length">
+            No course site
+          </div>
         </div>
-        <div v-if="!item.enrollment.canvasSites.length">
-          No course site
-        </div>
+        <div v-if="!item.enrollment" class="font-weight-medium pa-2">No course site</div>
       </div>
-      <div v-if="!item.enrollment" class="border-s-sm font-size-14 font-weight-medium pa-2">No course site</div>
     </template>
 
     <template #item.assignmentsSubmitted="{item}">
-      <div v-if="item.enrollment && item.enrollment.canvasSites.length" class="flex-col pl-2">
+      <div v-if="item.enrollment && item.enrollment.canvasSites.length" class="flex-col h-100 pl-2">
         <div
-          v-for="(canvasSite, index) in item.enrollment.canvasSites"
+          v-for="canvasSite in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
-          :class="{
-            'pb-4': item.enrollment.canvasSites.length > 1 && index < item.enrollment.canvasSites.length - 1
-          }"
+          :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length}`"
         >
           <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
             {{ canvasSite.courseCode }}
@@ -196,14 +194,11 @@
     </template>
 
     <template #item.assignmentGrades="{item}">
-      <div v-if="item.enrollment" class="flex-col pl-2">
+      <div v-if="item.enrollment" class="flex-column h-100 pl-2">
         <div
-          v-for="(canvasSite, index) in item.enrollment.canvasSites"
+          v-for="canvasSite in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
-          class="boxplot-container"
-          :class="{
-            'pb-4': item.enrollment.canvasSites.length > 1 && index < item.enrollment.canvasSites.length - 1
-          }"
+          :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length}`"
         >
           <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
             {{ canvasSite.courseCode }}
@@ -335,7 +330,31 @@ const degreePlanOwners = student => {
 }
 </script>
 
+<style>
+#course-students table {
+  border-collapse: collapse;
+}
+</style>
+
 <style scoped>
+.height-when-canvas-site-count-1 {
+  height: 100%;
+}
+.height-when-canvas-site-count-2 {
+  border-top: 1px solid lightgrey;
+  min-height: 50%;
+}
+.height-when-canvas-site-count-3 {
+  min-height: 33%;
+}
+.height-when-canvas-site-count-4 {
+  border-top: 1px solid lightgrey;
+  min-height: 25%;
+}
+.height-when-canvas-site-count-5 {
+  border-top: 1px solid lightgrey;
+  min-height: 20%;
+}
 .student-name {
   max-width: 190px;
 }
