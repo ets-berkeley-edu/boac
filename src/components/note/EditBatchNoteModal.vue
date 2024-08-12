@@ -228,6 +228,7 @@ const addNoteAttachments = attachments => {
       })
     } else {
       noteStore.setAttachments(concat(model.value.attachments, attachments))
+      alertScreenReader('Attachment added', 'assertive')
       resolve()
     }
   })

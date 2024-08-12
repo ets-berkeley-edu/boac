@@ -135,7 +135,8 @@
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
-              v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
+              v-if="isEditable(message) && includes(openMessages, message.transientId)"
+              aria-hidden="true"
               class="d-flex flex-column mt-2"
             >
               <v-btn
@@ -144,7 +145,7 @@
                 class="font-size-14 my-1 px-1"
                 color="primary"
                 density="compact"
-                :disabled="useNoteStore().disableNewNoteButton"
+                :disabled="!!editModeNoteId || useNoteStore().disableNewNoteButton"
                 variant="text"
                 @keypress.enter.stop="editNote(message)"
                 @click.stop="editNote(message)"
@@ -157,7 +158,7 @@
                 class="font-size-14 my-1 px-1"
                 color="primary"
                 density="compact"
-                :disabled="useNoteStore().disableNewNoteButton"
+                :disabled="!!editModeNoteId || useNoteStore().disableNewNoteButton"
                 variant="text"
                 @keydown.enter.stop="onClickDeleteNote(message)"
                 @click.stop="onClickDeleteNote(message)"
@@ -200,9 +201,10 @@
             />
             <EditAdvisingNote
               v-if="['eForm', 'note'].includes(message.type) && message.id === editModeNoteId"
-              :note-id="message.id"
               :after-cancel="afterNoteEditCancel"
               :after-saved="afterEditAdvisingNote"
+              class="pt-2"
+              :note-id="message.id"
             />
             <AdvisingAppointment
               v-if="message.type === 'appointment'"
@@ -212,7 +214,7 @@
             />
             <div
               v-if="includes(openMessages, message.transientId) && message.id !== editModeNoteId"
-              class="mb-1 text-center close-message"
+              class="my-1 text-center close-message"
             >
               <v-btn
                 :id="`${activeTab}-close-message-${message.id}`"
@@ -589,9 +591,11 @@ const editNote = note => {
   putFocusNextTick('edit-note-subject')
 }
 
+const formatDate = (isoDate, format) => DateTime.fromISO(isoDate).setZone(config.timezone).toFormat(format)
+
 const getSameDayDate = message => {
-  const format = isoDate => DateTime.fromISO(isoDate).setZone(config.timezone).toFormat('h:mm a')
-  return `${format(message.createdAt)} - ${format(message.endsAt)}`
+  const format = 'h:mm a'
+  return `${formatDate(message.createdAt, format)} - ${formatDate(message.endsAt, format)}`
 }
 
 const isEditable = message => {
