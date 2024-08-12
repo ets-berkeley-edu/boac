@@ -39,7 +39,7 @@
           class="sr-only"
           @click.stop="deleteNote(note)"
         >
-          Delete Note
+          Delete {{ note.isDraft ? 'Draft' : 'Note' }} {{ note.subject }} created {{ formatDate(note.createdAt, 'MMM d, yyyy') }}
         </v-btn>
         <v-btn
           v-if="currentUser.uid === author.uid"
@@ -47,7 +47,7 @@
           class="sr-only"
           @click.stop="editNote(note)"
         >
-          Edit Note
+          Edit {{ note.isDraft ? 'Draft' : 'Note' }} {{ note.subject }} created {{ formatDate(note.createdAt, 'MMM d, yyyy') }}
         </v-btn>
       </div>
       <div v-if="note.subject && note.message" class="mt-2">
@@ -245,6 +245,8 @@ const displayName = (attachments, index) => {
   return !isNumber(index) || size(attachments) <= index ? '' : attachments[index].displayName
 }
 
+const formatDate = (isoDate, format) => DateTime.fromISO(isoDate).setZone(useContextStore().config.timezone).toFormat(format)
+
 const loadAuthorDetails = () => {
   const requiresLazyLoad = (
     props.isOpen &&
@@ -279,7 +281,7 @@ const loadAuthorDetails = () => {
   }
 }
 
-const removeAttachmentByIndex = (index) => {
+const removeAttachmentByIndex = index => {
   deleteAttachmentIndex.value = index
   showConfirmDeleteAttachment.value = true
 }

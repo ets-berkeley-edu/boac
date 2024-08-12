@@ -15,6 +15,7 @@
       aria-labelledby="edit-note-subject-label"
       bg-color="white"
       density="comfortable"
+      :disabled="isSaving || boaSessionExpired"
       maxlength="255"
       required
       :rules="[rules.required]"
@@ -24,29 +25,38 @@
       @input="onInput"
       @keydown.esc="cancelRequested"
     ></v-text-field>
-    <div>
-      <span id="edit-note-details" class="bg-transparent note-details-editor">
-        <RichTextEditor
-          :disabled="noteStore.boaSessionExpired"
-          :initial-value="noteStore.model.body || ''"
-          label="Note Details"
-          :on-value-update="noteStore.setBody"
-          :show-advising-note-best-practices="true"
-        />
-      </span>
-    </div>
-    <div class="py-3">
-      <AdvisingNoteTopics />
-    </div>
-    <div v-if="currentUser.canAccessPrivateNotes" class="pb-3">
-      <PrivacyPermissions :disabled="noteStore.isSaving || noteStore.boaSessionExpired" />
-    </div>
-    <div class="pb-3">
-      <ContactMethod :disabled="noteStore.isSaving || noteStore.boaSessionExpired" />
-    </div>
-    <div class="pb-3">
-      <ManuallySetDate :disabled="noteStore.isSaving || noteStore.boaSessionExpired" />
-    </div>
+    <span id="edit-note-details" class="bg-transparent note-details-editor">
+      <RichTextEditor
+        :disabled="isSaving || boaSessionExpired"
+        :initial-value="noteStore.model.body || ''"
+        label="Note Details"
+        :on-value-update="noteStore.setBody"
+        :show-advising-note-best-practices="true"
+      />
+    </span>
+    <AdvisingNoteTopics class="py-3" />
+    <PrivacyPermissions
+      v-if="currentUser.canAccessPrivateNotes"
+      class="pb-3"
+      :disabled="isSaving || boaSessionExpired"
+    />
+    <ContactMethod class="pb-3" :disabled="isSaving || boaSessionExpired" />
+    <ManuallySetDate class="pb-3" :disabled="isSaving || boaSessionExpired" />
+    <AdvisingNoteAttachments
+      v-if="size(noteStore.model.attachments)"
+      class="py-3"
+      :disabled="isSaving || boaSessionExpired"
+      id-prefix="edit-note-"
+      read-only
+    >
+      <template #label>
+        <label
+          id="edit-note-attachments-list-label"
+          class="font-size-16 font-weight-700"
+          for="edit-note-attachments-list"
+        >Attachments</label>
+      </template>
+    </AdvisingNoteAttachments>
     <div>
       <div
         v-if="noteStore.boaSessionExpired"
@@ -57,40 +67,35 @@
       >
         <SessionExpired />
       </div>
-      <div v-if="!noteStore.boaSessionExpired" class="d-flex mt-2 mb-2">
-        <div>
-          <v-btn
-            id="save-note-button"
-            class="mr-2"
-            color="primary"
-            :disabled="!noteStore.recipients.sids.length || !trim(noteStore.model.subject)"
-            @click="() => save(false)"
-          >
-            {{ noteStore.model.isDraft ? 'Publish' : 'Save' }}
-          </v-btn>
-        </div>
-        <div v-if="noteStore.model.isDraft">
-          <v-btn
-            id="update-draft-note-button"
-            class="mr-2"
-            color="primary"
-            variant="text"
-            @click="() => save(true)"
-          >
-            Update Draft
-          </v-btn>
-        </div>
-        <div>
-          <v-btn
-            id="cancel-edit-note-button"
-            color="primary"
-            variant="text"
-            @click.stop="cancelRequested"
-            @keypress.enter.stop="cancelRequested"
-          >
-            Cancel
-          </v-btn>
-        </div>
+      <div class="d-flex py-4">
+        <ProgressButton
+          id="save-note-button"
+          :action="() => save(false)"
+          class="mr-2"
+          :disabled="!noteStore.recipients.sids.length || !trim(noteStore.model.subject) || isSaving || boaSessionExpired"
+          :in-progress="isPublishingNote"
+          :text="noteStore.model.isDraft ? 'Publish Note' : 'Save'"
+        />
+        <ProgressButton
+          v-if="noteStore.model.isDraft"
+          id="update-draft-note-button"
+          :action="() => save(true)"
+          class="mr-2"
+          :disabled="isSaving || boaSessionExpired"
+          :in-progress="isSavingDraft"
+          text="Update Draft"
+          variant="text"
+        />
+        <v-btn
+          id="cancel-edit-note-button"
+          color="primary"
+          :disabled="isSaving || boaSessionExpired"
+          variant="text"
+          @click.stop="cancelRequested"
+          @keypress.enter.stop="cancelRequested"
+        >
+          Cancel
+        </v-btn>
       </div>
     </div>
     <AreYouSureModal
@@ -99,43 +104,28 @@
       :function-confirm="cancelConfirmed"
       modal-header="Discard unsaved changes?"
     />
-    <div v-if="size(noteStore.model.attachments)">
-      <div class="pill-list-header mt-3 mb-1">{{ size(noteStore.model.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
-      <ul class="pill-list pl-0">
-        <li
-          v-for="(attachment, index) in noteStore.model.attachments"
-          :id="`note-${noteStore.model.id}-attachment-${index}`"
-          :key="`${attachment.id}-${index}`"
-          class="mt-2"
-          @click.stop
-          @keyup.stop
-        >
-          <span class="pill pill-attachment text-no-wrap">
-            <v-icon :icon="mdiPaperclip" class="pr-1 pl-1" />
-            {{ attachment.displayName }}
-          </span>
-        </li>
-      </ul>
-    </div>
   </v-form>
 </template>
 
 <script setup>
+import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import {onBeforeMount, ref} from 'vue'
-import ContactMethod from '@/components/note/ContactMethod'
-import ManuallySetDate from '@/components/note/ManuallySetDate'
-import {mdiAlertRhombus, mdiPaperclip} from '@mdi/js'
-import PrivacyPermissions from '@/components/note/PrivacyPermissions'
-import RichTextEditor from '@/components/util/RichTextEditor'
-import SessionExpired from '@/components/note/SessionExpired'
 import {alertScreenReader, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import ContactMethod from '@/components/note/ContactMethod'
+import {DateTime} from 'luxon'
 import {exitSession, setNoteRecipient, setSubjectPerEvent} from '@/stores/note-edit-session/utils'
 import {getNote, updateNote} from '@/api/notes'
 import {getUserProfile} from '@/api/user'
-import {DateTime} from 'luxon'
+import ManuallySetDate from '@/components/note/ManuallySetDate'
+import {mdiAlertRhombus} from '@mdi/js'
+import {onBeforeMount, ref} from 'vue'
+import PrivacyPermissions from '@/components/note/PrivacyPermissions'
+import ProgressButton from '@/components/util/ProgressButton'
+import RichTextEditor from '@/components/util/RichTextEditor'
+import SessionExpired from '@/components/note/SessionExpired'
 import {size, trim} from 'lodash'
+import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -156,7 +146,10 @@ const props = defineProps({
 
 const currentUser = useContextStore().currentUser
 const editNoteForm = ref()
+const isPublishingNote = ref(false)
+const isSavingDraft = ref(false)
 const noteStore = useNoteStore()
+const {boaSessionExpired, isSaving} = storeToRefs(noteStore)
 const rules = {
   required: value => (!!trim(value) || noteStore.model.isDraft) || 'Subject is required',
 }
@@ -180,9 +173,6 @@ const init = () => {
   })
   useContextStore().setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
 }
-onBeforeMount(() => {
-  useContextStore().removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
-})
 
 const cancelRequested = () => {
   getNote(props.noteId).then(note => {
@@ -242,14 +232,24 @@ const save = isDraft => {
           noteStore.model.topics
         ).then(updatedNote => {
           props.afterSaved(updatedNote)
-          alertScreenReader('Changes to note have been saved')
+          isSavingDraft.value = false
+          isPublishingNote.value = false
+          noteStore.setIsSaving(false)
+          alertScreenReader(isDraft ? 'Draft note updated' : 'Note updated')
           exit(false)
         })
       } else {
+        isSavingDraft.value = false
+        isPublishingNote.value = false
+        noteStore.setIsSaving(false)
         putFocusNextTick('edit-note-subject')
       }
     })
   }
+  isSavingDraft.value = isDraft
+  isPublishingNote.value = !isDraft
+  noteStore.setIsSaving(true)
+  alertScreenReader(isDraft ? 'Saving draft note' : 'Publishing note')
   getUserProfile().then(data => {
     if (data.isAuthenticated) {
       ifAuthenticated()
@@ -259,12 +259,17 @@ const save = isDraft => {
   })
 }
 
+onBeforeMount(() => {
+  useContextStore().removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
+})
+
 init()
 
 </script>
 
 <style scoped>
 .edit-note-form {
+  cursor: auto !important;
   flex-basis: 100%;
 }
 </style>

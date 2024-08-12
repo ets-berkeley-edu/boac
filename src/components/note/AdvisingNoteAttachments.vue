@@ -1,5 +1,6 @@
 <template>
   <div>
+    <slot name="label"></slot>
     <v-alert
       v-if="attachmentError"
       :id="`${idPrefix}attachment-error`"
@@ -12,6 +13,7 @@
       variant="tonal"
     />
     <v-file-input
+      v-if="!readOnly"
       :id="`${idPrefix}choose-file-for-note-attachment`"
       ref="attachmentFileInput"
       :model-value="attachments"
@@ -57,7 +59,11 @@
     <div v-if="attachmentLimitReached" class="w-100">
       A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.
     </div>
-    <ul aria-label="attachments" class="list-no-bullets mt-1">
+    <ul
+      :id="`${idPrefix}attachments-list`"
+      aria-label="attachments"
+      class="list-no-bullets mt-1"
+    >
       <li
         v-for="(attachment, index) in modelProxy.attachments"
         :key="index"
@@ -75,6 +81,7 @@
           <span class="truncate-with-ellipsis">{{ attachment.displayName }}</span>
           <template #append>
             <v-btn
+              v-if="!readOnly"
               :id="`${idPrefix}remove-attachment-${index}-btn`"
               :aria-label="`Remove attachment ${attachment.displayName}`"
               class="pl-4"
@@ -107,7 +114,8 @@ import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
   addAttachments: {
-    required: true,
+    default: () => {},
+    required: false,
     type: Function
   },
   disabled: {
@@ -128,8 +136,13 @@ const props = defineProps({
     required: false,
     type: Object
   },
+  readOnly: {
+    required: false,
+    type: Boolean
+  },
   removeAttachment: {
-    required: true,
+    default: () => {},
+    required: false,
     type: Function
   }
 })
