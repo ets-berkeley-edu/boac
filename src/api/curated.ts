@@ -37,7 +37,7 @@ export function addStudentsToCuratedGroup(curatedGroupId: number, sids: string[]
 export function createCuratedGroup(domain: string, name: string, sids: string[]) {
   const url: string = `${utils.apiBaseUrl()}/api/curated_group/create`
   return axios.post(url, {domain, name, sids}).then(function(response) {
-    $_onCreate(response)
+    $_onCreate(response.data)
     return response.data
   })
 }

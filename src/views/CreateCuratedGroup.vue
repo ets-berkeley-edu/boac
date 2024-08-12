@@ -54,12 +54,12 @@ export default {
     },
     create(name) {
       this.showCreateModal = false
-      return createCuratedGroup(this.domain, name, this.sids)
-        .then(group => {
-          alertScreenReader(`Curated group '${name}' created. It has ${this.sids.length} students.`)
+      return createCuratedGroup(this.domain, name, this.sids).then(group => {
+        alertScreenReader(`Curated group '${name}' created. It has ${this.sids.length} students.`)
+        this.$router.push(`/curated/${group.id}`).then(() => {
           this.isSaving = false
-          this.$router.push(`/curated/${group.id}`)
         })
+      })
     }
   }
 }

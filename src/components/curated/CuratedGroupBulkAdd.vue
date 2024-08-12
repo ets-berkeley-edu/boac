@@ -8,7 +8,7 @@
           <v-btn
             id="remove-invalid-sids-btn"
             class="font-weight-700 mb-1 pl-2"
-            variant="link"
+            variant="text"
             @click="scrub"
           >
             {{ sids.length ? 'Yes' : 'Clear the textarea.' }}

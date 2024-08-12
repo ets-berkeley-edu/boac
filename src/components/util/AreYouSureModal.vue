@@ -92,8 +92,6 @@ const confirm = () => {
 const onToggle = isOpen => {
   if (isOpen) {
     putFocusNextTick('modal-header')
-  } else {
-    props.functionCancel()
   }
 }
 </script>

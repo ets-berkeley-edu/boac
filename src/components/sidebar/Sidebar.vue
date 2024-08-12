@@ -10,7 +10,7 @@
         </NavLink>
       </div>
       <div
-        v-for="cohort in myCohorts"
+        v-for="cohort in _filter(currentUser.myCohorts, ['domain', 'default'])"
         :key="cohort.id"
         class="pretty-hover"
       >
@@ -46,7 +46,7 @@
         </NavLink>
       </div>
       <div
-        v-for="(group, index) in myCuratedGroups"
+        v-for="(group, index) in _filter(currentUser.myCuratedGroups, ['domain', 'default'])"
         :key="group.id"
         class="pretty-hover"
       >
@@ -88,7 +88,7 @@
         </NavLink>
       </div>
       <div
-        v-for="(cohort, index) in myAdmitCohorts"
+        v-for="(cohort, index) in _filter(currentUser.myCohorts, ['domain', 'admitted_students'])"
         :key="cohort.id"
         class="pretty-hover"
       >
@@ -110,7 +110,7 @@
     <v-list-item v-if="currentUser.canAccessAdmittedStudents" class="pa-0">
       <div
         class="align-center d-flex font-weight-bold justify-space-between mb-1 pretty-hover"
-        :class="{'mt-2': myAdmitCohorts.length}"
+        :class="{'mt-2': _filter(currentUser.myCohorts, ['domain', 'admitted_students']).length}"
       >
         <div>
           CE3 Groups
@@ -125,7 +125,7 @@
         </NavLink>
       </div>
       <div
-        v-for="(group, index) in myAdmitCuratedGroups"
+        v-for="(group, index) in _filter(currentUser.myCuratedGroups, ['domain', 'admitted_students'])"
         :key="group.id"
         class="pretty-hover"
       >
@@ -165,21 +165,16 @@
 
 <script lang="ts" setup>
 import {capitalize} from 'lodash'
-import {computed} from 'vue'
+import {reactive} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
-import {filter} from 'lodash'
+import {filter as _filter} from 'lodash'
 import {mdiPlus} from '@mdi/js'
 import NavLink from '@/components/util/NavLink.vue'
 import {pluralize} from '@/lib/utils'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import {useContextStore} from '@/stores/context'
 
-const extract = (domain: string, objects: any[]) => filter(objects, ['domain', domain])
-const currentUser = useContextStore().currentUser
-const myAdmitCohorts = computed(() => extract('admitted_students', currentUser.myCohorts))
-const myAdmitCuratedGroups = computed(() => extract('admitted_students', currentUser.myCuratedGroups))
-const myCohorts = computed(() => extract('default', currentUser.myCohorts))
-const myCuratedGroups = computed(() => extract('default', currentUser.myCuratedGroups))
+const currentUser = reactive(useContextStore().currentUser)
 </script>
 
 <style scoped>

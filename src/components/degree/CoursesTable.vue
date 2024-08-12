@@ -241,7 +241,7 @@
                       density="compact"
                       :disabled="degreeStore.disableButtons"
                       flat
-                      :icon="mdiTrashCanOutline"
+                      :icon="mdiTrashCan"
                       size="small"
                       @click="() => onDelete(bundle)"
                     />
@@ -326,14 +326,14 @@
       <CreateCourseModal :parent-category="parentCategory" />
     </div>
     <AreYouSureModal
+      v-if="isDeleting"
       v-model="isDeleting"
       button-label-confirm="Delete"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
       modal-header="Delete Course"
-    >
-      Are you sure you want to delete <strong>&quot;{{ bundleForDelete.name }}&quot;</strong>
-    </AreYouSureModal>
+      :text="`Are you sure you want to delete <strong>&quot;${bundleForDelete.name}&quot;</strong>`"
+    />
   </div>
 </template>
 
@@ -363,7 +363,8 @@ import {
   mdiCircleOutline,
   mdiContentCopy,
   mdiInformationOutline,
-  mdiNoteEditOutline, mdiTrashCanOutline
+  mdiNoteEditOutline,
+  mdiTrashCan
 } from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'

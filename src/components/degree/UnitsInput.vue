@@ -21,6 +21,7 @@
       <div class="pr-2">
         <v-text-field
           :id="inputId"
+          v-model="unitsLowerModel"
           :aria-invalid="!isValidUnits(unitsLower, max)"
           :aria-autocomplete="false"
           aria-labelledby="units-input-label"
@@ -29,11 +30,9 @@
           hide-details
           maxlength="3"
           min-width="60"
-          :model-value="unitsLower"
           variant="outlined"
           @keydown.enter="onSubmit"
           @keyup.esc="onEscape"
-          @update:model-value="setUnitsLower"
         />
       </div>
       <div v-if="showUnitsUpperInput" class="pr-2">
@@ -42,6 +41,7 @@
       <div v-if="showUnitsUpperInput">
         <v-text-field
           :id="`upper-${inputId}`"
+          v-model="unitsUpperModel"
           :aria-invalid="!isValidUnits(unitsUpper)"
           aria-labelledby="units-input-label"
           density="compact"
@@ -49,10 +49,8 @@
           hide-details
           maxlength="3"
           min-width="60"
-          :value="unitsUpper"
           variant="outlined"
           @keydown.enter="onSubmit"
-          @update:model-value="setUnitsUpper"
         />
       </div>
     </div>
@@ -67,7 +65,7 @@
 <script setup>
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {isValidUnits} from '@/lib/degree-progress'
-import {onMounted, ref} from 'vue'
+import {onMounted, ref, watch} from 'vue'
 
 const props = defineProps({
   disable: {
@@ -138,6 +136,11 @@ const props = defineProps({
 })
 
 const showUnitsUpperInput = ref(false)
+const unitsLowerModel = ref(props.unitsLower)
+const unitsUpperModel = ref(props.unitsUpper)
+
+watch(unitsLowerModel, () => props.setUnitsLower(unitsLowerModel.value))
+watch(unitsUpperModel, () => props.setUnitsUpper(unitsUpperModel.value))
 
 onMounted(() => {
   showUnitsUpperInput.value = !!props.unitsUpper && props.unitsLower !== props.unitsUpper

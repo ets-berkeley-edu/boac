@@ -62,8 +62,8 @@
           :error-message="unitsErrorMessage"
           :on-submit="onSubmit"
           :range="true"
-          :set-units-lower="() => unitsLower = units"
-          :set-units-upper="() => unitsUpper = units"
+          :set-units-lower="units => unitsLower = units"
+          :set-units-upper="units => unitsUpper = units"
           :units-lower="unitsLower"
           :units-upper="unitsUpper"
         />
@@ -213,15 +213,15 @@ const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
 
 const config = contextStore.config
-const descriptionText = ref(props.existingCategory ? props.existingCategory.description : undefined)
-const isSatisfiedByTransferCourse = ref(props.existingCategory ? props.existingCategory.isSatisfiedByTransferCourse : false)
+const descriptionText = ref(get(props.existingCategory, 'description'))
+const isSatisfiedByTransferCourse = ref(get(props.existingCategory, 'isSatisfiedByTransferCourse', false))
 const isSaving = ref(false)
-const name = ref(props.existingCategory ? props.existingCategory.name : '')
-const selectedCategoryType = ref(props.existingCategory.categoryType)
+const name = ref(get(props.existingCategory, 'name', ''))
+const selectedCategoryType = ref(get(props.existingCategory, 'categoryType'))
 const selectedParentCategory = ref(undefined)
-const selectedUnitRequirements = ref(props.existingCategory ? clone(props.existingCategory.unitRequirements) : [])
-const unitsLower = ref(props.existingCategory ? props.existingCategory.unitsLower : undefined)
-const unitsUpper = ref(props.existingCategory ? props.existingCategory.unitsUpper : undefined)
+const selectedUnitRequirements = ref(clone(get(props.existingCategory, 'unitRequirements', [])))
+const unitsLower = ref(get(props.existingCategory, 'unitsLower'))
+const unitsUpper = ref(get(props.existingCategory, 'unitsUpper'))
 
 watch(selectedCategoryType, option => {
   alertScreenReader(option ? `${selectedCategoryType.value} selected` : 'Unselected')
