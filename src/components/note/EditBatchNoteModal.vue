@@ -21,26 +21,6 @@
           </Transition>
         </div>
         <div class="pt-3">
-          <v-alert
-            v-if="alert"
-            id="alert-in-note-modal"
-            :model-value="alert && !!dismissAlertSeconds"
-            aria-live="polite"
-            class="font-weight-bold w-100 mb-2"
-            closable
-            color="info"
-            density="comfortable"
-            role="alert"
-            variant="tonal"
-            @click:close="dismissAlert"
-          >
-            <div class="d-flex">
-              <div v-if="isSaving" class="mr-2">
-                <v-icon :icon="mdiSync" spin />
-              </div>
-              <div>{{ alert }}</div>
-            </div>
-          </v-alert>
           <label
             id="create-note-subject-label"
             for="create-note-subject"
@@ -91,6 +71,24 @@
             :remove-attachment="removeAttachmentByIndex"
           />
         </div>
+        <v-alert
+          v-if="alert"
+          id="alert-in-note-modal"
+          :model-value="alert && !!dismissAlertSeconds"
+          class="font-weight-bold w-100 mb-2"
+          closable
+          color="info"
+          density="comfortable"
+          variant="tonal"
+          @click:close="dismissAlert"
+        >
+          <div class="d-flex">
+            <div v-if="isSaving" class="mr-2">
+              <v-icon :icon="mdiSync" spin />
+            </div>
+            <div>{{ alert }}</div>
+          </div>
+        </v-alert>
         <CreateNoteFooter
           :discard="discardRequested"
           :exit="exit"
@@ -256,6 +254,7 @@ const cancelDiscardTemplate = () => {
 
 const createTemplate = title => {
   noteStore.setIsSaving(true)
+  alertScreenReader('Creating template')
   const ifAuthenticated = () => {
     enableFocusLock()
     // File upload might take time; alert will be overwritten when API call is done.
@@ -266,6 +265,7 @@ const createTemplate = title => {
         showCreateTemplateModal.value = false
         noteStore.setIsSaving(false)
         showAlert(`Template '${title}' created.`)
+        alertScreenReader(`Template '${title}' created.`)
         setTimeout(() => {
           // Creating a note-template was the user's purpose so we delete any incidental draft note.
           noteStore.setMode(props.initialMode)
@@ -368,6 +368,7 @@ const saveAsTemplate = () => {
       showCreateTemplateModal.value = true
       disableFocusLock()
     }
+    alertScreenReader('Opening Name Template form')
     invokeIfAuthenticated(ifAuthenticated).finally(resolve)
   })
 }
@@ -379,6 +380,7 @@ const showAlert = (value, seconds=3) => {
 
 const updateTemplate = () => {
   noteStore.setIsSaving(true)
+  alertScreenReader('Updating template')
   const newAttachments = filter(model.value.attachments, a => !a.id)
   if (newAttachments.length) {
     // File upload might take time; alert will be overwritten when API call is done.

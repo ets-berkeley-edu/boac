@@ -70,7 +70,7 @@
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import SessionExpired from '@/components/note/SessionExpired'
 import {alertScreenReader, invokeIfAuthenticated} from '@/lib/utils'
-import {isEmpty, size, trim} from 'lodash'
+import {isEmpty, size, startsWith, trim} from 'lodash'
 import {ref} from 'vue'
 import {storeToRefs} from 'pinia'
 import {updateAdvisingNote} from '@/stores/note-edit-session/utils'
@@ -108,7 +108,7 @@ const isUpdatingDraft = ref(false)
 const publish = () => {
   noteStore.setIsDraft(false)
   isPublishing.value = true
-  updateNote().then(() => isPublishing.value = false)
+  updateNote('Publishing note...').then(() => isPublishing.value = false)
 }
 
 const saveTemplate = () => {
@@ -118,19 +118,20 @@ const saveTemplate = () => {
 
 const updateDraft = () => {
   isUpdatingDraft.value = true
-  updateNote().then(() => isUpdatingDraft.value = false)
+  updateNote('Saving draft...').then(() => isUpdatingDraft.value = false)
 }
 
-const updateNote = () => {
+const updateNote = (alert) => {
+  alertScreenReader(alert)
   return new Promise(resolve => {
     noteStore.setIsSaving(true)
+    const action = startsWith(mode.value, 'create') ? 'created' : 'updated'
     const ifAuthenticated = () => {
       if (model.value.isDraft || (model.value.subject && size(completeSidSet.value))) {
-        // File upload might take time; alert will be overwritten when API call is done.
-        props.showAlert('Creating note...', 60)
+        props.showAlert(alert, 60)
         updateAdvisingNote().then(() => {
           noteStore.setIsSaving(false)
-          alertScreenReader(mode.value.includes('create') ? 'Note created' : 'Note saved')
+          alertScreenReader(model.value.isDraft ? `Draft note ${action}` : `Note ${action}`)
           props.exit(false)
           resolve()
         })
