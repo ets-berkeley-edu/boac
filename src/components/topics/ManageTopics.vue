@@ -87,7 +87,7 @@
                 variant="flat"
                 @click="openDeleteTopicModal(item)"
               >
-                <v-icon :icon="mdiTrashCanOutline" />
+                <v-icon :icon="mdiTrashCan" />
                 <v-tooltip
                   activator="parent"
                   location="start"
@@ -134,11 +134,13 @@
 </template>
 
 <script setup>
-import {mdiDeleteRestore} from '@mdi/js'
-import {mdiTrashCanOutline} from '@mdi/js'
-import {mdiPlusBox} from '@mdi/js'
-import {mdiMenuDown} from '@mdi/js'
-import {mdiMenuUp} from '@mdi/js'
+import {
+  mdiDeleteRestore,
+  mdiMenuDown,
+  mdiMenuUp,
+  mdiPlusBox,
+  mdiTrashCan
+} from '@mdi/js'
 </script>
 
 <script>

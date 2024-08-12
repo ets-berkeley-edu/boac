@@ -149,7 +149,7 @@
                       density="compact"
                       :disabled="degreeStore.disableButtons"
                       flat
-                      :icon="mdiTrashCanOutline"
+                      :icon="mdiTrashCan"
                       size="small"
                       @click="onDelete(course)"
                     />
@@ -236,8 +236,9 @@ import {
   mdiAlertRhombus,
   mdiCheckCircleOutline,
   mdiContentCopy,
-  mdiInformationOutline, mdiNoteEditOutline,
-  mdiTrashCanOutline
+  mdiInformationOutline,
+  mdiNoteEditOutline,
+  mdiTrashCan
 } from '@mdi/js'
 import {unitsWereEdited} from '@/lib/degree-progress'
 import {useContextStore} from '@/stores/context'

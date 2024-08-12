@@ -98,7 +98,7 @@
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import {addStudentsToCuratedGroup, createCuratedGroup} from '@/api/curated'
 import {alertScreenReader} from '@/lib/utils'
-import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {computed, onMounted, onUnmounted, reactive, ref} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {each, filter as _filter, inRange, remove, size} from 'lodash'
 import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
@@ -129,7 +129,7 @@ const contextStore = useContextStore()
 
 const idFragment = describeCuratedGroupDomain(props.domain, false).replace(' ', '-')
 const checkboxId = `add-all-to-${idFragment}`
-const currentUser = contextStore.currentUser
+const currentUser = reactive(contextStore.currentUser)
 const dropdownId = `${idFragment}-dropdown-select`
 const indeterminate = ref(false)
 const isConfirming = ref(false)
@@ -152,13 +152,6 @@ onUnmounted(() => {
   contextStore.removeEventHandler('curated-group-checkbox-unchecked', onCheckboxUnchecked)
 })
 
-const afterAddStudents = group => {
-  alertScreenReader(`${size(sids.value)} student${size(sids.value) === 1 ? '' : 's'} added to ${domainLabel(true)} "${group.name}".`)
-  sids.value = []
-  isSelectAllChecked.value = indeterminate.value = false
-  contextStore.broadcast('curated-group-deselect-all', props.domain)
-}
-
 const afterCreateGroup = () => {
   sids.value = []
   refresh()
@@ -176,7 +169,10 @@ const curatedGroupCheckboxClick = group => {
     setTimeout(
       () => {
         isConfirming.value = false
-        afterAddStudents(group)
+        alertScreenReader(`${size(sids.value)} student${size(sids.value) === 1 ? '' : 's'} added to ${domainLabel(true)} "${group.name}".`)
+        sids.value = []
+        isSelectAllChecked.value = indeterminate.value = false
+        contextStore.broadcast('curated-group-deselect-all', props.domain)
         alertScreenReader(`Student${size(sids.value) === 1 ? 's' : ''} added to ${domainLabel(false)} ${group.name}`)
       },
       2000
