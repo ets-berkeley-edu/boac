@@ -18,40 +18,33 @@
       >
         Skip to bottom, other pages of search results
       </a>
-      <div class="d-flex align-self-baseline mr-4">
-        <NavLink
+      <div class="d-flex align-center align-self-center mr-6">
+        <v-btn
           id="admitted-students-cohort-show-filters"
-          class="btn btn-link text-no-wrap pl-0 pr-1 pt-0"
+          class="font-size-15 px-1 text-no-wrap"
           aria-label="Create a CE3 Admissions cohort"
-          path="/cohort/new"
-          :default-counter="counter"
-          :query-args="{domain: 'admitted_students'}"
+          color="anchor"
+          variant="text"
+          @click="createNewAdmittedStudentsCohort"
         >
           Create Cohort
-        </NavLink>
-        <div class="text-grey">|</div>
-        <b-btn
+        </v-btn>
+        <div class="text-grey" role="separator">|</div>
+        <v-btn
           id="export-student-list-button"
-          v-b-modal="'export-admits-modal'"
           :disabled="!exportEnabled || !totalAdmitCount"
-          class="text-no-wrap pl-1 pr-0 pt-0"
-          variant="link"
-        >
-          Export List
-        </b-btn>
-        <b-modal
-          id="export-admits-modal"
-          v-model="showExportListModal"
-          body-class="pl-0 pr-0"
-          hide-footer
-          hide-header
-          @shown="putFocusNextTick('modal-header')"
-        >
-          <FerpaReminderModal
-            :cancel="cancelExportModal"
-            :confirm="exportCohort"
-          />
-        </b-modal>
+          class="font-size-15 px-1 text-no-wrap"
+          color="anchor"
+          text="Export List"
+          variant="text"
+          @click="openFerpaReminderDialog"
+        />
+        <FerpaReminderModal
+          :cancel="cancelExportModal"
+          :confirm="exportCohort"
+          :is-downloading="isDownloadingCSV"
+          :show-modal="showExportListDialog"
+        />
       </div>
     </div>
     <div v-if="admits" class="pb-2">
@@ -59,7 +52,7 @@
     </div>
     <SectionSpinner :loading="sorting" />
     <div v-if="!sorting">
-      <div class="align-center d-flex justify-content-end mr-3 py-1">
+      <div class="align-center d-flex justify-content-end mr-6">
         <div class="mr-auto">
           <CuratedGroupSelector
             context-description="Admit Students"
@@ -71,13 +64,23 @@
           <SortBy domain="admitted_students" />
         </div>
       </div>
-
-      <AdmitStudentsTable
-        :include-curated-checkbox="true"
-        :students="admits"
-      />
-
-      <div v-if="totalAdmitCount > pagination.itemsPerPage" class="pa-3">
+      <div v-if="totalAdmitCount > pagination.itemsPerPage" class="mt-3">
+        <Pagination
+          :click-handler="goToPage"
+          :init-page-number="pagination.currentPage"
+          :limit="10"
+          :per-page="pagination.itemsPerPage"
+          :total-rows="totalAdmitCount"
+        />
+      </div>
+      <div class="mt-3">
+        <AdmitStudentsTable
+          :include-curated-checkbox="true"
+          :students="admits"
+        />
+        <hr />
+      </div>
+      <div v-if="totalAdmitCount > pagination.itemsPerPage" class="mt-3">
         <Pagination
           :click-handler="goToPage"
           :init-page-number="pagination.currentPage"
@@ -96,15 +99,14 @@ import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import Context from '@/mixins/Context'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
-import NavLink from '@/components/util/NavLink'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
-import {getAllAdmits} from '@/api/admit'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {downloadCsv} from '@/api/cohort'
 import {getAdmitCsvExportColumns} from '@/berkeley'
+import {getAllAdmits} from '@/api/admit'
 
 export default {
   name: 'AdmitStudents',
@@ -113,7 +115,6 @@ export default {
     AdmitStudentsTable,
     CuratedGroupSelector,
     FerpaReminderModal,
-    NavLink,
     Pagination,
     SectionSpinner,
     SortBy
@@ -123,11 +124,12 @@ export default {
     admits: undefined,
     counter: null,
     exportEnabled: true,
+    isDownloadingCSV: false,
     pagination: {
       currentPage: 1,
       itemsPerPage: 50
     },
-    showExportListModal: false,
+    showExportListDialog: false,
     sorting: false,
     totalAdmitCount: undefined
   }),
@@ -145,17 +147,29 @@ export default {
   },
   methods: {
     cancelExportModal() {
-      this.showExportListModal = false
+      this.showExportListDialog = false
       alertScreenReader('Export canceled')
+    },
+    createNewAdmittedStudentsCohort() {
+      this.$router.push({
+        path: '/cohort/new',
+        query: {domain: 'admitted_students'}
+      })
     },
     exportCohort() {
       const name = 'CE3 Admissions'
-      const fields = this._map(getAdmitCsvExportColumns(), 'value')
-      this.showExportListModal = false
+      this.isDownloadingCSV = true
       this.exportEnabled = false
       alertScreenReader(`Exporting cohort ${name}`)
-      downloadCsv('admitted_students', name, [], fields).then(() => {
+      downloadCsv(
+        'admitted_students',
+        name,
+        [],
+        this._map(getAdmitCsvExportColumns(), 'value')
+      ).then(() => {
+        this.showExportListDialog = false
         this.exportEnabled = true
+        this.isDownloadingCSV = false
       })
     },
     goToPage(page) {
@@ -199,6 +213,10 @@ export default {
         this.goToPage(1)
         alertScreenReader(`Sort admitted students by ${sortBy}`)
       }
+    },
+    openFerpaReminderDialog() {
+      this.showExportListDialog = true
+      putFocusNextTick('modal-header')
     }
   }
 }

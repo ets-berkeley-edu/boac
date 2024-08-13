@@ -10,9 +10,3 @@
     </a> for details.
   </span>
 </template>
-
-<script>
-export default {
-  name: 'FerpaReminder'
-}
-</script>
