@@ -1,76 +1,75 @@
 <template>
-  <div v-if="!context.loading" class="default-margins">
+  <div v-if="!contextStore.loading" class="default-margins">
     <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
-    <div v-if="cohort.domain === 'admitted_students' && cohort.students">
-      <AdmitDataWarning :updated-at="get(cohort.students, '[0].updatedAt')" />
+    <div v-if="cohortStore.domain === 'admitted_students' && cohortStore.students">
+      <AdmitDataWarning :updated-at="get(cohortStore.students, '[0].updatedAt')" />
     </div>
     <v-expand-transition>
-      <div v-if="showFilters">
+      <div v-if="!cohortStore.isCompactView">
         <FilterRow
-          v-for="(filter, index) in cohort.filters"
+          v-for="(filter, index) in cohortStore.filters"
           :key="`${filter.key}-${index}`"
           :position="index"
         />
-        <FilterRow v-if="cohort.isOwnedByCurrentUser" />
-        <ApplyAndSaveButtons v-if="cohort.isOwnedByCurrentUser" />
+        <FilterRow v-if="cohortStore.isOwnedByCurrentUser" />
+        <ApplyAndSaveButtons v-if="cohortStore.isOwnedByCurrentUser" />
       </div>
     </v-expand-transition>
-    <SectionSpinner :loading="cohort.editMode === 'apply'" />
-    <div v-if="!showHistory && showStudentsSection">
+    <div v-if="!showHistory && size(cohortStore.students) && cohortStore.editMode !== 'apply'">
       <div class="align-center d-flex flex-column flex-column-reverse flex-sm-row justify-space-between w-100 pt-2">
         <CuratedGroupSelector
-          :context-description="cohort.domain === 'default' ? `Cohort ${cohort.cohortName || ''}` : `Admitted Students Cohort ${cohort.cohortName || ''}`"
-          :domain="cohort.domain"
+          :context-description="cohortStore.domain === 'default' ? `Cohort ${cohortStore.cohortName || ''}` : `Admitted Students Cohort ${cohortStore.cohortName || ''}`"
+          :domain="cohortStore.domain"
           :on-create-curated-group="resetFiltersToLastApply"
-          :students="cohort.students"
+          :students="cohortStore.students"
         />
         <div class="d-flex flex-wrap justify-end pr-3">
-          <TermSelector v-if="cohort.domain === 'default'" class="mr-5" />
-          <SortBy v-if="cohort.showSortBy" :domain="cohort.domain" />
+          <TermSelector v-if="cohortStore.domain === 'default'" class="mr-5" />
+          <SortBy v-if="cohortStore.showSortBy" :domain="cohortStore.domain" />
         </div>
       </div>
-      <div v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage" :class="{'mt-6': cohort.domain === 'default'}">
+      <div v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage" :class="{'mt-6': cohortStore.domain === 'default'}">
         <Pagination
           class="my-3"
           :click-handler="goToPage"
           :init-page-number="pageNumber"
           :limit="10"
-          :per-page="cohort.pagination.itemsPerPage"
-          :total-rows="cohort.totalStudentCount"
+          :per-page="cohortStore.pagination.itemsPerPage"
+          :total-rows="cohortStore.totalStudentCount"
         />
       </div>
       <hr class="my-4" />
       <v-container
-        v-if="cohort.domain === 'default'"
+        v-if="cohortStore.domain === 'default'"
         id="cohort-students"
         class="pl-3"
         fluid
       >
         <StudentRow
-          v-for="(student, index) in cohort.students"
+          v-for="(student, index) in cohortStore.students"
           :id="`student-${student.uid}`"
           :key="student.sid"
           :class="{'list-group-item-info': anchor === `#${student.uid}`}"
           list-type="cohort"
           :row-index="index"
-          :sorted-by="context.currentUser.preferences.sortBy"
+          :sorted-by="currentUser.preferences.sortBy"
           :student="student"
-          :term-id="context.currentUser.preferences.termId"
+          :term-id="currentUser.preferences.termId"
         />
       </v-container>
-      <div v-if="cohort.domain === 'admitted_students'">
-        <AdmitStudentsTable :include-curated-checkbox="true" :students="cohort.students" />
+      <div v-if="cohortStore.domain === 'admitted_students'">
+        <AdmitStudentsTable :include-curated-checkbox="true" :students="cohortStore.students" />
         <hr />
       </div>
       <div class="mt-3">
         <Pagination
-          v-if="cohort.totalStudentCount > cohort.pagination.itemsPerPage"
+          v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage"
           :click-handler="goToPage"
           id-prefix="auxiliary-pagination"
           :init-page-number="pageNumber"
           :limit="10"
-          :per-page="cohort.pagination.itemsPerPage"
-          :total-rows="cohort.totalStudentCount"
+          :per-page="cohortStore.pagination.itemsPerPage"
+          :total-rows="cohortStore.totalStudentCount"
         />
       </div>
     </div>
@@ -89,14 +88,11 @@ import CohortPageHeader from '@/components/cohort/CohortPageHeader'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import FilterRow from '@/components/cohort/FilterRow'
 import Pagination from '@/components/util/Pagination'
-import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
-</script>
-
-<script>
 import {applyFilters, loadCohort, resetFiltersToLastApply, updateFilterOptions} from '@/stores/cohort-edit-session/utils'
+import {computed, onMounted, onUnmounted, reactive, ref, watch} from 'vue'
 import {get, size, startsWith} from 'lodash'
 import {putFocusNextTick, scrollToTop, setPageTitle, toInt} from '@/lib/utils'
 import {translateSortByOption} from '@/berkeley'
@@ -104,142 +100,131 @@ import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'
 
-export default {
-  name: 'Cohort',
-  data: () => ({
-    cohort: undefined,
-    context: undefined,
-    page: 1,
-    pageNumber: undefined,
-    showHistory: false
-  }),
-  computed: {
-    anchor: () => location.hash,
-    showFilters() {
-      return !this.cohort.isCompactView
-    },
-    showStudentsSection() {
-      return size(this.cohort.students) && this.cohort.editMode !== 'apply'
-    },
-    sortByKey() {
-      return this.cohort.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    }
-  },
-  watch: {
-    domain(newVal) {
-      this.context.removeEventHandler('admitSortBy-user-preference-change', this.onChangeSortBy)
-      this.context.removeEventHandler('sortBy-user-preference-change', this.onChangeSortBy)
-      this.context.setEventHandler(`${newVal === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, this.onChangeSortBy)
-    }
-  },
-  created() {
-    this.context = useContextStore()
-    this.context.loadingStart()
-    this.cohort = useCohortStore()
-    this.context.setEventHandler(`${this.sortByKey}-user-preference-change`, this.onChangeSortBy)
-    this.context.setEventHandler('cohort-apply-filters', this.resetPagination)
-    this.context.setEventHandler('termId-user-preference-change', this.onChangeTerm)
-  },
-  mounted() {
-    const forwardPath = window.history.state.forward
-    const continueExistingSession = (startsWith(forwardPath, '/student') || startsWith(forwardPath, '/admit/student')) && size(this.cohort.filters)
-    if (continueExistingSession) {
-      this.pageNumber = this.cohort.pagination.currentPage
-      setPageTitle(this.cohort.cohortName)
-      this.context.loadingComplete(this.getLoadedAlert())
-    } else {
-      this.cohortId = toInt(get(useRoute(), 'params.id'))
-      const domain = useRoute().query.domain || 'default'
-      const orderBy = get(this.context.currentUser.preferences, this.sortByKey)
-      const termId = get(this.context.currentUser.preferences, 'termId')
-      this.init(this.cohortId, domain, orderBy, termId).then(() => {
-        this.pageNumber = this.cohort.pagination.currentPage
-        const pageTitle = this.cohortId ? this.cohort.cohortName : 'Create Cohort'
-        setPageTitle(pageTitle)
-        this.context.loadingComplete(this.getLoadedAlert())
-        putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
-      })
-    }
-  },
-  unmounted() {
-    this.context.removeEventHandler('admitSortBy-user-preference-change', this.onChangeSortBy)
-    this.context.removeEventHandler('sortBy-user-preference-change', this.onChangeSortBy)
-    this.context.removeEventHandler('cohort-apply-filters', this.resetPagination)
-    this.context.removeEventHandler('termId-user-preference-change', this.onChangeTerm)
-  },
-  methods: {
-    getLoadedAlert() {
-      if (!this.cohortId) {
-        return 'Create cohort page has loaded'
-      } else {
-        const sortByOption = translateSortByOption(get(this.context.currentUser.preferences, this.sortByKey))
-        return `Cohort ${this.cohort.cohortName || ''}, sorted by ${sortByOption}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
-      }
-    },
-    init(cohortId, domain, orderBy, termId) {
-      return new Promise(resolve => {
-        this.cohort.resetSession()
-        this.cohort.setCompactView(!!cohortId)
-        this.cohort.setModifiedSinceLastSearch(undefined)
-        this.context.updateCurrentUserPreference(domain === 'admitted_students' ? 'admitSortBy' : 'sortBy', orderBy)
-        this.context.updateCurrentUserPreference('termId', termId)
+const cohortStore = useCohortStore()
+const contextStore = useContextStore()
+const currentUser = reactive(contextStore.currentUser)
+const pageNumber = ref(undefined)
+const showHistory = ref(false)
 
-        if (cohortId) {
-          loadCohort(cohortId, orderBy, termId).then(resolve)
-        } else {
-          if (domain) {
-            this.cohort.setDomain(domain)
-          } else {
-            throw new TypeError('\'domain\' is required when creating a new cohort.')
-          }
-          updateFilterOptions(this.cohort.domain, this.cohort.cohortOwner, []).then(() => {
-            this.cohort.resetSession()
-            this.cohort.stashOriginalFilters()
-            resolve()
-          })
-        }
+contextStore.loadingStart()
+
+const anchor = computed(() => window.location)
+const sortByKey = computed(() => cohortStore.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
+
+watch(() => cohortStore.domain, value => {
+  contextStore.removeEventHandler('admitSortBy-user-preference-change', onChangeSortBy)
+  contextStore.removeEventHandler('sortBy-user-preference-change', onChangeSortBy)
+  contextStore.setEventHandler(`${value === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, onChangeSortBy)
+})
+
+onMounted(() => {
+  contextStore.setEventHandler(`${sortByKey.value}-user-preference-change`, onChangeSortBy)
+  contextStore.setEventHandler('cohort-apply-filters', resetPagination)
+  contextStore.setEventHandler('termId-user-preference-change', onChangeTerm)
+  const forwardPath = window.history.state.forward
+  const continueExistingSession = (startsWith(forwardPath, '/student') || startsWith(forwardPath, '/admit/student')) && size(cohortStore.filters)
+  if (continueExistingSession) {
+    pageNumber.value = cohortStore.pagination.currentPage
+    setPageTitle(cohortStore.cohortName)
+    contextStore.loadingComplete(getLoadedAlert())
+  } else {
+    const cohortId = toInt(get(useRoute(), 'params.id'))
+    const domain = useRoute().query.domain || 'default'
+    const orderBy = get(currentUser.preferences, sortByKey.value)
+    const termId = get(currentUser.preferences, 'termId')
+    init(cohortId, domain, orderBy, termId).then(() => {
+      pageNumber.value = cohortStore.pagination.currentPage
+      const pageTitle = cohortId ? cohortStore.cohortName : 'Create Cohort'
+      setPageTitle(pageTitle)
+      contextStore.loadingComplete(getLoadedAlert())
+      putFocusNextTick(cohortId ? 'cohort-name' : 'create-cohort-h1')
+    })
+  }
+})
+
+onUnmounted(() => {
+  contextStore.removeEventHandler('admitSortBy-user-preference-change', onChangeSortBy)
+  contextStore.removeEventHandler('sortBy-user-preference-change', onChangeSortBy)
+  contextStore.removeEventHandler('cohort-apply-filters', resetPagination)
+  contextStore.removeEventHandler('termId-user-preference-change', onChangeTerm)
+})
+
+const getLoadedAlert = () => {
+  if (!cohortStore.cohortId) {
+    return 'Create cohort page has loaded'
+  } else {
+    const sortByOption = translateSortByOption(get(currentUser.preferences, sortByKey.value))
+    return `Cohort ${cohortStore.cohortName || ''}, sorted by ${sortByOption}, ${pageNumber.value > 1 ? `(page ${pageNumber.value})` : ''} has loaded`
+  }
+}
+
+const init = (cohortId, domain, orderBy, termId) => {
+  return new Promise(resolve => {
+    cohortStore.resetSession()
+    cohortStore.setCompactView(!!cohortId)
+    cohortStore.setModifiedSinceLastSearch(undefined)
+    contextStore.updateCurrentUserPreference(domain === 'admitted_students' ? 'admitSortBy' : 'sortBy', orderBy)
+    contextStore.updateCurrentUserPreference('termId', termId)
+
+    if (cohortId) {
+      loadCohort(cohortId, orderBy, termId).then(resolve)
+    } else {
+      if (domain) {
+        cohortStore.setDomain(domain)
+      } else {
+        throw new TypeError('\'domain\' is required when creating a new cohort.')
+      }
+      updateFilterOptions(cohortStore.domain, cohortStore.cohortOwner, []).then(() => {
+        cohortStore.resetSession()
+        cohortStore.stashOriginalFilters()
+        resolve()
       })
-    },
-    goToPage(page) {
-      this.context.loadingStart()
-      this.setPagination(page)
-      this.onPageNumberChange().then(() => {
-        scrollToTop()
-        this.context.loadingComplete(this.getLoadedAlert())
-      })
-    },
-    onChangeSortBy() {
-      if (!this.context.loading) {
-        this.goToPage(1)
-      }
-    },
-    onChangeTerm() {
-      if (!this.context.loading) {
-        this.goToPage(this.pageNumber)
-      }
-    },
-    onPageNumberChange() {
-      return applyFilters(
-        get(this.context.currentUser.preferences, this.sortByKey),
-        get(this.context.currentUser.preferences, 'termId')
-      )
-    },
-    resetPagination() {
-      this.setPagination(1)
-    },
-    setPagination(page) {
-      this.pageNumber = page
-      this.cohort.setCurrentPage(this.pageNumber)
-    },
-    toggleShowHistory(value) {
-      this.showHistory = value
-      if (value && !this.cohort.isCompactView) {
-        this.cohort.toggleCompactView()
-      }
-      if (!value) {
-        this.onPageNumberChange().then(scrollToTop)
-      }
     }
+  })
+}
+
+const goToPage = page => {
+  contextStore.loadingStart()
+  setPagination(page)
+  onPageNumberChange().then(() => {
+    scrollToTop()
+    contextStore.loadingComplete(getLoadedAlert())
+  })
+}
+
+const onChangeSortBy = () => {
+  if (!contextStore.loading) {
+    goToPage(1)
+  }
+}
+
+const onChangeTerm = () => {
+  if (!contextStore.loading) {
+    goToPage(pageNumber.value)
+  }
+}
+
+const onPageNumberChange = () => {
+  return applyFilters(
+    get(currentUser.preferences, sortByKey.value),
+    get(currentUser.preferences, 'termId')
+  )
+}
+
+const resetPagination = () => setPagination(1)
+
+const setPagination = page => {
+  pageNumber.value = page
+  cohortStore.setCurrentPage(pageNumber.value)
+}
+
+const toggleShowHistory = value => {
+  showHistory.value = value
+  if (value && !cohortStore.isCompactView) {
+    cohortStore.toggleCompactView()
+  }
+  if (!value) {
+    onPageNumberChange().then(scrollToTop)
   }
 }
 </script>
