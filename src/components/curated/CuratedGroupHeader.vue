@@ -9,49 +9,48 @@
           </span>
         </h1>
       </div>
-      <div v-if="mode === 'rename'" class="w-100 mr-3">
-        <v-text-field
-          id="rename-input"
-          v-model="renameInput"
-          :aria-invalid="!renameInput"
-          :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
-          :aria-required="true"
-          class="v-input-details-override mr-3"
-          density="compact "
-          :disabled="isSaving"
-          maxlength="255"
-          required
-          type="text"
-          @keyup.enter="rename"
-          @keyup.esc="exitRenameMode"
-        />
-        <div v-if="renameError" class="text-error mb-2">{{ renameError }}</div>
-        <div class="text-grey ma-2">255 character limit <span v-if="_size(renameInput)">({{ 255 - _size(renameInput) }} left)</span></div>
-        <div class="sr-only" aria-live="polite">{{ renameError }}</div>
-        <div
-          v-if="_size(renameInput) === 255"
-          class="sr-only"
-          aria-live="polite"
-        >
-          Name cannot exceed 255 characters.
+      <div v-if="mode === 'rename'" class="mr-3 w-100">
+        <div class="align-center d-flex">
+          <div class="w-75">
+            <v-text-field
+              id="rename-input"
+              v-model="renameInput"
+              :aria-invalid="!renameInput"
+              :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
+              :aria-required="true"
+              class="mr-3"
+              density="compact"
+              :disabled="isSaving"
+              hide-details
+              maxlength="255"
+              required
+              variant="outlined"
+              @keyup.enter="rename"
+              @keyup.esc="exitRenameMode"
+            />
+          </div>
+          <div>
+            <v-btn
+              id="rename-confirm"
+              color="primary"
+              :disabled="!_size(renameInput)"
+              text="Rename"
+              @click="rename"
+            />
+          </div>
+          <div>
+            <v-btn
+              id="rename-cancel"
+              :disabled="isSaving"
+              text="Cancel"
+              variant="plain"
+              @click="exitRenameMode"
+            />
+          </div>
         </div>
-      </div>
-      <div v-if="mode === 'rename'" class="d-flex align-self-baseline mr-2 mb-5">
-        <v-btn
-          id="rename-confirm"
-          class="font-size-14 px-1 text-no-wrap"
-          color="primary"
-          :disabled="!_size(renameInput)"
-          text="Rename"
-          @click="rename"
-        />
-        <v-btn
-          id="rename-cancel"
-          :disabled="isSaving"
-          text="Cancel"
-          variant="plain"
-          @click="exitRenameMode"
-        />
+        <div v-if="renameError" aria-live="polite" class="text-error ml-2 my-2">{{ renameError }}</div>
+        <div class="text-grey">255 character limit <span v-if="_size(renameInput)">({{ 255 - _size(renameInput) }} left)</span></div>
+        <span v-if="_size(renameInput) === 255" aria-live="polite" class="sr-only">Name cannot exceed 255 characters.</span>
       </div>
       <div v-if="!mode" class="d-flex align-center">
         <div v-if="isOwnedByCurrentUser">
@@ -318,10 +317,9 @@ export default {
     getCsvExportColumns,
     getCsvExportColumnsSelected,
     rename() {
-      this.renameError = validateCohortName({
-        name: this.renameInput
-      })
-      if (this.renameError !== true) {
+      const error = validateCohortName({name: this.renameInput})
+      if (error !== true) {
+        this.renameError = error
         this.putFocusNextTick('rename-input')
       } else {
         this.isSaving = true
@@ -345,10 +343,6 @@ export default {
 .modal-header {
   border-bottom: none;
 }
-:deep(.v-input-details-override .v-input__details) {
-  margin-bottom: -25px !important;
-}
-
 :deep(.v-dialog > .v-overlay__content > .v-card > .v-card-text, .v-dialog > .v-overlay__content > form > .v-card > .v-card-text) {
   padding: 0px !important;
 }

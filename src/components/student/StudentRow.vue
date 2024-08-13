@@ -16,12 +16,16 @@
         <v-btn
           v-if="listType === 'curatedGroupForOwner'"
           :id="`row-${rowIndex}-remove-student-from-curated-group`"
-          variant="text"
-          color="blue"
+          variant="flat"
+          :icon="mdiCloseCircle"
           @click="onClickRemoveStudent(student)"
           @keyup.enter="onClickRemoveStudent(student)"
         >
-          <v-icon :icon="mdiCloseCircleOutline" class="font-size-24" />
+          <v-icon
+            color="primary"
+            :icon="mdiCloseCircle"
+            size="22"
+          />
           <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
         </v-btn>
         <div class="d-flex flex-column flex-sm-row">
@@ -153,7 +157,7 @@
 
 <script setup>
 import {get, isNil, isUndefined, size} from 'lodash'
-import {mdiAlertRhombus, mdiCloseCircleOutline} from '@mdi/js'
+import {mdiAlertRhombus, mdiCloseCircle} from '@mdi/js'
 import {round} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 </script>
