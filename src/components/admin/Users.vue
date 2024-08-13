@@ -511,9 +511,11 @@ export default {
   },
   methods: {
     handleSort(sortBy) {
-      this.sortBy = sortBy[0].key
-      this.sortDesc = sortBy[0].order === 'asc' ? false : true
-      this.usersProvider() // Method to fetch users with new sorting parameters
+      if (sortBy.length) {
+        this.sortBy = sortBy[0].key
+        this.sortDesc = sortBy[0].order === 'asc' ? false : true
+        this.usersProvider() // Method to fetch users with new sorting parameters
+      }
     },
     clickColumn(slotData) {
       const indexExpanded = this.expanded.findIndex(i => i === slotData)
@@ -846,5 +848,9 @@ export default {
 .name {
   position: relative;
   display: inline-block;
+}
+
+:deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
+  height: 0px !important;
 }
 </style>

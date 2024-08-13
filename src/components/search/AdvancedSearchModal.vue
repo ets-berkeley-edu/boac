@@ -160,6 +160,7 @@
                       placeholder="MM/DD/YYYY"
                       prepend-icon=""
                       variant="outlined"
+                      @update:model-value="focusOnDate('from')"
                     />
                     <div class="sr-only">
                       <v-btn
@@ -192,6 +193,7 @@
                       placeholder="MM/DD/YYYY"
                       prepend-icon=""
                       variant="outlined"
+                      @update:model-value="focusOnDate('to')"
                     />
                     <div class="sr-only">
                       <v-btn
@@ -316,6 +318,15 @@ const cancel = () => {
   searchStore.resetAutocompleteInput()
   setTimeout(reset, 100)
 }
+
+const focusOnDate = (type) => {
+  if (type === 'from') {
+    putFocusNextTick('search-options-note-filters-last-updated-from')
+  } else if (type === 'to') {
+    putFocusNextTick('search-options-note-filters-last-updated-to')
+  }
+}
+
 
 const openAdvancedSearch = () => {
   searchStore.setShowAdvancedSearch(true)

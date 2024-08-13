@@ -696,7 +696,7 @@ const refreshSearchIndex = () => {
 }
 
 const scrollToPermalink = (messageType, messageId) => {
-  scrollTo(`#permalink-${messageType}-${messageId}`)
+  scrollTo(`permalink-${messageType}-${messageId}`)
   putFocusNextTick(`message-row-${messageId}`)
 }
 
@@ -745,7 +745,7 @@ init()
 }
 .column-message {
   vertical-align: middle;
-  width: 80%;
+  max-width: 1px;
 }
 .column-pill {
   max-width: 115px;
