@@ -42,8 +42,8 @@
             <router-link
               v-if="event.uid"
               :id="`event-${index}-student-name`"
-              :class="{'demo-mode-blur': get(useContextStore().currentUser, 'inDemoMode')}"
-              :to="studentRoutePath(event.uid, get(useContextStore().currentUser, 'inDemoMode'))"
+              :class="{'demo-mode-blur': get(currentUser, 'inDemoMode')}"
+              :to="studentRoutePath(event.uid, get(currentUser, 'inDemoMode'))"
             >
               <span v-html="lastNameFirst(event)" />
             </router-link>
@@ -57,7 +57,7 @@
           <td class="pr-2 py-1 text-no-wrap">
             <div
               :id="`event-${index}-sid`"
-              :class="{'demo-mode-blur': get(useContextStore().currentUser, 'inDemoMode')}"
+              :class="{'demo-mode-blur': get(currentUser, 'inDemoMode')}"
             >
               {{ event.sid }}
             </div>
@@ -83,55 +83,47 @@
 </template>
 
 <script setup>
-import {get, isEmpty} from 'lodash'
-import {DateTime} from 'luxon'
-import {lastNameFirst, studentRoutePath} from '@/lib/utils'
-import {useContextStore} from '@/stores/context'
-</script>
-
-<script>
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
+import {DateTime} from 'luxon'
 import {alertScreenReader, scrollToTop} from '@/lib/utils'
+import {get, isEmpty} from 'lodash'
 import {getCohortEvents} from '@/api/cohort'
+import {lastNameFirst, studentRoutePath} from '@/lib/utils'
+import {onMounted, ref} from 'vue'
 import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useContextStore} from '@/stores/context'
 
+const cohortStore = useCohortStore()
+const contextStore = useContextStore()
+const currentPage = ref(1)
+const currentUser = contextStore.currentUser
+const events = ref([])
+const itemsPerPage = ref(50)
+const loading = ref(false)
+const offset = ref(0)
+const totalEventsCount = ref(0)
 
-export default {
-  name: 'CohortHistory',
-  components: {
-    Pagination,
-    SectionSpinner
-  },
-  data: () => ({
-    currentPage: 1,
-    events: [],
-    itemsPerPage: 50,
-    offset: 0,
-    loading: false,
-    totalEventsCount: 0
-  }),
-  created() {
-    this.goToPage(1)
-  },
-  methods: {
-    goToPage(page) {
-      this.currentPage = page
-      this.offset = (page - 1) * this.itemsPerPage
-      this.loadEvents()
-    },
-    loadEvents() {
-      this.loading = true
-      alertScreenReader('Cohort history is loading')
-      scrollToTop(10)
-      getCohortEvents(useCohortStore().cohortId, this.offset, this.itemsPerPage).then((response) => {
-        this.totalEventsCount = response.count
-        this.events = response.events
-        this.loading = false
-        alertScreenReader('Cohort history has loaded')
-      })
-    }
-  },
+onMounted(() => {
+  goToPage(1)
+})
+
+const goToPage = page => {
+  currentPage.value = page
+  offset.value = (page - 1) * itemsPerPage.value
+  loadEvents()
+}
+
+const loadEvents = () => {
+  loading.value = true
+  alertScreenReader('Cohort history is loading')
+  scrollToTop(10)
+  getCohortEvents(cohortStore.cohortId, offset.value, itemsPerPage.value).then(data => {
+    totalEventsCount.value = data.count
+    events.value = data.events
+    loading.value = false
+    alertScreenReader('Cohort history has loaded')
+  })
 }
 </script>
 

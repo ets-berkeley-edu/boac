@@ -1,5 +1,5 @@
 <template>
-  <v-overlay
+  <v-dialog
     v-model="showModalProxy"
     class="justify-center overflow-auto"
     persistent
@@ -11,68 +11,68 @@
       min-width="400"
       max-width="600"
     >
-      <ModalHeader text="FERPA Reminder" />
-      <FerpaReminder />
-      <div class="d-flex justify-end py-3 px-4">
-        <v-btn
-          id="ferpa-reminder-confirm"
-          @click="onClickConfirm"
-        >
-          I understand
-        </v-btn>
+      <v-card-title>
+        <ModalHeader class="ml-2" text="FERPA Reminder" />
+      </v-card-title>
+      <v-card-text class="py-2">
+        <FerpaReminder />
+      </v-card-text>
+      <v-card-actions class="float-right pb-3 pr-6">
+        <ProgressButton
+          id="are-you-sure-confirm"
+          :action="confirm"
+          :disabled="isDownloading"
+          :in-progress="isDownloading"
+          text="I understand"
+        />
         <v-btn
           id="ferpa-reminder-cancel"
-          class="pl-2"
+          class="ml-1"
           variant="plain"
           @click="cancel"
         >
           Cancel
         </v-btn>
-      </div>
+      </v-card-actions>
     </v-card>
-  </v-overlay>
+  </v-dialog>
 </template>
 
-<script>
+<script setup>
 import FerpaReminder from '@/components/util/FerpaReminder'
 import ModalHeader from '@/components/util/ModalHeader'
 import {putFocusNextTick} from '@/lib/utils'
+import {computed} from 'vue'
+import ProgressButton from '@/components/util/ProgressButton.vue'
 
-export default {
-  name: 'ExportListModal',
-  components: {FerpaReminder, ModalHeader},
-  props: {
-    cancel: {
-      required: true,
-      type: Function
-    },
-    confirm: {
-      required: true,
-      type: Function
-    },
-    showModal: {
-      type: Boolean,
-      required: true
-    }
+const props = defineProps({
+  cancel: {
+    required: true,
+    type: Function
   },
-  computed: {
-    showModalProxy: {
-      get() {
-        return this.showModal
-      }
-    }
+  confirm: {
+    required: true,
+    type: Function
   },
-  methods: {
-    onClickConfirm() {
-      this.confirm()
-    },
-    onToggle(isOpen) {
-      if (isOpen) {
-        putFocusNextTick('modal-header')
-      } else {
-        this.cancel()
-      }
-    }
+  isDownloading: {
+    type: Boolean,
+    required: false
+  },
+  showModal: {
+    type: Boolean,
+    required: true
+  }
+})
+
+const showModalProxy = computed(() => {
+  return props.showModal
+})
+
+const onToggle = isOpen => {
+  if (isOpen) {
+    putFocusNextTick('modal-header')
+  } else {
+    props.cancel()
   }
 }
 </script>
