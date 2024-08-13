@@ -1,6 +1,10 @@
 <template>
   <div :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
-    <div :id="`note-${note.id}-is-closed`" :class="{'note-snippet-when-closed truncate-with-ellipsis': !isOpen}" aria-label="Advising note">
+    <div :id="`note-${note.id}-is-closed`"
+         class="ellipses-for-long-text"
+         :class="{'note-snippet-when-closed truncate-with-ellipsis': !isOpen}"
+         aria-label="Advising note"
+    >
       <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`">
         <span class="pr-2">
           <v-chip
@@ -31,7 +35,7 @@
         </span>
       </span>
     </div>
-    <div v-if="isOpen" :id="`note-${note.id}-is-open`">
+    <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="ellipses-for-long-text">
       <div v-if="!note.legacySource">
         <v-btn
           v-if="currentUser.isAdmin"
@@ -305,6 +309,12 @@ loadAuthorDetails()
 }
 .note-snippet-when-closed {
   height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ellipses-for-long-text {
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
