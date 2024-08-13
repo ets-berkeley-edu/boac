@@ -1,25 +1,15 @@
 <template>
   <div class="default-margins">
-    <div v-if="!loading" class="ma-3">
-      <h1
-        id="admit-name-header"
-        :class="{'demo-mode-blur': currentUser.inDemoMode}"
-        class="student-section-header"
-      >
-        {{ fullName }}
-      </h1>
-      <div class="d-flex justify-space-between">
-        <div>
-          <div v-if="admit.studentUid" class="pt-2 pb-3">
-            <router-link
-              :id="`link-to-student-${admit.studentUid}`"
-              :to="studentRoutePath(admit.studentUid, currentUser.inDemoMode)"
-            >
-              View <span :class="{'demo-mode-blur': currentUser.inDemoMode}" v-html="fullName"></span>'s profile page
-            </router-link>
-          </div>
-        </div>
-        <div>
+    <div v-if="!loading">
+      <div class="align-center d-flex justify-space-between">
+        <h1
+          id="admit-name-header"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          class="student-section-header"
+        >
+          {{ fullName }}
+        </h1>
+        <div class="mr-5">
           <ManageStudent
             :align-dropdown-right="true"
             domain="admitted_students"
@@ -29,10 +19,24 @@
           />
         </div>
       </div>
-      <AdmitDataWarning :updated-at="get(admit, 'updatedAt')" />
-
-      <v-container fluid>
-        <v-row class="mt-3 py-2">
+      <div v-if="admit.studentUid">
+        <router-link
+          :id="`link-to-student-${admit.studentUid}`"
+          :to="studentRoutePath(admit.studentUid, currentUser.inDemoMode)"
+        >
+          View <span :class="{'demo-mode-blur': currentUser.inDemoMode}" v-html="fullName" />'s profile page
+        </router-link>
+      </div>
+      <div class="mt-3">
+        <AdmitDataWarning :updated-at="get(admit, 'updatedAt')" />
+      </div>
+      <v-container class="px-2" fluid>
+        <v-row>
+          <v-col>
+            <hr />
+          </v-col>
+        </v-row>
+        <v-row>
           <v-col>
             <v-row>
               <v-col>
@@ -114,7 +118,12 @@
             </v-row>
           </v-col>
         </v-row>
-        <v-row class="py-2 row-separator">
+        <v-row>
+          <v-col>
+            <hr />
+          </v-col>
+        </v-row>
+        <v-row>
           <v-col>
             <v-row>
               <v-col>
@@ -224,7 +233,12 @@
             </v-row>
           </v-col>
         </v-row>
-        <v-row class="py-2 row-separator">
+        <v-row>
+          <v-col>
+            <hr />
+          </v-col>
+        </v-row>
+        <v-row>
           <v-col>
             <v-row>
               <v-col>
@@ -283,6 +297,11 @@
             </v-row>
           </v-col>
         </v-row>
+        <v-row>
+          <v-col>
+            <hr />
+          </v-col>
+        </v-row>
       </v-container>
     </div>
   </div>
@@ -292,17 +311,19 @@
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import router from '@/router'
-import {assign, get, join, remove} from 'lodash'
 import {computed, onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
+import {get} from 'lodash'
 import {getAdmitBySid} from '@/api/admit'
-import {scrollToTop, setPageTitle, studentRoutePath} from '@/lib/utils'
+import {scrollToTop, setPageTitle, studentRoutePath, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
-const admit = ref({})
+const admit = ref(undefined)
 const currentUser = contextStore.currentUser
+const fullName = ref(undefined)
+const loading = computed(() => contextStore.loading)
 
 contextStore.loadingStart()
 
@@ -314,18 +335,14 @@ const birthDate = computed(() => {
   return birthDate.toFormat('MMM D, YYYY')
 })
 
-const fullName = computed(() => {
-  return join(remove([admit.value.firstName, admit.value.middleName, admit.value.lastName]), ' ')
-})
-
 onMounted(() => {
   // In demo-mode we do not want to expose SID in browser location bar.
   const sid = currentUser.inDemoMode ? window.atob(sid) : useRoute().params.sid
-  getAdmitBySid(sid).then(admit => {
-    if (admit) {
-      assign(admit.value, admit)
-      const pageTitle = currentUser.inDemoMode ? 'Admitted Student' : fullName.value
-      setPageTitle(pageTitle)
+  getAdmitBySid(sid).then(data => {
+    if (data) {
+      admit.value = data
+      fullName.value = [admit.value.firstName, admit.value.middleName, admit.value.lastName].join(' ')
+      setPageTitle(currentUser.inDemoMode ? 'Admitted Student' : fullName.value)
       contextStore.loadingComplete()
       scrollToTop()
     } else {

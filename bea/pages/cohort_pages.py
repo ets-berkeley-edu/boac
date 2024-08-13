@@ -120,8 +120,8 @@ class CohortPages(BoaPages):
     # DELETE
 
     DELETE_COHORT_BUTTON = By.ID, 'delete-button'
-    CONFIRM_DELETE_BUTTON = By.ID, 'delete-cohort-confirm'
-    CANCEL_DELETE_BUTTON = By.ID, 'delete-cohort-cancel'
+    CONFIRM_DELETE_BUTTON = By.ID, 'are-you-sure-confirm'
+    CANCEL_DELETE_BUTTON = By.ID, 'are-you-sure-cancel'
 
     def delete_cohort(self, cohort):
         app.logger.info(f'Deleting a cohort named {cohort.name}')
