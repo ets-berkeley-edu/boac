@@ -47,6 +47,16 @@
               <router-view :key="split($route.fullPath, '#', 1)[0]" />
             </div>
           </div>
+          <EditBatchNoteModal
+            v-model="noteStore.isCreateNoteModalOpen"
+            initial-mode="createBatch"
+            :on-close="() => {
+              noteStore.setMode(null)
+              noteStore.setIsCreateNoteModalOpen(false)
+              putFocusNextTick('batch-note-button')
+            }"
+            :toggle-show="show => isCreateNoteModalOpen = show"
+          />
           <v-footer
             v-if="!loading && !hideFooter"
             absolute
@@ -65,6 +75,7 @@
 <script setup>
 import AppBar from '@/layouts/shared/AppBar'
 import AppFooter from '@/layouts/shared/AppFooter'
+import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
@@ -73,11 +84,13 @@ import {putFocusNextTick} from '@/lib/utils'
 import {computed, ref} from 'vue'
 import {split} from 'lodash'
 import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const hideFooter = ref(false)
 const loading = computed(() => contextStore.loading)
+const noteStore = useNoteStore()
 const showSidebar = ref(true)
 
 putFocusNextTick('home-header')
