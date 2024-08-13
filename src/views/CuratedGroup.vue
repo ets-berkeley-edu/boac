@@ -1,22 +1,21 @@
 <template>
   <div v-if="!loading" class="default-margins">
     <CuratedGroupHeader />
-    <AdmitDataWarning
-      v-if="domain === 'admitted_students' && students && curatedGroupStore.mode !== 'bulkAdd'"
-      :updated-at="_get(students, '[0].updatedAt')"
-    />
+    <div v-if="domain === 'admitted_students' && students && curatedGroupStore.mode !== 'bulkAdd'" class="mt-2">
+      <AdmitDataWarning :updated-at="_get(students, '[0].updatedAt')" />
+    </div>
     <div v-if="curatedGroupStore.mode !== 'bulkAdd'">
       <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
       <div>
-        <div class="d-flex flex-wrap justify-content-end pt-2">
-          <div v-if="totalStudentCount && domain === 'default'">
+        <div class="d-flex flex-wrap justify-end mt-3">
+          <div v-if="totalStudentCount && domain === 'default'" class="mr-3">
             <TermSelector />
           </div>
-          <div v-if="totalStudentCount > 1" class="pl-4">
+          <div v-if="totalStudentCount > 1">
             <SortBy :domain="domain" />
           </div>
         </div>
-        <div v-if="totalStudentCount > itemsPerPage" class="pa-3">
+        <div v-if="totalStudentCount > itemsPerPage" class="mt-2">
           <Pagination
             :click-handler="onClickPagination"
             :init-page-number="pageNumber"
@@ -43,9 +42,7 @@
               />
             </div>
             <div v-if="domain === 'admitted_students'">
-              <div class="pb-1">
-                <hr class="filters-section-separator" />
-              </div>
+              <hr />
               <AdmitStudentsTable
                 :include-curated-checkbox="false"
                 :remove-student="removeStudent"

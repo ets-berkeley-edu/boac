@@ -2,17 +2,17 @@
   <table id="cohort-admitted-students">
     <thead>
       <tr>
-        <th v-if="includeCuratedCheckbox || removeStudent" class="pt-3"></th>
-        <th class="pt-3">Name</th>
-        <th class="pt-3 text-no-wrap">CS ID</th>
-        <th class="pt-3">SIR</th>
-        <th class="pt-3">CEP</th>
-        <th class="pt-3 text-no-wrap">Re-entry</th>
-        <th class="pt-3 text-no-wrap">1st Gen</th>
-        <th class="pt-3">UREM</th>
-        <th class="pt-3">Waiver</th>
-        <th class="pt-3 text-no-wrap">INT'L</th>
-        <th class="pt-3">Freshman or Transfer</th>
+        <th v-if="includeCuratedCheckbox || removeStudent"></th>
+        <th class="vertical-bottom">Name</th>
+        <th class="text-no-wrap vertical-bottom">CS ID</th>
+        <th class="vertical-bottom">SIR</th>
+        <th class="vertical-bottom">CEP</th>
+        <th class="pr-2 text-no-wrap vertical-bottom">Re-entry</th>
+        <th class="pr-2 text-no-wrap vertical-bottom">1st Gen</th>
+        <th class="pr-2 vertical-bottom">UREM</th>
+        <th class="vertical-bottom">Waiver</th>
+        <th class="pr-2 text-no-wrap vertical-bottom">INT'L</th>
+        <th class="vertical-bottom">Freshman or Transfer</th>
       </tr>
     </thead>
     <tbody class="font-size-14">
@@ -27,15 +27,16 @@
             :student="student"
           />
         </td>
-        <td v-if="removeStudent" class="pa-1">
+        <td v-if="removeStudent" class="pr-3 py-1">
           <v-btn
             :id="`row-${index}-remove-student-from-curated-group`"
-            size="small"
+            density="compact"
+            :icon="true"
             variant="text"
             @click="curatedGroupRemoveStudent(student)"
             @keyup.enter="curatedGroupRemoveStudent(student)"
           >
-            <v-icon :icon="mdiCloseCircle" class="font-size-20" color="primary" />
+            <v-icon :icon="mdiCloseCircle" size="22" color="primary" />
             <span class="sr-only">Remove {{ fullName(student) }}</span>
           </v-btn>
         </td>
@@ -50,15 +51,15 @@
             <span v-html="fullName(student)" />
           </router-link>
         </td>
-        <td class="pa-1">
-          <span class="sr-only">C S I D<span aria-hidden="true">&nbsp;</span></span>
+        <td class="pr-3">
+          <span class="sr-only">C S I D <span aria-hidden="true">&nbsp;</span></span>
           <span :id="`row-${index}-cs-empl-id`" :class="{'demo-mode-blur': get(useContextStore().currentUser, 'inDemoMode')}">{{ getSid(student) }}</span>
         </td>
-        <td class="pa-1">
+        <td class="pr-2">
           <span class="sr-only">S I R</span>
           <span :id="`row-${index}-current-sir`">{{ student.currentSir }}</span>
         </td>
-        <td class="pa-1">
+        <td class="pr-2">
           <span :id="`row-${index}-special-program-cep`">
             <span class="sr-only">C E P</span>
             <span v-if="!isNilOrBlank(student.specialProgramCep)">{{ student.specialProgramCep }}</span>
