@@ -9,38 +9,26 @@
       id="batch-note-button"
       class="mb-5 mt-3 w-100"
       color="primary"
-      :disabled="!!useNoteStore().mode"
+      :disabled="!!noteStore.mode"
       variant="flat"
-      @click="isCreateNoteModalOpen = true"
+      @click="noteStore.setIsCreateNoteModalOpen(true)"
     >
       <v-icon class="mr-1" :icon="mdiFileDocument" />
       New Note
     </v-btn>
-    <EditBatchNoteModal
-      v-model="isCreateNoteModalOpen"
-      initial-mode="createBatch"
-      :on-close="() => {
-        isCreateNoteModalOpen = false
-        putFocusNextTick('batch-note-button')
-      }"
-      :toggle-show="show => isCreateNoteModalOpen = show"
-    />
   </div>
 </template>
 
 <script setup>
-import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes'
 import {mdiFileDocument} from '@mdi/js'
-import {putFocusNextTick} from '@/lib/utils'
-import {ref} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const currentUser = useContextStore().currentUser
-const isCreateNoteModalOpen = ref(false)
 const {loading} = storeToRefs(useContextStore())
+const noteStore = useNoteStore()
 </script>
 
 <style scoped>
@@ -49,4 +37,8 @@ const {loading} = storeToRefs(useContextStore())
   box-shadow: 0px -25px 35px -22px rgb(var(--v-theme-tertiary));
   position: fixed;
   z-index: 2;
-}</style>
+}
+.z-index-0 {
+  z-index: 0;
+}
+</style>

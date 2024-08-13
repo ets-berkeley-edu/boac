@@ -51,8 +51,9 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
     autoSaveJob: undefined as number | null | undefined,
     boaSessionExpired: false,
     completeSidSet: new Set<string>(),
-    isFocusLockDisabled: false,
     isAutoSavingDraftNote: false,
+    isCreateNoteModalOpen: false,
+    isFocusLockDisabled: false,
     isSaving: false,
     isRecalculating: false,
     mode: undefined as string | undefined,
@@ -134,6 +135,9 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
     },
     setIsAutoSavingDraftNote(value: boolean) {
       this.isAutoSavingDraftNote = value
+    },
+    setIsCreateNoteModalOpen(value: boolean) {
+      this.isCreateNoteModalOpen = value
     },
     setIsDraft(isDraft: boolean) {
       this.model.isDraft = isDraft

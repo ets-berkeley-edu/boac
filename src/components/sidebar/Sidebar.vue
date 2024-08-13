@@ -213,7 +213,4 @@ const currentUser = reactive(useContextStore().currentUser)
   height: 1px;
   margin: 12px;
 }
-.z-index-0 {
-  z-index: 0;
-}
 </style>

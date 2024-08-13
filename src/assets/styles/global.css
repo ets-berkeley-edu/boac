@@ -175,6 +175,7 @@
 }
 .modal-open {
   overflow: hidden;
+  scrollbar-gutter: stable !important;
 }
 .no-data-text {
   color: #666;

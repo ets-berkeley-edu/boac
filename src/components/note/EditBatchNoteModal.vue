@@ -145,10 +145,10 @@ import {
   updateAdvisingNote
 } from '@/stores/note-edit-session/utils'
 import {mdiSync} from '@mdi/js'
+import {onBeforeUnmount, ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {ref, watch} from 'vue'
 
 const props = defineProps({
   initialMode: {
@@ -400,6 +400,13 @@ const updateTemplate = () => {
     exit(false).then(() => alertScreenReader(`Template '${template.title}' updated`))
   })
 }
+
+onBeforeUnmount(() => {
+  noteStore.setMode(null)
+  document.documentElement.classList.remove('modal-open')
+  useContextStore().removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
+})
+
 </script>
 
 <!-- The 'batch' classes (below) are used by Vue transition above. -->
