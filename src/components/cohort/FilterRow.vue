@@ -53,14 +53,15 @@
         </span>
         <v-date-input
           :id="`filter-range-min-${position}`"
-          v-model.string="rangeMin"
+          v-model="rangeMin"
           :aria-required="true"
           :aria-describedby="`filter-range-min-placeholder-${position}`"
           autocomplete="off"
+          class="bg-white"
           density="compact"
           hide-actions
           hide-details
-          :max="rangeMax && DateTime.fromISO(rangeMax)"
+          :max="rangeMax"
           placeholder="MM/DD/YYYY"
           prepend-icon=""
           variant="outlined"
@@ -73,14 +74,15 @@
         </span>
         <v-date-input
           :id="`filter-range-max-${position}`"
-          v-model.string="rangeMax"
+          v-model="rangeMax"
           :aria-describedby="`filter-range-max-placeholder-${position}`"
           :aria-required="true"
           autocomplete="off"
+          class="bg-white"
           density="compact"
           hide-actions
           hide-details
-          :min-date="rangeMin && DateTime.fromISO(rangeMin)"
+          :min="rangeMin"
           placeholder="MM/DD/YYYY"
           prepend-icon=""
           variant="outlined"
@@ -223,7 +225,6 @@ import {
   isNil,
   isNumber,
   isPlainObject,
-  isString,
   isUndefined,
   toLower,
   noop,
@@ -311,12 +312,11 @@ const onRangeUpdate = () => {
   disableUpdateButton.value = false
   errorPerRangeInput.value = undefined
   const trimToNil = v => isUndefined(v) ? v : trim(v) || undefined
-  // Convert v-calendar's non-customizable attribute names
-  let min = trimToNil(rangeMin.value)
-  let max = trimToNil(rangeMax.value)
   const isNilOrNan = v => isNil(v) || isNaN(v)
   const validation = get(filter.value, 'validation')
   if (validation === 'dependents') {
+    const min = trimToNil(rangeMin.value)
+    const max = trimToNil(rangeMax.value)
     const isInt = v => /^\d+$/.test(v)
     const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || isNaN(v)
     if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
@@ -326,8 +326,8 @@ const onRangeUpdate = () => {
     }
     disableUpdateButton.value = !!errorPerRangeInput.value || isNilOrNan(min) || isNilOrNan(max) || min > max
   } else if (validation === 'gpa') {
-    min = min && parseFloat(min)
-    max = max && parseFloat(max)
+    const min = trimToNil(rangeMin.value) && parseFloat(rangeMin.value)
+    const max = trimToNil(rangeMax.value) && parseFloat(rangeMax.value)
     const isDefinedAndInvalid = v => (isNumber(v) && v < 0 || v > 4) || isNaN(v)
     if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
       errorPerRangeInput.value = 'GPA must be a number in the range 0 to 4.'
@@ -336,6 +336,8 @@ const onRangeUpdate = () => {
     }
     disableUpdateButton.value = !!errorPerRangeInput.value || isNilOrNan(min) || isNilOrNan(max) || min > max
   } else if (validation === 'char[2]') {
+    const min = trimToNil(rangeMin.value)
+    const max = trimToNil(rangeMax.value)
     const isValid = s => /^[a-zA-Z][a-zA-Z]?$/.test(s)
     const isBadData = (min && !isValid(min)) || (max && !isValid(max))
     if (isBadData || (min && max && min.toUpperCase() > max.toUpperCase())) {
@@ -344,18 +346,16 @@ const onRangeUpdate = () => {
     }
     disableUpdateButton.value = !!errorPerRangeInput.value || isNilOrNan(min) || isNilOrNan(max) || min > max
   } else if (validation === 'date') {
-    const startDate = DateTime.fromISO(min)
-    const endDate = DateTime.fromISO(max)
-    if (startDate && endDate && startDate > endDate) {
+    if (rangeMin.value && rangeMax.value && rangeMin.value > rangeMax.value) {
       // Invalid data or values are descending.
       errorPerRangeInput.value = 'Requires end date after start date.'
     }
-    disableUpdateButton.value = !!errorPerRangeInput.value || isNilOrNan(min) || isNilOrNan(max)
+    disableUpdateButton.value = !!errorPerRangeInput.value || isNilOrNan(rangeMin.value) || isNilOrNan(rangeMax.value)
   } else if (validation) {
     disableUpdateButton.value = true
     errorPerRangeInput.value = `Unrecognized range type: ${validation}`
   }
-  showAdd.value = !errorPerRangeInput.value && !isNilOrNan(min) && !isNilOrNan(max)
+  showAdd.value = !errorPerRangeInput.value && !isNilOrNan(rangeMin.value) && !isNilOrNan(rangeMax.value)
 }
 
 watch(() => cohortStore.editMode, newEditMode => {
@@ -486,8 +486,8 @@ const onClickEditButton = () => {
     selectedOption.value = Array.isArray(options) ? findOption(options, filter.value.value) : find(flattenOptions(options), filter.value.value)
     putFocusNextTick(`filter-select-secondary-${props.position}`)
   } else if (isUX('range')) {
-    rangeMin.value = filter.value.value.min
-    rangeMax.value = filter.value.value.max
+    rangeMin.value = DateTime.fromISO(filter.value.value.min).toJSDate()
+    rangeMax.value = DateTime.fromISO(filter.value.value.max).toJSDate()
     putFocusNextTick(`filter-range-min-${props.position}`)
   }
   isModifyingFilter.value = true
@@ -528,8 +528,7 @@ const rangeMaxLabel = () => {
   } else {
     let max = get(filter.value, 'value.max')
     if (max && filter.value.validation === 'date') {
-      const parser = max instanceof Date ? DateTime.fromJSDate : DateTime.fromISO
-      max = parser(max).toFormat('DD')
+      max = DateTime.fromISO(max).toFormat('DD')
     }
     const labels = get(filter.value.label, 'range')
     snippet = rangeMinEqualsMax(filter.value) ? '' : `${labels[1]} ${max}`
@@ -537,13 +536,7 @@ const rangeMaxLabel = () => {
   return snippet
 }
 
-const rangeMinEqualsMax = filter => {
-  const normalize = key => {
-    let value = get(filter, key)
-    return isString(value) ? value.toUpperCase() : value
-  }
-  return normalize('value.min') === normalize('value.max')
-}
+const rangeMinEqualsMax = filter => get(filter, 'value.min') === get(filter, 'value.max')
 
 const rangeMinLabel = () => {
   let snippet = undefined
@@ -552,8 +545,7 @@ const rangeMinLabel = () => {
   } else {
     let min = get(filter.value, 'value.min')
     if (min && filter.value.validation === 'date') {
-      const parser = min instanceof Date ? DateTime.fromJSDate : DateTime.fromISO
-      min = parser(min).toFormat('DD')
+      min = DateTime.fromISO(min).toFormat('DD')
     }
     const labels = get(filter.value.label, 'range')
     snippet = rangeMinEqualsMax(filter.value) ? get(filter.value.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
@@ -590,8 +582,8 @@ const updateRangeFilter = () => {
     }
   } else if (filter.value.validation === 'date') {
     filter.value.value = {
-      min: rangeMin.value,
-      max: rangeMax.value
+      min: DateTime.fromJSDate(rangeMin.value).toISO(),
+      max: DateTime.fromJSDate(rangeMax.value).toISO()
     }
   } else {
     filter.value.value = {
@@ -601,12 +593,6 @@ const updateRangeFilter = () => {
   }
 }
 </script>
-
-<style>
-.vc-day-content:focus {
-  background-color: rgba(110, 110, 110, 0.4) !important;
-}
-</style>
 
 <style scoped>
 .date-range-container {
