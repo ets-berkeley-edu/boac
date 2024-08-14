@@ -21,7 +21,7 @@
         type="primary"
       />
     </div>
-    <div v-if="!isModifyingFilter" class="font-weight-500">
+    <div v-if="!isModifyingFilter" class="font-weight-500 truncate-with-ellipsis w-40">
       <span class="sr-only">Selected filter value is </span>
       <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
       <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
@@ -121,7 +121,11 @@
         </div>
       </div>
     </div>
-    <div v-if="!isExistingFilter" class="align-center d-flex text-right">
+    <div
+      v-if="!isExistingFilter"
+      class="align-center d-flex text-right"
+      :class="{'pt-2': !$vuetify.display.mdAndUp}"
+    >
       <div v-if="showAdd">
         <ProgressButton
           id="unsaved-filter-add"
