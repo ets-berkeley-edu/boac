@@ -24,6 +24,7 @@
           :text="buttonLabelConfirm"
         />
         <v-btn
+          v-if="functionCancel"
           id="are-you-sure-cancel"
           class="ml-1"
           :disabled="isProcessing"
@@ -54,8 +55,9 @@ const props = defineProps({
     default: 'Confirm'
   },
   functionCancel: {
-    type: Function,
-    required: true
+    default: undefined,
+    required: false,
+    type: Function
   },
   functionConfirm: {
     type: Function,

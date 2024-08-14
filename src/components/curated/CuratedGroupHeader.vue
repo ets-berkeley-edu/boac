@@ -89,11 +89,7 @@
             color="anchor"
             text="Delete"
             variant="text"
-            @click="() => {
-              const hasReferencingCohorts = !!referencingCohorts.length
-              isCohortWarningModalOpen = hasReferencingCohorts
-              isDeleteModalOpen = !hasReferencingCohorts
-            }"
+            @click="onClickDelete"
           />
           <AreYouSureModal
             v-model="isDeleteModalOpen"
@@ -104,43 +100,21 @@
           >
             Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
           </AreYouSureModal>
-          <v-overlay
+          <AreYouSureModal
             v-model="isCohortWarningModalOpen"
-            persistent
-            width="100%"
+            button-label-confirm="Close"
+            :function-confirm="() => isCohortWarningModalOpen = false"
+            modal-header="This group is in use as a cohort filter"
           >
-            <v-card
-              class="modal-content"
-              min-width="400"
-              max-width="600"
-            >
-              <ModalHeader text="This group is in use as a cohort filter" />
-              <div
-                id="cohort-warning-body"
-                aria-live="polite"
-                role="alert"
-                class="pa-4"
-              >
-                Sorry, you cannot delete this {{ domainLabel(false) }} until you have removed the filter from
-                <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-700">{{ referencingCohorts[0].name }}</span>.</span>
-                <span v-if="referencingCohorts.length > 1">cohorts:</span>
-                <ul v-if="referencingCohorts.length > 1" class="mb-0 mt-2">
-                  <li v-for="cohort in referencingCohorts" :key="cohort.id">
-                    <span class="font-weight-700">{{ cohort.name }}</span>
-                  </li>
-                </ul>
-              </div>
-              <hr />
-              <div class="d-flex justify-end px-4">
-                <v-btn
-                  id="cohort-warning-modal-close"
-                  @click="isCohortWarningModalOpen = false"
-                >
-                  Close
-                </v-btn>
-              </div>
-            </v-card>
-          </v-overlay>
+            Sorry, you cannot delete this {{ domainLabel(false) }} until you have removed the filter from
+            <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-700">{{ referencingCohorts[0].name }}</span>.</span>
+            <span v-if="referencingCohorts.length > 1">cohorts:</span>
+            <ul v-if="referencingCohorts.length > 1" class="mb-0 mt-2">
+              <li v-for="cohort in referencingCohorts" :key="cohort.id">
+                <span class="font-weight-700">{{ cohort.name }}</span>
+              </li>
+            </ul>
+          </AreYouSureModal>
         </div>
         <div v-if="isOwnedByCurrentUser" class="text-grey">|</div>
         <div>
@@ -170,7 +144,6 @@
             :export="exportGroup"
             :show-modal="showExportStudentsModal"
           />
-
           <FerpaReminderModal
             id="export-admits-modal"
             :show-modal="showExportAdmitsModal"
@@ -210,7 +183,6 @@ import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
-import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup} from '@/api/curated'
@@ -220,7 +192,7 @@ import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CuratedGroupHeader',
-  components: {AreYouSureModal, ExportListModal, FerpaReminderModal, ModalHeader},
+  components: {AreYouSureModal, ExportListModal, FerpaReminderModal},
   mixins: [Context, CuratedEditSession, Util],
   setup() {
     const curatedGroupStore = useCuratedGroupStore()
@@ -300,6 +272,11 @@ export default {
     },
     getCsvExportColumns,
     getCsvExportColumnsSelected,
+    onClickDelete() {
+      const hasReferencingCohorts = !!this.referencingCohorts.length
+      this.isCohortWarningModalOpen = hasReferencingCohorts
+      this.isDeleteModalOpen = !hasReferencingCohorts
+    },
     rename() {
       const error = validateCohortName({name: this.renameInput})
       if (error !== true) {

@@ -73,6 +73,7 @@
         :bulk-add-sids="bulkAddSids"
         :curated-group-id="curatedGroupId"
         :domain="domain"
+        :is-saving="isAddingStudents"
       />
     </div>
   </div>
@@ -83,7 +84,7 @@ import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
-import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
+import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader'
 import Pagination from '@/components/util/Pagination'
 import SortBy from '@/components/student/SortBy'
@@ -119,7 +120,8 @@ export default {
     }
   },
   data: () => ({
-    error: undefined
+    error: undefined,
+    isAddingStudents: false
   }),
   computed: {
     anchor: () => location.hash,
@@ -168,17 +170,19 @@ export default {
   },
   methods: {
     bulkAddSids(sids) {
-      useCuratedGroupStore().resetMode()
       if (this._size(sids)) {
+        this.isAddingStudents = true
         alertScreenReader(`Adding ${sids.length} students`)
         useContextStore().updateCurrentUserPreference('sortBy', 'last_name')
         addStudentsToCuratedGroup(this.curatedGroupId, sids, true).then(() => {
           goToCuratedGroup(this.curatedGroupId, 1).then(() => {
-            useContextStore().loadingComplete(`${sids.length} students added to group '${this.name}'`)
+            useCuratedGroupStore().resetMode()
+            this.isAddingStudents = false
             this.putFocusNextTick('curated-group-name')
           })
         })
       } else {
+        useCuratedGroupStore().resetMode()
         alertScreenReader('Canceled bulk add of students')
         this.putFocusNextTick('curated-group-name')
       }
