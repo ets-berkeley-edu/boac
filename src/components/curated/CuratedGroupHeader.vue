@@ -95,34 +95,15 @@
               isDeleteModalOpen = !hasReferencingCohorts
             }"
           />
-          <v-dialog
+          <AreYouSureModal
             v-model="isDeleteModalOpen"
-            width="auto"
+            :button-label-confirm="isDeleting ? 'Deleting' : 'Delete'"
+            :function-confirm="deleteGroup"
+            :function-cancel="() => isDeleteModalOpen = false"
+            modal-header="Delete Curated Group"
           >
-            <v-card
-              max-width="400"
-              title="Delete Curated Group"
-            >
-              <v-card-text>
-                <div class="modal-body">
-                  Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
-                </div>
-              </v-card-text>
-              <template #actions>
-                <v-btn
-                  text="Delete"
-                  color="#3c6bc9"
-                  variant="flat"
-                  @click="deleteGroup"
-                ></v-btn>
-                <v-btn
-                  class="text-primary"
-                  text="Cancel"
-                  @click="isDeleteModalOpen = false"
-                ></v-btn>
-              </template>
-            </v-card>
-          </v-dialog>
+            Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
+          </AreYouSureModal>
           <v-overlay
             v-model="isCohortWarningModalOpen"
             persistent
@@ -224,6 +205,7 @@
 </template>
 
 <script>
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import ExportListModal from '@/components/util/ExportListModal'
@@ -238,7 +220,7 @@ import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CuratedGroupHeader',
-  components: {ExportListModal, FerpaReminderModal, ModalHeader},
+  components: {AreYouSureModal, ExportListModal, FerpaReminderModal, ModalHeader},
   mixins: [Context, CuratedEditSession, Util],
   setup() {
     const curatedGroupStore = useCuratedGroupStore()
@@ -248,6 +230,7 @@ export default {
     exportEnabled: true,
     isCohortWarningModalOpen: false,
     isDeleteModalOpen: false,
+    isDeleting: false,
     isSaving: false,
     referencingCohorts: [],
     renameError: undefined,
@@ -302,14 +285,15 @@ export default {
       })
     },
     deleteGroup() {
-      deleteCuratedGroup(this.domain, this.curatedGroupId).then(
-        () => {
-          this.isDeleteModalOpen = false
-          this.$router.push({path: '/'}, this._noop)
-        })
-        .catch(error => {
-          this.error = error
-        })
+      this.isDeleting = true
+      return deleteCuratedGroup(this.domain, this.curatedGroupId).then(() => {
+        this.isDeleteModalOpen = false
+        this.$router.push({path: '/'}, this._noop)
+      }).catch(error => {
+        this.error = error
+      }).finally(() => {
+        this.isDeleting = false
+      })
     },
     domainLabel(capitalize) {
       return describeCuratedGroupDomain(this.domain, capitalize)
