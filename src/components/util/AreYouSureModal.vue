@@ -1,15 +1,17 @@
 <template>
   <v-dialog
     v-model="model"
+    :aria-describedby="text ? 'are-you-sure-text' : null"
+    aria-labelledby="are-you-sure-header"
     persistent
     retain-focus
     width="auto"
   >
     <v-card min-width="600">
       <v-card-title>
-        <ModalHeader class="ml-2 mt-2" :text="modalHeader" />
+        <ModalHeader class="ml-2 mt-2" header-id="are-you-sure-header" :text="modalHeader" />
       </v-card-title>
-      <v-card-text class="py-2">
+      <v-card-text id="are-you-sure-text" class="py-2">
         <span v-html="text" />
         <slot />
       </v-card-text>
@@ -91,7 +93,7 @@ const confirm = () => {
 
 const onToggle = isOpen => {
   if (isOpen) {
-    putFocusNextTick('modal-header')
+    putFocusNextTick('are-you-sure-cancel')
   }
 }
 </script>

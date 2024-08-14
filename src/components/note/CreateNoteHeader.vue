@@ -71,6 +71,7 @@
                   <div class="align-center d-flex float-right">
                     <v-dialog
                       v-model="template.isRenameDialogOpen"
+                      aria-labelledby="rename-template-dialog-header"
                       persistent
                       width="auto"
                     >
@@ -192,9 +193,9 @@
     <AreYouSureModal
       v-model="isDeleting"
       button-label-confirm="Delete"
-      dialog-header="Delete Template"
       :function-cancel="() => cancel(templateToDelete)"
       :function-confirm="() => deleteTemplateConfirmed()"
+      modal-header="Delete Template"
     >
       Are you sure you want to delete the <strong>'{{ get(templateToDelete, 'title') }}'</strong> template?
     </AreYouSureModal>
@@ -275,14 +276,13 @@ const openDeleteTemplateDialog = template => {
   templateToDelete.value = template
   template.isDeleteDialogOpen = true
   disableFocusLock()
-  alertScreenReader('Delete template dialog opened.')
 }
 
 const openRenameTemplateDialog = template => {
   updatedTemplateTitle.value = template.title
   template.isRenameDialogOpen = true
   disableFocusLock()
-  alertScreenReader('Rename template dialog opened.')
+  putFocusNextTick('rename-template-input')
 }
 
 const renameTemplate = template => {

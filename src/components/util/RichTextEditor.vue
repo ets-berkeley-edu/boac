@@ -17,6 +17,7 @@
     </label>
     <div
       :id="ckElementId"
+      aria-details="link-to-advising-note-best-practices"
       :aria-labelledby="`${ckElementId}-label`"
       class="mt-2"
       role="textbox"
