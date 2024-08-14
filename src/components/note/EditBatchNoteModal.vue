@@ -2,6 +2,7 @@
   <v-dialog
     v-if="mode"
     v-model="dialogModel"
+    aria-labelledby="dialog-header-note"
     min-width="500"
     persistent
     width="60%"
@@ -42,16 +43,15 @@
             variant="outlined"
             @input="setSubjectPerEvent"
           />
-          <div id="note-details">
-            <RichTextEditor
-              :disabled="isSaving || boaSessionExpired"
-              :initial-value="model.body || ''"
-              :is-in-modal="true"
-              label="Note Details"
-              :on-value-update="useNoteStore().setBody"
-              :show-advising-note-best-practices="true"
-            />
-          </div>
+          <RichTextEditor
+            id="note-details"
+            :disabled="isSaving || boaSessionExpired"
+            :initial-value="model.body || ''"
+            :is-in-modal="true"
+            label="Note Details"
+            :on-value-update="useNoteStore().setBody"
+            :show-advising-note-best-practices="true"
+          />
         </div>
         <div class="py-3">
           <AdvisingNoteTopics />
@@ -196,8 +196,7 @@ watch(dialogModel, () => {
     init().then(note => {
       const onFinish = () => {
         noteStore.setMode(props.initialMode)
-        alertScreenReader(mode.value === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
-        putFocusNextTick(props.sid ? 'create-note-subject' : 'modal-header-note')
+        putFocusNextTick(noteStore.mode === 'editTemplate' ? 'create-note-subject' : 'my-templates-button')
         useContextStore().setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
       }
       noteStore.setModel(note)
@@ -402,6 +401,7 @@ const updateTemplate = () => {
 }
 
 onBeforeUnmount(() => {
+  noteStore.setIsCreateNoteModalOpen(false)
   noteStore.setMode(null)
   document.documentElement.classList.remove('modal-open')
   useContextStore().removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)

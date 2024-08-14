@@ -1,6 +1,7 @@
 <template>
   <v-dialog
     v-model="dialogModel"
+    aria-labelledby="modal-header"
     persistent
     width="100%"
   >
@@ -127,7 +128,7 @@ const createTemplate = () => {
 
 const onToggle = isOpen => {
   if (isOpen) {
-    putFocusNextTick('modal-header')
+    putFocusNextTick('template-title-input')
   } else {
     reset()
     props.onHidden()
