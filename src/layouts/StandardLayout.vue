@@ -1,6 +1,6 @@
 <template>
   <v-fade-transition>
-    <div class="vh-100">
+    <div class="d-flex flex-column vh-100">
       <a id="skip-to-content-link" href="#content" class="sr-only">Skip to main content</a>
       <v-layout>
         <v-app-bar
@@ -57,17 +57,14 @@
             }"
             :toggle-show="show => isCreateNoteModalOpen = show"
           />
-          <v-footer
-            v-if="!loading && !hideFooter"
-            absolute
-            class="align-end w-100"
-            color="transparent"
-            location="bottom"
-          >
-            <AppFooter />
-          </v-footer>
         </v-main>
       </v-layout>
+      <footer
+        class="pr-8"
+        :class="`footer-${$vuetify.display.smAndDown ? 'sm' : ($vuetify.display.mdAndDown ? 'md' : ($vuetify.display.lgAndDown ? 'lg' : 'xl'))}`"
+      >
+        <AppFooter v-if="!loading && !hideFooter" />
+      </footer>
     </div>
   </v-fade-transition>
 </template>
@@ -99,6 +96,22 @@ contextStore.setEventHandler('hide-footer', value => hideFooter.value = value)
 </script>
 
 <style scoped>
+.footer-sm {
+  margin-left: auto;
+  width: 100%;
+}
+.footer-md {
+  margin-left: auto;
+  width: 74%;
+}
+.footer-lg {
+  margin-left: auto;
+  width: 80%;
+}
+.footer-xl {
+  margin-left: auto;
+  width: 83%;
+}
 .loading-container {
   height: calc(100vh - 64px);
 }
