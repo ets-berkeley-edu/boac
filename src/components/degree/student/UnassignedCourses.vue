@@ -10,37 +10,25 @@
       >
         <thead class="border-bottom">
           <tr class="text-no-wrap">
-            <th
-              v-if="currentUser.canEditDegreeProgress"
-              style="{max-width: 28px !important; width: 28px !important;}"
-            >
+            <th v-if="currentUser.canEditDegreeProgress" class="th-assign">
               <span class="sr-only">Options to assign course</span>
             </th>
-            <th style="{max-width: 100px !important; width: 100px !important;}">
+            <th class="th-course">
               Course
             </th>
-            <th
-              class="pr-1 text-right"
-              style="{max-width: 40px !important; width: 40px !important;}"
-            >
+            <th class="pr-1 text-right th-units">
               Units
             </th>
-            <th style="{max-width: 46px !important; width: 46px !important;}">
+            <th class="th-grade">
               Grade
             </th>
-            <th
-              v-if="!ignored"
-              style="{max-width: 44px !important; width: 44px !important;}"
-            >
+            <th v-if="!ignored" class="th-term">
               Term
             </th>
             <th class="pl-0">
               Note
             </th>
-            <th
-              v-if="currentUser.canEditDegreeProgress"
-              style="{max-width: 28px !important; width: 28px !important;}"
-            />
+            <th v-if="currentUser.canEditDegreeProgress" class="th-actions" />
           </tr>
         </thead>
         <tbody>
@@ -74,8 +62,9 @@
                 </div>
               </td>
               <td class="td-name">
-                <div class="align-center d-flex pt-1">
+                <div class="align-start d-flex pt-1">
                   <div
+                    class="text-no-wrap"
                     :class="{
                       'font-weight-500': isEditing(course),
                       'pr-2': course.isCopy
@@ -116,23 +105,19 @@
                   class="boac-exclamation ml-1"
                 />
               </td>
-              <td v-if="!ignored" class="td-term">
-                <span class="font-size-14">{{ course.termName }}</span>
+              <td v-if="!ignored" class="font-size-14 td-term">
+                {{ course.termName }}
               </td>
-              <td class="td-note">
-                <div
+              <td :class="{'pl-2 td-note': course.note, 'pl-3 vertical-top': !course.note}">
+                <a
                   v-if="course.note && !isNoteVisible(course) && !degreeStore.isUserDragging(course.id)"
-                  class="d-flex justify-content-start pl-1"
-                >
-                  <a
-                    :id="`course-${course.id}-note`"
-                    class="truncate-with-ellipsis"
-                    href
-                    @click.prevent="showNote(course)"
-                    v-html="course.note"
-                  />
-                </div>
-                <div v-if="!course.note" :id="`course-${course.id}-note`" class="pl-2">&mdash;</div>
+                  :id="`course-${course.id}-note`"
+                  class="truncate-with-ellipsis"
+                  href
+                  @click.prevent="showNote(course)"
+                  v-html="course.note"
+                />
+                <div v-if="!course.note" :id="`course-${course.id}-note`">&mdash;</div>
               </td>
               <td
                 v-if="currentUser.canEditDegreeProgress"
@@ -173,7 +158,7 @@
               </td>
             </tr>
             <tr v-if="isEditing(course)" :key="`tr-${index}-edit`">
-              <td class="pl-4 py-2" colspan="7">
+              <td class="pb-3 pl-4 pt-1" colspan="7">
                 <EditCourse
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
@@ -317,9 +302,7 @@ const hideNote = (course, srAlert=true) => {
   }
 }
 
-const isEditing = course => {
-  return course.sectionId === get(courseForEdit.value, 'sectionId')
-}
+const isEditing = course => course.id === get(courseForEdit.value, 'id')
 
 const isNoteVisible = course => {
   return includes(notesVisible.value, course.id)
@@ -410,29 +393,50 @@ table {
   vertical-align: top;
 }
 .td-grade {
-  padding: 0 0.5em 0 0.4em;
   vertical-align: top;
 }
 .td-name {
   font-size: 14px;
-  line-height: 95%;
-  padding: 0.2em 0 0 0.25em;
   vertical-align: top;
 }
 .td-note {
   max-width: 100px;
-  padding: 0 0.5em 0 0;
+  padding-top: 1px;
   vertical-align: top;
 }
 .td-term {
-  line-height: 1.2em;
+  padding-top: 2px;
   vertical-align: top;
 }
 .td-units {
+  padding-right: 5px;
   text-align: right;
-  padding-right: 0.5em;
   vertical-align: top;
   white-space: nowrap;
+}
+.th-actions {
+  max-width: 28px !important;
+  width: 28px !important;
+}
+.th-assign {
+  max-width: 28px !important;
+  width: 28px !important;
+}
+.th-course {
+  max-width: 100px !important;
+  width: 100px !important;
+}
+.th-grade {
+  max-width: 46px !important;
+  width: 46px !important;
+}
+.th-term {
+  max-width: 84px !important;
+  width: 84px !important;
+}
+.th-units {
+  max-width: 40px !important;
+  width: 40px !important;
 }
 .tr-course {
   height: 42px;
