@@ -211,6 +211,7 @@ const save = () => {
       trim(note.value),
       props.parentCategory.id,
       degreeStore.sid,
+      null,
       units.value
     ).then(course => {
       refreshDegreeTemplate(degreeStore.templateId).then(() => {
