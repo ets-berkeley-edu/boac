@@ -12,7 +12,7 @@
         v-model="templateName"
         aria-labelledby="create-degree-label"
         autocomplete="off"
-        class="mt-2 w-50"
+        class="mt-2 w-75"
         :disabled="isBusy"
         hide-details
         maxlength="255"

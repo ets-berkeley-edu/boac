@@ -21,9 +21,10 @@
         <v-btn
           id="dismiss-alert"
           aria-label="Dismiss alert"
+          class="bg-transparent text-primary"
           density="comfortable"
           flat
-          :icon="mdiClose"
+          :icon="mdiCloseThick"
           size="small"
           title="Dismiss"
           @click="degreeStore.dismissAlert(templateId)"
@@ -242,7 +243,7 @@
 import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
 import {DateTime} from 'luxon'
 import {getCalnetProfileByUserId} from '@/api/user'
-import {mdiClose, mdiOpenInNew, mdiPrinter} from '@mdi/js'
+import {mdiCloseThick, mdiOpenInNew, mdiPrinter} from '@mdi/js'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {updateDegreeNote} from '@/api/degree'
 import {computed, onMounted, ref, watch} from 'vue'

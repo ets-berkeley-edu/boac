@@ -48,19 +48,21 @@
         <v-data-table
           id="degree-checks-table"
           :cell-props="data => {
+            const column = data.column.key
             const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
-            const padding = data.column.key === 'name' ? 'pl-4' : 'pl-0'
+            const padding = column === 'name' ? 'pl-4 py-2' : 'pl-0'
+            const wrap = column === 'name' ? 'overflow-wrap-break-word' : ''
             return {
-              id: `td-degree-check-${data.item.id}-column-${data.column.key}`,
-              class: `${bgColor} font-size-16 ${padding}`
+              id: `td-degree-check-${data.item.id}-column-${column}`,
+              class: `${bgColor} font-size-16 ${padding} ${wrap}`
             }
           }"
           density="comfortable"
           disable-sort
           :headers="[
-            {key: 'name', headerProps: {class: 'pl-3 manage-degree-checks-column-header'}, width: '50%'},
-            {key: 'createdAt', headerProps: {class: 'manage-degree-checks-column-header'}},
-            {key: 'actions', headerProps: {class: 'manage-degree-checks-column-header'}, width: '40%'}
+            {key: 'name', headerProps: {class: 'pl-3 manage-degree-checks-column-header'}, width: '60%'},
+            {key: 'createdAt', headerProps: {class: 'manage-degree-checks-column-header w-15'}, width: '10%'},
+            {key: 'actions', headerProps: {class: 'manage-degree-checks-column-header'}}
           ]"
           :header-props="{class: 'pl-0 text-no-wrap'}"
           hide-default-footer
@@ -348,6 +350,11 @@ const showDeleteModal = template => {
 </script>
 
 <style>
+#degree-checks-table table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
 .manage-degree-checks-column-header {
   color: #666;
   font-weight: 700 !important;
