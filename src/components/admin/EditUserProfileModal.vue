@@ -188,8 +188,9 @@
               id="department-select-list"
               v-model="deptCode"
               class="select-menu w-100"
+              @change="addDepartment"
             >
-              <option id="department-null" :value="undefined" @select="addDepartment">
+              <option id="department-null" :value="undefined">
                 Select...
               </option>
               <option
@@ -198,7 +199,6 @@
                 :key="option.value"
                 :disabled="memberships.findIndex(d => d.code === option.value) >= 0"
                 :value="option.value"
-                @select="addDepartment"
               >
                 {{ option.text }}
               </option>
