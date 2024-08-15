@@ -42,7 +42,7 @@
                 'accent-color-orange': course.accentColor === 'Orange',
                 'accent-color-purple': course.accentColor === 'Purple',
                 'accent-color-red': course.accentColor === 'Red',
-                'border-left border-right border-top': isNoteVisible(course),
+                'border-e-md border-s-md border-t-md': isNoteVisible(course),
                 'cursor-grab': canDrag() && !degreeStore.draggingContext.course,
                 'mouseover-grabbable': hoverCourseId === course.id && !degreeStore.draggingContext.course,
                 'tr-while-dragging': degreeStore.isUserDragging(course.id)
@@ -56,7 +56,7 @@
               @mouseenter="onMouse('enter', course)"
               @mouseleave="onMouse('leave', course)"
             >
-              <td v-if="currentUser.canEditDegreeProgress" class="pl-0 td-course-assignment-menu" style="{width: 28px !important;}">
+              <td v-if="currentUser.canEditDegreeProgress" class="td-assign">
                 <div v-if="!degreeStore.isUserDragging(course.id)" class="mx-1">
                   <CourseAssignmentMenu :after-course-assignment="() => putFocusNextTick(`${key}-header`)" :course="course" />
                 </div>
@@ -130,7 +130,7 @@
                       :id="`delete-${course.id}-btn`"
                       :aria-label="`Delete ${course.name}`"
                       class="pl-0 pr-1 py-0"
-                      color="transparent"
+                      :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
                       density="compact"
                       :disabled="degreeStore.disableButtons"
                       flat
@@ -145,7 +145,7 @@
                       :id="`edit-${key}-course-${course.id}-btn`"
                       :aria-label="`Edit ${course.name}`"
                       class="pl-0 pr-1 py-0"
-                      color="transparent"
+                      :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
                       density="compact"
                       :disabled="degreeStore.disableButtons"
                       flat
@@ -170,10 +170,10 @@
             <tr
               v-if="isNoteVisible(course)"
               :key="`tr-${index}-note`"
-              class="border-bottom border-left border-right"
+              class="border-b-md border-e-md border-s-md"
             >
               <td colspan="5" class="px-4">
-                <span
+                <div
                   :id="`${course.id}-note`"
                   aria-live="polite"
                   class="font-size-14"
@@ -181,17 +181,17 @@
                 >
                   <span class="sr-only">Note: </span>
                   {{ course.note }}
-                </span>
-                <span class="font-size-12 ml-1 text-no-wrap">
+                </div>
+                <div class="font-size-12 pb-2 text-no-wrap">
                   [<v-btn
                     :id="`course-${course.id}-hide-note-btn`"
-                    class="px-0 py-1"
+                    class="px-0 py-1 text-primary"
                     size="sm"
                     text="Hide note"
                     variant="text"
                     @click="hideNote(course)"
                   />]
-                </span>
+                </div>
               </td>
             </tr>
           </template>
@@ -362,7 +362,7 @@ const showNote = course => {
 
 <style scoped>
 table {
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0 0.05em;
 }
 .changed-units-icon {
@@ -384,13 +384,13 @@ table {
 .table-layout {
   table-layout: fixed;
 }
-.td-course-assignment-menu {
-  font-size: 14px;
-  padding: 0 0 0 10px;
-  vertical-align: top;
-}
 .td-action-buttons {
   vertical-align: top;
+}
+.td-assign {
+  font-size: 14px;
+  vertical-align: top;
+  width: 28px !important;
 }
 .td-grade {
   vertical-align: top;

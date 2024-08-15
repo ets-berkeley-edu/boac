@@ -14,10 +14,10 @@
           'accent-color-orange': course.accentColor === 'Orange',
           'accent-color-purple': course.accentColor === 'Purple',
           'accent-color-red': course.accentColor === 'Red',
+          'bg-transparent text-primary': !degreeStore.disableButtons,
           'text-grey': !course.accentColor,
           'text-white': degreeStore.isUserDragging(course.id)
         }"
-        color="transparent"
         density="compact"
         flat
         :icon="mdiDrag"
