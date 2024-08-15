@@ -57,12 +57,14 @@
                     v-model="userProfile.isAdmin"
                     density="compact"
                     label="Admin"
+                    color="primary"
                     hide-details="true"
                   />
                   <v-checkbox
                     id="is-blocked"
                     v-model="userProfile.isBlocked"
                     density="compact"
+                    color="primary"
                     label="Blocked"
                     hide-details="true"
                   />
@@ -71,6 +73,7 @@
                     id="is-deleted"
                     v-model="isDeleted"
                     density="compact"
+                    color="primary"
                     label="Deleted"
                     hide-details="true"
                   />
@@ -80,6 +83,7 @@
                     id="can-access-canvas-data"
                     v-model="userProfile.canAccessCanvasData"
                     density="compact"
+                    color="primary"
                     label="Canvas Data"
                     hide-details="true"
                   />
@@ -87,6 +91,7 @@
                     id="can-access-advising-data"
                     v-model="userProfile.canAccessAdvisingData"
                     density="compact"
+                    color="primary"
                     label="Notes and Appointments"
                     hide-details="true"
                   />
@@ -120,6 +125,7 @@
                   id="automate-degree-progress-permission"
                   v-model="userProfile.automateDegreeProgressPermission"
                   density="compact"
+                  color="primary"
                   label="Automate Degree Progress permissions"
                   hide-details="true"
                 />
@@ -174,6 +180,7 @@
                   :id="`is-automate-membership-${dept.code}`"
                   v-model="dept.automateMembership"
                   density="compact"
+                  color="primary"
                   label="Automated"
                   hide-details
                 />
@@ -317,9 +324,9 @@ export default {
     },
     closeModal() {
       this.showEditUserModal = false
-      this.error = {}
-      this.userProfile = {}
-      this.memberships = {}
+      this.error = undefined
+      this.userProfile = undefined
+      this.memberships = undefined
     },
     openEditUserModal() {
       this.userProfile = {
