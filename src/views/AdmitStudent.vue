@@ -33,100 +33,101 @@
       <v-container class="px-2" fluid>
         <v-row>
           <v-col>
-            <hr />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
             <v-row>
-              <v-col>
-                <caption class="sr-only">Academic Details</caption>
-                <v-row>
-                  <v-col class="table-cell">
-                    <h2>Academic Details</h2>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">ApplyUC CPID</v-col>
-                  <v-col id="admit-apply-uc-cpid" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.applyucCpid }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">CS Empl ID</v-col>
-                  <v-col id="admit-sid" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.sid }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Birthdate</v-col>
-                  <v-col id="admit-birthdate" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ birthDate }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Freshman or Transfer</v-col>
-                  <v-col id="admit.freshman-or-transfer" class="table-cell font-italic">{{ admit.freshmanOrTransfer }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Admit Status</v-col>
-                  <v-col id="admit-admit-status" class="table-cell font-italic">{{ admit.admitStatus }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Current SIR</v-col>
-                  <v-col id="admit-current-sir" class="table-cell font-italic">{{ admit.currentSir }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">College</v-col>
-                  <v-col id="admit-college" class="table-cell font-italic">{{ admit.college }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Admit Term</v-col>
-                  <v-col id="admit-admit-term" class="table-cell font-italic">{{ admit.admitTerm }}</v-col>
-                </v-row>
+              <v-col class="pl-0 py-0">
+                <hr />
               </v-col>
-              <v-col>
-                <caption class="sr-only">Eligibility Details</caption>
-                <v-row>
-                  <v-col class="table-cell">
-                    <h2>Eligibility Details</h2>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Application Fee Waiver Flag</v-col>
-                  <v-col id="admit-application-fee-waiver-flag" class="table-cell font-italic">{{ admit.applicationFeeWaiverFlag }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Family Income</v-col>
-                  <v-col id="admit-family-income" class="table-cell font-italic">{{ admit.familyIncome ? `$${toInt(admit.familyIncome).toLocaleString()}` : '' }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Student Income</v-col>
-                  <v-col id="admit-student-income" class="table-cell font-italic">{{ admit.studentIncome ? `$${toInt(admit.studentIncome).toLocaleString()}` : '' }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">First Generation College</v-col>
-                  <v-col id="admit-first-generation-college" class="table-cell font-italic">{{ admit.firstGenerationCollege }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Parent 1 Education Level</v-col>
-                  <v-col id="admit-parent-1-education-level" class="table-cell font-italic">{{ admit.parent1EducationLevel }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Parent 2 Education Level</v-col>
-                  <v-col id="admit-parent-2-education-level" class="table-cell font-italic">{{ admit.parent2EducationLevel }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col class="table-cell">Highest Parent Education Level</v-col>
-                  <v-col id="admit-highest-parent-education-level" class="table-cell font-italic">{{ admit.highestParentEducationLevel }}</v-col>
-                </v-row>
+            </v-row>
+            <caption class="sr-only">Academic Details</caption>
+            <v-row>
+              <v-col class="table-cell">
+                <h2>Academic Details</h2>
               </v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">ApplyUC CPID</v-col>
+              <v-col id="admit-apply-uc-cpid" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.applyucCpid }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">CS Empl ID</v-col>
+              <v-col id="admit-sid" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.sid }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Birthdate</v-col>
+              <v-col id="admit-birthdate" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ birthDate }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Freshman or Transfer</v-col>
+              <v-col id="admit.freshman-or-transfer" class="table-cell font-italic">{{ admit.freshmanOrTransfer }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Admit Status</v-col>
+              <v-col id="admit-admit-status" class="table-cell font-italic">{{ admit.admitStatus }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Current SIR</v-col>
+              <v-col id="admit-current-sir" class="table-cell font-italic">{{ admit.currentSir }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">College</v-col>
+              <v-col id="admit-college" class="table-cell font-italic">{{ admit.college }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Admit Term</v-col>
+              <v-col id="admit-admit-term" class="table-cell font-italic">{{ admit.admitTerm }}</v-col>
+            </v-row>
+          </v-col>
+          <v-col>
+            <caption class="sr-only">Eligibility Details</caption>
+            <v-row>
+              <v-col class="pl-0 py-0">
+                <hr />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">
+                <h2>Eligibility Details</h2>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Application Fee Waiver Flag</v-col>
+              <v-col id="admit-application-fee-waiver-flag" class="table-cell font-italic">{{ admit.applicationFeeWaiverFlag }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Family Income</v-col>
+              <v-col id="admit-family-income" class="table-cell font-italic">{{ admit.familyIncome ? `$${toInt(admit.familyIncome).toLocaleString()}` : '' }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Student Income</v-col>
+              <v-col id="admit-student-income" class="table-cell font-italic">{{ admit.studentIncome ? `$${toInt(admit.studentIncome).toLocaleString()}` : '' }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">First Generation College</v-col>
+              <v-col id="admit-first-generation-college" class="table-cell font-italic">{{ admit.firstGenerationCollege }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Parent 1 Education Level</v-col>
+              <v-col id="admit-parent-1-education-level" class="table-cell font-italic">{{ admit.parent1EducationLevel }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Parent 2 Education Level</v-col>
+              <v-col id="admit-parent-2-education-level" class="table-cell font-italic">{{ admit.parent2EducationLevel }}</v-col>
+            </v-row>
+            <v-row>
+              <v-col class="table-cell">Highest Parent Education Level</v-col>
+              <v-col id="admit-highest-parent-education-level" class="table-cell font-italic">{{ admit.highestParentEducationLevel }}</v-col>
             </v-row>
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <hr />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
             <v-row>
               <v-col>
+                <v-row>
+                  <v-col class="pl-0 py-0">
+                    <hr />
+                  </v-col>
+                </v-row>
                 <caption class="sr-only">Demographic Information</caption>
                 <v-row>
                   <v-col class="table-cell">
@@ -175,6 +176,11 @@
                 </v-row>
               </v-col>
               <v-col>
+                <v-row>
+                  <v-col class="pl-0 py-0">
+                    <hr />
+                  </v-col>
+                </v-row>
                 <caption class="sr-only">Family and Status Information</caption>
                 <v-row>
                   <v-col class="table-cell">
@@ -235,13 +241,13 @@
         </v-row>
         <v-row>
           <v-col>
-            <hr />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
             <v-row>
               <v-col>
+                <v-row>
+                  <v-col class="pl-0 py-0">
+                    <hr />
+                  </v-col>
+                </v-row>
                 <caption class="sr-only">Contact Information</caption>
                 <v-row>
                   <v-col class="table-cell font-weight-bold">
@@ -275,6 +281,11 @@
                 </v-row>
               </v-col>
               <v-col>
+                <v-row>
+                  <v-col class="pl-0 py-0">
+                    <hr />
+                  </v-col>
+                </v-row>
                 <caption class="sr-only">GPA</caption>
                 <v-row>
                   <v-col class="table-cell font-weight-bold">
@@ -293,13 +304,13 @@
                   <v-col id="admit-gpa-transfer-th" class="table-cell">Transfer GPA</v-col>
                   <v-col id="admit-gpa-transfer" class="table-cell font-italic" headers="admit-gpa admit-gpa-transfer-th">{{ admit.transferGpa }}</v-col>
                 </v-row>
+                <v-row>
+                  <v-col class="pl-0 py-0">
+                    <hr />
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <hr />
           </v-col>
         </v-row>
       </v-container>

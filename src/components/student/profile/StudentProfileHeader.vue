@@ -15,7 +15,7 @@
         :student="student"
       />
     </div>
-    <div class="ml-3 mr-12">
+    <div class="ml-3 mr-12" :class="{'pl-6 pt-3': $vuetify.display.mdAndDown}">
       <StudentProfileHeaderAcademics
         :discontinued-subplans="discontinuedSubplans"
         :plans-minor-partitioned-by-status="plansMinorPartitionedByStatus"

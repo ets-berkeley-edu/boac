@@ -5,10 +5,11 @@ import {useCuratedGroupStore} from '@/stores/curated-group/index'
 
 export function goToCuratedGroup(curatedGroupId: number, pageNumber: number) {
   return new Promise(resolve => {
-    useCuratedGroupStore().setPageNumber(pageNumber)
+    const groupStore = useCuratedGroupStore()
+    groupStore.setPageNumber(pageNumber)
     const user = useContextStore().currentUser
-    const domain = useCuratedGroupStore().domain
-    const itemsPerPage = useCuratedGroupStore().itemsPerPage
+    const domain = groupStore.domain
+    const itemsPerPage = groupStore.itemsPerPage
     const offset: number = multiply(pageNumber - 1, itemsPerPage)
     const orderBy: string = get(user.preferences, domain === 'admitted_students' ? 'admitSortBy' : 'sortBy', 'sortBy')
     getCuratedGroup(
@@ -19,12 +20,12 @@ export function goToCuratedGroup(curatedGroupId: number, pageNumber: number) {
       user.preferences.termId
     ).then(group => {
       if (group) {
-        useCuratedGroupStore().setCuratedGroupName(group.name)
-        useCuratedGroupStore().setDomain(group.domain)
-        useCuratedGroupStore().setOwnerId(group.ownerId)
-        useCuratedGroupStore().setReferencingCohortIds(group.referencingCohortIds)
-        useCuratedGroupStore().setStudents(group.students)
-        useCuratedGroupStore().setTotalStudentCount(group.totalStudentCount)
+        groupStore.setCuratedGroupName(group.name)
+        groupStore.setDomain(group.domain)
+        groupStore.setOwnerId(group.ownerId)
+        groupStore.setReferencingCohortIds(group.referencingCohortIds)
+        groupStore.setStudents(group.students)
+        groupStore.setTotalStudentCount(group.totalStudentCount)
       }
       resolve(group)
     })

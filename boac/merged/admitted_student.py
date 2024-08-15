@@ -32,6 +32,8 @@ from dateutil.tz import tzutc
 
 """Provide merged admit data from external sources."""
 
+ORDER_BY_OPTIONS_FOR_ADMITTED_STUDENTS = ['cs_empl_id', 'first_name', 'last_name']
+
 
 def get_admitted_student_by_sid(sid):
     admit = data_loch.get_admitted_student_by_sid(sid)
@@ -47,7 +49,7 @@ def get_admitted_students_by_sids(
     admits = data_loch.get_admitted_students_by_sids(
         limit=limit,
         offset=offset,
-        order_by=order_by,
+        order_by=_ensure_valid_order_by(order_by),
         sids=sids,
     )
     return [_to_api_json(admit) for admit in admits]
@@ -58,6 +60,7 @@ def search_for_admitted_students(
     order_by='last_name',
 ):
     benchmark = get_benchmarker('search_for_admitted_students')
+    order_by = _ensure_valid_order_by(order_by)
     query_tables, query_filter, query_bindings = data_loch.get_admitted_students_query(
         search_phrase=search_phrase,
     )
@@ -137,7 +140,7 @@ def query_admitted_students(
         'sids': [row['sid'] for row in sids_result],
         'totalStudentCount': len(sids_result),
     }
-    order_by = order_by or 'last_name'
+    order_by = _ensure_valid_order_by(order_by)
     if not sids_only:
         sql = f"""SELECT DISTINCT(sa.cs_empl_id),
         sa.first_name,
@@ -162,6 +165,10 @@ def query_admitted_students(
         admits = data_loch.safe_execute_rds(sql, **query_bindings)
         summary['students'] = [_to_api_json(row) for row in admits] if admits else None
     return summary
+
+
+def _ensure_valid_order_by(order_by):
+    return order_by if order_by in ORDER_BY_OPTIONS_FOR_ADMITTED_STUDENTS else 'last_name'
 
 
 def _isoformat(value):

@@ -48,14 +48,16 @@ const optGroups = {
   Profile: [
     {label: 'First Name', value: 'first_name'},
     {label: 'Last Name', value: 'last_name'}
-  ],
-  Terms: [],
-  GPA: [],
-  Units: []
+  ]
 }
 if (props.domain === 'admitted_students') {
   optGroups.Profile.push({label: 'CS ID', value: 'cs_empl_id'})
 } else {
+  Object.assign(optGroups, {
+    Terms: [],
+    GPA: [],
+    Units: []
+  })
   const previousTermId = previousSisTermId(contextStore.config.currentEnrollmentTermId)
   const previousPreviousTermId = previousSisTermId(previousTermId)
   optGroups.Profile.push({label: 'Level', value: 'level'})
