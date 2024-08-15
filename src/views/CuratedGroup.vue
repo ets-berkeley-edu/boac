@@ -92,7 +92,7 @@ import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
 import {addStudentsToCuratedGroup, removeFromCuratedGroup} from '@/api/curated'
-import {alertScreenReader, scrollTo, toInt} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, scrollTo, toInt} from '@/lib/utils'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
 import {get} from 'lodash'
 import {goToCuratedGroup} from '@/stores/curated-group/utils'
@@ -142,7 +142,7 @@ export default {
       if (group) {
         this.loadingComplete(this.getLoadedAlert())
         this.setPageTitle(this.curatedGroupName)
-        this.putFocusNextTick('curated-group-name')
+        putFocusNextTick('curated-group-name')
       } else {
         this.$router.push({path: '/404'})
       }
@@ -178,13 +178,13 @@ export default {
           goToCuratedGroup(this.curatedGroupId, 1).then(() => {
             useCuratedGroupStore().resetMode()
             this.isAddingStudents = false
-            this.putFocusNextTick('curated-group-name')
+            putFocusNextTick('curated-group-name')
           })
         })
       } else {
         useCuratedGroupStore().resetMode()
         alertScreenReader('Canceled bulk add of students')
-        this.putFocusNextTick('curated-group-name')
+        putFocusNextTick('curated-group-name')
       }
     },
     getLoadedAlert() {
