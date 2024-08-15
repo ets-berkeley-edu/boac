@@ -44,6 +44,6 @@ watch(manuallySetDate, noteStore.setSetDate)
 <style scoped>
 .date-input-container {
   margin-top: 8px;
-  max-width: 140px;
+  max-width: 160px;
 }
 </style>
