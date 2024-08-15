@@ -21,7 +21,6 @@
         <v-btn
           id="dismiss-alert"
           aria-label="Dismiss alert"
-          color="transparent"
           density="comfortable"
           flat
           :icon="mdiClose"

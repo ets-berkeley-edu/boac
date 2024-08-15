@@ -7,14 +7,14 @@
       >
         <thead class="border-b-md">
           <tr class="sortable-table-header text-no-wrap">
-            <th v-if="hasAssignedCourses && canEdit" class="px-0 th-course-assignment-menu">
+            <th v-if="hasAssignedCourses && canEdit" class="px-0 th-assign">
               <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
               <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
             </th>
-            <th v-if="!isCampusRequirements" :class="{'font-size-12': printable}">Course</th>
+            <th v-if="!isCampusRequirements" class="th-course" :class="{'font-size-12': printable}">Course</th>
             <th v-if="isCampusRequirements" :class="{'font-size-12': printable}">Requirement</th>
-            <th v-if="!isCampusRequirements && items.length" class="pr-2 text-right" :class="{'font-size-12': printable}">Units</th>
-            <th v-if="degreeStore.sid && !isCampusRequirements" :class="{'font-size-12': printable}">Grade</th>
+            <th v-if="!isCampusRequirements && items.length" class="pr-1 text-right th-units" :class="{'font-size-12': printable}">Units</th>
+            <th v-if="degreeStore.sid && !isCampusRequirements" class="th-grade" :class="{'font-size-12': printable}">Grade</th>
             <th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center" :class="{'font-size-12': printable}">Satisfied</th>
             <th
               v-if="degreeStore.sid"
@@ -40,7 +40,7 @@
                 'accent-color-orange': getAccentColor(bundle) === 'Orange',
                 'accent-color-purple': getAccentColor(bundle) === 'Purple',
                 'accent-color-red': getAccentColor(bundle) === 'Red',
-                'border-left border-right border-top': isNoteVisible(bundle),
+                'border-e-md border-s-md border-t-md': isNoteVisible(bundle),
                 'cursor-grab': isDraggable(bundle),
                 'drop-zone-on': isDroppable(bundle.category),
                 'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !degreeStore.draggingContext.course,
@@ -56,10 +56,7 @@
               @mouseenter="onMouse('enter', bundle)"
               @mouseleave="onMouse('leave', bundle)"
             >
-              <td
-                v-if="hasAssignedCourses && canEdit && !isCampusRequirements"
-                class="pt-1 pl-0 td-course-assignment-menu"
-              >
+              <td v-if="hasAssignedCourses && canEdit && !isCampusRequirements" class="td-assign">
                 <div
                   v-if="bundle.course && canEdit && !degreeStore.isUserDragging(bundle.course.id)"
                   :id="`assign-course-${bundle.course.id}-menu-container`"
@@ -72,11 +69,11 @@
                 </div>
               </td>
               <td
-                class="font-size-14 pl-0"
+                class="pl-0"
                 :class="{
                   'text-grey font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
-                  'font-size-12 td-name-printable': printable,
-                  'font-size-14 td-name': !printable
+                  'td-name-printable': printable,
+                  'td-name': !printable
                 }"
               >
                 <div class="align-center d-flex pt-1">
@@ -96,10 +93,7 @@
                       'pr-2': get(bundle.course, 'isCopy')
                     }"
                   >
-                    <span
-                      class="pl-1"
-                      :class="{'text-strikethrough': get(bundle.category, 'isIgnored')}"
-                    >
+                    <span class="pl-1" :class="{'text-strikethrough': get(bundle.category, 'isIgnored')}">
                       <!-- Spaces surrounding 'name' make life easier for QA. Do not trim. -->
                       {{ bundle.name }}
                     </span>
@@ -116,9 +110,7 @@
               <td
                 v-if="!isCampusRequirements"
                 class="td-units"
-                :class="{
-                  'text-grey font-italic': !bundle.course && !getAccentColor(bundle)
-                }"
+                :class="{'text-grey font-italic': !bundle.course && !getAccentColor(bundle)}"
               >
                 <v-icon
                   v-if="isCourseFulfillmentsEdited(bundle)"
@@ -176,15 +168,12 @@
                   class="font-size-12"
                   v-html="getNote(bundle)"
                 />
-                <div
-                  v-if="!printable && getNote(bundle) && !isNoteVisible(bundle)"
-                  class="d-flex font-size-14 justify-content-start"
-                >
+                <div v-if="!printable && getNote(bundle) && !isNoteVisible(bundle)" class="font-size-14 td-note">
                   <a
                     :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
                     class="truncate-with-ellipsis"
-                    href="#"
-                    @click="showNote(bundle)"
+                    href
+                    @click.prevent="showNote(bundle)"
                     v-html="getNote(bundle)"
                   />
                 </div>
@@ -223,7 +212,7 @@
                       v-if="!degreeStore.isUserDragging(get(bundle.course, 'id'))"
                       :id="`column-${position}-edit-${bundle.key}-btn`"
                       :aria-label="`Edit ${bundle.name}`"
-                      color="transparent"
+                      :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
                       density="compact"
                       :disabled="degreeStore.disableButtons"
                       flat
@@ -237,7 +226,7 @@
                       v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && !degreeStore.isUserDragging(get(bundle.course, 'id'))"
                       :id="`column-${position}-delete-${bundle.key}-btn`"
                       :aria-label="`Delete ${bundle.name}`"
-                      color="transparent"
+                      :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
                       density="compact"
                       :disabled="degreeStore.disableButtons"
                       flat
@@ -250,7 +239,7 @@
               </td>
             </tr>
             <tr v-if="isEditing(bundle)" :key="`tr-${index}-edit`">
-              <td class="pa-0" colspan="6">
+              <td class="pb-3 pl-4 pt-1" colspan="6">
                 <EditCourse
                   v-if="bundle.course"
                   :after-cancel="afterCancel"
@@ -277,10 +266,10 @@
             <tr
               v-if="isNoteVisible(bundle)"
               :key="`tr-${index}-note`"
-              class="border-bottom border-left border-right"
+              class="border-b-md border-e-md border-s-md"
             >
-              <td colspan="5" class="px-2">
-                <span
+              <td colspan="5" class="pl-8 py-2">
+                <div
                   :id="bundle.course ? `course-${bundle.course.id}-note` : `category-${bundle.category.id}-note`"
                   aria-live="polite"
                   class="font-size-14"
@@ -288,17 +277,17 @@
                 >
                   <span class="sr-only">Note: </span>
                   {{ getNote(bundle) }}
-                </span>
-                <span class="font-size-12 ml-1 text-no-wrap">
+                </div>
+                <div class="font-size-12 text-no-wrap">
                   [<v-btn
                     :id="`column-${position}-${bundle.key}-hide-note-btn`"
-                    class="px-0 py-1"
+                    class="px-0 py-1 text-primary"
                     size="small"
                     text="Hide note"
                     variant="text"
                     @click="hideNote(bundle)"
                   />]
-                </span>
+                </div>
               </td>
             </tr>
           </template>
@@ -680,59 +669,67 @@ table {
   border-radius: 0 10px 10px 0;
 }
 .td-actions {
-  padding: 0 4px 0 0;
-  vertical-align: middle;
+  vertical-align: top;
   width: 32px;
 }
-.td-course-assignment-menu {
+.td-assign {
   font-size: 14px;
-  padding: 0 2px 0 5px;
-  vertical-align: middle;
-  width: 14px;
+  vertical-align: top;
+  width: 28px !important;
 }
 .td-grade {
-  padding: 0 0.5em 0 0.4em;
-  vertical-align: middle;
-  width: 36px;
+  text-transform: capitalize;
+  vertical-align: top;
 }
 .td-name {
-  padding: 0.25em 0 0.25em 0.25em;
-  vertical-align: middle;
+  font-size: 14px;
+  vertical-align: top;
 }
 .td-name-printable {
+  font-size: 12px;
   padding: 0.25em 0;
   vertical-align: middle;
   width: 180px !important;
 }
+.td-max-width-0 {
+  max-width: 0;
+}
 .td-note {
   max-width: 100px;
-  padding: 0 0.5em 0 0;
-  vertical-align: middle;
-  width: 1px;
+  padding-top: 1px;
+  vertical-align: top;
 }
 .td-note-printable {
   padding: 0 0.5em 0 0;
   vertical-align: middle;
   width: 100px !important;
 }
-.td-max-width-0 {
-  max-width: 0;
-}
 .td-satisfied {
   width: 50px;
 }
 .td-units {
+  padding: 2px 8px 0 0;
   text-align: right;
-  padding: 0 0.5em 0 0;
-  vertical-align: middle;
+  vertical-align: top;
   white-space: nowrap;
-  width: 50px;
 }
-.th-course-assignment-menu {
-  width: 14px;
+.th-assign {
+  width: 28px !important;
+}
+.th-course {
+  max-width: 100px !important;
+  width: 100px !important;
+}
+.th-grade {
+  max-width: 46px !important;
+  width: 46px !important;
 }
 .th-note {
   width: 100px;
+}
+.th-units {
+  max-width: 40px !important;
+  width: 40px !important;
 }
 .tr-while-dragging td {
   background-color: #125074;
