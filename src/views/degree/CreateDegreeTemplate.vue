@@ -13,6 +13,7 @@
         aria-labelledby="create-degree-label"
         autocomplete="off"
         class="mt-2 w-75"
+        density="comfortable"
         :disabled="isBusy"
         hide-details
         maxlength="255"

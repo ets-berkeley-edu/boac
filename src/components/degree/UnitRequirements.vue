@@ -39,7 +39,7 @@
             </th>
             <th
               id="th-unit-requirements-min-units"
-              class="font-size-12 pr-3 text-uppercase th-height"
+              class="font-size-12 pr-3 text-right text-uppercase th-height"
             >
               {{ degreeStore.sid ? 'Min' : 'Min Units' }}
             </th>
@@ -112,7 +112,7 @@
                 'font-size-16': !printable
               }"
             >
-              <div class="float-end w-100">
+              <div class="w-100">
                 {{ item.minUnits }}
               </div>
             </td>
@@ -134,7 +134,8 @@
                 <v-btn
                   :id="`unit-requirement-${item.id}-edit-btn`"
                   :aria-label="`Edit ${item.name}`"
-                  class="mx-1 text-primary"
+                  class="mx-1"
+                  :class="{'text-primary': !degreeStore.disableButtons}"
                   density="compact"
                   :disabled="degreeStore.disableButtons"
                   flat
@@ -148,7 +149,7 @@
                 <v-btn
                   :id="`unit-requirement-${item.id}-delete-btn`"
                   :aria-label="`Delete ${item.name}`"
-                  class="text-primary"
+                  :class="{'text-primary': !degreeStore.disableButtons}"
                   density="compact"
                   :disabled="degreeStore.disableButtons"
                   flat
