@@ -33,7 +33,8 @@
           <v-btn
             :id="`column-${position}-edit-category-${category.id}-btn`"
             :aria-label="`Edit ${category.name}`"
-            class="mr-1 text-primary"
+            class="mr-1"
+            :class="{'text-primary': !degreeStore.disableButtons}"
             density="compact"
             :disabled="degreeStore.disableButtons"
             flat
@@ -47,7 +48,7 @@
           <v-btn
             :id="`column-${position}-delete-category-${category.id}-btn`"
             :aria-label="`Delete ${category.name}`"
-            class="text-primary"
+            :class="{'text-primary': !degreeStore.disableButtons}"
             density="compact"
             :disabled="degreeStore.disableButtons"
             flat

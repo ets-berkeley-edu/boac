@@ -49,7 +49,7 @@
             max-rows="30"
             rows="8"
             variant="outlined"
-            @keydown.esc="cancel"
+            @keydown.esc="onCancel"
           />
         </div>
         <div class="align-start d-flex mt-3 w-100">
@@ -155,11 +155,10 @@
           id="batch-degree-check-cancel"
           color="primary"
           :disabled="isBusy"
+          text="Cancel"
           variant="text"
-          @click.prevent="cancel"
-        >
-          Cancel
-        </v-btn>
+          @click="onCancel"
+        />
       </div>
     </div>
   </div>
@@ -283,7 +282,7 @@ const addTemplate = template => {
   findStudentsWithDegreeCheck()
 }
 
-const cancel = () => {
+const onCancel = () => {
   alertScreenReader('Canceled. Nothing saved.')
   router.push('/degrees')
 }

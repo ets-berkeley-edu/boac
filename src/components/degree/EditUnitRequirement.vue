@@ -41,7 +41,7 @@
         label="Minimum Units (required)"
         :max="100"
         :on-submit="unitRequirement ? update : create"
-        :set-units-lower="() => minUnits = units"
+        :set-units-lower="units => minUnits = units"
         :units-lower="minUnits"
       />
     </div>
