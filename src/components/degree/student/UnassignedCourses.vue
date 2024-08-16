@@ -61,21 +61,16 @@
                   <CourseAssignmentMenu :after-course-assignment="() => putFocusNextTick(`${key}-header`)" :course="course" />
                 </div>
               </td>
-              <td class="td-name">
-                <div class="align-start d-flex pt-1">
-                  <div
-                    class="text-no-wrap"
-                    :class="{
-                      'font-weight-500': isEditing(course),
-                      'pr-2': course.isCopy
-                    }"
-                  >
-                    {{ course.name }}
-                  </div>
-                  <div v-if="course.isCopy" class="pr-1">
-                    <v-icon :icon="mdiContentCopy" size="sm" />
-                  </div>
-                </div>
+              <td class="overflow-wrap-break-word pt-1 td-name">
+                <span :class="{'font-weight-500': isEditing(course), 'mr-2': course.isCopy}">
+                  {{ course.name }}
+                </span>
+                <v-icon
+                  v-if="course.isCopy"
+                  class="mr-1"
+                  :icon="mdiContentCopy"
+                  size="sm"
+                />
               </td>
               <td class="td-units">
                 <v-icon
@@ -364,6 +359,8 @@ const showNote = course => {
 table {
   border-collapse: collapse;
   border-spacing: 0 0.05em;
+  table-layout: fixed;
+  width: 100%;
 }
 .changed-units-icon {
   color: #00c13a;

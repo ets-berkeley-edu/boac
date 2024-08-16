@@ -1,7 +1,7 @@
 <template>
   <div v-if="!loading" class="default-margins">
     <div class="border-bottom pb-3">
-      <h1 class="page-section-header">{{ degreeStore.degreeName || 'Degree Builder' }}</h1>
+      <h1 class="overflow-wrap-break-word page-section-header">{{ degreeStore.degreeName || 'Degree Builder' }}</h1>
     </div>
     <div class="border-bottom py-3 w-50">
       <h2 class="sr-only">Requirements</h2>

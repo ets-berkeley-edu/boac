@@ -84,7 +84,7 @@
       </div>
     </div>
     <div
-      v-if="!isAddingCategory && !_filter(degreeStore.categories, c => c.position === position).length"
+      v-if="!degreeStore.sid && !isAddingCategory && !_filter(degreeStore.categories, c => c.position === position).length"
       class="no-data-text pb-3"
     >
       None

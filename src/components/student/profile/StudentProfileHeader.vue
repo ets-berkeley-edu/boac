@@ -35,54 +35,38 @@
   </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentPersonalDetails from '@/components/student/profile/StudentPersonalDetails'
 import StudentProfileHeaderAcademics from '@/components/student/profile/StudentProfileHeaderAcademics'
 import StudentProfileHeaderBio from '@/components/student/profile/StudentProfileHeaderBio'
-import Util from '@/mixins/Util'
+import {compact as _compact, map, partition} from 'lodash'
+import {onMounted} from 'vue'
+import {putFocusNextTick} from '@/lib/utils'
 
-export default {
-  name: 'StudentProfileHeader',
-  components: {
-    ManageStudent,
-    StudentAvatar,
-    StudentPersonalDetails,
-    StudentProfileHeaderAcademics,
-    StudentProfileHeaderBio
+const props = defineProps({
+  compact: {
+    required: false,
+    type: Boolean
   },
-  mixins: [Context, Util],
-  props: {
-    compact: {
-      required: false,
-      type: Boolean
-    },
-    linkToStudentProfile: {
-      required: false,
-      type: Boolean
-    },
-    student: {
-      required: true,
-      type: Object
-    }
+  linkToStudentProfile: {
+    required: false,
+    type: Boolean
   },
-  data: () => ({
-    discontinuedSubplans: undefined,
-    isShowingPersonalDetails: false,
-    plansMinorPartitionedByStatus: undefined,
-    plansPartitionedByStatus: undefined
-  }),
-  created() {
-    this.plansMinorPartitionedByStatus = this._partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
-    this.plansPartitionedByStatus = this._partition(this.student.sisProfile.plans, (p) => p.status === 'Active')
-    this.discontinuedSubplans = this._compact(this._map(this.plansPartitionedByStatus[1], 'subplan'))
-  },
-  mounted() {
-    this.putFocusNextTick('student-name-header')
+  student: {
+    required: true,
+    type: Object
   }
-}
+})
+
+const plansMinorPartitionedByStatus = partition(props.student.sisProfile.plansMinor, (p) => p.status === 'Active')
+const plansPartitionedByStatus = partition(props.student.sisProfile.plans, (p) => p.status === 'Active')
+const discontinuedSubplans = _compact(map(plansPartitionedByStatus[1], 'subplan'))
+
+onMounted(() => {
+  putFocusNextTick('student-name-header')
+})
 </script>
 
 <style>
