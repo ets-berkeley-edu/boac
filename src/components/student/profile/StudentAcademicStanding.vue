@@ -2,45 +2,30 @@
   <div>
     <span
       v-if="get(standing, 'status') && standing.status !== 'GST'"
-      :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${termId}`"
+      :id="`${idPrefix}-academic-standing-term-${termId}`"
       class="text-error font-weight-bold"
     >
-      {{ standingStatus }} <span class="text-no-wrap">({{ termName }})</span>
+      {{ standingStatus }} <span class="text-no-wrap">({{ standing.termName || termNameForSisId(standing.termId) }})</span>
     </span>
   </div>
 </template>
 
 <script setup>
 import {get} from 'lodash'
-import {useContextStore} from '@/stores/context'
-</script>
-
-<script>
 import {sisIdForTermName, termNameForSisId} from '@/berkeley'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'StudentAcademicStanding',
-  props: {
-    rowIndex: {
-      default: undefined,
-      required: false,
-      type: String
-    },
-    standing: {
-      required: true,
-      type: Object
-    }
+const props = defineProps({
+  idPrefix: {
+    required: true,
+    type: String
   },
-  computed: {
-    standingStatus() {
-      return get(useContextStore().config, `academicStandingDescriptions.${this.standing.status}`, this.standing.status)
-    },
-    termId() {
-      return this.standing.termId || sisIdForTermName(this.standing.termName)
-    },
-    termName() {
-      return this.standing.termName || termNameForSisId(this.standing.termId)
-    }
+  standing: {
+    required: true,
+    type: Object
   }
-}
+})
+
+const standingStatus = get(useContextStore().config, `academicStandingDescriptions.${props.standing.status}`, props.standing.status)
+const termId = props.standing.termId || sisIdForTermName(props.standing.termName)
 </script>

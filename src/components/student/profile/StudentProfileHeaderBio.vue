@@ -29,32 +29,38 @@
         <span v-html="student.sisProfile.preferredName" />
       </div>
       <div
-        v-if="_get(student, 'sisProfile.pronouns.description')"
+        v-if="get(student, 'sisProfile.pronouns.description')"
         id="student-pronouns"
         class="student-text font-size-14 mb-1"
       >
         Pronouns: {{ student.sisProfile.pronouns.description }}
       </div>
-      <div id="student-bio-sid" class="font-size-14 font-weight-bold mb-1">
-        SID <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.sid }}</span>
-        <span
+      <div id="student-bio-sid" class="align-center d-flex font-size-14 font-weight-bold">
+        <div class="mr-1">
+          SID <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.sid }}</span>
+        </div>
+        <div
           v-if="academicCareerStatus === 'Inactive'"
           id="student-bio-inactive"
-          class="font-weight-bold ml-1 text-error"
+          class="font-weight-bold mr-1 text-error"
         >
           INACTIVE
-        </span>
-        <span
+        </div>
+        <div
           v-if="academicCareerStatus === 'Completed'"
-          class="ml-1"
-          uib-tooltip="Graduated"
           aria-label="Graduated"
-          tooltip-placement="bottom"
         >
           <v-icon :icon="mdiSchool" />
-        </span>
+          <v-tooltip activator="parent" location="bottom">
+            Graduated
+          </v-tooltip>
+        </div>
       </div>
-      <StudentAcademicStanding v-if="_get(student, 'sisProfile.academicStanding')" :standing="student.sisProfile.academicStanding" />
+      <StudentAcademicStanding
+        v-if="get(student, 'sisProfile.academicStanding')"
+        id-prefix="profile"
+        :standing="student.sisProfile.academicStanding"
+      />
       <div v-if="!compact">
         <div v-if="student.sisProfile.emailAddress">
           <a
@@ -76,14 +82,14 @@
     </div>
     <div id="student-bio-level" :class="{'mt-2': !compact}">
       <h3 class="sr-only">Level</h3>
-      <div class="font-weight-medium">{{ _get(student, 'sisProfile.level.description') }}</div>
+      <div class="font-weight-medium">{{ get(student, 'sisProfile.level.description') }}</div>
     </div>
     <div class="text-grey-darken-2">
       <div v-if="student.sisProfile.termsInAttendance" id="student-bio-terms-in-attendance">
         {{ pluralize('Term', student.sisProfile.termsInAttendance) }} in Attendance
       </div>
       <div
-        v-if="student.sisProfile.expectedGraduationTerm && !['5', '6', '7', '8', 'GR'].includes(_get(student.sisProfile, 'level.code'))"
+        v-if="student.sisProfile.expectedGraduationTerm && !['5', '6', '7', '8', 'GR'].includes(get(student.sisProfile, 'level.code'))"
         id="student-bio-expected-graduation"
       >
         Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}
@@ -99,42 +105,30 @@
 </template>
 
 <script setup>
-import {mdiSchool} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
-import Util from '@/mixins/Util'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
+import {get} from 'lodash'
+import {mdiSchool} from '@mdi/js'
+import {pluralize} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'StudentProfileHeaderBio',
-  components: {StudentAcademicStanding},
-  mixins: [Context, Util],
-  props: {
-    compact: {
-      required: false,
-      type: Boolean
-    },
-    linkToStudentProfile: {
-      required: false,
-      type: Boolean
-    },
-    student: {
-      required: true,
-      type: Object
-    }
+const props = defineProps({
+  compact: {
+    required: false,
+    type: Boolean
   },
-  data: () => ({
-    academicCareerStatus: undefined,
-    isAscInactive: undefined,
-    isCoeInactive: undefined
-  }),
-  created() {
-    this.academicCareerStatus = this._get(this.student, 'sisProfile.academicCareerStatus')
-    this.isAscInactive = displayAsAscInactive(this.student)
-    this.isCoeInactive = displayAsCoeInactive(this.student)
+  linkToStudentProfile: {
+    required: false,
+    type: Boolean
+  },
+  student: {
+    required: true,
+    type: Object
   }
-}
+})
+
+const academicCareerStatus = get(props.student, 'sisProfile.academicCareerStatus')
+const currentUser = useContextStore().currentUser
+const isAscInactive = displayAsAscInactive(props.student)
+const isCoeInactive = displayAsCoeInactive(props.student)
 </script>

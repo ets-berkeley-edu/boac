@@ -4,12 +4,12 @@
       <router-link
         v-if="student.uid"
         :id="`link-to-student-${student.uid}`"
-        :to="studentRoutePath(student.uid, useContextStore().currentUser.inDemoMode)"
+        :to="studentRoutePath(student.uid, currentUser.inDemoMode)"
       >
         <h3
           :id="`row-${rowIndex}-student-name`"
           class="font-size-16"
-          :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
         >
           {{ studentName }}
         </h3>
@@ -18,13 +18,13 @@
         v-if="!student.uid"
         :id="`student-${student.sid}-has-no-uid`"
         class="font-size-16 font-weight-500"
-        :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
       >
         {{ studentName }}
       </span>
     </div>
     <div
-      :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
+      :class="{'demo-mode-blur': currentUser.inDemoMode}"
       class="d-flex align-center font-weight-bold font-size-13"
     >
       <div :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</div>
@@ -68,8 +68,8 @@
     <StudentAcademicStanding
       v-if="student.academicStanding"
       class="font-size-14"
+      :id-prefix="`student-${student.sid}`"
       :standing="student.academicStanding"
-      :row-index="`row-${rowIndex}`"
     />
     <div v-if="student.academicCareerStatus !== 'Completed'" class="font-size-13 text-medium-emphasis">
       <div :id="`row-${rowIndex}-student-level`">
@@ -126,47 +126,38 @@
 </template>
 
 <script setup>
+import DegreesAwarded from '@/components/student/DegreesAwarded'
+import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import {DateTime} from 'luxon'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
 import {get, map, uniq} from 'lodash'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {mdiSchool} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
-</script>
+import {computed} from 'vue'
 
-<script>
-import DegreesAwarded from '@/components/student/DegreesAwarded'
-import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
-
-export default {
-  name: 'StudentRowBioColumn',
-  components: {DegreesAwarded, StudentAcademicStanding},
-  props: {
-    rowIndex: {
-      required: true,
-      type: Number
-    },
-    sortedBy: {
-      required: true,
-      type: String
-    },
-    student: {
-      required: true,
-      type: Object
-    }
+const props = defineProps({
+  rowIndex: {
+    required: true,
+    type: Number
   },
-  computed: {
-    degreePlanOwners() {
-      const plans = get(this.student, 'degree.plans')
-      if (plans) {
-        return uniq(map(plans, 'group'))
-      } else {
-        return []
-      }
-    },
-    studentName() {
-      return this.sortedBy === 'first_name' ? `${this.student.firstName} ${this.student.lastName}` : lastNameFirst(this.student)
-    }
+  sortedBy: {
+    required: true,
+    type: String
+  },
+  student: {
+    required: true,
+    type: Object
   }
-}
+})
+
+const currentUser = useContextStore().currentUser
+
+const degreePlanOwners = computed(() => {
+  const plans = get(props.student, 'degree.plans')
+  return plans ? uniq(map(plans, 'group')) : []
+})
+const studentName = computed(() => {
+  return props.sortedBy === 'first_name' ? `${props.student.firstName} ${props.student.lastName}` : lastNameFirst(props.student)
+})
 </script>
