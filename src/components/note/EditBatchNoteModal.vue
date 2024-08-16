@@ -6,7 +6,6 @@
     min-width="500"
     persistent
     width="60%"
-    @keyup.esc.prevent="discardRequested"
   >
     <v-card id="new-note-modal-container">
       <div
@@ -187,10 +186,18 @@ const showCreateTemplateModal = ref(false)
 const showDiscardNoteModal = ref(false)
 const showDiscardTemplateModal = ref(false)
 
+const selectEscape = (event) => {
+  if (event.key === 'Escape') {
+    discardRequested()
+  }
+}
+
 watch(dialogModel, () => {
   if (dialogModel.value) {
     // remove scrollbar for content behind the modal
     document.documentElement.classList.add('modal-open')
+    document.removeEventListener('keyup', selectEscape)
+    document.addEventListener('keyup', selectEscape)
     getMyNoteTemplates().then(noteStore.setNoteTemplates)
     noteStore.resetModel()
     init().then(note => {
@@ -209,6 +216,7 @@ watch(dialogModel, () => {
   } else {
     noteStore.setMode(null)
     document.documentElement.classList.remove('modal-open')
+    document.removeEventListener('keyup', selectEscape)
     useContextStore().removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
   }
 })
