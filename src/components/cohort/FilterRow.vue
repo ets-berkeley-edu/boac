@@ -138,7 +138,7 @@
       <div v-if="isModifyingFilter && get(filter, 'type.ux')">
         <v-btn
           id="unsaved-filter-reset"
-          class="text-uppercase"
+          class="text-uppercase ml-1"
           color="primary"
           text="Cancel"
           variant="text"
@@ -468,7 +468,9 @@ const onClickAddButton = () => {
   cohortStore.addFilter(filter.value)
   cohortStore.setModifiedSinceLastSearch(true)
   reset()
-  updateFilterOptions(cohortStore.domain, cohortStore.cohortOwner, cohortStore.filters).then(noop)
+  updateFilterOptions(cohortStore.domain, cohortStore.cohortOwner, cohortStore.filters).then(() => {
+    putFocusNextTick('filter-select-primary-new')
+  })
 }
 
 const onClickCancelEdit = () => {
@@ -575,7 +577,6 @@ const reset = () => {
   filter.value = isExistingFilter.value ? cloneDeep(cohortStore.filters[props.position]) : {}
   isModifyingFilter.value = !isExistingFilter.value
   isSaving.value = false
-  putFocusNextTick('filter-select-primary-new')
 }
 
 const updateRangeFilter = () => {

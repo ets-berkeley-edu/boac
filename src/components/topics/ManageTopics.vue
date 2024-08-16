@@ -128,7 +128,7 @@
       :function-confirm="deleteConfirm"
       modal-header="Delete Topic"
     >
-      <span> Are you sure you want to delete <b>{{ topicDelete.topic }}</b>? </span>
+      <span v-if="topicDelete"> Are you sure you want to delete <b>{{ topicDelete.topic }}</b>? </span>
     </AreYouSureModal>
   </div>
 </template>

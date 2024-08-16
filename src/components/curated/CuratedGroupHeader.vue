@@ -13,7 +13,7 @@
         <div class="align-center d-flex">
           <div class="w-75">
             <v-text-field
-              id="rename-input"
+              id="rename-curated-group-input"
               v-model="renameInput"
               :aria-invalid="!renameInput"
               :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
@@ -31,16 +31,17 @@
           </div>
           <div>
             <v-btn
-              id="rename-confirm"
+              id="rename-curated-group-confirm"
               color="primary"
-              :disabled="!_size(renameInput)"
+              :disabled="!_size(renameInput) || isSaving"
               text="Rename"
               @click="rename"
             />
           </div>
           <div>
             <v-btn
-              id="rename-cancel"
+              id="rename-curated-group-cancel"
+              class="ml-1"
               :disabled="isSaving"
               text="Cancel"
               variant="plain"
@@ -73,7 +74,7 @@
         </div>
         <div v-if="isOwnedByCurrentUser">
           <v-btn
-            id="rename-button"
+            id="rename-curated-group-button"
             class="font-size-15 px-1"
             color="anchor"
             text="Rename"
@@ -84,7 +85,7 @@
         <div v-if="isOwnedByCurrentUser" class="text-grey">|</div>
         <div v-if="isOwnedByCurrentUser">
           <v-btn
-            id="delete-button"
+            id="delete-curated-group-button"
             class="font-size-15 px-1"
             color="anchor"
             text="Delete"
@@ -95,7 +96,7 @@
             v-model="isDeleteModalOpen"
             :button-label-confirm="isDeleting ? 'Deleting' : 'Delete'"
             :function-confirm="deleteGroup"
-            :function-cancel="() => isDeleteModalOpen = false"
+            :function-cancel="cancelDeleteModal"
             modal-header="Delete Curated Group"
           >
             Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
@@ -103,7 +104,7 @@
           <AreYouSureModal
             v-model="isCohortWarningModalOpen"
             button-label-confirm="Close"
-            :function-confirm="() => isCohortWarningModalOpen = false"
+            :function-confirm="confirmDeleteWarning"
             modal-header="This group is in use as a cohort filter"
           >
             Sorry, you cannot delete this {{ domainLabel(false) }} until you have removed the filter from
@@ -187,6 +188,7 @@ import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
+import {putFocusNextTick} from '@/lib/utils'
 import {useCuratedGroupStore} from '@/stores/curated-group'
 import {validateCohortName} from '@/lib/cohort'
 
@@ -218,6 +220,16 @@ export default {
   watch: {
     renameInput() {
       this.renameError = undefined
+    },
+    showExportAdmitsModal(isOpen) {
+      if (isOpen) {
+        putFocusNextTick('csv-column-options-0')
+      }
+    },
+    showExportStudentsModal(isOpen) {
+      if (isOpen) {
+        putFocusNextTick('csv-column-options-0')
+      }
     }
   },
   mounted() {
@@ -231,9 +243,20 @@ export default {
     this.putFocusNextTick('curated-group-name')
   },
   methods: {
+    cancelDeleteModal() {
+      this.isDeleteModalOpen = false
+      alertScreenReader('Canceled delete')
+      putFocusNextTick('delete-curated-group-button')
+    },
     cancelExportModal() {
       this.showExportAdmitsModal = this.showExportStudentsModal = false
-      alertScreenReader(`Cancel export of ${this.name} ${this.domainLabel(false)}`)
+      alertScreenReader(`Canceled export of ${this.curatedGroupName} ${this.domainLabel(false)}`)
+      putFocusNextTick('export-student-list-button')
+    },
+    confirmDeleteWarning() {
+      this.isCohortWarningModalOpen = false
+      alertScreenReader('Closed')
+      putFocusNextTick('delete-curated-group-button')
     },
     enterBulkAddMode() {
       this.curatedGroupStore.setMode('bulkAdd')
@@ -241,12 +264,13 @@ export default {
     enterRenameMode() {
       this.renameInput = this.curatedGroupName
       useCuratedGroupStore().setMode('rename')
-      this.putFocusNextTick('rename-input')
+      this.putFocusNextTick('rename-curated-group-input')
     },
     exitRenameMode() {
       this.renameInput = undefined
       useCuratedGroupStore().resetMode()
-      this.putFocusNextTick('curated-group-name')
+      alertScreenReader('Canceled rename')
+      this.putFocusNextTick('rename-curated-group-button')
     },
     exportGroup(csvColumnsSelected) {
       this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
@@ -260,6 +284,7 @@ export default {
       this.isDeleting = true
       return deleteCuratedGroup(this.domain, this.curatedGroupId).then(() => {
         this.isDeleteModalOpen = false
+        alertScreenReader(`Deleted ${this.domainLabel(false)}`)
         this.$router.push({path: '/'}, this._noop)
       }).catch(error => {
         this.error = error
@@ -281,7 +306,7 @@ export default {
       const error = validateCohortName({name: this.renameInput})
       if (error !== true) {
         this.renameError = error
-        this.putFocusNextTick('rename-input')
+        this.putFocusNextTick('rename-curated-group-input')
       } else {
         this.isSaving = true
         renameCuratedGroup(this.curatedGroupId, this.renameInput).then(curatedGroup => {
@@ -289,22 +314,11 @@ export default {
           this.setPageTitle(curatedGroup.name)
           this.exitRenameMode()
           this.isSaving = false
-          this.putFocusNextTick('curated-group-name')
+          alertScreenReader(`Renamed ${this.domainLabel(false)}`)
+          this.putFocusNextTick('rename-curated-group-button"')
         })
       }
     }
   }
 }
 </script>
-
-<style scoped>
-.modal-footer {
-  border-top: none;
-}
-.modal-header {
-  border-bottom: none;
-}
-:deep(.v-dialog > .v-overlay__content > .v-card > .v-card-text, .v-dialog > .v-overlay__content > form > .v-card > .v-card-text) {
-  padding: 0px !important;
-}
-</style>

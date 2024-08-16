@@ -325,7 +325,7 @@ const discardRequested = () => {
 
 const discardTemplate = () => {
   showDiscardTemplateModal.value = false
-  exit(true).then(() => alertScreenReader('Canceled create template.'))
+  exit(true).then(() => alertScreenReader('Canceled edit template.'))
 }
 
 const dismissAlert = seconds => {
@@ -404,7 +404,8 @@ const updateTemplate = () => {
     model.value.topics,
   ).then(template => {
     noteStore.setIsSaving(false)
-    exit(false).then(() => alertScreenReader(`Template '${template.title}' updated`))
+    alertScreenReader(`Template '${template.title}' updated`)
+    exit(false)
   })
 }
 

@@ -28,6 +28,7 @@
             maxlength="255"
             persistent-counter
             :rules="[validationRules.required, validationRules.maxLength]"
+            validate-on="blur lazy"
             variant="outlined"
           >
             <template #counter="{max, value}">

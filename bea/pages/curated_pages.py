@@ -37,7 +37,10 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 class CuratedPages(CohortPages, CuratedModal):
 
-    RENAME_GROUP_INPUT = By.ID, 'rename-input'
+    RENAME_GROUP_BUTTON = By.ID, 'rename-curated-group-button'
+    RENAME_GROUP_CONFIRM_BUTTON = By.ID, 'rename-curated-group-confirm'
+    RENAME_GROUP_CANCEL_BUTTON = By.ID, 'rename-curated-group-cancel'
+    RENAME_GROUP_INPUT = By.ID, 'rename-curated-group-input'
 
     def load_page(self, group):
         self.driver.get(f'{boa_utils.get_boa_base_url()}/curated/{group.cohort_id}')
@@ -51,17 +54,17 @@ class CuratedPages(CohortPages, CuratedModal):
     def rename_group(self, group, new_name):
         app.logger.info(f'Changing the name of group ID {group.cohort_id} to {new_name}')
         self.load_page(group)
-        self.wait_for_page_and_click(self.RENAME_COHORT_BUTTON)
+        self.wait_for_page_and_click(self.RENAME_GROUP_BUTTON)
         self.wait_for_element_and_type(self.RENAME_GROUP_INPUT, new_name)
-        self.wait_for_element_and_click(self.RENAME_COHORT_CONFIRM_BUTTON)
+        self.wait_for_element_and_click(self.RENAME_GROUP_CONFIRM_BUTTON)
         group.name = new_name
         self.when_present(self.cohort_heading_loc(group), utils.get_short_timeout())
 
     # DELETE
 
-    DELETE_GROUP_BUTTON = By.ID, 'delete-button'
-    CONFIRM_DELETE_GROUP_BUTTON = By.XPATH, '//div[@class="v-card-actions"]//button[contains(., "Delete")]'
-    CANCEL_DELETE_GROUP_BUTTON = By.XPATH, '//div[@class="v-card-actions"]//button[contains(., "Cancel")]'
+    DELETE_GROUP_BUTTON = By.ID, 'delete-curated-group-button'
+    CONFIRM_DELETE_GROUP_BUTTON = By.ID, 'are-you-sure-confirm'
+    CANCEL_DELETE_GROUP_BUTTON = By.ID, 'are-you-sure-cancel'
 
     def delete_group(self, group):
         app.logger.info(f'Deleting a group named {group.name}')

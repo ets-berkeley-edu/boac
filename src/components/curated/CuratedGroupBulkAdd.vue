@@ -45,6 +45,7 @@
         <v-btn
           v-if="curatedGroupId"
           id="btn-cancel-bulk-add-sids"
+          class="ml-2"
           color="primary"
           text="Cancel"
           variant="text"
@@ -100,6 +101,7 @@ const cancel = () => {
     // Cancel is only supported in the add-students-to-existing-group case.
     clearWarning()
     props.bulkAddSids(null)
+    putFocusNextTick('bulk-add-sids-button')
   }
 }
 

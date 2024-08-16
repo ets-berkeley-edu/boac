@@ -1,22 +1,23 @@
 <template>
   <v-overlay
     v-model="showModalProxy"
+    aria-labelledby="modal-header"
     class="justify-center overflow-auto"
     persistent
     width="100%"
-    @update:model-value="onToggle"
   >
     <v-card
-      class="modal-content "
+      class="modal-content"
       min-width="400"
       max-width="600"
     >
-      <ModalHeader class="mx-8" :text="`Name Your ${domainLabel(true)}`" />
-      <hr />
-      <form class="w-100 mb-2" @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
-        <div class="px-8 pt-2">
+      <v-card-title>
+        <ModalHeader :text="`Name Your ${domainLabel(true)}`" />
+      </v-card-title>
+      <form @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
+        <v-card-text>
           <v-text-field
-            id="create-input"
+            id="create-curated-group-input"
             v-model="name"
             :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
             aria-required="true"
@@ -24,7 +25,7 @@
             counter="255"
             density="compact"
             :disabled="isSaving"
-            label= "Name"
+            label="Name"
             maxlength="255"
             required
             type="text"
@@ -40,24 +41,24 @@
               </div>
             </template>
           </v-text-field>
-        </div>
+        </v-card-text>
         <hr />
-        <div class="d-flex justify-end mx-8 pt-0">
+        <v-card-actions class="d-flex justify-end">
           <ProgressButton
-            id="create-confirm"
+            id="create-curated-group-confirm"
             :action="createCuratedGroup"
             :disabled="!name.length"
             :in-progress="isSaving"
             text="Save"
           />
           <v-btn
-            id="create-cancel"
+            id="create-curated-group-cancel"
             :disabled="isSaving"
             text="Cancel"
             variant="plain"
             @click="cancelModal"
           />
-        </div>
+        </v-card-actions>
       </form>
     </v-card>
   </v-overlay>
@@ -103,6 +104,15 @@ export default {
       }
     }
   },
+  watch: {
+    showModalProxy(isOpen) {
+      if (isOpen) {
+        putFocusNextTick('create-curated-group-input')
+      } else {
+        this.cancelModal()
+      }
+    }
+  },
   created() {
     this.validationRules = {
       valid: name => {
@@ -129,13 +139,6 @@ export default {
     },
     domainLabel(capitalize) {
       return describeCuratedGroupDomain(this.domain, capitalize)
-    },
-    onToggle(isOpen) {
-      if (isOpen) {
-        putFocusNextTick('modal-header')
-      } else {
-        this.cancelModal()
-      }
     },
     reset() {
       this.isSaving = false

@@ -18,7 +18,11 @@
       </v-btn>
     </template>
   </v-tooltip>
-  <v-dialog v-model="showAdvancedSearchModel" max-width="800">
+  <v-dialog
+    v-model="showAdvancedSearchModel"
+    aria-labelledby="advanced-search-header"
+    max-width="800"
+  >
     <v-card>
       <v-card-title class="pb-0 ml-2">
         <AdvancedSearchModalHeader :on-click-close="cancel" />
@@ -242,6 +246,7 @@
           </v-btn>
           <v-btn
             id="advanced-search-cancel"
+            class="ml-2"
             text="Cancel"
             variant="text"
             @click="cancel"
@@ -307,9 +312,10 @@ const validDateRange = computed(() => {
 
 watch(() => searchStore.showAdvancedSearch, value => {
   if (value) {
-    putFocusNextTick('advanced-search-header')
+    putFocusNextTick('advanced-search-close')
   } else {
     searchStore.resetAutocompleteInput()
+    putFocusNextTick('search-options-panel-toggle')
   }
 })
 

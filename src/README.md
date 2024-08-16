@@ -111,12 +111,17 @@ See https://vuetifyjs.com/en/api/v-data-table/#links
 
 * `fields` becomes `headers` (therein, `label` becomes `title`)
 
-### b-modal to v-overlay
+### b-modal to v-dialog
 
 - Add property `persistent` so the overlay stays open when you click outside.
 - Add property e.g. `:menu-props="{contentClass: 'bg-white'}"` to override the default gray background of the menu.
 - Add `<v-card class="modal-content">` as a child of `<v-overlay>` and wrapping its contents.
 - Remove these properties: `body-class`, `hide-footer`, and `hide-header`.
+- Use `<v-card-title>`, `<v-card-text>`, and `<v-card-actions>` so that every dialog has consistent padding.
+- Add `aria-labelledby=<id of header>` and optionally `aria-describedby=<id of content explaining the purpose of the dialog>`.
+- When the dialog opens, focus should land on the first interactive element if one exists, or the button to close the dialog.
+- When the dialog closes, focus should land on the element that triggered it to open.
+- See AreYouSureModal.vue for a simple example.
 
 ### b-table to v-table
 

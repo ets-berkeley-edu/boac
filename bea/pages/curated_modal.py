@@ -30,9 +30,9 @@ from selenium.webdriver.common.by import By
 
 class CuratedModal(Page):
 
-    GROUP_NAME_INPUT = By.ID, 'create-input'
-    GROUP_SAVE_BUTTON = By.ID, 'create-confirm'
-    GROUP_CANCEL_BUTTON = By.ID, 'create-cancel'
+    GROUP_NAME_INPUT = By.ID, 'create-curated-group-input'
+    GROUP_SAVE_BUTTON = By.ID, 'create-curated-group-confirm'
+    GROUP_CANCEL_BUTTON = By.ID, 'create-curated-group-cancel'
     DUPE_GROUP_NAME_MSG = By.XPATH, '//div[contains(text(), "You have an existing curated group with this name")]'
     NO_CHARS_LEFT_MSG = By.XPATH, '//span[text()="(0 left)"]'
 

@@ -3,7 +3,6 @@
     :id="headerId"
     class="font-size-24 font-weight-medium"
     :class="clazz"
-    tabindex="0"
   >
     {{ text }}
     <slot />

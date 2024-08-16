@@ -1,77 +1,78 @@
 <template>
   <v-overlay
     v-model="showModalProxy"
+    aria-describedby="export-list-body"
+    aria-labelledby="modal-header"
     class="justify-center overflow-auto"
     persistent
     scroll-strategy="reposition"
     width="100%"
-    @update:model-value="onToggle"
   >
     <v-card
       class="modal-content"
       min-width="500"
-      max-width="600"
+      max-width="800"
     >
-      <div class="pr-6 pl-6">
-        <ModalHeader text="Export List" />
-        <hr />
-        <div id="export-list-body" class="px-4 py-2">
-          <div
-            id="csv-column-options"
-            aria-label="Select columns to export"
-            class="d-flex flex-column flex-wrap csv-column-options mb-5"
-            name="csv-column-options"
-            role="group"
-          >
-            <template v-for="(option, index) in csvColumns" :key="index">
-              <v-checkbox
-                :id="`csv-column-options-${index}`"
-                :model-value="includes(selected, option.value)"
-                :aria-label="`${option.text} column included in export`"
-                class="csv-column-option"
-                color="primary"
-                density="compact"
-                :disabled="isExporting"
-                hide-details
-                :label="option.text"
-                @update:model-value="isChecked => onChange(option.value, isChecked)"
-              />
-            </template>
-          </div>
-          <div>
-            <span class="font-weight-bold">Reminder:</span> <FerpaReminder />
-          </div>
+      <v-card-title>
+        <ModalHeader class="ml-2" text="Export List" />
+      </v-card-title>
+      <v-card-text id="export-list-body">
+        <div
+          id="csv-column-options"
+          aria-label="Select columns to export"
+          class="d-flex flex-column flex-wrap csv-column-options pb-5 px-1"
+          name="csv-column-options"
+          role="group"
+        >
+          <template v-for="(option, index) in csvColumns" :key="index">
+            <v-checkbox
+              :id="`csv-column-options-${index}`"
+              :model-value="includes(selected, option.value)"
+              :aria-label="`${option.text} column included in export`"
+              class="csv-column-option"
+              color="primary"
+              density="compact"
+              :disabled="isExporting"
+              hide-details
+              :label="option.text"
+              @update:model-value="isChecked => onChange(option.value, isChecked)"
+            />
+          </template>
         </div>
-        <hr />
-        <div aria-live="polite">
-          <v-alert
-            v-if="error && !isExporting"
-            class="font-size-15 mx-4 mb-2"
-            color="error"
-            density="compact"
-            :icon="mdiAlert"
-            :text="error"
-            title="Error"
-            variant="tonal"
-          />
+        <div>
+          <span class="font-weight-bold">Reminder:</span> <FerpaReminder />
         </div>
-        <div class="d-flex justify-end px-4 py-2">
+      </v-card-text>
+      <hr />
+      <v-card-actions class="flex-column">
+        <v-alert
+          v-if="error && !isExporting"
+          aria-live="polite"
+          class="font-size-15 w-100 mb-2"
+          color="error"
+          density="compact"
+          :icon="mdiAlert"
+          :text="error"
+          title="Error"
+          variant="tonal"
+        />
+        <div class="d-flex justify-end w-100">
           <ProgressButton
             id="export-list-confirm"
             :action="onSubmit"
-            :disabled="!selected.length"
+            :disabled="!selected.length || error || isExporting"
             :in-progress="isExporting"
             text="Export"
           />
           <v-btn
             id="export-list-cancel"
-            class="ml-1"
+            class="ml-2"
             text="Close"
             variant="plain"
             @click="cancel"
           />
         </div>
-      </div>
+      </v-card-actions>
     </v-card>
   </v-overlay>
 </template>
@@ -146,7 +147,7 @@ export default {
     },
     onToggle(isOpen) {
       if (isOpen) {
-        putFocusNextTick('modal-header')
+        putFocusNextTick('csv-column-options-0')
       } else {
         this.cancel()
       }
@@ -157,7 +158,7 @@ export default {
 
 <style scoped>
 .csv-column-options {
-  height: 300px;
+  height: 320px;
 }
 .csv-column-option {
   height: 30px;
