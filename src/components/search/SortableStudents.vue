@@ -42,7 +42,7 @@
     </template>
 
     <template #item.lastName="{item}">
-      <div>
+      <div class="align-center d-flex">
         <span class="sr-only">Student name</span>
         <router-link
           v-if="item.uid"
@@ -52,31 +52,33 @@
           :to="studentRoutePath(item.uid, useContextStore().currentUser.inDemoMode)"
           v-html="lastNameFirst(item)"
         />
-        <span
+        <div
           v-if="!item.uid"
           :id="`student-${item.sid}-has-no-uid`"
           class="font-weight-500"
           :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
           v-html="lastNameFirst(item)"
         />
-        <span
+        <div
           v-if="item.academicCareerStatus === 'Inactive' || displayAsAscInactive(item) || displayAsCoeInactive(item)"
           class="inactive-info-icon"
-          uib-tooltip="Inactive"
           aria-label="Inactive"
-          tooltip-placement="bottom"
         >
           <v-icon :icon="mdiInformationOutline" />
-        </span>
-        <span
+          <v-tooltip activator="parent" location="bottom">
+            Inactive
+          </v-tooltip>
+        </div>
+        <div
           v-if="item.academicCareerStatus === 'Completed'"
-          class="sortable-students-icon"
-          uib-tooltip="Graduated"
+          class="ml-1 sortable-students-icon"
           aria-label="Graduated"
-          tooltip-placement="bottom"
         >
           <v-icon :icon="mdiSchool" />
-        </span>
+          <v-tooltip activator="parent" location="bottom">
+            Graduated
+          </v-tooltip>
+        </div>
       </div>
     </template>
 

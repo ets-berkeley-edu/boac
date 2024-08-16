@@ -16,7 +16,7 @@
           <StudentAcademicStanding
             v-if="term.academicStanding"
             class="font-size-14"
-            :id-prefix="`term-${term.termId}`"
+            id-prefix="classes"
             :standing="term.academicStanding"
           />
           <StudentWithdrawalCancel

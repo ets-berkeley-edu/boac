@@ -73,26 +73,37 @@
           <span v-if="!item.firstName" v-html="item.lastName"></span>
         </span>
       </div>
-      <div :id="`row-${index}-student-sid`" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="student-sid">
-        {{ item.sid }}
-        <span
+      <div
+        :id="`row-${index}-student-sid`"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+        class="align-center d-flex student-sid"
+      >
+        <div>
+          {{ item.sid }}
+        </div>
+        <div
           v-if="get(item.enrollment, 'enrollmentStatus') === 'W'"
           :id="`student-${item.uid}-waitlisted-for-${section.termId}-${section.sectionId}`"
           class="font-weight-bold text-error"
-        >WAITLISTED</span>
-        <span
+        >
+          WAITLISTED
+        </div>
+        <div
           v-if="item.academicCareerStatus === 'Inactive'"
           :id="`student-${item.uid}-inactive-for-${section.termId}-${section.sectionId}`"
           class="font-weight-bold text-error"
-        >INACTIVE</span>
-        <span
+        >
+          INACTIVE
+        </div>
+        <div
           v-if="item.academicCareerStatus === 'Completed'"
           class="ml-1"
-          uib-tooltip="Graduated"
-          tooltip-placement="bottom"
         >
           <v-icon :icon="mdiSchool" />
-        </span>
+          <v-tooltip activator="parent" location="bottom">
+            Graduated
+          </v-tooltip>
+        </div>
       </div>
       <div
         v-if="displayAsAscInactive(item)"
