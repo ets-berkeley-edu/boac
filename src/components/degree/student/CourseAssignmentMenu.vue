@@ -16,7 +16,7 @@
           'accent-color-red': course.accentColor === 'Red',
           'bg-transparent text-primary': !degreeStore.disableButtons,
           'text-grey': !course.accentColor,
-          'text-white': degreeStore.isUserDragging(course.id)
+          'text-white': degreeStore.draggingCourseId === course.id
         }"
         density="compact"
         flat
