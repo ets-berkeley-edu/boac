@@ -3,7 +3,7 @@
     What is the extent of your search?
     <span
       v-if="!includeAdmits && !includeStudents && !includeCourses && !includeNotes"
-      class="text-red"
+      class="text-error"
     >
       Please select one or more.
     </span>

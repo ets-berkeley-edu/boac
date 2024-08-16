@@ -31,11 +31,11 @@
           <div class="mt-2">
             <div
               v-if="error"
-              class="has-error mb-2 mt-1"
+              class="mb-2 mt-1 text-error"
               aria-live="polite"
               role="alert"
             >
-              <span class="font-weight-bolder text-red">Error: {{ error }}</span>
+              <span class="font-weight-bolder text-error">Error: {{ error }}</span>
             </div>
             <div v-if="!isExistingUser" class="align-items-center mt-3">
               <label for="uid-input" class="sr-only">U I D </label>

@@ -78,12 +78,12 @@
         <span
           v-if="get(item.enrollment, 'enrollmentStatus') === 'W'"
           :id="`student-${item.uid}-waitlisted-for-${section.termId}-${section.sectionId}`"
-          class="error font-weight-bold"
+          class="font-weight-bold text-error"
         >WAITLISTED</span>
         <span
           v-if="item.academicCareerStatus === 'Inactive'"
           :id="`student-${item.uid}-inactive-for-${section.termId}-${section.sectionId}`"
-          class="error font-weight-bold"
+          class="font-weight-bold text-error"
         >INACTIVE</span>
         <span
           v-if="item.academicCareerStatus === 'Completed'"
@@ -97,14 +97,14 @@
       <div
         v-if="displayAsAscInactive(item)"
         :id="`student-${item.uid}-asc-inactive-for-${section.termId}-${section.sectionId}`"
-        class="student-sid error font-weight-bold"
+        class="font-weight-bold student-sid text-error"
       >
         ASC INACTIVE
       </div>
       <div
         v-if="displayAsCoeInactive(item)"
         :id="`student-${item.uid}-coe-inactive-for-${section.termId}-${section.sectionId}`"
-        class="student-sid error font-weight-bold"
+        class="font-weight-bold student-sid text-error"
       >
         CoE INACTIVE
       </div>

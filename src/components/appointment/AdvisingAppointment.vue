@@ -25,7 +25,7 @@
 
       <div class="d-flex align-center mt-1 mb-3">
         <div v-if="appointment.status === 'cancelled'">
-          <div class="font-size-14 my-3 text-red-lighten-2 text-uppercase">
+          <div class="font-size-14 my-3 text-error text-uppercase">
             <v-icon :icon="mdiCalendarMinus" />
             Canceled
           </div>
