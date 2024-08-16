@@ -21,16 +21,16 @@
   </div>
   <v-dialog
     v-model="showModal"
+    aria-labelledby="modal-header"
     persistent
     width="auto"
-    @shown="putFocusNextTick('modal-header')"
-    @hidden="closeModal"
+    @update:model-value="onToggle"
   >
     <v-card min-width="600">
-      <v-card-title class="mt-3 mx-2 pb-2">
+      <v-card-title>
         <ModalHeader text="Create Course" />
       </v-card-title>
-      <v-card-text class="pt-1">
+      <v-card-text>
         <div>
           <label
             for="course-name-input"
@@ -180,6 +180,7 @@ onUnmounted(() => {
 const cancel = () => {
   closeModal()
   alertScreenReader('Canceled')
+  putFocusNextTick(`create-course-under-parent-category-${props.parentCategory.id}`)
 }
 
 const closeModal = () => {
@@ -194,10 +195,18 @@ const closeModal = () => {
   degreeStore.setDisableButtons(false)
 }
 
+const onToggle = isOpen => {
+  if (!isOpen) {
+    closeModal()
+    putFocusNextTick(`create-course-under-parent-category-${props.parentCategory.id}`)
+  }
+}
+
 const openModal = () => {
   showModal.value = true
   degreeStore.setDisableButtons(true)
   alertScreenReader('Create course dialog opened')
+  putFocusNextTick('course-name-input')
 }
 
 const save = () => {
@@ -217,7 +226,7 @@ const save = () => {
       refreshDegreeTemplate(degreeStore.templateId).then(() => {
         closeModal()
         alertScreenReader(`Course ${course.name} created`)
-        putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')
+        putFocusNextTick(`assign-course-${course.id}-btn`)
       })
     })
   }

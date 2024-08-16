@@ -1,6 +1,7 @@
 <template>
   <v-dialog
     v-model="showModal"
+    aria-labelledby="modal-header"
     persistent
     width="auto"
   >
@@ -42,7 +43,7 @@
             </div>
             <div v-if="error" class="mt-2 text-error" v-html="error" />
           </div>
-          <div class="modal-footer mb-0 mr-2 pb-0 pl-0">
+          <div class="d-flex justify-end">
             <ProgressButton
               id="clone-confirm"
               :action="createClone"
@@ -53,6 +54,7 @@
             />
             <v-btn
               id="clone-cancel"
+              class="ml-2"
               :disabled="isSaving"
               text="Cancel"
               variant="text"
@@ -105,7 +107,7 @@ watch(name, () => {
   error.value = null
 })
 
-onMounted(() => putFocusNextTick('modal-header'))
+onMounted(() => putFocusNextTick('degree-name-input'))
 
 const createClone = () => {
   isSaving.value = true

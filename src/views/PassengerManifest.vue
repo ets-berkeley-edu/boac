@@ -12,6 +12,7 @@
       </div>
       <div class="flex-grow-1 text-right">
         <EditUserProfileModal
+          :after-cancel="afterCancelCreateUser"
           :after-update-user="afterCreateUser"
           :departments="departments"
         />
@@ -30,7 +31,7 @@ import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import Users from '@/components/admin/Users'
 import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {getDepartments} from '@/api/user'
 
 export default {
@@ -49,9 +50,14 @@ export default {
     })
   },
   methods: {
+    afterCancelCreateUser() {
+      alertScreenReader('Canceled')
+      putFocusNextTick('add-new-user-btn')
+    },
     afterCreateUser(name) {
       this.refreshUsers = true
       alertScreenReader(`${name} has been added to BOA.`)
+      putFocusNextTick('add-new-user-btn')
     }
   }
 }

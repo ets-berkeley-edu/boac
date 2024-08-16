@@ -92,7 +92,12 @@
           </template>
         </v-data-table>
       </div>
-      <div v-if="!size(myDraftNotes)" class="pt-2">
+      <div
+        v-if="!size(myDraftNotes)"
+        id="draft-notes-no-data"
+        class="pt-2"
+        tabindex="-1"
+      >
         {{ currentUser.isAdmin ? 'No' : 'You have no' }} saved drafts.
       </div>
     </div>
@@ -121,7 +126,7 @@ import TimelineDate from '@/components/student/profile/TimelineDate'
 import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
-import {each, find, get, size, trim} from 'lodash'
+import {each, find, findIndex, get, size, trim} from 'lodash'
 import {mdiPaperclip, mdiTrashCan} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 
@@ -166,19 +171,25 @@ const afterEditDraft = data => {
 }
 
 const cancel = () => {
+  const noteId = selectedNote.value.id
   isDeleteDialogOpen.value = isEditDialogOpen.value = false
   selectedNote.value = undefined
+  alertScreenReader('Canceled')
+  putFocusNextTick(`delete-draft-note-${noteId}`)
 }
 
 const deleteDraftNote = () => {
+  alertScreenReader('Deleting draft note')
   return new Promise(resolve => {
+    const selectedNoteIndex = findIndex(myDraftNotes.value, {'id': selectedNote.value.id})
+    const nextNote = get(myDraftNotes.value, selectedNoteIndex >= (size(myDraftNotes.value) - 1) ? 0 : selectedNoteIndex + 1)
     isDeleting.value = true
     deleteNote(selectedNote.value).then(() => {
-      reloadDraftNotes().then(() => {
-        isDeleting.value = isDeleteDialogOpen.value = false
-        alertScreenReader('Draft note deleted')
-        resolve()
-      })
+      myDraftNotes.value.splice(selectedNoteIndex, 1)
+      isDeleting.value = isDeleteDialogOpen.value = false
+      alertScreenReader('Draft note deleted')
+      putFocusNextTick(nextNote ? `delete-draft-note-${nextNote.id}` : 'draft-notes-no-data')
+      resolve()
     })
   })
 }

@@ -1,16 +1,16 @@
 <template>
   <div>
-    <v-icon
+    <v-btn
       v-if="isExistingUser"
       :id="`edit-${profile.uid}`"
-      class="cursor-pointer"
+      :aria-label="`Edit profile of ${profile.name}`"
       color="primary"
       :icon="mdiNoteEditOutline"
-      size="large"
+      variant="text"
+      width="20"
       @click="openEditUserModal"
     >
-      <span class="sr-only"> Edit profile of {{ profile.name }}</span>
-    </v-icon>
+    </v-btn>
     <v-btn
       v-if="!isExistingUser"
       id="add-new-user-btn"
@@ -22,125 +22,130 @@
     />
     <v-dialog
       v-model="showEditUserModal"
-      width="auto"
+      aria-labelledby="modal-header"
       height="auto"
+      persistent
+      width="auto"
     >
-      <v-card v-if="showEditUserModal" max-width="600" min-width="600">
-        <v-card-text class="pb-6 pl-6 pr-8">
-          <h2 class="mt-2 page-section-header">{{ isExistingUser ? profile.name : 'Create User' }}</h2>
-          <div class="mt-2">
-            <div
-              v-if="error"
-              class="mb-2 mt-1 text-error"
-              aria-live="polite"
-              role="alert"
-            >
-              <span class="font-weight-bolder text-error">Error: {{ error }}</span>
-            </div>
-            <div v-if="!isExistingUser" class="align-items-center mt-3">
-              <label for="uid-input" class="sr-only">U I D </label>
-              <v-text-field
-                id="uid-input"
-                v-model="userProfile.uid"
-                density="compact"
-                hide-details
-                label="UID"
-                variant="outlined"
-                width="50%"
-              />
-            </div>
-            <div class="mt-2">
-              <div class="d-flex">
-                <div class="w-50">
-                  <v-checkbox
-                    id="is-admin"
-                    v-model="userProfile.isAdmin"
-                    density="compact"
-                    label="Admin"
-                    color="primary"
-                    hide-details="true"
-                  />
-                  <v-checkbox
-                    id="is-blocked"
-                    v-model="userProfile.isBlocked"
-                    density="compact"
-                    color="primary"
-                    label="Blocked"
-                    hide-details="true"
-                  />
-                  <v-checkbox
-                    v-if="profile.id"
-                    id="is-deleted"
-                    v-model="isDeleted"
-                    density="compact"
-                    color="primary"
-                    label="Deleted"
-                    hide-details="true"
-                  />
-                </div>
-                <div>
-                  <v-checkbox
-                    id="can-access-canvas-data"
-                    v-model="userProfile.canAccessCanvasData"
-                    density="compact"
-                    color="primary"
-                    label="Canvas Data"
-                    hide-details="true"
-                  />
-                  <v-checkbox
-                    id="can-access-advising-data"
-                    v-model="userProfile.canAccessAdvisingData"
-                    density="compact"
-                    color="primary"
-                    label="Notes and Appointments"
-                    hide-details="true"
-                  />
-                </div>
-              </div>
-            </div>
-            <div
-              v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission"
-              class="mt-3"
-            >
-              <hr class="mb-3" />
-              <label class="font-weight-black" for="degree-progress-permission-select">Degree Progress Permission</label>
-              <div class="mt-1">
-                <select
-                  id="degree-progress-permission-select"
-                  v-model="userProfile.degreeProgressPermission"
-                  class="select-menu w-50"
-                >
-                  <option id="department-null" :value="null">Select...</option>
-                  <option
-                    v-for="option in degreeProgressPermissionItems"
-                    :key="option.value"
-                    :value="option.value"
-                  >
-                    {{ option.text }}
-                  </option>
-                </select>
-              </div>
-              <div class="mt-1">
+      <v-card
+        class="modal-content"
+        max-width="600"
+        min-width="600"
+      >
+        <v-card-title>
+          <ModalHeader clazz="px-2" :text="isExistingUser ? profile.name : 'Create User'" />
+        </v-card-title>
+        <v-card-text>
+          <div
+            v-if="error"
+            class="mb-2 mt-1 text-error"
+            aria-live="polite"
+            role="alert"
+          >
+            <span class="font-weight-bolder text-error">Error: {{ error }}</span>
+          </div>
+          <div v-if="!isExistingUser" class="align-items-center pb-3">
+            <label for="uid-input" class="sr-only">U I D </label>
+            <v-text-field
+              id="uid-input"
+              v-model="userProfile.uid"
+              density="compact"
+              hide-details
+              label="UID"
+              variant="outlined"
+              width="50%"
+            />
+          </div>
+          <div class="pb-3">
+            <div class="d-flex">
+              <div class="w-50">
                 <v-checkbox
-                  id="automate-degree-progress-permission"
-                  v-model="userProfile.automateDegreeProgressPermission"
+                  id="is-admin"
+                  v-model="userProfile.isAdmin"
+                  density="compact"
+                  label="Admin"
+                  color="primary"
+                  hide-details="true"
+                />
+                <v-checkbox
+                  id="is-blocked"
+                  v-model="userProfile.isBlocked"
                   density="compact"
                   color="primary"
-                  label="Automate Degree Progress permissions"
+                  label="Blocked"
+                  hide-details="true"
+                />
+                <v-checkbox
+                  v-if="profile.id"
+                  id="is-deleted"
+                  v-model="isDeleted"
+                  density="compact"
+                  color="primary"
+                  label="Deleted"
+                  hide-details="true"
+                />
+              </div>
+              <div>
+                <v-checkbox
+                  id="can-access-canvas-data"
+                  v-model="userProfile.canAccessCanvasData"
+                  density="compact"
+                  color="primary"
+                  label="Canvas Data"
+                  hide-details="true"
+                />
+                <v-checkbox
+                  id="can-access-advising-data"
+                  v-model="userProfile.canAccessAdvisingData"
+                  density="compact"
+                  color="primary"
+                  label="Notes and Appointments"
                   hide-details="true"
                 />
               </div>
             </div>
           </div>
-          <hr class="my-3" />
-          <h3 class="font-size-18">Departments</h3>
+          <div
+            v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission"
+            class="pb-3"
+          >
+            <hr class="mb-3" />
+            <label class="font-weight-black" for="degree-progress-permission-select">Degree Progress Permission</label>
+            <div class="mt-1">
+              <select
+                id="degree-progress-permission-select"
+                v-model="userProfile.degreeProgressPermission"
+                class="select-menu w-50"
+              >
+                <option id="department-null" :value="null">Select...</option>
+                <option
+                  v-for="option in degreeProgressPermissionItems"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.text }}
+                </option>
+              </select>
+            </div>
+            <div class="mt-1">
+              <v-checkbox
+                id="automate-degree-progress-permission"
+                v-model="userProfile.automateDegreeProgressPermission"
+                density="compact"
+                color="primary"
+                label="Automate Degree Progress permissions"
+                hide-details="true"
+              />
+            </div>
+          </div>
+          <h4 class="font-size-18">Departments</h4>
           <div
             v-for="dept in memberships"
             :key="dept.code"
-            class="mt-2"
+            class="pt-2"
           >
             <div class="align-center d-flex">
-              <h4 class="font-size-16">{{ dept.name }} ({{ dept.code }})</h4>
+              <h5 class="font-size-16">{{ dept.name }} ({{ dept.code }})</h5>
               <v-btn
                 :id="`remove-department-${dept.code}`"
                 :aria-label="`Remove department '${dept.name}'`"
@@ -244,11 +249,13 @@
 </template>
 
 <script setup>
+import ModalHeader from '@/components/util/ModalHeader'
+import {lowerCase} from 'lodash'
 import {mdiNoteEditOutline} from '@mdi/js'
 import {mdiPlus} from '@mdi/js'
 import {mdiCloseCircleOutline} from '@mdi/js'
 import {mdiCheckBold} from '@mdi/js'
-import {lowerCase} from 'lodash'
+import {putFocusNextTick} from '@/lib/utils'
 </script>
 
 <script>
@@ -262,6 +269,10 @@ export default {
   name: 'EditUserProfileModal',
   mixins: [Context, Util],
   props: {
+    afterCancel: {
+      required: true,
+      type: Function
+    },
     afterUpdateUser: {
       required: true,
       type: Function
@@ -321,6 +332,7 @@ export default {
     },
     cancel() {
       this.closeModal()
+      this.afterCancel(this.profile)
     },
     closeModal() {
       this.showEditUserModal = false
@@ -362,6 +374,7 @@ export default {
         })
       })
       this.showEditUserModal = true
+      putFocusNextTick(this.profile.uid ? 'is-admin' : 'uid-input')
     },
     removeDepartment(deptCode) {
       let indexOf = this.memberships.findIndex(d => d.code === deptCode)

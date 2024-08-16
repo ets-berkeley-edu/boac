@@ -1,13 +1,13 @@
 <template>
   <v-dialog
     v-model="model"
-    :aria-describedby="text ? 'are-you-sure-text' : null"
+    aria-describedby="are-you-sure-text"
     aria-labelledby="are-you-sure-header"
     persistent
     retain-focus
     width="auto"
   >
-    <v-card min-width="600">
+    <v-card class="modal-content" min-width="600">
       <v-card-title>
         <ModalHeader class="ml-2 mt-2" header-id="are-you-sure-header" :text="modalHeader" />
       </v-card-title>
@@ -79,8 +79,8 @@ let isProcessing = ref(false)
 // eslint-disable-next-line vue/require-prop-types
 const model = defineModel()
 
-watch(model, () => {
-  onToggle(model.value)
+watch(model, value => {
+  onToggle(value)
 })
 
 const confirm = () => {
@@ -95,7 +95,7 @@ const confirm = () => {
 
 const onToggle = isOpen => {
   if (isOpen) {
-    putFocusNextTick('are-you-sure-cancel')
+    putFocusNextTick(props.functionCancel ? 'are-you-sure-cancel' : 'are-you-sure-confirm')
   }
 }
 </script>

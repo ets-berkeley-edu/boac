@@ -69,83 +69,18 @@
                 </v-col>
                 <v-col class="pl-8">
                   <div class="align-center d-flex float-right">
-                    <v-dialog
-                      v-model="template.isRenameDialogOpen"
-                      aria-labelledby="rename-template-dialog-header"
-                      persistent
-                      width="auto"
+                    <v-btn
+                      :id="`btn-rename-note-template-${template.id}`"
+                      class="font-size-14"
+                      color="primary"
+                      density="compact"
+                      :disabled="isSaving"
+                      size="sm"
+                      variant="text"
+                      @click.stop="openRenameTemplateDialog(template)"
                     >
-                      <template #activator="{props: activatorProps}">
-                        <v-btn
-                          v-bind="activatorProps"
-                          :id="`btn-rename-note-template-${template.id}`"
-                          class="font-size-14"
-                          color="primary"
-                          density="compact"
-                          :disabled="isSaving"
-                          size="sm"
-                          variant="text"
-                          @click="openRenameTemplateDialog(template)"
-                        >
-                          Rename<span class="sr-only"> template {{ template.title }}</span>
-                        </v-btn>
-                      </template>
-                      <v-card width="600">
-                        <v-card-title class="pl-6 pt-5">
-                          <ModalHeader header-id="rename-template-dialog-header" text="Rename Your Template" />
-                        </v-card-title>
-                        <v-card-text class="pr-8 py-2">
-                          <v-text-field
-                            id="rename-template-input"
-                            v-model="updatedTemplateTitle"
-                            counter="255"
-                            density="compact"
-                            :disabled="isSaving"
-                            label="Template name"
-                            maxlength="255"
-                            persistent-counter
-                            :rules="[
-                              v => !!v || 'Template name is required',
-                              v => !v || v.length <= 255 || 'Template name cannot exceed 255 characters.'
-                            ]"
-                            variant="outlined"
-                            @keyup.enter="() => renameTemplate(template)"
-                          >
-                            <template #counter="{max, value}">
-                              <div id="rename-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">
-                                <span class="sr-only">Template name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
-                              </div>
-                            </template>
-                          </v-text-field>
-                          <div
-                            v-if="error"
-                            id="rename-template-error"
-                            aria-live="polite"
-                            class="text-error font-size-13 font-weight-regular"
-                            role="alert"
-                          >
-                            {{ error }}
-                          </div>
-                        </v-card-text>
-                        <v-card-actions class="pb-6 pr-8">
-                          <ProgressButton
-                            id="rename-template-confirm"
-                            :action="() => renameTemplate(template)"
-                            :disabled="isSaving || !size(updatedTemplateTitle) || size(updatedTemplateTitle) > 255"
-                            :in-progress="isSaving"
-                            :text="isSaving ? 'Renaming' : 'Rename'"
-                          />
-                          <v-btn
-                            id="cancel-rename-template"
-                            class="ml-1"
-                            :disabled="isSaving"
-                            text="Cancel"
-                            variant="plain"
-                            @click="() => cancel(template)"
-                          />
-                        </v-card-actions>
-                      </v-card>
-                    </v-dialog>
+                      Rename<span class="sr-only"> template {{ template.title }}</span>
+                    </v-btn>
                     <div class="mx-1" role="separator">
                       |
                     </div>
@@ -182,16 +117,76 @@
             </v-container>
           </v-list-item-action>
         </v-list>
-        <div v-if="!noteStore.noteTemplates.length" id="no-templates-header" class="templates-menu-header text-medium-emphasis">
-          <div class="font-weight-bold">Templates</div>
-          <div class="templates-menu-instructions">
-            You have no saved templates.
-          </div>
+        <div v-if="!noteStore.noteTemplates.length" id="no-templates-header" class="bg-white templates-menu-header text-medium-emphasis">
+          You have no saved templates.
         </div>
       </v-menu>
     </div>
+    <v-dialog
+      v-model="isRenameTemplateDialogOpen"
+      :activator="templateToRename ? `btn-rename-note-template-${templateToRename.id}` : null"
+      aria-labelledby="rename-template-dialog-header"
+      persistent
+      width="auto"
+    >
+      <v-card width="600">
+        <v-card-title class="pl-6 pt-5">
+          <ModalHeader header-id="rename-template-dialog-header" text="Rename Your Template" />
+        </v-card-title>
+        <v-card-text class="pr-8 py-2">
+          <v-text-field
+            id="rename-template-input"
+            v-model="updatedTemplateTitle"
+            counter="255"
+            density="compact"
+            :disabled="isSaving"
+            label="Template name"
+            maxlength="255"
+            persistent-counter
+            :rules="[
+              v => !!v || 'Template name is required',
+              v => !v || v.length <= 255 || 'Template name cannot exceed 255 characters.'
+            ]"
+            variant="outlined"
+            @keyup.enter="() => renameTemplate(templateToRename)"
+          >
+            <template #counter="{max, value}">
+              <div id="rename-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">
+                <span class="sr-only">Template name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+              </div>
+            </template>
+          </v-text-field>
+          <div
+            v-if="error"
+            id="rename-template-error"
+            aria-live="polite"
+            class="text-error font-size-13 font-weight-regular"
+            role="alert"
+          >
+            {{ error }}
+          </div>
+        </v-card-text>
+        <v-card-actions class="pb-6 pr-8">
+          <ProgressButton
+            id="rename-template-confirm"
+            :action="() => renameTemplate(template)"
+            :disabled="isSaving || !size(updatedTemplateTitle) || size(updatedTemplateTitle) > 255"
+            :in-progress="isSaving"
+            :text="isSaving ? 'Renaming' : 'Rename'"
+          />
+          <v-btn
+            id="cancel-rename-template"
+            class="ml-1"
+            :disabled="isSaving"
+            text="Cancel"
+            variant="plain"
+            @click="() => cancel(templateToRename)"
+          />
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <AreYouSureModal
-      v-model="isDeleting"
+      v-model="isDeleteTemplateDialogOpen"
       button-label-confirm="Delete"
       :function-cancel="() => cancel(templateToDelete)"
       :function-confirm="() => deleteTemplateConfirmed()"
@@ -222,9 +217,14 @@ const noteStore = useNoteStore()
 const updatedTemplateTitle = ref(undefined)
 const suppressAutoSaveDraftNoteAlert = ref(false)
 const templateToDelete = ref(undefined)
+const templateToRename = ref(undefined)
 
-const isDeleting = computed(() => {
+const isDeleteTemplateDialogOpen = computed(() => {
   return !!templateToDelete.value
+})
+
+const isRenameTemplateDialogOpen = computed(() => {
+  return !!templateToRename.value
 })
 
 watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = true, 5000))
@@ -232,7 +232,7 @@ watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => 
 const cancel = template => {
   resetTemplate(template, template.title)
   alertScreenReader('Canceled')
-  putFocusNextTick('create-note-subject')
+  putFocusNextTick('my-templates-button')
   enableFocusLock()
 }
 
@@ -242,7 +242,7 @@ const deleteTemplateConfirmed = () => {
     isSaving.value = false
     resetTemplate(templateToDelete.value, templateToDelete.value.title)
     alertScreenReader('Template deleted.')
-    putFocusNextTick('create-note-subject')
+    putFocusNextTick('my-templates-button')
     enableFocusLock()
   })
 }
@@ -274,13 +274,12 @@ const onToggleTemplatesMenu = isOpen => {
 
 const openDeleteTemplateDialog = template => {
   templateToDelete.value = template
-  template.isDeleteDialogOpen = true
   disableFocusLock()
 }
 
 const openRenameTemplateDialog = template => {
+  templateToRename.value = template
   updatedTemplateTitle.value = template.title
-  template.isRenameDialogOpen = true
   disableFocusLock()
   putFocusNextTick('rename-template-input')
 }
@@ -294,20 +293,22 @@ const renameTemplate = template => {
     error.value = errorMessage
     isSaving.value = false
   } else {
+    alertScreenReader('Renaming template')
     renameNoteTemplate(template.id, templateTitle).then(() => {
       isSaving.value = false
       resetTemplate(template, templateTitle)
       alertScreenReader(`Template renamed '${template.title}'.`)
+      putFocusNextTick('my-templates-button')
       enableFocusLock()
     })
   }
 }
 
 const resetTemplate = (template, title) => {
-  template.isDeleteDialogOpen = template.isRenameDialogOpen = false
   template.title = title
   updatedTemplateTitle.value = null
   templateToDelete.value = null
+  templateToRename.value = null
 }
 </script>
 
@@ -321,10 +322,6 @@ const resetTemplate = (template, title) => {
 .templates-menu-header {
   font-size: .875rem;
   padding: 0.5rem 1.5rem;
-}
-.templates-menu-instructions {
-  max-width: 300px;
-  white-space: normal;
 }
 @keyframes bounce-in {
   0% {

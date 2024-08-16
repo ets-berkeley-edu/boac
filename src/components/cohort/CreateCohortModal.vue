@@ -1,74 +1,73 @@
 <template>
   <v-overlay
     v-model="showModalProxy"
+    aria-labelledby="modal-header"
     class="justify-center overflow-auto"
     persistent
     width="100%"
-    @update:model-value="onToggle"
   >
     <v-card
       class="modal-content"
       min-width="400"
       max-width="600"
     >
-      <ModalHeader clazz="px-4" text="Name Your Cohort" />
-      <hr />
-      <div class="px-8 w-100">
-        <form @submit.prevent="createCohort" @keydown.esc="cancelModal">
-          <div class="pt-2">
-            <v-text-field
-              id="create-cohort-input"
-              v-model="name"
-              aria-label="Cohort name, 255 characters or fewer"
-              aria-required="true"
-              class="v-input-details-override mr-2"
-              counter="255"
-              density="compact"
-              :disabled="isSaving"
-              maxlength="255"
-              required
-              type="text"
-              persistent-counter
-              :rules="[validationRules.valid]"
-              validate-on="lazy input"
-              variant="outlined"
-              @keyup.esc="cancel"
-            >
-              <template #counter="{max, value}">
-                <div id="name-create-cohort-counter" aria-live="polite" class="font-size-13 text-no-wrap ml-2 mt-1">
-                  <span class="sr-only">Cohort name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
-                </div>
-              </template>
-            </v-text-field>
-          </div>
-          <div class="d-flex justify-end mt-4">
-            <ProgressButton
-              id="create-confirm"
-              :action="createCohort"
-              :disabled="!name.length"
-              :in-progress="isSaving"
-              size="large"
-              text="Save"
-            />
-            <v-btn
-              id="create-cancel"
-              :disabled="isSaving"
-              variant="plain"
-              @click="cancelModal"
-            >
-              Cancel
-            </v-btn>
-          </div>
-        </form>
-      </div>
+      <v-card-title>
+        <ModalHeader clazz="px-2" text="Name Your Cohort" />
+      </v-card-title>
+      <form @submit.prevent="createCohort" @keydown.esc="cancelModal">
+        <v-card-text>
+          <v-text-field
+            id="create-cohort-input"
+            v-model="name"
+            aria-label="Cohort name, 255 characters or fewer"
+            aria-required="true"
+            class="v-input-details-override mr-2"
+            counter="255"
+            density="compact"
+            :disabled="isSaving"
+            maxlength="255"
+            required
+            type="text"
+            persistent-counter
+            :rules="[validationRules.valid]"
+            validate-on="lazy input"
+            variant="outlined"
+            @keyup.esc="cancelModal"
+          >
+            <template #counter="{max, value}">
+              <div id="name-create-cohort-counter" aria-live="polite" class="font-size-13 text-no-wrap ml-2 mt-1">
+                <span class="sr-only">Cohort name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+              </div>
+            </template>
+          </v-text-field>
+        </v-card-text>
+        <hr />
+        <v-card-actions class="d-flex justify-end">
+          <ProgressButton
+            id="create-cohort-confirm-btn"
+            :action="createCohort"
+            :disabled="!name.length"
+            :in-progress="isSaving"
+            text="Save"
+          />
+          <v-btn
+            id="create-cohort-cancel-btn"
+            :disabled="isSaving"
+            variant="plain"
+            @click="cancelModal"
+          >
+            Cancel
+          </v-btn>
+        </v-card-actions>
+      </form>
     </v-card>
   </v-overlay>
 </template>
 
 <script>
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {putFocusNextTick} from '@/lib/utils'
 import {validateCohortName} from '@/lib/cohort'
 
 export default {
@@ -99,6 +98,15 @@ export default {
       return this.showModal
     }
   },
+  watch: {
+    showModalProxy(isOpen) {
+      if (isOpen) {
+        putFocusNextTick('create-cohort-input')
+      } else {
+        this.cancel()
+      }
+    }
+  },
   created() {
     this.validationRules = {
       valid: name => {
@@ -110,8 +118,10 @@ export default {
   },
   methods: {
     cancelModal() {
+      alertScreenReader('Canceled')
       this.cancel()
       this.reset()
+      putFocusNextTick('save-cohort-button')
     },
     createCohort() {
       if (true !== validateCohortName({name: this.name})) {
@@ -121,13 +131,6 @@ export default {
         this.create(this.name).then(() => {
           this.reset()
         })
-      }
-    },
-    onToggle(isOpen) {
-      if (isOpen) {
-        putFocusNextTick('modal-header')
-      } else {
-        this.cancel()
       }
     },
     reset() {

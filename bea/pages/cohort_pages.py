@@ -38,10 +38,10 @@ class CohortPages(BoaPages):
 
     RESULTS = By.XPATH, '//h1'
     EXPORT_LIST_BUTTON = By.ID, 'export-student-list-button'
-    FERPA_WARNING_LINK = By.XPATH, '//a[contains(text(), "Office of the Registrar\'s FERPA guide")]'
+    FERPA_WARNING_LINK = By.ID, 'ferpa-guide-external-href'
     EXPORT_LIST_CXL_BUTTON = By.ID, 'export-list-cancel'
     HISTORY_BUTTON = By.ID, 'show-cohort-history-button'
-    BACK_TO_COHORT_BUTTON = By.XPATH, '//button[contains(text(), "Back to Cohort")]'
+    BACK_TO_COHORT_BUTTON = By.ID, 'back-to-cohort-button'
 
     @staticmethod
     def cohort_heading_loc(cohort):
@@ -62,10 +62,10 @@ class CohortPages(BoaPages):
 
     # SAVE/CREATE
 
-    SAVE_COHORT_BUTTON_ONE = By.ID, 'save-button'
+    SAVE_COHORT_BUTTON_ONE = By.ID, 'save-cohort-button'
     COHORT_NAME_INPUT = By.ID, 'create-cohort-input'
-    SAVE_COHORT_BUTTON_TWO = By.ID, 'create-confirm'
-    CANCEL_COHORT_BUTTON = By.ID, 'create-cancel'
+    SAVE_COHORT_BUTTON_TWO = By.ID, 'create-cohort-confirm-btn'
+    CANCEL_COHORT_BUTTON = By.ID, 'create-cohort-cancel-btn'
     APPLY_BUTTON = By.ID, 'unsaved-filter-apply'
 
     def click_save_cohort_button_one(self):
@@ -103,9 +103,9 @@ class CohortPages(BoaPages):
 
     # RENAME
 
-    RENAME_COHORT_BUTTON = By.ID, 'rename-button'
-    RENAME_COHORT_CONFIRM_BUTTON = By.ID, 'rename-confirm'
-    RENAME_COHORT_CANCEL_BUTTON = By.ID, 'rename-cancel'
+    RENAME_COHORT_BUTTON = By.ID, 'rename-cohort-button'
+    RENAME_COHORT_CONFIRM_BUTTON = By.ID, 'rename-cohort-confirm'
+    RENAME_COHORT_CANCEL_BUTTON = By.ID, 'rename-cohort-cancel'
     RENAME_COHORT_INPUT = By.ID, 'rename-cohort-input'
 
     def rename_cohort(self, cohort, new_name):
@@ -119,7 +119,7 @@ class CohortPages(BoaPages):
 
     # DELETE
 
-    DELETE_COHORT_BUTTON = By.ID, 'delete-button'
+    DELETE_COHORT_BUTTON = By.ID, 'delete-cohort-button'
     CONFIRM_DELETE_BUTTON = By.ID, 'are-you-sure-confirm'
     CANCEL_DELETE_BUTTON = By.ID, 'are-you-sure-cancel'
 

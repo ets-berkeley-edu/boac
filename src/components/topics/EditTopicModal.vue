@@ -1,45 +1,54 @@
 <template>
-  <v-dialog v-model="showEditTopicModal" width="auto">
+  <v-dialog
+    v-model="showEditTopicModal"
+    aria-labelledby="modal-header"
+    width="auto"
+  >
     <v-card
-      max-width="400"
-      title="Create Topic"
+      class="modal-content"
+      min-width="400"
     >
-      <v-card-actions>
+      <v-card-title>
+        <ModalHeader text="Create Topic" />
+      </v-card-title>
+      <v-card-text>
         <div class="text-field-width d-block">
           <v-text-field
-            id="topic-label"
+            id="create-topic-input"
             v-model="topic"
             aria-describedby="input-live-help topic-label-error"
-            variant="outlined"
-            :maxlength="50"
+            hide-details
             required
+            :maxlength="50"
+            variant="outlined"
           >
           </v-text-field>
         </div>
-      </v-card-actions>
-      <div id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
-        <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
-        <span v-if="isLabelReserved">Sorry, the label '{{ _trim(topic) }}' is assigned to an existing topic.</span>
-      </div>
-      <div class="text-grey font-size-14 pl-2 pt-2">
-        <span v-if="!isLabelReserved && isValidLabel" id="input-live-help">
-          {{ maxLabelLength }} character limit <span v-if="topic.length">({{ maxLabelLength - topic.length }} left)</span>
-        </span>
-      </div>
-      <v-spacer></v-spacer>
+        <div id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
+          <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
+          <span v-if="isLabelReserved">Sorry, the label '{{ trim(topic) }}' is assigned to an existing topic.</span>
+        </div>
+        <div class="text-grey font-size-14 pl-2 pt-2">
+          <span v-if="!isLabelReserved && isValidLabel" id="input-live-help">
+            {{ maxLabelLength }} character limit <span v-if="topic.length">({{ maxLabelLength - topic.length }} left)</span>
+          </span>
+        </div>
+      </v-card-text>
+      <hr />
       <v-card-actions>
         <form @submit.prevent="save">
           <v-btn
             id="topic-save"
-            variant="flat"
+            color="primary"
             :disabled="disableSaveButton"
+            variant="flat"
             @click.prevent="save"
           >
             Save
           </v-btn>
           <v-btn
             id="cancel"
-            variant="outlined"
+            variant="plain"
             :disabled="isSaving"
             @click.stop="cancel"
           >
@@ -51,77 +60,76 @@
   </v-dialog>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
+<script setup>
+import ModalHeader from '@/components/util/ModalHeader'
+import {computed, ref, watch} from 'vue'
 import {createTopic} from '@/api/topics'
+import {find, trim} from 'lodash'
+import {putFocusNextTick} from '@/lib/utils'
 
-export default {
-  name: 'EditTopicModal',
-  mixins: [Context, Util],
-  props: {
-    afterSave: {
-      required: true,
-      type: Function
-    },
-    allTopics: {
-      required: true,
-      type: Array
-    },
-    onCancel: {
-      required: true,
-      type: Function
-    }
+const props = defineProps({
+  afterSave: {
+    required: true,
+    type: Function
   },
-  data: () => ({
-    error: undefined,
-    isSaving: false,
-    maxLabelLength: 50,
-    minLabelLength: 3,
-    showEditTopicModal: false,
-    topic: undefined
-  }),
-  computed: {
-    disableSaveButton() {
-      return !this.isValidLabel || this.isSaving || this.isLabelReserved
-    },
-    isLabelReserved() {
-      return !!this._find(this.allTopics, t => {
-        const trimmed = this._trim(this.topic)
-        return t.topic.toLowerCase() === trimmed.toLowerCase()
-      })
-    },
-    isValidLabel() {
-      return this._trim(this.topic).length >= this.minLabelLength
-    }
+  allTopics: {
+    required: true,
+    type: Array
   },
-  created() {
-    this.topic = ''
-    this.showEditTopicModal = true
-  },
-  methods: {
-    cancel() {
-      this.showEditTopicModal = false
-      this.onCancel()
-    },
-    save() {
-      this.isSaving = true
-      this.topic = this._trim(this.topic)
-      createTopic(this.topic).then(data => {
-        this.afterSave(data)
-        this.isSaving = false
-        this.showEditTopicModal = false
-      })
-    }
+  onCancel: {
+    required: true,
+    type: Function
   }
+})
+
+const isSaving = ref(false)
+const maxLabelLength = ref(50)
+const minLabelLength = ref(3)
+const showEditTopicModal = ref(false)
+const topic = ref(undefined)
+const disableSaveButton = computed(() => {
+  return !isValidLabel.value || isSaving.value || isLabelReserved.value
+})
+const isLabelReserved = computed(() => {
+  return !!find(props.allTopics, t => {
+    const trimmed = trim(topic.value)
+    return t.topic.toLowerCase() === trimmed.toLowerCase()
+  })
+})
+const isValidLabel = computed(() => {
+  return trim(topic.value).length >= minLabelLength.value
+})
+
+watch(showEditTopicModal, () => {
+  if (showEditTopicModal.value) {
+    putFocusNextTick('create-topic-input')
+  }
+})
+
+const cancel = () => {
+  showEditTopicModal.value = false
+  props.onCancel()
 }
+
+const init = () => {
+  topic.value = ''
+  showEditTopicModal.value = true
+}
+
+const save = () => {
+  isSaving.value = true
+  topic.value = trim(topic.value)
+  createTopic(topic.value).then(data => {
+    props.afterSave(data)
+    isSaving.value = false
+    showEditTopicModal.value = false
+  })
+}
+
+init()
 </script>
 
 <style scoped>
-.topic-label-input-container {
-  min-height: 110px;
-}
-
 .text-field-width {
   width: 350px;
 }

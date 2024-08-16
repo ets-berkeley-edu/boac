@@ -27,7 +27,7 @@
       />
       <div class="d-flex justify-end">
         <ProgressButton
-          id="rename-confirm"
+          id="rename-cohort-confirm"
           :action="submit"
           :disabled="isInvalid || isSaving"
           :in-progress="isSaving"
@@ -35,7 +35,8 @@
           text="Rename"
         />
         <v-btn
-          id="rename-cancel"
+          id="rename-cohort-cancel"
+          class="ml-1"
           :disabled="isSaving"
           size="large"
           text="Cancel"

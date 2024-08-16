@@ -7,6 +7,7 @@
   >
     <template #activator="{props}">
       <v-btn
+        :id="`assign-course-${course.id}-btn`"
         :aria-label="`${course.name} category options`"
         :class="{
           'accent-color-blue': course.accentColor === 'Blue',

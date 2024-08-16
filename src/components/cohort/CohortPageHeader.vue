@@ -49,7 +49,7 @@
         </div>
         <v-btn
           v-if="cohortStore.cohortId && cohortStore.isOwnedByCurrentUser"
-          id="rename-button"
+          id="rename-cohort-button"
           class="font-size-15 px-1"
           color="anchor"
           text="Rename"
@@ -65,7 +65,7 @@
         </div>
         <v-btn
           v-if="cohortStore.cohortId && cohortStore.isOwnedByCurrentUser"
-          id="delete-button"
+          id="delete-cohort-button"
           class="font-size-15 px-1"
           color="anchor"
           text="Delete"
@@ -119,7 +119,7 @@
       </div>
       <div v-if="showHistory" class="d-flex align-self-baseline mr-4">
         <v-btn
-          id="show-cohort-history-button"
+          id="back-to-cohort-button"
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           text="Back to Cohort"
@@ -203,12 +203,15 @@ watch(name, () => {
   renameError.value = undefined
 })
 watch(showDeleteModal, () => {
+  putFocusNextTick('are-you-sure-cancel')
   error.value = undefined
 })
 watch(showExportAdmitsModal, () => {
+  putFocusNextTick('csv-column-options-0')
   error.value = undefined
 })
 watch(showExportStudentsModal, () => {
+  putFocusNextTick('csv-column-options-0')
   error.value = undefined
 })
 
@@ -220,19 +223,24 @@ const beginRename = () => {
 }
 
 const cancelDeleteModal = () => {
+  const cohortName = cohortStore.cohortName ? `'${cohortStore.cohortName}'` : ''
   showDeleteModal.value = false
-  alertScreenReader(`Cancel deletion of cohort '${name.value}'`)
+  alertScreenReader(`Cancel deletion of cohort ${cohortName}`)
+  putFocusNextTick('delete-cohort-button')
 }
 
 const cancelExportModal = () => {
+  const cohortName = cohortStore.cohortName ? `'${cohortStore.cohortName}'` : ''
   showExportAdmitsModal.value = showExportStudentsModal.value = false
-  alertScreenReader(`Cancel export of cohort '${name.value}'`)
+  alertScreenReader(`Cancel export of cohort ${cohortName}`)
+  putFocusNextTick('export-student-list-button')
 }
 
 const cancelRename = () => {
   name.value = cohortStore.cohortName
   cohortStore.setEditMode(null)
   alertScreenReader(`Cancel renaming of cohort '${name.value}'`)
+  putFocusNextTick('rename-cohort-button')
 }
 
 const cohortDelete = () => {
@@ -259,13 +267,15 @@ const downloadCsvPerFilters = csvColumnsSelected => {
 }
 
 const exportStudents = csvColumnsSelected => {
+  const cohortName = name.value ? `'${name.value}'` : ''
   isDownloadingCSV.value = true
-  alertScreenReader(`Exporting cohort '${name.value}'`)
+  alertScreenReader(`Exporting cohort ${cohortName}`)
   return downloadCsvPerFilters(csvColumnsSelected).then(() => {
     showExportAdmitsModal.value = showExportStudentsModal.value = isDownloadingCSV.value = false
-    alertScreenReader(`Downloading cohort '${name.value}'`)
+    alertScreenReader(`Downloading cohort ${cohortName}`)
+    putFocusNextTick('export-student-list-button')
   }, error => {
-    alertScreenReader(`Failed to export cohort '${name.value}'`)
+    alertScreenReader(`Failed to export cohort ${cohortName}`)
     handleError(error)
   })
 }
@@ -277,5 +287,6 @@ const handleError = error => {
 const toggleShowHideDetails = () => {
   cohortStore.toggleCompactView()
   alertScreenReader(cohortStore.isCompactView ? 'Filters are hidden' : 'Filters are visible')
+  putFocusNextTick('show-hide-details-button')
 }
 </script>

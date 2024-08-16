@@ -21,7 +21,7 @@
     />
     <div v-if="cohort.showSaveButton && currentAction !== 'search'">
       <ProgressButton
-        id="save-button"
+        id="save-cohort-button"
         :action="save"
         :color="currentAction === 'acknowledgeSave' ? 'success' : 'primary'"
         :disabled="!!cohort.editMode || showCreateModal || !!currentAction"
@@ -78,15 +78,14 @@ const apply = () => {
   )
   const termId = get(context.currentUser.preferences, 'termId')
   applyFilters(orderBy, termId).then(() => {
-    putFocusNextTick('cohort-results-header')
-    alertScreenReader(`Results include ${cohort.totalStudentCount} student${cohort.totalStudentCount === 1 ? '' : 's'}`)
     cohort.setModifiedSinceLastSearch(false)
     currentAction.value = null
+    alertScreenReader(`Results include ${cohort.totalStudentCount} student${cohort.totalStudentCount === 1 ? '' : 's'}`)
+    putFocusNextTick('save-cohort-button')
   })
 }
 
 const cancelCreateModal = () => {
-  alertScreenReader('Canceled')
   showCreateModal.value = false
 }
 
@@ -110,7 +109,10 @@ const create = name => {
 
 const resetToLastApply = () => {
   alertScreenReader('Resetting filters')
-  resetFiltersToLastApply()
+  resetFiltersToLastApply().then(() => {
+    alertScreenReader('Filters reset')
+    putFocusNextTick('filter-select-primary-new')
+  })
 }
 
 const resetToSaved = () => {
@@ -120,8 +122,9 @@ const resetToSaved = () => {
   cohort.setEditMode('apply')
   loadCohort(cohort.cohortId, cohort.orderBy, cohort.termId).then(() => {
     cohort.setEditMode(null)
-    alertScreenReader('Filters reset')
     currentAction.value = null
+    alertScreenReader('Filters reset')
+    putFocusNextTick('filter-select-primary-new')
   })
 }
 
@@ -135,13 +138,13 @@ const save = () => {
     })
   } else {
     showCreateModal.value = true
-    alertScreenReader('Create cohort form is open')
   }
 }
 
 const savedCohortCallback = updateStatus => {
-  alertScreenReader(updateStatus)
   currentAction.value = 'acknowledgeSave'
+  alertScreenReader(updateStatus)
+  putFocusNextTick('filter-select-primary-new')
   setTimeout(() => (currentAction.value = null), 2000)
 }
 </script>

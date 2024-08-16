@@ -3,7 +3,6 @@
     <h2
       id="advanced-search-header"
       class="font-size-24 font-weight-700"
-      tabindex="-1"
     >
       Advanced Search
     </h2>

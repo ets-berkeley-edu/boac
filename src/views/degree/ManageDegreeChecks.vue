@@ -125,7 +125,7 @@
               {{ DateTime.fromISO(item.createdAt).toFormat('DD') }}
             </div>
           </template>
-          <template #item.actions="{index, item}">
+          <template #item.actions="{item}">
             <div v-if="item.id === get(templateForEdit, 'id')" class="align-start d-flex float-right">
               <v-btn
                 id="confirm-rename-btn"
@@ -165,7 +165,7 @@
               <div v-if="currentUser.canEditDegreeProgress">
                 <span class="separator">|</span>
                 <v-btn
-                  :id="`degree-check-${index}-rename-btn`"
+                  :id="`degree-check-${item.id}-rename-btn`"
                   color="primary"
                   :disabled="isBusy"
                   variant="text"
@@ -178,7 +178,7 @@
               <div v-if="currentUser.canEditDegreeProgress">
                 <span class="separator">|</span>
                 <v-btn
-                  :id="`degree-check-${index}-copy-btn`"
+                  :id="`degree-check-${item.id}-copy-btn`"
                   color="primary"
                   :disabled="isBusy"
                   variant="text"
@@ -191,7 +191,7 @@
               <div v-if="currentUser.canEditDegreeProgress">
                 <span class="separator">|</span>
                 <v-btn
-                  :id="`degree-check-${index}-delete-btn`"
+                  :id="`degree-check-${item.id}-delete-btn`"
                   color="primary"
                   :disabled="isBusy"
                   variant="text"
@@ -277,21 +277,21 @@ const afterClone = clone => {
 }
 
 const cancelEdit = () => {
-  putFocusNextTick(`degree-check-${templateForEdit.value.id}-link`)
+  putFocusNextTick(`degree-check-${templateForEdit.value.id}-rename-btn`)
   templateForEdit.value = null
   isBusy.value = false
   alertScreenReader('Canceled')
 }
 
 const cloneCanceled = () => {
-  putFocusNextTick(`degree-check-${templateToClone.value.id}-link`)
+  putFocusNextTick(`degree-check-${templateToClone.value.id}-copy-btn`)
   templateToClone.value = null
   isBusy.value = false
   alertScreenReader('Copy canceled.')
 }
 
 const deleteCanceled = () => {
-  putFocusNextTick(`degree-check-${templateForDelete.value.id}-link`)
+  putFocusNextTick(`degree-check-${templateForDelete.value.id}-delete-btn`)
   deleteModalBody.value = templateForDelete.value = null
   isBusy.value = isDeleting.value = false
   alertScreenReader('Canceled. Nothing deleted.')
@@ -336,7 +336,7 @@ const save = () => {
       alertScreenReader('Template updated')
       isBusy.value = false
       isRenaming.value = false
-      putFocusNextTick(`degree-check-${templateId}-link`)
+      putFocusNextTick(`degree-check-${templateId}-rename-btn`)
     })
   })
 }

@@ -1,10 +1,11 @@
 <template>
   <v-dialog
     v-model="showModalProxy"
+    aria-describedby="ferpa-reminder-text"
+    aria-labelledby="modal-header"
     class="justify-center overflow-auto"
     persistent
     width="100%"
-    @update:model-value="onToggle"
   >
     <v-card
       class="modal-content"
@@ -14,10 +15,10 @@
       <v-card-title>
         <ModalHeader class="ml-2" text="FERPA Reminder" />
       </v-card-title>
-      <v-card-text class="py-2">
+      <v-card-text id="ferpa-reminder-text">
         <FerpaReminder />
       </v-card-text>
-      <v-card-actions class="float-right pb-3 pr-6">
+      <v-card-actions class="d-flex justify-end">
         <ProgressButton
           id="are-you-sure-confirm"
           :action="confirm"
@@ -27,7 +28,8 @@
         />
         <v-btn
           id="ferpa-reminder-cancel"
-          class="ml-1"
+          class="ml-2"
+          :disabled="isDownloading"
           variant="plain"
           @click="cancel"
         >
@@ -39,10 +41,10 @@
 </template>
 
 <script setup>
+import {computed, watch} from 'vue'
 import FerpaReminder from '@/components/util/FerpaReminder'
 import ModalHeader from '@/components/util/ModalHeader'
 import {putFocusNextTick} from '@/lib/utils'
-import {computed} from 'vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 
 const props = defineProps({
@@ -68,11 +70,11 @@ const showModalProxy = computed(() => {
   return props.showModal
 })
 
-const onToggle = isOpen => {
+watch(showModalProxy, isOpen => {
   if (isOpen) {
-    putFocusNextTick('modal-header')
+    putFocusNextTick('are-you-sure-confirm')
   } else {
     props.cancel()
   }
-}
+})
 </script>

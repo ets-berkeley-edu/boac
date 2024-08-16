@@ -224,6 +224,7 @@ const toggleShowHistory = value => {
     cohortStore.toggleCompactView()
   }
   if (!value) {
+    putFocusNextTick('show-cohort-history-button')
     onPageNumberChange().then(scrollToTop)
   }
 }

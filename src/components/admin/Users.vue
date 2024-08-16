@@ -205,6 +205,7 @@
 
         <template #item.edit="{ item }">
           <EditUserProfileModal
+            :after-cancel="afterCancelUpdateUser"
             :after-update-user="afterUpdateUser"
             :departments="departments"
             :profile="item"
@@ -310,7 +311,7 @@ import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import Autocomplete from '@/components/util/Autocomplete.vue'
 import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 import {getBoaUserRoles} from '@/berkeley'
 import {DateTime} from 'luxon'
@@ -524,6 +525,10 @@ export default {
       } else {
         this.expanded.push(slotData)
       }
+    },
+    afterCancelUpdateUser(profile) {
+      alertScreenReader('Canceled')
+      putFocusNextTick(`edit-${profile.uid}`)
     },
     afterUpdateUser(profile) {
       alertScreenReader(`${profile.name} profile updated.`)
