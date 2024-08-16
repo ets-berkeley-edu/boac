@@ -23,59 +23,20 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import timedelta
-import re
-
-from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
+from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import admin_or_director_required, admin_required, authorized_users_api_feed
 from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_advising_note_count, \
     get_sis_advising_note_count
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, term_name_for_sis_id
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
-from boac.lib.util import localized_timestamp_to_utc, utc_now
 from boac.merged.reports import get_boa_note_count_by_month, get_note_author_count, get_note_count, \
     get_note_count_per_batch, get_note_count_per_user, get_note_with_attachments_count, \
     get_note_with_topics_count, get_private_note_count, get_summary_of_boa_notes, low_assignment_scores
 from boac.merged.sis_terms import current_term_id
-from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
 from flask_login import current_user
-
-
-@app.route('/api/reports/download_alerts_csv', methods=['POST'])
-@admin_required
-def alerts_log_export():
-    def _param_to_utc_date(key):
-        value = (params.get(key) or '').strip()
-        return localized_timestamp_to_utc(value, date_format='%m/%d/%Y') if value else None
-
-    params = request.get_json()
-    from_date_utc = _param_to_utc_date('fromDate')
-    to_date_utc = _param_to_utc_date('toDate') + timedelta(days=1)
-    if from_date_utc and to_date_utc:
-        def _to_api_json(alert):
-            term_id_match = re.search(r'^2[012]\d[0258]', alert.key[0:4])
-            active_until = alert.deleted_at or utc_now()
-            return {
-                'sid': alert.sid,
-                'term': term_name_for_sis_id(term_id_match.string) if term_id_match else None,
-                'key': alert.key,
-                'type': alert.alert_type,
-                'is_active': not alert.deleted_at,
-                'active_duration_hours': round((active_until - alert.created_at).total_seconds() / 3600),
-                'created_at': alert.created_at,
-                'deleted_at': alert.deleted_at,
-            }
-        alerts = Alert.get_alerts_per_date_range(from_date_utc, to_date_utc)
-        return response_with_csv_download(
-            rows=[_to_api_json(a) for a in alerts],
-            filename_prefix='alerts_log',
-            fieldnames=['sid', 'term', 'key', 'type', 'is_active', 'active_duration_hours', 'created_at', 'deleted_at'],
-        )
-    else:
-        raise BadRequestError('Invalid arguments')
 
 
 @app.route('/api/reports/boa_notes/monthly_count')

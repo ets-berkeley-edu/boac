@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from datetime import datetime
-import json
 
 from boac import db, std_commit
 from boac.models.note import Note
@@ -35,51 +34,6 @@ asc_director_uid = '90412'
 l_s_advisor_uid = '188242'
 l_s_director_uid = '53791'
 l_s_major_advisor_uid = '242881'
-
-
-class TestAlertsLogExport:
-    """Download alerts CSV."""
-
-    @classmethod
-    def _api_download_alerts_csv(cls, client, expected_status_code=200):
-        response = client.post(
-            '/api/reports/download_alerts_csv',
-            data=json.dumps({
-                'fromDate': '08/01/1900',
-                'toDate': '08/01/2525',
-            }),
-            content_type='application/json',
-        )
-        assert response.status_code == expected_status_code
-        return response
-
-    def test_download_alerts_csv_not_authenticated(self, client):
-        """Anonymous user is rejected."""
-        self._api_download_alerts_csv(client, expected_status_code=401)
-
-    def test_download_alerts_csv_unauthorized(self, client, fake_auth):
-        """403 if user is not an admin."""
-        fake_auth.login(l_s_advisor_uid)
-        self._api_download_alerts_csv(client, expected_status_code=401)
-
-    def test_download_alerts_csv(self, client, create_alerts, fake_auth):
-        """Admin can download alerts CSV."""
-        fake_auth.login(admin_uid)
-        response = self._api_download_alerts_csv(client)
-        assert 'csv' in response.content_type
-        csv = str(response.data)
-        for snippets in [
-            ['sid,term,key,type,is_active,active_duration_hours,created_at,deleted_at'],
-            ['11667051', 'Fall 2017', 'academic_standing'],
-            ['11667051', 'Spring 2017', 'late_assignment'],
-            ['11667051', 'Fall 2017', 'late_assignment'],
-            ['11667051', 'Fall 2017', 'missing_assignment'],
-            ['2345678901', 'Fall 2017', 'late_assignment'],
-            ['11667051', 'Fall 2017', 'midterm'],
-            ['3456789012', 'Fall 2017', 'no_activity'],
-        ]:
-            for snippet in snippets:
-                assert snippet in csv, f'Failed on snippet: {snippet}'
 
 
 class TestNotesByDeptReport:
