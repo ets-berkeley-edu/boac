@@ -81,7 +81,7 @@
             <v-btn
               :id="`delete-draft-note-${item.id}`"
               aria-label="Delete"
-              class="bg-transparent text-red"
+              class="bg-transparent text-error"
               :disabled="isDeleteDialogOpen || isDeleting || isEditDialogOpen"
               :icon="mdiTrashCan"
               size="md"

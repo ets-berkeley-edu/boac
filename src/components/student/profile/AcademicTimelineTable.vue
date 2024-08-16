@@ -241,7 +241,7 @@
             <div
               v-if="message.createdBy === 'YCBM' && message.status === 'cancelled'"
               :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
-              class="collapsed-cancelled-icon text-red-lighten-2"
+              class="collapsed-cancelled-icon text-error"
             >
               <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon" />
               Canceled

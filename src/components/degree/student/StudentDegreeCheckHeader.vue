@@ -224,7 +224,7 @@
                   <div
                     v-if="item.enrollmentStatus === 'W'"
                     :id="`in-progress-course-${item.termId}-${item.ccn}-waitlisted`"
-                    class="font-size-14 error font-weight-bold text-uppercase"
+                    class="font-size-14 font-weight-bold text-error text-uppercase"
                   >
                     (W<span class="sr-only">aitlisted</span>)
                   </div>
