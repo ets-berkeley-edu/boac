@@ -45,7 +45,7 @@
                 'border-e-md border-s-md border-t-md': isNoteVisible(course),
                 'cursor-grab': canDrag() && !degreeStore.draggingContext.course,
                 'mouseover-grabbable': hoverCourseId === course.id && !degreeStore.draggingContext.course,
-                'tr-while-dragging': degreeStore.isUserDragging(course.id)
+                'tr-while-dragging': degreeStore.draggingCourseId === course.id
               }"
               :draggable="canDrag()"
               @dragend="onDrag($event, 'end', course)"
@@ -57,7 +57,7 @@
               @mouseleave="onMouse('leave', course)"
             >
               <td v-if="currentUser.canEditDegreeProgress" class="td-assign">
-                <div v-if="!degreeStore.isUserDragging(course.id)" class="mx-1">
+                <div v-if="degreeStore.draggingCourseId !== course.id" class="mx-1">
                   <CourseAssignmentMenu :after-course-assignment="() => putFocusNextTick(`${key}-header`)" :course="course" />
                 </div>
               </td>
@@ -105,7 +105,7 @@
               </td>
               <td :class="{'pl-2 td-note': course.note, 'pl-3 vertical-top': !course.note}">
                 <a
-                  v-if="course.note && !isNoteVisible(course) && !degreeStore.isUserDragging(course.id)"
+                  v-if="course.note && !isNoteVisible(course) && (degreeStore.draggingCourseId !== course.id)"
                   :id="`course-${course.id}-note`"
                   class="truncate-with-ellipsis"
                   href
@@ -121,7 +121,7 @@
                 <div class="d-flex justify-content-end">
                   <div v-if="course.manuallyCreatedBy">
                     <v-btn
-                      v-if="!degreeStore.isUserDragging(course.id)"
+                      v-if="degreeStore.draggingCourseId !== course.id"
                       :id="`delete-${course.id}-btn`"
                       :aria-label="`Delete ${course.name}`"
                       class="mr-1 py-0"
@@ -136,7 +136,7 @@
                   </div>
                   <div>
                     <v-btn
-                      v-if="!degreeStore.isUserDragging(course.id)"
+                      v-if="degreeStore.draggingCourseId !== course.id"
                       :id="`edit-${key}-course-${course.id}-btn`"
                       :aria-label="`Edit ${course.name}`"
                       class="mr-1 py-0"

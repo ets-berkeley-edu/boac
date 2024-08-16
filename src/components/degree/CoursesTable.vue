@@ -44,7 +44,7 @@
                 'cursor-grab': isDraggable(bundle),
                 'drop-zone-on': isDroppable(bundle.category),
                 'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !degreeStore.draggingContext.course,
-                'tr-while-dragging': bundle.course && degreeStore.isUserDragging(bundle.course.id)
+                'tr-while-dragging': bundle.course && (degreeStore.draggingCourseId === get(bundle.course, 'id'))
               }"
               :draggable="isDraggable(bundle)"
               @dragend="onDrag($event, 'end', bundle)"
@@ -58,7 +58,7 @@
             >
               <td v-if="hasAssignedCourses && canEdit && !isCampusRequirements" class="td-assign">
                 <div
-                  v-if="bundle.course && canEdit && !degreeStore.isUserDragging(bundle.course.id)"
+                  v-if="bundle.course && canEdit && (degreeStore.draggingCourseId !== bundle.course.id)"
                   :id="`assign-course-${bundle.course.id}-menu-container`"
                 >
                   <CourseAssignmentMenu
@@ -209,7 +209,7 @@
                 <div class="d-flex justify-content-end text-no-wrap">
                   <div class="btn-container">
                     <v-btn
-                      v-if="!degreeStore.isUserDragging(get(bundle.course, 'id'))"
+                      v-if="degreeStore.draggingCourseId !== get(bundle.course, 'id')"
                       :id="`column-${position}-edit-${bundle.key}-btn`"
                       :aria-label="`Edit ${bundle.name}`"
                       :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
@@ -223,7 +223,7 @@
                   </div>
                   <div class="btn-container">
                     <v-btn
-                      v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && !degreeStore.isUserDragging(get(bundle.course, 'id'))"
+                      v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
                       :id="`column-${position}-delete-${bundle.key}-btn`"
                       :aria-label="`Delete ${bundle.name}`"
                       :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"

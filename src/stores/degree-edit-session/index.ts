@@ -55,7 +55,8 @@ export const useDegreeStore: StoreDefinition = defineStore('degree', {
       disableButtons: state.disableButtons,
       templateId: state.templateId,
       unitRequirements: state.unitRequirements
-    })
+    }),
+    draggingCourseId: state => get(state.draggingContext, 'course.id')
   },
   actions: {
     draggingContextReset() {
@@ -66,9 +67,6 @@ export const useDegreeStore: StoreDefinition = defineStore('degree', {
     },
     dismissAlert(templateId: number) {
       this.dismissedAlerts.push(templateId)
-    },
-    isUserDragging: (state, courseId: number) => {
-      return !!courseId && get(state.draggingContext, 'course.id') === courseId
     },
     resetSession(template: any) {
       this.disableButtons = false
