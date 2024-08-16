@@ -27,7 +27,7 @@
           :icon="mdiCloseThick"
           size="small"
           title="Dismiss"
-          @click="degreeStore.dismissAlert(templateId)"
+          @click="degreeStore.dismissAlert(degreeStore.templateId)"
         />
       </div>
     </div>

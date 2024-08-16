@@ -101,7 +101,7 @@ const degreeStore = useDegreeStore()
 
 const isSaving = ref(false)
 const name = ref(get(props.unitRequirement, 'name') || '')
-const minUnits = ref(get(degreeStore.unitRequirement, 'minUnits'))
+const minUnits = ref(get(props.unitRequirement, 'minUnits'))
 const otherUnitRequirements = ref(
   props.unitRequirement ?
     _filter(degreeStore.unitRequirements, u => u.id !== get(props.unitRequirement, 'id')) :

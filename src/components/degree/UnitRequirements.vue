@@ -33,13 +33,13 @@
           <tr>
             <th
               id="th-unit-requirements-name"
-              class="font-size-12 text-uppercase th-height"
+              class="font-size-12 text-uppercase th-name th-height"
             >
               Fulfillment Requirements
             </th>
             <th
               id="th-unit-requirements-min-units"
-              class="font-size-12 pr-3 text-right text-uppercase th-height"
+              class="font-size-12 pr-3 text-right text-uppercase th-height th-units"
             >
               {{ degreeStore.sid ? 'Min' : 'Min Units' }}
             </th>
@@ -53,7 +53,7 @@
             <th
               v-if="!degreeStore.sid && currentUser.canEditDegreeProgress && !props.printable"
               id="th-unit-requirements-actions"
-              class="px-0 th-height"
+              class="px-0 th-actions th-height"
             >
               <span class="sr-only">Actions</span>
             </th>
@@ -65,12 +65,7 @@
             :id="item.type === 'course' ? `unit-requirement-${item.parent.id}-course-${item.id}` : `unit-requirement-${item.id}`"
             :key="item.id"
           >
-            <td
-              :class="{
-                'font-size-12': printable,
-                'font-size-16': !printable
-              }"
-            >
+            <td class="overflow-wrap-break-word" :class="{'font-size-12': printable, 'font-size-16': !printable}">
               <div v-if="!degreeStore.sid || printable" class="mr-1">
                 {{ item.name }}
               </div>
@@ -326,6 +321,8 @@ const toggleExpanded = item => {
 <style scoped>
 table {
   border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
 }
 td {
   height: 25px;
@@ -335,6 +332,15 @@ td {
 th {
   height: 20px;
   padding-bottom: 5px;
+}
+.th-actions {
+  width: 20%;
+}
+.th-name {
+  width: 60%;
+}
+.th-units {
+  width: 20%;
 }
 .unit-requirement-toggle {
   max-width: 200px;
