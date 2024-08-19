@@ -3,9 +3,7 @@
     v-model="showModalProxy"
     aria-describedby="ferpa-reminder-text"
     aria-labelledby="modal-header"
-    class="justify-center overflow-auto"
     persistent
-    width="100%"
   >
     <v-card
       class="modal-content"
@@ -13,12 +11,12 @@
       max-width="600"
     >
       <v-card-title>
-        <ModalHeader class="ml-2" text="FERPA Reminder" />
+        <ModalHeader text="FERPA Reminder" />
       </v-card-title>
-      <v-card-text id="ferpa-reminder-text">
+      <v-card-text id="ferpa-reminder-text" class="modal-body">
         <FerpaReminder />
       </v-card-text>
-      <v-card-actions class="d-flex justify-end">
+      <v-card-actions class="modal-footer">
         <ProgressButton
           id="are-you-sure-confirm"
           :action="confirm"
@@ -30,7 +28,7 @@
           id="ferpa-reminder-cancel"
           class="ml-2"
           :disabled="isDownloading"
-          variant="plain"
+          variant="text"
           @click="cancel"
         >
           Cancel

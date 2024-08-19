@@ -5,7 +5,7 @@
       <span id="attachment-error" aria-live="polite" role="alert">{{ attachmentError }}</span>
     </div>
     <div v-if="_size(existingAttachments) < config.maxAttachmentsPerNote" class="w-100">
-      <div class="choose-attachment-file-wrapper h-100 no-wrap pl-3 pr-3 w-100">
+      <div :id="`note-${note.id}-attachment-dropzone`" class="choose-attachment-file-wrapper h-100 no-wrap pl-3 pr-3 w-100">
         Add attachment:
         <b-btn
           id="choose-file-for-note-attachment"

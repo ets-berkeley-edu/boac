@@ -1,7 +1,7 @@
 <template>
   <h3
     :id="headerId"
-    class="font-size-24 font-weight-medium"
+    class="font-size-24 font-weight-medium mx-2"
     :class="clazz"
   >
     {{ text }}

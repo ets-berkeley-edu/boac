@@ -1,14 +1,13 @@
 <template>
-  <v-container class="pa-0">
-    <v-row
-      v-if="boaSessionExpired"
+  <v-card-actions class="modal-footer d-block">
+    <v-alert
+      v-if="true"
       id="uh-oh-session-time-out"
       aria-live="polite"
-      class="pl-3 pr-3"
-      role="alert"
+      class="mb-3"
     >
       <SessionExpired />
-    </v-row>
+    </v-alert>
     <v-row v-if="!boaSessionExpired" class="d-flex flex-wrap" no-gutters>
       <v-col class="d-flex pt-2">
         <ProgressButton
@@ -63,11 +62,11 @@
         />
       </v-col>
     </v-row>
-  </v-container>
+  </v-card-actions>
 </template>
 
 <script setup>
-import ProgressButton from '@/components/util/ProgressButton.vue'
+import ProgressButton from '@/components/util/ProgressButton'
 import SessionExpired from '@/components/note/SessionExpired'
 import {alertScreenReader, invokeIfAuthenticated} from '@/lib/utils'
 import {isEmpty, size, startsWith, trim} from 'lodash'

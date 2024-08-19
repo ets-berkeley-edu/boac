@@ -3,7 +3,6 @@
     v-model="dialogModel"
     aria-labelledby="modal-header"
     persistent
-    width="100%"
   >
     <v-card
       class="modal-content"
@@ -15,7 +14,7 @@
       </v-card-title>
       <hr />
       <form @submit.prevent="createTemplate">
-        <div class="px-4 py-2">
+        <v-card-text class="modal-body">
           <v-text-field
             id="template-title-input"
             v-model="title"
@@ -46,8 +45,8 @@
           >
             {{ error }}
           </div>
-        </div>
-        <div class="d-flex justify-end px-4 py-2">
+        </v-card-text>
+        <v-card-actions class="modal-footer">
           <ProgressButton
             id="create-template-confirm"
             :action="createTemplate"
@@ -57,13 +56,13 @@
           />
           <v-btn
             id="cancel-template-create"
-            class="ml-1"
+            class="ml-2"
             :disabled="isSaving"
             text="Cancel"
-            variant="plain"
+            variant="text"
             @click="cancel"
           />
-        </div>
+        </v-card-actions>
       </form>
     </v-card>
   </v-dialog>

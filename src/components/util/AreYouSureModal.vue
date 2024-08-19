@@ -4,18 +4,16 @@
     aria-describedby="are-you-sure-text"
     aria-labelledby="are-you-sure-header"
     persistent
-    retain-focus
-    width="auto"
   >
     <v-card class="modal-content" min-width="600">
       <v-card-title>
-        <ModalHeader class="ml-2 mt-2" header-id="are-you-sure-header" :text="modalHeader" />
+        <ModalHeader header-id="are-you-sure-header" :text="modalHeader" />
       </v-card-title>
-      <v-card-text id="are-you-sure-text" class="py-2">
+      <v-card-text id="are-you-sure-text" class="modal-body">
         <span v-html="text" />
         <slot />
       </v-card-text>
-      <v-card-actions class="float-right pb-5 pr-6">
+      <v-card-actions class="modal-footer">
         <ProgressButton
           id="are-you-sure-confirm"
           :action="confirm"
@@ -26,10 +24,10 @@
         <v-btn
           v-if="functionCancel"
           id="are-you-sure-cancel"
-          class="ml-1"
+          class="ml-2"
           :disabled="isProcessing"
           :text="buttonLabelCancel"
-          variant="plain"
+          variant="text"
           @click="functionCancel"
         />
       </v-card-actions>

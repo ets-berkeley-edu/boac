@@ -23,14 +23,13 @@
     v-model="showModal"
     aria-labelledby="modal-header"
     persistent
-    width="auto"
     @update:model-value="onToggle"
   >
-    <v-card min-width="600">
+    <v-card class="modal-content" min-width="600">
       <v-card-title>
         <ModalHeader text="Create Course" />
       </v-card-title>
-      <v-card-text>
+      <v-card-text class="modal-body">
         <div>
           <label
             for="course-name-input"
@@ -112,24 +111,25 @@
             variant="outlined"
           />
         </div>
-        <div class="mt-3 text-right">
-          <v-btn
-            id="create-course-save-btn"
-            class="mr-1"
-            color="primary"
-            :disabled="disableSaveButton"
-            text="Save"
-            @click="save"
-          />
-          <v-btn
-            id="create-course-cancel-btn"
-            color="primary"
-            text="Cancel"
-            variant="text"
-            @click="cancel"
-          />
-        </div>
       </v-card-text>
+      <v-card-actions class="modal-footer">
+        <ProgressButton
+          id="create-course-save-btn"
+          :action="save"
+          color="primary"
+          :disabled="disableSaveButton"
+          :in-progress="isSaving"
+          :text="isSaving ? 'Saving' : 'Save'"
+        />
+        <v-btn
+          id="create-course-cancel-btn"
+          class="ml-2"
+          :disabled="isSaving"
+          text="Cancel"
+          variant="text"
+          @click="cancel"
+        />
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
@@ -137,6 +137,7 @@
 <script setup>
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import ModalHeader from '@/components/util/ModalHeader'
+import ProgressButton from '@/components/util/ProgressButton'
 import UnitsInput from '@/components/degree/UnitsInput'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createCourse} from '@/api/degree'

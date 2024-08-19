@@ -21,14 +21,19 @@
   <v-dialog
     v-model="showAdvancedSearchModel"
     aria-labelledby="advanced-search-header"
-    max-width="800"
+    persistent
   >
-    <v-card>
-      <v-card-title class="pb-0 ml-2">
+    <v-card
+      class="modal-content"
+      max-width="800"
+      min-width="700"
+      width="80%"
+    >
+      <v-card-title>
         <AdvancedSearchModalHeader :on-click-close="cancel" />
       </v-card-title>
-      <v-card-text class="pt-1">
-        <div class="mb-4">
+      <v-card-text class="modal-body">
+        <div class="pb-4">
           <label for="advanced-search-students-input" class="sr-only">{{ labelForSearchInput() }}</label>
           <v-combobox
             id="advanced-search-students-input"
@@ -37,6 +42,7 @@
             :aria-required="searchInputRequired"
             autocomplete="off"
             clearable
+            density="comfortable"
             :disabled="searchStore.isSearching || validDateRange === false"
             hide-details
             hide-no-data
@@ -214,45 +220,34 @@
             </v-card-text>
           </v-card>
         </v-expand-transition>
-        <div class="align-center d-flex mt-4">
-          <div class="flex-grow-1">
-            <v-btn
-              v-if="searchStore.includeNotes && searchStore.isDirty"
-              id="reset-advanced-search-form-btn"
-              :disabled="searchStore.isSearching"
-              text="Reset"
-              variant="text"
-              @click="() => reset(true)"
-            />
-          </div>
+      </v-card-text>
+      <v-card-actions class="modal-footer">
+        <div class="flex-grow-1">
           <v-btn
-            id="advanced-search"
-            class="btn-primary-color-override"
-            color="primary"
-            :disabled="searchStore.isSearching || allOptionsUnchecked || (searchInputRequired && !trim(searchStore.queryText))"
-            @click.prevent="search"
-          >
-            <span v-if="searchStore.isSearching" class="px-1">
-              <v-progress-circular
-                class="mr-2"
-                indeterminate
-                size="small"
-              />
-              <span>Searching...</span>
-            </span>
-            <span v-if="!searchStore.isSearching">
-              Search
-            </span>
-          </v-btn>
-          <v-btn
-            id="advanced-search-cancel"
-            class="ml-2"
-            text="Cancel"
+            v-if="searchStore.includeNotes && searchStore.isDirty"
+            id="reset-advanced-search-form-btn"
+            :disabled="searchStore.isSearching"
+            text="Reset"
             variant="text"
-            @click="cancel"
+            @click="() => reset(true)"
           />
         </div>
-      </v-card-text>
+        <ProgressButton
+          id="advanced-search"
+          :action="search"
+          :disabled="searchStore.isSearching || allOptionsUnchecked || (searchInputRequired && !trim(searchStore.queryText))"
+          :in-progress="searchStore.isSearching"
+          :text="searchStore.isSearching ? 'Searching...' : 'Search'"
+        />
+        <v-btn
+          id="advanced-search-cancel"
+          class="ml-2"
+          :disabled="searchStore.isSearching"
+          text="Cancel"
+          variant="text"
+          @click="cancel"
+        />
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
@@ -261,6 +256,7 @@
 import AdvancedSearchCheckboxes from '@/components/search/AdvancedSearchCheckboxes'
 import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
 import Autocomplete from '@/components/util/Autocomplete.vue'
+import ProgressButton from '@/components/util/ProgressButton'
 import router from '@/router'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop} from '@/lib/utils'
@@ -349,6 +345,7 @@ const reset = force => {
 const search = () => {
   const q = trim(searchStore.queryText)
   if (q || !searchInputRequired.value) {
+    searchStore.setIsSearching(true)
     const query = {
       _: counter.value++,
       notes: searchStore.includeNotes,
@@ -385,6 +382,7 @@ const search = () => {
     }
     router.push({path: '/search', query: query}).then(() => {
       searchStore.setShowAdvancedSearch(false)
+      searchStore.setIsSearching(false)
     })
     if (q) {
       addToSearchHistory(q).then(history => {

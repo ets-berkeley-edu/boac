@@ -26,8 +26,8 @@
           Degree name cannot exceed 255 characters.
         </span>
       </div>
-      <div v-if="error" class="error-container mt-2 px-5 py-3" v-html="error" />
-      <div class="mt-3">
+      <div v-if="error" class="error-container mt-2 px-5 py-3 w-75" v-html="error" />
+      <div class="d-flex justify-end pt-2 w-75">
         <ProgressButton
           id="start-degree-btn"
           :action="create"

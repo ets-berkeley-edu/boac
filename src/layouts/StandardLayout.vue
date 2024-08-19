@@ -32,7 +32,7 @@
           <div class="h-100" :class="{'align-center d-flex justify-center': loading}">
             <div v-if="loading" class="loading-container d-flex">
               <div class="my-auto">
-                <PlaneGoRound />
+                <PlaneGoRound id="spinner-when-loading" />
               </div>
             </div>
             <v-expand-transition>
