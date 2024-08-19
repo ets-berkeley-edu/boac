@@ -52,6 +52,12 @@ class Department(Enum):
         'export_name': None,
         'notes_only': False,
     }
+    DATA_SCI = {
+        'code': 'DSDDO',
+        'name': 'College of Computing, Data Science, and Society',
+        'export_name': None,
+        'notes_only': False,
+    }
     ENV_DESIGN = {
         'code': 'DACED',
         'name': 'College of Environmental Design',
