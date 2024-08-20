@@ -1,7 +1,9 @@
 <template>
   <div class="default-margins">
-    <h1 class="page-section-header">Create {{ domain === 'admitted_students' ? 'CE3' : 'Curated' }} Group</h1>
-    <div>
+    <h1 id="page-section-header" class="page-section-header">
+      Create {{ domain === 'admitted_students' ? 'CE3' : 'Curated' }} Group
+    </h1>
+    <div id="page-description">
       Type or paste a list of Student Identification (SID) numbers below. Example: 9999999990, 9999999991
     </div>
     <CuratedGroupBulkAdd
@@ -18,49 +20,41 @@
   </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import router from '@/router'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain} from '@/berkeley'
+import {ref} from 'vue'
+import {useRoute} from 'vue-router'
 
-export default {
-  name: 'CreateCuratedGroup',
-  components: {CreateCuratedGroupModal, CuratedGroupBulkAdd},
-  mixins: [Context, Util],
-  data: () => ({
-    domain: undefined,
-    isSaving: false,
-    showCreateModal: false,
-    sids: undefined
-  }),
-  created() {
-    this.domain = this.$route.query.domain || 'default'
-  },
-  methods: {
-    bulkAddSids(sids) {
-      this.isSaving = true
-      this.sids = sids
-      this.showCreateModal = true
-    },
-    cancel() {
-      this.showCreateModal = false
-      this.isSaving = false
-      alertScreenReader(`You have canceled the operation to create a new ${describeCuratedGroupDomain(this.domain)}.`)
-      this.putFocusNextTick('curated-group-bulk-add-sids')
-    },
-    create(name) {
-      this.showCreateModal = false
-      return createCuratedGroup(this.domain, name, this.sids).then(group => {
-        alertScreenReader(`Curated group '${name}' created. It has ${this.sids.length} students.`)
-        this.$router.push(`/curated/${group.id}`).then(() => {
-          this.isSaving = false
-        })
-      })
-    }
-  }
+const domain = useRoute().query.domain || 'default'
+const isSaving = ref(false)
+const showCreateModal = ref(false)
+const sids = ref(undefined)
+
+const bulkAddSids = sids => {
+  isSaving.value = true
+  sids.value = sids
+  showCreateModal.value = true
+}
+
+const cancel = () => {
+  showCreateModal.value = false
+  isSaving.value = false
+  alertScreenReader(`You have canceled the operation to create a new ${describeCuratedGroupDomain(domain)}.`)
+  putFocusNextTick('curated-group-bulk-add-sids')
+}
+
+const create = name => {
+  showCreateModal.value = false
+  return createCuratedGroup(domain, name, sids.value).then(group => {
+    alertScreenReader(`Curated group '${name}' created. It has ${sids.value.length} students.`)
+    router.push(`/curated/${group.id}`).then(() => {
+      isSaving.value = false
+    })
+  })
 }
 </script>

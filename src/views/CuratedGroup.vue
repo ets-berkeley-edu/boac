@@ -64,8 +64,10 @@
       </div>
     </div>
     <div v-if="!loading && curatedGroupStore.mode === 'bulkAdd'" class="pt-2">
-      <h2 class="page-section-header-sub my-2">Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}</h2>
-      <div class="w-75">
+      <h2 id="page-section-header" class="page-section-header-sub my-2">
+        Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}
+      </h2>
+      <div id="page-description" class="w-75">
         <div>Type or paste a list of {{ domain === 'admitted_students' ? 'CS ID' : 'Student Identification (SID)' }} numbers numbers below.</div>
         <div class="text-medium-emphasis">Example: 9999999990, 9999999991</div>
       </div>
