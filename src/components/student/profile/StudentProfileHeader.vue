@@ -5,6 +5,7 @@
         <StudentAvatar :size="compact ? 'medium' : 'large'" :student="student" />
         <ManageStudent
           v-if="!compact"
+          button-variant="flat"
           domain="default"
           :student="student"
         />

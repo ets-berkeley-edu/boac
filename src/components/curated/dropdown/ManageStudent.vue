@@ -9,8 +9,10 @@
         <v-btn
           :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)"
           v-bind="props"
+          :append-icon="(buttonVariant && !groupsLoading && !isAdding && !isRemoving) ? mdiMenuDown : undefined"
           :color="isAdding ? 'success' : (isRemoving ? 'red' : 'primary')"
-          variant="text"
+          :variant="buttonVariant"
+          :width="buttonVariant ? 160 : undefined"
         >
           <div v-if="!isAdding && !isRemoving" :class="labelClass">
             <v-progress-circular
@@ -24,13 +26,13 @@
             </div>
           </div>
           <div v-if="isRemoving" class="align-center d-flex" :class="labelClass">
-            <v-icon :icon="mdiCloseThick" />
+            <v-icon class="mr-1" :icon="mdiCloseThick" />
             <div>
               Removed
             </div>
           </div>
           <div v-if="isAdding" class="align-center d-flex" :class="labelClass">
-            <v-icon :icon="mdiCheckBold" />
+            <v-icon class="mr-1" :icon="mdiCheckBold" />
             <div>
               Added
             </div>
@@ -103,12 +105,17 @@ import {
 import {alertScreenReader} from '@/lib/utils'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {filter as _filter, includes, map, without} from 'lodash'
-import {mdiCheckBold, mdiCloseThick, mdiPlus} from '@mdi/js'
+import {mdiCheckBold, mdiCloseThick, mdiMenuDown, mdiPlus} from '@mdi/js'
 import {putFocusNextTick} from '@/lib/utils'
 import {onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
+  buttonVariant: {
+    default: 'text',
+    required: false,
+    type: String
+  },
   domain: {
     required: true,
     type: String
@@ -137,6 +144,7 @@ const checkedGroups = ref(undefined)
 const confirmationTimeout = ref(1500)
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
+const eventName = 'my-curated-groups-updated'
 const groupsLoading = ref(true)
 const idFragment = ref(describeCuratedGroupDomain(props.domain).replace(' ', '-'))
 const dropdownId = ref(`${idFragment.value}-dropdown-${props.student.sid}`)
@@ -146,11 +154,11 @@ const showModal = ref(false)
 
 onMounted(() => {
   refresh()
-  contextStore.setEventHandler('my-curated-groups-updated', onUpdateMyCuratedGroups)
+  contextStore.setEventHandler(eventName, onUpdateMyCuratedGroups)
 })
 
 onUnmounted(() => {
-  contextStore.removeEventHandler('my-curated-groups-updated', onUpdateMyCuratedGroups)
+  contextStore.removeEventHandler(eventName, onUpdateMyCuratedGroups)
 })
 
 const domainLabel = capitalize => {
@@ -188,9 +196,9 @@ const onCreateCuratedGroup = name => {
     putFocusNextTick(dropdownId.value, 'button')
     isAdding.value = false
   }
-  createCuratedGroup(props.domain, name, [props.student.sid]).then(group => {
+  return createCuratedGroup(props.domain, name, [props.student.sid]).then(group => {
     checkedGroups.value.push(group.id)
-    alertScreenReader(`${props.student.name} added to new ${props.domainLabel(false)}, "${name}".`)
+    alertScreenReader(`${props.student.name} added to new ${props.domainLabel}, "${name}".`)
     setTimeout(done, confirmationTimeout.value)
   })
 }
@@ -203,7 +211,7 @@ const onModalCancel = () => {
 
 const onUpdateMyCuratedGroups = domain => {
   if (domain === props.domain) {
-    this.refresh()
+    refresh()
   }
 }
 
