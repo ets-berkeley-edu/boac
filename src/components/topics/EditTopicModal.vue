@@ -2,7 +2,7 @@
   <v-dialog
     v-model="showEditTopicModal"
     aria-labelledby="modal-header"
-    width="auto"
+    persistent
   >
     <v-card
       class="modal-content"
@@ -11,57 +11,57 @@
       <v-card-title>
         <ModalHeader text="Create Topic" />
       </v-card-title>
-      <v-card-text>
-        <div class="text-field-width d-block">
-          <v-text-field
-            id="create-topic-input"
-            v-model="topic"
-            aria-describedby="input-live-help topic-label-error"
-            hide-details
-            required
-            :maxlength="50"
-            variant="outlined"
-          >
-          </v-text-field>
-        </div>
-        <div id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
-          <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
-          <span v-if="isLabelReserved">Sorry, the label '{{ trim(topic) }}' is assigned to an existing topic.</span>
-        </div>
-        <div class="text-grey font-size-14 pl-2 pt-2">
-          <span v-if="!isLabelReserved && isValidLabel" id="input-live-help">
-            {{ maxLabelLength }} character limit <span v-if="topic.length">({{ maxLabelLength - topic.length }} left)</span>
-          </span>
-        </div>
-      </v-card-text>
-      <hr />
-      <v-card-actions>
-        <form @submit.prevent="save">
-          <v-btn
+      <form @submit.prevent="save">
+        <v-card-text class="modal-body">
+          <div class="text-field-width d-block">
+            <v-text-field
+              id="create-topic-input"
+              v-model="topic"
+              aria-describedby="input-live-help topic-label-error"
+              hide-details
+              required
+              :maxlength="50"
+              variant="outlined"
+            >
+            </v-text-field>
+          </div>
+          <div id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
+            <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
+            <span v-if="isLabelReserved">Sorry, the label '{{ trim(topic) }}' is assigned to an existing topic.</span>
+          </div>
+          <div class="text-grey font-size-14 pl-2 pt-2">
+            <span v-if="!isLabelReserved && isValidLabel" id="input-live-help">
+              {{ maxLabelLength }} character limit <span v-if="topic.length">({{ maxLabelLength - topic.length }} left)</span>
+            </span>
+          </div>
+        </v-card-text>
+        <hr />
+        <v-card-actions class="modal-footer">
+          <ProgressButton
             id="topic-save"
-            color="primary"
+            :action="save"
             :disabled="disableSaveButton"
-            variant="flat"
-            @click.prevent="save"
-          >
-            Save
-          </v-btn>
+            :in-progress="isSaving"
+            :text="isSaving ? 'Saving' : 'Save'"
+          />
           <v-btn
             id="cancel"
-            variant="plain"
+            class="ml-2"
             :disabled="isSaving"
+            variant="text"
             @click.stop="cancel"
           >
             Cancel
           </v-btn>
-        </form>
-      </v-card-actions>
+        </v-card-actions>
+      </form>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup>
 import ModalHeader from '@/components/util/ModalHeader'
+import ProgressButton from '@/components/util/ProgressButton'
 import {computed, ref, watch} from 'vue'
 import {createTopic} from '@/api/topics'
 import {find, trim} from 'lodash'

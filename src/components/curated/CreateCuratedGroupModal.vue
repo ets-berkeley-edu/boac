@@ -1,10 +1,8 @@
 <template>
-  <v-overlay
+  <v-dialog
     v-model="showModalProxy"
     aria-labelledby="modal-header"
-    class="justify-center overflow-auto"
     persistent
-    width="100%"
   >
     <v-card
       class="modal-content"
@@ -15,13 +13,13 @@
         <ModalHeader :text="`Name Your ${domainLabel(true)}`" />
       </v-card-title>
       <form @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
-        <v-card-text>
+        <v-card-text class="modal-body">
           <v-text-field
             id="create-curated-group-input"
             v-model="name"
             :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
             aria-required="true"
-            class="v-input-details-override mr-2"
+            class="v-input-details-override"
             counter="255"
             density="compact"
             :disabled="isSaving"
@@ -43,7 +41,7 @@
           </v-text-field>
         </v-card-text>
         <hr />
-        <v-card-actions class="d-flex justify-end">
+        <v-card-actions class="modal-footer">
           <ProgressButton
             id="create-curated-group-confirm"
             :action="createCuratedGroup"
@@ -53,15 +51,16 @@
           />
           <v-btn
             id="create-curated-group-cancel"
+            class="ml-2"
             :disabled="isSaving"
             text="Cancel"
-            variant="plain"
+            variant="text"
             @click="cancelModal"
           />
         </v-card-actions>
       </form>
     </v-card>
-  </v-overlay>
+  </v-dialog>
 </template>
 
 <script>

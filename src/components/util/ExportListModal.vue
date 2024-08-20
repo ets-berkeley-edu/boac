@@ -1,9 +1,8 @@
 <template>
-  <v-overlay
+  <v-dialog
     v-model="showModalProxy"
     aria-describedby="export-list-body"
     aria-labelledby="modal-header"
-    class="justify-center overflow-auto"
     persistent
     scroll-strategy="reposition"
     width="100%"
@@ -14,9 +13,9 @@
       max-width="800"
     >
       <v-card-title>
-        <ModalHeader class="ml-2" text="Export List" />
+        <ModalHeader text="Export List" />
       </v-card-title>
-      <v-card-text id="export-list-body">
+      <v-card-text id="export-list-body" class="modal-body">
         <div
           id="csv-column-options"
           aria-label="Select columns to export"
@@ -44,11 +43,11 @@
         </div>
       </v-card-text>
       <hr />
-      <v-card-actions class="flex-column">
+      <v-card-actions class="modal-footer flex-column">
         <v-alert
           v-if="error && !isExporting"
           aria-live="polite"
-          class="font-size-15 w-100 mb-2"
+          class="font-size-15 w-100 mb-3"
           color="error"
           density="compact"
           :icon="mdiAlert"
@@ -62,19 +61,20 @@
             :action="onSubmit"
             :disabled="!selected.length || error || isExporting"
             :in-progress="isExporting"
-            text="Export"
+            :text="isExporting ? 'Exporting' : 'Export'"
           />
           <v-btn
             id="export-list-cancel"
             class="ml-2"
+            :disabled="isExporting"
             text="Close"
-            variant="plain"
+            variant="text"
             @click="cancel"
           />
         </div>
       </v-card-actions>
     </v-card>
-  </v-overlay>
+  </v-dialog>
 </template>
 
 <script setup>

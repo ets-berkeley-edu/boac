@@ -1,10 +1,8 @@
 <template>
-  <v-overlay
+  <v-dialog
     v-model="showModalProxy"
     aria-labelledby="modal-header"
-    class="justify-center overflow-auto"
     persistent
-    width="100%"
   >
     <v-card
       class="modal-content"
@@ -12,16 +10,16 @@
       max-width="600"
     >
       <v-card-title>
-        <ModalHeader clazz="px-2" text="Name Your Cohort" />
+        <ModalHeader text="Name Your Cohort" />
       </v-card-title>
       <form @submit.prevent="createCohort" @keydown.esc="cancelModal">
-        <v-card-text>
+        <v-card-text class="modal-body">
           <v-text-field
             id="create-cohort-input"
             v-model="name"
             aria-label="Cohort name, 255 characters or fewer"
             aria-required="true"
-            class="v-input-details-override mr-2"
+            class="v-input-details-override"
             counter="255"
             density="compact"
             :disabled="isSaving"
@@ -42,7 +40,7 @@
           </v-text-field>
         </v-card-text>
         <hr />
-        <v-card-actions class="d-flex justify-end">
+        <v-card-actions class="modal-footer">
           <ProgressButton
             id="create-cohort-confirm-btn"
             :action="createCohort"
@@ -52,8 +50,9 @@
           />
           <v-btn
             id="create-cohort-cancel-btn"
+            class="ml-2"
             :disabled="isSaving"
-            variant="plain"
+            variant="text"
             @click="cancelModal"
           >
             Cancel
@@ -61,7 +60,7 @@
         </v-card-actions>
       </form>
     </v-card>
-  </v-overlay>
+  </v-dialog>
 </template>
 
 <script>

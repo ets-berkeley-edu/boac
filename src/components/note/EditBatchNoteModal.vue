@@ -3,23 +3,20 @@
     v-if="mode"
     v-model="dialogModel"
     aria-labelledby="dialog-header-note"
-    min-width="500"
     persistent
-    width="60%"
   >
-    <v-card id="new-note-modal-container">
-      <div
-        class="default-margins mb-6 mr-6"
-        :class="{'mt-4': ['createBatch', 'editDraft'].includes(mode)}"
-      >
-        <CreateNoteHeader />
-        <div>
-          <Transition v-if="['createBatch', 'editDraft'].includes(mode)" name="batch-transition">
-            <div v-show="mode !== 'editTemplate'">
-              <BatchNoteFeatures :discard="discardRequested" />
-            </div>
-          </Transition>
-        </div>
+    <v-card
+      id="new-note-modal-container"
+      class="modal-content"
+      min-width="500"
+    >
+      <CreateNoteHeader />
+      <v-card-text class="modal-body">
+        <Transition v-if="['createBatch', 'editDraft'].includes(mode)" name="batch-transition">
+          <div v-show="mode !== 'editTemplate'">
+            <BatchNoteFeatures :discard="discardRequested" />
+          </div>
+        </Transition>
         <div class="pt-3">
           <label
             id="create-note-subject-label"
@@ -88,14 +85,14 @@
             <div>{{ alert }}</div>
           </div>
         </v-alert>
-        <CreateNoteFooter
-          :discard="discardRequested"
-          :exit="exit"
-          :save-as-template="saveAsTemplate"
-          :show-alert="showAlert"
-          :update-template="updateTemplate"
-        />
-      </div>
+      </v-card-text>
+      <CreateNoteFooter
+        :discard="discardRequested"
+        :exit="exit"
+        :save-as-template="saveAsTemplate"
+        :show-alert="showAlert"
+        :update-template="updateTemplate"
+      />
     </v-card>
   </v-dialog>
   <AreYouSureModal

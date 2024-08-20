@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-wrap">
+  <v-card-title class="d-flex flex-wrap">
     <div class="flex-grow-1">
       <div class="align-center d-flex">
         <ModalHeader
@@ -127,13 +127,12 @@
       :activator="templateToRename ? `btn-rename-note-template-${templateToRename.id}` : null"
       aria-labelledby="rename-template-dialog-header"
       persistent
-      width="auto"
     >
-      <v-card width="600">
-        <v-card-title class="pl-6 pt-5">
+      <v-card width="600" class="modal-content">
+        <v-card-title>
           <ModalHeader header-id="rename-template-dialog-header" text="Rename Your Template" />
         </v-card-title>
-        <v-card-text class="pr-8 py-2">
+        <v-card-text class="modal-body">
           <v-text-field
             id="rename-template-input"
             v-model="updatedTemplateTitle"
@@ -166,7 +165,7 @@
             {{ error }}
           </div>
         </v-card-text>
-        <v-card-actions class="pb-6 pr-8">
+        <v-card-actions class="modal-footer">
           <ProgressButton
             id="rename-template-confirm"
             :action="() => renameTemplate(template)"
@@ -176,7 +175,7 @@
           />
           <v-btn
             id="cancel-rename-template"
-            class="ml-1"
+            class="ml-2"
             :disabled="isSaving"
             text="Cancel"
             variant="plain"
@@ -194,7 +193,7 @@
     >
       Are you sure you want to delete the <strong>'{{ get(templateToDelete, 'title') }}'</strong> template?
     </AreYouSureModal>
-  </div>
+  </v-card-title>
 </template>
 
 <script setup>

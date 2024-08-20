@@ -1,9 +1,10 @@
 <template>
   <div :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
-    <div :id="`note-${note.id}-is-closed`"
-         class="ellipses-for-long-text"
-         :class="{'note-snippet-when-closed truncate-with-ellipsis': !isOpen}"
-         aria-label="Advising note"
+    <div
+      :id="`note-${note.id}-is-closed`"
+      class="ellipses-for-long-text"
+      :class="{'note-snippet-when-closed truncate-with-ellipsis': !isOpen}"
+      aria-label="Advising note"
     >
       <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`">
         <span class="pr-2">

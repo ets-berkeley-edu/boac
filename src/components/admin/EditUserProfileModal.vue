@@ -23,9 +23,7 @@
     <v-dialog
       v-model="showEditUserModal"
       aria-labelledby="modal-header"
-      height="auto"
       persistent
-      width="auto"
     >
       <v-card
         class="modal-content"
@@ -33,9 +31,9 @@
         min-width="600"
       >
         <v-card-title>
-          <ModalHeader clazz="px-2" :text="isExistingUser ? profile.name : 'Create User'" />
+          <ModalHeader :text="isExistingUser ? profile.name : 'Create User'" />
         </v-card-title>
-        <v-card-text>
+        <v-card-text class="modal-body">
           <div
             v-if="error"
             class="mb-2 mt-1 text-error"
@@ -217,31 +215,30 @@
             </select>
           </div>
         </v-card-text>
-        <v-card-actions class="py-0 pr-8">
-          <div class="mb-6">
-            <v-btn
-              id="save-changes-to-user-profile"
-              color="primary"
-              :disabled="isSaving || !userProfile.uid || memberships.findIndex(d => !d.role) >= 0"
-              variant="flat"
-              @click="save"
-            >
-              <span v-if="!isSaving">Save</span>
-              <v-progress-circular
-                v-if="isSaving"
-                indeterminate
-                :size="18"
-                :width="4"
-              />
-            </v-btn>
-            <v-btn
-              id="cancel-changes-to-user-profile"
-              color="primary"
-              text="Cancel"
-              variant="text"
-              @click="cancel"
+        <hr />
+        <v-card-actions class="modal-footer">
+          <v-btn
+            id="save-changes-to-user-profile"
+            color="primary"
+            :disabled="isSaving || !userProfile.uid || memberships.findIndex(d => !d.role) >= 0"
+            variant="flat"
+            @click="save"
+          >
+            <span v-if="!isSaving">Save</span>
+            <v-progress-circular
+              v-if="isSaving"
+              indeterminate
+              :size="18"
+              :width="4"
             />
-          </div>
+          </v-btn>
+          <v-btn
+            id="cancel-changes-to-user-profile"
+            class="ml-2"
+            text="Cancel"
+            variant="text"
+            @click="cancel"
+          />
         </v-card-actions>
       </v-card>
     </v-dialog>
