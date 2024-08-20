@@ -44,7 +44,7 @@ export function normalizeId(id: string) {
 }
 
 export function numFormat(num, format=null) {
-  numeral(num).format(format)
+  return numeral(num).format(format)
 }
 
 export function oxfordJoin(arr, zeroString?) {
