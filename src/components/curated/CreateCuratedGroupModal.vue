@@ -45,7 +45,7 @@
           <ProgressButton
             id="create-curated-group-confirm"
             :action="createCuratedGroup"
-            :disabled="!name.length"
+            :disabled="isSaving || !name.length"
             :in-progress="isSaving"
             text="Save"
           />

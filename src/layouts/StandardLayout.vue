@@ -90,8 +90,6 @@ const loading = computed(() => contextStore.loading)
 const noteStore = useNoteStore()
 const showSidebar = ref(true)
 
-putFocusNextTick('home-header')
-
 contextStore.setEventHandler('hide-footer', value => hideFooter.value = value)
 </script>
 

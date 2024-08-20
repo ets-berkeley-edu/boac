@@ -29,6 +29,8 @@
         <v-textarea
           id="curated-group-bulk-add-sids"
           v-model="textarea"
+          aria-describedby="page-description"
+          aria-labelledby="page-section-header"
           :disabled="isValidating || isSaving"
           label="Enter SIDs here"
           variant="outlined"
