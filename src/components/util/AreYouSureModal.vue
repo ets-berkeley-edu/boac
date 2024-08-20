@@ -39,7 +39,7 @@
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {putFocusNextTick} from '@/lib/utils'
-import {ref} from 'vue'
+import {ref, watch} from 'vue'
 
 const props = defineProps({
   buttonLabelCancel: {
@@ -77,7 +77,9 @@ let isProcessing = ref(false)
 // eslint-disable-next-line vue/require-prop-types
 const model = defineModel()
 
-putFocusNextTick('are-you-sure-text')
+watch(model, value => {
+  onToggle(value)
+})
 
 const confirm = () => {
   isProcessing.value = true
@@ -86,6 +88,12 @@ const confirm = () => {
     result.then(() => isProcessing.value = false)
   } else {
     isProcessing.value = false
+  }
+}
+
+const onToggle = isOpen => {
+  if (isOpen) {
+    putFocusNextTick(props.functionCancel ? 'are-you-sure-cancel' : 'are-you-sure-confirm')
   }
 }
 </script>

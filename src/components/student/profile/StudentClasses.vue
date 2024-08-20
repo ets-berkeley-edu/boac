@@ -167,7 +167,7 @@ onMounted(() => {
 const expandCollapseAll = () => {
   expanded.value = !expanded.value
   each(enrollmentTermsByYear.value, year => {
-    year.isOpen = expanded
+    year.isOpen = expanded.value
   })
   alertScreenReader(`All of the academic years have been ${expanded.value ? 'collapsed' : 'expanded'}`)
 }
