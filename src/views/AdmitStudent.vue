@@ -12,6 +12,7 @@
         <div class="mr-5">
           <ManageStudent
             :align-dropdown-right="true"
+            button-variant="flat"
             domain="admitted_students"
             label="Add to Admission Group"
             label-class="px-2"
