@@ -31,7 +31,7 @@
         />
       </div>
     </div>
-    <div class="border-b-md border-color-warning mx-3">
+    <div class="border-b-md border-color-warning mt-4 mx-6">
       <v-container class="py-2 px-0" fluid>
         <v-row>
           <v-col cols="8">
@@ -80,7 +80,7 @@
         </v-row>
       </v-container>
     </div>
-    <div class="border-b-md border-color-warning mx-3">
+    <div class="border-b-md border-color-warning mx-6">
       <v-container class="border-bottom border-warning px-0" fluid>
         <v-row align="start">
           <v-col class="pb-0 pt-1" cols="7">

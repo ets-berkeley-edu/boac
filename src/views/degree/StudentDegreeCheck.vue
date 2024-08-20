@@ -9,7 +9,7 @@
         />
       </div>
       <StudentDegreeCheckHeader :student="student" />
-      <v-container fluid>
+      <v-container class="pt-3" fluid>
         <v-row>
           <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
             <UnitRequirements class="unit-requirements" />

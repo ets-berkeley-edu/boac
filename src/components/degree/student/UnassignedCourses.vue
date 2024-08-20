@@ -25,7 +25,7 @@
             <th v-if="!ignored" class="th-term">
               Term
             </th>
-            <th class="pl-0">
+            <th class="pl-0 th-note">
               Note
             </th>
             <th v-if="currentUser.canEditDegreeProgress" class="th-actions" />
@@ -105,9 +105,10 @@
               </td>
               <td :class="{'pl-2 td-note': course.note, 'pl-3 vertical-top': !course.note}">
                 <a
-                  v-if="course.note && !isNoteVisible(course) && (degreeStore.draggingCourseId !== course.id)"
+                  v-if="course.note && !isNoteVisible(course)"
                   :id="`course-${course.id}-note`"
                   class="truncate-with-ellipsis"
+                  :class="{'text-decoration-none text-white': degreeStore.draggingCourseId === course.id}"
                   href
                   @click.prevent="showNote(course)"
                   v-html="course.note"
@@ -412,8 +413,8 @@ table {
   white-space: nowrap;
 }
 .th-actions {
-  max-width: 28px !important;
-  width: 28px !important;
+  max-width: 40px !important;
+  width: 40px !important;
 }
 .th-assign {
   max-width: 28px !important;
@@ -426,6 +427,9 @@ table {
 .th-grade {
   max-width: 46px !important;
   width: 46px !important;
+}
+.th-note {
+  width: 25% !important;
 }
 .th-term {
   max-width: 84px !important;

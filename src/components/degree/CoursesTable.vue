@@ -69,43 +69,41 @@
                 </div>
               </td>
               <td
-                class="pl-0"
+                class="overflow-wrap-break-word pl-0 pt-1"
                 :class="{
-                  'text-grey font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
+                  'font-italic text-grey': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'td-name-printable': printable,
                   'td-name': !printable
                 }"
               >
-                <div class="align-center d-flex pt-1">
-                  <div v-if="!bundle.course && bundle.category.isRecommended" class="pr-1">
-                    <v-icon
-                      :id="`category-${bundle.category.id}-is-recommended`"
-                      class="accent-color-orange"
-                      :icon="mdiCircleOutline"
-                      title="Recommended"
-                    />
-                    <span class="sr-only">This is a recommended course requirement</span>
-                  </div>
-                  <div
-                    :class="{
-                      'accent-color-purple': get(bundle.category, 'isSatisfiedByTransferCourse'),
-                      'font-weight-500': isEditing(bundle),
-                      'pr-2': get(bundle.course, 'isCopy')
-                    }"
-                  >
-                    <span class="pl-1" :class="{'text-strikethrough': get(bundle.category, 'isIgnored')}">
-                      <!-- Spaces surrounding 'name' make life easier for QA. Do not trim. -->
-                      {{ bundle.name }}
-                    </span>
-                  </div>
-                  <div v-if="get(bundle.course, 'isCopy')" class="pr-1">
-                    <v-icon
-                      :icon="mdiContentCopy"
-                      size="sm"
-                      title="Course satisfies multiple requirements."
-                    />
-                  </div>
-                </div>
+                <span v-if="!bundle.course && bundle.category.isRecommended">
+                  <v-icon
+                    :id="`category-${bundle.category.id}-is-recommended`"
+                    class="accent-color-orange"
+                    :icon="mdiCircle"
+                    title="Recommended"
+                  />
+                  <span class="sr-only">This is a recommended course requirement</span>
+                </span>
+                <span
+                  :class="{
+                    'accent-color-purple': get(bundle.category, 'isSatisfiedByTransferCourse'),
+                    'font-weight-500': isEditing(bundle),
+                    'mr-2': get(bundle.course, 'isCopy')
+                  }"
+                >
+                  <span :class="{'text-strikethrough': get(bundle.category, 'isIgnored')}">
+                    <!-- Spaces surrounding 'name' make life easier for QA. Do not trim. -->
+                    {{ bundle.name }}
+                  </span>
+                </span>
+                <span v-if="get(bundle.course, 'isCopy')" class="mr-1">
+                  <v-icon
+                    :icon="mdiContentCopy"
+                    size="sm"
+                    title="Course satisfies multiple requirements."
+                  />
+                </span>
               </td>
               <td
                 v-if="!isCampusRequirements"
@@ -349,7 +347,7 @@ import {isAlertGrade} from '@/berkeley'
 import {
   mdiAlertRhombus,
   mdiCheckCircleOutline,
-  mdiCircleOutline,
+  mdiCircle,
   mdiContentCopy,
   mdiInformationOutline,
   mdiNoteEditOutline,
@@ -643,6 +641,8 @@ const showNote = bundle => {
 table {
   border-collapse: collapse;
   border-spacing: 0 0.05em;
+  table-layout: fixed;
+  width: 100%;
 }
 .btn-container {
   min-width: 20px;
@@ -717,8 +717,8 @@ table {
   width: 28px !important;
 }
 .th-course {
-  max-width: 100px !important;
-  width: 100px !important;
+  max-width: 40% !important;
+  width: 40% !important;
 }
 .th-grade {
   max-width: 46px !important;
