@@ -56,7 +56,7 @@
             <div>
               {{ meeting.days }}
               <span v-if="meetings.length > 1">
-                ({{ DateTime.fromJSDate(meeting.startDate).toFormat('MMM D') }} to {{ DateTime.fromJSDate(meeting.endDate).toFormat('MMM D') }})
+                ({{ DateTime.fromISO(meeting.startDate).toFormat('MMM dd') }} to {{ DateTime.fromISO(meeting.endDate).toFormat('MMM dd') }})
               </span>
             </div>
             <div>{{ meeting.time }}</div>
@@ -72,7 +72,7 @@
   <SectionSpinner :loading="!loading && isToggling" />
   <div v-if="!isToggling && !loading">
     <h2 class="sr-only">Students</h2>
-    <div class="ml-4 mt-4">
+    <div class="mb-2 ml-4 mt-4">
       <CuratedGroupSelector
         v-if="size(section.students) > 1"
         :context-description="`Course ${section.displayName}`"
@@ -81,7 +81,7 @@
       />
     </div>
     <div class="align-center d-flex flex-wrap justify-space-between">
-      <div class="mt-2 ml-4">
+      <div :class="{'mt-2 ml-4': section.totalStudentCount > itemsPerPage}">
         <div v-if="section.totalStudentCount > itemsPerPage">
           <Pagination
             :click-handler="goToPage"
@@ -128,7 +128,7 @@
       <v-icon :icon="mdiAlertRhombus" color="error" />
       <span class="container-error">No students advised by your department are enrolled in this section.</span>
     </div>
-    <div v-if="section.totalStudentCount" class="mx-2 mt-3">
+    <div v-if="section.totalStudentCount" class="mx-2 mt-2">
       <CourseStudents :featured="featured" :section="section" />
       <div v-if="section.totalStudentCount > itemsPerPage" class="ml-4 mt-6">
         <Pagination
