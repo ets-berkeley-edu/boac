@@ -17,9 +17,3 @@
 <script setup>
 import {mdiAlert} from '@mdi/js'
 </script>
-
-<script>
-export default {
-  name: 'SessionExpired'
-}
-</script>

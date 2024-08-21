@@ -648,62 +648,6 @@ export default {
   font-weight: 600;
   padding-bottom: 2px;
 }
-.quick-links-position {
-  position: relative;
-  top: -16px;
-}
-.color-transparent {
-  color: transparent;
-}
-.column-actions {
-  width: 50px;
-}
-.column-edit {
-  padding: 3px 2px 0 4px !important;
-  width: 30px;
-}
-.column-email {
-  width: 50px;
-}
-.column-last-login {
-  width: 120px;
-}
-.column-name {
-  width: 200px;
-}
-.column-status {
-  width: 100px;
-}
-.column-toggle-details {
-  padding-top: 6px !important;
-  width: 25px;
-}
-.column-toggle-details-button {
-  color: #337ab7;
-  height: 15px;
-  line-height: 1;
-  padding: 0 !important;
-}
-.column-uid {
-  width: 140px;
-}
-.dept-name {
-  color: #484;
-  font-weight: 500;
-}
-.icon-slash {
-  color: #cf1715;
-  left: -4px;
-  position: absolute;
-  top: 4px;
-}
-.position-relative {
-  position: relative;
-}
-.total-user-count {
-  max-height: 20px;
-  min-height: 20px;
-}
 .user-dept-membership-table td {
   border: none;
   padding: 5px 20px 5px 0;
@@ -734,13 +678,11 @@ export default {
   flex-direction: column;
   margin-bottom: 16px;
 }
-
 .custom-select-container label {
   font-size: 16px;
   margin-bottom: 8px;
   color: #6b6b6b; /* Matching Vuetify's label color */
 }
-
 .custom-select {
   appearance: none;
   -webkit-appearance: none;
@@ -754,69 +696,55 @@ export default {
   box-shadow: none;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
-
 .custom-select:focus {
   border-color: #3f51b5; /* Matching Vuetify's focus color */
   outline: none;
   box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.25); /* Matching Vuetify's focus shadow */
 }
-
 .custom-select:disabled {
   background-color: #e9ecef;
   color: #6c757d;
 }
-
 .gray-text {
   color: gray;
 }
-
 .green-bold-text {
   color: green;
   font-weight: 900;
 }
-
 .bold-text {
   font-weight: 900;
 }
-
 .v-table tbody tr:nth-child(odd) {
-      background-color: rgba(0, 0, 0, .05);
+  background-color: rgba(0, 0, 0, .05);
 }
-
 .v-table tbody tr:nth-child(even) {
-      background-color: white;
+  background-color: white;
 }
-
 .v-table tbody tr {
   padding: 12px 0px;
 }
-
 .v-data-table__td--expanded-row {
   color: #337ab7;
 }
-
 .row-padding {
   padding: 12px !important;
 }
-
 :deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
-      height: 40px !important;
+  height: 40px !important;
 }
-
 .c-letter {
   position: relative;
   top: 1px;
   left: 1px;
 }
-
 .slash {
   position: relative;
-    top: 4px;
-    left: -8px;
-    font-size: 22px;
-    color: red;
+  top: 4px;
+  left: -8px;
+  font-size: 22px;
+  color: red;
 }
-
 .slash-2 {
   position: relative;
   top: 4px;
@@ -825,28 +753,23 @@ export default {
   color: red;
   z-index: 10000;
 }
-
 .advising-data {
   position: relative;
   left: -8px;
 }
-
 .name-container {
   position: relative;
   top: -1px;
 }
-
 .icons {
   position: relative;
   top: -1px;
   display: inline-block;
 }
-
 .name {
   position: relative;
   display: inline-block;
 }
-
 :deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
   height: 0px !important;
 }

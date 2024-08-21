@@ -1,7 +1,7 @@
 <template>
   <v-card-actions class="modal-footer d-block">
     <v-alert
-      v-if="true"
+      v-if="boaSessionExpired"
       id="uh-oh-session-time-out"
       aria-live="polite"
       class="mb-3"
