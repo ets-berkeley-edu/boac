@@ -11,9 +11,9 @@
         {key: 'data-table-expand'},
         {key: 'name', headerProps: {class: 'pl-4'}, title: 'Name'},
         {key: 'depts', title: 'Department(s)'},
-        {key: 'notesCreated', headerProps: {class: 'd-flex justify-end'}, title: 'Notes Created'},
-        {key: 'lastLogin', headerProps: {class: 'text-right pr-1'}, title: 'Last Login'},
-        {key: 'email', headerProps: {class: 'd-flex justify-center'}, title: 'Email'}
+        {key: 'notesCreated', align: 'end', title: 'Notes Created'},
+        {key: 'lastLogin', align: 'end', title: 'Last Login'},
+        {key: 'email', align: 'center', title: 'Email'}
       ]"
       hide-default-footer
       hide-no-data
@@ -24,10 +24,12 @@
       loading-text="Fetching users..."
       mobile-breakpoint="md"
       :cell-props="data => {
-        const align = data.column.key === 'notesCreated' ? 'text-right' : (data.column.key === 'email' ? 'd-flex justify-center' : '')
+        const alignCenter = data.column.key === 'email'
+        const alignEnd = ['lastLogin', 'notesCreated'].includes(data.column.key)
         const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
         return {
-          class: `${align} ${bgColor} font-size-16 py-2`,
+          align: alignEnd ? 'end' : (alignCenter ? 'center' : undefined),
+          class: `${bgColor} font-size-16 py-2`,
           id: `td-user-${data.item.uid}-column-${data.column.key}`
         }
       }"
@@ -84,7 +86,7 @@
       </template>
       <template #expanded-row="{ columns, item }">
         <tr>
-          <td :colspan="columns.length">
+          <td class="border-b-md border-e-md border-s-md pa-6" :colspan="columns.length">
             <pre :id="`user-details-${item.uid}`">{{ item }}</pre>
           </td>
         </tr>
@@ -138,8 +140,8 @@ onMounted(refresh)
   font-weight: normal;
   padding: 5px 20px 5px 0;
 }
-.v-data-table__td--expanded-row {
-  color: #337ab7;
+.dept-name {
+  color: #484;
+  font-weight: 500;
 }
-
 </style>

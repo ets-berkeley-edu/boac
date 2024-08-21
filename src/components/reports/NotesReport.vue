@@ -18,7 +18,7 @@
           density="compact"
           slim
           variant="text"
-          @click="isShowingReport = !isShowingReport"
+          @click="toggleShowReport"
         >
           {{ isShowingReport ? 'Hide' : 'Show' }} complete notes report
         </v-btn>)
@@ -185,4 +185,9 @@ onMounted(() => {
     })
   })
 })
+
+const toggleShowReport = () => {
+  isShowingReport.value = !isShowingReport.value
+  isShowingBoaNoteCounts.value = false
+}
 </script>

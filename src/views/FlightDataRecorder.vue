@@ -16,15 +16,14 @@
         <div>
           <select
             id="available-department-reports"
-            v-model="deptCode"
-            class="select-menu font-size-16 py-1 pl-2 pr-5 w-auto"
+            v-model="selected"
+            class="select-menu"
           >
             <option
               v-for="d in availableDepartments"
               :id="`department-report-${d.code}`"
               :key="d.code"
               :value="d.code"
-              @select="render"
             >
               {{ d.name }}
             </option>
@@ -38,35 +37,37 @@
 
 <script setup>
 import NotesReport from '@/components/reports/NotesReport'
-import router from '@/router'
 import UserReport from '@/components/reports/UserReport'
-import {find, includes, map, trim} from 'lodash'
+import {find, trim} from 'lodash'
 import {getAvailableDepartmentReports} from '@/api/reports'
 import {computed, onMounted, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {useContextStore} from '@/stores/context'
 import {mdiAirplane} from '@mdi/js'
 
+const DEFAULT_DEPT_CODE = 'QCADV'
+
 const contextStore = useContextStore()
 
-const availableDepartments = ref(undefined)
+const availableDepartments = ref([])
 const department = ref(undefined)
-const deptCode = trim(useRoute().params.deptCode || '').toUpperCase()
 const loading = computed(() => contextStore.loading)
+const selected = ref(undefined)
 
-watch(deptCode, () => department.value = find(availableDepartments.value, ['code', deptCode]))
+watch(selected, () => {
+  department.value = getDepartment(selected.value) || getDepartment(DEFAULT_DEPT_CODE)
+})
 
 contextStore.loadingStart()
 
 onMounted(() => {
+  const deptCode = useRoute().params.deptCode
   getAvailableDepartmentReports().then(data => {
-    if (includes(map(data, 'code'), deptCode)) {
-      availableDepartments.value = data
-      department.value = find(availableDepartments.value, ['code', deptCode])
-      contextStore.loadingComplete('Reports loaded')
-    } else {
-      router.push({path: '/404'})
-    }
+    availableDepartments.value = data
+    selected.value = trim(deptCode).toUpperCase()
+    contextStore.loadingComplete('Reports loaded')
   })
 })
+
+const getDepartment = deptCode => find(availableDepartments.value, ['code', deptCode])
 </script>
