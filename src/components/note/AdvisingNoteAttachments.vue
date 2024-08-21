@@ -1,46 +1,45 @@
 <template>
   <div>
     <slot name="label"></slot>
-    <v-alert
-      v-if="attachmentError"
-      :id="`${idPrefix}attachment-error`"
-      aria-live="polite"
-      class="font-size-14 w-100 mb-1"
-      density="compact"
-      :icon="mdiAlert"
-      :text="attachmentError"
-      type="error"
-      variant="tonal"
-    />
     <v-file-input
       v-if="!readOnly"
       :id="`${idPrefix}choose-file-for-note-attachment`"
       ref="attachmentFileInput"
       :model-value="attachments"
       aria-label="Select file for attachment"
-      class="border-sm border-tertiary choose-file-for-note-attachment rounded"
+      class="border-sm choose-file-for-note-attachment rounded"
+      :class="{'border-success': disabled || attachmentLimitReached, 'border-md border-error': !!attachmentError}"
       :clearable="false"
       :disabled="disabled || attachmentLimitReached"
-      :error="!!attachmentError"
       flat
       hide-details
-      :loading="isAdding ? 'primary' : false"
+      :loading="isAdding ? 'success' : false"
       multiple
       :prepend-icon="null"
       single-line
-      variant="solo-filled"
+      :variant="disabled || attachmentLimitReached ? 'outlined' : 'solo-filled'"
       @keydown.enter="clickBrowseForAttachment"
       @update:model-value="onAttachmentsInput"
     >
       <template #label>
-        <div class="d-flex align-center justify-center">
-          <div class="font-size-14 font-weight-medium mr-2 text-tertiary">
+        <div
+          class="font-size-16"
+          :class="{
+            'font-weight-bold text-black text-center': disabled || attachmentLimitReached,
+            'align-center d-flex font-weight-medium justify-center': !disabled && !attachmentLimitReached
+          }"
+        >
+          <div v-if="disabled" class="pb-1">
+            Adding attachments...
+          </div>
+          <div v-if="!disabled" class="mr-2 ">
             Add attachment:
           </div>
           <v-btn
+            v-if="!disabled"
             :id="`${idPrefix}choose-file-for-note-attachment-btn`"
             class="bg-white"
-            color="tertiary"
+            color="black"
             :disabled="disabled"
             density="comfortable"
             type="file"
@@ -55,6 +54,17 @@
         <div></div>
       </template>
     </v-file-input>
+    <v-alert
+      v-if="attachmentError"
+      :id="`${idPrefix}attachment-error`"
+      aria-live="polite"
+      class="font-size-14 w-100 mb-1 mt-2"
+      density="compact"
+      :icon="mdiAlert"
+      :text="attachmentError"
+      type="error"
+      variant="tonal"
+    />
     <div v-if="attachmentLimitReached" class="w-100">
       A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.
     </div>
@@ -87,7 +97,6 @@
               color="error"
               density="compact"
               :disabled="disabled"
-              exact=""
               :icon="mdiCloseCircle"
               size="20px"
               variant="text"
