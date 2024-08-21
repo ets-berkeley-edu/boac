@@ -117,9 +117,11 @@
             </v-container>
           </v-list-item-action>
         </v-list>
-        <div v-if="!noteStore.noteTemplates.length" id="no-templates-header" class="bg-white templates-menu-header text-medium-emphasis">
-          You have no saved templates.
-        </div>
+        <v-list v-if="!noteStore.noteTemplates.length">
+          <v-list-item>
+            You have no saved templates.
+          </v-list-item>
+        </v-list>
       </v-menu>
     </div>
     <v-dialog
