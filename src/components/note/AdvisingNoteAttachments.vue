@@ -18,9 +18,8 @@
       ref="attachmentFileInput"
       :model-value="attachments"
       aria-label="Select file for attachment"
-      class="choose-file-for-note-attachment border rounded"
+      class="border-sm border-tertiary choose-file-for-note-attachment rounded"
       :clearable="false"
-      density="comfortable"
       :disabled="disabled || attachmentLimitReached"
       :error="!!attachmentError"
       flat
@@ -35,15 +34,15 @@
     >
       <template #label>
         <div class="d-flex align-center justify-center">
-          <div class="font-size-14">
+          <div class="font-size-14 font-weight-medium mr-2 text-tertiary">
             Add attachment:
           </div>
           <v-btn
             :id="`${idPrefix}choose-file-for-note-attachment-btn`"
+            class="bg-white"
+            color="tertiary"
             :disabled="disabled"
-            class="my-2 ml-2 px-2"
             density="comfortable"
-            hide-details
             type="file"
             variant="outlined"
             @keydown.enter.stop.prevent="clickBrowseForAttachment"
@@ -220,7 +219,6 @@ init()
 
 <style>
 .choose-file-for-note-attachment .v-label.v-field-label {
-  top: 2px !important;
   visibility: visible !important;
   width: 100%;
 }
