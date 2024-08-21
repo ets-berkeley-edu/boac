@@ -183,13 +183,16 @@ def get_admits():
     return admits
 
 
-def get_admit_data(admit):
+def get_admits_data(admits):
+    cs_empl_ids = [admit.sid for admit in admits]
     sql = f"""SELECT *
                 FROM boac_advising_oua.student_admits
-               WHERE cs_empl_id = '{admit.sid}'"""
-    app.logger.info(sql)
+               WHERE cs_empl_id IN ({utils.in_op(cs_empl_ids)})"""
     results = data_loch.safe_execute_rds(sql)
-    admit.admit_data = results[0]
+    for row in results:
+        for ad in admits:
+            if row['cs_empl_id'] == ad.sid:
+                ad.admit_data = row
 
 
 def get_admit_data_update_date():
@@ -366,3 +369,63 @@ def _parse_meeting_time(time_string):
         return datetime.datetime.strptime(time_string, '%H:%M').strftime('%l:%M %p').lower().strip()
     else:
         return None
+
+
+# REMOVE NON-EXISTENT COHORT FILTER OPTIONS FROM TEST DATA
+
+
+def remove_unavailable_student_cohort_test_data(test_case):
+    _remove_unavailable_test_data(test_case=test_case,
+                                  test_case_option_key='majors',
+                                  test_case_sub_option_key='major',
+                                  db_table='student.student_majors',
+                                  db_col='major')
+    _remove_unavailable_test_data(test_case=test_case,
+                                  test_case_option_key='minors',
+                                  test_case_sub_option_key='minor',
+                                  db_table='student.minors',
+                                  db_col='minor')
+    _remove_unavailable_test_data(test_case=test_case,
+                                  test_case_option_key='intended_majors',
+                                  test_case_sub_option_key='major',
+                                  db_table='student.intended_majors',
+                                  db_col='major')
+    _remove_unavailable_test_data(test_case=test_case,
+                                  test_case_option_key='asc_teams',
+                                  test_case_sub_option_key='squad',
+                                  db_table='boac_advising_asc.students',
+                                  db_col='team_name')
+
+
+def remove_unavailable_admit_cohort_test_data(test_case):
+    admits_table = 'boac_advising_oua.student_admits'
+    _remove_unavailable_test_data(test_case=test_case,
+                                  test_case_option_key='residency',
+                                  test_case_sub_option_key='category',
+                                  db_table=admits_table,
+                                  db_col='residency_category')
+    _remove_unavailable_test_data(test_case=test_case,
+                                  test_case_option_key='freshman_or_transfer',
+                                  test_case_sub_option_key='fresh_or_trans',
+                                  db_table=admits_table,
+                                  db_col='freshman_or_transfer')
+    _remove_unavailable_test_data(test_case=test_case,
+                                  test_case_option_key='special_program_cep',
+                                  test_case_sub_option_key='program',
+                                  db_table=admits_table,
+                                  db_col='special_program_cep')
+
+
+def _get_search_parameter_count(parameter, db_table, db_col):
+    app.logger.info(f'Checking search option {parameter}')
+    parameter = parameter.replace("'", "''")
+    sql = f"SELECT COUNT(*) FROM {db_table} WHERE {db_col} = '{parameter}'"
+    app.logger.info(sql)
+    return data_loch.safe_execute_rds(sql)[0]['count']
+
+
+def _remove_unavailable_test_data(test_case, test_case_option_key, test_case_sub_option_key, db_table, db_col):
+    option = test_case[test_case_option_key] if test_case.get(test_case_option_key) else []
+    for sub_option in option:
+        if not _get_search_parameter_count(sub_option[test_case_sub_option_key], db_table, db_col):
+            option.remove(sub_option)

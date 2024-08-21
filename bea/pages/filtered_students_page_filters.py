@@ -117,25 +117,7 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
             self.select_new_filter_sub_option(filter_option, filter_sub_option)
         self.wait_for_element_and_click(self.UNSAVED_FILTER_ADD_BUTON)
 
-    def remove_unavailable_test_data(self, criteria, filter_option):
-        if criteria:
-            self.select_new_filter_option(filter_option)
-            time.sleep(utils.get_click_sleep())
-            for criterion in criteria:
-                if criterion.__class__.__name__ == 'Squad':
-                    criterion = criterion.value['code']
-                criterion = self.filter_sub_option_identifier(filter_option, criterion)
-                if not self.matching_option(self.NEW_SUB_FILTER_SELECT, criterion):
-                    app.logger.info(f'Removing search for {criterion} cuz it is not an available option')
-                    criteria.remove(criterion)
-            self.hit_escape()
-
     def perform_student_search(self, cohort):
-        self.remove_unavailable_test_data(cohort.search_criteria.intended_majors, 'Intended Major')
-        self.remove_unavailable_test_data(cohort.search_criteria.majors, 'Major')
-        self.remove_unavailable_test_data(cohort.search_criteria.minors, 'Minor')
-        self.remove_unavailable_test_data(cohort.search_criteria.asc_teams, 'Team (ASC)')
-
         # Academic
         for career in cohort.search_criteria.academic_careers:
             self.select_new_filter('Academic Career', career)
@@ -263,11 +245,11 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
         elif filter_name in ['GPA (Cumulative)', 'GPA (Last Term)']:
             return (
                 By.XPATH,
-                f"{option_xpath}[contains(text(),\"{'{:.3f} - {:.3f}'.format(float(filter_opt['min']), float(filter_opt['max']))}\")]")
+                f"{option_xpath}[contains(.,\"{'{:.3f} - {:.3f}'.format(float(filter_opt['min']), float(filter_opt['max']))}\")]")
         elif filter_name in ['Family Dependents', 'Student Dependents']:
-            return By.XPATH, f"{option_xpath}[contains(text(),'{filter_opt['min']} - {filter_opt['max']}')]"
+            return By.XPATH, f"{option_xpath}[contains(.,'{filter_opt['min']} - {filter_opt['max']}')]"
         elif filter_name == 'Ethnicity':
-            return By.XPATH, f'{option_xpath}[contains(text(),"{filter_opt}") and not(contains(.,"COE"))]'
+            return By.XPATH, f'{option_xpath}[contains(.,"{filter_opt}") and not(contains(.,"COE"))]'
         else:
             return By.XPATH, f'{option_xpath}[contains(.,"{filter_opt}")]'
 

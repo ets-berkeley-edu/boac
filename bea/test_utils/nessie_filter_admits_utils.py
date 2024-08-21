@@ -92,7 +92,7 @@ def freshman_or_transfer_cond(cohort_admit_filter, conditions_list):
 
 def hispanic(cohort_admit_filter, conditions_list):
     if cohort_admit_filter.hispanic:
-        conditions_list.append("boac_advising_oua.student_admits.hispanic = 'Y'")
+        conditions_list.append("boac_advising_oua.student_admits.hispanic = 'T'")
 
 
 def last_school_lcff_plus_cond(cohort_admit_filter, conditions_list):
@@ -187,7 +187,7 @@ def order_by(sort):
                                LOWER(boac_advising_oua.student_admits.last_name),
                                boac_advising_oua.student_admits.cs_empl_id ASC"""
         elif sort['col'] == 'cs_empl_id':
-            return 'ORDRE BY boac_advising_oua.student_admits.cs_empl_id ASC'
+            return 'ORDER BY boac_advising_oua.student_admits.cs_empl_id ASC'
     else:
         return f'ORDER BY {default_sort}'
 

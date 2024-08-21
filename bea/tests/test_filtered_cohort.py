@@ -59,8 +59,8 @@ class TestFilteredCohortResults:
         self.filtered_students_page.cancel_cohort_if_modal()
         self.filtered_students_page.click_sidebar_create_filtered()
         self.filtered_students_page.perform_student_search(cohort)
-        expected = nessie_filter_students_utils.cohort_by_last_name(test, cohort.search_criteria)
-        if cohort.members:
+        expected = cohort.members
+        if expected:
             visible = self.filtered_students_page.visible_sids(cohort)
             utils.assert_equivalence(visible, expected)
             self.filtered_students_page.verify_list_view_sorting(expected, visible)

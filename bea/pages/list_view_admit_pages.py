@@ -22,10 +22,15 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+import time
 
 from bea.pages.admit_pages import AdmitPages
 from bea.pages.pagination import Pagination
+from bea.test_utils import utils
+from flask import current_app as app
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
 class ListViewAdmitPages(Pagination, AdmitPages):
@@ -72,3 +77,69 @@ class ListViewAdmitPages(Pagination, AdmitPages):
     @staticmethod
     def last_updated_msg_loc():
         return By.XPATH, '//div[contains(text(), "Admit data was last updated on")]'
+
+    def verify_admit_row_data(self, admit, failures):
+        try:
+            app.logger.info(f'Checking visible data for CS ID {admit.sid}')
+            admit_data = admit.admit_data
+            utils.assert_equivalence(self.visible_admit_cep(admit), (admit_data['special_program_cep'] or 'No data'))
+            utils.assert_equivalence(self.visible_admit_re_entry(admit), admit_data['reentry_status'])
+            utils.assert_equivalence(
+                self.visible_admit_1st_gen_college(admit), (admit_data['first_generation_college'] or '—\nNo data'))
+            utils.assert_equivalence(self.visible_admit_urem(admit), admit_data['urem'])
+            utils.assert_equivalence(
+                self.visible_admit_fee_waiver(admit), ('Fee' if admit_data['application_fee_waiver_flag'] else '—\nNo data'))
+            utils.assert_equivalence(self.visible_admit_fresh_trans(admit), admit_data['freshman_or_transfer'])
+            utils.assert_equivalence(self.visible_admit_residency(admit), admit_data['residency_category'])
+        except AssertionError:
+            failures.append(admit.sid)
+        return failures
+
+    def click_admit_link(self, cs_id):
+        app.logger.info(f'Clicking the link for CS ID {cs_id}')
+        self.wait_for_element_and_click((By.ID, f'link-to-admit-{cs_id}'))
+
+    # LIST VIEW - COHORT/GROUP
+
+    ADMIT_COHORT_SID = By.XPATH, '//span[contains(@id, "-cs-empl-id")]'
+
+    def admit_cohort_row_sids(self):
+        return [el.text for el in self.elements(self.ADMIT_COHORT_SID)]
+
+    def wait_for_admit_sids(self):
+        Wait(self.driver, utils.get_medium_timeout()).until(ec.presence_of_all_elements_located(self.ADMIT_COHORT_SID))
+
+    def list_view_admit_sids(self, cohort):
+        if cohort.members:
+            visible_sids = []
+            time.sleep(1)
+            page_count = self.list_view_page_count()
+            page = 1
+            visible_sids.extend(self.admit_cohort_row_sids())
+            if page_count == 1:
+                app.logger.info('There is 1 page')
+            else:
+                app.logger.info(f'There are {page_count} pages')
+                for i in range(page_count - 1):
+                    page += 1
+                    self.wait_for_element_and_click(self.go_to_page_link(page))
+                    self.wait_for_admit_sids()
+                    visible_sids.extend(self.admit_cohort_row_sids())
+            return visible_sids
+
+    # ADMIT ADD-TO-GRP
+
+    ADMIT_ROW_CBX = By.XPATH, '//input[contains(@id, "-admissions-group-checkbox")]'
+
+    def admit_row_cbx_sids(self):
+        return [el.get_attribute('id').split('-')[1] for el in self.elements(self.ADMIT_ROW_CBX)]
+
+    def wait_for_admit_checkboxes(self):
+        Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.ADMIT_ROW_CBX))
+
+    def admits_available_to_add_to_grp(self, test, group):
+        group_sids = list(map(lambda m: m.sid, group.members))
+        self.wait_for_admit_checkboxes()
+        visible_sids = self.admit_row_cbx_sids()
+        available_sids = [sid for sid in visible_sids if sid not in group_sids]
+        return [admit for admit in test.admits if admit.sid in available_sids]

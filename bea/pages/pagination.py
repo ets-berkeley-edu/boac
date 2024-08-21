@@ -46,7 +46,7 @@ class Pagination(BoaPages):
 
     @staticmethod
     def go_to_page_link(page_number):
-        return By.ID, f'pagination-{page_number}'
+        return By.ID, f'pagination-page-{page_number}'
 
     def list_view_page_count(self):
         if self.is_present(self.GO_TO_PAGE_LINK):

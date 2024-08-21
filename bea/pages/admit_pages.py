@@ -29,5 +29,6 @@ from selenium.webdriver.common.by import By
 
 class AdmitPages(CuratedAddSelector):
 
-    def data_update_date_heading(self, date_string):
-        return self.element((By.XPATH, f'//h2[contains(., "Admit data was last updated on #{date_string}")]'))
+    @staticmethod
+    def data_update_date_heading(date_string):
+        return By.XPATH, f'//div[text()="Admit data was last updated on {date_string}"]'
