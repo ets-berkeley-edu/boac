@@ -1,119 +1,133 @@
 <template>
   <div class="pr-3">
-    <b-table
-      ref="users"
-      :items="usersProvider"
-      :fields="[
-        {key: 'name', class: 'column-name font-weight-bolder pl-1'},
-        {key: 'depts', label: 'Department(s)'},
-        {key: 'notesCreated', class: 'text-nowrap text-right pr-3'},
-        {key: 'lastLogin', class: 'column-last-login text-nowrap text-right pr-1'},
-        {key: 'email', class: 'column-email text-center'}
+    <v-data-table-server
+      v-model:expanded="expanded"
+      class="responsive-data-table"
+      density="compact"
+      disable-pagination
+      disable-sort
+      :header-props="{class: 'font-size-14 font-weight-bold py-3 text-no-wrap'}"
+      :headers="[
+        {key: 'data-table-expand'},
+        {key: 'name', headerProps: {class: 'pl-4'}, title: 'Name'},
+        {key: 'depts', title: 'Department(s)'},
+        {key: 'notesCreated', headerProps: {class: 'd-flex justify-end'}, title: 'Notes Created'},
+        {key: 'lastLogin', headerProps: {class: 'text-right pr-1'}, title: 'Last Login'},
+        {key: 'email', headerProps: {class: 'd-flex justify-center'}, title: 'Email'}
       ]"
-      hover
-      responsive
-      stacked="md"
-      striped
-      thead-class="text-nowrap"
+      hide-default-footer
+      hide-no-data
+      :items="users"
+      :items-length="totalUserCount || 0"
+      :items-per-page="0"
+      :loading="totalUserCount === undefined"
+      loading-text="Fetching users..."
+      mobile-breakpoint="md"
+      :cell-props="data => {
+        const align = data.column.key === 'notesCreated' ? 'text-right' : (data.column.key === 'email' ? 'd-flex justify-center' : '')
+        const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
+        return {
+          class: `${align} ${bgColor} font-size-16 py-2`,
+          id: `td-user-${data.item.uid}-column-${data.column.key}`
+        }
+      }"
+      :row-props="data => {
+        const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
+        return {
+          class: `${bgColor}`,
+          id: `tr-user-${data.item.uid}`
+        }
+      }"
+      show-expand
     >
-      <template #cell(name)="row">
+      <template #item.name="{item}">
         <div class="d-flex">
-          <div v-if="row.item.name" class="text-nowrap">
+          <div v-if="item.name" class="text-nowrap">
             <span class="sr-only">Name</span>
             <a
-              :id="`directory-link-${row.item.uid}`"
-              :aria-label="`Go to UC Berkeley Directory page of ${row.item.name}`"
-              :href="`https://www.berkeley.edu/directory/results?search-term=${row.item.name}`"
+              :id="`directory-link-${item.uid}`"
+              :aria-label="`Go to UC Berkeley Directory page of ${item.name}`"
+              :href="`https://www.berkeley.edu/directory/results?search-term=${item.name}`"
               class="ma-0"
               target="_blank"
             >
-              {{ row.item.name }}
+              {{ item.name }}
             </a>
           </div>
-          <div v-if="!row.item.name" class="text-nowrap">
-            <span class="faint-text">Name unavailable (UID: {{ row.item.uid }})</span>
+          <div v-if="!item.name" class="text-nowrap">
+            <span class="faint-text">Name unavailable (UID: {{ item.uid }})</span>
           </div>
         </div>
       </template>
-      <template #cell(depts)="row">
-        <div v-for="dept in row.item.departments" :key="dept.code" class="pb-1">
-          <span :id="`dept-${dept.code}-${row.item.uid}`">
-            <span class="dept-name">{{ dept.name }}</span> ({{ oxfordJoin(getBoaUserRoles(row.item, dept)) }})
+      <template #item.depts="{item}">
+        <div v-for="dept in item.departments" :key="dept.code" class="pb-1">
+          <span :id="`dept-${dept.code}-${item.uid}`">
+            <span class="dept-name">{{ dept.name }}</span> ({{ oxfordJoin(getBoaUserRoles(item, dept)) }})
           </span>
         </div>
-        <div v-if="row.item.isAdmin" class="dept-name">BOA Admin</div>
+        <div v-if="item.isAdmin" class="dept-name">BOA Admin</div>
       </template>
-      <template #cell(lastLogin)="row">
-        <div :id="`user-last-login-${row.item.uid}`">
-          <span v-if="row.item.lastLogin">{{ moment(row.item.lastLogin).format('MMM D, YYYY') }}</span>
-          <span v-if="!row.item.lastLogin">&#8212;</span>
+      <template #item.lastLogin="{item}">
+        <div :id="`user-last-login-${item.uid}`">
+          <span v-if="item.lastLogin">{{ DateTime.fromISO(item.lastLogin).toFormat('MMM dd, yyyy') }}</span>
+          <span v-if="!item.lastLogin">&#8212;</span>
         </div>
       </template>
-      <template #cell(email)="row">
-        <span :id="`user-email-${row.item.uid}`">
+      <template #item.email="{item}">
+        <span :id="`user-email-${item.uid}`">
           <a
-            :aria-label="`Send email to ${row.item.name}`"
-            :href="`mailto:${row.item.campusEmail}`"
+            :aria-label="`Send email to ${item.name}`"
+            :href="`mailto:${item.campusEmail}`"
             target="_blank"
-          ><font-awesome icon="envelope" /><span class="sr-only"> (will open new browser tab)</span></a>
+          ><v-icon color="primary" :icon="mdiEmail" /><span class="sr-only"> (will open new browser tab)</span></a>
         </span>
       </template>
-      <template #row-details="row">
-        <b-card>
-          <pre :id="`user-details-${row.item.uid}`">{{ row.item }}</pre>
-        </b-card>
+      <template #expanded-row="{ columns, item }">
+        <tr>
+          <td :colspan="columns.length">
+            <pre :id="`user-details-${item.uid}`">{{ item }}</pre>
+          </td>
+        </tr>
       </template>
-    </b-table>
+    </v-data-table-server>
   </div>
 </template>
 
-<script>
-import Util from '@/mixins/Util'
+<script setup>
 import {getUsersReport} from '@/api/reports'
 import {getBoaUserRoles} from '@/berkeley'
+import {mdiEmail} from '@mdi/js'
+import {onMounted, ref, watch} from 'vue'
+import {oxfordJoin} from '@/lib/utils'
+import {DateTime} from 'luxon'
 
-export default {
-  name: 'UserReport',
-  mixins: [Util],
-  props: {
-    department: {
-      required: true,
-      type: Object
-    }
-  },
-  data: () => ({
-    totalUserCount: undefined
-  }),
-  watch: {
-    department() {
-      this.$refs.users.refresh()
-    }
-  },
-  methods: {
-    getBoaUserRoles,
-    usersProvider() {
-      return getUsersReport(this.department.code).then(report => {
-        this.totalUserCount = report.totalUserCount
-        return report.users
-      })
-    }
+const props = defineProps({
+  department: {
+    required: true,
+    type: Object
   }
+})
+
+const expanded = ref([])
+const totalUserCount = ref(undefined)
+const users = ref([])
+
+watch(() => props.department, () => {
+  refresh()
+})
+
+const refresh = () => {
+  totalUserCount.value = undefined
+  getUsersReport(props.department.code).then(data => {
+    totalUserCount.value = data.totalUserCount
+    users.value = data.users
+  })
 }
+
+onMounted(refresh)
 </script>
 
 <style scoped>
-.column-email {
-  width: 50px;
-}
-.column-last-login {
-  width: 120px;
-}
-.column-name {
-  width: 200px;
-}
-.column-uid {
-  width: 100px;
-}
 .user-dept-membership-table td {
   border: none;
   padding: 5px 20px 5px 0;
@@ -124,4 +138,8 @@ export default {
   font-weight: normal;
   padding: 5px 20px 5px 0;
 }
+.v-data-table__td--expanded-row {
+  color: #337ab7;
+}
+
 </style>

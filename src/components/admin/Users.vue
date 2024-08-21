@@ -275,7 +275,7 @@
               :href="`mailto:${item.campusEmail}`"
               target="_blank"
             >
-              <v-icon :icon="mdiEmail"></v-icon>
+              <v-icon :icon="mdiEmail" />
               <span class="sr-only"> (will open new browser tab)</span>
             </a>
           </div>
@@ -516,14 +516,6 @@ export default {
         this.sortBy = sortBy[0].key
         this.sortDesc = sortBy[0].order === 'asc' ? false : true
         this.usersProvider() // Method to fetch users with new sorting parameters
-      }
-    },
-    clickColumn(slotData) {
-      const indexExpanded = this.expanded.findIndex(i => i === slotData)
-      if (indexExpanded > -1) {
-        this.expanded.splice(indexExpanded, 1)
-      } else {
-        this.expanded.push(slotData)
       }
     },
     afterCancelUpdateUser(profile) {
