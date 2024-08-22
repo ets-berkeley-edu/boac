@@ -76,8 +76,10 @@ let isProcessing = ref(false)
 // eslint-disable-next-line vue/require-prop-types
 const model = defineModel()
 
-watch(model, value => {
-  onToggle(value)
+watch(model, isOpen => {
+  if (isOpen) {
+    putFocusNextTick('are-you-sure-confirm')
+  }
 })
 
 const confirm = () => {
@@ -87,12 +89,6 @@ const confirm = () => {
     result.then(() => isProcessing.value = false)
   } else {
     isProcessing.value = false
-  }
-}
-
-const onToggle = isOpen => {
-  if (isOpen) {
-    putFocusNextTick(props.functionCancel ? 'are-you-sure-cancel' : 'are-you-sure-confirm')
   }
 }
 </script>

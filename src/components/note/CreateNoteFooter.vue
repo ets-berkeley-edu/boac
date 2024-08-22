@@ -9,7 +9,7 @@
       <SessionExpired />
     </v-alert>
     <v-row v-if="!boaSessionExpired" class="d-flex flex-wrap" no-gutters>
-      <v-col class="d-flex pt-2">
+      <v-col>
         <ProgressButton
           v-if="!['editTemplate'].includes(mode)"
           id="btn-save-as-template"
@@ -20,19 +20,17 @@
           variant="text"
         />
       </v-col>
-      <v-col class="d-flex justify-end pt-2">
+      <v-col class="d-flex justify-end">
         <ProgressButton
           v-if="model.isDraft"
           id="save-as-draft-button"
           :action="updateDraft"
-          class="ml-2"
+          class="mr-3"
           :disabled="isSaving || isUpdatingDraft || (!trim(model.subject) && !trim(model.body))"
           :in-progress="isUpdatingDraft"
           text="Save and Close Draft"
           variant="text"
         />
-      </v-col>
-      <v-col class="d-flex flex-grow-sm-0 justify-end pt-2">
         <ProgressButton
           v-if="mode === 'editTemplate'"
           id="btn-update-template"
@@ -45,7 +43,6 @@
           v-if="!['editTemplate'].includes(mode)"
           id="create-note-button"
           :action="publish"
-          class="ml-2"
           :disabled="isSaving || isEmpty(completeSidSet) || !trim(model.subject)"
           :in-progress="isPublishing"
           text="Publish Note"
