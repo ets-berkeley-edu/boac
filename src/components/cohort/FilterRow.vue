@@ -16,6 +16,7 @@
         v-model="selectedFilter"
         :filter-row-index="position"
         :has-left-border-style="true"
+        :has-opt-groups="true"
         :labelledby="`new-filter-${position}-label`"
         :options="primaryOptions"
         type="primary"
@@ -130,7 +131,7 @@
         <ProgressButton
           id="unsaved-filter-add"
           :action="onClickAddButton"
-          :disabled="isSaving"
+          :disabled="isSaving || !selectedOption"
           :in-progress="isSaving"
           text="Add"
         />
@@ -170,23 +171,15 @@
           />
         </div>
       </div>
-      <div v-if="isModifyingFilter" class="d-flex">
-        <v-btn
+      <div v-if="isModifyingFilter" class="align-center d-flex">
+        <ProgressButton
           :id="`update-added-filter-${position}`"
-          color="primary"
-          :disabled="disableUpdateButton || isUpdatingExistingFilter"
+          :action="onClickUpdateButton"
+          :disabled="disableUpdateButton || isUpdatingExistingFilter || !selectedOption"
+          :in-progress="isUpdatingExistingFilter"
           size="large"
-          @click="onClickUpdateButton"
-        >
-          <div class="align-center d-flex">
-            <div v-if="isUpdatingExistingFilter" class="pr-2">
-              <v-progress-circular indeterminate size="16" width="2" />
-            </div>
-            <div>
-              {{ isUpdatingExistingFilter ? 'Updating' : 'Update' }}
-            </div>
-          </div>
-        </v-btn>
+          :text="isUpdatingExistingFilter ? 'Updating' : 'Update'"
+        />
         <v-btn
           :id="`cancel-edit-added-filter-${position}`"
           class="font-size-14 text-uppercase"
@@ -412,11 +405,14 @@ watch(selectedFilter, () => {
   }
 })
 watch(selectedOption, () => {
-  filter.value.value = get(selectedOption.value, 'value')
-  showAdd.value = !!selectedOption.value
-  if (selectedOption.value) {
-    putFocusNextTick('unsaved-filter-add')
-    alertScreenReader(`${selectedOption.value.name} selected`)
+  const value = get(selectedOption.value, 'value')
+  if (value) {
+    filter.value.value = value
+    showAdd.value = !!selectedOption.value
+    if (selectedOption.value) {
+      putFocusNextTick('unsaved-filter-add')
+      alertScreenReader(`${selectedOption.value.name} selected`)
+    }
   }
 })
 
