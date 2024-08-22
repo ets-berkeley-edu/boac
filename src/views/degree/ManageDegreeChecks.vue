@@ -79,18 +79,20 @@
             Created
           </template>
           <template #item.name="{item}">
-            <div v-if="item.id === get(templateForEdit, 'id')" class="py-3">
-              <input
+            <div v-if="item.id === get(templateForEdit, 'id')" class="pt-2">
+              <v-text-field
                 id="rename-template-input"
                 v-model="templateForEdit.name"
                 :aria-invalid="!templateForEdit.name"
                 aria-label="Input template name, 255 characters or fewer"
                 aria-required="true"
-                class="bg-white pa-2 rename-input w-100"
+                class="w-100"
+                density="compact"
                 :disabled="isRenaming"
-                maxlength="255"
+                hide-details
+                :maxlength="255"
                 required
-                type="text"
+                variant="outlined"
                 @keydown.enter="() => templateForEdit.name.length && save()"
                 @keyup.esc="cancelEdit"
               />
@@ -126,30 +128,25 @@
             </div>
           </template>
           <template #item.actions="{item}">
-            <div v-if="item.id === get(templateForEdit, 'id')" class="align-start d-flex float-right">
-              <v-btn
+            <div v-if="item.id === get(templateForEdit, 'id')" class="d-flex h-100 justify-end pt-4">
+              <ProgressButton
                 id="confirm-rename-btn"
-                :disabled="isRenaming || !templateForEdit.name.trim() || !!errorDuringEdit"
-                class="rename-btn mr-3"
+                :action="save"
                 color="primary"
-                @click.prevent="save"
-              >
-                <div v-if="isRenaming" class="mr-2">
-                  <v-progress-circular indeterminate size="16" width="2" />
-                </div>
-                {{ isRenaming ? 'Saving...' : 'Rename' }}
-              </v-btn>
+                :disabled="isRenaming || !templateForEdit.name.trim() || !!errorDuringEdit"
+                :in-progress="isRenaming"
+                :text="isRenaming ? 'Saving...' : 'Rename'"
+              />
               <v-btn
                 id="rename-cancel-btn"
-                class="rename-btn mr-3"
+                class="rename-btn"
                 :disabled="isRenaming"
                 variant="text"
-                size="sm"
                 text="Cancel"
                 @click="cancelEdit"
               />
             </div>
-            <div v-if="item.id !== get(templateForEdit, 'id')" class="align-center d-flex float-right">
+            <div v-if="item.id !== get(templateForEdit, 'id')" class="align-center d-flex flex-wrap justify-end">
               <v-btn
                 :id="`degree-check-${item.id}-print-link`"
                 :disabled="isBusy"
@@ -163,7 +160,7 @@
                 <span class="sr-only">{{ item.name }} (will open new browser tab)</span>
               </v-btn>
               <div v-if="currentUser.canEditDegreeProgress">
-                <span class="separator">|</span>
+                <span class="separator" role="separator">|</span>
                 <v-btn
                   :id="`degree-check-${item.id}-rename-btn`"
                   color="primary"
@@ -176,7 +173,7 @@
                 </v-btn>
               </div>
               <div v-if="currentUser.canEditDegreeProgress">
-                <span class="separator">|</span>
+                <span class="separator" role="separator">|</span>
                 <v-btn
                   :id="`degree-check-${item.id}-copy-btn`"
                   color="primary"
@@ -189,7 +186,7 @@
                 </v-btn>
               </div>
               <div v-if="currentUser.canEditDegreeProgress">
-                <span class="separator">|</span>
+                <span class="separator" role="separator">|</span>
                 <v-btn
                   :id="`degree-check-${item.id}-delete-btn`"
                   color="primary"
@@ -236,6 +233,7 @@ import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/
 import {mdiPlus} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'
+import ProgressButton from '@/components/util/ProgressButton.vue'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
@@ -365,11 +363,6 @@ const showDeleteModal = template => {
 <style scoped>
 .rename-btn {
   height: 38px;
-}
-.rename-input {
-  box-sizing: border-box;
-  border: 2px solid #ccc;
-  border-radius: 4px;
 }
 .separator {
   color: #ccc;
