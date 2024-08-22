@@ -1,6 +1,5 @@
 import {cloneDeep, find, isNil, sortBy} from 'lodash'
 import {defineStore, StoreDefinition} from 'pinia'
-import {DateTime} from 'luxon'
 
 const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
 
@@ -12,7 +11,7 @@ export type NoteEditSessionModel = {
   deleteAttachmentIds: number[];
   isDraft: boolean;
   isPrivate: boolean;
-  setDate?: Date | undefined;
+  setDate?: string | undefined;
   subject?: string;
   topics: string[];
 }
@@ -174,7 +173,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
           id: model.id,
           isDraft: model.isDraft,
           isPrivate: model.isPrivate,
-          setDate: model.setDate ? DateTime.fromISO(model.setDate, {zone: 'utc'}).toJSDate() : undefined,
+          setDate: model.setDate,
           subject: model.subject,
           topics: model.topics || [],
         }
@@ -189,7 +188,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
     setRecipients(recipients: NoteRecipients) {
       this.recipients = recipients
     },
-    setSetDate(setDate: any) {
+    setSetDate(setDate: string) {
       this.model.setDate = setDate
     },
     setSubject(subject: string) {

@@ -1,14 +1,15 @@
 <template>
   <div v-if="adjustedDate">
-    <span class="sr-only">{{ props.srPrefix }} </span>
-    {{ adjustedDate.toFormat(dateFormat) }}
-    <div v-if="props.includeTimeOfDay">
+    <span class="sr-only">{{ srPrefix }} </span>
+    {{ adjustedDate.toFormat(adjustedDate && adjustedDate.year === DateTime.now().year ? 'MMM d' : 'MMM d, yyyy') }}
+    <div v-if="includeTimeOfDay">
       {{ adjustedDate.toFormat('h:mma') }}
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
+import {computed} from 'vue'
 import {DateTime} from 'luxon'
 import {useContextStore} from '@/stores/context'
 
@@ -28,7 +29,9 @@ const props = defineProps({
     type: String
   }
 })
-const date = typeof props.date === 'string' ? new Date(props.date) : props.date
-const adjustedDate = date ? DateTime.fromISO(props.date).setZone(useContextStore().config.timezone) : null
-const dateFormat = adjustedDate && adjustedDate.year === DateTime.now().year ? 'MMM d' : 'MMM d, yyyy'
+
+const adjustedDate = computed(() => {
+  const date = typeof props.date === 'string' ? new Date(props.date) : props.date
+  return date ? DateTime.fromISO(props.date).setZone(useContextStore().config.timezone) : null
+})
 </script>
