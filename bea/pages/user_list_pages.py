@@ -119,17 +119,3 @@ class UserListPages(BoaPages):
         users.sort(key=lambda u: (u.last_name.lower(), u.first_name.lower(), u.sid), reverse=False)
         users.sort(key=lambda u: u.alert_count, reverse=True)
         return list(map(lambda u: u.sid, users))
-
-    @staticmethod
-    def verify_list_view_sorting(visible_sids, expected_sids):
-        # Only compare sort order for SIDs that are both expected and visible
-        if not sorted(expected_sids) == sorted(visible_sids):
-            expected_sids = [s for s in expected_sids if s in visible_sids]
-            visible_sids = [s for s in visible_sids if s in expected_sids]
-        sorting_errors = []
-        for v in visible_sids:
-            e = expected_sids[visible_sids.index(v)]
-            if not v == e:
-                sorting_errors.append(f'Expected {e}, got {v}')
-        app.logger.info(f'Mismatches: {sorting_errors}')
-        assert not sorting_errors

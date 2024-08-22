@@ -385,6 +385,7 @@ class BEATestConfig(object):
 
         for test_case in data:
             if opts.get('students') and opts['students']:
+                nessie_utils.remove_unavailable_student_cohort_test_data(test_case)
                 search_criteria = CohortFilter(test_case, self.dept)
                 sids = nessie_filter_students_utils.get_cohort_result(self, search_criteria)
                 cohort_members = []
@@ -392,6 +393,7 @@ class BEATestConfig(object):
                     if student.sid in sids:
                         cohort_members.append(student)
             else:
+                nessie_utils.remove_unavailable_admit_cohort_test_data(test_case)
                 search_criteria = CohortAdmitFilter(test_case)
                 sids = nessie_filter_admits_utils.get_cohort_result(self, search_criteria)
                 cohort_members = []
@@ -457,6 +459,13 @@ class BEATestConfig(object):
         self.set_default_cohort(opts={'include_inactive': True})
         self.set_test_students(count=50)
         self.get_test_student_enrollments(self.default_cohort.members)
+
+    def filtered_admits(self):
+        self.set_dept(Department.ZCEEE)
+        self.set_advisor()
+        self.set_admits()
+        nessie_utils.get_admits_data(self.admits)
+        self.set_search_cohorts(opts={'admits': True})
 
     def filtered_cohorts(self):
         self.set_base_configs(dept=Department.ADMIN, opts={'include_inactive': True})

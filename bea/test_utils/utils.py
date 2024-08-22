@@ -131,7 +131,8 @@ def wait_for_export_csv():
 
 
 def assert_equivalence(actual, expected):
-    app.logger.info(f'Expecting {expected}, got {actual}')
+    if actual != expected:
+        app.logger.info(f'Expecting {expected}, got {actual}')
     assert actual == expected
 
 

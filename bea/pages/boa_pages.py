@@ -130,10 +130,7 @@ class BoaPages(SearchForm):
 
     @staticmethod
     def sidebar_member_count_loc(cohort):
-        if cohort.__class__.__name__ == 'FilteredCohort':
-            return By.XPATH, f'//a[contains(@id,"sidebar-cohort")][contains(.,"{cohort.name}")]/div[contains(@id, "count")]'
-        else:
-            return By.XPATH, f'//a[contains(@id,"sidebar-curated")][contains(.,"{cohort.name}")]/div[contains(@id, "count")]'
+        return By.XPATH, f'//a[contains(@id,"sidebar-")][contains(.,"{cohort.name}")]/div[contains(@id, "count")]'
 
     def wait_for_sidebar_member_count(self, cohort):
         app.logger.info(f'Waiting for cohort {cohort.name} member count of {len(cohort.members)}')
@@ -141,12 +138,8 @@ class BoaPages(SearchForm):
         while tries > 0:
             try:
                 tries -= 1
-                Wait(self.driver, utils.get_short_timeout()).until(
-                    ec.presence_of_element_located(self.sidebar_member_count_loc(cohort)),
-                )
-                el = self.element(self.sidebar_member_count_loc(cohort))
-                visible = el.text.replace(' admitted', '').replace(' students', '')
-                assert visible and visible.split()[0] == f'{len(cohort.members)}'
+                self.when_present(self.sidebar_member_count_loc(cohort), utils.get_short_timeout())
+                assert self.element(self.sidebar_member_count_loc(cohort)).text.split()[0] == f'{len(cohort.members)}'
                 break
             except (AssertionError, TimeoutError):
                 if tries == 0:
@@ -154,7 +147,7 @@ class BoaPages(SearchForm):
                 else:
                     time.sleep(1)
 
-    #   SIDEBAR - CURATED GROUPS
+    # SIDEBAR - CURATED GROUPS
 
     CREATE_CURATED_GROUP_LINK = By.ID, 'create-curated-group-from-sidebar'
     VIEW_EVERYONE_GROUPS_LINK = By.ID, 'groups-all'
@@ -201,6 +194,23 @@ class BoaPages(SearchForm):
         else:
             assert group.name in self.sidebar_student_groups()
 
+    # SIDEBAR - CE3 COHORTS
+
+    CREATE_CE3_FILTERED_LINK = By.ID, 'admitted-students-cohort-create'
+    ALL_ADMITS_LINK = By.ID, 'admitted-students-all'
+
+    def click_sidebar_all_admits(self):
+        app.logger.info('Clicking sidebar link to view all CE3 admits')
+        self.wait_for_page_and_click(self.ALL_ADMITS_LINK)
+        self.wait_for_spinner()
+        self.when_present((By.XPATH, '//h1[contains(text(), "CE3 Admissions")]'), utils.get_short_timeout())
+
+    def click_sidebar_create_ce3_filtered(self):
+        app.logger.info('Clicking sidebar button to create a CE3 cohort')
+        self.wait_for_page_and_click(self.CREATE_CE3_FILTERED_LINK)
+        self.when_present((By.XPATH, '//h1[text()=" Create an admissions cohort"]'), utils.get_short_timeout())
+        time.sleep(1)
+
     # BOX_PLOTS
 
     @staticmethod
@@ -234,3 +244,17 @@ class BoaPages(SearchForm):
         sids = list(map(lambda s: s.sid, students))
         string = ' '.join(sids)
         self.enter_sid_list(el, string)
+
+    @staticmethod
+    def verify_list_view_sorting(visible_sids, expected_sids):
+        # Only compare sort order for SIDs that are both expected and visible
+        if not sorted(expected_sids) == sorted(visible_sids):
+            expected_sids = [s for s in expected_sids if s in visible_sids]
+            visible_sids = [s for s in visible_sids if s in expected_sids]
+        sorting_errors = []
+        for v in visible_sids:
+            e = expected_sids[visible_sids.index(v)]
+            if not v == e:
+                sorting_errors.append(f'Expected {e}, got {v}')
+        app.logger.info(f'Mismatches: {sorting_errors}')
+        assert not sorting_errors
