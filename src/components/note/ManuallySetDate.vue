@@ -21,6 +21,7 @@
         hide-actions
         hide-details
         :max="new Date()"
+        :model-value="model.setDate"
         placeholder="MM/DD/YYYY"
         prepend-icon=""
         variant="outlined"
@@ -36,7 +37,7 @@ import {useNoteStore} from '@/stores/note-edit-session'
 
 const noteStore = useNoteStore()
 const {boaSessionExpired, isSaving, model} = storeToRefs(noteStore)
-const manuallySetDate = ref(model.setDate ? model.setDate : undefined)
+const manuallySetDate = ref(undefined)
 
 watch(manuallySetDate, noteStore.setSetDate)
 </script>

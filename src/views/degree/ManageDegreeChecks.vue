@@ -24,11 +24,11 @@
         class="w-25"
         to="/degree/new"
       >
-        <div class="align-center d-flex flex-row-reverse flex-nowrap float-left">
+        <div class="align-center d-flex flex-nowrap float-left">
+          <v-icon aria-hidden="true" :icon="mdiPlus" size="20" />
           <div class="pl-1 text-no-wrap">
             Create new degree check
           </div>
-          <v-icon :icon="mdiPlus" size="20" />
         </div>
       </router-link>
       <span v-if="size(degreeTemplates)" class="mx-2">|</span>

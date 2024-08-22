@@ -3,13 +3,13 @@
     <label id="add-note-topic-label" class="font-weight-bold" for="add-topic-select-list">
       Topic Categories
     </label>
-    <div class="pt-3">
+    <div class="mt-1">
       <select
         id="add-topic-select-list"
         :key="topicOptions.length"
         v-model="selected"
         aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
-        class="select-menu"
+        class="bg-white select-menu"
         :disabled="disabled"
       >
         <option :value="null" disabled>Select...</option>
@@ -28,7 +28,7 @@
       <ul
         id="note-topics-list"
         :key="noteStore.model.topics.length"
-        class="mb-2 pill-list pl-0 w-75"
+        class="mb-2 pill-list pl-0 w-50"
         aria-labelledby="note-topics-label"
       >
         <li
