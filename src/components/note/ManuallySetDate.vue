@@ -10,36 +10,38 @@
     <div class="date-input-container">
       <v-date-input
         id="manually-set-date-input"
-        v-model="manuallySetDate"
         aria-labelledby="manually-set-date-label"
         autocomplete="off"
         bg-color="white"
-        :class="{'rounded-e-0': manuallySetDate}"
+        :class="{'rounded-e-0': model.setDate}"
         clearable
         density="compact"
         :disabled="isSaving || boaSessionExpired"
         hide-actions
         hide-details
         :max="new Date()"
-        :model-value="model.setDate"
+        :model-value="model.setDate ? DateTime.fromFormat(model.setDate, 'yyyy-MM-dd').toJSDate() : null"
         placeholder="MM/DD/YYYY"
         prepend-icon=""
         variant="outlined"
+        @update:model-value="onUpdateModel"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import {ref, watch} from 'vue'
+import {DateTime} from 'luxon'
 import {storeToRefs} from 'pinia'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const noteStore = useNoteStore()
 const {boaSessionExpired, isSaving, model} = storeToRefs(noteStore)
-const manuallySetDate = ref(undefined)
 
-watch(manuallySetDate, noteStore.setSetDate)
+const onUpdateModel = d => {
+  const value = d ? DateTime.fromJSDate(d).toFormat('yyyy-MM-dd') : null
+  noteStore.setSetDate(value)
+}
 </script>
 
 <style scoped>

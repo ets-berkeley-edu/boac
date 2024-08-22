@@ -1,8 +1,7 @@
-import {each, size, toNumber} from 'lodash'
 import axios from 'axios'
-import {DateTime} from 'luxon'
 import ga from '@/lib/ga'
 import utils from '@/api/api-utils'
+import {each, size, toNumber} from 'lodash'
 import {useContextStore} from '@/stores/context'
 
 const $_refreshMyDraftNoteCount = () => {
@@ -61,7 +60,7 @@ export function updateNote(
     curatedGroupIds,
     isDraft,
     isPrivate,
-    setDate: setDate ? DateTime.fromJSDate(setDate).toFormat('yyyy-MM-dd') : null,
+    setDate,
     sids,
     subject,
     templateAttachmentIds,
