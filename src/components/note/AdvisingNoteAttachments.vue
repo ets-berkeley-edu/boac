@@ -71,7 +71,7 @@
     <ul
       :id="`${idPrefix}attachments-list`"
       aria-label="attachments"
-      class="list-no-bullets mt-1"
+      class="list-no-bullets mt-2"
     >
       <li
         v-for="(attachment, index) in modelProxy.attachments"
@@ -80,7 +80,7 @@
         <v-chip
           :id="`${idPrefix}attachment-${index}`"
           :aria-label="downloadable ? `Download attachment ${attachment.displayName}` : null"
-          class="attachment-chip v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-no-wrap my-1"
+          class="attachment-chip v-chip-content-override font-weight-bold my-1 pa-4 text-medium-emphasis text-no-wrap text-uppercase"
           density="compact"
           :disabled="disabled"
           :href="downloadUrl(attachment)"

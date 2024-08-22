@@ -5,7 +5,7 @@
       class="font-size-16 font-weight-700"
       for="contact-type-options"
     >
-      Contact Method | {{ noteStore.model.contactType }}
+      Contact Method
     </label>
     <div class="mt-1">
       <v-radio-group

@@ -12,7 +12,11 @@
     >
       <CreateNoteHeader />
       <v-card-text class="modal-body">
-        <Transition v-if="['createBatch', 'editDraft'].includes(mode)" name="batch-transition">
+        <Transition
+          v-if="['createBatch', 'editDraft'].includes(mode)"
+          class="mb-3"
+          name="batch-transition"
+        >
           <div v-show="mode !== 'editTemplate'">
             <BatchNoteFeatures :discard="discardRequested" />
           </div>
@@ -29,7 +33,7 @@
             id="create-note-subject"
             :model-value="model.subject"
             aria-labelledby="create-note-subject-label"
-            class="mt-2"
+            class="mt-1"
             :class="{'bg-light': isSaving}"
             color="primary"
             density="compact"

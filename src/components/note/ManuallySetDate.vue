@@ -24,6 +24,7 @@
         placeholder="MM/DD/YYYY"
         prepend-icon=""
         variant="outlined"
+        @click:clear="() => noteStore.setSetDate(null)"
         @update:model-value="onUpdateModel"
       />
     </div>

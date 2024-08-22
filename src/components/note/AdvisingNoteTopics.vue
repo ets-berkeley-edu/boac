@@ -6,7 +6,7 @@
     <div class="mt-1">
       <select
         id="add-topic-select-list"
-        :key="topicOptions.length"
+        :key="noteStore.model.topics.length"
         v-model="selected"
         aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
         class="bg-white select-menu"
@@ -18,7 +18,6 @@
           :key="option.value"
           :disabled="!!find(noteStore.model.topics, value => value === option.value)"
           :value="option.value"
-          @select="onSelectChange"
         >
           {{ option.text }}
         </option>
@@ -75,7 +74,12 @@ const selected = ref(null)
 const topicOptions = ref([])
 
 watch(selected, value => {
-  noteStore.addTopic(value)
+  if (selected.value) {
+    noteStore.addTopic(value)
+    alertScreenReader(`Topic ${selected.value} added.`)
+    selected.value = null
+  }
+  putFocusNextTick('add-topic-select-list')
 })
 
 getTopicsForNotes(false).then(rows => {
@@ -90,14 +94,6 @@ const remove = topic => {
   noteStore.removeTopic(topic)
   alertScreenReader(`Removed topic ${topic}.`)
   putFocusNextTick('add-topic-select-list')
-}
-
-const onSelectChange = () => {
-  if (selected.value) {
-    putFocusNextTick('add-topic-select-list')
-    alertScreenReader(`Topic ${selected.value} added.`)
-    selected.value = null
-  }
 }
 </script>
 
