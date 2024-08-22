@@ -5,9 +5,9 @@
       class="font-size-16 font-weight-700"
       for="contact-type-options"
     >
-      Contact Method
+      Contact Method | {{ noteStore.model.contactType }}
     </label>
-    <div class="mt-2">
+    <div class="mt-1">
       <v-radio-group
         id="contact-type-options"
         aria-describedby="contact-type-label"
@@ -15,9 +15,9 @@
         density="compact"
         :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
         hide-details
-        :model-value="contactType"
+        :model-value="noteStore.model.contactType"
         :ripple="false"
-        @change="alertScreenReader(contactType)"
+        @update:model-value="onChangeContactType"
       >
         <v-radio
           id="contact-option-none-radio-button"
@@ -31,8 +31,7 @@
             :label="contactOption"
             :ripple="false"
             :value="contactOption"
-          >
-          </v-radio>
+          />
         </template>
       </v-radio-group>
     </div>
@@ -42,7 +41,6 @@
 <script setup>
 import {alertScreenReader} from '@/lib/utils'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {computed} from 'vue'
 
 const noteStore = useNoteStore()
 const contactOptions = [
@@ -54,12 +52,9 @@ const contactOptions = [
   'In person scheduled',
   'Admin'
 ]
-const contactType = computed({
-  get() {
-    return noteStore.model.contactType
-  },
-  set(value) {
-    noteStore.setContactType(value)
-  }
-})
+
+const onChangeContactType = value => {
+  alertScreenReader(value)
+  noteStore.setContactType(value)
+}
 </script>

@@ -73,7 +73,6 @@
         <ProgressButton
           id="save-note-button"
           :action="() => save(false)"
-          class="mr-2"
           :disabled="!noteStore.recipients.sids.length || !trim(noteStore.model.subject) || isSaving || boaSessionExpired"
           :in-progress="isPublishingNote"
           :text="noteStore.model.isDraft ? 'Publish Note' : 'Save'"
@@ -82,7 +81,6 @@
           v-if="noteStore.model.isDraft"
           id="update-draft-note-button"
           :action="() => save(true)"
-          class="mr-2"
           :disabled="isSaving || boaSessionExpired"
           :in-progress="isSavingDraft"
           text="Update Draft"
@@ -92,12 +90,11 @@
           id="cancel-edit-note-button"
           color="primary"
           :disabled="isSaving || boaSessionExpired"
+          slim
+          text="Cancel"
           variant="text"
-          @click.stop="cancelRequested"
-          @keypress.enter.stop="cancelRequested"
-        >
-          Cancel
-        </v-btn>
+          @click="cancelRequested"
+        />
       </div>
     </div>
     <AreYouSureModal
