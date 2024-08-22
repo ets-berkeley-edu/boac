@@ -6,30 +6,33 @@
     persistent
   >
     <v-card class="modal-content" min-width="600">
-      <v-card-title>
-        <ModalHeader header-id="are-you-sure-header" :text="modalHeader" />
-      </v-card-title>
-      <v-card-text id="are-you-sure-text" class="modal-body">
-        <span v-html="text" />
-        <slot />
-      </v-card-text>
-      <v-card-actions class="modal-footer">
-        <ProgressButton
-          id="are-you-sure-confirm"
-          :action="confirm"
-          :disabled="isProcessing"
-          :in-progress="isProcessing"
-          :text="buttonLabelConfirm"
-        />
-        <v-btn
-          v-if="functionCancel"
-          id="are-you-sure-cancel"
-          :disabled="isProcessing"
-          :text="buttonLabelCancel"
-          variant="text"
-          @click="functionCancel"
-        />
-      </v-card-actions>
+      <FocusLock :disabled="!focusLocked">
+        <v-card-title>
+          <ModalHeader header-id="are-you-sure-header" :text="modalHeader" />
+        </v-card-title>
+        <v-card-text id="are-you-sure-text" class="modal-body">
+          <span v-html="text" />
+          <slot />
+        </v-card-text>
+        <v-card-actions class="modal-footer">
+          <ProgressButton
+            id="are-you-sure-confirm"
+            :action="confirm"
+            :disabled="isProcessing"
+            :in-progress="isProcessing"
+            :text="buttonLabelConfirm"
+          />
+          <v-btn
+            v-if="functionCancel"
+            id="are-you-sure-cancel"
+            class="ml-2"
+            :disabled="isProcessing"
+            :text="buttonLabelCancel"
+            variant="text"
+            @click="functionCancel"
+          />
+        </v-card-actions>
+      </FocusLock>
     </v-card>
   </v-dialog>
 </template>
@@ -73,11 +76,13 @@ const props = defineProps({
 })
 let isProcessing = ref(false)
 
+const focusLocked = ref(false)
 // eslint-disable-next-line vue/require-prop-types
 const model = defineModel()
 
 watch(model, isOpen => {
   if (isOpen) {
+    setTimeout(() => focusLocked.value = isOpen, 500)
     putFocusNextTick('are-you-sure-confirm')
   }
 })

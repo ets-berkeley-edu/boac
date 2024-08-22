@@ -299,6 +299,7 @@
 </template>
 
 <script setup>
+import {get} from 'lodash'
 import {mdiEmail} from '@mdi/js'
 import {mdiLoginVariant} from '@mdi/js'
 import {normalizeId} from '@/lib/utils'
@@ -520,7 +521,7 @@ export default {
     },
     afterCancelUpdateUser(profile) {
       alertScreenReader('Canceled')
-      putFocusNextTick(`edit-${profile.uid}`)
+      putFocusNextTick(get(profile, 'uid') ? `edit-${profile.uid}` : 'add-new-user-btn')
     },
     afterUpdateUser(profile) {
       alertScreenReader(`${profile.name} profile updated.`)
@@ -528,6 +529,7 @@ export default {
         this.userSelection = profile.uid
       }
       this.refreshUsers()
+      putFocusNextTick(get(profile, 'uid') ? `edit-${profile.uid}` : 'add-new-user-btn')
     },
     autocompleteUsers(q) {
       return userAutocomplete(q).then(results => this._orderBy(results, 'label'))

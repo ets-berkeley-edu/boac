@@ -9,61 +9,63 @@
       min-width="400"
       max-width="600"
     >
-      <v-card-title>
-        <ModalHeader text="Name Your Template" />
-      </v-card-title>
-      <hr />
-      <form @submit.prevent="createTemplate">
-        <v-card-text class="modal-body">
-          <v-text-field
-            id="template-title-input"
-            v-model="title"
-            class="v-input-details-override"
-            counter="255"
-            density="compact"
-            :disabled="isSaving"
-            :error="!!error"
-            label="Template name"
-            maxlength="255"
-            persistent-counter
-            :rules="[validationRules.required, validationRules.maxLength]"
-            validate-on="blur lazy"
-            variant="outlined"
-          >
-            <template #counter="{max, value}">
-              <div id="name-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">
-                <span class="sr-only">Template name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
-              </div>
-            </template>
-          </v-text-field>
-          <div
-            v-if="error"
-            id="create-template-error"
-            aria-live="polite"
-            class="text-error font-size-13 font-weight-regular"
-            role="alert"
-          >
-            {{ error }}
-          </div>
-        </v-card-text>
-        <v-card-actions class="modal-footer">
-          <ProgressButton
-            id="create-template-confirm"
-            :action="createTemplate"
-            :disabled="isSaving || !title.length || title.length > 255 || useNoteStore().boaSessionExpired"
-            :in-progress="isSaving"
-            :text="isSaving ? 'Saving' : 'Save'"
-          />
-          <v-btn
-            id="cancel-template-create"
-            class="ml-2"
-            :disabled="isSaving"
-            text="Cancel"
-            variant="text"
-            @click="cancel"
-          />
-        </v-card-actions>
-      </form>
+      <FocusLock>
+        <v-card-title>
+          <ModalHeader text="Name Your Template" />
+        </v-card-title>
+        <hr />
+        <form @submit.prevent="createTemplate">
+          <v-card-text class="modal-body">
+            <v-text-field
+              id="template-title-input"
+              v-model="title"
+              class="v-input-details-override"
+              counter="255"
+              density="compact"
+              :disabled="isSaving"
+              :error="!!error"
+              label="Template name"
+              maxlength="255"
+              persistent-counter
+              :rules="[validationRules.required, validationRules.maxLength]"
+              validate-on="blur lazy"
+              variant="outlined"
+            >
+              <template #counter="{max, value}">
+                <div id="name-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">
+                  <span class="sr-only">Template name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+                </div>
+              </template>
+            </v-text-field>
+            <div
+              v-if="error"
+              id="create-template-error"
+              aria-live="polite"
+              class="text-error font-size-13 font-weight-regular"
+              role="alert"
+            >
+              {{ error }}
+            </div>
+          </v-card-text>
+          <v-card-actions class="modal-footer">
+            <ProgressButton
+              id="create-template-confirm"
+              :action="createTemplate"
+              :disabled="isSaving || !title.length || title.length > 255 || useNoteStore().boaSessionExpired"
+              :in-progress="isSaving"
+              :text="isSaving ? 'Saving' : 'Save'"
+            />
+            <v-btn
+              id="cancel-template-create"
+              class="ml-2"
+              :disabled="isSaving"
+              text="Cancel"
+              variant="text"
+              @click="cancel"
+            />
+          </v-card-actions>
+        </form>
+      </FocusLock>
     </v-card>
   </v-dialog>
 </template>

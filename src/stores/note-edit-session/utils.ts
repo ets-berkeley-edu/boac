@@ -2,17 +2,16 @@ import {alertScreenReader} from '@/lib/utils'
 import {get, isString, map, trim} from 'lodash'
 import {deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
-import {nextTick} from 'vue'
 import {NoteEditSessionModel, NoteRecipients} from '@/stores/note-edit-session/index'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 export function disableFocusLock(): void {
-  nextTick(() => useNoteStore().setFocusLockDisabled(true))
+  useNoteStore().setFocusLockDisabled(true)
 }
 
 export function enableFocusLock(): void {
-  nextTick(() => useNoteStore().setFocusLockDisabled(true))
+  setTimeout(() => useNoteStore().setFocusLockDisabled(false), 500)
 }
 
 export function exitSession(revert: boolean): Promise<NoteEditSessionModel | undefined> {

@@ -194,7 +194,7 @@
                   variant="text"
                   width="70"
                   @click="showDeleteModal(item)"
-                  @keydown.enter="showDeleteModal(item)"
+                  @keydown.enter.prevent="showDeleteModal(item)"
                 >
                   Delete<span class="sr-only"> {{ item.name }}</span>
                 </v-btn>
@@ -210,7 +210,6 @@
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
       modal-header="Delete Degree"
-      :show-modal="!!templateForDelete"
       :text="deleteModalBody"
     />
     <CloneTemplateModal
