@@ -135,36 +135,39 @@
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
-              v-if="isEditable(message) && includes(openMessages, message.transientId)"
-              aria-hidden="true"
-              class="d-flex flex-column mt-2"
+              v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
+              class="d-flex flex-column"
             >
-              <v-btn
-                v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)"
-                :id="`edit-note-${message.id}-button`"
-                class="font-size-14 my-1 px-1"
-                color="primary"
-                density="compact"
-                :disabled="!!editModeNoteId || useNoteStore().disableNewNoteButton"
-                variant="text"
-                @keypress.enter.stop="editNote(message)"
-                @click.stop="editNote(message)"
-              >
-                Edit {{ message.isDraft ? 'Draft' : 'Note' }}
-              </v-btn>
-              <v-btn
-                v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
-                :id="`delete-note-button-${message.id}`"
-                class="font-size-14 my-1 px-1"
-                color="primary"
-                density="compact"
-                :disabled="!!editModeNoteId || useNoteStore().disableNewNoteButton"
-                variant="text"
-                @keydown.enter.stop="onClickDeleteNote(message)"
-                @click.stop="onClickDeleteNote(message)"
-              >
-                Delete {{ message.isDraft ? 'Draft' : 'Note' }}
-              </v-btn>
+              <div class="pt-2">
+                <v-btn
+                  v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)"
+                  :id="`edit-note-${message.id}-button`"
+                  class="pl-0"
+                  color="primary"
+                  density="compact"
+                  :disabled="noteStore.disableNewNoteButton"
+                  slim
+                  :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
+                  variant="text"
+                  @keydown.enter.stop="editNote(message)"
+                  @click.stop="editNote(message)"
+                />
+              </div>
+              <div>
+                <v-btn
+                  v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
+                  :id="`delete-note-button-${message.id}`"
+                  class="pl-0"
+                  color="primary"
+                  density="compact"
+                  :disabled="noteStore.disableNewNoteButton"
+                  slim
+                  :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
+                  variant="text"
+                  @keydown.enter.stop="onClickDeleteNote(message)"
+                  @click.stop="onClickDeleteNote(message)"
+                />
+              </div>
             </div>
           </div>
         </td>
@@ -219,20 +222,12 @@
               <v-btn
                 :id="`${activeTab}-close-message-${message.id}`"
                 color="primary"
-                density="compact"
+                :prepend-icon="mdiCloseCircle"
+                text="Close Message"
                 variant="text"
                 @keyup.enter.stop="close(message, true)"
                 @click.stop="close(message, true)"
-              >
-                <div class="align-center d-flex">
-                  <div class="mr-1">
-                    <v-icon :icon="mdiCloseCircle" size="18" />
-                  </div>
-                  <div class="text-no-wrap">
-                    Close Message
-                  </div>
-                </div>
-              </v-btn>
+              />
             </div>
           </div>
         </td>
@@ -343,14 +338,15 @@
 <script setup>
 import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
 import AdvisingNote from '@/components/note/AdvisingNote'
-import {alertScreenReader, pluralize, putFocusNextTick, scrollTo} from '@/lib/utils'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import EditAdvisingNote from '@/components/note/EditAdvisingNote'
+import TimelineDate from '@/components/student/profile/TimelineDate'
+import {alertScreenReader, pluralize, putFocusNextTick, scrollTo} from '@/lib/utils'
 import {capitalize, each, filter, find, get, includes, map, remove, size, slice} from 'lodash'
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
-import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import {isDirector} from '@/berkeley'
 import {markAppointmentRead} from '@/api/appointments'
 import {
@@ -366,7 +362,6 @@ import {
   mdiPaperclip,
   mdiSync
 } from '@mdi/js'
-import TimelineDate from '@/components/student/profile/TimelineDate'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session/index'
 
@@ -402,10 +397,13 @@ const props = defineProps({
   }
 })
 
+const contextStore = useContextStore()
+const noteStore = useNoteStore()
+
 const allExpanded = ref(false)
-const config = useContextStore().config
+const config = contextStore.config
 const creatingNoteEvent = ref(undefined)
-const currentUser = useContextStore().currentUser
+const currentUser = contextStore.currentUser
 const defaultShowPerTab = ref(5)
 const editModeNoteId = ref(undefined)
 const eventHandlers = ref(undefined)
@@ -470,7 +468,7 @@ const init = () => {
       'notes-created': afterNotesCreated
     }
     each(eventHandlers.value, (handler, eventType) => {
-      useContextStore().setEventHandler(eventType, handler)
+      contextStore.setEventHandler(eventType, handler)
     })
   }
   props.sortMessages()
@@ -503,7 +501,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   each(eventHandlers.value || {}, (handler, eventType) => {
-    useContextStore().removeEventHandler(eventType, handler)
+    contextStore.removeEventHandler(eventType, handler)
   })
 })
 

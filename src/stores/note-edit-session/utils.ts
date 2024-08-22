@@ -55,21 +55,22 @@ export function onVisibilityChange(): void {
 }
 
 export function scheduleAutoSaveJob() {
+  const noteStore = useNoteStore()
   const autoSaveDraftNote = () => {
-    const model: NoteEditSessionModel = useNoteStore().model
-    useNoteStore().clearAutoSaveJob()
+    const model: NoteEditSessionModel = noteStore.model
+    noteStore.clearAutoSaveJob()
     if (model.isDraft) {
-      useNoteStore().setIsAutoSavingDraftNote(true)
+      noteStore.setIsAutoSavingDraftNote(true)
       updateAdvisingNote().then((note: any) => {
-        useNoteStore().setModelId(note.id)
-        setTimeout(() => useNoteStore().setIsAutoSavingDraftNote(false), 2000)
+        noteStore.setModelId(note.id)
+        setTimeout(() => noteStore.setIsAutoSavingDraftNote(false), 2000)
         scheduleAutoSaveJob()
       })
     }
   }
   const interval = get(useContextStore().config, 'notesDraftAutoSaveInterval')
   const jobId = setTimeout(autoSaveDraftNote, interval)
-  useNoteStore().setAutoSaveJob(jobId)
+  noteStore.setAutoSaveJob(jobId)
 }
 
 export function setNoteRecipient(sid): Promise<void> {
@@ -83,16 +84,17 @@ export function setNoteRecipient(sid): Promise<void> {
 
 export function setNoteRecipients(cohorts, curatedGroups, sids): Promise<void> {
   return new Promise(resolve => {
-    useNoteStore().setIsRecalculating(true)
-    useNoteStore().setRecipients({cohorts, curatedGroups, sids})
+    const noteStore = useNoteStore()
+    noteStore.setIsRecalculating(true)
+    noteStore.setRecipients({cohorts, curatedGroups, sids})
     const cohortIds = map(cohorts, 'id')
     const curatedGroupIds = map(curatedGroups, 'id')
     const onFinish = sids => {
-      useNoteStore().setCompleteSidSet(sids)
-      useNoteStore().setIsRecalculating(false)
+      noteStore.setCompleteSidSet(sids)
+      noteStore.setIsRecalculating(false)
       resolve()
     }
-    const recipients: NoteRecipients = useNoteStore().recipients
+    const recipients: NoteRecipients = noteStore.recipients
     if (cohortIds.length || curatedGroupIds.length) {
       getDistinctSids(recipients.sids, cohortIds, curatedGroupIds).then(data => onFinish(get(data, 'sids')))
     } else {
@@ -107,12 +109,12 @@ export function setSubjectPerEvent(event: any): void {
 
 export function updateAdvisingNote(): Promise<any> {
   return new Promise<any>(resolve => {
-    const completeSidSet: Set<string> = useNoteStore().completeSidSet
-    const model: NoteEditSessionModel = useNoteStore().model
-    const recipients: NoteRecipients = useNoteStore().recipients
+    const noteStore = useNoteStore()
+    const completeSidSet: Set<string> = noteStore.completeSidSet
+    const model: NoteEditSessionModel = noteStore.model
+    const recipients: NoteRecipients = noteStore.recipients
 
-    useNoteStore().setBody(trim(model.body))
-    const setDate = model.setDate ? model.setDate.toFormat('yyyy-MM-dd') : null
+    noteStore.setBody(trim(model.body))
     const sids: string[] = Array.from(completeSidSet)
     const isDraft = model.isDraft
     updateNote(
@@ -123,7 +125,7 @@ export function updateAdvisingNote(): Promise<any> {
       map(recipients.curatedGroups, 'id'),
       isDraft,
       model.isPrivate,
-      setDate,
+      model.setDate,
       sids,
       model.subject,
       [],
@@ -133,11 +135,12 @@ export function updateAdvisingNote(): Promise<any> {
 }
 
 export function removeAttachmentByIndex(index: number) {
-  const mode: string | undefined = useNoteStore().mode
-  const model: NoteEditSessionModel = useNoteStore().model
+  const noteStore = useNoteStore()
+  const mode: string | undefined = noteStore.mode
+  const model: NoteEditSessionModel = noteStore.model
   if (model.attachments && index < model.attachments.length) {
     const attachmentId: number = model.attachments[index].id
-    useNoteStore().removeAttachmentByIndex(index)
+    noteStore.removeAttachmentByIndex(index)
     if (isAutoSaveMode(mode)) {
       removeAttachment(model.id, attachmentId).then(() => {
         alertScreenReader('Attachment removed', 'assertive')

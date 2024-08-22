@@ -1,5 +1,5 @@
 <template>
-  <v-card-title class="d-flex flex-wrap">
+  <v-card-title class="d-flex flex-wrap pb-0">
     <div class="flex-grow-1">
       <div class="align-center d-flex">
         <ModalHeader

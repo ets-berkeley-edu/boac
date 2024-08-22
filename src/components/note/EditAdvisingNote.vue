@@ -5,18 +5,20 @@
     @submit.prevent="save"
   >
     <div v-if="noteStore.model.isDraft" class="font-size-18 text-error pa-2">
-      <v-icon :icon="mdiAlertRhombus" class="pr-1" />
+      <v-icon :icon="mdiAlert" />
       You are editing a draft note.
     </div>
     <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     <v-text-field
       id="edit-note-subject"
-      :model-value="noteStore.model.subject"
       aria-labelledby="edit-note-subject-label"
       bg-color="white"
+      class="mt-1"
       density="comfortable"
       :disabled="isSaving || boaSessionExpired"
+      hide-details
       maxlength="255"
+      :model-value="noteStore.model.subject"
       required
       :rules="[rules.required]"
       size="255"
@@ -24,8 +26,8 @@
       variant="outlined"
       @input="onInput"
       @keydown.esc="cancelRequested"
-    ></v-text-field>
-    <span id="edit-note-details" class="bg-transparent note-details-editor">
+    />
+    <div id="edit-note-details" class="bg-transparent mt-2">
       <RichTextEditor
         :disabled="isSaving || boaSessionExpired"
         :initial-value="noteStore.model.body || ''"
@@ -33,18 +35,18 @@
         :on-value-update="noteStore.setBody"
         :show-advising-note-best-practices="true"
       />
-    </span>
-    <AdvisingNoteTopics class="py-3" />
+    </div>
+    <AdvisingNoteTopics class="mt-2" />
     <PrivacyPermissions
       v-if="currentUser.canAccessPrivateNotes"
-      class="pb-3"
+      class="mt-2"
       :disabled="isSaving || boaSessionExpired"
     />
-    <ContactMethod class="pb-3" :disabled="isSaving || boaSessionExpired" />
-    <ManuallySetDate class="pb-3" :disabled="isSaving || boaSessionExpired" />
+    <ContactMethod class="mt-3" :disabled="isSaving || boaSessionExpired" />
+    <ManuallySetDate class="mt-3" :disabled="isSaving || boaSessionExpired" />
     <AdvisingNoteAttachments
       v-if="size(noteStore.model.attachments)"
-      class="py-3"
+      class="mt-3"
       :disabled="isSaving || boaSessionExpired"
       id-prefix="edit-note-"
       read-only
@@ -113,12 +115,11 @@ import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import {alertScreenReader, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import ContactMethod from '@/components/note/ContactMethod'
-import {DateTime} from 'luxon'
 import {exitSession, setNoteRecipient, setSubjectPerEvent} from '@/stores/note-edit-session/utils'
 import {getNote, updateNote} from '@/api/notes'
 import {getUserProfile} from '@/api/user'
 import ManuallySetDate from '@/components/note/ManuallySetDate'
-import {mdiAlertRhombus} from '@mdi/js'
+import {mdiAlert} from '@mdi/js'
 import {onBeforeMount, ref} from 'vue'
 import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import ProgressButton from '@/components/util/ProgressButton'
@@ -216,7 +217,6 @@ const save = isDraft => {
     validate().then(({valid}) => {
       if (valid) {
         const trimmedSubject = trim(noteStore.model.subject)
-        const setDate = noteStore.model.setDate ? DateTime.fromJSDate(noteStore.model.setDate).toFormat('yyyy-MM-dd') : null
         updateNote(
           noteStore.model.id,
           trim(noteStore.model.body),
@@ -225,7 +225,7 @@ const save = isDraft => {
           [],
           isDraft,
           noteStore.model.isPrivate,
-          setDate,
+          noteStore.model.setDate,
           noteStore.model.sids,
           trimmedSubject,
           [],

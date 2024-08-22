@@ -17,7 +17,7 @@
             <BatchNoteFeatures :discard="discardRequested" />
           </div>
         </Transition>
-        <div class="pt-3">
+        <div>
           <label
             id="create-note-subject-label"
             for="create-note-subject"
@@ -45,13 +45,13 @@
             :initial-value="model.body || ''"
             :is-in-modal="true"
             label="Note Details"
-            :on-value-update="useNoteStore().setBody"
+            :on-value-update="noteStore.setBody"
             :show-advising-note-best-practices="true"
           />
         </div>
         <div class="py-3">
           <AdvisingNoteTopics />
-          <PrivacyPermissions v-if="useContextStore().currentUser.canAccessPrivateNotes" />
+          <PrivacyPermissions v-if="contextStore.currentUser.canAccessPrivateNotes" />
           <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
             <div key="0" class="pt-4">
               <ContactMethod />
@@ -173,7 +173,9 @@ const props = defineProps({
   }
 })
 
+const contextStore = useContextStore()
 const noteStore = useNoteStore()
+
 const {boaSessionExpired, completeSidSet, isSaving, mode, model, noteTemplates} = storeToRefs(noteStore)
 const alert = ref(undefined)
 // eslint-disable-next-line vue/require-prop-types
@@ -201,7 +203,7 @@ watch(dialogModel, () => {
       const onFinish = () => {
         noteStore.setMode(props.initialMode)
         putFocusNextTick(noteStore.mode === 'editTemplate' ? 'create-note-subject' : 'my-templates-button')
-        useContextStore().setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
+        contextStore.setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
       }
       noteStore.setModel(note)
       if (note.sid) {
@@ -214,7 +216,7 @@ watch(dialogModel, () => {
     noteStore.setMode(null)
     document.documentElement.classList.remove('modal-open')
     document.removeEventListener('keyup', selectEscape)
-    useContextStore().removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
+    contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
   }
 })
 
@@ -345,7 +347,7 @@ const init = () => {
     if (props.noteId) {
       getNote(props.noteId).then(resolve)
     } else {
-      useContextStore().broadcast('begin-note-creation', {
+      contextStore.broadcast('begin-note-creation', {
         completeSidSet: [props.sid],
         subject: 'note-creation-is-starting'
       })
@@ -410,7 +412,7 @@ onBeforeUnmount(() => {
   noteStore.setIsCreateNoteModalOpen(false)
   noteStore.setMode(null)
   document.documentElement.classList.remove('modal-open')
-  useContextStore().removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
+  contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
 })
 
 </script>

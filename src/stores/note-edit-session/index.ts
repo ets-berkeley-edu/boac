@@ -12,7 +12,7 @@ export type NoteEditSessionModel = {
   deleteAttachmentIds: number[];
   isDraft: boolean;
   isPrivate: boolean;
-  setDate?: any;
+  setDate?: Date | undefined;
   subject?: string;
   topics: string[];
 }
@@ -174,7 +174,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
           id: model.id,
           isDraft: model.isDraft,
           isPrivate: model.isPrivate,
-          setDate: model.setDate ? DateTime.fromJSDate(model.setDate) : null,
+          setDate: model.setDate ? DateTime.fromISO(model.setDate, {zone: 'utc'}).toJSDate() : undefined,
           subject: model.subject,
           topics: model.topics || [],
         }
@@ -190,7 +190,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
       this.recipients = recipients
     },
     setSetDate(setDate: any) {
-      this.model.setDate = setDate ? DateTime.fromJSDate(setDate) : null
+      this.model.setDate = setDate
     },
     setSubject(subject: string) {
       this.model.subject = subject
