@@ -99,6 +99,9 @@
   color: #333;
   background-color: #eee;
 }
+.date-input-opacity-override .v-field__input {
+  opacity: 1 !important;
+}
 .default-margins {
   margin: 16px 16px 16px 22px;
 }

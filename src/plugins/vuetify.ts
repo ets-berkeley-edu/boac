@@ -102,6 +102,9 @@ export default createVuetify({
   defaults: {
     VBtn: {
       style: 'text-transform: none;',
+    },
+    VMenu: {
+      attach: true
     }
   },
   directives: {

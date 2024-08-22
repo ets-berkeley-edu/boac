@@ -29,225 +29,227 @@
       min-width="700"
       width="80%"
     >
-      <v-card-title>
-        <AdvancedSearchModalHeader :on-click-close="cancel" />
-      </v-card-title>
-      <v-card-text class="modal-body">
-        <div class="pb-4">
-          <label for="advanced-search-students-input" class="sr-only">{{ labelForSearchInput() }}</label>
-          <v-combobox
-            id="advanced-search-students-input"
-            :key="searchStore.autocompleteInputResetKey"
-            v-model="queryTextModel"
-            :aria-required="searchInputRequired"
-            autocomplete="off"
-            clearable
-            density="comfortable"
-            :disabled="searchStore.isSearching || validDateRange === false"
-            hide-details
-            hide-no-data
-            :items="searchStore.searchHistory"
-            :menu-icon="null"
-            placeholder="Search"
-            type="search"
-            variant="outlined"
-            @keydown.enter="search"
-          />
-        </div>
-        <AdvancedSearchCheckboxes />
-        <v-expand-transition v-if="currentUser.canAccessAdvisingData">
-          <v-card
-            v-show="searchStore.includeNotes"
-            color="primary"
-            variant="outlined"
-          >
-            <v-card-title>
-              <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
-            </v-card-title>
-            <v-card-text class="w-75">
-              <div class="px-3">
-                <label class="form-control-label" for="search-option-note-filters-topic">Topic</label>
-                <div>
-                  <select
-                    id="search-option-note-filters-topic"
-                    v-model="topicModel"
-                    class="ml-0 my-2 select-menu w-75"
-                    :disabled="searchStore.isSearching"
-                  >
-                    <option
-                      v-for="topic in searchStore.topicOptions"
-                      :id="`search-notes-by-topic-${normalizeId(topic.value)}`"
-                      :key="topic.value"
-                      :aria-label="`Add topic ${topic.text}`"
-                      :value="topic.value"
+      <FocusLock>
+        <v-card-title>
+          <AdvancedSearchModalHeader :on-click-close="cancel" />
+        </v-card-title>
+        <v-card-text class="modal-body">
+          <div class="pb-4">
+            <label for="advanced-search-students-input" class="sr-only">{{ labelForSearchInput() }}</label>
+            <v-combobox
+              id="advanced-search-students-input"
+              :key="searchStore.autocompleteInputResetKey"
+              v-model="queryTextModel"
+              :aria-required="searchInputRequired"
+              autocomplete="off"
+              clearable
+              density="comfortable"
+              :disabled="searchStore.isSearching || validDateRange === false"
+              hide-details
+              hide-no-data
+              :items="searchStore.searchHistory"
+              :menu-icon="null"
+              placeholder="Search"
+              type="search"
+              variant="outlined"
+              @keydown.enter="search"
+            />
+          </div>
+          <AdvancedSearchCheckboxes />
+          <v-expand-transition v-if="currentUser.canAccessAdvisingData">
+            <v-card
+              v-show="searchStore.includeNotes"
+              color="primary"
+              variant="outlined"
+            >
+              <v-card-title>
+                <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
+              </v-card-title>
+              <v-card-text class="w-75">
+                <div class="px-3">
+                  <label class="form-control-label" for="search-option-note-filters-topic">Topic</label>
+                  <div>
+                    <select
+                      id="search-option-note-filters-topic"
+                      v-model="topicModel"
+                      class="ml-0 my-2 select-menu w-75"
+                      :disabled="searchStore.isSearching"
                     >
-                      {{ topic.text }}
-                    </option>
-                  </select>
-                </div>
-                <div class="mt-4">
-                  <label class="form-control-label" for="note-filters-posted-by">Posted By</label>
-                  <v-radio-group
-                    id="note-filters-posted-by"
-                    v-model="searchStore.postedBy"
-                    hide-details
-                    inline
-                  >
-                    <v-radio
-                      id="search-options-note-filters-posted-by-anyone"
-                      :disabled="searchStore.isSearching"
-                      :ischecked="searchStore.postedBy === 'anyone'"
-                      label="Anyone"
-                      value="anyone"
-                    />
-                    <v-radio
-                      id="search-options-note-filters-posted-by-you"
-                      :disabled="searchStore.isSearching"
-                      :ischecked="searchStore.postedBy === 'you'"
-                      label="You"
-                      value="you"
-                      @change="() => searchStore.setAuthor(null)"
-                    />
-                  </v-radio-group>
-                </div>
-                <div class="mt-2 w-75">
-                  <label class="form-control-label" for="search-options-note-filters-author">Advisor</label>
-                  <span id="notes-search-author-input-label" class="sr-only">
-                    Select note author from list of suggested advisors.
-                  </span>
-                  <Autocomplete
-                    id="search-options-note-filters-author"
-                    v-model="authorModel"
-                    class="mt-1"
-                    :compact="true"
-                    :disabled="searchStore.isSearching || searchStore.postedBy === 'you'"
-                    :fetch="findAdvisorsByName"
-                    option-label-key="label"
-                    option-value-key="uid"
-                    :placeholder="searchStore.postedBy === 'you' ? currentUser.name : 'Enter name...'"
-                  />
-                </div>
-                <div class="mt-3 w-75">
-                  <label class="form-control-label" for="search-options-note-filters-student">
-                    Student (name or SID)
-                  </label>
-                  <span id="notes-search-student-input-label" class="sr-only">
-                    Select a student for notes-related search. Expect auto-suggest as you type name or SID.
-                  </span>
-                  <Autocomplete
-                    id="search-options-note-filters-student"
-                    v-model="studentModel"
-                    :compact="true"
-                    :disabled="searchStore.isSearching"
-                    :fetch="findStudentsByNameOrSid"
-                    input-labelled-by="notes-search-student-input-label"
-                    placeholder="Enter name or SID..."
-                  />
-                </div>
-                <div class="mt-3">
-                  <label class="form-control-label" for="search-options-note-filters-last-updated-from">
-                    Date Range
-                  </label>
-                  <div class="align-center d-flex mt-2">
-                    <label
-                      id="note-filters-date-from-label"
-                      class="text-black mr-2"
-                      for="search-options-note-filters-last-updated-from"
-                    >
-                      <span class="sr-only">Date</span>
-                      From
-                    </label>
-                    <v-date-input
-                      id="search-options-note-filters-last-updated-from"
-                      v-model="fromDateModel"
-                      autocomplete="off"
-                      clearable
-                      density="compact"
-                      :disabled="searchStore.isSearching"
-                      hide-actions
+                      <option
+                        v-for="topic in searchStore.topicOptions"
+                        :id="`search-notes-by-topic-${normalizeId(topic.value)}`"
+                        :key="topic.value"
+                        :aria-label="`Add topic ${topic.text}`"
+                        :value="topic.value"
+                      >
+                        {{ topic.text }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="mt-4">
+                    <label class="form-control-label" for="note-filters-posted-by">Posted By</label>
+                    <v-radio-group
+                      id="note-filters-posted-by"
+                      v-model="searchStore.postedBy"
                       hide-details
-                      :max="searchStore.toDate || new Date()"
-                      placeholder="MM/DD/YYYY"
-                      prepend-icon=""
-                      variant="outlined"
-                      @update:model-value="focusOnDate('from')"
-                    />
-                    <div class="sr-only">
-                      <v-btn
-                        id="search-options-note-filters-last-updated-from-clear"
-                        :disabled="!searchStore.fromDate"
-                        text="Clear the 'from' date."
-                        @click="() => searchStore.setFromDate(null)"
-                      />
-                    </div>
-                    <label
-                      id="note-filters-date-to-label"
-                      for="search-options-note-filters-last-updated-to"
-                      class="mx-2 text-black"
+                      inline
                     >
-                      <span class="sr-only">Date</span>
-                      to
-                    </label>
-                    <v-date-input
-                      id="search-options-note-filters-last-updated-to"
-                      v-model="toDateModel"
-                      autocomplete="off"
-                      clearable
-                      density="compact"
-                      :disabled="searchStore.isSearching"
-                      hide-actions
-                      hide-details
-                      :input-debounce="500"
-                      :max="new Date()"
-                      :min="searchStore.fromDate"
-                      placeholder="MM/DD/YYYY"
-                      prepend-icon=""
-                      variant="outlined"
-                      @update:model-value="focusOnDate('to')"
-                    />
-                    <div class="sr-only">
-                      <v-btn
-                        id="search-options-note-filters-last-updated-to-clear"
-                        :disabled="isNil(searchStore.toDate)"
-                        text="Clear the 'to' date"
-                        variant="text"
-                        @click="searchStore.toDate = null"
+                      <v-radio
+                        id="search-options-note-filters-posted-by-anyone"
+                        :disabled="searchStore.isSearching"
+                        :ischecked="searchStore.postedBy === 'anyone'"
+                        label="Anyone"
+                        value="anyone"
                       />
+                      <v-radio
+                        id="search-options-note-filters-posted-by-you"
+                        :disabled="searchStore.isSearching"
+                        :ischecked="searchStore.postedBy === 'you'"
+                        label="You"
+                        value="you"
+                        @change="() => searchStore.setAuthor(null)"
+                      />
+                    </v-radio-group>
+                  </div>
+                  <div class="mt-2 w-75">
+                    <label class="form-control-label" for="search-options-note-filters-author">Advisor</label>
+                    <span id="notes-search-author-input-label" class="sr-only">
+                      Select note author from list of suggested advisors.
+                    </span>
+                    <Autocomplete
+                      id="search-options-note-filters-author"
+                      v-model="authorModel"
+                      class="mt-1"
+                      :compact="true"
+                      :disabled="searchStore.isSearching || searchStore.postedBy === 'you'"
+                      :fetch="findAdvisorsByName"
+                      option-label-key="label"
+                      option-value-key="uid"
+                      :placeholder="searchStore.postedBy === 'you' ? currentUser.name : 'Enter name...'"
+                    />
+                  </div>
+                  <div class="mt-3 w-75">
+                    <label class="form-control-label" for="search-options-note-filters-student">
+                      Student (name or SID)
+                    </label>
+                    <span id="notes-search-student-input-label" class="sr-only">
+                      Select a student for notes-related search. Expect auto-suggest as you type name or SID.
+                    </span>
+                    <Autocomplete
+                      id="search-options-note-filters-student"
+                      v-model="studentModel"
+                      :compact="true"
+                      :disabled="searchStore.isSearching"
+                      :fetch="findStudentsByNameOrSid"
+                      input-labelled-by="notes-search-student-input-label"
+                      placeholder="Enter name or SID..."
+                    />
+                  </div>
+                  <div class="mt-3">
+                    <label class="form-control-label" for="search-options-note-filters-last-updated-from">
+                      Date Range
+                    </label>
+                    <div class="date-input-opacity-override align-center d-flex mt-2">
+                      <label
+                        id="note-filters-date-from-label"
+                        class="text-black mr-2"
+                        for="search-options-note-filters-last-updated-from"
+                      >
+                        <span class="sr-only">Date</span>
+                        From
+                      </label>
+                      <v-date-input
+                        id="search-options-note-filters-last-updated-from"
+                        v-model="fromDateModel"
+                        autocomplete="off"
+                        clearable
+                        density="compact"
+                        :disabled="searchStore.isSearching"
+                        hide-actions
+                        hide-details
+                        :max="searchStore.toDate || new Date()"
+                        placeholder="MM/DD/YYYY"
+                        prepend-icon=""
+                        variant="outlined"
+                        @update:model-value="focusOnDate('from')"
+                      />
+                      <div class="sr-only">
+                        <v-btn
+                          id="search-options-note-filters-last-updated-from-clear"
+                          :disabled="!searchStore.fromDate"
+                          text="Clear the 'from' date."
+                          @click="() => searchStore.setFromDate(null)"
+                        />
+                      </div>
+                      <label
+                        id="note-filters-date-to-label"
+                        for="search-options-note-filters-last-updated-to"
+                        class="mx-2 text-black"
+                      >
+                        <span class="sr-only">Date</span>
+                        to
+                      </label>
+                      <v-date-input
+                        id="search-options-note-filters-last-updated-to"
+                        v-model="toDateModel"
+                        autocomplete="off"
+                        clearable
+                        density="compact"
+                        :disabled="searchStore.isSearching"
+                        hide-actions
+                        hide-details
+                        :input-debounce="500"
+                        :max="new Date()"
+                        :min="searchStore.fromDate"
+                        placeholder="MM/DD/YYYY"
+                        prepend-icon=""
+                        variant="outlined"
+                        @update:model-value="focusOnDate('to')"
+                      />
+                      <div class="sr-only">
+                        <v-btn
+                          id="search-options-note-filters-last-updated-to-clear"
+                          :disabled="isNil(searchStore.toDate)"
+                          text="Clear the 'to' date"
+                          variant="text"
+                          @click="searchStore.toDate = null"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-expand-transition>
-      </v-card-text>
-      <v-card-actions class="modal-footer">
-        <div class="flex-grow-1">
-          <v-btn
-            v-if="searchStore.includeNotes && searchStore.isDirty"
-            id="reset-advanced-search-form-btn"
-            :disabled="searchStore.isSearching"
-            text="Reset"
-            variant="text"
-            @click="() => reset(true)"
+              </v-card-text>
+            </v-card>
+          </v-expand-transition>
+        </v-card-text>
+        <v-card-actions class="modal-footer">
+          <div class="flex-grow-1">
+            <v-btn
+              v-if="searchStore.includeNotes && searchStore.isDirty"
+              id="reset-advanced-search-form-btn"
+              :disabled="searchStore.isSearching"
+              text="Reset"
+              variant="text"
+              @click="() => reset(true)"
+            />
+          </div>
+          <ProgressButton
+            id="advanced-search"
+            :action="search"
+            :disabled="searchStore.isSearching || allOptionsUnchecked || (searchInputRequired && !trim(searchStore.queryText))"
+            :in-progress="searchStore.isSearching"
+            :text="searchStore.isSearching ? 'Searching...' : 'Search'"
           />
-        </div>
-        <ProgressButton
-          id="advanced-search"
-          :action="search"
-          :disabled="searchStore.isSearching || allOptionsUnchecked || (searchInputRequired && !trim(searchStore.queryText))"
-          :in-progress="searchStore.isSearching"
-          :text="searchStore.isSearching ? 'Searching...' : 'Search'"
-        />
-        <v-btn
-          id="advanced-search-cancel"
-          class="ml-2"
-          :disabled="searchStore.isSearching"
-          text="Cancel"
-          variant="text"
-          @click="cancel"
-        />
-      </v-card-actions>
+          <v-btn
+            id="advanced-search-cancel"
+            class="ml-2"
+            :disabled="searchStore.isSearching"
+            text="Cancel"
+            variant="text"
+            @click="cancel"
+          />
+        </v-card-actions>
+      </FocusLock>
     </v-card>
   </v-dialog>
 </template>
