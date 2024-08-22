@@ -4,12 +4,12 @@
     aria-labelledby="modal-header"
     persistent
   >
-    <FocusLock>
-      <v-card
-        class="modal-content"
-        min-width="400"
-        max-width="600"
-      >
+    <v-card
+      class="modal-content"
+      min-width="400"
+      max-width="600"
+    >
+      <FocusLock>
         <v-card-title>
           <ModalHeader text="Name Your Cohort" />
         </v-card-title>
@@ -60,8 +60,8 @@
             </v-btn>
           </v-card-actions>
         </form>
-      </v-card>
-    </FocusLock>
+      </FocusLock>
+    </v-card>
   </v-dialog>
 </template>
 

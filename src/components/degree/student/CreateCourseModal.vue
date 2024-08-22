@@ -25,8 +25,8 @@
     persistent
     @update:model-value="onToggle"
   >
-    <FocusLock>
-      <v-card class="modal-content" min-width="600">
+    <v-card class="modal-content" min-width="600">
+      <FocusLock>
         <v-card-title>
           <ModalHeader text="Create Course" />
         </v-card-title>
@@ -131,8 +131,8 @@
             @click="cancel"
           />
         </v-card-actions>
-      </v-card>
-    </FocusLock>
+      </FocusLock>
+    </v-card>
   </v-dialog>
 </template>
 
