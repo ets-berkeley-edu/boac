@@ -7,7 +7,7 @@
     >
       Manually Set Date
     </label>
-    <div class="date-input-container">
+    <div class="date-input-container date-input-opacity-override">
       <v-date-input
         id="manually-set-date-input"
         aria-labelledby="manually-set-date-label"

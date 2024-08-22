@@ -1,6 +1,7 @@
 import './main.scss'
 import {aliases, mdi} from 'vuetify/iconsets/mdi-svg'
 import {createVuetify} from 'vuetify'
+import FocusLock from 'vue-focus-lock'
 import {Intersect, Resize} from 'vuetify/directives'
 import {VAlert} from 'vuetify/components/VAlert'
 import {VAppBar, VAppBarNavIcon, VAppBarTitle} from 'vuetify/components/VAppBar'
@@ -43,6 +44,7 @@ import colors from 'vuetify/lib/util/colors'
 
 export default createVuetify({
   components: {
+    FocusLock,
     VApp,
     VAppBar,
     VAppBarNavIcon,
@@ -100,6 +102,9 @@ export default createVuetify({
   defaults: {
     VBtn: {
       style: 'text-transform: none;',
+    },
+    VMenu: {
+      attach: true
     }
   },
   directives: {

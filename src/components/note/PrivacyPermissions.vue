@@ -45,7 +45,7 @@ export default {
   computed: {
     isPrivate: {
       get() {
-        return this.model.isPrivate
+        return useNoteStore().model.isPrivate
       },
       set(value) {
         useNoteStore().setIsPrivate(value)

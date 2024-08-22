@@ -22,7 +22,7 @@
         Clear
       </v-btn>
       <v-btn
-        id="new-note-button"
+        id="create-topic-button"
         class="mr-3"
         color="primary"
         :disabled="isEditTopicModalOpen"
@@ -229,6 +229,7 @@ export default {
       } else {
         this.refresh(focusTarget)
         alertScreenReader(`Topic '${topic.topic}' created.`)
+        putFocusNextTick('create-topic-button')
       }
       this.topicEdit = null
       this.isEditTopicModalOpen = false
@@ -334,10 +335,3 @@ export default {
   }
 }
 </script>
-
-
-<style scoped>
-#new-note-button {
-  margin-left: auto;
-}
-</style>

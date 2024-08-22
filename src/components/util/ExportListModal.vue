@@ -12,67 +12,69 @@
       min-width="500"
       max-width="800"
     >
-      <v-card-title>
-        <ModalHeader text="Export List" />
-      </v-card-title>
-      <v-card-text id="export-list-body" class="modal-body">
-        <div
-          id="csv-column-options"
-          aria-label="Select columns to export"
-          class="d-flex flex-column flex-wrap csv-column-options pb-5 px-1"
-          name="csv-column-options"
-          role="group"
-        >
-          <template v-for="(option, index) in csvColumns" :key="index">
-            <v-checkbox
-              :id="`csv-column-options-${index}`"
-              :model-value="includes(selected, option.value)"
-              :aria-label="`${option.text} column included in export`"
-              class="csv-column-option"
-              color="primary"
-              density="compact"
-              :disabled="isExporting"
-              hide-details
-              :label="option.text"
-              @update:model-value="isChecked => onChange(option.value, isChecked)"
+      <FocusLock>
+        <v-card-title>
+          <ModalHeader text="Export List" />
+        </v-card-title>
+        <v-card-text id="export-list-body" class="modal-body">
+          <div
+            id="csv-column-options"
+            aria-label="Select columns to export"
+            class="d-flex flex-column flex-wrap csv-column-options pb-5 px-1"
+            name="csv-column-options"
+            role="group"
+          >
+            <template v-for="(option, index) in csvColumns" :key="index">
+              <v-checkbox
+                :id="`csv-column-options-${index}`"
+                :model-value="includes(selected, option.value)"
+                :aria-label="`${option.text} column included in export`"
+                class="csv-column-option"
+                color="primary"
+                density="compact"
+                :disabled="isExporting"
+                hide-details
+                :label="option.text"
+                @update:model-value="isChecked => onChange(option.value, isChecked)"
+              />
+            </template>
+          </div>
+          <div>
+            <span class="font-weight-bold">Reminder:</span> <FerpaReminder />
+          </div>
+        </v-card-text>
+        <hr />
+        <v-card-actions class="modal-footer flex-column">
+          <v-alert
+            v-if="error && !isExporting"
+            aria-live="polite"
+            class="font-size-15 w-100 mb-3"
+            color="error"
+            density="compact"
+            :icon="mdiAlert"
+            :text="error"
+            title="Error"
+            variant="tonal"
+          />
+          <div class="d-flex justify-end w-100">
+            <ProgressButton
+              id="export-list-confirm"
+              :action="onSubmit"
+              :disabled="!selected.length || error || isExporting"
+              :in-progress="isExporting"
+              :text="isExporting ? 'Exporting' : 'Export'"
             />
-          </template>
-        </div>
-        <div>
-          <span class="font-weight-bold">Reminder:</span> <FerpaReminder />
-        </div>
-      </v-card-text>
-      <hr />
-      <v-card-actions class="modal-footer flex-column">
-        <v-alert
-          v-if="error && !isExporting"
-          aria-live="polite"
-          class="font-size-15 w-100 mb-3"
-          color="error"
-          density="compact"
-          :icon="mdiAlert"
-          :text="error"
-          title="Error"
-          variant="tonal"
-        />
-        <div class="d-flex justify-end w-100">
-          <ProgressButton
-            id="export-list-confirm"
-            :action="onSubmit"
-            :disabled="!selected.length || error || isExporting"
-            :in-progress="isExporting"
-            :text="isExporting ? 'Exporting' : 'Export'"
-          />
-          <v-btn
-            id="export-list-cancel"
-            class="ml-2"
-            :disabled="isExporting"
-            text="Close"
-            variant="text"
-            @click="cancel"
-          />
-        </div>
-      </v-card-actions>
+            <v-btn
+              id="export-list-cancel"
+              class="ml-2"
+              :disabled="isExporting"
+              text="Close"
+              variant="text"
+              @click="cancel"
+            />
+          </div>
+        </v-card-actions>
+      </FocusLock>
     </v-card>
   </v-dialog>
 </template>

@@ -4,99 +4,103 @@
     v-model="dialogModel"
     aria-labelledby="dialog-header-note"
     persistent
+    scrollable
   >
     <v-card
       id="new-note-modal-container"
       class="modal-content"
+      :class="{'modal-fullscreen': $vuetify.display.mdAndDown}"
       min-width="500"
     >
-      <CreateNoteHeader />
-      <v-card-text class="modal-body">
-        <Transition
-          v-if="['createBatch', 'editDraft'].includes(mode)"
-          class="mb-3"
-          name="batch-transition"
-        >
-          <div v-show="mode !== 'editTemplate'">
-            <BatchNoteFeatures :discard="discardRequested" />
-          </div>
-        </Transition>
-        <div>
-          <label
-            id="create-note-subject-label"
-            for="create-note-subject"
-            class="font-size-16 font-weight-700"
+      <FocusLock :disabled="noteStore.isFocusLockDisabled">
+        <CreateNoteHeader />
+        <v-card-text class="modal-body">
+          <Transition
+            v-if="['createBatch', 'editDraft'].includes(mode)"
+            class="mb-3"
+            name="batch-transition"
           >
-            <span class="sr-only">Note </span>Subject
-          </label>
-          <v-text-field
-            id="create-note-subject"
-            :model-value="model.subject"
-            aria-labelledby="create-note-subject-label"
-            class="mt-1"
-            :class="{'bg-light': isSaving}"
-            color="primary"
-            density="compact"
-            :disabled="isSaving || boaSessionExpired"
-            maxlength="255"
-            type="text"
-            variant="outlined"
-            @input="setSubjectPerEvent"
-          />
-          <RichTextEditor
-            id="note-details"
-            :disabled="isSaving || boaSessionExpired"
-            :initial-value="model.body || ''"
-            :is-in-modal="true"
-            label="Note Details"
-            :on-value-update="noteStore.setBody"
-            :show-advising-note-best-practices="true"
-          />
-        </div>
-        <div class="py-3">
-          <AdvisingNoteTopics />
-          <PrivacyPermissions v-if="contextStore.currentUser.canAccessPrivateNotes" />
-          <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
-            <div key="0" class="pt-4">
-              <ContactMethod />
+            <div v-show="mode !== 'editTemplate'">
+              <BatchNoteFeatures :discard="discardRequested" />
             </div>
-            <div key="1" class="pt-4">
-              <ManuallySetDate />
-            </div>
-          </TransitionGroup>
-          <AdvisingNoteAttachments
-            :add-attachments="addNoteAttachments"
-            class="pt-5"
-            :disabled="!!(noteStore.isSaving || noteStore.boaSessionExpired)"
-            :remove-attachment="removeAttachmentByIndex"
-          />
-        </div>
-        <v-alert
-          v-if="alert"
-          id="alert-in-note-modal"
-          :model-value="alert && !!dismissAlertSeconds"
-          class="font-weight-bold w-100 mb-2"
-          closable
-          color="info"
-          density="comfortable"
-          variant="tonal"
-          @click:close="dismissAlert"
-        >
-          <div class="d-flex">
-            <div v-if="isSaving" class="mr-2">
-              <v-icon :icon="mdiSync" spin />
-            </div>
-            <div>{{ alert }}</div>
+          </Transition>
+          <div>
+            <label
+              id="create-note-subject-label"
+              for="create-note-subject"
+              class="font-size-16 font-weight-700"
+            >
+              <span class="sr-only">Note </span>Subject
+            </label>
+            <v-text-field
+              id="create-note-subject"
+              :model-value="model.subject"
+              aria-labelledby="create-note-subject-label"
+              class="mt-1"
+              :class="{'bg-light': isSaving}"
+              color="primary"
+              density="compact"
+              :disabled="isSaving || boaSessionExpired"
+              maxlength="255"
+              type="text"
+              variant="outlined"
+              @input="setSubjectPerEvent"
+            />
+            <RichTextEditor
+              id="note-details"
+              :disabled="isSaving || boaSessionExpired"
+              :initial-value="model.body || ''"
+              :is-in-modal="true"
+              label="Note Details"
+              :on-value-update="noteStore.setBody"
+              :show-advising-note-best-practices="true"
+            />
           </div>
-        </v-alert>
-      </v-card-text>
-      <CreateNoteFooter
-        :discard="discardRequested"
-        :exit="exit"
-        :save-as-template="saveAsTemplate"
-        :show-alert="showAlert"
-        :update-template="updateTemplate"
-      />
+          <div class="py-3">
+            <AdvisingNoteTopics />
+            <PrivacyPermissions v-if="contextStore.currentUser.canAccessPrivateNotes" />
+            <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
+              <div key="0" class="pt-4">
+                <ContactMethod />
+              </div>
+              <div key="1" class="pt-4">
+                <ManuallySetDate />
+              </div>
+            </TransitionGroup>
+            <AdvisingNoteAttachments
+              :add-attachments="addNoteAttachments"
+              class="pt-5"
+              :disabled="!!(noteStore.isSaving || noteStore.boaSessionExpired)"
+              :remove-attachment="removeAttachmentByIndex"
+            />
+          </div>
+          <v-alert
+            v-if="alert"
+            id="alert-in-note-modal"
+            :model-value="alert && !!dismissAlertSeconds"
+            class="font-weight-bold w-100 mb-2"
+            closable
+            color="info"
+            density="comfortable"
+            variant="tonal"
+            @click:close="dismissAlert"
+          >
+            <div class="d-flex">
+              <div v-if="isSaving" class="mr-2">
+                <v-icon :icon="mdiSync" spin />
+              </div>
+              <div>{{ alert }}</div>
+            </div>
+          </v-alert>
+        </v-card-text>
+        <CreateNoteFooter
+          :discard="discardRequested"
+          :exit="exit"
+          :save-as-template="saveAsTemplate"
+          :show-alert="showAlert"
+          :update-template="updateTemplate"
+        />
+      </FocusLock>
     </v-card>
   </v-dialog>
   <AreYouSureModal
@@ -201,6 +205,7 @@ watch(dialogModel, () => {
     document.documentElement.classList.add('modal-open')
     document.removeEventListener('keyup', selectEscape)
     document.addEventListener('keyup', selectEscape)
+    enableFocusLock()
     getMyNoteTemplates().then(noteStore.setNoteTemplates)
     noteStore.resetModel()
     init().then(note => {
@@ -218,11 +223,16 @@ watch(dialogModel, () => {
     })
   } else {
     noteStore.setMode(null)
+    disableFocusLock()
     document.documentElement.classList.remove('modal-open')
     document.removeEventListener('keyup', selectEscape)
     contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
   }
 })
+
+watch(showCreateTemplateModal, isOpen => isOpen ? disableFocusLock() : enableFocusLock())
+watch(showDiscardNoteModal, isOpen => isOpen ? disableFocusLock() : enableFocusLock())
+watch(showDiscardTemplateModal, isOpen => isOpen ? disableFocusLock() : enableFocusLock())
 
 const addNoteAttachments = attachments => {
   return new Promise(resolve => {
@@ -245,14 +255,12 @@ const addNoteAttachments = attachments => {
 const cancelCreateTemplate = () => {
   noteStore.setIsSaving(false)
   showCreateTemplateModal.value = false
-  enableFocusLock()
   alertScreenReader('Canceled save note as template.')
   putFocusNextTick('btn-save-as-template')
 }
 
 const cancelDiscardNote = () => {
   showDiscardNoteModal.value = false
-  enableFocusLock()
   alertScreenReader('Continue editing note.')
   putFocusNextTick('create-note-cancel')
 }
@@ -260,14 +268,12 @@ const cancelDiscardNote = () => {
 const cancelDiscardTemplate = () => {
   showDiscardTemplateModal.value = false
   putFocusNextTick('create-note-subject')
-  enableFocusLock()
 }
 
 const createTemplate = title => {
   noteStore.setIsSaving(true)
   alertScreenReader('Creating template')
   const ifAuthenticated = () => {
-    enableFocusLock()
     // File upload might take time; alert will be overwritten when API call is done.
     showAlert('Creating template...', 60)
     // Save draft before creating template.
@@ -293,7 +299,6 @@ const createTemplate = title => {
 }
 
 const discardNote = () => {
-  enableFocusLock()
   exit(true).then(() => alertScreenReader('Canceled create new note'))
 }
 
@@ -309,7 +314,6 @@ const discardRequested = () => {
       discardTemplate()
     } else {
       showDiscardTemplateModal.value = true
-      disableFocusLock()
     }
   } else {
     const unsavedChanges = !!trim(model.value.subject)
@@ -319,7 +323,6 @@ const discardRequested = () => {
       || completeSidSet.value.size
     if (unsavedChanges) {
       showDiscardNoteModal.value = true
-      disableFocusLock()
     } else {
       discardNote()
     }
@@ -341,7 +344,7 @@ const dismissAlert = seconds => {
 const exit = revert => {
   alert.value = dismissAlertSeconds.value = undefined
   showCreateTemplateModal.value = showDiscardNoteModal.value = showDiscardTemplateModal.value = false
-  dialogModel.value = null
+  dialogModel.value = false
   noteStore.setMode(null)
   return exitSession(revert).then(props.onClose)
 }
@@ -377,7 +380,6 @@ const saveAsTemplate = () => {
     noteStore.setIsSaving(true)
     const ifAuthenticated = () => {
       showCreateTemplateModal.value = true
-      disableFocusLock()
     }
     alertScreenReader('Opening Name Template form')
     invokeIfAuthenticated(ifAuthenticated).finally(resolve)

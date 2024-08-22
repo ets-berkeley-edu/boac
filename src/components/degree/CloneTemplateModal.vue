@@ -4,63 +4,65 @@
     aria-labelledby="modal-header"
     persistent
   >
-    <v-card class="modal-content" min-width="600">
-      <v-card-title>
-        <ModalHeader text="Name Your Degree Copy" />
-      </v-card-title>
-      <form @submit.prevent="createClone" @keydown.esc="cancel">
-        <v-card-text class="modal-body">
-          <label
-            id="degree-name-input-label"
-            for="degree-name-input"
-          >
-            Degree Name:
-          </label>
-          <v-text-field
-            id="degree-name-input"
-            v-model="name"
-            aria-labelledby="degree-name-input-label"
-            class="mt-2 name-input"
-            :disabled="isSaving"
-            hide-details
-            maxlength="255"
-            variant="outlined"
-            @keydoown.enter="() => name.length && createClone()"
-            @keyup.esc="cancel"
-          />
-          <div class="ml-2">
-            <span class="text-grey font-size-12"><span class="sr-only">Degree name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
-            <span
-              v-if="name.length === 255"
-              aria-live="polite"
-              class="sr-only"
-              role="alert"
+    <FocusLock>
+      <v-card class="modal-content" min-width="600">
+        <v-card-title>
+          <ModalHeader text="Name Your Degree Copy" />
+        </v-card-title>
+        <form @submit.prevent="createClone" @keydown.esc="cancel">
+          <v-card-text class="modal-body">
+            <label
+              id="degree-name-input-label"
+              for="degree-name-input"
             >
-              Degree name cannot exceed 255 characters.
-            </span>
-          </div>
-          <div v-if="error" class="mt-2 text-error" v-html="error" />
-        </v-card-text>
-        <v-card-actions class="modal-footer">
-          <ProgressButton
-            id="clone-confirm"
-            :action="createClone"
-            color="primary"
-            :disabled="!name.trim().length || isSaving || !!error || (templateToClone.name === name)"
-            :in-progress="isSaving"
-            :text="isSaving ? 'Saving' : 'Save Copy'"
-          />
-          <v-btn
-            id="clone-cancel"
-            class="ml-2"
-            :disabled="isSaving"
-            text="Cancel"
-            variant="text"
-            @click="cancel"
-          />
-        </v-card-actions>
-      </form>
-    </v-card>
+              Degree Name:
+            </label>
+            <v-text-field
+              id="degree-name-input"
+              v-model="name"
+              aria-labelledby="degree-name-input-label"
+              class="mt-2 name-input"
+              :disabled="isSaving"
+              hide-details
+              maxlength="255"
+              variant="outlined"
+              @keydoown.enter="() => name.length && createClone()"
+              @keyup.esc="cancel"
+            />
+            <div class="ml-2">
+              <span class="text-grey font-size-12"><span class="sr-only">Degree name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
+              <span
+                v-if="name.length === 255"
+                aria-live="polite"
+                class="sr-only"
+                role="alert"
+              >
+                Degree name cannot exceed 255 characters.
+              </span>
+            </div>
+            <div v-if="error" class="mt-2 text-error" v-html="error" />
+          </v-card-text>
+          <v-card-actions class="modal-footer">
+            <ProgressButton
+              id="clone-confirm"
+              :action="createClone"
+              color="primary"
+              :disabled="!name.trim().length || isSaving || !!error || (templateToClone.name === name)"
+              :in-progress="isSaving"
+              :text="isSaving ? 'Saving' : 'Save Copy'"
+            />
+            <v-btn
+              id="clone-cancel"
+              class="ml-2"
+              :disabled="isSaving"
+              text="Cancel"
+              variant="text"
+              @click="cancel"
+            />
+          </v-card-actions>
+        </form>
+      </v-card>
+    </FocusLock>
   </v-dialog>
 </template>
 

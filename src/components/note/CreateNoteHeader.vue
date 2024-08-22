@@ -1,5 +1,5 @@
 <template>
-  <v-card-title class="d-flex flex-wrap pb-0">
+  <v-card-title id="new-note-modal-title" class="d-flex flex-wrap pb-0">
     <div class="flex-grow-1">
       <div class="align-center d-flex">
         <ModalHeader
@@ -29,8 +29,14 @@
     <div id="templates-menu">
       <v-menu
         v-if="noteStore.mode !== 'editTemplate'"
+        absolute
+        attach="#new-note-modal-title"
         :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
+        left="100"
         location="bottom"
+        max-width="1000"
+        no-click-animation
+        :width="noteStore.noteTemplates.length ? 1000 : 350"
         @update:model-value="onToggleTemplatesMenu"
       >
         <template #activator="{props}">
@@ -51,8 +57,8 @@
           variant="flat"
         >
           <v-list-item-action v-for="template in noteStore.noteTemplates" :key="template.id">
-            <v-container class="pl-2 pr-4 py-2" fluid>
-              <v-row class="d-flex flex-nowrap" no-gutters>
+            <v-container class="pa-2" fluid>
+              <v-row class="align-center d-flex flex-nowrap" no-gutters>
                 <v-col cols="8">
                   <v-btn
                     :id="`load-note-template-${template.id}`"
@@ -61,51 +67,52 @@
                     block
                     density="compact"
                     :disabled="isSaving"
-                    width="400"
+                    height="24"
                     :text="template.title"
                     variant="text"
+                    width="400"
                     @click="loadTemplate(template)"
                   />
                 </v-col>
-                <v-col class="pl-8">
-                  <div class="align-center d-flex float-right">
+                <v-col class="pl-8" cols="4">
+                  <div class="align-center d-flex justify-end">
                     <v-btn
                       :id="`btn-rename-note-template-${template.id}`"
-                      class="font-size-14"
+                      class="min-width-unset font-size-14 px-1"
                       color="primary"
                       density="compact"
                       :disabled="isSaving"
-                      size="sm"
+                      height="24"
                       variant="text"
-                      @click.stop="openRenameTemplateDialog(template)"
+                      @click.stop.prevent="openRenameTemplateDialog(template)"
                     >
                       Rename<span class="sr-only"> template {{ template.title }}</span>
                     </v-btn>
-                    <div class="mx-1" role="separator">
+                    <div class="font-weight-light mx-1" role="separator">
                       |
                     </div>
                     <v-btn
                       :id="`btn-edit-note-template-${template.id}`"
-                      class="font-size-14"
+                      class="min-width-unset font-size-14 px-1"
                       color="primary"
                       density="compact"
                       :disabled="isSaving"
-                      size="sm"
+                      height="24"
                       variant="text"
                       @click="editTemplate(template)"
                     >
                       Edit<span class="sr-only"> template {{ template.title }}</span>
                     </v-btn>
-                    <div class="mx-1" role="separator">
+                    <div class="font-weight-light mx-1" role="separator">
                       |
                     </div>
                     <v-btn
                       :id="`btn-delete-note-template-${template.id}`"
-                      class="font-size-14"
+                      class="min-width-unset font-size-14 px-1"
                       color="primary"
                       density="compact"
                       :disabled="isSaving"
-                      size="sm"
+                      height="24"
                       variant="text"
                       @click.stop="openDeleteTemplateDialog(template)"
                     >
@@ -118,7 +125,7 @@
           </v-list-item-action>
         </v-list>
         <v-list v-if="!noteStore.noteTemplates.length">
-          <v-list-item>
+          <v-list-item disabled>
             You have no saved templates.
           </v-list-item>
         </v-list>
@@ -131,59 +138,62 @@
       persistent
     >
       <v-card width="600" class="modal-content">
-        <v-card-title>
-          <ModalHeader header-id="rename-template-dialog-header" text="Rename Your Template" />
-        </v-card-title>
-        <v-card-text class="modal-body">
-          <v-text-field
-            id="rename-template-input"
-            v-model="updatedTemplateTitle"
-            counter="255"
-            density="compact"
-            :disabled="isSaving"
-            label="Template name"
-            maxlength="255"
-            persistent-counter
-            :rules="[
-              v => !!v || 'Template name is required',
-              v => !v || v.length <= 255 || 'Template name cannot exceed 255 characters.'
-            ]"
-            variant="outlined"
-            @keyup.enter="() => renameTemplate(templateToRename)"
-          >
-            <template #counter="{max, value}">
-              <div id="rename-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">
-                <span class="sr-only">Template name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+        <FocusLock>
+          <v-card-title>
+            <ModalHeader header-id="rename-template-dialog-header" text="Rename Your Template" />
+          </v-card-title>
+          <form @submit.prevent="renameTemplate">
+            <v-card-text class="modal-body">
+              <v-text-field
+                id="rename-template-input"
+                v-model="updatedTemplateTitle"
+                counter="255"
+                density="compact"
+                :disabled="isSaving"
+                label="Template name"
+                maxlength="255"
+                persistent-counter
+                :rules="[
+                  v => !!v || 'Template name is required',
+                  v => !v || v.length <= 255 || 'Template name cannot exceed 255 characters.'
+                ]"
+                variant="outlined"
+              >
+                <template #counter="{max, value}">
+                  <div id="rename-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">
+                    <span class="sr-only">Template name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+                  </div>
+                </template>
+              </v-text-field>
+              <div
+                v-if="error"
+                id="rename-template-error"
+                aria-live="polite"
+                class="text-error font-size-13 font-weight-regular"
+                role="alert"
+              >
+                {{ error }}
               </div>
-            </template>
-          </v-text-field>
-          <div
-            v-if="error"
-            id="rename-template-error"
-            aria-live="polite"
-            class="text-error font-size-13 font-weight-regular"
-            role="alert"
-          >
-            {{ error }}
-          </div>
-        </v-card-text>
-        <v-card-actions class="modal-footer">
-          <ProgressButton
-            id="rename-template-confirm"
-            :action="() => renameTemplate(template)"
-            :disabled="isSaving || !size(updatedTemplateTitle) || size(updatedTemplateTitle) > 255"
-            :in-progress="isSaving"
-            :text="isSaving ? 'Renaming' : 'Rename'"
-          />
-          <v-btn
-            id="cancel-rename-template"
-            class="ml-2"
-            :disabled="isSaving"
-            text="Cancel"
-            variant="plain"
-            @click="() => cancel(templateToRename)"
-          />
-        </v-card-actions>
+            </v-card-text>
+          </form>
+          <v-card-actions class="modal-footer">
+            <ProgressButton
+              id="rename-template-confirm"
+              :action="renameTemplate"
+              :disabled="isSaving || !size(updatedTemplateTitle) || size(updatedTemplateTitle) > 255"
+              :in-progress="isSaving"
+              :text="isSaving ? 'Renaming' : 'Rename'"
+            />
+            <v-btn
+              id="cancel-rename-template"
+              class="ml-2"
+              :disabled="isSaving"
+              text="Cancel"
+              variant="plain"
+              @click="() => cancel(templateToRename)"
+            />
+          </v-card-actions>
+        </FocusLock>
       </v-card>
     </v-dialog>
     <AreYouSureModal
@@ -207,7 +217,7 @@ import {applyNoteTemplate} from '@/api/notes'
 import {computed, ref, watch} from 'vue'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/utils'
-import {get, size, trim} from 'lodash'
+import {find, get, size, trim} from 'lodash'
 import {mdiMenuDown} from '@mdi/js'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
@@ -285,7 +295,8 @@ const openRenameTemplateDialog = template => {
   putFocusNextTick('rename-template-input')
 }
 
-const renameTemplate = template => {
+const renameTemplate = () => {
+  const template = find(noteStore.noteTemplates, {'id': templateToRename.value.id})
   const templateTitle = trim(updatedTemplateTitle.value)
   error.value = undefined
   isSaving.value = true
@@ -319,10 +330,6 @@ const resetTemplate = (template, title) => {
 }
 .bounce-leave-active {
   animation: bounce-in 0.75s reverse;
-}
-.templates-menu-header {
-  font-size: .875rem;
-  padding: 0.5rem 1.5rem;
 }
 @keyframes bounce-in {
   0% {
