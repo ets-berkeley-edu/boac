@@ -138,7 +138,7 @@
                 {{ noteUpdatedBy ? ' edited this note' : 'Last edited' }}
                 <span v-if="isToday(noteUpdatedAt)" id="degree-note-updated-at"> today.</span>
                 <span v-if="!isToday(noteUpdatedAt)">
-                  on <span id="degree-note-updated-at">{{ noteUpdatedAt.toFormat('MMM D, YYYY') }}.</span>
+                  on <span id="degree-note-updated-at">{{ noteUpdatedAt.toFormat('MMM d, YYYY') }}.</span>
                 </span>
               </span>
             </div>
@@ -295,7 +295,7 @@ onMounted(() => {
   const userId = isFresh ? degreeStore.createdBy : degreeStore.updatedBy
   getCalnetProfileByUserId(userId).then(data => {
     const name = data.name || `${data.uid} (UID)`
-    updatedAtDescription.value = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${DateTime.fromJSDate(updatedAtDate).toFormat('MMM D, yyyy')}`
+    updatedAtDescription.value = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${DateTime.fromJSDate(updatedAtDate).toFormat('MMM d, yyyy')}`
   })
   initNote()
 })

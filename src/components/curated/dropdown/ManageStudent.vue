@@ -12,7 +12,6 @@
           :append-icon="(buttonVariant && !groupsLoading && !isAdding && !isRemoving) ? mdiMenuDown : undefined"
           :color="isAdding ? 'success' : (isRemoving ? 'red' : 'primary')"
           :variant="buttonVariant"
-          :width="buttonVariant ? 160 : undefined"
         >
           <div v-if="!isAdding && !isRemoving" :class="labelClass">
             <v-progress-circular
