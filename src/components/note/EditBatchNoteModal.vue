@@ -79,11 +79,9 @@
             id="alert-in-note-modal"
             :model-value="alert && !!dismissAlertSeconds"
             class="font-weight-bold w-100 mb-2"
-            closable
             color="info"
             density="comfortable"
             variant="tonal"
-            @click:close="dismissAlert"
           >
             <div class="d-flex">
               <div v-if="isSaving" class="mr-2">
@@ -91,6 +89,17 @@
               </div>
               <div>{{ alert }}</div>
             </div>
+            <template #close>
+              <v-btn
+                id="note-modal-alert-close-btn"
+                aria-label="Dismiss alert"
+                density="comfortable"
+                :icon="mdiCloseCircle"
+                size="large"
+                variant="text"
+                @click.prevent="dismissAlert"
+              />
+            </template>
           </v-alert>
         </v-card-text>
         <CreateNoteFooter
@@ -148,7 +157,7 @@ import {
   setSubjectPerEvent,
   updateAdvisingNote
 } from '@/stores/note-edit-session/utils'
-import {mdiSync} from '@mdi/js'
+import {mdiCloseCircle, mdiSync} from '@mdi/js'
 import {onBeforeUnmount, ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
@@ -280,10 +289,11 @@ const createTemplate = title => {
     updateAdvisingNote().then(() => {
       createNoteTemplate(model.value.id, title).then(() => {
         showCreateTemplateModal.value = false
-        noteStore.setIsSaving(false)
         showAlert(`Template '${title}' created.`)
         alertScreenReader(`Template '${title}' created.`)
+        putFocusNextTick('note-modal-alert-close-btn')
         setTimeout(() => {
+          noteStore.setIsSaving(false)
           // Creating a note-template was the user's purpose so we delete any incidental draft note.
           noteStore.setMode(props.initialMode)
           exit(true)
@@ -334,11 +344,9 @@ const discardTemplate = () => {
   exit(true).then(() => alertScreenReader('Canceled edit template.'))
 }
 
-const dismissAlert = seconds => {
-  dismissAlertSeconds.value = seconds
-  if (seconds === 0) {
-    alert.value = undefined
-  }
+const dismissAlert = () => {
+  alert.value = null
+  alertScreenReader('Dismissed')
 }
 
 const exit = revert => {
