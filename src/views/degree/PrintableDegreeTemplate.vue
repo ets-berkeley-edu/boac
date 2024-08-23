@@ -42,7 +42,7 @@
       <v-col>
         <div class="unofficial-label-pill">
           <div>UNOFFICIAL DEGREE PROGRESS REPORT</div>
-          <div>Printed by {{ currentUser.name }} on {{ DateTime.now().toFormat('MMM D, yyyy') }}</div>
+          <div>Printed by {{ currentUser.name }} on {{ DateTime.now().toFormat('MMM d, yyyy') }}</div>
         </div>
         <h2 class="font-size-14">{{ degreeStore.degreeName }}</h2>
         <div :class="{'unit-requirements-of-template': !student}">
