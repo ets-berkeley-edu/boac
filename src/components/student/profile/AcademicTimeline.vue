@@ -62,9 +62,9 @@ const init = () => {
     let notifications = props.student.notifications[type]
     countsPerType.value[type] = size(notifications)
     each(notifications, (message, index) => {
-      messages.value.push(message)
       // If object is not a BOA advising note then generate a transient and non-zero primary key.
       message.transientId = (typeIndex + 1) * 1000 + index
+      messages.value.push(message)
     })
   })
   isTimelineLoading.value = false
@@ -81,8 +81,8 @@ const init = () => {
 const onCreateNewNote = note => {
   if (note.sid === props.student.sid) {
     const existingNoteIndex = findIndex(messages.value, {'id': note.id})
+    note.transientId = note.id
     if (existingNoteIndex < 0) {
-      note.transientId = note.id
       messages.value.push(note)
       updateCountsPerType('note', countsPerType.value.note + 1)
       sortMessages()
