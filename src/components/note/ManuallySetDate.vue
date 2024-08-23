@@ -19,6 +19,7 @@
         :disabled="isSaving || boaSessionExpired"
         hide-actions
         hide-details
+        location="top end"
         :max="new Date()"
         :model-value="model.setDate ? DateTime.fromFormat(model.setDate, 'yyyy-MM-dd').toJSDate() : null"
         placeholder="MM/DD/YYYY"
@@ -49,5 +50,7 @@ const onUpdateModel = d => {
 .date-input-container {
   margin-top: 8px;
   max-width: 160px;
+  position: relative;
+  z-index: 100;
 }
 </style>

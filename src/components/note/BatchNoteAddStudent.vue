@@ -28,7 +28,7 @@
         item-value="sid"
         :items="autoSuggestedStudents"
         :menu-icon="null"
-        :menu-props="{'attach': false}"
+        :menu-props="{'attach': false, 'location': 'bottom'}"
         type="search"
         validate-on="submit"
         variant="outlined"
