@@ -352,6 +352,53 @@ class TestNoteSearch:
         )
         assert api_json['message'] == 'dateFrom must be less than dateTo'
 
+    def test_note_search_validates_department_codes_are_present(self, coe_advisor, client):
+        api_json = _api_search(
+            client,
+            'Independence',
+            notes=True,
+            note_options={
+                'departmentCodes': [],
+            },
+            expected_status_code=400,
+        )
+        assert api_json['message'] == 'Department codes not specified'
+
+    def test_note_search_validates_department_codes_are_valid(self, coe_advisor, client):
+        api_json = _api_search(
+            client,
+            'Independence',
+            notes=True,
+            note_options={
+                'departmentCodes': ['NOTVALIDDEPARTMENTCODE'],
+            },
+            expected_status_code=400,
+        )
+        assert api_json['message'] == 'Invalid department code'
+
+    def test_note_search_matches_correct_department_codes(self, coe_advisor, client, mock_advising_note):
+        api_json = _api_search(
+            client,
+            'Independence',
+            notes=True,
+            note_options={
+                'departmentCodes': ['UWASC'],
+            },
+        )
+        assert len(api_json['notes']) == 1
+        assert 'Independence' in api_json['notes'][0]['noteSnippet']
+
+    def test_note_search_excludes_incorrect_department_codes(self, coe_advisor, client, mock_advising_note):
+        api_json = _api_search(
+            client,
+            'Independence',
+            notes=True,
+            note_options={
+                'departmentCodes': ['COENG'],
+            },
+        )
+        assert len(api_json['notes']) == 0
+
     def test_search_with_no_input_and_date(self, coe_advisor, client):
         """Notes search needs no input when date options are set."""
         api_json = _api_search(

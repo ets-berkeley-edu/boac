@@ -289,6 +289,7 @@ class Note(Base):
             search_phrase,
             author_uid,
             student_csid,
+            department_codes,
             topic,
             datetime_from,
             datetime_to,
@@ -317,6 +318,17 @@ class Note(Base):
         else:
             student_filter = ''
 
+        department_filter = ''
+        if department_codes:
+            department_filter += ' AND ('
+            department_filters_arr = []
+            for index, code in enumerate(department_codes):
+                department_code_token = f'code_{index}'
+                params.update({department_code_token: code})
+                department_filters_arr.append(f':{department_code_token} = ANY(notes.author_dept_codes)')
+            department_filter += ' OR '.join(department_filters_arr)
+            department_filter += ')'
+
         date_filter = ''
         if datetime_from:
             date_filter += ' AND updated_at >= :datetime_from'
@@ -340,6 +352,7 @@ class Note(Base):
                 {author_filter}
                 {student_filter}
                 {date_filter}
+                {department_filter}
             {topic_join}
             {where_clause}
             ORDER BY fts.rank DESC, notes.id

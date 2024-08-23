@@ -41,6 +41,7 @@ from boac.merged.sis_terms import current_term_id
 from boac.merged.student import search_for_students
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.university_dept import UniversityDept
 from flask import current_app as app, request
 from flask_login import current_user, login_required
 
@@ -302,6 +303,7 @@ def _notes_search(search_phrase, params):
     author_csid = note_options.get('advisorCsid')
     author_uid = note_options.get('advisorUid')
     student_csid = note_options.get('studentCsid')
+    department_codes = note_options.get('departmentCodes')
     topic = note_options.get('topic')
     limit = int(util.get(note_options, 'limit', 20))
     offset = int(util.get(note_options, 'offset', 0))
@@ -331,11 +333,19 @@ def _notes_search(search_phrase, params):
     if datetime_from and datetime_to and datetime_to <= datetime_from:
         raise BadRequestError('dateFrom must be less than dateTo')
 
+    if department_codes is not None:
+        if not len(department_codes):
+            raise BadRequestError('Department codes not specified')
+        for code in department_codes:
+            if not UniversityDept.find_by_dept_code(code):
+                raise BadRequestError('Invalid department code')
+
     notes_results = search_advising_notes(
         search_phrase=search_phrase,
         author_csid=author_csid,
         author_uid=author_uid,
         student_csid=student_csid,
+        department_codes=department_codes,
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
