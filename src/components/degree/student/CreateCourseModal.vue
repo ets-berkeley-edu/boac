@@ -22,7 +22,7 @@
   <v-dialog
     v-model="showModal"
     aria-labelledby="modal-header"
-    persistent
+    @keydown.esc="cancel"
     @update:model-value="onToggle"
   >
     <v-card class="modal-content" min-width="600">

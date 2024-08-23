@@ -3,7 +3,7 @@
     v-model="showModalProxy"
     aria-describedby="ferpa-reminder-text"
     aria-labelledby="modal-header"
-    persistent
+    @keydown.esc="cancel"
   >
     <v-card
       class="modal-content"

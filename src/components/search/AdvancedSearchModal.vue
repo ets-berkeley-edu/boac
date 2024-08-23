@@ -21,7 +21,7 @@
   <v-dialog
     v-model="showAdvancedSearchModel"
     aria-labelledby="advanced-search-header"
-    persistent
+    @keydown.esc="cancel"
   >
     <v-card
       class="modal-content"

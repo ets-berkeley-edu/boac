@@ -23,7 +23,7 @@
     <v-dialog
       v-model="showEditUserModal"
       aria-labelledby="modal-header"
-      persistent
+      @keydown.esc="cancel"
     >
       <v-card
         class="modal-content"

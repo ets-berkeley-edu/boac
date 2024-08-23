@@ -2,7 +2,7 @@
   <v-dialog
     v-model="showModal"
     aria-labelledby="modal-header"
-    persistent
+    @keydown.esc="cancel"
   >
     <v-card class="modal-content" min-width="600">
       <FocusLock>

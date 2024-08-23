@@ -3,9 +3,9 @@
     v-model="showModalProxy"
     aria-describedby="export-list-body"
     aria-labelledby="modal-header"
-    persistent
     scroll-strategy="reposition"
     width="100%"
+    @keydown.esc="cancel"
   >
     <v-card
       class="modal-content"

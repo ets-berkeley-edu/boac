@@ -3,9 +3,8 @@
     v-model="model"
     aria-describedby="are-you-sure-text"
     aria-labelledby="are-you-sure-header"
-    persistent
   >
-    <v-card class="modal-content" min-width="600">
+    <v-card class="modal-content">
       <FocusLock :disabled="!focusLocked">
         <v-card-title>
           <ModalHeader header-id="are-you-sure-header" :text="modalHeader" />

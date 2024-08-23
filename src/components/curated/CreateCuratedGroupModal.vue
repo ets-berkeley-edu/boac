@@ -2,7 +2,7 @@
   <v-dialog
     v-model="showModalProxy"
     aria-labelledby="modal-header"
-    persistent
+    @keydown.esc="cancelModal"
   >
     <v-card
       class="modal-content"
