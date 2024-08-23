@@ -11,12 +11,12 @@
     >
       {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
-    <div v-if="isModifyingFilter && !isExistingFilter" class="mr-3">
+    <div v-if="isModifyingFilter && !isExistingFilter" class="mr-2">
       <FilterSelect
         v-model="selectedFilter"
         :filter-row-index="position"
         :has-left-border-style="true"
-        :has-opt-groups="true"
+        :has-opt-groups="cohortStore.domain === 'default'"
         :labelledby="`new-filter-${position}-label`"
         :options="primaryOptions"
         type="primary"
@@ -131,7 +131,7 @@
         <ProgressButton
           id="unsaved-filter-add"
           :action="onClickAddButton"
-          :disabled="isSaving || !selectedOption"
+          :disabled="isSaving || (isUX('dropdown') && !selectedOption)"
           :in-progress="isSaving"
           text="Add"
         />
