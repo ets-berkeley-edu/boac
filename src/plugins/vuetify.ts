@@ -104,7 +104,8 @@ export default createVuetify({
       style: 'text-transform: none;',
     },
     VMenu: {
-      attach: true
+      attach: true,
+      location: 'top'
     }
   },
   directives: {

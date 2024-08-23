@@ -49,7 +49,7 @@
               hide-no-data
               :items="searchStore.searchHistory"
               :menu-icon="null"
-              :menu-props="{'attach': false}"
+              :menu-props="{'attach': false, 'location': 'bottom'}"
               placeholder="Search"
               type="search"
               variant="outlined"

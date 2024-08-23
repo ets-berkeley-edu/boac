@@ -25,7 +25,7 @@
           :items="searchStore.searchHistory"
           :menu="searchStore.isFocusOnSearch"
           :menu-icon="null"
-          :menu-props="{'attach': false}"
+          :menu-props="{'attach': false, 'location': 'bottom'}"
           placeholder="/ to search"
           type="search"
           variant="outlined"

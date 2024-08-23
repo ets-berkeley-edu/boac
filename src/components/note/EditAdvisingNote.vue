@@ -81,6 +81,7 @@
           v-if="noteStore.model.isDraft"
           id="update-draft-note-button"
           :action="() => save(true)"
+          class="ml-2"
           :disabled="isSaving || boaSessionExpired"
           :in-progress="isSavingDraft"
           text="Update Draft"
@@ -88,6 +89,7 @@
         />
         <v-btn
           id="cancel-edit-note-button"
+          class="ml-2"
           color="primary"
           :disabled="isSaving || boaSessionExpired"
           slim
