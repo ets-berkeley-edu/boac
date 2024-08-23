@@ -25,7 +25,6 @@
           <v-btn
             v-if="functionCancel"
             id="are-you-sure-cancel"
-            class="ml-2"
             :disabled="isProcessing"
             :text="buttonLabelCancel"
             variant="text"

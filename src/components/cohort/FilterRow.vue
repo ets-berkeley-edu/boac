@@ -29,7 +29,7 @@
     </div>
     <div
       v-if="isModifyingFilter"
-      :class="{'mr-4': showAdd, 'mr-2': !showAdd, 'date-range-container': isUX('range')}"
+      :class="{'mr-4': showAdd, 'mr-2': !showAdd}"
     >
       <div v-if="isUX('dropdown')">
         <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
@@ -596,9 +596,6 @@ const updateRangeFilter = () => {
 </script>
 
 <style scoped>
-.date-range-container {
-  min-width: 360px;
-}
 .existing-filter-name {
   width: 26%;
 }

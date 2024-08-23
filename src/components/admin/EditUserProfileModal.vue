@@ -218,24 +218,15 @@
           </v-card-text>
           <hr />
           <v-card-actions class="modal-footer">
-            <v-btn
+            <ProgressButton
               id="save-changes-to-user-profile"
-              color="primary"
+              :action="save"
               :disabled="isSaving || !userProfile.uid || memberships.findIndex(d => !d.role) >= 0"
-              variant="flat"
-              @click="save"
-            >
-              <span v-if="!isSaving">Save</span>
-              <v-progress-circular
-                v-if="isSaving"
-                indeterminate
-                :size="18"
-                :width="4"
-              />
-            </v-btn>
+              :in-progress="isSaving"
+              :text="isSaving ? 'Saving' : 'Save'"
+            />
             <v-btn
               id="cancel-changes-to-user-profile"
-              class="ml-2"
               text="Cancel"
               variant="text"
               @click="cancel"
@@ -255,6 +246,7 @@ import {mdiPlus} from '@mdi/js'
 import {mdiCloseCircleOutline} from '@mdi/js'
 import {mdiCheckBold} from '@mdi/js'
 import {putFocusNextTick} from '@/lib/utils'
+import ProgressButton from '@/components/util/ProgressButton.vue'
 </script>
 
 <script>

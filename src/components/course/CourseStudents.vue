@@ -84,14 +84,14 @@
         <div
           v-if="get(item.enrollment, 'enrollmentStatus') === 'W'"
           :id="`student-${item.uid}-waitlisted-for-${section.termId}-${section.sectionId}`"
-          class="font-weight-bold text-error"
+          class="font-weight-bold ml-1 text-error"
         >
           WAITLISTED
         </div>
         <div
           v-if="item.academicCareerStatus === 'Inactive'"
           :id="`student-${item.uid}-inactive-for-${section.termId}-${section.sectionId}`"
-          class="font-weight-bold text-error"
+          class="font-weight-bold ml-1 text-error"
         >
           INACTIVE
         </div>
