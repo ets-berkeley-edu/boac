@@ -192,11 +192,9 @@
                 }"
                 :title="oxfordJoin(map(bundle.unitRequirements, 'name'), 'None')"
               >
-                <div class="align-items-start d-flex justify-space-between">
-                  <div class="truncate-with-ellipsis">
-                    <span>
-                      {{ oxfordJoin(map(bundle.unitRequirements, 'name'), '&mdash;') }}
-                    </span>
+                <div v-if="size(bundle.unitRequirements)" class="align-items-start d-flex justify-space-between">
+                  <div>
+                    {{ oxfordJoin(map(bundle.unitRequirements, 'name'), '&mdash;') }}
                   </div>
                   <div v-if="size(bundle.unitRequirements) > 1" class="unit-requirement-count">
                     <span class="sr-only">(Has </span>{{ bundle.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
@@ -746,8 +744,9 @@ table {
   border-radius: 12px;
   color: white;
   height: 20px;
-  text-align: center;
+  margin-top: 4px;
   max-width: 20px;
   min-width: 20px;
+  text-align: center;
 }
 </style>
