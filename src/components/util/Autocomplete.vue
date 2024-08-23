@@ -20,6 +20,7 @@
       :label="placeholder"
       :maxlength="maxlength"
       :menu-icon="null"
+      :menu-props="{'attach': false}"
       variant="outlined"
       no-data-text="No Users Found"
       @click:clear="onClear"
