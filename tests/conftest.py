@@ -270,8 +270,10 @@ def mock_advising_note(app, db):
         db=db,
         topics=['collaborative synergies', 'integrated architectures', 'vertical solutions', 'Other / Reason not listed'],
     )
+    Note.refresh_search_index()
     yield note
     Note.delete(note_id=note.id)
+    Note.refresh_search_index()
     std_commit(allow_test_environment=True)
 
 
