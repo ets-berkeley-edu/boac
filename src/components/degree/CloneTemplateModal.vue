@@ -4,8 +4,8 @@
     aria-labelledby="modal-header"
     persistent
   >
-    <FocusLock>
-      <v-card class="modal-content" min-width="600">
+    <v-card class="modal-content" min-width="600">
+      <FocusLock>
         <v-card-title>
           <ModalHeader text="Name Your Degree Copy" />
         </v-card-title>
@@ -61,8 +61,8 @@
             />
           </v-card-actions>
         </form>
-      </v-card>
-    </FocusLock>
+      </FocusLock>
+    </v-card>
   </v-dialog>
 </template>
 

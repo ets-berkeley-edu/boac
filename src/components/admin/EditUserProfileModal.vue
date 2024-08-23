@@ -25,12 +25,12 @@
       aria-labelledby="modal-header"
       persistent
     >
-      <FocusLock>
-        <v-card
-          class="modal-content"
-          max-width="600"
-          min-width="600"
-        >
+      <v-card
+        class="modal-content"
+        max-width="600"
+        min-width="600"
+      >
+        <FocusLock>
           <v-card-title>
             <ModalHeader :text="isExistingUser ? profile.name : 'Create User'" />
           </v-card-title>
@@ -241,8 +241,8 @@
               @click="cancel"
             />
           </v-card-actions>
-        </v-card>
-      </FocusLock>
+        </FocusLock>
+      </v-card>
     </v-dialog>
   </div>
 </template>
