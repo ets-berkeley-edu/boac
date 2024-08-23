@@ -49,6 +49,7 @@
           id="btn-cancel-bulk-add-sids"
           class="ml-2"
           color="primary"
+          :disabled="isValidating || isSaving"
           text="Cancel"
           variant="text"
           @click="cancel"

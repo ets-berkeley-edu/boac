@@ -15,6 +15,7 @@
       :cancel="cancel"
       :create="create"
       :domain="domain"
+      :is-saving="isSaving"
       :show-modal="showCreateModal"
     />
   </div>
@@ -35,9 +36,8 @@ const isSaving = ref(false)
 const showCreateModal = ref(false)
 const sids = ref(undefined)
 
-const bulkAddSids = sids => {
-  isSaving.value = true
-  sids.value = sids
+const bulkAddSids = data => {
+  sids.value = data
   showCreateModal.value = true
 }
 
@@ -49,10 +49,11 @@ const cancel = () => {
 }
 
 const create = name => {
-  showCreateModal.value = false
-  return createCuratedGroup(domain, name, sids.value).then(group => {
+  isSaving.value = true
+  createCuratedGroup(domain, name, sids.value).then(group => {
     alertScreenReader(`Curated group '${name}' created. It has ${sids.value.length} students.`)
     router.push(`/curated/${group.id}`).then(() => {
+      showCreateModal.value = false
       isSaving.value = false
     })
   })

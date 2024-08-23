@@ -26,10 +26,10 @@
               :disabled="isSaving"
               label="Name"
               maxlength="255"
-              required
-              type="text"
               persistent-counter
+              :required="!isSaving"
               :rules="[validationRules.valid]"
+              type="text"
               validate-on="lazy input"
               variant="outlined"
               @keyup.esc="cancel"
@@ -52,7 +52,6 @@
             />
             <v-btn
               id="create-curated-group-cancel"
-              class="ml-2"
               :disabled="isSaving"
               text="Cancel"
               variant="text"
@@ -88,6 +87,10 @@ export default {
       required: true,
       type: String
     },
+    isSaving: {
+      required: false,
+      type: Boolean
+    },
     showModal: {
       required: true,
       type: Boolean
@@ -96,7 +99,6 @@ export default {
   data: () => ({
     name: '',
     isInvalid: false,
-    isSaving: false,
     validationRules: {}
   }),
   computed: {
@@ -127,24 +129,17 @@ export default {
   methods: {
     cancelModal() {
       this.cancel()
-      this.reset()
+      this.name = ''
     },
     createCuratedGroup: function() {
       if (true !== validateCohortName({name: this.name})) {
         putFocusNextTick('create-cohort-input')
       } else {
-        this.isSaving = true
-        this.create(this.name).then(() => {
-          this.reset()
-        })
+        this.create(this.name)
       }
     },
     domainLabel(capitalize) {
       return describeCuratedGroupDomain(this.domain, capitalize)
-    },
-    reset() {
-      this.isSaving = false
-      this.name = ''
     }
   }
 }

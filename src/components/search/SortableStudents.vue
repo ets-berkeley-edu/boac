@@ -64,7 +64,7 @@
           aria-label="Inactive"
           class="inactive-info-icon text-error"
         >
-          <v-icon :icon="mdiInformationOutline" />
+          <v-icon :icon="mdiInformation" />
           <v-tooltip activator="parent" location="bottom">
             INACTIVE
           </v-tooltip>
@@ -101,7 +101,7 @@
 
     <template v-if="!compact" #item.enrolledUnits="{item}">
       <span class="sr-only">Term units</span>
-      {{ _get(item.term, 'enrolledUnits', 0) }}
+      {{ get(item.term, 'enrolledUnits', 0) }}
     </template>
 
     <template v-if="!compact" #item.cumulativeUnits="{item}">
@@ -112,8 +112,8 @@
 
     <template v-if="!compact" #item.cumulativeGPA="{item}">
       <span class="sr-only">GPA</span>
-      <div v-if="_isNil(item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
-      <div v-if="!_isNil(item.cumulativeGPA)">{{ round(item.cumulativeGPA, 3) }}</div>
+      <div v-if="isNil(item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
+      <div v-if="!isNil(item.cumulativeGPA)">{{ round(item.cumulativeGPA, 3) }}</div>
     </template>
 
     <template #item.alertCount="{item}">
@@ -129,97 +129,89 @@
 </template>
 
 <script setup>
-import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
-import {mdiSchool, mdiInformationOutline} from '@mdi/js'
-import {useContextStore} from '@/stores/context'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import PillAlert from '@/components/util/PillAlert'
 import StudentAvatar from '@/components/student/StudentAvatar'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
-import {concat, map, orderBy} from 'lodash'
+import {alertScreenReader, lastNameFirst, numFormat, round, studentRoutePath} from '@/lib/utils'
+import {concat, each, get, isNil, map, orderBy} from 'lodash'
+import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
+import {mdiSchool, mdiInformation} from '@mdi/js'
+import {onMounted, ref} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'SortableStudents',
-  components: {
-    CuratedStudentCheckbox,
-    ManageStudent,
-    PillAlert,
-    StudentAvatar
+const props = defineProps({
+  compact: {
+    required: false,
+    type: Boolean
   },
-  mixins: [Context, Util],
-  props: {
-    compact: {
-      required: false,
-      type: Boolean
-    },
-    domain: {
-      required: true,
-      type: String
-    },
-    includeCuratedCheckbox: {
-      required: false,
-      type: Boolean
-    },
-    sortBy: {
-      default: () => ({key: 'lastName', order: 'asc'}),
-      type: Object
-    },
-    students: {
-      required: true,
-      type: Array
-    }
+  domain: {
+    required: true,
+    type: String
   },
-  data: () => ({
-    headers: undefined,
-    items: undefined
-  }),
-  created() {
-    this.onUpdateSortBy([this.sortBy])
-    this.headers = []
-    if (this.includeCuratedCheckbox) {
-      this.headers.push({align: 'start', cellProps: {width: 0}, key: 'curated', sortable: false, value: 'curated', headerProps: {width: 0}})
-    }
-    const sortable = this.students.length > 1
-    this.headers = this.headers.concat([
-      {align: 'start', key: 'avatar', sortable: false, title: 'Photo', value: 'photo'},
-      {key: 'lastName', sortable, title: 'Name', value: 'lastName'},
-      {key: 'sid', sortable, title: 'SID', value: 'sid'}
-    ])
-    if (this.compact) {
-      this.headers.push({key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'})
-    } else {
-      this.headers = this.headers.concat([
-        {key: 'major', sortable, title: 'Major', value: 'majors[0]'},
-        {key: 'expectedGraduationTerm', sortable, title: 'Grad', value: 'expectedGraduationTerm.id'},
-        {key: 'enrolledUnits', sortable, title: 'Term units', value: 'term.enrolledUnits'},
-        {key: 'cumulativeUnits', sortable, title: 'Units completed', value: 'cumulativeUnits'},
-        {key: 'cumulativeGPA', sortable, title: 'GPA', value: 'cumulativeGPA'},
-        {align: 'end', class: 'alert-count', key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'}
-      ])
-    }
+  includeCuratedCheckbox: {
+    required: false,
+    type: Boolean
   },
-  methods: {
-    abbreviateTermName: termName => termName && termName.replace('20', ' \'').replace('Spring', 'Spr').replace('Summer', 'Sum'),
-    onUpdateSortBy(primarySortBy) {
-      const sortBy = concat(
-        primarySortBy,
-        {key: 'lastName', order: 'asc'},
-        {key: 'firstName', order: 'asc'},
-        {key: 'sid', order: 'asc'}
-      )
-      this.items = orderBy(this.students, map(sortBy, 'key'), map(sortBy, 'order'))
-      const key = primarySortBy[0].key
-      if (key in map(this.headers, 'key')) {
-        const header = this.headers.get(key)
-        alertScreenReader(`Sorted by ${header.title}, ${primarySortBy[0].order}ending`)
-      }
-    }
+  sortBy: {
+    default: () => ({key: 'lastName', order: 'asc'}),
+    type: Object
+  },
+  students: {
+    required: true,
+    type: Array
+  }
+})
+
+const contextStore = useContextStore()
+
+const currentUser = contextStore.currentUser
+const headers = ref([])
+const items = ref(undefined)
+
+onMounted(() => {
+  onUpdateSortBy([props.sortBy])
+  if (props.includeCuratedCheckbox) {
+    headers.value.push({align: 'start', cellProps: {width: 0}, key: 'curated', sortable: false, value: 'curated', headerProps: {width: 0}})
+  }
+  const sortable = props.students.length > 1
+  each([
+    {align: 'start', key: 'avatar', sortable: false, title: 'Photo', value: 'photo'},
+    {key: 'lastName', sortable, title: 'Name', value: 'lastName'},
+    {key: 'sid', sortable, title: 'SID', value: 'sid'}
+  ], header => {
+    headers.value.push(header)
+  })
+  if (props.compact) {
+    headers.value.push({key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'})
+  } else {
+    each([
+      {key: 'major', sortable, title: 'Major', value: 'majors[0]'},
+      {key: 'expectedGraduationTerm', sortable, title: 'Grad', value: 'expectedGraduationTerm.id'},
+      {key: 'enrolledUnits', sortable, title: 'Term units', value: 'term.enrolledUnits'},
+      {key: 'cumulativeUnits', sortable, title: 'Units completed', value: 'cumulativeUnits'},
+      {key: 'cumulativeGPA', sortable, title: 'GPA', value: 'cumulativeGPA'},
+      {align: 'end', class: 'alert-count', key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'}
+    ], header => {
+      headers.value.push(header)
+    })
+  }
+})
+
+const abbreviateTermName = termName => termName && termName.replace('20', ' \'').replace('Spring', 'Spr').replace('Summer', 'Sum')
+
+const onUpdateSortBy = primarySortBy => {
+  const sortBy = concat(
+    primarySortBy,
+    {key: 'lastName', order: 'asc'},
+    {key: 'firstName', order: 'asc'},
+    {key: 'sid', order: 'asc'}
+  )
+  items.value = orderBy(props.students, map(sortBy, 'key'), map(sortBy, 'order'))
+  const key = primarySortBy[0].key
+  if (key in map(headers.value, 'key')) {
+    const header = headers.value.get(key)
+    alertScreenReader(`Sorted by ${header.title}, ${primarySortBy[0].order}ending`)
   }
 }
 </script>
