@@ -394,7 +394,7 @@ class TestNoteSearch:
             'Independence',
             notes=True,
             note_options={
-                'departmentCodes': ['COENG'],
+                'departmentCodes': ['ZCEEE'],
             },
         )
         assert len(api_json['notes']) == 0
