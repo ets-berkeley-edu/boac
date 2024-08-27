@@ -10,7 +10,7 @@
       min-width="400"
       max-width="600"
     >
-      <FocusLock>
+      <FocusLock @keydown.esc="cancel">
         <v-card-title>
           <ModalHeader text="FERPA Reminder" />
         </v-card-title>
@@ -29,11 +29,10 @@
             id="ferpa-reminder-cancel"
             class="ml-2"
             :disabled="isDownloading"
+            text="Cancel"
             variant="text"
             @click="cancel"
-          >
-            Cancel
-          </v-btn>
+          />
         </v-card-actions>
       </FocusLock>
     </v-card>
@@ -41,11 +40,12 @@
 </template>
 
 <script setup>
-import {computed, watch} from 'vue'
 import FerpaReminder from '@/components/util/FerpaReminder'
+import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
-import {putFocusNextTick} from '@/lib/utils'
 import ProgressButton from '@/components/util/ProgressButton.vue'
+import {computed, watch} from 'vue'
+import {putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({
   cancel: {

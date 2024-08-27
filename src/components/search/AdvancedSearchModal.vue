@@ -29,7 +29,7 @@
       min-width="700"
       width="80%"
     >
-      <FocusLock>
+      <FocusLock @keydown.esc="cancel">
         <v-card-title>
           <AdvancedSearchModalHeader :on-click-close="cancel" />
         </v-card-title>
@@ -266,6 +266,7 @@
 import AdvancedSearchCheckboxes from '@/components/search/AdvancedSearchCheckboxes'
 import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
 import Autocomplete from '@/components/util/Autocomplete.vue'
+import FocusLock from 'vue-focus-lock'
 import ProgressButton from '@/components/util/ProgressButton'
 import router from '@/router'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'

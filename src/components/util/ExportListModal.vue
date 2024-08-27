@@ -80,6 +80,7 @@
 </template>
 
 <script setup>
+import FocusLock from 'vue-focus-lock'
 import {includes} from 'lodash'
 import {mdiAlert} from '@mdi/js'
 </script>

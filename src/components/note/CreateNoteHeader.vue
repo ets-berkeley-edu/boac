@@ -210,6 +210,7 @@
 
 <script setup>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'

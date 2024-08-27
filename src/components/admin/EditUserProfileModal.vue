@@ -30,7 +30,7 @@
         max-width="600"
         min-width="600"
       >
-        <FocusLock>
+        <FocusLock @keydown.esc="cancel">
           <v-card-title>
             <ModalHeader :text="isExistingUser ? profile.name : 'Create User'" />
           </v-card-title>
@@ -194,7 +194,7 @@
             <div v-if="memberships.length >= 3">
               <span class="text-info"><v-icon class="mb-1" :icon="mdiCheckBold" /> Three departments is enough!</span>
             </div>
-            <div v-if="memberships.length < 3" class="mt-2 w-100">
+            <div v-if="memberships.length < 3" class="py-3 w-75">
               <select
                 id="department-select-list"
                 v-model="deptCode"
@@ -239,159 +239,154 @@
 </template>
 
 <script setup>
+import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
+import ProgressButton from '@/components/util/ProgressButton.vue'
+import {computed, ref} from 'vue'
+import {createOrUpdateUser} from '@/api/user'
+import {each, filter as _filter, find, get, isNil, map} from 'lodash'
+import {isCoe} from '@/berkeley'
 import {lowerCase} from 'lodash'
-import {mdiNoteEditOutline} from '@mdi/js'
-import {mdiPlus} from '@mdi/js'
 import {mdiCloseCircleOutline} from '@mdi/js'
 import {mdiCheckBold} from '@mdi/js'
-import {putFocusNextTick} from '@/lib/utils'
-import ProgressButton from '@/components/util/ProgressButton.vue'
-</script>
+import {mdiNoteEditOutline} from '@mdi/js'
+import {mdiPlus} from '@mdi/js'
+import {oxfordJoin, putFocusNextTick} from '@/lib/utils'
 
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
-import {createOrUpdateUser} from '@/api/user'
-import {isCoe} from '@/berkeley'
-import {find} from 'lodash'
+const props = defineProps({
+  afterCancel: {
+    required: true,
+    type: Function
+  },
+  afterUpdateUser: {
+    required: true,
+    type: Function
+  },
+  departments: {
+    required: true,
+    type: Array
+  },
+  profile: {
+    default: () => ({
+      canAccessAdvisingData: true,
+      canAccessCanvasData: true,
+      departments: [],
+      isAdmin: false,
+      isBlocked: false
+    }),
+    type: Object
+  }
+})
 
-export default {
-  name: 'EditUserProfileModal',
-  mixins: [Context, Util],
-  props: {
-    afterCancel: {
-      required: true,
-      type: Function
-    },
-    afterUpdateUser: {
-      required: true,
-      type: Function
-    },
-    departments: {
-      required: true,
-      type: Array
-    },
-    profile: {
-      default: () => ({
-        canAccessAdvisingData: true,
-        canAccessCanvasData: true,
-        departments: [],
-        isAdmin: false,
-        isBlocked: false
-      }),
-      type: Object
-    }
-  },
-  data: () => ({
-    departmentOptions: undefined,
-    deptCode: undefined,
-    error: undefined,
-    isDeleted: undefined,
-    isSaving: false,
-    memberships: [],
-    showEditUserModal: false,
-    userProfile: {},
-    degreeProgressPermissionItems: [
-      {value: 'read', text: 'Read-only'},
-      {value: 'read_write', text: 'Read and write'}
-    ],
-    roles: [
-      {value: 'advisor', text: 'Advisor'},
-      {value: 'director', text: 'Director'}
-    ]
-  }),
-  computed: {
-    isExistingUser() {
-      return !!this.profile.id
-    }
-  },
-  methods: {
-    addDepartment() {
-      if (this.deptCode) {
-        const dept = find(this.departments, ['code', this.deptCode])
-        this.memberships.push({
-          code: dept.code,
-          name: dept.name,
-          role: null,
-          automateMembership: true
-        })
-        const option = find(this.departmentOptions, ['value', this.deptCode])
-        option.disabled = true
-        this.deptCode = undefined
-      }
-    },
-    cancel() {
-      this.closeModal()
-      this.afterCancel(this.profile)
-    },
-    closeModal() {
-      this.showEditUserModal = false
-      this.error = undefined
-      this.userProfile = {}
-      this.memberships = []
-    },
-    openEditUserModal() {
-      this.userProfile = {
-        id: this.profile.id,
-        uid: this.profile.uid,
-        name: this.profile.name,
-        automateDegreeProgressPermission: this.profile.automateDegreeProgressPermission || false,
-        canAccessAdvisingData: this.profile.canAccessAdvisingData,
-        canAccessCanvasData: this.profile.canAccessCanvasData,
-        degreeProgressPermission: this.profile.degreeProgressPermission || null,
-        departments: [],
-        isAdmin: this.profile.isAdmin,
-        isBlocked: this.profile.isBlocked
-      }
-      this.isDeleted = !!this.profile.deletedAt
-      this.memberships = []
-      this._each(this.profile.departments, d => {
-        if (d.role) {
-          this.memberships.push({
-            automateMembership: d.automateMembership,
-            code: d.code,
-            name: d.name,
-            role: d.role,
-          })
-        }
+const departmentOptions = ref(undefined)
+const deptCode = ref(undefined)
+const error = ref(undefined)
+const isDeleted = ref(undefined)
+const isSaving = ref(false)
+const memberships = ref([])
+const showEditUserModal = ref(false)
+const userProfile = ref({})
+const degreeProgressPermissionItems = [
+  {value: 'read', text: 'Read-only'},
+  {value: 'read_write', text: 'Read and write'}
+]
+const roles = [
+  {value: 'advisor', text: 'Advisor'},
+  {value: 'director', text: 'Director'}
+]
+
+const isExistingUser = computed(() => {
+  return !!props.profile.id
+})
+
+const addDepartment = () => {
+  if (deptCode.value) {
+    const dept = find(props.departments, ['code', deptCode.value])
+    memberships.value.push({
+      code: dept.code,
+      name: dept.name,
+      role: null,
+      automateMembership: true
+    })
+    const option = find(departmentOptions.value, ['value', deptCode.value])
+    option.disabled = true
+    deptCode.value = undefined
+  }
+}
+
+const cancel = () => {
+  closeModal()
+  props.afterCancel(props.profile)
+}
+
+const closeModal = () => {
+  showEditUserModal.value = false
+  error.value = undefined
+  userProfile.value = {}
+  memberships.value = []
+}
+
+const openEditUserModal = () => {
+  userProfile.value = {
+    id: props.profile.id,
+    uid: props.profile.uid,
+    name: props.profile.name,
+    automateDegreeProgressPermission: props.profile.automateDegreeProgressPermission || false,
+    canAccessAdvisingData: props.profile.canAccessAdvisingData,
+    canAccessCanvasData: props.profile.canAccessCanvasData,
+    degreeProgressPermission: props.profile.degreeProgressPermission || null,
+    departments: [],
+    isAdmin: props.profile.isAdmin,
+    isBlocked: props.profile.isBlocked
+  }
+  isDeleted.value = !!props.profile.deletedAt
+  memberships.value = []
+  each(props.profile.departments, d => {
+    if (d.role) {
+      memberships.value.push({
+        automateMembership: d.automateMembership,
+        code: d.code,
+        name: d.name,
+        role: d.role,
       })
-      this.departmentOptions = []
-      this._each(this.departments, d => {
-        this.departmentOptions.push({
-          disabled: !!this._find(this.memberships, ['code', d.code]),
-          value: d.code,
-          text: d.name
-        })
-      })
-      this.showEditUserModal = true
-      putFocusNextTick(this.profile.uid ? 'is-admin' : 'uid-input')
-    },
-    removeDepartment(deptCode) {
-      let indexOf = this.memberships.findIndex(d => d.code === deptCode)
-      this.memberships.splice(indexOf, 1)
-      const option = this._find(this.departmentOptions, ['value', deptCode])
-      option.disabled = false
-    },
-    save() {
-      const undefinedRoles = this._filter(this.memberships, r => this._isNil(r.role))
-      if (undefinedRoles.length) {
-        const deptNames = this._map(undefinedRoles, 'name')
-        this.error = `Please specify role for ${this.oxfordJoin(deptNames)}`
-      } else {
-        this.isSaving = true
-        // If no change in deleted status then do not update 'deleted_at' in the database.
-        const deleteAction = this.isDeleted === !!this.profile.deletedAt ? null : this.isDeleted
-        createOrUpdateUser(this.userProfile, this.memberships, deleteAction).then(() => {
-          this.afterUpdateUser(this.profile)
-          this.closeModal()
-        }).catch(error => {
-          this.error = this._get(error, 'response.data.message') || error
-        }).finally(() => {
-          this.isSaving = false
-        })
-      }
     }
+  })
+  departmentOptions.value = []
+  each(props.departments, d => {
+    departmentOptions.value.push({
+      disabled: !!find(memberships.value, ['code', d.code]),
+      value: d.code,
+      text: d.name
+    })
+  })
+  showEditUserModal.value = true
+  putFocusNextTick(props.profile.uid ? 'is-admin' : 'uid-input')
+}
+
+const removeDepartment = deptCode => {
+  let indexOf = memberships.value.findIndex(d => d.code === deptCode)
+  memberships.value.splice(indexOf, 1)
+  const option = find(departmentOptions.value, ['value', deptCode])
+  option.disabled = false
+}
+
+const save = () => {
+  const undefinedRoles = _filter(memberships.value, r => isNil(r.role))
+  if (undefinedRoles.length) {
+    const deptNames = map(undefinedRoles, 'name')
+    error.value = `Please specify role for ${oxfordJoin(deptNames)}`
+  } else {
+    isSaving.value = true
+    // If no change in deleted status then do not update 'deleted_at' in the database.
+    const deleteAction = isDeleted.value === !!props.profile.deletedAt ? null : isDeleted.value
+    createOrUpdateUser(userProfile.value, memberships.value, deleteAction).then(() => {
+      props.afterUpdateUser(props.profile)
+      closeModal()
+    }).catch(error => {
+      error.value = get(error, 'response.data.message') || error
+    }).finally(() => {
+      isSaving.value = false
+    })
   }
 }
 </script>

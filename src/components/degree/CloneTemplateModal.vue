@@ -5,11 +5,11 @@
     persistent
   >
     <v-card class="modal-content" min-width="600">
-      <FocusLock>
+      <FocusLock @keydown.esc="cancel">
         <v-card-title>
           <ModalHeader text="Name Your Degree Copy" />
         </v-card-title>
-        <form @submit.prevent="createClone" @keydown.esc="cancel">
+        <form @submit.prevent="createClone">
           <v-card-text class="modal-body">
             <label
               id="degree-name-input-label"
@@ -46,7 +46,6 @@
             <ProgressButton
               id="clone-confirm"
               :action="createClone"
-              color="primary"
               :disabled="!name.trim().length || isSaving || !!error || (templateToClone.name === name)"
               :in-progress="isSaving"
               :text="isSaving ? 'Saving' : 'Save Copy'"
@@ -67,6 +66,7 @@
 </template>
 
 <script setup>
+import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
