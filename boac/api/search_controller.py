@@ -71,7 +71,9 @@ def search():
 
     feed = {}
 
-    if domain['appointments']:
+    # Search By Department is only available for local notes in boa for now.
+    # So we do not search for appointments in the Data Loch. This could be an enhancement in the future.
+    if domain['appointments'] and not params.get('departmentCodes'):
         feed.update(_appointments_search(search_phrase, params))
 
     if len(search_phrase) and domain['students']:
