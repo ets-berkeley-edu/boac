@@ -46,7 +46,7 @@
             <div class="align-center d-flex justify-space-between">
               <div>
                 <div v-if="item.author.uid !== currentUser.uid" class="font-size-16" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-                  {{ trim(item.subject) || contextStore.config.draftNoteSubjectPlaceholder }}
+                  {{ trim(item.subject) || config.draftNoteSubjectPlaceholder }}
                 </div>
                 <v-btn
                   v-if="item.author.uid === currentUser.uid"
@@ -58,7 +58,7 @@
                   @click="() => openEditDialog(item)"
                 >
                   <div class="align-start text-wrap">
-                    {{ trim(item.subject) || contextStore.config.draftNoteSubjectPlaceholder }}
+                    {{ trim(item.subject) || config.draftNoteSubjectPlaceholder }}
                   </div>
                 </v-btn>
               </div>
@@ -108,8 +108,20 @@
     :function-cancel="cancel"
     :function-confirm="deleteDraftNote"
     modal-header="Are you sure?"
-    :text="deleteDialogBodyText"
-  />
+  >
+    <span v-if="selectedNote">
+      <span v-if="selectedNote.student">
+        Delete draft note for
+        <span class="font-weight-medium" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ selectedNote.student.firstName }} {{ selectedNote.student.lastName }}</span>.
+      </span>
+      <span v-if="!selectedNote.student && selectedNote.subject">
+        Delete draft note with subject "<span class="font-weight-medium">{{ selectedNote.subject }}</span>".
+      </span>
+      <span v-if="!selectedNote.student && !selectedNote.subject">
+        Delete draft note created on {{ formatFromISO(selectedNote.createdAt) }}.
+      </span>
+    </span>
+  </AreYouSureModal>
   <EditBatchNoteModal
     v-model="isEditDialogOpen"
     initial-mode="editDraft"
@@ -124,33 +136,23 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
-import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {DateTime} from 'luxon'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
 import {each, find, findIndex, get, size, trim} from 'lodash'
 import {mdiPaperclip, mdiTrashCan} from '@mdi/js'
+import {onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
+
+const config = contextStore.config
 const currentUser = contextStore.currentUser
-const headers = [
-  {align: 'start', key: 'student', title: 'Student', width: 200},
-  {align: 'start', key: 'sid', title: 'SID', width: 150},
-  {align: 'start', key: 'subject', title: 'Subject'}
-]
-
-if (currentUser.isAdmin) {
-  headers.push({align: 'start', key: 'author', title: 'Author', width: 200})
-}
-headers.push(
-  {align: 'start', key: 'updatedAt', title: 'Date', width: 100},
-  {align: 'center', key: 'delete', title: 'Delete', width: 100}
-)
-
 const eventHandlers = {
   'note-created': () => reloadDraftNotes(),
   'note-deleted': noteId => find(myDraftNotes.value, ['id', noteId]) && reloadDraftNotes(),
   'note-updated': note => find(myDraftNotes.value, ['id', note.id]) && reloadDraftNotes()
 }
+const headers = []
 const isDeleteDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const isDeleting = ref(false)
@@ -159,6 +161,18 @@ const selectedNote = ref(undefined)
 
 onMounted(() => {
   contextStore.loadingStart()
+  headers.push(
+    {align: 'start', key: 'student', title: 'Student', width: 200},
+    {align: 'start', key: 'sid', title: 'SID', width: 150},
+    {align: 'start', key: 'subject', title: 'Subject'}
+  )
+  if (currentUser.isAdmin) {
+    headers.push({align: 'start', key: 'author', title: 'Author', width: 200})
+  }
+  headers.push(
+    {align: 'start', key: 'updatedAt', title: 'Date', width: 100},
+    {align: 'center', key: 'delete', title: 'Delete', width: 100}
+  )
   getMyDraftNotes().then(data => {
     myDraftNotes.value = data
     contextStore.loadingComplete('Draft notes list is ready.')
@@ -203,6 +217,11 @@ const deleteDraftNote = () => {
   })
 }
 
+const formatFromISO = isoDate => {
+  const date = DateTime.fromISO(isoDate).setZone(config.timezone)
+  return date.toFormat(date.year === DateTime.now().year ? 'MMM d' : 'MMM d, yyyy')
+}
+
 const openDeleteDialog = draftNote => {
   selectedNote.value = draftNote
   isDeleteDialogOpen.value = true
@@ -213,20 +232,6 @@ const openEditDialog = noteDraft => {
   isEditDialogOpen.value = true
   selectedNote.value = noteDraft
 }
-
-const deleteDialogBodyText = computed(() => {
-  let message
-  if (selectedNote.value) {
-    const student = selectedNote.value.student
-    const subject = selectedNote.value.subject
-    if (student) {
-      message = `Delete draft note for <span class="${currentUser.inDemoMode ? 'demo-mode-blur' : ''}">${student.firstName} ${student.lastName}</span>.`
-    } else {
-      message = `Delete draft note with subject ${subject || contextStore.config.draftNoteSubjectPlaceholder}.`
-    }
-  }
-  return message
-})
 
 const reloadDraftNotes = () => getMyDraftNotes().then(data => myDraftNotes.value = data)
 </script>
