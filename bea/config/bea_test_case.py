@@ -29,9 +29,13 @@ class BEATestCase(object):
     def __init__(self,
                  student,
                  appts=None,
+                 course=None,
                  notes=None,
-                 section=None):
+                 section=None,
+                 term=None):
         self.student = student
         self.appts = appts or []
+        self.course = course
         self.notes = notes or []
         self.section = section
+        self.term = term

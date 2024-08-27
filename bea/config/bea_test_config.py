@@ -178,7 +178,8 @@ class BEATestConfig(object):
         advisors = boa_utils.get_dept_advisors(self.dept)
         advisors = list(filter(lambda a: (len(a.uid) > 1), advisors))
         for advisor in advisors:
-            if f'{advisor.uid}' != f'{self.advisor.uid}' and nessie_timeline_utils.get_advising_note_author(advisor.uid):
+            if f'{advisor.uid}' != f'{self.advisor.uid}' and nessie_timeline_utils.get_advising_note_author(
+                    advisor.uid):
                 self.advisor_read_only = advisor
                 break
 
@@ -507,3 +508,22 @@ class BEATestConfig(object):
     def search_students(self):
         self.set_base_configs()
         self.set_test_students(count=app.config['MAX_SEARCH_STUDENTS_COUNT'])
+
+    def sis_student_data(self):
+        self.set_base_configs(opts={'include_inactive': True})
+        self.set_test_students(count=app.config['MAX_SIS_DATA_STUDENTS_COUNT'],
+                               opts={
+                                   'include_inactive': True,
+                                   'incomplete_grades': True,
+                                   'with_standing': True},
+                               )
+        # Generate test cases for parameterized tests
+        nessie_utils.set_student_profiles(self.test_students)
+        nessie_utils.set_student_academic_standings(self.test_students)
+        nessie_utils.set_student_term_enrollments(self.test_students)
+        for student in self.test_students:
+            self.test_cases.append(BEATestCase(student=student))
+            for term_data in student.enrollment_data.enrollment_terms():
+                self.test_cases.append(BEATestCase(student=student, term=term_data))
+                for course_data in student.enrollment_data.courses(term_data):
+                    self.test_cases.append(BEATestCase(student=student, course=course_data))

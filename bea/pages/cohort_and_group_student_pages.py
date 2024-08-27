@@ -147,62 +147,67 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
     def scroll_to_student(self, student):
         self.scroll_to_element(self.element((By.XPATH, self.student_row_xpath(student))))
 
-    def visible_sis_data(self, student):
-        self.wait_for_players()
-        student_xpath = self.student_row_xpath(student)
-        level_loc = By.XPATH, f'{student_xpath}//div[contains(@id, "student-level")]'
-        level = self.element(level_loc).text.strip() if self.is_present(level_loc) else None
-        majors_loc = By.XPATH, f'{student_xpath}//span[contains(@id, "student-major")]'
-        majors = list(map(lambda ma: ma.text, self.elements(majors_loc)))
-        entered_term_loc = By.XPATH, f'{student_xpath}//div[contains(@id, "student-matriculation")]'
-        entered_term = self.element(entered_term_loc).text.replace('Entered', '').strip() if self.is_present(
-            entered_term_loc) else None
-        grad_term_loc = By.XPATH, f'{student_xpath}//div[contains(@id, "student-grad-term")]'
-        grad_term = self.element(grad_term_loc).text().split(':')[1].strip() if self.is_present(grad_term_loc) else None
-        graduation_loc = By.XPATH, f'{student_xpath}//div[starts-with(text(), " Graduated")]'
-        graduation = self.element(graduation_loc).text.replace('Graduated', '').strip() if self.is_present(
-            graduation_loc) else None
-        sports_loc = By.XPATH, f'{student_xpath}//span[contains(@id, "student-team")]'
-        sports = list(map(lambda sp: sp.text, self.elements(sports_loc)))
-        gpa_loc = By.XPATH, f'{student_xpath}//span[contains(@id, "student-cumulative-gpa")]'
-        gpa = self.element(gpa_loc).text.gsub('No data', '').strip() if self.is_present(gpa_loc) else None
-        classes_loc = By.XPATH, f'{student_xpath}//span[contains(@id, "student-enrollment-name")]'
-        classes = list(map(lambda cl: cl.text, self.elements(classes_loc)))
-        waitlists_loc = By.XPATH, f'{student_xpath}//span[contains(@id, "-waitlisted-")]/preceding-sibling::span'
-        waitlists = list(map(lambda wa: wa.text, self.elements(waitlists_loc)))
-        inactive_loc = By.XPATH, f'{student_xpath}//div[contains(@class, "student-sid")]/div[contains(@id, "-inactive")]'
-        inactive = self.is_present(inactive_loc) and self.element(inactive_loc).text.strip() == 'INACTIVE'
-        # TODO academic_standing
-        cxl_loc = By.XPATH, f'{student_xpath}//div[contains(@id, "withdrawal-cancel")]/span'
-        cxl_msg = self.element(cxl_loc).text.strip() if self.is_present(cxl_loc) else None
-        return {
-            'level': level,
-            'majors': majors,
-            'entered_term': entered_term,
-            'grad_term': grad_term,
-            'graduation': graduation,
-            'sports': sports,
-            'gpa': gpa,
-            'classes': classes,
-            'waitlists': waitlists,
-            'inactive': inactive,
-            # TODO academic standing
-            'cxl_msg': cxl_msg,
-        }
+    # Per student data
 
-    def visible_term_units(self, student):
-        xpath = self.student_row_xpath(student)
-        units_loc = By.XPATH, f'{xpath}//div[contains(@id, "student-enrolled-units")]'
-        cumul_units_loc = By.XPATH, f'{xpath}//div[contains(@id, "cumulative-units")]'
-        max_loc = By.XPATH, f'{xpath}//span[contains(@id, "student-max-units")]'
-        min_loc = By.XPATH, f'{xpath}//div[contains(@id, "student-min-units")]'
-        return {
-            'term_units': (self.element(units_loc).text if self.is_present(units_loc) else None),
-            'cumul_units': (self.element(cumul_units_loc).text.replce('No data', '').strip() if self.is_present(
-                cumul_units_loc) else None),
-            'term_units_max': (self.element(max_loc).text if self.is_present(max_loc) else None),
-            'term_units_min': (self.element(min_loc).text if self.is_present(min_loc) else None),
-        }
+    def academic_standing(self, student):
+        loc = By.XPATH, f'//span[contains(@id, "student-{student.sid}-academic-standing")]'
+        return self.el_text_if_exists(loc)
+
+    def classes(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//span[contains(@id, "student-enrollment-name")]'
+        return list(map(lambda cl: cl.text, self.elements(loc)))
+
+    def cumulative_units(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "cumulative-units")]'
+        return self.el_text_if_exists(loc, 'No data')
+
+    def cxl_msg(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "withdrawal-cancel")]/span'
+        return self.el_text_if_exists(loc)
+
+    def entered_term(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "student-matriculation")]'
+        return self.el_text_if_exists(loc, 'Entered')
+
+    def gpa(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//span[contains(@id, "student-cumulative-gpa")]'
+        return self.el_text_if_exists(loc, 'No data')
+
+    def grad_term(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "student-grad-term")]'
+        return self.element(loc).text().split(':')[1].strip() if self.is_present(loc) else None
+
+    def graduation(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[starts-with(text(), " Graduated")]'
+        return self.el_text_if_exists(loc, 'Graduated')
+
+    def inactive_flag(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@class, "student-sid")]/div[contains(@id, "-inactive")]'
+        return self.is_present(loc) and self.element(loc).text.strip() == 'INACTIVE'
+
+    def level(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "student-level")]'
+        return self.el_text_if_exists(loc)
+
+    def majors(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//span[contains(@id, "student-major")]'
+        return self.els_text_if_exist(loc)
+
+    def sports(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//span[contains(@id, "student-team")]'
+        return self.els_text_if_exist(loc)
+
+    def term_units(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "student-enrolled-units")]'
+        return self.el_text_if_exists(loc)
+
+    def term_units_max(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//span[contains(@id, "student-max-units")]'
+        return self.el_text_if_exists(loc)
+
+    def term_units_min(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "student-min-units")]'
+        return self.el_text_if_exists(loc)
 
     def visible_courses_data(self, student):
         self.wait_for_players()
@@ -222,6 +227,10 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
                 'final_grade': self.element((By.XPATH, f'{node_xpath}/td[5]')).text,
                 'final_flag': self.is_present(final_flag_loc),
             })
+
+    def wait_lists(self, student):
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//span[contains(@id, "-waitlisted-")]/preceding-sibling::span'
+        return list(map(lambda wa: wa.text, self.elements(loc)))
 
     # SORTING
 

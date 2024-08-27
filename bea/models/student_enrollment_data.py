@@ -27,8 +27,6 @@ from datetime import datetime
 from datetime import timedelta
 import re
 
-from bea.models.academic_standings import AcademicStanding
-from bea.models.academic_standings import AcademicStandings
 from bea.models.degree_progress.degree_completed_course import DegreeCompletedCourse
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
@@ -86,22 +84,6 @@ class EnrollmentData(object):
     @staticmethod
     def term_gpa_units(term):
         return utils.safe_key(term, 'termGpa') and utils.safe_key(term['termGpa'], 'unitsTakenForGpa')
-
-    def academic_standing(self):
-        standings = []
-        terms = self.enrollment_terms() or []
-        for t in terms:
-            term_standing = utils.safe_key(t, 'academicStanding')
-            if term_standing:
-                standing = next(filter(lambda s: s.code == term_standing['status'], AcademicStandings))
-                standings.append(AcademicStanding({
-                    'code': (utils.safe_key(term_standing, 'status') or ''),
-                    'descrip': (standing and standing.value['descrip']),
-                    'term_id': term_standing['termId'],
-                    'term_name': self.term_name(t),
-                }))
-        standings = [s for s in standings if s]
-        return standings
 
     # Courses
 

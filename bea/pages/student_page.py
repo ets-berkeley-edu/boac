@@ -44,39 +44,8 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
         self.driver.get(f'{boa_utils.get_boa_base_url()}/student/{student.uid}')
         self.wait_for_spinner()
 
-    # SIS PROFILE DATA
-
     NOT_FOUND_MSG = By.XPATH, '//h1[text()="Not Found"]'
-
     TOGGLE_PERSONAL_DETAILS = By.ID, 'show-hide-personal-details'
-    PREFERRED_NAME = By.XPATH, '//div[@id="student-preferred-name"]/span[2]'
-    SID = By.XPATH, '//div[@id="student-bio-sid"]/span'
-    INACTIVE = By.ID, 'student-bio-inactive'
-    ACADEMIC_STANDING = By.XPATH, '//span[contains(@id, "academic-standing-term-")]'
-    PHONE = By.ID, 'student-phone-number'
-    EMAIL = By.ID, 'student-mailto'
-    CUMULATIVE_UNITS = By.ID, 'cumulative-units'
-    CUMULATIVE_GPA = By.ID, 'cumulative-gpa'
-    INACTIVE_ASC_FLAG = By.ID, 'student-bio-inactive-asc'
-    INACTIVE_COE_FLAG = By.ID, 'student-bio-inactive-coe'
-    MAJOR = By.XPATH, '//div[@id="student-bio-majors"]//div[@class="font-weight-bold"]'
-    SUB_PLAN = By.XPATH, '//div[@id="student-bio-subplans"]/div'
-    MINOR = By.XPATH, '//div[@id="student-bio-minors"]//div[@class="font-weight-bold"]'
-    COLLEGE = By.XPATH, '//div[@id="student-bio-majors"]//div[@class="text-grey-darken-2"]'
-    DISCONTINUED_MAJOR = By.XPATH, '//div[@id="student-details-discontinued-majors"]//div[@class="font-weight-bold"]'
-    DISCONTINUED_COLLEGE = By.XPATH, '//div[@id="student-details-discontinued-majors"]//div[@class="text-grey-darken-2"]'
-    DISCONTINUED_MINOR = By.XPATH, '//div[@id="student-details-discontinued-minors"]//div[@class="font-weight-bold"]'
-    LEVEL = By.XPATH, '//div[@id="student-bio-level"]/div'
-    TRANSFER = By.ID, 'student-profile-transfer'
-    TERMS_IN_ATTENDANCE = By.ID, 'student-bio-terms-in-attendance'
-    ENTERED_TERM = By.ID, 'student-bio-matriculation'
-    VISA = By.ID, 'student-profile-visa'
-    ADVISOR_PLAN = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-plan")]'
-    ADVISOR_NAME = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-name")]'
-    ADVISOR_EMAIL = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-email")]'
-    INTENDED_MAJOR = By.XPATH, '//div[@id="student-details-intended-majors"]/div'
-    EXPECTED_GRADUATION = By.ID, 'student-bio-expected-graduation'
-    ALTERNATE_EMAIL = By.ID, 'student-profile-other-email'
     ADDITIONAL_INFO_OUTER = By.XPATH, '//h3[text()=" Advisor(s) "]'
 
     def is_personal_details_expanded(self):
@@ -92,38 +61,71 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
             self.when_present(self.ADDITIONAL_INFO_OUTER, utils.get_medium_timeout())
         time.sleep(1)
 
-    def visible_sis_data(self):
-        return {
-            'name': self.el_text_if_exists(self.STUDENT_NAME_HEADING),
-            'preferred_name': self.el_text_if_exists(self.PREFERRED_NAME),
-            'sid': self.el_text_if_exists(self.SID),
-            'email': (self.element(self.EMAIL).text.split()[3] if self.is_present(self.EMAIL) else None),
-            'email_alternate': self.el_text_if_exists(self.ALTERNATE_EMAIL),
-            'phone': self.el_text_if_exists(self.PHONE),
-            'cumulative_units': self.el_text_if_exists(self.CUMULATIVE_UNITS),
-            'cumulative_gpa': self.el_text_if_exists(self.CUMULATIVE_GPA),
-            'majors': self.els_text_if_exist(self.MAJOR),
-            'colleges': list(filter(lambda i: i, self.els_text_if_exist(self.COLLEGE))),
-            'majors_discontinued': self.els_text_if_exist(self.DISCONTINUED_MAJOR),
-            'colleges_discontinued': list(filter(lambda i: i, self.els_text_if_exist(self.DISCONTINUED_COLLEGE))),
-            'sub_plans': self.els_text_if_exist(self.SUB_PLAN),
-            'minors': self.els_text_if_exist(self.MINOR),
-            'minors_discontinued': self.els_text_if_exist(self.DISCONTINUED_MINOR),
-            'level': self.el_text_if_exists(self.LEVEL),
-            'transfer': self.el_text_if_exists(self.TRANSFER),
-            'terms_in_attendance': self.el_text_if_exists(self.TERMS_IN_ATTENDANCE),
-            'visa': self.el_text_if_exists(self.VISA),
-            'entered_term': self.el_text_if_exists(self.ENTERED_TERM, 'Entered'),
-            'intended_majors': self.els_text_if_exist(self.INTENDED_MAJOR),
-            'expected_graduation': self.el_text_if_exists(self.EXPECTED_GRADUATION, 'Expected graduation'),
-            'advisor_plans': self.els_text_if_exist(self.ADVISOR_PLAN),
-            'advisor_names': self.els_text_if_exist(self.ADVISOR_NAME),
-            'advisor_emails': self.els_text_if_exist(self.ADVISOR_EMAIL),
-            'inactive': (self.is_present(self.INACTIVE) and self.el_text_if_exists(self.INACTIVE) == 'INACTIVE'),
-            'academic_standing': self.el_text_if_exists(self.ACADEMIC_STANDING),
-        }
+    # SIS PROFILE DATA
 
-    def visible_degree(self, field):
+    ACADEMIC_STANDING = By.XPATH, '//span[contains(@id, "academic-standing-term-")]'
+    ADVISOR_EMAIL = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-email")]'
+    ADVISOR_NAME = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-name")]'
+    ADVISOR_PLAN = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-plan")]'
+    COLLEGE = By.XPATH, '//div[@id="student-bio-majors"]//div[@class="text-grey-darken-2"]'
+    CUMULATIVE_UNITS = By.ID, 'cumulative-units'
+    CUMULATIVE_GPA = By.ID, 'cumulative-gpa'
+    DISCONTINUED_COLLEGE = By.XPATH, '//div[@id="student-details-discontinued-majors"]//div[@class="text-grey-darken-2"]'
+    DISCONTINUED_MAJOR = By.XPATH, '//div[@id="student-details-discontinued-majors"]//div[@class="font-weight-bold"]'
+    DISCONTINUED_MINOR = By.XPATH, '//div[@id="student-details-discontinued-minors"]//div[@class="font-weight-bold"]'
+    EMAIL = By.ID, 'student-mailto'
+    EMAIL_ALTERNATE = By.ID, 'student-profile-other-email'
+    ENTERED_TERM = By.ID, 'student-bio-matriculation'
+    EXPECTED_GRADUATION = By.ID, 'student-bio-expected-graduation'
+    INACTIVE = By.ID, 'student-bio-inactive'
+    INACTIVE_ASC_FLAG = By.ID, 'student-bio-inactive-asc'
+    INACTIVE_COE_FLAG = By.ID, 'student-bio-inactive-coe'
+    INTENDED_MAJOR = By.XPATH, '//div[@id="student-details-intended-majors"]/div'
+    LEVEL = By.XPATH, '//div[@id="student-bio-level"]/div'
+    MAJOR = By.XPATH, '//div[@id="student-bio-majors"]//div[@class="font-weight-bold"]'
+    MINOR = By.XPATH, '//div[@id="student-bio-minors"]//div[@class="font-weight-bold"]'
+    PHONE = By.ID, 'student-phone-number'
+    PREFERRED_NAME = By.XPATH, '//div[@id="student-preferred-name"]/span[2]'
+    SID = By.XPATH, '//div[@id="student-bio-sid"]/span'
+    SQUAD = By.XPATH, '//div[@id="student-bio-athletics"]/div'
+    SUB_PLAN = By.XPATH, '//div[@id="student-bio-subplans"]/div'
+    TERMS_IN_ATTENDANCE = By.ID, 'student-bio-terms-in-attendance'
+    TRANSFER = By.ID, 'student-profile-transfer'
+    VISA = By.ID, 'student-profile-visa'
+
+    @staticmethod
+    def calcentral_link(student):
+        return By.XPATH, f'//a[@href="https://calcentral.berkeley.edu/user/overview/{student.uid}"]'
+
+    @staticmethod
+    def perceptive_link():
+        return By.XPATH, '//a[contains(text(), "Perceptive Content (Image Now) documents")]'
+
+    def academic_standing(self):
+        return self.el_text_if_exists(self.ACADEMIC_STANDING)
+
+    def advisor_plans(self):
+        return self.els_text_if_exist(self.ADVISOR_PLAN)
+
+    def advisor_names(self):
+        return self.els_text_if_exist(self.ADVISOR_NAME)
+
+    def advisor_emails(self):
+        return self.els_text_if_exist(self.ADVISOR_EMAIL)
+
+    def colleges(self):
+        return self.els_text_if_exist(self.COLLEGE)
+
+    def colleges_discontinued(self):
+        return self.els_text_if_exist(self.DISCONTINUED_COLLEGE)
+
+    def cumulative_units(self):
+        return self.el_text_if_exists(self.CUMULATIVE_UNITS)
+
+    def cumulative_gpa(self):
+        return self.el_text_if_exists(self.CUMULATIVE_GPA)
+
+    def degree(self, field):
         time.sleep(1)
         xpath = f'//h3[contains(text(), "Degree")]/following-sibling::div[contains(., "{field}")]'
         deg_type_loc = By.XPATH, f'{xpath}/div[contains(@id, "student-bio-degree-type")]'
@@ -137,7 +139,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
             'deg_college': college,
         }
 
-    def visible_degree_minor(self, field):
+    def degree_minor(self, field):
         xpath = '//h3[contains(text(), "Minor")]/following-sibling::'
         min_type_loc = By.XPATH, f'{xpath}div[contains(., "{field}")]/div'
         min_date_loc = By.XPATH, f'{xpath}span'
@@ -146,21 +148,66 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
             'min_date': self.el_text_if_exists(min_date_loc),
         }
 
-    @staticmethod
-    def perceptive_link():
-        return By.XPATH, '//a[contains(text(), "Perceptive Content (Image Now) documents")]'
+    def email(self):
+        return self.element(self.EMAIL).text.split()[3] if self.is_present(self.EMAIL) else None
 
-    @staticmethod
-    def calcentral_link(student):
-        return By.XPATH, f'//a[@href="https://calcentral.berkeley.edu/user/overview/{student.uid}"]'
+    def email_alternate(self):
+        return self.el_text_if_exists(self.EMAIL_ALTERNATE)
 
-    # TEAMS
+    def entered_term(self):
+        return self.el_text_if_exists(self.ENTERED_TERM, 'Entered')
 
-    SQUAD = By.XPATH, '//div[@id="student-bio-athletics"]/div'
+    def expected_graduation(self):
+        return self.el_text_if_exists(self.EXPECTED_GRADUATION, 'Expected graduation')
+
+    def intended_majors(self):
+        return self.els_text_if_exist(self.INTENDED_MAJOR)
+
+    def is_inactive(self):
+        return self.is_present(self.INACTIVE) and self.el_text_if_exists(self.INACTIVE) == 'INACTIVE'
+
+    def level(self):
+        return self.el_text_if_exists(self.LEVEL)
+
+    def majors(self):
+        return self.els_text_if_exist(self.MAJOR)
+
+    def majors_discontinued(self):
+        return self.els_text_if_exist(self.DISCONTINUED_MAJOR)
+
+    def minors(self):
+        return self.els_text_if_exist(self.MINOR)
+
+    def minors_discontinued(self):
+        return self.els_text_if_exist(self.DISCONTINUED_MINOR)
+
+    def name(self):
+        return self.el_text_if_exists(self.STUDENT_NAME_HEADING)
+
+    def phone(self):
+        return self.el_text_if_exists(self.PHONE)
+
+    def preferred_name(self):
+        return self.el_text_if_exists(self.PREFERRED_NAME)
+
+    def sid(self):
+        return self.el_text_if_exists(self.SID)
 
     def sports(self):
         time.sleep(1)
         return self.els_text_if_exist(self.SQUAD)
+
+    def sub_plans(self):
+        return self.els_text_if_exist(self.SUB_PLAN)
+
+    def transfer(self):
+        return self.el_text_if_exists(self.TRANSFER)
+
+    def terms_in_attendance(self):
+        return self.el_text_if_exists(self.TERMS_IN_ATTENDANCE)
+
+    def visa(self):
+        return self.el_text_if_exists(self.VISA)
 
     # TIMELINE
 

@@ -136,6 +136,12 @@ def assert_equivalence(actual, expected):
     assert actual == expected
 
 
+def assert_actual_includes_expected(actual, expected):
+    if expected not in actual:
+        app.logger.info(f'Expected {actual} to include {expected}')
+    assert expected in actual
+
+
 def date_to_local_tz(date):
     return date.astimezone(tz.gettz('Los Angeles'))
 

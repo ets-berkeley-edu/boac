@@ -27,6 +27,7 @@ import datetime
 import itertools
 import json
 
+from bea.models.academic_standings import AcademicStanding, AcademicStandings
 from bea.models.person import Person
 from bea.models.section import Section
 from bea.models.section import SectionEnrollment
@@ -34,6 +35,7 @@ from bea.models.section import SectionMeeting
 from bea.models.student import Student
 from bea.models.student_enrollment_data import EnrollmentData
 from bea.models.student_profile_data import Profile
+from bea.models.term import Term
 from bea.test_utils import utils
 from boac.externals import data_loch
 from flask import current_app as app
@@ -89,6 +91,38 @@ def set_student_profiles(students):
         student = next(filter(lambda s: s.sid == row['sid'], students))
         profile = json.loads(row['profile'])
         student.profile_data = Profile(data=profile)
+
+
+def set_student_academic_standings(students):
+    sids = utils.in_op([stud.sid for stud in students])
+    standing_codes = [i.value['code'] for i in AcademicStandings]
+    sql = f"""SELECT sid,
+                     term_id,
+                     acad_standing_status AS code
+                FROM student.academic_standing
+               WHERE sid IN ({sids})"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    for s in students:
+        student_standings = []
+        rows = [row for row in results if row['sid'] == s.sid]
+        for row in rows:
+            code = row['code']
+            if code in standing_codes:
+                match = next(filter(lambda st: st.value['code'] == code, AcademicStandings))
+                descrip = match.value['descrip']
+            else:
+                descrip = code
+            term = Term({
+                'name': utils.term_sis_id_to_term_name(row['term_id']),
+                'sis_id': row['term_id'],
+            })
+            student_standings.append(AcademicStanding({
+                'code': code,
+                'descrip': descrip,
+                'term': term,
+            }))
+        s.academic_standings = student_standings
 
 
 def set_student_term_enrollments(students):

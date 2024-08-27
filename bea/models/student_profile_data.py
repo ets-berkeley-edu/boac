@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from bea.models.academic_standings import AcademicStandings
 from bea.models.notes_and_appts.appointment import Appointment
 from bea.models.notes_and_appts.note import Note
 from bea.models.user import User
@@ -72,35 +71,34 @@ class Profile(object):
     def sis_profile(self):
         return utils.safe_key(self.profile, 'sisProfile')
 
-    def name(self):
-        return utils.safe_key(self.sis_profile(), 'primaryName')
+    def academic_career(self):
+        return utils.safe_key(self.sis_profile(), 'academicCareer')
 
-    def preferred_name(self):
-        return utils.safe_key(self.sis_profile(), 'preferredName')
+    def academic_career_status(self):
+        return utils.safe_key(self.sis_profile(), 'academicCareerStatus')
+
+    def cumulative_gpa(self):
+        return '{:.3f}'.format(self.sis_profile()['cumulativeGPA']) if utils.safe_key(self.sis_profile(), 'cumulativeGPA') else '--'
+
+    def cumulative_units(self):
+        return utils.safe_key(self.sis_profile(), 'cumulativeUnits') and utils.formatted_units(self.sis_profile()['cumulativeUnits'])
+
+    def degree_progress(self):
+        profile = self.sis_profile()
+        progress = utils.safe_key(profile, 'degreeProgress') and utils.safe_key(profile['degreeProgress'], 'requirements')
+        return progress and {
+            'date': progress['reportDate'],
+            'writing': f"{progress['entryLevelWriting']['name']} {progress['entryLevelWriting']['status']}",
+            'cultures': f"{progress['americanCultures']['name']} {progress['americanCultures']['status']}",
+            'history': f"{progress['americanHistory']['name']} {progress['americanHistory']['status']}",
+            'institutions': f"{progress['americanInstitutions']['name']} {progress['americanInstitutions']['status']}",
+        }
 
     def email(self):
         return utils.safe_key(self.sis_profile(), 'emailAddress')
 
     def email_alternate(self):
         return utils.safe_key(self.sis_profile(), 'emailAddressAlternate')
-
-    def phone(self):
-        return utils.safe_key(self.sis_profile(), 'phoneNumber') and f"{self.sis_profile()['phoneNumber']}"
-
-    def cumulative_units(self):
-        return utils.safe_key(self.sis_profile(), 'cumulativeUnits') and utils.formatted_units(self.sis_profile()['cumulativeUnits'])
-
-    def cumulative_gpa(self):
-        return '{:.3f}'.format(self.sis_profile()['cumulativeGPA']) if utils.safe_key(self.sis_profile(), 'cumulativeGPA') else '--'
-
-    def level(self):
-        return utils.safe_key(self.sis_profile(), 'level') and utils.safe_key(self.sis_profile()['level'], 'description')
-
-    def transfer(self):
-        return utils.safe_key(self.sis_profile(), 'transfer')
-
-    def terms_in_attendance(self):
-        return utils.safe_key(self.sis_profile(), 'termsInAttendance') and f"{self.sis_profile()['termsInAttendance']}"
 
     def entered_term(self):
         return utils.safe_key(self.sis_profile(), 'matriculation')
@@ -112,24 +110,6 @@ class Profile(object):
     def expected_grad_term_name(self):
         grad_term = utils.safe_key(self.sis_profile(), 'expectedGraduationTerm')
         return grad_term and grad_term['name']
-
-    def academic_standing(self):
-        return utils.safe_key(self.sis_profile(), 'academicStanding')
-
-    def academic_career(self):
-        return utils.safe_key(self.sis_profile(), 'academicCareer')
-
-    def academic_career_status(self):
-        return utils.safe_key(self.sis_profile(), 'academicCareerStatus')
-
-    def reqts(self):
-        reqts = self.degree_progress()
-        return {
-            'reqt_writing': utils.safe_key(reqts, 'writing'),
-            'reqt_history': utils.safe_key(reqts, 'history'),
-            'reqt_institutions': utils.safe_key(reqts, 'institutions'),
-            'reqt_cultures': utils.safe_key(reqts, 'cultures'),
-        }
 
     def graduations(self):
         profile = self.sis_profile()
@@ -160,6 +140,18 @@ class Profile(object):
         graduations.sort(key=lambda g: g['date'], reverse=True)
         return graduations
 
+    def intended_majors(self):
+        profile = self.sis_profile()
+        intended_majors = []
+        profile_majors = utils.safe_key(profile, 'intendedMajors') or []
+        for m in profile_majors:
+            if utils.safe_key(m, 'description'):
+                intended_majors.append(m['description'])
+        return intended_majors
+
+    def level(self):
+        return utils.safe_key(self.sis_profile(), 'level') and utils.safe_key(self.sis_profile()['level'], 'description')
+
     def majors(self):
         profile = self.sis_profile()
         majors = []
@@ -174,8 +166,21 @@ class Profile(object):
             majors.sort(key=lambda m: 0 if m['active'] else 1)
         return majors
 
-    def sub_plans(self):
-        return self.sis_profile() and utils.safe_key(self.sis_profile(), 'subplans')
+    def majors_active(self):
+        active_major_data = [m for m in self.majors() if m['active']]
+        return list(map(lambda maj: maj['major'], active_major_data))
+
+    def majors_discontinued(self):
+        discontinued_major_data = [m for m in self.majors() if not m['active']]
+        return list(map(lambda maj: maj['major'], discontinued_major_data))
+
+    def colleges_active(self):
+        active_major_data = [m for m in self.majors() if m['active']]
+        return list(map(lambda maj: maj['college'], active_major_data))
+
+    def colleges_discontinued(self):
+        discontinued_major_data = [m for m in self.majors() if not m['active']]
+        return list(map(lambda maj: maj['college'], discontinued_major_data))
 
     def minors(self):
         profile = self.sis_profile()
@@ -190,14 +195,40 @@ class Profile(object):
                 })
         return minors
 
-    def intended_majors(self):
-        profile = self.sis_profile()
-        intended_majors = []
-        profile_majors = utils.safe_key(profile, 'intendedMajors') or []
-        for m in profile_majors:
-            if utils.safe_key(m, 'description'):
-                intended_majors.append(m['description'])
-        return intended_majors
+    def minors_active(self):
+        active_minor_data = [m for m in self.minors() if m['active']]
+        return list(map(lambda minor: minor['minor'], active_minor_data))
+
+    def minors_discontinued(self):
+        active_minor_data = [m for m in self.minors() if not m['active']]
+        return list(map(lambda minor: minor['minor'], active_minor_data))
+
+    def name(self):
+        return utils.safe_key(self.sis_profile(), 'primaryName')
+
+    def preferred_name(self):
+        return utils.safe_key(self.sis_profile(), 'preferredName')
+
+    def phone(self):
+        return utils.safe_key(self.sis_profile(), 'phoneNumber') and f"{self.sis_profile()['phoneNumber']}"
+
+    def reqts(self):
+        reqts = self.degree_progress()
+        return {
+            'reqt_writing': utils.safe_key(reqts, 'writing'),
+            'reqt_history': utils.safe_key(reqts, 'history'),
+            'reqt_institutions': utils.safe_key(reqts, 'institutions'),
+            'reqt_cultures': utils.safe_key(reqts, 'cultures'),
+        }
+
+    def sub_plans(self):
+        return self.sis_profile() and utils.safe_key(self.sis_profile(), 'subplans')
+
+    def terms_in_attendance(self):
+        return utils.safe_key(self.sis_profile(), 'termsInAttendance') and f"{self.sis_profile()['termsInAttendance']}"
+
+    def transfer(self):
+        return utils.safe_key(self.sis_profile(), 'transfer')
 
     def withdrawal(self):
         profile = self.sis_profile()
@@ -206,26 +237,6 @@ class Profile(object):
             'desc': withdrawal['description'],
             'reason': withdrawal['reason'],
             'date': datetime.strptime(withdrawal['date'], '%Y-%m-%d %H:%M:%S').strftime('%b %d, %Y'),
-        }
-
-    def academic_standing_profile(self):
-        standing = utils.safe_key(self.sis_profile_data(), 'academic_standing')
-        if standing:
-            status = next(filter(lambda s: s.value['code'] == standing['status'], AcademicStandings))
-            return {
-                'status': status.value['descrip'],
-                'term_name': standing['termName'],
-            }
-
-    def degree_progress(self):
-        profile = self.sis_profile()
-        progress = utils.safe_key(profile, 'degreeProgress') and utils.safe_key(profile['degreeProgress'], 'requirements')
-        return progress and {
-            'date': progress['reportDate'],
-            'writing': f"{progress['entryLevelWriting']['name']} {progress['entryLevelWriting']['status']}",
-            'cultures': f"{progress['americanCultures']['name']} {progress['americanCultures']['status']}",
-            'history': f"{progress['americanHistory']['name']} {progress['americanHistory']['status']}",
-            'institutions': f"{progress['americanInstitutions']['name']} {progress['americanInstitutions']['status']}",
         }
 
     # Demographics
@@ -244,6 +255,18 @@ class Profile(object):
             }
 
     # Advisors
+
+    def advisor_plans(self):
+        advisor_data = utils.safe_key(self.profile, 'advisors') or []
+        return [a['plan'] for a in advisor_data]
+
+    def advisor_names(self):
+        advisor_data = utils.safe_key(self.profile, 'advisors') or []
+        return [f"{a['firstName']} {a['lastName']}" for a in advisor_data]
+
+    def advisor_emails(self):
+        advisor_data = utils.safe_key(self.profile, 'advisors') or []
+        return [a['email'] for a in advisor_data]
 
     def advisors(self):
         advisor_data = utils.safe_key(self.profile, 'advisors') or []
@@ -286,6 +309,31 @@ class Profile(object):
                     alerts.remove(a)
         return alerts
 
+    def appointments(self):
+        appts = []
+        appt_data = (self.notifications() and utils.safe_key(self.notifications(), 'appointment')) or []
+        for a in appt_data:
+            author = utils.safe_key(a, 'advisor')
+            advisor = author and User({
+                'uid': author['uid'],
+                'full_name': author['name'],
+                'depts': author['departments'],
+            })
+            attachment_data = utils.safe_key(a, 'attachments') or []
+            attachments = attachment_data and list(
+                map(lambda f: utils.safe_key(f, 'filename') or utils.safe_key(f, 'sisFilename'), attachment_data))
+            attachments = [a for a in attachments if a]
+            appts.append(Appointment({
+                'advisor': advisor,
+                'attachments': attachments,
+                'created_date': a['createdAt'],
+                'detail': (utils.safe_key(a, 'details') or ''),
+                'record_id': f"{a['id']}",
+                'subject': (utils.safe_key(a, 'appointmentTitle') or ''),
+                'updated_date': a['updatedAt'],
+            }))
+        return appts
+
     def holds(self):
         hold_data = self.notifications() and utils.safe_key(self.notifications(), 'hold') or []
         return self.notifications() and list(map(lambda h: h['message'], hold_data))
@@ -318,28 +366,3 @@ class Profile(object):
                 'updated_date': n['updatedAt'],
             }))
         return notes
-
-    def appointments(self):
-        appts = []
-        appt_data = (self.notifications() and utils.safe_key(self.notifications(), 'appointment')) or []
-        for a in appt_data:
-            author = utils.safe_key(a, 'advisor')
-            advisor = author and User({
-                'uid': author['uid'],
-                'full_name': author['name'],
-                'depts': author['departments'],
-            })
-            attachment_data = utils.safe_key(a, 'attachments') or []
-            attachments = attachment_data and list(
-                map(lambda f: utils.safe_key(f, 'filename') or utils.safe_key(f, 'sisFilename'), attachment_data))
-            attachments = [a for a in attachments if a]
-            appts.append(Appointment({
-                'advisor': advisor,
-                'attachments': attachments,
-                'created_date': a['createdAt'],
-                'detail': (utils.safe_key(a, 'details') or ''),
-                'record_id': f"{a['id']}",
-                'subject': (utils.safe_key(a, 'appointmentTitle') or ''),
-                'updated_date': a['updatedAt'],
-            }))
-        return appts

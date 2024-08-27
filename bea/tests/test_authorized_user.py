@@ -44,7 +44,7 @@ class TestAuthorizedUser:
         initial_logins = boa_utils.get_user_login_count(self.auth_user)
         self.homepage.log_in(self.auth_user.username, utils.get_admin_password(), self.calnet_page)
         updated_logins = boa_utils.get_user_login_count(self.auth_user)
-        assert initial_logins == updated_logins + 1
+        assert updated_logins == initial_logins + 1
 
     def test_deleted_user_login_not_ok(self):
         self.homepage.log_out()
