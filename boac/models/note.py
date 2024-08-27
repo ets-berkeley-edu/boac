@@ -36,7 +36,7 @@ from boac.models.note_topic import NoteTopic
 from dateutil.tz import tzutc
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
-from sqlalchemy.sql import desc, text
+from sqlalchemy.sql import text
 
 note_contact_type_enum = ENUM(
     'Email',
@@ -125,11 +125,34 @@ class Note(Base):
 
     @classmethod
     def get_draft_notes(cls, author_uid=None):
-        if author_uid:
-            criteria = and_(cls.author_uid == author_uid, cls.is_draft.is_(True), cls.deleted_at == None)  # noqa: E711
-        else:
-            criteria = and_(cls.is_draft.is_(True), cls.deleted_at == None)  # noqa: E711
-        return cls.query.filter(criteria).order_by(desc(cls.updated_at)).all()
+        draft_notes = []
+        sql = f"""
+            SELECT n.*, count(a.note_id) as attachment_count
+            FROM notes n
+            LEFT JOIN note_attachments a ON n.id = a.note_id
+            WHERE
+                n.is_draft IS TRUE
+                AND n.deleted_at IS NULL
+                {f"AND author_uid = '{author_uid}'" if author_uid else ''}
+            GROUP BY n.id
+            ORDER BY n.updated_at DESC
+        """
+        for row in db.session.execute(sql):
+            def _isoformat(key):
+                return row[key].astimezone(tzutc()).isoformat()
+            draft_notes.append({
+                'id': row['id'],
+                'attachmentCount': row['attachment_count'],
+                'author': {
+                    'uid': row['author_uid'],
+                    'name': row['author_name'],
+                },
+                'sid': row['sid'],
+                'subject': row['subject'],
+                'createdAt': _isoformat('created_at'),
+                'updatedAt': _isoformat('updated_at'),
+            })
+        return draft_notes
 
     @classmethod
     def create(

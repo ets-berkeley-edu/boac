@@ -62,7 +62,7 @@
                   </div>
                 </v-btn>
               </div>
-              <div v-if="size(item.attachments)">
+              <div v-if="item.attachmentCount">
                 <span class="sr-only">Has attachment(s)</span>
                 <v-icon :icon="mdiPaperclip" />
               </div>
@@ -146,18 +146,27 @@ headers.push(
   {align: 'center', key: 'delete', title: 'Delete', width: 100}
 )
 
+const eventHandlers = {
+  'note-created': () => reloadDraftNotes(),
+  'note-deleted': noteId => find(myDraftNotes.value, ['id', noteId]) && reloadDraftNotes(),
+  'note-updated': note => find(myDraftNotes.value, ['id', note.id]) && reloadDraftNotes()
+}
 const isDeleteDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const isDeleting = ref(false)
 const myDraftNotes = ref(undefined)
 const selectedNote = ref(undefined)
 
-const reloadDraftNotes = () => getMyDraftNotes().then(data => myDraftNotes.value = data)
-
 onMounted(() => {
   contextStore.loadingStart()
-  reloadDraftNotes().then(() => contextStore.loadingComplete('Draft notes list is ready.'))
+  getMyDraftNotes().then(data => {
+    myDraftNotes.value = data
+    contextStore.loadingComplete('Draft notes list is ready.')
+    each(eventHandlers, (handler, eventType) => contextStore.setEventHandler(eventType, handler))
+  })
 })
+
+onUnmounted(() => each(eventHandlers, (handler, eventType) => contextStore.removeEventHandler(eventType, handler)))
 
 const afterEditDraft = data => {
   const existing = find(myDraftNotes.value, ['id', data.id])
@@ -219,14 +228,7 @@ const deleteDialogBodyText = computed(() => {
   return message
 })
 
-const eventHandlers = {
-  'note-created': reloadDraftNotes,
-  'note-deleted': noteId => find(myDraftNotes.value, ['id', noteId]) && reloadDraftNotes(),
-  'note-updated': note => find(myDraftNotes.value, ['id', note.id]) && reloadDraftNotes()
-}
-each(eventHandlers, (handler, eventType) => contextStore.setEventHandler(eventType, handler))
-
-onUnmounted(() => each(eventHandlers, (handler, eventType) => contextStore.removeEventHandler(eventType, handler)))
+const reloadDraftNotes = () => getMyDraftNotes().then(data => myDraftNotes.value = data)
 </script>
 
 <style>
