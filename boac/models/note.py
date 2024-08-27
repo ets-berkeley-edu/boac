@@ -320,14 +320,16 @@ class Note(Base):
 
         department_filter = ''
         if department_codes:
-            department_filter += ' AND ('
-            department_filters_arr = []
-            for index, code in enumerate(department_codes):
-                department_code_token = f'code_{index}'
-                params.update({department_code_token: code})
-                department_filters_arr.append(f':{department_code_token} = ANY(notes.author_dept_codes)')
-            department_filter += ' OR '.join(department_filters_arr)
-            department_filter += ')'
+            department_filter += """ AND notes.author_uid in
+                (select au.uid
+                from authorized_users au
+                join university_dept_members udm
+                on au.id = udm.authorized_user_id
+                join university_depts ud
+                on ud.id = udm.university_dept_id
+                where ud.dept_code = ANY(:department_codes))
+            """
+            params.update({'department_codes': department_codes})
 
         date_filter = ''
         if datetime_from:
