@@ -5,7 +5,7 @@
     aria-labelledby="are-you-sure-header"
     persistent
   >
-    <v-card class="modal-content" min-width="600">
+    <v-card class="modal-content">
       <FocusLock :disabled="!focusLocked" @keydown.esc="functionCancel">
         <v-card-title>
           <ModalHeader header-id="are-you-sure-header" :text="modalHeader" />

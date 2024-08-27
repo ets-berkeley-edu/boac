@@ -158,7 +158,7 @@
       Are you sure you want to delete the <strong>'{{ displayName(note.attachments, deleteAttachmentIndex) }}'</strong> attachment?
     </AreYouSureModal>
     <AdvisingNoteAttachments
-      v-if="isOpen && !note.legacySource && currentUser.uid === author.uid"
+      v-if="isOpen && !note.legacySource"
       :add-attachments="addNoteAttachments"
       class="attachments-edit py-3"
       :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
