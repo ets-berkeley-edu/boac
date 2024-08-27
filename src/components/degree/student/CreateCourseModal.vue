@@ -26,7 +26,7 @@
     @update:model-value="onToggle"
   >
     <v-card class="modal-content" min-width="600">
-      <FocusLock>
+      <FocusLock @keydown.esc="cancel">
         <v-card-title>
           <ModalHeader text="Create Course" />
         </v-card-title>
@@ -138,6 +138,7 @@
 
 <script setup>
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
+import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import UnitsInput from '@/components/degree/UnitsInput'

@@ -9,11 +9,11 @@
       min-width="400"
       max-width="600"
     >
-      <FocusLock>
+      <FocusLock @keydown.esc="cancelModal">
         <v-card-title>
           <ModalHeader text="Name Your Cohort" />
         </v-card-title>
-        <form @submit.prevent="createCohort" @keydown.esc="cancelModal">
+        <form @submit.prevent="createCohort">
           <v-card-text class="modal-body">
             <v-text-field
               id="create-cohort-input"
@@ -28,7 +28,7 @@
               required
               type="text"
               persistent-counter
-              :rules="[validationRules.valid]"
+              :rules="[validate]"
               validate-on="lazy input"
               variant="outlined"
               @keyup.esc="cancelModal"
@@ -65,79 +65,69 @@
   </v-dialog>
 </template>
 
-<script>
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+<script setup>
+import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {validateCohortName} from '@/lib/cohort'
+import {computed, ref, watch} from 'vue'
 
-export default {
-  name: 'CreateCohortModal',
-  components: {ModalHeader, ProgressButton},
-  props: {
-    cancel: {
-      required: true,
-      type: Function
-    },
-    create: {
-      required: true,
-      type: Function
-    },
-    showModal: {
-      required: true,
-      type: Boolean
-    }
+const props = defineProps({
+  cancel: {
+    required: true,
+    type: Function
   },
-  data: () => ({
-    isInvalid: true,
-    isSaving: false,
-    name: '',
-    validationRules: {}
-  }),
-  computed: {
-    showModalProxy() {
-      return this.showModal
-    }
+  create: {
+    required: true,
+    type: Function
   },
-  watch: {
-    showModalProxy(isOpen) {
-      if (isOpen) {
-        putFocusNextTick('create-cohort-input')
-      } else {
-        this.cancel()
-      }
-    }
-  },
-  created() {
-    this.validationRules = {
-      valid: name => {
-        const valid = validateCohortName({name})
-        this.isInvalid = true !== valid
-        return valid
-      }
-    }
-  },
-  methods: {
-    cancelModal() {
-      alertScreenReader('Canceled')
-      this.cancel()
-      this.reset()
-      putFocusNextTick('save-cohort-button')
-    },
-    createCohort() {
-      if (true !== validateCohortName({name: this.name})) {
-        putFocusNextTick('create-cohort-input')
-      } else {
-        this.isSaving = true
-        this.create(this.name).then(() => {
-          this.reset()
-        })
-      }
-    },
-    reset() {
-      this.isSaving = false
-      this.name = ''
-    }
+  showModal: {
+    required: true,
+    type: Boolean
   }
+})
+
+const isInvalid = ref(true)
+const isSaving = ref(false)
+const name = ref('')
+
+const showModalProxy = computed(() => {
+  return props.showModal
+})
+
+watch(showModalProxy, isOpen => {
+  if (isOpen) {
+    putFocusNextTick('create-cohort-input')
+  } else {
+    props.cancel()
+  }
+})
+
+const cancelModal = () => {
+  alertScreenReader('Canceled')
+  props.cancel()
+  reset()
+  putFocusNextTick('save-cohort-button')
+}
+
+const createCohort = () => {
+  if (true !== validateCohortName({name: name.value})) {
+    putFocusNextTick('create-cohort-input')
+  } else {
+    isSaving.value = true
+    props.create(name.value).then(reset)
+  }
+}
+
+const reset = () => {
+  isSaving.value = false
+  name.value = ''
+}
+
+const validate = name => {
+  const valid = validateCohortName({name})
+  isInvalid.value = true !== valid
+  return valid
 }
 </script>

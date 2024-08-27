@@ -8,7 +8,7 @@
       class="modal-content"
       min-width="400"
     >
-      <FocusLock>
+      <FocusLock @keydown.esc="cancel">
         <v-card-title>
           <ModalHeader text="Create Topic" />
         </v-card-title>
@@ -49,11 +49,10 @@
               id="cancel"
               class="ml-2"
               :disabled="isSaving"
+              text="Cancel"
               variant="text"
               @click.stop="cancel"
-            >
-              Cancel
-            </v-btn>
+            />
           </v-card-actions>
         </form>
       </FocusLock>
@@ -62,6 +61,7 @@
 </template>
 
 <script setup>
+import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {computed, ref, watch} from 'vue'
