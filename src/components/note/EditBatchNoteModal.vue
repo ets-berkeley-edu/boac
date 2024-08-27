@@ -10,7 +10,7 @@
       id="new-note-modal-container"
       class="modal-content"
       :class="{'modal-fullscreen': $vuetify.display.mdAndDown}"
-      min-width="500"
+      width="800"
     >
       <FocusLock :disabled="noteStore.isFocusLockDisabled">
         <CreateNoteHeader />

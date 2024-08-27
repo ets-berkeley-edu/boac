@@ -90,7 +90,7 @@
           <span class="truncate-with-ellipsis">{{ attachment.displayName }}</span>
           <template #append>
             <v-btn
-              v-if="!readOnly"
+              v-if="!readOnly && currentUser.uid === get(modelProxy.author, 'uid')"
               :id="`${idPrefix}remove-attachment-${index}-btn`"
               :aria-label="`Remove attachment ${attachment.displayName}`"
               class="pl-4"
@@ -113,8 +113,8 @@
 <script setup>
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
 import {alertScreenReader, pluralize} from '@/lib/utils'
-import {computed, onBeforeMount, ref, watch} from 'vue'
-import {each, size} from 'lodash'
+import {computed, onBeforeMount, reactive, ref, watch} from 'vue'
+import {each, get, size} from 'lodash'
 import {mdiAlert, mdiCloseCircle, mdiPaperclip} from '@mdi/js'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
@@ -155,26 +155,28 @@ const props = defineProps({
   }
 })
 
+const noteStore = useNoteStore()
+
 const attachmentFileInput = ref(null)
 const attachments = ref([])
 const attachmentError = ref(undefined)
 const contextStore = useContextStore()
+const currentUser = reactive(contextStore.currentUser)
 const isAdding = ref(false)
-const noteStore = useNoteStore()
 const {mode, model} = storeToRefs(noteStore)
-let modelProxy = props.note ? ref(props.note) : ref(noteStore.model)
+const modelProxy = ref(props.note || noteStore.model)
 
 const attachmentLimitReached = computed(() => {
   return size(model.value.attachments) >= contextStore.config.maxAttachmentsPerNote
 })
 
 watch(mode, () => {
-  modelProxy = props.note ? ref(props.note) : ref(noteStore.model)
+  modelProxy.value = props.note || noteStore.model
   init()
 })
 
 watch(model, () => {
-  modelProxy = props.note ? ref(props.note) : ref(noteStore.model)
+  modelProxy.value = props.note || noteStore.model
   init()
 })
 

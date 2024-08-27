@@ -172,7 +172,7 @@
           </div>
         </td>
         <td
-          :class="{'font-weight-bold': !message.read}"
+          :class="{'font-weight-bold': !message.read, 'vertical-top': includes(openMessages, message.transientId)}"
           class="column-message"
         >
           <div

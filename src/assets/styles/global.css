@@ -174,13 +174,13 @@
   min-width: unset !important;
 }
 .modal-body {
-  padding: 16px 24px 0 !important;
+  padding: 6px 24px 14px !important;
 }
 .modal-content {
   background-color: #fff !important;
   margin: auto auto 24px auto !important;
-  padding: 16px 0 20px !important;
-  width: 60% !important;
+  min-width: 40% !important;
+  padding: 16px 6px 18px !important;
 }
 .modal-footer {
   justify-content: flex-end !important;

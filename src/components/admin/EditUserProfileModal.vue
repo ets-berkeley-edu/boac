@@ -152,8 +152,7 @@
                   :icon="mdiCloseCircleOutline"
                   variant="flat"
                   @click="() => removeDepartment(dept.code)"
-                >
-                </v-btn>
+                />
               </div>
               <div class="w-100">
                 <div class="align-center d-flex pl-8">
