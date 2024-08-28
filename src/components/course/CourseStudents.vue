@@ -147,56 +147,63 @@
 
     <template #item.courseSites="{item}">
       <div class="border-info border-s-md flex-col font-size-14 h-100">
-        <div v-if="item.enrollment" class="pl-2">
+        <div
+          v-for="(canvasSite, index) in get(item.enrollment, 'canvasSites', [])"
+          :key="index"
+          class="font-weight-medium pl-2"
+          :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length}`"
+        >
           <div
-            v-for="(canvasSite, index) in item.enrollment.canvasSites"
-            :key="index"
-            class="font-weight-medium"
-            :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length}`"
+            :class="{
+              'border-t-sm': index,
+              'demo-mode-blur': currentUser.inDemoMode
+            }"
           >
-            <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ canvasSite.courseCode }}</span>
+            {{ canvasSite.courseCode }}
           </div>
-          <div v-if="!item.enrollment.canvasSites.length">
-            No course site
-          </div>
+        </div>
+        <div v-if="!size(get(item.enrollment, 'canvasSites', []))">
+          No course site
         </div>
         <div v-if="!item.enrollment" class="font-weight-medium pa-2">No course site</div>
       </div>
     </template>
 
     <template #item.assignmentsSubmitted="{item}">
-      <div v-if="item.enrollment && item.enrollment.canvasSites.length" class="flex-col h-100 pl-2">
+      <div v-if="item.enrollment && item.enrollment.canvasSites.length" class="h-100 pl-2">
         <div
-          v-for="canvasSite in item.enrollment.canvasSites"
-          :key="canvasSite.canvasCourseId"
+          v-for="(canvasSite, index) in item.enrollment.canvasSites"
+          :key="index"
           :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length}`"
         >
-          <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
-            {{ canvasSite.courseCode }}
-          </span>
-          <StudentBoxplot
-            v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
-            :chart-description="`Chart of ${item.firstName} ${item.lastName}'s assignments submitted in ${canvasSite.courseCode}`"
-            :dataset="canvasSite.analytics.assignmentsSubmitted"
-            :numeric-id="`${item.uid}-${canvasSite.canvasCourseId}-assignments`"
-          />
-          <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
-            <div>User score: {{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</div>
-            <div>Maximum:  {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }}</div>
-            <div>70th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[7] }}</div>
-            <div>50th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[5] }}</div>
-            <div>30th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[3] }}</div>
-            <div>Minimum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[0] }}</div>
-          </div>
-          <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="font-size-14 text-no-wrap">
-            <div v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
-              <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-              <span class="text-grey">
-                (Max: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
-              </span>
+          <div :class="{'border-t-sm': index}">
+            <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
+              {{ canvasSite.courseCode }}
+            </span>
+            <StudentBoxplot
+              v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
+              :chart-description="`Chart of ${item.firstName} ${item.lastName}'s assignments submitted in ${canvasSite.courseCode}`"
+              :dataset="canvasSite.analytics.assignmentsSubmitted"
+              :numeric-id="`${item.uid}-${canvasSite.canvasCourseId}-assignments`"
+            />
+            <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
+              <div>User score: {{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</div>
+              <div>Maximum:  {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }}</div>
+              <div>70th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[7] }}</div>
+              <div>50th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[5] }}</div>
+              <div>30th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[3] }}</div>
+              <div>Minimum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[0] }}</div>
             </div>
-            <div v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles">
-              No Data
+            <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="font-size-14 text-no-wrap">
+              <div v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
+                <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
+                <span class="text-grey">
+                  (Max: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
+                </span>
+              </div>
+              <div v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles">
+                No Data
+              </div>
             </div>
           </div>
         </div>
@@ -205,39 +212,40 @@
     </template>
 
     <template #item.assignmentGrades="{item}">
-      <div v-if="item.enrollment" class="flex-column h-100 pl-2">
+      <div v-if="item.enrollment" class="h-100 pl-2">
         <div
-          v-for="canvasSite in item.enrollment.canvasSites"
-          :key="canvasSite.canvasCourseId"
+          v-for="(canvasSite, index) in item.enrollment.canvasSites"
+          :key="index"
           :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length}`"
         >
-          <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
-            {{ canvasSite.courseCode }}
-          </span>
-          <StudentBoxplot
-            v-if="canvasSite.analytics.currentScore.boxPlottable"
-            :chart-description="`Chart of ${item.firstName} ${item.lastName}'s assignment grades in ${canvasSite.courseCode}`"
-            class="mt-1"
-            :dataset="canvasSite.analytics.currentScore"
-            :numeric-id="`${item.uid}-${canvasSite.canvasCourseId}`"
-          />
-          <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
-            <div>User score: {{ canvasSite.analytics.currentScore.student.raw }}</div>
-            <div>Maximum:  {{ canvasSite.analytics.currentScore.courseDeciles[10] }}</div>
-            <div>70th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[7] }}</div>
-            <div>50th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[5] }}</div>
-            <div>30th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[3] }}</div>
-            <div>Minimum: {{ canvasSite.analytics.currentScore.courseDeciles[0] }}</div>
-          </div>
-          <div v-if="!canvasSite.analytics.currentScore.boxPlottable" class="font-size-14">
-            <div v-if="canvasSite.analytics.currentScore.courseDeciles">
-              Score: <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
-              <div class="text-grey">
-                (Max: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
-              </div>
+          <div :class="{'border-t-sm': index}">
+            <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
+              {{ canvasSite.courseCode }}
+            </span>
+            <StudentBoxplot
+              v-if="canvasSite.analytics.currentScore.boxPlottable"
+              :chart-description="`Chart of ${item.firstName} ${item.lastName}'s assignment grades in ${canvasSite.courseCode}`"
+              :dataset="canvasSite.analytics.currentScore"
+              :numeric-id="`${item.uid}-${canvasSite.canvasCourseId}`"
+            />
+            <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
+              <div>User score: {{ canvasSite.analytics.currentScore.student.raw }}</div>
+              <div>Maximum:  {{ canvasSite.analytics.currentScore.courseDeciles[10] }}</div>
+              <div>70th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[7] }}</div>
+              <div>50th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[5] }}</div>
+              <div>30th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[3] }}</div>
+              <div>Minimum: {{ canvasSite.analytics.currentScore.courseDeciles[0] }}</div>
             </div>
-            <div v-if="!canvasSite.analytics.currentScore.courseDeciles">
-              No Data
+            <div v-if="!canvasSite.analytics.currentScore.boxPlottable" class="font-size-14">
+              <div v-if="canvasSite.analytics.currentScore.courseDeciles">
+                Score: <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
+                <div class="text-grey">
+                  (Max: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
+                </div>
+              </div>
+              <div v-if="!canvasSite.analytics.currentScore.courseDeciles">
+                No Data
+              </div>
             </div>
           </div>
         </div>
@@ -247,7 +255,7 @@
     </template>
 
     <template #item.bCourses="{item}">
-      <div v-if="item.enrollment" class="flex-col font-size-14">
+      <div v-if="item.enrollment" class="font-size-14">
         <div
           v-for="canvasSite in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
@@ -292,7 +300,7 @@ import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
 import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDays} from '@/berkeley'
-import {each, get, map, split, uniq} from 'lodash'
+import {each, get, map, size, split, uniq} from 'lodash'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {mdiAlertRhombus, mdiSchool} from '@mdi/js'
 import {onMounted, ref} from 'vue'
@@ -352,18 +360,15 @@ const degreePlanOwners = student => {
   height: 100%;
 }
 .height-when-canvas-site-count-2 {
-  border-top: 1px solid lightgrey;
   min-height: 50%;
 }
 .height-when-canvas-site-count-3 {
   min-height: 33%;
 }
 .height-when-canvas-site-count-4 {
-  border-top: 1px solid lightgrey;
   min-height: 25%;
 }
 .height-when-canvas-site-count-5 {
-  border-top: 1px solid lightgrey;
   min-height: 20%;
 }
 .student-avatar-container {
