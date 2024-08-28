@@ -19,7 +19,6 @@
       <option
         :id="`batch-note-${type}-option-null`"
         :value="null"
-        @select="onChangeSelect"
       >
         Select...
       </option>
@@ -30,7 +29,6 @@
         :aria-label="`Add ${type} ${object.name}`"
         :disabled="!!find(added, ['id', object.id])"
         :value="object"
-        @select="onChangeSelect"
       >
         {{ object.name }}
       </option>
@@ -63,7 +61,7 @@
 <script setup>
 import {find, findIndex} from 'lodash'
 import {mdiCloseCircle} from '@mdi/js'
-import {ref} from 'vue'
+import {ref, watch} from 'vue'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
@@ -91,11 +89,13 @@ const header = props.isCuratedGroupsMode ? 'Curated Group' : 'Cohort'
 const selected = ref(null)
 const type = props.isCuratedGroupsMode ? 'curated' : 'cohort'
 
-const onChangeSelect = () => {
-  added.value.push(selected.value)
-  props.update(added.value)
-  selected.value = null
-}
+watch(selected, value => {
+  if (value) {
+    added.value.push(selected.value)
+    props.update(added.value)
+    selected.value = null
+  }
+})
 
 const remove = object => {
   const index = findIndex(added.value, {'id': object.id})
