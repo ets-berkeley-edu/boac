@@ -7,10 +7,8 @@
         aria-label="Input UID of an authorized user"
         aria-required="true"
         class="form-input"
-        density="compact"
         hide-details
         placeholder="UID"
-        variant="outlined"
         @update:model-value="() => reportError(null)"
       />
       <v-text-field
@@ -20,12 +18,10 @@
         aria-label="Password"
         aria-required="true"
         class="form-input"
-        density="compact"
         :disabled="isLoggingIn"
         hide-details
         placeholder="Password"
         type="password"
-        variant="outlined"
         @update:model-value="() => reportError(null)"
       />
       <v-btn

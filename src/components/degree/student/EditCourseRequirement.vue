@@ -40,10 +40,8 @@
         id="grade-input"
         v-model="grade"
         class="grade-input"
-        density="compact"
         hide-details
         maxlength="3"
-        variant="outlined"
         @keydown.enter="onSubmit"
       />
     </div>

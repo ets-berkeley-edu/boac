@@ -13,6 +13,7 @@ import {DateTime} from 'luxon'
 import {get, trim} from 'lodash'
 import {getServiceAnnouncement} from '@/api/config'
 import {initializeAxios} from './main-utils'
+import {setupCalendar} from 'v-calendar'
 import {useContextStore} from '@/stores/context'
 import linkifyHtml from 'linkify-html'
 
@@ -20,6 +21,7 @@ const app = createApp(App)
   .use(axiosPlugin, {baseUrl: import.meta.env.VITE_APP_API_BASE_URL})
   .use(CKEditor)
   .use(createPinia())
+  .use(setupCalendar, {})
   .use(VueHighcharts, {Highcharts})
   .use(vuetify)
   .directive('accessibleGrade', {

@@ -59,13 +59,11 @@
           :aria-describedby="`filter-range-min-placeholder-${position}`"
           autocomplete="off"
           class="bg-white"
-          density="compact"
           hide-actions
           hide-details
           :max="rangeMax"
           placeholder="MM/DD/YYYY"
           prepend-icon=""
-          variant="outlined"
         />
         <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
           {{ rangeMaxLabel() }}
@@ -80,13 +78,11 @@
           :aria-required="true"
           autocomplete="off"
           class="bg-white"
-          density="compact"
           hide-actions
           hide-details
           :min="rangeMin"
           placeholder="MM/DD/YYYY"
           prepend-icon=""
-          variant="outlined"
         />
       </div>
       <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
@@ -98,11 +94,9 @@
             :id="`filter-range-min-${position}`"
             v-model="rangeMin"
             bg-color="white"
-            density="compact"
             hide-details
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
-            variant="outlined"
           />
         </div>
         <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
@@ -113,11 +107,9 @@
             :id="`filter-range-max-${position}`"
             v-model="rangeMax"
             bg-color="white"
-            density="compact"
             hide-details
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
-            variant="outlined"
           />
         </div>
       </div>

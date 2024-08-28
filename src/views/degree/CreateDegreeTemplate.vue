@@ -17,7 +17,6 @@
         :disabled="isBusy"
         hide-details
         maxlength="255"
-        variant="outlined"
         @keydown.enter="create"
       />
       <div class="pl-2">

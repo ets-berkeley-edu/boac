@@ -23,7 +23,6 @@
       :rules="[rules.required]"
       size="255"
       validate-on="submit"
-      variant="outlined"
       @input="onInput"
       @keydown.esc="cancelRequested"
     />

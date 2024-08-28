@@ -19,6 +19,7 @@
     </template>
   </v-tooltip>
   <v-dialog
+    id="advanced-search-modal"
     v-model="showAdvancedSearchModel"
     aria-labelledby="advanced-search-header"
     persistent
@@ -44,7 +45,7 @@
               autocomplete="off"
               clearable
               density="comfortable"
-              :disabled="searchStore.isSearching || validDateRange === false"
+              :disabled="searchStore.isSearching"
               hide-details
               hide-no-data
               :items="searchStore.searchHistory"
@@ -87,7 +88,7 @@
                       </option>
                     </select>
                   </div>
-                  <div class="mt-4">
+                  <div class="pt-4">
                     <label class="form-control-label" for="note-filters-posted-by">Posted By</label>
                     <v-radio-group
                       id="note-filters-posted-by"
@@ -119,7 +120,7 @@
                       />
                     </v-radio-group>
                   </div>
-                  <div class="mt-2 w-75">
+                  <div class="pt-2 w-75">
                     <label class="form-control-label" for="search-options-note-filters-author">Advisor</label>
                     <span id="notes-search-author-input-label" class="sr-only">
                       Select note author from list of suggested advisors.
@@ -136,7 +137,7 @@
                       :placeholder="searchStore.postedBy === 'you' ? currentUser.name : 'Enter name...'"
                     />
                   </div>
-                  <div class="mt-3 w-75">
+                  <div class="pt-3 w-75">
                     <label class="form-control-label" for="search-options-note-filters-student">
                       Student (name or SID)
                     </label>
@@ -153,76 +154,44 @@
                       placeholder="Enter name or SID..."
                     />
                   </div>
-                  <div class="mt-3">
-                    <label class="form-control-label" for="search-options-note-filters-last-updated-from">
+                  <div class="pt-3">
+                    <label id="search-options-date-range-label" class="form-control-label">
                       Date Range
                     </label>
-                    <div class="date-input-opacity-override align-center d-flex mt-2">
+                    <div class="align-center d-flex mt-2">
                       <label
-                        id="note-filters-date-from-label"
+                        id="search-options-from-date-label"
                         class="text-black mr-2"
-                        for="search-options-note-filters-last-updated-from"
+                        for="search-options-from-date-input"
                       >
                         <span class="sr-only">Date</span>
                         From
                       </label>
-                      <v-date-input
-                        id="search-options-note-filters-last-updated-from"
-                        v-model="fromDateModel"
-                        autocomplete="off"
-                        clearable
-                        density="compact"
-                        :disabled="searchStore.isSearching"
-                        hide-actions
-                        hide-details
-                        :max="searchStore.toDate || new Date()"
-                        placeholder="MM/DD/YYYY"
-                        prepend-icon=""
-                        variant="outlined"
-                        @update:model-value="focusOnDate('from')"
-                      />
-                      <div class="sr-only">
-                        <v-btn
-                          id="search-options-note-filters-last-updated-from-clear"
-                          :disabled="!searchStore.fromDate"
-                          text="Clear the 'from' date."
-                          @click="() => searchStore.setFromDate(null)"
-                        />
-                      </div>
+                      <AccessibleDateInput
+                        aria-describedby="search-options-date-range-label"
+                        container-id="advanced-search-modal"
+                        :get-value="() => searchStore.fromDate"
+                        input-id="search-options-from-date-input"
+                        :max-date="searchStore.toDate || new Date()"
+                        :set-value="v => searchStore.setFromDate(v)"
+                      ></AccessibleDateInput>
                       <label
-                        id="note-filters-date-to-label"
-                        for="search-options-note-filters-last-updated-to"
+                        id="search-options-to-date-label"
                         class="mx-2 text-black"
+                        for="search-options-to-date-input"
                       >
                         <span class="sr-only">Date</span>
                         to
                       </label>
-                      <v-date-input
-                        id="search-options-note-filters-last-updated-to"
-                        v-model="toDateModel"
-                        autocomplete="off"
-                        clearable
-                        density="compact"
-                        :disabled="searchStore.isSearching"
-                        hide-actions
-                        hide-details
-                        :input-debounce="500"
-                        :max="new Date()"
-                        :min="searchStore.fromDate"
-                        placeholder="MM/DD/YYYY"
-                        prepend-icon=""
-                        variant="outlined"
-                        @update:model-value="focusOnDate('to')"
-                      />
-                      <div class="sr-only">
-                        <v-btn
-                          id="search-options-note-filters-last-updated-to-clear"
-                          :disabled="isNil(searchStore.toDate)"
-                          text="Clear the 'to' date"
-                          variant="text"
-                          @click="searchStore.toDate = null"
-                        />
-                      </div>
+                      <AccessibleDateInput
+                        aria-describedby="search-options-date-range-label"
+                        container-id="advanced-search-modal"
+                        :get-value="() => searchStore.toDate"
+                        input-id="search-options-to-date-input"
+                        :max-date="new Date()"
+                        :min-date="searchStore.fromDate"
+                        :set-value="v => searchStore.setToDate(v)"
+                      ></AccessibleDateInput>
                     </div>
                   </div>
                 </div>
@@ -244,7 +213,7 @@
           <ProgressButton
             id="advanced-search"
             :action="search"
-            :disabled="searchStore.isSearching || allOptionsUnchecked || (searchInputRequired && !trim(searchStore.queryText))"
+            :disabled="isSearchDisabled"
             :in-progress="searchStore.isSearching"
             :text="searchStore.isSearching ? 'Searching...' : 'Search'"
           />
@@ -263,6 +232,7 @@
 </template>
 
 <script setup>
+import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import AdvancedSearchCheckboxes from '@/components/search/AdvancedSearchCheckboxes'
 import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
 import Autocomplete from '@/components/util/Autocomplete.vue'
@@ -274,7 +244,7 @@ import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop} from '@/l
 import {computed, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {findStudentsByNameOrSid} from '@/api/student'
-import {isNil, trim} from 'lodash'
+import {isDate, trim} from 'lodash'
 import {labelForSearchInput} from '@/lib/search'
 import {mdiTune} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
@@ -298,7 +268,13 @@ const authorModel = computed(() => ({
     searchStore.setAuthor(value)
   }
 }))
-const fromDateModel = computed({get: () => searchStore.fromDate, set: v => searchStore.setFromDate(v)})
+const isSearchDisabled = computed(() => {
+  return (
+    searchStore.isSearching || allOptionsUnchecked.value ||
+    (searchInputRequired.value && !trim(searchStore.queryText)) ||
+    !validDateRange.value
+  )
+})
 const queryTextModel = computed({get: () => searchStore.queryText, set: v => searchStore.setQueryText(v)})
 const searchInputRequired = computed(() => {
   return !searchStore.includeNotes || !(searchStore.author || searchStore.fromDate || searchStore.toDate || searchStore.postedBy !== 'anyone' || searchStore.student || searchStore.topic)
@@ -306,14 +282,13 @@ const searchInputRequired = computed(() => {
 const showAdvancedSearchModel = computed({get: () => !!searchStore.showAdvancedSearch, set: v => searchStore.setShowAdvancedSearch(v)})
 const studentModel = computed({get: () => searchStore.student, set: v => searchStore.setStudent(v)})
 const topicModel = computed({get: () => searchStore.topic, set: v => searchStore.setTopic(v)})
-const toDateModel = computed({get: () => searchStore.toDate, set: v => searchStore.setToDate(v)})
 const validDateRange = computed(() => {
-  if (!searchStore.fromDate || !searchStore.toDate) {
-    return null
-  } else if (searchStore.toDate < searchStore.fromDate) {
+  if (isDate(searchStore.fromDate) && isDate(searchStore.toDate) && (searchStore.toDate < searchStore.fromDate)) {
+    return false
+  } else if ((searchStore.fromDate && !isDate(searchStore.fromDate)) || (searchStore.toDate && !isDate(searchStore.toDate))) {
     return false
   } else {
-    return null
+    return true
   }
 })
 
@@ -322,6 +297,7 @@ watch(() => searchStore.showAdvancedSearch, value => {
     putFocusNextTick('advanced-search-close')
   } else {
     searchStore.resetAutocompleteInput()
+    alertScreenReader('Closed advanced search')
     putFocusNextTick('search-options-panel-toggle')
   }
 })
@@ -329,17 +305,8 @@ watch(() => searchStore.showAdvancedSearch, value => {
 const cancel = () => {
   searchStore.setShowAdvancedSearch(false)
   searchStore.resetAutocompleteInput()
-  setTimeout(reset, 100)
+  setTimeout(() => reset(true), 100)
 }
-
-const focusOnDate = (type) => {
-  if (type === 'from') {
-    putFocusNextTick('search-options-note-filters-last-updated-from')
-  } else if (type === 'to') {
-    putFocusNextTick('search-options-note-filters-last-updated-to')
-  }
-}
-
 
 const openAdvancedSearch = () => {
   searchStore.setShowAdvancedSearch(true)

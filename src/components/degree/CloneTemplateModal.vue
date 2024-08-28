@@ -22,10 +22,10 @@
               v-model="name"
               aria-labelledby="degree-name-input-label"
               class="mt-2 name-input"
+              density="default"
               :disabled="isSaving"
               hide-details
               maxlength="255"
-              variant="outlined"
               @keydoown.enter="() => name.length && createClone()"
               @keyup.esc="cancel"
             />

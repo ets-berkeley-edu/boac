@@ -10,5 +10,6 @@ import DismissibleFooterAlert from '@/components/util/DismissibleFooterAlert'
 <style>
 @import "@/assets/styles/global.css";
 @import "@/assets/styles/ckeditor-custom.css";
+@import 'v-calendar/style.css';
 @import "@/assets/styles/vcalendar-custom.css";
 </style>

@@ -25,12 +25,10 @@
           :aria-invalid="!isValidUnits(unitsLower, max)"
           :aria-autocomplete="false"
           aria-labelledby="units-input-label"
-          density="compact"
           :disabled="disable"
           hide-details
           maxlength="3"
           min-width="60"
-          variant="outlined"
           @keydown.enter="onSubmit"
           @keyup.esc="onEscape"
           @update:model-value="setUnitsLower"
@@ -45,12 +43,10 @@
           v-model="unitsUpperModel"
           :aria-invalid="!isValidUnits(unitsUpper)"
           aria-labelledby="units-input-label"
-          density="compact"
           :disabled="disable"
           hide-details
           maxlength="3"
           min-width="60"
-          variant="outlined"
           @keydown.enter="onSubmit"
           @update:model-value="setUnitsUpper"
         />
