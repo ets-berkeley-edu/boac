@@ -116,6 +116,15 @@ const query = ref(undefined)
 const sidsManuallyAdded = ref([])
 const vAutocompleteKey = ref(new Date())
 
+const addStudent = student => {
+  noteStore.setIsRecalculating(true)
+  addedStudents.value.push(student)
+  setNoteRecipient(student.sid).then(() => {
+    alertScreenReader(`${student.label} added to batch note`)
+    resetAutocomplete()
+  })
+}
+
 const resetAutocomplete = () => {
   autoSuggestedStudents.value = []
   isUpdatingStudentAutocomplete.value = false
@@ -127,12 +136,7 @@ const resetAutocomplete = () => {
 const onUpdateModel = sid => {
   const student = sid ? find(autoSuggestedStudents.value, ['sid', sid]) : null
   if (student && !noteStore.recipients.sids.includes(student.sid)) {
-    noteStore.setIsRecalculating(true)
-    addedStudents.value.push(student)
-    setNoteRecipient(sid).then(() => {
-      alertScreenReader(`${student.label} added to batch note`)
-      resetAutocomplete()
-    })
+    addStudent(student)
   } else {
     resetAutocomplete()
   }
@@ -141,7 +145,9 @@ const onUpdateModel = sid => {
 onMounted(() => {
   const sids = noteStore.recipients.sids
   if (sids.length) {
-    getStudentsBySids(sids).then(students => each(students, s => onUpdateModel(s.sid)))
+    getStudentsBySids(sids).then(students => {
+      each(students, student => addStudent(student))
+    })
   }
 })
 

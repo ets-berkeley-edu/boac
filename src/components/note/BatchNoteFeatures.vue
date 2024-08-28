@@ -1,50 +1,50 @@
 <template>
   <div>
     <div
-      v-if="totalRecipientCount || useNoteStore().recipients.cohorts.length || useNoteStore().recipients.curatedGroups.length"
+      v-if="totalRecipientCount || recipients.cohorts.length || recipients.curatedGroups.length"
       aria-live="polite"
       role="alert"
     >
       <transition
         id="target-student-count-alert"
         :class="{
-          'text-error': useNoteStore().mode !== 'editDraft' && totalRecipientCount >= 250,
-          'font-weight-bold': useNoteStore().mode !== 'editDraft' && totalRecipientCount >= 500
+          'text-error': noteStore.mode !== 'editDraft' && totalRecipientCount >= 250,
+          'font-weight-bold': noteStore.mode !== 'editDraft' && totalRecipientCount >= 500
         }"
         class="font-size-14 font-italic pb-2"
         name="alert"
       >
-        <div v-if="!useNoteStore().isRecalculating && totalRecipientCount">
-          <span v-if="useNoteStore().mode !== 'editDraft'">
+        <div v-if="!noteStore.isRecalculating && totalRecipientCount">
+          <span v-if="noteStore.mode !== 'editDraft'">
             <span v-if="totalRecipientCount < 500">This note will be attached</span>
             <span v-if="totalRecipientCount >= 500">Are you sure you want to attach this note</span>
             to {{ pluralize('student record', totalRecipientCount) }}{{ totalRecipientCount >= 500 ? '?' : '.' }}
           </span>
-          <div v-if="!['editTemplate'].includes(useNoteStore().mode) && totalRecipientCount > 1" class="pt-1">
+          <div v-if="!['editTemplate'].includes(noteStore.mode) && totalRecipientCount > 1" class="pt-1">
             <span class="font-weight-bold text-error">Important: </span>
             <span class="text-body">
-              {{ useNoteStore().mode === 'editDraft' ? 'Updating this draft' : 'Saving as a draft' }} will retain the content of your note
+              {{ noteStore.mode === 'editDraft' ? 'Updating this draft' : 'Saving as a draft' }} will retain the content of your note
               but not the associated students.
             </span>
           </div>
         </div>
       </transition>
       <div class="mt-1">
-        <span v-if="!totalRecipientCount && (useNoteStore().recipients.cohorts.length || useNoteStore().recipients.curatedGroups.length)" class="font-italic">
+        <span v-if="!totalRecipientCount && (recipients.cohorts.length || recipients.curatedGroups.length)" class="font-italic">
           <span
-            v-if="useNoteStore().recipients.cohorts.length && !useNoteStore().recipients.curatedGroups.length"
+            v-if="recipients.cohorts.length && !recipients.curatedGroups.length"
             id="no-students-per-cohorts-alert"
-          >There are no students in the {{ pluralize('cohort', useNoteStore().recipients.cohorts.length, {1: ' '}) }}.</span>
+          >There are no students in the {{ pluralize('cohort', recipients.cohorts.length, {1: ' '}) }}.</span>
           <span
-            v-if="useNoteStore().recipients.curatedGroups.length && !useNoteStore().recipients.cohorts.length"
+            v-if="recipients.curatedGroups.length && !recipients.cohorts.length"
             id="no-students-per-curated-groups-alert"
-          >There are no students in the {{ pluralize('group', useNoteStore().recipients.curatedGroups.length, {1: ' '}) }}.</span>
+          >There are no students in the {{ pluralize('group', recipients.curatedGroups.length, {1: ' '}) }}.</span>
           <span
-            v-if="useNoteStore().recipients.cohorts.length && useNoteStore().recipients.curatedGroups.length"
+            v-if="recipients.cohorts.length && recipients.curatedGroups.length"
             id="no-students-alert"
           >
-            Neither the {{ pluralize('cohort', useNoteStore().recipients.cohorts.length, {1: ' '}) }}
-            nor the {{ pluralize('group', useNoteStore().recipients.curatedGroups.length, {1: ' '}) }} have students.
+            Neither the {{ pluralize('cohort', recipients.cohorts.length, {1: ' '}) }}
+            nor the {{ pluralize('group', recipients.curatedGroups.length, {1: ' '}) }} have students.
           </span>
         </span>
       </div>
@@ -73,93 +73,89 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import BatchNoteAddCohort from '@/components/note/BatchNoteAddCohort'
 import BatchNoteAddStudent from '@/components/note/BatchNoteAddStudent'
 import {alertScreenReader, pluralize} from '@/lib/utils'
-import {describeCuratedGroupDomain} from '@/berkeley'
 import {capitalize, differenceBy, findIndex, reject, size} from 'lodash'
+import {computed} from 'vue'
+import {describeCuratedGroupDomain} from '@/berkeley'
 import {setNoteRecipients} from '@/stores/note-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
-export default {
-  name: 'BatchNoteFeatures',
-  components: {
-    BatchNoteAddCohort,
-    BatchNoteAddStudent
-  },
-  props: {
-    discard: {
-      required: true,
-      type: Function
-    }
-  },
-  computed: {
-    nonAdmitCohorts() {
-      return reject(useContextStore().currentUser.myCohorts, {'domain': 'admitted_students'})
-    },
-    nonAdmitCuratedGroups() {
-      return reject(useContextStore().currentUser.myCuratedGroups, {'domain': 'admitted_students'})
-    },
-    totalRecipientCount() {
-      return size(useNoteStore().completeSidSet)
-    }
-  },
-  methods: {
-    pluralize,
-    removeCohort(cohort) {
-      const index = findIndex(useNoteStore().recipients.cohorts, {'id': cohort.id})
-      useNoteStore().recipients.cohorts.splice(index, 1)
-      setNoteRecipients(
-        useNoteStore().recipients.cohorts,
-        useNoteStore().recipients.curatedGroups,
-        useNoteStore().recipients.sids
-      ).then(() => {
-        alertScreenReader(`Removed cohort '${cohort.name}'`)
-      })
-    },
-    removeCuratedGroup(curatedGroup) {
-      const index = findIndex(useNoteStore().recipients.curatedGroups, {'id': curatedGroup.id})
-      useNoteStore().recipients.curatedGroups.splice(index, 1)
-      setNoteRecipients(
-        useNoteStore().recipients.cohorts,
-        useNoteStore().recipients.curatedGroups,
-        useNoteStore().recipients.sids
-      ).then(() => {
-        alertScreenReader(`Removed ${capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}'`)
-      })
-    },
-    size,
-    updateCohorts(cohorts) {
-      const cohort = differenceBy(cohorts, useNoteStore().recipients.cohorts, 'id')
-      if (size(cohorts) > size(useNoteStore().recipients.cohorts)) {
-        setNoteRecipients(
-          useNoteStore().recipients.cohorts.concat(cohort),
-          useNoteStore().recipients.curatedGroups,
-          useNoteStore().recipients.sids
-        ).then(() => {
-          alertScreenReader(`Added cohort '${cohort.name}'`)
-        })
-      } else {
-        this.removeCohort(cohort)
-      }
-    },
-    updateCuratedGroups(curatedGroups) {
-      const curatedGroup = differenceBy(curatedGroups, useNoteStore().recipients.curatedGroups, 'id')
-      if (size(curatedGroups) > size(useNoteStore().recipients.curatedGroups)) {
-        setNoteRecipients(
-          useNoteStore().recipients.cohorts,
-          useNoteStore().recipients.curatedGroups.concat(curatedGroup),
-          useNoteStore().recipients.sids
-        ).then(() => {
-          alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
-        })
-      } else {
-        this.removeCuratedGroup(curatedGroup)
-      }
-    },
-    useNoteStore
+defineProps({
+  discard: {
+    required: true,
+    type: Function
+  }
+})
+
+const contextStore = useContextStore()
+const noteStore = useNoteStore()
+const recipients = noteStore.recipients
+
+const nonAdmitCohorts = computed(() => {
+  return reject(contextStore.currentUser.myCohorts, {'domain': 'admitted_students'})
+})
+const nonAdmitCuratedGroups = computed(() => {
+  return reject(contextStore.currentUser.myCuratedGroups, {'domain': 'admitted_students'})
+})
+const totalRecipientCount = computed(() => {
+  return size(noteStore.completeSidSet)
+})
+
+const removeCohort = cohort => {
+  const index = findIndex(recipients.cohorts, {'id': cohort.id})
+  recipients.cohorts.splice(index, 1)
+  setNoteRecipients(
+    recipients.cohorts,
+    recipients.curatedGroups,
+    recipients.sids
+  ).then(() => {
+    alertScreenReader(`Removed cohort '${cohort.name}'`)
+  })
+}
+
+const removeCuratedGroup = curatedGroup => {
+  const index = findIndex(recipients.curatedGroups, {'id': curatedGroup.id})
+  recipients.curatedGroups.splice(index, 1)
+  setNoteRecipients(
+    recipients.cohorts,
+    recipients.curatedGroups,
+    recipients.sids
+  ).then(() => {
+    alertScreenReader(`Removed ${capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}'`)
+  })
+}
+
+const updateCohorts = cohorts => {
+  const cohort = differenceBy(cohorts, recipients.cohorts, 'id')
+  if (size(cohorts) > size(recipients.cohorts)) {
+    setNoteRecipients(
+      recipients.cohorts.concat(cohort),
+      recipients.curatedGroups,
+      recipients.sids
+    ).then(() => {
+      alertScreenReader(`Added cohort '${cohort.name}'`)
+    })
+  } else {
+    removeCohort(cohort)
+  }
+}
+
+const updateCuratedGroups = curatedGroups => {
+  const curatedGroup = differenceBy(curatedGroups, recipients.curatedGroups, 'id')
+  if (size(curatedGroups) > size(recipients.curatedGroups)) {
+    setNoteRecipients(
+      recipients.cohorts,
+      recipients.curatedGroups.concat(curatedGroup),
+      recipients.sids
+    ).then(() => {
+      alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
+    })
+  } else {
+    removeCuratedGroup(curatedGroup)
   }
 }
 </script>
