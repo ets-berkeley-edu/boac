@@ -32,12 +32,20 @@ class AcademicStanding(object):
         self.data = data
 
     @property
-    def standing(self):
-        return self.data['standing']
+    def code(self):
+        return self.data['code']
 
-    @standing.setter
-    def standing(self, value):
-        self.data['standing'] = value
+    @code.setter
+    def code(self, value):
+        self.data['code'] = value
+
+    @property
+    def descrip(self):
+        return self.data['descrip']
+
+    @descrip.setter
+    def descrip(self, value):
+        self.data['descrip'] = value
 
     @property
     def term(self):

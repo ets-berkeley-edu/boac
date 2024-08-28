@@ -29,6 +29,14 @@ from bea.models.person import Person
 class Student(Person):
 
     @property
+    def academic_standings(self):
+        return self.data['academic_standings']
+
+    @academic_standings.setter
+    def academic_standings(self, value):
+        self.data['academic_standings'] = value
+
+    @property
     def admit_data(self):
         return self.data['admit_data']
 
