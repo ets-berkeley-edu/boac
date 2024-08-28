@@ -114,6 +114,7 @@ export default {
       advisorCsid: undefined,
       advisorUid: undefined,
       studentCsid: undefined,
+      departmentCodes: undefined,
       topic: undefined,
       dateFrom: undefined,
       dateTo: undefined,
@@ -154,6 +155,7 @@ export default {
       this.noteAndAppointmentOptions.advisorCsid = this.$route.query.advisorCsid
       this.noteAndAppointmentOptions.advisorUid = this.$route.query.advisorUid
       this.noteAndAppointmentOptions.studentCsid = this.$route.query.studentCsid
+      this.noteAndAppointmentOptions.departmentCodes = this.$route.query.departmentCodes
       this.noteAndAppointmentOptions.topic = this.$route.query.noteTopic
       this.noteAndAppointmentOptions.dateFrom = this.$route.query.noteDateFrom
       this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo

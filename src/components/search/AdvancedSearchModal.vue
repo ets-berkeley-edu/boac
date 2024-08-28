@@ -97,7 +97,7 @@
                       Anyone
                     </b-form-radio>
                   </div>
-                  <div>
+                  <div class="mr-2">
                     <b-form-radio
                       id="search-options-note-filters-posted-by-you"
                       class="z-index-0"
@@ -108,6 +108,18 @@
                       @change.native="() => setAuthor(null)"
                     >
                       You
+                    </b-form-radio>
+                  </div>
+                  <div class="mr-2">
+                    <b-form-radio
+                      id="search-options-note-filters-posted-by-your-department"
+                      class="z-index-0"
+                      :ischecked="postedBy === 'yourDepartment'"
+                      :disabled="isSearching"
+                      name="note-filters-posted-by"
+                      value="yourDepartment"
+                    >
+                      Your Department(s)
                     </b-form-radio>
                   </div>
                 </div>
@@ -382,6 +394,10 @@ export default {
           } else if (this.author) {
             query.advisorCsid = this.author.sid
             query.advisorUid = this.author.uid
+          } else if (this.postedBy === 'yourDepartment') {
+            if (this.currentUser.departments && this.currentUser.departments.length > 0) {
+              query.departmentCodes = this.currentUser.departments.map((department) => department.code)
+            }
           }
           if (this.student) {
             query.studentCsid = this.student.sid
