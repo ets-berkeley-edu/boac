@@ -148,7 +148,6 @@
                 id="rename-template-input"
                 v-model="updatedTemplateTitle"
                 counter="255"
-                density="compact"
                 :disabled="isSaving"
                 label="Template name"
                 maxlength="255"
@@ -157,7 +156,6 @@
                   v => !!v || 'Template name is required',
                   v => !v || v.length <= 255 || 'Template name cannot exceed 255 characters.'
                 ]"
-                variant="outlined"
               >
                 <template #counter="{max, value}">
                   <div id="rename-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">

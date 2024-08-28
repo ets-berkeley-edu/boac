@@ -38,11 +38,9 @@
           <v-text-field
             :id="`column-${position}-name-input`"
             v-model="name"
-            density="compact"
             :disabled="isSaving"
             hide-details
             maxlength="255"
-            variant="outlined"
             @keydown.enter="onSubmit"
           />
           <div class="pl-1">
@@ -110,13 +108,11 @@
           <v-textarea
             :id="`column-${position}-description-input`"
             v-model="descriptionText"
-            density="compact"
             :disabled="isSaving"
             hide-details
             maxlength="255"
             max-rows="6"
             rows="4"
-            variant="outlined"
           />
         </div>
       </div>

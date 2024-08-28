@@ -11,10 +11,8 @@
         id="course-name-input"
         v-model="name"
         class="cohort-create-input-name"
-        density="compact"
         hide-details
         maxlength="255"
-        variant="outlined"
       />
       <div class="text-grey mb-2"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
       <div
@@ -67,10 +65,8 @@
         id="course-grade-input"
         v-model="grade"
         class="grade-input"
-        density="compact"
         hide-details
         maxlength="3"
-        variant="outlined"
         @keydown.enter="update"
       />
     </div>

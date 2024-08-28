@@ -1,6 +1,7 @@
 import './main.scss'
 import {aliases, mdi} from 'vuetify/iconsets/mdi-svg'
 import {createVuetify} from 'vuetify'
+import {DatePicker} from 'v-calendar'
 import {Intersect, Resize} from 'vuetify/directives'
 import {VAlert} from 'vuetify/components/VAlert'
 import {VAppBar, VAppBarNavIcon, VAppBarTitle} from 'vuetify/components/VAppBar'
@@ -43,6 +44,7 @@ import colors from 'vuetify/lib/util/colors'
 
 export default createVuetify({
   components: {
+    DatePicker,
     VApp,
     VAppBar,
     VAppBarNavIcon,
@@ -104,6 +106,10 @@ export default createVuetify({
     VMenu: {
       attach: true,
       location: 'top'
+    },
+    VTextField: {
+      density: 'compact',
+      variant: 'outlined'
     }
   },
   directives: {

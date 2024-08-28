@@ -22,7 +22,6 @@
               aria-required="true"
               class="v-input-details-override"
               counter="255"
-              density="compact"
               :disabled="isSaving"
               label="Name"
               maxlength="255"
@@ -31,7 +30,6 @@
               :rules="[validate]"
               type="text"
               validate-on="lazy input"
-              variant="outlined"
               @keyup.esc="cancel"
             >
               <template #counter="{max, value}">

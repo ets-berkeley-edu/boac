@@ -21,7 +21,6 @@
         required
         :rules="[validationRules.valid]"
         validate-on="lazy input"
-        variant="outlined"
         @keyup.enter="submit"
         @keyup.esc="cancel"
       />

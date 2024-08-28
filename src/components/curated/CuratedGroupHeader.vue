@@ -19,12 +19,10 @@
               :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
               :aria-required="true"
               class="mr-3"
-              density="compact"
               :disabled="isSaving"
               hide-details
               maxlength="255"
               required
-              variant="outlined"
               @keyup.enter="rename"
               @keyup.esc="exitRenameMode"
             />

@@ -48,10 +48,8 @@
               <v-text-field
                 id="uid-input"
                 v-model="userProfile.uid"
-                density="compact"
                 hide-details
                 label="UID"
-                variant="outlined"
                 width="50%"
               />
             </div>

@@ -75,9 +75,8 @@ Font Awesome to MDI
 
 ### b-form-input to v-text-field
 
-* Add property `variant="outlined"`
+* Global v-text-field properties (variant, density) are configured in vuetify.ts
 ** If the field is on a colored background, add `bg-color="white"`
-* The default `density` has a lot of padding. Consider using `density="comfortable"` or `density="compact"`
 
 ### b-form-textarea to v-textarea
 

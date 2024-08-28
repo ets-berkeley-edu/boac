@@ -35,11 +35,9 @@
         bg-color="pale-blue"
         class="academic-timeline-search-input"
         color="primary"
-        density="compact"
         flat
         hide-details
         type="search"
-        variant="outlined"
       />
     </div>
     <div v-if="showMyNotesToggle" class="pl-3 pb-2" role="separator">|</div>

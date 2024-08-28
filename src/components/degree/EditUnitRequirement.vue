@@ -14,11 +14,9 @@
         :aria-invalid="!name"
         aria-required="true"
         class="unit-requirement-name"
-        density="compact"
         hide-details
         maxlength="255"
         required
-        variant="outlined"
         @keydown.enter="unitRequirement ? update : create"
       />
       <div class="pl-2">

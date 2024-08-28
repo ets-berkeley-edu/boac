@@ -536,7 +536,7 @@ class TestUserSearch:
         fake_auth.login(admin_uid)
         calnet_users = list(calnet.get_calnet_users_for_uids(app, ['1081940']).values())
         last_name = calnet_users[0]['lastName']
-        api_json = self._api_users_autocomplete(client, f' {last_name[:3]}  ')
+        api_json = self._api_users_autocomplete(client, f' {last_name[:4]}  ')
         assert len(api_json) == 1
         assert api_json[0]['uid'] == calnet_users[0]['uid']
 

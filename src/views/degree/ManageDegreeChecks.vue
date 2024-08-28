@@ -87,12 +87,10 @@
                 aria-label="Input template name, 255 characters or fewer"
                 aria-required="true"
                 class="w-100"
-                density="compact"
                 :disabled="isRenaming"
                 hide-details
                 :maxlength="255"
                 required
-                variant="outlined"
                 @keydown.enter="() => templateForEdit.name.length && save()"
                 @keyup.esc="cancelEdit"
               />

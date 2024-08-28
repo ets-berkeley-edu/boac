@@ -45,7 +45,6 @@
               density="comfortable"
               hide-details
               maxlength="255"
-              variant="outlined"
             />
             <div class="text-grey mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
             <div
@@ -87,10 +86,8 @@
               :aria-autocomplete="false"
               aria-labelledby="units-grade-label"
               class="grade-input"
-              density="compact"
               hide-details
               maxlength="3"
-              variant="outlined"
               @keydown.enter="save"
             />
           </div>

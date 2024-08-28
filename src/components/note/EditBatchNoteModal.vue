@@ -39,11 +39,9 @@
               class="mt-1"
               :class="{'bg-light': isSaving}"
               color="primary"
-              density="compact"
               :disabled="isSaving || boaSessionExpired"
               maxlength="255"
               type="text"
-              variant="outlined"
               @input="setSubjectPerEvent"
             />
             <RichTextEditor
