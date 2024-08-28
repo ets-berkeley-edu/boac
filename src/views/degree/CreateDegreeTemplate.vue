@@ -22,7 +22,12 @@
       />
       <div class="pl-2">
         <span class="text-grey font-size-12">255 character limit <span v-if="templateName.length">({{ 255 - templateName.length }} left)</span></span>
-        <span v-if="templateName.length === 255" class="sr-only" aria-live="polite">
+        <span
+          v-if="templateName.length === 255"
+          aria-live="polite"
+          class="sr-only"
+          role="alert"
+        >
           Degree name cannot exceed 255 characters.
         </span>
       </div>

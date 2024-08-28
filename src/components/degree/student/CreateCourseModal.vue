@@ -59,8 +59,9 @@
             </div>
             <div
               v-if="name.length === 255"
-              class="sr-only"
               aria-live="polite"
+              class="sr-only"
+              role="alert"
             >
               Course name cannot exceed 255 characters.
             </div>

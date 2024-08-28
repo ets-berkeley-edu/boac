@@ -325,15 +325,16 @@ const openCreateCloneModal = template => {
 
 const save = () => {
   isRenaming.value = true
-  updateDegreeTemplate(templateForEdit.value.id, templateForEdit.value.name.trim()).then(() => {
+  const name = templateForEdit.value.name.trim()
+  updateDegreeTemplate(templateForEdit.value.id, name).then(() => {
     const templateId = templateForEdit.value.id
     templateForEdit.value = null
     getDegreeTemplates().then(data => {
       degreeTemplates.value = data
-      alertScreenReader('Template updated')
       isBusy.value = false
       isRenaming.value = false
       putFocusNextTick(`degree-check-${templateId}-rename-btn`)
+      alertScreenReader(`Saved changes to template ${name}`)
     })
   })
 }

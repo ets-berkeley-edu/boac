@@ -2,34 +2,31 @@
   <v-chip
     :aria-label="ariaLabel"
     class="pill-alert"
-    :class="outlined ? '' : 'pill-color-override'"
+    :class="{'pill-color-override': outlined}"
     :color="color"
     density="comfortable"
     :variant="outlined ? 'outlined' : 'flat'"
   >
-    <slot></slot>
+    <slot />
   </v-chip>
 </template>
 
-<script>
-export default {
-  name: 'PillAlert',
-  props: {
-    ariaLabel: {
-      required: true,
-      type: String
-    },
-    color: {
-      default: 'surface',
-      required: false,
-      type: String
-    },
-    outlined: {
-      required: false,
-      type: Boolean
-    }
+<script setup>
+defineProps({
+  ariaLabel: {
+    required: true,
+    type: String
+  },
+  color: {
+    default: 'surface',
+    required: false,
+    type: String
+  },
+  outlined: {
+    required: false,
+    type: Boolean
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>
