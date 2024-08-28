@@ -4,7 +4,7 @@
       <div v-if="mode !== 'rename'">
         <h1 id="curated-group-name" class="page-section-header mb-0 mt-0">
           {{ curatedGroupName || domainLabel(true) }}
-          <span v-if="!_isNil(totalStudentCount)" class="text-grey">
+          <span v-if="!isNil(totalStudentCount)" class="text-grey">
             ({{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount, {1: '1'}) }})
           </span>
         </h1>
@@ -33,7 +33,7 @@
             <v-btn
               id="rename-curated-group-confirm"
               color="primary"
-              :disabled="!_size(renameInput) || isSaving"
+              :disabled="!size(renameInput) || isSaving"
               text="Rename"
               @click="rename"
             />
@@ -50,11 +50,18 @@
           </div>
         </div>
         <div v-if="renameError" aria-live="polite" class="text-error ml-2 my-2">{{ renameError }}</div>
-        <div class="text-grey">255 character limit <span v-if="_size(renameInput)">({{ 255 - _size(renameInput) }} left)</span></div>
-        <span v-if="_size(renameInput) === 255" aria-live="polite" class="sr-only">Name cannot exceed 255 characters.</span>
+        <div class="text-grey">255 character limit <span v-if="size(renameInput)">({{ 255 - size(renameInput) }} left)</span></div>
+        <span
+          v-if="size(renameInput) === 255"
+          aria-live="polite"
+          class="sr-only"
+          role="alert"
+        >
+          Name cannot exceed 255 characters.
+        </span>
       </div>
       <div v-if="!mode" class="d-flex align-center">
-        <div v-if="isOwnedByCurrentUser">
+        <div v-if="ownerId === currentUser.id">
           <v-btn
             id="bulk-add-sids-button"
             class="px-1"
@@ -66,13 +73,13 @@
           </v-btn>
         </div>
         <div
-          v-if="isOwnedByCurrentUser"
+          v-if="ownerId === currentUser.id"
           class="text-grey"
           role="separator"
         >
           |
         </div>
-        <div v-if="isOwnedByCurrentUser">
+        <div v-if="ownerId === currentUser.id">
           <v-btn
             id="rename-curated-group-button"
             class="font-size-15 px-1"
@@ -82,8 +89,8 @@
             @click="enterRenameMode"
           />
         </div>
-        <div v-if="isOwnedByCurrentUser" class="text-grey">|</div>
-        <div v-if="isOwnedByCurrentUser">
+        <div v-if="ownerId === currentUser.id" class="text-grey">|</div>
+        <div v-if="ownerId === currentUser.id">
           <v-btn
             id="delete-curated-group-button"
             class="font-size-15 px-1"
@@ -117,7 +124,7 @@
             </ul>
           </AreYouSureModal>
         </div>
-        <div v-if="isOwnedByCurrentUser" class="text-grey">|</div>
+        <div v-if="ownerId === currentUser.id" class="text-grey">|</div>
         <div>
           <v-btn
             v-if="domain === 'default'"
@@ -178,147 +185,143 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
-import Context from '@/mixins/Context'
-import CuratedEditSession from '@/mixins/CuratedEditSession'
 import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import router from '@/router'
+import {alertScreenReader, pluralize, setPageTitle} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
+import {each, find, isNil, noop, size, sortBy} from 'lodash'
+import {onMounted, ref, watch} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
 import {validateCohortName} from '@/lib/cohort'
+import {storeToRefs} from 'pinia'
 
-export default {
-  name: 'CuratedGroupHeader',
-  components: {AreYouSureModal, ExportListModal, FerpaReminderModal},
-  mixins: [Context, CuratedEditSession, Util],
-  setup() {
-    const curatedGroupStore = useCuratedGroupStore()
-    return {curatedGroupStore}
-  },
-  data: () => ({
-    exportEnabled: true,
-    isCohortWarningModalOpen: false,
-    isDeleteModalOpen: false,
-    isDeleting: false,
-    isSaving: false,
-    referencingCohorts: [],
-    renameError: undefined,
-    renameInput: undefined,
-    showExportAdmitsModal: false,
-    showExportStudentsModal: false
-  }),
-  computed: {
-    isOwnedByCurrentUser() {
-      return this.ownerId === this.currentUser.id
-    }
-  },
-  watch: {
-    renameInput() {
-      this.renameError = undefined
-    },
-    showExportAdmitsModal(isOpen) {
-      if (isOpen) {
-        putFocusNextTick('csv-column-options-0')
-      }
-    },
-    showExportStudentsModal(isOpen) {
-      if (isOpen) {
-        putFocusNextTick('csv-column-options-0')
-      }
-    }
-  },
-  mounted() {
-    if (this.referencingCohortIds?.length) {
-      this._each(this.referencingCohortIds, cohortId => {
-        const cohort = this._find(this.currentUser.myCohorts, ['id', cohortId])
-        this.referencingCohorts.push(cohort)
-      })
-      this.referencingCohorts = this._sortBy(this.referencingCohorts, ['name'])
-    }
-    this.putFocusNextTick('curated-group-name')
-  },
-  methods: {
-    cancelDeleteModal() {
-      this.isDeleteModalOpen = false
-      alertScreenReader('Canceled delete')
-      putFocusNextTick('delete-curated-group-button')
-    },
-    cancelExportModal() {
-      this.showExportAdmitsModal = this.showExportStudentsModal = false
-      alertScreenReader(`Canceled export of ${this.curatedGroupName} ${this.domainLabel(false)}`)
-      putFocusNextTick('export-student-list-button')
-    },
-    confirmDeleteWarning() {
-      this.isCohortWarningModalOpen = false
-      alertScreenReader('Closed')
-      putFocusNextTick('delete-curated-group-button')
-    },
-    enterBulkAddMode() {
-      this.curatedGroupStore.setMode('bulkAdd')
-    },
-    enterRenameMode() {
-      this.renameInput = this.curatedGroupName
-      useCuratedGroupStore().setMode('rename')
-      this.putFocusNextTick('rename-curated-group-input')
-    },
-    exitRenameMode() {
-      this.renameInput = undefined
-      useCuratedGroupStore().resetMode()
-      alertScreenReader('Canceled rename')
-      this.putFocusNextTick('rename-curated-group-button')
-    },
-    exportGroup(csvColumnsSelected) {
-      this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
-      alertScreenReader(`Exporting ${this.name} ${this.domainLabel(false)}`)
-      return downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
-        this.exportEnabled = true
-        alertScreenReader('Export is done.')
-      })
-    },
-    deleteGroup() {
-      this.isDeleting = true
-      return deleteCuratedGroup(this.domain, this.curatedGroupId).then(() => {
-        this.isDeleteModalOpen = false
-        alertScreenReader(`Deleted ${this.domainLabel(false)}`)
-        this.$router.push({path: '/'}, this._noop)
-      }).catch(error => {
-        this.error = error
-      }).finally(() => {
-        this.isDeleting = false
-      })
-    },
-    domainLabel(capitalize) {
-      return describeCuratedGroupDomain(this.domain, capitalize)
-    },
-    getCsvExportColumns,
-    getCsvExportColumnsSelected,
-    onClickDelete() {
-      const hasReferencingCohorts = !!this.referencingCohorts.length
-      this.isCohortWarningModalOpen = hasReferencingCohorts
-      this.isDeleteModalOpen = !hasReferencingCohorts
-    },
-    rename() {
-      const error = validateCohortName({name: this.renameInput})
-      if (error !== true) {
-        this.renameError = error
-        this.putFocusNextTick('rename-curated-group-input')
-      } else {
-        this.isSaving = true
-        renameCuratedGroup(this.curatedGroupId, this.renameInput).then(curatedGroup => {
-          useCuratedGroupStore().setCuratedGroupName(curatedGroup.name)
-          this.setPageTitle(curatedGroup.name)
-          this.exitRenameMode()
-          this.isSaving = false
-          alertScreenReader(`Renamed ${this.domainLabel(false)}`)
-          this.putFocusNextTick('rename-curated-group-button"')
-        })
-      }
-    }
+const contextStore = useContextStore()
+const curatedStore = useCuratedGroupStore()
+
+const {curatedGroupId, curatedGroupName, domain, mode, ownerId, referencingCohortIds, totalStudentCount} = storeToRefs(curatedStore)
+const currentUser = contextStore.currentUser
+const exportEnabled = ref(true)
+const isCohortWarningModalOpen = ref(false)
+const isDeleteModalOpen = ref(false)
+const isDeleting = ref(false)
+const isSaving = ref(false)
+const referencingCohorts = ref([])
+const renameError = ref(undefined)
+const renameInput = ref(undefined)
+const showExportAdmitsModal = ref(false)
+const showExportStudentsModal = ref(false)
+
+watch(renameInput, () => {
+  renameError.value = undefined
+})
+watch(showExportAdmitsModal, isOpen => {
+  if (isOpen) {
+    putFocusNextTick('csv-column-options-0')
+  }
+})
+watch(showExportStudentsModal, isOpen => {
+  if (isOpen) {
+    putFocusNextTick('csv-column-options-0')
+  }
+})
+
+onMounted(() => {
+  each(referencingCohortIds.value || [], cohortId => {
+    const cohort = find(currentUser.myCohorts, ['id', cohortId])
+    referencingCohorts.value.push(cohort)
+  })
+  referencingCohorts.value = sortBy(referencingCohorts.value, ['name'])
+  putFocusNextTick('curated-group-name')
+})
+
+const cancelDeleteModal = () => {
+  isDeleteModalOpen.value = false
+  alertScreenReader('Canceled delete')
+  putFocusNextTick('delete-curated-group-button')
+}
+
+const cancelExportModal = () => {
+  showExportAdmitsModal.value = showExportStudentsModal.value = false
+  alertScreenReader(`Canceled export of ${curatedGroupName.value} ${domainLabel(false)}`)
+  putFocusNextTick('export-student-list-button')
+}
+
+const confirmDeleteWarning = () => {
+  isCohortWarningModalOpen.value = false
+  alertScreenReader('Closed')
+  putFocusNextTick('delete-curated-group-button')
+}
+
+const enterBulkAddMode = () => {
+  curatedStore.setMode('bulkAdd')
+}
+
+const enterRenameMode = () => {
+  renameInput.value = curatedGroupName.value
+  curatedStore.setMode('rename')
+  putFocusNextTick('rename-curated-group-input')
+}
+
+const exitRenameMode = () => {
+  renameInput.value = undefined
+  curatedStore.resetMode()
+  alertScreenReader('Canceled rename')
+  putFocusNextTick('rename-curated-group-button')
+}
+
+const exportGroup = csvColumnsSelected => {
+  showExportAdmitsModal.value = showExportStudentsModal.value = exportEnabled.value = false
+  alertScreenReader(`Exporting ${curatedGroupName.value} ${domainLabel(false)}`)
+  return downloadCuratedGroupCsv(curatedGroupId.value, curatedGroupName.value, csvColumnsSelected).then(() => {
+    exportEnabled.value = true
+    alertScreenReader('Export is done.')
+  })
+}
+
+const deleteGroup = () => {
+  isDeleting.value = true
+  return deleteCuratedGroup(domain.value, curatedGroupId.value).then(() => {
+    isDeleteModalOpen.value = false
+    alertScreenReader(`Deleted ${domainLabel(false)}`)
+    router.push({path: '/'}, noop)
+  }).catch(error => {
+    error.value = error
+  }).finally(() => {
+    isDeleting.value = false
+  })
+}
+
+const domainLabel = capitalize => {
+  return describeCuratedGroupDomain(domain.value, capitalize)
+}
+
+const onClickDelete = () => {
+  const hasReferencingCohorts = !!referencingCohorts.value.length
+  isCohortWarningModalOpen.value = hasReferencingCohorts
+  isDeleteModalOpen.value = !hasReferencingCohorts
+}
+
+const rename = () => {
+  const error = validateCohortName({name: renameInput.value})
+  if (error !== true) {
+    renameError.value = error
+    putFocusNextTick('rename-curated-group-input')
+  } else {
+    isSaving.value = true
+    renameCuratedGroup(curatedGroupId.value, renameInput.value).then(curatedGroup => {
+      curatedStore.setCuratedGroupName(curatedGroup.name)
+      setPageTitle(curatedGroup.name)
+      exitRenameMode()
+      isSaving.value = false
+      alertScreenReader(`Renamed ${domainLabel(false)}`)
+      putFocusNextTick('rename-curated-group-button"')
+    })
   }
 }
 </script>
