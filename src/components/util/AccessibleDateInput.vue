@@ -4,6 +4,7 @@
     :input-debounce="500"
     :max-date="maxDate"
     :popover="{placement: 'top', visibility: 'focus'}"
+    @did-move="makeCalendarAccessible"
     @popover-did-show="onPopoverShown"
   >
     <template #default="{ inputValue, inputEvents }">
@@ -26,13 +27,13 @@
       >
         <template #clear>
           <v-btn
-            :id="`${inputId}-clear-btn`"
+            :id="`${idPrefix}-clear-btn`"
             aria-label="Clear date"
             class="d-flex align-self-center"
             density="compact"
             :disabled="disabled"
+            exact
             :icon="mdiCloseCircle"
-            size="20px"
             variant="text"
             @click.stop.prevent="onClickClear(inputEvents)"
           />
@@ -44,6 +45,7 @@
 
 <script setup>
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {computed, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {each} from 'lodash'
 import {mdiCloseCircle} from '@mdi/js'
@@ -66,7 +68,7 @@ const props = defineProps({
     required: true,
     type: Function
   },
-  inputId: {
+  idPrefix: {
     required: true,
     type: String
   },
@@ -96,6 +98,9 @@ const model = defineModel({
   type: Date
 })
 
+const inputId = computed(() => `${props.idPrefix}-input`)
+const popover = ref()
+
 const isValid = dateString => {
   if (!dateString || dateString === '') {
     return true
@@ -104,8 +109,43 @@ const isValid = dateString => {
   return date.isValid
 }
 
+const makeCalendarAccessible = () => {
+  if (!popover.value) {
+    return false
+  }
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  const nextMonthBtn = popover.value.querySelector('.vc-next')
+  const prevMonthBtn = popover.value.querySelector('.vc-prev')
+  const title = popover.value.querySelector('.vc-title')
+  const weeks = popover.value.querySelector('.vc-weeks')
+  const weekdayLabels = popover.value.querySelectorAll('.vc-weekday')
+  if (nextMonthBtn) {
+    nextMonthBtn.ariaLabel = 'previous month'
+    nextMonthBtn.id = `${props.idPrefix}-popover-next-btn`
+  }
+  if (prevMonthBtn) {
+    prevMonthBtn.ariaLabel = 'previous month'
+    prevMonthBtn.id = `${props.idPrefix}-popover-prev-btn`
+  }
+  if (title) {
+    title.ariaLive = 'polite'
+    title.id = `${props.idPrefix}-popover-title`
+    title.classList.add('vc-focus')
+  }
+  if (weeks) {
+    weeks.setAttribute('aria-labelledby', `${props.idPrefix}-popover-title`)
+    weeks.role = 'grid'
+  }
+  each(weekdayLabels, (label, index) => {
+    const abbr = document.createElement('abbr')
+    abbr.innerText = label.innerText
+    abbr.title = weekdays[index]
+    label.innerHTML = abbr.outerHTML
+  })
+}
+
 const onClickClear = (inputEvents) => {
-  const el = document.getElementById(props.inputId)
+  const el = document.getElementById(inputId.value)
   el.value = ''
   const event = {
     currentTarget: el,
@@ -115,53 +155,33 @@ const onClickClear = (inputEvents) => {
   }
   inputEvents.change(event)
   alertScreenReader('Cleared')
-  putFocusNextTick(props.inputId)
+  putFocusNextTick(inputId.value)
 }
 
 const onPopoverShown = popoverContent => {
   // Fill accessibility gaps in v-calendar date picker popover
   const helpContainer = popoverContent.querySelector('[data-helptext]')
-  const nextMonthBtn = popoverContent.querySelector('.is-right')
-  const prevMonthBtn = popoverContent.querySelector('.is-left')
-  const title = popoverContent.querySelector('.vc-title')
-  const weeks = popoverContent.querySelector('.vc-weeks')
-  const weekdayLabels = popoverContent.querySelectorAll('.vc-weekday')
-  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   popoverContent.ariaLabel = 'choose date'
   popoverContent.ariaModal = false
+  popoverContent.id = `${props.idPrefix}-popover`
   popoverContent.role = 'dialog'
   if (helpContainer) {
     const helpText = helpContainer.getAttribute('data-helptext')
     const helpEl = document.createElement('span')
     helpEl.className = 'sr-only'
     helpEl.ariaLive = 'polite'
+    helpEl.id = `${props.idPrefix}-popover-help`
     helpContainer.prepend(helpEl)
     setTimeout(() => {
       helpEl.innerText = helpText
     }, 200)
   }
-  if (nextMonthBtn) {
-    nextMonthBtn.ariaLabel = 'previous month'
-  }
-  if (prevMonthBtn) {
-    prevMonthBtn.ariaLabel = 'previous month'
-  }
-  if (title) {
-    title.ariaLive = 'polite'
-    title.id = `${props.inputId}-popover-title`
-    title.classList.add('vc-focus')
-  }
-  if (weeks) {
-    weeks.setAttribute('aria-labelledby', `${props.inputId}-popover-title`)
-    weeks.role = 'grid'
-  }
-  each(weekdayLabels, (label, index) => {
-    label.abbr = weekdays[index]
-  })
+  popover.value = popoverContent
+  makeCalendarAccessible()
 }
 
 const onUpdateFocus = (hasFocus, inputEvents) => {
-  const el = document.getElementById(props.inputId)
+  const el = document.getElementById(inputId.value)
   const event = {
     relatedTarget: hasFocus ? null : document.getElementById(props.containerId),
     srcElement: el,
@@ -172,7 +192,7 @@ const onUpdateFocus = (hasFocus, inputEvents) => {
 }
 
 const onUpdateModel = (v, inputEvents) => {
-  const el = document.getElementById(props.inputId)
+  const el = document.getElementById(inputId.value)
   const event = {
     currentTarget: el,
     srcElement: el,
