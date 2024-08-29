@@ -129,7 +129,7 @@ class Note(Base):
         sql = f"""
             SELECT n.*, count(a.note_id) as attachment_count
             FROM notes n
-            LEFT JOIN note_attachments a ON n.id = a.note_id
+            LEFT JOIN note_attachments a ON n.id = a.note_id AND a.deleted_at IS NULL
             WHERE
                 n.is_draft IS TRUE
                 AND n.deleted_at IS NULL
