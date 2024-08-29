@@ -34,25 +34,20 @@
           v-for="(topic, index) in noteStore.model.topics"
           :id="`note-topic-${index}`"
           :key="index"
-          class="list-item"
+          class="align-center d-flex justify-space-between list-item"
         >
-          <div class="d-flex justify-space-between">
-            <div class="truncate-with-ellipsis w-75">
-              {{ topic }}
-            </div>
-            <div class="float-right">
-              <v-btn
-                :id="`remove-${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
-                :disabled="disabled"
-                class="remove-topic-btn"
-                variant="text"
-                @click="() => remove(topic)"
-              >
-                <v-icon color="error" :icon="mdiCloseCircle" />
-                <span class="sr-only">Remove</span>
-              </v-btn>
-            </div>
+          <div class="font-size-15 font-weight-medium pl-4 truncate-with-ellipsis w-75">
+            {{ topic }}
           </div>
+          <v-btn
+            :id="`remove-${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
+            aria-label="Remove"
+            color="error"
+            :disabled="disabled"
+            :icon="mdiCloseCircle"
+            variant="text"
+            @click="() => remove(topic)"
+          />
         </li>
       </ul>
     </div>
@@ -105,11 +100,6 @@ const remove = topic => {
   color: #666;
   height: 36px;
   margin-top: 6px;
-  padding: 5px 0 0 8px;
   min-width: 50%;
-}
-.remove-topic-btn {
-  padding: 0 0 10px 0 !important;
-  margin-right: -10px;
 }
 </style>

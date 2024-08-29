@@ -48,13 +48,13 @@
             <v-btn
               :id="`remove-${objectType}-from-batch-${index}`"
               class="remove-topic-btn"
+              aria-label="Remove"
+              color="error"
               :disabled="disabled"
+              :icon="mdiCloseCircleOutline"
               variant="text"
               @click="() => remove(addedObject)"
-            >
-              <v-icon :icon="mdiCloseCircleOutline" color="error" />
-              <span class="sr-only">Remove</span>
-            </v-btn>
+            />
           </div>
         </div>
       </li>
