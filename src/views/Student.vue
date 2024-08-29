@@ -36,7 +36,7 @@ import StudentClasses from '@/components/student/profile/StudentClasses'
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
-import {alertScreenReader, scrollToTop, setPageTitle} from '@/lib/utils'
+import {alertScreenReader, decodeStudentUriAnchor, setPageTitle} from '@/lib/utils'
 import {exitSession} from '@/stores/note-edit-session/utils'
 import {each, get, noop} from 'lodash'
 import {getStudentByUid} from '@/api/student'
@@ -82,10 +82,10 @@ onMounted(() => {
         })
       }
     })
-    contextStore.loadingComplete(`${student.name} loaded`)
-    if (!location.hash) {
-      scrollToTop()
-    }
+    const permalink = decodeStudentUriAnchor()
+    const putFocusElementId = permalink ? `permalink-${permalink.messageType}-${permalink.messageId}` : null
+    // If custom scroll-to-note is happening then skip the default put-focus-on-h1.
+    contextStore.loadingComplete(`${student.name} loaded`, putFocusElementId)
   })
 })
 

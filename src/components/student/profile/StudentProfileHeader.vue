@@ -44,7 +44,7 @@ import StudentProfileHeaderAcademics from '@/components/student/profile/StudentP
 import StudentProfileHeaderBio from '@/components/student/profile/StudentProfileHeaderBio'
 import {compact as _compact, map, partition} from 'lodash'
 import {onMounted} from 'vue'
-import {putFocusNextTick} from '@/lib/utils'
+import {decodeStudentUriAnchor, putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({
   compact: {
@@ -66,7 +66,10 @@ const plansPartitionedByStatus = partition(props.student.sisProfile.plans, (p) =
 const discontinuedSubplans = _compact(map(plansPartitionedByStatus[1], 'subplan'))
 
 onMounted(() => {
-  putFocusNextTick('student-name-header')
+  // If custom scroll-to-note is happening then skip the putFocus below.
+  if (!decodeStudentUriAnchor()) {
+    putFocusNextTick('student-name-header')
+  }
 })
 </script>
 
