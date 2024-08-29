@@ -32,36 +32,27 @@
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -
       </span>
-      <span v-if="lastModified">{{ DateTime.fromJSDate(lastModified).toFormat('MMM d, yyyy') }}</span>
+      <span v-if="lastModified">{{ lastModified }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
 import {DateTime} from 'luxon'
-</script>
+import {get} from 'lodash'
+import {studentRoutePath} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
-
-export default {
-  name: 'AdvisingNoteSnippet',
-  mixins: [Context, Util],
-  props: {
-    note: {
-      required: true,
-      type: Object
-    },
-  },
-  data: () => ({
-    lastModified: undefined
-  }),
-  created() {
-    const timestamp = this._get(this.note, 'updatedAt') || this._get(this.note, 'createdAt')
-    if (timestamp) {
-      this.lastModified = DateTime.fromJSDate(timestamp).setZone(this.config.timezone)
-    }
+const props = defineProps({
+  note: {
+    required: true,
+    type: Object
   }
-}
+})
+
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
+const timestamp = get(props.note, 'updatedAt') || get(props.note, 'createdAt')
+const timezone = contextStore.config.timezone
+const lastModified = timestamp ? DateTime.fromISO(timestamp).setZone(timezone).toFormat('MMM d, yyyy') : null
 </script>

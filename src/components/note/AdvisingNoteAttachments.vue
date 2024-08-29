@@ -80,7 +80,7 @@
         <v-chip
           :id="`${idPrefix}attachment-${index}`"
           :aria-label="downloadable ? `Download attachment ${attachment.displayName}` : null"
-          class="attachment-chip v-chip-content-override font-weight-bold my-1 pa-4 text-medium-emphasis text-no-wrap text-uppercase"
+          class="attachment-chip bg-white font-weight-bold my-1 pa-4 text-medium-emphasis text-no-wrap text-uppercase v-chip-content-override"
           density="compact"
           :disabled="disabled"
           :href="downloadUrl(attachment)"
