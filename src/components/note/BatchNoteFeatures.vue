@@ -93,7 +93,7 @@ defineProps({
 
 const contextStore = useContextStore()
 const noteStore = useNoteStore()
-const recipients = noteStore.recipients
+const recipients = computed(() => noteStore.recipients)
 
 const nonAdmitCohorts = computed(() => {
   return reject(contextStore.currentUser.myCohorts, {'domain': 'admitted_students'})
@@ -106,36 +106,36 @@ const totalRecipientCount = computed(() => {
 })
 
 const removeCohort = cohort => {
-  const index = findIndex(recipients.cohorts, {'id': cohort.id})
-  recipients.cohorts.splice(index, 1)
+  const index = findIndex(recipients.value.cohorts, {'id': cohort.id})
+  recipients.value.cohorts.splice(index, 1)
   setNoteRecipients(
-    recipients.cohorts,
-    recipients.curatedGroups,
-    recipients.sids
+    recipients.value.cohorts,
+    recipients.value.curatedGroups,
+    recipients.value.sids
   ).then(() => {
     alertScreenReader(`Removed cohort '${cohort.name}'`)
   })
 }
 
 const removeCuratedGroup = curatedGroup => {
-  const index = findIndex(recipients.curatedGroups, {'id': curatedGroup.id})
-  recipients.curatedGroups.splice(index, 1)
+  const index = findIndex(recipients.value.curatedGroups, {'id': curatedGroup.id})
+  recipients.value.curatedGroups.splice(index, 1)
   setNoteRecipients(
-    recipients.cohorts,
-    recipients.curatedGroups,
-    recipients.sids
+    recipients.value.cohorts,
+    recipients.value.curatedGroups,
+    recipients.value.sids
   ).then(() => {
     alertScreenReader(`Removed ${capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}'`)
   })
 }
 
 const updateCohorts = cohorts => {
-  const cohort = differenceBy(cohorts, recipients.cohorts, 'id')
-  if (size(cohorts) > size(recipients.cohorts)) {
+  const cohort = differenceBy(cohorts, recipients.value.cohorts, 'id')
+  if (size(cohorts) > size(recipients.value.cohorts)) {
     setNoteRecipients(
-      recipients.cohorts.concat(cohort),
-      recipients.curatedGroups,
-      recipients.sids
+      recipients.value.cohorts.concat(cohort),
+      recipients.value.curatedGroups,
+      recipients.value.sids
     ).then(() => {
       alertScreenReader(`Added cohort '${cohort.name}'`)
     })
@@ -145,12 +145,12 @@ const updateCohorts = cohorts => {
 }
 
 const updateCuratedGroups = curatedGroups => {
-  const curatedGroup = differenceBy(curatedGroups, recipients.curatedGroups, 'id')
-  if (size(curatedGroups) > size(recipients.curatedGroups)) {
+  const curatedGroup = differenceBy(curatedGroups, recipients.value.curatedGroups, 'id')
+  if (size(curatedGroups) > size(recipients.value.curatedGroups)) {
     setNoteRecipients(
-      recipients.cohorts,
-      recipients.curatedGroups.concat(curatedGroup),
-      recipients.sids
+      recipients.value.cohorts,
+      recipients.value.curatedGroups.concat(curatedGroup),
+      recipients.value.sids
     ).then(() => {
       alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
     })
