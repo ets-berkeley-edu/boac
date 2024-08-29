@@ -26,7 +26,7 @@ export function exitSession(revert: boolean): Promise<NoteEditSessionModel | und
     }
     if (revert) {
       if (model.id && mode && ['createBatch', 'createNote'].includes(mode)) {
-        deleteNote(model).then(() => done())
+        deleteNote(model).then(done)
       } else if (mode === 'editNote' && model.isDraft) {
         noteStore.setModel(originalModel)
         updateAdvisingNote().then(done)
