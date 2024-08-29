@@ -84,21 +84,26 @@ export const useContextStore = defineStore('context', {
     dismissServiceAnnouncement() {
       this.dismissedServiceAnnouncement = true
     },
-    loadingComplete(srAlert?: any) {
+    loadingComplete(srAlert?: any, putFocusElementId?: string) {
       if (!get(this.config, 'isProduction')) {
         // eslint-disable-next-line no-console
         console.log(`Page loaded in ${(new Date().getTime() - (this.loadingStartTime || 0)) / 1000} seconds`)
       }
       this.loading = false
       alertScreenReader(srAlert || `${String(get(router.currentRoute, 'name', ''))} page loaded.`)
-
       const callable = () => {
-        const elements = document.getElementsByTagName('h1')
-        if (vuetify.display.mdAndUp.value && elements.length > 0) {
-          elements[0].setAttribute('tabindex', '-1')
-          elements[0].focus()
+        let element: any
+        if (putFocusElementId) {
+          element = document.getElementById(putFocusElementId)
+        } else {
+          const elements = document.getElementsByTagName('h1')
+          element = elements.length > 0 ? elements[0] : null
         }
-        return elements.length > 0
+        if (vuetify.display.mdAndUp.value && element) {
+          element.setAttribute('tabindex', '-1')
+          element.focus()
+        }
+        return !!element
       }
       nextTick(() => {
         let counter = 0

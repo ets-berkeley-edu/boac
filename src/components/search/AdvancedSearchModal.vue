@@ -219,7 +219,6 @@
           />
           <v-btn
             id="advanced-search-cancel"
-            class="ml-2"
             :disabled="searchStore.isSearching"
             text="Cancel"
             variant="text"

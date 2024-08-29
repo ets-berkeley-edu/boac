@@ -339,7 +339,7 @@ import AdvisingNote from '@/components/note/AdvisingNote'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import TimelineDate from '@/components/student/profile/TimelineDate'
-import {alertScreenReader, pluralize, putFocusNextTick, scrollTo} from '@/lib/utils'
+import {alertScreenReader, decodeStudentUriAnchor, pluralize, putFocusNextTick, scrollTo} from '@/lib/utils'
 import {capitalize, each, filter, find, get, includes, map, remove, size, slice} from 'lodash'
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
@@ -414,7 +414,6 @@ const showMyNotesOnly = ref(false)
 const timelineQuery = ref('')
 
 const activeTab = computed(() => props.selectedFilter || 'all')
-const anchor = computed(() => location.hash)
 const isExpandAllAvailable = computed(() => ['appointment', 'eForm', 'note'].includes(props.selectedFilter))
 const messagesVisible = computed(() => {
   return (searchResults.value || (isShowingAll.value ? messagesPerType(props.selectedFilter) : slice(messagesPerType(props.selectedFilter), 0, defaultShowPerTab.value)))
@@ -474,25 +473,20 @@ const init = () => {
 }
 
 onMounted(() => {
-  if (anchor.value) {
-    const match = anchor.value.match(/^#(\w+)-([\d\w-]+)/)
-    if (match && match.length > 2) {
-      const messageType = match[1].toLowerCase()
-      const messageId = match[2]
-      const obj = find(props.messages, function(m) {
-        // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
-        if (m.id && m.id.toString() === messageId && m.type.toLowerCase() === messageType) {
-          return true
-        }
-      })
-      if (obj) {
-        isShowingAll.value = true
-        const onNextTick = () => {
-          open(obj, true)
-          scrollToPermalink(messageType, messageId)
-        }
-        nextTick(onNextTick)
+  const permalink = decodeStudentUriAnchor()
+  if (permalink) {
+    const obj = find(props.messages, function(m) {
+      // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
+      if (m.id && m.id.toString() === permalink.messageId && m.type.toLowerCase() === permalink.messageType) {
+        return true
       }
+    })
+    if (obj) {
+      isShowingAll.value = true
+      nextTick(() => {
+        open(obj, true)
+        scrollToPermalink(permalink.messageType, permalink.messageId)
+      })
     }
   }
 })

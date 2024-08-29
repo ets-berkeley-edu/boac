@@ -21,6 +21,21 @@ const decodeHtml = (snippet: string) => {
   }
 }
 
+export function decodeStudentUriAnchor() {
+  let decoded: any = undefined
+  const anchor = location.hash
+  if (anchor) {
+    const match = anchor.match(/^#permalink-(\w+)-([\d\w-]+)/)
+    if (match && match.length > 2) {
+      decoded = {
+        messageType: match[1].toLowerCase(),
+        messageId: match[2]
+      }
+    }
+  }
+  return decoded
+}
+
 export function invokeIfAuthenticated(callback: Function, onReject = () => {}) {
   return getUserProfile().then(data => {
     if (data.isAuthenticated) {
@@ -82,12 +97,13 @@ export function setPageTitle(phrase: string) {
   document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`
 }
 
-export function scroll(anchor) {
-  location.hash = `#${anchor}`
-}
-
-export function scrollTo(anchor) {
-  scroll(anchor)
+export function scrollTo(anchor: string) {
+  nextTick(() => {
+    const element = document.getElementById(anchor)
+    if (element) {
+      element.scrollIntoView({behavior: 'smooth', block: 'center'})
+    }
+  })
 }
 
 export function scrollToTop() {
