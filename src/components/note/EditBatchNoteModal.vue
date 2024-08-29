@@ -352,8 +352,10 @@ const exit = revert => {
   alert.value = dismissAlertSeconds.value = undefined
   showCreateTemplateModal.value = showDiscardNoteModal.value = showDiscardTemplateModal.value = false
   dialogModel.value = false
-  noteStore.setMode(null)
-  return exitSession(revert).then(props.onClose)
+  return exitSession(revert).then(() => {
+    noteStore.setMode(null)
+    props.onClose()
+  })
 }
 
 const init = () => {
