@@ -171,7 +171,7 @@
                         aria-describedby="search-options-date-range-label"
                         container-id="advanced-search-modal"
                         :get-value="() => searchStore.fromDate"
-                        input-id="search-options-from-date-input"
+                        id-prefix="search-options-from-date"
                         :max-date="searchStore.toDate || new Date()"
                         :set-value="v => searchStore.setFromDate(v)"
                       ></AccessibleDateInput>
@@ -187,7 +187,7 @@
                         aria-describedby="search-options-date-range-label"
                         container-id="advanced-search-modal"
                         :get-value="() => searchStore.toDate"
-                        input-id="search-options-to-date-input"
+                        id-prefix="search-options-to-date"
                         :max-date="new Date()"
                         :min-date="searchStore.fromDate"
                         :set-value="v => searchStore.setToDate(v)"
