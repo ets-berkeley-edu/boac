@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading" class="default-margins">
+  <div v-if="!contextStore.loading" class="default-margins">
     <div class="align-center d-flex py-2">
       <div class="pr-2">
         <v-icon color="primary" :icon="mdiContacts" size="x-large" />
@@ -8,7 +8,7 @@
         Passenger Manifest
       </h1>
       <div>
-        <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${config.apiBaseUrl}/api/users/csv`">download</a>)</span>
+        <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${contextStore.config.apiBaseUrl}/api/users/csv`">download</a>)</span>
       </div>
       <div class="flex-grow-1 text-right">
         <EditUserProfileModal
@@ -23,42 +23,35 @@
 </template>
 
 <script setup>
-import {mdiContacts} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import Users from '@/components/admin/Users'
-import Util from '@/mixins/Util'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {getDepartments} from '@/api/user'
+import {mdiContacts} from '@mdi/js'
+import {onMounted, ref} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'PassengerManifest',
-  components: {EditUserProfileModal, Users},
-  mixins: [Context, Util],
-  data: () => ({
-    departments: undefined,
-    refreshUsers: false
-  }),
-  created() {
-    this.loadingStart()
-    getDepartments(true).then(departments => {
-      this.departments = departments
-      this.loadingComplete()
-    })
-  },
-  methods: {
-    afterCancelCreateUser() {
-      alertScreenReader('Canceled')
-      putFocusNextTick('add-new-user-btn')
-    },
-    afterCreateUser(name) {
-      this.refreshUsers = true
-      alertScreenReader(`${name} has been added to BOA.`)
-      putFocusNextTick('add-new-user-btn')
-    }
-  }
+const departments = ref(undefined)
+const refreshUsers = ref(false)
+
+const contextStore = useContextStore()
+contextStore.loadingStart()
+
+onMounted(() => {
+  getDepartments(true).then(data => {
+    departments.value = data
+    contextStore.loadingComplete()
+  })
+})
+
+const afterCancelCreateUser = () => {
+  alertScreenReader('Canceled')
+  putFocusNextTick('add-new-user-btn')
+}
+
+const afterCreateUser = name => {
+  refreshUsers.value = true
+  alertScreenReader(`${name} has been added to BOA.`)
+  putFocusNextTick('add-new-user-btn')
 }
 </script>
