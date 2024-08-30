@@ -6,6 +6,7 @@ const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'edit
 export type NoteEditSessionModel = {
   id: number;
   attachments: any[];
+  author: any,
   body?: string;
   contactType?: string;
   deleteAttachmentIds: number[];
@@ -26,6 +27,7 @@ function $_getDefaultModel(): NoteEditSessionModel {
   return {
     id: NaN,
     attachments: [],
+    author: {},
     body: undefined,
     contactType: undefined,
     deleteAttachmentIds: [],
@@ -167,6 +169,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
         const model = cloneDeep(note)
         this.model = {
           attachments: model.attachments || [],
+          author: model.author || {},
           body: model.body,
           contactType: model.contactType || null,
           deleteAttachmentIds: [],
