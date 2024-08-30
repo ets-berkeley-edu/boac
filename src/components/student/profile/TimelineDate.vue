@@ -32,6 +32,6 @@ const props = defineProps({
 
 const adjustedDate = computed(() => {
   const date = typeof props.date === 'string' ? new Date(props.date) : props.date
-  return date ? DateTime.fromISO(props.date).setZone(useContextStore().config.timezone) : null
+  return date ? DateTime.fromJSDate(date).setZone(useContextStore().config.timezone) : null
 })
 </script>
