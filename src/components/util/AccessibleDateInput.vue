@@ -142,6 +142,7 @@ const makeCalendarAccessible = () => {
     abbr.title = weekdays[index]
     label.innerHTML = abbr.outerHTML
   })
+  alertScreenReader(title.innerText)
 }
 
 const onClickClear = (inputEvents) => {

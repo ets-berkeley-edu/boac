@@ -296,8 +296,8 @@
                 <router-link
                   v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                   :id="`advising-${message.type}-permalink-${message.id}`"
-                  :to="`#${message.type}-${message.id}`"
-                  @click="scrollToPermalink(message.type, message.id)"
+                  :to="`#permalink-${message.type}-${message.id}`"
+                  @click="scrollToPermalink(message)"
                 >
                   Permalink <v-icon :icon="mdiLinkVariant" />
                 </router-link>
@@ -484,8 +484,7 @@ onMounted(() => {
     if (obj) {
       isShowingAll.value = true
       nextTick(() => {
-        open(obj, true)
-        scrollToPermalink(permalink.messageType, permalink.messageId)
+        scrollToPermalink(obj)
       })
     }
   }
@@ -685,9 +684,11 @@ const refreshSearchIndex = () => {
   })
 }
 
-const scrollToPermalink = (messageType, messageId) => {
-  scrollTo(`permalink-${messageType}-${messageId}`)
-  putFocusNextTick(`message-row-${messageId}`)
+const scrollToPermalink = (message) => {
+  isShowingAll.value = true
+  open(message)
+  scrollTo(`permalink-${message.type}-${message.id}`)
+  putFocusNextTick(`message-row-${message.id}`)
 }
 
 const toggleExpandAll = () => {
