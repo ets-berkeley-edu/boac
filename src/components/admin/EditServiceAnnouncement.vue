@@ -33,91 +33,76 @@
     </div>
     <RichTextEditor
       id="textarea-update-service-announcement"
-      :initial-value="originalText ? originalText : ''"
       :disabled="isSaving"
+      :initial-value="originalText ? originalText : ''"
       label="Service alert input"
       :on-value-update="onEditorUpdate"
     />
-    <v-btn
+    <ProgressButton
       id="button-update-service-announcement"
-      class="btn-primary-color-override mt-2"
-      color="primary"
-      :disabled="text === originalText"
-      variant="flat"
-      @click="updateText"
-    >
-      <span v-if="isSaving">
-        <v-progress-circular
-          :size="25"
-          color="primary"
-          indeterminate
-        />
-        Update...
-      </span>
-      <span v-if="!isSaving">Update</span>
-    </v-btn>
+      :action="updateText"
+      class="mt-2"
+      :disabled="isSaving || text === originalText"
+      :in-progress="isSaving"
+      :text="isSaving ? 'Updating...' : 'Update'"
+    />
   </div>
 </template>
 
-<script>
+<script setup>
+import ProgressButton from '@/components/util/ProgressButton.vue'
 import RichTextEditor from '@/components/util/RichTextEditor'
-import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
 import {getServiceAnnouncement, publishAnnouncement, updateAnnouncement} from '@/api/config'
-import {useContextStore} from '@/stores/context'
+import {onMounted, ref} from 'vue'
+import {trim} from 'lodash'
 
-export default {
-  name: 'EditServiceAnnouncement',
-  components: {RichTextEditor},
-  mixins: [Util],
-  data: () => ({
-    error: undefined,
-    isPublished: undefined,
-    isTogglingPublish: false,
-    isSaving: false,
-    originalText: undefined,
-    text: undefined,
-    announcement: useContextStore().announcement
-  }),
-  created() {
-    getServiceAnnouncement().then(data => {
-      this.originalText = this.text = data.text || ''
-      this.isPublished = data.isPublished
+const error = ref(undefined)
+const isPublished = ref(undefined)
+const isTogglingPublish = ref(false)
+const isSaving = ref(false)
+const originalText = ref('')
+const text = ref('')
+
+onMounted(() => {
+  getServiceAnnouncement().then(data => {
+    originalText.value = text.value = data.text || ''
+    isPublished.value = data.isPublished
+  })
+})
+
+const onEditorUpdate = value => {
+  text.value = value
+}
+
+const togglePublish = () => {
+  error.value = null
+  isTogglingPublish.value = true
+  if (!originalText.value.length && isPublished.value) {
+    error.value = 'You are not allowed to publish empty text.'
+    isTogglingPublish.value = false
+  } else {
+    publishAnnouncement(isPublished.value).then(data => {
+      isPublished.value = data.isPublished
+      isTogglingPublish.value = false
+      alertScreenReader(`Service announcement has been ${isPublished.value ? 'published' : 'unpublished'}.`)
     })
-  },
-  methods: {
-    onEditorUpdate(value) {
-      this.text = value
-    },
-    togglePublish() {
-      this.error = null
-      this.isTogglingPublish = true
-      if (!this.originalText.length && this.isPublished) {
-        this.error = 'You are not allowed to publish empty text.'
-        this.isTogglingPublish = false
-      } else {
-        publishAnnouncement(this.isPublished).then(data => {
-          this.isPublished = data.isPublished
-          this.isTogglingPublish = false
-          alertScreenReader(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`)
-        })
-      }
-    },
-    updateText() {
-      this.error = null
-      this.isSaving = true
-      if (!this._trim(this.text).length && this.isPublished) {
-        this.error = 'You are not allowed to publish empty text.'
-        this.isSaving = false
-      } else {
-        updateAnnouncement(this.text).then(data => {
-          this.originalText = this.text = data.text
-          this.isPublished = data.isPublished
-          this.isSaving = false
-          alertScreenReader('The service announcement has been updated.')
-        })
-      }
-    }
+  }
+}
+
+const updateText = () => {
+  error.value = null
+  isSaving.value = true
+  if (!trim(text.value).length && isPublished.value) {
+    error.value = 'You are not allowed to publish empty text.'
+    isSaving.value = false
+  } else {
+    updateAnnouncement(text.value).then(data => {
+      originalText.value = text.value = data.text
+      isPublished.value = data.isPublished
+      isSaving.value = false
+      alertScreenReader('The service announcement has been updated.')
+    })
   }
 }
 </script>

@@ -2,8 +2,8 @@
   <div>
     <a
       id="skip-to-content-link"
-      href="#content"
       class="sr-only"
+      href="#content"
     >
       Skip to main content
     </a>
@@ -11,12 +11,12 @@
       class="font-size-16 header-text text-white"
       role="banner"
     >
-      <div v-if="_startsWith($route.path, '/home')" class="text-no-wrap">
+      <div v-if="startsWith(route.path, '/home')" class="text-no-wrap">
         <span class="font-weight-bold">UC Berkeley</span>
         Online Advising
       </div>
       <router-link
-        v-if="!_startsWith($route.path, '/home')"
+        v-if="!startsWith(route.path, '/home')"
         id="home-header"
         class="text-no-wrap"
         to="/"
@@ -28,13 +28,11 @@
   </div>
 </template>
 
-<script>
-import Util from '@/mixins/Util'
+<script setup>
+import {startsWith} from 'lodash'
+import {useRoute} from 'vue-router'
 
-export default {
-  name: 'HeaderBranding',
-  mixins: [Util]
-}
+const route = useRoute()
 </script>
 
 <style scoped>

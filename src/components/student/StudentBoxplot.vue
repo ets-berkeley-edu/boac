@@ -1,200 +1,197 @@
 <template>
-  <div v-if="options">
-    <highcharts :id="`student-chart-boxplot-container-${numericId}`" :options="options" />
-  </div>
+  <highcharts
+    v-if="options"
+    :id="`student-chart-boxplot-container-${numericId}`"
+    :options="options"
+  />
 </template>
 
-<script>
-import Util from '@/mixins/Util'
+<script setup>
+import {get, size} from 'lodash'
+import {onMounted, ref} from 'vue'
 
-export default {
-  name: 'StudentBoxplot',
-  mixins: [Util],
-  props: {
-    chartDescription: {
-      required: true,
-      type: String
+const props = defineProps({
+  chartDescription: {
+    required: true,
+    type: String
+  },
+  dataset: {
+    required: true,
+    type: Object
+  },
+  numericId: {
+    required: true,
+    type: String
+  }
+})
+
+const courseDeciles = get(props.dataset, 'courseDeciles')
+const options = ref(undefined)
+
+onMounted(() => {
+  options.value = getHighchartsOptions()
+})
+
+const getHighchartsOptions = () => ({
+  accessibility: {
+    enabled: true,
+    keyboardNavigation: {
+      enabled: true
     },
-    dataset: {
-      required: true,
-      type: Object
-    },
-    numericId: {
-      required: true,
-      type: String
+    point: {
+      valueDescriptionFormat: '{index}. {point.name}, {point.y}.'
     }
   },
-  data: () => ({
-    courseDeciles: undefined,
-    options: undefined
-  }),
-  mounted() {
-    this.courseDeciles = this._get(this.dataset, 'courseDeciles')
-    this.options = this.getOptions()
+  chart: {
+    backgroundColor: 'transparent',
+    height: 18,
+    inverted: true,
+    // This unfortunate negative-margin hack compensates for an apparent Highcharts bug when rendering narrow boxplots.
+    margin: [-5, 0, 0, 0],
+    type: 'boxplot',
+    width: 75
   },
-  methods: {
-    generateSeriesFromDataset() {
-      return [
-        {
-          data: this.courseDeciles ? [
-            [
-              this.getCourseDecile(0),
-              this.getCourseDecile(3),
-              this.getCourseDecile(5),
-              this.getCourseDecile(7),
-              this.getCourseDecile(10)
-            ]
-          ] : []
+  credits: {
+    enabled: false
+  },
+  legend: {
+    enabled: false
+  },
+  plotOptions: {
+    boxplot: {
+      accessibility: {
+        description: props.chartDescription,
+        enabled: true,
+        exposeAsGroupOnly: true,
+        keyboardNavigation: {
+          enabled: true
         },
-        {
-          data: this.dataset.student ? [[0, this.dataset.student.raw]] : [],
-          marker: {
-            fillColor: '#4a90e2',
-            lineWidth: 0,
-            radius: 4,
-            states: {
-              hover: {
-                enabled: false
-              }
-            }
-          },
-          type: 'scatter'
-        }
-      ]
+        valueDescriptionFormat: point => `${point.index + 1}. ${point.name} (y value: ${point.y})`
+      },
+      color: '#ccc',
+      enableMouseTracking: false,
+      fillColor: '#ccc',
+      lineWidth: 1,
+      medianColor: '#666',
+      medianWidth: 3,
+      whiskerLength: 9,
+      whiskerWidth: 1
+    }
+  },
+  series: generateSeriesFromDataset(),
+  title: {
+    text: ''
+  },
+  tooltip: {
+    backgroundColor: '#fff',
+    borderColor: '#eee',
+    borderRadius: 16,
+    headerFormat: `
+      <div class="align-center boxplot-tooltip-font-family boxplot-tooltip-header d-flex justify-space-between px-3 py-2">
+        <div>User Score</div>
+        <div class="ml-3 pl-5">${get(props.dataset.student, 'raw') || '&mdash;'}</div>
+      </div>
+    `,
+    hideDelay: 0,
+    outside: true,
+    padding: 0,
+    pointFormat: `
+      <div class="boxplot-tooltip-font-family px-3 py-2 w-100">
+        <div class="align-center d-flex justify-space-between">
+          <div>Maximum</div>
+          <div class="ml-3 pl-5">${getCourseDecile(10) || '&mdash;'}</div>
+        </div>
+        <div class="align-center d-flex justify-space-between pt-1">
+          <div>70th Percentile</div>
+          <div class="ml-3 pl-5">${getCourseDecile(7) || '&mdash;'}</div>
+        </div>
+        <div class="align-center d-flex justify-space-between pt-1">
+          <div>50th Percentile</div>
+          <div class="ml-3 pl-5">${getCourseDecile(5) || '&mdash;'}</div>
+        </div>
+        <div class="align-center d-flex justify-space-between pt-1">
+          <div>30th Percentile</div>
+          <div class="ml-3 pl-5">${getCourseDecile(3) || '&mdash;'}</div>
+        </div>
+        <div class="align-center d-flex justify-space-between pt-1">
+          <div>Minimum</div>
+          <div class="ml-3 pl-5">${getCourseDecile(0) || '&mdash;'}</div>
+        </div>
+      </div>
+    `,
+    style: {
+      fontSize: '14px',
+      width: 400,
+      whiteSpace: 'nowrap'
     },
-    getCourseDecile(index) {
-      return this.courseDeciles && this.courseDeciles.length > index ? this.courseDeciles[index] : null
+    useHTML: true
+  },
+  xAxis: {
+    accessibility: {
+      description: '',
+      enabled: true
     },
-    getOptions() {
-      return {
-        accessibility: {
-          enabled: true,
-          keyboardNavigation: {
-            enabled: true
-          },
-          point: {
-            valueDescriptionFormat: '{index}. {point.name}, {point.y}.'
-          }
-        },
-        chart: {
-          backgroundColor: 'transparent',
-          height: 18,
-          inverted: true,
-          // This unfortunate negative-margin hack compensates for an apparent Highcharts bug when rendering narrow boxplots.
-          margin: [-5, 0, 0, 0],
-          type: 'boxplot',
-          width: 75
-        },
-        credits: {
-          enabled: false
-        },
-        legend: {
-          enabled: false
-        },
-        plotOptions: {
-          boxplot: {
-            accessibility: {
-              description: this.chartDescription,
-              enabled: true,
-              exposeAsGroupOnly: true,
-              keyboardNavigation: {
-                enabled: true
-              },
-              valueDescriptionFormat: point => `${point.index + 1}. ${point.name} (y value: ${point.y})`
-            },
-            color: '#ccc',
-            enableMouseTracking: false,
-            fillColor: '#ccc',
-            lineWidth: 1,
-            medianColor: '#666',
-            medianWidth: 3,
-            whiskerLength: 9,
-            whiskerWidth: 1
-          }
-        },
-        series: this.generateSeriesFromDataset(),
-        title: {
-          text: ''
-        },
-        tooltip: {
-          backgroundColor: '#fff',
-          borderColor: '#eee',
-          borderRadius: 16,
-          headerFormat: `
-            <div class="align-center boxplot-tooltip-font-family boxplot-tooltip-header d-flex justify-space-between px-3 py-2">
-              <div>User Score</div>
-              <div class="ml-3 pl-5">${this._get(this.dataset.student, 'raw') || '&mdash;'}</div>
-            </div>
-          `,
-          hideDelay: 0,
-          outside: true,
-          padding: 0,
-          pointFormat: `
-            <div class="boxplot-tooltip-font-family px-3 py-2 w-100">
-              <div class="align-center d-flex justify-space-between">
-                <div>Maximum</div>
-                <div class="ml-3 pl-5">${this.getCourseDecile(10) || '&mdash;'}</div>
-              </div>
-              <div class="align-center d-flex justify-space-between pt-1">
-                <div>70th Percentile</div>
-                <div class="ml-3 pl-5">${this.getCourseDecile(7) || '&mdash;'}</div>
-              </div>
-              <div class="align-center d-flex justify-space-between pt-1">
-                <div>50th Percentile</div>
-                <div class="ml-3 pl-5">${this.getCourseDecile(5) || '&mdash;'}</div>
-              </div>
-              <div class="align-center d-flex justify-space-between pt-1">
-                <div>30th Percentile</div>
-                <div class="ml-3 pl-5">${this.getCourseDecile(3) || '&mdash;'}</div>
-              </div>
-              <div class="align-center d-flex justify-space-between pt-1">
-                <div>Minimum</div>
-                <div class="ml-3 pl-5">${this.getCourseDecile(0) || '&mdash;'}</div>
-              </div>
-            </div>
-          `,
-          style: {
-            fontSize: '14px',
-            width: 400,
-            whiteSpace: 'nowrap'
-          },
-          useHTML: true
-        },
-        xAxis: {
-          accessibility: {
-            description: '',
-            enabled: true
-          },
-          endOnTick: false,
-          labels: {
-            enabled: false
-          },
-          lineWidth: 0,
-          startOnTick: false,
-          tickLength: 0
-        },
-        yAxis: {
-          accessibility: {
-            description: '',
-            enabled: true
-          },
-          endOnTick: false,
-          gridLineWidth: 0,
-          labels: {
-            enabled: false
-          },
-          lineWidth: 0,
-          maxPadding: 0.001,
-          minPadding: 0.001,
-          startOnTick: false,
-          tickLength: 0,
-          title: {
-            enabled: false
-          }
-        }
-      }
+    endOnTick: false,
+    labels: {
+      enabled: false
+    },
+    lineWidth: 0,
+    startOnTick: false,
+    tickLength: 0
+  },
+  yAxis: {
+    accessibility: {
+      description: '',
+      enabled: true
+    },
+    endOnTick: false,
+    gridLineWidth: 0,
+    labels: {
+      enabled: false
+    },
+    lineWidth: 0,
+    maxPadding: 0.001,
+    minPadding: 0.001,
+    startOnTick: false,
+    tickLength: 0,
+    title: {
+      enabled: false
     }
   }
+})
+
+const generateSeriesFromDataset = () => {
+  return [
+    {
+      data: courseDeciles ? [
+        [
+          getCourseDecile(0),
+          getCourseDecile(3),
+          getCourseDecile(5),
+          getCourseDecile(7),
+          getCourseDecile(10)
+        ]
+      ] : []
+    },
+    {
+      data: props.dataset.student ? [[0, props.dataset.student.raw]] : [],
+      marker: {
+        fillColor: '#4a90e2',
+        lineWidth: 0,
+        radius: 4,
+        states: {
+          hover: {
+            enabled: false
+          }
+        }
+      },
+      type: 'scatter'
+    }
+  ]
+}
+
+const getCourseDecile = index => {
+  return size(courseDeciles) > index ? courseDeciles[index] : null
 }
 </script>
 

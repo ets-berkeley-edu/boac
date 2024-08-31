@@ -3,9 +3,9 @@
     <div class="align-center d-flex flex-wrap h-100">
       <div class="border-e-sm gpa ml-0 py-2 text-center">
         <div id="cumulative-gpa" class="data-number">
-          <span v-if="!_isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
-          <span v-if="_isNil(cumulativeGPA)">--</span>
-          <span v-if="_isNil(cumulativeGPA)" class="sr-only">No data</span>
+          <span v-if="!isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
+          <span v-if="isNil(cumulativeGPA)">--</span>
+          <span v-if="isNil(cumulativeGPA)" class="sr-only">No data</span>
         </div>
         <div class="gpa-label text-uppercase">Cumulative GPA</div>
       </div>
@@ -15,17 +15,17 @@
             GPA Trends
           </h4>
           <StudentGpaChart
-            v-if="_get(student, 'termGpa.length') > 1"
+            v-if="get(student, 'termGpa.length') > 1"
             :chart-description="`Chart of GPA over time. ${student.name}'s `"
             class="ml-4 gpa-trends-chart"
             :student="student"
           />
           <div class="ml-6">
-            <div v-if="_isEmpty(student.termGpa)" class="gpa-trends-label">
+            <div v-if="isEmpty(student.termGpa)" class="gpa-trends-label">
               GPA Not Yet Available
             </div>
             <div
-              v-if="!_isEmpty(student.termGpa)"
+              v-if="!isEmpty(student.termGpa)"
               id="current-term-gpa"
               class="align-end d-flex"
             >
@@ -40,7 +40,7 @@
               </div>
               <div>
                 <v-btn
-                  v-if="!_isEmpty(student.termGpa)"
+                  v-if="!isEmpty(student.termGpa)"
                   id="show-hide-term-gpa-button"
                   aria-controls="term-gpa-collapse"
                   class="pa-0 show-more-term-gpa-btn"
@@ -86,7 +86,7 @@
             </td>
           </tr>
           <tr
-            v-if="_isEmpty(student.termGpa)"
+            v-if="isEmpty(student.termGpa)"
             id="student-gpa-no-terms"
           >
             <td>No previous terms</td>
@@ -99,40 +99,25 @@
 </template>
 
 <script setup>
-import {mdiAlertRhombus, mdiMenuDown, mdiMenuRight} from '@mdi/js'
-</script>
-
-<script>
 import StudentGpaChart from '@/components/student/StudentGpaChart'
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, round} from '@/lib/utils'
+import {get, isEmpty, isNil} from 'lodash'
+import {mdiAlertRhombus, mdiMenuDown, mdiMenuRight} from '@mdi/js'
+import {ref} from 'vue'
 
-export default {
-  name: 'StudentProfileGPA',
-  components: {
-    StudentGpaChart
-  },
-  mixins: [Context, Util],
-  props: {
-    student: {
-      required: true,
-      type: Object
-    }
-  },
-  data: () => ({
-    cumulativeGPA: undefined,
-    showTermGpa: false
-  }),
-  created() {
-    this.cumulativeGPA = this._get(this.student, 'sisProfile.cumulativeGPA')
-  },
-  methods: {
-    showHideTermGpa() {
-      this.showTermGpa = !this.showTermGpa
-      alertScreenReader(`The table with GPA per term is now ${this.showTermGpa ? 'visible' : 'hidden'}.`)
-    }
+const props = defineProps({
+  student: {
+    required: true,
+    type: Object
   }
+})
+
+const cumulativeGPA = get(props.student, 'sisProfile.cumulativeGPA')
+const showTermGpa = ref(false)
+
+const showHideTermGpa = () => {
+  showTermGpa.value = !showTermGpa.value
+  alertScreenReader(`The table with GPA per term is now ${showTermGpa.value ? 'visible' : 'hidden'}.`)
 }
 </script>
 
