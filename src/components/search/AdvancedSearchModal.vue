@@ -125,17 +125,45 @@
                     <span id="notes-search-author-input-label" class="sr-only">
                       Select note author from list of suggested advisors.
                     </span>
-                    <Autocomplete
+                    <v-autocomplete
                       id="search-options-note-filters-author"
-                      v-model="authorModel"
+                      autocomplete="off"
+                      :clearable="!isFetchingAdvisors"
                       class="mt-1"
-                      :compact="true"
+                      :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                      density="compact"
                       :disabled="searchStore.isSearching || searchStore.postedBy === 'you'"
-                      :fetch="findAdvisorsByName"
-                      option-label-key="label"
-                      option-value-key="uid"
-                      :placeholder="searchStore.postedBy === 'you' ? currentUser.name : 'Enter name...'"
-                    />
+                      hide-details
+                      hide-no-data
+                      :items="suggestedAdvisors"
+                      :maxlength="56"
+                      :menu-icon="null"
+                      :menu-props="{'attach': false, 'location': 'bottom'}"
+                      :model-value="searchStore.postedBy === 'anyone' ? searchStore.author : null"
+                      placeholder="Enter name..."
+                      variant="outlined"
+                      @click:clear="onClearAdvisorSearch"
+                      @update:menu="s => s ? null : $emit('user-selected', selected)"
+                      @update:model-value="value => {
+                        searchStore.setPostedBy('anyone')
+                        searchStore.setAuthor(value)
+                      }"
+                      @update:search="onUpdateAdvisorSearch"
+                      @focusin="onClearAdvisorSearch"
+                    >
+                      <template #append-inner>
+                        <v-progress-circular
+                          v-if="isFetchingAdvisors"
+                          color="pale-blue"
+                          indeterminate
+                          :size="16"
+                          :width="3"
+                        />
+                      </template>
+                      <template #selection>
+                        {{ searchStore.author.label }}
+                      </template>
+                    </v-autocomplete>
                   </div>
                   <div class="pt-3 w-75">
                     <label class="form-control-label" for="search-options-note-filters-student">
@@ -144,15 +172,43 @@
                     <span id="notes-search-student-input-label" class="sr-only">
                       Select a student for notes-related search. Expect auto-suggest as you type name or SID.
                     </span>
-                    <Autocomplete
+                    <v-autocomplete
                       id="search-options-note-filters-student"
-                      v-model="studentModel"
-                      :compact="true"
+                      autocomplete="off"
+                      :clearable="!isFetchingStudents"
+                      class="mt-1"
+                      :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                      color="grey"
+                      density="compact"
                       :disabled="searchStore.isSearching"
-                      :fetch="findStudentsByNameOrSid"
-                      input-labelled-by="notes-search-student-input-label"
+                      hide-details
+                      hide-no-data
+                      :items="suggestedStudents"
+                      :maxlength="56"
+                      :menu-icon="null"
+                      :menu-props="{'attach': false, 'location': 'bottom'}"
+                      :model-value="searchStore.student"
                       placeholder="Enter name or SID..."
-                    />
+                      variant="outlined"
+                      @click:clear="onClearStudentSearch"
+                      @update:menu="s => s ? null : $emit('user-selected', selected)"
+                      @update:model-value="value => searchStore.setStudent(value)"
+                      @update:search="onUpdateStudentSearch"
+                      @focusin="onClearStudentSearch"
+                    >
+                      <template #append-inner>
+                        <v-progress-circular
+                          v-if="isFetchingAdvisors"
+                          color="pale-blue"
+                          indeterminate
+                          :size="16"
+                          :width="3"
+                        />
+                      </template>
+                      <template #selection>
+                        {{ searchStore.student.label }}
+                      </template>
+                    </v-autocomplete>
                   </div>
                   <div class="pt-3">
                     <label id="search-options-date-range-label" class="form-control-label">
@@ -234,7 +290,6 @@
 import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import AdvancedSearchCheckboxes from '@/components/search/AdvancedSearchCheckboxes'
 import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
-import Autocomplete from '@/components/util/Autocomplete.vue'
 import FocusLock from 'vue-focus-lock'
 import ProgressButton from '@/components/util/ProgressButton'
 import router from '@/router'
@@ -243,7 +298,7 @@ import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop} from '@/l
 import {computed, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {findStudentsByNameOrSid} from '@/api/student'
-import {isDate, trim} from 'lodash'
+import {debounce, isDate, map, size, trim} from 'lodash'
 import {labelForSearchInput} from '@/lib/search'
 import {mdiTune} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
@@ -255,18 +310,15 @@ const currentUser = contextStore.currentUser
 
 const counter = ref(0)
 const isFocusAdvSearchButton = ref(false)
+const isFetchingAdvisors = ref(false)
+const isFetchingStudents = ref(false)
+const suggestedAdvisors = ref([])
+const suggestedStudents = ref([])
 
 const allOptionsUnchecked = computed(() => {
   const admits = searchStore.domain && searchStore.domain.includes('admits') && searchStore.includeAdmits
   return !admits && !searchStore.includeCourses && !searchStore.includeNotes && !searchStore.includeStudents
 })
-const authorModel = computed(() => ({
-  get: () => searchStore.postedBy === 'anyone' ? searchStore.author : null,
-  set: value => {
-    searchStore.setPostedBy('anyone')
-    searchStore.setAuthor(value)
-  }
-}))
 const isSearchDisabled = computed(() => {
   return (
     searchStore.isSearching || allOptionsUnchecked.value ||
@@ -279,7 +331,6 @@ const searchInputRequired = computed(() => {
   return !searchStore.includeNotes || !(searchStore.author || searchStore.fromDate || searchStore.toDate || searchStore.postedBy !== 'anyone' || searchStore.student || searchStore.topic)
 })
 const showAdvancedSearchModel = computed({get: () => !!searchStore.showAdvancedSearch, set: v => searchStore.setShowAdvancedSearch(v)})
-const studentModel = computed({get: () => searchStore.student, set: v => searchStore.setStudent(v)})
 const topicModel = computed({get: () => searchStore.topic, set: v => searchStore.setTopic(v)})
 const validDateRange = computed(() => {
   if (isDate(searchStore.fromDate) && isDate(searchStore.toDate) && (searchStore.toDate < searchStore.fromDate)) {
@@ -306,6 +357,36 @@ const cancel = () => {
   searchStore.resetAutocompleteInput()
   setTimeout(() => reset(true), 100)
 }
+
+const onClearAdvisorSearch = () => {
+  suggestedAdvisors.value = []
+  isFetchingAdvisors.value = false
+}
+
+const onClearStudentSearch = () => {
+  suggestedStudents.value = []
+  isFetchingStudents.value = false
+}
+
+const onUpdateAdvisorSearch = debounce(args => {
+  if (size(args)) {
+    isFetchingAdvisors.value = true
+    findAdvisorsByName(args, 20, new AbortController()).then(results => {
+      suggestedAdvisors.value = map(results, result => ({title: result.label, value: result}))
+      isFetchingAdvisors.value = false
+    })
+  }
+}, 500)
+
+const onUpdateStudentSearch = debounce(args => {
+  if (size(args)) {
+    isFetchingStudents.value = true
+    findStudentsByNameOrSid(args, 20).then(results => {
+      suggestedStudents.value = map(results, result => ({title: result.label, value: result}))
+      isFetchingStudents.value = false
+    })
+  }
+}, 500)
 
 const openAdvancedSearch = () => {
   searchStore.setShowAdvancedSearch(true)

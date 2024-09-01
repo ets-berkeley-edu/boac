@@ -11,10 +11,14 @@
               :disabled="isBusy"
             >
               <option
-                v-for="option in filterTypeOptions"
+                v-for="option in [
+                  {name: 'Search', value: 'search'},
+                  {name: 'BOA Admins', value: 'admins'},
+                  {name: 'Filter', value: 'filter'}
+                ]"
                 :key="option.value"
                 :value="option.value"
-                @select="refreshUsers"
+                @select="usersProvider"
               >
                 {{ option.name }}
               </option>
@@ -24,18 +28,39 @@
         <v-col cols="9">
           <div v-if="filterType === 'search'">
             <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
-            <Autocomplete
+            <v-autocomplete
               id="search-user-input"
               v-model="userSelection"
-              :compact="true"
+              autocomplete="off"
+              :clearable="!isFetching"
+              base-color="black"
+              :class="{'demo-mode-blur': contextStore.currentUser.inDemoMode}"
+              color="grey"
+              density="compact"
               :disabled="isBusy"
-              :fetch="userAutocomplete"
-              option-label-key="label"
-              option-value-key="uid"
-              placeholder="Enter name..."
-              :show-no-data="true"
-              @user-selected="userSelected"
-            />
+              hide-details
+              hide-no-data
+              :items="suggestedUsers"
+              label="Enter name..."
+              :maxlength="72"
+              :menu-icon="null"
+              :menu-props="{'attach': false, 'location': 'bottom'}"
+              variant="outlined"
+              @click:clear="onClearSearch"
+              @update:menu="s => s ? null : $emit('user-selected', selected)"
+              @update:search="onUpdateSearch"
+              @focusin="onClearSearch"
+            >
+              <template #append-inner>
+                <v-progress-circular
+                  v-if="isFetching"
+                  color="pale-blue"
+                  indeterminate
+                  :size="16"
+                  :width="3"
+                />
+              </template>
+            </v-autocomplete>
           </div>
           <div v-if="filterType === 'filter'" class="d-flex">
             <div class="pr-2">
@@ -44,10 +69,10 @@
                 v-model="filterBy.deptCode"
                 class="select-menu"
                 :disabled="isBusy"
-                @update:model-value="refreshUsers"
+                @update:model-value="usersProvider"
               >
                 <option
-                  v-for="option in departmentSelectionList"
+                  v-for="option in [{id: -1, code: null, name: 'All'}, ...departments]"
                   :id="`department-option-${option.code}`"
                   :key="option.code"
                   :value="option.code"
@@ -62,10 +87,16 @@
                 v-model="filterBy.role"
                 class="select-menu"
                 :disabled="isBusy"
-                @update:model-value="refreshUsers"
+                @update:model-value="usersProvider"
               >
                 <option
-                  v-for="option in userPermissionOptions"
+                  v-for="option in [
+                    {name: 'All', value: null},
+                    {name: 'Advisors', value: 'advisor'},
+                    {name: 'No Canvas Data', value: 'noCanvasDataAccess'},
+                    {name: 'No Notes or Appointments', value: 'noAdvisingDataAccess'},
+                    {name: 'Directors', value: 'director'}
+                  ]"
                   :id="`user-permission-${option.value}`"
                   :key="option.value"
                   :value="option.value"
@@ -80,10 +111,15 @@
                 v-model="filterBy.status"
                 class="select-menu"
                 :disabled="isBusy"
-                @update:model-value="refreshUsers"
+                @update:model-value="usersProvider"
               >
                 <option
-                  v-for="option in userStatusOptions"
+                  v-for="option in [
+                    {name: 'All', value: null},
+                    {name: 'Active', value: 'active'},
+                    {name: 'Deleted', value: 'deleted'},
+                    {name: 'Blocked', value: 'blocked'}
+                  ]"
                   :id="`user-permission-${option.value}`"
                   :key="option.value"
                   :value="option.value"
@@ -169,7 +205,17 @@
             id: normalizeId(`td-user-${data.item.uid}-column-${data.column.key}`)
           }
         }"
-        :headers="tableHeaders"
+        :headers="[
+          {title: '', key: 'data-table-expand', sortable: false},
+          {title: 'UID', key: 'uid', sortable: false, align: 'start', headerProps: {class: ['header-text-styling']}},
+          {title: '', key: 'edit', align: 'end', sortable: false, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name', 'purple-background']}},
+          {title: 'Last Name', key: 'lastName', align: 'start', sortable: true, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name', 'purple-background']}},
+          {title: 'Departments', key: 'departments', align: 'start', sortable: false, headerProps: {class: ['header-text-styling']}},
+          {title: 'Status', key: 'deletedAt', align: 'start', sortable: false, headerProps: {class: ['header-text-styling']}},
+          {title: 'Last Login', key: 'lastLogin', align: 'start', sortable: true, cellProps: {class: 'manifest-column-last-login'}, headerProps: {class: ['header-text-styling']}},
+          {title: 'Email', key: 'campusEmail', align: 'start', sortable: false},
+          {title: '', key: 'becomeUser', sortable: false, headerProps: {class: ['header-text-styling']}}
+        ]"
         :header-props="{class: 'font-size-14 py-3 text-no-wrap'}"
         :hide-default-footer="true"
         hide-no-data
@@ -243,11 +289,11 @@
         <template #item.departments="{ item }">
           <div class="row-padding">
             <div v-for="(department, index) in item.departments" :key="department.code">
-              <span class="green-bold-text text-body-2">{{ department.name }} - {{ department.role }}</span>
+              <span class="font-weight-bold text-body-2 text-green">{{ department.name }} - {{ department.role }}</span>
               <div v-if="index !== item.departments.length - 1"></div>
             </div>
-            <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="gray-text">
-              <span class="bold-text text-body-2">Degree Progress - </span>
+            <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="text-grey">
+              <span class="font-weight-bold text-body-2">Degree Progress - </span>
               <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress" class="text-body-2"> read/write</span>
               <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress" class="text-body-2"> read</span>
               <span v-if="item.automateDegreeProgressPermission" class="text-body-2"> (automated)</span>
@@ -299,327 +345,178 @@
 </template>
 
 <script setup>
-import {get} from 'lodash'
-import {mdiEmail} from '@mdi/js'
-import {mdiLoginVariant} from '@mdi/js'
-import {normalizeId} from '@/lib/utils'
-import {mdiNoteOutline} from '@mdi/js'
-import {ref} from 'vue'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
-import Autocomplete from '@/components/util/Autocomplete.vue'
-import Util from '@/mixins/Util'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
-import {getBoaUserRoles} from '@/berkeley'
 import {DateTime} from 'luxon'
+import {debounce, get, isNil, map, size} from 'lodash'
+import {mdiEmail} from '@mdi/js'
+import {mdiLoginVariant, mdiNoteOutline} from '@mdi/js'
+import {normalizeId} from '@/lib/utils'
+import {onMounted, ref, watch} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'Users',
-  components: {EditUserProfileModal, Autocomplete},
-  mixins: [Context, Util],
-  props: {
-    departments: {
-      required: true,
-      type: Array
-    },
-    refresh: {
-      required: false,
-      type: Boolean
-    }
+const props = defineProps({
+  departments: {
+    required: true,
+    type: Array
   },
-  data: () => ({
-    expanded: [],
-    currentPage: 1,
-    itemsPerPage: 10,
-    filterBy: {
-      deptCode: 'QCADV',
-      role: null,
-      searchPhrase: '',
-      status: null
-    },
-    filterType: 'search',
-    isBusy: false,
-    sortBy: 'lastName',
-    sortDesc: false,
-    totalUserCount: 0,
-    userSelection: undefined,
-    departmentSelectionList: [],
-    users: [],
-    allUsersCache: [],
-    items: ref([]),
-    filterTypeOptions: [
-      {
-        name: 'Search',
-        value: 'search'
-      },
-      {
-        name: 'BOA Admins',
-        value: 'admins'
-      },
-      {
-        name: 'Filter',
-        value: 'filter'
-      }
-    ],
-    userPermissionOptions: [
-      {
-        name: 'All',
-        value: null
-      },
-      {
-        name: 'Advisors',
-        value: 'advisor'
-      },
-      {
-        name: 'No Canvas Data',
-        value: 'noCanvasDataAccess'
-      },
-      {
-        name: 'No Notes or Appointments',
-        value: 'noAdvisingDataAccess'
-      },
-      {
-        name: 'Directors',
-        value: 'director'
-      }
-    ],
-    userStatusOptions: [
-      {
-        name: 'All',
-        value: null
-      },
-      {
-        name: 'Active',
-        value: 'active'
-      },
-      {
-        name: 'Deleted',
-        value: 'deleted'
-      },
-      {
-        name: 'Blocked',
-        value: 'blocked'
-      }
-    ],
-    tableHeaders: [
-      {
-        title: '',
-        key: 'data-table-expand',
-        sortable: false
-      },
-      {
-        title: 'UID',
-        key: 'uid',
-        sortable: false,
-        align: 'start',
-        headerProps: {
-          class: ['header-text-styling']
-        }
-      },
-      {
-        title: '',
-        key: 'edit',
-        align: 'end',
-        sortable: false,
-        headerProps: {
-          class: ['header-text-styling']
-        },
-        cellProps: {
-          class: ['manifest-column-name', 'purple-background']
-        },
-      },
-      {
-        title: 'Last Name',
-        key: 'lastName',
-        align: 'start',
-        sortable: true,
-        headerProps: {
-          class: ['header-text-styling']
-        },
-        cellProps: {
-          class: ['manifest-column-name', 'purple-background'],
-        },
-      },
-      {
-        title: 'Departments',
-        key: 'departments',
-        align: 'start',
-        sortable: false,
-        headerProps: {
-          class: ['header-text-styling']
-        },
-      },
-      {
-        title: 'Status',
-        key: 'deletedAt',
-        align: 'start',
-        sortable: false,
-        headerProps: {
-          class: ['header-text-styling']
-        },
-      },
-      {
-        title: 'Last Login',
-        key: 'lastLogin',
-        align: 'start',
-        sortable: true,
-        cellProps: {
-          class: 'manifest-column-last-login'
-        },
-        headerProps: {
-          class: ['header-text-styling']
-        },
-      },
-      {
-        title: 'Email',
-        key: 'campusEmail',
-        align: 'start',
-        sortable: false,
-      },
-      {
-        title: '',
-        key: 'becomeUser',
-        sortable: false,
-        headerProps: {
-          class: ['header-text-styling']
-        },
-      }
-    ]
-  }),
-  watch: {
-    refresh(value) {
-      if (value) {
-        this.refreshUsers()
-      }
-    },
-    userSelection(newVal) {
-      if (newVal) {
-        this.refreshUsers()
-      }
-    }
-  },
-  created() {
-    this.departmentSelectionList = [{
-      id: -1, code: null, name: 'All'
-    }, ...this.departments]
-
-  },
-  mounted() {
-    this.usersProvider()
-  },
-  methods: {
-    handleSort(sortBy) {
-      if (sortBy.length) {
-        this.sortBy = sortBy[0].key
-        this.sortDesc = sortBy[0].order === 'asc' ? false : true
-        this.usersProvider() // Method to fetch users with new sorting parameters
-      }
-    },
-    afterCancelUpdateUser(profile) {
-      alertScreenReader('Canceled')
-      putFocusNextTick(get(profile, 'uid') ? `edit-${profile.uid}` : 'add-new-user-btn')
-    },
-    afterUpdateUser(profile) {
-      alertScreenReader(`${profile.name} profile updated.`)
-      if (this.filterType === 'search') {
-        this.userSelection = profile.uid
-      }
-      this.refreshUsers()
-      putFocusNextTick(get(profile, 'uid') ? `edit-${profile.uid}` : 'add-new-user-btn')
-    },
-    autocompleteUsers(q) {
-      return userAutocomplete(q).then(results => this._orderBy(results, 'label'))
-    },
-    become(uid) {
-      becomeUser(uid).then(() => window.location.href = '/')
-    },
-    canBecome(user) {
-      const isNotMe = user.uid !== this.currentUser.uid
-      const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
-      const hasAnyRole = user?.isAdmin || this._find(user.departments, (dept) => !this._isNil(dept.role))
-      return this.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
-    },
-    getBoaUserRoles,
-    getUserStatuses(user) {
-      const statuses = user.deletedAt ? ['Deleted'] : ['Active']
-      if (user.isBlocked) {
-        statuses.push('Blocked')
-      }
-      if (user.isExpiredPerLdap) {
-        statuses.push('Expired, according to CalNet.')
-      }
-      return statuses
-    },
-    openEditUserModal(user) {
-      user.showEditUserModal = true
-    },
-    quickLink(role, deptCode=null) {
-      this.filterType = 'filter'
-      this.filterBy = {
-        deptCode: deptCode,
-        role: role,
-        searchPhrase: '',
-        status: 'active'
-      }
-      this.refreshUsers()
-    },
-    refreshUsers() {
-      this.usersProvider()
-    },
-    userSelected(selectedUser) {
-      this.userSelection = selectedUser
-    },
-    usersProvider() {
-      let promise = undefined
-      switch(this.filterType) {
-      case 'admins':
-        this.totalUserCount = undefined
-        promise = getAdminUsers(this.sortBy, this.sortDesc, false).then(data => {
-          this.totalUserCount = data.totalUserCount
-          this.users = data.users
-          return data.users
-        })
-        break
-      case 'filter':
-        this.totalUserCount = undefined
-        promise = getUsers(
-          this._isNil(this.filterBy.status) ? null : this.filterBy.status === 'blocked',
-          this._isNil(this.filterBy.status) ? null : this.filterBy.status === 'deleted',
-          this.filterBy.deptCode,
-          this.filterBy.role,
-          this.sortBy,
-          this.sortDesc
-        ).then(data => {
-          this.totalUserCount = data.totalUserCount
-          this.users = data.users
-          return data.users
-        })
-        break
-      case 'search':
-        this.totalUserCount = 0
-        this.users = []
-        if (this.userSelection) {
-          promise = getUserByUid(this.userSelection, false).then(data => {
-            this.totalUserCount = 1
-            this.userSelection = undefined
-            this.users = [data]
-            return [data]
-          })
-        } else {
-          promise = new Promise(resolve => resolve([]))
-        }
-        this.putFocusNextTick('search-user-input')
-        break
-      default:
-        promise = new Promise(resolve => resolve([]))
-      }
-      return promise
-    },
+  refresh: {
+    required: false,
+    type: Boolean
   }
+})
+
+const contextStore = useContextStore()
+
+const expanded = ref([])
+const itemsPerPage = 10
+const filterBy = ref({
+  deptCode: 'QCADV',
+  role: null,
+  searchPhrase: '',
+  status: null
+})
+const filterType = ref('search')
+const isBusy = ref(false)
+const isFetching = ref(false)
+const sortBy = ref('lastName')
+const sortDesc = ref(false)
+const suggestedUsers = ref([])
+const totalUserCount = ref(0)
+const userSelection = ref(undefined)
+const users = ref([])
+
+watch(() => props.refresh, value => {
+  if (value) {
+    usersProvider()
+  }
+})
+watch(userSelection, value => {
+  if (value) {
+    usersProvider()
+  }
+})
+
+onMounted(() => {
+  usersProvider()
+})
+
+const handleSort = sortBy => {
+  if (sortBy.length) {
+    sortBy.value = sortBy[0].key
+    sortDesc.value = sortBy[0].order === 'asc' ? false : true
+    usersProvider() // Method to fetch users with new sorting parameters
+  }
+}
+
+const afterCancelUpdateUser = profile => {
+  alertScreenReader('Canceled')
+  putFocusNextTick(get(profile, 'uid') ? `edit-${profile.uid}` : 'add-new-user-btn')
+}
+
+const afterUpdateUser = profile => {
+  alertScreenReader(`${profile.name} profile updated.`)
+  if (filterType.value === 'search') {
+    userSelection.value = profile.uid
+  }
+  usersProvider()
+  putFocusNextTick(get(profile, 'uid') ? `edit-${profile.uid}` : 'add-new-user-btn')
+}
+
+const become = uid => {
+  becomeUser(uid).then(() => window.location.href = '/')
+}
+
+const canBecome = user => {
+  const isNotMe = user.uid !== contextStore.currentUser.uid
+  const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
+  const hasAnyRole = user?.isAdmin || find(user.departments, (dept) => !isNil(dept.role))
+  return contextStore.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
+}
+
+const getUserStatuses = user => {
+  const statuses = user.deletedAt ? ['Deleted'] : ['Active']
+  if (user.isBlocked) {
+    statuses.push('Blocked')
+  }
+  if (user.isExpiredPerLdap) {
+    statuses.push('Expired, according to CalNet.')
+  }
+  return statuses
+}
+
+const onClearSearch = () => {
+  suggestedUsers.value = []
+  isFetching.value = false
+}
+
+const onUpdateSearch = debounce(arg => {
+  if (size(arg)) {
+    isFetching.value = true
+    userAutocomplete(arg).then(results => {
+      suggestedUsers.value = map(results, result => ({title: result.label, value: result.uid}))
+      isFetching.value = false
+    })
+  }
+}, 500)
+
+const quickLink = (role, deptCode=null) => {
+  filterType.value = 'filter'
+  filterBy.value = {
+    deptCode: deptCode,
+    role: role,
+    searchPhrase: '',
+    status: 'active'
+  }
+  usersProvider()
+}
+
+const usersProvider = () => {
+  let promise = undefined
+  switch(filterType.value) {
+  case 'admins':
+    totalUserCount.value = undefined
+    promise = getAdminUsers(sortBy.value, sortDesc.value, false).then(data => {
+      totalUserCount.value = data.totalUserCount
+      users.value = data.users
+      return data.users
+    })
+    break
+  case 'filter':
+    totalUserCount.value = undefined
+    promise = getUsers(
+      isNil(filterBy.value.status) ? null : filterBy.value.status === 'blocked',
+      isNil(filterBy.value.status) ? null : filterBy.value.status === 'deleted',
+      filterBy.value.deptCode,
+      filterBy.value.role,
+      sortBy.value,
+      sortDesc.value
+    ).then(data => {
+      totalUserCount.value = data.totalUserCount
+      users.value = data.users
+      return data.users
+    })
+    break
+  case 'search':
+    totalUserCount.value = 0
+    users.value = []
+    if (userSelection.value) {
+      promise = getUserByUid(userSelection.value, false).then(data => {
+        totalUserCount.value = 1
+        userSelection.value = undefined
+        users.value = [data]
+        return [data]
+      })
+    } else {
+      promise = new Promise(resolve => resolve([]))
+    }
+    putFocusNextTick('search-user-input')
+    break
+  default:
+    promise = new Promise(resolve => resolve([]))
+  }
+  return promise
 }
 </script>
 
@@ -632,12 +529,12 @@ export default {
 .manifest-column-last-login {
   background-color: #bee5eb;
   font-weight: 900;
-},
+}
 .on-top-of-table {
   z-index: 1000;
   position: relative;
   top: -17px;
-},
+}
 .table-wrapper {
   position: relative;
   top: -44px;
@@ -674,48 +571,6 @@ export default {
   font-size: 14px;
   position: relative;
   top: 16px;
-}
-.custom-select-container {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 16px;
-}
-.custom-select-container label {
-  font-size: 16px;
-  margin-bottom: 8px;
-  color: #6b6b6b; /* Matching Vuetify's label color */
-}
-.custom-select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-color: white;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 16px;
-  color: #495057;
-  box-shadow: none;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-.custom-select:focus {
-  border-color: #3f51b5; /* Matching Vuetify's focus color */
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.25); /* Matching Vuetify's focus shadow */
-}
-.custom-select:disabled {
-  background-color: #e9ecef;
-  color: #6c757d;
-}
-.gray-text {
-  color: gray;
-}
-.green-bold-text {
-  color: green;
-  font-weight: 900;
-}
-.bold-text {
-  font-weight: 900;
 }
 .v-table tbody tr:nth-child(odd) {
   background-color: rgba(0, 0, 0, .05);
