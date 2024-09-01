@@ -29,34 +29,31 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import {alertScreenReader} from '@/lib/utils'
+import {computed} from 'vue'
 import {isUndefined} from 'lodash'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {alertScreenReader} from '@/lib/utils'
 
-export default {
-  name: 'PrivacyPermissions',
-  props: {
-    disabled: {
-      required: false,
-      type: Boolean
-    }
-  },
-  computed: {
-    isPrivate: {
-      get() {
-        return useNoteStore().model.isPrivate
-      },
-      set(value) {
-        useNoteStore().setIsPrivate(value)
-      }
-    }
-  },
-  methods: {
-    isUndefined,
-    onChange() {
-      alertScreenReader(this.isPrivate ? 'Available only to CE3' : 'Available to all advisors')
-    }
+defineProps({
+  disabled: {
+    required: false,
+    type: Boolean
   }
+})
+
+const noteStore = useNoteStore()
+
+const isPrivate = computed({
+  get() {
+    return noteStore.model.isPrivate
+  },
+  set(value) {
+    noteStore.setIsPrivate(value)
+  }
+})
+
+const onChange = () => {
+  alertScreenReader(isPrivate.value ? 'Available only to CE3' : 'Available to all advisors')
 }
 </script>

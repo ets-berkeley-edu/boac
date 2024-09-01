@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading">
+  <div v-if="!contextStore.loading">
     <div class="light-blue-background border-b-sm">
       <StudentProfileHeader :student="student" />
     </div>
@@ -41,7 +41,7 @@ import {exitSession} from '@/stores/note-edit-session/utils'
 import {each, get, noop} from 'lodash'
 import {getStudentByUid} from '@/api/student'
 import {onBeforeRouteLeave, useRoute} from 'vue-router'
-import {computed, onMounted, reactive, ref} from 'vue'
+import {onMounted, reactive, ref} from 'vue'
 import {setWaitlistedStatus} from '@/berkeley'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {useContextStore} from '@/stores/context'
@@ -51,10 +51,9 @@ const noteStore = useNoteStore()
 let cancelTheCancel = noop
 let cancelConfirmed = noop
 const currentUser = reactive(contextStore.currentUser)
-const loading = computed(() => contextStore.loading)
 const route = useRoute()
 const showAreYouSureModal = ref(false)
-let student
+const student = ref(undefined)
 // In demo-mode we do not want to expose UID in browser location bar.
 const uid = currentUser.inDemoMode ? window.atob(route.params.uid) : route.params.uid
 
@@ -62,9 +61,9 @@ contextStore.loadingStart()
 
 onMounted(() => {
   getStudentByUid(uid).then(data => {
-    student = data
-    setPageTitle(currentUser.inDemoMode ? 'Student' : student.name)
-    each(student.enrollmentTerms, term => {
+    student.value = data
+    setPageTitle(currentUser.inDemoMode ? 'Student' : student.value.name)
+    each(student.value.enrollmentTerms, term => {
       each(term.enrollments, course => {
         const canAccessCanvasData = currentUser.canAccessCanvasData
         setWaitlistedStatus(course)
@@ -75,8 +74,8 @@ onMounted(() => {
         })
       })
       if (get(term, 'termGpa.unitsTakenForGpa')) {
-        student.termGpa = student.termGpa || []
-        student.termGpa.push({
+        student.value.termGpa = student.value.termGpa || []
+        student.value.termGpa.push({
           name: get(term, 'termName'),
           gpa: get(term, 'termGpa.gpa')
         })
@@ -85,7 +84,7 @@ onMounted(() => {
     const permalink = decodeStudentUriAnchor()
     const putFocusElementId = permalink ? `permalink-${permalink.messageType}-${permalink.messageId}` : null
     // If custom scroll-to-note is happening then skip the default put-focus-on-h1.
-    contextStore.loadingComplete(`${student.name} loaded`, putFocusElementId)
+    contextStore.loadingComplete(`${student.value.name} loaded`, putFocusElementId)
   })
 })
 

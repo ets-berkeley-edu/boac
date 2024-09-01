@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading" class="default-margins">
+  <div v-if="!contextStore.loading" class="default-margins">
     <div class="d-flex flex-wrap justify-space-between">
       <h1 id="cohort-name" class="page-section-header">
         CE3 Admissions
@@ -48,7 +48,7 @@
       </div>
     </div>
     <div v-if="admits" class="pb-2">
-      <AdmitDataWarning :updated-at="_get(admits, '[0].updatedAt')" />
+      <AdmitDataWarning :updated-at="get(admits, '[0].updatedAt')" />
     </div>
     <SectionSpinner :loading="sorting" />
     <div v-if="!sorting">
@@ -93,131 +93,125 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
-import Context from '@/mixins/Context'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import Pagination from '@/components/util/Pagination'
+import router from '@/router'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
-import Util from '@/mixins/Util'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick, toInt} from '@/lib/utils'
 import {downloadCsv} from '@/api/cohort'
+import {get, map} from 'lodash'
 import {getAdmitCsvExportColumns} from '@/berkeley'
 import {getAllAdmits} from '@/api/admit'
+import {onBeforeUnmount, onMounted, ref} from 'vue'
+import {useContextStore} from '@/stores/context'
+import {useRoute} from 'vue-router'
 
-export default {
-  name: 'AdmitStudents',
-  components: {
-    AdmitDataWarning,
-    AdmitStudentsTable,
-    CuratedGroupSelector,
-    FerpaReminderModal,
-    Pagination,
-    SectionSpinner,
-    SortBy
-  },
-  mixins: [Context, Util],
-  data: () => ({
-    admits: undefined,
-    counter: null,
-    exportEnabled: true,
-    isDownloadingCSV: false,
-    pagination: {
-      currentPage: 1,
-      itemsPerPage: 50
-    },
-    showExportListDialog: false,
-    sorting: false,
-    totalAdmitCount: undefined
-  }),
-  created() {
-    this.loadingStart()
-    this.setEventHandler('admitSortBy-user-preference-change', this.onAdmitSortByUserPreferenceChange)
-  },
-  mounted() {
-    this.counter = this.toInt(this.$route.query._, 0)
-    this.initPagination()
-    this.loadAdmits()
-  },
-  beforeUnmount() {
-    this.removeEventHandler('admitSortBy-user-preference-change', this.onAdmitSortByUserPreferenceChange)
-  },
-  methods: {
-    cancelExportModal() {
-      this.showExportListDialog = false
-      alertScreenReader('Export canceled')
-    },
-    createNewAdmittedStudentsCohort() {
-      this.$router.push({
-        path: '/cohort/new',
-        query: {domain: 'admitted_students'}
-      })
-    },
-    exportCohort() {
-      const name = 'CE3 Admissions'
-      this.isDownloadingCSV = true
-      this.exportEnabled = false
-      alertScreenReader(`Exporting cohort ${name}`)
-      downloadCsv(
-        'admitted_students',
-        name,
-        [],
-        this._map(getAdmitCsvExportColumns(), 'value')
-      ).then(() => {
-        this.showExportListDialog = false
-        this.exportEnabled = true
-        this.isDownloadingCSV = false
-      })
-    },
-    goToPage(page) {
-      if (page !== this.pagination.currentPage) {
-        if (this.pagination.currentPage) {
-          alertScreenReader(`Loading page ${page} of this cohort's students`)
-        }
-        this.pagination.currentPage = page
-        this.$router.push({
-          query: {...this.$route.query, p: this.pagination.currentPage}
-        })
-      }
-    },
-    initPagination() {
-      if (this.$route.query.p && !isNaN(this.$route.query.p)) {
-        this.pagination.currentPage = parseInt(this.$route.query.p, 10)
-      }
-    },
-    loadAdmits() {
-      const limit = this.pagination.itemsPerPage
-      const offset =
-        this.pagination.currentPage === 0
-          ? 0
-          : (this.pagination.currentPage - 1) * limit
-      getAllAdmits(this.currentUser.preferences.admitSortBy, limit, offset).then(response => {
-        if (response) {
-          this.admits = this._get(response, 'students')
-          this.totalAdmitCount = this._get(response, 'totalStudentCount')
-          this.loadingComplete(`${this.totalAdmitCount} CE3 admits loaded`)
-          this.putFocusNextTick('cohort-name')
-        } else {
-          this.$router.push({path: '/404'})
-        }
-        this.sorting = false
-      })
-    },
-    onAdmitSortByUserPreferenceChange(sortBy) {
-      this.sorting = true
-      this.loadAdmits()
-      if (!this.loading) {
-        this.goToPage(1)
-        alertScreenReader(`Sort admitted students by ${sortBy}`)
-      }
-    },
-    openFerpaReminderDialog() {
-      this.showExportListDialog = true
-      putFocusNextTick('modal-header')
+const admits = ref(undefined)
+const contextStore = useContextStore()
+const counter = ref(null)
+const exportEnabled = ref(true)
+const isDownloadingCSV = ref(false)
+const pagination = {currentPage: 1, itemsPerPage: 50}
+const route = useRoute()
+const showExportListDialog = ref(false)
+const sorting = ref(false)
+const totalAdmitCount = ref(undefined)
+
+contextStore.loadingStart()
+
+onMounted(() => {
+  contextStore.setEventHandler('admitSortBy-user-preference-change', onAdmitSortByUserPreferenceChange)
+  counter.value = toInt(route.query._, 0)
+  initPagination()
+  loadAdmits()
+})
+
+onBeforeUnmount(() => {
+  contextStore.removeEventHandler('admitSortBy-user-preference-change', onAdmitSortByUserPreferenceChange)
+})
+
+const cancelExportModal = () => {
+  showExportListDialog.value = false
+  alertScreenReader('Export canceled')
+}
+
+const createNewAdmittedStudentsCohort = () => {
+  router.push({
+    path: '/cohort/new',
+    query: {domain: 'admitted_students'}
+  })
+}
+
+const exportCohort = () => {
+  const name = 'CE3 Admissions'
+  isDownloadingCSV.value = true
+  exportEnabled.value = false
+  alertScreenReader(`Exporting cohort ${name}`)
+  downloadCsv(
+    'admitted_students',
+    name,
+    [],
+    map(getAdmitCsvExportColumns(), 'value')
+  ).then(() => {
+    showExportListDialog.value = false
+    exportEnabled.value = true
+    isDownloadingCSV.value = false
+  })
+}
+
+const goToPage = page => {
+  if (page !== pagination.currentPage) {
+    if (pagination.currentPage) {
+      alertScreenReader(`Loading page ${page} of this cohort's students`)
     }
+    pagination.currentPage = page
+    router.push({
+      query: {...route.query, p: pagination.currentPage}
+    })
   }
+}
+
+const initPagination = () => {
+  if (route.query.p && !isNaN(route.query.p)) {
+    pagination.currentPage = parseInt(route.query.p, 10)
+  }
+}
+
+const loadAdmits = () => {
+  const limit = pagination.itemsPerPage
+  const offset =
+    pagination.currentPage === 0
+      ? 0
+      : (pagination.currentPage - 1) * limit
+  getAllAdmits(contextStore.currentUser.preferences.admitSortBy, limit, offset).then(response => {
+    if (response) {
+      admits.value = get(response, 'students')
+      totalAdmitCount.value = get(response, 'totalStudentCount')
+      contextStore.loadingComplete(`${totalAdmitCount.value} CE3 admits loaded`)
+      putFocusNextTick('cohort-name')
+    } else {
+      router.push({path: '/404'})
+    }
+    sorting.value = false
+  })
+}
+
+const onAdmitSortByUserPreferenceChange = sortBy => {
+  sorting.value = true
+  loadAdmits()
+  if (!contextStore.loading) {
+    goToPage(1)
+    alertScreenReader(`Sort admitted students by ${sortBy}`)
+  }
+}
+
+const openFerpaReminderDialog = () => {
+  showExportListDialog.value = true
+  putFocusNextTick('modal-header')
 }
 </script>

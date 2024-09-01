@@ -1,7 +1,7 @@
 <template>
   <v-expand-transition>
     <div v-if="announcement && announcement.isPublished">
-      <div v-if="!dismissedServiceAnnouncement" class="align-start d-flex px-8 py-6 service-announcement">
+      <div v-if="!dismissedServiceAnnouncement" class="align-start d-flex pb-5 pt-4 px-6 service-announcement">
         <div class="d-inline-block pr-1 w-100">
           <h2 class="sr-only" role="heading">BOA Service Alert</h2>
           <span

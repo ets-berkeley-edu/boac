@@ -83,85 +83,78 @@
   </v-data-table-virtual>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
-import Util from '@/mixins/Util'
 import {alertScreenReader, sortComparator} from '@/lib/utils'
+import {each, find, get, isString, join, remove} from 'lodash'
+import {ref, watch} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'SortableAdmits',
-  components: {CuratedStudentCheckbox},
-  mixins: [Context, Util],
-  props: {
-    admittedStudents: {
-      required: true,
-      type: Array
-    }
-  },
-  data() {
-    return {
-      headers: undefined,
-      sortBy: 'lastName',
-      sortDescending: false
-    }
-  },
-  watch: {
-    sortBy() {
-      this.onChangeSortBy()
-    },
-    sortDescending() {
-      this.onChangeSortBy()
-    }
-  },
-  created() {
-    this.headers = [
-      {key: 'curated', title: ''},
-      {key: 'lastName', title: 'Name', sortable: true, width: '220px'},
-      {key: 'csEmplId', title: 'CS ID', sortable: true},
-      {key: 'currentSir', title: 'SIR', sortable: false},
-      {key: 'specialProgramCep', title: 'CEP', sortable: false},
-      {key: 'reentryStatus', title: 'Re-entry', sortable: false},
-      {key: 'firstGenerationCollege', title: '1st Gen', sortable: false},
-      {key: 'urem', title: 'UREM', sortable: false},
-      {key: 'applicationFeeWaiverFlag', title: 'Waiver', sortable: false},
-      {key: 'residencyCategory', title: 'Residency', sortable: false},
-      {key: 'freshmanOrTransfer', title: 'Freshman/Transfer', sortable: false},
-    ]
-  },
-  methods: {
-    admitRoutePath(csEmplId) {
-      return this.currentUser.inDemoMode ? `/admit/student/${window.btoa(csEmplId)}` : `/admit/student/${csEmplId}`
-    },
-    fullName(admit) {
-      const lastName = admit.lastName ? `${admit.lastName},` : null
-      return this._join(this._remove([lastName, admit.firstName, admit.middleName]), ' ')
-    },
-    normalizeForSort(value) {
-      return this._isString(value) ? value.toLowerCase() : value
-    },
-    onChangeSortBy() {
-      const header = this._find(this.headers, ['key', this.sortBy])
-      alertScreenReader(`Sorted by ${header.title}${this.sortDescending ? ', descending' : ''}`)
-    },
-    sortCompare(a, b, sortBy, sortDesc) {
-      let aValue = this.normalizeForSort(this._get(a, sortBy))
-      let bValue = this.normalizeForSort(this._get(b, sortBy))
-      let result = sortComparator(aValue, bValue)
-      if (result === 0) {
-        this._each(['lastName', 'firstName', 'csEmplId'], field => {
-          result = sortComparator(
-            this.normalizeForSort(this._get(a, field)),
-            this.normalizeForSort(this._get(b, field))
-          )
-          // Secondary sort is always ascending
-          result *= sortDesc ? -1 : 1
-          // Break from loop if comparator result is non-zero
-          return result === 0
-        })
-      }
-      return result
-    }
+defineProps({
+  admittedStudents: {
+    required: true,
+    type: Array
   }
+})
+
+const currentUser = useContextStore().currentUser
+const headers = [
+  {key: 'curated', title: ''},
+  {key: 'lastName', title: 'Name', sortable: true, width: '220px'},
+  {key: 'csEmplId', title: 'CS ID', sortable: true},
+  {key: 'currentSir', title: 'SIR', sortable: false},
+  {key: 'specialProgramCep', title: 'CEP', sortable: false},
+  {key: 'reentryStatus', title: 'Re-entry', sortable: false},
+  {key: 'firstGenerationCollege', title: '1st Gen', sortable: false},
+  {key: 'urem', title: 'UREM', sortable: false},
+  {key: 'applicationFeeWaiverFlag', title: 'Waiver', sortable: false},
+  {key: 'residencyCategory', title: 'Residency', sortable: false},
+  {key: 'freshmanOrTransfer', title: 'Freshman/Transfer', sortable: false},
+]
+const sortBy = ref('lastName')
+const sortDescending = ref(false)
+
+watch(sortBy, () => {
+  onChangeSortBy()
+})
+watch(sortDescending, () => {
+  onChangeSortBy()
+})
+
+const admitRoutePath = csEmplId => {
+  return currentUser.inDemoMode ? `/admit/student/${window.btoa(csEmplId)}` : `/admit/student/${csEmplId}`
+}
+
+const fullName = admit => {
+  const lastName = admit.lastName ? `${admit.lastName},` : null
+  return join(remove([lastName, admit.firstName, admit.middleName]), ' ')
+}
+
+const normalizeForSort = value => {
+  return isString(value) ? value.toLowerCase() : value
+}
+
+const onChangeSortBy = () => {
+  const header = find(headers, ['key', sortBy.value])
+  alertScreenReader(`Sorted by ${header.title}${sortDescending.value ? ', descending' : ''}`)
+}
+
+const sortCompare = (a, b, sortBy, sortDesc) => {
+  let aValue = normalizeForSort(get(a, sortBy))
+  let bValue = normalizeForSort(get(b, sortBy))
+  let result = sortComparator(aValue, bValue)
+  if (result === 0) {
+    each(['lastName', 'firstName', 'csEmplId'], field => {
+      result = sortComparator(
+        normalizeForSort(get(a, field)),
+        normalizeForSort(get(b, field))
+      )
+      // Secondary sort is always ascending
+      result *= sortDesc ? -1 : 1
+      // Break from loop if comparator result is non-zero
+      return result === 0
+    })
+  }
+  return result
 }
 </script>

@@ -4,39 +4,32 @@
   </router-link>
 </template>
 
-<script>
-export default {
-  name: 'NavLink',
-  props: {
-    defaultCounter: {
-      type: Number,
-      required: false,
-      default: 0
-    },
-    path: {
-      type: String,
-      required: true
-    },
-    queryArgs: {
-      default: undefined,
-      required: false,
-      type: Object
-    }
+<script setup>
+import {computed, ref} from 'vue'
+
+const props = defineProps({
+  defaultCounter: {
+    type: Number,
+    required: false,
+    default: 0
   },
-  data: () => ({
-    counter: undefined
-  }),
-  computed: {
-    query() {
-      const args = this.queryArgs || {}
-      return {
-        ...{'_': this.counter},
-        ...args
-      }
-    }
+  path: {
+    type: String,
+    required: true
   },
-  created() {
-    this.counter = this.defaultCounter
+  queryArgs: {
+    default: undefined,
+    required: false,
+    type: Object
   }
-}
+})
+
+const counter = ref(props.defaultCounter)
+const query = computed(() => {
+  const args = props.queryArgs || {}
+  return {
+    ...{'_': counter},
+    ...args
+  }
+})
 </script>

@@ -1,6 +1,6 @@
 <template>
   <v-expansion-panel
-    :id="id"
+    :id="`sortable-${keyword}-${props.group.id}`"
     :bg-color="isOpen ? 'pale-blue' : 'transparent'"
     class="sortable-group"
     :class="isOpen ? 'border-1' : 'border-0'"
@@ -9,7 +9,7 @@
     @group:selected="fetchStudents"
   >
     <v-expansion-panel-title
-      :id="`${id}-expand-btn`"
+      :id="`sortable-${keyword}-${props.group.id}-expand-btn`"
       class="bg-transparent pl-2 py-1 w-100"
       hide-actions
     >
@@ -61,10 +61,10 @@
         </div>
       </template>
     </v-expansion-panel-title>
-    <v-expansion-panel-text :id="`${id}-details`" class="bg-transparent">
-      <div v-if="_size(studentsWithAlerts)">
+    <v-expansion-panel-text :id="`sortable-${keyword}-${props.group.id}-details`" class="bg-transparent">
+      <div v-if="size(studentsWithAlerts)">
         <div
-          v-if="!compact && _size(studentsWithAlerts) === 50"
+          v-if="!compact && size(studentsWithAlerts) === 50"
           :id="`sortable-${keyword}-${group.id}-alert-limited`"
           class="px-3"
         >
@@ -106,76 +106,59 @@
 </template>
 
 <script setup>
-import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
 import PillAlert from '@/components/util/PillAlert'
 import SortableStudents from '@/components/search/SortableStudents'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, pluralize} from '@/lib/utils'
+import {computed, ref} from 'vue'
 import {getStudentsWithAlerts as getCohortStudentsWithAlerts} from '@/api/cohort'
 import {getStudentsWithAlerts as getCuratedStudentsWithAlerts} from '@/api/curated'
+import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
+import {isNil, size} from 'lodash'
 
-export default {
-  name: 'SortableGroup',
-  components: {PillAlert, SortableStudents},
-  mixins: [Context, Util],
-  props: {
-    compact: {
-      type: Boolean
-    },
-    group: {
-      required: true,
-      type: Object
-    },
-    isCohort: {
-      required: true,
-      type: Boolean
-    }
+const props = defineProps({
+  compact: {
+    type: Boolean
   },
-  data: () => ({
-    buttonHasFocus: false,
-    groupTypeName: undefined,
-    id: undefined,
-    isFetching: false,
-    isOpen: false,
-    keyword: undefined,
-    studentsWithAlerts: undefined
-  }),
-  computed: {
-    openAndLoaded: {
-      get: function() {
-        return this.isOpen && !this.isFetching
-      },
-      set: function(value) {
-        this.isOpen = value
-      }
-    }
+  group: {
+    required: true,
+    type: Object
   },
-  mounted() {
-    this.keyword = this.isCohort ? 'cohort' : 'curated'
-    this.groupTypeName = this.isCohort ? 'cohort' : 'curated group'
-    this.id = `sortable-${this.keyword}-${this.group.id}`
-  },
-  methods: {
-    fetchStudents(param) {
-      this.isOpen = param.value
-      if (this._isNil(this.studentsWithAlerts)) {
-        this.isFetching = true
-        const apiCall = this.isCohort ? getCohortStudentsWithAlerts : getCuratedStudentsWithAlerts
-        apiCall(this.group.id).then(students => {
-          this.studentsWithAlerts = students
-          this.isFetching = false
-          alertScreenReader(`Loaded students with alerts who are in ${this.groupTypeName} ${this.group.name}`)
-        })
-      }
-    },
-    getRoutePath(group) {
-      return `/${this.keyword}/${group.id}?domain=${group.domain}`
-    }
+  isCohort: {
+    required: true,
+    type: Boolean
   }
+})
+
+const groupTypeName = props.isCohort ? 'cohort' : 'curated group'
+const keyword = props.isCohort ? 'cohort' : 'curated'
+const isFetching = ref(false)
+const isOpen = ref(false)
+const studentsWithAlerts = ref(undefined)
+
+const openAndLoaded = computed({
+  get: function() {
+    return isOpen.value && !isFetching.value
+  },
+  set: function(value) {
+    isOpen.value = value
+  }
+})
+
+const fetchStudents = param => {
+  isOpen.value = param.value
+  if (isNil(studentsWithAlerts.value)) {
+    isFetching.value = true
+    const apiCall = props.isCohort ? getCohortStudentsWithAlerts : getCuratedStudentsWithAlerts
+    apiCall(props.group.id).then(students => {
+      studentsWithAlerts.value = students
+      isFetching.value = false
+      alertScreenReader(`Loaded students with alerts who are in ${groupTypeName} ${props.group.name}`)
+    })
+  }
+}
+
+const getRoutePath = group => {
+  return `/${keyword}/${group.id}?domain=${group.domain}`
 }
 </script>
 

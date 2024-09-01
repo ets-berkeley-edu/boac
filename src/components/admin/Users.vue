@@ -18,7 +18,6 @@
                 ]"
                 :key="option.value"
                 :value="option.value"
-                @select="usersProvider"
               >
                 {{ option.name }}
               </option>
@@ -386,6 +385,10 @@ const suggestedUsers = ref([])
 const totalUserCount = ref(0)
 const userSelection = ref(undefined)
 const users = ref([])
+
+watch(filterType, () => {
+  usersProvider()
+})
 
 watch(() => props.refresh, value => {
   if (value) {

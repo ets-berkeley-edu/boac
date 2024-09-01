@@ -18,9 +18,6 @@
 
 <script setup>
 import cloudBackground from '@/assets/404-cloud-background.jpg'
-</script>
-
-<script>
 import {alertScreenReader} from '@/lib/utils'
 
 alertScreenReader('Page not found')
