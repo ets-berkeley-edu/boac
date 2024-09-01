@@ -1,6 +1,6 @@
 <template>
   <div class="default-margins">
-    <h1 class="mb-0">{{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}</h1>
+    <h1 class="my-5">{{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}</h1>
     <div v-if="!contextStore.loading">
       <div v-if="size(myDraftNotes)">
         <div v-if="!currentUser.isAdmin" class="mb-4 mt-1">
@@ -43,29 +43,34 @@
             </span>
           </template>
           <template #item.subject="{item}">
-            <div class="align-center d-flex justify-space-between">
-              <div>
-                <div v-if="item.author.uid !== currentUser.uid" class="font-size-16" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+            <div class="align-center overflow-wrap-break-word">
+              <span
+                v-if="item.author.uid !== currentUser.uid"
+                class="font-size-16"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              >
+                {{ trim(item.subject) || config.draftNoteSubjectPlaceholder }}
+              </span>
+              <v-btn
+                v-if="item.author.uid === currentUser.uid"
+                :id="`open-draft-note-${item.id}`"
+                class="pl-0 py-2 text-left text-primary"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                size="lg"
+                variant="text"
+                @click="() => openEditDialog(item)"
+              >
+                <div v-if="item.subject.length <= lengthTruncateButtonText" class="align-start">
                   {{ trim(item.subject) || config.draftNoteSubjectPlaceholder }}
                 </div>
-                <v-btn
-                  v-if="item.author.uid === currentUser.uid"
-                  :id="`open-draft-note-${item.id}`"
-                  class="pl-0 py-2 text-left text-primary"
-                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                  size="lg"
-                  variant="text"
-                  @click="() => openEditDialog(item)"
-                >
-                  <div class="align-start text-wrap">
-                    {{ trim(item.subject) || config.draftNoteSubjectPlaceholder }}
-                  </div>
-                </v-btn>
-              </div>
-              <div v-if="item.attachmentCount">
+                <div v-if="item.subject.length > lengthTruncateButtonText" class="align-start">
+                  {{ truncate(trim(item.subject), {length: lengthTruncateButtonText}) }}
+                </div>
+              </v-btn>
+              <span v-if="item.attachmentCount">
                 <span class="sr-only">Has attachment(s)</span>
-                <v-icon :icon="mdiPaperclip" />
-              </div>
+                <v-icon class="mb-1 ml-1" :icon="mdiPaperclip" size="small" />
+              </span>
             </div>
           </template>
           <template v-if="currentUser.isAdmin" #item.author="{item}">
@@ -95,7 +100,6 @@
       <div
         v-if="!size(myDraftNotes)"
         id="draft-notes-no-data"
-        class="pt-2"
         tabindex="-1"
       >
         {{ currentUser.isAdmin ? 'No' : 'You have no' }} saved drafts.
@@ -135,16 +139,16 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import TimelineDate from '@/components/student/profile/TimelineDate'
+import vuetify from '@/plugins/vuetify'
 import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
-import {each, find, findIndex, get, size, trim} from 'lodash'
+import {each, find, findIndex, get, size, trim, truncate} from 'lodash'
 import {mdiPaperclip, mdiTrashCan} from '@mdi/js'
-import {onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
-
 const config = contextStore.config
 const currentUser = contextStore.currentUser
 const eventHandlers = {
@@ -156,6 +160,7 @@ const headers = []
 const isDeleteDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const isDeleting = ref(false)
+const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 60 : (vuetify.display.lgAndUp.value ? 50 : 30))
 const myDraftNotes = ref(undefined)
 const selectedNote = ref(undefined)
 

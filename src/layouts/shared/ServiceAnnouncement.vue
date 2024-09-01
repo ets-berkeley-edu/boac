@@ -1,28 +1,26 @@
 <template>
   <v-expand-transition>
     <div v-if="announcement && announcement.isPublished">
-      <div v-if="!dismissedServiceAnnouncement" class="pa-3 align-center d-flex service-announcement">
-        <div class="d-inline-block pb-0 pl-3 pr-1 pt-3 w-100">
-          <div class="sr-only" role="heading">BOA Service Alert</div>
+      <div v-if="!dismissedServiceAnnouncement" class="align-start d-flex px-8 py-6 service-announcement">
+        <div class="d-inline-block pr-1 w-100">
+          <h2 class="sr-only" role="heading">BOA Service Alert</h2>
           <span
             id="service-announcement-banner"
             aria-live="polite"
             role="alert"
             v-html="announcement.text"
-          >
-          </span>
+          />
         </div>
-        <div class="pr-1">
-          <v-btn
-            id="dismiss-service-announcement"
-            title="Dismiss"
-            variant="plain"
-            @click="toggle"
-          >
-            <v-icon :icon="mdiClose" />
-            <span class="sr-only">Dismiss alert</span>
-          </v-btn>
-        </div>
+        <v-btn
+          id="dismiss-service-announcement"
+          aria-label="Dismiss alert"
+          color="transparent"
+          elevation="0"
+          :icon="mdiClose"
+          size="x-small"
+          title="Dismiss"
+          @click="toggle"
+        />
       </div>
       <v-btn v-if="dismissedServiceAnnouncement" id="restore-service-announcement" class="d-sr-only">Restore alert</v-btn>
     </div>
@@ -30,34 +28,37 @@
 </template>
 
 <script setup>
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {computed} from 'vue'
 import {mdiClose} from '@mdi/js'
-</script>
+import {useContextStore} from '@/stores/context'
 
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
-import {alertScreenReader} from '@/lib/utils'
+const contextStore = useContextStore()
+const announcement = computed(() => contextStore.announcement)
+const dismissedServiceAnnouncement = computed(() => contextStore.dismissedServiceAnnouncement)
 
-export default {
-  name: 'ServiceAnnouncement',
-  mixins: [Context, Util],
-  methods: {
-    toggle() {
-      if (this.dismissedServiceAnnouncement) {
-        this.restoreServiceAnnouncement()
-        alertScreenReader('Alert restored')
-        this.putFocusNextTick('service-announcement-banner')
-      } else {
-        this.dismissServiceAnnouncement()
-        this.dismissedServiceAnnouncement = false
-        alertScreenReader('Dismissed')
-        this.putFocusNextTick('toggle-service-announcement')
-      }
-    },
-
+const toggle = () => {
+  if (dismissedServiceAnnouncement.value) {
+    contextStore.restoreServiceAnnouncement()
+    alertScreenReader('Alert restored')
+    putFocusNextTick('service-announcement-banner')
+  } else {
+    contextStore.dismissServiceAnnouncement()
+    dismissedServiceAnnouncement.value = false
+    alertScreenReader('Dismissed')
+    putFocusNextTick('toggle-service-announcement')
   }
 }
 </script>
+
+<style>
+#service-announcement-banner ol {
+  margin-left: 30px;
+}
+#service-announcement-banner ul {
+  margin-left: 30px;
+}
+</style>
 
 <style scoped>
 .service-announcement {

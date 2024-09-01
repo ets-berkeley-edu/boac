@@ -10,31 +10,33 @@
       />
     </div>
     <div class="ml-4">
-      <div v-if="!_isNil(currentUser.inDemoMode)">
-        <div class="align-center checkbox-container d-flex">
-          <v-checkbox
-            v-if="!isToggling"
-            id="toggle-demo-mode"
-            v-model="inDemoMode"
-            :aria-label="`Demo mode is ${inDemoMode ? 'On' : 'Off'}`"
-            color="primary"
-            density="compact"
-            :disabled="isToggling"
-            hide-details
-            :label="`${inDemoMode ? 'On' : 'Off'}`"
-            @change="toggle"
-          />
-          <div v-if="isToggling" class="align-center d-flex font-weight-700 my-1">
-            <v-progress-circular
-              class="mr-1"
-              color="grey"
-              indeterminate
-              size="25"
+      <div v-if="!isNil(currentUser.inDemoMode)">
+        <div class="align-center widget-container d-flex">
+          <div class="checkbox-container">
+            <v-checkbox
+              v-if="!isToggling"
+              id="toggle-demo-mode"
+              v-model="inDemoMode"
+              :aria-label="`Demo mode is ${inDemoMode ? 'On' : 'Off'}`"
+              color="primary"
+              density="compact"
+              :disabled="isToggling"
+              hide-details
+              @change="toggle"
             />
-            <span class="text-grey">
-              Toggling demo mode...
-            </span>
+            <v-progress-circular
+              v-if="isToggling"
+              id="toggle-demo-mode"
+              class="mr-1"
+              color="primary"
+              indeterminate
+              size="22"
+              width="3"
+            />
           </div>
+          <label for="toggling-demo-mode">
+            {{ isToggling ? 'Toggling demo mode...' : `${inDemoMode ? 'On' : 'Off'}` }}
+          </label>
         </div>
       </div>
       <div class="ml-1 text-grey">
@@ -44,40 +46,36 @@
   </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
 import sampleBlurAvatar from '@/assets/sampleBlurAvatar.jpg'
-import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/lib/utils'
+import {ref} from 'vue'
 import {setDemoMode} from '@/api/user'
+import {useContextStore} from '@/stores/context'
+import {isNil} from 'lodash'
 
-export default {
-  name: 'DemoModeToggle',
-  mixins: [Context, Util],
-  data: () => ({
-    blurAvatarUrl: sampleBlurAvatar,
-    inDemoMode: undefined,
-    isToggling: undefined
-  }),
-  created() {
-    this.inDemoMode = this.currentUser.inDemoMode
-  },
-  methods: {
-    toggle() {
-      this.isToggling = true
-      setDemoMode(this.inDemoMode).then(() => {
-        this.isToggling = false
-        alertScreenReader(`Switching demo mode ${this.inDemoMode ? 'off' : 'on' }`)
-      })
-    }
-  }
+const blurAvatarUrl = sampleBlurAvatar
+const currentUser = useContextStore().currentUser
+const inDemoMode = ref(currentUser.inDemoMode)
+const isToggling = ref(false)
+
+const toggle = () => {
+  isToggling.value = true
+  setDemoMode(inDemoMode.value).then(() => {
+    isToggling.value = false
+    alertScreenReader(`Switching demo mode ${inDemoMode.value ? 'off' : 'on' }`)
+  })
 }
 </script>
 
 <style scoped>
+#avatar-verify-blur {
+  height: 50px;
+  width: auto;
+  border-radius: 50%;
+}
 .checkbox-container {
-  height: 40px;
-  min-height: 40px;
+  min-width: 34px;
 }
 .container {
   height: 80px;
@@ -86,10 +84,8 @@ export default {
 .img-blur {
   filter: blur(20px);
 }
-#avatar-verify-blur {
-  height: 50px;
-  width: auto;
-  border-radius: 50%;
-
+.widget-container {
+  height: 40px;
+  min-height: 40px;
 }
 </style>

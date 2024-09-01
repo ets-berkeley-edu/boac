@@ -162,10 +162,9 @@
             {{ canvasSite.courseCode }}
           </div>
         </div>
-        <div v-if="!size(get(item.enrollment, 'canvasSites', []))">
+        <div v-if="!size(get(item.enrollment, 'canvasSites'))" class="font-weight-medium pa-2">
           No course site
         </div>
-        <div v-if="!item.enrollment" class="font-weight-medium pa-2">No course site</div>
       </div>
     </template>
 

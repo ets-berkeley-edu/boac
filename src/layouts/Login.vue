@@ -39,30 +39,26 @@
   </v-app>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
 import DevAuth from '@/components/admin/DevAuth'
-import Util from '@/mixins/Util'
 import {getCasLoginURL} from '@/api/auth'
+import {nextTick, ref} from 'vue'
+import {trim} from 'lodash'
+import {useContextStore} from '@/stores/context'
+import {useRoute} from 'vue-router'
 
-export default {
-  name: 'Login',
-  components: {DevAuth},
-  mixins: [Context, Util],
-  data: () => ({
-    error: undefined
-  }),
-  created() {
-    this.nextTick(() => this.reportError(this.$route.query.error))
-  },
-  methods: {
-    logIn() {
-      getCasLoginURL().then(data => window.location.href = data.casLoginUrl)
-    },
-    reportError(error) {
-      this.error = this._trim(error) || null
-    }
-  }
+const config = useContextStore().config
+const error = ref(undefined)
+const route = useRoute()
+
+nextTick(() => reportError(route.query.error))
+
+const logIn = () => {
+  getCasLoginURL().then(data => window.location.href = data.casLoginUrl)
+}
+
+const reportError = message => {
+  error.value = trim(message) || null
 }
 </script>
 

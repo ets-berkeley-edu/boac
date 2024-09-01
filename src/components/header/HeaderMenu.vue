@@ -74,7 +74,7 @@
           <v-btn
             aria-label="Send email to the BOA team"
             class="justify-start w-100"
-            :href="`mailto:${config.supportEmailAddress}`"
+            :href="`mailto:${contextStore.config.supportEmailAddress}`"
             target="_blank"
             variant="text"
           >
@@ -97,29 +97,18 @@
 </template>
 
 <script setup>
-import {mdiMenuDown} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
 import {getCasLogoutUrl} from '@/api/auth'
+import {mdiMenuDown} from '@mdi/js'
 import {myDeptCodes} from '@/berkeley'
+import {reactive} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'HeaderMenu',
-  mixins: [Context, Util],
-  data: () => ({
-    myDirectorDepartment: undefined
-  }),
-  created() {
-    const deptCodes = myDeptCodes(['director'])
-    this.myDirectorDepartment = deptCodes && deptCodes[0]
-  },
-  methods: {
-    logOut: () => getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl)
-  }
-}
+const contextStore = useContextStore()
+const currentUser = reactive(contextStore.currentUser)
+const deptCodes = myDeptCodes(['director'])
+const myDirectorDepartment = deptCodes && deptCodes[0]
+
+const logOut = () => getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl)
 </script>
 
 <style scoped>

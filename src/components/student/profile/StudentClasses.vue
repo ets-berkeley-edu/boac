@@ -95,7 +95,7 @@
         >
           <v-container class="pl-6 pt-0" fluid>
             <v-row>
-              <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
+              <v-col :cols="$vuetify.display.lgAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-fall-${year.label - 1}`"
                   :column-index="0"
@@ -103,7 +103,7 @@
                   :term="getTerm(`Fall ${year.label - 1}`, year)"
                 />
               </v-col>
-              <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
+              <v-col :cols="$vuetify.display.lgAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-spring-${year.label}`"
                   :column-index="1"
@@ -111,7 +111,7 @@
                   :term="getTerm(`Spring ${year.label}`, year)"
                 />
               </v-col>
-              <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
+              <v-col :cols="$vuetify.display.lgAndUp ? 4 : 12">
                 <StudentEnrollmentTerm
                   :id="`term-summer-${year.label}`"
                   :column-index="2"

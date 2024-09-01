@@ -1,95 +1,91 @@
 <template>
-  <form @submit.prevent="logIn">
-    <div class="d-flex dev-auth px-7">
-      <v-text-field
-        id="dev-auth-uid"
-        v-model="uid"
-        aria-label="Input UID of an authorized user"
-        aria-required="true"
-        class="form-input"
-        hide-details
-        placeholder="UID"
-        @update:model-value="() => reportError(null)"
-      />
-      <v-text-field
-        id="dev-auth-password"
-        v-model="password"
-        :aria-invalid="!!password"
-        aria-label="Password"
-        aria-required="true"
-        class="form-input"
-        :disabled="isLoggingIn"
-        hide-details
-        placeholder="Password"
-        type="password"
-        @update:model-value="() => reportError(null)"
-      />
-      <v-btn
-        id="dev-auth-submit"
-        class="btn-dev-auth"
-        color="primary"
-        :disabled="isLoggingIn"
-        elevation="0"
-        type="submit"
-      >
-        DevAuth!
-      </v-btn>
-    </div>
-  </form>
+  <div class="d-flex dev-auth px-7">
+    <v-text-field
+      id="dev-auth-uid"
+      v-model="uid"
+      aria-label="Input UID of an authorized user"
+      aria-required="true"
+      class="form-input"
+      :disabled="isLoggingIn"
+      hide-details
+      placeholder="UID"
+      @keydown.enter="logIn"
+      @update:model-value="() => reportError(null)"
+    />
+    <v-text-field
+      id="dev-auth-password"
+      v-model="password"
+      :aria-invalid="!!password"
+      aria-label="Password"
+      aria-required="true"
+      class="form-input"
+      :disabled="isLoggingIn"
+      hide-details
+      placeholder="Password"
+      type="password"
+      @keydown.enter="logIn"
+      @update:model-value="() => reportError(null)"
+    />
+    <v-btn
+      id="dev-auth-submit"
+      class="btn-dev-auth"
+      color="primary"
+      :disabled="isLoggingIn"
+      elevation="0"
+      text="DevAuth!"
+    />
+  </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
+<script setup>
+import router from '@/router'
 import {devAuthLogIn} from '@/api/auth'
-import {noop} from 'lodash'
+import {get, trim} from 'lodash'
+import {onMounted, ref} from 'vue'
+import {putFocusNextTick} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'DevAuth',
-  mixins: [Context, Util],
-  props: {
-    reportError: {
-      required: true,
-      type: Function
-    }
-  },
-  data: () => ({
-    isLoggingIn: false,
-    uid: null,
-    password: null
-  }),
-  created() {
-    this.putFocusNextTick('dev-auth-uid')
-  },
-  methods: {
-    logIn() {
-      let uid = this._trim(this.uid)
-      let password = this._trim(this.password)
-      if (uid && password) {
-        this.isLoggingIn = true
-        devAuthLogIn(uid, password).then(
-          () => {
-            if (this.currentUser.isAuthenticated) {
-              const redirect = this._get(this.$router, 'currentRoute.query.redirect')
-              this.$router.push({path: redirect || '/home'}, noop)
-            } else {
-              this.reportError('Sorry, user is not authorized to use BOA.')
-            }
-          },
-          error => {
-            this.reportError(error)
-          }
-        ).finally(() => {
-          this.isLoggingIn = false
-        })
-      } else if (uid) {
-        this.reportError('Password required')
-        this.putFocusNextTick('dev-auth-password')
-      } else {
-        this.reportError('Both UID and password are required')
-        this.putFocusNextTick('dev-auth-uid')
+const props = defineProps({
+  reportError: {
+    required: true,
+    type: Function
+  }
+})
+
+const contextStore = useContextStore()
+const isLoggingIn = ref(false)
+const uid = ref('')
+const password = ref('')
+
+onMounted(() => putFocusNextTick('dev-auth-uid'))
+
+const logIn = () => {
+  uid.value = trim(uid.value)
+  password.value = trim(password.value)
+  if (uid.value && password.value) {
+    isLoggingIn.value = true
+    devAuthLogIn(uid.value, password.value).then(
+      () => {
+        if (contextStore.currentUser.isAuthenticated) {
+          const redirect = get(router, 'currentRoute.query.redirect')
+          router.push({path: redirect || '/home'}).then(() => {
+            isLoggingIn.value = false
+          })
+        } else {
+          props.reportError('Sorry, user is not authorized to use BOA.')
+          isLoggingIn.value = false
+        }
+      },
+      error => {
+        props.reportError(error)
       }
-    }
+    )
+  } else if (uid.value) {
+    props.reportError('Password required')
+    putFocusNextTick('dev-auth-password')
+  } else {
+    props.reportError('Both UID and password are required')
+    putFocusNextTick('dev-auth-uid')
   }
 }
 </script>

@@ -52,7 +52,7 @@
           (appointment imported from {{ appointment.legacySource }})
         </span>
       </div>
-      <div v-if="_size(advisor.departments)" class="text-medium-emphasis">
+      <div v-if="size(advisor.departments)" class="text-medium-emphasis">
         <span v-for="(dept, index) in advisor.departments" :key="dept.code">
           <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.name }}</span>
         </span>
@@ -60,8 +60,8 @@
       <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="mt-3">
         {{ appointment.appointmentType }}
       </div>
-      <div v-if="appointment.topics && _size(appointment.topics)">
-        <div class="pill-list-header mt-3 mb-1">{{ _size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
+      <div v-if="appointment.topics && size(appointment.topics)">
+        <div class="pill-list-header mt-3 mb-1">{{ size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
         <ul class="pill-list pl-0">
           <li
             v-for="(topic, index) in appointment.topics"
@@ -98,88 +98,79 @@
 </template>
 
 <script setup>
-import {mdiCalendarMinus} from '@mdi/js'
-</script>
-
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
+import {get, size} from 'lodash'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
-import {DateTime} from 'luxon'
+import {mdiCalendarMinus} from '@mdi/js'
+import {onMounted, ref, watch} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'AdvisingAppointment',
-  mixins: [Context, Util],
-  props: {
-    isOpen: {
-      required: true,
-      type: Boolean
-    },
-    appointment: {
-      required: true,
-      type: Object
-    },
-    student: {
-      required: true,
-      type: Object
-    }
+const props = defineProps({
+  isOpen: {
+    required: true,
+    type: Boolean
   },
-  data: () => ({
-    advisor: undefined
-  }),
-  watch: {
-    isOpen() {
-      this.setAdvisor()
-    }
+  appointment: {
+    required: true,
+    type: Object
   },
-  created() {
-    this.setAdvisor()
-  },
-  methods: {
-    datePerTimezone(date) {
-      return DateTime.fromJSDate(date).setZone(this.config.timezone)
-    },
-    downloadUrl(attachment) {
-      return `${this.config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`
-    },
-    fallbackHeading(appointment) {
-      if (appointment.appointmentTitle && appointment.appointmentTitle.trim().length) {
-        return appointment.appointmentTitle
-      } else if (appointment.details && appointment.details.trim().length) {
-        return appointment.details
+  student: {
+    required: true,
+    type: Object
+  }
+})
+
+const contextStore = useContextStore()
+const advisor = ref(undefined)
+const currentUser = contextStore.currentUser
+
+watch(() => props.isOpen, () => {
+  setAdvisor()
+})
+
+onMounted(() => {
+  setAdvisor()
+})
+
+const downloadUrl = attachment => `${contextStore.config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`
+
+const fallbackHeading = appointment => {
+  if (appointment.appointmentTitle && appointment.appointmentTitle.trim().length) {
+    return appointment.appointmentTitle
+  } else if (appointment.details && appointment.details.trim().length) {
+    return appointment.details
+  } else {
+    return summaryHeading(appointment)
+  }
+}
+
+const setAdvisor = () => {
+  advisor.value = get(props.appointment, 'advisor')
+  const requiresLazyLoad = props.isOpen && (!get(advisor.value, 'name') || !get(advisor.value, 'title'))
+  if (requiresLazyLoad) {
+    if (get(advisor.value, 'uid')) {
+      if (advisor.value.uid === currentUser.uid) {
+        advisor.value = currentUser
       } else {
-        return this.summaryHeading(appointment)
+        getCalnetProfileByUid(advisor.value.uid).then(data => {
+          advisor.value = data
+        })
       }
-    },
-    setAdvisor() {
-      this.advisor = this._get(this.appointment, 'advisor')
-      const requiresLazyLoad = this.isOpen && (!this._get(this.advisor, 'name') || !this._get(this.advisor, 'title'))
-      if (requiresLazyLoad) {
-        if (this._get(this.advisor, 'uid')) {
-          if (this.advisor.uid === this.currentUser.uid) {
-            this.advisor = this.currentUser
-          } else {
-            getCalnetProfileByUid(this.advisor.uid).then(data => {
-              this.advisor = data
-            })
-          }
-        } else if (this._get(this.advisor, 'sid')) {
-          getCalnetProfileByCsid(this.advisor.sid).then(data => {
-            this.advisor = data
-          })
-        } else {
-          this.advisor = this._get(this.appointment, 'advisor')
-        }
-      }
-    },
-    summaryHeading(appointment) {
-      const heading = appointment.legacySource === 'SIS' ? 'Imported SIS Appt' : 'Advising Appt'
-      if (appointment.advisor.name) {
-        return `${heading}: ${appointment.advisor.name}`
-      } else {
-        return heading
-      }
+    } else if (get(advisor.value, 'sid')) {
+      getCalnetProfileByCsid(advisor.value.sid).then(data => {
+        advisor.value = data
+      })
+    } else {
+      advisor.value = get(props.appointment, 'advisor')
     }
+  }
+}
+
+const summaryHeading = appointment => {
+  const heading = appointment.legacySource === 'SIS' ? 'Imported SIS Appt' : 'Advising Appt'
+  if (appointment.advisor.name) {
+    return `${heading}: ${appointment.advisor.name}`
+  } else {
+    return heading
   }
 }
 </script>

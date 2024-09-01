@@ -37,42 +37,34 @@
   </div>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
+<script setup>
 import StudentUnitsChart from '@/components/student/StudentUnitsChart'
-import Util from '@/mixins/Util'
+import {find, get, toString} from 'lodash'
 import {isGraduate} from '@/berkeley'
+import {onMounted, ref} from 'vue'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'StudentProfileUnits',
-  components: {StudentUnitsChart},
-  mixins: [Context, Util],
-  props: {
-    student: {
-      required: true,
-      type: Object
-    }
-  },
-  data: () => ({
-    cumulativeUnits: undefined,
-    currentEnrolledUnits: undefined
-  }),
-  created() {
-    this.cumulativeUnits = this._get(this.student, 'sisProfile.cumulativeUnits')
-    const currentEnrollmentTerm = this._find(
-      this._get(this.student, 'enrollmentTerms'),
-      {
-        termId: this._toString(this.config.currentEnrollmentTermId)
-      }
-    )
-    if (currentEnrollmentTerm) {
-      this.currentEnrolledUnits = this._get(currentEnrollmentTerm, 'enrolledUnits')
-    }
-  },
-  methods: {
-    isGraduate
+const props = defineProps({
+  student: {
+    required: true,
+    type: Object
   }
-}
+})
+
+const contextStore = useContextStore()
+const cumulativeUnits = ref(undefined)
+const currentEnrolledUnits = ref(undefined)
+
+onMounted(() => {
+  cumulativeUnits.value = get(props.student, 'sisProfile.cumulativeUnits')
+  const currentEnrollmentTerm = find(
+    get(props.student, 'enrollmentTerms'),
+    {termId: toString(contextStore.config.currentEnrollmentTermId)}
+  )
+  if (currentEnrollmentTerm) {
+    currentEnrolledUnits.value = get(currentEnrollmentTerm, 'enrolledUnits')
+  }
+})
 </script>
 
 <style scoped>
