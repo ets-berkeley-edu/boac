@@ -122,6 +122,11 @@
         <span v-if="student.athleticsProfile.isActiveAsc === false"> (Inactive)</span>
       </div>
     </div>
+    <div v-if="currentUser.canReadDegreeProgress" class="font-size-13 font-weight-medium">
+      <router-link :id="`degree-checks-of-${student.sid}`" :to="getDegreeCheckPath(student)">
+        Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -131,7 +136,7 @@ import StudentAcademicStanding from '@/components/student/profile/StudentAcademi
 import {DateTime} from 'luxon'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
 import {get, map, uniq} from 'lodash'
-import {lastNameFirst, studentRoutePath} from '@/lib/utils'
+import {getDegreeCheckPath, lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {mdiSchool} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {computed} from 'vue'
