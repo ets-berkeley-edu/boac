@@ -135,15 +135,14 @@ const onKeyUp = event => {
 const search = () => {
   const q = trim(searchStore.queryText)
   if (q) {
-    const domain = searchStore.domain
     router.push(
       {
         path: '/search',
         query: {
-          admits: domain.includes('admits'),
-          courses: domain.includes('courses'),
-          notes: domain.includes('notes'),
-          students: domain.includes('students'),
+          admits: currentUser.canAccessAdmittedStudents,
+          courses: currentUser.canAccessCanvasData,
+          notes: currentUser.canAccessAdvisingData,
+          students: true,
           q
         }
       },

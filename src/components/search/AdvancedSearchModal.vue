@@ -20,9 +20,10 @@
   </v-tooltip>
   <v-dialog
     id="advanced-search-modal"
-    v-model="showAdvancedSearchModel"
     aria-labelledby="advanced-search-header"
     persistent
+    :model-value="searchStore.showAdvancedSearch"
+    @update:model-value="searchStore.setShowAdvancedSearch"
   >
     <v-card
       class="modal-content"
@@ -40,7 +41,7 @@
             <v-combobox
               id="advanced-search-students-input"
               :key="searchStore.autocompleteInputResetKey"
-              v-model="queryTextModel"
+              v-model="model.queryText"
               :aria-required="searchInputRequired"
               autocomplete="off"
               clearable
@@ -57,10 +58,71 @@
               @keydown.enter="search"
             />
           </div>
-          <AdvancedSearchCheckboxes />
+          <div class="font-size-16 font-weight-bold">
+            What is the extent of your search?
+            <span
+              v-if="!model.includeAdmits && !model.includeStudents && !model.includeCourses && !model.includeNotes"
+              class="text-error"
+            >
+              Please select one or more.
+            </span>
+          </div>
+          <div class="align-center d-flex flex-wrap">
+            <v-checkbox
+              v-if="currentUser.canAccessAdmittedStudents"
+              id="search-include-admits-checkbox"
+              v-model="model.includeAdmits"
+              color="primary"
+              hide-details
+              label="Students"
+            >
+              <template #label>
+                <span class="sr-only">Search for </span>Admitted Students
+              </template>
+            </v-checkbox>
+            <v-checkbox
+              id="search-include-students-checkbox"
+              v-model="model.includeStudents"
+              color="primary"
+              hide-details
+            >
+              <template #label>
+                <span class="sr-only">Search for </span>Students
+              </template>
+            </v-checkbox>
+            <v-checkbox
+              v-if="currentUser.canAccessCanvasData"
+              id="search-include-courses-checkbox"
+              v-model="model.includeCourses"
+              color="primary"
+              hide-details
+            >
+              <template #label>
+                <span class="sr-only">Search for </span>Classes
+              </template>
+            </v-checkbox>
+            <v-checkbox
+              v-if="currentUser.canAccessAdvisingData"
+              id="search-include-notes-checkbox"
+              v-model="model.includeNotes"
+              color="primary"
+              hide-details
+              @change="checked => {
+                if (!checked) {
+                  model.author = model.fromDate = model.student = model.toDate = model.topic = null
+                  model.postedBy = 'anyone'
+                }
+              }"
+            >
+              <template #label>
+                <span class="sr-only">Search for</span>
+                Notes &amp; Appointments
+              </template>
+            </v-checkbox>
+          </div>
           <v-expand-transition v-if="currentUser.canAccessAdvisingData">
             <v-card
-              v-show="searchStore.includeNotes"
+              v-show="model.includeNotes"
               color="primary"
               variant="outlined"
             >
@@ -73,7 +135,7 @@
                   <div>
                     <select
                       id="search-option-note-filters-topic"
-                      v-model="topicModel"
+                      v-model="model.topic"
                       class="ml-0 my-2 select-menu w-75"
                       :disabled="searchStore.isSearching"
                     >
@@ -92,29 +154,29 @@
                     <label class="form-control-label" for="note-filters-posted-by">Posted By</label>
                     <v-radio-group
                       id="note-filters-posted-by"
-                      v-model="searchStore.postedBy"
+                      v-model="model.postedBy"
                       hide-details
                       inline
                     >
                       <v-radio
                         id="search-options-note-filters-posted-by-anyone"
                         :disabled="searchStore.isSearching"
-                        :ischecked="searchStore.postedBy === 'anyone'"
+                        :ischecked="model.postedBy === 'anyone'"
                         label="Anyone"
                         value="anyone"
                       />
                       <v-radio
                         id="search-options-note-filters-posted-by-you"
                         :disabled="searchStore.isSearching"
-                        :ischecked="searchStore.postedBy === 'you'"
+                        :ischecked="model.postedBy === 'you'"
                         label="You"
                         value="you"
-                        @change="() => searchStore.setAuthor(null)"
+                        @change="() => model.author = null"
                       />
                       <v-radio
                         id="search-options-note-filters-posted-by-your department"
                         :disabled="searchStore.isSearching"
-                        :ischecked="searchStore.postedBy === 'yourDepartment'"
+                        :ischecked="model.postedBy === 'yourDepartment'"
                         label="Your Department(s)"
                         value="yourDepartment"
                       />
@@ -132,21 +194,21 @@
                       class="mt-1"
                       :class="{'demo-mode-blur': currentUser.inDemoMode}"
                       density="compact"
-                      :disabled="searchStore.isSearching || searchStore.postedBy === 'you'"
+                      :disabled="searchStore.isSearching || model.postedBy === 'you'"
                       hide-details
                       hide-no-data
                       :items="suggestedAdvisors"
                       :maxlength="56"
                       :menu-icon="null"
                       :menu-props="{'attach': false, 'location': 'bottom'}"
-                      :model-value="searchStore.postedBy === 'anyone' ? searchStore.author : null"
+                      :model-value="model.postedBy === 'anyone' ? model.author : null"
                       placeholder="Enter name..."
                       variant="outlined"
                       @click:clear="onClearAdvisorSearch"
                       @update:menu="s => s ? null : $emit('user-selected', selected)"
-                      @update:model-value="value => {
-                        searchStore.setPostedBy('anyone')
-                        searchStore.setAuthor(value)
+                      @update:model-value="author => {
+                        model.postedBy = 'anyone'
+                        model.author = author
                       }"
                       @update:search="onUpdateAdvisorSearch"
                       @focusin="onClearAdvisorSearch"
@@ -161,7 +223,7 @@
                         />
                       </template>
                       <template #selection>
-                        {{ searchStore.author.label }}
+                        {{ m.author.label }}
                       </template>
                     </v-autocomplete>
                   </div>
@@ -187,12 +249,12 @@
                       :maxlength="56"
                       :menu-icon="null"
                       :menu-props="{'attach': false, 'location': 'bottom'}"
-                      :model-value="searchStore.student"
+                      :model-value="model.student"
                       placeholder="Enter name or SID..."
                       variant="outlined"
                       @click:clear="onClearStudentSearch"
                       @update:menu="s => s ? null : $emit('user-selected', selected)"
-                      @update:model-value="value => searchStore.setStudent(value)"
+                      @update:model-value="student => model.student = student"
                       @update:search="onUpdateStudentSearch"
                       @focusin="onClearStudentSearch"
                     >
@@ -206,7 +268,7 @@
                         />
                       </template>
                       <template #selection>
-                        {{ searchStore.student.label }}
+                        {{ model.student.label }}
                       </template>
                     </v-autocomplete>
                   </div>
@@ -226,10 +288,10 @@
                       <AccessibleDateInput
                         aria-describedby="search-options-date-range-label"
                         container-id="advanced-search-modal"
-                        :get-value="() => searchStore.fromDate"
+                        :get-value="() => model.fromDate"
                         id-prefix="search-options-from-date"
-                        :max-date="searchStore.toDate || new Date()"
-                        :set-value="v => searchStore.setFromDate(v)"
+                        :max-date="model.toDate || new Date()"
+                        :set-value="fromDate => model.fromDate = fromDate"
                       ></AccessibleDateInput>
                       <label
                         id="search-options-to-date-label"
@@ -242,11 +304,11 @@
                       <AccessibleDateInput
                         aria-describedby="search-options-date-range-label"
                         container-id="advanced-search-modal"
-                        :get-value="() => searchStore.toDate"
+                        :get-value="() => model.toDate"
                         id-prefix="search-options-to-date"
                         :max-date="new Date()"
-                        :min-date="searchStore.fromDate"
-                        :set-value="v => searchStore.setToDate(v)"
+                        :min-date="model.fromDate"
+                        :set-value="toDate => model.toDate = toDate"
                       ></AccessibleDateInput>
                     </div>
                   </div>
@@ -258,7 +320,7 @@
         <v-card-actions class="modal-footer">
           <div class="flex-grow-1">
             <v-btn
-              v-if="searchStore.includeNotes && searchStore.isDirty"
+              v-if="model.includeNotes && searchStore.isDirty"
               id="reset-advanced-search-form-btn"
               :disabled="searchStore.isSearching"
               text="Reset"
@@ -288,7 +350,6 @@
 
 <script setup>
 import AccessibleDateInput from '@/components/util/AccessibleDateInput'
-import AdvancedSearchCheckboxes from '@/components/search/AdvancedSearchCheckboxes'
 import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
 import FocusLock from 'vue-focus-lock'
 import ProgressButton from '@/components/util/ProgressButton'
@@ -297,15 +358,29 @@ import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop} from '@/lib/utils'
 import {computed, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
-import {findStudentsByNameOrSid} from '@/api/student'
 import {debounce, isDate, map, size, trim} from 'lodash'
+import {findStudentsByNameOrSid} from '@/api/student'
 import {labelForSearchInput} from '@/lib/search'
 import {mdiTune} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
 
-const searchStore = useSearchStore()
+const getDefaultModel = () => ({
+  author: undefined,
+  fromDate: undefined,
+  includeAdmits: undefined,
+  includeCourses: undefined,
+  includeNotes: undefined,
+  includeStudents: undefined,
+  postedBy: undefined,
+  student: undefined,
+  toDate: undefined,
+  topic: undefined,
+  queryText: ''
+})
+
 const contextStore = useContextStore()
+const searchStore = useSearchStore()
 const currentUser = contextStore.currentUser
 
 const counter = ref(0)
@@ -316,34 +391,45 @@ const suggestedAdvisors = ref([])
 const suggestedStudents = ref([])
 
 const allOptionsUnchecked = computed(() => {
-  const admits = searchStore.domain && searchStore.domain.includes('admits') && searchStore.includeAdmits
-  return !admits && !searchStore.includeCourses && !searchStore.includeNotes && !searchStore.includeStudents
+  const m = model.value
+  return (!currentUser.canAccessAdmittedStudents || !m.includeAdmits) && !m.includeCourses && !m.includeNotes && !m.includeStudents
 })
 const isSearchDisabled = computed(() => {
   return (
     searchStore.isSearching || allOptionsUnchecked.value ||
-    (searchInputRequired.value && !trim(searchStore.queryText)) ||
+    (searchInputRequired.value && !trim(model.value.queryText)) ||
     !validDateRange.value
   )
 })
-const queryTextModel = computed({get: () => searchStore.queryText, set: v => searchStore.setQueryText(v)})
+const model = ref(getDefaultModel())
 const searchInputRequired = computed(() => {
-  return !searchStore.includeNotes || !(searchStore.author || searchStore.fromDate || searchStore.toDate || searchStore.postedBy !== 'anyone' || searchStore.student || searchStore.topic)
+  const m = model.value
+  return !m.includeNotes || !(m.author || m.fromDate || m.toDate || m.postedBy !== 'anyone' || m.student || m.topic)
 })
-const showAdvancedSearchModel = computed({get: () => !!searchStore.showAdvancedSearch, set: v => searchStore.setShowAdvancedSearch(v)})
-const topicModel = computed({get: () => searchStore.topic, set: v => searchStore.setTopic(v)})
 const validDateRange = computed(() => {
-  if (isDate(searchStore.fromDate) && isDate(searchStore.toDate) && (searchStore.toDate < searchStore.fromDate)) {
-    return false
-  } else if ((searchStore.fromDate && !isDate(searchStore.fromDate)) || (searchStore.toDate && !isDate(searchStore.toDate))) {
+  const m = model.value
+  if (isDate(m.fromDate) && isDate(m.toDate) && (m.toDate < m.fromDate)) {
     return false
   } else {
-    return true
+    return (!m.fromDate || isDate(m.fromDate)) && (!m.toDate || isDate(m.toDate))
   }
 })
 
-watch(() => searchStore.showAdvancedSearch, value => {
-  if (value) {
+watch(() => searchStore.showAdvancedSearch, show => {
+  if (show) {
+    model.value = {
+      author: searchStore.author,
+      fromDate: searchStore.fromDate,
+      includeAdmits: searchStore.includeAdmits,
+      includeCourses: searchStore.includeCourses,
+      includeNotes: searchStore.includeNotes,
+      includeStudents: searchStore.includeStudents,
+      postedBy: searchStore.postedBy,
+      queryText: searchStore.queryText,
+      student: searchStore.student,
+      toDate: searchStore.toDate,
+      topic: searchStore.topic
+    }
     putFocusNextTick('advanced-search-close')
   } else {
     searchStore.resetAutocompleteInput()
@@ -395,14 +481,28 @@ const openAdvancedSearch = () => {
 
 const reset = force => {
   if (force || !window.location.pathname.startsWith('/search')) {
-    searchStore.setQueryText('')
-    searchStore.resetAdvancedSearch()
+    searchStore.resetAdvancedSearch(searchStore.queryText)
   }
 }
 
 const search = () => {
-  const q = trim(searchStore.queryText)
+  const m = model.value
+  const q = trim(m.queryText)
   if (q || !searchInputRequired.value) {
+    // Transfer contents of the model object to the Pinia store.
+    searchStore.setAuthor(m.author)
+    searchStore.setFromDate(m.fromDate)
+    searchStore.setIncludeAdmits(m.includeAdmits)
+    searchStore.setIncludeCourses(m.includeCourses)
+    searchStore.setIncludeNotes(m.includeNotes)
+    searchStore.setIncludeStudents(m.includeStudents)
+    searchStore.setPostedBy(m.postedBy)
+    searchStore.setQueryText(q)
+    searchStore.setStudent(m.author)
+    searchStore.setToDate(m.author)
+    searchStore.setTopic(m.topic)
+
+    // Next, do the search.
     searchStore.setIsSearching(true)
     const query = {
       _: counter.value++,

@@ -1,3 +1,5 @@
+import {useSearchStore} from '@/stores/search'
+
 const AdmitStudent = () => import('@/views/AdmitStudent.vue')
 const AdmitStudents = () => import('@/views/AdmitStudents.vue')
 const AllCohorts = () => import('@/views/AllCohorts.vue')
@@ -315,6 +317,11 @@ const router = createRouter({
   routes,
 })
 
+router.beforeEach((to: any) => {
+  if (to.path !== '/search') {
+    useSearchStore().resetAdvancedSearch()
+  }
+})
 router.afterEach((to: any, from: any) => {
   const samePageLink = to.name === from.name && to.hash
   if (!samePageLink) {
