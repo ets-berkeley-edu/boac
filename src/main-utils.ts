@@ -37,6 +37,14 @@ const axiosErrorHandler = (error: any, axios: any): void => {
   }
 }
 
+export function appErrorHandler(error: any, vm: any, info: string) {
+  const message = get(error, 'message') || info
+  const stacktrace = get(error, 'stack', null)
+  // eslint-disable-next-line no-console
+  console.log(`\n${message}\n${stacktrace}\n`)
+  useContextStore().setApplicationState(500, message, stacktrace)
+}
+
 export function initializeAxios(axios: any) {
   axios.defaults.withCredentials = true
   axios.interceptors.response.use(

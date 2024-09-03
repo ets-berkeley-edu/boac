@@ -1,35 +1,34 @@
-import _ from 'lodash'
-import {useContextStore} from '@/stores/context'
+import {BoaConfig, CurrentUser, useContextStore} from '@/stores/context'
+import {event} from 'vue-gtag'
+import {map} from 'lodash'
 
-export function initGoogleAnalytics() {
-  return new Promise<void>(resolve => {
-    const googleAnalyticsId = process.env.VUE_APP_GOOGLE_ANALYTICS_ID
-    if (googleAnalyticsId) {
-      const user = useContextStore().currentUser
-      const uid = user.uid
-      window.gtag('config', googleAnalyticsId, {
-        user_id: uid,
-        user_properties: {
-          dept_code: _.map(user.departments || [], 'code'),
-          title: user.title,
-          uid
-        }
-      })
+export function getGtagConfig() {
+  // GA4 config reference: https://developers.google.com/analytics/devguides/collection/ga4/reference/config
+  const contextStore = useContextStore()
+  const config: BoaConfig = contextStore.config
+  const gaMeasurementId = config.gaMeasurementId
+  const currentUser: CurrentUser = contextStore.currentUser
+  const uid = currentUser.uid
+  return {
+    config: {id: gaMeasurementId},
+    debug_mode: config.isVueAppDebugMode,
+    disableScriptLoad: !gaMeasurementId,
+    enabled: !!gaMeasurementId,
+    params: {
+      user_id: uid,
+      user_properties: {
+        dept_code: map(currentUser.departments || [], 'code'),
+        title: currentUser.title,
+        uid
+      }
     }
-    resolve()
-  })
+  }
 }
 
-const track = (action, category, label?, id?) => {
-  const googleAnalyticsId = process.env.VUE_APP_GOOGLE_ANALYTICS_ID
-  const user = useContextStore().currentUser
-  const uid = user.uid
-  if (googleAnalyticsId && uid && !user.isAdmin) {
-    window.gtag('event', action, {
-      event_category: category,
-      event_label: label,
-      value: id
-    })
+const track = (action: string, category: string, label?: string, id?: number | string) => {
+  const currentUser: CurrentUser = useContextStore().currentUser
+  if (currentUser.uid && !currentUser.isAdmin) {
+    event(action, {event_category: category, event_label: label, value: id})
   }
 }
 
