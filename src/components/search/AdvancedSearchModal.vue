@@ -498,8 +498,8 @@ const search = () => {
     searchStore.setIncludeStudents(m.includeStudents)
     searchStore.setPostedBy(m.postedBy)
     searchStore.setQueryText(q)
-    searchStore.setStudent(m.author)
-    searchStore.setToDate(m.author)
+    searchStore.setStudent(m.student)
+    searchStore.setToDate(m.toDate)
     searchStore.setTopic(m.topic)
 
     // Next, do the search.
