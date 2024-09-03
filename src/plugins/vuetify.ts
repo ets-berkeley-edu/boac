@@ -103,10 +103,6 @@ export default createVuetify({
     VBtn: {
       style: 'text-transform: none;',
     },
-    VMenu: {
-      attach: true,
-      location: 'top'
-    },
     VTextField: {
       density: 'compact',
       variant: 'outlined'
