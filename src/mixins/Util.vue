@@ -2,6 +2,7 @@
 import _ from 'lodash'
 import moment from 'moment-timezone'
 import numeral from 'numeral'
+import store from '@/store'
 import Vue from 'vue'
 import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, toInt} from '@/lib/utils'
 import {
@@ -21,6 +22,8 @@ const decodeHtml = (snippet) => {
     return snippet
   }
 }
+
+const studentRoutePath = (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`
 
 const nextTick = Vue.nextTick
 
@@ -89,6 +92,17 @@ export default {
     _xor: xor,
     _xorBy: xorBy,
     escapeForRegExp: s => s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+    getDegreeCheckPath(student) {
+      const currentUser = store.getters['context/currentUser']
+      const currentDegreeCheck = find(student.degreeChecks, 'isCurrent')
+      if (currentDegreeCheck) {
+        return `/student/degree/${currentDegreeCheck.id}`
+      } else if (currentUser.canEditDegreeProgress) {
+        return `${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`
+      } else {
+        return `${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/history`
+      }
+    },
     isNilOrBlank: s => _.isNil(s) || _.trim(s) === '',
     lastNameFirst: u => u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName),
     moment,
@@ -103,7 +117,7 @@ export default {
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
     stripAnchorRef: fullPath => _.split(fullPath, '#', 1)[0],
     stripHtmlAndTrim,
-    studentRoutePath: (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`,
+    studentRoutePath,
     toBoolean: value => value && value !== 'false',
     toInt
   }
