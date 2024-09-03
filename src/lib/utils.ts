@@ -1,5 +1,5 @@
 import numeral from 'numeral'
-import {concat, head, initial, isNil, isNumber, join, last, noop, toLower, trim} from 'lodash'
+import {concat, find, head, initial, isNil, isNumber, join, last, noop, toLower, trim} from 'lodash'
 import {getUserProfile} from '@/api/user'
 import {nextTick} from 'vue'
 import {useContextStore} from '@/stores/context'
@@ -34,6 +34,18 @@ export function decodeStudentUriAnchor() {
     }
   }
   return decoded
+}
+
+export function getDegreeCheckPath(student) {
+  const currentUser = useContextStore().currentUser
+  const currentDegreeCheck = find(student.degreeChecks, 'isCurrent')
+  if (currentDegreeCheck) {
+    return `/student/degree/${currentDegreeCheck.id}`
+  } else if (currentUser.canEditDegreeProgress) {
+    return `${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`
+  } else {
+    return `${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/history`
+  }
 }
 
 export function invokeIfAuthenticated(callback: Function, onReject = () => {}) {

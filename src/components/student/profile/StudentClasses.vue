@@ -29,7 +29,7 @@
         <router-link
           id="view-degree-checks-link"
           target="_blank"
-          :to="getDegreeCheckPath()"
+          :to="getDegreeCheckPath(student)"
         >
           <div class="align-center d-flex">
             <div>
@@ -129,7 +129,7 @@
 
 <script setup>
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
-import {alertScreenReader, studentRoutePath} from '@/lib/utils'
+import {alertScreenReader, getDegreeCheckPath} from '@/lib/utils'
 import {each, find, groupBy, includes, map, orderBy, sumBy} from 'lodash'
 import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
 import {onMounted, ref} from 'vue'
@@ -170,17 +170,6 @@ const expandCollapseAll = () => {
     year.isOpen = expanded.value
   })
   alertScreenReader(`All of the academic years have been ${expanded.value ? 'collapsed' : 'expanded'}`)
-}
-
-const getDegreeCheckPath = () => {
-  const currentDegreeCheck = find(props.student.degreeChecks, 'isCurrent')
-  if (currentDegreeCheck) {
-    return `/student/degree/${currentDegreeCheck.id}`
-  } else if (currentUser.canEditDegreeProgress) {
-    return `${studentRoutePath(props.student.uid, currentUser.inDemoMode)}/degree/create`
-  } else {
-    return `${studentRoutePath(props.student.uid, currentUser.inDemoMode)}/degree/history`
-  }
 }
 
 const getTerm = (termName, year) => find(year.terms, {'termName': termName}) || {termId: sisIdForTermName(termName), termName}

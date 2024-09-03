@@ -94,9 +94,9 @@
       <div v-for="owner in degree.planOwners" :key="owner" class="student-text">
         {{ owner }}
       </div>
-      <div v-if="degree.minorPlans.length > 0">
-        <h3 v-if="degree.minorPlans.length === 1" class="student-profile-h3 mt-3">Minor</h3>
-        <h3 v-if="degree.minorPlans.length > 1" class="student-profile-h3 mt-3">Minors</h3>
+      <div v-if="size(degree.minorPlans) > 0">
+        <h3 v-if="size(degree.minorPlans) === 1" class="student-profile-h3 mt-3">Minor</h3>
+        <h3 v-if="size(degree.minorPlans) > 1" class="student-profile-h3 mt-3">Minors</h3>
         <div v-for="minorPlan in degree.minorPlans" :key="minorPlan">
           <div id="student-bio-degree-type" class="font-weight-700">
             {{ minorPlan + " UG" }}
@@ -110,7 +110,7 @@
 
 <script setup>
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
-import {compact as _compact, each, get, map, size, uniq} from 'lodash'
+import {compact as _compact, each, get, includes, map, size, uniq} from 'lodash'
 import {DateTime} from 'luxon'
 import {isGraduate} from '@/berkeley'
 import {onMounted} from 'vue'
