@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="py-1">
     <div>
       <label
         :for="`batch-note-${type}`"
@@ -33,34 +33,26 @@
         {{ object.name }}
       </option>
     </select>
-    <div v-for="object in added" :key="object.id" class="ml-2 mt-2">
-      <v-chip
-        :id="`batch-note-${type}-${object.id}`"
-        class="v-chip-content-override text-uppercase text-no-wrap"
-        density="compact"
-        variant="outlined"
-      >
-        <div class="truncate-with-ellipsis">{{ object.name }}</div>
-        <template #close>
-          <v-btn
-            :id="`batch-note-remove-${type}-${object.id}`"
-            :aria-label="`Remove ${type} ${object.name}`"
-            color="error"
-            exact
-            :icon="mdiCloseCircle"
-            variant="text"
-            @click.stop="() => remove(object)"
-            @keyup.enter.stop="() => remove(object)"
-          />
-        </template>
-      </v-chip>
-    </div>
+    <ul class="list-no-bullets mt-1">
+      <li v-for="object in added" :key="object.id">
+        <PillItem
+          :id="`batch-note-${type}-${object.id}`"
+          closable
+          :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
+          :label="object.name"
+          :name="type"
+          :on-click-close="() => remove(object)"
+        >
+          <div class="truncate-with-ellipsis">{{ object.name }}</div>
+        </PillItem>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script setup>
+import PillItem from '@/components/util/PillItem'
 import {find, findIndex} from 'lodash'
-import {mdiCloseCircle} from '@mdi/js'
 import {ref, watch} from 'vue'
 import {useNoteStore} from '@/stores/note-edit-session'
 

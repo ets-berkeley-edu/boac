@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="py-1">
     <label
       for="create-note-add-student-input"
       class="font-size-16 font-weight-700"
@@ -52,28 +52,25 @@
         </template>
       </v-autocomplete>
     </div>
-    <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mt-2">
-      <v-chip
-        :id="`batch-note-student-${index}`"
-        class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-no-wrap truncate-with-ellipsis"
-        :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
-        closable
-        :close-label="`Remove ${addedStudent.label} from batch note`"
-        density="comfortable"
-        variant="outlined"
-        @click:close="removeStudent(addedStudent)"
-        @keyup.enter="removeStudent(addedStudent)"
-      >
-        <span class="truncate-with-ellipsis">{{ addedStudent.label }}</span>
-        <template #close>
-          <v-icon color="error" :icon="mdiCloseCircle" />
-        </template>
-      </v-chip>
-    </div>
+    <ul class="list-no-bullets mt-1">
+      <li v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid">
+        <PillItem
+          :id="`batch-note-student-${index}`"
+          :clazz="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
+          closable
+          :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
+          :label="addedStudent.label"
+          :on-click-close="() => removeStudent(addedStudent)"
+        >
+          <span class="truncate-with-ellipsis">{{ addedStudent.label }}</span>
+        </PillItem>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script setup>
+import PillItem from '@/components/util/PillItem'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {
   differenceWith,
@@ -92,7 +89,7 @@ import {
   without
 } from 'lodash'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
-import {mdiCloseCircle, mdiPlus} from '@mdi/js'
+import {mdiPlus} from '@mdi/js'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'

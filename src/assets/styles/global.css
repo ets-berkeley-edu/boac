@@ -187,6 +187,7 @@
   padding: 0 20px !important;
 }
 .modal-fullscreen {
+  min-width: 350px !important;
   width: 100% !important;
 }
 .modal-open {
@@ -396,6 +397,8 @@
 .v-chip-content-override {
   .v-chip__content {
     overflow: hidden !important;
+    padding-right: 4px;
+    width: 100%;
   }
 }
 .vertical-bottom {
