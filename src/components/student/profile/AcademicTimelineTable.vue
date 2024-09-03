@@ -385,10 +385,6 @@ const props = defineProps({
     required: true,
     type: Function
   },
-  sortMessages: {
-    required: true,
-    type: Function
-  },
   student: {
     required: true,
     type: Object
@@ -468,7 +464,6 @@ const init = () => {
       contextStore.setEventHandler(eventType, handler)
     })
   }
-  props.sortMessages()
   alertScreenReader(`${props.student.name} profile loaded.`)
 }
 

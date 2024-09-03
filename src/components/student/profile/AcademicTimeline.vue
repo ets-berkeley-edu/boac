@@ -14,7 +14,6 @@
         :filter-types="filterTypes"
         :messages="messages"
         :on-create-new-note="onCreateNewNote"
-        :sort-messages="sortMessages"
         :student="student"
       />
     </div>
@@ -67,6 +66,7 @@ const init = () => {
       messages.value.push(message)
     })
   })
+  sortMessages()
   isTimelineLoading.value = false
   eventHandlers.value = {
     'note-deleted': onDeleteNoteEvent,
