@@ -4,10 +4,10 @@
       {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="searchPhrase">  matching '{{ searchPhrase }}'</span>
     </h2>
     <div class="mb-2 ml-1">
-      <AdmitDataWarning :updated-at="_get(results.admits, '[0].updatedAt')" />
+      <AdmitDataWarning :updated-at="get(results.admits, '[0].updatedAt')" />
     </div>
-    <div v-if="_size(results.admits) < results.totalAdmitCount" class="mb-2">
-      Showing the first {{ _size(results.admits) }} admitted students.
+    <div v-if="size(results.admits) < results.totalAdmitCount" class="mb-2">
+      Showing the first {{ size(results.admits) }} admitted students.
     </div>
     <CuratedGroupSelector
       context-description="Search"
@@ -20,30 +20,22 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import SortableAdmits from '@/components/admit/SortableAdmits'
-import Util from '@/mixins/Util'
+import {get, size} from 'lodash'
+import {pluralize} from '@/lib/utils'
 
-export default {
-  name: 'AdmittedStudentResults',
-  components: {
-    AdmitDataWarning,
-    CuratedGroupSelector,
-    SortableAdmits,
+defineProps({
+  results: {
+    required: true,
+    type: Object
   },
-  mixins: [Util],
-  props: {
-    results: {
-      required: true,
-      type: Object
-    },
-    searchPhrase: {
-      required: true,
-      type: String,
-      validator: v => typeof v === 'string' || [null, undefined].includes(v)
-    }
+  searchPhrase: {
+    required: true,
+    type: String,
+    validator: v => typeof v === 'string' || [null, undefined].includes(v)
   }
-}
+})
 </script>

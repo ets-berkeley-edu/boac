@@ -134,6 +134,13 @@
 </template>
 
 <script setup>
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import EditTopicModal from '@/components/topics/EditTopicModal'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {computed, onMounted, ref} from 'vue'
+import {DateTime} from 'luxon'
+import {deleteTopic, getAllTopics, getUsageStatistics, undeleteTopic} from '@/api/topics'
+import {each, find, get, toLower} from 'lodash'
 import {
   mdiDeleteRestore,
   mdiMenuDown,
@@ -141,197 +148,152 @@ import {
   mdiPlusBox,
   mdiTrashCan
 } from '@mdi/js'
-</script>
 
-<script>
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import EditTopicModal from '@/components/topics/EditTopicModal'
-import Util from '@/mixins/Util'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {deleteTopic, getAllTopics, getUsageStatistics, undeleteTopic} from '@/api/topics'
-import {DateTime} from 'luxon'
+const filter = ref(undefined)
+const hasLoadedTopics = ref(false)
+const isDeleteTopicModalOpen = ref(false)
+const isEditTopicModalOpen = ref(false)
+const topicDelete = ref(undefined)
+const topicEdit = ref(undefined)
+const topics = ref(undefined)
+const sortBy = ref('topic')
+const sortByMap = new Map([
+  ['topic', false],
+  ['deleted', false],
+  ['usage', false]
+])
 
-export default {
-  name: 'ManageTopics',
-  components: {AreYouSureModal, EditTopicModal},
-  mixins: [Util],
-  data() {
-    return {
-      fields: [
-        {
-          key: 'topic',
-          label: 'Label',
-          sortable: true,
-          tdClass: 'align-middle'
-        },
-        {
-          formatter: this.formatBoolean,
-          key: 'deletedAt',
-          label: 'Deleted?',
-          sortable: true,
-          tdClass: 'align-middle mr-3 pr-5 text-right',
-          thClass: 'text-center'
-        },
-        {
-          formatter: n => this.numFormat(n),
-          key: 'countNotes',
-          label: 'Usage',
-          sortable: true,
-          tdClass: 'align-middle pr-5 service-announcement text-nowrap text-right text-white',
-          thClass: 'text-right'
-        },
-        {
-          key: 'actions',
-          label: 'Actions',
-          sortable: false,
-          tdClass: 'align-middle text-right',
-          thClass: 'text-right'
-        }
-      ],
-      filter: null,
-      hasLoadedTopics: false,
-      isDeleteTopicModalOpen: false,
-      isEditTopicModalOpen: false,
-      topicDelete: undefined,
-      topicEdit: undefined,
-      topics: undefined,
-      sortBy: 'topic',
-      sortByMap: new Map([
-        ['topic', false],
-        ['deleted', false],
-        ['usage', false]
-      ])
+const filteredTable = computed(() => {
+  if (sortBy.value) {
+    if (filter.value === null) {
+      return sortTable(topics.value)
     }
-  },
-  computed: {
-    filteredTable() {
-      if (this.sortBy) {
-        if (this.filter === null) {
-          return this.sortTable(this.topics)
+    return sortTable(topics.value.filter(item => toLower(item.topic).includes(toLower(filter.value))))
+  } else {
+    return topics.value
+  }
+})
+
+onMounted(() => {
+  refresh()
+})
+
+const afterSaveTopic = topic => {
+  const match = find(topics.value, ['id', topic.id])
+  const focusTarget = `topic-${topic.id}`
+  if (match) {
+    Object.assign(match, topic)
+    alertScreenReader(`Topic '${topic.topic}' updated.`)
+    putFocusNextTick(focusTarget)
+  } else {
+    refresh(focusTarget)
+    alertScreenReader(`Topic '${topic.topic}' created.`)
+    putFocusNextTick('create-topic-button')
+  }
+  topicEdit.value = null
+  isEditTopicModalOpen.value = false
+}
+
+const deleteCancel = () => {
+  isDeleteTopicModalOpen.value = false
+  topicDelete.value = undefined
+  alertScreenReader('Canceled')
+  putFocusNextTick('filter-topics')
+}
+
+const deleteConfirm = () => {
+  return deleteTopic(topicDelete.value.id).then(() => {
+    isDeleteTopicModalOpen.value = false
+    topicDelete.value.deletedAt = DateTime.now()
+    alertScreenReader(`Topic '${topicDelete.value.topic}' deleted.`)
+    putFocusNextTick(`topic-${topicDelete.value.id}`)
+    topicDelete.value = undefined
+  })
+}
+
+const onCancelEdit = () => {
+  isEditTopicModalOpen.value = false
+  alertScreenReader('Canceled')
+  putFocusNextTick('filter-topics')
+  topicEdit.value = null
+}
+
+const openCreateTopicModal = () => {
+  topicEdit.value = {
+    topic: ''
+  }
+  isEditTopicModalOpen.value = true
+  alertScreenReader('Opened modal to create new topic.')
+}
+
+const openDeleteTopicModal = topic => {
+  topicDelete.value = topic
+  isDeleteTopicModalOpen.value = true
+  alertScreenReader('Opened modal to confirm delete.')
+}
+
+const refresh = focusTarget => {
+  getAllTopics(true).then(data => {
+    topics.value = data
+    getUsageStatistics().then(statistics => {
+      each(topics.value, topic => topic.countNotes = statistics.notes[topic.id] || 0)
+      hasLoadedTopics.value = true
+      putFocusNextTick(focusTarget)
+    })
+  })
+}
+
+const undelete = topic => {
+  undeleteTopic(topic.id).then(() => {
+    topic.deletedAt = null
+    alertScreenReader(`Topic ${topic.topic} un-deleted.`)
+    putFocusNextTick(`topic-${topic.id}`)
+  })
+}
+
+const setTableSort = filterBy => {
+  sortBy.value = filterBy
+  sortByMap.value.set(sortBy.value, !sortByMap.value.get(sortBy.value))
+}
+
+const sortTable = sortByArr => {
+  const newArr = []
+  switch (sortBy.value) {
+  case 'topic':
+    return !get(sortByMap.value, 'topic') ? sortByArr.sort((a,b) => (toLower(a.topic) > toLower(b.topic)) ? 1 : ((toLower(b.topic) > toLower(a.topic)) ? -1 : 0)) : sortByArr.sort((a,b) => (toLower(a.topic) < toLower(b.topic)) ? 1 : ((toLower(b.topic) < toLower(a.topic)) ? -1 : 0))
+
+  case 'deleted':
+    if (!sortByMap.value.get('deleted')) {
+      sortByArr.forEach(item => {
+        if (item.deletedAt) {
+          newArr.push(item)
         }
-        return this.sortTable(this.topics.filter(item => item.topic.toLowerCase().includes(this.filter.toLowerCase())))
-      } else {
-        return this.topics
-      }
-    },
-  },
-  mounted() {
-    this.refresh()
-  },
-  methods: {
-    afterSaveTopic(topic) {
-      const match = this._find(this.topics, ['id', topic.id])
-      const focusTarget = `topic-${topic.id}`
-      if (match) {
-        Object.assign(match, topic)
-        alertScreenReader(`Topic '${topic.topic}' updated.`)
-        putFocusNextTick(focusTarget)
-      } else {
-        this.refresh(focusTarget)
-        alertScreenReader(`Topic '${topic.topic}' created.`)
-        putFocusNextTick('create-topic-button')
-      }
-      this.topicEdit = null
-      this.isEditTopicModalOpen = false
-    },
-    formatBoolean: value => value ? 'Yes' : 'No',
-    deleteCancel() {
-      this.isDeleteTopicModalOpen = false
-      this.topicDelete = undefined
-      alertScreenReader('Canceled')
-      putFocusNextTick('filter-topics')
-    },
-    deleteConfirm() {
-      return deleteTopic(this.topicDelete.id).then(() => {
-        this.isDeleteTopicModalOpen = false
-        this.topicDelete.deletedAt = DateTime.now()
-        alertScreenReader(`Topic '${this.topicDelete.topic}' deleted.`)
-        putFocusNextTick(`topic-${this.topicDelete.id}`)
-        this.topicDelete = undefined
       })
-    },
-    onCancelEdit() {
-      this.isEditTopicModalOpen = false
-      alertScreenReader('Canceled')
-      putFocusNextTick('filter-topics')
-      this.topicEdit = null
-    },
-    openCreateTopicModal() {
-      this.topicEdit = {
-        topic: ''
-      }
-      this.isEditTopicModalOpen = true
-      alertScreenReader('Opened modal to create new topic.')
-    },
-    openDeleteTopicModal(topic) {
-      this.topicDelete = topic
-      this.isDeleteTopicModalOpen = true
-      alertScreenReader('Opened modal to confirm delete.')
-    },
-    refresh(focusTarget) {
-      getAllTopics(true).then(data => {
-        this.topics = data
-        getUsageStatistics().then(statistics => {
-          this._each(this.topics, topic => {
-            topic.countNotes = statistics.notes[topic.id] || 0
-          })
-          this.hasLoadedTopics = true
-          putFocusNextTick(focusTarget)
-        })
-      })
-    },
-    undelete(topic) {
-      undeleteTopic(topic.id).then(() => {
-        topic.deletedAt = null
-        alertScreenReader(`Topic ${topic.topic} un-deleted.`)
-        putFocusNextTick(`topic-${topic.id}`)
-      })
-    },
-    setTableSort(filterBy) {
-      this.sortBy = filterBy
-      this.sortByMap.set(this.sortBy, !this.sortByMap.get(this.sortBy))
-    },
-    sortTable(sortByArr) {
-      const newArr = []
-      switch (this.sortBy) {
-      case 'topic':
-        return !this.sortByMap.get('topic') ? sortByArr.sort((a,b) => (a.topic.toLowerCase() > b.topic.toLowerCase()) ? 1 : ((b.topic.toLowerCase() > a.topic.toLowerCase()) ? -1 : 0)) : sortByArr.sort((a,b) => (a.topic.toLowerCase() < b.topic.toLowerCase()) ? 1 : ((b.topic.toLowerCase() < a.topic.toLowerCase()) ? -1 : 0))
 
-      case 'deleted':
-        if (!this.sortByMap.get('deleted')) {
-          sortByArr.forEach(item => {
-            if (item.deletedAt) {
-              newArr.push(item)
-            }
-          })
-
-          sortByArr.forEach(item => {
-            if (!item.deletedAt) {
-              newArr.push(item)
-            }
-          })
-        } else {
-          sortByArr.forEach(item => {
-            if (!item.deletedAt) {
-              newArr.push(item)
-            }
-          })
-          sortByArr.forEach(item => {
-            if (item.deletedAt) {
-              newArr.push(item)
-            }
-          })
+      sortByArr.forEach(item => {
+        if (!item.deletedAt) {
+          newArr.push(item)
         }
-
-        return newArr
-
-      case 'usage':
-        return !this.sortByMap.get('usage') ? sortByArr.sort((a,b) => a.countNotes - b.countNotes) : sortByArr.sort((a,b) => b.countNotes - a.countNotes)
-
-      default:
-        return !this.sortByMap.get('topic') ? sortByArr.sort((a,b) => (a.topic > b.topic) ? 1 : ((b.topic > a.topic) ? -1 : 0)) : sortByArr.sort((a,b) => (a.topic < b.topic) ? 1 : ((b.topic < a.topic) ? -1 : 0))
-      }
+      })
+    } else {
+      sortByArr.forEach(item => {
+        if (!item.deletedAt) {
+          newArr.push(item)
+        }
+      })
+      sortByArr.forEach(item => {
+        if (item.deletedAt) {
+          newArr.push(item)
+        }
+      })
     }
+    return newArr
+
+  case 'usage':
+    return !sortByMap.value.get('usage') ? sortByArr.sort((a,b) => a.countNotes - b.countNotes) : sortByArr.sort((a,b) => b.countNotes - a.countNotes)
+
+  default:
+    return !sortByMap.value.get('topic') ? sortByArr.sort((a,b) => (a.topic > b.topic) ? 1 : ((b.topic > a.topic) ? -1 : 0)) : sortByArr.sort((a,b) => (a.topic < b.topic) ? 1 : ((b.topic < a.topic) ? -1 : 0))
   }
 }
 </script>

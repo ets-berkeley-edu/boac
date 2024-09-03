@@ -10,35 +10,24 @@
 </template>
 
 <script setup>
-import {mdiInformationOutline} from '@mdi/js'
-</script>
-
-<script>
 import {getIncompleteGradeDescription, getSectionsWithIncompleteStatus} from '@/berkeley'
+import {mdiInformationOutline} from '@mdi/js'
 
-export default {
-  name: 'IncompleteGradeAlertIcon',
-  props: {
-    course: {
-      required: true,
-      type: Object
-    },
-    index: {
-      required: true,
-      type: Number
-    },
-    termId: {
-      required: true,
-      type: String
-    }
+const props = defineProps({
+  course: {
+    required: true,
+    type: Object
   },
-  data: () => ({
-    ariaLabel: undefined,
-    sectionsWithIncompleteStatus: undefined
-  }),
-  created() {
-    this.sectionsWithIncompleteStatus = getSectionsWithIncompleteStatus(this.course.sections)
-    this.ariaLabel = getIncompleteGradeDescription(this.course.displayName, this.sectionsWithIncompleteStatus)
+  index: {
+    required: true,
+    type: Number
+  },
+  termId: {
+    required: true,
+    type: String
   }
-}
+})
+
+const sectionsWithIncompleteStatus = getSectionsWithIncompleteStatus(props.course.sections)
+const ariaLabel = getIncompleteGradeDescription(props.course.displayName, sectionsWithIncompleteStatus)
 </script>

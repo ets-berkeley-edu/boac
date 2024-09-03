@@ -19,18 +19,15 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StudentProfilePlan',
-  props: {
-    active: {
-      required: true,
-      type: Boolean
-    },
-    plan: {
-      required: true,
-      type: Object
-    }
+<script setup>
+defineProps({
+  active: {
+    required: true,
+    type: Boolean
+  },
+  plan: {
+    required: true,
+    type: Object
   }
-}
+})
 </script>

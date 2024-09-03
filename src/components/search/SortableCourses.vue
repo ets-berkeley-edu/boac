@@ -41,86 +41,59 @@
   </v-data-table-virtual>
 </template>
 
-<script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
+<script setup>
+import {onMounted, ref} from 'vue'
 import {size} from 'lodash'
 
-export default {
-  name: 'SortableCourses',
-  mixins: [Context, Util],
-  props: {
-    courses: {
-      required: true,
-      type: Array
-    }
-  },
-  data: () => ({
-    items: []
-  }),
-  created() {
-    this.items = this.courses.sort(this.courseComparator) // eslint-disable-line vue/no-mutating-props
-  },
-  methods: {
-    size,
-    courseComparator(c1, c2) {
-      // If sorting by section name, attempt to compare by subject area.
-      let split1 = this.splitCourseName(c1)
-      let split2 = this.splitCourseName(c2)
-      if (split1[0] > split2[0]) {
-        return 1
-      }
-      if (split1[0] < split2[0]) {
-        return -1
-      }
-      // If subject areas are identical, extract and compare numeric portion of catalog id.
-      let code1 = parseInt(split1[1].match(/\d+/)[0], 10)
-      let code2 = parseInt(split2[1].match(/\d+/)[0], 10)
-      if (code1 > code2) {
-        return 1
-      }
-      if (code1 < code2) {
-        return -1
-      }
-      // If catalog ids are numerically identical then handle prefixes and suffixes with alphabetic comparison.
-      if (split1[1] > split2[1]) {
-        return 1
-      }
-      if (split1[1] < split2[1]) {
-        return -1
-      }
-      // Instruction format and section number.
-      if (c1.instructionFormat > c2.instructionFormat) {
-        return 1
-      }
-      if (c1.instructionFormat < c2.instructionFormat) {
-        return -1
-      }
-      return c1.sectionNum > c2.sectionNum ? 1 : -1
-    },
-    splitCourseName(course) {
-      let split = course.courseName.split(' ')
-      return [split.slice(0, -1).join(' '), split[split.length - 1]]
-    }
+const props = defineProps({
+  courses: {
+    required: true,
+    type: Array
   }
+})
+
+const items = ref([])
+
+onMounted(() => {
+  items.value = [...props.courses].sort((c1, c2) => {
+    // If sorting by section name, attempt to compare by subject area.
+    let split1 = splitCourseName(c1)
+    let split2 = splitCourseName(c2)
+    if (split1[0] > split2[0]) {
+      return 1
+    }
+    if (split1[0] < split2[0]) {
+      return -1
+    }
+    // If subject areas are identical, extract and compare numeric portion of catalog id.
+    let code1 = parseInt(split1[1].match(/\d+/)[0], 10)
+    let code2 = parseInt(split2[1].match(/\d+/)[0], 10)
+    if (code1 > code2) {
+      return 1
+    }
+    if (code1 < code2) {
+      return -1
+    }
+    // If catalog ids are numerically identical then handle prefixes and suffixes with alphabetic comparison.
+    if (split1[1] > split2[1]) {
+      return 1
+    }
+    if (split1[1] < split2[1]) {
+      return -1
+    }
+    // Instruction format and section number.
+    if (c1.instructionFormat > c2.instructionFormat) {
+      return 1
+    }
+    if (c1.instructionFormat < c2.instructionFormat) {
+      return -1
+    }
+    return c1.sectionNum > c2.sectionNum ? 1 : -1
+  })
+})
+
+const splitCourseName = course => {
+  let split = course.courseName.split(' ')
+  return [split.slice(0, -1).join(' '), split[split.length - 1]]
 }
 </script>
-
-<style scoped>
-.table-cell {
-  padding: 5px 10px 5px 0;
-  vertical-align: top;
-  width: 33%;
-}
-.table-header-text {
-  color: #999 !important;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 0;
-  text-decoration: none;
-  width: fit-content;
-}
-.table-header-text:focus {
-  outline: -webkit-focus-ring-color auto 5px;
-}
-</style>

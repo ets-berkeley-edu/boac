@@ -8,17 +8,17 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'SectionSpinner',
-  props: {
-    loading: Boolean,
-    size: {
-      type: Number,
-      default: 30
-    }
+<script setup>
+defineProps({
+  loading: {
+    required: true,
+    type: Boolean
+  },
+  size: {
+    type: Number,
+    default: 30
   }
-}
+})
 </script>
 
 <style scoped>

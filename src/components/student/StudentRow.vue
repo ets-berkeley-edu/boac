@@ -117,13 +117,13 @@
         <div class="text-medium-emphasis">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
       </div>
       <div
-        v-if="!isNil(get(student.term, 'minTermUnitsAllowed')) && student.term.minTermUnitsAllowed !== useContextStore().config.defaultTermUnitsAllowed.min"
+        v-if="!isNil(get(student.term, 'minTermUnitsAllowed')) && student.term.minTermUnitsAllowed !== config.defaultTermUnitsAllowed.min"
         class="d-flex flex-wrap align-baseline"
       >
         <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 font-weight-bold ">{{ student.term.minTermUnitsAllowed }}</div>
         <div class="text-no-wrap text-medium-emphasis">Min&nbsp;Approved</div>
       </div>
-      <div v-if="!isNil(get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== useContextStore().config.defaultTermUnitsAllowed.max">
+      <div v-if="!isNil(get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== config.defaultTermUnitsAllowed.max">
         <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 font-weight-bold ">{{ student.term.maxTermUnitsAllowed }}</span>
         <span class="text-no-wrap text-medium-emphasis">Max&nbsp;Approved</span>
       </div>
@@ -156,13 +156,6 @@
 </template>
 
 <script setup>
-import {get, isNil, isUndefined, size} from 'lodash'
-import {mdiAlertRhombus, mdiCloseCircle} from '@mdi/js'
-import {round} from '@/lib/utils'
-import {useContextStore} from '@/stores/context'
-</script>
-
-<script>
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
@@ -170,58 +163,50 @@ import StudentGpaChart from '@/components/student/StudentGpaChart'
 import StudentRowBioColumn from '@/components/student/StudentRowBioColumn'
 import StudentRowCourseActivity from '@/components/student/StudentRowCourseActivity'
 import {alertScreenReader} from '@/lib/utils'
+import {computed, ref} from 'vue'
+import {get, isNil, isUndefined, size} from 'lodash'
+import {mdiAlertRhombus, mdiCloseCircle} from '@mdi/js'
+import {round} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'StudentRow',
-  components: {
-    CuratedStudentCheckbox,
-    ManageStudent,
-    StudentAvatar,
-    StudentGpaChart,
-    StudentRowBioColumn,
-    StudentRowCourseActivity
+const props = defineProps({
+  listType: {
+    required: true,
+    type: String
   },
-  props: {
-    listType: {
-      required: true,
-      type: String
-    },
-    removeStudent: {
-      required: false,
-      default: () => {},
-      type: Function
-    },
-    rowIndex: {
-      required: true,
-      type: Number
-    },
-    sortedBy: {
-      required: true,
-      type: String
-    },
-    student: {
-      required: true,
-      type: Object
-    },
-    termId: {
-      required: true,
-      type: String
-    }
+  removeStudent: {
+    required: false,
+    default: () => {},
+    type: Function
   },
-  data: () => ({
-    hover: false
-  }),
-  computed: {
-    isCurrentTerm() {
-      return this.termId === `${useContextStore().config.currentEnrollmentTermId}`
-    }
+  rowIndex: {
+    required: true,
+    type: Number
   },
-  methods: {
-    onClickRemoveStudent(student) {
-      this.removeStudent(student.sid)
-      alertScreenReader(`Removed ${student.firstName} ${student.lastName} from group`)
-    }
+  sortedBy: {
+    required: true,
+    type: String
+  },
+  student: {
+    required: true,
+    type: Object
+  },
+  termId: {
+    required: true,
+    type: String
   }
+})
+
+const config = useContextStore().config
+const hover = ref(false)
+
+const isCurrentTerm = computed(() => {
+  return props.termId === `${config.currentEnrollmentTermId}`
+})
+
+const onClickRemoveStudent = student => {
+  props.removeStudent(student.sid)
+  alertScreenReader(`Removed ${student.firstName} ${student.lastName} from group`)
 }
 </script>
 

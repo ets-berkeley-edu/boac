@@ -52,69 +52,59 @@
 
 <script setup>
 import ProgressButton from '@/components/util/ProgressButton'
-import {size} from 'lodash'
-</script>
-
-<script>
 import {alertScreenReader} from '@/lib/utils'
 import {putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {saveCohort} from '@/api/cohort'
+import {size} from 'lodash'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {validateCohortName} from '@/lib/cohort'
+import {ref, watch} from 'vue'
 
-export default {
-  name: 'RenameCohort',
-  props: {
-    cancel: {
-      type: Function,
-      required: true
-    },
-    isOpen: {
-      type: Boolean,
-      required: true
-    }
+const props = defineProps({
+  cancel: {
+    type: Function,
+    required: true
   },
-  data: () => ({
-    isInvalid: true,
-    isSaving: false,
-    maxlength: 255,
-    name: '',
-    validationRules: {}
-  }),
-  watch: {
-    isOpen(val) {
-      if (val) {
-        this.name = useCohortStore().cohortName
-      }
-    }
-  },
-  created() {
-    this.validationRules = {
-      valid: name => {
-        const valid = validateCohortName({id: useCohortStore().cohortId, name})
-        this.isInvalid = true !== valid
-        return valid
-      }
-    }
-  },
-  methods: {
-    submit() {
-      const cohort = useCohortStore()
-      if (true !== validateCohortName({id: cohort.cohortId, name: this.name})) {
-        putFocusNextTick('rename-cohort-input')
-      } else {
-        this.isSaving = true
-        alertScreenReader('Renaming cohort')
-        cohort.renameCohort(this.name)
-        saveCohort(cohort.cohortId, cohort.cohortName, cohort.filters).then(() => {
-          this.isSaving = false
-          alertScreenReader(`Cohort renamed to '${this.name}'`)
-          setPageTitle(this.name)
-          cohort.setEditMode(null)
-          putFocusNextTick('cohort-name')
-        })
-      }
-    }
+  isOpen: {
+    type: Boolean,
+    required: true
+  }
+})
+
+const cohortStore = useCohortStore()
+
+const isInvalid = ref(true)
+const isSaving = ref(false)
+const maxlength = ref(255)
+const name = ref('')
+const validationRules = {
+  valid: name => {
+    const valid = validateCohortName({id: cohortStore.cohortId, name})
+    isInvalid.value = true !== valid
+    return valid
+  }
+}
+
+watch(() => props.isOpen, value => {
+  if (value) {
+    name.value = cohortStore.cohortName
+  }
+})
+
+const submit = () => {
+  if (true !== validateCohortName({id: cohortStore.cohortId, name: name.value})) {
+    putFocusNextTick('rename-cohort-input')
+  } else {
+    isSaving.value = true
+    alertScreenReader('Renaming cohort')
+    cohortStore.renameCohort(name.value)
+    saveCohort(cohortStore.cohortId, cohortStore.cohortName, cohortStore.filters).then(() => {
+      isSaving.value = false
+      alertScreenReader(`Cohort renamed to '${name.value}'`)
+      setPageTitle(name.value)
+      cohortStore.setEditMode(null)
+      putFocusNextTick('cohort-name')
+    })
   }
 }
 </script>

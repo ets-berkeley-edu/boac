@@ -11,30 +11,19 @@
       <span
         id="draft-note-count"
         class="sidebar-pill"
-      >{{ draftNoteCount }}<span class="sr-only"> {{ draftNoteLabel }}</span>
+      >{{ get(currentUser, 'myDraftNoteCount') }}<span class="sr-only">{{ pluralize('draft', get(currentUser, 'myDraftNoteCount')) }}</span>
       </span>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import NavLink from '@/components/util/NavLink.vue'
 import {get} from 'lodash'
 import {pluralize} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
-export default {
-  name: 'LinkToDraftNotes',
-  components: {NavLink},
-  computed: {
-    draftNoteCount() {
-      return get(useContextStore().currentUser, 'myDraftNoteCount')
-    },
-    draftNoteLabel() {
-      return pluralize('draft', get(useContextStore().currentUser, 'myDraftNoteCount'))
-    }
-  }
-}
+const currentUser = useContextStore().currentUser
 </script>
 
 <style scoped>

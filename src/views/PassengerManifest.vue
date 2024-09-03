@@ -31,10 +31,10 @@ import {mdiContacts} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
+const contextStore = useContextStore()
 const departments = ref(undefined)
 const refreshUsers = ref(false)
 
-const contextStore = useContextStore()
 contextStore.loadingStart()
 
 onMounted(() => {

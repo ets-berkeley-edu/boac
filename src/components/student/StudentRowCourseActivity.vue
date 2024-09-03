@@ -4,7 +4,7 @@
       <tr>
         <th class="col-course">Class</th>
         <th class="col-units">Units</th>
-        <th v-if="useContextStore().currentUser.canAccessCanvasData" class="col-bcourses">
+        <th v-if="currentUser.canAccessCanvasData" class="col-bcourses">
           <span aria-hidden="true">bCourses Activity</span>
           <span class="sr-only">Most recent B Courses activity</span>
         </th>
@@ -20,7 +20,7 @@
     <tbody>
       <tr v-for="(enrollment, index) in termEnrollments" :key="index">
         <td class="col-course">
-          <span :id="`row-${rowIndex}-student-enrollment-name-${index}`" :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}">
+          <span :id="`row-${rowIndex}-student-enrollment-name-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">
             {{ enrollment.displayName }}
           </span>
           <span
@@ -36,7 +36,7 @@
         <td class="col-units">
           {{ enrollment.units || '&mdash;' }}
         </td>
-        <td v-if="useContextStore().currentUser.canAccessCanvasData" class="col-bcourses">
+        <td v-if="currentUser.canAccessCanvasData" class="col-bcourses">
           <div
             v-for="(canvasSite, cIndex) in enrollment.canvasSites"
             :key="cIndex"
@@ -100,7 +100,7 @@
         <td class="col-units">
           <span class="sr-only">No data</span>&mdash;
         </td>
-        <td v-if="useContextStore().currentUser.canAccessCanvasData" class="col-bcourses">
+        <td v-if="currentUser.canAccessCanvasData" class="col-bcourses">
           <span class="sr-only">No data</span>&mdash;
         </td>
         <td class="col-midterm">
@@ -115,6 +115,8 @@
 </template>
 
 <script setup>
+import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
+import {computed} from 'vue'
 import {each, get} from 'lodash'
 import {
   getSectionsWithIncompleteStatus,
@@ -125,36 +127,29 @@ import {
 } from '@/berkeley'
 import {mdiAlertRhombus} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
-</script>
 
-<script>
-import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
-
-export default {
-  name: 'StudentRowCourseActivity',
-  components: {IncompleteGradeAlertIcon},
-  props: {
-    rowIndex: {
-      required: true,
-      type: Number
-    },
-    student: {
-      required: true,
-      type: Object
-    },
-    termId: {
-      required: true,
-      type: String
-    }
+const props = defineProps({
+  rowIndex: {
+    required: true,
+    type: Number
   },
-  computed: {
-    termEnrollments() {
-      const termEnrollments = get(this.student.term, 'enrollments', [])
-      each(termEnrollments, setWaitlistedStatus)
-      return termEnrollments
-    }
+  student: {
+    required: true,
+    type: Object
+  },
+  termId: {
+    required: true,
+    type: String
   }
-}
+})
+
+const currentUser = useContextStore().currentUser
+
+const termEnrollments = computed(() => {
+  const termEnrollments = get(props.student.term, 'enrollments', [])
+  each(termEnrollments, setWaitlistedStatus)
+  return termEnrollments
+})
 </script>
 
 <style lang="scss" scoped>

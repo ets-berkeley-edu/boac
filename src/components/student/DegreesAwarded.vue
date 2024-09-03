@@ -11,33 +11,28 @@
 <script setup>
 import {DateTime} from 'luxon'
 import {each, filter, includes, join, map} from 'lodash'
-</script>
+import {onMounted, ref} from 'vue'
 
-<script>
-export default {
-  name: 'DegreesAwarded',
-  props: {
-    student: {
-      required: true,
-      type: Object
-    }
-  },
-  data: () => ({
-    acceptedPlanTypes: ['CRT', 'HS', 'MAJ', 'SP', 'SS'],
-    degreesAwarded: {}
-  }),
-  created() {
-    each(this.student.degrees || [], degree => {
-      const key = degree.dateAwarded
-      if (key) {
-        const plans = filter(degree.plans || [], plan => {
-          return includes(this.acceptedPlanTypes, plan.type)
-        })
-        if (plans.length) {
-          this.degreesAwarded[key] = (this.degreesAwarded[key] || []).concat(map(plans, 'plan'))
-        }
-      }
-    })
+const props = defineProps({
+  student: {
+    required: true,
+    type: Object
   }
-}
+})
+
+const degreesAwarded = ref({})
+
+onMounted(() => {
+  each(props.student.degrees || [], degree => {
+    const key = degree.dateAwarded
+    if (key) {
+      const plans = filter(degree.plans || [], plan => {
+        return includes(['CRT', 'HS', 'MAJ', 'SP', 'SS'], plan.type)
+      })
+      if (plans.length) {
+        degreesAwarded.value[key] = (degreesAwarded.value[key] || []).concat(map(plans, 'plan'))
+      }
+    }
+  })
+})
 </script>
