@@ -33,6 +33,7 @@
       :disabled="isLoggingIn"
       elevation="0"
       text="DevAuth!"
+      @click="logIn"
     />
   </div>
 </template>
