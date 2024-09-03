@@ -38,7 +38,7 @@
         <router-link
           id="view-degree-checks-link"
           target="_blank"
-          :to="getDegreeCheckPath()"
+          :to="getDegreeCheckPath(student)"
         >
           Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
         </router-link>
@@ -139,16 +139,6 @@ export default {
   methods: {
     includesCurrentTerm(year) {
       return this._includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.config.currentEnrollmentTerm)
-    },
-    getDegreeCheckPath() {
-      const currentDegreeCheck = this._find(this.student.degreeChecks, 'isCurrent')
-      if (currentDegreeCheck) {
-        return `/student/degree/${currentDegreeCheck.id}`
-      } else if (this.currentUser.canEditDegreeProgress) {
-        return `${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}/degree/create`
-      } else {
-        return `${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}/degree/history`
-      }
     },
     getTerm(termName, year) {
       const term = this._find(year.terms, {'termName': termName})
