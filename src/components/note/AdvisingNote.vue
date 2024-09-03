@@ -55,10 +55,10 @@
           Edit {{ note.isDraft ? 'Draft' : 'Note' }} {{ note.subject }} created {{ formatDate(note.createdAt, 'MMM d, yyyy') }}
         </v-btn>
       </div>
-      <div v-if="note.subject && note.message" class="mt-2">
+      <div v-if="note.subject && note.message" class="pt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
       </div>
-      <div v-if="!note.subject && !note.message && note.eForm" class="mt-2">
+      <div v-if="!note.subject && !note.message && note.eForm" class="pt-2">
         <dl :id="`note-${note.id}-message-open`">
           <div>
             <dt>Term</dt>
@@ -96,13 +96,13 @@
           </div>
         </dl>
       </div>
-      <div v-if="!isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 mt-2 text-black-50">
+      <div v-if="!isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 pt-2 text-black-50">
         Advisor profile not found
         <span v-if="note.legacySource" class="font-italic">
           (note imported from {{ note.legacySource }})
         </span>
       </div>
-      <div v-if="author" class="mt-2">
+      <div v-if="author" class="pt-2">
         <div v-if="author.name || author.email">
           <span class="sr-only">Note created by </span>
           <a
@@ -131,22 +131,23 @@
           </div>
         </div>
       </div>
-      <div v-if="note.topics && size(note.topics)">
-        <div class="pill-list-header mt-3">{{ size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
-        <ul class="pill-list pl-0">
-          <li
-            v-for="(topic, index) in note.topics"
-            :id="`note-${note.id}-topic-${index}`"
-            :key="topic"
-          >
-            <span class="pill pill-attachment text-uppercase text-no-wrap">{{ topic }}</span>
-          </li>
-        </ul>
+      <div v-if="note.topics && size(note.topics)" class="py-2">
+        <AdvisingNoteTopics :note="note" read-only />
       </div>
-      <div v-if="note.contactType" class="mt-3">
+      <div v-if="note.contactType" class="py-2">
         <div class="font-weight-bold">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>
+      <AdvisingNoteAttachments
+        v-if="!note.legacySource"
+        :add-attachments="addNoteAttachments"
+        class="attachments-edit py-3"
+        :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
+        downloadable
+        :id-prefix="`note-${note.id}-`"
+        :note="note"
+        :remove-attachment="removeAttachmentByIndex"
+      />
     </div>
     <AreYouSureModal
       v-model="showConfirmDeleteAttachment"
@@ -157,21 +158,12 @@
     >
       Are you sure you want to delete the <strong>'{{ displayName(note.attachments, deleteAttachmentIndex) }}'</strong> attachment?
     </AreYouSureModal>
-    <AdvisingNoteAttachments
-      v-if="isOpen && !note.legacySource"
-      :add-attachments="addNoteAttachments"
-      class="attachments-edit py-3"
-      :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
-      downloadable
-      :id-prefix="`note-${note.id}-`"
-      :note="note"
-      :remove-attachment="removeAttachmentByIndex"
-    />
   </div>
 </template>
 
 <script setup>
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
+import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {alertScreenReader, numFormat, oxfordJoin, toInt} from '@/lib/utils'

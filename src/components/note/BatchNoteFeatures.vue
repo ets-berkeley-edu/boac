@@ -77,7 +77,7 @@
 import BatchNoteAddCohort from '@/components/note/BatchNoteAddCohort'
 import BatchNoteAddStudent from '@/components/note/BatchNoteAddStudent'
 import {alertScreenReader, pluralize} from '@/lib/utils'
-import {capitalize, differenceBy, findIndex, reject, size} from 'lodash'
+import {capitalize, differenceBy, findIndex, first, reject, size} from 'lodash'
 import {computed} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {setNoteRecipients} from '@/stores/note-edit-session/utils'
@@ -130,7 +130,7 @@ const removeCuratedGroup = curatedGroup => {
 }
 
 const updateCohorts = cohorts => {
-  const cohort = differenceBy(cohorts, recipients.value.cohorts, 'id')
+  const cohort = first(differenceBy(cohorts, recipients.value.cohorts, 'id'))
   if (size(cohorts) > size(recipients.value.cohorts)) {
     setNoteRecipients(
       recipients.value.cohorts.concat(cohort),

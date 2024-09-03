@@ -77,45 +77,34 @@
         v-for="(attachment, index) in modelProxy.attachments"
         :key="index"
       >
-        <v-chip
+        <PillItem
           :id="`${idPrefix}attachment-${index}`"
           :aria-label="downloadable ? `Download attachment ${attachment.displayName}` : null"
-          class="attachment-chip bg-white font-weight-bold my-1 pa-4 text-medium-emphasis text-no-wrap text-uppercase v-chip-content-override"
-          density="compact"
+          clazz="attachment-chip"
+          :closable="!readOnly && currentUser.uid === get(modelProxy.author, 'uid')"
           :disabled="disabled"
           :href="downloadUrl(attachment)"
-          :prepend-icon="mdiPaperclip"
-          variant="outlined"
+          :icon="mdiPaperclip"
+          :label="attachment.displayName"
+          name="attachment"
+          :on-click-close="() => removeAttachment(index)"
         >
-          <span class="truncate-with-ellipsis">{{ attachment.displayName }}</span>
-          <template #append>
-            <v-btn
-              v-if="!readOnly && currentUser.uid === get(modelProxy.author, 'uid')"
-              :id="`${idPrefix}remove-attachment-${index}-btn`"
-              :aria-label="`Remove attachment ${attachment.displayName}`"
-              class="pl-4"
-              color="error"
-              density="compact"
-              :disabled="disabled"
-              :icon="mdiCloseCircle"
-              size="20px"
-              variant="text"
-              @click.stop.prevent="removeAttachment(index)"
-              @keyup.enter.stop.prevent="removeAttachment(index)"
-            />
-          </template>
-        </v-chip>
+          <span class="truncate-with-ellipsis pr-1">
+            {{ attachment.displayName }}
+          </span>
+        </PillItem>
       </li>
     </ul>
   </div>
 </template>
 
 <script setup>
+import PillItem from '@/components/util/PillItem'
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
 import {alertScreenReader, pluralize} from '@/lib/utils'
 import {computed, onBeforeMount, reactive, ref, watch} from 'vue'
 import {each, get, size} from 'lodash'
-import {mdiAlert, mdiCloseCircle, mdiPaperclip} from '@mdi/js'
+import {mdiAlert, mdiPaperclip} from '@mdi/js'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -223,6 +212,7 @@ init()
 </script>
 
 <style scoped>
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .attachment-chip {
   max-width: 450px;
 }
