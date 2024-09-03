@@ -3,9 +3,9 @@
     <div class="pa-4" :class="{'bg-sky-blue': !hasSearchResults}">
       <div class="align-center d-flex">
         <div class="mr-2">
-          <h1 class="page-section-header">{{ s.isSearching ? 'Searching...' : 'Search Results' }}</h1>
+          <h1 class="page-section-header">{{ searchStore.isSearching ? 'Searching...' : 'Search Results' }}</h1>
         </div>
-        <div v-if="!loading && s.isDirty" class="pb-1">
+        <div v-if="!loading && searchStore.isDirty" class="pb-1">
           [<v-btn
             id="edit-search-btn"
             class="px-0"
@@ -16,11 +16,11 @@
           />]
         </div>
       </div>
-      <div v-if="!hasSearchResults && !s.isSearching">
+      <div v-if="!hasSearchResults && !searchStore.isSearching">
         No results found for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>.
       </div>
     </div>
-    <div v-if="!loading && !s.isSearching">
+    <div v-if="!loading && !searchStore.isSearching">
       <div
         v-if="hasSearchResults"
         aria-live="polite"
@@ -216,14 +216,14 @@ import {useRoute} from 'vue-router'
 import {useSearchStore} from '@/stores/search'
 
 const contextStore = useContextStore()
-const s = useSearchStore()
+const searchStore = useSearchStore()
 
-const appointmentOptions = {limit: 20, offset: 0}
+const appointmentsQuery = {limit: 20, offset: 0}
 const completeAppointmentResults = computed(() => {
-  return size(results.appointments) < appointmentOptions.limit + appointmentOptions.offset
+  return size(results.appointments) < appointmentsQuery.limit + appointmentsQuery.offset
 })
 const completeNoteResults = computed(() => {
-  return size(results.notes) < noteOptions.limit + noteOptions.offset
+  return size(results.notes) < notesQuery.limit + notesQuery.offset
 })
 const hasSearchResults = computed(() => {
   return !!(results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments))
@@ -238,9 +238,9 @@ const noteAndAppointmentOptions = reactive({
   departmentCodes: undefined,
   topic: undefined,
   dateFrom: undefined,
-  dateTo: undefined,
+  dateTo: undefined
 })
-const noteOptions = reactive({limit: 20, offset: 0})
+const notesQuery = reactive({limit: 20, offset: 0})
 const results = reactive({
   admits: [],
   appointments: [],
@@ -260,11 +260,11 @@ const tabs = computed(() => {
       tabs.push({count, icon, key})
     }
   }
-  push('student', results.totalStudentCount || 0, s.includeStudents, mdiAccountSchool)
-  push('admit', results.totalAdmitCount || 0, s.includeAdmits, mdiHumanGreeting)
-  push('course', results.totalCourseCount || 0, s.includeCourses, mdiHumanMaleBoardPoll)
-  push('note', size(results.notes), s.includeNotes, mdiNoteEditOutline)
-  push('appointment', size(results.appointments), s.includeNotes, mdiCalendarCheck)
+  push('student', results.totalStudentCount || 0, searchStore.includeStudents, mdiAccountSchool)
+  push('admit', results.totalAdmitCount || 0, searchStore.includeAdmits, mdiHumanGreeting)
+  push('course', results.totalCourseCount || 0, searchStore.includeCourses, mdiHumanMaleBoardPoll)
+  push('note', size(results.notes), searchStore.includeNotes, mdiNoteEditOutline)
+  push('appointment', size(results.appointments), searchStore.includeNotes, mdiCalendarCheck)
   return tabs
 })
 
@@ -273,12 +273,12 @@ contextStore.loadingStart()
 onMounted(() => {
   // Update 'queryText' in Vuex store per 'q' arg. If arg is null then preserve existing 'queryText' value.
   const route = useRoute()
-  s.setQueryText(route.query.q || s.queryText)
+  searchStore.setQueryText(route.query.q || searchStore.queryText)
   // Take a snapshot of the submitted search phrase. The 'queryText' value (in store) may change.
-  searchPhraseSubmitted.value = s.queryText
-  s.setIncludeAdmits(toBoolean(route.query.admits))
-  s.setIncludeCourses(toBoolean(route.query.courses))
-  s.setIncludeStudents(toBoolean(route.query.students))
+  searchPhraseSubmitted.value = searchStore.queryText
+  searchStore.setIncludeAdmits(toBoolean(route.query.admits))
+  searchStore.setIncludeCourses(toBoolean(route.query.courses))
+  searchStore.setIncludeStudents(toBoolean(route.query.students))
   const includeNotesAndAppointments = toBoolean(route.query.notes)
   if (includeNotesAndAppointments) {
     noteAndAppointmentOptions.advisorCsid = route.query.advisorCsid
@@ -289,25 +289,25 @@ onMounted(() => {
     noteAndAppointmentOptions.dateFrom = route.query.noteDateFrom
     noteAndAppointmentOptions.dateTo = route.query.noteDateTo
   }
-  if (s.queryText || includeNotesAndAppointments) {
-    s.setIsSearching(true)
-    alertScreenReader(`Searching for '${s.queryText}'`)
+  if (searchStore.queryText || includeNotesAndAppointments) {
+    searchStore.setIsSearching(true)
+    alertScreenReader(`Searching for '${searchStore.queryText}'`)
     const queries = []
-    if (s.includeCourses || includeNotesAndAppointments || s.includeStudents) {
+    if (searchStore.includeCourses || includeNotesAndAppointments || searchStore.includeStudents) {
       queries.push(
         search(
-          s.queryText,
+          searchStore.queryText,
           includeNotesAndAppointments,
-          s.includeCourses,
+          searchStore.includeCourses,
           includeNotesAndAppointments,
-          s.includeStudents,
-          extend({}, noteAndAppointmentOptions, appointmentOptions),
-          extend({}, noteAndAppointmentOptions, noteOptions)
+          searchStore.includeStudents,
+          extend({}, noteAndAppointmentOptions, appointmentsQuery),
+          extend({}, noteAndAppointmentOptions, notesQuery)
         )
       )
     }
-    if (s.includeAdmits && trim(s.queryText)) {
-      queries.push(searchAdmittedStudents(s.queryText))
+    if (searchStore.includeAdmits && trim(searchStore.queryText)) {
+      queries.push(searchAdmittedStudents(searchStore.queryText))
     }
     Promise.all(queries).then(responses => {
       each(responses, (response) => merge(results, response))
@@ -323,7 +323,7 @@ onMounted(() => {
         const focusId = totalCount ? 'page-header' : 'page-header-no-results'
         putFocusNextTick(focusId)
       }).finally(() => {
-        s.setIsSearching(false)
+        searchStore.setIsSearching(false)
       })
   } else {
     router.push({path: '/'})
@@ -360,16 +360,16 @@ const describe = (noun, count) => {
 }
 
 const fetchMoreAppointments = () => {
-  appointmentOptions.offset = appointmentOptions.offset + appointmentOptions.limit
-  appointmentOptions.limit = 20
+  appointmentsQuery.offset = appointmentsQuery.offset + appointmentsQuery.limit
+  appointmentsQuery.limit = 20
   loadingAdditionalAppointments.value = true
   search(
-    s.queryText,
+    searchStore.queryText,
     true,
     false,
     false,
     false,
-    extend({}, noteAndAppointmentOptions, appointmentOptions),
+    extend({}, noteAndAppointmentOptions, appointmentsQuery),
     null
   )
     .then(data => {
@@ -379,17 +379,17 @@ const fetchMoreAppointments = () => {
 }
 
 const fetchMoreNotes = () => {
-  noteOptions.offset = noteOptions.offset + noteOptions.limit
-  noteOptions.limit = 20
+  notesQuery.offset = notesQuery.offset + notesQuery.limit
+  notesQuery.limit = 20
   loadingAdditionalNotes.value = true
   search(
-    s.queryText,
+    searchStore.queryText,
     false,
     false,
     true,
     false,
     null,
-    extend({}, noteAndAppointmentOptions, noteOptions)
+    extend({}, noteAndAppointmentOptions, notesQuery)
   )
     .then(data => {
       results.notes = concat(results.notes, data.notes)
@@ -398,7 +398,7 @@ const fetchMoreNotes = () => {
 }
 
 const openAdvancedSearch = () => {
-  s.setShowAdvancedSearch(true)
+  searchStore.setShowAdvancedSearch(true)
   alertScreenReader('Advanced search is open')
 }
 </script>

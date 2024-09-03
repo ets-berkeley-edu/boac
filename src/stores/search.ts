@@ -1,5 +1,4 @@
 import {defineStore, StoreDefinition} from 'pinia'
-import {get} from 'lodash'
 import {useContextStore} from '@/stores/context'
 import {alertScreenReader} from '@/lib/utils'
 
@@ -7,7 +6,6 @@ export const useSearchStore: StoreDefinition = defineStore('search', {
   state: () => ({
     author: undefined as string | null | undefined,
     autocompleteInputResetKey: 0,
-    domain: [] as string[],
     fromDate: undefined as string | null | undefined,
     includeAdmits: false,
     includeCourses: false,
@@ -27,9 +25,9 @@ export const useSearchStore: StoreDefinition = defineStore('search', {
   getters: {
     isDirty: (state: any): boolean => {
       const currentUser = useContextStore().currentUser
-      return (get(currentUser, 'canAccessCanvasData') && !state.includeCourses)
-        || (get(currentUser, 'canAccessCanvasData') && !state.includeNotes)
-        || (get(currentUser, 'canAccessAdmittedStudents') && !state.includeAdmits)
+      return (currentUser.canAccessCanvasData && !state.includeCourses)
+        || (currentUser.canAccessCanvasData && !state.includeNotes)
+        || (currentUser.canAccessAdmittedStudents && !state.includeAdmits)
         || !!state.author || !!state.fromDate || state.postedBy !== 'anyone'
         || !!state.student || !!state.toDate || !!state.topic
     }
@@ -37,22 +35,11 @@ export const useSearchStore: StoreDefinition = defineStore('search', {
   actions: {
     resetAdvancedSearch(queryText?: string) {
       const currentUser = useContextStore().currentUser
-      const domain = ['students']
-      if (get(currentUser, 'canAccessCanvasData')) {
-        domain.push('courses')
-      }
-      if (get(currentUser, 'canAccessAdvisingData')) {
-        domain.push('notes')
-      }
-      if (get(currentUser, 'canAccessAdmittedStudents')) {
-        domain.push('admits')
-      }
-      this.domain = domain || []
       this.author = null
       this.fromDate = null
       this.postedBy = 'anyone'
       this.student = null
-      this.queryText = queryText
+      this.queryText = queryText || ''
       if (!this.queryText) {
         // Our third-party "autocomplete" component does not have a reset hook.
         // We reset its text-input by triggering a component reload with a :key change.
@@ -60,10 +47,10 @@ export const useSearchStore: StoreDefinition = defineStore('search', {
       }
       this.toDate = null
       this.topic = null
-      this.includeAdmits = domain.includes('admits')
-      this.includeCourses = domain.includes('courses')
-      this.includeNotes = domain.includes('notes')
-      this.includeStudents = domain.includes('students')
+      this.includeAdmits = currentUser.canAccessAdmittedStudents
+      this.includeCourses = currentUser.canAccessCanvasData
+      this.includeNotes = currentUser.canAccessAdvisingData
+      this.includeStudents = true
     },
     resetAutocompleteInput() {this.autocompleteInputResetKey++},
     setAuthor(value: string | null) {this.author = value},
