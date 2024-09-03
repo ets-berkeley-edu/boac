@@ -1,6 +1,6 @@
 import axios from 'axios'
-import {useContextStore} from '@/stores/context'
 import utils from '@/api/api-utils'
+import {useContextStore} from '@/stores/context'
 
 export function ping() {
   return axios.get(`${utils.apiBaseUrl()}/api/ping`).then(response => response.data)

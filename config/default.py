@@ -128,6 +128,9 @@ FIXED_WARNING_ON_ALL_PAGES = None
 # Directory to search for mock fixtures, if running in "test" or "demo" mode.
 FIXTURES_PATH = None
 
+# Google Analytics domain ID
+GA_MEASUREMENT_ID = None
+
 # Minutes of inactivity before session cookie is destroyed
 INACTIVE_SESSION_LIFETIME = 20
 

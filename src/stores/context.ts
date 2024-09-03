@@ -22,11 +22,33 @@ export type BoaConfig = {
   },
   draftNoteSubjectPlaceholder: string,
   fixedWarningOnAllPages: boolean,
+  gaMeasurementId: string,
   isProduction: boolean,
   isVueAppDebugMode: boolean,
   maxAttachmentsPerNote: number,
   supportEmailAddress: string,
   timezone: string
+}
+
+export type CurrentUser = {
+  canAccessAdmittedStudents: boolean,
+  canAccessAdvisingData: boolean,
+  canAccessCanvasData: boolean,
+  canEditDegreeProgress: boolean,
+  canReadDegreeProgress: boolean,
+  departments: any[],
+  inDemoMode: boolean,
+  isAdmin: boolean,
+  isAuthenticated: boolean,
+  isDemoModeAvailable: boolean,
+  myCohorts: any[],
+  myCuratedGroups: any[],
+  myDraftNoteCount: number | undefined,
+  preferences: {
+    termId: string | undefined
+  },
+  title: string,
+  uid: string
 }
 
 export const useContextStore = defineStore('context', {
@@ -43,17 +65,18 @@ export const useContextStore = defineStore('context', {
       inDemoMode: false,
       isAdmin: false,
       isAuthenticated: false,
-      isDemoModeAvailable: undefined,
-      myCohorts: [] as Array<any>,
-      myCuratedGroups: [] as Array<any>,
+      isDemoModeAvailable: false,
+      myCohorts: [] as any[],
+      myCuratedGroups: [] as any[],
       myDraftNoteCount: undefined as number | undefined,
       preferences: {
         termId: undefined as string | undefined
       }
-    },
+    } as CurrentUser,
     dismissedFooterAlert: false,
     dismissedServiceAnnouncement: false,
     eventHub: mitt(),
+    gaMeasurementId: undefined as string | undefined,
     loading: false,
     loadingStartTime: undefined as number | undefined,
     screenReaderAlert: {
