@@ -64,6 +64,7 @@
           :max="rangeMax"
           placeholder="MM/DD/YYYY"
           prepend-icon=""
+          @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
         />
         <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
           {{ rangeMaxLabel() }}
@@ -83,6 +84,7 @@
           :min="rangeMin"
           placeholder="MM/DD/YYYY"
           prepend-icon=""
+          @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
         />
       </div>
       <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
@@ -97,6 +99,7 @@
             hide-details
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
+            @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
           />
         </div>
         <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
@@ -110,6 +113,7 @@
             hide-details
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
+            @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
           />
         </div>
       </div>
@@ -167,7 +171,7 @@
         <ProgressButton
           :id="`update-added-filter-${position}`"
           :action="onClickUpdateButton"
-          :disabled="disableUpdateButton || isUpdatingExistingFilter || !selectedOption"
+          :disabled="disableUpdateButton || isUpdatingExistingFilter || (isUX('dropdown') && !selectedOption)"
           :in-progress="isUpdatingExistingFilter"
           size="large"
           :text="isUpdatingExistingFilter ? 'Updating' : 'Update'"
@@ -480,8 +484,9 @@ const onClickEditButton = () => {
     selectedOption.value = Array.isArray(options) ? findOption(options, filter.value.value) : find(flattenOptions(options), filter.value.value)
     putFocusNextTick(`filter-select-secondary-${props.position}`)
   } else if (isUX('range')) {
-    rangeMin.value = DateTime.fromISO(filter.value.value.min).toJSDate()
-    rangeMax.value = DateTime.fromISO(filter.value.value.max).toJSDate()
+    const isDate = filter.value.validation === 'date'
+    rangeMin.value = isDate ? DateTime.fromISO(filter.value.value.min).toJSDate() : filter.value.value.min
+    rangeMax.value = isDate ? DateTime.fromISO(filter.value.value.max).toJSDate() : filter.value.value.max
     putFocusNextTick(`filter-range-min-${props.position}`)
   }
   isModifyingFilter.value = true
@@ -490,18 +495,20 @@ const onClickEditButton = () => {
 }
 
 const onClickUpdateButton = () => {
-  isUpdatingExistingFilter.value = true
-  if (isUX('range')) {
-    updateRangeFilter()
+  if (!disableUpdateButton.value && !isUpdatingExistingFilter.value) {
+    isUpdatingExistingFilter.value = true
+    if (isUX('range')) {
+      updateRangeFilter()
+    }
+    cohortStore.updateExistingFilter({index: props.position, updatedFilter: filter.value})
+    cohortStore.setModifiedSinceLastSearch(true)
+    updateFilterOptions(cohortStore.domain, cohortStore.cohortOwner, cohortStore.filters).then(() => {
+      isModifyingFilter.value = false
+      cohortStore.setEditMode(null)
+      alertScreenReader(`${filter.value.name} filter updated`)
+      isUpdatingExistingFilter.value = false
+    })
   }
-  cohortStore.updateExistingFilter({index: props.position, updatedFilter: filter.value})
-  cohortStore.setModifiedSinceLastSearch(true)
-  updateFilterOptions(cohortStore.domain, cohortStore.cohortOwner, cohortStore.filters).then(() => {
-    isModifyingFilter.value = false
-    cohortStore.setEditMode(null)
-    alertScreenReader(`${filter.value.name} filter updated`)
-    isUpdatingExistingFilter.value = false
-  })
 }
 
 const rangeInputSize = () => {
