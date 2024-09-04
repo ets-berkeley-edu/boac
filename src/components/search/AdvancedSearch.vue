@@ -28,8 +28,8 @@
         placeholder="/ to search"
         type="search"
         variant="outlined"
-        @focusin="() => searchStore.setIsFocusOnSearch(true)"
-        @focusout="() => searchStore.setIsFocusOnSearch(false)"
+        @update:focused="isFocused => isFocused ? searchStore.setIsFocusOnSearch(true) : noop"
+        @update:menu="isOpen => !isOpen ? searchStore.setIsFocusOnSearch(false) : noop"
         @keydown.enter.prevent="search"
       >
         <template #append-inner>
@@ -38,7 +38,8 @@
             aria-label="Clear search input"
             :icon="mdiClose"
             size="x-small"
-            @click="() => searchStore.queryText = null"
+            @click="onClearSearch"
+            @keyup.enter="onClearSearch"
           />
           <v-progress-circular
             v-if="searchStore.isSearching"
@@ -81,12 +82,11 @@ import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
 import router from '@/router'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
 import {computed, onMounted, onUnmounted} from 'vue'
-import {each, get, noop, trim} from 'lodash'
+import {each, get, noop, size, trim} from 'lodash'
 import {getAllTopics} from '@/api/topics'
 import {labelForSearchInput} from '@/lib/search'
 import {mdiClose} from '@mdi/js'
 import {putFocusNextTick, scrollToTop} from '@/lib/utils'
-import {size} from 'lodash'
 import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'
 import {useSearchStore} from '@/stores/search'
@@ -120,6 +120,11 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('keyup', onKeyUp)
 })
+
+const onClearSearch = () => {
+  searchStore.queryText = null
+  putFocusNextTick('search-students-input')
+}
 
 const onKeyUp = event => {
   if (event.keyCode === 191) {

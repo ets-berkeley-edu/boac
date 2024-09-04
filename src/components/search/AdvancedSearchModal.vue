@@ -31,7 +31,7 @@
       min-width="700"
       width="80%"
     >
-      <FocusLock @keydown.esc="cancel">
+      <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="cancel">
         <v-card-title>
           <AdvancedSearchModalHeader :on-click-close="cancel" />
         </v-card-title>
@@ -51,11 +51,11 @@
               hide-no-data
               :items="searchStore.searchHistory"
               :menu-icon="null"
-              :menu-props="{'attach': false, 'location': 'bottom'}"
               placeholder="Search"
               type="search"
               variant="outlined"
               @keydown.enter="search"
+              @update:menu="isOpen => isFocusLockDisabled = isOpen"
             />
           </div>
           <div class="font-size-16 font-weight-bold">
@@ -200,18 +200,16 @@
                       :items="suggestedAdvisors"
                       :maxlength="56"
                       :menu-icon="null"
-                      :menu-props="{'attach': false, 'location': 'bottom'}"
                       :model-value="model.postedBy === 'anyone' ? model.author : null"
                       placeholder="Enter name..."
                       variant="outlined"
                       @click:clear="onClearAdvisorSearch"
-                      @update:menu="s => s ? null : $emit('user-selected', selected)"
+                      @update:menu="isOpen => isFocusLockDisabled = isOpen"
                       @update:model-value="author => {
                         model.postedBy = 'anyone'
                         model.author = author
                       }"
                       @update:search="onUpdateAdvisorSearch"
-                      @focusin="onClearAdvisorSearch"
                     >
                       <template #append-inner>
                         <v-progress-circular
@@ -223,7 +221,7 @@
                         />
                       </template>
                       <template #selection>
-                        {{ m.author.label }}
+                        {{ model.author.label }}
                       </template>
                     </v-autocomplete>
                   </div>
@@ -248,15 +246,13 @@
                       :items="suggestedStudents"
                       :maxlength="56"
                       :menu-icon="null"
-                      :menu-props="{'attach': false, 'location': 'bottom'}"
                       :model-value="model.student"
                       placeholder="Enter name or SID..."
                       variant="outlined"
                       @click:clear="onClearStudentSearch"
-                      @update:menu="s => s ? null : $emit('user-selected', selected)"
+                      @update:menu="isOpen => isFocusLockDisabled = isOpen"
                       @update:model-value="student => model.student = student"
                       @update:search="onUpdateStudentSearch"
-                      @focusin="onClearStudentSearch"
                     >
                       <template #append-inner>
                         <v-progress-circular
@@ -385,6 +381,7 @@ const currentUser = contextStore.currentUser
 
 const counter = ref(0)
 const isFocusAdvSearchButton = ref(false)
+const isFocusLockDisabled = ref(false)
 const isFetchingAdvisors = ref(false)
 const isFetchingStudents = ref(false)
 const suggestedAdvisors = ref([])
@@ -433,10 +430,14 @@ watch(() => searchStore.showAdvancedSearch, show => {
     putFocusNextTick('advanced-search-close')
   } else {
     searchStore.resetAutocompleteInput()
+    suggestedAdvisors.value = []
+    suggestedStudents.value = []
     alertScreenReader('Closed advanced search')
     putFocusNextTick('search-options-panel-toggle')
   }
 })
+
+watch(() => model.value.postedBy, () => suggestedAdvisors.value = [])
 
 const cancel = () => {
   searchStore.setShowAdvancedSearch(false)
@@ -454,20 +455,22 @@ const onClearStudentSearch = () => {
   isFetchingStudents.value = false
 }
 
-const onUpdateAdvisorSearch = debounce(args => {
-  if (size(args)) {
+const onUpdateAdvisorSearch = debounce(query => {
+  const q = trim(query)
+  if (size(q) > 1) {
     isFetchingAdvisors.value = true
-    findAdvisorsByName(args, 20, new AbortController()).then(results => {
+    findAdvisorsByName(q, 20, new AbortController()).then(results => {
       suggestedAdvisors.value = map(results, result => ({title: result.label, value: result}))
       isFetchingAdvisors.value = false
     })
   }
 }, 500)
 
-const onUpdateStudentSearch = debounce(args => {
-  if (size(args)) {
+const onUpdateStudentSearch = debounce(query => {
+  const q = trim(query)
+  if (size(q) > 1) {
     isFetchingStudents.value = true
-    findStudentsByNameOrSid(args, 20).then(results => {
+    findStudentsByNameOrSid(q, 20, new AbortController()).then(results => {
       suggestedStudents.value = map(results, result => ({title: result.label, value: result}))
       isFetchingStudents.value = false
     })

@@ -29,7 +29,6 @@
             <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
             <v-autocomplete
               id="search-user-input"
-              v-model="userSelection"
               autocomplete="off"
               :clearable="!isFetching"
               base-color="black"
@@ -43,12 +42,12 @@
               label="Enter name..."
               :maxlength="72"
               :menu-icon="null"
-              :menu-props="{'attach': false, 'location': 'bottom'}"
+              :model-value="userSelection"
+              return-object
               variant="outlined"
               @click:clear="onClearSearch"
-              @update:menu="s => s ? null : $emit('user-selected', selected)"
+              @update:model-value="user => userSelection = user"
               @update:search="onUpdateSearch"
-              @focusin="onClearSearch"
             >
               <template #append-inner>
                 <v-progress-circular
@@ -348,10 +347,10 @@ import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 import {DateTime} from 'luxon'
-import {debounce, find, get, isNil, map, size} from 'lodash'
+import {debounce, find, get, isNil, map, size, trim} from 'lodash'
+import {escapeForRegExp, normalizeId} from '@/lib/utils'
 import {mdiEmail} from '@mdi/js'
 import {mdiLoginVariant, mdiNoteOutline} from '@mdi/js'
-import {normalizeId} from '@/lib/utils'
 import {onMounted, ref, watch} from 'vue'
 import {useContextStore} from '@/stores/context'
 
@@ -454,11 +453,12 @@ const onClearSearch = () => {
   isFetching.value = false
 }
 
-const onUpdateSearch = debounce(arg => {
-  if (size(arg)) {
+const onUpdateSearch = debounce(query => {
+  const q = query && trim(escapeForRegExp(query).replace(/[^\w ]+/g, ''))
+  if (size(q) > 1) {
     isFetching.value = true
-    userAutocomplete(arg).then(results => {
-      suggestedUsers.value = map(results, result => ({title: result.label, value: result.uid}))
+    userAutocomplete(q, new AbortController()).then(results => {
+      suggestedUsers.value = map(results, result => ({title: result.label, value: result}))
       isFetching.value = false
     })
   }
@@ -504,10 +504,9 @@ const usersProvider = () => {
   case 'search':
     totalUserCount.value = 0
     users.value = []
-    if (userSelection.value) {
-      promise = getUserByUid(userSelection.value, false).then(data => {
+    if (get(userSelection.value, 'value.uid')) {
+      promise = getUserByUid(userSelection.value.value.uid, false).then(data => {
         totalUserCount.value = 1
-        userSelection.value = undefined
         users.value = [data]
         return [data]
       })

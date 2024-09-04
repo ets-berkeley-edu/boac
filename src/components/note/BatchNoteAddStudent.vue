@@ -28,13 +28,13 @@
         item-value="sid"
         :items="autoSuggestedStudents"
         :menu-icon="null"
-        :menu-props="{'attach': false, 'location': 'bottom'}"
         type="search"
         validate-on="submit"
         variant="outlined"
         @click:append="onClickAddButton"
         @click:clear="resetAutocomplete"
         @keydown.esc="onEscFormInput"
+        @update:menu="isOpen => noteStore.setFocusLockDisabled(isOpen)"
         @update:search="onUpdateSearch"
         @update:model-value="onUpdateModel"
       >
@@ -118,6 +118,7 @@ const addStudent = student => {
   addedStudents.value.push(student)
   setNoteRecipient(student.sid).then(() => {
     alertScreenReader(`${student.label} added to batch note`)
+    putFocusNextTick('create-note-add-student-input')
     resetAutocomplete()
   })
 }
@@ -192,7 +193,7 @@ const onUpdateSearch = input => {
       const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
       isUpdatingStudentAutocomplete.value = true
       if (size(search) > 1) {
-        findStudentsByNameOrSid(search, 20).then(students => {
+        findStudentsByNameOrSid(search, 20, new AbortController()).then(students => {
           const existingSids = map(addedStudents.value, 'sid')
           students = filter(students, s => !includes(existingSids, s.sid))
           autoSuggestedStudents.value = map(students, s => ({label: s.label, sid: s.sid}))
