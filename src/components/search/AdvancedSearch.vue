@@ -56,7 +56,6 @@
               searchStore.queryText = item.value
               search()
             }"
-            @focusin="() => searchStore.setIsFocusOnSearch(true)"
           >
             {{ item.value }}
           </v-list-item>

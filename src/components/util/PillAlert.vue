@@ -1,7 +1,7 @@
 <template>
   <v-chip
     :aria-label="ariaLabel"
-    class="pill-alert"
+    class="border-sm pill-alert"
     :class="{'pill-color-override': outlined}"
     :color="color"
     density="comfortable"

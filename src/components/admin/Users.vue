@@ -610,7 +610,7 @@ const usersProvider = () => {
   left: 12px;
   font-size: 22px;
   color: red;
-  z-index: 10000;
+  z-index: 100;
 }
 .advising-data {
   position: relative;
