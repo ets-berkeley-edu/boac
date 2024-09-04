@@ -35,7 +35,7 @@ from flask import current_app as app
 import psycopg2
 import psycopg2.extras
 from psycopg2.pool import ThreadedConnectionPool
-
+from sqlalchemy.sql import text
 
 connection_pool = None
 
@@ -793,6 +793,7 @@ def search_advising_notes(
     author_uid=None,
     author_csid=None,
     student_csid=None,
+    department_codes=None,
     topic=None,
     datetime_from=None,
     datetime_to=None,
@@ -809,13 +810,35 @@ def search_advising_notes(
             JOIN {advising_notes_schema()}.advising_notes_search_index idx
             ON idx.id = an.id
             AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
-    uid_advisor_filter = 'an.advisor_uid = %(advisor_uid)s' if author_uid else None
+    if department_codes:
+        advising_uid_query = """
+            select au.uid
+            from authorized_users au
+            join university_dept_members udm
+            on au.id = udm.authorized_user_id
+            join university_depts ud
+            on ud.id = udm.university_dept_id
+            where ud.dept_code = ANY(:department_codes)"""
+        query = text(advising_uid_query).bindparams(department_codes=department_codes)
+        result = db.session.execute(query)
+        rows = result.all()
+        advisor_uids = [r[0] for r in rows]
+        uid_advisor_filter = 'an.advisor_uid = ANY(%(advisor_uids)s)'
+
+    elif author_uid:
+        uid_advisor_filter = 'an.advisor_uid = %(advisor_uid)s'
+        advisor_uids = None
+    else:
+        uid_advisor_filter = None
+        advisor_uids = None
+
     return search_sis_advising(
         query_columns=query_columns,
         query_tables=query_tables,
         uid_advisor_filter=uid_advisor_filter,
         search_phrase=search_phrase,
         advisor_uid=author_uid,
+        advisor_uids=advisor_uids,
         advisor_csid=author_csid,
         student_csid=student_csid,
         topic=topic,
@@ -833,6 +856,7 @@ def search_sis_advising(
     uid_advisor_filter,
     search_phrase,
     advisor_uid=None,
+    advisor_uids=None,
     advisor_csid=None,
     student_csid=None,
     topic=None,
@@ -843,7 +867,7 @@ def search_sis_advising(
     limit=None,
 ):
 
-    if advisor_uid or advisor_csid:
+    if advisor_uid or advisor_csid or advisor_uids:
         sid_advisor_filter = 'an.advisor_sid = %(advisor_csid)s' if advisor_csid else None
         advisor_filter = 'AND (' + join_if_present(' OR ', [uid_advisor_filter, sid_advisor_filter]) + ')'
     else:
@@ -895,6 +919,7 @@ def search_sis_advising(
         search_phrase=search_phrase,
         advisor_csid=advisor_csid,
         advisor_uid=advisor_uid,
+        advisor_uids=advisor_uids,
         student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,
