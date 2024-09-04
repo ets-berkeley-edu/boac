@@ -1,79 +1,78 @@
 <template>
-  <div class="justify-center d-flex">
-    <div class="align-center d-flex">
-      <div class="mr-2">
-        <label for="search-students-input" class="sr-only">
-          {{ labelForSearchInput() }}
-          (Type / to put focus in the search input field.)
-        </label>
-        <v-combobox
-          id="search-students-input"
-          :key="searchStore.autocompleteInputResetKey"
-          v-model="queryTextModel"
-          aria-labelledby="search-input-label"
-          autocomplete="off"
-          bg-color="white"
-          :class="{
-            'text-grey': !searchStore.queryText,
-            'search-focus-in': searchStore.isFocusOnSearch || searchStore.queryText,
-            'search-focus-out': !searchStore.isFocusOnSearch && !searchStore.queryText
-          }"
-          density="comfortable"
-          :disabled="searchStore.isSearching"
-          hide-details
-          hide-no-data
-          :items="searchStore.searchHistory"
-          :menu="searchStore.isFocusOnSearch"
-          :menu-icon="null"
-          :menu-props="{'attach': false, 'location': 'bottom'}"
-          placeholder="/ to search"
-          type="search"
-          variant="outlined"
-          @focusin="() => searchStore.setIsFocusOnSearch(true)"
-          @focusout="() => searchStore.setIsFocusOnSearch(false)"
-          @keydown.enter.prevent="search"
-        >
-          <template #append-inner>
-            <v-btn
-              v-if="!searchStore.isSearching && size(trim(searchStore.queryText))"
-              aria-label="Clear search input"
-              :icon="mdiClose"
-              size="x-small"
-              @click="() => searchStore.queryText = null"
-            />
-            <v-progress-circular
-              v-if="searchStore.isSearching"
-              indeterminate
-              size="x-small"
-              width="2"
-            />
-          </template>
-          <template #item="{index, item}">
-            <v-list-item
-              :id="`search-history-${index}`"
-              class="font-size-18"
-              @click="() => {
-                searchStore.queryText = item.value
-                search()
-              }"
-            >
-              {{ item.value }}
-            </v-list-item>
-          </template>
-        </v-combobox>
-      </div>
-      <v-btn
-        v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData"
-        id="go-search"
-        class="btn-search"
+  <div class="align-center d-flex">
+    <div class="mr-2">
+      <label for="search-students-input" class="sr-only">
+        {{ labelForSearchInput() }}
+        (Type / to put focus in the search input field.)
+      </label>
+      <v-combobox
+        id="search-students-input"
+        :key="searchStore.autocompleteInputResetKey"
+        v-model="queryTextModel"
+        aria-labelledby="search-input-label"
+        autocomplete="off"
+        bg-color="white"
+        :class="{
+          'text-grey': !searchStore.queryText,
+          'search-focus-in': searchStore.isFocusOnSearch || searchStore.queryText,
+          'search-focus-out': !searchStore.isFocusOnSearch && !searchStore.queryText
+        }"
+        density="comfortable"
         :disabled="searchStore.isSearching"
-        text="Search"
+        hide-details
+        hide-no-data
+        :items="searchStore.searchHistory"
+        :menu="searchStore.isFocusOnSearch"
+        :menu-icon="null"
+        :menu-props="{'attach': false, 'location': 'bottom'}"
+        placeholder="/ to search"
+        type="search"
         variant="outlined"
-        @keydown.enter="search"
-        @click.stop="search"
-      />
-      <AdvancedSearchModal v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData" />
+        @focusin="() => searchStore.setIsFocusOnSearch(true)"
+        @focusout="() => searchStore.setIsFocusOnSearch(false)"
+        @keydown.enter.prevent="search"
+      >
+        <template #append-inner>
+          <v-btn
+            v-if="!searchStore.isSearching && size(trim(searchStore.queryText))"
+            aria-label="Clear search input"
+            :icon="mdiClose"
+            size="x-small"
+            @click="() => searchStore.queryText = null"
+          />
+          <v-progress-circular
+            v-if="searchStore.isSearching"
+            indeterminate
+            size="x-small"
+            width="2"
+          />
+        </template>
+        <template #item="{index, item}">
+          <v-list-item
+            :id="`search-history-${index}`"
+            class="font-size-18"
+            @click="() => {
+              searchStore.queryText = item.value
+              search()
+            }"
+            @focusin="() => searchStore.setIsFocusOnSearch(true)"
+          >
+            {{ item.value }}
+          </v-list-item>
+        </template>
+      </v-combobox>
     </div>
+    <v-btn
+      v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData"
+      id="go-search"
+      class="btn-search"
+      :disabled="searchStore.isSearching"
+      text="Search"
+      variant="outlined"
+      @keydown.enter="search"
+      @click.stop="search"
+    />
+    <AdvancedSearchModal v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData" />
   </div>
 </template>
 
