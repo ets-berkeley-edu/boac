@@ -66,32 +66,36 @@
           id="table-with-gpa-per-term"
           class="term-gpa-table w-100"
         >
-          <tr>
-            <th class="border-b-md pl-2 py-2 text-grey-darken-2 text-left">Term</th>
-            <th class="border-b-md pr-3 py-2 text-grey-darken-2 text-right">GPA</th>
-          </tr>
-          <tr
-            v-for="(term, index) in student.termGpa"
-            :key="index"
-            :class="{'bg-sky-blue': index % 2 === 0}"
-          >
-            <td class="font-weight-500 pl-2 py-1 text-no-wrap">{{ term.name }}</td>
-            <td class="pr-2 text-no-wrap text-right">
-              <v-icon v-if="term.gpa < 2" :icon="mdiAlertRhombus" class="text-danger pr-2" />
-              <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
-              <span
-                :id="`student-gpa-term-${term.name}`"
-                :class="{'text-danger': term.gpa < 2}"
-              >{{ round(term.gpa, 3) }}</span>
-            </td>
-          </tr>
-          <tr
-            v-if="isEmpty(student.termGpa)"
-            id="student-gpa-no-terms"
-          >
-            <td>No previous terms</td>
-            <td>&mdash;</td>
-          </tr>
+          <thead>
+            <tr>
+              <th class="border-b-md pl-2 py-2 text-grey-darken-2 text-left">Term</th>
+              <th class="border-b-md pr-3 py-2 text-grey-darken-2 text-right">GPA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(term, index) in student.termGpa"
+              :key="index"
+              :class="{'bg-sky-blue': index % 2 === 0}"
+            >
+              <td class="font-weight-500 pl-2 py-1 text-no-wrap">{{ term.name }}</td>
+              <td class="pr-2 text-no-wrap text-right">
+                <v-icon v-if="term.gpa < 2" :icon="mdiAlertRhombus" class="text-danger pr-2" />
+                <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
+                <span
+                  :id="`student-gpa-term-${term.name}`"
+                  :class="{'text-danger': term.gpa < 2}"
+                >{{ round(term.gpa, 3) }}</span>
+              </td>
+            </tr>
+            <tr
+              v-if="isEmpty(student.termGpa)"
+              id="student-gpa-no-terms"
+            >
+              <td>No previous terms</td>
+              <td>&mdash;</td>
+            </tr>
+          </tbody>
         </table>
       </v-card>
     </v-expand-transition>

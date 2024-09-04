@@ -10,117 +10,119 @@
         {{ canvasSite.courseCode }}
       </h5>
       <table class="bcourses">
-        <tr class="d-flex flex-column d-sm-table-row py-2">
-          <th class="bcourses-legend text-no-wrap" scope="row">
-            Assignments Submitted
-          </th>
-          <td class="bcourses-summary">
-            <span v-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-submitted`">
-              <strong>{{ canvasSite.analytics.assignmentsSubmitted.displayPercentile }}</strong> percentile
-            </span>
-            <span
-              v-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile"
-              :id="`term-${termId}-course-${index}-site-${canvasSiteId}-submitted`"
-              class="font-italic text-muted"
-            >
-              No Assignments
-            </span>
-          </td>
-          <td class="profile-boxplot-container">
-            <StudentBoxplot
-              v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
-              :chart-description="`Boxplot of ${student.name}'s assignments submitted in ${canvasSite.courseCode}`"
-              :dataset="canvasSite.analytics.assignmentsSubmitted"
-              :numeric-id="canvasSite.canvasCourseId.toString()"
-            />
-            <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
-              <div>User score: {{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</div>
-              <div>Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }}</div>
-              <div>70th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[7] }}</div>
-              <div>50th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[5] }}</div>
-              <div>30th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[3] }}</div>
-              <div>Minimum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[0] }}</div>
-            </div>
-            <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-assignments-score`">
-              <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
-                Score:
-                <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-                <span class="text-muted text-nowrap">
-                  (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
-                </span>
+        <tbody>
+          <tr class="d-sm-table-row py-2">
+            <th class="bcourses-legend text-no-wrap" scope="row">
+              Assignments Submitted
+            </th>
+            <td class="bcourses-summary">
+              <span v-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-submitted`">
+                <strong>{{ canvasSite.analytics.assignmentsSubmitted.displayPercentile }}</strong> percentile
               </span>
               <span
-                v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles"
+                v-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile"
+                :id="`term-${termId}-course-${index}-site-${canvasSiteId}-submitted`"
                 class="font-italic text-muted"
               >
-                No Data
+                No Assignments
               </span>
-            </div>
-          </td>
-        </tr>
-        <tr class="d-flex d-sm-table-row flex-column pt-2">
-          <th class="bcourses-legend" scope="row">
-            Assignment Grades
-          </th>
-          <td class="bcourses-summary">
-            <span v-if="canvasSite.analytics.currentScore.displayPercentile" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-grades`">
-              <strong>{{ canvasSite.analytics.currentScore.displayPercentile }}</strong> percentile
-            </span>
-            <span
-              v-if="!canvasSite.analytics.currentScore.displayPercentile"
-              :id="`term-${termId}-course-${index}-site-${canvasSiteId}-grades`"
-              class="font-italic text-muted"
-            >
-              No Grades
-            </span>
-          </td>
-          <td class="profile-boxplot-container">
-            <StudentBoxplot
-              v-if="canvasSite.analytics.currentScore.boxPlottable"
-              :chart-description="`Boxplot of ${student.name}'s assignment grades in ${canvasSite.courseCode}`"
-              :dataset="canvasSite.analytics.currentScore"
-              :numeric-id="canvasSite.canvasCourseId.toString()"
-            />
-            <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
-              <div>User score: {{ canvasSite.analytics.currentScore.student.raw }}</div>
-              <div>Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }}</div>
-              <div>70th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[7] }}</div>
-              <div>50th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[5] }}</div>
-              <div>30th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[3] }}</div>
-              <div>Minimum: {{ canvasSite.analytics.currentScore.courseDeciles[0] }}</div>
-            </div>
-            <div v-if="!canvasSite.analytics.currentScore.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-grades-score`">
-              <span v-if="canvasSite.analytics.currentScore.courseDeciles">
-                Score:
-                <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
-                <span class="text-muted text-nowrap">
-                  (Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
+            </td>
+            <td class="profile-boxplot-container">
+              <StudentBoxplot
+                v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
+                :chart-description="`Boxplot of ${student.name}'s assignments submitted in ${canvasSite.courseCode}`"
+                :dataset="canvasSite.analytics.assignmentsSubmitted"
+                :numeric-id="canvasSite.canvasCourseId.toString()"
+              />
+              <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
+                <div>User score: {{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</div>
+                <div>Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }}</div>
+                <div>70th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[7] }}</div>
+                <div>50th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[5] }}</div>
+                <div>30th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[3] }}</div>
+                <div>Minimum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[0] }}</div>
+              </div>
+              <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-assignments-score`">
+                <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
+                  Score:
+                  <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
+                  <span class="text-muted text-nowrap">
+                    (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
+                  </span>
                 </span>
+                <span
+                  v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles"
+                  class="font-italic text-muted"
+                >
+                  No Data
+                </span>
+              </div>
+            </td>
+          </tr>
+          <tr class="d-flex d-sm-table-row flex-column pt-2">
+            <th class="bcourses-legend" scope="row">
+              Assignment Grades
+            </th>
+            <td class="bcourses-summary">
+              <span v-if="canvasSite.analytics.currentScore.displayPercentile" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-grades`">
+                <strong>{{ canvasSite.analytics.currentScore.displayPercentile }}</strong> percentile
               </span>
               <span
-                v-if="!canvasSite.analytics.currentScore.courseDeciles"
-                class="font-italic text-muted text-nowrap"
+                v-if="!canvasSite.analytics.currentScore.displayPercentile"
+                :id="`term-${termId}-course-${index}-site-${canvasSiteId}-grades`"
+                class="font-italic text-muted"
               >
-                No Data
+                No Grades
               </span>
-            </div>
-          </td>
-        </tr>
-        <tr v-if="config.currentEnrollmentTermId === parseInt(termId, 10)" class="d-flex d-sm-table-row flex-column pt-2">
-          <th class="bcourses-legend" scope="row">
-            Last bCourses Activity
-          </th>
-          <td colspan="2">
-            <div v-if="!canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-activity`">
-              <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span> has never visited this course site.
-            </div>
-            <div v-if="canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-activity`">
-              <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
-              last visited the course site {{ lastActivityDays(canvasSite.analytics).toLowerCase() }}.
-              {{ lastActivityInContext(canvasSite.analytics) }}
-            </div>
-          </td>
-        </tr>
+            </td>
+            <td class="profile-boxplot-container">
+              <StudentBoxplot
+                v-if="canvasSite.analytics.currentScore.boxPlottable"
+                :chart-description="`Boxplot of ${student.name}'s assignment grades in ${canvasSite.courseCode}`"
+                :dataset="canvasSite.analytics.currentScore"
+                :numeric-id="canvasSite.canvasCourseId.toString()"
+              />
+              <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
+                <div>User score: {{ canvasSite.analytics.currentScore.student.raw }}</div>
+                <div>Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }}</div>
+                <div>70th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[7] }}</div>
+                <div>50th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[5] }}</div>
+                <div>30th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[3] }}</div>
+                <div>Minimum: {{ canvasSite.analytics.currentScore.courseDeciles[0] }}</div>
+              </div>
+              <div v-if="!canvasSite.analytics.currentScore.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-grades-score`">
+                <span v-if="canvasSite.analytics.currentScore.courseDeciles">
+                  Score:
+                  <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
+                  <span class="text-muted text-nowrap">
+                    (Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
+                  </span>
+                </span>
+                <span
+                  v-if="!canvasSite.analytics.currentScore.courseDeciles"
+                  class="font-italic text-muted text-nowrap"
+                >
+                  No Data
+                </span>
+              </div>
+            </td>
+          </tr>
+          <tr v-if="config.currentEnrollmentTermId === parseInt(termId, 10)" class="d-flex d-sm-table-row flex-column pt-2">
+            <th class="bcourses-legend" scope="row">
+              Last bCourses Activity
+            </th>
+            <td colspan="2">
+              <div v-if="!canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-activity`">
+                <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span> has never visited this course site.
+              </div>
+              <div v-if="canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-activity`">
+                <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
+                last visited the course site {{ lastActivityDays(canvasSite.analytics).toLowerCase() }}.
+                {{ lastActivityInContext(canvasSite.analytics) }}
+              </div>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
     <div v-if="isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-muted">

@@ -80,233 +80,237 @@
   <div v-if="countPerActiveTab">
     <h3 class="sr-only">{{ activeTab === 'all' ? 'All Messages' : `${capitalize(activeTab)}s` }}</h3>
     <table id="timeline-messages" class="w-100">
-      <tr class="sr-only">
-        <th class="column-pill">Type</th>
-        <th class="column-message">Summary</th>
-        <th class="column-right">Details</th>
-        <th class="column-right">Date</th>
-      </tr>
-      <tr v-if="creatingNoteEvent" class="message-row-read message-row border-t-sm border-b-sm">
-        <td class="column-pill">
-          <div class="pill text-center text-uppercase text-white pill-note pa-2">
-            <span class="sr-only">Creating new</span> advising note
-          </div>
-        </td>
-        <td class="column-message">
-          <div class="d-flex px-2">
-            <div class="mr-2">
-              <v-icon :icon="mdiSync" spin />
+      <thead>
+        <tr class="sr-only">
+          <th class="column-pill">Type</th>
+          <th class="column-message">Summary</th>
+          <th class="column-right">Details</th>
+          <th class="column-right">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-if="creatingNoteEvent" class="message-row-read message-row border-t-sm border-b-sm">
+          <td class="column-pill">
+            <div class="pill text-center text-uppercase text-white pill-note pa-2">
+              <span class="sr-only">Creating new</span> advising note
             </div>
-            <div class="text-grey-darken-2">
-              {{ creatingNoteEvent.subject }}
+          </td>
+          <td class="column-message">
+            <div class="d-flex px-2">
+              <div class="mr-2">
+                <v-icon :icon="mdiSync" spin />
+              </div>
+              <div class="text-grey-darken-2">
+                {{ creatingNoteEvent.subject }}
+              </div>
             </div>
-          </div>
-        </td>
-        <td></td>
-        <td>
-          <div class="pr-2 float-right text-no-wrap text-grey-darken-2">
-            <TimelineDate
-              :date="new Date()"
-              :include-time-of-day="false"
-            />
-          </div>
-        </td>
-      </tr>
-      <tr
-        v-for="(message, index) in messagesVisible"
-        :id="`permalink-${message.type}-${message.id}`"
-        :key="index"
-        :class="{'message-row-read': message.read}"
-        class="message-row border-t-sm border-b-sm"
-      >
-        <td class="column-pill">
-          <div class="pa-2">
+          </td>
+          <td></td>
+          <td>
+            <div class="pr-2 float-right text-no-wrap text-grey-darken-2">
+              <TimelineDate
+                :date="new Date()"
+                :include-time-of-day="false"
+              />
+            </div>
+          </td>
+        </tr>
+        <tr
+          v-for="(message, index) in messagesVisible"
+          :id="`permalink-${message.type}-${message.id}`"
+          :key="index"
+          :class="{'message-row-read': message.read}"
+          class="message-row border-t-sm border-b-sm"
+        >
+          <td class="column-pill">
+            <div class="pa-2">
+              <div
+                :id="`timeline-tab-${activeTab}-pill-${index}`"
+                :class="`pill-${message.type}`"
+                class="pill text-center text-uppercase text-white"
+                :role="message.type === 'requirement' ? 'cell' : 'button'"
+                :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
+                @keyup.enter="open(message, true)"
+                @click="open(message, true)"
+              >
+                <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
+              </div>
+              <div
+                v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
+                class="d-flex flex-column"
+              >
+                <div class="pt-2">
+                  <v-btn
+                    v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)"
+                    :id="`edit-note-${message.id}-button`"
+                    class="pl-0"
+                    color="primary"
+                    density="compact"
+                    :disabled="noteStore.disableNewNoteButton"
+                    slim
+                    :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
+                    variant="text"
+                    @keydown.enter.stop="editNote(message)"
+                    @click.stop="editNote(message)"
+                  />
+                </div>
+                <div>
+                  <v-btn
+                    v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
+                    :id="`delete-note-button-${message.id}`"
+                    class="pl-0"
+                    color="primary"
+                    density="compact"
+                    :disabled="noteStore.disableNewNoteButton"
+                    slim
+                    :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
+                    variant="text"
+                    @keydown.enter.stop="onClickDeleteNote(message)"
+                    @click.stop="onClickDeleteNote(message)"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            :class="{'font-weight-bold': !message.read, 'vertical-top': includes(openMessages, message.transientId)}"
+            class="column-message"
+          >
             <div
-              :id="`timeline-tab-${activeTab}-pill-${index}`"
-              :class="`pill-${message.type}`"
-              class="pill text-center text-uppercase text-white"
-              :role="message.type === 'requirement' ? 'cell' : 'button'"
+              :id="`timeline-tab-${activeTab}-message-${index}`"
+              :aria-pressed="includes(openMessages, message.transientId)"
+              class="pl-2"
+              :class="{
+                'message-open': includes(openMessages, message.transientId) && message.type !== 'requirement' ,
+                'truncate': !includes(openMessages, message.transientId),
+                'img-blur': currentUser.inDemoMode && ['appointment', 'eForm', 'note'].includes(message.type)
+              }"
+              :role="message.type === 'requirement' ? '' : 'button'"
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
               @click="open(message, true)"
             >
-              <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
-            </div>
-            <div
-              v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
-              class="d-flex flex-column"
-            >
-              <div class="pt-2">
+              <span v-if="['appointment', 'eForm', 'note'].includes(message.type) && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
+              <v-icon v-if="message.status === 'Satisfied'" :icon="mdiCheckBold" class="requirements-icon text-success" />
+              <v-icon v-if="message.status === 'Not Satisfied'" :icon="mdiExclamationThick" class="requirements-icon text-icon-exclamation" />
+              <v-icon v-if="message.status === 'In Progress'" :icon="mdiClockOutline" class="requirements-icon text-icon-clock" />
+              <span v-if="!includes(['appointment', 'eForm', 'note'] , message.type)">{{ message.message }}</span>
+              <AdvisingNote
+                v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
+                :after-saved="afterNoteEdit"
+                :delete-note="onClickDeleteNote"
+                :edit-note="editNote"
+                :is-open="includes(openMessages, message.transientId)"
+                :note="message"
+              />
+              <EditAdvisingNote
+                v-if="['eForm', 'note'].includes(message.type) && message.id === editModeNoteId"
+                :after-cancel="afterNoteEditCancel"
+                :after-saved="afterEditAdvisingNote"
+                class="pt-2"
+                :note-id="message.id"
+              />
+              <AdvisingAppointment
+                v-if="message.type === 'appointment'"
+                :appointment="message"
+                :is-open="includes(openMessages, message.transientId)"
+                :student="student"
+              />
+              <div
+                v-if="includes(openMessages, message.transientId) && message.id !== editModeNoteId"
+                class="my-1 text-center close-message"
+              >
                 <v-btn
-                  v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)"
-                  :id="`edit-note-${message.id}-button`"
-                  class="pl-0"
+                  :id="`${activeTab}-close-message-${message.id}`"
                   color="primary"
-                  density="compact"
-                  :disabled="noteStore.disableNewNoteButton"
-                  slim
-                  :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
+                  :prepend-icon="mdiCloseCircle"
+                  text="Close Message"
                   variant="text"
-                  @keydown.enter.stop="editNote(message)"
-                  @click.stop="editNote(message)"
+                  @keyup.enter.stop="close(message, true)"
+                  @click.stop="close(message, true)"
                 />
               </div>
-              <div>
-                <v-btn
-                  v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
-                  :id="`delete-note-button-${message.id}`"
-                  class="pl-0"
-                  color="primary"
-                  density="compact"
-                  :disabled="noteStore.disableNewNoteButton"
-                  slim
-                  :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
-                  variant="text"
-                  @keydown.enter.stop="onClickDeleteNote(message)"
-                  @click.stop="onClickDeleteNote(message)"
-                />
+            </div>
+          </td>
+          <td class="column-right">
+            <div v-if="!includes(openMessages, message.transientId) && message.type === 'appointment'" class="pa-2">
+              <div
+                v-if="message.createdBy === 'YCBM' && message.status === 'cancelled'"
+                :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
+                class="collapsed-cancelled-icon text-error"
+              >
+                <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon" />
+                Canceled
               </div>
             </div>
-          </div>
-        </td>
-        <td
-          :class="{'font-weight-bold': !message.read, 'vertical-top': includes(openMessages, message.transientId)}"
-          class="column-message"
-        >
-          <div
-            :id="`timeline-tab-${activeTab}-message-${index}`"
-            :aria-pressed="includes(openMessages, message.transientId)"
-            class="pl-2"
-            :class="{
-              'message-open': includes(openMessages, message.transientId) && message.type !== 'requirement' ,
-              'truncate': !includes(openMessages, message.transientId),
-              'img-blur': currentUser.inDemoMode && ['appointment', 'eForm', 'note'].includes(message.type)
-            }"
-            :role="message.type === 'requirement' ? '' : 'button'"
-            :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
-            @keyup.enter="open(message, true)"
-            @click="open(message, true)"
-          >
-            <span v-if="['appointment', 'eForm', 'note'].includes(message.type) && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
-            <v-icon v-if="message.status === 'Satisfied'" :icon="mdiCheckBold" class="requirements-icon text-success" />
-            <v-icon v-if="message.status === 'Not Satisfied'" :icon="mdiExclamationThick" class="requirements-icon text-icon-exclamation" />
-            <v-icon v-if="message.status === 'In Progress'" :icon="mdiClockOutline" class="requirements-icon text-icon-clock" />
-            <span v-if="!includes(['appointment', 'eForm', 'note'] , message.type)">{{ message.message }}</span>
-            <AdvisingNote
-              v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
-              :after-saved="afterNoteEdit"
-              :delete-note="onClickDeleteNote"
-              :edit-note="editNote"
-              :is-open="includes(openMessages, message.transientId)"
-              :note="message"
-            />
-            <EditAdvisingNote
-              v-if="['eForm', 'note'].includes(message.type) && message.id === editModeNoteId"
-              :after-cancel="afterNoteEditCancel"
-              :after-saved="afterEditAdvisingNote"
-              class="pt-2"
-              :note-id="message.id"
-            />
-            <AdvisingAppointment
-              v-if="message.type === 'appointment'"
-              :appointment="message"
-              :is-open="includes(openMessages, message.transientId)"
-              :student="student"
-            />
+            <div v-if="['appointment', 'eForm', 'note'].includes(message.type)" class="pa-2">
+              <v-icon v-if="size(message.attachments)" color="info" :icon="mdiPaperclip" />
+              <span class="sr-only">{{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
+            </div>
+          </td>
+          <td class="column-right">
             <div
-              v-if="includes(openMessages, message.transientId) && message.id !== editModeNoteId"
-              class="my-1 text-center close-message"
+              :id="`timeline-tab-${activeTab}-date-${index}`"
+              class="text-no-wrap py-2 pr-2"
             >
-              <v-btn
-                :id="`${activeTab}-close-message-${message.id}`"
-                color="primary"
-                :prepend-icon="mdiCloseCircle"
-                text="Close Message"
-                variant="text"
-                @keyup.enter.stop="close(message, true)"
-                @click.stop="close(message, true)"
-              />
-            </div>
-          </div>
-        </td>
-        <td class="column-right">
-          <div v-if="!includes(openMessages, message.transientId) && message.type === 'appointment'" class="pa-2">
-            <div
-              v-if="message.createdBy === 'YCBM' && message.status === 'cancelled'"
-              :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
-              class="collapsed-cancelled-icon text-error"
-            >
-              <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon" />
-              Canceled
-            </div>
-          </div>
-          <div v-if="['appointment', 'eForm', 'note'].includes(message.type)" class="pa-2">
-            <v-icon v-if="size(message.attachments)" color="info" :icon="mdiPaperclip" />
-            <span class="sr-only">{{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
-          </div>
-        </td>
-        <td class="column-right">
-          <div
-            :id="`timeline-tab-${activeTab}-date-${index}`"
-            class="text-no-wrap py-2 pr-2"
-          >
-            <div v-if="!includes(openMessages, message.transientId) || !includes(['appointment', 'eForm', 'note'], message.type)">
-              <TimelineDate
-                :id="`collapsed-${message.type}-${message.id}-created-at`"
-                :date="message.setDate || message.updatedAt || message.createdAt"
-                :include-time-of-day="false"
-                :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
-              />
-            </div>
-            <div v-if="includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)">
-              <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
-                <div class="text-grey-darken-2 font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
+              <div v-if="!includes(openMessages, message.transientId) || !includes(['appointment', 'eForm', 'note'], message.type)">
                 <TimelineDate
-                  :id="`expanded-${message.type}-${message.id}-created-at`"
-                  :date="message.createdAt"
-                  :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Created on'"
-                  :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')"
+                  :id="`collapsed-${message.type}-${message.id}-created-at`"
+                  :date="message.setDate || message.updatedAt || message.createdAt"
+                  :include-time-of-day="false"
+                  :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
                 />
-                <div
-                  v-if="message.createdBy === 'YCBM' && message.endsAt"
-                  :id="`expanded-${message.type}-${message.id}-appt-time-range`"
-                >
-                  {{ getSameDayDate(message) }}
+              </div>
+              <div v-if="includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)">
+                <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
+                  <div class="text-grey-darken-2 font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
+                  <TimelineDate
+                    :id="`expanded-${message.type}-${message.id}-created-at`"
+                    :date="message.createdAt"
+                    :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Created on'"
+                    :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')"
+                  />
+                  <div
+                    v-if="message.createdBy === 'YCBM' && message.endsAt"
+                    :id="`expanded-${message.type}-${message.id}-appt-time-range`"
+                  >
+                    {{ getSameDayDate(message) }}
+                  </div>
+                </div>
+                <div v-if="displayUpdatedAt(message)">
+                  <div class="mt-2 text-grey-darken-2 font-size-14">Updated:</div>
+                  <TimelineDate
+                    :id="`expanded-${message.type}-${message.id}-updated-at`"
+                    :date="message.updatedAt"
+                    :include-time-of-day="message.updatedAt.length > 10"
+                    class="mb-2"
+                    sr-prefix="Last updated on"
+                  />
+                </div>
+                <div v-if="message.setDate">
+                  <div class="mt-2 text-grey-darken-2 font-size-14">Set Date:</div>
+                  <TimelineDate
+                    :id="`expanded-${message.type}-${message.id}-set-date`"
+                    :date="message.setDate"
+                    class="mb-2"
+                  />
+                </div>
+                <div class="text-grey-darken-2">
+                  <router-link
+                    v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
+                    :id="`advising-${message.type}-permalink-${message.id}`"
+                    :to="`#permalink-${message.type}-${message.id}`"
+                    @click="scrollToPermalink(message)"
+                  >
+                    Permalink <v-icon :icon="mdiLinkVariant" />
+                  </router-link>
                 </div>
               </div>
-              <div v-if="displayUpdatedAt(message)">
-                <div class="mt-2 text-grey-darken-2 font-size-14">Updated:</div>
-                <TimelineDate
-                  :id="`expanded-${message.type}-${message.id}-updated-at`"
-                  :date="message.updatedAt"
-                  :include-time-of-day="message.updatedAt.length > 10"
-                  class="mb-2"
-                  sr-prefix="Last updated on"
-                />
-              </div>
-              <div v-if="message.setDate">
-                <div class="mt-2 text-grey-darken-2 font-size-14">Set Date:</div>
-                <TimelineDate
-                  :id="`expanded-${message.type}-${message.id}-set-date`"
-                  :date="message.setDate"
-                  class="mb-2"
-                />
-              </div>
-              <div class="text-grey-darken-2">
-                <router-link
-                  v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
-                  :id="`advising-${message.type}-permalink-${message.id}`"
-                  :to="`#permalink-${message.type}-${message.id}`"
-                  @click="scrollToPermalink(message)"
-                >
-                  Permalink <v-icon :icon="mdiLinkVariant" />
-                </router-link>
-              </div>
+              <span v-if="!message.updatedAt && !message.createdAt" class="sr-only">No last-updated date</span>
             </div>
-            <span v-if="!message.updatedAt && !message.createdAt" class="sr-only">No last-updated date</span>
-          </div>
-        </td>
-      </tr>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
   <div v-if="offerShowAll" class="text-center pb-4">
