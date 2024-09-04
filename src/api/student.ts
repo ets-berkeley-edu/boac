@@ -42,14 +42,7 @@ export function validateSids(domain: string, sids: string[]) {
   return axios.post(url, {domain, sids}).then(response => response.data)
 }
 
-let $_findStudentsByNameOrSidCancel = axios.CancelToken.source()
-
-export function findStudentsByNameOrSid(query: string, limit: number) {
-  if ($_findStudentsByNameOrSidCancel) {
-     $_findStudentsByNameOrSidCancel.cancel()
-  }
-  $_findStudentsByNameOrSidCancel = axios.CancelToken.source()
+export function findStudentsByNameOrSid(query: string, limit: number, abortController: AbortController) {
   const url: string = `${utils.apiBaseUrl()}/api/students/find_by_name_or_sid?q=${query}&limit=${limit}`
-  const cancelToken = $_findStudentsByNameOrSidCancel.token
-  return axios.get(url, {cancelToken}).then(response => response.data)
+  return axios.get(url, {signal: abortController.signal}).then(response => response.data)
 }

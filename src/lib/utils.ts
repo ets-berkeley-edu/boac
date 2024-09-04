@@ -36,6 +36,10 @@ export function decodeStudentUriAnchor() {
   return decoded
 }
 
+export function escapeForRegExp(s) {
+  return s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 export function getDegreeCheckPath(student) {
   const currentUser = useContextStore().currentUser
   const currentDegreeCheck = find(student.degreeChecks, 'isCurrent')

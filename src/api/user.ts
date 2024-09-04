@@ -69,9 +69,9 @@ export function getUsers(
   return axios.post(`${utils.apiBaseUrl()}/api/users`, data).then(response => response.data)
 }
 
-export function userAutocomplete(snippet: string) {
+export function userAutocomplete(snippet: string, abortController: AbortController) {
   const url: string = `${utils.apiBaseUrl()}/api/users/autocomplete`
-  return axios.post(url, {snippet}).then(response => response.data)
+  return axios.post(url, {snippet}, {signal: abortController.signal}).then(response => response.data)
 }
 
 export function becomeUser(uid: string) {
