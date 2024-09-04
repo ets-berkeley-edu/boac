@@ -299,17 +299,13 @@ def search_advising_notes(
     if len(notes_feed) == limit:
         return notes_feed
 
-    # Search By Department is only available for local notes in boa for now.
-    # So we do not search for notes in the Data Loch. This could be an enhancement in the future.
-    if department_codes:
-        return notes_feed
-
     benchmark('begin loch notes query')
     loch_results = data_loch.search_advising_notes(
         search_phrase=search_phrase,
         author_uid=author_uid,
         author_csid=author_csid,
         student_csid=student_csid,
+        department_codes=department_codes,
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
