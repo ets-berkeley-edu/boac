@@ -120,7 +120,6 @@
       <PillAlert
         :aria-label="`${item.alertCount || 'No'} alerts for ${item.firstName} ${item.lastName}`"
         :color="item.alertCount ? 'warning' : 'grey'"
-        outlined
       >
         {{ item.alertCount || 0 }} <span class="sr-only">alerts</span>
       </PillAlert>
