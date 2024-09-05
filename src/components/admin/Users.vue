@@ -8,7 +8,7 @@
               id="user-filter-options"
               v-model="filterType"
               class="select-menu w-100"
-              :disabled="isBusy"
+              :disabled="isFetching"
             >
               <option
                 v-for="option in [
@@ -24,18 +24,16 @@
             </select>
           </div>
         </v-col>
-        <v-col cols="9">
+        <v-col cols="5">
           <div v-if="filterType === 'search'">
             <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
             <v-autocomplete
               id="search-user-input"
               autocomplete="off"
-              :clearable="!isFetching"
               base-color="black"
               :class="{'demo-mode-blur': contextStore.currentUser.inDemoMode}"
               color="grey"
               density="compact"
-              :disabled="isBusy"
               hide-details
               hide-no-data
               :items="suggestedUsers"
@@ -45,13 +43,12 @@
               :model-value="userSelection"
               return-object
               variant="outlined"
-              @click:clear="onClearSearch"
-              @update:model-value="user => userSelection = user"
+              @update:model-value="onUpdateAutocompleteModel"
               @update:search="onUpdateSearch"
             >
               <template #append-inner>
                 <v-progress-circular
-                  v-if="isFetching"
+                  v-if="isSuggestingAutocomplete"
                   color="pale-blue"
                   indeterminate
                   :size="16"
@@ -66,8 +63,8 @@
                 id="department-select-list"
                 v-model="filterBy.deptCode"
                 class="select-menu"
-                :disabled="isBusy"
-                @update:model-value="usersProvider"
+                :disabled="isFetching"
+                @update:model-value="fetchUsers"
               >
                 <option
                   v-for="option in [{id: -1, code: null, name: 'All'}, ...departments]"
@@ -84,8 +81,8 @@
                 id="user-permission-options"
                 v-model="filterBy.role"
                 class="select-menu"
-                :disabled="isBusy"
-                @update:model-value="usersProvider"
+                :disabled="isFetching"
+                @update:model-value="fetchUsers"
               >
                 <option
                   v-for="option in [
@@ -108,8 +105,8 @@
                 id="user-status-options"
                 v-model="filterBy.status"
                 class="select-menu"
-                :disabled="isBusy"
-                @update:model-value="usersProvider"
+                :disabled="isFetching"
+                @update:model-value="fetchUsers"
               >
                 <option
                   v-for="option in [
@@ -139,7 +136,6 @@
               id="quick-link-directors"
               class="font-size-16 px-0"
               color="primary"
-              :disabled="isBusy"
               min-width="60"
               variant="text"
               @click="quickLink('advisor', 'ZCEEE')"
@@ -155,7 +151,6 @@
               id="quick-link-coe-advisors"
               class="font-size-16 px-0"
               color="primary"
-              :disabled="isBusy"
               exact
               min-width="220"
               variant="text"
@@ -170,7 +165,6 @@
           <div>
             <v-btn
               id="quick-link-qcadv-advisors"
-              :disabled="isBusy"
               class="font-size-16 px-0"
               color="primary"
               exact
@@ -216,14 +210,14 @@
         ]"
         :header-props="{class: 'font-size-14 py-3 text-no-wrap'}"
         :hide-default-footer="true"
-        hide-no-data
         :items-length="totalUserCount || 0"
         :items-per-page="0"
         :items="users"
-        :loading="totalUserCount === undefined"
+        :loading="isFetching"
         disable-pagination
         item-value="uid"
-        loading-text="Fetching users..."
+        loading-text="Searching..."
+        :no-data-text="isFetching || isNil(totalUserCount) ? '' : 'No users'"
         :row-props="data => {
           const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
           return {
@@ -250,7 +244,7 @@
         <template #item.edit="{ item }">
           <EditUserProfileModal
             :after-cancel="afterCancelUpdateUser"
-            :after-update-user="afterUpdateUser"
+            :after-update-user="afterEditUserProfile"
             :departments="departments"
             :profile="item"
           />
@@ -376,39 +370,34 @@ const filterBy = ref({
   status: null
 })
 const filterType = ref('search')
-const isBusy = ref(false)
 const isFetching = ref(false)
+const isSuggestingAutocomplete = ref(false)
 const sortBy = ref('lastName')
 const sortDesc = ref(false)
 const suggestedUsers = ref([])
-const totalUserCount = ref(0)
+const totalUserCount = ref(undefined)
 const userSelection = ref(undefined)
 const users = ref([])
 
 watch(filterType, () => {
-  usersProvider()
+  fetchUsers()
 })
 
 watch(() => props.refresh, value => {
   if (value) {
-    usersProvider()
-  }
-})
-watch(userSelection, value => {
-  if (value) {
-    usersProvider()
+    fetchUsers()
   }
 })
 
 onMounted(() => {
-  usersProvider()
+  fetchUsers()
 })
 
 const handleSort = sortBy => {
   if (sortBy.length) {
     sortBy.value = sortBy[0].key
-    sortDesc.value = sortBy[0].order === 'asc' ? false : true
-    usersProvider() // Method to fetch users with new sorting parameters
+    sortDesc.value = sortBy[0].order !== 'asc'
+    fetchUsers() // Method to fetch users with new sorting parameters
   }
 }
 
@@ -417,12 +406,12 @@ const afterCancelUpdateUser = profile => {
   putFocusNextTick(get(profile, 'uid') ? `edit-${profile.uid}` : 'add-new-user-btn')
 }
 
-const afterUpdateUser = profile => {
+const afterEditUserProfile = profile => {
   alertScreenReader(`${profile.name} profile updated.`)
   if (filterType.value === 'search') {
     userSelection.value = profile.uid
   }
-  usersProvider()
+  fetchUsers()
   putFocusNextTick(get(profile, 'uid') ? `edit-${profile.uid}` : 'add-new-user-btn')
 }
 
@@ -448,18 +437,18 @@ const getUserStatuses = user => {
   return statuses
 }
 
-const onClearSearch = () => {
-  suggestedUsers.value = []
-  isFetching.value = false
+const onUpdateAutocompleteModel = user => {
+  userSelection.value = user
+  fetchUsers()
 }
 
 const onUpdateSearch = debounce(query => {
   const q = query && trim(escapeForRegExp(query).replace(/[^\w ]+/g, ''))
   if (size(q) > 1) {
-    isFetching.value = true
+    isSuggestingAutocomplete.value = true
     userAutocomplete(q, new AbortController()).then(results => {
       suggestedUsers.value = map(results, result => ({title: result.label, value: result}))
-      isFetching.value = false
+      isSuggestingAutocomplete.value = false
     })
   }
 }, 500)
@@ -472,53 +461,48 @@ const quickLink = (role, deptCode=null) => {
     searchPhrase: '',
     status: 'active'
   }
-  usersProvider()
+  fetchUsers()
 }
 
-const usersProvider = () => {
-  let promise = undefined
-  switch(filterType.value) {
-  case 'admins':
-    totalUserCount.value = undefined
-    promise = getAdminUsers(sortBy.value, sortDesc.value, false).then(data => {
-      totalUserCount.value = data.totalUserCount
-      users.value = data.users
-      return data.users
-    })
-    break
-  case 'filter':
-    totalUserCount.value = undefined
-    promise = getUsers(
-      isNil(filterBy.value.status) ? null : filterBy.value.status === 'blocked',
-      isNil(filterBy.value.status) ? null : filterBy.value.status === 'deleted',
-      filterBy.value.deptCode,
-      filterBy.value.role,
-      sortBy.value,
-      sortDesc.value
-    ).then(data => {
-      totalUserCount.value = data.totalUserCount
-      users.value = data.users
-      return data.users
-    })
-    break
-  case 'search':
+const fetchUsers = () => {
+  const isValidSelection = (filterType.value !== 'search') || get(userSelection.value, 'value.uid')
+  if (isValidSelection) {
+    isFetching.value = true
     totalUserCount.value = 0
     users.value = []
-    if (get(userSelection.value, 'value.uid')) {
-      promise = getUserByUid(userSelection.value.value.uid, false).then(data => {
-        totalUserCount.value = 1
-        users.value = [data]
-        return [data]
+    switch(filterType.value) {
+    case 'admins':
+      getAdminUsers(sortBy.value, sortDesc.value, false).then(data => {
+        users.value = data.users
+        totalUserCount.value = data.totalUserCount
+        isFetching.value = false
       })
-    } else {
-      promise = new Promise(resolve => resolve([]))
+      break
+    case 'filter':
+      getUsers(
+        isNil(filterBy.value.status) ? null : filterBy.value.status === 'blocked',
+        isNil(filterBy.value.status) ? null : filterBy.value.status === 'deleted',
+        filterBy.value.deptCode,
+        filterBy.value.role,
+        sortBy.value,
+        sortDesc.value
+      ).then(data => {
+        users.value = data.users
+        totalUserCount.value = data.totalUserCount
+        isFetching.value = false
+      })
+      break
+    case 'search':
+      getUserByUid(userSelection.value.value.uid, false).then(data => {
+        users.value = [data]
+        totalUserCount.value = 1
+        isFetching.value = false
+        userSelection.value = null
+      })
+      putFocusNextTick('search-user-input')
+      break
     }
-    putFocusNextTick('search-user-input')
-    break
-  default:
-    promise = new Promise(resolve => resolve([]))
   }
-  return promise
 }
 </script>
 

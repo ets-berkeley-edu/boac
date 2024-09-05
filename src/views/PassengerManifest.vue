@@ -1,6 +1,6 @@
 <template>
   <div v-if="!contextStore.loading" class="default-margins">
-    <div class="align-center d-flex py-2">
+    <div class="align-center d-flex">
       <div class="pr-2">
         <v-icon color="primary" :icon="mdiContacts" size="x-large" />
       </div>
