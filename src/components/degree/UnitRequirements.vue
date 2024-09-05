@@ -93,7 +93,7 @@
                   <div
                     v-if="item.isExpanded && item.type === 'unitRequirement' && !item.children.length"
                     :id="`unit-requirement-${item.id}-no-courses`"
-                    class="text-grey pl-6 py-2"
+                    class="text-grey-darken-4 pl-6 py-2"
                   >
                     No courses
                   </div>

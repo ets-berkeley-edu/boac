@@ -71,9 +71,10 @@
               <td
                 class="overflow-wrap-break-word pl-0 pt-1"
                 :class="{
-                  'font-italic text-grey': !isSatisfied(bundle) && !getAccentColor(bundle),
+                  'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'td-name-printable': printable,
-                  'td-name': !printable
+                  'td-name': !printable,
+                  'text-no-wrap': isCampusRequirements
                 }"
               >
                 <span v-if="!bundle.course && bundle.category.isRecommended">
@@ -108,7 +109,7 @@
               <td
                 v-if="!isCampusRequirements"
                 class="td-units"
-                :class="{'text-grey font-italic': !bundle.course && !getAccentColor(bundle)}"
+                :class="{'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle)}"
               >
                 <v-icon
                   v-if="isCourseFulfillmentsEdited(bundle)"
@@ -131,7 +132,7 @@
               <td v-if="degreeStore.sid && !isCampusRequirements" class="td-grade">
                 <span
                   :class="{
-                    'text-grey font-italic': !bundle.course && !getAccentColor(bundle),
+                    'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle),
                     'font-size-12': printable,
                     'font-size-14 text-no-wrap': !printable
                   }"
@@ -155,7 +156,7 @@
               <td
                 v-if="degreeStore.sid"
                 :class="{
-                  'text-grey font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
+                  'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-note-printable': printable,
                   'truncate-with-ellipsis font-size-14 td-note': !printable
                 }"
@@ -186,7 +187,7 @@
                 v-if="!degreeStore.sid && !isCampusRequirements"
                 class="align-middle td-max-width-0"
                 :class="{
-                  'text-grey font-italic': !bundle.course && !getAccentColor(bundle),
+                  'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle),
                   'font-size-12': printable,
                   'font-size-14': !printable
                 }"
@@ -291,7 +292,7 @@
             <td class="pa-2" :class="{'pb-3': !degreeStore.sid}" colspan="5">
               <span
                 :id="emptyCategoryId"
-                class="text-grey font-italic"
+                class="font-italic text-grey-darken-4"
                 :class="{
                   'font-size-14': printable,
                   'font-size-16': !printable

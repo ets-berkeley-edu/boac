@@ -53,7 +53,7 @@
       </div>
     </div>
     <v-expand-transition>
-      <div v-if="!!errorMessage" class="text-error text-grey font-size-12">
+      <div v-if="!!errorMessage" class="text-error text-grey-darken-4 font-size-12">
         {{ errorMessage }}
       </div>
     </v-expand-transition>

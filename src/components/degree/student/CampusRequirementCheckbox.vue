@@ -27,7 +27,6 @@ import {toggleCampusRequirement} from '@/api/degree'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
-
 const props = defineProps({
   campusRequirement: {
     required: true,
