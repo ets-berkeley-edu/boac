@@ -1460,6 +1460,9 @@ def get_admitted_students_query(
                         AND n{i}.sid = sa.cs_empl_id"""
                 word = ''.join(re.split(r'\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
+                # Some students in BOA have as many as seven distinct words in their name, but for sanity's sake, stop counting at ten.
+                if i > 9:
+                    break
     return query_tables, query_filter, query_bindings
 
 
