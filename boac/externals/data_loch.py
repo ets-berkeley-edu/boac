@@ -505,6 +505,9 @@ def match_students_by_name_or_sid(prefixes, limit=None):
                 AND sn{idx}.sid = spi.sid""",
             )
             prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
+            # Some students in BOA have as many as seven distinct words in their name, but for sanity's sake, stop counting at ten.
+            if idx > 9:
+                break
 
     sql = f"""SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
         FROM {student_schema()}.student_profile_index spi
@@ -1109,13 +1112,24 @@ def get_students_query(     # noqa
             query_bindings.update({'email_string': f'{email_string}%', 'name_string': f'{name_string}%'})
         # If multiple words, search name only.
         else:
+            name_matched = False
             for i, word in enumerate(words):
+                if not word.isalpha():
+                    continue
+                name_matched = True
                 query_tables += f"""
                     JOIN {student_schema()}.student_names n{i}
                         ON n{i}.name LIKE %(name_phrase_{i})s
                         AND n{i}.sid = spi.sid"""
                 word = ''.join(re.split('\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
+                # Some students in BOA have as many as seven distinct words in their name, but for sanity's sake, stop counting at ten.
+                if i > 9:
+                    break
+
+            # Call the whole thing off if no valid names appeared in the search string.
+            if not name_matched:
+                return None, None, None
 
     if academic_standings:
         query_tables += f""" JOIN {student_schema()}.academic_standing ass ON ass.sid = spi.sid"""
