@@ -12,10 +12,10 @@
               <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
             </th>
             <th v-if="!isCampusRequirements" class="th-course" :class="{'font-size-12': printable}">Course</th>
-            <th v-if="isCampusRequirements" :class="{'font-size-12': printable}">Requirement</th>
+            <th v-if="isCampusRequirements" class="w-40" :class="{'font-size-12': printable}">Requirement</th>
             <th v-if="!isCampusRequirements && items.length" class="pr-1 text-right th-units" :class="{'font-size-12': printable}">Units</th>
             <th v-if="degreeStore.sid && !isCampusRequirements" class="th-grade" :class="{'font-size-12': printable}">Grade</th>
-            <th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center" :class="{'font-size-12': printable}">Satisfied</th>
+            <th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center th-satisfied" :class="{'font-size-12': printable}">Satisfied</th>
             <th
               v-if="degreeStore.sid"
               class="pl-0"
@@ -74,7 +74,7 @@
                   'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'td-name-printable': printable,
                   'td-name': !printable,
-                  'text-no-wrap': isCampusRequirements
+                  'pb-1 text-no-wrap vertical-center': isCampusRequirements
                 }"
               >
                 <span v-if="!bundle.course && bundle.category.isRecommended">
@@ -146,7 +146,7 @@
                   class="boac-exclamation ml-1"
                 />
               </td>
-              <td v-if="degreeStore.sid && isCampusRequirements" class="td-satisfied">
+              <td v-if="degreeStore.sid && isCampusRequirements" class="td-satisfied float-right">
                 <CampusRequirementCheckbox
                   :campus-requirement="bundle"
                   :position="position"
@@ -179,6 +179,7 @@
                 <div
                   v-if="!getNote(bundle)"
                   :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                  :class="{'pt-2': isCampusRequirements}"
                 >
                   &mdash;
                 </div>
@@ -203,10 +204,10 @@
                 </div>
               </td>
               <td v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="td-actions">
-                <div class="d-flex justify-content-end text-no-wrap">
+                <div class="d-flex float-right text-no-wrap">
                   <div class="btn-container">
                     <v-btn
-                      v-if="degreeStore.draggingCourseId !== get(bundle.course, 'id')"
+                      v-if="isCampusRequirements || (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
                       :id="`column-${position}-edit-${bundle.key}-btn`"
                       :aria-label="`Edit ${bundle.name}`"
                       :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
@@ -724,6 +725,9 @@ table {
   width: 46px !important;
 }
 .th-note {
+  width: 100px;
+}
+.th-satisfied {
   width: 100px;
 }
 .th-units {

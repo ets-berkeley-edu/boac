@@ -1,31 +1,33 @@
 <template>
-  <div class="d-flex justify-content-center">
+  <div>
     <v-checkbox
+      v-if="canEdit"
       :id="`column-${position}-${campusRequirement.key}-satisfy-checkbox`"
       v-model="isSatisfied"
-      :disabled="degreeStore.disableButtons || !canEdit"
-      :button="!canEdit"
-      button-variant="outline-transparent"
+      :aria-label="`${campusRequirement.name} is ${isSatisfied ? 'satisfied' : 'unsatisfied'}`"
+      color="primary"
+      density="compact"
+      :disabled="degreeStore.disableButtons"
+      hide-details
       @change="toggle"
-    >
-      <v-icon
-        v-if="!canEdit"
-        :icon="isSatisfied ? mdiCheckboxMarkedOutline : mdiSquareOutline"
-        class="disabled-checkbox"
-        :class="{'fully-opaque': printable}"
-      />
-      <span class="sr-only">{{ campusRequirement.name }} is {{ isSatisfied ? 'satisfied' : 'unsatisfied' }}</span>
-    </v-checkbox>
+    />
+    <v-icon
+      v-if="!canEdit"
+      :icon="isSatisfied ? mdiCheckBold : mdiCloseThick"
+      :color="printable ? 'grey' : isSatisfied ? 'green-lighten-3' : 'red-lighten-3'"
+      size="20"
+    />
   </div>
 </template>
 
 <script setup>
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {mdiCheckboxMarkedOutline, mdiSquareOutline} from '@mdi/js'
+import {mdiCheckBold, mdiCloseThick} from '@mdi/js'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {toggleCampusRequirement} from '@/api/degree'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
+import {ref} from 'vue'
 
 const props = defineProps({
   campusRequirement: {
@@ -47,22 +49,13 @@ const degreeStore = useDegreeStore()
 
 const currentUser = contextStore.currentUser
 const canEdit = currentUser.canEditDegreeProgress && !props.printable
-const isSatisfied = props.campusRequirement.category.categoryType === 'Campus Requirement, Satisfied'
+const isSatisfied = ref(props.campusRequirement.category.categoryType === 'Campus Requirement, Satisfied')
 
 const toggle = () => {
-  degreeStore.setDisableButtons(true)
-  toggleCampusRequirement(props.campusRequirement.category.id, isSatisfied).then(() => {
+  toggleCampusRequirement(props.campusRequirement.category.id, isSatisfied.value).then(() => {
     refreshDegreeTemplate(degreeStore.templateId)
-    alertScreenReader(`${props.campusRequirement.name} requirement ${isSatisfied ? 'satisfied' : 'unsatisfied'}`)
+    alertScreenReader(`${props.campusRequirement.name} requirement ${isSatisfied.value ? 'satisfied' : 'unsatisfied'}`)
     putFocusNextTick(`column-${props.position}-${props.campusRequirement.key}-satisfy-checkbox`)
-    degreeStore.setDisableButtons(false)
   })
 }
 </script>
-
-<style scoped>
-.disabled-checkbox {
-  color: #000;
-  color-adjust: exact;
-}
-</style>
