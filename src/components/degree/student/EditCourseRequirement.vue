@@ -59,7 +59,7 @@
           v-model="note"
           :disabled="isSaving"
           hide-details
-          rows="4"
+          rows="3"
           variant="outlined"
           @keyup.esc="cancel"
         />
