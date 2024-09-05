@@ -7,7 +7,6 @@
       id="students-sort-by"
       v-model="selected"
       class="select-menu students-sort-by"
-      @update:model-value="onSelect"
     >
       <optgroup
         v-for="(options, label) in optGroups"
@@ -31,7 +30,7 @@
 import {alertScreenReader} from '@/lib/utils'
 import {each, find, get, includes} from 'lodash'
 import {myDeptCodes, previousSisTermId, termNameForSisId} from '@/berkeley'
-import {nextTick, ref} from 'vue'
+import {nextTick, ref, watch} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -70,7 +69,7 @@ if (props.domain === 'admitted_students') {
   optGroups.Terms.push({label: 'Terms in Attendance, ascending', value: 'terms_in_attendance'})
   optGroups.Terms.push({label: 'Terms in Attendance, descending', value: 'terms_in_attendance desc'})
   optGroups.GPA.push({label: `${termNameForSisId(previousPreviousTermId)}, ascending`, value: `term_gpa_${previousPreviousTermId}`})
-  optGroups.GPA.push({label: `${termNameForSisId(previousPreviousTermId)}, descending`, value: `term_gpa_${previousPreviousTermId} esc`})
+  optGroups.GPA.push({label: `${termNameForSisId(previousPreviousTermId)}, descending`, value: `term_gpa_${previousPreviousTermId} desc`})
   optGroups.GPA.push({label: `${termNameForSisId(previousTermId)}, ascending`, value: `term_gpa_${previousTermId}`})
   optGroups.GPA.push({label: `${termNameForSisId(previousTermId)}, descending`, value: `term_gpa_${previousTermId} desc`})
   optGroups.GPA.push({label: 'Cumulative, ascending', value: 'gpa'})
@@ -83,20 +82,19 @@ if (props.domain === 'admitted_students') {
 const sortByKey = props.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
 const selected = ref(get(currentUser.preferences, sortByKey))
 
-const onSelect = sortBy => {
-  selected.value = sortBy
-  contextStore.updateCurrentUserPreference(sortByKey, sortBy)
-  contextStore.broadcast(`${sortByKey}-user-preference-change`, sortBy)
+watch(selected, () => {
+  contextStore.updateCurrentUserPreference(sortByKey, selected.value)
+  contextStore.broadcast(`${sortByKey}-user-preference-change`, selected.value)
   nextTick(() => {
     each(optGroups, options => {
-      const label = get(find(options, ['value', sortBy]), 'label')
+      const label = get(find(options, ['value', selected.value]), 'label')
       if (label) {
         alertScreenReader(`Sorting students by ${label}`)
       }
       return !label
     })
   })
-}
+})
 </script>
 
 <style scoped>

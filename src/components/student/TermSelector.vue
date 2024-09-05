@@ -43,8 +43,7 @@ const nextSisTermId = termId => {
     nextTermId = strTermId.slice(0, 3) + '8'
     break
   case '8':
-    nextTermId =
-      (parseInt(strTermId.slice(0, 3), 10) + 1).toString() + '2'
+    nextTermId = (parseInt(strTermId.slice(0, 3), 10) + 1).toString() + '2'
     break
   default:
     break
@@ -56,7 +55,7 @@ const termOptionForId = termId => {
   const label = termNameForSisId(termId)
   return {
     label: termId === contextStore.config.currentEnrollmentTermId ? `${label} (current)` : label,
-    value: termId
+    value: termId.toString()
   }
 }
 const contextStore = useContextStore()

@@ -28,7 +28,7 @@ const counter = ref(props.defaultCounter)
 const query = computed(() => {
   const args = props.queryArgs || {}
   return {
-    ...{'_': counter},
+    ...{'_': counter.value},
     ...args
   }
 })
