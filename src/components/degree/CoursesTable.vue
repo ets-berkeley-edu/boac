@@ -158,6 +158,7 @@
                 :class="{
                   'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-note-printable': printable,
+                  'pt-2': !bundle.course && degreeStore.sid,
                   'truncate-with-ellipsis font-size-14 td-note': !printable
                 }"
               >
@@ -203,7 +204,11 @@
                   </div>
                 </div>
               </td>
-              <td v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="td-actions">
+              <td
+                v-if="canEdit && (degreeStore.sid || !isCampusRequirements)"
+                class="td-actions"
+                :class="{'vertical-center': !bundle.course && degreeStore.sid}"
+              >
                 <div class="d-flex float-right text-no-wrap">
                   <div class="btn-container">
                     <v-btn
@@ -237,7 +242,10 @@
               </td>
             </tr>
             <tr v-if="isEditing(bundle)" :key="`tr-${index}-edit`">
-              <td class="pb-3 pl-4 pt-1" colspan="6">
+              <td
+                :class="{'pb-3 pl-4 pt-1': bundle.course || !degreeStore.sid}"
+                :colspan="bundle.course || !degreeStore.sid ? 6 : 4"
+              >
                 <EditCourse
                   v-if="bundle.course"
                   :after-cancel="afterCancel"

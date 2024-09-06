@@ -108,6 +108,7 @@
           <v-textarea
             :id="`column-${position}-description-input`"
             v-model="descriptionText"
+            density="compact"
             :disabled="isSaving"
             hide-details
             maxlength="255"

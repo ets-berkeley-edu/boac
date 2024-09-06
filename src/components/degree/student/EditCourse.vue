@@ -83,6 +83,7 @@
       <v-textarea
         id="course-note-textarea"
         v-model="note"
+        density="compact"
         :disabled="isSaving"
         hide-details
         rows="3"
