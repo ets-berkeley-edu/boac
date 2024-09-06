@@ -44,6 +44,7 @@
             id="degree-check-add-student"
             v-model="textarea"
             aria-label="Type or paste a list of student SID numbers here"
+            density="compact"
             :disabled="isBusy"
             hide-details
             max-rows="30"
