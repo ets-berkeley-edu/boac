@@ -25,6 +25,7 @@
         :key="template.id"
         :aria-label="`Add degree check ${template.name}`"
         class="truncate-with-ellipsis"
+        :title="template.name"
         :value="template"
       >
         {{ template.name }}
@@ -54,7 +55,6 @@ const selectedTemplate = ref(undefined)
 watch(selectedTemplate, props.onSelect)
 
 onMounted(() => getDegreeTemplates().then(data => degreeTemplates.value = data))
-
 </script>
 
 <style scoped>

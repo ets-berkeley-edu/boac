@@ -17,13 +17,12 @@
             id="degree-template-select"
             v-model="selectedOption"
             aria-label="Select a degree template"
-            class="select-menu"
+            class="select-menu select-menu-max-width"
             :disabled="isSaving"
           >
             <option
               id="degree-check-select-option-null"
               :value="null"
-              @select="onChangeSelect"
             >
               Choose...
             </option>
@@ -31,8 +30,9 @@
               v-for="option in templates"
               :id="`degree-check-select-option-${option.id}`"
               :key="option.id"
+              class="truncate-with-ellipsis"
+              :title="option.name"
               :value="option"
-              @select="onChangeSelect"
             >
               {{ option.name }}
             </option>
@@ -43,15 +43,13 @@
             <ProgressButton
               id="save-degree-check-btn"
               :action="onClickSave"
-              color="primary"
               :disabled="!selectedOption"
               :in-progress="isSaving"
               :text="isSaving ? 'Saving' : 'Save Degree Check'"
             />
-          </div>
-          <div>
             <v-btn
               id="cancel-create-degree-check-btn"
+              color="primary"
               :disabled="isSaving"
               variant="text"
               @click="cancel"
@@ -75,7 +73,7 @@ import ProgressButton from '@/components/util/ProgressButton.vue'
 import router from '@/router'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import {alertScreenReader, putFocusNextTick, setPageTitle, studentRoutePath} from '@/lib/utils'
-import {computed, onMounted, ref} from 'vue'
+import {computed, onMounted, ref, watch} from 'vue'
 import {createDegreeCheck, getDegreeTemplates} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
 import {useContextStore} from '@/stores/context'
@@ -88,6 +86,13 @@ const loading = computed(() => contextStore.loading)
 const selectedOption = ref(null)
 const student = ref(undefined)
 const templates = ref(undefined)
+
+watch(selectedOption, () => {
+  if (selectedOption.value) {
+    alertScreenReader(`${selectedOption.value.name} selected`)
+    putFocusNextTick('save-degree-check-btn')
+  }
+})
 
 contextStore.loadingStart()
 
@@ -113,13 +118,6 @@ const cancel = () => {
   router.push(studentRoutePath(student.value.uid, currentUser.inDemoMode))
 }
 
-const onChangeSelect = option => {
-  if (option) {
-    alertScreenReader(`${selectedOption.value.name} selected`)
-    putFocusNextTick('save-degree-check-btn')
-  }
-}
-
 const onClickSave = () => {
   isSaving.value = true
   alertScreenReader('Saving')
@@ -130,3 +128,9 @@ const onClickSave = () => {
   })
 }
 </script>
+
+<style scoped>
+.select-menu-max-width {
+  max-width: 75%;
+}
+</style>
