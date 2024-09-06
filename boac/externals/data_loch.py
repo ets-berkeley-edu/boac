@@ -806,7 +806,6 @@ def search_advising_appointments(
         advisor_uid=advisor_uid,
         advisor_uids=advisor_uids,
         advisor_csid=advisor_csid,
-        department_codes=department_codes,
         student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,
