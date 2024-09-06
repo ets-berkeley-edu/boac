@@ -11,7 +11,7 @@
     >
       {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
-    <div v-if="isModifyingFilter && !isExistingFilter" class="mr-2">
+    <div v-if="isModifyingFilter && !isExistingFilter">
       <FilterSelect
         v-model="selectedFilter"
         :filter-row-index="position"
@@ -29,6 +29,7 @@
     </div>
     <div
       v-if="isModifyingFilter"
+      class="py-1"
       :class="{'mr-4': showAdd, 'mr-2': !showAdd}"
     >
       <div v-if="isUX('dropdown')">
@@ -46,25 +47,20 @@
         v-if="isUX('range') && filter.validation === 'date'"
         class="align-center d-flex"
       >
-        <label class="font-weight-500 pl-0 pr-2" :for="`filter-range-min-${position}`">
+        <label class="font-weight-500 px-2" :for="`filter-range-min-${position}`">
           {{ rangeMinLabel() }}
         </label>
         <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">
           Start of range in format MM/DD/YYYY
         </span>
-        <v-date-input
-          :id="`filter-range-min-${position}`"
-          v-model="rangeMin"
-          :aria-required="true"
+        <AccessibleDateInput
           :aria-describedby="`filter-range-min-placeholder-${position}`"
-          autocomplete="off"
-          class="bg-white"
-          hide-actions
-          hide-details
-          :max="rangeMax"
-          placeholder="MM/DD/YYYY"
-          prepend-icon=""
-          @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
+          aria-label="&quot;from&quot; date"
+          :get-value="() => rangeMin"
+          :id-prefix="`filter-range-min-${position}`"
+          :max-date="rangeMax"
+          required
+          :set-value="d => rangeMin = d"
         />
         <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
           {{ rangeMaxLabel() }}
@@ -72,19 +68,14 @@
         <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">
           End of range in format MM/DD/YYYY
         </span>
-        <v-date-input
-          :id="`filter-range-max-${position}`"
-          v-model="rangeMax"
+        <AccessibleDateInput
           :aria-describedby="`filter-range-max-placeholder-${position}`"
-          :aria-required="true"
-          autocomplete="off"
-          class="bg-white"
-          hide-actions
-          hide-details
-          :min="rangeMin"
-          placeholder="MM/DD/YYYY"
-          prepend-icon=""
-          @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
+          aria-label="&quot;to&quot; date"
+          :get-value="() => rangeMax"
+          :id-prefix="`filter-range-max-${position}`"
+          :min-date="rangeMin"
+          required
+          :set-value="d => rangeMax = d"
         />
       </div>
       <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
@@ -120,8 +111,7 @@
     </div>
     <div
       v-if="!isExistingFilter"
-      class="align-center d-flex text-right"
-      :class="{'pt-2': !$vuetify.display.mdAndUp}"
+      class="align-center d-flex text-right py-1"
     >
       <div v-if="showAdd">
         <ProgressButton
@@ -135,7 +125,7 @@
       <div v-if="isModifyingFilter && get(filter, 'type.ux')">
         <v-btn
           id="unsaved-filter-reset"
-          class="text-uppercase ml-1"
+          class="text-uppercase ml-2"
           color="primary"
           text="Cancel"
           variant="text"
@@ -143,7 +133,7 @@
         />
       </div>
     </div>
-    <div v-if="cohortStore.isOwnedByCurrentUser && isExistingFilter" class="ml-auto mr-3">
+    <div v-if="cohortStore.isOwnedByCurrentUser && isExistingFilter" class="ml-auto mr-3 py-1">
       <div v-if="!isModifyingFilter" class="align-center d-flex justify-space-between">
         <div v-if="!isUX('boolean')">
           <v-btn
@@ -171,6 +161,7 @@
         <ProgressButton
           :id="`update-added-filter-${position}`"
           :action="onClickUpdateButton"
+          density="comfortable"
           :disabled="disableUpdateButton || isUpdatingExistingFilter || (isUX('dropdown') && !selectedOption)"
           :in-progress="isUpdatingExistingFilter"
           size="large"
@@ -178,9 +169,8 @@
         />
         <v-btn
           :id="`cancel-edit-added-filter-${position}`"
-          class="font-size-14 text-uppercase"
+          class="font-size-14 text-uppercase ml-2"
           :disabled="isUpdatingExistingFilter"
-          size="large"
           text="Cancel"
           variant="plain"
           @click="onClickCancelEdit"
@@ -205,6 +195,7 @@
 </template>
 
 <script setup>
+import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import FilterSelect from '@/components/cohort/FilterSelect'
 import ProgressButton from '@/components/util/ProgressButton'
 import {useCohortStore} from '@/stores/cohort-edit-session'
@@ -596,6 +587,7 @@ const updateRangeFilter = () => {
 
 <style scoped>
 .existing-filter-name {
+  min-width: 210px;
   width: 26%;
 }
 .filter-row {

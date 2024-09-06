@@ -24,6 +24,7 @@
         id="save-cohort-button"
         :action="save"
         :color="currentAction === 'acknowledgeSave' ? 'success' : 'primary'"
+        density="comfortable"
         :disabled="!!cohort.editMode || showCreateModal || !!currentAction"
         :in-progress="currentAction === 'save'"
         size="large"
@@ -36,7 +37,7 @@
       <v-btn
         v-if="!currentAction && cohort.cohortId"
         id="reset-to-saved-cohort"
-        class="ml-1"
+        class="ml-2"
         :disabled="!!cohort.editMode"
         text="Reset"
         variant="text"

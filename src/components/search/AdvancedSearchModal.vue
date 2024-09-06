@@ -195,6 +195,7 @@
                       :clearable="!isFetchingAdvisors"
                       class="mt-1"
                       :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                      color="primary"
                       density="compact"
                       :disabled="searchStore.isSearching || model.postedBy === 'you'"
                       hide-details
@@ -241,7 +242,7 @@
                       :clearable="!isFetchingStudents"
                       class="mt-1"
                       :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                      color="grey"
+                      color="primary"
                       density="compact"
                       :disabled="searchStore.isSearching"
                       hide-details

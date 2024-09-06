@@ -1,10 +1,10 @@
 <template>
-  <div :class="{'border-left-primary': hasLeftBorderStyle}">
+  <div :class="{'border-left-primary': hasLeftBorderStyle, 'secondary-filter': !hasLeftBorderStyle}">
     <select
       :id="`filter-select-${type}-${filterRowIndex}`"
       v-model="model"
       :aria-labelledby="labelledby"
-      class="bg-white select-menu custom-select"
+      class="bg-white select-menu filter-select"
       :disabled="!options.length"
     >
       <option :id="`${type}-option-null`" :value="undefined">
@@ -97,34 +97,19 @@ const optionGroups = computed(() => {
 })
 </script>
 
-<style>
+<style scoped>
 .border-left-primary {
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 0;
   border-left: 6px solid rgb(var(--v-theme-primary));
 }
-</style>
-
-<style scoped>
-.custom-select {
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
-  border-radius: .25rem;
-  border: 1px solid #ced4da;
-  color: #495057;
-  display: inline-block;
-  font-size: 1rem;
-  font-weight: 400;
-  height: calc(1.5em + .75rem + 2px);
-  line-height: 1.5;
-  padding: .375rem 1.75rem .375rem .75rem;
-  vertical-align: middle;
-  width: 100%;
+.border-left-primary select {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
 }
-.select-menu {
-  background-color: #fff;
+.filter-select {
   height: 44px;
   width: 320px;
+}
+.secondary-filter {
+  padding-left: 6px;
 }
 </style>
