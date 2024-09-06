@@ -22,11 +22,13 @@
     id="advanced-search-modal"
     aria-labelledby="advanced-search-header"
     persistent
+    scrollable
     :model-value="searchStore.showAdvancedSearch"
     @update:model-value="searchStore.setShowAdvancedSearch"
   >
     <v-card
       class="modal-content"
+      :class="{'modal-fullscreen': $vuetify.display.smAndDown}"
       max-width="800"
       min-width="700"
       width="80%"
@@ -105,14 +107,11 @@
               v-if="currentUser.canAccessAdvisingData"
               id="search-include-notes-checkbox"
               v-model="model.includeNotes"
+              aria-controls="search-option-note-filters"
+              :aria-expanded="model.includeNotes"
               color="primary"
               hide-details
-              @change="checked => {
-                if (!checked) {
-                  model.author = model.fromDate = model.student = model.toDate = model.topic = null
-                  model.postedBy = 'anyone'
-                }
-              }"
+              @change="onChangeIncludeNotes"
             >
               <template #label>
                 <span class="sr-only">Search for</span>
@@ -123,13 +122,15 @@
           <v-expand-transition v-if="currentUser.canAccessAdvisingData">
             <v-card
               v-show="model.includeNotes"
+              id="search-option-note-filters"
               color="primary"
+              min-width="350"
               variant="outlined"
             >
               <v-card-title>
                 <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
               </v-card-title>
-              <v-card-text class="w-75">
+              <v-card-text class="w-75" :class="{'w-100': $vuetify.display.smAndDown}">
                 <div class="px-3">
                   <label class="form-control-label" for="search-option-note-filters-topic">Topic</label>
                   <div>
@@ -137,6 +138,7 @@
                       id="search-option-note-filters-topic"
                       v-model="model.topic"
                       class="ml-0 my-2 select-menu w-75"
+                      :class="{'w-100': $vuetify.display.xs}"
                       :disabled="searchStore.isSearching"
                     >
                       <option
@@ -182,7 +184,7 @@
                       />
                     </v-radio-group>
                   </div>
-                  <div class="pt-2 w-75">
+                  <div class="pt-2 w-75" :class="{'w-100': $vuetify.display.xs}">
                     <label class="form-control-label" for="search-options-note-filters-author">Advisor</label>
                     <span id="notes-search-author-input-label" class="sr-only">
                       Select note author from list of suggested advisors.
@@ -200,6 +202,7 @@
                       :items="suggestedAdvisors"
                       :maxlength="56"
                       :menu-icon="null"
+                      min-width="12rem"
                       :model-value="model.postedBy === 'anyone' ? model.author : null"
                       placeholder="Enter name..."
                       variant="outlined"
@@ -225,7 +228,7 @@
                       </template>
                     </v-autocomplete>
                   </div>
-                  <div class="pt-3 w-75">
+                  <div class="pt-3 w-75" :class="{'w-100': $vuetify.display.xs}">
                     <label class="form-control-label" for="search-options-note-filters-student">
                       Student (name or SID)
                     </label>
@@ -246,6 +249,7 @@
                       :items="suggestedStudents"
                       :maxlength="56"
                       :menu-icon="null"
+                      min-width="12rem"
                       :model-value="model.student"
                       placeholder="Enter name or SID..."
                       variant="outlined"
@@ -272,40 +276,44 @@
                     <label id="search-options-date-range-label" class="form-control-label">
                       Date Range
                     </label>
-                    <div class="align-center d-flex mt-2">
-                      <label
-                        id="search-options-from-date-label"
-                        class="text-black mr-2"
-                        for="search-options-from-date-input"
-                      >
-                        <span class="sr-only">Date</span>
-                        From
-                      </label>
-                      <AccessibleDateInput
-                        aria-describedby="search-options-date-range-label"
-                        container-id="advanced-search-modal"
-                        :get-value="() => model.fromDate"
-                        id-prefix="search-options-from-date"
-                        :max-date="model.toDate || new Date()"
-                        :set-value="fromDate => model.fromDate = fromDate"
-                      ></AccessibleDateInput>
-                      <label
-                        id="search-options-to-date-label"
-                        class="mx-2 text-black"
-                        for="search-options-to-date-input"
-                      >
-                        <span class="sr-only">Date</span>
-                        to
-                      </label>
-                      <AccessibleDateInput
-                        aria-describedby="search-options-date-range-label"
-                        container-id="advanced-search-modal"
-                        :get-value="() => model.toDate"
-                        id-prefix="search-options-to-date"
-                        :max-date="new Date()"
-                        :min-date="model.fromDate"
-                        :set-value="toDate => model.toDate = toDate"
-                      ></AccessibleDateInput>
+                    <div class="d-flex flex-wrap pt-2">
+                      <div class="d-flex align-center justify-end pb-2">
+                        <label
+                          id="search-options-from-date-label"
+                          class="text-black date-range-label"
+                          for="search-options-from-date-input"
+                        >
+                          <span aria-hidden="true">From</span><span class="sr-only">&quot;from&quot; date</span>
+                        </label>
+                        <AccessibleDateInput
+                          aria-describedby="search-options-date-range-label"
+                          aria-label="&quot;from&quot; date"
+                          container-id="advanced-search-modal"
+                          :get-value="() => model.fromDate"
+                          id-prefix="search-options-from-date"
+                          :max-date="model.toDate || new Date()"
+                          :set-value="fromDate => model.fromDate = fromDate"
+                        ></AccessibleDateInput>
+                      </div>
+                      <div class="d-flex align-center justify-end pb-2">
+                        <label
+                          id="search-options-to-date-label"
+                          class="text-black date-range-label d-flex justify-center"
+                          for="search-options-to-date-input"
+                        >
+                          <span aria-hidden="true">To</span><span class="sr-only">&quot;to&quot; date</span>
+                        </label>
+                        <AccessibleDateInput
+                          aria-describedby="search-options-date-range-label"
+                          aria-label="&quot;to&quot; date"
+                          container-id="advanced-search-modal"
+                          :get-value="() => model.toDate"
+                          id-prefix="search-options-to-date"
+                          :max-date="new Date()"
+                          :min-date="model.fromDate"
+                          :set-value="toDate => model.toDate = toDate"
+                        ></AccessibleDateInput>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -445,6 +453,13 @@ const cancel = () => {
   setTimeout(() => reset(true), 100)
 }
 
+const onChangeIncludeNotes = checked => {
+  if (!checked) {
+    model.value.author = model.value.fromDate = model.value.student = model.value.toDate = model.value.topic = null
+    model.value.postedBy = 'anyone'
+  }
+}
+
 const onClearAdvisorSearch = () => {
   suggestedAdvisors.value = []
   isFetchingAdvisors.value = false
@@ -479,7 +494,6 @@ const onUpdateStudentSearch = debounce(query => {
 
 const openAdvancedSearch = () => {
   searchStore.setShowAdvancedSearch(true)
-  alertScreenReader('Advanced search is open')
 }
 
 const reset = force => {
@@ -563,6 +577,9 @@ const search = () => {
 </script>
 
 <style scoped>
+.date-range-label {
+  width: 3rem;
+}
 .form-control-label {
   color: black;
   font-size: 16px;
