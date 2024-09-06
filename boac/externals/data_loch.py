@@ -757,6 +757,7 @@ def search_advising_appointments(
     advisor_uid=None,
     advisor_csid=None,
     student_csid=None,
+    department_codes=None,
     topic=None,
     datetime_from=None,
     datetime_to=None,
@@ -775,12 +776,35 @@ def search_advising_appointments(
             ON idx.id = an.id
             AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
     uid_advisor_filter = 'aa.uid = %(advisor_uid)s' if advisor_uid else None
+    if department_codes:
+        advising_uid_query = """
+               select au.uid
+               from authorized_users au
+               join university_dept_members udm
+               on au.id = udm.authorized_user_id
+               join university_depts ud
+               on ud.id = udm.university_dept_id
+               where ud.dept_code = ANY(:department_codes)"""
+        query = text(advising_uid_query).bindparams(department_codes=department_codes)
+        result = db.session.execute(query)
+        rows = result.all()
+        advisor_uids = [r[0] for r in rows]
+        uid_advisor_filter = 'aa.uid = ANY(%(advisor_uids)s)'
+
+    elif advisor_uid:
+        uid_advisor_filter = 'aa.uid = %(advisor_uid)s'
+        advisor_uids = None
+    else:
+        uid_advisor_filter = ''
+        advisor_uids = None
+
     return search_sis_advising(
         query_columns=query_columns,
         query_tables=query_tables,
         uid_advisor_filter=uid_advisor_filter,
         search_phrase=search_phrase,
         advisor_uid=advisor_uid,
+        advisor_uids=advisor_uids,
         advisor_csid=advisor_csid,
         student_csid=student_csid,
         topic=topic,
