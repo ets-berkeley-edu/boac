@@ -1,7 +1,6 @@
 <template>
   <v-menu
     :id="`assign-course-${course.id}-dropdown`"
-    v-model="selectedOption"
     :disabled="degreeStore.disableButtons || isSaving"
     transition="slide-y-transition"
   >
@@ -25,47 +24,51 @@
         v-bind="props"
       />
     </template>
-    <v-list variant="flat">
-      <v-list-item
-        v-if="course.categoryId || course.ignore"
-        id="assign-course-to-option-null"
-        link-class="font-italic font-size-15 pl-3 text-body text-decoration-none"
-        :value="null"
-        @click="onSelect(null, false)"
-      >
-        -- Unassign --
-      </v-list-item>
-      <v-list-item
-        v-if="!course.ignore"
-        id="course-to-option-ignore"
-        link-class="font-italic font-size-15 pl-3 text-body text-decoration-none"
-        :value="null"
-        @click="onSelect(null, true)"
-      >
-        -- {{ junkDrawerName }} --
-      </v-list-item>
-      <v-list-item
-        v-for="option in options"
-        :id="`assign-course-to-option-${option.id}`"
-        :key="option.id"
-        :disabled="option.disabled"
-        :link-class="{
-          'font-weight-700': !option.disabled && option.categoryType === 'Category',
-          'font-weight-500': !option.disabled && option.categoryType === 'Subcategory',
-          'font-weight-lighter': option.disabled,
-          'font-size-15 pl-3': option.categoryType === 'Category',
-          'font-size-14 pl-3': option.categoryType === 'Subcategory',
-          'font-size-14 pl-4': isCourseRequirement(option) || isCampusRequirement(option),
-          'text-body text-decoration-none': true
-        }"
-        :value="option"
-        @click="onSelect(option, false)"
-      >
-        <span v-if="!option.disabled" class="sr-only">Move to </span>
-        <span class="sr-only">{{ option.lineage }}</span>
-        {{ option.name }}
-        <span v-if="option.disabled" class="sr-only"> (disabled)</span>
-      </v-list-item>
+    <v-list class="py-4" variant="flat">
+      <v-list-item-action v-if="course.categoryId || course.ignore">
+        <v-btn
+          id="assign-course-to-option-null"
+          class="font-italic"
+          color="primary"
+          density="comfortable"
+          variant="text"
+          @click="onSelect(null, false)"
+        >
+          <span aria-hidden="true">-- </span>Unassign<span aria-hidden="true"> --</span>
+        </v-btn>
+      </v-list-item-action>
+      <v-list-item-action v-if="!course.ignore">
+        <v-btn
+          id="course-to-option-ignore"
+          class="font-italic"
+          color="primary"
+          density="comfortable"
+          variant="text"
+          @click="onSelect(null, true)"
+        >
+          <span aria-hidden="true">-- </span>{{ junkDrawerName }}<span aria-hidden="true"> --</span>
+        </v-btn>
+      </v-list-item-action>
+      <hr class="my-2" />
+      <v-list-item-action v-for="option in options" :key="option.id">
+        <v-btn
+          :id="`assign-course-to-option-${option.id}`"
+          :class="{
+            'font-size-16 mr-4': option.categoryType === 'Category',
+            'font-size-15 ml-2 mr-4': option.categoryType === 'Subcategory',
+            'font-size-12 mx-4': isCourseRequirement(option) || isCampusRequirement(option)
+          }"
+          color="primary"
+          :disabled="option.disabled"
+          variant="text"
+          @click="onSelect(option, false)"
+        >
+          <span v-if="!option.disabled" class="sr-only">Move to </span>
+          <span class="sr-only">{{ option.lineage }}</span>
+          {{ option.name }}
+          <span v-if="option.disabled" class="sr-only"> (disabled)</span>
+        </v-btn>
+      </v-list-item-action>
     </v-list>
   </v-menu>
 </template>
@@ -74,11 +77,11 @@
 import {alertScreenReader} from '@/lib/utils'
 import {assignCourse} from '@/api/degree'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
+import {cloneDeep, each, every, includes, isEmpty} from 'lodash'
+import {computed, ref} from 'vue'
 import {mdiDrag} from '@mdi/js'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
-import {computed, ref} from 'vue'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {cloneDeep, each, every, includes, isEmpty} from 'lodash'
 
 const degreeStore = useDegreeStore()
 
@@ -96,7 +99,6 @@ const props = defineProps({
 
 const isSaving = ref(false)
 const junkDrawerName = 'Other Coursework'
-const selectedOption = ref(null)
 
 const options = computed(() => {
   const put = (option, parent, grandparent) => {
