@@ -35,12 +35,13 @@
               color="grey"
               density="compact"
               hide-details
-              hide-no-data
+              :hide-no-data="size(autocompleteInput) < 3 || isFetching || isSuggesting || suggestedUsers.length"
               :items="suggestedUsers"
               label="Enter name..."
               :maxlength="72"
               :menu-icon="null"
               :model-value="userSelection"
+              no-data-text="No match found"
               return-object
               variant="outlined"
               @update:model-value="onUpdateAutocompleteModel"
@@ -48,7 +49,7 @@
             >
               <template #append-inner>
                 <v-progress-circular
-                  v-if="isSuggestingAutocomplete"
+                  v-if="isSuggesting"
                   color="pale-blue"
                   indeterminate
                   :size="16"
@@ -361,6 +362,7 @@ const props = defineProps({
 
 const contextStore = useContextStore()
 
+const autocompleteInput = ref(undefined)
 const expanded = ref([])
 const itemsPerPage = 10
 const filterBy = ref({
@@ -371,7 +373,7 @@ const filterBy = ref({
 })
 const filterType = ref('search')
 const isFetching = ref(false)
-const isSuggestingAutocomplete = ref(false)
+const isSuggesting = ref(false)
 const sortBy = ref('lastName')
 const sortDesc = ref(false)
 const suggestedUsers = ref([])
@@ -443,12 +445,12 @@ const onUpdateAutocompleteModel = user => {
 }
 
 const onUpdateSearch = debounce(query => {
-  const q = query && trim(escapeForRegExp(query).replace(/[^\w ]+/g, ''))
-  if (size(q) > 1) {
-    isSuggestingAutocomplete.value = true
-    userAutocomplete(q, new AbortController()).then(results => {
+  autocompleteInput.value = query && trim(escapeForRegExp(query).replace(/[^\w ]+/g, ''))
+  if (size(autocompleteInput.value) > 1) {
+    isSuggesting.value = true
+    userAutocomplete(autocompleteInput.value, new AbortController()).then(results => {
       suggestedUsers.value = map(results, result => ({title: result.label, value: result}))
-      isSuggestingAutocomplete.value = false
+      isSuggesting.value = false
     })
   }
 }, 500)
