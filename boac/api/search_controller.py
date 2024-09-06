@@ -189,6 +189,8 @@ def _appointments_search(search_phrase, params):
     advisor_uid = appointment_options.get('advisorUid')
     advisor_csid = appointment_options.get('advisorCsid')
     student_csid = appointment_options.get('studentCsid')
+    department_codes = appointment_options.get('departmentCodes')
+
     topic = appointment_options.get('topic')
     limit = int(util.get(appointment_options, 'limit', 20))
     offset = int(util.get(appointment_options, 'offset', 0))
@@ -225,6 +227,7 @@ def _appointments_search(search_phrase, params):
         search_phrase=search_phrase,
         advisor_uid=advisor_uid,
         student_csid=student_csid,
+        department_codes=department_codes,
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
