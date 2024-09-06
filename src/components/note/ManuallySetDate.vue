@@ -7,32 +7,22 @@
     >
       Manually Set Date
     </label>
-    <div class="date-input-container date-input-opacity-override">
-      <v-date-input
-        id="manually-set-date-input"
-        aria-labelledby="manually-set-date-label"
-        autocomplete="off"
-        bg-color="white"
-        :class="{'rounded-e-0': model.setDate}"
-        clearable
-        density="compact"
+    <div class="date-input-container">
+      <AccessibleDateInput
+        aria-label="&quot;set&quot; date"
+        container-id="new-note-modal-container"
         :disabled="isSaving || boaSessionExpired"
-        hide-actions
-        hide-details
-        location="top end"
-        :max="new Date()"
-        :model-value="model.setDate ? DateTime.fromFormat(model.setDate, 'yyyy-MM-dd').toJSDate() : null"
-        placeholder="MM/DD/YYYY"
-        prepend-icon=""
-        variant="outlined"
-        @click:clear="() => noteStore.setSetDate(null)"
-        @update:model-value="onUpdateModel"
+        :get-value="() => model.setDate ? DateTime.fromFormat(model.setDate, 'yyyy-MM-dd').toJSDate() : null"
+        id-prefix="manually-set-date"
+        :max-date="new Date()"
+        :set-value="updateModel"
       />
     </div>
   </div>
 </template>
 
 <script setup>
+import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import {DateTime} from 'luxon'
 import {storeToRefs} from 'pinia'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -40,7 +30,7 @@ import {useNoteStore} from '@/stores/note-edit-session'
 const noteStore = useNoteStore()
 const {boaSessionExpired, isSaving, model} = storeToRefs(noteStore)
 
-const onUpdateModel = d => {
+const updateModel = d => {
   const value = d ? DateTime.fromJSDate(d).toFormat('yyyy-MM-dd') : null
   noteStore.setSetDate(value)
 }

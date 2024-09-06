@@ -137,7 +137,7 @@
               />
               <v-btn
                 id="rename-cancel-btn"
-                class="rename-btn"
+                class="rename-btn ml-2"
                 :disabled="isRenaming"
                 variant="text"
                 text="Cancel"
@@ -360,7 +360,7 @@ const showDeleteModal = template => {
 
 <style scoped>
 .rename-btn {
-  height: 38px;
+  height: 36px;
 }
 .separator {
   color: #ccc;

@@ -1,10 +1,12 @@
 <template>
   <date-picker
     v-model.date="model"
+    :disabled="disabled"
     :input-debounce="500"
     :max-date="maxDate"
     :min-date="minDate"
     :popover="{placement: 'top', visibility: 'focus'}"
+    :step="1"
     @did-move="makeCalendarAccessible"
     @dayclick="() => putFocusNextTick(`${idPrefix}-clear-btn`)"
     @daykeydown="(day, e) => onDaykeydown(e)"
@@ -19,9 +21,13 @@
         :aria-describedby="ariaDescribedby"
         :aria-expanded="isPopoverVisible"
         aria-haspopup="dialog"
-        autocomplete="none"
+        :aria-required="required"
+        autocomplete="off"
+        bg-color="white"
         class="date-input"
         clearable
+        color="primary"
+        :disabled="disabled"
         :error="!isValid(inputValue)"
         haspopup="dialog"
         hide-details
@@ -34,13 +40,14 @@
         @mouseleave="inputEvents.mouseleave"
         @mousemove="inputEvents.mousemove"
         @update:focused="hasFocus => onUpdateFocus(hasFocus, inputEvents)"
-        @update:model-value="v => onUpdateModel(v, inputEvents)"
+        @update:model-value="v => onUpdateModel(inputEvents)"
       >
         <template #clear>
           <v-btn
             :id="`${idPrefix}-clear-btn`"
             :aria-label="`Clear ${ariaLabel}`"
-            class="d-flex align-self-center"
+            class="d-flex align-self-center v-icon"
+            color="primary"
             density="compact"
             :disabled="disabled"
             exact
@@ -97,6 +104,10 @@ const props = defineProps({
     default: null,
     required: false,
     type: Date,
+  },
+  required: {
+    required: false,
+    type: Boolean
   },
   setValue: {
     required: true,
@@ -264,7 +275,7 @@ const onUpdateFocus = (hasFocus, inputEvents) => {
   hasFocus ? inputEvents.focusin(event) : inputEvents.focusout(event)
 }
 
-const onUpdateModel = (v, inputEvents) => {
+const onUpdateModel = (inputEvents) => {
   const el = document.getElementById(inputId.value)
   const event = {
     currentTarget: el,
@@ -278,6 +289,6 @@ const onUpdateModel = (v, inputEvents) => {
 
 <style scoped>
 .date-input {
-  min-width: 9.5rem;
+  min-width: 9.6rem;
 }
 </style>

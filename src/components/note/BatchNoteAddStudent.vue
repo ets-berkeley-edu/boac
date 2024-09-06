@@ -19,6 +19,7 @@
         autocomplete="off"
         class="autocomplete-students autocomplete-with-add-button"
         :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
+        color="primary"
         density="compact"
         :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
         :error-messages="autocompleteErrorMessage"
