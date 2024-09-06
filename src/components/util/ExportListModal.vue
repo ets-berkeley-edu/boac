@@ -12,7 +12,7 @@
       min-width="500"
       max-width="800"
     >
-      <FocusLock>
+      <FocusLock @keydown.esc="cancel">
         <v-card-title>
           <ModalHeader text="Export List" />
         </v-card-title>

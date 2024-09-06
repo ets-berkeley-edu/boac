@@ -277,7 +277,7 @@
                     <label id="search-options-date-range-label" class="form-control-label">
                       Date Range
                     </label>
-                    <div class="d-flex flex-wrap pt-2">
+                    <div class="d-flex flex-wrap mt-1">
                       <div class="d-flex align-center justify-end pb-2">
                         <label
                           id="search-options-from-date-label"
