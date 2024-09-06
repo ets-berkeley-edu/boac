@@ -126,7 +126,7 @@
         </v-list>
         <v-list v-if="!noteStore.noteTemplates.length">
           <v-list-item disabled>
-            You have no saved templates.
+            <span class="font-size-16 font-weight-medium">You have no saved templates.</span>
           </v-list-item>
         </v-list>
       </v-menu>
