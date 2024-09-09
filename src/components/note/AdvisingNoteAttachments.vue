@@ -10,7 +10,7 @@
       class="border-sm choose-file-for-note-attachment rounded"
       :class="{'border-success': disabled || attachmentLimitReached, 'border-md border-error': !!attachmentError}"
       :clearable="false"
-      :disabled="disabled || attachmentLimitReached"
+      :disabled="isAdding || disabled || attachmentLimitReached"
       flat
       hide-details
       :loading="isAdding ? 'success' : false"
@@ -23,24 +23,24 @@
     >
       <template #label>
         <div
-          class="font-size-16"
+          class="font-size-16 align-center d-flex justify-center"
           :class="{
             'font-weight-bold text-black text-center': disabled || attachmentLimitReached,
-            'align-center d-flex font-weight-medium justify-center': !disabled && !attachmentLimitReached
+            'font-weight-medium': !disabled && !attachmentLimitReached
           }"
         >
-          <div v-if="disabled" class="pb-1">
+          <div v-if="isAdding" class="pb-1">
             Adding attachments...
           </div>
-          <div v-if="!disabled" class="mr-2 ">
+          <div v-if="!isAdding" class="mr-2 ">
             Add attachment:
           </div>
           <v-btn
-            v-if="!disabled"
+            v-if="!isAdding"
             :id="`${idPrefix}choose-file-for-note-attachment-btn`"
             class="bg-white"
             color="black"
-            :disabled="disabled"
+            :disabled="disabled || attachmentLimitReached"
             density="comfortable"
             type="file"
             variant="outlined"
@@ -65,9 +65,17 @@
       type="error"
       variant="tonal"
     />
-    <div v-if="attachmentLimitReached" class="w-100">
+    <v-alert
+      v-if="attachmentLimitReached"
+      :id="`${idPrefix}attachment-limit`"
+      aria-live="polite"
+      class="w-100 mt-2"
+      density="compact"
+      type="warning"
+      variant="tonal"
+    >
       A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.
-    </div>
+    </v-alert>
     <ul
       :id="`${idPrefix}attachments-list`"
       aria-label="attachments"
