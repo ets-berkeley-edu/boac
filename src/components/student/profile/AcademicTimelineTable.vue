@@ -498,11 +498,13 @@ onUnmounted(() => {
 const afterEditAdvisingNote = updatedNote => {
   editModeNoteId.value = null
   refreshNote(updatedNote)
+  props.onCreateNewNote(updatedNote)
   putFocusNextTick(`edit-note-${updatedNote.id}-button`)
 }
 
 const afterNoteCreated = note => {
   creatingNoteEvent.value = null
+  refreshNote(note)
   props.onCreateNewNote(note)
   refreshSearchIndex()
 }

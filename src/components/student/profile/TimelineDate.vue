@@ -1,7 +1,7 @@
 <template>
   <div v-if="adjustedDate">
     <span class="sr-only">{{ srPrefix }} </span>
-    {{ adjustedDate.toFormat(adjustedDate && adjustedDate.year === DateTime.now().year ? 'MMM d' : 'MMM d, yyyy') }}
+    {{ adjustedDate.toFormat(adjustedDate && adjustedDate.year === today.year ? 'MMM d' : 'MMM d, yyyy') }}
     <div v-if="includeTimeOfDay">
       {{ adjustedDate.toFormat('h:mma') }}
     </div>
@@ -30,8 +30,13 @@ const props = defineProps({
   }
 })
 
+const today = DateTime.now()
+
 const adjustedDate = computed(() => {
-  const date = typeof props.date === 'string' ? new Date(props.date) : props.date
-  return date ? DateTime.fromJSDate(date).setZone(useContextStore().config.timezone) : null
+  let date
+  if (props.date) {
+    date = typeof props.date === 'string' ? DateTime.fromISO(props.date) : DateTime.fromJSDate(props.date)
+  }
+  return date ? date.setZone(useContextStore().config.timezone) : null
 })
 </script>
