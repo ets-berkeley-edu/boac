@@ -224,7 +224,7 @@ const save = isDraft => {
           isDraft,
           noteStore.model.isPrivate,
           noteStore.model.setDate,
-          noteStore.model.sids,
+          noteStore.recipients.sids,
           trimmedSubject,
           [],
           noteStore.model.topics

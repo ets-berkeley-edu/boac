@@ -23,7 +23,6 @@
 <script setup>
 import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelineHeader'
 import AcademicTimelineTable from '@/components/student/profile/AcademicTimelineTable'
-import {alertScreenReader} from '@/lib/utils'
 import {get, each, findIndex, keys, remove, size} from 'lodash'
 import {getNote} from '@/api/notes'
 import {DateTime} from 'luxon'
@@ -85,11 +84,10 @@ const onCreateNewNote = note => {
     if (existingNoteIndex < 0) {
       messages.value.push(note)
       updateCountsPerType('note', countsPerType.value.note + 1)
-      sortMessages()
-      alertScreenReader(`New advising note created for student ${props.student.name}.`)
     } else {
       messages.value.splice(existingNoteIndex, 1, note)
     }
+    sortMessages()
   }
 }
 
@@ -127,7 +125,7 @@ const setFilter = filter => {
 const sortDate = message => {
   if (message.type === 'appointment' || message.type === 'note') {
     if (message.setDate) {
-      return DateTime.fromJSDate(message.setDate).setZone(useContextStore().config.timezone).toUTC().toString()
+      return DateTime.fromISO(message.setDate).setZone(useContextStore().config.timezone).toString()
     } else {
       return message.createdAt
     }
