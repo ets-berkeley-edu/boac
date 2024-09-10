@@ -294,7 +294,7 @@
                           id-prefix="search-options-from-date"
                           :max-date="model.toDate || new Date()"
                           :set-value="fromDate => model.fromDate = fromDate"
-                        ></AccessibleDateInput>
+                        />
                       </div>
                       <div class="d-flex align-center justify-end pb-2">
                         <label
@@ -313,7 +313,7 @@
                           :max-date="new Date()"
                           :min-date="model.fromDate"
                           :set-value="toDate => model.toDate = toDate"
-                        ></AccessibleDateInput>
+                        />
                       </div>
                     </div>
                   </div>
@@ -451,7 +451,7 @@ watch(() => model.value.postedBy, () => suggestedAdvisors.value = [])
 const cancel = () => {
   searchStore.setShowAdvancedSearch(false)
   searchStore.resetAutocompleteInput()
-  setTimeout(() => reset(true), 100)
+  setTimeout(() => reset(false), 100)
 }
 
 const onChangeIncludeNotes = checked => {
