@@ -103,11 +103,10 @@
               <td v-if="!ignored" class="font-size-14 td-term">
                 {{ course.termName }}
               </td>
-              <td :class="{'pl-2 td-note': course.note, 'pl-3 vertical-top': !course.note}">
+              <td :class="{'pl-2 td-note truncate-with-ellipsis': course.note, 'pl-3 vertical-top': !course.note}">
                 <a
                   v-if="course.note && !isNoteVisible(course)"
                   :id="`course-${course.id}-note`"
-                  class="truncate-with-ellipsis"
                   :class="{'text-decoration-none text-white': degreeStore.draggingCourseId === course.id}"
                   href
                   @click.prevent="showNote(course)"
@@ -398,7 +397,7 @@ table {
   vertical-align: top;
 }
 .td-note {
-  max-width: 100px;
+  max-width: 40px;
   padding-top: 1px;
   vertical-align: top;
 }

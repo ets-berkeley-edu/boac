@@ -83,12 +83,12 @@
     <div class="border-b-md border-color-warning mx-6">
       <v-container class="border-bottom border-warning px-0" fluid>
         <v-row align="start">
-          <v-col class="pb-0 pt-1" cols="7">
+          <v-col class="border-e-md pb-0 pt-1" cols="8">
             <div v-if="isEditingNote || noteBody" class="align-center d-flex justify-space-between">
               <div>
                 <h3 class="font-size-20 font-weight-bold text-no-wrap">Degree Notes</h3>
               </div>
-              <div class="align-center d-flex justify-content-end">
+              <div class="align-center d-flex justify-content-end pr-4">
                 <label for="degree-note-print-toggle" class="font-size-14 font-weight-500 pr-2 text-grey-darken-4">
                   Show notes when printed?
                 </label>
@@ -120,12 +120,25 @@
               @click="editNote"
             />
           </v-col>
-          <v-col class="py-1" cols="5">
-            <h3 class="font-size-20 font-weight-bold pl-2 text-no-wrap">In-progress courses</h3>
+          <v-col class="align-center d-flex py-1" cols="4">
+            <h3 class="font-size-20 font-weight-bold px-2 text-no-wrap">In-progress courses</h3>
+            <div>
+              [<v-btn
+                id="show-upper-units-input"
+                class="px-0 text-primary"
+                density="compact"
+                flat
+                size="small"
+                style="min-width: 36px !important;"
+                :text="showInProgressCourses ? 'hide' : 'show'"
+                variant="text"
+                @click="toggleInProgressCourses"
+              />]
+            </div>
           </v-col>
         </v-row>
         <v-row align-v="start">
-          <v-col class="py-1" cols="7">
+          <v-col class="border-e-md py-1" cols="8">
             <div v-if="noteBody && !isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="font-size-14 pr-2 text-no-wrap">
               <span
                 v-if="noteUpdatedBy"
@@ -192,46 +205,48 @@
               </div>
             </div>
           </v-col>
-          <v-col class="pb-2 pt-1" cols="5">
-            <v-data-table
-              v-if="degreeStore.courses.inProgress.length"
-              id="in-progress-courses"
-              borderless
-              :cell-props="data => {
-                const float = data.column.key === 'units' ? 'float-right' : null
-                return {
-                  class: `${float} vertical-top`,
-                  id: `in-progress-term-${data.item.termId}-section-${data.item.ccn}-column-${data.column.key}`,
-                  style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
-                }
-              }"
-              class="mb-0 w-75"
-              density="compact"
-              disable-sort
-              :headers="[
-                {headerProps: {class: 'data-table-column-header'}, key: 'displayName', title: 'Course'},
-                {headerProps: {class: 'data-table-column-header float-right'}, key: 'units', title: 'Units'}
-              ]"
-              hide-default-footer
-              :items="inProgressCourses"
-              primary-key="primaryKey"
-              :row-props="data => ({
-                id: `tr-in-progress-term-${data.item.termId}-section-${data.item.ccn}`
-              })"
-            >
-              <template #item.displayName="{item}">
-                <div class="d-flex">
-                  <div class="pr-1">{{ item.displayName }}</div>
-                  <div
-                    v-if="item.enrollmentStatus === 'W'"
-                    :id="`in-progress-course-${item.termId}-${item.ccn}-waitlisted`"
-                    class="font-size-14 font-weight-bold text-error text-uppercase"
-                  >
-                    (W<span class="sr-only">aitlisted</span>)
+          <v-col class="pb-2 pt-1" cols="4">
+            <v-expand-transition v-if="degreeStore.courses.inProgress.length">
+              <v-data-table
+                v-if="showInProgressCourses"
+                id="in-progress-courses"
+                borderless
+                :cell-props="data => {
+                  const float = data.column.key === 'units' ? 'float-right' : null
+                  return {
+                    class: `${float} vertical-top`,
+                    id: `in-progress-term-${data.item.termId}-section-${data.item.ccn}-column-${data.column.key}`,
+                    style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+                  }
+                }"
+                class="mb-0 w-100"
+                density="compact"
+                disable-sort
+                :headers="[
+                  {headerProps: {class: 'data-table-column-header'}, key: 'displayName', title: 'Course'},
+                  {headerProps: {class: 'data-table-column-header float-right'}, key: 'units', title: 'Units'}
+                ]"
+                hide-default-footer
+                :items="inProgressCourses"
+                primary-key="primaryKey"
+                :row-props="data => ({
+                  id: `tr-in-progress-term-${data.item.termId}-section-${data.item.ccn}`
+                })"
+              >
+                <template #item.displayName="{item}">
+                  <div class="d-flex">
+                    <div class="pr-1">{{ item.displayName }}</div>
+                    <div
+                      v-if="item.enrollmentStatus === 'W'"
+                      :id="`in-progress-course-${item.termId}-${item.ccn}-waitlisted`"
+                      class="font-size-14 font-weight-bold text-error text-uppercase"
+                    >
+                      (W<span class="sr-only">aitlisted</span>)
+                    </div>
                   </div>
-                </div>
-              </template>
-            </v-data-table>
+                </template>
+              </v-data-table>
+            </v-expand-transition>
             <span v-if="!degreeStore.courses.inProgress.length" class="text-grey-darken-4">None</span>
           </v-col>
         </v-row>
@@ -269,7 +284,8 @@ const isSaving = ref(false)
 const noteBody = ref(undefined)
 const noteUpdatedBy = ref(undefined)
 const notesWhenPrintModel = ref(degreeStore.includeNotesWhenPrint)
-const showRevisionIndicator = ref(undefined)
+const showInProgressCourses = ref(true)
+const showRevisionIndicator = ref(false)
 const updatedAtDescription = ref(undefined)
 
 const noteUpdatedAt = computed(() => {
@@ -341,6 +357,11 @@ const saveNote = () => {
       putFocusNextTick('create-degree-note-btn')
     })
   })
+}
+
+const toggleInProgressCourses = () => {
+  showInProgressCourses.value = !showInProgressCourses.value
+  alertScreenReader(`In-progress courses are ${showInProgressCourses.value ? 'showing' : 'hidden'}.`)
 }
 </script>
 

@@ -1,6 +1,6 @@
 <template>
   <div v-if="render">
-    <div class="align-items-start d-flex flex-row justify-space-between">
+    <div class="align-center d-flex flex-row justify-space-between">
       <h3
         class="font-weight-bold pb-0 pr-2 text-no-wrap"
         :class="{'font-size-14': printable, 'font-size-20': !printable}"
