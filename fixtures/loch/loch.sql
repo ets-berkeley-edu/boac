@@ -901,7 +901,8 @@ VALUES
 ('9000000000-00001', '9000000000', '00001', '600500400', NULL, 'Administrative', '', 'Is this student even on campus?', NULL, NULL, '2017-11-02T12:00:00+00', '2017-11-02T13:00:00+00'),
 ('9000000000-00002', '9000000000', '00002', '700600500', NULL, 'Evaluation', '', 'I am confounded by this confounding student', 'UCBCONVERSION', NULL, '2017-11-02T07:00:00+00', '2017-11-02T07:00:00+00'),
 ('9100000000-00001', '9100000000', '00001', '600500400', NULL, 'Evaluation', '', 'Met w/ stu; scheduled next appt. 2/1/2019 @ 1:30. Student continued on 2.0 prob (COP) until Sp ''19. E-mailed test@berkeley.edu: told her she''ll need to drop Eng. 123 by 1-24-19', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00'),
-('2718281828-00001', '2718281828', '00001', '600500400', NULL, 'Conundrum', '', 'I fear this young fellow shall never settle upon a respectable vocation.', 'UCBCONVERSION', NULL, '2006-11-02T12:00:00+00', '2006-11-02T12:00:00+00');
+('2718281828-00001', '2718281828', '00001', '600500400', NULL, 'Conundrum', '', 'I fear this young fellow shall never settle upon a respectable vocation.', 'UCBCONVERSION', NULL, '2006-11-02T12:00:00+00', '2006-11-02T12:00:00+00'),
+('2718281828-00002', '2718281828', '00002', '100100100', NULL, 'Student Request', 'Hangouts', 'Things usually happen around us, not to us.', NULL, NULL, '2018-11-05T12:00:00+00', '2018-11-06T12:00:00+00');
 
 CREATE MATERIALIZED VIEW sis_advising_notes.advising_notes_search_index AS (
   SELECT id, to_tsvector(
