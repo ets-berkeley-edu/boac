@@ -31,8 +31,13 @@
         <v-main id="content">
           <div class="h-100" :class="{'align-center d-flex justify-center': loading}">
             <div v-if="loading" class="loading-container d-flex">
-              <div class="my-auto">
-                <PlaneGoRound id="spinner-when-loading" />
+              <div class="my-auto" role="progressbar">
+                <PlaneGoRound
+                  id="spinner-when-loading"
+                  aria-label="page loading"
+                  role="progressbar"
+                  tabindex="0"
+                />
               </div>
             </div>
             <v-expand-transition>

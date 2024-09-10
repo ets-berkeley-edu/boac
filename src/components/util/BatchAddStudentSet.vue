@@ -31,7 +31,7 @@
         {{ object.name }}&nbsp;&nbsp;({{ pluralize('student', object.totalStudentCount) }})
       </option>
     </select>
-    <ul class="mb-2 pill-list pl-0 w-75">
+    <ul :id="`batch-degree-check-${objectType}-list`" class="mb-2 pill-list pl-0 w-75">
       <li
         v-for="(addedObject, index) in added"
         :key="index"
@@ -114,7 +114,7 @@ const remove = object => {
   added.value = _filter(added.value, a => a.id !== object.id)
   props.removeObject(object)
   alertScreenReader(`${props.header} '${object.name}' removed`)
-  putFocusNextTick(`batch-degree-check-${props.objectType}`, 'button')
+  putFocusNextTick(`batch-degree-check-${props.objectType}-list`, 'button')
 }
 </script>
 

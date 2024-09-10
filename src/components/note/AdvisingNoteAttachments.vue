@@ -3,10 +3,12 @@
     <slot name="label"></slot>
     <v-file-input
       v-if="!readOnly"
-      :id="`${idPrefix}choose-file-for-note-attachment`"
+      :id="inputId"
       ref="attachmentFileInput"
-      :model-value="attachments"
-      aria-label="Select file for attachment"
+      :model-value="model.attachments"
+      :aria-busy="isAdding"
+      :aria-describedby="isAdding ? progressBarId : null"
+      :aria-label="`Select file for attachment; ${pluralize('file', model.attachments.length)} attached.`"
       class="border-sm choose-file-for-note-attachment rounded"
       :class="{'border-success': disabled || attachmentLimitReached, 'border-md border-error': !!attachmentError}"
       :clearable="false"
@@ -18,7 +20,7 @@
       :prepend-icon="null"
       single-line
       :variant="disabled || attachmentLimitReached ? 'outlined' : 'solo-filled'"
-      @keydown.enter="clickBrowseForAttachment"
+      @click:control="clickBrowseForAttachment"
       @update:model-value="onAttachmentsInput"
     >
       <template #label>
@@ -38,13 +40,14 @@
           <v-btn
             v-if="!isAdding"
             :id="`${idPrefix}choose-file-for-note-attachment-btn`"
+            :aria-hidden="true"
             class="bg-white"
             color="black"
             :disabled="disabled || attachmentLimitReached"
             density="comfortable"
+            tabindex="-1"
             type="file"
             variant="outlined"
-            @keydown.enter.stop.prevent="clickBrowseForAttachment"
           >
             Select File
           </v-btn>
@@ -95,7 +98,7 @@
           :icon="mdiPaperclip"
           :label="attachment.displayName"
           name="attachment"
-          :on-click-close="() => removeAttachment(index)"
+          :on-click-close="() => onRemoveAttachment(index)"
         >
           <span class="truncate-with-ellipsis pr-1">
             {{ attachment.displayName }}
@@ -109,8 +112,8 @@
 <script setup>
 import PillItem from '@/components/util/PillItem'
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
-import {alertScreenReader, pluralize} from '@/lib/utils'
-import {computed, onBeforeMount, reactive, ref, watch} from 'vue'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
+import {computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch} from 'vue'
 import {each, get, size} from 'lodash'
 import {mdiAlert, mdiPaperclip} from '@mdi/js'
 import {storeToRefs} from 'pinia'
@@ -155,7 +158,6 @@ const props = defineProps({
 const noteStore = useNoteStore()
 
 const attachmentFileInput = ref(null)
-const attachments = ref([])
 const attachmentError = ref(undefined)
 const contextStore = useContextStore()
 const currentUser = reactive(contextStore.currentUser)
@@ -166,20 +168,49 @@ const modelProxy = ref(props.note || noteStore.model)
 const attachmentLimitReached = computed(() => {
   return size(model.value.attachments) >= contextStore.config.maxAttachmentsPerNote
 })
+const inputId = computed(() => {
+  return `${props.idPrefix}choose-file-for-note-attachment`
+})
+const progressBarId = computed(() => {
+  return `${props.idPrefix}note-attachment-progress`
+})
+let progressBarAlert
+
+watch(isAdding, v => {
+  if (v) {
+    progressBarAlert = setInterval(() => {
+      alertScreenReader('Still uploading attachments')
+    }, 10000)
+    const el = attachmentFileInput.value.$el
+    const progressBar = el && el.querySelector('.v-progress-linear')
+    if (progressBar) {
+      const id = progressBarId.value
+      progressBar.removeAttribute('aria-valuemin')
+      progressBar.removeAttribute('aria-valuemax')
+      progressBar.setAttribute('aria-label', 'Attachment file upload')
+      progressBar.setAttribute('aria-valuetext', 'Uploading attachments...')
+      progressBar.setAttribute('tabindex', '0')
+      progressBar.setAttribute('id', id)
+      putFocusNextTick(id)
+    } else {
+      putFocusNextTick(inputId.value)
+    }
+  }
+  else {
+    if (progressBarAlert) {
+      clearInterval(progressBarAlert)
+      putFocusNextTick(inputId.value)
+    }
+  }
+})
 
 watch(mode, () => {
   modelProxy.value = props.note || noteStore.model
-  init()
 })
 
 watch(model, () => {
   modelProxy.value = props.note || noteStore.model
-  init()
 })
-
-const init = () => {
-  attachments.value = modelProxy.value.attachments
-}
 
 const clickBrowseForAttachment = () => {
   attachmentFileInput.value.click()
@@ -191,9 +222,9 @@ const downloadUrl = (attachment) => {
 
 const onAttachmentsInput = files => {
   if (size(files)) {
-    isAdding.value = true
     const pluralized = pluralize('attachment', files.length)
     alertScreenReader(`Adding ${pluralized}`)
+    isAdding.value = true
     attachmentError.value = validateAttachment(files, modelProxy.value.attachments)
     if (!attachmentError.value) {
       const attachments = []
@@ -211,12 +242,26 @@ const onAttachmentsInput = files => {
   }
 }
 
+const onRemoveAttachment = index => {
+  const lastItemIndex = size(modelProxy.value.attachments) - 1
+  if (lastItemIndex > 0) {
+    const nextFocusIndex = (index === lastItemIndex ) ? index - 1 : index
+    putFocusNextTick(`remove-${props.idPrefix}attachment-${nextFocusIndex}-btn`)
+  } else {
+    putFocusNextTick(inputId.value)
+  }
+  props.removeAttachment(index)
+}
+
 onBeforeMount(() => {
   addFileDropEventListeners()
 })
 
-init()
-
+onBeforeUnmount(() => {
+  if (progressBarAlert) {
+    clearInterval(progressBarAlert)
+  }
+})
 </script>
 
 <style scoped>

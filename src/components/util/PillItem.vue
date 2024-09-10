@@ -22,7 +22,6 @@
         :icon="mdiCloseCircle"
         variant="text"
         @click.stop.prevent="onClickClose"
-        @keyup.enter.stop.prevent="onClickClose"
       />
     </template>
   </v-chip>
