@@ -5,45 +5,45 @@
         :for="`batch-note-${type}`"
         class="font-size-14 font-weight-bold"
       >
-        <span class="sr-only">Select a </span>{{ header }}
+        <span class="sr-only">Select a </span>{{ isCuratedGroupsMode ? 'Curated Group' : 'Cohort' }}
       </label>
     </div>
     <select
       :id="`batch-note-${type}`"
-      v-model="selected"
-      :aria-label="`Note will be created for all students in selected ${type}${objects.length === 1 ? '' : 's'}`"
-      class="select-menu mt-1"
+      v-model="model"
+      :aria-label="`Note will be created for all students in selected ${type}${options.length === 1 ? '' : 's'}`"
+      class="select-menu select-cohort-menu mt-1"
       :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
-      style="min-width: 50%"
+      @change="onSelect"
     >
       <option
         :id="`batch-note-${type}-option-null`"
-        :value="null"
+        :value="undefined"
       >
         Select...
       </option>
       <option
-        v-for="object in objects"
-        :id="`batch-note-${type}-option-${object.id}`"
-        :key="object.id"
-        :aria-label="`Add ${type} ${object.name}`"
-        :disabled="!!find(added, ['id', object.id])"
-        :value="object"
+        v-for="option in options"
+        :id="`batch-note-${type}-option-${option.id}`"
+        :key="option.id"
+        :aria-label="`Add ${type} ${option.name}`"
+        :disabled="!!find(selectedOptions, ['id', option.id])"
+        :value="option"
       >
-        {{ object.name }}
+        {{ option.name }}
       </option>
     </select>
     <ul class="list-no-bullets mt-1">
-      <li v-for="object in added" :key="object.id">
+      <li v-for="selectedOption in selectedOptions" :key="selectedOption.id">
         <PillItem
-          :id="`batch-note-${type}-${object.id}`"
+          :id="`batch-note-${type}-${selectedOption.id}`"
           closable
           :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
-          :label="object.name"
+          :label="selectedOption.name"
           :name="type"
-          :on-click-close="() => remove(object)"
+          :on-click-close="remove"
         >
-          <div class="truncate-with-ellipsis">{{ object.name }}</div>
+          <div class="truncate-with-ellipsis">{{ selectedOption.name }}</div>
         </PillItem>
       </li>
     </ul>
@@ -52,46 +52,47 @@
 
 <script setup>
 import PillItem from '@/components/util/PillItem'
-import {find, findIndex} from 'lodash'
-import {ref, watch} from 'vue'
+import {find} from 'lodash'
+import {ref} from 'vue'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
-  objects: {
+  add: {
     required: true,
-    type: Array
+    type: Function
   },
   isCuratedGroupsMode: {
     required: true,
     type: Boolean
   },
-  removeObject: {
+  options: {
+    required: true,
+    type: Array
+  },
+  remove: {
     required: true,
     type: Function
   },
-  update: {
+  selectedOptions: {
     required: true,
-    type: Function
+    type: Array
   }
 })
 
 const noteStore = useNoteStore()
-const added = ref([])
-const header = props.isCuratedGroupsMode ? 'Curated Group' : 'Cohort'
-const selected = ref(null)
+const model = ref(undefined)
 const type = props.isCuratedGroupsMode ? 'curated' : 'cohort'
 
-watch(selected, value => {
-  if (value) {
-    added.value.push(selected.value)
-    props.update(added.value)
-    selected.value = null
+const onSelect = () => {
+  if (model.value) {
+    props.add(model.value)
+    model.value = undefined
   }
-})
-
-const remove = object => {
-  const index = findIndex(added.value, {'id': object.id})
-  added.value.splice(index, 1)
-  props.removeObject(object)
 }
 </script>
+
+<style scoped>
+.select-cohort-menu {
+  min-width: 50%;
+}
+</style>

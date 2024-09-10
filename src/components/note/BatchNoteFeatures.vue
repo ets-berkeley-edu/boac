@@ -55,19 +55,21 @@
     <div class="mt-2">
       <BatchNoteAddCohort
         v-if="size(nonAdmitCohorts)"
+        :add="addCohort"
         :is-curated-groups-mode="false"
-        :objects="nonAdmitCohorts"
-        :remove-object="removeCohort"
-        :update="updateCohorts"
+        :options="nonAdmitCohorts"
+        :remove="removeCohort"
+        :selected-options="recipients.cohorts"
       />
     </div>
     <div class="mt-2">
       <BatchNoteAddCohort
         v-if="size(nonAdmitCuratedGroups)"
+        :add="addCuratedGroup"
         :is-curated-groups-mode="true"
-        :objects="nonAdmitCuratedGroups"
-        :remove-object="removeCuratedGroup"
-        :update="updateCuratedGroups"
+        :options="nonAdmitCuratedGroups"
+        :remove="removeCuratedGroup"
+        :selected-options="recipients.curatedGroups"
       />
     </div>
   </div>
@@ -77,7 +79,7 @@
 import BatchNoteAddCohort from '@/components/note/BatchNoteAddCohort'
 import BatchNoteAddStudent from '@/components/note/BatchNoteAddStudent'
 import {alertScreenReader, pluralize} from '@/lib/utils'
-import {capitalize, differenceBy, findIndex, first, reject, size} from 'lodash'
+import {capitalize, findIndex, reject, size} from 'lodash'
 import {computed} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {setNoteRecipients} from '@/stores/note-edit-session/utils'
@@ -129,34 +131,24 @@ const removeCuratedGroup = curatedGroup => {
   })
 }
 
-const updateCohorts = cohorts => {
-  const cohort = first(differenceBy(cohorts, recipients.value.cohorts, 'id'))
-  if (size(cohorts) > size(recipients.value.cohorts)) {
-    setNoteRecipients(
-      recipients.value.cohorts.concat(cohort),
-      recipients.value.curatedGroups,
-      recipients.value.sids
-    ).then(() => {
-      alertScreenReader(`Added cohort '${cohort.name}'`)
-    })
-  } else {
-    removeCohort(cohort)
-  }
+const addCohort = cohort => {
+  setNoteRecipients(
+    recipients.value.cohorts.concat([cohort]),
+    recipients.value.curatedGroups,
+    recipients.value.sids
+  ).then(() => {
+    alertScreenReader(`Added cohort '${cohort.name}'`)
+  })
 }
 
-const updateCuratedGroups = curatedGroups => {
-  const curatedGroup = differenceBy(curatedGroups, recipients.value.curatedGroups, 'id')
-  if (size(curatedGroups) > size(recipients.value.curatedGroups)) {
-    setNoteRecipients(
-      recipients.value.cohorts,
-      recipients.value.curatedGroups.concat(curatedGroup),
-      recipients.value.sids
-    ).then(() => {
-      alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
-    })
-  } else {
-    removeCuratedGroup(curatedGroup)
-  }
+const addCuratedGroup = curatedGroup => {
+  setNoteRecipients(
+    recipients.value.cohorts,
+    recipients.value.curatedGroups.concat([curatedGroup]),
+    recipients.value.sids
+  ).then(() => {
+    alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
+  })
 }
 </script>
 
