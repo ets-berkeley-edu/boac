@@ -2,22 +2,16 @@
   <div>
     <v-btn
       :id="`create-course-under-parent-category-${parentCategory.id}`"
-      class="font-size-14 font-weight-bold pl-0"
+      class="font-weight-bold px-1"
       color="primary"
+      density="comfortable"
       :disabled="degreeStore.disableButtons"
+      :prepend-icon="mdiPlus"
+      text="Manually Create Course"
       variant="text"
       v-bind="props"
       @click="openModal"
-    >
-      <div class="align-center d-flex justify-space-between">
-        <div>
-          <v-icon size="22" :icon="mdiPlus" />
-        </div>
-        <div>
-          Manually Create Course
-        </div>
-      </div>
-    </v-btn>
+    />
   </div>
   <v-dialog
     v-model="showModal"
@@ -26,22 +20,22 @@
     @update:model-value="onToggle"
   >
     <v-card class="modal-content" min-width="600">
-      <FocusLock @keydown.esc="cancel">
-        <v-card-title>
+      <FocusLock @keydown.esc="() => cancel(false)">
+        <v-card-title class="py-0">
           <ModalHeader text="Create Course" />
         </v-card-title>
         <v-card-text class="modal-body">
           <div>
             <label
               for="course-name-input"
-              class="font-weight-700 mb-1"
+              class="font-weight-700"
             >
               <span class="sr-only">Course </span>Name
             </label>
             <v-text-field
               id="course-name-input"
               v-model="name"
-              class="cohort-create-input-name"
+              class="cohort-create-input-name mt-1"
               density="comfortable"
               hide-details
               maxlength="255"
@@ -65,7 +59,7 @@
               Course name cannot exceed 255 characters.
             </div>
           </div>
-          <div class="pb-2">
+          <div class="mt-1">
             <UnitsInput
               :disable="isSaving"
               :error-message="unitsErrorMessage"
@@ -76,7 +70,7 @@
               :units-lower="units"
             />
           </div>
-          <div class="pb-3">
+          <div class="mt-2">
             <label id="units-grade-label" for="course-grade-input" class="font-weight-700 mb-1 pr-2">
               Grade
             </label>
@@ -85,37 +79,40 @@
               v-model="grade"
               :aria-autocomplete="false"
               aria-labelledby="units-grade-label"
-              class="grade-input"
+              class="grade-input mt-1"
               hide-details
               maxlength="3"
               @keydown.enter="save"
             />
           </div>
-          <div class="pb-3">
+          <div class="mt-2">
             <AccentColorSelect
               :accent-color="accentColor"
               :on-change="value => accentColor = value"
             />
           </div>
-          <label for="course-note-textarea" class="font-weight-700">
-            Note
-          </label>
-          <div class="pb-2">
-            <v-textarea
-              id="course-note-textarea"
-              v-model="note"
-              density="compact"
-              :disabled="isSaving"
-              hide-details
-              rows="4"
-              variant="outlined"
-            />
+          <div class="mt-3">
+            <label for="course-note-textarea" class="font-weight-700">
+              Note
+            </label>
+            <div class="mt-1">
+              <v-textarea
+                id="course-note-textarea"
+                v-model="note"
+                density="compact"
+                :disabled="isSaving"
+                hide-details
+                rows="4"
+                variant="outlined"
+              />
+            </div>
           </div>
         </v-card-text>
         <v-card-actions class="modal-footer">
           <ProgressButton
             id="create-course-save-btn"
             :action="save"
+            class="mr-1"
             color="primary"
             :disabled="disableSaveButton"
             :in-progress="isSaving"
@@ -123,20 +120,26 @@
           />
           <v-btn
             id="create-course-cancel-btn"
-            class="ml-2"
             :disabled="isSaving"
             text="Cancel"
             variant="text"
-            @click="cancel"
+            @click="() => cancel(false)"
           />
         </v-card-actions>
       </FocusLock>
     </v-card>
   </v-dialog>
+  <AreYouSureModal
+    v-model="showCancelConfirm"
+    :function-confirm="() => cancel(true)"
+    :function-cancel="() => showCancelConfirm = false"
+    modal-header="Discard unsaved course?"
+  />
 </template>
 
 <script setup>
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
 import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
@@ -166,11 +169,11 @@ const isSaving = ref(false)
 const name = ref('')
 const note = ref('')
 const showModal = ref(false)
+const showCancelConfirm = ref(false)
 const units = ref(undefined)
 
-const disableSaveButton = computed(() => {
-  return isSaving.value || !!unitsErrorMessage.value || !trim(name.value)
-})
+const disableSaveButton = computed(() => isSaving.value || !!unitsErrorMessage.value || !trim(name.value))
+const isDirty = computed(() => !!(accentColor.value || grade.value || name.value || trim(note.value) || units.value))
 const unitsErrorMessage = computed(() => {
   const isEmpty = _isEmpty(trim(units.value))
   return isEmpty ? null : validateUnitRange(units.value, undefined, 10).message
@@ -180,10 +183,15 @@ onUnmounted(() => {
   closeModal()
 })
 
-const cancel = () => {
-  closeModal()
-  alertScreenReader('Canceled')
-  putFocusNextTick(`create-course-under-parent-category-${props.parentCategory.id}`)
+const cancel = force => {
+  if (!force && isDirty.value) {
+    showCancelConfirm.value = true
+  } else {
+    closeModal()
+    showCancelConfirm.value = false
+    alertScreenReader('Canceled')
+    putFocusNextTick(`create-course-under-parent-category-${props.parentCategory.id}`)
+  }
 }
 
 const closeModal = () => {

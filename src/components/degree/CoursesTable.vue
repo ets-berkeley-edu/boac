@@ -1,325 +1,324 @@
 <template>
   <div>
-    <div>
-      <table
-        :id="`column-${position}-courses-of-category-${parentCategory.id}`"
-        class="mb-0 w-100"
-      >
-        <thead class="border-b-md">
-          <tr class="sortable-table-header text-no-wrap">
-            <th v-if="hasAssignedCourses && canEdit" class="px-0 th-assign">
-              <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
-              <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
-            </th>
-            <th v-if="!isCampusRequirements" class="th-course" :class="{'font-size-12': printable}">Course</th>
-            <th v-if="isCampusRequirements" class="w-40" :class="{'font-size-12': printable}">Requirement</th>
-            <th v-if="!isCampusRequirements && items.length" class="pr-1 text-right th-units" :class="{'font-size-12': printable}">Units</th>
-            <th v-if="degreeStore.sid && !isCampusRequirements" class="th-grade" :class="{'font-size-12': printable}">Grade</th>
-            <th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center th-satisfied" :class="{'font-size-12': printable}">Satisfied</th>
-            <th
-              v-if="degreeStore.sid"
-              class="pl-0"
+    <table
+      :id="`column-${position}-courses-of-category-${parentCategory.id}`"
+      class="mb-0 w-100"
+    >
+      <thead class="border-b-md">
+        <tr class="sortable-table-header text-no-wrap">
+          <th v-if="hasAssignedCourses && canEdit" class="px-0 th-assign">
+            <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
+            <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
+          </th>
+          <th v-if="!isCampusRequirements" class="th-course" :class="{'font-size-12': printable}">Course</th>
+          <th v-if="isCampusRequirements" class="w-40" :class="{'font-size-12': printable}">Requirement</th>
+          <th v-if="!isCampusRequirements && items.length" class="pr-1 text-right th-units" :class="{'font-size-12': printable}">Units</th>
+          <th v-if="degreeStore.sid && !isCampusRequirements" class="th-grade" :class="{'font-size-12': printable}">Grade</th>
+          <th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center th-satisfied" :class="{'font-size-12': printable}">Satisfied</th>
+          <th
+            v-if="degreeStore.sid"
+            class="pl-0"
+            :class="{
+              'font-size-12': printable,
+              'th-note': hasAnyNotes
+            }"
+          >
+            Note
+          </th>
+          <th v-if="!degreeStore.sid && !isCampusRequirements && items.length" class="px-0" :class="{'font-size-12': printable}">Fulfillment</th>
+          <th v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="px-0 sr-only">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template v-for="(bundle, index) in categoryCourseBundles" :key="`tr-${index}`">
+          <tr
+            :id="`course-${bundle.category.id}-table-row-${index}`"
+            :class="{
+              'accent-color-blue': getAccentColor(bundle) === 'Blue',
+              'accent-color-green': getAccentColor(bundle) === 'Green',
+              'accent-color-orange': getAccentColor(bundle) === 'Orange',
+              'accent-color-purple': getAccentColor(bundle) === 'Purple',
+              'accent-color-red': getAccentColor(bundle) === 'Red',
+              'border-e-md border-s-md border-t-md': isNoteVisible(bundle),
+              'cursor-grab': isDraggable(bundle),
+              'drop-zone-on': isDroppable(bundle.category),
+              'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !degreeStore.draggingContext.course,
+              'tr-while-dragging': bundle.course && (degreeStore.draggingCourseId === get(bundle.course, 'id'))
+            }"
+            :draggable="isDraggable(bundle)"
+            @dragend="onDrag($event, 'end', bundle)"
+            @dragenter="onDrag($event, 'enter', bundle)"
+            @dragleave="onDrag($event, 'leave', bundle)"
+            @dragover="onDrag($event, 'over', bundle)"
+            @dragstart="onDrag($event, 'start', bundle)"
+            @drop="onDropCourse($event, bundle.category, 'requirement')"
+            @mouseenter="onMouse('enter', bundle)"
+            @mouseleave="onMouse('leave', bundle)"
+          >
+            <td v-if="hasAssignedCourses && canEdit && !isCampusRequirements" class="td-assign">
+              <div
+                v-if="bundle.course && canEdit && (degreeStore.draggingCourseId !== bundle.course.id)"
+                :id="`assign-course-${bundle.course.id}-menu-container`"
+              >
+                <CourseAssignmentMenu
+                  v-if="bundle.course.categoryId"
+                  :after-course-assignment="course => putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')"
+                  :course="bundle.course"
+                />
+              </div>
+            </td>
+            <td
+              class="overflow-wrap-break-word pl-0 pt-1"
               :class="{
-                'font-size-12': printable,
-                'th-note': hasAnyNotes
+                'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
+                'td-name-printable': printable,
+                'td-name': !printable,
+                'pb-1 text-no-wrap vertical-center': isCampusRequirements
               }"
             >
-              Note
-            </th>
-            <th v-if="!degreeStore.sid && !isCampusRequirements && items.length" class="px-0" :class="{'font-size-12': printable}">Fulfillment</th>
-            <th v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="px-0 sr-only">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-for="(bundle, index) in categoryCourseBundles" :key="`tr-${index}`">
-            <tr
-              :id="`course-${bundle.category.id}-table-row-${index}`"
-              :class="{
-                'accent-color-blue': getAccentColor(bundle) === 'Blue',
-                'accent-color-green': getAccentColor(bundle) === 'Green',
-                'accent-color-orange': getAccentColor(bundle) === 'Orange',
-                'accent-color-purple': getAccentColor(bundle) === 'Purple',
-                'accent-color-red': getAccentColor(bundle) === 'Red',
-                'border-e-md border-s-md border-t-md': isNoteVisible(bundle),
-                'cursor-grab': isDraggable(bundle),
-                'drop-zone-on': isDroppable(bundle.category),
-                'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !degreeStore.draggingContext.course,
-                'tr-while-dragging': bundle.course && (degreeStore.draggingCourseId === get(bundle.course, 'id'))
-              }"
-              :draggable="isDraggable(bundle)"
-              @dragend="onDrag($event, 'end', bundle)"
-              @dragenter="onDrag($event, 'enter', bundle)"
-              @dragleave="onDrag($event, 'leave', bundle)"
-              @dragover="onDrag($event, 'over', bundle)"
-              @dragstart="onDrag($event, 'start', bundle)"
-              @drop="onDropCourse($event, bundle.category, 'requirement')"
-              @mouseenter="onMouse('enter', bundle)"
-              @mouseleave="onMouse('leave', bundle)"
+              <span v-if="!bundle.course && bundle.category.isRecommended">
+                <v-icon
+                  :id="`category-${bundle.category.id}-is-recommended`"
+                  class="accent-color-orange"
+                  :icon="mdiCircle"
+                  title="Recommended"
+                />
+                <span class="sr-only">This is a recommended course requirement</span>
+              </span>
+              <span
+                :class="{
+                  'accent-color-purple': get(bundle.category, 'isSatisfiedByTransferCourse'),
+                  'font-weight-500': isEditing(bundle),
+                  'mr-2': get(bundle.course, 'isCopy')
+                }"
+              >
+                <span :class="{'text-strikethrough': get(bundle.category, 'isIgnored')}">
+                  <!-- Spaces surrounding 'name' make life easier for QA. Do not trim. -->
+                  {{ bundle.name }}
+                </span>
+              </span>
+              <span v-if="get(bundle.course, 'isCopy')" class="mr-1">
+                <v-icon
+                  :icon="mdiContentCopy"
+                  size="sm"
+                  title="Course satisfies multiple requirements."
+                />
+              </span>
+            </td>
+            <td
+              v-if="!isCampusRequirements"
+              class="td-units"
+              :class="{'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle)}"
             >
-              <td v-if="hasAssignedCourses && canEdit && !isCampusRequirements" class="td-assign">
-                <div
-                  v-if="bundle.course && canEdit && (degreeStore.draggingCourseId !== bundle.course.id)"
-                  :id="`assign-course-${bundle.course.id}-menu-container`"
-                >
-                  <CourseAssignmentMenu
-                    v-if="bundle.course.categoryId"
-                    :after-course-assignment="course => putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')"
-                    :course="bundle.course"
-                  />
-                </div>
-              </td>
-              <td
-                class="overflow-wrap-break-word pl-0 pt-1"
-                :class="{
-                  'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
-                  'td-name-printable': printable,
-                  'td-name': !printable,
-                  'pb-1 text-no-wrap vertical-center': isCampusRequirements
-                }"
-              >
-                <span v-if="!bundle.course && bundle.category.isRecommended">
-                  <v-icon
-                    :id="`category-${bundle.category.id}-is-recommended`"
-                    class="accent-color-orange"
-                    :icon="mdiCircle"
-                    title="Recommended"
-                  />
-                  <span class="sr-only">This is a recommended course requirement</span>
-                </span>
-                <span
-                  :class="{
-                    'accent-color-purple': get(bundle.category, 'isSatisfiedByTransferCourse'),
-                    'font-weight-500': isEditing(bundle),
-                    'mr-2': get(bundle.course, 'isCopy')
-                  }"
-                >
-                  <span :class="{'text-strikethrough': get(bundle.category, 'isIgnored')}">
-                    <!-- Spaces surrounding 'name' make life easier for QA. Do not trim. -->
-                    {{ bundle.name }}
-                  </span>
-                </span>
-                <span v-if="get(bundle.course, 'isCopy')" class="mr-1">
-                  <v-icon
-                    :icon="mdiContentCopy"
-                    size="sm"
-                    title="Course satisfies multiple requirements."
-                  />
-                </span>
-              </td>
-              <td
-                v-if="!isCampusRequirements"
-                class="td-units"
-                :class="{'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle)}"
-              >
-                <v-icon
-                  v-if="isCourseFulfillmentsEdited(bundle)"
-                  class="fulfillments-icon mr-1"
-                  :icon="mdiCheckCircleOutline"
-                  size="sm"
-                  :title="bundle.course.unitRequirements.length ? `Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.` : 'Fulfills no unit requirements'"
-                />
-                <v-icon
-                  v-if="unitsWereEdited(bundle.course)"
-                  :id="`units-were-edited-${bundle.course.id}`"
-                  class="changed-units-icon"
-                  :icon="mdiInformationOutline"
-                  size="sm"
-                  :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
-                />
-                <div :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ isNil(bundle.units) ? '&mdash;' : bundle.units }}</div>
-                <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
-              </td>
-              <td v-if="degreeStore.sid && !isCampusRequirements" class="td-grade">
-                <span
-                  :class="{
-                    'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle),
-                    'font-size-12': printable,
-                    'font-size-14 text-no-wrap': !printable
-                  }"
-                >
-                  {{ getGrade(bundle) }}
-                </span>
-                <v-icon
-                  v-if="isAlertGrade(getGrade(bundle))"
-                  aria-label="Non-passing grade"
-                  :icon="mdiAlertRhombus"
-                  class="boac-exclamation ml-1"
-                />
-              </td>
-              <td v-if="degreeStore.sid && isCampusRequirements" class="td-satisfied float-right">
-                <CampusRequirementCheckbox
-                  :campus-requirement="bundle"
-                  :position="position"
-                  :printable="printable"
-                />
-              </td>
-              <td
-                v-if="degreeStore.sid"
-                :class="{
-                  'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
-                  'font-size-12 td-note-printable': printable,
-                  'pt-2': !bundle.course && degreeStore.sid,
-                  'truncate-with-ellipsis font-size-14 td-note': !printable
-                }"
-              >
-                <div
-                  v-if="printable"
-                  :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
-                  class="font-size-12"
-                  v-html="getNote(bundle)"
-                />
-                <div v-if="!printable && getNote(bundle) && !isNoteVisible(bundle)" class="font-size-14 td-note">
-                  <a
-                    :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
-                    class="truncate-with-ellipsis"
-                    href
-                    @click.prevent="showNote(bundle)"
-                    v-html="getNote(bundle)"
-                  />
-                </div>
-                <div
-                  v-if="!getNote(bundle)"
-                  :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
-                  :class="{'pt-2': isCampusRequirements}"
-                >
-                  &mdash;
-                </div>
-              </td>
-              <td
-                v-if="!degreeStore.sid && !isCampusRequirements"
-                class="align-middle td-max-width-0"
+              <v-icon
+                v-if="isCourseFulfillmentsEdited(bundle)"
+                class="fulfillments-icon mr-1"
+                :icon="mdiCheckCircleOutline"
+                size="sm"
+                :title="bundle.course.unitRequirements.length ? `Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.` : 'Fulfills no unit requirements'"
+              />
+              <v-icon
+                v-if="unitsWereEdited(bundle.course)"
+                :id="`units-were-edited-${bundle.course.id}`"
+                class="changed-units-icon"
+                :icon="mdiInformationOutline"
+                size="sm"
+                :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
+              />
+              <div :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ isNil(bundle.units) ? '&mdash;' : bundle.units }}</div>
+              <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
+            </td>
+            <td v-if="degreeStore.sid && !isCampusRequirements" class="td-grade">
+              <span
                 :class="{
                   'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle),
                   'font-size-12': printable,
-                  'font-size-14': !printable
-                }"
-                :title="oxfordJoin(map(bundle.unitRequirements, 'name'), 'None')"
-              >
-                <div v-if="size(bundle.unitRequirements)" class="align-items-start d-flex justify-space-between">
-                  <div>
-                    {{ oxfordJoin(map(bundle.unitRequirements, 'name'), '&mdash;') }}
-                  </div>
-                  <div v-if="size(bundle.unitRequirements) > 1" class="unit-requirement-count">
-                    <span class="sr-only">(Has </span>{{ bundle.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
-                  </div>
-                </div>
-              </td>
-              <td
-                v-if="canEdit && (degreeStore.sid || !isCampusRequirements)"
-                class="td-actions"
-                :class="{'vertical-center': !bundle.course && degreeStore.sid}"
-              >
-                <div class="d-flex float-right text-no-wrap">
-                  <div class="btn-container">
-                    <v-btn
-                      v-if="isCampusRequirements || (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
-                      :id="`column-${position}-edit-${bundle.key}-btn`"
-                      :aria-label="`Edit ${bundle.name}`"
-                      :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
-                      density="compact"
-                      :disabled="degreeStore.disableButtons"
-                      flat
-                      :icon="mdiNoteEditOutline"
-                      size="small"
-                      @click="edit(bundle)"
-                    />
-                  </div>
-                  <div class="btn-container">
-                    <v-btn
-                      v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
-                      :id="`column-${position}-delete-${bundle.key}-btn`"
-                      :aria-label="`Delete ${bundle.name}`"
-                      :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
-                      density="compact"
-                      :disabled="degreeStore.disableButtons"
-                      flat
-                      :icon="mdiTrashCan"
-                      size="small"
-                      @click="() => onDelete(bundle)"
-                    />
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="isEditing(bundle)" :key="`tr-${index}-edit`">
-              <td
-                :class="{'pb-3 pl-4 pt-1': bundle.course || !degreeStore.sid}"
-                :colspan="bundle.course || !degreeStore.sid ? 6 : 4"
-              >
-                <EditCourse
-                  v-if="bundle.course"
-                  :after-cancel="afterCancel"
-                  :after-save="afterSave"
-                  :course="bundle.course"
-                  :position="position"
-                />
-                <EditCategory
-                  v-if="!bundle.course && !degreeStore.sid"
-                  :after-cancel="afterCancel"
-                  :after-save="afterSave"
-                  :existing-category="bundle.category"
-                  :position="position"
-                />
-                <EditCourseRequirement
-                  v-if="!bundle.course && degreeStore.sid"
-                  :after-cancel="afterCancel"
-                  :after-save="afterSave"
-                  :category="bundle.category"
-                  :position="position"
-                />
-              </td>
-            </tr>
-            <tr
-              v-if="isNoteVisible(bundle)"
-              :key="`tr-${index}-note`"
-              class="border-b-md border-e-md border-s-md"
-            >
-              <td colspan="5" class="pl-8 py-2">
-                <div
-                  :id="bundle.course ? `course-${bundle.course.id}-note` : `category-${bundle.category.id}-note`"
-                  aria-live="polite"
-                  class="font-size-14"
-                  role="alert"
-                >
-                  <span class="sr-only">Note: </span>
-                  {{ getNote(bundle) }}
-                </div>
-                <div class="font-size-12 text-no-wrap">
-                  [<v-btn
-                    :id="`column-${position}-${bundle.key}-hide-note-btn`"
-                    class="px-0 py-1 text-primary"
-                    size="small"
-                    text="Hide note"
-                    variant="text"
-                    @click="hideNote(bundle)"
-                  />]
-                </div>
-              </td>
-            </tr>
-          </template>
-          <tr v-if="!items.length">
-            <td class="pa-2" :class="{'pb-3': !degreeStore.sid}" colspan="5">
-              <span
-                :id="emptyCategoryId"
-                class="font-italic text-grey-darken-4"
-                :class="{
-                  'font-size-14': printable,
-                  'font-size-16': !printable
+                  'font-size-14 text-no-wrap': !printable
                 }"
               >
-                No completed requirements
+                {{ getGrade(bundle) }}
               </span>
+              <v-icon
+                v-if="isAlertGrade(getGrade(bundle))"
+                aria-label="Non-passing grade"
+                :icon="mdiAlertRhombus"
+                class="boac-exclamation ml-1"
+              />
+            </td>
+            <td v-if="degreeStore.sid && isCampusRequirements" class="td-satisfied float-right">
+              <CampusRequirementCheckbox
+                :campus-requirement="bundle"
+                :position="position"
+                :printable="printable"
+              />
+            </td>
+            <td
+              v-if="degreeStore.sid"
+              :class="{
+                'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
+                'font-size-12 td-note-printable': printable,
+                'pt-2': !bundle.course && degreeStore.sid,
+                'truncate-with-ellipsis font-size-14 td-note': !printable
+              }"
+            >
+              <div
+                v-if="printable"
+                :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                class="font-size-12"
+                v-html="getNote(bundle)"
+              />
+              <div v-if="!printable && getNote(bundle) && !isNoteVisible(bundle)" class="font-size-14 td-note">
+                <a
+                  :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                  class="truncate-with-ellipsis"
+                  href
+                  @click.prevent="showNote(bundle)"
+                  v-html="getNote(bundle)"
+                />
+              </div>
+              <div
+                v-if="!getNote(bundle)"
+                :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                :class="{'pt-2': isCampusRequirements}"
+              >
+                &mdash;
+              </div>
+            </td>
+            <td
+              v-if="!degreeStore.sid && !isCampusRequirements"
+              class="align-middle td-max-width-0"
+              :class="{
+                'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle),
+                'font-size-12': printable,
+                'font-size-14': !printable
+              }"
+              :title="oxfordJoin(map(bundle.unitRequirements, 'name'), 'None')"
+            >
+              <div v-if="size(bundle.unitRequirements)" class="align-items-start d-flex justify-space-between">
+                <div>
+                  {{ oxfordJoin(map(bundle.unitRequirements, 'name'), '&mdash;') }}
+                </div>
+                <div v-if="size(bundle.unitRequirements) > 1" class="unit-requirement-count">
+                  <span class="sr-only">(Has </span>{{ bundle.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
+                </div>
+              </div>
+            </td>
+            <td
+              v-if="canEdit && (degreeStore.sid || !isCampusRequirements)"
+              class="td-actions"
+              :class="{'vertical-center': !bundle.course && degreeStore.sid}"
+            >
+              <div class="d-flex float-right text-no-wrap">
+                <div class="btn-container">
+                  <v-btn
+                    v-if="isCampusRequirements || (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
+                    :id="`column-${position}-edit-${bundle.key}-btn`"
+                    :aria-label="`Edit ${bundle.name}`"
+                    :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
+                    density="compact"
+                    :disabled="degreeStore.disableButtons"
+                    flat
+                    :icon="mdiNoteEditOutline"
+                    size="small"
+                    @click="edit(bundle)"
+                  />
+                </div>
+                <div class="btn-container">
+                  <v-btn
+                    v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
+                    :id="`column-${position}-delete-${bundle.key}-btn`"
+                    :aria-label="`Delete ${bundle.name}`"
+                    :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
+                    density="compact"
+                    :disabled="degreeStore.disableButtons"
+                    flat
+                    :icon="mdiTrashCan"
+                    size="small"
+                    @click="() => onDelete(bundle)"
+                  />
+                </div>
+              </div>
             </td>
           </tr>
-        </tbody>
-      </table>
-    </div>
-    <div
-      v-if="degreeStore.sid && canEdit && !isCampusRequirements"
-      class="my-2"
-    >
-      <CreateCourseModal :parent-category="parentCategory" />
-    </div>
+          <tr v-if="isEditing(bundle)" :key="`tr-${index}-edit`">
+            <td
+              :class="{'pb-3 pl-4 pt-1': bundle.course || !degreeStore.sid}"
+              :colspan="bundle.course || !degreeStore.sid ? 6 : 4"
+            >
+              <EditCourse
+                v-if="bundle.course"
+                :after-cancel="afterCancel"
+                :after-save="afterSave"
+                :course="bundle.course"
+                :position="position"
+              />
+              <EditCategory
+                v-if="!bundle.course && !degreeStore.sid"
+                :after-cancel="afterCancel"
+                :after-save="afterSave"
+                :existing-category="bundle.category"
+                :position="position"
+              />
+              <EditCourseRequirement
+                v-if="!bundle.course && degreeStore.sid"
+                :after-cancel="afterCancel"
+                :after-save="afterSave"
+                :category="bundle.category"
+                :position="position"
+              />
+            </td>
+          </tr>
+          <tr
+            v-if="isNoteVisible(bundle)"
+            :key="`tr-${index}-note`"
+            class="border-b-md border-e-md border-s-md"
+          >
+            <td colspan="5" class="pl-8 py-2">
+              <div
+                :id="bundle.course ? `course-${bundle.course.id}-note` : `category-${bundle.category.id}-note`"
+                aria-live="polite"
+                class="font-size-14"
+                role="alert"
+              >
+                <span class="sr-only">Note: </span>
+                {{ getNote(bundle) }}
+              </div>
+              <div class="font-size-12 text-no-wrap">
+                [<v-btn
+                  :id="`column-${position}-${bundle.key}-hide-note-btn`"
+                  class="px-0 py-1 text-primary"
+                  size="small"
+                  text="Hide note"
+                  variant="text"
+                  @click="hideNote(bundle)"
+                />]
+              </div>
+            </td>
+          </tr>
+        </template>
+        <tr v-if="!items.length">
+          <td class="pa-2" :class="{'pb-3': !degreeStore.sid}" colspan="5">
+            <span
+              :id="emptyCategoryId"
+              class="font-italic text-grey-darken-4"
+              :class="{
+                'font-size-14': printable,
+                'font-size-16': !printable
+              }"
+            >
+              No completed requirements
+            </span>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot v-if="degreeStore.sid && canEdit && !isCampusRequirements">
+        <tr>
+          <td class="pb-5" colspan="5">
+            <CreateCourseModal :parent-category="parentCategory" />
+          </td>
+        </tr>
+      </tfoot>
+    </table>
     <AreYouSureModal
       v-if="isDeleting"
       v-model="isDeleting"

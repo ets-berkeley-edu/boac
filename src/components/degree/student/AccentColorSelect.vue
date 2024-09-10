@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div>
+    <div class="mb-1">
       <label
         for="color-code-select"
-        class="font-weight-500"
+        class="font-weight-700"
       >
         Color Code
       </label>
