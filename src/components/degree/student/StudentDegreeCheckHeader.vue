@@ -48,7 +48,7 @@
                   target="_blank"
                   :to="`/degree/${degreeStore.templateId}/print?includeNote=${degreeStore.includeNotesWhenPrint}`"
                 >
-                  <v-icon class="mr-1" :icon="mdiPrinter" />
+                  <v-icon :aria-hidden="true" :icon="mdiPrinter" />
                   Print
                   <span class="sr-only"> (will open new browser tab)</span>
                 </router-link>
