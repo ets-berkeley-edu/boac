@@ -84,8 +84,8 @@
         <tr class="sr-only">
           <th class="column-pill">Type</th>
           <th class="column-message">Summary</th>
-          <th class="column-right">Details</th>
-          <th class="column-right">Date</th>
+          <th class="align-content-start text-right width-one-percent">Details</th>
+          <th class="align-content-start text-right width-one-percent">Date</th>
         </tr>
       </thead>
       <tbody>
@@ -232,23 +232,25 @@
               </div>
             </div>
           </td>
-          <td class="column-right">
-            <div v-if="!includes(openMessages, message.transientId) && message.type === 'appointment'" class="pa-2">
-              <div
-                v-if="message.createdBy === 'YCBM' && message.status === 'cancelled'"
-                :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
-                class="collapsed-cancelled-icon text-error"
-              >
-                <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon" />
+          <td class="text-right width-one-percent" :class="{'align-content-start pt-2': includes(openMessages, message.transientId)}">
+            <div
+              v-if="!includes(openMessages, message.transientId) && message.type === 'appointment' && message.createdBy === 'YCBM' && message.status === 'cancelled'"
+              :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
+              class="collapsed-cancelled-icon d-flex px-2 float-end h-100 text-error text-no-wrap"
+            >
+              <v-icon :icon="mdiCalendarMinus" class="mr-1" />
+              <div>
                 Canceled
               </div>
             </div>
-            <div v-if="['appointment', 'eForm', 'note'].includes(message.type)" class="pa-2">
-              <v-icon v-if="size(message.attachments)" color="info" :icon="mdiPaperclip" />
-              <span class="sr-only">{{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
+            <div v-if="['appointment', 'eForm', 'note'].includes(message.type) && size(message.attachments)" class="px-2">
+              <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
             </div>
+            <span v-if="['appointment', 'eForm', 'note'].includes(message.type)" class="sr-only">
+              {{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}
+            </span>
           </td>
-          <td class="column-right">
+          <td class="align-content-start text-right width-one-percent">
             <div
               :id="`timeline-tab-${activeTab}-date-${index}`"
               class="text-no-wrap py-2 pr-2"
@@ -261,7 +263,7 @@
                   :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
                 />
               </div>
-              <div v-if="includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)">
+              <div v-if="includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)" class="td-timeline-expanded">
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
                   <div class="text-grey-darken-2 font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
                   <TimelineDate
@@ -722,6 +724,11 @@ init()
 </style>
 
 <style scoped>
+table {
+  border-collapse: collapse;
+  border-spacing: 0 0.05em;
+  min-width: 500px;
+}
 .academic-timeline-search-input {
   width: 200px;
 }
@@ -731,8 +738,6 @@ init()
 }
 .collapsed-cancelled-icon {
   font-size: 14px;
-  min-width: 108px;
-  padding-right: 8px;
   text-transform: uppercase;
 }
 .column-message {
@@ -744,11 +749,6 @@ init()
   vertical-align: top;
   white-space: nowrap;
   width: 115px;
-}
-.column-right {
-  align-content: start;
-  text-align: right;
-  width: 1%;
 }
 .message-open {
   flex-flow: row wrap;
@@ -800,15 +800,17 @@ init()
 .requirements-icon {
   width: 20px;
 }
+.td-timeline-expanded {
+  position: absolute;
+  right: 26px;
+}
 .text-icon-clock {
   color: #8bbdda;
 }
 .text-icon-exclamation {
   color: rgb(var(--v-theme-warning));
 }
-table {
-  border-collapse: collapse;
-  border-spacing: 0 0.05em;
-  min-width: 500px;
+.width-one-percent {
+  width: 1%;
 }
 </style>
