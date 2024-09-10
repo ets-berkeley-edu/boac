@@ -399,6 +399,18 @@ class TestNoteSearch:
         )
         assert len(api_json['notes']) == 0
 
+    def test_note_data_loch_search_department_code(self, coe_advisor, client, fake_loch):
+        api_json = _api_search(
+            client,
+            'happen around us',
+            notes=True,
+            note_options={
+                'departmentCodes': ['EGCEE'],
+            },
+        )
+        print(api_json['notes'])
+        assert len(api_json['notes']) == 1
+
     def test_search_with_no_input_and_date(self, coe_advisor, client):
         """Notes search needs no input when date options are set."""
         api_json = _api_search(
@@ -739,6 +751,15 @@ class TestAppointmentSearch:
 
     def test_search_appointments_includes_inactive_students(self, coe_advisor, client):
         api_json = _api_search(client, 'pez', appointments=True)
+        self._assert(api_json, appointment_count=1)
+
+    def test_search_appointments_by_dept_code(self, coe_advisor, client):
+        api_json = _api_search(
+            client,
+            'perfect union',
+            appointments=True,
+            appointment_options={'departmentCodes': ['EGCEE']},
+        )
         self._assert(api_json, appointment_count=1)
 
 
