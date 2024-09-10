@@ -1,10 +1,20 @@
 <template>
+  <div
+    id="announcer"
+    :aria-live="contextStore.screenReaderAlert.politeness"
+    class="sr-only"
+  >
+    {{ contextStore.screenReaderAlert.message }}
+  </div>
   <router-view />
   <DismissibleFooterAlert />
 </template>
 
 <script setup>
 import DismissibleFooterAlert from '@/components/util/DismissibleFooterAlert'
+import {useContextStore} from '@/stores/context'
+
+const contextStore = useContextStore()
 </script>
 
 <style>
