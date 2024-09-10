@@ -70,7 +70,9 @@
             <td
               class="overflow-wrap-break-word pl-0 pt-1"
               :class="{
+                'align-content-start': printable && getNote(bundle),
                 'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
+                'pl-2': isCampusRequirements && isNoteVisible(bundle),
                 'td-name-printable': printable,
                 'td-name': !printable,
                 'pb-1 text-no-wrap vertical-middle': isCampusRequirements
@@ -156,30 +158,30 @@
               v-if="degreeStore.sid"
               :class="{
                 'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
-                'font-size-12 td-note-printable': printable,
-                'pt-2': !bundle.course && degreeStore.sid,
-                'truncate-with-ellipsis font-size-14 td-note': !printable
+                'td-note-printable': printable,
+                'pt-2': !bundle.course && degreeStore.sid && !printable && !isCampusRequirements
               }"
             >
-              <div
-                v-if="printable"
-                :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
-                class="font-size-12"
-                v-html="getNote(bundle)"
-              />
-              <div v-if="!printable && getNote(bundle) && !isNoteVisible(bundle)" class="font-size-14 td-note">
-                <a
+              <div v-if="getNote(bundle)">
+                <div
+                  v-if="printable"
                   :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
-                  class="truncate-with-ellipsis"
-                  href
-                  @click.prevent="showNote(bundle)"
+                  class="font-size-12"
                   v-html="getNote(bundle)"
                 />
+                <div v-if="!printable && !isNoteVisible(bundle)" class="font-size-14 td-note truncate-with-ellipsis">
+                  <a
+                    :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                    href
+                    @click.prevent="showNote(bundle)"
+                    v-html="getNote(bundle)"
+                  />
+                </div>
               </div>
               <div
                 v-if="!getNote(bundle)"
                 :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
-                :class="{'pt-2': isCampusRequirements}"
+                class="font-size-14"
               >
                 &mdash;
               </div>
@@ -685,6 +687,7 @@ table {
   width: 28px !important;
 }
 .td-grade {
+  padding-top: 2px;
   text-transform: capitalize;
   vertical-align: top;
 }
@@ -702,7 +705,7 @@ table {
   max-width: 0;
 }
 .td-note {
-  max-width: 100px;
+  max-width: 60px;
   padding-top: 1px;
   vertical-align: top;
 }
@@ -715,7 +718,7 @@ table {
   width: 50px;
 }
 .td-units {
-  padding: 2px 8px 0 0;
+  padding: 4px 8px 0 0;
   text-align: right;
   vertical-align: top;
   white-space: nowrap;

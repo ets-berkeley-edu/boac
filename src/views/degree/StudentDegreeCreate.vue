@@ -43,7 +43,7 @@
             <ProgressButton
               id="save-degree-check-btn"
               :action="onClickSave"
-              :disabled="!selectedOption"
+              :disabled="isSaving || !selectedOption"
               :in-progress="isSaving"
               :text="isSaving ? 'Saving' : 'Save Degree Check'"
             />
