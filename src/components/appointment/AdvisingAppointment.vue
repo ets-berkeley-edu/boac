@@ -22,16 +22,13 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-
-      <div class="d-flex align-center mt-1 mb-3">
-        <div v-if="appointment.status === 'cancelled'">
-          <div class="font-size-14 my-3 text-error text-uppercase">
-            <v-icon :icon="mdiCalendarMinus" />
-            Canceled
-          </div>
-          <div v-if="appointment.cancelReason" class="mt-1">
-            <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
-          </div>
+      <div v-if="appointment.status === 'cancelled'" class="align-center d-flex mt-3">
+        <div class="align-center d-flex font-size-14 text-error text-uppercase">
+          <v-icon class="mr-1" :icon="mdiCalendarMinus" />
+          Canceled
+        </div>
+        <div v-if="appointment.cancelReason" class="mt-3">
+          <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
         </div>
       </div>
       <div v-if="advisor.name && (appointment.legacySource || appointment.createdBy === 'YCBM')" class="mt-2">
@@ -60,8 +57,8 @@
       <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="mt-3">
         {{ appointment.appointmentType }}
       </div>
-      <div v-if="appointment.topics && size(appointment.topics)">
-        <div class="pill-list-header mt-3 mb-1">{{ size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
+      <div v-if="appointment.topics && size(appointment.topics)" class="mt-3">
+        <div class="pill-list-header mb-1">{{ size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
         <ul class="pill-list pl-0">
           <li
             v-for="(topic, index) in appointment.topics"

@@ -73,7 +73,7 @@
                 'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
                 'td-name-printable': printable,
                 'td-name': !printable,
-                'pb-1 text-no-wrap vertical-center': isCampusRequirements
+                'pb-1 text-no-wrap vertical-middle': isCampusRequirements
               }"
             >
               <span v-if="!bundle.course && bundle.category.isRecommended">
@@ -206,7 +206,7 @@
             <td
               v-if="canEdit && (degreeStore.sid || !isCampusRequirements)"
               class="td-actions"
-              :class="{'vertical-center': !bundle.course && degreeStore.sid}"
+              :class="{'vertical-middle': !bundle.course && degreeStore.sid}"
             >
               <div class="d-flex float-right text-no-wrap">
                 <div class="btn-container">
