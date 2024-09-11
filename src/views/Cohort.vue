@@ -18,18 +18,17 @@
     <div v-if="!showHistory && size(cohortStore.students) && cohortStore.editMode !== 'apply'">
       <div class="align-center d-flex flex-column flex-column-reverse flex-sm-row justify-space-between w-100 pt-2">
         <CuratedGroupSelector
-          :class="{'mt-2': $vuetify.display.smAndDown}"
+          class="mr-auto"
           :context-description="cohortStore.domain === 'default' ? `Cohort ${cohortStore.cohortName || ''}` : `Admitted Students Cohort ${cohortStore.cohortName || ''}`"
           :domain="cohortStore.domain"
           :on-create-curated-group="resetFiltersToLastApply"
           :students="cohortStore.students"
         />
         <div class="d-flex flex-wrap justify-end pr-3">
-          <TermSelector v-if="cohortStore.domain === 'default'" />
+          <TermSelector v-if="cohortStore.domain === 'default'" class="mb-1" />
           <SortBy
             v-if="cohortStore.showSortBy"
-            class="lr-5"
-            :class="{'mt-2': $vuetify.display.smAndDown}"
+            class="ml-5 mb-1"
             :domain="cohortStore.domain"
           />
         </div>

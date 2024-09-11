@@ -4,7 +4,7 @@
     <div>
       <div class="mb-6">
         <div v-if="cohorts.length">
-          <h2 class="page-section-header">
+          <h2 class="page-section-header" tabindex="-1">
             Cohorts
           </h2>
           <v-expansion-panels flat multiple>
@@ -28,7 +28,7 @@
         </div>
       </div>
       <div v-if="_filter(curatedGroups, ['domain', 'default']).length">
-        <h2 class="page-section-header">Curated Groups</h2>
+        <h2 class="page-section-header" tabindex="-1">Curated Groups</h2>
         <v-expansion-panels flat multiple>
           <template
             v-for="curatedGroup in _filter(curatedGroups, ['domain', 'default'])"

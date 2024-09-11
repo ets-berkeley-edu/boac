@@ -3,14 +3,13 @@
     <label id="term-select-label" class="font-size-16 pr-2 text-medium-emphasis" for="students-term-select">
       <span class="sr-only">Select </span>Term
     </label>
-    <div aria-live="polite" class="sr-only" role="alert">
-      Showing enrollments for {{ selected.label }}.
+    <div aria-live="polite" class="sr-only">
+      Showing enrollments for {{ termNameForSisId(selected) }}.
     </div>
     <select
       id="students-term-select"
       v-model="selected"
       class="select-menu students-term-select"
-      @update:model-value="onSelectTerm"
     >
       <option
         v-for="option in options"
@@ -28,7 +27,7 @@
 <script setup>
 import {alertScreenReader} from '@/lib/utils'
 import {get, map} from 'lodash'
-import {nextTick, ref} from 'vue'
+import {nextTick, ref, watch} from 'vue'
 import {previousSisTermId, termNameForSisId} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 
@@ -71,15 +70,15 @@ const termIds = [
 const options = ref(map(termIds, termOptionForId))
 const selected = ref(termOptionForId(get(currentUser, 'preferences.termId')).value)
 
-const onSelectTerm = () => {
+watch(selected, () => {
   if (selected.value !== get(currentUser, 'preferences.termId')) {
     contextStore.updateCurrentUserPreference('termId', selected.value)
     contextStore.broadcast('termId-user-preference-change', selected.value)
-    nextTick(() => {
-      alertScreenReader(`${selected.value.label} selected`)
-    })
   }
-}
+  nextTick(() => {
+    alertScreenReader(`${termNameForSisId (selected.value)} selected`)
+  })
+})
 </script>
 
 <style scoped>

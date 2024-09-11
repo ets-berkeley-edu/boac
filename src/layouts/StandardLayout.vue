@@ -6,12 +6,15 @@
         <v-app-bar
           color="primary"
           elevation="0"
+          role="banner"
+          tag="banner"
           @shortkey="() => putFocusNextTick('search-students-input')"
         >
           <v-app-bar-nav-icon
             v-if="!$vuetify.display.mdAndUp"
             id="app-bar-nav-icon"
             aria-controls="small-viewport-sidebar"
+            :aria-expanded="showSidebar"
             :aria-label="showSidebar ? 'Collapse navigation menu' : 'Expand navigation menu'"
             @click.stop="showSidebar = !showSidebar"
           />
@@ -19,16 +22,22 @@
         </v-app-bar>
         <v-navigation-drawer
           v-if="$vuetify.display.mdAndUp"
+          aria-labelledby="nav-header"
           class="bg-tertiary pt-1 sidebar"
           permanent
           :scrim="false"
+          tag="nav"
         >
+          <template #prepend>
+            <a id="skip-nav-link" class="sr-only" href="#content">skip navigation</a>
+            <h1 id="nav-header" class="sr-only" tabindex="-1">Main Menu</h1>
+          </template>
           <template #append>
             <SidebarFooter v-if="currentUser.canAccessAdvisingData" />
           </template>
           <Sidebar />
         </v-navigation-drawer>
-        <v-main id="content">
+        <v-main role="none">
           <div class="h-100" :class="{'align-center d-flex justify-center': loading}">
             <div v-if="loading" class="loading-container d-flex">
               <div class="my-auto" role="progressbar">
@@ -41,13 +50,22 @@
               </div>
             </div>
             <v-expand-transition>
-              <Sidebar
-                v-if="!$vuetify.display.mdAndUp && showSidebar && !loading"
-                id="small-viewport-sidebar"
-                class="bg-tertiary"
-              />
+              <div v-if="!$vuetify.display.mdAndUp && showSidebar && !loading">
+                <a id="skip-nav-link" class="sr-only" href="#content">skip navigation</a>
+                <h1 id="nav-header" class="sr-only" tabindex="-1">Main Menu</h1>
+                <Sidebar
+                  id="small-viewport-sidebar"
+                  class="bg-tertiary"
+                  role="navigation"
+                />
+              </div>
             </v-expand-transition>
-            <div v-show="!loading" class="w-100">
+            <div
+              v-show="!loading"
+              id="content"
+              class="w-100"
+              role="main"
+            >
               <ServiceAnnouncement />
               <router-view :key="split($route.fullPath, '#', 1)[0]" />
             </div>
@@ -67,6 +85,7 @@
       <footer
         class="pr-8"
         :class="`footer-${$vuetify.display.smAndDown ? 'sm' : ($vuetify.display.mdAndDown ? 'md' : ($vuetify.display.lgAndDown ? 'lg' : 'xl'))}`"
+        role="footer"
       >
         <AppFooter v-if="!loading && !hideFooter" />
       </footer>

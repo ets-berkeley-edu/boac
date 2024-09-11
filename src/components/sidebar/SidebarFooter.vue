@@ -1,21 +1,22 @@
 <template>
   <div
-    class="bg-tertiary px-3 py-0 w-100"
+    class="bg-tertiary py-0 w-100"
     :class="{'fixed-bottom-sidebar': $vuetify.display.mdAndUp, 'z-index-0': !loading}"
   >
-    <LinkToDraftNotes class="pt-2" :class="{'pb-3': currentUser.isAdmin}" />
-    <v-btn
-      v-if="!currentUser.isAdmin"
-      id="batch-note-button"
-      class="mb-5 mt-3 w-100"
-      color="primary"
-      :disabled="!!noteStore.mode"
-      variant="flat"
-      @click="noteStore.setIsCreateNoteModalOpen(true)"
-    >
-      <v-icon class="mr-1" :icon="mdiFileDocument" />
-      New Note
-    </v-btn>
+    <LinkToDraftNotes class="py-2" :class="{'mb-3': currentUser.isAdmin}" />
+    <div v-if="!currentUser.isAdmin" class="pa-3">
+      <v-btn
+        id="batch-note-button"
+        class="w-100"
+        color="primary"
+        :disabled="!!noteStore.mode"
+        variant="flat"
+        @click="noteStore.setIsCreateNoteModalOpen(true)"
+      >
+        <v-icon class="mr-1" :icon="mdiFileDocument" />
+        New Note
+      </v-btn>
+    </div>
   </div>
 </template>
 

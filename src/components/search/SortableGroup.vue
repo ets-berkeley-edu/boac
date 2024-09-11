@@ -33,30 +33,32 @@
             </div>
             <h3 class="page-section-header-sub text-primary">
               <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${groupTypeName} ` }}</span>
-              {{ group.name }}
+              {{ group.name }}<span class="sr-only">: </span>
               (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ group.totalStudentCount }}</span>
-              <span class="sr-only">&nbsp;students</span>)
+              <span class="sr-only">&nbsp;students.</span>)
             </h3>
           </div>
           <div class="d-flex align-center">
             <div v-if="!compact" class="pr-2">
               Total Alerts:
             </div>
-            <PillAlert
+            <PillCount
               v-if="!group.alertCount"
-              :aria-label="`No issues for ${groupTypeName} '${group.name}'`"
+              :id="`sortable-${keyword}-${group.id}-total-alerts-count`"
+              :aria-label="`No alerts for ${groupTypeName} '${group.name}'`"
               color="grey"
             >
               0
-            </PillAlert>
-            <PillAlert
+            </PillCount>
+            <PillCount
               v-if="group.alertCount"
-              :aria-label="`${group.alertCount} alerts for ${groupTypeName} '${group.name}'`"
+              :id="`sortable-${keyword}-${group.id}-total-alerts-count`"
+              :aria-label="`${pluralize('alert', group.alertCount)} for ${groupTypeName} '${group.name}'`"
               class="px-2"
               color="warning"
             >
               {{ group.alertCount }}
-            </PillAlert>
+            </PillCount>
           </div>
         </div>
       </template>
@@ -106,7 +108,7 @@
 </template>
 
 <script setup>
-import PillAlert from '@/components/util/PillAlert'
+import PillCount from '@/components/util/PillCount'
 import SortableStudents from '@/components/search/SortableStudents'
 import {alertScreenReader, pluralize} from '@/lib/utils'
 import {computed, ref} from 'vue'

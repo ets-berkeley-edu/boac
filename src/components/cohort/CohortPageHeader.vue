@@ -21,7 +21,7 @@
         <span
           v-if="cohortStore.editMode !== 'apply' && cohortStore.totalStudentCount !== undefined"
           class="text-grey ml-1"
-        >{{ pluralize(cohortStore.domain === 'admitted_students' ? 'admit' : 'student', cohortStore.totalStudentCount) }}</span>
+        ><span class="sr-only">, </span>{{ pluralize(cohortStore.domain === 'admitted_students' ? 'admit' : 'student', cohortStore.totalStudentCount) }}</span>
       </h1>
       <h1
         v-if="!cohortStore.cohortName && cohortStore.totalStudentCount !== undefined"

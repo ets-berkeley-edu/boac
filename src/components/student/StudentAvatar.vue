@@ -10,8 +10,9 @@
       :style="{backgroundImage: `url(${avatarUrl})`, backgroundRepeat: 'repeat'}"
       @error="avatarError"
     />
-    <PillAlert
+    <PillCount
       v-if="alertCount"
+      :id="`student-avatar-${student.uid}-alert-count`"
       :aria-label="alertText"
       class="student-avatar-alert-count"
       color="warning"
@@ -24,22 +25,23 @@
         location="bottom"
         :text="alertText"
       />
-    </PillAlert>
+    </PillCount>
   </div>
 </template>
 
 <script setup>
 import avatarPlaceholder from '@/assets/avatar-50.png'
 import {isNil} from 'lodash'
+import {pluralize} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 </script>
 
 <script>
-import PillAlert from '@/components/util/PillAlert'
+import PillCount from '@/components/util/PillCount'
 
 export default {
   name: 'StudentAvatar',
-  components: {PillAlert},
+  components: {PillCount},
   props: {
     size: {
       required: true,
@@ -63,7 +65,7 @@ export default {
   }),
   computed: {
     alertText() {
-      return `${this.alertCount} alert${this.alertCount === 1 ? '' : 's'}`
+      return pluralize('alert', this.alertCount)
     }
   },
   created() {

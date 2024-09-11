@@ -6,7 +6,7 @@
     <div class="font-size-14 pr-0">
       <div>
         Problem? Question? Suggestion?
-        Email <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}<span class="sr-only"> (new browser tab will open)</span></a>
+        <a :href="`mailto:${supportEmailAddress}`" target="_blank">Email {{ supportEmailAddress }} <span class="sr-only"> (will open new browser tab)</span></a>
       </div>
       <div>
         &copy; {{ new Date().getFullYear() }} The Regents of the University of California
