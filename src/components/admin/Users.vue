@@ -3,7 +3,7 @@
     <v-container class="pb-0 pl-0 pr-6" fluid>
       <v-row align-v="center" class="pt-2" no-gutters>
         <v-col cols="3">
-          <div class="mr-3">
+          <div class="pr-3">
             <select
               id="user-filter-options"
               v-model="filterType"
@@ -24,7 +24,7 @@
             </select>
           </div>
         </v-col>
-        <v-col cols="5">
+        <v-col cols="9">
           <div v-if="filterType === 'search'">
             <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
             <v-autocomplete
@@ -35,9 +35,9 @@
               color="grey"
               density="compact"
               hide-details
-              :hide-no-data="size(autocompleteInput) < 3 || isFetching || isSuggesting || suggestedUsers.length"
+              :hide-no-data="!!(size(autocompleteInput) < 3 || isFetching || isSuggesting || suggestedUsers.length)"
               :items="suggestedUsers"
-              label="Enter name..."
+              label="Enter name or SID..."
               :maxlength="72"
               :menu-icon="null"
               :model-value="userSelection"
@@ -58,14 +58,15 @@
               </template>
             </v-autocomplete>
           </div>
-          <div v-if="filterType === 'filter'" class="d-flex">
+          <div v-if="filterType === 'filter'" class="d-flex flex-wrap">
             <div class="pr-2">
               <select
                 id="department-select-list"
                 v-model="filterBy.deptCode"
-                class="select-menu"
+                aria-label="department"
+                class="select-menu mb-1"
                 :disabled="isFetching"
-                @update:model-value="fetchUsers"
+                @update:model-value="fetchUsers('user-permission-options')"
               >
                 <option
                   v-for="option in [{id: -1, code: null, name: 'All'}, ...departments]"
@@ -81,9 +82,10 @@
               <select
                 id="user-permission-options"
                 v-model="filterBy.role"
-                class="select-menu"
+                aria-label="user permissions"
+                class="select-menu mb-1"
                 :disabled="isFetching"
-                @update:model-value="fetchUsers"
+                @update:model-value="fetchUsers('user-status-options')"
               >
                 <option
                   v-for="option in [
@@ -105,9 +107,10 @@
               <select
                 id="user-status-options"
                 v-model="filterBy.status"
+                aria-label="user status"
                 class="select-menu"
                 :disabled="isFetching"
-                @update:model-value="fetchUsers"
+                @update:model-value="fetchUsers('user-status-options')"
               >
                 <option
                   v-for="option in [
@@ -134,12 +137,12 @@
           </div>
           <div>
             <v-btn
-              id="quick-link-directors"
+              id="quick-link-ce3-advisors"
               class="font-size-16 px-0"
               color="primary"
               min-width="60"
               variant="text"
-              @click="quickLink('advisor', 'ZCEEE')"
+              @click="quickLink('advisor', 'ZCEEE', 'quick-link-ce3-advisors')"
             >
               CE3
             </v-btn>
@@ -155,7 +158,7 @@
               exact
               min-width="220"
               variant="text"
-              @click="quickLink('advisor', 'COENG')"
+              @click="quickLink('advisor', 'COENG', 'quick-link-coe-advisors')"
             >
               College of Engineering
             </v-btn>
@@ -171,7 +174,7 @@
               exact
               min-width="140"
               variant="text"
-              @click="quickLink('advisor', 'QCADV')"
+              @click="quickLink('advisor', 'QCADV', 'quick-link-qcadv-advisors')"
             >
               L&amp;S Advisors
             </v-btn>
@@ -202,7 +205,7 @@
           {title: '', key: 'data-table-expand', sortable: false},
           {title: 'UID', key: 'uid', sortable: false, align: 'start', headerProps: {class: ['header-text-styling']}},
           {title: '', key: 'edit', align: 'end', sortable: false, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name', 'purple-background']}},
-          {title: 'Last Name', key: 'lastName', align: 'start', sortable: true, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name', 'purple-background']}},
+          {title: 'Name', key: 'lastName', align: 'start', sortable: true, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name', 'purple-background']}},
           {title: 'Departments', key: 'departments', align: 'start', sortable: false, headerProps: {class: ['header-text-styling']}},
           {title: 'Status', key: 'deletedAt', align: 'start', sortable: false, headerProps: {class: ['header-text-styling']}},
           {title: 'Last Login', key: 'lastLogin', align: 'start', sortable: true, cellProps: {class: 'manifest-column-last-login'}, headerProps: {class: ['header-text-styling']}},
@@ -228,7 +231,6 @@
         }"
         show-expand
         @update:sort-by="handleSort"
-        @update:sort-desc="handleSort"
       >
         <template #item.uid="{ item }">
           {{ item.uid }}
@@ -236,8 +238,8 @@
 
         <template #expanded-row="{ columns, item }">
           <tr>
-            <td :colspan="columns.length">
-              <pre>{{ JSON.stringify(item, null, 2) }}</pre>
+            <td class="bg-grey-lighten-4 px-4 pb-4" :colspan="columns.length">
+              <pre class="bg-white pa-2">{{ JSON.stringify(item, null, 2) }}</pre>
             </td>
           </tr>
         </template>
@@ -342,11 +344,11 @@ import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 import {DateTime} from 'luxon'
-import {debounce, find, get, isNil, map, size, trim} from 'lodash'
+import {clone, debounce, find, get, isNil, lowerCase, map, size, trim} from 'lodash'
 import {escapeForRegExp, normalizeId} from '@/lib/utils'
 import {mdiEmail} from '@mdi/js'
 import {mdiLoginVariant, mdiNoteOutline} from '@mdi/js'
-import {onMounted, ref, watch} from 'vue'
+import {ref, watch} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -383,6 +385,9 @@ const users = ref([])
 
 watch(filterType, () => {
   fetchUsers()
+  if (filterType.value === 'search') {
+    putFocusNextTick('search-user-input')
+  }
 })
 
 watch(() => props.refresh, value => {
@@ -390,18 +395,6 @@ watch(() => props.refresh, value => {
     fetchUsers()
   }
 })
-
-onMounted(() => {
-  fetchUsers()
-})
-
-const handleSort = sortBy => {
-  if (sortBy.length) {
-    sortBy.value = sortBy[0].key
-    sortDesc.value = sortBy[0].order !== 'asc'
-    fetchUsers() // Method to fetch users with new sorting parameters
-  }
-}
 
 const afterCancelUpdateUser = profile => {
   alertScreenReader('Canceled')
@@ -428,6 +421,54 @@ const canBecome = user => {
   return contextStore.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
 }
 
+const fetchUsers = (returnFocusId=null) => {
+  const isValidSelection = (filterType.value !== 'search') || get(userSelection.value, 'value.uid')
+  if (isValidSelection) {
+    const sortDescription = sortBy.value ? `; sorted by ${lowerCase(clone(sortBy.value))}, ${sortDesc.value ? 'descending' : 'ascending'}` : ''
+    isFetching.value = true
+    totalUserCount.value = 0
+    users.value = []
+    switch(filterType.value) {
+    case 'admins':
+      getAdminUsers(sortBy.value, sortDesc.value, false).then(data => {
+        users.value = data.users
+        totalUserCount.value = data.totalUserCount
+        isFetching.value = false
+        alertScreenReader(`Admin users loaded${sortDescription}`)
+        putFocusNextTick('user-filter-options')
+      })
+      break
+    case 'filter':
+      getUsers(
+        isNil(filterBy.value.status) ? null : filterBy.value.status === 'blocked',
+        isNil(filterBy.value.status) ? null : filterBy.value.status === 'deleted',
+        filterBy.value.deptCode,
+        filterBy.value.role,
+        sortBy.value,
+        sortDesc.value
+      ).then(data => {
+        const department = find(props.departments, {'code': filterBy.value.deptCode})
+        users.value = data.users
+        totalUserCount.value = data.totalUserCount
+        isFetching.value = false
+        alertScreenReader(`${department.name} users loaded${sortDescription}`)
+        putFocusNextTick(returnFocusId || 'department-select-list')
+      })
+      break
+    case 'search':
+      getUserByUid(userSelection.value.value.uid, false).then(data => {
+        users.value = [data]
+        totalUserCount.value = 1
+        isFetching.value = false
+        userSelection.value = null
+        alertScreenReader(`Search results loaded${sortDescription}`)
+        putFocusNextTick('search-user-input')
+      })
+      break
+    }
+  }
+}
+
 const getUserStatuses = user => {
   const statuses = user.deletedAt ? ['Deleted'] : ['Active']
   if (user.isBlocked) {
@@ -437,6 +478,18 @@ const getUserStatuses = user => {
     statuses.push('Expired, according to CalNet.')
   }
   return statuses
+}
+
+const handleSort = sortKeys => {
+  const sortKey = get(sortKeys, 0)
+  if (sortKey) {
+    sortBy.value = sortKey.key
+    sortDesc.value = sortKey.order !== 'asc'
+  } else {
+    sortBy.value = null
+    sortDesc.value = false
+  }
+  fetchUsers() // Fetch users with new sorting parameters
 }
 
 const onUpdateAutocompleteModel = user => {
@@ -455,7 +508,7 @@ const onUpdateSearch = debounce(query => {
   }
 }, 500)
 
-const quickLink = (role, deptCode=null) => {
+const quickLink = (role, deptCode=null, returnFocusId) => {
   filterType.value = 'filter'
   filterBy.value = {
     deptCode: deptCode,
@@ -463,48 +516,7 @@ const quickLink = (role, deptCode=null) => {
     searchPhrase: '',
     status: 'active'
   }
-  fetchUsers()
-}
-
-const fetchUsers = () => {
-  const isValidSelection = (filterType.value !== 'search') || get(userSelection.value, 'value.uid')
-  if (isValidSelection) {
-    isFetching.value = true
-    totalUserCount.value = 0
-    users.value = []
-    switch(filterType.value) {
-    case 'admins':
-      getAdminUsers(sortBy.value, sortDesc.value, false).then(data => {
-        users.value = data.users
-        totalUserCount.value = data.totalUserCount
-        isFetching.value = false
-      })
-      break
-    case 'filter':
-      getUsers(
-        isNil(filterBy.value.status) ? null : filterBy.value.status === 'blocked',
-        isNil(filterBy.value.status) ? null : filterBy.value.status === 'deleted',
-        filterBy.value.deptCode,
-        filterBy.value.role,
-        sortBy.value,
-        sortDesc.value
-      ).then(data => {
-        users.value = data.users
-        totalUserCount.value = data.totalUserCount
-        isFetching.value = false
-      })
-      break
-    case 'search':
-      getUserByUid(userSelection.value.value.uid, false).then(data => {
-        users.value = [data]
-        totalUserCount.value = 1
-        isFetching.value = false
-        userSelection.value = null
-      })
-      putFocusNextTick('search-user-input')
-      break
-    }
-  }
+  fetchUsers(returnFocusId)
 }
 </script>
 
@@ -518,70 +530,57 @@ const fetchUsers = () => {
   background-color: #bee5eb;
   font-weight: 900;
 }
-.on-top-of-table {
-  z-index: 1000;
-  position: relative;
-  top: -17px;
-}
-.table-wrapper {
-  position: relative;
-  top: -44px;
-}
 </style>
 
 <style scoped>
-.quick-links-label {
-  font-size: 18px;
-  font-weight: 600;
-  padding-bottom: 2px;
+:deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
+  height: 40px !important;
 }
-.user-dept-membership-table td {
-  border: none;
-  padding: 5px 20px 5px 0;
+.advising-data {
+  position: relative;
+  left: -8px;
 }
-.user-dept-membership-table th {
-  border: none;
-  color: #aaa;
-  font-weight: normal;
-  padding: 5px 20px 5px 0;
+.c-letter {
+  position: relative;
+  top: 1px;
+  left: 1px;
 }
-.purple-background {
-  background-color: #9bcbfb;
-  color: #377eb6;
-  font-weight: 900;
-}
-.light-green-background {
-  background-color: #bee5eb;
-  font-weight: 900;
-}
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .header-text-styling {
   font-weight: 900;
   font-size: 14px;
   position: relative;
   top: 16px;
 }
-.v-table tbody tr:nth-child(odd) {
-  background-color: rgba(0, 0, 0, .05);
+.icons {
+  position: relative;
+  top: -1px;
+  display: inline-block;
 }
-.v-table tbody tr:nth-child(even) {
-  background-color: white;
+.name {
+  position: relative;
+  display: inline-block;
 }
-.v-table tbody tr {
-  padding: 12px 0px;
+.name-container {
+  position: relative;
+  top: -1px;
 }
-.v-data-table__td--expanded-row {
-  color: #337ab7;
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
+.purple-background {
+  background-color: #9bcbfb;
+  color: #377eb6;
+  font-weight: 900;
+}
+.quick-links-label {
+  font-size: 18px;
+  font-weight: 600;
+  padding-bottom: 2px;
 }
 .row-padding {
   padding: 12px !important;
 }
-:deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
-  height: 40px !important;
-}
-.c-letter {
-  position: relative;
-  top: 1px;
-  left: 1px;
+.select-menu {
+  height: 40px;
 }
 .slash {
   position: relative;
@@ -597,25 +596,5 @@ const fetchUsers = () => {
   font-size: 22px;
   color: red;
   z-index: 100;
-}
-.advising-data {
-  position: relative;
-  left: -8px;
-}
-.name-container {
-  position: relative;
-  top: -1px;
-}
-.icons {
-  position: relative;
-  top: -1px;
-  display: inline-block;
-}
-.name {
-  position: relative;
-  display: inline-block;
-}
-:deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
-  height: 0px !important;
 }
 </style>

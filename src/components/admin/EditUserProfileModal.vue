@@ -8,7 +8,7 @@
       :icon="mdiNoteEditOutline"
       variant="text"
       width="20"
-      @click="openEditUserModal"
+      @click.stop.prevent="openEditUserModal"
     >
     </v-btn>
     <v-btn
@@ -18,7 +18,7 @@
       color="primary"
       :prepend-icon="mdiPlus"
       text="Add New User"
-      @click="openEditUserModal"
+      @click.stop.prevent="openEditUserModal"
     />
     <v-dialog
       v-model="showEditUserModal"
@@ -28,29 +28,43 @@
       <v-card
         class="modal-content"
         max-width="600"
-        min-width="600"
+        min-width="400"
       >
         <FocusLock @keydown.esc="cancel">
           <v-card-title>
             <ModalHeader :text="isExistingUser ? profile.name : 'Create User'" />
           </v-card-title>
           <v-card-text class="modal-body">
-            <div
-              v-if="error"
-              class="mb-2 mt-1 text-error"
+            <v-alert
+              v-if="size(errors)"
+              id="edit-user-error"
               aria-live="polite"
-              role="alert"
+              class="mt-1 mb-4"
+              closable
+              density="compact"
+              :icon="mdiAlert"
+              type="error"
+              variant="tonal"
+              @click:close="alertScreenReader('Alert dismissed')"
             >
-              <span class="font-weight-bolder text-error">Error: {{ error }}</span>
-            </div>
+              <span class="font-weight-bold">Error: </span><template v-if="size(errors) === 1">{{ errors[0] }}</template>
+              <template v-else>
+                <ul class="list-bullets">
+                  <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
+                </ul>
+              </template>
+            </v-alert>
             <div v-if="!isExistingUser" class="align-items-center pb-3">
               <label for="uid-input" class="sr-only">U I D </label>
               <v-text-field
                 id="uid-input"
                 v-model="userProfile.uid"
+                :error="isUidInvalid"
                 hide-details
                 label="UID"
                 width="50%"
+                @keydown.enter.prevent="save"
+                @update:model-value="isUidInvalid = false"
               />
             </div>
             <div class="pb-3">
@@ -102,11 +116,11 @@
                 </div>
               </div>
             </div>
+            <hr class="mb-3" />
             <div
               v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission"
               class="pb-3"
             >
-              <hr class="mb-3" />
               <label class="font-weight-black" for="degree-progress-permission-select">Degree Progress Permission</label>
               <div class="mt-1">
                 <select
@@ -136,35 +150,41 @@
               </div>
             </div>
             <h4 class="font-size-18">Departments</h4>
-            <div
+            <v-card
               v-for="dept in memberships"
               :key="dept.code"
-              class="pt-2"
+              class="my-2"
+              flat
+              variant="tonal"
             >
-              <div class="align-center d-flex">
-                <h5 class="font-size-16">{{ dept.name }} ({{ dept.code }})</h5>
+              <v-card-title class="align-center d-flex">
+                <h5 class="text-wrap font-size-16">{{ dept.name }} ({{ dept.code }})</h5>
                 <v-btn
                   :id="`remove-department-${dept.code}`"
                   :aria-label="`Remove department '${dept.name}'`"
-                  class="px-0 text-error"
+                  class="align-self-start ml-auto text-error"
+                  density="comfortable"
                   :icon="mdiCloseCircleOutline"
+                  title="Remove"
                   variant="flat"
                   @click="() => removeDepartment(dept.code)"
                 />
-              </div>
-              <div class="w-100">
+              </v-card-title>
+              <v-card-text>
                 <div class="align-center d-flex pl-8">
-                  <label class="font-weight-black mr-2" :for="`select-department-${dept.code}-role`">Role:</label>
+                  <label class="font-weight-black mr-2" :for="`select-department-${dept.code}-role`">Role</label>
                   <select
                     :id="`select-department-${dept.code}-role`"
                     v-model="dept.role"
-                    class="select-menu w-25"
+                    class="select-menu select-department-role"
+                    :class="{'border border-error border-opacity-100 text-error': includes(map(membershipsMissingRoles, 'code'), dept.code)}"
+                    @change="remove(membershipsMissingRoles, {'code': dept.code})"
                   >
                     <option
                       id="department-role-null"
                       :value="null"
                     >
-                      Select...
+                      Select Role...
                     </option>
                     <option
                       v-for="option in roles"
@@ -176,18 +196,22 @@
                     </option>
                   </select>
                 </div>
-                <div class="pl-7">
+                <div class="pl-8 pt-1">
                   <v-checkbox
                     :id="`is-automate-membership-${dept.code}`"
                     v-model="dept.automateMembership"
-                    density="compact"
+                    class="automate-membership-checkbox"
                     color="primary"
-                    label="Automated"
+                    density="compact"
                     hide-details
-                  />
+                  >
+                    <template #label>
+                      <span class="pl-1">Automated</span>
+                    </template>
+                  </v-checkbox>
                 </div>
-              </div>
-            </div>
+              </v-card-text>
+            </v-card>
             <div v-if="memberships.length >= 3">
               <span class="text-info"><v-icon class="mb-1" :icon="mdiCheckBold" /> Three departments is enough!</span>
             </div>
@@ -199,7 +223,7 @@
                 @change="addDepartment"
               >
                 <option id="department-null" :value="undefined">
-                  Select...
+                  Select Department...
                 </option>
                 <option
                   v-for="option in departmentOptions"
@@ -239,16 +263,12 @@
 import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton.vue'
+import {alertScreenReader, oxfordJoin, putFocusNextTick, scrollTo} from '@/lib/utils'
 import {computed, ref} from 'vue'
 import {createOrUpdateUser} from '@/api/user'
-import {each, filter as _filter, find, get, isNil, map} from 'lodash'
+import {each, filter as _filter, find, get, includes, isNil, lowerCase, map, remove, size} from 'lodash'
 import {isCoe} from '@/berkeley'
-import {lowerCase} from 'lodash'
-import {mdiCloseCircleOutline} from '@mdi/js'
-import {mdiCheckBold} from '@mdi/js'
-import {mdiNoteEditOutline} from '@mdi/js'
-import {mdiPlus} from '@mdi/js'
-import {oxfordJoin, putFocusNextTick} from '@/lib/utils'
+import {mdiAlert, mdiCheckBold, mdiCloseCircleOutline, mdiNoteEditOutline, mdiPlus} from '@mdi/js'
 
 const props = defineProps({
   afterCancel: {
@@ -277,9 +297,11 @@ const props = defineProps({
 
 const departmentOptions = ref(undefined)
 const deptCode = ref(undefined)
-const error = ref(undefined)
+const errors = ref([])
 const isDeleted = ref(undefined)
 const isSaving = ref(false)
+const isUidInvalid = ref(false)
+const membershipsMissingRoles = ref([])
 const memberships = ref([])
 const showEditUserModal = ref(false)
 const userProfile = ref({})
@@ -316,9 +338,15 @@ const cancel = () => {
   props.afterCancel(props.profile)
 }
 
+const clearErrors = () => {
+  errors.value = []
+  isUidInvalid.value = false
+  membershipsMissingRoles.value = []
+}
+
 const closeModal = () => {
+  clearErrors()
   showEditUserModal.value = false
-  error.value = undefined
   userProfile.value = {}
   memberships.value = []
 }
@@ -368,11 +396,16 @@ const removeDepartment = deptCode => {
 }
 
 const save = () => {
-  const undefinedRoles = _filter(memberships.value, r => isNil(r.role))
-  if (undefinedRoles.length) {
-    const deptNames = map(undefinedRoles, 'name')
-    error.value = `Please specify role for ${oxfordJoin(deptNames)}`
-  } else {
+  clearErrors()
+  membershipsMissingRoles.value = _filter(memberships.value, r => isNil(r.role))
+  if (!userProfile.value.uid) {
+    errors.value.push('UID is required')
+    isUidInvalid.value = true
+  } if (membershipsMissingRoles.value.length) {
+    const deptNames = map(membershipsMissingRoles.value, 'name')
+    errors.value.push(`Please specify role for ${oxfordJoin(deptNames)}`)
+  }
+  if (!isUidInvalid.value && !membershipsMissingRoles.value.length) {
     isSaving.value = true
     // If no change in deleted status then do not update 'deleted_at' in the database.
     const deleteAction = isDeleted.value === !!props.profile.deletedAt ? null : isDeleted.value
@@ -380,10 +413,36 @@ const save = () => {
       props.afterUpdateUser(props.profile)
       closeModal()
     }).catch(error => {
-      error.value = get(error, 'response.data.message') || error
+      const message = get(error, 'response.data.message', error)
+      errors.value.push(message)
+      if (includes(message, 'UID')) {
+        isUidInvalid.value = true
+      }
     }).finally(() => {
       isSaving.value = false
+      if (size(errors.value)) {
+        scrollTo('edit-user-error')
+      }
     })
   }
 }
 </script>
+
+<style scoped>
+hr {
+  margin-left: -24px;
+  margin-right: -24px
+}
+.select-department-role {
+  background-color: rgb(var(--v-theme-surface));
+  min-width: 120px;
+  z-index: 1;
+}
+</style>
+
+<style>
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
+.automate-membership-checkbox .v-label {
+  opacity: var(--v-high-emphasis-opacity) !important;
+}
+</style>

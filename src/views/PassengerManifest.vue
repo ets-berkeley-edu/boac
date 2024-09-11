@@ -1,22 +1,23 @@
 <template>
   <div v-if="!contextStore.loading" class="default-margins">
-    <div class="align-center d-flex">
-      <div class="pr-2">
-        <v-icon color="primary" :icon="mdiContacts" size="x-large" />
+    <div class="d-flex flex-wrap">
+      <div class="align-center d-flex">
+        <div class="pr-2">
+          <v-icon color="primary" :icon="mdiContacts" size="x-large" />
+        </div>
+        <h1 id="dept-users-section" class="mb-0 mr-3 page-section-header text-no-wrap">
+          Passenger Manifest
+        </h1>
+        <div class="pr-3">
+          <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${contextStore.config.apiBaseUrl}/api/users/csv`">download</a>)</span>
+        </div>
       </div>
-      <h1 id="dept-users-section" class="mb-0 mr-3 page-section-header">
-        Passenger Manifest
-      </h1>
-      <div>
-        <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${contextStore.config.apiBaseUrl}/api/users/csv`">download</a>)</span>
-      </div>
-      <div class="flex-grow-1 text-right">
-        <EditUserProfileModal
-          :after-cancel="afterCancelCreateUser"
-          :after-update-user="afterCreateUser"
-          :departments="departments"
-        />
-      </div>
+      <EditUserProfileModal
+        :after-cancel="afterCancelCreateUser"
+        :after-update-user="afterCreateUser"
+        class="ml-auto"
+        :departments="departments"
+      />
     </div>
     <Users :departments="departments" :refresh="refreshUsers" />
   </div>

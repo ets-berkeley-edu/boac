@@ -168,12 +168,9 @@ const modelProxy = ref(props.note || noteStore.model)
 const attachmentLimitReached = computed(() => {
   return size(model.value.attachments) >= contextStore.config.maxAttachmentsPerNote
 })
-const inputId = computed(() => {
-  return `${props.idPrefix}choose-file-for-note-attachment`
-})
-const progressBarId = computed(() => {
-  return `${props.idPrefix}note-attachment-progress`
-})
+
+const inputId = `${props.idPrefix}choose-file-for-note-attachment`
+const progressBarId = `${props.idPrefix}note-attachment-progress`
 let progressBarAlert
 
 watch(isAdding, v => {
@@ -184,7 +181,7 @@ watch(isAdding, v => {
     const el = attachmentFileInput.value.$el
     const progressBar = el && el.querySelector('.v-progress-linear')
     if (progressBar) {
-      const id = progressBarId.value
+      const id = progressBarId
       progressBar.removeAttribute('aria-valuemin')
       progressBar.removeAttribute('aria-valuemax')
       progressBar.setAttribute('aria-label', 'Attachment file upload')
@@ -193,13 +190,13 @@ watch(isAdding, v => {
       progressBar.setAttribute('id', id)
       putFocusNextTick(id)
     } else {
-      putFocusNextTick(inputId.value)
+      putFocusNextTick(inputId)
     }
   }
   else {
     if (progressBarAlert) {
       clearInterval(progressBarAlert)
-      putFocusNextTick(inputId.value)
+      putFocusNextTick(inputId)
     }
   }
 })
@@ -248,7 +245,7 @@ const onRemoveAttachment = index => {
     const nextFocusIndex = (index === lastItemIndex ) ? index - 1 : index
     putFocusNextTick(`remove-${props.idPrefix}attachment-${nextFocusIndex}-btn`)
   } else {
-    putFocusNextTick(inputId.value)
+    putFocusNextTick(inputId)
   }
   props.removeAttachment(index)
 }

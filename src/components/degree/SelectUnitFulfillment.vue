@@ -28,7 +28,7 @@
       </label>
       <ul
         :id="`column-${position}-unit-requirement-list`"
-        class="mb-2 pill-list pl-0"
+        class="mb-2 list-style-none pl-0"
       >
         <li
           v-for="(unitRequirement, index) in selected"
