@@ -3,7 +3,7 @@
     v-show="isOpen"
     flat
   >
-    <div class="align-center d-flex flex-column flex-md-row align-top">
+    <div class="align-center align-top d-flex flex-wrap">
       <v-text-field
         v-if="isOpen"
         id="rename-cohort-input"
