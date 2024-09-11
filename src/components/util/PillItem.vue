@@ -20,6 +20,7 @@
         density="compact"
         :disabled="disabled"
         :icon="mdiCloseCircle"
+        title="Remove"
         variant="text"
         @click.stop.prevent="onClickClose"
       />

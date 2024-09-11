@@ -55,7 +55,7 @@
         </div>
         <div class="align-start d-flex mt-3 w-100">
           <div>
-            <ul v-if="addedStudents.length" class="mb-2 pill-list pl-0">
+            <ul v-if="addedStudents.length" class="mb-2 list-style-none pl-0">
               <li
                 v-for="(addedStudent, index) in addedStudents"
                 :key="addedStudent.sid"

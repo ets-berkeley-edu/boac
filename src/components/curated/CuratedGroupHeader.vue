@@ -62,7 +62,7 @@
         <div v-if="ownerId === currentUser.id">
           <v-btn
             id="bulk-add-sids-button"
-            class="px-1"
+            class="font-size-15 px-1"
             color="anchor"
             variant="text"
             @click="enterBulkAddMode"
@@ -127,7 +127,7 @@
           <v-btn
             v-if="domain === 'default'"
             id="export-student-list-button"
-            class="px-1 text-primary"
+            class="font-size-15 px-1 text-primary"
             :disabled="!exportEnabled || !totalStudentCount"
             text="Export List"
             variant="text"
@@ -136,7 +136,7 @@
           <v-btn
             v-if="domain === 'admitted_students'"
             id="export-student-list-button"
-            class="px-1 text-primary"
+            class="font-size-15 px-1 text-primary"
             :disabled="!exportEnabled || !totalStudentCount"
             text="Export List"
             variant="text"

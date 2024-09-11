@@ -59,7 +59,7 @@
       </div>
       <div v-if="appointment.topics && size(appointment.topics)" class="mt-3">
         <div class="pill-list-header mb-1">{{ size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
-        <ul class="pill-list pl-0">
+        <ul class="list-style-none pl-0">
           <li
             v-for="(topic, index) in appointment.topics"
             :id="`appointment-${appointment.id}-topic-${index}`"
@@ -71,7 +71,7 @@
         </ul>
       </div>
       <div>
-        <ul class="pill-list pl-0 mt-3">
+        <ul class="list-style-none pl-0 mt-3">
           <li
             v-for="(attachment, index) in appointment.attachments"
             :id="`appointment-${appointment.id}-attachment-${index}`"

@@ -31,7 +31,7 @@
         {{ object.name }}&nbsp;&nbsp;({{ pluralize('student', object.totalStudentCount) }})
       </option>
     </select>
-    <ul :id="`batch-degree-check-${objectType}-list`" class="mb-2 pill-list pl-0 w-75">
+    <ul :id="`batch-degree-check-${objectType}-list`" class="mb-2 list-style-none pl-0 w-75">
       <li
         v-for="(addedObject, index) in added"
         :key="index"

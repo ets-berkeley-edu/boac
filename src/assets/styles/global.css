@@ -154,6 +154,9 @@
 .light-blue-background {
   background: #e3f5ff;
 }
+.list-bullets {
+  list-style-position: inside;
+}
 .list-group-item-info {
   color: #31708f;
   background-color: #d9edf7;
@@ -179,7 +182,7 @@
 .modal-content {
   background-color: #fff !important;
   margin: auto auto 24px auto !important;
-  min-width: 40% !important;
+  min-width: 40%;
   padding: 16px 6px 18px !important;
 }
 .modal-footer {
@@ -232,9 +235,6 @@
 .pill-attachment button {
   margin-top: .02rem;
 }
-.pill-list {
-  list-style-type: none;
-}
 .pill-list-header {
   font-size: 16px;
   font-weight: 800;
@@ -274,6 +274,8 @@
   margin-bottom: 1rem;
 }
 .select-menu {
+  --v-field-border-opacity: 0.38;
+  --v-field-border-width: 1px;
   -moz-appearance: none;
   -webkit-appearance: none;
   appearance: none;
@@ -281,10 +283,10 @@
   background-position: 100% 50%;
   background-repeat: no-repeat;
   background-size: auto 15%;
-  border: 1px solid #ced4da;
+  border: var(--v-field-border-width) solid rgba(var(--v-border-color), var(--v-field-border-opacity));
   border-radius: .25rem;
   box-shadow: inset 0 -1.3em 1em 0 rgba(0, 0, 0, 0.02);
-  color: #495057;
+  color: rgba(var(--v-theme-on-surface),var(--v-high-emphasis-opacity));
   display: inline-block;
   font-size: 1rem;
   font-weight: 400;
@@ -292,8 +294,12 @@
   line-height: 1.5;
   padding: .375rem 1.75rem .375rem .75rem;
   vertical-align: middle;
+  &:hover {
+    --v-field-border-opacity: var(--v-high-emphasis-opacity);
+  }
   &:focus {
-    border-color : #aaaaaa;
+    --v-field-border-width: 1.875px;
+    --v-field-border-opacity: 1;
     outline      : 0;
     box-shadow   : inset 0 -1.3em 1em 0 rgba(0, 0, 0, 0.02);
   }
@@ -443,7 +449,7 @@ hr {
   margin-top: 1rem;
   margin-bottom: 1rem;
   border: 0;
-  border-top: 1px solid rgba(0,0,0,.1)
+  border-top: 1px solid rgba(0, 0, 0, .1)
 }
 table, th, td {
   border: none !important;
