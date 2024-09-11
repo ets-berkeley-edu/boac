@@ -18,14 +18,20 @@
     <div v-if="!showHistory && size(cohortStore.students) && cohortStore.editMode !== 'apply'">
       <div class="align-center d-flex flex-column flex-column-reverse flex-sm-row justify-space-between w-100 pt-2">
         <CuratedGroupSelector
+          :class="{'mt-2': $vuetify.display.smAndDown}"
           :context-description="cohortStore.domain === 'default' ? `Cohort ${cohortStore.cohortName || ''}` : `Admitted Students Cohort ${cohortStore.cohortName || ''}`"
           :domain="cohortStore.domain"
           :on-create-curated-group="resetFiltersToLastApply"
           :students="cohortStore.students"
         />
         <div class="d-flex flex-wrap justify-end pr-3">
-          <TermSelector v-if="cohortStore.domain === 'default'" class="mr-5" />
-          <SortBy v-if="cohortStore.showSortBy" :domain="cohortStore.domain" />
+          <TermSelector v-if="cohortStore.domain === 'default'" />
+          <SortBy
+            v-if="cohortStore.showSortBy"
+            class="lr-5"
+            :class="{'mt-2': $vuetify.display.smAndDown}"
+            :domain="cohortStore.domain"
+          />
         </div>
       </div>
       <div v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage" :class="{'mt-6': cohortStore.domain === 'default'}">

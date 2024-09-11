@@ -8,6 +8,7 @@
       v-if="isExistingFilter"
       :id="`existing-filter-${position}`"
       class="existing-filter-name font-weight-500 ml-4"
+      :class="{'pt-8': $vuetify.display.smAndDown}"
     >
       {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
@@ -22,7 +23,11 @@
         type="primary"
       />
     </div>
-    <div v-if="!isModifyingFilter" class="font-weight-500 truncate-with-ellipsis w-40">
+    <div
+      v-if="!isModifyingFilter"
+      class="font-weight-500 truncate-with-ellipsis w-40"
+      :class="{'pt-6': $vuetify.display.smAndDown}"
+    >
       <span class="sr-only">Selected filter value is </span>
       <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
       <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
@@ -151,6 +156,7 @@
             :id="`remove-added-filter-${position}`"
             class="text-uppercase"
             color="primary"
+            :disabled="!!cohortStore.editMode"
             text="Remove"
             variant="text"
             @click="remove"
