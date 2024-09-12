@@ -152,9 +152,15 @@ const contextStore = useContextStore()
 const config = contextStore.config
 const currentUser = contextStore.currentUser
 const eventHandlers = {
-  'note-created': () => reloadDraftNotes(),
+  'note-created': note => {
+    reloadDraftNotes().then(() => putFocusNextTick(`open-draft-note-${note.id}`))
+  },
   'note-deleted': noteId => find(myDraftNotes.value, ['id', noteId]) && reloadDraftNotes(),
-  'note-updated': note => find(myDraftNotes.value, ['id', note.id]) && reloadDraftNotes()
+  'note-updated': note => {
+    if (find(myDraftNotes.value, ['id', note.id])) {
+      reloadDraftNotes().then(() => putFocusNextTick(`open-draft-note-${note.id}`))
+    }
+  }
 }
 const headers = []
 const isDeleteDialogOpen = ref(false)
@@ -187,15 +193,8 @@ onMounted(() => {
 
 onUnmounted(() => each(eventHandlers, (handler, eventType) => contextStore.removeEventHandler(eventType, handler)))
 
-const afterEditDraft = data => {
-  const existing = find(myDraftNotes.value, ['id', data.id])
-  if (existing) {
-    Object.assign(existing, data)
-    reloadDraftNotes().then(() => isEditDialogOpen.value = false)
-  } else {
-    isEditDialogOpen.value = false
-  }
-  putFocusNextTick(`open-draft-note-${data.id}`)
+const afterEditDraft = () => {
+  isEditDialogOpen.value = false
 }
 
 const cancel = () => {
