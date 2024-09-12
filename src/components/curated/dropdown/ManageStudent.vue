@@ -10,6 +10,7 @@
           :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)"
           v-bind="props"
           :append-icon="(buttonVariant && !groupsLoading && !isAdding && !isRemoving) ? mdiMenuDown : undefined"
+          :aria-label="`Add ${student.name} to a curated group`"
           :color="isAdding ? 'success' : (isRemoving ? 'red' : 'primary')"
           :variant="buttonVariant"
         >

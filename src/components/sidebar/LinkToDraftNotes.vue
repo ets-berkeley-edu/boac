@@ -1,54 +1,30 @@
 <template>
-  <div class="align-center d-flex justify-space-between link-container">
+  <div class="align-center d-flex justify-space-between pretty-hover">
     <NavLink
       id="link-to-draft-notes"
-      class="font-size-18 font-weight-bold truncate-with-ellipsis"
+      class="font-size-18 font-weight-bold text-secondary truncate-with-ellipsis"
       path="/note/drafts"
     >
-      Draft Notes
-    </NavLink>
-    <div>
-      <span
-        id="draft-note-count"
-        class="sidebar-pill"
-      >{{ get(currentUser, 'myDraftNoteCount') }}<span class="sr-only">{{ pluralize('draft', get(currentUser, 'myDraftNoteCount')) }}</span>
+      Draft notes<span class="sr-only">: {{ pluralize('draft', get(currentUser, 'myDraftNoteCount')) }}
       </span>
-    </div>
+    </NavLink>
+    <PillCount
+      id="sidebar-draft-notes-count"
+      :aria-hidden="true"
+      class="text-quaternary sidebar-pill"
+      color="secondary"
+    >
+      {{ get(currentUser, 'myDraftNoteCount') }}
+    </PillCount>
   </div>
 </template>
 
 <script setup>
-import NavLink from '@/components/util/NavLink.vue'
+import NavLink from '@/components/util/NavLink'
+import PillCount from '@/components/util/PillCount'
 import {get} from 'lodash'
 import {pluralize} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const currentUser = useContextStore().currentUser
 </script>
-
-<style scoped>
-.link-container {
-  color: #8bbdda;
-  font-size: 16px;
-}
-.link-container:hover,
-.link-container:focus,
-.link-container:active {
-  border: 0;
-  color: #f0ad4e;
-  text-decoration: none;
-  -moz-outline-style: none;
-}
-.link-container:hover .sidebar-pill,
-.link-container:focus .sidebar-pill,
-.link-container:active .sidebar-pill {
-  color: #083456;
-}
-.link-container a:link,
-.link-container a:visited {
-  text-decoration: none;
-  border: 0;
-  color: inherit;
-  -moz-outline-style: none;
-}
-</style>

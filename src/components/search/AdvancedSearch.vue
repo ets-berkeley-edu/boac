@@ -1,5 +1,5 @@
 <template>
-  <div class="align-center d-flex">
+  <div class="align-center d-flex" role="search">
     <div class="mr-2">
       <label for="search-students-input" class="sr-only">
         {{ labelForSearchInput() }}

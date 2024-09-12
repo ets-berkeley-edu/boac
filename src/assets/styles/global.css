@@ -250,28 +250,11 @@
   padding: 0 4px 0 4px;
   text-align: center;
 }
-.pill-alerts-nonzero {
-  background-color: #f0ad4e;
-}
-.pill-alerts-zero {
-  background-color: #ccc;
-}
-.pill-alerts-per-student {
-  color: #f0ad4e;
-}
 .position-relative {
   position: relative;
 }
 .scrollbar-gutter-stable {
   scrollbar-gutter: stable !important;
-}
-.section-divider {
-  background-color: #4a90e2;
-  border: none;
-  color: #4a90e2;
-  height: 1px;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
 }
 .select-menu {
   --v-field-border-opacity: 0.38;
@@ -305,16 +288,10 @@
   }
 }
 .sidebar-pill {
-  background-color: rgb(var(--v-theme-secondary));
-  border-radius: 10px;
-  color: rgb(var(--v-theme-quaternary));
-  display: inline-block;
-  font-size: 16px;
-  font-weight: 800;
-  height: 20px;
+  height: 20px !important;
   line-height: 20px;
-  padding: 0 4px 0 4px;
-  text-align: center;
+  margin-left: 0.1rem;
+  padding: 0 4px 0 4px !important;
 }
 .sortable-table-header {
   color: #666;

@@ -1,6 +1,7 @@
 <template>
   <div
     v-if="showRow"
+    :id="`filter-row-${position}`"
     class="align-center d-flex flex-wrap mt-2 w-100"
     :class="{'filter-row': isExistingFilter}"
   >
@@ -61,6 +62,7 @@
         <AccessibleDateInput
           :aria-describedby="`filter-range-min-placeholder-${position}`"
           aria-label="&quot;from&quot; date"
+          :container-id="`filter-row-${position}`"
           :get-value="() => rangeMin"
           :id-prefix="`filter-range-min-${position}`"
           :max-date="rangeMax"
@@ -76,6 +78,7 @@
         <AccessibleDateInput
           :aria-describedby="`filter-range-max-placeholder-${position}`"
           aria-label="&quot;to&quot; date"
+          :container-id="`filter-row-${position}`"
           :get-value="() => rangeMax"
           :id-prefix="`filter-range-max-${position}`"
           :min-date="rangeMin"

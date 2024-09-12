@@ -1,7 +1,8 @@
 <template>
   <v-chip
+    :id="id"
     :aria-label="ariaLabel"
-    class="border-sm pill-alert"
+    class="border-sm pill-count"
     :class="{'pill-color-override': outlined}"
     :color="color"
     density="comfortable"
@@ -14,12 +15,17 @@
 <script setup>
 defineProps({
   ariaLabel: {
-    required: true,
+    default: undefined,
+    required: false,
     type: String
   },
   color: {
     default: 'surface',
     required: false,
+    type: String
+  },
+  id: {
+    required: true,
     type: String
   },
   outlined: {
@@ -30,13 +36,13 @@ defineProps({
 </script>
 
 <style lang="scss" scoped>
-.pill-alert {
-  background-color: #fff;
+.pill-count {
   font-size: 16px !important;
   font-weight: 800;
-  padding: 0 12px 1px !important;
+  min-width: fit-content;
+  padding: 0 12px 1px;
 }
 .pill-color-override {
-  color: #fff !important;
+  color: rgb(var(--v-theme-surface)) !important;
 }
 </style>

@@ -117,12 +117,13 @@
     </template>
 
     <template #item.alertCount="{item}">
-      <PillAlert
-        :aria-label="`${item.alertCount || 'No'} alerts for ${item.firstName} ${item.lastName}`"
+      <PillCount
+        :id="`student-${item.uid}-alert-count`"
+        :aria-label="`${pluralize('alert', item.alertCount, {0: 'No'})} for ${item.firstName} ${item.lastName}`"
         :color="item.alertCount ? 'warning' : 'grey'"
       >
         {{ item.alertCount || 0 }} <span class="sr-only">alerts</span>
-      </PillAlert>
+      </PillCount>
     </template>
   </v-data-table-virtual>
 </template>
@@ -130,9 +131,9 @@
 <script setup>
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
-import PillAlert from '@/components/util/PillAlert'
+import PillCount from '@/components/util/PillCount'
 import StudentAvatar from '@/components/student/StudentAvatar'
-import {alertScreenReader, lastNameFirst, numFormat, round, studentRoutePath} from '@/lib/utils'
+import {alertScreenReader, lastNameFirst, numFormat, pluralize, round, studentRoutePath} from '@/lib/utils'
 import {concat, each, get, isNil, map, orderBy} from 'lodash'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
 import {mdiSchool, mdiInformation} from '@mdi/js'

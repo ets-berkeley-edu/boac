@@ -33,7 +33,7 @@
         >
           <div class="align-center d-flex">
             <div>
-              Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
+              Degree Checks <span class="sr-only">of {{ student.name }} (will open new browser tab)</span>
             </div>
             <v-icon class="ml-1" :icon="mdiOpenInNew" size="18" />
           </div>
