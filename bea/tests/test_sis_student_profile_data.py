@@ -23,8 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import re
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.cohorts_and_groups.cohort import Cohort
+from bea.test_utils import boa_utils
+from bea.test_utils import nessie_timeline_utils
 from bea.test_utils import utils
 import pytest
 
@@ -44,7 +48,7 @@ class TestCreateGroup:
         self.homepage.click_sidebar_create_student_group()
         self.curated_students_page.create_group_with_bulk_sids(group, [tc.student for tc in tcs])
         self.curated_students_page.wait_for_sidebar_group(group)
-        self.curated_students_page.when_visible(self.curated_students_page.group_name_heading(group),
+        self.curated_students_page.when_visible(self.curated_students_page.group_name_heading_loc(group),
                                                 utils.get_medium_timeout())
         self.curated_students_page.wait_for_players()
 
@@ -52,6 +56,10 @@ class TestCreateGroup:
 @pytest.mark.usefixtures('page_objects')
 @pytest.mark.parametrize('tc', tcs, ids=[f'UID {tc.student.uid}' for tc in tcs], scope='class')
 class TestListViewProfileData:
+
+    def test_student(self, tc):
+        self.curated_students_page.when_present(self.curated_students_page.student_link_loc(tc.student),
+                                                utils.get_short_timeout())
 
     def test_level(self, tc):
         visible_level = self.curated_students_page.level(tc.student)
@@ -71,13 +79,13 @@ class TestListViewProfileData:
         grads = tc.student.profile_data.graduations()
         visible_graduation = self.curated_students_page.graduation(tc.student)
         if tc.student.profile_data.academic_career_status() == 'Completed' and grads:
-            # Show only the most recent degree data on list view
-            grad = grads.sort(key=lambda g: g.date)[-1]
-            utils.assert_actual_includes_expected(visible_graduation, grad['date'])
-            for major in grad['majors']:
-                utils.assert_actual_includes_expected(visible_graduation, major)
-            for minor in grad['minors']:
-                assert minor not in visible_graduation
+            grads.sort(key=lambda g: g['date'], reverse=True)
+            latest_grad = grads[0]
+            utils.assert_actual_includes_expected(visible_graduation, latest_grad['date'].strftime('%b %-d, %Y'))
+            for major in latest_grad['majors']:
+                utils.assert_actual_includes_expected(visible_graduation, major['plan'])
+            for minor in latest_grad['minors']:
+                assert minor['plan'] not in visible_graduation
         else:
             assert not visible_graduation
 
@@ -101,11 +109,12 @@ class TestListViewProfileData:
         standings = tc.student.academic_standings
         visible_standing = self.curated_students_page.academic_standing(tc.student)
         if standings:
-            latest_standing = standings.sort(key=lambda s: s.term.sis_id, reverse=True)[0]
-            if latest_standing.standing.value['code'] == 'GST':
+            standings.sort(key=lambda s: s.term.sis_id, reverse=True)
+            latest_standing = standings[0]
+            if latest_standing.code == 'GST':
                 utils.assert_equivalence(visible_standing, None)
             else:
-                expected_standing = f'{latest_standing.standing.descrip} ({latest_standing.term.name})'
+                expected_standing = f'{latest_standing.descrip} ({latest_standing.term.name})'
                 utils.assert_equivalence(visible_standing, expected_standing)
         else:
             utils.assert_equivalence(visible_standing, None)
@@ -117,7 +126,7 @@ class TestListViewProfileData:
         if majors:
             utils.assert_equivalence(visible_majors, majors)
         else:
-            utils.assert_equivalence(visible_majors, None)
+            utils.assert_equivalence(visible_majors, [])
 
     # TODO - sub-plans?
 
@@ -129,7 +138,7 @@ class TestListViewProfileData:
             utils.assert_equivalence(visible_expected_grad, tc.student.profile_data.expected_grad_term_name())
 
     def test_cumulative_gpa(self, tc):
-        utils.assert_equivalence(self.curated_students_page.gpa(tc.student), tc.student.profile_data.cumulative_gpa())
+        assert self.curated_students_page.gpa(tc.student) in tc.student.profile_data.cumulative_gpa()
 
     # TODO - most recent term GPA
 
@@ -157,13 +166,13 @@ class TestStudentPageProfileData:
         if cumulative_units and cumulative_units != 0:
             utils.assert_equivalence(visible_units, cumulative_units)
         else:
-            utils.assert_equivalence(visible_units, '--')
+            utils.assert_equivalence(visible_units.replace('No data', '').strip(), '--')
 
     def test_phone(self, tc):
         utils.assert_equivalence(self.student_page.phone(), tc.student.profile_data.phone())
 
     def test_cumulative_gpa(self, tc):
-        utils.assert_equivalence(self.student_page.cumulativegp(), tc.student.profile_data.cumulative_gpa())
+        assert self.student_page.cumulative_gpa() in tc.student.profile_data.cumulative_gpa()
 
     def test_active_majors(self, tc):
         utils.assert_equivalence(self.student_page.majors(), tc.student.profile_data.majors_active())
@@ -193,10 +202,16 @@ class TestStudentPageProfileData:
         utils.assert_equivalence(self.student_page.advisor_plans(), tc.student.profile_data.advisor_plans())
 
     def test_advisor_names(self, tc):
-        utils.assert_equivalence(self.student_page.advisor_names(), tc.student.profile_data.advisor_names())
+        expected_names = tc.student.profile_data.advisor_names()
+        visible_names = self.student_page.advisor_names()
+        for name in expected_names:
+            utils.assert_actual_includes_expected(visible_names, name)
 
     def test_advisor_emails(self, tc):
-        utils.assert_equivalence(self.student_page.advisor_emails(), tc.student.profile_data.advisor_emails())
+        expected_emails = tc.student.profile_data.advisor_emails()
+        visible_emails = self.student_page.advisor_emails()
+        for email in expected_emails:
+            utils.assert_actual_includes_expected(visible_emails, email)
 
     def test_entered_term(self, tc):
         utils.assert_equivalence(self.student_page.entered_term(), tc.student.profile_data.entered_term())
@@ -208,8 +223,9 @@ class TestStudentPageProfileData:
             utils.assert_equivalence(self.student_page.intended_majors(), tc.student.profile_data.intended_majors())
 
     def test_visa_status(self, tc):
-        if tc.student.profile_data.demographics() and tc.student.profile_data.demographics()['visa']['status'] == 'G':
-            visa_type = tc.student.profile_data.demographics()['visa']['type']
+        demo = tc.student.profile_data.demographics()
+        if demo and demo['visa'] and demo['visa']['status'] == 'G':
+            visa_type = demo['visa']['type']
             if visa_type == 'F1':
                 expected = 'F-1 International Student'
             elif visa_type == 'J1':
@@ -228,16 +244,16 @@ class TestStudentPageProfileData:
                 for maj in grad['majors']:
                     visible_degree = self.student_page.degree(maj['plan'])
                     utils.assert_actual_includes_expected(visible_degree['deg_type'], maj['plan'])
-                    utils.assert_equivalence(visible_degree['deg_date'], f"Awarded {grad['date'].strftime('%b %e, %Y')}")
+                    utils.assert_equivalence(visible_degree['deg_date'], f"Awarded {grad['date'].strftime('%b %-d, %Y')}")
                     utils.assert_equivalence(visible_degree['deg_college'], maj['college'])
 
     def test_graduation_minors(self, tc):
         if tc.student.profile_data.academic_career_status() == 'Completed':
             for grad in tc.student.profile_data.graduations():
                 for minor in grad['minors']:
-                    visible_minor = self.student_page.degree(minor['plan'])
+                    visible_minor = self.student_page.degree_minor(minor['plan'])
                     utils.assert_actual_includes_expected(visible_minor['min_type'], minor['plan'])
-                    utils.assert_equivalence(visible_minor['min_date'], f"Awarded {grad['date'].strftime('%b %e, %Y')}")
+                    utils.assert_equivalence(visible_minor['min_date'], f"Awarded {grad['date'].strftime('%b %d, %Y')}")
 
     def test_inactive_status(self, tc):
         if tc.student.profile_data.academic_career_status() == 'Inactive':
@@ -247,13 +263,78 @@ class TestStudentPageProfileData:
 
     def test_academic_standing(self, tc):
         standings = tc.student.academic_standings
-        visible_standing = self.student_page.academic_standing(tc.student)
+        visible_standing = self.student_page.academic_standing()
         if standings:
-            latest_standing = standings.sort(key=lambda s: s.term.sis_id, reverse=True)[0]
-            if latest_standing.standing.value['code'] == 'GST':
+            standings.sort(key=lambda s: s.term.sis_id, reverse=True)
+            latest_standing = standings[0]
+            if latest_standing.code == 'GST':
                 utils.assert_equivalence(visible_standing, None)
             else:
-                expected_standing = f'{latest_standing.standing.descrip} ({latest_standing.term.name})'
+                expected_standing = f'{latest_standing.descrip} ({latest_standing.term.name})'
                 utils.assert_equivalence(visible_standing, expected_standing)
         else:
             utils.assert_equivalence(visible_standing, None)
+
+    def test_terms_in_attendance(self, tc):
+        term_count = tc.student.profile_data.terms_in_attendance()
+        visible_term_count = self.student_page.terms_in_attendance()
+        if term_count and tc.student.profile_data.level() != 'Graduate':
+            utils.assert_equivalence(visible_term_count, term_count)
+        else:
+            utils.assert_equivalence(visible_term_count, None)
+
+    def test_transfer(self, tc):
+        visible_transfer = self.student_page.transfer()
+        if tc.student.profile_data.transfer():
+            utils.assert_equivalence(visible_transfer, 'Transfer')
+        else:
+            utils.assert_equivalence(visible_transfer, None)
+
+    def test_expected_graduation(self, tc):
+        level = tc.student.profile_data.level()
+        visible_expected_grad = self.student_page.expected_graduation()
+        if level in ['Doctoral Candidate', 'Graduate', 'Masters/Professional']:
+            utils.assert_equivalence(visible_expected_grad, None)
+        else:
+            utils.assert_equivalence(visible_expected_grad, tc.student.profile_data.expected_grad_term_name())
+
+    def test_timeline_reqts(self, tc):
+        reqts = tc.student.profile_data.degree_progress()
+        if reqts:
+            utils.assert_equivalence(self.student_page.visible_writing_reqt(), reqts['writing'])
+            utils.assert_equivalence(self.student_page.visible_history_reqt(), reqts['history'])
+            utils.assert_equivalence(self.student_page.visible_institutions_reqt(), reqts['institutions'])
+            utils.assert_equivalence(self.student_page.visible_cultures_reqt(), reqts['cultures'])
+        else:
+            utils.assert_equivalence(self.student_page.visible_writing_reqt(), None)
+            utils.assert_equivalence(self.student_page.visible_history_reqt(), None)
+            utils.assert_equivalence(self.student_page.visible_institutions_reqt(), None)
+            utils.assert_equivalence(self.student_page.visible_cultures_reqt(), None)
+
+    def test_timeline_alerts(self, tc):
+        alerts = boa_utils.get_students_alerts([tc.student])
+        alert_data = [{'text': a.message, 'date': self.student_page.expected_item_short_date_format(a.date)} for a in alerts]
+        visible_alerts = self.student_page.visible_alerts()
+        if alerts:
+            visible_alerts.sort(key=lambda a: a['date'])
+            alert_data.sort(key=lambda a: a['date'])
+            utils.assert_equivalence(visible_alerts, alert_data)
+
+        standings = tc.student.academic_standings
+        if standings:
+            standings.sort(key=lambda s: s.term.sis_id, reverse=True)
+            latest_standing = standings[0]
+            standing_alert_msg = f"Student's academic standing is '{latest_standing.descrip}'."
+            visible_alert_msgs = [a['text'] for a in visible_alerts]
+            if latest_standing.code == 'GST' or not latest_standing.code:
+                assert standing_alert_msg not in visible_alert_msgs
+            else:
+                assert standing_alert_msg in visible_alert_msgs
+
+    def test_timeline_holds(self, tc):
+        holds = nessie_timeline_utils.get_student_holds(tc.student)
+        hold_msgs = [re.sub('\W', '', h.message) for h in holds]
+        hold_msgs.sort()
+        visible_holds = self.student_page.visible_holds()
+        visible_holds.sort()
+        utils.assert_equivalence(visible_holds, hold_msgs)

@@ -28,6 +28,7 @@ import csv
 from datetime import datetime as dt
 import glob
 import json
+import math
 import os
 import shutil
 import time
@@ -156,10 +157,10 @@ def formatted_units(units_as_num):
         if units_as_num == 0:
             return '0'
         else:
-            if units_as_num.floor() == units_as_num:
-                return f'{units_as_num.floor()}'
+            if math.floor(units_as_num) == units_as_num:
+                return f'{math.floor(units_as_num)}'
             else:
-                return '{:.3f}'.format(units_as_num)
+                return f"{float('{:.3f}'.format(units_as_num))}"
 
 
 def safe_key(parsed, key):
@@ -209,9 +210,9 @@ def get_previous_term_code(term_sis_id):
 
 def term_sis_id_to_term_name(term_sis_id):
     year = f'{term_sis_id[0]}0{term_sis_id[1]}{term_sis_id[2]}'
-    if term_sis_id[3] == 2:
+    if term_sis_id[3] == '2':
         return f'Spring {year}'
-    elif term_sis_id[3] == 5:
+    elif term_sis_id[3] == '5':
         return f'Summer {year}'
     else:
         return f'Fall {year}'

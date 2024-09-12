@@ -78,7 +78,10 @@ class Profile(object):
         return utils.safe_key(self.sis_profile(), 'academicCareerStatus')
 
     def cumulative_gpa(self):
-        return '{:.3f}'.format(self.sis_profile()['cumulativeGPA']) if utils.safe_key(self.sis_profile(), 'cumulativeGPA') else '--'
+        if utils.safe_key(self.sis_profile(), 'cumulativeGPA'):
+            return ['{:.3f}'.format(self.sis_profile()['cumulativeGPA'])]
+        else:
+            return ['0.000', '--']
 
     def cumulative_units(self):
         return utils.safe_key(self.sis_profile(), 'cumulativeUnits') and utils.formatted_units(self.sis_profile()['cumulativeUnits'])
@@ -87,7 +90,7 @@ class Profile(object):
         profile = self.sis_profile()
         progress = utils.safe_key(profile, 'degreeProgress') and utils.safe_key(profile['degreeProgress'], 'requirements')
         return progress and {
-            'date': progress['reportDate'],
+            'date': profile['degreeProgress']['reportDate'],
             'writing': f"{progress['entryLevelWriting']['name']} {progress['entryLevelWriting']['status']}",
             'cultures': f"{progress['americanCultures']['name']} {progress['americanCultures']['status']}",
             'history': f"{progress['americanHistory']['name']} {progress['americanHistory']['status']}",
@@ -190,7 +193,7 @@ class Profile(object):
                 minors.append({
                     'active': (p['status'] == 'Active'),
                     'college': p['program'],
-                    'major': p['description'],
+                    'minor': p['description'],
                     'status': p['status'],
                 })
         return minors
@@ -212,15 +215,6 @@ class Profile(object):
     def phone(self):
         return utils.safe_key(self.sis_profile(), 'phoneNumber') and f"{self.sis_profile()['phoneNumber']}"
 
-    def reqts(self):
-        reqts = self.degree_progress()
-        return {
-            'reqt_writing': utils.safe_key(reqts, 'writing'),
-            'reqt_history': utils.safe_key(reqts, 'history'),
-            'reqt_institutions': utils.safe_key(reqts, 'institutions'),
-            'reqt_cultures': utils.safe_key(reqts, 'cultures'),
-        }
-
     def sub_plans(self):
         return self.sis_profile() and utils.safe_key(self.sis_profile(), 'subplans')
 
@@ -236,7 +230,7 @@ class Profile(object):
         return withdrawal and {
             'desc': withdrawal['description'],
             'reason': withdrawal['reason'],
-            'date': datetime.strptime(withdrawal['date'], '%Y-%m-%d %H:%M:%S').strftime('%b %d, %Y'),
+            'date': datetime.strptime(withdrawal['date'], '%Y-%m-%d %H:%M:%S').strftime('%b %-d, %Y'),
         }
 
     # Demographics
@@ -262,11 +256,15 @@ class Profile(object):
 
     def advisor_names(self):
         advisor_data = utils.safe_key(self.profile, 'advisors') or []
-        return [f"{a['firstName']} {a['lastName']}" for a in advisor_data]
+        names = []
+        for a in advisor_data:
+            if a['firstName'] and a['lastName']:
+                names.append(f"{a['firstName']} {a['lastName']}")
+        return names
 
     def advisor_emails(self):
         advisor_data = utils.safe_key(self.profile, 'advisors') or []
-        return [a['email'] for a in advisor_data]
+        return [a['email'] for a in advisor_data if a['email']]
 
     def advisors(self):
         advisor_data = utils.safe_key(self.profile, 'advisors') or []

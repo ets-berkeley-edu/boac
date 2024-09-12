@@ -64,10 +64,10 @@ class ListViewStudentPages(Pagination, UserListPages):
 
     @staticmethod
     def student_row_xpath(student):
-        return f'//div[@id="student-{student.uid}]'
+        return f'//div[@id="student-{student.uid}"]'
 
     @staticmethod
-    def student_link_loc(self, student):
+    def student_link_loc(student):
         return By.ID, f'link-to-student-{student.uid}'
 
     def student_has_inactive_asc_flag(self, student):

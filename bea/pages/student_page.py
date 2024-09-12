@@ -49,7 +49,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
     ADDITIONAL_INFO_OUTER = By.XPATH, '//h3[text()=" Advisor(s) "]'
 
     def is_personal_details_expanded(self):
-        return self.element(self.ADDITIONAL_INFO_OUTER).is_displayed()
+        return self.is_present(self.ADDITIONAL_INFO_OUTER) and self.element(self.ADDITIONAL_INFO_OUTER).is_displayed()
 
     def expand_personal_details(self):
         self.when_present(self.TOGGLE_PERSONAL_DETAILS, utils.get_medium_timeout())
@@ -120,18 +120,18 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
         return self.els_text_if_exist(self.DISCONTINUED_COLLEGE)
 
     def cumulative_units(self):
-        return self.el_text_if_exists(self.CUMULATIVE_UNITS)
+        return self.el_text_if_exists(self.CUMULATIVE_UNITS, 'UNITS COMPLETED')
 
     def cumulative_gpa(self):
-        return self.el_text_if_exists(self.CUMULATIVE_GPA)
+        return self.el_text_if_exists(self.CUMULATIVE_GPA, 'No data')
 
     def degree(self, field):
         time.sleep(1)
         xpath = f'//h3[contains(text(), "Degree")]/following-sibling::div[contains(., "{field}")]'
         deg_type_loc = By.XPATH, f'{xpath}/div[contains(@id, "student-bio-degree-type")]'
-        deg_date_loc = By.XPATH, f'{xpath}/div[contains(@id, "student-bio-degree-date")]'
-        deg_college_loc_1 = By.XPATH, f'{xpath}/div[@class="student-text"][1]'
-        deg_college_loc_2 = By.XPATH, f'{xpath}/div[@class=\"student-text\"][2]'
+        deg_date_loc = By.XPATH, f'{xpath}/div[@class="student-text"][1]'
+        deg_college_loc_1 = By.XPATH, f'{xpath}/div[@class="student-text"][2]'
+        deg_college_loc_2 = By.XPATH, f'{xpath}/div[@class="student-text"][3]'
         college = self.el_text_if_exists(deg_college_loc_1) or self.el_text_if_exists(deg_college_loc_2)
         return {
             'deg_type': self.el_text_if_exists(deg_type_loc),
@@ -204,7 +204,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
         return self.el_text_if_exists(self.TRANSFER)
 
     def terms_in_attendance(self):
-        return self.el_text_if_exists(self.TERMS_IN_ATTENDANCE)
+        return self.el_text_if_exists(self.TERMS_IN_ATTENDANCE, 'Terms in Attendance')
 
     def visa(self):
         return self.el_text_if_exists(self.VISA)
