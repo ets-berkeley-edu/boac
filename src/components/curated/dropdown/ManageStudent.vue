@@ -1,13 +1,12 @@
 <template>
   <div :class="{'opacity-zero': srOnly && !isAdding && !isRemoving && !showModal}">
     <v-menu
-      :id="dropdownId"
       :aria-label="`${domainLabel(true)}s for ${student.name}`"
       :disabled="isAdding || isRemoving"
     >
       <template #activator="{props}">
         <v-btn
-          :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)"
+          :id="menuButtonId"
           v-bind="props"
           :append-icon="(buttonVariant && !groupsLoading && !isAdding && !isRemoving) ? mdiMenuDown : undefined"
           :aria-label="`Add ${student.name} to a curated group`"
@@ -108,7 +107,7 @@ import {describeCuratedGroupDomain} from '@/berkeley'
 import {filter as _filter, includes, map, without} from 'lodash'
 import {mdiCheckBold, mdiCloseThick, mdiMenuDown, mdiPlus} from '@mdi/js'
 import {putFocusNextTick} from '@/lib/utils'
-import {onMounted, onUnmounted, ref} from 'vue'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -147,11 +146,14 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const eventName = 'my-curated-groups-updated'
 const groupsLoading = ref(true)
-const idFragment = ref(describeCuratedGroupDomain(props.domain).replace(' ', '-'))
-const dropdownId = ref(`${idFragment.value}-dropdown-${props.student.sid}`)
+const idFragment = describeCuratedGroupDomain(props.domain).replace(' ', '-')
 const isAdding = ref(false)
 const isRemoving = ref(false)
 const showModal = ref(false)
+
+const menuButtonId = computed(() => {
+  return `student-${props.student.sid}-${isAdding.value ? `added-to-${idFragment}` : (isRemoving.value ? `removed-from-${idFragment}` : `add-to-${idFragment}`)}`
+})
 
 onMounted(() => {
   refresh()
@@ -172,7 +174,7 @@ const groupCheckboxClick = group => {
     const done = () => {
       checkedGroups.value = without(checkedGroups.value, group.id)
       isRemoving.value = false
-      putFocusNextTick(dropdownId.value, 'button')
+      putFocusNextTick(menuButtonId.value)
       alertScreenReader(`${props.student.name} removed from "${group.name}"`)
     }
     removeFromCuratedGroup(group.id, props.student.sid).finally(() =>
@@ -183,7 +185,7 @@ const groupCheckboxClick = group => {
     const done = () => {
       checkedGroups.value.push(group.id)
       isAdding.value = false
-      putFocusNextTick(dropdownId.value, 'button')
+      putFocusNextTick(menuButtonId.value)
       alertScreenReader(`${props.student.name} added to "${group.name}"`)
     }
     addStudentsToCuratedGroup(group.id, [props.student.sid]).finally(() => setTimeout(done, confirmationTimeout.value))
@@ -194,12 +196,12 @@ const onCreateCuratedGroup = name => {
   isAdding.value = true
   showModal.value = false
   const done = () => {
-    putFocusNextTick(dropdownId.value, 'button')
+    putFocusNextTick(menuButtonId.value)
     isAdding.value = false
   }
   return createCuratedGroup(props.domain, name, [props.student.sid]).then(group => {
     checkedGroups.value.push(group.id)
-    alertScreenReader(`${props.student.name} added to new ${props.domainLabel}, "${name}".`)
+    alertScreenReader(`${props.student.name} added to new ${domainLabel(false)}, "${name}".`)
     setTimeout(done, confirmationTimeout.value)
   })
 }
@@ -207,7 +209,7 @@ const onCreateCuratedGroup = name => {
 const onModalCancel = () => {
   showModal.value = false
   alertScreenReader('Canceled')
-  putFocusNextTick(dropdownId.value, 'button')
+  putFocusNextTick(menuButtonId.value)
 }
 
 const onUpdateMyCuratedGroups = domain => {
