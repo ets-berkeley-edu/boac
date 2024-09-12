@@ -297,25 +297,31 @@ def search_advising_notes(
 
     benchmark('end local notes parsing')
 
+    def _search_advising_notes(offset, limit):
+        return data_loch.search_advising_notes(
+            search_phrase=search_phrase,
+            author_uid=author_uid,
+            author_csid=author_csid,
+            student_csid=student_csid,
+            department_codes=department_codes,
+            topic=topic,
+            datetime_from=datetime_from,
+            datetime_to=datetime_to,
+            offset=offset,
+            limit=limit,
+        )
+
+    # If the chunk of local (BOA) notes equals the 'limit' then return; no loch results needed.
     if len(notes_feed) == limit:
+        # Here we query the data-loch for the sole purpose of extracting 'total_matching_count'.
+        loch_results = _search_advising_notes(offset=0, limit=0)
         return {
             'notes': notes_feed,
-            'totalNoteCount': total_boa_note_count,
+            'totalNoteCount': total_boa_note_count + loch_results['total_matching_count'],
         }
 
     benchmark('begin loch notes query')
-    loch_results = data_loch.search_advising_notes(
-        search_phrase=search_phrase,
-        author_uid=author_uid,
-        author_csid=author_csid,
-        student_csid=student_csid,
-        department_codes=department_codes,
-        topic=topic,
-        datetime_from=datetime_from,
-        datetime_to=datetime_to,
-        offset=max(0, offset - local_notes_count),
-        limit=(limit - len(notes_feed)),
-    )
+    loch_results = _search_advising_notes(offset=max(0, offset - local_notes_count), limit=(limit - len(notes_feed)))
     benchmark('end loch notes query')
 
     benchmark('begin loch notes parsing')
