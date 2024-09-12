@@ -1,26 +1,26 @@
-import _ from 'lodash'
+import {capitalize as _capitalize, each, filter, findIndex, get, includes, map, size, startsWith, toUpper, upperFirst, words} from 'lodash'
 
 import {DateTime} from 'luxon'
 import {useContextStore} from '@/stores/context'
 
 export function describeCuratedGroupDomain(domain, capitalize?) {
-  const format = s => capitalize ? _.capitalize(s) : s
+  const format = s => capitalize ? _capitalize(s) : s
   return format(domain === 'admitted_students' ? 'admissions ' : 'curated ') + format('group')
 }
 
 export function displayAsAscInactive(student) {
   return (
-    _.includes(myDeptCodes(['advisor', 'director']), 'UWASC') &&
-    _.get(student, 'athleticsProfile') &&
-    !_.get(student, 'athleticsProfile.isActiveAsc')
+    includes(myDeptCodes(['advisor', 'director']), 'UWASC') &&
+    get(student, 'athleticsProfile') &&
+    !get(student, 'athleticsProfile.isActiveAsc')
   )
 }
 
 export function displayAsCoeInactive(student) {
   return (
-    _.includes(myDeptCodes(['advisor', 'director']), 'COENG') &&
-    _.get(student, 'coeProfile') &&
-    !_.get(student, 'coeProfile.isActiveCoe')
+    includes(myDeptCodes(['advisor', 'director']), 'COENG') &&
+    get(student, 'coeProfile') &&
+    !get(student, 'coeProfile.isActiveCoe')
   )
 }
 
@@ -93,7 +93,7 @@ export function getAdmitCsvExportColumns() {
 export function getBoaUserRoles(user, department) {
   const roles: string[] = []
   if (department.role) {
-    roles.push(_.upperFirst(department.role))
+    roles.push(upperFirst(department.role))
   }
   return roles
 }
@@ -103,11 +103,11 @@ export function getCsvExportColumns(domain) {
 }
 
 export function getCsvExportColumnsSelected(domain) {
-  return domain === 'default' ? ['first_name', 'last_name', 'sid', 'email', 'phone'] : _.map(getAdmitCsvExportColumns(), 'value')
+  return domain === 'default' ? ['first_name', 'last_name', 'sid', 'email', 'phone'] : map(getAdmitCsvExportColumns(), 'value')
 }
 
 export function getDefaultCsvExportColumns() {
-  const lastTermId = previousSisTermId(_.get(useContextStore().config, 'currentEnrollmentTermId'))
+  const lastTermId = previousSisTermId(get(useContextStore().config, 'currentEnrollmentTermId'))
   const previousTermId = previousSisTermId(lastTermId)
   return [
     {text: 'First name', value: 'first_name'},
@@ -138,17 +138,17 @@ export function getIncompleteGradeDescription(courseDisplayName, sections) {
   if (sections_with_incomplete.length) {
     if (sections.length === 1) {
       const section = sections[0]
-      if (_.toUpper(section['incompleteFrozenFlag']) === 'Y') {
+      if (toUpper(section['incompleteFrozenFlag']) === 'Y') {
         description = 'Frozen incomplete grade will not lapse into a failing grade.'
       } else {
-        const statusCode = _.toUpper(section.incompleteStatusCode)
+        const statusCode = toUpper(section.incompleteStatusCode)
         let lapseDate
         if (section.incompleteLapseGradeDate) {
           lapseDate = DateTime.fromFormat(section.incompleteLapseGradeDate, 'yyyy-MM-dd hh:mm:ss').toLocaleString(DateTime.DATE_MED)
         }
         switch(statusCode) {
         case 'I': {
-          const gradingBasis = _.toUpper(section.gradingBasis)
+          const gradingBasis = toUpper(section.gradingBasis)
           let outcome = 'a failing grade'
           if (['GRD', 'LETTER'].includes(gradingBasis)) {
             outcome = 'an F'
@@ -181,11 +181,11 @@ export function getIncompleteGradeDescription(courseDisplayName, sections) {
 }
 
 export function getSectionsWithIncompleteStatus(sections) {
-  return _.filter(sections, 'incompleteStatusCode')
+  return filter(sections, 'incompleteStatusCode')
 }
 
 export function isAdvisor(user) {
-  return !!_.size(_.filter(user.departments, d => d.role === 'advisor'))
+  return !!size(filter(user.departments, d => d.role === 'advisor'))
 }
 
 export function isAlertGrade(grade) {
@@ -194,15 +194,15 @@ export function isAlertGrade(grade) {
 }
 
 export function isCoe(user) {
-  return !!_.size(_.filter(user.departments, d => d.code === 'COENG' && _.includes(['advisor', 'director'], d.role)))
+  return !!size(filter(user.departments, d => d.code === 'COENG' && includes(['advisor', 'director'], d.role)))
 }
 
 export function isDirector(user) {
-  return !!_.size(_.filter(user.departments, d => d.role === 'director'))
+  return !!size(filter(user.departments, d => d.role === 'director'))
 }
 
 export function lastActivityDays(analytics) {
-  const timestamp = parseInt(_.get(analytics, 'lastActivity.student.raw'), 10)
+  const timestamp = parseInt(get(analytics, 'lastActivity.student.raw'), 10)
   if (!timestamp || isNaN(timestamp)) {
     return 'Never'
   }
@@ -223,12 +223,12 @@ export function lastActivityDays(analytics) {
 }
 
 export function myDeptCodes(roles) {
-  const departments = _.get(useContextStore().currentUser, 'departments')
-  return _.map(_.filter(departments, (d: any) => _.findIndex(roles, role => d.role === role) > -1), 'code')
+  const departments = get(useContextStore().currentUser, 'departments')
+  return map(filter(departments, (d: any) => findIndex(roles, role => d.role === role) > -1), 'code')
 }
 
 export function isGraduate(student) {
-  return _.get(student, 'sisProfile.level.description') === 'Graduate'
+  return get(student, 'sisProfile.level.description') === 'Graduate'
 }
 
 export function previousSisTermId(termId) {
@@ -251,16 +251,16 @@ export function previousSisTermId(termId) {
   return previousTermId
 }
 export function setWaitlistedStatus(course) {
-  _.each(course.sections, function(section) {
+  each(course.sections, function(section) {
     course.waitlisted = course.waitlisted || section.enrollmentStatus === 'W'
   })
 }
 
 export function sisIdForTermName(termName) {
-  const words = _.words(termName)
-  const season = words[0]
-  const year = words[1]
-  let termId = ''
+  const wordArray = words(termName)
+  const season = wordArray[0]
+  const year = wordArray[1]
+  let termId: string = ''
   switch (season) {
   case 'Fall':
     termId = year.slice(0, 1) + year.slice(2, 4) + '8'
@@ -281,7 +281,7 @@ export function termNameForSisId(termId) {
   let termName = ''
   if (termId) {
     const strTermId = termId.toString()
-    const century = _.startsWith(strTermId, '1') ? '19' : '20'
+    const century = startsWith(strTermId, '1') ? '19' : '20'
     termName = century + strTermId.slice(1, 3)
     switch (strTermId.slice(3)) {
     case '2':
