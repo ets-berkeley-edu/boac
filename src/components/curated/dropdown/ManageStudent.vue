@@ -62,6 +62,7 @@
             density="compact"
             hide-details
             :value="group.id"
+            width="600"
             @click="groupCheckboxClick(group)"
             @keyup.enter="groupCheckboxClick(group)"
           >
