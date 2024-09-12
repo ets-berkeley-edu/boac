@@ -1,7 +1,7 @@
 <template>
   <div :class="{'cursor-grabbing': degreeStore.draggingContext.course}" @drag="scrollTo">
     <div v-if="!loading">
-      <div class="border-bottom light-blue-background">
+      <div class="border-bottom bg-sky-blue">
         <StudentProfileHeader
           :compact="true"
           :link-to-student-profile="true"

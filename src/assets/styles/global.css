@@ -47,15 +47,15 @@
   display: flex;
 }
 .boxplot-container .highcharts-tooltip {
-  background-color: rgb(var(--v-theme-background));
-  border: 1px solid rgb(var(--v-theme-faint));
+  background-color: rgb(var(--v-theme-surface));
+  border: 1px solid rgb(var(--v-theme-surface-light));
   border-radius: 8px;
   line-height: 1.4em;
   min-width: 200px;
   padding: 0;
 }
 .boxplot-container .highcharts-tooltip::after {
-  background-color: rgb(var(--v-theme-background));
+  background-color: rgb(var(--v-theme-surface));
   border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
   border-width: 0 1px 1px 0;
   content: '';
@@ -82,7 +82,7 @@
   overflow: hidden;
   display: inline-block;
   background-color: rgb(var(--v-theme-light-grey));
-  border: 1px solid rgb(var(--v-theme-faint));
+  border: 1px solid rgb(var(--v-theme-surface-light));
   border-radius: 4px;
   text-align: center;
 }
@@ -98,7 +98,7 @@
 .choose-attachment-file-wrapper:active
 {
   color: #333333;
-  background-color: rgb(var(--v-theme-faint));
+  background-color: rgb(var(--v-theme-surface-light));
 }
 .date-input-opacity-override .v-field__input {
   opacity: 1 !important;
@@ -113,11 +113,6 @@
 .demo-mode-blur:hover {
   color: transparent !important;
   text-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
-}
-.error-message-container {
-  background-color: #efd6d6;
-  border-radius: 4px;
-  color: #9b393a;
 }
 .font-size-12 {
   font-size: 12px !important;
@@ -149,18 +144,8 @@
 .font-weight-600 {
   font-weight: 600;
 }
-.font-weight-700 {
-  font-weight: 700;
-}
-.light-blue-background {
-  background: #e3f5ff;
-}
 .list-bullets {
   list-style-position: inside;
-}
-.list-group-item-info {
-  color: rgba(var(--v-theme-tertiary));
-  background-color: rgba(var(--v-theme-sky-blue));
 }
 .list-group-item-info td:first-child {
   border-radius: 10px 0 0 10px;
@@ -181,7 +166,7 @@
   padding: 6px 24px 14px !important;
 }
 .modal-content {
-  background-color: rgb(var(--v-theme-background)) !important;
+  background-color: rgb(var(--v-theme-surface)) !important;
   margin: auto auto 24px auto !important;
   min-width: 40%;
   padding: 16px 6px 18px !important;
@@ -218,7 +203,7 @@
   line-height: 1.2;
 }
 .pill {
-  background-color: rgb(var(--v-theme-background));
+  background-color: rgb(var(--v-theme-surface));
   border: 1px solid #999;
   border-radius: 5px;
   color: #666;

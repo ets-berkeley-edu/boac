@@ -6,24 +6,24 @@
     <v-radio-group
       v-model="isPrivate"
       aria-describedby="privacy-permissions-label"
+      color="primary"
       :disabled="disabled"
+      hide-details
       @change="onChange"
     >
       <div>
         <v-radio
           id="note-is-not-private-radio-button"
+          label="Note available to all advisors"
           :value="false"
-        >
-          Note available to all advisors
-        </v-radio>
+        />
       </div>
       <div>
         <v-radio
           id="note-is-private-radio-button"
+          label="Note available only to CE3"
           :value="true"
-        >
-          Note available only to CE3
-        </v-radio>
+        />
       </div>
     </v-radio-group>
   </div>

@@ -28,7 +28,7 @@
             <label
               id="create-note-subject-label"
               for="create-note-subject"
-              class="font-size-16 font-weight-700"
+              class="font-size-16 font-weight-bold"
             >
               <span class="sr-only">Note </span>Subject
             </label>
@@ -37,7 +37,6 @@
               :model-value="model.subject"
               aria-labelledby="create-note-subject-label"
               class="mt-1"
-              :class="{'bg-light': isSaving}"
               color="primary"
               :disabled="isSaving || boaSessionExpired"
               maxlength="255"
@@ -56,7 +55,7 @@
           </div>
           <div class="py-3">
             <AdvisingNoteTopics />
-            <PrivacyPermissions v-if="contextStore.currentUser.canAccessPrivateNotes" />
+            <PrivacyPermissions v-if="contextStore.currentUser.canAccessPrivateNotes" class="mt-4" />
             <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
               <div key="0" class="pt-4">
                 <ContactMethod />

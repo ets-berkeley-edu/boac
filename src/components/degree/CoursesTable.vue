@@ -144,7 +144,7 @@
                 v-if="isAlertGrade(getGrade(bundle))"
                 aria-label="Non-passing grade"
                 :icon="mdiAlertRhombus"
-                class="boac-exclamation ml-1"
+                class="warning ml-1"
               />
             </td>
             <td v-if="degreeStore.sid && isCampusRequirements" class="td-satisfied float-right">

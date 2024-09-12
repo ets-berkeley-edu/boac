@@ -212,7 +212,7 @@ const onClickRemoveStudent = student => {
 
 <style scoped>
 .student-row{
-  border-bottom: 1px solid rgb(var(--v-theme-faint));
+  border-bottom: 1px solid rgb(var(--v-theme-surface-light));
 }
 .profile-last-term-gpa {
   padding-left: 5px;

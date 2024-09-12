@@ -86,7 +86,7 @@
                 :aria-invalid="!templateForEdit.name"
                 aria-label="Input template name, 255 characters or fewer"
                 aria-required="true"
-                class="w-100"
+                class="bg-white w-100"
                 :disabled="isRenaming"
                 hide-details
                 :maxlength="255"
@@ -105,11 +105,16 @@
                   Template name cannot exceed 255 characters.
                 </span>
               </div>
-              <div
+              <v-alert
                 v-if="errorDuringEdit"
-                class="error-message-container ma-2"
-                v-html="errorDuringEdit"
-              />
+                aria-live="polite"
+                class="my-2"
+                density="compact"
+                type="error"
+                variant="tonal"
+              >
+                <span v-html="errorDuringEdit"></span>
+              </v-alert>
             </div>
             <div v-if="item.id !== get(templateForEdit, 'id')">
               <router-link

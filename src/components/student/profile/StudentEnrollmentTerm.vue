@@ -1,7 +1,7 @@
 <template>
   <div
     class="d-flex flex-column h-100 student-term"
-    :class="{'bg-alert elevation-1 pt-3 px-3 rounded-0': isCurrentTerm}"
+    :class="{'bg-pale-yellow elevation-1 pt-3 px-3 rounded-0': isCurrentTerm}"
   >
     <div>
       <div class="pa-0">
@@ -31,7 +31,7 @@
     <div class="pt-2 px-0">
       <div role="table">
         <div role="rowgroup">
-          <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-700 mx-1 text-grey text-nowrap text-uppercase">
+          <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-bold mx-1 text-grey text-nowrap text-uppercase">
             <div role="columnheader" class="student-course-column-name">Course</div>
             <div role="columnheader" class="student-course-column-grade">Mid</div>
             <div role="columnheader" class="student-course-column-grade">Final</div>

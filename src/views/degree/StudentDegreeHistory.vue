@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="student" class="border-bottom light-blue-background pb-2">
+    <div v-if="student" class="border-bottom bg-sky-blue pb-2">
       <StudentProfileHeader
         :compact="true"
         :link-to-student-profile="true"
@@ -63,14 +63,14 @@
         <template #item.parentTemplateUpdatedAt="{item}">
           <v-icon
             v-if="true || item.showRevisionIndicator"
-            class="boac-exclamation mr-2"
+            class="warning mr-2"
             :icon="mdiAlert"
             size="18"
             title="Revisions to the original degree template have been made since the creation of this degree check."
           />
           <span
             v-if="item.parentTemplateUpdatedAt"
-            :class="{'boac-exclamation': true || item.showRevisionIndicator}"
+            :class="{'warning': true || item.showRevisionIndicator}"
           >
             {{ DateTime.fromISO(item.parentTemplateUpdatedAt).toFormat('DD') }}
           </span>

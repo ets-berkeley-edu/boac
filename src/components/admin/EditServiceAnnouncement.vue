@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="align-center d-flex publish-checkbox-container">
-      <div v-if="isTogglingPublish" class="align-center d-flex font-weight-700">
+      <div v-if="isTogglingPublish" class="align-center d-flex font-weight-bold">
         <v-progress-circular
           class="mr-2"
           color="grey"
@@ -23,7 +23,7 @@
           hide-details
           @change="togglePublish"
         />
-        <label class="font-weight-700 text-grey" for="checkbox-publish-service-announcement">
+        <label class="font-weight-bold text-grey" for="checkbox-publish-service-announcement">
           {{ isPublished ? 'Posted' : 'Post' }}
         </label>
       </div>

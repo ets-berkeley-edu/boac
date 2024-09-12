@@ -41,7 +41,7 @@
           <StudentAvatar :key="item.sid" size="medium" :student="item" />
           <ManageStudent
             domain="default"
-            label-class="font-size-14 font-weight-bold"
+            :label-class="`font-size-14 font-weight-bold ${featured === item.uid ? 'text-tertiary' : ''}`"
             :sr-only="hoverUid !== item.uid"
             :student="item"
           />
@@ -53,6 +53,7 @@
         <router-link
           v-if="item.uid"
           :id="`link-to-student-${item.uid}`"
+          :class="{'text-tertiary': featured === item.uid}"
           :to="studentRoutePath(item.uid, currentUser.inDemoMode)"
         >
           <h3
@@ -150,7 +151,7 @@
         <div
           v-for="(canvasSite, index) in get(item.enrollment, 'canvasSites', [])"
           :key="index"
-          class="font-weight-medium pl-2"
+          class="font-weight-bold pl-2"
           :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length}`"
         >
           <div
@@ -163,7 +164,7 @@
             {{ canvasSite.courseCode }}
           </div>
         </div>
-        <div v-if="!size(get(item.enrollment, 'canvasSites'))" class="font-weight-medium pa-2">
+        <div v-if="!size(get(item.enrollment, 'canvasSites'))" class="font-weight-bold pa-2">
           No course site
         </div>
       </div>
@@ -202,7 +203,7 @@
             >
               <div v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                 <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-                <span class="text-grey">
+                <span class="text-medium-emphasis">
                   (Max: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
                 </span>
               </div>
@@ -284,7 +285,7 @@
     <template #item.midtermGrade="{item}">
       <div v-if="item.enrollment" class="pl-1">
         <span v-if="item.enrollment.midtermGrade" v-accessible-grade="item.enrollment.midtermGrade" class="font-weight-bold font-size-14"></span>
-        <v-icon v-if="isAlertGrade(item.enrollment.midtermGrade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
+        <v-icon v-if="isAlertGrade(item.enrollment.midtermGrade)" :icon="mdiAlertRhombus" class="warning" />
         <span v-if="!item.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div v-if="!item.enrollment" class="pl-1">&mdash;</div>
@@ -293,7 +294,7 @@
     <template #item.finalGrade="{item}">
       <div v-if="item.enrollment" class="pl-1">
         <span v-if="item.enrollment.grade" v-accessible-grade="item.enrollment.grade" class="font-weight-bold font-size-14"></span>
-        <v-icon v-if="isAlertGrade(item.enrollment.grade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
+        <v-icon v-if="isAlertGrade(item.enrollment.grade)" :icon="mdiAlertRhombus" color="warning" />
         <span v-if="!item.enrollment.grade" class="cohort-grading-basis">
           {{ item.enrollment.gradingBasis }}
         </span>

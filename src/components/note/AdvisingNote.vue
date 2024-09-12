@@ -2,7 +2,7 @@
   <div :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
     <div
       :id="`note-${note.id}-is-closed`"
-      class="ellipses-for-long-text"
+      class="truncate-with-ellipsis w-100"
       :class="{'note-snippet-when-closed truncate-with-ellipsis': !isOpen}"
       aria-label="Advising note"
     >
@@ -36,7 +36,7 @@
         </span>
       </span>
     </div>
-    <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="ellipses-for-long-text">
+    <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="truncate-with-ellipsis w-100">
       <div v-if="!note.legacySource">
         <v-btn
           v-if="currentUser.isAdmin"
@@ -96,7 +96,7 @@
           </div>
         </dl>
       </div>
-      <div v-if="!isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 pt-2 text-black-50">
+      <div v-if="!isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 pt-2 text-medium-emphasis">
         Advisor profile not found
         <span v-if="note.legacySource" class="font-italic">
           (note imported from {{ note.legacySource }})
@@ -119,9 +119,9 @@
             {{ author.email }}
           </span>
           <span v-if="author.role || author.title">
-            - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ author.role || author.title }}</span>
+            - <span :id="`note-${note.id}-author-role`">{{ author.role || author.title }}</span>
           </span>
-          <span v-if="note.legacySource" class="font-italic text-black-50">
+          <span v-if="note.legacySource" class="font-italic text-medium-emphasis">
             (note imported from {{ note.legacySource }})
           </span>
         </div>
@@ -310,12 +310,6 @@ loadAuthorDetails()
 }
 .note-snippet-when-closed {
   height: 24px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.ellipses-for-long-text {
-  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

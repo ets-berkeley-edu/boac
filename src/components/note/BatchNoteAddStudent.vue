@@ -2,7 +2,7 @@
   <div class="py-1">
     <label
       for="create-note-add-student-input"
-      class="font-size-16 font-weight-700"
+      class="font-size-16 font-weight-bold"
     >
       Student
     </label>

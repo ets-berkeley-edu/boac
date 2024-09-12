@@ -1,6 +1,6 @@
 <template>
   <div v-if="!contextStore.loading">
-    <div class="light-blue-background border-b-sm">
+    <div class="bg-sky-blue border-b-sm">
       <StudentProfileHeader :student="student" />
     </div>
     <h2 class="sr-only">Academic Status</h2>

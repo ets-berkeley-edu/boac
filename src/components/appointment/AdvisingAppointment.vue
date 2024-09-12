@@ -45,7 +45,7 @@
         <span v-if="advisor.title" :id="`appointment-${appointment.id}-advisor-role`" class="text-dark">
           - {{ advisor.title }}
         </span>
-        <span v-if="appointment.legacySource" class="font-italic text-black-50">
+        <span v-if="appointment.legacySource" class="font-italic text-medium-emphasis">
           (appointment imported from {{ appointment.legacySource }})
         </span>
       </div>

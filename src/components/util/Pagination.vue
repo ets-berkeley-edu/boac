@@ -159,7 +159,7 @@ const onClick = page => {
   ul li {
     margin: 0;
     button {
-      border: 1px solid rgb(var(--v-theme-faint));
+      border: 1px solid rgb(var(--v-theme-surface-light));
       height: 40px;
       &.page-number {
         min-width: unset;

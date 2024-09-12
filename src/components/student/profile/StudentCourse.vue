@@ -48,7 +48,7 @@
           v-if="isAlertGrade(course.midtermGrade) && !course.grade"
           :id="`${baseElementId}-has-midterm-grade-alert`"
           :icon="mdiAlertRhombus"
-          class="boac-exclamation"
+          class="warning"
         />
       </div>
       <div class="align-center column-grade d-flex text-nowrap" role="cell">
@@ -65,7 +65,7 @@
         <v-icon
           v-if="isAlertGrade(course.grade)"
           :id="`${baseElementId}-has-grade-alert`"
-          class="boac-exclamation ml-1"
+          class="warning ml-1"
           color="warning"
           :icon="mdiAlert"
         />
