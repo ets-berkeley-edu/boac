@@ -27,7 +27,7 @@
     <div>
       <ul
         id="note-topics-list"
-        class="list-no-bullets mt-1 topics-list"
+        class="list-no-bullets mt-1 advising-note-pill-list"
         aria-labelledby="note-topics-label"
       >
         <li
@@ -44,7 +44,7 @@
             name="topic"
             :on-click-close="() => remove(topic)"
           >
-            <span class="truncate-with-ellipsis">
+            <span class="truncate-with-ellipsis pr-1">
               {{ topic }}
             </span>
           </PillItem>
@@ -109,10 +109,3 @@ const remove = topic => {
 
 init()
 </script>
-
-<style scoped>
-.topics-list {
-  max-width: 450px;
-  width: 100%;
-}
-</style>

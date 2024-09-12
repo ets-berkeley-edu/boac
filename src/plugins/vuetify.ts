@@ -123,11 +123,10 @@ export default createVuetify({
     themes: {
       light: {
         colors: {
-          'accent-green': '#36a600',
           alert: '#fef6e6',
           anchor: '#337ab7',
+          background: '#fff',
           body: '#212529',
-          'btn-secondary': '#6c757d',
           gold: '#857103',
           error: '#cf1715',
           faint: '#e0e0e0',

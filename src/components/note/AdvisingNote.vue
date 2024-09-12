@@ -147,7 +147,15 @@
         :id-prefix="`note-${note.id}-`"
         :note="note"
         :remove-attachment="removeAttachmentByIndex"
-      />
+      >
+        <template #label>
+          <label
+            :id="`note-${note.id}--attachments-list-label`"
+            class="font-size-16 font-weight-bold"
+            :for="`note-${note.id}-attachments-list`"
+          >Attachments</label>
+        </template>
+      </AdvisingNoteAttachments>
     </div>
     <AreYouSureModal
       v-model="showConfirmDeleteAttachment"

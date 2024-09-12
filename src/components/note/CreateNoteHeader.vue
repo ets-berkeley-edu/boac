@@ -19,7 +19,7 @@
         >
           <span
             v-if="noteStore.isAutoSavingDraftNote && !suppressAutoSaveDraftNoteAlert"
-            class="text-accent-green font-size-12 font-weight-bold mb-1 ml-2"
+            class="text-success font-size-12 font-weight-bold mb-1 ml-2"
           >
             DRAFT SAVED
           </span>
