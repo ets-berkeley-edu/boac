@@ -213,7 +213,7 @@
               <div class="d-flex float-right text-no-wrap">
                 <div class="btn-container">
                   <v-btn
-                    v-if="isCampusRequirements || (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
+                    v-if="!isCampusRequirements || (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
                     :id="`column-${position}-edit-${bundle.key}-btn`"
                     :aria-label="`Edit ${bundle.name}`"
                     :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
