@@ -53,7 +53,7 @@
       <template #label>
         <label
           id="edit-note-attachments-list-label"
-          class="font-size-16 font-weight-700"
+          class="font-size-16 font-weight-bold"
           for="edit-note-attachments-list"
         >Attachments</label>
       </template>

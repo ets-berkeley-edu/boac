@@ -1,5 +1,5 @@
 <template>
-  <div :id="`appointment-${appointment.id}-outer`" class="advising-appointment-outer">
+  <div :id="`appointment-${appointment.id}-outer`" class="advising-appointment-outer pb-1">
     <div
       v-if="!isOpen"
       :id="`appointment-${appointment.id}-is-closed`"
@@ -22,16 +22,16 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-      <div v-if="appointment.status === 'cancelled'" class="align-center d-flex mt-3">
+      <div v-if="appointment.status === 'cancelled'" class="align-center d-flex pt-3">
         <div class="align-center d-flex font-size-14 text-error text-uppercase">
           <v-icon class="mr-1" :icon="mdiCalendarMinus" />
           Canceled
         </div>
-        <div v-if="appointment.cancelReason" class="mt-3">
+        <div v-if="appointment.cancelReason" class="pt-3">
           <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
         </div>
       </div>
-      <div v-if="advisor.name && (appointment.legacySource || appointment.createdBy === 'YCBM')" class="mt-2">
+      <div v-if="advisor.name && (appointment.legacySource || appointment.createdBy === 'YCBM')" class="pt-2">
         <a
           v-if="advisor.uid"
           :id="`appointment-${appointment.id}-advisor-name`"
@@ -49,44 +49,51 @@
           (appointment imported from {{ appointment.legacySource }})
         </span>
       </div>
-      <div v-if="size(advisor.departments)" class="text-medium-emphasis">
+      <div v-if="size(advisor.departments)" class="text-medium-emphasis pb-2">
         <span v-for="(dept, index) in advisor.departments" :key="dept.code">
           <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.name }}</span>
         </span>
       </div>
-      <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="mt-3">
+      <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="py-2">
         {{ appointment.appointmentType }}
       </div>
-      <div v-if="appointment.topics && size(appointment.topics)" class="mt-3">
-        <div class="pill-list-header mb-1">{{ size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
-        <ul class="list-style-none pl-0">
+      <div v-if="appointment.topics && size(appointment.topics)" class="py-2">
+        <div class="font-size-16 font-weight-bold">Topics</div>
+        <ul class="list-no-bullets advising-note-pill-list">
           <li
             v-for="(topic, index) in appointment.topics"
-            :id="`appointment-${appointment.id}-topic-${index}`"
             :key="topic"
-            class="mt-2"
           >
-            <span class="pill pill-attachment text-uppercase text-no-wrap">{{ topic }}</span>
+            <PillItem
+              :id="`appointment-${appointment.id}-topic-${index}`"
+              clazz="text-uppercase w-100"
+              :label="topic"
+              name="topic"
+            >
+              <span class="truncate-with-ellipses pr-1">
+                {{ topic }}
+              </span>
+            </PillItem>
           </li>
         </ul>
       </div>
-      <div>
-        <ul class="list-style-none pl-0 mt-3">
+      <div v-if="appointment.attachments && size(appointment.attachments)" class="py-2">
+        <div class="font-size-16 font-weight-bold">Attachments</div>
+        <ul class="list-no-bullets advising-note-pill-list">
           <li
             v-for="(attachment, index) in appointment.attachments"
-            :id="`appointment-${appointment.id}-attachment-${index}`"
             :key="attachment.name"
-            class="mt-2"
           >
-            <span class="pill pill-attachment text-no-wrap">
-              <a
-                :id="`appointment-${appointment.id}-attachment-${index}`"
-                :href="downloadUrl(attachment)"
-              >
-                <v-icon :icon="mdiPaperclip" />
+            <PillItem
+              :id="`appointment-${appointment.id}-attachment-${index}`"
+              :aria-label="`Download attachment ${attachment.displayName}`"
+              :href="downloadUrl(attachment)"
+              :icon="mdiPaperclip"
+            >
+              <span class="text-anchor truncate-with-ellipses pr-1">
                 {{ attachment.displayName }}
-              </a>
-            </span>
+              </span>
+            </PillItem>
           </li>
         </ul>
       </div>
@@ -95,9 +102,10 @@
 </template>
 
 <script setup>
+import PillItem from '@/components/util/PillItem'
 import {get, size} from 'lodash'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
-import {mdiCalendarMinus} from '@mdi/js'
+import {mdiCalendarMinus, mdiPaperclip} from '@mdi/js'
 import {onMounted, ref, watch} from 'vue'
 import {useContextStore} from '@/stores/context'
 
@@ -164,7 +172,7 @@ const setAdvisor = () => {
 
 const summaryHeading = appointment => {
   const heading = appointment.legacySource === 'SIS' ? 'Imported SIS Appt' : 'Advising Appt'
-  if (appointment.advisor.name) {
+  if (get(appointment, 'advisor.name')) {
     return `${heading}: ${appointment.advisor.name}`
   } else {
     return heading

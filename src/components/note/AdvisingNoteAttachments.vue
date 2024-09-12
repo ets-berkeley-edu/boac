@@ -82,7 +82,7 @@
     <ul
       :id="`${idPrefix}attachments-list`"
       aria-label="attachments"
-      class="list-no-bullets mt-2"
+      class="list-no-bullets advising-note-pill-list mt-2"
     >
       <li
         v-for="(attachment, index) in modelProxy.attachments"
@@ -91,7 +91,6 @@
         <PillItem
           :id="`${idPrefix}attachment-${index}`"
           :aria-label="downloadable ? `Download attachment ${attachment.displayName}` : null"
-          clazz="attachment-chip"
           :closable="!readOnly && currentUser.uid === get(modelProxy.author, 'uid')"
           :disabled="disabled"
           :href="downloadUrl(attachment)"
@@ -100,7 +99,7 @@
           name="attachment"
           :on-click-close="() => onRemoveAttachment(index)"
         >
-          <span class="truncate-with-ellipsis pr-1">
+          <span class="truncate-with-ellipsis pr-1" :class="{'text-anchor': downloadable}">
             {{ attachment.displayName }}
           </span>
         </PillItem>
@@ -260,13 +259,6 @@ onBeforeUnmount(() => {
   }
 })
 </script>
-
-<style scoped>
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.attachment-chip {
-  max-width: 450px;
-}
-</style>
 
 <style>
 .choose-file-for-note-attachment .v-label.v-field-label {
