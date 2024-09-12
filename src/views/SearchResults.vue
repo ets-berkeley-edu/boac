@@ -144,7 +144,8 @@
               <div v-if="item.key === 'note'">
                 <SearchResultsHeader
                   class="mb-2 mt-4"
-                  :count-in-view="`${size(results.notes)}${completeNoteResults ? '' : '+'}`"
+                  :count-in-view="size(results.notes)"
+                  :count-total="results.totalNoteCount"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
                 />
@@ -167,7 +168,8 @@
               <div v-if="item.key === 'appointment'">
                 <SearchResultsHeader
                   class="mb-2 mt-4"
-                  :count-in-view="`${size(results.appointments)}${completeAppointmentResults ? '' : '+'}`"
+                  :count-in-view="size(results.appointments)"
+                  :count-total="results.totalAppointmentCount"
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
                 />

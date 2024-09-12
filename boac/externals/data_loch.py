@@ -929,19 +929,6 @@ def search_sis_advising(
     else:
         query_columns += ', 0 AS rank'
 
-    sql = f"""SELECT DISTINCT {query_columns} FROM {query_tables}
-        {topic_join}
-        WHERE TRUE
-        {advisor_filter}
-        {sid_filter}
-        {date_filter}
-        {privacy_filter}
-        ORDER BY rank DESC, an.id"""
-
-    if offset is not None and offset > 0:
-        sql += ' OFFSET %(offset)s'
-    if limit is not None and limit < 150:  # Sanity check large limits
-        sql += ' LIMIT %(limit)s'
     params = dict(
         search_phrase=search_phrase,
         advisor_csid=advisor_csid,
@@ -954,7 +941,27 @@ def search_sis_advising(
         offset=offset,
         limit=limit,
     )
-    return safe_execute_rds(sql, **params)
+    where_clause = f"""
+        TRUE
+        {advisor_filter}
+        {sid_filter}
+        {date_filter}
+        {privacy_filter}"""
+    sql = f"""SELECT DISTINCT {query_columns} FROM {query_tables}
+        {topic_join}
+        WHERE {where_clause}
+        ORDER BY rank DESC, an.id"""
+
+    if offset is not None and offset > 0:
+        sql += ' OFFSET %(offset)s'
+    if limit is not None and limit < 150:  # Sanity check large limits
+        sql += ' LIMIT %(limit)s'
+    rows = safe_execute_rds(sql, **params)
+    total_matching = safe_execute_rds(f'SELECT COUNT(*) FROM {query_tables} {topic_join} WHERE {where_clause}', **params)
+    return {
+        'rows': rows,
+        'total_matching_count': total_matching[0]['count'],
+    }
 
 
 def get_academic_plans_for_advisor(advisor_sid):

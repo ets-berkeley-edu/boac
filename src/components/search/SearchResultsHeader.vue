@@ -26,8 +26,7 @@ defineProps({
     type: [Number, String]
   },
   countTotal: {
-    default: undefined,
-    required: false,
+    required: true,
     type: Number
   },
   resultsType: {
