@@ -63,6 +63,7 @@
               color="primary"
               density="compact"
               hide-details
+              width="600"
             >
               <template #label>
                 <span class="ml-2">
