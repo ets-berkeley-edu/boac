@@ -16,7 +16,7 @@
       <div class="pb-1">
         <v-btn
           class="px-0 text-primary"
-          :class="degreeStore.disableButtons ? 'text-primary' : 'text-black-50'"
+          :class="degreeStore.disableButtons ? 'text-primary' : 'text-medium-emphasis'"
           density="compact"
           :disabled="!degreeStore.disableButtons"
           flat
@@ -29,7 +29,7 @@
       <div>
         <v-btn
           class="px-0 text-primary"
-          :class="degreeStore.disableButtons ? 'text-primary' : 'text-black-50'"
+          :class="degreeStore.disableButtons ? 'text-primary' : 'text-medium-emphasis'"
           density="compact"
           flat
           :prepend-icon="mdiBug"

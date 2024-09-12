@@ -28,7 +28,7 @@
           <div>
             <label
               for="course-name-input"
-              class="font-weight-700"
+              class="font-weight-bold"
             >
               <span class="sr-only">Course </span>Name
             </label>
@@ -64,14 +64,14 @@
               :disable="isSaving"
               :error-message="unitsErrorMessage"
               input-id="course-units-input"
-              label-class="font-weight-700 mb-1 pr-2"
+              label-class="font-weight-bold mb-1 pr-2"
               :on-submit="save"
               :set-units-lower="setUnits"
               :units-lower="units"
             />
           </div>
           <div class="mt-2">
-            <label id="units-grade-label" for="course-grade-input" class="font-weight-700 mb-1 pr-2">
+            <label id="units-grade-label" for="course-grade-input" class="font-weight-bold mb-1 pr-2">
               Grade
             </label>
             <v-text-field
@@ -92,7 +92,7 @@
             />
           </div>
           <div class="mt-3">
-            <label for="course-note-textarea" class="font-weight-700">
+            <label for="course-note-textarea" class="font-weight-bold">
               Note
             </label>
             <div class="mt-1">

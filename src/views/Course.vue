@@ -231,7 +231,7 @@ const reload = (sectionId, termId) => {
   padding: 0 10px 0 10px;
 }
 .course-column-description {
-  background-color: #e3f5ff;
+  background-color: rgb(var(--v-theme-sky-blue));
   flex: 3 0 0;
   padding: 10px 10px 10px 20px;
 }

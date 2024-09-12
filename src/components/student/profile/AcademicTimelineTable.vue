@@ -64,7 +64,7 @@
   <div
     v-if="!searchResults && !messagesVisible.length"
     id="zero-messages"
-    class="font-size-16 font-weight-700 ml-6 my-4 text-grey-darken-1"
+    class="font-size-16 font-weight-bold ml-6 my-4 text-grey-darken-1"
   >
     <span v-if="selectedFilter && showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s authored by you.</span>
     <span v-if="selectedFilter && !showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s</span>
@@ -91,14 +91,21 @@
       <tbody>
         <tr v-if="creatingNoteEvent" class="message-row-read message-row border-t-sm border-b-sm">
           <td class="column-pill">
-            <div class="pill text-center text-uppercase text-white pill-note pa-2">
+            <v-chip
+              :id="`timeline-tab-${activeTab}-pill-creating-note`"
+              class="border pill-note font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
+              color="category-note"
+              density="compact"
+              label
+              variant="flat"
+            >
               <span class="sr-only">Creating new</span> advising note
-            </div>
+            </v-chip>
           </td>
           <td class="column-message">
             <div class="d-flex px-2">
-              <div class="mr-2">
-                <v-icon :icon="mdiSync" spin />
+              <div class="pr-2">
+                <v-progress-circular indeterminate size="16" width="2" />
               </div>
               <div class="text-grey-darken-2">
                 {{ creatingNoteEvent.subject }}
@@ -107,7 +114,7 @@
           </td>
           <td></td>
           <td>
-            <div class="pr-2 float-right text-no-wrap text-grey-darken-2">
+            <div class="pr-2 float-right text-no-wrap text-medium-emphasis">
               <TimelineDate
                 :date="new Date()"
                 :include-time-of-day="false"
@@ -123,53 +130,51 @@
           class="message-row border-t-sm border-b-sm"
         >
           <td class="column-pill">
-            <div class="pa-2">
-              <div
-                :id="`timeline-tab-${activeTab}-pill-${index}`"
-                :class="`pill-${message.type}`"
-                class="pill text-center text-uppercase text-white"
-                :role="message.type === 'requirement' ? 'cell' : 'button'"
-                :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
-                @keyup.enter="open(message, true)"
-                @click="open(message, true)"
-              >
-                <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
-              </div>
-              <div
-                v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
-                class="d-flex flex-column"
-              >
-                <div class="pt-2">
-                  <v-btn
-                    v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)"
-                    :id="`edit-note-${message.id}-button`"
-                    class="pl-0"
-                    color="primary"
-                    density="compact"
-                    :disabled="noteStore.disableNewNoteButton"
-                    slim
-                    :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
-                    variant="text"
-                    @keydown.enter.stop="editNote(message)"
-                    @click.stop="editNote(message)"
-                  />
-                </div>
-                <div>
-                  <v-btn
-                    v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
-                    :id="`delete-note-button-${message.id}`"
-                    class="pl-0"
-                    color="primary"
-                    density="compact"
-                    :disabled="noteStore.disableNewNoteButton"
-                    slim
-                    :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
-                    variant="text"
-                    @keydown.enter.stop="onClickDeleteNote(message)"
-                    @click.stop="onClickDeleteNote(message)"
-                  />
-                </div>
-              </div>
+            <v-chip
+              :id="`timeline-tab-${activeTab}-pill-${index}`"
+              class="border font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
+              :class="`pill-${message.type}`"
+              :color="`category-${message.type}`"
+              density="compact"
+              label
+              variant="flat"
+              :role="message.type === 'requirement' ? 'cell' : 'button'"
+              :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
+              @keyup.enter="open(message, true)"
+              @click="open(message, true)"
+            >
+              <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
+            </v-chip>
+            <div
+              v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
+              class="d-flex flex-column px-2"
+            >
+              <v-btn
+                v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)"
+                :id="`edit-note-${message.id}-button`"
+                class="mx-auto my-1"
+                color="primary"
+                density="compact"
+                :disabled="noteStore.disableNewNoteButton"
+                slim
+                :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
+                variant="text"
+                @keydown.enter.stop="editNote(message)"
+                @click.stop="editNote(message)"
+              />
+              <v-btn
+                v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
+                :id="`delete-note-button-${message.id}`"
+                class="mx-auto my-1"
+                color="primary"
+                density="compact"
+                :disabled="noteStore.disableNewNoteButton"
+                slim
+                :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
+                variant="text"
+                @keydown.enter.stop="onClickDeleteNote(message)"
+                @click.stop="onClickDeleteNote(message)"
+              />
             </div>
           </td>
           <td
@@ -179,10 +184,9 @@
             <div
               :id="`timeline-tab-${activeTab}-message-${index}`"
               :aria-pressed="includes(openMessages, message.transientId)"
-              class="pl-2"
+              class="d-flex align-center pl-2 w-100"
               :class="{
                 'message-open': includes(openMessages, message.transientId) && message.type !== 'requirement' ,
-                'truncate': !includes(openMessages, message.transientId),
                 'img-blur': currentUser.inDemoMode && ['appointment', 'eForm', 'note'].includes(message.type)
               }"
               :role="message.type === 'requirement' ? '' : 'button'"
@@ -191,10 +195,30 @@
               @click="open(message, true)"
             >
               <span v-if="['appointment', 'eForm', 'note'].includes(message.type) && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
-              <v-icon v-if="message.status === 'Satisfied'" :icon="mdiCheckBold" class="requirements-icon text-success" />
-              <v-icon v-if="message.status === 'Not Satisfied'" :icon="mdiExclamationThick" class="requirements-icon text-icon-exclamation" />
-              <v-icon v-if="message.status === 'In Progress'" :icon="mdiClockOutline" class="requirements-icon text-icon-clock" />
-              <span v-if="!includes(['appointment', 'eForm', 'note'] , message.type)">{{ message.message }}</span>
+              <v-icon
+                v-if="message.status === 'Satisfied'"
+                :icon="mdiCheckBold"
+                class="requirements-icon"
+                color="success"
+              />
+              <v-icon
+                v-if="message.status === 'Not Satisfied'"
+                :icon="mdiExclamationThick"
+                class="requirements-icon"
+                color="warning"
+              />
+              <v-icon
+                v-if="message.status === 'In Progress'"
+                :icon="mdiClockOutline"
+                class="requirements-icon"
+                color="secondary"
+              />
+              <span
+                v-if="!includes(['appointment', 'eForm', 'note'] , message.type)"
+                :class="{'truncate-with-ellipsis': !includes(openMessages, message.transientId)}"
+              >
+                {{ message.message }}
+              </span>
               <AdvisingNote
                 v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                 :after-saved="afterNoteEdit"
@@ -363,8 +387,7 @@ import {
   mdiMenuDown,
   mdiMenuRight,
   mdiMenuUp,
-  mdiPaperclip,
-  mdiSync
+  mdiPaperclip
 } from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session/index'
@@ -761,54 +784,42 @@ table {
 .message-row:active,
 .message-row:focus,
 .message-row:hover {
-  background-color: #e3f5ff;
+  background-color: rgb(var(--v-theme-sky-blue));
 }
 .message-row-read {
   background-color: rgb(var(--v-theme-light-grey));
 }
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-alert {
-  /* used by dynamic class attribute  */
-  background-color: #eb9d3e;
   width: 60px;
 }
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-appointment {
-  /* used by dynamic class attribute  */
-  background-color: #eee;
-  color: #666 !important;
-  font-weight: bolder;
   width: 100px;
 }
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-eForm {
-  /* used by dynamic class attribute  */
-  background-color: #5fbeb6;
   width: 60px;
 }
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-hold {
-  /* used by dynamic class attribute  */
-  background-color: #bc74fe;
   width: 60px;
 }
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-note {
-  background-color: #999;
   width: 100px;
 }
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-requirement {
-  /* used by dynamic class attribute  */
-  background-color: #93c165;
   width: 100px;
 }
 .requirements-icon {
+  padding: 0 4px 0 0;
   width: 20px;
 }
 .td-timeline-expanded {
   position: absolute;
   right: 26px;
-}
-.text-icon-clock {
-  color: #8bbdda;
-}
-.text-icon-exclamation {
-  color: rgb(var(--v-theme-warning));
 }
 .width-one-percent {
   width: 1%;

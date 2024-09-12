@@ -6,7 +6,7 @@
     />
     <v-btn
       id="advanced-search-close"
-      class="font-size-14 font-weight-700"
+      class="font-size-14 font-weight-bold"
       density="comfortable"
       elevation="0"
       icon

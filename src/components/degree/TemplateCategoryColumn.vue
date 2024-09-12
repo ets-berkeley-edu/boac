@@ -1,7 +1,15 @@
 <template>
   <div :id="`category-column-${position}`">
     <div v-if="!degreeStore.sid" class="align-center d-flex justify-space-between pb-3">
-      <div class="pill bg-grey text-no-wrap px-2 text-uppercase text-white">Column {{ position }}</div>
+      <v-chip
+        class="font-size-13 text-no-wrap px-2 text-uppercase"
+        color="grey-darken-1"
+        density="compact"
+        label
+        variant="flat"
+      >
+        Column {{ position }}
+      </v-chip>
       <v-btn
         v-if="currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"

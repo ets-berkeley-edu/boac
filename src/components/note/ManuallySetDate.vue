@@ -2,7 +2,7 @@
   <div>
     <label
       id="manually-set-date-label"
-      class="font-size-16 font-weight-700"
+      class="font-size-16 font-weight-bold"
       for="manually-set-date-input"
     >
       Manually Set Date

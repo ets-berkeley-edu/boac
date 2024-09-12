@@ -62,7 +62,7 @@
                 <v-col cols="8">
                   <v-btn
                     :id="`load-note-template-${template.id}`"
-                    class="font-weight-700 d-flex justify-start template-dropdown-title"
+                    class="font-weight-bold d-flex justify-start template-dropdown-title"
                     color="primary"
                     block
                     density="compact"

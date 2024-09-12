@@ -13,7 +13,7 @@
         <span
           v-if="!isEmpty(sidsToInclude)"
           id="target-student-count-alert"
-          :class="{'text-error': sidsToInclude.length >= 250, 'font-weight-700': sidsToInclude.length >= 500}"
+          :class="{'text-error': sidsToInclude.length >= 250, 'font-weight-bold': sidsToInclude.length >= 500}"
         >
           Degree check will be added to {{ pluralize('student record', sidsToInclude.length) }}.
           <span v-if="sidsToInclude.length >= 500">Are you sure?</span>
@@ -35,27 +35,29 @@
           for="degree-check-add-student-input"
           class="input-label text mt-1"
         >
-          <span class="font-weight-700">Student</span>
+          <span class="font-weight-bold">Student</span>
           <br />
           <span class="font-size-14">Type or paste a list of SID numbers below. Example: 9999999990, 9999999991</span>
         </label>
-        <div class="mt-2">
+        <div class="pt-2">
           <v-textarea
             id="degree-check-add-student"
             v-model="textarea"
             aria-label="Type or paste a list of student SID numbers here"
             density="compact"
             :disabled="isBusy"
+            :error="error"
             hide-details
             max-rows="30"
             rows="8"
             variant="outlined"
             @keydown.esc="onCancel"
+            @update:model-value="clearErrors"
           />
         </div>
-        <div class="align-start d-flex mt-3 w-100">
+        <div class="align-start d-flex pt-3 w-100">
           <div>
-            <ul v-if="addedStudents.length" class="mb-2 list-style-none pl-0">
+            <ul v-if="addedStudents.length" class="mb-2 list-no-bullets pl-0">
               <li
                 v-for="(addedStudent, index) in addedStudents"
                 :key="addedStudent.sid"
@@ -94,13 +96,16 @@
           </div>
         </div>
       </div>
-      <div
+      <v-alert
         v-if="error || warning"
-        :class="{'error-message-container': error, 'warning-message-container': warning}"
-        class="mb-3 mt-2 pa-3 w-75"
-        v-html="error || warning"
+        aria-live="polite"
+        class="mt-2 mb-3 w-75"
+        density="compact"
+        :text="error || warning"
+        :type="error ? 'error' : 'warning'"
+        variant="tonal"
       />
-      <div class="mb-2">
+      <div class="pb-2">
         <BatchAddStudentSet
           v-if="currentUser.myCohorts.length"
           :add-object="addCohort"
@@ -112,7 +117,7 @@
           :remove-object="removeCohort"
         />
       </div>
-      <div class="mb-3">
+      <div class="pb-3">
         <BatchAddStudentSet
           v-if="currentUser.myCuratedGroups.length"
           :add-object="addCuratedGroup"
@@ -124,7 +129,7 @@
           :remove-object="removeCuratedGroup"
         />
       </div>
-      <div class="mb-3 w-75">
+      <div class="pb-3 w-75">
         <DegreeTemplatesMenu
           :disabled="isSaving"
           :on-select="addTemplate"

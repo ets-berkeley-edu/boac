@@ -57,7 +57,7 @@
             </a>
           </div>
           <div v-if="!item.name" class="text-nowrap">
-            <span class="faint-text">Name unavailable (UID: {{ item.uid }})</span>
+            <span class="text-medium-emphasis">Name unavailable (UID: {{ item.uid }})</span>
           </div>
         </div>
       </template>

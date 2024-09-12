@@ -3,7 +3,7 @@
     <div class="mb-2">
       <label
         :for="`batch-degree-check-${objectType}`"
-        class="font-weight-700 input-label"
+        class="font-weight-bold input-label"
       ><span class="sr-only">Select a </span>{{ header }}</label>
     </div>
     <select
@@ -31,7 +31,7 @@
         {{ object.name }}&nbsp;&nbsp;({{ pluralize('student', object.totalStudentCount) }})
       </option>
     </select>
-    <ul :id="`batch-degree-check-${objectType}-list`" class="mb-2 list-style-none pl-0 w-75">
+    <ul :id="`batch-degree-check-${objectType}-list`" class="mb-2 list-no-bullets pl-0 w-75">
       <li
         v-for="(addedObject, index) in added"
         :key="index"

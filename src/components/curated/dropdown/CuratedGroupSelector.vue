@@ -257,7 +257,7 @@ label {
   background-color: #96C3de !important;
 }
 .checkbox-container {
-  background-color: #e3f5ff;
+  background-color: rgb(var(--v-theme-sky-blue));
   border: 1px solid #999;
   border-radius: 6px;
   height: 36px;

@@ -97,7 +97,7 @@
                   v-if="isAlertGrade(course.grade)"
                   aria-label="Non-passing grade"
                   :icon="mdiAlertRhombus"
-                  class="boac-exclamation ml-1"
+                  class="warning ml-1"
                 />
               </td>
               <td v-if="!ignored" class="font-size-14 td-term">

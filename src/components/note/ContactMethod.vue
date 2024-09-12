@@ -2,7 +2,7 @@
   <div>
     <label
       id="contact-type-label"
-      class="font-size-16 font-weight-700"
+      class="font-size-16 font-weight-bold"
       for="contact-type-options"
     >
       Contact Method

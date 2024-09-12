@@ -5,7 +5,7 @@
       class="align-center border-b-sm d-flex mb-3 pb-3 pt-4 px-4 warning-message-container"
     >
       <div class="d-inline-block pr-2 w-100">
-        <span class="font-weight-700">Note:</span> Revisions to the
+        <span class="font-weight-bold">Note:</span> Revisions to the
         <router-link
           id="original-degree-template"
           target="_blank"

@@ -9,7 +9,7 @@
           Passenger Manifest
         </h1>
         <div class="pr-3">
-          <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${contextStore.config.apiBaseUrl}/api/users/csv`">download</a>)</span>
+          <span class="font-size-14 text-medium-emphasis">(<a id="download-boa-users-csv" :href="`${contextStore.config.apiBaseUrl}/api/users/csv`">download</a>)</span>
         </div>
       </div>
       <EditUserProfileModal

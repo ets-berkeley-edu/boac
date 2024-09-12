@@ -3,7 +3,7 @@
     <div v-if="course.manuallyCreatedBy">
       <label
         for="course-name-input"
-        class="font-weight-700 mb-1"
+        class="font-weight-bold mb-1"
       >
         <span class="sr-only">Course </span>Name
       </label>
@@ -58,7 +58,7 @@
       />
     </div>
     <div v-if="course.manuallyCreatedBy" class="mt-2">
-      <label for="course-grade-input" class="font-weight-700">
+      <label for="course-grade-input" class="font-weight-bold">
         Grade
       </label>
       <v-text-field

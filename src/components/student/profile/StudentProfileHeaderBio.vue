@@ -6,7 +6,7 @@
           class="mb-1"
           :class="{
             'demo-mode-blur': currentUser.inDemoMode,
-            'font-size-20 font-weight-700 mb-1': compact,
+            'font-size-20 font-weight-bold mb-1': compact,
             'student-section-header': !compact
           }"
           v-html="student.name"
@@ -73,10 +73,10 @@
           </a>
         </div>
       </div>
-      <div v-if="isAscInactive" id="student-bio-inactive-asc" class="font-weight-700 text-error">
+      <div v-if="isAscInactive" id="student-bio-inactive-asc" class="font-weight-bold text-error">
         ASC INACTIVE
       </div>
-      <div v-if="isCoeInactive" id="student-bio-inactive-coe" class="font-weight-700 text-error">
+      <div v-if="isCoeInactive" id="student-bio-inactive-coe" class="font-weight-bold text-error">
         CoE INACTIVE
       </div>
     </div>

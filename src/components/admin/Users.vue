@@ -266,7 +266,7 @@
               </span>
             </div>
             <div v-if="!item.name" class="name">
-              <span class="faint-text text-body-2">(Name unavailable)</span>
+              <span class="text-medium-emphasis">(Name unavailable)</span>
             </div>
             <div v-if="item.name" class="name">
               <a
