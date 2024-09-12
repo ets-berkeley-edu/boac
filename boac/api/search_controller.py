@@ -223,7 +223,7 @@ def _appointments_search(search_phrase, params):
     if datetime_from and datetime_to and datetime_to <= datetime_from:
         raise BadRequestError('dateFrom must be less than dateTo')
 
-    appointment_results = search_advising_appointments(
+    return search_advising_appointments(
         search_phrase=search_phrase,
         advisor_uid=advisor_uid,
         student_csid=student_csid,
@@ -234,9 +234,6 @@ def _appointments_search(search_phrase, params):
         offset=offset,
         limit=limit,
     )
-    return {
-        'appointments': appointment_results,
-    }
 
 
 def _student_search(search_phrase, params, order_by):
@@ -345,7 +342,7 @@ def _notes_search(search_phrase, params):
             if not UniversityDept.find_by_dept_code(code):
                 raise BadRequestError('Invalid department code')
 
-    notes_results = search_advising_notes(
+    return search_advising_notes(
         search_phrase=search_phrase,
         author_csid=author_csid,
         author_uid=author_uid,
@@ -357,6 +354,3 @@ def _notes_search(search_phrase, params):
         offset=offset,
         limit=limit,
     )
-    return {
-        'notes': notes_results,
-    }

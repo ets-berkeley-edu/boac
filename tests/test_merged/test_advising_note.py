@@ -218,8 +218,11 @@ class TestMergedAdvisingNote:
 
     def test_search_advising_notes(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        notes = search_advising_notes(search_phrase='herostratus')
+        results = search_advising_notes(search_phrase='herostratus')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
         assert len(notes) == 1
+        assert total_note_count == 1
         assert '<strong>Herostratus</strong> lives' in notes[0]['noteSnippet']
         assert notes[0]['noteSnippet'].startswith('...iniquity of oblivion blindely scattereth her poppy')
         assert notes[0]['noteSnippet'].endswith('confounded that of himself. In vain we...')
@@ -233,97 +236,140 @@ class TestMergedAdvisingNote:
 
     def test_search_for_private_advising_notes(self, fake_auth, mock_private_advising_note):
         fake_auth.login(ce3_advisor_uid)
-        notes = search_advising_notes(search_phrase='neon', author_uid=ce3_advisor_uid)
+        results = search_advising_notes(search_phrase='neon', author_uid=ce3_advisor_uid)
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert total_note_count == 0
         assert notes == []
 
     def test_search_advising_notes_by_category(self, app, fake_auth):
         """Matches legacy category/subcategory for SIS advising notes only if body is blank."""
         fake_auth.login(coe_advisor)
-        notes = search_advising_notes(search_phrase='Quick Question')
+        results = search_advising_notes(search_phrase='Quick Question')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
         assert len(notes) == 1
+        assert total_note_count == 1
         assert notes[0]['noteSnippet'] == '<strong>Quick</strong> <strong>Question</strong>, Unanswered'
 
     def test_search_for_asc_advising_notes(self, app, fake_auth):
         fake_auth.login(asc_advisor)
-        response = search_advising_notes(search_phrase='kilmister')
-        assert len(response) == 1
-        assert response[0]['noteSnippet'] == ''
-        assert response[0]['advisorName'] == 'Lemmy Kilmister'
-        assert parse(response[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
-        assert response[0]['updatedAt'] is None
-        response = search_advising_notes(search_phrase='academic')
-        assert len(response) == 1
-        assert response[0]['noteSnippet'] == ''
-        assert response[0]['advisorName'] == 'Lemmy Kilmister'
-        assert parse(response[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
-        assert response[0]['updatedAt'] is None
+        results = search_advising_notes(search_phrase='kilmister')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 1
+        assert total_note_count == 2
+        assert len(notes) == 1
+        assert notes[0]['noteSnippet'] == ''
+        assert notes[0]['advisorName'] == 'Lemmy Kilmister'
+        assert parse(notes[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
+        assert notes[0]['updatedAt'] is None
+        results = search_advising_notes(search_phrase='academic')
+        notes = results['notes']
+        assert len(notes) == 1
+        assert notes[0]['noteSnippet'] == ''
+        assert notes[0]['advisorName'] == 'Lemmy Kilmister'
+        assert parse(notes[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
+        assert notes[0]['updatedAt'] is None
 
     def test_search_advising_notes_stemming(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        response = search_advising_notes(search_phrase='spare')
-        assert len(response) == 1
-        assert '<strong>spared</strong>' in response[0]['noteSnippet']
-        response = search_advising_notes(search_phrase='felicity')
-        assert len(response) == 1
-        assert '<strong>felicities</strong>' in response[0]['noteSnippet']
+        results = search_advising_notes(search_phrase='spare')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 1
+        assert total_note_count == 1
+
+        assert '<strong>spared</strong>' in notes[0]['noteSnippet']
+        results = search_advising_notes(search_phrase='felicity')
+        notes = results['notes']
+        assert '<strong>felicities</strong>' in notes[0]['noteSnippet']
 
     def test_search_advising_notes_too_short_to_snippet(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        response = search_advising_notes(search_phrase='campus')
-        assert len(response) == 1
-        assert response[0]['noteSnippet'] == 'Is this student even on <strong>campus</strong>?'
+        results = search_advising_notes(search_phrase='campus')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 1
+        assert total_note_count == 1
+        assert notes[0]['noteSnippet'] == 'Is this student even on <strong>campus</strong>?'
 
     def test_search_advising_notes_ordered_by_relevance(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        response = search_advising_notes(search_phrase='confound')
-        assert len(response) == 2
-        assert response[0]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
-        assert '<strong>confounded</strong> that of himself' in response[1]['noteSnippet']
+        results = search_advising_notes(search_phrase='confound')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 2
+        assert total_note_count == 2
+        assert notes[0]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
+        assert '<strong>confounded</strong> that of himself' in notes[1]['noteSnippet']
 
     def test_search_advising_notes_multiple_terms(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        response = search_advising_notes(search_phrase='burnt diana temple')
-        assert len(response) == 1
-        assert 'Herostratus lives that <strong>burnt</strong> the <strong>Temple</strong> of <strong>Diana</strong>' in response[0]['noteSnippet']
+        results = search_advising_notes(search_phrase='burnt diana temple')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 1
+        assert total_note_count == 1
+        assert 'Herostratus lives that <strong>burnt</strong> the <strong>Temple</strong> of <strong>Diana</strong>' in notes[0]['noteSnippet']
 
     def test_search_advising_notes_no_match(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        response = search_advising_notes(search_phrase='pyramid octopus')
-        assert len(response) == 0
+        results = search_advising_notes(search_phrase='pyramid octopus')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 0
+        assert total_note_count == 0
 
     def test_search_advising_notes_funny_characters(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        response = search_advising_notes(search_phrase='horse; <- epitaph? ->')
-        assert len(response) == 1
-        assert 'Time hath spared the <strong>Epitaph</strong> of Adrians <strong>horse</strong>' in response[0]['noteSnippet']
+        results = search_advising_notes(search_phrase='horse; <- epitaph? ->')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 1
+        assert total_note_count == 1
+        assert 'Time hath spared the <strong>Epitaph</strong> of Adrians <strong>horse</strong>' in notes[0]['noteSnippet']
 
     def test_search_dates(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        response = search_advising_notes(search_phrase='2/1/2019 1:30')
-        assert len(response) == 1
-        assert 'next appt. <strong>2/1/2019</strong> @ <strong>1:30</strong>. Student continued' in response[0]['noteSnippet']
-        response = search_advising_notes(search_phrase='1-24-19')
-        assert len(response) == 1
-        assert 'drop Eng. 123 by <strong>1-24-19</strong>' in response[0]['noteSnippet']
+        results = search_advising_notes(search_phrase='2/1/2019 1:30')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 1
+        assert total_note_count == 1
+        assert 'next appt. <strong>2/1/2019</strong> @ <strong>1:30</strong>. Student continued' in notes[0]['noteSnippet']
+        results = search_advising_notes(search_phrase='1-24-19')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 1
+        assert total_note_count == 1
+        assert 'drop Eng. 123 by <strong>1-24-19</strong>' in notes[0]['noteSnippet']
 
     def test_search_decimals(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        response = search_advising_notes(search_phrase='2.0')
-        assert len(response) == 1
-        assert "Student continued on <strong>2.0</strong> prob (COP) until Sp '19." in response[0]['noteSnippet']
+        results = search_advising_notes(search_phrase='2.0')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 1
+        assert total_note_count == 1
+        assert "Student continued on <strong>2.0</strong> prob (COP) until Sp '19." in notes[0]['noteSnippet']
 
     def test_search_email_address(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        response = search_advising_notes(search_phrase='E-mailed test@berkeley.edu')
-        assert len(response) == 1
+        results = search_advising_notes(search_phrase='E-mailed test@berkeley.edu')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 1
+        assert total_note_count == 1
         assert "until Sp '19. <strong>E-mailed</strong> <strong>test@berkeley.edu</strong>: told her she'll need to drop Eng. 123" \
-            in response[0]['noteSnippet']
+            in notes[0]['noteSnippet']
 
     def test_search_advising_notes_timestamp_format(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        response = search_advising_notes(search_phrase='confound')
-        ucbconversion_note = response[0]
-        cs_note = response[1]
+        results = search_advising_notes(search_phrase='confound')
+        notes = results['notes']
+        ucbconversion_note = notes[0]
+        cs_note = notes[1]
         assert ucbconversion_note['createdAt']
         assert ucbconversion_note['updatedAt'] is None
         assert cs_note['createdAt']
@@ -336,11 +382,14 @@ class TestMergedAdvisingNote:
             subject='Confound this note',
             body='and its successors and assigns',
         )
-        response = search_advising_notes(search_phrase='confound')
-        assert len(response) == 3
-        assert response[0]['noteSnippet'] == '<strong>Confound</strong> this note - and its successors and assigns'
-        assert response[1]['noteSnippet'].startswith('I am <strong>confounded</strong>')
-        assert response[2]['noteSnippet'].startswith('...pity the founder')
+        results = search_advising_notes(search_phrase='confound')
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 3
+        assert total_note_count == 3
+        assert notes[0]['noteSnippet'] == '<strong>Confound</strong> this note - and its successors and assigns'
+        assert notes[1]['noteSnippet'].startswith('I am <strong>confounded</strong>')
+        assert notes[2]['noteSnippet'].startswith('...pity the founder')
 
     def test_search_advising_notes_paginates_new_and_old(self, app, fake_auth):
         fake_auth.login(coe_advisor)
@@ -350,17 +399,22 @@ class TestMergedAdvisingNote:
                 subject='Planned redundancy',
                 body=f'Confounded note {i + 1}',
             )
-        response = search_advising_notes(search_phrase='confound', offset=0, limit=4)
-        assert len(response) == 4
-        assert response[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 1'
-        assert response[1]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 2'
-        assert response[2]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 3'
-        assert response[3]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 4'
-        response = search_advising_notes(search_phrase='confound', offset=4, limit=4)
-        assert len(response) == 3
-        assert response[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 5'
-        assert response[1]['noteSnippet'].startswith('I am <strong>confounded</strong>')
-        assert response[2]['noteSnippet'].startswith('...pity the founder')
+        results = search_advising_notes(search_phrase='confound', offset=0, limit=4)
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 4
+        assert total_note_count > 4
+        assert notes[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 1'
+        assert notes[1]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 2'
+        assert notes[2]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 3'
+        assert notes[3]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 4'
+        results = search_advising_notes(search_phrase='confound', offset=4, limit=4)
+        notes = results['notes']
+        total_note_count = results['totalNoteCount']
+        assert len(notes) == 3
+        assert notes[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 5'
+        assert notes[1]['noteSnippet'].startswith('I am <strong>confounded</strong>')
+        assert notes[2]['noteSnippet'].startswith('...pity the founder')
 
     def test_search_advising_notes_narrowed_by_author(self, app, fake_auth):
         """Narrows results for both new and legacy advising notes by author SID."""
@@ -383,10 +437,16 @@ class TestMergedAdvisingNote:
             )
         fake_auth.login(coe_advisor)
         wide_response = search_advising_notes(search_phrase='Brigitte')
-        assert len(wide_response) == 4
+        notes = wide_response['notes']
+        total_note_count = wide_response['totalNoteCount']
+        assert len(notes) == 4
+        assert total_note_count == 4
         narrow_response = search_advising_notes(search_phrase='Brigitte', author_csid=joni['sid'])
-        assert len(narrow_response) == 2
-        new_note, legacy_note = narrow_response[0], narrow_response[1]
+        notes = narrow_response['notes']
+        total_note_count = narrow_response['totalNoteCount']
+        assert len(notes) == 2
+        assert total_note_count == 2
+        new_note, legacy_note = notes[0], notes[1]
         assert new_note['advisorUid'] == joni['uid']
         assert legacy_note['advisorSid'] == joni['sid']
 
@@ -400,10 +460,14 @@ class TestMergedAdvisingNote:
             )
         fake_auth.login(coe_advisor)
         wide_response = search_advising_notes(search_phrase='student')
-        assert len(wide_response) == 5
+        notes = wide_response['notes']
+        total_note_count = wide_response['totalNoteCount']
+        assert len(notes) == 5
+        assert total_note_count == 5
         narrow_response = search_advising_notes(search_phrase='student', student_csid='9100000000')
-        assert len(narrow_response) == 2
-        new_note, legacy_note = narrow_response[0], narrow_response[1]
+        notes = narrow_response['notes']
+        assert len(notes) == 2
+        new_note, legacy_note = notes[0], notes[1]
         assert new_note['studentSid'] == '9100000000'
         assert legacy_note['studentSid'] == '9100000000'
 
@@ -414,13 +478,13 @@ class TestMergedAdvisingNote:
             subject='Who is this?',
             body="Not a student in the loch, that's for sure",
         )
-        assert len(search_advising_notes(search_phrase='loch')) == 0
+        assert len(search_advising_notes(search_phrase='loch')['notes']) == 0
         _create_coe_advisor_note(
             sid='11667051',
             subject='A familiar face',
             body='Whereas this student is a most distinguished denizen of the loch',
         )
-        assert len(search_advising_notes(search_phrase='loch')) == 1
+        assert len(search_advising_notes(search_phrase='loch')['notes']) == 1
 
     def test_search_advising_notes_narrowed_by_topic(self, app, fake_auth):
         for topic in ['Good Show', 'Bad Show']:
@@ -431,9 +495,15 @@ class TestMergedAdvisingNote:
             )
         fake_auth.login(coe_advisor)
         wide_response = search_advising_notes(search_phrase='Brigitte')
-        assert len(wide_response) == 4
+        notes = wide_response['notes']
+        total_note_count = wide_response['totalNoteCount']
+        assert len(notes) == 4
+        assert total_note_count == 4
         narrow_response = search_advising_notes(search_phrase='Brigitte', topic='Good Show')
-        assert len(narrow_response) == 2
+        notes = narrow_response['notes']
+        total_note_count = narrow_response['totalNoteCount']
+        assert len(notes) == 2
+        assert total_note_count == 2
 
     def test_search_legacy_advising_notes_narrowed_by_date(self, app, fake_auth):
         halloween_2017 = datetime(2017, 10, 31, tzinfo=pytz.timezone(app.config['TIMEZONE'])).astimezone(pytz.utc)
@@ -447,19 +517,22 @@ class TestMergedAdvisingNote:
         fake_auth.login(coe_advisor)
 
         unbounded = search_advising_notes(search_phrase='Brigitte')
-        assert len(unbounded) == 2
+        notes = unbounded['notes']
+        total_note_count = unbounded['totalNoteCount']
+        assert len(notes) == 2
+        assert total_note_count == 2
         lower_bound = search_advising_notes(search_phrase='Brigitte', datetime_from=days[2])
-        assert len(lower_bound) == 1
+        assert len(lower_bound['notes']) == 1
         upper_bound = search_advising_notes(search_phrase='Brigitte', datetime_to=days[2])
-        assert len(upper_bound) == 1
+        assert len(upper_bound['notes']) == 1
         closed_1 = search_advising_notes(search_phrase='Brigitte', datetime_from=days[0], datetime_to=days[2])
-        assert len(closed_1) == 1
+        assert len(closed_1['notes']) == 1
         closed_2 = search_advising_notes(search_phrase='Brigitte', datetime_from=days[2], datetime_to=days[3])
-        assert len(closed_2) == 1
+        assert len(closed_2['notes']) == 1
         closed_3 = search_advising_notes(search_phrase='Brigitte', datetime_from=days[0], datetime_to=days[3])
-        assert len(closed_3) == 2
+        assert len(closed_3['notes']) == 2
         closed_4 = search_advising_notes(search_phrase='Brigitte', datetime_from=days[3], datetime_to=days[4])
-        assert len(closed_4) == 0
+        assert len(closed_4['notes']) == 0
 
     def test_search_new_advising_notes_narrowed_by_date(self, app, fake_auth):
         today = datetime.now().replace(hour=0, minute=0, second=0, tzinfo=pytz.timezone(app.config['TIMEZONE'])).astimezone(pytz.utc)
@@ -472,17 +545,17 @@ class TestMergedAdvisingNote:
             subject='Bryant Park',
             body='There were loads of them',
         )
-        assert len(search_advising_notes(search_phrase='Bryant')) == 1
+        assert len(search_advising_notes(search_phrase='Bryant')['notes']) == 1
 
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday)) == 1
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_to=yesterday)) == 0
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=yesterday)) == 0
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday)['notes']) == 1
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_to=yesterday)['notes']) == 0
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=yesterday)['notes']) == 0
 
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow)) == 0
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_to=tomorrow)) == 1
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow, datetime_to=tomorrow)) == 0
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow)['notes']) == 0
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_to=tomorrow)['notes']) == 1
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow, datetime_to=tomorrow)['notes']) == 0
 
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=tomorrow)) == 1
+        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=tomorrow)['notes']) == 1
 
     def test_stream_zipped_bundle(self, app):
         with mock_sis_note_attachment(app):

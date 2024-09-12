@@ -289,7 +289,8 @@ def search_advising_notes(
     # Our offset calculations are unforuntately fussy because note parsing might reveal notes associated with students no
     # longer in BOA, which we won't include in the feed; so we don't actually know the length of our result set until parsing
     # is complete.
-    cutoff = min(len(local_results), offset + limit)
+    total_boa_note_count = len(local_results)
+    cutoff = min(total_boa_note_count, offset + limit)
     notes_feed = _get_local_notes_search_results(local_results, cutoff, search_terms)
     local_notes_count = len(notes_feed)
     notes_feed = notes_feed[offset:]
@@ -297,7 +298,10 @@ def search_advising_notes(
     benchmark('end local notes parsing')
 
     if len(notes_feed) == limit:
-        return notes_feed
+        return {
+            'notes': notes_feed,
+            'totalNoteCount': total_boa_note_count,
+        }
 
     benchmark('begin loch notes query')
     loch_results = data_loch.search_advising_notes(
@@ -315,10 +319,13 @@ def search_advising_notes(
     benchmark('end loch notes query')
 
     benchmark('begin loch notes parsing')
-    notes_feed += _get_loch_notes_search_results(loch_results, search_terms)
+    notes_feed += _get_loch_notes_search_results(loch_results['rows'], search_terms)
     benchmark('end loch notes parsing')
 
-    return notes_feed
+    return {
+        'notes': notes_feed,
+        'totalNoteCount': total_boa_note_count + loch_results['total_matching_count'],
+    }
 
 
 def _get_local_notes_search_results(local_results, cutoff, search_terms):

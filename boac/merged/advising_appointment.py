@@ -128,10 +128,13 @@ def search_advising_appointments(
     benchmark('end loch appointments query')
 
     benchmark('begin  loch appointments parsing')
-    appointments_feed = _get_loch_appointments_search_results(loch_results, search_terms)
+    appointments_feed = _get_loch_appointments_search_results(loch_results['rows'], search_terms)
     benchmark('end loch appointments parsing')
 
-    return appointments_feed
+    return {
+        'appointments': appointments_feed,
+        'totalAppointmentCount': loch_results['total_matching_count'],
+    }
 
 
 def appointment_to_compatible_json(appointment, topics=(), attachments=None, event=None):

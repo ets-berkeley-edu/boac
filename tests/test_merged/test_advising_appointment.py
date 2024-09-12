@@ -68,20 +68,22 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
     def test_search(self):
         """Finds legacy appointments matching the criteria, ordered by rank."""
         results = search_advising_appointments(search_phrase='life')
-        assert len(results) == 1
-        assert results[0]['advisorName'] == 'Loramps Glub'
-        assert results[0]['advisorRole'] is None
-        assert results[0]['advisorUid'] == '1081940'
-        assert results[0]['advisorDeptCodes'] == ['UWASC']
-        assert 'deptCode' not in results[0]
-        assert results[0]['details'] == 'Art imitates life.'
-        assert results[0]['detailsSnippet'] == 'Art imitates <strong>life</strong>.'
-        assert 'cancelReason' not in results[0]
-        assert 'cancelReasonExplained' not in results[0]
-        assert 'status' not in results[0]
-        assert results[0]['studentSid'] == '9100000000'
-        assert results[0]['student']['uid'] == '300848'
-        assert results[0]['student']['firstName'] == 'Nora Stanton'
-        assert results[0]['student']['lastName'] == 'Barney'
-        assert results[0]['createdAt']
-        assert results[0]['updatedAt'] is None
+        appointments = results['appointments']
+        assert len(appointments) == 1
+        assert results['totalAppointmentCount'] == 1
+        assert appointments[0]['advisorName'] == 'Loramps Glub'
+        assert appointments[0]['advisorRole'] is None
+        assert appointments[0]['advisorUid'] == '1081940'
+        assert appointments[0]['advisorDeptCodes'] == ['UWASC']
+        assert 'deptCode' not in appointments[0]
+        assert appointments[0]['details'] == 'Art imitates life.'
+        assert appointments[0]['detailsSnippet'] == 'Art imitates <strong>life</strong>.'
+        assert 'cancelReason' not in appointments[0]
+        assert 'cancelReasonExplained' not in appointments[0]
+        assert 'status' not in appointments[0]
+        assert appointments[0]['studentSid'] == '9100000000'
+        assert appointments[0]['student']['uid'] == '300848'
+        assert appointments[0]['student']['firstName'] == 'Nora Stanton'
+        assert appointments[0]['student']['lastName'] == 'Barney'
+        assert appointments[0]['createdAt']
+        assert appointments[0]['updatedAt'] is None
