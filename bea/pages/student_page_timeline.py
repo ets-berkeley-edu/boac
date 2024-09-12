@@ -50,17 +50,17 @@ class StudentPageTimeline(BoaPages):
             return 'appointment'
 
     @staticmethod
-    def expected_item_short_date_format(time):
-        return time.strftime('%b %-d') if datetime.now().strftime('%Y') == time.strftime('%Y') else time.strftime(
-            '%b %-d, %Y')
+    def expected_item_short_date_format(item_time):
+        return item_time.strftime('%b %-d') if datetime.now().strftime('%Y') == item_time.strftime(
+            '%Y') else item_time.strftime('%b %-d, %Y')
 
     @staticmethod
-    def expected_item_long_date_format(time):
-        if datetime.now().strftime('%Y') == time.strftime('%Y'):
-            formatted = time.strftime('%b %-d %l:%M%P')
+    def expected_item_long_date_format(item_time):
+        if datetime.now().strftime('%Y') == item_time.strftime('%Y'):
+            formatted = item_time.strftime('%b %-d %l:%M%P')
         else:
-            formatted = time.strftime('%b %-d, %Y %l:%M%P')
-        return re.sub('/\s+/', ' ', formatted)
+            formatted = item_time.strftime('%b %-d, %Y %l:%M%P')
+        return re.sub('\s+', ' ', formatted)
 
     def visible_collapsed_item_ids(self, item_type):
         els = self.elements((By.XPATH, f"//div[contains(@id, '{item_type}-') and contains(@id, '-is-closed')]"))
@@ -146,7 +146,8 @@ class StudentPageTimeline(BoaPages):
     def download_attachment(self, item, attachment, student=None):
         app.logger.info(f'Downloading attachment {attachment.file_name} from record ID {item.record_id}')
         utils.prepare_download_dir()
-        Wait(self.driver, utils.get_short_timeout()).until(ec.visibility_of(self.item_attachment_el(item, attachment.file_name)))
+        Wait(self.driver, utils.get_short_timeout()).until(
+            ec.visibility_of(self.item_attachment_el(item, attachment.file_name)))
         self.item_attachment_el(item, attachment.file_name).click()
         file_path = f'{utils.default_download_dir()}/{attachment.file_name}'
         tries = 0
@@ -169,9 +170,11 @@ class StudentPageTimeline(BoaPages):
                 self.show_notes()
             # TODO else show appts
             if attachment.sis_file_name:
-                app.logger.info(f'Cannot download SIS note ID {item.record_id} attachment ID {attachment.sis_file_name}')
+                app.logger.info(
+                    f'Cannot download SIS note ID {item.record_id} attachment ID {attachment.sis_file_name}')
             else:
-                app.logger.error(f'Cannot download Boa note ID {item.record_id} attachment ID {attachment.attachment_id}')
+                app.logger.error(
+                    f'Cannot download Boa note ID {item.record_id} attachment ID {attachment.attachment_id}')
                 raise
         else:
             # If the attachment file size is known, then make sure the download reaches the same size.
@@ -187,7 +190,8 @@ class StudentPageTimeline(BoaPages):
                         if tries == max_tries:
                             raise
                         else:
-                            app.logger.info(f'File size is {os.path.getsize(file_path)}, waiting for {attachment.file_size}')
+                            app.logger.info(
+                                f'File size is {os.path.getsize(file_path)}, waiting for {attachment.file_size}')
                             time.sleep(1)
         size = os.path.getsize(file_path)
         # Zap the download dir again to make sure no attachment downloads are left behind on the test machine

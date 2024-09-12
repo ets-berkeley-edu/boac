@@ -130,7 +130,7 @@ class BoaPages(SearchForm):
 
     @staticmethod
     def sidebar_member_count_loc(cohort):
-        return By.XPATH, f'//a[contains(@id,"sidebar-")][contains(.,"{cohort.name}")]/div[contains(@id, "count")]'
+        return By.XPATH, f'//a[contains(@id,"sidebar-")][contains(.,"{cohort.name}")]/span[contains(@id, "count")]'
 
     def wait_for_sidebar_member_count(self, cohort):
         app.logger.info(f'Waiting for cohort {cohort.name} member count of {len(cohort.members)}')
@@ -186,8 +186,6 @@ class BoaPages(SearchForm):
         link.click()
 
     def wait_for_sidebar_group(self, group):
-        # TODO - remove the page reload when groups dynamically appear in the sidebar
-        self.reload_page()
         self.wait_for_sidebar_member_count(group)
         if group.is_ce3:
             assert group.name in self.sidebar_admit_groups()

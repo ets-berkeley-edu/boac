@@ -162,7 +162,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         return self.el_text_if_exists(loc, 'No data')
 
     def cxl_msg(self, student):
-        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "withdrawal-cancel")]/span'
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "withdrawal-cancel")]'
         return self.el_text_if_exists(loc)
 
     def entered_term(self, student):
@@ -175,14 +175,14 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
 
     def grad_term(self, student):
         loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "student-grad-term")]'
-        return self.element(loc).text().split(':')[1].strip() if self.is_present(loc) else None
+        return self.element(loc).text.split(':')[1].strip() if self.is_present(loc) else None
 
     def graduation(self, student):
         loc = By.XPATH, f'{self.student_row_xpath(student)}//div[starts-with(text(), " Graduated")]'
         return self.el_text_if_exists(loc, 'Graduated')
 
     def inactive_flag(self, student):
-        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@class, "student-sid")]/div[contains(@id, "-inactive")]'
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "-inactive")]'
         return self.is_present(loc) and self.element(loc).text.strip() == 'INACTIVE'
 
     def level(self, student):

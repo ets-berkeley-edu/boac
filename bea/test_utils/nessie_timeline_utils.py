@@ -23,7 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 from itertools import groupby
+import json
+import re
 
+from bea.models.alert import Alert
 from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_attachment import NoteAttachment
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
@@ -362,3 +365,24 @@ def get_sis_notes(student):
         })
         notes.append(note)
     return notes
+
+
+# HOLDS
+
+
+def get_student_holds(student):
+    sql = f"""SELECT sid,
+                     feed
+                FROM student.student_holds
+               WHERE sid = '{student.sid}'"""
+    app.logger.info(sql)
+    holds = []
+    results = data_loch.safe_execute_rds(sql)
+    for row in results:
+        feed = json.loads(row['feed'])
+        message = f"{feed['reason']['description']}. {feed['reason']['formalDescription']}".replace('\n', '')
+        holds.append(Alert({
+            'message': re.sub('\s+', ' ', message),
+            'student': student,
+        }))
+    return holds
