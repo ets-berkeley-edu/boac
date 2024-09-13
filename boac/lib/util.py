@@ -101,7 +101,7 @@ def process_input_from_rich_text_editor(rich_text):
         parsed = linkify(parsed, {'target': '_blank'})
         for placeholder, match in exclude_from_parse.items():
             parsed = parsed.replace(placeholder, match, 1)
-    return parsed or ''
+    return parsed
 
 
 def remove_none_values(_dict):

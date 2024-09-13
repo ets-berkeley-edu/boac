@@ -103,7 +103,7 @@ def get_service_announcement():
 @admin_required
 def update_service_announcement():
     params = request.get_json()
-    text = process_input_from_rich_text_editor(params.get('text', ''))
+    text = process_input_from_rich_text_editor(params.get('text')) or ''
     if not text and _is_service_announcement_published():
         raise BadRequestError('If the service announcement is published then API requires \'text\'')
     ToolSetting.upsert('SERVICE_ANNOUNCEMENT_TEXT', text)
