@@ -290,49 +290,54 @@
                   :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
                 />
               </div>
-              <div v-if="includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)" class="td-timeline-expanded">
-                <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
-                  <div class="text-medium-emphasis font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
-                  <TimelineDate
-                    :id="`expanded-${message.type}-${message.id}-created-at`"
-                    :date="message.createdAt"
-                    :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Created on'"
-                    :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')"
-                  />
-                  <div
-                    v-if="message.createdBy === 'YCBM' && message.endsAt"
-                    :id="`expanded-${message.type}-${message.id}-appt-time-range`"
-                  >
-                    {{ getSameDayDate(message) }}
+              <div
+                v-if="includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)"
+                :class="{'td-note-timeline-expanded': displayUpdatedAt(message)}"
+              >
+                <div class="expanded-timeline-container">
+                  <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
+                    <div class="text-medium-emphasis font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
+                    <TimelineDate
+                      :id="`expanded-${message.type}-${message.id}-created-at`"
+                      :date="message.createdAt"
+                      :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Created on'"
+                      :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')"
+                    />
+                    <div
+                      v-if="message.createdBy === 'YCBM' && message.endsAt"
+                      :id="`expanded-${message.type}-${message.id}-appt-time-range`"
+                    >
+                      {{ getSameDayDate(message) }}
+                    </div>
                   </div>
-                </div>
-                <div v-if="displayUpdatedAt(message)">
-                  <div class="mt-2 text-medium-emphasis font-size-14">Updated:</div>
-                  <TimelineDate
-                    :id="`expanded-${message.type}-${message.id}-updated-at`"
-                    :date="message.updatedAt"
-                    :include-time-of-day="message.updatedAt.length > 10"
-                    class="mb-2"
-                    sr-prefix="Last updated on"
-                  />
-                </div>
-                <div v-if="message.setDate">
-                  <div class="mt-2 text-medium-emphasis font-size-14">Set Date:</div>
-                  <TimelineDate
-                    :id="`expanded-${message.type}-${message.id}-set-date`"
-                    :date="message.setDate"
-                    class="mb-2"
-                  />
-                </div>
-                <div class="text-medium-emphasis">
-                  <router-link
-                    v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
-                    :id="`advising-${message.type}-permalink-${message.id}`"
-                    :to="`#permalink-${message.type}-${message.id}`"
-                    @click="scrollToPermalink(message)"
-                  >
-                    Permalink <v-icon :icon="mdiLinkVariant" />
-                  </router-link>
+                  <div v-if="displayUpdatedAt(message)">
+                    <div class="mt-2 text-medium-emphasis font-size-14">Updated:</div>
+                    <TimelineDate
+                      :id="`expanded-${message.type}-${message.id}-updated-at`"
+                      :date="message.updatedAt"
+                      :include-time-of-day="message.updatedAt.length > 10"
+                      class="mb-2"
+                      sr-prefix="Last updated on"
+                    />
+                  </div>
+                  <div v-if="message.setDate">
+                    <div class="mt-2 text-medium-emphasis font-size-14">Set Date:</div>
+                    <TimelineDate
+                      :id="`expanded-${message.type}-${message.id}-set-date`"
+                      :date="message.setDate"
+                      class="mb-2"
+                    />
+                  </div>
+                  <div class="text-medium-emphasis">
+                    <router-link
+                      v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
+                      :id="`advising-${message.type}-permalink-${message.id}`"
+                      :to="`#permalink-${message.type}-${message.id}`"
+                      @click="scrollToPermalink(message)"
+                    >
+                      Permalink <v-icon :icon="mdiLinkVariant" />
+                    </router-link>
+                  </div>
                 </div>
               </div>
               <span v-if="!message.updatedAt && !message.createdAt" class="sr-only">No last-updated date</span>
@@ -342,7 +347,7 @@
       </tbody>
     </table>
   </div>
-  <div v-if="offerShowAll" class="text-center pb-4">
+  <div v-if="offerShowAll" class="text-center mb-4 mt-2">
     <v-btn
       :id="`timeline-tab-${activeTab}-previous-messages`"
       class="text-no-wrap"
@@ -776,6 +781,10 @@ table {
   white-space: nowrap;
   width: 115px;
 }
+.expanded-timeline-container {
+  position: absolute;
+  right: 26px;
+}
 .message-open {
   flex-flow: row wrap;
   display: flex;
@@ -820,9 +829,8 @@ table {
   padding: 0 4px 0 0;
   width: 20px;
 }
-.td-timeline-expanded {
-  position: absolute;
-  right: 26px;
+.td-note-timeline-expanded {
+  min-height: 180px;
 }
 .width-one-percent {
   width: 1%;
