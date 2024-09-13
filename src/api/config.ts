@@ -2,10 +2,6 @@ import axios from 'axios'
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
 
-export function ping() {
-  return axios.get(`${utils.apiBaseUrl()}/api/ping`).then(response => response.data)
-}
-
 export function getVersion() {
   return axios.get(`${utils.apiBaseUrl()}/api/version`).then(response => response.data)
 }
@@ -15,7 +11,7 @@ export function getServiceAnnouncement() {
   return axios.get(url).then(response => response.data)
 }
 
-export function publishAnnouncement(publish) {
+export function publishAnnouncement(publish: boolean) {
   return axios.post(`${utils.apiBaseUrl()}/api/service_announcement/publish`, {publish}).then(response => {
     const data = response.data
     useContextStore().setServiceAnnouncement(data)
@@ -23,7 +19,7 @@ export function publishAnnouncement(publish) {
   })
 }
 
-export function updateAnnouncement(text) {
+export function updateAnnouncement(text: string) {
   const url: string = `${utils.apiBaseUrl()}/api/service_announcement/update`
   return axios.post(url, {text}).then(response => {
     const data = response.data

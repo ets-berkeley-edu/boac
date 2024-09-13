@@ -25,7 +25,7 @@
       <ckeditor
         :model-value="initialValue"
         :disabled="disabled"
-        :editor="editor"
+        :editor="ClassicEditor"
         :config="editorConfig"
         @input="onUpdate"
       />
@@ -34,99 +34,92 @@
 </template>
 
 <script setup>
-import {mdiOpenInNew} from '@mdi/js'
-</script>
-
-<script>
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import {each, isString} from 'lodash'
+import {mdiOpenInNew} from '@mdi/js'
+import {onMounted, ref, watch} from 'vue'
 
-export default {
-  name: 'RichTextEditor',
-  props: {
-    disabled: {
-      required: false,
-      type: Boolean
-    },
-    editorConfig: {
-      required: false,
-      default: () => ({
-        toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
-        typing: {
-          transformations: {
-            remove: ['oneForth', 'oneHalf', 'oneThird', 'threeQuarters', 'twoThirds']
-          }
+const props = defineProps({
+  disabled: {
+    required: false,
+    type: Boolean
+  },
+  editorConfig: {
+    required: false,
+    default: () => ({
+      toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
+      typing: {
+        transformations: {
+          remove: ['oneForth', 'oneHalf', 'oneThird', 'threeQuarters', 'twoThirds']
         }
-      }),
-      type: Object
-    },
-    initialValue: {
-      required: true,
-      type: String
-    },
-    isInModal: {
-      required: false,
-      type: Boolean
-    },
-    label: {
-      required: true,
-      type: String
-    },
-    onValueUpdate: {
-      required: true,
-      type: Function
-    },
-    showAdvisingNoteBestPractices: {
-      required: false,
-      type: Boolean
-    }
-  },
-  data: () => ({
-    domFixAttemptCount: 0,
-    domFixer: undefined,
-    editor: ClassicEditor,
-    ckElementId: undefined
-  }),
-  watch: {
-    isInModal() {
-      this.initDomFixer()
-    }
-  },
-  mounted() {
-    this.ckElementId = `rich-text-editor-${new Date().getTime()}`
-    this.initDomFixer()
-  },
-  methods: {
-    correctTheDOM() {
-      if (this.domFixAttemptCount === 10) {
-        // Abort after N tries.
-        clearInterval(this.domFixer)
-      } else if (this.isInModal) {
-        // When embedded in a modal, the CKEditor toolbar elements are unreachable because they are attached to
-        // the end of the DOM and outside the modal. We must move these "ck" elements. The user should not notice.
-        const ckEditorTool = 'ck ck-reset ck-editor ck-rounded-corners'
-        const elements = document.getElementsByClassName(ckEditorTool)
-        if (elements.length > 0) {
-          each(elements, element => {
-            document.getElementById(this.ckElementId).appendChild(element)
-          })
-          clearInterval(this.domFixer)
-        } else {
-          this.domFixAttemptCount++
-        }
-      } else {
-        // We're not in a modal.
-        clearInterval(this.domFixer)
       }
-    },
-    initDomFixer() {
-      this.domFixAttemptCount = 0
-      this.domFixer = setInterval(this.correctTheDOM, 500)
-    },
-    onUpdate(event) {
-      this.onValueUpdate(isString(event) ? event : event.target.value)
-    }
+    }),
+    type: Object
+  },
+  initialValue: {
+    required: true,
+    type: String
+  },
+  isInModal: {
+    required: false,
+    type: Boolean
+  },
+  label: {
+    required: true,
+    type: String
+  },
+  onValueUpdate: {
+    required: true,
+    type: Function
+  },
+  showAdvisingNoteBestPractices: {
+    required: false,
+    type: Boolean
   }
+})
+
+const domFixAttemptCount = ref(0)
+const domFixer = ref(undefined)
+const ckElementId = `rich-text-editor-${new Date().getTime()}`
+
+watch(() => props.isInModal, () => {
+  initDomFixer()
+})
+
+onMounted(() => {
+  initDomFixer()
+})
+
+const correctTheDOM = () => {
+  if (domFixAttemptCount.value === 10) {
+    // Abort after N tries.
+    clearInterval(domFixer.value)
+  } else if (props.isInModal) {
+    // When embedded in a modal, the CKEditor toolbar elements are unreachable because they are attached to
+    // the end of the DOM and outside the modal. We must move these "ck" elements. The user should not notice.
+    const ckEditorTool = 'ck ck-reset ck-editor ck-rounded-corners'
+    const elements = document.getElementsByClassName(ckEditorTool)
+    if (elements.length > 0) {
+      each(elements, element => {
+        document.getElementById(ckElementId).appendChild(element)
+      })
+      clearInterval(domFixer.value)
+    } else {
+      domFixAttemptCount.value++
+    }
+  } else {
+    // We're not in a modal.
+    clearInterval(domFixer.value)
+  }
+}
+
+const initDomFixer = () => {
+  domFixAttemptCount.value = 0
+  domFixer.value = setInterval(correctTheDOM, 500)
+}
+
+const onUpdate = event => {
+  props.onValueUpdate(isString(event) ? event : event.target.value)
 }
 </script>
 

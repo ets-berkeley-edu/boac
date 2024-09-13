@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import ProgressButton from '@/components/util/ProgressButton.vue'
+import ProgressButton from '@/components/util/ProgressButton'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import {alertScreenReader} from '@/lib/utils'
 import {getServiceAnnouncement, publishAnnouncement, updateAnnouncement} from '@/api/config'
