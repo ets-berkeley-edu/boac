@@ -4,7 +4,7 @@
       <div v-if="mode !== 'rename'">
         <h1 id="curated-group-name" class="page-section-header mb-0 mt-0">
           {{ curatedGroupName || domainLabel(true) }}
-          <span v-if="!isNil(totalStudentCount)" class="text-grey">
+          <span v-if="!isNil(totalStudentCount)" class="text-medium-emphasis">
             ({{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount, {1: '1'}) }})
           </span>
         </h1>
@@ -42,13 +42,13 @@
               class="ml-1"
               :disabled="isSaving"
               text="Cancel"
-              variant="plain"
+              variant="text"
               @click="exitRenameMode"
             />
           </div>
         </div>
         <div v-if="renameError" aria-live="polite" class="text-error ml-2 my-2">{{ renameError }}</div>
-        <div class="text-grey">255 character limit <span v-if="size(renameInput)">({{ 255 - size(renameInput) }} left)</span></div>
+        <div class="text-medium-emphasis">255 character limit <span v-if="size(renameInput)">({{ 255 - size(renameInput) }} left)</span></div>
         <span
           v-if="size(renameInput) === 255"
           aria-live="polite"
@@ -72,7 +72,7 @@
         </div>
         <div
           v-if="ownerId === currentUser.id"
-          class="text-grey"
+          class="text-medium-emphasis"
           role="separator"
         >
           |
@@ -87,7 +87,7 @@
             @click="enterRenameMode"
           />
         </div>
-        <div v-if="ownerId === currentUser.id" class="text-grey">|</div>
+        <div v-if="ownerId === currentUser.id" class="text-medium-emphasis">|</div>
         <div v-if="ownerId === currentUser.id">
           <v-btn
             id="delete-curated-group-button"
@@ -122,7 +122,7 @@
             </ul>
           </AreYouSureModal>
         </div>
-        <div v-if="ownerId === currentUser.id" class="text-grey">|</div>
+        <div v-if="ownerId === currentUser.id" class="text-medium-emphasis">|</div>
         <div>
           <v-btn
             v-if="domain === 'default'"

@@ -183,7 +183,7 @@
         <v-col>
           <div
             v-if="totalUserCount > 0"
-            class="float-right font-size-16 font-weight-medium pr-4 text-grey"
+            class="float-right font-size-16 font-weight-medium pr-4 text-medium-emphasis"
           >
             {{ pluralize('user', totalUserCount) }}
           </div>
@@ -287,7 +287,7 @@
               <span class="font-weight-bold text-body-2 text-green">{{ department.name }} - {{ department.role }}</span>
               <div v-if="index !== item.departments.length - 1"></div>
             </div>
-            <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="text-grey">
+            <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="text-medium-emphasis">
               <span class="font-weight-bold text-body-2">Degree Progress - </span>
               <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress" class="text-body-2"> read/write</span>
               <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress" class="text-body-2"> read</span>

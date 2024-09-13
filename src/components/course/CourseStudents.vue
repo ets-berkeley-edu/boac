@@ -122,23 +122,23 @@
       </div>
       <div v-if="item.academicCareerStatus !== 'Completed'">
         <div :id="`student-${item.uid}-level`">
-          <span class="student-text">{{ item.level }}</span>
+          <span class="font-size-13 text-medium-emphasis">{{ item.level }}</span>
         </div>
         <div :id="`student-${item.uid}-majors`">
-          <div v-for="major in item.majors" :key="major" class="student-text">{{ major }}</div>
+          <div v-for="major in item.majors" :key="major" class="font-size-13 text-medium-emphasis">{{ major }}</div>
         </div>
       </div>
       <div v-if="item.academicCareerStatus === 'Completed'">
         <DegreesAwarded :student="item" />
         <div :id="`student-${item.uid}-graduated-colleges`">
-          <div v-for="owner in degreePlanOwners(item)" :key="owner" class="student-text">
+          <div v-for="owner in degreePlanOwners(item)" :key="owner" class="font-size-13 text-medium-emphasis">
             {{ owner }}
           </div>
         </div>
       </div>
       <div>
         <div v-if="item.athleticsProfile" :id="`student-${item.uid}-teams`" class="student-teams-container">
-          <div v-for="membership in item.athleticsProfile.athletics" :key="membership.groupName" class="student-text">
+          <div v-for="membership in item.athleticsProfile.athletics" :key="membership.groupName" class="font-size-13 text-medium-emphasis">
             {{ membership.groupName }}
             <span v-if="item.athleticsProfile.isActiveAsc === false"> (Inactive)</span>
           </div>
@@ -250,7 +250,7 @@
             >
               <div v-if="canvasSite.analytics.currentScore.courseDeciles">
                 Score: <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
-                <div class="text-grey">
+                <div class="text-medium-emphasis">
                   (Max: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
                 </div>
               </div>

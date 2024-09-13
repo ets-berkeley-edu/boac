@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="isMenuOpen" class="my-2">
-      <div class="font-size-16 text-grey-darken-4">
+      <div class="font-size-16 text-surface-variant">
         Duplicate Course
       </div>
       <div class="my-2">

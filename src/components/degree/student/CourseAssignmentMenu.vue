@@ -15,7 +15,7 @@
           'accent-color-purple': course.accentColor === 'Purple',
           'accent-color-red': course.accentColor === 'Red',
           'bg-transparent text-primary': !degreeStore.disableButtons,
-          'text-grey-darken-4': !course.accentColor,
+          'text-surface-variant': !course.accentColor,
           'text-white': degreeStore.draggingCourseId === course.id
         }"
         density="compact"

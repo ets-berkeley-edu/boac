@@ -39,7 +39,7 @@
           :disabled="isSaving"
           size="large"
           text="Cancel"
-          variant="plain"
+          variant="text"
           @click="cancel"
         />
       </div>

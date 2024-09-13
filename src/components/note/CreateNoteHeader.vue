@@ -187,7 +187,7 @@
               class="ml-2"
               :disabled="isSaving"
               text="Cancel"
-              variant="plain"
+              variant="text"
               @click="() => cancel(templateToRename)"
             />
           </v-card-actions>

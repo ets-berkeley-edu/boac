@@ -8,8 +8,7 @@
     <div
       v-if="isExistingFilter"
       :id="`existing-filter-${position}`"
-      class="existing-filter-name font-weight-500 ml-4"
-      :class="{'pt-8': $vuetify.display.smAndDown}"
+      class="existing-filter-name font-weight-500 py-2 ml-4"
     >
       {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
@@ -26,8 +25,7 @@
     </div>
     <div
       v-if="!isModifyingFilter"
-      class="font-weight-500 truncate-with-ellipsis w-40"
-      :class="{'pt-6': $vuetify.display.smAndDown}"
+      class="font-weight-500 truncate-with-ellipsis py-2 w-40"
     >
       <span class="sr-only">Selected filter value is </span>
       <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
@@ -181,7 +179,7 @@
           class="font-size-14 text-uppercase ml-2"
           :disabled="isUpdatingExistingFilter"
           text="Cancel"
-          variant="plain"
+          variant="text"
           @click="onClickCancelEdit"
         />
       </div>

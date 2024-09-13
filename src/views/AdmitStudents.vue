@@ -5,7 +5,7 @@
         CE3 Admissions
         <span
           v-if="totalAdmitCount !== undefined"
-          class="text-grey"
+          class="text-medium-emphasis"
         >{{ pluralize('admitted student', totalAdmitCount) }}</span>
       </h1>
       <a
@@ -29,7 +29,7 @@
         >
           Create Cohort
         </v-btn>
-        <div class="text-grey" role="separator">|</div>
+        <div class="text-medium-emphasis" role="separator">|</div>
         <v-btn
           id="export-student-list-button"
           :disabled="!exportEnabled || !totalAdmitCount"

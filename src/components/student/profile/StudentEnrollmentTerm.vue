@@ -5,14 +5,14 @@
   >
     <div>
       <div class="pa-0">
-        <div class="align-baseline d-flex font-weight-500 text-grey-darken-3">
+        <div class="align-baseline d-flex font-weight-500">
           <h3
             :id="`term-${term.termId}-header`"
-            class="font-size-18 font-weight-500 text-grey-darken-3 mb-0 mr-2"
+            class="font-size-18 font-weight-500 text-surface-variant mb-0 mr-2"
           >
             {{ term.termName }}
           </h3>
-          <span v-if="isConcurrent" class="font-size-14 text-muted ml-1 mr-3">UCBX</span>
+          <span v-if="isConcurrent" class="font-size-14 text-medium-emphasis ml-1 mr-3">UCBX</span>
           <StudentAcademicStanding
             v-if="term.academicStanding"
             class="font-size-14"
@@ -31,7 +31,7 @@
     <div class="pt-2 px-0">
       <div role="table">
         <div role="rowgroup">
-          <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-bold mx-1 text-grey text-nowrap text-uppercase">
+          <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-bold mx-1 text-medium-emphasis text-nowrap text-uppercase">
             <div role="columnheader" class="student-course-column-name">Course</div>
             <div role="columnheader" class="student-course-column-grade">Mid</div>
             <div role="columnheader" class="student-course-column-grade">Final</div>
@@ -43,7 +43,7 @@
             <div
               :id="`term-${term.termId}-no-enrollments`"
               role="cell"
-              class="font-italic pl-2  text-grey-darken-2"
+              class="font-italic pl-2 pb-2 text-surface-variant"
             >
               {{ `No ${term.termName} enrollments` }}
             </div>
@@ -61,11 +61,11 @@
           <div
             v-for="(droppedSection, droppedIndex) in term.droppedSections"
             :key="droppedIndex"
-            class="student-course-dropped"
+            class="student-course-dropped text-disabled"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
             role="row"
           >
-            <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" class="text-grey" role="cell">
+            <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" class="text-disabled" role="cell">
               <div>
                 {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
               </div>
@@ -159,7 +159,6 @@ const termGpa = round(get(props.term, 'termGpa.gpa') || 0, 3)
   width: 15%;
 }
 .student-course-dropped {
-  color: #666;
   font-weight: 500;
   line-height: 1.1;
   padding: 8px 15px;
@@ -168,7 +167,7 @@ const termGpa = round(get(props.term, 'termGpa.gpa') || 0, 3)
   min-width: 300px;
 }
 .student-term-footer {
-  border-top: 1px #999 solid !important;
+  border-top: 1px rgba(var(--v-border-color), var(--v-border-opacity)) solid !important;
   max-height: 40px;
   min-height: 40px;
 }

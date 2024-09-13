@@ -44,7 +44,7 @@
             @keydown.enter="onSubmit"
           />
           <div class="pl-1">
-            <span class="text-grey-darken-4 font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
+            <span class="text-surface-variant font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
             <span
               v-if="name.length === 255"
               aria-live="polite"

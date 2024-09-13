@@ -22,7 +22,7 @@
               <span
                 v-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile"
                 :id="`term-${termId}-course-${index}-site-${canvasSiteId}-submitted`"
-                class="font-italic text-muted"
+                class="font-italic text-medium-emphasis"
               >
                 No Assignments
               </span>
@@ -46,13 +46,13 @@
                 <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                   Score:
                   <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-                  <span class="text-muted text-nowrap">
+                  <span class="text-medium-emphasis text-nowrap">
                     (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
                   </span>
                 </span>
                 <span
                   v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles"
-                  class="font-italic text-muted"
+                  class="font-italic text-medium-emphasis"
                 >
                   No Data
                 </span>
@@ -70,7 +70,7 @@
               <span
                 v-if="!canvasSite.analytics.currentScore.displayPercentile"
                 :id="`term-${termId}-course-${index}-site-${canvasSiteId}-grades`"
-                class="font-italic text-muted"
+                class="font-italic text-medium-emphasis"
               >
                 No Grades
               </span>
@@ -94,13 +94,13 @@
                 <span v-if="canvasSite.analytics.currentScore.courseDeciles">
                   Score:
                   <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
-                  <span class="text-muted text-nowrap">
+                  <span class="text-medium-emphasis text-nowrap">
                     (Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
                   </span>
                 </span>
                 <span
                   v-if="!canvasSite.analytics.currentScore.courseDeciles"
-                  class="font-italic text-muted text-nowrap"
+                  class="font-italic text-medium-emphasis text-nowrap"
                 >
                   No Data
                 </span>
@@ -125,7 +125,7 @@
         </tbody>
       </table>
     </div>
-    <div v-if="isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-muted">
+    <div v-if="isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-medium-emphasis">
       No additional information
     </div>
   </div>
@@ -174,7 +174,7 @@ const lastActivityInContext = (analytics: any) => {
 
 <style scoped>
 .bcourses {
-  background-color: #f3fbff;
+  background-color: rgb(var(--v-theme-pale-blue));
 }
 .bcourses td,
 .bcourses th {

@@ -45,7 +45,7 @@
                   aria-controls="term-gpa-collapse"
                   class="pa-0 show-more-term-gpa-btn"
                   color="primary"
-                  variant="plain"
+                  variant="text"
                   @click="showHideTermGpa"
                 >
                   <v-icon :icon="showTermGpa ? mdiMenuDown : mdiMenuRight" size="14" />
@@ -68,8 +68,8 @@
         >
           <thead>
             <tr>
-              <th class="border-b-md pl-2 py-2 text-grey-darken-2 text-left">Term</th>
-              <th class="border-b-md pr-3 py-2 text-grey-darken-2 text-right">GPA</th>
+              <th class="border-b-md pl-2 py-2 text-medium-emphasis text-left">Term</th>
+              <th class="border-b-md pr-3 py-2 text-medium-emphasis text-right">GPA</th>
             </tr>
           </thead>
           <tbody>

@@ -94,7 +94,7 @@
         </td>
       </tr>
       <tr v-if="!termEnrollments.length">
-        <td class="col-course text-grey">
+        <td class="col-course text-medium-emphasis">
           No {{ termNameForSisId(termId) }} enrollments
         </td>
         <td class="col-units">

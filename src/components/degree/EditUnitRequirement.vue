@@ -20,7 +20,7 @@
         @keydown.enter="unitRequirement ? update : create"
       />
       <div class="pl-2">
-        <span class="text-grey-darken-4 font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
+        <span class="text-surface-variant font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
         <span
           v-if="name.length === 255"
           aria-live="polite"
@@ -31,7 +31,7 @@
         </span>
       </div>
       <v-expand-transition>
-        <div v-if="nameErrorMessage" class="text-error text-grey-darken-4 font-size-12">
+        <div v-if="nameErrorMessage" class="text-error text-surface-variant font-size-12">
           {{ nameErrorMessage }}
         </div>
       </v-expand-transition>

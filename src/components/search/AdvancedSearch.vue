@@ -13,7 +13,7 @@
         autocomplete="off"
         bg-color="white"
         :class="{
-          'text-grey': !searchStore.queryText,
+          'text-medium-emphasis': !searchStore.queryText,
           'search-focus-in': searchStore.isFocusOnSearch || searchStore.queryText,
           'search-focus-out': !searchStore.isFocusOnSearch && !searchStore.queryText
         }"

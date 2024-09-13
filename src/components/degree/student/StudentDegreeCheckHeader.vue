@@ -36,7 +36,7 @@
         <v-row>
           <v-col cols="8">
             <h2 class="mb-1 page-section-header">{{ degreeStore.degreeName }}</h2>
-            <div class="text-grey-darken-4 font-size-16 font-weight-500 pb-2">
+            <div class="text-surface-variant font-size-16 font-weight-500 pb-2">
               {{ updatedAtDescription }}
             </div>
           </v-col>
@@ -89,7 +89,7 @@
                 <h3 class="font-size-20 font-weight-bold text-no-wrap">Degree Notes</h3>
               </div>
               <div class="align-center d-flex justify-content-end pr-4">
-                <label for="degree-note-print-toggle" class="font-size-14 font-weight-500 pr-2 text-grey-darken-4">
+                <label for="degree-note-print-toggle" class="font-size-14 font-weight-500 pr-2 text-surface-variant">
                   Show notes when printed?
                 </label>
                 <div
@@ -143,11 +143,11 @@
               <span
                 v-if="noteUpdatedBy"
                 id="degree-note-updated-by"
-                class="text-grey-darken-4 font-weight-normal"
+                class="text-surface-variant font-weight-normal"
               >
                 {{ noteUpdatedBy }}
               </span>
-              <span v-if="noteUpdatedAt" class="text-grey-darken-4">
+              <span v-if="noteUpdatedAt" class="text-surface-variant">
                 {{ noteUpdatedBy ? ' edited this note' : 'Last edited' }}
                 <span v-if="isToday(noteUpdatedAt)" id="degree-note-updated-at"> today.</span>
                 <span v-if="!isToday(noteUpdatedAt)">
@@ -247,7 +247,7 @@
                 </template>
               </v-data-table>
             </v-expand-transition>
-            <span v-if="!degreeStore.courses.inProgress.length" class="text-grey-darken-4">None</span>
+            <span v-if="!degreeStore.courses.inProgress.length" class="text-surface-variant">None</span>
           </v-col>
         </v-row>
       </v-container>

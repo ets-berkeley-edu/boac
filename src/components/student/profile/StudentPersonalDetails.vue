@@ -4,11 +4,11 @@
       id="show-hide-personal-details"
       :aria-expanded="isExpanded"
       class="text-no-wrap"
-      color="sky-blue"
-      variant="flat"
+      color="primary"
+      variant="text"
       @click="toggle"
     >
-      <div class="align-center d-flex text-primary">
+      <div class="align-center d-flex">
         <v-icon :icon="isExpanded ? mdiMenuDown : mdiMenuRight" size="24" />
         <div>
           {{ isExpanded ? 'Hide' : 'Show' }} Personal Details
@@ -17,7 +17,7 @@
     </v-btn>
   </div>
   <v-expand-transition>
-    <v-card v-if="isExpanded" class="expanded-card pa-2">
+    <v-card v-if="isExpanded" class="bg-sky-blue pa-2" flat>
       <v-container fluid>
         <v-row>
           <v-col class="text-left" cols="4">
@@ -33,13 +33,13 @@
                 <div :id="`student-profile-advisor-${index}-role`" class="font-weight-bold">
                   {{ advisor.role }}
                 </div>
-                <div :id="`student-profile-advisor-${index}-plan`" class="text-grey-darken-2">
+                <div :id="`student-profile-advisor-${index}-plan`" class="text-medium-emphasis">
                   {{ advisor.plan }}
                 </div>
-                <div :id="`student-profile-advisor-${index}-name`" class="text-grey-darken-2">
+                <div :id="`student-profile-advisor-${index}-name`" class="text-medium-emphasis">
                   {{ join(remove([advisor.firstName, advisor.lastName]), ' ') }}
                 </div>
-                <div :id="`student-profile-advisor-${index}-email`" class="text-grey-darken-2">
+                <div :id="`student-profile-advisor-${index}-email`" class="text-medium-emphasis">
                   {{ advisor.email }}
                 </div>
               </div>
@@ -80,7 +80,7 @@
               <h3 class="student-profile-h3">
                 Additional Information
               </h3>
-              <div class="text-grey-darken-2">
+              <div class="text-medium-emphasis">
                 <div v-if="student.sisProfile.transfer" id="student-profile-transfer">
                   Transfer
                 </div>
@@ -245,9 +245,3 @@ const toggle = () => {
   alertScreenReader(`Student details are ${isExpanded.value ? 'showing' : 'hidden'}.`)
 }
 </script>
-
-<style scoped>
-.expanded-card {
-  background-color: #f5fbff;
-}
-</style>
