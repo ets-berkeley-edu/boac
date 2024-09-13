@@ -1,7 +1,7 @@
 <template>
   <div v-if="!loading && error">
     <h1 class="page-section-header">Error</h1>
-    <div class="text-grey">
+    <div class="text-medium-emphasis">
       <span v-if="error.message">{{ error.message }}</span>
       <span v-if="!error.message">Sorry, there was an error retrieving data.</span>
     </div>

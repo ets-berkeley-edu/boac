@@ -40,7 +40,7 @@
               hide-details
               maxlength="255"
             />
-            <div class="text-grey-darken-4 mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
+            <div class="text-surface-variant mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
             <div
               v-if="error"
               id="create-error"

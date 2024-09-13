@@ -88,10 +88,10 @@
         </span>
         {{ degree.plans.filter(plan => planTypes.includes(plan.type)).map(degree => degree.plan).join(', ') }}
       </div>
-      <div class="student-text">
+      <div class="font-size-13 text-medium-emphasis">
         Awarded {{ DateTime.fromISO(degree.dateAwarded).toLocaleString(DateTime.DATE_MED) }}
       </div>
-      <div v-for="owner in degree.planOwners" :key="owner" class="student-text">
+      <div v-for="owner in degree.planOwners" :key="owner" class="font-size-13 text-medium-emphasis">
         {{ owner }}
       </div>
       <div v-if="size(degree.minorPlans) > 0">
@@ -102,7 +102,7 @@
             {{ minorPlan + " UG" }}
           </div>
         </div>
-        <span class="student-text">Awarded {{ DateTime.fromISO(degree.dateAwarded).toFormat('MMM dd, yyyy') }}</span>
+        <span class="font-size-13 text-medium-emphasis">Awarded {{ DateTime.fromISO(degree.dateAwarded).toFormat('MMM dd, yyyy') }}</span>
       </div>
     </div>
   </div>

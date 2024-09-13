@@ -10,7 +10,7 @@
           :id="`${baseElementId}-toggle`"
           :aria-expanded="showCourseDetails ? 'true' : 'false'"
           :aria-controls="`${baseElementId}-details`"
-          class="align-center d-flex pl-0"
+          class="align-center d-flex font-weight-bold font-size-16 pl-0"
           color="primary"
           density="compact"
           variant="text"
@@ -29,7 +29,7 @@
         <div
           v-if="course.waitlisted"
           :id="`waitlisted-for-${termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
-          class="font-size-12 ml-5 text-error text-uppercase"
+          class="font-size-12 font-weight-black ml-5 text-error text-uppercase"
         >
           Waitlisted
         </div>
@@ -60,7 +60,7 @@
         <span
           v-if="!course.grade"
           :id="`${baseElementId}-final-grade`"
-          class="font-italic text-muted"
+          class="font-italic text-medium-emphasis"
         >{{ course.gradingBasis }}</span>
         <v-icon
           v-if="isAlertGrade(course.grade)"
@@ -93,7 +93,7 @@
       <div v-if="showCourseDetails">
         <div
           :id="`${baseElementId}-details-name`"
-          class="font-size-16 font-weight-bold text-grey-darken-2"
+          class="font-size-16 font-weight-bold text-medium-emphasis"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
         >
           {{ course.displayName }}
@@ -120,8 +120,8 @@
         </div>
         <div :id="`${baseElementId}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
         <div v-if="course.courseRequirements">
-          <div v-for="requirement in course.courseRequirements" :key="requirement" class="font-size-14 text-no-wrap">
-            <v-icon class="text-warning" :icon="mdiStar" /> {{ requirement }}
+          <div v-for="requirement in course.courseRequirements" :key="requirement" class="d-flex align-center font-size-14 text-no-wrap">
+            <v-icon class="text-warning pr-1" :icon="mdiStar" /> {{ requirement }}
           </div>
         </div>
         <StudentCourseCanvasData
@@ -136,10 +136,15 @@
           :key="section.ccn"
           class="align-items-center d-flex pb-2"
         >
-          <div class="align-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-nowrap">
-            <v-icon class="mr-1" :icon="mdiInformationSlabBox" />
-            <span class="font-size-12">Incomplete Grade</span>
-          </div>
+          <v-chip
+            class="align-center d-flex font-size-12 font-weight-black mr-2 text-uppercase text-nowrap"
+            color="error"
+            density="compact"
+            :prepend-icon="mdiInformationSlabBox"
+            size="small"
+            text="Incomplete Grade"
+            variant="flat"
+          />
           <div :id="`term-${termId}-section-${section.ccn}-has-incomplete-grade`" class="font-size-14">
             {{ sectionsWithIncompleteStatus.length > 1 ? `${section.displayName} :` : '' }}
             {{ getIncompleteGradeDescription(course.displayName, [section]) }}
@@ -267,7 +272,7 @@ const toggleShowCourseDetails = () => {
 <style scoped>
 @media (min-width: 1200px) {
   .course-details {
-    border: 1px #ccc solid;
+    border: 1px rgba(var(--v-border-color), var(--v-border-opacity)) solid;
     margin: 0 -11px;
     width: 332% !important;
   }
@@ -289,7 +294,7 @@ const toggleShowCourseDetails = () => {
   position: relative;
 }
 .course-details {
-  background-color: #f3fbff;
+  background-color: rgb(var(--v-theme-pale-blue));
   padding: 10px 0 10px 20px;
   position: relative;
   top: -1px;
@@ -297,11 +302,11 @@ const toggleShowCourseDetails = () => {
   z-index: 1;
 }
 .course-expanded {
-  background-color: #f3fbff;
-  border: 1px #ccc solid;
+  background-color: rgb(var(--v-theme-pale-blue));
+  border: 1px rgba(var(--v-border-color), var(--v-border-opacity)) solid;
 }
 .course-expanded .course-row {
-  background-color: #f3fbff;
+  background-color: rgb(var(--v-theme-pale-blue));
   z-index: 2;
 }
 .course-name {

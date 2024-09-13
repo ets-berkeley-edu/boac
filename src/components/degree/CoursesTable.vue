@@ -71,7 +71,7 @@
               class="overflow-wrap-break-word pl-0 pt-1"
               :class="{
                 'align-content-start': printable && getNote(bundle),
-                'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
+                'font-italic text-surface-variant': !isSatisfied(bundle) && !getAccentColor(bundle),
                 'pl-2': isCampusRequirements && isNoteVisible(bundle),
                 'td-name-printable': printable,
                 'td-name': !printable,
@@ -110,7 +110,7 @@
             <td
               v-if="!isCampusRequirements"
               class="td-units"
-              :class="{'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle)}"
+              :class="{'font-italic text-surface-variant': !bundle.course && !getAccentColor(bundle)}"
             >
               <v-icon
                 v-if="isCourseFulfillmentsEdited(bundle)"
@@ -133,7 +133,7 @@
             <td v-if="degreeStore.sid && !isCampusRequirements" class="td-grade">
               <span
                 :class="{
-                  'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle),
+                  'font-italic text-surface-variant': !bundle.course && !getAccentColor(bundle),
                   'font-size-12': printable,
                   'font-size-14 text-no-wrap': !printable
                 }"
@@ -157,7 +157,7 @@
             <td
               v-if="degreeStore.sid"
               :class="{
-                'font-italic text-grey-darken-4': !isSatisfied(bundle) && !getAccentColor(bundle),
+                'font-italic text-surface-variant': !isSatisfied(bundle) && !getAccentColor(bundle),
                 'td-note-printable': printable,
                 'pt-2': !bundle.course && degreeStore.sid && !printable && !isCampusRequirements
               }"
@@ -190,7 +190,7 @@
               v-if="!degreeStore.sid && !isCampusRequirements"
               class="align-middle td-max-width-0"
               :class="{
-                'font-italic text-grey-darken-4': !bundle.course && !getAccentColor(bundle),
+                'font-italic text-surface-variant': !bundle.course && !getAccentColor(bundle),
                 'font-size-12': printable,
                 'font-size-14': !printable
               }"
@@ -302,7 +302,7 @@
           <td class="pa-2" :class="{'pb-3': !degreeStore.sid}" colspan="5">
             <span
               :id="emptyCategoryId"
-              class="font-italic text-grey-darken-4"
+              class="font-italic text-surface-variant"
               :class="{
                 'font-size-14': printable,
                 'font-size-16': !printable

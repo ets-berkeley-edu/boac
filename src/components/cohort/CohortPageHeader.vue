@@ -20,7 +20,7 @@
         {{ cohortStore.cohortName }}
         <span
           v-if="cohortStore.editMode !== 'apply' && cohortStore.totalStudentCount !== undefined"
-          class="text-grey ml-1"
+          class="text-medium-emphasis ml-1"
         ><span class="sr-only">, </span>{{ pluralize(cohortStore.domain === 'admitted_students' ? 'admit' : 'student', cohortStore.totalStudentCount) }}</span>
       </h1>
       <h1
@@ -42,7 +42,7 @@
         />
         <div
           v-if="cohortStore.cohortId && cohortStore.isOwnedByCurrentUser && size(cohortStore.filters)"
-          class="text-grey"
+          class="text-medium-emphasis"
           role="separator"
         >
           |
@@ -58,7 +58,7 @@
         />
         <div
           v-if="cohortStore.cohortId && cohortStore.isOwnedByCurrentUser"
-          class="text-grey"
+          class="text-medium-emphasis"
           role="separator"
         >
           |
@@ -74,7 +74,7 @@
         />
         <div
           v-if="(cohortStore.cohortId && cohortStore.isOwnedByCurrentUser) || (cohortStore.cohortId && size(cohortStore.filters))"
-          class="text-grey"
+          class="text-medium-emphasis"
           role="separator"
         >
           |
@@ -101,7 +101,7 @@
         />
         <div
           v-if="isHistorySupported"
-          class="text-grey"
+          class="text-medium-emphasis"
           role="separator"
         >
           |

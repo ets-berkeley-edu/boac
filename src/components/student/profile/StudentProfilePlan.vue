@@ -10,7 +10,7 @@
       >
         {{ plan.description }}</a>
     </div>
-    <div v-if="plan.program" class="text-grey-darken-2">
+    <div v-if="plan.program" class="text-medium-emphasis">
       {{ plan.program }}
     </div>
     <div v-if="!active" class="font-weight-bold text-errorr small text-uppercase">

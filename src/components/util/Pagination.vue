@@ -128,7 +128,7 @@ const intervalId = setInterval(() => {
       element.id = `${props.idPrefix}-${suffix}`
       if (isEllipsis) {
         element.setAttribute('style', 'color: #fff !important')
-        element.lastElementChild.classList.add('text-grey-darken-2')
+        element.lastElementChild.classList.add('text-medium-emphasis')
       } else if (element.ariaCurrent !== 'true') {
         element.classList.add('text-primary')
       }

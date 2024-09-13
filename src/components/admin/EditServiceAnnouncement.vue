@@ -8,7 +8,7 @@
           :size="25"
           indeterminate
         />
-        <span class="text-grey">
+        <span class="text-medium-emphasis">
           {{ isPublished ? 'Posting...' : 'Unposting...' }}
         </span>
       </div>
@@ -23,7 +23,7 @@
           hide-details
           @change="togglePublish"
         />
-        <label class="font-weight-bold text-grey" for="checkbox-publish-service-announcement">
+        <label class="font-weight-bold text-medium-emphasis" for="checkbox-publish-service-announcement">
           {{ isPublished ? 'Posted' : 'Post' }}
         </label>
       </div>

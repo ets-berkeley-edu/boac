@@ -43,7 +43,7 @@
     <div v-if="showMyNotesToggle" class="pl-3 pb-2" role="separator">|</div>
     <div v-if="showMyNotesToggle" class="pl-3 pb-2">
       <div class="align-center d-flex font-weight-bold">
-        <label for="toggle-my-notes-button" class="mr-3" :class="showMyNotesOnly ? 'text-grey' : 'text-primary'">
+        <label for="toggle-my-notes-button" class="mr-3" :class="showMyNotesOnly ? 'text-medium-emphasis' : 'text-primary'">
           All {{ selectedFilter }}s
         </label>
         <div class="mr-3">
@@ -55,7 +55,7 @@
             hide-details
           />
         </div>
-        <label for="toggle-my-notes-button" :class="showMyNotesOnly ? 'text-primary' : 'text-grey'">
+        <label for="toggle-my-notes-button" :class="showMyNotesOnly ? 'text-primary' : 'text-medium-emphasis'">
           My {{ selectedFilter }}s
         </label>
       </div>
@@ -64,7 +64,7 @@
   <div
     v-if="!searchResults && !messagesVisible.length"
     id="zero-messages"
-    class="font-size-16 font-weight-bold ml-6 my-4 text-grey-darken-1"
+    class="font-size-16 font-weight-bold ml-6 my-4 text-medium-emphasis"
   >
     <span v-if="selectedFilter && showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s authored by you.</span>
     <span v-if="selectedFilter && !showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s</span>
@@ -107,7 +107,7 @@
               <div class="pr-2">
                 <v-progress-circular indeterminate size="16" width="2" />
               </div>
-              <div class="text-grey-darken-2">
+              <div class="text-medium-emphasis">
                 {{ creatingNoteEvent.subject }}
               </div>
             </div>
@@ -289,7 +289,7 @@
               </div>
               <div v-if="includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)" class="td-timeline-expanded">
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
-                  <div class="text-grey-darken-2 font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
+                  <div class="text-medium-emphasis font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-created-at`"
                     :date="message.createdAt"
@@ -304,7 +304,7 @@
                   </div>
                 </div>
                 <div v-if="displayUpdatedAt(message)">
-                  <div class="mt-2 text-grey-darken-2 font-size-14">Updated:</div>
+                  <div class="mt-2 text-medium-emphasis font-size-14">Updated:</div>
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-updated-at`"
                     :date="message.updatedAt"
@@ -314,14 +314,14 @@
                   />
                 </div>
                 <div v-if="message.setDate">
-                  <div class="mt-2 text-grey-darken-2 font-size-14">Set Date:</div>
+                  <div class="mt-2 text-medium-emphasis font-size-14">Set Date:</div>
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-set-date`"
                     :date="message.setDate"
                     class="mb-2"
                   />
                 </div>
-                <div class="text-grey-darken-2">
+                <div class="text-medium-emphasis">
                   <router-link
                     v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                     :id="`advising-${message.type}-permalink-${message.id}`"

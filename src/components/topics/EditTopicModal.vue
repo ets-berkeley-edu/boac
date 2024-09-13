@@ -30,7 +30,7 @@
               <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
               <span v-if="isLabelReserved">Sorry, the label '{{ trim(topic) }}' is assigned to an existing topic.</span>
             </div>
-            <div class="text-grey font-size-14 pl-2 pt-2">
+            <div class="text-medium-emphasis font-size-14 pl-2 pt-2">
               <span v-if="!isLabelReserved && isValidLabel" id="input-live-help">
                 {{ maxLabelLength }} character limit <span v-if="topic.length">({{ maxLabelLength - topic.length }} left)</span>
               </span>

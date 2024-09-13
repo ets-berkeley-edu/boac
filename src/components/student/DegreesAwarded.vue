@@ -2,7 +2,7 @@
   <div
     v-for="(plans, dateAwarded) in degreesAwarded"
     :key="dateAwarded"
-    class="student-text"
+    class="font-size-13 text-medium-emphasis"
   >
     Graduated {{ DateTime.fromSQL(dateAwarded).toLocaleString(DateTime.DATE_MED) }} ({{ join(plans, '; ') }})
   </div>

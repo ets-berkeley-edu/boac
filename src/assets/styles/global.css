@@ -202,25 +202,6 @@
   font-weight: bold;
   line-height: 1.2;
 }
-.pill {
-  background-color: rgb(var(--v-theme-surface));
-  border: 1px solid #999;
-  border-radius: 5px;
-  color: #666;
-  font-size: 12px;
-  height: 24px;
-  margin-top: 2px;
-  padding-top: 2px;
-  width: auto;
-}
-.pill-attachment {
-  display: inline-block;
-  height: 24px !important;
-  padding: 2px 8px 0 8px;
-}
-.pill-attachment button {
-  margin-top: .02rem;
-}
 .pill-alerts {
   border-radius: 10px;
   color: #fff;
@@ -326,10 +307,6 @@
 }
 .student-teams-container {
   margin-top: 5px;
-}
-.student-text {
-  color: #6e6e6e;
-  font-size: 13px;
 }
 .truncate {
   height: 24px;

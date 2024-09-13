@@ -31,7 +31,7 @@
       <div
         v-if="get(student, 'sisProfile.pronouns.description')"
         id="student-pronouns"
-        class="student-text font-size-14 mb-1"
+        class="text-medium-emphasis font-size-14 mb-1"
       >
         Pronouns: {{ student.sisProfile.pronouns.description }}
       </div>
@@ -84,7 +84,7 @@
       <h3 class="sr-only">Level</h3>
       <div class="font-weight-medium">{{ get(student, 'sisProfile.level.description') }}</div>
     </div>
-    <div class="text-grey-darken-2">
+    <div class="text-medium-emphasis">
       <div v-if="student.sisProfile.termsInAttendance" id="student-bio-terms-in-attendance">
         {{ pluralize('Term', student.sisProfile.termsInAttendance) }} in Attendance
       </div>

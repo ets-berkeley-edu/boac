@@ -31,7 +31,7 @@
           target="_blank"
           :to="getDegreeCheckPath(student)"
         >
-          <div class="align-center d-flex">
+          <div class="align-center d-flex text-anchor">
             <div>
               Degree Checks <span class="sr-only">of {{ student.name }} (will open new browser tab)</span>
             </div>
@@ -73,7 +73,7 @@
               <h3 class="font-size-18 text-primary">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
             </v-col>
             <v-col
-              class="font-weight-500 pt-2 text-grey-darken-3 text-no-wrap"
+              class="font-weight-500 pt-2 text-surface-variant text-no-wrap"
               :class="{
                 'float-right': $vuetify.display.mdAndUp,
                 'pl-9 text-left': !$vuetify.display.mdAndUp,

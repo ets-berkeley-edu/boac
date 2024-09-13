@@ -39,7 +39,7 @@
           </label>
         </div>
       </div>
-      <div class="ml-1 text-grey">
+      <div class="ml-1 text-medium-emphasis">
         In demo mode, student profile pictures and sensitive data will be blurred.
       </div>
     </div>

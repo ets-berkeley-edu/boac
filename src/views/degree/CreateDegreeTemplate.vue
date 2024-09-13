@@ -20,7 +20,7 @@
         @keydown.enter="create"
       />
       <div class="pl-2">
-        <span class="text-grey-darken-4 font-size-12">255 character limit <span v-if="templateName.length">({{ 255 - templateName.length }} left)</span></span>
+        <span class="text-surface-variant font-size-12">255 character limit <span v-if="templateName.length">({{ 255 - templateName.length }} left)</span></span>
         <span
           v-if="templateName.length === 255"
           aria-live="polite"
