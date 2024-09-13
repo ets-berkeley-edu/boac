@@ -28,6 +28,7 @@ from time import sleep
 
 from boac import std_commit
 from boac.models.alert import Alert
+from dateutil import parser
 import pytest
 from tests.util import override_config
 
@@ -108,26 +109,32 @@ class TestAlert:
         assert len(get_current_alerts('3456789012')) == 0
 
     def test_assignment_alerts_change_updated_at_timestamp(self):
+        def _parse(date_string):
+            return parser.parse(date_string).replace(microsecond=0)
+
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='3456789012', viewer_id='2040')
-        assert alerts[0]['updatedAt'] == alerts[0]['createdAt']
+        assert _parse(alerts[0]['updatedAt']) == _parse(alerts[0]['createdAt'])
         sleep(1.0)
         Alert.deactivate_all_for_term(2178)
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='3456789012', viewer_id='2040')
-        assert alerts[0]['updatedAt'] > alerts[0]['createdAt']
+        assert _parse(alerts[0]['updatedAt']) > _parse(alerts[0]['createdAt'])
 
     def test_midpoint_deficient_grade_alerts_preserve_updated_at_timestamp(self):
+        def _parse(date_string):
+            return parser.parse(date_string).replace(microsecond=0)
+
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
         alert = next((a for a in alerts if a['alertType'] == 'midterm'), None)
-        assert alert['updatedAt'] == alert['createdAt']
+        assert _parse(alert['updatedAt']) == _parse(alert['createdAt'])
         sleep(0.5)
         Alert.deactivate_all_for_term(2178)
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
         alert = next((a for a in alerts if a['alertType'] == 'midterm'), None)
-        assert alert['updatedAt'] == alert['createdAt']
+        assert _parse(alert['updatedAt']) == _parse(alert['createdAt'])
 
     def test_inactive_alert_preserves_timestamp(self):
         # The 'updated_at' attribute of an inactive alert preserves the time at which it was deactivated.

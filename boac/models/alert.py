@@ -37,6 +37,7 @@ from boac.merged.sis_terms import current_term_id, current_term_name
 from boac.merged.student import get_academic_standing_by_sid
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
+from dateutil.tz import tzutc
 from flask import current_app as app
 from sqlalchemy import and_, text
 from sqlalchemy.sql import desc
@@ -206,8 +207,8 @@ class Alert(Base):
                 **result_to_dict(result),
                 **{
                     'dismissed': dismissed_at and dismissed_at.strftime('%Y-%m-%d %H:%M:%S'),
-                    'createdAt': result['created_at'].strftime('%Y-%m-%d %H:%M:%S'),
-                    'updatedAt': result['updated_at'].strftime('%Y-%m-%d %H:%M:%S'),
+                    'createdAt': result['created_at'].astimezone(tzutc()).isoformat(),
+                    'updatedAt': result['updated_at'].astimezone(tzutc()).isoformat(),
                 },
             }
             feed.append(alert)
