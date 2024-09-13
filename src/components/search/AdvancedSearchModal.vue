@@ -4,11 +4,15 @@
       <v-btn
         id="search-options-panel-toggle"
         v-bind="props"
-        class="pl-0"
+        class="mx-2"
         :class="{'border-0': !isFocusAdvSearchButton}"
         color="white"
         :disabled="searchStore.isSearching"
+        height="46"
+        min-height="46"
+        min-width="46"
         variant="text"
+        width="46"
         @click="openAdvancedSearch"
         @focusin="() => isFocusAdvSearchButton = true"
         @focusout="() => isFocusAdvSearchButton = false"
@@ -582,12 +586,12 @@ const search = () => {
   width: 3rem;
 }
 .form-control-label {
-  color: black;
+  color: rgb(var(--v-theme-on-surface));
   font-size: 16px;
   font-weight: bold;
 }
 .notes-and-appointments-filters-header {
-  color: #337ab7;
+  color: rgb(var(--v-theme-primary));
   font-size: 18px;
   font-weight: bolder;
 }

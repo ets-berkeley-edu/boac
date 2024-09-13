@@ -3,14 +3,14 @@
     <div class="mb-2">
       <label
         :for="`batch-degree-check-${objectType}`"
-        class="font-weight-bold input-label"
+        class="font-weight-bold"
       ><span class="sr-only">Select a </span>{{ header }}</label>
     </div>
     <select
       :id="`batch-degree-check-${objectType}`"
       v-model="model"
       :aria-label="`Degree check will be created for all students in selected ${objectType}${objects.length === 1 ? '' : 's'}`"
-      class="bordered-select d-block mb-2 ml-0 select-menu w-100"
+      class="d-block mb-2 ml-0 select-menu w-100"
       :disabled="disabled"
     >
       <option
@@ -35,27 +35,25 @@
       <li
         v-for="(addedObject, index) in added"
         :key="index"
-        class="list-item"
+        class="list-item d-flex justify-space-between align-center"
       >
-        <div class="d-flex justify-space-between">
-          <div
-            :id="`batch-degree-check-${objectType}-${index}`"
-            class="truncate-with-ellipsis w-75"
-          >
-            {{ addedObject.name }}
-          </div>
-          <div class="float-right">
-            <v-btn
-              :id="`remove-${objectType}-from-batch-${index}`"
-              class="remove-topic-btn"
-              aria-label="Remove"
-              color="error"
-              :disabled="disabled"
-              :icon="mdiCloseCircleOutline"
-              variant="text"
-              @click="() => remove(addedObject)"
-            />
-          </div>
+        <div
+          :id="`batch-degree-check-${objectType}-${index}`"
+          class="truncate-with-ellipsis"
+        >
+          {{ addedObject.name }}
+        </div>
+        <div class="float-right">
+          <v-btn
+            :id="`remove-${objectType}-from-batch-${index}`"
+            class="remove-topic-btn"
+            aria-label="Remove"
+            color="error"
+            :disabled="disabled"
+            :icon="mdiCloseCircleOutline"
+            variant="text"
+            @click="() => remove(addedObject)"
+          />
         </div>
       </li>
     </ul>
@@ -119,21 +117,17 @@ const remove = object => {
 </script>
 
 <style scoped>
-.bordered-select {
-  border: 1px solid #000;
-}
 .list-item {
-  background-color: #fff;
+  background-color: rgba(var(--v-theme-surface));
   border-radius: 5px;
-  border: 1px solid #999;
-  color: #666;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
   height: 36px;
   margin-top: 6px;
-  padding: 5px 0 0 8px;
+  padding: 0 0 0 8px;
   min-width: 50%;
 }
 .remove-topic-btn {
-  padding: 0 0 10px 0 !important;
   margin-right: -10px;
 }
 </style>

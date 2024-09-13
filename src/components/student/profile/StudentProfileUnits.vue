@@ -1,16 +1,16 @@
 <template>
-  <div class="align-center d-flex flex-wrap h-100 py-2">
+  <div class="d-flex flex-wrap h-100 py-2">
     <div
       id="cumulative-units"
-      class="cumulative-units text-center units py-2"
+      class="align-self-center cumulative-units text-center units py-2"
     >
       <div v-if="cumulativeUnits" class="data-number">{{ cumulativeUnits }}</div>
       <div v-if="!cumulativeUnits" class="data-number">--<span class="sr-only">No data</span></div>
       <div class="cumulative-units-label text-medium-emphasis text-uppercase">Units Completed</div>
     </div>
-    <div v-if="!isGraduate(student)" id="units-chart" class="border-s-sm units-chart py-2">
+    <div v-if="!isGraduate(student)" id="units-chart" class="d-flex align-center h-100 border-s-sm units-chart py-2">
       <div class="ml-4">
-        <h4 class="font-weight-bold mb-1 text-medium-emphasis">Unit Totals</h4>
+        <h4 class="units-label font-weight-bold mb-1 text-medium-emphasis text-uppercase">Unit Totals</h4>
         <StudentUnitsChart
           v-if="cumulativeUnits || currentEnrolledUnits"
           class="student-units-chart"
@@ -30,7 +30,7 @@
         </div>
       </div>
     </div>
-    <div v-if="isGraduate(student)" class="units currently-enrolled-units text-center border-s-sm py-2">
+    <div v-if="isGraduate(student)" class="align-self-center units currently-enrolled-units text-center border-s-sm py-2">
       <div id="units-currently-enrolled" class="data-number">{{ currentEnrolledUnits || '0' }}</div>
       <div class="cumulative-units-label text-medium-emphasis text-uppercase">Currently Enrolled Units</div>
     </div>
@@ -72,7 +72,7 @@ onMounted(() => {
   width: 40%;
 }
 .cumulative-units-label {
-  font-size: 11px;
+  font-size: 12px;
 }
 .currently-enrolled-units {
   width: 60%;
@@ -85,10 +85,6 @@ onMounted(() => {
   min-width: 200px;
   width: 100%;
 }
-.text-medium-emphasis {
-  font-size: 11px;
-  text-transform: uppercase;
-}
 .units {
   font-weight: 700;
   min-width: 120px;
@@ -97,5 +93,8 @@ onMounted(() => {
 .units-chart {
   min-width: 225px;
   width: 50%;
+}
+.units-label {
+  font-size: 12px;
 }
 </style>

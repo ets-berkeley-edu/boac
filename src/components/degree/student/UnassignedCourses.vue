@@ -8,7 +8,7 @@
         :id="`${key}-courses-table`"
         class="mb-1 w-100 table-layout"
       >
-        <thead class="border-bottom">
+        <thead class="border-b-sm">
           <tr class="text-no-wrap">
             <th v-if="currentUser.canEditDegreeProgress" class="th-assign">
               <span class="sr-only">Options to assign course</span>
@@ -37,11 +37,11 @@
               :id="course.manuallyCreatedBy ? `${key}-course-${course.id}-manually-created` : `${key}-course-${course.termId}-${course.sectionId}`"
               class="tr-course"
               :class="{
-                'accent-color-blue': course.accentColor === 'Blue',
-                'accent-color-green': course.accentColor === 'Green',
-                'accent-color-orange': course.accentColor === 'Orange',
-                'accent-color-purple': course.accentColor === 'Purple',
-                'accent-color-red': course.accentColor === 'Red',
+                'accent-blue': course.accentColor === 'Blue',
+                'accent-green': course.accentColor === 'Green',
+                'accent-orange': course.accentColor === 'Orange',
+                'accent-purple': course.accentColor === 'Purple',
+                'accent-red': course.accentColor === 'Red',
                 'border-e-md border-s-md border-t-md': isNoteVisible(course),
                 'cursor-grab': canDrag() && !degreeStore.draggingContext.course,
                 'mouseover-grabbable': hoverCourseId === course.id && !degreeStore.draggingContext.course,
@@ -363,20 +363,11 @@ table {
   width: 100%;
 }
 .changed-units-icon {
-  color: #00c13a;
+  color: rgb(var(--v-theme-accent-green));
   margin-right: 0.3em;
 }
 .fulfillments-icon {
-  color: #00c13a;
-}
-.mouseover-grabbable td {
-  background-color: #b9dcf0;
-}
-.mouseover-grabbable td:first-child {
-  border-radius: 10px 0 0 10px;
-}
-.mouseover-grabbable td:last-child {
-  border-radius: 0 10px 10px 0;
+  color: rgb(var(--v-theme-accent-green));
 }
 .table-layout {
   table-layout: fixed;
@@ -442,8 +433,8 @@ table {
   height: 42px;
 }
 .tr-while-dragging td {
-  background-color: #125074;
-  color: white;
+  background-color: rgb(var(--v-theme-tertiary));
+  color: rgb(var(--v-theme-on-tertiary));
 }
 .tr-while-dragging td:first-child {
   border-radius: 10px 0 0 10px;

@@ -1,6 +1,6 @@
 <template>
   <div v-if="!loading">
-    <div class="border-bottom bg-sky-blue pb-2">
+    <div class="border-b-sm bg-sky-blue pb-2">
       <StudentProfileHeader :compact="true" :link-to-student-profile="true" :student="student" />
     </div>
     <div class="default-margins">

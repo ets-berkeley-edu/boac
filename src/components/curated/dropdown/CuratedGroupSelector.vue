@@ -242,28 +242,3 @@ const toggle = checked => {
   }
 }
 </script>
-
-<style scoped>
-label {
-  font-size: 14px;
-  margin-bottom: 0;
-}
-.checkbox {
-  accent-color: #3b7ea5;
-  height: 20px;
-  width: 20px;
-}
-.checked-checkbox-container {
-  background-color: #96C3de !important;
-}
-.checkbox-container {
-  background-color: rgb(var(--v-theme-sky-blue));
-  border: 1px solid #999;
-  border-radius: 6px;
-  height: 36px;
-  margin-right: 8px;
-  padding-top: 7px;
-  text-align: center;
-  width: 36px;
-}
-</style>

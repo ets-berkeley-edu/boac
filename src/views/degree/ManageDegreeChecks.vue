@@ -49,7 +49,7 @@
           id="degree-checks-table"
           :cell-props="data => {
             const column = data.column.key
-            const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
+            const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
             const padding = column === 'name' ? 'pl-4 py-2' : 'pl-0'
             const wrap = column === 'name' ? 'overflow-wrap-break-word' : ''
             return {
@@ -60,9 +60,9 @@
           density="comfortable"
           disable-sort
           :headers="[
-            {key: 'name', headerProps: {class: 'pl-3 manage-degree-checks-column-header'}, width: '60%'},
-            {key: 'createdAt', headerProps: {class: 'manage-degree-checks-column-header w-15'}, width: '10%'},
-            {key: 'actions', headerProps: {class: 'manage-degree-checks-column-header'}}
+            {key: 'name', headerProps: {class: 'pl-3 manage-degree-checks-column-header text-medium-emphasis'}, width: '60%'},
+            {key: 'createdAt', headerProps: {class: 'manage-degree-checks-column-header text-medium-emphasis w-15'}, width: '10%'},
+            {key: 'actions', headerProps: {class: 'manage-degree-checks-column-header text-medium-emphasis'}}
           ]"
           :header-props="{class: 'pl-0 text-no-wrap'}"
           hide-default-footer
@@ -163,7 +163,7 @@
                 <span class="sr-only">{{ item.name }} (will open new browser tab)</span>
               </v-btn>
               <div v-if="currentUser.canEditDegreeProgress">
-                <span class="separator" role="separator">|</span>
+                <span class="text-disabled" role="separator">|</span>
                 <v-btn
                   :id="`degree-check-${item.id}-rename-btn`"
                   color="primary"
@@ -176,7 +176,7 @@
                 </v-btn>
               </div>
               <div v-if="currentUser.canEditDegreeProgress">
-                <span class="separator" role="separator">|</span>
+                <span class="text-disabled" role="separator">|</span>
                 <v-btn
                   :id="`degree-check-${item.id}-copy-btn`"
                   color="primary"
@@ -189,7 +189,7 @@
                 </v-btn>
               </div>
               <div v-if="currentUser.canEditDegreeProgress">
-                <span class="separator" role="separator">|</span>
+                <span class="text-disabled" role="separator">|</span>
                 <v-btn
                   :id="`degree-check-${item.id}-delete-btn`"
                   color="primary"
@@ -262,7 +262,7 @@ onMounted(() => {
   getDegreeTemplates().then(data => {
     degreeTemplates.value = data
     contextStore.loadingComplete()
-    alertScreenReader('Managing Degree Checks loaded')
+    alertScreenReader('Managing Degree Checks page loaded')
   })
 })
 
@@ -357,7 +357,6 @@ const showDeleteModal = template => {
   width: 100%;
 }
 .manage-degree-checks-column-header {
-  color: #666;
   font-weight: 700 !important;
   height: 30px !important;
 }
@@ -366,8 +365,5 @@ const showDeleteModal = template => {
 <style scoped>
 .rename-btn {
   height: 36px;
-}
-.separator {
-  color: #ccc;
 }
 </style>

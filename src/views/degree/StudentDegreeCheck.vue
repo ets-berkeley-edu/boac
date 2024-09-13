@@ -1,7 +1,7 @@
 <template>
   <div :class="{'cursor-grabbing': degreeStore.draggingContext.course}" @drag="scrollTo">
     <div v-if="!loading">
-      <div class="border-bottom bg-sky-blue">
+      <div class="border-b-sm bg-sky-blue">
         <StudentProfileHeader
           :compact="true"
           :link-to-student-profile="true"
@@ -191,10 +191,6 @@ const onResize = () => {
 </script>
 
 <style scoped>
-.column-spacer {
-  max-width: 10px;
-  min-width: 10px;
-}
 .cursor-grabbing {
   cursor: grabbing !important;
 }
@@ -206,15 +202,8 @@ const onResize = () => {
   margin-bottom: 0.5em;
   padding: 0.5em;
 }
-.drop-zone-on {
-  background-color: #ecf5fb;
-  border: #8bbdda dashed 0.15em;
-}
 .drop-zone-off {
   border: transparent dashed 0.15em;
-}
-.section-separator {
-  border-bottom: 1px #999 solid;
 }
 .unit-requirements {
   margin-bottom: 0.5em;

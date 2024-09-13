@@ -31,7 +31,7 @@
         </span>
       </div>
       <v-expand-transition>
-        <div v-if="nameErrorMessage" class="text-error text-surface-variant font-size-12">
+        <div v-if="nameErrorMessage" class="text-error font-size-12">
           {{ nameErrorMessage }}
         </div>
       </v-expand-transition>

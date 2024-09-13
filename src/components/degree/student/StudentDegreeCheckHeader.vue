@@ -80,10 +80,10 @@
         </v-row>
       </v-container>
     </div>
-    <div class="border-b-md border-color-warning mx-6">
-      <v-container class="border-bottom border-warning px-0" fluid>
+    <div class="border-b-md mx-6">
+      <v-container class="border-b-sm px-0" fluid>
         <v-row align="start">
-          <v-col class="border-e-md pb-0 pt-1" cols="8">
+          <v-col class="border-e-sm pb-0 pt-1" cols="8">
             <div v-if="isEditingNote || noteBody" class="align-center d-flex justify-space-between">
               <div>
                 <h3 class="font-size-20 font-weight-bold text-no-wrap">Degree Notes</h3>
@@ -122,7 +122,7 @@
           </v-col>
           <v-col class="align-center d-flex py-1" cols="4">
             <h3 class="font-size-20 font-weight-bold px-2 text-no-wrap">In-progress courses</h3>
-            <div>
+            <div class="text-no-wrap">
               [<v-btn
                 id="show-upper-units-input"
                 class="px-0 text-primary"
@@ -138,7 +138,7 @@
           </v-col>
         </v-row>
         <v-row align-v="start">
-          <v-col class="border-e-md py-1" cols="8">
+          <v-col class="border-e-sm py-1" cols="8">
             <div v-if="noteBody && !isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="font-size-14 pr-2 text-no-wrap">
               <span
                 v-if="noteUpdatedBy"
@@ -223,8 +223,8 @@
                 density="compact"
                 disable-sort
                 :headers="[
-                  {headerProps: {class: 'data-table-column-header'}, key: 'displayName', title: 'Course'},
-                  {headerProps: {class: 'data-table-column-header float-right'}, key: 'units', title: 'Units'}
+                  {headerProps: {class: 'data-table-column-header text-medium-emphasis'}, key: 'displayName', title: 'Course'},
+                  {headerProps: {class: 'data-table-column-header text-medium-emphasis float-right'}, key: 'units', title: 'Units'}
                 ]"
                 hide-default-footer
                 :items="inProgressCourses"
@@ -367,7 +367,6 @@ const toggleInProgressCourses = () => {
 
 <style>
 .data-table-column-header {
-  color: #666;
   font-weight: 700 !important;
   height: 30px !important;
 }

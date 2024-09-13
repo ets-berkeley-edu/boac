@@ -120,9 +120,19 @@ export default createVuetify({
     }
   },
   theme: {
+    variations: {
+      colors: ['primary', 'warning'],
+      lighten: 0,
+      darken: 1
+    },
     themes: {
       light: {
         colors: {
+          'accent-blue': '#005c91',
+          'accent-green': '#36a600',
+          'accent-orange': '#e48600',
+          'accent-purple': '#b300c5',
+          'accent-red': '#d0021b',
           anchor: '#337ab7',
           body: '#212529',
           'category-alert': '#eb9d3e',
@@ -131,6 +141,8 @@ export default createVuetify({
           'category-hold': '#bc74fe',
           'category-note': '#999',
           'category-requirement': '#93c165',
+          'chart-series-1': '#aec9eb',
+          'chart-series-2': '#d6e4f9',
           gold: '#857103',
           error: '#cf1715',
           info: '#367da1',

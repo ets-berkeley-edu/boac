@@ -9,11 +9,11 @@
       :header-props="{class: 'font-size-14 font-weight-bold py-3 text-no-wrap'}"
       :headers="[
         {key: 'data-table-expand'},
-        {key: 'name', headerProps: {class: 'pl-4'}, title: 'Name'},
-        {key: 'depts', title: 'Department(s)'},
-        {key: 'notesCreated', align: 'end', title: 'Notes Created'},
-        {key: 'lastLogin', align: 'end', title: 'Last Login'},
-        {key: 'email', align: 'center', title: 'Email'}
+        {key: 'name', headerProps: {class: 'text-medium-emphasis pl-4'}, title: 'Name'},
+        {key: 'depts', headerProps: {class: 'text-medium-emphasis'}, title: 'Department(s)'},
+        {key: 'notesCreated', align: 'end', headerProps: {class: 'text-medium-emphasis'}, title: 'Notes Created'},
+        {key: 'lastLogin', align: 'end', headerProps: {class: 'text-medium-emphasis'}, title: 'Last Login'},
+        {key: 'email', align: 'center', headerProps: {class: 'text-medium-emphasis'}, title: 'Email'}
       ]"
       hide-default-footer
       hide-no-data
@@ -26,7 +26,7 @@
       :cell-props="data => {
         const alignCenter = data.column.key === 'email'
         const alignEnd = ['lastLogin', 'notesCreated'].includes(data.column.key)
-        const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
+        const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
         return {
           align: alignEnd ? 'end' : (alignCenter ? 'center' : undefined),
           class: `${bgColor} font-size-16 py-2`,
@@ -34,7 +34,7 @@
         }
       }"
       :row-props="data => {
-        const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
+        const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
         return {
           class: `${bgColor}`,
           id: `tr-user-${data.item.uid}`
@@ -64,10 +64,10 @@
       <template #item.depts="{item}">
         <div v-for="dept in item.departments" :key="dept.code" class="pb-1">
           <span :id="`dept-${dept.code}-${item.uid}`">
-            <span class="dept-name">{{ dept.name }}</span> ({{ oxfordJoin(getBoaUserRoles(item, dept)) }})
+            <span class="dept-name text-success">{{ dept.name }}</span> ({{ oxfordJoin(getBoaUserRoles(item, dept)) }})
           </span>
         </div>
-        <div v-if="item.isAdmin" class="dept-name">BOA Admin</div>
+        <div v-if="item.isAdmin" class="dept-name text-success">BOA Admin</div>
       </template>
       <template #item.lastLogin="{item}">
         <div :id="`user-last-login-${item.uid}`">
@@ -130,18 +130,7 @@ onMounted(refresh)
 </script>
 
 <style scoped>
-.user-dept-membership-table td {
-  border: none;
-  padding: 5px 20px 5px 0;
-}
-.user-dept-membership-table th {
-  border: none;
-  color: #aaa;
-  font-weight: normal;
-  padding: 5px 20px 5px 0;
-}
 .dept-name {
-  color: #484;
   font-weight: 500;
 }
 </style>

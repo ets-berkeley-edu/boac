@@ -33,7 +33,7 @@
       <div class="w-75">
         <label
           for="degree-check-add-student-input"
-          class="input-label text mt-1"
+          class="text mt-1"
         >
           <span class="font-weight-bold">Student</span>
           <br />
@@ -101,10 +101,11 @@
         aria-live="polite"
         class="mt-2 mb-3 w-75"
         density="compact"
-        :text="error || warning"
         :type="error ? 'error' : 'warning'"
         variant="tonal"
-      />
+      >
+        <v-alert-title class="font-size-16" :class="{'text-warning-darken-1': warning}">{{ error || warning }}</v-alert-title>
+      </v-alert>
       <div class="pb-2">
         <BatchAddStudentSet
           v-if="currentUser.myCohorts.length"
@@ -135,18 +136,23 @@
           :on-select="addTemplate"
         />
       </div>
-      <div
+      <v-alert
         v-if="!isRecalculating && !isValidating && !isEmpty(excludedStudents)"
-        class="warning-message-container mt-2 mb-3 pa-5 w-75"
-        role="alert"
+        aria-live="polite"
+        class="mt-2 mb-3 w-75"
+        density="compact"
+        type="warning"
+        variant="tonal"
       >
-        <div>{{ excludedStudents.length }} students currently use the {{ selectedTemplate.name }} degree check. The degree check will not be added to their student record.</div>
+        <v-alert-title class="font-size-16 text-warning-darken-1">
+          {{ pluralize('student', excludedStudents.length) }} currently {{ excludedStudents.length === 1 ? 'uses' : 'use' }} the {{ selectedTemplate.name }} degree check. The degree check will not be added to their student record.
+        </v-alert-title>
         <ul class="ml-5 mt-1 mb-0">
           <li v-for="(student, index) in excludedStudents" :key="index">
             {{ student.firstName }} {{ student.lastName }} ({{ student.sid }})
           </li>
         </ul>
-      </div>
+      </v-alert>
       <div class="d-flex pt-2 w-75">
         <ProgressButton
           id="batch-degree-check-save"
@@ -395,10 +401,10 @@ const validateSids = sids => {
 
 <style scoped>
 .added-student-list-item {
-  background-color: #fff;
+  background-color: rgba(var(--v-theme-surface));
   border-radius: 5px;
-  border: 1px solid #999;
-  color: #666;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
   display: inline-block;
   height: 36px;
   margin-top: 6px;

@@ -47,7 +47,7 @@
         <router-link
           v-if="item.uid"
           :id="`link-to-student-${item.uid}`"
-          class="mr-1 text-primary"
+          class="mr-1"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
           :to="studentRoutePath(item.uid, useContextStore().currentUser.inDemoMode)"
           v-html="lastNameFirst(item)"

@@ -34,11 +34,11 @@
           <tr
             :id="`course-${bundle.category.id}-table-row-${index}`"
             :class="{
-              'accent-color-blue': getAccentColor(bundle) === 'Blue',
-              'accent-color-green': getAccentColor(bundle) === 'Green',
-              'accent-color-orange': getAccentColor(bundle) === 'Orange',
-              'accent-color-purple': getAccentColor(bundle) === 'Purple',
-              'accent-color-red': getAccentColor(bundle) === 'Red',
+              'text-accent-blue': getAccentColor(bundle) === 'Blue',
+              'text-accent-green': getAccentColor(bundle) === 'Green',
+              'text-accent-orange': getAccentColor(bundle) === 'Orange',
+              'text-accent-purple': getAccentColor(bundle) === 'Purple',
+              'text-accent-red': getAccentColor(bundle) === 'Red',
               'border-e-md border-s-md border-t-md': isNoteVisible(bundle),
               'cursor-grab': isDraggable(bundle),
               'drop-zone-on': isDroppable(bundle.category),
@@ -81,7 +81,7 @@
               <span v-if="!bundle.course && bundle.category.isRecommended">
                 <v-icon
                   :id="`category-${bundle.category.id}-is-recommended`"
-                  class="accent-color-orange"
+                  color="accent-orange"
                   :icon="mdiCircle"
                   title="Recommended"
                 />
@@ -89,7 +89,7 @@
               </span>
               <span
                 :class="{
-                  'accent-color-purple': get(bundle.category, 'isSatisfiedByTransferCourse'),
+                  'text-accent-purple': get(bundle.category, 'isSatisfiedByTransferCourse'),
                   'font-weight-500': isEditing(bundle),
                   'mr-2': get(bundle.course, 'isCopy')
                 }"
@@ -109,7 +109,7 @@
             </td>
             <td
               v-if="!isCampusRequirements"
-              class="td-units"
+              class="td-units d-flex align-center"
               :class="{'font-italic text-surface-variant': !bundle.course && !getAccentColor(bundle)}"
             >
               <v-icon
@@ -200,7 +200,7 @@
                 <div>
                   {{ oxfordJoin(map(bundle.unitRequirements, 'name'), '&mdash;') }}
                 </div>
-                <div v-if="size(bundle.unitRequirements) > 1" class="unit-requirement-count">
+                <div v-if="size(bundle.unitRequirements) > 1" class="unit-requirement-count bg-primary">
                   <span class="sr-only">(Has </span>{{ bundle.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
                 </div>
               </div>
@@ -657,25 +657,11 @@ table {
   min-width: 20px;
 }
 .changed-units-icon {
-  color: #00c13a;
+  color: rgb(var(--v-theme-accent-green));
   margin-right: 0.3em;
 }
-.drop-zone-on {
-  background-color: #ecf5fb;
-  cursor: move;
-  outline: #8bbdda dashed 0.15em;
-}
 .fulfillments-icon {
-  color: #00c13a;
-}
-.mouseover-grabbable td {
-  background-color: #b9dcf0;
-}
-.mouseover-grabbable td:first-child {
-  border-radius: 10px 0 0 10px;
-}
-.mouseover-grabbable td:last-child {
-  border-radius: 0 10px 10px 0;
+  color: rgb(var(--v-theme-accent-green));
 }
 .td-actions {
   vertical-align: top;
@@ -745,8 +731,8 @@ table {
   width: 40px !important;
 }
 .tr-while-dragging td {
-  background-color: #125074;
-  color: white;
+  background-color: rgb(var(--v-theme-tertiary));
+  color: rgb(var(--v-theme-on-tertiary));
 }
 .tr-while-dragging td:first-child {
   border-radius: 10px 0 0 10px;
@@ -755,9 +741,8 @@ table {
   border-radius: 0 10px 10px 0;
 }
 .unit-requirement-count {
-  background-color: #3b7ea5;
   border-radius: 12px;
-  color: white;
+  color: rgb(var(--v-theme-on-tertiary));
   height: 20px;
   margin-top: 4px;
   max-width: 20px;
