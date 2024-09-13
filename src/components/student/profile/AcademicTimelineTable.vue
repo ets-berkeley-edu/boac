@@ -215,7 +215,10 @@
               />
               <span
                 v-if="!includes(['appointment', 'eForm', 'note'] , message.type)"
-                :class="{'truncate-with-ellipsis': !includes(openMessages, message.transientId)}"
+                :class="{
+                  'mb-5': includes(openMessages, message.transientId),
+                  'truncate-with-ellipsis': !includes(openMessages, message.transientId)
+                }"
               >
                 {{ message.message }}
               </span>
