@@ -110,62 +110,51 @@
 <script setup>
 import {eachRight} from 'lodash'
 import {useTheme} from 'vuetify'
-</script>
 
-<script>
-export default {
-  name: 'StudentGpaChart',
-  props: {
-    chartDescription: {
-      required: true,
-      type: String
-    },
-    student: {
-      required: true,
-      type: Object
-    },
-    width: {
-      default: undefined,
-      required: false,
-      type: Number
-    }
+const props = defineProps({
+  chartDescription: {
+    required: true,
+    type: String
   },
-  data: () => ({
-    errorColor: undefined,
-    primaryColor: undefined
-  }),
-  created() {
-    this.errorColor = useTheme().current.value.colors.error
-    this.primaryColor = useTheme().current.value.colors.primary
+  student: {
+    required: true,
+    type: Object
   },
-  methods: {
-    generateGpaDataSeries() {
-      const series = []
-      let i = 0
-      eachRight(this.student.termGpa, term => {
-        series.push({
-          accessibility: {
-            description: `${term.gpa} GPA`
-          },
-          marker: {
-            enabled: true
-          },
-          x: i,
-          y: term.gpa
-        })
-        i++
-      })
-      if (series.length) {
-        const lastElement = series[series.length - 1]
-        const fillColor = lastElement.y < 2 ? this.errorColor : this.primaryColor
-        lastElement.marker = {
-          enabled: true,
-          fillColor: fillColor,
-          radius: 5
-        }
-      }
-      return series
+  width: {
+    default: undefined,
+    required: false,
+    type: Number
+  }
+})
+
+const errorColor = useTheme().current.value.colors.error
+const primaryColor = useTheme().current.value.colors.primary
+
+const generateGpaDataSeries = () => {
+  const series = []
+  let i = 0
+  eachRight(props.student.termGpa, term => {
+    series.push({
+      accessibility: {
+        description: `${term.gpa} GPA`
+      },
+      marker: {
+        enabled: true
+      },
+      x: i,
+      y: term.gpa
+    })
+    i++
+  })
+  if (series.length) {
+    const lastElement = series[series.length - 1]
+    const fillColor = lastElement.y < 2 ? errorColor : primaryColor
+    lastElement.marker = {
+      enabled: true,
+      fillColor: fillColor,
+      radius: 5
     }
   }
+  return series
 }
 </script>

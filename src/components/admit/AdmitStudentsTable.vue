@@ -106,52 +106,49 @@ import {mdiCloseCircle} from '@mdi/js'
 import {get, isNil, join, remove} from 'lodash'
 import {isNilOrBlank} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-</script>
-
-<script>
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import {alertScreenReader} from '@/lib/utils'
 
-export default {
-  name: 'AdmitStudentsTable',
-  components: {CuratedStudentCheckbox},
-  props: {
-    includeCuratedCheckbox: {
-      required: false,
-      type: Boolean
-    },
-    removeStudent: {
-      default: undefined,
-      required: false,
-      type: Function
-    },
-    students: {
-      required: true,
-      type: Array
-    }
+const props = defineProps({
+  includeCuratedCheckbox: {
+    required: false,
+    type: Boolean
   },
-  methods: {
-    admitRoutePath(student) {
-      const sid = this.getSid(student)
-      return get(useContextStore().currentUser, 'inDemoMode') ? `/admit/student/${window.btoa(sid)}` : `/admit/student/${sid}`
-    },
-    curatedGroupRemoveStudent(student) {
-      this.removeStudent(this.getSid(student))
-      alertScreenReader(`Removed ${this.fullName(student)} from group`)
-    },
-    fullName(student) {
-      const firstName = student.firstName
-      const middleName = student.middleName
-      const lastName = student.lastName
-      let fullName
-      if (get(useContextStore().currentUser, 'preferences.admitSortBy') === 'first_name') {
-        fullName = join(remove([firstName, middleName, lastName]), ' ')
-      } else {
-        fullName = join(remove([lastName ? `${lastName},` : null, firstName, middleName]), ' ')
-      }
-      return fullName
-    },
-    getSid: student => student.csEmplId || student.sid
+  removeStudent: {
+    default: undefined,
+    required: false,
+    type: Function
+  },
+  students: {
+    required: true,
+    type: Array
   }
+})
+
+const currentUser = useContextStore().currentUser
+
+const admitRoutePath = student => {
+  const sid = getSid(student)
+  return get(currentUser, 'inDemoMode') ? `/admit/student/${window.btoa(sid)}` : `/admit/student/${sid}`
 }
+
+const curatedGroupRemoveStudent = student => {
+  props.removeStudent(getSid(student))
+  alertScreenReader(`Removed ${fullName(student)} from group`)
+}
+
+const fullName = student => {
+  const firstName = student.firstName
+  const middleName = student.middleName
+  const lastName = student.lastName
+  let fullName
+  if (get(currentUser, 'preferences.admitSortBy') === 'first_name') {
+    fullName = join(remove([firstName, middleName, lastName]), ' ')
+  } else {
+    fullName = join(remove([lastName ? `${lastName},` : null, firstName, middleName]), ' ')
+  }
+  return fullName
+}
+
+const getSid = student => student.csEmplId || student.sid
 </script>

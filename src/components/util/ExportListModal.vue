@@ -21,7 +21,6 @@
             id="csv-column-options"
             aria-label="Select columns to export"
             class="d-flex flex-column flex-wrap csv-column-options pb-5 px-1"
-            name="csv-column-options"
             role="group"
           >
             <template v-for="(option, index) in csvColumns" :key="index">
@@ -80,82 +79,60 @@
 </template>
 
 <script setup>
-import FocusLock from 'vue-focus-lock'
-import {includes} from 'lodash'
-import {mdiAlert} from '@mdi/js'
-</script>
-
-<script>
 import FerpaReminder from '@/components/util/FerpaReminder'
+import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {putFocusNextTick} from '@/lib/utils'
+import {computed, ref} from 'vue'
+import {includes} from 'lodash'
+import {mdiAlert} from '@mdi/js'
 
-export default {
-  name: 'ExportListModal',
-  components: {FerpaReminder, ModalHeader, ProgressButton},
-  props: {
-    cancel: {
-      required: true,
-      type: Function
-    },
-    csvColumns: {
-      required: true,
-      type: Array
-    },
-    csvColumnsSelected: {
-      required: true,
-      type: Array
-    },
-    error: {
-      default: undefined,
-      type: String,
-      required: false
-    },
-    export: {
-      required: true,
-      type: Function
-    },
-    showModal: {
-      type: Boolean,
-      required: true
-    }
+const props = defineProps({
+  cancel: {
+    required: true,
+    type: Function
   },
-  data: () => ({
-    isExporting: false,
-    selected: []
-  }),
-  computed: {
-    showModalProxy: {
-      get() {
-        return this.showModal
-      }
-    }
+  csvColumns: {
+    required: true,
+    type: Array
   },
-  created() {
-    this.selected = this.csvColumnsSelected
+  csvColumnsSelected: {
+    required: true,
+    type: Array
   },
-  methods: {
-    onChange(value, isChecked) {
-      if (isChecked) {
-        this.selected.push(value)
-      } else {
-        this.selected.splice(this.selected.indexOf(value), 1)
-      }
-    },
-    onSubmit() {
-      this.isExporting = true
-      this.export(this.selected).then(() => this.isExporting = false)
-
-    },
-    onToggle(isOpen) {
-      if (isOpen) {
-        putFocusNextTick('csv-column-options-0')
-      } else {
-        this.cancel()
-      }
-    }
+  error: {
+    default: undefined,
+    type: String,
+    required: false
+  },
+  export: {
+    required: true,
+    type: Function
+  },
+  showModal: {
+    type: Boolean,
+    required: true
   }
+})
+
+const isExporting = ref(false)
+const selected = ref(props.csvColumnsSelected)
+const showModalProxy = computed(() => {
+  return props.showModal
+})
+
+const onChange = (value, isChecked) => {
+  if (isChecked) {
+    selected.value.push(value)
+  } else {
+    selected.value.splice(selected.value.indexOf(value), 1)
+  }
+}
+
+const onSubmit = () => {
+  isExporting.value = true
+  this.export(selected.value).then(() => isExporting.value = false)
+
 }
 </script>
 

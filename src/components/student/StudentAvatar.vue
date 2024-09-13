@@ -5,7 +5,7 @@
       :alt="ariaLabel"
       :aria-label="ariaLabel"
       class="avatar-img"
-      :class="avatarStyle"
+      :class="`student-avatar-${size} ${currentUser.inDemoMode ? 'img-blur' : ''}`"
       :src="avatarUrl"
       :style="{backgroundImage: `url(${avatarUrl})`, backgroundRepeat: 'repeat'}"
       @error="avatarError"
@@ -13,7 +13,7 @@
     <PillCount
       v-if="alertCount"
       :id="`student-avatar-${student.uid}-alert-count`"
-      :aria-label="alertText"
+      :aria-label="pluralize('alert', alertCount)"
       class="student-avatar-alert-count"
       color="warning"
     >
@@ -23,7 +23,7 @@
         activator="parent"
         aria-hidden="true"
         location="bottom"
-        :text="alertText"
+        :text="pluralize('alert', alertCount)"
       />
     </PillCount>
   </div>
@@ -31,58 +31,41 @@
 
 <script setup>
 import avatarPlaceholder from '@/assets/avatar-50.png'
+import PillCount from '@/components/util/PillCount'
 import {isNil} from 'lodash'
 import {pluralize} from '@/lib/utils'
+import {onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-</script>
 
-<script>
-import PillCount from '@/components/util/PillCount'
-
-export default {
-  name: 'StudentAvatar',
-  components: {PillCount},
-  props: {
-    size: {
-      required: true,
-      type: String,
-      validator: v => ['small', 'medium', 'large'].indexOf(v) > -1
-    },
-    student: {
-      required: true,
-      type: Object
-    },
-    alertCount: {
-      default: undefined,
-      required: false,
-      type: Number
-    }
+const props = defineProps({
+  alertCount: {
+    default: undefined,
+    required: false,
+    type: Number
   },
-  data: () => ({
-    ariaLabel: undefined,
-    avatarStyle: undefined,
-    avatarUrl: undefined
-  }),
-  computed: {
-    alertText() {
-      return pluralize('alert', this.alertCount)
-    }
+  size: {
+    required: true,
+    type: String,
+    validator: v => ['small', 'medium', 'large'].indexOf(v) > -1
   },
-  created() {
-    this.ariaLabel = `Photo of ${this.student.firstName} ${this.student.lastName}`
-    if (!isNil(this.alertCount)) {
-      this.ariaLabel += this.alertCount === 1 ? ' (one alert)' : ` (${this.alertCount} alerts)`
-    }
-    this.avatarUrl = this.student.photoUrl
-    this.avatarStyle = `student-avatar-${this.size} ${
-      useContextStore().currentUser.inDemoMode ? 'img-blur' : ''
-    }`
-  },
-  methods: {
-    avatarError() {
-      this.avatarUrl = avatarPlaceholder
-    }
+  student: {
+    required: true,
+    type: Object
   }
+})
+
+const ariaLabel = ref(`Photo of ${props.student.firstName} ${props.student.lastName}`)
+const avatarUrl = ref(props.student.photoUrl)
+const currentUser = useContextStore().currentUser
+
+onMounted(() => {
+  if (!isNil(props.alertCount)) {
+    ariaLabel.value += props.alertCount === 1 ? ' (one alert)' : ` (${props.alertCount} alerts)`
+  }
+})
+
+const avatarError = () => {
+  avatarUrl.value = avatarPlaceholder
 }
 </script>
 
