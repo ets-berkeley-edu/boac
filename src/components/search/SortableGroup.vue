@@ -31,7 +31,7 @@
                 size="large"
               />
             </div>
-            <h3 class="page-section-header-sub text-primary">
+            <h3 class="page-section-header-sub pr-8 text-primary">
               <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${groupTypeName} ` }}</span>
               {{ group.name }}<span class="sr-only">: </span>
               (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ group.totalStudentCount }}</span>
@@ -39,7 +39,7 @@
             </h3>
           </div>
           <div class="d-flex align-center">
-            <div v-if="!compact" class="pr-2">
+            <div v-if="!compact" class="pr-2 text-no-wrap">
               Total Alerts:
             </div>
             <PillCount
@@ -167,8 +167,8 @@ const getRoutePath = group => {
 <style scoped>
 .expand-icon-container {
   max-width: 40px;
+  min-width: 40px;
   text-align: center;
-  width: 40px;
 }
 .sortable-group {
   border: 1px solid #007bff;

@@ -3,7 +3,7 @@
     <div
       :id="`note-${note.id}-is-closed`"
       class="truncate-with-ellipsis w-100"
-      :class="{'note-snippet-when-closed truncate-with-ellipsis': !isOpen}"
+      :class="{'note-snippet-when-closed': !isOpen}"
       aria-label="Advising note"
     >
       <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`">
@@ -36,7 +36,7 @@
         </span>
       </span>
     </div>
-    <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="truncate-with-ellipsis w-100">
+    <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="pb-2 truncate-with-ellipsis w-100">
       <div v-if="!note.legacySource">
         <v-btn
           v-if="currentUser.isAdmin"
@@ -250,7 +250,7 @@ const displayName = (attachments, index) => {
   return !isNumber(index) || size(attachments) <= index ? '' : attachments[index].displayName
 }
 
-const formatDate = (isoDate, format) => DateTime.fromISO(isoDate).setZone(useContextStore().config.timezone).toFormat(format)
+const formatDate = (isoDate, format) => DateTime.fromISO(isoDate).setZone(contextStore.config.timezone).toFormat(format)
 
 const loadAuthorDetails = () => {
   const requiresLazyLoad = (
