@@ -197,7 +197,7 @@
                       :class="{'demo-mode-blur': currentUser.inDemoMode}"
                       color="primary"
                       density="compact"
-                      :disabled="searchStore.isSearching || model.postedBy === 'you'"
+                      :disabled="searchStore.isSearching || model.postedBy === 'you' || model.postedBy === 'yourDepartment'"
                       hide-details
                       hide-no-data
                       :items="suggestedAdvisors"
