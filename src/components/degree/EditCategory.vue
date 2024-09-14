@@ -95,7 +95,7 @@
             :ref="`column-${position}-unit-requirement-select`"
             :disable="isSaving"
             :initial-unit-requirements="selectedUnitRequirements"
-            :on-unit-requirements-change="() => selectedUnitRequirements = degreeStore.unitRequirements"
+            :on-unit-requirements-change="(value) => selectedUnitRequirements = value"
             :position="position"
           />
         </div>
