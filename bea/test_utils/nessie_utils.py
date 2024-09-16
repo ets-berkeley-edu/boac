@@ -135,12 +135,11 @@ def set_student_term_enrollments(students):
             ORDER BY term_id DESC"""
     app.logger.info(sql)
     results = data_loch.safe_execute_rds(sql)
-    grouped = [list(result) for key, result in itertools.groupby(results, key=lambda r: r['sid'])]
-    for group in grouped:
+    for student in students:
         enrollments = []
-        student = next(filter(lambda s: s.sid == group[0]['sid'], students))
-        for term in group:
-            enrollments.append(json.loads(term['enrollment_term']))
+        for row in results:
+            if row['sid'] == student.sid:
+                enrollments.append(json.loads(row['enrollment_term']))
         student.enrollment_data = EnrollmentData(data=enrollments)
 
 

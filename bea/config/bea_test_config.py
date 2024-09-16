@@ -521,9 +521,26 @@ class BEATestConfig(object):
         nessie_utils.set_student_profiles(self.test_students)
         nessie_utils.set_student_academic_standings(self.test_students)
         nessie_utils.set_student_term_enrollments(self.test_students)
+
         for student in self.test_students:
+            # Tests for student profile data
             self.test_cases.append(BEATestCase(student=student))
+
             for term_data in student.enrollment_data.enrollment_terms():
-                self.test_cases.append(BEATestCase(student=student, term=term_data))
+                term_sis_id = student.enrollment_data.term_id(term_data)
+                term_test_case_id = f'UID {student.uid} {term_sis_id}'
+                # Tests for student term data
+                self.test_cases.append(BEATestCase(student=student,
+                                                   term=term_data,
+                                                   test_case_id=term_test_case_id))
+
                 for course_data in student.enrollment_data.courses(term_data):
-                    self.test_cases.append(BEATestCase(student=student, course=course_data))
+                    for section_data in student.enrollment_data.sections(course_data):
+                        section_id = student.enrollment_data.sis_section_data(section_data)['ccn']
+                        section_test_case_id = f'UID {student.uid} {term_sis_id}-{section_id}'
+                        # Tests for student course data
+                        self.test_cases.append(BEATestCase(student=student,
+                                                           term=term_data,
+                                                           course=course_data,
+                                                           section=section_data,
+                                                           test_case_id=section_test_case_id))
