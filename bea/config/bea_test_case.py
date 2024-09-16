@@ -32,10 +32,12 @@ class BEATestCase(object):
                  course=None,
                  notes=None,
                  section=None,
-                 term=None):
+                 term=None,
+                 test_case_id=None):
         self.student = student
         self.appts = appts or []
         self.course = course
         self.notes = notes or []
         self.section = section
         self.term = term
+        self.test_case_id = test_case_id

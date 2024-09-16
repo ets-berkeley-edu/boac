@@ -346,7 +346,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
 
     def visible_term_academic_standing(self, term_sis_id):
         self.wait_for_term_data(term_sis_id)
-        return self.el_text_if_exists((By.ID, f'academic-standing-term-{term_sis_id}'))
+        return self.el_text_if_exists((By.ID, f'classes-academic-standing-term-{term_sis_id}'))
 
     def visible_term_concurrent_enrollment(self, term_sis_id):
         self.wait_for_term_data(term_sis_id)
@@ -413,4 +413,80 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
         xpath = f'//div[contains(@id, "term-{term_sis_id}-dropped-course")][contains(.,"{course_code} - {component} {number}")]'
         return self.el_text_if_exists((By.XPATH, xpath))
 
-    # TODO - COURSE SITES
+    # COURSE SITES
+
+    @staticmethod
+    def course_site_xpath(term_sis_id, ccn, idx):
+        return f'//div[@id="term-{term_sis_id}-course-{ccn}"]/following-sibling::div//h5[@class="bcourses-site-code"][contains(@id, "site-{idx}")]'
+
+    @staticmethod
+    def site_analytics_percentile_xpath(site_xpath, label):
+        return f'{site_xpath}/following-sibling::table//th[contains(text(), "{label}")]/following-sibling::td[1]'
+
+    @staticmethod
+    def site_analytics_score_xpath(site_xpath, label):
+        return f'{site_xpath}/following-sibling::table//th[contains(text(), "{label}")]/following-sibling::td[2]'
+
+    def site_boxplot_xpath(self, site_xpath, label):
+        return f'{self.site_analytics_score_xpath(site_xpath, label)}{self.boxplot_trigger_xpath()}'
+
+    def analytics_trigger_loc(self, site_xpath, label):
+        return By.XPATH, self.site_boxplot_xpath(site_xpath, label)
+
+    def is_no_data_loc(self, site_xpath, label):
+        return self.is_present((By.XPATH, f'{self.site_analytics_score_xpath(site_xpath, label)}[contains(., "No Data")]'))
+
+    def perc_round(self, site_xpath, label):
+        xpath = f'{self.site_analytics_percentile_xpath(site_xpath, label)}//strong'
+        return self.el_text_if_exists((By.XPATH, xpath))
+
+    def graphable_user_score_xpath(self, site_xpath, label):
+        return f'{self.site_analytics_score_xpath(site_xpath, label)}//div[text()="User Score"]/following-sibling::div'
+
+    def graphable_user_score(self, site_xpath, label):
+        return self.el_text_if_exists((By.XPATH, self.graphable_user_score_xpath(site_xpath, label)))
+
+    def non_graphable_user_score(self, site_xpath, label):
+        xpath = f'{self.site_analytics_score_xpath(site_xpath, label)}//strong'
+        return self.el_text_if_exists((By.XPATH, xpath))
+
+    def non_graphable_maximum(self, site_xpath, label):
+        xpath = f'{self.site_analytics_score_xpath(site_xpath, label)}//span[contains(text(), "Max:")]'
+        return self.el_text_if_exists((By.XPATH, xpath))
+
+    def visible_analytics(self, site_xpath, label, analytics):
+        boxplot = analytics['graphable']
+        if boxplot:
+            self.when_present(self.analytics_trigger_loc(site_xpath, label), utils.get_short_timeout())
+            app.logger.info(f'Mousing over element at {self.analytics_trigger_loc(site_xpath, label)}')
+            self.mouseover(self.element((self.analytics_trigger_loc(site_xpath, label))))
+            app.logger.info(f'Checking user score at {self.graphable_user_score(site_xpath, label)}')
+            self.when_present(self.graphable_user_score(site_xpath, label), utils.get_short_timeout())
+        tool_tip_detail_loc = f'{self.graphable_user_score_xpath(site_xpath, label)}/../following-sibling::div/div'
+        visible_details = self.els_text_if_exist(tool_tip_detail_loc)
+        app.logger.info(f'Visible details: {visible_details}')
+        return {
+            'perc_round': self.perc_round(site_xpath, label),
+            'score': (self.graphable_user_score(site_xpath, label) if boxplot else self.non_graphable_user_score(site_xpath, label)),
+            'max': (visible_details[0] if boxplot and visible_details else self.non_graphable_maximum(site_xpath, label)),
+            'perc_70': (visible_details[1] if visible_details else None),
+            'perc_50': (visible_details[2] if visible_details else None),
+            'perc_30': (visible_details[3] if visible_details else None),
+            'minimum': (visible_details[4] if visible_details else None),
+        }
+
+    def visible_assignment_analytics(self, site_xpath, analytics):
+        return self.visible_analytics(site_xpath, 'Assignments Submitted', analytics)
+
+    def visible_grades_analytics(self, site_xpath, analytics):
+        return self.visible_analytics(site_xpath, 'Assignment Grades', analytics)
+
+    def visible_last_activity(self, term_id, ccn, idx):
+        xpath = f'{self.course_site_xpath(term_id, ccn, idx)}//th[contains(.,\"Last bCourses Activity\")]/following-sibling::td/div'
+        app.logger.info(f'Checking for last activity at {xpath}')
+        self.when_present((By.XPATH, xpath), utils.get_click_sleep())
+        visible = self.el_text_if_exists((By.XPATH, xpath))
+        return {
+            'days': (visible.split('.')[0] if visible else None),
+            'context': (visible.split('.')[1] if visible else None),
+        }

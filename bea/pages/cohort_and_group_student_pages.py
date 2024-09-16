@@ -22,6 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+import time
 
 from bea.pages.cohort_pages import CohortPages
 from bea.pages.list_view_student_pages import ListViewStudentPages
@@ -132,17 +133,13 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
 
     # LIST VIEW - shared by filtered cohorts and curated groups
 
-    TERM_SELECT_BUTTON = By.ID, 'students-term-select__BV_toggle_'
+    TERM_SELECT = By.ID, 'students-term-select'
     SITE_ACTIVITY_HEADER = By.XPATH, '//th[contains(., "bCourses Activity")]'
 
-    @staticmethod
-    def term_select_option(term):
-        return By.ID, f'term-select-option-{term.sis_id}'
-
-    def select_term(self, term):
-        app.logger.info(f'Selecting term ID {term.sis_id}')
-        self.wait_for_element_and_click(self.TERM_SELECT_BUTTON)
-        self.wait_for_element_and_click(self.term_select_option(term))
+    def select_term(self, term_sis_id):
+        app.logger.info(f'Selecting term ID {term_sis_id}')
+        self.wait_for_select_and_click_option(self.TERM_SELECT, term_sis_id)
+        time.sleep(1)
 
     def scroll_to_student(self, student):
         self.scroll_to_element(self.element((By.XPATH, self.student_row_xpath(student))))

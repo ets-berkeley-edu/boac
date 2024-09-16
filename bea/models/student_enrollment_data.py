@@ -62,24 +62,28 @@ class EnrollmentData(object):
         return utils.formatted_units(term['enrolledUnits'])
 
     @staticmethod
-    def term_units_max_float(term):
-        return f"{float(term['maxTermUnitsAllowed'])}"
+    def _term_units_max(term):
+        return utils.safe_key(term, 'maxTermUnitsAllowed')
+
+    def term_units_max_float(self, term):
+        return self._term_units_max(term) and f'{float(self._term_units_max(term))}'
+
+    def term_units_max(self, term):
+        return self._term_units_max(term) and utils.formatted_units(self._term_units_max(term))
 
     @staticmethod
-    def term_units_max(term):
-        return utils.formatted_units(term['maxTermUnitsAllowed'])
+    def _term_units_min(term):
+        return utils.safe_key(term, 'minTermUnitsAllowed')
 
-    @staticmethod
-    def term_units_min_float(term):
-        return f"{float(term['minTermUnitsAllowed'])}"
+    def term_units_min_float(self, term):
+        return self._term_units_min(term) and f'{float(self._term_units_min(term))}'
 
-    @staticmethod
-    def term_units_min(term):
-        return utils.formatted_units(term['minTermUnitsAllowed'])
+    def term_units_min(self, term):
+        return self._term_units_min(term) and utils.formatted_units(self._term_units_min(term))
 
     @staticmethod
     def term_gpa(term):
-        return utils.safe_key(term, 'termGpa') and utils.safe_key(term['termGpa'], 'gpa')
+        return utils.safe_key(term, 'termGpa') and '{:.3f}'.format(utils.safe_key(term['termGpa'], 'gpa'))
 
     @staticmethod
     def term_gpa_units(term):
@@ -89,11 +93,23 @@ class EnrollmentData(object):
 
     @staticmethod
     def courses(term):
-        return term['enrollments']
+        return utils.safe_key(term, 'enrollments')
 
     @staticmethod
-    def course_display_name(course):
-        return course['displayName']
+    def course_code(course):
+        return utils.safe_key(course, 'displayName')
+
+    @staticmethod
+    def course_title(course):
+        return re.sub(r'\s+', ' ', course['title'])
+
+    @staticmethod
+    def course_units_completed_float(course):
+        return f"{float(course['units'])}"
+
+    @staticmethod
+    def course_units_completed(course):
+        return f"{(course['units'] // 1) if (course['units'] // 1) == course['units'] else course['units']}"
 
     @staticmethod
     def grade(course, grade_key):
@@ -102,19 +118,33 @@ class EnrollmentData(object):
         else:
             return None
 
+    def midpoint_graded(self, course):
+        return self.grade(course, 'midtermGrade')
+
+    def final_grade(self, course):
+        return self.grade(course, 'grade')
+
+    @staticmethod
+    def grading_basis(course):
+        return course['gradingBasis']
+
+    @staticmethod
+    def academic_career(course):
+        return course['academicCareer']
+
     def sis_course_data(self, course):
         reqts = utils.safe_key(course, 'courseRequirements') and list(
             map(lambda req: re.sub(r'\s+', ' ', req), course['courseRequirements']))
         return {
-            'code': self.course_display_name(course),
-            'title': (re.sub(r'\s+', ' ', course['title'])),
-            'units_completed_float': f"{float(course['units'])}",
-            'units_completed': f"{(course['units'] // 1) if (course['units'] // 1) == course['units'] else course['units']}",
-            'midpoint': self.grade(course, 'midtermGrade'),
-            'grade': self.grade(course, 'grade'),
-            'grading_basis': course['gradingBasis'],
+            'code': self.course_code(course),
+            'title': self.course_title(course),
+            'units_completed_float': self.course_units_completed_float(course),
+            'units_completed': self.course_units_completed(course),
+            'midpoint': self.midpoint_graded(course),
+            'grade': self.final_grade(course),
+            'grading_basis': self.grading_basis(course),
             'reqts': reqts,
-            'acad_career': course['academicCareer'],
+            'acad_career': self.academic_career(course),
         }
 
     def course_by_section_id(self, section):

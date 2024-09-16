@@ -208,6 +208,34 @@ def get_previous_term_code(term_sis_id):
     return d1 + d2_3 + d4
 
 
+def get_next_term(term=None):
+    term = term or get_current_term()
+    sis_id = get_next_term_sis_id(term.sis_id)
+    return Term({
+        'code': get_next_term_code(sis_id),
+        'name': term_sis_id_to_term_name(sis_id),
+        'sis_id': sis_id,
+    })
+
+
+def get_next_term_sis_id(sis_id=None):
+    current_sis_id = int(sis_id) if sis_id else int(app.config['TERM_SIS_ID'])
+    next_sis_id = current_sis_id + (3 if (current_sis_id % 10 in [2, 5]) else 4)
+    return f'{next_sis_id}'
+
+
+def get_next_term_code(term_sis_id):
+    d1 = '2'
+    d2_3 = str(int(term_sis_id[1:3]) + 1) if (term_sis_id[-1] == '8') else term_sis_id[1:3]
+    if term_sis_id[3] == '2':
+        d4 = '5'
+    elif term_sis_id[3] == '5':
+        d4 = '8'
+    else:
+        d4 = '2'
+    return d1 + d2_3 + d4
+
+
 def term_sis_id_to_term_name(term_sis_id):
     year = f'{term_sis_id[0]}0{term_sis_id[1]}{term_sis_id[2]}'
     if term_sis_id[3] == '2':

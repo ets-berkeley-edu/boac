@@ -142,6 +142,14 @@ class TestListViewProfileData:
 
     # TODO - most recent term GPA
 
+    def test_cumulative_units(self, tc):
+        cumulative_units = tc.student.profile_data.cumulative_units()
+        visible_units = self.curated_students_page.cumulative_units(tc.student)
+        if cumulative_units:
+            utils.assert_equivalence(visible_units, cumulative_units)
+        else:
+            utils.assert_equivalence(visible_units, '0')
+
 
 @pytest.mark.usefixtures('page_objects')
 @pytest.mark.parametrize('tc', tcs, ids=[f'UID {tc.student.uid}' for tc in tcs], scope='class')

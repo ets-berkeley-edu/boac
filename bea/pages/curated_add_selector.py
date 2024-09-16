@@ -54,6 +54,10 @@ class CuratedAddSelector(BoaPages, CuratedModal):
     ADD_INDIVIDUAL_TO_CE3_GROUP_CBX = By.XPATH, '//input[contains(@id, "admissions-group-checkbox")]/..'
 
     @staticmethod
+    def student_button_loc(student):
+        return By.ID, f'student-{student.sid}-add-to-curated-group'
+
+    @staticmethod
     def student_checkbox_loc(student):
         return By.XPATH, f'//input[@id="student-{student.sid}-curated-group-checkbox"]/..'
 
