@@ -77,7 +77,7 @@
       type="warning"
       variant="tonal"
     >
-      A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.
+      <v-alert-title class="text-warning-darken-1 font-size-16">A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.</v-alert-title>
     </v-alert>
     <ul
       :id="`${idPrefix}attachments-list`"

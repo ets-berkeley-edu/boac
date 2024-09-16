@@ -93,6 +93,7 @@
             :id="`filter-range-min-${position}`"
             v-model="rangeMin"
             bg-color="white"
+            :error="errorPerRangeInput"
             hide-details
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
@@ -107,6 +108,7 @@
             :id="`filter-range-max-${position}`"
             v-model="rangeMax"
             bg-color="white"
+            :error="errorPerRangeInput"
             hide-details
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
@@ -189,14 +191,12 @@
     <v-card v-show="errorPerRangeInput" flat>
       <v-alert
         aria-live="polite"
-        class="bg-red-lighten-5"
-        color="red"
         density="compact"
-        role="alert"
-        :text="errorPerRangeInput"
-        type="warning"
-        variant="outlined"
-      />
+        type="error"
+        variant="tonal"
+      >
+        <v-alert-title class="font-size-16">{{ errorPerRangeInput }}</v-alert-title>
+      </v-alert>
     </v-card>
   </v-expand-transition>
 </template>
@@ -599,7 +599,7 @@ const updateRangeFilter = () => {
 }
 .filter-row {
   align-items: center;
-  background-color: #f3f3f3;
+  background-color: rgb(var(--v-theme-surface-light));
   border-left: 6px solid rgb(var(--v-theme-primary)) !important;
   min-height: 56px;
 }

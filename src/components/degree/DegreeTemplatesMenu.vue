@@ -3,13 +3,13 @@
     <div class="mb-2">
       <label
         for="degree-template-select"
-        class="font-weight-bold input-label mt-2"
+        class="font-weight-bold mt-2"
       >Add Degree Check</label>
     </div>
     <select
       id="degree-template-select"
       v-model="selectedTemplate"
-      class="bordered-select d-block mb-2 ml-0 select-menu w-100"
+      class="d-block mb-2 ml-0 select-menu w-100"
       :disabled="disabled"
     >
       <option
@@ -56,9 +56,3 @@ watch(selectedTemplate, props.onSelect)
 
 onMounted(() => getDegreeTemplates().then(data => degreeTemplates.value = data))
 </script>
-
-<style scoped>
-.bordered-select {
-  border: 1px solid #000;
-}
-</style>

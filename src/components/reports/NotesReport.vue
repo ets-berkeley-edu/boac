@@ -112,11 +112,15 @@
               id="show-hide-boa-note-counts"
               :prepend-icon="isShowingBoaNoteCounts ? mdiChevronDown : mdiChevronRight"
               class="mt-3 px-0"
+              flat
               slim
-              text="BOA note count by month (reverse chronological)"
-              variant="text"
               @click="isShowingBoaNoteCounts = !isShowingBoaNoteCounts"
-            />
+            >
+              <div class="d-flex flex-wrap justify-start">
+                <div>BOA note count by month </div>
+                <div>(reverse chronological)</div>
+              </div>
+            </v-btn>
             <v-expand-transition>
               <div v-if="isShowingBoaNoteCounts" class="pt-3">
                 <v-card
@@ -138,7 +142,13 @@
                           <div class="font-weight-medium">
                             {{ DateTime.fromJSDate(new Date(annual.year, row.month - 1, 1)).toFormat('MMMM') }}
                           </div>
-                          <div class="bg-primary px-2 sidebar-pill text-white">{{ row.count }}</div>
+                          <v-chip
+                            class="px-2 sidebar-pill"
+                            color="primary"
+                            variant="flat"
+                          >
+                            {{ row.count }}
+                          </v-chip>
                         </div>
                       </v-list-item>
                     </v-list>

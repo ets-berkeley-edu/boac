@@ -8,8 +8,9 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
 import {max} from 'lodash'
+import {onMounted, ref} from 'vue'
+import {useTheme} from 'vuetify'
 
 const props = defineProps({
   cumulativeUnits: {
@@ -29,6 +30,7 @@ const props = defineProps({
 const options = ref(undefined)
 
 onMounted(() => {
+  const currentTheme = useTheme().current.value
   const description = `${props.student.firstName} ${props.student.lastName} is currently enrolled in ${props.currentEnrolledUnits || 'zero'} units and has completed ${props.cumulativeUnits || '0'} units.`
   const yMax = max([120, props.currentEnrolledUnits + props.cumulativeUnits])
   options.value = {
@@ -48,7 +50,7 @@ onMounted(() => {
       spacingBottom: 5,
       type: 'column'
     },
-    colors: ['#d6e4f9', '#aec9eb'],
+    colors: [currentTheme.colors['chart-series-1'], currentTheme.colors['chart-series-2']],
     credits: {
       enabled: false
     },
@@ -106,8 +108,8 @@ onMounted(() => {
     },
     tooltip: {
       animation: false,
-      backgroundColor: '#fff',
-      borderColor: '#eee',
+      backgroundColor: currentTheme.colors.surface,
+      borderColor: `rgb(from ${currentTheme.variables['border-color']} r g b / ${currentTheme.variables['border-opacity']})`,
       borderRadius: 8,
       distance: 16,
       headerFormat: '',
@@ -116,12 +118,12 @@ onMounted(() => {
       pointFormat: `
         <div class="units-chart-font-family w-100">
           <div class="align-center d-flex">
-            <div><div style="background-color: #aec9eb; height: 12px; width: 12px;"></div></div>
+            <div><div class="units-chart-legend-series-1"></div></div>
             <div class="pl-1 text-left text-no-wrap">Units Completed</div>
             <div class="font-weight-bold pl-2 text-right w-100">${props.cumulativeUnits || '0'}</div>
           </div>
           <div class="align-center d-flex w-100">
-            <div><div style="background-color: #d6e4f9; height: 12px; width: 12px;"></div></div>
+            <div><div class="units-chart-legend-series-2"></div></div>
             <div class="pl-1 text-left text-no-wrap">Currently Enrolled Units</div>
             <div class="font-weight-bold pl-2 text-right w-100">${props.currentEnrolledUnits || '0'}</div>
           </div>
@@ -159,14 +161,14 @@ onMounted(() => {
       },
       min: 0,
       max: yMax,
-      gridLineColor: '#000000',
+      gridLineColor: currentTheme.colors['on-surface'],
       tickInterval: 30,
       labels: {
         align: 'center',
         overflow: true,
         padding: 0,
         style: {
-          color: '#999999',
+          color: `rgb(from ${currentTheme.colors.body} r g b / ${currentTheme.variables['medium-emphasis-opacity']})`,
           fontFamily: 'Helvetica, Arial, sans',
           fontSize: '11px',
           fontWeight: 'bold'
@@ -193,5 +195,15 @@ onMounted(() => {
 }
 .units-chart-font-family {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.units-chart-legend-series-1 {
+  background-color: rgb(var(--v-theme-chart-series-1));
+  height: 12px;
+  width: 12px;
+}
+.units-chart-legend-series-2 {
+  background-color: rgb(var(--v-theme-chart-series-2));
+  height: 12px;
+  width: 12px;
 }
 </style>

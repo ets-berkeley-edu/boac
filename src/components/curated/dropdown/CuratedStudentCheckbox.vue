@@ -72,21 +72,12 @@ const toggle = checked => {
 
 <style scoped>
 .checkbox {
-  accent-color: #3b7ea5;
   height: 18px;
   width: 18px;
 }
-.checked-checkbox-container {
-  background-color: #96C3de !important;
-}
 .checkbox-container {
-  background-color: rgb(var(--v-theme-sky-blue));
-  border: 1px solid #999;
-  border-radius: 6px;
   height: 28px;
-  margin-right: 8px;
   padding-top: 4px;
-  text-align: center;
   width: 28px;
 }
 </style>

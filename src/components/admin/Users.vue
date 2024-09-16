@@ -204,8 +204,8 @@
         :headers="[
           {title: '', key: 'data-table-expand', sortable: false},
           {title: 'UID', key: 'uid', sortable: false, align: 'start', headerProps: {class: ['header-text-styling']}},
-          {title: '', key: 'edit', align: 'end', sortable: false, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name', 'purple-background']}},
-          {title: 'Name', key: 'lastName', align: 'start', sortable: true, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name', 'purple-background']}},
+          {title: '', key: 'edit', align: 'end', sortable: false, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name']}},
+          {title: 'Name', key: 'lastName', align: 'start', sortable: true, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name']}},
           {title: 'Departments', key: 'departments', align: 'start', sortable: false, headerProps: {class: ['header-text-styling']}},
           {title: 'Status', key: 'deletedAt', align: 'start', sortable: false, headerProps: {class: ['header-text-styling']}},
           {title: 'Last Login', key: 'lastLogin', align: 'start', sortable: true, cellProps: {class: 'manifest-column-last-login'}, headerProps: {class: ['header-text-styling']}},
@@ -223,7 +223,7 @@
         loading-text="Searching..."
         :no-data-text="isFetching || isNil(totalUserCount) ? '' : 'No users'"
         :row-props="data => {
-          const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
+          const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
           return {
             class: `${bgColor}`,
             id: `tr-user-${data.item.uid}`
@@ -238,7 +238,7 @@
 
         <template #expanded-row="{ columns, item }">
           <tr>
-            <td class="bg-grey-lighten-4 px-4 pb-4" :colspan="columns.length">
+            <td class="bg-surface-light px-4 pb-4" :colspan="columns.length">
               <pre class="bg-white pa-2">{{ JSON.stringify(item, null, 2) }}</pre>
             </td>
           </tr>
@@ -258,10 +258,10 @@
             <div class="icons">
               <span v-if="!item.canAccessCanvasData">
                 <span class="c-letter">C</span>
-                <span class="slash">\</span>
+                <span class="slash text-error">\</span>
               </span>
               <span v-if="!item.canAccessAdvisingData" class="advising-data">
-                <span class="slash-2">\</span>
+                <span class="slash-2 text-error">\</span>
                 <v-icon :icon="mdiNoteOutline" size="small" />
               </span>
             </div>
@@ -522,12 +522,12 @@ const quickLink = (role, deptCode=null, returnFocusId) => {
 
 <style>
 .manifest-column-name {
-  background-color: #9bcbfb;
-  color: #377eb6;
+  background-color: rgba(var(--v-theme-secondary), var(--v-medium-emphasis-opacity));
+  color: rgb(var(--v-theme-primary));
   font-weight: 900;
 }
 .manifest-column-last-login {
-  background-color: #bee5eb;
+  background-color: rgba(var(--v-theme-light-blue), var(--v-medium-emphasis-opacity));
   font-weight: 900;
 }
 </style>
@@ -565,12 +565,6 @@ const quickLink = (role, deptCode=null, returnFocusId) => {
   position: relative;
   top: -1px;
 }
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.purple-background {
-  background-color: #9bcbfb;
-  color: #377eb6;
-  font-weight: 900;
-}
 .quick-links-label {
   font-size: 18px;
   font-weight: 600;
@@ -583,18 +577,16 @@ const quickLink = (role, deptCode=null, returnFocusId) => {
   height: 40px;
 }
 .slash {
+  font-size: 22px;
+  left: -8px;
   position: relative;
   top: 4px;
-  left: -8px;
-  font-size: 22px;
-  color: red;
 }
 .slash-2 {
-  position: relative;
-  top: 4px;
-  left: 12px;
   font-size: 22px;
-  color: red;
+  left: 12px;
+  top: 4px;
+  position: relative;
   z-index: 100;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="student" class="border-bottom bg-sky-blue pb-2">
+    <div v-if="student" class="border-b-sm bg-sky-blue pb-2">
       <StudentProfileHeader
         :compact="true"
         :link-to-student-profile="true"
@@ -20,7 +20,7 @@
         v-if="degreeChecks.length"
         id="degree-checks-table"
         :cell-props="data => {
-          const bgColor = data.index % 2 === 0 ? 'bg-grey-lighten-4' : ''
+          const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
           return {
             class: `${bgColor} font-size-16`,
             id: `td-degree-check-${data.item.id}-column-${data.column.key}`,
@@ -30,10 +30,10 @@
         class="mt-3"
         density="comfortable"
         :headers="[
-          {key: 'name', headerProps: {class: 'degree-history-column-header w-50'}, title: 'Degree Check', thClass: 'w-50'},
-          {key: 'updatedAt', headerProps: {class: 'degree-history-column-header'}, title: 'Last Updated'},
-          {key: 'updatedBy', headerProps: {class: 'degree-history-column-header'}, title: 'Advisor'},
-          {key: 'parentTemplateUpdatedAt', headerProps: {class: 'degree-history-column-header'}, title: 'Template Last Updated'}
+          {key: 'name', headerProps: {class: 'degree-history-column-header text-medium-emphasis w-50'}, title: 'Degree Check', thClass: 'w-50'},
+          {key: 'updatedAt', headerProps: {class: 'degree-history-column-header text-medium-emphasis'}, title: 'Last Updated'},
+          {key: 'updatedBy', headerProps: {class: 'degree-history-column-header text-medium-emphasis'}, title: 'Advisor'},
+          {key: 'parentTemplateUpdatedAt', headerProps: {class: 'degree-history-column-header text-medium-emphasis'}, title: 'Template Last Updated'}
         ]"
         :header-props="{class: 'font-weight-bold text-no-wrap'}"
         hide-default-footer
@@ -61,22 +61,22 @@
           </div>
         </template>
         <template #item.parentTemplateUpdatedAt="{item}">
-          <v-icon
-            v-if="true || item.showRevisionIndicator"
-            class="warning mr-2"
-            :icon="mdiAlert"
-            size="18"
-            title="Revisions to the original degree template have been made since the creation of this degree check."
-          />
-          <span
-            v-if="item.parentTemplateUpdatedAt"
-            :class="{'warning': true || item.showRevisionIndicator}"
-          >
-            {{ DateTime.fromISO(item.parentTemplateUpdatedAt).toFormat('DD') }}
-          </span>
-          <span v-if="!item.parentTemplateUpdatedAt">&mdash;</span>
-          <div class="sr-only">
-            Note: Revisions to the original degree template have been made since the creation of this degree check.
+          <div class="d-flex align-center">
+            <v-icon
+              v-if="true || item.showRevisionIndicator"
+              class="mr-2"
+              color="warning"
+              :icon="mdiAlert"
+              size="18"
+              title="Revisions to the original degree template have been made since the creation of this degree check."
+            />
+            <span v-if="item.parentTemplateUpdatedAt">
+              {{ DateTime.fromISO(item.parentTemplateUpdatedAt).toFormat('DD') }}
+            </span>
+            <span v-if="!item.parentTemplateUpdatedAt">&mdash;</span>
+            <div class="sr-only">
+              Note: Revisions to the original degree template have been made since the creation of this degree check.
+            </div>
           </div>
         </template>
       </v-data-table>
@@ -89,7 +89,7 @@
 
 <script setup>
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
-import {alertScreenReader, studentRoutePath} from '@/lib/utils'
+import {studentRoutePath} from '@/lib/utils'
 import {DateTime} from 'luxon'
 import {getDegreeChecks} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
@@ -128,8 +128,7 @@ onMounted(() => {
         }
       })
       const studentName = currentUser.inDemoMode ? 'Student' : student.value.name
-      contextStore.loadingComplete()
-      alertScreenReader(`${studentName} Degree History`)
+      contextStore.loadingComplete(`${studentName} Degree History page loaded`)
     })
   })
 })
@@ -137,7 +136,6 @@ onMounted(() => {
 
 <style>
 .degree-history-column-header {
-  color: #666;
   font-weight: 700 !important;
   height: 30px !important;
 }

@@ -31,7 +31,7 @@
                 v-for="(student, index) in students"
                 :id="`student-${student.uid}`"
                 :key="student.sid"
-                class="border-bottom border-top pb-2 pt-3"
+                class="border-b-sm border-t-sm pb-2 pt-3"
                 :class="{'list-group-item-info': anchor === `#${student.uid}`}"
                 :list-type="curatedStore.ownerId === currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
                 :remove-student="removeStudent"

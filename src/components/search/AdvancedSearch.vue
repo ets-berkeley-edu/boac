@@ -173,15 +173,15 @@ const search = () => {
 }
 .btn-search {
   background-color: transparent;
-  color: white;
+  color: rgb(var(--v-theme-surface));
   font-size: 16px;
   height: 46px;
   letter-spacing: 1px;
   padding: 6px 8px;
 }
 .btn-search:hover {
-  background-color: white;
-  border-color: white;
-  color: #3b7ea5;
+  background-color: rgb(var(--v-theme-surface));
+  border-color: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-primary));
 }
 </style>

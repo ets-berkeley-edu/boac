@@ -184,7 +184,7 @@ const lastActivityInContext = (analytics: any) => {
   vertical-align: top;
 }
 .bcourses-legend {
-  color: #666;
+  opacity: var(--v-medium-emphasis-opacity);
   min-width: 11em;
   width: 35%;
 }

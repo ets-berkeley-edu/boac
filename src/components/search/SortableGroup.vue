@@ -171,7 +171,7 @@ const getRoutePath = group => {
   text-align: center;
 }
 .sortable-group {
-  border: 1px solid #007bff;
+  border: 1px solid rgb(var(--v-theme-primary));
 }
 </style>
 

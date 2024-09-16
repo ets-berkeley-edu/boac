@@ -102,21 +102,21 @@ const setSelected = value => {
   border: 1px solid;
 }
 .border-color-blue {
-  border-color: #005c91 !important;
+  border-color: rgb(var(--v-theme-accent-blue)) !important;
 }
 .border-color-green {
-  border-color: #36a600 !important;
+  border-color: rgb(var(--v-theme-accent-green)) !important;
 }
 .border-color-lightgrey {
   border-color: #aaa !important;
 }
 .border-color-orange {
-  border-color: #e48600 !important;
+  border-color: rgb(var(--v-theme-accent-orange)) !important;
 }
 .border-color-purple {
-  border-color: #b300c5 !important;
+  border-color: rgb(var(--v-theme-accent-purple)) !important;
 }
 .border-color-red {
-  border-color: #d0021b !important;
+  border-color: rgb(var(--v-theme-accent-red)) !important;
 }
 </style>

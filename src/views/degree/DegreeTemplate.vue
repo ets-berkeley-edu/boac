@@ -1,6 +1,6 @@
 <template>
   <div v-if="!loading" class="default-margins">
-    <div class="border-bottom">
+    <div class="border-b-sm">
       <h1 class="overflow-wrap-break-word page-section-header">{{ degreeStore.degreeName || 'Degree Builder' }}</h1>
     </div>
     <div class="mt-4 w-50">

@@ -1,30 +1,34 @@
 <template>
   <div>
     <div class="mt-3 w-100">
-      <div
+      <v-alert
         v-if="showWarning"
-        class="alert-box pl-5 w-100 warning"
+        id="curated-group-bulk-add-alert"
+        aria-live="polite"
+        class="v-alert-override w-100 mb-5"
+        density="compact"
+        type="warning"
+        variant="tonal"
       >
-        <div class="align-center d-flex">
+        <v-alert-title class="font-size-16 text-warning-darken-1">
           <div v-if="warning" class="mr-2">{{ warning }}</div>
           <div v-if="sids.length && sidsNotFound.length">{{ sidsNotFound.length === 1 ? 'Remove from list?' : 'Remove these from your list?' }}</div>
-          <div v-if="!sids.length || sidsNotFound.length" :class="{'ms-auto': !sids.length}">
+          <div v-if="!sids.length || sidsNotFound.length" class="ml-2" :class="{'ms-auto': !sids.length}">
             <v-btn
               id="remove-invalid-sids-btn"
+              :aria-label="sids.length ? 'Remove invalid SIDs' : 'Clear the textarea'"
               class="font-size-16"
-              color="primary"
-              :text="sids.length ? 'Yes' : 'Clear the textarea.'"
+              color="primary-darken-1"
+              :text="sids.length ? 'Yes' : 'Clear the textarea'"
               variant="text"
               @click="scrub"
             />
           </div>
-        </div>
-        <div v-if="sids.length && sidsNotFound.length && (sidsNotFound.length <= magicNumber)" class="mb-1 pl-6">
-          <ul id="sids-not-found">
-            <li v-for="sid in sidsNotFound" :key="sid">{{ sid }}</li>
-          </ul>
-        </div>
-      </div>
+        </v-alert-title>
+        <ul v-if="sids.length && sidsNotFound.length && (sidsNotFound.length <= magicNumber)" id="sids-not-found" class="mb-1 pl-6">
+          <li v-for="sid in sidsNotFound" :key="sid">{{ sid }}</li>
+        </ul>
+      </v-alert>
       <div>
         <v-textarea
           id="curated-group-bulk-add-sids"
@@ -119,6 +123,7 @@ const scrub = () => {
   alertScreenReader(`${sidsNotFound.value.length} invalid SIDs removed from textarea.`)
   sidsNotFound.value = []
   clearWarning()
+  putFocusNextTick('curated-group-bulk-add-sids')
 }
 
 const setWarning = message => {
@@ -174,17 +179,9 @@ const submit = () => {
 }
 </script>
 
-<style scoped>
-.alert-box {
-  border-radius: 5px;
-  font-size: 18px;
-  width: auto;
-}
-.warning {
-  background-color: #fbf7dc;
-  color: #795f31;
-  margin-bottom: 18px !important;
-  padding: 10px 20px;
-  border-radius: 4px;
-}
-</style>
+<style>
+.v-alert-override {
+  .v-alert__prepend {
+    padding-top: 3px;
+  }
+}</style>

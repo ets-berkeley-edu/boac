@@ -9,11 +9,11 @@
         :id="`assign-course-${course.id}-btn`"
         :aria-label="`${course.name} category options`"
         :class="{
-          'accent-color-blue': course.accentColor === 'Blue',
-          'accent-color-green': course.accentColor === 'Green',
-          'accent-color-orange': course.accentColor === 'Orange',
-          'accent-color-purple': course.accentColor === 'Purple',
-          'accent-color-red': course.accentColor === 'Red',
+          'accent-blue': course.accentColor === 'Blue',
+          'accent-green': course.accentColor === 'Green',
+          'accent-orange': course.accentColor === 'Orange',
+          'accent-purple': course.accentColor === 'Purple',
+          'accent-red': course.accentColor === 'Red',
           'bg-transparent text-primary': !degreeStore.disableButtons,
           'text-surface-variant': !course.accentColor,
           'text-white': degreeStore.draggingCourseId === course.id
