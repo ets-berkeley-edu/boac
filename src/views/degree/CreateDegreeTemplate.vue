@@ -1,6 +1,6 @@
 <template>
   <div class="default-margins">
-    <h1 class="page-section-header">Degree Builder</h1>
+    <h1 id="page-header">Degree Builder</h1>
     <div id="create-degree-description">
       To begin the degree check creation process, input a name below and click enter.
       After clicking the create button, you will be prompted to enter the requirements.

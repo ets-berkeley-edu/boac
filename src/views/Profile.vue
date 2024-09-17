@@ -2,11 +2,12 @@
   <div class="default-margins">
     <div class="align-center d-flex pb-3">
       <v-icon
-        class="mr-2 text-primary"
+        class="mr-2 mb-2"
+        color="primary"
         :icon="mdiAccountCircle"
         size="x-large"
       />
-      <h1 class="mt-2 page-section-header">Profile</h1>
+      <h1 id="page-header">Profile</h1>
     </div>
     <MyProfile />
     <div v-if="config.isDemoModeAvailable">

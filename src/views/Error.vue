@@ -1,6 +1,6 @@
 <template>
   <div class="default-margins">
-    <h1 class="page-section-header">{{ title }}</h1>
+    <h1 id="page-header">{{ title }}</h1>
     <div
       id="error-message"
       aria-live="polite"

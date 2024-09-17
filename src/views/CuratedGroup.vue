@@ -49,7 +49,7 @@
           </div>
           <div v-if="totalStudentCount > itemsPerPage" class="pr-3 pt-7">
             <Pagination
-              :click-handler="onClickPagination"
+              :click-handler="(page, buttonName) => onClickPagination(page, buttonName, 'auxiliary-pagination')"
               id-prefix="auxiliary-pagination"
               :init-page-number="pageNumber"
               :limit="10"
@@ -112,7 +112,21 @@ const curatedStore = useCuratedGroupStore()
 const currentUser = contextStore.currentUser
 const error = ref(undefined)
 const isAddingStudents = ref(false)
+const pageLoadAlert = computed(() => {
+  const loadStatus = contextStore.loading ? 'has loaded' : 'is loading'
+  const label = `${capitalize(describeCuratedGroupDomain(domain.value))} ${curatedStore.curatedGroupName || ''}`
+  if (!curatedStore.curatedGroupId) {
+    return `Create ${label} page ${loadStatus}`
+  } else {
+    const sortByOption = translateSortByOption(get(currentUser.preferences, sortByKey.value))
+    const pageDesc = pageNumber.value > 1 ? `(page ${pageNumber.value})` : ''
+    return `${label} ${pageDesc} ${loadStatus}. Sorted by ${sortByOption}.`
+  }
+})
+const sortByKey = computed(() => domain.value === 'admitted_students' ? 'admitSortBy' : 'sortBy')
+const totalPages = computed(() => Math.ceil(curatedStore.totalStudentCount / curatedStore.pagination.itemsPerPage))
 const {curatedGroupId, domain, itemsPerPage, mode, pageNumber, students, totalStudentCount} = storeToRefs(curatedStore)
+
 
 watch(() => curatedStore.domain, (newVal, oldVal) => {
   contextStore.removeEventHandler(`${oldVal === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, onChangeSortBy)
@@ -127,15 +141,14 @@ onMounted(() => {
   curatedStore.setCuratedGroupId(parseInt(idParam))
   goToCuratedGroup(curatedStore.curatedGroupId, 1).then(group => {
     if (group) {
-      contextStore.loadingComplete(`${getPageLoadAlert()} has loaded.`)
+      contextStore.loadingComplete(pageLoadAlert.value)
       setPageTitle(curatedStore.curatedGroupName)
       putFocusNextTick('curated-group-name')
     } else {
       router.push({path: '/404'})
     }
   })
-  const sortByKey = domain.value === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-  contextStore.setEventHandler(`${sortByKey}-user-preference-change`, onChangeSortBy)
+  contextStore.setEventHandler(`${sortByKey.value}-user-preference-change`, onChangeSortBy)
   contextStore.setEventHandler('termId-user-preference-change', onChangeTerm)
   nextTick(() => {
     if (!location.hash) {
@@ -146,8 +159,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  const sortByKey = domain.value === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-  contextStore.removeEventHandler(`${sortByKey}-user-preference-change`, onChangeSortBy)
+  contextStore.removeEventHandler(`${sortByKey.value}-user-preference-change`, onChangeSortBy)
   contextStore.removeEventHandler('termId-user-preference-change', onChangeTerm)
 })
 
@@ -170,38 +182,40 @@ const bulkAddSids = sids => {
   }
 }
 
-const getPageLoadAlert = (page) => {
-  let pageNum = page || pageNumber.value
-  const label = `${capitalize(describeCuratedGroupDomain(domain.value))} ${curatedStore.curatedGroupName || ''}`
-  const sortedBy = translateSortByOption(currentUser.preferences.sortBy)
-  return `${label}${pageNum > 1 ? ` (page ${pageNum}),` : ','} sorted by ${sortedBy},`
+const goToPage = page => {
+  curatedStore.setPageNumber(page)
+  contextStore.loadingStart(pageLoadAlert.value)
+  return goToCuratedGroup(curatedGroupId.value, page).then(() => {
+    contextStore.loadingComplete(pageLoadAlert.value)
+  })
 }
-
 const onChangeSortBy = () => {
   if (!contextStore.loading) {
-    const alert = getPageLoadAlert()
-    contextStore.loadingStart(`${alert} is loading.`)
+    contextStore.loadingStart(pageLoadAlert.value)
     goToCuratedGroup(curatedGroupId.value, 1).then(() => {
-      contextStore.loadingComplete(`${alert} has loaded.`)
+      contextStore.loadingComplete(pageLoadAlert.value)
     })
   }
 }
 
 const onChangeTerm = () => {
   if (!contextStore.loading) {
-    const alert = getPageLoadAlert()
-    contextStore.loadingStart(`${alert} is loading.`)
+    contextStore.loadingStart(pageLoadAlert.value)
     goToCuratedGroup(curatedGroupId.value, pageNumber.value).then(() => {
-      contextStore.loadingComplete(`${alert} has loaded.`)
+      contextStore.loadingComplete(pageLoadAlert.value)
     })
   }
 }
 
-const onClickPagination = pageNumber => {
-  const alert = getPageLoadAlert(pageNumber)
-  contextStore.loadingStart(`${alert} is loading.`)
-  goToCuratedGroup(curatedGroupId.value, pageNumber).then(() => {
-    contextStore.loadingComplete(`${alert} has loaded.`)
+const onClickPagination = (page, buttonName, idPrefix='pagination') => {
+  let returnFocusId = buttonName
+  if (buttonName === 'first' || buttonName === 'prev' && page === 1) {
+    returnFocusId = 'page-1'
+  } else if (buttonName === 'last' || (buttonName === 'next' && page === totalPages.value)) {
+    returnFocusId = `page-${totalPages.value}`
+  }
+  goToPage(page).then(() => {
+    putFocusNextTick(`${idPrefix}-${returnFocusId}`)
   })
 }
 

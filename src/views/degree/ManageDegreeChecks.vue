@@ -15,7 +15,7 @@
         <span class="font-weight-bold">Success!</span> {{ successMessage }}
       </v-alert>
     </div>
-    <h1 id="page-header" class="mb-2 page-section-header">
+    <h1 id="page-header" class="mb-2">
       Degree Checks
     </h1>
     <div v-if="currentUser.canEditDegreeProgress" class="font-weight-medium mb-3">

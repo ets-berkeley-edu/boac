@@ -98,7 +98,7 @@ export function putFocusNextTick(id: string, cssSelector?: string) {
       el = el && cssSelector ? el.querySelector(cssSelector) : el
       el && el.focus() && el.scrollIntoView({behavior: 'smooth', block: 'center'})
       if (el || ++counter > 5) {
-        // Abort after success or three attempts
+        // Abort after success or five attempts
         clearInterval(putFocus)
       }
     }, 500)

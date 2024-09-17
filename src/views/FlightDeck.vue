@@ -1,17 +1,23 @@
 <template>
   <div class="default-margins">
-    <div class="align-items-center d-flex pb-3">
-      <div class="pr-3 pt-1">
-        <v-icon :icon="mdiAirplaneTakeoff" color="primary" size="x-large" />
-      </div>
-      <div class="align-center d-flex pt-2">
-        <h1 class="page-section-header">BOA v{{ BOA.version }} Flight Deck</h1>
-        <div v-if="get(BOA.build, 'gitCommit')">
-          <a :href="`https://github.com/ets-berkeley-edu/boac/commit/${BOA.build.gitCommit}`" target="_blank">
-            <span class="sr-only">Github commit {{ BOA.build.gitCommit }}</span>
-            <v-icon :icon="mdiGithub" />
-          </a>
-        </div>
+    <div class="align-center d-flex pb-3">
+      <v-icon
+        :icon="mdiAirplaneTakeoff"
+        class="mr-3 mb-2"
+        color="primary"
+        size="x-large"
+      />
+      <div class="d-flex align-center">
+        <h1 id="page-header">BOA v{{ BOA.version }} Flight Deck</h1>
+        <a
+          v-if="get(BOA, 'build.gitCommit')"
+          class="mb-2 ml-3"
+          :href="`https://github.com/ets-berkeley-edu/boac/commit/${BOA.build.gitCommit}`"
+          target="_blank"
+        >
+          <span class="sr-only">Github commit {{ BOA.build.gitCommit }}</span>
+          <v-icon :icon="mdiGithub" />
+        </a>
       </div>
     </div>
     <div v-if="config.isDemoModeAvailable" class="mb-4">

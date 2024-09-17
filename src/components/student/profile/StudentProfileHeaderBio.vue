@@ -3,6 +3,7 @@
     <div>
       <router-link v-if="linkToStudentProfile" :to="`/student/${student.uid}`">
         <h1
+          id="student-name-header"
           class="mb-1"
           :class="{
             'demo-mode-blur': currentUser.inDemoMode,

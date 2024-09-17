@@ -5,7 +5,7 @@
         <div class="pr-2">
           <v-icon color="primary" :icon="mdiContacts" size="x-large" />
         </div>
-        <h1 id="dept-users-section" class="mb-0 mr-3 page-section-header text-no-wrap">
+        <h1 id="page-header" class="mb-0 mr-3 text-no-wrap">
           Passenger Manifest
         </h1>
         <div class="pr-3">

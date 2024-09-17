@@ -5,7 +5,7 @@
         <v-icon :icon="mdiAirplane" color="primary" size="42" />
       </div>
       <div class="pt-2">
-        <h1 class="page-section-header">Flight Data Recorder</h1>
+        <h1 id="page-header">Flight Data Recorder</h1>
       </div>
     </div>
     <NotesReport :department="department" />

@@ -9,7 +9,7 @@
     </div>
     <div v-if="!loading" class="default-margins">
       <div class="align-center d-flex justify-space-between">
-        <h1 id="page-header" class="page-section-header">Degree Check History</h1>
+        <h1 id="page-header">Degree Check History</h1>
         <div v-if="currentUser.canEditDegreeProgress" class="mr-2">
           <router-link id="create-new-degree" :to="`${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`">
             Create New Degree

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="!cohortStore.cohortId && cohortStore.totalStudentCount === undefined">
-      <h1 id="create-cohort-h1" class="page-section-header">
+      <h1 id="page-header">
         Create {{ cohortStore.domain === 'default' ? 'a Cohort' : 'an admissions cohort' }}
       </h1>
       <div v-if="cohortStore.domain === 'default'">
@@ -14,8 +14,8 @@
     <div v-if="cohortStore.editMode !== 'rename'" class="d-flex flex-wrap justify-space-between">
       <h1
         v-if="cohortStore.cohortName"
-        id="cohort-name"
-        class="page-section-header align-self-center mb-0 mr-2"
+        id="page-header"
+        class="align-self-center mb-0 mr-2"
       >
         {{ cohortStore.cohortName }}
         <span
@@ -25,12 +25,20 @@
       </h1>
       <h1
         v-if="!cohortStore.cohortName && cohortStore.totalStudentCount !== undefined"
-        id="cohort-results-header"
-        class="page-section-header align-self-center mb-0 mr-2"
+        id="page-header"
+        class="align-self-center mb-0 mr-2"
       >
         {{ pluralize('Result', cohortStore.totalStudentCount) }}
       </h1>
       <div v-if="!showHistory" class="d-flex align-center align-self-center pr-3">
+        <a
+          v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage"
+          id="skip-to-pagination-link"
+          href="#pagination-container"
+          class="sr-only"
+        >
+          Skip to pagination
+        </a>
         <v-btn
           v-if="cohortStore.cohortId && size(cohortStore.filters)"
           id="show-hide-details-button"

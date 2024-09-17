@@ -118,8 +118,11 @@ export const useContextStore = defineStore('context', {
         if (putFocusElementId) {
           element = document.getElementById(putFocusElementId)
         } else {
-          const elements = document.getElementsByTagName('h1')
-          element = elements.length > 0 ? elements[0] : null
+          element = document.getElementById('page-header')
+          if (!element) {
+            const elements = document.getElementsByTagName('h1')
+            element = elements.length > 0 ? elements[0] : null
+          }
         }
         if (element) {
           element.setAttribute('tabindex', '-1')

@@ -1,7 +1,7 @@
 <template>
   <div v-if="!contextStore.loading" class="default-margins">
     <div class="d-flex flex-wrap justify-space-between">
-      <h1 id="cohort-name" class="page-section-header">
+      <h1 id="cohort-name">
         CE3 Admissions
         <span
           v-if="totalAdmitCount !== undefined"

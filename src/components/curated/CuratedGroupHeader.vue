@@ -2,13 +2,21 @@
   <div>
     <div class="d-flex flex-wrap justify-space-between">
       <div v-if="mode !== 'rename'">
-        <h1 id="curated-group-name" class="page-section-header mb-0 mt-0">
+        <h1 id="curated-group-name" class="mb-0 mt-0">
           {{ curatedGroupName || domainLabel(true) }}
           <span v-if="!isNil(totalStudentCount)" class="text-medium-emphasis">
             ({{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount, {1: '1'}) }})
           </span>
         </h1>
       </div>
+      <a
+        v-if="totalStudentCount > itemsPerPage"
+        id="skip-to-pagination-link"
+        href="#pagination-container"
+        class="sr-only"
+      >
+        Skip to pagination
+      </a>
       <div v-if="mode === 'rename'" class="mr-3 w-100">
         <div class="align-center d-flex">
           <div class="w-75">
@@ -202,7 +210,7 @@ import {storeToRefs} from 'pinia'
 const contextStore = useContextStore()
 const curatedStore = useCuratedGroupStore()
 
-const {curatedGroupId, curatedGroupName, domain, mode, ownerId, referencingCohortIds, totalStudentCount} = storeToRefs(curatedStore)
+const {curatedGroupId, curatedGroupName, domain, itemsPerPage, mode, ownerId, referencingCohortIds, totalStudentCount} = storeToRefs(curatedStore)
 const currentUser = contextStore.currentUser
 const exportEnabled = ref(true)
 const isCohortWarningModalOpen = ref(false)
@@ -235,7 +243,6 @@ onMounted(() => {
     referencingCohorts.value.push(cohort)
   })
   referencingCohorts.value = sortBy(referencingCohorts.value, ['name'])
-  putFocusNextTick('curated-group-name')
 })
 
 const cancelDeleteModal = () => {

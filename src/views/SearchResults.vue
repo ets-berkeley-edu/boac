@@ -2,10 +2,8 @@
   <div :class="{'bg-sky-blue': hasSearchResults}">
     <div class="pa-4" :class="{'bg-sky-blue': !hasSearchResults}">
       <div class="align-center d-flex">
-        <div class="mr-2">
-          <h1 class="page-section-header">{{ searchStore.isSearching ? 'Searching...' : 'Search Results' }}</h1>
-        </div>
-        <div v-if="!loading && searchStore.isDirty" class="pb-1">
+        <h1 id="page-header" class="mr-2">{{ searchStore.isSearching ? 'Searching...' : 'Search Results' }}</h1>
+        <div v-if="!loading" class="pb-1">
           [<v-btn
             id="edit-search-btn"
             class="px-0"

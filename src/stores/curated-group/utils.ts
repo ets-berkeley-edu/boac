@@ -6,7 +6,6 @@ import {useCuratedGroupStore} from '@/stores/curated-group/index'
 export function goToCuratedGroup(curatedGroupId: number, pageNumber: number) {
   return new Promise(resolve => {
     const groupStore = useCuratedGroupStore()
-    groupStore.setPageNumber(pageNumber)
     const user = useContextStore().currentUser
     const domain = groupStore.domain
     const itemsPerPage = groupStore.itemsPerPage

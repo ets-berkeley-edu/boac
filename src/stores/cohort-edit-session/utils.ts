@@ -23,7 +23,6 @@ export function applyFilters(orderBy: string, termId: string) {
       const limit: number = pagination.itemsPerPage
       const offset: number = (pagination.currentPage - 1) * limit
       const isReadOnly: boolean = !!cohortId && !isOwnedByCurrentUser
-
       const done = data => {
         cohortStore.updateStudents({students: data.students, totalStudentCount: data.totalStudentCount})
         cohortStore.stashOriginalFilters()

@@ -6,15 +6,15 @@ const VALID_MODES = ['bulkAdd', 'rename']
 export const useCuratedGroupStore: StoreDefinition = defineStore('curatedGroup', {
   state: () => ({
     curatedGroupId: NaN as number,
-    curatedGroupName: undefined as string,
-    domain: undefined as string,
+    curatedGroupName: undefined as undefined | string,
+    domain: undefined as undefined | string,
     itemsPerPage: 50,
     mode: undefined as undefined | string,
-    ownerId: undefined,
-    pageNumber: undefined,
-    referencingCohortIds: undefined,
-    students: undefined as any[],
-    totalStudentCount: undefined
+    ownerId: undefined as undefined | number,
+    pageNumber: undefined as undefined | number,
+    referencingCohortIds: [] as number[],
+    students: [] as any[],
+    totalStudentCount: undefined as undefined | number
   }),
   actions: {
     removeStudent(sid: string) {
