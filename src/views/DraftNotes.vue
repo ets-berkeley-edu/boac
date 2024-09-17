@@ -242,7 +242,7 @@ const reloadDraftNotes = () => getMyDraftNotes().then(data => myDraftNotes.value
 
 <style>
 tbody tr:nth-of-type(odd) {
- background-color: rgba(0, 0, 0, .05);
+ background-color: rgb(var(--v-theme-surface-light))
 }
 .data-table-header-cell {
   font-size: 14px;

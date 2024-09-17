@@ -14,7 +14,8 @@
     <v-icon
       v-if="!canEdit"
       :icon="isSatisfied ? mdiCheckBold : mdiCloseThick"
-      :color="printable ? 'grey' : isSatisfied ? 'green-lighten-3' : 'red-lighten-3'"
+      disabled
+      :color="printable ? 'surface-variants' : (isSatisfied ? 'success' : 'error')"
       size="20"
     />
   </div>

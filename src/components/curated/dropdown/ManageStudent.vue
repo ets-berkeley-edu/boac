@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'opacity-zero': srOnly && !isAdding && !isRemoving && !showModal}">
+  <div :class="{'sr-only': srOnly && !isAdding && !isRemoving && !showModal}">
     <v-menu
       :aria-label="`${domainLabel(true)}s for ${student.name}`"
       :disabled="isAdding || isRemoving"
@@ -10,7 +10,7 @@
           v-bind="props"
           :append-icon="(buttonVariant && !groupsLoading && !isAdding && !isRemoving) ? mdiMenuDown : undefined"
           :aria-label="`Add ${student.name} to a curated group`"
-          :color="isAdding ? 'success' : (isRemoving ? 'red' : 'primary')"
+          :color="isAdding ? 'success' : (isRemoving ? 'error' : 'primary')"
           :variant="buttonVariant"
         >
           <div v-if="!isAdding && !isRemoving" :class="labelClass">
@@ -226,9 +226,3 @@ const refresh = () => {
   groupsLoading.value = false
 }
 </script>
-
-<style scoped>
-.opacity-zero {
-  opacity: 0;
-}
-</style>

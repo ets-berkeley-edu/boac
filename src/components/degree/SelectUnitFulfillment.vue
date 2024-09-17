@@ -34,23 +34,24 @@
           v-for="(unitRequirement, index) in selected"
           :id="`column-${position}-unit-requirement-${index}`"
           :key="index"
-          class="list-item"
+          class="list-item text-medium-emphasis"
         >
-          <div class="d-flex justify-space-between">
+          <div class="d-flex align-center justify-space-between">
             <div class="truncate-with-ellipsis">
               {{ unitRequirement.name }}
             </div>
             <div class="float-right">
               <v-btn
                 :id="`column-${position}-unit-requirement-remove-${index}`"
-                class="remove-item-btn"
+                :aria-label="`Remove ${unitRequirement.name}`"
+                color="error"
+                density="compact"
                 :disabled="disable"
+                :icon="mdiCloseCircleOutline"
+                title="Remove"
                 variant="text"
                 @click="() => removeUnitRequirement(unitRequirement)"
-              >
-                <v-icon color="error" :icon="mdiCloseCircleOutline" />
-                <span class="sr-only">Remove</span>
-              </v-btn>
+              ></v-btn>
             </div>
           </div>
         </li>
@@ -109,17 +110,11 @@ const removeUnitRequirement = item => {
 
 <style scoped>
 .list-item {
-  background-color: #fff;
   border-radius: 5px;
-  border: 1px solid #999;
-  color: #666;
+  border: 1px solid rgba(var(--v-border-color), var(--v-disabled-opacity));
   height: 36px;
   margin-top: 6px;
-  padding: 5px 0 0 8px;
+  padding: 3px 8px;
   min-width: 50%;
-}
-.remove-item-btn {
-  padding: 0 0 10px 0 !important;
-  margin-right: -10px;
 }
 </style>

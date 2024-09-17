@@ -21,8 +21,9 @@
               id="degree-name-input"
               v-model="name"
               aria-labelledby="degree-name-input-label"
-              class="mt-2 name-input"
-              density="default"
+              class="mt-2"
+              color="primary"
+              density="comfortable"
               :disabled="isSaving"
               hide-details
               maxlength="255"
@@ -40,7 +41,16 @@
                 Degree name cannot exceed 255 characters.
               </span>
             </div>
-            <div v-if="error" class="mt-2 text-error" v-html="error" />
+            <v-alert
+              v-if="error"
+              aria-live="polite"
+              class="mt-2"
+              density="compact"
+              type="error"
+              variant="tonal"
+            >
+              <span v-html="error"></span>
+            </v-alert>
           </v-card-text>
           <v-card-actions class="modal-footer">
             <ProgressButton
@@ -119,18 +129,10 @@ const createClone = () => {
         isSaving.value = false
       })
     } else {
-      error.value = `A degree named <span class="font-weight-500">${name.value}</span> already exists. Please choose a different name.`
+      error.value = `A degree named <span class="font-weight-500">'${name.value}'</span> already exists. Please choose a different name.`
       alertScreenReader(error)
       isSaving.value = false
     }
   })
 }
 </script>
-
-<style scoped>
-.name-input {
-  border: 1px solid #66afe9;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-</style>

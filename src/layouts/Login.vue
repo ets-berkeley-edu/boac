@@ -72,7 +72,7 @@ h1 {
   padding-top: 14px;
 }
 .airplane {
-  background-color: #fff;
+  background-color: rgb(var(--v-theme-on-primary));
   border: 10px solid rgb(var(--v-theme-primary));
   border-radius: 50px;
   object-fit: scale-down;
@@ -104,7 +104,7 @@ h1 {
 .copyright {
   background-color: rgb(var(--v-theme-primary));
   font-size: 12px;
-  color: white;
+  color: rgb(var(--v-theme-on-primary));
   height: 40px;
   padding-top: 10px;
   width: 320px;

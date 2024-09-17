@@ -30,7 +30,16 @@
           Degree name cannot exceed 255 characters.
         </span>
       </div>
-      <div v-if="error" class="error-container mt-2 px-5 py-3 w-75" v-html="error" />
+      <v-alert
+        v-if="error"
+        aria-live="polite"
+        class="mt-2 w-75"
+        density="compact"
+        type="error"
+        variant="tonal"
+      >
+        <span v-html="error"></span>
+      </v-alert>
       <div class="d-flex justify-end pt-2 w-75">
         <ProgressButton
           id="start-degree-btn"
@@ -74,7 +83,7 @@ const create = () => {
           })
         })
       } else {
-        error.value = `A degree named <span class="font-weight-500">${templateName.value}</span> already exists. Please choose a different name.`
+        error.value = `A degree named <span class="font-weight-500">'${templateName.value}'</span> already exists. Please choose a different name.`
         alertScreenReader(error.value)
         isBusy.value = false
       }
@@ -82,11 +91,3 @@ const create = () => {
   }
 }
 </script>
-
-<style scoped>
-.error-container {
-  background-color: #efd6d6;
-  border-radius: 4px;
-  color: #9b393a;
-}
-</style>

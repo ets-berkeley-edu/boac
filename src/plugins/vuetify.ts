@@ -121,7 +121,7 @@ export default createVuetify({
   },
   theme: {
     variations: {
-      colors: ['primary', 'warning'],
+      colors: ['primary', 'warning', 'success'],
       lighten: 0,
       darken: 1
     },
@@ -134,6 +134,7 @@ export default createVuetify({
           'accent-purple': '#b300c5',
           'accent-red': '#d0021b',
           anchor: '#337ab7',
+          'anchor-hover': '#0056b3',
           body: '#212529',
           'category-alert': '#eb9d3e',
           'category-appointment': '#eee',
@@ -141,9 +142,12 @@ export default createVuetify({
           'category-hold': '#bc74fe',
           'category-note': '#999',
           'category-requirement': '#93c165',
+          'chart-boxplot': '#ccc',
+          'chart-boxplot-median': '#666',
           'chart-series-1': '#aec9eb',
           'chart-series-2': '#d6e4f9',
-          gold: '#857103',
+          gold: '#826F03',
+          grey: '#757575',
           error: '#cf1715',
           info: '#367da1',
           'light-blue': '#c0ecff',
@@ -160,6 +164,7 @@ export default createVuetify({
           quaternary: '#083456',
           red: colors.red.darken1,
           secondary: '#96C3de',
+          'service-announcement': '#f0ad4e',
           'sky-blue': '#e3f5ff',
           success: '#437f4b',
           tertiary: '#125074',

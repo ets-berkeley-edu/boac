@@ -2,7 +2,8 @@
   <div>
     <div
       v-if="!includes(degreeStore.dismissedAlerts, degreeStore.templateId) && showRevisionIndicator"
-      class="align-center border-b-sm d-flex mb-3 pb-3 pt-4 px-4 warning-message-container"
+      id="revision-warning"
+      class="align-center bg-pale-yellow text-gold border-b-sm d-flex mb-3 pb-3 pt-4 px-4"
     >
       <div class="d-inline-block pr-2 w-100">
         <span class="font-weight-bold">Note:</span> Revisions to the
@@ -31,7 +32,7 @@
         />
       </div>
     </div>
-    <div class="border-b-md border-color-warning mt-4 mx-6">
+    <div class="border-b-md mt-4 mx-6">
       <v-container class="py-2 px-0" fluid>
         <v-row>
           <v-col cols="8">

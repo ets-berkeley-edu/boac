@@ -67,25 +67,29 @@
                 </span>
                 <v-icon
                   v-if="course.isCopy"
-                  class="mr-1"
+                  class="mb-1 mr-1"
+                  color="info"
                   :icon="mdiContentCopy"
-                  size="sm"
+                  size="16"
+                  title="Duplicated"
                 />
               </td>
               <td class="td-units">
                 <v-icon
                   v-if="course.unitRequirements.length"
-                  class="fulfillments-icon mr-1 pl-0"
+                  class="mb-1 mr-1 pl-0"
+                  color="accent-green"
                   :icon="mdiCheckCircleOutline"
-                  size="sm"
+                  size="18"
                   :title="`Counts towards ${oxfordJoin(map(course.unitRequirements, 'name'))}`"
                 />
                 <v-icon
                   v-if="unitsWereEdited(course)"
                   :id="course.manuallyCreatedBy ? `${key}-course-${course.id}-manually-created-units-edited` : `${key}-course-${course.termId}-${course.sectionId}-units-edited`"
-                  class="changed-units-icon"
+                  class="changed-units-icon mb-1"
+                  color="accent-green"
                   :icon="mdiInformationOutline"
-                  size="sm"
+                  size="18"
                   :title="`Updated from ${pluralize('unit', course.sis.units)}`"
                 />
                 <span class="font-size-14">{{ isNil(course.units) ? '&mdash;' : course.units }}</span>
@@ -95,9 +99,11 @@
                 <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
                 <v-icon
                   v-if="isAlertGrade(course.grade)"
-                  aria-label="Non-passing grade"
                   :icon="mdiAlertRhombus"
-                  class="warning ml-1"
+                  class="mb-1 ml-1"
+                  color="warning"
+                  size="20"
+                  title="Non-passing grade"
                 />
               </td>
               <td v-if="!ignored" class="font-size-14 td-term">
@@ -363,11 +369,7 @@ table {
   width: 100%;
 }
 .changed-units-icon {
-  color: rgb(var(--v-theme-accent-green));
   margin-right: 0.3em;
-}
-.fulfillments-icon {
-  color: rgb(var(--v-theme-accent-green));
 }
 .table-layout {
   table-layout: fixed;

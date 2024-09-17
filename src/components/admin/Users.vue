@@ -32,7 +32,6 @@
               autocomplete="off"
               base-color="black"
               :class="{'demo-mode-blur': contextStore.currentUser.inDemoMode}"
-              color="grey"
               density="compact"
               hide-details
               :hide-no-data="!!(size(autocompleteInput) < 3 || isFetching || isSuggesting || suggestedUsers.length)"
@@ -284,7 +283,7 @@
         <template #item.departments="{ item }">
           <div class="row-padding">
             <div v-for="(department, index) in item.departments" :key="department.code">
-              <span class="font-weight-bold text-body-2 text-green">{{ department.name }} - {{ department.role }}</span>
+              <span class="font-weight-bold text-body-2 text-success-darken-1">{{ department.name }} - {{ department.role }}</span>
               <div v-if="index !== item.departments.length - 1"></div>
             </div>
             <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="text-medium-emphasis">

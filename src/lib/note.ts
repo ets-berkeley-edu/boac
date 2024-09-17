@@ -5,7 +5,7 @@ import {useNoteStore} from '@/stores/note-edit-session'
 export function addFileDropEventListeners(): void {
   const preventFileDropOutsideFormControl = e => {
     const classList = get(e.target, 'classList', '')
-    if (!classList.contains('choose-attachment-file-wrapper')) {
+    if (!classList.contains('choose-file-for-note-attachment')) {
       e.preventDefault()
       e.dataTransfer.effectAllowed = 'none'
       e.dataTransfer.dropEffect = 'none'

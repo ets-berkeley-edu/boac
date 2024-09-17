@@ -38,7 +38,7 @@
             </option>
           </select>
         </div>
-        <div class="align-center d-flex mt-6">
+        <div class="align-center d-flex justify-end mt-6 w-75">
           <div class="mr-1">
             <ProgressButton
               id="save-degree-check-btn"
@@ -49,6 +49,7 @@
             />
             <v-btn
               id="cancel-create-degree-check-btn"
+              class="ml-2"
               color="primary"
               :disabled="isSaving"
               variant="text"

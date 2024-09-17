@@ -5,7 +5,7 @@
       class="w-100"
       :class="{
         'drop-zone-container': !size(category.subcategories) && !printable,
-        'drop-zone-container-on': isDroppable() && degreeStore.draggingContext.target === category.id
+        'drop-zone-on': isDroppable() && degreeStore.draggingContext.target === category.id
       }"
       @dragend="onDrag($event, 'end')"
       @dragenter="onDrag($event, 'enter')"
@@ -209,14 +209,9 @@ pre {
   padding: 0;
 }
 .drop-zone-container {
-  border-left: 2px solid #337ab7;
+  border-left: 2px solid rgb(var(--v-theme-primary));
   padding: 0 0.3em 0 0.5em;
   margin: 0.2em 0 0.2em 0;
-}
-.drop-zone-container-on {
-  background-color: #ecf5fb;
-  border-left: 2px solid transparent;
-  outline: #8bbdda dashed 0.15em;
 }
 .subcategory-header {
   font-weight: bold;

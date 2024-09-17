@@ -10,23 +10,20 @@
             <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
             <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
           </th>
-          <th v-if="!isCampusRequirements" class="th-course" :class="{'font-size-12': printable}">Course</th>
-          <th v-if="isCampusRequirements" class="w-40" :class="{'font-size-12': printable}">Requirement</th>
-          <th v-if="!isCampusRequirements && items.length" class="pr-1 text-right th-units" :class="{'font-size-12': printable}">Units</th>
-          <th v-if="degreeStore.sid && !isCampusRequirements" class="th-grade" :class="{'font-size-12': printable}">Grade</th>
-          <th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center th-satisfied" :class="{'font-size-12': printable}">Satisfied</th>
+          <th v-if="!isCampusRequirements" class="th-course">Course</th>
+          <th v-if="isCampusRequirements" class="w-40">Requirement</th>
+          <th v-if="!isCampusRequirements && items.length" class="pr-1 text-right th-units">Units</th>
+          <th v-if="degreeStore.sid && !isCampusRequirements" class="th-grade">Grade</th>
+          <th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center th-satisfied">Satisfied</th>
           <th
             v-if="degreeStore.sid"
             class="pl-0"
-            :class="{
-              'font-size-12': printable,
-              'th-note': hasAnyNotes
-            }"
+            :class="{'th-note': hasAnyNotes}"
           >
             Note
           </th>
-          <th v-if="!degreeStore.sid && !isCampusRequirements && items.length" class="px-0" :class="{'font-size-12': printable}">Fulfillment</th>
-          <th v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="px-0 sr-only">Actions</th>
+          <th v-if="!degreeStore.sid && !isCampusRequirements && items.length" class="px-0">Fulfillment</th>
+          <th v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="th-actions px-0"><span class="sr-only">Actions</span></th>
         </tr>
       </thead>
       <tbody>
@@ -68,14 +65,14 @@
               </div>
             </td>
             <td
-              class="overflow-wrap-break-word pl-0 pt-1"
+              class="overflow-wrap-break-word pl-0"
               :class="{
                 'align-content-start': printable && getNote(bundle),
                 'font-italic text-surface-variant': !isSatisfied(bundle) && !getAccentColor(bundle),
                 'pl-2': isCampusRequirements && isNoteVisible(bundle),
                 'td-name-printable': printable,
                 'td-name': !printable,
-                'pb-1 text-no-wrap vertical-middle': isCampusRequirements
+                'text-no-wrap': isCampusRequirements
               }"
             >
               <span v-if="!bundle.course && bundle.category.isRecommended">
@@ -109,43 +106,51 @@
             </td>
             <td
               v-if="!isCampusRequirements"
-              class="td-units d-flex align-center"
+              class="td-units"
               :class="{'font-italic text-surface-variant': !bundle.course && !getAccentColor(bundle)}"
             >
-              <v-icon
-                v-if="isCourseFulfillmentsEdited(bundle)"
-                class="fulfillments-icon mr-1"
-                :icon="mdiCheckCircleOutline"
-                size="sm"
-                :title="bundle.course.unitRequirements.length ? `Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.` : 'Fulfills no unit requirements'"
-              />
-              <v-icon
-                v-if="unitsWereEdited(bundle.course)"
-                :id="`units-were-edited-${bundle.course.id}`"
-                class="changed-units-icon"
-                :icon="mdiInformationOutline"
-                size="sm"
-                :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
-              />
-              <div :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ isNil(bundle.units) ? '&mdash;' : bundle.units }}</div>
-              <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
+              <div class="d-flex align-center justify-end">
+                <v-icon
+                  v-if="isCourseFulfillmentsEdited(bundle)"
+                  class="mr-1"
+                  color="accent-green"
+                  :icon="mdiCheckCircleOutline"
+                  size="18"
+                  :title="bundle.course.unitRequirements.length ? `Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.` : 'Fulfills no unit requirements'"
+                />
+                <v-icon
+                  v-if="unitsWereEdited(bundle.course)"
+                  :id="`units-were-edited-${bundle.course.id}`"
+                  class="changed-units-icon"
+                  color="accent-green"
+                  :icon="mdiInformationOutline"
+                  size="18"
+                  :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
+                />
+                <div :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ isNil(bundle.units) ? '&mdash;' : bundle.units }}</div>
+                <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
+              </div>
             </td>
             <td v-if="degreeStore.sid && !isCampusRequirements" class="td-grade">
-              <span
-                :class="{
-                  'font-italic text-surface-variant': !bundle.course && !getAccentColor(bundle),
-                  'font-size-12': printable,
-                  'font-size-14 text-no-wrap': !printable
-                }"
-              >
-                {{ getGrade(bundle) }}
-              </span>
-              <v-icon
-                v-if="isAlertGrade(getGrade(bundle))"
-                aria-label="Non-passing grade"
-                :icon="mdiAlertRhombus"
-                class="warning ml-1"
-              />
+              <div class="d-flex align-center">
+                <span
+                  :class="{
+                    'font-italic text-surface-variant': !bundle.course && !getAccentColor(bundle),
+                    'font-size-12': printable,
+                    'font-size-14 text-no-wrap': !printable
+                  }"
+                >
+                  {{ getGrade(bundle) }}
+                </span>
+                <v-icon
+                  v-if="isAlertGrade(getGrade(bundle))"
+                  :icon="mdiAlertRhombus"
+                  class="ml-1"
+                  color="warning"
+                  size="20"
+                  title="Non-passing grade"
+                />
+              </div>
             </td>
             <td v-if="degreeStore.sid && isCampusRequirements" class="td-satisfied float-right">
               <CampusRequirementCheckbox
@@ -159,28 +164,33 @@
               :class="{
                 'font-italic text-surface-variant': !isSatisfied(bundle) && !getAccentColor(bundle),
                 'td-note-printable': printable,
+                'td-note': !printable,
                 'pt-2': !bundle.course && degreeStore.sid && !printable && !isCampusRequirements
               }"
             >
               <div v-if="getNote(bundle)">
                 <div
                   v-if="printable"
-                  :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                  :id="`column-${position}-${bundle.key}-note`"
                   class="font-size-12"
                   v-html="getNote(bundle)"
                 />
-                <div v-if="!printable && !isNoteVisible(bundle)" class="font-size-14 td-note truncate-with-ellipsis">
+                <div v-if="!printable && !isNoteVisible(bundle)" class="font-size-14 truncate-with-ellipsis">
                   <a
-                    :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                    :id="`column-${position}-${bundle.key}-note`"
+                    :aria-controls="`column-${position}-${bundle.key}-full-note`"
+                    :aria-expanded="isNoteVisible(bundle)"
                     href
-                    @click.prevent="showNote(bundle)"
+                    role="button"
+                    title="Expand note"
+                    @click.prevent="showNote(bundle, position)"
                     v-html="getNote(bundle)"
                   />
                 </div>
               </div>
               <div
                 v-if="!getNote(bundle)"
-                :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                :id="`column-${position}-${bundle.key}-note`"
                 class="font-size-14"
               >
                 &mdash;
@@ -210,7 +220,7 @@
               class="td-actions"
               :class="{'vertical-middle': !bundle.course && degreeStore.sid}"
             >
-              <div class="d-flex float-right text-no-wrap">
+              <div class="d-flex justify-end text-no-wrap">
                 <div class="btn-container">
                   <v-btn
                     v-if="!isCampusRequirements || (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
@@ -222,7 +232,7 @@
                     flat
                     :icon="mdiNoteEditOutline"
                     size="small"
-                    @click="edit(bundle)"
+                    @click="edit(bundle, position)"
                   />
                 </div>
                 <div class="btn-container">
@@ -272,6 +282,7 @@
           </tr>
           <tr
             v-if="isNoteVisible(bundle)"
+            :id="`column-${position}-${bundle.key}-full-note`"
             :key="`tr-${index}-note`"
             class="border-b-md border-e-md border-s-md"
           >
@@ -292,7 +303,7 @@
                   size="small"
                   text="Hide note"
                   variant="text"
-                  @click="hideNote(bundle)"
+                  @click="hideNote(bundle, position)"
                 />]
               </div>
             </td>
@@ -486,11 +497,11 @@ const describeCategoryUnits = category => {
   }
 }
 
-const edit = bundle => {
-  hideNote(bundle, false)
+const edit = (bundle, position) => {
+  hideNote(bundle, position, false)
   hoverCourseId.value = null
   degreeStore.setDisableButtons(true)
-  alertScreenReader(`Edit ${bundle.name}`)
+  alertScreenReader(`Editing ${bundle.name}`)
   bundleForEdit.value = bundle
 }
 
@@ -519,10 +530,11 @@ const getGrade = bundle => {
 }
 const getNote = bundle => bundle.course ? bundle.course.note : bundle.category.note
 
-const hideNote = (bundle, srAlert=true) => {
+const hideNote = (bundle, position, srAlert=true) => {
   notesVisible.value = remove(notesVisible.value, key => bundle.key !== key)
   if (srAlert) {
     alertScreenReader('Note hidden')
+    putFocusNextTick(`column-${position}-${bundle.key}-note`)
   }
 }
 
@@ -640,9 +652,10 @@ const onMouse = (stage, bundle) => {
   }
 }
 
-const showNote = bundle => {
+const showNote = (bundle, position) => {
   notesVisible.value.push(bundle.key)
   alertScreenReader(`Showing note of ${bundle.name}`)
+  putFocusNextTick(`column-${position}-${bundle.key}-hide-note-btn`)
 }
 </script>
 
@@ -657,11 +670,7 @@ table {
   min-width: 20px;
 }
 .changed-units-icon {
-  color: rgb(var(--v-theme-accent-green));
   margin-right: 0.3em;
-}
-.fulfillments-icon {
-  color: rgb(var(--v-theme-accent-green));
 }
 .td-actions {
   vertical-align: top;
@@ -670,16 +679,17 @@ table {
 .td-assign {
   font-size: 14px;
   vertical-align: top;
-  width: 28px !important;
 }
 .td-grade {
-  padding-top: 2px;
+  padding: 1px 0 0 0;
   text-transform: capitalize;
-  vertical-align: top;
+}
+.td-max-width-0 {
+  max-width: 0;
 }
 .td-name {
   font-size: 14px;
-  vertical-align: top;
+  padding: 1px 0 0 0;
 }
 .td-name-printable {
   font-size: 12px;
@@ -687,13 +697,8 @@ table {
   vertical-align: middle;
   width: 180px !important;
 }
-.td-max-width-0 {
-  max-width: 0;
-}
 .td-note {
-  max-width: 60px;
-  padding-top: 1px;
-  vertical-align: top;
+  padding: 1px 4px 0 0;
 }
 .td-note-printable {
   padding: 0 0.5em 0 0;
@@ -701,15 +706,18 @@ table {
   width: 100px !important;
 }
 .td-satisfied {
+  padding: 1px 0 0 0;
   width: 50px;
 }
 .td-units {
-  padding: 4px 8px 0 0;
-  text-align: right;
-  vertical-align: top;
+  padding: 1px 8px 0 0;
   white-space: nowrap;
 }
+.th-actions {
+  width: 36px !important;
+}
 .th-assign {
+  max-width: 28px !important;
   width: 28px !important;
 }
 .th-course {
@@ -721,7 +729,8 @@ table {
   width: 46px !important;
 }
 .th-note {
-  width: 100px;
+  max-width: 40% !important;
+  width: 40% !important;
 }
 .th-satisfied {
   width: 100px;

@@ -20,7 +20,7 @@
         />
       </div>
     </div>
-    <div v-if="!isEditing" class="mt-1 pb-1" :class="{'border-b-sm': size(items)}">
+    <div v-if="!isEditing" class="mt-1 pb-1" :class="{'border-b-sm': size(items) && !printable}">
       <div
         v-if="!size(items)"
         id="unit-requirements-no-data"

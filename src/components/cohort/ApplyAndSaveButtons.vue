@@ -13,7 +13,7 @@
       v-if="cohort.showApplyButton"
       id="unsaved-filter-reset"
       class="text-uppercase"
-      color="grey-darken-2"
+      color="surface-variant"
       :disabled="!!cohort.editMode"
       text="Reset"
       variant="outlined"

@@ -7,11 +7,11 @@
       <input
         :id="checkboxId"
         v-model="isSelectAllChecked"
-        type="checkbox"
         :aria-controls="dropdownId"
         class="checkbox"
         :disabled="isSaving"
         :indeterminate="indeterminate"
+        type="checkbox"
         @update:model-value="toggle"
       />
     </div>

@@ -20,7 +20,7 @@ defineProps({
     type: String
   },
   color: {
-    default: 'surface',
+    default: 'surface-variant',
     required: false,
     type: String
   },

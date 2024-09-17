@@ -12,22 +12,20 @@
     <div class="ml-4">
       <div v-if="!isNil(currentUser.inDemoMode)">
         <div class="align-center widget-container d-flex">
-          <div class="checkbox-container">
-            <v-checkbox
+          <div class="checkbox-container" :class="{'pt-1': isToggling}">
+            <input
               v-if="!isToggling"
               id="toggle-demo-mode"
               v-model="inDemoMode"
               :aria-label="`Demo mode is ${inDemoMode ? 'On' : 'Off'}`"
-              color="primary"
-              density="compact"
+              class="checkbox"
               :disabled="isToggling"
-              hide-details
+              type="checkbox"
               @change="toggle"
             />
             <v-progress-circular
               v-if="isToggling"
               id="toggle-demo-mode"
-              class="mr-1"
               color="primary"
               indeterminate
               size="22"
@@ -61,9 +59,9 @@ const isToggling = ref(false)
 
 const toggle = () => {
   isToggling.value = true
+  alertScreenReader(`Switching demo mode ${inDemoMode.value ? 'on' : 'off' }`)
   setDemoMode(inDemoMode.value).then(() => {
     isToggling.value = false
-    alertScreenReader(`Switching demo mode ${inDemoMode.value ? 'off' : 'on' }`)
   })
 }
 </script>
@@ -73,9 +71,6 @@ const toggle = () => {
   height: 50px;
   width: auto;
   border-radius: 50%;
-}
-.checkbox-container {
-  min-width: 34px;
 }
 .container {
   height: 80px;

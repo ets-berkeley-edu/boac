@@ -48,11 +48,11 @@
         :units-lower="minUnits"
       />
     </div>
-    <div class="mt-2">
+    <div class="d-flex justify-end flex-wrap">
       <v-btn
         v-if="!unitRequirement"
         id="create-unit-requirement-btn"
-        class="mr-2"
+        class="mt-2 mr-2"
         color="primary"
         :disabled="disableSaveButton"
         text="Create Unit Requirement"
@@ -61,7 +61,7 @@
       <v-btn
         v-if="unitRequirement"
         id="update-unit-requirement-btn"
-        class="mr-2"
+        class="mt-2 mr-2"
         color="primary"
         :disabled="disableSaveButton"
         text="Save Unit Requirement"
@@ -69,6 +69,7 @@
       />
       <v-btn
         id="cancel-create-unit-requirement-btn"
+        class="mt-2"
         color="primary"
         text="Cancel"
         variant="outlined"
