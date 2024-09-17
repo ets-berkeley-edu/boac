@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'sr-only': srOnly && !isAdding && !isRemoving && !showModal}">
+  <div :class="{'opacity-zero': srOnly && !isAdding && !isRemoving && !showModal}">
     <v-menu
       :aria-label="`${domainLabel(true)}s for ${student.name}`"
       :disabled="isAdding || isRemoving"
@@ -226,3 +226,9 @@ const refresh = () => {
   groupsLoading.value = false
 }
 </script>
+
+<style scoped>
+.opacity-zero {
+  opacity: 0;
+}
+</style>
