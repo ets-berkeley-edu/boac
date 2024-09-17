@@ -184,7 +184,7 @@
 </template>
 
 <script setup>
-import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
 import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import router from '@/router'
