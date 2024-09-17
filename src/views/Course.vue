@@ -16,7 +16,7 @@
       Skip to pagination widget
     </a>
     <div class="d-flex">
-      <div class="course-column-description">
+      <div class="course-column-description bg-light-blue">
         <h1
           id="course-header"
           class="course-header"
@@ -42,7 +42,7 @@
           {{ section.title }}
         </div>
       </div>
-      <div class="course-column-schedule" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+      <div class="course-column-schedule bg-primary-darken-1" :class="{'demo-mode-blur': currentUser.inDemoMode}">
         <h2 class="sr-only">Schedule</h2>
         <div class="course-term-name">{{ section.termName }}</div>
         <div v-for="(meeting, meetingIndex) in meetings" :key="meetingIndex">
@@ -231,13 +231,10 @@ const reload = (sectionId, termId) => {
   padding: 0 10px 0 10px;
 }
 .course-column-description {
-  background-color: rgb(var(--v-theme-sky-blue));
   flex: 3 0 0;
   padding: 10px 10px 10px 20px;
 }
 .course-column-schedule {
-  background-color: #8bbdda;
-  color: #fff;
   flex: 2 0 0;
   padding: 10px 10px 20px 20px;
 }

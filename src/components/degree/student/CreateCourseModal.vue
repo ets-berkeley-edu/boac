@@ -35,7 +35,7 @@
             <v-text-field
               id="course-name-input"
               v-model="name"
-              class="cohort-create-input-name mt-1"
+              class="mt-1"
               density="comfortable"
               hide-details
               maxlength="255"

@@ -3,7 +3,7 @@
     <div v-if="!degreeStore.sid" class="align-center d-flex justify-space-between pb-3">
       <v-chip
         class="font-size-13 text-no-wrap px-2 text-uppercase"
-        color="grey-darken-1"
+        color="grey"
         density="compact"
         label
         variant="flat"

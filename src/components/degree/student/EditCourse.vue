@@ -10,7 +10,7 @@
       <v-text-field
         id="course-name-input"
         v-model="name"
-        class="cohort-create-input-name"
+        density="comfortable"
         hide-details
         maxlength="255"
       />
@@ -173,7 +173,7 @@ const unitsErrorMessage = computed(() => {
 })
 
 onMounted(() => {
-  putFocusNextTick(props.course.manuallyCreatedBy ? 'course-name-input' : 'course-units-input')
+  putFocusNextTick(props.course.manuallyCreatedBy ? 'course-name-input' : `column-${props.position}-unit-requirement-select`)
 })
 
 const cancel = () => {

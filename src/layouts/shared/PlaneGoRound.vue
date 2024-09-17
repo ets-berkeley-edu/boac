@@ -32,10 +32,10 @@ svg {
 }
 .contrails {
   animation: 1.4s ease-in-out infinite loader-path;
-  stroke: #c0ecff;
+  stroke: rgb(var(--v-theme-light-blue));
 }
 .plane {
-  fill: #3b7ea5;
+  fill: rgb(var(--v-theme-primary));
 }
 @keyframes loader-spin {
   to {

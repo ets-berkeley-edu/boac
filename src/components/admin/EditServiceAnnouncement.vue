@@ -4,7 +4,7 @@
       <div v-if="isTogglingPublish" class="align-center d-flex font-weight-bold">
         <v-progress-circular
           class="mr-2"
-          color="grey"
+          color="primary"
           :size="25"
           indeterminate
         />

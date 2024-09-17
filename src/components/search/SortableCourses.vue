@@ -2,6 +2,7 @@
   <v-data-table-virtual
     :cell-props="data => ({
       class: 'pl-0 vertical-top',
+      'data-label': data.column.title,
       id: `td-term-${data.item.termId}-section-${data.item.sectionId}-column-${data.column.key}`,
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     })"

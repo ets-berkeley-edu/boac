@@ -170,10 +170,10 @@ pre {
   margin: 0;
 }
 .section-border-major {
-  border-bottom: 3px #999 solid;
+  border-bottom: 3px solid rgba(var(--v-border-color), var(--v-disabled-opacity));
 }
 .section-border-minor {
-  border-bottom: 1px #999 solid;
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-disabled-opacity));
 }
 .unit-requirements-of-template {
   width: 34%;

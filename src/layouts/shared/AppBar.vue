@@ -51,7 +51,7 @@ import {startsWith} from 'lodash'
 .header-text a:focus,
 .header-text a:active {
 /* eslint-enable vue-scoped-css/no-unused-selector */
-  color: #ddd !important;
+  opacity: var(--v-high-emphasis-opacity )
 }
 @media (max-width: 600px) {
   .hide-in-narrow-viewport {

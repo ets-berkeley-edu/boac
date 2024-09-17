@@ -127,7 +127,7 @@ const intervalId = setInterval(() => {
       const suffix = isEllipsis ? 'ellipsis' : `page-${(element.ariaLabel || 'unknown').match(/\d+/)[0]}`
       element.id = `${props.idPrefix}-${suffix}`
       if (isEllipsis) {
-        element.setAttribute('style', 'color: #fff !important')
+        element.classList.add('text-surface')
         element.lastElementChild.classList.add('text-medium-emphasis')
       } else if (element.ariaCurrent !== 'true') {
         element.classList.add('text-primary')
@@ -151,9 +151,6 @@ const onClick = page => {
 <style lang="scss">
 .chevron-button {
   height: 36px !important;
-}
-.color-white {
-  color: white;
 }
 .v-pagination {
   ul li {

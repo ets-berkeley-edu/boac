@@ -2,6 +2,7 @@
   <v-data-table-virtual
     :cell-props="data => ({
       class: 'pl-0 vertical-top',
+      'data-label': data.column.title,
       id: `td-student-${data.item.sid}-column-${data.column.key}`,
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     })"
@@ -90,7 +91,7 @@
     <template v-if="!compact" #item.major="{item}">
       <span class="sr-only">Major</span>
       <div v-if="!item.majors || item.majors.length === 0">--<span class="sr-only">No data</span></div>
-      <div v-for="major in item.majors" :key="major">{{ major }}</div>
+      <div v-for="major in item.majors" :key="major" class="pr-1">{{ major }}</div>
     </template>
 
     <template v-if="!compact" #item.expectedGraduationTerm="{item}">

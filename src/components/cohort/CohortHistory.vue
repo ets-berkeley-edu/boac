@@ -29,7 +29,7 @@
           <td class="pr-2 py-1 text-no-wrap">
             <div
               :id="`event-${index}-status`"
-              class="pill-membership-change"
+              class="pill-membership-change border-sm"
               :class="event.eventType === 'added' ? 'pill-added' : 'pill-removed'"
             >
               {{ event.eventType }}
@@ -136,7 +136,7 @@ const loadEvents = () => {
   height: 28px;
   min-width: 80px;
   max-width: 80px;
-  padding-top: 6px;
+  padding-top: 5px;
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
@@ -146,7 +146,7 @@ const loadEvents = () => {
   color: rgb(var(--v-theme-tertiary));
 }
 .pill-removed {
-  background-color: rgb(var(--v-theme-light-yellow));
+  background-color: rgb(var(--v-theme-pale-yellow));
   color: rgb(var(--v-theme-gold));
 }
 </style>

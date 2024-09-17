@@ -2,6 +2,7 @@
   <v-data-table-virtual
     :cell-props="data => ({
       class: 'pl-0',
+      'data-label': data.column.title,
       id: `td-admit-${data.item.csEmplId}-column-${data.column.key}`,
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     })"

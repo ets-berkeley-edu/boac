@@ -4,6 +4,7 @@
     :cell-props="data => {
       return {
         class: 'py-2 px-0 vertical-top',
+        'data-label': data.column.title,
         id: `td-student-${data.item.uid}-column-${data.column.key}`,
         style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
       }

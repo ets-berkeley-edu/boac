@@ -12,7 +12,7 @@
       <template #activator="{props}">
         <button
           id="color-code-select"
-          class="border-sm px-3 py-2 rounded-lg v-btn--variant-outlined w-100"
+          class="select-menu w-100"
           :class="getCssClass('border', selected)"
           v-bind="props"
         >
@@ -27,12 +27,6 @@
               <div>
                 {{ selected.title }}
               </div>
-            </div>
-            <div class="ml-auto">
-              <v-icon
-                :color="selected ? selected.color : 'black'"
-                :icon="props['aria-expanded'] === 'true' ? mdiMenuUp : mdiMenuDown"
-              />
             </div>
           </div>
         </button>
@@ -68,7 +62,7 @@
 <script setup>
 import {alertScreenReader} from '@/lib/utils'
 import {find, map, toLower} from 'lodash'
-import {mdiMenuDown, mdiMenuUp, mdiSquare} from '@mdi/js'
+import {mdiSquare} from '@mdi/js'
 import {ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
@@ -88,7 +82,7 @@ const noneSelected = {title: '-- None --', color: undefined}
 const items = [noneSelected].concat(map(contextStore.config.degreeProgressColorCodes, (color, title) => ({title, color})))
 const selected = ref(find(items, ['color', props.accentColor ? toLower(props.accentColor) : undefined]))
 
-const getCssClass = (type, option) => `${type}-color-${option ? option.color : 'black'}`
+const getCssClass = (type, option) => `${type}-color-${option.color}`
 
 const setSelected = value => {
   selected.value = value
@@ -106,9 +100,6 @@ const setSelected = value => {
 }
 .border-color-green {
   border-color: rgb(var(--v-theme-accent-green)) !important;
-}
-.border-color-lightgrey {
-  border-color: #aaa !important;
 }
 .border-color-orange {
   border-color: rgb(var(--v-theme-accent-orange)) !important;
