@@ -131,7 +131,7 @@ onMounted(() => {
   if (continueExistingSession) {
     pageNumber.value = cohortStore.pagination.currentPage
     setPageTitle(cohortStore.cohortName)
-    contextStore.loadingComplete(getLoadedAlert())
+    contextStore.loadingComplete(`${getPageLoadAlert()} has loaded.`)
   } else {
     const cohortId = toInt(get(useRoute(), 'params.id'))
     const domain = useRoute().query.domain || 'default'
@@ -141,7 +141,7 @@ onMounted(() => {
       pageNumber.value = cohortStore.pagination.currentPage
       const pageTitle = cohortId ? cohortStore.cohortName : 'Create Cohort'
       setPageTitle(pageTitle)
-      contextStore.loadingComplete(getLoadedAlert())
+      contextStore.loadingComplete(`${getPageLoadAlert()} has loaded.`)
       putFocusNextTick(cohortId ? 'cohort-name' : 'create-cohort-h1')
     })
   }
@@ -154,12 +154,12 @@ onUnmounted(() => {
   contextStore.removeEventHandler('termId-user-preference-change', onChangeTerm)
 })
 
-const getLoadedAlert = () => {
+const getPageLoadAlert = () => {
   if (!cohortStore.cohortId) {
-    return 'Create cohort page has loaded'
+    return 'Create cohort page'
   } else {
     const sortByOption = translateSortByOption(get(currentUser.preferences, sortByKey.value))
-    return `Cohort ${cohortStore.cohortName || ''}, sorted by ${sortByOption}, ${pageNumber.value > 1 ? `(page ${pageNumber.value})` : ''} has loaded`
+    return `Cohort ${cohortStore.cohortName || ''}${pageNumber.value > 1 ? ` (page ${pageNumber.value}),` : ','} sorted by ${sortByOption},`
   }
 }
 
@@ -189,11 +189,12 @@ const init = (cohortId, domain, orderBy, termId) => {
 }
 
 const goToPage = page => {
-  contextStore.loadingStart()
   setPagination(page)
+  const alert = getPageLoadAlert()
+  contextStore.loadingStart(`${alert} is loading.`)
   onPageNumberChange().then(() => {
     scrollToTop()
-    contextStore.loadingComplete(getLoadedAlert())
+    contextStore.loadingComplete(`${alert} has loaded.`)
   })
 }
 

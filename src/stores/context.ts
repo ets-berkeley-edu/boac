@@ -4,7 +4,6 @@ import router from '@/router'
 import {alertScreenReader} from '@/lib/utils'
 import {defineStore} from 'pinia'
 import {nextTick} from 'vue'
-import {useRoute} from 'vue-router'
 
 const $_getDefaultApplicationState = () => ({
   message: undefined,
@@ -106,13 +105,14 @@ export const useContextStore = defineStore('context', {
     dismissServiceAnnouncement() {
       this.dismissedServiceAnnouncement = true
     },
-    loadingComplete(srAlert?: any, putFocusElementId?: string) {
+    loadingComplete(srAlert?: string, putFocusElementId?: string) {
       if (!get(this.config, 'isProduction')) {
         // eslint-disable-next-line no-console
         console.log(`Page loaded in ${(new Date().getTime() - (this.loadingStartTime || 0)) / 1000} seconds`)
       }
+      const route = router.currentRoute.value
       this.loading = false
-      alertScreenReader(srAlert || `${String(get(router.currentRoute, 'name', ''))} page loaded.`)
+      alertScreenReader(srAlert || `${String(get(route, 'name', ''))} page loaded.`)
       const callable = () => {
         let element: any
         if (putFocusElementId) {
@@ -132,12 +132,11 @@ export const useContextStore = defineStore('context', {
         const job = setInterval(() => (callable() || ++counter > 3) && clearInterval(job), 500)
       }).then(noop)
     },
-    loadingStart() {
+    loadingStart(srAlert?: string) {
       this.loading = true
       this.loadingStartTime = new Date().getTime()
-      const route = useRoute()
-      const pageName = route ? get(route.name, 'name', '') : ''
-      alertScreenReader(`${pageName} page is loading`)
+      const route = router.currentRoute.value
+      alertScreenReader(srAlert || `${String(get(route, 'name', ''))} page is loading.`)
     },
     removeEventHandler(type: string, handler?: any) {
       this.eventHub.off(type, handler)

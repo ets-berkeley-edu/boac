@@ -170,10 +170,10 @@ const curatedGroupCheckboxClick = group => {
     setTimeout(
       () => {
         isConfirming.value = false
-        sids.value = []
         isSelectAllChecked.value = indeterminate.value = false
         contextStore.broadcast('curated-group-deselect-all', props.domain)
-        alertScreenReader(`${size(sids.value)} ${pluralize('student', size(sids.value))} added to ${domainLabel(false)} "${group.name}".`)
+        alertScreenReader(`${pluralize('student', size(sids.value))} added to ${domainLabel(false)} "${group.name}".`)
+        sids.value = []
         putFocusNextTick(checkboxId)
       },
       2000
