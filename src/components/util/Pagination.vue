@@ -1,6 +1,6 @@
 <template>
-  <div class="d-flex justify-start">
-    <span class="sr-only"><span id="total-rows">{{ totalPages }}</span> pages of search results</span>
+  <div :id="`${idPrefix}-container`" class="d-flex justify-start" tabindex="-1">
+    <span class="sr-only"><span id="total-rows">{{ totalPages }}</span> pages of search results. Use Tab to navigate.</span>
     <v-pagination
       :id="`${idPrefix}-widget`"
       v-model="currentPage"
@@ -12,6 +12,8 @@
       :show-first-last-page="totalPages >= showFirstLastButtonsWhen"
       :total-visible="7"
       variant="flat"
+      @first="() => onClick('first')"
+      @last="() => onClick('last')"
       @next="() => onClick('next')"
       @prev="() => onClick('prev')"
       @update:model-value="v => onClick(v)"
@@ -25,12 +27,12 @@
           slim
           text="First"
           variant="outlined"
-          @click="onClick(1)"
+          @click="onClick('first')"
         />
       </template>
       <template #prev="{disabled}">
         <v-btn
-          :id="`${idPrefix}-previous`"
+          :id="`${idPrefix}-prev`"
           aria-label="Previous"
           class="chevron-button"
           color="primary"
@@ -69,7 +71,7 @@
           slim
           text="Last"
           variant="outlined"
-          @click="onClick(totalPages)"
+          @click="onClick('last')"
         />
       </template>
     </v-pagination>
@@ -78,8 +80,8 @@
 
 <script setup>
 import {computed} from 'vue'
-import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
 import {each, toNumber} from 'lodash'
+import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
 
 const props = defineProps({
   clickHandler: {
@@ -116,7 +118,7 @@ const props = defineProps({
 
 const currentPage = props.initPageNumber
 const showFirstLastButtonsWhen = 3
-const totalPages = computed(() =>Math.ceil(props.totalRows / props.perPage))
+const totalPages = computed(() => Math.ceil(props.totalRows / props.perPage))
 
 const intervalId = setInterval(() => {
   const elements = document.querySelectorAll(`#${props.idPrefix}-widget button[ellipsis]`)
@@ -138,12 +140,21 @@ const intervalId = setInterval(() => {
 }, 300)
 
 const onClick = page => {
-  if (page === 'prev') {
-    props.clickHandler(toNumber(currentPage - 1))
-  } else if (page === 'next') {
-    props.clickHandler(toNumber(currentPage + 1))
-  } else {
-    props.clickHandler(toNumber(page))
+  switch(page) {
+  case 'first':
+    props.clickHandler(toNumber(1), 'first')
+    break
+  case 'last':
+    props.clickHandler(toNumber(totalPages.value), 'last')
+    break
+  case 'prev':
+    props.clickHandler(toNumber(currentPage - 1), 'prev')
+    break
+  case 'next':
+    props.clickHandler(toNumber(currentPage + 1), 'next')
+    break
+  default:
+    props.clickHandler(toNumber(page), `page-${page}`)
   }
 }
 </script>

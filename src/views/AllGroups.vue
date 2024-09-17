@@ -1,7 +1,7 @@
 <template>
   <div v-if="!loading" class="default-margins">
     <div class="mb-6">
-      <h1 class="page-section-header">Everyone's Groups</h1>
+      <h1 id="page-header">Everyone's Groups</h1>
       <div v-if="find(flatten(map(rows, 'groups')), g => g.domain === 'admitted_students')" class="pl-1">
         <v-icon
           aria-label="Star icon"

@@ -2,7 +2,7 @@
   <v-container v-if="!loading" fluid>
     <v-row class="pb-2">
       <v-col v-if="student">
-        <h1 class="font-size-18 font-weight-bold mb-0" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</h1>
+        <h1 id="page-header" class="font-size-18 font-weight-bold mb-0" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</h1>
         <div class="font-size-14">
           <div class="font-weight-500">
             SID <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.sid }}</span>

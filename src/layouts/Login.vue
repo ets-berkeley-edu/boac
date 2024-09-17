@@ -9,7 +9,7 @@
       </div>
       <v-card class="card" rounded="0">
         <v-card-title class="card-title pb-0">
-          <h1>BOA</h1>
+          <h1 id="page-header">BOA</h1>
         </v-card-title>
         <v-card-text class="pa-0 text-center">
           <v-btn

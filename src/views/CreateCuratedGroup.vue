@@ -1,6 +1,6 @@
 <template>
   <div class="default-margins">
-    <h1 id="page-section-header" class="page-section-header">
+    <h1 id="page-header">
       Create {{ domain === 'admitted_students' ? 'CE3' : 'Curated' }} Group
     </h1>
     <div id="page-description">

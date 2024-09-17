@@ -1,6 +1,6 @@
 <template>
   <div class="default-margins">
-    <h1 class="my-5">{{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}</h1>
+    <h1 id="page-header" class="my-5">{{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}</h1>
     <div v-if="!contextStore.loading">
       <div v-if="size(myDraftNotes)">
         <div v-if="!currentUser.isAdmin" class="mb-4 mt-1">
