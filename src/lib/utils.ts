@@ -96,7 +96,7 @@ export function putFocusNextTick(id: string, cssSelector?: string) {
     const putFocus = setInterval(() => {
       let el = document.getElementById(id)
       el = el && cssSelector ? el.querySelector(cssSelector) : el
-      el && el.focus()
+      el && el.scrollIntoView({behavior: 'smooth', block: 'center'})
       if (el || ++counter > 5) {
         // Abort after success or three attempts
         clearInterval(putFocus)
