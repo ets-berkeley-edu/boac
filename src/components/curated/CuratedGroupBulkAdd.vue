@@ -64,7 +64,7 @@
 </template>
 
 <script setup>
-import ProgressButton from '@/components/util/ProgressButton.vue'
+import ProgressButton from '@/components/util/ProgressButton'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {each, partition, split, trim, uniq} from 'lodash'
 import {onMounted, ref} from 'vue'

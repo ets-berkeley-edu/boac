@@ -43,7 +43,7 @@
 import FerpaReminder from '@/components/util/FerpaReminder'
 import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
-import ProgressButton from '@/components/util/ProgressButton.vue'
+import ProgressButton from '@/components/util/ProgressButton'
 import {computed, watch} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
 

@@ -6,7 +6,7 @@
     persistent
   >
     <v-card class="modal-content">
-      <FocusLock :disabled="!focusLocked" @keydown.esc="functionCancel">
+      <FocusLock :disabled="!focusLocked" @keydown.esc="functionCancel || noop">
         <v-card-title>
           <ModalHeader header-id="are-you-sure-header" :text="modalHeader" />
         </v-card-title>
@@ -40,6 +40,7 @@
 import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
+import {noop} from 'lodash'
 import {putFocusNextTick} from '@/lib/utils'
 import {ref, watch} from 'vue'
 
