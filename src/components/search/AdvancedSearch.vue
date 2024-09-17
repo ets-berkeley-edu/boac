@@ -93,7 +93,10 @@ import {useSearchStore} from '@/stores/search'
 const searchStore = useSearchStore()
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
-const queryTextModel = computed({get: () => searchStore.queryText, set: v => searchStore.setQueryText(v)})
+const queryTextModel = computed({
+  get: () => searchStore.queryText || null,
+  set: v => searchStore.setQueryText(v)
+})
 
 onMounted(() => {
   document.addEventListener('keyup', onKeyUp)
