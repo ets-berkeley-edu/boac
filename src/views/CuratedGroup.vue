@@ -1,22 +1,19 @@
 <template>
   <div v-if="!contextStore.loading" class="default-margins">
     <CuratedGroupHeader />
-    <div v-if="domain === 'admitted_students' && students && mode !== 'bulkAdd'" class="mt-2">
+    <div v-if="domain === 'admitted_students' && students && mode !== 'bulkAdd'" class="pt-2">
       <AdmitDataWarning :updated-at="get(students, '[0].updatedAt')" />
     </div>
     <div v-if="mode !== 'bulkAdd'">
       <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
       <div>
-        <div class="d-flex flex-wrap justify-end mt-3">
-          <div v-if="totalStudentCount && domain === 'default'" class="mr-3">
-            <TermSelector />
-          </div>
-          <div v-if="totalStudentCount > 1">
-            <SortBy :domain="domain" />
-          </div>
+        <div class="d-flex flex-wrap justify-end py-3">
+          <TermSelector v-if="totalStudentCount && domain === 'default'" class="mb-1" />
+          <SortBy v-if="totalStudentCount > 1" :domain="domain" class="ml-5 mb-1" />
         </div>
-        <div v-if="totalStudentCount > itemsPerPage" class="mt-2">
+        <div v-if="totalStudentCount > itemsPerPage" class="pt-2">
           <Pagination
+            class="my-3"
             :click-handler="onClickPagination"
             :init-page-number="pageNumber"
             :limit="10"
@@ -24,7 +21,7 @@
             :total-rows="totalStudentCount"
           />
         </div>
-        <div v-if="size(students)" class="mt-2">
+        <div v-if="size(students)" class="pt-2">
           <div id="curated-cohort-students">
             <div v-if="domain === 'default'">
               <StudentRow
@@ -50,7 +47,7 @@
               />
             </div>
           </div>
-          <div v-if="totalStudentCount > itemsPerPage" class="mr-3 mt-7">
+          <div v-if="totalStudentCount > itemsPerPage" class="pr-3 pt-7">
             <Pagination
               :click-handler="onClickPagination"
               id-prefix="auxiliary-pagination"
@@ -130,7 +127,7 @@ onMounted(() => {
   curatedStore.setCuratedGroupId(parseInt(idParam))
   goToCuratedGroup(curatedStore.curatedGroupId, 1).then(group => {
     if (group) {
-      contextStore.loadingComplete(getLoadedAlert())
+      contextStore.loadingComplete(`${getPageLoadAlert()} has loaded.`)
       setPageTitle(curatedStore.curatedGroupName)
       putFocusNextTick('curated-group-name')
     } else {
@@ -173,34 +170,38 @@ const bulkAddSids = sids => {
   }
 }
 
-const getLoadedAlert = () => {
+const getPageLoadAlert = (page) => {
+  let pageNum = page || pageNumber.value
   const label = `${capitalize(describeCuratedGroupDomain(domain.value))} ${curatedStore.curatedGroupName || ''}`
   const sortedBy = translateSortByOption(currentUser.preferences.sortBy)
-  return `${label}, sorted by ${sortedBy}, ${pageNumber.value > 1 ? `(page ${pageNumber.value})` : ''} has loaded`
+  return `${label}${pageNum > 1 ? ` (page ${pageNum}),` : ','} sorted by ${sortedBy},`
 }
 
 const onChangeSortBy = () => {
   if (!contextStore.loading) {
-    contextStore.loadingStart()
+    const alert = getPageLoadAlert()
+    contextStore.loadingStart(`${alert} is loading.`)
     goToCuratedGroup(curatedGroupId.value, 1).then(() => {
-      contextStore.loadingComplete(getLoadedAlert())
+      contextStore.loadingComplete(`${alert} has loaded.`)
     })
   }
 }
 
 const onChangeTerm = () => {
   if (!contextStore.loading) {
-    contextStore.loadingStart()
+    const alert = getPageLoadAlert()
+    contextStore.loadingStart(`${alert} is loading.`)
     goToCuratedGroup(curatedGroupId.value, pageNumber.value).then(() => {
-      contextStore.loadingComplete(getLoadedAlert())
+      contextStore.loadingComplete(`${alert} has loaded.`)
     })
   }
 }
 
 const onClickPagination = pageNumber => {
-  contextStore.loadingStart()
+  const alert = getPageLoadAlert(pageNumber)
+  contextStore.loadingStart(`${alert} is loading.`)
   goToCuratedGroup(curatedGroupId.value, pageNumber).then(() => {
-    contextStore.loadingComplete(getLoadedAlert())
+    contextStore.loadingComplete(`${alert} has loaded.`)
   })
 }
 

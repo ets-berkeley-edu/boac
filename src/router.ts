@@ -130,7 +130,7 @@ const routes:RouteRecordRaw[] = [
       {
         path: '/search',
         component: SearchResults,
-        name: 'Search'
+        name: 'Search Results'
       },
       {
         path: '/student/:uid',
