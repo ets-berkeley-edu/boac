@@ -4,7 +4,7 @@
       <v-btn
         id="search-options-panel-toggle"
         v-bind="props"
-        class="mx-2"
+        class="mx-1"
         :class="{'border-0': !isFocusAdvSearchButton}"
         color="white"
         :disabled="searchStore.isSearching"
