@@ -78,31 +78,26 @@
       </div>
     </div>
     <div class="mt-auto">
-      <v-card-subtitle class="border-t-sm font-size-12 pt-2 px-0 student-term-footer text-uppercase">
+      <v-card-subtitle class="border-t-sm font-size-12 pt-3 px-0 student-term-footer text-uppercase">
         <div class="d-flex justify-space-between">
           <div>
             <span class="font-weight-600 mr-1">Term GPA:</span>
-            <span :id="`term-${term.termId}-gpa`">{{ termGpa || '&mdash;' }}</span>
+            <span :id="`term-${term.termId}-gpa`">{{ termGpa ? round(termGpa || 0, 3) : '&mdash;' }}</span>
           </div>
           <div>
             <span class="font-weight-600 mr-1">Total Units:</span>
             <span :id="`term-${term.termId}-units`">{{ enrolledUnits || '&mdash;' }}</span>
           </div>
         </div>
-        <div
-          v-if="showMinUnits || showMaxUnits"
-          :id="`term-${term.termId}-units-allowed`"
-        >
-          <div v-if="showMinUnits" class="align-center d-flex">
-            <span class="align-right font-weight-600 mr-1">Exception Min Units:</span>
-            <span :id="`term-${term.termId}-min-units`">{{ numeral(term.minTermUnitsAllowed).format('0.0') }}</span>
-          </div>
-          <div v-if="showMaxUnits">
-            <span class="font-weight-600 mr-1">Exception Max Units:</span>
-            <span :id="`term-${term.termId}-max-units`">
-              {{ numeral(term.maxTermUnitsAllowed).format('0.0') }}
-            </span>
-          </div>
+        <div v-if="showMinUnits" class="float-right">
+          <span class="align-right font-weight-600 mr-1">Exception Min Units:</span>
+          <span :id="`term-${term.termId}-min-units`">{{ numeral(term.minTermUnitsAllowed).format('0.0') }}</span>
+        </div>
+        <div v-if="showMaxUnits" class="float-right">
+          <span class="font-weight-600 mr-1">Exception Max Units:</span>
+          <span :id="`term-${term.termId}-max-units`">
+            {{ numeral(term.maxTermUnitsAllowed).format('0.0') }}
+          </span>
         </div>
       </v-card-subtitle>
     </div>
@@ -142,7 +137,7 @@ const isConcurrent = some(props.term.enrollments, {academicCareer: 'UCBX'})
 const isCurrentTerm = config.currentEnrollmentTermId === parseInt(props.term.termId)
 const showMaxUnits = !isNil(props.term.maxTermUnitsAllowed) && props.term.maxTermUnitsAllowed !== config.defaultTermUnitsAllowed.max
 const showMinUnits = !isNil(props.term.minTermUnitsAllowed) && props.term.minTermUnitsAllowed !== config.defaultTermUnitsAllowed.min
-const termGpa = round(get(props.term, 'termGpa.gpa') || 0, 3)
+const termGpa = get(props.term, 'termGpa.gpa') || 0
 </script>
 
 <style scoped>
@@ -168,7 +163,7 @@ const termGpa = round(get(props.term, 'termGpa.gpa') || 0, 3)
 }
 .student-term-footer {
   border-top: 1px rgba(var(--v-border-color), var(--v-border-opacity)) solid !important;
-  max-height: 40px;
-  min-height: 40px;
+  max-height: 60px;
+  min-height: 60px;
 }
 </style>
