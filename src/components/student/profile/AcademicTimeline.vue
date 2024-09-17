@@ -23,7 +23,7 @@
 <script setup>
 import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelineHeader'
 import AcademicTimelineTable from '@/components/student/profile/AcademicTimelineTable'
-import {get, each, findIndex, keys, remove, size} from 'lodash'
+import {get, each, findIndex, keys, remove, size, find} from 'lodash'
 import {getNote} from '@/api/notes'
 import {DateTime} from 'luxon'
 import {onUnmounted, reactive, ref} from 'vue'
@@ -79,13 +79,14 @@ const init = () => {
 
 const onCreateNewNote = note => {
   if (note.sid === props.student.sid) {
-    const existingNoteIndex = findIndex(messages.value, {'id': note.id})
-    note.transientId = note.id
-    if (existingNoteIndex < 0) {
+    const message = find(messages.value, ['id', note.id])
+    note.transientId = message ? message.transientId : note.id
+    if (message) {
+      const existingNoteIndex = findIndex(messages.value, {'id': note.id})
+      messages.value.splice(existingNoteIndex, 1, note)
+    } else {
       messages.value.push(note)
       updateCountsPerType('note', countsPerType.value.note + 1)
-    } else {
-      messages.value.splice(existingNoteIndex, 1, note)
     }
     sortMessages()
   }

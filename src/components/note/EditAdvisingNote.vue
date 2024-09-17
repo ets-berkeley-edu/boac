@@ -20,7 +20,7 @@
       maxlength="255"
       :model-value="noteStore.model.subject"
       required
-      :rules="[rules.required]"
+      :rules="[value => (!!trim(value) || noteStore.model.isDraft) || 'Subject is required']"
       size="255"
       validate-on="submit"
       @input="onInput"
@@ -110,19 +110,19 @@
 <script setup>
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
-import {alertScreenReader, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import ContactMethod from '@/components/note/ContactMethod'
-import {exitSession, setNoteRecipient, setSubjectPerEvent} from '@/stores/note-edit-session/utils'
-import {getNote, updateNote} from '@/api/notes'
-import {getUserProfile} from '@/api/user'
 import ManuallySetDate from '@/components/note/ManuallySetDate'
-import {mdiAlert} from '@mdi/js'
-import {onBeforeMount, ref} from 'vue'
 import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import ProgressButton from '@/components/util/ProgressButton'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import SessionExpired from '@/components/note/SessionExpired'
+import {alertScreenReader, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import {exitSession, setNoteRecipient, setSubjectPerEvent} from '@/stores/note-edit-session/utils'
+import {getNote, updateNote} from '@/api/notes'
+import {getUserProfile} from '@/api/user'
+import {mdiAlert} from '@mdi/js'
+import {onBeforeMount, onMounted, ref} from 'vue'
 import {size, trim} from 'lodash'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
@@ -143,18 +143,17 @@ const props = defineProps({
   }
 })
 
-const currentUser = useContextStore().currentUser
+const contextStore = useContextStore()
+
+const currentUser = contextStore.currentUser
 const editNoteForm = ref()
 const isPublishingNote = ref(false)
 const isSavingDraft = ref(false)
 const noteStore = useNoteStore()
 const {boaSessionExpired, isSaving} = storeToRefs(noteStore)
-const rules = {
-  required: value => (!!trim(value) || noteStore.model.isDraft) || 'Subject is required',
-}
 const showAreYouSureModal = ref(false)
 
-const init = () => {
+onMounted(() => {
   getNote(props.noteId).then(note => {
     const onFinish = () => {
       noteStore.setMode('editNote')
@@ -170,8 +169,12 @@ const init = () => {
       onFinish()
     }
   })
-  useContextStore().setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
-}
+  contextStore.setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
+})
+
+onBeforeMount(() => {
+  contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
+})
 
 const cancelRequested = () => {
   getNote(props.noteId).then(note => {
@@ -256,13 +259,6 @@ const save = isDraft => {
     }
   })
 }
-
-onBeforeMount(() => {
-  useContextStore().removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
-})
-
-init()
-
 </script>
 
 <style scoped>

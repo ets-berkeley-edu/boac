@@ -36,7 +36,7 @@
               hide-details
               :hide-no-data="!!(size(autocompleteInput) < 3 || isFetching || isSuggesting || suggestedUsers.length)"
               :items="suggestedUsers"
-              label="Enter name or SID..."
+              label="Enter name or UID"
               :maxlength="72"
               :menu-icon="null"
               :model-value="userSelection"
@@ -49,9 +49,9 @@
               <template #append-inner>
                 <v-progress-circular
                   v-if="isSuggesting"
-                  color="pale-blue"
+                  color="primary"
                   indeterminate
-                  :size="16"
+                  :size="18"
                   :width="3"
                 />
               </template>

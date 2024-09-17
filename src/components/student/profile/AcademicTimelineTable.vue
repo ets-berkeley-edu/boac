@@ -224,7 +224,7 @@
               </span>
               <AdvisingNote
                 v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
-                :after-saved="afterNoteEdit"
+                :after-saved="afterEditAdvisingNote"
                 :delete-note="onClickDeleteNote"
                 :edit-note="editNote"
                 :is-open="includes(openMessages, message.transientId)"
@@ -494,8 +494,14 @@ const init = () => {
     eventHandlers.value = {
       'note-creation-is-starting': onNoteCreateStartEvent,
       'note-created': afterNoteCreated,
-      'note-updated': afterNoteEdit,
-      'notes-created': afterNotesCreated
+      'note-updated': refreshNote,
+      'notes-created': noteIdsBySid => {
+        const noteId = noteIdsBySid[props.student.sid]
+        if (noteId) {
+          getNote(noteId).then(afterNoteCreated)
+          refreshSearchIndex()
+        }
+      }
     }
     each(eventHandlers.value, (handler, eventType) => {
       contextStore.setEventHandler(eventType, handler)
@@ -530,8 +536,6 @@ onUnmounted(() => {
 
 const afterEditAdvisingNote = updatedNote => {
   editModeNoteId.value = null
-  refreshNote(updatedNote)
-  props.onCreateNewNote(updatedNote)
   putFocusNextTick(`edit-note-${updatedNote.id}-button`)
 }
 
@@ -540,18 +544,6 @@ const afterNoteCreated = note => {
   refreshNote(note)
   props.onCreateNewNote(note)
   refreshSearchIndex()
-}
-
-const afterNotesCreated = noteIdsBySid => {
-  const noteId = noteIdsBySid[props.student.sid]
-  if (noteId) {
-    getNote(noteId).then(afterNoteCreated)
-  }
-  refreshSearchIndex()
-}
-
-const afterNoteEdit = updatedNote => {
-  refreshNote(updatedNote)
 }
 
 const afterNoteEditCancel = () => {
