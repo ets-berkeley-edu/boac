@@ -143,7 +143,7 @@ class TestFilteredAdmitResults:
         self.filtered_admits_page.wait_for_sidebar_member_count(cohort)
 
     def test_cohort_no_history(self, cohort):
-        assert not self.filtered_admits_page.is_present(self.filtered_admits_page.HISTORY_BUTTON)
+        assert not self.filtered_admits_page.is_present(self.filtered_admits_page.COHORT_HISTORY_LINK)
 
 
 @pytest.mark.usefixtures('page_objects')

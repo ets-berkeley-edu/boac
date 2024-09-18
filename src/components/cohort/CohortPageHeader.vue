@@ -30,7 +30,7 @@
       >
         {{ pluralize('Result', cohortStore.totalStudentCount) }}
       </h1>
-      <div v-if="!showHistory" class="d-flex align-center align-self-center pr-3">
+      <div v-if="!isCohortHistoryPage" class="d-flex align-center align-self-center pr-3">
         <a
           v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage"
           id="skip-to-pagination-link"
@@ -114,26 +114,25 @@
         >
           |
         </div>
-        <v-btn
+        <router-link
           v-if="isHistorySupported"
-          id="show-cohort-history-button"
+          id="cohort-history-link"
           class="font-size-15 px-1 text-no-wrap"
-          color="anchor"
           :disabled="cohortStore.isModifiedSinceLastSearch"
-          text="History"
-          variant="text"
-          @click="toggleShowHistory(true)"
-        />
+          to="/cohort/history"
+        >
+          History
+        </router-link>
       </div>
-      <div v-if="showHistory" class="d-flex align-self-baseline mr-4">
-        <v-btn
-          id="back-to-cohort-button"
+      <div v-if="isCohortHistoryPage" class="d-flex align-self-baseline mr-4">
+        <router-link
+          v-if="isHistorySupported"
+          id="back-to-cohort-link"
           class="font-size-15 px-1 text-no-wrap"
-          color="anchor"
-          text="Back to Cohort"
-          variant="text"
-          @click="toggleShowHistory(false)"
-        />
+          :to="`/cohort/${cohortStore.cohortId}`"
+        >
+          Back to Cohort
+        </router-link>
       </div>
     </div>
     <RenameCohort
@@ -186,12 +185,8 @@ import {size} from 'lodash'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 
 defineProps({
-  showHistory: {
+  isCohortHistoryPage: {
     type: Boolean,
-    required: true
-  },
-  toggleShowHistory: {
-    type: Function,
     required: true
   }
 })

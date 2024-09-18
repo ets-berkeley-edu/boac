@@ -40,8 +40,8 @@ class CohortPages(BoaPages):
     EXPORT_LIST_BUTTON = By.ID, 'export-student-list-button'
     FERPA_WARNING_LINK = By.ID, 'ferpa-guide-external-href'
     EXPORT_LIST_CXL_BUTTON = By.ID, 'export-list-cancel'
-    HISTORY_BUTTON = By.ID, 'show-cohort-history-button'
-    BACK_TO_COHORT_BUTTON = By.ID, 'back-to-cohort-button'
+    COHORT_HISTORY_LINK = By.ID, 'cohort-history-link'
+    BACK_TO_COHORT_LINK = By.ID, 'back-to-cohort-link'
 
     @staticmethod
     def cohort_heading_loc(cohort):
