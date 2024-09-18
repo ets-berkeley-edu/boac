@@ -421,7 +421,16 @@ const canBecome = user => {
 }
 
 const fetchUsers = (returnFocusId=null) => {
-  const isValidSelection = (filterType.value !== 'search') || get(userSelection.value, 'value.uid')
+  let isValidSelection = (filterType.value !== 'search') || get(userSelection.value, 'value.uid')
+
+  let uidOfUser = undefined
+  let searchFirstUser = false
+  if (!isValidSelection && users.value.length === 1 && filterType.value === 'search') {
+    isValidSelection = users.value[0].uid
+    uidOfUser = users.value[0].uid
+    searchFirstUser = true
+  }
+
   if (isValidSelection) {
     const sortDescription = sortBy.value ? `; sorted by ${lowerCase(clone(sortBy.value))}, ${sortDesc.value ? 'descending' : 'ascending'}` : ''
     isFetching.value = true
@@ -455,7 +464,10 @@ const fetchUsers = (returnFocusId=null) => {
       })
       break
     case 'search':
-      getUserByUid(userSelection.value.value.uid, false).then(data => {
+      if (searchFirstUser === false) {
+        uidOfUser = userSelection.value.value.uid
+      }
+      getUserByUid(uidOfUser, false).then(data => {
         users.value = [data]
         totalUserCount.value = 1
         isFetching.value = false
