@@ -122,6 +122,10 @@
 .font-weight-600 {
   font-weight: 600;
 }
+.img-blur {
+  -webkit-filter: blur(15px) contrast(0.2);
+  filter: blur(15px) contrast(0.2);
+}
 .list-bullets {
   list-style-position: inside;
 }
