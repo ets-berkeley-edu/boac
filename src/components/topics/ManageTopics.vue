@@ -1,26 +1,27 @@
 <template>
   <div v-if="hasLoadedTopics">
     <div class="align-center d-flex justify-space-between">
-      <div class="w-50">
-        <v-text-field
-          id="filter-topics"
-          v-model="filter"
-          class="d-inline"
-          density="compact"
-          hide-details
-          label="Search"
-          variant="outlined"
-        />
+      <div class="align-center d-flex flex-nowrap w-66">
+        <div class="w-66">
+          <v-text-field
+            id="filter-topics"
+            v-model="filter"
+            class="d-inline"
+            density="compact"
+            hide-details
+            label="Search"
+            variant="outlined"
+          />
+        </div>
+        <v-btn
+          class="button-position ml-2 mr-4"
+          color="primary"
+          :disabled="!filter"
+          @click="filter = ''"
+        >
+          Clear
+        </v-btn>
       </div>
-
-      <v-btn
-        class="button-position ml-2 mr-4"
-        color="primary"
-        :disabled="!filter"
-        @click="filter = ''"
-      >
-        Clear
-      </v-btn>
       <v-btn
         id="create-topic-button"
         class="mr-3"

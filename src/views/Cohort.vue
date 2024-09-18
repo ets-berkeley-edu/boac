@@ -37,7 +37,7 @@
         <Pagination
           class="my-3"
           :click-handler="onClickPagination"
-          :init-page-number="pageNumber"
+          :init-page-number="cohortStore.pagination.currentPage"
           :limit="10"
           :per-page="cohortStore.pagination.itemsPerPage"
           :total-rows="cohortStore.totalStudentCount"
@@ -71,7 +71,7 @@
           v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage"
           :click-handler="(page, buttonName) => onClickPagination(page, buttonName, 'auxiliary-pagination')"
           id-prefix="auxiliary-pagination"
-          :init-page-number="pageNumber"
+          :init-page-number="cohortStore.pagination.currentPage"
           :limit="10"
           :per-page="cohortStore.pagination.itemsPerPage"
           :total-rows="cohortStore.totalStudentCount"
@@ -109,7 +109,6 @@ import {useRoute} from 'vue-router'
 const cohortStore = useCohortStore()
 const contextStore = useContextStore()
 const currentUser = reactive(contextStore.currentUser)
-const pageNumber = ref(undefined)
 const showHistory = ref(false)
 
 contextStore.loadingStart()
@@ -121,7 +120,8 @@ const pageLoadAlert = computed(() => {
     return `Create cohort page ${loadStatus}`
   } else {
     const sortByOption = translateSortByOption(get(currentUser.preferences, sortByKey.value))
-    const pageDesc = pageNumber.value > 1 ? `(page ${pageNumber.value})` : ''
+    const page = cohortStore.pagination.currentPage
+    const pageDesc = page > 1 ? `(page ${page})` : ''
     return `Cohort ${cohortStore.cohortName || ''} ${pageDesc} ${loadStatus}. Sorted by ${sortByOption}.`
   }
 })
@@ -129,42 +129,56 @@ const sortByKey = computed(() => cohortStore.domain === 'admitted_students' ? 'a
 const totalPages = computed(() => Math.ceil(cohortStore.totalStudentCount / cohortStore.pagination.itemsPerPage))
 
 watch(() => cohortStore.domain, value => {
-  contextStore.removeEventHandler('admitSortBy-user-preference-change', onChangeSortBy)
-  contextStore.removeEventHandler('sortBy-user-preference-change', onChangeSortBy)
-  contextStore.setEventHandler(`${value === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, onChangeSortBy)
+  contextStore.removeEventHandler('admitSortBy-user-preference-change')
+  contextStore.removeEventHandler('sortBy-user-preference-change')
+  contextStore.setEventHandler(
+    `${value === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`,
+    () => goToPage(1)
+  )
 })
 
 onMounted(() => {
-  contextStore.setEventHandler(`${sortByKey.value}-user-preference-change`, onChangeSortBy)
-  contextStore.setEventHandler('cohort-apply-filters', resetPagination)
-  contextStore.setEventHandler('termId-user-preference-change', onChangeTerm)
+  contextStore.setEventHandler(
+    `${sortByKey.value}-user-preference-change`,
+    () => goToPage(1)
+  )
+  contextStore.setEventHandler(
+    'cohort-apply-filters',
+    () => cohortStore.setCurrentPage(1)
+  )
+  contextStore.setEventHandler(
+    'termId-user-preference-change',
+    () => goToPage(cohortStore.pagination.currentPage)
+  )
   const forwardPath = window.history.state.forward
-  const continueExistingSession = (startsWith(forwardPath, '/student') || startsWith(forwardPath, '/admit/student')) && size(cohortStore.filters)
-  if (continueExistingSession) {
-    pageNumber.value = cohortStore.pagination.currentPage
-    setPageTitle(cohortStore.cohortName)
+  const continueExistingSession = (startsWith(forwardPath, '/student')
+    || startsWith(forwardPath, '/admit/student')) && size(cohortStore.filters)
+
+  const loadingComplete = () => {
+    const pageTitle = cohortStore.cohortId ? cohortStore.cohortName : 'Create Cohort'
+    setPageTitle(pageTitle)
     contextStore.loadingComplete(pageLoadAlert.value)
-    putFocusNextTick('page-header')
+    const focusId = continueExistingSession && cohortStore.pagination.currentPage > 1 ?
+      `pagination-page-${cohortStore.pagination.currentPage}` :
+      'page-header'
+    nextTick(() => putFocusNextTick(focusId))
+  }
+  if (continueExistingSession) {
+    loadingComplete()
   } else {
     const cohortId = toInt(get(useRoute(), 'params.id'))
     const domain = useRoute().query.domain || 'default'
     const orderBy = get(currentUser.preferences, sortByKey.value)
     const termId = get(currentUser.preferences, 'termId')
-    init(cohortId, domain, orderBy, termId).then(() => {
-      pageNumber.value = cohortStore.pagination.currentPage
-      const pageTitle = cohortId ? cohortStore.cohortName : 'Create Cohort'
-      setPageTitle(pageTitle)
-      contextStore.loadingComplete(pageLoadAlert.value)
-      nextTick(() => putFocusNextTick('page-header'))
-    })
+    init(cohortId, domain, orderBy, termId).then(loadingComplete)
   }
 })
 
 onUnmounted(() => {
-  contextStore.removeEventHandler('admitSortBy-user-preference-change', onChangeSortBy)
-  contextStore.removeEventHandler('sortBy-user-preference-change', onChangeSortBy)
-  contextStore.removeEventHandler('cohort-apply-filters', resetPagination)
-  contextStore.removeEventHandler('termId-user-preference-change', onChangeTerm)
+  contextStore.removeEventHandler('admitSortBy-user-preference-change')
+  contextStore.removeEventHandler('sortBy-user-preference-change')
+  contextStore.removeEventHandler('cohort-apply-filters')
+  contextStore.removeEventHandler('termId-user-preference-change')
 })
 
 const init = (cohortId, domain, orderBy, termId) => {
@@ -193,24 +207,18 @@ const init = (cohortId, domain, orderBy, termId) => {
 }
 
 const goToPage = page => {
-  setPagination(page)
-  contextStore.loadingStart(pageLoadAlert.value)
-  return onPageNumberChange().then(() => {
-    scrollToTop()
-    contextStore.loadingComplete(pageLoadAlert.value)
+  return new Promise(resolve => {
+    if (contextStore.loading) {
+      resolve()
+    } else {
+      cohortStore.setCurrentPage(page)
+      contextStore.loadingStart(pageLoadAlert.value)
+      return onPageNumberChange().then(() => {
+        scrollToTop()
+        contextStore.loadingComplete(pageLoadAlert.value)
+      }).then(resolve)
+    }
   })
-}
-
-const onChangeSortBy = () => {
-  if (!contextStore.loading) {
-    goToPage(1)
-  }
-}
-
-const onChangeTerm = () => {
-  if (!contextStore.loading) {
-    goToPage(pageNumber.value)
-  }
 }
 
 const onClickPagination = (page, buttonName, idPrefix='pagination') => {
@@ -220,9 +228,7 @@ const onClickPagination = (page, buttonName, idPrefix='pagination') => {
   } else if (buttonName === 'last' || (buttonName === 'next' && page === totalPages.value)) {
     returnFocusId = `page-${totalPages.value}`
   }
-  goToPage(page).then(() => {
-    putFocusNextTick(`${idPrefix}-${returnFocusId}`)
-  })
+  goToPage(page).then(() => putFocusNextTick(`${idPrefix}-${returnFocusId}`))
 }
 
 const onPageNumberChange = () => {
@@ -230,13 +236,6 @@ const onPageNumberChange = () => {
     get(currentUser.preferences, sortByKey.value),
     get(currentUser.preferences, 'termId')
   )
-}
-
-const resetPagination = () => setPagination(1)
-
-const setPagination = page => {
-  pageNumber.value = page
-  cohortStore.setCurrentPage(pageNumber.value)
 }
 
 const toggleShowHistory = value => {

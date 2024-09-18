@@ -164,7 +164,7 @@
 <script setup>
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import numeral from 'numeral'
-import StudentCourseCanvasData from '@/components/student/profile/StudentCourseCanvasData.vue'
+import StudentCourseCanvasData from '@/components/student/profile/StudentCourseCanvasData'
 import {get, size} from 'lodash'
 import {
   getIncompleteGradeDescription,
