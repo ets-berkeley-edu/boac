@@ -57,6 +57,7 @@
               hide-no-data
               :items="searchStore.searchHistory"
               :menu-icon="null"
+              persistent-clear
               placeholder="Search"
               type="search"
               variant="outlined"
@@ -235,7 +236,8 @@
                   </div>
                   <div class="pt-3 w-75" :class="{'w-100': $vuetify.display.xs}">
                     <label class="form-control-label" for="search-options-note-filters-student">
-                      Student (name or SID)
+                      <span aria-hidden="true">Student (name or SID)</span>
+                      <span class="sr-only">Student (name or S I D)</span>
                     </label>
                     <span id="notes-search-student-input-label" class="sr-only">
                       Select a student for notes-related search. Expect auto-suggest as you type name or SID.
@@ -288,11 +290,12 @@
                           class="text-black date-range-label"
                           for="search-options-from-date-input"
                         >
-                          <span aria-hidden="true">From</span><span class="sr-only">&quot;from&quot; date</span>
+                          <span aria-hidden="true">From</span>
+                          <span class="sr-only">date range: <q>begin</q> date.</span>
+                          <span class="sr-only">Format: M M slash D D slash Y Y Y Y.</span>
                         </label>
                         <AccessibleDateInput
-                          aria-describedby="search-options-date-range-label"
-                          aria-label="&quot;from&quot; date"
+                          aria-label="Begin date"
                           container-id="advanced-search-modal"
                           :get-value="() => model.fromDate"
                           id-prefix="search-options-from-date"
@@ -306,11 +309,12 @@
                           class="text-black date-range-label d-flex justify-center"
                           for="search-options-to-date-input"
                         >
-                          <span aria-hidden="true">To</span><span class="sr-only">&quot;to&quot; date</span>
+                          <span aria-hidden="true">To</span>
+                          <span class="sr-only">date range: <q>end</q> date.</span>
+                          <span class="sr-only">Format: M M slash D D slash Y Y Y Y.</span>
                         </label>
                         <AccessibleDateInput
-                          aria-describedby="search-options-date-range-label"
-                          aria-label="&quot;to&quot; date"
+                          aria-label="End date"
                           container-id="advanced-search-modal"
                           :get-value="() => model.toDate"
                           id-prefix="search-options-to-date"
