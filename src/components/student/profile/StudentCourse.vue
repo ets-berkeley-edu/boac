@@ -120,8 +120,13 @@
         </div>
         <div :id="`${baseElementId}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
         <div v-if="course.courseRequirements">
-          <div v-for="requirement in course.courseRequirements" :key="requirement" class="d-flex align-center font-size-14 text-no-wrap">
-            <v-icon class="text-warning pr-1" :icon="mdiStar" /> {{ requirement }}
+          <div
+            v-for="requirement in course.courseRequirements"
+            :id="`term-${termId}-section-${get(course.sections, '[0].ccn')}-${normalizeId(requirement)}`"
+            :key="requirement"
+            class="d-flex align-center font-size-14 text-no-wrap"
+          >
+            <v-icon class="text-warning mr-1" :icon="mdiStar" /> {{ requirement }}
           </div>
         </div>
         <StudentCourseCanvasData
@@ -173,6 +178,7 @@ import {
 } from '@/berkeley'
 import {mdiAlert, mdiAlertRhombus, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {nextTick, onMounted, onUnmounted, ref} from 'vue'
+import {normalizeId} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
