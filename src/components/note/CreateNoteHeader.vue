@@ -260,15 +260,15 @@ const deleteTemplateConfirmed = () => {
 const editTemplate = template => {
   noteStore.setModel(template)
   noteStore.setMode('editTemplate')
-  putFocusNextTick('create-note-subject')
   alertScreenReader(`Editing template ${template.title}.`)
+  putFocusNextTick('create-note-subject')
 }
 
 const loadTemplate = template => {
   applyNoteTemplate(noteStore.model.id, template.id).then(data => {
     noteStore.setModel(data)
+    alertScreenReader(`Using template ${template.title}.`)
     putFocusNextTick('create-note-subject')
-    alertScreenReader(`Template ${template.title} loaded.`)
   })
 }
 

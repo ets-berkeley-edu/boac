@@ -268,7 +268,7 @@ const cancelCreateTemplate = () => {
 
 const cancelDiscardNote = () => {
   showDiscardNoteModal.value = false
-  alertScreenReader('Continue editing note.')
+  alertScreenReader('Canceled discard note.')
   putFocusNextTick('create-note-cancel')
 }
 
@@ -307,7 +307,8 @@ const createTemplate = title => {
 }
 
 const discardNote = () => {
-  exit(true).then(() => alertScreenReader('Canceled create new note'))
+  alertScreenReader('Canceled create new note')
+  exit(true)
 }
 
 const discardRequested = () => {
@@ -339,7 +340,8 @@ const discardRequested = () => {
 
 const discardTemplate = () => {
   showDiscardTemplateModal.value = false
-  exit(true).then(() => alertScreenReader('Canceled edit template.'))
+  alertScreenReader('Canceled edit template.')
+  exit(true)
 }
 
 const dismissAlert = () => {
@@ -389,7 +391,6 @@ const saveAsTemplate = () => {
     const ifAuthenticated = () => {
       showCreateTemplateModal.value = true
     }
-    alertScreenReader('Opening Name Template form')
     invokeIfAuthenticated(ifAuthenticated).finally(resolve)
   })
 }

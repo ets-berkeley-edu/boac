@@ -126,8 +126,8 @@ const updateNote = (alert) => {
       if (model.value.isDraft || (model.value.subject && size(completeSidSet.value))) {
         props.showAlert(alert, 60)
         updateAdvisingNote().then(() => {
-          noteStore.setIsSaving(false)
           alertScreenReader(model.value.isDraft ? `Draft note ${action}` : `Note ${action}`)
+          noteStore.setIsSaving(false)
           props.exit(false)
           resolve()
         })
