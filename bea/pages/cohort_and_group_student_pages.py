@@ -29,6 +29,7 @@ from bea.pages.list_view_student_pages import ListViewStudentPages
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 
 
 class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
@@ -141,6 +142,11 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         self.wait_for_select_and_click_option(self.TERM_SELECT, term_sis_id)
         time.sleep(1)
 
+    def selected_term_sis_id(self):
+        select = Select(self.element(self.TERM_SELECT))
+        option = select.first_selected_option
+        return option.get_attribute('value')
+
     def scroll_to_student(self, student):
         self.scroll_to_element(self.element((By.XPATH, self.student_row_xpath(student))))
 
@@ -206,24 +212,31 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "student-min-units")]'
         return self.el_text_if_exists(loc)
 
-    def visible_courses_data(self, student):
-        self.wait_for_players()
-        row_xpath = f'{self.student_row_xpath(student)}//tbody/tr'
-        row_els = self.elements((By.XPATH, row_xpath))
-        rows_data = []
-        for el in row_els:
-            node_xpath = f'{row_xpath}[{row_els.index(el) + 1}]'
-            mid_flag_loc = By.XPATH, f'{node_xpath}/td[4]/*[@data-icon="triangle-exclamation"]'
-            final_flag_loc = By.XPATH, f'{node_xpath}/td[5]/*[@data-icon="triangle-exclamation"]'
-            rows_data.append({
-                'course_code': self.element((By.XPATH, f'{node_xpath}/td[1]')).text,
-                'units': self.element((By.XPATH, f'{node_xpath}/td[2]')).text,
-                'activity': self.element((By.XPATH, f'{node_xpath}/td[3]')).text,
-                'mid_grade': self.element((By.XPATH, f'{node_xpath}/td[4]')).text,
-                'mid_flag': self.is_present(mid_flag_loc),
-                'final_grade': self.element((By.XPATH, f'{node_xpath}/td[5]')).text,
-                'final_flag': self.is_present(final_flag_loc),
-            })
+    def course_row_xpath(self, student, course_idx):
+        return f'{self.student_row_xpath(student)}//tbody/tr[{course_idx + 1}]'
+
+    def course_code(self, student, course_idx):
+        return self.el_text_if_exists((By.XPATH, f'{self.course_row_xpath(student, course_idx)}/td[1]'), '(W)\nWaitlisted')
+
+    def course_units(self, student, course_idx):
+        return self.el_text_if_exists((By.XPATH, f'{self.course_row_xpath(student, course_idx)}/td[2]'))
+
+    def course_activity(self, student, course_idx):
+        return self.el_text_if_exists((By.XPATH, f'{self.course_row_xpath(student, course_idx)}/td[3]'), 'No data')
+
+    def course_mid_grade(self, student, course_idx):
+        return self.el_text_if_exists((By.XPATH, f'{self.course_row_xpath(student, course_idx)}/td[4]'), 'No data')
+
+    def is_course_mid_flagged(self, student, course_idx):
+        xpath = f'{self.course_row_xpath(student, course_idx)}/td[4]//i[contains(@class, "grade-alert")]'
+        return self.is_present((By.XPATH, xpath))
+
+    def course_final_grade(self, student, course_idx):
+        return self.el_text_if_exists((By.XPATH, f'{self.course_row_xpath(student, course_idx)}/td[5]'))
+
+    def is_course_final_flagged(self, student, course_idx):
+        xpath = f'{self.course_row_xpath(student, course_idx)}/td[5]//i[contains(@class, "grade-alert")]'
+        return self.is_present((By.XPATH, xpath))
 
     def wait_lists(self, student):
         loc = By.XPATH, f'{self.student_row_xpath(student)}//span[contains(@id, "-waitlisted-")]/preceding-sibling::span'

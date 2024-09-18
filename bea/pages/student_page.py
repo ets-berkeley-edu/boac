@@ -371,11 +371,15 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
     def collapsed_course_final_grade(self, term_sis_id, ccn):
         return self.el_text_if_exists((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-final-grade'))
 
+    def is_collapsed_course_final_grade_alert(self, term_sis_id, ccn):
+        return self.is_present((By.ID, f'term-{term_sis_id}-course-{ccn}-has-grade-alert'))
+
     def collapsed_course_units(self, term_sis_id, ccn):
         return self.el_text_if_exists((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-units'))
 
     def expand_course_data(self, term_sis_id, ccn):
         self.wait_for_element_and_click((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-toggle'))
+        time.sleep(utils.get_click_sleep())
 
     def expanded_course_xpath(self, term_sis_id, ccn):
         return f'//div[@id="{self.course_row_id(term_sis_id, ccn)}-details"]'
@@ -386,13 +390,16 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
     def expanded_course_title(self, term_sis_id, ccn):
         return self.el_text_if_exists((By.ID, f'{self.course_row_id(term_sis_id, ccn)}-title'))
 
+    def expanded_course_sections(self, term_sis_id, ccn):
+        xpath = f'//div[@id="term-{term_sis_id}-course-{ccn}-details-name"]/following-sibling::div'
+        return self.el_text_if_exists((By.XPATH, xpath))
+
     def expanded_course_incomplete_alert(self, term_sis_id, ccn):
-        xpath = self.expanded_course_xpath(term_sis_id, ccn)
-        return self.el_text_if_exists((By.XPATH, f'{xpath}//div[contains(@id, "has-incomplete-grade")]'))
+        return self.el_text_if_exists((By.ID, f'term-{term_sis_id}-section-{ccn}-has-incomplete-grade'))
 
     def expanded_course_reqts(self, term_sis_id, ccn):
         xpath = self.expanded_course_xpath(term_sis_id, ccn)
-        return self.els_text_if_exist((By.ID, f'{xpath}//div[@class="student-course-requirements"]'))
+        return self.els_text_if_exist((By.XPATH, f'{xpath}//div[@class="student-course-requirements"]'))
 
     CLASS_PAGE_LINKS = By.XPATH, '//a[contains(@href, "/course/")]'
 
@@ -409,7 +416,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
         self.wait_for_spinner()
         self.when_visible(ClassPage.MEETING_DIV, utils.get_medium_timeout())
 
-    def visible_dropped_section_data(self, term_sis_id, course_code, component, number):
+    def dropped_section_data(self, term_sis_id, course_code, component, number):
         xpath = f'//div[contains(@id, "term-{term_sis_id}-dropped-course")][contains(.,"{course_code} - {component} {number}")]'
         return self.el_text_if_exists((By.XPATH, xpath))
 

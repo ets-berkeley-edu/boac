@@ -95,6 +95,9 @@ class EnrollmentData(object):
     def courses(term):
         return utils.safe_key(term, 'enrollments')
 
+    def course_idx(self, term, course):
+        return self.courses(term).index(course)
+
     @staticmethod
     def course_code(course):
         return utils.safe_key(course, 'displayName')
@@ -102,6 +105,10 @@ class EnrollmentData(object):
     @staticmethod
     def course_title(course):
         return re.sub(r'\s+', ' ', course['title'])
+
+    @staticmethod
+    def course_units(course):
+        return course['units']
 
     @staticmethod
     def course_units_completed_float(course):
@@ -118,7 +125,7 @@ class EnrollmentData(object):
         else:
             return None
 
-    def midpoint_graded(self, course):
+    def midpoint_grade(self, course):
         return self.grade(course, 'midtermGrade')
 
     def final_grade(self, course):
@@ -126,24 +133,27 @@ class EnrollmentData(object):
 
     @staticmethod
     def grading_basis(course):
-        return course['gradingBasis']
+        return utils.safe_key(course, 'gradingBasis')
 
     @staticmethod
     def academic_career(course):
         return course['academicCareer']
 
-    def sis_course_data(self, course):
-        reqts = utils.safe_key(course, 'courseRequirements') and list(
+    @staticmethod
+    def course_reqts(course):
+        return utils.safe_key(course, 'courseRequirements') and list(
             map(lambda req: re.sub(r'\s+', ' ', req), course['courseRequirements']))
+
+    def sis_course_data(self, course):
         return {
             'code': self.course_code(course),
             'title': self.course_title(course),
             'units_completed_float': self.course_units_completed_float(course),
             'units_completed': self.course_units_completed(course),
-            'midpoint': self.midpoint_graded(course),
+            'midpoint': self.midpoint_grade(course),
             'grade': self.final_grade(course),
             'grading_basis': self.grading_basis(course),
-            'reqts': reqts,
+            'reqts': self.course_reqts(course),
             'acad_career': self.academic_career(course),
         }
 
@@ -161,6 +171,10 @@ class EnrollmentData(object):
                 if section_data['status'] in statuses:
                     course_codes.append(section_data['code'])
         return course_codes
+
+    def is_course_waitlisted(self, course):
+        status = self.sis_section_data(self.course_primary_section(course))['status']
+        return status == 'W'
 
     def current_non_dropped_course_codes(self, term):
         return self.term_courses_of_statuses(term, ['E', 'W'])
@@ -184,6 +198,12 @@ class EnrollmentData(object):
     @staticmethod
     def sections(course):
         return course['sections']
+
+    def section_components_and_numbers(self, course):
+        sections = []
+        for section in self.sections(course):
+            sections.append(f"{section['component']} {section['sectionNumber']}")
+        return sections
 
     @staticmethod
     def sis_section_data(section):
@@ -295,13 +315,13 @@ class EnrollmentData(object):
         if not epoch or int(epoch) == 0:
             return 'Never'
         else:
-            activity_date = utils.date_to_local_tz(datetime.strptime(epoch, '%s')).date()
-            if activity_date == datetime.today():
+            activity_date = utils.date_to_local_tz(datetime.fromtimestamp(int(epoch))).date()
+            if activity_date == datetime.today().date():
                 return 'Today'
-            elif activity_date == datetime.today() - timedelta(days=1):
+            elif activity_date == datetime.today().date() - timedelta(days=1):
                 return 'Yesterday'
             else:
-                return f'{(datetime.today() - activity_date).days} days ago'
+                return f'{(datetime.today().date() - activity_date).days} days ago'
 
     # DEGREE PROGRESS
 
