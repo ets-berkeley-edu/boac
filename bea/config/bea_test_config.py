@@ -532,15 +532,19 @@ class BEATestConfig(object):
                 # Tests for student term data
                 self.test_cases.append(BEATestCase(student=student,
                                                    term=term_data,
+                                                   term_sis_id=term_sis_id,
                                                    test_case_id=term_test_case_id))
 
                 for course_data in student.enrollment_data.courses(term_data):
-                    for section_data in student.enrollment_data.sections(course_data):
-                        section_id = student.enrollment_data.sis_section_data(section_data)['ccn']
-                        section_test_case_id = f'UID {student.uid} {term_sis_id}-{section_id}'
-                        # Tests for student course data
-                        self.test_cases.append(BEATestCase(student=student,
-                                                           term=term_data,
-                                                           course=course_data,
-                                                           section=section_data,
-                                                           test_case_id=section_test_case_id))
+                    course_code = student.enrollment_data.course_code(course_data)
+                    course_test_case_id = f'UID {student.uid} {term_sis_id} {course_code}'
+                    sections_data = student.enrollment_data.sections(course_data)
+                    primary_section_id = utils.safe_key(student.enrollment_data.course_primary_section(course_data), 'ccn')
+                    # Tests for student course data
+                    self.test_cases.append(BEATestCase(student=student,
+                                                       course=course_data,
+                                                       section=sections_data,
+                                                       section_id=primary_section_id,
+                                                       term=term_data,
+                                                       term_sis_id=term_sis_id,
+                                                       test_case_id=course_test_case_id))

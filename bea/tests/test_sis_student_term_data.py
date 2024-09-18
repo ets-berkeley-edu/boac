@@ -22,6 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+from datetime import datetime
 
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.cohorts_and_groups.cohort import Cohort
@@ -206,3 +207,24 @@ class TestStudentPageTermData:
                 utils.assert_equivalence(visible_standing, expected_standing)
         else:
             utils.assert_equivalence(visible_standing, None)
+
+    def test_student_page_dropped_sections(self, tc):
+        drops = tc.student.enrollment_data.dropped_sections(tc.term)
+        for drop in drops:
+            visible_drop = self.student_page.dropped_section_data(tc.term_sis_id, drop['title'],
+                                                                  drop['component'], drop['number'])
+            expected_drop = f"{drop['title']} - {drop['component']} {drop['number']}"
+            utils.assert_actual_includes_expected(visible_drop, expected_drop)
+            if drop['date']:
+                expected_date = datetime.strptime(drop['date'], '%Y-%m-%d').strftime('%b %d, %Y')
+                utils.assert_actual_includes_expected(visible_drop, expected_date)
+
+    def test_student_page_ucbx_career(self, tc):
+        career_statuses = []
+        for course in tc.student.enrollment_data.courses(tc.term):
+            career_statuses.append(tc.student.enrollment_data.academic_career(course))
+        visible_concurrent_status = self.student_page.visible_term_concurrent_enrollment(tc.term_sis_id)
+        if 'UCBX' in career_statuses:
+            assert visible_concurrent_status
+        else:
+            assert not visible_concurrent_status
