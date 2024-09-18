@@ -187,6 +187,8 @@ def apply_template():
     note_template = NoteTemplate.find_by_id(note_template_id=template_id)
     if not note_template or note_template.deleted_at or note_template.creator_id != current_user.get_id():
         raise ResourceNotFoundError('Note template not found')
+    for attachment in note.attachments:
+        Note.delete_attachment(attachment_id=attachment.id, note_id=note_id)
     note = Note.update(
         body=note_template.body,
         contact_type=note.contact_type,
@@ -198,8 +200,6 @@ def apply_template():
         subject=note_template.subject,
         topics=[topic.topic for topic in note_template.topics],
     )
-    for attachment in note.attachments:
-        Note.delete_attachment(attachment_id=attachment.id, note_id=note_id)
     for attachment in note_template.attachments:
         note.attachments.append(
             NoteAttachment(

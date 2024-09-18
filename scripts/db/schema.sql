@@ -493,7 +493,7 @@ ALTER TABLE ONLY note_attachments ALTER COLUMN id SET DEFAULT nextval('note_atta
 ALTER TABLE ONLY note_attachments
     ADD CONSTRAINT note_attachments_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY note_attachments
-    ADD CONSTRAINT note_attachments_note_id_path_to_attachment_unique_constraint UNIQUE (note_id, path_to_attachment);
+    ADD CONSTRAINT note_attachments_note_id_path_to_attachment_unique_constraint UNIQUE (note_id, path_to_attachment, deleted_at);
 CREATE INDEX note_attachments_note_id_idx ON note_attachments USING btree (note_id);
 
 --
