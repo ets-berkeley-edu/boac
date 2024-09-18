@@ -1,7 +1,10 @@
 <template>
-  <div>
-    <SectionSpinner :loading="loading" />
-    <div v-if="!loading && totalEventsCount > itemsPerPage" class="pt-3">
+  <div v-if="!contextStore.loading" class="default-margins">
+    <CohortPageHeader :is-cohort-history-page="true" />
+    <div v-if="cohortStore.domain === 'admitted_students' && cohortStore.students">
+      <AdmitDataWarning :updated-at="get(cohortStore.students, '[0].updatedAt')" />
+    </div>
+    <div v-if="totalEventsCount > itemsPerPage" class="pt-3">
       <Pagination
         :click-handler="goToPage"
         :init-page-number="currentPage"
@@ -12,7 +15,7 @@
       <hr />
     </div>
     <table
-      v-if="!loading && !isEmpty(events)"
+      v-if="!isEmpty(events)"
       id="cohort-history-table"
       class="w-100 mt-5"
     >
@@ -65,7 +68,7 @@
         </tr>
       </tbody>
     </table>
-    <div v-if="!loading && totalEventsCount > itemsPerPage" class="pa-3">
+    <div v-if="totalEventsCount > itemsPerPage" class="pa-3">
       <hr />
       <Pagination
         :click-handler="goToPage"
@@ -76,33 +79,36 @@
         :total-rows="totalEventsCount"
       />
     </div>
-    <div v-if="!loading && isEmpty(events)" id="cohort-history-no-events" class="pt-3">
+    <div v-if="isEmpty(events)" id="cohort-history-no-events" class="pt-3">
       This cohort has no history available.
     </div>
   </div>
 </template>
 
 <script setup>
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning.vue'
+import CohortPageHeader from '@/components/cohort/CohortPageHeader.vue'
 import Pagination from '@/components/util/Pagination'
-import SectionSpinner from '@/components/util/SectionSpinner'
 import {DateTime} from 'luxon'
-import {alertScreenReader, scrollToTop} from '@/lib/utils'
 import {get, isEmpty} from 'lodash'
 import {getCohortEvents} from '@/api/cohort'
-import {lastNameFirst, studentRoutePath} from '@/lib/utils'
+import {lastNameFirst, putFocusNextTick, studentRoutePath} from '@/lib/utils'
 import {onMounted, ref} from 'vue'
+import {scrollToTop} from '@/lib/utils'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
 
 const cohortStore = useCohortStore()
 const contextStore = useContextStore()
+
 const currentPage = ref(1)
 const currentUser = contextStore.currentUser
 const events = ref([])
 const itemsPerPage = ref(50)
-const loading = ref(false)
 const offset = ref(0)
 const totalEventsCount = ref(0)
+
+contextStore.loadingStart('Cohort history is loading')
 
 onMounted(() => {
   goToPage(1)
@@ -111,18 +117,13 @@ onMounted(() => {
 const goToPage = page => {
   currentPage.value = page
   offset.value = (page - 1) * itemsPerPage.value
-  loadEvents()
-}
-
-const loadEvents = () => {
-  loading.value = true
-  alertScreenReader('Cohort history is loading')
+  contextStore.loadingStart()
   scrollToTop(10)
   getCohortEvents(cohortStore.cohortId, offset.value, itemsPerPage.value).then(data => {
     totalEventsCount.value = data.count
     events.value = data.events
-    loading.value = false
-    alertScreenReader('Cohort history has loaded')
+    contextStore.loadingComplete('Cohort history has loaded')
+    putFocusNextTick(page > 1 ? `pagination-page-${page}` : 'page-header')
   })
 }
 </script>

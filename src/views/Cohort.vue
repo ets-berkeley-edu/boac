@@ -1,6 +1,6 @@
 <template>
   <div v-if="!contextStore.loading" class="default-margins">
-    <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
+    <CohortPageHeader :is-cohort-history-page="false" />
     <div v-if="cohortStore.domain === 'admitted_students' && cohortStore.students">
       <AdmitDataWarning :updated-at="get(cohortStore.students, '[0].updatedAt')" />
     </div>
@@ -15,7 +15,7 @@
         <ApplyAndSaveButtons v-if="cohortStore.isOwnedByCurrentUser" />
       </div>
     </v-expand-transition>
-    <div v-if="!showHistory && size(cohortStore.students) && cohortStore.editMode !== 'apply'">
+    <div v-if="size(cohortStore.students) && cohortStore.editMode !== 'apply'">
       <div class="align-center d-flex flex-column flex-column-reverse flex-sm-row justify-space-between w-100 pt-2">
         <CuratedGroupSelector
           class="mr-auto"
@@ -78,9 +78,6 @@
         />
       </div>
     </div>
-    <div v-if="showHistory">
-      <CohortHistory />
-    </div>
   </div>
 </template>
 
@@ -88,7 +85,6 @@
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons'
-import CohortHistory from '@/components/cohort/CohortHistory'
 import CohortPageHeader from '@/components/cohort/CohortPageHeader'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import FilterRow from '@/components/cohort/FilterRow'
@@ -97,7 +93,7 @@ import SortBy from '@/components/student/SortBy'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import {applyFilters, loadCohort, resetFiltersToLastApply, updateFilterOptions} from '@/stores/cohort-edit-session/utils'
-import {computed, onMounted, onUnmounted, reactive, ref, watch} from 'vue'
+import {computed, onMounted, onUnmounted, reactive, watch} from 'vue'
 import {get, size, startsWith} from 'lodash'
 import {nextTick} from 'vue'
 import {putFocusNextTick, scrollToTop, setPageTitle, toInt} from '@/lib/utils'
@@ -109,7 +105,6 @@ import {useRoute} from 'vue-router'
 const cohortStore = useCohortStore()
 const contextStore = useContextStore()
 const currentUser = reactive(contextStore.currentUser)
-const showHistory = ref(false)
 
 contextStore.loadingStart()
 
@@ -236,16 +231,5 @@ const onPageNumberChange = () => {
     get(currentUser.preferences, sortByKey.value),
     get(currentUser.preferences, 'termId')
   )
-}
-
-const toggleShowHistory = value => {
-  showHistory.value = value
-  if (value && !cohortStore.isCompactView) {
-    cohortStore.toggleCompactView()
-  }
-  if (!value) {
-    putFocusNextTick('show-cohort-history-button')
-    onPageNumberChange().then(scrollToTop)
-  }
 }
 </script>

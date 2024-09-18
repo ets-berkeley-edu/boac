@@ -49,7 +49,7 @@ class FilteredStudentsPage(CohortAndGroupStudentPages,
         self.create_new_cohort(cohort)
 
     EVERYONE_COHORT_LINK = By.XPATH, '//h1[text()="Everyone\'s Cohorts"]/../following-sibling::div//a'
-    HISTORY_BUTTON = By.XPATH, '//button[contains(text(), "Back to Cohort")]'
+    BACK_TO_COHORT_LINK = By.ID, 'back-to-cohort-link'
 
     @staticmethod
     def filtered_cohort_base_url(cohort_id):
@@ -91,5 +91,5 @@ class FilteredStudentsPage(CohortAndGroupStudentPages,
 
     def click_history(self):
         app.logger.info('Clicking History')
-        self.wait_for_element_and_click(self.HISTORY_BUTTON)
-        Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_element_located(self.BACK_TO_COHORT_BUTTON))
+        self.wait_for_element_and_click(self.COHORT_HISTORY_LINK)
+        Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_element_located(self.BACK_TO_COHORT_LINK))

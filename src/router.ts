@@ -6,6 +6,7 @@ const AllCohorts = () => import('@/views/AllCohorts.vue')
 const AllGroups = () => import('@/views/AllGroups.vue')
 const BatchDegreeCheck = () => import('@/views/degree/BatchDegreeCheck.vue')
 const Cohort = () => import('@/views/Cohort.vue')
+const CohortHistory = () => import('@/views/CohortHistory.vue')
 const Course = () => import('@/views/Course.vue')
 const CreateCuratedGroup = () => import('@/views/CreateCuratedGroup.vue')
 const CreateDegreeTemplate = () => import('@/views/degree/CreateDegreeTemplate.vue')
@@ -93,6 +94,11 @@ const routes:RouteRecordRaw[] = [
         path: '/cohorts/all',
         component: AllCohorts,
         name: 'All Cohorts'
+      },
+      {
+        path: '/cohort/history',
+        component: CohortHistory,
+        name: 'Cohort History'
       },
       {
         path: '/cohort/:id',
