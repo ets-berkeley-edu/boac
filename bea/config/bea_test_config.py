@@ -417,8 +417,6 @@ class BEATestConfig(object):
             random.shuffle(self.admits)
             self.test_admits = self.admits[:count]
 
-    # TODO set_admit_searchable_data
-
     # TODO set_degree_templates
 
     def set_note_attachments(self):
@@ -508,6 +506,16 @@ class BEATestConfig(object):
     def search_students(self):
         self.set_base_configs()
         self.set_test_students(count=app.config['MAX_SEARCH_STUDENTS_COUNT'])
+
+    def sis_admit_data(self):
+        self.set_dept(Department.ZCEEE)
+        self.set_advisor()
+        self.set_admits()
+        self.set_test_admits(count=app.config['MAX_SIS_DATA_STUDENTS_COUNT'])
+        nessie_utils.get_admits_data(self.test_admits)
+        for admit in self.test_admits:
+            self.test_cases.append(BEATestCase(student=admit,
+                                               test_case_id=f'{admit.sid}'))
 
     def sis_student_data(self):
         self.set_base_configs(opts={'include_inactive': True})

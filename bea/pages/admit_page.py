@@ -25,70 +25,179 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from bea.pages.admit_pages import AdmitPages
 from bea.test_utils import boa_utils
+from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
 
 
 class AdmitPage(AdmitPages):
+
     NAME = By.ID, 'admit-name-header'
-    UC_CPID = By.ID, 'admit-apply-uc-cpid'
-    SID = By.ID, 'admit-sid'
-    UID = By.ID, 'admit-uid'
-    BIRTH_DATE = By.ID, 'admit-birthdate'
-    FRESH_TRANS = By.ID, 'admit.freshman-or-transfer'
-    STATUS = By.ID, 'admit-admit-status'
-    SIR = By.ID, 'admit-current-sir'
-    COLLEGE = By.ID, 'admit-college'
-    TERM = By.ID, 'admit-admit-term'
-    EMAIL = By.ID, 'admit-email'
-    CAMPUS_EMAIL = By.ID, 'admit-campus-email'
-    DAYTIME_PHONE = By.ID, 'admit-daytime-phone'
-    MOBILE = By.ID, 'admit-mobile'
-    ADDRESS_STREET_1 = By.ID, 'admit-permanent-street-1'
-    ADDRESS_STREET_2 = By.ID, 'admit-permanent-street-2'
-    ADDRESS_CITY_REGION_POSTAL = By.ID, 'admit-permanent-city-region-postal'
-    ADDRESS_COUNTRY = By.ID, 'admit-permanent-country'
-    X_ETHNIC = By.ID, 'admit-x-ethnic'
-    HISPANIC = By.ID, 'admit-hispanic'
-    UREM = By.ID, 'admit-urem'
-    RESIDENCY_CAT = By.ID, 'admit-residency-category'
-    CITIZEN_STATUS = By.ID, 'admit-us-citizenship-status'
-    NON_CITIZEN_STATUS = By.ID, 'admit-us-non-citizen-status'
-    CITIZENSHIP = By.ID, 'admit-citizenship-country'
-    RESIDENCE_COUNTRY = By.ID, 'admit-permanent-residence-country'
-    VISA_STATUS = By.ID, 'admit-non-immigrant-visa-current'
-    VISA_PLANNED = By.ID, 'admit-non-immigrant-visa-planned'
-    FIRST_GEN_COLLEGE = By.ID, 'admit-first-generation-college'
-    PARENT_1_EDUC = By.ID, 'admit-parent-1-education-level'
-    PARENT_2_EDUC = By.ID, 'admit-parent-2-education-level'
-    PARENT_HIGHEST_EDUC = By.ID, 'admit-highest-parent-education-level'
-    GPA_HS_UNWEIGHTED = By.ID, 'admit-gpa-hs-unweighted'
-    GPA_HS_WEIGHTED = By.ID, 'admit-gpa-hs-weighted'
-    GPA_TRANSFER = By.ID, 'admit-gpa-transfer'
-    FEE_WAIVER = By.ID, 'admit-application-fee-waiver-flag'
-    FOSTER_CARE = By.ID, 'admit-foster-care-flag'
-    FAMILY_SINGLE_PARENT = By.ID, 'admit-family-is-single-parent'
-    STUDENT_SINGLE_PARENT = By.ID, 'admit-student-is-single-parent'
-    FAMILY_DEPENDENTS = By.ID, 'admit-family-dependents-num'
-    STUDENT_DEPENDENTS = By.ID, 'admit-student-dependents-num'
-    FAMILY_INCOME = By.ID, 'admit-family-income'
-    STUDENT_INCOME = By.ID, 'admit-student-income'
-    MILITARY_DEPENDENT = By.XPATH, '//div[text()="Is Military Dependent"]/following-sibling::div'
-    MILITARY_STATUS = By.ID, 'admit-military-status'
-    RE_ENTRY_STATUS = By.ID, 'admit-reentry-status'
-    ATHLETE_STATUS = By.ID, 'admit-athlete-status'
-    SUMMER_BRIDGE_STATUS = By.ID, 'admit-summer-bridge-status'
-    LAST_SCHOOL_LCFF_PLUS = By.ID, 'admit-last-school-lcff-plus-flag'
-    SPECIAL_PGM_CEP = By.ID, 'admit-special-program-cep'
+
+    def name(self):
+        return self.el_text_if_exists(self.NAME)
+
+    def uc_cpid(self):
+        return self.el_text_if_exists((By.ID, 'admit-apply-uc-cpid'))
+
+    def sid(self):
+        return self.el_text_if_exists((By.ID, 'admit-sid'))
+
+    def uid(self):
+        return self.el_text_if_exists((By.ID, 'admit-uid'))
+
+    def birth_date(self):
+        return self.el_text_if_exists((By.ID, 'admit-birthdate'))
+
+    def fresh_trans(self):
+        return self.el_text_if_exists((By.ID, 'admit.freshman-or-transfer'))
+
+    def status(self):
+        return self.el_text_if_exists((By.ID, 'admit-admit-status'))
+
+    def sir(self):
+        return self.el_text_if_exists((By.ID, 'admit-current-sir'))
+
+    def college(self):
+        return self.el_text_if_exists((By.ID, 'admit-college'))
+
+    def admit_term(self):
+        return self.el_text_if_exists((By.ID, 'admit-admit-term'))
+
+    def email(self):
+        return self.el_text_if_exists((By.ID, 'admit-email'))
+
+    def campus_email(self):
+        return self.el_text_if_exists((By.ID, 'admit-campus-email'))
+
+    def daytime_phone(self):
+        return self.el_text_if_exists((By.ID, 'admit-daytime-phone'))
+
+    def mobile_phone(self):
+        return self.el_text_if_exists((By.ID, 'admit-mobile'))
+
+    def address_street_1(self):
+        return self.el_text_if_exists((By.ID, 'admit-permanent-street-1'))
+
+    def address_street_2(self):
+        return self.el_text_if_exists((By.ID, 'admit-permanent-street-2'))
+
+    def address_city_region_postal(self):
+        return self.el_text_if_exists((By.ID, 'admit-permanent-city-region-postal'))
+
+    def address_country(self):
+        return self.el_text_if_exists((By.ID, 'admit-permanent-country'))
+
+    def x_ethnic(self):
+        return self.el_text_if_exists((By.ID, 'admit-x-ethnic'))
+
+    def hispanic(self):
+        return self.el_text_if_exists((By.ID, 'admit-hispanic'))
+
+    def urem(self):
+        return self.el_text_if_exists((By.ID, 'admit-urem'))
+
+    def residency_category(self):
+        return self.el_text_if_exists((By.ID, 'admit-residency-category'))
+
+    def citizen_status(self):
+        return self.el_text_if_exists((By.ID, 'admit-us-citizenship-status'))
+
+    def non_citizen_status(self):
+        return self.el_text_if_exists((By.ID, 'admit-us-non-citizen-status'))
+
+    def citizenship(self):
+        return self.el_text_if_exists((By.ID, 'admit-citizenship-country'))
+
+    def residence_country(self):
+        return self.el_text_if_exists((By.ID, 'admit-permanent-residence-country'))
+
+    def visa_status(self):
+        return self.el_text_if_exists((By.ID, 'admit-non-immigrant-visa-current'))
+
+    def visa_planned(self):
+        return self.el_text_if_exists((By.ID, 'admit-non-immigrant-visa-planned'))
+
+    def first_gen_college(self):
+        return self.el_text_if_exists((By.ID, 'admit-first-generation-college'))
+
+    def parent_1_educ(self):
+        return self.el_text_if_exists((By.ID, 'admit-parent-1-education-level'))
+
+    def parent_2_educ(self):
+        return self.el_text_if_exists((By.ID, 'admit-parent-2-education-level'))
+
+    def parent_highest_educ(self):
+        return self.el_text_if_exists((By.ID, 'admit-highest-parent-education-level'))
+
+    def gpa_hs_unweighted(self):
+        return self.el_text_if_exists((By.ID, 'admit-gpa-hs-unweighted'))
+
+    def gpa_hs_weighted(self):
+        return self.el_text_if_exists((By.ID, 'admit-gpa-hs-weighted'))
+
+    def gpa_transfer(self):
+        return self.el_text_if_exists((By.ID, 'admit-gpa-transfer'))
+
+    def fee_waiver(self):
+        return self.el_text_if_exists((By.ID, 'admit-application-fee-waiver-flag'))
+
+    def foster_care(self):
+        return self.el_text_if_exists((By.ID, 'admit-foster-care-flag'))
+
+    def family_single_parent(self):
+        return self.el_text_if_exists((By.ID, 'admit-family-is-single-parent'))
+
+    def student_single_parent(self):
+        return self.el_text_if_exists((By.ID, 'admit-student-is-single-parent'))
+
+    def family_dependents(self):
+        return self.el_text_if_exists((By.ID, 'admit-family-dependents-num'))
+
+    def student_dependents(self):
+        return self.el_text_if_exists((By.ID, 'admit-student-dependents-num'))
+
+    @staticmethod
+    def income(visible_income):
+        return visible_income if visible_income == '—' else int(visible_income.replace(',', '').replace('$', ''))
+
+    def family_income(self):
+        visible = self.el_text_if_exists((By.ID, 'admit-family-income'))
+        return visible and self.income(visible)
+
+    def student_income(self):
+        visible = self.el_text_if_exists((By.ID, 'admit-student-income'))
+        return visible and self.income(visible)
+
+    def military_dependent(self):
+        return self.el_text_if_exists((By.XPATH, '//div[text()="Is Military Dependent"]/following-sibling::div'))
+
+    def military_status(self):
+        return self.el_text_if_exists((By.ID, 'admit-military-status'))
+
+    def re_entry_status(self):
+        return self.el_text_if_exists((By.ID, 'admit-reentry-status'))
+
+    def athlete_status(self):
+        return self.el_text_if_exists((By.ID, 'admit-athlete-status'))
+
+    def summer_bridge_status(self):
+        return self.el_text_if_exists((By.ID, 'admit-summer-bridge-status'))
+
+    def last_school_lcff_plus(self):
+        return self.el_text_if_exists((By.ID, 'admit-last-school-lcff-plus-flag'))
+
+    def special_program_cep(self):
+        return self.el_text_if_exists((By.ID, 'admit-special-program-cep'))
 
     def hit_page_url(self, admit_csid):
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/admit/student/{admit_csid}')
+        return self.driver.get(f'{boa_utils.get_boa_base_url()}/admit/student/{admit_csid}')
 
     def load_page(self, admit_csid):
         app.logger.info(f'Loading admit page for CS ID {admit_csid}')
         self.hit_page_url(admit_csid)
         self.wait_for_spinner()
-        self.when_present(self.NAME)
+        self.when_present(self.NAME, utils.get_short_timeout())
         self.hide_boa_footer()
 
     @staticmethod
@@ -96,9 +205,10 @@ class AdmitPage(AdmitPages):
         middle = f' {admit.middle_name}' if admit.middle_name else ''
         return f'{admit.first_name}{middle} {admit.last_name}'
 
-    def student_page_link_loc(self, admit):
-        return By.XPATH, f"//a[contains(., \"View {self.concatenated_name(admit)}'s profile page\")]"
+    @staticmethod
+    def student_page_link_loc():
+        return By.XPATH, '//a[contains(@id, "link-to-student")]'
 
     def click_student_page_link(self, admit):
         app.logger.info(f'Clicking the student page link for SID {admit.sid}')
-        self.wait_for_page_and_click(self.student_page_link_loc(admit))
+        self.wait_for_page_and_click(self.student_page_link_loc())
