@@ -8,7 +8,7 @@
               id="user-filter-options"
               v-model="filterType"
               class="select-menu w-100"
-              :disabled="isFetching"
+              :disabled="isBecoming || isFetching"
             >
               <option
                 v-for="option in [
@@ -33,6 +33,7 @@
               base-color="black"
               :class="{'demo-mode-blur': contextStore.currentUser.inDemoMode}"
               density="compact"
+              :disabled="isBecoming"
               hide-details
               :hide-no-data="!!(size(autocompleteInput) < 3 || isFetching || isSuggesting || suggestedUsers.length)"
               :items="suggestedUsers"
@@ -64,7 +65,7 @@
                 v-model="filterBy.deptCode"
                 aria-label="department"
                 class="select-menu mb-1"
-                :disabled="isFetching"
+                :disabled="isBecoming || isFetching"
                 @update:model-value="fetchUsers('user-permission-options')"
               >
                 <option
@@ -83,7 +84,7 @@
                 v-model="filterBy.role"
                 aria-label="user permissions"
                 class="select-menu mb-1"
-                :disabled="isFetching"
+                :disabled="isBecoming || isFetching"
                 @update:model-value="fetchUsers('user-status-options')"
               >
                 <option
@@ -108,7 +109,7 @@
                 v-model="filterBy.status"
                 aria-label="user status"
                 class="select-menu"
-                :disabled="isFetching"
+                :disabled="isBecoming || isFetching"
                 @update:model-value="fetchUsers('user-status-options')"
               >
                 <option
@@ -248,6 +249,7 @@
             :after-cancel="afterCancelUpdateUser"
             :after-update-user="afterEditUserProfile"
             :departments="departments"
+            :disabled="isBecoming"
             :profile="item"
           />
         </template>
@@ -322,7 +324,7 @@
         </template>
         <template #item.becomeUser="{ item }">
           <v-btn
-            v-if="canBecome(item)"
+            v-if="canBecome(item) && !isBecoming"
             :id="`become-${item.uid}`"
             :aria-label="`Log in as ${item.name}`"
             class="text-primary"
@@ -330,6 +332,13 @@
             :icon="mdiLoginVariant"
             size="sm"
             @click="() => become(item.uid)"
+          />
+          <v-progress-circular
+            v-if="isBecoming"
+            color="primary"
+            indeterminate
+            size="16"
+            width="2"
           />
         </template>
         <template #bottom></template>
@@ -365,6 +374,7 @@ const contextStore = useContextStore()
 
 const autocompleteInput = ref(undefined)
 const expanded = ref([])
+const isBecoming = ref(false)
 const itemsPerPage = 10
 const filterBy = ref({
   deptCode: 'QCADV',
@@ -410,7 +420,11 @@ const afterEditUserProfile = profile => {
 }
 
 const become = uid => {
-  becomeUser(uid).then(() => window.location.href = '/')
+  isBecoming.value = true
+  becomeUser(uid).then(() => {
+    window.location.href = '/'
+    isBecoming.value = false
+  })
 }
 
 const canBecome = user => {

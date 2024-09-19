@@ -5,6 +5,7 @@
       :id="`edit-${profile.uid}`"
       :aria-label="`Edit profile of ${profile.name}`"
       color="primary"
+      :disabled="disabled"
       :icon="mdiNoteEditOutline"
       variant="text"
       width="20"
@@ -282,6 +283,10 @@ const props = defineProps({
   departments: {
     required: true,
     type: Array
+  },
+  disabled: {
+    required: true,
+    type: Boolean
   },
   profile: {
     default: () => ({

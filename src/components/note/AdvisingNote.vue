@@ -36,7 +36,7 @@
         </span>
       </span>
     </div>
-    <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="pb-2 truncate-with-ellipsis w-100">
+    <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="pb-2 w-100">
       <div v-if="!note.legacySource">
         <v-btn
           v-if="currentUser.isAdmin"
@@ -55,8 +55,8 @@
           Edit {{ note.isDraft ? 'Draft' : 'Note' }} {{ note.subject }} created {{ formatDate(note.createdAt, 'MMM d, yyyy') }}
         </v-btn>
       </div>
-      <div v-if="note.subject && note.message" class="pt-2">
-        <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
+      <div v-if="note.subject && note.message" class="open-note-message-container pt-2">
+        <span :id="`note-${note.id}-message-open`" v-html="note.message" />
       </div>
       <div v-if="!note.subject && !note.message && note.eForm" class="pt-2">
         <dl :id="`note-${note.id}-message-open`">
@@ -138,24 +138,26 @@
         <div class="font-weight-bold">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>
-      <AdvisingNoteAttachments
-        v-if="!note.legacySource"
-        :add-attachments="addNoteAttachments"
-        class="attachments-edit py-3"
-        :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
-        downloadable
-        :id-prefix="`note-${note.id}-`"
-        :note="note"
-        :remove-attachment="removeAttachmentByIndex"
-      >
-        <template #label>
-          <label
-            :id="`note-${note.id}--attachments-list-label`"
-            class="font-size-16 font-weight-bold"
-            :for="`note-${note.id}-attachments-list`"
-          >Attachments</label>
-        </template>
-      </AdvisingNoteAttachments>
+      <div class="note-attachments-container">
+        <AdvisingNoteAttachments
+          v-if="!note.legacySource"
+          :add-attachments="addNoteAttachments"
+          class="attachments-edit py-3"
+          :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
+          downloadable
+          :id-prefix="`note-${note.id}-`"
+          :note="note"
+          :remove-attachment="removeAttachmentByIndex"
+        >
+          <template #label>
+            <label
+              :id="`note-${note.id}--attachments-list-label`"
+              class="font-size-16 font-weight-bold"
+              :for="`note-${note.id}-attachments-list`"
+            >Attachments</label>
+          </template>
+        </AdvisingNoteAttachments>
+      </div>
     </div>
     <AreYouSureModal
       v-model="showConfirmDeleteAttachment"
@@ -299,6 +301,12 @@ loadAuthorDetails()
 
 </script>
 
+<style>
+.open-note-message-container ul {
+  margin: 0 30px 0 30px;
+}
+</style>
+
 <style scoped>
 .advising-note-outer {
   box-sizing: border-box;
@@ -307,6 +315,12 @@ loadAuthorDetails()
   box-sizing: border-box;
   max-width: 100%;
   width: 100%;
+}
+.open-note-message-container {
+  overflow-wrap: break-word;
+}
+.note-attachments-container {
+  width: 90%;
 }
 .note-snippet-when-closed {
   height: 24px;
