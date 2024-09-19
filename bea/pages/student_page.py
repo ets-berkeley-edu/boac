@@ -399,7 +399,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
 
     def expanded_course_reqts(self, term_sis_id, ccn):
         xpath = self.expanded_course_xpath(term_sis_id, ccn)
-        return self.els_text_if_exist((By.XPATH, f'{xpath}//div[@class="student-course-requirements"]'))
+        return self.els_text_if_exist((By.XPATH, f'{xpath}//div[contains(@id, "term-{term_sis_id}-section-{ccn}-meets-")]'))
 
     CLASS_PAGE_LINKS = By.XPATH, '//a[contains(@href, "/course/")]'
 
