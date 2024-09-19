@@ -88,7 +88,10 @@
           />
         </div>
       </div>
-      <div v-if="openAndLoaded" class="pa-3">
+      <div
+        v-if="openAndLoaded"
+        :class="{'pa-3': group.totalStudentCount, 'pb-4 px-3': !group.totalStudentCount}"
+      >
         <router-link
           :id="`sortable-${keyword}-${group.id}-view-all`"
           class="text-primary font-weight-regular"
@@ -98,8 +101,8 @@
             View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}
             in {{ groupTypeName }} "{{ group.name }}"
           </span>
-          <div v-if="!group.totalStudentCount" class="pt-3">
-            {{ _capitalize(groupTypeName) }} "{{ group.name }}" has 0 students
+          <div v-if="!group.totalStudentCount" class="pl-3">
+            {{ capitalize(groupTypeName) }} "{{ group.name }}" has zero students.
           </div>
         </router-link>
       </div>
@@ -115,7 +118,7 @@ import {computed, ref} from 'vue'
 import {getStudentsWithAlerts as getCohortStudentsWithAlerts} from '@/api/cohort'
 import {getStudentsWithAlerts as getCuratedStudentsWithAlerts} from '@/api/curated'
 import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
-import {isNil, size} from 'lodash'
+import {capitalize, isNil, size} from 'lodash'
 
 const props = defineProps({
   compact: {

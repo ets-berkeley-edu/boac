@@ -167,26 +167,31 @@
         </div>
       </div>
     </div>
-    <div v-if="referencingCohorts.length" class="pb-2">
-      Used as a filter in {{ referencingCohorts.length === 1 ? 'cohort' : 'cohorts' }}
-      <router-link
-        v-if="referencingCohorts.length === 1"
-        id="referencing-cohort-0"
-        aria-label="Link to cohort"
-        :to="`/cohort/${referencingCohorts[0].id}`"
-      >
-        {{ referencingCohorts[0].name }}.
-      </router-link>
-      <span v-if="referencingCohorts.length > 1">
-        <span v-for="(cohort, index) in referencingCohorts" :key="cohort.id">
-          <span v-if="index === referencingCohorts.length - 1">and </span>
-          <router-link
-            :id="`referencing-cohort-${index}`"
-            aria-label="Link to cohort"
-            :to="`/cohort/${cohort.id}`"
-          >{{ cohort.name }}</router-link>{{ index === referencingCohorts.length - 1 ? '.' : (referencingCohorts.length > 2 ? ',' : '') }}
+    <div v-if="referencingCohorts.length" class="pb-2 pl-1">
+      <div v-if="ownerId === currentUser.id">
+        Used as a filter in {{ referencingCohorts.length === 1 ? 'cohort' : 'cohorts' }}
+        <router-link
+          v-if="referencingCohorts.length === 1"
+          id="referencing-cohort-0"
+          aria-label="Link to cohort"
+          :to="`/cohort/${referencingCohorts[0].id}`"
+        >
+          {{ referencingCohorts[0].name }}.
+        </router-link>
+        <span v-if="referencingCohorts.length > 1">
+          <span v-for="(cohort, index) in referencingCohorts" :key="cohort.id">
+            <span v-if="index === referencingCohorts.length - 1">and </span>
+            <router-link
+              :id="`referencing-cohort-${index}`"
+              aria-label="Link to cohort"
+              :to="`/cohort/${cohort.id}`"
+            >{{ cohort.name }}</router-link>{{ index === referencingCohorts.length - 1 ? '.' : (referencingCohorts.length > 2 ? ',' : '') }}
+          </span>
         </span>
-      </span>
+      </div>
+      <div v-if="ownerId !== currentUser.id">
+        Used as a filter in {{ referencingCohorts.length === 1 ? 'a cohort' : 'cohorts' }} owned by the owner of this curated group.
+      </div>
     </div>
   </div>
 </template>
@@ -199,7 +204,7 @@ import router from '@/router'
 import {alertScreenReader, pluralize, setPageTitle} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
-import {each, find, isNil, noop, size, sortBy} from 'lodash'
+import {each, find, isNil, map, noop, size, sortBy} from 'lodash'
 import {onMounted, ref, watch} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
@@ -238,11 +243,15 @@ watch(showExportStudentsModal, isOpen => {
 })
 
 onMounted(() => {
-  each(referencingCohortIds.value || [], cohortId => {
-    const cohort = find(currentUser.myCohorts, ['id', cohortId])
-    referencingCohorts.value.push(cohort)
-  })
-  referencingCohorts.value = sortBy(referencingCohorts.value, ['name'])
+  if (ownerId.value === currentUser.id) {
+    each(referencingCohortIds.value || [], cohortId => {
+      const cohort = find(currentUser.myCohorts, ['id', cohortId])
+      referencingCohorts.value.push(cohort)
+    })
+    referencingCohorts.value = sortBy(referencingCohorts.value, ['name'])
+  } else {
+    referencingCohorts.value = map(referencingCohortIds.value, id => ({id}))
+  }
 })
 
 const cancelDeleteModal = () => {
