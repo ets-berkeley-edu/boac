@@ -277,6 +277,9 @@
 .student-teams-container {
   margin-top: 5px;
 }
+.table-striped table tbody tr:nth-of-type(odd) {
+  background-color: rgb(var(--v-theme-surface-light))
+}
 .truncate-with-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -308,6 +311,18 @@
     padding-right: 4px;
     width: 100%;
   }
+}
+.v-table-hidden-row-override table tbody tr[style="height: 0px; border: 0px;"] {
+  display: none;
+}
+.v-table-sort-btn-override .v-btn__append .v-icon {
+  opacity: 0;
+}
+.v-table-sort-btn-override:active .v-btn__append .v-icon,
+.v-table-sort-btn-override:hover .v-btn__append .v-icon,
+.v-table-sort-btn-override:focus .v-btn__append .v-icon,
+.v-table-sort-btn-override.icon-visible .v-btn__append .v-icon {
+  opacity: 1;
 }
 .vertical-bottom {
   vertical-align: bottom !important;

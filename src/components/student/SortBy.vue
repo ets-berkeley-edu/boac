@@ -17,6 +17,7 @@
           v-for="option in options"
           :id="`sort-by-option-${option.value}`"
           :key="option.value"
+          :aria-label="option.label"
           :value="option.value"
         >
           {{ option.label }}
