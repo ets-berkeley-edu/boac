@@ -1,12 +1,14 @@
 <template>
-  <div v-if="hasLoadedTopics">
+  <div v-if="!isNil(topics)">
     <div class="align-center d-flex justify-space-between">
       <div class="align-center d-flex flex-nowrap w-66">
         <div class="w-66">
           <v-text-field
             id="filter-topics"
             v-model="filter"
+            autocomplete="off"
             class="d-inline"
+            clearable
             density="compact"
             hide-details
             label="Search"
@@ -14,107 +16,71 @@
           />
         </div>
         <v-btn
+          id="clear-topic-search"
           class="button-position ml-2 mr-4"
           color="primary"
           :disabled="!filter"
+          text="Clear"
           @click="filter = ''"
-        >
-          Clear
-        </v-btn>
+        />
       </div>
       <v-btn
         id="create-topic-button"
         class="mr-3"
         color="primary"
         :disabled="isEditTopicModalOpen"
+        :prepend-icon="mdiPlusBox"
+        text="Create New Topic"
         @click="openCreateTopicModal"
-      >
-        <v-icon class="mr-1" :icon="mdiPlusBox" />
-        Create New Topic
-      </v-btn>
+      />
     </div>
-
-    <div class="border-b-sm mt-4">
-      <v-table
+    <div class="border-b-sm mt-6">
+      <v-data-table
         density="compact"
-        height="200px"
-        hover
         fixed-header
+        :headers="headers"
+        :header-props="{class: 'data-table-header-cell'}"
+        hide-default-footer
+        hide-no-data
+        hover
+        :items="topics"
+        :items-per-page="-1"
+        mobile-breakpoint="md"
+        :row-props="row => ({id: `row-topic-${normalizeId(row.item.topic)}`})"
       >
-        <thead>
-          <tr>
-            <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('topic')">
-              <span>Topic</span>
-              <template v-if="sortBy === 'topic'">
-                <v-icon v-if="sortByMap.get('topic') === true" class="position-absolute mb-1" :icon="mdiMenuDown" />
-                <v-icon v-if="sortByMap.get('topic') === false" class="position-absolute mb-1" :icon="mdiMenuUp" />
-              </template>
-            </th>
-            <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('deleted')">
-              <span>Deleted?</span>
-              <template v-if="sortBy === 'deleted'">
-                <v-icon v-if="sortByMap.get('deleted') === false" class="position-absolute mb-1" :icon="mdiMenuDown" />
-                <v-icon v-if="sortByMap.get('deleted') === true" class="position-absolute mb-1" :icon="mdiMenuUp" />
-              </template>
-            </th>
-            <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('usage')">
-              <span>Usage</span>
-              <template v-if="sortBy === 'usage'">
-                <v-icon v-if="sortByMap.get('usage') === true" class="position-absolute mb-1" :icon="mdiMenuDown" />
-                <v-icon v-if="sortByMap.get('usage') === false" class="position-absolute mb-1" :icon="mdiMenuUp" />
-              </template>
-            </th>
-            <th class="border-top-0 text-h6 cursor-pointer" @click="setTableSort('deleted')">
-              <span>Actions</span>
-              <template v-if="sortBy === 'deleted'">
-                <v-icon v-if="sortByMap.get('deleted') === false" class="position-absolute mb-1" :icon="mdiMenuDown" />
-                <v-icon v-if="sortByMap.get('deleted') === true" class="position-absolute mb-1" :icon="mdiMenuUp" />
-              </template>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="item in filteredTable"
-            :key="item.name"
-          >
-            <td>{{ item.topic }}</td>
-            <td>{{ item.deletedAt ? 'Yes' : 'No' }}</td>
-            <td>{{ item.countNotes }}</td>
-            <td>
+        <template #item.deletedAt="{item}">
+          <div class="float-right" :class="{'font-weight-medium text-red': item.deletedAt}">
+            {{ item.deletedAt ? 'Yes' : 'No' }}
+          </div>
+        </template>
+        <template #item.actions="{item}">
+          <v-tooltip text="Delete">
+            <template #activator="{props}">
               <v-btn
                 v-if="!item.deletedAt"
+                v-bind="props"
                 density="compact"
-                variant="flat"
+                :icon="mdiTrashCan"
+                variant="plain"
                 @click="openDeleteTopicModal(item)"
-              >
-                <v-icon :icon="mdiTrashCan" />
-                <v-tooltip
-                  activator="parent"
-                  location="start"
-                >
-                  Delete
-                </v-tooltip>
-              </v-btn>
-
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip text="Undelete">
+            <template #activator="{props}">
               <v-btn
                 v-if="item.deletedAt"
+                v-bind="props"
+                color="warning"
                 density="compact"
-                variant="flat"
+                :icon="mdiDeleteRestore"
+                variant="plain"
                 @click="undelete(item)"
-              >
-                <v-icon :icon="mdiDeleteRestore" color="warning" />
-                <v-tooltip
-                  activator="parent"
-                  location="start"
-                >
-                  Undelete
-                </v-tooltip>
-              </v-btn>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+              />
+            </template>
+          </v-tooltip>
+        </template>
+      </v-data-table>
     </div>
     <EditTopicModal
       v-if="isEditTopicModalOpen"
@@ -137,43 +103,29 @@
 <script setup>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditTopicModal from '@/components/topics/EditTopicModal'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {computed, onMounted, ref} from 'vue'
+import {alertScreenReader, normalizeId, putFocusNextTick} from '@/lib/utils'
 import {DateTime} from 'luxon'
 import {deleteTopic, getAllTopics, getUsageStatistics, undeleteTopic} from '@/api/topics'
-import {each, find, get, toLower} from 'lodash'
+import {each, find, isNil} from 'lodash'
 import {
   mdiDeleteRestore,
-  mdiMenuDown,
-  mdiMenuUp,
   mdiPlusBox,
   mdiTrashCan
 } from '@mdi/js'
+import {onMounted, ref} from 'vue'
 
 const filter = ref(undefined)
-const hasLoadedTopics = ref(false)
+const headers = [
+  {align: 'start', key: 'topic', title: 'Topic', width: '60%'},
+  {align: 'end', key: 'deletedAt', title: 'Deleted?'},
+  {align: 'end', key: 'countNotes', title: 'Usage'},
+  {align: 'end', key: 'actions', sortable: false},
+]
 const isDeleteTopicModalOpen = ref(false)
 const isEditTopicModalOpen = ref(false)
 const topicDelete = ref(undefined)
 const topicEdit = ref(undefined)
 const topics = ref(undefined)
-const sortBy = ref('topic')
-const sortByMap = new Map([
-  ['topic', false],
-  ['deleted', false],
-  ['usage', false]
-])
-
-const filteredTable = computed(() => {
-  if (sortBy.value) {
-    if (filter.value === null) {
-      return sortTable(topics.value)
-    }
-    return sortTable(topics.value.filter(item => toLower(item.topic).includes(toLower(filter.value))))
-  } else {
-    return topics.value
-  }
-})
 
 onMounted(() => {
   refresh()
@@ -238,7 +190,6 @@ const refresh = focusTarget => {
     topics.value = data
     getUsageStatistics().then(statistics => {
       each(topics.value, topic => topic.countNotes = statistics.notes[topic.id] || 0)
-      hasLoadedTopics.value = true
       putFocusNextTick(focusTarget)
     })
   })
@@ -251,50 +202,15 @@ const undelete = topic => {
     putFocusNextTick(`topic-${topic.id}`)
   })
 }
-
-const setTableSort = filterBy => {
-  sortBy.value = filterBy
-  sortByMap.value.set(sortBy.value, !sortByMap.value.get(sortBy.value))
-}
-
-const sortTable = sortByArr => {
-  const newArr = []
-  switch (sortBy.value) {
-  case 'topic':
-    return !get(sortByMap.value, 'topic') ? sortByArr.sort((a,b) => (toLower(a.topic) > toLower(b.topic)) ? 1 : ((toLower(b.topic) > toLower(a.topic)) ? -1 : 0)) : sortByArr.sort((a,b) => (toLower(a.topic) < toLower(b.topic)) ? 1 : ((toLower(b.topic) < toLower(a.topic)) ? -1 : 0))
-
-  case 'deleted':
-    if (!sortByMap.value.get('deleted')) {
-      sortByArr.forEach(item => {
-        if (item.deletedAt) {
-          newArr.push(item)
-        }
-      })
-
-      sortByArr.forEach(item => {
-        if (!item.deletedAt) {
-          newArr.push(item)
-        }
-      })
-    } else {
-      sortByArr.forEach(item => {
-        if (!item.deletedAt) {
-          newArr.push(item)
-        }
-      })
-      sortByArr.forEach(item => {
-        if (item.deletedAt) {
-          newArr.push(item)
-        }
-      })
-    }
-    return newArr
-
-  case 'usage':
-    return !sortByMap.value.get('usage') ? sortByArr.sort((a,b) => a.countNotes - b.countNotes) : sortByArr.sort((a,b) => b.countNotes - a.countNotes)
-
-  default:
-    return !sortByMap.value.get('topic') ? sortByArr.sort((a,b) => (a.topic > b.topic) ? 1 : ((b.topic > a.topic) ? -1 : 0)) : sortByArr.sort((a,b) => (a.topic < b.topic) ? 1 : ((b.topic < a.topic) ? -1 : 0))
-  }
-}
 </script>
+
+<style>
+tbody tr:nth-of-type(odd) {
+ background-color: rgb(var(--v-theme-surface-light))
+}
+.data-table-header-cell {
+  font-size: 14px;
+  font-weight: bold;
+  height: 32px !important;
+}
+</style>
