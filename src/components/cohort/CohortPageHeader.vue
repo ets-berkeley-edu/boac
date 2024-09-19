@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!cohortStore.cohortId && cohortStore.totalStudentCount === undefined">
+    <div v-if="!cohortStore.cohortId && isUndefined(cohortStore.totalStudentCount)">
       <h1 id="page-header">
         Create {{ cohortStore.domain === 'default' ? 'a Cohort' : 'an admissions cohort' }}
       </h1>
@@ -19,12 +19,12 @@
       >
         {{ cohortStore.cohortName }}
         <span
-          v-if="cohortStore.editMode !== 'apply' && cohortStore.totalStudentCount !== undefined"
+          v-if="cohortStore.editMode !== 'apply' && !isUndefined(cohortStore.totalStudentCount)"
           class="text-medium-emphasis ml-1"
         ><span class="sr-only">, </span>{{ pluralize(cohortStore.domain === 'admitted_students' ? 'admit' : 'student', cohortStore.totalStudentCount) }}</span>
       </h1>
       <h1
-        v-if="!cohortStore.cohortName && cohortStore.totalStudentCount !== undefined"
+        v-if="!cohortStore.cohortName && !isUndefined(cohortStore.totalStudentCount)"
         id="page-header"
         class="align-self-center mb-0 mr-2"
       >
@@ -88,7 +88,7 @@
           |
         </div>
         <v-btn
-          v-if="cohortStore.domain === 'default' && (cohortStore.cohortId || cohortStore.totalStudentCount !== undefined)"
+          v-if="cohortStore.domain === 'default' && (cohortStore.cohortId || !isUndefined(cohortStore.totalStudentCount))"
           id="export-student-list-button"
           :disabled="isDownloadingCSV || !cohortStore.totalStudentCount || cohortStore.isModifiedSinceLastSearch"
           class="font-size-15 px-1 text-no-wrap"
@@ -98,7 +98,7 @@
           @click="showExportStudentsModal = true"
         />
         <v-btn
-          v-if="cohortStore.domain === 'admitted_students' && (cohortStore.cohortId || cohortStore.totalStudentCount !== undefined)"
+          v-if="cohortStore.domain === 'admitted_students' && (cohortStore.cohortId || !isUndefined(cohortStore.totalStudentCount))"
           id="export-student-list-button"
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
@@ -176,7 +176,7 @@ import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import RenameCohort from '@/components/cohort/RenameCohort'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {deleteCohort, downloadCohortCsv, downloadCsv} from '@/api/cohort'
-import {get} from 'lodash'
+import {get, isUndefined} from 'lodash'
 import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
 import {pluralize} from '@/lib/utils'
 import {ref, watch} from 'vue'
