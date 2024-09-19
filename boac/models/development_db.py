@@ -58,6 +58,8 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': False,
         'canAccessCanvasData': False,
+        'firstName': 'Toby',
+        'lastName': 'Robbins',
     },
     {
         # User deleted (see below)
@@ -67,6 +69,8 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': False,
+        'firstName': 'Denver',
+        'lastName': 'Stoner',
     },
     {
         'uid': '2040',
@@ -75,6 +79,8 @@ _test_users = [
         'inDemoMode': True,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
+        'firstName': 'Grist',
+        'lastName': 'Cumberland',
     },
     {
         'uid': '53791',
@@ -93,6 +99,8 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': False,
         'canAccessCanvasData': True,
+        'firstName': 'Chai',
+        'lastName': 'Grande',
     },
     {
         'uid': '188242',
@@ -101,6 +109,8 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
+        'firstName': 'Will',
+        'lastName': 'Dilg',
     },
     {
         'uid': '95509',
@@ -109,6 +119,8 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
+        'firstName': 'Gil',
+        'lastName': 'Ham',
     },
     {
         'uid': '177473',
@@ -117,6 +129,8 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
+        'firstName': 'Homer',
+        'lastName': 'Circle',
     },
     {
         'uid': '1133397',
@@ -125,6 +139,8 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
+        'firstName': 'Donald',
+        'lastName': 'Kiester',
     },
     {
         'uid': '1133399',
@@ -157,6 +173,8 @@ _test_users = [
         'canAccessCanvasData': True,
         'title': 'Harmless Drudge',
         'calnetDeptCodes': ['HENGL'],
+        'firstName': 'Mort',
+        'lastName': 'Korn',
     },
     {
         'uid': '1022796',
@@ -166,6 +184,8 @@ _test_users = [
         'canAccessAdvisingData': False,
         'canAccessCanvasData': True,
         'degreeProgressPermission': 'read_write',
+        'firstName': 'Theoditus',
+        'lastName': 'Garlic',
     },
     {
         'uid': '6972201',
@@ -175,6 +195,8 @@ _test_users = [
         'canAccessAdvisingData': True,
         'canAccessCanvasData': False,
         'degreeProgressPermission': 'read',
+        'firstName': 'Forrest',
+        'lastName': 'Wood',
     },
     {
         'uid': '1015674',
@@ -184,6 +206,8 @@ _test_users = [
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'deleted': True,
+        'firstName': 'Sugar',
+        'lastName': 'Wallop',
     },
     {
         'uid': '1049291',
@@ -192,6 +216,8 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
+        'firstName': 'Dwayne',
+        'lastName': 'Raver',
     },
     {
         'uid': '1081940',
@@ -201,6 +227,8 @@ _test_users = [
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'searchHistory': ['Moe', 'Larry', 'Curly'],
+        'firstName': 'Milt',
+        'lastName': 'Deacon',
     },
     {
         'uid': '90412',
@@ -219,6 +247,8 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
+        'firstName': 'Babe',
+        'lastName': 'Winkle',
     },
     {
         'uid': '666',
@@ -228,6 +258,8 @@ _test_users = [
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'deleted': True,
+        'firstName': 'Fanny',
+        'lastName': 'Coupe',
     },
     {
         'uid': '1024',
@@ -237,6 +269,8 @@ _test_users = [
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'deleted': True,
+        'firstName': 'Grit',
+        'lastName': 'Schresham',
     },
     {
         'uid': '2525',
@@ -246,6 +280,8 @@ _test_users = [
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'deleted': False,
+        'firstName': 'Grigsby',
+        'lastName': 'Columbo',
     },
     {
         'uid': '3535',
@@ -255,6 +291,8 @@ _test_users = [
         'canAccessAdvisingData': True,
         'canAccessCanvasData': False,
         'deleted': False,
+        'firstName': 'Crest',
+        'lastName': 'Turrasco',
     },
 ]
 
