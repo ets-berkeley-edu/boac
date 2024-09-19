@@ -1,7 +1,7 @@
 <template>
   <v-form
     ref="editNoteForm"
-    class="edit-note-form"
+    class="edit-advising-note-container edit-note-form"
     @submit.prevent="save"
   >
     <div v-if="noteStore.model.isDraft" class="font-size-18 text-error pa-2">
@@ -262,6 +262,9 @@ const save = isDraft => {
 </script>
 
 <style scoped>
+.edit-advising-note-container {
+  width: 70%;
+}
 .edit-note-form {
   cursor: auto !important;
   flex-basis: 100%;

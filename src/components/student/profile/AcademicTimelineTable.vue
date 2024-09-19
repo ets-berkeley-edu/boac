@@ -280,7 +280,7 @@
           <td class="align-content-start text-right width-one-percent">
             <div
               :id="`timeline-tab-${activeTab}-date-${index}`"
-              class="text-no-wrap py-2 pr-2"
+              class="text-no-wrap py-2 pr-4"
             >
               <div v-if="!includes(openMessages, message.transientId) || !includes(['appointment', 'eForm', 'note'], message.type)">
                 <TimelineDate
@@ -775,7 +775,7 @@ table {
 }
 .expanded-timeline-container {
   position: absolute;
-  right: 26px;
+  right: 40px;
 }
 .message-open {
   flex-flow: row wrap;

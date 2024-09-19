@@ -2,7 +2,7 @@
   <v-expand-transition>
     <div v-if="announcement && announcement.isPublished">
       <div v-if="!dismissedServiceAnnouncement" class="align-center bg-service-announcement d-flex font-weight-medium py-4 px-6">
-        <div class="d-inline-block pr-1 w-100">
+        <div class="d-inline-block pr-1 service-announcement-container w-100">
           <h2 class="sr-only" role="heading">BOA Service Alert</h2>
           <span
             id="service-announcement-banner"
@@ -52,10 +52,24 @@ const toggle = () => {
 </script>
 
 <style>
+#service-announcement-banner li {
+  padding-right: 20px;
+  overflow-wrap: break-word;
+}
 #service-announcement-banner ol {
   margin-left: 30px;
 }
+#service-announcement-banner p {
+  padding-right: 20px;
+  overflow-wrap: break-word;
+}
 #service-announcement-banner ul {
   margin-left: 30px;
+}
+</style>
+
+<style scoped>
+.service-announcement-container {
+  width: 98% !important;
 }
 </style>
