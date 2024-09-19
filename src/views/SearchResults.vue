@@ -45,6 +45,9 @@
       <div v-if="results.totalAdmitCount || results.totalStudentCount || results.totalCourseCount || size(results.appointments) || size(results.notes)">
         <v-tabs
           v-model="tab"
+          aria-label="search results tab"
+          :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
+          class="ml-3"
           density="comfortable"
           :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
           :items="tabs"
@@ -53,20 +56,19 @@
           <template #tab="{item}">
             <v-tab
               :id="`search-results-tab-${item.key}s`"
+              :aria-controls="`search-results-tab-panel-${item.key}s`"
               class="bg-white border-s-sm border-e-sm border-t-sm mx-1 rounded-t-lg"
               :class="{
                 'border-b-0': item.key === tab,
-                'border-b-sm': item.key !== tab,
-                'ml-3': item.key === 'student'
+                'border-b-sm': item.key !== tab
               }"
-              color="white"
-              :hide-slider="item.key === tab"
+              hide-slider
               min-width="120"
               :value="item.key"
               variant="text"
             >
               <template #default>
-                <div class="d-flex flex-row-reverse font-size-12 font-weight-bold text-black">
+                <div class="d-flex flex-row-reverse font-size-12 font-weight-bold">
                   <div :id="`search-results-count-${item.key}s`">
                     {{ getTabLabel(item) }}
                   </div>
@@ -81,7 +83,14 @@
             </v-tab>
           </template>
           <template #item="{item}">
-            <v-tabs-window-item class="bg-white px-4" :value="item.key">
+            <v-tabs-window-item
+              :id="`search-results-tab-panel-${item.key}s`"
+              :aria-labelledby="`search-results-tab-${item.key}s`"
+              :aria-selected="item.key === tab"
+              class="bg-white px-4"
+              role="tabpanel"
+              :value="item.key"
+            >
               <div v-if="item.key === 'student'">
                 <SearchResultsHeader
                   class="mb-2 mt-4"

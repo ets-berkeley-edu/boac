@@ -83,7 +83,7 @@
             class="bg-pale-blue"
             :compact="compact"
             domain="default"
-            :sort-by="{key: 'alertCount', order: 'desc'}"
+            :initial-sort-by="{key: 'alertCount', order: 'desc'}"
             :students="studentsWithAlerts"
           />
         </div>

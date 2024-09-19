@@ -12,6 +12,7 @@
             class: 'font-size-16 vertical-baseline',
             style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
           }"
+          class="table-striped"
           disable-sort
           :headers="headers"
           :header-props="{class: 'data-table-header-cell'}"
@@ -241,9 +242,6 @@ const reloadDraftNotes = () => getMyDraftNotes().then(data => myDraftNotes.value
 </script>
 
 <style>
-tbody tr:nth-of-type(odd) {
- background-color: rgb(var(--v-theme-surface-light))
-}
 .data-table-header-cell {
   font-size: 14px;
   font-weight: bold;

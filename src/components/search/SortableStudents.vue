@@ -1,15 +1,12 @@
 <template>
   <v-data-table-virtual
     :cell-props="data => ({
-      class: 'pl-0 vertical-top',
       'data-label': data.column.title,
-      id: `td-student-${data.item.sid}-column-${data.column.key}`,
-      style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+      id: `td-student-${data.item.sid}-column-${data.column.key}`
     })"
-    class="responsive-data-table"
+    class="responsive-data-table v-table-hidden-row-override"
     density="compact"
     :headers="headers"
-    :header-props="{class: 'pl-0'}"
     :items="items"
     mobile-breakpoint="md"
     must-sort
@@ -18,8 +15,36 @@
     })"
     @update:sort-by="onUpdateSortBy"
   >
-    <template #header.avatar="{column}">
-      <span class="sr-only">{{ column.title }}</span>
+    <template #headers="{columns, isSorted, toggleSort, getSortIcon}">
+      <tr>
+        <th
+          v-for="column in columns"
+          :key="column.key"
+          :aria-label="column.ariaLabel || column.title"
+          :aria-sort="isSorted(column) ? `${sortBy.order}ending` : null"
+          class="pl-0 pr-3 text-left"
+          :style="column.headerProps"
+        >
+          <template v-if="column.sortable">
+            <v-btn
+              id="students-sort-by-lastName-btn"
+              :append-icon="getSortIcon(column)"
+              :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
+              class="align-start font-size-12 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"
+              :class="{'icon-visible': isSorted(column)}"
+              color="body"
+              density="compact"
+              variant="plain"
+              @click="() => toggleSort(column)"
+            >
+              <span class="text-left text-wrap">{{ column.title }}</span>
+            </v-btn>
+          </template>
+          <template v-else>
+            <span :class="get(column, 'headerProps.class', '')">{{ column.title }}</span>
+          </template>
+        </th>
+      </tr>
     </template>
 
     <template #item.curated="{item}">
@@ -135,11 +160,12 @@ import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import PillCount from '@/components/util/PillCount'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import {alertScreenReader, lastNameFirst, numFormat, pluralize, round, studentRoutePath} from '@/lib/utils'
-import {concat, each, get, isNil, map, orderBy} from 'lodash'
+import {concat, each, find, get, isNil, map, orderBy} from 'lodash'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
 import {mdiSchool, mdiInformation} from '@mdi/js'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
+import {useDisplay} from 'vuetify'
 
 const props = defineProps({
   compact: {
@@ -154,7 +180,7 @@ const props = defineProps({
     required: false,
     type: Boolean
   },
-  sortBy: {
+  initialSortBy: {
     default: () => ({key: 'lastName', order: 'asc'}),
     type: Object
   },
@@ -167,32 +193,59 @@ const props = defineProps({
 const contextStore = useContextStore()
 
 const currentUser = contextStore.currentUser
+const defaultCellClass = {class: 'py-1 pl-1 pr-3 vertical-top'}
+const defaultCellProps = computed(() => {
+  return {cellProps: {...defaultCellClass, style: useDisplay().mdAndUp ? 'max-width: 200px;' : ''}}
+})
 const headers = ref([])
 const items = ref(undefined)
+const sortBy = ref({})
 
 onMounted(() => {
-  onUpdateSortBy([props.sortBy])
+  onUpdateSortBy([props.initialSortBy])
   if (props.includeCuratedCheckbox) {
-    headers.value.push({align: 'start', cellProps: {width: 0}, key: 'curated', sortable: false, value: 'curated', headerProps: {width: 0}})
+    headers.value.push({
+      key: 'curated',
+      align: 'start',
+      cellProps: {...defaultCellClass, width: 0},
+      headerProps: {width: 0},
+      sortable: false,
+      value: 'curated'
+    })
   }
   const sortable = props.students.length > 1
   each([
-    {align: 'start', key: 'avatar', sortable: false, title: 'Photo', value: 'photo'},
-    {key: 'lastName', sortable, title: 'Name', value: 'lastName'},
-    {key: 'sid', sortable, title: 'SID', value: 'sid'}
+    {
+      key: 'avatar',
+      align: 'start',
+      ...defaultCellProps.value,
+      headerProps: {class: 'sr-only'},
+      sortable: false,
+      title: 'Photo',
+      value: 'photo'
+    },
+    {key: 'lastName', ...defaultCellProps.value, ariaLabel: 'last name', sortable, title: 'Name', value: 'lastName'},
+    {key: 'sid', ...defaultCellProps.value, ariaLabel: 'S I D', sortable, title: 'SID', value: 'sid'}
   ], header => {
     headers.value.push(header)
   })
   if (props.compact) {
-    headers.value.push({key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'})
+    headers.value.push({key: 'alertCount', ...defaultCellProps.value, sortable, title: 'Alerts', value: 'alertCount'})
   } else {
     each([
-      {key: 'major', sortable, title: 'Major', value: 'majors[0]'},
-      {key: 'expectedGraduationTerm', sortable, title: 'Grad', value: 'expectedGraduationTerm.id'},
-      {key: 'enrolledUnits', sortable, title: 'Term units', value: 'term.enrolledUnits'},
-      {key: 'cumulativeUnits', sortable, title: 'Units completed', value: 'cumulativeUnits'},
-      {key: 'cumulativeGPA', sortable, title: 'GPA', value: 'cumulativeGPA'},
-      {align: 'end', class: 'alert-count', key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'}
+      {key: 'major', ...defaultCellProps.value, sortable, title: 'Major', value: 'majors[0]'},
+      {key: 'expectedGraduationTerm', ...defaultCellProps.value, sortable, title: 'Grad', value: 'expectedGraduationTerm.id'},
+      {key: 'enrolledUnits', ...defaultCellProps.value, sortable, title: 'Term units', value: 'term.enrolledUnits'},
+      {key: 'cumulativeUnits', ...defaultCellProps.value, sortable, title: 'Units completed', value: 'cumulativeUnits'},
+      {key: 'cumulativeGPA', ...defaultCellProps.value, sortable, title: 'GPA', value: 'cumulativeGPA'},
+      {
+        key: 'alertCount',
+        align: 'end',
+        cellProps: {class: 'py-1 pl-1 pr-2 vertical-top'},
+        sortable,
+        title: 'Alerts',
+        value: 'alertCount'
+      }
     ], header => {
       headers.value.push(header)
     })
@@ -202,17 +255,24 @@ onMounted(() => {
 const abbreviateTermName = termName => termName && termName.replace('20', ' \'').replace('Spring', 'Spr').replace('Summer', 'Sum')
 
 const onUpdateSortBy = primarySortBy => {
-  const sortBy = concat(
+  const key = primarySortBy[0].key
+  const header = find(headers.value, {key: key})
+  const sortKeys = concat(
     primarySortBy,
     {key: 'lastName', order: 'asc'},
     {key: 'firstName', order: 'asc'},
     {key: 'sid', order: 'asc'}
   )
-  items.value = orderBy(props.students, map(sortBy, 'key'), map(sortBy, 'order'))
-  const key = primarySortBy[0].key
-  if (key in map(headers.value, 'key')) {
-    const header = headers.value.get(key)
-    alertScreenReader(`Sorted by ${header.title}, ${primarySortBy[0].order}ending`)
+  sortBy.value = primarySortBy[0]
+  items.value = orderBy(props.students, map(sortKeys, 'key'), map(sortKeys, 'order'))
+  if (header) {
+    alertScreenReader(`Sorted by ${header.ariaLabel || header.title}, ${primarySortBy[0].order}ending`)
   }
 }
 </script>
+
+<style scoped>
+.height-unset {
+  height: unset !important;
+}
+</style>
