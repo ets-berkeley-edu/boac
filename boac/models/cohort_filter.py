@@ -294,9 +294,7 @@ class CohortFilter(Base):
         cohort_json = self.to_base_json()
         if not include_students and not include_alerts_for_user_id and self.student_count is not None:
             # No need for a students query; return the database-stashed student count.
-            cohort_json.update({
-                'totalStudentCount': self.student_count,
-            })
+            cohort_json.update({'totalStudentCount': self.student_count})
             benchmark('end')
             return cohort_json
 
@@ -325,21 +323,19 @@ class CohortFilter(Base):
             )
 
         # If the cohort is new or cache refresh is underway then store student_count and sids in the db.
+        student_count = results['totalStudentCount'] if results else 0
         if self.student_count is None:
-            self.update_sids_and_student_count(
-                sids=results['sids'] if results else [],
-                student_count=results['totalStudentCount'] if results else 0,
-            )
+            sids = results['sids'] if results else []
+            self.update_sids_and_student_count(sids=sids, student_count=student_count)
             if self.domain == 'default':
                 self.track_membership_changes()
+
+        cohort_json.update({'totalStudentCount': student_count})
 
         if results:
             # Cohort might have tens of thousands of SIDs.
             if include_sids:
                 cohort_json['sids'] = results['sids']
-            cohort_json.update({
-                'totalStudentCount': results['totalStudentCount'],
-            })
             if include_students:
                 cohort_json.update({
                     'students': results['students'],
