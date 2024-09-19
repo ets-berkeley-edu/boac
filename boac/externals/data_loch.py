@@ -506,7 +506,7 @@ def match_students_by_name_or_sid(prefixes, limit=None):
             )
             prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
 
-    sql = f"""SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
+    sql = f"""SELECT DISTINCT spi.first_name, spi.last_name, spi.sid, spi.uid
         FROM {student_schema()}.student_profile_index spi
         {' '.join(conditions)}"""
     if limit:
