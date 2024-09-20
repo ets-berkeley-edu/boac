@@ -738,7 +738,6 @@ const toggleExpandAll = () => {
 const toggleShowAll = () => {
   isShowingAll.value = !isShowingAll.value
   alertScreenReader(describeTheActiveTab())
-  putFocusNextTick(`timeline-tab-${activeTab.value}-previous-messages`, 'end')
 }
 
 init()
