@@ -9,7 +9,7 @@
         v-if="note.studentUid"
         :id="`link-to-student-${note.studentUid}`"
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
-        :to="`${studentRoutePath(note.studentUid, currentUser.inDemoMode)}#note-${note.id}`"
+        :to="`${studentRoutePath(note.studentUid, currentUser.inDemoMode)}#permalink-note-${note.id}`"
         class="advising-note-search-result-header-link"
         v-html="note.studentName"
       />
