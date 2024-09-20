@@ -460,8 +460,7 @@ class TestNoteMgmt:
         self.homepage.log_out()
         self.homepage.dev_auth(self.test.advisor)
         self.homepage.enter_simple_search_and_hit_enter(self.note_1.subject)
-        self.search_results_page.wait_for_note_search_result_rows()
-        assert self.search_results_page.is_present(self.search_results_page.note_link(self.note_1))
+        assert self.search_results_page.is_note_in_search_result(self.note_1)
 
     def test_no_deleted_attachment_downloads(self):
         utils.prepare_download_dir()
@@ -494,14 +493,13 @@ class TestNoteMgmt:
         self.student_page.reopen_and_reset_adv_search()
         self.student_page.select_notes_posted_by_anyone()
         self.student_page.enter_adv_search_and_hit_enter(self.note_1.subject)
-        self.search_results_page.wait_for_note_search_result_rows()
-        assert self.search_results_page.is_present(self.search_results_page.note_link(self.note_1))
+        assert self.search_results_page.is_note_in_search_result(self.note_1)
 
     def test_non_author_search_self_for_edited_note(self):
         self.search_results_page.reopen_and_reset_adv_search()
         self.student_page.select_notes_posted_by_you()
         self.student_page.enter_adv_search_and_hit_enter(self.note_1.subject)
-        assert self.search_results_page.note_results_count() == '0'
+        self.search_results_page.wait_for_no_results()
 
     def test_non_author_view_all_student_notes(self):
         asc_notes = nessie_timeline_utils.get_asc_notes(self.test_student)
@@ -575,7 +573,7 @@ class TestNoteMgmt:
         self.student_page.exclude_students()
         self.student_page.exclude_classes()
         self.student_page.enter_adv_search_and_hit_enter(self.note_5.subject)
-        assert self.search_results_page.note_results_count() == '0'
+        self.search_results_page.wait_for_no_results()
 
     def test_no_deleted_note_attachment_downloads(self):
         for a in self.note_5.attachments:

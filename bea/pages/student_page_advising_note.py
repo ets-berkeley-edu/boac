@@ -363,7 +363,6 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
     # CREATE NOTE, STUDENT PROFILE
 
     NEW_NOTE_BUTTON = By.ID, 'new-note-button'
-    NEW_NOTE_MINIMIZE_BUTTON = By.ID, 'minimize-new-note-modal'
 
     def click_create_new_note(self):
         app.logger.debug('Clicking the New Note button')

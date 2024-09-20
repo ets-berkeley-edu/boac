@@ -130,9 +130,11 @@ class Page(object):
         return self.is_present(locator) and self.element(locator).is_displayed()
 
     def when_visible(self, locator, timeout):
+        app.logger.info(f'Waiting for visibility of element at {locator}')
         Wait(self.driver, timeout).until(ec.visibility_of_element_located(locator))
 
     def when_not_visible(self, locator, timeout):
+        app.logger.info(f'Waiting for invisibility of element at {locator}')
         Wait(self.driver, timeout).until(ec.invisibility_of_element_located(locator))
 
     def wait_for_element(self, locator, timeout):
@@ -244,6 +246,7 @@ class Page(object):
 
     def remove_and_enter_chars(self, locator, string):
         self.remove_chars(locator)
+        string = string or ''
         self.element(locator).send_keys(string)
 
     def wait_for_select_and_click_option(self, select_el_loc, option_str):
