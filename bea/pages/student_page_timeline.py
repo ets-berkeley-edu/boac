@@ -32,8 +32,6 @@ from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
 class StudentPageTimeline(BoaPages):
@@ -113,6 +111,7 @@ class StudentPageTimeline(BoaPages):
             app.logger.info(f'{item_type} ID {item.record_id} is already expanded')
         else:
             app.logger.info(f'Expanding {item_type} ID {item.record_id}')
+            self.scroll_to_top()
             self.wait_for_element_and_click(self.collapsed_item_loc(item))
 
     def click_close_msg(self, item):
@@ -128,11 +127,11 @@ class StudentPageTimeline(BoaPages):
 
     def attachment_span_loc(self, item):
         item_type = self.item_type(item)
-        return By.XPATH, f'//li[contains(@id, "{item_type}-{item.record_id}-attachment")]//span[contains(@id, "-attachment-")]'
+        return By.XPATH, f'//span[contains(@id, "{item_type}-{item.record_id}-attachment")]'
 
     def attachment_link_loc(self, item):
         item_type = self.item_type(item)
-        return By.XPATH, f'//li[contains(@id, "{item_type}-{item.record_id}-attachment")]//a[contains(@id, "-attachment-")]'
+        return By.XPATH, f'//a[contains(@id, "{item_type}-{item.record_id}-attachment")]'
 
     def item_attachment_els(self, item_type, item):
         spans = self.elements(self.attachment_span_loc(item))
@@ -141,13 +140,14 @@ class StudentPageTimeline(BoaPages):
 
     def item_attachment_el(self, item, attachment_name):
         item_type = self.item_type(item)
-        return next(filter(lambda el: el.text.strip() == attachment_name, self.item_attachment_els(item_type, item)))
+        for el in self.item_attachment_els(item_type, item):
+            if el.text.strip() == attachment_name:
+                return el
 
     def download_attachment(self, item, attachment, student=None):
         app.logger.info(f'Downloading attachment {attachment.file_name} from record ID {item.record_id}')
         utils.prepare_download_dir()
-        Wait(self.driver, utils.get_short_timeout()).until(
-            ec.visibility_of(self.item_attachment_el(item, attachment.file_name)))
+        self.when_present(self.attachment_link_loc(item), utils.get_short_timeout())
         self.item_attachment_el(item, attachment.file_name).click()
         file_path = f'{utils.default_download_dir()}/{attachment.file_name}'
         tries = 0

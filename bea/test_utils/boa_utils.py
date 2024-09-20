@@ -359,7 +359,7 @@ def get_note_ids_by_subject(note_subject, student=None):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    return list(map(lambda r: r['id'], results))
+    return list(map(lambda r: str(r['id']), results))
 
 
 def get_student_notes(student):
@@ -419,7 +419,7 @@ def get_notes_from_pg_db_result(results):
             'deleted_date': (row['deleted_at'] and utils.date_to_local_tz(row['deleted_at'])),
             'is_draft': (row['is_draft'] == 't'),
             'is_private': (row['is_private'] == 't'),
-            'record_id': row['id'],
+            'record_id': str(row['id']),
             'set_date': (row['set_date'] and utils.date_to_local_tz(parser.parse(row['set_date'].strftime('%Y-%m-%d')))),
             'student': student,
             'subject': re.sub(r'\s+', ' ', row['subject']),

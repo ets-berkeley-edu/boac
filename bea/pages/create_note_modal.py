@@ -32,8 +32,7 @@ from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait as Wait
+from selenium.webdriver.support.select import Select
 
 
 class CreateNoteModal(BoaPages):
@@ -75,7 +74,7 @@ class CreateNoteModal(BoaPages):
     NOTE_BODY_TEXT_AREA = By.XPATH, '(//div[@role="textbox"])[2]'
 
     def wait_for_note_body_editor(self):
-        Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_element_located(self.NOTE_BODY_TEXT_AREA))
+        self.when_present(self.NOTE_BODY_TEXT_AREA, utils.get_short_timeout())
 
     def enter_note_body(self, note):
         app.logger.info(f'Entering note body {note.body}')
@@ -90,18 +89,12 @@ class CreateNoteModal(BoaPages):
     TOPIC_REMOVE_BUTTON = By.XPATH, '//li[contains(@id, "remove-note-")]'
 
     def topic_options(self):
-        self.wait_for_element_and_click(self.ADD_TOPIC_SELECT)
-        Wait(self.driver, 1).until(ec.presence_of_all_elements_located(self.TOPIC_OPTION))
-        time.sleep(utils.get_click_sleep())
-        return [el.get_attribute('value') for el in self.elements(self.TOPIC_OPTION) if el.get_attribute('value')]
+        sel = Select(self.element(self.ADD_TOPIC_SELECT))
+        return [el.get_attribute('value') for el in sel.options if el.get_attribute('value')]
 
     @staticmethod
-    def new_note_unsaved_topic_pill(topic):
+    def topic_pill(topic):
         return By.XPATH, f'//li[contains(@id, \"-topic\")][contains(., \"{topic.name}\")]'
-
-    @staticmethod
-    def topic_pill(note, topic):
-        return By.XPATH, f'//li[contains(@id, \"note-{note.record_id}-topic\")][contains(., \"{topic.name}\")]'
 
     @staticmethod
     def new_note_unsaved_topic_remove_btn(topic):
@@ -109,20 +102,13 @@ class CreateNoteModal(BoaPages):
 
     @staticmethod
     def topic_remove_button(note, topic):
-        return By.XPATH, f'//li[contains(@id, \"note-{note.record_id}-topic\")][contains(., \"{topic.name}\")]//button'
+        return By.XPATH, f'//span[text()=\"{topic.name}\"]/../following-sibling::div/button'
 
     def add_topics(self, note, topics):
         for topic in topics:
             app.logger.info(f'Adding topic {topic.name}')
             self.wait_for_select_and_click_option(self.ADD_TOPIC_SELECT, topic.name)
-            if note.record_id:
-                Wait(self.driver, utils.get_short_timeout()).until(
-                    ec.visibility_of_element_located(self.topic_pill(note, topic)),
-                )
-            else:
-                Wait(self.driver, utils.get_short_timeout()).until(
-                    ec.visibility_of_element_located(self.new_note_unsaved_topic_pill(topic)),
-                )
+            self.when_present(self.topic_pill(topic), utils.get_short_timeout())
         note.topics += topics
 
     def remove_topics(self, note, topics):
@@ -131,10 +117,10 @@ class CreateNoteModal(BoaPages):
             app.logger.info(f'Removing topic {topic.name}')
             if note.record_id:
                 self.wait_for_element_and_click(self.topic_remove_button(note, topic))
-                self.when_not_visible(self.topic_pill(note, topic), utils.get_short_timeout())
+                self.when_not_visible(self.topic_pill(topic), utils.get_short_timeout())
             else:
                 self.wait_for_element_and_click(self.new_note_unsaved_topic_remove_btn(topic))
-                self.when_not_visible(self.new_note_unsaved_topic_pill(topic), utils.get_short_timeout())
+                self.when_not_visible(self.topic_pill(topic), utils.get_short_timeout())
             if topic.name in current_topics:
                 matching_topic = next(filter(lambda t: t.name == topic.name, note.topics))
                 note.topics.remove(matching_topic)
@@ -150,7 +136,7 @@ class CreateNoteModal(BoaPages):
         return By.XPATH, f'//button[@aria-label="Remove attachment {attachment.file_name}"]'
 
     def enter_new_note_attachments(self, file_string):
-        Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_element_located(self.NEW_NOTE_ATTACH_INPUT))
+        self.when_present(self.NEW_NOTE_ATTACH_INPUT, utils.get_short_timeout())
         self.element(self.NEW_NOTE_ATTACH_INPUT).send_keys(file_string)
 
     def add_attachments_to_new_note(self, note, attachments):
@@ -174,7 +160,7 @@ class CreateNoteModal(BoaPages):
 
     @staticmethod
     def existing_note_attachment_input(note):
-        return By.XPATH, f'//div[@id="note-{note.record_id}-attachment-dropzone"]/input'
+        return By.ID, f'note-{note.record_id}-choose-file-for-note-attachment'
 
     @staticmethod
     def existing_note_attachment_delete_button(note, attachment):
@@ -183,9 +169,7 @@ class CreateNoteModal(BoaPages):
     def add_attachments_to_existing_note(self, note, attachments):
         for a in attachments:
             app.logger.info(f'Adding attachment {a.file_name} to note ID {note.record_id}')
-            Wait(self.driver, utils.get_short_timeout()).until(
-                ec.presence_of_element_located(self.existing_note_attachment_input(note)),
-            )
+            self.when_present(self.existing_note_attachment_input(note), utils.get_short_timeout())
             self.element(self.existing_note_attachment_input(note)).send_keys(
                 f'{utils.attachments_dir()}/{a.file_name}')
             self.when_visible(self.existing_note_attachment_delete_button(note, a), utils.get_medium_timeout())
@@ -198,7 +182,7 @@ class CreateNoteModal(BoaPages):
             app.logger.info(f'Removing attachment {a.file_name} from note ID {note.record_id}')
             self.wait_for_element_and_click(self.existing_note_attachment_delete_button(note, a))
             self.confirm_delete_or_discard()
-            self.when_not_visible(self.existing_note_attachment_delete_button(note, a), utils.get_short_timeout())
+            self.when_not_present(self.existing_note_attachment_delete_button(note, a), utils.get_short_timeout())
             note.attachments.remove(a)
             a.deleted_at = datetime.now()
             note.updated_date = datetime.now()
@@ -238,9 +222,10 @@ class CreateNoteModal(BoaPages):
 
     def enter_set_date(self, note):
         app.logger.info(f'Entering note set date {note.set_date}')
-        date = note.set_date and note.set_date.strftime('%m/%d/%Y') or ''
-        self.wait_for_textbox_and_type(self.SET_DATE_INPUT, date)
-        time.sleep(5)
+        date = note.set_date and note.set_date.strftime('%m/%d/%Y')
+        if date:
+            self.wait_for_textbox_and_type(self.SET_DATE_INPUT, date)
+            time.sleep(1)
 
     # Save
 
