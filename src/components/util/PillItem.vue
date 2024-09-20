@@ -22,7 +22,7 @@
         :icon="mdiCloseCircle"
         title="Remove"
         variant="text"
-        @click.stop.prevent="onClickClose"
+        @click.stop.prevent="$emit('close-clicked')"
       />
     </template>
   </v-chip>

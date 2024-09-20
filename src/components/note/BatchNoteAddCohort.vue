@@ -41,7 +41,7 @@
           :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
           :label="selectedOption.name"
           :name="type"
-          :on-click-close="remove"
+          @close-clicked="remove(selectedOption)"
         >
           <div class="truncate-with-ellipsis">{{ selectedOption.name }}</div>
         </PillItem>
@@ -94,5 +94,6 @@ const onSelect = () => {
 <style scoped>
 .select-cohort-menu {
   min-width: 50%;
+  max-width: 100%;
 }
 </style>
