@@ -105,7 +105,7 @@ const onClickSave = () => {
       selected.value = null
       degreeStore.setDisableButtons(false)
       alertScreenReader('Course duplicated and put in the list of Unassigned.')
-      putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
+      putFocusNextTick(`assign-course-${course.id}-menu-container`, {cssSelector: 'button'})
     })
   })
 }

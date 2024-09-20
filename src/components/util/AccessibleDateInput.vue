@@ -217,7 +217,7 @@ const onInputKeyup = (e, inputEvents) => {
     } else {
       selector = '[tabindex="0"]'
     }
-    putFocusNextTick(`${props.idPrefix}-popover`, selector)
+    putFocusNextTick(`${props.idPrefix}-popover`, {cssSelector: selector})
   } else {
     inputEvents.keyup(e)
   }

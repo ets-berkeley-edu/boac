@@ -62,6 +62,9 @@ const init = () => {
     each(notifications, (message, index) => {
       // If object is not a BOA advising note then generate a transient and non-zero primary key.
       message.transientId = (typeIndex + 1) * 1000 + index
+      if (!message.id) {
+        message.id = message.transientId
+      }
       messages.value.push(message)
     })
   })
