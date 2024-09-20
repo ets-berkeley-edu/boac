@@ -27,7 +27,7 @@
         >
           <template v-if="column.sortable">
             <v-btn
-              id="students-sort-by-lastName-btn"
+              :id="`students-sort-by-${column.key}-btn`"
               :append-icon="getSortIcon(column)"
               :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
               class="align-start font-size-12 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"

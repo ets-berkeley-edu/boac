@@ -201,18 +201,18 @@
             id: normalizeId(`td-user-${data.item.uid}-column-${data.column.key}`)
           }
         }"
+        class="responsive-data-table v-table-hidden-row-override"
         :headers="[
-          {title: '', key: 'data-table-expand', sortable: false},
-          {title: 'UID', key: 'uid', sortable: false, align: 'start', headerProps: {class: ['header-text-styling']}},
-          {title: '', key: 'edit', align: 'end', sortable: false, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name']}},
-          {title: 'Name', key: 'lastName', align: 'start', sortable: true, headerProps: {class: ['header-text-styling']}, cellProps: {class: ['manifest-column-name']}},
-          {title: 'Departments', key: 'departments', align: 'start', sortable: false, headerProps: {class: ['header-text-styling']}},
-          {title: 'Status', key: 'deletedAt', align: 'start', sortable: false, headerProps: {class: ['header-text-styling']}},
-          {title: 'Last Login', key: 'lastLogin', align: 'start', sortable: true, cellProps: {class: 'manifest-column-last-login'}, headerProps: {class: ['header-text-styling']}},
+          {title: '', key: 'data-table-expand', sortable: false, width: 40},
+          {title: 'UID', key: 'uid', sortable: false, align: 'start'},
+          {title: '', key: 'edit', align: 'end', ariaLabel: 'edit user', sortable: false, cellProps: {class: ['manifest-column-name']}},
+          {title: 'Name', key: 'lastName', align: 'start', sortable: true, cellProps: {class: ['manifest-column-name']}},
+          {title: 'Departments', key: 'departments', align: 'start', headerProps: {class: 'pl-2'}, sortable: false},
+          {title: 'Status', key: 'deletedAt', align: 'start', sortable: false},
+          {title: 'Last Login', key: 'lastLogin', align: 'start', sortable: true, cellProps: {class: 'manifest-column-last-login'}},
           {title: 'Email', key: 'campusEmail', align: 'start', sortable: false},
-          {title: '', key: 'becomeUser', sortable: false, headerProps: {class: ['header-text-styling']}}
+          {title: '', key: 'becomeUser', sortable: false}
         ]"
-        :header-props="{class: 'font-size-14 py-3 text-no-wrap'}"
         :hide-default-footer="true"
         :items-length="totalUserCount || 0"
         :items-per-page="0"
@@ -232,6 +232,45 @@
         show-expand
         @update:sort-by="handleSort"
       >
+        <template #headers="{columns, isSorted, toggleSort, getSortIcon}">
+          <tr>
+            <th
+              v-for="column in columns"
+              :key="column.key"
+              :aria-label="column.ariaLabel || column.title"
+              :aria-sort="isSorted(column) ? `${sortBy.order}ending` : null"
+              class="py-3 text-no-wrap"
+              :width="column.width"
+            >
+              <template v-if="column.sortable">
+                <v-btn
+                  :id="`admits-sort-by-${column.key}-btn`"
+                  :append-icon="getSortIcon(column)"
+                  :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
+                  class="font-size-14 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"
+                  :class="{'align-start': column.align === 'start', 'icon-visible': isSorted(column)}"
+                  color="body"
+                  density="compact"
+                  variant="plain"
+                  @click="() => toggleSort(column)"
+                >
+                  <span class="text-left">{{ column.title }}</span>
+                </v-btn>
+              </template>
+              <template v-else>
+                <div
+                  :aria-hidden="!!column.ariaLabel"
+                  class="not-sortable font-size-14 text-no-wrap font-weight-bold text-body"
+                  :class="`${get(column, 'headerProps.class', '')} ${column.align === 'start' ? 'align-start' : ''}`"
+                >
+                  {{ column.title }}
+                </div>
+                <span v-if="!!column.ariaLabel" class="sr-only">{{ column.ariaLabel }}</span>
+              </template>
+            </th>
+          </tr>
+        </template>
+
         <template #item.uid="{ item }">
           {{ item.uid }}
         </template>
@@ -285,14 +324,14 @@
         <template #item.departments="{ item }">
           <div class="row-padding">
             <div v-for="(department, index) in item.departments" :key="department.code">
-              <span class="font-weight-bold text-body-2 text-success-darken-1">{{ department.name }} - {{ department.role }}</span>
+              <span class="font-weight-bold text-body text-success-darken-1">{{ department.name }} - {{ department.role }}</span>
               <div v-if="index !== item.departments.length - 1"></div>
             </div>
             <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="text-medium-emphasis">
-              <span class="font-weight-bold text-body-2">Degree Progress - </span>
-              <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress" class="text-body-2"> read/write</span>
-              <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress" class="text-body-2"> read</span>
-              <span v-if="item.automateDegreeProgressPermission" class="text-body-2"> (automated)</span>
+              <span class="font-weight-bold text-body">Degree Progress - </span>
+              <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress" class="text-body"> read/write</span>
+              <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress" class="text-body"> read</span>
+              <span v-if="item.automateDegreeProgressPermission" class="text-body"> (automated)</span>
             </div>
           </div>
         </template>
@@ -305,7 +344,7 @@
 
         <template #item.lastLogin="{ item }">
           <span :id="`user-last-login-${item.uid}`">
-            <span v-if="item.lastLogin" class="text-body-2">{{ DateTime.fromISO(item.lastLogin).toFormat('DD') }}</span>
+            <span v-if="item.lastLogin" class="text-body">{{ DateTime.fromISO(item.lastLogin).toFormat('DD') }}</span>
             <span v-if="!item.lastLogin">&mdash;</span>
           </span>
         </template>
@@ -434,7 +473,7 @@ const canBecome = user => {
   return contextStore.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
 }
 
-const fetchUsers = (returnFocusId=null) => {
+const fetchUsers = (returnFocusId=null, srAlert='Loading users.') => {
   let isValidSelection = (filterType.value !== 'search') || get(userSelection.value, 'value.uid')
 
   let uidOfUser = undefined
@@ -447,6 +486,7 @@ const fetchUsers = (returnFocusId=null) => {
 
   if (isValidSelection) {
     const sortDescription = sortBy.value ? `; sorted by ${lowerCase(clone(sortBy.value))}, ${sortDesc.value ? 'descending' : 'ascending'}` : ''
+    alertScreenReader(srAlert)
     isFetching.value = true
     totalUserCount.value = 0
     users.value = []
@@ -514,7 +554,8 @@ const handleSort = sortKeys => {
     sortBy.value = null
     sortDesc.value = false
   }
-  fetchUsers() // Fetch users with new sorting parameters
+  alertScreenReader('Sorting users.')
+  fetchUsers(`admits-sort-by-${sortKey.key}-btn`, 'Sorting users.') // Fetch users with new sorting parameters
 }
 
 const onUpdateAutocompleteModel = user => {
@@ -553,7 +594,7 @@ const quickLink = (role, deptCode=null, returnFocusId) => {
 }
 .manifest-column-last-login {
   background-color: rgba(var(--v-theme-light-blue), var(--v-medium-emphasis-opacity));
-  font-weight: 900;
+  font-weight: 600;
 }
 </style>
 
@@ -570,13 +611,6 @@ const quickLink = (role, deptCode=null, returnFocusId) => {
   top: 1px;
   left: 1px;
 }
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.header-text-styling {
-  font-weight: 900;
-  font-size: 14px;
-  position: relative;
-  top: 16px;
-}
 .icons {
   position: relative;
   top: -1px;
@@ -589,6 +623,10 @@ const quickLink = (role, deptCode=null, returnFocusId) => {
 .name-container {
   position: relative;
   top: -1px;
+}
+.not-sortable {
+  opacity: 0.62;
+  padding-top: 2px;
 }
 .quick-links-label {
   font-size: 18px;
