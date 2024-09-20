@@ -170,6 +170,7 @@ const domainLabel = capitalize => {
 
 const groupCheckboxClick = group => {
   if (includes(checkedGroups.value, group.id)) {
+    alertScreenReader('Removing')
     isRemoving.value = true
     const done = () => {
       checkedGroups.value = without(checkedGroups.value, group.id)
@@ -181,6 +182,7 @@ const groupCheckboxClick = group => {
       setTimeout(done, confirmationTimeout.value)
     )
   } else {
+    alertScreenReader('Adding')
     isAdding.value = true
     const done = () => {
       checkedGroups.value.push(group.id)

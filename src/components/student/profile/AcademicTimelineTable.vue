@@ -126,13 +126,17 @@
           v-for="(message, index) in messagesVisible"
           :id="`permalink-${message.type}-${message.id}`"
           :key="index"
+          :aria-labelledby="`timeline-tab-${activeTab}-message-${message.type}-${message.id}`"
           :class="{'message-row-read': message.read}"
           class="message-row border-t-sm border-b-sm"
+          role="section"
         >
           <td class="column-pill">
             <v-chip
               :id="`timeline-tab-${activeTab}-pill-${message.type}-${message.id}`"
-              :aria-pressed="message.type !== 'requirement' && includes(openMessages, message.transientId)"
+              :aria-controls="message.type === 'requirement' ? null : `${message.type}-${message.id}-is-open`"
+              :aria-expanded="message.type === 'requirement' ? null : includes(openMessages, message.transientId)"
+              :aria-pressed="message.type === 'requirement' ? null : includes(openMessages, message.transientId)"
               class="border font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
               :class="`pill-${message.type}`"
               :color="`category-${message.type}`"
@@ -141,7 +145,7 @@
               variant="flat"
               :role="message.type === 'requirement' ? 'cell' : 'button'"
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
-              @click="onClickOpenMessage(message, true)"
+              @click="message.type !== 'requirement' ? onClickOpenMessage(message, true) : noop"
             >
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </v-chip>
@@ -181,7 +185,9 @@
           >
             <div
               :id="`timeline-tab-${activeTab}-message-${message.type}-${message.id}`"
-              :aria-pressed="message.type !== 'requirement' && includes(openMessages, message.transientId)"
+              :aria-controls="message.type === 'requirement' ? null : `${message.type}-${message.id}-is-open`"
+              :aria-expanded="message.type === 'requirement' ? null : includes(openMessages, message.transientId)"
+              :aria-pressed="message.type === 'requirement' ? null : includes(openMessages, message.transientId)"
               class="d-flex align-center pl-2 w-100"
               :class="{
                 'message-open': includes(openMessages, message.transientId) && message.type !== 'requirement' ,
@@ -189,10 +195,10 @@
               }"
               :role="message.type === 'requirement' ? '' : 'button'"
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
-              @keyup.enter="onClickOpenMessage(message, true)"
-              @click="onClickOpenMessage(message, true)"
+              @keyup.enter="message.type !== 'requirement' ? onClickOpenMessage(message, true) : noop"
+              @click="message.type !== 'requirement' ? onClickOpenMessage(message, true) : noop"
             >
-              <span v-if="['appointment', 'eForm', 'note'].includes(message.type) && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
+              <span v-if="message.type !== 'requirement' && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
               <v-icon
                 v-if="message.status === 'Satisfied'"
                 :icon="mdiCheckBold"
@@ -213,6 +219,7 @@
               />
               <span
                 v-if="!includes(['appointment', 'eForm', 'note'] , message.type)"
+                :id="`${message.type}-${message.id}-is-open`"
                 :class="{
                   'mb-5': includes(openMessages, message.transientId),
                   'truncate-with-ellipsis': !includes(openMessages, message.transientId)
@@ -242,11 +249,13 @@
                 :student="student"
               />
               <div
-                v-if="includes(openMessages, message.transientId) && message.id !== editModeNoteId"
+                v-if="includes(openMessages, message.transientId) && (!editModeNoteId || message.id !== editModeNoteId)"
                 class="my-1 text-center close-message"
               >
                 <v-btn
                   :id="`${activeTab}-close-message-${message.id}`"
+                  :aria-controls="message.type === 'requirement' ? null : `${message.type}-${message.id}-is-open`"
+                  :aria-expanded="message.type === 'requirement' ? null : includes(openMessages, message.transientId)"
                   color="primary"
                   :prepend-icon="mdiCloseCircle"
                   text="Close Message"
@@ -375,7 +384,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import {alertScreenReader, decodeStudentUriAnchor, pluralize, putFocusNextTick} from '@/lib/utils'
-import {capitalize, each, filter, find, get, includes, map, remove, size, slice} from 'lodash'
+import {capitalize, each, filter, find, get, includes, map, noop, remove, size, slice} from 'lodash'
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
@@ -648,12 +657,12 @@ const onClickDeleteNote = message => {
 
 const onClickCloseMessage = (message, notifyScreenReader) => {
   close(message, notifyScreenReader)
-  putFocusNextTick(`timeline-tab-${activeTab.value}-message-${message.type}-${message.id}`)
+  putFocusNextTick(`timeline-tab-${activeTab.value}-message-${message.type}-${message.id}`, {scroll: false})
 }
 
 const onClickOpenMessage = (message, notifyScreenReader) => {
   open(message, notifyScreenReader)
-  putFocusNextTick(`permalink-${message.type}-${message.id}`, 'start')
+  putFocusNextTick(`permalink-${message.type}-${message.id}`, {scrollBlock: 'start'})
 }
 
 const onNoteCreateStartEvent = event => {
@@ -720,7 +729,7 @@ const refreshSearchIndex = () => {
 const scrollToPermalink = message => {
   isShowingAll.value = true
   open(message)
-  putFocusNextTick(`permalink-${message.type}-${message.id}`, 'start')
+  putFocusNextTick(`permalink-${message.type}-${message.id}`, {scrollBlock: 'start'})
 }
 
 const toggleExpandAll = () => {

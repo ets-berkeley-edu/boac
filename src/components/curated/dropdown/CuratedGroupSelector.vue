@@ -234,7 +234,7 @@ const toggle = checked => {
       sids.value.push(student.sid || student.csEmplId)
     })
     contextStore.broadcast('curated-group-select-all', props.domain)
-    putFocusNextTick(dropdownId, 'button')
+    putFocusNextTick(dropdownId, {cssSelector: 'button'})
     alertScreenReader('All students on this page selected.')
   } else {
     contextStore.broadcast('curated-group-deselect-all', props.domain)

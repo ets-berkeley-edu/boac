@@ -112,7 +112,7 @@ const remove = object => {
   added.value = _filter(added.value, a => a.id !== object.id)
   props.removeObject(object)
   alertScreenReader(`${props.header} '${object.name}' removed`)
-  putFocusNextTick(`batch-degree-check-${props.objectType}-list`, 'button')
+  putFocusNextTick(`batch-degree-check-${props.objectType}-list`, {cssSelector: 'button'})
 }
 </script>
 
