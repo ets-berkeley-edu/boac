@@ -131,7 +131,8 @@
         >
           <td class="column-pill">
             <v-chip
-              :id="`timeline-tab-${activeTab}-pill-${index}`"
+              :id="`timeline-tab-${activeTab}-pill-${message.type}-${message.id}`"
+              :aria-pressed="message.type !== 'requirement' && includes(openMessages, message.transientId)"
               class="border font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
               :class="`pill-${message.type}`"
               :color="`category-${message.type}`"
@@ -140,8 +141,7 @@
               variant="flat"
               :role="message.type === 'requirement' ? 'cell' : 'button'"
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
-              @keyup.enter="open(message, true)"
-              @click="open(message, true)"
+              @click="onClickOpenMessage(message, true)"
             >
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </v-chip>
@@ -159,7 +159,6 @@
                 slim
                 :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
                 variant="text"
-                @keydown.enter.stop="editNote(message)"
                 @click.stop="editNote(message)"
               />
               <v-btn
@@ -172,7 +171,6 @@
                 slim
                 :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
                 variant="text"
-                @keydown.enter.stop="onClickDeleteNote(message)"
                 @click.stop="onClickDeleteNote(message)"
               />
             </div>
@@ -182,8 +180,8 @@
             class="column-message"
           >
             <div
-              :id="`timeline-tab-${activeTab}-message-${index}`"
-              :aria-pressed="includes(openMessages, message.transientId)"
+              :id="`timeline-tab-${activeTab}-message-${message.type}-${message.id}`"
+              :aria-pressed="message.type !== 'requirement' && includes(openMessages, message.transientId)"
               class="d-flex align-center pl-2 w-100"
               :class="{
                 'message-open': includes(openMessages, message.transientId) && message.type !== 'requirement' ,
@@ -191,8 +189,8 @@
               }"
               :role="message.type === 'requirement' ? '' : 'button'"
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
-              @keyup.enter="open(message, true)"
-              @click="open(message, true)"
+              @keyup.enter="onClickOpenMessage(message, true)"
+              @click="onClickOpenMessage(message, true)"
             >
               <span v-if="['appointment', 'eForm', 'note'].includes(message.type) && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
               <v-icon
@@ -253,8 +251,7 @@
                   :prepend-icon="mdiCloseCircle"
                   text="Close Message"
                   variant="text"
-                  @keyup.enter.stop="close(message, true)"
-                  @click.stop="close(message, true)"
+                  @click.stop="onClickCloseMessage(message, true)"
                 />
               </div>
             </div>
@@ -333,7 +330,7 @@
                       v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                       :id="`advising-${message.type}-permalink-${message.id}`"
                       :to="`#permalink-${message.type}-${message.id}`"
-                      @click="scrollToPermalink(message)"
+                      @click.prevent="scrollToPermalink(message)"
                     >
                       Permalink <v-icon :icon="mdiLinkVariant" />
                     </router-link>
@@ -377,7 +374,7 @@ import AdvisingNote from '@/components/note/AdvisingNote'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import TimelineDate from '@/components/student/profile/TimelineDate'
-import {alertScreenReader, decodeStudentUriAnchor, pluralize, putFocusNextTick, scrollTo} from '@/lib/utils'
+import {alertScreenReader, decodeStudentUriAnchor, pluralize, putFocusNextTick} from '@/lib/utils'
 import {capitalize, each, filter, find, get, includes, map, remove, size, slice} from 'lodash'
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
@@ -649,6 +646,16 @@ const onClickDeleteNote = message => {
   messageForDelete.value = message
 }
 
+const onClickCloseMessage = (message, notifyScreenReader) => {
+  close(message, notifyScreenReader)
+  putFocusNextTick(`timeline-tab-${activeTab.value}-message-${message.type}-${message.id}`)
+}
+
+const onClickOpenMessage = (message, notifyScreenReader) => {
+  open(message, notifyScreenReader)
+  putFocusNextTick(`permalink-${message.type}-${message.id}`, 'start')
+}
+
 const onNoteCreateStartEvent = event => {
   if (includes(event.completeSidSet, props.student.sid)) {
     creatingNoteEvent.value = event
@@ -656,7 +663,7 @@ const onNoteCreateStartEvent = event => {
 }
 
 const open = (message, notifyScreenReader) => {
-  if (['eForm', 'note'].includes(message.type) && message.id === editModeNoteId.value || message.type === 'requirement') {
+  if ((['eForm', 'note'].includes(message.type) && message.id === editModeNoteId.value) || message.type === 'requirement') {
     return false
   }
   if (!includes(openMessages.value, message.transientId)) {
@@ -710,11 +717,10 @@ const refreshSearchIndex = () => {
   })
 }
 
-const scrollToPermalink = (message) => {
+const scrollToPermalink = message => {
   isShowingAll.value = true
   open(message)
-  scrollTo(`permalink-${message.type}-${message.id}`)
-  putFocusNextTick(`message-row-${message.id}`)
+  putFocusNextTick(`permalink-${message.type}-${message.id}`, 'start')
 }
 
 const toggleExpandAll = () => {
@@ -732,6 +738,7 @@ const toggleExpandAll = () => {
 const toggleShowAll = () => {
   isShowingAll.value = !isShowingAll.value
   alertScreenReader(describeTheActiveTab())
+  putFocusNextTick(`timeline-tab-${activeTab.value}-previous-messages`, 'end')
 }
 
 init()
@@ -787,6 +794,7 @@ table {
 }
 .message-row:active,
 .message-row:focus,
+.message-row:focus-within,
 .message-row:hover {
   background-color: rgb(var(--v-theme-sky-blue));
 }

@@ -197,6 +197,10 @@
 .position-relative {
   position: relative;
 }
+.scroll-margins {
+  scroll-margin-bottom: 60px;
+  scroll-margin-top: 64px;
+}
 .scrollbar-gutter-stable {
   scrollbar-gutter: stable !important;
 }

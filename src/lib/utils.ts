@@ -90,13 +90,18 @@ export function oxfordJoin(arr, zeroString?) {
 export function pluralize(noun: string, count: number, substitutions = {}, pluralSuffix = 's') {
   return (`${substitutions[count] || substitutions['other'] || count} ` + (count !== 1 ? `${noun}${pluralSuffix}` : noun))
 }
-export function putFocusNextTick(id: string, cssSelector?: string) {
+// eslint-disable-next-line no-undef
+export function putFocusNextTick(id: string, scrollBlock: ScrollLogicalPosition = 'center', cssSelector?: string) {
   nextTick(() => {
     let counter = 0
     const putFocus = setInterval(() => {
       let el = document.getElementById(id)
       el = el && cssSelector ? el.querySelector(cssSelector) : el
-      el && el.focus() && el.scrollIntoView({behavior: 'smooth', block: 'center'})
+      if (el) {
+        el.classList.add('scroll-margins')
+        el.focus()
+        el.scrollIntoView({behavior: 'smooth', block: scrollBlock})
+      }
       if (el || ++counter > 5) {
         // Abort after success or five attempts
         clearInterval(putFocus)
@@ -117,6 +122,7 @@ export function scrollTo(anchor: string) {
   nextTick(() => {
     const element = document.getElementById(anchor)
     if (element) {
+      element.classList.add('scroll-margins')
       element.scrollIntoView({behavior: 'smooth', block: 'center'})
     }
   })
