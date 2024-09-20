@@ -6,20 +6,58 @@
       id: `td-admit-${data.item.csEmplId}-column-${data.column.key}`,
       style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
     })"
-    class="responsive-data-table"
+    class="responsive-data-table v-table-hidden-row-override"
     density="compact"
     :header-props="{class: 'pl-0 text-no-wrap'}"
     :headers="headers"
     :items="admittedStudents"
     mobile-breakpoint="md"
+    must-sort
     no-sort-reset
     :row-props="data => ({
       id: `tr-admit-${data.item.csEmplId}`
     })"
-    :sort-by="[sortBy]"
-    :sort-compare="sortCompare"
-    :sort-desc="sortDescending"
+    @update:sort-by="onUpdateSortBy"
   >
+    <template #headers="{columns, isSorted, toggleSort, getSortIcon}">
+      <tr>
+        <th
+          v-for="column in columns"
+          :key="column.key"
+          :aria-label="column.ariaLabel || column.title"
+          :aria-sort="isSorted(column) ? `${sortBy.order}ending` : null"
+          class="pl-0 text-no-wrap text-left"
+          :style="column.headerProps"
+        >
+          <template v-if="column.sortable">
+            <v-btn
+              :id="`admits-sort-by-${column.key}-btn`"
+              :append-icon="getSortIcon(column)"
+              :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
+              class="align-start font-size-12 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"
+              :class="{'icon-visible': isSorted(column)}"
+              color="body"
+              density="compact"
+              variant="plain"
+              @click="() => toggleSort(column)"
+            >
+              <span class="text-left text-wrap">{{ column.title }}</span>
+            </v-btn>
+          </template>
+          <template v-else>
+            <div
+              :aria-hidden="!!column.ariaLabel"
+              class="not-sortable font-size-12 font-weight-bold text-body"
+              :class="get(column, 'headerProps.class', '')"
+            >
+              {{ column.title }}
+            </div>
+            <span v-if="!!column.ariaLabel" class="sr-only">{{ column.ariaLabel }}</span>
+          </template>
+        </th>
+      </tr>
+    </template>
+
     <template #item.curated="{item}">
       <CuratedStudentCheckbox
         domain="admitted_students"
@@ -86,12 +124,12 @@
 
 <script setup>
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
-import {alertScreenReader, sortComparator} from '@/lib/utils'
-import {each, find, get, isString, join, remove} from 'lodash'
-import {ref, watch} from 'vue'
+import {alertScreenReader} from '@/lib/utils'
+import {concat, find, get, join, map, orderBy, remove} from 'lodash'
+import {onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
-defineProps({
+const props = defineProps({
   admittedStudents: {
     required: true,
     type: Array
@@ -100,26 +138,23 @@ defineProps({
 
 const currentUser = useContextStore().currentUser
 const headers = [
-  {key: 'curated', title: ''},
-  {key: 'lastName', title: 'Name', sortable: true, width: '220px'},
-  {key: 'csEmplId', title: 'CS ID', sortable: true},
+  {key: 'curated', title: '', sortable: false},
+  {key: 'lastName', ariaLabel: 'last name', title: 'Name', sortable: true, width: '220px'},
+  {key: 'csEmplId', ariaLabel: 'C S I D', title: 'CS ID', sortable: true},
   {key: 'currentSir', title: 'SIR', sortable: false},
-  {key: 'specialProgramCep', title: 'CEP', sortable: false},
+  {key: 'specialProgramCep', ariaLabel: 'C E P', title: 'CEP', sortable: false},
   {key: 'reentryStatus', title: 'Re-entry', sortable: false},
   {key: 'firstGenerationCollege', title: '1st Gen', sortable: false},
-  {key: 'urem', title: 'UREM', sortable: false},
+  {key: 'urem', ariaLabel: 'U R E M', title: 'UREM', sortable: false},
   {key: 'applicationFeeWaiverFlag', title: 'Waiver', sortable: false},
   {key: 'residencyCategory', title: 'Residency', sortable: false},
   {key: 'freshmanOrTransfer', title: 'Freshman/Transfer', sortable: false},
 ]
-const sortBy = ref('lastName')
-const sortDescending = ref(false)
+const items = ref(undefined)
+const sortBy = ref({})
 
-watch(sortBy, () => {
-  onChangeSortBy()
-})
-watch(sortDescending, () => {
-  onChangeSortBy()
+onMounted(() => {
+  onUpdateSortBy([{key: 'lastName', order: 'asc'}])
 })
 
 const admitRoutePath = csEmplId => {
@@ -131,31 +166,28 @@ const fullName = admit => {
   return join(remove([lastName, admit.firstName, admit.middleName]), ' ')
 }
 
-const normalizeForSort = value => {
-  return isString(value) ? value.toLowerCase() : value
-}
-
-const onChangeSortBy = () => {
-  const header = find(headers, ['key', sortBy.value])
-  alertScreenReader(`Sorted by ${header.title}${sortDescending.value ? ', descending' : ''}`)
-}
-
-const sortCompare = (a, b, sortBy, sortDesc) => {
-  let aValue = normalizeForSort(get(a, sortBy))
-  let bValue = normalizeForSort(get(b, sortBy))
-  let result = sortComparator(aValue, bValue)
-  if (result === 0) {
-    each(['lastName', 'firstName', 'csEmplId'], field => {
-      result = sortComparator(
-        normalizeForSort(get(a, field)),
-        normalizeForSort(get(b, field))
-      )
-      // Secondary sort is always ascending
-      result *= sortDesc ? -1 : 1
-      // Break from loop if comparator result is non-zero
-      return result === 0
-    })
+const onUpdateSortBy = primarySortBy => {
+  const key = primarySortBy[0].key
+  const order = primarySortBy[0].order
+  const header = find(headers, {key: key})
+  const sortKeys = concat(
+    primarySortBy,
+    {key: 'lastName', order: 'asc'},
+    {key: 'firstName', order: 'asc'},
+    {key: 'middleName', order: 'asc'},
+    {key: 'csEmplId', order: 'asc'}
+  )
+  sortBy.value = primarySortBy[0]
+  items.value = orderBy(props.admittedStudents, map(sortKeys, 'key'), map(sortKeys, 'order'))
+  if (header) {
+    alertScreenReader(`Sorted by ${header.ariaLabel || header.title}, ${order}ending`)
   }
-  return result
 }
 </script>
+
+<style scoped>
+.not-sortable {
+  opacity: 0.62;
+  padding-top: 2px;
+}
+</style>
