@@ -1,7 +1,7 @@
 <template>
-  <div id="student-terms-container">
+  <div id="student-terms-container" aria-labelledby="student-classes-header" role="region">
     <div class="align-center d-flex">
-      <h2 class="student-section-header">Classes</h2>
+      <h2 id="student-classes-header" class="student-section-header">Classes</h2>
       <div>
         <v-btn
           v-if="enrollmentTermsByYear.length > 1"

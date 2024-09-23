@@ -4,7 +4,6 @@
       :id="`note-${note.id}-is-closed`"
       class="w-100"
       :class="{'note-snippet-when-closed': !isOpen}"
-      aria-label="Advising note"
     >
       <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`">
         <span class="pr-2">
@@ -37,24 +36,6 @@
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="pb-2 w-100">
-      <div v-if="!note.legacySource">
-        <v-btn
-          v-if="currentUser.isAdmin"
-          :id="`btn-delete-note-${note.id}`"
-          class="sr-only"
-          @click.stop="deleteNote(note)"
-        >
-          Delete {{ note.isDraft ? 'Draft' : 'Note' }} {{ note.subject }} created {{ formatDate(note.createdAt, 'MMM d, yyyy') }}
-        </v-btn>
-        <v-btn
-          v-if="currentUser.uid === author.uid"
-          :id="`btn-edit-note-${note.id}`"
-          class="sr-only"
-          @click.stop="editNote(note)"
-        >
-          Edit {{ note.isDraft ? 'Draft' : 'Note' }} {{ note.subject }} created {{ formatDate(note.createdAt, 'MMM d, yyyy') }}
-        </v-btn>
-      </div>
       <div v-if="note.subject && note.message" class="open-note-message-container pt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message" />
       </div>
@@ -108,10 +89,12 @@
           <a
             v-if="author.uid && author.name"
             :id="`note-${note.id}-author-name`"
-            :aria-label="`Open UC Berkeley Directory page of ${author.name} in a new window`"
+            :aria-label="`${author.name} (link opens UC Berkeley Directory page in a new window)`"
             :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
             target="_blank"
-          >{{ author.name }}</a>
+          >
+            {{ author.name }}
+          </a>
           <span v-if="!author.uid && author.name" :id="`note-${note.id}-author-name`">
             {{ author.name }}
           </span>
@@ -138,23 +121,26 @@
         <div class="font-weight-bold">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>
-      <div class="note-attachments-container">
+      <div v-if="!note.legacySource || size(note.attachments)" class="note-attachments-container">
         <AdvisingNoteAttachments
-          v-if="!note.legacySource"
           :add-attachments="addNoteAttachments"
+          :aria-labelledby="`note-${note.id}-attachments-list-label`"
           class="attachments-edit py-3"
           :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
           downloadable
           :id-prefix="`note-${note.id}-`"
           :note="note"
+          :read-only="!!note.legacySource"
           :remove-attachment="removeAttachmentByIndex"
         >
           <template #label>
             <label
-              :id="`note-${note.id}--attachments-list-label`"
+              :id="`note-${note.id}-attachments-list-label`"
               class="font-size-16 font-weight-bold"
               :for="`note-${note.id}-attachments-list`"
-            >Attachments</label>
+            >
+              Attachments
+            </label>
           </template>
         </AdvisingNoteAttachments>
       </div>
@@ -251,8 +237,6 @@ const confirmedRemoveAttachment = () => {
 const displayName = (attachments, index) => {
   return !isNumber(index) || size(attachments) <= index ? '' : attachments[index].displayName
 }
-
-const formatDate = (isoDate, format) => DateTime.fromISO(isoDate).setZone(contextStore.config.timezone).toFormat(format)
 
 const loadAuthorDetails = () => {
   const requiresLazyLoad = (

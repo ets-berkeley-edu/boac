@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-wrap mr-4 pb-2 pt-4">
+  <div aria-labelledby="student-name-header student-name-header-sr" class="d-flex flex-wrap mr-4 pb-2 pt-4" role="region">
     <div class="d-flex ml-3 me-auto">
       <div class="text-center" :class="{'column-with-avatar-compact': compact, 'column-with-avatar': !compact}">
         <StudentAvatar :size="compact ? 'medium' : 'large'" :student="student" />
@@ -43,8 +43,6 @@ import StudentPersonalDetails from '@/components/student/profile/StudentPersonal
 import StudentProfileHeaderAcademics from '@/components/student/profile/StudentProfileHeaderAcademics'
 import StudentProfileHeaderBio from '@/components/student/profile/StudentProfileHeaderBio'
 import {compact as _compact, map, partition} from 'lodash'
-import {onMounted} from 'vue'
-import {decodeStudentUriAnchor, putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({
   compact: {
@@ -64,13 +62,6 @@ const props = defineProps({
 const plansMinorPartitionedByStatus = partition(props.student.sisProfile.plansMinor, (p) => p.status === 'Active')
 const plansPartitionedByStatus = partition(props.student.sisProfile.plans, (p) => p.status === 'Active')
 const discontinuedSubplans = _compact(map(plansPartitionedByStatus[1], 'subplan'))
-
-onMounted(() => {
-  // If custom scroll-to-note is happening then skip the putFocus below.
-  if (!decodeStudentUriAnchor()) {
-    putFocusNextTick('student-name-header')
-  }
-})
 </script>
 
 <style>

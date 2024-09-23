@@ -11,7 +11,7 @@
   </div>
   <div>
     <div class="advising-appointment-outer pb-1">
-      <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
+      <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`" class="pb-3">
         <div v-if="appointment.appointmentTitle">
           <span :id="`appointment-${appointment.id}-title`" v-html="appointment.appointmentTitle" />
         </div>
@@ -39,8 +39,10 @@
             :aria-label="`Open UC Berkeley Directory page of ${advisor.name} in a new window`"
             :href="`https://www.berkeley.edu/directory/results?search-term=${advisor.name}`"
             target="_blank"
-          >{{ advisor.name }}</a>
-          <span v-if="!appointment.advisor.uid" :id="`appointment-${appointment.id}-advisor-name`">
+          >
+            {{ advisor.name }}
+          </a>
+          <span v-if="!advisor.uid" :id="`appointment-${appointment.id}-advisor-name`">
             {{ advisor.name }}
           </span>
           <span v-if="advisor.title" :id="`appointment-${appointment.id}-advisor-role`" class="text-dark">

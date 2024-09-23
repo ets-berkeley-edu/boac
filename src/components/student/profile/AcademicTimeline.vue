@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isTimelineLoading">
+  <div v-if="!isTimelineLoading" aria-labelledby="student-academic-timeline-header" role="region">
     <AcademicTimelineHeader
       :counts-per-type="countsPerType"
       :filter="selectedFilter"

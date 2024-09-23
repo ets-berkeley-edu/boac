@@ -45,6 +45,7 @@
     <ManuallySetDate class="mt-3" :disabled="isSaving || boaSessionExpired" />
     <AdvisingNoteAttachments
       v-if="size(noteStore.model.attachments)"
+      aria-labelledby="edit-note-attachments-list-label"
       class="mt-3"
       :disabled="isSaving || boaSessionExpired"
       id-prefix="edit-note-"
