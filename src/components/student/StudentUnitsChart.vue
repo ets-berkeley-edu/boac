@@ -57,11 +57,6 @@ onMounted(() => {
     legend: {
       enabled: false
     },
-    navigation: {
-      buttonOptions: {
-        enabled: false
-      }
-    },
     plotOptions: {
       accessibility: {
         description,
