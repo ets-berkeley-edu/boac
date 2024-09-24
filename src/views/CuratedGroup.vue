@@ -201,7 +201,7 @@ const onChangeSortBy = () => {
 const onChangeTerm = () => {
   if (!contextStore.loading) {
     contextStore.loadingStart(pageLoadAlert.value)
-    goToCuratedGroup(curatedGroupId.value, pageNumber.value).then(() => {
+    goToCuratedGroup(curatedGroupId.value, pageNumber.value ? pageNumber.value : 1).then(() => {
       contextStore.loadingComplete(pageLoadAlert.value)
     })
   }
