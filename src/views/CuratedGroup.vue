@@ -14,7 +14,7 @@
         <div v-if="totalStudentCount > itemsPerPage" class="pt-2">
           <Pagination
             class="my-3"
-            :click-handler="onClickPagination"
+            :click-handler="goToPage"
             :init-page-number="pageNumber"
             :limit="10"
             :per-page="itemsPerPage"
@@ -49,7 +49,7 @@
           </div>
           <div v-if="totalStudentCount > itemsPerPage" class="pr-3 pt-7">
             <Pagination
-              :click-handler="(page, buttonName) => onClickPagination(page, buttonName, 'auxiliary-pagination')"
+              :click-handler="goToPage"
               id-prefix="auxiliary-pagination"
               :init-page-number="pageNumber"
               :limit="10"
@@ -124,7 +124,6 @@ const pageLoadAlert = computed(() => {
   }
 })
 const sortByKey = computed(() => domain.value === 'admitted_students' ? 'admitSortBy' : 'sortBy')
-const totalPages = computed(() => Math.ceil(curatedStore.totalStudentCount / curatedStore.pagination.itemsPerPage))
 const {curatedGroupId, domain, itemsPerPage, mode, pageNumber, students, totalStudentCount} = storeToRefs(curatedStore)
 
 
@@ -205,18 +204,6 @@ const onChangeTerm = () => {
       contextStore.loadingComplete(pageLoadAlert.value)
     })
   }
-}
-
-const onClickPagination = (page, buttonName, idPrefix='pagination') => {
-  let returnFocusId = buttonName
-  if (buttonName === 'first' || buttonName === 'prev' && page === 1) {
-    returnFocusId = 'page-1'
-  } else if (buttonName === 'last' || (buttonName === 'next' && page === totalPages.value)) {
-    returnFocusId = `page-${totalPages.value}`
-  }
-  goToPage(page).then(() => {
-    putFocusNextTick(`${idPrefix}-${returnFocusId}`)
-  })
 }
 
 const removeStudent = sid => {

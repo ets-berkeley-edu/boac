@@ -1,5 +1,5 @@
 <template>
-  <div :id="`${idPrefix}-container`" class="d-flex justify-start" tabindex="-1">
+  <div :id="`${idPrefix}-container`" class="d-flex justify-start scroll-margins py-1" tabindex="-1">
     <span class="sr-only"><span id="total-rows">{{ totalPages }}</span> pages of search results. Use Tab to navigate.</span>
     <v-pagination
       :id="`${idPrefix}-widget`"
@@ -12,66 +12,83 @@
       :show-first-last-page="totalPages >= showFirstLastButtonsWhen"
       :total-visible="7"
       variant="flat"
-      @first="() => onClick('first')"
-      @last="() => onClick('last')"
-      @next="() => onClick('next')"
-      @prev="() => onClick('prev')"
-      @update:model-value="v => onClick(v)"
     >
       <template #first="{disabled}">
         <v-btn
           :id="`${idPrefix}-first`"
-          class="font-size-14 rounded-e-0 rounded-s-lg"
+          class="font-size-14 px-2"
           color="primary"
           :disabled="disabled"
           slim
+          :tabindex="disabled ? -1 : 0"
+          tag="a"
           text="First"
           variant="outlined"
           @click="onClick('first')"
+          @keyup.enter="onClick('first')"
         />
       </template>
       <template #prev="{disabled}">
         <v-btn
           :id="`${idPrefix}-prev`"
           aria-label="Previous"
-          class="chevron-button"
           color="primary"
-          :class="{
-            'rounded-0': totalPages >= showFirstLastButtonsWhen,
-            'rounded-e-0': totalPages < showFirstLastButtonsWhen
-          }"
           :disabled="disabled"
           :icon="mdiChevronLeft"
+          :tabindex="disabled ? -1 : 0"
+          tag="a"
           tile
           variant="outlined"
           @click="onClick('prev')"
+          @keyup.enter="onClick('prev')"
+        />
+      </template>
+      <template #item="{isActive, key, page, props: itemProps}">
+        <v-btn
+          :id="itemProps.ellipsis ? `${idPrefix}-ellipsis` : `${idPrefix}-page-${key}`"
+          :aria-current="isActive"
+          :aria-label="itemProps.ellipsis ? undefined : `Page ${page}${isActive ? ', current page' : ''}`"
+          :class="{
+            'bg-surface text-primary': !isActive && !itemProps.ellipsis,
+            'bg-primary text-white': isActive && itemProps.ellipsis,
+            'pagination-ellipsis': itemProps.ellipsis
+          }"
+          :tabindex="itemProps.ellipsis ? -1 : 0"
+          tag="a"
+          :text="page"
+          tile
+          variant="flat"
+          v-bind="props"
+          @click="onClick(page)"
+          @keyup.enter="onClick(page)"
         />
       </template>
       <template #next="{disabled}">
         <v-btn
           :id="`${idPrefix}-next`"
-          class="chevron-button rounded-s-0"
-          :class="{
-            'rounded-0': totalPages >= showFirstLastButtonsWhen,
-            'rounded-s-0': totalPages < showFirstLastButtonsWhen
-          }"
           color="primary"
           :disabled="disabled"
           :icon="mdiChevronRight"
+          :tabindex="disabled ? -1 : 0"
+          tag="a"
           variant="outlined"
           @click="onClick('next')"
+          @keyup.enter="onClick('next')"
         />
       </template>
       <template #last="{disabled}">
         <v-btn
           :id="`${idPrefix}-last`"
-          class="font-size-14 rounded-s-0 rounded-e-lg"
+          class="font-size-14 px-2"
           color="primary"
           :disabled="disabled"
           slim
+          :tabindex="disabled ? -1 : 0"
+          tag="a"
           text="Last"
           variant="outlined"
           @click="onClick('last')"
+          @keyup.enter="onClick('last')"
         />
       </template>
     </v-pagination>
@@ -80,7 +97,8 @@
 
 <script setup>
 import {computed} from 'vue'
-import {each, toNumber} from 'lodash'
+import {putFocusNextTick} from '@/lib/utils'
+import {toNumber} from 'lodash'
 import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
 
 const props = defineProps({
@@ -120,58 +138,53 @@ const currentPage = props.initPageNumber
 const showFirstLastButtonsWhen = 3
 const totalPages = computed(() => Math.ceil(props.totalRows / props.perPage))
 
-const intervalId = setInterval(() => {
-  const elements = document.querySelectorAll(`#${props.idPrefix}-widget button[ellipsis]`)
-  if (elements.length) {
-    clearInterval(intervalId)
-    each(elements, element => {
-      const isEllipsis = element.getAttribute('ellipsis') === 'true'
-      const suffix = isEllipsis ? 'ellipsis' : `page-${(element.ariaLabel || 'unknown').match(/\d+/)[0]}`
-      element.id = `${props.idPrefix}-${suffix}`
-      if (isEllipsis) {
-        element.classList.add('text-surface')
-        element.lastElementChild.classList.add('text-medium-emphasis')
-      } else if (element.ariaCurrent !== 'true') {
-        element.classList.add('text-primary')
-      }
-      each(['border-1', 'px-5', 'rounded-0'], className => element.classList.add(className))
-    })
-  }
-}, 300)
-
 const onClick = page => {
   switch(page) {
   case 'first':
-    props.clickHandler(toNumber(1), 'first')
+    props.clickHandler(toNumber(1)).then(() => putFocusNextTick(`${props.idPrefix}-page-1`))
     break
   case 'last':
-    props.clickHandler(toNumber(totalPages.value), 'last')
+    props.clickHandler(toNumber(totalPages.value)).then(() => putFocusNextTick(`${props.idPrefix}-page-${totalPages.value}`))
     break
   case 'prev':
-    props.clickHandler(toNumber(currentPage - 1), 'prev')
+    props.clickHandler(toNumber(currentPage - 1)).then(() => putFocusNextTick(`${props.idPrefix}-page-${currentPage - 1}`))
     break
   case 'next':
-    props.clickHandler(toNumber(currentPage + 1), 'next')
+    props.clickHandler(toNumber(currentPage + 1)).then(() => putFocusNextTick(`${props.idPrefix}-page-${currentPage + 1}`))
     break
   default:
-    props.clickHandler(toNumber(page), `page-${page}`)
+    props.clickHandler(toNumber(page)).then(() => putFocusNextTick(`${props.idPrefix}-page-${page}`))
   }
 }
 </script>
 
 <style lang="scss">
-.chevron-button {
-  height: 36px !important;
-}
 .v-pagination {
   ul li {
     margin: 0;
-    button {
+    a {
       border: 1px solid rgb(var(--v-theme-surface-light));
-      height: 40px;
-      &.page-number {
-        min-width: unset;
-        width: 45px !important;
+      border-radius: 0 !important;
+      height: 36px !important;
+      min-width: 40px !important;
+      padding: 0 2px;
+      width: fit-content !important;
+      &:hover {
+        text-decoration: none !important;
+      }
+    }
+    &:first-child a {
+      border-radius: 4px 0 0 4px !important;
+    }
+    &:last-child a {
+      border-radius: 0 4px 4px 0 !important;
+    }
+    a.pagination-ellipsis {
+      .v-btn__overlay {
+        background-color: unset !important;
+      }
+      .v-btn__content {
+        color: rgba(var(--v-theme-on-surface),var(--v-disabled-opacity)) !important;
       }
     }
   }
