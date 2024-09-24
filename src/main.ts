@@ -1,3 +1,4 @@
+import accessibility from 'highcharts/modules/accessibility'
 import App from './App.vue'
 import axiosPlugin from '@/plugins/axios'
 import axios from 'axios'
@@ -23,6 +24,7 @@ const isVueAppDebugMode: boolean = trim(import.meta.env.VITE_APP_DEBUG).toLowerC
 
 const app = createApp(App)
 app.config.errorHandler = appErrorHandler
+accessibility(Highcharts)
 app.use(axiosPlugin, {baseUrl: apiBaseUrl})
   .use(CKEditor)
   .use(createPinia())
