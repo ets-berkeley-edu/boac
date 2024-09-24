@@ -30,6 +30,7 @@ from bea.pages.pagination import Pagination
 from bea.pages.user_list_pages import UserListPages
 from bea.test_utils import utils
 from flask import current_app as app
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
@@ -58,9 +59,14 @@ class ListViewStudentPages(Pagination, UserListPages):
         return list(map(lambda el: el.text, self.elements(self.PLAYER_NAME)))
 
     def list_view_sids(self):
-        self.wait_for_players()
-        time.sleep(utils.get_click_sleep())
-        return list(map(lambda el: el.text.replace('INACTIVE', '').strip(), self.elements(self.PLAYER_SID)))
+        try:
+            self.wait_for_players()
+            time.sleep(utils.get_click_sleep())
+            return list(map(lambda el: el.text.replace('INACTIVE', '').replace('WAITLISTED', '').strip(),
+                            self.elements(self.PLAYER_SID)))
+        except TimeoutException:
+            app.logger.info('No list view SIDs found')
+            return []
 
     @staticmethod
     def student_row_xpath(student):
@@ -88,7 +94,7 @@ class ListViewStudentPages(Pagination, UserListPages):
         return list(map(lambda el: el.get_attribute('id').split('-')[-1], self.elements(self.PLAYER_LINK)))
 
     def visible_sids(self, filtered_cohort=None):
-        if not (filtered_cohort and len(filtered_cohort.members) == 0):
+        if filtered_cohort and filtered_cohort.members:
             self.wait_for_student_list()
         sids = []
         time.sleep(2)

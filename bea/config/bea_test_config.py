@@ -185,7 +185,7 @@ class BEATestConfig(object):
 
     def set_students(self, students=None, opts=None):
         self.students = students or nessie_utils.get_all_students(opts)
-        if opts and opts['include_inactive']:
+        if opts and utils.safe_key(opts, 'include_inactive'):
             app.logger.info('Pool of test students will include inactive students')
         else:
             self.students = [s for s in self.students if s.status == 'active']
@@ -201,7 +201,7 @@ class BEATestConfig(object):
 
     def set_default_cohort(self, cohort_filter=None, opts=None):
         if not cohort_filter:
-            if opts and opts['include_inactive']:
+            if opts and utils.safe_key(opts, 'include_inactive'):
                 data = {
                     'intended_majors': [{'major': app.config['TEST_DEFAULT_COHORT_MAJOR']}],
                     'career_statuses': [{'status': 'Active'}, {'status': 'Inactive'}],
@@ -500,7 +500,7 @@ class BEATestConfig(object):
 
     def search_class(self):
         self.set_base_configs()
-        self.set_test_students(count=app.config['MAX_SEARCH_STUDENTS_COUNT'], opts={'with_enrollments': True})
+        self.set_test_students(count=app.config['MAX_SEARCH_STUDENTS_COUNT'], opts={'enrollments': True})
         self.get_test_student_enrollments()
 
     def search_students(self):

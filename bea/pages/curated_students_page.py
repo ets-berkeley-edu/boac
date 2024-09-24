@@ -37,7 +37,7 @@ class CuratedStudentsPage(CohortAndGroupStudentPages, CuratedPages):
     GROUP_NOT_FOUND_MSG = By.XPATH, '//span[contains(.,"No curated group found with id: ")]'
 
     def remove_student_button_loc(self, student):
-        return f'{self.student_row_xpath(student)}//button[contains(@id, "remove-student-from-curated-group")]'
+        return By.XPATH, f'{self.student_row_xpath(student)}//button[contains(@id, "remove-student-from-curated-group")]'
 
     def load_everyone_groups_page(self):
         self.driver.get(f'{boa_utils.get_boa_base_url()}/groups/all')
@@ -60,11 +60,7 @@ class CuratedStudentsPage(CohortAndGroupStudentPages, CuratedPages):
         self.wait_for_element_and_click(self.remove_student_button_loc(student))
         group.members.remove(student)
         time.sleep(2)
-        visible_uids = self.list_view_sids()
-        visible_uids.sort()
-        expected_uids = list(map(lambda m: m.uid, group.members))
-        expected_uids.sort()
-        assert visible_uids == expected_uids
+        self.assert_visible_students_match_expected(group)
 
     def assert_visible_students_match_expected(self, group):
         visible_sids = self.visible_sids()

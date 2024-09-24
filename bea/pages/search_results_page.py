@@ -38,7 +38,7 @@ class SearchResultsPage(ListViewAdmitPages):
     NO_RESULTS_MSG = By.XPATH, '//div[contains(text(), "No matching records found.")]'
 
     def wait_for_no_results(self):
-        self.when_visible(self.NO_RESULTS_MSG, utils.get_short_timeout())
+        self.when_present(self.NO_RESULTS_MSG, utils.get_short_timeout())
 
     # ADMIT SEARCH
 
@@ -250,10 +250,12 @@ class SearchResultsPage(ListViewAdmitPages):
 
     def select_and_add_students_to_grp(self, students, group):
         self.select_students_to_add(students)
+        self.click_add_to_group_from_list_view_header_button(group)
         self.add_members_to_grp(students, group)
 
     def select_and_add_students_to_new_grp(self, students, group):
         self.select_students_to_add(students)
+        self.click_add_to_group_from_list_view_header_button(group)
         self.add_members_to_new_grp(students, group)
 
     def select_and_add_all_students_to_grp(self, all_students, group):
@@ -265,4 +267,5 @@ class SearchResultsPage(ListViewAdmitPages):
         app.logger.info(f'There are {len(els)} individual checkboxes')
         visible_sids = list(map(lambda el: el.get_attribute('id').split('-')[1], els))
         students = list(filter(lambda s: s.sid in visible_sids, all_students))
+        self.click_add_to_group_from_list_view_header_button(group)
         self.add_members_to_grp(students, group)

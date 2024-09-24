@@ -38,11 +38,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
     TITLE_REQUIRED_MSG = By.XPATH, '//span[text()="Required"]'
 
     def confirm_export(self, cohort):
-        is_filtered = cohort.__class__.__name__ == 'FilteredCohort'
-        is_filtered_admits = cohort.search_criteria.__class__.__name__ == 'CohortAdmitFilter'
-        is_group = cohort.__class__.__name__ == 'CuratedGroup'
-        if (is_filtered and not is_filtered_admits) or is_group:
-            self.wait_for_element_and_click(self.CONFIRM_EXPORT_LIST_BUTTON)
+        self.wait_for_element_and_click(self.CONFIRM_EXPORT_LIST_BUTTON)
 
     def export_default_student_list(self, cohort):
         app.logger.info('Exporting student list with default columns')
@@ -56,7 +52,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         utils.prepare_download_dir()
         self.click_export_list()
         for i in range(19):
-            loc = (By.ID, f'csv-column-options_BV_option_{i}')
+            loc = (By.ID, f'csv-column-options-{i}')
             self.wait_for_element(loc, utils.get_short_timeout())
             self.click_element_js(loc)
         self.confirm_export(cohort)

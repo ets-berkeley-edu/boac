@@ -25,8 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.cohorts_and_groups.cohort import Cohort
-from bea.models.cohorts_and_groups.cohort_filter import CohortFilter
-from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
@@ -96,6 +94,7 @@ class TestCuratedGroup:
     def test_create_group_from_student_page_group_selector(self):
         group = Cohort({'name': f'Group created from student page {self.test.test_id}'})
         self.student_page.load_page(self.test_student)
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
         self.student_page.add_members_to_new_grp([self.test_student], group)
 
     def test_create_group_from_bulk_sids(self):
@@ -104,20 +103,20 @@ class TestCuratedGroup:
         self.homepage.click_sidebar_create_student_group()
         self.curated_students_page.create_group_with_bulk_sids(group, students)
         self.curated_students_page.wait_for_sidebar_group(group)
-        self.curated_students_page.when_visible(self.curated_students_page.group_name_heading(group),
+        self.curated_students_page.when_visible(self.curated_students_page.group_name_heading_loc(group),
                                                 utils.get_medium_timeout())
 
     def test_group_name_required(self):
         group = Cohort({'name': None})
         self.student_page.load_page(self.test_student)
-        self.student_page.click_add_to_group_button(group)
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
         self.student_page.click_create_new_grp(group)
         assert not self.student_page.element(self.student_page.GROUP_SAVE_BUTTON).is_enabled()
 
     def test_group_name_truncated_255_chars(self):
         self.student_page.cancel_group_if_modal()
         group = Cohort({'name': ('A llooooong title ' * 15)})
-        self.student_page.click_add_to_group_button(group)
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
         self.student_page.click_create_new_grp(group)
         self.student_page.enter_group_name(group)
         self.student_page.when_present(self.student_page.NO_CHARS_LEFT_MSG, 1)
@@ -126,42 +125,35 @@ class TestCuratedGroup:
         self.student_page.cancel_group_if_modal()
         existing_group = Cohort({'name': f'Existing Group {self.test.test_id}'})
         self.student_page.load_page(self.test_student)
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
         self.student_page.add_members_to_new_grp([self.test_student], existing_group)
 
         new_group = Cohort({'name': existing_group.name})
-        self.student_page.click_add_to_group_button()
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
         self.student_page.click_create_new_grp(new_group)
         self.student_page.name_and_save_group(new_group)
         self.student_page.when_visible(self.student_page.DUPE_GROUP_NAME_MSG, utils.get_short_timeout())
 
     def test_group_name_cannot_match_existing_cohort_of_same_advisor(self):
         self.student_page.cancel_group_if_modal()
-        filters = CohortFilter({'levels': ['10']}, self.test.dept)
-        existing_cohort = FilteredCohort({
-            'name': f'Existing Filtered Cohort {self.test.test_id}',
-            'search_criteria': filters,
-        })
-        self.student_page.click_sidebar_create_filtered()
-        self.filtered_students_page.perform_student_search(existing_cohort)
-        self.filtered_students_page.create_new_cohort(existing_cohort)
-
-        new_group = Cohort({'name': existing_cohort.name})
-        self.filtered_students_page.click_add_to_group_button()
-        self.filtered_students_page.click_create_new_grp()
-        self.filtered_students_page.name_and_save_group(new_group)
-        self.filtered_students_page.when_visible(self.filtered_students_page.DUPE_FILTERED_NAME_MSG,
-                                                 utils.get_short_timeout())
+        new_group = Cohort({'name': self.test.default_cohort.name})
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
+        self.student_page.click_create_new_grp(new_group)
+        self.student_page.name_and_save_group(new_group)
+        self.student_page.when_visible(self.student_page.DUPE_FILTERED_NAME_MSG, utils.get_short_timeout())
 
     def test_group_name_can_match_deleted_group_of_same_advisor(self):
         self.filtered_students_page.cancel_group_if_modal()
         deleted_group = Cohort({'name': f'Deleted Group {self.test.test_id}'})
         self.student_page.load_page(self.test_student)
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
         self.student_page.add_members_to_new_grp([self.test_student], deleted_group)
         self.curated_students_page.load_page(deleted_group)
         self.curated_students_page.delete_group(deleted_group)
 
         new_group = Cohort({'name': deleted_group.name})
         self.student_page.load_page(self.test_student)
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
         self.student_page.add_members_to_new_grp([self.test_student], new_group)
 
     def test_group_name_can_be_changed(self):
@@ -173,6 +165,7 @@ class TestCuratedGroup:
         self.test.default_cohort.members.pop(-1)
         self.student_page.load_page(self.test_student)
         for g in self.advisor_groups:
+            self.student_page.click_add_to_group_per_student_button(self.test_student)
             self.student_page.add_members_to_new_grp([self.test_student], g)
 
     def test_group_members_can_be_added_from_cohort_using_select_all(self):
@@ -194,10 +187,10 @@ class TestCuratedGroup:
 
     def test_group_members_can_be_added_from_bulk_add_sids_page(self):
         self.curated_students_page.load_page(self.group_4)
-        self.curated_students_page.add_comma_sep_sids_to_existing_grp(self.test.students[-10:], self.group_4)
+        self.curated_students_page.add_comma_sep_sids_to_existing_grp(self.group_4, self.test.students[-10:])
         visible_sids = self.curated_students_page.visible_sids()
         visible_sids.sort()
-        member_sids = list(map(lambda m: m.sis, self.group_4.members))
+        member_sids = list(map(lambda m: m.sid, self.group_4.members))
         member_sids.sort()
         missing_sids = list(set(member_sids) - set(visible_sids))
         # Account for SIDs that have no associated data and will not appear in Boa
@@ -245,8 +238,8 @@ class TestCuratedGroup:
 
     def test_group_membership_shown_on_student_page(self):
         self.student_page.load_page(self.group_1.members[0])
-        self.student_page.click_add_to_group_button()
-        assert self.student_page.is_group_selected()
+        self.student_page.click_add_to_group_per_student_button(self.group_1.members[0])
+        assert self.student_page.is_group_selected(self.group_1)
 
     def test_group_membership_can_be_removed_on_group_page(self):
         self.curated_students_page.load_page(self.group_2)
@@ -257,6 +250,7 @@ class TestCuratedGroup:
 
     def test_sidebar_group_member_count_incremented_when_member_added(self):
         self.student_page.load_page(self.test_student)
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
         self.student_page.add_members_to_new_grp([self.test_student], self.group_9)
         self.student_page.wait_for_sidebar_member_count(self.group_9)
 
@@ -290,22 +284,23 @@ class TestCuratedGroup:
         self.curated_students_page.load_page(self.group_4)
 
         students = self.test.students[0:99]
-        self.curated_students_page.add_comma_sep_sids_to_existing_grp(students, self.group_4)
+        self.curated_students_page.add_comma_sep_sids_to_existing_grp(self.group_4, students)
         self.curated_students_page.wait_for_student_list()
 
         students = self.test.students[100:199]
-        self.curated_students_page.add_line_sep_sids_to_existing_grp(students, self.group_4)
+        self.curated_students_page.add_line_sep_sids_to_existing_grp(self.group_4, students)
         self.curated_students_page.wait_for_spinner()
 
         students = self.test.students[100:199]
-        self.curated_students_page.add_space_sep_sids_to_existing_grp(students, self.group_4)
+        self.curated_students_page.add_space_sep_sids_to_existing_grp(self.group_4, students)
         self.curated_students_page.wait_for_spinner()
 
         self.curated_students_page.load_page(self.group_4)
         visible_sids = self.curated_students_page.visible_sids()
         visible_sids.sort()
-        member_sids = list(map(lambda m: m.sis, self.group_4.members))
+        member_sids = list(map(lambda m: m.sid, self.group_4.members))
         member_sids.sort()
+        app.logger.info(f'Expecting {member_sids}, got {visible_sids}')
         missing_sids = list(set(member_sids) - set(visible_sids))
         # Account for SIDs that have no associated data and will not appear in Boa
         if missing_sids:

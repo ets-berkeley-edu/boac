@@ -129,9 +129,9 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
         time.sleep(1)
         xpath = f'//h3[contains(text(), "Degree")]/following-sibling::div[contains(., "{field}")]'
         deg_type_loc = By.XPATH, f'{xpath}/div[contains(@id, "student-bio-degree-type")]'
-        deg_date_loc = By.XPATH, f'{xpath}/div[@class="student-text"][1]'
-        deg_college_loc_1 = By.XPATH, f'{xpath}/div[@class="student-text"][2]'
-        deg_college_loc_2 = By.XPATH, f'{xpath}/div[@class="student-text"][3]'
+        deg_date_loc = By.XPATH, f'{xpath}/div[contains(@class, "text-medium-emphasis")][1]'
+        deg_college_loc_1 = By.XPATH, f'{xpath}/div[contains(@class, "text-medium-emphasis")][2]'
+        deg_college_loc_2 = By.XPATH, f'{xpath}/div[contains(@class, "text-medium-emphasis")][3]'
         college = self.el_text_if_exists(deg_college_loc_1) or self.el_text_if_exists(deg_college_loc_2)
         return {
             'deg_type': self.el_text_if_exists(deg_type_loc),
@@ -251,7 +251,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote):
 
     HOLDS_BUTTON = By.ID, 'timeline-tab-hold'
     SHOW_HIDE_HOLDS_BUTTON = By.ID, 'timeline-tab-hold-previous-messages'
-    HOLD = By.XPATH, '//div[contains(@id,"timeline-tab-hold-message")]/span[1]'
+    HOLD = By.XPATH, '//div[contains(@id,"timeline-tab-hold-message")]/span[2]'
 
     def visible_holds(self):
         if self.is_present(self.HOLDS_BUTTON) and self.element(self.HOLDS_BUTTON).is_enabled():

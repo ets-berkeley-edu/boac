@@ -42,15 +42,11 @@ class CuratedAddSelector(BoaPages, CuratedModal):
     SELECTOR_CREATE_GROUP_BUTTON = By.ID, 'create-curated-group'
     ADD_ALL_TO_GROUP_CBX = By.XPATH, '//input[@id="add-all-to-curated-group"]/..'
     ADD_TO_GROUP_BUTTON = By.ID, 'add-to-curated-group'
-    STUDENT_ADDED_TO_GROUP_MSG = By.ID, 'added-to-curated-group'
-    STUDENTS_ADDED_TO_GROUP_MSG = By.ID, 'add-to-curated-group-confirmation'
     ADD_INDIVIDUAL_TO_GROUP_CBX = By.XPATH, '//input[contains(@id, "curated-group-checkbox")]'
 
     SELECTOR_CREATE_CE3_GROUP_BUTTON = By.ID, 'create-admissions-group'
     ADD_ALL_TO_CE3_GROUP_CBX = By.XPATH, '//input[@id="add-all-to-admissions-group"]/..'
     ADD_TO_CE3_GROUP_BUTTON = By.ID, 'add-to-admissions-group'
-    ADMIT_ADDED_TO_CE3_GROUP_MSG = By.ID, 'added-to-admissions-group'
-    ADMITS_ADDED_TO_CE3_GROUP_MSG = By.ID, 'add-to-admissions-group-confirmation'
     ADD_INDIVIDUAL_TO_CE3_GROUP_CBX = By.XPATH, '//input[contains(@id, "admissions-group-checkbox")]/..'
 
     @staticmethod
@@ -65,22 +61,27 @@ class CuratedAddSelector(BoaPages, CuratedModal):
     def admit_checkbox_loc(admit):
         return By.XPATH, f'//input[@id="admit-{admit.sid}-admissions-group-checkbox"]/..'
 
-    def click_add_to_group_button(self, group):
+    def click_add_to_group_from_list_view_header_button(self, group):
+        self.scroll_to_top()
         if group.is_ce3:
             self.wait_for_element_and_click(self.ADD_TO_CE3_GROUP_BUTTON)
         else:
             self.wait_for_element_and_click(self.ADD_TO_GROUP_BUTTON)
 
+    def click_add_to_group_per_student_button(self, student):
+        self.scroll_to_top()
+        self.wait_for_element_and_click(self.student_button_loc(student))
+
     @staticmethod
     def group_checkbox_link_loc(group):
         if group.is_ce3:
-            return By.XPATH, f'//input[@id="admissions-group-{group.cohort_id}-checkbox"]/../..'
+            return By.XPATH, f'//input[@id="admissions-group-{group.cohort_id}-checkbox"]'
         else:
-            return By.XPATH, f'//input[@id="curated-group-{group.cohort_id}-checkbox"]/../..'
+            return By.XPATH, f'//input[@id="curated-group-{group.cohort_id}-checkbox"]'
 
     def is_group_selected(self, group):
-        self.when_visible(self.group_checkbox_link_loc(group), utils.get_short_timeout())
-        return 'is selected' in self.element(self.group_checkbox_link_loc(group)).text
+        self.when_present(self.group_checkbox_link_loc(group), utils.get_short_timeout())
+        return 'Remove' in self.element(self.group_checkbox_link_loc(group)).get_attribute('aria-label')
 
     def check_group(self, group):
         self.wait_for_page_and_click(self.group_checkbox_link_loc(group))
@@ -108,20 +109,13 @@ class CuratedAddSelector(BoaPages, CuratedModal):
     def add_members_to_grp(self, members, group):
         sids = list(map(lambda member: member.sid, members))
         app.logger.info(f'Adding SIDs {sids} to group {group.name} ID {group.cohort_id}')
-        self.click_add_to_group_button(group)
         self.check_group(group)
-        Wait(self.driver, utils.get_short_timeout()).until(ec.any_of(
-            ec.visibility_of_element_located(self.STUDENT_ADDED_TO_GROUP_MSG),
-            ec.visibility_of_element_located(self.STUDENTS_ADDED_TO_GROUP_MSG),
-            ec.visibility_of_element_located(self.ADMIT_ADDED_TO_CE3_GROUP_MSG),
-            ec.visibility_of_element_located(self.ADMITS_ADDED_TO_CE3_GROUP_MSG),
-        ))
         boa_utils.append_new_members_to_group(group, members)
         self.wait_for_sidebar_group(group)
 
     def remove_member_from_grp(self, member, group):
         app.logger.info(f'Removing SID {member.sid} from group {group.name} ID {group.cohort_id}')
-        self.click_add_to_group_button(group)
+        self.click_add_to_group_from_list_view_header_button(group)
         self.check_group(group)
         self.when_visible(self.REMOVED_FROM_GROUP_MSG, utils.get_short_timeout())
         group.memmbers.remove(member)
@@ -130,24 +124,19 @@ class CuratedAddSelector(BoaPages, CuratedModal):
     def add_members_to_new_grp(self, members, group):
         sids = list(map(lambda member: member.sid, members))
         app.logger.info(f'Adding SIDs {sids} to new group {group.name}')
-        self.click_add_to_group_button(group)
         self.click_create_new_grp(group)
         self.name_and_save_group(group)
-        Wait(self.driver, utils.get_short_timeout()).until(ec.any_of(
-            ec.visibility_of_element_located(self.STUDENT_ADDED_TO_GROUP_MSG),
-            ec.visibility_of_element_located(self.STUDENTS_ADDED_TO_GROUP_MSG),
-            ec.visibility_of_element_located(self.ADMIT_ADDED_TO_CE3_GROUP_MSG),
-            ec.visibility_of_element_located(self.ADMITS_ADDED_TO_CE3_GROUP_MSG),
-        ))
         boa_utils.append_new_members_to_group(group, members)
         self.wait_for_sidebar_group(group)
 
     def select_and_add_members_to_grp(self, members, group):
         self.select_members_to_add(members, group)
+        self.click_add_to_group_from_list_view_header_button(group)
         self.add_members_to_grp(members, group)
 
     def select_and_add_members_to_new_grp(self, members, group):
         self.select_members_to_add(members, group)
+        self.click_add_to_group_from_list_view_header_button(group)
         self.add_members_to_new_grp(members, group)
 
     def select_and_add_all_visible_to_grp(self, all_students_or_admits, group):
@@ -165,8 +154,9 @@ class CuratedAddSelector(BoaPages, CuratedModal):
             cbx_els = self.elements(self.ADD_INDIVIDUAL_TO_GROUP_CBX)
         app.logger.info(f'There are {len(cbx_els)} individual checkboxes')
         # Don't try to add users to the group if they're already in the group
-        group_sids = list(map(lambda member: member.sid, group.memmbers))
+        group_sids = list(map(lambda member: member.sid, group.members))
         visible_sids = list(map(lambda el: el.get_attribute('id').split('-')[1], cbx_els))
         sids_to_add = [sid for sid in visible_sids if sid not in group_sids]
         members_to_add = list(filter(lambda st: st.sid in sids_to_add, all_students_or_admits))
+        self.click_add_to_group_from_list_view_header_button(group)
         self.add_members_to_grp(members_to_add, group)

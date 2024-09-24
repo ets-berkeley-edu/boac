@@ -37,7 +37,7 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 class BoaPages(SearchForm):
 
-    SPINNER = (By.ID, 'spinner-when-loading')
+    SPINNER = (By.XPATH, '//*[@id="spinner-when-loading"]')
     MODAL = (By.CLASS_NAME, 'modal-content')
     NOT_FOUND = (By.XPATH, '//img[@alt="A silly boarding pass with the text, \'Error 404: Flight not found\'"]')
 
@@ -45,7 +45,7 @@ class BoaPages(SearchForm):
         time.sleep(1)
         try:
             if self.is_present(BoaPages.SPINNER):
-                self.when_not_visible(BoaPages.SPINNER, utils.get_medium_timeout())
+                self.when_not_visible(BoaPages.SPINNER, utils.get_short_timeout())
         except StaleElementReferenceException as e:
             app.logger.debug(f'{e}')
 
@@ -187,6 +187,8 @@ class BoaPages(SearchForm):
 
     def wait_for_sidebar_group(self, group):
         self.wait_for_sidebar_member_count(group)
+        if not group.cohort_id:
+            boa_utils.set_curated_group_id(group)
         if group.is_ce3:
             assert group.name in self.sidebar_admit_groups()
         else:

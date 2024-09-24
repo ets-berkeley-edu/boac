@@ -474,6 +474,18 @@ def append_new_members_to_group(group, members):
             group.members.append(m)
 
 
+def set_curated_group_id(group):
+    sql = f"""SELECT id
+                FROM student_groups
+               WHERE name = '{group.name}'"""
+    app.logger.info(sql)
+    result = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    group_id = [row['id'] for row in result][0]
+    app.logger.info(f'Curated group {group.name} ID is {group_id}')
+    group.cohort_id = group_id
+
+
 # ALERTS
 
 def get_students_alerts(users):

@@ -22,10 +22,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-import time
 
 from bea.pages.boa_pages import BoaPages
 from bea.test_utils import utils
+from flask import current_app as app
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
@@ -37,7 +37,7 @@ class Pagination(BoaPages):
     GO_TO_FIRST_PAGE_LINK = By.ID, 'pagination-first'
     GO_TO_NEXT_PAGE_LINK = By.ID, 'pagination-next'
     GO_TO_LAST_PAGE_LINK = By.ID, 'pagination-last'
-    GO_TO_PAGE_LINK = By.XPATH, '//button[starts-with(@id, "pagination-")]'
+    GO_TO_PAGE_LINK = By.XPATH, '//a[starts-with(@id, "pagination-")]'
 
     def go_to_first_page(self):
         if self.is_present(self.GO_TO_FIRST_PAGE_LINK):
@@ -52,10 +52,12 @@ class Pagination(BoaPages):
         if self.is_present(self.GO_TO_PAGE_LINK):
             if self.is_present(self.GO_TO_LAST_PAGE_LINK):
                 self.wait_for_element_and_click(self.GO_TO_LAST_PAGE_LINK)
-                time.sleep(1)
+                self.wait_for_spinner()
                 Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.GO_TO_PAGE_LINK))
             pages = list(map(lambda el: el.get_attribute('id').split('-')[-1], self.elements(self.GO_TO_PAGE_LINK)))
+            app.logger.info(f'Pages are {pages}')
             pages = [page for page in pages if page not in ['first', 'prev', 'next', 'last']]
+            app.logger.info(f'Number of pages is {len(pages)}')
             count = pages[-1]
             self.go_to_first_page()
             return int(count)
