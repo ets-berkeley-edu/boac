@@ -1,7 +1,7 @@
 <template>
   <div class="align-start d-flex flex-wrap justify-space-between pb-1 w-100">
     <div>
-      <h2 class="font-size-24 font-weight-bold py-0">Academic Timeline</h2>
+      <h2 id="student-academic-timeline-header" class="font-size-24 font-weight-bold py-0">Academic Timeline</h2>
     </div>
     <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="mt-1">
       <v-btn
@@ -24,6 +24,8 @@
   <div class="border-b-sm">
     <v-tabs
       v-model="selectedTab"
+      aria-label="timeline messages tab"
+      :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
       class="mt-2"
       color="primary"
       density="compact"
@@ -33,6 +35,7 @@
     >
       <v-tab
         id="timeline-tab-all"
+        aria-controls="timeline-messages"
         class="border-s-sm border-t-sm"
         value="all"
         variant="tonal"

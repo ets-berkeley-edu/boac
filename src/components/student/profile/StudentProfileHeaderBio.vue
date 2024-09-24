@@ -20,7 +20,7 @@
         class="mb-1 student-section-header"
         v-html="student.name"
       />
-      <h2 class="sr-only">Profile</h2>
+      <h2 id="student-name-header-sr" class="sr-only">Profile</h2>
       <div
         v-if="student.sisProfile.preferredName !== student.name"
         id="student-preferred-name"

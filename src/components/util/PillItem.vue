@@ -31,6 +31,8 @@
 <script setup>
 import {mdiCloseCircle} from '@mdi/js'
 
+defineEmits(['close-clicked'])
+
 defineProps({
   ariaLabel: {
     default: undefined,

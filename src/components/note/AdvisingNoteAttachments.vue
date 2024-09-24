@@ -81,7 +81,7 @@
     </v-alert>
     <ul
       :id="`${idPrefix}attachments-list`"
-      aria-label="attachments"
+      :aria-labelledby="ariaLabelledby"
       class="list-no-bullets advising-note-pill-list mt-2"
     >
       <li
@@ -124,6 +124,10 @@ const props = defineProps({
     default: () => {},
     required: false,
     type: Function
+  },
+  ariaLabelledby: {
+    required: true,
+    type: String
   },
   disabled: {
     required: true,

@@ -3,8 +3,8 @@
     <div class="bg-sky-blue border-b-sm">
       <StudentProfileHeader :student="student" />
     </div>
-    <h2 class="sr-only">Academic Status</h2>
-    <div class="border-b-sm d-flex flex-wrap w-100 h-100">
+    <h2 id="student-academic-status-header" class="sr-only">Academic Status</h2>
+    <div aria-labelledby="student-academic-status-header" class="border-b-sm d-flex flex-wrap w-100 h-100" role="region">
       <div class="border-e-sm" :class="$vuetify.display.mdAndUp ? 'w-50' : 'w-100'">
         <h3 class="sr-only">Units</h3>
         <StudentProfileUnits :student="student" />
@@ -82,7 +82,7 @@ onMounted(() => {
       }
     })
     const permalink = decodeStudentUriAnchor()
-    const putFocusElementId = permalink ? `permalink-${permalink.messageType}-${permalink.messageId}` : null
+    const putFocusElementId = permalink ? `permalink-${permalink.messageType}-${permalink.messageId}` : 'student-name-header'
     // If custom scroll-to-note is happening then skip the default put-focus-on-h1.
     contextStore.loadingComplete(`${student.value.name} loaded`, putFocusElementId)
   })
