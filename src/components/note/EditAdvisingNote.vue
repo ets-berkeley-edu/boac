@@ -46,10 +46,12 @@
     <AdvisingNoteAttachments
       v-if="size(noteStore.model.attachments)"
       aria-labelledby="edit-note-attachments-list-label"
+      :attachments="noteStore.model.attachments"
       class="mt-3"
       :disabled="isSaving || boaSessionExpired"
       id-prefix="edit-note-"
-      read-only
+      :is-read-only="true"
+      :note-author-uid="noteStore.model.author.uid"
     >
       <template #label>
         <label

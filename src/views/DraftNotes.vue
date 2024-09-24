@@ -106,34 +106,34 @@
         {{ currentUser.isAdmin ? 'No' : 'You have no' }} saved drafts.
       </div>
     </div>
+    <AreYouSureModal
+      v-model="isDeleteDialogOpen"
+      :button-label-confirm="isDeleting ? 'Deleting' : 'Delete'"
+      :function-cancel="cancel"
+      :function-confirm="deleteDraftNote"
+      modal-header="Are you sure?"
+    >
+      <span v-if="selectedNote">
+        <span v-if="selectedNote.student">
+          Delete draft note for
+          <span class="font-weight-medium" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ selectedNote.student.firstName }} {{ selectedNote.student.lastName }}</span>.
+        </span>
+        <span v-if="!selectedNote.student && selectedNote.subject">
+          Delete draft note with subject "<span class="font-weight-medium">{{ selectedNote.subject }}</span>".
+        </span>
+        <span v-if="!selectedNote.student && !selectedNote.subject">
+          Delete draft note created on {{ formatFromISO(selectedNote.createdAt) }}.
+        </span>
+      </span>
+    </AreYouSureModal>
+    <EditBatchNoteModal
+      v-model="isEditDialogOpen"
+      initial-mode="editDraft"
+      :note-id="get(selectedNote, 'id')"
+      :on-close="afterEditDraft"
+      :sid="get(selectedNote, 'sid')"
+    />
   </div>
-  <AreYouSureModal
-    v-model="isDeleteDialogOpen"
-    :button-label-confirm="isDeleting ? 'Deleting' : 'Delete'"
-    :function-cancel="cancel"
-    :function-confirm="deleteDraftNote"
-    modal-header="Are you sure?"
-  >
-    <span v-if="selectedNote">
-      <span v-if="selectedNote.student">
-        Delete draft note for
-        <span class="font-weight-medium" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ selectedNote.student.firstName }} {{ selectedNote.student.lastName }}</span>.
-      </span>
-      <span v-if="!selectedNote.student && selectedNote.subject">
-        Delete draft note with subject "<span class="font-weight-medium">{{ selectedNote.subject }}</span>".
-      </span>
-      <span v-if="!selectedNote.student && !selectedNote.subject">
-        Delete draft note created on {{ formatFromISO(selectedNote.createdAt) }}.
-      </span>
-    </span>
-  </AreYouSureModal>
-  <EditBatchNoteModal
-    v-model="isEditDialogOpen"
-    initial-mode="editDraft"
-    :note-id="get(selectedNote, 'id')"
-    :on-close="afterEditDraft"
-    :sid="get(selectedNote, 'sid')"
-  />
 </template>
 
 <script setup>

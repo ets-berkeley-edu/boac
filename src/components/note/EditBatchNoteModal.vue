@@ -65,11 +65,13 @@
               </div>
             </TransitionGroup>
             <AdvisingNoteAttachments
-              :add-attachments="addNoteAttachments"
+              :add="addNoteAttachments"
               aria-labelledby="create-note-attachments-list-label"
+              :attachments="noteStore.model.attachments"
               class="pt-5"
               :disabled="!!(noteStore.isSaving || noteStore.boaSessionExpired)"
-              :remove-attachment="removeAttachmentByIndex"
+              :note-author-uid="noteStore.model.author.uid"
+              :remove="removeAttachmentByIndex"
             >
               <template #label>
                 <label

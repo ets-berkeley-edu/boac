@@ -123,15 +123,16 @@
       </div>
       <div v-if="!note.legacySource || size(note.attachments)" class="note-attachments-container">
         <AdvisingNoteAttachments
-          :add-attachments="addNoteAttachments"
+          :add="addNoteAttachments"
           :aria-labelledby="`note-${note.id}-attachments-list-label`"
+          :attachments="note.attachments"
           class="attachments-edit py-3"
           :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
-          downloadable
           :id-prefix="`note-${note.id}-`"
-          :note="note"
+          :is-downloadable="true"
+          :note-author-uid="note.author.uid"
           :read-only="!!note.legacySource"
-          :remove-attachment="removeAttachmentByIndex"
+          :remove="removeAttachmentByIndex"
         >
           <template #label>
             <label
