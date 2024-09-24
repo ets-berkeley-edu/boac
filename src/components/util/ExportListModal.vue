@@ -131,8 +131,7 @@ const onChange = (value, isChecked) => {
 
 const onSubmit = () => {
   isExporting.value = true
-  this.export(selected.value).then(() => isExporting.value = false)
-
+  props.export(selected.value).then(() => isExporting.value = false)
 }
 </script>
 
