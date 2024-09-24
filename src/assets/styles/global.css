@@ -142,6 +142,9 @@
 .list-no-bullets {
   list-style-type: none;
 }
+.min-height-unset {
+  min-height: unset !important;
+}
 .min-width-unset {
   min-width: unset !important;
 }

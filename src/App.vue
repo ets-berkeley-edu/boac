@@ -7,7 +7,7 @@
     {{ contextStore.screenReaderAlert.message }}
   </div>
   <router-view />
-  <DismissibleFooterAlert />
+  <DismissibleFooterAlert role="alert" />
 </template>
 
 <script setup>
