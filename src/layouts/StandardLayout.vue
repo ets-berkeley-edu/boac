@@ -26,19 +26,16 @@
           aria-labelledby="nav-header"
           class="bg-tertiary pt-1 sidebar"
           permanent
+          role="navigation"
           :scrim="false"
           tag="nav"
         >
-          <template #prepend>
-            <a id="skip-nav-link" class="sr-only" href="#content">skip navigation</a>
-            <h1 id="nav-header" class="sr-only" tabindex="-1">Main Menu</h1>
-          </template>
           <template #append>
             <SidebarFooter v-if="currentUser.canAccessAdvisingData" />
           </template>
           <Sidebar />
         </v-navigation-drawer>
-        <v-main role="none">
+        <v-main role="none" tag="div">
           <div class="h-100" :class="{'align-center d-flex justify-center': loading}">
             <div v-if="loading" class="loading-container d-flex">
               <div class="my-auto" role="progressbar">
@@ -52,8 +49,6 @@
             </div>
             <v-expand-transition>
               <div v-if="!$vuetify.display.mdAndUp && showSidebar && !loading">
-                <a id="skip-nav-link" class="sr-only" href="#content">skip navigation</a>
-                <h1 id="nav-header" class="sr-only" tabindex="-1">Main Menu</h1>
                 <Sidebar
                   id="small-viewport-sidebar"
                   class="bg-tertiary"
@@ -63,12 +58,14 @@
             </v-expand-transition>
             <div
               v-show="!loading"
-              id="content"
               class="w-100"
-              role="main"
             >
               <ServiceAnnouncement />
-              <router-view :key="split($route.fullPath, '#', 1)[0]" />
+              <router-view
+                id="content"
+                :key="split($route.fullPath, '#', 1)[0]"
+                role="main"
+              />
             </div>
           </div>
           <EditBatchNoteModal

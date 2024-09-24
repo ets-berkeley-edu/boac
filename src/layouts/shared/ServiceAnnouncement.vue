@@ -1,9 +1,9 @@
 <template>
   <v-expand-transition>
-    <div v-if="announcement && announcement.isPublished">
+    <div v-if="announcement && announcement.isPublished" aria-labelledby="service-announcement-label" role="alert">
       <div v-if="!dismissedServiceAnnouncement" class="align-center bg-service-announcement d-flex font-weight-medium py-4 px-6">
         <div class="d-inline-block pr-1 service-announcement-container w-100">
-          <h2 class="sr-only" role="heading">BOA Service Alert</h2>
+          <h2 id="service-announcement-label" class="sr-only">BOA Service Alert</h2>
           <span
             id="service-announcement-banner"
             aria-live="polite"

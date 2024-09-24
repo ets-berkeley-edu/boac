@@ -1,5 +1,5 @@
 <template>
-  <v-tooltip location="bottom" text="Advanced search options">
+  <v-tooltip aria-label="Advanced search options" location="bottom" text="Advanced search options">
     <template #activator="{props}">
       <v-btn
         id="search-options-panel-toggle"

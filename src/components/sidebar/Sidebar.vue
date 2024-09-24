@@ -1,5 +1,9 @@
 <template>
-  <v-list density="compact" role="list">
+  <v-list density="compact" role="none">
+    <v-list-item class="pa-0 min-height-unset">
+      <a id="skip-nav-link" class="sr-only" href="#content">skip navigation</a>
+      <h2 id="nav-header" class="sr-only" tabindex="-1">Main Menu</h2>
+    </v-list-item>
     <v-list-item aria-labelledby="sidebar-cohorts-header" class="pa-0" role="region">
       <div class="align-center d-flex font-size-18 font-weight-bold justify-space-between pretty-hover py-1">
         <div id="sidebar-cohorts-header">
