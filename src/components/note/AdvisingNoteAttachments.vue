@@ -2,13 +2,12 @@
   <div>
     <slot name="label" />
     <v-file-input
-      v-if="!attachmentLimitReached && !readOnly"
+      v-if="!attachmentLimitReached && !isReadOnly"
       :id="inputId"
       ref="attachmentFileInput"
-      :model-value="model.attachments"
       :aria-busy="isAdding"
       :aria-describedby="isAdding ? progressBarId : null"
-      :aria-label="`Select file for attachment; ${pluralize('file', model.attachments.length)} attached.`"
+      :aria-label="`Select file for attachment; ${pluralize('file', attachments.length)} attached.`"
       class="border-sm choose-file-for-note-attachment rounded"
       :class="{'border-success': disabled, 'border-md border-error': !!attachmentError}"
       :clearable="false"
@@ -16,6 +15,7 @@
       flat
       hide-details
       :loading="isAdding ? 'success' : false"
+      :model-value="attachments"
       multiple
       :prepend-icon="null"
       single-line
@@ -85,13 +85,13 @@
       class="list-no-bullets advising-note-pill-list mt-2"
     >
       <li
-        v-for="(attachment, index) in modelProxy.attachments"
+        v-for="(attachment, index) in attachments"
         :key="index"
       >
         <PillItem
           :id="`${idPrefix}attachment-${index}`"
-          :aria-label="downloadable ? `Download attachment ${attachment.displayName}` : null"
-          :closable="!readOnly && currentUser.uid === get(modelProxy.author, 'uid')"
+          :aria-label="isDownloadable ? `Download attachment ${attachment.displayName}` : null"
+          :closable="!isReadOnly && currentUser.uid === noteAuthorUid"
           :disabled="disabled"
           :href="downloadUrl(attachment)"
           :icon="mdiPaperclip"
@@ -99,7 +99,7 @@
           name="attachment"
           :on-click-close="() => onRemoveAttachment(index)"
         >
-          <span class="truncate-with-ellipsis pr-1" :class="{'text-anchor': downloadable}">
+          <span class="truncate-with-ellipsis pr-1" :class="{'text-anchor': isDownloadable}">
             {{ attachment.displayName }}
           </span>
         </PillItem>
@@ -113,14 +113,12 @@ import PillItem from '@/components/util/PillItem'
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch} from 'vue'
-import {each, get, size} from 'lodash'
+import {each, size} from 'lodash'
 import {mdiAlert, mdiPaperclip} from '@mdi/js'
-import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
-import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
-  addAttachments: {
+  add: {
     default: () => {},
     required: false,
     type: Function
@@ -129,12 +127,12 @@ const props = defineProps({
     required: true,
     type: String
   },
+  attachments: {
+    required: true,
+    type: Object
+  },
   disabled: {
     required: true,
-    type: Boolean
-  },
-  downloadable: {
-    required: false,
     type: Boolean
   },
   idPrefix: {
@@ -142,16 +140,19 @@ const props = defineProps({
     required: false,
     type: String
   },
-  note: {
-    default: undefined,
-    required: false,
-    type: Object
-  },
-  readOnly: {
+  isDownloadable: {
     required: false,
     type: Boolean
   },
-  removeAttachment: {
+  isReadOnly: {
+    required: false,
+    type: Boolean
+  },
+  noteAuthorUid: {
+    required: true,
+    type: String
+  },
+  remove: {
     default: () => {},
     required: false,
     type: Function
@@ -159,20 +160,17 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
-const noteStore = useNoteStore()
 
 const attachmentFileInput = ref(null)
 const attachmentError = ref(undefined)
 const attachmentLimitReached = computed(() => {
-  return size(props.note.attachments) >= contextStore.config.maxAttachmentsPerNote
+  return size(props.attachments) >= contextStore.config.maxAttachmentsPerNote
 })
 const currentUser = reactive(contextStore.currentUser)
 const inputId = `${props.idPrefix}choose-file-for-note-attachment`
 const isAdding = ref(false)
-const modelProxy = ref(props.note || noteStore.model)
 let progressBarAlert
 const progressBarId = `${props.idPrefix}note-attachment-progress`
-const {mode, model} = storeToRefs(noteStore)
 
 watch(isAdding, v => {
   if (v) {
@@ -201,12 +199,6 @@ watch(isAdding, v => {
     }
   }
 })
-watch(mode, () => {
-  modelProxy.value = props.note || noteStore.model
-})
-watch(model, () => {
-  modelProxy.value = props.note || noteStore.model
-})
 
 onBeforeMount(() => {
   addFileDropEventListeners()
@@ -219,7 +211,7 @@ onBeforeUnmount(() => {
 })
 
 const downloadUrl = (attachment) => {
-  return props.downloadable ? `${contextStore.config.apiBaseUrl}/api/notes/attachment/${attachment.id}` : null
+  return props.isDownloadable ? `${contextStore.config.apiBaseUrl}/api/notes/attachment/${attachment.id}` : null
 }
 
 const onAttachmentsInput = files => {
@@ -227,14 +219,14 @@ const onAttachmentsInput = files => {
     const pluralized = pluralize('attachment', files.length)
     alertScreenReader(`Adding ${pluralized}`)
     isAdding.value = true
-    attachmentError.value = validateAttachment(files, modelProxy.value.attachments)
+    attachmentError.value = validateAttachment(files, props.attachments)
     if (!attachmentError.value) {
       const attachments = []
       each(files, attachment => {
         attachment.displayName = attachment.name
         attachments.push(attachment)
       })
-      props.addAttachments(attachments).then(() => {
+      props.add(attachments).then(() => {
         alertScreenReader(`${pluralized} added`)
         isAdding.value = false
       })
@@ -251,14 +243,14 @@ const onClickBrowseForAttachment = () => {
 
 const onRemoveAttachment = index => {
   attachmentError.value = null
-  const lastItemIndex = size(modelProxy.value.attachments) - 1
+  const lastItemIndex = size(props.attachments) - 1
   if (lastItemIndex > 0) {
     const nextFocusIndex = (index === lastItemIndex ) ? index - 1 : index
     putFocusNextTick(`remove-${props.idPrefix}attachment-${nextFocusIndex}-btn`)
   } else {
     putFocusNextTick(inputId)
   }
-  props.removeAttachment(index)
+  props.remove(index)
 }
 </script>
 
