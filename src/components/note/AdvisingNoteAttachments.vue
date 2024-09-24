@@ -245,10 +245,12 @@ const onAttachmentsInput = files => {
 }
 
 const onClickBrowseForAttachment = () => {
+  attachmentError.value = null
   attachmentFileInput.value.click()
 }
 
 const onRemoveAttachment = index => {
+  attachmentError.value = null
   const lastItemIndex = size(modelProxy.value.attachments) - 1
   if (lastItemIndex > 0) {
     const nextFocusIndex = (index === lastItemIndex ) ? index - 1 : index

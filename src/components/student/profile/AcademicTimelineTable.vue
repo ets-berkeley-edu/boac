@@ -555,9 +555,9 @@ onUnmounted(() => {
   })
 })
 
-const afterEditAdvisingNote = updatedNote => {
+const afterEditAdvisingNote = (updatedNote, putFocusId) => {
   editModeNoteId.value = null
-  putFocusNextTick(`edit-note-${updatedNote.id}-button`)
+  putFocusNextTick(putFocusId || `edit-note-${updatedNote.id}-button`)
 }
 
 const afterNoteCreated = note => {

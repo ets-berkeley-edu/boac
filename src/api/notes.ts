@@ -97,7 +97,12 @@ export function deleteNote(note: any) {
 export function addAttachments(noteId: number, attachments: any[]) {
   const data = {}
   each(attachments, (attachment, index) => data[`attachment[${index}]`] = attachment)
-  return utils.postMultipartFormData(`/api/notes/${noteId}/attachments`, data)
+  return new Promise(resolve => {
+    utils.postMultipartFormData(`/api/notes/${noteId}/attachments`, data).then(note => {
+      useContextStore().broadcast('note-updated', note)
+      resolve(note)
+    })
+  })
 }
 
 export function removeAttachment(noteId: number, attachmentId: number) {

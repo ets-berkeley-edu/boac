@@ -163,8 +163,8 @@ import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {alertScreenReader, numFormat, oxfordJoin, toInt} from '@/lib/utils'
+import {computed, onMounted, ref, watch} from 'vue'
 import {get, isEmpty, isNil, isNumber, map, orderBy, size} from 'lodash'
-import {computed, reactive, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {getBoaUserRoles, termNameForSisId} from '@/berkeley'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
@@ -195,21 +195,30 @@ const props = defineProps({
   }
 })
 
+const contextStore = useContextStore()
+const noteStore = useNoteStore()
+
+const addAttachmentInputElementId = `note-${props.note.id}-choose-file-for-note-attachment`
 const author = ref(get(props.note, 'author'))
 const authorDepartments = computed(() => orderBy(map(author.value.departments, 'name')))
-const contextStore = useContextStore()
-const currentUser = reactive(contextStore.currentUser)
 const deleteAttachmentIndex = ref(undefined)
 const isUpdatingAttachments = ref(false)
-const noteStore = useNoteStore()
 const showConfirmDeleteAttachment = ref(false)
+
+watch(() => props.isOpen, () => {
+  loadAuthorDetails()
+})
+
+onMounted(() => {
+  loadAuthorDetails()
+})
 
 const addNoteAttachments = attachments => {
   return new Promise(resolve => {
     isUpdatingAttachments.value = true
     noteStore.setModel(props.note)
     addAttachments(props.note.id, attachments).then(updatedNote => {
-      props.afterSaved(updatedNote)
+      props.afterSaved(updatedNote, addAttachmentInputElementId)
       noteStore.setAttachments(updatedNote.attachments)
       alertScreenReader('Attachment added', 'assertive')
       isUpdatingAttachments.value = false
@@ -229,7 +238,7 @@ const confirmedRemoveAttachment = () => {
   if (attachment && attachment.id) {
     return removeAttachment(props.note.id, attachment.id).then(updatedNote => {
       alertScreenReader(`Attachment '${attachment.displayName}' removed`)
-      props.afterSaved(updatedNote)
+      props.afterSaved(updatedNote, addAttachmentInputElementId)
     })
   }
 }
@@ -260,8 +269,8 @@ const loadAuthorDetails = () => {
         }
       }
       if (author_uid) {
-        if (author_uid === currentUser.uid) {
-          callback(currentUser)
+        if (author_uid === contextStore.currentUser.uid) {
+          callback(contextStore.currentUser)
         } else {
           getCalnetProfileByUid(author_uid).then(callback)
         }
@@ -276,13 +285,6 @@ const removeAttachmentByIndex = index => {
   deleteAttachmentIndex.value = index
   showConfirmDeleteAttachment.value = true
 }
-
-watch(() => props.isOpen, () => {
-  loadAuthorDetails()
-})
-
-loadAuthorDetails()
-
 </script>
 
 <style>
