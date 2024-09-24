@@ -8,7 +8,7 @@
         id="new-note-button"
         class="border-e-sm"
         color="primary"
-        :disabled="isEditingNote"
+        :disabled="!!noteStore.mode"
         :prepend-icon="mdiFileDocument"
         text="New Note"
         @click="() => isEditingNote = true"
@@ -63,6 +63,7 @@ import {mdiFileDocument} from '@mdi/js'
 import {putFocusNextTick} from '@/lib/utils'
 import {ref} from 'vue'
 import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
   countsPerType: {
@@ -88,7 +89,10 @@ const props = defineProps({
   }
 })
 
-const currentUser = useContextStore().currentUser
+const contextStore = useContextStore()
+const noteStore = useNoteStore()
+
+const currentUser = contextStore.currentUser
 const isEditingNote = ref(false)
 const selectedTab = ref(undefined)
 

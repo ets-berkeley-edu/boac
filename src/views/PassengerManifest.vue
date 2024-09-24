@@ -17,6 +17,7 @@
         :after-update-user="afterCreateUser"
         class="ml-auto"
         :departments="departments"
+        :disabled="false"
       />
     </div>
     <Users :departments="departments" :refresh="refreshUsers" />

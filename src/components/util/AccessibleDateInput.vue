@@ -179,7 +179,7 @@ const makeCalendarAccessible = () => {
 }
 
 const makeNavAccessible = () => {
-  const navPopover = popover.value.querySelector('.vc-nav-container')
+  const navPopover = popover.value ? popover.value.querySelector('.vc-nav-container') : null
   if (navPopover) {
     const nextYearButton = navPopover.querySelector('.vc-nav-arrow.is-right')
     const prevYearButton = navPopover.querySelector('.vc-nav-arrow.is-left')

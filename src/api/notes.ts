@@ -101,5 +101,9 @@ export function addAttachments(noteId: number, attachments: any[]) {
 }
 
 export function removeAttachment(noteId: number, attachmentId: number) {
-  return axios.delete(`${utils.apiBaseUrl()}/api/notes/${noteId}/attachment/${attachmentId}`).then(response => response.data)
+  return axios.delete(`${utils.apiBaseUrl()}/api/notes/${noteId}/attachment/${attachmentId}`).then(response => {
+    const note = response.data
+    useContextStore().broadcast('note-updated', note)
+    return note
+  })
 }

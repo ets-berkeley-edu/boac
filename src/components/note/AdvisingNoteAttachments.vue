@@ -1,8 +1,8 @@
 <template>
   <div>
-    <slot name="label"></slot>
+    <slot name="label" />
     <v-file-input
-      v-if="!readOnly"
+      v-if="!attachmentLimitReached && !readOnly"
       :id="inputId"
       ref="attachmentFileInput"
       :model-value="model.attachments"
@@ -10,25 +10,25 @@
       :aria-describedby="isAdding ? progressBarId : null"
       :aria-label="`Select file for attachment; ${pluralize('file', model.attachments.length)} attached.`"
       class="border-sm choose-file-for-note-attachment rounded"
-      :class="{'border-success': disabled || attachmentLimitReached, 'border-md border-error': !!attachmentError}"
+      :class="{'border-success': disabled, 'border-md border-error': !!attachmentError}"
       :clearable="false"
-      :disabled="isAdding || disabled || attachmentLimitReached"
+      :disabled="isAdding || disabled"
       flat
       hide-details
       :loading="isAdding ? 'success' : false"
       multiple
       :prepend-icon="null"
       single-line
-      :variant="disabled || attachmentLimitReached ? 'outlined' : 'solo-filled'"
-      @click:control="clickBrowseForAttachment"
+      :variant="disabled ? 'outlined' : 'solo-filled'"
+      @click:control="onClickBrowseForAttachment"
       @update:model-value="onAttachmentsInput"
     >
       <template #label>
         <div
           class="font-size-16 align-center d-flex justify-center"
           :class="{
-            'font-weight-bold text-black text-center': disabled || attachmentLimitReached,
-            'font-weight-medium': !disabled && !attachmentLimitReached
+            'font-weight-bold text-black text-center': disabled,
+            'font-weight-medium': !disabled
           }"
         >
           <div v-if="isAdding" class="pb-1">
@@ -43,7 +43,7 @@
             :aria-hidden="true"
             class="bg-white"
             color="black"
-            :disabled="disabled || attachmentLimitReached"
+            :disabled="disabled"
             density="comfortable"
             tabindex="-1"
             type="file"
@@ -158,23 +158,21 @@ const props = defineProps({
   }
 })
 
+const contextStore = useContextStore()
 const noteStore = useNoteStore()
 
 const attachmentFileInput = ref(null)
 const attachmentError = ref(undefined)
-const contextStore = useContextStore()
-const currentUser = reactive(contextStore.currentUser)
-const isAdding = ref(false)
-const {mode, model} = storeToRefs(noteStore)
-const modelProxy = ref(props.note || noteStore.model)
-
 const attachmentLimitReached = computed(() => {
-  return size(model.value.attachments) >= contextStore.config.maxAttachmentsPerNote
+  return size(props.note.attachments) >= contextStore.config.maxAttachmentsPerNote
 })
-
+const currentUser = reactive(contextStore.currentUser)
 const inputId = `${props.idPrefix}choose-file-for-note-attachment`
-const progressBarId = `${props.idPrefix}note-attachment-progress`
+const isAdding = ref(false)
+const modelProxy = ref(props.note || noteStore.model)
 let progressBarAlert
+const progressBarId = `${props.idPrefix}note-attachment-progress`
+const {mode, model} = storeToRefs(noteStore)
 
 watch(isAdding, v => {
   if (v) {
@@ -203,18 +201,22 @@ watch(isAdding, v => {
     }
   }
 })
-
 watch(mode, () => {
   modelProxy.value = props.note || noteStore.model
 })
-
 watch(model, () => {
   modelProxy.value = props.note || noteStore.model
 })
 
-const clickBrowseForAttachment = () => {
-  attachmentFileInput.value.click()
-}
+onBeforeMount(() => {
+  addFileDropEventListeners()
+})
+
+onBeforeUnmount(() => {
+  if (progressBarAlert) {
+    clearInterval(progressBarAlert)
+  }
+})
 
 const downloadUrl = (attachment) => {
   return props.downloadable ? `${contextStore.config.apiBaseUrl}/api/notes/attachment/${attachment.id}` : null
@@ -242,6 +244,10 @@ const onAttachmentsInput = files => {
   }
 }
 
+const onClickBrowseForAttachment = () => {
+  attachmentFileInput.value.click()
+}
+
 const onRemoveAttachment = index => {
   const lastItemIndex = size(modelProxy.value.attachments) - 1
   if (lastItemIndex > 0) {
@@ -252,16 +258,6 @@ const onRemoveAttachment = index => {
   }
   props.removeAttachment(index)
 }
-
-onBeforeMount(() => {
-  addFileDropEventListeners()
-})
-
-onBeforeUnmount(() => {
-  if (progressBarAlert) {
-    clearInterval(progressBarAlert)
-  }
-})
 </script>
 
 <style>
