@@ -304,7 +304,11 @@ const onChangeParentCategory = option => {
     })
     putFocusNextTick(`column-${props.position}-create-requirement-btn`)
   } else {
-    each(parentUnitRequirements, unitRequirement => this.removeUnitRequirement(unitRequirement))
+    each(parentUnitRequirements, unitRequirement => {
+      const indexOf = selectedUnitRequirements.value.findIndex(u => u.id === unitRequirement.id)
+      selectedUnitRequirements.value.splice(indexOf, 1)
+      alertScreenReader(`${unitRequirement.name} removed`)
+    })
   }
 }
 
