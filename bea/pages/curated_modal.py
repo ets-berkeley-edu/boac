@@ -46,7 +46,7 @@ class CuratedModal(Page):
 
     def cancel_group(self):
         self.wait_for_element_and_click(self.GROUP_CANCEL_BUTTON)
-        self.when_not_present(self.GROUP_CANCEL_BUTTON, 1)
+        self.when_not_present(self.GROUP_CANCEL_BUTTON, 3)
 
     def cancel_group_if_modal(self):
         if self.is_present(self.GROUP_CANCEL_BUTTON):

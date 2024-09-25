@@ -154,7 +154,7 @@ class ClassPage(ListViewStudentPages,
     # STUDENT SITE DATA
 
     def site_code(self, student, node):
-        loc = By.XPATH, f'{self.student_xpath(student)}/td[3]//div[contains(@class, "canvas-site-count")][{node}]/span'
+        loc = By.XPATH, f'{self.student_xpath(student)}/td[3]//div[contains(@class, "canvas-site-count")][{node}]/div'
         return self.el_text_if_exists(loc)
 
     def assignment_data(self, score_xpath):

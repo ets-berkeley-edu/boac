@@ -218,8 +218,7 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
     COHORT_FILTER_ROW = By.CLASS_NAME, 'filter-row'
 
     def show_filters(self):
-        Wait(self.driver, utils.get_medium_timeout()).until(
-            ec.visibility_of_element_located(self.TOGGLE_FILTERS_VISIBILITY_BUTTON))
+        self.when_visible(self.TOGGLE_FILTERS_VISIBILITY_BUTTON, utils.get_short_timeout())
         if self.is_present(self.SHOW_FILTERS_BUTTON):
             self.element(self.SHOW_FILTERS_BUTTON).click()
 

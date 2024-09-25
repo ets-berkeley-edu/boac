@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from bea.config.bea_test_config import BEATestConfig
-from bea.models.department import Department
 from bea.test_utils import utils
 from flask import current_app as app
 import pytest
@@ -84,6 +83,8 @@ class TestClassPagesSectionInfo:
         for meeting in tc.section.meetings:
             idx = tc.section.meetings.index(meeting)
             meeting_time = f'{meeting.start_time} - {meeting.end_time}'.strip() if meeting.start_time else None
+            if meeting_time == '12:00 am - 12:00 am':
+                meeting_time = None
             utils.assert_equivalence(self.class_page.meeting_time(idx), meeting_time)
 
     def test_class_page_meeting_locations(self, tc):
@@ -123,7 +124,7 @@ class TestClassPagesSectionInfo:
 
     def test_class_page_sports(self, tc):
         teams = tc.student.profile_data.asc_teams()
-        if teams and test.dept == Department.ASC:
+        if teams:
             sports = list(map(lambda sp: sp.replace(' (AA)', ''), teams))
             sports.sort()
             utils.assert_equivalence(self.class_page.student_sports(tc.student), sports)
@@ -176,7 +177,7 @@ class TestClassPagesSectionInfo:
             if not grades_data['score']:
                 assert visible_data['assigns_grade_no_data']
             elif grades_data['score'] == 0:
-                assert visible_data['assigns_grade'] in ['0', '--']
+                assert visible_data['assigns_grade'] in ['0', '—']
             else:
                 utils.assert_equivalence(visible_data['assigns_grade'], grades_data['score'])
 

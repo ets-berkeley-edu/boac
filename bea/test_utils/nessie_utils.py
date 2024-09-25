@@ -62,7 +62,9 @@ def get_all_students(opts=None):
                      student.student_profile_index.email_address AS email,
                      student.student_profile_index.academic_career_status AS status
                 FROM student.student_profile_index {clause}
-            ORDER BY uid"""
+            ORDER BY LOWER(student.student_profile_index.last_name),
+                     LOWER(student.student_profile_index.first_name),
+                     student.student_profile_index.sid ASC"""
     app.logger.info(sql)
     results = data_loch.safe_execute_rds(sql)
     for row in results:
@@ -80,17 +82,29 @@ def get_all_students(opts=None):
 
 
 def set_student_profiles(students):
+    sis_profile_results = _get_profiles(students, 'student')
+    asc_profile_results = _get_profiles(students, 'boac_advising_asc')
+    coe_profile_results = _get_profiles(students, 'boac_advising_coe')
+    for student in students:
+        sis_profile_result = next(filter(lambda r: r['sid'] == student.sid, sis_profile_results))
+        profile = json.loads(sis_profile_result['profile'])
+        for row in asc_profile_results:
+            if row['sid'] == student.sid:
+                profile.update({'athleticsProfile': json.loads(row['profile'])})
+        for row in coe_profile_results:
+            if row['sid'] == student.sid:
+                profile.update({'coeProfile': json.loads(row['profile'])})
+        student.profile_data = Profile(data=profile)
+
+
+def _get_profiles(students, schema):
     sids = utils.in_op([stud.sid for stud in students])
     sql = f"""SELECT sid,
                      profile
-                FROM student.student_profiles
+                FROM {schema}.student_profiles
                WHERE sid IN ({sids})"""
     app.logger.info(sql)
-    results = data_loch.safe_execute_rds(sql)
-    for row in results:
-        student = next(filter(lambda s: s.sid == row['sid'], students))
-        profile = json.loads(row['profile'])
-        student.profile_data = Profile(data=profile)
+    return data_loch.safe_execute_rds(sql)
 
 
 def set_student_academic_standings(students):

@@ -59,7 +59,7 @@ class TestFilteredCohortResults:
         self.filtered_students_page.cancel_cohort_if_modal()
         self.filtered_students_page.click_sidebar_create_filtered()
         self.filtered_students_page.perform_student_search(cohort)
-        expected = cohort.members
+        expected = [m.sid for m in cohort.members]
         if expected:
             visible = self.filtered_students_page.visible_sids(cohort)
             utils.assert_equivalence(visible, expected)
@@ -367,6 +367,7 @@ class TestFilteredCohortEdits:
     def test_edit_college_filter(self):
         self.filtered_students_page.search_and_create_new_student_cohort(test.default_cohort)
         test.default_cohort.search_criteria.colleges = [{'college': 'Undergrad Chemistry'}]
+        self.filtered_students_page.show_filters()
         self.filtered_students_page.edit_filter('College', test.default_cohort.search_criteria.colleges[0])
         self.filtered_students_page.verify_student_filters_present(test.default_cohort)
 

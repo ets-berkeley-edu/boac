@@ -87,12 +87,12 @@ class Homepage(UserListPages):
     def filtered_cohorts(self):
         Wait(self.driver, utils.get_medium_timeout()).until(ec.presence_of_all_elements_located(self.FILTERED_COHORT))
         els = self.elements(self.FILTERED_COHORT)
-        return list(map(lambda el: el.text.replace('Show details for cohort', '').split('(')[0].strip(), els))
+        return list(map(lambda el: el.text.replace('Show details for cohort', '').split(':')[0].strip(), els))
 
     def curated_groups(self):
         Wait(self.driver, utils.get_medium_timeout()).until(ec.presence_of_all_elements_located(self.CURATED_GROUP))
         els = self.elements(self.CURATED_GROUP)
-        return list(map(lambda el: el.text.replace('Show details for curated group', '').split('(')[0].strip(), els))
+        return list(map(lambda el: el.text.replace('Show details for curated group', '').split(':')[0].strip(), els))
 
     @staticmethod
     def view_all_members_link_loc(cohort):
@@ -120,7 +120,7 @@ class Homepage(UserListPages):
         if cohort.__class__.__name__ == 'FilteredCohort':
             loc = By.ID, f'sortable-cohort-{cohort.cohort_id}-total-student-count'
         else:
-            loc = By.ID, f'{self.curated_group_xpath(cohort)}//h3/span[2]'
+            loc = By.ID, f'sortable-curated-{cohort.cohort_id}-total-student-count'
         return int(self.element(loc).text) if self.is_present(loc) else None
 
     def verify_member_alerts(self, cohort, advisor, cohort_members_with_alerts=None):

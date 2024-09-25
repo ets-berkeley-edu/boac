@@ -304,7 +304,7 @@ def coe_cond(cohort_filter, conditions_list):
         coe_conditions_list.append(
             f'boac_advising_coe.students.ethnicity IN ({utils.in_op(cohort_filter.coe_ethnicities)})')
     if cohort_filter.coe_inactive:
-        coe_conditions_list.append("boac_advising_coe.students.status IN ('D', 'P', 'U', 'W', 'X', 'Z')")
+        coe_conditions_list.append("boac_advising_coe.students.status IN ('D', 'O', 'P', 'U', 'W', 'X', 'Z')")
     if cohort_filter.coe_probation:
         coe_conditions_list.append('boac_advising_coe.students.probation IS TRUE')
     if cohort_filter.coe_underrepresented_minority:
@@ -324,7 +324,7 @@ def coe_cond(cohort_filter, conditions_list):
         coe_conditions_list.append(f'({prep_conditions_list})')
 
     if coe_conditions_list and not cohort_filter.coe_inactive:
-        coe_conditions_list.append("boac_advising_coe.students.status NOT IN ('D', 'P', 'U', 'W', 'X', 'Z')")
+        coe_conditions_list.append("boac_advising_coe.students.status NOT IN ('D', 'O', 'P', 'U', 'W', 'X', 'Z')")
 
     for c in coe_conditions_list:
         conditions_list.append(c)

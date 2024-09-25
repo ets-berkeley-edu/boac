@@ -54,7 +54,7 @@ class UserListPages(BoaPages):
         no_cumul_units_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Units completed\")]/following-sibling::div/span'
         gpa_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"GPA\")]/following-sibling::div'
         no_gpa_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"GPA\")]/following-sibling::div/span'
-        alerts_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Issue count\")]/following-sibling::div'
+        alerts_loc = By.XPATH, f'{row_xpath}//span[contains(@id, "alert-count")]/div'
         if self.is_present(cumul_units_loc):
             units = self.element(cumul_units_loc).text
         elif self.is_present(no_cumul_units_loc):
@@ -68,13 +68,13 @@ class UserListPages(BoaPages):
         else:
             gpa = None
         return {
-            'name': (self.element(name_loc).text if self.is_present(name_loc) else None),
-            'sid': (self.element(sid_loc).text if self.is_present(sid_loc) else None),
-            'major': (list(map(lambda el: el.text, self.elements(major_loc)))),
-            'term_units': (self.element(term_units_loc).text if self.is_present(term_units_loc) else None),
+            'name': self.el_text_if_exists(name_loc),
+            'sid': self.el_text_if_exists(sid_loc),
+            'major': self.els_text_if_exist(major_loc),
+            'term_units': self.el_text_if_exists(term_units_loc),
             'cumulative_units': units,
             'gpa': gpa,
-            'alert_count': (self.element(alerts_loc).text if self.is_present(alerts_loc) else None),
+            'alert_count': self.el_text_if_exists(alerts_loc, 'alerts'),
         }
 
     def sort_by_option(self, option, cohort=None):
@@ -83,31 +83,31 @@ class UserListPages(BoaPages):
             xpath = self.filtered_cohort_xpath(cohort)
         else:
             xpath = ''
-        self.wait_for_element_and_click((By.XPATH, f'{xpath}//th[contains(.,"{option}")]'))
+        self.wait_for_element_and_click((By.XPATH, f'{xpath}//button[@id="students-sort-by-{option}-btn"]'))
 
     def sort_by_name(self, cohort=None):
-        self.sort_by_option('Name', cohort)
+        self.sort_by_option('lastName', cohort)
 
     def sort_by_sid(self, cohort=None):
-        self.sort_by_option('SID', cohort)
+        self.sort_by_option('sid', cohort)
 
     def sort_by_major(self, cohort=None):
-        self.sort_by_option('Major', cohort)
+        self.sort_by_option('major', cohort)
 
     def sort_by_expected_grad(self, cohort=None):
-        self.sort_by_option('Grad', cohort)
+        self.sort_by_option('expectedGraduationTerm', cohort)
 
     def sort_by_term_units(self, cohort=None):
-        self.sort_by_option('Term units', cohort)
+        self.sort_by_option('enrolledUnits', cohort)
 
     def sort_by_cumul_units(self, cohort=None):
-        self.sort_by_option('Units completed', cohort)
+        self.sort_by_option('cumulativeUnits', cohort)
 
     def sort_by_gpa(self, cohort=None):
-        self.sort_by_option('GPA', cohort)
+        self.sort_by_option('cumulativeGPA', cohort)
 
     def sort_by_alert_count(self, cohort=None):
-        self.sort_by_option('Alerts', cohort)
+        self.sort_by_option('alertCount', cohort)
 
     @staticmethod
     def expected_sids_by_alerts(users):

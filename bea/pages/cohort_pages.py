@@ -85,7 +85,7 @@ class CohortPages(BoaPages):
         self.name_cohort(cohort)
 
     def wait_for_filtered_cohort(self, cohort):
-        self.wait_for_element(self.cohort_heading_loc(cohort), utils.get_medium_timeout())
+        self.wait_for_element(self.cohort_heading_loc(cohort), utils.get_short_timeout())
         boa_utils.set_filtered_cohort_id(cohort)
 
     def cancel_cohort(self):
@@ -143,7 +143,7 @@ class CohortPages(BoaPages):
 
     @staticmethod
     def sort_option_loc(option):
-        return By.XPATH, f'//div[@id="sort-by-option-{option}"]'
+        return By.ID, f'sort-by-option-{option}'
 
     def sort_by(self, option):
         app.logger.info(f'Sorting by {option}')

@@ -234,6 +234,7 @@ class Page(object):
 
     def remove_chars(self, locator):
         self.wait_for_element_and_click(locator)
+        time.sleep(utils.get_click_sleep())
         repeat = 300
         for x in range(repeat):
             self.hit_delete()
