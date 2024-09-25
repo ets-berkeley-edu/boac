@@ -63,7 +63,7 @@
 
 <script setup>
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {computed, nextTick, onMounted, ref} from 'vue'
+import {computed, nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {each} from 'lodash'
 import {mdiCloseCircle} from '@mdi/js'
@@ -128,10 +128,28 @@ const inputId = computed(() => `${props.idPrefix}-input`)
 const isPopoverVisible = ref(false)
 const popover = ref()
 
+onBeforeUnmount(() => {
+  document.getElementById(props.containerId).removeEventListener('keydown', onKeydownPreventClick)
+})
+
 onMounted(() => {
   // Setting this as a prop on the VTextField component breaks the "clear" button.
   document.getElementById(inputId.value).setAttribute('role', 'combobox')
+  // Workaround for https://github.com/nathanreyes/v-calendar/issues/1459
+  document.getElementById(props.containerId).addEventListener('keydown', onKeydownPreventClick)
 })
+
+const isMonthNavBtn = el => el.id === `${props.idPrefix}-popover-next-month-btn` || el.id === `${props.idPrefix}-popover-prev-month-btn`
+
+const isSpaceOrEnter = key => {
+  return key === ' ' || key === 'Spacebar' || key === 'Enter'
+}
+
+const onKeydownPreventClick = e => {
+  if (e && isMonthNavBtn(e.target) && isSpaceOrEnter(e.key)) {
+    e.preventDefault()
+  }
+}
 
 const isValid = dateString => {
   if (!dateString || dateString === '') {
