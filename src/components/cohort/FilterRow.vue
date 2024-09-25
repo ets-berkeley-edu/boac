@@ -61,11 +61,11 @@
           :aria-describedby="`filter-range-min-placeholder-${position}`"
           aria-label="&quot;from&quot; date"
           :container-id="`filter-row-${position}`"
-          :get-value="() => rangeMin"
+          :get-value="() => DateTime.fromISO(rangeMin).toJSDate()"
           :id-prefix="`filter-range-min-${position}`"
           :max-date="rangeMax"
           required
-          :set-value="d => rangeMin = d"
+          :set-value="d => rangeMin = DateTime.fromJSDate(d).toISODate()"
         />
         <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
           {{ rangeMaxLabel() }}
@@ -77,11 +77,11 @@
           :aria-describedby="`filter-range-max-placeholder-${position}`"
           aria-label="&quot;to&quot; date"
           :container-id="`filter-row-${position}`"
-          :get-value="() => rangeMax"
+          :get-value="() => DateTime.fromISO(rangeMax).toJSDate()"
           :id-prefix="`filter-range-max-${position}`"
           :min-date="rangeMin"
           required
-          :set-value="d => rangeMax = d"
+          :set-value="d => rangeMax = DateTime.fromJSDate(d).toISODate()"
         />
       </div>
       <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
@@ -482,9 +482,8 @@ const onClickEditButton = () => {
     selectedOption.value = Array.isArray(options) ? findOption(options, filter.value.value) : find(flattenOptions(options), filter.value.value)
     putFocusNextTick(`filter-select-secondary-${props.position}`)
   } else if (isUX('range')) {
-    const isDate = filter.value.validation === 'date'
-    rangeMin.value = isDate ? DateTime.fromISO(filter.value.value.min).toJSDate() : filter.value.value.min
-    rangeMax.value = isDate ? DateTime.fromISO(filter.value.value.max).toJSDate() : filter.value.value.max
+    rangeMin.value = filter.value.value.min
+    rangeMax.value = filter.value.value.max
     putFocusNextTick(`filter-range-min-${props.position}`)
   }
   isModifyingFilter.value = true
@@ -577,11 +576,6 @@ const updateRangeFilter = () => {
     filter.value.value = {
       min: formatGPA(rangeMin.value),
       max: formatGPA(rangeMax.value)
-    }
-  } else if (filter.value.validation === 'date') {
-    filter.value.value = {
-      min: DateTime.fromJSDate(rangeMin.value).toISO(),
-      max: DateTime.fromJSDate(rangeMax.value).toISO()
     }
   } else {
     filter.value.value = {
