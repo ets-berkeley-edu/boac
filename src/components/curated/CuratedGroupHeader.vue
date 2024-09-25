@@ -204,7 +204,7 @@ import router from '@/router'
 import {alertScreenReader, pluralize, setPageTitle} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
-import {each, find, isNil, map, noop, size, sortBy} from 'lodash'
+import {each, find, isNil, map, size, sortBy} from 'lodash'
 import {onMounted, ref, watch} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
@@ -300,13 +300,14 @@ const exportGroup = csvColumnsSelected => {
 
 const deleteGroup = () => {
   isDeleting.value = true
-  return deleteCuratedGroup(domain.value, curatedGroupId.value).then(() => {
+  deleteCuratedGroup(domain.value, curatedGroupId.value).then(() => {
     isDeleteModalOpen.value = false
     alertScreenReader(`Deleted ${domainLabel(false)}`)
-    router.push({path: '/'}, noop)
+    router.push({path: '/'}).then(() => {
+      isDeleting.value = false
+    })
   }).catch(error => {
     error.value = error
-  }).finally(() => {
     isDeleting.value = false
   })
 }

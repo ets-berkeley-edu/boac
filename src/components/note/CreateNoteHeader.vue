@@ -198,7 +198,7 @@
       v-model="isDeleteTemplateDialogOpen"
       button-label-confirm="Delete"
       :function-cancel="() => cancel(templateToDelete)"
-      :function-confirm="() => deleteTemplateConfirmed()"
+      :function-confirm="deleteTemplateConfirmed"
       modal-header="Delete Template"
     >
       Are you sure you want to delete the <strong>'{{ get(templateToDelete, 'title') }}'</strong> template?
@@ -248,7 +248,7 @@ const cancel = template => {
 
 const deleteTemplateConfirmed = () => {
   isSaving.value = true
-  return deleteNoteTemplate(templateToDelete.value.id).then(() => {
+  deleteNoteTemplate(templateToDelete.value.id).then(() => {
     isSaving.value = false
     resetTemplate(templateToDelete.value, templateToDelete.value.title)
     alertScreenReader('Template deleted.')

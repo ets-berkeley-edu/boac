@@ -287,7 +287,7 @@ const deleteCanceled = () => {
 }
 
 const deleteConfirmed = () => {
-  return deleteCourse(courseForDelete.value.id).then(() => {
+  deleteCourse(courseForDelete.value.id).then(() => {
     alertScreenReader(`${courseForDelete.value.name} deleted.`)
     isDeleting.value = false
     courseForDelete.value = null

@@ -248,7 +248,7 @@ const cancelRename = () => {
 
 const cohortDelete = () => {
   alertScreenReader(`Deleting cohort '${name.value}'`)
-  return deleteCohort(cohortStore.cohortId).then(() => {
+  deleteCohort(cohortStore.cohortId).then(() => {
     showDeleteModal.value = false
     alertScreenReader(`Deleted cohort '${name.value}'`)
     router.push({path: '/'})

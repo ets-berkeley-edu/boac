@@ -370,10 +370,10 @@ const save = () => {
         query: {
           m: `Degree check ${selectedTemplate.value.name} added to ${pluralize('student profile', sidsToInclude.value.length)}.`
         }
+      }).then(() => {
+        isSaving.value = false
       })
     })
-  }).finally(() => {
-    isSaving.value = false
   })
 }
 

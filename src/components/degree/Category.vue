@@ -138,7 +138,7 @@ const deleteCanceled = () => {
 }
 
 const deleteConfirmed = () => {
-  return deleteCategory(props.category.id).then(() => {
+  deleteCategory(props.category.id).then(() => {
     alertScreenReader(`${props.category.name} deleted.`)
     isDeleting.value = false
     degreeStore.setDisableButtons(false)
