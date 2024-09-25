@@ -24,7 +24,7 @@ Font Awesome to [MDI](https://pictogrammers.com/library/mdi/)
 | edit                                            | mdiNoteEditOutline                         |
 | envelope                                        | mdiEmail                                   |
 | exclamation                                     | mdiExclamation                             |
-| exclamation-triangle                            | mdiAlertRhombus                            |
+| exclamation-triangle                            | mdiAlert                                   |
 | external-link-alt                               | mdiOpenInNew                               |
 | file-alt                                        | mdiFileOutline                             |
 | graduation-cap                                  | mdiSchool                                  |

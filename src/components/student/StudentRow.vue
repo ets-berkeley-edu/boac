@@ -93,7 +93,7 @@
       >
         <v-icon
           v-if="student.termGpa[0].gpa < 2"
-          :icon="mdiAlertRhombus"
+          :icon="mdiAlert"
           class="mr-1"
           color="warning"
           size="small"
@@ -165,7 +165,7 @@ import StudentRowCourseActivity from '@/components/student/StudentRowCourseActiv
 import {alertScreenReader} from '@/lib/utils'
 import {computed, ref} from 'vue'
 import {get, isNil, isUndefined, size} from 'lodash'
-import {mdiAlertRhombus, mdiCloseCircle} from '@mdi/js'
+import {mdiAlert, mdiCloseCircle} from '@mdi/js'
 import {round} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

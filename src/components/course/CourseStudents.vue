@@ -285,8 +285,13 @@
 
     <template #item.midtermGrade="{item}">
       <div v-if="item.enrollment" class="pl-1">
-        <span v-if="item.enrollment.midtermGrade" v-accessible-grade="item.enrollment.midtermGrade" class="font-weight-bold font-size-14"></span>
-        <v-icon v-if="isAlertGrade(item.enrollment.midtermGrade)" :icon="mdiAlertRhombus" class="warning" />
+        <span v-if="item.enrollment.midtermGrade" v-accessible-grade="item.enrollment.midtermGrade" class="font-weight-bold font-size-14" />
+        <v-icon
+          v-if="isAlertGrade(item.enrollment.midtermGrade)"
+          class="ml-1"
+          color="warning"
+          :icon="mdiAlert"
+        />
         <span v-if="!item.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div v-if="!item.enrollment" class="pl-1">&mdash;</div>
@@ -294,8 +299,13 @@
 
     <template #item.finalGrade="{item}">
       <div v-if="item.enrollment" class="pl-1">
-        <span v-if="item.enrollment.grade" v-accessible-grade="item.enrollment.grade" class="font-weight-bold font-size-14"></span>
-        <v-icon v-if="isAlertGrade(item.enrollment.grade)" :icon="mdiAlertRhombus" color="warning" />
+        <span v-if="item.enrollment.grade" v-accessible-grade="item.enrollment.grade" class="font-weight-bold font-size-14" />
+        <v-icon
+          v-if="isAlertGrade(item.enrollment.grade)"
+          class="ml-1"
+          color="warning"
+          :icon="mdiAlert"
+        />
         <span v-if="!item.enrollment.grade" class="cohort-grading-basis">
           {{ item.enrollment.gradingBasis }}
         </span>
@@ -314,7 +324,7 @@ import StudentBoxplot from '@/components/student/StudentBoxplot'
 import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDays} from '@/berkeley'
 import {each, get, map, size, split, uniq} from 'lodash'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
-import {mdiAlertRhombus, mdiSchool} from '@mdi/js'
+import {mdiAlert, mdiSchool} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 

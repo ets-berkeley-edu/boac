@@ -2,7 +2,6 @@
   <v-icon
     :id="`term-${termId}-course-${index}-has-incomplete-status`"
     :aria-label="ariaLabel"
-    class="ml-1"
     color="error"
     :icon="mdiInformationOutline"
     :title="ariaLabel"

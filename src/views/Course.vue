@@ -123,7 +123,7 @@
       </div>
     </div>
     <div v-if="!section.totalStudentCount" class="d-flex ma-3">
-      <v-icon :icon="mdiAlertRhombus" color="error" />
+      <v-icon color="error" :icon="mdiAlert" />
       <span class="container-error">No students advised by your department are enrolled in this section.</span>
     </div>
     <div v-if="section.totalStudentCount" class="mx-2 mt-2">
@@ -152,7 +152,7 @@ import {computed, onMounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {each, orderBy, size, toString} from 'lodash'
 import {getSection} from '@/api/course'
-import {mdiAlertRhombus} from '@mdi/js'
+import {mdiAlert} from '@mdi/js'
 import {pluralize, putFocusNextTick, scrollToTop, setPageTitle, updateWindowLocationParam} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'
