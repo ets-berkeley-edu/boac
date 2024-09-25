@@ -479,13 +479,11 @@ const deleteConfirmed = () => {
     degreeStore.setDisableButtons(false)
     putFocusNextTick(putFocus)
   }
-  let promise = undefined
   if (degreeStore.sid) {
-    promise = deleteCourse(bundleForDelete.value.course.id).then(done)
+    deleteCourse(bundleForDelete.value.course.id).then(done)
   } else {
-    promise = deleteCategory(bundleForDelete.value.category.id).then(done)
+    deleteCategory(bundleForDelete.value.category.id).then(done)
   }
-  return promise
 }
 
 const describeCategoryUnits = category => {

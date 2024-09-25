@@ -93,7 +93,7 @@ onBeforeRouteLeave((to, from, next) => {
     alertScreenReader('Are you sure you want to discard unsaved changes?')
     cancelConfirmed = () => {
       exitSession(true)
-      return next()
+      next()
     }
     cancelTheCancel = () => {
       alertScreenReader('Please save changes before exiting the page.')

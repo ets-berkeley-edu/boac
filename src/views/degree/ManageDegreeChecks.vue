@@ -298,7 +298,7 @@ const deleteCanceled = () => {
 }
 
 const deleteConfirmed = () => {
-  return deleteDegreeTemplate(templateForDelete.value.id).then(getDegreeTemplates).then(data => {
+  deleteDegreeTemplate(templateForDelete.value.id).then(getDegreeTemplates).then(data => {
     degreeTemplates.value = data
     alertScreenReader(`${templateForDelete.value.name} deleted.`)
     putFocusNextTick('page-header')

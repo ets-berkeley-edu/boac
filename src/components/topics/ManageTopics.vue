@@ -155,7 +155,7 @@ const deleteCancel = () => {
 }
 
 const deleteConfirm = () => {
-  return deleteTopic(topicDelete.value.id).then(() => {
+  deleteTopic(topicDelete.value.id).then(() => {
     isDeleteTopicModalOpen.value = false
     topicDelete.value.deletedAt = DateTime.now()
     alertScreenReader(`Topic '${topicDelete.value.topic}' deleted.`)

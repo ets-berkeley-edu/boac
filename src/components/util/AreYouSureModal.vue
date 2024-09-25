@@ -75,9 +75,9 @@ const props = defineProps({
     default: ''
   }
 })
-let isProcessing = ref(false)
 
 const focusLocked = ref(false)
+let isProcessing = ref(false)
 // eslint-disable-next-line vue/require-prop-types
 const model = defineModel()
 
@@ -85,16 +85,13 @@ watch(model, isOpen => {
   if (isOpen) {
     setTimeout(() => focusLocked.value = isOpen, 500)
     putFocusNextTick('are-you-sure-confirm')
+  } else {
+    isProcessing.value = false
   }
 })
 
 const confirm = () => {
   isProcessing.value = true
-  const result = props.functionConfirm()
-  if (result && typeof result.then === 'function') {
-    result.then(() => isProcessing.value = false)
-  } else {
-    isProcessing.value = false
-  }
+  props.functionConfirm()
 }
 </script>

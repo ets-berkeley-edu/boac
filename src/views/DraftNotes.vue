@@ -209,17 +209,14 @@ const cancel = () => {
 
 const deleteDraftNote = () => {
   alertScreenReader('Deleting draft note')
-  return new Promise(resolve => {
-    const selectedNoteIndex = findIndex(myDraftNotes.value, {'id': selectedNote.value.id})
-    const nextNote = get(myDraftNotes.value, selectedNoteIndex >= (size(myDraftNotes.value) - 1) ? 0 : selectedNoteIndex + 1)
-    isDeleting.value = true
-    deleteNote(selectedNote.value).then(() => {
-      myDraftNotes.value.splice(selectedNoteIndex, 1)
-      isDeleting.value = isDeleteDialogOpen.value = false
-      alertScreenReader('Draft note deleted')
-      putFocusNextTick(nextNote ? `delete-draft-note-${nextNote.id}` : 'draft-notes-no-data')
-      resolve()
-    })
+  const selectedNoteIndex = findIndex(myDraftNotes.value, {'id': selectedNote.value.id})
+  const nextNote = get(myDraftNotes.value, selectedNoteIndex >= (size(myDraftNotes.value) - 1) ? 0 : selectedNoteIndex + 1)
+  isDeleting.value = true
+  deleteNote(selectedNote.value).then(() => {
+    myDraftNotes.value.splice(selectedNoteIndex, 1)
+    isDeleting.value = isDeleteDialogOpen.value = false
+    alertScreenReader('Draft note deleted')
+    putFocusNextTick(nextNote ? `delete-draft-note-${nextNote.id}` : 'draft-notes-no-data')
   })
 }
 

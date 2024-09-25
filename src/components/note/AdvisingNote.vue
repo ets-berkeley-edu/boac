@@ -237,7 +237,7 @@ const confirmedRemoveAttachment = () => {
   showConfirmDeleteAttachment.value = false
   const attachment = props.note.attachments[deleteAttachmentIndex.value]
   if (attachment && attachment.id) {
-    return removeAttachment(props.note.id, attachment.id).then(updatedNote => {
+    removeAttachment(props.note.id, attachment.id).then(updatedNote => {
       alertScreenReader(`Attachment '${attachment.displayName}' removed`)
       props.afterSaved(updatedNote, addAttachmentInputElementId)
     })
