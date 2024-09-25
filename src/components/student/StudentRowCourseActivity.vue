@@ -58,8 +58,8 @@
             <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="font-weight-bold"></span>
             <v-icon
               v-if="isAlertGrade(enrollment.midtermGrade)"
-              :icon="mdiAlertRhombus"
               color="warning"
+              :icon="mdiAlert"
               size="small"
             />
             <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
@@ -74,9 +74,9 @@
             ></span>
             <v-icon
               v-if="isAlertGrade(enrollment.grade)"
-              :icon="mdiAlertRhombus"
               class="grade-alert"
               color="warning"
+              :icon="mdiAlert"
               size="small"
             />
             <IncompleteGradeAlertIcon
@@ -125,7 +125,7 @@ import {
   setWaitlistedStatus,
   termNameForSisId
 } from '@/berkeley'
-import {mdiAlertRhombus} from '@mdi/js'
+import {mdiAlert} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

@@ -99,9 +99,9 @@
                 <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
                 <v-icon
                   v-if="isAlertGrade(course.grade)"
-                  :icon="mdiAlertRhombus"
                   class="mb-1 ml-1"
                   color="warning"
+                  :icon="mdiAlert"
                   size="20"
                   title="Non-passing grade"
                 />
@@ -219,7 +219,7 @@ import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/
 import {deleteCourse} from '@/stores/degree-edit-session/utils'
 import {isAlertGrade} from '@/berkeley'
 import {
-  mdiAlertRhombus,
+  mdiAlert,
   mdiCheckCircleOutline,
   mdiContentCopy,
   mdiInformationOutline,

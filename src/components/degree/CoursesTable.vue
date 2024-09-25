@@ -144,9 +144,9 @@
                 </span>
                 <v-icon
                   v-if="isAlertGrade(getGrade(bundle))"
-                  :icon="mdiAlertRhombus"
                   class="ml-1"
                   color="warning"
+                  :icon="mdiAlert"
                   size="20"
                   title="Non-passing grade"
                 />
@@ -365,7 +365,7 @@ import {
 } from '@/lib/degree-progress'
 import {isAlertGrade} from '@/berkeley'
 import {
-  mdiAlertRhombus,
+  mdiAlert,
   mdiCheckCircleOutline,
   mdiCircle,
   mdiContentCopy,

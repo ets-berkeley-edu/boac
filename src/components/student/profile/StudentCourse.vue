@@ -52,8 +52,8 @@
         <v-icon
           v-if="isAlertGrade(course.midtermGrade) && !course.grade"
           :id="`${baseElementId}-has-midterm-grade-alert`"
-          :icon="mdiAlertRhombus"
           class="warning"
+          :icon="mdiAlert"
         />
       </div>
       <div class="align-center column-grade d-flex text-nowrap" role="cell">
@@ -183,7 +183,7 @@ import {
   getSectionsWithIncompleteStatus,
   isAlertGrade,
 } from '@/berkeley'
-import {mdiAlert, mdiAlertRhombus, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
+import {mdiAlert, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {normalizeId} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

@@ -39,7 +39,6 @@
               </template>
             </v-text-field>
           </v-card-text>
-          <hr />
           <v-card-actions class="modal-footer">
             <ProgressButton
               id="create-curated-group-confirm"

@@ -82,7 +82,7 @@
                   v-if="term.gpa < 2"
                   class="pr-2"
                   color="error"
-                  :icon="mdiAlertRhombus"
+                  :icon="mdiAlert"
                 />
                 <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
                 <span
@@ -109,7 +109,7 @@
 import StudentGpaChart from '@/components/student/StudentGpaChart'
 import {alertScreenReader, round} from '@/lib/utils'
 import {get, isEmpty, isNil} from 'lodash'
-import {mdiAlertRhombus, mdiMenuDown, mdiMenuRight} from '@mdi/js'
+import {mdiAlert, mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {ref} from 'vue'
 
 const props = defineProps({
