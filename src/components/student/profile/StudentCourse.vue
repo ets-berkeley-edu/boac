@@ -5,25 +5,30 @@
       class="align-center course-row d-flex"
       role="row"
     >
-      <div role="cell" class="column-name" :class="{'': showCourseDetails}">
+      <div role="cell" class="column-name">
         <v-btn
           :id="`${baseElementId}-toggle`"
           :aria-expanded="showCourseDetails ? 'true' : 'false'"
           :aria-controls="`${baseElementId}-details`"
-          class="align-center d-flex font-weight-bold font-size-16 pl-0"
+          :aria-label="`${showCourseDetails ? 'Hide' : 'Show'} ${course.displayName} class details for ${student.name}`"
+          class="text-left"
           color="primary"
           density="compact"
+          slim
+          :title="course.displayName"
           variant="text"
           @click="toggleShowCourseDetails"
         >
-          <v-icon :icon="showCourseDetails ? mdiMenuDown : mdiMenuRight" />
-          <span class="sr-only">{{ showCourseDetails ? 'Hide' : 'Show' }} {{ course.displayName }} class details for {{ student.name }}</span>
-          <div
-            :id="`${baseElementId}-name`"
-            class="course-name overflow-hidden text-left truncate-with-ellipsis"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
-          >
-            {{ course.displayName }}
+          <div class="align-center d-flex">
+            <div>
+              <v-icon :icon="showCourseDetails ? mdiMenuDown : mdiMenuRight" />
+            </div>
+            <div
+              class="course-name font-weight-bold font-size-16"
+              :class="{'demo-mode-blur': currentUser.inDemoMode}"
+            >
+              <span class="">{{ truncate(course.displayName, {length: lengthTruncateButtonText}) }}</span>
+            </div>
           </div>
         </v-btn>
         <div
@@ -170,14 +175,15 @@
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import numeral from 'numeral'
 import StudentCourseCanvasData from '@/components/student/profile/StudentCourseCanvasData'
-import {get, size} from 'lodash'
+import vuetify from '@/plugins/vuetify'
+import {computed, nextTick, onMounted, onUnmounted, ref} from 'vue'
+import {get, size, truncate} from 'lodash'
 import {
   getIncompleteGradeDescription,
   getSectionsWithIncompleteStatus,
   isAlertGrade,
 } from '@/berkeley'
 import {mdiAlert, mdiAlertRhombus, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
-import {nextTick, onMounted, onUnmounted, ref} from 'vue'
 import {normalizeId} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
@@ -212,6 +218,7 @@ const contextStore = useContextStore()
 
 const baseElementId = `term-${props.term.termId}-course-${get(props.course, 'sections[0].ccn')}`
 const currentUser = contextStore.currentUser
+const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 16 : (vuetify.display.mdAndUp.value ? 36 : 18))
 const sectionsWithIncompleteStatus = ref(getSectionsWithIncompleteStatus(props.course.sections))
 const showCourseDetails = ref(false)
 const showSpacer = ref(false)
@@ -318,8 +325,6 @@ const toggleShowCourseDetails = () => {
 .course-name {
   height: 1.1em;
   line-height: 1.1;
-  max-width: 90%;
-  overflow: hidden;
 }
 .course-row {
   height: 2.2em;
