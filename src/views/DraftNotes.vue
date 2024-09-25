@@ -55,9 +55,10 @@
               <v-btn
                 v-if="item.author.uid === currentUser.uid"
                 :id="`open-draft-note-${item.id}`"
-                class="pl-0 py-2 text-left text-primary"
+                class="mr-1 px-0 py-2 text-left text-primary"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 size="lg"
+                :title="item.subject"
                 variant="text"
                 @click="() => openEditDialog(item)"
               >
@@ -70,7 +71,7 @@
               </v-btn>
               <span v-if="item.attachmentCount">
                 <span class="sr-only">Has attachment(s)</span>
-                <v-icon class="mb-1 ml-1" :icon="mdiPaperclip" size="small" />
+                <v-icon class="mb-1" :icon="mdiPaperclip" size="small" />
               </span>
             </div>
           </template>
@@ -167,7 +168,7 @@ const headers = []
 const isDeleteDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const isDeleting = ref(false)
-const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 60 : (vuetify.display.lgAndUp.value ? 50 : 30))
+const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 60 : (vuetify.display.mdAndUp.value ? 30 : 16))
 const myDraftNotes = ref(undefined)
 const selectedNote = ref(undefined)
 
