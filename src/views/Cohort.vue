@@ -36,7 +36,7 @@
       <div v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage" :class="{'mt-6': cohortStore.domain === 'default'}">
         <Pagination
           class="my-3"
-          :click-handler="onClickPagination"
+          :click-handler="goToPage"
           :init-page-number="cohortStore.pagination.currentPage"
           :limit="10"
           :per-page="cohortStore.pagination.itemsPerPage"
@@ -69,7 +69,7 @@
       <div class="mt-3">
         <Pagination
           v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage"
-          :click-handler="(page, buttonName) => onClickPagination(page, buttonName, 'auxiliary-pagination')"
+          :click-handler="goToPage"
           id-prefix="auxiliary-pagination"
           :init-page-number="cohortStore.pagination.currentPage"
           :limit="10"
@@ -121,7 +121,6 @@ const pageLoadAlert = computed(() => {
   }
 })
 const sortByKey = computed(() => cohortStore.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
-const totalPages = computed(() => Math.ceil(cohortStore.totalStudentCount / cohortStore.pagination.itemsPerPage))
 
 watch(() => cohortStore.domain, value => {
   contextStore.removeEventHandler('admitSortBy-user-preference-change')
@@ -204,7 +203,7 @@ const init = (cohortId, domain, orderBy, termId) => {
 const goToPage = page => {
   return new Promise(resolve => {
     if (contextStore.loading) {
-      resolve()
+      return resolve()
     } else {
       cohortStore.setCurrentPage(page)
       contextStore.loadingStart(pageLoadAlert.value)
@@ -214,16 +213,6 @@ const goToPage = page => {
       }).then(resolve)
     }
   })
-}
-
-const onClickPagination = (page, buttonName, idPrefix='pagination') => {
-  let returnFocusId = buttonName
-  if (buttonName === 'first' || buttonName === 'prev' && page === 1) {
-    returnFocusId = 'page-1'
-  } else if (buttonName === 'last' || (buttonName === 'next' && page === totalPages.value)) {
-    returnFocusId = `page-${totalPages.value}`
-  }
-  goToPage(page).then(() => putFocusNextTick(`${idPrefix}-${returnFocusId}`))
 }
 
 const onPageNumberChange = () => {

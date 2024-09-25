@@ -61,11 +61,9 @@
               class="w-100"
             >
               <ServiceAnnouncement />
-              <router-view
-                id="content"
-                :key="split($route.fullPath, '#', 1)[0]"
-                role="main"
-              />
+              <div id="content" role="main">
+                <router-view :key="split($route.fullPath, '#', 1)[0]" />
+              </div>
             </div>
           </div>
           <EditBatchNoteModal

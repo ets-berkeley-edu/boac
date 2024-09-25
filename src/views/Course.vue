@@ -80,19 +80,17 @@
         :students="section.students"
       />
     </div>
-    <div class="align-center d-flex flex-wrap justify-space-between">
-      <div :class="{'mt-2 ml-4': section.totalStudentCount > itemsPerPage}">
-        <div v-if="section.totalStudentCount > itemsPerPage">
-          <Pagination
-            :click-handler="goToPage"
-            :init-page-number="currentPage"
-            :limit="20"
-            :per-page="itemsPerPage"
-            :total-rows="section.totalStudentCount"
-          />
-        </div>
-      </div>
-      <div v-if="section.totalStudentCount" class="align-center d-flex mx-4">
+    <div class="align-center d-flex flex-wrap justify-space-between pb-2">
+      <Pagination
+        v-if="section.totalStudentCount > itemsPerPage"
+        class="mt-2 ml-4"
+        :click-handler="goToPage"
+        :init-page-number="currentPage"
+        :limit="20"
+        :per-page="itemsPerPage"
+        :total-rows="section.totalStudentCount"
+      />
+      <div v-if="section.totalStudentCount" class="align-center d-flex mt-2 mx-4">
         <div v-if="section.totalStudentCount <= defaultItemsPerPage" class="font-weight-500 ml-auto mb-4 mr-3 mt-1">
           {{ section.totalStudentCount }} total students
         </div>
@@ -133,6 +131,7 @@
       <div v-if="section.totalStudentCount > itemsPerPage" class="ml-4 mt-6">
         <Pagination
           :click-handler="goToPage"
+          id-prefix="auxiliary-pagination"
           :init-page-number="currentPage"
           :limit="20"
           :per-page="itemsPerPage"
@@ -154,7 +153,7 @@ import {DateTime} from 'luxon'
 import {each, orderBy, size, toString} from 'lodash'
 import {getSection} from '@/api/course'
 import {mdiAlertRhombus} from '@mdi/js'
-import {pluralize, scrollToTop, setPageTitle, updateWindowLocationParam} from '@/lib/utils'
+import {pluralize, putFocusNextTick, scrollToTop, setPageTitle, updateWindowLocationParam} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'
 
@@ -172,19 +171,23 @@ const defaultItemsPerPage = ref(DEFAULT_ITEMS_PER_PAGE)
 const isToggling = ref(false)
 const loading = computed(() => contextStore.loading)
 const meetings = ref(undefined)
+const pageLoadAlert = computed(() => {
+  const loadStatus = contextStore.loading ? 'has loaded' : 'is loading'
+  const pageDesc = currentPage.value > 1 ? `(page ${currentPage.value})` : ''
+  return `Course ${section.value.displayName || ''} ${pageDesc} ${loadStatus}.`
+})
 const perPageQuery = isNaN(query.s) ? DEFAULT_ITEMS_PER_PAGE : parseInt(query.s, 10)
 const itemsPerPage = ref(PAGINATION_OPTIONS.includes(perPageQuery) ? perPageQuery : DEFAULT_ITEMS_PER_PAGE)
 const section = ref({students: []})
 
-contextStore.loadingStart()
-
 watch(itemsPerPage, (newValue, oldValue) => {
-  goToPage(Math.round(currentPage.value * (oldValue / newValue)))
+  goToPage(Math.round(currentPage.value * (oldValue / newValue))).then(() => {
+    putFocusNextTick(`view-per-page-${newValue}`)
+  })
 })
 
 onMounted(() => {
   reload(params.sectionId, params.termId).then(() => {
-    contextStore.loadingComplete()
     scrollToTop()
   })
 })
@@ -194,7 +197,7 @@ const goToPage = page => {
   contextStore.broadcast('hide-footer', true)
   currentPage.value = page
   updateWindowLocationParam('p', page)
-  reload(section.value.sectionId, section.value.termId).then(() => {
+  return reload(section.value.sectionId, section.value.termId).then(() => {
     isToggling.value = false
     scrollToTop()
     contextStore.broadcast('hide-footer', false)
@@ -204,6 +207,7 @@ const goToPage = page => {
 const reload = (sectionId, termId) => {
   const limit = itemsPerPage.value
   const offset = currentPage.value === 0 ? 0 : (currentPage.value - 1) * limit
+  contextStore.loadingStart(pageLoadAlert.value)
   return getSection(termId, sectionId, offset, limit, featured).then(
     data => {
       section.value = data
@@ -216,8 +220,8 @@ const reload = (sectionId, termId) => {
       const totalStudentCount = data.totalStudentCount
       const message = totalStudentCount < itemsPerPage.value ?
         `Showing all ${totalStudentCount} students.` :
-        `Showing ${itemsPerPage.value} of ${totalStudentCount} total students.`
-      contextStore.loadingComplete(`Course ${displayName} has loaded ${message}`)
+        `Showing ${size(students)} of ${totalStudentCount} total students.`
+      contextStore.loadingComplete(`${pageLoadAlert.value} ${message}`)
       ga.course('view', displayName)
       setPageTitle(displayName)
     },
