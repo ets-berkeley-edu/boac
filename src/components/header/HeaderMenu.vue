@@ -17,7 +17,7 @@
           <v-icon :icon="mdiMenuDown" size="24" />
         </v-btn>
       </template>
-      <v-list variant="flat">
+      <v-list variant="flat" class="remove-scroll">
         <v-list-item-action v-if="currentUser.canReadDegreeProgress">
           <v-btn
             id="header-menu-degree-check"
@@ -115,5 +115,8 @@ const logOut = () => getCasLogoutUrl().then(data => window.location.href = data.
 .menu-activator-btn {
   padding-left: 10px;
   padding-right: 4px;
+}
+.remove-scroll {
+  overflow: hidden !important;
 }
 </style>
