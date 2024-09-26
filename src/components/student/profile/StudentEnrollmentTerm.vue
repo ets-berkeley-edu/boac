@@ -78,26 +78,28 @@
       </div>
     </div>
     <div class="mt-auto">
-      <v-card-subtitle class="border-t-sm font-size-12 pt-3 px-0 student-term-footer text-uppercase">
+      <v-card-subtitle class="border-t-sm pt-3 px-2 student-term-footer text-uppercase">
         <div class="d-flex justify-space-between">
           <div>
             <span class="font-weight-600 mr-1">Term GPA:</span>
             <span :id="`term-${term.termId}-gpa`">{{ termGpa ? round(termGpa || 0, 3) : '&mdash;' }}</span>
           </div>
-          <div>
-            <span class="font-weight-600 mr-1">Total Units:</span>
-            <span :id="`term-${term.termId}-units`">{{ enrolledUnits || '&mdash;' }}</span>
+          <div class="text-right">
+            <div>
+              <span class="font-weight-600 pr-1">Total Units:</span>
+              <span :id="`term-${term.termId}-units`">{{ enrolledUnits || '&mdash;' }}</span>
+            </div>
+            <div v-if="showMinUnits">
+              <span class="align-right font-weight-600 pr-1">Exception Min Units:</span>
+              <span :id="`term-${term.termId}-min-units`">{{ numeral(term.minTermUnitsAllowed).format('0.0') }}</span>
+            </div>
+            <div v-if="showMaxUnits">
+              <span class="font-weight-600 pr-1">Exception Max Units:</span>
+              <span :id="`term-${term.termId}-max-units`">
+                {{ numeral(term.maxTermUnitsAllowed).format('0.0') }}
+              </span>
+            </div>
           </div>
-        </div>
-        <div v-if="showMinUnits" class="float-right">
-          <span class="align-right font-weight-600 mr-1">Exception Min Units:</span>
-          <span :id="`term-${term.termId}-min-units`">{{ numeral(term.minTermUnitsAllowed).format('0.0') }}</span>
-        </div>
-        <div v-if="showMaxUnits" class="float-right">
-          <span class="font-weight-600 mr-1">Exception Max Units:</span>
-          <span :id="`term-${term.termId}-max-units`">
-            {{ numeral(term.maxTermUnitsAllowed).format('0.0') }}
-          </span>
         </div>
       </v-card-subtitle>
     </div>
@@ -163,7 +165,8 @@ const termGpa = get(props.term, 'termGpa.gpa') || 0
 }
 .student-term-footer {
   border-top: 1px rgba(var(--v-border-color), var(--v-border-opacity)) solid !important;
-  max-height: 60px;
-  min-height: 60px;
+  line-height: 1.1;
+  max-height: 72px;
+  min-height: 72px;
 }
 </style>
