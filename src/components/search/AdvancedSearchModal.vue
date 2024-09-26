@@ -418,7 +418,7 @@ const isSearchDisabled = computed(() => {
 const model = ref(getDefaultModel())
 const searchInputRequired = computed(() => {
   const m = model.value
-  return !m.includeNotes || !(m.author || m.fromDate || m.toDate || m.postedBy !== 'anyone' || m.student || m.topic)
+  return !m.includeNotes || !(m.author || m.fromDate || m.toDate || m.postedBy === 'you' || m.student || m.topic)
 })
 const validDateRange = computed(() => {
   const m = model.value
