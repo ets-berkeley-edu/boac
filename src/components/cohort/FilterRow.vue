@@ -34,7 +34,7 @@
     <div
       v-if="isModifyingFilter"
       class="py-1"
-      :class="{'mr-4': showAdd, 'mr-2': !showAdd}"
+      :class="{'mr-4': showAdd}"
     >
       <div v-if="isUX('dropdown')">
         <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
@@ -85,7 +85,7 @@
         />
       </div>
       <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
-        <label class="font-weight-500 ml-2 pr-2" :for="`filter-range-min-${position}`">
+        <label class="font-weight-500 mx-3" :for="`filter-range-min-${position}`">
           {{ rangeMinLabel() }}<span class="sr-only"> starting at</span>
         </label>
         <div>
@@ -100,7 +100,7 @@
             @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
           />
         </div>
-        <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
+        <label class="font-weight-500 mx-3" :for="`filter-range-max-${position}`">
           {{ rangeMaxLabel() }}<span class="sr-only"> end of range</span>
         </label>
         <div>
@@ -193,6 +193,7 @@
         aria-live="polite"
         density="compact"
         type="error"
+        :icon="false"
         variant="tonal"
       >
         <v-alert-title class="font-size-16">{{ errorPerRangeInput }}</v-alert-title>
@@ -317,25 +318,33 @@ const onRangeUpdate = () => {
     }
     disableUpdateButton.value = !!errorPerRangeInput.value || isNilOrNan(min) || isNilOrNan(max) || min > max
   } else if (validation === 'gpa') {
-    const min = trimToNil(rangeMin.value) && parseFloat(rangeMin.value)
-    const max = trimToNil(rangeMax.value) && parseFloat(rangeMax.value)
+    rangeMin.value = trimToNil(rangeMin.value) && parseFloat(rangeMin.value)
+    rangeMax.value = trimToNil(rangeMax.value) && parseFloat(rangeMax.value)
     const isDefinedAndInvalid = v => (isNumber(v) && v < 0 || v > 4) || isNaN(v)
-    if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
+    if (isDefinedAndInvalid(rangeMin.value) || isDefinedAndInvalid(rangeMax.value)) {
       errorPerRangeInput.value = 'GPA must be a number in the range 0 to 4.'
-    } else if (isNumber(min) && isNumber(max) && min > max) {
+    } else if (isNumber(rangeMin.value) && isNumber(rangeMax.value) && rangeMin.value > rangeMax.value) {
       errorPerRangeInput.value = 'GPA inputs must be in ascending order.'
     }
-    disableUpdateButton.value = !!errorPerRangeInput.value || isNilOrNan(min) || isNilOrNan(max) || min > max
+    disableUpdateButton.value = !!errorPerRangeInput.value
+      || isNilOrNan(rangeMin.value)
+      || isNilOrNan(rangeMax.value)
+      || rangeMin.value > rangeMax.value
   } else if (validation === 'char[2]') {
-    const min = trimToNil(rangeMin.value)
-    const max = trimToNil(rangeMax.value)
+    rangeMin.value = trimToNil(rangeMin.value)
+    rangeMax.value = trimToNil(rangeMax.value)
     const isValid = s => /^[a-zA-Z][a-zA-Z]?$/.test(s)
-    const isBadData = (min && !isValid(min)) || (max && !isValid(max))
-    if (isBadData || (min && max && min.toUpperCase() > max.toUpperCase())) {
+    const isBadData = rangeMin.value
+      && rangeMax.value
+      && (!isValid(rangeMin.value) || !isValid(rangeMax.value) || rangeMin.value.toUpperCase() > rangeMax.value.toUpperCase())
+    if (isBadData) {
       // Invalid data or values are descending.
       errorPerRangeInput.value = 'Letters must be in ascending order.'
     }
-    disableUpdateButton.value = !!errorPerRangeInput.value || isNilOrNan(min) || isNilOrNan(max) || min > max
+    disableUpdateButton.value = !!errorPerRangeInput.value
+      || isNilOrNan(rangeMin.value)
+      || isNilOrNan(rangeMax.value)
+      || rangeMin.value > rangeMax.value
   } else if (validation === 'date') {
     if (rangeMin.value && rangeMax.value && rangeMin.value > rangeMax.value) {
       // Invalid data or values are descending.
