@@ -72,6 +72,7 @@
           :click-handler="goToPage"
           id-prefix="auxiliary-pagination"
           :init-page-number="cohortStore.pagination.currentPage"
+          :is-widget-at-bottom-of-page="true"
           :limit="10"
           :per-page="cohortStore.pagination.itemsPerPage"
           :total-rows="cohortStore.totalStudentCount"
@@ -96,7 +97,7 @@ import {applyFilters, loadCohort, resetFiltersToLastApply, updateFilterOptions} 
 import {computed, onMounted, onUnmounted, reactive, watch} from 'vue'
 import {get, size, startsWith} from 'lodash'
 import {nextTick} from 'vue'
-import {putFocusNextTick, scrollToTop, setPageTitle, toInt} from '@/lib/utils'
+import {putFocusNextTick, setPageTitle, toInt} from '@/lib/utils'
 import {translateSortByOption} from '@/berkeley'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
@@ -144,27 +145,21 @@ onMounted(() => {
     'termId-user-preference-change',
     () => goToPage(cohortStore.pagination.currentPage)
   )
-  const forwardPath = window.history.state.forward
-  const continueExistingSession = (startsWith(forwardPath, '/student')
-    || startsWith(forwardPath, '/admit/student')) && size(cohortStore.filters)
-
-  const loadingComplete = () => {
-    const pageTitle = cohortStore.cohortId ? cohortStore.cohortName : 'Create Cohort'
-    setPageTitle(pageTitle)
+  const refererURI = window.history.state.forward
+  const isBackButtonToCohort = (startsWith(refererURI, '/student') || startsWith(refererURI, '/admit/student')) && size(cohortStore.filters)
+  const focusElementId = getFocusElementId(isBackButtonToCohort)
+  if (isBackButtonToCohort) {
     contextStore.loadingComplete(pageLoadAlert.value)
-    const focusId = continueExistingSession && cohortStore.pagination.currentPage > 1 ?
-      `pagination-page-${cohortStore.pagination.currentPage}` :
-      'page-header'
-    nextTick(() => putFocusNextTick(focusId))
-  }
-  if (continueExistingSession) {
-    loadingComplete()
+    afterLoadingComplete(focusElementId)
   } else {
     const cohortId = toInt(get(useRoute(), 'params.id'))
     const domain = useRoute().query.domain || 'default'
     const orderBy = get(currentUser.preferences, sortByKey.value)
     const termId = get(currentUser.preferences, 'termId')
-    init(cohortId, domain, orderBy, termId).then(loadingComplete)
+    init(cohortId, domain, orderBy, termId).then(() => {
+      contextStore.loadingComplete(pageLoadAlert.value)
+      afterLoadingComplete(focusElementId)
+    })
   }
 })
 
@@ -174,6 +169,26 @@ onUnmounted(() => {
   contextStore.removeEventHandler('cohort-apply-filters')
   contextStore.removeEventHandler('termId-user-preference-change')
 })
+
+const afterLoadingComplete = focusId => {
+  const pageTitle = cohortStore.cohortId ? cohortStore.cohortName : 'Create Cohort'
+  setPageTitle(pageTitle)
+  nextTick(() => putFocusNextTick(focusId))
+}
+
+const getFocusElementId = isBackButtonToCohort => {
+  const refererURI = window.history.state.forward
+  let focusId = 'page-header'
+  if (isBackButtonToCohort) {
+    const matches = refererURI.match(/\d+$/)
+    if (matches) {
+      focusId = `student-${matches[0]}`
+    }
+  } else if (cohortStore.pagination.currentPage) {
+    focusId = `pagination-page-${cohortStore.pagination.currentPage}`
+  }
+  return focusId
+}
 
 const init = (cohortId, domain, orderBy, termId) => {
   return new Promise(resolve => {
@@ -203,12 +218,12 @@ const init = (cohortId, domain, orderBy, termId) => {
 const goToPage = page => {
   return new Promise(resolve => {
     if (contextStore.loading) {
-      return resolve()
+      resolve()
     } else {
       cohortStore.setCurrentPage(page)
       contextStore.loadingStart(pageLoadAlert.value)
       return onPageNumberChange().then(() => {
-        scrollToTop()
+        afterLoadingComplete(getFocusElementId(false))
         contextStore.loadingComplete(pageLoadAlert.value)
       }).then(resolve)
     }

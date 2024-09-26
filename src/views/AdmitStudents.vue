@@ -84,6 +84,7 @@
         <Pagination
           :click-handler="goToPage"
           :init-page-number="pagination.currentPage"
+          :is-widget-at-bottom-of-page="true"
           :limit="10"
           :per-page="pagination.itemsPerPage"
           :total-rows="totalAdmitCount"

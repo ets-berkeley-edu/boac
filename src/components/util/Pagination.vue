@@ -115,6 +115,10 @@ const props = defineProps({
     type: Number,
     default: 1
   },
+  isWidgetAtBottomOfPage: {
+    required: false,
+    type: Boolean
+  },
   limit: {
     required: true,
     type: Number
@@ -139,22 +143,35 @@ const showFirstLastButtonsWhen = 3
 const totalPages = computed(() => Math.ceil(props.totalRows / props.perPage))
 
 const onClick = page => {
+  let nextPage
+  let putFocusId
   switch(page) {
   case 'first':
-    props.clickHandler(toNumber(1)).then(() => putFocusNextTick(`${props.idPrefix}-page-1`))
+    nextPage = 1
+    putFocusId = `${props.idPrefix}-page-1`
     break
   case 'last':
-    props.clickHandler(toNumber(totalPages.value)).then(() => putFocusNextTick(`${props.idPrefix}-page-${totalPages.value}`))
+    nextPage = totalPages.value
+    putFocusId = `${props.idPrefix}-page-${totalPages.value}`
     break
   case 'prev':
-    props.clickHandler(toNumber(currentPage - 1)).then(() => putFocusNextTick(`${props.idPrefix}-page-${currentPage - 1}`))
+    nextPage = currentPage - 1
+    putFocusId = `${props.idPrefix}-page-${currentPage - 1}`
     break
   case 'next':
-    props.clickHandler(toNumber(currentPage + 1)).then(() => putFocusNextTick(`${props.idPrefix}-page-${currentPage + 1}`))
+    nextPage = currentPage + 1
+    putFocusId= `${props.idPrefix}-page-${currentPage + 1}`
     break
   default:
-    props.clickHandler(toNumber(page)).then(() => putFocusNextTick(`${props.idPrefix}-page-${page}`))
+    nextPage = page
+    putFocusId = `${props.idPrefix}-page-${page}`
   }
+  props.clickHandler(toNumber(nextPage)).then(() => {
+    if (!props.isWidgetAtBottomOfPage) {
+      putFocusNextTick(putFocusId)
+    }
+  })
+
 }
 </script>
 

@@ -132,7 +132,7 @@ export function scrollTo(anchor: string) {
 }
 
 export function scrollToTop() {
-  window.scrollTo(0, 0)
+  scrollTo('content')
 }
 
 export function sortComparator(a, b, nullFirst=true) {
