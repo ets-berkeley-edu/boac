@@ -154,7 +154,7 @@ import ManuallySetDate from '@/components/note/ManuallySetDate'
 import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import {addAttachments, createDraftNote, getNote, removeAttachment} from '@/api/notes'
-import {alertScreenReader, invokeIfAuthenticated, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import {alertScreenReader, invokeIfAuthenticated, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/note-templates'
 import {concat, filter, size, trim, xor, xorBy} from 'lodash'
 import {
@@ -212,7 +212,7 @@ const showDiscardNoteModal = ref(false)
 const showDiscardTemplateModal = ref(false)
 
 const selectEscape = (event) => {
-  if (event.key === 'Escape') {
+  if (event.key === 'Escape' && !noteStore.isSaving) {
     discardRequested()
   }
 }
@@ -222,7 +222,7 @@ watch(dialogModel, () => {
     // remove scrollbar for content behind the modal
     document.documentElement.classList.add('modal-open')
     document.removeEventListener('keyup', selectEscape)
-    document.addEventListener('keyup', selectEscape)
+    document.addEventListener('keyup', selectEscape, {capture: true})
     enableFocusLock()
     getMyNoteTemplates().then(noteStore.setNoteTemplates)
     noteStore.resetModel()
@@ -258,13 +258,13 @@ const addNoteAttachments = attachments => {
       noteStore.setIsSaving(true)
       addAttachments(model.value.id, attachments).then(response => {
         noteStore.setAttachments(response.attachments)
-        alertScreenReader('Attachment added', 'assertive')
         noteStore.setIsSaving(false)
         resolve()
       })
     } else {
+      const pluralized = pluralize('attachment', attachments.length)
       noteStore.setAttachments(concat(model.value.attachments, attachments))
-      alertScreenReader('Attachment added', 'assertive')
+      alertScreenReader(`${pluralized} added`, 'assertive')
       resolve()
     }
   })
@@ -323,7 +323,7 @@ const discardNote = () => {
     alertScreenReader('Canceled edit draft note')
     break
   case 'editNote':
-    alertScreenReader('Canceled edit  note')
+    alertScreenReader('Canceled edit note')
     break
   default:
     alertScreenReader('Canceled create note')
