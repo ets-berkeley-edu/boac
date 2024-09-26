@@ -83,6 +83,7 @@
       <div v-if="totalAdmitCount > pagination.itemsPerPage" class="mt-3">
         <Pagination
           :click-handler="goToPage"
+          id-prefix="auxiliary-pagination"
           :init-page-number="pagination.currentPage"
           :is-widget-at-bottom-of-page="true"
           :limit="10"

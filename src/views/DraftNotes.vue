@@ -151,7 +151,7 @@ import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import vuetify from '@/plugins/vuetify'
 import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
-import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {computed, onMounted, onBeforeUnmount, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
 import {each, find, findIndex, get, size, trim, truncate} from 'lodash'
@@ -162,13 +162,13 @@ const contextStore = useContextStore()
 const config = contextStore.config
 const currentUser = contextStore.currentUser
 const eventHandlers = {
-  'note-created': note => {
-    reloadDraftNotes().then(() => putFocusNextTick(`open-draft-note-${note.id}`))
+  'note-created': () => {
+    reloadDraftNotes()
   },
   'note-deleted': noteId => find(myDraftNotes.value, ['id', noteId]) && reloadDraftNotes(),
   'note-updated': note => {
     if (find(myDraftNotes.value, ['id', note.id])) {
-      reloadDraftNotes().then(() => putFocusNextTick(`open-draft-note-${note.id}`))
+      reloadDraftNotes()
     }
   }
 }
@@ -201,10 +201,11 @@ onMounted(() => {
   })
 })
 
-onUnmounted(() => each(eventHandlers, (handler, eventType) => contextStore.removeEventHandler(eventType, handler)))
+onBeforeUnmount(() => each(eventHandlers, (handler, eventType) => contextStore.removeEventHandler(eventType, handler)))
 
 const afterEditDraft = () => {
   isEditDialogOpen.value = false
+  putFocusNextTick(`open-draft-note-${selectedNote.value.id}`)
 }
 
 const cancel = () => {

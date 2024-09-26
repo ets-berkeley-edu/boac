@@ -318,7 +318,17 @@ const createTemplate = title => {
 }
 
 const discardNote = () => {
-  alertScreenReader('Canceled create new note')
+  switch(mode.value) {
+  case 'editDraft':
+    alertScreenReader('Canceled edit draft note')
+    break
+  case 'editNote':
+    alertScreenReader('Canceled edit  note')
+    break
+  default:
+    alertScreenReader('Canceled create note')
+    break
+  }
   exit(true)
 }
 
