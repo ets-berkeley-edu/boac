@@ -42,7 +42,7 @@
             :disabled="disabled"
             :label="topic"
             name="topic"
-            :on-click-close="() => remove(topic)"
+            @close-clicked="remove(topic)"
           >
             <span class="truncate-with-ellipsis pr-1">
               {{ topic }}

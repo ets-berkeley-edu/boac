@@ -63,7 +63,7 @@
           closable
           :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
           :label="addedStudent.label"
-          :on-click-close="() => removeStudent(addedStudent)"
+          @close-clicked="removeStudent(addedStudent)"
         >
           <span class="truncate-with-ellipsis">{{ addedStudent.label }}</span>
         </PillItem>
