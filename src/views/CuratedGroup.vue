@@ -52,6 +52,7 @@
               :click-handler="goToPage"
               id-prefix="auxiliary-pagination"
               :init-page-number="pageNumber"
+              :is-widget-at-bottom-of-page="true"
               :limit="10"
               :per-page="itemsPerPage"
               :total-rows="totalStudentCount"

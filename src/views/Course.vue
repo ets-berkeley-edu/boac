@@ -133,6 +133,7 @@
           :click-handler="goToPage"
           id-prefix="auxiliary-pagination"
           :init-page-number="currentPage"
+          :is-widget-at-bottom-of-page="true"
           :limit="20"
           :per-page="itemsPerPage"
           :total-rows="section.totalStudentCount"

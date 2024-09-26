@@ -51,13 +51,13 @@
             <ProgressButton
               id="create-template-confirm"
               :action="createTemplate"
+              class="mr-1"
               :disabled="isSaving || !title.length || title.length > 255 || useNoteStore().boaSessionExpired"
               :in-progress="isSaving"
               :text="isSaving ? 'Saving' : 'Save'"
             />
             <v-btn
               id="cancel-template-create"
-              class="ml-2"
               :disabled="isSaving"
               text="Cancel"
               variant="text"
