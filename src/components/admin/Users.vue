@@ -41,7 +41,7 @@
               label="Enter name or UID"
               :maxlength="72"
               :menu-icon="null"
-              :menu-props="{'content-class': currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
+              :menu-props="{'content-class': contextStore.currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
               :model-value="userSelection"
               no-data-text="No match found"
               return-object
