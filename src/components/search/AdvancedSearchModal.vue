@@ -330,7 +330,7 @@ export default {
       return !admits && !this.includeCourses && !this.includeNotes && !this.includeStudents
     },
     searchInputRequired() {
-      return !this.includeNotes || !(this.author || this.fromDate || this.toDate || this.postedBy !== 'anyone' || this.student || this.topic)
+      return !this.includeNotes || !(this.author || this.fromDate || this.toDate || this.postedBy === 'you' || this.student || this.topic)
     },
     validDateRange() {
       if (!this.fromDate || !this.toDate) {
