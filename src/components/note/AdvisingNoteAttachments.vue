@@ -97,7 +97,7 @@
           :icon="mdiPaperclip"
           :label="attachment.displayName"
           name="attachment"
-          :on-click-close="() => onRemoveAttachment(index)"
+          @close-clicked="onRemoveAttachment(index)"
         >
           <span class="truncate-with-ellipsis pr-1" :class="{'text-anchor': isDownloadable}">
             {{ attachment.displayName }}
