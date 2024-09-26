@@ -59,10 +59,10 @@
             <v-col
               class="align-center d-flex pt-2 px-0 text-left"
               :class="{
-                'pb-0': !$vuetify.display.mdAndUp,
-                'pb-2': $vuetify.display.mdAndUp
+                'pb-0': !$vuetify.display.smAndUp,
+                'pb-2': $vuetify.display.smAndUp
               }"
-              :cols="$vuetify.display.mdAndUp ? 11 : 12"
+              :cols="$vuetify.display.smAndUp ? 10 : 12"
             >
               <v-icon
                 class="mx-1"
@@ -73,14 +73,12 @@
               <h3 class="font-size-18 text-primary">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
             </v-col>
             <v-col
-              class="font-weight-500 pt-2 text-surface-variant text-no-wrap"
+              class="font-weight-500 pt-2 text-right text-surface-variant text-no-wrap"
               :class="{
-                'float-right': $vuetify.display.mdAndUp,
-                'pl-9 text-left': !$vuetify.display.mdAndUp,
                 'pb-0': year.isOpen,
                 'pb-2': !year.isOpen
               }"
-              :cols="$vuetify.display.mdAndUp ? 1 : 12"
+              :cols="$vuetify.display.smAndUp ? 2 : 12"
             >
               {{ sumBy(year.terms, 'enrolledUnits') || 0 }} Units
             </v-col>
