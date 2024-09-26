@@ -79,13 +79,27 @@
 .default-margins {
   margin: 16px 24px 16px 24px;
 }
-.demo-mode-blur {
+.demo-mode-blur,
+.demo-mode-blur.v-chip .v-chip__content,
+.demo-mode-blur.v-overlay__content .v-list-item--variant-text {
   color: transparent !important;
   text-shadow: 0 0 15px rgba(0, 0, 0, 0.5) !important;
+}
+.demo-mode-blur input,
+.demo-mode-blur textarea {
+  text-shadow: 0 0 15px rgba(0, 0, 0, 1) !important;
 }
 .demo-mode-blur:hover {
   color: transparent !important;
   text-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+}
+.demo-mode-blur .v-field__clearable,
+.demo-mode-blur .v-field__loader,
+.demo-mode-blur .v-field__outline,
+.demo-mode-blur .v-field__overlay,
+.demo-mode-blur .v-label {
+  color: initial !important;
+  text-shadow: unset !important;
 }
 .drop-zone-on {
   background-color: rgb(var(--v-theme-pale-blue));

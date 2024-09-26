@@ -135,7 +135,7 @@
               <v-card-title>
                 <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
               </v-card-title>
-              <v-card-text class="w-75" :class="{'w-100': $vuetify.display.smAndDown}">
+              <v-card-text class="w-100">
                 <div class="px-3">
                   <label class="form-control-label" for="search-option-note-filters-topic">Topic</label>
                   <div>
@@ -197,6 +197,7 @@
                     <v-autocomplete
                       id="search-options-note-filters-author"
                       autocomplete="off"
+                      base-color="primary"
                       :clearable="!isFetchingAdvisors"
                       class="mt-1"
                       :class="{'demo-mode-blur': currentUser.inDemoMode}"
@@ -208,6 +209,7 @@
                       :items="suggestedAdvisors"
                       :maxlength="56"
                       :menu-icon="null"
+                      :menu-props="{'content-class': currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
                       min-width="12rem"
                       :model-value="model.postedBy === 'anyone' ? model.author : null"
                       placeholder="Enter name..."
@@ -245,6 +247,7 @@
                     <v-autocomplete
                       id="search-options-note-filters-student"
                       autocomplete="off"
+                      base-color="primary"
                       :clearable="!isFetchingStudents"
                       class="mt-1"
                       :class="{'demo-mode-blur': currentUser.inDemoMode}"
@@ -256,6 +259,7 @@
                       :items="suggestedStudents"
                       :maxlength="56"
                       :menu-icon="null"
+                      :menu-props="{'content-class': currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
                       min-width="12rem"
                       :model-value="model.student"
                       placeholder="Enter name or SID..."

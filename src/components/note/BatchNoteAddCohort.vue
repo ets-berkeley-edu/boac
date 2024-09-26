@@ -12,7 +12,8 @@
       :id="`batch-note-${type}`"
       v-model="model"
       :aria-label="`Note will be created for all students in selected ${type}${options.length === 1 ? '' : 's'}`"
-      class="select-menu select-cohort-menu mt-1"
+      class="select-menu mt-1 w-75"
+      :class="{'w-100': $vuetify.display.smAndDown}"
       :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
       @change="onSelect"
     >
@@ -90,10 +91,3 @@ const onSelect = () => {
   }
 }
 </script>
-
-<style scoped>
-.select-cohort-menu {
-  min-width: 50%;
-  max-width: 100%;
-}
-</style>

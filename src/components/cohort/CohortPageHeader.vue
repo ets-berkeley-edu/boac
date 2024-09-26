@@ -117,18 +117,18 @@
         <router-link
           v-if="isHistorySupported"
           id="cohort-history-link"
-          class="font-size-15 px-1 text-no-wrap"
+          class="v-btn v-btn--variant-text text-anchor text-capitalize font-size-15 px-1 text-no-wrap"
           :disabled="cohortStore.isModifiedSinceLastSearch"
           to="/cohort/history"
         >
-          History
+          <span class="sr-only">Cohort </span>History
         </router-link>
       </div>
-      <div v-if="isCohortHistoryPage" class="d-flex align-self-baseline mr-4">
+      <div v-if="isCohortHistoryPage" class="d-flex align-self-center mr-4">
         <router-link
           v-if="isHistorySupported"
           id="back-to-cohort-link"
-          class="font-size-15 px-1 text-no-wrap"
+          class="v-btn v-btn--variant-text text-anchor text-capitalize font-size-15 px-1 text-no-wrap"
           :to="`/cohort/${cohortStore.cohortId}`"
         >
           Back to Cohort

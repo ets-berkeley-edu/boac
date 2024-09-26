@@ -19,7 +19,7 @@
             <th class="pr-1 text-right th-units">
               Units
             </th>
-            <th class="th-grade">
+            <th class="pr-1 th-grade">
               Grade
             </th>
             <th v-if="!ignored" class="th-term">
@@ -421,11 +421,12 @@ table {
   width: 46px !important;
 }
 .th-note {
-  width: 25% !important;
+  min-width: 50px !important;
+  width: 50px !important;
 }
 .th-term {
-  max-width: 84px !important;
-  width: 84px !important;
+  max-width: 90px !important;
+  width: 90px !important;
 }
 .th-units {
   max-width: 40px !important;

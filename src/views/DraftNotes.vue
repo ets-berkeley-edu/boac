@@ -62,10 +62,18 @@
                 variant="text"
                 @click="() => openEditDialog(item)"
               >
-                <div v-if="item.subject.length <= lengthTruncateButtonText" class="align-start">
+                <div
+                  v-if="item.subject.length <= lengthTruncateButtonText"
+                  class="align-start"
+                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                >
                   {{ trim(item.subject) || config.draftNoteSubjectPlaceholder }}
                 </div>
-                <div v-if="item.subject.length > lengthTruncateButtonText" class="align-start">
+                <div
+                  v-if="item.subject.length > lengthTruncateButtonText"
+                  class="align-start"
+                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                >
                   {{ truncate(trim(item.subject), {length: lengthTruncateButtonText}) }}
                 </div>
               </v-btn>
@@ -183,7 +191,7 @@ onMounted(() => {
     headers.push({align: 'start', key: 'author', title: 'Author', width: 200})
   }
   headers.push(
-    {align: 'start', key: 'updatedAt', title: 'Date', width: 100},
+    {align: 'start', key: 'updatedAt', title: 'Date', width: 135},
     {align: 'center', key: 'delete', title: 'Delete', width: 100}
   )
   getMyDraftNotes().then(data => {

@@ -30,8 +30,9 @@
             <v-autocomplete
               id="search-user-input"
               autocomplete="off"
-              base-color="black"
+              base-color="body"
               :class="{'demo-mode-blur': contextStore.currentUser.inDemoMode}"
+              color="body"
               density="compact"
               :disabled="isBecoming"
               hide-details
@@ -40,6 +41,7 @@
               label="Enter name or UID"
               :maxlength="72"
               :menu-icon="null"
+              :menu-props="{'content-class': currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
               :model-value="userSelection"
               no-data-text="No match found"
               return-object
