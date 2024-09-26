@@ -14,7 +14,7 @@
       :disabled="isAdding || disabled"
       flat
       hide-details
-      :loading="isAdding ? 'success' : false"
+      :loading="isAdding ? 'primary' : false"
       :model-value="attachments"
       multiple
       :prepend-icon="null"
