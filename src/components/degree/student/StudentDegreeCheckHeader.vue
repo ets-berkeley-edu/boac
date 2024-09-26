@@ -84,7 +84,7 @@
     <div class="border-b-md mx-6">
       <v-container class="border-b-sm px-0" fluid>
         <v-row align="start">
-          <v-col class="border-e-sm pb-0 pt-1" cols="8">
+          <v-col class="border-e-sm pb-0 pt-1" cols="7">
             <div v-if="isEditingNote || noteBody" class="align-center d-flex justify-space-between">
               <div>
                 <h3 class="font-size-20 font-weight-bold text-no-wrap">Degree Notes</h3>
@@ -121,7 +121,7 @@
               @click="editNote"
             />
           </v-col>
-          <v-col class="align-center d-flex py-1" cols="4">
+          <v-col class="align-center d-flex py-1" cols="5">
             <h3 class="font-size-20 font-weight-bold px-2 text-no-wrap">In-progress courses</h3>
             <div class="text-no-wrap">
               [<v-btn
@@ -139,7 +139,7 @@
           </v-col>
         </v-row>
         <v-row align-v="start">
-          <v-col class="border-e-sm py-1" cols="8">
+          <v-col class="border-e-sm py-1" cols="7">
             <div v-if="noteBody && !isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="font-size-14 pr-2 text-no-wrap">
               <span
                 v-if="noteUpdatedBy"
@@ -206,7 +206,7 @@
               </div>
             </div>
           </v-col>
-          <v-col class="pb-2 pt-1" cols="4">
+          <v-col class="pb-2 pt-1" cols="5">
             <v-expand-transition v-if="degreeStore.courses.inProgress.length">
               <v-data-table
                 v-if="showInProgressCourses"

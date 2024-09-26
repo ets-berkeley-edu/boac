@@ -17,6 +17,7 @@
         aria-describedby="create-note-add-student-desc"
         auto-select-first
         autocomplete="off"
+        base-color="primary"
         class="autocomplete-students autocomplete-with-add-button"
         :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
         color="primary"
@@ -29,6 +30,7 @@
         item-value="sid"
         :items="autoSuggestedStudents"
         :menu-icon="null"
+        :menu-props="{'content-class': useContextStore().currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
         type="search"
         validate-on="submit"
         variant="outlined"

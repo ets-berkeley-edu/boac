@@ -30,7 +30,7 @@
           </span>
         </span>
       </div>
-      <div class="w-75">
+      <div class="w-75" :class="{'w-100': $vuetify.display.xs}">
         <label
           for="degree-check-add-student-input"
           class="text mt-1"
@@ -44,9 +44,10 @@
             id="degree-check-add-student"
             v-model="textarea"
             aria-label="Type or paste a list of student SID numbers here"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
             density="compact"
             :disabled="isBusy"
-            :error="error"
+            :error="!!error"
             hide-details
             max-rows="30"
             rows="8"
@@ -100,6 +101,7 @@
         v-if="error || warning"
         aria-live="polite"
         class="mt-2 mb-3 w-75"
+        :class="{'w-100': $vuetify.display.xs}"
         density="compact"
         :type="error ? 'error' : 'warning'"
         variant="tonal"
@@ -111,6 +113,7 @@
           v-if="currentUser.myCohorts.length"
           :add-object="addCohort"
           class="w-75"
+          :class="{'w-100': $vuetify.display.xs}"
           :disabled="isSaving"
           header="Cohort"
           :objects="currentUser.myCohorts"
@@ -123,6 +126,7 @@
           v-if="currentUser.myCuratedGroups.length"
           :add-object="addCuratedGroup"
           class="w-75"
+          :class="{'w-100': $vuetify.display.xs}"
           :disabled="isSaving"
           header="Curated Group"
           :objects="_filter(currentUser.myCuratedGroups, ['domain', 'default'])"
@@ -130,7 +134,7 @@
           :remove-object="removeCuratedGroup"
         />
       </div>
-      <div class="pb-3 w-75">
+      <div class="pb-3 w-75" :class="{'w-100': $vuetify.display.xs}">
         <DegreeTemplatesMenu
           :disabled="isSaving"
           :on-select="addTemplate"
@@ -140,6 +144,7 @@
         v-if="!isRecalculating && !isValidating && !isEmpty(excludedStudents)"
         aria-live="polite"
         class="mt-2 mb-3 w-75"
+        :class="{'w-100': $vuetify.display.xs}"
         density="compact"
         type="warning"
         variant="tonal"
@@ -148,12 +153,16 @@
           {{ pluralize('student', excludedStudents.length) }} currently {{ excludedStudents.length === 1 ? 'uses' : 'use' }} the {{ selectedTemplate.name }} degree check. The degree check will not be added to their student record.
         </v-alert-title>
         <ul class="ml-5 mt-1 mb-0">
-          <li v-for="(student, index) in excludedStudents" :key="index">
+          <li
+            v-for="(student, index) in excludedStudents"
+            :key="index"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          >
             {{ student.firstName }} {{ student.lastName }} ({{ student.sid }})
           </li>
         </ul>
       </v-alert>
-      <div class="d-flex pt-2 w-75">
+      <div class="d-flex pt-2 w-75" :class="{'w-100': $vuetify.display.xs}">
         <ProgressButton
           id="batch-degree-check-save"
           :action="save"

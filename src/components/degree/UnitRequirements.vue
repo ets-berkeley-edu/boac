@@ -46,7 +46,7 @@
             <th
               v-if="degreeStore.sid"
               id="th-unit-requirements-completed"
-              class="float-right font-size-12 text-uppercase th-height"
+              class="font-size-12 text-right text-uppercase th-height th-completed"
             >
               Completed
             </th>
@@ -334,13 +334,16 @@ th {
   padding-bottom: 5px;
 }
 .th-actions {
+  width: 10%;
+}
+.th-completed {
   width: 20%;
 }
 .th-name {
   width: 60%;
 }
 .th-units {
-  width: 20%;
+  width: 10%;
 }
 .unit-requirement-toggle {
   max-width: 200px;
