@@ -106,7 +106,12 @@
         :type="error ? 'error' : 'warning'"
         variant="tonal"
       >
-        <v-alert-title class="font-size-16" :class="{'text-warning-darken-1': warning}">{{ error || warning }}</v-alert-title>
+        <v-alert-title class="font-size-16" :class="{'text-warning-darken-1': warning}" v-html="error || warning"></v-alert-title>
+        <div v-if="size(sidsInError)">
+          <ul id="sids-not-found" class="mb-1 pl-6" :class="{'columns-list': size(sidsInError) > 5}">
+            <li v-for="(sid, index) in sidsInError" :key="index">{{ sid }}</li>
+          </ul>
+        </div>
       </v-alert>
       <div class="pb-2">
         <BatchAddStudentSet
@@ -190,7 +195,7 @@ import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import ProgressButton from '@/components/util/ProgressButton'
 import router from '@/router'
-import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {computed, nextTick, onMounted, ref, watch} from 'vue'
 import {createBatchDegreeCheck, getStudents} from '@/api/degree'
 import {
@@ -200,9 +205,9 @@ import {
   get,
   indexOf,
   isEmpty,
-  join,
   map,
   partition,
+  size,
   split,
   trim,
   uniq
@@ -224,6 +229,7 @@ const isRecalculating = ref(false)
 const isSaving = ref(false)
 const isValidating = ref(false)
 const selectedTemplate = ref(undefined)
+const sidsInError = ref([])
 const textarea = ref(undefined)
 const warning = ref(undefined)
 
@@ -268,8 +274,8 @@ const addSids = () => {
           warning.value = `Student ${notFound[0]} not found.`
           alertScreenReader(warning.value)
         } else if (notFound.length > 1) {
-          warning.value = `${notFound.length} students not found: <ul class="mt-1 mb-0"><li>${join(notFound, '</li><li>')}</li></ul>`
-          alertScreenReader(`${notFound.length} student IDs not found: ${oxfordJoin(notFound)}`)
+          warning.value = `${notFound.length} students not found:`
+          sidsInError.value = notFound
         }
         isValidating.value = false
         textarea.value = undefined
@@ -310,6 +316,7 @@ const onCancel = () => {
 
 const clearErrors = () => {
   error.value = null
+  sidsInError.value = []
   warning.value = null
 }
 
@@ -419,6 +426,9 @@ const validateSids = sids => {
   margin-top: 6px;
   padding: 2px 0 0 8px;
   min-width: 50%;
+}
+.columns-list {
+  columns: 2;
 }
 .student-count-alerts {
   line-height: 1.2rem;
