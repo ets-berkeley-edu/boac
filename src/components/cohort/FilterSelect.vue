@@ -5,7 +5,7 @@
       v-model="model"
       :aria-labelledby="labelledby"
       class="bg-white select-menu filter-select"
-      :disabled="!options.length"
+      :disabled="disabled"
     >
       <option :id="`${type}-option-null`" :value="undefined">
         Select...
@@ -51,6 +51,10 @@ import {each, includes} from 'lodash'
 import {normalizeId} from '@/lib/utils'
 
 const props = defineProps({
+  disabled: {
+    required: false,
+    type: Boolean
+  },
   filterRowIndex: {
     required: true,
     type: [Number, String]

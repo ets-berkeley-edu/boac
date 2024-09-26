@@ -15,6 +15,7 @@
     <div v-if="isModifyingFilter && !isExistingFilter">
       <FilterSelect
         v-model="selectedFilter"
+        :disabled="isUpdatingExistingFilter"
         :filter-row-index="position"
         :has-left-border-style="true"
         :has-opt-groups="cohortStore.domain === 'default'"
@@ -40,6 +41,7 @@
         <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
         <FilterSelect
           v-model="selectedOption"
+          :disabled="isUpdatingExistingFilter"
           :filter-row-index="position"
           :has-opt-groups="!!filter.options[0].header"
           :labelledby="`filter-secondary-${position}-label`"
@@ -423,6 +425,8 @@ onMounted(() => {
   reset()
 })
 
+const flattenOptions = optGroup => flatten(values(optGroup))
+
 const formatGPA = value => {
   // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
   const gpa = '0' + trim(value)
@@ -430,17 +434,18 @@ const formatGPA = value => {
 }
 
 const getDropdownSelectedLabel = () => {
-  if (!filter.value.options[0].header) {
-    const option = find(filter.value.options, ['value', filter.value.value])
-    return get(option, 'name')
+  const options = find(flattenOptions(cohortStore.filterOptionGroups), ['key', filter.value.key]).options
+  let label = ''
+  if (Array.isArray(options) && !options[0].header) {
+    const option = find(options, ['value', filter.value.value])
+    label = get(option, 'name')
   } else {
-    let label = ''
-    each(filter.value.options, option => {
+    each(options, option => {
       label = option.value === filter.value.value ? `${get(option, 'name')} (${option.group})` : null
       return !label
     })
-    return label
   }
+  return label
 }
 
 const isUX = type => {
@@ -484,7 +489,6 @@ const onClickEditButton = () => {
   disableUpdateButton.value = false
   if (isUX('dropdown')) {
     // Populate select options, with selected option based on current filter.value.
-    const flattenOptions = optGroup => flatten(values(optGroup))
     const findOption = (options, value) => find(options, ['value', value])
     const options = find(flattenOptions(cohortStore.filterOptionGroups), ['key', filter.value.key]).options
     filter.value.options = options
