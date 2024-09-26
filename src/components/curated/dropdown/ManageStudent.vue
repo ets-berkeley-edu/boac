@@ -12,6 +12,7 @@
           :aria-label="`Add ${student.name} to a curated group`"
           :color="isAdding ? 'success' : (isRemoving ? 'error' : 'primary')"
           :variant="buttonVariant"
+          :width="buttonWidth"
         >
           <div v-if="!isAdding && !isRemoving" :class="labelClass">
             <v-progress-circular
@@ -115,6 +116,11 @@ const props = defineProps({
     default: 'text',
     required: false,
     type: String
+  },
+  buttonWidth: {
+    default: undefined,
+    required: false,
+    type: Number
   },
   domain: {
     required: true,

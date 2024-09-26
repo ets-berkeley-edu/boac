@@ -46,7 +46,7 @@
             </div>
             <ManageStudent
               v-if="listType === 'cohort'"
-              class="d-flex justify-center ml-6"
+              :button-width="162"
               domain="default"
               :sr-only="!hover"
               :student="student"
@@ -211,15 +211,15 @@ const onClickRemoveStudent = student => {
 </script>
 
 <style scoped>
-.student-row{
-  border-bottom: 1px solid rgb(var(--v-theme-surface-light));
-}
 .profile-last-term-gpa {
   padding-left: 5px;
   text-align: left;
 }
 .student-gpa-col {
   min-width: 155px;
+}
+.student-row {
+  border-bottom: 1px solid rgb(var(--v-theme-surface-light));
 }
 .width-96 {
   width: 96%;
