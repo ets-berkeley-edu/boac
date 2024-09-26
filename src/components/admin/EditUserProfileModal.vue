@@ -28,8 +28,8 @@
     >
       <v-card
         class="modal-content"
-        max-width="600"
-        min-width="400"
+        max-width="500"
+        min-width="500"
       >
         <FocusLock @keydown.esc="cancel">
           <v-card-title>
