@@ -270,7 +270,7 @@ import {computed, onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {get} from 'lodash'
 import {getAdmitBySid} from '@/api/admit'
-import {scrollToTop, setPageTitle, studentRoutePath, toInt} from '@/lib/utils'
+import {putFocusNextTick, setPageTitle, studentRoutePath, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'
 
@@ -286,7 +286,7 @@ contextStore.loadingStart()
 
 onMounted(() => {
   // In demo-mode we do not want to expose SID in browser location bar.
-  const sid = currentUser.inDemoMode ? window.atob(sid) : useRoute().params.sid
+  const sid = currentUser.inDemoMode ? window.atob(useRoute().params.sid) : useRoute().params.sid
   getAdmitBySid(sid).then(data => {
     if (data) {
       admit.value = data
@@ -298,7 +298,7 @@ onMounted(() => {
       birthDate = birthDate.toFormat('MMM d, yyyy')
       setPageTitle(currentUser.inDemoMode ? 'Admitted Student' : fullName.value)
       contextStore.loadingComplete()
-      scrollToTop()
+      putFocusNextTick('admit-name-header')
     } else {
       router.push({path: '/404'})
     }
