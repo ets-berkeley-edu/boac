@@ -346,20 +346,31 @@ def get_sids_with_notes_of_src_boa(drafts=False):
     return list(map(lambda r: r['sid'], results))
 
 
-def get_note_ids_by_subject(note_subject, student=None):
+def get_note_ids_by_subject(note, student=None):
     if student:
         clause = f" AND sid = '{student.sid}'"
     else:
         clause = ''
     sql = f"""SELECT id
                 FROM notes
-               WHERE subject = '{note_subject}'{clause}
+               WHERE subject = '{note.subject}'{clause}
                  AND deleted_at IS NULL;
     """
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     return list(map(lambda r: str(r['id']), results))
+
+
+def get_note_sids_by_subject(note):
+    sql = f"""SELECT sid
+                FROM notes
+               WHERE subject = '{note.subject}'
+                 AND deleted_at IS NULL"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return list(map(lambda r: str(r['sid']), results))
 
 
 def get_student_notes(student):

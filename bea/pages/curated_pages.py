@@ -73,6 +73,10 @@ class CuratedPages(CohortPages, CuratedModal):
         Wait(self.driver, utils.get_short_timeout()).until(ec.url_contains(f'{boa_utils.get_boa_base_url()}/home'))
         time.sleep(utils.get_click_sleep())
 
+    def load_and_delete_group(self, group):
+        self.load_page(group)
+        self.delete_group(group)
+
     def cancel_group_deletion(self, group):
         app.logger.info(f'Canceling the deletion of cohort {group.name}')
         self.wait_for_page_and_click(self.DELETE_GROUP_BUTTON)
@@ -106,6 +110,7 @@ class CuratedPages(CohortPages, CuratedModal):
         self.click_add_sids_to_group_button()
         self.name_and_save_group(group)
         boa_utils.append_new_members_to_group(group, members)
+        self.wait_for_sidebar_group(group)
 
     def enter_text_in_sids_input(self, sids_string):
         self.click_add_sids_button()

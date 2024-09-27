@@ -27,7 +27,7 @@ from datetime import datetime
 import time
 
 from bea.models.department import Department
-from bea.pages.boa_pages import BoaPages
+from bea.pages.page import Page
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
@@ -35,7 +35,16 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 
 
-class CreateNoteModal(BoaPages):
+class CreateNoteModal(Page):
+
+    CONFIRM_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-confirm')
+    CANCEL_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-cancel')
+
+    def confirm_delete_or_discard(self):
+        self.wait_for_element_and_click(self.CONFIRM_DELETE_OR_DISCARD)
+
+    def cancel_delete_or_discard(self):
+        self.wait_for_element_and_click(self.CANCEL_DELETE_OR_DISCARD)
 
     # DRAFT NOTE
 
@@ -235,14 +244,14 @@ class CreateNoteModal(BoaPages):
         app.logger.info('Clicking the new note Save button')
         self.wait_for_element_and_click(self.NEW_NOTE_SAVE_BUTTON)
 
-    def set_new_note_id(self, note):
+    def set_new_note_id(self, note, student=None):
         start_time = datetime.now()
         tries = 0
         max_tries = 15
         while tries <= max_tries:
             tries += 1
             try:
-                results = boa_utils.get_note_ids_by_subject(note.subject)
+                results = boa_utils.get_note_ids_by_subject(note, student)
                 assert len(results) > 0
                 note.record_id = f'{results[0]}'
                 break
@@ -265,3 +274,198 @@ class CreateNoteModal(BoaPages):
 
     def click_cancel_new_note(self):
         self.wait_for_element_and_click(self.NEW_NOTE_CANCEL_BUTTON)
+
+    # SID LIST ENTRY
+
+    def enter_sid_list(self, loc, sids):
+        app.logger.info(f'Entering SIDs {sids}')
+        self.wait_for_textbox_and_type(loc, sids)
+
+    def enter_comma_sep_sids(self, loc, students):
+        sids = list(map(lambda s: s.sid, students))
+        string = ', '.join(sids)
+        self.enter_sid_list(loc, string)
+
+    def enter_line_sep_sids(self, loc, students):
+        sids = list(map(lambda s: s.sid, students))
+        string = '\n'.join(sids)
+        self.enter_sid_list(loc, string)
+
+    def enter_space_sep_sids(self, loc, students):
+        sids = list(map(lambda s: s.sid, students))
+        string = ' '.join(sids)
+        self.enter_sid_list(loc, string)
+
+    # BATCH NOTES
+
+    BATCH_NOTE_BUTTON = By.ID, 'batch-note-button'
+    BATCH_NO_STUDENTS_PER_COHORTS = By.ID, 'no-students-per-cohorts-alert'
+    BATCH_NO_STUDENTS_PER_GROUPS = By.ID, 'no-students-per-curated-groups-alert'
+    BATCH_NO_STUDENTS = By.ID, 'no-students-alert'
+    BATCH_STUDENT_COUNT = By.ID, 'target-student-count-alert'
+    BATCH_DRAFT_STUDENT_WARNING = By.XPATH, '//span[contains(text(), "but not the associated students")]'
+
+    def click_create_note_batch(self):
+        app.logger.info('Clicking the new note batch button')
+        self.wait_for_element_and_click(self.BATCH_NOTE_BUTTON)
+
+    # Students
+
+    BATCH_ADD_STUDENT_INPUT = By.ID, 'create-note-add-student-input'
+    BATCH_ADD_STUDENTS_BUTTON = By.ID, 'create-note-add-student-add-button'
+
+    def wait_for_student_input(self):
+        self.when_present(self.BATCH_ADD_STUDENT_INPUT, utils.get_short_timeout())
+
+    @staticmethod
+    def added_student_loc(student):
+        return By.XPATH, f'//span[text()="{student.full_name} ({student.sid})"]'
+
+    @staticmethod
+    def student_remove_button_loc(student):
+        return By.XPATH, f'//button[@aria-label="Remove  {student.full_name} ({student.sid})"]'
+
+    def wait_for_batch_students(self, students):
+        for student in students:
+            self.when_present(self.added_student_loc(student), 2)
+
+    def add_comma_sep_sids_to_batch(self, students):
+        self.enter_comma_sep_sids(self.BATCH_ADD_STUDENT_INPUT, students)
+        self.wait_for_element_and_click(self.BATCH_ADD_STUDENTS_BUTTON)
+        self.wait_for_batch_students(students)
+
+    def add_line_sep_sids_to_batch(self, students):
+        self.enter_line_sep_sids(self.BATCH_ADD_STUDENT_INPUT, students)
+        self.wait_for_element_and_click(self.BATCH_ADD_STUDENTS_BUTTON)
+        self.wait_for_batch_students(students)
+
+    def add_space_sep_sids_to_batch(self, students):
+        self.enter_space_sep_sids(self.BATCH_ADD_STUDENT_INPUT, students)
+        self.wait_for_element_and_click(self.BATCH_ADD_STUDENTS_BUTTON)
+        self.wait_for_batch_students(students)
+
+    @staticmethod
+    def student_auto_suggest_loc(student):
+        path = f'//*[contains(., "{student.full_name} ({student.sid})")]'
+        return By.XPATH, path
+
+    def add_students_to_batch(self, note_batch, students):
+        self.scroll_to_top()
+        self.wait_for_element_and_click(self.BATCH_ADD_STUDENT_INPUT)
+        for student in students:
+            app.logger.info(f'Adding SID {student.sid} to batch note {note_batch.subject}')
+            self.enter_chars(self.BATCH_ADD_STUDENT_INPUT, f'{student.sid}')
+            self.wait_for_element_and_click(self.student_auto_suggest_loc(student))
+            self.append_student_to_batch(note_batch, student)
+
+    def append_student_to_batch(self, note_batch, student):
+        self.when_present(self.added_student_loc(student), 3)
+        note_batch.students.append(student)
+
+    def remove_students_from_batch(self, note_batch, students):
+        for student in students:
+            app.logger.info(f'Removing SID {student.sid} from batch note')
+            self.scroll_to_top()
+            self.wait_for_element_and_click(self.student_remove_button_loc(student))
+            self.when_not_present(self.added_student_loc(student), 2)
+            if student in note_batch.students:
+                note_batch.students.remove(student)
+
+    # Cohorts
+
+    BATCH_COHORT_SELECT = By.ID, 'batch-note-cohort'
+
+    @staticmethod
+    def added_cohort_loc(cohort):
+        return By.XPATH, f'//span[contains(@id, "batch-note-cohort")][contains(., "{cohort.name}")]'
+
+    @staticmethod
+    def cohort_remove_button(cohort):
+        return By.ID, f'remove-batch-note-cohort-{cohort.cohort_id}-btn'
+
+    def add_cohorts_to_batch(self, note_batch, cohorts):
+        for cohort in cohorts:
+            app.logger.info(f'Adding cohort {cohort.name} to batch note {note_batch.subject}')
+            self.wait_for_select_and_click_option(self.BATCH_COHORT_SELECT, cohort.name)
+            self.when_present(self.added_cohort_loc(cohort), utils.get_short_timeout())
+            note_batch.cohorts.append(cohort)
+
+    def remove_cohorts_from_batch(self, note_batch, cohorts):
+        for cohort in cohorts:
+            app.logger.info(f'Removing cohort {cohort.name} from batch note')
+            self.wait_for_element_and_click(self.cohort_remove_button(cohort))
+            self.when_not_present(self.added_cohort_loc(cohort), 2)
+            if cohort in note_batch.cohorts:
+                note_batch.cohorts.remove(cohort)
+
+    # Groups
+
+    BATCH_GROUP_SELECT = By.ID, 'batch-note-curated'
+
+    @staticmethod
+    def added_group_loc(group):
+        return By.XPATH, f'//span[contains(@id, "batch-note-curated")][contains(., "{group.name}")]'
+
+    @staticmethod
+    def group_remove_button(group):
+        return By.ID, f'remove-batch-note-curated-{group.cohort_id}-btn'
+
+    def add_groups_to_batch(self, note_batch, groups):
+        for group in groups:
+            app.logger.info(f'Adding group {group.name} to batch note {note_batch.subject}')
+            self.wait_for_select_and_click_option(self.BATCH_GROUP_SELECT, group.name)
+            self.when_present(self.added_group_loc(group), utils.get_short_timeout())
+            note_batch.groups.append(group)
+
+    def remove_groups_from_batch(self, note_batch, groups):
+        for group in groups:
+            app.logger.info(f'Removing group {group.name} from batch note')
+            self.wait_for_element_and_click(self.group_remove_button(group))
+            self.when_not_present(self.added_group_loc(group), 2)
+            if group in note_batch.groups:
+                note_batch.groups.remove(group)
+
+    # Create
+
+    def verify_batch_note_alert(self, students, cohorts, groups):
+        count = len(self.unique_students_in_batch(students, cohorts, groups))
+        visible_alert = self.el_text_if_exists(self.BATCH_STUDENT_COUNT)
+        utils.assert_actual_includes_expected(visible_alert, f'{count} student record')
+        if count >= 500:
+            utils.assert_actual_includes_expected(visible_alert, 'Are you sure')
+
+    def create_note_batch(self, note_batch, students, cohorts, groups, topics, attachments):
+        app.logger.info(f'Creating note batch with {len(students)} students, {len(cohorts)} cohorts, {len(groups)} groups')
+        self.click_create_note_batch()
+        # TODO - remove the following once the auto-suggest behaves itself
+        self.add_space_sep_sids_to_batch(students)
+        for student in students:
+            self.append_student_to_batch(note_batch, student)
+        # TODO - use the following once the auto-suggest behaves itself
+        # self.add_students_to_batch(note_batch, students)
+        self.add_cohorts_to_batch(note_batch, cohorts)
+        self.add_groups_to_batch(note_batch, groups)
+        self.enter_new_note_subject(note_batch)
+        self.enter_note_body(note_batch)
+        if attachments:
+            self.add_attachments_to_new_note(note_batch, attachments)
+        if topics:
+            self.add_topics(note_batch, topics)
+        self.set_note_privacy(note_batch)
+        self.click_save_new_note()
+        time.sleep(utils.get_click_sleep())
+        return self.unique_students_in_batch(students, cohorts, groups)
+
+    @staticmethod
+    def unique_students_in_batch(students, cohorts, groups):
+        uniques = []
+        uniques.extend(students)
+        for cohort in cohorts:
+            for member in cohort.members:
+                if member not in uniques:
+                    uniques.append(member)
+        for group in groups:
+            for member in group.members:
+                if member not in uniques:
+                    uniques.append(member)
+        return uniques

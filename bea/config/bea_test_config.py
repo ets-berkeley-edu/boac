@@ -487,6 +487,11 @@ class BEATestConfig(object):
             'search_criteria': editing_test_search_criteria,
         })
 
+    def note_batch(self):
+        self.set_note_attachments()
+        self.set_base_configs()
+        self.set_default_cohort()
+
     def note_mgmt(self):
         self.set_note_attachments()
         self.set_base_configs()

@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import time
 
+from bea.pages.create_note_modal import CreateNoteModal
 from bea.pages.search_form import SearchForm
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
@@ -35,7 +36,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
-class BoaPages(SearchForm):
+class BoaPages(CreateNoteModal, SearchForm):
 
     SPINNER = (By.XPATH, '//*[@id="spinner-when-loading"]')
     MODAL = (By.CLASS_NAME, 'modal-content')
@@ -65,8 +66,6 @@ class BoaPages(SearchForm):
     PROFILE_LINK = (By.ID, 'header-menu-profile')
     FEEDBACK_LINK = (By.XPATH, '//a[contains(text(), "Feedback/Help")]')
     LOG_OUT_LINK = (By.ID, 'header-menu-log-out')
-    CONFIRM_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-confirm')
-    CANCEL_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-cancel')
     STUDENT_NAME_HEADING = (By.ID, 'student-name-header')
 
     SERVICE_ALERT_BANNER = By.ID, 'service-announcement-banner'
@@ -96,12 +95,6 @@ class BoaPages(SearchForm):
             time.sleep(2)
 
         self.wait_for_boa_title('Welcome')
-
-    def confirm_delete_or_discard(self):
-        self.wait_for_element_and_click(self.CONFIRM_DELETE_OR_DISCARD)
-
-    def cancel_delete_or_discard(self):
-        self.wait_for_element_and_click(self.CANCEL_DELETE_OR_DISCARD)
 
     # SIDEBAR - FILTERED COHORTS
 
@@ -139,7 +132,8 @@ class BoaPages(SearchForm):
             try:
                 tries -= 1
                 self.when_present(self.sidebar_member_count_loc(cohort), utils.get_short_timeout())
-                assert self.element(self.sidebar_member_count_loc(cohort)).text.split()[0] == f'{len(cohort.members)}'
+                utils.assert_equivalence(self.element(self.sidebar_member_count_loc(cohort)).text.split()[0],
+                                         f'{len(cohort.members)}')
                 break
             except (AssertionError, TimeoutError):
                 if tries == 0:
@@ -219,31 +213,6 @@ class BoaPages(SearchForm):
 
     def boxplot_trigger_xpath(self):
         return f'{self.boxplot_xpath()}/*[name()="g"]/*[name()="g"]/*[name()="path"][3]'
-
-    # BATCH NOTES
-
-    BATCH_NOTE_BUTTON = By.ID, 'batch-note-button'
-
-    # SID LIST ENTRY
-
-    def enter_sid_list(self, el, sids):
-        app.logger.info(f'Entering SIDs {sids}')
-        self.wait_for_textbox_and_type(el, sids)
-
-    def enter_comma_sep_sids(self, el, students):
-        sids = list(map(lambda s: s.sid, students))
-        string = ', '.join(sids)
-        self.enter_sid_list(el, string)
-
-    def enter_line_sep_sids(self, el, students):
-        sids = list(map(lambda s: s.sid, students))
-        string = '\n'.join(sids)
-        self.enter_sid_list(el, string)
-
-    def enter_space_sep_sids(self, el, students):
-        sids = list(map(lambda s: s.sid, students))
-        string = ' '.join(sids)
-        self.enter_sid_list(el, string)
 
     @staticmethod
     def verify_list_view_sorting(visible_sids, expected_sids):
