@@ -23,9 +23,17 @@
           <div v-if="config.devAuthEnabled" class="mt-3">
             <DevAuth :report-error="reportError" />
           </div>
-          <div class="error-message font-size-14 text-error">
+          <v-alert
+            v-if="error"
+            aria-live="polite"
+            class="font-weight-medium ma-2"
+            density="compact"
+            :icon="mdiAlert"
+            type="error"
+            variant="tonal"
+          >
             {{ error }}
-          </div>
+          </v-alert>
           <div class="contact-us">
             If you have questions or feedback then contact us at
             <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">
@@ -42,6 +50,7 @@
 <script setup>
 import DevAuth from '@/components/admin/DevAuth'
 import {getCasLoginURL} from '@/api/auth'
+import {mdiAlert} from '@mdi/js'
 import {nextTick, ref} from 'vue'
 import {trim} from 'lodash'
 import {useContextStore} from '@/stores/context'
