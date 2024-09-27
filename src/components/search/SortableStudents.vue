@@ -13,6 +13,7 @@
     :row-props="data => ({
       id: `tr-student-${data.item.sid}`
     })"
+    :sort-by="[sortBy]"
     @update:sort-by="onUpdateSortBy"
   >
     <template #headers="{columns, isSorted, toggleSort, getSortIcon}">
@@ -68,7 +69,7 @@
     </template>
 
     <template #item.lastName="{item}">
-      <div class="align-center d-flex">
+      <div class="align-start d-flex">
         <span class="sr-only">Student name</span>
         <router-link
           v-if="item.uid"
@@ -160,10 +161,11 @@ import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import PillCount from '@/components/util/PillCount'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import {alertScreenReader, lastNameFirst, numFormat, pluralize, round, studentRoutePath} from '@/lib/utils'
-import {concat, each, find, get, isNil, map, orderBy} from 'lodash'
+import {computed, onMounted, ref} from 'vue'
+import {each, find, get, isNil, isString} from 'lodash'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
 import {mdiSchool, mdiInformation} from '@mdi/js'
-import {computed, onMounted, ref} from 'vue'
+import {sortComparator} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useDisplay} from 'vuetify'
 
@@ -193,7 +195,7 @@ const props = defineProps({
 const contextStore = useContextStore()
 
 const currentUser = contextStore.currentUser
-const defaultCellClass = {class: 'py-1 pl-1 pr-3 vertical-top'}
+const defaultCellClass = {class: 'font-size-15 py-1 pl-1 pr-3 vertical-top'}
 const defaultCellProps = computed(() => {
   return {cellProps: {...defaultCellClass, style: useDisplay().mdAndUp ? 'max-width: 200px;' : ''}}
 })
@@ -202,7 +204,7 @@ const items = ref(undefined)
 const sortBy = ref({})
 
 onMounted(() => {
-  onUpdateSortBy([props.initialSortBy])
+  items.value = props.students
   if (props.includeCuratedCheckbox) {
     headers.value.push({
       key: 'curated',
@@ -224,25 +226,27 @@ onMounted(() => {
       title: 'Photo',
       value: 'photo'
     },
-    {key: 'lastName', ...defaultCellProps.value, ariaLabel: 'last name', sortable, title: 'Name', value: 'lastName'},
-    {key: 'sid', ...defaultCellProps.value, ariaLabel: 'S I D', sortable, title: 'SID', value: 'sid'}
+    {key: 'lastName', ...defaultCellProps.value, ariaLabel: 'last name', sortable, sortRaw, title: 'Name', value: 'lastName'},
+    {key: 'sid', ...defaultCellProps.value, ariaLabel: 'S I D', sortable, sortRaw, title: 'SID', value: 'sid'}
   ], header => {
     headers.value.push(header)
   })
   if (props.compact) {
-    headers.value.push({key: 'alertCount', ...defaultCellProps.value, sortable, title: 'Alerts', value: 'alertCount'})
+    headers.value.push({key: 'alertCount', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'Alerts', value: 'alertCount'})
   } else {
     each([
-      {key: 'major', ...defaultCellProps.value, sortable, title: 'Major', value: 'majors[0]'},
-      {key: 'expectedGraduationTerm', ...defaultCellProps.value, sortable, title: 'Grad', value: 'expectedGraduationTerm.id'},
-      {key: 'enrolledUnits', ...defaultCellProps.value, sortable, title: 'Term units', value: 'term.enrolledUnits'},
-      {key: 'cumulativeUnits', ...defaultCellProps.value, sortable, title: 'Units completed', value: 'cumulativeUnits'},
-      {key: 'cumulativeGPA', ...defaultCellProps.value, sortable, title: 'GPA', value: 'cumulativeGPA'},
+      {key: 'major', ...defaultCellProps.value, sortable, sortRaw, title: 'Major', value: 'majors[0]'},
+      {key: 'expectedGraduationTerm', ...defaultCellProps.value, sortable, sortRaw, title: 'Grad', value: 'expectedGraduationTerm.id'},
+      {key: 'enrolledUnits', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'Term units', value: 'term.enrolledUnits'},
+      {key: 'cumulativeUnits', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'Units completed', value: 'cumulativeUnits'},
+      {key: 'cumulativeGPA', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'GPA', value: 'cumulativeGPA'},
       {
         key: 'alertCount',
         align: 'end',
         cellProps: {class: 'py-1 pl-1 pr-2 vertical-top'},
+        isNumber: true,
         sortable,
+        sortRaw,
         title: 'Alerts',
         value: 'alertCount'
       }
@@ -250,24 +254,48 @@ onMounted(() => {
       headers.value.push(header)
     })
   }
+  sortBy.value = props.initialSortBy
 })
 
 const abbreviateTermName = termName => termName && termName.replace('20', ' \'').replace('Spring', 'Spr').replace('Summer', 'Sum')
 
+const normalizeForSort = value => {
+  return isString(value) ? value.toLowerCase() : value
+}
+
 const onUpdateSortBy = primarySortBy => {
   const key = primarySortBy[0].key
   const header = find(headers.value, {key: key})
-  const sortKeys = concat(
-    primarySortBy,
-    {key: 'lastName', order: 'asc'},
-    {key: 'firstName', order: 'asc'},
-    {key: 'sid', order: 'asc'}
-  )
   sortBy.value = primarySortBy[0]
-  items.value = orderBy(props.students, map(sortKeys, 'key'), map(sortKeys, 'order'))
   if (header) {
-    alertScreenReader(`Sorted by ${header.ariaLabel || header.title}, ${primarySortBy[0].order}ending`)
+    alertScreenReader(`Sorted by ${header.ariaLabel || header.title}, ${sortBy.value.order}ending`)
   }
+}
+
+const sortRaw = (a, b) => {
+  const header = find(headers.value, {key: sortBy.value.key})
+  const isNumber = get(header, 'isNumber', false)
+  const sortKey = get(header, 'value', sortBy.value.key)
+  const sortDesc = sortBy.value.order === 'desc'
+  let aValue = get(a, sortKey)
+  let bValue = get(b, sortKey)
+  // If column type is number then nil is treated as zero.
+  aValue = isNil(aValue) && isNumber ? 0 : normalizeForSort(aValue)
+  bValue = isNil(bValue) && isNumber ? 0 : normalizeForSort(bValue)
+  let result = sortComparator(aValue, bValue)
+  if (result === 0) {
+    each(['lastName', 'firstName', 'sid'], field => {
+      result = sortComparator(
+        normalizeForSort(get(a, field)),
+        normalizeForSort(get(b, field))
+      )
+      // Secondary sort is always ascending
+      result *= sortDesc ? -1 : 1
+      // Break from loop if comparator result is non-zero
+      return result === 0
+    })
+  }
+  return result
 }
 </script>
 
