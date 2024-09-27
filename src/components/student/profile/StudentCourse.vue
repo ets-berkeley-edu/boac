@@ -11,7 +11,7 @@
           :aria-expanded="showCourseDetails ? 'true' : 'false'"
           :aria-controls="`${baseElementId}-details`"
           :aria-label="`${showCourseDetails ? 'Hide' : 'Show'} ${course.displayName} class details for ${student.name}`"
-          class="text-left"
+          class="pl-0 text-left"
           color="primary"
           density="compact"
           slim
@@ -218,7 +218,7 @@ const contextStore = useContextStore()
 
 const baseElementId = `term-${props.term.termId}-course-${get(props.course, 'sections[0].ccn')}`
 const currentUser = contextStore.currentUser
-const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 16 : (vuetify.display.mdAndUp.value ? 36 : 18))
+const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 13 : (vuetify.display.mdAndUp.value ? 36 : 18))
 const sectionsWithIncompleteStatus = ref(getSectionsWithIncompleteStatus(props.course.sections))
 const showCourseDetails = ref(false)
 const showSpacer = ref(false)
