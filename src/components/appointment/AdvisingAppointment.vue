@@ -10,8 +10,8 @@
     />
   </div>
   <div>
-    <div class="advising-appointment-outer pb-1">
-      <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`" class="pb-3">
+    <div class="advising-appointment-outer pb-3">
+      <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
         <div v-if="appointment.appointmentTitle">
           <span :id="`appointment-${appointment.id}-title`" v-html="appointment.appointmentTitle" />
         </div>
@@ -23,16 +23,20 @@
         <div class="mt-2">
           <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
         </div>
-        <div v-if="appointment.status === 'cancelled'" class="align-center d-flex pt-2">
-          <div class="align-center d-flex font-size-14 text-error text-uppercase">
+        <div
+          v-if="appointment.status === 'cancelled'"
+          class="mt-2"
+          :class="{'border-sm pa-2': appointment.cancelReason}"
+        >
+          <div class="font-size-14 text-error text-uppercase">
             <v-icon class="mr-1" :icon="mdiCalendarMinus" />
             Canceled
           </div>
-          <div v-if="appointment.cancelReason" class="pt-3">
+          <div v-if="appointment.cancelReason" class="mt-1 pl-7">
             <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
           </div>
         </div>
-        <div v-if="advisor.name && (appointment.legacySource || appointment.createdBy === 'YCBM')" class="py-2">
+        <div v-if="advisor.name && (appointment.legacySource || appointment.createdBy === 'YCBM')" class="mt-2">
           <a
             v-if="advisor.uid"
             :id="`appointment-${appointment.id}-advisor-name`"
@@ -52,15 +56,15 @@
             (appointment imported from {{ appointment.legacySource }})
           </span>
         </div>
-        <div v-if="size(advisor.departments)" class="text-medium-emphasis pb-2">
+        <div v-if="size(advisor.departments)" class="mt-2 text-medium-emphasis">
           <span v-for="(dept, index) in advisor.departments" :key="dept.code">
             <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.name }}</span>
           </span>
         </div>
-        <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="py-2">
+        <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="mt-2">
           {{ appointment.appointmentType }}
         </div>
-        <div v-if="appointment.topics && size(appointment.topics)" class="py-2">
+        <div v-if="appointment.topics && size(appointment.topics)" class="mt-2">
           <div class="font-size-16 font-weight-bold">Topics</div>
           <ul class="list-no-bullets advising-note-pill-list">
             <li
@@ -80,7 +84,7 @@
             </li>
           </ul>
         </div>
-        <div v-if="appointment.attachments && size(appointment.attachments)" class="py-2">
+        <div v-if="appointment.attachments && size(appointment.attachments)" class="mt-2">
           <div class="font-size-16 font-weight-bold">Attachments</div>
           <ul class="list-no-bullets advising-note-pill-list">
             <li
