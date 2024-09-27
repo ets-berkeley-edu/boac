@@ -15,7 +15,12 @@
         </div>
       </div>
       <div v-if="!hasSearchResults && !searchStore.isSearching">
-        No results found for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>.
+        <div v-if="searchPhraseSubmitted && searchPhraseSubmitted.length > 0">
+          No results found for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>.
+        </div>
+        <div v-if="!searchPhraseSubmitted || searchPhraseSubmitted.length === 0">
+          No results found for your search query.
+        </div>
       </div>
     </div>
     <div v-if="!loading && !searchStore.isSearching">
