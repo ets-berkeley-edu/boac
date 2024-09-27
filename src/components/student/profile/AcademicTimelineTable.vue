@@ -141,7 +141,7 @@
             <v-chip
               :id="`timeline-tab-${activeTab}-pill-${message.type}-${message.id}`"
               class="border font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
-              :class="`pill-${message.type}`"
+              :class="isExpanded(message) ? `pill-${message.type} mt-3` : `pill-${message.type}`"
               :color="`category-${message.type}`"
               density="compact"
               label
