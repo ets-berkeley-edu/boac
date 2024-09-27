@@ -232,6 +232,11 @@ class Page(object):
         self.wait_for_element_and_click(locator, addl_pause)
         self.remove_and_enter_chars(locator, string)
 
+    def wait_for_textbox_and_type_chars(self, locator, string, addl_pause=None):
+        self.wait_for_element_and_click(locator, addl_pause)
+        self.remove_chars(locator)
+        self.enter_chars(locator, string)
+
     def remove_chars(self, locator):
         self.wait_for_element_and_click(locator)
         time.sleep(utils.get_click_sleep())
@@ -242,7 +247,7 @@ class Page(object):
 
     def enter_chars(self, locator, string):
         for i in string:
-            time.sleep(0.5)
+            time.sleep(0.1)
             self.element(locator).send_keys(i)
 
     def remove_and_enter_chars(self, locator, string):

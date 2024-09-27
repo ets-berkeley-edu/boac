@@ -29,8 +29,6 @@ from bea.pages.page import Page
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
 class SearchForm(Page):
@@ -164,31 +162,37 @@ class SearchForm(Page):
 
     # Author / Student
 
-    NOTE_AUTHOR = (By.ID, 'search-options-note-filters-author-input')
-    NOTE_STUDENT = (By.ID, 'search-options-note-filters-student-input')
+    NOTE_AUTHOR = (By.ID, 'search-options-note-filters-author')
+    NOTE_STUDENT = (By.ID, 'search-options-note-filters-student')
     AUTHOR_SUGGEST = (By.XPATH, '//a[contains(@id, "search-options-note-filters-author-suggestion")]')
 
-    def set_auto_suggest(self, locator, name, alt_names=None):
+    @staticmethod
+    def student_auto_suggest_option_loc(student):
+        return By.XPATH, f'//*[contains(., "({student.sid})")]'
+
+    STUDENT_SUGGEST = (By.XPATH, '//*[contains()]')
+
+    def set_auto_suggest(self, input_locator, auto_suggest_locator, name, alt_names=None):
         names = [name.lower()]
         if alt_names:
             alt_names_lower = list(map(lambda n: n.lower(), alt_names))
             names.extend(alt_names_lower)
-        self.wait_for_textbox_and_type(locator, name)
+        self.wait_for_textbox_and_type(input_locator, name)
         time.sleep(2)
-        Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.AUTHOR_SUGGEST))
-        for el in self.elements(self.AUTHOR_SUGGEST):
+        self.when_present(auto_suggest_locator, utils.get_short_timeout())
+        for el in self.elements(auto_suggest_locator):
             text = el.get_attribute('innerText').lower()
             if text in names:
                 el.click()
 
     def set_notes_author(self, name, alt_names=None):
         app.logger.info(f'Entering notes author name {name}')
-        self.set_auto_suggest(self.NOTE_AUTHOR, name, alt_names)
+        self.set_auto_suggest(self.NOTE_AUTHOR, self.AUTHOR_SUGGEST, name, alt_names)
 
     def set_notes_student(self, student):
         string = f'{student.full_name} ({student.sid})'
         app.logger.info(string)
-        self.set_auto_suggest(self.NOTE_STUDENT, string)
+        self.set_auto_suggest(self.NOTE_STUDENT, self.student_auto_suggest_option_loc(student), string)
 
     # Dates
 

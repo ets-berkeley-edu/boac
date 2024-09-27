@@ -64,8 +64,7 @@ class TestCuratedGroup:
 
     def test_delete_pre_existing_groups(self):
         for g in self.pre_existing_groups:
-            self.curated_students_page.load_page(g)
-            self.curated_students_page.delete_group(g)
+            self.curated_students_page.load_and_delete_group(g)
 
     def test_create_group_from_cohort_page_group_selector(self):
         group = Cohort({'name': f'Group created from filtered cohort {self.test.test_id}'})

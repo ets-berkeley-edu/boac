@@ -145,16 +145,20 @@ class SearchResultsPage(ListViewAdmitPages):
     def note_link(note):
         return By.XPATH, f'//a[contains(@href, "note-{note.record_id}")]'
 
-    def is_note_in_search_result(self, note):
+    def is_note_in_search_result(self, note, is_batch=False):
         self.wait_for_spinner()
         self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
         time.sleep(1)
         count = self.note_results_count()
         if count == '50+':
-            app.logger.info(f'Skipping test with UID {note.record_id} because there are too many results')
+            if is_batch:
+                return False
+            else:
+                app.logger.info(f'Skipping test with UID {note.record_id} because there are too many results')
+                return True
         else:
             self.when_present(self.note_link(note), utils.get_short_timeout())
-        return True
+            return True
 
     def note_result(self, student, note):
         Wait(self.driver, utils.get_short_timeout()).until(ec.visibility_of_element_located(self.note_link(note)))

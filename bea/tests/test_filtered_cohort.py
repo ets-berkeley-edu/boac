@@ -69,7 +69,10 @@ class TestFilteredCohortResults:
 
     def test_cohort_search_results_export_button(self, cohort):
         enabled = self.filtered_students_page.element(self.filtered_students_page.EXPORT_LIST_BUTTON).is_enabled()
-        assert enabled if cohort.members else not enabled
+        if cohort.members:
+            assert enabled
+        else:
+            assert not enabled
 
     def test_cohort_search_cohort_creation(self, cohort):
         self.filtered_students_page.create_new_cohort(cohort)
