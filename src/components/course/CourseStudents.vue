@@ -157,7 +157,6 @@
         >
           <div
             :class="{
-              'border-t-sm': index,
               'demo-mode-blur': currentUser.inDemoMode,
               'pt-2': index > 0
             }"
@@ -178,11 +177,11 @@
           :key="index"
           :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length}`"
         >
-          <div :class="{'border-t-sm': index}">
+          <div>
             <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
               {{ canvasSite.courseCode }}
             </span>
-            <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" :class="{'pt-2': index > 0}">
+            <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" :class="{'pt-3': index, 'pt-1': !index}">
               <StudentBoxplot
                 :chart-description="`Chart of ${item.firstName} ${item.lastName}'s assignments submitted in ${canvasSite.courseCode}`"
                 :dataset="canvasSite.analytics.assignmentsSubmitted"
@@ -225,11 +224,11 @@
           :key="index"
           :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length}`"
         >
-          <div :class="{'border-t-sm': index}">
+          <div>
             <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
               {{ canvasSite.courseCode }}
             </span>
-            <div v-if="canvasSite.analytics.currentScore.boxPlottable" :class="{'pt-2': index, 'pt-1': !index}">
+            <div v-if="canvasSite.analytics.currentScore.boxPlottable" :class="{'pt-3': index, 'pt-1': !index}">
               <StudentBoxplot
                 :chart-description="`Chart of ${item.firstName} ${item.lastName}'s assignment grades in ${canvasSite.courseCode}`"
                 :dataset="canvasSite.analytics.currentScore"
@@ -267,11 +266,11 @@
     </template>
 
     <template #item.bCourses="{item}">
-      <div v-if="item.enrollment" class="font-size-14">
+      <div v-if="item.enrollment" class="font-size-14 h-100 pl-2">
         <div
-          v-for="canvasSite in item.enrollment.canvasSites"
+          v-for="(canvasSite, index) in item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
-          class="boxplot-container"
+          :class="`height-when-canvas-site-count-${item.enrollment.canvasSites.length} ${index > 0 ? 'pt-2' : ''}`"
         >
           <span v-if="item.enrollment.canvasSites.length > 1" class="sr-only">
             {{ canvasSite.courseCode }}
