@@ -210,7 +210,7 @@ pre {
 }
 .drop-zone-container {
   border-left: 2px solid rgb(var(--v-theme-primary));
-  padding: 0 0.3em 0 0.5em;
+  padding: 0 0 0 0.5em;
   margin: 0.2em 0 0.2em 0;
 }
 .subcategory-header {

@@ -9,29 +9,33 @@
         />
       </div>
       <StudentDegreeCheckHeader :student="student" />
-      <v-container class="pt-3" fluid>
+      <v-container class="pt-3 pr-0" fluid>
         <v-row>
-          <v-col :cols="$vuetify.display.mdAndUp ? 4 : 12">
-            <UnitRequirements class="unit-requirements" />
+          <v-col>
+            <v-row>
+              <v-col>
+                <UnitRequirements class="unit-requirements" />
+              </v-col>
+              <v-col>
+                <div
+                  id="drop-zone-ignored-courses"
+                  class="drop-zone"
+                  :class="isDroppable('ignored') ? 'drop-zone-on' : 'drop-zone-off'"
+                  @dragend="onDrag($event, 'end', 'ignored')"
+                  @dragenter="onDrag($event,'enter', 'ignored')"
+                  @dragleave="onDrag($event, 'leave', 'ignored')"
+                  @dragexit="onDrag($event,'exit', 'ignored')"
+                  @dragover="onDrag($event,'over', 'ignored')"
+                  @dragstart="onDrag($event,'start', 'ignored')"
+                  @drop="dropToUnassign($event, 'ignored')"
+                >
+                  <h3 id="ignored-header" class="font-size-20 font-weight-bold pb-0 text-no-wrap" tabindex="-1">Other Coursework</h3>
+                  <UnassignedCourses :ignored="true" />
+                </div>
+              </v-col>
+            </v-row>
           </v-col>
-          <v-col :cols="$vuetify.display.mdAndUp ? (degreeStore.courses['ignored'].length ? 4 : 3) : 12">
-            <div
-              id="drop-zone-ignored-courses"
-              class="drop-zone"
-              :class="isDroppable('ignored') ? 'drop-zone-on' : 'drop-zone-off'"
-              @dragend="onDrag($event, 'end', 'ignored')"
-              @dragenter="onDrag($event,'enter', 'ignored')"
-              @dragleave="onDrag($event, 'leave', 'ignored')"
-              @dragexit="onDrag($event,'exit', 'ignored')"
-              @dragover="onDrag($event,'over', 'ignored')"
-              @dragstart="onDrag($event,'start', 'ignored')"
-              @drop="dropToUnassign($event, 'ignored')"
-            >
-              <h3 id="ignored-header" class="font-size-20 font-weight-bold pb-0 text-no-wrap" tabindex="-1">Other Coursework</h3>
-              <UnassignedCourses :ignored="true" />
-            </div>
-          </v-col>
-          <v-col :cols="$vuetify.display.mdAndUp ? (degreeStore.courses['ignored'].length ? 4 : 5) : 12">
+          <v-col class="pr-0">
             <div
               id="drop-zone-unassigned-courses"
               class="drop-zone"

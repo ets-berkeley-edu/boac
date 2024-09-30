@@ -16,11 +16,11 @@
             <th class="th-course">
               Course
             </th>
-            <th class="pr-1 text-right th-units">
-              Units
-            </th>
-            <th class="pr-1 th-grade">
+            <th class="th-grade">
               Grade
+            </th>
+            <th class="pr-3 text-right th-units">
+              Units
             </th>
             <th v-if="!ignored" class="th-term">
               Term
@@ -74,7 +74,18 @@
                   title="Duplicated"
                 />
               </td>
-              <td class="td-units">
+              <td class="td-grade">
+                <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
+                <v-icon
+                  v-if="isAlertGrade(course.grade)"
+                  class="mb-1 ml-1"
+                  color="warning"
+                  :icon="mdiAlert"
+                  size="20"
+                  title="Non-passing grade"
+                />
+              </td>
+              <td class="pr-3 td-units">
                 <v-icon
                   v-if="course.unitRequirements.length"
                   class="mb-1 mr-1 pl-0"
@@ -94,17 +105,6 @@
                 />
                 <span class="font-size-14">{{ isNil(course.units) ? '&mdash;' : course.units }}</span>
                 <span v-if="unitsWereEdited(course)" class="sr-only"> (updated from {{ pluralize('unit', course.sis.units) }})</span>
-              </td>
-              <td class="td-grade">
-                <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
-                <v-icon
-                  v-if="isAlertGrade(course.grade)"
-                  class="mb-1 ml-1"
-                  color="warning"
-                  :icon="mdiAlert"
-                  size="20"
-                  title="Non-passing grade"
-                />
               </td>
               <td v-if="!ignored" class="font-size-14 td-term">
                 {{ course.termName }}

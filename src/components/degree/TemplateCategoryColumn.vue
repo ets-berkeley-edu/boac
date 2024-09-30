@@ -1,8 +1,8 @@
 <template>
   <div :id="`category-column-${position}`">
-    <div v-if="!degreeStore.sid" class="align-center d-flex justify-space-between pb-3">
+    <div v-if="!degreeStore.sid" class="align-center d-flex flex-wrap justify-space-between pb-3">
       <v-chip
-        class="font-size-13 text-no-wrap px-2 text-uppercase"
+        class="font-size-13 text-no-wrap mr-1 px-2 text-uppercase column-label"
         color="grey"
         density="compact"
         label
@@ -14,10 +14,12 @@
         v-if="currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"
         :append-icon="mdiPlus"
-        :disabled="degreeStore.disableButtons"
-        class="text-body-2"
+        class="ml-auto text-body-2"
         color="primary"
+        density="comfortable"
+        :disabled="degreeStore.disableButtons"
         :text="`Add column ${position} requirement`"
+        slim
         variant="text"
         @click="add"
       />
@@ -148,3 +150,9 @@ const onExitEditCategory = () => {
   putFocusNextTick(putFocus)
 }
 </script>
+
+<style scoped>
+.column-label {
+  min-width: 5.2rem !important;
+}
+</style>

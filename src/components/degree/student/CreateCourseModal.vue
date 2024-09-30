@@ -59,17 +59,6 @@
               Course name cannot exceed 255 characters.
             </div>
           </div>
-          <div class="mt-1">
-            <UnitsInput
-              :disable="isSaving"
-              :error-message="unitsErrorMessage"
-              input-id="course-units-input"
-              label-class="font-weight-bold mb-1 pr-2"
-              :on-submit="save"
-              :set-units-lower="setUnits"
-              :units-lower="units"
-            />
-          </div>
           <div class="mt-2">
             <label id="units-grade-label" for="course-grade-input" class="font-weight-bold mb-1 pr-2">
               Grade
@@ -83,6 +72,17 @@
               hide-details
               maxlength="3"
               @keydown.enter="save"
+            />
+          </div>
+          <div class="mt-1">
+            <UnitsInput
+              :disable="isSaving"
+              :error-message="unitsErrorMessage"
+              input-id="course-units-input"
+              label-class="font-weight-bold mb-1 pr-2"
+              :on-submit="save"
+              :set-units-lower="setUnits"
+              :units-lower="units"
             />
           </div>
           <div class="mt-2">

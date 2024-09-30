@@ -46,17 +46,6 @@
         />
       </div>
     </div>
-    <div>
-      <UnitsInput
-        :disable="isSaving"
-        :error-message="unitsErrorMessage"
-        input-id="course-units-input"
-        :on-escape="cancel"
-        :on-submit="update"
-        :set-units-lower="setUnits"
-        :units-lower="units"
-      />
-    </div>
     <div v-if="course.manuallyCreatedBy" class="mt-2">
       <label for="course-grade-input" class="font-weight-bold">
         Grade
@@ -68,6 +57,17 @@
         hide-details
         maxlength="3"
         @keydown.enter="update"
+      />
+    </div>
+    <div>
+      <UnitsInput
+        :disable="isSaving"
+        :error-message="unitsErrorMessage"
+        input-id="course-units-input"
+        :on-escape="cancel"
+        :on-submit="update"
+        :set-units-lower="setUnits"
+        :units-lower="units"
       />
     </div>
     <div v-if="course.manuallyCreatedBy" class="mt-2">
@@ -91,7 +91,7 @@
         @keyup.esc="cancel"
       />
     </div>
-    <div class="align-center d-flex mt-2">
+    <div class="align-center d-flex justify-end mt-2">
       <ProgressButton
         id="update-note-btn"
         :action="update"
