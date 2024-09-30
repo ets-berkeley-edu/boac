@@ -2,12 +2,13 @@
   <highcharts
     v-if="options"
     :id="`student-chart-boxplot-container-${numericId}`"
+    class="student-boxplot"
     :options="options"
   />
 </template>
 
 <script setup>
-import {get, size} from 'lodash'
+import {get} from 'lodash'
 import {onMounted, ref} from 'vue'
 import {useTheme} from 'vuetify'
 
@@ -92,7 +93,7 @@ const getHighchartsOptions = () => {
       headerFormat: `
         <div class="align-center boxplot-tooltip-font-family boxplot-tooltip-header d-flex justify-space-between px-3 py-2">
           <div>User Score</div>
-          <div class="ml-3 pl-5">${get(props.dataset.student, 'raw') || '&mdash;'}</div>
+          <div class="ml-3 pl-5">${get(props.dataset.student, 'raw', '&mdash;')}</div>
         </div>
       `,
       hideDelay: 0,
@@ -102,23 +103,23 @@ const getHighchartsOptions = () => {
         <div class="boxplot-tooltip-font-family px-3 py-2 w-100">
           <div class="align-center d-flex justify-space-between">
             <div>Maximum</div>
-            <div class="ml-3 pl-5">${getCourseDecile(10) || '&mdash;'}</div>
+            <div class="ml-3 pl-5">${getCourseDecile(10)}</div>
           </div>
           <div class="align-center d-flex justify-space-between pt-1">
             <div>70th Percentile</div>
-            <div class="ml-3 pl-5">${getCourseDecile(7) || '&mdash;'}</div>
+            <div class="ml-3 pl-5">${getCourseDecile(7)}</div>
           </div>
           <div class="align-center d-flex justify-space-between pt-1">
             <div>50th Percentile</div>
-            <div class="ml-3 pl-5">${getCourseDecile(5) || '&mdash;'}</div>
+            <div class="ml-3 pl-5">${getCourseDecile(5)}</div>
           </div>
           <div class="align-center d-flex justify-space-between pt-1">
             <div>30th Percentile</div>
-            <div class="ml-3 pl-5">${getCourseDecile(3) || '&mdash;'}</div>
+            <div class="ml-3 pl-5">${getCourseDecile(3)}</div>
           </div>
           <div class="align-center d-flex justify-space-between pt-1">
             <div>Minimum</div>
-            <div class="ml-3 pl-5">${getCourseDecile(0) || '&mdash;'}</div>
+            <div class="ml-3 pl-5">${getCourseDecile(0)}</div>
           </div>
         </div>
       `,
@@ -195,7 +196,7 @@ const generateSeriesFromDataset = currentTheme => {
 }
 
 const getCourseDecile = index => {
-  return size(courseDeciles) > index ? courseDeciles[index] : null
+  return get(courseDeciles, index, '&mdash;')
 }
 </script>
 
@@ -210,5 +211,10 @@ const getCourseDecile = index => {
   border-top-right-radius: 8px;
   font-size: 16px;
   font-weight: 500;
+}
+.student-boxplot .highcharts-container,
+.student-boxplot .highcharts-root {
+  max-width: 85px;
+  width: 100% !important;
 }
 </style>
