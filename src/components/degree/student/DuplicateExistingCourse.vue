@@ -40,6 +40,7 @@
         />
         <v-btn
           id="add-course-cancel-btn"
+          class="ml-2"
           :disabled="isSaving"
           variant="text"
           @click="cancel"

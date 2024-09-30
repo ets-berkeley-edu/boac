@@ -3,7 +3,7 @@
     <div class="border-b-sm">
       <h1 id="page-header" class="overflow-wrap-break-word">{{ degreeStore.degreeName || 'Degree Builder' }}</h1>
     </div>
-    <div class="mt-4 w-50">
+    <div class="py-4 w-50">
       <h2 class="sr-only">Requirements</h2>
       <UnitRequirements />
     </div>

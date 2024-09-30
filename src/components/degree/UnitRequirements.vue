@@ -2,7 +2,7 @@
   <div v-if="render">
     <div class="align-center d-flex flex-row justify-space-between">
       <h3
-        class="font-weight-bold pb-0 pr-2 text-no-wrap"
+        class="font-weight-bold mr-2 text-no-wrap unit-requirements-header"
         :class="{'font-size-14': printable, 'font-size-20': !printable}"
       >
         Unit Requirements
@@ -28,7 +28,7 @@
       >
         No unit requirements created
       </div>
-      <table v-if="size(items)" id="unit-requirements-table" class="w-100">
+      <table v-if="size(items)" id="unit-requirements-table" class="unit-requirements-table">
         <thead class="border-b-sm">
           <tr>
             <th
@@ -39,7 +39,8 @@
             </th>
             <th
               id="th-unit-requirements-min-units"
-              class="font-size-12 pr-3 text-right text-uppercase th-height th-units"
+              class="font-size-12 pr-3 text-no-wrap text-right text-uppercase th-height th-units"
+              :class="{'th-min-units': !degreeStore.sid}"
             >
               {{ degreeStore.sid ? 'Min' : 'Min Units' }}
             </th>
@@ -339,11 +340,20 @@ th {
 .th-completed {
   width: 20%;
 }
+.th-min-units {
+  width: 20% !important;
+}
 .th-name {
   width: 60%;
 }
 .th-units {
-  width: 10%;
+  width: 15%;
+}
+.unit-requirements-header {
+  margin-bottom: 2px;
+}
+.unit-requirements-table {
+  min-width: 250px;
 }
 .unit-requirement-toggle {
   max-width: 200px;

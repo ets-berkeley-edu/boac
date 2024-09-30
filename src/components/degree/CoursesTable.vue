@@ -12,8 +12,8 @@
           </th>
           <th v-if="!isCampusRequirements" class="th-course">Course</th>
           <th v-if="isCampusRequirements" class="w-40">Requirement</th>
-          <th v-if="!isCampusRequirements && items.length" class="pr-1 text-right th-units">Units</th>
           <th v-if="degreeStore.sid && !isCampusRequirements" class="th-grade">Grade</th>
+          <th v-if="!isCampusRequirements && items.length" class="pr-2 text-right th-units">Units</th>
           <th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center th-satisfied">Satisfied</th>
           <th
             v-if="degreeStore.sid"
@@ -104,6 +104,27 @@
                 />
               </span>
             </td>
+            <td v-if="degreeStore.sid && !isCampusRequirements" class="td-grade">
+              <div class="d-flex align-center">
+                <span
+                  :class="{
+                    'font-italic text-surface-variant': !bundle.course && !getAccentColor(bundle),
+                    'font-size-12': printable,
+                    'font-size-14 text-no-wrap': !printable
+                  }"
+                >
+                  {{ getGrade(bundle) }}
+                </span>
+                <v-icon
+                  v-if="isAlertGrade(getGrade(bundle))"
+                  class="ml-1"
+                  color="warning"
+                  :icon="mdiAlert"
+                  size="20"
+                  title="Non-passing grade"
+                />
+              </div>
+            </td>
             <td
               v-if="!isCampusRequirements"
               class="td-units"
@@ -129,27 +150,6 @@
                 />
                 <div :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ isNil(bundle.units) ? '&mdash;' : bundle.units }}</div>
                 <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
-              </div>
-            </td>
-            <td v-if="degreeStore.sid && !isCampusRequirements" class="td-grade">
-              <div class="d-flex align-center">
-                <span
-                  :class="{
-                    'font-italic text-surface-variant': !bundle.course && !getAccentColor(bundle),
-                    'font-size-12': printable,
-                    'font-size-14 text-no-wrap': !printable
-                  }"
-                >
-                  {{ getGrade(bundle) }}
-                </span>
-                <v-icon
-                  v-if="isAlertGrade(getGrade(bundle))"
-                  class="ml-1"
-                  color="warning"
-                  :icon="mdiAlert"
-                  size="20"
-                  title="Non-passing grade"
-                />
               </div>
             </td>
             <td v-if="degreeStore.sid && isCampusRequirements" class="td-satisfied float-right">
@@ -734,8 +734,8 @@ table {
   width: 100px;
 }
 .th-units {
-  max-width: 40px !important;
-  width: 40px !important;
+  max-width: 3rem !important;
+  width: 3rem !important;
 }
 .tr-while-dragging td {
   background-color: rgb(var(--v-theme-tertiary));

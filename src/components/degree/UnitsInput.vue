@@ -4,15 +4,16 @@
       <label id="units-input-label" :class="labelClass" :for="inputId">
         {{ label }}
       </label>
-      <div v-if="range" class="font-size-12">
+      <div v-if="range" class="d-flex font-size-14 pb-1">
         [<v-btn
           id="show-upper-units-input"
-          class="px-0 text-primary"
+          class="align-self-center font-size-12 px-0 text-primary"
           density="compact"
           flat
           size="small"
           :text="showUnitsUpperInput ? 'hide range' : 'show range'"
           variant="text"
+          width="80"
           @click="toggle"
         />]
       </div>

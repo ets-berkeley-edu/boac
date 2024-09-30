@@ -32,16 +32,16 @@
         />
       </div>
     </div>
-    <div class="border-b-md mt-4 mx-6">
+    <div class="border-b-md pt-4 pl-6">
       <v-container class="py-2 px-0" fluid>
         <v-row>
-          <v-col cols="8">
+          <v-col cols="12" md="7">
             <h2 class="mb-1 page-section-header">{{ degreeStore.degreeName }}</h2>
             <div class="text-surface-variant font-size-16 font-weight-500 pb-2">
               {{ updatedAtDescription }}
             </div>
           </v-col>
-          <v-col cols="4">
+          <v-col cols="12" md="5">
             <div class="align-center d-flex flex-wrap justify-end">
               <div class="pr-2">
                 <router-link
@@ -81,23 +81,23 @@
         </v-row>
       </v-container>
     </div>
-    <div class="border-b-md mx-6">
+    <div class="border-b-md pl-6">
       <v-container class="border-b-sm px-0" fluid>
         <v-row align="start">
           <v-col class="border-e-sm pb-0 pt-1" cols="7">
             <div v-if="isEditingNote || noteBody" class="align-center d-flex justify-space-between">
               <div>
-                <h3 class="font-size-20 font-weight-bold text-no-wrap">Degree Notes</h3>
+                <h3 class="font-size-20 font-weight-bold text-no-wrap mr-3">Degree Notes</h3>
               </div>
               <div class="align-center d-flex justify-content-end pr-4">
-                <label for="degree-note-print-toggle" class="font-size-14 font-weight-500 pr-2 text-surface-variant">
+                <label for="degree-note-print-toggle" class="font-size-14 font-weight-500 pr-2 text-surface-variant text-right">
                   Show notes when printed?
                 </label>
                 <div
                   class="align-center d-flex pr-2"
                   :class="{'text-success': degreeStore.includeNotesWhenPrint, 'text-error': !degreeStore.includeNotesWhenPrint}"
                 >
-                  <div class="font-size-14 font-weight-bold toggle-label-width">
+                  <div class="font-size-14 font-weight-bold toggle-label-width pr-2">
                     {{ degreeStore.includeNotesWhenPrint ? 'Yes' : 'No' }}
                   </div>
                   <v-switch
@@ -187,7 +187,7 @@
                 rows="3"
                 variant="outlined"
               />
-              <div class="d-flex ml-2 my-2">
+              <div class="d-flex justify-end ml-2 my-2">
                 <ProgressButton
                   id="save-degree-note-btn"
                   :action="saveNote"
@@ -198,6 +198,7 @@
                 />
                 <v-btn
                   id="cancel-degree-note-btn"
+                  class="ml-2"
                   :disabled="isSaving"
                   text="Cancel"
                   variant="text"

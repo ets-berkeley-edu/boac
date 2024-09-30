@@ -152,8 +152,8 @@
         </div>
       </div>
     </div>
-    <div class="d-flex mt-3">
-      <div class="mr-1">
+    <div class="d-flex justify-end mt-3">
+      <div class="mr-2">
         <ProgressButton
           :id="`column-${position}-create-requirement-btn`"
           :action="onSubmit"

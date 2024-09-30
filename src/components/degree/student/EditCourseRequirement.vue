@@ -20,19 +20,6 @@
       </div>
     </div>
     <div v-if="!isCampusRequirement" class="mt-2">
-      <UnitsInput
-        :disable="isSaving"
-        :error-message="unitsErrorMessage"
-        :on-escape="cancel"
-        :on-submit="onSubmit"
-        :range="true"
-        :set-units-lower="units => unitsLower = units"
-        :set-units-upper="units => unitsUpper = units"
-        :units-lower="unitsLower"
-        :units-upper="unitsUpper"
-      />
-    </div>
-    <div v-if="!isCampusRequirement" class="mt-2">
       <label for="grade-input" class="font-weight-500 pr-2">
         Grade
       </label>
@@ -43,6 +30,19 @@
         hide-details
         maxlength="3"
         @keydown.enter="onSubmit"
+      />
+    </div>
+    <div v-if="!isCampusRequirement" class="mt-2">
+      <UnitsInput
+        :disable="isSaving"
+        :error-message="unitsErrorMessage"
+        :on-escape="cancel"
+        :on-submit="onSubmit"
+        :range="true"
+        :set-units-lower="units => unitsLower = units"
+        :set-units-upper="units => unitsUpper = units"
+        :units-lower="unitsLower"
+        :units-upper="unitsUpper"
       />
     </div>
     <div v-if="!isCampusRequirement" class="mt-2">
@@ -64,7 +64,7 @@
         @keyup.esc="cancel"
       />
     </div>
-    <div class="d-flex mt-2">
+    <div class="d-flex justify-end mt-2">
       <ProgressButton
         id="update-requirement-btn"
         :action="onSubmit"
