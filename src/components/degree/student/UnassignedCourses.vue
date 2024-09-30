@@ -58,7 +58,7 @@
             >
               <td v-if="currentUser.canEditDegreeProgress" class="td-assign">
                 <div v-if="degreeStore.draggingCourseId !== course.id" class="mx-1">
-                  <CourseAssignmentMenu :after-course-assignment="() => putFocusNextTick(`${key}-header`)" :course="course" />
+                  <CourseAssignmentMenu :after-course-assignment="() => afterCourseAssignment(index, key)" :course="course" />
                 </div>
               </td>
               <td class="overflow-wrap-break-word pt-1 td-name">
@@ -230,7 +230,7 @@ import {unitsWereEdited} from '@/lib/degree-progress'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {ref} from 'vue'
-import {get, includes, isNil, remove} from 'lodash'
+import {get, includes, isNil, remove, size} from 'lodash'
 
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
@@ -257,6 +257,19 @@ const afterCancel = () => {
   courseForEdit.value = null
   degreeStore.setDisableButtons(false)
   putFocusNextTick(putFocus)
+}
+
+const afterCourseAssignment = (index, key) => {
+  const lastItemIndex = size(degreeStore.courses[key]) - 1
+  if (lastItemIndex >= 0) {
+    const nextFocusIndex = index > lastItemIndex ? index - 1 : index
+    const nextFocusCourse = get(degreeStore.courses[key], nextFocusIndex)
+    if (nextFocusCourse) {
+      putFocusNextTick(`assign-course-${nextFocusCourse.id}-btn`)
+    }
+  } else {
+    putFocusNextTick(`${key}-header`)
+  }
 }
 
 const afterSave = course => {

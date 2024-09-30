@@ -40,10 +40,11 @@
       <v-list-item-action v-if="!course.ignore">
         <v-btn
           id="course-to-option-ignore"
-          class="font-italic"
+          class="font-italic d-flex justify-start"
           color="primary"
           density="comfortable"
           variant="text"
+          width="100%"
           @click="onSelect(null, true)"
         >
           <span aria-hidden="true">-- </span>{{ junkDrawerName }}<span aria-hidden="true"> --</span>
@@ -53,6 +54,7 @@
       <v-list-item-action v-for="option in options" :key="option.id">
         <v-btn
           :id="`assign-course-to-option-${option.id}`"
+          class="d-flex justify-start"
           :class="{
             'font-size-16 mr-4': option.categoryType === 'Category',
             'font-size-15 ml-2 mr-4': option.categoryType === 'Subcategory',
