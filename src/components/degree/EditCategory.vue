@@ -257,7 +257,8 @@ const disableSaveButton = computed(() => {
 const unitsErrorMessage = computed(() => {
   const maxUnitsAllowed = 10
   const validate = selectedCategoryType.value === 'Course Requirement' && (!!unitsLower.value || !!unitsUpper.value)
-  return validate ? (validateUnitRange(unitsLower.value, unitsUpper.value, maxUnitsAllowed).message === 'Invalid' ? `Units must be between 1 and ${maxUnitsAllowed}` : null) : null
+  const message = validateUnitRange(unitsLower.value, unitsUpper.value, maxUnitsAllowed).message
+  return validate ? (message === 'Invalid' ? `Units must be between 1 and ${maxUnitsAllowed}` : message) : null
 })
 
 const cancel = () => {
