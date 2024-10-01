@@ -186,12 +186,14 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         else:
             updated_date = None
 
+        attachment_names = [el.text.strip().lower() for el in self.item_attachment_els(note)]
+        attachment_names.sort()
+
         return {
             'advisor': advisor,
             'advisor_role': advisor_role,
             'advisor_depts': advisor_depts,
-            # TODO - attachments
-            'attachments': [],
+            'attachments': attachment_names,
             'body': body_text,
             'contact_type': contact_type,
             'created_date': created_date or updated_date,
@@ -289,24 +291,25 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
             app.logger.info(f"Expecting contact type '{visible_data['contact_type']}' to be empty")
             assert not visible_data['contact_type']
 
-        # TODO - verify created_date, udpated_date
+        # TODO - verify created_date, updated_date
 
         expected_set_date = self.expected_item_short_date_format(note.set_date) if note.set_date else None
         utils.assert_equivalence(visible_data['set_date'], expected_set_date)
 
-        # Body and attachments - private versus non-private
-        if not note.body or (note.is_private and not viewer.is_admin and Department.ZCEEE not in viewer.depts):
-            app.logger.info('Expecting body to be empty')
-            assert not visible_data['body']
-            assert not visible_data['attachments']
+        attachments = [a.file_name for a in note.attachments if not a.deleted_at]
+        attachments.sort()
+        visible_data['attachments'].sort()
+
+        if note.is_private:
+            if viewer.is_admin or Department.ZCEEE in viewer.depts:
+                assert visible_data['body'] if note.body else not visible_data['body']
+                utils.assert_equivalence(visible_data['attachments'], attachments)
+            else:
+                assert not visible_data['body']
+                assert not visible_data['attachments']
         else:
-            app.logger.info('Expecting body not to be empty')
-            assert visible_data['body']
-            non_deleted_attachments = list(filter(lambda a: not a.deleted_at, note.attachments))
-            file_names = list(map(lambda a: a.file_name, non_deleted_attachments))
-            file_names.sort()
-            visible_data['attachments'].sort()
-            assert visible_data['attachments'] == file_names
+            assert visible_data['body'] if note.body else not visible_data['body']
+            utils.assert_equivalence(visible_data['attachments'], attachments)
 
     # EDIT / DELETE
 

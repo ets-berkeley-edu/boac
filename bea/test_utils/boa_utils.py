@@ -35,6 +35,7 @@ from bea.models.department import Department
 from bea.models.department_membership import DepartmentMembership
 from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_attachment import NoteAttachment
+from bea.models.notes_and_appts.note_template import NoteTemplate
 from bea.models.student import Student
 from bea.models.user import User
 from bea.test_utils import utils
@@ -461,6 +462,36 @@ def get_topic_id(topic):
     std_commit(allow_test_environment=True)
     topic.topic_id = [row['id'] for row in result][0]
     return topic.topic_id
+
+
+def get_user_note_templates(user):
+    sql = f"""SELECT note_templates.id
+                FROM note_templates
+               JOIN authorized_users ON note_templates.creator_id = authorized_users.id
+              WHERE authorized_users.uid = '{user.uid}'
+                AND note_templates.deleted_at IS NULL"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    templates = []
+    for row in results:
+        templates.append(NoteTemplate({'record_id': row['id']}))
+    return templates
+
+
+def get_note_template_ids(template):
+    sql = f"SELECT id FROM note_templates WHERE title = '{template.title}'"
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return list(map(lambda r: str(r['id']), results))
+
+
+def hard_delete_template(template_id):
+    sql = f"DELETE FROM note_templates WHERE id = '{template_id}'"
+    app.logger.info(sql)
+    db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
 
 
 # COHORTS

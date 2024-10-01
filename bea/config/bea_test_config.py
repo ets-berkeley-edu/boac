@@ -496,6 +496,11 @@ class BEATestConfig(object):
         self.set_note_attachments()
         self.set_base_configs()
 
+    def note_template(self):
+        self.set_base_configs()
+        self.set_default_cohort()
+        self.set_note_attachments()
+
     def search_admits(self):
         self.set_dept(dept=Department.ZCEEE)
         self.set_advisor()
