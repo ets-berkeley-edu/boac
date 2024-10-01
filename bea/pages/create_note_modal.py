@@ -37,14 +37,19 @@ from selenium.webdriver.support.select import Select
 
 class CreateNoteModal(Page):
 
-    CONFIRM_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-confirm')
-    CANCEL_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-cancel')
+    NEW_NOTE_MODAL = By.ID, 'new-note-modal-container'
+    CONFIRM_DELETE_OR_DISCARD = By.ID, 'are-you-sure-confirm'
+    CANCEL_DELETE_OR_DISCARD = By.ID, 'are-you-sure-cancel'
 
     def confirm_delete_or_discard(self):
         self.wait_for_element_and_click(self.CONFIRM_DELETE_OR_DISCARD)
 
     def cancel_delete_or_discard(self):
         self.wait_for_element_and_click(self.CANCEL_DELETE_OR_DISCARD)
+        self.when_not_present(self.CANCEL_DELETE_OR_DISCARD, utils.get_short_timeout())
+
+    def wait_for_new_note_modal_not_present(self):
+        self.when_not_present(self.NEW_NOTE_MODAL, utils.get_short_timeout())
 
     # DRAFT NOTE
 
@@ -88,6 +93,7 @@ class CreateNoteModal(Page):
     def enter_note_body(self, note):
         app.logger.info(f'Entering note body {note.body}')
         self.wait_for_note_body_editor()
+        self.scroll_to_top()
         self.wait_for_textbox_and_type(self.NOTE_BODY_TEXT_AREA, note.body)
 
     # Topics
@@ -469,3 +475,178 @@ class CreateNoteModal(Page):
                 if member not in uniques:
                     uniques.append(member)
         return uniques
+
+    # TEMPLATES
+
+    TEMPLATES_BUTTON = By.ID, 'my-templates-button'
+    TEMPLATE_BUTTON = By.XPATH, '//button[contains(@id, "load-note-template")]'
+    NO_TEMPLATES_MSG = By.XPATH, '//div[contains(text(), "You have no saved templates")]'
+    DUPE_TEMPLATE_TITLE_MSG = By.XPATH, '//div[contains(text(), "You have an existing template with this name")]'
+
+    def wait_for_no_templates_msg(self):
+        self.when_present(self.NO_TEMPLATES_MSG, utils.get_short_timeout())
+
+    def wait_for_dupe_template_title_msg(self):
+        self.when_present(self.DUPE_TEMPLATE_TITLE_MSG, utils.get_short_timeout())
+
+    # Creation
+
+    SAVE_AS_TEMPLATE_BUTTON = By.ID, 'btn-save-as-template'
+    TEMPLATE_TITLE_INPUT = By.ID, 'template-title-input'
+    CREATE_TEMPLATE_BUTTON = By.ID, 'create-template-confirm'
+    CANCEL_TEMPLATE_BUTTON = By.ID, 'cancel-template-create'
+
+    def click_save_as_template(self):
+        app.logger.info('Clicking save-as-template button')
+        self.wait_for_element_and_click(self.SAVE_AS_TEMPLATE_BUTTON)
+        self.when_present(self.TEMPLATE_TITLE_INPUT, utils.get_short_timeout())
+
+    def click_create_template(self):
+        app.logger.info('Saving the template')
+        self.wait_for_element_and_click(self.CREATE_TEMPLATE_BUTTON)
+
+    def is_create_template_enabled(self):
+        return self.element(self.CREATE_TEMPLATE_BUTTON).is_enabled()
+
+    def click_cancel_template(self):
+        app.logger.info('Canceling the template')
+        self.wait_for_element_and_click(self.CANCEL_TEMPLATE_BUTTON)
+        self.when_not_present(self.TEMPLATE_TITLE_INPUT, 2)
+
+    def enter_template_title(self, template):
+        app.logger.info(f'Entering template title {template.title}')
+        self.wait_for_textbox_and_type(self.TEMPLATE_TITLE_INPUT, template.title)
+
+    def create_template(self, template, note):
+        self.click_save_as_template()
+        self.enter_template_title(template)
+        self.click_create_template()
+        self.set_new_template_id(template)
+        template.subject = note.subject
+        template.body = note.body
+        template.topics = note.topics
+        template.attachments = note.attachments
+        template.advisor = note.advisor
+        template.is_private = note.is_private
+        time.sleep(1)
+
+    def set_new_template_id(self, template):
+        start_time = datetime.now()
+        tries = 0
+        max_tries = 15
+        while tries <= max_tries:
+            tries += 1
+            try:
+                results = boa_utils.get_note_template_ids(template)
+                assert len(results) > 0
+                template.record_id = f'{results[0]}'
+                break
+            except AssertionError:
+                if tries == max_tries:
+                    raise
+                else:
+                    time.sleep(1)
+        app.logger.info(f'Template id is {template.record_id}')
+        end_time = datetime.now()
+        app.logger.info(f'Template was created in {(end_time - start_time).seconds} seconds')
+        self.when_not_present(self.TEMPLATE_TITLE_INPUT, utils.get_short_timeout())
+        template.created_date = datetime.now()
+        template.updated_date = datetime.now()
+        return template.record_id
+
+    def click_templates_button(self):
+        app.logger.info('Clicking the Templates button')
+        self.wait_for_element_and_click(self.TEMPLATES_BUTTON)
+
+    def template_options(self):
+        return [el.text for el in self.elements(self.TEMPLATE_BUTTON)]
+
+    @staticmethod
+    def template_option_loc(template):
+        return By.ID, f'load-note-template-{template.record_id}'
+
+    def wait_for_template_option(self, template):
+        app.logger.info(f'Waiting for template {template.record_id}')
+        self.when_present(self.template_option_loc(template), utils.get_short_timeout())
+
+    @staticmethod
+    def apply_template_attributes(template, note):
+        app.logger.info(f'Applying template id {template.record_id}')
+        note.subject = template.subject
+        note.body = template.body
+        note.topics = template.topics
+        note.attachments = template.attachments
+        note.is_private = template.is_private
+        note.advisor = template.advisor
+
+    def select_and_apply_template(self, template, note):
+        self.click_templates_button()
+        self.wait_for_element_and_click(self.template_option_loc(template))
+        self.apply_template_attributes(template, note)
+        time.sleep(2)
+
+    # Edit
+
+    EDIT_TEMPLATE_HEADING = By.XPATH, '//h3[text()="Edit Note Template"]'
+    UPDATE_TEMPLATE_BUTTON = By.ID, 'btn-update-template'
+
+    @staticmethod
+    def edit_template_button_loc(template):
+        return By.ID, f'btn-edit-note-template-{template.record_id}'
+
+    def wait_for_template_edit_not_present(self):
+        self.when_not_present(self.EDIT_TEMPLATE_HEADING, utils.get_short_timeout())
+
+    def click_edit_template(self, template):
+        app.logger.info(f'Editing template id {template.record_id}')
+        if not self.elements(self.TEMPLATE_BUTTON):
+            self.click_templates_button()
+        self.wait_for_element_and_click(self.edit_template_button_loc(template))
+
+    def click_update_template(self):
+        app.logger.info('Clicking the update-template button')
+        self.wait_for_element_and_click(self.UPDATE_TEMPLATE_BUTTON)
+        self.when_not_present(self.EDIT_TEMPLATE_HEADING, utils.get_short_timeout())
+        time.sleep(1)
+
+    # Rename
+
+    RENAME_TEMPLATE_INPUT = By.ID, 'rename-template-input'
+    SAVE_TEMPLATE_RENAME_BUTTON = By.ID, 'rename-template-confirm'
+    CANCEL_TEMPLATE_RENAME_BUTTON = By.ID, 'cancel-rename-template'
+
+    @staticmethod
+    def rename_template_button_loc(template):
+        return By.ID, f'btn-rename-note-template-{template.record_id}'
+
+    def click_rename_template(self, template):
+        app.logger.info(f'Renaming template {template.record_id} to {template.title}')
+        if not self.elements(self.TEMPLATE_BUTTON):
+            self.click_templates_button()
+        self.wait_for_element_and_click(self.rename_template_button_loc(template))
+
+    def rename_template(self, template):
+        self.click_rename_template(template)
+        self.wait_for_textbox_and_type(self.RENAME_TEMPLATE_INPUT, template.title)
+        self.wait_for_element_and_click(self.SAVE_TEMPLATE_RENAME_BUTTON)
+        self.when_not_present(self.RENAME_TEMPLATE_INPUT, utils.get_short_timeout())
+
+    def click_cancel_template_rename(self):
+        self.wait_for_element_and_click(self.CANCEL_TEMPLATE_RENAME_BUTTON)
+        self.when_not_present(self.RENAME_TEMPLATE_INPUT, utils.get_short_timeout())
+
+    # Delete
+
+    @staticmethod
+    def delete_template_button_loc(template):
+        return By.ID, f'btn-delete-note-template-{template.record_id}'
+
+    def click_delete_template(self, template):
+        if not self.elements(self.TEMPLATE_BUTTON):
+            self.click_templates_button()
+        self.wait_for_element_and_click(self.delete_template_button_loc(template))
+
+    def delete_template(self, template):
+        app.logger.info(f'Deleting template {template.record_id}')
+        self.click_delete_template(template)
+        self.wait_for_element_and_click(self.CONFIRM_DELETE_OR_DISCARD)

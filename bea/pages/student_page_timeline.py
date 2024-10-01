@@ -133,14 +133,13 @@ class StudentPageTimeline(BoaPages):
         item_type = self.item_type(item)
         return By.XPATH, f'//a[contains(@id, "{item_type}-{item.record_id}-attachment")]'
 
-    def item_attachment_els(self, item_type, item):
+    def item_attachment_els(self, item):
         spans = self.elements(self.attachment_span_loc(item))
         links = self.elements(self.attachment_link_loc(item))
         return spans + links
 
     def item_attachment_el(self, item, attachment_name):
-        item_type = self.item_type(item)
-        for el in self.item_attachment_els(item_type, item):
+        for el in self.item_attachment_els(item):
             if el.text.strip() == attachment_name:
                 return el
 
