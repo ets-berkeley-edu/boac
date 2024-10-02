@@ -22,7 +22,7 @@
           >
             Note
           </th>
-          <th v-if="!degreeStore.sid && !isCampusRequirements && items.length" class="px-0">Fulfillment</th>
+          <th v-if="!degreeStore.sid && !isCampusRequirements && items.length" class="th-fullfilment px-0">Fulfillment</th>
           <th v-if="canEdit && (degreeStore.sid || !isCampusRequirements)" class="th-actions px-0"><span class="sr-only">Actions</span></th>
         </tr>
       </thead>
@@ -161,11 +161,11 @@
             </td>
             <td
               v-if="degreeStore.sid"
+              class=""
               :class="{
                 'font-italic text-surface-variant': !isSatisfied(bundle) && !getAccentColor(bundle),
                 'td-note-printable': printable,
-                'td-note': !printable,
-                'pt-2': !bundle.course && degreeStore.sid && !printable && !isCampusRequirements
+                'td-note': !printable
               }"
             >
               <div v-if="getNote(bundle)">
@@ -218,12 +218,11 @@
             <td
               v-if="canEdit && (degreeStore.sid || !isCampusRequirements)"
               class="td-actions"
-              :class="{'vertical-middle': !bundle.course && degreeStore.sid}"
+              :class="{'vertical-middle pb-1': degreeStore.sid}"
             >
               <div class="d-flex justify-end text-no-wrap">
-                <div class="btn-container">
+                <div v-if="!degreeStore.draggingCourseId || degreeStore.draggingCourseId !== get(bundle.course, 'id')" class="btn-container">
                   <v-btn
-                    v-if="!isCampusRequirements || (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
                     :id="`column-${position}-edit-${bundle.key}-btn`"
                     :aria-label="`Edit ${bundle.name}`"
                     :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
@@ -235,9 +234,8 @@
                     @click="edit(bundle, position)"
                   />
                 </div>
-                <div class="btn-container">
+                <div v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))" class="btn-container">
                   <v-btn
-                    v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
                     :id="`column-${position}-delete-${bundle.key}-btn`"
                     :aria-label="`Delete ${bundle.name}`"
                     :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
@@ -721,6 +719,10 @@ table {
 .th-course {
   max-width: 40% !important;
   width: 40% !important;
+}
+.th-fullfilment {
+  max-width: 83px !important;
+  width: 83px !important;
 }
 .th-grade {
   max-width: 46px !important;

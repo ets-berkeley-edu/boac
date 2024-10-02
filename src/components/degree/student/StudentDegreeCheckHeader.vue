@@ -42,7 +42,7 @@
             </div>
           </v-col>
           <v-col cols="12" md="5">
-            <div class="align-center d-flex flex-wrap justify-end">
+            <div class="align-baseline d-flex flex-wrap justify-end">
               <div class="pr-2">
                 <router-link
                   id="print-degree-plan"
