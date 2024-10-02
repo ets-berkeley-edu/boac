@@ -10,6 +10,16 @@
     </v-alert>
     <v-row v-if="!boaSessionExpired" class="d-flex flex-wrap" no-gutters>
       <v-col>
+        <v-btn
+          v-if="mode === 'editDraft'"
+          id="create-note-cancel-draft"
+          class="ml-2"
+          color="error"
+          :disabled="isSaving || isUpdatingDraft"
+          text="Cancel"
+          variant="outlined"
+          @click="exit"
+        />
         <ProgressButton
           v-if="!['editTemplate'].includes(mode)"
           id="btn-save-as-template"

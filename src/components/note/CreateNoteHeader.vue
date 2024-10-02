@@ -130,6 +130,13 @@
           </v-list-item>
         </v-list>
       </v-menu>
+      <v-btn
+        v-if="noteStore.mode === 'editDraft'"
+        :icon="mdiClose"
+        size="large"
+        variant="text"
+        @click="props.exit"
+      ></v-btn>
     </div>
     <v-dialog
       v-model="isRenameTemplateDialogOpen"
@@ -217,9 +224,16 @@ import {computed, ref, watch} from 'vue'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/utils'
 import {find, get, size, trim} from 'lodash'
-import {mdiMenuDown} from '@mdi/js'
+import {mdiMenuDown, mdiClose} from '@mdi/js'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
+
+const props = defineProps({
+  exit: {
+    type: Function,
+    required: true
+  }
+})
 
 const error = ref('')
 const isSaving = ref(false)

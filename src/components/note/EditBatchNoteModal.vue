@@ -13,7 +13,7 @@
       width="800"
     >
       <FocusLock :disabled="noteStore.isFocusLockDisabled">
-        <CreateNoteHeader />
+        <CreateNoteHeader :exit="exit" />
         <v-card-text class="modal-body">
           <Transition
             v-if="['createBatch', 'editDraft'].includes(mode)"
