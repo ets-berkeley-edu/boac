@@ -27,6 +27,7 @@
       aria-label="timeline messages tab"
       :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
       class="mt-2"
+      :class="{'horizontal-tabs': $vuetify.display.mdAndUp}"
       color="primary"
       density="compact"
       :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
@@ -103,3 +104,9 @@ const onModalClose = note => {
 
 const onUpdateTabsModel = value => props.setFilter(value === 'all' ? null : value)
 </script>
+
+<style scoped>
+.horizontal-tabs {
+  min-width: 680px;
+}
+</style>

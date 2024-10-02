@@ -85,12 +85,18 @@
       class="w-100"
     >
       <caption class="sr-only">Academic Timeline: {{ activeTab === 'all' ? 'All Messages' : `${capitalize(activeTab)}s` }}</caption>
+      <colgroup>
+        <col class="column-pill" />
+        <col class="column-message" />
+        <col class="column-details" />
+        <col class="column-date" />
+      </colgroup>
       <thead>
         <tr class="sr-only">
-          <th class="column-pill">Type</th>
-          <th class="column-message">Summary</th>
-          <th class="vertical-top text-right width-one-percent">Details</th>
-          <th class="vertical-top text-right width-one-percent">Date</th>
+          <th>Type</th>
+          <th>Summary</th>
+          <th>Details</th>
+          <th>Date</th>
         </tr>
       </thead>
       <tbody>
@@ -117,8 +123,8 @@
               </div>
             </div>
           </td>
-          <td></td>
-          <td>
+          <td class="column-details"></td>
+          <td class="column-date">
             <div class="pr-2 float-right text-no-wrap text-medium-emphasis">
               <TimelineDate
                 :date="new Date()"
@@ -187,6 +193,7 @@
               <template v-if="message.type === 'requirement'">
                 <div
                   :id="`timeline-tab-${activeTab}-message-${message.type}-${message.id}`"
+                  class="d-flex flex-no-wrap"
                   tabindex="0"
                 >
                   <v-icon
@@ -280,11 +287,11 @@
               </template>
             </div>
           </td>
-          <td class="text-right width-one-percent" :class="{'vertical-top pt-2': isExpanded(message)}">
+          <td class="column-details text-right" :class="{'vertical-top pt-2': isExpanded(message)}">
             <div
               v-if="!isExpanded(message) && message.type === 'appointment' && message.createdBy === 'YCBM' && message.status === 'cancelled'"
               :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
-              class="collapsed-cancelled-icon d-flex px-2 float-end h-100 text-error text-no-wrap"
+              class="collapsed-cancelled-icon float-right d-flex px-2 h-100 text-error text-no-wrap"
             >
               <v-icon :icon="mdiCalendarMinus" class="mr-1" />
               <div>
@@ -298,7 +305,7 @@
               {{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}
             </span>
           </td>
-          <td class="vertical-top text-right width-one-percent">
+          <td class="column-date vertical-top text-right">
             <div
               :id="`timeline-tab-${activeTab}-date-${index}`"
               class="text-no-wrap py-2 pr-4"
@@ -313,6 +320,7 @@
               </div>
               <div
                 v-if="isExpanded(message) && ['appointment', 'eForm', 'note'].includes(message.type)"
+                class="position-relative"
                 :class="{'td-note-timeline-expanded': displayUpdatedAt(message)}"
               >
                 <div class="expanded-timeline-container">
@@ -779,6 +787,7 @@ table {
   border-collapse: collapse;
   border-spacing: 0 0.05em;
   min-width: 500px;
+  table-layout: fixed;
 }
 .academic-timeline-search-input {
   width: 200px;
@@ -787,19 +796,24 @@ table {
   font-size: 14px;
   text-transform: uppercase;
 }
+.column-date {
+  width: 120px;
+}
+.column-details {
+  width: 130px;
+}
 .column-message {
-  vertical-align: middle;
-  max-width: 1px;
+  min-width: 200px;
+  width: 60%;
 }
 .column-pill {
-  max-width: 115px;
   vertical-align: top;
   white-space: nowrap;
   width: 115px;
 }
 .expanded-timeline-container {
   position: absolute;
-  right: 40px;
+  right: 0;
 }
 .message-open {
   flex-flow: row wrap;
@@ -848,8 +862,6 @@ table {
 }
 .td-note-timeline-expanded {
   min-height: 180px;
-}
-.width-one-percent {
-  width: 1%;
+  position: relative;
 }
 </style>
