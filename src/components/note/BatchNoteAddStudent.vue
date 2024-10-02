@@ -191,7 +191,7 @@ const onUpdateSearch = input => {
   autoSuggestedStudents.value = []
   input = trim(input, ' ,\n\t')
   if (input.length) {
-    sidsManuallyAdded.value = /^[0-9,\s]*$/.test(input) ? uniq(split(input, /\s+|,+,/)) : []
+    sidsManuallyAdded.value = /^[0-9,\s]*$/.test(input) ? uniq(split(input, /[ ,]+/)) : []
     if (sidsManuallyAdded.value.length <= 1) {
       const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
       isUpdatingStudentAutocomplete.value = true
