@@ -1,5 +1,5 @@
 <template>
-  <div :id="`note-${note.id}-outer`" class="advising-note-outer width-90">
+  <div :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
     <div
       :id="`note-${note.id}-is-closed`"
       class="w-100"
@@ -305,9 +305,6 @@ const removeAttachmentByIndex = index => {
 }
 .open-note-message-container {
   overflow-wrap: break-word;
-}
-.width-90 {
-  width: 90%;
 }
 .note-attachments-container {
   width: 90%;

@@ -25,7 +25,7 @@
     >
       <template #label>
         <div
-          class="font-size-16 align-center d-flex justify-center"
+          class="font-size-16 align-center d-flex flex-wrap justify-center"
           :class="{
             'font-weight-bold text-black text-center': disabled,
             'font-weight-medium': !disabled
