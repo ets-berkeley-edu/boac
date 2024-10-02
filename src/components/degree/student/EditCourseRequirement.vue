@@ -1,6 +1,6 @@
 <template>
   <div class="pb-3" :class="{'pl-2 pt-2': !isCampusRequirement}">
-    <div v-if="!isCampusRequirement">
+    <div>
       <label for="recommended-course-checkbox" class="font-size-14 font-weight-bold mb-1">Course Indicators</label>
       <div class="pl-1">
         <v-checkbox
@@ -11,6 +11,7 @@
           label="Recommended course"
         />
         <v-checkbox
+          v-if="!isCampusRequirement"
           id="ignored-course-checkbox"
           v-model="isIgnored"
           color="primary"

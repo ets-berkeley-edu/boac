@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="d-flex align-center">
     <v-checkbox
       v-if="canEdit"
       :id="`column-${position}-${campusRequirement.key}-satisfy-checkbox`"
@@ -13,10 +13,13 @@
     />
     <v-icon
       v-if="!canEdit"
+      :id="`column-${position}-${campusRequirement.key}-satisfied-icon`"
+      class="satisfied-icon"
       :icon="isSatisfied ? mdiCheckBold : mdiCloseThick"
       disabled
       :color="printable ? 'surface-variants' : (isSatisfied ? 'success' : 'error')"
       size="20"
+      :title="isSatisfied ? 'Satisfied' : 'Not Satisfied'"
     />
   </div>
 </template>
@@ -60,3 +63,9 @@ const toggle = () => {
   })
 }
 </script>
+
+<style scoped>
+.satisfied-icon {
+  margin-top: 2px;
+}
+</style>
