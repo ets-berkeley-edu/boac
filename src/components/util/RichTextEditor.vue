@@ -127,8 +127,10 @@ const onUpdate = event => {
 :deep(.ck-content ul) {
   padding-left: 25px !important;
 }
-
 :deep(.ck-content ol) {
   padding-left: 25px !important;
+}
+:deep(.ck.ck-sticky-panel .ck-sticky-panel__content_sticky) {
+  position: static !important;
 }
 </style>
