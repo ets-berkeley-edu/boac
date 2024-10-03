@@ -1,15 +1,22 @@
 <template>
-  <div class="py-2">
-    <div class="d-flex flex-wrap h-100">
-      <div class="align-self-center gpa ml-0 py-2 text-center">
+  <v-container class="d-flex flex-column h-100" fluid>
+    <v-row align="stretch" class="v-row-override-margins">
+      <v-col
+        align-self="center"
+        class="gpa ml-0 text-center"
+      >
         <div id="cumulative-gpa" class="data-number">
           <span v-if="!isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
           <span v-if="isNil(cumulativeGPA)">--</span>
           <span v-if="isNil(cumulativeGPA)" class="sr-only">No data</span>
         </div>
         <div class="font-size-12 text-medium-emphasis text-uppercase">Cumulative GPA</div>
-      </div>
-      <div id="gpa-trends" class="align-self-center border-s-sm gpa-trends py-2">
+      </v-col>
+      <v-col
+        id="gpa-trends"
+        align-self="center"
+        class="border-s-sm gpa-trends"
+      >
         <div id="gpa-chart">
           <h4 class="font-weight-bold font-size-12 text-medium-emphasis ml-6 mt-1 text-uppercase">
             GPA Trends
@@ -27,9 +34,9 @@
             <div
               v-if="!isEmpty(student.termGpa)"
               id="current-term-gpa"
-              class="align-center d-flex"
+              class="align-center d-flex flex-wrap"
             >
-              <div class="mr-2">
+              <div class="mr-2 text-no-wrap">
                 <span class="font-size-12 text-medium-emphasis text-uppercase mr-1">{{ student.termGpa[0].name }} GPA:</span>
                 <span
                   :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}"
@@ -53,11 +60,11 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </v-col>
+    </v-row>
     <v-expand-transition
       id="term-gpa-collapse"
-      class="border-t-sm mr-3"
+      class="border-t-sm mr-3 mt-2"
     >
       <v-card v-if="showTermGpa" class="px-4" elevation="0">
         <table
@@ -102,7 +109,7 @@
         </table>
       </v-card>
     </v-expand-transition>
-  </div>
+  </v-container>
 </template>
 
 <script setup>
@@ -136,9 +143,8 @@ const showHideTermGpa = () => {
 .gpa {
   font-weight: 700;
   margin-left: 20px;
-  min-width: 120px;
+  min-width: 150px;
   white-space: nowrap;
-  width: 40%;
 }
 .gpa-alert {
   color: rgb(var(--v-theme-error));
@@ -149,12 +155,11 @@ const showHideTermGpa = () => {
   font-weight: 700;
 }
 .gpa-trends {
-  min-width: 205px;
-  width: 50%;
+  height: 130px;
+  min-width: 225px;
 }
 .gpa-trends-chart {
   min-width: 180px;
-  width: 100%;
 }
 .show-more-term-gpa-btn {
   font-size: 12px;
@@ -169,5 +174,8 @@ const showHideTermGpa = () => {
 }
 .term-gpa-table th {
   padding: 15px 0 3px 0;
+}
+.v-row-override-margins {
+  margin-left: -17px;
 }
 </style>

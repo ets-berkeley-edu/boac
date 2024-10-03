@@ -4,16 +4,23 @@
       <StudentProfileHeader :student="student" />
     </div>
     <h2 id="student-academic-status-header" class="sr-only">Academic Status</h2>
-    <div aria-labelledby="student-academic-status-header" class="border-b-sm d-flex flex-wrap w-100 h-100" role="region">
-      <div class="border-e-sm" :class="$vuetify.display.mdAndUp ? 'w-50' : 'w-100'">
-        <h3 class="sr-only">Units</h3>
-        <StudentProfileUnits :student="student" />
-      </div>
-      <div :class="$vuetify.display.mdAndUp ? 'w-50' : 'w-100'">
-        <h3 class="sr-only">GPA</h3>
-        <StudentProfileGPA :student="student" />
-      </div>
-    </div>
+    <v-container
+      aria-labelledby="student-academic-status-header"
+      class="border-b-sm pa-0"
+      fluid
+      role="region"
+    >
+      <v-row no-gutters>
+        <v-col class="border-e-sm py-2">
+          <h3 class="sr-only">Units</h3>
+          <StudentProfileUnits :student="student" />
+        </v-col>
+        <v-col class="border-e-sm py-2">
+          <h3 class="sr-only">GPA</h3>
+          <StudentProfileGPA :student="student" />
+        </v-col>
+      </v-row>
+    </v-container>
     <div class="default-margins">
       <div class="border-b-sm">
         <AcademicTimeline :student="student" />
