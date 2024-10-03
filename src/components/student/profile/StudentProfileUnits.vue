@@ -1,40 +1,53 @@
 <template>
-  <div class="d-flex flex-wrap h-100 py-2">
-    <div
-      id="cumulative-units"
-      class="align-self-center cumulative-units text-center units py-2"
-    >
-      <div v-if="cumulativeUnits" class="data-number">{{ cumulativeUnits }}</div>
-      <div v-if="!cumulativeUnits" class="data-number">--<span class="sr-only">No data</span></div>
-      <div class="cumulative-units-label text-medium-emphasis text-uppercase">Units Completed</div>
-    </div>
-    <div v-if="!isGraduate(student)" id="units-chart" class="d-flex align-center h-100 border-s-sm units-chart py-2">
-      <div class="ml-4">
-        <h4 class="units-label font-weight-bold mb-1 text-medium-emphasis text-uppercase">Unit Totals</h4>
-        <StudentUnitsChart
-          v-if="cumulativeUnits || currentEnrolledUnits"
-          class="student-units-chart"
-          :cumulative-units="cumulativeUnits"
-          :current-enrolled-units="currentEnrolledUnits || 0"
-          :student="student"
-        />
-        <div v-if="!cumulativeUnits && !currentEnrolledUnits" class="section-label">
-          Units Not Yet Available
+  <v-container class="d-flex h-100" fluid>
+    <v-row align="stretch" class="v-row-override-margins">
+      <v-col
+        id="cumulative-units"
+        align-self="center"
+        class="cumulative-units text-center units"
+      >
+        <div>
+          <div v-if="cumulativeUnits" class="data-number">{{ cumulativeUnits }}</div>
+          <div v-if="!cumulativeUnits" class="data-number">--<span class="sr-only">No data</span></div>
+          <div class="cumulative-units-label text-medium-emphasis text-uppercase">Units Completed</div>
         </div>
-        <div
-          v-if="cumulativeUnits || currentEnrolledUnits"
-          id="currently-enrolled-units"
-          class="sr-only"
-        >
-          Currently enrolled units: {{ currentEnrolledUnits || '0' }}
+      </v-col>
+      <v-col
+        v-if="!isGraduate(student)"
+        id="units-chart"
+        align-self="center"
+        class="border-s-sm d-flex align-center justify-center units-chart"
+      >
+        <div class="d-flex flex-column pl-4">
+          <h4 class="units-label font-weight-bold mb-1 text-medium-emphasis text-uppercase">Unit Totals</h4>
+          <StudentUnitsChart
+            v-if="cumulativeUnits || currentEnrolledUnits"
+            class="flex-grow-0 student-units-chart"
+            :cumulative-units="cumulativeUnits"
+            :current-enrolled-units="currentEnrolledUnits || 0"
+            :student="student"
+          />
+          <div v-if="!cumulativeUnits && !currentEnrolledUnits" class="section-label">
+            Units Not Yet Available
+          </div>
+          <div
+            v-if="cumulativeUnits || currentEnrolledUnits"
+            id="currently-enrolled-units"
+            class="sr-only"
+          >
+            Currently enrolled units: {{ currentEnrolledUnits || '0' }}
+          </div>
         </div>
-      </div>
-    </div>
-    <div v-if="isGraduate(student)" class="align-self-center units currently-enrolled-units text-center border-s-sm py-2">
-      <div id="units-currently-enrolled" class="data-number">{{ currentEnrolledUnits || '0' }}</div>
-      <div class="cumulative-units-label text-medium-emphasis text-uppercase">Currently Enrolled Units</div>
-    </div>
-  </div>
+      </v-col>
+      <v-col
+        v-if="isGraduate(student)"
+        class="units text-center border-s-sm"
+      >
+        <div id="units-currently-enrolled" class="data-number">{{ currentEnrolledUnits || '0' }}</div>
+        <div class="cumulative-units-label text-medium-emphasis text-uppercase">Currently Enrolled Units</div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
@@ -69,13 +82,10 @@ onMounted(() => {
 
 <style scoped>
 .cumulative-units {
-  width: 40%;
+  min-width: 150px;
 }
 .cumulative-units-label {
   font-size: 12px;
-}
-.currently-enrolled-units {
-  width: 60%;
 }
 .data-number {
   font-size: 28px;
@@ -83,18 +93,19 @@ onMounted(() => {
 }
 .student-units-chart {
   min-width: 200px;
-  width: 100%;
 }
 .units {
   font-weight: 700;
-  min-width: 120px;
   white-space: nowrap;
 }
 .units-chart {
+  height: 130px;
   min-width: 225px;
-  width: 50%;
 }
 .units-label {
   font-size: 12px;
+}
+.v-row-override-margins {
+  margin-left: -15px;
 }
 </style>
