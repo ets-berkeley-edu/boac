@@ -850,7 +850,7 @@ def search_advising_notes(
         result = db.session.execute(query)
         rows = result.all()
         advisor_uids = [r[0] for r in rows]
-        uid_advisor_filter = 'an.advisor_uid = ANY(%(advisor_uids)s)'
+        uid_advisor_filter = '(an.created_by = ANY(%(advisor_uids)s) OR an.advisor_uid = ANY(%(advisor_uids)s))'
 
     elif author_uid:
         uid_advisor_filter = 'an.advisor_uid = %(advisor_uid)s'
