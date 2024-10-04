@@ -29,13 +29,16 @@ from bea.models.term import Term
 from bea.pages.admit_page import AdmitPage
 from bea.pages.api_admin_page import ApiAdminPage
 from bea.pages.api_notes_page import ApiNotesPage
+from bea.pages.api_student_page import ApiStudentPage
 from bea.pages.calnet_page import CalNetPage
 from bea.pages.class_page import ClassPage
 from bea.pages.curated_students_page import CuratedStudentsPage
+from bea.pages.draft_notes_page import DraftNotesPage
 from bea.pages.filtered_admits_page import FilteredAdmitsPage
 from bea.pages.filtered_students_page import FilteredStudentsPage
 from bea.pages.flight_deck_page import FlightDeckPage
 from bea.pages.homepage import Homepage
+from bea.pages.passenger_manifest_page import PassengerManifestPage
 from bea.pages.search_form import SearchForm
 from bea.pages.search_results_page import SearchResultsPage
 from bea.pages.student_page import StudentPage
@@ -70,13 +73,16 @@ def page_objects(request):
     admit_page = AdmitPage(driver, headless)
     api_admin_page = ApiAdminPage(driver, headless)
     api_notes_page = ApiNotesPage(driver, headless)
+    api_student_page = ApiStudentPage(driver, headless)
     calnet_page = CalNetPage(driver, headless)
     class_page = ClassPage(driver, headless)
     curated_students_page = CuratedStudentsPage(driver, headless)
+    draft_notes_page = DraftNotesPage(driver, headless)
     filtered_admits_page = FilteredAdmitsPage(driver, headless)
     filtered_students_page = FilteredStudentsPage(driver, headless)
     flight_deck_page = FlightDeckPage(driver, headless)
     homepage = Homepage(driver, headless)
+    pax_manifest_page = PassengerManifestPage(driver, headless)
     search_form = SearchForm(driver, headless)
     search_results_page = SearchResultsPage(driver, headless)
     student_page = StudentPage(driver, headless)
@@ -90,13 +96,16 @@ def page_objects(request):
             setattr(cls.obj, 'admit_page', admit_page)
             setattr(cls.obj, 'api_admin_page', api_admin_page)
             setattr(cls.obj, 'api_notes_page', api_notes_page)
+            setattr(cls.obj, 'api_student_page', api_student_page)
             setattr(cls.obj, 'calnet_page', calnet_page)
             setattr(cls.obj, 'class_page', class_page)
             setattr(cls.obj, 'curated_students_page', curated_students_page)
+            setattr(cls.obj, 'draft_notes_page', draft_notes_page)
             setattr(cls.obj, 'filtered_admits_page', filtered_admits_page)
             setattr(cls.obj, 'filtered_students_page', filtered_students_page)
             setattr(cls.obj, 'flight_deck_page', flight_deck_page)
             setattr(cls.obj, 'homepage', homepage)
+            setattr(cls.obj, 'pax_manifest_page', pax_manifest_page)
             setattr(cls.obj, 'search_form', search_form)
             setattr(cls.obj, 'search_results_page', search_results_page)
             setattr(cls.obj, 'student_page', student_page)

@@ -22,18 +22,23 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+import json
 
-from bea.pages.page import Page
-from selenium.webdriver.common.by import By
+from bea.pages.api_page import ApiPage
+from bea.test_utils import boa_utils
+from bea.test_utils import utils
+from flask import current_app as app
 
 
-class ApiPage(Page):
+class ApiStudentPage(ApiPage):
 
-    CONTENT = By.XPATH, '//pre'
+    def load_data(self, student):
+        app.logger.info(f'Hitting student API endpoint for UID {student.uid}')
+        self.driver.get(f'{boa_utils.get_boa_base_url()}/api/student/by_uid/{student.uid}')
+        self.when_present(self.CONTENT, utils.get_short_timeout())
+        return json.loads(self.element(self.CONTENT).text)
 
-    @staticmethod
-    def _safe_key(parsed, key):
-        try:
-            return parsed[key]
-        except KeyError:
-            return None
+    def student_notes(self, student):
+        parsed = self.load_data(student)
+        timeline_items = parsed and parsed.get('notifications')
+        return timeline_items and timeline_items.get('note') or []

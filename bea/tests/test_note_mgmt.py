@@ -220,11 +220,9 @@ class TestNoteMgmt:
             self.student_page.download_attachment(self.note_5, attach)
 
     def test_view_new_note_hit_permalink(self):
-        permalink = self.student_page.visible_expanded_note_data(self.note_5)['permalink_url']
+        permalink = self.student_page.expanded_note_permalink_url(self.note_5)
         self.driver.get(permalink)
-        Wait(self.driver, utils.get_short_timeout()).until(
-            ec.presence_of_element_located(self.student_page.expanded_item_loc(self.note_5)),
-        )
+        self.student_page.when_present(self.student_page.expanded_item_loc(self.note_5), utils.get_short_timeout())
 
     def test_view_new_notes_in_right_order(self):
         self.student_page.load_page(self.test_student)

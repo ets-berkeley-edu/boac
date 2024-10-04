@@ -22,9 +22,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+import csv
 import datetime
+import itertools
 import re
 import time
+from zipfile import ZipFile
 
 from bea.models.department import Department
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
@@ -36,19 +39,6 @@ from selenium.webdriver.common.by import By
 
 
 class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
-
-    # E-FORMS
-
-    E_FORMS_BUTTON = (By.ID, 'timeline-tab-eForm')
-    SHOW_HIDE_E_FORMS_BUTTON = (By.ID, 'toggle-expand-all-eForms')
-    E_FORMS_DOWNLOAD_LINK = (By.ID, 'download-notes-link')
-
-    def show_e_forms(self):
-        app.logger.info('Checking eForms tab')
-        self.wait_for_element_and_click(self.E_FORMS_BUTTON)
-        if self.is_present(self.SHOW_HIDE_E_FORMS_BUTTON) and 'Show?' in self.element(
-                self.SHOW_HIDE_E_FORMS_BUTTON).text:
-            self.wait_for_element_and_click(self.SHOW_HIDE_E_FORMS_BUTTON)
 
     # EXISTING NOTES
 
@@ -110,206 +100,230 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         return self.visible_collapsed_item_ids('note')
 
     def visible_collapsed_note_data(self, note):
-        subj_loc = By.ID, f'note-{note.record_id}-subject'
-        subj = self.element(subj_loc).get_attribute('innerText') if self.is_present(subj_loc) else None
-        category_loc = By.ID, f'note-{note.record_id}-category-closed'
-        category = self.element(category_loc).text if self.is_present(category_loc) else None
-        date_loc = By.ID, f'collapsed-note-{note.record_id}-created-at'
-        date = self.element(date_loc).text.replace('Last updated on', '').strip() if self.is_present(date_loc) else None
-        is_draft = self.is_present((By.ID, f'note-{note.record_id}-is-draft'))
         return {
-            'subject': subj,
-            'category': category,
-            'created_date': date,
-            'is_draft': is_draft,
+            'subject': self.collapsed_note_subject(note),
+            'category': self.collapsed_note_category(note),
+            'created_date': self.collapsed_note_date(note),
+            'is_draft': self.collapsed_note_is_draft(note),
         }
+
+    def collapsed_note_subject(self, note):
+        subj_loc = By.ID, f'note-{note.record_id}-subject'
+        return self.element(subj_loc).get_attribute('innerText') if self.is_present(subj_loc) else None
+
+    def collapsed_note_category(self, note):
+        category_loc = By.ID, f'note-{note.record_id}-category-closed'
+        return self.element(category_loc).text if self.is_present(category_loc) else None
+
+    def collapsed_note_date(self, note):
+        date_loc = By.ID, f'collapsed-note-{note.record_id}-created-at'
+        return self.element(date_loc).text.replace('Last updated on', '').strip() if self.is_present(date_loc) else None
+
+    def collapsed_note_is_draft(self, note):
+        return self.is_present((By.ID, f'note-{note.record_id}-is-draft'))
 
     # Expanded note
 
     def expand_note_by_subject(self, note_subject):
         self.wait_for_element_and_click(self.note_loc(note_subject))
 
-    def visible_expanded_note_data(self, note):
-        time.sleep(2)
-
-        # The body text area contains formatting elements even without text, so account for that when getting the element's text
+    def expanded_note_body(self, note):
+        # Body may contain formatting elements even without text
         body_loc = By.ID, f'note-{note.record_id}-message-open'
         if self.is_present(body_loc):
             text = self.element(body_loc).text
-            body_text = '' if re.sub('/\W/', '', text).replace('&nbsp;', '') == '' else text.replace('\n', '').strip()
+            return '' if re.sub('/\W/', '', text).replace('&nbsp;', '') == '' else text.replace('\n', '').strip()
         else:
-            body_text = ''
+            return ''
 
+    def expanded_note_advisor(self, note):
         advisor_loc = By.ID, f'note-{note.record_id}-author-name'
-        advisor = self.element(advisor_loc).text if self.is_present(advisor_loc) else None
+        return self.element(advisor_loc).text if self.is_present(advisor_loc) else None
 
+    def expanded_note_advisor_depts(self, note):
         advisor_dept_els = self.elements((By.XPATH, f"//span[contains(@id, 'note-{note.record_id}-author-dept-')]"))
         advisor_depts = list(map(lambda el: el.text, advisor_dept_els))
         advisor_depts.sort()
+        return advisor_depts
 
+    def expanded_note_advisor_role(self, note):
         advisor_role_loc = By.ID, f'note-{note.record_id}-author-role'
-        advisor_role = self.element(advisor_role_loc) if self.is_present(advisor_role_loc) else None
+        return self.element(advisor_role_loc) if self.is_present(advisor_role_loc) else None
 
+    def expanded_note_contact_type(self, note):
         contact_type_loc = By.ID, f'note-{note.record_id}-contact-type'
-        contact_type = self.element(contact_type_loc).text if self.is_present(contact_type_loc) else None
+        return self.element(contact_type_loc).text if self.is_present(contact_type_loc) else None
 
+    def expanded_note_created_date(self, note):
         created_loc = By.ID, f'expanded-note-{note.record_id}-created-at'
         if self.is_present(created_loc):
             text = self.element(created_loc).text.replace('Created on', '')
-            created_date = re.sub('/\s+/', ' ', text).strip()
+            return re.sub('/\s+/', ' ', text).strip()
         else:
-            created_date = None
+            return None
 
+    def expanded_note_source(self, note):
         note_src_loc = By.XPATH, f"//tr[@id='permalink-note-{note.record_id}']//span[contains(text(), 'note imported from')]"
-        note_src = self.element(note_src_loc).text if self.is_present(note_src_loc) else None
+        return self.element(note_src_loc).text if self.is_present(note_src_loc) else None
 
+    def expanded_note_permalink_url(self, note):
         permalink_loc = By.ID, f'advising-note-permalink-{note.record_id}'
-        permalink_url = self.element(permalink_loc).get_attribute('href') if self.is_present(permalink_loc) else None
+        return self.element(permalink_loc).get_attribute('href') if self.is_present(permalink_loc) else None
 
+    def expanded_note_set_date(self, note):
         set_date_loc = By.ID, f'expanded-note-{note.record_id}-set-date'
         if self.is_present(set_date_loc):
             text = self.element(set_date_loc).text
-            set_date = re.sub('/\s+/', ' ', text).strip()
+            return re.sub('/\s+/', ' ', text).strip()
         else:
-            set_date = None
+            return None
 
+    def expanded_note_topics(self, note):
         topic_els = self.elements((By.XPATH, f"//*[contains(@id, 'note-{note.record_id}-topic-')]"))
         topics = list(map(lambda el: el.text, topic_els))
         topics.sort()
+        return topics
 
-        topic_remove_btn_els = self.elements((By.XPATH, f"//*[contains(@id, 'remove-note-{note.record_id}-topic-')]"))
+    def expanded_note_topic_remove_btn_els(self, note):
+        return self.elements((By.XPATH, f"//*[contains(@id, 'remove-note-{note.record_id}-topic-')]"))
 
+    def expanded_note_updated_date(self, note):
         updated_loc = By.ID, f'expanded-note-{note.record_id}-updated-at'
         if self.is_present(updated_loc):
             text = self.element(updated_loc).text.replace('Last updated on', '')
-            updated_date = re.sub('/\s+/', ' ', text).strip()
+            return re.sub('/\s+/', ' ', text).strip()
         else:
-            updated_date = None
+            return None
 
+    def expanded_note_attachments(self, note):
         attachment_names = [el.text.strip().lower() for el in self.item_attachment_els(note)]
         attachment_names.sort()
-
-        return {
-            'advisor': advisor,
-            'advisor_role': advisor_role,
-            'advisor_depts': advisor_depts,
-            'attachments': attachment_names,
-            'body': body_text,
-            'contact_type': contact_type,
-            'created_date': created_date or updated_date,
-            'note_src': note_src,
-            'permalink_url': permalink_url,
-            'remove_topic_btns': topic_remove_btn_els,
-            'set_date': set_date,
-            'topics': topics,
-            'updated_date': updated_date,
-        }
-
-    @staticmethod
-    def e_form_data_loc(e_form, label):
-        return By.XPATH, f"//tr[@id='permalink-eForm-{e_form.id}']//dt[text()='{label}']/following-sibling::dd"
-
-    def visible_expanded_e_form_data(self, e_form):
-        time.sleep(1)
-        created_loc = By.ID, f'expanded-eForm-{e_form.id}-created-at'
-        if self.is_present(created_loc):
-            text = self.element(created_loc).text.replace('Created on', '')
-            created_date = re.sub(r'/\s+ /', ' ', text).strip()
-        else:
-            created_date = None
-
-        updated_loc = By.ID, f'expanded-eForm-{e_form.id}-updated-at'
-        if self.is_present(updated_loc):
-            text = self.element(updated_loc).text.replace('Last updated on', '')
-            updated_date = re.sub(r'/\s+ /', ' ', text).strip()
-        else:
-            updated_date = None
-
-        action_loc = By.XPATH, self.e_form_data_loc(e_form, 'Action')
-        action = self.element(action_loc).text if self.is_present(action_loc) else None
-        course_loc = By.XPATH, self.e_form_data_loc(e_form, 'Course')
-        course = self.element(course_loc).text if self.is_present(course_loc) else None
-        date_final_loc = By.XPATH, self.e_form_data_loc(e_form, 'Final Date & Time Stamp')
-        date_final = self.element(date_final_loc).text if self.is_present(date_final_loc) else None
-        date_init_loc = By.XPATH, self.e_form_data_loc(e_form, 'Date Initiated')
-        date_init = self.element(date_init_loc).text if self.is_present(date_init_loc) else None
-        form_id_loc = By.XPATH, self.e_form_data_loc(e_form, 'Form ID')
-        form_id = self.element(form_id_loc).text if self.is_present(form_id_loc) else None
-        status_loc = By.XPATH, self.e_form_data_loc(e_form, 'Form Status')
-        status = self.element(status_loc).text if self.is_present(status_loc) else None
-        term_loc = By.XPATH, self.e_form_data_loc(e_form, 'Term')
-        term = self.element(term_loc).text if self.is_present(term_loc) else None
-        return {
-            'action': action,
-            'course': course,
-            'created_date': created_date,
-            'date_final': date_final,
-            'date_init': date_init,
-            'form_id': form_id,
-            'status': status,
-            'term': term,
-            'updated_date': updated_date,
-        }
+        return attachment_names
 
     def verify_note(self, note, viewer):
         app.logger.info(f'Verifying visible data for note ID {note.record_id}')
 
-        # Verify data visible when note is collapsed
+        # Collapsed
+
         self.when_visible(self.collapsed_item_loc(note), utils.get_medium_timeout())
         time.sleep(1)
         self.collapse_item(note)
-        visible_data = self.visible_collapsed_note_data(note)
         date = note.set_date or note.updated_date
         expected_short_updated_date = self.expected_item_short_date_format(date)
-        assert visible_data['subject'] == note.subject
-        utils.assert_equivalence(visible_data['created_date'], expected_short_updated_date)
+        utils.assert_equivalence(self.collapsed_note_subject(note), note.subject)
+        utils.assert_equivalence(self.collapsed_note_date(note), expected_short_updated_date)
 
-        # Verify data visible when note is expanded
+        # Expanded
+
         self.expand_item(note)
-        visible_data.update(self.visible_expanded_note_data(note))
-        app.logger.info(f"Expecting advisor '{visible_data['advisor']}' not to be empty")
-        assert visible_data['advisor']
+        utils.assert_existence(self.expanded_note_advisor(note))
         if not note.source == TimelineRecordSource.EOP:
-            app.logger.info(f"Expecting advisor role '{visible_data['advisor_role']}' not to be empty")
-            app.logger.info(f"Expecting advisor depts '{visible_data['advisor_depts']}' not to be empty")
-            assert visible_data['advisor_role']
-            assert visible_data['advisor_depts']
+            utils.assert_existence(self.expanded_note_advisor_role(note))
+            utils.assert_existence(self.expanded_note_advisor_depts(note))
 
-        # Topics
         topics = []
         for topic in note.topics:
             name = topic.name.upper() if topic.__class__.__name__ == 'Topic' else topic.upper()
             topics.append(name)
         topics.sort()
-        assert visible_data['topics'] == topics
-        assert len(visible_data['remove_topic_btns']) == 0
+        utils.assert_equivalence(self.expanded_note_topics(note), topics)
+        utils.assert_equivalence(len(self.expanded_note_topic_remove_btn_els(note)), 0)
 
-        # Contact Type
-        if note.contact_type:
-            utils.assert_equivalence(visible_data['contact_type'], note.contact_type)
-        else:
-            app.logger.info(f"Expecting contact type '{visible_data['contact_type']}' to be empty")
-            assert not visible_data['contact_type']
+        utils.assert_equivalence(self.expanded_note_contact_type(note), note.contact_type)
 
         # TODO - verify created_date, updated_date
 
         expected_set_date = self.expected_item_short_date_format(note.set_date) if note.set_date else None
-        utils.assert_equivalence(visible_data['set_date'], expected_set_date)
+        utils.assert_equivalence(self.expanded_note_set_date(note), expected_set_date)
 
         attachments = [a.file_name for a in note.attachments if not a.deleted_at]
         attachments.sort()
-        visible_data['attachments'].sort()
+        visible_attachments = self.expanded_note_attachments(note)
+        visible_attachments.sort()
 
+        visible_body = self.expanded_note_body(note)
         if note.is_private:
             if viewer.is_admin or Department.ZCEEE in viewer.depts:
-                assert visible_data['body'] if note.body else not visible_data['body']
-                utils.assert_equivalence(visible_data['attachments'], attachments)
+                utils.assert_equivalence(visible_body, note.body)
+                utils.assert_equivalence(visible_attachments, attachments)
             else:
-                assert not visible_data['body']
-                assert not visible_data['attachments']
+                utils.assert_non_existence(visible_body)
+                utils.assert_non_existence(visible_attachments)
         else:
-            assert visible_data['body'] if note.body else not visible_data['body']
-            utils.assert_equivalence(visible_data['attachments'], attachments)
+            utils.assert_equivalence(visible_body, note.body)
+            utils.assert_equivalence(visible_attachments, attachments)
+
+    # E-FORMS
+
+    E_FORMS_BUTTON = (By.ID, 'timeline-tab-eForm')
+    SHOW_HIDE_E_FORMS_BUTTON = (By.ID, 'toggle-expand-all-eForms')
+    E_FORMS_DOWNLOAD_LINK = (By.ID, 'download-notes-link')
+
+    def show_e_forms(self):
+        app.logger.info('Checking eForms tab')
+        self.wait_for_element_and_click(self.E_FORMS_BUTTON)
+        if self.is_present(self.SHOW_HIDE_E_FORMS_BUTTON) and 'Show?' in self.element(
+                self.SHOW_HIDE_E_FORMS_BUTTON).text:
+            self.wait_for_element_and_click(self.SHOW_HIDE_E_FORMS_BUTTON)
+
+    @staticmethod
+    def e_form_data_loc(e_form, label):
+        return By.XPATH, f"//tr[@id='permalink-eForm-{e_form.id}']//dt[text()='{label}']/following-sibling::dd"
+
+    def expanded_e_form_created_date(self, e_form):
+        created_loc = By.ID, f'expanded-eForm-{e_form.id}-created-at'
+        if self.is_present(created_loc):
+            text = self.element(created_loc).text.replace('Created on', '')
+            return re.sub(r'/\s+ /', ' ', text).strip()
+        else:
+            return None
+
+    def expanded_e_form_updated_date(self, e_form):
+        updated_loc = By.ID, f'expanded-eForm-{e_form.id}-updated-at'
+        if self.is_present(updated_loc):
+            text = self.element(updated_loc).text.replace('Last updated on', '')
+            return re.sub(r'/\s+ /', ' ', text).strip()
+        else:
+            return None
+
+    def expanded_e_form_action(self, e_form):
+        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Action'))
+
+    def expanded_e_form_course(self, e_form):
+        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Course'))
+
+    def expanded_e_form_date_final(self, e_form):
+        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Final Date & Time Stamp'))
+
+    def expanded_e_form_date_init(self, e_form):
+        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Date Initiated'))
+
+    def expanded_e_form_id(self, e_form):
+        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Form ID'))
+
+    def expanded_e_form_status(self, e_form):
+        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Form Status'))
+
+    def expanded_e_form_term(self, e_form):
+        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Term'))
+
+    def visible_expanded_note_data(self, note):
+        time.sleep(2)
+        return {
+            'advisor': self.expanded_note_advisor(note),
+            'advisor_role': self.expanded_note_advisor_role(note),
+            'advisor_depts': self.expanded_note_advisor_depts(note),
+            'attachments': self.expanded_note_attachments(note),
+            'body': self.expanded_note_body(note),
+            'contact_type': self.expanded_note_contact_type(note),
+            'created_date': self.expanded_note_created_date(note) or self.expanded_note_updated_date(note),
+            'note_src': self.expanded_note_source(note),
+            'permalink_url': self.expanded_note_permalink_url(note),
+            'remove_topic_btns': self.expanded_note_topic_remove_btn_els(note),
+            'set_date': self.expanded_note_set_date(note),
+            'topics': self.expanded_note_topics(note),
+            'updated_date': self.expanded_note_updated_date(note),
+        }
 
     # EDIT / DELETE
 
@@ -383,3 +397,146 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         self.enter_set_date(note)
         self.click_save_new_note()
         self.set_new_note_id(note)
+
+    # NOTE / E-FORM DOWNLOADS
+
+    @staticmethod
+    def export_zip_file_name(student, record_type_str):
+        timestamp = datetime.datetime.now().strftime('%Y%m%d')
+        return f'advising_{record_type_str}_{student.first_name.lower()}_{student.last_name.lower()}_{timestamp}.zip'
+
+    def export_csv_file_name(self, student, record_type_str):
+        return self.export_zip_file_name(student, record_type_str).replace('zip', 'csv')
+
+    @staticmethod
+    def downloaded_zip_file_name_list(zip_name):
+        zip_path = f'{utils.default_download_dir()}/{zip_name}'
+        with ZipFile(zip_path, 'r') as zip_file:
+            return zip_file.namelist()
+
+    # Notes
+
+    def notes_export_zip_file_name(self, student):
+        return self.export_zip_file_name(student, 'notes')
+
+    def notes_export_csv_file_name(self, student):
+        return self.export_csv_file_name(student, 'notes')
+
+    def download_notes(self, student):
+        app.logger.info(f'Downloading notes for UID {student.uid}')
+        utils.prepare_download_dir()
+        self.wait_for_element_and_click(self.NOTES_DOWNLOAD_LINK)
+        return utils.wait_for_export_csv()
+
+    def note_export_file_names(self, student):
+        return self.downloaded_zip_file_name_list(self.notes_export_zip_file_name(student))
+
+    def expected_note_export_file_names(self, student, notes, downloader):
+        names = [self.notes_export_csv_file_name(student)]
+
+        attachments = []
+        for note in notes:
+            if not (note.__class__.__name__ == 'TimelineEForm') or (
+                    note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts):
+                attachments.extend([attach for attach in note.attachments if not attach.deleted_at])
+
+        # Account for duplicate attachment file names
+        for key, result in itertools.groupby(attachments, key=lambda att: att.file_name):
+            parts = result[0].file_name.rpartition('.')
+            for dupe_attach in result:
+                idx = result.index(dupe_attach)
+                names.append(f"{parts[0]}{'' if idx == 0 else idx}.{parts[-1]}")
+        return names
+
+    def parse_note_export_csv_to_table(self, student):
+        with ZipFile(self.notes_export_zip_file_name(student)) as zip_file:
+            with zip_file.read(self.notes_export_csv_file_name(student)) as csv_file:
+                return csv.DictReader(open(csv_file))
+
+    @staticmethod
+    def verify_note_in_export_csv(student, note, csv_reader, downloader):
+        rows = list(csv_reader)
+        for row in rows:
+            try:
+                assert row['date_created'] == note.created_date.strftime('%Y-%m-%d')
+                assert row['student_sid'] == int(student.sid)
+                assert row['student_name'] == student.full_name
+                if note.advisor and note.advisor.uid != 'UCBCONVERSION':
+                    assert row['author_uid'] == int(note.advisor.uid)
+                if note.subject:
+                    assert row['subject'] == note.subject
+                if (note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts) or not note.body:
+                    assert not row['body']
+
+                exp_tops = [topic.name.lower() if topic.__class__.__name__ == 'Topic' else topic for topic in note.topics]
+                exp_tops.sort()
+                act_tops = [topic.strip().lower() for topic in row['topics'].split(';')] if row['topics'] else []
+                act_tops.sort()
+                assert act_tops == exp_tops
+
+                if (note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts) or not note.attachments:
+                    exp_att = []
+                else:
+                    exp_att = [a.file_name for a in note.attachments]
+                    exp_att.sort()
+                act_att = [att.strip() for att in row['attachments'].split(';')] if row['attachments'] else []
+                act_att.sort()
+                assert exp_att == act_att
+
+                return True
+
+            except AssertionError:
+                if row == rows[-1]:
+                    return False
+
+    # E-Forms
+
+    def e_forms_export_zip_file_name(self, student):
+        return self.export_zip_file_name(student, 'eForms')
+
+    def e_forms_export_csv_file_name(self, student):
+        return self.export_csv_file_name(student, 'eForms')
+
+    def download_e_forms(self, student):
+        app.logger.info(f'Downloading eForms for UID {student.uid}')
+        self.download_file(self.E_FORMS_DOWNLOAD_LINK, self.e_forms_export_zip_file_name(student))
+
+    def e_form_export_file_names(self, student):
+        return self.downloaded_zip_file_name_list(self.e_forms_export_zip_file_name(student))
+
+    def expected_e_form_export_file_names(self, student):
+        return [self.e_forms_export_csv_file_name(student)]
+
+    def parse_e_forms_export_csv_to_table(self, student):
+        with ZipFile(self.e_forms_export_zip_file_name(student)) as zip_file:
+            with zip_file.read(self.e_forms_export_csv_file_name(student)) as csv_file:
+                return csv.DictReader(open(csv_file))
+
+    @staticmethod
+    def verify_e_form_in_export_csv(student, e_form, csv_reader):
+        rows = list(csv_reader)
+        for row in rows:
+            try:
+                assert row['created_date'] == e_form.created_date.strftime('%Y-%m-%d')
+                assert row['student_sid'] == int(student.sid)
+                assert row['student_name'] == student.full_name
+                assert row['eform_id'] == e_form.form_id
+                if e_form.action:
+                    assert row['late_change_request_action'] == e_form.action
+                if e_form.grading_basis:
+                    assert row['grading_basis'] == e_form.grading_basis
+                if e_form.requested_grading_basis:
+                    assert row['requested_grading_basis'] == e_form.requested_grading_basis
+                if e_form.units_taken:
+                    assert row['units_taken'] == e_form.units_taken
+                if e_form.requested_units_taken:
+                    assert row['requested_units_taken'] == e_form.requested_units_taken
+                if e_form.status:
+                    assert row['late_change_request_status'] == e_form.status
+                if e_form.term:
+                    assert row['late_change_request_term'] == e_form.term
+                assert row['late_change_request_course'] == e_form.course
+                return True
+            except AssertionError:
+                if row == rows[-1]:
+                    return False
