@@ -28,9 +28,9 @@
   >
     <template #headers="{columns}">
       <tr>
-        <td v-for="column in columns" :key="column.key" class="pb-2 pl-0 vertical-bottom">
+        <th v-for="column in columns" :key="column.key" class="pb-2 pl-0 vertical-bottom">
           <span v-if="!['avatar', 'profile'].includes(column.key)" class="font-weight-bold">{{ column.title }}</span>
-        </td>
+        </th>
       </tr>
     </template>
     <template #item.avatar="{item}">
@@ -324,7 +324,7 @@ import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDa
 import {each, get, map, size, split, uniq} from 'lodash'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {mdiAlert, mdiSchool} from '@mdi/js'
-import {onMounted, ref} from 'vue'
+import {onBeforeMount, onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -344,6 +344,14 @@ const currentUser = contextStore.currentUser
 const headers = ref([])
 const hoverUid = ref(undefined)
 
+onBeforeMount(() => {
+  const rows = document.querySelectorAll('tr[id*=\'tr-student-\']')
+  each(rows, row => row.removeEventListener('focusin', () => onFocus(row)))
+  each(rows, row => row.removeEventListener('mouseover', () => onFocus(row)))
+  each(rows, row => row.removeEventListener('blur', onBlur))
+  each(rows, row => row.removeEventListener('mouseleave', onBlur))
+})
+
 onMounted(() => {
   const h = [
     {key: 'avatar', headerProps: {class: 'pb-2'}},
@@ -360,13 +368,23 @@ onMounted(() => {
     {key: 'finalGrade', title: 'Final', headerProps: {class: 'pb-2'}}
   ])
   const rows = document.querySelectorAll('tr[id*=\'tr-student-\']')
-  each(rows, row => row.addEventListener('mouseover', () => hoverUid.value = split(row.id, '-').slice(-1)[0]))
-  each(rows, row => row.addEventListener('mouseleave', () => hoverUid.value = null))
+  each(rows, row => row.addEventListener('focusin', () => onFocus(row)))
+  each(rows, row => row.addEventListener('mouseover', () => onFocus(row)))
+  each(rows, row => row.addEventListener('blur', onBlur))
+  each(rows, row => row.addEventListener('mouseleave', onBlur))
 })
 
 const degreePlanOwners = student => {
   const plans = get(student, 'degree.plans')
   return plans ? uniq(map(plans, 'group')) : []
+}
+
+const onBlur = () => {
+  hoverUid.value = null
+}
+
+const onFocus = row => {
+  hoverUid.value = split(row.id, '-').slice(-1)[0]
 }
 </script>
 
