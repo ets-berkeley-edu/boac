@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {find, map, toLower} from 'lodash'
 import {mdiSquare} from '@mdi/js'
 import {ref} from 'vue'
@@ -88,6 +88,7 @@ const setSelected = value => {
   selected.value = value
   props.onChange(selected.value ? selected.value.color : undefined)
   alertScreenReader(`${selected.value ? selected.value.color : 'None' } selected`)
+  putFocusNextTick('color-code-select')
 }
 </script>
 
