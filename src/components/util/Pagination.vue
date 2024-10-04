@@ -53,6 +53,7 @@
             'bg-primary text-white': isActive && itemProps.ellipsis,
             'pagination-ellipsis': itemProps.ellipsis
           }"
+          :disabled="!!itemProps.ellipsis"
           :tabindex="itemProps.ellipsis ? -1 : 0"
           tag="a"
           :text="page"
@@ -168,7 +169,7 @@ const onClick = page => {
   }
   props.clickHandler(toNumber(nextPage)).then(() => {
     if (!props.isWidgetAtBottomOfPage) {
-      putFocusNextTick(putFocusId)
+      putFocusNextTick(putFocusId, {scroll: false})
     }
   })
 

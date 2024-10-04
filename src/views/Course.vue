@@ -183,7 +183,7 @@ const section = ref({students: []})
 
 watch(itemsPerPage, (newValue, oldValue) => {
   goToPage(Math.round(currentPage.value * (oldValue / newValue))).then(() => {
-    putFocusNextTick(`view-per-page-${newValue}`)
+    putFocusNextTick(`view-per-page-${newValue}`, {scroll: false})
   })
 })
 
