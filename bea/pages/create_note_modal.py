@@ -315,6 +315,9 @@ class CreateNoteModal(Page):
         app.logger.info('Clicking the new note batch button')
         self.wait_for_element_and_click(self.BATCH_NOTE_BUTTON)
 
+    def wait_for_draft_students_warning_msg(self):
+        self.when_present(self.BATCH_DRAFT_STUDENT_WARNING, utils.get_short_timeout())
+
     # Students
 
     BATCH_ADD_STUDENT_INPUT = By.ID, 'create-note-add-student-input'

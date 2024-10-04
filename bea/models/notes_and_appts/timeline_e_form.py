@@ -23,17 +23,43 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.pages.page import Page
-from selenium.webdriver.common.by import By
+from bea.models.notes_and_appts.timeline_record import TimelineRecord
 
 
-class ApiPage(Page):
+class TimelineEForm(TimelineRecord):
 
-    CONTENT = By.XPATH, '//pre'
+    @property
+    def action(self):
+        return self.data.get('action')
 
-    @staticmethod
-    def _safe_key(parsed, key):
-        try:
-            return parsed[key]
-        except KeyError:
-            return None
+    @property
+    def course(self):
+        return self.data.get('course')
+
+    @property
+    def form_id(self):
+        return self.data.get('form_id')
+
+    @property
+    def grading_basis(self):
+        return self.data.get('grading_basis')
+
+    @property
+    def requested_grading_basis(self):
+        return self.data.get('requested_grading_basis')
+
+    @property
+    def requested_units_taken(self):
+        return self.data.get('requested_units_taken')
+
+    @property
+    def status(self):
+        return self.data.get('status')
+
+    @property
+    def term(self):
+        return self.data.get('term')
+
+    @property
+    def units_taken(self):
+        return self.data.get('units_taken')

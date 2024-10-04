@@ -492,6 +492,14 @@ class BEATestConfig(object):
         self.set_base_configs()
         self.set_default_cohort()
 
+    def note_draft(self):
+        self.set_base_configs(dept=Department.ZCEEE)
+        self.set_default_cohort()
+        self.set_note_attachments()
+        self.set_test_students(count=100, opts={'notes': True})
+        boa_notes_sids = boa_utils.get_sids_with_notes_of_src_boa()
+        self.test_students = [s for s in self.test_students if s.sid in boa_notes_sids]
+
     def note_mgmt(self):
         self.set_note_attachments()
         self.set_base_configs()

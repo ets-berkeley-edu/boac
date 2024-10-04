@@ -22,7 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-
+import datetime
 import time
 
 from bea.pages.create_note_modal import CreateNoteModal
@@ -204,6 +204,76 @@ class BoaPages(CreateNoteModal, SearchForm):
         self.wait_for_page_and_click(self.CREATE_CE3_FILTERED_LINK)
         self.when_present((By.XPATH, '//h1[text()=" Create an admissions cohort"]'), utils.get_short_timeout())
         time.sleep(1)
+
+    # SIDEBAR - DRAFT NOTES
+
+    DRAFT_NOTES_LINK = By.ID, 'link-to-draft-notes'
+
+    def draft_note_count(self):
+        return self.el_text_if_exists((By.ID, 'draft-note-count'))
+
+    def click_draft_notes(self):
+        app.logger.info('Clicking link to Draft Notes page')
+        self.wait_for_element_and_click(self.DRAFT_NOTES_LINK)
+
+    def wait_for_draft_note(self, note, manual_update=False):
+        self.hit_tab()
+        time.sleep(2)
+        tries = 0
+        max_tries = 1 if manual_update else 3
+        while tries <= max_tries:
+            tries += 1
+            try:
+                results = boa_utils.get_note_ids_by_subject(note)
+                assert results
+                note.record_id = results[0]
+                note.created_date = datetime.datetime.now()
+                note.updated_date = datetime.datetime.now()
+                break
+            except AssertionError:
+                if tries == max_tries:
+                    raise
+                else:
+                    time.sleep(5)
+
+    @staticmethod
+    def wait_for_draft_note_update(note, manual_update=False):
+        expected_subj = note.subject or ''
+        expected_create_date = note.created_date and note.created_date.strftime('%Y/%m/%d')
+        expected_set_date = note.set_date and note.set_date.strftime('%Y/%m/%d')
+        expected_attachments = [a.file_name for a in note.attachments]
+        expected_attachments.sort()
+        expected_topics = [t.name for t in note.topics]
+        expected_topics.sort()
+        tries = 0
+        max_tries = 2 if manual_update else 8
+        while tries <= max_tries:
+            try:
+                saved_note = boa_utils.get_notes_by_ids([note.record_id])[0]
+                actual_create_date = saved_note.created_date and saved_note.created_date.strftime('%Y/%m/%d')
+                actual_set_date = saved_note.set_date and saved_note.set_date.strftime('%Y/%m/%d')
+                actual_attachments = [a.file_name for a in saved_note.attachments]
+                actual_attachments.sort()
+                actual_topics = [t.name for t in saved_note.topics]
+                actual_topics.sort()
+                utils.assert_equivalence(saved_note.subject, expected_subj)
+                utils.assert_equivalence(saved_note.body, note.body)
+                utils.assert_equivalence(saved_note.advisor.uid, note.advisor.uid)
+                utils.assert_equivalence(saved_note.is_draft, note.is_draft)
+                utils.assert_equivalence(saved_note.is_private, note.is_private)
+                utils.assert_equivalence(actual_create_date, expected_create_date)
+                utils.assert_equivalence(actual_set_date, expected_set_date)
+                utils.assert_equivalence(actual_attachments, expected_attachments)
+                utils.assert_equivalence(actual_topics, expected_topics)
+            except AssertionError:
+                if tries == max_tries:
+                    raise
+                else:
+                    time.sleep(5)
+
+    @staticmethod
+    def expected_draft_note_subject(note):
+        return note.subject.strip() if note.subject else '[DRAFT NOTE]'
 
     # BOX_PLOTS
 

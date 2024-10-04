@@ -143,6 +143,16 @@ def assert_actual_includes_expected(actual, expected):
     assert expected in actual
 
 
+def assert_existence(actual):
+    app.logger.info(f'Expecting {actual} not to be null or empty')
+    assert actual
+
+
+def assert_non_existence(actual):
+    app.logger.info(f'Expecting {actual} to be null or empty')
+    assert not actual
+
+
 def date_to_local_tz(date):
     return date.astimezone(tz.gettz('Los Angeles'))
 

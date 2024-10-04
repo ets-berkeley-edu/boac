@@ -382,6 +382,25 @@ def get_student_notes(student):
     return get_notes_from_pg_db_result(results)
 
 
+def get_notes_by_ids(ids):
+    sql = f'SELECT * FROM notes WHERE id IN ({utils.in_op(ids)})'
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return get_notes_from_pg_db_result(results)
+
+
+def get_advisor_note_drafts(advisor=None):
+    adv_clause = f" AND author_uid = '{advisor.uid}'" if advisor else ''
+    sql = f"""SELECT *
+                FROM notes
+               WHERE is_draft IS TRUE
+                 AND deleted_at IS NULL{adv_clause}"""
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return get_notes_from_pg_db_result(results)
+
+
 def get_notes_from_pg_db_result(results):
     notes = []
     for row in results:
