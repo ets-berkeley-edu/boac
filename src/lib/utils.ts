@@ -121,18 +121,19 @@ export function setPageTitle(phrase: string) {
   document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`
 }
 
-export function scrollTo(anchor: string) {
+// eslint-disable-next-line no-undef
+export function scrollTo(anchor: string, scrollBlock?: ScrollLogicalPosition) {
   nextTick(() => {
     const element = document.getElementById(anchor)
     if (element) {
       element.classList.add('scroll-margins')
-      element.scrollIntoView({behavior: 'smooth', block: 'center'})
+      element.scrollIntoView({behavior: 'smooth', block: scrollBlock || 'center'})
     }
   })
 }
 
 export function scrollToTop() {
-  scrollTo('content')
+  scrollTo('content', 'start')
 }
 
 export function sortComparator(a, b, nullFirst=true) {
