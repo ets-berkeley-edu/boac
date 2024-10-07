@@ -184,8 +184,6 @@ const getFocusElementId = isBackButtonToCohort => {
     if (matches) {
       focusId = `student-${matches[0]}`
     }
-  } else if (cohortStore.pagination.currentPage) {
-    focusId = `pagination-page-${cohortStore.pagination.currentPage}`
   }
   return focusId
 }
