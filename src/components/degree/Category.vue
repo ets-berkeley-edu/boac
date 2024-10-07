@@ -33,8 +33,8 @@
           <v-btn
             :id="`column-${position}-edit-category-${category.id}-btn`"
             :aria-label="`Edit ${category.name}`"
-            class="mr-1"
             :class="{'text-primary': !degreeStore.disableButtons}"
+            class="action-btn"
             density="compact"
             :disabled="degreeStore.disableButtons"
             flat
@@ -49,6 +49,7 @@
             :id="`column-${position}-delete-category-${category.id}-btn`"
             :aria-label="`Delete ${category.name}`"
             :class="{'text-primary': !degreeStore.disableButtons}"
+            class="action-btn"
             density="compact"
             :disabled="degreeStore.disableButtons"
             flat
@@ -84,7 +85,7 @@
       :function-confirm="deleteConfirmed"
       :modal-header="`Delete ${category.categoryType}`"
     >
-      Are you sure you want to delete <strong>&quot;{{ category.name }}&quot;</strong>
+      Are you sure you want to delete <strong>&quot;{{ category.name }}&quot;</strong>?
     </AreYouSureModal>
   </div>
 </template>
@@ -138,8 +139,9 @@ const deleteCanceled = () => {
 }
 
 const deleteConfirmed = () => {
+  alertScreenReader('Deleting')
   deleteCategory(props.category.id).then(() => {
-    alertScreenReader(`${props.category.name} deleted.`)
+    alertScreenReader(`Deleted "${props.category.name}" ${props.category.categoryType}.`)
     isDeleting.value = false
     degreeStore.setDisableButtons(false)
     putFocusNextTick(`column-${props.position}-create-btn`)
@@ -149,11 +151,10 @@ const deleteConfirmed = () => {
 const deleteDegreeCategory = () => {
   degreeStore.setDisableButtons(true)
   isDeleting.value = true
-  alertScreenReader(`Delete ${props.category.name}`)
 }
 
 const edit = () => {
-  alertScreenReader(`Edit ${props.category.name}`)
+  alertScreenReader(`Edit "${props.category.name}" ${props.category.categoryType}`)
   props.onClickEdit(props.category)
 }
 
@@ -202,6 +203,9 @@ const onDropCourse = event => {
 pre {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   margin: 0;
+}
+.action-btn {
+  margin: 0 1px 0 0;
 }
 .category-header {
   font-weight: bold;

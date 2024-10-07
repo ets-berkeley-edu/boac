@@ -19,7 +19,7 @@
             <th class="th-grade">
               Grade
             </th>
-            <th class="pr-3 text-right th-units">
+            <th class="pr-2 text-right th-units">
               Units
             </th>
             <th v-if="!ignored" class="th-term">
@@ -61,7 +61,7 @@
                   <CourseAssignmentMenu :after-course-assignment="() => afterCourseAssignment(index, key)" :course="course" />
                 </div>
               </td>
-              <td class="overflow-wrap-break-word pt-1 td-name">
+              <td class="overflow-wrap-break-word td-name">
                 <span :class="{'font-weight-500': isEditing(course), 'mr-2': course.isCopy}">
                   {{ course.name }}
                 </span>
@@ -85,7 +85,7 @@
                   title="Non-passing grade"
                 />
               </td>
-              <td class="pr-3 td-units">
+              <td class="td-units">
                 <v-icon
                   v-if="course.unitRequirements.length"
                   class="mb-1 mr-1 pl-0"
@@ -109,7 +109,7 @@
               <td v-if="!ignored" class="font-size-14 td-term">
                 {{ course.termName }}
               </td>
-              <td :class="{'pl-2 td-note truncate-with-ellipsis': course.note, 'pl-3 vertical-top': !course.note}">
+              <td class="td-note font-size-14" :class="{'truncate-with-ellipsis': course.note}">
                 <a
                   v-if="course.note && !isNoteVisible(course)"
                   :id="`course-${course.id}-note`"
@@ -396,23 +396,25 @@ table {
   width: 28px !important;
 }
 .td-grade {
+  padding-top: 1px;
   vertical-align: top;
 }
 .td-name {
   font-size: 14px;
+  padding-top: 3px;
   vertical-align: top;
 }
 .td-note {
   max-width: 40px;
-  padding-top: 1px;
+  padding-top: 3px;
   vertical-align: top;
 }
 .td-term {
-  padding-top: 2px;
+  padding-top: 3px;
   vertical-align: top;
 }
 .td-units {
-  padding-right: 5px;
+  padding: 1px 8px 0 0;
   text-align: right;
   vertical-align: top;
   white-space: nowrap;

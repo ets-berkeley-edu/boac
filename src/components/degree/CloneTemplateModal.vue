@@ -130,7 +130,6 @@ const createClone = () => {
       })
     } else {
       error.value = `A degree named <span class="font-weight-500">'${name.value}'</span> already exists. Please choose a different name.`
-      alertScreenReader(error)
       isSaving.value = false
     }
   })

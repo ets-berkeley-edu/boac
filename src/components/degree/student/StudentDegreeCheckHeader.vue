@@ -331,7 +331,7 @@ const editNote = () => {
   degreeStore.setDisableButtons(true)
   isEditingNote.value = true
   putFocusNextTick('degree-note-input')
-  alertScreenReader('Enter note in textarea')
+  alertScreenReader('Edit degree note')
 }
 
 const initNote = () => {
@@ -350,12 +350,13 @@ const isToday = date => {
 
 const saveNote = () => {
   isSaving.value = true
+  alertScreenReader('Saving')
   updateDegreeNote(degreeStore.templateId, noteBody.value).then(() => {
     refreshDegreeTemplate(degreeStore.templateId).then(() => {
       isEditingNote.value = false
       initNote()
       degreeStore.setDisableButtons(false)
-      alertScreenReader('Note saved')
+      alertScreenReader('Degree note saved')
       putFocusNextTick('create-degree-note-btn')
     })
   })

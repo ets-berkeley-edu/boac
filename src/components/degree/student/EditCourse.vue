@@ -192,6 +192,7 @@ const setUnits = value => {
 const update = () => {
   if (!disableSaveButton.value) {
     isSaving.value = true
+    alertScreenReader('Saving')
     updateCourse(
       accentColor.value,
       props.course.id,
@@ -202,7 +203,6 @@ const update = () => {
       units.value
     ).then(data => {
       refreshDegreeTemplate(degreeStore.templateId).then(() => {
-        alertScreenReader('Course updated')
         props.afterSave(data)
       })
     })

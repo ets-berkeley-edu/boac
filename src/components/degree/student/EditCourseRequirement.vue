@@ -151,6 +151,7 @@ const cancel = () => {
 const onSubmit = () => {
   if (!disableSaveButton.value) {
     isSaving.value = true
+    alertScreenReader('Saving')
     const done = () => {
       alertScreenReader('Requirement updated')
       isSaving.value = false

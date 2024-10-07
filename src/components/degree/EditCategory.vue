@@ -265,6 +265,7 @@ const cancel = () => {
   descriptionText.value = null
   name.value = ''
   selectedCategoryType.value = null
+  alertScreenReader('Canceled.')
   props.afterCancel()
 }
 
@@ -308,7 +309,7 @@ const onChangeParentCategory = option => {
     each(parentUnitRequirements, unitRequirement => {
       const indexOf = selectedUnitRequirements.value.findIndex(u => u.id === unitRequirement.id)
       selectedUnitRequirements.value.splice(indexOf, 1)
-      alertScreenReader(`${unitRequirement.name} removed`)
+      alertScreenReader(`Removed "${unitRequirement.name}" unit requirement.`)
     })
   }
 }
@@ -316,13 +317,15 @@ const onChangeParentCategory = option => {
 const onSubmit = () => {
   if (!disableSaveButton.value) {
     isSaving.value = true
+    const categoryName = name.value
     const parentCategoryId = get(selectedParentCategory.value, 'id')
     const unitRequirementIds = map(selectedUnitRequirements.value, 'id')
     const done = () => {
-      alertScreenReader(`${selectedCategoryType.value} ${props.existingCategory ? 'updated' : 'created'}`)
+      alertScreenReader(`${props.existingCategory ? 'Updated' : 'Created'} "${categoryName}" ${selectedCategoryType.value}.`)
       props.afterSave()
       isSaving.value = true
     }
+    alertScreenReader('Saving')
     if (props.existingCategory) {
       updateCategory(
         props.existingCategory.id,

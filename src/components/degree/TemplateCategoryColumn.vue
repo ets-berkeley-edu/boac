@@ -130,7 +130,7 @@ const currentUser = contextStore.currentUser
 const isAddingCategory = ref(false)
 
 const add = () => {
-  alertScreenReader('Add category')
+  alertScreenReader('Create requirement')
   isAddingCategory.value = true
   degreeStore.setDisableButtons(true)
 }
@@ -138,7 +138,7 @@ const add = () => {
 const edit = category => {
   categoryForEdit.value = category
   degreeStore.setDisableButtons(true)
-  alertScreenReader(`Edit ${category.categoryType} "${category.name}"`)
+  alertScreenReader(`Edit "${category.name}" ${category.categoryType}`)
   putFocusNextTick(`column-${props.position}-name-input`)
 }
 

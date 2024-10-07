@@ -31,7 +31,12 @@
         </span>
       </div>
       <v-expand-transition>
-        <div v-if="nameErrorMessage" class="text-error font-size-12">
+        <div
+          v-if="nameErrorMessage"
+          aria-live="polite"
+          class="text-error font-size-12"
+          role="alert"
+        >
           {{ nameErrorMessage }}
         </div>
       </v-expand-transition>
@@ -113,7 +118,7 @@ const otherUnitRequirements = ref(
 )
 
 onMounted(() => {
-  alertScreenReader(props.unitRequirement ? `Edit unit requirement ${name.value}` : 'Create unit requirement')
+  alertScreenReader(props.unitRequirement ? `Edit "${name.value}" unit requirement` : 'Create unit requirement')
   putFocusNextTick('unit-requirement-name-input')
 })
 
@@ -132,7 +137,6 @@ const nameErrorMessage = computed(() => {
     const existingNames = map(otherUnitRequirements.value, u => u.name.toLowerCase())
     if (existingNames.findIndex(existingName => lowerCase === existingName) > -1) {
       message = 'Name cannot match the name of an existing Unit Requirement.'
-      alertScreenReader(message)
     }
   }
   return message
@@ -152,7 +156,7 @@ const create = () => {
     isSaving.value = true
     addUnitRequirement(degreeStore.templateId, name.value, minUnits.value).then(() => {
       refreshDegreeTemplate(degreeStore.templateId).then(() => {
-        alertScreenReader(`Created ${name.value}.`)
+        alertScreenReader(`Created "${name.value}" unit requirement.`)
         props.onExit()
       })
     })
@@ -172,7 +176,7 @@ const update = () => {
     updateUnitRequirement(props.unitRequirement.id, name.value, minUnits.value).then(() => {
       refreshDegreeTemplate(degreeStore.templateId).then(() => {
         isSaving.value = false
-        alertScreenReader(`Updated ${name.value}.`)
+        alertScreenReader(`Updated ${name.value} unit requirement.`)
         props.onExit()
       })
     })
