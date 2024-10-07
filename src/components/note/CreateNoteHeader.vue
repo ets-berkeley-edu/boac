@@ -4,14 +4,16 @@
       <div class="align-center d-flex">
         <ModalHeader
           header-id="dialog-header-note"
-          :text="{
+        >
+          <span :aria-hidden="'createBatch' === noteStore.mode">{{ {
             createBatch: 'Create Note(s)',
             createNote: 'Create Note',
             editDraft: 'Edit Draft Note',
             editNote: 'Edit Note',
             editTemplate: 'Edit Note Template'
-          }[noteStore.mode]"
-        />
+          }[noteStore.mode] }}</span>
+          <span v-if="'createBatch' === noteStore.mode" class="sr-only">Create Notes</span>
+        </ModalHeader>
         <transition
           aria-live="polite"
           name="bounce"
