@@ -17,8 +17,7 @@
           <th v-if="degreeStore.sid && isCampusRequirements" class="pl-0 pr-2 text-center th-satisfied">Satisfied</th>
           <th
             v-if="degreeStore.sid"
-            class="pl-0"
-            :class="{'th-note': hasAnyNotes}"
+            class="th-note pl-0"
           >
             Note
           </th>
@@ -161,7 +160,6 @@
             </td>
             <td
               v-if="degreeStore.sid"
-              class=""
               :class="{
                 'font-italic text-surface-variant': !isSatisfied(bundle) && !getAccentColor(bundle),
                 'td-note-printable': printable,
@@ -221,11 +219,13 @@
               :class="{'vertical-middle pb-1': degreeStore.sid}"
             >
               <div class="d-flex justify-end text-no-wrap">
-                <div v-if="!degreeStore.draggingCourseId || degreeStore.draggingCourseId !== get(bundle.course, 'id')" class="btn-container">
+                <div class="btn-container">
                   <v-btn
+                    v-if="!degreeStore.draggingCourseId || degreeStore.draggingCourseId !== get(bundle.course, 'id')"
                     :id="`column-${position}-edit-${bundle.key}-btn`"
                     :aria-label="`Edit ${bundle.name}`"
                     :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
+                    class="ml-1"
                     density="compact"
                     :disabled="degreeStore.disableButtons"
                     flat
@@ -234,8 +234,9 @@
                     @click="edit(bundle, position)"
                   />
                 </div>
-                <div v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))" class="btn-container">
+                <div class="btn-container">
                   <v-btn
+                    v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
                     :id="`column-${position}-delete-${bundle.key}-btn`"
                     :aria-label="`Delete ${bundle.name}`"
                     :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
@@ -429,10 +430,6 @@ const categoryCourseBundles = computed(() => {
   return transformed
 })
 
-const hasAnyNotes = computed(() => {
-  return !!find(categoryCourseBundles.value, bundle => getNote(bundle))
-})
-
 const hasAssignedCourses = computed(() => {
   return !!find(categoryCourseBundles.value, bundle => bundle.course)
 })
@@ -449,7 +446,7 @@ const afterCancel = () => {
 }
 
 const afterSave = () => {
-  alertScreenReader(`Updated ${bundleForEdit.value.type} ${bundleForEdit.value.name}`)
+  alertScreenReader(`Updated "${bundleForEdit.value.name}" ${bundleForEdit.value.type}`)
   putFocusNextTick(`column-${props.position}-edit-${bundleForEdit.value.key}-btn`)
   bundleForEdit.value = null
   degreeStore.setDisableButtons(false)
@@ -469,14 +466,16 @@ const deleteCanceled = () => {
 
 const deleteConfirmed = () => {
   const name = bundleForDelete.value.name
+  const type = bundleForDelete.value.type
   const done = () => {
-    alertScreenReader(`${name} deleted.`)
+    alertScreenReader(`Deleted "${name}" ${type}.`)
     const putFocus = degreeStore.sid ? `column-${props.position}-add-course-to-category-${props.parentCategory.id}` : 'page-header'
     isDeleting.value = false
     bundleForDelete.value = null
     degreeStore.setDisableButtons(false)
     putFocusNextTick(putFocus)
   }
+  alertScreenReader('Deleting')
   if (degreeStore.sid) {
     deleteCourse(bundleForDelete.value.course.id).then(done)
   } else {
@@ -497,7 +496,7 @@ const edit = (bundle, position) => {
   hideNote(bundle, position, false)
   hoverCourseId.value = null
   degreeStore.setDisableButtons(true)
-  alertScreenReader(`Editing ${bundle.name}`)
+  alertScreenReader(`Edit "${bundle.name}" ${bundle.type}`)
   bundleForEdit.value = bundle
 }
 
@@ -589,7 +588,6 @@ const onDelete = bundle => {
   degreeStore.setDisableButtons(true)
   bundleForDelete.value = bundle
   isDeleting.value = true
-  alertScreenReader(`Delete ${bundle.name}`)
 }
 
 const onDrag = (event, stage, bundle) => {
@@ -650,7 +648,7 @@ const onMouse = (stage, bundle) => {
 
 const showNote = (bundle, position) => {
   notesVisible.value.push(bundle.key)
-  alertScreenReader(`Showing note of ${bundle.name}`)
+  alertScreenReader(`Showing note of "${bundle.name}" ${bundle.type}`)
   putFocusNextTick(`column-${position}-${bundle.key}-hide-note-btn`)
 }
 </script>
@@ -663,6 +661,7 @@ table {
   width: 100%;
 }
 .btn-container {
+  margin: 0 1px;
   min-width: 20px;
 }
 .changed-units-icon {
@@ -670,7 +669,7 @@ table {
 }
 .td-actions {
   vertical-align: top;
-  width: 32px;
+  width: 36px;
 }
 .td-assign {
   font-size: 14px;

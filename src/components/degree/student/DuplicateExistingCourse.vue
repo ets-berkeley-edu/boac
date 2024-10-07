@@ -105,14 +105,14 @@ const onClickSave = () => {
       isMenuOpen.value = isSaving.value = false
       selected.value = null
       degreeStore.setDisableButtons(false)
-      alertScreenReader('Course duplicated and put in the list of Unassigned.')
+      alertScreenReader('Course duplicated and added to Unassigned.')
       putFocusNextTick(`assign-course-${course.id}-menu-container`, {cssSelector: 'button'})
     })
   })
 }
 
 const onSelect = () => {
-  alertScreenReader(selected.value ? `${selected.value.name} selected` : 'Selection set to null.')
+  alertScreenReader(selected.value ? `${selected.value.name} selected` : 'Selection cleared.')
 }
 
 const openMenu = () => {

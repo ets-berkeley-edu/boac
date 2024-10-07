@@ -2,7 +2,7 @@
   <div>
     <v-btn
       :id="`create-course-under-parent-category-${parentCategory.id}`"
-      class="font-weight-bold px-1"
+      class="font-weight-bold px-1 mt-1"
       color="primary"
       density="comfortable"
       :disabled="degreeStore.disableButtons"

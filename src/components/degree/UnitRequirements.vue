@@ -130,7 +130,7 @@
                 <v-btn
                   :id="`unit-requirement-${item.id}-edit-btn`"
                   :aria-label="`Edit ${item.name}`"
-                  class="mx-1"
+                  class="action-btn ml-1"
                   :class="{'text-primary': !degreeStore.disableButtons}"
                   density="compact"
                   :disabled="degreeStore.disableButtons"
@@ -145,6 +145,7 @@
                 <v-btn
                   :id="`unit-requirement-${item.id}-delete-btn`"
                   :aria-label="`Delete ${item.name}`"
+                  class="action-btn"
                   :class="{'text-primary': !degreeStore.disableButtons}"
                   density="compact"
                   :disabled="degreeStore.disableButtons"
@@ -223,9 +224,10 @@ const deleteCanceled = () => {
 const deleteConfirmed = () => {
   const name = get(selected.value, 'name')
   const templateId = useDegreeStore().templateId
+  alertScreenReader('Deleting')
   deleteUnitRequirement(selected.value.id).then(() => {
     refreshDegreeTemplate(templateId).then(() => {
-      alertScreenReader(`${name} deleted.`)
+      alertScreenReader(`Deleted "${name}" unit requirement.`)
       isDeleting.value = false
       degreeStore.setDisableButtons(false)
       putFocusNextTick('unit-requirement-create-link')
@@ -333,6 +335,9 @@ td {
 th {
   height: 20px;
   padding-bottom: 5px;
+}
+.action-btn {
+  margin: 0 1px 0 0;
 }
 .th-actions {
   width: 10%;
