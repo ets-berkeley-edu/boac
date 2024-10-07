@@ -513,6 +513,17 @@ def hard_delete_template(template_id):
     std_commit(allow_test_environment=True)
 
 
+def generate_appt_search_query(test_case):
+    search_string = ''
+    if test_case.appt.detail:
+        phrases = re.split(r'(<\w+>|<\/\w+>)', test_case.appt.detail)
+        for phrase in phrases:
+            if len(phrase) > 24:
+                phrase = phrase.split(' ')[0:4]
+                search_string = ' '.join(phrase)
+    return search_string
+
+
 # COHORTS
 
 def set_filtered_cohort_id(cohort):

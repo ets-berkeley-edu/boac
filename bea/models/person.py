@@ -31,7 +31,7 @@ class Person(object):
 
     @property
     def uid(self):
-        return self.data['uid']
+        return self.data.get('uid')
 
     @uid.setter
     def uid(self, value):
@@ -39,7 +39,7 @@ class Person(object):
 
     @property
     def active(self):
-        return self.data['active']
+        return self.data.get('active')
 
     @active.setter
     def active(self, value):
@@ -47,7 +47,7 @@ class Person(object):
 
     @property
     def email(self):
-        return self.data['email']
+        return self.data.get('email')
 
     @email.setter
     def email(self, value):
@@ -55,7 +55,7 @@ class Person(object):
 
     @property
     def first_name(self):
-        return self.data['first_name']
+        return self.data.get('first_name')
 
     @first_name.setter
     def first_name(self, value):
@@ -63,7 +63,7 @@ class Person(object):
 
     @property
     def full_name(self):
-        return self.data['full_name']
+        return self.data.get('full_name')
 
     @full_name.setter
     def full_name(self, value):
@@ -71,7 +71,7 @@ class Person(object):
 
     @property
     def last_name(self):
-        return self.data['last_name']
+        return self.data.get('last_name')
 
     @last_name.setter
     def last_name(self, value):
@@ -79,7 +79,7 @@ class Person(object):
 
     @property
     def middle_name(self):
-        return self.data['middle_name']
+        return self.data.get('middle_name')
 
     @middle_name.setter
     def middle_name(self, value):
@@ -87,7 +87,7 @@ class Person(object):
 
     @property
     def sid(self):
-        return self.data['sid']
+        return self.data.get('sid')
 
     @sid.setter
     def sid(self, value):
@@ -95,7 +95,7 @@ class Person(object):
 
     @property
     def status(self):
-        return self.data['status']
+        return self.data.get('status')
 
     @status.setter
     def status(self, value):

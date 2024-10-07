@@ -30,7 +30,7 @@ class Appointment(TimelineNoteAppt):
 
     @property
     def cancel_detail(self):
-        return self.data['cancel_detail']
+        return self.data.get('cancel_detail')
 
     @cancel_detail.setter
     def cancel_detail(self, value):
@@ -38,7 +38,7 @@ class Appointment(TimelineNoteAppt):
 
     @property
     def cancel_reason(self):
-        return self.data['cancel_reason']
+        return self.data.get('cancel_reason')
 
     @cancel_reason.setter
     def cancel_reason(self, value):
@@ -46,7 +46,7 @@ class Appointment(TimelineNoteAppt):
 
     @property
     def detail(self):
-        return self.data['detail']
+        return self.data.get('detail')
 
     @detail.setter
     def detail(self, value):
@@ -54,7 +54,7 @@ class Appointment(TimelineNoteAppt):
 
     @property
     def end_time(self):
-        return self.data['end_time']
+        return self.data.get('end_time')
 
     @end_time.setter
     def end_time(self, value):
@@ -62,7 +62,7 @@ class Appointment(TimelineNoteAppt):
 
     @property
     def start_time(self):
-        return self.data['start_time']
+        return self.data.get('start_time')
 
     @start_time.setter
     def start_time(self, value):
@@ -70,7 +70,7 @@ class Appointment(TimelineNoteAppt):
 
     @property
     def status(self):
-        return self.data['status']
+        return self.data.get('status')
 
     @status.setter
     def status(self, value):
@@ -78,7 +78,7 @@ class Appointment(TimelineNoteAppt):
 
     @property
     def status_date(self):
-        return self.data['status_date']
+        return self.data.get('status_date')
 
     @status_date.setter
     def status_date(self, value):
