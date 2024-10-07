@@ -1,5 +1,5 @@
 <template>
-  <div class="course d-flex flex-column position-relative" :class="{'course-expanded': showCourseDetails}">
+  <div class="course d-flex flex-column position-relative" :class="{'course-expanded': showCourseDetails, 'border-b-0': $vuetify.display.lgAndUp}">
     <div
       :id="baseElementId"
       class="align-center course-row d-flex"
@@ -92,7 +92,8 @@
       :class="{
         'align-self-start': columnIndex === 0,
         'align-self-center': columnIndex === 1,
-        'align-self-end': columnIndex === 2
+        'align-self-end': columnIndex === 2,
+        'span-columns': $vuetify.display.lgAndUp
       }"
     >
       <div v-if="showCourseDetails">
@@ -283,16 +284,6 @@ const toggleShowCourseDetails = () => {
 </script>
 
 <style scoped>
-@media (min-width: 1200px) {
-  .course-details {
-    border: 1px rgba(var(--v-border-color), var(--v-border-opacity)) solid;
-    margin: 0 -11px;
-    width: 332% !important;
-  }
-  .course-expanded {
-    border-bottom: 0 !important;
-  }
-}
 .column-grade {
   width: 15%;
 }
@@ -313,6 +304,11 @@ const toggleShowCourseDetails = () => {
   top: -1px;
   width: 100%;
   z-index: 1;
+}
+.course-details.span-columns {
+  border: 1px rgba(var(--v-border-color), var(--v-border-opacity)) solid;
+  margin: 0 -11px;
+  width: 332% !important;
 }
 .course-expanded {
   background-color: rgb(var(--v-theme-pale-blue));
