@@ -360,8 +360,9 @@ class BEATestConfig(object):
 
         if test_sids:
             app.logger.info(f'Pre-de-duped SIDs {test_sids}')
-            students_to_add = list(filter(lambda st: st.sid in test_sids, self.students))
-            self.test_students.extend(students_to_add)
+            for st in self.students:
+                if st.sid in test_sids:
+                    self.test_students.append(st)
 
         app.logger.info(f'Test UIDs: {list(map(lambda u: u.uid, self.test_students))}')
 
@@ -429,6 +430,20 @@ class BEATestConfig(object):
         self.attachments = attachments
 
     # CONFIGURATION FOR SPECIFIC TEST SCRIPTS
+
+    def appts_content(self):
+        limit = app.config['MAX_NOTES_OR_APPTS_STUDENTS_COUNT']
+        self.set_base_configs(opts={'include_inactive': True})
+        self.set_test_students(count=limit, opts={'appts': True})
+
+        # Generate test cases for parameterized tests
+        for student in self.test_students:
+            # Throw out junk SIS appts
+            appts = [a for a in nessie_timeline_utils.get_sis_appts(student) if '504GatewayTimeout' not in a.detail][0:limit]
+            ycbm_appts = nessie_timeline_utils.get_ycbm_appts(student)[0:limit]
+            appts.extend(ycbm_appts)
+            for appt in appts:
+                self.test_cases.append(BEATestCase(student=student, appt=appt))
 
     def class_pages(self):
         self.set_base_configs(opts={'include_inactive': True})

@@ -58,7 +58,7 @@ class StudentPageTimeline(BoaPages):
             formatted = item_time.strftime('%b %-d %l:%M%P')
         else:
             formatted = item_time.strftime('%b %-d, %Y %l:%M%P')
-        return re.sub('\s+', ' ', formatted)
+        return re.sub(r'\s+', ' ', formatted)
 
     def visible_collapsed_item_ids(self, item_type):
         els = self.elements((By.XPATH, f"//div[contains(@id, '{item_type}-') and contains(@id, '-is-closed')]"))
@@ -68,7 +68,7 @@ class StudentPageTimeline(BoaPages):
             if parts[2] == 'is':
                 ids.append(parts[1])
             else:
-                ids.append('-'.join(parts[1:-3]))
+                ids.append('-'.join(parts[1:-2]))
         return ids
 
     def collapsed_item_loc(self, item):
@@ -80,8 +80,10 @@ class StudentPageTimeline(BoaPages):
 
     def visible_message_ids(self):
         els = self.elements((By.XPATH, '//tr[contains(@class, "message-row")]'))
-        ids = list(map(lambda el: el.attribute('id').split('-')[2: - 1].join('-'), els))
-        app.logger.debug(f'Visible message IDs are {ids}')
+        ids = []
+        for el in els:
+            parts = el.get_attribute('id').split('-')
+            ids.append('-'.join(parts[2:-1]))
         return ids
 
     def close_msg_button(self, item):
@@ -93,7 +95,7 @@ class StudentPageTimeline(BoaPages):
         subject_loc = By.ID, f'{item_type}-{item.record_id}-is-closed'
         subject = self.element(subject_loc).text.replace('\n', '') if self.is_present(subject_loc) else None
         date_loc = By.ID, f'collapsed-{item_type}-{item.record_id}-created-at'
-        date = re.sub('/\s+/', ' ', self.element(date_loc).text) if self.is_present(date_loc) else None
+        date = re.sub(r'/\s+/', ' ', self.element(date_loc).text) if self.is_present(date_loc) else None
         return {
             'subject': subject,
             'date': date,

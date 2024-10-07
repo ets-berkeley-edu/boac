@@ -69,8 +69,8 @@ def get_all_students(opts=None):
     results = data_loch.safe_execute_rds(sql)
     for row in results:
         student = Student({
-            'uid': row['uid'],
-            'sid': row['sid'],
+            'uid': str(row['uid']),
+            'sid': str(row['sid']),
             'status': row['status'],
             'first_name': row['first_name'],
             'last_name': row['last_name'],

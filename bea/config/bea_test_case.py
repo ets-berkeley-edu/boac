@@ -28,18 +28,18 @@ class BEATestCase(object):
 
     def __init__(self,
                  student,
-                 appts=None,
+                 appt=None,
                  course=None,
-                 notes=None,
+                 note=None,
                  section=None,
                  section_id=None,
                  term=None,
                  term_sis_id=None,
                  test_case_id=None):
         self.student = student
-        self.appts = appts or []
+        self.appt = appt
         self.course = course
-        self.notes = notes or []
+        self.note = note
         self.section = section
         self.section_id = section_id
         self.term = term
