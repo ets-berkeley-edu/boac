@@ -46,7 +46,7 @@ export function updateNote(
     curatedGroupIds?: number[],
     isDraft?: boolean,
     isPrivate?: boolean,
-    setDate?: Date,
+    setDate?: string,
     sids?: string[],
     subject?: string,
     templateAttachmentIds?: number[],

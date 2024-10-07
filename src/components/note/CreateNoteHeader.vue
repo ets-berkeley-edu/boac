@@ -28,7 +28,7 @@
         </transition>
       </div>
     </div>
-    <div id="templates-menu">
+    <div id="templates-menu" class="px-6">
       <v-menu
         v-if="noteStore.mode !== 'editTemplate'"
         absolute
@@ -132,14 +132,17 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-btn
-        v-if="noteStore.mode === 'editDraft'"
-        :icon="mdiClose"
-        size="large"
-        variant="text"
-        @click="props.exit"
-      ></v-btn>
     </div>
+    <v-btn
+      v-if="noteStore.mode === 'editDraft'"
+      class="d-flex align-self-center"
+      height="36"
+      :icon="mdiClose"
+      size="large"
+      variant="text"
+      width="36"
+      @click="props.exit"
+    ></v-btn>
     <v-dialog
       v-model="isRenameTemplateDialogOpen"
       :activator="templateToRename ? `btn-rename-note-template-${templateToRename.id}` : null"

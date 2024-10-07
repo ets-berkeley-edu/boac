@@ -14,7 +14,7 @@
       max-width="90%"
     >
       <FocusLock :disabled="noteStore.isFocusLockDisabled">
-        <CreateNoteHeader :exit="exit" />
+        <CreateNoteHeader :exit="discardRequested" />
         <v-card-text class="modal-body">
           <Transition
             v-if="['createBatch', 'editDraft'].includes(mode)"
@@ -163,6 +163,7 @@ import {
   enableFocusLock,
   exitSession,
   isAutoSaveMode,
+  scheduleAutoSaveJob,
   setNoteRecipient,
   setSubjectPerEvent,
   updateAdvisingNote
@@ -212,8 +213,8 @@ const showCreateTemplateModal = ref(false)
 const showDiscardNoteModal = ref(false)
 const showDiscardTemplateModal = ref(false)
 
-const selectEscape = (event) => {
-  if (event.key === 'Escape' && !noteStore.isSaving) {
+const selectEscape = event => {
+  if (event.key === 'Escape' && !noteStore.isSaving && dialogModel.value) {
     discardRequested()
   }
 }
@@ -230,6 +231,9 @@ watch(dialogModel, () => {
     init().then(note => {
       const onFinish = () => {
         noteStore.setMode(props.initialMode)
+        if (isAutoSaveMode(mode.value)) {
+          scheduleAutoSaveJob()
+        }
         putFocusNextTick(noteStore.mode === 'editTemplate' ? 'create-note-subject' : 'my-templates-button')
         contextStore.setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
       }
@@ -242,6 +246,7 @@ watch(dialogModel, () => {
     })
   } else {
     noteStore.setMode(null)
+    noteStore.clearAutoSaveJob()
     disableFocusLock()
     document.documentElement.classList.remove('modal-open')
     document.removeEventListener('keyup', selectEscape)
@@ -249,9 +254,9 @@ watch(dialogModel, () => {
   }
 })
 
-watch(showCreateTemplateModal, isOpen => isOpen ? disableFocusLock() : enableFocusLock())
-watch(showDiscardNoteModal, isOpen => isOpen ? disableFocusLock() : enableFocusLock())
-watch(showDiscardTemplateModal, isOpen => isOpen ? disableFocusLock() : enableFocusLock())
+watch(showCreateTemplateModal, isOpen => toggleFocusLock(isOpen))
+watch(showDiscardNoteModal, isOpen => toggleFocusLock(isOpen))
+watch(showDiscardTemplateModal, isOpen => toggleFocusLock(isOpen))
 
 const addNoteAttachments = attachments => {
   return new Promise(resolve => {
@@ -422,6 +427,12 @@ const showAlert = (value, seconds=3) => {
   dismissAlertSeconds.value = seconds
 }
 
+const toggleFocusLock = isSecondModalOpen => {
+  if (dialogModel.value) {
+    isSecondModalOpen ? disableFocusLock() : enableFocusLock()
+  }
+}
+
 const updateTemplate = () => {
   noteStore.setIsSaving(true)
   alertScreenReader('Updating template')
@@ -447,6 +458,7 @@ const updateTemplate = () => {
 
 onBeforeUnmount(() => {
   noteStore.setIsCreateNoteModalOpen(false)
+  noteStore.clearAutoSaveJob()
   noteStore.setMode(null)
   document.documentElement.classList.remove('modal-open')
   contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
