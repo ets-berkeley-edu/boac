@@ -24,14 +24,15 @@
         v-bind="props"
       />
     </template>
-    <v-list class="py-4" variant="flat">
+    <v-list class="overflow-x-hidden py-4" variant="flat">
       <v-list-item-action v-if="course.categoryId || course.ignore">
         <v-btn
           id="assign-course-to-option-null"
-          class="font-italic"
+          class="font-italic d-flex justify-start"
           color="primary"
           density="comfortable"
           variant="text"
+          width="100%"
           @click="onSelect(null, false)"
         >
           <span aria-hidden="true">-- </span>Unassign<span aria-hidden="true"> --</span>
@@ -54,7 +55,7 @@
       <v-list-item-action v-for="option in options" :key="option.id">
         <v-btn
           :id="`assign-course-to-option-${option.id}`"
-          class="d-flex justify-start"
+          class="d-flex justify-start v-btn-content-override"
           :class="{
             'font-size-16 mr-4': option.categoryType === 'Category',
             'font-size-15 ml-2 mr-4': option.categoryType === 'Subcategory',
@@ -63,11 +64,12 @@
           color="primary"
           :disabled="option.disabled"
           variant="text"
+          width="100%"
           @click="onSelect(option, false)"
         >
           <span v-if="!option.disabled" class="sr-only">Move to </span>
           <span class="sr-only">{{ option.lineage }}</span>
-          {{ option.name }}
+          <span class="truncate-with-ellipsis">{{ option.name }}</span>
           <span v-if="option.disabled" class="sr-only"> (disabled)</span>
         </v-btn>
       </v-list-item-action>
@@ -149,3 +151,9 @@ const onSelect = (category, ignore) => {
   })
 }
 </script>
+
+<style>
+.v-btn-content-override .v-btn__content {
+  width: 100%;
+}
+</style>
