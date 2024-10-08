@@ -159,6 +159,7 @@
               <v-text-field
                 id="rename-template-input"
                 v-model="updatedTemplateTitle"
+                aria-label="Template name"
                 counter="255"
                 :disabled="isSaving"
                 label="Template name"
@@ -170,8 +171,16 @@
                 ]"
               >
                 <template #counter="{max, value}">
-                  <div id="rename-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">
+                  <div id="rename-template-counter" class="font-size-13 text-no-wrap my-1">
                     <span class="sr-only">Template name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+                    <span
+                      v-if="value === 255"
+                      aria-live="polite"
+                      class="sr-only"
+                      role="alert"
+                    >
+                      Template name cannot exceed 255 characters.
+                    </span>
                   </div>
                 </template>
               </v-text-field>

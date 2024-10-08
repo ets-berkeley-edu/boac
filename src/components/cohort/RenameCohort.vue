@@ -8,8 +8,7 @@
         v-if="isOpen"
         id="rename-cohort-input"
         v-model="name"
-        aria-label="Cohort name, 255 characters or fewer"
-        :aria-required="true"
+        aria-label="Cohort name"
         class="v-input-details-override mr-3"
         counter="255"
         density="comfortable"
@@ -44,8 +43,16 @@
         />
       </div>
     </div>
-    <div id="name-cohort-counter" aria-live="polite" class="text-left font-size-13 text-no-wrap ml-4 mt-1">
+    <div id="name-cohort-counter" class="text-left font-size-13 text-no-wrap ml-4 mt-1">
       <span class="sr-only">Cohort name has a </span>{{ maxlength }} character limit <span v-if="size(name)">({{ maxlength - size(name) }} left)</span>
+      <span
+        v-if="size(name) === 255"
+        aria-live="polite"
+        class="sr-only"
+        role="alert"
+      >
+        Cohort name cannot exceed 255 characters.
+      </span>
     </div>
   </v-card>
 </template>

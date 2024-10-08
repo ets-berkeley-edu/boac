@@ -84,7 +84,7 @@
                 id="rename-template-input"
                 v-model="templateForEdit.name"
                 :aria-invalid="!templateForEdit.name"
-                aria-label="Input template name, 255 characters or fewer"
+                aria-label="Template name"
                 aria-required="true"
                 class="bg-white w-100"
                 :disabled="isRenaming"

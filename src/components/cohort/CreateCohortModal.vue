@@ -18,8 +18,7 @@
             <v-text-field
               id="create-cohort-input"
               v-model="name"
-              aria-label="Cohort name, 255 characters or fewer"
-              aria-required="true"
+              aria-label="Cohort name"
               class="v-input-details-override"
               counter="255"
               :disabled="isSaving"
@@ -32,8 +31,16 @@
               @keyup.esc="cancelModal"
             >
               <template #counter="{max, value}">
-                <div id="name-create-cohort-counter" aria-live="polite" class="font-size-13 text-no-wrap ml-2 mt-1">
+                <div id="name-create-cohort-counter" class="font-size-13 text-no-wrap ml-2 mt-1">
                   <span class="sr-only">Cohort name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+                  <span
+                    v-if="value === 255"
+                    aria-live="polite"
+                    class="sr-only"
+                    role="alert"
+                  >
+                    Cohort name cannot exceed 255 characters.
+                  </span>
                 </div>
               </template>
             </v-text-field>

@@ -134,9 +134,9 @@
                   <v-card-text>
                     <v-list class="border-sm rounded-lg mt-5">
                       <v-list-item
-                        v-for="(row, index) in reverse(sortBy(annual.months, 'month'))"
+                        v-for="(row, monthIndex) in reverse(sortBy(annual.months, 'month'))"
                         :key="row.month"
-                        :class="{'border-b-sm': index !== annual.months.length - 1}"
+                        :class="{'border-b-sm': monthIndex !== annual.months.length - 1}"
                       >
                         <div class="align-center d-flex font-size-16 justify-space-between">
                           <div class="font-weight-medium">

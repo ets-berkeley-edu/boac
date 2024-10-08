@@ -24,8 +24,7 @@
               id="rename-curated-group-input"
               v-model="renameInput"
               :aria-invalid="!renameInput"
-              :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
-              :aria-required="true"
+              :aria-label="`${domainLabel(true)} name`"
               class="mr-3"
               :disabled="isSaving"
               hide-details
@@ -55,7 +54,7 @@
             />
           </div>
         </div>
-        <div v-if="renameError" aria-live="polite" class="text-error ml-2 my-2">{{ renameError }}</div>
+        <div v-if="renameError" class="text-error ml-2 my-2">{{ renameError }}</div>
         <div class="text-medium-emphasis">255 character limit <span v-if="size(renameInput)">({{ 255 - size(renameInput) }} left)</span></div>
         <span
           v-if="size(renameInput) === 255"
