@@ -54,8 +54,8 @@ export function initializeAxios(axios: any) {
       if (includes([401, 403], errorStatus)) {
         // Refresh user in case his/her session expired.
         const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL
-        return axios.get(`${apiBaseUrl}/api/profile/my`).then((user: any) => {
-          useContextStore().setCurrentUser(user)
+        return axios.get(`${apiBaseUrl}/api/profile/my`).then((response: any) => {
+          useContextStore().setCurrentUser(response.data)
           axiosErrorHandler(error, axios)
           return Promise.reject(error)
         })
