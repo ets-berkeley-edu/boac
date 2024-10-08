@@ -19,8 +19,7 @@
             <v-text-field
               id="create-curated-group-input"
               v-model="name"
-              :aria-label="`${describeCuratedGroupDomain(domain, true)} name, 255 characters or fewer`"
-              aria-required="true"
+              :aria-label="`${describeCuratedGroupDomain(domain, true)} name`"
               class="v-input-details-override"
               counter="255"
               :disabled="isSaving"
@@ -34,8 +33,16 @@
               @keyup.esc="cancel"
             >
               <template #counter="{max, value}">
-                <div id="name-create-cohort-counter" aria-live="polite" class="font-size-13 text-no-wrap ml-2 mt-1">
+                <div id="name-create-cohort-counter" class="font-size-13 text-no-wrap ml-2 mt-1">
                   <span class="sr-only">{{ describeCuratedGroupDomain(domain, true) }} name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+                  <span
+                    v-if="value === 255"
+                    aria-live="polite"
+                    class="sr-only"
+                    role="alert"
+                  >
+                    {{ describeCuratedGroupDomain(domain, true) }} name cannot exceed 255 characters.
+                  </span>
                 </div>
               </template>
             </v-text-field>

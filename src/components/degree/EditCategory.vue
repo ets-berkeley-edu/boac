@@ -31,9 +31,9 @@
     </div>
     <div v-if="selectedCategoryType">
       <div v-if="!isCampusRequirements(existingCategory)">
-        <div class="font-weight-500">
+        <label class="font-weight-500" :for="`column-${position}-name-input`">
           {{ selectedCategoryType }} Name (required)
-        </div>
+        </label>
         <div>
           <v-text-field
             :id="`column-${position}-name-input`"

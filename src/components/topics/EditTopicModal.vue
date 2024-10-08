@@ -19,6 +19,7 @@
                 id="create-topic-input"
                 v-model="topic"
                 aria-describedby="input-live-help topic-label-error"
+                aria-label="Topic name"
                 hide-details
                 required
                 :maxlength="50"
