@@ -47,6 +47,9 @@ const props = defineProps({
   editorConfig: {
     required: false,
     default: () => ({
+      link: {
+        addTargetToExternalLinks: true
+      },
       toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
       typing: {
         transformations: {
