@@ -15,7 +15,6 @@
         id="create-note-add-student-input"
         :key="vAutocompleteKey"
         aria-describedby="create-note-add-student-desc"
-        auto-select-first
         autocomplete="off"
         base-color="primary"
         class="autocomplete-students autocomplete-with-add-button"
