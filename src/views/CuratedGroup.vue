@@ -89,7 +89,7 @@ import router from '@/router'
 import SortBy from '@/components/student/SortBy'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
-import {addStudentsToCuratedGroup, removeFromCuratedGroup} from '@/api/curated'
+import {addStudentsToCuratedGroups, removeFromCuratedGroups} from '@/api/curated'
 import {alertScreenReader, putFocusNextTick, scrollTo, setPageTitle, toInt} from '@/lib/utils'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
 import {capitalize, get, size} from 'lodash'
@@ -168,7 +168,7 @@ const bulkAddSids = sids => {
     isAddingStudents.value = true
     alertScreenReader(`Adding ${sids.length} students`)
     contextStore.updateCurrentUserPreference('sortBy', 'last_name')
-    addStudentsToCuratedGroup(curatedGroupId.value, sids, true).then(() => {
+    addStudentsToCuratedGroups([curatedGroupId.value], sids, true).then(() => {
       goToCuratedGroup(curatedGroupId.value, 1).then(() => {
         curatedStore.resetMode()
         isAddingStudents.value = false
@@ -209,7 +209,7 @@ const onChangeTerm = () => {
 
 const removeStudent = sid => {
   curatedStore.removeStudent(sid)
-  return removeFromCuratedGroup(curatedGroupId.value, sid).then(data => {
+  return removeFromCuratedGroups([curatedGroupId.value], sid).then(data => {
     curatedStore.setTotalStudentCount(data.totalStudentCount)
   })
 }

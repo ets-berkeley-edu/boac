@@ -1,5 +1,5 @@
-import {get, remove} from 'lodash'
 import axios from 'axios'
+import {each, get} from 'lodash'
 import ga from '@/lib/ga'
 import {DateTime} from 'luxon'
 import utils from '@/api/api-utils'
@@ -20,15 +20,17 @@ const $_onDelete = (domain: string, curatedGroupId: number) => {
   $_track('delete')
 }
 
-const $_onUpdate = (curatedGroup: any) => {
-  useContextStore().updateMyCuratedGroup(curatedGroup)
-  useContextStore().broadcast('my-curated-groups-updated', curatedGroup.domain)
+const $_onUpdate = (curatedGroups: any[]) => {
+  each(curatedGroups, curatedGroup => {
+    useContextStore().updateMyCuratedGroup(curatedGroup)
+  })
+  useContextStore().broadcast('my-curated-groups-updated', curatedGroups[0].domain)
   $_track('update')
 }
 
-export function addStudentsToCuratedGroup(curatedGroupId: number, sids: string[], returnStudentProfiles?: boolean) {
+export function addStudentsToCuratedGroups(curatedGroupIds: number[], sids: string[], returnStudentProfiles?: boolean) {
   const url: string = `${utils.apiBaseUrl()}/api/curated_group/students/add`
-  return axios.post(url, {curatedGroupId, sids, returnStudentProfiles}).then(response => {
+  return axios.post(url, {curatedGroupIds, sids, returnStudentProfiles}).then(response => {
     $_onUpdate(response.data)
     return response.data
   })
@@ -79,14 +81,11 @@ export function getUsersWithCuratedGroups() {
   return axios.get(`${utils.apiBaseUrl()}/api/curated_groups/all`).then(response => response.data)
 }
 
-export function removeFromCuratedGroup(curatedGroupId: number, sid: any) {
-  const url: string = `${utils.apiBaseUrl()}/api/curated_group/${curatedGroupId}/remove_student/${sid}`
-  return axios.delete(url).then(response => {
+export function removeFromCuratedGroups(curatedGroupIds: number[], sid: any) {
+  const url: string = `${utils.apiBaseUrl()}/api/curated_group/remove_student/${sid}`
+  return axios.post(url, {curatedGroupIds}).then(response => {
     const data = response.data
     $_onUpdate(data)
-    if (data.students) {
-      data.students = remove(data.students, (student: any) => sid === (student.sid || student.csEmplId))
-    }
     return data
   })
 }
@@ -94,7 +93,7 @@ export function removeFromCuratedGroup(curatedGroupId: number, sid: any) {
 export function renameCuratedGroup(curatedGroupId: number, name: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/curated_group/rename`, {id: curatedGroupId, name}).then(response => {
     const data = response.data
-    $_onUpdate(data)
+    $_onUpdate([data])
     return data
   })
 }

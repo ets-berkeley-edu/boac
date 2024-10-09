@@ -161,38 +161,46 @@ def get_students_with_alerts(curated_group_id):
     return tolerant_jsonify(students_with_alerts)
 
 
-@app.route('/api/curated_group/<curated_group_id>/remove_student/<sid>', methods=['DELETE'])
+@app.route('/api/curated_group/remove_student/<sid>', methods=['POST'])
 @advisor_required
-def remove_student_from_curated_group(curated_group_id, sid):
-    curated_group = CuratedGroup.find_by_id(curated_group_id)
-    if not curated_group:
-        raise ResourceNotFoundError(f'No curated group found with id: {curated_group_id}')
-    if curated_group.owner_id != current_user.get_id():
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_group.id}')
-    CuratedGroup.remove_student(curated_group_id, sid)
-    return tolerant_jsonify(curated_group.to_api_json(include_students=False))
+def remove_student_from_curated_groups(sid):
+    params = request.get_json()
+    curated_group_ids = params.get('curatedGroupIds')
+    curated_groups = []
+    for curated_group_id in curated_group_ids:
+        curated_group = CuratedGroup.find_by_id(curated_group_id)
+        if not curated_group:
+            raise ResourceNotFoundError(f'No curated group found with id: {curated_group_id}')
+        if curated_group.owner_id != current_user.get_id():
+            raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_group.id}')
+        CuratedGroup.remove_student(curated_group_id, sid)
+        curated_groups.append(curated_group.to_api_json(include_students=False))
+    return tolerant_jsonify(curated_groups)
 
 
 @app.route('/api/curated_group/students/add', methods=['POST'])
 @advisor_required
-def add_students_to_curated_group():
+def add_students_to_curated_groups():
     params = request.get_json()
-    curated_group_id = params.get('curatedGroupId')
+    curated_group_ids = params.get('curatedGroupIds')
     return_student_profiles = params.get('returnStudentProfiles')
     sids = [sid for sid in set(params.get('sids')) if sid.isdigit()]
-    if not curated_group_id or not len(sids):
-        raise BadRequestError('The required parameters are \'curatedGroupId\' and \'sids\'.')
-    curated_group = CuratedGroup.find_by_id(curated_group_id)
-    if not curated_group:
-        raise ResourceNotFoundError(f'No curated group found where id={curated_group_id}')
-    if curated_group.owner_id != current_user.get_id():
-        raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_group.id}')
-    CuratedGroup.add_students(curated_group_id=curated_group_id, sids=sids)
-    if return_student_profiles:
-        return tolerant_jsonify(_curated_group_with_complete_student_profiles(curated_group_id=curated_group_id))
-    else:
-        group = CuratedGroup.find_by_id(curated_group_id)
-        return tolerant_jsonify(group.to_api_json(include_students=False))
+    if not (curated_group_ids and len(curated_group_ids) and len(sids)):
+        raise BadRequestError('The required parameters are \'curatedGroupIds\' and \'sids\'.')
+    curated_groups = []
+    for curated_group_id in curated_group_ids:
+        curated_group = CuratedGroup.find_by_id(curated_group_id)
+        if not curated_group:
+            raise ResourceNotFoundError(f'No curated group found where id={curated_group_id}')
+        if curated_group.owner_id != current_user.get_id():
+            raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_group.id}')
+        CuratedGroup.add_students(curated_group_id=curated_group_id, sids=sids)
+        if return_student_profiles:
+            curated_groups.append(_curated_group_with_complete_student_profiles(curated_group_id=curated_group_id))
+        else:
+            group = CuratedGroup.find_by_id(curated_group_id)
+            curated_groups.append(group.to_api_json(include_students=False))
+    return tolerant_jsonify(curated_groups)
 
 
 @app.route('/api/curated_group/rename', methods=['POST'])

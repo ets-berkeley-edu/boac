@@ -378,11 +378,11 @@ class TestAddStudents:
 
     def test_not_authenticated(self, asc_curated_groups, client):
         """Anonymous user is rejected."""
-        assert api_curated_group_add_students(client, asc_curated_groups[0].id, expected_status_code=401, sids=['2345678901'])
+        assert api_curated_group_add_students(client, [asc_curated_groups[0].id], expected_status_code=401, sids=['2345678901'])
 
     def test_unauthorized(self, asc_curated_groups, admin_user_session, client):
         """403 if user does not own the group."""
-        assert api_curated_group_add_students(client, asc_curated_groups[0].id, expected_status_code=403, sids=['2345678901'])
+        assert api_curated_group_add_students(client, [asc_curated_groups[0].id], expected_status_code=403, sids=['2345678901'])
 
     def test_add_student(self, asc_advisor, client):
         """Create a group and add a student."""
@@ -390,10 +390,10 @@ class TestAddStudents:
         group = _api_curated_group_create(client, name=group_name)
         assert group['totalStudentCount'] == 0
         sid = '2345678901'
-        updated_group = api_curated_group_add_students(client, group['id'], sids=[sid])
-        assert updated_group['name'] == group_name
-        assert updated_group['totalStudentCount'] == 1
-        assert updated_group['sids'] == [sid]
+        updated_groups = api_curated_group_add_students(client, [group['id']], sids=[sid])
+        assert updated_groups[0]['name'] == group_name
+        assert updated_groups[0]['totalStudentCount'] == 1
+        assert updated_groups[0]['sids'] == [sid]
 
     def test_add_students(self, asc_advisor, client):
         """Create group and add students."""
@@ -402,25 +402,25 @@ class TestAddStudents:
         assert group['name'] == name
         assert group['totalStudentCount'] == 2
         # Add students
-        updated_group = api_curated_group_add_students(
+        updated_groups = api_curated_group_add_students(
             client,
-            group['id'],
+            [group['id']],
             return_student_profiles=True,
             sids=['7890123456'],
         )
-        assert updated_group['totalStudentCount'] == 3
-        students = updated_group['students']
+        assert updated_groups[0]['totalStudentCount'] == 3
+        students = updated_groups[0]['students']
         sids = [s['sid'] for s in students]
         assert sids == ['11667051', '2345678901', '7890123456']
         # Add more and ask for FULL student profiles in payload
-        updated_group = api_curated_group_add_students(
+        updated_groups = api_curated_group_add_students(
             client,
-            group['id'],
+            [group['id']],
             return_student_profiles=True,
             sids=['890127492', '8901234567'],
         )
-        assert updated_group['totalStudentCount'] == 5
-        students = updated_group['students']
+        assert updated_groups[0]['totalStudentCount'] == 5
+        students = updated_groups[0]['students']
         students.sort(key=lambda s: s['sid'])
         student = students[0]
         assert student['sid'] == '11667051'
@@ -428,17 +428,34 @@ class TestAddStudents:
         for expected_key in ('academicStanding', 'cumulativeGPA', 'cumulativeGPA', 'cumulativeUnits', 'majors', 'termGpa'):
             assert expected_key in student, f'Failed to find {expected_key} in student'
 
+    def test_add_students_to_groups(self, asc_advisor, client):
+        """Create two groups and add students to both."""
+        names = ['Everybody Loves the Sunshine', 'Wind Parade']
+        groups = [_api_curated_group_create(client, name=name) for name in names]
+        # Add students
+        updated_groups = api_curated_group_add_students(
+            client,
+            [group['id'] for group in groups],
+            return_student_profiles=True,
+            sids=['11667051', '2345678901', '7890123456'],
+        )
+        for group in updated_groups:
+            assert group['totalStudentCount'] == 3
+            students = group['students']
+            sids = [s['sid'] for s in students]
+            assert sids == ['11667051', '2345678901', '7890123456']
+
 
 class TestRemoveStudent:
     """Curated Group API."""
 
     def test_not_authenticated(self, asc_curated_groups, client):
         """Anonymous user is rejected."""
-        api_curated_group_remove_student(client, asc_curated_groups[0].id, '2345678901', expected_status_code=401)
+        api_curated_group_remove_student(client, [asc_curated_groups[0].id], '2345678901', expected_status_code=401)
 
     def test_unauthorized(self, asc_curated_groups, admin_user_session, client):
         """403 if user does not own the group."""
-        api_curated_group_remove_student(client, asc_curated_groups[0].id, '2345678901', expected_status_code=403)
+        api_curated_group_remove_student(client, [asc_curated_groups[0].id], '2345678901', expected_status_code=403)
 
     def test_remove_student(self, asc_advisor, client):
         """Remove student from a curated group."""
@@ -446,12 +463,27 @@ class TestRemoveStudent:
         sid = '2345678901'
         curated_group = _api_curated_group_create(client, name=name)
         curated_group_id = curated_group['id']
-        curated_group = api_curated_group_add_students(client, curated_group_id, sids=[sid])
-        assert curated_group['sids'] == [sid]
-        assert curated_group['totalStudentCount'] == 1
+        curated_groups = api_curated_group_add_students(client, [curated_group_id], sids=[sid])
+        assert curated_groups[0]['sids'] == [sid]
+        assert curated_groups[0]['totalStudentCount'] == 1
         # Remove the SID
-        curated_group = api_curated_group_remove_student(client, curated_group_id, sid)
-        assert curated_group['totalStudentCount'] == 0
+        curated_groups = api_curated_group_remove_student(client, [curated_group_id], sid)
+        assert curated_groups[0]['totalStudentCount'] == 0
+
+    def test_remove_student_from_groups(self, asc_advisor, client):
+        """Remove student from two curated groups."""
+        names = ['Carcajou', 'Daylight']
+        sid = '2345678901'
+        curated_groups = [_api_curated_group_create(client, name=name) for name in names]
+        curated_group_ids = [curated_group['id'] for curated_group in curated_groups]
+        updated_curated_groups = api_curated_group_add_students(client, curated_group_ids, sids=[sid])
+        for curated_group in updated_curated_groups:
+            assert curated_group['sids'] == [sid]
+            assert curated_group['totalStudentCount'] == 1
+        updated_curated_groups = api_curated_group_remove_student(client, curated_group_ids, sid)
+        for curated_group in updated_curated_groups:
+            assert curated_group['sids'] == []
+            assert curated_group['totalStudentCount'] == 0
 
 
 class TestUpdateCuratedGroup:
@@ -532,15 +564,15 @@ class TestCuratedGroupWithInactives:
             sids=[self.active_sid],
         )
         assert group['totalStudentCount'] == 1
-        updated_group = api_curated_group_add_students(
+        updated_groups = api_curated_group_add_students(
             client,
-            group['id'],
+            [group['id']],
             return_student_profiles=True,
             sids=[self.inactive_sid],
         )
-        assert updated_group['totalStudentCount'] == 2
-        assert updated_group['students'][1]['sid'] == self.active_sid
-        assert updated_group['students'][0]['sid'] == self.inactive_sid
+        assert updated_groups[0]['totalStudentCount'] == 2
+        assert updated_groups[0]['students'][1]['sid'] == self.active_sid
+        assert updated_groups[0]['students'][0]['sid'] == self.inactive_sid
 
 
 class TestDownloadCuratedGroupCSV:
