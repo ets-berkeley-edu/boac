@@ -18,15 +18,16 @@
     <v-menu
       v-if="!!size(sids)"
       :id="dropdownId"
+      :close-on-content-click="false"
       :disabled="isConfirming || isSaving"
     >
-      <template #activator="{props}">
+      <template #activator="{props: menuProps}">
         <v-btn
           :id="isSaving ? `add-to-${idFragment}-confirmation` : `add-to-${idFragment}`"
           :color="isConfirming ? 'success' : 'primary'"
           slim
           variant="flat"
-          v-bind="props"
+          v-bind="menuProps"
         >
           <div class="align-center d-flex">
             <v-progress-circular
@@ -45,33 +46,46 @@
           </div>
         </v-btn>
       </template>
-      <v-list density="compact" variant="flat">
+      <v-list class="overflow-x-hidden" density="compact" variant="flat">
         <v-list-item v-if="!size(myCuratedGroups)" disabled>
           <span class="px-3 py-1 text-no-wrap">You have no {{ domainLabel(false) }}s.</span>
         </v-list-item>
         <v-list-item
           v-for="group in myCuratedGroups"
           :key="group.id"
-          class="py-0"
+          class="v-list-item-override py-0"
           density="compact"
-          @click="curatedGroupCheckboxClick(group)"
-          @keyup.enter="curatedGroupCheckboxClick(group)"
+          @click.stop="onClickCuratedGroup(group)"
+          @keyup.enter="onClickCuratedGroup(group)"
         >
           <template #prepend>
             <v-checkbox
               :id="`${idFragment}-${group.id}-checkbox`"
+              :model-value="!!find(selectedCuratedGroups, {'id': group.id})"
+              class="mr-7 w-100"
               color="primary"
               density="compact"
               hide-details
-              width="600"
             >
               <template #label>
-                <span class="ml-2">
+                <span class="truncate-with-ellipsis ml-2">
                   {{ group.name }}
                 </span>
               </template>
             </v-checkbox>
           </template>
+        </v-list-item>
+        <v-list-item>
+          <v-btn
+            :id="`submit-${idFragment}`"
+            :aria-label="`Add students to selected ${domainLabel(true)}s`"
+            class="px-6"
+            color="primary"
+            :disabled="!size(selectedCuratedGroups) || isConfirming || isSaving"
+            height="32"
+            text="Add"
+            @click="onSubmit"
+          />
         </v-list-item>
         <v-list-item class="border-t-sm mt-2 pt-2" density="compact">
           <v-btn
@@ -81,7 +95,7 @@
             :prepend-icon="mdiPlus"
             :text="`Create New ${domainLabel(true)}`"
             variant="text"
-            @click="showModal = true"
+            @click.stop="showModal = true"
           />
         </v-list-item>
       </v-list>
@@ -97,11 +111,11 @@
 
 <script setup>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
-import {addStudentsToCuratedGroup, createCuratedGroup} from '@/api/curated'
-import {alertScreenReader, pluralize} from '@/lib/utils'
+import {addStudentsToCuratedGroups, createCuratedGroup} from '@/api/curated'
+import {alertScreenReader, oxfordJoin, pluralize} from '@/lib/utils'
 import {computed, onMounted, onUnmounted, reactive, ref} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
-import {each, filter as _filter, inRange, remove, size} from 'lodash'
+import {each, filter as _filter, find, inRange, map, remove, size} from 'lodash'
 import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
@@ -136,6 +150,7 @@ const indeterminate = ref(false)
 const isConfirming = ref(false)
 const isSaving = ref(false)
 const isSelectAllChecked = ref(false)
+const selectedCuratedGroups = ref([])
 const showModal = ref(false)
 const sids = ref([])
 
@@ -161,33 +176,8 @@ const afterCreateGroup = () => {
   props.onCreateCuratedGroup()
 }
 
-const curatedGroupCheckboxClick = group => {
-  isSaving.value = true
-  addStudentsToCuratedGroup(group.id, sids.value).then(() => {
-    isSaving.value = false
-    isConfirming.value = true
-  }).finally(() => {
-    setTimeout(
-      () => {
-        isConfirming.value = false
-        isSelectAllChecked.value = indeterminate.value = false
-        contextStore.broadcast('curated-group-deselect-all', props.domain)
-        alertScreenReader(`${pluralize('student', size(sids.value))} added to ${domainLabel(false)} "${group.name}".`)
-        sids.value = []
-        putFocusNextTick(checkboxId)
-      },
-      2000
-    )
-  })
-}
-
 const domainLabel = capitalize => {
   return describeCuratedGroupDomain(props.domain, capitalize)
-}
-
-const refresh = () => {
-  indeterminate.value = inRange(size(sids.value), 1, size(props.students))
-  isSelectAllChecked.value = size(sids.value) === size(props.students)
 }
 
 const modalCancel = () => {
@@ -201,7 +191,7 @@ const modalCreateCuratedGroup = name => {
     showModal.value = false
     isSaving.value = false
     isConfirming.value = true
-    alertScreenReader(`Student${size(sids.value) === 1 ? 's' : ''} added to ${domainLabel(false)} ${name}`)
+    alertScreenReader(`${pluralize('student', size(sids.value))} added to ${domainLabel(false)} ${name}`)
   }).finally(() => {
     setTimeout(
       () => {
@@ -225,6 +215,46 @@ const onCheckboxUnchecked = args => {
     sids.value = remove(sids.value, s => s !== args.sid)
     refresh()
   }
+}
+
+const onClickCuratedGroup = group => {
+  const selected = selectedCuratedGroups.value.findIndex(g => g.id === group.id)
+  if (selected >= 0) {
+    selectedCuratedGroups.value.splice(selected, 1)
+  } else {
+    selectedCuratedGroups.value.push(group)
+  }
+}
+
+const onSubmit = () => {
+  isSaving.value = true
+  const groupCount = size(selectedCuratedGroups.value)
+  const groupDescription = groupCount > 1 ? pluralize(domainLabel(false), groupCount) : domainLabel(false)
+  const groupIds = map(selectedCuratedGroups.value, 'id')
+  const groupNames = oxfordJoin(map(selectedCuratedGroups.value, 'name'))
+  alertScreenReader(`Adding students to ${groupDescription}`)
+  addStudentsToCuratedGroups(groupIds, sids.value).then(() => {
+    isSaving.value = false
+    isConfirming.value = true
+  }).finally(() => {
+    setTimeout(
+      () => {
+        isConfirming.value = false
+        isSelectAllChecked.value = indeterminate.value = false
+        selectedCuratedGroups.value = []
+        contextStore.broadcast('curated-group-deselect-all', props.domain)
+        alertScreenReader(`${pluralize('student', size(sids.value))} added to ${groupDescription} ${groupNames}.`)
+        sids.value = []
+        putFocusNextTick(checkboxId)
+      },
+      2000
+    )
+  })
+}
+
+const refresh = () => {
+  indeterminate.value = inRange(size(sids.value), 1, size(props.students))
+  isSelectAllChecked.value = size(sids.value) === size(props.students)
 }
 
 const toggle = checked => {

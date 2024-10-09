@@ -299,6 +299,12 @@
     width: 100%;
   }
 }
+.v-list-item-override .v-list-item__prepend,
+.v-list-item-override .v-input__control,
+.v-list-item-override .v-checkbox-btn {
+  max-width: inherit;
+  width: inherit;
+}
 .v-table-hidden-row-override table tbody tr[style="height: 0px; border: 0px;"] {
   display: none;
 }

@@ -271,5 +271,6 @@ const save = isDraft => {
 .edit-note-form {
   cursor: auto !important;
   flex-basis: 100%;
+  width: 140%;
 }
 </style>

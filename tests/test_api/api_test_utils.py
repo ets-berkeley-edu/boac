@@ -66,7 +66,7 @@ def api_cohort_events(client, cohort_id, expected_status_code=200):
 
 def api_curated_group_add_students(
         client,
-        curated_group_id,
+        curated_group_ids,
         expected_status_code=200,
         return_student_profiles=False,
         sids=(),
@@ -74,7 +74,7 @@ def api_curated_group_add_students(
     response = client.post(
         '/api/curated_group/students/add',
         data=json.dumps({
-            'curatedGroupId': curated_group_id,
+            'curatedGroupIds': curated_group_ids,
             'returnStudentProfiles': return_student_profiles,
             'sids': sids,
         }),
@@ -85,8 +85,14 @@ def api_curated_group_add_students(
     return response.json
 
 
-def api_curated_group_remove_student(client, curated_group_id, sid, expected_status_code=200):
-    response = client.delete(f'/api/curated_group/{curated_group_id}/remove_student/{sid}')
+def api_curated_group_remove_student(client, curated_group_ids, sid, expected_status_code=200):
+    response = client.post(
+        f'/api/curated_group/remove_student/{sid}',
+        data=json.dumps({
+            'curatedGroupIds': curated_group_ids,
+        }),
+        content_type='application/json',
+    )
     std_commit(allow_test_environment=True)
     assert response.status_code == expected_status_code
     return response.json

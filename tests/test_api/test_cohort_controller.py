@@ -419,7 +419,7 @@ class TestCohortById:
             assert e['createdAt'] is not None
             assert e['eventType'] == 'added'
 
-        api_curated_group_add_students(client, curated_group.id, sids=['11667051', '7890123456'])
+        api_curated_group_add_students(client, [curated_group.id], sids=['11667051', '7890123456'])
         cohort = api_cohort_get(client, cohort['id'])
         assert cohort['totalStudentCount'] == 5
 
@@ -434,7 +434,7 @@ class TestCohortById:
             assert e['eventType'] == 'added'
 
         for sid in original_sids:
-            api_curated_group_remove_student(client, curated_group_id=curated_group.id, sid=sid)
+            api_curated_group_remove_student(client, curated_group_ids=[curated_group.id], sid=sid)
         cohort = api_cohort_get(client, cohort['id'])
         assert cohort['totalStudentCount'] == 2
 
