@@ -11,7 +11,7 @@
       (Example: 9999999990, 9999999991)
     </div>
     <div class="align-center d-flex">
-      <v-autocomplete
+      <v-combobox
         id="create-note-add-student-input"
         :key="vAutocompleteKey"
         aria-describedby="create-note-add-student-desc"
@@ -29,7 +29,9 @@
         item-value="sid"
         :items="autoSuggestedStudents"
         :menu-icon="null"
-        :menu-props="{'content-class': useContextStore().currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
+        :menu-props="{
+          'content-class': useContextStore().currentUser.inDemoMode ? 'demo-mode-blur' : ''
+        }"
         type="search"
         validate-on="submit"
         variant="outlined"
@@ -52,7 +54,7 @@
             @click.stop="onClickAddButton"
           />
         </template>
-      </v-autocomplete>
+      </v-combobox>
     </div>
     <ul class="list-no-bullets mt-1">
       <li v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid">
@@ -134,11 +136,9 @@ const resetAutocomplete = () => {
 }
 
 const onUpdateModel = sid => {
-  const student = sid ? find(autoSuggestedStudents.value, ['sid', sid]) : null
+  const student = sid ? find(autoSuggestedStudents.value, ['sid', sid.sid]) : null
   if (student && !noteStore.recipients.sids.includes(student.sid)) {
     addStudent(student)
-  } else {
-    resetAutocomplete()
   }
 }
 
@@ -183,7 +183,6 @@ const onClickAddButton = () => {
     return Promise.resolve()
   }
 }
-
 const onUpdateSearch = input => {
   query.value = input
   autocompleteErrorMessage.value = undefined
