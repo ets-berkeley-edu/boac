@@ -41,13 +41,13 @@
         :width="noteStore.noteTemplates.length ? 1000 : 350"
         @update:model-value="onToggleTemplatesMenu"
       >
-        <template #activator="{props}">
+        <template #activator="{props: menuProps}">
           <v-btn
             id="my-templates-button"
             class="pr-2"
             color="primary"
             :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
-            v-bind="props"
+            v-bind="menuProps"
           >
             <div class="pr-1">Templates</div>
             <v-icon :icon="mdiMenuDown" size="24" />

@@ -29,7 +29,6 @@
 </template>
 
 <script setup>
-import {defineEmits} from 'vue'
 import {mdiCloseCircle} from '@mdi/js'
 
 defineEmits('close-clicked')
