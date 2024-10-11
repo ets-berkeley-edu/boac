@@ -39,6 +39,13 @@
         >
           Skip to pagination
         </a>
+        <a
+          id="skip-to-students-link"
+          href="#cohort-students"
+          class="sr-only"
+        >
+          Skip to students
+        </a>
         <v-btn
           v-if="cohortStore.cohortId && size(cohortStore.filters)"
           id="show-hide-details-button"

@@ -17,6 +17,13 @@
       >
         Skip to pagination
       </a>
+      <a
+        id="skip-to-students-link"
+        href="#curated-cohort-students"
+        class="sr-only"
+      >
+        Skip to students
+      </a>
       <div v-if="mode === 'rename'" class="mr-3 w-100">
         <div class="align-center d-flex">
           <div class="w-75">

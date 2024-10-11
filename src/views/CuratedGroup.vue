@@ -22,7 +22,7 @@
           />
         </div>
         <div v-if="size(students)" class="pt-2">
-          <div id="curated-cohort-students">
+          <div id="curated-cohort-students" class="scroll-margins">
             <div v-if="domain === 'default'">
               <StudentRow
                 v-for="(student, index) in students"
@@ -143,7 +143,7 @@ onMounted(() => {
     if (group) {
       contextStore.loadingComplete(pageLoadAlert.value)
       setPageTitle(curatedStore.curatedGroupName)
-      putFocusNextTick('curated-group-name')
+      putFocusNextTick('curated-group-name', {scrollBlock: 'start'})
     } else {
       router.push({path: '/404'})
     }

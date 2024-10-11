@@ -15,6 +15,13 @@
     >
       Skip to pagination widget
     </a>
+    <a
+      id="skip-to-students-link"
+      href="#course-students"
+      class="sr-only"
+    >
+      Skip to students
+    </a>
     <div class="d-flex">
       <div class="course-column-description bg-light-blue">
         <h1
@@ -189,7 +196,7 @@ watch(itemsPerPage, (newValue, oldValue) => {
 
 onMounted(() => {
   reload(params.sectionId, params.termId).then(() => {
-    scrollToTop()
+    putFocusNextTick('course-header', {scrollBlock: 'start'})
   })
 })
 

@@ -61,7 +61,7 @@
               class="w-100"
             >
               <ServiceAnnouncement />
-              <div id="content" role="main">
+              <div id="content" class="scroll-margins" role="main">
                 <router-view :key="split($route.fullPath, '#', 1)[0]" />
               </div>
             </div>
