@@ -47,7 +47,7 @@
       <v-container
         v-if="cohortStore.domain === 'default'"
         id="cohort-students"
-        class="pl-3"
+        class="pl-3 scroll-margins"
         fluid
       >
         <StudentRow
@@ -173,7 +173,7 @@ onUnmounted(() => {
 const afterLoadingComplete = focusId => {
   const pageTitle = cohortStore.cohortId ? cohortStore.cohortName : 'Create Cohort'
   setPageTitle(pageTitle)
-  nextTick(() => putFocusNextTick(focusId))
+  nextTick(() => putFocusNextTick(focusId, {scrollBlock: 'start'}))
 }
 
 const getFocusElementId = isBackButtonToCohort => {

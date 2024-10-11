@@ -9,7 +9,7 @@
         style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
       }
     }"
-    class="responsive-data-table"
+    class="responsive-data-table scroll-margins"
     density="compact"
     :headers="headers"
     hide-default-footer
