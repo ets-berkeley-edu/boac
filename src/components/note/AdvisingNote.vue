@@ -5,38 +5,28 @@
       class="w-100"
       :class="{'note-snippet-when-closed': !isOpen}"
     >
-      <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`">
-        <span class="pr-2">
-          <v-chip
-            class="font-weight-black"
-            color="error"
-            density="compact"
-            rounded
-            size="small"
-            variant="flat"
-          >
-            Draft
-          </v-chip>
-        </span>
+      <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`" class="d-flex align-center">
+        <v-chip
+          class="font-weight-black mr-2"
+          color="error"
+          density="compact"
+          rounded
+          size="small"
+          variant="flat"
+        >
+          Draft
+        </v-chip>
         <span :id="`note-${note.id}-subject`">{{ note.subject || contextStore.config.draftNoteSubjectPlaceholder }}</span>
       </span>
       <span v-if="!note.isDraft">
-        <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
-        <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-subject`">
-          <span v-if="isOpen" v-html="note.message" />
-          <span v-if="!isOpen" v-html="stripHtmlAndTrim(note.message).replace(/\n\r/g, ' ')" />
-        </span>
-        <span v-if="!note.subject && !size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
-        <span v-if="!note.subject && !size(note.message) && !note.category && !note.eForm" :id="`note-${note.id}-category-closed`">{{ !isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
-          advisor {{ author.name }}<span v-if="note.topics && size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
-        </span>
-        <span v-if="!note.subject && !size(note.message) && !note.category && note.eForm" :id="`note-${note.id}-subject`">
-          eForm: {{ note.eForm.action }} &mdash; {{ note.eForm.status }}
+        <span :id="`note-${note.id}-subject`">
+          <span v-if="isOpen && !note.subject && size(note.message)" v-html="note.message" />
+          <span v-html="messageSummary" />
         </span>
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="pb-2 w-100">
-      <div v-if="note.subject && note.message" class="open-note-message-container pt-2">
+      <div v-if="(note.subject || note.isDraft) && note.message" class="open-note-message-container pt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message" />
       </div>
       <div v-if="!note.subject && !note.message && note.eForm" class="pt-2">
@@ -77,13 +67,13 @@
           </div>
         </dl>
       </div>
-      <div v-if="!isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 pt-2 text-medium-emphasis">
+      <div v-if="isAuthorDetailsLoaded && !isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 pt-2 text-medium-emphasis">
         Advisor profile not found
         <span v-if="note.legacySource" class="font-italic">
           (note imported from {{ note.legacySource }})
         </span>
       </div>
-      <div v-if="author" class="pt-2">
+      <div v-if="isAuthorDetailsLoaded && author" class="pt-2">
         <div v-if="author.name || author.email">
           <span class="sr-only">Note created by </span>
           <a
@@ -165,11 +155,10 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {alertScreenReader, numFormat, oxfordJoin, toInt} from '@/lib/utils'
 import {computed, onMounted, ref, watch} from 'vue'
-import {get, isEmpty, isNil, isNumber, map, orderBy, size} from 'lodash'
+import {get, isNil, isNumber, map, orderBy, size} from 'lodash'
 import {DateTime} from 'luxon'
 import {getBoaUserRoles, termNameForSisId} from '@/berkeley'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
-import {stripHtmlAndTrim} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -190,6 +179,10 @@ const props = defineProps({
     required: true,
     type: Boolean
   },
+  messageSummary: {
+    required: true,
+    type: String
+  },
   note: {
     required: true,
     type: Object
@@ -203,6 +196,7 @@ const addAttachmentInputElementId = `note-${props.note.id}-choose-file-for-note-
 const author = ref(get(props.note, 'author'))
 const authorDepartments = computed(() => orderBy(map(author.value.departments, 'name')))
 const deleteAttachmentIndex = ref(undefined)
+const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)
 const showConfirmDeleteAttachment = ref(false)
 
@@ -272,13 +266,18 @@ const loadAuthorDetails = () => {
       if (author_uid) {
         if (author_uid === contextStore.currentUser.uid) {
           callback(contextStore.currentUser)
+          isAuthorDetailsLoaded.value = true
         } else {
-          getCalnetProfileByUid(author_uid).then(callback)
+          getCalnetProfileByUid(author_uid).then(callback).finally(() => isAuthorDetailsLoaded.value = true)
         }
       } else if (props.note.author.sid) {
-        getCalnetProfileByCsid(props.note.author.sid).then(callback)
+        getCalnetProfileByCsid(props.note.author.sid).then(callback).finally(() => isAuthorDetailsLoaded.value = true)
       }
+    } else {
+      isAuthorDetailsLoaded.value = true
     }
+  } else {
+    isAuthorDetailsLoaded.value = true
   }
 }
 

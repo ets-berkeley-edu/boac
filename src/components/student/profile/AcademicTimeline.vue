@@ -52,7 +52,7 @@ const init = () => {
     requirement: {name: 'Requirement', tab: 'Reqs', tabWidth: 58}
   }
   if (currentUser.canAccessAdvisingData) {
-    filterTypes.value.eForm = {name: 'EForm', tab: 'eForms', tabWidth: 76}
+    filterTypes.value.eForm = {name: 'eForm', tab: 'eForms', tabWidth: 76}
     filterTypes.value.note = {name: 'Advising Note', tab: 'Notes', tabWidth: 64}
     filterTypes.value.appointment = {name: 'Appointment', tab: 'Appointments', tabWidth: 126}
   }

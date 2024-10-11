@@ -6,7 +6,7 @@
   >
     <span
       :id="`appointment-${appointment.id}-details-closed`"
-      v-html="fallbackHeading(appointment)"
+      v-html="messageSummary"
     />
   </div>
   <div>
@@ -17,7 +17,7 @@
         </div>
         <div v-if="!appointment.appointmentTitle">
           <span :id="`appointment-${appointment.id}-title`">
-            {{ summaryHeading(appointment) }}
+            {{ summaryHeading }}
           </span>
         </div>
         <div class="mt-2">
@@ -111,20 +111,24 @@
 
 <script setup>
 import PillItem from '@/components/util/PillItem'
+import {computed, onMounted, ref, watch} from 'vue'
 import {get, size} from 'lodash'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {mdiCalendarMinus, mdiPaperclip} from '@mdi/js'
-import {onMounted, ref, watch} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
+  appointment: {
+    required: true,
+    type: Object
+  },
   isOpen: {
     required: true,
     type: Boolean
   },
-  appointment: {
+  messageSummary: {
     required: true,
-    type: Object
+    type: String
   },
   student: {
     required: true,
@@ -146,15 +150,14 @@ onMounted(() => {
 
 const downloadUrl = attachment => `${contextStore.config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`
 
-const fallbackHeading = appointment => {
-  if (appointment.appointmentTitle && appointment.appointmentTitle.trim().length) {
-    return appointment.appointmentTitle
-  } else if (appointment.details && appointment.details.trim().length) {
-    return appointment.details
+const summaryHeading = computed(() => {
+  const heading = props.appointment.legacySource === 'SIS' ? 'Imported SIS Appt' : 'Advising Appt'
+  if (get(props.appointment, 'advisor.name')) {
+    return `${heading}: ${props.appointment.advisor.name}`
   } else {
-    return summaryHeading(appointment)
+    return heading
   }
-}
+})
 
 const setAdvisor = () => {
   advisor.value = get(props.appointment, 'advisor')
@@ -175,15 +178,6 @@ const setAdvisor = () => {
     } else {
       advisor.value = get(props.appointment, 'advisor')
     }
-  }
-}
-
-const summaryHeading = appointment => {
-  const heading = appointment.legacySource === 'SIS' ? 'Imported SIS Appt' : 'Advising Appt'
-  if (get(appointment, 'advisor.name')) {
-    return `${heading}: ${appointment.advisor.name}`
-  } else {
-    return heading
   }
 }
 </script>
