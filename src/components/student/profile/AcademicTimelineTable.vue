@@ -658,7 +658,7 @@ const getMessageSummary = message => {
     } else if (message.category) {
       summary = `${message.category}${message.subcategory ? `, ${message.subcategory}` : ''}`
     } else {
-      summary = `${!isEmpty(message.author.departments) ? message.author.departments[0].name : ''} advisor ${message.author.value.name || ''}`
+      summary = `${!isEmpty(message.author.departments) ? message.author.departments[0].name : ''} advisor ${message.author.name || ''}`
       if (message.topics && size(message.topics)) {
         summary += `: ${oxfordJoin(message.topics)}`
       }

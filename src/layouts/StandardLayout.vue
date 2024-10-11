@@ -17,7 +17,7 @@
             aria-controls="small-viewport-sidebar"
             :aria-expanded="showSidebar"
             :aria-label="showSidebar ? 'Collapse navigation menu' : 'Expand navigation menu'"
-            @click.stop="showSidebar = !showSidebar"
+            @click.stop="onToggleShowSidebar"
           />
           <AppBar />
         </v-app-bar>
@@ -36,7 +36,7 @@
           <Sidebar />
         </v-navigation-drawer>
         <v-main role="none" tag="div">
-          <div class="h-100" :class="{'align-center d-flex justify-center': loading}">
+          <div id="main-container" class="h-100" :class="{'align-center d-flex justify-center': loading}">
             <div v-if="loading" class="loading-container d-flex">
               <div class="my-auto" role="progressbar">
                 <PlaneGoRound
@@ -97,7 +97,7 @@ import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
 import Sidebar from '@/components/sidebar/Sidebar'
-import {putFocusNextTick} from '@/lib/utils'
+import {putFocusNextTick, scrollTo} from '@/lib/utils'
 import {computed, ref} from 'vue'
 import {split} from 'lodash'
 import {useContextStore} from '@/stores/context'
@@ -111,6 +111,13 @@ const noteStore = useNoteStore()
 const showSidebar = ref(true)
 
 contextStore.setEventHandler('hide-footer', value => hideFooter.value = value)
+
+const onToggleShowSidebar = () => {
+  showSidebar.value = !showSidebar.value
+  if (showSidebar.value) {
+    scrollTo('main-container', 'start')
+  }
+}
 </script>
 
 <style scoped>
