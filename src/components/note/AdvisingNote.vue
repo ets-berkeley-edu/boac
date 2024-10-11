@@ -41,16 +41,16 @@
       </div>
       <div v-if="!note.subject && !note.message && note.eForm" class="pt-2">
         <dl :id="`note-${note.id}-message-open`">
-          <div>
-            <dt>Term</dt>
+          <div class="mb-3">
+            <dt class="font-weight-bold">Term</dt>
             <dd>{{ termNameForSisId(note.eForm.term) }}</dd>
           </div>
-          <div>
-            <dt>Course</dt>
+          <div class="mb-3">
+            <dt class="font-weight-bold">Course</dt>
             <dd>{{ note.eForm.sectionId }} {{ note.eForm.courseName }} - {{ note.eForm.courseTitle }} {{ note.eForm.section }}</dd>
           </div>
-          <div>
-            <dt>Action</dt>
+          <div class="mb-3">
+            <dt class="font-weight-bold">Action</dt>
             <dd>
               {{ note.eForm.action }}
               <span v-if="note.eForm.action === 'Late Grading Basis Change' && note.eForm.gradingBasis"> from <span class="font-italic">{{ note.eForm.gradingBasis }}</span></span>
@@ -59,21 +59,21 @@
               <span v-if="note.eForm.action === 'Unit Change' && note.eForm.requestedUnitsTaken"> to <span class="font-italic">{{ numFormat(note.eForm.requestedUnitsTaken, '0.0') }}</span>{{ 1 === toInt(note.eForm.requestedUnitsTaken) ? ' unit' : ' units' }}</span>
             </dd>
           </div>
-          <div>
-            <dt>Form ID</dt>
+          <div class="mb-3">
+            <dt class="font-weight-bold">Form ID</dt>
             <dd>{{ note.eForm.id }}</dd>
           </div>
-          <div>
-            <dt>Date Initiated</dt>
-            <dd>{{ DateTime.fromJSDate(note.createdAt).toFormat('MM/dd/yyyy') }}</dd>
+          <div class="mb-3">
+            <dt class="font-weight-bold">Date Initiated</dt>
+            <dd>{{ DateTime.fromISO(note.createdAt).toFormat('MM/dd/yyyy') }}</dd>
           </div>
-          <div>
-            <dt>Form Status </dt>
+          <div class="mb-3">
+            <dt class="font-weight-bold">Form Status </dt>
             <dd>{{ note.eForm.status }}</dd>
           </div>
-          <div>
-            <dt>Final Date &amp; Time Stamp</dt>
-            <dd>{{ DateTime.fromJSDate(note.updatedAt).toFormat('MM/dd/yyyy h:mm:ssa') }}</dd>
+          <div class="mb-3">
+            <dt class="font-weight-bold">Final Date &amp; Time Stamp</dt>
+            <dd>{{ DateTime.fromISO(note.updatedAt).toFormat('MM/dd/yyyy h:mm:ssa') }}</dd>
           </div>
         </dl>
       </div>
