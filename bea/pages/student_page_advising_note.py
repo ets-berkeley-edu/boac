@@ -39,7 +39,6 @@ from selenium.webdriver.common.by import By
 
 
 class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
-
     # EXISTING NOTES
 
     NOTES_BUTTON = (By.ID, 'timeline-tab-note')
@@ -71,13 +70,19 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         self.wait_for_element_and_click(self.TOGGLE_ALL_NOTES_BUTTON)
         self.when_visible(self.NOTES_COLLAPSED_MSG, 2)
 
+    def hit_note_permalink(self, note, url):
+        app.logger.info(f'Hitting permalink for note {note.record_id} at {url}')
+        self.driver.get(url)
+        self.wait_for_spinner()
+        self.when_present((By.ID, f'note-{note.record_id}-is-open'), utils.get_short_timeout())
+
     TIMELINE_NOTES_QUERY_INPUT = (By.ID, 'timeline-notes-query-input')
     TIMELINE_NOTES_SPINNER = (By.ID, 'timeline-notes-spinner')
 
     def search_within_timeline_notes(self, query):
-        app.logger.debug(f"Searching for '{query}'")
-        self.wait_for_element_and_type(self.TIMELINE_NOTES_QUERY_INPUT, query)
-        self.hit_enter()
+        app.logger.info(f"Searching for '{query}'")
+        self.scroll_to_top()
+        self.wait_for_textbox_and_type(self.TIMELINE_NOTES_QUERY_INPUT, query)
         time.sleep(1)
         self.when_not_present(self.TIMELINE_NOTES_SPINNER, utils.get_short_timeout())
 
@@ -99,6 +104,15 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
     def visible_collapsed_note_ids(self):
         return self.visible_collapsed_item_ids('note')
 
+    @staticmethod
+    def is_updated_date_expected(note):
+        created = note.created_date.strftime('%Y %m %d %H %M %S')
+        updated = note.updated_date.strftime('%Y %m %d %H %M %S')
+        if created != updated and note.advisor.uid != 'UCBCONVERSION':
+            return True
+        else:
+            return False
+
     def visible_collapsed_note_data(self, note):
         return {
             'subject': self.collapsed_note_subject(note),
@@ -111,13 +125,13 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         subj_loc = By.ID, f'note-{note.record_id}-subject'
         return self.element(subj_loc).get_attribute('innerText') if self.is_present(subj_loc) else None
 
+    def collapsed_note_date(self, note):
+        date_loc = By.ID, f'collapsed-note-{note.record_id}-created-at'
+        return self.el_text_if_exists(date_loc, 'Last updated on')
+
     def collapsed_note_category(self, note):
         category_loc = By.ID, f'note-{note.record_id}-category-closed'
         return self.element(category_loc).text if self.is_present(category_loc) else None
-
-    def collapsed_note_date(self, note):
-        date_loc = By.ID, f'collapsed-note-{note.record_id}-created-at'
-        return self.element(date_loc).text.replace('Last updated on', '').strip() if self.is_present(date_loc) else None
 
     def collapsed_note_is_draft(self, note):
         return self.is_present((By.ID, f'note-{note.record_id}-is-draft'))
@@ -132,39 +146,46 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         body_loc = By.ID, f'note-{note.record_id}-message-open'
         if self.is_present(body_loc):
             text = self.element(body_loc).text
-            return '' if re.sub('/\W/', '', text).replace('&nbsp;', '') == '' else text.replace('\n', '').strip()
+            return '' if re.sub(r'/\W/', '', text).replace('&nbsp;', '') == '' else text.replace('\n', '').strip()
         else:
-            return ''
+            return None
+
+    @staticmethod
+    def expanded_note_advisor_loc(note):
+        return By.ID, f'note-{note.record_id}-author-name'
 
     def expanded_note_advisor(self, note):
-        advisor_loc = By.ID, f'note-{note.record_id}-author-name'
-        return self.element(advisor_loc).text if self.is_present(advisor_loc) else None
+        return self.el_text_if_exists(self.expanded_note_advisor_loc(note))
+
+    def is_expanded_note_advisor_link_present(self, note):
+        return self.is_present(self.expanded_note_advisor_loc(note)) and self.element(
+            self.expanded_note_advisor_loc(note)).tag_name == 'a'
 
     def expanded_note_advisor_depts(self, note):
-        advisor_dept_els = self.elements((By.XPATH, f"//span[contains(@id, 'note-{note.record_id}-author-dept-')]"))
-        advisor_depts = list(map(lambda el: el.text, advisor_dept_els))
-        advisor_depts.sort()
-        return advisor_depts
+        advisor_dept_loc = By.XPATH, f"//span[contains(@id, 'note-{note.record_id}-author-dept-')]"
+        depts = self.els_text_if_exist(advisor_dept_loc)
+        depts.sort()
+        return depts
 
     def expanded_note_advisor_role(self, note):
         advisor_role_loc = By.ID, f'note-{note.record_id}-author-role'
-        return self.element(advisor_role_loc) if self.is_present(advisor_role_loc) else None
+        return self.el_text_if_exists(advisor_role_loc)
 
     def expanded_note_contact_type(self, note):
         contact_type_loc = By.ID, f'note-{note.record_id}-contact-type'
-        return self.element(contact_type_loc).text if self.is_present(contact_type_loc) else None
+        return self.el_text_if_exists(contact_type_loc)
 
     def expanded_note_created_date(self, note):
         created_loc = By.ID, f'expanded-note-{note.record_id}-created-at'
         if self.is_present(created_loc):
             text = self.element(created_loc).text.replace('Created on', '')
-            return re.sub('/\s+/', ' ', text).strip()
+            return re.sub(r'/\s+/', ' ', text).strip()
         else:
             return None
 
     def expanded_note_source(self, note):
         note_src_loc = By.XPATH, f"//tr[@id='permalink-note-{note.record_id}']//span[contains(text(), 'note imported from')]"
-        return self.element(note_src_loc).text if self.is_present(note_src_loc) else None
+        return self.el_text_if_exists(note_src_loc)
 
     def expanded_note_permalink_url(self, note):
         permalink_loc = By.ID, f'advising-note-permalink-{note.record_id}'
@@ -174,13 +195,13 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         set_date_loc = By.ID, f'expanded-note-{note.record_id}-set-date'
         if self.is_present(set_date_loc):
             text = self.element(set_date_loc).text
-            return re.sub('/\s+/', ' ', text).strip()
+            return re.sub(r'/\s+/', ' ', text).strip()
         else:
             return None
 
     def expanded_note_topics(self, note):
-        topic_els = self.elements((By.XPATH, f"//*[contains(@id, 'note-{note.record_id}-topic-')]"))
-        topics = list(map(lambda el: el.text, topic_els))
+        topic_loc = By.XPATH, f"//*[contains(@id, 'note-{note.record_id}-topic-')]"
+        topics = self.els_text_if_exist(topic_loc)
         topics.sort()
         return topics
 
@@ -191,7 +212,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         updated_loc = By.ID, f'expanded-note-{note.record_id}-updated-at'
         if self.is_present(updated_loc):
             text = self.element(updated_loc).text.replace('Last updated on', '')
-            return re.sub('/\s+/', ' ', text).strip()
+            return re.sub(r'/\s+/', ' ', text).strip()
         else:
             return None
 
@@ -252,60 +273,6 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         else:
             utils.assert_equivalence(visible_body, note.body)
             utils.assert_equivalence(visible_attachments, attachments)
-
-    # E-FORMS
-
-    E_FORMS_BUTTON = (By.ID, 'timeline-tab-eForm')
-    SHOW_HIDE_E_FORMS_BUTTON = (By.ID, 'toggle-expand-all-eForms')
-    E_FORMS_DOWNLOAD_LINK = (By.ID, 'download-notes-link')
-
-    def show_e_forms(self):
-        app.logger.info('Checking eForms tab')
-        self.wait_for_element_and_click(self.E_FORMS_BUTTON)
-        if self.is_present(self.SHOW_HIDE_E_FORMS_BUTTON) and 'Show?' in self.element(
-                self.SHOW_HIDE_E_FORMS_BUTTON).text:
-            self.wait_for_element_and_click(self.SHOW_HIDE_E_FORMS_BUTTON)
-
-    @staticmethod
-    def e_form_data_loc(e_form, label):
-        return By.XPATH, f"//tr[@id='permalink-eForm-{e_form.id}']//dt[text()='{label}']/following-sibling::dd"
-
-    def expanded_e_form_created_date(self, e_form):
-        created_loc = By.ID, f'expanded-eForm-{e_form.id}-created-at'
-        if self.is_present(created_loc):
-            text = self.element(created_loc).text.replace('Created on', '')
-            return re.sub(r'/\s+ /', ' ', text).strip()
-        else:
-            return None
-
-    def expanded_e_form_updated_date(self, e_form):
-        updated_loc = By.ID, f'expanded-eForm-{e_form.id}-updated-at'
-        if self.is_present(updated_loc):
-            text = self.element(updated_loc).text.replace('Last updated on', '')
-            return re.sub(r'/\s+ /', ' ', text).strip()
-        else:
-            return None
-
-    def expanded_e_form_action(self, e_form):
-        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Action'))
-
-    def expanded_e_form_course(self, e_form):
-        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Course'))
-
-    def expanded_e_form_date_final(self, e_form):
-        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Final Date & Time Stamp'))
-
-    def expanded_e_form_date_init(self, e_form):
-        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Date Initiated'))
-
-    def expanded_e_form_id(self, e_form):
-        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Form ID'))
-
-    def expanded_e_form_status(self, e_form):
-        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Form Status'))
-
-    def expanded_e_form_term(self, e_form):
-        return self.el_text_if_exists(By.XPATH, self.e_form_data_loc(e_form, 'Term'))
 
     def visible_expanded_note_data(self, note):
         time.sleep(2)
@@ -398,22 +365,6 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         self.click_save_new_note()
         self.set_new_note_id(note)
 
-    # NOTE / E-FORM DOWNLOADS
-
-    @staticmethod
-    def export_zip_file_name(student, record_type_str):
-        timestamp = datetime.datetime.now().strftime('%Y%m%d')
-        return f'advising_{record_type_str}_{student.first_name.lower()}_{student.last_name.lower()}_{timestamp}.zip'
-
-    def export_csv_file_name(self, student, record_type_str):
-        return self.export_zip_file_name(student, record_type_str).replace('zip', 'csv')
-
-    @staticmethod
-    def downloaded_zip_file_name_list(zip_name):
-        zip_path = f'{utils.default_download_dir()}/{zip_name}'
-        with ZipFile(zip_path, 'r') as zip_file:
-            return zip_file.namelist()
-
     # Notes
 
     def notes_export_zip_file_name(self, student):
@@ -465,16 +416,19 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
                     assert row['author_uid'] == int(note.advisor.uid)
                 if note.subject:
                     assert row['subject'] == note.subject
-                if (note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts) or not note.body:
+                if (
+                        note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts) or not note.body:
                     assert not row['body']
 
-                exp_tops = [topic.name.lower() if topic.__class__.__name__ == 'Topic' else topic for topic in note.topics]
+                exp_tops = [topic.name.lower() if topic.__class__.__name__ == 'Topic' else topic for topic in
+                            note.topics]
                 exp_tops.sort()
                 act_tops = [topic.strip().lower() for topic in row['topics'].split(';')] if row['topics'] else []
                 act_tops.sort()
                 assert act_tops == exp_tops
 
-                if (note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts) or not note.attachments:
+                if (
+                        note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts) or not note.attachments:
                     exp_att = []
                 else:
                     exp_att = [a.file_name for a in note.attachments]
@@ -485,58 +439,6 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
                 return True
 
-            except AssertionError:
-                if row == rows[-1]:
-                    return False
-
-    # E-Forms
-
-    def e_forms_export_zip_file_name(self, student):
-        return self.export_zip_file_name(student, 'eForms')
-
-    def e_forms_export_csv_file_name(self, student):
-        return self.export_csv_file_name(student, 'eForms')
-
-    def download_e_forms(self, student):
-        app.logger.info(f'Downloading eForms for UID {student.uid}')
-        self.download_file(self.E_FORMS_DOWNLOAD_LINK, self.e_forms_export_zip_file_name(student))
-
-    def e_form_export_file_names(self, student):
-        return self.downloaded_zip_file_name_list(self.e_forms_export_zip_file_name(student))
-
-    def expected_e_form_export_file_names(self, student):
-        return [self.e_forms_export_csv_file_name(student)]
-
-    def parse_e_forms_export_csv_to_table(self, student):
-        with ZipFile(self.e_forms_export_zip_file_name(student)) as zip_file:
-            with zip_file.read(self.e_forms_export_csv_file_name(student)) as csv_file:
-                return csv.DictReader(open(csv_file))
-
-    @staticmethod
-    def verify_e_form_in_export_csv(student, e_form, csv_reader):
-        rows = list(csv_reader)
-        for row in rows:
-            try:
-                assert row['created_date'] == e_form.created_date.strftime('%Y-%m-%d')
-                assert row['student_sid'] == int(student.sid)
-                assert row['student_name'] == student.full_name
-                assert row['eform_id'] == e_form.form_id
-                if e_form.action:
-                    assert row['late_change_request_action'] == e_form.action
-                if e_form.grading_basis:
-                    assert row['grading_basis'] == e_form.grading_basis
-                if e_form.requested_grading_basis:
-                    assert row['requested_grading_basis'] == e_form.requested_grading_basis
-                if e_form.units_taken:
-                    assert row['units_taken'] == e_form.units_taken
-                if e_form.requested_units_taken:
-                    assert row['requested_units_taken'] == e_form.requested_units_taken
-                if e_form.status:
-                    assert row['late_change_request_status'] == e_form.status
-                if e_form.term:
-                    assert row['late_change_request_term'] == e_form.term
-                assert row['late_change_request_course'] == e_form.course
-                return True
             except AssertionError:
                 if row == rows[-1]:
                     return False

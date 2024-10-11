@@ -239,8 +239,8 @@ class BoaPages(CreateNoteModal, SearchForm):
     @staticmethod
     def wait_for_draft_note_update(note, manual_update=False):
         expected_subj = note.subject or ''
-        expected_create_date = note.created_date and note.created_date.strftime('%Y/%m/%d')
-        expected_set_date = note.set_date and note.set_date.strftime('%Y/%m/%d')
+        expected_create_date = note.created_date and note.created_date.strftime('%Y-%m-%d')
+        expected_set_date = note.set_date and note.set_date.strftime('%Y-%m-%d')
         expected_attachments = [a.file_name for a in note.attachments]
         expected_attachments.sort()
         expected_topics = [t.name for t in note.topics]
@@ -249,12 +249,14 @@ class BoaPages(CreateNoteModal, SearchForm):
         max_tries = 2 if manual_update else 8
         while tries <= max_tries:
             try:
+                tries += 1
+                time.sleep(3)
                 saved_note = boa_utils.get_notes_by_ids([note.record_id])[0]
-                actual_create_date = saved_note.created_date and saved_note.created_date.strftime('%Y/%m/%d')
-                actual_set_date = saved_note.set_date and saved_note.set_date.strftime('%Y/%m/%d')
+                actual_create_date = saved_note.created_date and saved_note.created_date.strftime('%Y-%m-%d')
+                actual_set_date = saved_note.set_date and saved_note.set_date.strftime('%Y-%m-%d')
                 actual_attachments = [a.file_name for a in saved_note.attachments]
                 actual_attachments.sort()
-                actual_topics = [t.name for t in saved_note.topics]
+                actual_topics = [t for t in saved_note.topics]
                 actual_topics.sort()
                 utils.assert_equivalence(saved_note.subject, expected_subj)
                 utils.assert_equivalence(saved_note.body, note.body)
@@ -268,8 +270,6 @@ class BoaPages(CreateNoteModal, SearchForm):
             except AssertionError:
                 if tries == max_tries:
                     raise
-                else:
-                    time.sleep(5)
 
     @staticmethod
     def expected_draft_note_subject(note):

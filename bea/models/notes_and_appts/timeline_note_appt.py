@@ -30,27 +30,11 @@ class TimelineNoteAppt(TimelineRecord):
 
     @property
     def advisor(self):
-        return self.data['advisor']
+        return self.data.get('advisor')
 
     @advisor.setter
     def advisor(self, value):
         self.data['advisor'] = value
-
-    @property
-    def attachments(self):
-        return self.data.get('attachments') or []
-
-    @attachments.setter
-    def attachments(self, value):
-        self.data['attachments'] = value
-
-    @property
-    def topics(self):
-        return self.data.get('topics') or []
-
-    @topics.setter
-    def topics(self, value):
-        self.data['topics'] = value
 
     @property
     def contact_type(self):

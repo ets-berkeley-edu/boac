@@ -54,7 +54,7 @@ class CreateNoteModal(Page):
     # DRAFT NOTE
 
     SAVE_AS_DRAFT_BUTTON = By.ID, 'save-as-draft-button'
-    UPDATE_DRAFT_BUTTON = By.XPATH, '//button[text()=" Update Draft "]'
+    UPDATE_DRAFT_BUTTON = By.ID, 'update-draft-note-button'
     EDIT_DRAFT_HEADING = By.XPATH, '//h3[text()=" Edit Draft Note "]'
 
     def click_save_as_draft(self):
@@ -179,7 +179,7 @@ class CreateNoteModal(Page):
 
     @staticmethod
     def existing_note_attachment_delete_button(note, attachment):
-        return By.XPATH, f'//div[@id=\"note-{note.record_id}-outer\"]//li[contains(., \"{attachment.file_name}\")]//button'
+        return By.XPATH, f'//ul[@id="note-{note.record_id}-attachments-list"]//li[contains(., "{attachment.file_name}")]//button'
 
     def add_attachments_to_existing_note(self, note, attachments):
         for a in attachments:
@@ -187,7 +187,7 @@ class CreateNoteModal(Page):
             self.when_present(self.existing_note_attachment_input(note), utils.get_short_timeout())
             self.element(self.existing_note_attachment_input(note)).send_keys(
                 f'{utils.attachments_dir()}/{a.file_name}')
-            self.when_visible(self.existing_note_attachment_delete_button(note, a), utils.get_medium_timeout())
+            self.when_present(self.existing_note_attachment_delete_button(note, a), utils.get_medium_timeout())
             time.sleep(utils.get_click_sleep())
             note.updated_date = datetime.now()
             note.attachments.append(a)
@@ -240,7 +240,10 @@ class CreateNoteModal(Page):
         date = note.set_date and note.set_date.strftime('%m/%d/%Y')
         if date:
             self.wait_for_textbox_and_type(self.SET_DATE_INPUT, date)
-            time.sleep(1)
+        else:
+            self.remove_chars(self.SET_DATE_INPUT)
+        time.sleep(1)
+        self.hit_tab()
 
     # Save
 

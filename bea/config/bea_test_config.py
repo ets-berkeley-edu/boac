@@ -185,7 +185,7 @@ class BEATestConfig(object):
 
     def set_students(self, students=None, opts=None):
         self.students = students or nessie_utils.get_all_students(opts)
-        if opts and utils.safe_key(opts, 'include_inactive'):
+        if opts and opts.get('include_inactive'):
             app.logger.info('Pool of test students will include inactive students')
         else:
             self.students = [s for s in self.students if s.status == 'active']
@@ -262,6 +262,16 @@ class BEATestConfig(object):
                     random.shuffle(sid_list)
                     test_sids.extend(sid_list[:count])
 
+            # Use students with e-forms
+            if opts.get('e_forms'):
+                app.logger.info('Running tests using students with e-forms')
+                sids = nessie_utils.get_all_student_sids()
+                e_form_sids = nessie_timeline_utils.get_sids_with_e_forms()
+                e_form_sids = list(set(sids) & set(e_form_sids))
+                app.logger.info(f'There are {len(e_form_sids)} students with eForms')
+                random.shuffle(e_form_sids)
+                test_sids.extend(e_form_sids[:count])
+
             # Use students with enrollments in the current term
             if opts.get('enrollments'):
                 app.logger.info('Running tests using students with enrollments')
@@ -313,10 +323,6 @@ class BEATestConfig(object):
                 data_sids = list(set(sids) & set(data_sids))
                 app.logger.info(f'There are {len(data_sids)} students with Data Science notes')
 
-                e_form_sids = nessie_timeline_utils.get_sids_with_e_forms()
-                e_form_sids = list(set(sids) & set(e_form_sids))
-                app.logger.info(f'There are {len(e_form_sids)} students with eForms')
-
                 ei_sids = nessie_timeline_utils.get_sids_with_notes_of_src(TimelineRecordSource.E_AND_I)
                 ei_sids = list(set(sids) & set(ei_sids))
                 app.logger.info(f'There are {len(ei_sids)} students with E&I notes')
@@ -333,7 +339,7 @@ class BEATestConfig(object):
                 sis_sids = list(set(sids) & set(sis_sids))
                 app.logger.info(f'There are {len(sis_sids)} students with SIS notes that have attachments')
 
-                for sid_list in [asc_sids, boa_sids, data_sids, e_form_sids, ei_sids, eop_sids, history_sids, sis_sids]:
+                for sid_list in [asc_sids, boa_sids, data_sids, ei_sids, eop_sids, history_sids, sis_sids]:
                     random.shuffle(sid_list)
                     test_sids.extend(sid_list[:count])
 
@@ -425,7 +431,10 @@ class BEATestConfig(object):
         files = os.listdir(utils.attachments_dir())
         for f in files:
             size = os.path.getsize(f'{utils.attachments_dir()}/{f}')
-            attachment = NoteAttachment(file_name=f, file_size=size)
+            attachment = NoteAttachment({
+                'file_name': f,
+                'file_size': size,
+            })
             attachments.append(attachment)
         self.attachments = attachments
 
@@ -474,6 +483,21 @@ class BEATestConfig(object):
         self.set_test_students(count=50)
         self.get_test_student_enrollments(self.default_cohort.members)
 
+    def e_form_content(self):
+        self.set_base_configs(opts={'include_inactive': True})
+        self.set_test_students(count=app.config['MAX_NOTES_OR_APPTS_STUDENTS_COUNT'], opts={'e_forms': True})
+        for student in self.test_students:
+            e_forms = nessie_timeline_utils.get_e_form_notes(student)
+            # Tests for the list view of e-forms
+            self.test_cases.append(BEATestCase(student=student,
+                                               note=e_forms,
+                                               test_case_id=f'UID {student.uid}'))
+            # Tests for a sample of e-form detail
+            for e_form in e_forms[:app.config['MAX_NOTES_OR_APPTS_COUNT']]:
+                self.test_cases.append(BEATestCase(student=student,
+                                                   note=e_form,
+                                                   test_case_id=f'UID {student.uid} {e_form.record_id}'))
+
     def filtered_admits(self):
         self.set_dept(Department.ZCEEE)
         self.set_advisor()
@@ -506,6 +530,37 @@ class BEATestConfig(object):
         self.set_note_attachments()
         self.set_base_configs()
         self.set_default_cohort()
+
+    def note_content(self):
+        self.set_base_configs(opts={'include_inactive': True})
+        self.set_test_students(count=app.config['MAX_NOTES_OR_APPTS_STUDENTS_COUNT'], opts={'notes': True, 'inactive': True})
+        count = app.config['MAX_NOTES_OR_APPTS_COUNT']
+        for student in self.test_students:
+            asc_notes = nessie_timeline_utils.get_asc_notes(student)
+            boa_notes = boa_utils.get_student_notes(student)
+            boa_notes = [n for n in boa_notes if not (n.is_draft and n.advisor.uid != self.advisor.uid)]
+            data_notes = nessie_timeline_utils.get_data_sci_notes(student)
+            ei_notes = nessie_timeline_utils.get_e_and_i_notes(student)
+            eop_notes = nessie_timeline_utils.get_eop_notes(student)
+            history_notes = nessie_timeline_utils.get_history_notes(student)
+            sis_notes = nessie_timeline_utils.get_sis_notes(student)
+            all_notes = asc_notes + boa_notes + data_notes + ei_notes + eop_notes + history_notes + sis_notes
+
+            # Tests for the list view all a student's notes
+            self.test_cases.append(BEATestCase(student=student,
+                                               note=all_notes,
+                                               test_case_id=f'UID {student.uid}'))
+            # Tests for a representative sample of notes in more detail
+            sample_notes = (asc_notes[:count] + boa_notes[:count] + data_notes[:count] + ei_notes[:count]
+                            + eop_notes[:count] + history_notes[:count] + sis_notes[:count])
+            for note in sample_notes:
+                source = note.source.value['schema'] if note.source else 'BOA'
+                if note.subject and 'QA Test' in note.subject:
+                    app.logger.info(f'Skipping note {note.record_id} because it is a testing artifact')
+                else:
+                    self.test_cases.append(BEATestCase(student=student,
+                                                       note=note,
+                                                       test_case_id=f'UID {student.uid} {source} {note.record_id}'))
 
     def note_draft(self):
         self.set_base_configs(dept=Department.ZCEEE)
