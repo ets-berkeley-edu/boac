@@ -35,7 +35,7 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 class SearchResultsPage(ListViewAdmitPages):
 
     RESULTS_LOADED_MSG = By.XPATH, '//h1[text()="Search Results"]'
-    NO_RESULTS_MSG = By.XPATH, '//div[contains(text(), "No matching records found.")]'
+    NO_RESULTS_MSG = By.XPATH, '//div[contains(text(), "No results found for")]'
 
     def wait_for_no_results(self):
         self.when_present(self.NO_RESULTS_MSG, utils.get_short_timeout())

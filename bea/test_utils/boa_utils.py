@@ -22,7 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-
+from datetime import datetime
 from itertools import groupby
 import re
 
@@ -40,7 +40,6 @@ from bea.models.student import Student
 from bea.models.user import User
 from bea.test_utils import utils
 from boac import db, std_commit
-from dateutil import parser
 from flask import current_app as app
 from sqlalchemy import text
 
@@ -413,6 +412,25 @@ def get_notes_from_pg_db_result(results):
             'role': row['author_role'],
             'uid': row['author_uid'],
         })
+        student = row['sid'] and Student({'sid': row['sid']})
+        if row['set_date']:
+            set_date_str = row['set_date'].strftime('%Y-%m-%d')
+            set_date = datetime.strptime(set_date_str, '%Y-%m-%d')
+        else:
+            set_date = row['set_date']
+        note_data = {
+            'advisor': advisor,
+            'body': (utils.strip_tags_and_whitespace(row['body']) if row['body'] else None),
+            'created_date': (row['created_at'] and utils.date_to_local_tz(row['created_at'])),
+            'deleted_date': (row['deleted_at'] and utils.date_to_local_tz(row['deleted_at'])),
+            'is_draft': row['is_draft'],
+            'is_private': row['is_private'],
+            'record_id': str(row['id']),
+            'set_date': (set_date and utils.date_to_local_tz(set_date)),
+            'student': student,
+            'subject': utils.strip_tags_and_whitespace(row['subject']),
+            'updated_date': (row['updated_at'] and utils.date_to_local_tz(row['updated_at'])),
+        }
 
         attachments = []
         attach_query = f"SELECT * FROM note_attachments WHERE note_id = '{row['id']}' AND deleted_at IS NULL"
@@ -422,17 +440,15 @@ def get_notes_from_pg_db_result(results):
         for a in attach_results:
             if a['note_id'] == row['id']:
                 file_name = a['path_to_attachment'].split('/')[-1]
-                if not re.sub(r'(20)\d{6}(_)\d{6}(_)', '', file_name[0:15]):
-                    visible_file_name = file_name[16:-1]
+                if not re.sub(r'(20)\d{6}(_)\d{6}(_)', '', file_name[0:16]):
+                    visible_file_name = file_name[16:]
                 else:
                     visible_file_name = file_name
                 attachments.append(NoteAttachment({
                     'attachment_id': a['id'],
-                    'file_name': visible_file_name,
+                    'file_name': visible_file_name.lower(),
                     'deleted_at': a['deleted_at'],
                 }))
-
-        student = row['sid'] and Student({'sid': row['sid']})
 
         topics = []
         topic_query = f"SELECT note_id, topic FROM note_topics WHERE note_id = '{row['id']}' AND deleted_at IS NULL"
@@ -443,20 +459,9 @@ def get_notes_from_pg_db_result(results):
             if t['note_id'] == row['id']:
                 topics.append(t['topic'])
 
-        note = Note({
-            'advisor': advisor,
-            'body': re.sub(r'\s+', ' ', row['body']) if row['body'] else None,
-            'created_date': utils.date_to_local_tz(row['created_at']),
-            'deleted_date': (row['deleted_at'] and utils.date_to_local_tz(row['deleted_at'])),
-            'is_draft': (row['is_draft'] == 't'),
-            'is_private': (row['is_private'] == 't'),
-            'record_id': str(row['id']),
-            'set_date': (row['set_date'] and utils.date_to_local_tz(parser.parse(row['set_date'].strftime('%Y-%m-%d')))),
-            'student': student,
-            'subject': re.sub(r'\s+', ' ', row['subject']),
-            'updated_date': utils.date_to_local_tz(row['updated_at']),
-        })
-        notes.append(note)
+        notes.append(Note(attachments=attachments,
+                          data=note_data,
+                          topics=topics))
     return notes
 
 
@@ -513,14 +518,31 @@ def hard_delete_template(template_id):
     std_commit(allow_test_environment=True)
 
 
+def generate_note_search_query(note):
+    search_string = ''
+    if note.subject:
+        string = note.subject
+    elif note.body and 'http' not in note.body:
+        string = note.body
+    else:
+        string = None
+    if string:
+        phrases = re.split(r'(<\w+>|<\/\w+>)', string)
+        for phrase in phrases:
+            if len(phrase) > 24:
+                phrase = phrase.split(' ')[:4]
+                search_string = ' '.join(phrase).strip()
+    return search_string
+
+
 def generate_appt_search_query(test_case):
     search_string = ''
     if test_case.appt.detail:
         phrases = re.split(r'(<\w+>|<\/\w+>)', test_case.appt.detail)
         for phrase in phrases:
             if len(phrase) > 24:
-                phrase = phrase.split(' ')[0:4]
-                search_string = ' '.join(phrase)
+                phrase = phrase.split(' ')[:4]
+                search_string = ' '.join(phrase).strip()
     return search_string
 
 

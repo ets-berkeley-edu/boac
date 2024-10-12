@@ -30,11 +30,11 @@ from bea.models.alert import Alert
 from bea.models.notes_and_appts.appointment import Appointment
 from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_attachment import NoteAttachment
+from bea.models.notes_and_appts.timeline_e_form import TimelineEForm
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.user import User
 from bea.test_utils import utils
 from boac.externals import data_loch
-from dateutil import parser
 from flask import current_app as app
 
 
@@ -115,18 +115,19 @@ def get_asc_notes(student):
             'first_name': r['advisor_first_name'],
             'last_name': r['advisor_last_name'],
         })
-        note = Note({
+        note_data = {
             'advisor': advisor,
             'body': r['body'],
-            'created_date': utils.date_to_local_tz(r['created_date']),
+            'created_date': (r['created_date'] and utils.date_to_local_tz(r['created_date'])),
             'record_id': str(r['id']),
             'source': TimelineRecordSource.ASC,
             'student': student,
-            'subject': r['subject'],
-            'topics': r['topics'],
-            'updated_date': utils.date_to_local_tz(r['updated_date']),
-        })
-        notes.append(note)
+            'subject': (r['subject'] and r['subject'].strip()),
+            'updated_date': (r['updated_date'] and utils.date_to_local_tz(r['updated_date'])),
+        }
+        topics = [t for t in r['topics'] if t] if r['topics'] else []
+        notes.append(Note(data=note_data,
+                          topics=topics))
     return notes
 
 
@@ -157,22 +158,22 @@ def get_e_and_i_notes(student):
             'first_name': v[0]['advisor_first_name'],
             'last_name': v[0]['advisor_last_name'],
         })
+        note_data = {
+            'advisor': advisor,
+            'body': (v[0]['body'] or ''),
+            'created_date': (v[0]['created_date'] and utils.date_to_local_tz(v[0]['created_date'])),
+            'record_id': str(k),
+            'source': TimelineRecordSource.E_AND_I,
+            'subject': (v[0]['subject'] and v[0]['subject'].strip()),
+            'updated_date': (v[0]['updated_date'] and utils.date_to_local_tz(v[0]['updated_date'])),
+        }
         topics = []
         for t in v:
             if t['topic']:
                 topics.append(t['topic'].upper())
         topics.sort()
-        note = Note({
-            'advisor': advisor,
-            'body': (v[0]['body'] or ''),
-            'created_date': utils.date_to_local_tz(v[0]['created_date']),
-            'record_id': str(k),
-            'source': TimelineRecordSource.E_AND_I,
-            'subject': v[0]['subject'],
-            'topics': topics,
-            'updated_date': utils.date_to_local_tz(v[0]['updated_date']),
-        })
-        notes.append(note)
+        notes.append(Note(data=note_data,
+                          topics=topics))
     return notes
 
 
@@ -188,19 +189,19 @@ def get_data_sci_notes(student):
     results = data_loch.safe_execute_rds(sql)
     notes = []
     for r in results:
-        created_date = utils.date_to_local_tz(parser.parse(r['created_date']))
-        topics = r['topics'].split(', ')
-        topics = list(map(lambda t: t.upper(), topics))
-        topics.sort()
-        note = Note({
+        created_date = (r['created_date'] and utils.date_to_local_tz(r['created_date']))
+        note_data = {
             'body': r['body'],
             'created_date': created_date,
             'record_id': str(r['id']),
             'source': TimelineRecordSource.DATA,
-            'topics': topics,
             'updated_date': created_date,
-        })
-        notes.append(note)
+        }
+        topics = r['topics'].split(', ')
+        topics = list(map(lambda t: t.upper(), topics))
+        topics.sort()
+        notes.append(Note(data=note_data,
+                          topics=topics))
     return notes
 
 
@@ -231,33 +232,35 @@ def get_eop_notes(student):
             'first_name': v[0]['advisor_first_name'],
             'last_name': v[0]['advisor_last_name'],
         })
-        if v[0]['file_name']:
-            attachment = NoteAttachment({
-                'file_name': v[0]['file_name'],
-                'attachment_id': str(v[0]['id']),
-            })
-        else:
-            attachment = None
-        created_date = utils.date_to_local_tz(parser.parse(v['created_date']))
-        topics = []
-        for t in v:
-            if t['topic']:
-                topics.append(t['topic'].upper())
-        topics.sort()
-        note = Note({
+        created_date = (v[0]['created_date'] and utils.date_to_local_tz(v[0]['created_date']))
+        note_data = {
             'advisor': advisor,
-            'attachment': [attachment],
             'body': v[0]['body'],
             'created_date': created_date,
             'is_private': (v[0]['privacy'] == 'Note available only to CE3'),
             'record_id': str(v[0]['id']),
             'source': TimelineRecordSource.EOP,
-            'subject': v[0]['subject'],
-            'topics': topics,
+            'subject': (v[0]['subject'] and v[0]['subject'].strip()),
             'contact_type': v[0]['contact_type'],
             'updated_date': created_date,
-        })
-        notes.append(note)
+        }
+
+        attachments = []
+        if v[0]['file_name']:
+            attachments.append(NoteAttachment({
+                'file_name': v[0]['file_name'].lower(),
+                'attachment_id': str(v[0]['id']),
+            }))
+
+        topics = []
+        for t in v:
+            if t['topic']:
+                topics.append(t['topic'].upper())
+        topics.sort()
+
+        notes.append(Note(attachments=attachments,
+                          data=note_data,
+                          topics=topics))
     return notes
 
 
@@ -273,16 +276,16 @@ def get_history_notes(student):
     notes = []
     for r in results:
         advisor = User({'uid': str(r['advisor_uid'])})
-        created_date = utils.date_to_local_tz(parser.parse(r['created_date']))
-        note = Note({
+        created_date = (r['created_date'] and utils.date_to_local_tz(r['created_date']))
+        note_data = {
             'advisor': advisor,
             'body': r['body'],
             'created_date': created_date,
             'record_id': str(r['id']),
             'source': TimelineRecordSource.HISTORY,
             'updated_date': created_date,
-        })
-        notes.append(note)
+        }
+        notes.append(Note(data=note_data))
     return notes
 
 
@@ -310,42 +313,55 @@ def get_sis_notes(student):
     grouped = groupby(results, key=lambda n: n['id'])
     for k, v in grouped:
         v = list(v)
-        advisor = User({'uid': str(v[0]['advisor_uid'])})
-        attachment_data = []
-        for r in v:
-            if r['sis_file_name']:
-                file_data = {
-                    'sis_file_name': r['sis_file_name'],
-                    'file_name': (r['sis_file_name'] if r['advisor_uid'] == 'UCBCONVERSION' else r['user_file_name']),
-                }
-                if file_data not in attachment_data:
-                    attachment_data.append(file_data)
-        attachments = [NoteAttachment(a) for a in attachment_data]
+        advisor = User({
+            'uid': (v[0]['advisor_uid'] and str(v[0]['advisor_uid'])),
+            'sid': (v[0]['advisor_sid'] and str(v[0]['advisor_sid'])),
+        })
         source_body_empty = True if not v[0]['body'] or not v[0]['body'].strip() else False
         if source_body_empty:
             sub_cat = f" {v[0]['subcategory']}" if v[0]['subcategory'] else ''
             body = f"{v[0]['category']}{sub_cat}"
         else:
             body = v[0]['body'].replace('&Tab;', '')
-        created_date = v[0]['created_date']
-        updated_date = created_date if advisor.uid == 'UCBCONVERSION' else v[0]['updated_date']
+        created_date = v[0]['created_date'] and utils.date_to_local_tz(v[0]['created_date'])
+        if advisor.uid == 'UCBCONVERSION':
+            updated_date = created_date
+        else:
+            updated_date = v[0]['updated_date'] and utils.date_to_local_tz(v[0]['updated_date'])
+        note_data = {
+            'record_id': str(k),
+            'advisor': advisor,
+            'body': body,
+            'created_date': created_date,
+            'source': TimelineRecordSource.SIS,
+            'source_body_empty': source_body_empty,
+            'updated_date': updated_date,
+        }
+
+        attachment_data = []
+        for r in v:
+            if r['sis_file_name']:
+                if r['advisor_uid'] == 'UCBCONVERSION':
+                    file_name = r['sis_file_name'].lower()
+                else:
+                    file_name = r['user_file_name'].lower()
+                file_data = {
+                    'sis_file_name': r['sis_file_name'],
+                    'file_name': file_name,
+                }
+                if file_data not in attachment_data:
+                    attachment_data.append(file_data)
+        attachments = [NoteAttachment(a) for a in attachment_data]
+
         topics = []
         for t in v:
             if t['topic']:
                 topics.append(t['topic'].upper())
         topics.sort()
-        note = Note({
-            'record_id': str(k),
-            'body': body,
-            'source_body_empty': source_body_empty,
-            'advisor': advisor,
-            'created_date': utils.date_to_local_tz(created_date),
-            'updated_date': utils.date_to_local_tz(updated_date),
-            'topics': topics,
-            'attachments': attachments,
-            'source': TimelineRecordSource.SIS,
-        })
-        notes.append(note)
+
+        notes.append(Note(attachments=attachments,
+                          data=note_data,
+                          topics=topics))
     return notes
 
 
@@ -385,19 +401,37 @@ def get_sis_appts(student):
             'first_name': v[0]['first_name'],
             'last_name': v[0]['last_name'],
         })
+        body = v[0]['body'].replace('&Tab;', '').strip()
+        created_date = v[0]['created_date'] and utils.date_to_local_tz(v[0]['created_date'])
+        if advisor.uid == 'UCBCONVERSION':
+            updated_date = created_date
+        else:
+            updated_date = v[0]['updated_date'] and utils.date_to_local_tz(v[0]['updated_date'])
+        appt_data = {
+            'record_id': str(k),
+            'advisor': advisor,
+            'created_date': created_date,
+            'detail': body,
+            'source': TimelineRecordSource.SIS,
+            'student': student,
+            'updated_date': updated_date,
+        }
 
         attachment_data = []
         for r in v:
             if r['sis_file_name']:
+                if r['advisor_uid'] == 'UCBCONVERSION':
+                    file_name = r['sis_file_name'].lower()
+                else:
+                    file_name = r['user_file_name'].lower()
+
                 file_data = {
                     'sis_file_name': r['sis_file_name'],
-                    'file_name': (r['sis_file_name'] if r['advisor_uid'] == 'UCBCONVERSION' else r['user_file_name']),
+                    'file_name': file_name,
                 }
                 if file_data not in attachment_data:
                     attachment_data.append(file_data)
-        attachments = [NoteAttachment(file_name=a['file_name'], data=a) for a in attachment_data]
-
-        body = v[0]['body'].replace('&Tab;', '').strip()
+        attachments = [NoteAttachment(a) for a in attachment_data]
 
         topics = []
         for t in v:
@@ -405,20 +439,9 @@ def get_sis_appts(student):
                 topics.append(t['topic'].upper())
         topics.sort()
 
-        created_date = v[0]['created_date']
-        updated_date = created_date if advisor.uid == 'UCBCONVERSION' else v[0]['updated_date']
-
-        appts.append(Appointment({
-            'record_id': str(k),
-            'advisor': advisor,
-            'attachments': attachments,
-            'created_date': utils.date_to_local_tz(created_date),
-            'detail': body,
-            'source': TimelineRecordSource.SIS,
-            'student': student,
-            'topics': topics,
-            'updated_date': utils.date_to_local_tz(updated_date),
-        }))
+        appts.append(Appointment(attachments=attachments,
+                                 data=appt_data,
+                                 topics=topics))
     return appts
 
 
@@ -443,15 +466,15 @@ def get_ycbm_appts(student):
         v = list(v)
         advisor = User({'full_name': v[0]['advisor_name']})
         cancel_reason = str(v[0]['cancellation_reason']).strip() or 'Canceled'
-        appts.append(Appointment({
+        appts.append(Appointment(data={
             'record_id': str(k),
             'advisor': advisor,
             'cancel_reason': cancel_reason,
-            'created_date': utils.date_to_local_tz(v[0]['starts_at']),
+            'created_date': (v[0]['starts_at'] and utils.date_to_local_tz(v[0]['starts_at'])),
             'detail': v[0]['details'],
-            'end_time': utils.date_to_local_tz(v[0]['ends_at']),
+            'end_time': (v[0]['ends_at'] and utils.date_to_local_tz(v[0]['ends_at'])),
             'source': TimelineRecordSource.YCBM,
-            'start_time': utils.date_to_local_tz(v[0]['starts_at']),
+            'start_time': (v[0]['starts_at'] and utils.date_to_local_tz(v[0]['starts_at'])),
             'status': ('Canceled' if v[0]['cancelled'] else ''),
             'student': student,
             'title': re.sub(r'\s+', ' ', str(v[0]['title'])).strip(),
@@ -499,3 +522,63 @@ def get_student_holds(student):
             'student': student,
         }))
     return holds
+
+
+# E-FORMS
+
+
+def get_e_form_notes(student):
+    sql = f"""SELECT id,
+                     course_display_name,
+                     course_title,
+                     created_at,
+                     eform_id,
+                     eform_status,
+                     grading_basis_description,
+                     requested_action,
+                     requested_grading_basis_description,
+                     requested_units_taken,
+                     section_id,
+                     section_num,
+                     term_id,
+                     units_taken,
+                     updated_at
+                FROM sis_advising_notes.student_late_drop_eforms
+               WHERE sid = '{student.sid}'
+    """
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    e_forms = []
+    for r in results:
+        course = f"{r['section_id']} {r['course_display_name']} - {r['course_title']} {r['section_num']}"
+        req_action = r['requested_action']
+        units = r['units_taken']
+        req_units = r['requested_units_taken']
+        if req_action == 'Late Grading Basis Change':
+            action = f"{req_action} from {r['grading_basis_description']} to {r['requested_grading_basis_description']}"
+        elif req_action == 'Unit Change':
+            old_units = f"{units} unit{'' if units == '1.0' else 's'}"
+            new_units = f"{req_units} unit{'' if req_units == '1.0' else 's'}"
+            action = f'{req_action} from {old_units} to {new_units}'
+        else:
+            action = req_action
+        status = r['eform_status']
+        subject = f'eForm: {req_action} — {status}'
+
+        e_forms.append(TimelineEForm(data={
+            'record_id': str(r['id']),
+            'action': action,
+            'course': re.sub(r'\s+', ' ', course),
+            'created_date': (r['created_at'] and utils.date_to_local_tz(r['created_at'])),
+            'grading_basis': r['grading_basis_description'],
+            'form_id': str(r['eform_id']),
+            'requested_grading_basis': r['requested_grading_basis_description'],
+            'requested_units_taken': r['requested_units_taken'],
+            'source': TimelineRecordSource.E_FORM,
+            'status': status,
+            'subject': subject,
+            'term': utils.term_sis_id_to_term_name(r['term_id']),
+            'units_taken': r['units_taken'],
+            'updated_date': (r['updated_at'] and utils.date_to_local_tz(r['updated_at'])),
+        }))
+    return e_forms

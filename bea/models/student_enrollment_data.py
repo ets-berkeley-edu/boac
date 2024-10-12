@@ -315,7 +315,7 @@ class EnrollmentData(object):
         if not epoch or int(epoch) == 0:
             return 'Never'
         else:
-            activity_date = utils.date_to_local_tz(datetime.fromtimestamp(int(epoch))).date()
+            activity_date = datetime.fromtimestamp(int(epoch)).date()
             if activity_date == datetime.today().date():
                 return 'Today'
             elif activity_date == datetime.today().date() - timedelta(days=1):

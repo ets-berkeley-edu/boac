@@ -23,18 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import calendar
 import csv
-from datetime import datetime as dt
 import glob
 import json
 import math
 import os
+import re
 import shutil
 import time
 
 from bea.models.term import Term
-from dateutil import tz
 from flask import current_app as app
 
 
@@ -87,7 +85,7 @@ def get_admin_password():
 # Test configs and utils
 
 def get_test_identifier():
-    return f'QA TEST {calendar.timegm(dt.now().timetuple())}'
+    return f'QA TEST {int(time.time())}'
 
 
 def parse_test_data():
@@ -153,8 +151,13 @@ def assert_non_existence(actual):
     assert not actual
 
 
+def strip_tags_and_whitespace(string):
+    string = re.sub(re.compile('<.*?>'), '', string)
+    return re.sub(r'\s+', ' ', string)
+
+
 def date_to_local_tz(date):
-    return date.astimezone(tz.gettz('Los Angeles'))
+    return date.astimezone()
 
 
 def in_op(arr):

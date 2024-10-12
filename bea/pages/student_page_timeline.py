@@ -22,10 +22,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+
 from datetime import datetime
 import os.path
 import re
 import time
+from zipfile import ZipFile
 
 from bea.pages.boa_pages import BoaPages
 from bea.test_utils import boa_utils
@@ -55,10 +57,9 @@ class StudentPageTimeline(BoaPages):
     @staticmethod
     def expected_item_long_date_format(item_time):
         if datetime.now().strftime('%Y') == item_time.strftime('%Y'):
-            formatted = item_time.strftime('%b %-d %l:%M%P')
+            return item_time.strftime('%b %-d\n%-I:%M%p')
         else:
-            formatted = item_time.strftime('%b %-d, %Y %l:%M%P')
-        return re.sub(r'\s+', ' ', formatted)
+            return item_time.strftime('%b %-d, %Y\n%-I:%M%p')
 
     def visible_collapsed_item_ids(self, item_type):
         els = self.elements((By.XPATH, f"//div[contains(@id, '{item_type}-') and contains(@id, '-is-closed')]"))
@@ -73,10 +74,7 @@ class StudentPageTimeline(BoaPages):
 
     def collapsed_item_loc(self, item):
         item_type = self.item_type(item)
-        if f'{self.driver.name}' == 'firefox':
-            return By.XPATH, f'//tr[@id="permalink-{item_type}-{item.record_id}"]/td'
-        else:
-            return By.ID, f'permalink-{item_type}-{item.record_id}'
+        return By.ID, f'permalink-{item_type}-{item.record_id}'
 
     def visible_message_ids(self):
         els = self.elements((By.XPATH, '//tr[contains(@class, "message-row")]'))
@@ -114,7 +112,9 @@ class StudentPageTimeline(BoaPages):
         else:
             app.logger.info(f'Expanding {item_type} ID {item.record_id}')
             self.scroll_to_top()
-            self.wait_for_element_and_click(self.collapsed_item_loc(item))
+            xpath = f'//tr[@id="permalink-{item_type}-{item.record_id}"]//div[@role="button"]'
+            self.wait_for_element_and_click((By.XPATH, xpath))
+        time.sleep(2)
 
     def click_close_msg(self, item):
         self.wait_for_element_and_click(self.close_msg_button(item))
@@ -135,6 +135,10 @@ class StudentPageTimeline(BoaPages):
         item_type = self.item_type(item)
         return By.XPATH, f'//a[contains(@id, "{item_type}-{item.record_id}-attachment")]'
 
+    def click_attachment_link(self, item, attachment_name):
+        time.sleep(utils.get_click_sleep())
+        self.driver.execute_script('arguments[0].click();', self.item_attachment_el(item, attachment_name))
+
     def item_attachment_els(self, item):
         spans = self.elements(self.attachment_span_loc(item))
         links = self.elements(self.attachment_link_loc(item))
@@ -142,14 +146,13 @@ class StudentPageTimeline(BoaPages):
 
     def item_attachment_el(self, item, attachment_name):
         for el in self.item_attachment_els(item):
-            if el.text.strip() == attachment_name:
+            if el.text.strip().lower() == attachment_name.lower():
                 return el
 
     def download_attachment(self, item, attachment, student=None):
         app.logger.info(f'Downloading attachment {attachment.file_name} from record ID {item.record_id}')
         utils.prepare_download_dir()
-        self.when_present(self.attachment_link_loc(item), utils.get_short_timeout())
-        self.item_attachment_el(item, attachment.file_name).click()
+        self.click_attachment_link(item, attachment.file_name)
         file_path = f'{utils.default_download_dir()}/{attachment.file_name}'
         tries = 0
         max_tries = 15
@@ -198,3 +201,19 @@ class StudentPageTimeline(BoaPages):
         # Zap the download dir again to make sure no attachment downloads are left behind on the test machine
         utils.prepare_download_dir()
         return size
+
+    # NOTE / E-FORM DOWNLOADS
+
+    @staticmethod
+    def export_zip_file_name(student, record_type_str):
+        timestamp = datetime.now().strftime('%Y%m%d')
+        return f'advising_{record_type_str}_{student.first_name.lower()}_{student.last_name.lower()}_{timestamp}.zip'
+
+    def export_csv_file_name(self, student, record_type_str):
+        return self.export_zip_file_name(student, record_type_str).replace('zip', 'csv')
+
+    @staticmethod
+    def downloaded_zip_file_name_list(zip_name):
+        zip_path = f'{utils.default_download_dir()}/{zip_name}'
+        with ZipFile(zip_path, 'r') as zip_file:
+            return zip_file.namelist()

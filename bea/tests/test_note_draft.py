@@ -22,7 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-
+from datetime import date
 from datetime import datetime
 from datetime import timedelta
 import random
@@ -45,6 +45,7 @@ import pytest
 class TestNoteDraft:
     test = BEATestConfig()
     test.note_draft()
+    today = date.today().strftime('%Y-%m-%d')
 
     auth_users = boa_utils.get_authorized_users()
     director = boa_utils.get_director(auth_users)
@@ -63,7 +64,7 @@ class TestNoteDraft:
     note_6 = NoteBatch({'advisor': test.advisor, 'is_draft': True})
     notes = [note_1, note_2, note_3, note_4, note_5, note_6]
 
-    test.attachments.sort(key=lambda a: a.file_size, reverse=True)
+    test.attachments.sort(key=lambda a: a.file_size)
     attachments = test.attachments[0:10]
     topics = [Topic(Topics.COURSE_DROP.value), Topic(Topics.PROBATION.value)]
 
@@ -138,11 +139,11 @@ class TestNoteDraft:
         self.student_page.wait_for_draft_note_update(self.note_1, manual_update=True)
 
     def test_draft_attachments_added(self):
-        self.student_page.add_attachments_to_existing_note(self.note_1, self.attachments[0:1])
+        self.student_page.add_attachments_to_existing_note(self.note_1, [self.attachments[0]])
         self.student_page.wait_for_draft_note_update(self.note_1)
 
     def test_draft_attachments_removed(self):
-        self.student_page.remove_attachments_from_existing_note(self.note_1, [self.note_1.attachments[-1]])
+        self.student_page.remove_attachments_from_existing_note(self.note_1, [self.note_1.attachments[0]])
         self.student_page.wait_for_draft_note_update(self.note_1)
 
     def test_draft_topics_added(self):
@@ -157,7 +158,7 @@ class TestNoteDraft:
         self.student_page.wait_for_draft_note_update(self.note_1)
 
     def test_draft_set_date_added(self):
-        self.note_1.set_date = datetime.now() - timedelta(seconds=86400)
+        self.note_1.set_date = datetime.strptime(self.today, '%Y-%m-%d') - timedelta(days=1)
         self.student_page.enter_set_date(self.note_1)
         self.student_page.wait_for_draft_note_update(self.note_1)
 
@@ -234,7 +235,7 @@ class TestNoteDraft:
         self.draft_notes_page.wait_for_draft_note_update(self.note_2)
 
     def test_batch_draft_set_date_added(self):
-        self.note_2.set_date = datetime.now() - timedelta(seconds=86400)
+        self.note_2.set_date = datetime.strptime(self.today, '%Y-%m-%d') - timedelta(days=1)
         self.draft_notes_page.click_draft_subject(self.note_2)
         self.draft_notes_page.enter_set_date(self.note_2)
         self.draft_notes_page.click_save_as_draft()
@@ -421,7 +422,7 @@ class TestNoteDraft:
         self.homepage.click_create_note_batch()
         self.note_5.subject = f'Draft note 5 {self.test.test_id} subject'
         self.note_5.body = f'Draft note 5 {self.test.test_id} body'
-        self.note_5.set_date = datetime.now() - timedelta(days=1)
+        self.note_5.set_date = datetime.strptime(self.today, '%Y-%m-%d') - timedelta(days=1)
         self.homepage.enter_new_note_subject(self.note_5)
         self.homepage.enter_note_body(self.note_5)
         self.homepage.add_students_to_batch(self.note_5, [self.student])
@@ -628,7 +629,7 @@ class TestNoteDraft:
 
         self.note_5.subject = f'{self.note_5.subject} EDITED'
         self.note_5.body = f'{self.note_5.body} EDITED'
-        self.note_5.set_date = datetime.today()
+        self.note_5.set_date = datetime.strptime(self.today, '%Y-%m-%d')
         self.note_5.contact_type = 'Phone'
         self.note_5.is_private = True
 
@@ -676,7 +677,7 @@ class TestNoteDraft:
 
         self.note_4.subject = f'{self.note_4.subject} EDITED'
         self.note_4.body = f'Draft note 4 {self.test.test_id} body'
-        self.note_4.set_date = datetime.today() - timedelta(days=1)
+        self.note_4.set_date = datetime.strptime(self.today, '%Y-%m-%d') - timedelta(days=1)
         self.note_4.contact_type = 'Admin'
         self.note_4.is_private = True
 
