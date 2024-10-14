@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isUndefined(isPrivate)">
+  <div v-if="!isUndefined(isPrivate)">
     <div id="privacy-permissions-label" class="font-weight-bold mb-1">
       Privacy Permissions
     </div>
