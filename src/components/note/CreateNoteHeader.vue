@@ -265,7 +265,7 @@ const isRenameTemplateDialogOpen = computed(() => {
   return !!templateToRename.value
 })
 
-watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = true, 5000))
+watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = !suppressAutoSaveDraftNoteAlert.value, 5000))
 
 const cancel = template => {
   resetTemplate(template, template.title)
