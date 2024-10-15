@@ -6,7 +6,21 @@
   >
     <div v-if="noteStore.model.isDraft" class="font-size-18 text-error pa-2">
       <v-icon :icon="mdiAlert" />
-      You are editing a draft note.
+      <span class="edit-draft-text">
+        You are editing a draft note.
+      </span>
+      <transition
+        aria-live="polite"
+        name="bounce"
+        role="alert"
+      >
+        <span
+          v-if="noteStore.isAutoSavingDraftNote && !suppressAutoSaveDraftNoteAlert"
+          class="text-success font-size-12 font-weight-bold mb-1 ml-2"
+        >
+          DRAFT SAVED
+        </span>
+      </transition>
     </div>
     <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     <v-text-field
@@ -121,11 +135,17 @@ import ProgressButton from '@/components/util/ProgressButton'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import SessionExpired from '@/components/note/SessionExpired'
 import {alertScreenReader, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
-import {exitSession, setNoteRecipient, setSubjectPerEvent} from '@/stores/note-edit-session/utils'
+import {
+  exitSession,
+  isAutoSaveMode,
+  scheduleAutoSaveJob,
+  setNoteRecipient,
+  setSubjectPerEvent
+} from '@/stores/note-edit-session/utils'
 import {getNote, updateNote} from '@/api/notes'
 import {getUserProfile} from '@/api/user'
 import {mdiAlert} from '@mdi/js'
-import {onBeforeMount, onMounted, ref} from 'vue'
+import {onBeforeMount, onMounted, ref, watch} from 'vue'
 import {size, trim} from 'lodash'
 import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
@@ -151,10 +171,13 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const editNoteForm = ref()
 const isPublishingNote = ref(false)
+const suppressAutoSaveDraftNoteAlert = ref(false)
 const isSavingDraft = ref(false)
 const noteStore = useNoteStore()
-const {boaSessionExpired, isSaving} = storeToRefs(noteStore)
+const {boaSessionExpired, isSaving, mode} = storeToRefs(noteStore)
 const showAreYouSureModal = ref(false)
+
+watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = !suppressAutoSaveDraftNoteAlert.value, 5000))
 
 onMounted(() => {
   getNote(props.noteId).then(note => {
@@ -170,6 +193,9 @@ onMounted(() => {
     } else {
       // A draft-note may have a null SID value.
       onFinish()
+    }
+    if (isAutoSaveMode(mode.value)) {
+      scheduleAutoSaveJob()
     }
   })
   contextStore.setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
@@ -272,5 +298,9 @@ const save = isDraft => {
   cursor: auto !important;
   flex-basis: 100%;
   width: 140%;
+}
+.edit-draft-text {
+  position: relative;
+  top: 2px;
 }
 </style>

@@ -40,7 +40,7 @@ export function exitSession(revert: boolean): Promise<NoteEditSessionModel | und
 }
 
 export function isAutoSaveMode(mode: string | undefined): boolean {
-  return mode ? ['createBatch', 'createNote', 'editDraft'].includes(mode) : false
+  return mode ? ['createBatch', 'createNote', 'editDraft', 'editNote'].includes(mode) : false
 }
 
 export function onVisibilityChange(): void {
