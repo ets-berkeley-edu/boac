@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import time
 
 from bea.pages.page import Page
+from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
@@ -46,7 +47,6 @@ class SearchForm(Page):
 
     def enter_simple_search(self, string):
         app.logger.info(f"Searching for '{string}'")
-        time.sleep(1)
         self.remove_and_enter_chars(SearchForm.SEARCH_INPUT, string)
 
     def enter_simple_search_and_hit_enter(self, string):
@@ -89,7 +89,6 @@ class SearchForm(Page):
     def enter_adv_search(self, string=None):
         string = string or ''
         app.logger.info(f'Searching for "{string}"')
-        time.sleep(1)
         self.clear_input(self.ADV_SEARCH_STUDENT_INPUT)
         self.remove_and_enter_chars(self.ADV_SEARCH_STUDENT_INPUT, string)
 
@@ -141,7 +140,10 @@ class SearchForm(Page):
     NOTE_TOPICS_SELECT = (By.ID, 'search-option-note-filters-topic')
 
     def select_note_topic(self, topic=None):
-        topic_name = topic.name if topic else 'Any topic'
+        if topic:
+            topic_name = (topic.name if topic.__class__.__name__ == 'Topic' else topic).title()
+        else:
+            topic_name = 'Any topic'
         app.logger.info(f'Selecting note topic "{topic_name}"')
         self.wait_for_select_and_click_option(self.NOTE_TOPICS_SELECT, topic_name)
 
@@ -151,71 +153,77 @@ class SearchForm(Page):
     NOTES_BY_ANYONE_DIV = (By.XPATH, '//input[@id="search-options-note-filters-posted-by-anyone"]/..')
     NOTES_BY_YOU_RADIO = (By.ID, 'search-options-note-filters-posted-by-you')
     NOTES_BY_YOU_DIV = (By.XPATH, '//input[@id="search-options-note-filters-posted-by-you"]/..')
+    NOTES_BY_YOUR_DEPT = (By.ID, 'search-options-note-filters-posted-by-your department')
+    NOTES_BY_YOUR_DEPT_DIV = (By.XPATH, '//input[@id="search-options-note-filters-posted-by-your department"]/..')
 
     def select_notes_posted_by_anyone(self):
+        app.logger.info('Selecting notes posted by anyone')
         if not self.element(self.NOTES_BY_ANYONE_DIV).get_attribute('ischecked') == 'true':
             self.wait_for_element_and_click(self.NOTES_BY_ANYONE_DIV)
 
     def select_notes_posted_by_you(self):
+        app.logger.info('Selecting notes posted by you')
         if not self.element(self.NOTES_BY_YOU_DIV).get_attribute('ischecked') == 'true':
             self.wait_for_element_and_click(self.NOTES_BY_YOU_DIV)
+
+    def select_notes_posted_by_your_dept(self):
+        app.logger.info('Selecting notes posted by your department')
+        if not self.element(self.NOTES_BY_YOUR_DEPT_DIV).get_attribute('ischecked') == 'true':
+            self.wait_for_element_and_click(self.NOTES_BY_YOUR_DEPT_DIV)
 
     # Author / Student
 
     NOTE_AUTHOR = (By.ID, 'search-options-note-filters-author')
     NOTE_STUDENT = (By.ID, 'search-options-note-filters-student')
-    AUTHOR_SUGGEST = (By.XPATH, '//a[contains(@id, "search-options-note-filters-author-suggestion")]')
+    AUTO_SUGGEST_OPTION = (By.XPATH, '//div[@role="option"]')
 
-    @staticmethod
-    def student_auto_suggest_option_loc(student):
-        return By.XPATH, f'//*[contains(., "({student.sid})")]'
-
-    STUDENT_SUGGEST = (By.XPATH, '//*[contains()]')
-
-    def set_auto_suggest(self, input_locator, auto_suggest_locator, name, alt_names=None):
+    def set_notes_author(self, name, alt_names=None):
+        app.logger.info(f'Setting note search author name {name}')
         names = [name.lower()]
         if alt_names:
             alt_names_lower = list(map(lambda n: n.lower(), alt_names))
             names.extend(alt_names_lower)
-        self.wait_for_textbox_and_type(input_locator, name)
-        time.sleep(2)
-        self.when_present(auto_suggest_locator, utils.get_short_timeout())
-        for el in self.elements(auto_suggest_locator):
+        self.wait_for_textbox_and_type(self.NOTE_AUTHOR, name)
+        self.when_present(self.AUTO_SUGGEST_OPTION, utils.get_short_timeout())
+        for el in self.elements(self.AUTO_SUGGEST_OPTION):
             text = el.get_attribute('innerText').lower()
             if text in names:
                 el.click()
 
-    def set_notes_author(self, name, alt_names=None):
-        app.logger.info(f'Entering notes author name {name}')
-        self.set_auto_suggest(self.NOTE_AUTHOR, self.AUTHOR_SUGGEST, name, alt_names)
-
     def set_notes_student(self, student):
-        string = f'{student.full_name} ({student.sid})'
-        app.logger.info(string)
-        self.set_auto_suggest(self.NOTE_STUDENT, self.student_auto_suggest_option_loc(student), string)
+        string = f'{student.sid}'
+        app.logger.info(f'Setting note search student {string}')
+        self.wait_for_textbox_and_type(self.NOTE_STUDENT, string)
+        self.when_present(self.AUTO_SUGGEST_OPTION, utils.get_short_timeout())
+        for el in self.elements(self.AUTO_SUGGEST_OPTION):
+            text = el.get_attribute('innerText')
+            if string in text:
+                el.click()
 
     # Dates
 
-    NOTE_DATE_FROM = (By.ID, 'search-options-note-filters-last-updated-from')
-    NOTE_DATE_TO = (By.ID, 'search-options-note-filters-last-updated-to')
+    NOTE_DATE_FROM = (By.ID, 'search-options-from-date-input')
+    NOTE_DATE_TO = (By.ID, 'search-options-to-date-input')
 
     def set_notes_date_from(self, date=None):
         from_date = date.strftime('%m/%d/%Y') if date else ''
         app.logger.info(f'Entering note date from {from_date}')
-        self.remove_and_enter_chars(self.NOTE_DATE_FROM, from_date)
-        for i in range(4):
+        self.wait_for_textbox_and_type_chars(self.NOTE_DATE_FROM, from_date)
+        time.sleep(2)
+        for i in range(3):
             self.hit_tab()
 
     def set_notes_date_to(self, date=None):
         to_date = date.strftime('%m/%d/%Y') if date else ''
         app.logger.info(f'Entering note date to {to_date}')
-        self.remove_and_enter_chars(self.NOTE_DATE_TO, to_date)
-        for i in range(4):
+        self.wait_for_textbox_and_type_chars(self.NOTE_DATE_TO, to_date)
+        time.sleep(2)
+        for i in range(3):
             self.hit_tab()
 
     def set_notes_date_range(self, date_from, date_to):
-        self.set_notes_date_to(date_to)
         self.set_notes_date_from(date_from)
+        self.set_notes_date_to(date_to)
 
     # Reset, Search, Cancel
 
@@ -241,6 +249,10 @@ class SearchForm(Page):
             self.wait_for_element_and_click(self.ADV_SEARCH_CXL_BUTTON)
 
     def reopen_and_reset_adv_search(self):
-        self.close_adv_search_if_open()
+        # TODO - remove this when resetting works
+        self.driver.get(boa_utils.get_boa_base_url())
         self.open_adv_search()
-        self.reset_adv_search()
+        # TODO - uncomment when resetting works
+        # self.close_adv_search_if_open()
+        # self.open_adv_search()
+        # self.reset_adv_search()

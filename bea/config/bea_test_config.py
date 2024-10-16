@@ -308,6 +308,7 @@ class BEATestConfig(object):
 
             # Use students with all different note sources
             if opts.get('notes'):
+                private = opts.get('private') or False
                 app.logger.info('Running tests using students with notes')
                 sids = nessie_utils.get_all_student_sids()
 
@@ -327,7 +328,7 @@ class BEATestConfig(object):
                 ei_sids = list(set(sids) & set(ei_sids))
                 app.logger.info(f'There are {len(ei_sids)} students with E&I notes')
 
-                eop_sids = nessie_timeline_utils.get_sids_with_notes_of_src(TimelineRecordSource.EOP, eop_private=True)
+                eop_sids = nessie_timeline_utils.get_sids_with_notes_of_src(TimelineRecordSource.EOP, eop_private=private)
                 eop_sids = list(set(sids) & set(eop_sids))
                 app.logger.info(f'There are {len(eop_sids)} students with EOP notes')
 
@@ -425,6 +426,21 @@ class BEATestConfig(object):
             self.test_admits = self.admits[:count]
 
     # TODO set_degree_templates
+
+    def get_test_notes(self, student, count):
+        asc_notes = nessie_timeline_utils.get_asc_notes(student)
+        boa_notes = boa_utils.get_student_notes(student)
+        boa_notes = [n for n in boa_notes if not (n.is_draft and n.advisor.uid != self.advisor.uid) or n.is_private]
+        data_notes = nessie_timeline_utils.get_data_sci_notes(student)
+        ei_notes = nessie_timeline_utils.get_e_and_i_notes(student)
+        eop_notes = nessie_timeline_utils.get_eop_notes(student)
+        eop_notes = [n for n in eop_notes if not n.is_private]
+        history_notes = nessie_timeline_utils.get_history_notes(student)
+        sis_notes = nessie_timeline_utils.get_sis_notes(student)
+        all_notes = asc_notes + boa_notes + data_notes + ei_notes + eop_notes + history_notes + sis_notes
+        sample_notes = (asc_notes[:count] + boa_notes[:count] + data_notes[:count] + ei_notes[:count]
+                        + eop_notes[:count] + history_notes[:count] + sis_notes[:count])
+        return all_notes, sample_notes
 
     def set_note_attachments(self):
         attachments = []
@@ -533,26 +549,15 @@ class BEATestConfig(object):
 
     def note_content(self):
         self.set_base_configs(opts={'include_inactive': True})
-        self.set_test_students(count=app.config['MAX_NOTES_OR_APPTS_STUDENTS_COUNT'], opts={'notes': True, 'inactive': True})
-        count = app.config['MAX_NOTES_OR_APPTS_COUNT']
+        self.set_test_students(count=app.config['MAX_NOTES_OR_APPTS_STUDENTS_COUNT'],
+                               opts={'notes': True, 'inactive': True})
         for student in self.test_students:
-            asc_notes = nessie_timeline_utils.get_asc_notes(student)
-            boa_notes = boa_utils.get_student_notes(student)
-            boa_notes = [n for n in boa_notes if not (n.is_draft and n.advisor.uid != self.advisor.uid)]
-            data_notes = nessie_timeline_utils.get_data_sci_notes(student)
-            ei_notes = nessie_timeline_utils.get_e_and_i_notes(student)
-            eop_notes = nessie_timeline_utils.get_eop_notes(student)
-            history_notes = nessie_timeline_utils.get_history_notes(student)
-            sis_notes = nessie_timeline_utils.get_sis_notes(student)
-            all_notes = asc_notes + boa_notes + data_notes + ei_notes + eop_notes + history_notes + sis_notes
-
+            all_notes, sample_notes = self.get_test_notes(student, app.config['MAX_NOTES_OR_APPTS_COUNT'])
             # Tests for the list view all a student's notes
             self.test_cases.append(BEATestCase(student=student,
                                                note=all_notes,
                                                test_case_id=f'UID {student.uid}'))
             # Tests for a representative sample of notes in more detail
-            sample_notes = (asc_notes[:count] + boa_notes[:count] + data_notes[:count] + ei_notes[:count]
-                            + eop_notes[:count] + history_notes[:count] + sis_notes[:count])
             for note in sample_notes:
                 source = note.source.value['schema'] if note.source else 'BOA'
                 if note.subject and 'QA Test' in note.subject:
@@ -590,6 +595,38 @@ class BEATestConfig(object):
         self.set_base_configs()
         self.set_test_students(count=app.config['MAX_SEARCH_STUDENTS_COUNT'], opts={'enrollments': True})
         self.get_test_student_enrollments()
+
+    def search_notes(self):
+        self.set_base_configs(dept=Department.ZCEEE, opts={'include_inactive': True})
+        self.set_test_students(count=app.config['MAX_SEARCH_STUDENTS_COUNT'],
+                               opts={'notes': True, 'inactive': True, 'private': False})
+
+        all_notes = []
+        count = app.config['MAX_NOTES_OR_APPTS_COUNT']
+        for student in self.test_students:
+            all_student_notes, _ = self.get_test_notes(student, count)
+            for student_note in all_student_notes:
+                if student_note.subject and 'QA Test' in student_note.subject:
+                    app.logger.info(f'Skipping note {student_note.record_id} because it is a testing artifact')
+                else:
+                    all_notes.append(student_note)
+
+        test_cases = []
+        for note in all_notes:
+            search_string = boa_utils.generate_note_search_query(note)
+            if search_string:
+                test_case_id = f"UID {note.student.uid} {note.source.value['name']} {note.record_id}"
+                test_cases.append(BEATestCase(student=note.student,
+                                              note=note,
+                                              search_string=search_string,
+                                              test_case_id=test_case_id))
+
+        sources = list(set(TimelineRecordSource) - {TimelineRecordSource.E_FORM, TimelineRecordSource.YCBM})
+        for source in sources:
+            source_notes = [tc for tc in test_cases if tc.note.source == source]
+            self.test_cases.extend(source_notes[:count])
+        for tc in self.test_cases:
+            app.logger.info(f"Test case: {tc.test_case_id}, '{tc.search_string}'")
 
     def search_students(self):
         self.set_base_configs()

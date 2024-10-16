@@ -56,11 +56,34 @@ def get_advising_note_author(uid):
         return User(data=data)
 
 
+def get_all_advising_note_authors():
+    authors = []
+    sql = """SELECT uid,
+                    sid,
+                    first_name,
+                    last_name
+               FROM boac_advising_notes.advising_note_authors"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    for row in results:
+        authors.append(User({
+            'uid': str(row['uid']),
+            'sid': str(row['sid']),
+            'first_name': row['first_name'],
+            'last_name': row['last_name'],
+        }))
+    return authors
+
+
 def get_sids_with_notes_of_src(src, eop_private=False):
-    if src == TimelineRecordSource.E_AND_I and eop_private:
-        clause = """WHERE privacy_permissions = 'Note available only to CE3'
-                      AND note IS NOT NULL
-                      AND attachment IS NOT NULL"""
+    if src == TimelineRecordSource.EOP:
+        if eop_private:
+            clause = """WHERE privacy_permissions = 'Note available only to CE3'
+                          AND note IS NOT NULL
+                          AND attachment IS NOT NULL"""
+        else:
+            clause = """WHERE privacy_permissions IS NULL
+                          AND note IS NOT NULL"""
     elif src == TimelineRecordSource.E_AND_I:
         clause = """WHERE advisor_first_name != 'Reception'
                       AND advisor_last_name != 'Front Desk'"""
@@ -164,6 +187,7 @@ def get_e_and_i_notes(student):
             'created_date': (v[0]['created_date'] and utils.date_to_local_tz(v[0]['created_date'])),
             'record_id': str(k),
             'source': TimelineRecordSource.E_AND_I,
+            'student': student,
             'subject': (v[0]['subject'] and v[0]['subject'].strip()),
             'updated_date': (v[0]['updated_date'] and utils.date_to_local_tz(v[0]['updated_date'])),
         }
@@ -195,6 +219,7 @@ def get_data_sci_notes(student):
             'created_date': created_date,
             'record_id': str(r['id']),
             'source': TimelineRecordSource.DATA,
+            'student': student,
             'updated_date': created_date,
         }
         topics = r['topics'].split(', ')
@@ -240,6 +265,7 @@ def get_eop_notes(student):
             'is_private': (v[0]['privacy'] == 'Note available only to CE3'),
             'record_id': str(v[0]['id']),
             'source': TimelineRecordSource.EOP,
+            'student': student,
             'subject': (v[0]['subject'] and v[0]['subject'].strip()),
             'contact_type': v[0]['contact_type'],
             'updated_date': created_date,
@@ -282,6 +308,7 @@ def get_history_notes(student):
             'body': r['body'],
             'created_date': created_date,
             'record_id': str(r['id']),
+            'student': student,
             'source': TimelineRecordSource.HISTORY,
             'updated_date': created_date,
         }
@@ -335,6 +362,7 @@ def get_sis_notes(student):
             'created_date': created_date,
             'source': TimelineRecordSource.SIS,
             'source_body_empty': source_body_empty,
+            'student': student,
             'updated_date': updated_date,
         }
 

@@ -31,6 +31,7 @@ class BEATestCase(object):
                  appt=None,
                  course=None,
                  note=None,
+                 search_string=None,
                  section=None,
                  section_id=None,
                  term=None,
@@ -40,6 +41,7 @@ class BEATestCase(object):
         self.appt = appt
         self.course = course
         self.note = note
+        self.search_string = search_string
         self.section = section
         self.section_id = section_id
         self.term = term
