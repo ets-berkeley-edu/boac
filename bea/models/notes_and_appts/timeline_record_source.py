@@ -32,6 +32,10 @@ class TimelineRecordSource(Enum):
         'name': 'ASC',
         'schema': 'boac_advising_asc',
     }
+    BOA = {
+        'name': 'BOA',
+        'schema': None,
+    }
     DATA = {
         'name': 'Data Science',
         'schema': 'boac_advising_data_science',

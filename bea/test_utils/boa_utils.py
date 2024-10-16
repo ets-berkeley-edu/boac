@@ -36,6 +36,7 @@ from bea.models.department_membership import DepartmentMembership
 from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_attachment import NoteAttachment
 from bea.models.notes_and_appts.note_template import NoteTemplate
+from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.student import Student
 from bea.models.user import User
 from bea.test_utils import utils
@@ -378,7 +379,7 @@ def get_student_notes(student):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    return get_notes_from_pg_db_result(results)
+    return get_notes_from_pg_db_result(results, student)
 
 
 def get_notes_by_ids(ids):
@@ -400,7 +401,7 @@ def get_advisor_note_drafts(advisor=None):
     return get_notes_from_pg_db_result(results)
 
 
-def get_notes_from_pg_db_result(results):
+def get_notes_from_pg_db_result(results, student=None):
     notes = []
     for row in results:
         app.logger.info(f"Gathering data for BOA note ID {row['id']}")
@@ -412,7 +413,7 @@ def get_notes_from_pg_db_result(results):
             'role': row['author_role'],
             'uid': row['author_uid'],
         })
-        student = row['sid'] and Student({'sid': row['sid']})
+        student = student or row['sid'] and Student({'sid': row['sid']})
         if row['set_date']:
             set_date_str = row['set_date'].strftime('%Y-%m-%d')
             set_date = datetime.strptime(set_date_str, '%Y-%m-%d')
@@ -427,6 +428,7 @@ def get_notes_from_pg_db_result(results):
             'is_private': row['is_private'],
             'record_id': str(row['id']),
             'set_date': (set_date and utils.date_to_local_tz(set_date)),
+            'source': TimelineRecordSource.BOA,
             'student': student,
             'subject': utils.strip_tags_and_whitespace(row['subject']),
             'updated_date': (row['updated_at'] and utils.date_to_local_tz(row['updated_at'])),

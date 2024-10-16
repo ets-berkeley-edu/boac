@@ -265,7 +265,11 @@ class Page(object):
     def matching_option(self, select_el_loc, option_str):
         select_el = Select(self.element(select_el_loc))
         for o in select_el.options:
-            if o.text.strip() == option_str or o.get_attribute('value') == option_str or f'-{option_str.lower()}' in o.get_attribute('id'):
+            if o.text.strip().lower() == option_str.lower():
+                return o
+            elif o.get_attribute('value') == option_str:
+                return o
+            elif f'-{option_str.lower()}' in o.get_attribute('id'):
                 return o
 
     # PAGE TITLE AND HEADING

@@ -36,9 +36,17 @@ class SearchResultsPage(ListViewAdmitPages):
 
     RESULTS_LOADED_MSG = By.XPATH, '//h1[text()="Search Results"]'
     NO_RESULTS_MSG = By.XPATH, '//div[contains(text(), "No results found for")]'
+    EDIT_SEARCH_BUTTON = By.ID, 'edit-search-btn'
 
     def wait_for_no_results(self):
         self.when_present(self.NO_RESULTS_MSG, utils.get_short_timeout())
+
+    def click_edit_search(self):
+        self.wait_for_element_and_click(self.EDIT_SEARCH_BUTTON)
+
+    @staticmethod
+    def expected_note_or_appt_date_format(date_time):
+        return date_time.strftime('%b %-d, %Y')
 
     # ADMIT SEARCH
 
@@ -145,43 +153,62 @@ class SearchResultsPage(ListViewAdmitPages):
     def note_link(note):
         return By.XPATH, f'//a[contains(@href, "note-{note.record_id}")]'
 
-    def is_note_in_search_result(self, note, is_batch=False):
+    def wait_for_note_search_result_count(self):
         self.wait_for_spinner()
-        self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
-        time.sleep(1)
-        count = self.note_results_count()
-        if count == '50+':
-            if is_batch:
-                return False
-            else:
-                app.logger.info(f'Skipping test with UID {note.record_id} because there are too many results')
-                return True
+        if self.is_present(self.NO_RESULTS_MSG):
+            count = '0'
         else:
-            self.when_present(self.note_link(note), utils.get_short_timeout())
-            return True
+            count = self.note_results_count()
+        app.logger.info(f'Note search results count is {count}')
+        return count
 
-    def note_result(self, student, note):
-        Wait(self.driver, utils.get_short_timeout()).until(ec.visibility_of_element_located(self.note_link(note)))
-        student_name = self.element(self.note_link(note)).text.strip() if self.is_present(self.note_link(note)) else None
+    def is_note_in_search_result(self, note):
+        return True if self.is_present(self.note_link(note)) else False
+
+    def assert_note_result_present(self, note):
+        count = self.wait_for_note_search_result_count()
+        if count == '20+':
+            app.logger.info(f'Skipping test with note {note.record_id} because there are too many results')
+        else:
+            if count != '0':
+                self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
+            assert self.is_note_in_search_result(note)
+
+    def assert_note_result_not_present(self, note):
+        count = self.wait_for_note_search_result_count()
+        if count == '20+':
+            app.logger.info(f'Skipping test with note {note.record_id} because there are too many results')
+        else:
+            if count != '0':
+                self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
+            assert not self.is_note_in_search_result(note)
+
+    def note_result_student_name(self, note):
+        self.when_present(self.note_link(note), utils.get_short_timeout())
+        time.sleep(utils.get_click_sleep())
+        return self.el_text_if_exists(self.note_link(note))
+
+    def note_result_sid(self, student, note):
         sid_loc = By.XPATH, f'//div[@id="advising-note-search-result-{note.record_id}"]/h3'
-        sid = self.element(sid_loc).text.replace(student.full_name, '').strip()[1:-1] if self.is_present(sid_loc) else None
-        snippet_loc = By.ID, f'advising-note-search-result-snippet-{note.record_id}'
-        snippet = self.element(snippet_loc).text if self.is_present(snippet_loc) else None
-        advisor_loc = By.ID, f'advising-note-search-result-advisor-{note.record_id}'
-        advisor_name = self.element(advisor_loc).text.replace('-', '').strip() if self.is_present(advisor_loc) else None
-        date_loc = By.XPATH, f'//div[@id="advising-note-search-result-{note.record_id}"]/div[@class="advising-note-search-result-footer"]'
-        date = self.element(date_loc).text.split('-')[-1].strip() if self.is_present(date_loc) else None
-        return {
-            'student_name': student_name,
-            'student_sid': sid,
-            'snippet': snippet,
-            'advisor_name': advisor_name,
-            'date': date,
-        }
+        if self.is_present(sid_loc):
+            return self.element(sid_loc).text.replace(student.full_name, '').strip()[1:-1]
+        else:
+            return None
 
-    def note_result_uids(self):
-        els = self.elements(self.NOTE_SEARCH_RESULT)
-        return list(map(lambda el: el.get_attribute('href').split('/')[-1].split('#')[0], els))
+    def note_result_snippet(self, note):
+        return self.el_text_if_exists((By.ID, f'advising-note-search-result-snippet-{note.record_id}'))
+
+    def note_result_advisor_name(self, note):
+        advisor_loc = By.ID, f'advising-note-search-result-advisor-{note.record_id}'
+        return self.el_text_if_exists(advisor_loc, '-')
+
+    def note_result_date(self, note):
+        xpath = f'//div[@id="advising-note-search-result-{note.record_id}"]/div[@class="advising-note-search-result-footer"]'
+        date_loc = By.XPATH, xpath
+        if self.is_present(date_loc):
+            return self.element(date_loc).text.split('-')[-1].strip()
+        else:
+            return None
 
     def click_note_link(self, note):
         self.wait_for_element_and_click(self.note_link(note))
