@@ -337,7 +337,7 @@
         <v-card-actions class="modal-footer">
           <div class="flex-grow-1">
             <v-btn
-              v-if="model.includeNotes && searchStore.isDirty"
+              v-if="model.includeNotes && !isModelEmpty()"
               id="reset-advanced-search-form-btn"
               :disabled="searchStore.isSearching"
               text="Reset"
@@ -510,9 +510,25 @@ const openAdvancedSearch = () => {
 }
 
 const reset = force => {
+  const m = model.value
   if (force || !window.location.pathname.startsWith('/search')) {
-    searchStore.resetAdvancedSearch(searchStore.queryText)
+    const currentUser = useContextStore().currentUser
+    m.author = null
+    m.fromDate = null
+    m.postedBy = 'anyone'
+    m.student = null
+    m.toDate = null
+    m.topic = null
+    m.includeAdmits = currentUser.canAccessAdmittedStudents
+    m.includeCourses = currentUser.canAccessCanvasData
+    m.includeNotes = currentUser.canAccessAdvisingData
   }
+
+}
+
+const isModelEmpty = () => {
+  const m = model.value
+  return !(m.author || m.toDate || m.topic || m.fromDate || m.student) && m.postedBy === 'anyone'
 }
 
 const search = () => {
