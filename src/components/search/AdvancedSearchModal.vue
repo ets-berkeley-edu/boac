@@ -370,7 +370,6 @@ import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
 import FocusLock from 'vue-focus-lock'
 import ProgressButton from '@/components/util/ProgressButton'
-import router from '@/router'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop} from '@/lib/utils'
 import {computed, ref, watch} from 'vue'
@@ -381,6 +380,7 @@ import {labelForSearchInput} from '@/lib/search'
 import {mdiTune} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
+import {useRouter} from 'vue-router'
 
 const getDefaultModel = () => ({
   author: undefined,
@@ -397,8 +397,9 @@ const getDefaultModel = () => ({
 })
 
 const contextStore = useContextStore()
-const searchStore = useSearchStore()
 const currentUser = contextStore.currentUser
+const searchStore = useSearchStore()
+const router = useRouter()
 
 const counter = ref(0)
 const isFocusAdvSearchButton = ref(false)

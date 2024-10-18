@@ -56,11 +56,15 @@
 
 <script setup>
 import ProgressButton from '@/components/util/ProgressButton'
-import router from '@/router'
 import {alertScreenReader} from '@/lib/utils'
 import {createDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 import {onMounted, ref, watch} from 'vue'
 import {map, trim} from 'lodash'
+import {useContextStore} from '@/stores/context'
+import {useRouter} from 'vue-router'
+
+const contextStore = useContextStore()
+const router = useRouter()
 
 const error = ref('')
 const isBusy = ref(false)
@@ -68,7 +72,9 @@ const templateName = ref('')
 
 watch(templateName, () => error.value = null)
 
-onMounted(() => alertScreenReader('Create degree template'))
+contextStore.loadingStart()
+
+onMounted(() => contextStore.loadingComplete())
 
 const create = () => {
   if (!error.value && trim(templateName.value)) {

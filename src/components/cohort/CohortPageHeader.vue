@@ -187,9 +187,9 @@ import {get, isUndefined} from 'lodash'
 import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
 import {pluralize} from '@/lib/utils'
 import {ref, watch} from 'vue'
-import router from '@/router'
 import {size} from 'lodash'
 import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useRouter} from 'vue-router'
 
 defineProps({
   isCohortHistoryPage: {
@@ -199,6 +199,7 @@ defineProps({
 })
 
 const cohortStore = useCohortStore()
+const router = useRouter()
 
 const error = ref(undefined)
 const isDownloadingCSV = ref(false)

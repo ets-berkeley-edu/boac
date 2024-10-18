@@ -24,15 +24,15 @@
 <script setup>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
-import router from '@/router'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {ref} from 'vue'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 
 const domain = useRoute().query.domain || 'default'
 const isSaving = ref(false)
+const router = useRouter()
 const showCreateModal = ref(false)
 const sids = ref(undefined)
 

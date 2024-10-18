@@ -180,8 +180,9 @@ const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 
 const myDraftNotes = ref(undefined)
 const selectedNote = ref(undefined)
 
+contextStore.loadingStart()
+
 onMounted(() => {
-  contextStore.loadingStart()
   headers.push(
     {align: 'start', key: 'student', title: 'Student', width: 200},
     {align: 'start', key: 'sid', title: 'SID', width: 150},

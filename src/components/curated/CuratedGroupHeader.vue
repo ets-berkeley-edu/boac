@@ -206,7 +206,6 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
-import router from '@/router'
 import {alertScreenReader, pluralize, setPageTitle} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
@@ -217,9 +216,11 @@ import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
 import {validateCohortName} from '@/lib/cohort'
 import {storeToRefs} from 'pinia'
+import {useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
 const curatedStore = useCuratedGroupStore()
+const router = useRouter()
 
 const {curatedGroupId, curatedGroupName, domain, itemsPerPage, mode, ownerId, referencingCohortIds, totalStudentCount} = storeToRefs(curatedStore)
 const currentUser = contextStore.currentUser

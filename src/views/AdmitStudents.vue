@@ -101,7 +101,6 @@ import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import Pagination from '@/components/util/Pagination'
-import router from '@/router'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import {alertScreenReader, pluralize, putFocusNextTick, toInt} from '@/lib/utils'
@@ -111,7 +110,7 @@ import {getAdmitCsvExportColumns} from '@/berkeley'
 import {getAllAdmits} from '@/api/admit'
 import {onBeforeUnmount, onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 
 const admits = ref(undefined)
 const contextStore = useContextStore()
@@ -120,6 +119,7 @@ const exportEnabled = ref(true)
 const isDownloadingCSV = ref(false)
 const pagination = {currentPage: 1, itemsPerPage: 50}
 const route = useRoute()
+const router = useRouter()
 const showExportListDialog = ref(false)
 const sorting = ref(false)
 const totalAdmitCount = ref(undefined)
@@ -194,8 +194,7 @@ const loadAdmits = () => {
     if (response) {
       admits.value = get(response, 'students')
       totalAdmitCount.value = get(response, 'totalStudentCount')
-      contextStore.loadingComplete(`${totalAdmitCount.value} CE3 admits loaded`)
-      putFocusNextTick('cohort-name')
+      contextStore.loadingComplete(`${totalAdmitCount.value} CE3 admits loaded`, 'cohort-name')
     } else {
       router.push({path: '/404'})
     }

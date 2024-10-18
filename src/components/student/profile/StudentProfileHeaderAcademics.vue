@@ -1,6 +1,6 @@
 <template>
   <div v-if="academicCareerStatus !== 'Completed'">
-    <div v-if="plansPartitionedByStatus[0].length" id="student-bio-majors" class="mb-3">
+    <div v-if="size(plansPartitionedByStatus[0])" id="student-bio-majors" class="mb-3">
       <h3 v-if="isGraduate(student)" class="student-profile-h3">Academic Plan</h3>
       <h3 v-if="!isGraduate(student)" class="student-profile-h3">Major</h3>
       <StudentProfilePlan
@@ -10,9 +10,9 @@
         :active="true"
       />
     </div>
-    <div v-if="plansMinorPartitionedByStatus[0].length" id="student-bio-minors" class="mb-3">
-      <h3 v-if="plansMinorPartitionedByStatus[0].length > 1" class="student-profile-h3">Minors</h3>
-      <h3 v-if="plansMinorPartitionedByStatus[0].length === 1" class="student-profile-h3">Minor</h3>
+    <div v-if="size(plansMinorPartitionedByStatus[0])" id="student-bio-minors" class="mb-3">
+      <h3 v-if="size(plansMinorPartitionedByStatus[0]) > 1" class="student-profile-h3">Minors</h3>
+      <h3 v-if="size(plansMinorPartitionedByStatus[0]) === 1" class="student-profile-h3">Minor</h3>
       <StudentProfilePlan
         v-for="plan in plansMinorPartitionedByStatus[0]"
         :key="plan.description"
@@ -31,7 +31,7 @@
       </div>
     </div>
     <div
-      v-if="!plansPartitionedByStatus[0].length && plansPartitionedByStatus[1].length"
+      v-if="isEmpty(plansPartitionedByStatus[0]) && size(plansPartitionedByStatus[1])"
       id="student-details-discontinued-majors-outer"
       class="mb-3"
     >
@@ -48,7 +48,7 @@
       </div>
     </div>
     <div
-      v-if="!plansPartitionedByStatus[0].length && plansMinorPartitionedByStatus[1].length"
+      v-if="isEmpty(plansPartitionedByStatus[0]) && size(plansMinorPartitionedByStatus[1])"
       id="student-details-discontinued-minors-outer"
       class="mb-3"
     >
@@ -65,7 +65,7 @@
       </div>
     </div>
     <div
-      v-if="!plansPartitionedByStatus[0].length && size(discontinuedSubplans)"
+      v-if="!size(plansPartitionedByStatus[0]) && size(discontinuedSubplans)"
       id="student-bio-subplans"
       class="mb-3"
     >
@@ -110,10 +110,10 @@
 
 <script setup>
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
-import {compact as _compact, each, get, includes, map, size, uniq} from 'lodash'
+import {compact as _compact, each, get, includes, isEmpty, map, size, uniq} from 'lodash'
 import {DateTime} from 'luxon'
 import {isGraduate} from '@/berkeley'
-import {onMounted} from 'vue'
+import {onMounted, ref} from 'vue'
 import {pluralize} from '@/lib/utils'
 
 const props = defineProps({
@@ -146,11 +146,13 @@ const props = defineProps({
   }
 })
 
-const academicCareerStatus = get(props.student, 'sisProfile.academicCareerStatus')
-const activeSubplans = _compact(map(props.plansPartitionedByStatus[0], 'subplan'))
+const academicCareerStatus = ref([])
+const activeSubplans = ref([])
 const planTypes = ['MAJ', 'SS', 'SP', 'SH', 'CRT']
 
 onMounted(() => {
+  academicCareerStatus.value = get(props.student, 'sisProfile.academicCareerStatus')
+  activeSubplans.value = _compact(map(props.plansPartitionedByStatus[0], 'subplan'))
   each(props.student.sisProfile.degrees, degree => {
     degree.planOwners = uniq(map(degree.plans, 'group'))
     degree.minorPlans = degree.plans.filter(plan => plan.type === 'MIN').map(minor => minor.plan).map(part => part.replace('Minor in ', ''))

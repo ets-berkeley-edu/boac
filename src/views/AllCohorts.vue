@@ -44,8 +44,9 @@ const loading = computed(() => contextStore.loading)
 let includesAdmittedStudents = undefined
 let rows = []
 
+contextStore.loadingStart()
+
 onMounted(() => {
-  contextStore.loadingStart()
   getUsersWithCohorts().then(data => {
     rows = _filter(data, row => row.cohorts.length)
     includesAdmittedStudents = find(flatten(map(rows, 'cohorts')), g => g.domain === 'admitted_students')

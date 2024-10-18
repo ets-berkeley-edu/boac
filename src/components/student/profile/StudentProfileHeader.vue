@@ -28,9 +28,9 @@
   <div class="text-center">
     <StudentPersonalDetails
       v-if="!compact"
-      :inactive-majors="plansPartitionedByStatus[0].length ? plansPartitionedByStatus[1] : []"
-      :inactive-minors="plansMinorPartitionedByStatus[0].length ? plansMinorPartitionedByStatus[1] : []"
-      :inactive-subplans="plansPartitionedByStatus[0].length ? discontinuedSubplans : []"
+      :inactive-majors="size(plansPartitionedByStatus[0]) ? plansPartitionedByStatus[1] : []"
+      :inactive-minors="size(plansMinorPartitionedByStatus[0]) ? plansMinorPartitionedByStatus[1] : []"
+      :inactive-subplans="size(plansPartitionedByStatus[0]) ? discontinuedSubplans : []"
       :student="student"
     />
   </div>
@@ -42,7 +42,8 @@ import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentPersonalDetails from '@/components/student/profile/StudentPersonalDetails'
 import StudentProfileHeaderAcademics from '@/components/student/profile/StudentProfileHeaderAcademics'
 import StudentProfileHeaderBio from '@/components/student/profile/StudentProfileHeaderBio'
-import {compact as _compact, map, partition} from 'lodash'
+import {compact as _compact, map, partition, size} from 'lodash'
+import {onMounted, ref} from 'vue'
 
 const props = defineProps({
   compact: {
@@ -59,9 +60,15 @@ const props = defineProps({
   }
 })
 
-const plansMinorPartitionedByStatus = partition(props.student.sisProfile.plansMinor, (p) => p.status === 'Active')
-const plansPartitionedByStatus = partition(props.student.sisProfile.plans, (p) => p.status === 'Active')
-const discontinuedSubplans = _compact(map(plansPartitionedByStatus[1], 'subplan'))
+const plansMinorPartitionedByStatus = ref([])
+const plansPartitionedByStatus = ref([])
+const discontinuedSubplans = ref([])
+
+onMounted(() => {
+  plansMinorPartitionedByStatus.value = partition(props.student.sisProfile.plansMinor, (p) => p.status === 'Active')
+  plansPartitionedByStatus.value = partition(props.student.sisProfile.plans, (p) => p.status === 'Active')
+  discontinuedSubplans.value = _compact(map(plansPartitionedByStatus.value[1], 'subplan'))
+})
 </script>
 
 <style>

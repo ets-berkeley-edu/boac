@@ -85,7 +85,6 @@ import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader'
 import Pagination from '@/components/util/Pagination'
-import router from '@/router'
 import SortBy from '@/components/student/SortBy'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
@@ -93,12 +92,12 @@ import {addStudentsToCuratedGroups, removeFromCuratedGroups} from '@/api/curated
 import {alertScreenReader, putFocusNextTick, scrollTo, setPageTitle, toInt} from '@/lib/utils'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
 import {capitalize, get, size} from 'lodash'
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {goToCuratedGroup} from '@/stores/curated-group/utils'
+import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
-import {useRoute} from 'vue-router'
-import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
-import {storeToRefs} from 'pinia'
+import {useRoute, useRouter} from 'vue-router'
 
 defineProps({
   id: {
@@ -124,6 +123,7 @@ const pageLoadAlert = computed(() => {
     return `${label} ${pageDesc} ${loadStatus}. Sorted by ${sortByOption}.`
   }
 })
+const router = useRouter()
 const sortByKey = computed(() => domain.value === 'admitted_students' ? 'admitSortBy' : 'sortBy')
 const {curatedGroupId, domain, itemsPerPage, mode, pageNumber, students, totalStudentCount} = storeToRefs(curatedStore)
 
@@ -141,9 +141,8 @@ onMounted(() => {
   curatedStore.setCuratedGroupId(parseInt(idParam))
   goToCuratedGroup(curatedStore.curatedGroupId, 1).then(group => {
     if (group) {
-      contextStore.loadingComplete(pageLoadAlert.value)
       setPageTitle(curatedStore.curatedGroupName)
-      putFocusNextTick('curated-group-name', {scrollBlock: 'start'})
+      contextStore.loadingComplete(pageLoadAlert.value, 'curated-group-name')
     } else {
       router.push({path: '/404'})
     }

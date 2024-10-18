@@ -126,6 +126,7 @@ export const useContextStore = defineStore('context', {
         }
         if (element) {
           element.setAttribute('tabindex', '-1')
+          element.focus()
           element.scrollIntoView({behavior: 'smooth', block: 'center'})
         }
         return !!element

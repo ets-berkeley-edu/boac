@@ -262,7 +262,6 @@ onMounted(() => {
   getDegreeTemplates().then(data => {
     degreeTemplates.value = data
     contextStore.loadingComplete()
-    alertScreenReader('Manage Degree Checks page loaded')
   })
 })
 
