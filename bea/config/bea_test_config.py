@@ -599,6 +599,34 @@ class BEATestConfig(object):
         self.set_test_admits(count=app.config['MAX_SEARCH_STUDENTS_COUNT'])
         self.set_search_cohorts(opts={'admits': True})
 
+    def search_appts(self):
+        self.set_base_configs(opts={'include_inactive': True})
+        self.set_test_students(count=app.config['MAX_SEARCH_STUDENTS_COUNT'],
+                               opts={'appts': True, 'inactive': True})
+
+        count = app.config['MAX_NOTES_OR_APPTS_COUNT']
+        all_appts = []
+        for student in self.test_students:
+            all_student_appts = nessie_timeline_utils.get_sis_appts(student)
+            for student_appt in all_student_appts:
+                # Throw out junk SIS appts
+                if '504GatewayTimeout' not in student_appt.detail:
+                    all_appts.append(student_appt)
+
+        test_cases = []
+        for appt in all_appts:
+            search_string = boa_utils.generate_appt_search_query(appt)
+            if search_string:
+                test_case_id = f'UID {appt.student.uid} SIS {search_string}'
+                test_cases.append(BEATestCase(student=appt.student,
+                                              appt=appt,
+                                              search_string=search_string,
+                                              test_case_id=test_case_id))
+
+        self.test_cases = test_cases[:count]
+        for tc in self.test_cases:
+            app.logger.info(f"Test case: {tc.test_case_id}, '{tc.search_string}'")
+
     def search_class(self):
         self.set_base_configs()
         self.set_test_students(count=app.config['MAX_SEARCH_STUDENTS_COUNT'], opts={'enrollments': True})

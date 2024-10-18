@@ -221,49 +221,71 @@ class SearchResultsPage(ListViewAdmitPages):
 
     def appt_results_count(self):
         self.wait_for_spinner()
-        return int(self.element(self.APPT_RESULTS_COUNT).text)
+        return self.element(self.APPT_RESULTS_COUNT).text
 
     def wait_for_appt_search_result_rows(self):
         Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.APPT_SEARCH_RESULT))
 
     @staticmethod
     def appt_link(appt):
-        return By.XPATH, f'//a[contains(@href, "#appointment-{appt.record_id}")]'
+        return By.XPATH, f'//a[contains(@href, "appointment-{appt.record_id}")]'
+
+    def wait_for_appt_search_result_count(self):
+        self.wait_for_spinner()
+        if self.is_present(self.NO_RESULTS_MSG):
+            count = '0'
+        else:
+            count = self.appt_results_count()
+        app.logger.info(f'Appointment search results count is {count}')
+        return count
 
     def is_appt_in_search_result(self, appt):
-        count = self.appt_results_count()
-        if count == 0:
-            return False
+        return True if self.is_present(self.appt_link(appt)) else False
+
+    def assert_appt_result_present(self, appt):
+        count = self.wait_for_appt_search_result_count()
+        if count == '20+':
+            app.logger.info(f'Skipping test with appointment {appt.record_id} because there are too many results')
         else:
-            try:
-                self.wait_for_appt_search_result_rows()
-                Wait(self.driver, 2).until(ec.presence_of_element_located(self.appt_link(appt)))
-                return True
-            except TimeoutError:
-                return False
+            if count != '0':
+                self.wait_for_element_and_click(self.APPT_RESULTS_BUTTON)
+            assert self.is_appt_in_search_result(appt)
 
-    def appt_result(self, student, appt):
-        Wait(self.driver, utils.get_short_timeout()).until(ec.visibility_of_element_located(self.appt_link(appt)))
-        student_name = self.element(self.appt_link(appt)).text.strip() if self.is_present(self.appt_link(appt)) else None
+    def assert_appt_result_not_present(self, appt):
+        count = self.wait_for_appt_search_result_count()
+        if count == '20+':
+            app.logger.info(f'Skipping test with appointment {appt.record_id} because there are too many results')
+        else:
+            if count != '0':
+                self.wait_for_element_and_click(self.APPT_RESULTS_BUTTON)
+            assert not self.is_appt_in_search_result(appt)
+
+    def appt_result_student_name(self, appt):
+        self.when_present(self.appt_link(appt), utils.get_short_timeout())
+        time.sleep(utils.get_click_sleep())
+        return self.el_text_if_exists(self.appt_link(appt))
+
+    def appt_result_sid(self, student, appt):
         sid_loc = By.XPATH, f'//div[@id="appointment-search-result-{appt.record_id}"]/h3'
-        sid = self.element(sid_loc).text.replace(student.full_name, '').strip()[1:-1] if self.is_present(sid_loc) else None
-        snippet_loc = By.ID, f'appointment-search-result-snippet-{appt.record_id}'
-        snippet = self.element(snippet_loc).text if self.is_present(snippet_loc) else None
-        advisor_loc = By.ID, f'appointment-search-result-advisor-{appt.record_id}'
-        advisor_name = self.element(advisor_loc).text.strip() if self.is_present(advisor_loc) else None
-        date_loc = By.XPATH, f'//div[@id="appointment-search-result-{appt.record_id}"]/div[@class="appointment-search-result-footer"]'
-        date = self.element(date_loc).text.split('-')[-1].strip() if self.is_present(date_loc) else None
-        return {
-            'student_name': student_name,
-            'student_sid': sid,
-            'snippet': snippet,
-            'advisor_name': advisor_name,
-            'date': date,
-        }
+        if self.is_present(sid_loc):
+            return self.element(sid_loc).text.replace(student.full_name, '').strip()[1:-1]
+        else:
+            return None
 
-    def appt_result_uids(self):
-        els = self.elements(self.APPT_SEARCH_RESULT)
-        return list(map(lambda el: el.get_attribute('href').split('/')[-1].split('#')[0], els))
+    def appt_result_snippet(self, appt):
+        return self.el_text_if_exists((By.ID, f'appointment-search-result-snippet-{appt.record_id}'))
+
+    def appt_result_advisor_name(self, appt):
+        advisor_loc = By.ID, f'appointment-search-result-advisor-{appt.record_id}'
+        return self.el_text_if_exists(advisor_loc, '-')
+
+    def appt_result_date(self, appt):
+        xpath = f'//div[@id="appointment-search-result-{appt.record_id}"]/div[contains(@class, "result-footer")]'
+        date_loc = By.XPATH, xpath
+        if self.is_present(date_loc):
+            return self.element(date_loc).text.split('-')[-1].strip()
+        else:
+            return None
 
     def click_appt_link(self, appt):
         self.wait_for_element_and_click(self.appt_link(appt))

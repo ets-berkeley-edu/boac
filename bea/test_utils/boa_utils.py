@@ -536,10 +536,10 @@ def generate_note_search_query(note):
     return search_string
 
 
-def generate_appt_search_query(test_case):
+def generate_appt_search_query(appt):
     search_string = ''
-    if test_case.appt.detail:
-        phrases = re.split(r'(<\w+>|<\/\w+>)', test_case.appt.detail)
+    if appt.detail:
+        phrases = re.split(r'(<\w+>|<\/\w+>)', appt.detail)
         for phrase in phrases:
             if len(phrase) > 24:
                 phrase = phrase.split(' ')[:4]
