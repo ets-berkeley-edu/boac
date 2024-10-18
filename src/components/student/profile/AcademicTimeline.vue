@@ -127,15 +127,13 @@ const setFilter = filter => {
 }
 
 const sortDate = message => {
+  let date
   if (message.type === 'appointment' || message.type === 'note') {
-    if (message.setDate) {
-      return DateTime.fromISO(message.setDate).setZone(useContextStore().config.timezone).toString()
-    } else {
-      return message.createdAt
-    }
+    date = message.setDate || message.createdAt
   } else {
-    return message.updatedAt || message.createdAt
+    date = message.updatedAt || message.createdAt
   }
+  return date ? DateTime.fromISO(date).setZone(useContextStore().config.timezone).toString() : date
 }
 
 const sortMessages = () => {
