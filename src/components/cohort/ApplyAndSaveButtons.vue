@@ -55,7 +55,6 @@
 <script setup>
 import CreateCohortModal from '@/components/cohort/CreateCohortModal'
 import ProgressButton from '@/components/util/ProgressButton'
-import router from '@/router'
 import {alertScreenReader, putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {applyFilters, loadCohort, resetFiltersToLastApply} from '@/stores/cohort-edit-session/utils'
 import {createCohort, saveCohort} from '@/api/cohort'
@@ -63,11 +62,13 @@ import {get} from 'lodash'
 import {ref} from 'vue'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
+import {useRouter} from 'vue-router'
 
 const cohort = useCohortStore()
 const context = useContextStore()
 const currentAction = ref(undefined)
 const showCreateModal = ref(false)
+const router = useRouter()
 
 const apply = () => {
   context.broadcast('cohort-apply-filters')

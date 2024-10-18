@@ -78,7 +78,6 @@
 
 <script setup>
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
-import router from '@/router'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
 import {computed, onMounted, onUnmounted} from 'vue'
 import {each, get, noop, size, trim} from 'lodash'
@@ -87,7 +86,7 @@ import {labelForSearchInput} from '@/lib/search'
 import {mdiClose} from '@mdi/js'
 import {putFocusNextTick, scrollToTop} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import {useSearchStore} from '@/stores/search'
 
 const searchStore = useSearchStore()
@@ -97,6 +96,7 @@ const queryTextModel = computed({
   get: () => searchStore.queryText || null,
   set: v => searchStore.setQueryText(v)
 })
+const router = useRouter()
 
 onMounted(() => {
   document.addEventListener('keyup', onKeyUp)

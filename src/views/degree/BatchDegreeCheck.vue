@@ -194,7 +194,6 @@
 import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import ProgressButton from '@/components/util/ProgressButton'
-import router from '@/router'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {computed, nextTick, onMounted, ref, watch} from 'vue'
 import {createBatchDegreeCheck, getStudents} from '@/api/degree'
@@ -215,9 +214,11 @@ import {
 import {getDistinctSids, getStudentsBySids} from '@/api/student'
 import {mdiCloseCircle} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
+import {useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
+const router = useRouter()
 
 const addedCohorts = ref([])
 const addedCuratedGroups = ref([])
@@ -247,7 +248,9 @@ watch(distinctSids, value => {
   findStudentsWithDegreeCheck(selectedTemplate.value, value)
 })
 
-onMounted(() => alertScreenReader('Batch degree checks loaded'))
+contextStore.loadingStart()
+
+onMounted(() => contextStore.loadingComplete())
 
 const addCohort = cohort => {
   clearErrors()

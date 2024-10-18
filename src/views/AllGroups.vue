@@ -11,7 +11,7 @@
         denotes a group of admitted students.
       </div>
     </div>
-    <div v-if="!rows.length">
+    <div v-if="isEmpty(rows)">
       <div>There are no saved groups</div>
     </div>
     <div v-for="(row, index) in rows" :key="index" class="mt-4">
@@ -33,8 +33,8 @@
 </template>
 
 <script setup>
-import {computed} from 'vue'
-import {filter, find, flatten, map} from 'lodash'
+import {computed, onMounted} from 'vue'
+import {filter, find, flatten, isEmpty, map, size} from 'lodash'
 import {getUsersWithCuratedGroups} from '@/api/curated'
 import {mdiStar} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
@@ -44,8 +44,9 @@ const loading = computed(() => contextStore.loading)
 let rows
 
 contextStore.loadingStart()
-getUsersWithCuratedGroups().then(data => {
-  rows = filter(data, row => row.groups.length)
+
+onMounted(() => {getUsersWithCuratedGroups().then(data => {
+  rows = filter(data, row => size(row.groups))
   contextStore.loadingComplete('Everyone\'s Groups has loaded')
-})
+})})
 </script>

@@ -28,18 +28,19 @@
 
 <script setup>
 import DebugTemplate from '@/components/degree/DebugTemplate'
-import router from '@/router'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnitRequirements from '@/components/degree/UnitRequirements'
-import {alertScreenReader, putFocusNextTick, setPageTitle, toInt} from '@/lib/utils'
+import {putFocusNextTick, setPageTitle, toInt} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {computed, onMounted} from 'vue'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
+const router = useRouter()
+
 const loading = computed(() => contextStore.loading)
 
 contextStore.loadingStart()
@@ -51,8 +52,7 @@ onMounted(() => {
       router.push(`/student/degree/${id}`)
     } else {
       setPageTitle(degreeStore.degreeName)
-      contextStore.loadingComplete()
-      alertScreenReader(degreeStore.templateId ? `Degree ${degreeStore.degreeName} has loaded` : 'Create degree page has loaded')
+      contextStore.loadingComplete(degreeStore.templateId ? `Degree ${degreeStore.degreeName} has loaded` : 'Create degree page has loaded')
       putFocusNextTick('add-unit-requirement')
     }
   })

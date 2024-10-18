@@ -71,19 +71,19 @@
 
 <script setup>
 import ProgressButton from '@/components/util/ProgressButton.vue'
-import router from '@/router'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import {alertScreenReader, putFocusNextTick, setPageTitle, studentRoutePath} from '@/lib/utils'
 import {computed, onMounted, ref, watch} from 'vue'
 import {createDegreeCheck, getDegreeTemplates} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const isSaving = ref(false)
 const loading = computed(() => contextStore.loading)
+const router = useRouter()
 const selectedOption = ref(null)
 const student = ref(undefined)
 const templates = ref(undefined)
@@ -108,8 +108,7 @@ onMounted(() => {
     setPageTitle(currentUser.inDemoMode ? 'Student' : student.value.name)
     getDegreeTemplates().then(data => {
       templates.value = data
-      contextStore.loadingComplete()
-      alertScreenReader(`Add Degree Check for ${student.value.name}`)
+      contextStore.loadingComplete(`Add Degree Check for ${student.value.name}`)
     })
   })
 })

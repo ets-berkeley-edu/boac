@@ -13,6 +13,7 @@
           <ManageStudent
             :align-dropdown-right="true"
             button-variant="flat"
+            button-width="auto"
             domain="admitted_students"
             label="Add to Admission Group"
             label-class="px-2"
@@ -20,7 +21,7 @@
           />
         </div>
       </div>
-      <div v-if="admit.studentUid">
+      <div v-if="get(admit, 'studentUid')">
         <router-link
           :id="`link-to-student-${admit.studentUid}`"
           :to="studentRoutePath(admit.studentUid, currentUser.inDemoMode)"
@@ -265,16 +266,16 @@
 <script setup>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
-import router from '@/router'
 import {computed, onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {get} from 'lodash'
 import {getAdmitBySid} from '@/api/admit'
-import {putFocusNextTick, setPageTitle, studentRoutePath, toInt} from '@/lib/utils'
+import {setPageTitle, studentRoutePath, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
+const router = useRouter()
 
 const admit = ref(undefined)
 let birthDate = undefined
@@ -291,14 +292,14 @@ onMounted(() => {
     if (data) {
       admit.value = data
       fullName.value = [admit.value.firstName, admit.value.middleName, admit.value.lastName].join(' ')
+      admit.value.name = fullName.value
       birthDate = DateTime.fromISO(admit.value.birthdate)
       if (birthDate > DateTime.now()) {
         birthDate.minus({years: 100})
       }
       birthDate = birthDate.toFormat('MMM d, yyyy')
       setPageTitle(currentUser.inDemoMode ? 'Admitted Student' : fullName.value)
-      contextStore.loadingComplete()
-      putFocusNextTick('admit-name-header')
+      contextStore.loadingComplete(null, 'admit-name-header')
     } else {
       router.push({path: '/404'})
     }

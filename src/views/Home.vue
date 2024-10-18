@@ -1,6 +1,6 @@
 <template>
   <div class="default-margins">
-    <h1 class="sr-only">Welcome to BOA</h1>
+    <h1 id="page-header" class="sr-only">Welcome to BOA</h1>
     <div>
       <div class="mb-6">
         <div v-if="cohorts.length">

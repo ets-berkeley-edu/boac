@@ -64,5 +64,9 @@ let BOA = {}
 const contextStore = useContextStore()
 const config = contextStore.config
 
-onMounted(() => getVersion().then(data => BOA = data))
+contextStore.loadingStart()
+onMounted(() => getVersion().then(data => {
+  BOA = data
+  contextStore.loadingComplete()
+}))
 </script>

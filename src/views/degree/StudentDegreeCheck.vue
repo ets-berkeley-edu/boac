@@ -87,7 +87,7 @@ import StudentProfileHeader from '@/components/student/profile/StudentProfileHea
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnassignedCourses from '@/components/degree/student/UnassignedCourses'
 import UnitRequirements from '@/components/degree/UnitRequirements'
-import {alertScreenReader, setPageTitle} from '@/lib/utils'
+import {setPageTitle} from '@/lib/utils'
 import {getStudentBySid} from '@/api/student'
 import {onDrop, refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {computed, onMounted, onUnmounted, ref} from 'vue'
@@ -115,10 +115,9 @@ onMounted(() => {
   refreshDegreeTemplate(degreeId).then(() => {
     getStudentBySid(degreeStore.sid, true).then(data => {
       student.value = data
-      contextStore.loadingComplete()
       const studentName = currentUser.inDemoMode ? 'Student' : student.value.name
       setPageTitle(`${studentName} - ${degreeStore.degreeName}`)
-      alertScreenReader(`${degreeStore.degreeName} for ${student.value.name}`)
+      contextStore.loadingComplete(`${degreeStore.degreeName} for ${student.value.name}`)
     })
   })
 })

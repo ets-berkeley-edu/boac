@@ -11,13 +11,13 @@
       <div class="align-center d-flex justify-space-between">
         <h1 id="page-header">Degree Check History</h1>
         <div v-if="currentUser.canEditDegreeProgress" class="mr-2">
-          <router-link id="create-new-degree" :to="`${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`">
+          <router-link v-if="student" id="create-new-degree" :to="`${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`">
             Create New Degree
           </router-link>
         </div>
       </div>
       <v-data-table
-        v-if="degreeChecks.length"
+        v-if="size(degreeChecks)"
         id="degree-checks-table"
         :cell-props="data => {
           const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
@@ -80,7 +80,7 @@
           </div>
         </template>
       </v-data-table>
-      <div v-if="!degreeChecks.length" class="pl-3">
+      <div v-if="isEmpty(degreeChecks)" class="pl-3">
         Student has no degree checks.
       </div>
     </div>
@@ -96,7 +96,7 @@ import {getStudentByUid} from '@/api/student'
 import {mdiAlert} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {computed, onMounted, ref} from 'vue'
-import {each} from 'lodash'
+import {each, isEmpty, size} from 'lodash'
 import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()

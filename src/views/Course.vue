@@ -25,7 +25,7 @@
     <div class="d-flex">
       <div class="course-column-description bg-light-blue">
         <h1
-          id="course-header"
+          id="page-header"
           class="course-header"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
         >
@@ -194,10 +194,10 @@ watch(itemsPerPage, (newValue, oldValue) => {
   })
 })
 
+contextStore.loadingStart()
+
 onMounted(() => {
-  reload(params.sectionId, params.termId).then(() => {
-    putFocusNextTick('course-header', {scrollBlock: 'start'})
-  })
+  reload(params.sectionId, params.termId)
 })
 
 const goToPage = page => {
@@ -229,9 +229,9 @@ const reload = (sectionId, termId) => {
       const message = totalStudentCount < itemsPerPage.value ?
         `Showing all ${totalStudentCount} students.` :
         `Showing ${size(students)} of ${totalStudentCount} total students.`
-      contextStore.loadingComplete(`${pageLoadAlert.value} ${message}`)
       ga.course('view', displayName)
       setPageTitle(displayName)
+      contextStore.loadingComplete(`${pageLoadAlert.value} ${message}`)
     },
     e => error.value = e,
   )

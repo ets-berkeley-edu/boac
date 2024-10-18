@@ -39,12 +39,12 @@
 </template>
 
 <script setup>
-import router from '@/router'
 import {devAuthLogIn} from '@/api/auth'
 import {get, trim} from 'lodash'
 import {onMounted, ref} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
+import {useRouter} from 'vue-router'
 
 const props = defineProps({
   reportError: {
@@ -57,6 +57,7 @@ const contextStore = useContextStore()
 const isLoggingIn = ref(false)
 const uid = ref('')
 const password = ref('')
+const router = useRouter()
 
 onMounted(() => putFocusNextTick('dev-auth-uid'))
 

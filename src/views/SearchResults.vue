@@ -214,7 +214,6 @@ import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
 import AppointmentSnippet from '@/components/search/AppointmentSnippet'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
-import router from '@/router'
 import SearchResultsHeader from '@/components/search/SearchResultsHeader'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortableAdmits from '@/components/admit/SortableAdmits'
@@ -226,10 +225,11 @@ import {computed, onMounted, reactive, ref} from 'vue'
 import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
 import {search, searchAdmittedStudents} from '@/api/search'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import {useSearchStore} from '@/stores/search'
 
 const contextStore = useContextStore()
+const router = useRouter()
 const searchStore = useSearchStore()
 
 const appointmentsQuery = {limit: 20, offset: 0}

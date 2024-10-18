@@ -109,7 +109,7 @@ const itemsPerPage = ref(50)
 const offset = ref(0)
 const totalEventsCount = ref(0)
 
-contextStore.loadingStart('Cohort history is loading')
+contextStore.loadingStart()
 
 onMounted(() => {
   goToPage(1)
