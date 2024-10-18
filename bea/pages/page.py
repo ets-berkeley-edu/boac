@@ -272,6 +272,8 @@ class Page(object):
             elif f'-{option_str.lower()}' in o.get_attribute('id'):
                 return o
 
+    AUTO_SUGGEST_OPTION = (By.XPATH, '//div[@role="option"]')
+
     # PAGE TITLE AND HEADING
 
     def title(self):

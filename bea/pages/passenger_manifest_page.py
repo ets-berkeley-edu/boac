@@ -62,24 +62,18 @@ class PassengerManifestPage(Pagination):
 
     FILTER_MODE_SELECT = By.ID, 'user-filter-options'
     USER_SEARCH_INPUT = By.ID, 'search-user-input'
-    AUTOCOMPLETE_NAMES = By.XPATH, '//div[contains(@class, "v-autocomplete")]//div[@role="option"]'
     PERMISSIONS_SELECT = By.ID, 'user-permission-options'
     DEPT_SELECT = By.ID, 'department-select-list'
     STATUS_SELECT = By.ID, 'user-status-options'
 
-    def set_first_auto_suggest(self, locator, name):
-        self.wait_for_textbox_and_type(locator, name)
-        time.sleep(utils.get_click_sleep())
-        Wait(self.driver, utils.get_medium_timeout()).until(
-            ec.presence_of_all_elements_located(self.AUTOCOMPLETE_NAMES),
-        )
-        time.sleep(2)
-        self.elements(self.AUTOCOMPLETE_NAMES)[0].click()
-
     def search_for_advisor(self, advisor):
         app.logger.info(f'Searching for advisor UID {advisor.uid}')
-        self.when_present(self.USER_SEARCH_INPUT, utils.get_medium_timeout())
-        self.set_first_auto_suggest(self.USER_SEARCH_INPUT, advisor.uid)
+        self.wait_for_textbox_and_type(self.USER_SEARCH_INPUT, advisor.uid)
+        self.when_present(self.AUTO_SUGGEST_OPTION, utils.get_medium_timeout())
+        for el in self.elements(self.AUTO_SUGGEST_OPTION):
+            text = el.get_attribute('innerText')
+            if advisor.uid in text:
+                el.click()
 
     def select_filter_mode(self):
         self.wait_for_select_and_click_option(self.FILTER_MODE_SELECT, 'Filter')
@@ -164,15 +158,15 @@ class PassengerManifestPage(Pagination):
 
     @staticmethod
     def remove_dept_role_button_loc(dept):
-        return By.ID, f'remove-department-{dept.code}'
+        return By.ID, f"remove-department-{dept.value['code']}"
 
     @staticmethod
     def dept_role_select_loc(dept):
-        return By.ID, f'select-department-{dept.code}-role'
+        return By.ID, f"select-department-{dept.value['code']}-role"
 
     @staticmethod
     def is_automated_dept_cbx_loc(dept):
-        return By.XPATH, f'//input[@id="is-automate-membership-{dept.code}"]'
+        return By.ID, f"is-automate-membership-{dept.value['code']}"
 
     @staticmethod
     def edit_user_button_loc(user):
@@ -224,7 +218,7 @@ class PassengerManifestPage(Pagination):
     def add_user_dept_roles(self, user):
         for membership in user.dept_memberships:
             app.logger.info(f'Adding UID {user.uid} department role {vars(membership)}')
-            self.wait_for_select_and_click_option(self.DEPT_SELECT, membership.dept.code)
+            self.wait_for_select_and_click_option(self.DEPT_SELECT, membership.dept.value['code'])
             if membership.advisor_role == AdvisorRole.ADVISOR:
                 self.wait_for_select_and_click_option(self.dept_role_select_loc(membership.dept), 'Advisor')
             elif membership.advisor_role == AdvisorRole.DIRECTOR:
@@ -255,8 +249,8 @@ class PassengerManifestPage(Pagination):
         self.click_edit_user(user)
         self.when_present(self.ADMIN_CBX, utils.get_short_timeout())
         self.set_user_level_flags(user)
-        if (user.active and not self.element(self.DELETED_CBX).is_selected()) or (
-                self.element(self.DELETED_CBX).is_selected() and not user.active):
+        if (user.active and self.element(self.DELETED_CBX).is_selected()) or (
+                not self.element(self.DELETED_CBX).is_selected() and not user.active):
             app.logger.info('Clicking is-deleted checkbox')
             self.click_element_js(self.DELETED_CBX)
             time.sleep(utils.get_click_sleep())

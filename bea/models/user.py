@@ -30,7 +30,7 @@ class User(Person):
 
     @property
     def can_access_advising_data(self):
-        return self.data['can_access_advising_data']
+        return self.data.get('can_access_advising_data')
 
     @can_access_advising_data.setter
     def can_access_advising_data(self, value):
@@ -38,7 +38,7 @@ class User(Person):
 
     @property
     def can_access_canvas_data(self):
-        return self.data['can_access_canvas_data']
+        return self.data.get('can_access_canvas_data')
 
     @can_access_canvas_data.setter
     def can_access_canvas_data(self, value):
@@ -46,7 +46,7 @@ class User(Person):
 
     @property
     def degree_progress_perm(self):
-        return self.data['degree_progress_perm']
+        return self.data.get('degree_progress_perm')
 
     @degree_progress_perm.setter
     def degree_progress_perm(self, value):
@@ -54,7 +54,7 @@ class User(Person):
 
     @property
     def degree_progress_automated(self):
-        return self.data['degree_progress_automated']
+        return self.data.get('degree_progress_automated')
 
     @degree_progress_automated.setter
     def degree_progress_automated(self, value):
@@ -62,7 +62,7 @@ class User(Person):
 
     @property
     def dept_memberships(self):
-        return self.data['dept_memberships']
+        return self.data.get('dept_memberships')
 
     @dept_memberships.setter
     def dept_memberships(self, value):
@@ -70,7 +70,7 @@ class User(Person):
 
     @property
     def depts(self):
-        return self.data['depts']
+        return self.data.get('depts')
 
     @depts.setter
     def depts(self, value):
@@ -78,7 +78,7 @@ class User(Person):
 
     @property
     def is_admin(self):
-        return self.data['is_admin']
+        return self.data.get('is_admin')
 
     @is_admin.setter
     def is_admin(self, value):
@@ -86,7 +86,7 @@ class User(Person):
 
     @property
     def is_blocked(self):
-        return self.data['is_blocked']
+        return self.data.get('is_blocked')
 
     @is_blocked.setter
     def is_blocked(self, value):
@@ -94,7 +94,7 @@ class User(Person):
 
     @property
     def role(self):
-        return self.data['role']
+        return self.data.get('role')
 
     @role.setter
     def role(self, value):
@@ -102,7 +102,7 @@ class User(Person):
 
     @property
     def role_code(self):
-        return self.data['role_code']
+        return self.data.get('role_code')
 
     @role_code.setter
     def role_code(self, value):
@@ -110,7 +110,7 @@ class User(Person):
 
     @property
     def username(self):
-        return self.data['username']
+        return self.data.get('username')
 
     @username.setter
     def username(self, value):

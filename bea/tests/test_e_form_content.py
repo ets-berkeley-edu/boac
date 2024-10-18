@@ -115,5 +115,5 @@ class TestEFormDetail:
 
     def test_expanded_final_date(self, tc):
         visible = self.student_page.expanded_e_form_date_final(tc.note)
-        expected = tc.note.updated_date.strftime('%m/%d/%Y %-l:%M:%S%P')
+        expected = tc.note.updated_date.strftime('%m/%d/%Y %-l:%M:%S%p')
         utils.assert_equivalence(visible, expected)
