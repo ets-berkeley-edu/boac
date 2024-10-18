@@ -591,7 +591,7 @@ def get_e_form_notes(student):
         else:
             action = req_action
         status = r['eform_status']
-        subject = f'eForm: {req_action} — {status}'
+        subject = f'eForm: {req_action} – {status}'
 
         e_forms.append(TimelineEForm(data={
             'record_id': str(r['id']),

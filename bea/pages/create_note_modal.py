@@ -43,10 +43,11 @@ class CreateNoteModal(Page):
 
     def confirm_delete_or_discard(self):
         self.wait_for_element_and_click(self.CONFIRM_DELETE_OR_DISCARD)
+        time.sleep(2)
 
     def cancel_delete_or_discard(self):
         self.wait_for_element_and_click(self.CANCEL_DELETE_OR_DISCARD)
-        self.when_not_present(self.CANCEL_DELETE_OR_DISCARD, utils.get_short_timeout())
+        time.sleep(1)
 
     def wait_for_new_note_modal_not_present(self):
         self.when_not_present(self.NEW_NOTE_MODAL, utils.get_short_timeout())
@@ -55,7 +56,7 @@ class CreateNoteModal(Page):
 
     SAVE_AS_DRAFT_BUTTON = By.ID, 'save-as-draft-button'
     UPDATE_DRAFT_BUTTON = By.ID, 'update-draft-note-button'
-    EDIT_DRAFT_HEADING = By.XPATH, '//h3[text()=" Edit Draft Note "]'
+    EDIT_DRAFT_HEADING = By.XPATH, '//h3[contains(., "Edit Draft Note")]'
 
     def click_save_as_draft(self):
         app.logger.info('Clicking the save-as-draft button')
@@ -65,6 +66,7 @@ class CreateNoteModal(Page):
     def click_update_note_draft(self):
         app.logger.info('Clicking the update draft button')
         self.wait_for_element_and_click(self.UPDATE_DRAFT_BUTTON)
+        time.sleep(1)
 
     # CREATE NOTE, SHARED ELEMENTS
 
@@ -161,7 +163,7 @@ class CreateNoteModal(Page):
         self.enter_new_note_attachments(files)
         self.when_visible(self.new_note_attachment_delete_button(attachments[-1]), utils.get_medium_timeout())
         time.sleep(utils.get_click_sleep())
-        note.attachments += attachments
+        note.attachments.extend(attachments)
 
     def remove_attachments_from_new_note(self, note, attachments):
         for a in attachments:
@@ -199,16 +201,15 @@ class CreateNoteModal(Page):
             self.confirm_delete_or_discard()
             self.when_not_present(self.existing_note_attachment_delete_button(note, a), utils.get_short_timeout())
             note.attachments.remove(a)
-            a.deleted_at = datetime.now()
             note.updated_date = datetime.now()
 
     # CE3 restricted
 
-    UNIVERSAL_RADIO = By.XPATH, '//input[@id="note-is-not-private-radio-button"]/ancestor::div[contains(@class, "custom-radio")]'
-    PRIVATE_RADIO = By.XPATH, '//input[@id="note-is-private-radio-button"]/ancestor::div[contains(@class, "custom-radio")]'
+    UNIVERSAL_RADIO = By.ID, 'note-is-not-private-radio-button'
+    PRIVATE_RADIO = By.ID, 'note-is-private-radio-button'
 
     def set_note_privacy(self, note):
-        if note.advisor.depts and Department.ZCEEE.value['name'] in note.advisor.depts:
+        if note.advisor.depts and Department.ZCEEE in note.advisor.depts:
             if note.is_private:
                 app.logger.info('Setting note to private')
                 self.wait_for_element_and_click(self.PRIVATE_RADIO)
@@ -216,7 +217,7 @@ class CreateNoteModal(Page):
                 app.logger.info('Setting note to non-private')
                 self.wait_for_element_and_click(self.UNIVERSAL_RADIO)
         else:
-            app.logger.info(f'Advisor not with CE3, so privacy defaults to {note.is_private}')
+            app.logger.info('Advisor not with CE3, so privacy should not be available')
 
     # Contact type
 
@@ -356,18 +357,18 @@ class CreateNoteModal(Page):
         self.wait_for_element_and_click(self.BATCH_ADD_STUDENTS_BUTTON)
         self.wait_for_batch_students(students)
 
-    @staticmethod
-    def student_auto_suggest_loc(student):
-        path = f'//*[contains(., "{student.full_name} ({student.sid})")]'
-        return By.XPATH, path
-
     def add_students_to_batch(self, note_batch, students):
         self.scroll_to_top()
         self.wait_for_element_and_click(self.BATCH_ADD_STUDENT_INPUT)
         for student in students:
-            app.logger.info(f'Adding SID {student.sid} to batch note {note_batch.subject}')
-            self.enter_chars(self.BATCH_ADD_STUDENT_INPUT, f'{student.sid}')
-            self.wait_for_element_and_click(self.student_auto_suggest_loc(student))
+            sid = f'{student.sid}'
+            app.logger.info(f'Adding SID {sid} to batch note {note_batch.subject}')
+            self.enter_chars(self.BATCH_ADD_STUDENT_INPUT, f'{sid}')
+            self.when_present(self.AUTO_SUGGEST_OPTION, utils.get_medium_timeout())
+            for el in self.elements(self.AUTO_SUGGEST_OPTION):
+                text = el.get_attribute('innerText')
+                if sid in text:
+                    el.click()
             self.append_student_to_batch(note_batch, student)
 
     def append_student_to_batch(self, note_batch, student):

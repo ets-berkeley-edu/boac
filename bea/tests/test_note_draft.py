@@ -26,6 +26,7 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 import random
+import time
 
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.advisor_role import AdvisorRole
@@ -57,7 +58,7 @@ class TestNoteDraft:
         f'Advisor UID {test.advisor.uid}, director UID {director.uid}, other advisor UID {other_advisor.uid}')
 
     note_1 = Note({'advisor': test.advisor, 'is_draft': True})
-    note_2 = NoteBatch({'advisor': test.advisor, 'is_draft': True})
+    note_2 = NoteBatch({'advisor': other_advisor, 'is_draft': True})
     note_3 = Note({'advisor': test.advisor, 'is_draft': True})
     note_4 = NoteBatch({'advisor': test.advisor, 'is_draft': True})
     note_5 = NoteBatch({'advisor': test.advisor, 'is_draft': True})
@@ -68,9 +69,8 @@ class TestNoteDraft:
     attachments = test.attachments[0:10]
     topics = [Topic(Topics.COURSE_DROP.value), Topic(Topics.PROBATION.value)]
 
-    random.shuffle(test.students)
-    batch_students = test.students[0:49]
     cohort = test.default_cohort
+    random.shuffle(test.students)
     group_members = test.students[-50:]
     group = Cohort({'name': f'Group 1 {test.test_id}'})
 
@@ -146,6 +146,10 @@ class TestNoteDraft:
         self.student_page.remove_attachments_from_existing_note(self.note_1, [self.note_1.attachments[0]])
         self.student_page.wait_for_draft_note_update(self.note_1)
 
+    def test_draft_attachments_re_added(self):
+        self.student_page.add_attachments_to_existing_note(self.note_1, [self.attachments[0]])
+        self.student_page.wait_for_draft_note_update(self.note_1)
+
     def test_draft_topics_added(self):
         self.student_page.click_edit_note_button(self.note_1)
         self.student_page.add_topics(self.note_1, self.topics)
@@ -170,7 +174,6 @@ class TestNoteDraft:
     def test_draft_contact_method_added(self):
         self.note_1.contact_type = 'Phone'
         self.student_page.click_update_note_draft()
-        self.student_page.expand_item(self.note_1)
         self.student_page.click_edit_note_button(self.note_1)
         self.student_page.select_contact_type(self.note_1)
         self.student_page.wait_for_draft_note_update(self.note_1)
@@ -298,12 +301,12 @@ class TestNoteDraft:
         self.homepage.click_draft_notes()
         self.draft_notes_page.wait_for_draft_row(self.note_1)
         self.draft_notes_page.wait_for_draft_row(self.note_2)
-        visible_note_1 = self.draft_notes_page.visible_draft_note_data(self.note_1, self.test.admin)
+        visible_note_1_subj = self.draft_notes_page.visible_draft_subject(self.note_1)
         expected_note_1_subject = self.draft_notes_page.expected_draft_note_subject(self.note_1)
-        utils.assert_actual_includes_expected(visible_note_1['subject'], expected_note_1_subject)
-        visible_note_2 = self.draft_notes_page.visible_draft_note_data(self.note_2, self.test.admin)
+        utils.assert_actual_includes_expected(visible_note_1_subj, expected_note_1_subject)
+        visible_note_2_subj = self.draft_notes_page.visible_draft_subject(self.note_2)
         expected_note_2_subject = self.draft_notes_page.expected_draft_note_subject(self.note_2)
-        utils.assert_actual_includes_expected(visible_note_2['subject'], expected_note_2_subject)
+        utils.assert_actual_includes_expected(visible_note_2_subj, expected_note_2_subject)
 
     def test_admin_draft_student_page(self):
         self.draft_notes_page.click_draft_student_link(self.note_1)
@@ -344,9 +347,9 @@ class TestNoteDraft:
         self.homepage.click_draft_notes()
         self.draft_notes_page.wait_for_draft_row(self.note_1)
         assert not self.draft_notes_page.is_present(self.draft_notes_page.draft_row_loc(self.note_2))
-        visible_note_1 = self.draft_notes_page.visible_draft_note_data(self.note_1, self.test.advisor)
+        visible_note_1_subj = self.draft_notes_page.visible_draft_subject(self.note_1)
         expected_note_1_subject = self.draft_notes_page.expected_draft_note_subject(self.note_1)
-        utils.assert_actual_includes_expected(visible_note_1['subject'], expected_note_1_subject)
+        utils.assert_actual_includes_expected(visible_note_1_subj, expected_note_1_subject)
 
     def test_author_advisor_student_page(self):
         self.draft_notes_page.click_draft_student_link(self.note_1)
@@ -391,8 +394,8 @@ class TestNoteDraft:
         self.search_results_page.wait_for_no_results()
 
     def test_search_draft_by_date_yields_no_result(self):
-        start_date = (self.note_3.created_date - timedelta(days=1)).strftime('%m/%d/%Y')
-        end_date = self.note_3.created_date.strftime('%m/%d/%Y')
+        start_date = self.note_3.created_date - timedelta(days=1)
+        end_date = self.note_3.created_date
         self.search_results_page.reopen_and_reset_adv_search()
         self.search_results_page.set_notes_date_range(start_date, end_date)
         self.search_results_page.enter_adv_search_and_hit_enter(self.note_3.subject)
@@ -543,9 +546,12 @@ class TestNoteDraft:
         utils.assert_equivalence(self.draft_notes_page.visible_draft_subject(self.note_6), self.note_6.subject)
 
     def test_admin_draft_list_view_authors(self):
-        utils.assert_equivalence(self.draft_notes_page.visible_draft_author(self.note_4), self.test.advisor.full_name)
-        utils.assert_equivalence(self.draft_notes_page.visible_draft_author(self.note_5), self.test.advisor.full_name)
-        utils.assert_equivalence(self.draft_notes_page.visible_draft_author(self.note_6), self.test.advisor.full_name)
+        visible_note_4_author = self.draft_notes_page.visible_draft_author(self.note_4, self.test.admin).lower()
+        visible_note_5_author = self.draft_notes_page.visible_draft_author(self.note_5, self.test.admin).lower()
+        visible_note_6_author = self.draft_notes_page.visible_draft_author(self.note_6, self.test.admin).lower()
+        utils.assert_equivalence(visible_note_4_author, self.test.advisor.full_name.lower())
+        utils.assert_equivalence(visible_note_5_author, self.test.advisor.full_name.lower())
+        utils.assert_equivalence(visible_note_6_author, self.test.advisor.full_name.lower())
 
     def test_admin_draft_list_view_dates(self):
         today = datetime.today().strftime('%b %-d')
@@ -578,27 +584,27 @@ class TestNoteDraft:
         self.pax_manifest_page.load_page()
         self.pax_manifest_page.search_for_advisor(self.other_advisor)
         self.pax_manifest_page.edit_user(self.other_advisor)
-        self.pax_manifest_page.log_out()
 
     def test_director_cannot_see_drafts(self):
+        self.pax_manifest_page.log_out()
         self.homepage.dev_auth(self.other_advisor)
         self.student_page.load_page(self.student)
         self.student_page.show_notes()
         assert self.note_5.record_id not in self.student_page.visible_collapsed_note_ids()
 
     def test_director_cannot_download_drafts(self):
-        csv = self.student_page.download_notes(self.student)
-        assert not self.student_page.verify_note_in_export_csv(self.student, self.note_5, csv, self.other_advisor)
-        assert not self.student_page.verify_note_in_export_csv(self.student, self.note_6, csv, self.other_advisor)
+        self.student_page.download_notes(self.student)
+        assert not self.student_page.verify_note_in_export_csv(self.student, self.note_5, self.other_advisor)
+        assert not self.student_page.verify_note_in_export_csv(self.student, self.note_6, self.other_advisor)
 
     def test_admin_cannot_download_drafts(self):
         self.student_page.log_out()
         self.homepage.dev_auth()
         self.student_page.load_page(self.student)
         self.student_page.show_notes()
-        csv = self.student_page.download_notes(self.student)
-        assert not self.student_page.verify_note_in_export_csv(self.student, self.note_5, csv, self.other_advisor)
-        assert not self.student_page.verify_note_in_export_csv(self.student, self.note_6, csv, self.other_advisor)
+        self.student_page.download_notes(self.student)
+        assert not self.student_page.verify_note_in_export_csv(self.student, self.note_5, self.other_advisor)
+        assert not self.student_page.verify_note_in_export_csv(self.student, self.note_6, self.other_advisor)
 
     # DRAFT EDITING
 
@@ -624,6 +630,7 @@ class TestNoteDraft:
     def test_edit_draft_setup(self):
         self.student_page.log_out()
         self.homepage.dev_auth(self.test.advisor)
+        self.student_page.load_page(self.student)
         self.student_page.show_notes()
         self.student_page.expand_item(self.note_5)
 
@@ -644,6 +651,8 @@ class TestNoteDraft:
         self.student_page.add_attachments_to_existing_note(self.note_5, [self.attachments[0]])
 
     def test_edit_draft_saves_draft_state(self):
+        self.student_page.load_page(self.student)
+        self.student_page.show_notes()
         utils.assert_existence(self.student_page.collapsed_note_is_draft(self.note_5))
 
     def test_edit_draft_saves_subject(self):
@@ -673,7 +682,7 @@ class TestNoteDraft:
     def test_edit_batch_draft_setup(self):
         self.student_page.click_draft_notes()
         self.draft_notes_page.wait_for_draft_row(self.note_4)
-        self.draft_notes_page.click_subject(self.note_4)
+        self.draft_notes_page.click_draft_subject(self.note_4)
 
         self.note_4.subject = f'{self.note_4.subject} EDITED'
         self.note_4.body = f'Draft note 4 {self.test.test_id} body'
@@ -710,7 +719,7 @@ class TestNoteDraft:
         utils.assert_equivalence(self.student_page.expanded_note_attachments(self.note_4), expected)
 
     def test_edit_batch_draft_topics(self):
-        expected = [topic.name for topic in self.note_4.topics]
+        expected = [topic.name.upper() for topic in self.note_4.topics]
         utils.assert_equivalence(self.student_page.expanded_note_topics(self.note_4), expected)
 
     def test_edit_batch_draft_set_date(self):
@@ -724,14 +733,16 @@ class TestNoteDraft:
 
     def test_draft_to_note_conversion_on_student_page(self):
         self.student_page.click_edit_note_button(self.note_4)
-        self.student_page.click_save_note_edit(self.note_4)
+        self.student_page.click_save_note_edit()
         self.note_4.is_draft = False
+        self.student_page.load_page(self.student)
+        self.student_page.show_notes()
         self.student_page.verify_note(self.note_4, self.test.advisor)
 
     def test_converted_draft_removed_from_drafts_page(self):
         self.student_page.click_draft_notes()
         self.draft_notes_page.wait_for_draft_row(self.note_5)
-        utils.assert_non_existence(self.draft_notes_page.draft_row_loc(self.note_4))
+        assert not self.draft_notes_page.is_present(self.draft_notes_page.draft_row_loc(self.note_4))
 
     def test_batch_draft_to_notes(self):
         self.draft_notes_page.click_draft_subject(self.note_5)
@@ -746,6 +757,8 @@ class TestNoteDraft:
         batch_students = self.draft_notes_page.unique_students_in_batch([self.student], [self.cohort], [self.group])
         expected_sids = [stu.sid for stu in batch_students]
         expected_sids.sort()
+        # Give BOA a moment to make lotsa notes
+        time.sleep(utils.get_short_timeout())
         actual_sids = boa_utils.get_note_sids_by_subject(self.note_5)
         missing = list(set(expected_sids) - set(actual_sids))
         unexpected = list(set(actual_sids) - set(expected_sids))
@@ -755,14 +768,13 @@ class TestNoteDraft:
         assert not unexpected
 
     def test_converted_batch_draft_removed_from_drafts_page(self):
-        utils.assert_non_existence(self.draft_notes_page.draft_row_loc(self.note_5))
+        assert not self.draft_notes_page.is_present(self.draft_notes_page.draft_row_loc(self.note_5))
 
     def test_converted_batch_draft_added_with_right_content(self):
         batch_students = self.draft_notes_page.unique_students_in_batch([self.student], [self.cohort], [self.group])
         for student in batch_students[0:2]:
             self.student_page.set_new_note_id(self.note_5, student)
             self.student_page.load_page(student)
-            self.student_page.expand_item(self.note_5)
             self.student_page.verify_note(self.note_5, self.test.advisor)
 
     # DELETION
@@ -791,7 +803,7 @@ class TestNoteDraft:
         self.student_page.show_notes()
         self.student_page.expand_item(self.note_1)
         self.student_page.delete_note(self.note_1)
-        assert self.note_3.record_id not in self.student_page.visible_collapsed_note_ids()
+        assert self.note_1.record_id not in self.student_page.visible_collapsed_note_ids()
 
     def test_admin_delete_draft_but_cancel(self):
         self.student_page.click_draft_notes()

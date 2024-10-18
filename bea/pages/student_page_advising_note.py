@@ -24,10 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import csv
 import datetime
+from io import TextIOWrapper
 import itertools
 import re
 import time
-from zipfile import ZipFile
+import zipfile
 
 from bea.models.department import Department
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
@@ -323,14 +324,13 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def delete_note(self, note):
         app.logger.info(f'Deleting note {note.record_id}')
-        self.expand_item(note)
         self.wait_for_element_and_click(self.delete_note_button_loc(note))
         self.confirm_delete_or_discard()
         note.deleted_date = datetime.datetime.now()
 
     # Save
 
-    EDIT_NOTE_SAVE_BUTTON = By.XPATH, '//button[@id="save-note-button"]'
+    EDIT_NOTE_SAVE_BUTTON = By.ID, 'save-note-button'
 
     def click_save_note_edit(self):
         app.logger.debug('Clicking the edit note Save button')
@@ -377,7 +377,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         app.logger.info(f'Downloading notes for UID {student.uid}')
         utils.prepare_download_dir()
         self.wait_for_element_and_click(self.NOTES_DOWNLOAD_LINK)
-        return utils.wait_for_export_csv()
+        return utils.wait_for_export_zip()
 
     def note_export_file_names(self, student):
         return self.downloaded_zip_file_name_list(self.notes_export_zip_file_name(student))
@@ -399,46 +399,44 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
                 names.append(f"{parts[0]}{'' if idx == 0 else idx}.{parts[-1]}")
         return names
 
-    def parse_note_export_csv_to_table(self, student):
-        with ZipFile(self.notes_export_zip_file_name(student)) as zip_file:
-            with zip_file.read(self.notes_export_csv_file_name(student)) as csv_file:
-                return csv.DictReader(open(csv_file))
+    def verify_note_in_export_csv(self, student, note, downloader):
+        file_path = f'{utils.default_download_dir()}/{self.notes_export_zip_file_name(student)}'
+        with zipfile.ZipFile(file_path, 'r') as zip_file:
+            with zip_file.open(self.notes_export_csv_file_name(student)) as csv_file:
+                csv_reader = csv.DictReader(TextIOWrapper(csv_file))
+                rows = list(csv_reader)
+                for row in rows:
+                    try:
+                        assert row['date_created'] == note.created_date.strftime('%Y-%m-%d')
+                        assert row['student_sid'] == int(student.sid)
+                        assert row['student_name'] == student.full_name
+                        if note.advisor and note.advisor.uid != 'UCBCONVERSION':
+                            assert row['author_uid'] == int(note.advisor.uid)
+                        if note.subject:
+                            assert row['subject'] == note.subject
+                        if (
+                                note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts) or not note.body:
+                            assert not row['body']
 
-    @staticmethod
-    def verify_note_in_export_csv(student, note, csv_reader, downloader):
-        rows = list(csv_reader)
-        for row in rows:
-            try:
-                assert row['date_created'] == note.created_date.strftime('%Y-%m-%d')
-                assert row['student_sid'] == int(student.sid)
-                assert row['student_name'] == student.full_name
-                if note.advisor and note.advisor.uid != 'UCBCONVERSION':
-                    assert row['author_uid'] == int(note.advisor.uid)
-                if note.subject:
-                    assert row['subject'] == note.subject
-                if (
-                        note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts) or not note.body:
-                    assert not row['body']
+                        exp_tops = [topic.name.lower() if topic.__class__.__name__ == 'Topic' else topic for topic in
+                                    note.topics]
+                        exp_tops.sort()
+                        act_tops = [topic.strip().lower() for topic in row['topics'].split(';')] if row['topics'] else []
+                        act_tops.sort()
+                        assert act_tops == exp_tops
 
-                exp_tops = [topic.name.lower() if topic.__class__.__name__ == 'Topic' else topic for topic in
-                            note.topics]
-                exp_tops.sort()
-                act_tops = [topic.strip().lower() for topic in row['topics'].split(';')] if row['topics'] else []
-                act_tops.sort()
-                assert act_tops == exp_tops
+                        if (
+                                note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts) or not note.attachments:
+                            exp_att = []
+                        else:
+                            exp_att = [a.file_name for a in note.attachments]
+                            exp_att.sort()
+                        act_att = [att.strip() for att in row['attachments'].split(';')] if row['attachments'] else []
+                        act_att.sort()
+                        assert exp_att == act_att
 
-                if (
-                        note.is_private and not downloader.is_admin and Department.ZCEEE not in downloader.depts) or not note.attachments:
-                    exp_att = []
-                else:
-                    exp_att = [a.file_name for a in note.attachments]
-                    exp_att.sort()
-                act_att = [att.strip() for att in row['attachments'].split(';')] if row['attachments'] else []
-                act_att.sort()
-                assert exp_att == act_att
+                        return True
 
-                return True
-
-            except AssertionError:
-                if row == rows[-1]:
-                    return False
+                    except AssertionError:
+                        if row == rows[-1]:
+                            return False

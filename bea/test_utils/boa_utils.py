@@ -145,7 +145,7 @@ def get_authorized_users():
             memberships.append(membership)
 
         user = User({
-            'uid': k,
+            'uid': str(k),
             'active': active,
             'can_access_advising_data': can_access_advising_data,
             'can_access_canvas_data': can_access_canvas_data,
@@ -235,7 +235,7 @@ def get_dept_advisors(dept, membership=None):
             degree_progress_perm = None
 
         user = User({
-            'uid': row['uid'],
+            'uid': str(row['uid']),
             'active': True,
             'can_access_advising_data': row['can_access_advising_data'],
             'can_access_canvas_data': row['can_access_canvas_data'],
@@ -274,14 +274,12 @@ def get_director(auth_users):
 
 
 def get_advising_data_advisor(dept, test_advisor):
-    advisors = []
     dept_advisors = get_dept_advisors(dept)
     dept_advisors.reverse()
     app.logger.info(f'Dept advisor UIDs are {list(map(lambda a: a.uid, dept_advisors))}')
     for a in dept_advisors:
         if a.can_access_advising_data and a.uid != test_advisor.uid:
-            advisors.append(a)
-    return advisors[0]
+            return a
 
 
 def get_user_filtered_cohorts(user, admits=False):
@@ -396,6 +394,7 @@ def get_advisor_note_drafts(advisor=None):
                 FROM notes
                WHERE is_draft IS TRUE
                  AND deleted_at IS NULL{adv_clause}"""
+    app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     return get_notes_from_pg_db_result(results)

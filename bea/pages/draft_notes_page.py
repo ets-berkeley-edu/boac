@@ -60,7 +60,11 @@ class DraftNotesPage(BoaPages):
         return self.el_text_if_exists((By.XPATH, f'{self.draft_row_xpath(note)}/td[2]'))
 
     def visible_draft_subject(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.draft_row_xpath(note)}/td[3]'))
+        loc = By.XPATH, f'{self.draft_row_xpath(note)}/td[3]'
+        if self.is_present(loc):
+            return self.element(loc).text.split('\n')[0]
+        else:
+            return None
 
     def visible_draft_author(self, note, viewer):
         if viewer.is_admin:

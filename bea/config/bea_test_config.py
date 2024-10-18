@@ -151,6 +151,13 @@ class BEATestConfig(object):
     def set_dept(self, dept=None):
         self.dept = dept or Department.L_AND_S
 
+    def set_admin(self):
+        self.admin = User({
+            'is_admin': True,
+            'uid': utils.get_admin_uid(),
+            'username': utils.get_admin_username(),
+        })
+
     def set_advisor(self, uid=None):
         role = DepartmentMembership(advisor_role=AdvisorRole.ADVISOR,
                                     dept=self.dept,
@@ -193,6 +200,7 @@ class BEATestConfig(object):
     def set_base_configs(self, dept=None, opts=None):
         self.term = utils.get_current_term()
         self.set_dept(dept)
+        self.set_admin()
         self.set_advisor()
         self.set_students(opts=opts)
 

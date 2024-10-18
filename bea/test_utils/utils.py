@@ -112,21 +112,29 @@ def is_download_dir_empty():
     return False if os.listdir(default_download_dir()) else True
 
 
-def wait_for_export_csv():
+def wait_for_export(file_ext):
     tries = 0
     max_tries = get_medium_timeout()
     while tries <= max_tries:
         tries += 1
         try:
-            assert len(glob.glob(f'{default_download_dir()}/*.csv')) == 1
+            assert len(glob.glob(f'{default_download_dir()}/*.{file_ext}')) == 1
             break
         except AssertionError:
             if tries == max_tries:
                 raise
             else:
                 time.sleep(1)
-    file = glob.glob(f'{default_download_dir()}/*.csv')[0]
+    return glob.glob(f'{default_download_dir()}/*.{file_ext}')[0]
+
+
+def wait_for_export_csv():
+    file = wait_for_export('csv')
     return csv.DictReader(open(file))
+
+
+def wait_for_export_zip():
+    return wait_for_export('zip')
 
 
 def assert_equivalence(actual, expected):

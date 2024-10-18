@@ -175,7 +175,6 @@ class SearchForm(Page):
 
     NOTE_AUTHOR = (By.ID, 'search-options-note-filters-author')
     NOTE_STUDENT = (By.ID, 'search-options-note-filters-student')
-    AUTO_SUGGEST_OPTION = (By.XPATH, '//div[@role="option"]')
 
     def set_notes_author(self, name, alt_names=None):
         app.logger.info(f'Setting note search author name {name}')
@@ -186,18 +185,18 @@ class SearchForm(Page):
         self.wait_for_textbox_and_type(self.NOTE_AUTHOR, name)
         self.when_present(self.AUTO_SUGGEST_OPTION, utils.get_short_timeout())
         for el in self.elements(self.AUTO_SUGGEST_OPTION):
-            text = el.get_attribute('innerText').lower()
+            text = el.get_attribute('innerText')
             if text in names:
                 el.click()
 
     def set_notes_student(self, student):
-        string = f'{student.sid}'
-        app.logger.info(f'Setting note search student {string}')
-        self.wait_for_textbox_and_type(self.NOTE_STUDENT, string)
+        sid = f'{student.sid}'
+        app.logger.info(f'Setting note search student {sid}')
+        self.wait_for_textbox_and_type(self.NOTE_STUDENT, sid)
         self.when_present(self.AUTO_SUGGEST_OPTION, utils.get_short_timeout())
         for el in self.elements(self.AUTO_SUGGEST_OPTION):
             text = el.get_attribute('innerText')
-            if string in text:
+            if sid in text:
                 el.click()
 
     # Dates
