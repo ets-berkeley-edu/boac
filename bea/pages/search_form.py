@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import time
 
 from bea.pages.page import Page
-from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
@@ -186,8 +185,10 @@ class SearchForm(Page):
         self.when_present(self.AUTO_SUGGEST_OPTION, utils.get_short_timeout())
         for el in self.elements(self.AUTO_SUGGEST_OPTION):
             text = el.get_attribute('innerText')
-            if text in names:
+            if text.lower() in names:
                 el.click()
+            else:
+                raise RuntimeError(f'No match found for any name in {names}')
 
     def set_notes_student(self, student):
         sid = f'{student.sid}'
@@ -198,6 +199,8 @@ class SearchForm(Page):
             text = el.get_attribute('innerText')
             if sid in text:
                 el.click()
+            else:
+                raise RuntimeError(f'No match found for {sid}')
 
     # Dates
 
@@ -248,10 +251,6 @@ class SearchForm(Page):
             self.wait_for_element_and_click(self.ADV_SEARCH_CXL_BUTTON)
 
     def reopen_and_reset_adv_search(self):
-        # TODO - remove this when resetting works
-        self.driver.get(boa_utils.get_boa_base_url())
+        self.close_adv_search_if_open()
         self.open_adv_search()
-        # TODO - uncomment when resetting works
-        # self.close_adv_search_if_open()
-        # self.open_adv_search()
-        # self.reset_adv_search()
+        self.reset_adv_search()

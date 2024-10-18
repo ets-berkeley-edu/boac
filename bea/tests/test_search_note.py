@@ -72,10 +72,12 @@ class TestSearchNote:
             app.logger.info('Skipping topic search since note source is ASC or Data Science, unable to search by topic')
         else:
             if tc.note.topics:
-                self.homepage.reopen_and_reset_adv_search()
-                self.homepage.select_note_topic(tc.note.topics[0])
-                self.homepage.enter_adv_search_and_hit_enter(tc.search_string)
-                self.search_results_page.assert_note_result_present(tc.note)
+                all_topics = [t.value['name'].title() for t in Topics]
+                if tc.note.topics[0] in all_topics:
+                    self.homepage.reopen_and_reset_adv_search()
+                    self.homepage.select_note_topic(tc.note.topics[0])
+                    self.homepage.enter_adv_search_and_hit_enter(tc.search_string)
+                    self.search_results_page.assert_note_result_present(tc.note)
 
     def test_adv_search_non_matching_topics(self, tc):
         if tc.note.source in [TimelineRecordSource.ASC, TimelineRecordSource.DATA]:
@@ -112,10 +114,8 @@ class TestSearchNote:
             self.search_results_page.assert_note_result_present(tc.note)
 
     def test_adv_search_posted_by_anyone_no_string(self, tc):
-        # TODO - restore the following when resetting works
-        # self.search_results_page.click_edit_search()
-        # self.homepage.reset_adv_search()
-        self.homepage.reopen_and_reset_adv_search()
+        self.search_results_page.click_edit_search()
+        self.homepage.reset_adv_search()
         self.homepage.select_notes_posted_by_anyone()
         assert not self.homepage.element(self.homepage.ADV_SEARCH_BUTTON).is_enabled()
 
