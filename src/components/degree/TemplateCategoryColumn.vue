@@ -97,7 +97,7 @@
       v-if="!degreeStore.sid && !isAddingCategory && !_filter(degreeStore.categories, c => c.position === position).length"
       class="no-data-text pb-3"
     >
-      None
+      No <span class="sr-only">Column {{ position }}&nbsp;</span>requirements
     </div>
   </div>
 </template>

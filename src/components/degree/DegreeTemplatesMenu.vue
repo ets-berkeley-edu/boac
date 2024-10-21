@@ -1,15 +1,13 @@
 <template>
   <div>
-    <div class="mb-2">
-      <label
-        for="degree-template-select"
-        class="font-weight-bold mt-2"
-      >Add Degree Check</label>
-    </div>
+    <label
+      for="degree-template-select"
+      class="font-weight-bold mt-2"
+    >Add Degree Check</label>
     <select
       id="degree-template-select"
       v-model="selectedTemplate"
-      class="d-block mb-2 ml-0 select-menu w-100"
+      class="d-block my-2 ml-0 select-menu w-100"
       :disabled="disabled"
     >
       <option

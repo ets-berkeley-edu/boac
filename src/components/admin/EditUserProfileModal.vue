@@ -220,6 +220,7 @@
               <select
                 id="department-select-list"
                 v-model="deptCode"
+                aria-label="Department"
                 class="select-menu w-100"
                 @change="addDepartment"
               >
