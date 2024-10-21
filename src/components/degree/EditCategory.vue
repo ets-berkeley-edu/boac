@@ -1,9 +1,9 @@
 <template>
-  <div :id="`column-${position}-edit-category`" class="pb-3">
-    <div v-if="!existingCategory">
-      <div class="font-weight-500">
+  <form :id="`column-${position}-edit-category`" class="pb-3" @submit.prevent="onSubmit">
+    <div v-if="!existingCategory" class="pb-3">
+      <label class="font-weight-500" :for="`column-${position}-add-category-select`">
         Requirement Type (required)
-      </div>
+      </label>
       <div>
         <select
           :id="`column-${position}-add-category-select`"
@@ -72,9 +72,9 @@
         />
       </div>
       <div v-if="selectedCategoryType === 'Course Requirement'" class="mt-2">
-        <div class="font-weight-500">
+        <label class="font-weight-500" for="is-satisfied-by-transfer-course-checkbox">
           Transfer Course
-        </div>
+        </label>
         <div>
           <v-checkbox
             id="is-satisfied-by-transfer-course-checkbox"
@@ -87,9 +87,9 @@
         </div>
       </div>
       <div v-if="degreeStore.unitRequirements.length && !isCampusRequirements(existingCategory)" class="mt-1">
-        <div class="font-weight-500">
+        <label class="font-weight-500" :for="`column-${position}-unit-requirement-select`">
           Requirement Fulfillment
-        </div>
+        </label>
         <div>
           <SelectUnitFulfillment
             :ref="`column-${position}-unit-requirement-select`"
@@ -101,9 +101,9 @@
         </div>
       </div>
       <div v-if="selectedCategoryType !== 'Course Requirement'" class="mt-2">
-        <div class="font-weight-500">
+        <label class="font-weight-500" :for="`column-${position}-description-input`">
           {{ selectedCategoryType }} Description
-        </div>
+        </label>
         <div>
           <v-textarea
             :id="`column-${position}-description-input`"
@@ -119,16 +119,15 @@
         </div>
       </div>
       <div v-if="!includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="mt-2">
-        <div class="font-weight-500 pb-1">
+        <label class="font-weight-500 pb-1" :for="`column-${position}-parent-category-select`">
           Requirement Location (required)
-        </div>
+        </label>
         <div>
           <select
             :id="`column-${position}-parent-category-select`"
             v-model="selectedParentCategory"
             class="select-menu w-100"
             :disabled="isSaving"
-            required
           >
             <option
               :id="`column-${position}-parent-select-option-null`"
@@ -167,6 +166,7 @@
       <div>
         <v-btn
           :id="`column-${position}-cancel-create-requirement-btn`"
+          :aria-label="existingCategory ? 'Cancel Edit Requirement' : 'Cancel Create Requirement'"
           color="primary"
           density="comfortable"
           :disabled="isSaving"
@@ -176,7 +176,7 @@
         />
       </div>
     </div>
-  </div>
+  </form>
 </template>
 
 <script setup>

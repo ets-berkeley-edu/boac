@@ -4,7 +4,7 @@
       <label
         id="label-of-name-input"
         for="unit-requirement-name-input"
-        class="font-weight-bold mb-1"
+        class="font-weight-500 mb-1"
       >
         Fulfillment Requirement Name (required)
       </label>
@@ -74,6 +74,7 @@
       />
       <v-btn
         id="cancel-create-unit-requirement-btn"
+        :aria-label="unitRequirement ? 'Cancel Edit Unit Requirement' : 'Cancel Create Unit Requirement'"
         class="mt-2"
         color="primary"
         text="Cancel"

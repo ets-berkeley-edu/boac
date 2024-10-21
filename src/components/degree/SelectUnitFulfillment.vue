@@ -43,14 +43,14 @@
             <div class="float-right">
               <v-btn
                 :id="`column-${position}-unit-requirement-remove-${index}`"
-                :aria-label="`Remove ${unitRequirement.name}`"
+                :aria-label="`Remove ${unitRequirement.name} unit requirement`"
                 color="error"
                 density="compact"
                 :disabled="disable"
                 :icon="mdiCloseCircleOutline"
                 title="Remove"
                 variant="text"
-                @click="() => removeUnitRequirement(unitRequirement)"
+                @click="() => removeUnitRequirement(unitRequirement, index)"
               ></v-btn>
             </div>
           </div>
@@ -61,8 +61,8 @@
 </template>
 
 <script setup>
-import {alertScreenReader} from '@/lib/utils'
-import {cloneDeep, includes, map, remove} from 'lodash'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {cloneDeep, includes, map, remove, size} from 'lodash'
 import {mdiCloseCircleOutline} from '@mdi/js'
 import {ref, watch} from 'vue'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
@@ -93,18 +93,25 @@ const model = ref(null)
 const selected = ref(cloneDeep(props.initialUnitRequirements))
 
 watch(model, () => {
-  alertScreenReader(model.value ? `${model.value.name} selected` : 'Unselected')
   if (model.value) {
+    alertScreenReader(`${model.value.name} selected`)
     selected.value.push(model.value)
     props.onUnitRequirementsChange(selected.value)
     model.value = null
   }
 })
 
-const removeUnitRequirement = item => {
+const removeUnitRequirement = (item, index) => {
+  const lastItemIndex = size(selected.value) - 1
   alertScreenReader(`${item.name} removed`)
   selected.value = remove(selected.value, selected => selected.id !== item.id)
   props.onUnitRequirementsChange(selected.value)
+  if (lastItemIndex > 0) {
+    const nextFocusIndex = (index === lastItemIndex ) ? index - 1 : index
+    putFocusNextTick(`column-${props.position}-unit-requirement-remove-${nextFocusIndex}`)
+  } else {
+    putFocusNextTick(`column-${props.position}-unit-requirement-select`)
+  }
 }
 </script>
 

@@ -7,6 +7,7 @@
       <div v-if="range" class="d-flex font-size-14 pb-1">
         [<v-btn
           id="show-upper-units-input"
+          :aria-label="showUnitsUpperInput ? 'hide units range' : 'show units range'"
           class="align-self-center font-size-12 px-0 text-primary"
           density="compact"
           flat
