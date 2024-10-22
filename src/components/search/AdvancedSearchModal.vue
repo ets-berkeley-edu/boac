@@ -520,16 +520,21 @@ const reset = force => {
     m.student = null
     m.toDate = null
     m.topic = null
+    m.queryText = ''
     m.includeAdmits = currentUser.canAccessAdmittedStudents
     m.includeCourses = currentUser.canAccessCanvasData
     m.includeNotes = currentUser.canAccessAdvisingData
+    m.includeStudents = true
   }
 
 }
 
 const isModelEmpty = () => {
   const m = model.value
-  return !(m.author || m.toDate || m.topic || m.fromDate || m.student) && m.postedBy === 'anyone'
+  return !(m.author || m.toDate || m.topic || m.fromDate || m.student
+    || (m.queryText && m.queryText.length > 0)
+    || !m.includeCourses || !m.includeNotes || !m.includeStudents)
+    && m.postedBy === 'anyone'
 }
 
 const search = () => {
