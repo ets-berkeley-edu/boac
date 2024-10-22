@@ -49,13 +49,15 @@
                 v-if="!isEmpty(student.termGpa)"
                 id="show-hide-term-gpa-button"
                 aria-controls="term-gpa-collapse"
+                :aria-expanded="showTermGpa"
                 class="pa-0 show-more-term-gpa-btn"
                 color="primary"
                 variant="text"
                 @click="showHideTermGpa"
               >
                 <v-icon :icon="showTermGpa ? mdiMenuDown : mdiMenuRight" size="14" />
-                Show {{ showTermGpa ? 'less' : 'more' }}
+                <span aria-hidden="true">Show {{ showTermGpa ? 'less' : 'more' }}</span>
+                <span class="sr-only">Show term GPA data table</span>
               </v-btn>
             </div>
           </div>
@@ -114,9 +116,9 @@
 
 <script setup>
 import StudentGpaChart from '@/components/student/StudentGpaChart'
-import {alertScreenReader, round} from '@/lib/utils'
 import {get, isEmpty, isNil} from 'lodash'
 import {mdiAlert, mdiMenuDown, mdiMenuRight} from '@mdi/js'
+import {putFocusNextTick, round} from '@/lib/utils'
 import {ref} from 'vue'
 
 const props = defineProps({
@@ -131,7 +133,7 @@ const showTermGpa = ref(false)
 
 const showHideTermGpa = () => {
   showTermGpa.value = !showTermGpa.value
-  alertScreenReader(`The table with GPA per term is now ${showTermGpa.value ? 'visible' : 'hidden'}.`)
+  putFocusNextTick('show-hide-term-gpa-button')
 }
 </script>
 

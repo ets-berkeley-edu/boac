@@ -1,9 +1,9 @@
 <template>
   <div>
     <div v-if="isMenuOpen" class="my-2">
-      <div class="font-size-16 font-weight-medium text-surface-variant">
+      <label class="font-size-16 font-weight-medium text-surface-variant" for="add-course-select">
         Duplicate Course
-      </div>
+      </label>
       <div class="my-2">
         <select
           id="add-course-select"
@@ -33,6 +33,7 @@
         <ProgressButton
           id="add-course-save-btn"
           :action="onClickSave"
+          aria-labe="Save Duplicated Course"
           color="primary"
           :disabled="isSaving || !selected"
           :in-progress="isSaving"
@@ -40,6 +41,7 @@
         />
         <v-btn
           id="add-course-cancel-btn"
+          aria-labe="Cancel Save Duplicated Course"
           class="ml-2"
           :disabled="isSaving"
           variant="text"
@@ -118,7 +120,6 @@ const onSelect = () => {
 const openMenu = () => {
   degreeStore.setDisableButtons(true)
   isMenuOpen.value = true
-  alertScreenReader('The \'Duplicate Course\' menu is open.')
   putFocusNextTick('add-course-select')
 }
 </script>

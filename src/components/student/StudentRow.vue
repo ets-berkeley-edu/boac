@@ -26,7 +26,7 @@
             :icon="mdiCloseCircle"
             size="22"
           />
-          <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
+          <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }} from curated group</span>
         </v-btn>
         <div class="d-flex flex-column flex-sm-row">
           <div>

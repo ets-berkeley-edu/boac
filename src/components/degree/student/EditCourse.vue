@@ -53,6 +53,7 @@
       <v-text-field
         id="course-grade-input"
         v-model="grade"
+        aria-label="Course Grade"
         class="grade-input"
         hide-details
         maxlength="3"
@@ -78,7 +79,7 @@
     </div>
     <div class="mt-2">
       <label for="course-note-textarea" class="font-weight-500">
-        Note
+        <span class="sr-only">Course</span>Note
       </label>
       <v-textarea
         id="course-note-textarea"
@@ -95,6 +96,7 @@
       <ProgressButton
         id="update-note-btn"
         :action="update"
+        aria-label="Save Course"
         class="mr-1"
         color="primary"
         :disabled="disableSaveButton"
@@ -105,6 +107,7 @@
       <div>
         <v-btn
           id="cancel-update-note-btn"
+          aria-label="Cancel Save Course"
           color="primary"
           :disabled="isSaving"
           size="small"

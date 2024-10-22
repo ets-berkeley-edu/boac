@@ -40,6 +40,7 @@
           Skip to pagination
         </a>
         <a
+          v-if="cohortStore.totalStudentCount"
           id="skip-to-students-link"
           href="#cohort-students"
           class="sr-only"
@@ -49,6 +50,7 @@
         <v-btn
           v-if="cohortStore.cohortId && size(cohortStore.filters)"
           id="show-hide-details-button"
+          :aria-label="`${cohortStore.isCompactView ? 'Show' : 'Hide'} Cohort Filters`"
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
           :text="`${cohortStore.isCompactView ? 'Show' : 'Hide'} Filters`"
@@ -65,6 +67,7 @@
         <v-btn
           v-if="cohortStore.cohortId && cohortStore.isOwnedByCurrentUser"
           id="rename-cohort-button"
+          aria-label="Edit Cohort Name"
           class="font-size-15 px-1"
           color="anchor"
           text="Rename"
@@ -81,6 +84,7 @@
         <v-btn
           v-if="cohortStore.cohortId && cohortStore.isOwnedByCurrentUser"
           id="delete-cohort-button"
+          aria-label="Delete Cohort"
           class="font-size-15 px-1"
           color="anchor"
           text="Delete"

@@ -34,7 +34,7 @@
           id="curated-group-bulk-add-sids"
           v-model="textarea"
           aria-describedby="page-description"
-          aria-labelledby="page-section-header"
+          aria-label="Student S I D numbers"
           :disabled="isValidating || isSaving"
           label="Enter SIDs here"
           variant="outlined"

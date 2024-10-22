@@ -13,9 +13,11 @@
     <div class="align-center d-flex">
       <v-combobox
         id="create-note-add-student-input"
+        ref="addStudentInput"
         :key="vAutocompleteKey"
         aria-describedby="create-note-add-student-desc"
-        autocomplete="off"
+        aria-label="Name or S I D lookup. Expect auto suggest."
+        autocomplete="list"
         base-color="primary"
         class="autocomplete-students autocomplete-with-add-button"
         :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
@@ -75,7 +77,7 @@
 
 <script setup>
 import PillItem from '@/components/util/PillItem'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
 import {
   differenceWith,
   each,
@@ -94,10 +96,10 @@ import {
 } from 'lodash'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 import {mdiPlus} from '@mdi/js'
+import {nextTick, onMounted, onUpdated, ref} from 'vue'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {onMounted, ref} from 'vue'
 
 defineProps({
   onEscFormInput: {
@@ -109,6 +111,7 @@ defineProps({
 
 const noteStore = useNoteStore()
 
+const addStudentInput = ref()
 const autocompleteErrorMessage = ref(undefined)
 const addedStudents = ref([])
 const autoSuggestedStudents = ref([])
@@ -149,6 +152,10 @@ onMounted(() => {
       each(students, student => addStudent(student))
     })
   }
+})
+
+onUpdated(() => {
+  nextTick(() => setComboboxAccessibleLabel(addStudentInput.value.$el, 'Student'))
 })
 
 const onClickAddButton = () => {

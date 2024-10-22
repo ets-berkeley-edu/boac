@@ -87,7 +87,7 @@
           <v-col class="border-e-sm pb-0 pt-1" cols="7">
             <div v-if="isEditingNote || noteBody" class="align-center d-flex justify-space-between">
               <div>
-                <h3 class="font-size-20 font-weight-bold text-no-wrap mr-3">Degree Notes</h3>
+                <h3 id="degree-notes-header" class="font-size-20 font-weight-bold text-no-wrap mr-3">Degree Notes</h3>
               </div>
               <div class="align-center d-flex justify-content-end pr-4">
                 <label for="degree-note-print-toggle" class="font-size-14 font-weight-500 pr-2 text-surface-variant text-right">
@@ -126,6 +126,7 @@
             <div class="text-no-wrap">
               [<v-btn
                 id="show-upper-units-input"
+                :aria-label="`${showInProgressCourses ? 'Hide' : 'Show'} in-progress courses`"
                 class="px-0 text-primary"
                 density="compact"
                 flat
@@ -180,6 +181,7 @@
               <v-textarea
                 id="degree-note-input"
                 v-model.trim="noteBody"
+                aria-labelledby="degree-notes-header"
                 density="compact"
                 :disabled="isSaving"
                 hide-details
@@ -191,6 +193,7 @@
                 <ProgressButton
                   id="save-degree-note-btn"
                   :action="saveNote"
+                  aria-label="Save Degree Note"
                   color="primary"
                   :disabled="noteBody === get(degreeStore.degreeNote, 'body') || isSaving"
                   :in-progress="isSaving"
@@ -198,6 +201,7 @@
                 />
                 <v-btn
                   id="cancel-degree-note-btn"
+                  aria-label="Cancel Save Degree Note"
                   class="ml-2"
                   :disabled="isSaving"
                   text="Cancel"

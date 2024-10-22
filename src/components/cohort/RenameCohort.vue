@@ -27,6 +27,7 @@
         <ProgressButton
           id="rename-cohort-confirm"
           :action="submit"
+          aria-label="Rename Cohort"
           :disabled="isInvalid || isSaving"
           :in-progress="isSaving"
           size="large"
@@ -34,6 +35,7 @@
         />
         <v-btn
           id="rename-cohort-cancel"
+          aria-label="Cancel Rename Cohort"
           class="ml-1"
           :disabled="isSaving"
           size="large"

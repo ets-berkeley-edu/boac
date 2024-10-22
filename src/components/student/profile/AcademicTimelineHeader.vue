@@ -6,6 +6,7 @@
     <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="mt-1">
       <v-btn
         id="new-note-button"
+        :aria-label="`New Note for ${student.name}`"
         class="border-e-sm"
         color="primary"
         :disabled="!!noteStore.mode"
@@ -24,7 +25,7 @@
   <div class="border-b-sm">
     <v-tabs
       v-model="selectedTab"
-      aria-label="timeline messages tab"
+      aria-label="Academic Timeline"
       :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
       class="mt-2"
       :class="{'horizontal-tabs': $vuetify.display.mdAndUp}"

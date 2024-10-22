@@ -35,12 +35,14 @@
               </router-link>
             </span>
             <span v-if="!item.student" class="font-italic">
-              &mdash;
+              <span aria-hidden="true">&mdash;</span>
+              <span class="sr-only">blank</span>
             </span>
           </template>
           <template #item.sid="{item}">
             <span :class="{'demo-mode-blur': currentUser.inDemoMode}">
-              {{ item.sid || '&mdash;' }}
+              <span aria-hidden="true">{{ item.sid || '&mdash;' }}</span>
+              <span class="sr-only">{{ item.sid || 'blank' }}</span>
             </span>
           </template>
           <template #item.subject="{item}">
@@ -50,11 +52,11 @@
                 class="font-size-16"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
               >
-                {{ trim(item.subject) || config.draftNoteSubjectPlaceholder }}
               </span>
               <v-btn
                 v-if="item.author.uid === currentUser.uid"
                 :id="`open-draft-note-${item.id}`"
+                :aria-label="`Open ${trim(item.subject) || config.draftNoteSubjectPlaceholder} for editing`"
                 class="mr-1 px-0 py-2 text-left text-primary"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 size="lg"
@@ -95,12 +97,11 @@
           <template #item.delete="{item}">
             <v-btn
               :id="`delete-draft-note-${item.id}`"
-              aria-label="Delete"
               class="bg-transparent text-error"
               :disabled="isDeleteDialogOpen || isDeleting || isEditDialogOpen"
               :icon="mdiTrashCan"
               size="md"
-              title="Delete"
+              :title="`Delete ${trim(item.subject) || config.draftNoteSubjectPlaceholder}`"
               variant="flat"
               @click="() => openDeleteDialog(item)"
             />

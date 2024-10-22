@@ -136,6 +136,16 @@ export function scrollToTop() {
   scrollTo('content', 'start')
 }
 
+export function setComboboxAccessibleLabel(container: Element, label: string) {
+  // Vuetify puts a label on the <input> element inside the combobox, but the combobox itself
+  // is unlabeled. As a result, JAWS lists it as "Unlabeled1 edit combo {input label}". This
+  // workaround replaces "Unlabeled1" with the provided label.
+  const combobox = container.querySelector('[role="combobox"]')
+  if (combobox) {
+    combobox.setAttribute('aria-label', label)
+  }
+}
+
 export function sortComparator(a, b, nullFirst=true) {
   if (isNil(a) || isNil(b)) {
     if (nullFirst) {

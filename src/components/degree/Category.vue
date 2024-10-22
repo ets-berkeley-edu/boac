@@ -41,10 +41,7 @@
             :icon="mdiNoteEditOutline"
             size="small"
             @click.prevent="edit"
-          >
-            <v-icon :icon="mdiNoteEditOutline" />
-            <span class="sr-only">Edit {{ category.name }}</span>
-          </v-btn>
+          />
           <v-btn
             :id="`column-${position}-delete-category-${category.id}-btn`"
             :aria-label="`Delete ${category.name}`"
