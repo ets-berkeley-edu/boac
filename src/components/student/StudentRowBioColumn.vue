@@ -128,7 +128,7 @@
         target="_blank"
         :to="getDegreeCheckPath(student)"
       >
-        Degree Checks <span class="sr-only">of {{ student.name }} (will open new browser tab)</span>
+        Undergraduate Degree Checks <span class="sr-only">of {{ student.name }} (will open new browser tab)</span>
       </router-link>
     </div>
   </div>

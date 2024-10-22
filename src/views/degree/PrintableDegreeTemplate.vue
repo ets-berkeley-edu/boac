@@ -17,35 +17,39 @@
           <div class="font-size-14">
             <div class="font-weight-500">
               SID <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.sid }}</span>
-              <div>
-                {{ get(student, 'sisProfile.level.description') || 'Level not available' }}
-              </div>
-              <div>
+              <div v-if="'GRAD' !== get(student, 'sisProfile.academicCareer')">
+                <div>
+                  {{ get(student, 'sisProfile.level.description') || 'Level not available' }}
+                </div>
                 <div v-if="get(student, 'sisProfile.termsInAttendance')">
                   {{ student.sisProfile.termsInAttendance }} Terms in Attendance
                 </div>
                 <div v-if="!get(student, 'sisProfile.termsInAttendance')">
                   Terms in Attendance not available
                 </div>
-                <div>Expected graduation {{ get(student, 'sisProfile.expectedGraduationTerm.name') || 'not available' }}</div>
+                <div>
+                  Expected graduation {{ get(student, 'sisProfile.expectedGraduationTerm.name') || 'not available' }}
+                </div>
               </div>
             </div>
-            <div v-if="student.sisProfile.plans.length" class="pt-2">
-              <div class="section-border-minor">
-                <span class="font-weight-bold pa-0 text-uppercase">Major</span>
+            <div v-if="'GRAD' !== get(student, 'sisProfile.academicCareer')">
+              <div v-if="student.sisProfile.plans.length" class="pt-2">
+                <div class="section-border-minor">
+                  <span class="font-weight-bold pa-0 text-uppercase">Major</span>
+                </div>
+                <div v-for="(plan, index) in student.sisProfile.plans" :key="index">
+                  <div class="font-weight-bold">{{ plan.description }}</div>
+                  <div>{{ plan.program }}</div>
+                </div>
               </div>
-              <div v-for="(plan, index) in student.sisProfile.plans" :key="index">
-                <div class="font-weight-bold">{{ plan.description }}</div>
-                <div>{{ plan.program }}</div>
-              </div>
-            </div>
-            <div v-if="student.sisProfile.plansMinor.length" class="py-2">
-              <div class="section-border-minor">
-                <span class="font-weight-bold mt-2 pa-0 text-uppercase">Minor</span>
-              </div>
-              <div v-for="minorPlan of student.sisProfile.plansMinor" :key="minorPlan.description">
-                <div class="font-weight-bold">{{ minorPlan.description }}</div>
-                <div>{{ minorPlan.program }}</div>
+              <div v-if="student.sisProfile.plansMinor.length" class="py-2">
+                <div class="section-border-minor">
+                  <span class="font-weight-bold mt-2 pa-0 text-uppercase">Minor</span>
+                </div>
+                <div v-for="minorPlan of student.sisProfile.plansMinor" :key="minorPlan.description">
+                  <div class="font-weight-bold">{{ minorPlan.description }}</div>
+                  <div>{{ minorPlan.program }}</div>
+                </div>
               </div>
             </div>
           </div>
