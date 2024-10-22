@@ -2,7 +2,7 @@
   <div>
     <div class="align-center d-flex">
       <label id="units-input-label" :class="labelClass" :for="inputId">
-        {{ label }}
+        <span class="sr-only">Course</span>{{ label }}
       </label>
       <div v-if="range" class="d-flex font-size-14 pb-1">
         [<v-btn

@@ -84,7 +84,7 @@
                 id="rename-template-input"
                 v-model="templateForEdit.name"
                 :aria-invalid="!templateForEdit.name"
-                aria-label="Template name"
+                aria-label="Degree Template name"
                 aria-required="true"
                 class="bg-white w-100"
                 :disabled="isRenaming"
@@ -135,6 +135,7 @@
               <ProgressButton
                 id="confirm-rename-btn"
                 :action="save"
+                aria-label="Rename Degree Template"
                 color="primary"
                 :disabled="isRenaming || !templateForEdit.name.trim() || !!errorDuringEdit"
                 :in-progress="isRenaming"
@@ -142,6 +143,7 @@
               />
               <v-btn
                 id="rename-cancel-btn"
+                aria-label="Cancel Rename Degree Template"
                 class="rename-btn ml-2"
                 :disabled="isRenaming"
                 variant="text"

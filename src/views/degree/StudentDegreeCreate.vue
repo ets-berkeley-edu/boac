@@ -16,7 +16,7 @@
           <select
             id="degree-template-select"
             v-model="selectedOption"
-            aria-label="Select a degree template"
+            :aria-label="`Select a degree template for ${student.name}`"
             class="select-menu select-menu-max-width"
             :disabled="isSaving"
           >
@@ -49,6 +49,7 @@
             />
             <v-btn
               id="cancel-create-degree-check-btn"
+              aria-label="Cancel Save Degree Check"
               class="ml-2"
               color="primary"
               :disabled="isSaving"
@@ -120,7 +121,7 @@ const cancel = () => {
 
 const onClickSave = () => {
   isSaving.value = true
-  alertScreenReader('Saving')
+  alertScreenReader(`Creating Degree Check for ${student.value.name}`)
   createDegreeCheck(student.value.sid, selectedOption.value.id).then(data => {
     router.push(`/student/degree/${data.id}`).then(() => {
       isSaving.value = false

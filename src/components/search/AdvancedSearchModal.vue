@@ -46,10 +46,11 @@
             <label for="advanced-search-students-input" class="sr-only">{{ labelForSearchInput() }}</label>
             <v-combobox
               id="advanced-search-students-input"
+              ref="advancedSearchInput"
               :key="searchStore.autocompleteInputResetKey"
               v-model="model.queryText"
               :aria-required="searchInputRequired"
-              autocomplete="off"
+              autocomplete="list"
               clearable
               density="comfortable"
               :disabled="searchStore.isSearching"
@@ -137,7 +138,7 @@
               </v-card-title>
               <v-card-text class="w-100">
                 <div class="px-3">
-                  <label class="form-control-label" for="search-option-note-filters-topic">Topic</label>
+                  <label class="form-control-label" for="search-option-note-filters-topic"><span class="sr-only">Search Notes by </span>Topic</label>
                   <div>
                     <select
                       id="search-option-note-filters-topic"
@@ -150,7 +151,6 @@
                         v-for="topic in searchStore.topicOptions"
                         :id="`search-notes-by-topic-${normalizeId(topic.value)}`"
                         :key="topic.value"
-                        :aria-label="`Add topic ${topic.text}`"
                         :value="topic.value"
                       >
                         {{ topic.text }}
@@ -158,7 +158,7 @@
                     </select>
                   </div>
                   <div class="pt-4">
-                    <label class="form-control-label" for="note-filters-posted-by">Posted By</label>
+                    <label class="form-control-label" for="note-filters-posted-by"><span class="sr-only">Search Notes </span>Posted By</label>
                     <v-radio-group
                       id="note-filters-posted-by"
                       v-model="model.postedBy"
@@ -167,6 +167,7 @@
                     >
                       <v-radio
                         id="search-options-note-filters-posted-by-anyone"
+                        aria-label="Search notes posted by anyone"
                         :disabled="searchStore.isSearching"
                         :ischecked="model.postedBy === 'anyone'"
                         label="Anyone"
@@ -174,6 +175,7 @@
                       />
                       <v-radio
                         id="search-options-note-filters-posted-by-you"
+                        aria-label="Search notes you posted"
                         :disabled="searchStore.isSearching"
                         :ischecked="model.postedBy === 'you'"
                         label="You"
@@ -182,6 +184,7 @@
                       />
                       <v-radio
                         id="search-options-note-filters-posted-by-your department"
+                        aria-label="Search notes posted by your department"
                         :disabled="searchStore.isSearching"
                         :ischecked="model.postedBy === 'yourDepartment'"
                         label="Your Department(s)"
@@ -191,12 +194,11 @@
                   </div>
                   <div class="pt-2 w-75" :class="{'w-100': $vuetify.display.xs}">
                     <label class="form-control-label" for="search-options-note-filters-author">Advisor</label>
-                    <span id="notes-search-author-input-label" class="sr-only">
-                      Select note author from list of suggested advisors.
-                    </span>
                     <v-autocomplete
                       id="search-options-note-filters-author"
-                      autocomplete="off"
+                      ref="noteAuthorInput"
+                      aria-label="Advisor name or S I D lookup. Expect auto suggest."
+                      autocomplete="list"
                       base-color="primary"
                       :clearable="!isFetchingAdvisors"
                       class="mt-1"
@@ -241,12 +243,11 @@
                       <span aria-hidden="true">Student (name or SID)</span>
                       <span class="sr-only">Student (name or S I D)</span>
                     </label>
-                    <span id="notes-search-student-input-label" class="sr-only">
-                      Select a student for notes-related search. Expect auto-suggest as you type name or SID.
-                    </span>
                     <v-autocomplete
                       id="search-options-note-filters-student"
-                      autocomplete="off"
+                      ref="noteStudentInput"
+                      aria-label="Student name or S I D lookup. Expect auto suggest."
+                      autocomplete="list"
                       base-color="primary"
                       :clearable="!isFetchingStudents"
                       class="mt-1"
@@ -285,7 +286,7 @@
                   </div>
                   <div class="pt-3">
                     <label id="search-options-date-range-label" class="form-control-label">
-                      Date Range
+                      <span class="sr-only">Search Notes by </span>Date Range
                     </label>
                     <div class="d-flex flex-wrap mt-1">
                       <div class="d-flex align-center justify-end pb-2">
@@ -295,7 +296,7 @@
                           for="search-options-from-date-input"
                         >
                           <span aria-hidden="true">From</span>
-                          <span class="sr-only">date range: <q>begin</q> date.</span>
+                          <span class="sr-only">Search notes by date range: <q>begin</q> date.</span>
                           <span class="sr-only">Format: M M slash D D slash Y Y Y Y.</span>
                         </label>
                         <AccessibleDateInput
@@ -314,7 +315,7 @@
                           for="search-options-to-date-input"
                         >
                           <span aria-hidden="true">To</span>
-                          <span class="sr-only">date range: <q>end</q> date.</span>
+                          <span class="sr-only">Search notes by date range: <q>end</q> date.</span>
                           <span class="sr-only">Format: M M slash D D slash Y Y Y Y.</span>
                         </label>
                         <AccessibleDateInput
@@ -354,6 +355,7 @@
           />
           <v-btn
             id="advanced-search-cancel"
+            aria-label="Cancel Advanced Search"
             :disabled="searchStore.isSearching"
             text="Cancel"
             variant="text"
@@ -371,8 +373,8 @@ import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHe
 import FocusLock from 'vue-focus-lock'
 import ProgressButton from '@/components/util/ProgressButton'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
-import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop} from '@/lib/utils'
-import {computed, ref, watch} from 'vue'
+import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop, setComboboxAccessibleLabel} from '@/lib/utils'
+import {computed, nextTick, onUpdated, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {debounce, isDate, map, size, trim} from 'lodash'
 import {findStudentsByNameOrSid} from '@/api/student'
@@ -401,11 +403,14 @@ const currentUser = contextStore.currentUser
 const searchStore = useSearchStore()
 const router = useRouter()
 
+const advancedSearchInput = ref()
 const counter = ref(0)
 const isFocusAdvSearchButton = ref(false)
 const isFocusLockDisabled = ref(false)
 const isFetchingAdvisors = ref(false)
 const isFetchingStudents = ref(false)
+const noteAuthorInput = ref()
+const noteStudentInput = ref()
 const suggestedAdvisors = ref([])
 const suggestedStudents = ref([])
 
@@ -431,6 +436,16 @@ const validDateRange = computed(() => {
     return false
   } else {
     return (!m.fromDate || isDate(m.fromDate)) && (!m.toDate || isDate(m.toDate))
+  }
+})
+
+onUpdated(() => {
+  if (searchStore.showAdvancedSearch) {
+    nextTick(() => {
+      setComboboxAccessibleLabel(advancedSearchInput.value.$el, 'Search')
+      setComboboxAccessibleLabel(noteAuthorInput.value.$el, 'Search notes by author')
+      setComboboxAccessibleLabel(noteStudentInput.value.$el, 'Search notes by student')
+    })
   }
 })
 

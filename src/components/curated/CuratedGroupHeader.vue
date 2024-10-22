@@ -18,6 +18,7 @@
         Skip to pagination
       </a>
       <a
+        v-if="totalStudentCount"
         id="skip-to-students-link"
         href="#curated-cohort-students"
         class="sr-only"
@@ -44,6 +45,7 @@
           <div>
             <v-btn
               id="rename-curated-group-confirm"
+              aria-label="Rename Curated Group"
               color="primary"
               :disabled="!size(renameInput) || isSaving"
               text="Rename"
@@ -55,7 +57,7 @@
               id="rename-curated-group-cancel"
               class="ml-1"
               :disabled="isSaving"
-              text="Cancel"
+              text="Cancel Rename Curated Group"
               variant="text"
               @click="exitRenameMode"
             />
@@ -81,7 +83,7 @@
             variant="text"
             @click="enterBulkAddMode"
           >
-            Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}
+            Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}<span class="sr-only">to Curated Group</span>
           </v-btn>
         </div>
         <div
@@ -94,6 +96,7 @@
         <div v-if="ownerId === currentUser.id">
           <v-btn
             id="rename-curated-group-button"
+            aria-label="Edit Curated Group Name"
             class="font-size-15 px-1"
             color="anchor"
             text="Rename"
@@ -105,6 +108,7 @@
         <div v-if="ownerId === currentUser.id">
           <v-btn
             id="delete-curated-group-button"
+            aria-label="Delete Curated Group"
             class="font-size-15 px-1"
             color="anchor"
             text="Delete"

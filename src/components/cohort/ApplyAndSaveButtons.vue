@@ -4,6 +4,7 @@
       v-if="cohort.showApplyButton"
       id="unsaved-filter-apply"
       :action="apply"
+      aria-label="Apply Cohort Filters"
       class="mr-2 text-uppercase"
       :disabled="!!cohort.editMode"
       :in-progress="currentAction === 'search'"
@@ -12,6 +13,7 @@
     <v-btn
       v-if="cohort.showApplyButton"
       id="unsaved-filter-reset"
+      aria-label="Reset Cohort Filters"
       class="text-uppercase"
       color="surface-variant"
       :disabled="!!cohort.editMode"
@@ -32,7 +34,7 @@
         <span v-if="currentAction === 'acknowledgeSave'">Saved</span>
         <span v-if="currentAction === 'save'">Saving</span>
         <span v-if="!currentAction && cohort.cohortId">Save Cohort</span>
-        <span v-if="!currentAction && !cohort.cohortId">Save</span>
+        <span v-if="!currentAction && !cohort.cohortId">Save</span><span class="sr-only">Cohort</span>
       </ProgressButton>
       <v-btn
         v-if="!currentAction && cohort.cohortId"

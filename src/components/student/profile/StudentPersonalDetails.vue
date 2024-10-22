@@ -11,7 +11,7 @@
       <div class="align-center d-flex">
         <v-icon :icon="isExpanded ? mdiMenuDown : mdiMenuRight" size="24" />
         <div>
-          {{ isExpanded ? 'Hide' : 'Show' }} Personal Details
+          {{ isExpanded ? 'Hide' : 'Show' }} Personal Details <span class="sr-only">for {{ student.name }}</span>
         </div>
       </div>
     </v-btn>

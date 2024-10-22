@@ -31,7 +31,6 @@
       <v-text-field
         :id="`timeline-${selectedFilter}s-query-input`"
         v-model="timelineQuery"
-        :aria-labelledby="`timeline-${selectedFilter}s-query-label`"
         bg-color="pale-blue"
         class="academic-timeline-search-input"
         color="primary"

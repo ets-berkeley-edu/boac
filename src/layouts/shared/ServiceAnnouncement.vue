@@ -13,12 +13,11 @@
         </div>
         <v-btn
           id="dismiss-service-announcement"
-          aria-label="Dismiss alert"
           color="transparent"
           elevation="0"
           :icon="mdiClose"
           size="x-small"
-          title="Dismiss"
+          title="Dismiss alert"
           @click="toggle"
         />
       </div>

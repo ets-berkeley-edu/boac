@@ -1,16 +1,14 @@
 <template>
   <div class="align-center d-flex" role="search">
     <div class="mr-2">
-      <label for="search-students-input" class="sr-only">
-        {{ labelForSearchInput() }}
-        (Type / to put focus in the search input field.)
-      </label>
+      <label for="search-students-input" class="sr-only">Search</label>
       <v-combobox
         id="search-students-input"
+        ref="searchInput"
         :key="searchStore.autocompleteInputResetKey"
         v-model="queryTextModel"
-        aria-labelledby="search-input-label"
-        autocomplete="off"
+        :aria-label="`${labelForSearchInput()} (Type / to put focus in the search input field.)`"
+        autocomplete="list"
         bg-color="white"
         :class="{
           'text-medium-emphasis': !searchStore.queryText,
@@ -79,12 +77,12 @@
 <script setup>
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
-import {computed, onMounted, onUnmounted} from 'vue'
+import {computed, nextTick, onMounted, onUnmounted, onUpdated, ref} from 'vue'
 import {each, get, noop, size, trim} from 'lodash'
 import {getAllTopics} from '@/api/topics'
 import {labelForSearchInput} from '@/lib/search'
 import {mdiClose} from '@mdi/js'
-import {putFocusNextTick, scrollToTop} from '@/lib/utils'
+import {putFocusNextTick, scrollToTop, setComboboxAccessibleLabel} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useRoute, useRouter} from 'vue-router'
 import {useSearchStore} from '@/stores/search'
@@ -97,6 +95,7 @@ const queryTextModel = computed({
   set: v => searchStore.setQueryText(v)
 })
 const router = useRouter()
+const searchInput = ref()
 
 onMounted(() => {
   document.addEventListener('keyup', onKeyUp)
@@ -121,6 +120,10 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('keyup', onKeyUp)
+})
+
+onUpdated(() => {
+  nextTick(() => setComboboxAccessibleLabel(searchInput.value.$el, 'Search'))
 })
 
 const onClearSearch = () => {

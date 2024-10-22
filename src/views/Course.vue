@@ -121,6 +121,8 @@
               v-for="option in PAGINATION_OPTIONS"
               :id="`view-per-page-${option}`"
               :key="option"
+              :aria-label="`Show ${option.toString()} students per page`"
+              :aria-pressed="option === itemsPerPage"
               :class="{'border-color-primary font-weight-bold text-primary': option !== itemsPerPage}"
               :text="option.toString()"
               :value="option"

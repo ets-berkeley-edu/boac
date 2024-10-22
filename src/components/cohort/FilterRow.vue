@@ -13,6 +13,7 @@
       {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
     <div v-if="isModifyingFilter && !isExistingFilter">
+      <span :id="`new-filter-${position}-label`" class="sr-only">Add a Cohort Filter</span>
       <FilterSelect
         v-model="selectedFilter"
         :disabled="isUpdatingExistingFilter"
@@ -53,15 +54,16 @@
         v-if="isUX('range') && filter.validation === 'date'"
         class="align-center d-flex"
       >
-        <label class="font-weight-500 px-2" :for="`filter-range-min-${position}`">
-          {{ rangeMinLabel() }}
+        <label class="font-weight-500 px-2" :for="`filter-range-min-${position}-input`">
+          <span aria-hidden="true">{{ rangeMinLabel() }}</span>
+          <span class="sr-only">Start of date range for {{ filter.name }}</span>
         </label>
         <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">
-          Start of range in format MM/DD/YYYY
+          Format: M M slash D D slash Y Y Y Y.
         </span>
         <AccessibleDateInput
           :aria-describedby="`filter-range-min-placeholder-${position}`"
-          aria-label="&quot;from&quot; date"
+          :aria-label="`Start date for ${filter.name}`"
           :container-id="`filter-row-${position}`"
           :get-value="() => DateTime.fromISO(rangeMin).toJSDate()"
           :id-prefix="`filter-range-min-${position}`"
@@ -69,15 +71,16 @@
           required
           :set-value="d => rangeMin = DateTime.fromJSDate(d).toISODate()"
         />
-        <label class="font-weight-500 px-2" :for="`filter-range-max-${position}`">
-          {{ rangeMaxLabel() }}
+        <label class="font-weight-500 px-2" :for="`filter-range-max-${position}-input`">
+          <span class="sr-only">End of date range for {{ filter.name }}</span>
+          <span aria-hidden="true">{{ rangeMaxLabel() }}</span>
         </label>
         <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">
-          End of range in format MM/DD/YYYY
+          Format: M M slash D D slash Y Y Y Y.
         </span>
         <AccessibleDateInput
           :aria-describedby="`filter-range-max-placeholder-${position}`"
-          aria-label="&quot;to&quot; date"
+          :aria-label="`End date for ${filter.name}`"
           :container-id="`filter-row-${position}`"
           :get-value="() => DateTime.fromISO(rangeMax).toJSDate()"
           :id-prefix="`filter-range-max-${position}`"
@@ -88,7 +91,7 @@
       </div>
       <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
         <label class="font-weight-500 mx-3" :for="`filter-range-min-${position}`">
-          {{ rangeMinLabel() }}<span class="sr-only"> starting at</span>
+          <span aria-hidden="true">{{ rangeMinLabel() }}</span><span class="sr-only">Start of {{ filter.name }} range</span>
         </label>
         <div>
           <v-text-field
@@ -103,7 +106,7 @@
           />
         </div>
         <label class="font-weight-500 mx-3" :for="`filter-range-max-${position}`">
-          {{ rangeMaxLabel() }}<span class="sr-only"> end of range</span>
+          <span aria-hidden="true">{{ rangeMaxLabel() }}</span><span class="sr-only">End of {{ filter.name }} range</span>
         </label>
         <div>
           <v-text-field
@@ -127,6 +130,7 @@
         <ProgressButton
           id="unsaved-filter-add"
           :action="onClickAddButton"
+          aria-label="Add Cohort Filter"
           :disabled="isSaving || (isUX('dropdown') && !selectedOption)"
           :in-progress="isSaving"
           text="Add"
@@ -135,6 +139,7 @@
       <div v-if="isModifyingFilter && get(filter, 'type.ux')">
         <v-btn
           id="unsaved-filter-reset"
+          aria-label="Discard Cohort Filter"
           class="text-uppercase ml-2"
           color="primary"
           text="Cancel"
@@ -148,6 +153,7 @@
         <div v-if="!isUX('boolean')">
           <v-btn
             :id="`edit-added-filter-${position}`"
+            :aria-label="`Edit Cohort Filter ${filter.name}`"
             class="text-uppercase"
             color="primary"
             text="Edit"
@@ -159,6 +165,7 @@
         <div>
           <v-btn
             :id="`remove-added-filter-${position}`"
+            :aria-label="`Remove Cohort Filter ${filter.name}`"
             class="text-uppercase"
             color="primary"
             :disabled="!!cohortStore.editMode"
@@ -172,6 +179,7 @@
         <ProgressButton
           :id="`update-added-filter-${position}`"
           :action="onClickUpdateButton"
+          :aria-label="`Update Cohort Filter ${filter.name}`"
           density="comfortable"
           :disabled="disableUpdateButton || isUpdatingExistingFilter || (isUX('dropdown') && !selectedOption)"
           :in-progress="isUpdatingExistingFilter"
@@ -180,6 +188,7 @@
         />
         <v-btn
           :id="`cancel-edit-added-filter-${position}`"
+          :aria-label="`Cancel Edit Cohort Filter ${filter.name}`"
           class="font-size-14 text-uppercase ml-2"
           :disabled="isUpdatingExistingFilter"
           text="Cancel"
