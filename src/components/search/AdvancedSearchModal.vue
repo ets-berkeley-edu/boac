@@ -223,6 +223,7 @@
                         model.author = author
                       }"
                       @update:search="onUpdateAdvisorSearch"
+                      @blur="onClearAdvisorSearch"
                     >
                       <template #append-inner>
                         <v-progress-circular
@@ -269,6 +270,7 @@
                       @update:menu="isOpen => isFocusLockDisabled = isOpen"
                       @update:model-value="student => model.student = student"
                       @update:search="onUpdateStudentSearch"
+                      @blur="onClearStudentSearch"
                     >
                       <template #append-inner>
                         <v-progress-circular
