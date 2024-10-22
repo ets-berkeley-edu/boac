@@ -143,7 +143,7 @@
                   :id="`units-were-edited-${bundle.course.id}`"
                   class="changed-units-icon"
                   color="accent-green"
-                  :icon="mdiInformationOutline"
+                  :icon="mdiInformation"
                   size="18"
                   :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
                 />
@@ -368,7 +368,7 @@ import {
   mdiCheckCircleOutline,
   mdiCircle,
   mdiContentCopy,
-  mdiInformationOutline,
+  mdiInformation,
   mdiNoteEditOutline,
   mdiTrashCan
 } from '@mdi/js'

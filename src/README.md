@@ -29,7 +29,7 @@ Font Awesome to [MDI](https://pictogrammers.com/library/mdi/)
 | file-alt                                        | mdiFileOutline                             |
 | graduation-cap                                  | mdiSchool                                  |
 | grip-vertical                                   | mdiDrag                                    |
-| info-circle                                     | mdiInformationOutline                      |
+| info-circle                                     | mdiInformation                      |
 | link                                            | mdiLinkVariant                             |
 | list                                            | mdiFormatListBulleted                      |
 | long-arrow-alt-down                             | mdiArrowDownThin                           |

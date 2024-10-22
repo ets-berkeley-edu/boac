@@ -3,14 +3,14 @@
     :id="`term-${termId}-course-${index}-has-incomplete-status`"
     :aria-label="ariaLabel"
     color="error"
-    :icon="mdiInformationOutline"
+    :icon="mdiInformation"
     :title="ariaLabel"
   />
 </template>
 
 <script setup>
 import {getIncompleteGradeDescription, getSectionsWithIncompleteStatus} from '@/berkeley'
-import {mdiInformationOutline} from '@mdi/js'
+import {mdiInformation} from '@mdi/js'
 
 const props = defineProps({
   course: {

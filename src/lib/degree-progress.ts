@@ -69,7 +69,7 @@ export function isValidUnits(value, maxAllowed): boolean {
 }
 
 export function unitsWereEdited(course: any): boolean {
-  return !get(course, 'manuallyCreatedBy') && !!get(course, 'units') && (course.units !== course.sis.units)
+  return !get(course, 'manuallyCreatedBy') && !isNil(get(course, 'units')) && !isNil(get(course, 'sis.units')) && (course.units !== course.sis.units)
 }
 export function validateUnitRange(unitsLower, unitsUpper, maxAllowed, showUnitsUpperInput?: boolean): any {
   const invalid = message => ({valid: false, message})

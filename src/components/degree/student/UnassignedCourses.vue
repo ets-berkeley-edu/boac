@@ -99,7 +99,7 @@
                   :id="course.manuallyCreatedBy ? `${key}-course-${course.id}-manually-created-units-edited` : `${key}-course-${course.termId}-${course.sectionId}-units-edited`"
                   class="changed-units-icon mb-1"
                   color="accent-green"
-                  :icon="mdiInformationOutline"
+                  :icon="mdiInformation"
                   size="18"
                   :title="`Updated from ${pluralize('unit', course.sis.units)}`"
                 />
@@ -222,7 +222,7 @@ import {
   mdiAlert,
   mdiCheckCircleOutline,
   mdiContentCopy,
-  mdiInformationOutline,
+  mdiInformation,
   mdiNoteEditOutline,
   mdiTrashCan
 } from '@mdi/js'
