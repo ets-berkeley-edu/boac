@@ -20,7 +20,7 @@
     @update:model-value="onToggle"
   >
     <v-card class="modal-content" min-width="600">
-      <FocusLock @keydown.esc="() => cancel(false)">
+      <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="() => cancel(false)">
         <v-card-title class="py-0">
           <ModalHeader text="Create Course" />
         </v-card-title>
@@ -89,6 +89,7 @@
             <AccentColorSelect
               :accent-color="accentColor"
               :on-change="value => accentColor = value"
+              :on-open-menu="isOpen => isFocusLockDisabled = isOpen"
             />
           </div>
           <div class="mt-3">
@@ -151,7 +152,7 @@ import {createCourse} from '@/api/degree'
 import {mdiPlus} from '@mdi/js'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {validateUnitRange} from '@/lib/degree-progress'
-import {computed, onUnmounted, ref} from 'vue'
+import {computed, nextTick, onUnmounted, ref, watch} from 'vue'
 import {isEmpty as _isEmpty, trim} from 'lodash'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
@@ -167,6 +168,7 @@ const degreeStore = useDegreeStore()
 const accentColor = ref(undefined)
 const error = ref(undefined)
 const grade = ref(undefined)
+const isFocusLockDisabled = ref(false)
 const isSaving = ref(false)
 const name = ref('')
 const note = ref('')
@@ -184,6 +186,8 @@ const unitsErrorMessage = computed(() => {
 onUnmounted(() => {
   closeModal()
 })
+
+watch(showCancelConfirm, isShowing => nextTick(() => isFocusLockDisabled.value = isShowing))
 
 const cancel = force => {
   if (!force && isDirty.value) {
