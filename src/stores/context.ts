@@ -126,8 +126,9 @@ export const useContextStore = defineStore('context', {
         }
         if (element) {
           element.setAttribute('tabindex', '-1')
+          element.classList.add('scroll-margins')
           element.focus()
-          element.scrollIntoView({behavior: 'smooth', block: 'center'})
+          element.scrollIntoView({behavior: 'smooth', block: 'start'})
         }
         return !!element
       }

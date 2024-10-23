@@ -45,8 +45,7 @@
 <script setup>
 import SortableGroup from '@/components/search/SortableGroup.vue'
 import {filter as _filter} from 'lodash'
-import {scrollToTop} from '@/lib/utils'
-import {reactive} from 'vue'
+import {onMounted, reactive} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
@@ -54,5 +53,9 @@ const currentUser = contextStore.currentUser
 const cohorts = reactive(_filter(currentUser.myCohorts, ['domain', 'default']))
 const curatedGroups = reactive(_filter(currentUser.myCuratedGroups, ['domain', 'default']))
 
-scrollToTop()
+contextStore.loadingStart()
+
+onMounted(() => {
+  contextStore.loadingComplete()
+})
 </script>
