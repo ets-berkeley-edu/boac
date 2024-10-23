@@ -62,11 +62,7 @@
               :class="{'service-alert-offset': get(contextStore, 'announcement.isPublished') && !contextStore.dismissedServiceAnnouncement}"
             >
               <ServiceAnnouncement ref="serviceAlert" />
-              <div
-                id="content"
-                class="scroll-margins"
-                role="main"
-              >
+              <div id="content" class="scroll-margins" role="main">
                 <router-view :key="split(route.fullPath, '#', 1)[0]" />
               </div>
             </div>

@@ -3,24 +3,17 @@
     <div
       class="font-size-16 header-text ml-3 text-white"
     >
-      <span class="hide-in-narrow-viewport">
-        <span v-if="startsWith($route.path, '/home')" class="text-no-wrap">
+      <NavLink
+        id="home-header"
+        class="text-no-wrap"
+        path="/home"
+      >
+        <span class="hide-in-narrow-viewport">
           <span class="font-weight-bold">UC Berkeley</span>
           Online Advising
         </span>
-        <router-link
-          v-if="!startsWith($route.path, '/home')"
-          id="home-header"
-          class="text-no-wrap"
-          to="/"
-        >
-          <span class="font-weight-bold">UC Berkeley</span>
-          Online Advising
-        </router-link>
-      </span>
-      <router-link id="home-header" class="show-in-narrow-viewport" to="/">
-        <v-icon :icon="mdiHome" />
-      </router-link>
+        <v-icon class="show-in-narrow-viewport" :icon="mdiHome" />
+      </NavLink>
     </div>
     <AdvancedSearch class="ml-3" />
     <HeaderMenu class="mx-3" />
@@ -30,8 +23,8 @@
 <script setup lang="ts">
 import AdvancedSearch from '@/components/search/AdvancedSearch.vue'
 import HeaderMenu from '@/components/header/HeaderMenu.vue'
+import NavLink from '@/components/util/NavLink.vue'
 import {mdiHome} from '@mdi/js'
-import {startsWith} from 'lodash'
 </script>
 
 <style scoped>

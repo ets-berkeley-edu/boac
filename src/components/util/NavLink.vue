@@ -1,18 +1,14 @@
 <template>
-  <router-link :to="{path, query}" @click="() => counter++">
+  <router-link :to="{path, query}" @click="onClick">
     <slot></slot>
   </router-link>
 </template>
 
 <script setup>
-import {computed, ref} from 'vue'
+import {computed} from 'vue'
+import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
-  defaultCounter: {
-    type: Number,
-    required: false,
-    default: 0
-  },
   path: {
     type: String,
     required: true
@@ -24,12 +20,16 @@ const props = defineProps({
   }
 })
 
-const counter = ref(props.defaultCounter)
+const contextStore = useContextStore()
 const query = computed(() => {
   const args = props.queryArgs || {}
   return {
-    ...{'_': counter.value},
+    ...{'_': contextStore.routeKeyId},
     ...args
   }
 })
+
+const onClick = () => {
+  contextStore.setRouteKeyId(~contextStore.routeKeyId)
+}
 </script>
