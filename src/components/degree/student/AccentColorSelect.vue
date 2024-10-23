@@ -8,13 +8,13 @@
         Color Code
       </label>
     </div>
-    <v-menu>
-      <template #activator="{props}">
+    <v-menu @update:model-value="onOpenMenu">
+      <template #activator="{props: menuProps}">
         <button
           id="color-code-select"
           class="select-menu w-100"
           :class="getCssClass('border', selected)"
-          v-bind="props"
+          v-bind="menuProps"
         >
           <div class="align-center d-flex">
             <div v-if="!selected.color" class="text-left">{{ selected.title }}</div>
@@ -73,6 +73,11 @@ const props = defineProps({
   },
   onChange: {
     required: true,
+    type: Function
+  },
+  onOpenMenu: {
+    default: () => {},
+    required: false,
     type: Function
   }
 })
