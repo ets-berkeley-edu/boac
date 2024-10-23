@@ -59,10 +59,15 @@
             <div
               v-show="!loading"
               class="w-100"
+              :class="{'service-alert-offset': get(contextStore, 'announcement.isPublished') && !contextStore.dismissedServiceAnnouncement}"
             >
-              <ServiceAnnouncement />
-              <div id="content" class="scroll-margins" role="main">
-                <router-view :key="split($route.fullPath, '#', 1)[0]" />
+              <ServiceAnnouncement ref="serviceAlert" />
+              <div
+                id="content"
+                class="scroll-margins"
+                role="main"
+              >
+                <router-view :key="split(route.fullPath, '#', 1)[0]" />
               </div>
             </div>
           </div>
@@ -97,26 +102,57 @@ import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
 import Sidebar from '@/components/sidebar/Sidebar'
+import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
+import {get, split} from 'lodash'
 import {putFocusNextTick, scrollTo} from '@/lib/utils'
-import {computed, ref} from 'vue'
-import {split} from 'lodash'
+import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
-const currentUser = contextStore.currentUser
 const hideFooter = ref(false)
-const loading = computed(() => contextStore.loading)
+const {currentUser, loading} = storeToRefs(contextStore)
 const noteStore = useNoteStore()
+const route = useRoute()
+const serviceAlert = ref(null)
+const serviceAlertOffset = ref(0)
 const showSidebar = ref(true)
 
-contextStore.setEventHandler('hide-footer', value => hideFooter.value = value)
+watch(loading, value => {
+  if (!value) {
+    setServiceAlertOffset()
+  }
+})
+
+onMounted(() => {
+  contextStore.setEventHandler('hide-footer', setHideFooter)
+})
+
+onBeforeUnmount(() => {
+  contextStore.removeEventHandler('hide-footer', setHideFooter)
+})
 
 const onToggleShowSidebar = () => {
   showSidebar.value = !showSidebar.value
   if (showSidebar.value) {
     scrollTo('main-container', 'start')
   }
+}
+
+const setHideFooter = value => hideFooter.value = value
+
+const setServiceAlertOffset = () => {
+  let counter = 0
+  const setOffset = setInterval(() => {
+    const height = get(serviceAlert.value, '$el.clientHeight')
+    if (height) {
+      serviceAlertOffset.value = `${height}px`
+    }
+    if (height || ++counter > 2) {
+      clearInterval(setOffset)
+    }
+  }, 500)
 }
 </script>
 
@@ -143,6 +179,10 @@ const onToggleShowSidebar = () => {
 </style>
 
 <style>
+.service-alert-offset > .scroll-margins,
+.service-alert-offset h1.scroll-margins {
+  scroll-margin-top: calc(v-bind(serviceAlertOffset) + 80px);
+}
 .sidebar .v-navigation-drawer__content {
   padding-bottom: 120px;
   scrollbar-width: none;

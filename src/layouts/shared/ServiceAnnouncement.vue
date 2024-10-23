@@ -1,6 +1,6 @@
 <template>
-  <v-expand-transition>
-    <div v-if="announcement && announcement.isPublished" aria-labelledby="service-announcement-label" role="alert">
+  <div v-if="announcement && announcement.isPublished" aria-labelledby="service-announcement-label" role="alert">
+    <v-expand-transition>
       <div v-if="!dismissedServiceAnnouncement" class="align-center bg-service-announcement d-flex font-weight-medium py-4 px-6">
         <div class="d-inline-block pr-1 service-announcement-container w-100">
           <h2 id="service-announcement-label" class="sr-only">BOA Service Alert</h2>
@@ -21,31 +21,36 @@
           @click="toggle"
         />
       </div>
-      <v-btn v-if="dismissedServiceAnnouncement" id="restore-service-announcement" class="d-sr-only">Restore alert</v-btn>
-    </div>
-  </v-expand-transition>
+    </v-expand-transition>
+    <v-btn
+      v-if="dismissedServiceAnnouncement"
+      id="restore-service-announcement"
+      class="sr-only"
+      @click="toggle"
+    >
+      Restore alert
+    </v-btn>
+  </div>
 </template>
 
 <script setup>
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {computed} from 'vue'
 import {mdiClose} from '@mdi/js'
+import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
-const announcement = computed(() => contextStore.announcement)
-const dismissedServiceAnnouncement = computed(() => contextStore.dismissedServiceAnnouncement)
+const {announcement, dismissedServiceAnnouncement} = storeToRefs(contextStore)
 
 const toggle = () => {
   if (dismissedServiceAnnouncement.value) {
     contextStore.restoreServiceAnnouncement()
     alertScreenReader('Alert restored')
-    putFocusNextTick('service-announcement-banner')
+    putFocusNextTick('dismiss-service-announcement', {scroll: false})
   } else {
     contextStore.dismissServiceAnnouncement()
-    dismissedServiceAnnouncement.value = false
     alertScreenReader('Dismissed')
-    putFocusNextTick('toggle-service-announcement')
+    putFocusNextTick('restore-service-announcement', {scroll: false})
   }
 }
 </script>
