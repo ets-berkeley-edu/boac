@@ -191,14 +191,14 @@
     <hr class="sidebar-section-divider" />
     <v-list-item class="pa-0">
       <div class="font-weight-medium pretty-hover">
-        <router-link id="cohorts-all" to="/cohorts/all">
+        <NavLink id="cohorts-all" path="/cohorts/all">
           Everyone's Cohorts
-        </router-link>
+        </NavLink>
       </div>
       <div class="font-weight-medium mt-1 pretty-hover">
-        <router-link id="groups-all" to="/groups/all">
+        <NavLink id="groups-all" path="/groups/all">
           Everyone's Groups
-        </router-link>
+        </NavLink>
       </div>
     </v-list-item>
     <v-list-item v-if="!$vuetify.display.mdAndUp" class="px-0 pt-4">

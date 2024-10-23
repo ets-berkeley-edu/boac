@@ -44,6 +44,7 @@
 
 <script setup>
 import SortableGroup from '@/components/search/SortableGroup.vue'
+import {getUserProfile} from '@/api/user'
 import {filter as _filter} from 'lodash'
 import {onMounted, reactive} from 'vue'
 import {useContextStore} from '@/stores/context'
@@ -53,9 +54,17 @@ const currentUser = contextStore.currentUser
 const cohorts = reactive(_filter(currentUser.myCohorts, ['domain', 'default']))
 const curatedGroups = reactive(_filter(currentUser.myCuratedGroups, ['domain', 'default']))
 
-contextStore.loadingStart()
-
 onMounted(() => {
-  contextStore.loadingComplete()
+  if (contextStore.currentUser.isStale) {
+    contextStore.loadingStart()
+    getUserProfile().then(data => {
+      contextStore.setCurrentUser(data)
+      contextStore.currentUser.isStale = true
+      contextStore.loadingComplete()
+    })
+  } else {
+    contextStore.currentUser.isStale = true
+    contextStore.loadingComplete()
+  }
 })
 </script>

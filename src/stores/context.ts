@@ -77,6 +77,7 @@ export const useContextStore = defineStore('context', {
     gaMeasurementId: undefined as string | undefined,
     loading: false,
     loadingStartTime: undefined as number | undefined,
+    routeKeyId: 0,
     screenReaderAlert: {
       message: '',
       politeness: 'polite'
@@ -177,6 +178,9 @@ export const useContextStore = defineStore('context', {
     },
     setMyDraftNoteCount(count: number) {
       this.currentUser.myDraftNoteCount = count
+    },
+    setRouteKeyId(id: number) {
+      this.routeKeyId = id
     },
     setScreenReaderAlert(screenReaderAlert: any) {
       this.screenReaderAlert = {
