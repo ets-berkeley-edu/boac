@@ -11,7 +11,7 @@
           class="font-size-16"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
         >
-          {{ studentName }}
+          {{ studentName }} <span class="sr-only">Profile page</span>
         </h3>
       </router-link>
       <span

@@ -277,6 +277,7 @@
                       />
                     </span>
                   </div>
+                  <span v-if="'requirement' !== message.type" aria-live="polite" class="sr-only">{{ isExpanded(message) ? 'Expanded' : 'Collapsed' }}</span>
                   <div
                     v-if="isExpanded(message) && (!editModeNoteId || message.id !== editModeNoteId)"
                     class="my-1 text-center"
@@ -285,6 +286,7 @@
                       :id="`${activeTab}-close-message-${message.id}`"
                       :aria-controls="`${message.type}-${message.id}-is-open`"
                       :aria-expanded="true"
+                      :aria-label="`Close Message ${getButtonAriaLabel(message)}`"
                       color="primary"
                       :prepend-icon="mdiCloseCircle"
                       text="Close Message"
