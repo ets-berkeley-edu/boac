@@ -5,7 +5,7 @@
       <AdmitDataWarning :updated-at="get(cohortStore.students, '[0].updatedAt')" />
     </div>
     <v-expand-transition>
-      <div v-if="!cohortStore.isCompactView">
+      <div v-show="!cohortStore.isCompactView" id="cohort-filters">
         <FilterRow
           v-for="(filter, index) in cohortStore.filters"
           :key="`${filter.key}-${index}`"

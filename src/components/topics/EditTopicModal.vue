@@ -42,12 +42,14 @@
             <ProgressButton
               id="topic-save"
               :action="save"
+              aria-label="Save Topic"
               :disabled="disableSaveButton"
               :in-progress="isSaving"
               :text="isSaving ? 'Saving' : 'Save'"
             />
             <v-btn
               id="cancel"
+              aria-label="Cancel Create Topic"
               class="ml-2"
               :disabled="isSaving"
               text="Cancel"

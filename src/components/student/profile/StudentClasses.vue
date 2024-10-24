@@ -22,6 +22,7 @@
           @click="toggleSortOrder"
         >
           Sort academic year
+          <span class="sr-only">, sorted {{ yearSortOrder === 'desc' ? 'descending' : 'ascending' }}</span>
           <v-icon :icon="yearSortOrder === 'desc' ? mdiArrowDownThin : mdiArrowUpThin" />
         </v-btn>
       </div>
@@ -48,6 +49,9 @@
     >
       <button
         :id="`academic-year-${year.label}-toggle`"
+        :aria-controls="`academic-year-${year.label}-section`"
+        :aria-expanded="year.isOpen"
+        :aria-label="`Expand Fall ${year.label - 1} to Summer ${year.label}: ${totalEnrolledUnits(year)} Units`"
         class="w-100"
         @click="year.isOpen = !year.isOpen"
       >
@@ -80,15 +84,15 @@
               }"
               :cols="$vuetify.display.smAndUp ? 2 : 12"
             >
-              {{ sumBy(year.terms, 'enrolledUnits') || 0 }} Units
+              {{ totalEnrolledUnits(year) }} Units
             </v-col>
           </v-row>
         </v-container>
       </button>
       <v-expand-transition>
         <div
-          v-if="year.isOpen"
-          :aria-expanded="year.isOpen"
+          v-show="year.isOpen"
+          :id="`academic-year-${year.label}-section`"
           class="border-b-thin border-e-thin border-s-thin"
         >
           <v-container class="pl-6 pt-0" fluid>
@@ -177,6 +181,10 @@ const sort = () => enrollmentTermsByYear.value = orderBy(enrollmentTermsByYear.v
 const toggleSortOrder = () => {
   yearSortOrder.value = yearSortOrder.value === 'asc' ? 'desc' : 'asc'
   sort()
-  alertScreenReader(`The sort order of the academic years has changed to ${yearSortOrder.value}ending`)
+  alertScreenReader(`Sorted ${yearSortOrder.value}ending.`)
+}
+
+const totalEnrolledUnits = year => {
+  return sumBy(year.terms, 'enrolledUnits') || 0
 }
 </script>

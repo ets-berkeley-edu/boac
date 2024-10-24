@@ -42,12 +42,20 @@
         :on-click-edit="edit"
         :position="position"
       />
-      <div v-if="category.categoryType !== 'Category'" class="pl-1">
-        <span class="font-weight-500 text-error">Warning:</span> <span class="font-weight-500">"{{ category.name }}"</span>
+      <v-alert
+        v-if="category.categoryType !== 'Category'"
+        aria-live="polite"
+        class="text-body-2"
+        density="compact"
+        type="error"
+        :icon="false"
+        variant="tonal"
+      >
+        <span class="font-weight-600 text-error">Warning:</span> <span class="font-weight-500">"{{ category.name }}"</span>
         is a <span class="font-weight-500">{{ category.categoryType }}</span>, which is not allowed as a top-level
-        category. Email <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">{{ config.supportEmailAddress }}<span class="sr-only"> (new browser tab will open)</span></a>
+        category. <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">Email {{ config.supportEmailAddress }}<span class="sr-only"> (opens in new window)</span></a>
         to report the problem.
-      </div>
+      </v-alert>
       <EditCategory
         v-if="category.id === get(categoryForEdit, 'id')"
         :after-cancel="onExitEditCategory"

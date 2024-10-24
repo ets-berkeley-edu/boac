@@ -41,7 +41,7 @@
         />
         <v-btn
           id="add-course-cancel-btn"
-          aria-labe="Cancel Save Duplicated Course"
+          aria-labe="Cancel Duplicate Course"
           class="ml-2"
           :disabled="isSaving"
           variant="text"

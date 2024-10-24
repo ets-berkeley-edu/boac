@@ -31,12 +31,12 @@
               for="create-note-subject"
               class="font-size-16 font-weight-bold"
             >
-              <span class="sr-only">Note </span>Subject
+              Subject
             </label>
             <v-text-field
               id="create-note-subject"
               :model-value="model.subject"
-              aria-labelledby="create-note-subject-label"
+              aria-label="Note Subject"
               class="mt-1"
               color="primary"
               :disabled="isSaving || boaSessionExpired"

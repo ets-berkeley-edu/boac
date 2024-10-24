@@ -313,7 +313,7 @@
             <div v-if="item.name" class="name">
               <a
                 :id="`directory-link-${item.uid}`"
-                :aria-label="`Go to UC Berkeley Directory page of ${item.name}`"
+                :aria-label="`${item.name} UC Berkeley Directory page (opens in new window)`"
                 :href="`https://www.berkeley.edu/directory/results?search-term=${item.name}`"
                 target="_blank"
               >
@@ -354,12 +354,11 @@
         <template #item.campusEmail="{ item }">
           <div class="text-center">
             <a
-              :aria-label="`Send email to ${item.name}`"
+              :aria-label="`Send email to ${item.name} (opens in new window)`"
               :href="`mailto:${item.campusEmail}`"
               target="_blank"
             >
               <v-icon :icon="mdiEmail" />
-              <span class="sr-only"> (will open new browser tab)</span>
             </a>
           </div>
         </template>

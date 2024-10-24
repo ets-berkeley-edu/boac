@@ -37,7 +37,9 @@
           {{ numFormat(report.boa.total) }} notes have been created in BOA
         </h3>
         <div class="font-size-16">
-          (<a id="download-boa_notes-metadata" :href="`${config.apiBaseUrl}/api/reports/boa_notes/metadata`">download</a>)
+          (<a id="download-boa_notes-metadata" :href="`${config.apiBaseUrl}/api/reports/boa_notes/metadata`">
+            download <span class="sr-only">notes report</span>
+          </a>)
         </div>
       </div>
       <v-expand-transition>

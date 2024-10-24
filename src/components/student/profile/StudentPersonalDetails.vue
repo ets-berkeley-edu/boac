@@ -2,22 +2,29 @@
   <div class="mb-1 text-center w-100">
     <v-btn
       id="show-hide-personal-details"
+      aria-controls="student-personal-details"
       :aria-expanded="isExpanded"
+      :aria-label="`Show Personal Details for ${student.name}`"
       class="text-no-wrap"
       color="primary"
       variant="text"
-      @click="toggle"
+      @click="() => isExpanded = !isExpanded"
     >
       <div class="align-center d-flex">
         <v-icon :icon="isExpanded ? mdiMenuDown : mdiMenuRight" size="24" />
         <div>
-          {{ isExpanded ? 'Hide' : 'Show' }} Personal Details <span class="sr-only">for {{ student.name }}</span>
+          {{ isExpanded ? 'Hide' : 'Show' }} Personal Details
         </div>
       </div>
     </v-btn>
   </div>
   <v-expand-transition>
-    <v-card v-if="isExpanded" class="bg-sky-blue pa-2" flat>
+    <v-card
+      v-show="isExpanded"
+      id="student-personal-details"
+      class="bg-sky-blue pa-2"
+      flat
+    >
       <v-container fluid>
         <v-row>
           <v-col class="text-left" cols="4">
@@ -65,7 +72,7 @@
                 <div class="font-weight-bold">Phone</div>
                 <a
                   id="student-phone-number"
-                  :aria-label="`Link to student phone number ${student.sisProfile.phoneNumber}`"
+                  :aria-label="`Student phone number ${student.sisProfile.phoneNumber}`"
                   :class="{'demo-mode-blur': currentUser.inDemoMode}"
                   :href="`tel:${student.sisProfile.phoneNumber}`"
                 >
@@ -96,7 +103,7 @@
                 <div v-if="hasCalCentralProfile">
                   <a
                     id="link-to-calcentral"
-                    aria-label="Open CalCentral in new window"
+                    aria-label="Student profile in CalCentral (opens in new window)"
                     class="text-no-wrap"
                     :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
                     target="_blank"
@@ -107,7 +114,7 @@
                 <div class="mt-2">
                   <a
                     id="link-to-perceptive-content"
-                    aria-label="Open Perceptive Content (Image Now) documents in new window"
+                    aria-label="Perceptive Content (Image Now) documents (opens in new window)"
                     :href="`https://imagine-content.berkeley.edu/#documents/view/321Z05B_01EFZBH4W0004XD?simplemode=true&constraint=[field1] = '${student.sid}'`"
                     target="_blank"
                   >
@@ -128,7 +135,7 @@
                     <a
                       v-if="plan.degreeProgramUrl"
                       :href="plan.degreeProgramUrl"
-                      :aria-label="`Open ${plan.description} program page in new window`"
+                      :aria-label="`${plan.description} program page (opens in new window)`"
                       target="_blank"
                     >
                       {{ plan.description }}</a>
@@ -181,7 +188,7 @@
 
 <script setup>
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
-import {alertScreenReader, toInt} from '@/lib/utils'
+import {toInt} from '@/lib/utils'
 import {isGraduate} from '@/berkeley'
 import {mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
 import {find, get, includes, join, orderBy, remove, size} from 'lodash'
@@ -238,10 +245,5 @@ if (get(props.student, 'demographics.visa.status') === 'G') {
     visaDescription = 'Other Verified International Student'
     break
   }
-}
-
-const toggle = () => {
-  isExpanded.value = !isExpanded.value
-  alertScreenReader(`Student details are ${isExpanded.value ? 'showing' : 'hidden'}.`)
 }
 </script>

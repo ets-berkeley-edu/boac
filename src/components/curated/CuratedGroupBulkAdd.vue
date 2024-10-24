@@ -44,6 +44,7 @@
         <ProgressButton
           id="btn-curated-group-bulk-add-sids"
           :action="submit"
+          :aria-label="`Add Students to ${domain === 'admitted_students' ? 'CE3' : 'Curated'} Group`"
           :disabled="!trim(textarea) || isValidating || isSaving"
           :in-progress="isValidating || isSaving"
           :text="isValidating || isSaving ? 'Adding' : (curatedGroupId ? 'Add' : 'Next')"
@@ -51,6 +52,7 @@
         <v-btn
           v-if="curatedGroupId"
           id="btn-cancel-bulk-add-sids"
+          :aria-label="`Cancel Add Students to ${domain === 'admitted_students' ? 'CE3' : 'Curated'} Group`"
           class="ml-2"
           color="primary"
           :disabled="isValidating || isSaving"

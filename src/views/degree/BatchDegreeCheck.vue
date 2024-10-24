@@ -31,19 +31,16 @@
         </span>
       </div>
       <div class="w-75" :class="{'w-100': $vuetify.display.xs}">
-        <label
-          for="degree-check-add-student-input"
-          class="text mt-1"
-        >
-          <span class="font-weight-bold">Student</span>
-          <br />
-          <span class="font-size-14">Type or paste a list of SID numbers below. Example: 9999999990, 9999999991</span>
-        </label>
+        <label for="degree-check-add-student-input" class="font-weight-bold mt-1">Student</label>
+        <div id="degree-check-add-student-desc" class="font-size-14">
+          Type or paste a list of <span :aria-hidden="true">SID</span><span class="sr-only">S I D</span> numbers below. Example: 9999999990, 9999999991
+        </div>
         <div class="pt-2">
           <v-textarea
-            id="degree-check-add-student"
+            id="degree-check-add-student-input"
             v-model="textarea"
-            aria-label="Type or paste a list of student SID numbers here"
+            aria-describedby="degree-check-add-student-desc"
+            aria-label="Add Students by S I D"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
             density="compact"
             :disabled="isBusy"
@@ -88,6 +85,7 @@
           <div class="ms-auto">
             <v-btn
               id="degree-check-add-sids-btn"
+              aria-label="Add Students to Degree Check"
               color="primary"
               :disabled="!trim(textarea) || isBusy || isValidating"
               text="Add"
@@ -179,6 +177,7 @@
         />
         <v-btn
           id="batch-degree-check-cancel"
+          aria-label="Cancel Create Degree Check"
           color="primary"
           :disabled="isBusy"
           text="Cancel"
@@ -381,7 +380,7 @@ const removeStudent = student => {
 
 const save = () => {
   isSaving.value = true
-  alertScreenReader('Saving.')
+  alertScreenReader('Saving Degree Check.')
   createBatchDegreeCheck(sidsToInclude.value, get(selectedTemplate.value, 'id')).then(() => {
     nextTick(() => {
       router.push({

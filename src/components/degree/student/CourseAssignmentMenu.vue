@@ -4,10 +4,10 @@
     :disabled="degreeStore.disableButtons || isSaving"
     transition="slide-y-transition"
   >
-    <template #activator="{props}">
+    <template #activator="{props: menuProps}">
       <v-btn
         :id="`assign-course-${course.id}-btn`"
-        :aria-label="`${course.name} category options`"
+        :aria-label="`Assign ${course.name} to a Category`"
         :class="{
           'accent-blue': course.accentColor === 'Blue',
           'accent-green': course.accentColor === 'Green',
@@ -21,7 +21,7 @@
         density="compact"
         flat
         :icon="mdiDrag"
-        v-bind="props"
+        v-bind="menuProps"
       />
     </template>
     <v-list class="overflow-x-hidden py-4" variant="flat">
@@ -48,6 +48,7 @@
           width="100%"
           @click="onSelect(null, true)"
         >
+          <span class="sr-only">Move to </span>
           <span aria-hidden="true">-- </span>{{ junkDrawerName }}<span aria-hidden="true"> --</span>
         </v-btn>
       </v-list-item-action>

@@ -40,7 +40,7 @@
           <a
             v-if="advisor.uid"
             :id="`appointment-${appointment.id}-advisor-name`"
-            :aria-label="`Open UC Berkeley Directory page of ${advisor.name} in a new window`"
+            :aria-label="`${advisor.name} UC Berkeley Directory page (opens in new window)`"
             :href="`https://www.berkeley.edu/directory/results?search-term=${advisor.name}`"
             target="_blank"
           >

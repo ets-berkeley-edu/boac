@@ -47,6 +47,7 @@
         <template #append>
           <v-btn
             id="create-note-add-student-add-button"
+            aria-label="Add Student to Note"
             class="add-button"
             color="primary"
             :disabled="!size(query) && !size(sidsManuallyAdded)"

@@ -342,6 +342,7 @@
             <v-btn
               v-if="model.includeNotes && !isModelEmpty()"
               id="reset-advanced-search-form-btn"
+              aria-label="Reset Advanced Search Form"
               :disabled="searchStore.isSearching"
               text="Reset"
               variant="text"

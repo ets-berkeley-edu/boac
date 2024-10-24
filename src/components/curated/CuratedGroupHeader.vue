@@ -55,9 +55,10 @@
           <div>
             <v-btn
               id="rename-curated-group-cancel"
+              aria-label="Cancel Rename Curated Group"
               class="ml-1"
               :disabled="isSaving"
-              text="Cancel Rename Curated Group"
+              text="Cancel"
               variant="text"
               @click="exitRenameMode"
             />

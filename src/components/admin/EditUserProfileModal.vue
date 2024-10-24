@@ -250,6 +250,7 @@
             />
             <v-btn
               id="cancel-changes-to-user-profile"
+              class="ml-2"
               text="Cancel"
               variant="text"
               @click="cancel"

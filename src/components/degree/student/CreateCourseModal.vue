@@ -36,6 +36,7 @@
               id="course-name-input"
               v-model="name"
               class="mt-1"
+              :disabled="isSaving"
               density="comfortable"
               hide-details
               maxlength="255"
@@ -69,6 +70,7 @@
               :aria-autocomplete="false"
               aria-labelledby="units-grade-label"
               class="grade-input mt-1"
+              :disabled="isSaving"
               hide-details
               maxlength="3"
               @keydown.enter="save"
@@ -88,6 +90,7 @@
           <div class="mt-2">
             <AccentColorSelect
               :accent-color="accentColor"
+              :disabled="isSaving"
               :on-change="value => accentColor = value"
               :on-open-menu="isOpen => isFocusLockDisabled = isOpen"
             />
@@ -122,7 +125,7 @@
           />
           <v-btn
             id="create-course-cancel-btn"
-            aria-label="Cancel Save Course"
+            aria-label="Cancel Create Course"
             :disabled="isSaving"
             text="Cancel"
             variant="text"

@@ -27,6 +27,7 @@
           />
           <v-btn
             id="ferpa-reminder-cancel"
+            aria-label="Cancel Export"
             class="ml-2"
             :disabled="isDownloading"
             text="Cancel"

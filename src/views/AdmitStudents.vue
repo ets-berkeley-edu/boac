@@ -12,11 +12,9 @@
         v-if="totalAdmitCount > pagination.itemsPerPage"
         id="skip-to-pagination-widget"
         class="sr-only"
-        href="#pagination-widget"
-        @click="alertScreenReader('Go to another page of search results')"
-        @keyup.enter="alertScreenReader('Go to another page of search results')"
+        href="#pagination-container"
       >
-        Skip to bottom, other pages of search results
+        Skip to pagination
       </a>
       <div class="d-flex align-center align-self-center mr-6">
         <v-btn

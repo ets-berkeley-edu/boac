@@ -6,6 +6,7 @@
           <v-text-field
             id="filter-topics"
             v-model="filter"
+            aria-label="Search Topics"
             autocomplete="off"
             class="d-inline"
             clearable
@@ -17,6 +18,7 @@
         </div>
         <v-btn
           id="clear-topic-search"
+          aria-label="Clear Topic Search"
           class="button-position ml-2 mr-4"
           color="primary"
           :disabled="!filter"
@@ -59,6 +61,7 @@
               <v-btn
                 v-if="!item.deletedAt"
                 v-bind="props"
+                :aria-label="`Delete ${item.topic}`"
                 density="compact"
                 :icon="mdiTrashCan"
                 variant="plain"
@@ -71,6 +74,7 @@
               <v-btn
                 v-if="item.deletedAt"
                 v-bind="props"
+                :aria-label="`Un-delete ${item.topic}`"
                 color="warning"
                 density="compact"
                 :icon="mdiDeleteRestore"
@@ -176,13 +180,11 @@ const openCreateTopicModal = () => {
     topic: ''
   }
   isEditTopicModalOpen.value = true
-  alertScreenReader('Opened modal to create new topic.')
 }
 
 const openDeleteTopicModal = topic => {
   topicDelete.value = topic
   isDeleteTopicModalOpen.value = true
-  alertScreenReader('Opened modal to confirm delete.')
 }
 
 const refresh = focusTarget => {

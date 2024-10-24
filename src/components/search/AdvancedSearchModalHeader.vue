@@ -6,7 +6,7 @@
     />
     <v-btn
       id="advanced-search-close"
-      aria-label="Close advanced search"
+      aria-label="Close Advanced Search"
       class="font-size-14 font-weight-bold"
       density="comfortable"
       elevation="0"

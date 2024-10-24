@@ -9,7 +9,7 @@
     <select
       :id="`batch-degree-check-${objectType}`"
       v-model="model"
-      :aria-label="`Degree check will be created for all students in selected ${objectType}${objects.length === 1 ? '' : 's'}`"
+      :aria-label="`Add ${header} to Degree Check`"
       class="d-block mb-2 ml-0 select-menu w-100"
       :disabled="disabled"
     >
@@ -23,7 +23,6 @@
         v-for="object in objects"
         :id="`batch-degree-check-${objectType}-option-${object.id}`"
         :key="object.id"
-        :aria-label="`Add ${objectType} ${object.name}`"
         class="truncate-with-ellipsis"
         :disabled="includes(addedIds, object.id) || !object.totalStudentCount"
         :value="object"
@@ -47,7 +46,7 @@
           <v-btn
             :id="`remove-${objectType}-from-batch-${index}`"
             class="remove-topic-btn"
-            aria-label="Remove"
+            :aria-label="`Remove ${header} ${addedObject.name} from Degree Check`"
             color="error"
             :disabled="disabled"
             :icon="mdiCloseCircleOutline"

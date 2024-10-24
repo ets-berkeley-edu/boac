@@ -50,6 +50,8 @@
         <v-btn
           v-if="cohortStore.cohortId && size(cohortStore.filters)"
           id="show-hide-details-button"
+          aria-controls="cohort-filters"
+          :aria-expanded="!cohortStore.isCompactView"
           :aria-label="`${cohortStore.isCompactView ? 'Show' : 'Hide'} Cohort Filters`"
           class="font-size-15 px-1 text-no-wrap"
           color="anchor"
@@ -301,7 +303,6 @@ const handleError = error => {
 
 const toggleShowHideDetails = () => {
   cohortStore.toggleCompactView()
-  alertScreenReader(cohortStore.isCompactView ? 'Filters are hidden' : 'Filters are visible')
-  putFocusNextTick('show-hide-details-button')
+  putFocusNextTick('show-hide-details-button', {scroll: false})
 }
 </script>
