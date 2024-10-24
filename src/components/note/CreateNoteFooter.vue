@@ -1,10 +1,10 @@
 <template>
-  <v-card-actions class="modal-footer d-block">
+  <v-card-actions class="modal-footer d-block px-6">
     <v-alert
-      v-if="boaSessionExpired"
+      v-if="true"
       id="uh-oh-session-time-out"
       aria-live="polite"
-      class="mb-3"
+      class="mb-6"
     >
       <SessionExpired />
     </v-alert>
@@ -13,7 +13,8 @@
         <v-btn
           v-if="mode === 'editDraft'"
           id="create-note-cancel-draft"
-          class="ml-2"
+          aria-label="Cancel Edit Draft"
+          class="mr-2"
           color="error"
           :disabled="isSaving || isUpdatingDraft"
           text="Cancel"
@@ -60,6 +61,7 @@
         <v-btn
           v-if="mode !== 'editDraft'"
           id="create-note-cancel"
+          :aria-label="mode === 'editTemplate' ? 'Discard Template Edits' : 'Discard Note Edits'"
           class="ml-2"
           color="error"
           :disabled="isSaving || isUpdatingDraft"

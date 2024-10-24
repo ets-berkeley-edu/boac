@@ -123,9 +123,11 @@
           </v-col>
           <v-col class="align-center d-flex py-1" cols="5">
             <h3 class="font-size-20 font-weight-bold px-2 text-no-wrap">In-progress courses</h3>
-            <div class="text-no-wrap">
+            <div v-if="degreeStore.courses.inProgress.length" class="text-no-wrap">
               [<v-btn
                 id="show-upper-units-input"
+                aria-controls="in-progress-courses"
+                :aria-expanded="showInProgressCourses"
                 :aria-label="`${showInProgressCourses ? 'Hide' : 'Show'} in-progress courses`"
                 class="px-0 text-primary"
                 density="compact"
@@ -134,7 +136,7 @@
                 style="min-width: 36px !important;"
                 :text="showInProgressCourses ? 'hide' : 'show'"
                 variant="text"
-                @click="toggleInProgressCourses"
+                @click="() => showInProgressCourses = !showInProgressCourses"
               />]
             </div>
           </v-col>
@@ -214,7 +216,7 @@
           <v-col class="pb-2 pt-1" cols="5">
             <v-expand-transition v-if="degreeStore.courses.inProgress.length">
               <v-data-table
-                v-if="showInProgressCourses"
+                v-show="showInProgressCourses"
                 id="in-progress-courses"
                 borderless
                 :cell-props="data => {
@@ -253,7 +255,7 @@
                 </template>
               </v-data-table>
             </v-expand-transition>
-            <span v-if="!degreeStore.courses.inProgress.length" class="text-surface-variant">None</span>
+            <span v-if="!degreeStore.courses.inProgress.length" class="text-medium-emphasis font-italic pl-2">None</span>
           </v-col>
         </v-row>
       </v-container>
@@ -364,11 +366,6 @@ const saveNote = () => {
       putFocusNextTick('create-degree-note-btn')
     })
   })
-}
-
-const toggleInProgressCourses = () => {
-  showInProgressCourses.value = !showInProgressCourses.value
-  alertScreenReader(`In-progress courses are ${showInProgressCourses.value ? 'showing' : 'hidden'}.`)
 }
 </script>
 

@@ -43,7 +43,7 @@
             <div class="float-right">
               <v-btn
                 :id="`column-${position}-unit-requirement-remove-${index}`"
-                :aria-label="`Remove ${unitRequirement.name} unit requirement`"
+                :aria-label="`Remove ${unitRequirement.name} from Unit Requirements`"
                 color="error"
                 density="compact"
                 :disabled="disable"

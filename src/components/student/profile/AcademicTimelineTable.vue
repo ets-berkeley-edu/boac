@@ -49,6 +49,7 @@
           <v-switch
             id="toggle-my-notes-button"
             v-model="showMyNotesOnly"
+            aria-label="Show Only My Notes"
             density="compact"
             color="primary"
             hide-details
@@ -58,12 +59,14 @@
         <label for="toggle-my-notes-button" :class="showMyNotesOnly ? 'text-primary' : 'text-medium-emphasis'">
           <span class="sr-only">Show only </span>My {{ selectedFilter }}s
         </label>
+        <span aria-live="polite" class="sr-only">Showing {{ showMyNotesOnly ? 'only my notes' : 'all notes' }}</span>
       </div>
     </div>
   </div>
   <div
     v-if="!searchResults && !messagesVisible.length"
     id="zero-messages"
+    aria-live="polite"
     class="font-size-16 font-weight-bold ml-6 my-4 text-medium-emphasis"
   >
     <span v-if="selectedFilter && showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s authored by you.</span>

@@ -50,12 +50,14 @@
             <ProgressButton
               id="create-cohort-confirm-btn"
               :action="createCohort"
+              aria-label="Save Cohort"
               :disabled="!name.length || isInvalid"
               :in-progress="isSaving"
               text="Save"
             />
             <v-btn
               id="create-cohort-cancel-btn"
+              aria-label="Cancel Save Cohort"
               class="ml-2"
               :disabled="isSaving"
               variant="text"

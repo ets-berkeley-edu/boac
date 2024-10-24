@@ -11,6 +11,7 @@
         id="course-name-input"
         v-model="name"
         density="comfortable"
+        :disabled="isSaving"
         hide-details
         maxlength="255"
       />
@@ -55,6 +56,7 @@
         v-model="grade"
         aria-label="Course Grade"
         class="grade-input"
+        :disabled="isSaving"
         hide-details
         maxlength="3"
         @keydown.enter="update"
@@ -74,6 +76,7 @@
     <div v-if="course.manuallyCreatedBy" class="mt-2">
       <AccentColorSelect
         :accent-color="accentColor"
+        :disabled="isSaving"
         :on-change="value => accentColor = value"
       />
     </div>
@@ -107,7 +110,7 @@
       <div>
         <v-btn
           id="cancel-update-note-btn"
-          aria-label="Cancel Save Course"
+          aria-label="Cancel Edit Course"
           color="primary"
           :disabled="isSaving"
           size="small"

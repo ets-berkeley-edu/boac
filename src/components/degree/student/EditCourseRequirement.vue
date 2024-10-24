@@ -7,6 +7,8 @@
           id="recommended-course-checkbox"
           v-model="isRecommended"
           color="primary"
+          density="comfortable"
+          :disabled="isSaving"
           hide-details
           label="Recommended course"
         />
@@ -15,6 +17,8 @@
           id="ignored-course-checkbox"
           v-model="isIgnored"
           color="primary"
+          density="comfortable"
+          :disabled="isSaving"
           hide-details
           label="Completed or ignored requirement"
         />
@@ -27,7 +31,9 @@
       <v-text-field
         id="grade-input"
         v-model="grade"
+        aria-label="Course Grade"
         class="grade-input mt-1"
+        :disabled="isSaving"
         hide-details
         maxlength="3"
         @keydown.enter="onSubmit"
@@ -49,11 +55,14 @@
     <div v-if="!isCampusRequirement" class="mt-2">
       <AccentColorSelect
         :accent-color="accentColor"
+        :disabled="isSaving"
         :on-change="value => accentColor = value"
       />
     </div>
     <div class="mt-2">
-      <label for="recommendation-note-textarea" class="font-weight-500">Note</label>
+      <label for="recommendation-note-textarea" class="font-weight-500">
+        <span class="sr-only">Course</span>Note
+      </label>
       <v-textarea
         id="recommendation-note-textarea"
         v-model="note"
@@ -69,6 +78,7 @@
       <ProgressButton
         id="update-requirement-btn"
         :action="onSubmit"
+        aria-label="Save Course Requirement"
         class="mr-1"
         color="primary"
         :disabled="disableSaveButton"
@@ -78,6 +88,7 @@
       />
       <v-btn
         id="cancel-edit-requirement-btn"
+        aria-label="Cancel Edit Course Requirement"
         color="primary"
         :disabled="isSaving"
         size="small"

@@ -79,7 +79,7 @@
           <a
             v-if="author.uid && author.name"
             :id="`note-${note.id}-author-name`"
-            :aria-label="`${author.name} (link opens UC Berkeley Directory page in a new window)`"
+            :aria-label="`${author.name} UC Berkeley Directory page (opens in new window)`"
             :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
             target="_blank"
           >

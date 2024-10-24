@@ -60,6 +60,7 @@
             <ProgressButton
               id="create-template-confirm"
               :action="createTemplate"
+              aria-label="Save Template"
               class="mr-1"
               :disabled="isSaving || !title.length || title.length > 255 || useNoteStore().boaSessionExpired"
               :in-progress="isSaving"
@@ -67,6 +68,7 @@
             />
             <v-btn
               id="cancel-template-create"
+              aria-label="Cancel Create Template"
               :disabled="isSaving"
               text="Cancel"
               variant="text"

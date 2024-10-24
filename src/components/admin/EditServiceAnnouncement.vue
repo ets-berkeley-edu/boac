@@ -16,6 +16,7 @@
         <v-checkbox
           id="checkbox-publish-service-announcement"
           v-model="isPublished"
+          aria-label="Post Service Alert"
           class="mr-1"
           color="primary"
           density="compact"
@@ -41,6 +42,7 @@
     <ProgressButton
       id="button-update-service-announcement"
       :action="updateText"
+      aria-label="Update Service Alert"
       class="mt-2"
       :disabled="isSaving || text === originalText"
       :in-progress="isSaving"
@@ -85,7 +87,7 @@ const togglePublish = () => {
     publishAnnouncement(isPublished.value).then(data => {
       isPublished.value = data.isPublished
       isTogglingPublish.value = false
-      alertScreenReader(`Service announcement has been ${isPublished.value ? 'published' : 'unpublished'}.`)
+      alertScreenReader(`Service alert has been ${isPublished.value ? 'published' : 'unpublished'}.`)
     })
   }
 }
@@ -101,7 +103,7 @@ const updateText = () => {
       originalText.value = text.value = data.text
       isPublished.value = data.isPublished
       isSaving.value = false
-      alertScreenReader('The service announcement has been updated.')
+      alertScreenReader('Service alert updated.')
     })
   }
 }

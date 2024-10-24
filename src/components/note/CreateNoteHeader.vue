@@ -64,6 +64,7 @@
                 <v-col cols="8">
                   <v-btn
                     :id="`load-note-template-${template.id}`"
+                    :aria-label="`Use template ${template.title}`"
                     class="font-weight-bold d-flex justify-start template-dropdown-title"
                     color="primary"
                     block
@@ -135,6 +136,7 @@
     </div>
     <v-btn
       v-if="noteStore.mode === 'editDraft'"
+      aria-label="Close dialog"
       class="d-flex align-self-center"
       height="36"
       :icon="mdiClose"
@@ -198,6 +200,7 @@
           <v-card-actions class="modal-footer">
             <ProgressButton
               id="rename-template-confirm"
+              aria-label="Rename Template"
               :action="renameTemplate"
               :disabled="isSaving || !size(updatedTemplateTitle) || size(updatedTemplateTitle) > 255"
               :in-progress="isSaving"
@@ -205,6 +208,7 @@
             />
             <v-btn
               id="cancel-rename-template"
+              aria-label="Cancel Rename Template"
               class="ml-2"
               :disabled="isSaving"
               text="Cancel"

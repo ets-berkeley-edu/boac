@@ -8,12 +8,13 @@
         Color Code
       </label>
     </div>
-    <v-menu @update:model-value="onOpenMenu">
+    <v-menu :disabled="disabled" @update:model-value="onOpenMenu">
       <template #activator="{props: menuProps}">
         <button
           id="color-code-select"
           class="select-menu w-100"
           :class="getCssClass('border', selected)"
+          :disabled="disabled"
           v-bind="menuProps"
         >
           <div class="align-center d-flex">
@@ -36,6 +37,7 @@
           v-for="item in items"
           :id="`color-code-option-${item.color || 'none'}`"
           :key="item.color"
+          :aria-label="item.title"
           density="compact"
           :base-color="item.color"
           :color="item.color"
@@ -70,6 +72,10 @@ const props = defineProps({
   accentColor: {
     default: undefined,
     type: [String, undefined]
+  },
+  disabled: {
+    required: true,
+    type: Boolean
   },
   onChange: {
     required: true,

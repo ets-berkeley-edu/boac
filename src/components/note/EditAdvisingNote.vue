@@ -25,7 +25,7 @@
     <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     <v-text-field
       id="edit-note-subject"
-      aria-labelledby="edit-note-subject-label"
+      aria-label="Note Subject"
       bg-color="white"
       class="mt-1"
       density="comfortable"
@@ -89,6 +89,7 @@
         <ProgressButton
           id="save-note-button"
           :action="() => save(false)"
+          :aria-label="noteStore.model.isDraft ? 'Publish Note' : 'Save Note'"
           :disabled="!noteStore.recipients.sids.length || !trim(noteStore.model.subject) || isSaving || boaSessionExpired"
           :in-progress="isPublishingNote"
           :text="noteStore.model.isDraft ? 'Publish Note' : 'Save'"
@@ -105,6 +106,7 @@
         />
         <v-btn
           id="cancel-edit-note-button"
+          :aria-label="`Cancel Edit ${noteStore.model.isDraft ? 'Draft' : ' Note'}`"
           class="ml-2"
           color="primary"
           :disabled="isSaving || boaSessionExpired"

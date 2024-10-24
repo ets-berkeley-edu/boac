@@ -254,7 +254,7 @@
           <tr v-if="isEditing(bundle)" :key="`tr-${index}-edit`">
             <td
               :class="{'pb-3 pl-4 pt-1': bundle.course || !degreeStore.sid}"
-              :colspan="bundle.course || !degreeStore.sid ? 6 : 4"
+              colspan="6"
             >
               <EditCourse
                 v-if="bundle.course"

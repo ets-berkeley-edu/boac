@@ -261,9 +261,9 @@ const results = reactive({
   courses: [],
   notes: [],
   students: [],
-  totalAdmitCount: undefined,
-  totalCourseCount: undefined,
-  totalStudentCount: undefined
+  totalAdmitCount: 0,
+  totalCourseCount: 0,
+  totalStudentCount: 0
 })
 const searchPhraseSubmitted = ref(undefined)
 const tab = ref(undefined)

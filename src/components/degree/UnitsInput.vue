@@ -2,12 +2,14 @@
   <div>
     <div class="align-center d-flex">
       <label id="units-input-label" :class="labelClass" :for="inputId">
-        <span class="sr-only">Course</span>{{ label }}
+        {{ label }}
       </label>
       <div v-if="range" class="d-flex font-size-14 pb-1">
         [<v-btn
           id="show-upper-units-input"
-          :aria-label="showUnitsUpperInput ? 'hide units range' : 'show units range'"
+          :aria-expanded="showUnitsUpperInput"
+          :aria-controls="`upper-${inputId}-container`"
+          :aria-label="showUnitsUpperInput ? 'Hide Units Range' : 'Show Units Range'"
           class="align-self-center font-size-12 px-0 text-primary"
           density="compact"
           flat
@@ -25,8 +27,7 @@
           :id="inputId"
           v-model="unitsLowerModel"
           :aria-invalid="!isValidUnits(unitsLower, max)"
-          :aria-autocomplete="false"
-          aria-labelledby="units-input-label"
+          :aria-label="`Course Units${showUnitsUpperInput ? ', Start of Range' : ''}`"
           :disabled="disable"
           hide-details
           maxlength="3"
@@ -39,12 +40,12 @@
       <div v-if="showUnitsUpperInput" class="pr-2">
         to
       </div>
-      <div v-if="showUnitsUpperInput">
+      <div v-show="showUnitsUpperInput" :id="`upper-${inputId}-container`">
         <v-text-field
           :id="`upper-${inputId}`"
           v-model="unitsUpperModel"
           :aria-invalid="!isValidUnits(unitsUpper)"
-          aria-labelledby="units-input-label"
+          aria-label="Course Units, End of Range"
           :disabled="disable"
           hide-details
           maxlength="3"
@@ -63,7 +64,7 @@
 </template>
 
 <script setup>
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {putFocusNextTick} from '@/lib/utils'
 import {isValidUnits} from '@/lib/degree-progress'
 import {onMounted, ref} from 'vue'
 
@@ -152,6 +153,5 @@ const toggle = () => {
     props.setUnitsUpper(undefined)
   }
   putFocusNextTick(showUnitsUpperInput.value && props.unitsLower ? `upper-${props.inputId}` : props.inputId)
-  alertScreenReader(`Enter ${showUnitsUpperInput.value ? 'end' : 'start'} value of range.`)
 }
 </script>

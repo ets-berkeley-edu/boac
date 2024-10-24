@@ -65,9 +65,10 @@
             />
             <v-btn
               id="export-list-cancel"
+              aria-label="Cancel Export"
               class="ml-2"
               :disabled="isExporting"
-              text="Close"
+              text="Cancel"
               variant="text"
               @click="cancel"
             />

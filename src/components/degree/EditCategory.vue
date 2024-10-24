@@ -156,6 +156,7 @@
         <ProgressButton
           :id="`column-${position}-create-requirement-btn`"
           :action="onSubmit"
+          :aria-label="existingCategory ? 'Save Requirement' : 'Create Requirement'"
           color="primary"
           density="comfortable"
           :disabled="disableSaveButton"

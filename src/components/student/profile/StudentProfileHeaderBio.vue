@@ -70,7 +70,8 @@
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
             target="_blank"
           >
-            <span class="sr-only">Email student at </span> {{ student.sisProfile.emailAddress }} <span class="sr-only"> (will open new browser tab)</span>
+            <span class="sr-only">Email student at </span> {{ student.sisProfile.emailAddress }}
+            <span class="sr-only"> (opens in new window)</span>
           </a>
         </div>
       </div>

@@ -56,12 +56,14 @@
             <ProgressButton
               id="clone-confirm"
               :action="createClone"
+              aria-label="Save Template Copy"
               :disabled="!name.trim().length || isSaving || !!error || (templateToClone.name === name)"
               :in-progress="isSaving"
               :text="isSaving ? 'Saving' : 'Save Copy'"
             />
             <v-btn
               id="clone-cancel"
+              aria-label="Cancel Copy Template"
               class="ml-2"
               :disabled="isSaving"
               text="Cancel"
