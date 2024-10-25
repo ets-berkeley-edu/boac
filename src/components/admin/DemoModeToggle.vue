@@ -14,30 +14,31 @@
         <div class="align-center widget-container d-flex">
           <div class="checkbox-container" :class="{'pt-1': isToggling}">
             <input
-              v-if="!isToggling"
               id="toggle-demo-mode"
               v-model="inDemoMode"
-              :aria-label="`Demo mode is ${inDemoMode ? 'On' : 'Off'}`"
+              aria-describedby="demo-mode-desc"
               class="checkbox"
+              :class="{'sr-only': isToggling}"
               :disabled="isToggling"
               type="checkbox"
               @change="toggle"
             />
             <v-progress-circular
               v-if="isToggling"
-              id="toggle-demo-mode"
+              id="toggle-demo-mode-spinner"
               color="primary"
               indeterminate
               size="22"
               width="3"
             />
           </div>
-          <label for="toggling-demo-mode">
-            {{ isToggling ? 'Toggling demo mode...' : `${inDemoMode ? 'On' : 'Off'}` }}
+          <label for="toggle-demo-mode">
+            <span v-if="isToggling" class="sr-only">Toggling demo mode...</span>
+            <span v-else><span class="sr-only">Demo mode is </span>{{ inDemoMode ? 'On' : 'Off' }}</span><span class="sr-only">,</span>
           </label>
         </div>
       </div>
-      <div class="ml-1 text-medium-emphasis">
+      <div id="demo-mode-desc" class="ml-1 text-medium-emphasis">
         In demo mode, student profile pictures and sensitive data will be blurred.
       </div>
     </div>
@@ -46,7 +47,7 @@
 
 <script setup>
 import sampleBlurAvatar from '@/assets/sampleBlurAvatar.jpg'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {ref} from 'vue'
 import {setDemoMode} from '@/api/user'
 import {useContextStore} from '@/stores/context'
@@ -59,9 +60,10 @@ const isToggling = ref(false)
 
 const toggle = () => {
   isToggling.value = true
-  alertScreenReader(`Switching demo mode ${inDemoMode.value ? 'on' : 'off' }`)
+  alertScreenReader('Toggling Demo Mode')
   setDemoMode(inDemoMode.value).then(() => {
     isToggling.value = false
+    putFocusNextTick('toggle-demo-mode')
   })
 }
 </script>
