@@ -1,13 +1,14 @@
 <template>
-  <div v-if="announcement && announcement.isPublished" aria-labelledby="service-announcement-label" role="alert">
+  <h2 v-if="announcement && announcement.isPublished" id="service-announcement-label" class="sr-only">BOA Service Alert</h2>
+  <div
+    v-if="announcement && announcement.isPublished"
+    aria-labelledby="service-announcement-label"
+  >
     <v-expand-transition>
       <div v-if="!dismissedServiceAnnouncement" class="align-center bg-service-announcement d-flex font-weight-medium py-4 px-6">
-        <div class="d-inline-block pr-1 service-announcement-container w-100">
-          <h2 id="service-announcement-label" class="sr-only">BOA Service Alert</h2>
+        <div aria-live="polite" role="alert" class="d-inline-block pr-1 service-announcement-container w-100">
           <span
             id="service-announcement-banner"
-            aria-live="polite"
-            role="alert"
             v-html="announcement.text"
           />
         </div>
@@ -17,7 +18,7 @@
           elevation="0"
           :icon="mdiClose"
           size="x-small"
-          title="Dismiss alert"
+          title="Dismiss BOA Service Alert"
           @click="toggle"
         />
       </div>
@@ -28,7 +29,7 @@
       class="sr-only"
       @click="toggle"
     >
-      Restore alert
+      Restore BOA Service Alert
     </v-btn>
   </div>
 </template>
