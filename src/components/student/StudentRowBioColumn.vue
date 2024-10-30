@@ -143,13 +143,13 @@
         <span v-if="student.athleticsProfile.isActiveAsc === false"> (Inactive)</span>
       </div>
     </div>
-    <div v-if="currentUser.canReadDegreeProgress" class="font-size-13 font-weight-medium">
+    <div v-if="currentUser.canReadDegreeProgress" class="font-size-14 font-weight-medium text-nowrap">
       <router-link
         :id="`degree-checks-of-${student.sid}`"
         target="_blank"
         :to="getDegreeCheckPath(student)"
       >
-        Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
+        Undergraduate Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
       </router-link>
     </div>
   </div>
