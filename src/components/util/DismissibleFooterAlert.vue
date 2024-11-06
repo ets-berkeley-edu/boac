@@ -42,9 +42,6 @@ const dismissTheWarning = () => {
   alertScreenReader('Warning message dismissed')
 }
 
-const getBoaEnvLabel = () => {
-  return config.ebEnvironment ? config.ebEnvironment.replace('boac-', '').toUpperCase() : 'Test'
-}
 </script>
 
 <style scoped>
