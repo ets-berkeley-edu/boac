@@ -87,6 +87,11 @@ class BoaPages(CreateNoteModal, SearchForm):
         self.open_menu()
         self.wait_for_page_and_click(self.DEGREE_CHECKS_LINK)
 
+    def click_flight_deck_link(self):
+        app.logger.info('Clicking flight deck link in the header')
+        self.open_menu()
+        self.wait_for_page_and_click(self.FLIGHT_DECK_LINK)
+
     def log_out(self):
         app.logger.info('Logging out')
         if not self.is_present(BoaPages.HEADER_DROPDOWN):
@@ -103,6 +108,13 @@ class BoaPages(CreateNoteModal, SearchForm):
             time.sleep(2)
 
         self.wait_for_boa_title('Welcome')
+
+    def visible_service_alert(self):
+        return self.el_text_if_exists(self.SERVICE_ALERT_BANNER)
+
+    def dismiss_service_alert(self):
+        self.wait_for_element_and_click(self.DISMISS_ALERT_BUTTON)
+        self.when_not_visible(self.SERVICE_ALERT_BANNER, 1)
 
     # SIDEBAR - FILTERED COHORTS
 

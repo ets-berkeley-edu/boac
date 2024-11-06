@@ -75,21 +75,21 @@ class SearchForm(Page):
     # ADVANCED SEARCH
 
     OPEN_ADV_SEARCH_BUTTON = (By.ID, 'search-options-panel-toggle')
-    ADV_SEARCH_STUDENT_INPUT = (By.ID, 'advanced-search-students-input')
+    ADV_SEARCH_INPUT = (By.ID, 'advanced-search-input')
 
     def open_adv_search(self):
         app.logger.info('Opening advanced search')
         self.wait_for_element_and_click(self.OPEN_ADV_SEARCH_BUTTON)
-        self.when_present(self.ADV_SEARCH_STUDENT_INPUT, 2)
+        self.when_present(self.ADV_SEARCH_INPUT, 2)
 
     def clear_adv_search_input(self):
-        self.clear_input(self.ADV_SEARCH_STUDENT_INPUT)
+        self.clear_input(self.ADV_SEARCH_INPUT)
 
     def enter_adv_search(self, string=None):
         string = string or ''
         app.logger.info(f'Searching for "{string}"')
-        self.clear_input(self.ADV_SEARCH_STUDENT_INPUT)
-        self.remove_and_enter_chars(self.ADV_SEARCH_STUDENT_INPUT, string)
+        self.clear_input(self.ADV_SEARCH_INPUT)
+        self.remove_and_enter_chars(self.ADV_SEARCH_INPUT, string)
 
     def enter_adv_search_and_hit_enter(self, string=None):
         self.enter_adv_search(string)

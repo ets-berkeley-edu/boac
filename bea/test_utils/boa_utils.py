@@ -329,6 +329,81 @@ def get_user_curated_groups(user, admits=False):
     return groups
 
 
+def get_everyone_filtered_cohorts(dept=None, admits=False):
+    cohorts = []
+    if dept:
+        dept_clause = f""" JOIN university_dept_members
+                             ON university_dept_members.authorized_user_id = authorized_users.id
+                           JOIN university_depts
+                             ON university_depts.id = university_dept_members.university_dept_id
+                          WHERE university_depts.dept_code = '{dept.code}'"""
+    else:
+        dept_clause = ''
+    conjunction = 'AND' if dept else 'WHERE'
+    domain = 'admitted_students' if admits else 'default'
+
+    sql = f"""SELECT cohort_filters.id AS cohort_id,
+                     cohort_filters.name AS cohort_name,
+                     cohort_filters.filter_criteria AS criteria,
+                     authorized_users.uid AS uid
+                FROM cohort_filters
+                JOIN authorized_users
+                  ON authorized_users.id = cohort_filters.owner_id
+                 AND authorized_users.deleted_at IS NULL
+                {dept_clause} {conjunction} cohort_filters.domain = '{domain}'
+            ORDER BY uid, cohort_id ASC"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    for row in results:
+        cohort = FilteredCohort({
+            'cohort_id': row['cohort_id'],
+            'is_ce3': admits,
+            'name': re.sub(r'\s+', ' ', row['cohort_name']).strip(),
+            'owner_uid': row['uid'],
+        })
+        cohorts.append(cohort)
+    cohorts.sort(key=lambda c: [int(c.owner_uid), c.name])
+    return cohorts
+
+
+def get_everyone_curated_groups(dept=None, admits=False):
+    groups = []
+    if dept:
+        dept_clause = f""" JOIN university_dept_members
+                             ON university_dept_members.authorized_user_id = authorized_users.id
+                           JOIN university_depts
+                             ON university_depts.id = university_dept_members.university_dept_id
+                          WHERE university_depts.dept_code = '{dept.code}'"""
+    else:
+        dept_clause = ''
+    conjunction = 'AND' if dept else 'WHERE'
+    domain = 'admitted_students' if admits else 'default'
+
+    sql = f"""SELECT student_groups.id AS group_id,
+                     student_groups.name AS group_name,
+                     authorized_users.uid AS uid
+                FROM student_groups
+                JOIN authorized_users
+                  ON authorized_users.id = student_groups.owner_id
+                 AND authorized_users.deleted_at IS NULL
+                {dept_clause} {conjunction} student_groups.domain = '{domain}'
+            ORDER BY uid, group_id ASC"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    for row in results:
+        group = Cohort({
+            'cohort_id': row['group_id'],
+            'is_ce3': admits,
+            'name': re.sub(r'\s+', ' ', row['group_name']).strip(),
+            'owner_uid': row['uid'],
+        })
+        groups.append(group)
+    groups.sort(key=lambda c: [int(c.owner_uid), c.name])
+    return groups
+
+
 # NOTES
 
 

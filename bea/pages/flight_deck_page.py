@@ -35,6 +35,10 @@ class FlightDeckPage(BoaPages):
     MY_PROFILE_HEADING = By.XPATH, '//h1[text()="Profile"]'
     DEMO_MODE_TOGGLE = By.ID, 'toggle-demo-mode'
 
+    def load_admin_page(self):
+        self.driver.get(f'{boa_utils.get_boa_base_url()}/admin')
+        self.when_present(self.DEMO_MODE_TOGGLE, utils.get_short_timeout())
+
     def load_advisor_page(self):
         self.driver.get(f'{boa_utils.get_boa_base_url()}/profile')
         self.when_visible(self.MY_PROFILE_HEADING, utils.get_short_timeout())
@@ -43,11 +47,12 @@ class FlightDeckPage(BoaPages):
 
     EDIT_SERVICE_ALERT_HEADING = By.ID, 'edit-service-announcement'
     POST_SERVICE_ALERT_CHECKBOX = By.ID, 'checkbox-publish-service-announcement'
+    POST_SERVICE_ALERT_LABEL = By.XPATH, '//label[@for="checkbox-publish-service-announcement"]'
     UPDATE_SERVICE_ALERT_INPUT = By.XPATH, '(//div[@role="textbox"])[2]'
     UPDATE_SERVICE_ALERT_BUTTON = By.ID, 'button-update-service-announcement'
 
     def service_alert_checkbox_label(self):
-        return self.element(self.POST_SERVICE_ALERT_CHECKBOX).get_attribute('aria-label')
+        return self.element(self.POST_SERVICE_ALERT_LABEL).text
 
     def dismiss_alert(self):
         app.logger.info('Dismissing service alert')
@@ -65,11 +70,11 @@ class FlightDeckPage(BoaPages):
         time.sleep(utils.get_click_sleep())
         if new_label == 'Posted' and self.service_alert_checkbox_label() == 'Post' \
                 or new_label == 'Post' and self.service_alert_checkbox_label() == 'Posted':
-            self.click_element_js(self.POST_SERVICE_ALERT_CHECKBOX)
+            self.click_element(self.POST_SERVICE_ALERT_CHECKBOX)
             if new_label == 'Posted':
-                self.when_present(self.SERVICE_ALERT_BANNER, 2)
+                self.when_visible(self.SERVICE_ALERT_BANNER, 2)
             else:
-                self.when_not_present(self.SERVICE_ALERT_BANNER, 2)
+                self.when_not_visible(self.SERVICE_ALERT_BANNER, 2)
 
     def post_service_alert(self):
         app.logger.info('Posting a service alert')
@@ -83,8 +88,8 @@ class FlightDeckPage(BoaPages):
 
     TOPIC_SEARCH_INPUT = By.ID, 'filter-topics'
     TOPIC_SEARCH_CLEAR_BUTTON = By.XPATH, '//button[contains(., "Clear")]'
-    TOPIC_CREATE_BUTTON = By.ID, 'new-note-button'
-    TOPIC_NAME_INPUT = By.ID, 'topic-label'
+    TOPIC_CREATE_BUTTON = By.ID, 'create-topic-button'
+    TOPIC_NAME_INPUT = By.ID, 'create-topic-input'
     TOPIC_SAVE_BUTTON = By.ID, 'topic-save'
     TOPIC_CANCEL_BUTTON = By.ID, 'cancel'
     TOPIC_VALIDATION_MSG = By.ID, 'topic-label-error'
@@ -128,7 +133,7 @@ class FlightDeckPage(BoaPages):
     def delete_or_undelete_topic(self, topic):
         app.logger.info(f'Clicking the delete button for topic {topic.name}')
         self.wait_for_element_and_click(self.topic_deletion_toggle_button(topic))
-        self.confirm_delete_or_discard()
+        time.sleep(utils.get_click_sleep())
 
     def enter_topic_label(self, label):
         app.logger.info(f'Entering topic label {label}')

@@ -106,6 +106,7 @@ class CreateNoteModal(Page):
     TOPIC_REMOVE_BUTTON = By.XPATH, '//li[contains(@id, "remove-note-")]'
 
     def topic_options(self):
+        self.when_present(self.ADD_TOPIC_SELECT, 3)
         sel = Select(self.element(self.ADD_TOPIC_SELECT))
         return [el.get_attribute('value') for el in sel.options if el.get_attribute('value')]
 

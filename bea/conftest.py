@@ -32,6 +32,8 @@ from bea.pages.api_notes_page import ApiNotesPage
 from bea.pages.api_student_page import ApiStudentPage
 from bea.pages.calnet_page import CalNetPage
 from bea.pages.class_page import ClassPage
+from bea.pages.cohort_all_page import EveryoneCohortsPage
+from bea.pages.curated_all_page import EveryoneGroupsPage
 from bea.pages.curated_students_page import CuratedStudentsPage
 from bea.pages.degree_check_create_page import DegreeCheckCreatePage
 from bea.pages.degree_check_page import DegreeCheckPage
@@ -80,6 +82,8 @@ def page_objects(request):
     api_student_page = ApiStudentPage(driver, headless)
     calnet_page = CalNetPage(driver, headless)
     class_page = ClassPage(driver, headless)
+    cohorts_all_page = EveryoneCohortsPage(driver, headless)
+    curated_all_page = EveryoneGroupsPage(driver, headless)
     curated_students_page = CuratedStudentsPage(driver, headless)
     degree_check_create_page = DegreeCheckCreatePage(driver, headless)
     degree_check_page = DegreeCheckPage(driver, headless)
@@ -107,6 +111,8 @@ def page_objects(request):
             setattr(cls.obj, 'api_student_page', api_student_page)
             setattr(cls.obj, 'calnet_page', calnet_page)
             setattr(cls.obj, 'class_page', class_page)
+            setattr(cls.obj, 'cohorts_all_page', cohorts_all_page)
+            setattr(cls.obj, 'curated_all_page', curated_all_page)
             setattr(cls.obj, 'curated_students_page', curated_students_page)
             setattr(cls.obj, 'degree_check_create_page', degree_check_create_page)
             setattr(cls.obj, 'degree_check_page', degree_check_page)
