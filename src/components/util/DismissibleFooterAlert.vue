@@ -3,7 +3,6 @@
     <div v-if="showAlert" id="fixed_bottom">
       <div id="fixed-warning-on-all-pages" class="align-center bg-primary d-flex fixed-bottom fixed-warning">
         <div class="flex-grow-1">
-          <b>BOA {{ getBoaEnvLabel() }} Environment</b>
         </div>
         <div v-if="config.isVueAppDebugMode" class="mr-4">
           {{ get(contextStore.screenReaderAlert, 'message') }}
