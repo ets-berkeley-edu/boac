@@ -91,12 +91,6 @@ export const useContextStore = defineStore('context', {
       this.currentUser.myCuratedGroups.push(curatedGroup)
       this.currentUser.myCuratedGroups = sortBy(this.currentUser.myCuratedGroups, 'name')
     },
-    alertScreenReader(message: string, politeness='polite') {
-      this.screenReaderAlert.message = ''
-      nextTick(() => {
-        this.screenReaderAlert = {message, politeness}
-      }).then(noop)
-    },
     broadcast(eventType, data?) {
       this.eventHub.emit(eventType, data)
     },
@@ -113,7 +107,7 @@ export const useContextStore = defineStore('context', {
       }
       const route = router.currentRoute.value
       this.loading = false
-      alertScreenReader(srAlert || `${String(get(route, 'name', ''))} page loaded.`)
+      alertScreenReader(srAlert || `${String(get(route, 'name', ''))} page loaded.`, true)
       const callable = () => {
         let element: any
         if (putFocusElementId) {
@@ -144,7 +138,7 @@ export const useContextStore = defineStore('context', {
       this.loading = true
       this.loadingStartTime = new Date().getTime()
       const route = router.currentRoute.value
-      alertScreenReader(srAlert || `${String(get(route, 'name', ''))} page is loading.`)
+      alertScreenReader(srAlert || `${String(get(route, 'name', ''))} page is loading.`, true)
     },
     removeEventHandler(type: string, handler?: any) {
       this.eventHub.off(type, handler)

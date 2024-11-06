@@ -205,7 +205,7 @@ const onAdmitSortByUserPreferenceChange = sortBy => {
   loadAdmits()
   if (!contextStore.loading) {
     goToPage(1)
-    alertScreenReader(`Sort admitted students by ${sortBy}`)
+    alertScreenReader(`Admitted students sorted by ${sortBy}`)
   }
 }
 

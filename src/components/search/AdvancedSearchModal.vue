@@ -1,9 +1,10 @@
 <template>
-  <v-tooltip aria-label="Advanced search options" location="bottom" text="Advanced search options">
+  <v-tooltip location="bottom" text="Advanced search options">
     <template #activator="{props}">
       <v-btn
         id="search-options-panel-toggle"
         v-bind="props"
+        aria-label="Open Advanced Search dialog"
         class="mx-1"
         :class="{'border-0': !isFocusAdvSearchButton}"
         color="white"
@@ -17,7 +18,6 @@
         @focusin="() => isFocusAdvSearchButton = true"
         @focusout="() => isFocusAdvSearchButton = false"
       >
-        <span class="sr-only">Open advanced search</span>
         <v-icon :icon="mdiTune" size="large" />
       </v-btn>
     </template>
@@ -43,27 +43,19 @@
         </v-card-title>
         <v-card-text class="modal-body">
           <div class="pb-4">
-            <label for="advanced-search-students-input" class="sr-only">{{ labelForSearchInput() }}</label>
-            <v-combobox
-              id="advanced-search-students-input"
-              ref="advancedSearchInput"
+            <label for="advanced-search-input" class="sr-only">{{ labelForSearchInput() }}</label>
+            <AccessibleCombobox
               :key="searchStore.autocompleteInputResetKey"
-              v-model="model.queryText"
-              :aria-required="searchInputRequired"
-              autocomplete="list"
-              clearable
-              density="comfortable"
-              :disabled="searchStore.isSearching"
-              hide-details
-              hide-no-data
+              id-prefix="advanced-search"
+              :get-value="() => model.queryText"
+              input-type="search"
               :items="searchStore.searchHistory"
-              :menu-icon="null"
-              persistent-clear
-              placeholder="Search"
-              type="search"
-              variant="outlined"
-              @keydown.enter="search"
-              @update:menu="isOpen => isFocusLockDisabled = isOpen"
+              label="Search"
+              list-label="Previous Search List"
+              :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
+              :on-submit="search"
+              :required="searchInputRequired"
+              :set-value="v => model.queryText = v"
             />
           </div>
           <div class="font-size-16 font-weight-bold">
@@ -373,6 +365,7 @@
 <script setup>
 import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
+import AccessibleCombobox from '@/components/util/AccessibleCombobox'
 import FocusLock from 'vue-focus-lock'
 import ProgressButton from '@/components/util/ProgressButton'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
@@ -406,7 +399,6 @@ const currentUser = contextStore.currentUser
 const searchStore = useSearchStore()
 const router = useRouter()
 
-const advancedSearchInput = ref()
 const counter = ref(0)
 const isFocusAdvSearchButton = ref(false)
 const isFocusLockDisabled = ref(false)
@@ -448,7 +440,6 @@ const validDateRange = computed(() => {
 onUpdated(() => {
   if (searchStore.showAdvancedSearch) {
     nextTick(() => {
-      setComboboxAccessibleLabel(advancedSearchInput.value.$el, 'Search')
       setComboboxAccessibleLabel(noteAuthorInput.value.$el, 'Search notes by author')
       setComboboxAccessibleLabel(noteStudentInput.value.$el, 'Search notes by student')
     })
@@ -486,6 +477,14 @@ const cancel = () => {
   searchStore.setShowAdvancedSearch(false)
   searchStore.resetAutocompleteInput()
   setTimeout(() => reset(false), 100)
+}
+
+const isModelEmpty = () => {
+  const m = model.value
+  return !(m.author || m.toDate || m.topic || m.fromDate || m.student
+    || (m.queryText && m.queryText.length > 0)
+    || !m.includeCourses || !m.includeNotes || !m.includeStudents)
+    && m.postedBy === 'anyone'
 }
 
 const onChangeIncludeNotes = checked => {
@@ -566,14 +565,6 @@ const reset = force => {
 
 }
 
-const isModelEmpty = () => {
-  const m = model.value
-  return !(m.author || m.toDate || m.topic || m.fromDate || m.student
-    || (m.queryText && m.queryText.length > 0)
-    || !m.includeCourses || !m.includeNotes || !m.includeStudents)
-    && m.postedBy === 'anyone'
-}
-
 const search = () => {
   const m = model.value
   const q = trim(m.queryText)
@@ -642,7 +633,7 @@ const search = () => {
     }
   } else {
     alertScreenReader('Search input is required')
-    putFocusNextTick('search-students-input')
+    putFocusNextTick('basic-search-input')
   }
   scrollToTop()
 }

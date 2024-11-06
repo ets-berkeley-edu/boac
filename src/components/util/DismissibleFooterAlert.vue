@@ -14,7 +14,7 @@
         <div>
           <v-btn
             id="speedbird"
-            aria-label="Dismiss warning about BOA environment type"
+            aria-label="Dismiss BOA environment type warning"
             color="primary"
             :icon="mdiAirplane"
             size="sm"
@@ -40,7 +40,7 @@ const showAlert = computed(() => config.fixedWarningOnAllPages && !contextStore.
 
 const dismissTheWarning = () => {
   contextStore.dismissFooterAlert()
-  alertScreenReader('Warning message dismissed')
+  alertScreenReader('Warning dismissed')
 }
 
 const getBoaEnvLabel = () => {

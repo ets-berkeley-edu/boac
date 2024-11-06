@@ -83,7 +83,7 @@ const togglePublish = () => {
     error.value = 'You are not allowed to publish empty text.'
     isTogglingPublish.value = false
   } else {
-    const beforeAlertShown = isPublished => alertScreenReader(`${isPublished ? 'Published' : 'Unpublished'} Service Alert.`, 'assertive')
+    const beforeAlertShown = isPublished => alertScreenReader(`${isPublished ? 'Published' : 'Unpublished'} Service Alert.`, false, 'assertive')
     publishAnnouncement(isPublished.value, beforeAlertShown).then(data => {
       isPublished.value = data.isPublished
       isTogglingPublish.value = false

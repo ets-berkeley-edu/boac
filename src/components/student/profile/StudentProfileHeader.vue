@@ -6,6 +6,7 @@
         <ManageStudent
           v-if="!compact"
           button-variant="flat"
+          class="manage-student"
           domain="default"
           :student="student"
         />
@@ -79,5 +80,8 @@ onMounted(() => {
 .column-with-avatar-compact {
   margin: 16px 32px 0 20px;
   vertical-align: center;
+}
+.manage-student {
+  min-width: 170px;
 }
 </style>

@@ -41,7 +41,7 @@ class SearchForm(Page):
 
     # SIMPLE SEARCH
 
-    SEARCH_INPUT = (By.ID, 'search-students-input')
+    SEARCH_INPUT = (By.ID, 'basic-search-input')
     SEARCH_BUTTON = (By.ID, 'go-search')
 
     def enter_simple_search(self, string):

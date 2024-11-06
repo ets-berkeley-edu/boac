@@ -136,7 +136,7 @@ const props = defineProps({
     type: String
   },
   buttonWidth: {
-    default: 136,
+    default: undefined,
     required: false,
     type: [Number, String]
   },

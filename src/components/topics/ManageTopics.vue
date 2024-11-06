@@ -49,6 +49,7 @@
         :items-per-page="-1"
         mobile-breakpoint="md"
         :row-props="row => ({id: `row-topic-${normalizeId(row.item.topic)}`})"
+        :search="filter"
       >
         <template #item.deletedAt="{item}">
           <div class="float-right" :class="{'font-weight-medium text-red': item.deletedAt}">
@@ -61,6 +62,7 @@
               <v-btn
                 v-if="!item.deletedAt"
                 v-bind="props"
+                :id="`delete-topic-${normalizeId(item.topic)}`"
                 :aria-label="`Delete ${item.topic}`"
                 density="compact"
                 :icon="mdiTrashCan"
@@ -74,6 +76,7 @@
               <v-btn
                 v-if="item.deletedAt"
                 v-bind="props"
+                :id="`undelete-topic-${normalizeId(item.topic)}`"
                 :aria-label="`Un-delete ${item.topic}`"
                 color="warning"
                 density="compact"

@@ -215,7 +215,7 @@ const addNoteAttachments = attachments => {
     addAttachments(props.note.id, attachments).then(updatedNote => {
       props.afterSaved(updatedNote, addAttachmentInputElementId)
       noteStore.setAttachments(updatedNote.attachments)
-      alertScreenReader('Attachment added', 'assertive')
+      alertScreenReader('Attachment added', false, 'assertive')
       isUpdatingAttachments.value = false
       resolve()
     })

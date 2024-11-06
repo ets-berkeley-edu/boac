@@ -270,7 +270,7 @@ const addNoteAttachments = attachments => {
     } else {
       const pluralized = pluralize('attachment', attachments.length)
       noteStore.setAttachments(concat(model.value.attachments, attachments))
-      alertScreenReader(`${pluralized} added`, 'assertive')
+      alertScreenReader(`${pluralized} added`, false, 'assertive')
       resolve()
     }
   })

@@ -57,17 +57,17 @@ import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement'
 import ManageTopics from '@/components/topics/ManageTopics'
 import {getVersion} from '@/api/config'
 import {mdiAirplaneTakeoff, mdiGithub} from '@mdi/js'
-import {onMounted} from 'vue'
+import {onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {get} from 'lodash'
 
-let BOA = {}
+const BOA = ref({})
 const contextStore = useContextStore()
 const config = contextStore.config
 
 contextStore.loadingStart()
 onMounted(() => getVersion().then(data => {
-  BOA = data
+  BOA.value = data
   contextStore.loadingComplete()
 }))
 </script>

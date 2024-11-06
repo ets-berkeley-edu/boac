@@ -5,6 +5,7 @@
       v-model="model"
       class="select-menu w-100"
       :disabled="disable"
+      @change="onChangeUnitRequirement"
     >
       <option :id="`column-${position}-unit-requirement-option-null`" :value="null">
         Choose...
@@ -13,13 +14,13 @@
         v-for="(option, index) in degreeStore.unitRequirements"
         :id="`column-${position}-unit-requirement-option-${index}`"
         :key="index"
-        :disabled="includes(map(selected, 'id'), option.id)"
+        :disabled="includes(map(selectedUnitRequirements, 'id'), option.id)"
         :value="option"
       >
         {{ option.name }}
       </option>
     </select>
-    <div v-if="size(selected)" class="w-100">
+    <div v-if="size(selectedUnitRequirements)" class="w-100">
       <label
         :for="`column-${position}-unit-requirement-list`"
         class="sr-only"
@@ -31,7 +32,7 @@
         class="mb-2 list-no-bullets pl-0"
       >
         <li
-          v-for="(unitRequirement, index) in selected"
+          v-for="(unitRequirement, index) in selectedUnitRequirements"
           :id="`column-${position}-unit-requirement-${index}`"
           :key="index"
           class="list-item text-medium-emphasis"
@@ -64,7 +65,7 @@
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {includes, map, remove, size} from 'lodash'
 import {mdiCloseCircleOutline} from '@mdi/js'
-import {ref, watch} from 'vue'
+import {ref} from 'vue'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
 const degreeStore = useDegreeStore()
@@ -74,42 +75,39 @@ const props = defineProps({
     required: false,
     type: Boolean
   },
-  initialUnitRequirements: {
-    default: undefined,
-    required: false,
-    type: Array
+  onUnitRequirementsChange: {
+    required: true,
+    type: Function
   },
   position: {
     required: true,
     type: Number
+  },
+  selectedUnitRequirements: {
+    default: undefined,
+    required: false,
+    type: Array
   }
 })
 
-const model = ref()
-const selected = ref(props.initialUnitRequirements)
+const model = ref(null)
 
-watch(model, () => {
-  if (model.value) {
-    selected.value.push(model.value)
-    alertScreenReader(`${model.value.name} selected`)
-  }
-})
-
-watch(() => props.initialUnitRequirements, value => {
-  selected.value = value
-  alertScreenReader('Requirement Fulfillments updated.')
-})
+const onChangeUnitRequirement = () => {
+  props.onUnitRequirementsChange(props.selectedUnitRequirements.concat([model.value]))
+  alertScreenReader(`${model.value.name} selected`)
+  model.value = null
+}
 
 const removeUnitRequirement = (item, index) => {
-  const lastItemIndex = size(selected.value) - 1
-  alertScreenReader(`${item.name} removed`)
-  selected.value = remove(selected.value, selected => selected.id !== item.id)
+  const lastItemIndex = size(props.selectedUnitRequirements) - 1
+  props.onUnitRequirementsChange(remove(props.selectedUnitRequirements, s => s.id !== item.id))
   if (lastItemIndex > 0) {
     const nextFocusIndex = (index === lastItemIndex ) ? index - 1 : index
     putFocusNextTick(`column-${props.position}-unit-requirement-remove-${nextFocusIndex}`)
   } else {
     putFocusNextTick(`column-${props.position}-unit-requirement-select`)
   }
+  alertScreenReader(`${item.name} removed`)
 }
 </script>
 

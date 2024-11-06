@@ -6,6 +6,9 @@
   height: 180px;
   width: 100%;
 }
+.ck-editor__editable.ck-read-only {
+  opacity: var(--v-disabled-opacity);
+}
 .modal-body .ck.ck-reset_all.ck-body.ck-rounded-corners {
   position: absolute !important;
   top: 0px;

@@ -41,9 +41,9 @@
       <div class="pb-2">
         <SelectUnitFulfillment
           :disable="isSaving"
-          :initial-unit-requirements="selectedUnitRequirements"
           :on-unit-requirements-change="onUnitRequirementsChange"
           :position="position"
+          :selected-unit-requirements="selectedUnitRequirements"
         />
       </div>
     </div>

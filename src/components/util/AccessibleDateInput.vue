@@ -15,58 +15,58 @@
     @transition-start="() => onTransitionStart"
   >
     <template #default="{ inputValue, inputEvents }">
-      <v-text-field
-        :id="inputId"
-        :aria-controls="`${idPrefix}-popover`"
-        :aria-describedby="ariaDescribedby"
-        :aria-expanded="isPopoverVisible"
-        aria-haspopup="dialog"
-        :aria-required="required"
-        autocomplete="off"
-        bg-color="white"
-        class="date-input"
-        clearable
-        color="primary"
-        :disabled="disabled"
-        :error="!isValid(inputValue)"
-        haspopup="dialog"
-        hide-details
-        :model-value="inputValue"
-        persistent-clear
-        placeholder="MM/DD/YYYY"
-        validate-on="blur"
-        @click:clear="e => onClickClear(e, inputEvents)"
-        @keyup="e => onInputKeyup(e, inputEvents)"
-        @mouseleave="inputEvents.mouseleave"
-        @mousemove="inputEvents.mousemove"
-        @update:focused="hasFocus => onUpdateFocus(hasFocus, inputEvents)"
-        @update:model-value="v => onUpdateModel(inputEvents)"
+      <div
+        class="custom-text-field"
+        :class="{ 'error--text': !isValid(inputValue), disabled: disabled }"
+        :aria-invalid="!isValid(inputValue)"
       >
-        <template #clear>
-          <v-btn
-            :id="`${idPrefix}-clear-btn`"
-            :aria-label="`Clear ${ariaLabel}`"
-            class="d-flex align-self-center v-icon"
-            color="primary"
-            density="compact"
-            :disabled="disabled"
-            exact
-            :icon="mdiCloseCircle"
-            variant="text"
-            @click.stop.prevent="e => onClickClear(e, inputEvents)"
-          />
-        </template>
-      </v-text-field>
+        <input
+          :id="inputId"
+          type="text"
+          :aria-controls="`${idPrefix}-popover`"
+          :aria-describedby="ariaDescribedby"
+          :aria-expanded="isPopoverVisible"
+          aria-haspopup="dialog"
+          :aria-required="required"
+          autocomplete="off"
+          class="date-input"
+          :disabled="disabled"
+          :value="inputValue"
+          placeholder="MM/DD/YYYY"
+          @input="onInput($event, inputEvents)"
+          @keyup="onInputKeyup($event, inputEvents)"
+          @mouseleave="inputEvents.mouseleave"
+          @mousemove="inputEvents.mousemove"
+          @focus="() => onUpdateFocus(true, inputEvents)"
+          @blur="() => onUpdateFocus(false, inputEvents)"
+          @keydown="inputEvents.keydown"
+          @paste="inputEvents.paste"
+          @select="inputEvents.select"
+          @change="inputEvents.change"
+          @focusin="inputEvents.focusin"
+          @focusout="inputEvents.focusout"
+        />
+        <button
+          v-if="inputValue && !disabled"
+          :id="`${idPrefix}-clear-btn`"
+          :aria-label="`Clear ${ariaLabel}`"
+          class="clear-button clear-icon"
+          @click.stop.prevent="onClickClear($event, inputEvents)"
+        >
+          <v-icon :icon="mdiCloseCircleOutline"></v-icon>
+        </button>
+      </div>
     </template>
   </date-picker>
 </template>
+
 
 <script setup>
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {computed, nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {each} from 'lodash'
-import {mdiCloseCircle} from '@mdi/js'
+import {mdiCloseCircleOutline} from '@mdi/js'
 
 const props = defineProps({
   ariaLabel: {
@@ -129,7 +129,10 @@ const isPopoverVisible = ref(false)
 const popover = ref()
 
 onBeforeUnmount(() => {
-  document.getElementById(props.containerId).removeEventListener('keydown', onKeydownPreventClick)
+  const container = document.getElementById(props.containerId)
+  if (container) {
+    container.removeEventListener('keydown', onKeydownPreventClick)
+  }
 })
 
 onMounted(() => {
@@ -144,7 +147,6 @@ const isMonthNavBtn = el => el.id === `${props.idPrefix}-popover-next-month-btn`
 const isSpaceOrEnter = key => {
   return key === ' ' || key === 'Spacebar' || key === 'Enter'
 }
-
 const onKeydownPreventClick = e => {
   if (e && isMonthNavBtn(e.target) && isSpaceOrEnter(e.key)) {
     e.preventDefault()
@@ -160,9 +162,8 @@ const isValid = dateString => {
 }
 
 const makeCalendarAccessible = () => {
-  if (!popover.value) {
-    return false
-  }
+  if (!popover.value) return
+
   const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   const nextMonthBtn = popover.value.querySelector('.vc-next')
   const prevMonthBtn = popover.value.querySelector('.vc-prev')
@@ -170,6 +171,7 @@ const makeCalendarAccessible = () => {
   const title = popover.value.querySelector('.vc-title')
   const weeks = popover.value.querySelector('.vc-weeks')
   const weekdayLabels = popover.value.querySelectorAll('.vc-weekday')
+
   if (nextMonthBtn) {
     nextMonthBtn.ariaLabel = 'next month'
     nextMonthBtn.id = `${props.idPrefix}-popover-next-month-btn`
@@ -213,11 +215,14 @@ const makeNavAccessible = () => {
 }
 
 const onClickClear = (e, inputEvents) => {
-  const el = document.getElementById(inputId.value)
-  el.value = ''
-  inputEvents.change(e)
-  alertScreenReader('Cleared')
-  putFocusNextTick(inputId.value)
+  const inputElement = document.getElementById(inputId.value)
+  if (inputElement) {
+    inputElement.value = ''
+    inputEvents.change(e)
+    alertScreenReader('Cleared')
+    putFocusNextTick(inputId.value)
+    model.value = null
+  }
 }
 
 const onDaykeydown = e => {
@@ -248,6 +253,7 @@ const onPopoverShown = popoverContent => {
   popoverContent.ariaModal = false
   popoverContent.id = `${props.idPrefix}-popover`
   popoverContent.role = 'dialog'
+
   if (helpContainer) {
     const helpText = helpContainer.getAttribute('data-helptext')
     const helpEl = document.createElement('span')
@@ -259,11 +265,13 @@ const onPopoverShown = popoverContent => {
       helpEl.innerText = helpText
     }, 200)
   }
+
   const liveRegion = document.createElement('span')
   liveRegion.className = 'sr-only'
   liveRegion.ariaLive = 'assertive'
   liveRegion.id = `${props.idPrefix}-popover-sr-alert`
   popoverContent.prepend(liveRegion)
+
   popover.value = popoverContent
   isPopoverVisible.value = true
   makeCalendarAccessible()
@@ -275,10 +283,11 @@ const onTransitionStart = () => {
   // Prevent focus from landing on a disabled button and causing the popover to close prematurely.
   const prevMonthBtn = document.getElementById(`${props.idPrefix}-popover-prev-month-btn`)
   const nextMonthBtn = document.getElementById(`${props.idPrefix}-popover-next-month-btn`)
-  if (prevMonthBtn.disabled) {
-    nextMonthBtn.focus()
-  } else if (nextMonthBtn.disabled) {
-    prevMonthBtn.focus()
+
+  if (prevMonthBtn && prevMonthBtn.disabled) {
+    nextMonthBtn?.focus()
+  } else if (nextMonthBtn && nextMonthBtn.disabled) {
+    prevMonthBtn?.focus()
   }
 }
 
@@ -293,20 +302,73 @@ const onUpdateFocus = (hasFocus, inputEvents) => {
   hasFocus ? inputEvents.focusin(event) : inputEvents.focusout(event)
 }
 
-const onUpdateModel = (inputEvents) => {
-  const el = document.getElementById(inputId.value)
-  const event = {
-    currentTarget: el,
-    srcElement: el,
-    target: el,
-    type: 'input'
-  }
+const onInput = (event, inputEvents) => {
   inputEvents.input(event)
 }
 </script>
 
+
 <style scoped>
-.date-input {
-  min-width: 9.6rem;
+.custom-text-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc; /* Border color similar to v-text-field */
+  border-radius: 4px;
+  padding: 0 12px;
+  background-color: white;
+  transition: border-color 0.3s;
+}
+
+.custom-text-field input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 8px 0;
+  font-size: 16px;
+  background-color: transparent;
+}
+
+.custom-text-field input::placeholder {
+  color: #aaa;
+}
+
+.custom-text-field .clear-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-text-field .clear-icon {
+  width: 20px;
+  height: 20px;
+  color: #999; /* Icon color */
+}
+
+.custom-text-field.error--text {
+  border-color: red;
+}
+
+.custom-text-field.disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.custom-text-field.disabled input {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.custom-text-field:hover {
+  border-color: #aaa;
+}
+
+.custom-text-field:focus-within {
+  border-color: #1976d2; /* Primary color on focus */
 }
 </style>
+

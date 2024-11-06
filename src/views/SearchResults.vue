@@ -413,7 +413,6 @@ const fetchMoreNotes = () => {
 
 const openAdvancedSearch = () => {
   searchStore.setShowAdvancedSearch(true)
-  alertScreenReader('Advanced search is open')
 }
 </script>
 

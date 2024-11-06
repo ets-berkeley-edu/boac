@@ -247,7 +247,6 @@ const formatFromISO = isoDate => {
 const openDeleteDialog = draftNote => {
   selectedNote.value = draftNote
   isDeleteDialogOpen.value = true
-  alertScreenReader('Please confirm draft note deletion.')
 }
 
 const openEditDialog = noteDraft => {

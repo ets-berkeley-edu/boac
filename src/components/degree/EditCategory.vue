@@ -93,8 +93,9 @@
         <div>
           <SelectUnitFulfillment
             :disable="isSaving"
-            :initial-unit-requirements="selectedUnitRequirements"
+            :on-unit-requirements-change="onUnitRequirementsChange"
             :position="position"
+            :selected-unit-requirements="selectedUnitRequirements"
           />
         </div>
       </div>
@@ -350,5 +351,9 @@ const onSubmit = () => {
       })
     }
   }
+}
+
+const onUnitRequirementsChange = unitRequirements => {
+  selectedUnitRequirements.value = unitRequirements
 }
 </script>

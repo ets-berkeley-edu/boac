@@ -9,7 +9,7 @@
           elevation="0"
           role="banner"
           tag="banner"
-          @shortkey="() => putFocusNextTick('search-students-input')"
+          @shortkey="() => putFocusNextTick('basic-search-input')"
         >
           <v-app-bar-nav-icon
             v-if="!$vuetify.display.mdAndUp"

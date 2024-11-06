@@ -68,7 +68,7 @@
         <div
           v-if="!compact && size(studentsWithAlerts) === 50"
           :id="`sortable-${keyword}-${group.id}-alert-limited`"
-          class="px-3"
+          class="px-6"
         >
           Showing 50 students with a high number of alerts.
           <router-link
@@ -90,7 +90,7 @@
       </div>
       <div
         v-if="openAndLoaded"
-        :class="{'pa-3': group.totalStudentCount, 'pb-4 px-3': !group.totalStudentCount}"
+        :class="{'px-6 pb-4': group.totalStudentCount, 'pb-4 px-3': !group.totalStudentCount}"
       >
         <router-link
           :id="`sortable-${keyword}-${group.id}-view-all`"

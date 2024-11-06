@@ -6,15 +6,15 @@
     />
     <v-btn
       id="advanced-search-close"
-      aria-label="Close Advanced Search"
+      aria-label="Close Advanced Search dialog"
       class="font-size-14 font-weight-bold"
       density="comfortable"
       elevation="0"
       icon
+      title="Close"
       @click="onClickClose"
       @keydown.enter="onClickClose"
     >
-      <span class="sr-only">Close</span>
       <v-icon
         color="primary"
         :icon="mdiCloseThick"

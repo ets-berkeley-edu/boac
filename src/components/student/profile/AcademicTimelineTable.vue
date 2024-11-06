@@ -562,7 +562,6 @@ const init = () => {
       contextStore.setEventHandler(eventType, handler)
     })
   }
-  alertScreenReader(`${props.student.name} profile loaded.`)
 }
 
 onMounted(() => {
@@ -752,7 +751,6 @@ const messagesPerType = type => {
 
 const onClickDeleteNote = message => {
   // The following opens the "Are you sure?" modal
-  alertScreenReader('Please confirm delete')
   messageForDelete.value = message
 }
 

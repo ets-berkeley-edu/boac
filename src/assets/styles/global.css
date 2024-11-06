@@ -67,6 +67,9 @@
   color: initial !important;
   text-shadow: unset !important;
 }
+.disabled-opacity {
+  opacity: var(--v-disabled-opacity) !important;
+}
 .drop-zone-on {
   background-color: rgb(var(--v-theme-pale-blue));
   cursor: move;

@@ -142,7 +142,7 @@ export function removeAttachmentByIndex(index: number) {
     noteStore.removeAttachmentByIndex(index)
     if (isAutoSaveMode(mode)) {
       removeAttachment(model.id, attachmentId).then(() => {
-        alertScreenReader('Attachment removed', 'assertive')
+        alertScreenReader('Attachment removed', false, 'assertive')
       })
     }
   }

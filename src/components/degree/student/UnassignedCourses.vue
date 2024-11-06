@@ -230,7 +230,7 @@ import {unitsWereEdited} from '@/lib/degree-progress'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {ref} from 'vue'
-import {get, includes, isNil, remove, size} from 'lodash'
+import {get, includes, isNil, map, remove, size} from 'lodash'
 
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()

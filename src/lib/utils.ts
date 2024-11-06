@@ -1,14 +1,25 @@
 import numeral from 'numeral'
-import {concat, find, head, initial, isNil, isNumber, join, last, noop, toLower, trim} from 'lodash'
+import {concat, find, head, initial, isNil, isNumber, join, last, toLower, trim} from 'lodash'
 import {getUserProfile} from '@/api/user'
 import {nextTick} from 'vue'
 import {useContextStore} from '@/stores/context'
 
-export function alertScreenReader(message: string, politeness?: string) {
+let $_screenReaderAlertExpiry: number
+
+const clearScreenReaderAlert = () => {
+  window.clearInterval($_screenReaderAlertExpiry)
   useContextStore().setScreenReaderAlert({message: ''})
+}
+
+export function alertScreenReader(message: string, persistent?: boolean, politeness?: string) {
+  clearScreenReaderAlert()
   nextTick(() => {
     useContextStore().setScreenReaderAlert({message, politeness})
-  }).then(noop)
+    window.clearInterval($_screenReaderAlertExpiry)
+    if (!persistent) {
+      $_screenReaderAlertExpiry = window.setInterval(clearScreenReaderAlert, 5000)
+    }
+  })
 }
 
 const decodeHtml = (snippet: string) => {
