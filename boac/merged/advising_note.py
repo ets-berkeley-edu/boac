@@ -271,30 +271,45 @@ def search_advising_notes(
 
     author_uid = get_uid_for_csid(app, author_csid) if (not author_uid and author_csid) else author_uid
 
-    # TODO We're currently retrieving all results for the sake of subsequent offset calculations. As the number of notes in
-    # BOA grows (and possibly requires us to use some kind of staging table for search indexing), we'll need to revisit.
-    benchmark('begin local notes query')
-    local_results = Note.search(
-        search_phrase=search_phrase,
-        author_uid=author_uid,
-        student_csid=student_csid,
-        department_codes=department_codes,
-        topic=topic,
-        datetime_from=datetime_from,
-        datetime_to=datetime_to,
-    )
-    benchmark('end local notes query')
-
-    benchmark('begin local notes parsing')
     # Our offset calculations are unforuntately fussy because note parsing might reveal notes associated with students no
     # longer in BOA, which we won't include in the feed; so we don't actually know the length of our result set until parsing
-    # is complete.
-    cutoff = min(len(local_results), offset + limit)
-    notes_feed = _get_local_notes_search_results(local_results, cutoff, search_terms)
+    # is complete. Accordingly, we query local notes in a batch size somewhat larger than the number of notes we'll actually return.
+
+    local_notes_query_batch_size = (offset + limit) * 2
+    local_notes_query_iteration = 0
+    notes_feed = []
+
+    while True:
+        benchmark(f'begin local notes query (iteration {local_notes_query_iteration})')
+
+        batch_results = Note.search(
+            search_phrase=search_phrase,
+            author_uid=author_uid,
+            student_csid=student_csid,
+            department_codes=department_codes,
+            topic=topic,
+            datetime_from=datetime_from,
+            datetime_to=datetime_to,
+            offset=(local_notes_query_batch_size * local_notes_query_iteration),
+            limit=local_notes_query_batch_size,
+        )
+        benchmark(f'end local notes query (iteration {local_notes_query_iteration})')
+
+        benchmark(f'begin local notes parsing (iteration {local_notes_query_iteration})')
+        batch_note_count = len(batch_results)
+        cutoff = min(batch_note_count, (offset + limit - len(notes_feed)))
+        notes_feed += _get_local_notes_search_results(batch_results, cutoff, search_terms)
+
+        benchmark(f'end local notes parsing (iteration {local_notes_query_iteration})')
+
+        # Stop querying local notes if 1) we didn't return a full batch, 2) we have all the notes we need.
+        if batch_note_count < local_notes_query_batch_size or len(notes_feed) == offset + limit:
+            break
+        else:
+            local_notes_query_iteration += 1
+
     local_notes_count = len(notes_feed)
     notes_feed = notes_feed[offset:]
-
-    benchmark('end local notes parsing')
 
     if len(notes_feed) == limit:
         return notes_feed
