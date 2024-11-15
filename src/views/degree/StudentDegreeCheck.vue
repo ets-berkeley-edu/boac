@@ -3,9 +3,10 @@
     <div v-if="!loading">
       <div class="border-b-sm bg-sky-blue">
         <StudentProfileHeader
-          :compact="true"
-          :link-to-student-profile="true"
+          compact
+          link-to-student-profile
           :student="student"
+          suppress-grad-programs
         />
       </div>
       <StudentDegreeCheckHeader :student="student" />

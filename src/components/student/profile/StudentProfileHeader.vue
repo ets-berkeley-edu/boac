@@ -57,6 +57,10 @@ const props = defineProps({
   student: {
     required: true,
     type: Object
+  },
+  suppressGradPrograms: {
+    required: false,
+    type: Boolean
   }
 })
 
@@ -65,9 +69,11 @@ const plansPartitionedByStatus = ref([])
 const discontinuedSubplans = ref([])
 
 onMounted(() => {
-  plansMinorPartitionedByStatus.value = partition(props.student.sisProfile.plansMinor, (p) => p.status === 'Active')
-  plansPartitionedByStatus.value = partition(props.student.sisProfile.plans, (p) => p.status === 'Active')
-  discontinuedSubplans.value = _compact(map(plansPartitionedByStatus.value[1], 'subplan'))
+  const planFilter = p => p.status === 'Active'
+  const noValidPlans = props.suppressGradPrograms && props.student.sisProfile.academicCareer === 'GRAD'
+  plansMinorPartitionedByStatus.value = noValidPlans ? [] : partition(props.student.sisProfile.plansMinor, planFilter)
+  plansPartitionedByStatus.value = noValidPlans ? [] : partition(props.student.sisProfile.plans, planFilter)
+  discontinuedSubplans.value = noValidPlans ? [] : _compact(map(plansPartitionedByStatus.value[1], 'subplan'))
 })
 </script>
 

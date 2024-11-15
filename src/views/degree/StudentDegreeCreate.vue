@@ -1,7 +1,12 @@
 <template>
   <div v-if="!loading">
     <div class="border-b-sm bg-sky-blue pb-2">
-      <StudentProfileHeader :compact="true" :link-to-student-profile="true" :student="student" />
+      <StudentProfileHeader
+        compact
+        link-to-student-profile
+        :student="student"
+        suppress-grad-programs
+      />
     </div>
     <div class="default-margins">
       <h2 class="page-section-header">Create <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.firstName }}</span>'s Degree Check</h2>

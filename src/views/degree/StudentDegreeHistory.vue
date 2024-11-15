@@ -2,9 +2,10 @@
   <div>
     <div v-if="student" class="border-b-sm bg-sky-blue pb-2">
       <StudentProfileHeader
-        :compact="true"
-        :link-to-student-profile="true"
+        compact
+        link-to-student-profile
         :student="student"
+        suppress-grad-programs
       />
     </div>
     <div v-if="!loading" class="default-margins">
