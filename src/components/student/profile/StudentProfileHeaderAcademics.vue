@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="academicCareerStatus !== 'Completed'">
-      <div v-if="plansPartitionedByStatus[0].length" id="student-bio-majors" class="mb-3">
+      <div v-if="_size(plansPartitionedByStatus[0])" id="student-bio-majors" class="mb-3">
         <h3 v-if="isGraduate(student)" class="student-profile-h3">Academic Plan</h3>
         <h3 v-if="!isGraduate(student)" class="student-profile-h3">Major</h3>
         <StudentProfilePlan
@@ -11,9 +11,9 @@
           :active="true"
         />
       </div>
-      <div v-if="plansMinorPartitionedByStatus[0].length" id="student-bio-minors" class="mb-3">
-        <h3 v-if="plansMinorPartitionedByStatus[0].length > 1" class="student-profile-h3">Minors</h3>
-        <h3 v-if="plansMinorPartitionedByStatus[0].length === 1" class="student-profile-h3">Minor</h3>
+      <div v-if="_size(plansMinorPartitionedByStatus[0])" id="student-bio-minors" class="mb-3">
+        <h3 v-if="_size(plansMinorPartitionedByStatus[0]) > 1" class="student-profile-h3">Minors</h3>
+        <h3 v-if="_size(plansMinorPartitionedByStatus[0]) === 1" class="student-profile-h3">Minor</h3>
         <StudentProfilePlan
           v-for="plan in plansMinorPartitionedByStatus[0]"
           :key="plan.description"
@@ -22,7 +22,7 @@
         />
       </div>
       <div v-if="_size(activeSubplans)" id="student-bio-subplans" class="mb-3">
-        <h3 class="student-profile-h3">{{ pluralize('Subplan', activeSubplans.length) }}</h3>
+        <h3 class="student-profile-h3">{{ pluralize('Subplan', _size(activeSubplans)) }}</h3>
         <div
           v-for="(subplan, index) in activeSubplans"
           :key="index"
@@ -31,7 +31,7 @@
           {{ subplan }}
         </div>
       </div>
-      <div v-if="!plansPartitionedByStatus[0].length && plansPartitionedByStatus[1].length" id="student-details-discontinued-majors-outer" class="mb-3">
+      <div v-if="!_size(plansPartitionedByStatus[0]) && _size(plansPartitionedByStatus[1])" id="student-details-discontinued-majors-outer" class="mb-3">
         <h3 class="student-profile-h3">
           Discontinued Major(s)
         </h3>
@@ -44,7 +44,7 @@
           />
         </div>
       </div>
-      <div v-if="!plansPartitionedByStatus[0].length && plansMinorPartitionedByStatus[1].length" id="student-details-discontinued-minors-outer" class="mb-3">
+      <div v-if="!_size(plansPartitionedByStatus[0]) && _size(plansMinorPartitionedByStatus[1])" id="student-details-discontinued-minors-outer" class="mb-3">
         <h3 class="student-profile-h3">
           Discontinued Minor(s)
         </h3>
@@ -57,8 +57,8 @@
           />
         </div>
       </div>
-      <div v-if="!plansPartitionedByStatus[0].length && _size(discontinuedSubplans)" id="student-bio-subplans" class="mb-3">
-        <h3 class="student-profile-h3">{{ pluralize('Discontinued Subplan', discontinuedSubplans.length) }}</h3>
+      <div v-if="!_size(plansPartitionedByStatus[0]) && _size(discontinuedSubplans)" id="student-bio-subplans" class="mb-3">
+        <h3 class="student-profile-h3">{{ pluralize('Discontinued Subplan', _size(discontinuedSubplans)) }}</h3>
         <div
           v-for="(subplan, index) in discontinuedSubplans"
           :key="index"

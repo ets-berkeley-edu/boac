@@ -7,6 +7,7 @@
             :compact="compact"
             :link-to-student-profile="linkToStudentProfile"
             :student="student"
+            :suppress-grad-programs="suppressGradPrograms"
           />
         </div>
         <div class="text-center" :class="{'column-with-avatar-compact': compact, 'column-with-avatar': !compact}">
@@ -45,9 +46,9 @@
       </div>
       <div>
         <StudentPersonalDetails
-          :inactive-majors="plansPartitionedByStatus[0].length ? plansPartitionedByStatus[1] : []"
-          :inactive-minors="plansMinorPartitionedByStatus[0].length ? plansMinorPartitionedByStatus[1] : []"
-          :inactive-subplans="plansPartitionedByStatus[0].length ? discontinuedSubplans : []"
+          :inactive-majors="_size(plansPartitionedByStatus[0]) ? plansPartitionedByStatus[1] : []"
+          :inactive-minors="_size(plansMinorPartitionedByStatus[0]) ? plansMinorPartitionedByStatus[1] : []"
+          :inactive-subplans="_size(plansPartitionedByStatus[0]) ? discontinuedSubplans : []"
           :is-open="isShowingPersonalDetails"
           :student="student"
         />
@@ -87,18 +88,25 @@ export default {
     student: {
       required: true,
       type: Object
+    },
+    suppressGradPrograms: {
+      required: false,
+      type: Boolean
     }
   },
   data: () => ({
-    discontinuedSubplans: undefined,
+    discontinuedSubplans: [],
     isShowingPersonalDetails: false,
-    plansMinorPartitionedByStatus: undefined,
-    plansPartitionedByStatus: undefined
+    plansMinorPartitionedByStatus: [],
+    plansPartitionedByStatus: []
   }),
   created() {
-    this.plansMinorPartitionedByStatus = this._partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
-    this.plansPartitionedByStatus = this._partition(this.student.sisProfile.plans, (p) => p.status === 'Active')
-    this.discontinuedSubplans = this._compact(this._map(this.plansPartitionedByStatus[1], 'subplan'))
+    if (!(this.suppressGradPrograms && this.student.sisProfile.academicCareer === 'GRAD')) {
+      const planFilter = p => p.status === 'Active'
+      this.plansMinorPartitionedByStatus = this._partition(this.student.sisProfile.plansMinor, planFilter)
+      this.plansPartitionedByStatus = this._partition(this.student.sisProfile.plans, planFilter)
+      this.discontinuedSubplans = this._compact(this._map(this.plansPartitionedByStatus[1], 'subplan'))
+    }
   },
   mounted() {
     this.putFocusNextTick('student-name-header')

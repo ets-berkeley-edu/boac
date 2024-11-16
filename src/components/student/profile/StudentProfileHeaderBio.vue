@@ -75,7 +75,7 @@
         CoE INACTIVE
       </div>
     </div>
-    <div id="student-bio-level" :class="{'mt-2': !compact}">
+    <div v-if="!(suppressGradPrograms && _get(student, 'sisProfile.academicCareer') === 'GRAD')" id="student-bio-level" :class="{'mt-2': !compact}">
       <h3 class="sr-only">Level</h3>
       <div class="font-weight-bolder">{{ _get(student, 'sisProfile.level.description') }}</div>
     </div>
@@ -121,6 +121,10 @@ export default {
     student: {
       required: true,
       type: Object
+    },
+    suppressGradPrograms: {
+      required: false,
+      type: Boolean
     }
   },
   data: () => ({
