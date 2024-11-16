@@ -3,7 +3,12 @@
     <Spinner />
     <div v-if="!loading">
       <div class="border-bottom light-blue-background pb-2">
-        <StudentProfileHeader :compact="true" :link-to-student-profile="true" :student="student" />
+        <StudentProfileHeader
+          :compact="true"
+          :link-to-student-profile="true"
+          :student="student"
+          suppress-grad-programs
+        />
       </div>
       <div class="m-3 pt-2">
         <h2 class="page-section-header">Create <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.firstName }}</span>'s Degree Check</h2>

@@ -5,6 +5,7 @@
         :compact="true"
         :link-to-student-profile="true"
         :student="student"
+        suppress-grad-programs
       />
     </div>
     <Spinner />
