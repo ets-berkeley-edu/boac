@@ -1,7 +1,7 @@
 <template>
   <transition name="drawer">
     <div v-if="showAlert" id="fixed_bottom">
-      <div id="fixed-warning-on-all-pages" class="align-center bg-primary d-flex fixed-bottom fixed-warning">
+      <div id="fixed-warning-on-all-pages" class="align-center bg-primary d-flex fixed-bottom">
         <div class="flex-grow-1">
           <b class="sr-only">BOA {{ getBoaEnvLabel() }} Environment</b>
         </div>
@@ -50,18 +50,15 @@ const getBoaEnvLabel = () => {
 
 <style scoped>
 .fixed-bottom {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  z-index: 1000;
-}
-.fixed-warning {
   border-color: rgb(var(--v-theme-quaternary));;
   border-style: solid;
   border-width: 2px 0 0;
-  color: rgb(var(--v-theme-on-primary));
+  bottom: 0;
+  left: 0;
   opacity: 0.9;
-  padding: 15px;
+  padding: 15px 24px;
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
 }
 </style>

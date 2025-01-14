@@ -80,7 +80,6 @@
         </v-main>
       </v-layout>
       <footer
-        class="pr-8"
         :class="`footer-${$vuetify.display.smAndDown ? 'sm' : ($vuetify.display.mdAndDown ? 'md' : ($vuetify.display.lgAndDown ? 'lg' : 'xl'))}`"
         role="footer"
       >
@@ -154,19 +153,18 @@ const setServiceAlertOffset = () => {
 
 <style scoped>
 .footer-sm {
-  margin-left: auto;
-  width: 100%;
+  width: 97%;
 }
 .footer-md {
-  margin-left: auto;
+  margin-left: 256px;
   width: 74%;
 }
 .footer-lg {
-  margin-left: auto;
+  margin-left: 256px;
   width: 80%;
 }
 .footer-xl {
-  margin-left: auto;
+  margin-left: 256px;
   width: 83%;
 }
 .loading-container {
