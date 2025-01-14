@@ -108,4 +108,7 @@ onMounted(() => {
 .v-row-override-margins {
   margin-left: -15px;
 }
+#units-chart {
+  z-index: 1000;
+}
 </style>
