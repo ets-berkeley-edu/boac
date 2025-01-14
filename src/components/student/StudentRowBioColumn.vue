@@ -125,7 +125,6 @@
       :id="`degree-checks-of-${student.sid}`"
       class="font-size-13 font-weight-medium letter-spacing-normal"
       color="primary"
-      href
       size="sm"
       tag="a"
       variant="text"
