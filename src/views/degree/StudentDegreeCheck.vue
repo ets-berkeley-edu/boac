@@ -13,10 +13,10 @@
         <StudentDegreeCheckHeader :student="student" />
         <v-container fluid>
           <v-row>
-            <v-col>
+            <v-col class="degree-check-column">
               <UnitRequirements class="unit-requirements" />
             </v-col>
-            <v-col>
+            <v-col class="degree-check-column">
               <div
                 id="drop-zone-ignored-courses"
                 aria-labelledby="ignored-courses-header"
@@ -35,7 +35,7 @@
                 <UnassignedCourses class="pb-1" :ignored="true" style="margin-top: 0.65em" />
               </div>
             </v-col>
-            <v-col>
+            <v-col class="degree-check-column">
               <div
                 id="drop-zone-unassigned-courses"
                 aria-labelledby="unassigned-courses-header"
@@ -198,7 +198,7 @@ const onResize = () => {
   cursor: grabbing !important;
 }
 .degree-check-column {
-  min-width: 300px;
+  min-width: 400px;
   padding-bottom: 10px;
 }
 .drop-zone {

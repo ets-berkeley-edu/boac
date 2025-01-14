@@ -13,7 +13,7 @@
             <th v-if="currentUser.canEditDegreeProgress" class="force-width-18"><span class="sr-only">Options to assign course</span></th>
             <th class="font-size-11 force-width-80 pr-1">Course</th>
             <th class="font-size-11 force-width-24 truncate-with-ellipsis" title="Grade">Grade</th>
-            <th class="font-size-11 force-width-24 text-right truncate-with-ellipsis" title="Units">Units</th>
+            <th class="font-size-11 force-width-24 text-right truncate-with-ellipsis pr-2" title="Units">Units</th>
             <th v-if="!ignored" class="font-size-11 force-width-42">Term</th>
             <th class="font-size-11 force-width-50">Note</th>
             <th v-if="currentUser.canEditDegreeProgress" class="force-width-20" />
@@ -104,7 +104,7 @@
                 />
               </td>
               <td v-if="!ignored" class="font-size-14 force-width-42 td-term">
-                {{ course.termName }}
+                {{ abbreviateTerm(course.termName) }}
               </td>
               <td
                 class="font-size-14 td-note"
@@ -252,6 +252,12 @@ const hoverCourseId = ref(undefined)
 const isDeleting = ref(false)
 const key = props.ignored ? 'ignored' : 'unassigned'
 const notesVisible = ref([])
+
+const abbreviateTerm = (termName) => {
+  if (termName) {
+    return termName.replace('Spring', 'Spr').replace('Summer', 'Sum')
+  }
+}
 
 const afterCancel = () => {
   const putFocus = `edit-${key}-course-${courseForEdit.value.id}-btn`
