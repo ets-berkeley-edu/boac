@@ -138,7 +138,7 @@
       size="sm"
       tag="a"
       variant="text"
-      @click="() => goToStudentDegreeChecksByUID(student.uid)"
+      @click="() => goToStudentDegreeChecks(student.uid)"
     >
       <div class="align-center d-flex text-anchor">
         <div>
@@ -157,7 +157,7 @@ import {computed} from 'vue'
 import {DateTime} from 'luxon'
 import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding, termNameForSisId} from '@/berkeley'
 import {get, map, uniq} from 'lodash'
-import {goToStudentDegreeChecksByUID, lastNameFirst, studentRoutePath} from '@/lib/utils'
+import {goToStudentDegreeChecks, lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {mdiOpenInNew, mdiSchool} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 

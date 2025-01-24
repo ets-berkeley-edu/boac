@@ -32,7 +32,7 @@
         />
       </div>
     </div>
-    <v-container class="ml-3 mr-6 pb-0" fluid>
+    <v-container class="mr-6 pb-0" fluid>
       <v-row no-gutters>
         <v-col cols="12" md="7">
           <h2 id="degree-check-header" class="font-size-20 page-section-header">{{ degreeStore.degreeName }}</h2>
@@ -86,7 +86,7 @@
           role="region"
         >
           <div class="align-center d-flex flex-wrap justify-space-between">
-            <h3 id="degree-notes-header" class="font-size-20 mr-3 pr-2 text-medium-emphasis text-no-wrap">Degree Notes</h3>
+            <h3 id="degree-notes-header" class="font-size-20 mb-1 mr-3 pr-2 text-medium-emphasis text-no-wrap">Degree Notes</h3>
             <label v-if="isEditingNote || noteBody" for="degree-note-print-toggle" class="align-center d-flex flex-grow-1 justify-end pr-2">
               <span class="font-size-14 font-weight-500 text-no-wrap text-surface-variant">
                 Show notes when printed?
@@ -195,7 +195,7 @@
           role="region"
           sm="6"
         >
-          <div class="align-center d-flex">
+          <div class="align-center d-flex pb-2">
             <h3 id="in-progress-courses-header" class="font-size-18 text-medium-emphasis text-no-wrap">In-progress Courses</h3>
             <div v-if="degreeStore.courses.inProgress.length" class="text-no-wrap px-1">
               [<v-btn

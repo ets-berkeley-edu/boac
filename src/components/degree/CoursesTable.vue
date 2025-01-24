@@ -234,31 +234,33 @@
                 'vertical-top': !isCampusRequirements
               }"
             >
-              <div class="degree-check-action-buttons align-center d-flex text-no-wrap">
-                <v-btn
-                  v-if="!degreeStore.draggingCourseId || degreeStore.draggingCourseId !== get(bundle.course, 'id')"
-                  :id="`column-${position}-edit-${bundle.key}-btn`"
-                  :aria-label="`Edit ${bundle.name}`"
-                  :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
-                  density="compact"
-                  :disabled="degreeStore.disableButtons"
-                  flat
-                  :icon="mdiNoteEditOutline"
-                  size="small"
-                  @click="edit(bundle, position)"
-                />
-                <v-btn
-                  v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
-                  :id="`column-${position}-delete-${bundle.key}-btn`"
-                  :aria-label="`Delete ${bundle.name}`"
-                  :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
-                  density="compact"
-                  :disabled="degreeStore.disableButtons"
-                  flat
-                  :icon="mdiTrashCan"
-                  size="small"
-                  @click="() => onDelete(bundle)"
-                />
+              <div class="d-flex justify-end">
+                <div class="degree-check-action-buttons align-center d-flex text-no-wrap">
+                  <v-btn
+                    v-if="!degreeStore.draggingCourseId || degreeStore.draggingCourseId !== get(bundle.course, 'id')"
+                    :id="`column-${position}-edit-${bundle.key}-btn`"
+                    :aria-label="`Edit ${bundle.name}`"
+                    :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
+                    density="compact"
+                    :disabled="degreeStore.disableButtons"
+                    flat
+                    :icon="mdiNoteEditOutline"
+                    size="small"
+                    @click="edit(bundle, position)"
+                  />
+                  <v-btn
+                    v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
+                    :id="`column-${position}-delete-${bundle.key}-btn`"
+                    :aria-label="`Delete ${bundle.name}`"
+                    :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
+                    density="compact"
+                    :disabled="degreeStore.disableButtons"
+                    flat
+                    :icon="mdiTrashCan"
+                    size="small"
+                    @click="() => onDelete(bundle)"
+                  />
+                </div>
               </div>
             </td>
           </tr>
@@ -750,14 +752,15 @@ th {
   white-space: nowrap;
 }
 .th-actions {
-  width: 36px !important;
+  max-width: 3rem !important;
+  min-width: 2.5rem !important;
+  width: 13%;
 }
 .th-fulfillment {
   min-width: 72px !important;
   width: 35% !important;
 }
 .th-note {
-  max-width: 25% !important;
   padding-left: 4px !important;
   width: 25% !important;
 }

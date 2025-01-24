@@ -21,7 +21,7 @@
         />
       </div>
     </div>
-    <div v-if="!isEditing" class="mt-1 pb-1" :class="{'border-b-sm': size(items) && !printable}">
+    <div v-if="!isEditing" class="py-1" :class="{'border-b-sm': size(items) && !printable}">
       <div
         v-if="!size(items)"
         id="unit-requirements-no-data"
@@ -123,43 +123,45 @@
               v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable"
               class="font-size-16"
             >
-              <div class="degree-check-action-buttons align-center d-flex text-no-wrap">
-                <v-btn
-                  :id="`unit-requirement-${item.id}-edit-btn`"
-                  :aria-label="`Edit ${item.name}`"
-                  :class="{'text-primary': !degreeStore.disableButtons}"
-                  color="transparent"
-                  density="compact"
-                  :disabled="degreeStore.disableButtons"
-                  flat
-                  :icon="mdiNoteEditOutline"
-                  size="small"
-                  title="Edit"
-                  @click.prevent="() => onClickEdit(item)"
-                />
-                <v-btn
-                  :id="`unit-requirement-${item.id}-delete-btn`"
-                  :aria-label="`Delete ${item.name}`"
-                  :class="{'text-primary': !degreeStore.disableButtons}"
-                  color="transparent"
-                  density="compact"
-                  :disabled="degreeStore.disableButtons"
-                  flat
-                  :icon="mdiTrashCan"
-                  size="small"
-                  title="Delete"
-                  @click.prevent="onClickDelete(item)"
-                />
-                <AreYouSureModal
-                  v-model="isDeleting"
-                  button-label-confirm="Delete"
-                  :function-cancel="deleteCanceled"
-                  :function-confirm="deleteConfirmed"
-                  modal-header="Delete Unit Requirement"
-                >
-                  Are you sure you want to delete <strong>{{ get(selected, 'name') }}</strong>?
-                </AreYouSureModal>
+              <div class="d-flex justify-end">
+                <div class="degree-check-action-buttons align-center d-flex text-no-wrap">
+                  <v-btn
+                    :id="`unit-requirement-${item.id}-edit-btn`"
+                    :aria-label="`Edit ${item.name}`"
+                    :class="{'text-primary': !degreeStore.disableButtons}"
+                    color="transparent"
+                    density="compact"
+                    :disabled="degreeStore.disableButtons"
+                    flat
+                    :icon="mdiNoteEditOutline"
+                    size="small"
+                    title="Edit"
+                    @click.prevent="() => onClickEdit(item)"
+                  />
+                  <v-btn
+                    :id="`unit-requirement-${item.id}-delete-btn`"
+                    :aria-label="`Delete ${item.name}`"
+                    :class="{'text-primary': !degreeStore.disableButtons}"
+                    color="transparent"
+                    density="compact"
+                    :disabled="degreeStore.disableButtons"
+                    flat
+                    :icon="mdiTrashCan"
+                    size="small"
+                    title="Delete"
+                    @click.prevent="onClickDelete(item)"
+                  />
+                </div>
               </div>
+              <AreYouSureModal
+                v-model="isDeleting"
+                button-label-confirm="Delete"
+                :function-cancel="deleteCanceled"
+                :function-confirm="deleteConfirmed"
+                modal-header="Delete Unit Requirement"
+              >
+                Are you sure you want to delete <strong>{{ get(selected, 'name') }}</strong>?
+              </AreYouSureModal>
             </td>
           </tr>
         </tbody>

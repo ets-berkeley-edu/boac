@@ -1,6 +1,6 @@
 <template>
   <div v-if="key">
-    <div v-if="!degreeStore.courses[key].length" class="my-2 no-data-text">
+    <div v-if="!degreeStore.courses[key].length" class="no-data-text py-1">
       No courses
     </div>
     <div v-if="degreeStore.courses[key].length" :id="`${key}-courses-container`">
@@ -114,7 +114,7 @@
                 {{ abbreviateTerm(course.termName) }}
               </td>
               <td
-                class="font-size-14 td-note"
+                class="font-size-14 td-note pr-1"
                 :class="{
                   'force-width-50': course.note && !isNoteVisible(course),
                   'truncate-with-ellipsis': course.note
@@ -135,36 +135,34 @@
               </td>
               <td
                 v-if="currentUser.canEditDegreeProgress"
-                class="align-start d-flex"
-                :class="{'px-1': !isNoteVisible(course)}"
               >
-                <div class="float-right">
-                  <v-btn
-                    v-if="course.manuallyCreatedBy && degreeStore.draggingCourseId !== course.id"
-                    :id="`delete-${course.id}-btn`"
-                    :aria-label="`Delete ${course.name}`"
-                    class="py-0"
-                    :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
-                    density="compact"
-                    :disabled="degreeStore.disableButtons"
-                    flat
-                    :icon="mdiTrashCan"
-                    size="small"
-                    @click="onDelete(course)"
-                  />
-                  <v-btn
-                    v-if="degreeStore.draggingCourseId !== course.id"
-                    :id="`edit-${key}-course-${course.id}-btn`"
-                    :aria-label="`Edit ${course.name}`"
-                    class="mr-1 py-0"
-                    :color="degreeStore.disableButtons ? 'grey' : 'primary'"
-                    density="compact"
-                    flat
-                    :icon="mdiNoteEditOutline"
-                    size="small"
-                    variant="text"
-                    @click="degreeStore.disableButtons ? noop : edit(course)"
-                  />
+                <div class="d-flex h-100 justify-end">
+                  <div class="degree-check-action-buttons d-flex pt-1 text-no-wrap">
+                    <v-btn
+                      v-if="degreeStore.draggingCourseId !== course.id"
+                      :id="`edit-${key}-course-${course.id}-btn`"
+                      :aria-label="`Edit ${course.name}`"
+                      :color="degreeStore.disableButtons ? 'grey' : 'primary'"
+                      density="compact"
+                      flat
+                      :icon="mdiNoteEditOutline"
+                      size="small"
+                      variant="text"
+                      @click="degreeStore.disableButtons ? noop : edit(course)"
+                    />
+                    <v-btn
+                      v-if="course.manuallyCreatedBy && degreeStore.draggingCourseId !== course.id"
+                      :id="`delete-${course.id}-btn`"
+                      :aria-label="`Delete ${course.name}`"
+                      :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
+                      density="compact"
+                      :disabled="degreeStore.disableButtons"
+                      flat
+                      :icon="mdiTrashCan"
+                      size="small"
+                      @click="onDelete(course)"
+                    />
+                  </div>
                 </div>
               </td>
             </tr>

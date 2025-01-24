@@ -129,9 +129,9 @@
   opacity: 1 !important;
 }
 .degree-check-action-buttons {
-  justify-self: end;
+  min-width: 2.5rem;
   padding-right: 1px;
-  width: 2.5rem
+  width: 2.5rem;
 }
 .default-margins {
   margin: 24px;
