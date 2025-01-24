@@ -1,10 +1,9 @@
-import {Cohort, CuratedGroup} from '@/lib/cohort'
 import numeral from 'numeral'
-import {concat, find, head, initial, isNil, isNumber, join, last, toLower, trim} from 'lodash'
-import {useContextStore} from '@/stores/context'
-import {getDegreeChecks} from '@/api/degree'
+import {Cohort, CuratedGroup} from '@/lib/cohort'
+import {concat, head, initial, isNil, isNumber, join, last, toLower, trim} from 'lodash'
 import {getUserProfile} from '@/api/user'
 import {nextTick} from 'vue'
+import {useContextStore} from '@/stores/context'
 
 export type BoaConfig = {
   academicStandingDescriptions: object,
@@ -137,20 +136,8 @@ export function escapeForRegExp(s) {
   return s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-export function goToStudentDegreeChecksByUID(uid: string, openInSameTab?: boolean): void {
-  getDegreeChecks(uid).then(degreeChecks => {
-    const currentUser: CurrentUser = useContextStore().currentUser
-    const currentDegreeCheck = find(degreeChecks, 'isCurrent')
-    let path: string
-    if (currentDegreeCheck) {
-      path = `/student/degree/${currentDegreeCheck.id}`
-    } else if (currentUser.canEditDegreeProgress) {
-      path = `${studentRoutePath(uid, currentUser.inDemoMode)}/degree/create`
-    } else {
-      path = `${studentRoutePath(uid, currentUser.inDemoMode)}/degree/history`
-    }
-    window.open(path, openInSameTab ? undefined : '_blank')
-  })
+export function goToStudentDegreeChecks(uid: string): void {
+  window.open(`${useContextStore().config.apiBaseUrl}/api/degree/student/${uid}/redirect`)
 }
 
 export function invokeIfAuthenticated(callback: () => void, onReject = () => {}) {

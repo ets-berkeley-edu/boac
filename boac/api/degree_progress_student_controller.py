@@ -38,7 +38,7 @@ from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
-from flask import current_app as app, request
+from flask import current_app as app, redirect, request
 from flask_login import current_user
 
 
@@ -341,6 +341,19 @@ def update_degree_note(degree_check_id):
     # Update updated_at date of top-level record
     DegreeProgressTemplate.refresh_updated_at(degree_check_id, current_user.get_id())
     return tolerant_jsonify(note.to_api_json())
+
+
+@app.route('/api/degree/student/<uid>/redirect')
+@can_read_degree_progress
+def redirect_to_student_degree_progress(uid):
+    sid = get_sid_by_uid(uid)
+    degree_checks = DegreeProgressTemplate.find_by_sid(student_sid=sid)
+    current_degree_check = next(filter(lambda d: d.get('isCurrent', False), degree_checks), None)
+    if current_degree_check:
+        path = f"/student/degree/{current_degree_check['id']}"
+    else:
+        path = f'/student/{uid}/degree/create' if current_user.can_edit_degree_progress else f'/student/{uid}/degree/history'
+    return redirect(f"{app.config['VUE_LOCALHOST_BASE_URL']}{path}")
 
 
 def _can_accept_course_requirements(category):
