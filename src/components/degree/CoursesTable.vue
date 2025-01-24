@@ -86,7 +86,7 @@
                   'mr-2': get(bundle.course, 'isCopy')
                 }"
               >
-                <span :class="{'text-strikethrough': get(bundle.category, 'isIgnored')}">
+                <span :class="{'text-strikethrough': get(bundle.category, 'isIgnored'), 'demo-mode-blur': degreeStore.sid && bundle.type === 'course' && currentUser.inDemoMode}">
                   <!-- Spaces surrounding 'name' make life easier for QA. Do not trim. -->
                   {{ bundle.name }}
                 </span>
@@ -705,9 +705,6 @@ tbody:before {
 th {
   height: 20px;
   padding-bottom: 5px;
-}
-.action-buttons {
-  padding-right: 1px;
 }
 .changed-units-icon {
   margin-right: 0.3em;

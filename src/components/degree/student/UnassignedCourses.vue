@@ -54,7 +54,13 @@
                 </div>
               </td>
               <td class="overflow-wrap-break-word td-name">
-                <span :class="{'font-weight-500': isEditing(course), 'mr-1': course.isCopy}">
+                <span
+                  :class="{
+                    'font-weight-500': isEditing(course),
+                    'mr-1': course.isCopy,
+                    'demo-mode-blur': currentUser.inDemoMode
+                  }"
+                >
                   {{ course.name }}
                 </span>
                 <v-icon

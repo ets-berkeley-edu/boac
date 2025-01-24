@@ -73,7 +73,7 @@
                 {{ item.name }}
               </div>
               <div v-if="degreeStore.sid && !printable">
-                <div v-if="item.type === 'course'" class="pl-6 pb-2">
+                <div v-if="item.type === 'course'" class="pl-6 pb-2" :class="{'demo-mode-blur': currentUser.inDemoMode}">
                   {{ item.name }}
                 </div>
                 <button
@@ -338,9 +338,6 @@ td {
 th {
   height: 20px;
   padding-bottom: 5px;
-}
-.action-buttons {
-  padding-right: 1px;
 }
 .th-actions {
   width: 10%;

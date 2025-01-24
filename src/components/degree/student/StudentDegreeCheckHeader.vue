@@ -261,7 +261,7 @@
               </template>
               <template #item.displayName="{item}">
                 <div class="d-flex">
-                  <div class="pr-1">{{ item.displayName }}</div>
+                  <div class="pr-1" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.displayName }}</div>
                   <div
                     v-if="item.enrollmentStatus === 'W'"
                     :id="`in-progress-course-${item.termId}-${item.ccn}-waitlisted`"

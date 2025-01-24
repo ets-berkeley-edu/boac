@@ -41,6 +41,7 @@
     >
       <Category
         v-if="category.id !== get(categoryForEdit, 'id')"
+        :key="`cat-${category.id}`"
         :category="category"
         :on-click-edit="edit"
         :position="position"
@@ -83,6 +84,7 @@
         >
           <Category
             v-if="subcategory.id !== get(categoryForEdit, 'id')"
+            :key="`cat-${subcategory.id}`"
             :category="subcategory"
             :on-click-edit="edit"
             :position="position"
