@@ -32,7 +32,7 @@
           color="primary"
           variant="text"
           tag="a"
-          @click="() => goToStudentDegreeChecksByUID(student.uid)"
+          @click="() => goToStudentDegreeChecks(student.uid)"
         >
           Undergraduate Degree Checks <span class="sr-only">of {{ student.name }} (will open new browser tab)</span>
           <v-icon class="ml-1" :icon="mdiOpenInNew" size="16" />
@@ -129,7 +129,7 @@
 
 <script setup>
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
-import {alertScreenReader, goToStudentDegreeChecksByUID} from '@/lib/utils'
+import {alertScreenReader, goToStudentDegreeChecks} from '@/lib/utils'
 import {each, find, groupBy, includes, map, orderBy, sumBy} from 'lodash'
 import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
 import {onMounted, ref} from 'vue'
