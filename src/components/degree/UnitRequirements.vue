@@ -73,7 +73,7 @@
                 {{ item.name }}
               </div>
               <div v-if="degreeStore.sid && !printable">
-                <div v-if="item.type === 'course'" class="pl-6 pb-2">
+                <div v-if="item.type === 'course'" class="pl-6 pb-2" :class="{'demo-mode-blur': currentUser.inDemoMode}">
                   {{ item.name }}
                 </div>
                 <button
@@ -123,7 +123,7 @@
               v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable"
               class="font-size-16"
             >
-              <div class="action-buttons align-center d-flex justify-end text-no-wrap">
+              <div class="degree-check-action-buttons align-center d-flex text-no-wrap">
                 <v-btn
                   :id="`unit-requirement-${item.id}-edit-btn`"
                   :aria-label="`Edit ${item.name}`"
@@ -336,9 +336,6 @@ td {
 th {
   height: 20px;
   padding-bottom: 5px;
-}
-.action-buttons {
-  padding-right: 1px;
 }
 .th-actions {
   width: 10%;

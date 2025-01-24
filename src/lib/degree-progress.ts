@@ -111,8 +111,7 @@ export function getItemsForCoursesTable(category: Category): Array<DegreeProgres
   if (courses) {
     const categoryCourseIds: number[] = map(category.courses, 'id')
     const predicate = (c: DegreeProgressCourse) => includes(categoryCourseIds, c.id)
-    const items = new Array<DegreeProgressCourse|CourseRequirement>
-    items.concat(filter(courses.assigned.concat(courses.unassigned), predicate))
+    const items: Array<DegreeProgressCourse|CourseRequirement> = (filter(courses.assigned.concat(courses.unassigned), predicate))
     items.concat(category.courseRequirements)
     return items
   } else {

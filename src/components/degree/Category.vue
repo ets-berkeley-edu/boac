@@ -31,7 +31,7 @@
         >
           {{ category.name }}
         </h4>
-        <div v-if="!degreeStore.sid && canEdit" class="align-items-start d-flex justify-content-end text-no-wrap">
+        <div v-if="!degreeStore.sid && canEdit" class="degree-check-action-buttons align-center d-flex text-no-wrap">
           <v-btn
             :id="`column-${position}-edit-category-${category.id}-btn`"
             :aria-label="`Edit ${category.name}`"
@@ -197,9 +197,6 @@ const onDropCourse = event => {
 </script>
 
 <style scoped>
-.action-btn {
-  margin: 0 1px 0 0;
-}
 .category-description {
   white-space: pre-line;
 }
