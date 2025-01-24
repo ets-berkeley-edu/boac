@@ -692,6 +692,16 @@ def _construct_student_profile(student):
     enrollment_results = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=future_term_id())
     profile['enrollmentTerms'] = merge_enrollment_terms(enrollment_results, academic_standing=academic_standing)
 
+    if profile.get('coeProfile', {}).get('acadStatusDescription'):
+        for term in profile['enrollmentTerms']:
+            if term['termId'] == profile['coeProfile'].get('acadStatusTermId'):
+                term['coeAcademicStanding'] = {
+                    'description': profile['coeProfile'].get('acadStatusDescription'),
+                    'status': profile['coeProfile'].get('acadStatus'),
+                    'termId': profile['coeProfile'].get('acadStatusTermId'),
+                }
+                break
+
     if sis_profile and sis_profile.get('withdrawalCancel'):
         profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
         if not sis_profile['withdrawalCancel'].get('termId'):
