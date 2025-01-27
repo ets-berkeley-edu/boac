@@ -2,12 +2,12 @@
   <div>
     <table
       :id="`column-${position}-courses-of-category-${parentCategory.id}`"
-      class="mb-0 w-100"
+      class="mb-0"
     >
       <caption class="sr-only">{{ parentCategory.name }} Courses</caption>
       <thead class="border-b-md">
         <tr class="sortable-table-header text-no-wrap">
-          <th v-if="hasAssignedCourses && canEdit" class="force-width-18">
+          <th v-if="canEdit && !isCampusRequirements" class="th-assign force-width-18">
             <span class="sr-only">{{ hasAssignedCourses ? 'Assign course' : 'Recommended?' }}</span>
           </th>
           <th v-if="!isCampusRequirements" class="font-size-11" :class="{'force-width-80': !isCampusRequirements}">Course</th>
@@ -46,7 +46,7 @@
             @mouseenter="onMouse('enter', bundle)"
             @mouseleave="onMouse('leave', bundle)"
           >
-            <td v-if="hasAssignedCourses && canEdit && !isCampusRequirements" class="force-width-18 td-assign">
+            <td v-if="canEdit && !isCampusRequirements" class="td-assign">
               <div
                 v-if="bundle.course && canEdit && (degreeStore.draggingCourseId !== bundle.course.id)"
                 :id="`assign-course-${bundle.course.id}-menu-container`"
@@ -165,6 +165,7 @@
               v-if="degreeStore.sid"
               :class="{
                 'font-italic text-surface-variant': !isSatisfied(bundle) && !getAccentColor(bundle),
+                'pt-0': isCampusRequirements,
                 'td-note-printable': printable,
                 'td-note': !printable && hasNotes,
                 'td-note-when-all-notes-empty': !printable && !hasNotes,
@@ -195,7 +196,7 @@
               <div
                 v-if="!getNote(bundle)"
                 :id="`column-${position}-${bundle.key}-note`"
-                class="font-size-14"
+                :class="{'font-size-12': printable, 'font-size-14': !printable}"
               >
                 &mdash;
               </div>
@@ -228,8 +229,9 @@
             </td>
             <td
               v-if="canEdit && (degreeStore.sid || !isCampusRequirements)"
+              class="td-actions"
               :class="{
-                'vertical-middle pb-1': degreeStore.sid,
+                'vertical-middle': degreeStore.sid,
                 'pr-2': isCampusRequirements,
                 'vertical-top': !isCampusRequirements
               }"
@@ -709,21 +711,25 @@ th {
 .changed-units-icon {
   margin-right: 0.3em;
 }
+.td-actions {
+  padding: 3px 0 0 0;
+}
 .td-assign {
   font-size: 14px;
   vertical-align: top;
 }
 .td-fulfillment {
+  padding: 3px 0 0 0;
   word-break: break-word;
 }
 .td-grade {
-  padding: 1px 0 0 0;
+  padding: 3px 0 0 0;
   text-transform: capitalize;
   vertical-align: top;
 }
 .td-name {
   font-size: 14px;
-  padding: 1px 0 0 0;
+  padding: 3px 0 0 0;
 }
 .td-name-printable {
   font-size: 12px;
@@ -732,13 +738,15 @@ th {
   width: 180px !important;
 }
 .td-note {
-  padding: 1px 4px 0 4px;
+  padding: 3px 4px 0 4px;
 }
 .td-note-when-all-notes-empty {
   max-width: 10px;
+  padding: 3px 0 0 0;
 }
 .td-note-printable {
-  padding: 0 0.5em 0 0;
+  font-size: 12px;
+  padding: 3px 0.5em 0 0;
   vertical-align: middle;
   width: 100px !important;
 }
@@ -747,7 +755,7 @@ th {
   width: 50px;
 }
 .td-units {
-  padding: 0 8px 0 0;
+  padding: 3px 8px 0 0;
   vertical-align: top;
   white-space: nowrap;
 }
@@ -755,6 +763,9 @@ th {
   max-width: 3rem !important;
   min-width: 2.5rem !important;
   width: 13%;
+}
+.th-assign {
+  width: 6% !important;
 }
 .th-fulfillment {
   min-width: 72px !important;
