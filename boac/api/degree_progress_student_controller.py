@@ -351,9 +351,12 @@ def redirect_to_student_degree_progress(uid):
     current_degree_check = next(filter(lambda d: d.get('isCurrent', False), degree_checks), None)
     if current_degree_check:
         path = f"/student/degree/{current_degree_check['id']}"
+    elif current_user.can_edit_degree_progress:
+        path = f'/student/{uid}/degree/create'
     else:
-        path = f'/student/{uid}/degree/create' if current_user.can_edit_degree_progress else f'/student/{uid}/degree/history'
-    return redirect(f"{app.config['VUE_LOCALHOST_BASE_URL']}{path}")
+        path = f'/student/{uid}/degree/history'
+    vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
+    return redirect(f'{vue_base_url}{path}' if vue_base_url else path)
 
 
 def _can_accept_course_requirements(category):
