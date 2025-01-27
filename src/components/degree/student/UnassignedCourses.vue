@@ -6,12 +6,12 @@
     <div v-if="degreeStore.courses[key].length" :id="`${key}-courses-container`">
       <table
         :id="`${key}-courses-table`"
-        class="mb-1 w-100 table-layout"
+        class="mb-1"
       >
         <caption class="sr-only">{{ capitalize(key) }} Courses</caption>
         <thead class="border-b-sm">
           <tr class="text-no-wrap">
-            <th v-if="currentUser.canEditDegreeProgress" class="force-width-18"><span class="sr-only">Options to assign course</span></th>
+            <th v-if="currentUser.canEditDegreeProgress" class="th-assign force-width-18"><span class="sr-only">Options to assign course</span></th>
             <th class="font-size-11 force-width-80 pr-1">Course</th>
             <th class="font-size-11 force-width-24 truncate-with-ellipsis" title="Grade">Grade</th>
             <th class="font-size-11 force-width-24 text-right truncate-with-ellipsis pr-2" title="Units">Units</th>
@@ -47,11 +47,13 @@
             >
               <td
                 v-if="currentUser.canEditDegreeProgress"
-                class="force-width-18 td-assign"
+                class="td-assign"
               >
-                <div v-if="degreeStore.draggingCourseId !== course.id">
-                  <CourseAssignmentMenu :after-course-assignment="() => afterCourseAssignment(index, key)" :course="course" />
-                </div>
+                <CourseAssignmentMenu
+                  v-if="degreeStore.draggingCourseId !== course.id"
+                  :after-course-assignment="() => afterCourseAssignment(index, key)"
+                  :course="course"
+                />
               </td>
               <td class="overflow-wrap-break-word td-name">
                 <span
@@ -438,6 +440,9 @@ th {
   padding: 1px 8px 0 0;
   vertical-align: top;
   white-space: nowrap;
+}
+.th-assign {
+  width: 6% !important;
 }
 .tr-course td {
   height: 40px !important;
