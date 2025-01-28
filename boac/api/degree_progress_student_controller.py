@@ -28,7 +28,7 @@ from datetime import datetime
 from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress, normalize_accent_color
-from boac.externals.data_loch import get_basic_student_data, get_sid_by_uid, get_student_by_sid
+from boac.externals.data_loch import get_basic_student_data, get_student_by_sid
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, to_bool_or_none, to_int_or_none
 from boac.merged import calnet
@@ -206,22 +206,18 @@ def assign_course(course_id):
         raise ResourceNotFoundError('Course not found.')
 
 
-@app.route('/api/degrees/student/<uid>')
+@app.route('/api/degrees/student/<sid>')
 @can_read_degree_progress
-def get_degree_checks(uid):
-    sid = get_sid_by_uid(uid)
-    if sid:
-        degrees = DegreeProgressTemplate.find_by_sid(student_sid=sid)
-        uids = list(set([d['createdByUid'] for d in degrees] + [d['updatedByUid'] for d in degrees]))
-        calnet_users_by_uid = calnet.get_calnet_users_for_uids(app, uids)
-        for degree in degrees:
-            def _get_name(uid):
-                return calnet_users_by_uid[uid]['name'] if uid in calnet_users_by_uid else None
-            degree['createdByName'] = _get_name(degree['createdByUid'])
-            degree['updatedByName'] = _get_name(degree['updatedByUid'])
-        return tolerant_jsonify(degrees)
-    else:
-        raise ResourceNotFoundError('Student not found')
+def get_degree_checks(sid):
+    degrees = DegreeProgressTemplate.find_by_sid(student_sid=sid)
+    uids = list(set([d['createdByUid'] for d in degrees] + [d['updatedByUid'] for d in degrees]))
+    calnet_users_by_uid = calnet.get_calnet_users_for_uids(app, uids)
+    for degree in degrees:
+        def _get_name(uid):
+            return calnet_users_by_uid[uid]['name'] if uid in calnet_users_by_uid else None
+        degree['createdByName'] = _get_name(degree['createdByUid'])
+        degree['updatedByName'] = _get_name(degree['updatedByUid'])
+    return tolerant_jsonify(degrees)
 
 
 @app.route('/api/degree/<template_id>/students', methods=['POST'])
