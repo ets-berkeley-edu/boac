@@ -111,7 +111,6 @@
             density="compact"
             :disabled="isSaving"
             hide-details
-            maxlength="255"
             max-rows="6"
             rows="3"
             variant="outlined"
