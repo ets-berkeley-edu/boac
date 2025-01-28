@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import advisor_required, is_unauthorized_domain, response_with_students_csv_download
+from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker
 from boac.merged import calnet
@@ -248,5 +249,14 @@ def _curated_group_with_complete_student_profiles(
 
 
 def _can_current_user_view_curated_group(curated_group):
-    owner_id = curated_group.owner_id
-    return current_user.is_admin or bool(len(AuthorizedUser.find_by_id(owner_id).department_memberships))
+    if current_user.is_admin:
+        return True
+    owner = AuthorizedUser.find_by_id(curated_group.owner_id)
+    if not owner:
+        return False
+    curated_group_dept_codes = [m.university_dept.dept_code for m in owner.department_memberships]
+    if len(curated_group_dept_codes):
+        user_dept_codes = dept_codes_where_advising(current_user)
+        return len([c for c in user_dept_codes if c in curated_group_dept_codes])
+    else:
+        return False
