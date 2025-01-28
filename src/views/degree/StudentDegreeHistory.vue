@@ -117,7 +117,7 @@ onMounted(() => {
   }
   getStudentByUid(uid, true).then(data => {
     student.value = data
-    getDegreeChecks(uid).then(data => {
+    getDegreeChecks(student.value.sid).then(data => {
       degreeChecks.value = data
       each(degreeChecks.value, degreeCheck => {
         if (degreeCheck.parentTemplateUpdatedAt) {

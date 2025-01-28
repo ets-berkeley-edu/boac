@@ -607,19 +607,19 @@ class TestGetDegreeCheckStudents:
 class TestGetStudentDegreeChecks:
 
     @classmethod
-    def _api_get_degree_checks(cls, client, uid, expected_status_code=200):
-        response = client.get(f'/api/degrees/student/{uid}')
+    def _api_get_degree_checks(cls, client, sid, expected_status_code=200):
+        response = client.get(f'/api/degrees/student/{sid}')
         assert response.status_code == expected_status_code
         return response.json
 
     def test_anonymous(self, client):
         """Denies anonymous user."""
-        self._api_get_degree_checks(client, uid=coe_student_uid, expected_status_code=401)
+        self._api_get_degree_checks(client, expected_status_code=401, sid=coe_student_sid)
 
     def test_unauthorized(self, client, fake_auth):
         """Denies unauthorized user."""
         fake_auth.login(qcadv_advisor_uid)
-        self._api_get_degree_checks(client, uid=coe_student_uid, expected_status_code=401)
+        self._api_get_degree_checks(client, expected_status_code=401, sid=coe_student_sid)
 
     def test_authorized(self, client, fake_auth, mock_degree_checks):
         """Advisor can view student degree checks."""
@@ -630,7 +630,7 @@ class TestGetStudentDegreeChecks:
         mock_degree_checks.sort(key=_sort_by, reverse=True)
         expected_current_id = mock_degree_checks[0].id
 
-        degree_checks = self._api_get_degree_checks(client, uid=coe_student_uid)
+        degree_checks = self._api_get_degree_checks(client, sid=coe_student_sid)
         assert degree_checks[0]['id'] == expected_current_id
         assert degree_checks[0]['isCurrent'] is True
         assert degree_checks[0]['createdByName'] is not None
