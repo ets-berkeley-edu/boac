@@ -28,7 +28,7 @@ from datetime import datetime
 from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress, normalize_accent_color
-from boac.externals.data_loch import get_basic_student_data, get_sid_by_uid
+from boac.externals.data_loch import get_basic_student_data, get_sid_by_uid, get_student_by_sid
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, to_bool_or_none, to_int_or_none
 from boac.merged import calnet
@@ -343,18 +343,16 @@ def update_degree_note(degree_check_id):
     return tolerant_jsonify(note.to_api_json())
 
 
-@app.route('/api/degree/student/<uid>/redirect')
+@app.route('/api/degree/student/<sid>/redirect')
 @can_read_degree_progress
-def redirect_to_student_degree_progress(uid):
-    sid = get_sid_by_uid(uid)
+def redirect_to_student_degree_progress(sid):
     degree_checks = DegreeProgressTemplate.find_by_sid(student_sid=sid)
     current_degree_check = next(filter(lambda d: d.get('isCurrent', False), degree_checks), None)
     if current_degree_check:
         path = f"/student/degree/{current_degree_check['id']}"
-    elif current_user.can_edit_degree_progress:
-        path = f'/student/{uid}/degree/create'
     else:
-        path = f'/student/{uid}/degree/history'
+        uid = get_student_by_sid(sid)['uid']
+        path = f'/student/{uid}/degree/create' if current_user.can_edit_degree_progress else f'/student/{uid}/degree/history'
     vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
     return redirect(f'{vue_base_url}{path}' if vue_base_url else path)
 

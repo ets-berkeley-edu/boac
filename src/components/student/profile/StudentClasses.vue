@@ -32,7 +32,7 @@
           color="primary"
           variant="text"
           tag="a"
-          @click="() => goToStudentDegreeChecks(student.uid)"
+          @click="() => goToStudentDegreeChecks(student.sid)"
         >
           Undergraduate Degree Checks <span class="sr-only">of {{ student.name }} (will open new browser tab)</span>
           <v-icon class="ml-1" :icon="mdiOpenInNew" size="16" />

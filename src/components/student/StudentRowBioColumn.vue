@@ -138,7 +138,7 @@
       size="sm"
       tag="a"
       variant="text"
-      @click="() => goToStudentDegreeChecks(student.uid)"
+      @click="() => goToStudentDegreeChecks(student.sid)"
     >
       <div class="align-center d-flex text-anchor">
         <div>

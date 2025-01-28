@@ -136,8 +136,8 @@ export function escapeForRegExp(s) {
   return s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-export function goToStudentDegreeChecks(uid: string): void {
-  window.open(`${useContextStore().config.apiBaseUrl}/api/degree/student/${uid}/redirect`)
+export function goToStudentDegreeChecks(sid: string): void {
+  window.open(`${useContextStore().config.apiBaseUrl}/api/degree/student/${sid}/redirect`)
 }
 
 export function invokeIfAuthenticated(callback: () => void, onReject = () => {}) {
