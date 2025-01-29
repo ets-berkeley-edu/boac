@@ -41,6 +41,7 @@
         <div class="student-avatar-container text-center">
           <StudentAvatar :key="item.sid" size="medium" :student="item" />
           <ManageStudent
+            button-width="9rem"
             domain="default"
             label-class="font-size-14 font-weight-bold"
             :sr-only="hoverUid !== item.uid"
@@ -283,9 +284,14 @@
 
     <template #item.midtermGrade="{item}">
       <div v-if="item.enrollment">
-        <span v-if="item.enrollment.midtermGrade" v-accessible-grade="item.enrollment.midtermGrade" class="font-weight-bold font-size-14" />
+        <span
+          v-if="item.enrollment.midtermGrade"
+          v-accessible-grade="item.enrollment.midtermGrade"
+          class="font-weight-bold font-size-14"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
+        />
         <v-icon
-          v-if="isAlertGrade(item.enrollment.midtermGrade)"
+          v-if="isAlertGrade(item.enrollment.midtermGrade) && !currentUser.inDemoMode"
           class="ml-1"
           color="warning"
           :icon="mdiAlert"
@@ -297,9 +303,14 @@
 
     <template #item.finalGrade="{item}">
       <div v-if="item.enrollment">
-        <span v-if="item.enrollment.grade" v-accessible-grade="item.enrollment.grade" class="font-weight-bold font-size-14" />
+        <span
+          v-if="item.enrollment.grade"
+          v-accessible-grade="item.enrollment.grade"
+          class="font-weight-bold font-size-14"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
+        />
         <v-icon
-          v-if="isAlertGrade(item.enrollment.grade)"
+          v-if="isAlertGrade(item.enrollment.grade) && !currentUser.inDemoMode"
           class="ml-1"
           color="warning"
           :icon="mdiAlert"

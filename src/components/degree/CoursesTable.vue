@@ -70,7 +70,7 @@
                 'vertical-top': !isCampusRequirements
               }"
             >
-              <span v-if="!bundle.course && bundle.category.isRecommended">
+              <span v-if="!bundle.course && bundle.category.isRecommended" class="recommended-indicator">
                 <v-icon
                   :id="`category-${bundle.category.id}-is-recommended`"
                   color="accent-orange"
@@ -110,6 +110,7 @@
               <div class="d-flex align-center">
                 <span
                   :class="{
+                    'demo-mode-blur': degreeStore.sid && currentUser.inDemoMode,
                     'font-italic text-surface-variant': !bundle.course && !getAccentColor(bundle),
                     'font-size-12': printable,
                     'font-size-14 text-no-wrap': !printable
@@ -118,7 +119,7 @@
                   {{ getGrade(bundle) }}
                 </span>
                 <v-icon
-                  v-if="isAlertGrade(getGrade(bundle))"
+                  v-if="isAlertGrade(getGrade(bundle)) && !currentUser.inDemoMode"
                   class="ml-1"
                   color="warning"
                   :icon="mdiAlert"
@@ -710,6 +711,9 @@ th {
 }
 .changed-units-icon {
   margin-right: 0.3em;
+}
+.recommended-indicator {
+  margin-left: -24px;
 }
 .td-actions {
   padding: 3px 0 0 0;

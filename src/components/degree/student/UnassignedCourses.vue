@@ -77,13 +77,14 @@
               <td
                 class="td-grade text-no-wrap"
                 :class="{
+                  'demo-mode-blur': currentUser.inDemoMode,
                   'force-width-24': isAlertGrade(course.grade),
                   'force-width-50': isAlertGrade(course.grade)
                 }"
               >
                 <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
                 <v-icon
-                  v-if="isAlertGrade(course.grade)"
+                  v-if="isAlertGrade(course.grade) && !currentUser.inDemoMode"
                   class="mb-1"
                   color="warning"
                   :icon="mdiAlert"

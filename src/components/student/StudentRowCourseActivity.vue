@@ -59,28 +59,35 @@
               v-if="enrollment.midtermGrade"
               v-accessible-grade="enrollment.midtermGrade"
               class="font-weight-bold"
+              :class="{'demo-mode-blur': currentUser.inDemoMode}"
             />
             <v-icon
-              v-if="isAlertGrade(enrollment.midtermGrade)"
+              v-if="isAlertGrade(enrollment.midtermGrade) && !currentUser.inDemoMode"
               color="warning"
               :icon="mdiAlert"
               size="small"
+              title="Non-passing grade"
             />
             <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
           </div>
         </td>
         <td class="col-final">
           <div class="d-flex align-center">
-            <span v-if="enrollment.grade" v-accessible-grade="enrollment.grade" />
+            <span
+              v-if="enrollment.grade"
+              v-accessible-grade="enrollment.grade"
+              :class="{'demo-mode-blur': currentUser.inDemoMode}"
+            />
             <v-icon
-              v-if="isAlertGrade(enrollment.grade)"
+              v-if="isAlertGrade(enrollment.grade) && !currentUser.inDemoMode"
               class="grade-alert"
               color="warning"
               :icon="mdiAlert"
               size="small"
+              title="Non-passing grade"
             />
             <IncompleteGradeAlertIcon
-              v-if="getSectionsWithIncompleteStatus(enrollment.sections).length"
+              v-if="getSectionsWithIncompleteStatus(enrollment.sections).length && !currentUser.inDemoMode"
               :course="enrollment"
               :index="index"
               :term-id="termId"
