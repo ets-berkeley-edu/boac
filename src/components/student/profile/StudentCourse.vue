@@ -44,16 +44,18 @@
           v-if="course.midtermGrade"
           :id="`${baseElementId}-midterm-grade`"
           v-accessible-grade="course.midtermGrade"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
         />
         <span
           v-if="!course.midtermGrade"
           :id="`${baseElementId}-midterm-grade`"
         ><span class="sr-only">No data</span>&mdash;</span>
         <v-icon
-          v-if="isAlertGrade(course.midtermGrade) && !course.grade"
+          v-if="isAlertGrade(course.midtermGrade) && !course.grade && !currentUser.inDemoMode"
           :id="`${baseElementId}-has-midterm-grade-alert`"
           class="warning"
           :icon="mdiAlert"
+          title="Non-passing grade"
         />
       </div>
       <div class="align-center column-grade d-flex text-nowrap" role="cell">
@@ -61,6 +63,7 @@
           v-if="course.grade"
           :id="`${baseElementId}-final-grade`"
           v-accessible-grade="course.grade"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
         />
         <span
           v-if="!course.grade"
@@ -68,19 +71,22 @@
           class="font-italic text-medium-emphasis"
         >{{ course.gradingBasis }}</span>
         <v-icon
-          v-if="isAlertGrade(course.grade)"
+          v-if="isAlertGrade(course.grade) && !currentUser.inDemoMode"
           :id="`${baseElementId}-has-grade-alert`"
           class="warning ml-1"
           color="warning"
           :icon="mdiAlert"
+          title="Non-passing grade"
         />
         <IncompleteGradeAlertIcon
-          v-if="sectionsWithIncompleteStatus.length"
+          v-if="sectionsWithIncompleteStatus.length && !currentUser.inDemoMode"
           :course="course"
           :index="index"
           :term-id="termId"
         />
-        <span v-if="!course.grade && !course.gradingBasis" :id="`${baseElementId}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
+        <span v-if="!course.grade && !course.gradingBasis" :id="`${baseElementId}-final-grade`">
+          <span class="sr-only">No data</span>&mdash;
+        </span>
       </div>
       <div class="column-units font-size-14 pl-1 pt-1 text-nowrap text-right" role="cell">
         <span :id="`${baseElementId}-units`">{{ numeral(course.units).format('0.0') }}</span>
@@ -109,7 +115,7 @@
             v-for="(section, sectionIndex) in course.sections"
             :key="sectionIndex"
           >
-            <span v-if="section.displayName">
+            <span v-if="section.displayName" :class="{'demo-mode-blur': currentUser.inDemoMode}">
               <span v-if="sectionIndex === 0"></span><!--
                 --><router-link
                 v-if="section.isViewableOnCoursePage"
@@ -146,8 +152,10 @@
           v-for="section in sectionsWithIncompleteStatus"
           :key="section.ccn"
           class="align-items-center d-flex pb-2"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
         >
           <v-chip
+            v-if="!currentUser.inDemoMode"
             class="align-center d-flex font-size-12 font-weight-black mr-2 text-uppercase text-nowrap"
             color="error"
             density="compact"
