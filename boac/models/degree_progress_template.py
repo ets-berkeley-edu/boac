@@ -273,7 +273,7 @@ class DegreeProgressTemplate(Base):
                         units_original_value=units,
                     )
             elif section.get('primary'):
-                if grade and units:
+                if grade:
                     course = DegreeProgressCourse.create(
                         degree_check_id=self.id,
                         display_name=section['displayName'],
