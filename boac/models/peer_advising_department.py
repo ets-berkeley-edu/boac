@@ -44,3 +44,7 @@ class PeerAdvisingDepartment(Base):
         db.session.add(peer_advising_department)
         std_commit()
         return peer_advising_department
+
+    @classmethod
+    def find_by_university_dept_id(cls, university_dept_id):
+        return cls.query.filter_by(university_dept_id=university_dept_id).all()

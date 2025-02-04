@@ -29,7 +29,7 @@
       :items="peerAdvisingDepartment.members"
       :items-per-page="-1"
       mobile-breakpoint="md"
-      :row-props="row => ({id: `row-topic-${normalizeId(row.item.topic)}`})"
+      :row-props="row => ({id: `tr-member-${row.item.uid}`})"
     >
       <template #item.notesCreatedCount="{item}">
         <div class="float-right" :class="{'font-weight-medium text-red': item.deletedAt}">
@@ -42,8 +42,8 @@
             <v-btn
               v-if="!item.deletedAt"
               v-bind="props"
-              :id="`delete-topic-${normalizeId(item.topic)}`"
-              :aria-label="`Delete ${item.topic}`"
+              :id="`delete-topic-${item.uid}`"
+              :aria-label="`Delete ${item.name}`"
               color="primary"
               density="compact"
               text="Remove"
@@ -57,8 +57,8 @@
             <v-btn
               v-if="item.deletedAt"
               v-bind="props"
-              :id="`undelete-topic-${normalizeId(item.topic)}`"
-              :aria-label="`Un-delete ${item.topic}`"
+              :id="`undelete-topic-${item.uid}`"
+              :aria-label="`Un-delete ${item.name}`"
               color="warning"
               density="compact"
               text="Restore"
@@ -74,7 +74,7 @@
 
 <script setup>
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
-import {alertScreenReader, normalizeId} from '@/lib/utils'
+import {alertScreenReader} from '@/lib/utils'
 import {ref} from 'vue'
 
 defineProps({

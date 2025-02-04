@@ -189,26 +189,29 @@
                       v-for="option in roles"
                       :id="`department-role-${lowerCase(option.value)}`"
                       :key="option.value"
+                      :disabled="isRoleOptionDisabled(dept.code, option.value)"
                       :value="option.value"
                     >
                       {{ option.text }}
                     </option>
                   </select>
                 </div>
-                <div class="pl-8 pt-1">
-                  <v-checkbox
-                    :id="`is-automate-membership-${dept.code}`"
-                    v-model="dept.automateMembership"
-                    class="automate-membership-checkbox"
-                    color="primary"
-                    density="compact"
-                    hide-details
-                  >
-                    <template #label>
-                      <span class="pl-1">Automated</span>
-                    </template>
-                  </v-checkbox>
-                </div>
+                <v-expand-transition>
+                  <div v-show="dept.role !== 'peer_advisor_manager'" class="pl-8 pt-1">
+                    <v-checkbox
+                      :id="`is-automate-membership-${dept.code}`"
+                      v-model="dept.automateMembership"
+                      class="automate-membership-checkbox"
+                      color="primary"
+                      density="compact"
+                      hide-details
+                    >
+                      <template #label>
+                        <span class="pl-1">Automated</span>
+                      </template>
+                    </v-checkbox>
+                  </div>
+                </v-expand-transition>
               </v-card-text>
             </v-card>
             <div v-if="memberships.length >= 3">
@@ -229,7 +232,7 @@
                   v-for="option in departmentOptions"
                   :id="`department-option-${lowerCase(option.value)}`"
                   :key="option.value"
-                  :disabled="memberships.findIndex(d => d.code === option.value) >= 0"
+                  :disabled="isDepartmentOptionDisabled(option.value)"
                   :value="option.value"
                 >
                   {{ option.text }}
@@ -314,7 +317,8 @@ const degreeProgressPermissionItems = [
 ]
 const roles = [
   {value: 'advisor', text: 'Advisor'},
-  {value: 'director', text: 'Director'}
+  {value: 'director', text: 'Director'},
+  {value: 'peer_advisor_manager', text: 'Peer Advisor Manager'}
 ]
 
 const isExistingUser = computed(() => {
@@ -331,7 +335,7 @@ const addDepartment = () => {
       automateMembership: true
     })
     const option = find(departmentOptions.value, ['value', deptCode.value])
-    option.disabled = true
+    option.disabled = isDepartmentOptionDisabled(deptCode.value)
     deptCode.value = undefined
   }
 }
@@ -352,6 +356,23 @@ const closeModal = () => {
   showEditUserModal.value = false
   userProfile.value = {}
   memberships.value = []
+}
+
+const isDepartmentOptionDisabled = deptCode => {
+  const existing_roles = map(_filter(memberships.value, ['code', deptCode]), 'role')
+  return existing_roles.length === 2 && existing_roles.includes('peer_advisor_manager')
+}
+
+const isRoleOptionDisabled = (deptCode, role) => {
+  const existing_depts = _filter(memberships.value, ['code', deptCode])
+  const existing_roles = map(existing_depts, 'role')
+  let isDisabled = false
+  if (['advisor', 'director'].includes(role)) {
+    isDisabled = existing_roles.includes('advisor') || existing_roles.includes('director')
+  } else if (role === 'peer_advisor_manager') {
+    isDisabled = existing_roles.includes('peer_advisor_manager')
+  }
+  return isDisabled
 }
 
 const openEditUserModal = () => {
@@ -379,12 +400,20 @@ const openEditUserModal = () => {
       })
     }
   })
+  each(props.profile.peerAdvisingDepartments, d => {
+    memberships.value.push({
+      automateMembership: d.automateMembership,
+      code: d.universityDeptCode,
+      name: d.universityDeptName,
+      role: d.roleType,
+    })
+  })
   departmentOptions.value = []
   each(props.departments, d => {
     departmentOptions.value.push({
-      disabled: !!find(memberships.value, ['code', d.code]),
-      value: d.code,
-      text: d.name
+      disabled: isDepartmentOptionDisabled(d.code),
+      text: d.name,
+      value: d.code
     })
   })
   showEditUserModal.value = true

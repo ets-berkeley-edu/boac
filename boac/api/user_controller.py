@@ -40,6 +40,8 @@ from boac.lib.util import to_bool_or_none
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.peer_advising_department import PeerAdvisingDepartment
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
@@ -334,26 +336,40 @@ def _update_or_create_authorized_user(memberships, profile, include_deleted=Fals
             raise errors.BadRequestError('Invalid UID')
 
 
+def _create_department_memberships(authorized_user, memberships):
+    valid_roles = ('advisor', 'director', 'peer_advisor_manager')
+    for membership in [m for m in memberships if m['role'] in valid_roles]:
+        role = membership['role']
+        university_dept = UniversityDept.find_by_dept_code(membership['code'])
+        if role in ['advisor', 'director']:
+            UniversityDeptMember.create_or_update_membership(
+                automate_membership=to_bool_or_none(membership['automateMembership']),
+                authorized_user_id=authorized_user.id,
+                role=role,
+                university_dept_id=university_dept.id,
+            )
+        elif role == 'peer_advisor_manager':
+            for peer_advising_dept in PeerAdvisingDepartment.find_by_university_dept_id(university_dept.id):
+                PeerAdvisingDepartmentMember.create_or_update_membership(
+                    authorized_user_id=authorized_user.id,
+                    peer_advising_department_id=peer_advising_dept.id,
+                    role_type=role,
+                )
+    UserSession.flush_cache_for_id(authorized_user.id)
+
+
 def _delete_existing_memberships(authorized_user):
     existing_memberships = UniversityDeptMember.get_existing_memberships(authorized_user_id=authorized_user.id)
     for university_dept_id in [m.university_dept.id for m in existing_memberships]:
         UniversityDeptMember.delete_membership(
+            authorized_user_id=authorized_user.id,
             university_dept_id=university_dept_id,
-            authorized_user_id=authorized_user.id,
         )
-
-
-def _create_department_memberships(authorized_user, memberships):
-    for membership in [m for m in memberships if m['role'] in ('advisor', 'director')]:
-        university_dept = UniversityDept.find_by_dept_code(membership['code'])
-        role = membership['role']
-        UniversityDeptMember.create_or_update_membership(
-            university_dept_id=university_dept.id,
+    for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=authorized_user.id):
+        PeerAdvisingDepartmentMember.delete_membership(
             authorized_user_id=authorized_user.id,
-            role=role,
-            automate_membership=to_bool_or_none(membership['automateMembership']),
+            peer_advising_department_id=m.peer_advising_department_id,
         )
-        UserSession.flush_cache_for_id(authorized_user.id)
 
 
 def _describe_dept_roles(dept):
