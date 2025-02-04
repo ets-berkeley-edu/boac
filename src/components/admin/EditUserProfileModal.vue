@@ -166,8 +166,8 @@
                   @click="() => removeDepartment(dept.deptCode, dept.role)"
                 />
               </v-card-title>
-              <v-card-text>
-                <div class="align-center d-flex pl-8">
+              <v-card-text class="pl-4">
+                <div class="align-center d-flex">
                   <label class="font-weight-black mr-2" :for="`select-department-${dept.deptCode}-role`">Role</label>
                   <select
                     :id="`select-department-${dept.deptCode}-role`"
@@ -180,10 +180,10 @@
                       id="department-role-null"
                       :value="null"
                     >
-                      Select Role...
+                      Select...
                     </option>
                     <option
-                      v-for="option in roles"
+                      v-for="option in getAvailableRoles(dept.deptCode)"
                       :id="`department-role-${lowerCase(option.value)}`"
                       :key="option.value"
                       :disabled="isRoleOptionDisabled(dept.deptCode, option.value)"
@@ -207,6 +207,30 @@
                         <span class="pl-1">Automated</span>
                       </template>
                     </v-checkbox>
+                  </div>
+                </v-expand-transition>
+                <v-expand-transition>
+                  <div v-show="dept.role === 'peer_advisor_manager'" class="mt-2 pl-11 pr-8">
+                    <select
+                      id="peer-advising-department-select"
+                      v-model="dept.peerAdvisingDepartmentId"
+                      aria-label="Department"
+                      class="select-menu w-100"
+                      @change="addDepartment"
+                    >
+                      <option id="department-null" :value="undefined">
+                        Select Peer Advising Department...
+                      </option>
+                      <option
+                        v-for="option in getPeerAdvisingDepartments(dept.deptCode)"
+                        :id="`department-option-${lowerCase(option.value)}`"
+                        :key="option.id"
+                        :disabled="isDepartmentOptionDisabled(option.value)"
+                        :value="option.id"
+                      >
+                        {{ option.name }}
+                      </option>
+                    </select>
                   </div>
                 </v-expand-transition>
               </v-card-text>
@@ -312,15 +336,7 @@ const degreeProgressPermissionItems = [
   {value: 'read', text: 'Read-only'},
   {value: 'read_write', text: 'Read and write'}
 ]
-const roles = [
-  {value: 'advisor', text: 'Advisor'},
-  {value: 'director', text: 'Director'},
-  {value: 'peer_advisor_manager', text: 'Peer Advisor Manager'}
-]
-
-const isExistingUser = computed(() => {
-  return !!props.profile.id
-})
+const isExistingUser = computed(() => !!props.profile.id)
 
 const addDepartment = () => {
   if (deptCode.value) {
@@ -353,6 +369,23 @@ const closeModal = () => {
   showEditUserModal.value = false
   userProfile.value = {}
   memberships.value = []
+}
+
+const getAvailableRoles = deptCode => {
+  const department = find(props.departments, ['deptCode', deptCode])
+  const roles = [
+    {value: 'advisor', text: 'Advisor'},
+    {value: 'director', text: 'Director'},
+  ]
+  if (department.peerAdvisingDepartments.length) {
+    roles.push({value: 'peer_advisor_manager', text: 'Peer Advisor Manager'})
+  }
+  return roles
+}
+
+const getPeerAdvisingDepartments = deptCode => {
+  const department = find(props.departments, ['deptCode', deptCode])
+  return department.peerAdvisingDepartments
 }
 
 const isDepartmentOptionDisabled = deptCode => {

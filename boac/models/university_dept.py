@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from functools import reduce
 from itertools import groupby
 from operator import itemgetter
@@ -66,21 +65,31 @@ class UniversityDept(Base):
             FROM university_dept_members m
             JOIN university_depts d ON d.id = m.university_dept_id
             LEFT JOIN authorized_users u ON u.id = m.authorized_user_id
-            LEFT JOIN peer_advising_departments p ON p.university_dept_id = d.id
+            LEFT JOIN peer_advising_departments p ON p.university_dept_id = m.university_dept_id
             WHERE u.deleted_at IS NULL
             GROUP BY d.id, d.dept_code, d.dept_name, p.id, p.name
             {'HAVING COUNT(m.authorized_user_id) > 0' if exclude_empty else ''}
             ORDER BY d.dept_name
         """
-
-        def _to_json(row):
-            return {
-                'id': row['id'],
-                'deptCode': row['dept_code'],
-                'deptName': row['dept_name'],
-                'memberCount': row['member_count'],
-            }
-        return [_to_json(result) for result in db.session.execute(text(sql))]
+        results = []
+        for row in db.session.execute(text(sql)):
+            dept_code = row['dept_code']
+            department_json = next((d for d in results if d['dept_code'] == dept_code), None)
+            if not department_json:
+                department_json = {
+                    'id': row['id'],
+                    'dept_code': row['dept_code'],
+                    'dept_name': row['dept_name'],
+                    'member_count': row['member_count'],
+                    'peer_advising_departments': [],
+                }
+                results.append(department_json)
+            if row['peer_advising_department_id']:
+                department_json['peer_advising_departments'].append({
+                    'id': row['peer_advising_department_id'],
+                    'name': row['peer_advising_department_name'],
+                })
+        return results
 
     @classmethod
     def create(cls, dept_code, dept_name):
