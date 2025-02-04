@@ -260,10 +260,13 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
                 'automateMembership': m.automate_membership,
             })
         for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id):
+            peer_advising_dept_id = m['peer_advising_department_id']
             profile['peerAdvisingDepartments'].append({
+                'id': peer_advising_dept_id,
                 'name': m['peer_advising_department_name'],
-                'peerAdvisingDepartmentId': m['peer_advising_department_id'],
                 'roleType': m['role_type'],
+                'universityDeptCode': m['university_dept_code'],
+                'universityDeptName': m['university_dept_name'],
             })
         user_login = UserLogin.last_login(user.uid)
         profile['lastLogin'] = _isoformat(user_login.created_at) if user_login else None

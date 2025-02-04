@@ -820,3 +820,43 @@ class TestUserUpdate:
         assert user['canAccessAdvisingData'] is False
         assert user['canAccessCanvasData'] is False
         assert len(user['departments']) == 1
+
+    def test_peer_advising_manager_role(self, client, fake_auth):
+        """Give an advisor the 'Peer Advising Manager' role."""
+        fake_auth.login(admin_uid)
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        dept_code = 'COENG'
+        user = self._api_create_or_update(
+            client,
+            profile=self._profile_object(
+                authorized_user_id=advisor.id,
+                can_access_advising_data=False,
+                can_access_canvas_data=False,
+                uid=advisor.uid,
+            ),
+            memberships=[
+                {
+                    'code': dept_code,
+                    'role': 'peer_advisor_manager',
+                    'automateMembership': False,
+                },
+            ],
+        )
+        assert user['id'] == advisor.id
+        assert user['uid'] == coe_advisor_uid
+        assert user['isAdmin'] is False
+        assert user['isBlocked'] is False
+        assert user['canAccessAdvisingData'] is False
+        assert user['canAccessCanvasData'] is False
+        # Verify University Dept membership
+        university_depts = user['departments']
+        assert len(university_depts) == 1
+        assert university_depts[0]['code'] == dept_code
+        # Verify Peer Advising
+        peer_advising_departments = user['peerAdvisingDepartments']
+        assert len(peer_advising_departments) == 1
+        peer_advising_department = peer_advising_departments[0]
+        assert peer_advising_department['name'] == 'Mechanical Engineering'
+        assert peer_advising_department['roleType'] == 'peer_advisor_manager'
+        assert peer_advising_department['universityDeptCode'] == dept_code
+        assert peer_advising_department['universityDeptName'] == 'College of Engineering'

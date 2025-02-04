@@ -7,90 +7,71 @@
       <span class="mr-2 text-weight-bold">Student</span>
       <span class="font-weight-regular">(name or SID)</span>
     </label>
-    <div class="align-center d-flex mt-2">
-      <v-combobox
-        id="add-student-input"
-        ref="addStudentInput"
-        :key="vAutocompleteKey"
-        aria-describedby="add-student-desc"
-        aria-label="Name or S I D lookup. Expect auto suggest."
-        autocomplete="list"
-        base-color="primary"
-        class="autocomplete-students autocomplete-with-add-button"
-        :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
-        color="primary"
-        density="compact"
-        :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
-        :error-messages="autocompleteErrorMessage"
-        :hide-details="!size(autocompleteErrorMessage)"
-        :hide-no-data="size(autoSuggestedStudents) < 3"
-        item-title="label"
-        item-value="sid"
-        :items="autoSuggestedStudents"
-        :menu-icon="null"
-        :menu-props="{
-          'content-class': useContextStore().currentUser.inDemoMode ? 'demo-mode-blur' : ''
-        }"
-        type="search"
-        validate-on="submit"
-        variant="outlined"
-        @click:append="onClickAddButton"
-        @click:clear="resetAutocomplete"
-        @keydown.esc="onEscFormInput"
-        @update:menu="isOpen => noteStore.setFocusLockDisabled(isOpen)"
-        @update:search="onUpdateSearch"
-        @update:model-value="onUpdateModel"
-      >
-        <template #append>
-          <v-btn
-            id="add-student-add-button"
-            aria-label="Add Student to Note"
-            class="add-button"
-            color="primary"
-            :disabled="!size(query) && !size(sidsManuallyAdded)"
-            :prepend-icon="mdiPlus"
-            text="Add"
-            variant="flat"
-            @click.stop="onClickAddButton"
-          />
-        </template>
-      </v-combobox>
-    </div>
-    <ul class="list-no-bullets mt-1">
-      <li v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid">
-        <PillItem
-          :id="`batch-note-student-${index}`"
-          :clazz="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
-          closable
-          :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
-          :label="addedStudent.label"
-          @close-clicked="removeStudent(addedStudent)"
-        >
-          <span class="truncate-with-ellipsis">{{ addedStudent.label }}</span>
-        </PillItem>
-      </li>
-    </ul>
+    <v-combobox
+      id="add-student-input"
+      ref="addStudentInput"
+      :key="vAutocompleteKey"
+      aria-describedby="add-student-desc"
+      aria-label="Name or S I D lookup. Expect auto suggest."
+      autocomplete="list"
+      base-color="primary"
+      class="autocomplete-students autocomplete-with-add-button mt-2"
+      :class="{'demo-mode-blur': currentUser.inDemoMode}"
+      color="primary"
+      density="compact"
+      :error-messages="autocompleteErrorMessage"
+      :hide-details="!size(autocompleteErrorMessage)"
+      :hide-no-data="size(autoSuggestedStudents) < 3"
+      item-title="label"
+      item-value="sid"
+      :items="autoSuggestedStudents"
+      :menu-icon="null"
+      :menu-props="{
+        'content-class': currentUser.inDemoMode ? 'demo-mode-blur' : ''
+      }"
+      type="search"
+      validate-on="submit"
+      variant="outlined"
+      @click:append="onClickAddButton"
+      @click:clear="resetAutocomplete"
+      @keydown.esc="onEscFormInput"
+      @update:menu="isOpen => noteStore.setFocusLockDisabled(isOpen)"
+      @update:search="onUpdateSearch"
+      @update:model-value="onUpdateModel"
+    >
+      <template #append>
+        <v-btn
+          id="add-student-add-button"
+          aria-label="Add Student to Note"
+          class="add-button"
+          color="primary"
+          :disabled="!size(query) && !size(sidsManuallyAdded)"
+          :prepend-icon="mdiPlus"
+          text="Add"
+          variant="flat"
+          @click.stop="onClickAddButton"
+        />
+      </template>
+    </v-combobox>
   </div>
 </template>
 
 <script setup>
-import PillItem from '@/components/util/PillItem'
 import {alertScreenReader, putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
 import {
   differenceWith,
   each,
   filter,
   find,
-  findIndex,
-  includes, isEqual,
+  includes,
+  isEqual,
   join,
   map,
   remove,
   size,
   split,
   trim,
-  uniq,
-  without
+  uniq
 } from 'lodash'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 import {mdiPlus} from '@mdi/js'
@@ -107,19 +88,29 @@ defineProps({
   }
 })
 
+const contextStore = useContextStore()
 const noteStore = useNoteStore()
 
 const addStudentInput = ref()
 const autocompleteErrorMessage = ref(undefined)
 const addedStudents = ref([])
 const autoSuggestedStudents = ref([])
+const currentUser = contextStore.currentUser
 const isUpdatingStudentAutocomplete = ref(false)
 const query = ref(undefined)
 const sidsManuallyAdded = ref([])
 const vAutocompleteKey = ref(new Date())
 
+onMounted(() => {
+  const sids = noteStore.recipients.sids
+  if (sids.length) {
+    getStudentsBySids(sids).then(students => {
+      addedStudents.value = students
+    })
+  }
+})
+
 const addStudent = student => {
-  noteStore.setIsRecalculating(true)
   addedStudents.value.push(student)
   setNoteRecipient(student.sid).then(() => {
     alertScreenReader(`Added ${student.label} to batch note`)
@@ -142,15 +133,6 @@ const onUpdateModel = sid => {
     addStudent(student)
   }
 }
-
-onMounted(() => {
-  const sids = noteStore.recipients.sids
-  if (sids.length) {
-    getStudentsBySids(sids).then(students => {
-      addedStudents.value = students
-    })
-  }
-})
 
 onUpdated(() => {
   nextTick(() => setComboboxAccessibleLabel(addStudentInput.value.$el, 'Student'))
@@ -207,24 +189,6 @@ const onUpdateSearch = input => {
         }).catch(() => putFocusNextTick('add-student-input'))
       }
     }
-  }
-}
-
-const removeStudent = student => {
-  if (student) {
-    const index = findIndex(addedStudents.value, {'sid': student.sid})
-    addedStudents.value.splice(index, 1)
-    const recipients = noteStore.recipients
-    if (recipients.sids.includes(student.sid)) {
-      setNoteRecipients(
-        recipients.cohorts,
-        recipients.curatedGroups,
-        without(recipients.sids, student.sid)
-      ).then(() => {
-        putFocusNextTick('add-student-input')
-      })
-    }
-    alertScreenReader(`${student.label} removed from batch note`)
   }
 }
 </script>

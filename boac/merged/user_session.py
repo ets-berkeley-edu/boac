@@ -157,6 +157,8 @@ class UserSession(UserMixin):
                         'name': m['peer_advising_department_name'],
                         'peerAdvisingDepartmentId': m['peer_advising_department_id'],
                         'roleType': m['role_type'],
+                        'universityDeptCode': m['university_dept_code'],
+                        'universityDeptName': m['university_dept_name'],
                     })
         is_active = False
         if user:

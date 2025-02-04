@@ -331,10 +331,17 @@ _test_users = [
     },
 ]
 
-_peer_advising_department_memberships = [
+_peer_advising_departments = [
     {
         'peer_advising_department_name': 'Psychology',
         'university_dept_code': 'QCADV',
+        'users': [
+            {'uid': '1563405', 'role': 'peer_advisor'},
+        ],
+    },
+    {
+        'peer_advising_department_name': 'Mechanical Engineering',
+        'university_dept_code': 'COENG',
         'users': [
             {'uid': '1563405', 'role': 'peer_advisor'},
         ],
@@ -485,7 +492,7 @@ def _load_users_and_departments():
         UniversityDept.create(code, name)
     _create_users()
     _create_department_memberships()
-    _create_peer_advising_department_memberships()
+    _create_peer_advising_departments()
 
 
 def _create_users():
@@ -552,8 +559,8 @@ def _create_department_memberships():
             )
 
 
-def _create_peer_advising_department_memberships():
-    for data in _peer_advising_department_memberships:
+def _create_peer_advising_departments():
+    for data in _peer_advising_departments:
         peer_advising_department_name = data['peer_advising_department_name']
         university_dept = UniversityDept.find_by_dept_code(data['university_dept_code'])
         peer_advising_department = PeerAdvisingDepartment.create(

@@ -49,7 +49,7 @@
           :value="item.key"
         >
           <div v-if="item.key === 'account'">
-            <div class="pt-3">
+            <div class="mb-3 mt-5">
               <h2 class="font-size-16">{{ item.label }}</h2>
             </div>
             <PeerAdvisingAccountMgmt :peer-advising-department="peerAdvisingDepartment" />

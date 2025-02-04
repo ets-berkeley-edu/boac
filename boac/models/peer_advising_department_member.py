@@ -73,20 +73,37 @@ class PeerAdvisingDepartmentMember(Base):
         return membership
 
     @classmethod
+    def delete_membership(cls, authorized_user_id, peer_advising_department_id):
+        membership = cls.query.filter_by(
+            authorized_user_id=authorized_user_id,
+            peer_advising_department_id=peer_advising_department_id,
+        ).first()
+        if not membership:
+            return False
+        db.session.delete(membership)
+        std_commit()
+        return True
+
+    @classmethod
     def get_peer_advising_department_memberships(cls, authorized_user_id):
         def _to_dict(row):
             return {
                 'peer_advising_department_name': row['name'],
                 'peer_advising_department_id': row['peer_advising_department_id'],
                 'role_type': row['role_type'],
+                'university_dept_code': row['university_dept_code'],
+                'university_dept_name': row['university_dept_name'],
             }
         sql = """
             SELECT
                 d.name,
                 m.peer_advising_department_id,
-                m.role_type
+                m.role_type,
+                u.dept_code AS university_dept_code,
+                u.dept_name AS university_dept_name
             FROM peer_advising_department_members m
             JOIN peer_advising_departments d ON d.id = m.peer_advising_department_id
+            JOIN university_depts u ON u.id = d.university_dept_id
             WHERE
                 m.authorized_user_id = :authorized_user_id
                 AND m.deleted_at IS NULL
