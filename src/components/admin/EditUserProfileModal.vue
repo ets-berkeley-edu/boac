@@ -117,10 +117,7 @@
                 </div>
               </div>
             </div>
-            <div
-              v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission"
-              class="pb-3"
-            >
+            <div v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission">
               <label class="font-weight-black" for="degree-progress-permission-select">Degree Progress Permission</label>
               <div class="mt-1">
                 <select
@@ -152,32 +149,32 @@
             <h4 class="sr-only">Departments</h4>
             <v-card
               v-for="dept in memberships"
-              :key="dept.code"
+              :key="dept.deptCode"
+              class="bg-grey-lighten-4 border-md mt-1"
               flat
-              variant="tonal"
             >
               <v-card-title class="align-center d-flex">
-                <h5 class="text-wrap font-size-16">{{ dept.name }} ({{ dept.code }})</h5>
+                <h5 class="text-wrap font-size-16">{{ dept.deptName }} ({{ dept.deptCode }})</h5>
                 <v-btn
-                  :id="`remove-department-${dept.code}`"
-                  :aria-label="`Remove department '${dept.name}'`"
-                  class="align-self-start ml-auto text-error"
+                  :id="`remove-department-${dept.deptCode}`"
+                  :aria-label="`Remove department '${dept.deptName}'`"
+                  class="align-self-start bg-grey-lighten-4 ml-auto text-error"
                   density="comfortable"
                   :icon="mdiCloseCircleOutline"
                   title="Remove"
                   variant="flat"
-                  @click="() => removeDepartment(dept.code)"
+                  @click="() => removeDepartment(dept.deptCode, dept.role)"
                 />
               </v-card-title>
               <v-card-text>
                 <div class="align-center d-flex pl-8">
-                  <label class="font-weight-black mr-2" :for="`select-department-${dept.code}-role`">Role</label>
+                  <label class="font-weight-black mr-2" :for="`select-department-${dept.deptCode}-role`">Role</label>
                   <select
-                    :id="`select-department-${dept.code}-role`"
+                    :id="`select-department-${dept.deptCode}-role`"
                     v-model="dept.role"
                     class="select-menu select-department-role"
-                    :class="{'border border-error border-opacity-100 text-error': includes(map(membershipsMissingRoles, 'code'), dept.code)}"
-                    @change="remove(membershipsMissingRoles, {'code': dept.code})"
+                    :class="{'border border-error border-opacity-100 text-error': includes(map(membershipsMissingRoles, 'deptCode'), dept.deptCode)}"
+                    @change="remove(membershipsMissingRoles, {'deptCode': dept.deptCode})"
                   >
                     <option
                       id="department-role-null"
@@ -189,7 +186,7 @@
                       v-for="option in roles"
                       :id="`department-role-${lowerCase(option.value)}`"
                       :key="option.value"
-                      :disabled="isRoleOptionDisabled(dept.code, option.value)"
+                      :disabled="isRoleOptionDisabled(dept.deptCode, option.value)"
                       :value="option.value"
                     >
                       {{ option.text }}
@@ -199,7 +196,7 @@
                 <v-expand-transition>
                   <div v-show="dept.role !== 'peer_advisor_manager'" class="pl-8 pt-1">
                     <v-checkbox
-                      :id="`is-automate-membership-${dept.code}`"
+                      :id="`is-automate-membership-${dept.deptCode}`"
                       v-model="dept.automateMembership"
                       class="automate-membership-checkbox"
                       color="primary"
@@ -327,10 +324,10 @@ const isExistingUser = computed(() => {
 
 const addDepartment = () => {
   if (deptCode.value) {
-    const dept = find(props.departments, ['code', deptCode.value])
+    const dept = find(props.departments, ['deptCode', deptCode.value])
     memberships.value.push({
-      code: dept.code,
-      name: dept.name,
+      deptCode: dept.deptCode,
+      deptName: dept.deptName,
       role: null,
       automateMembership: true
     })
@@ -359,18 +356,20 @@ const closeModal = () => {
 }
 
 const isDepartmentOptionDisabled = deptCode => {
-  const existing_roles = map(_filter(memberships.value, ['code', deptCode]), 'role')
+  const existing_roles = map(_filter(memberships.value, ['deptCode', deptCode]), 'role')
   return existing_roles.length === 2 && existing_roles.includes('peer_advisor_manager')
 }
 
 const isRoleOptionDisabled = (deptCode, role) => {
-  const existing_depts = _filter(memberships.value, ['code', deptCode])
-  const existing_roles = map(existing_depts, 'role')
   let isDisabled = false
-  if (['advisor', 'director'].includes(role)) {
-    isDisabled = existing_roles.includes('advisor') || existing_roles.includes('director')
-  } else if (role === 'peer_advisor_manager') {
-    isDisabled = existing_roles.includes('peer_advisor_manager')
+  const memberships_per_dept_code = _filter(memberships.value, ['deptCode', deptCode])
+  if (memberships_per_dept_code.length > 1) {
+    const existing_roles = map(memberships_per_dept_code, 'role')
+    if (['advisor', 'director'].includes(role)) {
+      isDisabled = existing_roles.includes('advisor') || existing_roles.includes('director')
+    } else if (role === 'peer_advisor_manager') {
+      isDisabled = existing_roles.includes('peer_advisor_manager')
+    }
   }
   return isDisabled
 }
@@ -394,8 +393,8 @@ const openEditUserModal = () => {
     if (d.role) {
       memberships.value.push({
         automateMembership: d.automateMembership,
-        code: d.code,
-        name: d.name,
+        deptCode: d.deptCode,
+        deptName: d.deptName,
         role: d.role,
       })
     }
@@ -403,25 +402,25 @@ const openEditUserModal = () => {
   each(props.profile.peerAdvisingDepartments, d => {
     memberships.value.push({
       automateMembership: d.automateMembership,
-      code: d.universityDeptCode,
-      name: d.universityDeptName,
+      deptCode: d.universityDeptCode,
+      deptName: d.universityDeptName,
       role: d.roleType,
     })
   })
   departmentOptions.value = []
   each(props.departments, d => {
     departmentOptions.value.push({
-      disabled: isDepartmentOptionDisabled(d.code),
-      text: d.name,
-      value: d.code
+      disabled: isDepartmentOptionDisabled(d.deptCode),
+      text: d.deptName,
+      value: d.deptCode
     })
   })
   showEditUserModal.value = true
   putFocusNextTick(props.profile.uid ? 'is-admin' : 'uid-input')
 }
 
-const removeDepartment = deptCode => {
-  const indexOf = memberships.value.findIndex(d => d.code === deptCode)
+const removeDepartment = (deptCode, role) => {
+  const indexOf = memberships.value.findIndex(d => d.deptCode === deptCode && d.role === role)
   const option = find(departmentOptions.value, ['value', deptCode])
   memberships.value.splice(indexOf, 1)
   option.disabled = false
@@ -434,7 +433,7 @@ const save = () => {
     errors.value.push('UID is required')
     isUidInvalid.value = true
   } if (membershipsMissingRoles.value.length) {
-    const deptNames = map(membershipsMissingRoles.value, 'name')
+    const deptNames = map(membershipsMissingRoles.value, 'deptName')
     errors.value.push(`Please specify role for ${oxfordJoin(deptNames)}`)
   }
   if (!isUidInvalid.value && !membershipsMissingRoles.value.length) {

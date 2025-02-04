@@ -238,8 +238,8 @@ class TestAvailableDeptCodesPerUser:
         assert len(departments) == 1
         assert departments == [
             {
-                'code': 'UWASC',
-                'name': 'Athletic Study Center',
+                'deptCode': 'UWASC',
+                'deptName': 'Athletic Study Center',
             },
         ]
 
@@ -250,12 +250,12 @@ class TestAvailableDeptCodesPerUser:
         assert len(departments) == 2
         assert departments == [
             {
-                'code': 'QCADV',
-                'name': 'L&S College Advising',
+                'deptCode': 'QCADV',
+                'deptName': 'L&S College Advising',
             },
             {
-                'code': 'QCADVMAJ',
-                'name': 'L&S Major Advising',
+                'deptCode': 'QCADVMAJ',
+                'deptName': 'L&S Major Advising',
             },
         ]
 

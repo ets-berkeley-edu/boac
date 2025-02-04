@@ -524,7 +524,7 @@ const search = () => {
         query.advisorUid = searchStore.author.uid
       } else if (searchStore.postedBy === 'yourDepartment') {
         if (currentUser.departments && currentUser.departments.length > 0) {
-          query.departmentCodes = currentUser.departments.map((department) => department.code)
+          query.departmentCodes = currentUser.departments.map((department) => department.deptCode)
         }
       }
       if (searchStore.student) {

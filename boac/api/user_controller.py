@@ -258,7 +258,20 @@ def download_boa_users_csv():
 @advisor_required
 def get_departments():
     exclude_empty = to_bool_or_none(util.get(request.args, 'excludeEmpty')) or False
-    return tolerant_jsonify(UniversityDept.get_all_departments(exclude_empty=exclude_empty))
+    api_json = []
+    for department in UniversityDept.get_all_departments(exclude_empty=exclude_empty):
+        dept_code = department['deptCode']
+        department_json = next((d for d in api_json if d['deptCode'] == dept_code), None)
+        if not department_json:
+            department_json = {
+                'id': department['id'],
+                'deptCode': dept_code,
+                'deptName': department['deptName'],
+                'memberCount': department['memberCount'],
+                'peerAdvisingDepartments': [],
+            }
+            api_json.append(department_json)
+    return tolerant_jsonify(api_json)
 
 
 def _get_boa_users():
@@ -297,7 +310,8 @@ def _update_or_create_authorized_user(memberships, profile, include_deleted=Fals
     can_access_advising_data = to_bool_or_none(profile.get('canAccessAdvisingData'))
     degree_progress_permission = profile.get('degreeProgressPermission')
 
-    if (automate_degree_progress_permission or degree_progress_permission) and 'COENG' not in dept_codes_where_advising({'departments': memberships}):
+    foo = dept_codes_where_advising({'departments': memberships})
+    if (automate_degree_progress_permission or degree_progress_permission) and 'COENG' not in foo:
         raise errors.BadRequestError('Degree Progress feature is only available to the College of Engineering.')
 
     is_admin = to_bool_or_none(profile.get('isAdmin'))
@@ -368,14 +382,14 @@ def _delete_existing_memberships(authorized_user):
     for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=authorized_user.id):
         PeerAdvisingDepartmentMember.delete_membership(
             authorized_user_id=authorized_user.id,
-            peer_advising_department_id=m.peer_advising_department_id,
+            peer_advising_department_id=m['peer_advising_department_id'],
         )
 
 
 def _describe_dept_roles(dept):
     s = ''
     if dept.get('role'):
-        s += f"{{ {dept.get('code')}: {dept['role']} (automated={dept.get('automateMembership')}) }}"
+        s += f"{{ {dept.get('deptCode')}: {dept['role']} (automated={dept.get('automateMembership')}) }}"
     return s
 
 

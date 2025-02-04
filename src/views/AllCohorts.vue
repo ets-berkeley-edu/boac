@@ -49,11 +49,11 @@
           :class="department.isOpen ? 'border-1 pb-6' : 'border-0'"
           hide-actions
           rounded
-          :value="department.code"
+          :value="department.deptCode"
           @group:selected="open => onClickExpansionPanel(department, open)"
         >
           <v-expansion-panel-title
-            :id="`department-${department.code.toLowerCase()}`"
+            :id="`department-${department.deptCode.toLowerCase()}`"
             class="bg-transparent pl-2 py-1 w-100"
             hide-actions
           >
@@ -76,8 +76,8 @@
                     />
                   </div>
                   <h2 class="page-section-header-sub pr-8 text-primary">
-                    <span class="sr-only">{{ `${department.isOpen ? 'Hide' : 'Show'} details for ${department.name} ` }}</span>
-                    {{ department.name }}
+                    <span class="sr-only">{{ `${department.isOpen ? 'Hide' : 'Show'} details for ${department.deptName} ` }}</span>
+                    {{ department.deptName }}
                   </h2>
                 </div>
               </div>
@@ -95,16 +95,16 @@
             <div v-if="!department.isFetching" class="ml-14">
               <div class="font-size-14 font-weight-bold text-medium-emphasis" :class="{'mb-3': department.users.length}">
                 {{ department.users.length || 'Zero' }} out of
-                <span v-if="department.code === 'ZZZZZ'">{{ department.memberCount }}</span>
-                <span v-if="department.code !== 'ZZZZZ'">
-                  <span v-if="department.name.includes('Advisors')">{{ department.memberCount }} {{ department.name }}</span>
-                  <span v-if="!department.name.includes('Advisors')">{{ pluralize(`${department.name} advisor`, department.memberCount) }}</span>
+                <span v-if="department.deptCode === 'ZZZZZ'">{{ department.memberCount }}</span>
+                <span v-if="department.deptCode !== 'ZZZZZ'">
+                  <span v-if="department.deptName.includes('Advisors')">{{ department.memberCount }} {{ department.deptName }}</span>
+                  <span v-if="!department.deptName.includes('Advisors')">{{ pluralize(`${department.deptName} advisor`, department.memberCount) }}</span>
                 </span>
                 {{ department.users.length === 1 ? 'has' : 'have' }} {{ modeLabel.toLowerCase() }}s.
               </div>
               <div
                 v-for="(user, index) in department.users"
-                :id="`users-of-department-${department.code.toLowerCase()}`"
+                :id="`users-of-department-${department.deptCode.toLowerCase()}`"
                 :key="index"
                 :class="{'mt-3': index > 0}"
               >
@@ -176,24 +176,24 @@ const collapseAllDepartments = () => {
 }
 
 const expandAllDepartments = () => {
-  panels.value = map(departments.value, 'code')
+  panels.value = map(departments.value, 'deptCode')
   each(departments.value, department => department.isOpen = true)
 }
 
 const onClickExpansionPanel = (department, isOpen) => {
   department.isOpen = isOpen.value
   if (isOpen) {
-    alertScreenReader(`Showing ${mode.value}s of ${department.name} department`)
+    alertScreenReader(`Showing ${mode.value}s of ${department.deptName} department`)
     if (isNil(department.users)) {
       department.isFetching = true
       const api = mode.value === 'cohort' ? getUsersWithCohortsByDeptCode : getUsersWithCuratedGroupsByDeptCode
-      api(department.code).then(data => {
+      api(department.deptCode).then(data => {
         department.users = data
         department.isFetching = false
       })
     }
   } else {
-    alertScreenReader(`Hiding ${mode.value}s of ${department.name} department`)
+    alertScreenReader(`Hiding ${mode.value}s of ${department.deptName} department`)
   }
 }
 </script>

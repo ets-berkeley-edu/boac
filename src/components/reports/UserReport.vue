@@ -62,9 +62,9 @@
         </div>
       </template>
       <template #item.depts="{item}">
-        <div v-for="dept in item.departments" :key="dept.code" class="pb-1">
-          <span :id="`dept-${dept.code}-${item.uid}`">
-            <span class="dept-name text-success">{{ dept.name }}</span> ({{ oxfordJoin(getBoaUserRoles(dept)) }})
+        <div v-for="dept in item.departments" :key="dept.deptCode" class="pb-1">
+          <span :id="`dept-${dept.deptCode}-${item.uid}`">
+            <span class="dept-name text-success">{{ dept.deptName }}</span> ({{ oxfordJoin(getBoaUserRoles(dept)) }})
           </span>
         </div>
         <div v-if="item.isAdmin" class="dept-name text-success">BOA Admin</div>
@@ -120,7 +120,7 @@ watch(() => props.department, () => {
 
 const refresh = () => {
   totalUserCount.value = undefined
-  getUsersReport(props.department.code).then(data => {
+  getUsersReport(props.department.deptCode).then(data => {
     totalUserCount.value = data.totalUserCount
     users.value = data.users
   })

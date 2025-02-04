@@ -10,7 +10,7 @@
     </div>
     <NotesReport :department="department" />
     <div class="pb-4 pt-4">
-      <h2 class="page-section-header-sub ma-0 pt-0" :class="{'sr-only': availableDepartments.length !== 1}">{{ department.name }}</h2>
+      <h2 class="page-section-header-sub ma-0 pt-0" :class="{'sr-only': availableDepartments.length !== 1}">{{ department.deptName }}</h2>
       <div v-if="availableDepartments.length > 1" class="align-items-center d-flex">
         <label class="sr-only" for="available-department-reports">Departments:</label>
         <div>
@@ -21,11 +21,11 @@
           >
             <option
               v-for="d in availableDepartments"
-              :id="`department-report-${d.code}`"
-              :key="d.code"
-              :value="d.code"
+              :id="`department-report-${d.deptCode}`"
+              :key="d.deptCode"
+              :value="d.deptCode"
             >
-              {{ d.name }}
+              {{ d.deptName }}
             </option>
           </select>
         </div>
@@ -38,12 +38,12 @@
 <script setup>
 import NotesReport from '@/components/reports/NotesReport'
 import UserReport from '@/components/reports/UserReport'
+import {computed, onMounted, ref, watch} from 'vue'
 import {find, trim} from 'lodash'
 import {getAvailableDepartmentReports} from '@/api/reports'
-import {computed, onMounted, ref, watch} from 'vue'
-import {useRoute} from 'vue-router'
-import {useContextStore} from '@/stores/context'
 import {mdiAirplane} from '@mdi/js'
+import {useContextStore} from '@/stores/context'
+import {useRoute} from 'vue-router'
 
 const DEFAULT_DEPT_CODE = 'QCADV'
 
@@ -69,5 +69,5 @@ onMounted(() => {
   })
 })
 
-const getDepartment = deptCode => find(availableDepartments.value, ['code', deptCode])
+const getDepartment = deptCode => find(availableDepartments.value, ['deptCode', deptCode])
 </script>
