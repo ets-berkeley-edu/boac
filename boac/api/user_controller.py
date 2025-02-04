@@ -257,21 +257,17 @@ def download_boa_users_csv():
 @app.route('/api/users/departments')
 @advisor_required
 def get_departments():
+    def _to_api_json(department):
+        return {
+            'id': department['id'],
+            'deptCode': department['dept_code'],
+            'deptName': department['dept_name'],
+            'memberCount': department['member_count'],
+            'peerAdvisingDepartments': department['peer_advising_departments'],
+        }
     exclude_empty = to_bool_or_none(util.get(request.args, 'excludeEmpty')) or False
-    api_json = []
-    for department in UniversityDept.get_all_departments(exclude_empty=exclude_empty):
-        dept_code = department['deptCode']
-        department_json = next((d for d in api_json if d['deptCode'] == dept_code), None)
-        if not department_json:
-            department_json = {
-                'id': department['id'],
-                'deptCode': dept_code,
-                'deptName': department['deptName'],
-                'memberCount': department['memberCount'],
-                'peerAdvisingDepartments': [],
-            }
-            api_json.append(department_json)
-    return tolerant_jsonify(api_json)
+    departments = UniversityDept.get_all_departments(exclude_empty=exclude_empty)
+    return tolerant_jsonify([_to_api_json(d) for d in departments])
 
 
 def _get_boa_users():
