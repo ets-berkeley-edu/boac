@@ -12,7 +12,7 @@
       <v-col>
         <span v-html="value" />
       </v-col>
-      <v-divider class="border-opacity-100"></v-divider>
+      <v-divider class="border-opacity-100" />
     </v-row>
     <v-row align-v="start" no-gutters>
       <v-col class="font-weight-bold" cols="5">
@@ -22,11 +22,11 @@
         <div v-if="currentUser.isAdmin" class="pv-3">You are a BOA Admin user.</div>
         <div v-if="!currentUser.canAccessCanvasData" class="pv-3">You do not have access to bCourses (LMS) data.</div>
         <div v-if="!currentUser.canAccessAdvisingData" class="pv-3">You do not have access to advising notes or appointments.</div>
-        <div v-for="department in currentUser.departments" :key="department.code">
-          <div id="my-dept-roles">{{ upperFirst(department.role) }} in {{ department.name }}</div>
+        <div v-for="department in currentUser.departments" :key="department.deptCode">
+          <div id="my-dept-roles">{{ upperFirst(department.role) }} in {{ department.deptName }}</div>
         </div>
       </v-col>
-      <v-divider class="border-opacity-100"></v-divider>
+      <v-divider class="border-opacity-100" />
     </v-row>
   </v-container>
 </template>
@@ -37,7 +37,7 @@ import {isCoe} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 
 const currentUser = useContextStore().currentUser
-const memberships = map(filter(currentUser.departments, 'role'), d => ({code: d.code, role: d.role}))
+const memberships = map(filter(currentUser.departments, 'role'), d => ({deptCode: d.deptCode, role: d.role}))
 const profile = {
   Name: currentUser.name,
   UID: currentUser.uid,

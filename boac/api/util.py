@@ -254,8 +254,8 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
         })
         for m in user.department_memberships:
             profile['departments'].append({
-                'code': m.university_dept.dept_code,
-                'name': m.university_dept.dept_name,
+                'deptCode': m.university_dept.dept_code,
+                'deptName': m.university_dept.dept_name,
                 'role': m.role,
                 'automateMembership': m.automate_membership,
             })

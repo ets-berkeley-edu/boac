@@ -141,8 +141,8 @@ def available_dept_codes():
     def _to_json(row):
         dept_code = row.upper()
         return {
-            'code': dept_code,
-            'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code),
+            'deptCode': dept_code,
+            'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code),
         }
     return tolerant_jsonify([_to_json(d) for d in dept_codes])
 

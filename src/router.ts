@@ -47,7 +47,7 @@ const $_goToLogin = (to: RouteLocation, next: NavigationGuardNext) => {
   })
 }
 
-const $_isCE3 = user => !!size(filter(user.departments, d => d.code === 'ZCEEE' && includes(['advisor', 'director'], d.role)))
+const $_isCE3 = user => !!size(filter(user.departments, d => d.deptCode === 'ZCEEE' && includes(['advisor', 'director'], d.role)))
 
 const $_requiresDegreeProgress = (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
   const currentUser: CurrentUser = useContextStore().currentUser

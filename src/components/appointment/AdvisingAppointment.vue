@@ -57,8 +57,8 @@
           </span>
         </div>
         <div v-if="size(advisor.departments)" class="mt-2 text-medium-emphasis">
-          <span v-for="(dept, index) in advisor.departments" :key="dept.code">
-            <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.name }}</span>
+          <span v-for="(dept, index) in advisor.departments" :key="dept.deptCode">
+            <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.deptName }}</span>
           </span>
         </div>
         <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="mt-2">

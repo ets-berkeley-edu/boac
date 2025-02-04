@@ -59,12 +59,16 @@ class UniversityDept(Base):
     @classmethod
     def get_all_departments(cls, exclude_empty=False):
         sql = f"""
-            SELECT d.id, d.dept_code, d.dept_name, COUNT(m.authorized_user_id) AS member_count
+            SELECT
+                d.id, d.dept_code, d.dept_name, COUNT(m.authorized_user_id) AS member_count,
+                p.id AS peer_advising_department_id,
+                p.name AS peer_advising_department_name
             FROM university_dept_members m
             JOIN university_depts d ON d.id = m.university_dept_id
             LEFT JOIN authorized_users u ON u.id = m.authorized_user_id
+            LEFT JOIN peer_advising_departments p ON p.university_dept_id = d.id
             WHERE u.deleted_at IS NULL
-            GROUP BY d.id, d.dept_code, d.dept_name
+            GROUP BY d.id, d.dept_code, d.dept_name, p.id, p.name
             {'HAVING COUNT(m.authorized_user_id) > 0' if exclude_empty else ''}
             ORDER BY d.dept_name
         """
@@ -72,8 +76,8 @@ class UniversityDept(Base):
         def _to_json(row):
             return {
                 'id': row['id'],
-                'code': row['dept_code'],
-                'name': row['dept_name'],
+                'deptCode': row['dept_code'],
+                'deptName': row['dept_name'],
                 'memberCount': row['member_count'],
             }
         return [_to_json(result) for result in db.session.execute(text(sql))]

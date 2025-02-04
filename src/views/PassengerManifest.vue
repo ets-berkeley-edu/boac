@@ -42,7 +42,7 @@ const refreshUsers = ref(false)
 contextStore.loadingStart()
 
 onMounted(() => {
-  getDepartments(true).then(data => {
+  getDepartments().then(data => {
     departments.value = data
     contextStore.loadingComplete()
   })

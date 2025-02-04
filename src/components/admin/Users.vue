@@ -71,12 +71,12 @@
                 @update:model-value="fetchUsers('user-permission-options')"
               >
                 <option
-                  v-for="option in [{id: -1, code: null, name: 'All'}, ...departments]"
-                  :id="`department-option-${option.code}`"
-                  :key="option.code"
-                  :value="option.code"
+                  v-for="option in [{id: -1, deptCode: null, deptName: 'All'}, ...departments]"
+                  :id="`department-option-${option.deptCode}`"
+                  :key="option.deptCode"
+                  :value="option.deptCode"
                 >
-                  {{ option.name }}
+                  {{ option.deptName }}
                 </option>
               </select>
             </div>
@@ -91,7 +91,7 @@
               >
                 <option
                   v-for="option in [
-                    {name: 'All', value: null},
+                    {deptName: 'All', value: null},
                     {name: 'Advisors', value: 'advisor'},
                     {name: 'No Canvas Data', value: 'noCanvasDataAccess'},
                     {name: 'No Notes or Appointments', value: 'noAdvisingDataAccess'},
@@ -329,8 +329,8 @@
 
         <template #item.departments="{ item }">
           <div class="row-padding">
-            <div v-for="(department, index) in item.departments" :key="department.code">
-              <span class="font-weight-bold text-body text-success-darken-1">{{ department.name }} - {{ department.role }}</span>
+            <div v-for="(department, index) in item.departments" :key="department.deptCode">
+              <span class="font-weight-bold text-body text-success-darken-1">{{ department.deptName }} - {{ department.role }}</span>
               <div v-if="index !== item.departments.length - 1"></div>
             </div>
             <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="text-medium-emphasis">
@@ -514,11 +514,11 @@ const fetchUsers = (returnFocusId=null, srAlert='Loading users.') => {
         sortBy.value,
         sortDesc.value
       ).then(data => {
-        const department = find(props.departments, {'code': filterBy.value.deptCode})
+        const department = find(props.departments, {'deptCode': filterBy.value.deptCode})
         users.value = data.users
         totalUserCount.value = data.totalUserCount
         isFetching.value = false
-        alertScreenReader(`${department.name} users loaded${sortDescription}`)
+        alertScreenReader(`${department.deptName} users loaded${sortDescription}`)
         putFocusNextTick(returnFocusId || 'department-select-list')
       })
       break

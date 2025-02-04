@@ -400,7 +400,7 @@ class TestGetDepartments:
             assert department['memberCount'] > 0
             if index > 0:
                 previous_department = api_json[index - 1]
-                assert department['name'] > previous_department['name']
+                assert department['deptName'] > previous_department['deptName']
 
 
 class TestGetUsers:
@@ -729,7 +729,7 @@ class TestUserUpdate:
 
         departments = user['departments']
         assert len(departments) == 1
-        assert departments[0]['code'] == 'COENG'
+        assert departments[0]['deptCode'] == 'COENG'
         assert departments[0]['role'] == 'advisor'
         assert departments[0]['automateMembership'] is True
 
@@ -851,7 +851,7 @@ class TestUserUpdate:
         # Verify University Dept membership
         university_depts = user['departments']
         assert len(university_depts) == 1
-        assert university_depts[0]['code'] == dept_code
+        assert university_depts[0]['deptCode'] == dept_code
         # Verify Peer Advising
         peer_advising_departments = user['peerAdvisingDepartments']
         assert len(peer_advising_departments) == 1

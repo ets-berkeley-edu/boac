@@ -54,7 +54,8 @@ export type CurrentUser = {
 }
 
 export type Department = {
-  code: string,
+  deptCode: string,
+  deptName: string,
   role?: string
 }
 

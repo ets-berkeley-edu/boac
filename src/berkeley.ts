@@ -211,7 +211,7 @@ export function isAlertGrade(grade: string) {
 }
 
 export function isCoe(user: CurrentUser) {
-  return !!size(filter(user.departments, d => d.code === 'COENG' && includes(['advisor', 'director'], d.role)))
+  return !!size(filter(user.departments, d => d.deptCode === 'COENG' && includes(['advisor', 'director'], d.role)))
 }
 
 export function isDirector(user: CurrentUser) {
