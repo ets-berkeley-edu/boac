@@ -82,6 +82,10 @@ ALTER TABLE IF EXISTS ONLY public.peer_advising_department_members DROP CONSTRAI
 ALTER TABLE IF EXISTS ONLY public.peer_advising_department_members DROP CONSTRAINT IF EXISTS peer_advising_department_members_authorized_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.peer_advising_department_topics DROP CONSTRAINT IF EXISTS peer_advising_department_topics_peer_advising_department_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.peer_advising_department_topics DROP CONSTRAINT IF EXISTS peer_advising_department_topics_topic_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_peer_advising_department_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_note_template_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.note_templates DROP CONSTRAINT IF EXISTS note_templates_peer_advising_department_id_fkey;
+
 --
 
 DROP INDEX IF EXISTS public.appointments_read_appointment_id_idx;

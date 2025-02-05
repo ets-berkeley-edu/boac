@@ -425,6 +425,8 @@ CREATE TABLE notes (
     contact_type note_contact_types,
     is_draft BOOLEAN DEFAULT FALSE NOT NULL,
     is_private BOOLEAN DEFAULT FALSE NOT NULL,
+    note_template_id INTEGER,
+    peer_advising_department_id INTEGER,
     set_date DATE,
     sid VARCHAR(80),
     subject VARCHAR(255) NOT NULL,
@@ -505,6 +507,7 @@ CREATE TABLE note_templates (
     body text,
     creator_id INTEGER NOT NULL,
     is_private BOOLEAN DEFAULT FALSE NOT NULL,
+    peer_advising_department_id INTEGER,
     subject VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -524,6 +527,7 @@ ALTER TABLE ONLY note_templates ALTER COLUMN id SET DEFAULT nextval('note_templa
 ALTER TABLE ONLY note_templates ADD CONSTRAINT note_templates_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY note_templates
     ADD CONSTRAINT note_templates_creator_id_title_unique_constraint UNIQUE (creator_id, title, deleted_at);
+
 CREATE INDEX note_templates_creator_id_idx ON note_templates USING btree (creator_id);
 
 --
@@ -941,6 +945,10 @@ ALTER TABLE ONLY note_attachments
 ALTER TABLE ONLY note_templates
     ADD CONSTRAINT note_templates_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY note_templates
+    ADD CONSTRAINT note_templates_peer_advising_department_id_fkey
+    FOREIGN KEY (peer_advising_department_id)
+    REFERENCES peer_advising_departments(id);
 --
 
 ALTER TABLE ONLY note_template_attachments
@@ -959,4 +967,14 @@ ALTER TABLE ONLY note_topics
 ALTER TABLE ONLY note_topics
     ADD CONSTRAINT note_topics_author_uid_fkey FOREIGN KEY (author_uid) REFERENCES authorized_users(uid) ON DELETE CASCADE;
 
+--
 
+ALTER TABLE ONLY notes
+    ADD CONSTRAINT notes_peer_advising_department_id_fkey
+    FOREIGN KEY (peer_advising_department_id)
+    REFERENCES peer_advising_departments(id);
+
+ALTER TABLE ONLY notes
+    ADD CONSTRAINT notes_note_template_id_fkey
+    FOREIGN KEY (note_template_id)
+    REFERENCES note_templates(id);

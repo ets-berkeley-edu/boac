@@ -33,6 +33,7 @@ from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.note_topic import NoteTopic
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 from dateutil.tz import tzutc
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
@@ -64,6 +65,8 @@ class Note(Base):
     contact_type = db.Column(note_contact_type_enum, nullable=True)
     is_draft = db.Column(db.Boolean, nullable=False, default=False)
     is_private = db.Column(db.Boolean, nullable=False, default=False)
+    note_template_id = db.Column(db.Integer, db.ForeignKey('note_templates.id'), nullable=True)
+    peer_advising_department_id = db.Column(db.Integer, db.ForeignKey('peer_advising_departments.id'), nullable=True)
     set_date = db.Column(db.Date)
     sid = db.Column(db.String(80))
     subject = db.Column(db.String(255), nullable=False)
@@ -80,6 +83,8 @@ class Note(Base):
         back_populates='note',
         lazy=True,
     )
+    note_template = db.relationship('NoteTemplate', back_populates='notes')
+    peer_advising_department = db.relationship(PeerAdvisingDepartment.__name__, back_populates='notes')
 
     def __init__(
         self,
@@ -94,6 +99,8 @@ class Note(Base):
         is_draft=False,
         is_private=False,
         set_date=None,
+        note_template_id=None,
+        peer_advising_department_id=None,
     ):
         _validate_sid(is_draft=is_draft, note_id=None, sid=sid)
         self.author_dept_codes = author_dept_codes
@@ -104,6 +111,8 @@ class Note(Base):
         self.contact_type = contact_type
         self.is_draft = is_draft
         self.is_private = is_private
+        self.note_template_id = note_template_id
+        self.peer_advising_department_id = peer_advising_department_id
         self.set_date = set_date
         self.sid = sid
         self.subject = subject
