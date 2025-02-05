@@ -46,11 +46,12 @@ class BoaPages(CreateNoteModal, SearchForm):
     ARE_YOU_SURE_CONFIRM_BUTTON = By.ID, 'are-you-sure-confirm'
     ARE_YOU_SURE_CANCEL_BUTTON = By.ID, 'are-you-sure-cancel'
 
-    def wait_for_spinner(self):
+    def wait_for_spinner(self, timeout=None):
+        timeout = timeout or utils.get_short_timeout()
         time.sleep(1)
         try:
             if self.is_present(BoaPages.SPINNER):
-                self.when_not_visible(BoaPages.SPINNER, utils.get_short_timeout())
+                self.when_not_present(BoaPages.SPINNER, timeout)
         except StaleElementReferenceException as e:
             app.logger.debug(f'{e}')
 

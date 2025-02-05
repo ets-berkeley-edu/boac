@@ -30,6 +30,7 @@ export const useContextStore = defineStore('context', {
       isAdmin: false,
       isAuthenticated: false,
       isDemoModeAvailable: false,
+      isPeerAdvisor: false,
       myCohorts: [] as Cohort[],
       myCuratedGroups: [] as CuratedGroup[],
       myDraftNoteCount: undefined as number | undefined,

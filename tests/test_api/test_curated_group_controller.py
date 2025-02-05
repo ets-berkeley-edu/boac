@@ -352,7 +352,7 @@ class TestGetCuratedGroup:
 
     def test_curated_groups_all(self, authorized_advisor, client):
         """Returns all groups to which user has viewing access, per owner."""
-        response = client.get('/api/curated_groups/all')
+        response = client.get('/api/curated_groups/by_dept_code/qcadv')
         assert response.status_code == 200
         api_json = response.json
         count = len(api_json)

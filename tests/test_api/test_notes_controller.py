@@ -266,6 +266,7 @@ class TestCreateNote:
         assert 'name' in new_note['author']
         assert new_note['author']['role']
         assert len(new_note['author']['departments'])
+        assert new_note['updatedAt'] is None
         # Get notes per SID and compare
         notes = _get_student_notifications(client, coe_student['uid'])['note']
         match = next((n for n in notes if n['id'] == note_id), None)
@@ -322,6 +323,7 @@ class TestCreateNote:
         for topic in ('Shadrach', 'Meshach', 'Abednego'):
             assert topic in note.get('topics')
         assert note['createdAt'] is not None
+        assert note['updatedAt'] is None
 
     def test_create_note_with_raw_url_in_body(self, app, client, fake_auth):
         """Create a note with topics."""

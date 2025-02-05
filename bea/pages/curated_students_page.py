@@ -41,7 +41,7 @@ class CuratedStudentsPage(CohortAndGroupStudentPages, CuratedPages):
         return By.XPATH, f'{self.student_row_xpath(student)}//button[contains(@id, "remove-student-from-curated-group")]'
 
     def load_everyone_groups_page(self):
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/groups/all')
+        self.driver.get(f'{boa_utils.get_boa_base_url()}/all/groups')
         self.wait_for_boa_title('Groups')
 
     @staticmethod

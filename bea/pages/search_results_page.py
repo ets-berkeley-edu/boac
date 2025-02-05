@@ -173,7 +173,7 @@ class SearchResultsPage(ListViewAdmitPages):
         return By.XPATH, f'//a[contains(@href, "note-{note.record_id}")]'
 
     def wait_for_note_search_result_count(self):
-        self.wait_for_spinner()
+        self.wait_for_spinner(timeout=utils.get_medium_timeout())
         if self.is_present(self.NO_RESULTS_MSG):
             count = '0'
         else:

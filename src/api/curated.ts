@@ -75,8 +75,9 @@ export function getCuratedGroup(
   return axios.get(url).then(response => response.data)
 }
 
-export function getUsersWithCuratedGroups() {
-  return axios.get(`${utils.apiBaseUrl()}/api/curated_groups/all`).then(response => response.data)
+export function getUsersWithCuratedGroupsByDeptCode(deptCode: string) {
+  const url: string = `${utils.apiBaseUrl()}/api/curated_groups/by_dept_code/${deptCode}`
+  return axios.get(url).then(response => response.data)
 }
 
 export function removeFromCuratedGroups(curatedGroupIds: number[], sid: string | number): Promise<void> {

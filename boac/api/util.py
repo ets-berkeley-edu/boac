@@ -43,6 +43,7 @@ from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.note import Note
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.user_login import UserLogin
 from dateutil.tz import tzutc
 from flask import current_app as app, request
@@ -77,6 +78,48 @@ def admin_or_director_required(func):
     return _admin_or_director_required
 
 
+def peer_advisor_required(func):
+    @wraps(func)
+    def _authorize(*args, **kw):
+        if current_user.is_admin or _is_authorized_peer_advisor(current_user) or _api_key_ok():
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _authorize
+
+
+def advisor_or_peer_advisor_required(func):
+    @wraps(func)
+    def _advisor_required(*args, **kw):
+        if (
+            current_user.is_admin
+            or _is_authorized_advisor(current_user)
+            or _is_authorized_peer_advisor(current_user)
+            or _api_key_ok()
+        ):
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _advisor_required
+
+
+def peer_advising_manager_required(func):
+    @wraps(func)
+    def _advisor_required(*args, **kw):
+        if (
+            current_user.is_admin
+            or _is_authorized_peer_advising_manager(current_user)
+            or _api_key_ok()
+        ):
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _advisor_required
+
+
 def advising_data_access_required(func):
     @wraps(func)
     def _advising_data_access_required(*args, **kw):
@@ -100,13 +143,7 @@ def advising_data_access_required(func):
 def advisor_required(func):
     @wraps(func)
     def _advisor_required(*args, **kw):
-        is_authorized = current_user.is_authenticated \
-            and (
-                current_user.is_admin
-                or _has_role_in_any_department(current_user, 'advisor')
-                or _has_role_in_any_department(current_user, 'director')
-            )
-        if is_authorized or _api_key_ok():
+        if current_user.is_admin or _is_authorized_advisor(current_user) or _api_key_ok():
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
@@ -212,13 +249,24 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
             'departments': [],
             'isAdmin': user.is_admin,
             'isBlocked': user.is_blocked,
+            'isPeerAdvisor': user.is_peer_advisor,
+            'peerAdvisingDepartments': [],
         })
         for m in user.department_memberships:
             profile['departments'].append({
-                'code': m.university_dept.dept_code,
-                'name': m.university_dept.dept_name,
+                'deptCode': m.university_dept.dept_code,
+                'deptName': m.university_dept.dept_name,
                 'role': m.role,
                 'automateMembership': m.automate_membership,
+            })
+        for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id):
+            peer_advising_dept_id = m['peer_advising_department_id']
+            profile['peerAdvisingDepartments'].append({
+                'id': peer_advising_dept_id,
+                'name': m['peer_advising_department_name'],
+                'roleType': m['role_type'],
+                'universityDeptCode': m['university_dept_code'],
+                'universityDeptName': m['university_dept_name'],
             })
         user_login = UserLogin.last_login(user.uid)
         profile['lastLogin'] = _isoformat(user_login.created_at) if user_login else None
@@ -452,6 +500,21 @@ def validate_advising_note_set_date(params):
     return set_date
 
 
+def _is_authorized_advisor(user):
+    return user.is_authenticated and (_has_role_in_any_department(user, 'advisor') or _has_role_in_any_department(user, 'director'))
+
+
+def _is_authorized_peer_advisor(user):
+    return user.is_authenticated and user.is_peer_advisor
+
+
+def _is_authorized_peer_advising_manager(user):
+    # TODO: Implement this method when peer_advising_department_memberships table is introduced.
+    # return user.is_authenticated and _is_authorized_advisor(user) and len(user.peer_advising_department_memberships)
+    app.logger.info(f'TODO: Implement _is_authorized_peer_advising_manager (UID: {user.uid})')
+    return user.uid == '222719'
+
+
 def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
     term_id_last = previous_term_id(current_term_id())
     term_id_previous = previous_term_id(term_id_last)
@@ -515,7 +578,7 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
         cohorts = CohortFilter.get_cohorts(user_id=current_user.get_id())
     if 'curated_groups' in fieldnames:
         # We are going to need curated_groups.
-        curated_groups = CuratedGroup.get_curated_groups_owned_by(include_admitted_students=True, uids=[current_user.uid])
+        curated_groups = CuratedGroup.get_curated_groups_owned_by(uids=[current_user.uid])
     if is_requesting_course_activity:
         # We are going to need enrollment data.
         enrollments_for_term = data_loch.get_enrollments_for_term(term_id, sids)

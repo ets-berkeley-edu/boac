@@ -211,11 +211,16 @@ export function isAlertGrade(grade: string) {
 }
 
 export function isCoe(user: CurrentUser) {
-  return !!size(filter(user.departments, d => d.code === 'COENG' && includes(['advisor', 'director'], d.role)))
+  return !!size(filter(user.departments, d => d.deptCode === 'COENG' && includes(['advisor', 'director'], d.role)))
 }
 
 export function isDirector(user: CurrentUser) {
   return !!size(filter(user.departments, d => d.role === 'director'))
+}
+
+export function isPeerAdvisingManager(user: CurrentUser) {
+  // TODO: Implement this method when peer_advising_department_memberships is wired up.
+  return user.uid === '222719'
 }
 
 export function lastActivityDays(analytics: object) {

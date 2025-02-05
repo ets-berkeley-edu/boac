@@ -155,8 +155,12 @@ class BoaTaskSet(TaskSet):
 
     @task(1)
     def load_home_page(self):
-        self.client.get('/api/cohorts/all')
-        self.client.get('/api/curated_groups/all')
+        self.client.get('/api/cohorts/by_dept_code/coeng')
+        self.client.get('/api/cohorts/by_dept_code/qcadv')
+        self.client.get('/api/cohorts/by_dept_code/zceee')
+        self.client.get('/api/curated_groups/by_dept_code/coeng')
+        self.client.get('/api/curated_groups/by_dept_code/qcadv')
+        self.client.get('/api/curated_groups/by_dept_code/zceee')
         self.client.get('/api/service_announcement')
         self.client.get('/api/note_templates/my')
         self.client.get('/api/topics/all?includeDeleted=false')

@@ -49,6 +49,8 @@ class WebDriverManager(object):
             options.profile = p
             options.headless = _headless
             driver = webdriver.Firefox(options=options)
+        elif _browser == 'safari':
+            driver = webdriver.Safari()
         else:
             options = Coptions()
             options.binary_location = utils.get_browser_chrome_binary_path()

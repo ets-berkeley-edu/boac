@@ -106,10 +106,11 @@ class CuratedAddSelector(BoaPages, CuratedModal):
         self.when_present(self.GROUP_NAME_INPUT, utils.get_short_timeout())
 
     def select_members_to_add(self, members, group):
+        members.sort(key=lambda a: a.last_name)
         sids = list(map(lambda member: member.sid, members))
         app.logger.info(f'Selecting SIDs {sids}')
+        self.scroll_to_top()
         for m in members:
-            self.scroll_to_top()
             if group.is_ce3:
                 self.wait_for_element_and_click(self.admit_checkbox_loc(m))
             else:

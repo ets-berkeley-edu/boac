@@ -241,12 +241,17 @@ class Page(object):
         self.enter_chars(locator, string)
 
     def remove_chars(self, locator):
-        self.wait_for_element_and_click(locator)
-        time.sleep(utils.get_click_sleep())
-        repeat = 500
-        for x in range(repeat):
-            self.hit_delete()
-            self.hit_backspace()
+        self.wait_for_element(locator, utils.get_short_timeout())
+        el_tag = self.element(locator).tag_name
+        if el_tag in ['input', 'textarea'] and not self.el_value(locator):
+            app.logger.info(f'Element of type {el_tag} at {locator} has no value, no need to clear it')
+        else:
+            self.wait_for_element_and_click(locator)
+            time.sleep(utils.get_click_sleep())
+            repeat = 500
+            for x in range(repeat):
+                self.hit_delete()
+                self.hit_backspace()
 
     def enter_chars(self, locator, string):
         for i in string:
@@ -263,7 +268,7 @@ class Page(object):
         return sel.first_selected_option.text
 
     def wait_for_select_and_click_option(self, select_el_loc, option_str):
-        self.wait_for_page_and_click_js(select_el_loc)
+        self.wait_for_page_and_click(select_el_loc)
         if self.driver.name == 'firefox':
             self.click_element((By.XPATH, f'//option[normalize-space()="{option_str}"]'))
         else:
@@ -276,7 +281,9 @@ class Page(object):
                 return o
             elif o.get_attribute('value') == option_str:
                 return o
-            elif f'-{option_str.lower()}' in o.get_attribute('id'):
+            elif f'secondary-option-{option_str.lower()}' == o.get_attribute('id'):
+                return o
+            elif o.get_attribute('id').endswith(f'-{option_str.lower()}'):
                 return o
 
     # PAGE TITLE AND HEADING

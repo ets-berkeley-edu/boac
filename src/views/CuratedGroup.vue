@@ -97,7 +97,7 @@ import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import {addStudentsToCuratedGroups, removeFromCuratedGroups} from '@/api/curated'
 import {alertScreenReader, pluralize, putFocusNextTick, scrollTo, setPageTitle, toInt} from '@/lib/utils'
-import {capitalize, get, noop, size} from 'lodash'
+import {capitalize, get, size} from 'lodash'
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
 import {goToCuratedGroup} from '@/stores/curated-group/utils'
@@ -217,7 +217,11 @@ const onChangeTerm = () => {
 
 const removeStudent = student => {
   curatedStore.removeStudent(student.sid)
-  removeFromCuratedGroups([curatedGroupId.value], student.sid).then(noop)
+  removeFromCuratedGroups([curatedGroupId.value], student.sid).then(() => {
+    goToCuratedGroup(curatedGroupId.value, 1).then(() => {
+      curatedStore.resetMode()
+    })
+  })
   alertScreenReader(`Removed ${student.firstName} ${student.lastName} from group`)
 }
 </script>

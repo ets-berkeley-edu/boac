@@ -170,6 +170,10 @@ class TestDegreeCourseUnassigned:
     def test_unassigned_course_term(self):
         for course in unassigned_courses:
             term = utils.term_sis_id_to_term_name(course.term_id)
+            if 'Summer' in term:
+                term = ' '.join(['Sum', term.split()[1]])
+            elif 'Spring' in term:
+                term = ' '.join(['Spr', term.split()[1]])
             utils.assert_equivalence(self.degree_check_page.unassigned_course_term(course), term)
 
     def test_unassigned_edit_and_cancel(self):
@@ -211,7 +215,7 @@ class TestDegreeCourseUnassigned:
     def test_unassigned_non_number_units_not_allowed(self):
         self.degree_check_page.click_edit_unassigned_course(completed_course_0)
         self.degree_check_page.enter_course_units('A')
-        self.degree_check_page.wait_for_units_invalid_error_msg()
+        self.degree_check_page.wait_for_units_numeric_error_msg()
         assert not self.degree_check_page.element(self.degree_check_page.COURSE_UPDATE_BUTTON).is_enabled()
 
     def test_unassigned_decimal_units_allowed(self):
@@ -224,7 +228,7 @@ class TestDegreeCourseUnassigned:
     def test_unassigned_units_two_digit_integer_max(self):
         self.degree_check_page.click_edit_unassigned_course(completed_course_0)
         self.degree_check_page.enter_course_units('100')
-        self.degree_check_page.wait_for_units_invalid_error_msg()
+        self.degree_check_page.wait_for_units_numeric_error_msg()
         assert not self.degree_check_page.element(self.degree_check_page.COURSE_UPDATE_BUTTON).is_enabled()
 
 
@@ -296,7 +300,7 @@ class TestDegreeCourseAssignedToCourseReqt:
     def test_assigned_non_number_units_not_allowed(self):
         self.degree_check_page.click_edit_assigned_course(completed_course_0)
         self.degree_check_page.enter_course_units('A')
-        self.degree_check_page.wait_for_units_invalid_error_msg()
+        self.degree_check_page.wait_for_units_numeric_error_msg()
         assert not self.degree_check_page.element(self.degree_check_page.COURSE_UPDATE_BUTTON).is_enabled()
 
     def test_assigned_decimal_units_allowed(self):
@@ -309,7 +313,7 @@ class TestDegreeCourseAssignedToCourseReqt:
     def test_assigned_units_two_digit_integer_max(self):
         self.degree_check_page.click_edit_assigned_course(completed_course_0)
         self.degree_check_page.enter_course_units('100')
-        self.degree_check_page.wait_for_units_invalid_error_msg()
+        self.degree_check_page.wait_for_units_numeric_error_msg()
         assert not self.degree_check_page.element(self.degree_check_page.COURSE_UPDATE_BUTTON).is_enabled()
 
 

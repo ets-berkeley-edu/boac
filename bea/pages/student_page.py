@@ -66,6 +66,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
     # SIS PROFILE DATA
 
     ACADEMIC_STANDING = By.XPATH, '//span[contains(@id, "academic-standing-term-")]'
+    ACADEMIC_STANDING_COE = By.ID, 'student-bio-acad-standing-coe'
     ADVISOR_EMAIL = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-email")]'
     ADVISOR_NAME = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-name")]'
     ADVISOR_PLAN = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-plan")]'

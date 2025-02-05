@@ -34,32 +34,38 @@ from boac.merged import calnet
 from boac.merged.cohort_filter_options import CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
-from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.cohort_filter_event import CohortFilterEvent
+from boac.models.university_dept import UniversityDept
+from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
 from flask_login import current_user
 
 
-@app.route('/api/cohorts/all')
+@app.route('/api/cohorts/by_dept_code/<dept_code>')
 @advisor_required
-def all_cohorts():
+def get_cohorts_by_dept_code(dept_code):
+    api_json = []
+    department = UniversityDept.find_by_dept_code(dept_code=dept_code)
     scope = get_query_scope(current_user)
-    uids = AuthorizedUser.get_all_uids_in_scope(scope)
-    cohorts_per_uid = dict((uid, []) for uid in uids)
-    for cohort in CohortFilter.get_cohorts_owned_by_uids(
+    if department and scope:
+        uids = UniversityDeptMember.get_membership_uids(department.id)
+        calnet_users = calnet.get_calnet_users_for_uids(app, uids)
+        for cohort in CohortFilter.get_cohorts_owned_by_uids(
             include_admitted_students=current_user.can_access_admitted_students,
             uids=uids,
-    ):
-        cohorts_per_uid[cohort['ownerUid']].append(cohort)
-    api_json = []
-    for uid, user in calnet.get_calnet_users_for_uids(app, uids).items():
-        cohorts = cohorts_per_uid[uid]
-        api_json.append({
-            'user': user,
-            'cohorts': sorted(cohorts, key=lambda c: c['name']),
-        })
-    api_json = sorted(api_json, key=lambda v: v['user']['name'] or f"UID: {v['user']['uid']}")
+        ):
+            cohort_owner = calnet_users.get(cohort['ownerUid'], None)
+            if cohort_owner:
+                api_json_row = next((user for user in api_json if user['uid'] == cohort_owner['uid']), None)
+                if not api_json_row:
+                    cohort_owner['cohorts'] = []
+                    api_json.append(cohort_owner)
+                cohort_owner['cohorts'].append(cohort)
+        # Order by name of cohort_owner
+        api_json = sorted(api_json, key=lambda user: user['name'] or f"UID: {user['uid']}")
+        for user in api_json:
+            user['cohorts'] = sorted(user['cohorts'], key=lambda c: c['name'])
     return tolerant_jsonify(api_json)
 
 

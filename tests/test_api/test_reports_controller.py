@@ -64,7 +64,7 @@ class TestNotesByDeptReport:
         self._api_notes_report(client, 'foo', expected_status_code=404)
 
     def test_director_can_access_report_per_dept(self, client, fake_auth):
-        """Director of L&S Advising can access L&S report."""
+        """Director of L&S Advising can access Notes by Department report."""
         fake_auth.login(l_s_director_uid)
         report = self._api_notes_report(client, 'qcadv')
         assert 'boa' in report
@@ -238,8 +238,8 @@ class TestAvailableDeptCodesPerUser:
         assert len(departments) == 1
         assert departments == [
             {
-                'code': 'UWASC',
-                'name': 'Athletic Study Center',
+                'deptCode': 'UWASC',
+                'deptName': 'Athletic Study Center',
             },
         ]
 
@@ -250,12 +250,12 @@ class TestAvailableDeptCodesPerUser:
         assert len(departments) == 2
         assert departments == [
             {
-                'code': 'QCADV',
-                'name': 'L&S College Advising',
+                'deptCode': 'QCADV',
+                'deptName': 'L&S College Advising',
             },
             {
-                'code': 'QCADVMAJ',
-                'name': 'L&S Major Advising',
+                'deptCode': 'QCADVMAJ',
+                'deptName': 'L&S Major Advising',
             },
         ]
 

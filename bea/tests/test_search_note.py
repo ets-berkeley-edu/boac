@@ -42,14 +42,8 @@ test.search_notes()
 @pytest.mark.usefixtures('page_objects')
 class TestLogin:
 
-    def test_reindex_notes(self):
-        self.homepage.load_page()
-        self.homepage.dev_auth()
-        self.api_admin_page.reindex_notes()
-
     def test_advisor_log_in(self):
         self.homepage.load_page()
-        self.homepage.log_out()
         self.homepage.dev_auth(test.advisor)
 
 
@@ -63,7 +57,8 @@ class TestSearchNote:
     def test_simple_search(self, tc):
         app.logger.info(f'Begin tests with UID {tc.student.uid} note {tc.note.record_id} string {tc.search_string}')
         self.homepage.load_page()
-        self.homepage.enter_simple_search_and_hit_enter(tc.search_string)
+        self.homepage.enter_simple_search(tc.search_string)
+        self.homepage.click_simple_search_button()
         self.search_results_page.assert_note_result_present(tc.note)
 
     def test_adv_search_matching_topics(self, tc):
@@ -76,7 +71,10 @@ class TestSearchNote:
                     self.homepage.reopen_and_reset_adv_search()
                     self.homepage.select_note_topic(tc.note.topics[0])
                     self.homepage.enter_adv_search_and_hit_enter(tc.search_string)
-                    self.search_results_page.assert_note_result_present(tc.note)
+                    if tc.note.is_private:
+                        self.search_results_page.assert_note_result_not_present(tc.note)
+                    else:
+                        self.search_results_page.assert_note_result_present(tc.note)
 
     def test_adv_search_non_matching_topics(self, tc):
         if tc.note.source in [TimelineRecordSource.ASC, TimelineRecordSource.DATA]:
@@ -110,7 +108,10 @@ class TestSearchNote:
             self.homepage.select_notes_posted_by_anyone()
             self.homepage.enter_adv_search(tc.search_string)
             self.homepage.click_adv_search_button()
-            self.search_results_page.assert_note_result_present(tc.note)
+            if tc.note.is_private:
+                self.search_results_page.assert_note_result_not_present(tc.note)
+            else:
+                self.search_results_page.assert_note_result_present(tc.note)
 
     def test_adv_search_posted_by_anyone_no_string(self, tc):
         self.search_results_page.click_edit_search()
@@ -129,7 +130,10 @@ class TestSearchNote:
                     self.homepage.reopen_and_reset_adv_search()
                     self.homepage.set_notes_author(name)
                     self.homepage.enter_adv_search_and_hit_enter(tc.search_string)
-                    self.search_results_page.assert_note_result_present(tc.note)
+                    if tc.note.is_private:
+                        self.search_results_page.assert_note_result_not_present(tc.note)
+                    else:
+                        self.search_results_page.assert_note_result_present(tc.note)
 
     def test_adv_search_non_matching_author(self, tc):
         if tc.note.advisor:
@@ -146,19 +150,25 @@ class TestSearchNote:
         self.search_results_page.reopen_and_reset_adv_search()
         self.homepage.set_notes_student(tc.student)
         self.homepage.enter_adv_search_and_hit_enter(tc.search_string)
-        self.search_results_page.assert_note_result_present(tc.note)
+        if tc.note.is_private:
+            self.search_results_page.assert_note_result_not_present(tc.note)
+        else:
+            self.search_results_page.assert_note_result_present(tc.note)
 
     def test_search_result_name(self, tc):
-        utils.assert_equivalence(self.search_results_page.note_result_student_name(tc.note), tc.student.full_name)
+        if not tc.note.is_private:
+            utils.assert_equivalence(self.search_results_page.note_result_student_name(tc.note), tc.student.full_name)
 
     def test_search_result_sid(self, tc):
-        utils.assert_equivalence(self.search_results_page.note_result_sid(tc.student, tc.note), tc.student.sid)
+        if not tc.note.is_private:
+            utils.assert_equivalence(self.search_results_page.note_result_sid(tc.student, tc.note), tc.student.sid)
 
     def test_search_result_date(self, tc):
-        show_update_date = self.student_page.is_updated_date_expected(tc.note)
-        expected_date = tc.note.set_date or (tc.note.updated_date if show_update_date else tc.note.created_date)
-        expected = self.search_results_page.expected_note_or_appt_date_format(expected_date)
-        utils.assert_equivalence(self.search_results_page.note_result_date(tc.note), expected)
+        if not tc.note.is_private:
+            show_update_date = self.student_page.is_updated_date_expected(tc.note)
+            expected_date = tc.note.set_date or (tc.note.updated_date if show_update_date else tc.note.created_date)
+            expected = self.search_results_page.expected_note_or_appt_date_format(expected_date)
+            utils.assert_equivalence(self.search_results_page.note_result_date(tc.note), expected)
 
     def test_adv_search_matching_date_future_range(self, tc):
         self.homepage.reopen_and_reset_adv_search()
@@ -166,14 +176,20 @@ class TestSearchNote:
         self.homepage.set_notes_date_range(date_from=tc.note.updated_date,
                                            date_to=(tc.note.updated_date + timedelta(days=1)))
         self.homepage.enter_adv_search_and_hit_enter(tc.search_string)
-        self.search_results_page.assert_note_result_present(tc.note)
+        if tc.note.is_private:
+            self.search_results_page.assert_note_result_not_present(tc.note)
+        else:
+            self.search_results_page.assert_note_result_present(tc.note)
 
     def test_adv_search_matching_date_past_range(self, tc):
         self.search_results_page.click_edit_search()
         self.homepage.set_notes_date_range(date_from=(tc.note.updated_date - timedelta(days=1)),
                                            date_to=tc.note.updated_date)
         self.homepage.click_adv_search_button()
-        self.search_results_page.assert_note_result_present(tc.note)
+        if tc.note.is_private:
+            self.search_results_page.assert_note_result_not_present(tc.note)
+        else:
+            self.search_results_page.assert_note_result_present(tc.note)
 
     def test_adv_search_non_matching_date_past_range(self, tc):
         self.search_results_page.click_edit_search()

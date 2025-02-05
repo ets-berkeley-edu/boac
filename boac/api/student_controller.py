@@ -32,7 +32,7 @@ from boac.merged.student import get_distinct_sids, get_student_and_terms_by_sid,
     query_students
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 
 @app.route('/api/student/by_sid/<sid>')
@@ -52,7 +52,7 @@ def get_student_by_uid(uid):
 
 
 @app.route('/api/students/distinct_sids', methods=['POST'])
-@login_required
+@advisor_required
 def distinct_student_count():
     params = request.get_json()
     sids = params.get('sids')
@@ -65,7 +65,7 @@ def distinct_student_count():
 
 
 @app.route('/api/students/find_by_name_or_sid', methods=['GET'])
-@login_required
+@advisor_required
 def find_by_name_or_sid():
     query = request.args.get('q')
     if not query:

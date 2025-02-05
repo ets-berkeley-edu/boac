@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from boac import db
 from boac.models.base import Base
 
@@ -34,7 +33,6 @@ class PeerAdvisingDepartmentTopic(Base):
     peer_advising_department_id = db.Column(db.Integer, db.ForeignKey('peer_advising_departments.id'), nullable=False, primary_key=True)  # noqa: A003
     topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'), nullable=False, primary_key=True)  # noqa: A003
 
-    peer_advising_department = db.relationship('PeerAdvisingDepartment', back_populates='peer_advising_department_topics')
     topic = db.relationship('Topic', back_populates='peer_advising_department_topics')
 
     def __init__(self, peer_advising_department_id, topic_id):

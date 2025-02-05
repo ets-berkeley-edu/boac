@@ -34,26 +34,36 @@ from boac.merged.student import get_student_profile_summaries, get_student_query
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
+from boac.models.university_dept import UniversityDept
+from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
 from flask_login import current_user
 
 
-@app.route('/api/curated_groups/all')
+@app.route('/api/curated_groups/by_dept_code/<dept_code>')
 @advisor_required
-def all_curated_groups():
-    scope = get_query_scope(current_user)
-    uids = AuthorizedUser.get_all_uids_in_scope(scope)
-    groups_per_uid = dict((uid, []) for uid in uids)
-    for group in CuratedGroup.get_curated_groups_owned_by(include_admitted_students=True, uids=uids):
-        groups_per_uid[group['ownerUid']].append(group)
+def get_curated_groups_by_dept_code(dept_code):
     api_json = []
-    for uid, user in calnet.get_calnet_users_for_uids(app, uids).items():
-        groups = groups_per_uid[uid]
-        api_json.append({
-            'user': user,
-            'groups': sorted(groups, key=lambda g: g['name']),
-        })
-    api_json = sorted(api_json, key=lambda v: v['user']['name'] or f"UID: {v['user']['uid']}")
+    department = UniversityDept.find_by_dept_code(dept_code=dept_code.upper())
+    scope = get_query_scope(current_user)
+    if department and scope:
+        uids = UniversityDeptMember.get_membership_uids(department.id)
+        calnet_users = calnet.get_calnet_users_for_uids(app, uids)
+        for curated_group in CuratedGroup.get_curated_groups_owned_by(
+            include_admitted_students=current_user.can_access_admitted_students,
+            uids=uids,
+        ):
+            curated_group_owner = calnet_users.get(curated_group['ownerUid'], None)
+            if curated_group_owner:
+                api_json_row = next((user for user in api_json if user['uid'] == curated_group_owner['uid']), None)
+                if not api_json_row:
+                    curated_group_owner['curatedGroups'] = []
+                    api_json.append(curated_group_owner)
+                curated_group_owner['curatedGroups'].append(curated_group)
+        # Order by owner name
+        api_json = sorted(api_json, key=lambda user: user['name'] or f"UID: {user['uid']}")
+        for user in api_json:
+            user['curatedGroups'] = sorted(user['curatedGroups'], key=lambda c: c['name'])
     return tolerant_jsonify(api_json)
 
 

@@ -147,12 +147,15 @@ class CohortFilter(object):
         self.data['coe_preps'] = value
 
     @property
-    def coe_probation(self):
-        return self.data.get('coe_probation') if self.dept in [Department.ADMIN, Department.COE] else None
+    def coe_academic_standings(self):
+        if self.data.get('coe_academic_standings') and self.dept in [Department.ADMIN, Department.COE]:
+            return list(map(lambda d: d['standing'], self.data['coe_academic_standings']))
+        else:
+            return []
 
-    @coe_probation.setter
-    def coe_probation(self, value):
-        self.data['coe_probation'] = value
+    @coe_academic_standings.setter
+    def coe_academic_standings(self, value):
+        self.data['coe_academic_standings'] = value
 
     @property
     def coe_underrepresented_minority(self):

@@ -189,7 +189,7 @@ const isShowingBoaNoteCounts = ref(false)
 const isShowingReport = ref(false)
 
 onMounted(() => {
-  getNotesReport(props.department.code).then(data => {
+  getNotesReport(props.department.deptCode).then(data => {
     report.value = data
     getBoaNoteCountByMonth().then(data => {
       boaNoteCountsByMonth.value = reverse(sortBy(data, 'year'))

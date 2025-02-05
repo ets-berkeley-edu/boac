@@ -23,8 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
-from boac import db
+from boac import db, std_commit
 from boac.models.base import Base
 
 
@@ -39,3 +38,14 @@ class PeerAdvisingDepartment(Base):
     def __init__(self, name, university_dept_id):
         self.name = name
         self.university_dept_id = university_dept_id
+
+    @classmethod
+    def create(cls, name, university_dept_id):
+        peer_advising_department = cls(name, university_dept_id)
+        db.session.add(peer_advising_department)
+        std_commit()
+        return peer_advising_department
+
+    @classmethod
+    def find_by_university_dept_id(cls, university_dept_id):
+        return cls.query.filter_by(university_dept_id=university_dept_id).all()

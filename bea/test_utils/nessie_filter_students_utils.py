@@ -31,6 +31,11 @@ from flask import current_app as app
 
 # SELECT FROM
 
+def select_default():
+    return """SELECT DISTINCT student.student_profile_index.sid,
+                      LOWER(student.student_profile_index.last_name),
+                      LOWER(student.student_profile_index.first_name)"""
+
 
 def select_from(sort=None):
     if sort and (sort['col'] != 'first_name'):
@@ -38,9 +43,7 @@ def select_from(sort=None):
         select = f', {sort_select}' if sort_select else f", {sort['table']}.{sort['col']}"
     else:
         select = ''
-    return f"""SELECT DISTINCT student.student_profile_index.sid,
-                      LOWER(student.student_profile_index.last_name),
-                      LOWER(student.student_profile_index.first_name){select}
+    return f"""{select_default()}{select}
                  FROM student.student_profile_index"""
 
 
@@ -304,10 +307,11 @@ def coe_cond(cohort_filter, conditions_list):
     if cohort_filter.coe_ethnicities:
         coe_conditions_list.append(
             f'boac_advising_coe.students.ethnicity IN ({utils.in_op(cohort_filter.coe_ethnicities)})')
+    if cohort_filter.coe_academic_standings:
+        coe_conditions_list.append(
+            f'boac_advising_coe.students.acad_status IN ({utils.in_op(cohort_filter.coe_academic_standings)})')
     if cohort_filter.coe_inactive:
         coe_conditions_list.append("boac_advising_coe.students.status IN ('D', 'O', 'P', 'U', 'W', 'X', 'Z')")
-    if cohort_filter.coe_probation:
-        coe_conditions_list.append('boac_advising_coe.students.probation IS TRUE')
     if cohort_filter.coe_underrepresented_minority:
         coe_conditions_list.append('boac_advising_coe.students.minority IS TRUE')
 
@@ -449,7 +453,7 @@ def filter_join_clauses(cohort_filter):
         joins.append(asc_join)
 
     if (cohort_filter.coe_advisors or cohort_filter.coe_ethnicities or cohort_filter.coe_inactive
-            or cohort_filter.coe_preps or cohort_filter.coe_probation or cohort_filter.coe_underrepresented_minority):
+            or cohort_filter.coe_preps or cohort_filter.coe_academic_standings or cohort_filter.coe_underrepresented_minority):
         coe_join = f'LEFT JOIN boac_advising_coe.students ON {sid} = boac_advising_coe.students.sid'
         joins.append(coe_join)
     all_joins = list(set(joins))
@@ -522,6 +526,23 @@ def get_cohort_result(test, cohort_filter, sort=None):
     return [r['sid'] for r in results]
 
 
+def get_sorted_cohort(sids, sort):
+    sort_sel = f", {sort.get('select')}" if sort.get('select') else ''
+    if sort['table'] != 'student.student_profile_index':
+        sort_join = f"JOIN {sort['table']} ON {sort['table']}.sid = student.student_profile_index.sid"
+    else:
+        sort_join = ''
+    sql = f"""{select_default()}{sort_sel}
+                FROM student.student_profile_index
+                {sort_join}
+               WHERE student.student_profile_index.sid IN ({utils.in_op(sids)})
+                {group_by(sort)}
+                {order_by(sort)} """
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    return [r['sid'] for r in results]
+
+
 # Last Name
 
 def cohort_by_last_name(test, cohort_filter):
@@ -530,74 +551,77 @@ def cohort_by_last_name(test, cohort_filter):
 
 # First name
 
-def cohort_by_first_name(test, cohort_filter):
+def cohort_by_first_name(sids):
     sort = {
         'table': 'student.student_profile_index',
         'col': 'first_name',
         'group_by': False,
     }
-    return get_cohort_result(test, cohort_filter, sort)
+    return get_sorted_cohort(sids, sort)
 
 
 # Level
 
-def cohort_by_level(test, cohort_filter):
+def cohort_by_level(sids):
     sort = {
         'table': 'student.student_profile_index',
         'col': 'level',
+        'select': 'student.student_profile_index.level',
         'group_by': True,
     }
-    return get_cohort_result(test, cohort_filter, sort)
+    return get_sorted_cohort(sids, sort)
 
 
 # Major
 
-def cohort_by_major(test, cohort_filter):
+def cohort_by_major(sids):
     sort = {
         'table': 'student.student_majors',
         'col': 'major',
         'nulls': ' NULLS FIRST',
-        'select': '(ARRAY_AGG(student.student_majors.major ORDER BY student.student_majors.major))[1] AS major',
+        'select': 'MIN(student.student_majors.major ORDER BY student.student_majors.major) AS major',
         'order_by': 'major',
         'group_by': False,
     }
-    return get_cohort_result(test, cohort_filter, sort)
+    return get_sorted_cohort(sids, sort)
 
 
 # Entering term
 
-def cohort_by_matriculation(test, cohort_filter):
+def cohort_by_matriculation(sids):
     sort = {
         'table': 'student.student_profile_index',
         'col': 'entering_term',
         'nulls': ' NULLS LAST',
+        'select': 'student.student_profile_index.entering_term',
         'group_by': True,
     }
-    return get_cohort_result(test, cohort_filter, sort)
+    return get_sorted_cohort(sids, sort)
 
 
-def cohort_by_expected_grad(test, cohort_filter):
+def cohort_by_expected_grad(sids):
     sort = {
         'table': 'student.student_profile_index',
         'col': 'expected_grad_term',
         'nulls': ' NULLS LAST',
+        'select': 'student.student_profile_index.expected_grad_term',
         'group_by': True,
     }
-    return get_cohort_result(test, cohort_filter, sort)
+    return get_sorted_cohort(sids, sort)
 
 
 # Team
 
-def cohort_by_team(test, cohort_filter):
+def cohort_by_team(sids):
     sort = {
         'table': 'boac_advising_asc.students',
         'col': 'group_name',
         'nulls': ' NULLS LAST',
-        'select': '(ARRAY_AGG (boac_advising_asc.students.group_name ORDER BY boac_advising_asc.students.group_name))[1] AS team',
+        'select': 'MIN(boac_advising_asc.students.group_name ORDER BY boac_advising_asc.students.group_name) AS team',
         'order_by': 'team',
         'group_by': False,
     }
-    return get_cohort_result(test, cohort_filter, sort)
+    return get_sorted_cohort(sids, sort)
 
 
 # GPA - cumulative
@@ -606,20 +630,21 @@ def cohort_by_gpa_sort():
     return {
         'table': 'student.student_profile_index',
         'col': 'gpa',
+        'select': 'student.student_profile_index.gpa',
         'group_by': True,
     }
 
 
-def cohort_by_gpa_asc(test, cohort_filter):
+def cohort_by_gpa_asc(sids):
     gpa_sort = cohort_by_gpa_sort()
     gpa_sort.update({'direction': ' ASC', 'nulls': ' NULLS FIRST'})
-    return get_cohort_result(test, cohort_filter, gpa_sort)
+    return get_sorted_cohort(sids, gpa_sort)
 
 
-def cohort_by_gpa_desc(test, cohort_filter):
+def cohort_by_gpa_desc(sids):
     gpa_sort = cohort_by_gpa_sort()
     gpa_sort.update({'direction': ' DESC', 'nulls': ' NULLS FIRST'})
-    return get_cohort_result(test, cohort_filter, gpa_sort)
+    return get_sorted_cohort(sids, gpa_sort)
 
 
 # GPA - previous term
@@ -635,18 +660,18 @@ def cohort_by_prev_term_gpa_sort(term):
     }
 
 
-def cohort_by_gpa_last_term_asc(test, cohort_filter, term=None):
+def cohort_by_gpa_last_term_asc(sids, term=None):
     term = term or utils.get_previous_term()
     gpa_sort = cohort_by_prev_term_gpa_sort(term.sis_id)
     gpa_sort.update({'direction': ' ASC', 'order_by': 'gpa_last_term'})
-    return get_cohort_result(test, cohort_filter, gpa_sort)
+    return get_sorted_cohort(sids, gpa_sort)
 
 
-def cohort_by_gpa_last_term_desc(test, cohort_filter, term=None):
+def cohort_by_gpa_last_term_desc(sids, term=None):
     term = term or utils.get_previous_term()
     gpa_sort = cohort_by_prev_term_gpa_sort(term.sis_id)
     gpa_sort.update({'direction': ' DESC', 'order_by': 'gpa_last_term'})
-    return get_cohort_result(test, cohort_filter, gpa_sort)
+    return get_sorted_cohort(sids, gpa_sort)
 
 
 # Terms in attendance
@@ -656,20 +681,21 @@ def cohort_by_terms_in_attend_sort():
         'table': 'student.student_profile_index',
         'col': 'terms_in_attendance',
         'nulls': ' NULLS LAST',
+        'select': 'student.student_profile_index.terms_in_attendance',
         'group_by': True,
     }
 
 
-def cohort_by_terms_in_attend_asc(test, cohort_filter):
+def cohort_by_terms_in_attend_asc(sids):
     terms_sort = cohort_by_terms_in_attend_sort()
     terms_sort.update({'direction': ' ASC'})
-    return get_cohort_result(test, cohort_filter, terms_sort)
+    return get_sorted_cohort(sids, terms_sort)
 
 
-def cohort_by_terms_in_attend_desc(test, cohort_filter):
+def cohort_by_terms_in_attend_desc(sids):
     terms_sort = cohort_by_terms_in_attend_sort()
     terms_sort.update({'direction': ' DESC'})
-    return get_cohort_result(test, cohort_filter, terms_sort)
+    return get_sorted_cohort(sids, terms_sort)
 
 
 # Units in progress
@@ -686,16 +712,16 @@ def cohort_by_units_in_prog_sort():
     }
 
 
-def cohort_by_units_in_prog_asc(test, cohort_filter):
+def cohort_by_units_in_prog_asc(sids):
     units_sort = cohort_by_units_in_prog_sort()
     units_sort.update({'direction': ' ASC'})
-    return get_cohort_result(test, cohort_filter, units_sort)
+    return get_sorted_cohort(sids, units_sort)
 
 
-def cohort_by_units_in_prog_desc(test, cohort_filter):
+def cohort_by_units_in_prog_desc(sids):
     units_sort = cohort_by_units_in_prog_sort()
     units_sort.update({'direction': ' DESC'})
-    return get_cohort_result(test, cohort_filter, units_sort)
+    return get_sorted_cohort(sids, units_sort)
 
 
 # Units complete
@@ -704,20 +730,21 @@ def cohort_by_units_complete_sort():
     return {
         'table': 'student.student_profile_index',
         'col': 'units',
+        'select': 'student.student_profile_index.units',
         'group_by': True,
     }
 
 
-def cohort_by_units_complete_asc(test, cohort_filter):
+def cohort_by_units_complete_asc(sids):
     units_sort = cohort_by_units_complete_sort()
     units_sort.update({'direction': ' ASC', 'nulls': ' NULLS LAST'})
-    return get_cohort_result(test, cohort_filter, units_sort)
+    return get_sorted_cohort(sids, units_sort)
 
 
-def cohort_by_units_complete_desc(test, cohort_filter):
+def cohort_by_units_complete_desc(sids):
     units_sort = cohort_by_units_complete_sort()
     units_sort.update({'direction': ' DESC', 'nulls': ' NULLS LAST'})
-    return get_cohort_result(test, cohort_filter, units_sort)
+    return get_sorted_cohort(sids, units_sort)
 
 
 # QUERIES - USER LISTS

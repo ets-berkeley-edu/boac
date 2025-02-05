@@ -55,6 +55,7 @@ def register_routes(app):
     import boac.api.degree_progress_student_controller
     import boac.api.note_templates_controller
     import boac.api.notes_controller
+    import boac.api.peer_advising_controller
     import boac.api.reports_controller
     import boac.api.search_controller
     import boac.api.student_controller

@@ -435,7 +435,7 @@ def get_sis_appts(student):
             'first_name': v[0]['first_name'],
             'last_name': v[0]['last_name'],
         })
-        body = v[0]['body'].replace('&Tab;', '').strip()
+        body = v[0]['body'] and v[0]['body'].replace('&Tab;', '').strip()
         created_date = v[0]['created_date'] and utils.date_to_local_tz(v[0]['created_date'])
         if advisor.uid == 'UCBCONVERSION':
             updated_date = created_date

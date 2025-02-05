@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-space-around">
     <v-menu
-      width="280"
+      :width="isPeerAdvisingManager(currentUser) ? 360 : 280"
       transition="slide-y-transition"
       variant="link"
       @update:model-value="isOpen => isMenuOpen = isOpen"
@@ -27,6 +27,19 @@
             size="large"
             text="Degree Checks"
             to="/degrees"
+            variant="text"
+          />
+        </v-list-item-action>
+        <v-list-item-action v-if="isPeerAdvisingManager(currentUser)">
+          <!-- TODO: Implement the 'to:' path when peer_advising_department_memberships is wired up. -->
+          <v-btn
+            id="header-menu-peer-management"
+            :aria-current="route.path.startsWith('/peer/management') ? 'page' : false"
+            class="font-size-16 justify-start text-decoration-none w-100"
+            color="primary"
+            size="large"
+            text="Peer Advisor Manager Dashboard"
+            to="/peer/management/1"
             variant="text"
           />
         </v-list-item-action>
@@ -66,9 +79,7 @@
             variant="text"
           />
         </v-list-item-action>
-        <v-list-item-action
-          v-if="!currentUser.isAdmin"
-        >
+        <v-list-item-action v-if="!currentUser.isAdmin">
           <v-btn
             id="header-menu-profile"
             :aria-current="route.path === '/profile' ? 'page' : false"
@@ -110,8 +121,8 @@
 
 <script setup>
 import {getCasLogoutUrl} from '@/api/auth'
+import {isPeerAdvisingManager, myDeptCodes} from '@/berkeley'
 import {mdiMenuDown} from '@mdi/js'
-import {myDeptCodes} from '@/berkeley'
 import {reactive, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'

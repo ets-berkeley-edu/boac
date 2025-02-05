@@ -1,17 +1,17 @@
 <template>
   <div v-if="key">
-    <div v-if="!degreeStore.courses[key].length" class="my-2 no-data-text">
+    <div v-if="!degreeStore.courses[key].length" class="no-data-text py-1">
       No courses
     </div>
     <div v-if="degreeStore.courses[key].length" :id="`${key}-courses-container`">
       <table
         :id="`${key}-courses-table`"
-        class="mb-1 w-100 table-layout"
+        class="mb-1"
       >
         <caption class="sr-only">{{ capitalize(key) }} Courses</caption>
         <thead class="border-b-sm">
           <tr class="text-no-wrap">
-            <th v-if="currentUser.canEditDegreeProgress" class="force-width-18"><span class="sr-only">Options to assign course</span></th>
+            <th v-if="currentUser.canEditDegreeProgress" class="th-assign force-width-18"><span class="sr-only">Options to assign course</span></th>
             <th class="font-size-11 force-width-80 pr-1">Course</th>
             <th class="font-size-11 force-width-24 truncate-with-ellipsis" title="Grade">Grade</th>
             <th class="font-size-11 force-width-24 text-right truncate-with-ellipsis pr-2" title="Units">Units</th>
@@ -47,11 +47,13 @@
             >
               <td
                 v-if="currentUser.canEditDegreeProgress"
-                class="force-width-18 td-assign"
+                class="td-assign"
               >
-                <div v-if="degreeStore.draggingCourseId !== course.id">
-                  <CourseAssignmentMenu :after-course-assignment="() => afterCourseAssignment(index, key)" :course="course" />
-                </div>
+                <CourseAssignmentMenu
+                  v-if="degreeStore.draggingCourseId !== course.id"
+                  :after-course-assignment="() => afterCourseAssignment(index, key)"
+                  :course="course"
+                />
               </td>
               <td class="overflow-wrap-break-word td-name">
                 <span
@@ -75,13 +77,14 @@
               <td
                 class="td-grade text-no-wrap"
                 :class="{
+                  'demo-mode-blur': currentUser.inDemoMode,
                   'force-width-24': isAlertGrade(course.grade),
                   'force-width-50': isAlertGrade(course.grade)
                 }"
               >
                 <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
                 <v-icon
-                  v-if="isAlertGrade(course.grade)"
+                  v-if="isAlertGrade(course.grade) && !currentUser.inDemoMode"
                   class="mb-1"
                   color="warning"
                   :icon="mdiAlert"
@@ -114,7 +117,7 @@
                 {{ abbreviateTerm(course.termName) }}
               </td>
               <td
-                class="font-size-14 td-note"
+                class="font-size-14 td-note pr-1"
                 :class="{
                   'force-width-50': course.note && !isNoteVisible(course),
                   'truncate-with-ellipsis': course.note
@@ -135,36 +138,34 @@
               </td>
               <td
                 v-if="currentUser.canEditDegreeProgress"
-                class="align-start d-flex"
-                :class="{'px-1': !isNoteVisible(course)}"
               >
-                <div class="float-right">
-                  <v-btn
-                    v-if="course.manuallyCreatedBy && degreeStore.draggingCourseId !== course.id"
-                    :id="`delete-${course.id}-btn`"
-                    :aria-label="`Delete ${course.name}`"
-                    class="py-0"
-                    :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
-                    density="compact"
-                    :disabled="degreeStore.disableButtons"
-                    flat
-                    :icon="mdiTrashCan"
-                    size="small"
-                    @click="onDelete(course)"
-                  />
-                  <v-btn
-                    v-if="degreeStore.draggingCourseId !== course.id"
-                    :id="`edit-${key}-course-${course.id}-btn`"
-                    :aria-label="`Edit ${course.name}`"
-                    class="mr-1 py-0"
-                    :color="degreeStore.disableButtons ? 'grey' : 'primary'"
-                    density="compact"
-                    flat
-                    :icon="mdiNoteEditOutline"
-                    size="small"
-                    variant="text"
-                    @click="degreeStore.disableButtons ? noop : edit(course)"
-                  />
+                <div class="d-flex h-100 justify-end">
+                  <div class="degree-check-action-buttons d-flex pt-1 text-no-wrap">
+                    <v-btn
+                      v-if="degreeStore.draggingCourseId !== course.id"
+                      :id="`edit-${key}-course-${course.id}-btn`"
+                      :aria-label="`Edit ${course.name}`"
+                      :color="degreeStore.disableButtons ? 'grey' : 'primary'"
+                      density="compact"
+                      flat
+                      :icon="mdiNoteEditOutline"
+                      size="small"
+                      variant="text"
+                      @click="degreeStore.disableButtons ? noop : edit(course)"
+                    />
+                    <v-btn
+                      v-if="course.manuallyCreatedBy && degreeStore.draggingCourseId !== course.id"
+                      :id="`delete-${course.id}-btn`"
+                      :aria-label="`Delete ${course.name}`"
+                      :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
+                      density="compact"
+                      :disabled="degreeStore.disableButtons"
+                      flat
+                      :icon="mdiTrashCan"
+                      size="small"
+                      @click="onDelete(course)"
+                    />
+                  </div>
                 </div>
               </td>
             </tr>
@@ -440,6 +441,9 @@ th {
   padding: 1px 8px 0 0;
   vertical-align: top;
   white-space: nowrap;
+}
+.th-assign {
+  width: 6% !important;
 }
 .tr-course td {
   height: 40px !important;

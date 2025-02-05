@@ -207,17 +207,15 @@ class SearchForm(Page):
         from_date = date.strftime('%m/%d/%Y') if date else ''
         app.logger.info(f'Entering note date from {from_date}')
         self.wait_for_textbox_and_type_chars(self.NOTE_DATE_FROM, from_date)
-        time.sleep(2)
-        for i in range(3):
-            self.hit_tab()
+        time.sleep(utils.get_click_sleep())
+        self.hit_tab()
 
     def set_notes_date_to(self, date=None):
         to_date = date.strftime('%m/%d/%Y') if date else ''
         app.logger.info(f'Entering note date to {to_date}')
         self.wait_for_textbox_and_type_chars(self.NOTE_DATE_TO, to_date)
-        time.sleep(2)
-        for i in range(3):
-            self.hit_tab()
+        time.sleep(utils.get_click_sleep())
+        self.hit_tab()
 
     def set_notes_date_range(self, date_from, date_to):
         self.set_notes_date_from(date_from)
@@ -241,6 +239,7 @@ class SearchForm(Page):
     def click_adv_search_cxl_button(self):
         app.logger.info('Canceling advanced search')
         self.wait_for_element_and_click(self.ADV_SEARCH_CXL_BUTTON)
+        self.when_not_present(self.ADV_SEARCH_CXL_BUTTON, 2)
 
     def close_adv_search_if_open(self):
         if self.is_visible(self.ADV_SEARCH_CXL_BUTTON):

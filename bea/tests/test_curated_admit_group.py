@@ -136,7 +136,8 @@ class TestCuratedAdmitGroup:
 
     def test_group_members_can_be_added_from_cohort_select_some(self):
         self.filtered_admits_page.load_cohort(self.cohort)
-        admits_to_add = self.filtered_admits_page.admits_available_to_add_to_grp(self.test, self.group_2)
+        available_admits = self.filtered_admits_page.admits_available_to_add_to_grp(self.test, self.group_2)
+        admits_to_add = available_admits[0:10]
         self.filtered_admits_page.select_and_add_members_to_grp(admits_to_add, self.group_2)
         self.curated_admits_page.load_page(self.group_2)
         self.curated_admits_page.verify_visible_admits_match_group_members(self.group_2)

@@ -112,7 +112,7 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
     def select_new_filter(self, filter_option, filter_sub_option=None):
         self.select_new_filter_option(filter_option)
         no_options = ['Midpoint Deficient Grade', 'Transfer Student', 'Underrepresented Minority', 'Inactive (ASC)',
-                      'Intensive (ASC)', 'Inactive (COE)', 'Underrepresented Minority (COE)', 'Probation (COE)',
+                      'Intensive (ASC)', 'Inactive (COE)', 'Underrepresented Minority (COE)',
                       'Current SIR', 'Hispanic', 'UREM', 'First Generation College', 'Application Fee Waiver',
                       'Foster Care', 'Family Is Single Parent', 'Student Is Single Parent', 'Re-entry Status',
                       'Last School LCFF+', 'Holds']
@@ -194,8 +194,8 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
             self.select_new_filter('Ethnicity (COE)', ethnicity)
         for prep in cohort.search_criteria.coe_preps:
             self.select_new_filter('PREP (COE)', prep)
-        if cohort.search_criteria.coe_probation:
-            self.select_new_filter('Probation (COE)')
+        for coe_stand in cohort.search_criteria.coe_academic_standings:
+            self.select_new_filter('Academic Standing (COE)', coe_stand)
         if cohort.search_criteria.coe_inactive:
             self.select_new_filter('Inactive (COE)')
         if cohort.search_criteria.coe_underrepresented_minority:
@@ -236,7 +236,7 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
 
     def existing_filter_loc(self, filter_name, filter_opt=None):
         option_xpath = f'{self.existing_filter_xpath(filter_name)}/following-sibling::div'
-        if filter_name in ['Inactive', 'Inactive (ASC)', 'Inactive (COE)', 'Intensive (ASC)', 'Probation (COE)',
+        if filter_name in ['Inactive', 'Inactive (ASC)', 'Inactive (COE)', 'Intensive (ASC)',
                            'Transfer Student', 'Underrepresented Minority', 'Underrepresented Minority (COE)',
                            'Current SIR', 'Hispanic', 'UREM', 'First Generation College', 'Holds', 'Incomplete Grade',
                            'Application Fee Waiver', 'Foster Care', 'Family Is Single Parent',
@@ -373,8 +373,8 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
                 assert self.is_present(self.existing_filter_loc('Inactive (COE)'))
             for p in filters.coe_preps:
                 assert self.is_present(self.existing_filter_loc('PREP (COE)'))
-            if filters.coe_probation:
-                assert self.is_present(self.existing_filter_loc('Probation (COE)'))
+            if filters.coe_academic_standings:
+                assert self.is_present(self.existing_filter_loc('Academic Standing (COE)'))
             if filters.coe_underrepresented_minority:
                 assert self.is_present(self.existing_filter_loc('Underrepresented Minority (COE)'))
 

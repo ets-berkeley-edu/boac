@@ -189,7 +189,11 @@
                         "prep": "T-PREP eligible"
                     }
                 ],
-                "coe_probation": true,
+                "coe_academic_standings": [
+                    {
+                        "standing": "D"
+                    }
+                ],
                 "coe_underrepresented_minority": true
             },
             {
@@ -266,10 +270,10 @@
             {
                 "academic_standings": [
                     {
-                        "standing": "2222-PRO"
+                        "standing": "2252-PRO"
                     },
                     {
-                        "standing": "2218-DIS"
+                        "standing": "2228-DIS"
                     }
                 ],
                 "career_statuses": [
@@ -282,17 +286,12 @@
                 ]
             },
             {
-                "degree_terms": [
+                "coe_academic_standings": [
                     {
-                        "term": "2025"
+                        "standing": "N"
                     },
                     {
-                        "term": "2022"
-                    }
-                ],
-                "degrees_awarded": [
-                    {
-                        "degree": "Physics BA"
+                        "standing": "U"
                     }
                 ]
             }

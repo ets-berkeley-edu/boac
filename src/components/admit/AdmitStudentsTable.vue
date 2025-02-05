@@ -33,8 +33,7 @@
             density="compact"
             :icon="true"
             variant="text"
-            @click="curatedGroupRemoveStudent(student)"
-            @keyup.enter="curatedGroupRemoveStudent(student)"
+            @click="() => curatedGroupRemoveStudent(student)"
           >
             <v-icon :icon="mdiCloseCircle" size="22" color="primary" />
             <span class="sr-only">Remove {{ fullName(student) }}</span>
@@ -133,7 +132,7 @@ const admitRoutePath = student => {
 }
 
 const curatedGroupRemoveStudent = student => {
-  props.removeStudent(getSid(student))
+  props.removeStudent({...student, ...{sid: getSid(student)}})
   alertScreenReader(`Removed ${fullName(student)} from group`)
 }
 

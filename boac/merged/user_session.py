@@ -27,6 +27,7 @@ from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.json_cache import clear, stow
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from flask import current_app as app
 from flask_login import UserMixin
 
@@ -113,6 +114,10 @@ class UserSession(UserMixin):
     def is_authenticated(self):
         return self.api_json['isAuthenticated']
 
+    @property
+    def is_peer_advisor(self):
+        return self.api_json['isPeerAdvisor']
+
     @classmethod
     @stow('boa_user_session_{user_id}')
     def load_user(cls, user_id):
@@ -129,6 +134,7 @@ class UserSession(UserMixin):
     def _get_api_json(cls, user=None):
         calnet_profile = None
         departments = []
+        peer_advising_departments = []
         if user:
             calnet_profile = calnet.get_calnet_user_for_uid(
                 app,
@@ -144,6 +150,16 @@ class UserSession(UserMixin):
                         'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
                         'role': m.role,
                     })
+            peer_advising_department_memberships = PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id)
+            for m in peer_advising_department_memberships:
+                peer_advising_departments.append(
+                    {
+                        'name': m['peer_advising_department_name'],
+                        'peerAdvisingDepartmentId': m['peer_advising_department_id'],
+                        'roleType': m['role_type'],
+                        'universityDeptCode': m['university_dept_code'],
+                        'universityDeptName': m['university_dept_name'],
+                    })
         is_active = False
         if user:
             if not calnet_profile:
@@ -155,6 +171,8 @@ class UserSession(UserMixin):
                     is_active = True if m.role else False
                     if is_active:
                         break
+            elif len(peer_advising_department_memberships):
+                is_active = True
 
         is_admin = user and user.is_admin
         degree_progress_permission = 'read_write' if is_admin else (user and user.degree_progress_permission)
@@ -164,20 +182,23 @@ class UserSession(UserMixin):
             **(calnet_profile or {}),
             **{
                 'id': user and user.id,
-                'automateDegreeProgressPermission': user and user.automate_degree_progress_permission,
+                'automateDegreeProgressPermission': user.automate_degree_progress_permission if user else False,
                 'canAccessAdmittedStudents': can_access_ce3_features,
-                'canAccessAdvisingData': user and user.can_access_advising_data,
-                'canAccessCanvasData': user and user.can_access_canvas_data,
+                'canAccessAdvisingData': user.can_access_advising_data if user else False,
+                'canAccessCanvasData': user.can_access_canvas_data if user else False,
                 'canAccessPrivateNotes': can_access_ce3_features,
                 'canEditDegreeProgress': degree_progress_permission == 'read_write',
                 'canReadDegreeProgress': degree_progress_permission in ['read', 'read_write'],
                 'degreeProgressPermission': degree_progress_permission,
                 'departments': departments,
-                'inDemoMode': user and user.in_demo_mode,
+                'inDemoMode': user.in_demo_mode if user else False,
                 'isActive': is_active,
                 'isAdmin': is_admin,
                 'isAnonymous': not is_active,
                 'isAuthenticated': is_active,
+                # TODO: Is 'is_peer_advisor' necessary? Can we not deduce from 'peer_advising_departments' role_type?
+                'isPeerAdvisor': user.is_peer_advisor if user else False,
+                'peerAdvisingDepartments': peer_advising_departments,
                 'uid': user and user.uid,
             },
         }

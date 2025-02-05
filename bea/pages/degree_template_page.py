@@ -168,7 +168,7 @@ class DegreeTemplatePage(BoaPages):
     COL_REQT_UNIT_NUM_INPUT_0 = By.ID, 'units-input'
     COL_REQT_UNIT_NUM_INPUT_1 = By.ID, 'upper-units-input'
     COL_REQT_COURSE_UNITS_ERROR_MSG = By.XPATH, '//*[contains(text(), "Invalid")]'
-    COL_REQT_COURSE_UNITS_NUM_ERROR_MSG = By.XPATH, '//div[text()="Units must be between 1 and 10"]'
+    COL_REQT_COURSE_UNITS_NUM_ERROR_MSG = By.XPATH, '//div[text()="Units must be a number between 0 and 10"]'
     COL_REQT_COURSE_UNITS_REQT_PILL = By.XPATH, '//li[contains(@id, "unit-requirement")]'
     COL_REQT_COURSE_UNITS_REQT_SELECT = By.XPATH, '//select[contains(@id, "unit-requirement-select")]'
     COL_REQT_COURSE_UNITS_REQT_REMOVE_BUTTON = By.XPATH, '//button[contains(@id, "unit-requirement-remove")]'
@@ -365,13 +365,13 @@ class DegreeTemplatePage(BoaPages):
         return By.XPATH, self.course_reqt_xpath(course)
 
     def visible_template_course_reqt_name(self, course):
-        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[1]'))
-
-    def visible_template_course_reqt_units(self, course):
         return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[2]'))
 
-    def visible_template_course_reqt_fulfillment(self, course):
+    def visible_template_course_reqt_units(self, course):
         return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[3]'))
+
+    def visible_template_course_reqt_fulfillment(self, course):
+        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[4]'))
 
     @staticmethod
     def campus_reqts_xpath(col_num):

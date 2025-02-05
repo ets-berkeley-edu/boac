@@ -157,6 +157,7 @@ class BEATestBaseConfigs(object):
 
     def set_admin(self):
         self.admin = User({
+            'depts': [Department.ADMIN],
             'is_admin': True,
             'uid': utils.get_admin_uid(),
             'username': utils.get_admin_username(),
@@ -169,7 +170,8 @@ class BEATestBaseConfigs(object):
         boa_advisors = boa_utils.get_dept_advisors(self.dept, role)
         boa_advisors.reverse()
         if self.dept == Department.ADMIN:
-            boa_advisor = User({'uid': utils.get_admin_uid()})
+            self.set_admin()
+            boa_advisor = self.admin
         elif uid:
             boa_advisor = next(filter(lambda a: a.uid == uid, boa_advisors))
         else:

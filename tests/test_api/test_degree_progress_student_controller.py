@@ -27,7 +27,7 @@ from datetime import datetime
 import json
 
 from boac import std_commit
-from boac.externals.data_loch import safe_execute_rds
+from boac.externals.data_loch import get_student_by_sid, safe_execute_rds
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
@@ -45,10 +45,18 @@ qcadv_advisor_uid = '53791'
 
 @pytest.fixture()
 def mock_degree_check():
+    authorized_user_id = AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid)
+    dept_codes = ['COENG']
+    parent_template = DegreeProgressTemplate.create(
+        advisor_dept_codes=dept_codes,
+        created_by=authorized_user_id,
+        degree_name=f'Degree template created by {coe_advisor_read_write_uid}',
+    )
     return DegreeProgressTemplate.create(
-        advisor_dept_codes=['COENG'],
-        created_by=AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid),
+        advisor_dept_codes=dept_codes,
+        created_by=authorized_user_id,
         degree_name=f'Degree check of {coe_student_sid}',
+        parent_template_id=parent_template.id,
         student_sid='11667051',
     )
 
@@ -449,6 +457,46 @@ class TestCreateCourse:
         assert next((c for c in unassigned_courses if c['id'] == course_id), None)
 
 
+class TestDegreeProgressRedirect:
+
+    @classmethod
+    def _api_redirect_to_student_degree_checks(cls, client, sid, expected_status_code=302):
+        response = client.get(f'/api/degree/student/{sid}/redirect')
+        assert response.status_code == expected_status_code
+        return response
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_redirect_to_student_degree_checks(
+            client=client,
+            expected_status_code=401,
+            sid=coe_student_sid,
+        )
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_redirect_to_student_degree_checks(
+            client=client,
+            expected_status_code=401,
+            sid=coe_student_sid,
+        )
+
+    def test_redirect_to_student_degree_progress(self, client, fake_auth, mock_degree_check):
+        """Redirect to appropriate URL per student degree checks."""
+        def _get_redirect_path():
+            response = self._api_redirect_to_student_degree_checks(client=client, sid=sid)
+            return next((h for h in response.headers if h[0] == 'Location'), None)[1]
+        fake_auth.login(coe_advisor_read_write_uid)
+        std_commit(allow_test_environment=True)
+        sid = mock_degree_check.student_sid
+        assert _get_redirect_path() == f'/student/degree/{mock_degree_check.id}'
+        # Next, delete the student's degree check and retest the redirect URL.
+        DegreeProgressTemplate.delete(mock_degree_check.id)
+        uid = get_student_by_sid(sid)['uid']
+        assert _get_redirect_path() == f'/student/{uid}/degree/create'
+
+
 class TestUpdateCourse:
 
     @classmethod
@@ -559,19 +607,19 @@ class TestGetDegreeCheckStudents:
 class TestGetStudentDegreeChecks:
 
     @classmethod
-    def _api_get_degree_checks(cls, client, uid, expected_status_code=200):
-        response = client.get(f'/api/degrees/student/{uid}')
+    def _api_get_degree_checks(cls, client, sid, expected_status_code=200):
+        response = client.get(f'/api/degrees/student/{sid}')
         assert response.status_code == expected_status_code
         return response.json
 
     def test_anonymous(self, client):
         """Denies anonymous user."""
-        self._api_get_degree_checks(client, uid=coe_student_uid, expected_status_code=401)
+        self._api_get_degree_checks(client, expected_status_code=401, sid=coe_student_sid)
 
     def test_unauthorized(self, client, fake_auth):
         """Denies unauthorized user."""
         fake_auth.login(qcadv_advisor_uid)
-        self._api_get_degree_checks(client, uid=coe_student_uid, expected_status_code=401)
+        self._api_get_degree_checks(client, expected_status_code=401, sid=coe_student_sid)
 
     def test_authorized(self, client, fake_auth, mock_degree_checks):
         """Advisor can view student degree checks."""
@@ -582,7 +630,7 @@ class TestGetStudentDegreeChecks:
         mock_degree_checks.sort(key=_sort_by, reverse=True)
         expected_current_id = mock_degree_checks[0].id
 
-        degree_checks = self._api_get_degree_checks(client, uid=coe_student_uid)
+        degree_checks = self._api_get_degree_checks(client, sid=coe_student_sid)
         assert degree_checks[0]['id'] == expected_current_id
         assert degree_checks[0]['isCurrent'] is True
         assert degree_checks[0]['createdByName'] is not None

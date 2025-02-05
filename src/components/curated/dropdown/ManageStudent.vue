@@ -17,7 +17,6 @@
             'bg-success': isAdding,
             'button-menu-active': isMenuOpen
           }"
-          :width="buttonWidth"
         >
           <div v-if="!isAdding && !isRemoving" class="d-flex" :class="labelClass">
             <v-progress-circular
@@ -292,6 +291,9 @@ const refresh = () => {
 </script>
 
 <style scoped>
+.button-menu {
+  width: v-bind(buttonWidth);
+}
 .opacity-zero {
   opacity: 0;
 }

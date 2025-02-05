@@ -162,11 +162,10 @@ class DegreeCheckPage(DegreeTemplatePage):
     CANCEL_EDIT_REQT_BUTTON = By.ID, 'cancel-edit-requirement-btn'
 
     def is_course_row_assign_cell_present(self, row_xpath):
-        return self.is_present((By.XPATH, f'{row_xpath}/td[@class="td-assign"]'))
+        return self.is_present((By.XPATH, f'{row_xpath}/td[contains(@class, "td-assign")]'))
 
     def course_reqt_name(self, course):
-        node = '2' if self.is_course_row_assign_cell_present(self.course_reqt_xpath(course)) else '1'
-        return By.XPATH, f'{self.course_reqt_xpath(course)}/td[{node}]/span[last()]/span'
+        return By.XPATH, f'{self.course_reqt_xpath(course)}/td[2]/span[last()]/span'
 
     def visible_course_reqt_name(self, course):
         return self.el_text_if_exists(self.course_reqt_name(course))
@@ -174,17 +173,14 @@ class DegreeCheckPage(DegreeTemplatePage):
     def is_visible_course_reqt_name_struck(self, course):
         return 'strikethrough' in self.element(self.course_reqt_name(course)).get_attribute('class')
 
-    def visible_course_reqt_units(self, course):
-        node = '4' if self.is_course_row_assign_cell_present(self.course_reqt_xpath(course)) else '3'
-        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[{node}]//div'))
-
     def visible_course_reqt_grade(self, course):
-        node = '3' if self.is_course_row_assign_cell_present(self.course_reqt_xpath(course)) else '2'
-        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[{node}]//span'))
+        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[3]//span'))
+
+    def visible_course_reqt_units(self, course):
+        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[4]//div'))
 
     def visible_course_reqt_note(self, course):
-        node = '5' if self.is_course_row_assign_cell_present(self.course_reqt_xpath(course)) else '4'
-        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[{node}]//a'))
+        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[5]//a'))
 
     def click_edit_course_reqt(self, course):
         self.click_edit_cat(course)

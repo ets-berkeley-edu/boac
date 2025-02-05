@@ -61,20 +61,16 @@
       <div
         v-if="category.description && printable"
         :id="`column-${category.id}-category-header-description`"
-        class="category-description py-1"
-        :class="{'': printable, 'pl-1': !printable}"
-      >
-        <span v-if="printable" class="border-0" v-html="category.description" />
-      </div>
+        class="border-0 category-description font-size-12 py-1"
+        v-html="category.description"
+      />
       <div
-        v-if="category.description"
+        v-if="category.description && !printable"
         :id="`column-${category.id}-category-header-description`"
-        class="category-description py-1"
-        :class="{'font-size-12': printable, 'pl-1': !printable}"
-      >
-        <span v-if="printable" class="border-0" v-html="category.description" />
-        <span v-if="!printable" v-linkified v-html="category.description" />
-      </div>
+        v-linkified
+        class="category-description pl-1 py-1"
+        v-html="category.description"
+      />
     </div>
     <AreYouSureModal
       v-model="isDeleting"

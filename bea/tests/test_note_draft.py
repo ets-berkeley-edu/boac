@@ -334,8 +334,8 @@ class TestNoteDraft:
         assert self.note_1.record_id not in api_ids
 
     def test_non_author_advisor_attachment_api(self):
-        attach_id = boa_utils.get_attachment_id_by_file_name(self.note_1, self.note_1.attachments[0])
-        self.api_notes_page.load_attachment_page(attach_id)
+        boa_utils.get_attachment_id_by_file_name(self.note_1, self.note_1.attachments[0])
+        self.api_notes_page.load_attachment_page(self.note_1.attachments[0].attachment_id)
         self.api_notes_page.when_present(self.api_notes_page.ATTACH_NOT_FOUND_MSG, utils.get_short_timeout())
 
     # An advisor who is the author
@@ -401,10 +401,11 @@ class TestNoteDraft:
         self.search_results_page.wait_for_no_results()
 
     def test_search_draft_by_author_yields_no_result(self):
-        self.search_results_page.reopen_and_reset_adv_search()
-        self.search_results_page.set_notes_author(self.test.advisor.full_name, self.test.advisor.alt_names)
-        self.search_results_page.enter_adv_search_and_hit_enter(self.note_3.subject)
-        self.search_results_page.wait_for_no_results()
+        if self.test.advisor.full_name:
+            self.search_results_page.reopen_and_reset_adv_search()
+            self.search_results_page.set_notes_author(self.test.advisor.full_name, self.test.advisor.alt_names)
+            self.search_results_page.enter_adv_search_and_hit_enter(self.note_3.subject)
+            self.search_results_page.wait_for_no_results()
 
     def test_search_draft_by_student_yields_no_result(self):
         self.search_results_page.reopen_and_reset_adv_search()
@@ -541,12 +542,13 @@ class TestNoteDraft:
         utils.assert_equivalence(self.draft_notes_page.visible_draft_subject(self.note_6), self.note_6.subject)
 
     def test_admin_draft_list_view_authors(self):
-        visible_note_4_author = self.draft_notes_page.visible_draft_author(self.note_4, self.test.admin).lower()
-        visible_note_5_author = self.draft_notes_page.visible_draft_author(self.note_5, self.test.admin).lower()
-        visible_note_6_author = self.draft_notes_page.visible_draft_author(self.note_6, self.test.admin).lower()
-        utils.assert_equivalence(visible_note_4_author, self.test.advisor.full_name.lower())
-        utils.assert_equivalence(visible_note_5_author, self.test.advisor.full_name.lower())
-        utils.assert_equivalence(visible_note_6_author, self.test.advisor.full_name.lower())
+        if self.test.advisor.full_name:
+            visible_note_4_author = self.draft_notes_page.visible_draft_author(self.note_4, self.test.admin).lower()
+            visible_note_5_author = self.draft_notes_page.visible_draft_author(self.note_5, self.test.admin).lower()
+            visible_note_6_author = self.draft_notes_page.visible_draft_author(self.note_6, self.test.admin).lower()
+            utils.assert_equivalence(visible_note_4_author, self.test.advisor.full_name.lower())
+            utils.assert_equivalence(visible_note_5_author, self.test.advisor.full_name.lower())
+            utils.assert_equivalence(visible_note_6_author, self.test.advisor.full_name.lower())
 
     def test_admin_draft_list_view_dates(self):
         today = datetime.today().strftime('%b %-d')

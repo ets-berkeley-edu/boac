@@ -19,6 +19,13 @@
             id-prefix="classes"
             :standing="term.academicStanding"
           />
+          <div
+            v-if="displayCoeAcademicStanding(student) && term.coeAcademicStanding"
+            :id="`student-term-${term.id}-acad-standing-coe`"
+            class="text-error font-weight-bold font-size-13 text-no-wrap"
+          >
+            {{ term.coeAcademicStanding.description }} (COE)
+          </div>
           <StudentWithdrawalCancel
             v-if="student.sisProfile.withdrawalCancel"
             class="font-size-14"
@@ -112,6 +119,7 @@ import StudentAcademicStanding from '@/components/student/profile/StudentAcademi
 import StudentCourse from '@/components/student/profile/StudentCourse'
 import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
 import {DateTime} from 'luxon'
+import {displayCoeAcademicStanding} from '@/berkeley'
 import {get, isEmpty, isNil, some} from 'lodash'
 import {round} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'

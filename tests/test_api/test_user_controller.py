@@ -39,6 +39,7 @@ coe_advisor_uid = '1133399'
 coe_advisor_no_advising_data_uid = '1022796'
 deleted_user_uid = '33333'
 l_s_college_advisor_uid = '188242'
+peer_advisor_uid = '1563405'
 
 
 class TestUserProfile:
@@ -57,6 +58,7 @@ class TestUserProfile:
         assert not api_json['uid']
         assert api_json['canEditDegreeProgress'] is False
         assert api_json['canReadDegreeProgress'] is False
+        assert api_json['isPeerAdvisor'] is False
 
     def test_current_user_profile(self, client, fake_auth):
         """Includes user profile info from Canvas."""
@@ -69,6 +71,7 @@ class TestUserProfile:
         assert 'lastName' in api_json
         assert api_json['canEditDegreeProgress'] is True
         assert api_json['canReadDegreeProgress'] is True
+        assert api_json['isPeerAdvisor'] is False
 
     def test_can_edit_degree_progress(self, client, fake_auth):
         """Degree check permissions."""
@@ -100,20 +103,26 @@ class TestUserProfile:
         assert departments[0]['name'] == 'Athletic Study Center'
         assert departments[0]['role'] == 'advisor'
 
-    def test_other_user_profile(self, client, fake_auth):
-        fake_auth.login(admin_uid)
-        response = client.get('/api/profile/6446')
-        api_json = response.json
-        assert api_json['uid'] == '6446'
-        assert 'firstName' in api_json
-        assert 'lastName' in api_json
-        assert 'canEditDegreeProgress' not in api_json
-        assert 'canReadDegreeProgress' not in api_json
+    class TestPeerAdvising:
+        """Peer Advising in the User Profile API."""
 
-    def test_other_user_profile_not_found(self, client, fake_auth):
-        fake_auth.login(admin_uid)
-        response = client.get('/api/profile/2549')
-        assert response.status_code == 404
+        @staticmethod
+        def _api_my_profile(client, expected_status_code=200):
+            response = client.get('/api/profile/my')
+            assert response.status_code == expected_status_code
+            return response.json
+
+        def test_peer_advising_department_memberships(self, client, fake_auth):
+            """Returns peer_advising_departments in user profile object."""
+            fake_auth.login(peer_advisor_uid)
+            api_json = self._api_my_profile(client)
+            assert 'peerAdvisingDepartments' in api_json
+            assert api_json['id']
+            assert api_json['isAuthenticated'] is True
+            peer_advising_departments = api_json['peerAdvisingDepartments']
+            assert len(peer_advising_departments) > 0
+            peer_advising_department = peer_advising_departments[0]
+            assert peer_advising_department['name'] == 'Psychology'
 
 
 class TestMyCohorts:
@@ -388,11 +397,10 @@ class TestGetDepartments:
         assert len(api_json) > 1
         for index, department in enumerate(api_json):
             assert 'id' in department
-            # TODO: Bring this back when 'All advisors can see all cohorts' is brought back.
-            # assert department['memberCount'] > 0
-            # if index > 0:
-            #     previous_department = api_json[index - 1]
-            #     assert department['name'] > previous_department['name']
+            assert department['memberCount'] > 0
+            if index > 0:
+                previous_department = api_json[index - 1]
+                assert department['deptName'] > previous_department['deptName']
 
 
 class TestGetUsers:
@@ -413,7 +421,7 @@ class TestGetUsers:
         response = client.post('/api/users', data=json.dumps({'deptCode': 'QCADV'}), content_type='application/json')
         assert response.status_code == 200
         users = response.json['users']
-        assert len(users) == 4
+        assert len(users) == 5
 
 
 class TestGetAdminUsers:
@@ -721,7 +729,7 @@ class TestUserUpdate:
 
         departments = user['departments']
         assert len(departments) == 1
-        assert departments[0]['code'] == 'COENG'
+        assert departments[0]['deptCode'] == 'COENG'
         assert departments[0]['role'] == 'advisor'
         assert departments[0]['automateMembership'] is True
 
@@ -812,3 +820,43 @@ class TestUserUpdate:
         assert user['canAccessAdvisingData'] is False
         assert user['canAccessCanvasData'] is False
         assert len(user['departments']) == 1
+
+    def test_peer_advising_manager_role(self, client, fake_auth):
+        """Give an advisor the 'Peer Advising Manager' role."""
+        fake_auth.login(admin_uid)
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        dept_code = 'COENG'
+        user = self._api_create_or_update(
+            client,
+            profile=self._profile_object(
+                authorized_user_id=advisor.id,
+                can_access_advising_data=False,
+                can_access_canvas_data=False,
+                uid=advisor.uid,
+            ),
+            memberships=[
+                {
+                    'code': dept_code,
+                    'role': 'peer_advisor_manager',
+                    'automateMembership': False,
+                },
+            ],
+        )
+        assert user['id'] == advisor.id
+        assert user['uid'] == coe_advisor_uid
+        assert user['isAdmin'] is False
+        assert user['isBlocked'] is False
+        assert user['canAccessAdvisingData'] is False
+        assert user['canAccessCanvasData'] is False
+        # Verify University Dept membership
+        university_depts = user['departments']
+        assert len(university_depts) == 1
+        assert university_depts[0]['deptCode'] == dept_code
+        # Verify Peer Advising
+        peer_advising_departments = user['peerAdvisingDepartments']
+        assert len(peer_advising_departments) == 1
+        peer_advising_department = peer_advising_departments[0]
+        assert peer_advising_department['name'] == 'Mechanical Engineering'
+        assert peer_advising_department['roleType'] == 'peer_advisor_manager'
+        assert peer_advising_department['universityDeptCode'] == dept_code
+        assert peer_advising_department['universityDeptName'] == 'College of Engineering'

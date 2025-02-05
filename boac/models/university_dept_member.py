@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.models.base import Base
 from boac.models.university_dept import UniversityDept
+from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import ENUM
 
 
@@ -86,6 +87,16 @@ class UniversityDeptMember(Base):
         db.session.add(membership)
         std_commit()
         return membership
+
+    @classmethod
+    def get_membership_uids(cls, university_dept_id):
+        query = text("""
+            SELECT a.uid FROM authorized_users a
+            JOIN university_dept_members m ON m.authorized_user_id = a.id
+            WHERE m.university_dept_id = :university_dept_id
+                AND a.deleted_at IS NULL
+        """)
+        return [row['uid'] for row in db.session.execute(query, {'university_dept_id': university_dept_id}).all()]
 
     @classmethod
     def get_existing_memberships(cls, authorized_user_id):

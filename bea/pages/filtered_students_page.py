@@ -68,7 +68,7 @@ class FilteredStudentsPage(CohortAndGroupStudentPages,
         self.wait_for_404()
 
     def load_everyone_cohorts_page(self):
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/cohorts/all')
+        self.driver.get(f'{boa_utils.get_boa_base_url()}/all/cohorts')
         self.wait_for_boa_title('Cohorts')
 
     def click_history(self):

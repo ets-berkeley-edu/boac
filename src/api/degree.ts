@@ -114,8 +114,8 @@ export function deleteUnitRequirement(unitRequirementId: number) {
   return axios.delete(`${utils.apiBaseUrl()}/api/degree/unit_requirement/${unitRequirementId}`)
 }
 
-export function getDegreeChecks(uid: string) {
-  const url: string = `${utils.apiBaseUrl()}/api/degrees/student/${uid}`
+export function getDegreeChecks(sid: string) {
+  const url: string = `${utils.apiBaseUrl()}/api/degrees/student/${sid}`
   return axios.get(url).then(response => response.data)
 }
 

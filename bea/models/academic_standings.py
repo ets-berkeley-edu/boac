@@ -66,6 +66,10 @@ class AcademicStanding(object):
 
 class AcademicStandings(Enum):
 
+    DIQ = {
+        'code': 'DIQ',
+        'descrip': 'Disqualification',
+    }
     DIS = {
         'code': 'DIS',
         'descrip': 'Dismissed',
@@ -74,11 +78,67 @@ class AcademicStandings(Enum):
         'code': 'GST',
         'descrip': 'Good Standing',
     }
+    NOT = {
+        'code': 'NOT',
+        'descrip': 'Notice',
+    }
     PRO = {
         'code': 'PRO',
         'descrip': 'Probation',
     }
+    SSP = {
+        'code': 'SSP',
+        'descrip': 'Subject to Academic Suspension',
+    }
     SUB = {
         'code': 'SUB',
+        'descrip': 'Subject to Disqualification',
+    }
+    SUS = {
+        'code': 'SUS',
+        'descrip': 'Academic Suspension',
+    }
+
+
+class AcademicStandingsCoE(Enum):
+
+    NOT = {
+        'code': 'N',
+        'descrip': 'Academic Notice',
+    }
+    SUS = {
+        'code': 'A',
+        'descrip': 'Academic Suspension',
+    }
+    DIS = {
+        'code': 'D',
+        'descrip': 'Dismissed',
+    }
+    SUQ = {
+        'code': 'U',
+        'descrip': 'Subject to Disqualification',
+    }
+    SUP = {
+        'code': 'S',
+        'descrip': 'Subject to Suspension',
+    }
+    SUD = {
+        'code': 'P',
         'descrip': 'Subject to Dismissal',
+    }
+    SUPP = {
+        'code': '1',
+        'descrip': 'Subject to Suspension (pending)',
+    }
+    SUDP = {
+        'code': '2',
+        'descrip': 'Subject to Dismissal (pending)',
+    }
+    SUN = {
+        'code': '3',
+        'descrip': 'Subject to Academic Notice (pending)',
+    }
+    SUQP = {
+        'code': '4',
+        'descrip': 'Subject to Disqualification (pending)',
     }

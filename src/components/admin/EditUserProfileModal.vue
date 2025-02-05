@@ -117,10 +117,7 @@
                 </div>
               </div>
             </div>
-            <div
-              v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission"
-              class="pb-3"
-            >
+            <div v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission">
               <label class="font-weight-black" for="degree-progress-permission-select">Degree Progress Permission</label>
               <div class="mt-1">
                 <select
@@ -152,63 +149,90 @@
             <h4 class="sr-only">Departments</h4>
             <v-card
               v-for="dept in memberships"
-              :key="dept.code"
+              :key="dept.deptCode"
+              class="bg-grey-lighten-4 border-md mt-1"
               flat
-              variant="tonal"
             >
               <v-card-title class="align-center d-flex">
-                <h5 class="text-wrap font-size-16">{{ dept.name }} ({{ dept.code }})</h5>
+                <h5 class="text-wrap font-size-16">{{ dept.deptName }} ({{ dept.deptCode }})</h5>
                 <v-btn
-                  :id="`remove-department-${dept.code}`"
-                  :aria-label="`Remove department '${dept.name}'`"
-                  class="align-self-start ml-auto text-error"
+                  :id="`remove-department-${dept.deptCode}`"
+                  :aria-label="`Remove department '${dept.deptName}'`"
+                  class="align-self-start bg-grey-lighten-4 ml-auto text-error"
                   density="comfortable"
                   :icon="mdiCloseCircleOutline"
                   title="Remove"
                   variant="flat"
-                  @click="() => removeDepartment(dept.code)"
+                  @click="() => removeDepartment(dept.deptCode, dept.role)"
                 />
               </v-card-title>
-              <v-card-text>
-                <div class="align-center d-flex pl-8">
-                  <label class="font-weight-black mr-2" :for="`select-department-${dept.code}-role`">Role</label>
+              <v-card-text class="pl-4">
+                <div class="align-center d-flex">
+                  <label class="font-weight-black mr-2" :for="`select-department-${dept.deptCode}-role`">Role</label>
                   <select
-                    :id="`select-department-${dept.code}-role`"
+                    :id="`select-department-${dept.deptCode}-role`"
                     v-model="dept.role"
                     class="select-menu select-department-role"
-                    :class="{'border border-error border-opacity-100 text-error': includes(map(membershipsMissingRoles, 'code'), dept.code)}"
-                    @change="remove(membershipsMissingRoles, {'code': dept.code})"
+                    :class="{'border border-error border-opacity-100 text-error': includes(map(membershipsMissingRoles, 'deptCode'), dept.deptCode)}"
+                    @change="remove(membershipsMissingRoles, {'deptCode': dept.deptCode})"
                   >
                     <option
                       id="department-role-null"
                       :value="null"
                     >
-                      Select Role...
+                      Select...
                     </option>
                     <option
-                      v-for="option in roles"
+                      v-for="option in getAvailableRoles(dept.deptCode)"
                       :id="`department-role-${lowerCase(option.value)}`"
                       :key="option.value"
+                      :disabled="isRoleOptionDisabled(dept.deptCode, option.value)"
                       :value="option.value"
                     >
                       {{ option.text }}
                     </option>
                   </select>
                 </div>
-                <div class="pl-8 pt-1">
-                  <v-checkbox
-                    :id="`is-automate-membership-${dept.code}`"
-                    v-model="dept.automateMembership"
-                    class="automate-membership-checkbox"
-                    color="primary"
-                    density="compact"
-                    hide-details
-                  >
-                    <template #label>
-                      <span class="pl-1">Automated</span>
-                    </template>
-                  </v-checkbox>
-                </div>
+                <v-expand-transition>
+                  <div v-show="dept.role !== 'peer_advisor_manager'" class="pl-8 pt-1">
+                    <v-checkbox
+                      :id="`is-automate-membership-${dept.deptCode}`"
+                      v-model="dept.automateMembership"
+                      class="automate-membership-checkbox"
+                      color="primary"
+                      density="compact"
+                      hide-details
+                    >
+                      <template #label>
+                        <span class="pl-1">Automated</span>
+                      </template>
+                    </v-checkbox>
+                  </div>
+                </v-expand-transition>
+                <v-expand-transition>
+                  <div v-show="dept.role === 'peer_advisor_manager'" class="mt-2 pl-11 pr-8">
+                    <select
+                      id="peer-advising-department-select"
+                      v-model="dept.peerAdvisingDepartmentId"
+                      aria-label="Department"
+                      class="select-menu w-100"
+                      @change="addDepartment"
+                    >
+                      <option id="department-null" :value="undefined">
+                        Select Peer Advising Department...
+                      </option>
+                      <option
+                        v-for="option in getPeerAdvisingDepartments(dept.deptCode)"
+                        :id="`department-option-${lowerCase(option.value)}`"
+                        :key="option.id"
+                        :disabled="isDepartmentOptionDisabled(option.value)"
+                        :value="option.id"
+                      >
+                        {{ option.name }}
+                      </option>
+                    </select>
+                  </div>
+                </v-expand-transition>
               </v-card-text>
             </v-card>
             <div v-if="memberships.length >= 3">
@@ -229,7 +253,7 @@
                   v-for="option in departmentOptions"
                   :id="`department-option-${lowerCase(option.value)}`"
                   :key="option.value"
-                  :disabled="memberships.findIndex(d => d.code === option.value) >= 0"
+                  :disabled="isDepartmentOptionDisabled(option.value)"
                   :value="option.value"
                 >
                   {{ option.text }}
@@ -312,26 +336,19 @@ const degreeProgressPermissionItems = [
   {value: 'read', text: 'Read-only'},
   {value: 'read_write', text: 'Read and write'}
 ]
-const roles = [
-  {value: 'advisor', text: 'Advisor'},
-  {value: 'director', text: 'Director'}
-]
-
-const isExistingUser = computed(() => {
-  return !!props.profile.id
-})
+const isExistingUser = computed(() => !!props.profile.id)
 
 const addDepartment = () => {
   if (deptCode.value) {
-    const dept = find(props.departments, ['code', deptCode.value])
+    const dept = find(props.departments, ['deptCode', deptCode.value])
     memberships.value.push({
-      code: dept.code,
-      name: dept.name,
+      deptCode: dept.deptCode,
+      deptName: dept.deptName,
       role: null,
       automateMembership: true
     })
     const option = find(departmentOptions.value, ['value', deptCode.value])
-    option.disabled = true
+    option.disabled = isDepartmentOptionDisabled(deptCode.value)
     deptCode.value = undefined
   }
 }
@@ -354,6 +371,42 @@ const closeModal = () => {
   memberships.value = []
 }
 
+const getAvailableRoles = deptCode => {
+  const department = find(props.departments, ['deptCode', deptCode])
+  const roles = [
+    {value: 'advisor', text: 'Advisor'},
+    {value: 'director', text: 'Director'},
+  ]
+  if (department.peerAdvisingDepartments.length) {
+    roles.push({value: 'peer_advisor_manager', text: 'Peer Advisor Manager'})
+  }
+  return roles
+}
+
+const getPeerAdvisingDepartments = deptCode => {
+  const department = find(props.departments, ['deptCode', deptCode])
+  return department.peerAdvisingDepartments
+}
+
+const isDepartmentOptionDisabled = deptCode => {
+  const existing_roles = map(_filter(memberships.value, ['deptCode', deptCode]), 'role')
+  return existing_roles.length === 2 && existing_roles.includes('peer_advisor_manager')
+}
+
+const isRoleOptionDisabled = (deptCode, role) => {
+  let isDisabled = false
+  const memberships_per_dept_code = _filter(memberships.value, ['deptCode', deptCode])
+  if (memberships_per_dept_code.length > 1) {
+    const existing_roles = map(memberships_per_dept_code, 'role')
+    if (['advisor', 'director'].includes(role)) {
+      isDisabled = existing_roles.includes('advisor') || existing_roles.includes('director')
+    } else if (role === 'peer_advisor_manager') {
+      isDisabled = existing_roles.includes('peer_advisor_manager')
+    }
+  }
+  return isDisabled
+}
+
 const openEditUserModal = () => {
   userProfile.value = {
     id: props.profile.id,
@@ -373,26 +426,34 @@ const openEditUserModal = () => {
     if (d.role) {
       memberships.value.push({
         automateMembership: d.automateMembership,
-        code: d.code,
-        name: d.name,
+        deptCode: d.deptCode,
+        deptName: d.deptName,
         role: d.role,
       })
     }
   })
+  each(props.profile.peerAdvisingDepartments, d => {
+    memberships.value.push({
+      automateMembership: d.automateMembership,
+      deptCode: d.universityDeptCode,
+      deptName: d.universityDeptName,
+      role: d.roleType,
+    })
+  })
   departmentOptions.value = []
   each(props.departments, d => {
     departmentOptions.value.push({
-      disabled: !!find(memberships.value, ['code', d.code]),
-      value: d.code,
-      text: d.name
+      disabled: isDepartmentOptionDisabled(d.deptCode),
+      text: d.deptName,
+      value: d.deptCode
     })
   })
   showEditUserModal.value = true
   putFocusNextTick(props.profile.uid ? 'is-admin' : 'uid-input')
 }
 
-const removeDepartment = deptCode => {
-  const indexOf = memberships.value.findIndex(d => d.code === deptCode)
+const removeDepartment = (deptCode, role) => {
+  const indexOf = memberships.value.findIndex(d => d.deptCode === deptCode && d.role === role)
   const option = find(departmentOptions.value, ['value', deptCode])
   memberships.value.splice(indexOf, 1)
   option.disabled = false
@@ -405,7 +466,7 @@ const save = () => {
     errors.value.push('UID is required')
     isUidInvalid.value = true
   } if (membershipsMissingRoles.value.length) {
-    const deptNames = map(membershipsMissingRoles.value, 'name')
+    const deptNames = map(membershipsMissingRoles.value, 'deptName')
     errors.value.push(`Please specify role for ${oxfordJoin(deptNames)}`)
   }
   if (!isUidInvalid.value && !membershipsMissingRoles.value.length) {

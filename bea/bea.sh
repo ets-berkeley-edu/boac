@@ -10,7 +10,7 @@ echo
 
 echo 'Which browser do you wish to fly today? Enter 1 or 2. '
 
-browser_options=("chrome" "firefox")
+browser_options=("chrome" "firefox" "safari")
 
 select opt in "${browser_options[@]}"; do
   case ${opt} in
@@ -22,12 +22,18 @@ select opt in "${browser_options[@]}"; do
     browser="firefox"
     break
     ;;
+  "safari")
+    browser="safari"
+    break
+    ;;
   *)
     echo "Sorry, we don't have that browser in our fleet"
     exit 1
     ;;
   esac
 done
+
+echo 'Do you wish to fly in regular or headless class?  Note that Safari only offers regular class'
 
 headless_options=("regular" "headless")
 

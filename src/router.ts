@@ -1,7 +1,8 @@
+import PeerAdvisor from '@/views/PeerAdvisor.vue'
+
 const AdmitStudent = () => import('@/views/AdmitStudent.vue')
 const AdmitStudents = () => import('@/views/AdmitStudents.vue')
 const AllCohorts = () => import('@/views/AllCohorts.vue')
-const AllGroups = () => import('@/views/AllGroups.vue')
 const BatchDegreeCheck = () => import('@/views/degree/BatchDegreeCheck.vue')
 const Cohort = () => import('@/views/Cohort.vue')
 const CohortHistory = () => import('@/views/CohortHistory.vue')
@@ -19,6 +20,8 @@ const Login = () => import('./layouts/Login.vue')
 const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
 const NotFound = () => import('@/views/NotFound.vue')
 const PassengerManifest = () => import('@/views/PassengerManifest.vue')
+const PeerAdvisingLayout = () => import('@/layouts/PeerAdvisingLayout.vue')
+const PeerAdvisingManager = () => import('@/views/PeerAdvisingManager.vue')
 const PrintableDegreeTemplate = () => import('@/views/degree/PrintableDegreeTemplate.vue')
 const Profile = () => import('@/views/Profile.vue')
 const SearchResults = () => import('@/views/SearchResults.vue')
@@ -30,7 +33,7 @@ const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.v
 import {CurrentUser} from './lib/utils'
 import {NavigationGuardNext, RouteLocation, RouteRecordRaw, createRouter, createWebHistory} from 'vue-router'
 import {filter, get, includes, size, toString, trim} from 'lodash'
-import {isAdvisor, isDirector} from '@/berkeley'
+import {isAdvisor, isDirector, isPeerAdvisingManager} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
 
@@ -44,7 +47,7 @@ const $_goToLogin = (to: RouteLocation, next: NavigationGuardNext) => {
   })
 }
 
-const $_isCE3 = user => !!size(filter(user.departments, d => d.code === 'ZCEEE' && includes(['advisor', 'director'], d.role)))
+const $_isCE3 = user => !!size(filter(user.departments, d => d.deptCode === 'ZCEEE' && includes(['advisor', 'director'], d.role)))
 
 const $_requiresDegreeProgress = (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
   const currentUser: CurrentUser = useContextStore().currentUser
@@ -91,9 +94,8 @@ const routes:RouteRecordRaw[] = [
     },
     children: [
       {
-        path: '/cohorts/all',
+        path: '/all/:mode',
         component: AllCohorts,
-        name: 'All Cohorts'
       },
       {
         path: '/cohort/history',
@@ -113,24 +115,16 @@ const routes:RouteRecordRaw[] = [
       {
         path: '/curated/:id',
         component: CuratedGroup,
-        props: true,
         name: 'Curated Group'
       },
       {
         path: '/curate',
         component: CreateCuratedGroup,
-        props: true,
         name: 'Create Curated Group'
-      },
-      {
-        path: '/groups/all',
-        component: AllGroups,
-        name: 'All Groups'
       },
       {
         path: '/note/drafts',
         component: DraftNotes,
-        props: true,
         name: 'Draft Notes'
       },
       {
@@ -142,6 +136,54 @@ const routes:RouteRecordRaw[] = [
         path: '/student/:uid',
         component: Student,
         name: 'Student'
+      }
+    ]
+  },
+  {
+    path: '/',
+    component: StandardLayout,
+    beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
+      // Requires Peer Advising Manager
+      const currentUser: CurrentUser = useContextStore().currentUser
+      if (currentUser.isAuthenticated) {
+        if (isPeerAdvisingManager(currentUser) || currentUser.isAdmin) {
+          next()
+        } else {
+          next({path: '/404'})
+        }
+      } else {
+        $_goToLogin(to, next)
+      }
+    },
+    children: [
+      {
+        component: PeerAdvisingManager,
+        name: 'Manage Peer Advisors',
+        path: '/peer/management/:id'
+      }
+    ]
+  },
+  {
+    path: '/',
+    component: PeerAdvisingLayout,
+    beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
+      // Requires Peer Advisor
+      const currentUser: CurrentUser = useContextStore().currentUser
+      if (currentUser.isAuthenticated) {
+        if (currentUser.isAdmin || currentUser.isPeerAdvisor) {
+          next()
+        } else {
+          next({path: '/404'})
+        }
+      } else {
+        $_goToLogin(to, next)
+      }
+    },
+    children: [
+      {
+        path: '/peer/advisor',
+        component: PeerAdvisor,
+        name: 'Peer Advising'
       }
     ]
   },
@@ -334,7 +376,7 @@ router.afterEach((to: RouteLocation, from: RouteLocation) => {
   if (!samePageLink) {
     useContextStore().resetApplicationState()
     const pageTitle = get(to, 'name')
-    document.title = `${String(pageTitle) || 'Welcome'} | BOA`
+    document.title = `${pageTitle ? toString(pageTitle) : 'Welcome'} | BOA`
   }
 })
 

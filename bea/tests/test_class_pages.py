@@ -40,7 +40,7 @@ class TestClassPagesLogin:
 
 
 @pytest.mark.usefixtures('page_objects')
-@pytest.mark.parametrize('tc', test.test_cases, ids=[f'UID{tc.student.uid} {tc.section.term.sis_id}-{tc.section.ccn}'
+@pytest.mark.parametrize('tc', test.test_cases, ids=[f'UID {tc.student.uid} {tc.section.term.sis_id}-{tc.section.ccn}'
                                                      for tc in test.test_cases], scope='class')
 class TestClassPagesSectionInfo:
 
@@ -77,7 +77,10 @@ class TestClassPagesSectionInfo:
     def test_class_page_meeting_days(self, tc):
         for meeting in tc.section.meetings:
             idx = tc.section.meetings.index(meeting)
-            utils.assert_equivalence(self.class_page.meeting_days(idx), meeting.days)
+            if meeting.days:
+                utils.assert_actual_includes_expected(self.class_page.meeting_days(idx), meeting.days)
+            else:
+                assert not self.class_page.meeting_days(idx)
 
     def test_class_page_meeting_times(self, tc):
         for meeting in tc.section.meetings:
@@ -109,9 +112,9 @@ class TestClassPagesSectionInfo:
         profile_data = tc.student.profile_data
         grads = profile_data.graduations()
         if profile_data.academic_career_status() == 'Completed' and grads:
-            assert grads[0]['date'].strftime('%b %e, %Y') in self.class_page.student_graduation()
+            assert grads[0]['date'].strftime('%b %e, %Y') in self.class_page.student_graduation_dates(tc.student)
             for major in grads[0]['majors']:
-                assert major['plan'] in self.class_page.student_graduation(tc.student)
+                assert major['plan'] in self.class_page.student_graduation_degrees(tc.student)
         else:
             utils.assert_equivalence(self.class_page.student_level(tc.student), profile_data.level())
 

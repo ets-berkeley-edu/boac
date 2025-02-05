@@ -1,6 +1,6 @@
 <template>
   <div :class="{'bg-sky-blue': hasSearchResults}">
-    <div class="pa-4" :class="{'bg-sky-blue': !hasSearchResults}">
+    <div class="pb-2 pt-4 px-4" :class="{'bg-sky-blue': !hasSearchResults}">
       <div class="align-center d-flex">
         <h1 id="page-header" class="mr-2">{{ searchStore.isSearching ? 'Searching...' : 'Search Results' }}</h1>
         <div v-if="!loading && (currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData)" class="pb-1">

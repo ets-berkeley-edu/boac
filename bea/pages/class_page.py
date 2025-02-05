@@ -95,15 +95,15 @@ class ClassPage(ListViewStudentPages,
 
     def meeting_days(self, index):
         loc = By.XPATH, f'{self.meeting_schedule_xpath(index)}//div[1]'
-        return self.element(loc).text if self.is_present(loc) and self.element(loc).text else None
+        return self.element(loc).text.strip() if self.is_present(loc) and self.element(loc).text.strip() else None
 
     def meeting_time(self, index):
         loc = By.XPATH, f'{self.meeting_schedule_xpath(index)}//div[2]'
-        return self.element(loc).text if self.is_present(loc) and self.element(loc).text else None
+        return self.element(loc).text.strip() if self.is_present(loc) and self.element(loc).text.strip() else None
 
     def meeting_location(self, index):
         loc = By.XPATH, f'{self.meeting_schedule_xpath(index)}//div[3]'
-        return self.element(loc).text if self.is_present(loc) and self.element(loc).text else None
+        return self.element(loc).text.strip() if self.is_present(loc) and self.element(loc).text.strip() else None
 
     # STUDENT SIS DATA
 
@@ -132,16 +132,28 @@ class ClassPage(ListViewStudentPages,
     def student_majors(self, student):
         loc = By.ID, f'student-{student.uid}-majors'
         majors = self.el_text_if_exists(loc)
-        majors = list(filter(lambda maj: maj, majors.split('\n')))
+        if majors:
+            majors = list(filter(lambda maj: maj, majors.split('\n')))
         return majors
 
     def student_sports(self, student):
         loc = By.ID, f'student-{student.uid}-teams'
         return self.els_text_if_exist(loc)
 
-    def student_graduation(self, student):
+    def student_graduation_dates(self, student):
         loc = By.XPATH, f'{self.student_xpath(student)}//div[starts-with(text()," Graduated")]'
-        return self.els_text_if_exist(loc, text_to_remove='Graduated')
+        text = self.el_text_if_exists(loc, text_to_remove='Graduated')
+        return text and text.split('(')[0].strip()
+
+    def student_graduation_degrees(self, student):
+        loc = By.XPATH, f'{self.student_xpath(student)}//div[starts-with(text()," Graduated")]'
+        text = self.el_text_if_exists(loc, text_to_remove='Graduated')
+        if text:
+            majors = text.split('(')[1].replace(')', '').split(';')
+            degrees = list(map(lambda m: m.strip(), majors))
+        else:
+            degrees = []
+        return degrees
 
     def student_mid_point_grade(self, student):
         loc = By.ID, f'td-student-{student.uid}-column-midtermGrade'

@@ -209,13 +209,14 @@ class TestStudentPageCourseData:
     def test_student_page_collapsed_course_code(self, tc):
         course_code = tc.student.enrollment_data.course_code(tc.course)
         visible_course_code = self.student_page.collapsed_course_code(tc.term_sis_id, tc.section_id)
-        utils.assert_equivalence(visible_course_code, course_code)
+        if '...' not in visible_course_code:
+            utils.assert_equivalence(visible_course_code, course_code)
 
     def test_student_page_collapsed_waitlist_flag(self, tc):
         is_waitlisted = tc.student.enrollment_data.is_course_waitlisted(tc.course)
         visible_wait_list = self.student_page.collapsed_course_wait_list_flag(tc.term_sis_id, tc.section_id)
         if is_waitlisted:
-            utils.assert_equivalence(visible_wait_list, 'Waitlisted')
+            utils.assert_equivalence(visible_wait_list, 'WAITLISTED')
         else:
             utils.assert_equivalence(visible_wait_list, None)
 

@@ -28,6 +28,7 @@ import re
 from boac.api import errors
 from boac.api.util import (
     admin_required,
+    advisor_or_peer_advisor_required,
     advisor_required,
     authorized_users_api_feed,
     get_current_user_profile,
@@ -39,6 +40,8 @@ from boac.lib.util import to_bool_or_none
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.peer_advising_department import PeerAdvisingDepartment
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
@@ -48,14 +51,6 @@ from flask_login import current_user, login_required, login_user
 @app.route('/api/profile/my')
 def my_profile():
     return tolerant_jsonify(get_current_user_profile())
-
-
-@app.route('/api/profile/<uid>')
-@login_required
-def user_profile(uid):
-    if not AuthorizedUser.find_by_uid(uid):
-        raise errors.ResourceNotFoundError('Unknown path')
-    return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
 
 @app.route('/api/user/calnet_profile/by_csid/<csid>')
@@ -232,7 +227,7 @@ def create_or_update_user_profile():
 
 
 @app.route('/api/user/demo_mode', methods=['POST'])
-@login_required
+@advisor_or_peer_advisor_required
 def set_demo_mode():
     if app.config['DEMO_MODE_AVAILABLE']:
         in_demo_mode = request.get_json().get('demoMode', None)
@@ -262,15 +257,17 @@ def download_boa_users_csv():
 @app.route('/api/users/departments')
 @advisor_required
 def get_departments():
-    exclude_empty = to_bool_or_none(util.get(request.args, 'excludeEmpty', None))
-    api_json = []
-    for d in UniversityDept.get_all(exclude_empty=exclude_empty):
-        api_json.append({
-            'id': d.id,
-            'code': d.dept_code,
-            'name': d.dept_name,
-        })
-    return tolerant_jsonify(api_json)
+    def _to_api_json(department):
+        return {
+            'id': department['id'],
+            'deptCode': department['dept_code'],
+            'deptName': department['dept_name'],
+            'memberCount': department['member_count'],
+            'peerAdvisingDepartments': department['peer_advising_departments'],
+        }
+    exclude_empty = to_bool_or_none(util.get(request.args, 'excludeEmpty')) or False
+    departments = UniversityDept.get_all_departments(exclude_empty=exclude_empty)
+    return tolerant_jsonify([_to_api_json(d) for d in departments])
 
 
 def _get_boa_users():
@@ -309,7 +306,8 @@ def _update_or_create_authorized_user(memberships, profile, include_deleted=Fals
     can_access_advising_data = to_bool_or_none(profile.get('canAccessAdvisingData'))
     degree_progress_permission = profile.get('degreeProgressPermission')
 
-    if (automate_degree_progress_permission or degree_progress_permission) and 'COENG' not in dept_codes_where_advising({'departments': memberships}):
+    foo = dept_codes_where_advising({'departments': memberships})
+    if (automate_degree_progress_permission or degree_progress_permission) and 'COENG' not in foo:
         raise errors.BadRequestError('Degree Progress feature is only available to the College of Engineering.')
 
     is_admin = to_bool_or_none(profile.get('isAdmin'))
@@ -348,32 +346,46 @@ def _update_or_create_authorized_user(memberships, profile, include_deleted=Fals
             raise errors.BadRequestError('Invalid UID')
 
 
+def _create_department_memberships(authorized_user, memberships):
+    valid_roles = ('advisor', 'director', 'peer_advisor_manager')
+    for membership in [m for m in memberships if m['role'] in valid_roles]:
+        role = membership['role']
+        university_dept = UniversityDept.find_by_dept_code(membership['code'])
+        if role in ['advisor', 'director']:
+            UniversityDeptMember.create_or_update_membership(
+                automate_membership=to_bool_or_none(membership['automateMembership']),
+                authorized_user_id=authorized_user.id,
+                role=role,
+                university_dept_id=university_dept.id,
+            )
+        elif role == 'peer_advisor_manager':
+            for peer_advising_dept in PeerAdvisingDepartment.find_by_university_dept_id(university_dept.id):
+                PeerAdvisingDepartmentMember.create_or_update_membership(
+                    authorized_user_id=authorized_user.id,
+                    peer_advising_department_id=peer_advising_dept.id,
+                    role_type=role,
+                )
+    UserSession.flush_cache_for_id(authorized_user.id)
+
+
 def _delete_existing_memberships(authorized_user):
     existing_memberships = UniversityDeptMember.get_existing_memberships(authorized_user_id=authorized_user.id)
     for university_dept_id in [m.university_dept.id for m in existing_memberships]:
         UniversityDeptMember.delete_membership(
+            authorized_user_id=authorized_user.id,
             university_dept_id=university_dept_id,
-            authorized_user_id=authorized_user.id,
         )
-
-
-def _create_department_memberships(authorized_user, memberships):
-    for membership in [m for m in memberships if m['role'] in ('advisor', 'director')]:
-        university_dept = UniversityDept.find_by_dept_code(membership['code'])
-        role = membership['role']
-        UniversityDeptMember.create_or_update_membership(
-            university_dept_id=university_dept.id,
+    for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=authorized_user.id):
+        PeerAdvisingDepartmentMember.delete_membership(
             authorized_user_id=authorized_user.id,
-            role=role,
-            automate_membership=to_bool_or_none(membership['automateMembership']),
+            peer_advising_department_id=m['peer_advising_department_id'],
         )
-        UserSession.flush_cache_for_id(authorized_user.id)
 
 
 def _describe_dept_roles(dept):
     s = ''
     if dept.get('role'):
-        s += f"{{ {dept.get('code')}: {dept['role']} (automated={dept.get('automateMembership')}) }}"
+        s += f"{{ {dept.get('deptCode')}: {dept['role']} (automated={dept.get('automateMembership')}) }}"
     return s
 
 

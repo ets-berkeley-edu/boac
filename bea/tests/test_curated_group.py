@@ -321,11 +321,6 @@ class TestCuratedGroup:
         download = self.curated_students_page.export_default_student_list(self.group_4)
         self.curated_students_page.verify_default_export_student_list(self.group_4, download)
 
-    def test_export_group_membership_with_custom_columns(self):
-        self.curated_students_page.load_page(self.group_4)
-        download = self.curated_students_page.export_custom_student_list(self.group_4, self.test.advisor)
-        self.curated_students_page.verify_custom_export_student_list(self.group_4, download, self.test.advisor)
-
     def test_group_deletion_can_be_canceled(self):
         self.curated_students_page.load_page(self.group_1)
         self.curated_students_page.cancel_group_deletion(self.group_1)

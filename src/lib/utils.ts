@@ -1,10 +1,9 @@
-import {Cohort, CuratedGroup} from '@/lib/cohort'
 import numeral from 'numeral'
-import {concat, find, head, initial, isNil, isNumber, join, last, toLower, trim} from 'lodash'
-import {useContextStore} from '@/stores/context'
-import {getDegreeChecks} from '@/api/degree'
+import {Cohort, CuratedGroup} from '@/lib/cohort'
+import {concat, head, initial, isNil, isNumber, join, last, toLower, trim} from 'lodash'
 import {getUserProfile} from '@/api/user'
 import {nextTick} from 'vue'
+import {useContextStore} from '@/stores/context'
 
 export type BoaConfig = {
   academicStandingDescriptions: object,
@@ -42,9 +41,11 @@ export type CurrentUser = {
   isAdmin: boolean,
   isAuthenticated: boolean,
   isDemoModeAvailable: boolean,
+  isPeerAdvisor: boolean,
   myCohorts: Cohort[],
   myCuratedGroups: CuratedGroup[],
   myDraftNoteCount: number | undefined,
+  peerAdvisingDepartments: PeerAdvisingDepartment[],
   preferences: {
     termId: string | undefined
   },
@@ -53,7 +54,8 @@ export type CurrentUser = {
 }
 
 export type Department = {
-  code: string,
+  deptCode: string,
+  deptName: string,
   role?: string
 }
 
@@ -66,6 +68,11 @@ export type ExportListOption = {
 export type Pagination = {
   currentPage: number,
   itemsPerPage: number
+}
+
+export type PeerAdvisingDepartment = {
+  id: number,
+  name: string
 }
 
 export type ScreenReaderAlert = {
@@ -137,20 +144,8 @@ export function escapeForRegExp(s) {
   return s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-export function goToStudentDegreeChecksByUID(uid: string, openInSameTab?: boolean): void {
-  getDegreeChecks(uid).then(degreeChecks => {
-    const currentUser: CurrentUser = useContextStore().currentUser
-    const currentDegreeCheck = find(degreeChecks, 'isCurrent')
-    let path: string
-    if (currentDegreeCheck) {
-      path = `/student/degree/${currentDegreeCheck.id}`
-    } else if (currentUser.canEditDegreeProgress) {
-      path = `${studentRoutePath(uid, currentUser.inDemoMode)}/degree/create`
-    } else {
-      path = `${studentRoutePath(uid, currentUser.inDemoMode)}/degree/history`
-    }
-    window.open(path, openInSameTab ? undefined : '_blank')
-  })
+export function goToStudentDegreeChecks(sid: string): void {
+  window.open(`${useContextStore().config.apiBaseUrl}/api/degree/student/${sid}/redirect`)
 }
 
 export function invokeIfAuthenticated(callback: () => void, onReject = () => {}) {
@@ -218,8 +213,9 @@ export function round(value: number, decimals: number) {
   return (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals)
 }
 
-export function setPageTitle(phrase: string) {
-  document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`
+export function setPageTitle(phrase: string): void {
+  const title: string = phrase && decodeHtml(phrase)
+  document.title = `${title || 'UC Berkeley'} | BOA`
 }
 
 // eslint-disable-next-line no-undef
