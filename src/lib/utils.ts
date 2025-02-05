@@ -45,7 +45,6 @@ export type CurrentUser = {
   myCohorts: Cohort[],
   myCuratedGroups: CuratedGroup[],
   myDraftNoteCount: number | undefined,
-  peerAdvisingDepartments: PeerAdvisingDepartment[],
   preferences: {
     termId: string | undefined
   },
@@ -56,8 +55,17 @@ export type CurrentUser = {
 export type Department = {
   deptCode: string,
   deptName: string,
-  role?: string
+  memberships: DepartmentMembership[]
 }
+
+export type DepartmentMembership = {
+  automateMembership?: boolean,
+  peerAdvisingDepartmentId?: number,
+  peerAdvisingDepartmentName?: string,
+  role: DepartmentMembershipRole
+}
+
+export type DepartmentMembershipRole = 'advisor' | 'director' | 'peer_advisor' | 'peer_advisor_manager'
 
 export type ExportListOption = {
   text: string,
@@ -68,11 +76,6 @@ export type ExportListOption = {
 export type Pagination = {
   currentPage: number,
   itemsPerPage: number
-}
-
-export type PeerAdvisingDepartment = {
-  id: number,
-  name: string
 }
 
 export type ScreenReaderAlert = {

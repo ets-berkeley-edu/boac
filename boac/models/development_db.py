@@ -333,8 +333,8 @@ _test_users = [
 
 _peer_advising_departments = [
     {
-        'peer_advising_department_name': 'Psychology',
-        'university_dept_code': 'QCADV',
+        'peer_advising_department_name': 'Educational Opportunity Program',
+        'university_dept_code': 'ZCEEE',
         'users': [
             {'uid': '1563405', 'role': 'peer_advisor'},
         ],
@@ -343,7 +343,7 @@ _peer_advising_departments = [
         'peer_advising_department_name': 'Mechanical Engineering',
         'university_dept_code': 'COENG',
         'users': [
-            {'uid': '1563405', 'role': 'peer_advisor'},
+            {'uid': '1133399', 'role': 'peer_advisor_manager'},
         ],
     },
 ]
@@ -457,6 +457,11 @@ _university_depts = {
                 'role': 'advisor',
                 'automate_membership': False,
             },
+            {
+                'uid': '1563405',
+                'role': 'advisor',
+                'automate_membership': False,
+            },
         ],
     },
 }
@@ -514,8 +519,8 @@ def _create_users():
             calnet_feed['departments'] = []
             for dept_code in test_user['calnetDeptCodes']:
                 calnet_feed['departments'].append({
-                    'code': dept_code,
-                    'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code),
+                    'deptCode': dept_code,
+                    'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code),
                 })
         if 'title' in test_user:
             calnet_feed['title'] = test_user['title']

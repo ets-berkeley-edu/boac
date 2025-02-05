@@ -91,6 +91,7 @@ class PeerAdvisingDepartmentMember(Base):
                 'peer_advising_department_name': row['name'],
                 'peer_advising_department_id': row['peer_advising_department_id'],
                 'role_type': row['role_type'],
+                'university_dept_id': row['university_dept_id'],
                 'university_dept_code': row['university_dept_code'],
                 'university_dept_name': row['university_dept_name'],
             }
@@ -99,6 +100,7 @@ class PeerAdvisingDepartmentMember(Base):
                 d.name,
                 m.peer_advising_department_id,
                 m.role_type,
+                u.id AS university_dept_id,
                 u.dept_code AS university_dept_code,
                 u.dept_name AS university_dept_name
             FROM peer_advising_department_members m

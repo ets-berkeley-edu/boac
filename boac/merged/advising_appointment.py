@@ -150,8 +150,8 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
 
     for dept_code in dept_codes:
         departments.append({
-            'code': dept_code,
-            'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
+            'deptCode': dept_code,
+            'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
         })
     api_json = {
         'id': appointment_id,
@@ -216,7 +216,7 @@ def _get_loch_appointments_search_results(loch_results, search_terms):
             'advisorName': advisor_name or join_if_present(' ', [appointment.get('advisor_first_name'), appointment.get('advisor_last_name')]),
             'advisorRole': advisor_feed.get('title'),
             'advisorUid': advisor_feed.get('uid'),
-            'advisorDeptCodes': [dept['code'] for dept in advisor_feed.get('departments')],
+            'advisorDeptCodes': [d['deptCode'] for d in advisor_feed.get('departments')],
             'createdAt': resolve_sis_created_at(appointment),
             'details': details,
             'detailsSnippet': search_result_text_snippet(details, search_terms, TEXT_SEARCH_PATTERN),

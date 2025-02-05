@@ -23,7 +23,7 @@
         <div v-if="!currentUser.canAccessCanvasData" class="pv-3">You do not have access to bCourses (LMS) data.</div>
         <div v-if="!currentUser.canAccessAdvisingData" class="pv-3">You do not have access to advising notes or appointments.</div>
         <div v-for="department in currentUser.departments" :key="department.deptCode">
-          <div id="my-dept-roles">{{ upperFirst(department.role) }} in {{ department.deptName }}</div>
+          <div id="my-dept-roles">{{ capitalize(map(department.memberships, 'role').join(', ')) }} in {{ department.deptName }}</div>
         </div>
       </v-col>
       <v-divider class="border-opacity-100" />
@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import {capitalize, filter, map, upperFirst} from 'lodash'
+import {capitalize, filter, map} from 'lodash'
 import {isCoe} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 

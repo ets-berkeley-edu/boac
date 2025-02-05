@@ -109,8 +109,8 @@ def _calnet_user_api_feed(person):
     dept_code = _get_dept_code(person)
     if dept_code:
         departments.append({
-            'code': dept_code,
-            'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
+            'deptCode': dept_code,
+            'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
         })
     return {
         'campusEmail': _get('campus_email'),

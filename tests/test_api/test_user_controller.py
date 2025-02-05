@@ -99,9 +99,9 @@ class TestUserProfile:
         assert api_json['canAccessCanvasData'] is True
         departments = api_json['departments']
         assert len(departments) == 1
-        assert departments[0]['code'] == 'UWASC'
-        assert departments[0]['name'] == 'Athletic Study Center'
-        assert departments[0]['role'] == 'advisor'
+        assert departments[0]['deptCode'] == 'UWASC'
+        assert departments[0]['deptName'] == 'Athletic Study Center'
+        assert departments[0]['memberships'][0]['role'] == 'advisor'
 
     class TestPeerAdvising:
         """Peer Advising in the User Profile API."""
@@ -116,13 +116,13 @@ class TestUserProfile:
             """Returns peer_advising_departments in user profile object."""
             fake_auth.login(peer_advisor_uid)
             api_json = self._api_my_profile(client)
-            assert 'peerAdvisingDepartments' in api_json
             assert api_json['id']
             assert api_json['isAuthenticated'] is True
-            peer_advising_departments = api_json['peerAdvisingDepartments']
-            assert len(peer_advising_departments) > 0
-            peer_advising_department = peer_advising_departments[0]
-            assert peer_advising_department['name'] == 'Psychology'
+            departments = api_json['departments']
+            memberships = departments[0]['memberships']
+            assert len(memberships) == 2
+            assert 'peerAdvisingDepartmentId' in memberships[1]
+            assert memberships[1]['peerAdvisingDepartmentName'] == 'Educational Opportunity Program'
 
 
 class TestMyCohorts:
@@ -557,12 +557,12 @@ class TestUserSearch:
 
 class TestDemoMode:
 
-    def test_set_demo_mode_not_authenticated(self, app, client):
+    def test_set_demo_mode_not_authenticated(self, client):
         """Require authentication."""
         with override_config(app, 'DEMO_MODE_AVAILABLE', True):
             assert client.post('/api/user/demo_mode').status_code == 401
 
-    def test_demo_mode_unavailable(self, app, client, fake_auth):
+    def test_demo_mode_unavailable(self, client, fake_auth):
         """Return 404 when dev_auth is not enabled."""
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
             # Enable dev_auth to confirm that it is ignored
@@ -570,7 +570,7 @@ class TestDemoMode:
                 fake_auth.login(admin_uid)
                 assert client.post('/api/user/demo_mode').status_code == 404
 
-    def test_set_demo_mode(self, app, client, fake_auth):
+    def test_set_demo_mode(self, client, fake_auth):
         """Both admin and advisor can toggle demo mode."""
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', False):
             # Disable dev_auth to confirm that it is ignored
@@ -608,7 +608,7 @@ class TestDownloadUsers:
         response = client.get('/api/users/csv')
         assert response.status_code == 200
         assert 'csv' in response.content_type
-        csv = str(response.data)
+        csv = response.data.decode('UTF-8')
         for snippet in [
             'last_name,first_name,uid,title,email,department,can_access_advising_data,can_access_canvas_data,is_blocked,\
 last_login',
@@ -617,7 +617,7 @@ last_login',
             'Visor,COE Add,90412,,,{ UWASC: director (automated=False) },True,True,False,',
             'Visor,COE Add,90412,,,{ COENG: advisor (automated=True) },True,True,False,',
         ]:
-            assert str(snippet) in csv
+            assert snippet in csv
 
 
 class TestUserUpdate:
@@ -648,8 +648,8 @@ class TestUserUpdate:
             cls,
             client,
             profile,
+            departments=(),
             expected_status_code=200,
-            memberships=(),
             delete_action=None,
     ):
         response = client.post(
@@ -657,7 +657,7 @@ class TestUserUpdate:
             data=json.dumps({
                 'deleteAction': delete_action,
                 'profile': profile,
-                'memberships': memberships,
+                'departments': departments,
             }),
             content_type='application/json',
         )
@@ -714,11 +714,13 @@ class TestUserUpdate:
         user = self._api_create_or_update(
             client,
             profile=self._profile_object(automate_degree_progress_permission=True, uid=uid),
-            memberships=[
+            departments=[
                 {
-                    'code': 'COENG',
-                    'role': 'advisor',
-                    'automateMembership': True,
+                    'deptCode': 'COENG',
+                    'memberships': [{
+                        'role': 'advisor',
+                        'automateMembership': True,
+                    }],
                 },
             ],
         )
@@ -730,8 +732,9 @@ class TestUserUpdate:
         departments = user['departments']
         assert len(departments) == 1
         assert departments[0]['deptCode'] == 'COENG'
-        assert departments[0]['role'] == 'advisor'
-        assert departments[0]['automateMembership'] is True
+        membership = departments[0]['memberships'][0]
+        assert membership['role'] == 'advisor'
+        assert membership['automateMembership'] is True
 
         # Next, remove advisor from 'QCADV' and add him to 'QCADVMAJ', as "Director".
         authorized_user_id = AuthorizedUser.get_id_per_uid(uid)
@@ -741,11 +744,15 @@ class TestUserUpdate:
                 uid=uid,
                 authorized_user_id=authorized_user_id,
             ),
-            memberships=[
+            departments=[
                 {
-                    'code': 'QCADVMAJ',
-                    'role': 'director',
-                    'automateMembership': False,
+                    'deptCode': 'QCADVMAJ',
+                    'memberships': [
+                        {
+                            'role': 'director',
+                            'automateMembership': False,
+                        },
+                    ],
                 },
             ],
         )
@@ -769,7 +776,7 @@ class TestUserUpdate:
             },
         )
         profile = self._profile_object(uid=uid, is_admin=True)
-        user = self._api_create_or_update(client, profile=profile, memberships=[])
+        user = self._api_create_or_update(client, profile=profile, departments=[])
         profile['id'] = user['id']
 
         # Next, delete the user.
@@ -804,11 +811,15 @@ class TestUserUpdate:
                 can_access_advising_data=False,
                 can_access_canvas_data=False,
             ),
-            memberships=[
+            departments=[
                 {
-                    'code': 'QCADVMAJ',
-                    'role': 'advisor',
-                    'automateMembership': False,
+                    'deptCode': 'QCADVMAJ',
+                    'memberships': [
+                        {
+                            'role': 'advisor',
+                            'automateMembership': False,
+                        },
+                    ],
                 },
             ],
         )
@@ -834,11 +845,19 @@ class TestUserUpdate:
                 can_access_canvas_data=False,
                 uid=advisor.uid,
             ),
-            memberships=[
+            departments=[
                 {
-                    'code': dept_code,
-                    'role': 'peer_advisor_manager',
-                    'automateMembership': False,
+                    'deptCode': dept_code,
+                    'memberships': [
+                        {
+                            'role': 'advisor',
+                            'automateMembership': True,
+                        },
+                        {
+                            'peerAdvisingDepartmentId': 1,
+                            'role': 'peer_advisor_manager',
+                        },
+                    ],
                 },
             ],
         )
@@ -849,14 +868,10 @@ class TestUserUpdate:
         assert user['canAccessAdvisingData'] is False
         assert user['canAccessCanvasData'] is False
         # Verify University Dept membership
-        university_depts = user['departments']
-        assert len(university_depts) == 1
-        assert university_depts[0]['deptCode'] == dept_code
+        departments = user['departments']
+        assert len(departments) == 1
+        assert departments[0]['deptCode'] == dept_code
         # Verify Peer Advising
-        peer_advising_departments = user['peerAdvisingDepartments']
-        assert len(peer_advising_departments) == 1
-        peer_advising_department = peer_advising_departments[0]
-        assert peer_advising_department['name'] == 'Mechanical Engineering'
-        assert peer_advising_department['roleType'] == 'peer_advisor_manager'
-        assert peer_advising_department['universityDeptCode'] == dept_code
-        assert peer_advising_department['universityDeptName'] == 'College of Engineering'
+        peer_advisor_manager = next((m for m in departments[0]['memberships'] if m['role'] == 'peer_advisor_manager'), None)
+        assert peer_advisor_manager
+        assert peer_advisor_manager['peerAdvisingDepartmentName'] == 'Mechanical Engineering'

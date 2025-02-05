@@ -154,7 +154,13 @@ def report_low_assignment_scores():
 
 
 def _current_user_is_director_of(dept_code):
-    return next((d for d in current_user.departments if d['code'] == dept_code and d['role'] == 'director'), False)
+    is_director = False
+    for department in current_user.departments:
+        memberships = department['memberships']
+        if department['deptCode'] == dept_code and next((m for m in memberships if m['role'] == 'director'), False):
+            is_director = True
+            break
+    return is_director
 
 
 def _term():

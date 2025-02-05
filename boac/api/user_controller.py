@@ -203,15 +203,19 @@ def user_search():
 def create_or_update_user_profile():
     params = request.get_json()
     profile = params.get('profile', None)
-    memberships = params.get('memberships', None)
+    departments = params.get('departments', None)
     delete_action = to_bool_or_none(util.get(params, 'deleteAction'))
 
-    if not profile or not profile.get('uid') or memberships is None:
+    if not profile or not profile.get('uid') or departments is None:
         raise errors.BadRequestError('Required parameters are missing')
 
-    authorized_user = _update_or_create_authorized_user(memberships, profile, include_deleted=True)
+    authorized_user = _update_or_create_authorized_user(
+        departments=departments,
+        include_deleted=True,
+        profile=profile,
+    )
     _delete_existing_memberships(authorized_user)
-    _create_department_memberships(authorized_user, memberships)
+    _create_department_memberships(authorized_user, departments)
 
     if delete_action is True and not authorized_user.deleted_at:
         AuthorizedUser.delete(authorized_user.uid)
@@ -272,42 +276,38 @@ def get_departments():
 
 def _get_boa_users():
     users = []
-
-    def _put(_dept, _user):
-        users.append({
-            'last_name': _user.get('lastName') or '',
-            'first_name': _user.get('firstName') or '',
-            'uid': _user.get('uid'),
-            'title': _user.get('title'),
-            'email': _user.get('campusEmail') or _user.get('email'),
-            'department': _describe_dept_roles(_dept),
-            'can_access_advising_data': _user.get('canAccessAdvisingData'),
-            'can_access_canvas_data': _user.get('canAccessCanvasData'),
-            'is_blocked': _user.get('isBlocked'),
-            'last_login': _user.get('lastLogin'),
-        })
-
-    admin_dept = {
-        'code': 'ADMIN',
-        'name': 'Admins',
-    }
+    admin_pseudo_department = {'deptCode': 'ADMIN', 'deptName': 'Admins', 'memberships': [{'role': 'Admin'}]}
     for user in authorized_users_api_feed(AuthorizedUser.get_all_active_users()):
-        if user.get('isAdmin'):
-            _put(admin_dept, user)
-        for dept in user.get('departments'):
-            _put(dept, user)
+        departments = [admin_pseudo_department] if user.get('isAdmin') else user.get('departments')
+        for department in departments:
+            for membership in department['memberships']:
+                department_description = f"{department['deptCode']}: {membership['role']}"
+                if 'automateMembership' in membership:
+                    department_description += f" (automated={membership['automateMembership'] is True})"
+                users.append({
+                    'last_name': user.get('lastName') or '',
+                    'first_name': user.get('firstName') or '',
+                    'uid': user.get('uid'),
+                    'title': user.get('title'),
+                    'email': user.get('campusEmail') or user.get('email'),
+                    'department': f'{{ {department_description} }}',
+                    'can_access_advising_data': user.get('canAccessAdvisingData'),
+                    'can_access_canvas_data': user.get('canAccessCanvasData'),
+                    'is_blocked': user.get('isBlocked'),
+                    'last_login': user.get('lastLogin'),
+                })
     return users
 
 
-def _update_or_create_authorized_user(memberships, profile, include_deleted=False):
+def _update_or_create_authorized_user(departments, profile, include_deleted=False):
     user_id = profile.get('id')
     automate_degree_progress_permission = profile.get('automateDegreeProgressPermission')
     can_access_canvas_data = to_bool_or_none(profile.get('canAccessCanvasData'))
     can_access_advising_data = to_bool_or_none(profile.get('canAccessAdvisingData'))
     degree_progress_permission = profile.get('degreeProgressPermission')
 
-    foo = dept_codes_where_advising({'departments': memberships})
-    if (automate_degree_progress_permission or degree_progress_permission) and 'COENG' not in foo:
+    dept_codes = dept_codes_where_advising({'departments': departments})
+    if (automate_degree_progress_permission or degree_progress_permission) and 'COENG' not in dept_codes:
         raise errors.BadRequestError('Degree Progress feature is only available to the College of Engineering.')
 
     is_admin = to_bool_or_none(profile.get('isAdmin'))
@@ -346,25 +346,26 @@ def _update_or_create_authorized_user(memberships, profile, include_deleted=Fals
             raise errors.BadRequestError('Invalid UID')
 
 
-def _create_department_memberships(authorized_user, memberships):
+def _create_department_memberships(authorized_user, departments):
     valid_roles = ('advisor', 'director', 'peer_advisor_manager')
-    for membership in [m for m in memberships if m['role'] in valid_roles]:
-        role = membership['role']
-        university_dept = UniversityDept.find_by_dept_code(membership['code'])
-        if role in ['advisor', 'director']:
-            UniversityDeptMember.create_or_update_membership(
-                automate_membership=to_bool_or_none(membership['automateMembership']),
-                authorized_user_id=authorized_user.id,
-                role=role,
-                university_dept_id=university_dept.id,
-            )
-        elif role == 'peer_advisor_manager':
-            for peer_advising_dept in PeerAdvisingDepartment.find_by_university_dept_id(university_dept.id):
-                PeerAdvisingDepartmentMember.create_or_update_membership(
+    for department in departments:
+        for membership in [m for m in department['memberships'] if m['role'] in valid_roles]:
+            role = membership['role']
+            university_dept = UniversityDept.find_by_dept_code(department['deptCode'])
+            if role in ['advisor', 'director']:
+                UniversityDeptMember.create_or_update_membership(
+                    automate_membership=to_bool_or_none(membership['automateMembership']),
                     authorized_user_id=authorized_user.id,
-                    peer_advising_department_id=peer_advising_dept.id,
-                    role_type=role,
+                    role=role,
+                    university_dept_id=university_dept.id,
                 )
+            elif role == 'peer_advisor_manager':
+                for peer_advising_dept in PeerAdvisingDepartment.find_by_university_dept_id(university_dept.id):
+                    PeerAdvisingDepartmentMember.create_or_update_membership(
+                        authorized_user_id=authorized_user.id,
+                        peer_advising_department_id=peer_advising_dept.id,
+                        role_type=role,
+                    )
     UserSession.flush_cache_for_id(authorized_user.id)
 
 
@@ -380,13 +381,6 @@ def _delete_existing_memberships(authorized_user):
             authorized_user_id=authorized_user.id,
             peer_advising_department_id=m['peer_advising_department_id'],
         )
-
-
-def _describe_dept_roles(dept):
-    s = ''
-    if dept.get('role'):
-        s += f"{{ {dept.get('deptCode')}: {dept['role']} (automated={dept.get('automateMembership')}) }}"
-    return s
 
 
 def _find_user_by_uid(uid, ignore_deleted=True):

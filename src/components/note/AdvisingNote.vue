@@ -183,7 +183,7 @@ const noteStore = useNoteStore()
 
 const addAttachmentInputElementId = `note-${props.note.id}-choose-file-for-note-attachment`
 const author = ref(get(props.note, 'author'))
-const authorDepartments = computed(() => orderBy(map(author.value.departments, 'name')))
+const authorDepartments = computed(() => orderBy(map(author.value.departments, 'deptName')))
 const deleteAttachmentIndex = ref(undefined)
 const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)

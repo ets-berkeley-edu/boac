@@ -556,8 +556,8 @@ def note_to_compatible_json(
     dept_codes = note.get('dept_code') if 'dept_code' in note else note.get('author_dept_codes') or []
     for dept_code in dept_codes:
         departments.append({
-            'code': dept_code,
-            'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
+            'deptCode': dept_code,
+            'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
         })
     omit_note_body = note.get('is_private') and not current_user.can_access_private_notes
     return {

@@ -658,7 +658,7 @@ const getMessageSummary = message => {
     } else if (message.category) {
       summary = `${message.category}${message.subcategory ? `, ${message.subcategory}` : ''}`
     } else {
-      summary = `${!isEmpty(message.author.departments) ? message.author.departments[0].name : ''} advisor ${message.author.name || ''}`
+      summary = `${!isEmpty(message.author.departments) ? message.author.departments[0].deptName : ''} advisor ${message.author.name || ''}`
       if (message.topics && size(message.topics)) {
         summary += `: ${oxfordJoin(message.topics)}`
       }
@@ -798,7 +798,7 @@ const refreshSearchIndex = () => {
     const advisor = m.author || m.advisor
     let idx = [
       advisor.name,
-      (map(advisor.departments || [], 'name')).join(),
+      (map(advisor.departments || [], 'deptName')).join(),
       advisor.email,
       m.body,
       m.category,
