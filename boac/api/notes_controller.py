@@ -387,16 +387,16 @@ def _get_author_profile():
     author = current_user.to_api_json()
     calnet_profile = get_calnet_user_for_uid(app, author['uid'])
     if calnet_profile and calnet_profile.get('departments'):
-        dept_codes = [dept.get('code') for dept in calnet_profile.get('departments')]
+        dept_codes = [dept.get('deptCode') for dept in calnet_profile.get('departments')]
     else:
         dept_codes = dept_codes_where_advising(current_user)
+    role = None
     if calnet_profile and calnet_profile.get('title'):
         role = calnet_profile['title']
     elif current_user.departments:
-        role = current_user.departments[0]['role']
-    else:
-        role = None
-
+        for department in current_user.departments:
+            if len(department['memberships']):
+                role = department['memberships'][0]['role']
     return {
         'author_uid': author['uid'],
         'author_name': author['name'],

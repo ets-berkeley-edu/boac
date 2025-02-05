@@ -134,7 +134,8 @@ class UserSession(UserMixin):
     def _get_api_json(cls, user=None):
         calnet_profile = None
         departments = []
-        peer_advising_departments = []
+        is_active = False
+        is_admin = False
         if user:
             calnet_profile = calnet.get_calnet_user_for_uid(
                 app,
@@ -142,41 +143,38 @@ class UserSession(UserMixin):
                 force_feed=False,
                 skip_expired_users=True,
             )
+            peer_advising_dept_memberships = PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id)
             for m in user.department_memberships:
                 dept_code = m.university_dept.dept_code
-                departments.append(
-                    {
-                        'code': dept_code,
-                        'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
-                        'role': m.role,
+                department = {
+                    'deptCode': dept_code,
+                    'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
+                    'memberships': [{'role': m.role}],
+                }
+                peer_advising_dept_membership = next(
+                    (p for p in peer_advising_dept_memberships if p['university_dept_id'] == m.university_dept.id),
+                    None,
+                )
+                if peer_advising_dept_membership:
+                    department['memberships'].append({
+                        'role': peer_advising_dept_membership['role_type'],
+                        'peerAdvisingDepartmentId': peer_advising_dept_membership['peer_advising_department_id'],
+                        'peerAdvisingDepartmentName': peer_advising_dept_membership['peer_advising_department_name'],
                     })
-            peer_advising_department_memberships = PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id)
-            for m in peer_advising_department_memberships:
-                peer_advising_departments.append(
-                    {
-                        'name': m['peer_advising_department_name'],
-                        'peerAdvisingDepartmentId': m['peer_advising_department_id'],
-                        'roleType': m['role_type'],
-                        'universityDeptCode': m['university_dept_code'],
-                        'universityDeptName': m['university_dept_name'],
-                    })
-        is_active = False
-        if user:
+                departments.append(department)
             if not calnet_profile:
                 is_active = False
             elif user.is_admin:
+                is_admin = True
                 is_active = True
-            elif len(user.department_memberships):
+            elif len(departments):
                 for m in user.department_memberships:
                     is_active = True if m.role else False
                     if is_active:
                         break
-            elif len(peer_advising_department_memberships):
-                is_active = True
 
-        is_admin = user and user.is_admin
         degree_progress_permission = 'read_write' if is_admin else (user and user.degree_progress_permission)
-        can_access_ce3_features = user and (user.is_admin or 'ZCEEE' in [d['code'] for d in departments])
+        can_access_ce3_features = user and (user.is_admin or 'ZCEEE' in [d['deptCode'] for d in departments])
 
         return {
             **(calnet_profile or {}),
@@ -198,7 +196,6 @@ class UserSession(UserMixin):
                 'isAuthenticated': is_active,
                 # TODO: Is 'is_peer_advisor' necessary? Can we not deduce from 'peer_advising_departments' role_type?
                 'isPeerAdvisor': user.is_peer_advisor if user else False,
-                'peerAdvisingDepartments': peer_advising_departments,
                 'uid': user and user.uid,
             },
         }

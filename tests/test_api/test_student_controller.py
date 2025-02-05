@@ -737,7 +737,7 @@ class TestNotes:
         author = note['author']
         assert author['name'] == 'Joni Mitchell CC'
         assert author['role'] == 'Director'
-        assert author['departments'][0]['name'] == 'Athletic Study Center'
+        assert author['departments'][0]['deptName'] == 'Athletic Study Center'
         # This note was not authored by coe_advisor_uid
         assert author['uid'] == author_uid
 

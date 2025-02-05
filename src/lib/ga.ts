@@ -1,6 +1,7 @@
-import {BoaConfig, CurrentUser, useContextStore} from '@/stores/context'
+import {BoaConfig, CurrentUser} from '@/lib/utils'
 import {event} from 'vue-gtag'
 import {map} from 'lodash'
+import {useContextStore} from '@/stores/context'
 
 export function getGtagConfig() {
   // GA4 config reference: https://developers.google.com/analytics/devguides/collection/ga4/reference/config
@@ -17,7 +18,7 @@ export function getGtagConfig() {
     params: {
       user_id: uid,
       user_properties: {
-        dept_code: map(currentUser.departments || [], 'code'),
+        dept_code: map(currentUser.departments || [], 'deptCode'),
         title: currentUser.title,
         uid
       }

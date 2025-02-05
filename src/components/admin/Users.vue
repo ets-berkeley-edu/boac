@@ -330,7 +330,9 @@
         <template #item.departments="{ item }">
           <div class="row-padding">
             <div v-for="(department, index) in item.departments" :key="department.deptCode">
-              <span class="font-weight-bold text-body text-success-darken-1">{{ department.deptName }} - {{ department.role }}</span>
+              <span class="font-weight-bold text-body text-success-darken-1">
+                {{ department.deptName }} - {{ capitalize(map(department.memberships, 'role').join(', ')) }}
+              </span>
               <div v-if="index !== item.departments.length - 1"></div>
             </div>
             <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="text-medium-emphasis">
@@ -397,8 +399,9 @@ import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 import {DateTime} from 'luxon'
-import {clone, debounce, find, get, isNil, lowerCase, map, size, trim} from 'lodash'
+import {capitalize, clone, debounce, find, get, isNil, lowerCase, map, size, trim} from 'lodash'
 import {escapeForRegExp, normalizeId} from '@/lib/utils'
+import {getDeptCodesPerRoles} from '@/berkeley'
 import {mdiEmail} from '@mdi/js'
 import {mdiLoginVariant, mdiNoteOutline} from '@mdi/js'
 import {ref, watch} from 'vue'
@@ -474,7 +477,7 @@ const become = uid => {
 const canBecome = user => {
   const isNotMe = user.uid !== contextStore.currentUser.uid
   const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
-  const hasAnyRole = user?.isAdmin || find(user.departments, (dept) => !isNil(dept.role))
+  const hasAnyRole = user.isAdmin || getDeptCodesPerRoles(user, ['advisor', 'director']).length
   return contextStore.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
 }
 

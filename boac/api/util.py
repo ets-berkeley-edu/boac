@@ -250,24 +250,27 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
             'isAdmin': user.is_admin,
             'isBlocked': user.is_blocked,
             'isPeerAdvisor': user.is_peer_advisor,
-            'peerAdvisingDepartments': [],
         })
+        peer_advising_dept_memberships = PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(
+            authorized_user_id=user.id,
+        )
         for m in user.department_memberships:
-            profile['departments'].append({
+            department = {
                 'deptCode': m.university_dept.dept_code,
                 'deptName': m.university_dept.dept_name,
-                'role': m.role,
-                'automateMembership': m.automate_membership,
-            })
-        for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id):
-            peer_advising_dept_id = m['peer_advising_department_id']
-            profile['peerAdvisingDepartments'].append({
-                'id': peer_advising_dept_id,
-                'name': m['peer_advising_department_name'],
-                'roleType': m['role_type'],
-                'universityDeptCode': m['university_dept_code'],
-                'universityDeptName': m['university_dept_name'],
-            })
+                'memberships': [{
+                    'role': m.role,
+                    'automateMembership': m.automate_membership,
+                }],
+            }
+            peer_advising_dept_membership = next((p for p in peer_advising_dept_memberships if p['university_dept_id'] == m.university_dept.id), None)
+            if peer_advising_dept_membership:
+                department['memberships'].append({
+                    'role': peer_advising_dept_membership['role_type'],
+                    'peerAdvisingDepartmentId': peer_advising_dept_membership['peer_advising_department_id'],
+                    'peerAdvisingDepartmentName': peer_advising_dept_membership['peer_advising_department_name'],
+                })
+            profile['departments'].append(department)
         user_login = UserLogin.last_login(user.uid)
         profile['lastLogin'] = _isoformat(user_login.created_at) if user_login else None
         profiles.append(profile)
@@ -680,11 +683,21 @@ def _get_current_user_curated_groups_containing(profile, curated_groups):
 
 
 def _has_role_in_any_department(user, role):
-    return next((d for d in user.departments if d['role'] == role), False)
+    has_role = False
+    for department in user.departments:
+        if next((m for m in department['memberships'] if m['role'] == role), False):
+            has_role = True
+            break
+    return has_role
 
 
-def _is_advisor_in_department(user, dept):
-    return next((d for d in user.departments if d['code'] == dept and d['role'] in ('advisor', 'director')), False)
+def _is_advisor_in_department(user, dept_code):
+    is_advisor_in_department = False
+    for department in user.departments:
+        if dept_code == department['deptCode'] and next((m for m in department['memberships'] if m['role'] in ('advisor', 'director')), False):
+            is_advisor_in_department = True
+            break
+    return is_advisor_in_department
 
 
 def _isoformat(value):

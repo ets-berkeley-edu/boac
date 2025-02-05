@@ -265,7 +265,7 @@
             <ProgressButton
               id="save-changes-to-user-profile"
               :action="save"
-              :disabled="isSaving || isUidInvalid || !userProfile.uid || memberships.findIndex(d => !d.role) >= 0"
+              :disabled="isSaveButtonDisabled"
               :in-progress="isSaving"
               :text="isSaving ? 'Saving' : 'Save'"
             />
@@ -337,7 +337,23 @@ const degreeProgressPermissionItems = [
   {value: 'read_write', text: 'Read and write'}
 ]
 const isExistingUser = computed(() => !!props.profile.id)
-
+const isSaveButtonDisabled = computed(() => {
+  const hasIncompleteMembershipData = () => {
+    let isIncomplete = memberships.value.findIndex(d => !d.role) >= 0
+    if (!isIncomplete) {
+      each(memberships.value, m => {
+        isIncomplete = m.role === 'peer_advisor_manager' && !m.peerAdvisingDepartmentId
+        return isIncomplete
+      })
+    }
+    return isIncomplete
+  }
+  return isSaving.value ||
+    isUidInvalid.value ||
+    !userProfile.value.uid ||
+    memberships.value.findIndex(d => !d.role) >= 0 ||
+    hasIncompleteMembershipData()
+})
 const addDepartment = () => {
   if (deptCode.value) {
     const dept = find(props.departments, ['deptCode', deptCode.value])
@@ -432,12 +448,14 @@ const openEditUserModal = () => {
       })
     }
   })
-  each(props.profile.peerAdvisingDepartments, d => {
+  each(props.profile.peerAdvisingDepartments, p => {
+    find(props.departments, ['id', p.universityDeptId])
     memberships.value.push({
-      automateMembership: d.automateMembership,
-      deptCode: d.universityDeptCode,
-      deptName: d.universityDeptName,
-      role: d.roleType,
+      universityDeptId: p.universityDeptId,
+      deptCode: p.universityDeptCode,
+      deptName: p.universityDeptName,
+      peerAdvisingDepartmentId: p.id,
+      role: 'peer_advisor_manager',
     })
   })
   departmentOptions.value = []

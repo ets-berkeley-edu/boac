@@ -1,6 +1,26 @@
-import {Course, CurrentUser, Department, ExportListOption, Section} from '@/lib/utils'
+import {
+  Course,
+  CurrentUser,
+  Department,
+  DepartmentMembership,
+  DepartmentMembershipRole,
+  ExportListOption,
+  Section,
+} from '@/lib/utils'
 import {DateTime} from 'luxon'
-import {capitalize as _capitalize, each, filter, findIndex, get, includes, map, size, startsWith, toUpper, upperFirst, words} from 'lodash'
+import {
+  capitalize as _capitalize,
+  each,
+  filter,
+  get,
+  includes,
+  map,
+  split,
+  startsWith,
+  toUpper,
+  upperFirst,
+  words,
+} from 'lodash'
 import {useContextStore} from '@/stores/context'
 
 export function describeCuratedGroupDomain(domain: string, capitalize?: boolean): string {
@@ -94,9 +114,9 @@ export function getAdmitCsvExportColumns(): ExportListOption[] {
 
 export function getBoaUserRoles(department: Department): string[] {
   const roles: string[] = []
-  if (department.role) {
-    roles.push(upperFirst(department.role))
-  }
+  each(department.memberships, (membership: DepartmentMembership) => {
+    roles.push(upperFirst(split(membership.role, '_').join(' ')))
+  })
   return roles
 }
 
@@ -202,7 +222,7 @@ export function getSectionsWithIncompleteStatus(sections) {
 }
 
 export function isAdvisor(user: CurrentUser) {
-  return !!size(filter(user.departments, d => d.role === 'advisor'))
+  return !!$_getDeptCodesWithRoles(user.departments, ['advisor']).length
 }
 
 export function isAlertGrade(grade: string) {
@@ -210,12 +230,13 @@ export function isAlertGrade(grade: string) {
   return grade && /^[DFINR]/.test(grade)
 }
 
-export function isCoe(user: CurrentUser) {
-  return !!size(filter(user.departments, d => d.deptCode === 'COENG' && includes(['advisor', 'director'], d.role)))
+export function isCoe(user: CurrentUser): boolean {
+  const departments: string[] = $_getDeptCodesWithRoles(user.departments, ['advisor', 'director'])
+  return departments.includes('COENG')
 }
 
 export function isDirector(user: CurrentUser) {
-  return !!size(filter(user.departments, d => d.role === 'director'))
+  return !!$_getDeptCodesWithRoles(user.departments, ['director']).length
 }
 
 export function isPeerAdvisingManager(user: CurrentUser) {
@@ -244,9 +265,12 @@ export function lastActivityDays(analytics: object) {
   }
 }
 
-export function myDeptCodes(roles: string[]) {
-  const departments = useContextStore().currentUser.departments
-  return map(filter(departments, (d: {role: string}) => findIndex(roles, role => d.role === role) > -1), 'code')
+export function myDeptCodes(roles: DepartmentMembershipRole[]): string[] {
+  return $_getDeptCodesWithRoles(useContextStore().currentUser.departments, roles)
+}
+
+export function getDeptCodesPerRoles(user: CurrentUser, roles: DepartmentMembershipRole[]): string[] {
+  return $_getDeptCodesWithRoles(user.departments, roles)
 }
 
 export function isGraduate(student: object) {
@@ -340,4 +364,16 @@ export function translateSortByOption(option: string) {
   } else {
     return option.replaceAll('_', ' ')
   }
+}
+
+const $_getDeptCodesWithRoles = (departments: Department[], roles: DepartmentMembershipRole[]) => {
+  const myDeptCodes: string[] = []
+  each(departments, (department: Department) => {
+    each(department.memberships, (membership: DepartmentMembership) => {
+      if (roles.includes(membership.role)) {
+        myDeptCodes.push(department.deptCode)
+      }
+    })
+  })
+  return myDeptCodes
 }

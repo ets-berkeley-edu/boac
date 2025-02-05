@@ -120,7 +120,7 @@ class TestGetDraftNotes:
         self._api_draft_notes(client=client, expected_status_code=401)
 
     def test_get_note_by_id(self, app, client, fake_auth):
-        """Returns note in JSON compatible with BOA front-end."""
+        """Get advising note by ID returns normalized JSON."""
         uid = coe_advisor_uid
         fake_auth.login(uid)
         draft_notes = [_api_create_draft_note(client=client) for index in (1, 2, 3)]
@@ -297,7 +297,7 @@ class TestCreateNote:
             sids=[coe_student['sid']],
             subject='A dreaded sunny day',
         )
-        assert new_note['author']['departments'][0]['name'] == 'Department of English'
+        assert new_note['author']['departments'][0]['deptName'] == 'Department of English'
         assert new_note['author']['role'] == 'Harmless Drudge'
 
     def test_updated_date_is_none_when_note_create(self, app, client, fake_auth):
