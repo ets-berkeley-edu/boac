@@ -41,6 +41,7 @@ class NoteTemplate(Base):
     creator_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     is_private = db.Column(db.Boolean, nullable=False, default=False)
+    peer_advising_department_id = db.Column(db.Integer, db.ForeignKey('peer_advising_departments.id'), nullable=True)
     subject = db.Column(db.String(255), nullable=False)
     title = db.Column(db.String(255), nullable=False)
     topics = db.relationship(
@@ -55,6 +56,7 @@ class NoteTemplate(Base):
         back_populates='note_template',
         lazy=True,
     )
+    notes = db.relationship('Note', back_populates='note_template')
 
     __table_args__ = (db.UniqueConstraint(
         'creator_id',
@@ -63,10 +65,19 @@ class NoteTemplate(Base):
         name='student_groups_owner_id_name_unique_constraint',
     ),)
 
-    def __init__(self, body, creator_id, subject, title, is_private=False):
+    def __init__(
+        self,
+        body,
+        creator_id,
+        subject,
+        title,
+        peer_advising_department_id=None,
+        is_private=False,
+    ):
         self.body = body
         self.creator_id = creator_id
         self.is_private = is_private
+        self.peer_advising_department_id = peer_advising_department_id
         self.subject = subject
         self.title = title
 

@@ -34,7 +34,7 @@ class PeerAdvisingDepartment(Base):
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     name = db.Column(db.String(255), nullable=False)
     university_dept_id = db.Column(db.Integer, db.ForeignKey('university_depts.id'), nullable=False)
-    university_dept = db.relationship('UniversityDepartment', back_populates='peer_advising_departments')
+    notes = db.relationship('Note', back_populates='peer_advising_department')
 
     def __init__(self, name, university_dept_id):
         self.name = name
