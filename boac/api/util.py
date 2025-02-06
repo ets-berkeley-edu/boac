@@ -512,10 +512,7 @@ def _is_authorized_peer_advisor(user):
 
 
 def _is_authorized_peer_advising_manager(user):
-    # TODO: Implement this method when peer_advising_department_memberships table is introduced.
-    # return user.is_authenticated and _is_authorized_advisor(user) and len(user.peer_advising_department_memberships)
-    app.logger.info(f'TODO: Implement _is_authorized_peer_advising_manager (UID: {user.uid})')
-    return user.uid == '222719'
+    return _has_role_in_any_department(user, 'peer_advisor_manager')
 
 
 def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):

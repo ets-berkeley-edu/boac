@@ -577,7 +577,7 @@ def _create_peer_advising_departments():
             PeerAdvisingDepartmentMember.create_or_update_membership(
                 authorized_user_id=authorized_user.id,
                 peer_advising_department_id=peer_advising_department.id,
-                role_type='peer_advisor',
+                role_type=user['role'],
             )
             std_commit(allow_test_environment=True)
 

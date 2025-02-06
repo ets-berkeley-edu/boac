@@ -240,8 +240,7 @@ export function isDirector(user: CurrentUser) {
 }
 
 export function isPeerAdvisingManager(user: CurrentUser) {
-  // TODO: Implement this method when peer_advising_department_memberships is wired up.
-  return user.uid === '222719'
+  return !!$_getDeptCodesWithRoles(user.departments, ['peer_advisor_manager']).length
 }
 
 export function lastActivityDays(analytics: object) {
