@@ -23,13 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from functools import reduce
-from itertools import groupby
-from operator import itemgetter
-
 from boac import db, std_commit
-from boac.externals import data_loch
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS
 from boac.models.base import Base
 from sqlalchemy.sql import text
 
@@ -115,31 +109,6 @@ class UniversityDept(Base):
         """
         db.session.execute(text(sql), {'id': self.id})
         std_commit()
-
-    def memberships_from_loch(self):
-        program_affiliations = BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS.get(self.dept_code)
-        if not program_affiliations:
-            return []
-        advisors = data_loch.get_advisor_uids_for_affiliations(
-            program_affiliations.get('program'),
-            program_affiliations.get('affiliations'),
-        )
-
-        def _resolve(uid, rows):
-            rows = list(rows)
-            if len(rows) == 1:
-                return rows[0]
-            can_access_advising_data = reduce((lambda r, s: r['can_access_advising_data'] or s['can_access_advising_data']), rows)
-            can_access_canvas_data = reduce((lambda r, s: r['can_access_canvas_data'] or s['can_access_canvas_data']), rows)
-            degree_progress_permission = reduce((lambda r, s: r['degree_progress_permission'] or s['degree_progress_permission']), rows)
-            return {
-                'uid': uid,
-                'can_access_advising_data': can_access_advising_data,
-                'can_access_canvas_data': can_access_canvas_data,
-                'degree_progress_permission': degree_progress_permission,
-            }
-        advisors.sort(key=itemgetter('uid'))
-        return [_resolve(uid, rows) for (uid, rows) in groupby(advisors, itemgetter('uid'))]
 
     def to_api_json(self):
         dept_code = self.dept_code

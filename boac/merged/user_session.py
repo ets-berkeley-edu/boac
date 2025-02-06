@@ -23,11 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.json_cache import clear, stow
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
+from boac.models.university_dept import UniversityDept
 from flask import current_app as app
 from flask_login import UserMixin
 
@@ -139,33 +139,42 @@ class UserSession(UserMixin):
                 force_feed=False,
                 skip_expired_users=True,
             )
-            peer_advising_dept_memberships = PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id)
             for m in user.department_memberships:
-                dept_code = m.university_dept.dept_code
-                department = {
-                    'deptCode': dept_code,
-                    'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
-                    'memberships': [{'role': m.role}],
+                departments.append({
+                    **m.university_dept.to_api_json(),
+                    'memberships': [
+                        {
+                            'automateMembership': m.automate_membership,
+                            'role': m.role,
+                        },
+                    ],
+                })
+            for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id):
+                peer_advising_dept_membership = {
+                    'role': m['role_type'],
+                    'peerAdvisingDepartmentId': m['peer_advising_department_id'],
+                    'peerAdvisingDepartmentName': m['peer_advising_department_name'],
                 }
-                peer_advising_dept_membership = next(
-                    (p for p in peer_advising_dept_memberships if p['university_dept_id'] == m.university_dept.id),
-                    None,
-                )
-                if peer_advising_dept_membership:
-                    department['memberships'].append({
-                        'role': peer_advising_dept_membership['role_type'],
-                        'peerAdvisingDepartmentId': peer_advising_dept_membership['peer_advising_department_id'],
-                        'peerAdvisingDepartmentName': peer_advising_dept_membership['peer_advising_department_name'],
+                university_dept_id = m['university_dept_id']
+                university_dept_api_json = next((d for d in departments if d['id'] == university_dept_id), None)
+                if university_dept_api_json:
+                    # If the university_dept was added in the 'for user.department_memberships' loop above
+                    # then we append the peer_advising membership to the existing object.
+                    university_dept_api_json['memberships'].append(peer_advising_dept_membership)
+                else:
+                    departments.append({
+                        **UniversityDept.find_by_id(university_dept_id).to_api_json(),
+                        'memberships': [peer_advising_dept_membership],
                     })
-                departments.append(department)
+
             if not calnet_profile:
                 is_active = False
             elif user.is_admin:
                 is_admin = True
                 is_active = True
-            elif len(departments):
-                for m in user.department_memberships:
-                    is_active = True if m.role else False
+            else:
+                for d in departments:
+                    is_active = bool(d['memberships'])
                     if is_active:
                         break
 
