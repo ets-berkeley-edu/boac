@@ -21,7 +21,7 @@ const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
 const NotFound = () => import('@/views/NotFound.vue')
 const PassengerManifest = () => import('@/views/PassengerManifest.vue')
 const PeerAdvisingLayout = () => import('@/layouts/PeerAdvisingLayout.vue')
-const PeerAdvisingManager = () => import('@/views/PeerAdvisingManager.vue')
+const PeerAdvisorManager = () => import('@/views/PeerAdvisorManager.vue')
 const PrintableDegreeTemplate = () => import('@/views/degree/PrintableDegreeTemplate.vue')
 const Profile = () => import('@/views/Profile.vue')
 const SearchResults = () => import('@/views/SearchResults.vue')
@@ -33,7 +33,7 @@ const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.v
 import {CurrentUser} from './lib/utils'
 import {NavigationGuardNext, RouteLocation, RouteRecordRaw, createRouter, createWebHistory} from 'vue-router'
 import {filter, get, includes, size, toString, trim} from 'lodash'
-import {isAdvisor, isDirector, isPeerAdvisingManager} from '@/berkeley'
+import {isAdvisor, isDirector, isPeerAdvisor, isPeerAdvisorManager} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
 
@@ -146,7 +146,7 @@ const routes:RouteRecordRaw[] = [
       // Requires Peer Advising Manager
       const currentUser: CurrentUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
-        if (isPeerAdvisingManager(currentUser) || currentUser.isAdmin) {
+        if (isPeerAdvisorManager(currentUser) || currentUser.isAdmin) {
           next()
         } else {
           next({path: '/404'})
@@ -157,7 +157,7 @@ const routes:RouteRecordRaw[] = [
     },
     children: [
       {
-        component: PeerAdvisingManager,
+        component: PeerAdvisorManager,
         name: 'Manage Peer Advisors',
         path: '/peer/management/:id'
       }
@@ -170,7 +170,7 @@ const routes:RouteRecordRaw[] = [
       // Requires Peer Advisor
       const currentUser: CurrentUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
-        if (currentUser.isAdmin || currentUser.isPeerAdvisor) {
+        if (currentUser.isAdmin || isPeerAdvisor(currentUser)) {
           next()
         } else {
           next({path: '/404'})

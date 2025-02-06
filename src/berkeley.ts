@@ -239,7 +239,11 @@ export function isDirector(user: CurrentUser) {
   return !!$_getDeptCodesWithRoles(user.departments, ['director']).length
 }
 
-export function isPeerAdvisingManager(user: CurrentUser) {
+export function isPeerAdvisor(user: CurrentUser) {
+  return !!$_getDeptCodesWithRoles(user.departments, ['peer_advisor']).length
+}
+
+export function isPeerAdvisorManager(user: CurrentUser) {
   return !!$_getDeptCodesWithRoles(user.departments, ['peer_advisor_manager']).length
 }
 
