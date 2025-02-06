@@ -25,10 +25,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from contextlib import contextmanager
 from datetime import datetime
+from functools import reduce
+from itertools import groupby
+from operator import itemgetter
 import re
 
 from boac import db
-from boac.lib.berkeley import previous_term_id, sis_term_id_for_name
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS, previous_term_id, sis_term_id_for_name
 from boac.lib.mockingdata import fixture
 from boac.lib.util import join_if_present, tolerant_remove
 from flask import current_app as app
@@ -196,6 +199,32 @@ def get_enrolled_primary_sections_for_parsed_code(term_id, subject_area, catalog
               ORDER BY sis_course_name_compressed, sis_instruction_format, sis_section_num
            """
     return safe_execute_rds(sql, **params)
+
+
+def get_user_permissions_per_affiliations(dept_code):
+    program_affiliations = BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS.get(dept_code)
+    if not program_affiliations:
+        return []
+    advisors = get_advisor_uids_for_affiliations(
+        program_affiliations.get('program'),
+        program_affiliations.get('affiliations'),
+    )
+
+    def _resolve(uid, rows):
+        rows = list(rows)
+        if len(rows) == 1:
+            return rows[0]
+        can_access_advising_data = reduce((lambda r, s: r['can_access_advising_data'] or s['can_access_advising_data']), rows)
+        can_access_canvas_data = reduce((lambda r, s: r['can_access_canvas_data'] or s['can_access_canvas_data']), rows)
+        degree_progress_permission = reduce((lambda r, s: r['degree_progress_permission'] or s['degree_progress_permission']), rows)
+        return {
+            'uid': uid,
+            'can_access_advising_data': can_access_advising_data,
+            'can_access_canvas_data': can_access_canvas_data,
+            'degree_progress_permission': degree_progress_permission,
+        }
+    advisors.sort(key=itemgetter('uid'))
+    return [_resolve(uid, rows) for (uid, rows) in groupby(advisors, itemgetter('uid'))]
 
 
 def get_sis_holds(sid):

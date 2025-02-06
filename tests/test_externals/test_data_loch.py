@@ -27,6 +27,7 @@ from decimal import Decimal
 import io
 
 from boac.externals import data_loch
+from boac.externals.data_loch import get_user_permissions_per_affiliations
 from boac.lib.mockingdata import MockRows, register_mock
 import pytest
 
@@ -245,3 +246,43 @@ class TestDataLoch:
         no_db = data_loch.get_sis_section_enrollments(0, 0)
         # TODO Real data_loch queries will return an empty list if the course is not found.
         assert no_db is None
+
+    def test_user_permissions_per_affiliations(self):
+        """Aggregates role and privilege data from the loch for each of its members."""
+        user_permissions = get_user_permissions_per_affiliations('COENG')
+        assert len(user_permissions)
+        uids = [u['uid'] for u in user_permissions]
+        advisors_by_uid = {
+            uid: [u for u in user_permissions if u['uid'] == uid] for uid in uids}
+        assert advisors_by_uid.get('90412') == [
+            {
+                'uid': '90412',
+                'can_access_advising_data': True,
+                'can_access_canvas_data': True,
+                'degree_progress_permission': 'read',
+            },
+        ]
+        assert advisors_by_uid.get('1022796') == [
+            {
+                'uid': '1022796',
+                'can_access_advising_data': False,
+                'can_access_canvas_data': False,
+                'degree_progress_permission': 'read_write',
+            },
+        ]
+        assert advisors_by_uid.get('1133399') == [
+            {
+                'uid': '1133399',
+                'can_access_advising_data': True,
+                'can_access_canvas_data': True,
+                'degree_progress_permission': 'read_write',
+            },
+        ]
+        assert advisors_by_uid.get('211159') == [
+            {
+                'uid': '211159',
+                'can_access_advising_data': True,
+                'can_access_canvas_data': True,
+                'degree_progress_permission': 'read_write',
+            },
+        ]
