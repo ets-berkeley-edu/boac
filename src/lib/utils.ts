@@ -41,7 +41,6 @@ export type CurrentUser = {
   isAdmin: boolean,
   isAuthenticated: boolean,
   isDemoModeAvailable: boolean,
-  isPeerAdvisor: boolean,
   myCohorts: Cohort[],
   myCuratedGroups: CuratedGroup[],
   myDraftNoteCount: number | undefined,

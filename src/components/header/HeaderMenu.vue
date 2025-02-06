@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-space-around">
     <v-menu
-      :width="isPeerAdvisingManager(currentUser) ? 360 : 280"
+      :width="isPeerAdvisorManager(currentUser) ? 360 : 280"
       transition="slide-y-transition"
       variant="link"
       @update:model-value="isOpen => isMenuOpen = isOpen"
@@ -30,7 +30,7 @@
             variant="text"
           />
         </v-list-item-action>
-        <v-list-item-action v-if="isPeerAdvisingManager(currentUser)">
+        <v-list-item-action v-if="isPeerAdvisorManager(currentUser)">
           <!-- TODO: Implement the 'to:' path when peer_advising_department_memberships is wired up. -->
           <v-btn
             id="header-menu-peer-management"
@@ -121,7 +121,7 @@
 
 <script setup>
 import {getCasLogoutUrl} from '@/api/auth'
-import {isPeerAdvisingManager, myDeptCodes} from '@/berkeley'
+import {isPeerAdvisorManager, myDeptCodes} from '@/berkeley'
 import {mdiMenuDown} from '@mdi/js'
 import {reactive, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
