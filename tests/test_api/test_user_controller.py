@@ -58,7 +58,6 @@ class TestUserProfile:
         assert not api_json['uid']
         assert api_json['canEditDegreeProgress'] is False
         assert api_json['canReadDegreeProgress'] is False
-        assert api_json['isPeerAdvisor'] is False
 
     def test_current_user_profile(self, client, fake_auth):
         """Includes user profile info from Canvas."""
@@ -71,7 +70,6 @@ class TestUserProfile:
         assert 'lastName' in api_json
         assert api_json['canEditDegreeProgress'] is True
         assert api_json['canReadDegreeProgress'] is True
-        assert api_json['isPeerAdvisor'] is False
 
     def test_can_edit_degree_progress(self, client, fake_auth):
         """Degree check permissions."""
@@ -832,7 +830,7 @@ class TestUserUpdate:
         assert user['canAccessCanvasData'] is False
         assert len(user['departments']) == 1
 
-    def test_peer_advising_manager_role(self, client, fake_auth):
+    def test_peer_advisor_manager_role(self, client, fake_auth):
         """Give an advisor the 'Peer Advising Manager' role."""
         fake_auth.login(admin_uid)
         advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)

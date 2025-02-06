@@ -26,14 +26,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 from random import randrange
 
-from boac.api.util import peer_advising_manager_required
+from boac.api.util import peer_advisor_manager_required
 from boac.lib.http import tolerant_jsonify
 from dateutil.tz import tzutc
 from flask import current_app as app
 
 
 @app.route('/api/peer/department/<peer_advising_department_id>')
-@peer_advising_manager_required
+@peer_advisor_manager_required
 def get_peer_advising_department(peer_advising_department_id):
     mock_names = [
         'Amelia Cortez',

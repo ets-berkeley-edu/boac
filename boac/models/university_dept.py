@@ -52,6 +52,10 @@ class UniversityDept(Base):
         self.dept_name = dept_name
 
     @classmethod
+    def find_by_id(cls, university_dept_id):
+        return cls.query.filter_by(id=university_dept_id).first()
+
+    @classmethod
     def find_by_dept_code(cls, dept_code):
         return cls.query.filter_by(dept_code=dept_code).first()
 
@@ -136,3 +140,11 @@ class UniversityDept(Base):
             }
         advisors.sort(key=itemgetter('uid'))
         return [_resolve(uid, rows) for (uid, rows) in groupby(advisors, itemgetter('uid'))]
+
+    def to_api_json(self):
+        dept_code = self.dept_code
+        return {
+            'id': self.id,
+            'deptCode': dept_code,
+            'deptName': self.dept_name,
+        }

@@ -44,6 +44,7 @@ from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.note import Note
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
+from boac.models.university_dept import UniversityDept
 from boac.models.user_login import UserLogin
 from dateutil.tz import tzutc
 from flask import current_app as app, request
@@ -81,7 +82,7 @@ def admin_or_director_required(func):
 def peer_advisor_required(func):
     @wraps(func)
     def _authorize(*args, **kw):
-        if current_user.is_admin or _is_authorized_peer_advisor(current_user) or _api_key_ok():
+        if current_user.is_admin or is_authorized_peer_advisor(current_user) or _api_key_ok():
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
@@ -95,7 +96,7 @@ def advisor_or_peer_advisor_required(func):
         if (
             current_user.is_admin
             or _is_authorized_advisor(current_user)
-            or _is_authorized_peer_advisor(current_user)
+            or is_authorized_peer_advisor(current_user)
             or _api_key_ok()
         ):
             return func(*args, **kw)
@@ -105,12 +106,12 @@ def advisor_or_peer_advisor_required(func):
     return _advisor_required
 
 
-def peer_advising_manager_required(func):
+def peer_advisor_manager_required(func):
     @wraps(func)
     def _advisor_required(*args, **kw):
         if (
             current_user.is_admin
-            or _is_authorized_peer_advising_manager(current_user)
+            or is_authorized_peer_advisor_manager(current_user)
             or _api_key_ok()
         ):
             return func(*args, **kw)
@@ -249,28 +250,34 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
             'departments': [],
             'isAdmin': user.is_admin,
             'isBlocked': user.is_blocked,
-            'isPeerAdvisor': user.is_peer_advisor,
         })
-        peer_advising_dept_memberships = PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(
-            authorized_user_id=user.id,
-        )
         for m in user.department_memberships:
-            department = {
-                'deptCode': m.university_dept.dept_code,
-                'deptName': m.university_dept.dept_name,
-                'memberships': [{
-                    'role': m.role,
-                    'automateMembership': m.automate_membership,
-                }],
+            profile['departments'].append({
+                **m.university_dept.to_api_json(),
+                'memberships': [
+                    {
+                        'automateMembership': m.automate_membership,
+                        'role': m.role,
+                    },
+                ],
+            })
+        for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id):
+            peer_advising_dept_membership = {
+                'role': m['role_type'],
+                'peerAdvisingDepartmentId': m['peer_advising_department_id'],
+                'peerAdvisingDepartmentName': m['peer_advising_department_name'],
             }
-            peer_advising_dept_membership = next((p for p in peer_advising_dept_memberships if p['university_dept_id'] == m.university_dept.id), None)
-            if peer_advising_dept_membership:
-                department['memberships'].append({
-                    'role': peer_advising_dept_membership['role_type'],
-                    'peerAdvisingDepartmentId': peer_advising_dept_membership['peer_advising_department_id'],
-                    'peerAdvisingDepartmentName': peer_advising_dept_membership['peer_advising_department_name'],
+            university_dept_id = m['university_dept_id']
+            university_dept_api_json = next((d for d in profile['departments'] if d['id'] == university_dept_id), None)
+            if university_dept_api_json:
+                # If the university_dept was added in the 'for user.department_memberships' loop above
+                # then we append the peer_advising membership to the existing object.
+                university_dept_api_json['memberships'].append(peer_advising_dept_membership)
+            else:
+                profile['departments'].append({
+                    **UniversityDept.find_by_id(university_dept_id).to_api_json(),
+                    'memberships': [peer_advising_dept_membership],
                 })
-            profile['departments'].append(department)
         user_login = UserLogin.last_login(user.uid)
         profile['lastLogin'] = _isoformat(user_login.created_at) if user_login else None
         profiles.append(profile)
@@ -451,6 +458,14 @@ def get_students_csv_header_labels(term_id):
     }
 
 
+def is_authorized_peer_advisor(user):
+    return _has_role_in_any_department(user, 'peer_advisor')
+
+
+def is_authorized_peer_advisor_manager(user):
+    return _has_role_in_any_department(user, 'peer_advisor_manager')
+
+
 def is_unauthorized_domain(domain):
     if domain not in ['default', 'admitted_students']:
         raise BadRequestError(f'Invalid domain: {domain}')
@@ -505,14 +520,6 @@ def validate_advising_note_set_date(params):
 
 def _is_authorized_advisor(user):
     return user.is_authenticated and (_has_role_in_any_department(user, 'advisor') or _has_role_in_any_department(user, 'director'))
-
-
-def _is_authorized_peer_advisor(user):
-    return user.is_authenticated and user.is_peer_advisor
-
-
-def _is_authorized_peer_advising_manager(user):
-    return _has_role_in_any_department(user, 'peer_advisor_manager')
 
 
 def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
@@ -681,19 +688,27 @@ def _get_current_user_curated_groups_containing(profile, curated_groups):
 
 def _has_role_in_any_department(user, role):
     has_role = False
-    for department in user.departments:
-        if next((m for m in department['memberships'] if m['role'] == role), False):
-            has_role = True
-            break
+    is_dict = isinstance(user, dict)
+    is_authenticated = user['isAuthenticated'] if is_dict else user.is_authenticated
+    departments = user['departments'] if is_dict else user.departments
+    if is_authenticated:
+        for department in departments:
+            if next((m for m in department['memberships'] if m['role'] == role), False):
+                has_role = True
+                break
     return has_role
 
 
 def _is_advisor_in_department(user, dept_code):
     is_advisor_in_department = False
-    for department in user.departments:
-        if dept_code == department['deptCode'] and next((m for m in department['memberships'] if m['role'] in ('advisor', 'director')), False):
-            is_advisor_in_department = True
-            break
+    is_dict = isinstance(user, dict)
+    is_authenticated = user['isAuthenticated'] if is_dict else user.is_authenticated
+    departments = user['departments'] if is_dict else user.departments
+    if is_authenticated:
+        for department in departments:
+            if dept_code == department['deptCode'] and next((m for m in department['memberships'] if m['role'] in ('advisor', 'director')), False):
+                is_advisor_in_department = True
+                break
     return is_advisor_in_department
 
 
