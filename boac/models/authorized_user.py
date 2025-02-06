@@ -52,7 +52,6 @@ class AuthorizedUser(Base):
     degree_progress_permission = db.Column(generic_permission_type_enum)
     deleted_at = db.Column(db.DateTime, nullable=True)
     in_demo_mode = db.Column(db.Boolean, nullable=False)
-    is_peer_advisor = db.Column(db.Boolean, nullable=False)
     is_admin = db.Column(db.Boolean)
     # When True, is_blocked prevents a deleted user from being revived by the automated refresh.
     is_blocked = db.Column(db.Boolean, nullable=False, default=False)
@@ -82,7 +81,6 @@ class AuthorizedUser(Base):
             is_admin=False,
             is_blocked=False,
             in_demo_mode=False,
-            is_peer_advisor=False,
             can_access_advising_data=True,
             can_access_canvas_data=True,
             degree_progress_permission=None,
@@ -96,7 +94,6 @@ class AuthorizedUser(Base):
         self.in_demo_mode = in_demo_mode
         self.is_admin = is_admin
         self.is_blocked = is_blocked
-        self.is_peer_advisor = is_peer_advisor
         self.search_history = search_history
         self.uid = uid
 
@@ -112,7 +109,6 @@ class AuthorizedUser(Base):
                     in_demo_mode={self.in_demo_mode},
                     is_admin={self.is_admin},
                     is_blocked={self.is_blocked},
-                    is_peer_advisor={self.is_peer_advisor},
                     search_history={self.search_history},
                     updated={self.updated_at}>
                 """

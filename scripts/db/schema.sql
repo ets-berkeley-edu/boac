@@ -112,7 +112,6 @@ CREATE TABLE authorized_users (
     in_demo_mode boolean DEFAULT false NOT NULL,
     is_admin boolean,
     is_blocked boolean DEFAULT false NOT NULL,
-    is_peer_advisor boolean DEFAULT false NOT NULL,
     search_history CHARACTER VARYING[],
     uid character varying(255) NOT NULL,
     updated_at timestamp with time zone NOT NULL
