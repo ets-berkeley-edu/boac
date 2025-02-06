@@ -26,11 +26,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 from unittest import mock
 
+from boac.api.util import is_authorized_peer_advisor, is_authorized_peer_advisor_manager
 from boac.models.user_login import UserLogin
 import cas
 from tests.util import override_config, pause_mock_sts
 
-advisor_uid = '1133399'
+advisor_uid = '211159'
+peer_advisor_manager_uid = '1133399'
 peer_advisor_uid = '1133400'
 unauthorized_uid = '1015674'
 
@@ -152,14 +154,24 @@ class TestAuthorization:
         api_json = self._api_my_profile(client)
         assert api_json['isActive']
         assert len(api_json['departments']) == 1
+        assert is_authorized_peer_advisor(api_json) is False
+        assert is_authorized_peer_advisor_manager(api_json) is False
 
-    def test_is_peer_advisor(self, client, fake_auth):
+    def test_authorized_peer_advisor_manager(self, client, fake_auth):
+        fake_auth.login(peer_advisor_manager_uid)
+        api_json = self._api_my_profile(client)
+        assert api_json
+        assert api_json['isActive']
+        assert is_authorized_peer_advisor(api_json) is False
+        assert is_authorized_peer_advisor_manager(api_json) is True
+
+    def test_authorized_peer_advisor(self, client, fake_auth):
         fake_auth.login(peer_advisor_uid)
         api_json = self._api_my_profile(client)
         assert api_json
-        # TODO: Verify 'isActive' after the db table 'peer_advising_department_members' is in place.
         # assert api_json['isActive']
-        # assert api_json['isPeerAdvisor'] is True
+        # assert is_authorized_peer_advisor(api_json) is True
+        # assert is_authorized_peer_advisor_manager(api_json) is False
 
 
 class TestCasAuth:

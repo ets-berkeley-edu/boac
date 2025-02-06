@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-peer_advising_manager_uid = '1133399'
+peer_advisor_manager_uid = '1133399'
 qcadv_advisor_uid = '53791'
 
 
@@ -46,7 +46,7 @@ class TestGetPeerAdvisingDepartment:
 
     def test_authorized(self, client, fake_auth):
         """Delivers peer_advising_department data to authorized user."""
-        user_profile = fake_auth.login(peer_advising_manager_uid)
+        user_profile = fake_auth.login(peer_advisor_manager_uid)
         api_json = self._api_get_peer_advising_department(client=client, peer_advising_department_id=2)
         departments = user_profile['departments']
         assert len(departments) == 1

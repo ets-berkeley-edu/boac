@@ -172,7 +172,6 @@ _test_users = [
         'canAccessCanvasData': False,
         'degreeProgressPermission': None,
         'isAdmin': False,
-        'isPeerAdvisor': True,
         'inDemoMode': False,
         'firstName': 'Peer',
         'lastName': 'Pressure',
@@ -337,6 +336,13 @@ _peer_advising_departments = [
         'university_dept_code': 'ZCEEE',
         'users': [
             {'uid': '1563405', 'role': 'peer_advisor'},
+        ],
+    },
+    {
+        'peer_advising_department_name': 'NAVCAL',
+        'university_dept_code': 'ZCEEE',
+        'users': [
+            {'uid': '1133400', 'role': 'peer_advisor'},
         ],
     },
     {
@@ -537,7 +543,6 @@ def _create_users():
                 can_access_advising_data=test_user['canAccessAdvisingData'],
                 can_access_canvas_data=test_user['canAccessCanvasData'],
                 degree_progress_permission=test_user.get('degreeProgressPermission'),
-                is_peer_advisor=test_user.get('isPeerAdvisor', False),
                 search_history=test_user.get('searchHistory', []),
             )
             if test_user.get('deleted'):
