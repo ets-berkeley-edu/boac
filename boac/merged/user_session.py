@@ -114,10 +114,6 @@ class UserSession(UserMixin):
     def is_authenticated(self):
         return self.api_json['isAuthenticated']
 
-    @property
-    def is_peer_advisor(self):
-        return self.api_json['isPeerAdvisor']
-
     @classmethod
     @stow('boa_user_session_{user_id}')
     def load_user(cls, user_id):
@@ -194,8 +190,6 @@ class UserSession(UserMixin):
                 'isAdmin': is_admin,
                 'isAnonymous': not is_active,
                 'isAuthenticated': is_active,
-                # TODO: Is 'is_peer_advisor' necessary? Can we not deduce from 'peer_advising_departments' role_type?
-                'isPeerAdvisor': user.is_peer_advisor if user else False,
                 'uid': user and user.uid,
             },
         }

@@ -1,8 +1,6 @@
 BEGIN;
 
 -- Add columns to already existing tables
-ALTER TABLE authorized_users ADD COLUMN IF NOT EXISTS is_peer_advisor BOOLEAN DEFAULT FALSE NOT NULL;
-
 ALTER TABLE notes ADD COLUMN IF NOT EXISTS peer_advising_department_id INTEGER;
 
 ALTER TABLE notes ADD COLUMN IF NOT EXISTS note_template_id INTEGER;
