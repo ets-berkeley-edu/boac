@@ -2,13 +2,14 @@ import axios from 'axios'
 import utils from '@/api/api-utils'
 import {get, isNil} from 'lodash'
 import {useContextStore} from '@/stores/context'
+import {BoaUser} from '@/lib/utils'
 
 export function getDepartments(excludeEmpty?: boolean) {
   const url: string = `${utils.apiBaseUrl()}/api/users/departments?excludeEmpty=${excludeEmpty}`
   return axios.get(url).then(response => response.data)
 }
 
-export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDeleted?: boolean) {
+export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDeleted?: boolean): Promise<BoaUser[]> {
   const data = {
     ignoreDeleted: isNil(ignoreDeleted) ? null : ignoreDeleted,
     sortBy,
@@ -84,7 +85,7 @@ export function setDemoMode(demoMode: boolean) {
   return axios.post(url, {demoMode}).then(() => useContextStore().setDemoMode(demoMode))
 }
 
-export function createOrUpdateUser(profile: object, memberships: object[], deleteAction: boolean) {
+export function createOrUpdateUser(user: BoaUser) {
   const url: string = `${utils.apiBaseUrl()}/api/user/create_or_update`
-  return axios.post(url, {deleteAction, profile, memberships}).then(response => response.data)
+  return axios.post(url, {user}).then(response => response.data)
 }

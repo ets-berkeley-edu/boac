@@ -1,4 +1,4 @@
-import {BoaConfig, CurrentUser} from '@/lib/utils'
+import {BoaConfig, BoaUser} from '@/lib/utils'
 import {event} from 'vue-gtag'
 import {map} from 'lodash'
 import {useContextStore} from '@/stores/context'
@@ -8,7 +8,7 @@ export function getGtagConfig() {
   const contextStore = useContextStore()
   const config: BoaConfig = contextStore.config
   const gaMeasurementId = config.gaMeasurementId
-  const currentUser: CurrentUser = contextStore.currentUser
+  const currentUser: BoaUser = contextStore.currentUser
   const uid = currentUser.uid
   return {
     config: {id: gaMeasurementId},
@@ -27,7 +27,7 @@ export function getGtagConfig() {
 }
 
 const track = (action: string, category: string, label?: string, id?: number | string) => {
-  const currentUser: CurrentUser = useContextStore().currentUser
+  const currentUser: BoaUser = useContextStore().currentUser
   if (currentUser.uid && !currentUser.isAdmin) {
     event(action, {event_category: category, event_label: label, value: id})
   }

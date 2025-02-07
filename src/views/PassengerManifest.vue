@@ -15,45 +15,43 @@
         </div>
       </div>
       <EditUserProfileModal
-        :after-cancel="afterCancelCreateUser"
-        :after-update-user="afterCreateUser"
+        v-model="newUser"
+        :after-save="afterCreateUser"
+        :all-berkeley-departments="allBerkeleyDepartments"
         class="ml-auto"
-        :departments="departments"
         :disabled="false"
       />
     </div>
-    <Users :departments="departments" :refresh="refreshUsers" />
+    <Users :all-berkeley-departments="allBerkeleyDepartments" :refresh="refreshUsers" />
   </div>
 </template>
 
-<script setup>
-import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
-import Users from '@/components/admin/Users'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {getDepartments} from '@/api/user'
+<script setup lang="ts">
+import EditUserProfileModal from '@/components/admin/EditUserProfileModal.vue'
+import Users from '@/components/admin/Users.vue'
+import {ANONYMOUS_USER, BoaUser, Department, alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {mdiContacts} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
+import {cloneDeep} from 'lodash'
+import {getDepartments} from '@/api/user'
 
 const contextStore = useContextStore()
-const departments = ref(undefined)
+const allBerkeleyDepartments = ref<Department[] | undefined>(undefined)
+const newUser = ref<BoaUser>(cloneDeep<BoaUser>(ANONYMOUS_USER))
 const refreshUsers = ref(false)
 
 contextStore.loadingStart()
 
 onMounted(() => {
   getDepartments().then(data => {
-    departments.value = data
+    allBerkeleyDepartments.value = data
     contextStore.loadingComplete()
   })
 })
 
-const afterCancelCreateUser = () => {
-  alertScreenReader('Canceled')
-  putFocusNextTick('add-new-user-btn')
-}
-
 const afterCreateUser = name => {
+  newUser.value = cloneDeep(ANONYMOUS_USER)
   refreshUsers.value = true
   alertScreenReader(`${name} has been added to BOA.`)
   putFocusNextTick('add-new-user-btn')

@@ -14,6 +14,7 @@ export type BoaConfig = {
     max: number,
     min: number
   },
+  devAuthEnabled: boolean,
   draftNoteSubjectPlaceholder: string,
   fixedWarningOnAllPages: boolean,
   gaMeasurementId: string,
@@ -30,30 +31,41 @@ export type Course = {
   waitlisted: boolean
 }
 
-export type CurrentUser = {
+export type BoaUser = {
+  id: number | undefined,
+  automateDegreeProgressPermission: boolean,
   canAccessAdmittedStudents: boolean,
   canAccessAdvisingData: boolean,
   canAccessCanvasData: boolean,
   canEditDegreeProgress: boolean,
   canReadDegreeProgress: boolean,
-  departments: Department[],
+  degreeProgressPermission: string | undefined,
+  deletedAt: Date | undefined,
+  departments: BoaUserDepartment[],
   inDemoMode: boolean,
   isAdmin: boolean,
   isAuthenticated: boolean,
+  isBlocked: boolean,
   isDemoModeAvailable: boolean,
   myCohorts: Cohort[],
   myCuratedGroups: CuratedGroup[],
   myDraftNoteCount: number | undefined,
+  name: string | undefined,
   preferences: {
     termId: string | undefined
   },
-  title: string,
-  uid: string
+  title: string | undefined,
+  uid: string | undefined
 }
 
 export type Department = {
+  id: number,
   deptCode: string,
   deptName: string,
+  peerAdvisingDepartments: PeerAdvisingDepartment[] | undefined
+}
+
+export interface BoaUserDepartment extends Department {
   memberships: DepartmentMembership[]
 }
 
@@ -77,6 +89,11 @@ export type Pagination = {
   itemsPerPage: number
 }
 
+export type PeerAdvisingDepartment = {
+  'id': number,
+  'name': string
+}
+
 export type ScreenReaderAlert = {
   message: string,
   politeness: string
@@ -97,6 +114,33 @@ export type ServiceAnnouncement = {
 
 export type Student = {
   sid: string
+}
+
+export const ANONYMOUS_USER: BoaUser = {
+  id: undefined,
+  automateDegreeProgressPermission: false,
+  degreeProgressPermission: undefined,
+  deletedAt: undefined,
+  departments: [],
+  canAccessAdmittedStudents: false,
+  canAccessAdvisingData: false,
+  canAccessCanvasData: false,
+  canEditDegreeProgress: false,
+  canReadDegreeProgress: false,
+  inDemoMode: false,
+  isAdmin: false,
+  isAuthenticated: false,
+  isBlocked: false,
+  isDemoModeAvailable: false,
+  myCohorts: [] as Cohort[],
+  myCuratedGroups: [] as CuratedGroup[],
+  myDraftNoteCount: undefined as number | undefined,
+  name: undefined,
+  preferences: {
+    termId: undefined as string | undefined
+  },
+  title: undefined,
+  uid: undefined
 }
 
 let $_screenReaderAlertExpiry: number

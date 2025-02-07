@@ -1,9 +1,9 @@
 import mitt from 'mitt'
 import router from '@/router'
-import {alertScreenReader} from '@/lib/utils'
+import {ANONYMOUS_USER, alertScreenReader} from '@/lib/utils'
 import {BoaConfig, ScreenReaderAlert, ServiceAnnouncement} from '@/lib/utils'
 import {Cohort, CuratedGroup} from '@/lib/cohort'
-import {CurrentUser} from '@/lib/utils'
+import {BoaUser} from '@/lib/utils'
 import {defineStore} from 'pinia'
 import {get, noop, sortBy} from 'lodash'
 import {Handler} from 'mitt'
@@ -20,23 +20,7 @@ export const useContextStore = defineStore('context', {
     announcement: undefined as ServiceAnnouncement | undefined,
     applicationState: $_getDefaultApplicationState(),
     config: {} as BoaConfig,
-    currentUser: {
-      canAccessAdmittedStudents: false,
-      canAccessAdvisingData: false,
-      canAccessCanvasData: false,
-      canEditDegreeProgress: false,
-      canReadDegreeProgress: false,
-      inDemoMode: false,
-      isAdmin: false,
-      isAuthenticated: false,
-      isDemoModeAvailable: false,
-      myCohorts: [] as Cohort[],
-      myCuratedGroups: [] as CuratedGroup[],
-      myDraftNoteCount: undefined as number | undefined,
-      preferences: {
-        termId: undefined as string | undefined
-      }
-    } as CurrentUser,
+    currentUser: ANONYMOUS_USER as BoaUser,
     dismissedFooterAlert: false,
     dismissedServiceAnnouncement: false,
     eventHub: mitt(),
@@ -125,7 +109,7 @@ export const useContextStore = defineStore('context', {
     setConfig(data: BoaConfig) {
       this.config = data
     },
-    setCurrentUser(currentUser: CurrentUser) {
+    setCurrentUser(currentUser: BoaUser) {
       this.currentUser = currentUser
     },
     setDemoMode(inDemoMode: boolean): void {
