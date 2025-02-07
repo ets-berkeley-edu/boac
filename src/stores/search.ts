@@ -1,4 +1,4 @@
-import {CurrentUser} from '@/lib/utils'
+import {BoaUser} from '@/lib/utils'
 import {StoreDefinition, defineStore} from 'pinia'
 import {useContextStore} from '@/stores/context'
 
@@ -24,7 +24,7 @@ export const useSearchStore: StoreDefinition = defineStore('search', {
   }),
   getters: {
     isDirty: (state): boolean => {
-      const currentUser: CurrentUser = useContextStore().currentUser
+      const currentUser: BoaUser = useContextStore().currentUser
       return (currentUser.canAccessCanvasData && !state.includeCourses)
         || (currentUser.canAccessCanvasData && !state.includeNotes)
         || (currentUser.canAccessAdmittedStudents && !state.includeAdmits)
@@ -34,7 +34,7 @@ export const useSearchStore: StoreDefinition = defineStore('search', {
   },
   actions: {
     resetAdvancedSearch(queryText?: string) {
-      const currentUser: CurrentUser = useContextStore().currentUser
+      const currentUser: BoaUser = useContextStore().currentUser
       this.author = null
       this.fromDate = null
       this.postedBy = 'anyone'

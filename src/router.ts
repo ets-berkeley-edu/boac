@@ -30,7 +30,7 @@ const StandardLayout = () => import('@/layouts/StandardLayout.vue')
 const StudentDegreeCheck = () => import('@/views/degree/StudentDegreeCheck.vue')
 const StudentDegreeCreate = () => import('@/views/degree/StudentDegreeCreate.vue')
 const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.vue')
-import {CurrentUser} from './lib/utils'
+import {BoaUser} from './lib/utils'
 import {NavigationGuardNext, RouteLocation, RouteRecordRaw, createRouter, createWebHistory} from 'vue-router'
 import {filter, get, includes, size, toString, trim} from 'lodash'
 import {isAdvisor, isDirector, isPeerAdvisor, isPeerAdvisorManager} from '@/berkeley'
@@ -50,7 +50,7 @@ const $_goToLogin = (to: RouteLocation, next: NavigationGuardNext) => {
 const $_isCE3 = user => !!size(filter(user.departments, d => d.deptCode === 'ZCEEE' && includes(['advisor', 'director'], d.role)))
 
 const $_requiresDegreeProgress = (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
-  const currentUser: CurrentUser = useContextStore().currentUser
+  const currentUser: BoaUser = useContextStore().currentUser
   if (currentUser.canReadDegreeProgress) {
     next()
   } else if (currentUser.isAuthenticated) {
@@ -65,7 +65,7 @@ const routes:RouteRecordRaw[] = [
     path: '/',
     component: Login,
     beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
-      const currentUser: CurrentUser = useContextStore().currentUser
+      const currentUser: BoaUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
         next(trim(toString(to.query.redirect)) || '/home')
       } else {
@@ -81,7 +81,7 @@ const routes:RouteRecordRaw[] = [
     component: StandardLayout,
     beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
       // Requires Advisor
-      const currentUser: CurrentUser = useContextStore().currentUser
+      const currentUser: BoaUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
         if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
           next()
@@ -144,7 +144,7 @@ const routes:RouteRecordRaw[] = [
     component: StandardLayout,
     beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
       // Requires Peer Advising Manager
-      const currentUser: CurrentUser = useContextStore().currentUser
+      const currentUser: BoaUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
         if (isPeerAdvisorManager(currentUser) || currentUser.isAdmin) {
           next()
@@ -168,7 +168,7 @@ const routes:RouteRecordRaw[] = [
     component: PeerAdvisingLayout,
     beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
       // Requires Peer Advisor
-      const currentUser: CurrentUser = useContextStore().currentUser
+      const currentUser: BoaUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
         if (currentUser.isAdmin || isPeerAdvisor(currentUser)) {
           next()
@@ -192,7 +192,7 @@ const routes:RouteRecordRaw[] = [
     component: StandardLayout,
     beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
       // Requires Admin
-      const currentUser: CurrentUser = useContextStore().currentUser
+      const currentUser: BoaUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
         if (currentUser.isAdmin) {
           next()
@@ -221,7 +221,7 @@ const routes:RouteRecordRaw[] = [
     component: StandardLayout,
     beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
       // Requires Director
-      const currentUser: CurrentUser = useContextStore().currentUser
+      const currentUser: BoaUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
         if (isDirector(currentUser) || currentUser.isAdmin) {
           next()
@@ -245,7 +245,7 @@ const routes:RouteRecordRaw[] = [
     component: StandardLayout,
     beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
       // Requires CE3
-      const currentUser: CurrentUser = useContextStore().currentUser
+      const currentUser: BoaUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
         if (currentUser.isAdmin || $_isCE3(currentUser)) {
           next()

@@ -1,4 +1,4 @@
-import {CurrentUser} from '@/lib/utils'
+import {BoaUser} from '@/lib/utils'
 import {get, multiply} from 'lodash'
 import {getCuratedGroup} from '@/api/curated'
 import {useContextStore} from '@/stores/context'
@@ -7,7 +7,7 @@ import {useCuratedGroupStore} from '@/stores/curated-group/index'
 export function goToCuratedGroup(curatedGroupId: number, pageNumber: number) {
   return new Promise(resolve => {
     const groupStore = useCuratedGroupStore()
-    const currentUser: CurrentUser = useContextStore().currentUser
+    const currentUser: BoaUser = useContextStore().currentUser
     const domain = groupStore.domain
     const itemsPerPage = groupStore.itemsPerPage
     const offset: number = multiply(pageNumber - 1, itemsPerPage)

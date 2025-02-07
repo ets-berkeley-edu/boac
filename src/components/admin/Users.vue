@@ -71,7 +71,7 @@
                 @update:model-value="fetchUsers('user-permission-options')"
               >
                 <option
-                  v-for="option in [{id: -1, deptCode: null, deptName: 'All'}, ...departments]"
+                  v-for="option in [{id: -1, deptCode: null, deptName: 'All'}, ...allBerkeleyDepartments]"
                   :id="`department-option-${option.deptCode}`"
                   :key="option.deptCode"
                   :value="option.deptCode"
@@ -289,13 +289,11 @@
           </tr>
         </template>
 
-        <template #item.edit="{ item }">
+        <template #item.edit="{item}">
           <EditUserProfileModal
-            :after-cancel="afterCancelUpdateUser"
-            :after-update-user="afterEditUserProfile"
-            :departments="departments"
-            :disabled="!!isBecomingUid"
-            :profile="item"
+            v-model="userModels[item.uid]"
+            :after-save="afterEditUserProfile"
+            :all-berkeley-departments="allBerkeleyDepartments"
           />
         </template>
 
@@ -399,7 +397,7 @@ import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 import {DateTime} from 'luxon'
-import {capitalize, clone, debounce, find, get, isNil, lowerCase, map, size, trim} from 'lodash'
+import {capitalize, clone, cloneDeep, debounce, each, get, isNil, lowerCase, map, size, trim} from 'lodash'
 import {escapeForRegExp, normalizeId} from '@/lib/utils'
 import {getDeptCodesPerRoles} from '@/berkeley'
 import {mdiEmail} from '@mdi/js'
@@ -408,13 +406,13 @@ import {ref, watch} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
-  departments: {
-    required: true,
-    type: Array
-  },
   refresh: {
     required: false,
     type: Boolean
+  },
+  allBerkeleyDepartments: {
+    required: true,
+    type: Array
   }
 })
 
@@ -439,6 +437,7 @@ const suggestedUsers = ref([])
 const totalUserCount = ref(undefined)
 const userSelection = ref(undefined)
 const users = ref([])
+const userModels = ref(undefined)
 
 watch(filterType, () => {
   fetchUsers()
@@ -453,18 +452,13 @@ watch(() => props.refresh, value => {
   }
 })
 
-const afterCancelUpdateUser = profile => {
-  alertScreenReader('Canceled')
-  putFocusNextTick(get(profile, 'uid') ? `edit-${profile.uid}` : 'add-new-user-btn')
-}
-
-const afterEditUserProfile = profile => {
-  alertScreenReader(`${profile.name} profile updated.`)
+const afterEditUserProfile = user => {
+  alertScreenReader(`${user.name} profile updated.`)
   if (filterType.value === 'search') {
-    userSelection.value = profile.uid
+    userSelection.value = user.uid
   }
   fetchUsers()
-  putFocusNextTick(get(profile, 'uid') ? `edit-${profile.uid}` : 'add-new-user-btn')
+  putFocusNextTick(get(user, 'uid') ? `edit-${user.uid}` : 'add-new-user-btn')
 }
 
 const become = uid => {
@@ -498,14 +492,22 @@ const fetchUsers = (returnFocusId=null, srAlert='Loading users.') => {
     isFetching.value = true
     totalUserCount.value = 0
     users.value = []
+    const afterFetchUsers = (focusId, screenReaderAlert) => {
+      userModels.value = {}
+      each(users.value, user => {
+        userModels.value[user.uid] = cloneDeep(user)
+      })
+      userSelection.value = null
+      isFetching.value = false
+      alertScreenReader(screenReaderAlert)
+      putFocusNextTick(focusId)
+    }
     switch(filterType.value) {
     case 'admins':
       getAdminUsers(sortBy.value, sortDesc.value, false).then(data => {
         users.value = data.users
         totalUserCount.value = data.totalUserCount
-        isFetching.value = false
-        alertScreenReader(`Admin users loaded${sortDescription}`)
-        putFocusNextTick('user-filter-options')
+        afterFetchUsers('user-filter-options', `Admin users loaded${sortDescription}`)
       })
       break
     case 'filter':
@@ -517,12 +519,12 @@ const fetchUsers = (returnFocusId=null, srAlert='Loading users.') => {
         sortBy.value,
         sortDesc.value
       ).then(data => {
-        const department = find(props.departments, {'deptCode': filterBy.value.deptCode})
         users.value = data.users
         totalUserCount.value = data.totalUserCount
-        isFetching.value = false
-        alertScreenReader(`${department.deptName} users loaded${sortDescription}`)
-        putFocusNextTick(returnFocusId || 'department-select-list')
+        afterFetchUsers(
+          returnFocusId || 'department-select-list',
+          `Department users loaded${sortDescription}`
+        )
       })
       break
     case 'search':
@@ -530,12 +532,10 @@ const fetchUsers = (returnFocusId=null, srAlert='Loading users.') => {
         uidOfUser = userSelection.value.value.uid
       }
       getUserByUid(uidOfUser, false).then(data => {
-        users.value = [data]
+        users.value = data.users
         totalUserCount.value = 1
-        isFetching.value = false
-        userSelection.value = null
-        alertScreenReader(`Search results loaded${sortDescription}`)
-        putFocusNextTick('search-user-input')
+        afterFetchUsers('search-user-input', `Search results loaded${sortDescription}`
+        )
       })
       break
     }
