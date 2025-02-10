@@ -82,10 +82,17 @@ class NoteTemplate(Base):
         self.title = title
 
     @classmethod
-    def create(cls, creator_id, subject, title, attachments=(), body='', is_private=False, topics=()):
+    def create(cls, creator_id, subject, title, peer_advising_department_id=None, attachments=(), body='', is_private=False, topics=()):
         creator = AuthorizedUser.find_by_id(creator_id)
         if creator:
-            note_template = cls(body=body, creator_id=creator_id, is_private=is_private, subject=subject, title=title)
+            note_template = cls(
+                body=body,
+                creator_id=creator_id,
+                is_private=is_private,
+                subject=subject,
+                title=title,
+                peer_advising_department_id=peer_advising_department_id,
+            )
             for topic in topics:
                 note_template.topics.append(
                     NoteTemplateTopic.create(note_template.id, titleize(vacuum_whitespace(topic))),
@@ -109,6 +116,10 @@ class NoteTemplate(Base):
     @classmethod
     def get_templates_created_by(cls, creator_id):
         return cls.query.filter_by(creator_id=creator_id, deleted_at=None).order_by(cls.title).all()
+
+    @classmethod
+    def get_templates_created_by_peer_advising_department(cls, peer_advising_department_id):
+        return cls.query.filter_by(peer_advising_department_id=peer_advising_department_id, deleted_at=None).order_by(cls.title).all()
 
     @classmethod
     def rename(cls, note_template_id, title):
