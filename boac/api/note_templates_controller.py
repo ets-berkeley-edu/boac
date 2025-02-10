@@ -39,6 +39,7 @@ from flask_login import current_user
 def create_note_template():
     params = request.get_json()
     note_id = params.get('noteId', None)
+    peer_advising_department_id = params.get('peer_advising_department_id', None)
     title = params.get('title', None)
     if not note_id or not title:
         raise BadRequestError('Invalid or missing parameters')
@@ -54,6 +55,7 @@ def create_note_template():
         is_private=note.is_private,
         subject=note.subject,
         title=title,
+        peer_advising_department_id=peer_advising_department_id,
         topics=[topic.topic for topic in note.topics],
     )
     return tolerant_jsonify(note_template.to_api_json())
@@ -74,6 +76,13 @@ def get_note_template(note_template_id):
 @advising_data_access_required
 def get_my_note_templates():
     note_templates = NoteTemplate.get_templates_created_by(creator_id=current_user.get_id())
+    return tolerant_jsonify([t.to_api_json() for t in note_templates])
+
+
+@app.route('/api/note_templates/peer_advising_department_id/<peer_advising_department_id>')
+@advising_data_access_required
+def get_note_templates_for_peer_advising_department(peer_advising_department_id):
+    note_templates = NoteTemplate.get_templates_created_by(peer_advising_department_id=peer_advising_department_id)
     return tolerant_jsonify([t.to_api_json() for t in note_templates])
 
 
