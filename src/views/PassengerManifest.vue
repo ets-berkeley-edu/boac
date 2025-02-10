@@ -14,30 +14,50 @@
           </span>
         </div>
       </div>
-      <EditUserProfileModal
-        v-model="newUser"
-        :after-save="afterCreateUser"
-        :all-berkeley-departments="allBerkeleyDepartments"
-        class="ml-auto"
-        :disabled="false"
-      />
+      <div class="ml-auto">
+        <v-btn
+          id="add-new-user-btn"
+          class="pl-4 pr-4 mr-6"
+          color="primary"
+          :prepend-icon="mdiPlus"
+          text="Add New User"
+          @click="() => isCreatingNewUser = true"
+        />
+        <v-dialog
+          v-model="isCreatingNewUser"
+          aria-labelledby="modal-header"
+          persistent
+        >
+          <EditUser
+            v-model="newUser"
+            :all-berkeley-departments="allBerkeleyDepartments"
+            :is-dialog-open="isCreatingNewUser"
+            :on-cancel="onCancelEditUser"
+            :on-save="onCreateUser"
+          />
+        </v-dialog>
+      </div>
     </div>
-    <Users :all-berkeley-departments="allBerkeleyDepartments" :refresh="refreshUsers" />
+    <BoaUsers
+      :all-berkeley-departments="allBerkeleyDepartments"
+      :refresh="refreshUsers"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import EditUserProfileModal from '@/components/admin/EditUserProfileModal.vue'
-import Users from '@/components/admin/Users.vue'
+import BoaUsers from '@/components/admin/passenger-manifest/BoaUsers.vue'
+import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
 import {ANONYMOUS_USER, BoaUser, Department, alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {mdiContacts} from '@mdi/js'
+import {mdiContacts, mdiPlus} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {cloneDeep} from 'lodash'
 import {getDepartments} from '@/api/user'
 
 const contextStore = useContextStore()
-const allBerkeleyDepartments = ref<Department[] | undefined>(undefined)
+const allBerkeleyDepartments = ref<Department[]>([])
+const isCreatingNewUser = ref(false)
 const newUser = ref<BoaUser>(cloneDeep<BoaUser>(ANONYMOUS_USER))
 const refreshUsers = ref(false)
 
@@ -50,7 +70,15 @@ onMounted(() => {
   })
 })
 
-const afterCreateUser = name => {
+const onCancelEditUser = () => {
+  isCreatingNewUser.value = false
+  alertScreenReader('Canceled')
+  newUser.value = cloneDeep(ANONYMOUS_USER)
+  putFocusNextTick('add-new-user-btn')
+}
+
+const onCreateUser = name => {
+  isCreatingNewUser.value = false
   newUser.value = cloneDeep(ANONYMOUS_USER)
   refreshUsers.value = true
   alertScreenReader(`${name} has been added to BOA.`)

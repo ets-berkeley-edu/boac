@@ -58,22 +58,25 @@ export type BoaUser = {
   uid: string | undefined
 }
 
+export type BoaUserDepartment = {
+  id: number,
+  deptCode: string,
+  deptName: string,
+  memberships: DepartmentMembership[]
+}
+
 export type Department = {
   id: number,
   deptCode: string,
   deptName: string,
-  peerAdvisingDepartments: PeerAdvisingDepartment[] | undefined
-}
-
-export interface BoaUserDepartment extends Department {
-  memberships: DepartmentMembership[]
+  peerAdvisingDepartments: PeerAdvisingDepartment[]
 }
 
 export type DepartmentMembership = {
   automateMembership?: boolean,
   peerAdvisingDepartmentId?: number,
   peerAdvisingDepartmentName?: string,
-  role: DepartmentMembershipRole
+  role: DepartmentMembershipRole | undefined
 }
 
 export type DepartmentMembershipRole = 'advisor' | 'director' | 'peer_advisor' | 'peer_advisor_manager'
