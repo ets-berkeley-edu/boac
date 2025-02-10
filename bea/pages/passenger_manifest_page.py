@@ -171,7 +171,7 @@ class PassengerManifestPage(Pagination):
 
     @staticmethod
     def is_automated_dept_cbx_loc(dept):
-        return By.ID, f"is-automate-membership-{dept.value['code']}"
+        return By.ID, f"automate-membership-{dept.value['code']}"
 
     @staticmethod
     def edit_user_button_loc(user):

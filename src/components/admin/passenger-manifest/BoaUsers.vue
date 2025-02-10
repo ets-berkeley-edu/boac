@@ -289,12 +289,29 @@
           </tr>
         </template>
 
-        <template #item.edit="{item}">
-          <EditUserProfileModal
-            v-model="userModels[item.uid]"
-            :after-save="afterEditUserProfile"
-            :all-berkeley-departments="allBerkeleyDepartments"
+        <template #item.edit="{index, item}">
+          <v-btn
+            :id="`edit-${item.uid}`"
+            :aria-label="`Edit profile of ${item.name}`"
+            color="primary"
+            :icon="mdiNoteEditOutline"
+            variant="text"
+            width="20"
+            @click="() => onClickEditUser(index, item.uid)"
           />
+          <v-dialog
+            v-model="dialogs[index]"
+            aria-labelledby="modal-header"
+            persistent
+          >
+            <EditUser
+              v-model="editUserModel"
+              :after-save="afterEditUserProfile"
+              :all-berkeley-departments="allBerkeleyDepartments"
+              :on-cancel="() => onCancelEditUser(index, item.uid)"
+              :on-save="() => onUpdateUser(index, item.uid)"
+            />
+          </v-dialog>
         </template>
 
         <template #item.lastName="{ item }">
@@ -393,14 +410,25 @@
 </template>
 
 <script setup>
-import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
-import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
-import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
+import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
 import {DateTime} from 'luxon'
-import {capitalize, clone, cloneDeep, debounce, each, get, isNil, lowerCase, map, size, trim} from 'lodash'
-import {escapeForRegExp, normalizeId} from '@/lib/utils'
+import {alertScreenReader, escapeForRegExp, normalizeId, pluralize, putFocusNextTick} from '@/lib/utils'
+import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
+import {
+  capitalize,
+  clone,
+  cloneDeep,
+  debounce,
+  find,
+  get,
+  isNil,
+  lowerCase,
+  map,
+  size,
+  trim
+} from 'lodash'
 import {getDeptCodesPerRoles} from '@/berkeley'
-import {mdiEmail} from '@mdi/js'
+import {mdiEmail, mdiNoteEditOutline} from '@mdi/js'
 import {mdiLoginVariant, mdiNoteOutline} from '@mdi/js'
 import {ref, watch} from 'vue'
 import {useContextStore} from '@/stores/context'
@@ -419,6 +447,7 @@ const props = defineProps({
 const contextStore = useContextStore()
 
 const autocompleteInput = ref(undefined)
+const dialogs = ref([])
 const expanded = ref([])
 const filterBy = ref({
   deptCode: 'QCADV',
@@ -435,9 +464,9 @@ const sortBy = ref('lastName')
 const sortDesc = ref(false)
 const suggestedUsers = ref([])
 const totalUserCount = ref(undefined)
+const editUserModel = ref(undefined)
 const userSelection = ref(undefined)
 const users = ref([])
-const userModels = ref(undefined)
 
 watch(filterType, () => {
   fetchUsers()
@@ -493,10 +522,6 @@ const fetchUsers = (returnFocusId=null, srAlert='Loading users.') => {
     totalUserCount.value = 0
     users.value = []
     const afterFetchUsers = (focusId, screenReaderAlert) => {
-      userModels.value = {}
-      each(users.value, user => {
-        userModels.value[user.uid] = cloneDeep(user)
-      })
       userSelection.value = null
       isFetching.value = false
       alertScreenReader(screenReaderAlert)
@@ -564,6 +589,28 @@ const handleSort = sortKeys => {
   }
   alertScreenReader('Sorting users.')
   fetchUsers(`admits-sort-by-${sortKey.key}-btn`, 'Sorting users.') // Fetch users with new sorting parameters
+}
+
+const onCancelEditUser = (index, uid) => {
+  // eslint-disable-next-line no-console
+  console.log(`TODO: onUpdateUser ${uid}`)
+  dialogs.value[index] = false
+  editUserModel.value = undefined
+  alertScreenReader('Canceled')
+  putFocusNextTick(`edit-${editUserModel.value.uid}`)
+}
+
+const onClickEditUser = (index, uid) => {
+  dialogs.value[index] = true
+  const user = cloneDeep(find(users.value, ['uid', uid]))
+  editUserModel.value = user
+}
+
+const onUpdateUser = (index, uid) => {
+  // eslint-disable-next-line no-console
+  console.log(`TODO: onUpdateUser ${uid}`)
+  dialogs.value[index] = false
+  editUserModel.value = undefined
 }
 
 const onUpdateAutocompleteModel = user => {

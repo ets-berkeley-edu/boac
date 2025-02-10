@@ -222,7 +222,7 @@ export function getSectionsWithIncompleteStatus(sections) {
 }
 
 export function isAdvisor(user: BoaUser) {
-  return !!$_getDeptCodesWithRoles(user.departments, ['advisor']).length
+  return !!getUserDepartmentsWithRoles(user, ['advisor']).length
 }
 
 export function isAlertGrade(grade: string) {
@@ -231,20 +231,22 @@ export function isAlertGrade(grade: string) {
 }
 
 export function isCoe(user: BoaUser): boolean {
-  const departments: string[] = $_getDeptCodesWithRoles(user.departments, ['advisor', 'director'])
-  return departments.includes('COENG')
+  const departments: BoaUserDepartment[] = getUserDepartmentsWithRoles(user, ['advisor', 'director'])
+  return map(departments, 'deptCode').includes('COENG')
 }
 
-export function isDirector(user: BoaUser) {
-  return !!$_getDeptCodesWithRoles(user.departments, ['director']).length
+export function isDirector(user: BoaUser): boolean {
+  return !!getUserDepartmentsWithRoles(user, ['director']).length
 }
 
-export function isPeerAdvisor(user: BoaUser) {
-  return !!$_getDeptCodesWithRoles(user.departments, ['peer_advisor']).length
+export function isPeerAdvisor(user: BoaUser): boolean {
+  const departments: BoaUserDepartment[] = getUserDepartmentsWithRoles(user, ['peer_advisor'])
+  return !!map(departments, 'deptCode').length
 }
 
 export function isPeerAdvisorManager(user: BoaUser) {
-  return !!$_getDeptCodesWithRoles(user.departments, ['peer_advisor_manager']).length
+  const departments: BoaUserDepartment[] = getUserDepartmentsWithRoles(user, ['peer_advisor_manager'])
+  return !!map(departments, 'deptCode').length
 }
 
 export function lastActivityDays(analytics: object) {
@@ -268,16 +270,29 @@ export function lastActivityDays(analytics: object) {
   }
 }
 
-export function myDeptCodes(roles: DepartmentMembershipRole[]): string[] {
-  return $_getDeptCodesWithRoles(useContextStore().currentUser.departments, roles)
+export function getDeptCodesPerRoles(user: BoaUser, roles: DepartmentMembershipRole[]): string[] {
+  return map(getUserDepartmentsWithRoles(user, roles), 'deptCode')
 }
 
-export function getDeptCodesPerRoles(user: BoaUser, roles: DepartmentMembershipRole[]): string[] {
-  return $_getDeptCodesWithRoles(user.departments, roles)
+export function getUserDepartmentsWithRoles(user: BoaUser, roles: DepartmentMembershipRole[]): BoaUserDepartment[] {
+  const result: BoaUserDepartment[] = []
+  each(user.departments, (department: BoaUserDepartment) => {
+    each(department.memberships, (membership: DepartmentMembership) => {
+      if (roles.includes(membership.role)) {
+        result.push(department)
+      }
+    })
+  })
+  return result
 }
 
 export function isGraduate(student: object) {
   return get(student, 'sisProfile.level.description') === 'Graduate'
+}
+
+export function myDeptCodes(roles: DepartmentMembershipRole[]): string[] {
+  const departments: BoaUserDepartment[] = getUserDepartmentsWithRoles(useContextStore().currentUser, roles)
+  return map(departments, 'deptCode')
 }
 
 export function previousSisTermId(termId: number | string): string {
@@ -367,16 +382,4 @@ export function translateSortByOption(option: string) {
   } else {
     return option.replaceAll('_', ' ')
   }
-}
-
-const $_getDeptCodesWithRoles = (departments: BoaUserDepartment[], roles: DepartmentMembershipRole[]) => {
-  const myDeptCodes: string[] = []
-  each(departments, department => {
-    each(department.memberships, (membership: DepartmentMembership) => {
-      if (roles.includes(membership.role)) {
-        myDeptCodes.push(department.deptCode)
-      }
-    })
-  })
-  return myDeptCodes
 }
