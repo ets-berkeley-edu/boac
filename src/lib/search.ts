@@ -1,4 +1,5 @@
-import {BoaUser, oxfordJoin} from '@/lib/utils'
+import {BoaUser} from '@/lib/types'
+import {oxfordJoin} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
 

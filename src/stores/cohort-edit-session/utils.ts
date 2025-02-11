@@ -1,6 +1,6 @@
-import {Pagination} from '@/lib/utils'
-import {getCohort, getCohortFilterOptions, getStudentsPerFilters, translateToFilterOptions} from '@/api/cohort'
+import {Pagination} from '@/lib/types'
 import {get, size} from 'lodash'
+import {getCohort, getCohortFilterOptions, getStudentsPerFilters, translateToFilterOptions} from '@/api/cohort'
 import {useCohortStore} from '@/stores/cohort-edit-session/index'
 
 export function updateFilterOptions(domain: string, owner: string | undefined, existingFilters: object[]) {

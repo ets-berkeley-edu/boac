@@ -1,4 +1,4 @@
-import {BoaUser} from '@/lib/utils'
+import {BoaUser} from '@/lib/types'
 import {StoreDefinition, defineStore} from 'pinia'
 import {useContextStore} from '@/stores/context'
 

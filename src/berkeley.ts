@@ -1,12 +1,4 @@
-import {
-  BoaUser,
-  BoaUserDepartment,
-  Course,
-  DepartmentMembership,
-  DepartmentMembershipRole,
-  ExportListOption,
-  Section,
-} from '@/lib/utils'
+import {BoaUser, Course, ExportListOption, Section} from '@/lib/types'
 import {DateTime} from 'luxon'
 import {
   capitalize as _capitalize,
@@ -15,13 +7,13 @@ import {
   get,
   includes,
   map,
-  split,
   startsWith,
   toUpper,
-  upperFirst,
   words,
 } from 'lodash'
 import {useContextStore} from '@/stores/context'
+import {myDeptCodes} from '@/lib/berkeley-department'
+import {isCoe} from '@/lib/boa-user'
 
 export function describeCuratedGroupDomain(domain: string, capitalize?: boolean): string {
   const format = s => capitalize ? _capitalize(s) : s
@@ -110,14 +102,6 @@ export function getAdmitCsvExportColumns(): ExportListOption[] {
     {text: 'Last School LCFF+', value: 'last_school_lcff_plus_flag'},
     {text: 'CEP', value: 'special_program_cep'}
   ]
-}
-
-export function getBoaUserRoles(department: BoaUserDepartment): string[] {
-  const roles: string[] = []
-  each(department.memberships, (membership: DepartmentMembership) => {
-    roles.push(upperFirst(split(membership.role, '_').join(' ')))
-  })
-  return roles
 }
 
 export function getCsvExportColumns(domain: string) {
@@ -221,32 +205,9 @@ export function getSectionsWithIncompleteStatus(sections) {
   return filter(sections, 'incompleteStatusCode')
 }
 
-export function isAdvisor(user: BoaUser) {
-  return !!getUserDepartmentsWithRoles(user, ['advisor']).length
-}
-
 export function isAlertGrade(grade: string) {
   // Grades deserving alerts: D(+/-), F, I, NP, RD.
   return grade && /^[DFINR]/.test(grade)
-}
-
-export function isCoe(user: BoaUser): boolean {
-  const departments: BoaUserDepartment[] = getUserDepartmentsWithRoles(user, ['advisor', 'director'])
-  return map(departments, 'deptCode').includes('COENG')
-}
-
-export function isDirector(user: BoaUser): boolean {
-  return !!getUserDepartmentsWithRoles(user, ['director']).length
-}
-
-export function isPeerAdvisor(user: BoaUser): boolean {
-  const departments: BoaUserDepartment[] = getUserDepartmentsWithRoles(user, ['peer_advisor'])
-  return !!map(departments, 'deptCode').length
-}
-
-export function isPeerAdvisorManager(user: BoaUser) {
-  const departments: BoaUserDepartment[] = getUserDepartmentsWithRoles(user, ['peer_advisor_manager'])
-  return !!map(departments, 'deptCode').length
 }
 
 export function lastActivityDays(analytics: object) {
@@ -270,29 +231,8 @@ export function lastActivityDays(analytics: object) {
   }
 }
 
-export function getDeptCodesPerRoles(user: BoaUser, roles: DepartmentMembershipRole[]): string[] {
-  return map(getUserDepartmentsWithRoles(user, roles), 'deptCode')
-}
-
-export function getUserDepartmentsWithRoles(user: BoaUser, roles: DepartmentMembershipRole[]): BoaUserDepartment[] {
-  const result: BoaUserDepartment[] = []
-  each(user.departments, (department: BoaUserDepartment) => {
-    each(department.memberships, (membership: DepartmentMembership) => {
-      if (roles.includes(membership.role)) {
-        result.push(department)
-      }
-    })
-  })
-  return result
-}
-
 export function isGraduate(student: object) {
   return get(student, 'sisProfile.level.description') === 'Graduate'
-}
-
-export function myDeptCodes(roles: DepartmentMembershipRole[]): string[] {
-  const departments: BoaUserDepartment[] = getUserDepartmentsWithRoles(useContextStore().currentUser, roles)
-  return map(departments, 'deptCode')
 }
 
 export function previousSisTermId(termId: number | string): string {

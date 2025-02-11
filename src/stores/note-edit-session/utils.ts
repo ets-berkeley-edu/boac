@@ -1,8 +1,7 @@
-import {Cohort, CuratedGroup} from '@/lib/cohort'
+import {Cohort, CuratedGroup, NoteEditSessionModel, NoteRecipients} from '@/lib/types'
 import {deleteNote, updateNote} from '@/api/notes'
 import {get, isString, map, trim} from 'lodash'
 import {getDistinctSids} from '@/api/student'
-import {NoteEditSessionModel, NoteRecipients} from '@/lib/note'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

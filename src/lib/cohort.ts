@@ -1,19 +1,7 @@
-import {BoaUser} from '@/lib/utils'
+import {BoaUser} from '@/lib/types'
 import {each, get, includes, isEmpty, size, trim} from 'lodash'
-import {myDeptCodes} from '@/berkeley'
+import {myDeptCodes} from '@/lib/berkeley-department'
 import {useContextStore} from '@/stores/context'
-
-export type Cohort = {
-  domain: string,
-  id: number,
-  name: string
-}
-
-export type CuratedGroup = {
-  domain: string,
-  id: number,
-  name: string
-}
 
 const isExistingName = (name: string, id?: number) => {
   const currentUser: BoaUser = useContextStore().currentUser

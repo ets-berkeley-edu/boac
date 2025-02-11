@@ -427,11 +427,11 @@ import {
   size,
   trim
 } from 'lodash'
-import {getDeptCodesPerRoles} from '@/berkeley'
 import {mdiEmail, mdiNoteEditOutline} from '@mdi/js'
 import {mdiLoginVariant, mdiNoteOutline} from '@mdi/js'
 import {ref, watch} from 'vue'
 import {useContextStore} from '@/stores/context'
+import {getDeptCodesPerRoles} from '@/lib/berkeley-department'
 
 const props = defineProps({
   refresh: {

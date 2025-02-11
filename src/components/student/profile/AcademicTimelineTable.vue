@@ -425,7 +425,7 @@ import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
-import {isDirector} from '@/berkeley'
+import {isDirector} from '@/lib/boa-user'
 import {markAppointmentRead} from '@/api/appointments'
 import {
   mdiCalendarMinus,

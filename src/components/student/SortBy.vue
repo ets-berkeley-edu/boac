@@ -35,8 +35,9 @@
 <script setup>
 import {alertScreenReader} from '@/lib/utils'
 import {each, find, get, includes} from 'lodash'
-import {myDeptCodes, previousSisTermId, termNameForSisId} from '@/berkeley'
+import {myDeptCodes} from '@/lib/berkeley-department'
 import {nextTick, ref, watch} from 'vue'
+import {previousSisTermId, termNameForSisId} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
