@@ -6,7 +6,7 @@
     class="bg-grey-lighten-4 border-md mt-1"
     flat
   >
-    <v-card-title class="align-center d-flex">
+    <v-card-title class="align-center d-flex pb-0">
       <h5 class="text-wrap font-size-16">{{ userDepartment.deptName }} ({{ userDepartment.deptCode }})</h5>
       <v-btn
         :id="`remove-userDepartment-${userDepartment.deptCode}`"
@@ -20,42 +20,28 @@
       />
     </v-card-title>
     <v-card-text>
+      <SelectDepartmentMembershipRoles
+        v-model="user"
+        :dept-code="userDepartment.deptCode"
+        :has-peer-advising-departments="hasPeerAdvisingDepartments(allBerkeleyDepartments, userDepartment.deptCode)"
+      />
       <div v-for="membership in userDepartment.memberships" :key="membership.role">
-        <!-- For each membership in the department, manage role. -->
-        <label
-          class="font-weight-black text-medium-emphasis mr-2"
-          :for="`select-department-${userDepartment.deptCode}-role`"
-        >
-          <span v-if="membership.peerAdvisingDepartmentId">Peer Advising Role</span>
-          <span v-if="!membership.peerAdvisingDepartmentId">Role:</span>
-        </label>
-        <div class="align-center d-flex">
-          <SelectDepartmentMembershipRoles
-            v-model="user"
-            :all-berkeley-departments="allBerkeleyDepartments"
-            :membership="membership"
-            :user-department="userDepartment"
-          />
-          <div v-if="membership.role && !membership.peerAdvisingDepartmentId" class="ml-2">
-            <v-checkbox
-              :id="`automate-membership-${userDepartment.deptCode}`"
-              v-model="membership.automateMembership"
-              color="primary"
-              density="compact"
-              hide-details
-              label="Automated"
-            />
-          </div>
-        </div>
-        <v-expand-transition>
-          <ManagePeerAdvisingMembership
-            v-show="membership.role && hasPeerAdvisingDepartments(allBerkeleyDepartments, userDepartment.deptCode)"
-            v-model="user"
-            :all-berkeley-departments="allBerkeleyDepartments"
-            :dept-code="userDepartment.deptCode"
-            :membership="membership"
-          />
-        </v-expand-transition>
+        <v-checkbox
+          v-if="!isPeerAdvisingRole(membership.role)"
+          :id="`automate-membership-${userDepartment.deptCode}`"
+          v-model="membership.automateMembership"
+          color="primary"
+          density="compact"
+          hide-details
+          :label="`Automate ${membership.role} membership`"
+        />
+        <ManagePeerAdvisingMembership
+          v-if="isPeerAdvisingRole(membership.role)"
+          v-model="user"
+          :dept-code="userDepartment.deptCode"
+          :peer-advising-departments="findDepartment(allBerkeleyDepartments, userDepartment.deptCode).peerAdvisingDepartments"
+          :role="membership.role"
+        />
       </div>
     </v-card-text>
   </v-card>
@@ -68,7 +54,7 @@ import {mdiCloseCircleOutline} from '@mdi/js'
 import ManagePeerAdvisingMembership from '@/components/admin/passenger-manifest/ManagePeerAdvisingMembership.vue'
 import SelectDepartmentMembershipRoles from '@/components/admin/passenger-manifest/SelectDepartmentMembershipRoles.vue'
 import type {BoaUser, Department} from '@/lib/types'
-import {hasPeerAdvisingDepartments} from '@/lib/berkeley-department'
+import {findDepartment, hasPeerAdvisingDepartments, isPeerAdvisingRole} from '@/lib/berkeley-department'
 
 const user = defineModel<BoaUser>({
   required: true,
@@ -86,11 +72,3 @@ const removeDepartment = (deptCode: string) => {
   user.value.departments = _filter(user.value.departments, d => d.deptCode !== deptCode)
 }
 </script>
-
-<style scoped>
-.select-department-role {
-  background-color: rgb(var('--v-theme-surface'));
-  min-width: 120px;
-  z-index: 1;
-}
-</style>
