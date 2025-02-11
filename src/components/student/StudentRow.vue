@@ -157,15 +157,15 @@
 </template>
 
 <script setup>
+import {computed, ref} from 'vue'
+import {get, isNil, isUndefined, size} from 'lodash'
+import {mdiAlert, mdiCloseCircle} from '@mdi/js'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentGpaChart from '@/components/student/StudentGpaChart'
 import StudentRowBioColumn from '@/components/student/StudentRowBioColumn'
 import StudentRowCourseActivity from '@/components/student/StudentRowCourseActivity'
-import {computed, ref} from 'vue'
-import {get, isNil, isUndefined, size} from 'lodash'
-import {mdiAlert, mdiCloseCircle} from '@mdi/js'
 import {round} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

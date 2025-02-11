@@ -54,15 +54,16 @@
 <script setup lang="ts">
 import {filter as _filter, each, find, lowerCase, toString} from 'lodash'
 import {mdiCloseCircleOutline} from '@mdi/js'
-import {
+import type {PropType} from 'vue'
+import {onMounted, ref, watch} from 'vue'
+import type {
   BoaUser,
   BoaUserDepartment,
   Department,
   DepartmentMembership,
   PeerAdvisingDepartment
 } from '@/lib/types'
-import {PropType, onMounted, ref, watch} from 'vue'
-import {getBerkeleyDepartment, getUserDepartmentsWithRoles} from '@/lib/berkeley-department'
+import {findDepartment, getUserDepartmentsWithRoles} from '@/lib/berkeley-department'
 
 const user = defineModel<BoaUser>({
   required: true,
@@ -102,7 +103,7 @@ watch(selectPeerAdvisingDepartment, (peerAdvisingDepartment: PeerAdvisingDepartm
 })
 
 onMounted(() => {
-  const berkeleyDepartment = getBerkeleyDepartment(props.allBerkeleyDepartments, props.deptCode)
+  const berkeleyDepartment = findDepartment(props.allBerkeleyDepartments, props.deptCode)
   peerAdvisingDepartments.value = berkeleyDepartment.peerAdvisingDepartments
 })
 const isDepartmentOptionDisabled = (peerAdvisingDepartment: PeerAdvisingDepartment) => {

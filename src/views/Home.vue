@@ -43,10 +43,10 @@
 </template>
 
 <script setup>
-import SortableGroup from '@/components/search/SortableGroup.vue'
-import {getUserProfile} from '@/api/user'
 import {filter as _filter} from 'lodash'
 import {onMounted, reactive} from 'vue'
+import SortableGroup from '@/components/search/SortableGroup.vue'
+import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()

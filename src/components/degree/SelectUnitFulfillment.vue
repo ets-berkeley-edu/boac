@@ -63,10 +63,10 @@
 </template>
 
 <script setup>
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {includes, map, remove, size} from 'lodash'
 import {mdiCloseCircleOutline} from '@mdi/js'
 import {ref} from 'vue'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
 const degreeStore = useDegreeStore()

@@ -211,6 +211,10 @@
 </template>
 
 <script setup>
+import {capitalize, concat, each, extend, get, merge, size, trim} from 'lodash'
+import {computed, onMounted, reactive, ref} from 'vue'
+import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
+import {useRoute, useRouter} from 'vue-router'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
 import AppointmentSnippet from '@/components/search/AppointmentSnippet'
@@ -221,12 +225,8 @@ import SortableAdmits from '@/components/admit/SortableAdmits'
 import SortableCourses from '@/components/search/SortableCourses'
 import SortableStudents from '@/components/search/SortableStudents'
 import {alertScreenReader, putFocusNextTick, toBoolean, toInt} from '@/lib/utils'
-import {capitalize, concat, each, extend, get, merge, size, trim} from 'lodash'
-import {computed, onMounted, reactive, ref} from 'vue'
-import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
 import {search, searchAdmittedStudents} from '@/api/search'
 import {useContextStore} from '@/stores/context'
-import {useRoute, useRouter} from 'vue-router'
 import {useSearchStore} from '@/stores/search'
 
 const contextStore = useContextStore()

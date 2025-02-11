@@ -52,14 +52,14 @@
 </template>
 
 <script setup>
+import {mdiAirplaneTakeoff, mdiGithub} from '@mdi/js'
+import {onMounted, ref} from 'vue'
+import {get} from 'lodash'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement'
 import ManageTopics from '@/components/topics/ManageTopics'
 import {getVersion} from '@/api/config'
-import {mdiAirplaneTakeoff, mdiGithub} from '@mdi/js'
-import {onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {get} from 'lodash'
 
 const BOA = ref({})
 const contextStore = useContextStore()

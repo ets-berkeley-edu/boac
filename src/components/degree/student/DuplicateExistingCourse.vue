@@ -65,12 +65,12 @@
 </template>
 
 <script setup>
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {copyCourse} from '@/api/degree'
 import {mdiPlus} from '@mdi/js'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {computed, ref} from 'vue'
 import {filter as _filter, sortBy} from 'lodash'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {copyCourse} from '@/api/degree'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import ProgressButton from '@/components/util/ProgressButton.vue'

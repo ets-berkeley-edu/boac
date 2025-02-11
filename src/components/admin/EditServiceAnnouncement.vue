@@ -50,12 +50,12 @@
 </template>
 
 <script setup>
+import {onMounted, ref} from 'vue'
+import {trim} from 'lodash'
 import ProgressButton from '@/components/util/ProgressButton'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {getServiceAnnouncement, publishAnnouncement, updateAnnouncement} from '@/api/config'
-import {onMounted, ref} from 'vue'
-import {trim} from 'lodash'
 
 const error = ref(undefined)
 const isPublished = ref(undefined)

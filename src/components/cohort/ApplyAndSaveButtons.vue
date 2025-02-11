@@ -55,16 +55,16 @@
 </template>
 
 <script setup>
+import {get} from 'lodash'
+import {ref} from 'vue'
+import {useRouter} from 'vue-router'
 import CreateCohortModal from '@/components/cohort/CreateCohortModal'
 import ProgressButton from '@/components/util/ProgressButton'
 import {alertScreenReader, pluralize, putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {applyFilters, loadCohort, resetFiltersToLastApply} from '@/stores/cohort-edit-session/utils'
 import {createCohort, saveCohort} from '@/api/cohort'
-import {get} from 'lodash'
-import {ref} from 'vue'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
-import {useRouter} from 'vue-router'
 
 const cohort = useCohortStore()
 const context = useContextStore()

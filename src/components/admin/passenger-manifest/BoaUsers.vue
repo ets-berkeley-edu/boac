@@ -410,10 +410,7 @@
 </template>
 
 <script setup>
-import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
 import {DateTime} from 'luxon'
-import {alertScreenReader, escapeForRegExp, normalizeId, pluralize, putFocusNextTick} from '@/lib/utils'
-import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 import {
   capitalize,
   clone,
@@ -427,9 +424,11 @@ import {
   size,
   trim
 } from 'lodash'
-import {mdiEmail, mdiNoteEditOutline} from '@mdi/js'
-import {mdiLoginVariant, mdiNoteOutline} from '@mdi/js'
+import {mdiEmail, mdiLoginVariant, mdiNoteEditOutline, mdiNoteOutline} from '@mdi/js'
 import {ref, watch} from 'vue'
+import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
+import {alertScreenReader, escapeForRegExp, normalizeId, pluralize, putFocusNextTick} from '@/lib/utils'
+import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
 import {useContextStore} from '@/stores/context'
 import {getDeptCodesPerRoles} from '@/lib/berkeley-department'
 

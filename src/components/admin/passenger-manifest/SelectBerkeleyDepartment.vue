@@ -28,10 +28,11 @@
 </template>
 
 <script setup lang="ts">
-import {PropType, ref, watch} from 'vue'
+import type {PropType} from 'vue'
 import {find, lowerCase} from 'lodash'
 import {mdiCheckBold} from '@mdi/js'
-import {BoaUser, Department} from '@/lib/types'
+import {ref, watch} from 'vue'
+import type {BoaUser, Department} from '@/lib/types'
 
 defineProps({
   allBerkeleyDepartments: {

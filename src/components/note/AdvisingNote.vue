@@ -138,14 +138,14 @@
 </template>
 
 <script setup>
+import {DateTime} from 'luxon'
+import {computed, onMounted, ref, watch} from 'vue'
+import {get, isNil, isNumber, map, orderBy, size} from 'lodash'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import {DateTime} from 'luxon'
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {alertScreenReader, numFormat, oxfordJoin, toInt} from '@/lib/utils'
-import {computed, onMounted, ref, watch} from 'vue'
-import {get, isNil, isNumber, map, orderBy, size} from 'lodash'
 import {getBoaUserRoles} from '@/lib/berkeley-department'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {termNameForSisId} from '@/berkeley'

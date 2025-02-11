@@ -52,9 +52,9 @@
 </template>
 
 <script setup>
-import PillItem from '@/components/util/PillItem'
 import {find} from 'lodash'
 import {ref} from 'vue'
+import PillItem from '@/components/util/PillItem'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({

@@ -1,4 +1,4 @@
-import {NavigationGuardNext, RouteLocation} from 'vue-router'
+import type {NavigationGuardNext, RouteLocation} from 'vue-router'
 import {useContextStore} from '@/stores/context'
 
 

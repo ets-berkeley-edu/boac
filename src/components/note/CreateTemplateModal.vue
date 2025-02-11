@@ -83,11 +83,11 @@
 
 <script setup>
 import FocusLock from 'vue-focus-lock'
+import {ref, watch} from 'vue'
+import {trim} from 'lodash'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {putFocusNextTick} from '@/lib/utils'
-import {ref, watch} from 'vue'
-import {trim} from 'lodash'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
 

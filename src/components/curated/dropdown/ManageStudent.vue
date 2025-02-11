@@ -129,19 +129,18 @@
 </template>
 
 <script setup>
+import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {filter as _filter, clone, difference, includes, map, noop, size, xor} from 'lodash'
+import {mdiCheckBold, mdiCloseThick, mdiMenuDown, mdiPlus} from '@mdi/js'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import {
   addStudentsToCuratedGroups,
   createCuratedGroup,
   removeFromCuratedGroups
 } from '@/api/curated'
-import {alertScreenReader} from '@/lib/utils'
-import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {describeCuratedGroupDomain} from '@/berkeley'
-import {filter as _filter, clone, difference, includes, map, noop, size, xor} from 'lodash'
 import {getUserProfile} from '@/api/user'
-import {mdiCheckBold, mdiCloseThick, mdiMenuDown, mdiPlus} from '@mdi/js'
-import {pluralize, putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

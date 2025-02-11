@@ -25,8 +25,8 @@
 </template>
 
 <script setup lang="ts">
-import ModalHeader from '@/components/util/ModalHeader.vue'
 import {mdiCloseThick} from '@mdi/js'
+import ModalHeader from '@/components/util/ModalHeader.vue'
 
 defineProps({
   onClickClose: {

@@ -33,8 +33,8 @@
 <script setup>
 import {mdiClose} from '@mdi/js'
 import {useTemplateRef} from 'vue'
-import {putFocusNextTick} from '@/lib/utils'
 import {storeToRefs} from 'pinia'
+import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()

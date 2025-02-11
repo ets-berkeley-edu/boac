@@ -1,10 +1,10 @@
 import axios from 'axios'
 import fileDownload from 'js-file-download'
+import {noop} from 'lodash'
 import ga from '@/lib/ga'
 import utils from '@/api/api-utils'
-import {CuratedGroup} from '@/lib/cohort'
+import type {CuratedGroup} from '@/lib/types'
 import {getUserProfile} from '@/api/user'
-import {noop} from 'lodash'
 import {useContextStore} from '@/stores/context'
 
 const $_track = (action, label?) => ga.cohort(action, label)

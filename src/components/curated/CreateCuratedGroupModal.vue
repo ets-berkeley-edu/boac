@@ -73,9 +73,9 @@
 
 <script setup>
 import FocusLock from 'vue-focus-lock'
+import {computed, ref, watch} from 'vue'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {computed, ref, watch} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {putFocusNextTick} from '@/lib/utils'
 import {validateCohortName} from '@/lib/cohort'

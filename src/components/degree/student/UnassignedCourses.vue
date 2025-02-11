@@ -225,13 +225,7 @@
 </template>
 
 <script setup>
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
-import EditCourse from '@/components/degree/student/EditCourse'
-import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
 import {capitalize, get, includes, isNil, map, noop, remove, size} from 'lodash'
-import {deleteCourse} from '@/stores/degree-edit-session/utils'
-import {isAlertGrade} from '@/berkeley'
 import {
   mdiAlert,
   mdiCheckCircleOutline,
@@ -240,10 +234,16 @@ import {
   mdiNoteEditOutline,
   mdiTrashCan
 } from '@mdi/js'
+import {ref} from 'vue'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
+import EditCourse from '@/components/degree/student/EditCourse'
+import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
+import {deleteCourse} from '@/stores/degree-edit-session/utils'
+import {isAlertGrade} from '@/berkeley'
 import {unitsWereEdited} from '@/lib/degree-progress'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {ref} from 'vue'
 
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()

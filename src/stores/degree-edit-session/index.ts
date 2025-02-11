@@ -1,6 +1,7 @@
-import {DegreeProgressCourse, DegreeTemplate, DraggingContext} from '@/lib/types'
-import {StoreDefinition, defineStore} from 'pinia'
+import type {StoreDefinition} from 'pinia'
+import {defineStore} from 'pinia'
 import {get} from 'lodash'
+import type {DegreeProgressCourse, DegreeTemplate, DraggingContext} from '@/lib/types'
 
 function $_getDefaultDraggingContext(): DraggingContext {
   return {

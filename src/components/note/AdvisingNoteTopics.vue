@@ -55,10 +55,10 @@
 </template>
 
 <script setup>
-import PillItem from '@/components/util/PillItem'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {computed, onMounted, ref, watch} from 'vue'
 import {each, find, includes, size} from 'lodash'
+import PillItem from '@/components/util/PillItem'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {getTopicsForNotes} from '@/api/topics'
 import {useNoteStore} from '@/stores/note-edit-session/index'
 

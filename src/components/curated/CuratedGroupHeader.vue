@@ -161,20 +161,19 @@
 </template>
 
 <script setup>
+import {each, find, isNil, map, sortBy} from 'lodash'
+import {onMounted, ref, watch} from 'vue'
+import {storeToRefs} from 'pinia'
+import {useRouter} from 'vue-router'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import RenameCuratedGroup from '@/components/curated/RenameCuratedGroup'
-import {alertScreenReader, pluralize} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
-import {each, find, isNil, map, sortBy} from 'lodash'
-import {onMounted, ref, watch} from 'vue'
-import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
-import {storeToRefs} from 'pinia'
-import {useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
 const curatedStore = useCuratedGroupStore()

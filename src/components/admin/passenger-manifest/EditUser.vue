@@ -41,13 +41,14 @@
 </template>
 
 <script setup lang="ts">
+import type {PropType} from 'vue'
+import {ref} from 'vue'
 import ManageBoaUserDepartments from '@/components/admin/passenger-manifest/ManageBoaUserDepartments.vue'
 import ManageBoaUserPermissions from '@/components/admin/passenger-manifest/ManageBoaUserPermissions.vue'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import SelectBerkeleyDepartment from '@/components/admin/passenger-manifest/SelectBerkeleyDepartment.vue'
-import {BoaUser, Department} from '@/lib/types'
-import {PropType, ref} from 'vue'
+import type {BoaUser, Department} from '@/lib/types'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createOrUpdateUser} from '@/api/user'
 

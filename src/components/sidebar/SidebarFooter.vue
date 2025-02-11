@@ -21,9 +21,9 @@
 </template>
 
 <script setup>
-import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes'
 import {mdiFileDocument} from '@mdi/js'
 import {storeToRefs} from 'pinia'
+import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

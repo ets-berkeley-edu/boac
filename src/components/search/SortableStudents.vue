@@ -156,18 +156,17 @@
 </template>
 
 <script setup>
+import {computed, onMounted, ref} from 'vue'
+import {each, find, get, isNil, isString} from 'lodash'
+import {mdiInformation, mdiSchool} from '@mdi/js'
+import {useDisplay} from 'vuetify'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import PillCount from '@/components/util/PillCount'
 import StudentAvatar from '@/components/student/StudentAvatar'
-import {alertScreenReader, lastNameFirst, numFormat, pluralize, round, studentRoutePath} from '@/lib/utils'
-import {computed, onMounted, ref} from 'vue'
-import {each, find, get, isNil, isString} from 'lodash'
+import {alertScreenReader, lastNameFirst, numFormat, pluralize, round, sortComparator, studentRoutePath} from '@/lib/utils'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
-import {mdiInformation, mdiSchool} from '@mdi/js'
-import {sortComparator} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useDisplay} from 'vuetify'
 
 const props = defineProps({
   compact: {

@@ -116,10 +116,10 @@
 </template>
 
 <script setup>
-import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
-import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding, termNameForSisId} from '@/berkeley'
 import {get} from 'lodash'
 import {mdiSchool} from '@mdi/js'
+import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
+import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding, termNameForSisId} from '@/berkeley'
 import {pluralize} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

@@ -56,9 +56,9 @@
 </template>
 
 <script setup lang="ts">
+import type {PropType} from 'vue'
 import ManageDegreeProgressPermission from '@/components/admin/passenger-manifest/ManageDegreeProgressPermission.vue'
-import {PropType} from 'vue'
-import {BoaUser} from '@/lib/types'
+import type {BoaUser} from '@/lib/types'
 import {isCoe} from '@/lib/boa-user'
 
 const user = defineModel<BoaUser>({

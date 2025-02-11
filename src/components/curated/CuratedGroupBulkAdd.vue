@@ -68,11 +68,11 @@
 </template>
 
 <script setup>
+import {each, partition, split, trim, uniq} from 'lodash'
+import {onMounted, ref} from 'vue'
 import ProgressButton from '@/components/util/ProgressButton'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {describeCuratedGroupDomain} from '@/berkeley'
-import {each, partition, split, trim, uniq} from 'lodash'
-import {onMounted, ref} from 'vue'
 import {validateSids} from '@/api/student'
 
 const props = defineProps({

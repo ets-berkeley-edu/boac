@@ -153,19 +153,19 @@
 </template>
 
 <script setup>
+import {computed, onMounted, ref, watch} from 'vue'
+import {DateTime} from 'luxon'
+import {each, orderBy, size, toString} from 'lodash'
+import {mdiAlert} from '@mdi/js'
+import {useRoute} from 'vue-router'
 import CourseStudents from '@/components/course/CourseStudents'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector.vue'
 import ga from '@/lib/ga'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
-import {computed, onMounted, ref, watch} from 'vue'
-import {DateTime} from 'luxon'
-import {each, orderBy, size, toString} from 'lodash'
 import {getSection} from '@/api/course'
-import {mdiAlert} from '@mdi/js'
 import {pluralize, putFocusNextTick, scrollToTop, setPageTitle, updateWindowLocationParam} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
 
 const DEFAULT_ITEMS_PER_PAGE = 50
 const PAGINATION_OPTIONS = [DEFAULT_ITEMS_PER_PAGE, 100]

@@ -1,6 +1,6 @@
-import {BoaConfig, BoaUser} from '@/lib/types'
 import {event} from 'vue-gtag'
 import {map} from 'lodash'
+import type {BoaConfig, BoaUser} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 
 export function getGtagConfig() {

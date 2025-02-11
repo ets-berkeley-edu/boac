@@ -115,11 +115,11 @@
 </template>
 
 <script setup>
-import StudentGpaChart from '@/components/student/StudentGpaChart'
 import {get, isEmpty, isNil} from 'lodash'
 import {mdiAlert, mdiMenuDown, mdiMenuRight} from '@mdi/js'
-import {round} from '@/lib/utils'
 import {ref} from 'vue'
+import {round} from '@/lib/utils'
+import StudentGpaChart from '@/components/student/StudentGpaChart'
 
 const props = defineProps({
   student: {

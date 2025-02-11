@@ -51,10 +51,10 @@
 </template>
 
 <script setup>
-import StudentUnitsChart from '@/components/student/StudentUnitsChart'
 import {find, get, toString} from 'lodash'
-import {isGraduate} from '@/berkeley'
 import {onMounted, ref} from 'vue'
+import StudentUnitsChart from '@/components/student/StudentUnitsChart'
+import {isGraduate} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

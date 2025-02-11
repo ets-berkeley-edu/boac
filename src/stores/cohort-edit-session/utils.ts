@@ -1,5 +1,5 @@
-import {Pagination} from '@/lib/types'
 import {get, size} from 'lodash'
+import type {Pagination} from '@/lib/types'
 import {getCohort, getCohortFilterOptions, getStudentsPerFilters, translateToFilterOptions} from '@/api/cohort'
 import {useCohortStore} from '@/stores/cohort-edit-session/index'
 

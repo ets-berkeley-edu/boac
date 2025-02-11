@@ -41,17 +41,17 @@
 </template>
 
 <script setup>
+import {computed, onMounted, onUnmounted} from 'vue'
+import {each, get, noop, trim} from 'lodash'
+import {useRoute, useRouter} from 'vue-router'
 import AccessibleCombobox from '@/components/util/AccessibleCombobox'
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
-import {computed, onMounted, onUnmounted} from 'vue'
-import {each, get, noop, trim} from 'lodash'
 import {getAllTopics} from '@/api/topics'
 import {labelForSearchInput} from '@/lib/search'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {useRoute, useRouter} from 'vue-router'
 import {useSearchStore} from '@/stores/search'
 
 const searchStore = useSearchStore()

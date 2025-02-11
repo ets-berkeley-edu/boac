@@ -30,9 +30,9 @@
 </template>
 
 <script setup>
-import {alertScreenReader} from '@/lib/utils'
 import {map} from 'lodash'
 import {nextTick, ref, watch} from 'vue'
+import {alertScreenReader} from '@/lib/utils'
 import {previousSisTermId, termNameForSisId} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 

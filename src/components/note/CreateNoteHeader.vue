@@ -242,17 +242,17 @@
 </template>
 
 <script setup>
-import AreYouSureModal from '@/components/util/AreYouSureModal'
 import FocusLock from 'vue-focus-lock'
+import {computed, ref, watch} from 'vue'
+import {find, get, size, trim} from 'lodash'
+import {mdiClose, mdiMenuDown} from '@mdi/js'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {applyNoteTemplate} from '@/api/notes'
-import {computed, ref, watch} from 'vue'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/utils'
-import {find, get, size, trim} from 'lodash'
-import {mdiClose, mdiMenuDown} from '@mdi/js'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
 

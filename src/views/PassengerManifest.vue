@@ -46,13 +46,14 @@
 </template>
 
 <script setup lang="ts">
-import BoaUsers from '@/components/admin/passenger-manifest/BoaUsers.vue'
-import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
-import {ANONYMOUS_USER, BoaUser, Department, alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {mdiContacts, mdiPlus} from '@mdi/js'
 import {onMounted, ref} from 'vue'
-import {useContextStore} from '@/stores/context'
 import {cloneDeep} from 'lodash'
+import BoaUsers from '@/components/admin/passenger-manifest/BoaUsers.vue'
+import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
+import type {BoaUser, Department} from '@/lib/types'
+import {ANONYMOUS_USER, alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 import {getDepartments} from '@/api/user'
 
 const contextStore = useContextStore()

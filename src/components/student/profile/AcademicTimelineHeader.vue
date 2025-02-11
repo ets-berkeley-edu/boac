@@ -59,11 +59,11 @@
 </template>
 
 <script setup>
-import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import {includes, keys} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
-import {putFocusNextTick} from '@/lib/utils'
 import {ref} from 'vue'
+import {putFocusNextTick} from '@/lib/utils'
+import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

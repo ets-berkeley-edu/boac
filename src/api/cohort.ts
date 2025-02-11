@@ -1,8 +1,8 @@
-import {Cohort} from '@/lib/cohort'
 import axios from 'axios'
 import fileDownload from 'js-file-download'
 import ga from '@/lib/ga'
 import utils from '@/api/api-utils'
+import type {Cohort} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 
 const $_track = (action: string, label?: string) => ga.cohort(action, label)

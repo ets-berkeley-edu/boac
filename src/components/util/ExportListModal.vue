@@ -79,13 +79,13 @@
 </template>
 
 <script setup>
-import FerpaReminder from '@/components/util/FerpaReminder'
 import FocusLock from 'vue-focus-lock'
-import ModalHeader from '@/components/util/ModalHeader'
-import ProgressButton from '@/components/util/ProgressButton'
 import {computed, ref} from 'vue'
 import {includes} from 'lodash'
 import {mdiAlert} from '@mdi/js'
+import ProgressButton from '@/components/util/ProgressButton'
+import ModalHeader from '@/components/util/ModalHeader'
+import FerpaReminder from '@/components/util/FerpaReminder'
 
 const props = defineProps({
   cancel: {

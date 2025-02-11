@@ -80,6 +80,9 @@
 </template>
 
 <script setup>
+import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {useRoute} from 'vue-router'
+import {get} from 'lodash'
 import DebugTemplate from '@/components/degree/DebugTemplate'
 import DuplicateExistingCourse from '@/components/degree/student/DuplicateExistingCourse'
 import StudentDegreeCheckHeader from '@/components/degree/student/StudentDegreeCheckHeader'
@@ -90,11 +93,8 @@ import UnitRequirements from '@/components/degree/UnitRequirements'
 import {setPageTitle} from '@/lib/utils'
 import {getStudentBySid} from '@/api/student'
 import {onDrop, refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
-import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {useRoute} from 'vue-router'
-import {get} from 'lodash'
 
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()

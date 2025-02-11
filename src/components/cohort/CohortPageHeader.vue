@@ -181,20 +181,18 @@
 </template>
 
 <script setup>
+import {get, isUndefined, size} from 'lodash'
+import {ref, watch} from 'vue'
+import {useRouter} from 'vue-router'
+import {storeToRefs} from 'pinia'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import RenameCohort from '@/components/cohort/RenameCohort'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {deleteCohort, downloadCohortCsv, downloadCsv} from '@/api/cohort'
-import {get, isUndefined} from 'lodash'
 import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
-import {pluralize} from '@/lib/utils'
-import {ref, watch} from 'vue'
-import {size} from 'lodash'
 import {useCohortStore} from '@/stores/cohort-edit-session'
-import {useRouter} from 'vue-router'
-import {storeToRefs} from 'pinia'
 
 defineProps({
   isCohortHistoryPage: {

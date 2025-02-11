@@ -89,6 +89,9 @@
 </template>
 
 <script setup>
+import {computed, nextTick, onMounted, onUnmounted, reactive, watch} from 'vue'
+import {get, size, startsWith} from 'lodash'
+import {useRoute} from 'vue-router'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons'
@@ -100,14 +103,10 @@ import SortBy from '@/components/student/SortBy'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import {applyFilters, loadCohort, resetFiltersToLastApply, updateFilterOptions} from '@/stores/cohort-edit-session/utils'
-import {computed, onMounted, onUnmounted, reactive, watch} from 'vue'
-import {get, size, startsWith} from 'lodash'
-import {nextTick} from 'vue'
 import {putFocusNextTick, setPageTitle, toInt} from '@/lib/utils'
 import {translateSortByOption} from '@/berkeley'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
 
 const cohortStore = useCohortStore()
 const contextStore = useContextStore()

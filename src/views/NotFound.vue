@@ -22,8 +22,8 @@
 </template>
 
 <script setup>
-import cloudBackground from '@/assets/404-cloud-background.jpg'
 import {ref} from 'vue'
+import cloudBackground from '@/assets/404-cloud-background.jpg'
 
 const showImage = ref(false)
 

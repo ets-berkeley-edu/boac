@@ -38,13 +38,13 @@
 </template>
 
 <script setup>
+import {compact as _compact, map, partition, size} from 'lodash'
+import {onMounted, ref} from 'vue'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentPersonalDetails from '@/components/student/profile/StudentPersonalDetails'
 import StudentProfileHeaderAcademics from '@/components/student/profile/StudentProfileHeaderAcademics'
 import StudentProfileHeaderBio from '@/components/student/profile/StudentProfileHeaderBio'
-import {compact as _compact, map, partition, size} from 'lodash'
-import {onMounted, ref} from 'vue'
 
 const props = defineProps({
   compact: {

@@ -1,5 +1,5 @@
-import {Attachment, BoaConfig, NoteTemplate} from '@/lib/types'
 import {each, filter, get, isEmpty, size, trim} from 'lodash'
+import type {Attachment, BoaConfig, NoteTemplate} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

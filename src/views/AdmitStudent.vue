@@ -263,15 +263,15 @@
 </template>
 
 <script setup>
-import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
-import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import {computed, onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {get} from 'lodash'
+import {useRoute, useRouter} from 'vue-router'
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
+import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import {getAdmitBySid} from '@/api/admit'
 import {setPageTitle, studentRoutePath, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useRoute, useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
 const router = useRouter()

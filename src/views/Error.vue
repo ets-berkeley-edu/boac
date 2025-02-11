@@ -17,8 +17,8 @@
 
 <script setup>
 import {capitalize} from 'lodash'
-import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'
+import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
 const config = contextStore.config

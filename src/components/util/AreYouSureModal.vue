@@ -39,11 +39,11 @@
 
 <script setup>
 import FocusLock from 'vue-focus-lock'
+import {noop} from 'lodash'
+import {ref, watch} from 'vue'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {noop} from 'lodash'
 import {putFocusNextTick} from '@/lib/utils'
-import {ref, watch} from 'vue'
 
 const props = defineProps({
   buttonLabelCancel: {

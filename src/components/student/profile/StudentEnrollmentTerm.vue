@@ -115,12 +115,12 @@
 
 <script setup>
 import numeral from 'numeral'
+import {DateTime} from 'luxon'
+import {get, isEmpty, isNil, some} from 'lodash'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentCourse from '@/components/student/profile/StudentCourse'
 import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
-import {DateTime} from 'luxon'
 import {displayCoeAcademicStanding} from '@/berkeley'
-import {get, isEmpty, isNil, some} from 'lodash'
 import {round} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

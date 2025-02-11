@@ -60,10 +60,10 @@
 </template>
 
 <script setup>
-import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {mdiCloseCircleOutline} from '@mdi/js'
 import {computed, nextTick, ref, watch} from 'vue'
 import {filter as _filter, includes, map} from 'lodash'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({
   addObject: {

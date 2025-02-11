@@ -101,11 +101,10 @@
 </template>
 
 <script setup>
-import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
-import {alertScreenReader} from '@/lib/utils'
 import {isNil, join, remove} from 'lodash'
-import {isNilOrBlank} from '@/lib/utils'
 import {mdiCloseCircle} from '@mdi/js'
+import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
+import {alertScreenReader, isNilOrBlank} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

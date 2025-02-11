@@ -21,10 +21,10 @@
 </template>
 
 <script setup>
+import {get, size} from 'lodash'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import SortableAdmits from '@/components/admit/SortableAdmits'
-import {get, size} from 'lodash'
 import {pluralize} from '@/lib/utils'
 
 defineProps({

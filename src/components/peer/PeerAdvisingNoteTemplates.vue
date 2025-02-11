@@ -78,9 +78,9 @@
 </template>
 
 <script setup>
-import {alertScreenReader} from '@/lib/utils'
 import {onMounted, ref} from 'vue'
 import {mdiPlus} from '@mdi/js'
+import {alertScreenReader} from '@/lib/utils'
 
 const headers = [
   {align: 'start', key: 'name', title: 'Template Name', width: '60%'},

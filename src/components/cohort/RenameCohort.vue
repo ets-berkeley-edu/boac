@@ -60,13 +60,12 @@
 </template>
 
 <script setup>
-import ProgressButton from '@/components/util/ProgressButton'
-import {alertScreenReader} from '@/lib/utils'
-import {putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {computed, onMounted, ref} from 'vue'
-import {saveCohort} from '@/api/cohort'
 import {size} from 'lodash'
 import {storeToRefs} from 'pinia'
+import ProgressButton from '@/components/util/ProgressButton'
+import {alertScreenReader, putFocusNextTick, setPageTitle} from '@/lib/utils'
+import {saveCohort} from '@/api/cohort'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {validateCohortName} from '@/lib/cohort'
 

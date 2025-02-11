@@ -67,13 +67,13 @@
 </template>
 
 <script setup>
+import {computed, onMounted, ref} from 'vue'
+import {useRoute} from 'vue-router'
 import PeerAdvisingAccountMgmt from '@/components/peer/PeerAdvisingAccountMgmt'
 import PeerAdvisingNoteTemplates from '@/components/peer/PeerAdvisingNoteTemplates'
-import {computed, onMounted, ref} from 'vue'
 import {getPeerAdvisingDepartment} from '@/api/peer-advising'
 import {toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
 

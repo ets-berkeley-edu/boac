@@ -1,10 +1,10 @@
-import {FlatCompat} from '@eslint/eslintrc'
 import {fileURLToPath} from 'node:url'
+import path from 'node:path'
+import {FlatCompat} from '@eslint/eslintrc'
 import {includeIgnoreFile} from '@eslint/compat'
 import {configureVueProject, defineConfigWithVueTs, vueTsConfigs} from '@vue/eslint-config-typescript'
 import globals from 'globals'
 import js from '@eslint/js'
-import path from 'node:path'
 import pluginVue from 'eslint-plugin-vue'
 import parser from 'vue-eslint-parser'
 import * as tsParser from '@typescript-eslint/parser'
@@ -40,9 +40,14 @@ export default [
   ),
   ...compat.extends(
     'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:import/errors',
+    'plugin:import/typescript',
+    'plugin:import/warnings',
     'plugin:vue-scoped-css/vue3-recommended',
-    'plugin:vue/vue3-recommended',
-  ), {
+    'plugin:vue/vue3-recommended'
+  ),
+  {
     languageOptions: {
       globals: {
         ...globals.node,
@@ -53,9 +58,13 @@ export default [
       }
     },
     rules: {
+      '@typescript-eslint/consistent-type-imports': 2,
       '@typescript-eslint/no-unused-vars': 2,
       'array-bracket-spacing': 2,
       eqeqeq: 2,
+      'import/no-duplicates': 2,
+      'import/no-unresolved': 0,
+      'import/order': 2,
       'key-spacing': 2,
       'no-console': 2,
       'no-debugger': 2,
@@ -66,7 +75,7 @@ export default [
       quotes: [2, 'single'],
       semi: [2, 'never'],
       'sort-imports': [
-        'error',
+        2,
         {
           ignoreCase: false,
           ignoreDeclarationSort: true,
@@ -93,11 +102,10 @@ export default [
       'vue/html-self-closing': 0,
       'vue/key-spacing': 2,
       'vue/match-component-file-name': 2,
-      'vue/max-attributes-per-line': ['error', {
+      'vue/max-attributes-per-line': [2, {
         singleline: {
           max: 3,
         },
-
         multiline: {
           max: 1,
         },
@@ -128,11 +136,9 @@ export default [
       'vue/space-unary-ops': 2,
       'vue/this-in-template': 2,
       'vue/valid-next-tick': 1,
-
-      'vue/valid-v-slot': ['error', {
+      'vue/valid-v-slot': [2, {
         allowModifiers: true,
       }],
-
       'vue/v-bind-style': 2,
       'vue/v-on-event-hyphenation': 2,
       'vue/v-on-function-call': 2,

@@ -89,16 +89,16 @@
 </template>
 
 <script setup>
-import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
-import {studentRoutePath} from '@/lib/utils'
 import {DateTime} from 'luxon'
-import {getDegreeChecks} from '@/api/degree'
-import {getStudentByUid} from '@/api/student'
 import {mdiAlert} from '@mdi/js'
-import {useContextStore} from '@/stores/context'
 import {computed, onMounted, ref} from 'vue'
 import {each, isEmpty, size} from 'lodash'
 import {useRoute} from 'vue-router'
+import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
+import {studentRoutePath} from '@/lib/utils'
+import {getDegreeChecks} from '@/api/degree'
+import {getStudentByUid} from '@/api/student'
+import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser

@@ -76,14 +76,14 @@
 </template>
 
 <script setup>
+import {computed, onMounted, ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import {alertScreenReader, setPageTitle, studentRoutePath} from '@/lib/utils'
-import {computed, onMounted, ref} from 'vue'
 import {createDegreeCheck, getDegreeTemplates} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
 import {useContextStore} from '@/stores/context'
-import {useRoute, useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser

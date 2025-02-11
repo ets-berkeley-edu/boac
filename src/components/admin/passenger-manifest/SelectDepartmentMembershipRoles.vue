@@ -1,7 +1,7 @@
 <template>
   <select
-    :id="`select-department-${userDepartment.deptCode}-role`"
-    v-model="membershipRole"
+    :id="`select-department-${deptCode}-role`"
+    v-model="membershipRoles"
     class="select-menu select-department-role"
   >
     <option
@@ -11,10 +11,9 @@
       Select...
     </option>
     <option
-      v-for="option in getMembershipRoleOptions(membership, userDepartment)"
-      :id="`department-role-${lowerCase(option.value)}`"
-      :key="option.value"
-      :disabled="isRoleOptionDisabled(userDepartment.deptCode, option.value)"
+      v-for="option in getMembershipRoleOptions()"
+      :id="`department-role-${option.value.join('-')}`"
+      :key="option.text"
       :value="option.value"
     >
       {{ option.text }}
@@ -23,7 +22,11 @@
 </template>
 
 <script setup lang="ts">
-import {
+import type {PropType} from 'vue'
+import {ref, watch} from 'vue'
+import {each, find, size} from 'lodash'
+import {hasPeerAdvisingDepartments} from '@/lib/berkeley-department'
+import type {
   BoaUser,
   BoaUserDepartment,
   Department,
@@ -31,9 +34,6 @@ import {
   DepartmentMembershipRole,
   SelectOption,
 } from '@/lib/types'
-import {PropType, ref, watch} from 'vue'
-import {hasPeerAdvisingDepartments} from '@/lib/berkeley-department'
-import {filter as _filter, find, lowerCase, map} from 'lodash'
 
 const user = defineModel<BoaUser>({
   required: true,
@@ -45,9 +45,9 @@ const props = defineProps({
     required: true,
     type: Array as PropType<Array<Department>>
   },
-  userDepartment: {
+  deptCode: {
     required: true,
-    type: Object as PropType<BoaUserDepartment>
+    type: String
   },
   membership: {
     required: true,
@@ -55,49 +55,41 @@ const props = defineProps({
   }
 })
 
-const membershipRole = ref<DepartmentMembershipRole | undefined>(undefined)
+const membershipRoles = ref<DepartmentMembershipRole[]>([])
 
-watch(membershipRole, (role: DepartmentMembershipRole | undefined) => {
-  if (role) {
-    const deptCode: string = props.userDepartment.deptCode
-    const department: BoaUserDepartment | undefined = find(user.value.departments, ['deptCode', deptCode])
+watch(membershipRoles, (roles: DepartmentMembershipRole[] | undefined) => {
+  if (size(roles)) {
+    const department: BoaUserDepartment | undefined = find(user.value.departments, ['deptCode', props.deptCode])
     if (department) {
-      const m: DepartmentMembership | undefined = find(department.memberships, ['peerAdvisingDepartmentId', props.membership.peerAdvisingDepartmentId])
-      if (m) {
-        m.role = role
-      }
+      each(roles, (role: DepartmentMembershipRole) => {
+        const membership = {role}
+        const isPeerAdvisingRelated = role.includes('peer')
+        if (isPeerAdvisingRelated) {
+          Object.assign(membership, {
+            peerAdvisingDepartmentId: 0,
+            peerAdvisingDepartmentName: '???'
+          })
+        }
+        department.memberships.push(membership)
+      })
     }
-    membershipRole.value = undefined
+    membershipRoles.value = []
   }
 })
 
-const getMembershipRoleOptions = (membership: DepartmentMembership, userDepartment: BoaUserDepartment): SelectOption[] => {
-  const options: SelectOption[] = []
-  if (hasPeerAdvisingDepartments(props.allBerkeleyDepartments, userDepartment.deptCode)) {
+const getMembershipRoleOptions = (): SelectOption<DepartmentMembershipRole[]>[] => {
+  const options: SelectOption<DepartmentMembershipRole[]>[] = []
+  if (hasPeerAdvisingDepartments(props.allBerkeleyDepartments, props.deptCode)) {
     options.push(
-      {value: 'advisor', text: 'Advisor'},
-      {value: 'peer_advisor', text: 'Advisor + Peer Advisor Manager'},
-      {value: 'director', text: 'Director'},
-      {value: 'peer_advisor', text: 'Director + Peer Advisor Manager'},
-      {value: 'peer_advisor', text: 'Peer Advisor'},
+      {value: ['advisor'], text: 'Advisor'},
+      {value: ['advisor', 'peer_advisor_manager'], text: 'Advisor + Peer Advisor Manager'},
+      {value: ['director'], text: 'Director'},
+      {value: ['director', 'peer_advisor_manager'], text: 'Director + Peer Advisor Manager'},
+      {value: ['peer_advisor'], text: 'Peer Advisor'},
     )
   } else {
-    options.push({value: 'advisor', text: 'Advisor'}, {value: 'director', text: 'Director'})
+    options.push({value: ['advisor'], text: 'Advisor'}, {value: ['director'], text: 'Director'})
   }
   return options
-}
-
-const isRoleOptionDisabled = (deptCode: string, role: string) => {
-  let isDisabled = false
-  const memberships_per_dept_code = _filter(user.value.departments, ['deptCode', deptCode])
-  if (memberships_per_dept_code.length > 1) {
-    const existing_roles = map(memberships_per_dept_code, 'role')
-    if (['advisor', 'director'].includes(role)) {
-      isDisabled = existing_roles.includes('advisor') || existing_roles.includes('director')
-    } else if (role === 'peer_advisor_manager') {
-      isDisabled = existing_roles.includes('peer_advisor_manager')
-    }
-  }
-  return isDisabled
 }
 </script>

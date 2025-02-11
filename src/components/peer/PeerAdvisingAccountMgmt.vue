@@ -73,9 +73,9 @@
 </template>
 
 <script setup>
+import {ref} from 'vue'
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
 import {alertScreenReader} from '@/lib/utils'
-import {ref} from 'vue'
 
 defineProps({
   peerAdvisingDepartment: {

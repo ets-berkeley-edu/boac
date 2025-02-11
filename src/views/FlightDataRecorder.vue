@@ -36,14 +36,14 @@
 </template>
 
 <script setup>
-import NotesReport from '@/components/reports/NotesReport'
-import UserReport from '@/components/reports/UserReport'
 import {computed, onMounted, ref, watch} from 'vue'
 import {find, trim} from 'lodash'
-import {getAvailableDepartmentReports} from '@/api/reports'
 import {mdiAirplane} from '@mdi/js'
-import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'
+import NotesReport from '@/components/reports/NotesReport'
+import UserReport from '@/components/reports/UserReport'
+import {getAvailableDepartmentReports} from '@/api/reports'
+import {useContextStore} from '@/stores/context'
 
 const DEFAULT_DEPT_CODE = 'QCADV'
 

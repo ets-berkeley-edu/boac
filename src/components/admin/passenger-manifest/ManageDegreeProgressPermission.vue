@@ -31,8 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import {PropType} from 'vue'
-import {BoaUser} from '@/lib/types'
+import type {PropType} from 'vue'
+import type {BoaUser} from '@/lib/types'
 
 const user = defineModel<BoaUser>({
   required: true,

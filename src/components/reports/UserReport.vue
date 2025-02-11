@@ -96,12 +96,12 @@
 </template>
 
 <script setup>
-import {getBoaUserRoles} from '@/lib/berkeley-department'
-import {getUsersReport} from '@/api/reports'
 import {mdiEmail} from '@mdi/js'
 import {onMounted, ref, watch} from 'vue'
-import {oxfordJoin} from '@/lib/utils'
 import {DateTime} from 'luxon'
+import {getBoaUserRoles} from '@/lib/berkeley-department'
+import {getUsersReport} from '@/api/reports'
+import {oxfordJoin} from '@/lib/utils'
 
 const props = defineProps({
   department: {

@@ -111,14 +111,14 @@
 </template>
 
 <script setup>
+import {capitalize, isNil, size} from 'lodash'
+import {computed, ref} from 'vue'
+import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import PillCount from '@/components/util/PillCount'
 import SortableStudents from '@/components/search/SortableStudents'
 import {alertScreenReader, pluralize, toInt} from '@/lib/utils'
-import {capitalize, isNil, size} from 'lodash'
-import {computed, ref} from 'vue'
 import {getStudentsWithAlerts as getCohortStudentsWithAlerts} from '@/api/cohort'
 import {getStudentsWithAlerts as getCuratedStudentsWithAlerts} from '@/api/curated'
-import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 
 const props = defineProps({
   compact: {

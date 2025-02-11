@@ -1,6 +1,6 @@
-import {BoaUser, BoaUserDepartment} from '@/lib/types'
-import {getUserDepartmentsWithRoles} from '@/lib/berkeley-department'
 import {map} from 'lodash'
+import type {BoaUser, BoaUserDepartment} from '@/lib/types'
+import {getUserDepartmentsWithRoles} from '@/lib/berkeley-department'
 
 export function isAdvisor(user: BoaUser) {
   return !!getUserDepartmentsWithRoles(user, ['advisor']).length

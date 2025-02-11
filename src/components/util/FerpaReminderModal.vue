@@ -41,11 +41,11 @@
 </template>
 
 <script setup>
-import FerpaReminder from '@/components/util/FerpaReminder'
 import FocusLock from 'vue-focus-lock'
+import {computed, watch} from 'vue'
+import FerpaReminder from '@/components/util/FerpaReminder'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {computed, watch} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({

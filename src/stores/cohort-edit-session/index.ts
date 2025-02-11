@@ -1,5 +1,6 @@
+import type {StoreDefinition} from 'pinia'
 import {cloneDeep, find, isNil, size} from 'lodash'
-import {StoreDefinition, defineStore} from 'pinia'
+import {defineStore} from 'pinia'
 
 const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 

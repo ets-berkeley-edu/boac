@@ -325,16 +325,16 @@
 </template>
 
 <script setup>
+import {each, get, map, size, split, uniq} from 'lodash'
+import {mdiAlert, mdiSchool} from '@mdi/js'
+import {onBeforeMount, onMounted, ref} from 'vue'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
 import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDays} from '@/berkeley'
-import {each, get, map, size, split, uniq} from 'lodash'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
-import {mdiAlert, mdiSchool} from '@mdi/js'
-import {onBeforeMount, onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

@@ -31,9 +31,9 @@
 </template>
 
 <script setup>
-import {alertScreenReader} from '@/lib/utils'
 import {computed} from 'vue'
 import {isUndefined} from 'lodash'
+import {alertScreenReader} from '@/lib/utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 defineProps({

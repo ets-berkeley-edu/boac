@@ -1,5 +1,6 @@
-import {BoaUser} from '@/lib/types'
-import {StoreDefinition, defineStore} from 'pinia'
+import type {StoreDefinition} from 'pinia'
+import {defineStore} from 'pinia'
+import type {BoaUser} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 
 export const useSearchStore: StoreDefinition = defineStore('search', {

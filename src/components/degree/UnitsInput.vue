@@ -75,9 +75,9 @@
 </template>
 
 <script setup>
+import {onMounted, ref} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
 import {MAX_UNITS_ALLOWED, isValidUnits} from '@/lib/degree-progress'
-import {onMounted, ref} from 'vue'
 
 const props = defineProps({
   disable: {

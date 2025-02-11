@@ -70,10 +70,10 @@
 
 <script setup>
 import {DateTime} from 'luxon'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {each} from 'lodash'
 import {mdiCloseCircle} from '@mdi/js'
 import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({
   ariaLabel: {

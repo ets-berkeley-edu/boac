@@ -48,13 +48,13 @@
 </template>
 
 <script setup>
-import DevAuth from '@/components/admin/DevAuth'
-import {getCasLoginURL} from '@/api/auth'
 import {mdiAlert} from '@mdi/js'
 import {nextTick, ref} from 'vue'
 import {trim} from 'lodash'
-import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'
+import {useContextStore} from '@/stores/context'
+import {getCasLoginURL} from '@/api/auth'
+import DevAuth from '@/components/admin/DevAuth'
 
 const config = useContextStore().config
 const error = ref(undefined)
