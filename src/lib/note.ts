@@ -1,41 +1,7 @@
-
-import {BoaConfig} from '@/lib/utils'
-import {Cohort, CuratedGroup} from '@/lib/cohort'
+import {Attachment, BoaConfig, NoteTemplate} from '@/lib/types'
 import {each, filter, get, isEmpty, size, trim} from 'lodash'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-
-export type Attachment = {
-  displayName: string,
-  id: number,
-  name: string,
-  size: number
-}
-
-export type NoteEditSessionModel = {
-  attachments: Attachment[],
-  author: object,
-  body?: string,
-  contactType?: string | null,
-  deleteAttachmentIds: number[],
-  id: number,
-  isDraft: boolean,
-  isPrivate: boolean,
-  setDate?: string,
-  subject?: string,
-  topics: string[]
-}
-
-export type NoteRecipients = {
-  cohorts: Cohort[],
-  curatedGroups: CuratedGroup[],
-  sids: string[]
-}
-
-export type NoteTemplate = {
-  id: number,
-  title: string
-}
 
 export function addFileDropEventListeners(): void {
   const preventFileDropOutsideFormControl = e => {

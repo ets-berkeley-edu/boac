@@ -1,4 +1,4 @@
-import {DegreeProgressCourse, DegreeTemplate, DraggingContext} from '@/lib/degree-progress'
+import {DegreeProgressCourse, DegreeTemplate, DraggingContext} from '@/lib/types'
 import {StoreDefinition, defineStore} from 'pinia'
 import {get} from 'lodash'
 

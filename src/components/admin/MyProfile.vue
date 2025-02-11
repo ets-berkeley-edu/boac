@@ -33,7 +33,7 @@
 
 <script setup>
 import {capitalize, filter, map} from 'lodash'
-import {isCoe} from '@/berkeley'
+import {isCoe} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 
 const currentUser = useContextStore().currentUser

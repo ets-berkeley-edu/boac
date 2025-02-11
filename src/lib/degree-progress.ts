@@ -1,59 +1,6 @@
+import {Category, CourseRequirement, DegreeProgressCourse, DegreeProgressCourses} from '@/lib/types'
 import {concat, each, filter, find, get, includes, isEmpty, isNaN, isNil, map, startsWith} from 'lodash'
 import {useDegreeStore} from '@/stores/degree-edit-session'
-
-export type CourseRequirement = {
-  categoryType: ('Course Requirement' | 'Campus Requirement'),
-  courses: DegreeProgressCourse[],
-  id: number
-}
-
-export type Category = {
-  categoryType: 'Category',
-  courseRequirements: CourseRequirement[],
-  courses: DegreeProgressCourse[],
-  id: number,
-  name: string,
-  subcategories: Category[]
-}
-
-export type DegreeProgressCourse = {
-  id: number,
-  manuallyCreatedAt: string,
-  manuallyCreatedBy: number,
-  sectionId: number,
-  sis: {
-    units: number
-  },
-  termId: number,
-  units: number
-}
-
-export type DegreeProgressCourses = {
-  assigned: DegreeProgressCourse[],
-  unassigned: DegreeProgressCourse[]
-}
-
-export type DraggingContext = {
-  course: DegreeProgressCourse | undefined,
-  dragContext: unknown | undefined,
-  target: unknown | undefined
-}
-
-export type DegreeTemplate = {
-  categories: object[] | undefined,
-  courses: DegreeProgressCourse[] | undefined,
-  createdAt: string | undefined,
-  createdBy: string | undefined,
-  id: number,
-  name: string | undefined,
-  note: string | undefined,
-  parentTemplateId: string | undefined,
-  parentTemplateUpdatedAt: string | undefined,
-  sid: string | undefined,
-  unitRequirements: object[] | undefined,
-  updatedAt: string | undefined,
-  updatedBy: string | undefined
-}
 
 export const MAX_UNITS_ALLOWED = 10
 

@@ -28,10 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import {BoaUser, Department} from '@/lib/utils'
 import {PropType, ref, watch} from 'vue'
 import {find, lowerCase} from 'lodash'
 import {mdiCheckBold} from '@mdi/js'
+import {BoaUser, Department} from '@/lib/types'
 
 defineProps({
   allBerkeleyDepartments: {

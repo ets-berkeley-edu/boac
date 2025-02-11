@@ -1,12 +1,12 @@
-import axios from 'axios'
+import {AxiosError, AxiosResponse, AxiosStatic} from 'axios'
 import router from '@/router'
-import {BoaUser} from '@/lib/utils'
+import {BoaUser} from '@/lib/types'
 import {find, get, includes} from 'lodash'
 import {useContextStore} from '@/stores/context'
 
 const SKIP_REDIRECT_ON_ERROR = ['/api/user/create_or_update']
 
-const axiosErrorHandler = (error: object, axios: axios.AxiosStatic): void => {
+const axiosErrorHandler = (error: object, axios: AxiosStatic): void => {
   const errorStatus = get(error, 'response.status')
   const contextStore = useContextStore()
   const currentUser: BoaUser = contextStore.currentUser
@@ -47,16 +47,16 @@ export function appErrorHandler(error: object, vm: object, info: string) {
   useContextStore().setApplicationState(500, message, stacktrace)
 }
 
-export function initializeAxios(axios: axios.AxiosStatic) {
+export function initializeAxios(axios: AxiosStatic) {
   axios.defaults.withCredentials = true
   axios.interceptors.response.use(
-    (response: axios.AxiosResponse) => response,
-    (error: axios.AxiosError) => {
+    (response: AxiosResponse) => response,
+    (error: AxiosError) => {
       const errorStatus = get(error, 'response.status')
       if (includes([401, 403], errorStatus)) {
         // Refresh user in case his/her session expired.
         const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL
-        return axios.get(`${apiBaseUrl}/api/profile/my`).then((response: axios.AxiosResponse) => {
+        return axios.get(`${apiBaseUrl}/api/profile/my`).then((response: AxiosResponse) => {
           useContextStore().setCurrentUser(response.data)
           axiosErrorHandler(error, axios)
           return Promise.reject(error)

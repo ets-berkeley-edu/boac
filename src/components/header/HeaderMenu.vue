@@ -121,8 +121,9 @@
 
 <script setup>
 import {getCasLogoutUrl} from '@/api/auth'
-import {isPeerAdvisorManager, myDeptCodes} from '@/berkeley'
+import {isPeerAdvisorManager} from '@/lib/boa-user'
 import {mdiMenuDown} from '@mdi/js'
+import {myDeptCodes} from '@/lib/berkeley-department'
 import {reactive, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {useRoute} from 'vue-router'

@@ -1,8 +1,8 @@
-import {BoaUser} from '@/lib/utils'
 import {get, multiply} from 'lodash'
 import {getCuratedGroup} from '@/api/curated'
 import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group/index'
+import {BoaUser} from '@/lib/types'
 
 export function goToCuratedGroup(curatedGroupId: number, pageNumber: number) {
   return new Promise(resolve => {

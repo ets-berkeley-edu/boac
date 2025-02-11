@@ -1,4 +1,4 @@
-import {BoaConfig, BoaUser} from '@/lib/utils'
+import {BoaConfig, BoaUser} from '@/lib/types'
 import {event} from 'vue-gtag'
 import {map} from 'lodash'
 import {useContextStore} from '@/stores/context'

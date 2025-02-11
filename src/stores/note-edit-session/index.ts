@@ -1,4 +1,4 @@
-import {Attachment, NoteEditSessionModel, NoteRecipients, NoteTemplate} from '@/lib/note'
+import {Attachment, NoteEditSessionModel, NoteRecipients, NoteTemplate} from '@/lib/types'
 import {cloneDeep, find, isNil, noop, sortBy} from 'lodash'
 import {StoreDefinition, defineStore} from 'pinia'
 import {onVisibilityChange} from '@/stores/note-edit-session/utils'

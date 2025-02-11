@@ -21,9 +21,6 @@
       <ManageBoaUserPermissions v-model="user" />
       <ManageBoaUserDepartments v-model="user" :all-berkeley-departments="allBerkeleyDepartments" />
       <SelectBerkeleyDepartment v-model="user" :all-berkeley-departments="allBerkeleyDepartments" />
-      <pre>
-        {{ user.departments }}
-      </pre>
     </v-card-text>
     <v-card-actions class="modal-footer">
       <ProgressButton
@@ -49,8 +46,9 @@ import ManageBoaUserPermissions from '@/components/admin/passenger-manifest/Mana
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import SelectBerkeleyDepartment from '@/components/admin/passenger-manifest/SelectBerkeleyDepartment.vue'
-import {BoaUser, Department, alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {BoaUser, Department} from '@/lib/types'
 import {PropType, ref} from 'vue'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createOrUpdateUser} from '@/api/user'
 
 const user = defineModel<BoaUser>({

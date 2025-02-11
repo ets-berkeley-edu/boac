@@ -1,4 +1,4 @@
-import {Category, CourseRequirement, DegreeProgressCourse, DegreeTemplate} from '@/lib/degree-progress'
+import {Category, CourseRequirement, DegreeProgressCourse, DegreeTemplate} from '@/lib/types'
 import {alertScreenReader} from '@/lib/utils'
 import {assignCourse, deleteDegreeCategory, deleteDegreeCourse, getDegreeTemplate} from '@/api/degree'
 import {get, includes, map} from 'lodash'

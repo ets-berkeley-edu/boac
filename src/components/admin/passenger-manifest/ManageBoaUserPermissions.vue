@@ -57,9 +57,9 @@
 
 <script setup lang="ts">
 import ManageDegreeProgressPermission from '@/components/admin/passenger-manifest/ManageDegreeProgressPermission.vue'
-import {BoaUser} from '@/lib/utils'
 import {PropType} from 'vue'
-import {isCoe} from '@/berkeley'
+import {BoaUser} from '@/lib/types'
+import {isCoe} from '@/lib/boa-user'
 
 const user = defineModel<BoaUser>({
   required: true,

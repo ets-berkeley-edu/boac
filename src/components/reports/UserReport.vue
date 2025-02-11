@@ -96,8 +96,8 @@
 </template>
 
 <script setup>
+import {getBoaUserRoles} from '@/lib/berkeley-department'
 import {getUsersReport} from '@/api/reports'
-import {getBoaUserRoles} from '@/berkeley'
 import {mdiEmail} from '@mdi/js'
 import {onMounted, ref, watch} from 'vue'
 import {oxfordJoin} from '@/lib/utils'
