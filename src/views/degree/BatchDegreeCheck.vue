@@ -195,12 +195,7 @@
 </template>
 
 <script setup>
-import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
-import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
-import ProgressButton from '@/components/util/ProgressButton'
-import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {computed, nextTick, onMounted, ref, watch} from 'vue'
-import {createBatchDegreeCheck, getStudents} from '@/api/degree'
 import {
   filter as _filter,
   difference,
@@ -215,10 +210,15 @@ import {
   trim,
   uniq
 } from 'lodash'
-import {getDistinctSids, getStudentsBySids} from '@/api/student'
 import {mdiCloseCircle} from '@mdi/js'
-import {useContextStore} from '@/stores/context'
 import {useRouter} from 'vue-router'
+import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
+import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
+import ProgressButton from '@/components/util/ProgressButton'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
+import {createBatchDegreeCheck, getStudents} from '@/api/degree'
+import {getDistinctSids, getStudentsBySids} from '@/api/student'
+import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser

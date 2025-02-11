@@ -134,20 +134,20 @@
 </template>
 
 <script setup>
+import {computed, onMounted, ref} from 'vue'
+import {filter as _filter, get, isNil, size} from 'lodash'
+import {useRoute} from 'vue-router'
+import {DateTime} from 'luxon'
 import Category from '@/components/degree/Category.vue'
 import CoursesTable from '@/components/degree/CoursesTable.vue'
 import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import {setPageTitle, toBoolean, toInt} from '@/lib/utils'
-import {computed, onMounted, ref} from 'vue'
-import {filter as _filter, get, isNil, size} from 'lodash'
 import {getItemsForCoursesTable} from '@/lib/degree-progress'
 import {getStudentBySid} from '@/api/student'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {useRoute} from 'vue-router'
-import {DateTime} from 'luxon'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser

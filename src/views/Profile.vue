@@ -18,9 +18,9 @@
 </template>
 
 <script setup>
+import {mdiAccountCircle} from '@mdi/js'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import MyProfile from '@/components/admin/MyProfile'
-import {mdiAccountCircle} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 
 const config = useContextStore().config

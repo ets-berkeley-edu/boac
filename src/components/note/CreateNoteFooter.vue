@@ -75,12 +75,12 @@
 </template>
 
 <script setup>
-import ProgressButton from '@/components/util/ProgressButton'
-import SessionExpired from '@/components/note/SessionExpired'
-import {alertScreenReader, invokeIfAuthenticated} from '@/lib/utils'
 import {isEmpty, size, startsWith, trim} from 'lodash'
 import {ref} from 'vue'
 import {storeToRefs} from 'pinia'
+import ProgressButton from '@/components/util/ProgressButton'
+import SessionExpired from '@/components/note/SessionExpired'
+import {alertScreenReader, invokeIfAuthenticated} from '@/lib/utils'
 import {updateAdvisingNote} from '@/stores/note-edit-session/utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 

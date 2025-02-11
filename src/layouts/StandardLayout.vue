@@ -94,6 +94,10 @@
 </template>
 
 <script setup>
+import {onBeforeUnmount, onMounted, ref, useTemplateRef, watch} from 'vue'
+import {get, split} from 'lodash'
+import {storeToRefs} from 'pinia'
+import {useRoute} from 'vue-router'
 import AppBar from '@/layouts/shared/AppBar'
 import AppFooter from '@/layouts/shared/AppFooter'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
@@ -101,13 +105,9 @@ import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
 import Sidebar from '@/components/sidebar/Sidebar'
-import {onBeforeUnmount, onMounted, ref, useTemplateRef, watch} from 'vue'
-import {get, split} from 'lodash'
 import {putFocusNextTick, scrollTo} from '@/lib/utils'
-import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
 const hideFooter = ref(false)

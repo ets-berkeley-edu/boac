@@ -1,5 +1,5 @@
-import utils from '@/api/api-utils'
 import axios from 'axios'
+import utils from '@/api/api-utils'
 
 export function getPeerAdvisingDepartment(peerAdvisingDeptId: number) {
   const url: string = `${utils.apiBaseUrl()}/api/peer/department/${peerAdvisingDeptId}`

@@ -150,16 +150,16 @@
 </template>
 
 <script setup>
+import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue'
+import {DateTime} from 'luxon'
+import {each, find, findIndex, get, size, trim, truncate} from 'lodash'
+import {mdiPaperclip, mdiTrashCan} from '@mdi/js'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import vuetify from '@/plugins/vuetify'
 import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
-import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue'
-import {DateTime} from 'luxon'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
-import {each, find, findIndex, get, size, trim, truncate} from 'lodash'
-import {mdiPaperclip, mdiTrashCan} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

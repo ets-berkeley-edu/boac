@@ -1,9 +1,9 @@
 import axios from 'axios'
+import {each, size, toNumber} from 'lodash'
 import ga from '@/lib/ga'
 import utils from '@/api/api-utils'
-import {each, size, toNumber} from 'lodash'
+import type {NoteEditSessionModel} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
-import {NoteEditSessionModel} from '@/lib/note'
 
 const $_refreshMyDraftNoteCount = () => {
   axios.get(`${utils.apiBaseUrl()}/api/notes/my_draft_note_count`).then(response => {

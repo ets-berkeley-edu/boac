@@ -108,11 +108,7 @@
 </template>
 
 <script setup>
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import EditTopicModal from '@/components/topics/EditTopicModal'
-import {alertScreenReader, normalizeId, putFocusNextTick} from '@/lib/utils'
 import {DateTime} from 'luxon'
-import {deleteTopic, getAllTopics, getUsageStatistics, undeleteTopic} from '@/api/topics'
 import {each, find, isNil} from 'lodash'
 import {
   mdiDeleteRestore,
@@ -120,6 +116,10 @@ import {
   mdiTrashCan
 } from '@mdi/js'
 import {onMounted, ref} from 'vue'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import EditTopicModal from '@/components/topics/EditTopicModal'
+import {alertScreenReader, normalizeId, putFocusNextTick} from '@/lib/utils'
+import {deleteTopic, getAllTopics, getUsageStatistics, undeleteTopic} from '@/api/topics'
 
 const filter = ref(undefined)
 const headers = [

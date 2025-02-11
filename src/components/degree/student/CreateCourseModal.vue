@@ -146,19 +146,19 @@
 </template>
 
 <script setup>
+import FocusLock from 'vue-focus-lock'
+import {mdiPlus} from '@mdi/js'
+import {computed, nextTick, onUnmounted, ref, watch} from 'vue'
+import {isEmpty as _isEmpty, trim} from 'lodash'
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import FocusLock from 'vue-focus-lock'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import UnitsInput from '@/components/degree/UnitsInput'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createCourse} from '@/api/degree'
-import {mdiPlus} from '@mdi/js'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {validateUnitRange} from '@/lib/degree-progress'
-import {computed, nextTick, onUnmounted, ref, watch} from 'vue'
-import {isEmpty as _isEmpty, trim} from 'lodash'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
 const props = defineProps({

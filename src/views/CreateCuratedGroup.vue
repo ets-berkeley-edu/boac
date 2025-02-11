@@ -20,13 +20,13 @@
 </template>
 
 <script setup>
+import {ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain} from '@/berkeley'
-import {ref} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
 
 const domain = useRoute().query.domain || 'default'
 const isSaving = ref(false)

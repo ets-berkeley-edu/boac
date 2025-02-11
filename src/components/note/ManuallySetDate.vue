@@ -22,9 +22,9 @@
 </template>
 
 <script setup>
-import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import {DateTime} from 'luxon'
 import {storeToRefs} from 'pinia'
+import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 defineProps({

@@ -120,13 +120,13 @@
 </template>
 
 <script setup>
+import {mdiMenuDown} from '@mdi/js'
+import {reactive, ref} from 'vue'
+import {useRoute} from 'vue-router'
 import {getCasLogoutUrl} from '@/api/auth'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
-import {mdiMenuDown} from '@mdi/js'
 import {myDeptCodes} from '@/lib/berkeley-department'
-import {reactive, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
 const currentUser = reactive(contextStore.currentUser)

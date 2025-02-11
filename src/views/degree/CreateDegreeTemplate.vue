@@ -55,13 +55,13 @@
 </template>
 
 <script setup>
+import {onMounted, ref, watch} from 'vue'
+import {map, trim} from 'lodash'
+import {useRouter} from 'vue-router'
 import ProgressButton from '@/components/util/ProgressButton'
 import {alertScreenReader} from '@/lib/utils'
 import {createDegreeTemplate, getDegreeTemplates} from '@/api/degree'
-import {onMounted, ref, watch} from 'vue'
-import {map, trim} from 'lodash'
 import {useContextStore} from '@/stores/context'
-import {useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
 const router = useRouter()

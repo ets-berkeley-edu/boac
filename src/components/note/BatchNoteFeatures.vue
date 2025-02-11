@@ -75,11 +75,11 @@
 </template>
 
 <script setup>
+import {capitalize, findIndex, reject, size} from 'lodash'
+import {computed} from 'vue'
 import BatchNoteAddCohort from '@/components/note/BatchNoteAddCohort'
 import BatchNoteAddStudent from '@/components/note/BatchNoteAddStudent'
 import {alertScreenReader, pluralize} from '@/lib/utils'
-import {capitalize, findIndex, reject, size} from 'lodash'
-import {computed} from 'vue'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {setNoteRecipients} from '@/stores/note-edit-session/utils'
 import {useContextStore} from '@/stores/context'

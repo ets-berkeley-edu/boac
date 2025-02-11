@@ -128,11 +128,11 @@
 </template>
 
 <script setup>
-import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
-import {alertScreenReader, goToStudentDegreeChecks} from '@/lib/utils'
 import {each, find, groupBy, includes, map, orderBy, sumBy} from 'lodash'
 import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
 import {onMounted, ref} from 'vue'
+import {alertScreenReader, goToStudentDegreeChecks} from '@/lib/utils'
+import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import {sisIdForTermName} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 

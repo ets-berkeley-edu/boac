@@ -126,6 +126,8 @@
 </template>
 
 <script setup>
+import {computed, onMounted, ref} from 'vue'
+import {isEmpty, map, size, trim} from 'lodash'
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
@@ -133,8 +135,6 @@ import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {updateCourse} from '@/api/degree'
 import {validateUnitRange} from '@/lib/degree-progress'
-import {computed, onMounted, ref} from 'vue'
-import {isEmpty, map, size, trim} from 'lodash'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 

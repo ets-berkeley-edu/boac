@@ -1,6 +1,6 @@
 import axios from 'axios'
-import utils from '@/api/api-utils'
 import {bootstrap, setOptions} from 'vue-gtag'
+import utils from '@/api/api-utils'
 import {getGtagConfig} from '@/lib/ga'
 import {useContextStore} from '@/stores/context'
 

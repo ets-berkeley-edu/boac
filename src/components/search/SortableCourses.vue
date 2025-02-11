@@ -71,9 +71,9 @@
 </template>
 
 <script setup>
-import {alertScreenReader} from '@/lib/utils'
 import {find, size} from 'lodash'
 import {onMounted, ref} from 'vue'
+import {alertScreenReader} from '@/lib/utils'
 
 const props = defineProps({
   courses: {

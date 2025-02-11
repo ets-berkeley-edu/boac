@@ -174,13 +174,13 @@
 </template>
 
 <script setup>
+import {filter as _filter, each, find, get, map, size, sortBy} from 'lodash'
+import {mdiMenuDown, mdiMenuRight, mdiNoteEditOutline, mdiPlus, mdiTrashCan} from '@mdi/js'
+import {onMounted, ref, watch} from 'vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditUnitRequirement from '@/components/degree/EditUnitRequirement'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {deleteUnitRequirement} from '@/api/degree'
-import {filter as _filter, each, find, get, map, size, sortBy} from 'lodash'
-import {mdiMenuDown, mdiMenuRight, mdiNoteEditOutline, mdiPlus, mdiTrashCan} from '@mdi/js'
-import {onMounted, ref, watch} from 'vue'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session'

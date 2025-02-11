@@ -21,12 +21,12 @@
 </template>
 
 <script setup>
-import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelineHeader'
-import AcademicTimelineTable from '@/components/student/profile/AcademicTimelineTable'
 import {DateTime} from 'luxon'
 import {each, find, findIndex, get, keys, remove, size} from 'lodash'
-import {getNote} from '@/api/notes'
 import {onMounted, onUnmounted, ref} from 'vue'
+import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelineHeader'
+import AcademicTimelineTable from '@/components/student/profile/AcademicTimelineTable'
+import {getNote} from '@/api/notes'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

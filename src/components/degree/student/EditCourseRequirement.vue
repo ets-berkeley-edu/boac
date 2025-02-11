@@ -102,6 +102,7 @@
 </template>
 
 <script setup>
+import {computed, onMounted, ref} from 'vue'
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import ProgressButton from '@/components/util/ProgressButton'
 import UnitsInput from '@/components/degree/UnitsInput'
@@ -112,7 +113,6 @@ import {
 } from '@/lib/degree-progress'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {updateCourseRequirement} from '@/api/degree'
-import {computed, onMounted, ref} from 'vue'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
 const props = defineProps({

@@ -1,4 +1,3 @@
-import {BoaUser, Course, ExportListOption, Section} from '@/lib/types'
 import {DateTime} from 'luxon'
 import {
   capitalize as _capitalize,
@@ -11,6 +10,7 @@ import {
   toUpper,
   words,
 } from 'lodash'
+import type {BoaUser, Course, ExportListOption, Section} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 import {myDeptCodes} from '@/lib/berkeley-department'
 import {isCoe} from '@/lib/boa-user'

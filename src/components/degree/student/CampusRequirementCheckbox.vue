@@ -25,13 +25,13 @@
 </template>
 
 <script setup>
-import {putFocusNextTick} from '@/lib/utils'
 import {mdiCheckBold, mdiCloseThick} from '@mdi/js'
+import {ref} from 'vue'
+import {putFocusNextTick} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {toggleCampusRequirement} from '@/api/degree'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {ref} from 'vue'
 
 const props = defineProps({
   campusRequirement: {

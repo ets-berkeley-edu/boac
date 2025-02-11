@@ -151,14 +151,14 @@
 </template>
 
 <script setup>
-import DegreesAwarded from '@/components/student/DegreesAwarded'
-import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import {computed} from 'vue'
 import {DateTime} from 'luxon'
-import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding, termNameForSisId} from '@/berkeley'
 import {get, map, uniq} from 'lodash'
-import {goToStudentDegreeChecks, lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {mdiOpenInNew, mdiSchool} from '@mdi/js'
+import DegreesAwarded from '@/components/student/DegreesAwarded'
+import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
+import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding, termNameForSisId} from '@/berkeley'
+import {goToStudentDegreeChecks, lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

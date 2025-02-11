@@ -1,8 +1,8 @@
 import axios from 'axios'
-import utils from '@/api/api-utils'
 import {get, isNil} from 'lodash'
+import utils from '@/api/api-utils'
+import type {BoaUser} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
-import {BoaUser} from '@/lib/utils'
 
 export function getDepartments(excludeEmpty?: boolean) {
   const url: string = `${utils.apiBaseUrl()}/api/users/departments?excludeEmpty=${excludeEmpty}`

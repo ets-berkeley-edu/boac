@@ -60,13 +60,13 @@
 </template>
 
 <script setup>
+import {computed, onMounted, ref} from 'vue'
+import {size} from 'lodash'
+import {storeToRefs} from 'pinia'
 import ProgressButton from '@/components/util/ProgressButton'
 import {alertScreenReader, putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {describeCuratedGroupDomain} from '@/berkeley'
-import {computed, onMounted, ref} from 'vue'
 import {renameCuratedGroup} from '@/api/curated'
-import {size} from 'lodash'
-import {storeToRefs} from 'pinia'
 import {useCuratedGroupStore} from '@/stores/curated-group/index'
 import {validateCohortName} from '@/lib/cohort'
 

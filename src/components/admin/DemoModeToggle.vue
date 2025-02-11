@@ -46,12 +46,12 @@
 </template>
 
 <script setup>
+import {ref} from 'vue'
+import {isNil} from 'lodash'
 import sampleBlurAvatar from '@/assets/sampleBlurAvatar.jpg'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {ref} from 'vue'
 import {setDemoMode} from '@/api/user'
 import {useContextStore} from '@/stores/context'
-import {isNil} from 'lodash'
 
 const blurAvatarUrl = sampleBlurAvatar
 const currentUser = useContextStore().currentUser

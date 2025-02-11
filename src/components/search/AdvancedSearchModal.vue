@@ -331,22 +331,22 @@
 </template>
 
 <script setup>
-import AccessibleDateInput from '@/components/util/AccessibleDateInput'
-import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
-import AccessibleCombobox from '@/components/util/AccessibleCombobox'
 import FocusLock from 'vue-focus-lock'
-import ProgressButton from '@/components/util/ProgressButton'
-import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
-import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop} from '@/lib/utils'
 import {computed, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {debounce, get, isDate, map, size, trim} from 'lodash'
+import {mdiTune} from '@mdi/js'
+import {useRouter} from 'vue-router'
+import AccessibleDateInput from '@/components/util/AccessibleDateInput'
+import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
+import AccessibleCombobox from '@/components/util/AccessibleCombobox'
+import ProgressButton from '@/components/util/ProgressButton'
+import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
+import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop} from '@/lib/utils'
 import {findStudentsByNameOrSid} from '@/api/student'
 import {labelForSearchInput} from '@/lib/search'
-import {mdiTune} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
-import {useRouter} from 'vue-router'
 
 const getDefaultModel = () => ({
   author: undefined,

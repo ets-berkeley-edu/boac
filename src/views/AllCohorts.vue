@@ -137,15 +137,15 @@
 </template>
 
 <script setup>
-import {alertScreenReader, pluralize, setPageTitle} from '@/lib/utils'
 import {computed, onMounted, ref} from 'vue'
 import {filter as _filter, each, get, isNil, map, startsWith, toLower} from 'lodash'
+import {mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
+import {useRoute} from 'vue-router'
+import {alertScreenReader, pluralize, setPageTitle} from '@/lib/utils'
 import {getDepartments} from '@/api/user'
 import {getUsersWithCohortsByDeptCode} from '@/api/cohort'
 import {getUsersWithCuratedGroupsByDeptCode} from '@/api/curated'
-import {mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
 const countExpandedDepartments = computed(() => _filter(departments.value, ['isOpen', true]).length)

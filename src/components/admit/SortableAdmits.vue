@@ -123,10 +123,10 @@
 </template>
 
 <script setup>
-import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
-import {alertScreenReader} from '@/lib/utils'
 import {concat, find, get, join, map, orderBy, remove} from 'lodash'
 import {onMounted, ref} from 'vue'
+import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
+import {alertScreenReader} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

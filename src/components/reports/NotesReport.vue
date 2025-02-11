@@ -167,11 +167,11 @@
 
 <script setup>
 import {DateTime} from 'luxon'
-import {getBoaNoteCountByMonth, getNotesReport} from '@/api/reports'
 import {mdiChevronDown, mdiChevronRight} from '@mdi/js'
-import {numFormat} from '@/lib/utils'
 import {onMounted, ref} from 'vue'
 import {reverse, sortBy} from 'lodash'
+import {numFormat} from '@/lib/utils'
+import {getBoaNoteCountByMonth, getNotesReport} from '@/api/reports'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

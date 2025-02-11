@@ -179,12 +179,12 @@
 </template>
 
 <script setup>
+import {each, every, filter, get, includes, isEmpty, map, reject, size, some, unionBy} from 'lodash'
+import {computed, onMounted, ref, watch} from 'vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
 import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
-import {each, every, filter, get, includes, isEmpty, map, reject, size, some, unionBy} from 'lodash'
-import {computed, onMounted, ref, watch} from 'vue'
 import {createDegreeCategory, updateCategory} from '@/api/degree'
 import {MAX_UNITS_ALLOWED, findCategoryById, flattenCategories, getItemsForCoursesTable, isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'

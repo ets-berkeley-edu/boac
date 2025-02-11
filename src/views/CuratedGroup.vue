@@ -87,6 +87,10 @@
 </template>
 
 <script setup>
+import {capitalize, get, size} from 'lodash'
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
+import {storeToRefs} from 'pinia'
+import {useRoute, useRouter} from 'vue-router'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd'
@@ -97,14 +101,10 @@ import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import {addStudentsToCuratedGroups, removeFromCuratedGroups} from '@/api/curated'
 import {alertScreenReader, pluralize, putFocusNextTick, scrollTo, setPageTitle, toInt} from '@/lib/utils'
-import {capitalize, get, size} from 'lodash'
-import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
 import {goToCuratedGroup} from '@/stores/curated-group/utils'
-import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
-import {useRoute, useRouter} from 'vue-router'
 
 defineProps({
   id: {

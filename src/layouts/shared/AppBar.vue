@@ -21,10 +21,10 @@
 </template>
 
 <script setup lang="ts">
+import {mdiHome} from '@mdi/js'
 import AdvancedSearch from '@/components/search/AdvancedSearch.vue'
 import HeaderMenu from '@/components/header/HeaderMenu.vue'
 import NavLink from '@/components/util/NavLink.vue'
-import {mdiHome} from '@mdi/js'
 </script>
 
 <style scoped>

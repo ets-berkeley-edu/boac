@@ -103,8 +103,8 @@
 <script setup>
 import {computed} from 'vue'
 import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
-import {putFocusNextTick} from '@/lib/utils'
 import {toNumber} from 'lodash'
+import {putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({
   clickHandler: {

@@ -87,15 +87,14 @@
 </template>
 
 <script setup>
+import {DateTime} from 'luxon'
+import {get, isEmpty} from 'lodash'
+import {onMounted, ref} from 'vue'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning.vue'
 import CohortPageHeader from '@/components/cohort/CohortPageHeader.vue'
 import Pagination from '@/components/util/Pagination'
-import {DateTime} from 'luxon'
-import {get, isEmpty} from 'lodash'
 import {getCohortEvents} from '@/api/cohort'
-import {lastNameFirst, putFocusNextTick, studentRoutePath} from '@/lib/utils'
-import {onMounted, ref} from 'vue'
-import {scrollToTop} from '@/lib/utils'
+import {lastNameFirst, putFocusNextTick, scrollToTop, studentRoutePath} from '@/lib/utils'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
 

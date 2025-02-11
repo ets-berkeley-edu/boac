@@ -28,9 +28,9 @@
 </template>
 
 <script setup>
-import {alertScreenReader} from '@/lib/utils'
 import {computed} from 'vue'
 import {mdiAirplane} from '@mdi/js'
+import {alertScreenReader} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()

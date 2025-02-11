@@ -121,6 +121,10 @@
 </template>
 
 <script setup>
+import {mdiAlert} from '@mdi/js'
+import {onBeforeMount, onMounted, ref, watch} from 'vue'
+import {size, trim} from 'lodash'
+import {storeToRefs} from 'pinia'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
@@ -140,10 +144,6 @@ import {
 } from '@/stores/note-edit-session/utils'
 import {getNote, updateNote} from '@/api/notes'
 import {getUserProfile} from '@/api/user'
-import {mdiAlert} from '@mdi/js'
-import {onBeforeMount, onMounted, ref, watch} from 'vue'
-import {size, trim} from 'lodash'
-import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

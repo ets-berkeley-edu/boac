@@ -117,16 +117,16 @@
 </template>
 
 <script setup>
+import {mdiPlus} from '@mdi/js'
+import {ref} from 'vue'
+import {filter as _filter, get, isNil} from 'lodash'
 import Category from '@/components/degree/Category'
 import CoursesTable from '@/components/degree/CoursesTable'
 import EditCategory from '@/components/degree/EditCategory'
 import {getItemsForCoursesTable} from '@/lib/degree-progress'
-import {mdiPlus} from '@mdi/js'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {ref} from 'vue'
-import {filter as _filter, get, isNil} from 'lodash'
 
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()

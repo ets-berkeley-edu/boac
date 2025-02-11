@@ -30,11 +30,11 @@
 </template>
 
 <script setup>
+import {isNil} from 'lodash'
+import {onMounted, ref} from 'vue'
 import avatarPlaceholder from '@/assets/avatar-50.png'
 import PillCount from '@/components/util/PillCount'
-import {isNil} from 'lodash'
 import {pluralize} from '@/lib/utils'
-import {onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

@@ -243,17 +243,17 @@
 </template>
 
 <script setup>
+import {filter as _filter, clone, get, map, size} from 'lodash'
+import {computed, onMounted, ref} from 'vue'
+import {DateTime} from 'luxon'
+import {mdiPlus} from '@mdi/js'
+import {useRoute} from 'vue-router'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CloneTemplateModal from '@/components/degree/CloneTemplateModal'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {filter as _filter, clone, get, map, size} from 'lodash'
-import {computed, onMounted, ref} from 'vue'
-import {DateTime} from 'luxon'
 import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/api/degree'
-import {mdiPlus} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser

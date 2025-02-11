@@ -133,6 +133,10 @@
 </template>
 
 <script setup>
+import {concat, filter, size, trim, xor, xorBy} from 'lodash'
+import {mdiCloseCircle, mdiSync} from '@mdi/js'
+import {onBeforeUnmount, ref, watch} from 'vue'
+import {storeToRefs} from 'pinia'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
@@ -147,7 +151,6 @@ import RichTextEditor from '@/components/util/RichTextEditor'
 import {addAttachments, createDraftNote, getNote, removeAttachment} from '@/api/notes'
 import {alertScreenReader, invokeIfAuthenticated, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/note-templates'
-import {concat, filter, size, trim, xor, xorBy} from 'lodash'
 import {
   disableFocusLock,
   enableFocusLock,
@@ -158,9 +161,6 @@ import {
   setSubjectPerEvent,
   updateAdvisingNote
 } from '@/stores/note-edit-session/utils'
-import {mdiCloseCircle, mdiSync} from '@mdi/js'
-import {onBeforeUnmount, ref, watch} from 'vue'
-import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

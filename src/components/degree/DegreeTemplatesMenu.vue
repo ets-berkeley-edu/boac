@@ -33,8 +33,8 @@
 </template>
 
 <script setup>
-import {getDegreeTemplates} from '@/api/degree'
 import {onMounted, ref, watch} from 'vue'
+import {getDegreeTemplates} from '@/api/degree'
 
 const props = defineProps({
   onSelect: {

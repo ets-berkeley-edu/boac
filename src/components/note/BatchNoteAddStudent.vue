@@ -77,8 +77,6 @@
 </template>
 
 <script setup>
-import PillItem from '@/components/util/PillItem'
-import {alertScreenReader, putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
 import {
   differenceWith,
   each,
@@ -95,9 +93,11 @@ import {
   uniq,
   without
 } from 'lodash'
-import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 import {mdiPlus} from '@mdi/js'
 import {nextTick, onMounted, onUpdated, ref} from 'vue'
+import PillItem from '@/components/util/PillItem'
+import {alertScreenReader, putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
+import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'

@@ -94,6 +94,9 @@
 </template>
 
 <script setup>
+import {get, map} from 'lodash'
+import {onBeforeUnmount, onMounted, ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
@@ -103,12 +106,9 @@ import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import {alertScreenReader, pluralize, putFocusNextTick, toInt} from '@/lib/utils'
 import {downloadCsv} from '@/api/cohort'
-import {get, map} from 'lodash'
 import {getAdmitCsvExportColumns} from '@/berkeley'
 import {getAllAdmits} from '@/api/admit'
-import {onBeforeUnmount, onMounted, ref} from 'vue'
 import {useContextStore} from '@/stores/context'
-import {useRoute, useRouter} from 'vue-router'
 
 const admits = ref(undefined)
 const contextStore = useContextStore()

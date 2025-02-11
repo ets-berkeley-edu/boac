@@ -281,16 +281,16 @@
 </template>
 
 <script setup>
-import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
 import {DateTime} from 'luxon'
-import {getCalnetProfileByUserId} from '@/api/user'
 import {mdiCloseThick, mdiOpenInNew, mdiPrinter} from '@mdi/js'
+import {computed, onMounted, ref, watch} from 'vue'
+import {each, get, includes} from 'lodash'
+import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
+import {getCalnetProfileByUserId} from '@/api/user'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {updateDegreeNote} from '@/api/degree'
-import {computed, onMounted, ref, watch} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {each, get, includes} from 'lodash'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 
 defineProps({

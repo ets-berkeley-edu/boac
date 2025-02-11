@@ -9,8 +9,8 @@
 </template>
 
 <script setup>
-import {getIncompleteGradeDescription, getSectionsWithIncompleteStatus} from '@/berkeley'
 import {mdiInformation} from '@mdi/js'
+import {getIncompleteGradeDescription, getSectionsWithIncompleteStatus} from '@/berkeley'
 
 const props = defineProps({
   course: {

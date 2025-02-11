@@ -85,15 +85,15 @@
 </template>
 
 <script setup>
+import {mdiNoteEditOutline, mdiTrashCan} from '@mdi/js'
+import {computed, ref} from 'vue'
+import {every, get, isEmpty, size} from 'lodash'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 import {deleteCategory, onDrop} from '@/stores/degree-edit-session/utils'
-import {mdiNoteEditOutline, mdiTrashCan} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {computed, ref} from 'vue'
-import {every, get, isEmpty, size} from 'lodash'
 
 const props = defineProps({
   category: {

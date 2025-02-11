@@ -214,10 +214,6 @@
 </template>
 
 <script setup>
-import AccessibleDateInput from '@/components/util/AccessibleDateInput'
-import FilterSelect from '@/components/cohort/FilterSelect'
-import ProgressButton from '@/components/util/ProgressButton'
-import {useCohortStore} from '@/stores/cohort-edit-session'
 import {
   cloneDeep,
   each,
@@ -235,9 +231,13 @@ import {
   values
 } from 'lodash'
 import {DateTime} from 'luxon'
+import {computed, onMounted, ref, watch} from 'vue'
+import AccessibleDateInput from '@/components/util/AccessibleDateInput'
+import FilterSelect from '@/components/cohort/FilterSelect'
+import ProgressButton from '@/components/util/ProgressButton'
+import {useCohortStore} from '@/stores/cohort-edit-session'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {updateFilterOptions} from '@/stores/cohort-edit-session/utils'
-import {computed, onMounted, ref, watch} from 'vue'
 
 const props = defineProps({
   position: {

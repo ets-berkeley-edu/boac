@@ -62,13 +62,13 @@
 </template>
 
 <script setup lang="ts">
+import type {PropType} from 'vue'
+import {filter as _filter} from 'lodash'
+import {mdiCloseCircleOutline} from '@mdi/js'
 import ManagePeerAdvisingMembership from '@/components/admin/passenger-manifest/ManagePeerAdvisingMembership.vue'
 import SelectDepartmentMembershipRoles from '@/components/admin/passenger-manifest/SelectDepartmentMembershipRoles.vue'
-import {BoaUser, Department} from '@/lib/types'
-import {PropType} from 'vue'
-import {filter as _filter} from 'lodash'
+import type {BoaUser, Department} from '@/lib/types'
 import {hasPeerAdvisingDepartments} from '@/lib/berkeley-department'
-import {mdiCloseCircleOutline} from '@mdi/js'
 
 const user = defineModel<BoaUser>({
   required: true,

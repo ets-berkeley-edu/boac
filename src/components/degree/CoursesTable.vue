@@ -363,25 +363,8 @@
 </template>
 
 <script setup>
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import CampusRequirementCheckbox from '@/components/degree/student/CampusRequirementCheckbox'
-import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
-import CreateCourseModal from '@/components/degree/student/CreateCourseModal'
-import EditCategory from '@/components/degree/EditCategory'
-import EditCourse from '@/components/degree/student/EditCourse'
-import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
-import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
 import {computed, ref} from 'vue'
-import {deleteCategory, deleteCourse, onDrop} from '@/stores/degree-edit-session/utils'
 import {each, every, find, get, includes, isEmpty, isNil, map, remove, size, trim, truncate, xorBy} from 'lodash'
-import {
-  findCategoryById,
-  getAssignedCourses,
-  getCourseKey,
-  isCampusRequirement,
-  unitsWereEdited
-} from '@/lib/degree-progress'
-import {isAlertGrade} from '@/berkeley'
 import {
   mdiAlert,
   mdiCheckCircleOutline,
@@ -391,6 +374,23 @@ import {
   mdiNoteEditOutline,
   mdiTrashCan
 } from '@mdi/js'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import CampusRequirementCheckbox from '@/components/degree/student/CampusRequirementCheckbox'
+import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
+import CreateCourseModal from '@/components/degree/student/CreateCourseModal'
+import EditCategory from '@/components/degree/EditCategory'
+import EditCourse from '@/components/degree/student/EditCourse'
+import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
+import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
+import {deleteCategory, deleteCourse, onDrop} from '@/stores/degree-edit-session/utils'
+import {
+  findCategoryById,
+  getAssignedCourses,
+  getCourseKey,
+  isCampusRequirement,
+  unitsWereEdited
+} from '@/lib/degree-progress'
+import {isAlertGrade} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 

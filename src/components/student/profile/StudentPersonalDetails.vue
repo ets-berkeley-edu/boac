@@ -187,12 +187,12 @@
 </template>
 
 <script setup>
-import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
-import {toInt} from '@/lib/utils'
-import {isGraduate} from '@/berkeley'
 import {mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
 import {find, get, includes, join, orderBy, remove, size} from 'lodash'
 import {ref} from 'vue'
+import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
+import {toInt} from '@/lib/utils'
+import {isGraduate} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

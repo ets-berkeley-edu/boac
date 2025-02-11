@@ -108,9 +108,9 @@
 </template>
 
 <script setup>
-import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import {computed} from 'vue'
 import {each, get} from 'lodash'
+import {mdiAlert} from '@mdi/js'
 import {
   getSectionsWithIncompleteStatus,
   isAlertGrade,
@@ -118,7 +118,7 @@ import {
   setWaitlistedStatus,
   termNameForSisId
 } from '@/berkeley'
-import {mdiAlert} from '@mdi/js'
+import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

@@ -27,15 +27,15 @@
 </template>
 
 <script setup>
+import {computed, onMounted} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import DebugTemplate from '@/components/degree/DebugTemplate'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import {putFocusNextTick, setPageTitle, toInt} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {useContextStore} from '@/stores/context'
-import {computed, onMounted} from 'vue'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
-import {useRoute, useRouter} from 'vue-router'
 
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()

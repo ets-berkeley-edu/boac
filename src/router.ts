@@ -11,30 +11,32 @@ const CuratedGroup = () => import('@/views/CuratedGroup.vue')
 const DegreeTemplate = () => import('@/views/degree/DegreeTemplate.vue')
 const DraftNotes = () => import('@/views/DraftNotes.vue')
 const Error = () => import('@/views/Error.vue')
-const FlightDeck = () => import('@/views/FlightDeck.vue')
 const FlightDataRecorder = () => import('@/views/FlightDataRecorder.vue')
+const FlightDeck = () => import('@/views/FlightDeck.vue')
 const Home = () => import('@/views/Home.vue')
 const Login = () => import('./layouts/Login.vue')
 const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
 const NotFound = () => import('@/views/NotFound.vue')
 const PassengerManifest = () => import('@/views/PassengerManifest.vue')
 const PeerAdvisingLayout = () => import('@/layouts/PeerAdvisingLayout.vue')
-import PeerAdvisor from '@/views/PeerAdvisor.vue'
 const PeerAdvisorManager = () => import('@/views/PeerAdvisorManager.vue')
 const PrintableDegreeTemplate = () => import('@/views/degree/PrintableDegreeTemplate.vue')
 const Profile = () => import('@/views/Profile.vue')
 const SearchResults = () => import('@/views/SearchResults.vue')
-const Student = () => import('@/views/Student.vue')
 const StandardLayout = () => import('@/layouts/StandardLayout.vue')
+const Student = () => import('@/views/Student.vue')
 const StudentDegreeCheck = () => import('@/views/degree/StudentDegreeCheck.vue')
 const StudentDegreeCreate = () => import('@/views/degree/StudentDegreeCreate.vue')
 const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.vue')
-import {BoaUser} from './lib/types'
-import {NavigationGuardNext, RouteLocation, RouteRecordRaw, createRouter, createWebHistory} from 'vue-router'
+import type {NavigationGuardNext, RouteLocation, RouteRecordRaw} from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import {filter, get, includes, size, toString, trim} from 'lodash'
+import type {BoaUser} from './lib/types'
+import PeerAdvisor from '@/views/PeerAdvisor.vue'
+import {isAdvisor, isDirector, isPeerAdvisor, isPeerAdvisorManager} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
-import {isAdvisor, isDirector, isPeerAdvisor, isPeerAdvisorManager} from '@/lib/boa-user'
+
 
 const $_goToLogin = (to: RouteLocation, next: NavigationGuardNext) => {
   next({

@@ -109,11 +109,11 @@
 </template>
 
 <script setup>
-import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import {compact as _compact, each, get, includes, isEmpty, map, size, uniq} from 'lodash'
 import {DateTime} from 'luxon'
-import {isGraduate} from '@/berkeley'
 import {onMounted, ref} from 'vue'
+import {isGraduate} from '@/berkeley'
+import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import {pluralize} from '@/lib/utils'
 
 const props = defineProps({

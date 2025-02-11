@@ -208,15 +208,15 @@
 </template>
 
 <script lang="ts" setup>
+import {filter as _filter, capitalize} from 'lodash'
+import {mdiPlus} from '@mdi/js'
+import {computed} from 'vue'
 import NavLink from '@/components/util/NavLink.vue'
 import PillCount from '@/components/util/PillCount.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
-import {filter as _filter, capitalize} from 'lodash'
 import {describeCuratedGroupDomain} from '@/berkeley'
-import {mdiPlus} from '@mdi/js'
 import {pluralize, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {computed} from 'vue'
 
 const contextStore = useContextStore()
 const myCohorts = computed(() => _filter(contextStore.currentUser.myCohorts, ['domain', 'default']))

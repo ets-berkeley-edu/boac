@@ -37,6 +37,9 @@
 </template>
 
 <script setup>
+import {each, get, noop} from 'lodash'
+import {onBeforeRouteLeave, useRoute} from 'vue-router'
+import {onMounted, reactive, ref} from 'vue'
 import AcademicTimeline from '@/components/student/profile/AcademicTimeline'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import StudentClasses from '@/components/student/profile/StudentClasses'
@@ -45,10 +48,7 @@ import StudentProfileHeader from '@/components/student/profile/StudentProfileHea
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
 import {alertScreenReader, decodeStudentUriAnchor, putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {exitSession} from '@/stores/note-edit-session/utils'
-import {each, get, noop} from 'lodash'
 import {getStudentByUid} from '@/api/student'
-import {onBeforeRouteLeave, useRoute} from 'vue-router'
-import {onMounted, reactive, ref} from 'vue'
 import {setWaitlistedStatus} from '@/berkeley'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {useContextStore} from '@/stores/context'

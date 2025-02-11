@@ -414,19 +414,9 @@
 </template>
 
 <script setup>
-import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
-import AdvisingNote from '@/components/note/AdvisingNote'
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import EditAdvisingNote from '@/components/note/EditAdvisingNote'
-import TimelineDate from '@/components/student/profile/TimelineDate'
-import {alertScreenReader, decodeStudentUriAnchor, oxfordJoin, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {capitalize, each, filter, find, get, includes, isEmpty, map, remove, size, slice, trim, truncate} from 'lodash'
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
-import {deleteNote, getNote, markNoteRead} from '@/api/notes'
-import {dismissStudentAlert} from '@/api/student'
-import {isDirector} from '@/lib/boa-user'
-import {markAppointmentRead} from '@/api/appointments'
 import {
   mdiCalendarMinus,
   mdiCheckBold,
@@ -439,6 +429,16 @@ import {
   mdiMenuUp,
   mdiPaperclip
 } from '@mdi/js'
+import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
+import AdvisingNote from '@/components/note/AdvisingNote'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import EditAdvisingNote from '@/components/note/EditAdvisingNote'
+import TimelineDate from '@/components/student/profile/TimelineDate'
+import {alertScreenReader, decodeStudentUriAnchor, oxfordJoin, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import {deleteNote, getNote, markNoteRead} from '@/api/notes'
+import {dismissStudentAlert} from '@/api/student'
+import {isDirector} from '@/lib/boa-user'
+import {markAppointmentRead} from '@/api/appointments'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session/index'
 

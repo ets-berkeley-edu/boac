@@ -181,18 +181,18 @@
 </template>
 
 <script setup>
-import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import numeral from 'numeral'
-import StudentCourseCanvasData from '@/components/student/profile/StudentCourseCanvasData'
-import vuetify from '@/plugins/vuetify'
 import {computed, nextTick, onMounted, onUnmounted, ref} from 'vue'
 import {get, size, truncate} from 'lodash'
+import {mdiAlert, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
+import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
+import StudentCourseCanvasData from '@/components/student/profile/StudentCourseCanvasData'
+import vuetify from '@/plugins/vuetify'
 import {
   getIncompleteGradeDescription,
   getSectionsWithIncompleteStatus,
   isAlertGrade,
 } from '@/berkeley'
-import {mdiAlert, mdiInformationSlabBox, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {normalizeId} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

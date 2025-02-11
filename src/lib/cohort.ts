@@ -1,5 +1,5 @@
-import {BoaUser} from '@/lib/types'
 import {each, get, includes, isEmpty, size, trim} from 'lodash'
+import type {BoaUser} from '@/lib/types'
 import {myDeptCodes} from '@/lib/berkeley-department'
 import {useContextStore} from '@/stores/context'
 

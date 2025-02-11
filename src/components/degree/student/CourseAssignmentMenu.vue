@@ -80,12 +80,12 @@
 </template>
 
 <script setup>
-import {alertScreenReader} from '@/lib/utils'
-import {assignCourse} from '@/api/degree'
-import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 import {cloneDeep, each, every, includes, isEmpty} from 'lodash'
 import {computed, ref} from 'vue'
 import {mdiDrag} from '@mdi/js'
+import {alertScreenReader} from '@/lib/utils'
+import {assignCourse} from '@/api/degree'
+import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 

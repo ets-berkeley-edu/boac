@@ -1,6 +1,13 @@
 import {each, find, map, split, upperFirst} from 'lodash'
 import {useContextStore} from '@/stores/context'
-import {BoaUser, BoaUserDepartment, Department, DepartmentMembership, DepartmentMembershipRole} from '@/lib/types'
+import type {
+  BoaUser,
+  BoaUserDepartment,
+  Department,
+  DepartmentMembership,
+  DepartmentMembershipRole,
+  HasDeptCode,
+} from '@/lib/types'
 
 export function getBoaUserRoles(department: BoaUserDepartment): string[] {
   const roles: string[] = []
@@ -10,8 +17,8 @@ export function getBoaUserRoles(department: BoaUserDepartment): string[] {
   return roles
 }
 
-export function getBerkeleyDepartment(allBerkeleyDepartments: Department[], deptCode: string): Department {
-  const department = find(allBerkeleyDepartments, ['deptCode', deptCode])
+export function findDepartment<T extends HasDeptCode>(departments: T[], deptCode: string): T {
+  const department = find(departments, ['deptCode', deptCode])
   if (!department) {
     throw new TypeError('Invalid deptCode: ' + deptCode)
   }
@@ -35,7 +42,7 @@ export function getUserDepartmentsWithRoles(user: BoaUser, roles: DepartmentMemb
 }
 
 export function hasPeerAdvisingDepartments(berkeleyDepartments: Department[], deptCode: string): boolean {
-  const berkeleyDepartment = getBerkeleyDepartment(berkeleyDepartments, deptCode)
+  const berkeleyDepartment = findDepartment(berkeleyDepartments, deptCode)
   return !!berkeleyDepartment.peerAdvisingDepartments?.length
 }
 

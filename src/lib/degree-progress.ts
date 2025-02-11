@@ -1,5 +1,5 @@
-import {Category, CourseRequirement, DegreeProgressCourse, DegreeProgressCourses} from '@/lib/types'
 import {concat, each, filter, find, get, includes, isEmpty, isNaN, isNil, map, startsWith} from 'lodash'
+import type {Category, CourseRequirement, DegreeProgressCourse, DegreeProgressCourses} from '@/lib/types'
 import {useDegreeStore} from '@/stores/degree-edit-session'
 
 export const MAX_UNITS_ALLOWED = 10

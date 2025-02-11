@@ -62,10 +62,10 @@
 </template>
 
 <script setup>
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {find, map, toLower} from 'lodash'
 import {mdiSquare} from '@mdi/js'
 import {ref} from 'vue'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

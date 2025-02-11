@@ -1,12 +1,11 @@
 import mitt from 'mitt'
-import router from '@/router'
-import {ANONYMOUS_USER, alertScreenReader} from '@/lib/utils'
-import {BoaConfig, BoaUser, ScreenReaderAlert, ServiceAnnouncement} from '@/lib/types'
-import {Cohort, CuratedGroup} from '@/lib/types'
-import {Handler} from 'mitt'
+import type {Handler} from 'mitt'
 import {defineStore} from 'pinia'
 import {get, noop, sortBy} from 'lodash'
 import {nextTick} from 'vue'
+import {ANONYMOUS_USER, alertScreenReader} from '@/lib/utils'
+import type {BoaConfig, BoaUser, Cohort, CuratedGroup, ScreenReaderAlert, ServiceAnnouncement} from '@/lib/types'
+import router from '@/router'
 
 const $_getDefaultApplicationState = () => ({
   message: undefined as string | undefined,

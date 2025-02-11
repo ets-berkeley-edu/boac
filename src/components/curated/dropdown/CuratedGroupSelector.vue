@@ -127,14 +127,13 @@
 </template>
 
 <script setup>
-import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
-import {addStudentsToCuratedGroups, createCuratedGroup} from '@/api/curated'
-import {alertScreenReader, oxfordJoin, pluralize} from '@/lib/utils'
 import {computed, onMounted, onUnmounted, reactive, ref} from 'vue'
-import {describeCuratedGroupDomain} from '@/berkeley'
 import {filter as _filter, each, find, inRange, map, remove, size} from 'lodash'
 import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
-import {putFocusNextTick} from '@/lib/utils'
+import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
+import {addStudentsToCuratedGroups, createCuratedGroup} from '@/api/curated'
+import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
+import {describeCuratedGroupDomain} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

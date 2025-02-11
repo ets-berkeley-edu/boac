@@ -53,16 +53,16 @@
 </template>
 
 <script setup>
+import {get, split} from 'lodash'
+import {onBeforeUnmount, onMounted, ref, useTemplateRef, watch} from 'vue'
+import {storeToRefs} from 'pinia'
+import {useRoute} from 'vue-router'
 import AppBar from '@/layouts/shared/AppBar'
 import AppFooter from '@/layouts/shared/AppFooter'
 import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
-import {get, split} from 'lodash'
-import {onBeforeUnmount, onMounted, ref, useTemplateRef, watch} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
-import {storeToRefs} from 'pinia'
 import {useContextStore} from '@/stores/context'
-import {useRoute} from 'vue-router'
 
 const contextStore = useContextStore()
 const {loading} = storeToRefs(contextStore)

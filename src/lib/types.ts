@@ -53,10 +53,8 @@ export type BoaUser = {
   uid: string | undefined
 }
 
-export type BoaUserDepartment = {
+export interface BoaUserDepartment extends HasDeptCode {
   id: number,
-  deptCode: string,
-  deptName: string,
   memberships: DepartmentMembership[]
 }
 
@@ -125,10 +123,8 @@ export type DegreeTemplate = {
   updatedBy: string | undefined
 }
 
-export type Department = {
+export interface Department extends HasDeptCode {
   id: number,
-  deptCode: string,
-  deptName: string,
   peerAdvisingDepartments: PeerAdvisingDepartment[]
 }
 
@@ -151,6 +147,11 @@ export type ExportListOption = {
   text: string,
   value: string,
   disabled?: boolean
+}
+
+export interface HasDeptCode {
+  readonly deptCode: string,
+  readonly deptName: string
 }
 
 export type NoteEditSessionModel = {
@@ -201,9 +202,9 @@ export type Section = {
   incompleteStatusCode: string
 }
 
-export type SelectOption = {
+export type SelectOption<T> = {
   text: string,
-  value: string
+  value: T
 }
 
 export type ServiceAnnouncement = {

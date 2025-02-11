@@ -79,12 +79,12 @@
 
 <script setup>
 import FocusLock from 'vue-focus-lock'
+import {computed, onMounted, ref, watch} from 'vue'
+import {map, trim} from 'lodash'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {cloneDegreeTemplate, getDegreeTemplates} from '@/api/degree'
-import {computed, onMounted, ref, watch} from 'vue'
-import {map, trim} from 'lodash'
 
 const props = defineProps({
   cancel: {

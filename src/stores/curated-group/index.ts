@@ -1,6 +1,7 @@
-import {Student} from '@/lib/utils'
-import {StoreDefinition, defineStore} from 'pinia'
+import type {StoreDefinition} from 'pinia'
+import {defineStore} from 'pinia'
 import {find, isNil} from 'lodash'
+import type {Student} from '@/lib/types'
 
 const VALID_MODES = ['bulkAdd', 'rename']
 

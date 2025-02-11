@@ -1,7 +1,7 @@
-import {AxiosError, AxiosResponse, AxiosStatic} from 'axios'
-import router from '@/router'
-import {BoaUser} from '@/lib/types'
+import type {AxiosError, AxiosResponse, AxiosStatic} from 'axios'
 import {find, get, includes} from 'lodash'
+import router from '@/router'
+import type {BoaUser} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 
 const SKIP_REDIRECT_ON_ERROR = ['/api/user/create_or_update']

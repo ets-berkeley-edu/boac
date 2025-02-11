@@ -115,12 +115,12 @@
 </template>
 
 <script setup>
-import PillItem from '@/components/util/PillItem'
-import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
-import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch} from 'vue'
 import {each, size} from 'lodash'
 import {mdiAlert, mdiPaperclip} from '@mdi/js'
+import PillItem from '@/components/util/PillItem'
+import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

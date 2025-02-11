@@ -110,11 +110,11 @@
 </template>
 
 <script setup>
-import PillItem from '@/components/util/PillItem'
 import {computed, onMounted, ref, watch} from 'vue'
 import {get, size} from 'lodash'
-import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {mdiCalendarMinus, mdiPaperclip} from '@mdi/js'
+import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
+import PillItem from '@/components/util/PillItem'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
