@@ -4,15 +4,16 @@
     max-width="500"
     min-width="500"
   >
-    <v-card-title>
+    <v-card-title class="pb-0">
       <ModalHeader :text="user.id ? user.name : 'Create User'" />
     </v-card-title>
     <v-card-text class="modal-body">
-      <div v-if="!user.id" class="align-center d-flex pb-3">
+      <div v-if="!user.id" class="align-center d-flex mb-2">
         <label class="font-size-18 mr-2" for="uid-input">UID:</label>
         <v-text-field
           id="uid-input"
           v-model="user.uid"
+          density="compact"
           hide-details
           maxlength="10"
           max-width="140"

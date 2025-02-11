@@ -8,7 +8,7 @@
         id="department-select-list"
         v-model="department"
         aria-label="Department"
-        class="select-menu w-100"
+        class="select-menu"
       >
         <option id="department-null" :value="undefined">
           Select Department...
@@ -54,7 +54,7 @@ watch(department, (value: Department | undefined) => {
       id: value.id,
       deptCode: value.deptCode,
       deptName: value.deptName,
-      memberships: [{role: undefined}]
+      memberships: []
     })
     department.value = undefined
   }

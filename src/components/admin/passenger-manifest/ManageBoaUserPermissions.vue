@@ -4,55 +4,52 @@
       <v-checkbox
         id="is-admin"
         v-model="user.isAdmin"
-        density="compact"
-        label="Admin"
         color="primary"
+        density="compact"
         :hide-details="true"
+        label="Admin"
       />
       <v-checkbox
         id="is-blocked"
         v-model="user.isBlocked"
-        density="compact"
         color="primary"
-        label="Blocked"
+        density="compact"
         :hide-details="true"
+        label="Blocked"
       />
       <v-checkbox
         v-if="user.id"
         id="is-deleted"
         v-model="user.deletedAt"
-        density="compact"
         color="primary"
+        density="compact"
+        :hide-details="true"
         label="Deleted"
         :value="Date()"
-        :hide-details="true"
       />
     </div>
     <div>
       <v-checkbox
         id="can-access-canvas-data"
         v-model="user.canAccessCanvasData"
-        density="compact"
         color="primary"
-        label="Canvas Data"
+        density="compact"
         :hide-details="true"
+        label="Canvas Data"
       />
       <v-checkbox
         id="can-access-advising-data"
         v-model="user.canAccessAdvisingData"
-        density="compact"
         color="primary"
-        label="Notes and Appointments"
+        density="compact"
         :hide-details="true"
+        label="Notes and Appointments"
       />
     </div>
   </div>
-  <div class="mt-3">
-    <ManageDegreeProgressPermission
-      v-if="isCoe(user) || user.degreeProgressPermission"
-      v-model="user"
-    />
-  </div>
+  <v-expand-transition class="mt-1">
+    <ManageDegreeProgressPermission v-show="isCoe(user) || user.degreeProgressPermission" v-model="user" />
+  </v-expand-transition>
 </template>
 
 <script setup lang="ts">

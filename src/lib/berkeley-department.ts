@@ -20,9 +20,17 @@ export function getBoaUserRoles(department: BoaUserDepartment): string[] {
 export function findDepartment<T extends HasDeptCode>(departments: T[], deptCode: string): T {
   const department = find(departments, ['deptCode', deptCode])
   if (!department) {
-    throw new TypeError('Invalid deptCode: ' + deptCode)
+    throw new TypeError(`Invalid deptCode: ${deptCode}`)
   }
   return department
+}
+
+export function findMembership(department: BoaUserDepartment, role: DepartmentMembershipRole): DepartmentMembership {
+  const membership: DepartmentMembership | undefined = find(department.memberships, ['role', role])
+  if (!membership) {
+    throw new TypeError(`BOA user does not have role ${role} in department ${department.deptCode}`)
+  }
+  return membership
 }
 
 export function getDeptCodesPerRoles(user: BoaUser, roles: DepartmentMembershipRole[]): string[] {
@@ -45,6 +53,8 @@ export function hasPeerAdvisingDepartments(berkeleyDepartments: Department[], de
   const berkeleyDepartment = findDepartment(berkeleyDepartments, deptCode)
   return !!berkeleyDepartment.peerAdvisingDepartments?.length
 }
+
+export const isPeerAdvisingRole = (role: DepartmentMembershipRole): boolean => role.startsWith('peer_')
 
 export function myDeptCodes(roles: DepartmentMembershipRole[]): string[] {
   const departments: BoaUserDepartment[] = getUserDepartmentsWithRoles(useContextStore().currentUser, roles)

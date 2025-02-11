@@ -132,7 +132,7 @@ export type DepartmentMembership = {
   automateMembership?: boolean,
   peerAdvisingDepartmentId?: number,
   peerAdvisingDepartmentName?: string,
-  role: DepartmentMembershipRole | undefined
+  role: DepartmentMembershipRole
 }
 
 export type DepartmentMembershipRole = 'advisor' | 'director' | 'peer_advisor' | 'peer_advisor_manager'
@@ -150,8 +150,8 @@ export type ExportListOption = {
 }
 
 export interface HasDeptCode {
-  readonly deptCode: string,
-  readonly deptName: string
+  deptCode: string,
+  deptName: string
 }
 
 export type NoteEditSessionModel = {
