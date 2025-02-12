@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import {mdiContacts, mdiPlus} from '@mdi/js'
-import {onMounted, ref} from 'vue'
+import {nextTick, onMounted, ref} from 'vue'
 import {cloneDeep} from 'lodash'
 import BoaUsers from '@/components/admin/passenger-manifest/BoaUsers.vue'
 import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
@@ -74,8 +74,10 @@ onMounted(() => {
 const onCancelEditUser = () => {
   isCreatingNewUser.value = false
   alertScreenReader('Canceled')
-  newUser.value = cloneDeep(ANONYMOUS_USER)
-  putFocusNextTick('add-new-user-btn')
+  nextTick(() => {
+    newUser.value = cloneDeep(ANONYMOUS_USER)
+    putFocusNextTick('add-new-user-btn')
+  })
 }
 
 const onCreateUser = name => {

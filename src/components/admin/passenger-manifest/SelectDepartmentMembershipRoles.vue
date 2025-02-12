@@ -33,12 +33,13 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {onMounted, ref, watch} from 'vue'
-import {each, size} from 'lodash'
+import {each, map, size} from 'lodash'
+import {ref, watch} from 'vue'
 import {findDepartment} from '@/lib/berkeley-department'
 import type {
   BoaUser,
   BoaUserDepartment,
+  DepartmentMembership,
   DepartmentMembershipRole,
   SelectOption,
 } from '@/lib/types'
@@ -59,27 +60,22 @@ const props = defineProps({
   }
 })
 
-const membershipRoles = ref<DepartmentMembershipRole[]>([])
-const options = ref<SelectOption<DepartmentMembershipRole[]>[]>([])
+const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
+const membershipRoles = ref<DepartmentMembershipRole[]>(map<DepartmentMembership, DepartmentMembershipRole>(department.memberships, m => m.role))
+const options: SelectOption<DepartmentMembershipRole[]>[] = props.hasPeerAdvisingDepartments ?
+  [
+    {value: ['advisor'], text: 'Advisor'},
+    {value: ['advisor', 'peer_advisor_manager'], text: 'Advisor + Peer Advisor Manager'},
+    {value: ['director'], text: 'Director'},
+    {value: ['director', 'peer_advisor_manager'], text: 'Director + Peer Advisor Manager'},
+    {value: ['peer_advisor'], text: 'Peer Advisor'}
+  ] :
+  [{value: ['advisor'], text: 'Advisor'}, {value: ['director'], text: 'Director'}]
 
 watch(membershipRoles, (roles: DepartmentMembershipRole[]) => {
   if (size(roles)) {
-    const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
+    department.memberships = []
     each(roles, (role: DepartmentMembershipRole) => department.memberships.push({role}))
-  }
-})
-
-onMounted(() => {
-  if (props.hasPeerAdvisingDepartments) {
-    options.value.push(
-      {value: ['advisor'], text: 'Advisor'},
-      {value: ['advisor', 'peer_advisor_manager'], text: 'Advisor + Peer Advisor Manager'},
-      {value: ['director'], text: 'Director'},
-      {value: ['director', 'peer_advisor_manager'], text: 'Director + Peer Advisor Manager'},
-      {value: ['peer_advisor'], text: 'Peer Advisor'},
-    )
-  } else {
-    options.value.push({value: ['advisor'], text: 'Advisor'}, {value: ['director'], text: 'Director'})
   }
 })
 </script>

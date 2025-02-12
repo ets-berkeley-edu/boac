@@ -27,7 +27,7 @@
       <ProgressButton
         id="save-changes-to-user-profile"
         :action="save"
-        :disabled="isSaving || !role || !user.uid"
+        :disabled="isSaveButtonDisabled"
         :in-progress="isSaving"
         :text="isSaving ? 'Saving' : 'Save'"
       />
@@ -43,15 +43,17 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {ref} from 'vue'
+import {computed, ref} from 'vue'
+import {each, size} from 'lodash'
 import ManageBoaUserDepartments from '@/components/admin/passenger-manifest/ManageBoaUserDepartments.vue'
 import ManageBoaUserPermissions from '@/components/admin/passenger-manifest/ManageBoaUserPermissions.vue'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import SelectBerkeleyDepartment from '@/components/admin/passenger-manifest/SelectBerkeleyDepartment.vue'
-import type {BoaUser, Department} from '@/lib/types'
+import type {BoaUser, BoaUserDepartment, Department, DepartmentMembership} from '@/lib/types'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createOrUpdateUser} from '@/api/user'
+import {isPeerAdvisingRole} from '@/lib/berkeley-department'
 
 const user = defineModel<BoaUser>({
   required: true,
@@ -74,12 +76,33 @@ const props = defineProps({
 })
 
 const isSaving = ref(false)
-const role = ref(undefined)
 
+const isSaveButtonDisabled = computed(() => {
+  let disabled = false
+  const departments = user.value.departments
+  if (isSaving.value || !user.value.uid || !size(departments)) {
+    disabled = true
+  } else {
+    each(departments, (department: BoaUserDepartment) => {
+      disabled = !size(department.memberships) || hasMissingRole(department.memberships)
+      return !disabled
+    })
+  }
+  return disabled
+})
 const cancel = () => {
   props.onCancel()
   alertScreenReader('Canceled')
   putFocusNextTick(user.value.id ? `edit-${user.value.uid}` : 'add-new-user-btn')
+}
+
+const hasMissingRole = (memberships: DepartmentMembership[]) => {
+  let hasMissing = false
+  each(memberships, (membership: DepartmentMembership) => {
+    hasMissing = !membership.role || (isPeerAdvisingRole(membership.role) && !membership.peerAdvisingDepartmentId)
+    return !hasMissing
+  })
+  return hasMissing
 }
 
 const save = () => {
