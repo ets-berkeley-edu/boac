@@ -157,7 +157,7 @@ import ProgressButton from '@/components/util/ProgressButton'
 import UnitsInput from '@/components/degree/UnitsInput'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createCourse} from '@/api/degree'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {validateUnitRange} from '@/lib/degree-progress'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 

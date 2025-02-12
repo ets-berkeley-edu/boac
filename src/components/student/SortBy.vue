@@ -37,7 +37,7 @@ import {each, find, get, includes} from 'lodash'
 import {nextTick, ref, watch} from 'vue'
 import {alertScreenReader} from '@/lib/utils'
 import {myDeptCodes} from '@/lib/berkeley-department'
-import {previousSisTermId, termNameForSisId} from '@/berkeley'
+import {previousSisTermId, termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

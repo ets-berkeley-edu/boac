@@ -33,7 +33,7 @@
 import {map} from 'lodash'
 import {nextTick, ref, watch} from 'vue'
 import {alertScreenReader} from '@/lib/utils'
-import {previousSisTermId, termNameForSisId} from '@/berkeley'
+import {previousSisTermId, termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 
 defineProps({

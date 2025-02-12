@@ -119,7 +119,7 @@
 import {get} from 'lodash'
 import {mdiSchool} from '@mdi/js'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
-import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding, termNameForSisId} from '@/berkeley'
+import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding, termNameForSisId} from '@/lib/berkeley-utils'
 import {pluralize} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

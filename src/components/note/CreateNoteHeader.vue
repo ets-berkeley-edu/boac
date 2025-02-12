@@ -252,7 +252,7 @@ import ProgressButton from '@/components/util/ProgressButton.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {applyNoteTemplate} from '@/api/notes'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
-import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/utils'
+import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/note-edit-session-utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
 

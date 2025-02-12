@@ -33,7 +33,7 @@ import DebugTemplate from '@/components/degree/DebugTemplate'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import {putFocusNextTick, setPageTitle, toInt} from '@/lib/utils'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 

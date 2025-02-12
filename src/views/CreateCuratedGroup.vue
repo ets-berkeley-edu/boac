@@ -26,7 +26,7 @@ import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModa
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createCuratedGroup} from '@/api/curated'
-import {describeCuratedGroupDomain} from '@/berkeley'
+import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
 
 const domain = useRoute().query.domain || 'default'
 const isSaving = ref(false)

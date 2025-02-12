@@ -111,7 +111,7 @@ import {
   isCampusRequirement as _isCampusRequirement,
   validateUnitRange
 } from '@/lib/degree-progress'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {updateCourseRequirement} from '@/api/degree'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 

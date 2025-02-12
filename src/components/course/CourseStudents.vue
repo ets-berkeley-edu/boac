@@ -333,7 +333,7 @@ import DegreesAwarded from '@/components/student/DegreesAwarded'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
-import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDays} from '@/berkeley'
+import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDays} from '@/lib/berkeley-utils'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

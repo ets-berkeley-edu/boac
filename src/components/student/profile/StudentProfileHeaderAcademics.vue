@@ -112,7 +112,7 @@
 import {compact as _compact, each, get, includes, isEmpty, map, size, uniq} from 'lodash'
 import {DateTime} from 'luxon'
 import {onMounted, ref} from 'vue'
-import {isGraduate} from '@/berkeley'
+import {isGraduate} from '@/lib/berkeley-utils'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import {pluralize} from '@/lib/utils'
 

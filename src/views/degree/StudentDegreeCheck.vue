@@ -92,7 +92,7 @@ import UnassignedCourses from '@/components/degree/student/UnassignedCourses'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import {setPageTitle} from '@/lib/utils'
 import {getStudentBySid} from '@/api/student'
-import {onDrop, refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {onDrop, refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 

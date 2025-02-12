@@ -187,7 +187,7 @@ import UnitsInput from '@/components/degree/UnitsInput'
 import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
 import {createDegreeCategory, updateCategory} from '@/api/degree'
 import {MAX_UNITS_ALLOWED, findCategoryById, flattenCategories, getItemsForCoursesTable, isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {useContextStore} from '@/stores/context'
 
