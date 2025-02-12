@@ -160,7 +160,7 @@ import {
   setNoteRecipient,
   setSubjectPerEvent,
   updateAdvisingNote
-} from '@/stores/note-edit-session/utils'
+} from '@/stores/note-edit-session/note-edit-session-utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

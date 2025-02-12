@@ -133,7 +133,7 @@ import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight, mdiOpenInNe
 import {onMounted, ref} from 'vue'
 import {alertScreenReader, goToStudentDegreeChecks} from '@/lib/utils'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
-import {sisIdForTermName} from '@/berkeley'
+import {sisIdForTermName} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

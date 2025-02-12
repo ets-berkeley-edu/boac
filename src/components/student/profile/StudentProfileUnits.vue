@@ -54,7 +54,7 @@
 import {find, get, toString} from 'lodash'
 import {onMounted, ref} from 'vue'
 import StudentUnitsChart from '@/components/student/StudentUnitsChart'
-import {isGraduate} from '@/berkeley'
+import {isGraduate} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

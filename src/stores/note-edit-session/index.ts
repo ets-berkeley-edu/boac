@@ -2,7 +2,7 @@ import type {StoreDefinition} from 'pinia'
 import {cloneDeep, find, isNil, noop, sortBy} from 'lodash'
 import {defineStore} from 'pinia'
 import type {Attachment, NoteEditSessionModel, NoteRecipients, NoteTemplate} from '@/lib/types'
-import {onVisibilityChange} from '@/stores/note-edit-session/utils'
+import {onVisibilityChange} from '@/stores/note-edit-session/note-edit-session-utils'
 
 const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
 

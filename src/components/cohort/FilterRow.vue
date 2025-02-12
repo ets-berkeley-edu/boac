@@ -237,7 +237,7 @@ import FilterSelect from '@/components/cohort/FilterSelect'
 import ProgressButton from '@/components/util/ProgressButton'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {updateFilterOptions} from '@/stores/cohort-edit-session/utils'
+import {updateFilterOptions} from '@/stores/cohort-edit-session/cohort-edit-session-utils'
 
 const props = defineProps({
   position: {

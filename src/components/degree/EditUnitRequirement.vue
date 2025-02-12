@@ -94,7 +94,7 @@ import {filter as _filter, get, isEmpty, map, trim} from 'lodash'
 import UnitsInput from '@/components/degree/UnitsInput'
 import {addUnitRequirement, updateUnitRequirement} from '@/api/degree'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {validateUnitRange} from '@/lib/degree-progress'
 

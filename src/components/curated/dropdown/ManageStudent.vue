@@ -139,7 +139,7 @@ import {
   removeFromCuratedGroups
 } from '@/api/curated'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
-import {describeCuratedGroupDomain} from '@/berkeley'
+import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
 import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 

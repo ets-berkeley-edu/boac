@@ -148,7 +148,7 @@ import {addAttachments, removeAttachment} from '@/api/notes'
 import {alertScreenReader, numFormat, oxfordJoin, toInt} from '@/lib/utils'
 import {getBoaUserRoles} from '@/lib/berkeley-department'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
-import {termNameForSisId} from '@/berkeley'
+import {termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

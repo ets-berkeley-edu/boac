@@ -13,7 +13,7 @@
 
 <script setup>
 import {get} from 'lodash'
-import {sisIdForTermName, termNameForSisId} from '@/berkeley'
+import {sisIdForTermName, termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

@@ -141,7 +141,7 @@ import {
   scheduleAutoSaveJob,
   setNoteRecipient,
   setSubjectPerEvent
-} from '@/stores/note-edit-session/utils'
+} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getNote, updateNote} from '@/api/notes'
 import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'

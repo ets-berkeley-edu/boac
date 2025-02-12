@@ -106,7 +106,7 @@ import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import {alertScreenReader, pluralize, putFocusNextTick, toInt} from '@/lib/utils'
 import {downloadCsv} from '@/api/cohort'
-import {getAdmitCsvExportColumns} from '@/berkeley'
+import {getAdmitCsvExportColumns} from '@/lib/berkeley-utils'
 import {getAllAdmits} from '@/api/admit'
 import {useContextStore} from '@/stores/context'
 

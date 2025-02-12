@@ -171,7 +171,7 @@ import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import RenameCuratedGroup from '@/components/curated/RenameCuratedGroup'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv} from '@/api/curated'
-import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
+import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
 

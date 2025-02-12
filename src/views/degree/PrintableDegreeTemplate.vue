@@ -145,7 +145,7 @@ import UnitRequirements from '@/components/degree/UnitRequirements'
 import {setPageTitle, toBoolean, toInt} from '@/lib/utils'
 import {getItemsForCoursesTable} from '@/lib/degree-progress'
 import {getStudentBySid} from '@/api/student'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 

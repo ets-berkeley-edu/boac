@@ -192,7 +192,7 @@ import {
   getIncompleteGradeDescription,
   getSectionsWithIncompleteStatus,
   isAlertGrade,
-} from '@/berkeley'
+} from '@/lib/berkeley-utils'
 import {normalizeId} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

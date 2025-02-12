@@ -120,7 +120,7 @@ import {get, isEmpty, isNil, some} from 'lodash'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentCourse from '@/components/student/profile/StudentCourse'
 import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
-import {displayCoeAcademicStanding} from '@/berkeley'
+import {displayCoeAcademicStanding} from '@/lib/berkeley-utils'
 import {round} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

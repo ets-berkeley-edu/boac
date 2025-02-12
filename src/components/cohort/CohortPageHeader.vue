@@ -191,7 +191,7 @@ import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import RenameCohort from '@/components/cohort/RenameCohort'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {deleteCohort, downloadCohortCsv, downloadCsv} from '@/api/cohort'
-import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
+import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/lib/berkeley-utils'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 
 defineProps({

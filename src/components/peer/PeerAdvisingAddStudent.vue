@@ -76,7 +76,7 @@ import {mdiPlus} from '@mdi/js'
 import {nextTick, onMounted, onUpdated, ref} from 'vue'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 import {alertScreenReader, putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
-import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/utils'
+import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/note-edit-session-utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

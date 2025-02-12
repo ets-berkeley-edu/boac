@@ -133,7 +133,7 @@ import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import {addStudentsToCuratedGroups, createCuratedGroup} from '@/api/curated'
 import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
-import {describeCuratedGroupDomain} from '@/berkeley'
+import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

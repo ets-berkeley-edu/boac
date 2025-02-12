@@ -181,7 +181,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditUnitRequirement from '@/components/degree/EditUnitRequirement'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {deleteUnitRequirement} from '@/api/degree'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session'
 

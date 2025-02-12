@@ -214,7 +214,7 @@ import {computed} from 'vue'
 import NavLink from '@/components/util/NavLink.vue'
 import PillCount from '@/components/util/PillCount.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
-import {describeCuratedGroupDomain} from '@/berkeley'
+import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
 import {pluralize, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

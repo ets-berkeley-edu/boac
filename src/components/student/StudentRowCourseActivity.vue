@@ -117,7 +117,7 @@ import {
   lastActivityDays,
   setWaitlistedStatus,
   termNameForSisId
-} from '@/berkeley'
+} from '@/lib/berkeley-utils'
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import {useContextStore} from '@/stores/context'
 

@@ -133,7 +133,7 @@
 
 <script setup lang="ts">
 import {isEmpty} from 'lodash'
-import {lastActivityDays} from '@/berkeley'
+import {lastActivityDays} from '@/lib/berkeley-utils'
 import StudentBoxplot from '@/components/student/StudentBoxplot.vue'
 import {useContextStore} from '@/stores/context'
 

@@ -382,7 +382,7 @@ import EditCategory from '@/components/degree/EditCategory'
 import EditCourse from '@/components/degree/student/EditCourse'
 import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
 import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
-import {deleteCategory, deleteCourse, onDrop} from '@/stores/degree-edit-session/utils'
+import {deleteCategory, deleteCourse, onDrop} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {
   findCategoryById,
   getAssignedCourses,
@@ -390,7 +390,7 @@ import {
   isCampusRequirement,
   unitsWereEdited
 } from '@/lib/degree-progress'
-import {isAlertGrade} from '@/berkeley'
+import {isAlertGrade} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 

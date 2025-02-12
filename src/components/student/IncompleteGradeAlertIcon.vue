@@ -10,7 +10,7 @@
 
 <script setup>
 import {mdiInformation} from '@mdi/js'
-import {getIncompleteGradeDescription, getSectionsWithIncompleteStatus} from '@/berkeley'
+import {getIncompleteGradeDescription, getSectionsWithIncompleteStatus} from '@/lib/berkeley-utils'
 
 const props = defineProps({
   course: {

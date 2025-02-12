@@ -86,7 +86,7 @@ import {mdiDrag} from '@mdi/js'
 import {alertScreenReader} from '@/lib/utils'
 import {assignCourse} from '@/api/degree'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
-import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
 const degreeStore = useDegreeStore()
