@@ -625,13 +625,14 @@ last_login',
 class TestUserUpdate:
 
     @classmethod
-    def _profile_object(
+    def _simulate_user_edits(
             cls,
             uid,
             automate_degree_progress_permission=False,
             authorized_user_id=None,
             can_access_advising_data=True,
             can_access_canvas_data=True,
+            departments=(),
             is_admin=False,
             is_blocked=False,
     ):
@@ -639,6 +640,7 @@ class TestUserUpdate:
             'automateDegreeProgressPermission': automate_degree_progress_permission,
             'canAccessAdvisingData': can_access_advising_data,
             'canAccessCanvasData': can_access_canvas_data,
+            'departments': departments,
             'id': authorized_user_id,
             'isAdmin': is_admin,
             'isBlocked': is_blocked,
@@ -649,18 +651,12 @@ class TestUserUpdate:
     def _api_create_or_update(
             cls,
             client,
-            profile,
-            departments=(),
+            user,
             expected_status_code=200,
-            delete_action=None,
     ):
         response = client.post(
             '/api/user/create_or_update',
-            data=json.dumps({
-                'deleteAction': delete_action,
-                'profile': profile,
-                'departments': departments,
-            }),
+            data=json.dumps({'user': user}),
             content_type='application/json',
         )
         assert response.status_code == expected_status_code
@@ -670,8 +666,8 @@ class TestUserUpdate:
         """Authentication required."""
         self._api_create_or_update(
             client,
-            profile=self._profile_object(uid='2040'),
             expected_status_code=401,
+            user=self._simulate_user_edits(uid='2040'),
         )
 
     def test_unauthorized(self, client, fake_auth):
@@ -679,8 +675,8 @@ class TestUserUpdate:
         fake_auth.login(coe_advisor_uid)
         self._api_create_or_update(
             client,
-            profile=self._profile_object(uid='2040'),
             expected_status_code=401,
+            user=self._simulate_user_edits(uid='2040'),
         )
 
     def test_unrecognized_uid(self, client, fake_auth):
@@ -688,8 +684,8 @@ class TestUserUpdate:
         fake_auth.login(admin_uid)
         self._api_create_or_update(
             client,
-            profile=self._profile_object(uid='9999999999'),
             expected_status_code=400,
+            user=self._simulate_user_edits(uid='9999999999'),
         )
 
     def test_error_when_add_existing_uid(self, client, fake_auth):
@@ -697,8 +693,8 @@ class TestUserUpdate:
         fake_auth.login(admin_uid)
         self._api_create_or_update(
             client,
-            profile=self._profile_object(uid=deleted_user_uid),
             expected_status_code=400,
+            user=self._simulate_user_edits(uid=deleted_user_uid),
         )
 
     def test_update_advisor(self, client, fake_auth):
@@ -713,9 +709,8 @@ class TestUserUpdate:
                 'csid': '200000009',
             },
         )
-        user = self._api_create_or_update(
-            client,
-            profile=self._profile_object(automate_degree_progress_permission=True, uid=uid),
+        user = self._simulate_user_edits(
+            automate_degree_progress_permission=True,
             departments=[
                 {
                     'deptCode': 'COENG',
@@ -725,7 +720,9 @@ class TestUserUpdate:
                     }],
                 },
             ],
+            uid=uid,
         )
+        user = self._api_create_or_update(client, user=user)
         user_id = user['id']
         assert user_id
         assert user['uid'] == uid
@@ -742,21 +739,21 @@ class TestUserUpdate:
         authorized_user_id = AuthorizedUser.get_id_per_uid(uid)
         self._api_create_or_update(
             client,
-            profile=self._profile_object(
-                uid=uid,
+            user=self._simulate_user_edits(
                 authorized_user_id=authorized_user_id,
+                departments=[
+                    {
+                        'deptCode': 'QCADVMAJ',
+                        'memberships': [
+                            {
+                                'role': 'director',
+                                'automateMembership': False,
+                            },
+                        ],
+                    },
+                ],
+                uid=uid,
             ),
-            departments=[
-                {
-                    'deptCode': 'QCADVMAJ',
-                    'memberships': [
-                        {
-                            'role': 'director',
-                            'automateMembership': False,
-                        },
-                    ],
-                },
-            ],
         )
         std_commit(allow_test_environment=True)
 
@@ -777,23 +774,25 @@ class TestUserUpdate:
                 'csid': '300000009',
             },
         )
-        profile = self._profile_object(uid=uid, is_admin=True)
-        user = self._api_create_or_update(client, profile=profile, departments=[])
-        profile['id'] = user['id']
+        user = self._api_create_or_update(
+            client,
+            user=self._simulate_user_edits(uid=uid, is_admin=True),
+        )
+        user['id'] = user['id']
 
         # Next, delete the user.
-        self._api_create_or_update(client, profile=profile, delete_action=True)
+        user['deletedAt'] = True
+        self._api_create_or_update(client, user=user)
         std_commit(allow_test_environment=True)
 
-        user = AuthorizedUser.find_by_uid(uid, ignore_deleted=False)
-        assert user.deleted_at
+        assert AuthorizedUser.find_by_uid(uid, ignore_deleted=False).deleted_at
 
         # Finally, un-delete the user.
-        self._api_create_or_update(client, profile=profile, delete_action=False)
+        user['deletedAt'] = None
+        self._api_create_or_update(client, user=user)
         std_commit(allow_test_environment=True)
 
-        user = AuthorizedUser.find_by_uid(uid, ignore_deleted=False)
-        assert not user.deleted_at
+        assert not AuthorizedUser.find_by_uid(uid, ignore_deleted=False).deleted_at
 
     def test_revoke_advising_and_canvas_data_access(self, client, fake_auth):
         """Admin revokes user access to notes, appointments, and canvas data."""
@@ -808,22 +807,22 @@ class TestUserUpdate:
         )
         user = self._api_create_or_update(
             client,
-            profile=self._profile_object(
+            user=self._simulate_user_edits(
                 uid=uid,
                 can_access_advising_data=False,
                 can_access_canvas_data=False,
+                departments=[
+                    {
+                        'deptCode': 'QCADVMAJ',
+                        'memberships': [
+                            {
+                                'role': 'advisor',
+                                'automateMembership': False,
+                            },
+                        ],
+                    },
+                ],
             ),
-            departments=[
-                {
-                    'deptCode': 'QCADVMAJ',
-                    'memberships': [
-                        {
-                            'role': 'advisor',
-                            'automateMembership': False,
-                        },
-                    ],
-                },
-            ],
         )
         uid = user['uid']
         assert user['id']
@@ -841,27 +840,27 @@ class TestUserUpdate:
         dept_code = 'COENG'
         user = self._api_create_or_update(
             client,
-            profile=self._profile_object(
+            user=self._simulate_user_edits(
                 authorized_user_id=advisor.id,
                 can_access_advising_data=False,
                 can_access_canvas_data=False,
+                departments=[
+                    {
+                        'deptCode': dept_code,
+                        'memberships': [
+                            {
+                                'role': 'advisor',
+                                'automateMembership': True,
+                            },
+                            {
+                                'peerAdvisingDepartmentId': 1,
+                                'role': 'peer_advisor_manager',
+                            },
+                        ],
+                    },
+                ],
                 uid=advisor.uid,
             ),
-            departments=[
-                {
-                    'deptCode': dept_code,
-                    'memberships': [
-                        {
-                            'role': 'advisor',
-                            'automateMembership': True,
-                        },
-                        {
-                            'peerAdvisingDepartmentId': 1,
-                            'role': 'peer_advisor_manager',
-                        },
-                    ],
-                },
-            ],
         )
         assert user['id'] == advisor.id
         assert user['uid'] == coe_advisor_uid

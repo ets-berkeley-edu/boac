@@ -261,7 +261,8 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
                     },
                 ],
             })
-        for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id):
+        memberships = PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=user.id)
+        for m in memberships:
             peer_advising_dept_membership = {
                 'role': m['role_type'],
                 'peerAdvisingDepartmentId': m['peer_advising_department_id'],
