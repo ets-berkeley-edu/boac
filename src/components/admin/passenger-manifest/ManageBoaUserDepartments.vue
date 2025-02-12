@@ -38,6 +38,7 @@
         <ManagePeerAdvisingMembership
           v-if="isPeerAdvisingRole(membership.role)"
           v-model="user"
+          class="mt-2"
           :dept-code="userDepartment.deptCode"
           :peer-advising-departments="findDepartment(allBerkeleyDepartments, userDepartment.deptCode).peerAdvisingDepartments"
           :role="membership.role"

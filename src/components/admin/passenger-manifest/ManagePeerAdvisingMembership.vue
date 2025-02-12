@@ -2,13 +2,13 @@
   <div>
     <div>
       <h6 class="font-size-14 text-medium-emphasis">
-        Peer Advising Management
+        {{ role === 'peer_advisor' ? 'Peer Advisor\'s Department' : 'Peer Advising Departments' }}
       </h6>
       <select
         id="peer-advising-department-select"
         v-model="model"
         aria-label="Department"
-        class="select-menu select-department-role"
+        class="mt-1 select-menu select-department-role"
       >
         <option id="department-null" :value="undefined">
           Select...
@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import {lowerCase, toString} from 'lodash'
+import {get, lowerCase, toString} from 'lodash'
 import type {PropType} from 'vue'
 import {ref, watch} from 'vue'
 import type {
@@ -50,7 +50,7 @@ const props = defineProps({
   },
   role: {
     required: true,
-    type: Object as PropType<DepartmentMembershipRole>
+    type: String as PropType<DepartmentMembershipRole>
   },
   peerAdvisingDepartments: {
     required: true,
@@ -61,13 +61,10 @@ const props = defineProps({
 const model = ref<PeerAdvisingDepartment | undefined>(undefined)
 
 watch(model, (value: PeerAdvisingDepartment | undefined) => {
-  if (value) {
-    const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
-    const membership: DepartmentMembership = findMembership(department, props.role)
-    membership.peerAdvisingDepartmentId = value.id
-    membership.peerAdvisingDepartmentName = value.name
-    model.value = undefined
-  }
+  const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
+  const membership: DepartmentMembership = findMembership(department, props.role)
+  membership.peerAdvisingDepartmentId = get(value, 'id') || undefined
+  membership.peerAdvisingDepartmentName = get(value, 'name') || undefined
 })
 </script>
 
