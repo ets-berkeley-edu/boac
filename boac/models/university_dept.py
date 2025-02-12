@@ -60,14 +60,14 @@ class UniversityDept(Base):
                 d.id, d.dept_code, d.dept_name, COUNT(m.authorized_user_id) AS member_count,
                 p.id AS peer_advising_department_id,
                 p.name AS peer_advising_department_name
-            FROM university_dept_members m
-            JOIN university_depts d ON d.id = m.university_dept_id
+            FROM university_depts d
+            LEFT JOIN university_dept_members m ON m.university_dept_id = d.id
             LEFT JOIN authorized_users u ON u.id = m.authorized_user_id
             LEFT JOIN peer_advising_departments p ON p.university_dept_id = m.university_dept_id
             WHERE u.deleted_at IS NULL
             GROUP BY d.id, d.dept_code, d.dept_name, p.id, p.name
             {'HAVING COUNT(m.authorized_user_id) > 0' if exclude_empty else ''}
-            ORDER BY d.dept_name
+            ORDER BY d.dept_name::bytea
         """
         results = []
         for row in db.session.execute(text(sql)):

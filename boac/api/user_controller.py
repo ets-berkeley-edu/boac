@@ -271,6 +271,10 @@ def get_departments():
         }
     exclude_empty = to_bool_or_none(util.get(request.args, 'excludeEmpty')) or False
     departments = UniversityDept.get_all_departments(exclude_empty=exclude_empty)
+    department_other = next((d for d in departments if d['dept_name'].lower() == 'other'), None)
+    if department_other:
+        # Move 'Other' department to the end of the list
+        departments.append(departments.pop(departments.index(department_other)))
     return tolerant_jsonify([_to_api_json(d) for d in departments])
 
 

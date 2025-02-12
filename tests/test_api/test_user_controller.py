@@ -387,18 +387,22 @@ class TestGetDepartments:
         assert client.get('/api/users/departments').status_code == 401
 
     def test_authorized(self, client, fake_auth):
-        """Returns a well-formed response including cached, uncached, and deleted users."""
+        """Response includes cached, uncached, and deleted users."""
         fake_auth.login(coe_advisor_uid)
         response = client.get('/api/users/departments')
         assert response.status_code == 200
         api_json = response.json
         assert len(api_json) > 1
+        # Verify that dept 'Other' is last in the list.
+        assert api_json[-1]['deptName'] == 'Other'
         for index, department in enumerate(api_json):
             assert 'id' in department
-            assert department['memberCount'] > 0
-            if index > 0:
+            assert department['memberCount'] >= 0
+            assert isinstance(department['peerAdvisingDepartments'], list)
+            dept_name = department['deptName']
+            if index > 0 and dept_name != 'Other':
                 previous_department = api_json[index - 1]
-                assert department['deptName'] > previous_department['deptName']
+                assert dept_name > previous_department['deptName']
 
 
 class TestGetUsers:
