@@ -556,10 +556,9 @@ const fetchUsers = (returnFocusId=null, srAlert='Loading users.') => {
         uidOfUser = userSelection.value.value.uid
       }
       getUserByUid(uidOfUser, false).then(data => {
-        users.value = data.users
+        users.value = [data]
         totalUserCount.value = 1
-        afterFetchUsers('search-user-input', `Search results loaded${sortDescription}`
-        )
+        afterFetchUsers('search-user-input', `Search results loaded${sortDescription}`)
       })
       break
     }

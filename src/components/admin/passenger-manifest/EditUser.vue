@@ -13,6 +13,7 @@
         <v-text-field
           id="uid-input"
           v-model="user.uid"
+          autocomplete="off"
           density="compact"
           hide-details
           maxlength="10"
@@ -21,7 +22,13 @@
       </div>
       <ManageBoaUserPermissions v-model="user" />
       <ManageBoaUserDepartments v-model="user" :all-berkeley-departments="allBerkeleyDepartments" />
-      <SelectBerkeleyDepartment v-model="user" :all-berkeley-departments="allBerkeleyDepartments" />
+      <v-expand-transition>
+        <SelectBerkeleyDepartment
+          v-show="!isPeerAdvisor(user)"
+          v-model="user"
+          :all-berkeley-departments="allBerkeleyDepartments"
+        />
+      </v-expand-transition>
     </v-card-text>
     <v-card-actions class="modal-footer">
       <ProgressButton
@@ -54,6 +61,7 @@ import type {BoaUser, BoaUserDepartment, Department, DepartmentMembership} from 
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createOrUpdateUser} from '@/api/user'
 import {isPeerAdvisingRole} from '@/lib/berkeley-department'
+import {isPeerAdvisor} from '@/lib/boa-user'
 
 const user = defineModel<BoaUser>({
   required: true,

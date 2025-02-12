@@ -75,6 +75,10 @@ const options: SelectOption<DepartmentMembershipRole[]>[] = props.hasPeerAdvisin
 watch(membershipRoles, (roles: DepartmentMembershipRole[]) => {
   if (size(roles)) {
     department.memberships = []
+    if (membershipRoles.value.includes('peer_advisor')) {
+      user.value.canAccessAdvisingData = false
+      user.value.canAccessCanvasData = false
+    }
     each(roles, (role: DepartmentMembershipRole) => department.memberships.push({role}))
   }
 })
