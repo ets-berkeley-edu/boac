@@ -18,6 +18,7 @@
           hide-details
           maxlength="10"
           max-width="140"
+          @keydown.esc="onCancel"
         />
       </div>
       <ManageBoaUserPermissions v-model="user" />
@@ -42,7 +43,7 @@
         id="cancel-changes-to-user-profile"
         text="Cancel"
         variant="text"
-        @click="cancel"
+        @click="onCancel"
       />
     </v-card-actions>
   </v-card>
@@ -58,7 +59,6 @@ import ModalHeader from '@/components/util/ModalHeader.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import SelectBerkeleyDepartment from '@/components/admin/passenger-manifest/SelectBerkeleyDepartment.vue'
 import type {BoaUser, BoaUserDepartment, Department, DepartmentMembership} from '@/lib/types'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createOrUpdateUser} from '@/api/user'
 import {isPeerAdvisingRole} from '@/lib/berkeley-department'
 import {isPeerAdvisor} from '@/lib/boa-user'
@@ -98,11 +98,6 @@ const isSaveButtonDisabled = computed(() => {
   }
   return disabled
 })
-const cancel = () => {
-  props.onCancel()
-  alertScreenReader('Canceled')
-  putFocusNextTick(user.value.id ? `edit-${user.value.uid}` : 'add-new-user-btn')
-}
 
 const hasMissingRole = (memberships: DepartmentMembership[]) => {
   let hasMissing = false

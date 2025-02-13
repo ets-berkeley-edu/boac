@@ -593,9 +593,9 @@ const onCancelEditUser = (index, uid) => {
   // eslint-disable-next-line no-console
   console.log(`TODO: onUpdateUser ${uid}`)
   dialogs.value[index] = false
+  putFocusNextTick(`edit-${editUserModel.value.uid}`)
   editUserModel.value = undefined
   alertScreenReader('Canceled')
-  putFocusNextTick(`edit-${editUserModel.value.uid}`)
 }
 
 const onClickEditUser = (index, uid) => {

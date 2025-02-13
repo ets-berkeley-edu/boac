@@ -9,7 +9,7 @@ export function getDepartments(excludeEmpty?: boolean) {
   return axios.get(url).then(response => response.data)
 }
 
-export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDeleted?: boolean): Promise<BoaUser[]> {
+export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDeleted?: boolean) {
   const data = {
     ignoreDeleted: isNil(ignoreDeleted) ? null : ignoreDeleted,
     sortBy,
