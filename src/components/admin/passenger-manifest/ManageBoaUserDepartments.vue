@@ -40,8 +40,8 @@
           v-model="user"
           class="mt-2"
           :dept-code="userDepartment.deptCode"
+          :membership="membership"
           :peer-advising-departments="findDepartment(allBerkeleyDepartments, userDepartment.deptCode).peerAdvisingDepartments"
-          :role="membership.role"
         />
       </div>
     </v-card-text>
