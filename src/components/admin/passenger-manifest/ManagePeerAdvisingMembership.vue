@@ -58,7 +58,7 @@ const props = defineProps({
   }
 })
 
-const model = ref<PeerAdvisingDepartment | undefined>(undefined)
+const model = ref<PeerAdvisingDepartment | undefined>()
 
 watch(model, (value: PeerAdvisingDepartment | undefined) => {
   const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)

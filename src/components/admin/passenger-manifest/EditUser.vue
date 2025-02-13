@@ -6,6 +6,17 @@
   >
     <v-card-title class="pb-0">
       <ModalHeader :text="user.id ? user.name : 'Create User'" />
+      <v-expand-transition>
+        <div
+          v-show="error"
+          id="edit-user-error"
+          aria-live="polite"
+          class="mb-1 mx-3 text-error font-size-13"
+          role="alert"
+        >
+          {{ error }}
+        </div>
+      </v-expand-transition>
     </v-card-title>
     <v-card-text class="modal-body">
       <div v-if="!user.id" class="align-center d-flex mb-2">
@@ -51,8 +62,8 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {computed, ref} from 'vue'
-import {each, size} from 'lodash'
+import {computed, ref, watch} from 'vue'
+import {each, get, size} from 'lodash'
 import ManageBoaUserDepartments from '@/components/admin/passenger-manifest/ManageBoaUserDepartments.vue'
 import ManageBoaUserPermissions from '@/components/admin/passenger-manifest/ManageBoaUserPermissions.vue'
 import ModalHeader from '@/components/util/ModalHeader.vue'
@@ -83,7 +94,10 @@ const props = defineProps({
   }
 })
 
+const error = ref<string | undefined>()
 const isSaving = ref(false)
+
+watch(() => user.value, () => error.value = undefined, {deep: true})
 
 const isSaveButtonDisabled = computed(() => {
   let disabled = false
@@ -112,6 +126,9 @@ const save = () => {
   isSaving.value = true
   createOrUpdateUser(user.value).then(() => {
     props.onSave()
+  }).catch((reason: string) => {
+    error.value = get(reason, 'response.data.message') || get(reason, 'message')
+  }).finally(() => {
     isSaving.value = false
   })
 }
