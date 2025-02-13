@@ -2,11 +2,11 @@
   <div>
     <div>
       <h6 class="font-size-14 text-medium-emphasis">
-        {{ role === 'peer_advisor' ? 'Peer Advisor\'s Department' : 'Peer Advising Departments' }}
+        {{ membership.role === 'peer_advisor' ? 'Peer Advisor\'s Department' : 'Peer Advising Departments' }}
       </h6>
       <select
         id="peer-advising-department-select"
-        v-model="model"
+        v-model="selected"
         aria-label="Department"
         class="mt-1 select-menu select-department-role"
       >
@@ -27,13 +27,13 @@
 </template>
 
 <script setup lang="ts">
-import {get, lowerCase, toString} from 'lodash'
 import type {PropType} from 'vue'
-import {ref, watch} from 'vue'
+import {find, get, lowerCase, toString} from 'lodash'
+import {onMounted, ref, watch} from 'vue'
 import type {
   BoaUser,
   BoaUserDepartment,
-  DepartmentMembership, DepartmentMembershipRole,
+  DepartmentMembership,
   PeerAdvisingDepartment,
 } from '@/lib/types'
 import {findDepartment, findMembership} from '@/lib/berkeley-department'
@@ -48,9 +48,9 @@ const props = defineProps({
     required: true,
     type: String
   },
-  role: {
+  membership: {
     required: true,
-    type: String as PropType<DepartmentMembershipRole>
+    type: Object as PropType<DepartmentMembership>
   },
   peerAdvisingDepartments: {
     required: true,
@@ -58,13 +58,20 @@ const props = defineProps({
   }
 })
 
-const model = ref<PeerAdvisingDepartment | undefined>()
+const selected = ref<PeerAdvisingDepartment | undefined>()
 
-watch(model, (value: PeerAdvisingDepartment | undefined) => {
+watch(selected, (value: PeerAdvisingDepartment | undefined) => {
   const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
-  const membership: DepartmentMembership = findMembership(department, props.role)
+  const membership: DepartmentMembership = findMembership(department, props.membership.role)
   membership.peerAdvisingDepartmentId = get(value, 'id') || undefined
   membership.peerAdvisingDepartmentName = get(value, 'name') || undefined
+})
+
+onMounted(() => {
+  const peerAdvisingDepartmentId = props.membership.peerAdvisingDepartmentId
+  if (peerAdvisingDepartmentId) {
+    selected.value = find(props.peerAdvisingDepartments, ['id', peerAdvisingDepartmentId])
+  }
 })
 </script>
 

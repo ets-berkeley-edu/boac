@@ -4,10 +4,10 @@
     <div class="mt-1">
       <select
         id="degree-progress-permission-select"
-        v-model="user.degreeProgressPermission"
+        v-model="permission"
         class="select-menu w-50"
       >
-        <option id="department-null" :value="undefined">Select...</option>
+        <option id="department-null" :value="undefined">None</option>
         <option
           v-for="option in [{value: 'read', text: 'Read-only'}, {value: 'read_write', text: 'Read and write'}]"
           :key="option.value"
@@ -32,10 +32,15 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
+import {ref, watch} from 'vue'
 import type {BoaUser} from '@/lib/types'
 
 const user = defineModel<BoaUser>({
   required: true,
   type: Object as PropType<BoaUser>
 })
+
+const permission = ref<string | undefined>()
+
+watch(permission, (value: string | undefined) => user.value.degreeProgressPermission = value)
 </script>
