@@ -71,7 +71,7 @@ def create_degree():
     name = get_param(params, 'name', None)
     validate_template_upsert(name=name)
     degree = DegreeProgressTemplate.create(
-        advisor_dept_codes=dept_codes_where_advising(current_user),
+        advisor_dept_codes=dept_codes_where_advising(current_user.departments),
         created_by=current_user.get_id(),
         degree_name=name,
     )

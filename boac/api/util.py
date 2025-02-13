@@ -32,7 +32,7 @@ from boac.externals import data_loch
 from boac.externals.data_loch import get_admitted_students_by_sids, get_sis_holds, get_student_profiles
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_advising, previous_term_id, term_name_for_sis_id
 from boac.lib.http import response_with_csv_download
-from boac.lib.util import get_benchmarker, join_if_present
+from boac.lib.util import get_benchmarker, has_any_membership_role, join_if_present
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes
@@ -66,11 +66,10 @@ def admin_required(func):
 def admin_or_director_required(func):
     @wraps(func)
     def _admin_or_director_required(*args, **kw):
-        is_authorized = current_user.is_authenticated \
-            and (
-                current_user.is_admin
-                or _has_role_in_any_department(current_user, 'director')
-            )
+        is_authorized = current_user.is_authenticated and (
+            current_user.is_admin
+            or (current_user.is_authenticated and has_any_membership_role(current_user, 'director'))
+        )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
         else:
@@ -82,7 +81,7 @@ def admin_or_director_required(func):
 def peer_advisor_required(func):
     @wraps(func)
     def _authorize(*args, **kw):
-        if current_user.is_admin or is_authorized_peer_advisor(current_user) or _api_key_ok():
+        if current_user.is_authenticated and (current_user.is_admin or is_peer_advisor(current_user) or _api_key_ok()):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
@@ -93,12 +92,12 @@ def peer_advisor_required(func):
 def advisor_or_peer_advisor_required(func):
     @wraps(func)
     def _advisor_required(*args, **kw):
-        if (
+        if (current_user.is_authenticated and (
             current_user.is_admin
-            or _is_authorized_advisor(current_user)
-            or is_authorized_peer_advisor(current_user)
+            or has_any_membership_role(current_user, 'advisor', 'director')
+            or is_peer_advisor(current_user)
             or _api_key_ok()
-        ):
+        )):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
@@ -110,9 +109,12 @@ def peer_advisor_manager_required(func):
     @wraps(func)
     def _advisor_required(*args, **kw):
         if (
-            current_user.is_admin
-            or is_authorized_peer_advisor_manager(current_user)
-            or _api_key_ok()
+            current_user.is_authenticated
+            and (
+                current_user.is_admin
+                or is_peer_advisor_manager(current_user)
+                or _api_key_ok()
+            )
         ):
             return func(*args, **kw)
         else:
@@ -129,8 +131,7 @@ def advising_data_access_required(func):
             and current_user.can_access_advising_data
             and (
                 current_user.is_admin
-                or _has_role_in_any_department(current_user, 'advisor')
-                or _has_role_in_any_department(current_user, 'director')
+                or has_any_membership_role(current_user, 'advisor', 'director')
             )
         )
         if is_authorized or _api_key_ok():
@@ -144,7 +145,7 @@ def advising_data_access_required(func):
 def advisor_required(func):
     @wraps(func)
     def _advisor_required(*args, **kw):
-        if current_user.is_admin or _is_authorized_advisor(current_user) or _api_key_ok():
+        if current_user.is_admin or has_any_membership_role(current_user, 'advisor', 'director') or _api_key_ok():
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
@@ -196,10 +197,7 @@ def director_advising_data_access_required(func):
         is_authorized = (
             current_user.is_authenticated
             and current_user.can_access_advising_data
-            and (
-                current_user.is_admin
-                or _has_role_in_any_department(current_user, 'director')
-            )
+            and (current_user.is_admin or has_any_membership_role(current_user, 'director'))
         )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
@@ -459,25 +457,27 @@ def get_students_csv_header_labels(term_id):
     }
 
 
-def is_authorized_peer_advisor(user):
-    return _has_role_in_any_department(user, 'peer_advisor')
+def is_peer_advisor(user):
+    return has_any_membership_role(user, 'peer_advisor')
 
 
-def is_authorized_peer_advisor_manager(user):
-    return _has_role_in_any_department(user, 'peer_advisor_manager')
+def is_peer_advisor_manager(user):
+    return has_any_membership_role(user, 'peer_advisor_manager')
 
 
 def is_unauthorized_domain(domain):
     if domain not in ['default', 'admitted_students']:
         raise BadRequestError(f'Invalid domain: {domain}')
-    return domain == 'admitted_students' and not current_user.is_admin and 'ZCEEE' not in dept_codes_where_advising(current_user)
+    return (domain == 'admitted_students'
+            and not current_user.is_admin
+            and 'ZCEEE' not in dept_codes_where_advising(current_user.departments))
 
 
 def is_unauthorized_search(filter_keys, order_by=None):
     filter_key_set = set(filter_keys)
     asc_keys = {'inIntensiveCohort', 'isInactiveAsc', 'groupCodes'}
     if list(filter_key_set & asc_keys) or order_by in ['group_name']:
-        if not current_user.is_admin and 'UWASC' not in dept_codes_where_advising(current_user):
+        if not current_user.is_admin and 'UWASC' not in dept_codes_where_advising(current_user.departments):
             return True
     coe_keys = {
         'coeAcademicStandings',
@@ -488,7 +488,7 @@ def is_unauthorized_search(filter_keys, order_by=None):
         'isInactiveCoe',
     }
     if list(filter_key_set & coe_keys):
-        if not current_user.is_admin and 'COENG' not in dept_codes_where_advising(current_user):
+        if not current_user.is_admin and 'COENG' not in dept_codes_where_advising(current_user.departments):
             return True
     return False
 
@@ -517,10 +517,6 @@ def validate_advising_note_set_date(params):
         except (TypeError, ValueError):
             raise BadRequestError('Invalid set date format')
     return set_date
-
-
-def _is_authorized_advisor(user):
-    return user.is_authenticated and (_has_role_in_any_department(user, 'advisor') or _has_role_in_any_department(user, 'director'))
 
 
 def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
@@ -570,7 +566,7 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
 
     def _construct_csv_row():
         return dict((fieldname, getters[fieldname](profile)) for fieldname in fieldnames)
-    if current_user.is_admin or 'COENG' in dept_codes_where_advising(current_user):
+    if current_user.is_admin or 'COENG' in dept_codes_where_advising(current_user.departments):
         # Only admins and CoE advisors can access CoE-related data.
         getters['coe_status'] = lambda profile: _get_coe_status(profile) or ''
     term_gpas = get_term_gpas_by_sid(sids)
@@ -685,19 +681,6 @@ def _get_current_user_cohorts_containing(profile, cohorts):
 def _get_current_user_curated_groups_containing(profile, curated_groups):
     sid = profile['sid']
     return [curated_group['name'] for curated_group in curated_groups if sid in curated_group['sids']]
-
-
-def _has_role_in_any_department(user, role):
-    has_role = False
-    is_dict = isinstance(user, dict)
-    is_authenticated = user['isAuthenticated'] if is_dict else user.is_authenticated
-    departments = user['departments'] if is_dict else user.departments
-    if is_authenticated:
-        for department in departments:
-            if next((m for m in department['memberships'] if m['role'] == role), False):
-                has_role = True
-                break
-    return has_role
 
 
 def _is_advisor_in_department(user, dept_code):

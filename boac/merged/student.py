@@ -527,25 +527,21 @@ def search_for_students(
     }
 
 
-def get_student_query_scope(user=None):
-    if user is None:
-        user = current_user
+def get_student_query_scope():
     # Use department membership and admin status to determine what data we can surface about which students.
     # If this code is being called outside an HTTP request context, then assume it is an administrative task.
     # Not all current_user proxy types define all attributes, and so the ordering of these conditional checks
     # is important.
-    if not user:
+    if not current_user:
         return ['ADMIN']
-    elif hasattr(user, 'is_authenticated') and not user.is_authenticated:
+    elif not current_user.is_authenticated:
         # This function can be invoked with both (1) user session object or (2) user record from the db.
         # User session object is identified by the presence of 'is_authenticated' method.
         return []
-    elif user.is_admin:
+    elif current_user.is_admin:
         return ['ADMIN']
-    elif hasattr(user, 'departments'):
-        return dept_codes_where_advising(user)
     else:
-        return [m.university_dept.dept_code for m in user.department_memberships]
+        return dept_codes_where_advising(current_user.departments)
 
 
 def merge_coe_student_profile_data(profiles_by_sid):

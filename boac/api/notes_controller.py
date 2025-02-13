@@ -92,7 +92,7 @@ def mark_note_read(note_id):
 @app.route('/api/note/create_draft', methods=['POST'])
 @advising_data_access_required
 def create_draft_note():
-    dept_codes = dept_codes_where_advising(current_user)
+    dept_codes = dept_codes_where_advising(current_user.departments)
     if current_user.is_admin or not len(dept_codes):
         raise ForbiddenRequestError('Sorry, only advisors can create advising notes')
     params = request.get_json()
@@ -389,7 +389,7 @@ def _get_author_profile():
     if calnet_profile and calnet_profile.get('departments'):
         dept_codes = [dept.get('deptCode') for dept in calnet_profile.get('departments')]
     else:
-        dept_codes = dept_codes_where_advising(current_user)
+        dept_codes = dept_codes_where_advising(current_user.departments)
     role = None
     if calnet_profile and calnet_profile.get('title'):
         role = calnet_profile['title']

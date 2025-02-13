@@ -352,16 +352,12 @@ def get_dept_codes(user):
     return [m.university_dept.dept_code for m in user.department_memberships] if user else None
 
 
-def dept_codes_where_advising(user):
-    if user:
-        departments = user.departments if hasattr(user, 'departments') else user['departments']
-        dept_codes = []
-        for department in departments:
-            if next((m for m in department['memberships'] if m['role'] in ('advisor', 'director')), False):
-                dept_codes.append(department['deptCode'])
-        return dept_codes
-    else:
-        return None
+def dept_codes_where_advising(departments):
+    dept_codes = []
+    for department in departments:
+        if next((m for m in department['memberships'] if m['role'] in ('advisor', 'director')), False):
+            dept_codes.append(department['deptCode'])
+    return dept_codes
 
 
 def section_is_eligible_for_alerts(enrollment, section):
