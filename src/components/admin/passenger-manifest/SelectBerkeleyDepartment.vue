@@ -46,7 +46,7 @@ const user = defineModel<BoaUser>({
   type: Object as PropType<BoaUser>
 })
 
-const department = ref<Department | undefined>(undefined)
+const department = ref<Department | undefined>()
 
 watch(department, (value: Department | undefined) => {
   if (value) {
