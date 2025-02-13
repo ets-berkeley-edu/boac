@@ -59,7 +59,7 @@ import {getDepartments} from '@/api/user'
 const contextStore = useContextStore()
 const allBerkeleyDepartments = ref<Department[]>([])
 const isCreatingNewUser = ref(false)
-const newUser = ref<BoaUser>(cloneDeep<BoaUser>(ANONYMOUS_USER))
+const newUser = ref<BoaUser>(getNewUserTemplate())
 const refreshUsers = ref(false)
 
 contextStore.loadingStart()
@@ -71,18 +71,26 @@ onMounted(() => {
   })
 })
 
+function getNewUserTemplate() {
+  const user = cloneDeep(ANONYMOUS_USER)
+  // Set defaults on new-user object
+  user.canAccessAdvisingData = true
+  user.canAccessCanvasData = true
+  return user
+}
+
 const onCancelEditUser = () => {
   isCreatingNewUser.value = false
   alertScreenReader('Canceled')
   nextTick(() => {
-    newUser.value = cloneDeep(ANONYMOUS_USER)
+    newUser.value = getNewUserTemplate()
     putFocusNextTick('add-new-user-btn')
   })
 }
 
-const onCreateUser = name => {
+const onCreateUser = (name: string) => {
   isCreatingNewUser.value = false
-  newUser.value = cloneDeep(ANONYMOUS_USER)
+  newUser.value = getNewUserTemplate()
   refreshUsers.value = true
   alertScreenReader(`${name} has been added to BOA.`)
   putFocusNextTick('add-new-user-btn')

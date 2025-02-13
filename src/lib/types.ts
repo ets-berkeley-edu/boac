@@ -203,6 +203,7 @@ export type Section = {
 }
 
 export type SelectOption<T> = {
+  disabled?: boolean,
   text: string,
   value: T
 }

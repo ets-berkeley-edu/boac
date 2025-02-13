@@ -23,7 +23,7 @@
       <SelectDepartmentMembershipRoles
         v-model="user"
         :dept-code="userDepartment.deptCode"
-        :has-peer-advising-departments="hasPeerAdvisingDepartments(allBerkeleyDepartments, userDepartment.deptCode)"
+        :is-department-with-peer-advising="hasPeerAdvisingDepartments(allBerkeleyDepartments, userDepartment.deptCode)"
       />
       <div v-for="membership in userDepartment.memberships" :key="membership.role">
         <v-checkbox

@@ -4,12 +4,12 @@
       class="font-weight-black text-medium-emphasis"
       :for="`select-department-${deptCode}-role`"
     >
-      <span>Department Roles:</span>
+      Department Roles:
     </label>
     <div class="mt-1">
       <select
         :id="`select-department-${deptCode}-role`"
-        v-model="membershipRoles"
+        v-model="roles"
         class="select-menu select-department-role"
       >
         <option
@@ -22,6 +22,7 @@
           v-for="option in options"
           :id="`department-role-${option.value.join('-')}`"
           :key="option.text"
+          :disabled="option.disabled"
           :value="option.value"
         >
           {{ option.text }}
@@ -33,9 +34,9 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
+import {onMounted, ref, watch} from 'vue'
 import {each, map, size} from 'lodash'
-import {ref, watch} from 'vue'
-import {findDepartment} from '@/lib/berkeley-department'
+import {findDepartment, isPeerAdvisingRole} from '@/lib/berkeley-department'
 import type {
   BoaUser,
   BoaUserDepartment,
@@ -54,34 +55,69 @@ const props = defineProps({
     required: true,
     type: String
   },
-  hasPeerAdvisingDepartments: {
+  isDepartmentWithPeerAdvising: {
     required: true,
     type: Boolean
   }
 })
 
 const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
-const membershipRoles = ref<DepartmentMembershipRole[]>(map<DepartmentMembership, DepartmentMembershipRole>(department.memberships, m => m.role))
-const options: SelectOption<DepartmentMembershipRole[]>[] = props.hasPeerAdvisingDepartments ?
-  [
-    {value: ['advisor'], text: 'Advisor'},
-    {value: ['advisor', 'peer_advisor_manager'], text: 'Advisor + Peer Advisor Manager'},
-    {value: ['director'], text: 'Director'},
-    {value: ['director', 'peer_advisor_manager'], text: 'Director + Peer Advisor Manager'},
-    {value: ['peer_advisor'], text: 'Peer Advisor'}
-  ] :
-  [{value: ['advisor'], text: 'Advisor'}, {value: ['director'], text: 'Director'}]
+const options = ref<SelectOption<DepartmentMembershipRole[]>[]>([])
+const roles = ref<DepartmentMembershipRole[]>([])
 
-watch(membershipRoles, (roles: DepartmentMembershipRole[]) => {
-  if (size(roles)) {
+watch(roles, (value: DepartmentMembershipRole[]) => {
+  if (size(value)) {
     department.memberships = []
-    if (membershipRoles.value.includes('peer_advisor')) {
+    each(value, (role: DepartmentMembershipRole) => {
+      const membership = ['advisor', 'director'].includes(role) ? {automateMembership: true, role} : {role}
+      department.memberships.push(membership)
+    })
+    if (value.includes('peer_advisor')) {
       user.value.canAccessAdvisingData = false
       user.value.canAccessCanvasData = false
     }
-    each(roles, (role: DepartmentMembershipRole) => department.memberships.push({role}))
   }
 })
+
+watch(() => user.value.departments, () => refreshSelectOptions(), {deep: true})
+
+onMounted(() => {
+  refreshSelectOptions()
+  roles.value = map<DepartmentMembership, DepartmentMembershipRole>(department.memberships, m => m.role)
+})
+
+const refreshSelectOptions = () => {
+  type Option = SelectOption<DepartmentMembershipRole[]>
+  const advisor: Option = {value: ['advisor'], text: 'Advisor'}
+  const director: Option = {value: ['director'], text: 'Director'}
+  options.value = []
+  if (props.isDepartmentWithPeerAdvising) {
+    const hasPeerAdvisingRoleElsewhere = user.value.departments.some(d => {
+      return d.deptCode !== props.deptCode && d.memberships.some(m => isPeerAdvisingRole(m.role))
+    })
+    options.value.push(
+      advisor,
+      {
+        disabled: hasPeerAdvisingRoleElsewhere,
+        text: 'Advisor + Peer Advisor Manager',
+        value: ['advisor', 'peer_advisor_manager']
+      },
+      director,
+      {
+        disabled: hasPeerAdvisingRoleElsewhere,
+        text: 'Director + Peer Advisor Manager',
+        value: ['director', 'peer_advisor_manager']
+      },
+      {
+        disabled: hasPeerAdvisingRoleElsewhere,
+        text: 'Peer Advisor',
+        value: ['peer_advisor']
+      }
+    )
+  } else {
+    options.value.push(advisor, director)
+  }
+}
 </script>
 
 <style scoped>

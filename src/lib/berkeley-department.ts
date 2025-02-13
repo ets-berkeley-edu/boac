@@ -51,7 +51,7 @@ export function getUserDepartmentsWithRoles(user: BoaUser, roles: DepartmentMemb
 
 export function hasPeerAdvisingDepartments(berkeleyDepartments: Department[], deptCode: string): boolean {
   const berkeleyDepartment = findDepartment(berkeleyDepartments, deptCode)
-  return !!berkeleyDepartment.peerAdvisingDepartments?.length
+  return !!berkeleyDepartment.peerAdvisingDepartments.length
 }
 
 export const isPeerAdvisingRole = (role: DepartmentMembershipRole): boolean => role.startsWith('peer_')
