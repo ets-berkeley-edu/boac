@@ -305,6 +305,7 @@
             persistent
           >
             <EditUser
+              v-if="editUserModel"
               v-model="editUserModel"
               :after-save="afterEditUserProfile"
               :all-berkeley-departments="allBerkeleyDepartments"

@@ -31,7 +31,7 @@ from boac.api.util import (
     advisor_or_peer_advisor_required,
     advisor_required,
     authorized_users_api_feed,
-    get_current_user_profile, is_peer_advisor,
+    get_current_user_profile, is_peer_advisor, is_peer_advisor_manager,
 )
 from boac.lib import util
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
@@ -314,6 +314,8 @@ def _update_or_create_authorized_user(user):
             raise errors.BadRequestError('Peer Advisor cannot play other roles.')
         if can_access_canvas_data or can_access_advising_data:
             raise errors.BadRequestError('Peer Advisors are not allowed to access canvas or advising data.')
+    if is_peer_advisor_manager(user) and not can_access_advising_data:
+        raise errors.BadRequestError('Peer Advisor Managers must have access to advising data.')
 
     is_admin = to_bool_or_none(user.get('isAdmin'))
     is_blocked = to_bool_or_none(user.get('isBlocked'))
