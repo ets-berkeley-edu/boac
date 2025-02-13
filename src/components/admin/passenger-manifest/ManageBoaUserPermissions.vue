@@ -42,7 +42,7 @@
         v-model="user.canAccessAdvisingData"
         color="primary"
         density="compact"
-        :disabled="isPeerAdvisor(user)"
+        :disabled="isPeerAdvisor(user) || isPeerAdvisorManager(user)"
         :hide-details="true"
         label="Notes and Appointments"
       />
@@ -57,7 +57,7 @@
 import type {PropType} from 'vue'
 import ManageDegreeProgressPermission from '@/components/admin/passenger-manifest/ManageDegreeProgressPermission.vue'
 import type {BoaUser} from '@/lib/types'
-import {isCoe, isPeerAdvisor} from '@/lib/boa-user'
+import {isCoe, isPeerAdvisor, isPeerAdvisorManager} from '@/lib/boa-user'
 
 const user = defineModel<BoaUser>({
   required: true,

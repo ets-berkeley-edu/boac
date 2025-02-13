@@ -76,6 +76,9 @@ watch(roles, (value: DepartmentMembershipRole[]) => {
       user.value.canAccessAdvisingData = false
       user.value.canAccessCanvasData = false
     }
+    if (value.includes('peer_advisor_manager')) {
+      user.value.canAccessAdvisingData = true
+    }
   }
 })
 

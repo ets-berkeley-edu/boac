@@ -45,15 +45,9 @@ peer_advisor_uid = '1563405'
 class TestUserProfile:
     """User Profile API."""
 
-    @staticmethod
-    def _api_my_profile(client, expected_status_code=200):
-        response = client.get('/api/profile/my')
-        assert response.status_code == expected_status_code
-        return response.json
-
     def test_profile_not_authenticated(self, client):
         """Returns a well-formed response."""
-        api_json = self._api_my_profile(client)
+        api_json = _api_my_profile(client)
         assert api_json['isAuthenticated'] is False
         assert not api_json['uid']
         assert api_json['canEditDegreeProgress'] is False
@@ -62,7 +56,7 @@ class TestUserProfile:
     def test_current_user_profile(self, client, fake_auth):
         """Includes user profile info from Canvas."""
         fake_auth.login(coe_advisor_uid)
-        api_json = self._api_my_profile(client)
+        api_json = _api_my_profile(client)
         assert api_json['isAuthenticated'] is True
         assert api_json['uid'] == coe_advisor_uid
         assert 'csid' in api_json
@@ -75,7 +69,7 @@ class TestUserProfile:
         """Degree check permissions."""
         def _assert(uid, has_permission):
             fake_auth.login(uid)
-            api_json = self._api_my_profile(client)
+            api_json = _api_my_profile(client)
             assert api_json['canEditDegreeProgress'] is has_permission
             assert api_json['canReadDegreeProgress'] is has_permission
 
@@ -85,14 +79,14 @@ class TestUserProfile:
     def test_user_with_no_dept_membership(self, client, fake_auth):
         """Returns zero or more departments."""
         fake_auth.login(admin_uid)
-        api_json = self._api_my_profile(client)
+        api_json = _api_my_profile(client)
         assert api_json['isAdmin'] is True
         assert not len(api_json['departments'])
 
     def test_asc_advisor_exclude_cohorts(self, client, fake_auth):
         """Returns Athletic Study Center advisor."""
         fake_auth.login(asc_advisor_uid)
-        api_json = self._api_my_profile(client)
+        api_json = _api_my_profile(client)
         assert api_json['canAccessAdvisingData'] is True
         assert api_json['canAccessCanvasData'] is True
         departments = api_json['departments']
@@ -101,54 +95,27 @@ class TestUserProfile:
         assert departments[0]['deptName'] == 'Athletic Study Center'
         assert departments[0]['memberships'][0]['role'] == 'advisor'
 
-    class TestPeerAdvising:
-        """Peer Advising in the User Profile API."""
-
-        @staticmethod
-        def _api_my_profile(client, expected_status_code=200):
-            response = client.get('/api/profile/my')
-            assert response.status_code == expected_status_code
-            return response.json
-
-        def test_peer_advising_department_memberships(self, client, fake_auth):
-            """Returns peer_advising_departments in user profile object."""
-            fake_auth.login(peer_advisor_uid)
-            api_json = self._api_my_profile(client)
-            assert api_json['id']
-            assert api_json['isAuthenticated'] is True
-            departments = api_json['departments']
-            memberships = departments[0]['memberships']
-            assert len(memberships) == 2
-            assert 'peerAdvisingDepartmentId' in memberships[1]
-            assert memberships[1]['peerAdvisingDepartmentName'] == 'Educational Opportunity Program'
-
 
 class TestMyCohorts:
-
-    @classmethod
-    def _api_my_profile(cls, client, expected_status_code=200):
-        response = client.get('/api/profile/my')
-        assert response.status_code == expected_status_code
-        return response.json
 
     def test_my_cohorts(self, client, fake_auth):
         """Returns cohorts of COE advisor."""
         fake_auth.login(coe_advisor_uid)
-        cohorts = self._api_my_profile(client)['myCohorts']
+        cohorts = _api_my_profile(client)['myCohorts']
         for key in 'name', 'alertCount', 'criteria', 'totalStudentCount', 'isOwnedByCurrentUser':
             assert key in cohorts[0], f'Missing cohort element: {key}'
 
     def test_cohorts_all_for_ce3(self, client, fake_auth):
         """Returns all standard cohorts for CE3 advisor."""
         fake_auth.login(ce3_advisor_uid)
-        cohorts = self._api_my_profile(client)['myCohorts']
+        cohorts = _api_my_profile(client)['myCohorts']
         assert len(cohorts)
         assert cohorts[0]['name'] == 'Undeclared students'
 
     def test_admitted_students_cohorts_all_for_ce3(self, client, fake_auth):
         """Returns all standard cohorts for CE3 advisor."""
         fake_auth.login(ce3_advisor_uid)
-        cohorts = self._api_my_profile(client)['myCohorts']
+        cohorts = _api_my_profile(client)['myCohorts']
         cohorts = [c for c in cohorts if c['domain'] == 'admitted_students']
         count = len(cohorts)
         assert count == 1
@@ -157,16 +124,10 @@ class TestMyCohorts:
 
 class TestMyCuratedGroups:
 
-    @staticmethod
-    def _api_my_profile(client, expected_status_code=200):
-        response = client.get('/api/profile/my')
-        assert response.status_code == expected_status_code
-        return response.json
-
     def test_authorized(self, client, fake_auth):
         """Returns curated groups of authorized advisor."""
         fake_auth.login(coe_advisor_uid)
-        api_json = self._api_my_profile(client)['myCuratedGroups']
+        api_json = _api_my_profile(client)['myCuratedGroups']
         assert len(api_json)
         group = api_json[0]
         assert 'id' in group
@@ -177,7 +138,7 @@ class TestMyCuratedGroups:
     def test_admitted_students_domain(self, app, client, fake_auth):
         """Returns 'admitted_students' groups of CE3 advisor."""
         fake_auth.login(ce3_advisor_uid)
-        curated_groups = self._api_my_profile(client)['myCuratedGroups']
+        curated_groups = _api_my_profile(client)['myCuratedGroups']
         assert len(curated_groups) > 0
         domains = set([c['domain'] for c in curated_groups])
         assert len(domains) == 1
@@ -624,77 +585,39 @@ last_login',
 
 class TestUserUpdate:
 
-    @classmethod
-    def _simulate_user_edits(
-            cls,
-            uid,
-            automate_degree_progress_permission=False,
-            authorized_user_id=None,
-            can_access_advising_data=True,
-            can_access_canvas_data=True,
-            departments=(),
-            is_admin=False,
-            is_blocked=False,
-    ):
-        return {
-            'automateDegreeProgressPermission': automate_degree_progress_permission,
-            'canAccessAdvisingData': can_access_advising_data,
-            'canAccessCanvasData': can_access_canvas_data,
-            'departments': departments,
-            'id': authorized_user_id,
-            'isAdmin': is_admin,
-            'isBlocked': is_blocked,
-            'uid': uid,
-        }
-
-    @classmethod
-    def _api_create_or_update(
-            cls,
-            client,
-            user,
-            expected_status_code=200,
-    ):
-        response = client.post(
-            '/api/user/create_or_update',
-            data=json.dumps({'user': user}),
-            content_type='application/json',
-        )
-        assert response.status_code == expected_status_code
-        return response.json
-
     def test_not_authenticated(self, client):
         """Authentication required."""
-        self._api_create_or_update(
+        _api_create_or_update(
             client,
             expected_status_code=401,
-            user=self._simulate_user_edits(uid='2040'),
+            user=_get_user_update_post_payload(uid='2040'),
         )
 
     def test_unauthorized(self, client, fake_auth):
         """Admin required."""
         fake_auth.login(coe_advisor_uid)
-        self._api_create_or_update(
+        _api_create_or_update(
             client,
             expected_status_code=401,
-            user=self._simulate_user_edits(uid='2040'),
+            user=_get_user_update_post_payload(uid='2040'),
         )
 
     def test_unrecognized_uid(self, client, fake_auth):
         """Unrecognized UID."""
         fake_auth.login(admin_uid)
-        self._api_create_or_update(
+        _api_create_or_update(
             client,
             expected_status_code=400,
-            user=self._simulate_user_edits(uid='9999999999'),
+            user=_get_user_update_post_payload(uid='9999999999'),
         )
 
     def test_error_when_add_existing_uid(self, client, fake_auth):
         """Raises error if UID exists."""
         fake_auth.login(admin_uid)
-        self._api_create_or_update(
+        _api_create_or_update(
             client,
             expected_status_code=400,
-            user=self._simulate_user_edits(uid=deleted_user_uid),
+            user=_get_user_update_post_payload(uid=deleted_user_uid),
         )
 
     def test_update_advisor(self, client, fake_auth):
@@ -709,7 +632,7 @@ class TestUserUpdate:
                 'csid': '200000009',
             },
         )
-        user = self._simulate_user_edits(
+        user = _get_user_update_post_payload(
             automate_degree_progress_permission=True,
             departments=[
                 {
@@ -722,7 +645,7 @@ class TestUserUpdate:
             ],
             uid=uid,
         )
-        user = self._api_create_or_update(client, user=user)
+        user = _api_create_or_update(client, user=user)
         user_id = user['id']
         assert user_id
         assert user['uid'] == uid
@@ -737,9 +660,9 @@ class TestUserUpdate:
 
         # Next, remove advisor from 'QCADV' and add him to 'QCADVMAJ', as "Director".
         authorized_user_id = AuthorizedUser.get_id_per_uid(uid)
-        self._api_create_or_update(
+        _api_create_or_update(
             client,
-            user=self._simulate_user_edits(
+            user=_get_user_update_post_payload(
                 authorized_user_id=authorized_user_id,
                 departments=[
                     {
@@ -766,22 +689,22 @@ class TestUserUpdate:
             f'calnet_user_for_uid_{uid}',
             {'uid': uid, 'csid': '300000009'},
         )
-        user = self._api_create_or_update(
+        user = _api_create_or_update(
             client,
-            user=self._simulate_user_edits(uid=uid, is_admin=True),
+            user=_get_user_update_post_payload(uid=uid, is_admin=True),
         )
         user['id'] = user['id']
 
         # Next, delete the user.
         user['deletedAt'] = True
-        self._api_create_or_update(client, user=user)
+        _api_create_or_update(client, user=user)
         std_commit(allow_test_environment=True)
 
         assert AuthorizedUser.find_by_uid(uid, ignore_deleted=False).deleted_at
 
         # Finally, un-delete the user.
         user['deletedAt'] = None
-        self._api_create_or_update(client, user=user)
+        _api_create_or_update(client, user=user)
         std_commit(allow_test_environment=True)
 
         assert not AuthorizedUser.find_by_uid(uid, ignore_deleted=False).deleted_at
@@ -794,9 +717,9 @@ class TestUserUpdate:
             f'calnet_user_for_uid_{uid}',
             {'uid': uid, 'csid': '100000009'},
         )
-        user = self._api_create_or_update(
+        user = _api_create_or_update(
             client,
-            user=self._simulate_user_edits(
+            user=_get_user_update_post_payload(
                 uid=uid,
                 can_access_advising_data=False,
                 can_access_canvas_data=False,
@@ -817,16 +740,77 @@ class TestUserUpdate:
         assert user['canAccessCanvasData'] is False
         assert len(user['departments']) == 1
 
+
+class TestPeerAdvisor:
+    """Peer Advising in the User Profile API."""
+
+    def test_peer_advising_department_memberships(self, client, fake_auth):
+        """Returns peer_advising_departments in user profile object."""
+        fake_auth.login(peer_advisor_uid)
+        api_json = _api_my_profile(client)
+        assert api_json['id']
+        assert api_json['isAuthenticated'] is True
+        departments = api_json['departments']
+        memberships = departments[0]['memberships']
+        assert len(memberships) == 2
+        assert 'peerAdvisingDepartmentId' in memberships[1]
+        assert memberships[1]['peerAdvisingDepartmentName'] == 'Educational Opportunity Program'
+
+    def test_peer_advisor_with_multiple_depts(self, client, fake_auth):
+        """Peer Advisor CANNOT belong to multiple departments."""
+        fake_auth.login(admin_uid)
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        _api_create_or_update(
+            client,
+            expected_status_code=400,
+            user=_get_user_update_post_payload(
+                authorized_user_id=advisor.id,
+                departments=[
+                    {
+                        'deptCode': 'COENG',
+                        'memberships': [{'peerAdvisingDepartmentId': 1, 'role': 'peer_advisor'}],
+                    },
+                    {
+                        'deptCode': 'ZCEEE',
+                        'memberships': [{'peerAdvisingDepartmentId': 2, 'role': 'peer_advisor'}],
+                    },
+                ],
+                uid=advisor.uid,
+            ),
+        )
+
+    def test_invalid_peer_advisor_role_assignment(self, client, fake_auth):
+        """Expect an error when advisor is assigned the 'peer_advisor' role."""
+        fake_auth.login(admin_uid)
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        _api_create_or_update(
+            client,
+            expected_status_code=400,
+            user=_get_user_update_post_payload(
+                authorized_user_id=advisor.id,
+                departments=[
+                    {
+                        'deptCode': 'COENG',
+                        'memberships': [{'peerAdvisingDepartmentId': 1, 'role': 'peer_advisor'}],
+                    },
+                ],
+                uid=advisor.uid,
+            ),
+        )
+
+
+class TestPeerAdvisorManager:
+
     def test_peer_advisor_manager_role(self, client, fake_auth):
         """Give an advisor the 'Peer Advising Manager' role."""
         fake_auth.login(admin_uid)
         advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         dept_code = 'COENG'
-        user = self._api_create_or_update(
+        user = _api_create_or_update(
             client,
-            user=self._simulate_user_edits(
+            user=_get_user_update_post_payload(
                 authorized_user_id=advisor.id,
-                can_access_advising_data=False,
+                can_access_advising_data=True,
                 can_access_canvas_data=False,
                 departments=[
                     {
@@ -844,7 +828,7 @@ class TestUserUpdate:
         assert user['uid'] == coe_advisor_uid
         assert user['isAdmin'] is False
         assert user['isBlocked'] is False
-        assert user['canAccessAdvisingData'] is False
+        assert user['canAccessAdvisingData'] is True
         assert user['canAccessCanvasData'] is False
         # Verify University Dept membership
         departments = user['departments']
@@ -855,44 +839,66 @@ class TestUserUpdate:
         assert peer_advisor_manager
         assert peer_advisor_manager['peerAdvisingDepartmentName'] == 'Mechanical Engineering'
 
-    def test_peer_advisor_with_multiple_depts(self, client, fake_auth):
-        """Expect an error when peer_advisor is assigned to multiple departments."""
+    def test_invalid_peer_advisor_manager_update(self, client, fake_auth):
+        """Peer Advising Manager must have can_access_advising_data == True."""
         fake_auth.login(admin_uid)
-        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
-        self._api_create_or_update(
+        _api_create_or_update(
             client,
             expected_status_code=400,
-            user=self._simulate_user_edits(
-                authorized_user_id=advisor.id,
+            user=_get_user_update_post_payload(
+                authorized_user_id=AuthorizedUser.find_by_uid(coe_advisor_uid).id,
+                can_access_advising_data=False,
                 departments=[
                     {
                         'deptCode': 'COENG',
-                        'memberships': [{'peerAdvisingDepartmentId': 1, 'role': 'peer_advisor'}],
-                    },
-                    {
-                        'deptCode': 'ZCEEE',
-                        'memberships': [{'peerAdvisingDepartmentId': 2, 'role': 'peer_advisor'}],
+                        'memberships': [
+                            {'role': 'advisor', 'automateMembership': True},
+                            {'peerAdvisingDepartmentId': 1, 'role': 'peer_advisor_manager'},
+                        ],
                     },
                 ],
-                uid=advisor.uid,
+                uid=coe_advisor_uid,
             ),
         )
 
-    def test_disallowed_peer_advisor_role_assignment(self, client, fake_auth):
-        """Expect an error when advisor is assigned the 'peer_advisor' role."""
-        fake_auth.login(admin_uid)
-        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
-        self._api_create_or_update(
-            client,
-            expected_status_code=400,
-            user=self._simulate_user_edits(
-                authorized_user_id=advisor.id,
-                departments=[
-                    {
-                        'deptCode': 'COENG',
-                        'memberships': [{'peerAdvisingDepartmentId': 1, 'role': 'peer_advisor'}],
-                    },
-                ],
-                uid=advisor.uid,
-            ),
-        )
+
+def _api_create_or_update(
+        client,
+        user,
+        expected_status_code=200,
+):
+    response = client.post(
+        '/api/user/create_or_update',
+        data=json.dumps({'user': user}),
+        content_type='application/json',
+    )
+    assert response.status_code == expected_status_code
+    return response.json
+
+
+def _api_my_profile(client, expected_status_code=200):
+    response = client.get('/api/profile/my')
+    assert response.status_code == expected_status_code
+    return response.json
+
+
+def _get_user_update_post_payload(
+        uid,
+        automate_degree_progress_permission=False,
+        authorized_user_id=None,
+        can_access_advising_data=True,
+        can_access_canvas_data=True,
+        departments=(),
+        is_admin=False,
+        is_blocked=False,
+):
+    return {
+        'automateDegreeProgressPermission': automate_degree_progress_permission,
+        'canAccessAdvisingData': can_access_advising_data,
+        'canAccessCanvasData': can_access_canvas_data,
+        'departments': departments,
+        'id': authorized_user_id,
+        'isAdmin': is_admin,
+        'isBlocked': is_blocked,
+        'uid': uid,
+    }
