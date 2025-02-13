@@ -43,7 +43,7 @@ def create_note_template():
     title = params.get('title', None)
     if not note_id or not title:
         raise BadRequestError('Invalid or missing parameters')
-    user_dept_codes = dept_codes_where_advising(current_user)
+    user_dept_codes = dept_codes_where_advising(current_user.departments)
     if current_user.is_admin or not len(user_dept_codes):
         raise ForbiddenRequestError('Sorry, only advisors can create advising note templates')
 

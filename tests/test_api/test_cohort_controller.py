@@ -463,7 +463,7 @@ class TestCohortsEveryone:
         return response.json
 
     def test_cohorts_all(self, asc_advisor_login, client):
-        """Returns all cohorts per owner."""
+        """Returns all cohorts of ASC advisor."""
         api_json = self._api_cohorts_by_dept_code(client, 'COENG')
         assert len(api_json) == 1
         for index, user in enumerate(api_json):

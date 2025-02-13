@@ -75,6 +75,16 @@ def get_benchmarker(label):
     return _log_benchmark
 
 
+def has_any_membership_role(user, *roles):
+    is_dict = isinstance(user, dict)
+    departments = user['departments'] if is_dict else user.departments
+    for role in roles:
+        for department in departments:
+            if next((m for m in department['memberships'] if m['role'] == role), False):
+                return True
+    return False
+
+
 def join_if_present(delimiter, terms):
     return delimiter.join([t for t in terms if t])
 

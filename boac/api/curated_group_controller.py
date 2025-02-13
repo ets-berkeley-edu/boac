@@ -45,7 +45,7 @@ from flask_login import current_user
 def get_curated_groups_by_dept_code(dept_code):
     api_json = []
     department = UniversityDept.find_by_dept_code(dept_code=dept_code.upper())
-    scope = get_query_scope(current_user)
+    scope = get_query_scope()
     if department and scope:
         uids = UniversityDeptMember.get_membership_uids(department.id)
         calnet_users = calnet.get_calnet_users_for_uids(app, uids)

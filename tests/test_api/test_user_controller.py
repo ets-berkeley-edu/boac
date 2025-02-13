@@ -744,12 +744,7 @@ class TestUserUpdate:
                 departments=[
                     {
                         'deptCode': 'QCADVMAJ',
-                        'memberships': [
-                            {
-                                'role': 'director',
-                                'automateMembership': False,
-                            },
-                        ],
+                        'memberships': [{'role': 'director', 'automateMembership': False}],
                     },
                 ],
                 uid=uid,
@@ -769,10 +764,7 @@ class TestUserUpdate:
         uid = '9000000003'
         insert_in_json_cache(
             f'calnet_user_for_uid_{uid}',
-            {
-                'uid': uid,
-                'csid': '300000009',
-            },
+            {'uid': uid, 'csid': '300000009'},
         )
         user = self._api_create_or_update(
             client,
@@ -800,10 +792,7 @@ class TestUserUpdate:
         uid = '900000001'
         insert_in_json_cache(
             f'calnet_user_for_uid_{uid}',
-            {
-                'uid': uid,
-                'csid': '100000009',
-            },
+            {'uid': uid, 'csid': '100000009'},
         )
         user = self._api_create_or_update(
             client,
@@ -814,12 +803,7 @@ class TestUserUpdate:
                 departments=[
                     {
                         'deptCode': 'QCADVMAJ',
-                        'memberships': [
-                            {
-                                'role': 'advisor',
-                                'automateMembership': False,
-                            },
-                        ],
+                        'memberships': [{'role': 'advisor', 'automateMembership': False}],
                     },
                 ],
             ),
@@ -848,14 +832,8 @@ class TestUserUpdate:
                     {
                         'deptCode': dept_code,
                         'memberships': [
-                            {
-                                'role': 'advisor',
-                                'automateMembership': True,
-                            },
-                            {
-                                'peerAdvisingDepartmentId': 1,
-                                'role': 'peer_advisor_manager',
-                            },
+                            {'role': 'advisor', 'automateMembership': True},
+                            {'peerAdvisingDepartmentId': 1, 'role': 'peer_advisor_manager'},
                         ],
                     },
                 ],
@@ -876,3 +854,45 @@ class TestUserUpdate:
         peer_advisor_manager = next((m for m in departments[0]['memberships'] if m['role'] == 'peer_advisor_manager'), None)
         assert peer_advisor_manager
         assert peer_advisor_manager['peerAdvisingDepartmentName'] == 'Mechanical Engineering'
+
+    def test_peer_advisor_with_multiple_depts(self, client, fake_auth):
+        """Expect an error when peer_advisor is assigned to multiple departments."""
+        fake_auth.login(admin_uid)
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        self._api_create_or_update(
+            client,
+            expected_status_code=400,
+            user=self._simulate_user_edits(
+                authorized_user_id=advisor.id,
+                departments=[
+                    {
+                        'deptCode': 'COENG',
+                        'memberships': [{'peerAdvisingDepartmentId': 1, 'role': 'peer_advisor'}],
+                    },
+                    {
+                        'deptCode': 'ZCEEE',
+                        'memberships': [{'peerAdvisingDepartmentId': 2, 'role': 'peer_advisor'}],
+                    },
+                ],
+                uid=advisor.uid,
+            ),
+        )
+
+    def test_disallowed_peer_advisor_role_assignment(self, client, fake_auth):
+        """Expect an error when advisor is assigned the 'peer_advisor' role."""
+        fake_auth.login(admin_uid)
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        self._api_create_or_update(
+            client,
+            expected_status_code=400,
+            user=self._simulate_user_edits(
+                authorized_user_id=advisor.id,
+                departments=[
+                    {
+                        'deptCode': 'COENG',
+                        'memberships': [{'peerAdvisingDepartmentId': 1, 'role': 'peer_advisor'}],
+                    },
+                ],
+                uid=advisor.uid,
+            ),
+        )

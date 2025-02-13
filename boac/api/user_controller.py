@@ -31,12 +31,11 @@ from boac.api.util import (
     advisor_or_peer_advisor_required,
     advisor_required,
     authorized_users_api_feed,
-    get_current_user_profile,
+    get_current_user_profile, is_peer_advisor,
 )
 from boac.lib import util
-from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
-from boac.lib.util import to_bool_or_none
+from boac.lib.util import has_any_membership_role, to_bool_or_none
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
@@ -219,10 +218,9 @@ def create_or_update_user_profile():
 
     user_id = authorized_user.id
     UserSession.flush_cache_for_id(user_id)
-
     updated_user = AuthorizedUser.find_by_id(user_id, include_deleted=True)
-    users_json = authorized_users_api_feed([updated_user])
-    return tolerant_jsonify(users_json and users_json[0])
+    api_json = authorized_users_api_feed([updated_user])[0]
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/user/demo_mode', methods=['POST'])
@@ -304,10 +302,18 @@ def _update_or_create_authorized_user(user):
     can_access_canvas_data = to_bool_or_none(user.get('canAccessCanvasData'))
     can_access_advising_data = to_bool_or_none(user.get('canAccessAdvisingData'))
     degree_progress_permission = user.get('degreeProgressPermission')
+    departments = user.get('departments')
+    dept_codes = [d['deptCode'] for d in departments]
 
-    dept_codes = dept_codes_where_advising(user)
     if (automate_degree_progress_permission or degree_progress_permission) and 'COENG' not in dept_codes:
         raise errors.BadRequestError('Degree Progress feature is only available to the College of Engineering.')
+    if is_peer_advisor(user):
+        if len(departments) > 1:
+            raise errors.BadRequestError('Peer Advisor cannot belong to multiple departments.')
+        if has_any_membership_role(user, 'advisor', 'director', 'peer_advisor_manager'):
+            raise errors.BadRequestError('Peer Advisor cannot play other roles.')
+        if can_access_canvas_data or can_access_advising_data:
+            raise errors.BadRequestError('Peer Advisors are not allowed to access canvas or advising data.')
 
     is_admin = to_bool_or_none(user.get('isAdmin'))
     is_blocked = to_bool_or_none(user.get('isBlocked'))

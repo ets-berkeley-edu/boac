@@ -47,7 +47,7 @@ from flask_login import current_user
 def get_cohorts_by_dept_code(dept_code):
     api_json = []
     department = UniversityDept.find_by_dept_code(dept_code=dept_code)
-    scope = get_query_scope(current_user)
+    scope = get_query_scope()
     if department and scope:
         uids = UniversityDeptMember.get_membership_uids(department.id)
         calnet_users = calnet.get_calnet_users_for_uids(app, uids)
@@ -386,7 +386,7 @@ def _can_current_user_view_cohort(cohort):
         return True
     cohort_dept_codes = cohort['owner'].get('deptCodes', [])
     if len(cohort_dept_codes):
-        user_dept_codes = dept_codes_where_advising(current_user)
+        user_dept_codes = dept_codes_where_advising(current_user.departments)
         return len([c for c in user_dept_codes if c in cohort_dept_codes])
     else:
         return False

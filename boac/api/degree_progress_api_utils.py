@@ -62,7 +62,7 @@ def create_batch_degree_checks(template_id, sids):
 
 def clone(template, created_by, name=None, sid=None):
     template_clone = DegreeProgressTemplate.create(
-        advisor_dept_codes=dept_codes_where_advising(current_user),
+        advisor_dept_codes=dept_codes_where_advising(current_user.departments),
         created_by=created_by,
         degree_name=name or template.degree_name,
         parent_template_id=template.id if sid else None,
