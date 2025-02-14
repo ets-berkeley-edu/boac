@@ -224,7 +224,7 @@ def add_alert_counts(alert_counts, students):
     return students
 
 
-def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
+def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
     if not users:
         return ()
     calnet_users = calnet.get_calnet_users_for_uids(app, [u.uid for u in users])
@@ -280,7 +280,6 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
         user_login = UserLogin.last_login(user.uid)
         profile['lastLogin'] = _isoformat(user_login.created_at) if user_login else None
         profiles.append(profile)
-    sort_by = sort_by or 'lastName'
     return sorted(profiles, key=lambda p: (p.get(sort_by) is None, p.get(sort_by)), reverse=sort_descending)
 
 

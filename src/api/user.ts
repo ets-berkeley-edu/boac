@@ -33,17 +33,22 @@ export function getCalnetProfileByCsid(csid) {
   return axios.get(url).then(response => response.data)
 }
 
-export function getCalnetProfileByUserId(userId) {
+export function getCalnetProfileByUserId(userId: number) {
   const url: string = `${utils.apiBaseUrl()}/api/user/calnet_profile/by_user_id/${userId}`
   return axios.get(url).then(response => response.data)
 }
 
-export function getCalnetProfileByUid(uid) {
+export function getCalnetProfileByUid(uid: string) {
   const url: string = `${utils.apiBaseUrl()}/api/user/calnet_profile/by_uid/${uid}`
   return axios.get(url).then(response => response.data)
 }
 
-export function getUserByUid(uid, ignoreDeleted?: boolean) {
+export function getPeerAdvisingUsers() {
+  return axios.get(`${utils.apiBaseUrl()}/api/users/peer_advising`)
+    .then(response => response.data)
+}
+
+export function getUserByUid(uid: string, ignoreDeleted?: boolean) {
   let url = `${utils.apiBaseUrl()}/api/user/by_uid/${uid}`
   if (!isNil(ignoreDeleted)) {
     url += `?ignoreDeleted=${ignoreDeleted}`

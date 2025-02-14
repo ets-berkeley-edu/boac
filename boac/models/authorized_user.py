@@ -259,6 +259,15 @@ class AuthorizedUser(Base):
             return None
 
     @classmethod
+    def get_peer_advising_users(cls):
+        query = text("""
+            SELECT u.id FROM authorized_users u
+            JOIN peer_advising_department_members m ON m.authorized_user_id = u.id
+        """)
+        user_ids = [row['id'] for row in db.session.execute(query)]
+        return cls.query.filter(cls.id.in_(user_ids)).all(), len(user_ids)
+
+    @classmethod
     def get_search_history(cls, user_id):
         query = text('SELECT search_history FROM authorized_users WHERE id = :id')
         result = db.session.execute(query, {'id': user_id}).first()

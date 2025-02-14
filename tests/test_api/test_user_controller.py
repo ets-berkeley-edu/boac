@@ -45,7 +45,7 @@ peer_advisor_uid = '1563405'
 class TestUserProfile:
     """User Profile API."""
 
-    def test_profile_not_authenticated(self, client):
+    def test_not_authenticated(self, client):
         """Returns a well-formed response."""
         api_json = _api_my_profile(client)
         assert api_json['isAuthenticated'] is False
@@ -150,7 +150,7 @@ class TestCalnetProfileByUid:
     """Calnet Profile API."""
 
     def test_user_by_uid_not_authenticated(self, client):
-        """Returns 401 when not authenticated."""
+        """Get user_by_uid returns 401 when user is not authenticated."""
         user = AuthorizedUser.find_by_uid(asc_advisor_uid)
         response = client.get(f'/api/user/calnet_profile/by_uid/{user.uid}')
         assert response.status_code == 401
@@ -169,7 +169,7 @@ class TestCalnetProfileByUid:
         assert response.json['uid'] == target_user.uid
 
     def test_user_by_csid_not_authenticated(self, client):
-        """Returns 401 when not authenticated."""
+        """Get user_by_csid returns 401 when user is not authenticated."""
         response = client.get(f'/api/user/calnet_profile/by_csid/{81067873}')
         assert response.status_code == 401
 
@@ -424,7 +424,7 @@ class TestGetAdminUsers:
     def test_get_admin_users(self, client, fake_auth):
         """Get all admin users."""
         fake_auth.login(admin_uid)
-        api_json = self._api_admin_users(client, ignore_deleted=False, expected_status_code=200)
+        api_json = self._api_admin_users(client, ignore_deleted=False)
         users = api_json['users']
         user_count = len(users)
         assert user_count
@@ -434,7 +434,7 @@ class TestGetAdminUsers:
     def test_get_admin_users_ignore_deleted(self, client, fake_auth):
         """Get admin users, ignoring deleted users."""
         fake_auth.login(admin_uid)
-        api_json = self._api_admin_users(client, ignore_deleted=True, expected_status_code=200)
+        api_json = self._api_admin_users(client, ignore_deleted=True)
         users = api_json['users']
         user_count = len(users)
         assert user_count
@@ -742,7 +742,7 @@ class TestUserUpdate:
 
 
 class TestPeerAdvisor:
-    """Peer Advising in the User Profile API."""
+    """Peer Advisor related calls to the User Profile API."""
 
     def test_peer_advising_department_memberships(self, client, fake_auth):
         """Returns peer_advising_departments in user profile object."""
@@ -800,6 +800,7 @@ class TestPeerAdvisor:
 
 
 class TestPeerAdvisorManager:
+    """Peer Advisor Manager related calls to the User Profile API."""
 
     def test_peer_advisor_manager_role(self, client, fake_auth):
         """Give an advisor the 'Peer Advising Manager' role."""
@@ -860,6 +861,31 @@ class TestPeerAdvisorManager:
                 uid=coe_advisor_uid,
             ),
         )
+
+
+class TestGetPeerAdvisingUser:
+    """Get all Peer Advising users via User Profile API."""
+
+    @classmethod
+    def _api_get_peer_advising_users(cls, client, expected_status_code=200):
+        response = client.get('/api/users/peer_advising')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Returns 401 to anonymous user."""
+        self._api_get_peer_advising_users(client, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth):
+        """Returns 401 to non-admin user."""
+        fake_auth.login(coe_advisor_uid)
+        self._api_get_peer_advising_users(client, expected_status_code=401)
+
+    def test_all_peer_advising_user(self, client, fake_auth):
+        fake_auth.login(admin_uid)
+        api_json = self._api_get_peer_advising_users(client)
+        assert len(api_json['users']) > 0
+        assert len(api_json['users']) == api_json['totalUserCount']
 
 
 def _api_create_or_update(
