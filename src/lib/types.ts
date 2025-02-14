@@ -58,6 +58,14 @@ export interface BoaUserDepartment extends HasDeptCode {
   memberships: DepartmentMembership[]
 }
 
+export type BoaUsersFilter = {
+  deptCode: string,
+  role: string | undefined,
+  searchPhrase: string,
+  status: string | undefined,
+  type: string
+}
+
 export type Cohort = {
   domain: string,
   id: number,
