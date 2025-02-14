@@ -111,7 +111,7 @@
 <script setup>
 import {compact as _compact, each, get, includes, isEmpty, map, size, uniq} from 'lodash'
 import {DateTime} from 'luxon'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {isGraduate} from '@/lib/berkeley-utils'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import {pluralize} from '@/lib/utils'
@@ -147,12 +147,11 @@ const props = defineProps({
 })
 
 const academicCareerStatus = ref([])
-const activeSubplans = ref([])
+const activeSubplans = computed(() => _compact(map(props.plansPartitionedByStatus[0], 'subplan')))
 const planTypes = ['MAJ', 'SS', 'SP', 'SH', 'CRT']
 
 onMounted(() => {
   academicCareerStatus.value = get(props.student, 'sisProfile.academicCareerStatus')
-  activeSubplans.value = _compact(map(props.plansPartitionedByStatus[0], 'subplan'))
   each(props.student.sisProfile.degrees, degree => {
     degree.planOwners = uniq(map(degree.plans, 'group'))
     degree.minorPlans = degree.plans.filter(plan => plan.type === 'MIN').map(minor => minor.plan).map(part => part.replace('Minor in ', ''))
