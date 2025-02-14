@@ -43,6 +43,7 @@ from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.note import Note
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.user_login import UserLogin
@@ -103,6 +104,34 @@ def advisor_or_peer_advisor_required(func):
             app.logger.warning(f'Unauthorized request to {request.path}')
             return app.login_manager.unauthorized()
     return _advisor_required
+
+
+# Checks if the peer_advisor or peer_advisor_manager is in the peer_advising_department in the URL parameter
+def peer_advisor_or_peer_advisor_manager_in_department(func):
+    @wraps(func)
+    def _peer_advisor_or_manager_in_department(*args, **kw):
+        # Extract the peer_advising_department_id from the URL params
+        peer_advising_department_id = kw.get('peer_advising_department_id') or request.view_args.get(
+            'peer_advising_department_id')
+        if peer_advising_department_id is None:
+            app.logger.error('Department ID missing in URL.')
+            return app.login_manager.unauthorized()
+        if (
+                (current_user.is_admin
+                    or is_authorized_peer_advisor_manager(current_user)
+                    or is_authorized_peer_advisor(current_user)
+                    or _api_key_ok())
+                and (
+                    PeerAdvisingDepartment.user_in_peer_advising_department(
+                        user=current_user,
+                        peer_advising_department_id=peer_advising_department_id)
+                )
+        ):
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _peer_advisor_or_manager_in_department
 
 
 def peer_advisor_manager_required(func):
