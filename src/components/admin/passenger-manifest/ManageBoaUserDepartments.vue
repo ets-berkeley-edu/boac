@@ -9,7 +9,7 @@
     <v-card-title class="align-center d-flex pb-0">
       <h5 class="text-wrap font-size-16">{{ userDepartment.deptName }} ({{ userDepartment.deptCode }})</h5>
       <v-btn
-        :id="`remove-userDepartment-${userDepartment.deptCode}`"
+        :id="`remove-userDepartment-${userDepartment.deptCode.toLowerCase()}`"
         :aria-label="`Remove department '${userDepartment.deptName}'`"
         class="align-self-start bg-grey-lighten-4 ml-auto text-error"
         density="comfortable"
@@ -28,7 +28,7 @@
       <div v-for="membership in userDepartment.memberships" :key="membership.role">
         <v-checkbox
           v-if="!isPeerAdvisingRole(membership.role)"
-          :id="`automate-membership-${userDepartment.deptCode}`"
+          :id="`automate-membership-${userDepartment.deptCode.toLowerCase()}`"
           v-model="membership.automateMembership"
           color="primary"
           density="compact"

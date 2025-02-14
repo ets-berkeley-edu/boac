@@ -15,7 +15,7 @@
         </option>
         <option
           v-for="peerAdvisingDepartment in peerAdvisingDepartments"
-          :id="`department-option-${lowerCase(toString(peerAdvisingDepartment.id))}`"
+          :id="`department-option-${normalizeId(peerAdvisingDepartment.name)}`"
           :key="peerAdvisingDepartment.id"
           :value="peerAdvisingDepartment"
         >
@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {find, get, lowerCase, toString} from 'lodash'
+import {find, get} from 'lodash'
 import {onMounted, ref, watch} from 'vue'
 import type {
   BoaUser,
@@ -37,6 +37,7 @@ import type {
   PeerAdvisingDepartment,
 } from '@/lib/types'
 import {findDepartment, findMembership} from '@/lib/berkeley-department'
+import {normalizeId} from '@/lib/utils'
 
 const user = defineModel<BoaUser>({
   required: true,

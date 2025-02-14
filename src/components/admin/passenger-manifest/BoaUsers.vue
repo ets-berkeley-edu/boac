@@ -72,7 +72,7 @@
               >
                 <option
                   v-for="option in [{id: -1, deptCode: null, deptName: 'All'}, ...allBerkeleyDepartments]"
-                  :id="`department-option-${option.deptCode}`"
+                  :id="normalizeId(`department-option-${option.deptCode}`)"
                   :key="option.deptCode"
                   :value="option.deptCode"
                 >
@@ -97,7 +97,7 @@
                     {name: 'No Notes or Appointments', value: 'noAdvisingDataAccess'},
                     {name: 'Directors', value: 'director'}
                   ]"
-                  :id="`user-permission-${option.value}`"
+                  :id="`user-permission-${option.value || option.name.toLowerCase()}`"
                   :key="option.value"
                   :value="option.value"
                 >
@@ -121,7 +121,7 @@
                     {name: 'Deleted', value: 'deleted'},
                     {name: 'Blocked', value: 'blocked'}
                   ]"
-                  :id="`user-permission-${option.value}`"
+                  :id="`user-permission-${option.value || option.name.toLowerCase()}`"
                   :key="option.value"
                   :value="option.value"
                 >
