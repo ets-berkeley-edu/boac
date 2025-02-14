@@ -10,7 +10,7 @@
         </h1>
         <div class="pr-3">
           <span class="font-size-14 text-medium-emphasis">
-            (<a id="download-boa-users-csv" aria-label="Download Passenger Manifest" :href="`${contextStore.config.apiBaseUrl}/api/users/csv`">download</a>)
+            (<a id="download-boa-users-csv" aria-label="Download Passenger Manifest" :href="`${contextStore.config.apiBaseUrl}/api/users/csv`">CSV download</a>)
           </span>
         </div>
       </div>
