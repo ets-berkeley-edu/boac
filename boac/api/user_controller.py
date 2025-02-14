@@ -197,6 +197,16 @@ def user_search():
     return tolerant_jsonify([{'label': _label(u), 'uid': u['uid']} for u in users])
 
 
+@app.route('/api/users/peer_advising')
+@admin_required
+def get_peer_advising_users():
+    users, total_user_count = AuthorizedUser.get_peer_advising_users()
+    return tolerant_jsonify({
+        'users': authorized_users_api_feed(users, sort_by='lastName'),
+        'totalUserCount': len(users),
+    })
+
+
 @app.route('/api/user/create_or_update', methods=['POST'])
 @admin_required
 def create_or_update_user_profile():

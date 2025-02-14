@@ -140,12 +140,11 @@
           <div>
             <v-btn
               id="quick-link-ce3-advisors"
-              class="font-size-16 px-0"
+              class="font-size-16 px-2"
               color="primary"
               :disabled="!!isBecomingUid"
-              min-width="60"
               variant="text"
-              @click="quickLink('advisor', 'ZCEEE', 'quick-link-ce3-advisors')"
+              @click="quickLink('ZCEEE', 'quick-link-ce3-advisors')"
             >
               CE3
             </v-btn>
@@ -156,13 +155,12 @@
           <div>
             <v-btn
               id="quick-link-coe-advisors"
-              class="font-size-16 px-0"
+              class="font-size-16 px-2"
               color="primary"
               :disabled="!!isBecomingUid"
               exact
-              min-width="220"
               variant="text"
-              @click="quickLink('advisor', 'COENG', 'quick-link-coe-advisors')"
+              @click="quickLink('COENG', 'quick-link-coe-advisors')"
             >
               College of Engineering
             </v-btn>
@@ -173,16 +171,31 @@
           <div>
             <v-btn
               id="quick-link-qcadv-advisors"
-              class="font-size-16 px-0"
+              class="font-size-16 px-2"
               color="primary"
               :disabled="!!isBecomingUid"
               exact
-              min-width="140"
+              text="L&amp;S Advisors"
               variant="text"
-              @click="quickLink('advisor', 'QCADV', 'quick-link-qcadv-advisors')"
+              @click="quickLink('QCADV', 'quick-link-qcadv-advisors')"
             >
               L&amp;S Advisors
             </v-btn>
+          </div>
+          <div>
+            |
+          </div>
+          <div>
+            <v-btn
+              id="quick-link-peer-advising"
+              class="font-size-16 px-2"
+              color="primary"
+              :disabled="!!isBecomingUid"
+              exact
+              text="Peer Advising"
+              variant="text"
+              @click="onClickPeerAdvisingQuickLink"
+            />
           </div>
         </v-col>
         <v-col>
@@ -427,7 +440,7 @@ import {
 } from 'lodash'
 import {mdiEmail, mdiLoginVariant, mdiNoteEditOutline, mdiNoteOutline} from '@mdi/js'
 import {ref, watch} from 'vue'
-import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
+import {becomeUser, getAdminUsers, getPeerAdvisingUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 import {alertScreenReader, escapeForRegExp, normalizeId, pluralize, putFocusNextTick} from '@/lib/utils'
 import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
 import {useContextStore} from '@/stores/context'
@@ -451,9 +464,8 @@ const dialogs = ref([])
 const expanded = ref([])
 const filterBy = ref({
   deptCode: 'QCADV',
-  role: null,
   searchPhrase: '',
-  status: null
+  status: undefined
 })
 const filterType = ref('search')
 const isBecomingUid = ref(undefined)
@@ -537,10 +549,10 @@ const fetchUsers = (returnFocusId=null, srAlert='Loading users.') => {
       break
     case 'filter':
       getUsers(
-        isNil(filterBy.value.status) ? null : filterBy.value.status === 'blocked',
-        isNil(filterBy.value.status) ? null : filterBy.value.status === 'deleted',
+        filterBy.value.status === 'blocked',
+        filterBy.value.status === 'deleted',
         filterBy.value.deptCode,
-        filterBy.value.role,
+        'advisor',
         sortBy.value,
         sortDesc.value
       ).then(data => {
@@ -601,8 +613,20 @@ const onCancelEditUser = (index, uid) => {
 
 const onClickEditUser = (index, uid) => {
   dialogs.value[index] = true
-  const user = cloneDeep(find(users.value, ['uid', uid]))
-  editUserModel.value = user
+  editUserModel.value = cloneDeep(find(users.value, ['uid', uid]))
+}
+
+const onClickPeerAdvisingQuickLink = () => {
+  isFetching.value = true
+  getPeerAdvisingUsers().then(data => {
+    users.value = data.users
+    totalUserCount.value = data.totalUserCount
+  }).then(() => {
+    userSelection.value = null
+    isFetching.value = false
+    alertScreenReader('Peer Advising users have been loaded.')
+    putFocusNextTick('quick-link-peer-advising')
+  })
 }
 
 const onUpdateUser = (index, uid) => {
@@ -628,14 +652,9 @@ const onUpdateSearch = debounce(query => {
   }
 }, 500)
 
-const quickLink = (role, deptCode=null, returnFocusId) => {
+const quickLink = (deptCode, returnFocusId) => {
   filterType.value = 'filter'
-  filterBy.value = {
-    deptCode: deptCode,
-    role: role,
-    searchPhrase: '',
-    status: 'active'
-  }
+  filterBy.value = {deptCode: deptCode, searchPhrase: '', status: 'active'}
   fetchUsers(returnFocusId)
 }
 </script>
