@@ -102,7 +102,7 @@ export function lastNameFirst(u: {firstName?: string, lastName?: string}) {
 }
 
 export function normalizeId(id: string) {
-  return toLower(id).replace(/\W/g, ' ').trim().replace(/ +_/g, '-')
+  return toLower(id).replace(/\W/g, ' ').trim().replace(/[ _]+/g, '-')
 }
 
 export function numFormat(num, format=null) {

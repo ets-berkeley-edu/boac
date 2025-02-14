@@ -8,7 +8,7 @@
     </label>
     <div class="mt-1">
       <select
-        :id="`select-department-${deptCode}-role`"
+        :id="`select-department-${deptCode.toLowerCase()}-role`"
         v-model="roles"
         class="select-menu select-department-role"
       >
@@ -20,7 +20,7 @@
         </option>
         <option
           v-for="option in options"
-          :id="`department-role-${option.value.join('-')}`"
+          :id="normalizeId(`department-role-${option.value.join('-')}`)"
           :key="option.text"
           :disabled="option.disabled"
           :value="option.value"
@@ -44,6 +44,7 @@ import type {
   DepartmentMembershipRole,
   SelectOption,
 } from '@/lib/types'
+import {normalizeId} from '@/lib/utils'
 
 const user = defineModel<BoaUser>({
   required: true,
