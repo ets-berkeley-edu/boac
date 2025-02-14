@@ -52,7 +52,7 @@ class TestGetNoteTemplate:
     def test_user_without_advising_data_access(self, client, fake_auth, mock_note_template):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
-        self._api_note_template(client=client, note_template_id=mock_note_template.id, expected_status_code=401)
+        self._api_note_template(client=client, note_template_id=mock_note_template.id, expected_status_code=403)
 
     def test_unauthorized(self, app, client, fake_auth, mock_note_template):
         """Returns 403 if user did not create the requested note template."""
