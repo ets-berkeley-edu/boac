@@ -9,11 +9,11 @@ export function getDepartments(excludeEmpty?: boolean) {
   return axios.get(url).then(response => response.data)
 }
 
-export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDeleted?: boolean) {
+export function getAdminUsers(sortBy: string, sortDescending: boolean, status: string) {
   const data = {
-    ignoreDeleted: isNil(ignoreDeleted) ? null : ignoreDeleted,
     sortBy,
-    sortDescending
+    sortDescending,
+    status
   }
   return axios.post(`${utils.apiBaseUrl()}/api/users/admins`, data).then(response => response.data)
 }
@@ -43,8 +43,21 @@ export function getCalnetProfileByUid(uid: string) {
   return axios.get(url).then(response => response.data)
 }
 
-export function getPeerAdvisingUsers() {
-  return axios.get(`${utils.apiBaseUrl()}/api/users/peer_advising`)
+export function getPeerAdvisingUsers(
+  peerAdvisingDepartmentId: number | undefined,
+  role: string | undefined,
+  sortBy: string,
+  sortDescending: boolean,
+  status: string
+) {
+  const data = {
+    peerAdvisingDepartmentId,
+    role,
+    sortBy,
+    sortDescending,
+    status
+  }
+  return axios.post(`${utils.apiBaseUrl()}/api/users/peer_advising`, data)
     .then(response => response.data)
 }
 
@@ -57,20 +70,18 @@ export function getUserByUid(uid: string, ignoreDeleted?: boolean) {
 }
 
 export function getUsers(
-    blocked: boolean,
-    deleted: boolean,
     deptCode: string,
     role: string,
     sortBy: string,
-    sortDescending: boolean
+    sortDescending: boolean,
+    status: string
   ) {
   const data = {
-    blocked,
-    deleted,
     deptCode,
     role,
     sortBy,
-    sortDescending
+    sortDescending,
+    status
   }
   return axios.post(`${utils.apiBaseUrl()}/api/users`, data).then(response => response.data)
 }

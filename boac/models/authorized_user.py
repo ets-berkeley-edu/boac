@@ -207,10 +207,11 @@ class AuthorizedUser(Base):
         return query.first()
 
     @classmethod
-    def users_with_uid_like(cls, uid_snippet, include_deleted=False):
-        like_uid_snippet = cls.uid.like(f'%{uid_snippet}%')
-        criteria = like_uid_snippet if include_deleted else and_(like_uid_snippet, cls.deleted_at == None)  # noqa: E711
-        return cls.query.filter(criteria).all()
+    def get_uids_like(cls, uid_snippet=None):
+        query = 'SELECT uid FROM authorized_users'
+        if uid_snippet:
+            query += f" WHERE uid LIKE '{uid_snippet}%'"
+        return [row['uid'] for row in db.session.execute(query).all()]
 
     @classmethod
     def find_by_uid(cls, uid, ignore_deleted=True):
@@ -222,12 +223,13 @@ class AuthorizedUser(Base):
         return cls.query.all() if include_deleted else cls.query.filter_by(deleted_at=None).all()
 
     @classmethod
-    def get_admin_users(cls, ignore_deleted=True):
-        if ignore_deleted:
-            query = cls.query.filter(and_(cls.is_admin, cls.deleted_at == None))  # noqa: E711
-        else:
-            query = cls.query.filter(cls.is_admin)
-        return query.all()
+    def get_admin_users(cls, status):
+        where_clause = cls.is_admin
+        if status == 'blocked':
+            where_clause = and_(cls.is_admin, cls.is_blocked.isnot(False))
+        elif status == 'deleted':
+            where_clause = and_(cls.is_admin, cls.deleted_at.isnot(None))
+        return cls.query.filter(where_clause).all()
 
     @classmethod
     def add_to_search_history(cls, user_id, search_phrase):
@@ -259,12 +261,25 @@ class AuthorizedUser(Base):
             return None
 
     @classmethod
-    def get_peer_advising_users(cls):
-        query = text("""
-            SELECT u.id FROM authorized_users u
-            JOIN peer_advising_department_members m ON m.authorized_user_id = u.id
+    def get_peer_advising_users(
+            cls,
+            status,
+            peer_advising_department_id=None,
+            role=None,
+    ):
+        query_tables, query_filter, query_bindings = _peer_advising_users_sql(
+            blocked=status == 'blocked',
+            deleted=status == 'deleted',
+            peer_advising_department_id=peer_advising_department_id,
+            role_type=role,
+        )
+        query = text(f"""
+            SELECT u.id
+            {query_tables}
+            {query_filter}
         """)
-        user_ids = [row['id'] for row in db.session.execute(query)]
+        results = db.session.execute(query, query_bindings)
+        user_ids = [row['id'] for row in results]
         return cls.query.filter(cls.id.in_(user_ids)).all(), len(user_ids)
 
     @classmethod
@@ -276,14 +291,13 @@ class AuthorizedUser(Base):
     @classmethod
     def get_users(
             cls,
-            deleted=None,
-            blocked=None,
             dept_code=None,
             role=None,
+            status=None,
     ):
         query_tables, query_filter, query_bindings = _users_sql(
-            blocked=blocked,
-            deleted=deleted,
+            blocked=status == 'blocked',
+            deleted=status == 'deleted',
             dept_code=dept_code,
             role=role,
         )
@@ -338,6 +352,47 @@ class AuthorizedUser(Base):
         return user
 
 
+def _peer_advising_users_sql(
+        blocked=None,
+        deleted=None,
+        peer_advising_department_id=None,
+        role_type=None,
+):
+    query_tables = 'FROM authorized_users u '
+    query_bindings = {
+        'peer_advising_department_id': peer_advising_department_id,
+        'role_type': role_type,
+    }
+    if peer_advising_department_id and role_type:
+        query_tables += """
+            JOIN peer_advising_departments d ON
+                d.id = :peer_advising_department_id
+            JOIN peer_advising_department_members m ON
+                m.peer_advising_department_id = d.id
+                AND m.role_type = :role_type
+                AND m.authorized_user_id = u.id
+        """
+    elif not peer_advising_department_id and role_type:
+        query_tables += """
+            JOIN peer_advising_department_members m ON
+                m.authorized_user_id = u.id
+                AND m.role_type = :role_type
+        """
+    elif peer_advising_department_id and not role_type:
+        query_tables += """
+            JOIN peer_advising_departments d ON
+                d.id = :peer_advising_department_id
+            JOIN peer_advising_department_members m ON
+                m.peer_advising_department_id = d.id
+                AND m.authorized_user_id = u.id
+        """
+    elif not peer_advising_department_id and not role_type:
+        query_tables += """
+            JOIN peer_advising_department_members m ON m.authorized_user_id = u.id
+        """
+    return query_tables, _users_sql_where_clause(blocked, deleted), query_bindings
+
+
 def _users_sql(
         blocked=None,
         deleted=None,
@@ -345,9 +400,10 @@ def _users_sql(
         role=None,
 ):
     query_tables = 'FROM authorized_users u '
-    query_filter = _users_sql_where_clause(blocked, deleted, role == 'admin')
-    query_bindings = {}
-
+    query_bindings = {
+        'dept_code': dept_code,
+        'role': role,
+    }
     if dept_code and role:
         query_tables += """
             JOIN university_depts d ON
@@ -355,25 +411,14 @@ def _users_sql(
             JOIN university_dept_members m ON
                 m.university_dept_id = d.id
                 AND m.authorized_user_id = u.id
+                AND m.role = :role
         """
-        if role == 'noCanvasDataAccess':
-            query_filter += 'AND u.can_access_canvas_data IS FALSE '
-        elif role == 'noAdvisingDataAccess':
-            query_filter += 'AND u.can_access_advising_data IS FALSE '
-        elif role in ['advisor', 'director']:
-            query_tables += f"AND m.role = '{role}'"
-        query_bindings['dept_code'] = dept_code
     elif not dept_code and role:
-        if role == 'noCanvasDataAccess':
-            query_filter += 'AND u.can_access_canvas_data IS FALSE '
-        elif role == 'noAdvisingDataAccess':
-            query_filter += 'AND u.can_access_advising_data IS FALSE '
-        else:
-            query_tables += f"""
-                JOIN university_dept_members m ON
-                    m.authorized_user_id = u.id
-                    AND m.role = '{role}'
-            """
+        query_tables += """
+            JOIN university_dept_members m ON
+                m.authorized_user_id = u.id
+                AND m.role = :role
+        """
     elif dept_code and not role:
         query_tables += """
             JOIN university_depts d ON d.dept_code = :dept_code
@@ -381,23 +426,17 @@ def _users_sql(
                 m.university_dept_id = d.id
                 AND m.authorized_user_id = u.id
         """
-        query_bindings['dept_code'] = dept_code
-    return query_tables, query_filter, query_bindings
+    return query_tables, _users_sql_where_clause(blocked, deleted), query_bindings
 
 
-def _users_sql_where_clause(blocked, deleted, is_admin):
+def _users_sql_where_clause(blocked, deleted):
     query_filter = 'WHERE TRUE '
     if blocked is True:
         query_filter += 'AND u.is_blocked IS TRUE '
     elif blocked is False:
         query_filter += 'AND u.is_blocked IS FALSE '
-
     if deleted is True:
         query_filter += 'AND u.deleted_at IS NOT NULL '
     elif deleted is False:
         query_filter += 'AND u.deleted_at IS NULL '
-
-    if is_admin:
-        query_filter += 'AND u.is_admin IS TRUE '
-
     return query_filter
