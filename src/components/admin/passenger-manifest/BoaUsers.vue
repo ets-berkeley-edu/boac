@@ -266,7 +266,8 @@ const become = uid => {
 const canBecome = user => {
   const isNotMe = user.uid !== contextStore.currentUser.uid
   const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
-  const hasAnyRole = user.isAdmin || getDeptCodesPerRoles(user, ADVISING_ROLE_TYPES.concat(PEER_ADVISING_ROLE_TYPES)).length
+  const validRoles = ADVISING_ROLE_TYPES.concat(PEER_ADVISING_ROLE_TYPES)
+  const hasAnyRole = user.isAdmin || getDeptCodesPerRoles(user, validRoles).length
   return contextStore.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
 }
 
