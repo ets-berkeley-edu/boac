@@ -53,15 +53,6 @@ class PeerAdvisingDepartment(Base):
     def get_department_by_id(cls, peer_advising_department_id):
         return cls.query.filter_by(id=peer_advising_department_id).first()
 
-    @classmethod
-    def is_user_in_peer_advising_department(cls, user_id, peer_advising_department_id):
-        membership = cls.query.filter_by(
-            authorized_user_id=user_id,
-            peer_advising_department_id=peer_advising_department_id,
-            deleted_at=None,
-        ).first()
-        return membership is not None
-
     def to_api_json(self):
         return {
             'id': self.id,
