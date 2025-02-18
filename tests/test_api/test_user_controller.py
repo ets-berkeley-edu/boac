@@ -27,6 +27,7 @@ from boac import std_commit
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.json_cache import insert_row as insert_in_json_cache
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.university_dept import UniversityDept
 from flask import current_app as app
 import simplejson as json
@@ -799,6 +800,8 @@ class TestPeerAdvisorManager:
         fake_auth.login(admin_uid)
         advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         dept_code = 'COENG'
+        university_dept_id = UniversityDept.find_by_dept_code(dept_code).id
+        peer_advising_department = PeerAdvisingDepartment.find_by_university_dept_id(university_dept_id)[0]
         user = _api_create_or_update(
             client,
             user=_get_user_update_post_payload(
@@ -810,7 +813,7 @@ class TestPeerAdvisorManager:
                         'deptCode': dept_code,
                         'memberships': [
                             {'role': 'advisor', 'automateMembership': True},
-                            {'peerAdvisingDepartmentId': 1, 'role': 'peer_advisor_manager'},
+                            {'peerAdvisingDepartmentId': peer_advising_department.id, 'role': 'peer_advisor_manager'},
                         ],
                     },
                 ],
@@ -826,11 +829,12 @@ class TestPeerAdvisorManager:
         # Verify University Dept membership
         departments = user['departments']
         assert len(departments) == 1
+        assert departments[0]['id'] == university_dept_id
         assert departments[0]['deptCode'] == dept_code
         # Verify Peer Advising
         peer_advisor_manager = next((m for m in departments[0]['memberships'] if m['role'] == 'peer_advisor_manager'), None)
         assert peer_advisor_manager
-        assert peer_advisor_manager['peerAdvisingDepartmentName'] == 'Mechanical Engineering'
+        assert peer_advisor_manager['peerAdvisingDepartmentName'] == peer_advising_department.name
 
     def test_invalid_peer_advisor_manager_update(self, client, fake_auth):
         """Peer Advising Manager must have can_access_advising_data == True."""

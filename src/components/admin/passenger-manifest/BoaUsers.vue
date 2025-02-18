@@ -145,7 +145,7 @@
         <div class="row-padding">
           <div v-for="(department, index) in item.departments" :key="department.deptCode">
             <span class="font-weight-bold text-body text-success-darken-1">
-              {{ department.deptName }} - {{ capitalize(map(department.memberships, 'role').join(', ')) }}
+              {{ department.deptName }} - {{ getDistinctRoleNames(department.memberships) }}
             </span>
             <div v-if="index !== item.departments.length - 1"></div>
           </div>
@@ -208,7 +208,7 @@
 </template>
 
 <script setup>
-import {capitalize, cloneDeep, find, get, map} from 'lodash'
+import {capitalize, cloneDeep, each, find, get, map, split, uniq} from 'lodash'
 import {DateTime} from 'luxon'
 import {mdiArrowDown, mdiArrowUp, mdiEmail, mdiLoginVariant, mdiNoteEditOutline} from '@mdi/js'
 import {ref, watch} from 'vue'
@@ -269,6 +269,15 @@ const canBecome = user => {
   const validRoles = ADVISING_ROLE_TYPES.concat(PEER_ADVISING_ROLE_TYPES)
   const hasAnyRole = user.isAdmin || getDeptCodesPerRoles(user, validRoles).length
   return contextStore.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
+}
+
+const getDistinctRoleNames = memberships => {
+  const roleNames = []
+  each(memberships, membership => {
+    const role = map(split(membership.role, '_'), word => capitalize(word)).join(' ')
+    roleNames.push(role)
+  })
+  return uniq(roleNames).join(', ')
 }
 
 const getUserStatuses = user => {
