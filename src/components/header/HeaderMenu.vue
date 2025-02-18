@@ -17,84 +17,88 @@
           <v-icon :icon="mdiMenuDown" size="24" />
         </button>
       </template>
-      <v-list class="py-3 remove-scroll" variant="flat">
-        <v-list-item-action v-if="currentUser.canReadDegreeProgress">
+      <v-list density="compact">
+        <v-list-item v-if="currentUser.canReadDegreeProgress" class="pa-0">
           <v-btn
             id="header-menu-degree-check"
             :aria-current="route.path === '/degrees' ? 'page' : false"
             class="font-size-16 justify-start text-decoration-none w-100"
             color="primary"
-            size="large"
             text="Degree Checks"
             to="/degrees"
             variant="text"
           />
-        </v-list-item-action>
-        <v-list-item-action v-if="isPeerAdvisorManager(currentUser)">
-          <!-- TODO: Implement the 'to:' path when peer_advising_department_memberships is wired up. -->
+        </v-list-item>
+        <v-list-item v-if="isPeerAdvisorManager(currentUser)" class="pa-0">
           <v-btn
             id="header-menu-peer-management"
             :aria-current="route.path.startsWith('/peer/management') ? 'page' : false"
             class="font-size-16 justify-start text-decoration-none w-100"
             color="primary"
+            density="comfortable"
             size="large"
             text="Peer Advisor Manager Dashboard"
-            to="/peer/management/1"
+            :to="`/peer/management/${peerAdvisingDepartmentId}`"
             variant="text"
           />
-        </v-list-item-action>
-        <v-list-item-action v-if="currentUser.isAdmin || myDirectorDepartment">
+        </v-list-item>
+        <v-list-item v-if="currentUser.isAdmin || myDirectorDepartment" class="pa-0">
           <v-btn
             id="header-menu-analytics"
             :aria-current="route.path.startsWith('/analytics') ? 'page' : false"
             class="font-size-16 justify-start text-decoration-none w-100"
             color="primary"
+            density="comfortable"
             size="large"
             text="Flight Data Recorder"
             :to="currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${myDirectorDepartment.toLowerCase()}`"
             variant="text"
           />
-        </v-list-item-action>
-        <v-list-item-action v-if="currentUser.isAdmin">
+        </v-list-item>
+        <v-list-item v-if="currentUser.isAdmin" class="pa-0">
           <v-btn
             id="header-menu-flight-deck"
             :aria-current="route.path === '/admin' ? 'page' : false"
             class="font-size-16 justify-start text-decoration-none w-100"
             color="primary"
+            density="comfortable"
             size="large"
             text="Flight Deck"
             to="/admin"
             variant="text"
           />
-        </v-list-item-action>
-        <v-list-item-action v-if="currentUser.isAdmin">
+        </v-list-item>
+        <v-list-item v-if="currentUser.isAdmin" class="pa-0">
           <v-btn
             id="header-menu-passengers"
             :aria-current="route.path === '/admin/passengers' ? 'page' : false"
             class="font-size-16 justify-start text-decoration-none w-100"
             color="primary"
+            density="comfortable"
             size="large"
             text="Passenger Manifest"
             to="/admin/passengers"
             variant="text"
           />
-        </v-list-item-action>
-        <v-list-item-action v-if="!currentUser.isAdmin">
+        </v-list-item>
+        <v-list-item v-if="!currentUser.isAdmin" class="pa-0" density="compact">
           <v-btn
             id="header-menu-profile"
             :aria-current="route.path === '/profile' ? 'page' : false"
             class="font-size-16 justify-start text-decoration-none w-100"
             color="primary"
+            density="comfortable"
             size="large"
             text="Profile"
             to="/profile"
             variant="text"
           />
-        </v-list-item-action>
-        <v-list-item-action>
+        </v-list-item>
+        <v-list-item class="pa-0">
           <v-btn
             class="font-size-16 font-weight-500 justify-start text-decoration-none w-100"
             color="primary"
+            density="comfortable"
             :href="`mailto:${contextStore.config.supportEmailAddress}`"
             size="large"
             target="_blank"
@@ -102,30 +106,32 @@
           >
             Feedback/Help<span class="sr-only">: Email the BOA team (opens in new window)</span>
           </v-btn>
-        </v-list-item-action>
-        <v-list-item-action>
+        </v-list-item>
+        <v-list-item class="pa-0">
           <v-btn
             id="header-menu-log-out"
             class="font-size-16 justify-start text-decoration-none w-100"
             color="primary"
+            density="comfortable"
             size="large"
             text="Log Out"
             variant="text"
             @click="logOut"
           />
-        </v-list-item-action>
+        </v-list-item>
       </v-list>
     </v-menu>
   </div>
 </template>
 
 <script setup>
+import {each} from 'lodash'
 import {mdiMenuDown} from '@mdi/js'
-import {reactive, ref} from 'vue'
+import {onMounted, reactive, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {getCasLogoutUrl} from '@/api/auth'
+import {getPeerAdvisingDepartments, myDeptCodes} from '@/lib/berkeley-department'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
-import {myDeptCodes} from '@/lib/berkeley-department'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
@@ -134,6 +140,17 @@ const deptCodes = myDeptCodes(['director'])
 const isMenuOpen = ref(false)
 const myDirectorDepartment = deptCodes && deptCodes[0]
 const route = useRoute()
+const peerAdvisingDepartmentId = ref(NaN)
+
+onMounted(() => {
+  each(myDeptCodes(['peer_advisor_manager']), deptCode => {
+    each(getPeerAdvisingDepartments(currentUser.departments, deptCode), peerAdvisingDepartment => {
+      peerAdvisingDepartmentId.value = peerAdvisingDepartment.id
+      return true
+    })
+    return !!peerAdvisingDepartmentId.value
+  })
+})
 
 const logOut = () => getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl)
 </script>
@@ -141,8 +158,5 @@ const logOut = () => getCasLogoutUrl().then(data => window.location.href = data.
 <style scoped>
 .header-button-menu {
   height: 46px;
-}
-.remove-scroll {
-  overflow: hidden !important;
 }
 </style>

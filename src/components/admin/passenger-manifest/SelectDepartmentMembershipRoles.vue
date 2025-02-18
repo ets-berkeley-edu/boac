@@ -43,7 +43,7 @@ import type {
   DepartmentMembershipRole,
   SelectOption,
 } from '@/lib/types'
-import {findDepartment, hasPeerAdvisingDepartments, isPeerAdvisingRole} from '@/lib/berkeley-department'
+import {findDepartment, getPeerAdvisingDepartments, isPeerAdvisingRole} from '@/lib/berkeley-department'
 import {normalizeId} from '@/lib/utils'
 import {useManifestStore} from '@/stores/manifest'
 
@@ -99,7 +99,7 @@ const refreshSelectOptions = () => {
   const advisor: Option = {value: ['advisor'], text: 'Advisor'}
   const director: Option = {value: ['director'], text: 'Director'}
   options.value = []
-  if (hasPeerAdvisingDepartments(manifestStore.allBerkeleyDepartments, props.deptCode)) {
+  if (getPeerAdvisingDepartments(manifestStore.allBerkeleyDepartments, props.deptCode).length) {
     const hasPeerAdvisingRoleElsewhere = user.value.departments.some(d => {
       return d.deptCode !== props.deptCode && d.memberships.some(m => isPeerAdvisingRole(m.role))
     })
