@@ -55,7 +55,7 @@ export function getUserDepartmentsWithRoles(user: BoaUser, roles: DepartmentMemb
 }
 
 export function getPeerAdvisingDepartments(berkeleyDepartments: Department[], deptCode: string): PeerAdvisingDepartment[] {
-  const berkeleyDepartment = findDepartment(berkeleyDepartments, deptCode)
+  const berkeleyDepartment: Department = findDepartment(berkeleyDepartments, deptCode)
   return berkeleyDepartment.peerAdvisingDepartments
 }
 

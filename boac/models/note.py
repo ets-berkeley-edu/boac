@@ -33,7 +33,6 @@ from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.note_topic import NoteTopic
-from boac.models.peer_advising_department import PeerAdvisingDepartment
 from dateutil.tz import tzutc
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
@@ -83,8 +82,6 @@ class Note(Base):
         back_populates='note',
         lazy=True,
     )
-    note_template = db.relationship('NoteTemplate', back_populates='notes')
-    peer_advising_department = db.relationship(PeerAdvisingDepartment.__name__, back_populates='notes')
 
     def __init__(
         self,

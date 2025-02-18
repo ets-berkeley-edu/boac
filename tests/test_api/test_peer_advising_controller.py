@@ -53,5 +53,4 @@ class TestGetPeerAdvisingDepartment:
         peer_advisor_manager = next((m for m in departments[0]['memberships'] if m['role'] == 'peer_advisor_manager'), None)
         assert peer_advisor_manager
         assert api_json['name']
-        assert len(api_json['members']) > 0
-        assert 'notesCreatedCount' in api_json['members'][0]
+        assert len(api_json['peerAdvisingDepartmentMembers'])

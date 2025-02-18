@@ -263,9 +263,9 @@ class AuthorizedUser(Base):
     @classmethod
     def get_peer_advising_users(
             cls,
-            status,
             peer_advising_department_id=None,
             role=None,
+            status='active',
     ):
         query_tables, query_filter, query_bindings = _peer_advising_users_sql(
             blocked=status == 'blocked',
@@ -280,7 +280,7 @@ class AuthorizedUser(Base):
         """)
         results = db.session.execute(query, query_bindings)
         user_ids = [row['id'] for row in results]
-        return cls.query.filter(cls.id.in_(user_ids)).all(), len(user_ids)
+        return cls.query.filter(cls.id.in_(user_ids)).all()
 
     @classmethod
     def get_search_history(cls, user_id):

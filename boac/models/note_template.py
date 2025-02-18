@@ -56,7 +56,6 @@ class NoteTemplate(Base):
         back_populates='note_template',
         lazy=True,
     )
-    notes = db.relationship('Note', back_populates='note_template')
 
     __table_args__ = (db.UniqueConstraint(
         'creator_id',

@@ -23,11 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
-from random import randrange
-
-from boac.api.util import peer_advisor_manager_required
+from boac.api.errors import ResourceNotFoundError
+from boac.api.util import authorized_users_api_feed, peer_advisor_manager_required
 from boac.lib.http import tolerant_jsonify
+from boac.models.authorized_user import AuthorizedUser
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 from dateutil.tz import tzutc
 from flask import current_app as app
 
@@ -35,35 +35,16 @@ from flask import current_app as app
 @app.route('/api/peer/department/<peer_advising_department_id>')
 @peer_advisor_manager_required
 def get_peer_advising_department(peer_advising_department_id):
-    mock_names = [
-        'Amelia Cortez',
-        'Cecil Copeland',
-        'Kirk Holloway',
-        'Lance Wright',
-        'Lila Caldwell',
-        'Max Townsend',
-        'Patricia Dunn',
-        'Patsy Simmons',
-    ]
-    members = []
-    for index, mock_name in enumerate(mock_names):
-        # TODO: Use approach similar to the '/api/users' API which leverages 'authorized_users_api_feed(...)'.
-        members.append({
-            'authorizedUserId': index,
-            'createdAt': _isoformat(datetime.now()),
-            'name': mock_name,
-            'notesCreatedCount': randrange(10),
-            'roleType': 'peer_advisor',
-            'updatedAt': _isoformat(datetime.now()),
-        })
-    return tolerant_jsonify({
-        'id': peer_advising_department_id,
-        'createdAt': _isoformat(datetime.now()),
-        'name': 'Your Peer Advising Department',
-        'members': members,
-        'universityDeptId': 1,
-        'updatedAt': _isoformat(datetime.now()),
-    })
+    peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
+    if peer_advising_department:
+        users = AuthorizedUser.get_peer_advising_users(peer_advising_department_id=peer_advising_department_id)
+        api_json = {
+            **peer_advising_department.to_api_json(),
+            **{'peerAdvisingDepartmentMembers': authorized_users_api_feed(users)},
+        }
+        return tolerant_jsonify(api_json)
+    else:
+        raise ResourceNotFoundError('Peer Advising Department not found.')
 
 
 def _isoformat(value):

@@ -26,7 +26,7 @@
       hide-default-footer
       hide-no-data
       hover
-      :items="peerAdvisingDepartment.members"
+      :items="peerAdvisingDepartment.peerAdvisingDepartmentMembers"
       :items-per-page="-1"
       mobile-breakpoint="md"
       :row-props="row => ({id: `tr-member-${row.item.uid}`})"
