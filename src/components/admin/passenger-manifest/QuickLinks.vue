@@ -1,80 +1,84 @@
 <template>
-  <div class="align-center d-flex">
-    <div class="align-center d-flex">
-      <div class="quick-links-label">
-        Quick links:
-      </div>
-      <div>
-        <v-btn
-          id="quick-link-ce3-advisors"
-          class="font-size-16 px-2"
-          color="primary"
-          :disabled="disabled"
-          text="CE3"
-          variant="text"
-          @click="onClickQuickLink('ZCEEE')"
-        />
-      </div>
-      <div>
-        |
-      </div>
-      <div>
-        <v-btn
-          id="quick-link-coe-advisors"
-          class="font-size-16 px-2"
-          color="primary"
-          :disabled="disabled"
-          exact
-          text="CoE Advisors"
-          variant="text"
-          @click="onClickQuickLink('COENG')"
-        />
-      </div>
-      <div>
-        |
-      </div>
-      <div>
-        <v-btn
-          id="quick-link-qcadv-advisors"
-          class="font-size-16 px-2"
-          color="primary"
-          :disabled="disabled"
-          exact
-          text="L&amp;S Advisors"
-          variant="text"
-          @click="onClickQuickLink('QCADV')"
-        />
-      </div>
-      <div>
-        |
-      </div>
-      <div>
-        <v-btn
-          id="quick-link-peer-advisors"
-          class="font-size-16 px-2"
-          color="primary"
-          :disabled="disabled"
-          exact
-          text="Peer Advisors"
-          variant="text"
-          @click="() => onClickPeerAdvisingQuickLink('peer_advisor')"
-        />
-      </div>
-      <div>
-        |
-      </div>
-      <div>
-        <v-btn
-          id="quick-link-peer-advisor_managers"
-          class="font-size-16 px-2"
-          color="primary"
-          :disabled="disabled"
-          exact
-          text="Peer Advisor Managers"
-          variant="text"
-          @click="() => onClickPeerAdvisingQuickLink('peer_advisor_manager')"
-        />
-      </div>
+  <div class="align-start d-flex flex-wrap mr-3">
+    <div class="mr-1 quick-links-label text-no-wrap">
+      Quick links:
+    </div>
+    <div>
+      <v-btn
+        id="quick-link-ce3-advisors"
+        class="font-size-15 px-2"
+        color="primary"
+        :disabled="disabled"
+        exact
+        size="sm"
+        text="CE3"
+        variant="text"
+        @click="onClickQuickLink('ZCEEE')"
+      />
+    </div>
+    <div>
+      |
+    </div>
+    <div>
+      <v-btn
+        id="quick-link-coe-advisors"
+        class="font-size-15 px-2"
+        color="primary"
+        :disabled="disabled"
+        exact
+        size="sm"
+        text="CoE Advisors"
+        variant="text"
+        @click="onClickQuickLink('COENG')"
+      />
+    </div>
+    <div>
+      |
+    </div>
+    <div>
+      <v-btn
+        id="quick-link-qcadv-advisors"
+        class="font-size-15 px-2"
+        color="primary"
+        :disabled="disabled"
+        exact
+        size="sm"
+        text="L&amp;S Advisors"
+        variant="text"
+        @click="onClickQuickLink('QCADV')"
+      />
+    </div>
+    <div>
+      |
+    </div>
+    <div>
+      <v-btn
+        id="quick-link-peer-advisors"
+        class="font-size-15 px-2"
+        color="primary"
+        :disabled="disabled"
+        exact
+        size="sm"
+        text="Peer Advisors"
+        variant="text"
+        @click="() => onClickPeerAdvisingQuickLink('peer_advisor')"
+      />
+    </div>
+    <div>
+      |
+    </div>
+    <div>
+      <v-btn
+        id="quick-link-peer-advisor_managers"
+        class="font-size-15 px-2"
+        color="primary"
+        :disabled="disabled"
+        exact
+        size="sm"
+        text="Peer Advisor Managers"
+        variant="text"
+        @click="() => onClickPeerAdvisingQuickLink('peer_advisor_manager')"
+      />
     </div>
   </div>
 </template>
@@ -121,8 +125,8 @@ const onClickQuickLink = (deptCode: string) => {
 
 <style scoped>
 .quick-links-label {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  padding-bottom: 1px;
+  padding-top: 1px;
 }
 </style>
