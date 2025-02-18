@@ -71,7 +71,7 @@
                 :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted && sortDescending ? 'descending' : 'ascending'}`"
                 class="font-size-14 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"
                 :class="{'align-start': column.align === 'start', 'icon-visible': isSorted}"
-                color="body"
+                color="primary"
                 density="compact"
                 :disabled="!!isBecomingUid"
                 variant="plain"
@@ -208,22 +208,16 @@
 </template>
 
 <script setup>
+import {capitalize, cloneDeep, find, get, map} from 'lodash'
 import {DateTime} from 'luxon'
-import {
-  capitalize,
-  cloneDeep,
-  find,
-  get,
-  map
-} from 'lodash'
 import {mdiArrowDown, mdiArrowUp, mdiEmail, mdiLoginVariant, mdiNoteEditOutline} from '@mdi/js'
 import {ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import BoaUserFullName from '@/components/admin/passenger-manifest/BoaUserFullName.vue'
 import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
+import {ADVISING_ROLE_TYPES, PEER_ADVISING_ROLE_TYPES, getDeptCodesPerRoles} from '@/lib/berkeley-department'
 import {alertScreenReader, normalizeId, pluralize, putFocusNextTick} from '@/lib/utils'
 import {becomeUser, getUserByUid} from '@/api/user'
-import {getDeptCodesPerRoles} from '@/lib/berkeley-department'
 import {useContextStore} from '@/stores/context'
 import {useManifestStore} from '@/stores/manifest.js'
 
@@ -241,7 +235,6 @@ const props = defineProps({
 const contextStore = useContextStore()
 const manifestStore = useManifestStore()
 const {filter, isFetching, sortDescending, totalUserCount, users} = storeToRefs(manifestStore)
-
 const dialogs = ref([])
 const editUserModel = ref(undefined)
 const expanded = ref([])
@@ -273,7 +266,7 @@ const become = uid => {
 const canBecome = user => {
   const isNotMe = user.uid !== contextStore.currentUser.uid
   const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
-  const hasAnyRole = user.isAdmin || getDeptCodesPerRoles(user, ['advisor', 'director']).length
+  const hasAnyRole = user.isAdmin || getDeptCodesPerRoles(user, ADVISING_ROLE_TYPES.concat(PEER_ADVISING_ROLE_TYPES)).length
   return contextStore.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
 }
 

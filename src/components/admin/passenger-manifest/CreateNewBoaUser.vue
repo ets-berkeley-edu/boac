@@ -2,8 +2,9 @@
   <div>
     <v-btn
       id="add-new-user-btn"
-      class="pl-4 pr-4 mr-6"
+      class="pl-4 pr-4"
       color="primary"
+      density="comfortable"
       :disabled="manifestStore.disabled"
       :prepend-icon="mdiPlus"
       text="Add New User"

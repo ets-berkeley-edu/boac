@@ -192,6 +192,7 @@ onMounted(() => {
 onUnmounted(() => clearInterval(intervalId.value))
 
 watch(() => filter.value.type, value => putFocusNextTick(value === 'search' ? 'search-user-input' : 'select-user-role'))
+watch(() => filter.value.role, () => putFocusNextTick('select-user-department'))
 watch(() => filter.value.deptCode, () => putFocusNextTick('select-user-status'))
 watch(() => filter.value.peerAdvisingDepartmentId, () => putFocusNextTick('select-user-status'))
 watch(() => filter.value.status, () => putFocusNextTick('submit-user-search-filters'))

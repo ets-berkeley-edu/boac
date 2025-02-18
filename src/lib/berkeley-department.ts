@@ -9,9 +9,9 @@ import type {
   HasDeptCode,
 } from '@/lib/types'
 
-export const ADVISING_ROLE_TYPES: string[] = ['advisor', 'director']
+export const ADVISING_ROLE_TYPES: DepartmentMembershipRole[] = ['advisor', 'director']
 
-export const PEER_ADVISING_ROLE_TYPES: string[] = ['peer_advisor', 'peer_advisor_manager']
+export const PEER_ADVISING_ROLE_TYPES: DepartmentMembershipRole[] = ['peer_advisor', 'peer_advisor_manager']
 
 export function getBoaUserRoles(department: BoaUserDepartment): string[] {
   const roles: string[] = []
