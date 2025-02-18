@@ -7,6 +7,7 @@ import type {
   DepartmentMembership,
   DepartmentMembershipRole,
   HasDeptCode,
+  PeerAdvisingDepartment
 } from '@/lib/types'
 
 export const ADVISING_ROLE_TYPES: DepartmentMembershipRole[] = ['advisor', 'director']
@@ -53,9 +54,9 @@ export function getUserDepartmentsWithRoles(user: BoaUser, roles: DepartmentMemb
   return result
 }
 
-export function hasPeerAdvisingDepartments(berkeleyDepartments: Department[], deptCode: string): boolean {
+export function getPeerAdvisingDepartments(berkeleyDepartments: Department[], deptCode: string): PeerAdvisingDepartment[] {
   const berkeleyDepartment = findDepartment(berkeleyDepartments, deptCode)
-  return !!berkeleyDepartment.peerAdvisingDepartments.length
+  return berkeleyDepartment.peerAdvisingDepartments
 }
 
 export const isPeerAdvisingRole = (role: DepartmentMembershipRole): boolean => role.startsWith('peer_')
