@@ -10,9 +10,9 @@
           class="float-end"
           color="primary"
           slim
-          text="Add Unit Requirement"
+          text="Create new Note Template"
           variant="text"
-          :append-icon="mdiPlus"
+          :prepend-icon="mdiPlus"
           @click.prevent="onClickAdd"
         />
       </div>
@@ -30,16 +30,12 @@
       mobile-breakpoint="md"
       :row-props="row => ({id: `row-note-template-${row.item.uid}`})"
     >
-      <template #item.createdAt="{item}">
-        <div class="float-right" :class="{'font-weight-medium text-red': item.deletedAt}">
-          {{ item.createdAt }}
-        </div>
-      </template>
-      <template #item.actions="{item}">
-        <v-tooltip text="Delete">
-          <template #activator="{props}">
+      <template #item="{ item, index }">
+        <tr :class="index % 2 === 0 ? 'white-row' : 'grey-row'">
+          <td> {{ item.name }}</td>
+          <td> {{ item.createdAt }} </td>
+          <td>
             <v-btn
-              v-bind="props"
               :id="`edit-note-template-${item.uid}`"
               :aria-label="`Edit ${item.name}`"
               color="primary"
@@ -50,7 +46,6 @@
             />
             |
             <v-btn
-              v-bind="props"
               :id="`copy-note-template-${item.uid}`"
               :aria-label="`Copy ${item.name}`"
               color="primary"
@@ -61,7 +56,6 @@
             />
             |
             <v-btn
-              v-bind="props"
               :id="`delete-note-template-${item.uid}`"
               :aria-label="`Delete ${item.name}`"
               color="primary"
@@ -70,8 +64,8 @@
               variant="text"
               @click="deleteTemplate(item)"
             />
-          </template>
-        </v-tooltip>
+          </td>
+        </tr>
       </template>
     </v-data-table>
   </div>
@@ -81,6 +75,14 @@
 import {onMounted, ref} from 'vue'
 import {mdiPlus} from '@mdi/js'
 import {alertScreenReader} from '@/lib/utils'
+import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
+
+const props = defineProps({
+  peerAdvisingDepartment: {
+    required: true,
+    type: Object
+  }
+})
 
 const headers = [
   {align: 'start', key: 'name', title: 'Template Name', width: '60%'},
@@ -108,7 +110,14 @@ onMounted(() => {
       createdAt: 'Mar 3, 2024'
     },
   ]
+  getNoteTemplates()
 })
+
+const getNoteTemplates = () => {
+  getNoteTemplatesForPeerAdvising(props.peerAdvisingDepartment.id).then(response => {
+    noteTemplates.value = response
+  })
+}
 
 const copyTemplate = noteTemplate => {
   alertScreenReader(noteTemplate)
@@ -126,3 +135,16 @@ const onClickAdd = () => {
   alertScreenReader('onClickAdd')
 }
 </script>
+
+<style>
+
+.data-table-header-cell {
+  height: 24px !important;
+}
+.white-row {
+  background-color: white;
+}
+.grey-row {
+  background-color: #f6f6f6;
+}
+</style>

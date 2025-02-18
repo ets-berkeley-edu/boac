@@ -24,14 +24,16 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advising_data_access_required, get_note_attachments_from_http_post, get_note_topics_from_http_post
+from boac.api.util import (advising_data_access_required, get_note_attachments_from_http_post,
+                           get_note_topics_from_http_post, peer_advisor_or_peer_advisor_manager_in_department)
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
 from boac.models.note import Note
 from boac.models.note_template import NoteTemplate
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 from flask import current_app as app, request
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 
 @app.route('/api/note_template/create', methods=['POST'])
@@ -62,12 +64,17 @@ def create_note_template():
 
 
 @app.route('/api/note_template/<note_template_id>')
-@advising_data_access_required
+@login_required
 def get_note_template(note_template_id):
     note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
     if not note_template:
         raise ResourceNotFoundError('Template not found')
-    if note_template.creator_id != current_user.get_id():
+    if not note_template.peer_advising_department_id and note_template.creator_id != current_user.get_id():
+        raise ForbiddenRequestError('Template not available')
+    if (note_template.peer_advising_department_id
+            and not PeerAdvisingDepartment.user_in_peer_advising_department(
+                user=current_user,
+                peer_advising_department_id=note_template.peer_advising_department_id)):
         raise ForbiddenRequestError('Template not available')
     return tolerant_jsonify(note_template.to_api_json())
 
@@ -80,9 +87,9 @@ def get_my_note_templates():
 
 
 @app.route('/api/note_templates/peer_advising_department_id/<peer_advising_department_id>')
-@advising_data_access_required
+@peer_advisor_or_peer_advisor_manager_in_department
 def get_note_templates_for_peer_advising_department(peer_advising_department_id):
-    note_templates = NoteTemplate.get_templates_created_by(peer_advising_department_id=peer_advising_department_id)
+    note_templates = NoteTemplate.get_templates_created_by_peer_advising_department(peer_advising_department_id=peer_advising_department_id)
     return tolerant_jsonify([t.to_api_json() for t in note_templates])
 
 
@@ -97,8 +104,13 @@ def rename_note_template():
     note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
     if not note_template:
         raise ResourceNotFoundError('Template not found')
-    if note_template.creator_id != current_user.get_id():
-        raise ForbiddenRequestError('Template not available.')
+    if not note_template.peer_advising_department_id and note_template.creator_id != current_user.get_id():
+        raise ForbiddenRequestError('Template not available')
+    if (note_template.peer_advising_department_id
+            and not PeerAdvisingDepartment.user_in_peer_advising_department(
+                user=current_user,
+                peer_advising_department_id=note_template.peer_advising_department_id)):
+        raise ForbiddenRequestError('Template not available')
     note_template = NoteTemplate.rename(note_template_id=note_template_id, title=title)
     return tolerant_jsonify(note_template.to_api_json())
 
@@ -119,8 +131,13 @@ def update_note_template():
     note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
     if not note_template:
         raise ResourceNotFoundError('Template not found')
-    if note_template.creator_id != current_user.get_id():
-        raise ForbiddenRequestError('Template not available.')
+    if not note_template.peer_advising_department_id and note_template.creator_id != current_user.get_id():
+        raise ForbiddenRequestError('Template not available')
+    if (note_template.peer_advising_department_id
+            and not PeerAdvisingDepartment.user_in_peer_advising_department(
+                user=current_user,
+                peer_advising_department_id=note_template.peer_advising_department_id)):
+        raise ForbiddenRequestError('Template not available')
     note_template = NoteTemplate.update(
         attachments=get_note_attachments_from_http_post(tolerate_none=True),
         body=process_input_from_rich_text_editor(body),
@@ -139,7 +156,12 @@ def delete_note_template(note_template_id):
     note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
     if not note_template:
         raise ResourceNotFoundError('Template not found')
-    if note_template.creator_id != current_user.get_id():
+    if not note_template.peer_advising_department_id and note_template.creator_id != current_user.get_id():
+        raise ForbiddenRequestError('Template not available')
+    if (note_template.peer_advising_department_id
+            and not PeerAdvisingDepartment.user_in_peer_advising_department(
+                user=current_user,
+                peer_advising_department_id=note_template.peer_advising_department_id)):
         raise ForbiddenRequestError('Template not available')
     NoteTemplate.delete(note_template_id=note_template_id)
     return tolerant_jsonify({'message': f'Note template {note_template_id} deleted'}), 200

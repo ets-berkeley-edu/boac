@@ -12,6 +12,12 @@ export function getMyNoteTemplates() {
   return axios.get(`${utils.apiBaseUrl()}/api/note_templates/my`).then(response => response.data)
 }
 
+
+export function getNoteTemplatesForPeerAdvising(peerAdvisingDeptId: number) {
+  const url: string = `${utils.apiBaseUrl()}/api/note_templates/peer_advising_department_id/${peerAdvisingDeptId}`
+  return axios.get(url).then(response => response.data)
+}
+
 export function createNoteTemplate(noteId: number, title: string) {
   const url: string = `${utils.apiBaseUrl()}/api/note_template/create`
   return axios.post(url, {noteId, title}).then(response => {
@@ -58,3 +64,4 @@ export function updateNoteTemplate(
     return data
   })
 }
+
