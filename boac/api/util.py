@@ -124,7 +124,7 @@ def peer_advisor_or_peer_advisor_manager_in_department(func):
                     or _api_key_ok())
                 and (
                     PeerAdvisingDepartment.is_user_in_peer_advising_department(
-                        user=current_user,
+                        user_id=current_user.get_id(),
                         peer_advising_department_id=peer_advising_department_id)
                 )):
             return func(*args, **kw)
@@ -158,10 +158,7 @@ def advising_data_access_required(func):
         is_authorized = (
             current_user.is_authenticated
             and current_user.can_access_advising_data
-            and (
-                current_user.is_admin
-                or has_any_membership_role(current_user, 'advisor', 'director')
-            )
+            and (current_user.is_admin or has_any_membership_role(current_user, 'advisor', 'director'))
         )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
