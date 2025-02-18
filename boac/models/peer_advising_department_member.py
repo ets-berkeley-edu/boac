@@ -115,3 +115,12 @@ class PeerAdvisingDepartmentMember(Base):
     @classmethod
     def get_peer_advising_department_members(cls, peer_advising_department_id):
         return cls.query.filter_by(peer_advising_department_id=peer_advising_department_id, deleted_at=None).all()
+
+    @classmethod
+    def is_user_in_peer_advising_department(cls, user_id, peer_advising_department_id):
+        membership = cls.query.filter_by(
+            authorized_user_id=user_id,
+            peer_advising_department_id=peer_advising_department_id,
+            deleted_at=None,
+        ).first()
+        return membership is not None

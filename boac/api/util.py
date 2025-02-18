@@ -43,7 +43,6 @@ from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.note import Note
-from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.user_login import UserLogin
@@ -123,7 +122,7 @@ def peer_advisor_or_peer_advisor_manager_in_department(func):
                     or is_peer_advisor(current_user)
                     or _api_key_ok())
                 and (
-                    PeerAdvisingDepartment.is_user_in_peer_advising_department(
+                    PeerAdvisingDepartmentMember.is_user_in_peer_advising_department(
                         user_id=current_user.get_id(),
                         peer_advising_department_id=peer_advising_department_id)
                 )):
