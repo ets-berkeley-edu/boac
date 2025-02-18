@@ -142,69 +142,68 @@ def session_keep_alive():
 def all_users():
     params = request.get_json()
     users, total_user_count = AuthorizedUser.get_users(
-        blocked=to_bool_or_none(util.get(params, 'blocked')),
-        deleted=to_bool_or_none(util.get(params, 'deleted')),
         dept_code=util.get(params, 'deptCode', None),
         role=util.get(params, 'role', None) or None,
+        status=util.get(params, 'status'),
     )
-    return tolerant_jsonify({
-        'users': authorized_users_api_feed(
-            users,
-            sort_by=util.get(params, 'sortBy', 'lastName'),
-            sort_descending=to_bool_or_none(util.get(params, 'sortDescending', False)),
-        ),
-        'totalUserCount': total_user_count,
-    })
+    return tolerant_jsonify(authorized_users_api_feed(
+        users,
+        sort_by=util.get(params, 'sortBy', 'lastName'),
+        sort_descending=to_bool_or_none(util.get(params, 'sortDescending', False)),
+    ))
 
 
 @app.route('/api/users/admins', methods=['POST'])
 @admin_required
 def get_admin_users():
     params = request.get_json()
-    ignore_deleted = to_bool_or_none(util.get(params, 'ignoreDeleted'))
-    users = AuthorizedUser.get_admin_users(ignore_deleted=True if ignore_deleted is None else ignore_deleted)
-    return tolerant_jsonify({
-        'users': authorized_users_api_feed(
-            users,
-            sort_by=util.get(params, 'sortBy'),
-            sort_descending=to_bool_or_none(util.get(params, 'sortDescending')),
-        ),
-        'totalUserCount': len(users),
-    })
+    users = AuthorizedUser.get_admin_users(status=util.get(params, 'status'))
+    return tolerant_jsonify(authorized_users_api_feed(
+        users,
+        sort_by=util.get(params, 'sortBy'),
+        sort_descending=to_bool_or_none(util.get(params, 'sortDescending')),
+    ))
 
 
 @app.route('/api/users/autocomplete', methods=['POST'])
 @admin_required
 def user_search():
+    users = []
     snippet = request.get_json().get('snippet', '').strip()
     if snippet:
         search_by_uid = re.match(r'\d+', snippet)
-        if search_by_uid:
-            users = AuthorizedUser.users_with_uid_like(snippet, include_deleted=True)
-        else:
-            users = AuthorizedUser.get_all_active_users(include_deleted=True)
-        users = list(calnet.get_calnet_users_for_uids(app, [u.uid for u in users]).values())
+        uids = AuthorizedUser.get_uids_like(snippet if search_by_uid else None)
+        calnet_users = calnet.get_calnet_users_for_uids(app, uids)
+        users = list(calnet_users.values())
         if not search_by_uid:
             any_ = r'.*'
             pattern = re.compile(any_ + any_.join(snippet.split()) + any_, re.IGNORECASE)
             users = list(filter(lambda u: u.get('name') and pattern.match(u['name']), users))
-    else:
-        users = []
+    api_json = []
+    for user in users:
+        name, uid = user['name'], user['uid']
+        api_json.append({
+            'name': f'{name} ({uid})' if name else uid,
+            'uid': uid,
+        })
+    return tolerant_jsonify(api_json)
 
-    def _label(user):
-        name = user['name']
-        return f"{name} ({user['uid']})" if name else user['uid']
-    return tolerant_jsonify([{'label': _label(u), 'uid': u['uid']} for u in users])
 
-
-@app.route('/api/users/peer_advising')
+@app.route('/api/users/peer_advising', methods=['POST'])
 @admin_required
 def get_peer_advising_users():
-    users, total_user_count = AuthorizedUser.get_peer_advising_users()
-    return tolerant_jsonify({
-        'users': authorized_users_api_feed(users, sort_by='lastName'),
-        'totalUserCount': len(users),
-    })
+    params = request.get_json()
+    peer_advising_department_id = util.get(params, 'peerAdvisingDepartmentId', None)
+    role = util.get(params, 'role', None) or None
+    sort_by = util.get(params, 'sortBy', 'lastName')
+    sort_descending = to_bool_or_none(util.get(params, 'sortDescending', False))
+
+    users, total_user_count = AuthorizedUser.get_peer_advising_users(
+        peer_advising_department_id=peer_advising_department_id,
+        role=role,
+        status=util.get(params, 'status'),
+    )
+    return tolerant_jsonify(authorized_users_api_feed(users, sort_by=sort_by, sort_descending=sort_descending))
 
 
 @app.route('/api/user/create_or_update', methods=['POST'])

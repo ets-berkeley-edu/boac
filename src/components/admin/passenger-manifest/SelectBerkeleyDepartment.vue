@@ -9,6 +9,7 @@
         v-model="department"
         aria-label="Department"
         class="select-menu"
+        :disabled="user.isAdmin"
       >
         <option id="department-null" :value="undefined">
           Select Department...
@@ -33,13 +34,7 @@ import {find, lowerCase} from 'lodash'
 import {mdiCheckBold} from '@mdi/js'
 import {ref, watch} from 'vue'
 import type {BoaUser, Department} from '@/lib/types'
-
-defineProps({
-  allBerkeleyDepartments: {
-    required: true,
-    type: Array as PropType<Array<Department>>
-  }
-})
+import {useManifestStore} from '@/stores/manifest'
 
 const user = defineModel<BoaUser>({
   required: true,
@@ -47,6 +42,7 @@ const user = defineModel<BoaUser>({
 })
 
 const department = ref<Department | undefined>()
+const allBerkeleyDepartments = useManifestStore().allBerkeleyDepartments
 
 watch(department, (value: Department | undefined) => {
   if (value) {

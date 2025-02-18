@@ -5,7 +5,12 @@
     min-width="500"
   >
     <v-card-title class="pb-0">
-      <ModalHeader :text="user.id ? user.name : 'Create User'" />
+      <div class="align-end d-flex flex-wrap justify-space-between">
+        <ModalHeader :text="user.id ? user.name : 'Create User'" />
+        <div v-if="user.id" class="font-size-16 mb-1 mr-2 text-medium-emphasis">
+          <span class="font-weight-550">UID:</span> {{ user.uid }}
+        </div>
+      </div>
       <v-expand-transition>
         <div
           v-show="error"
@@ -33,12 +38,11 @@
         />
       </div>
       <ManageBoaUserPermissions v-model="user" />
-      <ManageBoaUserDepartments v-model="user" :all-berkeley-departments="allBerkeleyDepartments" />
+      <ManageBoaUserDepartments v-model="user" />
       <v-expand-transition>
         <SelectBerkeleyDepartment
           v-show="!isPeerAdvisor(user)"
           v-model="user"
-          :all-berkeley-departments="allBerkeleyDepartments"
         />
       </v-expand-transition>
     </v-card-text>
@@ -64,12 +68,12 @@
 import type {PropType} from 'vue'
 import {computed, ref, watch} from 'vue'
 import {each, get, size} from 'lodash'
+import type {BoaUser, BoaUserDepartment, DepartmentMembership} from '@/lib/types'
 import ManageBoaUserDepartments from '@/components/admin/passenger-manifest/ManageBoaUserDepartments.vue'
 import ManageBoaUserPermissions from '@/components/admin/passenger-manifest/ManageBoaUserPermissions.vue'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import SelectBerkeleyDepartment from '@/components/admin/passenger-manifest/SelectBerkeleyDepartment.vue'
-import type {BoaUser, BoaUserDepartment, Department, DepartmentMembership} from '@/lib/types'
 import {createOrUpdateUser} from '@/api/user'
 import {isPeerAdvisingRole} from '@/lib/berkeley-department'
 import {isPeerAdvisor} from '@/lib/boa-user'
@@ -80,10 +84,6 @@ const user = defineModel<BoaUser>({
 })
 
 const props = defineProps({
-  allBerkeleyDepartments: {
-    required: true,
-    type: Array as PropType<Array<Department>>
-  },
   onCancel: {
     default: () => {},
     type: Function

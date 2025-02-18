@@ -36,7 +36,6 @@
 import type {PropType} from 'vue'
 import {onMounted, ref, watch} from 'vue'
 import {each, map, size} from 'lodash'
-import {findDepartment, isPeerAdvisingRole} from '@/lib/berkeley-department'
 import type {
   BoaUser,
   BoaUserDepartment,
@@ -44,7 +43,9 @@ import type {
   DepartmentMembershipRole,
   SelectOption,
 } from '@/lib/types'
+import {findDepartment, hasPeerAdvisingDepartments, isPeerAdvisingRole} from '@/lib/berkeley-department'
 import {normalizeId} from '@/lib/utils'
+import {useManifestStore} from '@/stores/manifest'
 
 const user = defineModel<BoaUser>({
   required: true,
@@ -55,13 +56,10 @@ const props = defineProps({
   deptCode: {
     required: true,
     type: String
-  },
-  isDepartmentWithPeerAdvising: {
-    required: true,
-    type: Boolean
   }
 })
 
+const manifestStore = useManifestStore()
 const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
 const options = ref<SelectOption<DepartmentMembershipRole[]>[]>([])
 const roles = ref<DepartmentMembershipRole[]>([])
@@ -73,12 +71,18 @@ watch(roles, (value: DepartmentMembershipRole[]) => {
       const membership = ['advisor', 'director'].includes(role) ? {automateMembership: true, role} : {role}
       department.memberships.push(membership)
     })
+    if (department.memberships.length) {
+      user.value.isAdmin = false
+    }
     if (value.includes('peer_advisor')) {
       user.value.canAccessAdvisingData = false
       user.value.canAccessCanvasData = false
+      user.value.isAdmin = false
+      user.value.isBlocked = true
     }
     if (value.includes('peer_advisor_manager')) {
       user.value.canAccessAdvisingData = true
+      user.value.isAdmin = false
     }
   }
 })
@@ -95,7 +99,7 @@ const refreshSelectOptions = () => {
   const advisor: Option = {value: ['advisor'], text: 'Advisor'}
   const director: Option = {value: ['director'], text: 'Director'}
   options.value = []
-  if (props.isDepartmentWithPeerAdvising) {
+  if (hasPeerAdvisingDepartments(manifestStore.allBerkeleyDepartments, props.deptCode)) {
     const hasPeerAdvisingRoleElsewhere = user.value.departments.some(d => {
       return d.deptCode !== props.deptCode && d.memberships.some(m => isPeerAdvisingRole(m.role))
     })

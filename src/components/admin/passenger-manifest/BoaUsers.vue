@@ -1,27 +1,12 @@
 <template>
   <div>
-    <SelectDepartmentMembershipRoles
-      v-model="filter"
-      class="pb-0 pl-0 pt-1 pr-6"
-      :all-berkeley-departments="allBerkeleyDepartments"
-      :disabled="isBecomingUid || isFetching"
-      :fetch-users="fetchUsers"
-    />
-    <QuickLinks
-      class="ml-2 mt-3"
-      :disabled="isBecomingUid || isFetching"
-      :on-click-peer-advising-quick-link="onClickPeerAdvisingQuickLink"
-      :on-click-quick-link="onClickQuickLink"
-    />
     <div
       v-if="totalUserCount > 0"
       class="sr-only"
     >
       Showing {{ pluralize('user', totalUserCount) }}
     </div>
-    <SectionSpinner :loading="isFetching" />
-    <v-data-table-server
-      v-if="!isFetching && !isNaN(totalUserCount)"
+    <v-data-table-virtual
       v-model:expanded="expanded"
       v-model:items-per-page="itemsPerPage"
       :cell-props="data => {
@@ -34,10 +19,10 @@
       class="responsive-data-table v-table-hidden-row-override"
       :headers="[
         {key: 'data-table-expand', sortable: false, title: '', width: 40},
-        {align: 'start', key: 'uid', sortable: false, title: 'UID'},
-        {align: 'end', ariaLabel: 'edit user', cellProps: {class: ['td-name']}, key: 'edit', sortable: false, title: ''},
+        {align: 'start', key: 'uid', title: 'UID'},
+        {align: 'end', cellProps: {class: ['td-name']}, key: 'edit', sortable: false, title: ''},
         {align: 'start', cellProps: {class: ['td-name']}, key: 'lastName', sortable: true, title: 'Name'},
-        {align: 'start', title: 'Departments', key: 'departments', headerProps: {class: 'pl-3'}, sortable: false},
+        {align: 'start', title: 'Departments', key: 'departments', headerProps: {class: 'pl-3'}},
         {align: 'start', title: 'Status', key: 'deletedAt', sortable: false},
         {align: 'start', cellProps: {class: 'td-last-login'}, headerProps: {class: 'pl-8'}, key: 'lastLogin', sortable: true, title: 'Last Login'},
         {align: 'start', key: 'campusEmail', sortable: false, title: 'Email'},
@@ -51,7 +36,6 @@
       disable-pagination
       item-value="uid"
       loading-text="Searching..."
-      no-data-text="No users"
       :row-props="data => {
         const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
         return {
@@ -59,26 +43,34 @@
           id: `tr-user-${data.item.uid}`
         }
       }"
+      :disable-sort="totalUserCount < 2"
+      :sort-by="[{key: manifestStore.sortBy, order: sortDescending ? 'desc' : 'asc'}]"
       show-expand
       @update:sort-by="handleSort"
     >
-      <template #headers="{columns, isSorted, toggleSort, getSortIcon}">
+      <template #no-data>
+        <div class="font-size-16 text-medium-emphasis py-15">
+          No matching users found.
+        </div>
+      </template>
+      <template #headers="{columns, isSorted, sortBy, toggleSort}">
         <tr>
           <th
             v-for="column in columns"
             :key="column.key"
             :aria-label="column.ariaLabel || column.title"
-            :aria-sort="isSorted(column) ? `${sortBy.order}ending` : null"
+            :aria-sort="isSorted ? (sortDescending ? 'Descending' : 'Ascending') : null"
             class="pt-3 text-no-wrap"
             :style="{width: column.width}"
           >
             <template v-if="column.sortable">
               <v-btn
+                v-if="totalUserCount > 1"
                 :id="`admits-sort-by-${column.key}-btn`"
-                :append-icon="getSortIcon(column)"
-                :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
+                :append-icon="sortBy[0].key === column.key ? (sortDescending ? mdiArrowDown : mdiArrowUp) : null"
+                :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted && sortDescending ? 'descending' : 'ascending'}`"
                 class="font-size-14 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"
-                :class="{'align-start': column.align === 'start', 'icon-visible': isSorted(column)}"
+                :class="{'align-start': column.align === 'start', 'icon-visible': isSorted}"
                 color="body"
                 density="compact"
                 :disabled="!!isBecomingUid"
@@ -87,6 +79,12 @@
               >
                 <span class="text-left">{{ column.title }}</span>
               </v-btn>
+              <span
+                v-if="totalUserCount < 2"
+                class="font-size-14 font-weight-bold height-unset min-width-unset pa-1 text-left text-uppercase"
+              >
+                {{ column.title }}
+              </span>
             </template>
             <template v-else>
               <div
@@ -133,7 +131,6 @@
             v-if="editUserModel"
             v-model="editUserModel"
             :after-save="afterEditUserProfile"
-            :all-berkeley-departments="allBerkeleyDepartments"
             :on-cancel="() => onCancelEditUser(index)"
             :on-save="() => onUpdateUser(index, item.uid)"
           />
@@ -206,7 +203,7 @@
         />
       </template>
       <template #bottom></template>
-    </v-data-table-server>
+    </v-data-table-virtual>
   </div>
 </template>
 
@@ -214,74 +211,55 @@
 import {DateTime} from 'luxon'
 import {
   capitalize,
-  clone,
   cloneDeep,
   find,
   get,
-  indexOf,
-  lowerCase,
   map
 } from 'lodash'
-import {mdiEmail, mdiLoginVariant, mdiNoteEditOutline} from '@mdi/js'
+import {mdiArrowDown, mdiArrowUp, mdiEmail, mdiLoginVariant, mdiNoteEditOutline} from '@mdi/js'
 import {ref, watch} from 'vue'
+import {storeToRefs} from 'pinia'
 import BoaUserFullName from '@/components/admin/passenger-manifest/BoaUserFullName.vue'
 import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
-import QuickLinks from '@/components/admin/passenger-manifest/QuickLinks.vue'
-import SelectDepartmentMembershipRoles from '@/components/admin/passenger-manifest/SearchAndFilterBoaUsers.vue'
-import SectionSpinner from '@/components/util/SectionSpinner.vue'
 import {alertScreenReader, normalizeId, pluralize, putFocusNextTick} from '@/lib/utils'
-import {becomeUser, getAdminUsers, getPeerAdvisingUsers, getUserByUid, getUsers} from '@/api/user'
+import {becomeUser, getUserByUid} from '@/api/user'
 import {getDeptCodesPerRoles} from '@/lib/berkeley-department'
 import {useContextStore} from '@/stores/context'
+import {useManifestStore} from '@/stores/manifest.js'
 
 const props = defineProps({
+  fetchUsers: {
+    required: true,
+    type: Function
+  },
   refresh: {
     required: false,
     type: Boolean
-  },
-  allBerkeleyDepartments: {
-    required: true,
-    type: Array
   }
 })
 
 const contextStore = useContextStore()
+const manifestStore = useManifestStore()
+const {filter, isFetching, sortDescending, totalUserCount, users} = storeToRefs(manifestStore)
 
 const dialogs = ref([])
-const expanded = ref([])
-const filter = ref({
-  deptCode: 'QCADV',
-  role: undefined,
-  searchPhrase: '',
-  status: undefined,
-  type: 'search'
-})
-const isBecomingUid = ref(false)
-const isFetching = ref(false)
-const itemsPerPage = 10
-const sortBy = ref('lastName')
-const sortDesc = ref(false)
-const totalUserCount = ref(NaN)
 const editUserModel = ref(undefined)
-const userSelection = ref()
-const users = ref([])
-
-watch(() => filter.value.type, () => {
-  fetchUsers(filter.value.type === 'search' ? 'search-user-input' : undefined)
-})
+const expanded = ref([])
+const isBecomingUid = ref(false)
+const itemsPerPage = 10
 
 watch(() => props.refresh, value => {
   if (value) {
-    fetchUsers()
+    props.fetchUsers()
   }
 })
 
 const afterEditUserProfile = user => {
   alertScreenReader(`${user.name} profile updated.`)
-  if (filter.value.type === 'search') {
-    userSelection.value = user.uid
+  if (filter.type === 'search') {
+    manifestStore.setUidBeingEdited(user.uid)
   }
-  fetchUsers()
+  props.fetchUsers()
   putFocusNextTick(get(user, 'uid') ? `edit-${user.uid}` : 'add-new-user-btn')
 }
 
@@ -299,68 +277,6 @@ const canBecome = user => {
   return contextStore.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
 }
 
-const fetchUsers = (returnFocusId=null, srAlert='Loading users.') => {
-  let isValidSelection = (filter.value.type !== 'search') || get(userSelection.value, 'value.uid')
-
-  let uidOfUser = undefined
-  let searchFirstUser = false
-  if (!isValidSelection && users.value.length === 1 && filter.value.type === 'search') {
-    isValidSelection = users.value[0].uid
-    uidOfUser = users.value[0].uid
-    searchFirstUser = true
-  }
-
-  if (isValidSelection) {
-    const sortDescription = sortBy.value ? `; sorted by ${lowerCase(clone(sortBy.value))}, ${sortDesc.value ? 'descending' : 'ascending'}` : ''
-    alertScreenReader(srAlert)
-    isFetching.value = true
-    totalUserCount.value = 0
-    users.value = []
-    const afterFetchUsers = (focusId, screenReaderAlert) => {
-      userSelection.value = null
-      isFetching.value = false
-      alertScreenReader(screenReaderAlert)
-      putFocusNextTick(focusId)
-    }
-    switch(filter.value.type) {
-    case 'admins':
-      getAdminUsers(sortBy.value, sortDesc.value, false).then(data => {
-        users.value = data.users
-        totalUserCount.value = data.totalUserCount
-        afterFetchUsers('user-filter-options', `Admin users loaded${sortDescription}`)
-      })
-      break
-    case 'filter':
-      getUsers(
-        filter.value.status === 'blocked',
-        filter.value.status === 'deleted',
-        filter.value.deptCode,
-        'advisor',
-        sortBy.value,
-        sortDesc.value
-      ).then(data => {
-        users.value = data.users
-        totalUserCount.value = data.totalUserCount
-        afterFetchUsers(
-          returnFocusId || 'department-select-list',
-          `Department users loaded${sortDescription}`
-        )
-      })
-      break
-    case 'search':
-      if (searchFirstUser === false) {
-        uidOfUser = userSelection.value.value.uid
-      }
-      getUserByUid(uidOfUser, false).then(data => {
-        users.value = [data]
-        totalUserCount.value = 1
-        afterFetchUsers('search-user-input', `Search results loaded${sortDescription}`)
-      })
-      break
-    }
-  }
-}
-
 const getUserStatuses = user => {
   const statuses = user.deletedAt ? ['Deleted'] : ['Active']
   if (user.isBlocked) {
@@ -375,15 +291,12 @@ const getUserStatuses = user => {
 const handleSort = sortKeys => {
   const sortKey = get(sortKeys, 0)
   if (sortKey) {
-    sortBy.value = sortKey.key
-    sortDesc.value = sortKey.order !== 'asc'
+    manifestStore.setSortBy(sortKey.key)
+    manifestStore.setSortDescending(sortKey.order === 'desc')
   } else {
-    sortBy.value = null
-    sortDesc.value = false
+    manifestStore.setSortDescending(false)
   }
   alertScreenReader('Sorting users.')
-  // Fetch users with new sorting parameters
-  fetchUsers(`admits-sort-by-${sortKey.key}-btn`, 'Sorting users.')
 }
 
 const onCancelEditUser = index => {
@@ -394,44 +307,15 @@ const onCancelEditUser = index => {
 }
 
 const onClickEditUser = (index, uid) => {
-  dialogs.value[index] = true
   editUserModel.value = cloneDeep(find(users.value, ['uid', uid]))
-}
-
-const onClickPeerAdvisingQuickLink = () => {
-  isFetching.value = true
-  getPeerAdvisingUsers().then(data => {
-    users.value = data.users
-    totalUserCount.value = data.totalUserCount
-  }).then(() => {
-    userSelection.value = undefined
-    isFetching.value = false
-    alertScreenReader('Peer Advising users have been loaded.')
-    putFocusNextTick('quick-link-peer-advising')
-  })
-}
-
-const onClickQuickLink = (deptCode, returnFocusId) => {
-  filter.value = {
-    deptCode: deptCode,
-    role: undefined,
-    searchPhrase: '',
-    status: 'active',
-    type: 'filter'
-  }
-  fetchUsers(returnFocusId)
+  dialogs.value[index] = true
 }
 
 const onUpdateUser = (index, uid) => {
   dialogs.value[index] = false
   editUserModel.value = undefined
   getUserByUid(uid, false).then(data => {
-    const user = find(users.value, ['uid', uid])
-    const index = indexOf(users.value, user)
-    if (index !== -1) {
-      users.value.splice(index, 1)
-      users.value.splice(index, data)
-    }
+    manifestStore.onUpdateUser(data)
   })
 }
 </script>

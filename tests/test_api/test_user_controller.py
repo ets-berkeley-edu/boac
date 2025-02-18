@@ -383,8 +383,7 @@ class TestGetUsers:
         fake_auth.login(admin_uid)
         response = client.post('/api/users', data=json.dumps({'deptCode': 'QCADV'}), content_type='application/json')
         assert response.status_code == 200
-        users = response.json['users']
-        assert len(users) == 5
+        assert len(response.json) == 5
 
 
 class TestGetAdminUsers:
@@ -394,15 +393,15 @@ class TestGetAdminUsers:
     def _api_admin_users(
             cls,
             client,
-            ignore_deleted,
+            status,
             sort_by='lastName',
             sort_descending=False,
             expected_status_code=200,
     ):
         params = {
-            'ignoreDeleted': ignore_deleted,
             'sortBy': sort_by,
             'sortDescending': sort_descending,
+            'status': status,
         }
         response = client.post(
             '/api/users/admins',
@@ -414,32 +413,25 @@ class TestGetAdminUsers:
 
     def test_not_authenticated(self, client):
         """Returns 'unauthorized' response status if user is not authenticated."""
-        self._api_admin_users(client, ignore_deleted=True, expected_status_code=401)
+        self._api_admin_users(client, status='active', expected_status_code=401)
 
     def test_unauthorized(self, client, fake_auth):
         """Returns 'unauthorized' response status if user is not admin."""
         fake_auth.login(coe_advisor_uid)
-        self._api_admin_users(client, ignore_deleted=True, expected_status_code=401)
+        self._api_admin_users(client, status='active', expected_status_code=401)
 
     def test_get_admin_users(self, client, fake_auth):
         """Get all admin users."""
         fake_auth.login(admin_uid)
-        api_json = self._api_admin_users(client, ignore_deleted=False)
-        users = api_json['users']
-        user_count = len(users)
-        assert user_count
-        assert user_count == api_json['totalUserCount']
-        assert next((u for u in users if u['deletedAt']), None) is not None
+        api_json = self._api_admin_users(client, status='active')
+        assert len(api_json)
+        assert next((u for u in api_json if u['deletedAt']), None) is not None
 
-    def test_get_admin_users_ignore_deleted(self, client, fake_auth):
+    def test_get_deleted_admin_users(self, client, fake_auth):
         """Get admin users, ignoring deleted users."""
         fake_auth.login(admin_uid)
-        api_json = self._api_admin_users(client, ignore_deleted=True)
-        users = api_json['users']
-        user_count = len(users)
-        assert user_count
-        assert user_count == api_json['totalUserCount']
-        assert next((u for u in users if u['deletedAt']), None) is None
+        api_json = self._api_admin_users(client, status='deleted')
+        assert next((u for u in api_json if not u['deletedAt']), None) is None
 
 
 class TestUserSearch:
@@ -470,7 +462,7 @@ class TestUserSearch:
     def test_user_search_by_uid(self, client, fake_auth):
         """Search users by UID."""
         fake_auth.login(admin_uid)
-        assert len(self._api_users_autocomplete(client, '339')) >= 2
+        assert len(self._api_users_autocomplete(client, '113339')) >= 2
 
     def test_search_for_deleted_user_by_uid(self, client, fake_auth):
         """Search for deleted user by UID."""
@@ -867,25 +859,28 @@ class TestGetPeerAdvisingUser:
     """Get all Peer Advising users via User Profile API."""
 
     @classmethod
-    def _api_get_peer_advising_users(cls, client, expected_status_code=200):
-        response = client.get('/api/users/peer_advising')
+    def _api_peer_advising_users(cls, client, expected_status_code=200):
+        response = client.post(
+            '/api/users/peer_advising',
+            data=json.dumps({}),
+            content_type='application/json',
+        )
         assert response.status_code == expected_status_code
         return response.json
 
     def test_not_authenticated(self, client):
         """Returns 401 to anonymous user."""
-        self._api_get_peer_advising_users(client, expected_status_code=401)
+        self._api_peer_advising_users(client, expected_status_code=401)
 
     def test_unauthorized(self, client, fake_auth):
         """Returns 401 to non-admin user."""
         fake_auth.login(coe_advisor_uid)
-        self._api_get_peer_advising_users(client, expected_status_code=401)
+        self._api_peer_advising_users(client, expected_status_code=401)
 
     def test_all_peer_advising_user(self, client, fake_auth):
         fake_auth.login(admin_uid)
-        api_json = self._api_get_peer_advising_users(client)
-        assert len(api_json['users']) > 0
-        assert len(api_json['users']) == api_json['totalUserCount']
+        api_json = self._api_peer_advising_users(client)
+        assert len(api_json) > 0
 
 
 def _api_create_or_update(

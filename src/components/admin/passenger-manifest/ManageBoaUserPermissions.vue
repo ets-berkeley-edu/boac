@@ -7,6 +7,7 @@
         color="primary"
         density="compact"
         :hide-details="true"
+        :disabled="isPeerAdvisor(user) || !!user.departments.length"
         label="Admin"
       />
       <v-checkbox

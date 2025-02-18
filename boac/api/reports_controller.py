@@ -112,7 +112,7 @@ def get_users_report(dept_code):
     dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)
     if dept_name:
         if current_user.is_admin or _current_user_is_director_of(dept_code):
-            users, total_user_count = AuthorizedUser.get_users(deleted=False, dept_code=dept_code)
+            users, total_user_count = AuthorizedUser.get_users(dept_code=dept_code)
             users = authorized_users_api_feed(users, sort_by='lastName')
             note_count_per_user = get_note_count_per_user(dept_code)
             for user in users:

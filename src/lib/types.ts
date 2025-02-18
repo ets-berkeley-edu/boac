@@ -59,10 +59,11 @@ export interface BoaUserDepartment extends HasDeptCode {
 }
 
 export type BoaUsersFilter = {
-  deptCode: string,
-  role: string | undefined,
+  deptCode: string | undefined,
+  peerAdvisingDepartmentId: number | undefined,
+  role: string,
   searchPhrase: string,
-  status: string | undefined,
+  status: string,
   type: string
 }
 

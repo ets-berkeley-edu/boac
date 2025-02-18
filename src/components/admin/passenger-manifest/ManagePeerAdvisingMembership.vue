@@ -32,12 +32,13 @@ import {find, get} from 'lodash'
 import {onMounted, ref, watch} from 'vue'
 import type {
   BoaUser,
-  BoaUserDepartment,
+  BoaUserDepartment, Department,
   DepartmentMembership,
   PeerAdvisingDepartment,
 } from '@/lib/types'
 import {findDepartment, findMembership} from '@/lib/berkeley-department'
 import {normalizeId} from '@/lib/utils'
+import {useManifestStore} from '@/stores/manifest'
 
 const user = defineModel<BoaUser>({
   required: true,
@@ -52,13 +53,13 @@ const props = defineProps({
   membership: {
     required: true,
     type: Object as PropType<DepartmentMembership>
-  },
-  peerAdvisingDepartments: {
-    required: true,
-    type: Array as PropType<Array<PeerAdvisingDepartment>>
   }
 })
 
+const manifestStore = useManifestStore()
+
+const departments = manifestStore.allBerkeleyDepartments
+const peerAdvisingDepartments = findDepartment<Department>(departments, props.deptCode).peerAdvisingDepartments
 const selected = ref<PeerAdvisingDepartment | undefined>()
 
 watch(selected, (value: PeerAdvisingDepartment | undefined) => {
@@ -71,7 +72,7 @@ watch(selected, (value: PeerAdvisingDepartment | undefined) => {
 onMounted(() => {
   const peerAdvisingDepartmentId = props.membership.peerAdvisingDepartmentId
   if (peerAdvisingDepartmentId) {
-    selected.value = find(props.peerAdvisingDepartments, ['id', peerAdvisingDepartmentId])
+    selected.value = find(peerAdvisingDepartments, ['id', peerAdvisingDepartmentId])
   }
 })
 </script>
