@@ -125,17 +125,17 @@
 </template>
 
 <script setup>
-import {each} from 'lodash'
+import {each, find, get} from 'lodash'
 import {mdiMenuDown} from '@mdi/js'
-import {onMounted, reactive, ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {getCasLogoutUrl} from '@/api/auth'
-import {getPeerAdvisingDepartments, myDeptCodes} from '@/lib/berkeley-department'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
+import {myDeptCodes} from '@/lib/berkeley-department'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
-const currentUser = reactive(contextStore.currentUser)
+const currentUser = contextStore.currentUser
 const deptCodes = myDeptCodes(['director'])
 const isMenuOpen = ref(false)
 const myDirectorDepartment = deptCodes && deptCodes[0]
@@ -143,11 +143,9 @@ const route = useRoute()
 const peerAdvisingDepartmentId = ref(NaN)
 
 onMounted(() => {
-  each(myDeptCodes(['peer_advisor_manager']), deptCode => {
-    each(getPeerAdvisingDepartments(currentUser.departments, deptCode), peerAdvisingDepartment => {
-      peerAdvisingDepartmentId.value = peerAdvisingDepartment.id
-      return true
-    })
+  each(currentUser.departments, department => {
+    const peerAdvisingDepartment = find(department.memberships, 'peerAdvisingDepartmentId')
+    peerAdvisingDepartmentId.value = get(peerAdvisingDepartment, 'peerAdvisingDepartmentId')
     return !!peerAdvisingDepartmentId.value
   })
 })

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading" class="bg-sky-blue">
+  <div v-if="!loading && peerAdvisingDepartment" class="bg-sky-blue">
     <div class="pb-2 pt-4 px-4">
       <h1 id="page-header" class="mr-2">Peer Advising Management Dashboard</h1>
     </div>
@@ -69,8 +69,8 @@
 <script setup>
 import {computed, onMounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
-import PeerAdvisingAccountMgmt from '@/components/peer/PeerAdvisingAccountMgmt'
-import PeerAdvisingNoteTemplates from '@/components/peer/PeerAdvisingNoteTemplates'
+import PeerAdvisingAccountMgmt from '@/components/peer/PeerAdvisingAccountMgmt.vue'
+import PeerAdvisingNoteTemplates from '@/components/peer/PeerAdvisingNoteTemplates.vue'
 import {getPeerAdvisingDepartment} from '@/api/peer-advising'
 import {toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
@@ -78,7 +78,7 @@ import {useContextStore} from '@/stores/context'
 const contextStore = useContextStore()
 
 const loading = computed(() => contextStore.loading)
-const peerAdvisingDepartment = ref([])
+const peerAdvisingDepartment = ref()
 const tab = ref(undefined)
 const tabs = [
   {key: 'account', label: 'Account Management'},

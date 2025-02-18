@@ -33,7 +33,6 @@ class PeerAdvisingDepartment(Base):
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     name = db.Column(db.String(255), nullable=False)
     university_dept_id = db.Column(db.Integer, db.ForeignKey('university_depts.id'), nullable=False)
-    notes = db.relationship('Note', back_populates='peer_advising_department')
 
     def __init__(self, name, university_dept_id):
         self.name = name
@@ -51,6 +50,10 @@ class PeerAdvisingDepartment(Base):
         return cls.query.filter_by(university_dept_id=university_dept_id).all()
 
     @classmethod
+    def get_department_by_id(cls, peer_advising_department_id):
+        return cls.query.filter_by(id=peer_advising_department_id).first()
+
+    @classmethod
     def is_user_in_peer_advising_department(cls, user_id, peer_advising_department_id):
         membership = cls.query.filter_by(
             authorized_user_id=user_id,
@@ -58,3 +61,10 @@ class PeerAdvisingDepartment(Base):
             deleted_at=None,
         ).first()
         return membership is not None
+
+    def to_api_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'universityDeptId': self.name,
+        }

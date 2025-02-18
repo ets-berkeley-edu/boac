@@ -198,7 +198,7 @@ def get_peer_advising_users():
     sort_by = util.get(params, 'sortBy', 'lastName')
     sort_descending = to_bool_or_none(util.get(params, 'sortDescending', False))
 
-    users, total_user_count = AuthorizedUser.get_peer_advising_users(
+    users = AuthorizedUser.get_peer_advising_users(
         peer_advising_department_id=peer_advising_department_id,
         role=role,
         status=util.get(params, 'status'),
@@ -392,10 +392,12 @@ def _delete_existing_memberships(authorized_user):
             authorized_user_id=authorized_user.id,
             university_dept_id=university_dept_id,
         )
-    for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships(authorized_user_id=authorized_user.id):
+    for membership in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships_per_user_id(
+        authorized_user_id=authorized_user.id,
+    ):
         PeerAdvisingDepartmentMember.delete_membership(
             authorized_user_id=authorized_user.id,
-            peer_advising_department_id=m['peer_advising_department_id'],
+            peer_advising_department_id=membership['peer_advising_department_id'],
         )
 
 

@@ -85,7 +85,7 @@ class PeerAdvisingDepartmentMember(Base):
         return True
 
     @classmethod
-    def get_peer_advising_department_memberships(cls, authorized_user_id):
+    def get_peer_advising_department_memberships_per_user_id(cls, authorized_user_id):
         def _to_dict(row):
             return {
                 'peer_advising_department_name': row['name'],
@@ -111,3 +111,7 @@ class PeerAdvisingDepartmentMember(Base):
                 AND m.deleted_at IS NULL
         """
         return [_to_dict(row) for row in db.session.execute(sql, {'authorized_user_id': authorized_user_id})]
+
+    @classmethod
+    def get_peer_advising_department_members(cls, peer_advising_department_id):
+        return cls.query.filter_by(peer_advising_department_id=peer_advising_department_id, deleted_at=None).all()
