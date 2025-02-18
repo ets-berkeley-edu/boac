@@ -42,7 +42,7 @@
             <v-btn
               v-if="!item.deletedAt"
               v-bind="props"
-              :id="`delete-topic-${item.uid}`"
+              :id="`delete-peer-advisor-${item.uid}`"
               :aria-label="`Delete ${item.name}`"
               color="primary"
               density="compact"
@@ -57,7 +57,7 @@
             <v-btn
               v-if="item.deletedAt"
               v-bind="props"
-              :id="`undelete-topic-${item.uid}`"
+              :id="`undelete-peer-advisor-${item.uid}`"
               :aria-label="`Un-delete ${item.name}`"
               color="warning"
               density="compact"
@@ -85,7 +85,7 @@ defineProps({
 })
 
 const headers = [
-  {align: 'start', key: 'name', title: 'Topic', width: '60%'},
+  {align: 'start', key: 'name', title: 'Peer Advisor'},
   {align: 'end', key: 'notesCreatedCount', title: 'Notes Created'},
   {align: 'end', key: 'createdAt', title: 'Date Added'},
   {align: 'end', key: 'actions', title: 'Actions', sortable: false},
