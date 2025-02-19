@@ -1,4 +1,4 @@
-import {each, find, map, split, upperFirst} from 'lodash'
+import {capitalize, each, find, map, split, uniq, upperFirst} from 'lodash'
 import {useContextStore} from '@/stores/context'
 import type {
   BoaUser,
@@ -40,6 +40,15 @@ export function findMembership(department: BoaUserDepartment, role: DepartmentMe
 
 export function getDeptCodesPerRoles(user: BoaUser, roles: DepartmentMembershipRole[]): string[] {
   return map(getUserDepartmentsWithRoles(user, roles), 'deptCode')
+}
+
+export function getDistinctRoleNames(memberships: DepartmentMembership[]): string[] {
+  const roleNames: string[] = []
+  each(memberships, membership => {
+    const role = map(split(membership.role, '_'), word => capitalize(word)).join(' ')
+    roleNames.push(role)
+  })
+  return uniq(roleNames)
 }
 
 export function getUserDepartmentsWithRoles(user: BoaUser, roles: DepartmentMembershipRole[]): BoaUserDepartment[] {

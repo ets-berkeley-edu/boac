@@ -6,15 +6,15 @@
     <div class="mr-3">
       <v-switch
         id="toggle-inactive-students-button"
-        v-model="showInactiveStudents"
+        v-model="showDeletedPeerAdvisors"
         aria-label="Show Only My Notes"
         color="primary"
         density="compact"
         hide-details
-        :label="`${showInactiveStudents ? 'Hide' : 'Show'} inactive students`"
+        :label="`${showDeletedPeerAdvisors ? 'Hide' : 'Show'} inactive students`"
         role="switch"
       />
-      <span aria-live="polite" class="sr-only">Showing {{ showInactiveStudents ? 'all students' : 'active students' }}</span>
+      <span aria-live="polite" class="sr-only">Showing {{ showDeletedPeerAdvisors ? 'all students' : 'active students' }}</span>
     </div>
   </div>
   <div class="border-b-sm mt-6">
@@ -26,7 +26,7 @@
       hide-default-footer
       hide-no-data
       hover
-      :items="peerAdvisingDepartment.peerAdvisingDepartmentMembers"
+      :items="_filter(peerAdvisingDepartment.peerAdvisingDepartmentMembers, m => showDeletedPeerAdvisors || !m.deletedAt)"
       :items-per-page="-1"
       mobile-breakpoint="md"
       :row-props="row => ({id: `tr-member-${row.item.uid}`})"
@@ -73,6 +73,7 @@
 </template>
 
 <script setup>
+import {filter as _filter} from 'lodash'
 import {ref} from 'vue'
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
 import {alertScreenReader} from '@/lib/utils'
@@ -90,7 +91,7 @@ const headers = [
   {align: 'end', key: 'createdAt', title: 'Date Added'},
   {align: 'end', key: 'actions', title: 'Actions', sortable: false},
 ]
-const showInactiveStudents = ref(false)
+const showDeletedPeerAdvisors = ref(false)
 
 const deletePeerAdvisor = member => {
   alertScreenReader(member)

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!loading && peerAdvisingDepartment" class="bg-sky-blue">
+  <div v-if="!loading" class="bg-sky-blue">
     <div class="pb-2 pt-4 px-4">
       <h1 id="page-header" class="mr-2">Peer Advising Management Dashboard</h1>
     </div>
@@ -90,7 +90,7 @@ contextStore.loadingStart()
 
 onMounted(() => {
   const peerAdvisingDeptId = toInt(useRoute().params.id)
-  getPeerAdvisingDepartment(peerAdvisingDeptId).then(data => {
+  getPeerAdvisingDepartment(peerAdvisingDeptId, true).then(data => {
     peerAdvisingDepartment.value = data
     contextStore.loadingComplete('Peer Advising Management Dashboard is ready.')
   })
