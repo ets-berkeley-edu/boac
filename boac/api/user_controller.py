@@ -218,7 +218,7 @@ def create_or_update_user_profile():
 
     authorized_user = _update_or_create_authorized_user(user=user)
     _delete_existing_memberships(authorized_user.id)
-    _create_department_memberships(authorized_user.id, departments)
+    _update_or_create_department_memberships(authorized_user.id, departments)
 
     if user.get('deletedAt') and not authorized_user.deleted_at:
         AuthorizedUser.delete(authorized_user.uid)
@@ -362,7 +362,7 @@ def _update_or_create_authorized_user(user):
             raise errors.BadRequestError('Invalid UID')
 
 
-def _create_department_memberships(user_id, departments):
+def _update_or_create_department_memberships(user_id, departments):
     valid_roles = ('advisor', 'director', 'peer_advisor', 'peer_advisor_manager')
     for department in departments:
         for membership in [m for m in department['memberships'] if m['role'] in valid_roles]:
@@ -393,9 +393,7 @@ def _delete_existing_memberships(user_id):
             authorized_user_id=user_id,
             university_dept_id=university_dept_id,
         )
-    for membership in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships_per_user_id(
-        authorized_user_id=user_id,
-    ):
+    for membership in PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id):
         PeerAdvisingDepartmentMember.delete_membership(
             authorized_user_id=user_id,
             peer_advising_department_id=membership['peer_advising_department_id'],

@@ -1,0 +1,287 @@
+[
+    {
+        "uid": "33333",
+        "csid": "333333333",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": false,
+        "canAccessCanvasData": false,
+        "firstName": "Toby",
+        "lastName": "Robbins"
+    },
+    {
+        "uid": "44444",
+        "csid": "444444444",
+        "isAdmin": true,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": false,
+        "firstName": "Denver",
+        "lastName": "Stoner"
+    },
+    {
+        "uid": "2040",
+        "csid": null,
+        "isAdmin": true,
+        "inDemoMode": true,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "firstName": "Grist",
+        "lastName": "Cumberland"
+    },
+    {
+        "uid": "222719",
+        "csid": "5372973591",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "firstName": "Dick",
+        "lastName": "Hallorann"
+    },
+    {
+        "uid": "53791",
+        "csid": "53791",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "firstName": "Milicent",
+        "lastName": "Balthazar"
+    },
+    {
+        "uid": "19735",
+        "csid": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": false,
+        "canAccessCanvasData": true,
+        "firstName": "Chai",
+        "lastName": "Grande"
+    },
+    {
+        "uid": "188242",
+        "csid": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "firstName": "Will",
+        "lastName": "Dilg"
+    },
+    {
+        "uid": "95509",
+        "csid": null,
+        "isAdmin": true,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "firstName": "Gil",
+        "lastName": "Ham"
+    },
+    {
+        "uid": "177473",
+        "csid": null,
+        "isAdmin": true,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "firstName": "Homer",
+        "lastName": "Circle"
+    },
+    {
+        "uid": "1133397",
+        "csid": "null",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "firstName": "Donald",
+        "lastName": "Kiester"
+    },
+    {
+        "uid": "1133399",
+        "csid": "800700600",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "degreeProgressPermission": "read_write",
+        "firstName": "Joni",
+        "lastName": "Mitchell"
+    },
+    {
+        "uid": "1133400",
+        "csid": "800700601",
+        "canAccessAdvisingData": false,
+        "canAccessCanvasData": false,
+        "degreeProgressPermission": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "firstName": "Peer",
+        "lastName": "Pressure"
+    },
+    {
+        "uid": "1913062",
+        "csid": "9407308146",
+        "canAccessAdvisingData": false,
+        "canAccessCanvasData": false,
+        "degreeProgressPermission": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "firstName": "Peer",
+        "lastName": "Pumpkin-Eater"
+    },
+    {
+        "uid": "211159",
+        "csid": "211159",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "degreeProgressPermission": "read_write",
+        "firstName": "Roland",
+        "lastName": "Bestwestern"
+    },
+    {
+        "uid": "242881",
+        "csid": "100100600",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "title": "Harmless Drudge",
+        "calnetDeptCodes": ["HENGL"],
+        "firstName": "Mort",
+        "lastName": "Korn"
+    },
+    {
+        "uid": "1022796",
+        "csid": "100100300",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": false,
+        "canAccessCanvasData": true,
+        "degreeProgressPermission": "read_write",
+        "firstName": "Theoditus",
+        "lastName": "Garlic"
+    },
+    {
+        "uid": "6972201",
+        "csid": "100400900",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": false,
+        "degreeProgressPermission": "read",
+        "firstName": "Forrest",
+        "lastName": "Wood"
+    },
+    {
+        "uid": "1015674",
+        "csid": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "deleted": true,
+        "firstName": "Sugar",
+        "lastName": "Wallop"
+    },
+    {
+        "uid": "1049291",
+        "csid": null,
+        "isAdmin": true,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "firstName": "Dwayne",
+        "lastName": "Raver"
+    },
+    {
+        "uid": "1081940",
+        "csid": "100200300",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "searchHistory": ["Moe", "Larry", "Curly"],
+        "firstName": "Milt",
+        "lastName": "Deacon"
+    },
+    {
+        "uid": "90412",
+        "csid": "100100100",
+        "firstName": "COE Add",
+        "lastName": "Visor",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true
+    },
+    {
+        "uid": "6446",
+        "csid": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "firstName": "Babe",
+        "lastName": "Winkle"
+    },
+    {
+        "uid": "666",
+        "csid": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "deleted": true,
+        "firstName": "Fanny",
+        "lastName": "Coupe"
+    },
+    {
+        "uid": "1024",
+        "csid": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "deleted": true,
+        "firstName": "Grit",
+        "lastName": "Schresham"
+    },
+    {
+        "uid": "2525",
+        "csid": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "deleted": false,
+        "firstName": "Grigsby",
+        "lastName": "Columbo"
+    },
+    {
+        "uid": "3535",
+        "csid": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": false,
+        "deleted": false,
+        "firstName": "Crest",
+        "lastName": "Turrasco"
+    },
+    {
+        "uid": "1563405",
+        "csid": "61563405340",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": false,
+        "canAccessCanvasData": false,
+        "deleted": false,
+        "firstName": "Dechsa",
+        "lastName": "Radechabh"
+    }
+]

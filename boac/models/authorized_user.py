@@ -196,8 +196,11 @@ class AuthorizedUser(Base):
         return result and result['id']
 
     @classmethod
-    def get_uid_per_id(cls, user_id):
-        query = text('SELECT uid FROM authorized_users WHERE id = :user_id AND deleted_at IS NULL')
+    def get_uid_per_id(cls, user_id, include_deleted=False):
+        sql = 'SELECT uid FROM authorized_users WHERE id = :user_id'
+        if not include_deleted:
+            sql += ' AND deleted_at IS NULL'
+        query = text(sql)
         result = db.session.execute(query, {'user_id': user_id}).first()
         return result and result['uid']
 

@@ -1,0 +1,26 @@
+[
+    {
+        "peer_advising_department_name": "Educational Opportunity Program",
+        "university_dept_code": "ZCEEE",
+        "users": [
+            {"uid": "1563405", "role": "peer_advisor"},
+            {"uid": "3535", "role": "peer_advisor_manager"}
+        ]
+    },
+    {
+        "peer_advising_department_name": "NAVCAL",
+        "university_dept_code": "ZCEEE",
+        "users": [
+            {"uid": "1133400", "role": "peer_advisor"},
+            {"uid": "2525", "role": "peer_advisor_manager"}
+        ]
+    },
+    {
+        "peer_advising_department_name": "Mechanical Engineering",
+        "university_dept_code": "COENG",
+        "users": [
+            {"uid": "1913062", "role": "peer_advisor"},
+            {"uid": "1133399", "role": "peer_advisor_manager"}
+        ]
+    }
+]

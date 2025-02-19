@@ -48,8 +48,12 @@
           role="tabpanel"
           :value="item.key"
         >
-          <div v-if="item.key === 'account'" class="ma-3">
-            <PeerAdvisingAccountMgmt :peer-advising-department="peerAdvisingDepartment" />
+          <div v-if="item.key === 'account'" class="mt-3 mx-4">
+            <PeerAdvisingAccountMgmt
+              v-if="peerAdvisingDepartment"
+              :peer-advising-department="peerAdvisingDepartment"
+              :refresh="reloadPeerAdvisingDepartment"
+            />
           </div>
           <div v-if="item.key === 'templates'" class="pt-3">
             <PeerAdvisingNoteTemplates :peer-advising-department="peerAdvisingDepartment" />
@@ -75,6 +79,7 @@ import {useContextStore} from '@/stores/context'
 const contextStore = useContextStore()
 
 const loading = computed(() => contextStore.loading)
+const peerAdvisingDeptId = toInt(useRoute().params.id)
 const peerAdvisingDepartment = ref()
 const tab = ref(undefined)
 const tabs = [
@@ -86,10 +91,13 @@ const tabs = [
 contextStore.loadingStart()
 
 onMounted(() => {
-  const peerAdvisingDeptId = toInt(useRoute().params.id)
-  getPeerAdvisingDepartment(peerAdvisingDeptId, true).then(data => {
+  reloadPeerAdvisingDepartment()
+})
+
+const reloadPeerAdvisingDepartment = () => {
+  return getPeerAdvisingDepartment(peerAdvisingDeptId, true).then(data => {
     peerAdvisingDepartment.value = data
     contextStore.loadingComplete('Peer Advising Management Dashboard is ready.')
   })
-})
+}
 </script>
