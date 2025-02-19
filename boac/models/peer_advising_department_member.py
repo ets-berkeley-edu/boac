@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
+from boac.lib.util import utc_now
 from boac.models.base import Base
 from sqlalchemy.dialects.postgresql import ENUM
 
@@ -62,6 +63,7 @@ class PeerAdvisingDepartmentMember(Base):
         ).first()
         if membership:
             membership.role_type = role_type
+            membership.deleted_at = None
         else:
             membership = cls(
                 authorized_user_id=authorized_user_id,
@@ -80,14 +82,15 @@ class PeerAdvisingDepartmentMember(Base):
         ).first()
         if not membership:
             return False
-        db.session.delete(membership)
+        membership.deleted_at = utc_now()
         std_commit()
         return True
 
     @classmethod
-    def get_peer_advising_department_memberships_per_user_id(cls, authorized_user_id):
+    def find_peer_advising_memberships_by_user_id(cls, authorized_user_id, include_deleted=False):
         def _to_dict(row):
             return {
+                'authorized_user_id': row['authorized_user_id'],
                 'peer_advising_department_name': row['name'],
                 'peer_advising_department_id': row['peer_advising_department_id'],
                 'role_type': row['role_type'],
@@ -99,6 +102,7 @@ class PeerAdvisingDepartmentMember(Base):
             SELECT
                 d.name,
                 d.university_dept_id,
+                m.authorized_user_id,
                 m.peer_advising_department_id,
                 m.role_type,
                 u.dept_code AS university_dept_code,
@@ -108,8 +112,9 @@ class PeerAdvisingDepartmentMember(Base):
             JOIN university_depts u ON u.id = d.university_dept_id
             WHERE
                 m.authorized_user_id = :authorized_user_id
-                AND m.deleted_at IS NULL
         """
+        if not include_deleted:
+            sql += ' AND m.deleted_at IS NULL'
         return [_to_dict(row) for row in db.session.execute(sql, {'authorized_user_id': authorized_user_id})]
 
     @classmethod
@@ -124,3 +129,15 @@ class PeerAdvisingDepartmentMember(Base):
             deleted_at=None,
         ).first()
         return membership is not None
+
+    @classmethod
+    def restore_membership(cls, authorized_user_id, peer_advising_department_id):
+        membership = cls.query.filter_by(
+            authorized_user_id=authorized_user_id,
+            peer_advising_department_id=peer_advising_department_id,
+        ).first()
+        if not membership:
+            return False
+        membership.deleted_at = None
+        std_commit()
+        return True

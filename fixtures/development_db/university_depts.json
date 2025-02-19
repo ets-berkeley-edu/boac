@@ -1,0 +1,112 @@
+{
+    "COENG": {
+        "users": [
+            {
+                "uid": "1022796",
+                "role": "advisor",
+                "automate_membership": true
+            },
+            {
+                "uid": "6972201",
+                "role": "advisor",
+                "automate_membership": false
+            },
+            {
+                "uid": "90412",
+                "role": "advisor",
+                "automate_membership": true
+            },
+            {
+                "uid": "1133399",
+                "role": "advisor",
+                "automate_membership": true
+            },
+            {
+                "uid": "211159",
+                "role": "advisor",
+                "automate_membership": true
+            }
+        ]
+    },
+    "QCADV": {
+        "users": [
+            {
+                "uid": "53791",
+                "role": "director",
+                "automate_membership": false
+            },
+            {
+                "uid": "222719",
+                "role": "director",
+                "automate_membership": false
+            },
+            {
+                "uid": "188242",
+                "role": "advisor",
+                "automate_membership": false
+            },
+            {
+                "uid": "19735",
+                "role": "advisor",
+                "automate_membership": false
+            },
+            {
+                "uid": "1022796",
+                "role": "director",
+                "automate_membership": true
+            }
+        ]
+    },
+    "QCADVMAJ": {
+        "users": [
+            {
+                "uid": "53791",
+                "role": "director",
+                "automate_membership": false
+            },
+            {
+                "uid": "242881",
+                "role": "advisor",
+                "automate_membership": true
+            },
+            {
+                "uid": "1133397",
+                "role": "advisor",
+                "automate_membership": true
+            }
+        ]
+    },
+    "UWASC": {
+        "users": [
+            {
+                "uid": "1081940",
+                "role": "advisor",
+                "automate_membership": false
+            },
+            {
+                "uid": "90412",
+                "role": "director",
+                "automate_membership": false
+            },
+            {
+                "uid": "6446",
+                "role": "director",
+                "automate_membership": false
+            }
+        ]
+    },
+    "ZCEEE": {
+        "users": [
+            {
+                "uid": "2525",
+                "role": "advisor",
+                "automate_membership": false
+            },
+            {
+                "uid": "3535",
+                "role": "advisor",
+                "automate_membership": false
+            }
+        ]
+    }
+}

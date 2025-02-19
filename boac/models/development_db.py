@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from datetime import datetime
+import json
 import random
 import string
 
@@ -47,430 +48,8 @@ from boac.models.json_cache import JsonCache # noqa
 from flask import current_app as app
 from sqlalchemy.sql import text
 
-
-delete_this_admin_uid = '44444'
-delete_this_uid = '33333'
-
-_test_users = [
-    {
-        # User deleted (see below)
-        'uid': delete_this_uid,
-        'csid': '333333333',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': False,
-        'canAccessCanvasData': False,
-        'firstName': 'Toby',
-        'lastName': 'Robbins',
-    },
-    {
-        # User deleted (see below)
-        'uid': delete_this_admin_uid,
-        'csid': '444444444',
-        'isAdmin': True,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': False,
-        'firstName': 'Denver',
-        'lastName': 'Stoner',
-    },
-    {
-        'uid': '2040',
-        'csid': None,
-        'isAdmin': True,
-        'inDemoMode': True,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'firstName': 'Grist',
-        'lastName': 'Cumberland',
-    },
-    {
-        'uid': '222719',
-        'csid': '5372973591',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'firstName': 'Dick',
-        'lastName': 'Hallorann',
-    },
-    {
-        'uid': '53791',
-        'csid': '53791',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'firstName': 'Milicent',
-        'lastName': 'Balthazar',
-    },
-    {
-        'uid': '19735',
-        'csid': None,
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': False,
-        'canAccessCanvasData': True,
-        'firstName': 'Chai',
-        'lastName': 'Grande',
-    },
-    {
-        'uid': '188242',
-        'csid': None,
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'firstName': 'Will',
-        'lastName': 'Dilg',
-    },
-    {
-        'uid': '95509',
-        'csid': None,
-        'isAdmin': True,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'firstName': 'Gil',
-        'lastName': 'Ham',
-    },
-    {
-        'uid': '177473',
-        'csid': None,
-        'isAdmin': True,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'firstName': 'Homer',
-        'lastName': 'Circle',
-    },
-    {
-        'uid': '1133397',
-        'csid': 'None',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'firstName': 'Donald',
-        'lastName': 'Kiester',
-    },
-    {
-        'uid': '1133399',
-        'csid': '800700600',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'degreeProgressPermission': 'read_write',
-        'firstName': 'Joni',
-        'lastName': 'Mitchell',
-    },
-    {
-        'uid': '1133400',
-        'csid': '800700601',
-        'canAccessAdvisingData': False,
-        'canAccessCanvasData': False,
-        'degreeProgressPermission': None,
-        'isAdmin': False,
-        'inDemoMode': False,
-        'firstName': 'Peer',
-        'lastName': 'Pressure',
-    },
-    {
-        'uid': '211159',
-        'csid': '211159',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'degreeProgressPermission': 'read_write',
-        'firstName': 'Roland',
-        'lastName': 'Bestwestern',
-    },
-    {
-        'uid': '242881',
-        'csid': '100100600',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'title': 'Harmless Drudge',
-        'calnetDeptCodes': ['HENGL'],
-        'firstName': 'Mort',
-        'lastName': 'Korn',
-    },
-    {
-        'uid': '1022796',
-        'csid': '100100300',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': False,
-        'canAccessCanvasData': True,
-        'degreeProgressPermission': 'read_write',
-        'firstName': 'Theoditus',
-        'lastName': 'Garlic',
-    },
-    {
-        'uid': '6972201',
-        'csid': '100400900',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': False,
-        'degreeProgressPermission': 'read',
-        'firstName': 'Forrest',
-        'lastName': 'Wood',
-    },
-    {
-        'uid': '1015674',
-        'csid': None,
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'deleted': True,
-        'firstName': 'Sugar',
-        'lastName': 'Wallop',
-    },
-    {
-        'uid': '1049291',
-        'csid': None,
-        'isAdmin': True,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'firstName': 'Dwayne',
-        'lastName': 'Raver',
-    },
-    {
-        'uid': '1081940',
-        'csid': '100200300',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'searchHistory': ['Moe', 'Larry', 'Curly'],
-        'firstName': 'Milt',
-        'lastName': 'Deacon',
-    },
-    {
-        'uid': '90412',
-        'csid': '100100100',
-        'firstName': 'COE Add',
-        'lastName': 'Visor',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-    },
-    {
-        'uid': '6446',
-        'csid': None,
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'firstName': 'Babe',
-        'lastName': 'Winkle',
-    },
-    {
-        'uid': '666',
-        'csid': None,
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'deleted': True,
-        'firstName': 'Fanny',
-        'lastName': 'Coupe',
-    },
-    {
-        'uid': '1024',
-        'csid': None,
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'deleted': True,
-        'firstName': 'Grit',
-        'lastName': 'Schresham',
-    },
-    {
-        'uid': '2525',
-        'csid': None,
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-        'deleted': False,
-        'firstName': 'Grigsby',
-        'lastName': 'Columbo',
-    },
-    {
-        'uid': '3535',
-        'csid': None,
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': False,
-        'deleted': False,
-        'firstName': 'Crest',
-        'lastName': 'Turrasco',
-    },
-    {
-        'uid': '1563405',
-        'csid': '61563405340',
-        'isAdmin': False,
-        'inDemoMode': False,
-        'canAccessAdvisingData': False,
-        'canAccessCanvasData': False,
-        'deleted': False,
-        'firstName': 'Dechsa',
-        'lastName': 'Radechabh',
-    },
-]
-
-_peer_advising_departments = [
-    {
-        'peer_advising_department_name': 'Educational Opportunity Program',
-        'university_dept_code': 'ZCEEE',
-        'users': [
-            {'uid': '1563405', 'role': 'peer_advisor'},
-        ],
-    },
-    {
-        'peer_advising_department_name': 'NAVCAL',
-        'university_dept_code': 'ZCEEE',
-        'users': [
-            {'uid': '1133400', 'role': 'peer_advisor'},
-        ],
-    },
-    {
-        'peer_advising_department_name': 'Mechanical Engineering',
-        'university_dept_code': 'COENG',
-        'users': [
-            {'uid': '1133399', 'role': 'peer_advisor_manager'},
-        ],
-    },
-]
-
-_university_depts = {
-    'COENG': {
-        'users': [
-            {
-                'uid': '1022796',
-                'role': 'advisor',
-                'automate_membership': True,
-            },
-            {
-                'uid': '6972201',
-                'role': 'advisor',
-                'automate_membership': False,
-            },
-            {
-                'uid': '90412',
-                'role': 'advisor',
-                'automate_membership': True,
-            },
-            {
-                'uid': '1133399',
-                'role': 'advisor',
-                'automate_membership': True,
-            },
-            {
-                'uid': '211159',
-                'role': 'advisor',
-                'automate_membership': True,
-            },
-        ],
-    },
-    'QCADV': {
-        'users': [
-            {
-                'uid': '53791',
-                'role': 'director',
-                'automate_membership': False,
-            },
-            {
-                'uid': '222719',
-                'role': 'director',
-                'automate_membership': False,
-            },
-            {
-                'uid': '188242',
-                'role': 'advisor',
-                'automate_membership': False,
-            },
-            {
-                'uid': '19735',
-                'role': 'advisor',
-                'automate_membership': False,
-            },
-            {
-                'uid': '1022796',
-                'role': 'director',
-                'automate_membership': True,
-            },
-        ],
-    },
-    'QCADVMAJ': {
-        'users': [
-            {
-                'uid': '53791',
-                'role': 'director',
-                'automate_membership': False,
-            },
-            {
-                'uid': '242881',
-                'role': 'advisor',
-                'automate_membership': True,
-            },
-            {
-                'uid': '1133397',
-                'role': 'advisor',
-                'automate_membership': True,
-            },
-        ],
-    },
-    'UWASC': {
-        'users': [
-            {
-                'uid': '1081940',
-                'role': 'advisor',
-                'automate_membership': False,
-            },
-            {
-                'uid': '90412',
-                'role': 'director',
-                'automate_membership': False,
-            },
-            {
-                'uid': '6446',
-                'role': 'director',
-                'automate_membership': False,
-            },
-        ],
-    },
-    'ZCEEE': {
-        'users': [
-            {
-                'uid': '2525',
-                'role': 'advisor',
-                'automate_membership': False,
-            },
-            {
-                'uid': '3535',
-                'role': 'advisor',
-                'automate_membership': False,
-            },
-            {
-                'uid': '1563405',
-                'role': 'advisor',
-                'automate_membership': False,
-            },
-        ],
-    },
-}
+deleted_admin_uid = '44444'
+deleted_user_uid = '33333'
 
 
 def clear():
@@ -507,84 +86,91 @@ def _load_users_and_departments():
 
 
 def _create_users():
-    for test_user in _test_users:
-        # This script can be run more than once. Do not create user if s/he exists in BOAC db.
-        uid = test_user['uid']
-        # Mock CSIDs and names are random unless we need them to correspond to test data elsewhere.
-        csid = test_user['csid'] or datetime.now().strftime('%H%M%S%f')
-        first_name = test_user.get('firstName', ''.join(random.choices(string.ascii_uppercase, k=6)))
-        last_name = test_user.get('lastName', ''.join(random.choices(string.ascii_uppercase, k=6)))
-        calnet_feed = {
-            'uid': uid,
-            'csid': csid,
-            'firstName': first_name,
-            'lastName': last_name,
-            'name': f'{first_name} {last_name}',
-        }
-        if 'calnetDeptCodes' in test_user:
-            calnet_feed['departments'] = []
-            for dept_code in test_user['calnetDeptCodes']:
-                calnet_feed['departments'].append({
-                    'deptCode': dept_code,
-                    'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code),
-                })
-        if 'title' in test_user:
-            calnet_feed['title'] = test_user['title']
-        insert_in_json_cache(f'calnet_user_for_uid_{uid}', calnet_feed)
+    with open(f"{app.config['BASE_DIR']}/fixtures/development_db/test_users.json", 'r') as test_users_json:
+        users = json.loads(test_users_json.read())
+        for test_user in users:
+            # This script can be run more than once. Do not create user if s/he exists in BOAC db.
+            uid = test_user['uid']
+            # Mock CSIDs and names are random unless we need them to correspond to test data elsewhere.
+            csid = test_user['csid'] or datetime.now().strftime('%H%M%S%f')
+            first_name = test_user.get('firstName', ''.join(random.choices(string.ascii_uppercase, k=6)))
+            last_name = test_user.get('lastName', ''.join(random.choices(string.ascii_uppercase, k=6)))
+            calnet_feed = {
+                'uid': uid,
+                'csid': csid,
+                'firstName': first_name,
+                'lastName': last_name,
+                'name': f'{first_name} {last_name}',
+            }
+            if 'calnetDeptCodes' in test_user:
+                calnet_feed['departments'] = []
+                for dept_code in test_user['calnetDeptCodes']:
+                    calnet_feed['departments'].append({
+                        'deptCode': dept_code,
+                        'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code),
+                    })
+            if 'title' in test_user:
+                calnet_feed['title'] = test_user['title']
+            insert_in_json_cache(f'calnet_user_for_uid_{uid}', calnet_feed)
 
-        # Add user to authorized_users table if not already present.
-        user = AuthorizedUser.find_by_uid(uid=uid)
-        if not user:
-            user = AuthorizedUser(
-                uid=uid,
-                created_by='0',
-                is_admin=test_user['isAdmin'],
-                in_demo_mode=test_user['inDemoMode'],
-                can_access_advising_data=test_user['canAccessAdvisingData'],
-                can_access_canvas_data=test_user['canAccessCanvasData'],
-                degree_progress_permission=test_user.get('degreeProgressPermission'),
-                search_history=test_user.get('searchHistory', []),
-            )
-            if test_user.get('deleted'):
-                user.deleted_at = utc_now()
-            db.session.add(user)
+            # Add user to authorized_users table if not already present.
+            user = AuthorizedUser.find_by_uid(uid=uid)
+            if not user:
+                user = AuthorizedUser(
+                    uid=uid,
+                    created_by='0',
+                    is_admin=test_user['isAdmin'],
+                    in_demo_mode=test_user['inDemoMode'],
+                    can_access_advising_data=test_user['canAccessAdvisingData'],
+                    can_access_canvas_data=test_user['canAccessCanvasData'],
+                    degree_progress_permission=test_user.get('degreeProgressPermission'),
+                    search_history=test_user.get('searchHistory', []),
+                )
+                if test_user.get('deleted'):
+                    user.deleted_at = utc_now()
+                db.session.add(user)
 
-    AuthorizedUser.delete(delete_this_admin_uid)
-    AuthorizedUser.delete(delete_this_uid)
+        AuthorizedUser.delete(deleted_admin_uid)
+        AuthorizedUser.delete(deleted_user_uid)
 
-    std_commit(allow_test_environment=True)
+        std_commit(allow_test_environment=True)
 
 
 def _create_department_memberships():
-    for dept_code, dept_membership in _university_depts.items():
-        university_dept = UniversityDept.find_by_dept_code(dept_code)
-        db.session.add(university_dept)
-        for user in dept_membership['users']:
-            authorized_user = AuthorizedUser.find_by_uid(user['uid'])
-            UniversityDeptMember.create_or_update_membership(
-                university_dept_id=university_dept.id,
-                authorized_user_id=authorized_user.id,
-                role=user['role'],
-                automate_membership=user['automate_membership'],
-            )
+    with open(f"{app.config['BASE_DIR']}/fixtures/development_db/university_depts.json", 'r') as university_depts_json:
+        university_depts = json.loads(university_depts_json.read())
+        for dept_code, dept_membership in university_depts.items():
+            university_dept = UniversityDept.find_by_dept_code(dept_code)
+            db.session.add(university_dept)
+            for user in dept_membership['users']:
+                authorized_user = AuthorizedUser.find_by_uid(user['uid'])
+                UniversityDeptMember.create_or_update_membership(
+                    university_dept_id=university_dept.id,
+                    authorized_user_id=authorized_user.id,
+                    role=user['role'],
+                    automate_membership=user['automate_membership'],
+                )
 
 
 def _create_peer_advising_departments():
-    for data in _peer_advising_departments:
-        peer_advising_department_name = data['peer_advising_department_name']
-        university_dept = UniversityDept.find_by_dept_code(data['university_dept_code'])
-        peer_advising_department = PeerAdvisingDepartment.create(
-            name=peer_advising_department_name,
-            university_dept_id=university_dept.id,
-        )
-        for user in data['users']:
-            authorized_user = AuthorizedUser.find_by_uid(user['uid'])
-            PeerAdvisingDepartmentMember.create_or_update_membership(
-                authorized_user_id=authorized_user.id,
-                peer_advising_department_id=peer_advising_department.id,
-                role_type=user['role'],
+    file_path = f"{app.config['BASE_DIR']}/fixtures/development_db/peer_advising_departments.json"
+    with open(file_path, 'r') as peer_advising_departments_json:
+        peer_advising_departments = json.loads(peer_advising_departments_json.read())
+        for data in peer_advising_departments:
+            peer_advising_department_name = data['peer_advising_department_name']
+            university_dept = UniversityDept.find_by_dept_code(data['university_dept_code'])
+            peer_advising_department = PeerAdvisingDepartment.create(
+                name=peer_advising_department_name,
+                university_dept_id=university_dept.id,
             )
-            std_commit(allow_test_environment=True)
+            for user in data['users']:
+                authorized_user = AuthorizedUser.find_by_uid(user['uid'])
+                PeerAdvisingDepartmentMember.create_or_update_membership(
+                    authorized_user_id=authorized_user.id,
+                    peer_advising_department_id=peer_advising_department.id,
+                    role_type=user['role'],
+                )
+                std_commit(allow_test_environment=True)
 
 
 def _create_topics():

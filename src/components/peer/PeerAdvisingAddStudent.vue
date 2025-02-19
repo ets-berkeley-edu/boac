@@ -2,7 +2,7 @@
   <div class="py-1">
     <label
       for="add-student-input"
-      class="font-size-14"
+      class="font-size-16"
     >
       <span class="mr-2 text-weight-bold">Student</span>
       <span class="font-weight-regular">(name or SID)</span>
@@ -15,7 +15,7 @@
       aria-label="Name or S I D lookup. Expect auto suggest."
       autocomplete="list"
       base-color="primary"
-      class="autocomplete-students autocomplete-with-add-button mt-2"
+      class="autocomplete-students autocomplete-with-add-button mt-1"
       :class="{'demo-mode-blur': currentUser.inDemoMode}"
       color="primary"
       density="compact"

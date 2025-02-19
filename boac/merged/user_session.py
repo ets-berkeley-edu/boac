@@ -149,7 +149,7 @@ class UserSession(UserMixin):
                         },
                     ],
                 })
-            for m in PeerAdvisingDepartmentMember.get_peer_advising_department_memberships_per_user_id(authorized_user_id=user.id):
+            for m in PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user.id):
                 peer_advising_dept_membership = {
                     'role': m['role_type'],
                     'peerAdvisingDepartmentId': m['peer_advising_department_id'],

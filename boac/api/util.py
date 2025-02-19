@@ -285,7 +285,7 @@ def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
                     },
                 ],
             })
-        memberships = PeerAdvisingDepartmentMember.get_peer_advising_department_memberships_per_user_id(
+        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(
             authorized_user_id=user.id,
         )
         for m in memberships:

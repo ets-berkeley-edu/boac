@@ -40,7 +40,7 @@ coe_advisor_uid = '1133399'
 coe_advisor_no_advising_data_uid = '1022796'
 deleted_user_uid = '33333'
 l_s_college_advisor_uid = '188242'
-peer_advisor_uid = '1563405'
+ce3_eop_peer_advisor_uid = '1563405'
 
 
 class TestUserProfile:
@@ -739,15 +739,16 @@ class TestPeerAdvisor:
 
     def test_peer_advising_department_memberships(self, client, fake_auth):
         """Returns peer_advising_departments in user profile object."""
-        fake_auth.login(peer_advisor_uid)
+        fake_auth.login(ce3_eop_peer_advisor_uid)
         api_json = _api_my_profile(client)
         assert api_json['id']
         assert api_json['isAuthenticated'] is True
         departments = api_json['departments']
         memberships = departments[0]['memberships']
-        assert len(memberships) == 2
-        assert 'peerAdvisingDepartmentId' in memberships[1]
-        assert memberships[1]['peerAdvisingDepartmentName'] == 'Educational Opportunity Program'
+        assert len(memberships) == 1
+        membership = memberships[0]
+        assert 'peerAdvisingDepartmentId' in membership
+        assert membership['peerAdvisingDepartmentName'] == 'Educational Opportunity Program'
 
     def test_peer_advisor_with_multiple_depts(self, client, fake_auth):
         """Peer Advisor CANNOT belong to multiple departments."""
