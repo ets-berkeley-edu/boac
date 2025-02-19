@@ -1,7 +1,11 @@
 <template>
   <div class="align-end d-flex justify-space-between font-weight-bold">
     <div class="ml-4 w-40">
-      <PeerAdvisingAddStudent />
+      <PeerAdvisingAddStudent
+        :peer-advising-department-id="peerAdvisingDepartmentId"
+        :peer-advisors="peerAdvisors"
+        :refresh="refresh"
+      />
     </div>
     <div v-if="peerAdvisorsActiveCount && peerAdvisorsDeletedCount" class="mr-3">
       <v-switch
