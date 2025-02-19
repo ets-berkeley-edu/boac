@@ -51,6 +51,7 @@ from bea.pages.filtered_students_page import FilteredStudentsPage
 from bea.pages.flight_data_recorder_page import FlightDataRecorderPage
 from bea.pages.flight_deck_page import FlightDeckPage
 from bea.pages.homepage import Homepage
+from bea.pages.pan_am_dashboard import PanAmDashboard
 from bea.pages.passenger_manifest_page import PassengerManifestPage
 from bea.pages.search_form import SearchForm
 from bea.pages.search_results_page import SearchResultsPage
@@ -108,6 +109,7 @@ def page_objects(request):
     flight_data_recorder_page = FlightDataRecorderPage(driver, headless)
     flight_deck_page = FlightDeckPage(driver, headless)
     homepage = Homepage(driver, headless)
+    pan_am_page = PanAmDashboard(driver, headless)
     pax_manifest_page = PassengerManifestPage(driver, headless)
     search_form = SearchForm(driver, headless)
     search_results_page = SearchResultsPage(driver, headless)
@@ -144,6 +146,7 @@ def page_objects(request):
             setattr(cls.obj, 'flight_data_recorder_page', flight_data_recorder_page)
             setattr(cls.obj, 'flight_deck_page', flight_deck_page)
             setattr(cls.obj, 'homepage', homepage)
+            setattr(cls.obj, 'pan_am_page', pan_am_page)
             setattr(cls.obj, 'pax_manifest_page', pax_manifest_page)
             setattr(cls.obj, 'search_form', search_form)
             setattr(cls.obj, 'search_results_page', search_results_page)

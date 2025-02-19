@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 import time
 
-from bea.models.advisor_role import AdvisorRole
+from bea.models.advisor_role import AdvisorRole, PeerAdvisingRole
 from bea.models.department import Department
 from bea.models.department_membership import DepartmentMembership
 from bea.pages.pagination import Pagination
@@ -65,19 +65,24 @@ class PassengerManifestPage(Pagination):
     # Filters
 
     FILTER_MODE_SELECT = By.ID, 'user-filter-options'
+    TOGGLE_USER_SEARCH_MODE = By.ID, 'toggle-user-search-type'
     USER_SEARCH_INPUT = By.ID, 'search-user-input'
     PERMISSIONS_SELECT = By.ID, 'user-permission-options'
     DEPT_SELECT = By.ID, 'department-select-list'
     STATUS_SELECT = By.ID, 'user-status-options'
+    SUBMIT_SEARCH_BTN = By.ID, 'submit-user-search-filters'
 
     def search_for_advisor(self, advisor):
         app.logger.info(f'Searching for advisor UID {advisor.uid}')
+        if self.element(self.TOGGLE_USER_SEARCH_MODE).is_selected():
+            self.wait_for_element_and_click(self.TOGGLE_USER_SEARCH_MODE)
         self.wait_for_textbox_and_type(self.USER_SEARCH_INPUT, advisor.uid)
         loc = By.XPATH, f'//div[@role="option"]//div[contains(., "{advisor.uid}")]'
         self.wait_for_element_and_click(loc)
 
     def select_filter_mode(self):
-        self.wait_for_select_and_click_option(self.FILTER_MODE_SELECT, 'Filter')
+        if not self.element(self.TOGGLE_USER_SEARCH_MODE).is_selected():
+            self.wait_for_element_and_click(self.TOGGLE_USER_SEARCH_MODE)
 
     def dept_filter_options(self):
         select = Select(self.element(self.DEPT_SELECT))
@@ -91,8 +96,16 @@ class PassengerManifestPage(Pagination):
         app.logger.info(f"Selecting department {dept.value['name']}")
         self.wait_for_select_and_click_option(self.DEPT_SELECT, dept.value['name'])
 
-    def select_admin_mode(self):
-        self.wait_for_select_and_click_option(self.FILTER_MODE_SELECT, 'BOA Admins')
+    def select_user_role(self, role):
+        app.logger.info(f'Selecting role {role}')
+        self.wait_for_select_and_click_option(self.STATUS_SELECT, role)
+
+    def select_user_status(self, status):
+        app.logger.info(f'Selecting status {status}')
+        self.wait_for_select_and_click_option(self.STATUS_SELECT, status)
+
+    def submit_search(self):
+        self.wait_for_element_and_click(self.SUBMIT_SEARCH_BTN)
 
     # Advisors table
 
@@ -152,6 +165,7 @@ class PassengerManifestPage(Pagination):
     CANVAS_DATA_CBX = By.ID, 'can-access-canvas-data'
     NOTES_APPTS_CBX = By.ID, 'can-access-advising-data'
     DEGREE_PROGRESS_SELECT = By.ID, 'degree-progress-permission-select'
+    PEER_ADVISING_DEPT_SELECT = By.ID, 'peer-advising-department-select'
     REMOVE_DEPT_BUTTON = By.XPATH, '//button[contains(@id, "remove-department-")]'
     AUTOMATE_DEG_PROG_CBX = By.ID, 'automate-degree-progress-permission'
     SAVE_USER_BUTTON = By.ID, 'save-changes-to-user-profile'
@@ -227,9 +241,26 @@ class PassengerManifestPage(Pagination):
             app.logger.info(f'Adding UID {user.uid} department role {vars(membership)}')
             self.wait_for_select_and_click_option(self.DEPT_SELECT, membership.dept.value['code'])
             if membership.advisor_role == AdvisorRole.ADVISOR:
-                self.wait_for_select_and_click_option(self.dept_role_select_loc(membership.dept), 'Advisor')
+                if membership.peer_advising_role and membership.peer_advising_role == PeerAdvisingRole.PEER_ADVISOR_MANAGER:
+                    self.wait_for_select_and_click_option(
+                        self.dept_role_select_loc(membership.dept), 'Advisor + Peer Advisor Manager')
+                    self.wait_for_select_and_click_option(
+                        self.PEER_ADVISING_DEPT_SELECT, membership.peer_advising_dept.value['name'])
+                else:
+                    self.wait_for_select_and_click_option(self.dept_role_select_loc(membership.dept), 'Advisor')
             elif membership.advisor_role == AdvisorRole.DIRECTOR:
-                self.wait_for_select_and_click_option(self.dept_role_select_loc(membership.dept), 'Director')
+                if membership.peer_advising_role and membership.peer_advising_role == PeerAdvisingRole.PEER_ADVISOR_MANAGER:
+                    self.wait_for_select_and_click_option(
+                        self.dept_role_select_loc(membership.dept), 'Director + Peer Advisor Manager')
+                    self.wait_for_select_and_click_option(
+                        self.PEER_ADVISING_DEPT_SELECT, membership.peer_advising_dept.value['name'])
+                else:
+                    self.wait_for_select_and_click_option(self.dept_role_select_loc(membership.dept), 'Director')
+            if membership.peer_advising_role and membership.peer_advising_role == PeerAdvisingRole.PEER_ADVISOR:
+                self.wait_for_select_and_click_option(
+                    self.dept_role_select_loc(membership.dept), 'Peer Advisor')
+                self.wait_for_select_and_click_option(
+                    self.PEER_ADVISING_DEPT_SELECT, membership.peer_advising_dept.value['name'])
             if (membership.is_automated and not self.element(
                     self.is_automated_dept_cbx_loc(membership.dept)).is_selected()) or (
                     self.element(

@@ -136,6 +136,7 @@ class TestAuthUserSearch:
         expected.sort()
         app.logger.info(f"Checking advisor list for {dept.value['name']}")
         self.pax_manifest_page.select_dept(dept)
+        self.pax_manifest_page.submit_search()
         self.pax_manifest_page.wait_for_advisor_list()
         visible = self.pax_manifest_page.list_view_uids()
         visible.sort()
@@ -143,6 +144,7 @@ class TestAuthUserSearch:
 
     def test_filter_dept_results_include_names(self):
         self.pax_manifest_page.select_all_depts()
+        self.pax_manifest_page.submit_search()
         self.pax_manifest_page.wait_for_advisor_list()
         visible = self.pax_manifest_page.els_text_if_exist(self.pax_manifest_page.ADVISOR_NAME)
         visible = [n for n in visible if n]
@@ -160,7 +162,8 @@ class TestAuthUserSearch:
         assert visible
 
     def test_admins_list(self):
-        self.pax_manifest_page.select_admin_mode()
+        self.pax_manifest_page.select_user_role('Admins')
+        self.pax_manifest_page.submit_search()
         expected = [a.uid for a in auth_users if a.is_admin]
         expected.sort()
         self.pax_manifest_page.wait_for_advisor_list()

@@ -106,9 +106,63 @@ class Department(Enum):
         'export_name': None,
         'notes_only': False,
     }
+    PUB_HEALTH = {
+        'code': 'KTPUB',
+        'name': 'School of Public Health',
+        'export_name': None,
+        'notes_only': False,
+    }
     ZCEEE = {
         'code': 'ZCEEE',
         'name': 'Centers for Educational Equity and Excellence',
         'export_name': None,
         'notes_only': False,
+    }
+
+
+class PeerAdvisingDepartment(Enum):
+
+    ASC = {
+        'name': 'Athletic Study Center',
+        'parent': Department.ASC,
+    }
+    COE = {
+        'name': 'College of Engineering',
+        'parent': Department.COE,
+    }
+    DATA_SCI = {
+        'name': 'College of Computing, Data Science, and Society',
+        'parent': Department.DATA_SCI,
+    }
+    L_AND_S = {
+        'name': 'L&S College Advising',
+        'parent': Department.L_AND_S,
+    }
+    OFFICE_OF_INSTRUCT = {
+        'name': 'Office of Instruction & Student Affairs',
+        'parent': Department.NAT_RES,
+    }
+    PSYCHOLOGY = {
+        'name': 'Psychology',
+        'parent': Department.L_AND_S_MAJ,
+    }
+    POVERTY = {
+        'name': 'Global Poverty & Practice Minor',
+        'parent': Department.L_AND_S_MAJ,
+    }
+    EOP = {
+        'name': 'Educational Opportunity Program',
+        'parent': Department.ZCEEE,
+    }
+    NAVCAL = {
+        'name': 'NAVCAL',
+        'parent': Department.ZCEEE,
+    }
+    TRANSFER = {
+        'name': 'Transfer Student Center',
+        'parent': Department.ZCEEE,
+    }
+    PUB_HEALTH = {
+        'name': 'School of Public Health',
+        'parent': Department.PUB_HEALTH,
     }

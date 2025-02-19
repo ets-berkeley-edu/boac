@@ -100,7 +100,7 @@ class Page(object):
         return els_text
 
     def el_value(self, locator):
-        return self.element(locator).get_attribute('value')
+        return self.element(locator).get_dom_attribute('value')
 
     def is_present(self, locator):
         try:
