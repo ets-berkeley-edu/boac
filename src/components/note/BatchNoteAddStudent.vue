@@ -19,7 +19,7 @@
         aria-label="Name or S I D lookup. Expect auto suggest."
         autocomplete="list"
         base-color="primary"
-        class="autocomplete-students autocomplete-with-add-button"
+        class="autocomplete-students autocomplete-with-add-button note-add-student-input"
         :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
         color="primary"
         density="compact"
@@ -242,6 +242,9 @@ const removeStudent = student => {
 .autocomplete-students {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
+}
+.note-add-student-input .add-button {
+  height: 48px !important;
 }
 </style>
 

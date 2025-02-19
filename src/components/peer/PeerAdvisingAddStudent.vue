@@ -43,7 +43,7 @@
         <v-btn
           id="add-student-add-button"
           aria-label="Add Student to Note"
-          class="add-button"
+          class="add-button add-button-height"
           color="primary"
           :disabled="!size(query) && !size(sidsManuallyAdded)"
           :prepend-icon="mdiPlus"
@@ -194,6 +194,9 @@ const onUpdateSearch = input => {
 </script>
 
 <style scoped>
+.add-button-height {
+  height: 40px;
+}
 .autocomplete-students {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;

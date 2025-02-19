@@ -48,10 +48,7 @@
           role="tabpanel"
           :value="item.key"
         >
-          <div v-if="item.key === 'account'">
-            <div class="mb-3 mt-5">
-              <h2 class="font-size-16">{{ item.label }}</h2>
-            </div>
+          <div v-if="item.key === 'account'" class="ma-3">
             <PeerAdvisingAccountMgmt :peer-advising-department="peerAdvisingDepartment" />
           </div>
           <div v-if="item.key === 'templates'" class="pt-3">
