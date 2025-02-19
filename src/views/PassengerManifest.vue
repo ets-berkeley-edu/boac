@@ -12,15 +12,15 @@
           (<a id="download-boa-users-csv" aria-label="Download Passenger Manifest" :href="`${contextStore.config.apiBaseUrl}/api/users/csv`">CSV download</a>)
         </span>
       </div>
-    </div>
-    <div class="mt-3">
-      <SearchAndFilterBoaUsers :fetch-users="fetchUsers" />
-    </div>
-    <div class="align-center d-flex justify-space-between mt-2">
-      <QuickLinks :fetch-users="fetchUsers" />
       <div class="ml-auto">
         <CreateNewBoaUser />
       </div>
+    </div>
+    <div class="mt-4">
+      <SearchAndFilterBoaUsers :fetch-users="fetchUsers" />
+    </div>
+    <div class="mt-2">
+      <QuickLinks :fetch-users="fetchUsers" />
     </div>
     <BoaUsers
       v-if="!isFetching && !isNaN(totalUserCount)"

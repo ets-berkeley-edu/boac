@@ -98,9 +98,9 @@ class PeerAdvisingDepartmentMember(Base):
         sql = """
             SELECT
                 d.name,
+                d.university_dept_id,
                 m.peer_advising_department_id,
                 m.role_type,
-                u.id AS university_dept_id,
                 u.dept_code AS university_dept_code,
                 u.dept_name AS university_dept_name
             FROM peer_advising_department_members m

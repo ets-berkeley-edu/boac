@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-space-around">
     <v-menu
-      :width="isPeerAdvisorManager(currentUser) ? 360 : 280"
+      :width="isPeerAdvisorManager(currentUser) ? 320 : 220"
       transition="slide-y-transition"
       variant="link"
       @update:model-value="isOpen => isMenuOpen = isOpen"
@@ -22,7 +22,7 @@
           <v-btn
             id="header-menu-degree-check"
             :aria-current="route.path === '/degrees' ? 'page' : false"
-            class="font-size-16 justify-start text-decoration-none w-100"
+            class="header-menu-item"
             color="primary"
             text="Degree Checks"
             to="/degrees"
@@ -33,7 +33,7 @@
           <v-btn
             id="header-menu-peer-management"
             :aria-current="route.path.startsWith('/peer/management') ? 'page' : false"
-            class="font-size-16 justify-start text-decoration-none w-100"
+            class="header-menu-item"
             color="primary"
             density="comfortable"
             size="large"
@@ -46,7 +46,7 @@
           <v-btn
             id="header-menu-analytics"
             :aria-current="route.path.startsWith('/analytics') ? 'page' : false"
-            class="font-size-16 justify-start text-decoration-none w-100"
+            class="header-menu-item"
             color="primary"
             density="comfortable"
             size="large"
@@ -59,7 +59,7 @@
           <v-btn
             id="header-menu-flight-deck"
             :aria-current="route.path === '/admin' ? 'page' : false"
-            class="font-size-16 justify-start text-decoration-none w-100"
+            class="header-menu-item"
             color="primary"
             density="comfortable"
             size="large"
@@ -72,7 +72,7 @@
           <v-btn
             id="header-menu-passengers"
             :aria-current="route.path === '/admin/passengers' ? 'page' : false"
-            class="font-size-16 justify-start text-decoration-none w-100"
+            class="header-menu-item"
             color="primary"
             density="comfortable"
             size="large"
@@ -85,7 +85,7 @@
           <v-btn
             id="header-menu-profile"
             :aria-current="route.path === '/profile' ? 'page' : false"
-            class="font-size-16 justify-start text-decoration-none w-100"
+            class="header-menu-item"
             color="primary"
             density="comfortable"
             size="large"
@@ -110,7 +110,7 @@
         <v-list-item class="pa-0">
           <v-btn
             id="header-menu-log-out"
-            class="font-size-16 justify-start text-decoration-none w-100"
+            class="header-menu-item"
             color="primary"
             density="comfortable"
             size="large"
@@ -156,5 +156,12 @@ const logOut = () => getCasLogoutUrl().then(data => window.location.href = data.
 <style scoped>
 .header-button-menu {
   height: 46px;
+}
+.header-menu-item {
+  font-size: 16px;
+  letter-spacing: normal;
+  justify-content: start;
+  text-decoration-line: none;
+  width: 100%;
 }
 </style>
