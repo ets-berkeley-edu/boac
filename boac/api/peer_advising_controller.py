@@ -29,18 +29,25 @@ from boac.lib.http import tolerant_jsonify
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from dateutil.tz import tzutc
-from flask import current_app as app
+from flask import current_app as app, request
 
 
 @app.route('/api/peer/department/<peer_advising_department_id>')
 @peer_advisor_manager_required
 def get_peer_advising_department(peer_advising_department_id):
+    include_deleted = request.args.get('includeDeleted', False)
     peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
     if peer_advising_department:
         users = AuthorizedUser.get_peer_advising_users(peer_advising_department_id=peer_advising_department_id)
+        if include_deleted:
+            users = users + AuthorizedUser.get_peer_advising_users(
+                peer_advising_department_id=peer_advising_department_id,
+                status='deleted',
+            )
+        users = sorted([user for user in authorized_users_api_feed(users)], key=lambda u: u['lastName'])
         api_json = {
             **peer_advising_department.to_api_json(),
-            **{'peerAdvisingDepartmentMembers': authorized_users_api_feed(users)},
+            **{'peerAdvisingDepartmentMembers': users},
         }
         return tolerant_jsonify(api_json)
     else:
