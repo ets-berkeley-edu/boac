@@ -1,5 +1,6 @@
 import axios from 'axios'
 import utils from '@/api/api-utils'
+import type {DepartmentMembershipRole} from '@/lib/types'
 
 export function deletePeerAdvisor(peerAdvisingDeptId: number, userId: number) {
   const headers = {'Content-Type': 'application/json'}
@@ -13,7 +14,11 @@ export async function restorePeerAdvisor(peerAdvisingDeptId: number, userId: num
   return axios.get(url, {headers}).then(response => response.data)
 }
 
-export function getPeerAdvisingDepartment(peerAdvisingDeptId: number, includeDeleted?: boolean) {
-  const url: string = `${utils.apiBaseUrl()}/api/peer/department/${peerAdvisingDeptId}?includeDeleted=${includeDeleted}`
+export async function getPeerAdvisingDepartment(
+  peerAdvisingDeptId: number,
+  roleType: DepartmentMembershipRole,
+  includeDeleted?: boolean
+) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer/department/${peerAdvisingDeptId}/${roleType}?includeDeleted=${includeDeleted}`
   return axios.get(url).then(response => response.data)
 }

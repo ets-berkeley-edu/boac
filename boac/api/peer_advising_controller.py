@@ -34,19 +34,24 @@ from flask import current_app as app, request
 from flask_login import current_user
 
 
-@app.route('/api/peer/department/<peer_advising_department_id>')
+@app.route('/api/peer/department/<peer_advising_department_id>/<role_type>')
 @peer_advisor_manager_required
-def get_peer_advising_department(peer_advising_department_id):
+def get_peer_advising_department(peer_advising_department_id, role_type):
     include_deleted = request.args.get('includeDeleted', False)
     peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
     if peer_advising_department:
-        users = AuthorizedUser.get_peer_advising_users(peer_advising_department_id=peer_advising_department_id)
+        users = AuthorizedUser.get_peer_advising_users(
+            peer_advising_department_id=peer_advising_department_id,
+            role_type=role_type,
+        )
         if include_deleted:
             users = users + AuthorizedUser.get_peer_advising_users(
                 peer_advising_department_id=peer_advising_department_id,
+                role_type=role_type,
                 status='deleted',
             )
-        users = sorted([user for user in authorized_users_api_feed(users)], key=lambda u: u['lastName'])
+        users = authorized_users_api_feed(users)
+        users = sorted([{**user, **{'role': role_type}} for user in users], key=lambda u: u['lastName'])
         api_json = {
             **peer_advising_department.to_api_json(),
             **{'peerAdvisingDepartmentMembers': users},

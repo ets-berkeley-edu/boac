@@ -462,7 +462,7 @@ const onClearStudentSearch = () => {
 }
 
 const openAdvancedSearch = () => {
-  searchStore.setShowAdvancedSearch(true)
+  searchStore.setShowAdvancedSearch(true, currentUser.canAccessAdvisingData)
 }
 
 const reset = force => {
