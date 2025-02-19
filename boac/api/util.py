@@ -268,6 +268,7 @@ def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
             'canAccessCanvasData': user.can_access_canvas_data,
             'canEditDegreeProgress': user.degree_progress_permission == 'read_write' or user.is_admin,
             'canReadDegreeProgress': user.degree_progress_permission in ['read', 'read_write'] or user.is_admin,
+            'createdAt': _isoformat(user.created_at),
             'degreeProgressPermission': user.degree_progress_permission,
             'deletedAt': _isoformat(user.deleted_at),
             'departments': [],

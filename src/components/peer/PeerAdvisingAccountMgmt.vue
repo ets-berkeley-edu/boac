@@ -1,5 +1,5 @@
 <template>
-  <div class="align-center d-flex justify-space-between font-weight-bold">
+  <div class="align-end d-flex justify-space-between font-weight-bold">
     <div class="w-40">
       <PeerAdvisingAddStudent />
     </div>

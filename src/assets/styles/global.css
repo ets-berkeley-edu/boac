@@ -6,7 +6,6 @@
 .autocomplete-with-add-button .v-input__control,
 .autocomplete-with-add-button .v-field,
 .autocomplete-with-add-button .add-button {
-  height: 48px !important;
   padding-top: 0 !important;
 }
 .autocomplete-with-add-button .v-field {
