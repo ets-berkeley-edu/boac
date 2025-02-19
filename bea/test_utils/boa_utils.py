@@ -26,12 +26,12 @@ from datetime import datetime
 from itertools import groupby
 import re
 
-from bea.models.advisor_role import AdvisorRole
+from bea.models.advisor_role import AdvisorRole, PeerAdvisingRole
 from bea.models.alert import Alert
 from bea.models.cohorts_and_groups.cohort import Cohort
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.degree_progress.degree_check_perms import DegreeCheckPerms
-from bea.models.department import Department
+from bea.models.department import Department, PeerAdvisingDepartment
 from bea.models.department_membership import DepartmentMembership
 from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_attachment import NoteAttachment
@@ -120,12 +120,18 @@ def get_authorized_users():
                     authorized_users.automate_degree_progress_permission AS deg_prog_automated,
                     university_dept_members.automate_membership AS is_automated,
                     university_dept_members.role AS advisor_role,
-                    university_depts.dept_code AS dept_code
+                    university_depts.dept_code AS dept_code,
+                    peer_advising_department_members.role_type AS peer_role,
+                    peer_advising_departments.name AS peer_dept
                FROM authorized_users
           LEFT JOIN university_dept_members
                  ON authorized_users.id = university_dept_members.authorized_user_id
           LEFT JOIN university_depts
                  ON university_dept_members.university_dept_id = university_depts.id
+          LEFT JOIN peer_advising_department_members
+                 ON authorized_users.id = peer_advising_department_members.authorized_user_id
+          LEFT JOIN peer_advising_departments
+                 ON peer_advising_department_members.peer_advising_department_id = peer_advising_departments.id
            ORDER BY uid ASC;"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
@@ -150,13 +156,23 @@ def get_authorized_users():
 
         memberships = []
         for dept_memb in v:
-            role = dept_memb['advisor_role'] and next(filter(lambda r: (r.value['code'] == dept_memb['advisor_role']), AdvisorRole))
-            dept = dept_memb['dept_code'] and next(filter(lambda d: (d.value['code'] == dept_memb['dept_code']), Department))
-            is_automated = dept_memb['is_automated']
+            role = dept_memb['advisor_role'] and next(
+                filter(lambda r: (r.value['code'] == dept_memb['advisor_role']), AdvisorRole))
+            dept = dept_memb['dept_code'] and next(
+                filter(lambda d: (d.value['code'] == dept_memb['dept_code']), Department))
+            is_automated = dept_memb['is_automated'] or False
+            peer_role = dept_memb['peer_role'] and next(
+                filter(lambda r: r.value['code'] == dept_memb['peer_role'], PeerAdvisingRole))
+            peer_dept = dept_memb['peer_dept'] and next(
+                filter(lambda d: d.value['name'] == dept_memb['peer_dept'], PeerAdvisingDepartment))
+
             membership = DepartmentMembership(advisor_role=role,
                                               dept=dept,
-                                              is_automated=is_automated)
+                                              is_automated=is_automated,
+                                              peer_advising_dept=peer_dept,
+                                              peer_advising_role=peer_role)
             memberships.append(membership)
+        depts = [m.dept for m in memberships if m.dept]
 
         user = User({
             'uid': str(k),
@@ -166,7 +182,7 @@ def get_authorized_users():
             'degree_progress_perm': degree_progress_perm,
             'degree_progress_automated': degree_progress_automated,
             'dept_memberships': memberships,
-            'depts': [m.dept for m in memberships],
+            'depts': depts,
             'is_admin': is_admin,
             'is_blocked': is_blocked,
         })
@@ -256,6 +272,45 @@ def get_dept_advisors(dept, membership=None):
             'degree_progress_perm': degree_progress_perm,
             'depts': depts,
             'dept_memberships': dept_memberships,
+        })
+        advisors.append(user)
+    return advisors
+
+
+def get_peer_advisors(peer_dept=None):
+    clause = f"WHERE peer_advising_departments.name = '{peer_dept.value['name']}'"
+    sql = f"""SELECT authorized_users.uid AS uid,
+                     authorized_users.deleted_at AS user_deleted_at,
+                     peer_advising_department_members.role_type AS peer_role,
+                     peer_advising_department_members.deleted_at AS peer_deleted_at,
+                     peer_advising_departments.name AS peer_dept
+              {clause}
+                FROM authorized_users
+           LEFT JOIN peer_advising_department_members
+                  ON authorized_users.id = peer_advising_department_members.authorized_user_id
+           LEFT JOIN peer_advising_departments
+                  ON peer_advising_department_members.peer_advising_department_id = peer_advising_departments.id
+            ORDER BY uid ASC;"""
+
+    app.logger.info(sql)
+    result = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    advisors = []
+    for row in result:
+        active = False if row['user_deleted_at'] or row['peer_deleted_at'] else True
+        peer_role = row['peer_role'] and next(
+            filter(lambda r: r.value['code'] == peer_role['peer_role'], PeerAdvisingRole))
+        peer_dept = peer_dept or row['peer_dept'] and next(
+            filter(lambda d: d.value['name'] == row['peer_dept'], PeerAdvisingDepartment))
+        membership = DepartmentMembership(advisor_role=None,
+                                          dept=None,
+                                          is_automated=False,
+                                          peer_advising_dept=peer_dept,
+                                          peer_advising_role=peer_role)
+        user = User({
+            'uid': str(row['uid']),
+            'active': active,
+            'dept_memberships': [membership],
         })
         advisors.append(user)
     return advisors

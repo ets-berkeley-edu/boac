@@ -26,7 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 class DepartmentMembership(object):
 
-    def __init__(self, advisor_role, dept, is_automated):
+    def __init__(self, advisor_role, dept, is_automated, peer_advising_dept=None, peer_advising_role=None):
         self.advisor_role = advisor_role
         self.dept = dept
         self.is_automated = is_automated
+        self.peer_advising_dept = peer_advising_dept
+        self.peer_advising_role = peer_advising_role

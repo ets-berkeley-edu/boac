@@ -29,12 +29,25 @@ from bea.models.notes_and_appts.timeline_note_appt import TimelineNoteAppt
 class NoteTemplate(TimelineNoteAppt):
 
     @property
+    def is_peer_advising(self):
+        return self.data.get('is_peer_advising')
+
+    @is_peer_advising.setter
+    def is_peer_advising(self, value):
+        self.data['is_peer_advising'] = value
+
+    @property
     def is_private(self):
-        try:
-            return self.data['is_private']
-        except KeyError:
-            return False
+        return self.data.get('is_private')
 
     @is_private.setter
     def is_private(self, value):
         self.data['is_private'] = value
+
+    @property
+    def peer_dept(self):
+        return self.data.get('peer_dept')
+
+    @peer_dept.setter
+    def peer_dept(self, value):
+        self.data['peer_dept'] = value

@@ -71,6 +71,7 @@ class BoaPages(CreateNoteModal, SearchForm):
     DEGREE_CHECKS_LINK = (By.ID, 'header-menu-degree-check')
     FLIGHT_DATA_RECORDER_LINK = (By.ID, 'header-menu-analytics')
     FLIGHT_DECK_LINK = (By.ID, 'header-menu-flight-deck')
+    PAN_AM_LINK = (By.ID, 'header-menu-peer-management')
     PAX_MANIFEST_LINK = (By.ID, 'header-menu-passengers')
     PROFILE_LINK = (By.ID, 'header-menu-profile')
     FEEDBACK_LINK = (By.XPATH, '//a[contains(text(), "Feedback/Help")]')
@@ -104,6 +105,11 @@ class BoaPages(CreateNoteModal, SearchForm):
         app.logger.info('Clicking flight deck link in the header')
         self.open_menu()
         self.wait_for_page_and_click(self.FLIGHT_DECK_LINK)
+
+    def click_pan_am_link(self):
+        app.logger.info('Clicking the peer advisor manager link')
+        self.open_menu()
+        self.wait_for_page_and_click(self.PAN_AM_LINK)
 
     def click_pax_manifest_link(self):
         app.logger.info('Clicking the pax manifest link in the header')

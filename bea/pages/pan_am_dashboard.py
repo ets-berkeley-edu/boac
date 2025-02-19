@@ -22,29 +22,33 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-
-from enum import Enum
-
-
-class AdvisorRole(Enum):
-
-    ADVISOR = {
-        'code': 'advisor',
-        'description': 'Advisor',
-    }
-    DIRECTOR = {
-        'code': 'director',
-        'description': 'Director',
-    }
+from bea.pages.boa_pages import BoaPages
+from selenium.webdriver.common.by import By
 
 
-class PeerAdvisingRole(Enum):
+class PanAmDashboard(BoaPages):
 
-    PEER_ADVISOR = {
-        'code': 'peer_advisor',
-        'description': 'Peer Advisor',
-    }
-    PEER_ADVISOR_MANAGER = {
-        'code': 'peer_advisor_manager',
-        'description': 'Peer Advisor Manager',
-    }
+    ACCT_MGMT_TAB = By.ID, 'peer-advising-management-count-accounts'
+    ADD_STUDENT_INPUT = By.ID, 'add-student-input'
+    ADD_STUDENT_BTN = By.ID, 'add-student-add-button'
+    SHOW_INACTIVE_TOGGLE = By.ID, 'toggle-inactive-students-button'
+
+    @staticmethod
+    def peer_advisor_row_xpath(user):
+        return f'//tr[@id="tr-member-{user.uid}"]'
+
+    def peer_advisor_name(self, user):
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_advisor_row_xpath(user)}/td[1]'))
+
+    def peer_advisor_note_count(self, user):
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_advisor_row_xpath(user)}/td[2]'))
+
+    def peer_advisor_date(self, user):
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_advisor_row_xpath(user)}/td[3]'))
+
+    @staticmethod
+    def peer_advisor_remove_btn(user):
+        return By.ID, f'delete-peer-advisor-{user.uid}'
+
+    NOTE_TEMPLATES_TAB = By.ID, 'peer-advising-management-count-templatess'
+    REPORTING_TAB = By.ID, 'peer-advising-management-tab-reportings'
