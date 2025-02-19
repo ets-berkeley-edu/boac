@@ -42,12 +42,11 @@
 
 <script setup>
 import {computed, onMounted, onUnmounted} from 'vue'
-import {each, get, noop, trim} from 'lodash'
+import {get, noop, trim} from 'lodash'
 import {useRoute, useRouter} from 'vue-router'
 import AccessibleCombobox from '@/components/util/AccessibleCombobox'
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
-import {getAllTopics} from '@/api/topics'
 import {labelForSearchInput} from '@/lib/search'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
@@ -66,22 +65,7 @@ const router = useRouter()
 onMounted(() => {
   document.addEventListener('keyup', onKeyUp, true)
   searchStore.resetAdvancedSearch(useRoute().query.q)
-  getMySearchHistory().then(history => {
-    searchStore.setSearchHistory(history)
-    if (currentUser.canAccessAdvisingData) {
-      getAllTopics(true).then(rows => {
-        const topicOptions = [{text: 'Any topic', value: null}]
-        each(rows, row => {
-          const topic = row['topic']
-          topicOptions.push({
-            text: topic,
-            value: topic
-          })
-        })
-        searchStore.setTopicOptions(topicOptions)
-      })
-    }
-  })
+  getMySearchHistory().then(history => searchStore.setSearchHistory(history))
 })
 
 onUnmounted(() => {

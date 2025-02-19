@@ -51,7 +51,8 @@
           <div v-if="item.key === 'account'" class="mt-3 mx-4">
             <PeerAdvisingAccountMgmt
               v-if="peerAdvisingDepartment"
-              :peer-advising-department="peerAdvisingDepartment"
+              :peer-advising-department-id="peerAdvisingDepartment.id"
+              :peer-advisors="_filter(peerAdvisingDepartment.peerAdvisingDepartmentMembers, ['role', 'peer_advisor'])"
               :refresh="reloadPeerAdvisingDepartment"
             />
           </div>
@@ -69,6 +70,7 @@
 
 <script setup>
 import {computed, onMounted, ref} from 'vue'
+import {filter as _filter} from 'lodash'
 import {useRoute} from 'vue-router'
 import PeerAdvisingAccountMgmt from '@/components/peer/PeerAdvisingAccountMgmt.vue'
 import PeerAdvisingNoteTemplates from '@/components/peer/PeerAdvisingNoteTemplates.vue'
@@ -95,7 +97,7 @@ onMounted(() => {
 })
 
 const reloadPeerAdvisingDepartment = () => {
-  return getPeerAdvisingDepartment(peerAdvisingDeptId, true).then(data => {
+  return getPeerAdvisingDepartment(peerAdvisingDeptId, 'peer_advisor', true).then(data => {
     peerAdvisingDepartment.value = data
     contextStore.loadingComplete('Peer Advising Management Dashboard is ready.')
   })

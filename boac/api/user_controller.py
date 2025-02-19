@@ -194,13 +194,13 @@ def user_search():
 def get_peer_advising_users():
     params = request.get_json()
     peer_advising_department_id = util.get(params, 'peerAdvisingDepartmentId', None)
-    role = util.get(params, 'role', None) or None
+    role_type = util.get(params, 'roleType', None) or None
     sort_by = util.get(params, 'sortBy', 'lastName')
     sort_descending = to_bool_or_none(util.get(params, 'sortDescending', False))
 
     users = AuthorizedUser.get_peer_advising_users(
         peer_advising_department_id=peer_advising_department_id,
-        role=role,
+        role_type=role_type,
         status=util.get(params, 'status'),
     )
     return tolerant_jsonify(authorized_users_api_feed(users, sort_by=sort_by, sort_descending=sort_descending))

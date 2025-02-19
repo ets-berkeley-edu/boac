@@ -36,19 +36,29 @@ qcadv_advisor_uid = '53791'
 class TestGetPeerAdvisingDepartment:
 
     @classmethod
-    def _api_get_peer_advising_department(cls, client, peer_advising_department_id, expected_status_code=200):
-        response = client.get(f'/api/peer/department/{peer_advising_department_id}')
+    def _api_get_peer_advising_department(cls, client, peer_advising_department_id, role_type, expected_status_code=200):
+        response = client.get(f'/api/peer/department/{peer_advising_department_id}/{role_type}')
         assert response.status_code == expected_status_code
         return response.json
 
     def test_not_authenticated(self, app, client):
         """Returns 401 if not authenticated."""
-        self._api_get_peer_advising_department(client, peer_advising_department_id=1, expected_status_code=401)
+        self._api_get_peer_advising_department(
+            client,
+            expected_status_code=401,
+            peer_advising_department_id=1,
+            role_type='peer_advisor',
+        )
 
     def test_unauthorized(self, client, fake_auth):
         """Returns 401 if user is neither admin nor Peer Advising Manager."""
         fake_auth.login(qcadv_advisor_uid)
-        self._api_get_peer_advising_department(client, peer_advising_department_id=1, expected_status_code=401)
+        self._api_get_peer_advising_department(
+            client,
+            expected_status_code=401,
+            peer_advising_department_id=1,
+            role_type='peer_advisor',
+        )
 
     def test_authorized(self, client, fake_auth):
         """Delivers peer_advising_department data to authorized user."""
@@ -57,7 +67,11 @@ class TestGetPeerAdvisingDepartment:
         assert len(departments) == 1
         peer_advisor_manager = next((m for m in departments[0]['memberships'] if m['role'] == 'peer_advisor_manager'), None)
         assert peer_advisor_manager
-        api_json = self._api_get_peer_advising_department(client=client, peer_advising_department_id=2)
+        api_json = self._api_get_peer_advising_department(
+            client=client,
+            peer_advising_department_id=2,
+            role_type='peer_advisor',
+        )
         assert api_json['name']
         assert len(api_json['peerAdvisingDepartmentMembers'])
 

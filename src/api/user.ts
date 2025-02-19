@@ -43,16 +43,16 @@ export function getCalnetProfileByUid(uid: string) {
   return axios.get(url).then(response => response.data)
 }
 
-export function getPeerAdvisingUsers(
+export async function getPeerAdvisingUsers(
   peerAdvisingDepartmentId: number | undefined,
-  role: string | undefined,
+  roleType: string | undefined,
   sortBy: string,
   sortDescending: boolean,
   status: string
 ) {
   const data = {
     peerAdvisingDepartmentId,
-    role,
+    roleType,
     sortBy,
     sortDescending,
     status

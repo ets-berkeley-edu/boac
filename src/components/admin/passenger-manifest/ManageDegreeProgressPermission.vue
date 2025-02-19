@@ -40,7 +40,7 @@ const user = defineModel<BoaUser>({
   type: Object as PropType<BoaUser>
 })
 
-const permission = ref<string | undefined>(user.value.degreeProgressPermission)
+const permission = ref<string | undefined>(user.value.degreeProgressPermission || undefined)
 
 watch(permission, (value: string | undefined) => user.value.degreeProgressPermission = value)
 </script>

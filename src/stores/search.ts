@@ -1,6 +1,8 @@
 import type {StoreDefinition} from 'pinia'
 import {defineStore} from 'pinia'
-import type {BoaUser} from '@/lib/types'
+import {each, isUndefined} from 'lodash'
+import type {BoaUser, SelectOption} from '@/lib/types'
+import {getAllTopics} from '@/api/topics'
 import {useContextStore} from '@/stores/context'
 
 export const useSearchStore: StoreDefinition = defineStore('search', {
@@ -17,11 +19,11 @@ export const useSearchStore: StoreDefinition = defineStore('search', {
     postedBy: 'anyone',
     queryText: undefined as string | undefined,
     searchHistory: [] as string[],
-    showAdvancedSearch: false,
+    showAdvancedSearch: undefined as boolean | undefined,
     student: undefined as string | null | undefined,
     toDate: undefined as string | null | undefined,
     topic: undefined as string | null | undefined,
-    topicOptions: [] as string[]
+    topicOptions: [] as SelectOption<string | null>[]
   }),
   getters: {
     isDirty: (state): boolean => {
@@ -65,10 +67,26 @@ export const useSearchStore: StoreDefinition = defineStore('search', {
     setPostedBy(value: string) {this.postedBy = value},
     setQueryText(queryText: string) {this.queryText = queryText},
     setSearchHistory(history: string[]) {this.searchHistory = history || []},
-    setShowAdvancedSearch(show: boolean) {this.showAdvancedSearch = show},
+    setShowAdvancedSearch(show: boolean, loadTopics?: boolean) {
+      const fetchTopics: boolean = !!loadTopics && show && isUndefined(this.showAdvancedSearch)
+      if (fetchTopics) {
+        getAllTopics(true).then(rows => {
+          this.topicOptions = [{text: 'Any topic', value: null}]
+          each(rows, row => {
+            const topic = row['topic']
+            this.topicOptions.push({
+              text: topic,
+              value: topic
+            })
+          })
+          this.showAdvancedSearch = show
+        })
+      } else {
+        this.showAdvancedSearch = show
+      }
+    },
     setStudent(value: string | null) {this.student = value},
     setToDate(value: string | null) {this.toDate = value},
-    setTopic(value: string | null) {this.topic = value},
-    setTopicOptions(topicOptions: string[]) {this.topicOptions = topicOptions}
+    setTopic(value: string | null) {this.topic = value}
   }
 })

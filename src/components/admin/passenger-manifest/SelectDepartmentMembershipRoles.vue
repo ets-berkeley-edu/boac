@@ -28,14 +28,25 @@
           {{ option.text }}
         </option>
       </select>
+      <v-expand-transition v-if="!isUndefined(error)">
+        <div
+          v-show="error"
+          id="edit-user-error"
+          aria-live="polite"
+          class="font-weight-bold my-1 opacity-60 text-error font-size-13"
+          role="alert"
+        >
+          {{ error }}
+        </div>
+      </v-expand-transition>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {onMounted, ref, watch} from 'vue'
-import {each, map, size} from 'lodash'
+import {computed, onMounted, ref, watch} from 'vue'
+import {each, find, isUndefined, map, size} from 'lodash'
 import type {
   BoaUser,
   BoaUserDepartment,
@@ -43,7 +54,12 @@ import type {
   DepartmentMembershipRole,
   SelectOption,
 } from '@/lib/types'
-import {findDepartment, getPeerAdvisingDepartments, isPeerAdvisingRole} from '@/lib/berkeley-department'
+import {
+  ADVISING_ROLE_TYPES,
+  findDepartment,
+  getPeerAdvisingDepartments,
+  isPeerAdvisingRole,
+} from '@/lib/berkeley-department'
 import {normalizeId} from '@/lib/utils'
 import {useManifestStore} from '@/stores/manifest'
 
@@ -61,6 +77,19 @@ const props = defineProps({
 
 const manifestStore = useManifestStore()
 const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
+const error = computed<string | undefined>(() => {
+  let error: string | undefined
+  const hasMatch = find(options.value, option => option.value.every(role => roles.value.includes(role)))
+  if (!hasMatch) {
+    if (roles.value.length === 1 && roles.value[0] === 'peer_advisor_manager') {
+      error = 'Peer Advisor Managers MUST also have the Advisor role and this user has only the former. ' +
+        'Please select a valid role combination from available options.'
+    } else {
+      error = `Uh oh! Department roles are in an invalid state: ${roles.value.join(', ')}.`
+    }
+  }
+  return error
+})
 const options = ref<SelectOption<DepartmentMembershipRole[]>[]>([])
 const roles = ref<DepartmentMembershipRole[]>([])
 
@@ -68,7 +97,7 @@ watch(roles, (value: DepartmentMembershipRole[]) => {
   if (size(value)) {
     department.memberships = []
     each(value, (role: DepartmentMembershipRole) => {
-      const membership = ['advisor', 'director'].includes(role) ? {automateMembership: true, role} : {role}
+      const membership = ADVISING_ROLE_TYPES.includes(role) ? {automateMembership: true, role} : {role}
       department.memberships.push(membership)
     })
     if (department.memberships.length) {

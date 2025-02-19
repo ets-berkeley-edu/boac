@@ -266,15 +266,15 @@ class AuthorizedUser(Base):
     @classmethod
     def get_peer_advising_users(
             cls,
-            peer_advising_department_id=None,
-            role=None,
+            role_type,
+            peer_advising_department_id,
             status='active',
     ):
         query_tables, query_filter, query_bindings = _peer_advising_users_sql(
             blocked=status == 'blocked',
             deleted=status == 'deleted',
             peer_advising_department_id=peer_advising_department_id,
-            role_type=role,
+            role_type=role_type,
         )
         query = text(f"""
             SELECT u.id

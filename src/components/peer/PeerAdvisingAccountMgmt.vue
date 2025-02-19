@@ -28,14 +28,19 @@
       }"
       density="compact"
       fixed-header
-      :headers="headers"
+      :headers="[
+        {align: 'start', key: 'name', sortable: dataTableRows.length > 1, title: 'Peer Advisor'},
+        {align: 'end', key: 'notesCreatedCount', sortable: dataTableRows.length > 1, title: 'Notes Created'},
+        {align: 'end', key: 'createdAt', sortable: dataTableRows.length > 1, title: 'Date Added'},
+        {align: 'end', key: 'actions', sortable: false}
+      ]"
       :header-props="{
         class: 'data-table-header-cell'
       }"
       hide-default-footer
       hide-no-data
       hover
-      :items="_filter(peerAdvisingDepartment.peerAdvisingDepartmentMembers, m => showDeletedPeerAdvisors || !m.deletedAt)"
+      :items="dataTableRows"
       :items-per-page="-1"
       mobile-breakpoint="md"
       :row-props="row => ({id: `tr-member-${row.item.uid}`})"
@@ -94,9 +99,13 @@ import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue
 import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising.js'
 
 const props = defineProps({
-  peerAdvisingDepartment: {
+  peerAdvisingDepartmentId: {
     required: true,
-    type: Object
+    type: Number
+  },
+  peerAdvisors: {
+    required: true,
+    type: Array
   },
   refresh: {
     required: true,
@@ -104,26 +113,15 @@ const props = defineProps({
   }
 })
 
-const peerAdvisorsActiveCount = computed(() => {
-  const members = props.peerAdvisingDepartment.peerAdvisingDepartmentMembers
-  return _filter(members, m => !m.deletedAt).length
-})
-const peerAdvisorsDeletedCount = computed(() => {
-  const members = props.peerAdvisingDepartment.peerAdvisingDepartmentMembers
-  return _filter(members, 'deletedAt').length
-})
-const headers = [
-  {align: 'start', key: 'name', title: 'Peer Advisor'},
-  {align: 'end', key: 'notesCreatedCount', title: 'Notes Created'},
-  {align: 'end', key: 'createdAt', title: 'Date Added'},
-  {align: 'end', key: 'actions', sortable: false},
-]
+const dataTableRows = computed(() => _filter(props.peerAdvisors, u => showDeletedPeerAdvisors.value || !u.deletedAt))
+const peerAdvisorsActiveCount = computed(() => _filter(props.peerAdvisors, m => !m.deletedAt).length)
+const peerAdvisorsDeletedCount = computed(() => _filter(props.peerAdvisorss, m => m.deletedAt).length)
 const isBusy = ref(false)
 const showDeletedPeerAdvisors = ref(!peerAdvisorsActiveCount.value)
 
 const onClickDeletePeerAdvisor = userId => {
   isBusy.value = true
-  deletePeerAdvisor(props.peerAdvisingDepartment.id, userId).then(() => {
+  deletePeerAdvisor(props.peerAdvisingDepartmentId, userId).then(() => {
     props.refresh().then(() => {
       isBusy.value = false
     })
@@ -132,7 +130,7 @@ const onClickDeletePeerAdvisor = userId => {
 
 const onClickRestorePeerAdvisor = userId => {
   isBusy.value = true
-  restorePeerAdvisor(props.peerAdvisingDepartment.id, userId).then(() => {
+  restorePeerAdvisor(props.peerAdvisingDepartmentId, userId).then(() => {
     props.refresh().then(() => {
       isBusy.value = false
     })
