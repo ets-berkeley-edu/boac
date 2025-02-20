@@ -41,9 +41,14 @@
       <ManageBoaUserDepartments v-model="user" />
       <v-expand-transition>
         <SelectBerkeleyDepartment
-          v-show="!isPeerAdvisor(user)"
+          v-if="!isPeerAdvisor(user)"
           v-model="user"
         />
+      </v-expand-transition>
+      <v-expand-transition>
+        <div v-if="user.isAdmin" class="font-size-14 opacity-60 ml-2 mt-1 text-medium-emphasis text-red">
+          Uncheck the Admin checkbox to add departments.
+        </div>
       </v-expand-transition>
     </v-card-text>
     <v-card-actions class="modal-footer">
@@ -102,7 +107,8 @@ watch(() => user.value, () => error.value = undefined, {deep: true})
 const isSaveButtonDisabled = computed(() => {
   let disabled = false
   const departments = user.value.departments
-  if (isSaving.value || !user.value.uid || !size(departments)) {
+  const isValidDepartmentCount = user.value.isAdmin || user.value.deletedAt || size(departments)
+  if (isSaving.value || !user.value.uid || !isValidDepartmentCount) {
     disabled = true
   } else {
     each(departments, (department: BoaUserDepartment) => {

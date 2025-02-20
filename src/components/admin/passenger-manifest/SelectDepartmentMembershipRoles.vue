@@ -79,8 +79,8 @@ const manifestStore = useManifestStore()
 const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
 const error = computed<string | undefined>(() => {
   let error: string | undefined
-  const hasMatch = find(options.value, option => option.value.every(role => roles.value.includes(role)))
-  if (!hasMatch) {
+  const isValidRoles = !roles.value.length || find(options.value, option => option.value.every(role => roles.value.includes(role)))
+  if (!isValidRoles) {
     if (roles.value.length === 1 && roles.value[0] === 'peer_advisor_manager') {
       error = 'Peer Advisor Managers MUST also have the Advisor role and this user has only the former. ' +
         'Please select a valid role combination from available options.'
