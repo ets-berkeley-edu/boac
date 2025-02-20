@@ -14,6 +14,7 @@
         class="font-size-14 font-weight-bold text-medium-emphasis"
         color="primary"
         density="compact"
+        :disabled="isBusy || isRefreshing"
         hide-details
         :label="`${showDeletedPeerAdvisors ? 'Hide' : 'Show'} deleted`"
         role="switch"
@@ -69,8 +70,8 @@
           v-if="!item.deletedAt"
           :id="`delete-peer-advisor-${item.uid}`"
           :aria-label="`Remove ${item.name}'s 'Peer Advisor' role`"
-          class="bg-transparent text-error"
-          :disabled="isBusy"
+          :class="{'bg-transparent text-red': !isBusy}"
+          :disabled="isBusy || isRefreshing"
           :icon="mdiTrashCan"
           size="md"
           :title="`Remove ${item.name}'s Peer Advisor role.`"
@@ -82,7 +83,7 @@
           :id="`restore-peer-advisor-${item.uid}`"
           :aria-label="`Restore ${item.name}'s 'Peer Advisor' role`"
           class="bg-transparent text-success"
-          :disabled="isBusy"
+          :disabled="isBusy || isRefreshing"
           :icon="mdiUndo"
           size="md"
           :title="`Remove ${item.name}'s Peer Advisor role.`"
@@ -103,6 +104,10 @@ import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue
 import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising.js'
 
 const props = defineProps({
+  isRefreshing: {
+    required: true,
+    type: Boolean
+  },
   peerAdvisingDepartmentId: {
     required: true,
     type: Number
@@ -119,7 +124,7 @@ const props = defineProps({
 
 const dataTableRows = computed(() => _filter(props.peerAdvisors, u => showDeletedPeerAdvisors.value || !u.deletedAt))
 const peerAdvisorsActiveCount = computed(() => _filter(props.peerAdvisors, m => !m.deletedAt).length)
-const peerAdvisorsDeletedCount = computed(() => _filter(props.peerAdvisorss, m => m.deletedAt).length)
+const peerAdvisorsDeletedCount = computed(() => _filter(props.peerAdvisors, m => m.deletedAt).length)
 const isBusy = ref(false)
 const showDeletedPeerAdvisors = ref(!peerAdvisorsActiveCount.value)
 
