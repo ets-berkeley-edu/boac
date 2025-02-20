@@ -27,6 +27,7 @@ from boac import std_commit
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup, CuratedGroupStudent
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 import pytest
@@ -328,3 +329,49 @@ class TestRefreshDepartmentMemberships:
         assert updated_user.deleted_at is None
         assert updated_user.created_by == '0'
         assert updated_user.department_memberships[0].university_dept_id == dept_ucls.id
+
+    def test_peer_advisors(self):
+        """The department_memberships refresh job does not drop Peer Advisors."""
+        def _verify_expected_state():
+            def _verify_department_memberships(
+                    assertion_described,
+                    expected_peer_advising_dept_roles,
+                    expected_university_dept_roles,
+                    user_id,
+            ):
+                # Verify University Dept Memberships
+                university_dept_memberships = UniversityDeptMember.get_existing_memberships(authorized_user_id=user_id)
+                university_dept_roles = [m.role for m in university_dept_memberships]
+                assert set(university_dept_roles) == set(expected_university_dept_roles), assertion_described
+                # Verify Peer Advising Dept Memberships
+                peer_advising_dept_memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(
+                    authorized_user_id=user_id,
+                )
+                peer_advising_dept_roles = [m['role_type'] for m in peer_advising_dept_memberships]
+                assert set(peer_advising_dept_roles) == set(expected_peer_advising_dept_roles), assertion_described
+
+            _verify_department_memberships(
+                assertion_described='Peer Advisor BEFORE refresh_department_memberships job',
+                expected_peer_advising_dept_roles=['peer_advisor'],
+                expected_university_dept_roles=[],
+                user_id=peer_advisor_user_id,
+            )
+            _verify_department_memberships(
+                assertion_described='Peer Advisor Manager BEFORE refresh_department_memberships job',
+                expected_peer_advising_dept_roles=['peer_advisor_manager'],
+                expected_university_dept_roles=['advisor'],
+                user_id=peer_advisor_manager_user_id,
+            )
+        peer_advisor_user_id = AuthorizedUser.get_id_per_uid('1913062')
+        peer_advisor_manager_user_id = AuthorizedUser.get_id_per_uid('1133399')
+
+        # Verifications BEFORE we run the job.
+        _verify_expected_state()
+
+        # Run the job!
+        from boac.api.cache_utils import refresh_department_memberships
+        refresh_department_memberships()
+        std_commit(allow_test_environment=True)
+
+        # Verifications AFTER the job has run.
+        _verify_expected_state()
