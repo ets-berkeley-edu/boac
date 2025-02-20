@@ -34,6 +34,34 @@ from flask import current_app as app, request
 from flask_login import current_user
 
 
+@app.route('/api/peer/create_peer_advisor', methods=['POST'])
+@peer_advisor_manager_required
+def create_peer_advisor():
+    params = request.get_json()
+    peer_advising_department_id = params.get('peerAdvisingDeptId')
+    uid = params.get('uid')
+    if _is_authorized_peer_advisor_manager(
+            peer_advising_department_id=peer_advising_department_id,
+            peer_advisor_manager_user_id=current_user.get_id(),
+    ):
+        peer_advisor = AuthorizedUser.create_or_restore(
+            uid,
+            created_by=current_user.get_id(),
+            automate_degree_progress_permission=False,
+            can_access_advising_data=False,
+            can_access_canvas_data=False,
+            degree_progress_permission=None,
+        )
+        PeerAdvisingDepartmentMember.create_or_update_membership(
+            authorized_user_id=peer_advisor.id,
+            peer_advising_department_id=peer_advising_department_id,
+            role_type='peer_advisor',
+        )
+        return tolerant_jsonify({})
+    else:
+        return app.login_manager.unauthorized()
+
+
 @app.route('/api/peer/department/<peer_advising_department_id>/<role_type>')
 @peer_advisor_manager_required
 def get_peer_advising_department(peer_advising_department_id, role_type):
@@ -103,7 +131,7 @@ def restore_peer_advisor(peer_advising_department_id, peer_advisor_user_id):
 def _is_authorized_peer_advisor_manager(
         peer_advising_department_id,
         peer_advisor_manager_user_id,
-        peer_advisor_user_id,
+        peer_advisor_user_id=None,
         include_deleted_peer_advisor_memberships=False,
 ):
     def _is_authorized(membership, role_type):
@@ -112,15 +140,16 @@ def _is_authorized_peer_advisor_manager(
     peer_advisor_manager_memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(
         authorized_user_id=peer_advisor_manager_user_id,
     )
-    peer_advisor_memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(
-        authorized_user_id=peer_advisor_user_id,
-        include_deleted=include_deleted_peer_advisor_memberships,
-    )
     authorization_checks = [
         next((m for m in peer_advisor_manager_memberships if _is_authorized(m, 'peer_advisor_manager')), None) is not None,
-        next((m for m in peer_advisor_memberships if _is_authorized(m, 'peer_advisor')), None) is not None,
         (peer_advisor_manager_user_id != peer_advisor_user_id),
     ]
+    if peer_advisor_user_id:
+        peer_advisor_memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(
+            authorized_user_id=peer_advisor_user_id,
+            include_deleted=include_deleted_peer_advisor_memberships,
+        )
+        authorization_checks.append(next((m for m in peer_advisor_memberships if _is_authorized(m, 'peer_advisor')), None) is not None)
     return all(authorization_checks)
 
 

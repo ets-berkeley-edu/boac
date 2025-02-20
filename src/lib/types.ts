@@ -223,5 +223,12 @@ export type ServiceAnnouncement = {
 }
 
 export type Student = {
+  uid: string,
   sid: string
+}
+
+export type StudentSearchResult = {
+  label: string,
+  sid: string,
+  uid: string
 }

@@ -2,6 +2,12 @@ import axios from 'axios'
 import utils from '@/api/api-utils'
 import type {DepartmentMembershipRole} from '@/lib/types'
 
+export function createPeerAdvisor(peerAdvisingDeptId: number, uid: string) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer/create_peer_advisor`
+  return axios.post(url, {peerAdvisingDeptId, uid})
+    .then(response => response.data)
+}
+
 export function deletePeerAdvisor(peerAdvisingDeptId: number, userId: number) {
   const headers = {'Content-Type': 'application/json'}
   const url: string = `${utils.apiBaseUrl()}/api/peer/delete_peer_advisor/${peerAdvisingDeptId}/${userId}`
