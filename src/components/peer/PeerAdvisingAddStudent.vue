@@ -11,6 +11,7 @@
       id="add-student-input"
       ref="addStudentInput"
       :key="vAutocompleteKey"
+      v-model="comboboxModel"
       aria-describedby="add-student-desc"
       aria-label="Name or S I D lookup. Expect auto suggest."
       autocomplete="off"
@@ -19,6 +20,7 @@
       :class="{'demo-mode-blur': currentUser.inDemoMode}"
       color="primary"
       density="compact"
+      :disabled="isAddingStudent"
       :error-messages="autocompleteErrorMessage"
       :hide-details="!size(autocompleteErrorMessage)"
       :hide-no-data="size(autoSuggestedStudents) < 3"
@@ -36,7 +38,16 @@
       @update:model-value="onUpdateModel"
     >
       <template #append>
+        <v-progress-circular
+          v-if="isAddingStudent"
+          :model-value="counter"
+          :indeterminate="true"
+          :size="36"
+          :width="7"
+          :color="['primary', 'warning', 'success'][Math.round(counter / 10) % 3]"
+        />
         <v-btn
+          v-if="!isAddingStudent"
           id="add-student-add-button"
           aria-label="Add Student to Note"
           class="add-button add-button-height"
@@ -62,9 +73,9 @@ import {
   trim,
   uniq,
 } from 'lodash'
-import {mdiPlus} from '@mdi/js'
 import type {PropType} from 'vue'
-import {nextTick, onUpdated, ref} from 'vue'
+import {mdiPlus} from '@mdi/js'
+import {nextTick, onMounted, onUnmounted, onUpdated, ref} from 'vue'
 import type {BoaUser, StudentSearchResult} from '@/lib/types'
 import {createPeerAdvisor} from '@/api/peer-advising.js'
 import {findStudentsByNameOrSid} from '@/api/student'
@@ -89,21 +100,25 @@ const props = defineProps({
 const addStudentInput = ref()
 const autocompleteErrorMessage = ref(undefined)
 const autoSuggestedStudents = ref<StudentSearchResult[]>([])
-const error = ref<string | undefined>()
+const comboboxModel = ref()
 const contextStore = useContextStore()
+const counter = ref(0)
 const currentUser = contextStore.currentUser
+const error = ref<string | undefined>()
+const intervalId = ref<ReturnType<typeof setTimeout>>()
+const isAddingStudent = ref(false)
 const isUpdatingStudentAutocomplete = ref(false)
 const query = ref(undefined)
 const sidsManuallyAdded = ref<string[]>([])
 const vAutocompleteKey = ref<PropertyKey>(new Date().toString())
 
-const addStudent = (student: StudentSearchResult) => {
-  createPeerAdvisor(props.peerAdvisingDepartmentId, student.uid).then(() => {
-    props.refresh()
-  }).catch(response => {
-    error.value = response
-  })
-}
+onMounted(() => {
+  return intervalId.value = setInterval(() => {
+    counter.value = counter.value === 100 ? 0 : counter.value + 1
+  }, 100)
+})
+
+onUnmounted(() => clearInterval(intervalId.value))
 
 const resetAutocomplete = () => {
   autoSuggestedStudents.value = []
@@ -117,7 +132,17 @@ const onUpdateModel = (model: StudentSearchResult) => {
   const sid = get(model, 'sid')
   const student: StudentSearchResult | undefined = sid ? find(autoSuggestedStudents.value, ['sid', sid]) : undefined
   if (student) {
-    addStudent(student)
+    isAddingStudent.value = true
+    const done = () => {
+      comboboxModel.value = undefined
+      isAddingStudent.value = false
+    }
+    createPeerAdvisor(props.peerAdvisingDepartmentId, student.uid).then(() => {
+      props.refresh().then(done)
+    }).catch(response => {
+      error.value = response
+      done()
+    })
   }
 }
 

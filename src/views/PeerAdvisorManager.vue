@@ -51,6 +51,7 @@
           <div v-if="item.key === 'account'" class="mt-3 mx-4">
             <PeerAdvisingAccountMgmt
               v-if="peerAdvisingDepartment"
+              :is-refreshing="isRefreshing"
               :peer-advising-department-id="peerAdvisingDepartment.id"
               :peer-advisors="_filter(peerAdvisingDepartment.peerAdvisingDepartmentMembers, ['role', 'peer_advisor'])"
               :refresh="reloadPeerAdvisingDepartment"
@@ -80,6 +81,7 @@ import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
 
+const isRefreshing = ref(false)
 const loading = computed(() => contextStore.loading)
 const peerAdvisingDeptId = toInt(useRoute().params.id)
 const peerAdvisingDepartment = ref()
@@ -97,9 +99,11 @@ onMounted(() => {
 })
 
 const reloadPeerAdvisingDepartment = () => {
+  isRefreshing.value = true
   return getPeerAdvisingDepartment(peerAdvisingDeptId, 'peer_advisor', true).then(data => {
     peerAdvisingDepartment.value = data
     contextStore.loadingComplete('Peer Advising Management Dashboard is ready.')
+    isRefreshing.value = false
   })
 }
 </script>
