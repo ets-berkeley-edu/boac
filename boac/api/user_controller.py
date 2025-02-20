@@ -35,7 +35,7 @@ from boac.api.util import (
 )
 from boac.lib import util
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
-from boac.lib.util import has_any_membership_role, to_bool_or_none
+from boac.lib.util import capitalize_all_words, has_any_membership_role, split_per_camel_case, to_bool_or_none
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
@@ -141,28 +141,52 @@ def session_keep_alive():
 @admin_required
 def all_users():
     params = request.get_json()
+    is_csv_download_request = params.get('isCsvDownloadRequest')
     users, total_user_count = AuthorizedUser.get_users(
         dept_code=util.get(params, 'deptCode', None),
         role=util.get(params, 'role', None) or None,
         status=util.get(params, 'status'),
     )
-    return tolerant_jsonify(authorized_users_api_feed(
-        users,
-        sort_by=util.get(params, 'sortBy', 'lastName'),
+    sort_by = util.get(params, 'sortBy', 'lastName')
+    api_json = authorized_users_api_feed(
+        sort_by=sort_by,
         sort_descending=to_bool_or_none(util.get(params, 'sortDescending', False)),
-    ))
+        users=users,
+    )
+    if is_csv_download_request:
+        users_sorted, fieldnames, header_label_lookup = _get_inputs_for_csv_download(api_json)
+        return response_with_csv_download(
+            fieldnames=fieldnames,
+            filename_prefix='boa-users',
+            header_label_lookup=header_label_lookup,
+            rows=users_sorted,
+        )
+    else:
+        return tolerant_jsonify(api_json)
 
 
 @app.route('/api/users/admins', methods=['POST'])
 @admin_required
 def get_admin_users():
     params = request.get_json()
+    is_csv_download_request = params.get('isCsvDownloadRequest')
     users = AuthorizedUser.get_admin_users(status=util.get(params, 'status'))
-    return tolerant_jsonify(authorized_users_api_feed(
+    sort_by = util.get(params, 'sortBy')
+    api_json = authorized_users_api_feed(
         users,
-        sort_by=util.get(params, 'sortBy'),
+        sort_by=sort_by,
         sort_descending=to_bool_or_none(util.get(params, 'sortDescending')),
-    ))
+    )
+    if is_csv_download_request:
+        users_sorted, fieldnames, header_label_lookup = _get_inputs_for_csv_download(api_json)
+        return response_with_csv_download(
+            fieldnames=fieldnames,
+            filename_prefix='boa-admin-users',
+            header_label_lookup=header_label_lookup,
+            rows=users_sorted,
+        )
+    else:
+        return tolerant_jsonify(api_json)
 
 
 @app.route('/api/users/autocomplete', methods=['POST'])
@@ -193,6 +217,7 @@ def user_search():
 @admin_required
 def get_peer_advising_users():
     params = request.get_json()
+    is_csv_download_request = params.get('isCsvDownloadRequest')
     peer_advising_department_id = util.get(params, 'peerAdvisingDepartmentId', None)
     role_type = util.get(params, 'roleType', None) or None
     sort_by = util.get(params, 'sortBy', 'lastName')
@@ -203,7 +228,17 @@ def get_peer_advising_users():
         role_type=role_type,
         status=util.get(params, 'status'),
     )
-    return tolerant_jsonify(authorized_users_api_feed(users, sort_by=sort_by, sort_descending=sort_descending))
+    api_json = authorized_users_api_feed(users, sort_by=sort_by, sort_descending=sort_descending)
+    if is_csv_download_request:
+        users_sorted, fieldnames, header_label_lookup = _get_inputs_for_csv_download(api_json)
+        return response_with_csv_download(
+            fieldnames=api_json[-1].keys(),
+            filename_prefix='peer-advising-users',
+            header_label_lookup=header_label_lookup,
+            rows=users_sorted,
+        )
+    else:
+        return tolerant_jsonify(api_json)
 
 
 @app.route('/api/user/create_or_update', methods=['POST'])
@@ -246,18 +281,6 @@ def set_demo_mode():
         return tolerant_jsonify(current_user.to_api_json())
     else:
         raise errors.ResourceNotFoundError('Unknown path')
-
-
-@app.route('/api/users/csv')
-@admin_required
-def download_boa_users_csv():
-    users = _get_boa_users()
-    fieldnames = users[-1].keys()
-    return response_with_csv_download(
-        rows=sorted(users, key=lambda row: row['last_name'].upper()),
-        filename_prefix='boa_users',
-        fieldnames=fieldnames,
-    )
 
 
 @app.route('/api/users/departments')
@@ -406,3 +429,13 @@ def _find_user_by_uid(uid, ignore_deleted=True):
         return AuthorizedUser.find_by_uid(uid, ignore_deleted=ignore_deleted_)
     else:
         return None
+
+
+def _get_inputs_for_csv_download(api_json):
+
+    users_sorted = sorted(api_json, key=lambda user: user['lastName'].upper())
+    fieldnames = list(api_json[-1].keys())
+    header_label_lookup = {}
+    for key in fieldnames:
+        header_label_lookup[key] = key.upper() if key in ['csid', 'uid'] else capitalize_all_words(split_per_camel_case(key, ' '))
+    return users_sorted, fieldnames, header_label_lookup

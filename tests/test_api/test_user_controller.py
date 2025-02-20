@@ -367,8 +367,8 @@ class TestGetDepartments:
                 assert dept_name > previous_department['deptName']
 
 
-class TestGetUsers:
-    """Users API."""
+class TestBoaUsers:
+    """Passenger Manifest API."""
 
     def test_not_authenticated(self, client):
         """Returns 'unauthorized' response status if user is not authenticated."""
@@ -545,35 +545,68 @@ class TestDemoMode:
                         assert user.in_demo_mode is in_demo_mode
 
 
-class TestDownloadUsers:
+class TestDownloadBoaUsersCSV:
+
+    @classmethod
+    def _api_api_users_csv(
+            cls,
+            client,
+            dept_code,
+            csv_download_filename,
+            expected_status_code=200,
+    ):
+        response = client.post(
+            '/api/users',
+            data=json.dumps({
+                'csvDownloadFilename': csv_download_filename,
+                'deptCode': dept_code,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response
 
     def test_not_authenticated(self, client):
-        """Returns 'unauthorized' response status if user is not authenticated."""
-        response = client.get('/api/users/csv')
-        assert response.status_code == 401
+        """Anonymous users cannot download boa_users CSV."""
+        self._api_api_users_csv(
+            client,
+            'COENG',
+            'coeng-users',
+            401,
+        )
 
     def test_unauthorized(self, client, fake_auth):
-        """Returns 'unauthorized' response status if user is not admin."""
+        """Non-admin users cannot download boa_users CSV."""
         fake_auth.login(coe_advisor_uid)
-        response = client.get('/api/users/csv')
-        assert response.status_code == 401
+        self._api_api_users_csv(
+            client,
+            'COENG',
+            'coeng-users',
+            401,
+        )
 
     def test_authorized(self, client, fake_auth):
-        """Returns a well-formed response."""
+        """Admin users cannot download boa_users CSV."""
         fake_auth.login(admin_uid)
-        response = client.get('/api/users/csv')
-        assert response.status_code == 200
-        assert 'csv' in response.content_type
-        csv = response.data.decode('UTF-8')
-        for snippet in [
-            'last_name,first_name,uid,title,email,department,can_access_advising_data,can_access_canvas_data,is_blocked,\
-last_login',
-            'Balthazar,Milicent,53791,,,{ QCADVMAJ: director (automated=False) },True,True,False,',
-            'Balthazar,Milicent,53791,,,{ QCADV: director (automated=False) },True,True,False,',
-            'Visor,COE Add,90412,,,{ UWASC: director (automated=False) },True,True,False,',
-            'Visor,COE Add,90412,,,{ COENG: advisor (automated=True) },True,True,False,',
+        response = self._api_api_users_csv(
+            client,
+            'COENG',
+            'coeng-users',
+        )
+        csv = json.loads(response.data.decode('UTF-8'))
+        assert len(csv) > 1
+        sample_csv_row = csv[0]
+        for key in [
+            'canAccessAdvisingData',
+            'canAccessCanvasData',
+            'departments',
+            'firstName',
+            'isBlocked',
+            'lastLogin',
+            'lastName',
+            'uid',
         ]:
-            assert snippet in csv
+            assert key in sample_csv_row
 
 
 class TestUserUpdate:

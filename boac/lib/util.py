@@ -43,13 +43,17 @@ from titlecase import titlecase
 TEXT_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
 
 
-def camelize(string):
+def camelize(text):
     def lower_then_capitalize():
         yield str.lower
         while True:
             yield str.capitalize
     string_transform = lower_then_capitalize()
-    return ''.join(next(string_transform)(segment) for segment in string.split('_'))
+    return ''.join(next(string_transform)(segment) for segment in text.split('_'))
+
+
+def capitalize_all_words(text):
+    return ' '.join([word.capitalize() for word in text.split()])
 
 
 def fill_pattern_from_args(pattern, func, *args, **kw):
@@ -120,6 +124,11 @@ def remove_none_values(_dict):
 
 def safe_strftime(date, date_format):
     return datetime.strftime(date, date_format) if date else None
+
+
+def split_per_camel_case(camel_cased_string, separator='_'):
+    pattern = re.compile(r'(?<!^)(?=[A-Z])')
+    return pattern.sub(separator, camel_cased_string).lower()
 
 
 def titleize(_str):
