@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {find, get} from 'lodash'
-import {onMounted, ref, watch} from 'vue'
+import {nextTick, onMounted, ref, watch} from 'vue'
 import type {
   BoaUser,
   BoaUserDepartment, Department,
@@ -38,6 +38,7 @@ import type {
 } from '@/lib/types'
 import {findDepartment, findMembership} from '@/lib/berkeley-department'
 import {normalizeId} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 import {useManifestStore} from '@/stores/manifest'
 
 const user = defineModel<BoaUser>({
@@ -57,7 +58,6 @@ const props = defineProps({
 })
 
 const manifestStore = useManifestStore()
-
 const departments = manifestStore.allBerkeleyDepartments
 const peerAdvisingDepartments = findDepartment<Department>(departments, props.deptCode).peerAdvisingDepartments
 const selected = ref<PeerAdvisingDepartment | undefined>()
@@ -74,6 +74,11 @@ onMounted(() => {
   if (peerAdvisingDepartmentId) {
     selected.value = find(peerAdvisingDepartments, ['id', peerAdvisingDepartmentId])
   }
+  nextTick(() => {
+    useContextStore().setEventHandler('passenger-manifest-select-department-membership-role', () => {
+      selected.value = undefined
+    })
+  })
 })
 </script>
 

@@ -61,6 +61,7 @@ import {
   isPeerAdvisingRole,
 } from '@/lib/berkeley-department'
 import {normalizeId} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 import {useManifestStore} from '@/stores/manifest'
 
 const user = defineModel<BoaUser>({
@@ -75,6 +76,7 @@ const props = defineProps({
   }
 })
 
+const contextStore = useContextStore()
 const manifestStore = useManifestStore()
 const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
 const error = computed<string | undefined>(() => {
@@ -114,6 +116,7 @@ watch(roles, (value: DepartmentMembershipRole[]) => {
       user.value.isAdmin = false
     }
   }
+  contextStore.broadcast('passenger-manifest-select-department-membership-role', roles)
 })
 
 watch(() => user.value.departments, () => refreshSelectOptions(), {deep: true})

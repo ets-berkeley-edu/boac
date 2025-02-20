@@ -13,15 +13,14 @@
       <div v-if="!isLoading">
         (<v-btn
           id="show-hide-notes-report"
-          class="font-size-16 px-0"
+          class="font-size-16 letter-spacing-normal px-0 show-hide-notes-report-btn"
           color="primary"
           density="compact"
           slim
+          :text="`${isShowingReport ? 'Hide' : 'Show'} complete notes report`"
           variant="text"
           @click="toggleShowReport"
-        >
-          {{ isShowingReport ? 'Hide' : 'Show' }} complete notes report
-        </v-btn>)
+        />)
       </div>
     </div>
     <div
@@ -37,9 +36,7 @@
           {{ numFormat(report.boa.total) }} notes have been created in BOA
         </h3>
         <div class="font-size-16">
-          (<a id="download-boa_notes-metadata" :href="`${config.apiBaseUrl}/api/reports/boa_notes/metadata`">
-            download <span class="sr-only">notes report</span>
-          </a>)
+          (<a id="download-boa-notes-metadata" :href="`${config.apiBaseUrl}/api/reports/boa_notes/metadata`">download<span class="sr-only"> notes report</span></a>)
         </div>
       </div>
       <v-expand-transition>
@@ -203,3 +200,9 @@ const toggleShowReport = () => {
   isShowingBoaNoteCounts.value = false
 }
 </script>
+
+<style scoped>
+.show-hide-notes-report-btn {
+  margin-bottom: 2px;
+}
+</style>

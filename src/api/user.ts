@@ -1,21 +1,38 @@
-import axios from 'axios'
+import {DateTime} from 'luxon'
 import {get, isNil} from 'lodash'
-import utils from '@/api/api-utils'
+import axios from 'axios'
+import fileDownload from 'js-file-download'
 import type {BoaUser} from '@/lib/types'
+import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
+
+const $_getCsvFilename = (prefix: string): string => {
+  const now: string = DateTime.now().toFormat('yyyy-MM-dd_HH-mm-ss')
+  return `${prefix.replaceAll('_', '-')}-${now}.csv`
+}
 
 export function getDepartments(excludeEmpty?: boolean) {
   const url: string = `${utils.apiBaseUrl()}/api/users/departments?excludeEmpty=${excludeEmpty}`
   return axios.get(url).then(response => response.data)
 }
 
-export function getAdminUsers(sortBy: string, sortDescending: boolean, status: string) {
+export function getAdminUsers(
+  sortBy: string,
+  sortDescending: boolean,
+  status: string,
+  csvFilenamePrefix?: string
+) {
+  const isCsvDownloadRequest = !isNil(csvFilenamePrefix)
   const data = {
+    isCsvDownloadRequest,
     sortBy,
     sortDescending,
     status
   }
-  return axios.post(`${utils.apiBaseUrl()}/api/users/admins`, data).then(response => response.data)
+  const url = `${utils.apiBaseUrl()}/api/users/admins`
+  return axios.post(url, data).then(response => {
+    return isCsvDownloadRequest ? fileDownload(response.data, $_getCsvFilename(csvFilenamePrefix)) : response.data
+  })
 }
 
 export function getUserProfile() {
@@ -48,17 +65,21 @@ export async function getPeerAdvisingUsers(
   roleType: string | undefined,
   sortBy: string,
   sortDescending: boolean,
-  status: string
+  status: string,
+  csvFilenamePrefix?: string
 ) {
+  const isCsvDownloadRequest = !isNil(csvFilenamePrefix)
   const data = {
+    isCsvDownloadRequest,
     peerAdvisingDepartmentId,
     roleType,
     sortBy,
     sortDescending,
     status
   }
-  return axios.post(`${utils.apiBaseUrl()}/api/users/peer_advising`, data)
-    .then(response => response.data)
+  return axios.post(`${utils.apiBaseUrl()}/api/users/peer_advising`, data).then(response => {
+    return isCsvDownloadRequest ? fileDownload(response.data, $_getCsvFilename(csvFilenamePrefix)) : response.data
+  })
 }
 
 export function getUserByUid(uid: string, ignoreDeleted?: boolean) {
@@ -70,20 +91,26 @@ export function getUserByUid(uid: string, ignoreDeleted?: boolean) {
 }
 
 export function getUsers(
-    deptCode: string,
-    role: string,
-    sortBy: string,
-    sortDescending: boolean,
-    status: string
-  ) {
+  deptCode: string,
+  role: string,
+  sortBy: string,
+  sortDescending: boolean,
+  status: string,
+  csvFilenamePrefix?: string
+) {
+  const isCsvDownloadRequest = !isNil(csvFilenamePrefix)
   const data = {
     deptCode,
+    isCsvDownloadRequest,
     role,
     sortBy,
     sortDescending,
     status
   }
-  return axios.post(`${utils.apiBaseUrl()}/api/users`, data).then(response => response.data)
+  const url = `${utils.apiBaseUrl()}/api/users`
+  return axios.post(url, data).then(response => {
+    return isCsvDownloadRequest ? fileDownload(response.data, $_getCsvFilename(csvFilenamePrefix)) : response.data
+  })
 }
 
 export function userAutocomplete(snippet: string, abortController: AbortController) {

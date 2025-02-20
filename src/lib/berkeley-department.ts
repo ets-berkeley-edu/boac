@@ -38,6 +38,26 @@ export function findMembership(department: BoaUserDepartment, role: DepartmentMe
   return membership
 }
 
+export function findPeerAdvisingDepartment(
+  berkeleyDepartments: Department[],
+  peerAdvisingDepartmentId: number
+): PeerAdvisingDepartment {
+  let peerAdvisingDepartment: PeerAdvisingDepartment | undefined
+  each(berkeleyDepartments, d => {
+    each(d.peerAdvisingDepartments || [], p => {
+      if (p.id === peerAdvisingDepartmentId) {
+        peerAdvisingDepartment = p
+        return true
+      }
+    })
+    return !!peerAdvisingDepartment
+  })
+  if (!peerAdvisingDepartment) {
+    throw new TypeError(`No Peer Advising Department found with ID ${peerAdvisingDepartmentId}`)
+  }
+  return peerAdvisingDepartment
+}
+
 export function getDeptCodesPerRoles(user: BoaUser, roles: DepartmentMembershipRole[]): string[] {
   return map(getUserDepartmentsWithRoles(user, roles), 'deptCode')
 }
