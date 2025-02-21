@@ -43,3 +43,7 @@ script:
   - psql boac_loch_test -c 'alter schema public owner to boac;' -U postgres
   - pip3 install -r requirements.txt
   - tox --parallel || travis_terminate 1
+
+notifications:
+  slack:
+    secure: lkTdINisRlqMbiy2bDpKC4geKxzkyOSt0YH5Wvbcn9XOWDSy5ncKEuJAsD+HPGJI+v46o4KT90jvcUZhXYxazHq4xcxBIQdjPUQVaMRlT5etQdlYMxzs7rZQrDQVHLSTBZ54Enyx8AmmhiugYqEn5mC8P13MsuEqDSlC9TF3CKypTX4yantBiTFx1XbcffcKh6AmhmTqB9Zg+iLejY5gKvSyC1zZu3GhzoV7B5FJnmoN+dBQ8zYmQvvqRKmzzrO6DoQ7TkGkZ+CcfeEUJ+0S+NUKt/Emv1oVevOR2AUiEqXptmsEXHvWEjhRFaGwAlbMfmnydwD+k1XhQnCru10+Rjrr6ysPr/o6UawU1QxkC6fpGcG+3aFqQAiDYO0WU/arcolYJL8K5iY50+ZAmQJvDAfACt9Ee/JH57lefvB7uJMSWS1EEGVd4N14P090iCSQqBDM9nRPERddJuvXFREWI/xUUkcxM+19Y67daz+n6N6Kr15WxeBW3PqTss8a2uRNpUp/B9VZ98SkkDsrZgZF2M8P2JkOhIm9eZets/KJ0bS3nB4uhNTBrXpy9PVPx7DcwpZpm2ja2tzD2IW2b9ESR141/Nk2CYVKNIsccGmIHLK9x9kbXscGWdEnzwwH2Uq6bDZwzaBso9H1yaFn1ScXSDFlLi8QamUdJesxxJ27lUw=
