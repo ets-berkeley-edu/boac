@@ -81,7 +81,7 @@ class NoteTemplate(Base):
         self.title = title
 
     @classmethod
-    def create(cls, creator_id, subject, title, peer_advising_department_id=None, attachments=(), body='', is_private=False, topics=()):
+    def create(cls, creator_id, subject='', title='', peer_advising_department_id=None, attachments=(), body='', is_private=False, topics=()):
         creator = AuthorizedUser.find_by_id(creator_id)
         if creator:
             note_template = cls(
