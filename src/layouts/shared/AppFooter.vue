@@ -17,12 +17,14 @@
       sm="9"
       xl="4"
     >
-      <div>
-        Problem? Question? Suggestion?
-        <a :href="`mailto:${supportEmailAddress}`" target="_blank">Email {{ supportEmailAddress }} <span class="sr-only"> (opens in new window)</span></a>
-      </div>
-      <div>
-        &copy; {{ new Date().getFullYear() }} The Regents of the University of California
+      <div class="float-right">
+        <div>
+          Problem? Question? Suggestion?
+          <a :href="`mailto:${supportEmailAddress}`" target="_blank">Email {{ supportEmailAddress }} <span class="sr-only"> (opens in new window)</span></a>
+        </div>
+        <div>
+          &copy; {{ new Date().getFullYear() }} The Regents of the University of California
+        </div>
       </div>
     </v-col>
   </v-row>

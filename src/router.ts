@@ -18,7 +18,7 @@ const Login = () => import('./layouts/Login.vue')
 const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
 const NotFound = () => import('@/views/NotFound.vue')
 const PassengerManifest = () => import('@/views/PassengerManifest.vue')
-const PeerAdvisingLayout = () => import('@/layouts/PeerAdvisingLayout.vue')
+const PeerAdvisor = () => import('@/layouts/PeerAdvisor.vue')
 const PeerAdvisorManager = () => import('@/views/PeerAdvisorManager.vue')
 const PrintableDegreeTemplate = () => import('@/views/degree/PrintableDegreeTemplate.vue')
 const Profile = () => import('@/views/Profile.vue')
@@ -32,7 +32,7 @@ import type {NavigationGuardNext, RouteLocation, RouteRecordRaw} from 'vue-route
 import {createRouter, createWebHistory} from 'vue-router'
 import {filter, get, includes, size, toString, trim} from 'lodash'
 import type {BoaUser} from './lib/types'
-import PeerAdvisor from '@/views/PeerAdvisor.vue'
+import PeerAdvisorHome from '@/views/PeerAdvisorHome.vue'
 import {isAdvisor, isDirector, isPeerAdvisor, isPeerAdvisorManager} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
@@ -166,7 +166,7 @@ const routes:RouteRecordRaw[] = [
   },
   {
     path: '/',
-    component: PeerAdvisingLayout,
+    component: PeerAdvisor,
     beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
       // Requires Peer Advisor
       const currentUser: BoaUser = useContextStore().currentUser
@@ -174,7 +174,7 @@ const routes:RouteRecordRaw[] = [
         if (currentUser.isAdmin || isPeerAdvisor(currentUser)) {
           next()
         } else {
-          next({path: '/404'})
+          next({path: '/peer_advisor/404'})
         }
       } else {
         $_goToLogin(to, next)
@@ -182,9 +182,29 @@ const routes:RouteRecordRaw[] = [
     },
     children: [
       {
-        path: '/peer/advisor',
-        component: PeerAdvisor,
+        path: '/peer_advisor/home',
+        component: PeerAdvisorHome,
         name: 'Peer Advising'
+      },
+      {
+        path: '/peer_advisor/profile',
+        component: Profile,
+        name: 'Advisor Profile'
+      },
+      {
+        path: '/peer_advisor/error',
+        component: Error,
+        name: 'Error'
+      },
+      {
+        path: '/peer_advisor/404',
+        component: NotFound,
+        name: 'Uh oh, page not found.'
+      },
+      {
+        path: '/peer_advisor/:pathMatch(.*)*',
+        redirect: '/peer_advisor/404',
+        name: 'Page not found'
       }
     ]
   },
@@ -325,8 +345,14 @@ const routes:RouteRecordRaw[] = [
     path: '/',
     component: StandardLayout,
     beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
-      if (useContextStore().currentUser.isAuthenticated) {
-        next()
+      const currentUser = useContextStore().currentUser
+      if (currentUser.isAuthenticated) {
+        if (isPeerAdvisor(currentUser)) {
+          const path = `/peer_advisor${to.fullPath}`
+          next({path: path})
+        } else {
+          next()
+        }
       } else {
         $_goToLogin(to, next)
       }

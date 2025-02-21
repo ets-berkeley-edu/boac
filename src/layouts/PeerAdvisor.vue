@@ -42,10 +42,7 @@
           </div>
         </v-main>
       </v-layout>
-      <footer
-        :class="`footer-${$vuetify.display.smAndDown ? 'sm' : ($vuetify.display.mdAndDown ? 'md' : ($vuetify.display.lgAndDown ? 'lg' : 'xl'))}`"
-        role="footer"
-      >
+      <footer role="footer">
         <AppFooter v-if="!loading && !hideFooter" />
       </footer>
     </div>
