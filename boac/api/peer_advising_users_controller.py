@@ -23,12 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advising_data_access_required, authorized_users_api_feed, peer_advisor_manager_required
-from boac.lib.berkeley import dept_codes_where_advising
+from boac.api.errors import ResourceNotFoundError
+from boac.api.util import authorized_users_api_feed, peer_advisor_manager_required
 from boac.lib.http import tolerant_jsonify
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.note_template import NoteTemplate
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from dateutil.tz import tzutc
@@ -128,31 +126,6 @@ def restore_peer_advisor(peer_advising_department_id, peer_advisor_user_id):
         return tolerant_jsonify({})
     else:
         return app.login_manager.unauthorized()
-
-
-@app.route('/api/peer_advising/note_template/create', methods=['POST'])
-@advising_data_access_required
-def create_peer_advising_note_template():
-    params = request.get_json()
-    peer_advising_department_id = params.get('peerAdvisingDeptId', None)
-    note_body = params.get('noteBody', None)
-    topics = params.get('topics', None)
-    title = params.get('title', None)
-    if not peer_advising_department_id or not note_body or not title:
-        raise BadRequestError('Invalid or missing parameters')
-    user_dept_codes = dept_codes_where_advising(current_user.departments)
-    if current_user.is_admin or not len(user_dept_codes):
-        raise ForbiddenRequestError('Sorry, only advisors can create advising note templates')
-
-    note_template = NoteTemplate.create(
-        body=note_body,
-        topics=topics,
-        title=title,
-        creator_id=current_user.get_id(),
-        peer_advising_department_id=peer_advising_department_id,
-    )
-
-    return tolerant_jsonify(note_template.to_api_json())
 
 
 def _is_authorized_peer_advisor_manager(

@@ -1,22 +1,32 @@
 <template>
-  <div class="name-container">
-    <div class="icons">
-      <span v-if="!user.canAccessCanvasData">
-        <span class="c-letter">C</span>
-        <span class="slash text-error">\</span>
-      </span>
-      <span v-if="!user.canAccessAdvisingData" class="advising-data">
-        <span class="slash-2 text-error">\</span>
-        <v-icon :icon="mdiNoteOutline" size="small" />
-      </span>
+  <div class="align-center d-flex">
+    <div class="align-center d-flex font-size-14" :class="{'mr-2': !user.canAccessCanvasData || !user.canAccessAdvisingData}">
+      <div class="mr-3">
+        <v-btn
+          :id="`edit-${user.uid}`"
+          :aria-label="`Edit profile of ${user.name}`"
+          color="primary"
+          :icon="mdiNoteEditOutline"
+          variant="text"
+          width="20"
+          @click="() => onClickEditUser(index, user.uid)"
+        />
+      </div>
+      <div v-if="!user.canAccessCanvasData" class="font-size-18 mr-1 strikethrough">
+        C<span class="sr-only">annot access Canvas data</span>
+      </div>
+      <div v-if="!user.canAccessAdvisingData" class="strikethrough" style="padding-bottom: 2px;">
+        <v-icon :icon="mdiNoteOutline" size="18" />
+      </div>
     </div>
-    <div v-if="!user.name" class="name">
-      <span class="text-medium-emphasis">(Name unavailable)</span>
+    <div v-if="!user.name" class="name text-medium-emphasis">
+      (Name unavailable)
     </div>
-    <div v-if="user.name" class="name">
+    <div v-if="user.name">
       <a
         :id="`directory-link-${user.uid}`"
         :aria-label="`${user.name} UC Berkeley Directory page (opens in new window)`"
+        style="word-wrap: break-word;"
         :href="`https://www.berkeley.edu/directory/results?search-term=${user.name}`"
         target="_blank"
       >
@@ -28,10 +38,18 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {mdiNoteOutline} from '@mdi/js'
+import {mdiNoteEditOutline, mdiNoteOutline} from '@mdi/js'
 import type {BoaUser} from '@/lib/types'
 
 defineProps({
+  index: {
+    required: true,
+    type: Number
+  },
+  onClickEditUser: {
+    required: true,
+    type: Function
+  },
   user: {
     required: true,
     type: Object as PropType<BoaUser>
@@ -40,39 +58,19 @@ defineProps({
 </script>
 
 <style scoped>
-.advising-data {
+.strikethrough {
   position: relative;
-  left: -8px;
 }
-.c-letter {
-  position: relative;
-  top: 1px;
-  left: 1px;
-}
-.icons {
-  position: relative;
-  top: -1px;
-  display: inline-block;
-}
-.name {
-  position: relative;
-  display: inline-block;
-}
-.name-container {
-  position: relative;
-  top: -1px;
-}
-.slash {
-  font-size: 22px;
-  left: -8px;
-  position: relative;
-  top: 4px;
-}
-.slash-2 {
-  font-size: 22px;
-  left: 12px;
-  top: 4px;
-  position: relative;
-  z-index: 100;
+.strikethrough:before {
+  position: absolute;
+  color: #cf1715;
+  content: "";
+  left: 0;
+  top: 50%;
+  right: 0;
+  border-top: 3px solid;
+  border-color: inherit;
+  -ms-transform:rotate(-45deg);
+  transform:rotate(-45deg);
 }
 </style>

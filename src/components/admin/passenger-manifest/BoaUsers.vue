@@ -10,7 +10,7 @@
       v-model:expanded="expanded"
       v-model:items-per-page="itemsPerPage"
       :cell-props="data => {
-        const padding = ['becomeUser', 'data-table-expand', 'edit'].includes(data.column.key) ? 'px-0' : ''
+        const padding = ['becomeUser', 'data-table-expand'].includes(data.column.key) ? 'px-0' : ''
         return {
           class: `${padding}`,
           id: normalizeId(`td-user-${data.item.uid}-column-${data.column.key}`)
@@ -20,7 +20,6 @@
       :headers="[
         {key: 'data-table-expand', sortable: false, title: '', width: 40},
         {align: 'start', key: 'uid', title: 'UID'},
-        {align: 'end', cellProps: {class: ['td-name']}, key: 'edit', sortable: false, title: ''},
         {align: 'start', cellProps: {class: ['td-name']}, key: 'lastName', sortable: true, title: 'Name'},
         {align: 'start', title: 'Departments', key: 'departments', headerProps: {class: 'pl-3'}},
         {align: 'start', title: 'Status', key: 'deletedAt', sortable: false},
@@ -112,15 +111,11 @@
         </tr>
       </template>
 
-      <template #item.edit="{index, item}">
-        <v-btn
-          :id="`edit-${item.uid}`"
-          :aria-label="`Edit profile of ${item.name}`"
-          color="primary"
-          :icon="mdiNoteEditOutline"
-          variant="text"
-          width="20"
-          @click="() => onClickEditUser(index, item.uid)"
+      <template #item.lastName="{index, item}">
+        <BoaUserFullName
+          :index="index"
+          :on-click-edit-user="onClickEditUser"
+          :user="item"
         />
         <v-dialog
           v-model="dialogs[index]"
@@ -135,10 +130,6 @@
             :on-save="() => onUpdateUser(index, item.uid)"
           />
         </v-dialog>
-      </template>
-
-      <template #item.lastName="{ item }">
-        <BoaUserFullName :user="item" />
       </template>
 
       <template #item.departments="{ item }">
@@ -210,7 +201,7 @@
 <script setup>
 import {cloneDeep, find, get} from 'lodash'
 import {DateTime} from 'luxon'
-import {mdiArrowDown, mdiArrowUp, mdiEmail, mdiLoginVariant, mdiNoteEditOutline} from '@mdi/js'
+import {mdiArrowDown, mdiArrowUp, mdiEmail, mdiLoginVariant} from '@mdi/js'
 import {ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import BoaUserFullName from '@/components/admin/passenger-manifest/BoaUserFullName.vue'

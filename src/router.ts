@@ -174,7 +174,7 @@ const routes:RouteRecordRaw[] = [
         if (currentUser.isAdmin || isPeerAdvisor(currentUser)) {
           next()
         } else {
-          next({path: '/peer_advisor/404'})
+          next({path: '/404'})
         }
       } else {
         $_goToLogin(to, next)
@@ -189,7 +189,7 @@ const routes:RouteRecordRaw[] = [
       {
         path: '/peer_advisor/profile',
         component: Profile,
-        name: 'Advisor Profile'
+        name: 'Peer Advisor Profile'
       },
       {
         path: '/peer_advisor/error',
@@ -349,7 +349,7 @@ const routes:RouteRecordRaw[] = [
       if (currentUser.isAuthenticated) {
         if (isPeerAdvisor(currentUser)) {
           const path = `/peer_advisor${to.fullPath}`
-          next({path: path})
+          next({path})
         } else {
           next()
         }
