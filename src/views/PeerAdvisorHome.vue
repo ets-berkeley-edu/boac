@@ -20,16 +20,6 @@
         </v-col>
       </v-row>
     </v-container>
-    <EditBatchNoteModal
-      v-model="noteStore.isCreateNoteModalOpen"
-      initial-mode="createBatch"
-      :on-close="() => {
-        noteStore.setMode(null)
-        noteStore.setIsCreateNoteModalOpen(false)
-        putFocusNextTick('batch-note-button')
-      }"
-      :toggle-show="show => noteStore.setIsCreateNoteModalOpen(show)"
-    />
   </div>
 </template>
 
@@ -38,8 +28,6 @@ import {mdiFileDocument} from '@mdi/js'
 import {onMounted} from 'vue'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {putFocusNextTick} from '@/lib/utils'
-import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 
 const contextStore = useContextStore()
 const noteStore = useNoteStore()
@@ -47,7 +35,6 @@ const noteStore = useNoteStore()
 contextStore.loadingStart()
 
 onMounted(() => {
-
   contextStore.loadingComplete()
 })
 </script>
