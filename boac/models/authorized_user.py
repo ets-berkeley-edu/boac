@@ -228,7 +228,9 @@ class AuthorizedUser(Base):
     @classmethod
     def get_admin_users(cls, status):
         where_clause = cls.is_admin
-        if status == 'blocked':
+        if status == 'active':
+            where_clause = and_(cls.is_admin, cls.is_blocked.isnot(True), cls.deleted_at == None)  # noqa: E711
+        elif status == 'blocked':
             where_clause = and_(cls.is_admin, cls.is_blocked.isnot(False))
         elif status == 'deleted':
             where_clause = and_(cls.is_admin, cls.deleted_at.isnot(None))
@@ -299,8 +301,8 @@ class AuthorizedUser(Base):
             status=None,
     ):
         query_tables, query_filter, query_bindings = _users_sql(
-            blocked=status == 'blocked',
-            deleted=status == 'deleted',
+            blocked=status == 'blocked' or None,
+            deleted=status == 'deleted' or None,
             dept_code=dept_code,
             role=role,
         )
@@ -434,12 +436,8 @@ def _users_sql(
 
 def _users_sql_where_clause(blocked, deleted):
     query_filter = 'WHERE TRUE '
-    if blocked is True:
-        query_filter += 'AND u.is_blocked IS TRUE '
-    elif blocked is False:
-        query_filter += 'AND u.is_blocked IS FALSE '
-    if deleted is True:
-        query_filter += 'AND u.deleted_at IS NOT NULL '
-    elif deleted is False:
-        query_filter += 'AND u.deleted_at IS NULL '
+    if blocked is not None:
+        query_filter += f"AND u.is_blocked IS {'TRUE' if blocked else 'FALSE'} "
+    if deleted is not None:
+        query_filter += f"AND u.deleted_at IS {'NOT NULL' if deleted else 'NULL'} "
     return query_filter

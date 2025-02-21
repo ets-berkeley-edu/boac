@@ -21,7 +21,7 @@
       <v-checkbox
         v-if="user.id"
         id="is-deleted"
-        v-model="user.deletedAt"
+        v-model="deleted"
         color="primary"
         density="compact"
         :hide-details="true"
@@ -56,6 +56,8 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
+import {DateTime} from 'luxon'
+import {ref, watch} from 'vue'
 import ManageDegreeProgressPermission from '@/components/admin/passenger-manifest/ManageDegreeProgressPermission.vue'
 import type {BoaUser} from '@/lib/types'
 import {isCoe, isPeerAdvisor, isPeerAdvisorManager} from '@/lib/boa-user'
@@ -63,5 +65,11 @@ import {isCoe, isPeerAdvisor, isPeerAdvisorManager} from '@/lib/boa-user'
 const user = defineModel<BoaUser>({
   required: true,
   type: Object as PropType<BoaUser>
+})
+
+const deleted = ref<boolean>(!!user.value.deletedAt)
+
+watch(deleted, (value: boolean) => {
+  user.value.deletedAt = value ? DateTime.local().toISO() : undefined
 })
 </script>
