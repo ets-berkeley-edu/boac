@@ -136,7 +136,7 @@
           density="comfortable"
           :disabled="disabled"
           :icon="mdiTransferRight"
-          @click="fetchUsers"
+          @click="() => fetchUsers()"
         />
       </div>
       <div v-if="isFetching">
