@@ -20,6 +20,20 @@ export async function restorePeerAdvisor(peerAdvisingDeptId: number, userId: num
   return axios.get(url, {headers}).then(response => response.data)
 }
 
+export async function createPeerAdvisingNoteTemplate(peerAdvisingDeptId: number, noteBody: string, title, topics: []) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_template/create`
+  const noteTemplate = {
+    peerAdvisingDeptId: peerAdvisingDeptId,
+    noteBody: noteBody,
+    topics: topics,
+    title: title
+  }
+  return axios.post(url, noteTemplate).then(response => {
+    return response.data
+  })
+
+}
+
 export async function getPeerAdvisingDepartment(
   peerAdvisingDeptId: number,
   roleType: DepartmentMembershipRole,
