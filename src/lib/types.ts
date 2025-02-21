@@ -35,7 +35,7 @@ export type BoaUser = {
   canEditDegreeProgress: boolean,
   canReadDegreeProgress: boolean,
   degreeProgressPermission: string | undefined,
-  deletedAt: Date | undefined,
+  deletedAt: string | undefined,
   departments: BoaUserDepartment[],
   inDemoMode: boolean,
   isAdmin: boolean,

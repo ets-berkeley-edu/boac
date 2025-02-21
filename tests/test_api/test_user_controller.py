@@ -38,6 +38,7 @@ asc_advisor_uid = '1081940'
 ce3_advisor_uid = '2525'
 coe_advisor_uid = '1133399'
 coe_advisor_no_advising_data_uid = '1022796'
+deleted_admin_uid = '44444'
 deleted_user_uid = '33333'
 l_s_college_advisor_uid = '188242'
 ce3_eop_peer_advisor_uid = '1563405'
@@ -367,24 +368,56 @@ class TestGetDepartments:
                 assert dept_name > previous_department['deptName']
 
 
-class TestBoaUsers:
+class TestFilterBoaUsers:
     """Passenger Manifest API."""
+
+    @classmethod
+    def _api_api_users(
+            cls,
+            client,
+            dept_code,
+            expected_status_code=200,
+            role=None,
+            status=None,
+    ):
+        response = client.post(
+            '/api/users',
+            data=json.dumps({
+                'deptCode': dept_code,
+                'role': role,
+                'status': status,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
 
     def test_not_authenticated(self, client):
         """Returns 'unauthorized' response status if user is not authenticated."""
-        assert client.post('/api/users').status_code == 401
+        self._api_api_users(client, 'COENG', expected_status_code=401)
 
     def test_unauthorized(self, client, fake_auth):
         """Advisors are unauthorized to use /api/users."""
         fake_auth.login(coe_advisor_uid)
-        assert client.post('/api/users').status_code == 401
+        self._api_api_users(client, 'COENG', expected_status_code=401)
 
     def test_authorized(self, client, fake_auth):
         """Returns a well-formed response including cached, uncached, and deleted users."""
         fake_auth.login(admin_uid)
-        response = client.post('/api/users', data=json.dumps({'deptCode': 'QCADV'}), content_type='application/json')
-        assert response.status_code == 200
-        assert len(response.json) == 5
+        dept_code = 'QCADV'
+        role = 'advisor'
+        api_json = self._api_api_users(client, dept_code=dept_code, role=role, status='active')
+        assert len(api_json)
+        for user in api_json:
+            departments = user['departments']
+            assert len(departments)
+            assert dept_code in [d['deptCode'] for d in departments]
+            memberships = []
+            for department in departments:
+                memberships.extend(department['memberships'])
+            assert len(memberships)
+            assert role in [m['role'] for m in memberships]
+            assert user['deletedAt'] is None
 
 
 class TestGetAdminUsers:
@@ -421,18 +454,25 @@ class TestGetAdminUsers:
         fake_auth.login(coe_advisor_uid)
         self._api_admin_users(client, status='active', expected_status_code=401)
 
-    def test_get_admin_users(self, client, fake_auth):
+    def test_get_active_admin_users(self, client, fake_auth):
         """Get all admin users."""
         fake_auth.login(admin_uid)
         api_json = self._api_admin_users(client, status='active')
         assert len(api_json)
-        assert next((u for u in api_json if u['deletedAt']), None) is not None
+        for admin_user in api_json:
+            assert admin_user['deletedAt'] is None
+            assert admin_user['isAdmin'] is True
+            assert admin_user['uid'] != deleted_admin_uid
 
     def test_get_deleted_admin_users(self, client, fake_auth):
-        """Get admin users, ignoring deleted users."""
+        """Get all admin users."""
         fake_auth.login(admin_uid)
         api_json = self._api_admin_users(client, status='deleted')
-        assert next((u for u in api_json if not u['deletedAt']), None) is None
+        assert len(api_json) == 1
+        deleted_admin_user = api_json[0]
+        assert deleted_admin_user['deletedAt'] is not None
+        assert deleted_admin_user['isAdmin'] is True
+        assert deleted_admin_user['uid'] == deleted_admin_uid
 
 
 class TestUserSearch:
