@@ -12,7 +12,7 @@
           @shortkey="() => putFocusNextTick('basic-search-input')"
         >
           <v-app-bar-nav-icon
-            v-if="!$vuetify.display.mdAndUp"
+            v-if="!display.mdAndUp"
             id="app-bar-nav-icon"
             aria-controls="small-viewport-sidebar"
             :aria-expanded="showSidebar"
@@ -22,7 +22,7 @@
           <AppBar />
         </v-app-bar>
         <v-navigation-drawer
-          v-if="$vuetify.display.mdAndUp"
+          v-if="display.mdAndUp"
           aria-labelledby="nav-header"
           class="bg-tertiary pt-1 sidebar"
           permanent
@@ -48,7 +48,7 @@
               </div>
             </div>
             <v-expand-transition>
-              <div v-if="!$vuetify.display.mdAndUp && showSidebar && !loading">
+              <div v-if="!display.mdAndUp && showSidebar && !loading">
                 <Sidebar
                   id="small-viewport-sidebar"
                   class="bg-tertiary"
@@ -79,12 +79,11 @@
               noteStore.setIsCreateNoteModalOpen(false)
               putFocusNextTick('batch-note-button')
             }"
-            :toggle-show="show => isCreateNoteModalOpen = show"
           />
         </v-main>
       </v-layout>
       <footer
-        :class="`footer-${$vuetify.display.smAndDown ? 'sm' : ($vuetify.display.mdAndDown ? 'md' : ($vuetify.display.lgAndDown ? 'lg' : 'xl'))}`"
+        :class="`footer-${display.smAndDown ? 'sm' : (display.mdAndDown ? 'md' : (display.lgAndDown ? 'lg' : 'xl'))}`"
         role="footer"
       >
         <AppFooter v-if="!loading && !hideFooter" />
@@ -93,30 +92,32 @@
   </v-fade-transition>
 </template>
 
-<script setup>
-import {onBeforeUnmount, onMounted, ref, useTemplateRef, watch} from 'vue'
+<script setup lang="ts">
 import {get, split} from 'lodash'
+import {onBeforeUnmount, onMounted, ref, useTemplateRef, watch} from 'vue'
 import {storeToRefs} from 'pinia'
+import {useDisplay} from 'vuetify'
 import {useRoute} from 'vue-router'
-import AppBar from '@/layouts/shared/AppBar'
-import AppFooter from '@/layouts/shared/AppFooter'
-import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
-import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
+import AppBar from '@/layouts/shared/AppBar.vue'
+import AppFooter from '@/layouts/shared/AppFooter.vue'
+import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
-import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
-import Sidebar from '@/components/sidebar/Sidebar'
+import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement.vue'
+import Sidebar from '@/components/sidebar/Sidebar.vue'
+import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import {putFocusNextTick, scrollTo} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const contextStore = useContextStore()
+const display = useDisplay()
 const hideFooter = ref(false)
-const {currentUser, loading} = storeToRefs(contextStore)
 const noteStore = useNoteStore()
 const route = useRoute()
 const serviceAlert = useTemplateRef('serviceAlert')
-const serviceAlertOffset = ref(0)
+const serviceAlertOffset = ref<string | number>(0)
 const showSidebar = ref(true)
+const {currentUser, loading} = storeToRefs(contextStore)
 
 watch(loading, value => {
   if (!value) {

@@ -163,6 +163,10 @@ export interface HasDeptCode {
   deptName: string
 }
 
+export type Note = {
+  id: number
+}
+
 export type NoteEditSessionModel = {
   attachments: Attachment[],
   author: object,

@@ -215,8 +215,8 @@ export function toBoolean(value: string) {
   return value && value !== 'false'
 }
 
-export function toInt(value: string, defaultValue: number = NaN): number {
-  const parsed = parseInt(value, 10)
+export function toInt(value: string | number, defaultValue: number = NaN): number {
+  const parsed = isNumber(value) ? value : parseInt(value, 10)
   return Number.isInteger(parsed) ? parsed : defaultValue
 }
 

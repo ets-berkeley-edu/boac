@@ -183,11 +183,6 @@ const props = defineProps({
     default: undefined,
     required: false,
     type: String
-  },
-  toggleShow: {
-    default: () => {},
-    required: false,
-    type: Function
   }
 })
 

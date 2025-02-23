@@ -41,8 +41,8 @@
               :disabled="isSaving"
               :initial-value="noteDetailsText ? noteDetailsText : ''"
               label="Note Details"
-              :showAdvisingNoteBestPractices="true"
               :on-value-update="onEditorUpdate"
+              :show-advising-note-best-practices="true"
             />
           </div>
         </div>
@@ -113,10 +113,3 @@ const saveNoteTemplate = () => {
   })
 }
 </script>
-
-<style scoped>
-hr {
-  margin-top: 0px !important;
-  margin-bottom: 0px !important;
-}
-</style>
