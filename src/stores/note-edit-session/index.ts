@@ -4,7 +4,14 @@ import {defineStore} from 'pinia'
 import type {Attachment, NoteEditSessionModel, NoteRecipients, NoteTemplate} from '@/lib/types'
 import {onVisibilityChange} from '@/stores/note-edit-session/note-edit-session-utils'
 
-const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
+const VALID_MODES = [
+  'createBatch',
+  'createNote',
+  'editDraft',
+  'editNote',
+  'editTemplate',
+  'peerAdvisor'
+]
 
 function $_getDefaultModel(): NoteEditSessionModel {
   return {
