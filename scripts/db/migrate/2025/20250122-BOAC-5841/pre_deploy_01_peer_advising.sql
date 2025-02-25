@@ -46,6 +46,16 @@ CREATE TABLE IF NOT EXISTS peer_advising_topics (
   deleted_at TIMESTAMP WITH TIME ZONE
 );
 
+CREATE SEQUENCE IF NOT EXISTS peer_advising_topics_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER SEQUENCE peer_advising_topics_id_seq OWNER TO app_boa;
+ALTER SEQUENCE peer_advising_topics_id_seq OWNED BY peer_advising_topics.id;
+ALTER TABLE ONLY peer_advising_topics ALTER COLUMN id SET DEFAULT nextval('peer_advising_topics_id_seq'::regclass);
+
 -- Drop all foreign keys if they exist
 ALTER TABLE ONLY peer_advising_departments
     DROP CONSTRAINT IF EXISTS peer_advising_departments_university_dept_id_fkey;
