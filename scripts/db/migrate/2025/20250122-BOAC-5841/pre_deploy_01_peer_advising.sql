@@ -7,7 +7,6 @@ ALTER TABLE notes ADD COLUMN IF NOT EXISTS note_template_id INTEGER;
 
 ALTER TABLE note_templates ADD COLUMN IF NOT EXISTS peer_advising_department_id INTEGER;
 
-
 -- Create *peer_advising_departments* table
 CREATE TABLE IF NOT EXISTS peer_advising_departments (
   id integer NOT NULL,
@@ -30,6 +29,7 @@ BEGIN
   END IF;
 END
 $$;
+
 CREATE TABLE IF NOT EXISTS peer_advising_department_members (
   peer_advising_department_id integer NOT NULL,
   authorized_user_id integer NOT NULL,
@@ -39,23 +39,21 @@ CREATE TABLE IF NOT EXISTS peer_advising_department_members (
   deleted_at timestamp with time zone
 );
 
--- Create *peer_advising_department_topics* table
-CREATE TABLE IF NOT EXISTS peer_advising_department_topics (
-    peer_advising_department_id integer NOT NULL,
-    topic_id integer NOT NULL
+CREATE TABLE IF NOT EXISTS peer_advising_topics (
+  id INTEGER NOT NULL,
+  topic VARCHAR(50) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  deleted_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Drop all foreign keys if they exist
 ALTER TABLE ONLY peer_advising_departments
     DROP CONSTRAINT IF EXISTS peer_advising_departments_university_dept_id_fkey;
 ALTER TABLE ONLY peer_advising_department_members
-    DROP CONSTRAINT IF EXISTS peer_advising_department_members_peer_advising_department_id_fkey;
+    DROP CONSTRAINT IF EXISTS peer_advising_department_members_peer_advising_department_fkey;
 ALTER TABLE ONLY peer_advising_department_members
     DROP CONSTRAINT IF EXISTS peer_advising_department_members_authorized_user_id_fkey;
-ALTER TABLE ONLY peer_advising_department_topics
-    DROP CONSTRAINT IF EXISTS peer_advising_department_topics_topic_id_fkey;
-ALTER TABLE ONLY peer_advising_department_topics
-    DROP CONSTRAINT IF EXISTS peer_advising_department_topics_peer_advising_department_id_fkey;
+
 ALTER TABLE ONLY notes
     DROP CONSTRAINT IF EXISTS notes_peer_advising_department_id_fkey;
 ALTER TABLE ONLY notes
@@ -66,12 +64,10 @@ ALTER TABLE ONLY note_templates
 -- Drop all primary keys if they exist
 ALTER TABLE ONLY peer_advising_department_members
     DROP CONSTRAINT IF EXISTS peer_advising_department_members_pkey;
-ALTER TABLE ONLY peer_advising_department_topics
-    DROP CONSTRAINT IF EXISTS peer_advising_department_topics_pkey;
+ALTER TABLE ONLY peer_advising_topics
+    DROP CONSTRAINT IF EXISTS peer_advising_topics_id_pkey;
 ALTER TABLE ONLY peer_advising_departments
     DROP CONSTRAINT IF EXISTS peer_advising_departments_pkey;
-
-
 
 -- peer_advising_departments table
 ALTER TABLE peer_advising_departments OWNER TO app_boa;
@@ -89,7 +85,6 @@ ALTER TABLE ONLY peer_advising_departments ALTER COLUMN id SET DEFAULT nextval('
 ALTER TABLE ONLY peer_advising_departments
     ADD CONSTRAINT peer_advising_departments_pkey PRIMARY KEY (id);
 
-
 ALTER TABLE ONLY peer_advising_departments
     ADD CONSTRAINT peer_advising_departments_university_dept_id_fkey FOREIGN KEY (university_dept_id) REFERENCES university_depts(id) ON DELETE CASCADE;
 
@@ -101,26 +96,17 @@ ALTER TABLE peer_advising_department_members OWNER TO app_boa;
 ALTER TABLE peer_advising_department_members
     ADD CONSTRAINT peer_advising_department_members_pkey PRIMARY KEY (peer_advising_department_id, authorized_user_id);
 
-
 ALTER TABLE ONLY peer_advising_department_members
-    ADD CONSTRAINT peer_advising_department_members_peer_advising_department_id_fkey FOREIGN KEY (peer_advising_department_id) REFERENCES peer_advising_departments(id) ON DELETE CASCADE;
-
+    ADD CONSTRAINT peer_advising_department_members_peer_advising_department_fkey FOREIGN KEY (peer_advising_department_id) REFERENCES peer_advising_departments(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY peer_advising_department_members
     ADD CONSTRAINT peer_advising_department_members_authorized_user_id_fkey FOREIGN KEY (authorized_user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
--- peer_advising_department_topics table
-ALTER TABLE peer_advising_department_topics OWNER TO app_boa;
+-- peer_advising_topics table
+ALTER TABLE peer_advising_topics OWNER TO app_boa;
 
-ALTER TABLE peer_advising_department_topics
-    ADD CONSTRAINT peer_advising_department_topics_pkey PRIMARY KEY (peer_advising_department_id, topic_id);
-
-ALTER TABLE ONLY peer_advising_department_topics
-    ADD CONSTRAINT peer_advising_department_topics_peer_advising_department_id_fkey FOREIGN KEY (peer_advising_department_id) REFERENCES peer_advising_departments(id) ON DELETE CASCADE;
-
-
-ALTER TABLE ONLY peer_advising_department_topics
-    ADD CONSTRAINT peer_advising_department_topics_topic_id_fkey FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE;
+ALTER TABLE peer_advising_topics
+    ADD CONSTRAINT peer_advising_topics_id_pkey PRIMARY KEY (id);
 
 -- notes table
 ALTER TABLE notes

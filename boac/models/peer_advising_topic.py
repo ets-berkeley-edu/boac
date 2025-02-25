@@ -23,35 +23,38 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac import db
-from boac.models.base import Base
-from sqlalchemy import text
+from dateutil.tz import tzutc
 
 
-class PeerAdvisingDepartmentTopic(Base):
-    __tablename__ = 'peer_advising_department_topics'
+class PeerAdvisingTopic(db.Model):
+    __tablename__ = 'peer_advising_topics'
 
-    peer_advising_department_id = db.Column(db.Integer, db.ForeignKey('peer_advising_departments.id'), nullable=False, primary_key=True)  # noqa: A003
-    topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'), nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    topic = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    deleted_at = db.Column(db.DateTime, nullable=True)
 
-    def __init__(self, peer_advising_department_id, topic_id):
-        self.peer_advising_department_id = peer_advising_department_id
-        self.topic_id = topic_id
+    def __init__(self, topic):
+        self.topic = topic
 
     @classmethod
-    def get_topics(cls, peer_advising_department_id):
-        def _to_api_json(row_):
-            return {
-                'peerAdvisingDepartmentId': row_['peer_advising_department_id'],
-                'topic': row_['topic'],
-                'topicId': row_['topic_id'],
-            }
-        query = text("""
-            SELECT
-            p.peer_advising_department_id, t.topic
-            FROM peer_advising_department_topics p
-            JOIN topics t ON t.id = p.topic_id
-            WHERE p.peer_advising_department_id = :peer_advising_department_id
-        """)
-        results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
-        return [_to_api_json(row) for row in results]
+    def get_all(cls, include_deleted=False):
+        kwargs = {}
+        if not include_deleted:
+            kwargs['deleted_at'] = None
+        return cls.query.filter_by(**kwargs).order_by(cls.topic).all()
+
+    def to_api_json(self):
+        return {
+            'id': self.id,
+            'topic': self.topic,
+            'createdAt': _isoformat(self.created_at),
+            'deletedAt': _isoformat(self.deleted_at),
+        }
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()
