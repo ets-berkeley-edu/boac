@@ -29,7 +29,7 @@ from boac.api.util import advising_data_access_required, peer_advisor_or_peer_ad
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.models.note_template import NoteTemplate
-from boac.models.peer_advising_department_topic import PeerAdvisingDepartmentTopic
+from boac.models.peer_advising_topic import PeerAdvisingTopic
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -67,8 +67,7 @@ def get_notes_for_peer_advisor(peer_advising_dept_id, user_id):
     ])
 
 
-@app.route('/api/peer_advisor/note_topics/<peer_advising_department_id>')
+@app.route('/api/peer_advisor/note_topics')
 @peer_advisor_or_peer_advisor_manager_in_department
-def get_peer_advising_department_topics(peer_advising_department_id):
-    topics = PeerAdvisingDepartmentTopic.get_topics(peer_advising_department_id)
-    return tolerant_jsonify(topics)
+def get_peer_advising_topics():
+    return tolerant_jsonify([topic.to_api_json() for topic in PeerAdvisingTopic.get_all()])

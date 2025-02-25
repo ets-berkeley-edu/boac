@@ -755,9 +755,9 @@ ALTER TABLE peer_advising_department_members
     ADD CONSTRAINT peer_advising_department_members_pkey PRIMARY KEY (peer_advising_department_id, authorized_user_id);
 
 ALTER TABLE ONLY peer_advising_department_members
-    DROP CONSTRAINT IF EXISTS peer_advising_department_members_peer_advising_department_id_fkey;
+    DROP CONSTRAINT IF EXISTS peer_advising_department_members_peer_advising_department_fkey;
 ALTER TABLE ONLY peer_advising_department_members
-    ADD CONSTRAINT peer_advising_department_members_peer_advising_department_id_fkey FOREIGN KEY (peer_advising_department_id) REFERENCES peer_advising_departments(id) ON DELETE CASCADE;
+    ADD CONSTRAINT peer_advising_department_members_peer_advising_department_fkey FOREIGN KEY (peer_advising_department_id) REFERENCES peer_advising_departments(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY peer_advising_department_members
     DROP CONSTRAINT IF EXISTS peer_advising_department_members_authorized_user_id_fkey;
@@ -766,27 +766,29 @@ ALTER TABLE ONLY peer_advising_department_members
 
 
 --
-CREATE TABLE IF NOT EXISTS peer_advising_department_topics (
-    peer_advising_department_id integer NOT NULL,
-    topic_id integer NOT NULL
+
+CREATE TABLE peer_advising_topics (
+  id INTEGER NOT NULL,
+  topic VARCHAR(50) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  deleted_at timestamp with time zone
 );
+ALTER TABLE peer_advising_topics OWNER TO boac;
+CREATE SEQUENCE peer_advising_topics_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE peer_advising_topics_id_seq OWNER TO boac;
+ALTER SEQUENCE peer_advising_topics_id_seq OWNED BY peer_advising_topics.id;
+ALTER TABLE ONLY peer_advising_topics ALTER COLUMN id SET DEFAULT nextval('peer_advising_topics_id_seq'::regclass);
+ALTER TABLE ONLY peer_advising_topics
+    ADD CONSTRAINT peer_advising_topics_id_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY peer_advising_topics
+    ADD CONSTRAINT peer_advising_topics_topic_unique_constraint UNIQUE (topic);
 
-ALTER TABLE peer_advising_department_topics OWNER TO boac;
-
-ALTER TABLE ONLY peer_advising_department_topics
-    DROP CONSTRAINT IF EXISTS peer_advising_department_topics_pkey;
-ALTER TABLE peer_advising_department_topics
-    ADD CONSTRAINT peer_advising_department_topics_pkey PRIMARY KEY (peer_advising_department_id, topic_id);
-
-ALTER TABLE ONLY peer_advising_department_topics
-    DROP CONSTRAINT IF EXISTS peer_advising_department_topics_peer_advising_department_id_fkey;
-ALTER TABLE ONLY peer_advising_department_topics
-    ADD CONSTRAINT peer_advising_department_topics_peer_advising_department_id_fkey FOREIGN KEY (peer_advising_department_id) REFERENCES peer_advising_departments(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY peer_advising_department_topics
-    DROP CONSTRAINT IF EXISTS peer_advising_department_topics_topic_id_fkey;
-ALTER TABLE ONLY peer_advising_department_topics
-    ADD CONSTRAINT peer_advising_department_topics_topic_id_fkey FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE;
+ALTER TABLE peer_advising_topics OWNER TO boac;
 
 --
 
