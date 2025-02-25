@@ -2,7 +2,10 @@
   max-width: 450px;
   width: 100%;
 }
-.autocomplete-with-add-button .v-input__append,
+.autocomplete-with-add-button .v-input__append {
+  padding-top: 0 !important;
+  margin-left: 0 !important;
+}
 .autocomplete-with-add-button .v-input__control,
 .autocomplete-with-add-button .v-field,
 .autocomplete-with-add-button .add-button {

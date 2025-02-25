@@ -5,7 +5,7 @@
       class="font-size-16"
     >
       <span class="mr-2 text-weight-bold">Student</span>
-      <span class="font-weight-regular">(name or SID)</span>
+      <span class="font-weight-regular">(name, SID or email)</span>
     </label>
     <v-combobox
       id="add-student-input"
@@ -83,13 +83,13 @@ import {putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
+  excludeTheseStudents: {
+    required: true,
+    type: Array as PropType<BoaUser[]>
+  },
   peerAdvisingDepartmentId: {
     required: true,
     type: Number
-  },
-  peerAdvisors: {
-    required: true,
-    type: Array as PropType<BoaUser[]>
   },
   refresh: {
     required: true,
@@ -164,7 +164,7 @@ const onUpdateSearch = input => {
       isUpdatingStudentAutocomplete.value = true
       if (size(search) > 1) {
         findStudentsByNameOrSid(search, 20, new AbortController()).then((students: StudentSearchResult[]) => {
-          const existingPeerAdvisorSids = map(props.peerAdvisors, 'sid')
+          const existingPeerAdvisorSids = map(props.excludeTheseStudents, 'sid')
           students = filter(students, s => !includes(existingPeerAdvisorSids, s.sid))
           autoSuggestedStudents.value = map(students, s => ({label: s.label, sid: s.sid, uid: s.uid}))
           isUpdatingStudentAutocomplete.value = false

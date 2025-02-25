@@ -192,6 +192,10 @@ export type NoteTemplate = {
   title: string
 }
 
+export type NoteTopic = {
+  topic: string
+}
+
 export type Pagination = {
   currentPage: number,
   itemsPerPage: number
