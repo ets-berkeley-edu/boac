@@ -2,8 +2,8 @@
   <div class="align-end d-flex justify-space-between font-weight-bold">
     <div class="ml-4 w-40">
       <PeerAdvisingAddStudent
+        :exclude-these-students="peerAdvisors"
         :peer-advising-department-id="peerAdvisingDepartmentId"
-        :peer-advisors="peerAdvisors"
         :refresh="refresh"
       />
     </div>
@@ -76,7 +76,7 @@
           size="md"
           :title="`Remove ${item.name}'s Peer Advisor role.`"
           variant="flat"
-          @click="onClickDeletePeerAdvisor(item.id)"
+          @click="() => onClickDeletePeerAdvisor(item.id)"
         />
         <v-btn
           v-if="item.deletedAt"
@@ -88,7 +88,7 @@
           size="md"
           :title="`Remove ${item.name}'s Peer Advisor role.`"
           variant="flat"
-          @click="onClickRestorePeerAdvisor(item.id)"
+          @click="() => onClickRestorePeerAdvisor(item.id)"
         />
       </template>
     </v-data-table>

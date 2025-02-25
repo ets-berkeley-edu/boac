@@ -15,7 +15,10 @@
           text="New Note"
           @click="onClickCreateNote"
         />
-        <EditPeerAdvisingNoteModal v-if="noteStore.isCreateNoteModalOpen" />
+        <EditPeerAdvisingNoteModal
+          v-if="noteStore.isCreateNoteModalOpen && peerAdvisingDepartmentId"
+          :peer-advising-department-id="peerAdvisingDepartmentId"
+        />
       </div>
     </div>
     <div>
@@ -40,6 +43,7 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const noteStore = useNoteStore()
 const notes = ref<Note[]>([])
+const peerAdvisingDepartmentId = ref<number | undefined>()
 const router = useRouter()
 
 contextStore.loadingStart()
@@ -47,10 +51,10 @@ contextStore.loadingStart()
 onMounted(() => {
   // We assume that Peer Advisor belongs solely to one department, with only one role: Peer Advisor.
   const membership = currentUser.departments[0].memberships[0]
-  const peerAdvisingDepartmentId = membership.peerAdvisingDepartmentId
-  if (peerAdvisingDepartmentId && membership.role === 'peer_advisor' && currentUser.id) {
+  peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
+  if (peerAdvisingDepartmentId.value && membership.role === 'peer_advisor' && currentUser.id) {
     getPeerAdvisorNotes(
-      peerAdvisingDepartmentId,
+      peerAdvisingDepartmentId.value,
       currentUser.id
     ).then(data => {
       notes.value = data

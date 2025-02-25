@@ -55,7 +55,7 @@
             />
           </div>
           <div class="py-3">
-            <AdvisingNoteTopics />
+            <AdvisingNoteTopics :topics="topics" />
             <PrivacyPermissions v-if="contextStore.currentUser.canAccessPrivateNotes" class="mt-4" />
             <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
               <div key="0" class="pt-4">
@@ -163,6 +163,7 @@ import {
 } from '@/stores/note-edit-session/note-edit-session-utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {getTopicsForNotes} from '@/api/topics.js'
 
 const props = defineProps({
   initialMode: {
@@ -197,6 +198,7 @@ const dismissAlertSeconds = ref(undefined)
 const showCreateTemplateModal = ref(false)
 const showDiscardNoteModal = ref(false)
 const showDiscardTemplateModal = ref(false)
+const topics = ref([])
 
 const selectEscape = event => {
   if (event.key === 'Escape' && !noteStore.isSaving && dialogModel.value) {
@@ -373,15 +375,18 @@ const exit = revert => {
 
 const init = () => {
   return new Promise(resolve => {
-    if (props.noteId) {
-      getNote(props.noteId).then(resolve)
-    } else {
-      contextStore.broadcast('begin-note-creation', {
-        completeSidSet: [props.sid],
-        subject: 'note-creation-is-starting'
-      })
-      createDraftNote(props.sid).then(resolve)
-    }
+    getTopicsForNotes(false).then(data => {
+      topics.value = data
+      if (props.noteId) {
+        getNote(props.noteId).then(resolve)
+      } else {
+        contextStore.broadcast('begin-note-creation', {
+          completeSidSet: [props.sid],
+          subject: 'note-creation-is-starting'
+        })
+        createDraftNote(props.sid).then(resolve)
+      }
+    })
   })
 }
 

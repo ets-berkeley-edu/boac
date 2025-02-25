@@ -10,7 +10,7 @@
         v-model="selected"
         aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
         class="bg-white select-menu"
-        :class="{'w-100': $vuetify.display.xs}"
+        :class="{'w-100': display.xs}"
         :disabled="disabled"
       >
         <option :value="null" disabled>Select...</option>
@@ -54,13 +54,15 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type {PropType} from 'vue'
 import {computed, onMounted, ref, watch} from 'vue'
 import {each, find, includes, size} from 'lodash'
-import PillItem from '@/components/util/PillItem'
+import {useDisplay} from 'vuetify'
+import type {NoteTopic, SelectOption} from '@/lib/types'
+import PillItem from '@/components/util/PillItem.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {getTopicsForNotes} from '@/api/topics'
-import {useNoteStore} from '@/stores/note-edit-session/index'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
   note: {
@@ -71,14 +73,20 @@ const props = defineProps({
   readOnly: {
     required: false,
     type: Boolean
+  },
+  topics: {
+    default: () => [],
+    required: false,
+    type: Array as PropType<NoteTopic[]>
   }
 })
 
+const display = useDisplay()
 const noteStore = useNoteStore()
 const disabled = computed(() => noteStore.isSaving || noteStore.boaSessionExpired)
 const noteId = ref(props.note ? props.note.id : noteStore.model.id)
 const selected = ref(null)
-const topicOptions = ref([])
+const topicOptions = ref<SelectOption<string>[]>([])
 
 watch(selected, value => {
   if (selected.value) {
@@ -90,15 +98,13 @@ watch(selected, value => {
 })
 
 onMounted(() => {
-  if (!props.readOnly) {
-    getTopicsForNotes(false).then(rows => {
-      each(rows, row => {
-        const value = row['topic']
-        const disabled = includes(noteStore.model.topics, value)
-        topicOptions.value.push({text: value, value, disabled})
-      })
+  each(props.topics, (topic: NoteTopic) => {
+    topicOptions.value.push({
+      disabled: includes(noteStore.model.topics, topic.topic),
+      text: topic.topic,
+      value: topic.topic
     })
-  }
+  })
 })
 
 const remove = topic => {

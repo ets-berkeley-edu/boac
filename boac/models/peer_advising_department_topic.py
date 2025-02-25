@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db
 from boac.models.base import Base
+from sqlalchemy import text
 
 
 class PeerAdvisingDepartmentTopic(Base):
@@ -33,8 +34,24 @@ class PeerAdvisingDepartmentTopic(Base):
     peer_advising_department_id = db.Column(db.Integer, db.ForeignKey('peer_advising_departments.id'), nullable=False, primary_key=True)  # noqa: A003
     topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'), nullable=False, primary_key=True)  # noqa: A003
 
-    topic = db.relationship('Topic', back_populates='peer_advising_department_topics')
-
     def __init__(self, peer_advising_department_id, topic_id):
         self.peer_advising_department_id = peer_advising_department_id
         self.topic_id = topic_id
+
+    @classmethod
+    def get_topics(cls, peer_advising_department_id):
+        def _to_api_json(row_):
+            return {
+                'peerAdvisingDepartmentId': row_['peer_advising_department_id'],
+                'topic': row_['topic'],
+                'topicId': row_['topic_id'],
+            }
+        query = text("""
+            SELECT
+            p.peer_advising_department_id, t.topic
+            FROM peer_advising_department_topics p
+            JOIN topics t ON t.id = p.topic_id
+            WHERE p.peer_advising_department_id = :peer_advising_department_id
+        """)
+        results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
+        return [_to_api_json(row) for row in results]

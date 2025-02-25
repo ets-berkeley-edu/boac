@@ -49,7 +49,10 @@
         :show-advising-note-best-practices="true"
       />
     </div>
-    <AdvisingNoteTopics class="mt-2" />
+    <AdvisingNoteTopics
+      class="mt-2"
+      :topics="topics"
+    />
     <PrivacyPermissions
       v-if="currentUser.canAccessPrivateNotes"
       class="mt-2"
@@ -146,6 +149,7 @@ import {getNote, updateNote} from '@/api/notes'
 import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {getTopicsForNotes} from '@/api/topics.js'
 
 const props = defineProps({
   afterCancel: {
@@ -167,33 +171,37 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const editNoteForm = ref()
 const isPublishingNote = ref(false)
-const suppressAutoSaveDraftNoteAlert = ref(false)
 const isSavingDraft = ref(false)
 const noteStore = useNoteStore()
-const {boaSessionExpired, isSaving, mode} = storeToRefs(noteStore)
 const showAreYouSureModal = ref(false)
+const suppressAutoSaveDraftNoteAlert = ref(false)
+const topics = ref([])
+const {boaSessionExpired, isSaving, mode} = storeToRefs(noteStore)
 
 watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = !suppressAutoSaveDraftNoteAlert.value, 5000))
 
 onMounted(() => {
-  getNote(props.noteId).then(note => {
-    const onFinish = () => {
-      noteStore.setMode('editNote')
-      putFocusNextTick('edit-note-subject')
-    }
-    noteStore.resetModel()
-    noteStore.setModel(note)
-    if (note.sid) {
-      setNoteRecipient(note.sid).then(onFinish())
-    } else {
-      // A draft-note may have a null SID value.
-      onFinish()
-    }
-    if (isAutoSaveMode(mode.value)) {
-      scheduleAutoSaveJob()
-    }
+  getTopicsForNotes(false).then(data => {
+    topics.value = data
+    getNote(props.noteId).then(note => {
+      const onFinish = () => {
+        noteStore.setMode('editNote')
+        putFocusNextTick('edit-note-subject')
+      }
+      noteStore.resetModel()
+      noteStore.setModel(note)
+      if (note.sid) {
+        setNoteRecipient(note.sid).then(onFinish)
+      } else {
+        // A draft-note may have a null SID value.
+        onFinish()
+      }
+      if (isAutoSaveMode(mode.value)) {
+        scheduleAutoSaveJob()
+      }
+    })
+    contextStore.setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
   })
-  contextStore.setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
 })
 
 onBeforeMount(() => {
