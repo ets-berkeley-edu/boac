@@ -24,14 +24,32 @@ export async function createPeerAdvisingNoteTemplate(peerAdvisingDeptId: number,
   const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_template/create`
   const noteTemplate = {
     peerAdvisingDeptId: peerAdvisingDeptId,
-    noteBody: noteBody,
+    noteBody: body,
     topics: topics,
     title: title
   }
   return axios.post(url, noteTemplate).then(response => {
     return response.data
   })
+}
 
+export async function updatePeerAdvisingNoteTemplate(noteTemplateId: number, noteBody: string, title: string, topics: []) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_template/update`
+  const noteTemplate = {
+    id: noteTemplateId,
+    body: noteBody,
+    topics: topics,
+    title: title
+  }
+  return axios.post(url, noteTemplate).then(response => {
+    return response.data
+  })
+}
+
+export async function deletePeerAdvisingNoteTemplate(noteTemplateId: number) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_template/delete/${noteTemplateId}`
+  const headers = {'Content-Type': 'application/json'}
+  return axios.delete(url, {headers})
 }
 
 export async function getPeerAdvisingDepartment(

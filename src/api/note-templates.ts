@@ -14,7 +14,7 @@ export function getMyNoteTemplates() {
 
 
 export function getNoteTemplatesForPeerAdvising(peerAdvisingDeptId: number) {
-  const url: string = `${utils.apiBaseUrl()}/api/note_templates/peer_advising_department_id/${peerAdvisingDeptId}`
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_templates/peer_advising_department_id/${peerAdvisingDeptId}`
   return axios.get(url).then(response => response.data)
 }
 
