@@ -273,10 +273,9 @@ class AuthorizedUser(Base):
             status='active',
     ):
         query_tables, query_filter, query_bindings = _peer_advising_users_sql(
-            blocked=status == 'blocked',
-            deleted=status == 'deleted',
             peer_advising_department_id=peer_advising_department_id,
             role_type=role_type,
+            status=status,
         )
         query = text(f"""
             SELECT u.id
@@ -301,10 +300,9 @@ class AuthorizedUser(Base):
             status=None,
     ):
         query_tables, query_filter, query_bindings = _users_sql(
-            blocked=status == 'blocked' or None,
-            deleted=status == 'deleted' or None,
             dept_code=dept_code,
             role=role,
+            status=status,
         )
         query = text(f"""
             SELECT u.id
@@ -358,10 +356,9 @@ class AuthorizedUser(Base):
 
 
 def _peer_advising_users_sql(
-        blocked=None,
-        deleted=None,
         peer_advising_department_id=None,
         role_type=None,
+        status=None,
 ):
     query_tables = 'FROM authorized_users u '
     query_bindings = {
@@ -395,14 +392,13 @@ def _peer_advising_users_sql(
         query_tables += """
             JOIN peer_advising_department_members m ON m.authorized_user_id = u.id
         """
-    return query_tables, _users_sql_where_clause(blocked, deleted), query_bindings
+    return query_tables, _users_sql_where_clause(status), query_bindings
 
 
 def _users_sql(
-        blocked=None,
-        deleted=None,
         dept_code=None,
         role=None,
+        status=None,
 ):
     query_tables = 'FROM authorized_users u '
     query_bindings = {
@@ -431,13 +427,15 @@ def _users_sql(
                 m.university_dept_id = d.id
                 AND m.authorized_user_id = u.id
         """
-    return query_tables, _users_sql_where_clause(blocked, deleted), query_bindings
+    return query_tables, _users_sql_where_clause(status), query_bindings
 
 
-def _users_sql_where_clause(blocked, deleted):
+def _users_sql_where_clause(status):
     query_filter = 'WHERE TRUE '
-    if blocked is not None:
-        query_filter += f"AND u.is_blocked IS {'TRUE' if blocked else 'FALSE'} "
-    if deleted is not None:
-        query_filter += f"AND u.deleted_at IS {'NOT NULL' if deleted else 'NULL'} "
+    if status == 'blocked':
+        query_filter += 'AND u.is_blocked IS TRUE '
+    elif status == 'deleted':
+        query_filter += 'AND u.deleted_at IS NOT NULL '
+    elif status == 'active':
+        query_filter += 'AND u.deleted_at IS NULL '
     return query_filter
