@@ -119,6 +119,11 @@ class Department(Enum):
         'notes_only': False,
     }
 
+    @staticmethod
+    def get_real_depts():
+        depts = [value for key, value in Department.__dict__.items() if key.isupper()]
+        return list(set(depts) - {Department.ADMIN, Department.NOTES_ONLY, Department.OTHER})
+
 
 class PeerAdvisingDepartment(Enum):
 
@@ -166,3 +171,7 @@ class PeerAdvisingDepartment(Enum):
         'name': 'School of Public Health',
         'parent': Department.PUB_HEALTH,
     }
+
+    @staticmethod
+    def get_peer_depts():
+        return [value for key, value in Department.__dict__.items() if key.isupper()]

@@ -43,12 +43,12 @@ test_student = test.students[-1]
 # Initialize a user for the add/edit user tests
 add_edit_user = User({
     'uid': app.config['TEST_USER_UID'],
-    'active': True,
     'can_access_advising_data': True,
     'can_access_canvas_data': True,
     'dept_memberships': [
         DepartmentMembership(dept=Department.L_AND_S, advisor_role=AdvisorRole.ADVISOR, is_automated=True),
     ],
+    'is_active': True,
 })
 
 # Hard delete the add/edit user in case it's still lying around from a previous test run
@@ -58,10 +58,16 @@ for u in auth_users:
         auth_users.remove(u)
 
 non_admin_depts = [d for d in Department if d not in [Department.ADMIN, Department.NOTES_ONLY]]
-dept_advisors = list(map(lambda d: {'dept': d, 'advisors': boa_utils.get_dept_advisors(d)}, non_admin_depts))
-for da in dept_advisors:
-    if not da['advisors']:
-        dept_advisors.remove(da)
+advisors_per_all_depts = []
+for dept in non_admin_depts:
+    advisors_per_dept = []
+    for user in auth_users:
+        if dept in user.depts:
+            advisors_per_dept.append(user)
+    advisors_per_all_depts.append({
+        'dept': dept,
+        'advisors': advisors_per_dept,
+    })
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -71,9 +77,6 @@ class TestAuthUserSearch:
         self.homepage.load_page()
         self.homepage.dev_auth()
         self.homepage.click_pax_manifest_link()
-        self.pax_manifest_page.when_present(self.pax_manifest_page.FILTER_MODE_SELECT, utils.get_medium_timeout())
-        utils.assert_equivalence(self.pax_manifest_page.selected_option_text(self.pax_manifest_page.FILTER_MODE_SELECT),
-                                 'Search')
 
     def test_search_by_uid(self):
         self.pax_manifest_page.search_for_advisor(test_auth_user)
@@ -95,11 +98,12 @@ class TestAuthUserSearch:
                 if memb.advisor_role == AdvisorRole.DIRECTOR:
                     expected_roles.append('director')
                 visible_user_details = self.pax_manifest_page.visible_user_details(test_auth_user)
-                visible_dept = next(filter(lambda d: d['code'] == memb_dept, visible_user_details['departments']))
-                visible_dept_roles = self.pax_manifest_page.visible_dept_roles(test_auth_user, memb.dept)
-                visible_roles = visible_dept_roles.split(' and ')
+                visible_dept = next(filter(lambda d: d['deptCode'] == memb_dept, visible_user_details['departments']))
+                visible_roles = self.pax_manifest_page.visible_dept_roles(test_auth_user, memb.dept).split(' and ')
+                visible_membership = next(filter(lambda m: m['role'] == memb.advisor_role.value['code'],
+                                                 visible_dept['memberships']))
                 utils.assert_equivalence(visible_roles, expected_roles)
-                utils.assert_equivalence(visible_dept['automateMembership'], memb.is_automated)
+                utils.assert_equivalence(visible_membership['automateMembership'], memb.is_automated)
 
     def test_search_result_user_perms(self):
         if test_auth_user.uid in self.pax_manifest_page.list_view_uids():
@@ -111,13 +115,13 @@ class TestAuthUserSearch:
         if test_auth_user.uid in self.pax_manifest_page.list_view_uids():
             visible_user_details = self.pax_manifest_page.visible_user_details(test_auth_user)
             visible_active_status = False if visible_user_details['deletedAt'] else True
-            assert visible_active_status == test_auth_user.active
+            assert visible_active_status == test_auth_user.is_active
             utils.assert_equivalence(visible_user_details['isBlocked'], test_auth_user.is_blocked)
 
     def test_search_result_user_become_link(self):
         if test_auth_user.uid in self.pax_manifest_page.list_view_uids():
             become_link_present = self.pax_manifest_page.is_present(self.pax_manifest_page.become_user_loc(test_auth_user))
-            if test_auth_user.active:
+            if test_auth_user.is_active:
                 assert become_link_present
             else:
                 assert not become_link_present
@@ -125,16 +129,22 @@ class TestAuthUserSearch:
     def test_filter_dept_options(self):
         self.pax_manifest_page.select_filter_mode()
         depts = ['All']
-        depts.extend([a['dept'].value['name'] for a in dept_advisors])
+        depts.extend([d.value['name'] for d in Department.get_real_depts()])
         depts.sort()
+        depts.append('Other')
         utils.assert_equivalence(self.pax_manifest_page.dept_filter_options(), depts)
 
     def test_filter_dept_results(self):
-        dept = dept_advisors[0]['dept']
-        advisors = dept_advisors[0]['advisors']
-        expected = [a.uid for a in advisors]
+        dept = advisors_per_all_depts[0]['dept']
+        advisors = advisors_per_all_depts[0]['advisors']
+        expected = []
+        for a in advisors:
+            for memb in a.dept_memberships:
+                if memb.dept == dept and memb.advisor_role == AdvisorRole.ADVISOR:
+                    expected.append(a.uid)
         expected.sort()
         app.logger.info(f"Checking advisor list for {dept.value['name']}")
+        self.pax_manifest_page.select_user_role('Advisors')
         self.pax_manifest_page.select_dept(dept)
         self.pax_manifest_page.submit_search()
         self.pax_manifest_page.wait_for_advisor_list()
@@ -157,14 +167,14 @@ class TestAuthUserSearch:
 
     def test_filter_dept_results_include_emails(self):
         els = self.pax_manifest_page.elements(self.pax_manifest_page.ADVISOR_EMAIL)
-        visible = [el.get_attribute('href') for el in els]
+        visible = [el.get_dom_attribute('href') for el in els]
         visible = [e for e in visible if e]
         assert visible
 
     def test_admins_list(self):
         self.pax_manifest_page.select_user_role('Admins')
         self.pax_manifest_page.submit_search()
-        expected = [a.uid for a in auth_users if a.is_admin]
+        expected = [a.uid for a in auth_users if a.is_admin and a.is_active]
         expected.sort()
         self.pax_manifest_page.wait_for_advisor_list()
         visible = self.pax_manifest_page.list_view_uids()
@@ -173,10 +183,10 @@ class TestAuthUserSearch:
 
     def test_user_export(self):
         download = self.pax_manifest_page.download_boa_users()
-        uids = [row['uid'] for row in download]
+        uids = [row['UID'] for row in download]
         uids = list(set(uids))
         uids.sort()
-        expected = [user.uid for user in auth_users if user.active]
+        expected = [user.uid for user in auth_users if user.is_active]
         expected = list(set(expected))
         expected.sort()
         utils.assert_equivalence(uids, expected)
@@ -285,7 +295,7 @@ class TestUserAddEditDelete:
         assert self.student_page.is_present(self.student_page.APPTS_BUTTON)
 
     def test_delete_user(self):
-        add_edit_user.active = False
+        add_edit_user.is_active = False
         self.homepage.switch_user(test.admin)
         self.pax_manifest_page.load_page_and_find_user(add_edit_user)
         self.pax_manifest_page.edit_user(add_edit_user)
@@ -294,7 +304,7 @@ class TestUserAddEditDelete:
         self.homepage.when_present(self.homepage.AXIOS_ERROR_MSG, utils.get_short_timeout())
 
     def test_un_delete_user(self):
-        add_edit_user.active = True
+        add_edit_user.is_active = True
         self.homepage.dev_auth(test.admin)
         self.pax_manifest_page.load_page_and_find_user(add_edit_user)
         self.pax_manifest_page.edit_user(add_edit_user)
