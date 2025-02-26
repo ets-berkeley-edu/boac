@@ -156,7 +156,7 @@ class Page(object):
         while tries <= retries:
             tries += 1
             try:
-                assert string in self.element(locator).get_attribute('innerText')
+                assert string in self.element(locator).get_dom_attribute('innerText')
                 break
             except AssertionError:
                 if tries == retries:
@@ -170,7 +170,7 @@ class Page(object):
         while tries <= retries:
             tries += 1
             try:
-                assert self.element(locator).get_attribute(attribute)
+                assert self.element(locator).get_dom_attribute(attribute)
                 break
             except AssertionError:
                 if tries == retries:
@@ -279,11 +279,11 @@ class Page(object):
         for o in select_el.options:
             if o.text.strip().lower() == option_str.lower():
                 return o
-            elif o.get_attribute('value') == option_str:
+            elif o.get_dom_attribute('value') == option_str:
                 return o
-            elif f'secondary-option-{option_str.lower()}' == o.get_attribute('id'):
+            elif f'secondary-option-{option_str.lower()}' == o.get_dom_attribute('id'):
                 return o
-            elif o.get_attribute('id').endswith(f'-{option_str.lower()}'):
+            elif o.get_dom_attribute('id').endswith(f'-{option_str.lower()}'):
                 return o
 
     # PAGE TITLE AND HEADING

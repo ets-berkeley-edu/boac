@@ -38,14 +38,6 @@ class Person(object):
         self.data['uid'] = value
 
     @property
-    def active(self):
-        return self.data.get('active')
-
-    @active.setter
-    def active(self, value):
-        self.data['active'] = value
-
-    @property
     def email(self):
         return self.data.get('email')
 
@@ -72,6 +64,14 @@ class Person(object):
     @property
     def last_name(self):
         return self.data.get('last_name')
+
+    @property
+    def is_active(self):
+        return self.data.get('is_active')
+
+    @is_active.setter
+    def is_active(self, value):
+        self.data['is_active'] = value
 
     @last_name.setter
     def last_name(self, value):

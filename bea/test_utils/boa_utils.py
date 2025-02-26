@@ -176,13 +176,13 @@ def get_authorized_users():
 
         user = User({
             'uid': str(k),
-            'active': active,
             'can_access_advising_data': can_access_advising_data,
             'can_access_canvas_data': can_access_canvas_data,
             'degree_progress_perm': degree_progress_perm,
             'degree_progress_automated': degree_progress_automated,
             'dept_memberships': memberships,
             'depts': depts,
+            'is_active': active,
             'is_admin': is_admin,
             'is_blocked': is_blocked,
         })
@@ -266,12 +266,12 @@ def get_dept_advisors(dept, membership=None):
 
         user = User({
             'uid': str(row['uid']),
-            'active': True,
             'can_access_advising_data': row['can_access_advising_data'],
             'can_access_canvas_data': row['can_access_canvas_data'],
             'degree_progress_perm': degree_progress_perm,
             'depts': depts,
             'dept_memberships': dept_memberships,
+            'is_active': True,
         })
         advisors.append(user)
     return advisors
@@ -309,7 +309,7 @@ def get_peer_advisors(peer_dept=None):
                                           peer_advising_role=peer_role)
         user = User({
             'uid': str(row['uid']),
-            'active': active,
+            'is_active': active,
             'dept_memberships': [membership],
         })
         advisors.append(user)

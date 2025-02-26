@@ -36,7 +36,7 @@ test = BEATestConfig()
 test.search_admits()
 nessie_utils.get_admits_data(test.test_admits)
 auth_users = boa_utils.get_authorized_users()
-auth_users = [user for user in auth_users if user.active and not user.is_blocked]
+auth_users = [user for user in auth_users if user.is_active and not user.is_blocked]
 last_update_date = nessie_utils.get_admit_data_update_date()
 
 

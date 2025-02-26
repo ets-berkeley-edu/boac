@@ -54,7 +54,7 @@ class PassengerManifestPage(Pagination):
 
     # User export
 
-    DOWNLOAD_USERS_BUTTON = By.ID, 'download-boa-users-csv'
+    DOWNLOAD_USERS_BUTTON = By.ID, 'download-csv'
 
     def download_boa_users(self):
         app.logger.info('Downloading BOA users CSV')
@@ -64,25 +64,27 @@ class PassengerManifestPage(Pagination):
 
     # Filters
 
-    FILTER_MODE_SELECT = By.ID, 'user-filter-options'
-    TOGGLE_USER_SEARCH_MODE = By.ID, 'toggle-user-search-type'
+    SEARCH_TYPE_SELECT = By.ID, 'toggle-user-search-type'
     USER_SEARCH_INPUT = By.ID, 'search-user-input'
-    PERMISSIONS_SELECT = By.ID, 'user-permission-options'
-    DEPT_SELECT = By.ID, 'department-select-list'
-    STATUS_SELECT = By.ID, 'user-status-options'
+    ROLE_SELECT = By.ID, 'select-user-role'
+    DEPT_SELECT = By.ID, 'select-user-department'
+    STATUS_SELECT = By.ID, 'select-user-status'
     SUBMIT_SEARCH_BTN = By.ID, 'submit-user-search-filters'
+
+    def select_search_mode(self):
+        app.logger.info('Selecting Search mode')
+        self.wait_for_select_and_click_option(self.SEARCH_TYPE_SELECT, 'Search')
 
     def search_for_advisor(self, advisor):
         app.logger.info(f'Searching for advisor UID {advisor.uid}')
-        if self.element(self.TOGGLE_USER_SEARCH_MODE).is_selected():
-            self.wait_for_element_and_click(self.TOGGLE_USER_SEARCH_MODE)
+        self.select_search_mode()
         self.wait_for_textbox_and_type(self.USER_SEARCH_INPUT, advisor.uid)
         loc = By.XPATH, f'//div[@role="option"]//div[contains(., "{advisor.uid}")]'
         self.wait_for_element_and_click(loc)
 
     def select_filter_mode(self):
-        if not self.element(self.TOGGLE_USER_SEARCH_MODE).is_selected():
-            self.wait_for_element_and_click(self.TOGGLE_USER_SEARCH_MODE)
+        app.logger.info('Selecting Filter mode')
+        self.wait_for_select_and_click_option(self.SEARCH_TYPE_SELECT, 'Filter')
 
     def dept_filter_options(self):
         select = Select(self.element(self.DEPT_SELECT))
@@ -98,7 +100,7 @@ class PassengerManifestPage(Pagination):
 
     def select_user_role(self, role):
         app.logger.info(f'Selecting role {role}')
-        self.wait_for_select_and_click_option(self.STATUS_SELECT, role)
+        self.wait_for_select_and_click_option(self.ROLE_SELECT, role)
 
     def select_user_status(self, status):
         app.logger.info(f'Selecting status {status}')
@@ -111,7 +113,7 @@ class PassengerManifestPage(Pagination):
 
     ADVISOR_ROW = By.XPATH, '//tr[contains(@id, "tr-user-")]'
     ADVISOR_UID = By.XPATH, '//td[contains(@id, "-column-uid")]'
-    ADVISOR_NAME = By.XPATH, '//td[contains(@id, "-column-lastname")]/div/div[@class="name"]'
+    ADVISOR_NAME = By.XPATH, '//td[contains(@id, "-column-lastname")]'
     ADVISOR_DEPT = By.XPATH, '//td[contains(@id, "-column-departments")]'
     ADVISOR_EMAIL = By.XPATH, '//td[contains(@id, "-column-campusemail")]//a'
 
@@ -143,7 +145,7 @@ class PassengerManifestPage(Pagination):
     def visible_dept_roles(self, user, dept):
         loc = By.XPATH, f"//td[@id='td-user-{user.uid}-column-departments']//span[contains(., '{dept.value['name']}')]"
         if self.is_present(loc):
-            return self.element(loc).text.split(' - ')[-1]
+            return self.element(loc).text.split(' - ')[-1].lower()
         else:
             return ''
 
@@ -165,8 +167,9 @@ class PassengerManifestPage(Pagination):
     CANVAS_DATA_CBX = By.ID, 'can-access-canvas-data'
     NOTES_APPTS_CBX = By.ID, 'can-access-advising-data'
     DEGREE_PROGRESS_SELECT = By.ID, 'degree-progress-permission-select'
+    ADVISING_DEPT_SELECT = By.ID, 'department-select-list'
     PEER_ADVISING_DEPT_SELECT = By.ID, 'peer-advising-department-select'
-    REMOVE_DEPT_BUTTON = By.XPATH, '//button[contains(@id, "remove-department-")]'
+    REMOVE_DEPT_BUTTON = By.XPATH, '//button[contains(@id, "remove-userDepartment-")]'
     AUTOMATE_DEG_PROG_CBX = By.ID, 'automate-degree-progress-permission'
     SAVE_USER_BUTTON = By.ID, 'save-changes-to-user-profile'
     CANCEL_USER_BUTTON = By.ID, 'cancel-changes-to-user-profile'
@@ -181,11 +184,11 @@ class PassengerManifestPage(Pagination):
 
     @staticmethod
     def dept_role_select_loc(dept):
-        return By.ID, f"select-department-{dept.value['code']}-role"
+        return By.ID, f"select-department-{dept.value['code'].lower()}-role"
 
     @staticmethod
     def is_automated_dept_cbx_loc(dept):
-        return By.ID, f"automate-membership-{dept.value['code']}"
+        return By.ID, f"automate-membership-{dept.value['code'].lower()}"
 
     @staticmethod
     def edit_user_button_loc(user):
@@ -239,7 +242,7 @@ class PassengerManifestPage(Pagination):
     def add_user_dept_roles(self, user):
         for membership in user.dept_memberships:
             app.logger.info(f'Adding UID {user.uid} department role {vars(membership)}')
-            self.wait_for_select_and_click_option(self.DEPT_SELECT, membership.dept.value['code'])
+            self.wait_for_select_and_click_option(self.ADVISING_DEPT_SELECT, membership.dept.value['code'])
             if membership.advisor_role == AdvisorRole.ADVISOR:
                 if membership.peer_advising_role and membership.peer_advising_role == PeerAdvisingRole.PEER_ADVISOR_MANAGER:
                     self.wait_for_select_and_click_option(
@@ -288,18 +291,22 @@ class PassengerManifestPage(Pagination):
         app.logger.info(f'Editing UID {user.uid} with attributes {vars(user)}')
         self.click_edit_user(user)
         self.when_present(self.ADMIN_CBX, utils.get_short_timeout())
+        time.sleep(1)
+        for el in self.elements(self.REMOVE_DEPT_BUTTON):
+            el.click()
+            time.sleep(1)
+        if not user.is_admin:
+            if self.element(self.ADMIN_CBX).is_selected():
+                self.element(self.ADMIN_CBX).click()
+            self.add_user_dept_roles(user)
+            if user.degree_progress_perm:
+                self.select_deg_prog_option(user)
         self.set_user_level_flags(user)
-        if (user.active and self.element(self.DELETED_CBX).is_selected()) or (
-                not self.element(self.DELETED_CBX).is_selected() and not user.active):
+        if (user.is_active and self.element(self.DELETED_CBX).is_selected()) or (
+                not self.element(self.DELETED_CBX).is_selected() and not user.is_active):
             app.logger.info('Clicking is-deleted checkbox')
             self.click_element_js(self.DELETED_CBX)
             time.sleep(utils.get_click_sleep())
-        for el in self.elements(self.REMOVE_DEPT_BUTTON):
-            el.click()
-            time.sleep(2)
-        self.add_user_dept_roles(user)
-        if user.degree_progress_perm:
-            self.select_deg_prog_option(user)
         self.save_user()
 
     def search_for_and_edit_user(self, user):
