@@ -1,8 +1,8 @@
 <template>
   <v-card
     class="modal-content"
-    max-width="500"
-    min-width="500"
+    max-width="600"
+    min-width="600"
   >
     <v-card-title class="pb-0">
       <div class="align-end d-flex flex-wrap justify-space-between">
@@ -38,11 +38,12 @@
         />
       </div>
       <ManageBoaUserPermissions v-model="user" />
-      <ManageBoaUserDepartments v-model="user" />
+      <ManageBoaUserDepartments v-model="user" class="mt-2" />
       <v-expand-transition>
         <SelectBerkeleyDepartment
           v-if="!isPeerAdvisor(user)"
           v-model="user"
+          class="mt-2"
         />
       </v-expand-transition>
       <v-expand-transition>

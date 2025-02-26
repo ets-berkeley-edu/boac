@@ -25,7 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db
+from boac import db, std_commit
+from boac.lib.util import utc_now
 from dateutil.tz import tzutc
 
 
@@ -46,6 +47,21 @@ class PeerAdvisingTopic(db.Model):
         if not include_deleted:
             kwargs['deleted_at'] = None
         return cls.query.filter_by(**kwargs).order_by(cls.topic).all()
+
+    @classmethod
+    def delete(cls, topic_id):
+        topic = cls.query.filter_by(id=topic_id, deleted_at=None).first()
+        if topic:
+            now = utc_now()
+            topic.deleted_at = now
+            std_commit()
+
+    @classmethod
+    def create_topic(cls, topic):
+        topic = cls(topic=topic)
+        db.session.add(topic)
+        std_commit()
+        return topic
 
     def to_api_json(self):
         return {

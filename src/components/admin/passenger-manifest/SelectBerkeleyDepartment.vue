@@ -8,7 +8,7 @@
         id="department-select-list"
         v-model="department"
         aria-label="Department"
-        class="select-menu"
+        class="select-menu w-100"
         :disabled="user.isAdmin"
       >
         <option id="department-null" :value="undefined">

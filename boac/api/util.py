@@ -133,6 +133,22 @@ def peer_advisor_or_peer_advisor_manager_in_department(func):
     return _peer_advisor_or_manager_in_department
 
 
+def peer_advisor_or_peer_advisor_manager(func):
+    @wraps(func)
+    def _peer_advisor_or_peer_advisor_manager(*args, **kw):
+        if current_user.is_authenticated and (
+                current_user.is_admin
+                or is_peer_advisor_manager(current_user)
+                or is_peer_advisor(current_user)
+                or _api_key_ok()
+        ):
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _peer_advisor_or_peer_advisor_manager
+
+
 def peer_advisor_manager_required(func):
     @wraps(func)
     def _advisor_required(*args, **kw):

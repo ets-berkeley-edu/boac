@@ -1,20 +1,24 @@
 <template>
   <div class="align-start component-container d-flex">
-    <div class="pr-3">
-      <v-switch
+    <div class="pr-2">
+      <select
         id="toggle-user-search-type"
         v-model="filter.type"
-        base-color="tertiary"
-        class="font-weight-medium text-medium-emphasis toggle-user-search-type"
-        color="primary"
-        density="compact"
-        :disabled="disabled"
-        false-value="search"
-        hide-details
-        inset
-        :label="filterTypeOptions[filter.type]"
-        true-value="filter"
-      />
+        aria-label="Choose how you want to find users: search field or via filters."
+        class="select-menu"
+      >
+        <option
+          v-for="option in [
+            {name: 'Search', value: 'search'},
+            {name: 'Filter', value: 'filter'}
+          ]"
+          :id="`search-type-option-${toLower(option.value || option.name)}`"
+          :key="option.value"
+          :value="option.value"
+        >
+          {{ option.name }}
+        </option>
+      </select>
     </div>
     <div v-if="filter.type === 'search'" class="align-center d-flex w-100">
       <div class="w-50">
@@ -177,7 +181,6 @@ const {disabled, filter, isFetching, allPeerAdvisingDepartments} = storeToRefs(m
 const autocompleteInput = ref<string | undefined>(undefined)
 const counter = ref(0)
 const currentUser = useContextStore().currentUser
-const filterTypeOptions = {search: 'Search', filter: 'Filter'}
 const intervalId = ref<ReturnType<typeof setTimeout>>()
 const isSuggesting = ref(false)
 const suggestedUsers = ref<SelectOption<object>[]>([])

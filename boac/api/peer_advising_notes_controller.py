@@ -24,8 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError
-from boac.api.util import advising_data_access_required, peer_advisor_or_peer_advisor_manager_in_department, \
-    peer_advisor_required
+from boac.api.util import advising_data_access_required, peer_advisor_or_peer_advisor_manager, peer_advisor_required
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.models.note_template import NoteTemplate
@@ -59,15 +58,15 @@ def create_peer_advising_note_template():
     return tolerant_jsonify(note_template.to_api_json())
 
 
+@app.route('/api/peer_advising/note_topics')
+@peer_advisor_or_peer_advisor_manager
+def get_peer_advising_topics():
+    return tolerant_jsonify([topic.to_api_json() for topic in PeerAdvisingTopic.get_all()])
+
+
 @app.route('/api/peer_advisor/notes/<peer_advising_dept_id>/<user_id>')
 @peer_advisor_required
 def get_notes_for_peer_advisor(peer_advising_dept_id, user_id):
     return tolerant_jsonify([
         {'id': 1, 'name': 'Hello World'},
     ])
-
-
-@app.route('/api/peer_advisor/note_topics')
-@peer_advisor_or_peer_advisor_manager_in_department
-def get_peer_advising_topics():
-    return tolerant_jsonify([topic.to_api_json() for topic in PeerAdvisingTopic.get_all()])

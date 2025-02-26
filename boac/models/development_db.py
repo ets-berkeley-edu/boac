@@ -37,6 +37,7 @@ from boac.models.curated_group import CuratedGroup
 from boac.models.json_cache import insert_row as insert_in_json_cache
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
+from boac.models.peer_advising_topic import PeerAdvisingTopic
 from boac.models.topic import Topic
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
@@ -63,6 +64,7 @@ def load(load_test_data=False):
     _load_schemas()
     _load_users_and_departments()
     if load_test_data:
+        _create_peer_advising_topics()
         _create_topics()
         _create_curated_groups()
         _create_cohorts()
@@ -171,6 +173,14 @@ def _create_peer_advising_departments():
                     role_type=user['role'],
                 )
                 std_commit(allow_test_environment=True)
+
+
+def _create_peer_advising_topics():
+    PeerAdvisingTopic.create_topic('Other / Reason not listed')
+    for topic in ('Major Declaration', 'Other', 'Probation', 'Withdrawal'):
+        PeerAdvisingTopic.create_topic(topic=topic)
+    PeerAdvisingTopic.delete(Topic.create_topic('Transfer Student').id)
+    std_commit(allow_test_environment=True)
 
 
 def _create_topics():

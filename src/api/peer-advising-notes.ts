@@ -6,7 +6,7 @@ export async function getPeerAdvisorNotes(peerAdvisingDeptId: number, userId: nu
   return axios.get(url).then(response => response.data)
 }
 
-export async function getPeerAdvisingDepartmentTopics(peerAdvisingDeptId: number) {
-  const url: string = `${utils.apiBaseUrl()}/api/peer_advisor/note_topics/${peerAdvisingDeptId}`
+export async function getPeerAdvisingTopics() {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_topics`
   return axios.get(url).then(response => response.data)
 }

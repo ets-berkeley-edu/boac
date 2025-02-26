@@ -15,10 +15,7 @@
           text="New Note"
           @click="onClickCreateNote"
         />
-        <EditPeerAdvisingNoteModal
-          v-if="noteStore.isCreateNoteModalOpen && peerAdvisingDepartmentId"
-          :peer-advising-department-id="peerAdvisingDepartmentId"
-        />
+        <EditPeerAdvisingNoteModal v-if="noteStore.isCreateNoteModalOpen && peerAdvisingDepartmentId" />
       </div>
     </div>
     <div>
