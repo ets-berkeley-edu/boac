@@ -5,7 +5,23 @@
         <h2 class="font-size-16">Note Templates</h2>
       </div>
       <div>
-        <PeerAdvisingNewNoteTemplateModal :peer-advising-dept-id="peerAdvisingDepartment.id" />
+        <v-btn
+          id="create-new-peer-advising-note-template"
+          class="float-end"
+          color="primary"
+          slim
+          text="Create new Note Template"
+          variant="text"
+          :prepend-icon="mdiPlus"
+          @click="openNewTemplateModal"
+        />
+        <PeerAdvisingNoteTemplateModal
+          v-model="noteTemplateModalOpen"
+          :peer-advising-dept-id="peerAdvisingDepartment.id"
+          :editing-note-template="selectedNoteTemplate"
+          :action="action"
+          @note-template-updated="getNoteTemplates"
+        />
       </div>
     </div>
     <v-data-table
@@ -43,7 +59,7 @@
               density="compact"
               text="Edit"
               variant="text"
-              @click="editTemplate(item)"
+              @click="editTemplateClicked(item)"
             />
             |
             <v-btn
@@ -53,7 +69,7 @@
               density="compact"
               text="Copy"
               variant="text"
-              @click="copyTemplate(item)"
+              @click="copyTemplateClicked(item)"
             />
             |
             <v-btn
@@ -63,21 +79,34 @@
               density="compact"
               text="Delete"
               variant="text"
-              @click="deleteTemplate(item)"
+              @click="deleteTemplateClicked(item)"
             />
           </td>
         </tr>
       </template>
     </v-data-table>
+    <AreYouSureModal
+      id="confirm-delete-note-template-modal"
+      v-model="showDeleteModal"
+      button-label-confirm="Delete"
+      :function-cancel="cancelDeleteNoteTemplate"
+      :function-confirm="deleteTemplateApi"
+      modal-header="Delete Note Template"
+    >
+      Are you sure you want to delete "<strong>{{ selectedNoteTemplate.title }}</strong>"?
+    </AreYouSureModal>
   </div>
 </template>
 
 <script setup>
+import {mdiPlus} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {alertScreenReader} from '@/lib/utils'
 import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
-import PeerAdvisingNewNoteTemplateModal from '@/components/peer/PeerAdvisingNewNoteTemplateModal.vue'
+import PeerAdvisingNoteTemplateModal from '@/components/peer/PeerAdvisingNoteTemplateModal.vue'
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import {deletePeerAdvisingNoteTemplate} from '@/api/peer-advising.js'
 
 const props = defineProps({
   peerAdvisingDepartment: {
@@ -92,6 +121,10 @@ const headers = [
   {align: 'end', key: 'actions', title: 'Actions', sortable: false, width: '30%'},
 ]
 const noteTemplates = ref([])
+const showDeleteModal = ref(false)
+const selectedNoteTemplate = ref(null)
+const noteTemplateModalOpen = ref(false)
+const action = ref('create')
 
 onMounted(() => {
   getNoteTemplates()
@@ -103,16 +136,42 @@ const getNoteTemplates = () => {
   })
 }
 
-const copyTemplate = noteTemplate => {
-  alertScreenReader(noteTemplate)
+const openNewTemplateModal = () => {
+  selectedNoteTemplate.value = null
+  action.value = 'create'
+  noteTemplateModalOpen.value = true
 }
 
-const deleteTemplate = noteTemplate => {
-  alertScreenReader(noteTemplate)
+const copyTemplateClicked = noteTemplate => {
+  selectedNoteTemplate.value = noteTemplate
+  action.value = 'copy'
+  noteTemplateModalOpen.value = true
 }
 
-const editTemplate = noteTemplate => {
-  alertScreenReader(noteTemplate)
+
+const cancelDeleteNoteTemplate = () => {
+  showDeleteModal.value = false
+}
+
+const deleteTemplateClicked = (noteTemplate) => {
+  showDeleteModal.value = true
+  selectedNoteTemplate.value = noteTemplate
+}
+const deleteTemplateApi = () => {
+  deletePeerAdvisingNoteTemplate(selectedNoteTemplate.value.id).then(() => {
+    getNoteTemplatesForPeerAdvising(props.peerAdvisingDepartment.id).then(response => {
+      noteTemplates.value = response
+      showDeleteModal.value = false
+      alertScreenReader(`Note Template ${response.title} has been deleted.`)
+    })
+  })
+}
+
+const editTemplateClicked = noteTemplate => {
+  selectedNoteTemplate.value = noteTemplate
+  action.value = 'edit'
+  noteTemplateModalOpen.value = true
+  alertScreenReader(`Opened ${noteTemplate.title} note template.`)
 }
 </script>
 

@@ -69,6 +69,11 @@ const props = defineProps({
   readOnly: {
     required: false,
     type: Boolean
+  },
+  topics: {
+    required: false,
+    default: () => [],
+    type: Array
   }
 })
 
@@ -79,10 +84,10 @@ const selected = ref(null)
 const topicOptions = ref([])
 const topicsSelected = ref([])
 
-watch(selected => {
-  if (selected.value) {
-    topicsSelected.value.push(selected.value)
-    alertScreenReader(`Added "${selected.value}" to topics.`)
+watch(selected, (newValue) => {
+  if (newValue) {
+    topicsSelected.value.push(newValue)
+    alertScreenReader(`Added "${newValue}" to topics.`)
     selected.value = null
   }
   putFocusNextTick('add-topic-select-list')
@@ -101,6 +106,9 @@ onMounted(() => {
       })
     })
   }
+
+  topicsSelected.value = props.topics
+
 })
 
 const remove = topic => {
