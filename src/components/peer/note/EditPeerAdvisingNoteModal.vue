@@ -20,16 +20,18 @@
         />
         <RichTextEditor
           id="note-details"
+          class="mt-2"
           :initial-value="model.body || ''"
           :is-in-modal="true"
           label="Note Details"
           :on-value-update="noteStore.setBody"
           :show-advising-note-best-practices="true"
         />
-        <pre>
-          {{ topics }}
-        </pre>
-        <AdvisingNoteTopics :topics="topics" />
+        <AdvisingNoteTopics
+          v-if="topics.length"
+          class="mt-2"
+          :topics="topics"
+        />
       </v-card-text>
       <v-card-actions class="px-6">
         <v-btn
@@ -54,15 +56,8 @@ import EditPeerAdvisingNoteHeader from '@/components/peer/note/EditPeerAdvisingN
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
+import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {getPeerAdvisingDepartmentTopics} from '@/api/peer-advising-notes'
-
-const props = defineProps({
-  peerAdvisingDepartmentId: {
-    required: true,
-    type: Number
-  }
-})
 
 const display = useDisplay()
 const noteStore = useNoteStore()
@@ -81,7 +76,7 @@ const createNoteDialog = computed({
 })
 
 onMounted(() => {
-  getPeerAdvisingDepartmentTopics(props.peerAdvisingDepartmentId).then(data => {
+  getPeerAdvisingTopics().then(data => {
     topics.value = data
   })
 })

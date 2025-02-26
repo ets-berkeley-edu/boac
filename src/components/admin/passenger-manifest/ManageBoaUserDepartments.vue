@@ -1,49 +1,51 @@
 <template>
-  <h4 class="sr-only">Departments</h4>
-  <v-card
-    v-for="userDepartment in user.departments"
-    :key="userDepartment.deptCode"
-    class="bg-grey-lighten-4 border-md mt-1"
-    flat
-  >
-    <v-card-title class="align-center d-flex pb-0">
-      <h5 class="text-wrap font-size-16">{{ userDepartment.deptName }} ({{ userDepartment.deptCode }})</h5>
-      <v-btn
-        :id="`remove-userDepartment-${userDepartment.deptCode.toLowerCase()}`"
-        :aria-label="`Remove department '${userDepartment.deptName}'`"
-        class="align-self-start bg-grey-lighten-4 ml-auto text-error"
-        density="comfortable"
-        :icon="mdiCloseCircleOutline"
-        title="Remove"
-        variant="flat"
-        @click="() => removeDepartment(userDepartment.deptCode)"
-      />
-    </v-card-title>
-    <v-card-text>
-      <SelectDepartmentMembershipRoles
-        v-model="user"
-        :dept-code="userDepartment.deptCode"
-      />
-      <div v-for="membership in userDepartment.memberships" :key="membership.role">
-        <v-checkbox
-          v-if="!isPeerAdvisingRole(membership.role)"
-          :id="`automate-membership-${userDepartment.deptCode.toLowerCase()}`"
-          v-model="membership.automateMembership"
-          color="primary"
-          density="compact"
-          hide-details
-          :label="`Automate ${membership.role} membership`"
+  <div>
+    <h4 class="sr-only">Departments</h4>
+    <v-card
+      v-for="userDepartment in user.departments"
+      :key="userDepartment.deptCode"
+      class="bg-grey-lighten-4 border-md mt-1"
+      flat
+    >
+      <v-card-title class="align-center d-flex pb-0">
+        <h5 class="text-wrap font-size-16">{{ userDepartment.deptName }} ({{ userDepartment.deptCode }})</h5>
+        <v-btn
+          :id="`remove-userDepartment-${userDepartment.deptCode.toLowerCase()}`"
+          :aria-label="`Remove department '${userDepartment.deptName}'`"
+          class="align-self-start bg-grey-lighten-4 ml-auto text-error"
+          density="comfortable"
+          :icon="mdiCloseCircleOutline"
+          title="Remove"
+          variant="flat"
+          @click="() => removeDepartment(userDepartment.deptCode)"
         />
-        <ManagePeerAdvisingMembership
-          v-if="isPeerAdvisingRole(membership.role)"
+      </v-card-title>
+      <v-card-text>
+        <SelectDepartmentMembershipRoles
           v-model="user"
-          class="mt-2"
           :dept-code="userDepartment.deptCode"
-          :membership="membership"
         />
-      </div>
-    </v-card-text>
-  </v-card>
+        <div v-for="membership in userDepartment.memberships" :key="membership.role">
+          <v-checkbox
+            v-if="!isPeerAdvisingRole(membership.role)"
+            :id="`automate-membership-${userDepartment.deptCode.toLowerCase()}`"
+            v-model="membership.automateMembership"
+            color="primary"
+            density="compact"
+            hide-details
+            :label="`Automate ${membership.role} membership`"
+          />
+          <ManagePeerAdvisingMembership
+            v-if="isPeerAdvisingRole(membership.role)"
+            v-model="user"
+            class="mt-2"
+            :dept-code="userDepartment.deptCode"
+            :membership="membership"
+          />
+        </div>
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
 
 <script setup lang="ts">

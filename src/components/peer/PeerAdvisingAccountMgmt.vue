@@ -70,10 +70,11 @@
           v-if="!item.deletedAt"
           :id="`delete-peer-advisor-${item.uid}`"
           :aria-label="`Remove ${item.name}'s 'Peer Advisor' role`"
-          :class="{'bg-transparent text-red': !isBusy}"
+          :class="{'bg-transparent text-primary': !isBusy}"
+          class="mb-1"
           :disabled="isBusy || isRefreshing"
-          :icon="mdiTrashCan"
           size="md"
+          text="Delete"
           :title="`Remove ${item.name}'s Peer Advisor role.`"
           variant="flat"
           @click="() => onClickDeletePeerAdvisor(item.id)"
@@ -82,11 +83,12 @@
           v-if="item.deletedAt"
           :id="`restore-peer-advisor-${item.uid}`"
           :aria-label="`Restore ${item.name}'s 'Peer Advisor' role`"
-          class="bg-transparent text-success"
+          :class="{'bg-transparent text-primary': !isBusy}"
+          class="mb-1"
           :disabled="isBusy || isRefreshing"
-          :icon="mdiUndo"
           size="md"
-          :title="`Remove ${item.name}'s Peer Advisor role.`"
+          text="Restore"
+          :title="`Restore ${item.name}'s Peer Advisor role.`"
           variant="flat"
           @click="() => onClickRestorePeerAdvisor(item.id)"
         />
@@ -96,10 +98,9 @@
 </template>
 
 <script setup>
+import {computed, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {filter as _filter} from 'lodash'
-import {mdiTrashCan, mdiUndo} from '@mdi/js'
-import {computed, ref} from 'vue'
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
 import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising.js'
 
