@@ -71,11 +71,15 @@ export function scheduleAutoSaveJob() {
   noteStore.setAutoSaveJob(jobId)
 }
 
+export function clearNoteRecipients(): Promise<void> {
+  return setNoteRecipients([], [], [])
+}
+
 export function setNoteRecipient(sid: string): Promise<void> {
   const recipients: NoteRecipients = useNoteStore().recipients
   return setNoteRecipients(
-    recipients.cohorts,
-    recipients.curatedGroups,
+    recipients.cohorts || [],
+    recipients.curatedGroups || [],
     recipients.sids.concat(sid)
   )
 }
@@ -87,7 +91,7 @@ export function setNoteRecipients(cohorts: Cohort[], curatedGroups: CuratedGroup
     noteStore.setRecipients({cohorts, curatedGroups, sids})
     const cohortIds = map(cohorts, 'id')
     const curatedGroupIds = map(curatedGroups, 'id')
-    const onFinish = sids => {
+    const onFinish = (sids: string[]) => {
       noteStore.setCompleteSidSet(sids)
       noteStore.setIsRecalculating(false)
       resolve()

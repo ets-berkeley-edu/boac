@@ -174,24 +174,27 @@
         </div>
       </template>
       <template #item.becomeUser="{ item }">
-        <v-btn
-          v-if="canBecome(item) && item.uid !== isBecomingUid"
-          :id="`become-${item.uid}`"
-          :aria-label="`Log in as ${item.name}`"
-          :class="{'text-primary': !isBecomingUid}"
-          :disabled="!!isBecomingUid"
-          flat
-          :icon="mdiLoginVariant"
-          size="sm"
-          @click="() => become(item.uid)"
-        />
-        <v-progress-circular
-          v-if="item.uid === isBecomingUid"
-          color="primary"
-          indeterminate
-          size="16"
-          width="2"
-        />
+        <div class="mr-6">
+          <v-btn
+            v-if="canBecome(item) && item.uid !== isBecomingUid"
+            :id="`become-${item.uid}`"
+            :aria-label="`Log in as ${item.name}`"
+            :class="{'text-primary': !isBecomingUid}"
+            class="bg-transparent"
+            :disabled="!!isBecomingUid"
+            flat
+            :icon="mdiLoginVariant"
+            size="sm"
+            @click="() => become(item.uid)"
+          />
+          <v-progress-circular
+            v-if="item.uid === isBecomingUid"
+            color="primary"
+            indeterminate
+            size="16"
+            width="2"
+          />
+        </div>
       </template>
       <template #bottom></template>
     </v-data-table-virtual>
@@ -261,7 +264,7 @@ const become = uid => {
 
 const canBecome = user => {
   const isNotMe = user.uid !== contextStore.currentUser.uid
-  const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
+  const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt
   const validRoles = ADVISING_ROLE_TYPES.concat(PEER_ADVISING_ROLE_TYPES)
   const hasAnyRole = user.isAdmin || getDeptCodesPerRoles(user, validRoles).length
   return contextStore.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole

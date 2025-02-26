@@ -182,8 +182,8 @@ export type NoteEditSessionModel = {
 }
 
 export type NoteRecipients = {
-  cohorts: Cohort[],
-  curatedGroups: CuratedGroup[],
+  cohorts?: Cohort[],
+  curatedGroups?: CuratedGroup[],
   sids: string[]
 }
 

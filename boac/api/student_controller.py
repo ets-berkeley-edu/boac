@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, is_unauthorized_domain, put_notifications
+from boac.api.util import advisor_or_peer_advisor_required, advisor_required, is_unauthorized_domain, put_notifications
 from boac.externals.data_loch import get_admitted_students_by_sids, get_students_by_sids, match_students_by_name_or_sid
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
@@ -65,7 +65,7 @@ def distinct_student_count():
 
 
 @app.route('/api/students/find_by_name_or_sid', methods=['GET'])
-@advisor_required
+@advisor_or_peer_advisor_required
 def find_by_name_or_sid():
     query = request.args.get('q')
     if not query:

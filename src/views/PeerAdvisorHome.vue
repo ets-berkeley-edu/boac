@@ -63,6 +63,8 @@ onMounted(() => {
 })
 
 const onClickCreateNote = () => {
+  noteStore.exitSession()
+  noteStore.setMode('peerAdvisor')
   noteStore.setIsCreateNoteModalOpen(true)
 }
 </script>
