@@ -2,32 +2,16 @@ import type {StoreDefinition} from 'pinia'
 import {cloneDeep, find, isNil, noop, sortBy} from 'lodash'
 import {defineStore} from 'pinia'
 import type {Attachment, NoteEditSessionModel, NoteRecipients, NoteTemplate} from '@/lib/types'
-import {onVisibilityChange} from '@/stores/note-edit-session/note-edit-session-utils'
+import {getDefaultModel, onVisibilityChange} from '@/stores/note-edit-session/note-edit-session-utils'
 
 const VALID_MODES = [
   'createBatch',
   'createNote',
+  'createPeerAdvisorNote',
   'editDraft',
   'editNote',
   'editTemplate',
-  'peerAdvisor'
 ]
-
-function $_getDefaultModel(): NoteEditSessionModel {
-  return {
-    id: NaN,
-    attachments: [] as Attachment[],
-    author: {},
-    body: undefined,
-    contactType: undefined,
-    deleteAttachmentIds: [],
-    isDraft: false,
-    isPrivate: false,
-    setDate: undefined,
-    subject: undefined,
-    topics: []
-  }
-}
 
 function $_getDefaultRecipients(): NoteRecipients {
   return {
@@ -48,9 +32,9 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
     isSaving: false,
     isRecalculating: false,
     mode: undefined as string | undefined,
-    model: $_getDefaultModel(),
+    model: getDefaultModel(),
     noteTemplates: new Array<NoteTemplate>(),
-    originalModel: $_getDefaultModel(),
+    originalModel: getDefaultModel(),
     recipients: $_getDefaultRecipients(),
     template: undefined
   }),
@@ -77,7 +61,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
       this.completeSidSet = new Set()
       this.isSaving = false
       this.mode = undefined
-      this.model = $_getDefaultModel()
+      this.model = getDefaultModel()
       this.originalModel = cloneDeep(this.model)
       this.recipients.sids = []
     },
@@ -102,7 +86,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
       this.model.topics.splice(this.model.topics.indexOf(topic), 1)
     },
     resetModel() {
-      this.model = $_getDefaultModel()
+      this.model = getDefaultModel()
     },
     setAttachments(attachments: Attachment[]) {
       this.model.attachments = sortBy(attachments, ['name', 'id'])
@@ -165,17 +149,18 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
           attachments: model.attachments || [],
           author: model.author || {},
           body: model.body,
-          contactType: model.contactType || null,
+          contactType: model.contactType || undefined,
           deleteAttachmentIds: [],
           id: model.id,
           isDraft: model.isDraft,
           isPrivate: model.isPrivate,
+          peerAdvisingDepartmentId: model.peerAdvisingDepartmentId,
           setDate: model.setDate,
           subject: model.subject,
           topics: model.topics || [],
         }
       } else {
-        this.model = $_getDefaultModel()
+        this.model = getDefaultModel()
       }
       this.originalModel = cloneDeep(this.model)
     },

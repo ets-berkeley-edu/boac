@@ -104,6 +104,7 @@
         </v-card-text>
         <CreateNoteFooter
           :discard="discardRequested"
+          discard-button-color="error"
           :exit="exit"
           :save-as-template="saveAsTemplate"
           :show-alert="showAlert"

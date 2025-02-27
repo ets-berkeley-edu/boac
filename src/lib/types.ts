@@ -171,11 +171,12 @@ export type NoteEditSessionModel = {
   attachments: Attachment[],
   author: object,
   body?: string,
-  contactType?: string | null,
+  contactType?: string | undefined,
   deleteAttachmentIds: number[],
   id: number,
   isDraft: boolean,
   isPrivate: boolean,
+  peerAdvisingDepartmentId: number | undefined,
   setDate?: string,
   subject?: string,
   topics: string[]

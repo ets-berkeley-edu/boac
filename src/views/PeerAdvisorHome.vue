@@ -15,7 +15,10 @@
           text="New Note"
           @click="onClickCreateNote"
         />
-        <EditPeerAdvisingNoteModal v-if="noteStore.isCreateNoteModalOpen && peerAdvisingDepartmentId" />
+        <EditPeerAdvisingNoteModal
+          v-if="noteStore.isCreateNoteModalOpen && peerAdvisingDepartmentId"
+          :peer-advising-department-id="peerAdvisingDepartmentId"
+        />
       </div>
     </div>
     <div>
@@ -35,6 +38,7 @@ import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNo
 import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
@@ -46,10 +50,9 @@ const router = useRouter()
 contextStore.loadingStart()
 
 onMounted(() => {
-  // We assume that Peer Advisor belongs solely to one department, with only one role: Peer Advisor.
-  const membership = currentUser.departments[0].memberships[0]
-  peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
-  if (peerAdvisingDepartmentId.value && membership.role === 'peer_advisor' && currentUser.id) {
+  const membership = getPeerAdvisorDepartmentMembership(currentUser, 'peer_advisor')
+  if (currentUser.id && membership.peerAdvisingDepartmentId) {
+    peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
     getPeerAdvisorNotes(
       peerAdvisingDepartmentId.value,
       currentUser.id
@@ -64,7 +67,7 @@ onMounted(() => {
 
 const onClickCreateNote = () => {
   noteStore.exitSession()
-  noteStore.setMode('peerAdvisor')
+  noteStore.setMode('createPeerAdvisorNote')
   noteStore.setIsCreateNoteModalOpen(true)
 }
 </script>

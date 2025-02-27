@@ -1,9 +1,14 @@
-import {get, isString, map, trim} from 'lodash'
-import type {Cohort, CuratedGroup, NoteEditSessionModel, NoteRecipients} from '@/lib/types'
+import {get, isNil, isString, map, trim} from 'lodash'
+import type {Attachment, Cohort, CuratedGroup, NoteEditSessionModel, NoteRecipients} from '@/lib/types'
 import {deleteNote, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {createPeerAdvisingNote} from '@/api/peer-advising-notes'
+
+export function clearNoteRecipients(): Promise<void> {
+  return setNoteRecipients([], [], [])
+}
 
 export function disableFocusLock(): void {
   useNoteStore().setFocusLockDisabled(true)
@@ -38,6 +43,23 @@ export function exitSession(revert: boolean): Promise<NoteEditSessionModel | voi
   })
 }
 
+export function getDefaultModel(): NoteEditSessionModel {
+  return {
+    id: NaN,
+    attachments: [] as Attachment[],
+    author: {},
+    body: undefined,
+    contactType: undefined,
+    deleteAttachmentIds: [],
+    isDraft: false,
+    isPrivate: false,
+    peerAdvisingDepartmentId: undefined,
+    setDate: undefined,
+    subject: undefined,
+    topics: []
+  }
+}
+
 export function isAutoSaveMode(mode: string | undefined): boolean {
   return mode ? ['createBatch', 'createNote', 'editDraft', 'editNote'].includes(mode) : false
 }
@@ -69,10 +91,6 @@ export function scheduleAutoSaveJob() {
   const interval = useContextStore().config.notesDraftAutoSaveInterval
   const jobId = setTimeout(autoSaveDraftNote, interval)
   noteStore.setAutoSaveJob(jobId)
-}
-
-export function clearNoteRecipients(): Promise<void> {
-  return setNoteRecipients([], [], [])
 }
 
 export function setNoteRecipient(sid: string): Promise<void> {
@@ -119,19 +137,36 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
     noteStore.setBody(trim(model.body))
     const sids: string[] = Array.from(completeSidSet)
     const isDraft = model.isDraft
-    updateNote(
-      model.id,
-      model.body,
-      map(recipients.cohorts, 'id'),
-      model.contactType,
-      map(recipients.curatedGroups, 'id'),
-      isDraft,
-      model.isPrivate,
-      model.setDate,
-      sids,
-      model.subject,
-      [],
-      model.topics
-    ).then(resolve)
+    if (noteStore.mode === 'createPeerAdvisorNote') {
+      if (model.body && model.peerAdvisingDepartmentId && !isNil(model.subject)) {
+        createPeerAdvisingNote(
+          model.body,
+          model.contactType,
+          model.peerAdvisingDepartmentId,
+          sids[0],
+          model.subject,
+          model.topics
+        ).then(note => {
+          noteStore.setModel(note)
+        })
+      } else {
+        throw new Error('Peer Advising notes require fields which are optional for standard notes.')
+      }
+    } else {
+      updateNote(
+        model.id,
+        model.body,
+        map(recipients.cohorts, 'id'),
+        model.contactType,
+        map(recipients.curatedGroups, 'id'),
+        isDraft,
+        model.isPrivate,
+        model.setDate,
+        sids,
+        model.subject,
+        [],
+        model.topics
+      ).then(resolve)
+    }
   })
 }

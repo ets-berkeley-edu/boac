@@ -58,6 +58,22 @@ export function findPeerAdvisingDepartment(
   return peerAdvisingDepartment
 }
 
+export function getPeerAdvisorDepartmentMembership(user: BoaUser, role: DepartmentMembershipRole): DepartmentMembership {
+  let departmentMembership: DepartmentMembership | undefined
+  each(user.departments, (department: BoaUserDepartment) => {
+    each(department.memberships, (membership: DepartmentMembership) => {
+      if (role === membership.role) {
+        departmentMembership = membership
+      }
+      return !!departmentMembership
+    })
+  })
+  if (!departmentMembership) {
+    throw new Error(`User ${user.uid} is NOT a ${role} in any Peer Advising Department.`)
+  }
+  return departmentMembership
+}
+
 export function getDeptCodesPerRoles(user: BoaUser, roles: DepartmentMembershipRole[]): string[] {
   return map(getUserDepartmentsWithRoles(user, roles), 'deptCode')
 }

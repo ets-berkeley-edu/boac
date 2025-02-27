@@ -22,7 +22,7 @@
           @click="exit"
         />
         <ProgressButton
-          v-if="!['editTemplate', 'peerAdvisor'].includes(mode)"
+          v-if="!['editTemplate', 'createPeerAdvisorNote'].includes(mode)"
           id="btn-save-as-template"
           :action="saveTemplate"
           :disabled="isSaving || !trim(model.subject) || !!model.setDate || !!model.contactType"
@@ -63,7 +63,7 @@
           id="create-note-cancel"
           :aria-label="mode === 'editTemplate' ? 'Discard Template Edits' : 'Discard Note Edits'"
           class="ml-2"
-          color="error"
+          :color="discardButtonColor"
           :disabled="isSaving || isUpdatingDraft"
           :text="discardButtonLabel"
           variant="outlined"
@@ -76,7 +76,7 @@
 
 <script setup>
 import {computed, ref} from 'vue'
-import {isEmpty, size, startsWith, trim} from 'lodash'
+import {size, startsWith, trim} from 'lodash'
 import {storeToRefs} from 'pinia'
 import ProgressButton from '@/components/util/ProgressButton'
 import SessionExpired from '@/components/note/SessionExpired'
@@ -88,6 +88,11 @@ const props = defineProps({
   discard: {
     required: true,
     type: Function
+  },
+  discardButtonColor: {
+    default: undefined,
+    required: false,
+    type: [String, undefined]
   },
   discardButtonLabel: {
     default: 'Discard',
@@ -123,12 +128,15 @@ const props = defineProps({
 const noteStore = useNoteStore()
 const {boaSessionExpired, completeSidSet, isSaving, mode, model} = storeToRefs(noteStore)
 const isPublishing = ref(false)
-const isPublishButtonDisabled = computed(() => {
-  // When Peer Advisors create notes, 'subject' is not required.
-  return isSaving.value || isEmpty(completeSidSet.value) || (mode.value !== 'peerAdvisor' && !trim(model.value.subject))
-})
+const isPublishButtonDisabled = computed(() => isSaving.value || !isValidNote())
 const isSavingTemplate = ref(false)
 const isUpdatingDraft = ref(false)
+
+const isValidNote = () => {
+  // When Peer Advisors create notes, 'subject' is not required.
+  const isPeerAdvisorMode = mode.value === 'createPeerAdvisorNote'
+  return size(completeSidSet.value) && (isPeerAdvisorMode ? trim(model.value.body) : trim(model.value.subject))
+}
 
 const publish = () => {
   noteStore.setIsDraft(false)
@@ -153,15 +161,17 @@ const updateNote = (alert) => {
     noteStore.setIsSaving(true)
     const action = startsWith(mode.value, 'create') ? 'created' : 'updated'
     const ifAuthenticated = () => {
-      if (model.value.isDraft || (model.value.subject && size(completeSidSet.value))) {
+      if (isValidNote) {
         props.showAlert(alert, 60)
         updateAdvisingNote().then(() => {
           alertScreenReader(model.value.isDraft ? `Draft note ${action}` : `Note ${action}`)
           noteStore.setIsSaving(false)
           props.exit(false)
+          noteStore.setIsSaving(false)
           resolve()
         })
       } else {
+        noteStore.setIsSaving(false)
         resolve()
       }
     }

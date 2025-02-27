@@ -35,7 +35,7 @@
           :disabled="isSaving"
         />
       </v-card-text>
-      <v-card-actions class="px-6">
+      <v-card-actions>
         <CreateNoteFooter
           :discard="discardRequested"
           discard-button-label="Cancel"
@@ -60,7 +60,7 @@ import EditPeerAdvisingNoteHeader from '@/components/peer/note/EditPeerAdvisingN
 import PeerAdvisingNoteStudentLookup from '@/components/peer/note/PeerAdvisingNoteStudentLookup.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import {alertScreenReader, stripHtmlAndTrim} from '@/lib/utils'
-import {exitSession} from '@/stores/note-edit-session/note-edit-session-utils'
+import {exitSession, getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -69,6 +69,10 @@ const props = defineProps({
     default: () => {},
     required: false,
     type: Function
+  },
+  peerAdvisingDepartmentId: {
+    required: true,
+    type: Number
   }
 })
 
@@ -87,10 +91,15 @@ const createNoteDialog = computed({
 onMounted(() => {
   getPeerAdvisingTopics().then(data => {
     topics.value = data
+    const note = getDefaultModel()
+    // Peer Advisors do not provide note.subject thus subject is set to empty string to satisfy not-null db constraints.
+    note.subject = ''
+    note.peerAdvisingDepartmentId = props.peerAdvisingDepartmentId
+    noteStore.setModel(note)
   })
 })
 
-const exit = () => {
+const exit = async () => {
   return exitSession(false).then(() => {
     noteStore.setMode(null)
     props.onClose()
