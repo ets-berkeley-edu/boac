@@ -29,13 +29,14 @@ from boac.merged.user_session import UserSession
 from flask import jsonify, make_response, redirect, request, session
 from flask_login import LoginManager
 
+login_manager = LoginManager()
+
 
 def register_routes(app):
     """Register app routes."""
     def _user_loader(user_id=None, flush_cached=False):
         return UserSession(user_id, flush_cached)
 
-    login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.user_loader(_user_loader)
     login_manager.anonymous_user = _user_loader

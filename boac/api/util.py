@@ -32,13 +32,14 @@ from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_a
 from boac.lib.util import get_benchmarker, has_any_membership_role, join_if_present
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
-from boac.merged.advising_note import get_advising_notes
+from boac.merged.advising_note import get_advising_notes, note_to_compatible_json
+from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.sis_terms import current_term_id
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
-from boac.models.note import Note
+from boac.models.note import Note, note_contact_type_enum
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.user_login import UserLogin
@@ -327,6 +328,21 @@ def get_academic_standing(profile):
         return ''
 
 
+def get_boac_note_as_compatible_json(note, note_read):
+    return {
+        **note_to_compatible_json(
+            note=note.__dict__,
+            note_read=note_read,
+            attachments=[a.to_api_json() for a in note.attachments if not a.deleted_at],
+            topics=[t.topic for t in note.topics if not t.deleted_at],
+        ),
+        **{
+            'message': note.body,
+            'type': 'note',
+        },
+    }
+
+
 def get_coe_status(profile):
     status = None
     if profile.get('coeProfile'):
@@ -353,6 +369,34 @@ def get_current_user_cohorts_containing(profile, cohorts):
 def get_current_user_curated_groups_containing(profile, curated_groups):
     sid = profile['sid']
     return [curated_group['name'] for curated_group in curated_groups if sid in curated_group['sids']]
+
+
+def get_note_author_profile_of_current_user():
+    author = current_user.to_api_json()
+    calnet_profile = get_calnet_user_for_uid(app, author['uid'])
+    if calnet_profile and calnet_profile.get('departments'):
+        dept_codes = [dept.get('deptCode') for dept in calnet_profile.get('departments')]
+    else:
+        dept_codes = dept_codes_where_advising(current_user.departments)
+    role = None
+    if calnet_profile and calnet_profile.get('title'):
+        role = calnet_profile['title']
+    elif current_user.departments:
+        for department in current_user.departments:
+            if len(department['memberships']):
+                role = department['memberships'][0]['role']
+    return {
+        'author_uid': author['uid'],
+        'author_name': author['name'],
+        'author_role': role,
+        'author_dept_codes': dept_codes,
+    }
+
+
+def validate_note_contact_type(contact_type):
+    if contact_type and contact_type not in note_contact_type_enum.enums:
+        raise BadRequestError('Unrecognized contact type')
+    return contact_type
 
 
 def _is_advisor_in_department(user, dept_code):

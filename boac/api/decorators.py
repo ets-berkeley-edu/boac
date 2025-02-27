@@ -28,6 +28,7 @@ from functools import wraps
 from boac.api.util import can_access_admitted_students, is_peer_advisor, is_peer_advisor_manager
 from boac.lib.util import has_any_membership_role
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
+from boac.routes import login_manager
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -43,7 +44,7 @@ def admin_or_director_required(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _admin_or_director_required
 
 
@@ -55,7 +56,7 @@ def admin_required(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _admin_required
 
 
@@ -71,7 +72,7 @@ def advising_data_access_required(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _advising_data_access_required
 
 
@@ -87,7 +88,7 @@ def advisor_or_peer_advisor_required(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _advisor_required
 
 
@@ -98,7 +99,7 @@ def advisor_required(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _advisor_required
 
 
@@ -109,7 +110,7 @@ def can_edit_degree_progress(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _qualifies
 
 
@@ -120,7 +121,7 @@ def can_read_degree_progress(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _qualifies
 
 
@@ -132,7 +133,7 @@ def ce3_required(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _ce3_required
 
 
@@ -148,7 +149,7 @@ def director_advising_data_access_required(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _director_advising_data_access_required
 
 
@@ -166,7 +167,7 @@ def peer_advisor_manager_required(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _advisor_required
 
 
@@ -182,7 +183,7 @@ def peer_advisor_or_peer_advisor_manager(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _peer_advisor_or_peer_advisor_manager
 
 
@@ -195,7 +196,7 @@ def peer_advisor_or_peer_advisor_manager_in_department(func):
             'peer_advising_department_id')
         if peer_advising_department_id is None:
             app.logger.error('Department ID missing in URL.')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
         if (current_user.is_authenticated
                 and (
                     current_user.is_admin
@@ -210,18 +211,18 @@ def peer_advisor_or_peer_advisor_manager_in_department(func):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _peer_advisor_or_manager_in_department
 
 
 def peer_advisor_required(func):
     @wraps(func)
     def _authorize(*args, **kw):
-        if current_user.is_authenticated and (current_user.is_admin or is_peer_advisor(current_user) or _api_key_ok()):
+        if current_user.is_authenticated and (is_peer_advisor(current_user) or _api_key_ok()):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
+            return login_manager.unauthorized()
     return _authorize
 
 

@@ -176,6 +176,7 @@ class Note(Base):
             contact_type=None,
             is_draft=False,
             is_private=False,
+            peer_advising_department_id=None,
             set_date=None,
             template_attachment_ids=(),
     ):
@@ -190,6 +191,7 @@ class Note(Base):
                 contact_type=contact_type,
                 is_draft=is_draft,
                 is_private=is_private,
+                peer_advising_department_id=peer_advising_department_id,
                 set_date=set_date,
                 sid=sid,
                 subject=subject,
@@ -219,6 +221,7 @@ class Note(Base):
                 body=body,
                 contact_type=contact_type,
                 is_private=is_private,
+                peer_advising_department_id=peer_advising_department_id,
                 set_date=set_date,
                 topics=topics,
                 attachments=attachments,
@@ -246,6 +249,7 @@ class Note(Base):
             sids,
             subject,
             attachments=(),
+            peer_advising_department_id=None,
             topics=(),
             template_attachment_ids=(),
     ):
@@ -260,6 +264,7 @@ class Note(Base):
             body=body,
             contact_type=contact_type,
             is_private=is_private,
+            peer_advising_department_id=peer_advising_department_id,
             set_date=set_date,
             sids=sids,
             subject=subject,
@@ -564,6 +569,7 @@ class Note(Base):
             'contactType': self.contact_type,
             'isDraft': self.is_draft,
             'isPrivate': self.is_private,
+            'peerAdvisingDepartmentId': self.peer_advising_department_id,
             'setDate': safe_strftime(self.set_date, '%Y-%m-%d'),
             'sid': self.sid,
             'subject': self.subject,
@@ -586,6 +592,7 @@ def _create_notes(
         body,
         contact_type,
         is_private,
+        peer_advising_department_id,
         set_date,
         sids,
         subject,
@@ -598,10 +605,10 @@ def _create_notes(
     for chunk in range(0, len(sids), count_per_chunk):
         sids_subset = sids[chunk:chunk + count_per_chunk]
         query = """
-            INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private, set_date, sid, subject,
-                               created_at, updated_at)
-            SELECT author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private, set_date, sid, subject,
-                   created_at, updated_at
+            INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private,
+                                peer_advising_department_id, set_date, sid, subject, created_at, updated_at)
+            SELECT author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private,
+                    peer_advising_department_id, set_date, sid, subject, created_at, updated_at
             FROM json_populate_recordset(null::notes, :json_dumps)
             RETURNING id, sid;
         """
@@ -616,6 +623,7 @@ def _create_notes(
                 'body': body,
                 'contact_type': contact_type,
                 'is_private': is_private,
+                'peer_advising_department_id': peer_advising_department_id,
                 'set_date': set_date,
                 'created_at': now,
                 'updated_at': now,

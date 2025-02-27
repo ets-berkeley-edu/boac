@@ -23,8 +23,99 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import json
+
+from boac.models.authorized_user import AuthorizedUser
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
+
+admin_uid = '2040'
+ce3_advisor_uid = '2525'
 ce3_navcal_peer_advisor_uid = '1133400'
+ce3_navcal_peer_advisor_manager_uid = '2525'
+coe_mech_peer_advisor_uid = '1913062'
+coe_student_sid = '9000000000'
 qcadv_advisor_uid = '53791'
+
+
+class TestCreatePeerAdvisingNote:
+
+    @classmethod
+    def setup_class(cls):
+        # Get Peer Advising department ID
+        cls.ce3_navcal_peer_advisor_user = AuthorizedUser.find_by_uid(ce3_navcal_peer_advisor_uid)
+        user_id = cls.ce3_navcal_peer_advisor_user.id
+        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(user_id)
+        cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
+
+    @classmethod
+    def _api_create_peer_advising_note(
+            cls,
+            client,
+            body,
+            peer_advising_department_id,
+            sid,
+            subject='',
+            contact_type=None,
+            expected_status_code=200,
+            topics=(),
+    ):
+        data = {
+            'body': body,
+            'contactType': contact_type,
+            'peerAdvisingDepartmentId': peer_advising_department_id,
+            'sid': sid,
+            'subject': subject,
+            'topics': ','.join(topics),
+        }
+        response = client.post(
+            '/api/peer_advising/note/create',
+            content_type='application/json',
+            data=json.dumps(data),
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authorized(self, app, client, fake_auth):
+        """Returns 401 if not authorized."""
+        for uid in (None, admin_uid, ce3_navcal_peer_advisor_manager_uid, qcadv_advisor_uid):
+            fake_auth.login(uid)
+            assert self._api_create_peer_advising_note(
+                body='Yes, you are not authorized.',
+                client=client,
+                expected_status_code=401,
+                peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
+                sid=coe_student_sid,
+            )
+
+    def test_invalid_peer_advising_department_id(self, client, fake_auth):
+        coe_mech_peer_advisor = AuthorizedUser.find_by_uid(coe_mech_peer_advisor_uid)
+        user_id = coe_mech_peer_advisor.id
+        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(user_id)
+        # CoE peer advising dept
+        coe_mech_peer_advising_department_id = memberships[0]['peer_advising_department_id']
+        # Log in as CE3 peer_advisor
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        self._api_create_peer_advising_note(
+            body='Yes, you are not authorized.',
+            client=client,
+            expected_status_code=403,
+            peer_advising_department_id=coe_mech_peer_advising_department_id,
+            sid=coe_student_sid,
+        )
+
+    def test_authorized(self, app, client, fake_auth):
+        """Create a note."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        note = self._api_create_peer_advising_note(
+            body='Yes, you are not authorized.',
+            client=client,
+            peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
+            sid=coe_student_sid,
+        )
+        assert note['id']
+        assert note['author']['uid'] == ce3_navcal_peer_advisor_uid
+        assert note['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
+        assert note['read'] is True
 
 
 class TestGetPeerAdvisingTopics:

@@ -28,38 +28,20 @@ import urllib.parse
 from boac import std_commit
 from boac.api.decorators import advising_data_access_required, director_advising_data_access_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import (
-    get_note_attachments_from_http_post,
-    get_note_topics_from_http_post,
-    get_template_attachment_ids_from_http_post,
-    validate_advising_note_set_date,
-)
+from boac.api.util import get_boac_note_as_compatible_json, get_note_attachments_from_http_post, \
+    get_note_author_profile_of_current_user, get_note_topics_from_http_post, \
+    get_template_attachment_ids_from_http_post, validate_advising_note_set_date, validate_note_contact_type
 from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream as get_sis_attachment_stream
-from boac.lib.util import (
-    get as get_param,
-    is_int,
-    localize_datetime,
-    process_input_from_rich_text_editor,
-    to_bool_or_none,
-    utc_now,
-)
-from boac.merged.advising_note import (
-    can_current_user_access_note,
-    can_current_user_edit_note,
-    get_advising_notes,
-    get_author_uid,
-    get_boa_attachment_stream,
-    get_eop_attachment_stream,
-    get_zip_stream,
-    note_to_compatible_json,
-)
-from boac.merged.calnet import get_calnet_user_for_uid
+from boac.lib.util import get as get_param, is_int, localize_datetime, process_input_from_rich_text_editor, \
+    to_bool_or_none, utc_now
+from boac.merged.advising_note import can_current_user_access_note, can_current_user_edit_note, get_advising_notes, \
+    get_author_uid, get_boa_attachment_stream, get_eop_attachment_stream, get_zip_stream
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
-from boac.models.note import Note, note_contact_type_enum
+from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 from boac.models.note_template import NoteTemplate
@@ -76,7 +58,7 @@ def get_note(note_id):
     if not note or not can_current_user_access_note(note):
         raise ResourceNotFoundError('Note not found')
     note_read = NoteRead.when_user_read_note(current_user.get_id(), str(note.id))
-    return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
+    return tolerant_jsonify(get_boac_note_as_compatible_json(note=note, note_read=note_read))
 
 
 @app.route('/api/notes/<note_id>/mark_read', methods=['POST'])
@@ -97,13 +79,13 @@ def create_draft_note():
     params = request.get_json()
     sid = get_param(params, 'sid')
     note = Note.create(
-        **_get_author_profile(),
+        **get_note_author_profile_of_current_user(),
         body=None,
         is_draft=True,
         sid=sid,
         subject=DEFAULT_DRAFT_NOTE_SUBJECT,
     )
-    return tolerant_jsonify(_boa_note_to_compatible_json(note, note_read=True))
+    return tolerant_jsonify(get_boac_note_as_compatible_json(note, note_read=True))
 
 
 @app.route('/api/notes/update', methods=['POST'])
@@ -111,7 +93,7 @@ def create_draft_note():
 def update_note():
     params = request.form
     body = params.get('body', None)
-    contact_type = _validate_contact_type(params)
+    contact_type = validate_note_contact_type(params.get('contactType'))
     is_draft = to_bool_or_none(params.get('isDraft', False))
     is_private = to_bool_or_none(params.get('isPrivate', False))
     note_id = params.get('id', None)
@@ -142,7 +124,7 @@ def update_note():
     if is_publishing_draft_note and len(sids) > 1:
         # Create a batch of notes!
         api_json = Note.create_batch(
-            **_get_author_profile(),
+            **get_note_author_profile_of_current_user(),
             attachments=note.attachments,
             author_id=current_user.to_api_json()['id'],
             body=body,
@@ -170,7 +152,7 @@ def update_note():
             topics=topics,
         )
         note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
-        api_json = _boa_note_to_compatible_json(note=note, note_read=note_read)
+        api_json = get_boac_note_as_compatible_json(note=note, note_read=note_read)
     return tolerant_jsonify(api_json)
 
 
@@ -208,7 +190,7 @@ def apply_template():
             ),
         )
         std_commit()
-    return tolerant_jsonify(_boa_note_to_compatible_json(note=Note.find_by_id(note_id), note_read=True))
+    return tolerant_jsonify(get_boac_note_as_compatible_json(note=Note.find_by_id(note_id), note_read=True))
 
 
 @app.route('/api/notes/delete/<note_id>', methods=['DELETE'])
@@ -263,7 +245,7 @@ def add_attachments(note_id):
             attachment=attachment,
         )
     return tolerant_jsonify(
-        _boa_note_to_compatible_json(
+        get_boac_note_as_compatible_json(
             note=note,
             note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
         ),
@@ -283,7 +265,7 @@ def remove_attachment(note_id, attachment_id):
         attachment_id=int(attachment_id),
     )
     return tolerant_jsonify(
-        _boa_note_to_compatible_json(
+        get_boac_note_as_compatible_json(
             note=note,
             note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
         ),
@@ -382,51 +364,7 @@ def _get_sids_per_curated_groups(curated_group_ids=None):
     return sids
 
 
-def _get_author_profile():
-    author = current_user.to_api_json()
-    calnet_profile = get_calnet_user_for_uid(app, author['uid'])
-    if calnet_profile and calnet_profile.get('departments'):
-        dept_codes = [dept.get('deptCode') for dept in calnet_profile.get('departments')]
-    else:
-        dept_codes = dept_codes_where_advising(current_user.departments)
-    role = None
-    if calnet_profile and calnet_profile.get('title'):
-        role = calnet_profile['title']
-    elif current_user.departments:
-        for department in current_user.departments:
-            if len(department['memberships']):
-                role = department['memberships'][0]['role']
-    return {
-        'author_uid': author['uid'],
-        'author_name': author['name'],
-        'author_role': role,
-        'author_dept_codes': dept_codes,
-    }
-
-
 def _get_legacy_attachment_stream(attachment_id):
     if attachment_id.startswith('eop_advising_note'):
         return get_eop_attachment_stream(attachment_id)
     return get_sis_attachment_stream(attachment_id)
-
-
-def _validate_contact_type(params):
-    contact_type = params.get('contactType') or None
-    if contact_type and contact_type not in note_contact_type_enum.enums:
-        raise BadRequestError('Unrecognized contact type')
-    return contact_type
-
-
-def _boa_note_to_compatible_json(note, note_read):
-    return {
-        **note_to_compatible_json(
-            note=note.__dict__,
-            note_read=note_read,
-            attachments=[a.to_api_json() for a in note.attachments if not a.deleted_at],
-            topics=[t.topic for t in note.topics if not t.deleted_at],
-        ),
-        **{
-            'message': note.body,
-            'type': 'note',
-        },
-    }
