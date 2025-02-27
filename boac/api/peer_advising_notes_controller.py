@@ -26,9 +26,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.decorators import peer_advisor_manager_required, peer_advisor_or_peer_advisor_manager, \
     peer_advisor_or_peer_advisor_manager_in_department, peer_advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
+from boac.api.util import get_boac_note_as_compatible_json, get_note_author_profile_of_current_user, \
+    get_note_topics_from_http_post, validate_note_contact_type
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import process_input_from_rich_text_editor
+from boac.lib.util import get as get_param, process_input_from_rich_text_editor
+from boac.models.note import Note
 from boac.models.note_template import NoteTemplate
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.peer_advising_topic import PeerAdvisingTopic
@@ -123,6 +126,32 @@ def delete_peer_advising_note_template(note_template_id):
         raise ForbiddenRequestError('Template not available')
     NoteTemplate.delete(note_template_id=note_template_id)
     return tolerant_jsonify({'message': f'Note template {note_template_id} deleted'}), 200
+
+
+@app.route('/api/peer_advising/note/create', methods=['POST'])
+@peer_advisor_required
+def create_peer_advising_note():
+    params = request.get_json()
+    body = params.get('body', None)
+    contact_type = validate_note_contact_type(params.get('contactType'))
+    peer_advising_department_id = get_param(params, 'peerAdvisingDepartmentId')
+    sid = get_param(params, 'sid')
+    subject = (params.get('subject', None) or '').strip()
+    topics = get_note_topics_from_http_post()
+    memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(current_user.get_id())
+    matching_membership = next((m for m in memberships if m['peer_advising_department_id'] == peer_advising_department_id), None)
+    if not matching_membership:
+        raise ForbiddenRequestError('Unauthorized')
+    note = Note.create(
+        **get_note_author_profile_of_current_user(),
+        body=body,
+        contact_type=contact_type,
+        subject=subject,
+        topics=topics,
+        peer_advising_department_id=peer_advising_department_id,
+        sid=sid,
+    )
+    return tolerant_jsonify(get_boac_note_as_compatible_json(note, note_read=True))
 
 
 @app.route('/api/peer_advisor/notes/<peer_advising_dept_id>/<user_id>')
