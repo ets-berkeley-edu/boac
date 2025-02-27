@@ -23,8 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.api.decorators import can_edit_degree_progress, can_read_degree_progress
 from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.api.util import can_edit_degree_progress, can_read_degree_progress, normalize_accent_color
+from boac.api.util import normalize_accent_color
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.models.degree_progress_category import DegreeProgressCategory

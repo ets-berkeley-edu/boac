@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.util import advisor_required
+from boac.api.decorators import advisor_required
 from boac.lib.http import tolerant_jsonify
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter

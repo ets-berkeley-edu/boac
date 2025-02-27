@@ -25,8 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from urllib.parse import urlencode, urljoin, urlparse
 
+from boac.api.decorators import admin_required
 from boac.api.errors import ResourceNotFoundError
-from boac.api.util import admin_required, get_current_user_profile
+from boac.api.util import get_current_user_profile
 from boac.lib.http import add_param_to_url, tolerant_jsonify
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser

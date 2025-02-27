@@ -26,10 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import urllib.parse
 
 from boac import std_commit
+from boac.api.decorators import advising_data_access_required, director_advising_data_access_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import (
-    advising_data_access_required,
-    director_advising_data_access_required,
     get_note_attachments_from_http_post,
     get_note_topics_from_http_post,
     get_template_attachment_ids_from_http_post,

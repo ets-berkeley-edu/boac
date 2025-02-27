@@ -23,8 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.api.decorators import advisor_required
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_sections import get_sis_section

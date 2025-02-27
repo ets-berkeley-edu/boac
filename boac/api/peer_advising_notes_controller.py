@@ -23,9 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.api.decorators import peer_advisor_manager_required, peer_advisor_or_peer_advisor_manager, \
+    peer_advisor_or_peer_advisor_manager_in_department, peer_advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import (peer_advisor_manager_required, peer_advisor_or_peer_advisor_manager,
-                           peer_advisor_or_peer_advisor_manager_in_department, peer_advisor_required)
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor

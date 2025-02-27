@@ -23,8 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.api.decorators import admin_or_director_required, admin_required
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import admin_or_director_required, admin_required, authorized_users_api_feed
+from boac.api.util import authorized_users_api_feed
 from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_advising_note_count, \
     get_sis_advising_note_count
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME

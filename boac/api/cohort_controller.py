@@ -25,8 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
+from boac.api.csv_file_download_utils import response_with_students_csv_download
+from boac.api.decorators import advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, is_unauthorized_domain, is_unauthorized_search, response_with_students_csv_download
+from boac.api.util import is_unauthorized_domain, is_unauthorized_search
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
