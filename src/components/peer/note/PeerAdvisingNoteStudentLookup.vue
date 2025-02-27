@@ -1,26 +1,26 @@
 <template>
   <div class="py-1">
     <label
-      for="add-student-input"
+      for="find-student-input"
       class="font-size-16 font-weight-bold"
     >
       <span class="mr-2 text-weight-bold">Student</span>
       <span class="font-weight-regular">(name, SID or email)</span>
     </label>
     <v-combobox
-      id="add-student-input"
-      ref="addStudentInput"
+      id="find-student-autocomplete"
+      ref="findStudentTextInput"
       :key="vAutocompleteKey"
       v-model="comboboxModel"
-      aria-describedby="add-student-desc"
+      aria-describedby="find-student-desc"
       aria-label="Name or S I D lookup. Expect auto suggest."
       autocomplete="off"
       base-color="primary"
       class="autocomplete-students autocomplete-with-add-button mt-2"
       :class="{'demo-mode-blur': currentUser.inDemoMode}"
+      clearable
       color="primary"
-      density="compact"
-      :disabled="isAddingStudent"
+      density="comfortable"
       :error-messages="autocompleteErrorMessage"
       :hide-details="!size(autocompleteErrorMessage)"
       :hide-no-data="size(autoSuggestedStudents) < 3"
@@ -29,6 +29,7 @@
       :items="autoSuggestedStudents"
       :menu-icon="undefined"
       :menu-props="{'contentClass': currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
+      persistent-clear
       type="search"
       validate-on="submit"
       variant="outlined"
@@ -38,21 +39,12 @@
       @update:model-value="onUpdateModel"
     >
       <template #append>
-        <v-progress-circular
-          v-if="isAddingStudent"
-          :model-value="counter"
-          :indeterminate="true"
-          :size="36"
-          :width="7"
-          :color="['primary', 'warning', 'success'][Math.round(counter / 10) % 3]"
-        />
         <v-btn
-          v-if="!isAddingStudent"
-          id="add-student-add-button"
+          id="find-student-add-button"
           aria-label="Add Student to Note"
           class="add-button add-button-height"
           color="primary"
-          :disabled="!size(query) && !size(sidsManuallyAdded)"
+          :disabled="!size(query) || isUpdatingAutocomplete || !!size(autoSuggestedStudents)"
           :prepend-icon="mdiPlus"
           text="Add"
           variant="flat"
@@ -64,53 +56,32 @@
 </template>
 
 <script setup lang="ts">
-import {
-  filter, find, get,
-  includes,
-  map, noop,
-  size,
-  split,
-  trim,
-  uniq,
-} from 'lodash'
-import type {PropType} from 'vue'
+import {find, get, map, noop, size, trim} from 'lodash'
 import {mdiPlus} from '@mdi/js'
-import {nextTick, onMounted, onUnmounted, onUpdated, ref} from 'vue'
-import type {BoaUser, StudentSearchResult} from '@/lib/types'
-import {createPeerAdvisor} from '@/api/peer-advising.js'
+import {nextTick, onMounted, onUnmounted, onUpdated, ref, watch} from 'vue'
+import type {StudentSearchResult} from '@/lib/types'
+import {clearNoteRecipients, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
 import {findStudentsByNameOrSid} from '@/api/student'
 import {putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
-const props = defineProps({
-  excludeTheseStudents: {
-    required: true,
-    type: Array as PropType<BoaUser[]>
-  },
-  peerAdvisingDepartmentId: {
-    required: true,
-    type: Number
-  },
-  refresh: {
-    required: true,
-    type: Function
-  }
-})
-
-const addStudentInput = ref()
+const findStudentTextInput = ref()
 const autocompleteErrorMessage = ref(undefined)
 const autoSuggestedStudents = ref<StudentSearchResult[]>([])
 const comboboxModel = ref()
 const contextStore = useContextStore()
 const counter = ref(0)
 const currentUser = contextStore.currentUser
-const error = ref<string | undefined>()
 const intervalId = ref<ReturnType<typeof setTimeout>>()
-const isAddingStudent = ref(false)
-const isUpdatingStudentAutocomplete = ref(false)
+const isUpdatingAutocomplete = ref(false)
 const query = ref(undefined)
-const sidsManuallyAdded = ref<string[]>([])
 const vAutocompleteKey = ref<PropertyKey>(new Date().toString())
+
+watch(query, value => {
+  if (!trim(value)) {
+    resetAutocomplete()
+  }
+})
 
 onMounted(() => {
   return intervalId.value = setInterval(() => {
@@ -122,9 +93,9 @@ onUnmounted(() => clearInterval(intervalId.value))
 
 const resetAutocomplete = () => {
   autoSuggestedStudents.value = []
-  isUpdatingStudentAutocomplete.value = false
+  isUpdatingAutocomplete.value = false
   query.value = undefined
-  sidsManuallyAdded.value = []
+  clearNoteRecipients()
   vAutocompleteKey.value = new Date().toString()
 }
 
@@ -132,22 +103,12 @@ const onUpdateModel = (model: StudentSearchResult) => {
   const sid = get(model, 'sid')
   const student: StudentSearchResult | undefined = sid ? find(autoSuggestedStudents.value, ['sid', sid]) : undefined
   if (student) {
-    isAddingStudent.value = true
-    const done = () => {
-      comboboxModel.value = undefined
-      isAddingStudent.value = false
-    }
-    createPeerAdvisor(props.peerAdvisingDepartmentId, student.uid).then(() => {
-      props.refresh().then(done)
-    }).catch(response => {
-      error.value = response
-      done()
-    })
+    setNoteRecipient(student.sid)
   }
 }
 
 onUpdated(() => {
-  nextTick(() => setComboboxAccessibleLabel(addStudentInput.value.$el, 'Student'))
+  nextTick(() => setComboboxAccessibleLabel(findStudentTextInput.value.$el, 'Student'))
 })
 
 const onClickAddButton = noop
@@ -158,18 +119,13 @@ const onUpdateSearch = input => {
   autoSuggestedStudents.value = []
   input = trim(input, ' ,\n\t')
   if (input.length) {
-    sidsManuallyAdded.value = /^[0-9,\s]*$/.test(input) ? uniq(split(input, /[ ,]+/)) : []
-    if (sidsManuallyAdded.value.length <= 1) {
-      const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
-      isUpdatingStudentAutocomplete.value = true
-      if (size(search) > 1) {
-        findStudentsByNameOrSid(search, 20, new AbortController()).then((students: StudentSearchResult[]) => {
-          const existingPeerAdvisorSids = map(props.excludeTheseStudents, 'sid')
-          students = filter(students, s => !includes(existingPeerAdvisorSids, s.sid))
-          autoSuggestedStudents.value = map(students, s => ({label: s.label, sid: s.sid, uid: s.uid}))
-          isUpdatingStudentAutocomplete.value = false
-        }).catch(() => putFocusNextTick('add-student-input'))
-      }
+    const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
+    isUpdatingAutocomplete.value = true
+    if (size(search) > 1) {
+      findStudentsByNameOrSid(search, 20, new AbortController()).then((students: StudentSearchResult[]) => {
+        autoSuggestedStudents.value = map(students, s => ({label: s.label, sid: s.sid, uid: s.uid}))
+        isUpdatingAutocomplete.value = false
+      }).catch(() => putFocusNextTick('find-student-input'))
     }
   }
 }
@@ -177,11 +133,10 @@ const onUpdateSearch = input => {
 
 <style scoped>
 .add-button-height {
-  height: 40px;
+  height: 48px;
 }
 .autocomplete-students {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
 </style>
-

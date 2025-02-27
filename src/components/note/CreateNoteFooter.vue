@@ -22,7 +22,7 @@
           @click="exit"
         />
         <ProgressButton
-          v-if="!['editTemplate'].includes(mode)"
+          v-if="!['editTemplate', 'peerAdvisor'].includes(mode)"
           id="btn-save-as-template"
           :action="saveTemplate"
           :disabled="isSaving || !trim(model.subject) || !!model.setDate || !!model.contactType"
@@ -54,9 +54,9 @@
           v-if="!['editTemplate'].includes(mode)"
           id="create-note-button"
           :action="publish"
-          :disabled="isSaving || isEmpty(completeSidSet) || !trim(model.subject)"
+          :disabled="isPublishButtonDisabled"
           :in-progress="isPublishing"
-          text="Publish Note"
+          :text="publishButtonLabel"
         />
         <v-btn
           v-if="mode !== 'editDraft'"
@@ -65,7 +65,7 @@
           class="ml-2"
           color="error"
           :disabled="isSaving || isUpdatingDraft"
-          text="Discard"
+          :text="discardButtonLabel"
           variant="outlined"
           @click="discard"
         />
@@ -75,8 +75,8 @@
 </template>
 
 <script setup>
+import {computed, ref} from 'vue'
 import {isEmpty, size, startsWith, trim} from 'lodash'
-import {ref} from 'vue'
 import {storeToRefs} from 'pinia'
 import ProgressButton from '@/components/util/ProgressButton'
 import SessionExpired from '@/components/note/SessionExpired'
@@ -89,20 +89,33 @@ const props = defineProps({
     required: true,
     type: Function
   },
+  discardButtonLabel: {
+    default: 'Discard',
+    required: false,
+    type: String
+  },
   exit: {
     required: true,
     type: Function
   },
+  publishButtonLabel: {
+    default: 'Publish Note',
+    required: false,
+    type: String
+  },
   saveAsTemplate: {
-    required: true,
+    default: () => {},
+    required: false,
     type: Function
   },
   showAlert: {
-    required: true,
+    default: () => {},
+    required: false,
     type: Function
   },
   updateTemplate: {
-    required: true,
+    default: () => {},
+    required: false,
     type: Function
   }
 })
@@ -110,6 +123,10 @@ const props = defineProps({
 const noteStore = useNoteStore()
 const {boaSessionExpired, completeSidSet, isSaving, mode, model} = storeToRefs(noteStore)
 const isPublishing = ref(false)
+const isPublishButtonDisabled = computed(() => {
+  // When Peer Advisors create notes, 'subject' is not required.
+  return isSaving.value || isEmpty(completeSidSet.value) || (mode.value !== 'peerAdvisor' && !trim(model.value.subject))
+})
 const isSavingTemplate = ref(false)
 const isUpdatingDraft = ref(false)
 
