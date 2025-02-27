@@ -33,7 +33,6 @@
       type="search"
       validate-on="submit"
       variant="outlined"
-      @click:append="onClickAddButton"
       @click:clear="resetAutocomplete"
       @update:search="onUpdateSearch"
       @update:model-value="onUpdateModel"
