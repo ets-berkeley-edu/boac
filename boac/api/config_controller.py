@@ -27,8 +27,8 @@ import json
 import os
 
 from boac import __version__ as version
+from boac.api.decorators import admin_required
 from boac.api.errors import BadRequestError
-from boac.api.util import admin_required
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none

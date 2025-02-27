@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import urllib.parse
 
-from boac.api.util import advising_data_access_required
+from boac.api.decorators import advising_data_access_required
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream
 from boac.models.appointment_read import AppointmentRead

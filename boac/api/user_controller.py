@@ -26,13 +26,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import re
 
 from boac.api import errors
-from boac.api.util import (
-    admin_required,
-    advisor_or_peer_advisor_required,
-    advisor_required,
-    authorized_users_api_feed,
-    get_current_user_profile, is_peer_advisor, is_peer_advisor_manager,
-)
+from boac.api.decorators import admin_required, advisor_or_peer_advisor_required, advisor_required
+from boac.api.util import authorized_users_api_feed, get_current_user_profile, is_peer_advisor, is_peer_advisor_manager
 from boac.lib import util
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import capitalize_all_words, has_any_membership_role, split_per_camel_case, to_bool_or_none

@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api import cache_utils
-from boac.api.util import admin_required
+from boac.api.decorators import admin_required
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_terms import current_term_id
 from boac.models.job_progress import JobProgress

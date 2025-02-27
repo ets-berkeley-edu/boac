@@ -23,8 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.api.decorators import ce3_required
 from boac.api.errors import ResourceNotFoundError
-from boac.api.util import ce3_required
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.merged.admitted_student import get_admitted_student_by_sid, query_admitted_students

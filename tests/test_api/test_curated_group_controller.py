@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import std_commit
-from boac.api.util import get_students_csv_header_labels
+from boac.api.csv_file_download_utils import get_students_csv_header_labels
 from boac.merged.sis_terms import current_term_id
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup

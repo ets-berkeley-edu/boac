@@ -27,8 +27,9 @@ from datetime import timedelta
 from itertools import islice
 
 from boac import db
+from boac.api.decorators import advising_data_access_required, advisor_required, ce3_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError
-from boac.api.util import add_alert_counts, advising_data_access_required, advisor_required, ce3_required, is_unauthorized_search
+from boac.api.util import add_alert_counts, is_unauthorized_search
 from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code, \
     match_advising_note_authors_by_name, match_appointment_advisors_by_name
 from boac.lib import util

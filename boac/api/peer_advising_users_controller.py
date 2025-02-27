@@ -23,8 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.api.decorators import peer_advisor_manager_required
 from boac.api.errors import ResourceNotFoundError
-from boac.api.util import authorized_users_api_feed, peer_advisor_manager_required
+from boac.api.util import authorized_users_api_feed
 from boac.lib.http import tolerant_jsonify
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.peer_advising_department import PeerAdvisingDepartment
