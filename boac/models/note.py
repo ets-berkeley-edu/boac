@@ -164,7 +164,8 @@ class Note(Base):
     @classmethod
     def get_notes_by_peer_advising_department(cls, peer_advising_department_id, limit=50, offset=0):
         criteria = and_(cls.peer_advising_department_id == peer_advising_department_id, cls.deleted_at == None)  # noqa: E711
-        return cls.query.filter(criteria).order_by(desc(cls.updated_at)).offset(offset).limit(limit).all()
+        query = cls.query.filter(criteria).order_by(desc(cls.updated_at))
+        return query.offset(offset).limit(limit).all(), _get_total_count_peer_advising_notes(peer_advising_department_id)
 
     @classmethod
     def create(
@@ -717,6 +718,15 @@ def _add_attachments(author_uid, note_ids, s3_path, now=None):
             } for note_id in note_ids_subset
         ]
         db.session.execute(query, {'json_dumps': json.dumps(data)})
+
+
+def _get_total_count_peer_advising_notes(peer_advising_department_id):
+    query = text("""
+        SELECT count(*) FROM notes
+        WHERE deleted_at IS NULL AND is_draft IS FALSE AND peer_advising_department_id = :peer_advising_department_id
+    """)
+    results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
+    return results.first()['count']
 
 
 def _validate_sid(is_draft, note_id, sid):

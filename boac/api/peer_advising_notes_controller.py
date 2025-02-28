@@ -162,7 +162,7 @@ def get_notes_for_peer_advisor():
     offset = int(request.args.get('offset', 0))
     limit = int(request.args.get('limit', 50))
     memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(current_user.get_id())
-    notes = Note.get_notes_by_peer_advising_department(
+    notes, total_note_count = Note.get_notes_by_peer_advising_department(
         limit=limit,
         offset=offset,
         peer_advising_department_id=memberships[0]['peer_advising_department_id'],
@@ -171,9 +171,12 @@ def get_notes_for_peer_advisor():
         note_ids=[str(note.id) for note in notes],
         viewer_id=current_user.get_id(),
     )
-    api_json = []
+    api_json = {
+        'notes': [],
+        'totalNoteCount': total_note_count,
+    }
     for note in notes:
-        api_json.append(get_boac_note_as_compatible_json(
+        api_json['notes'].append(get_boac_note_as_compatible_json(
             note=note,
             note_read=note.id in notes_read_by_user),
         )
