@@ -34,7 +34,7 @@ from boac.models.note_attachment import NoteAttachment
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.note_topic import NoteTopic
 from dateutil.tz import tzutc
-from sqlalchemy import and_
+from sqlalchemy import and_, desc
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
 
@@ -160,6 +160,11 @@ class Note(Base):
                 'updatedAt': _isoformat('updated_at'),
             })
         return draft_notes
+
+    @classmethod
+    def get_notes_by_peer_advising_department(cls, peer_advising_department_id, limit=50, offset=0):
+        criteria = and_(cls.peer_advising_department_id == peer_advising_department_id, cls.deleted_at == None)  # noqa: E711
+        return cls.query.filter(criteria).order_by(desc(cls.updated_at)).offset(offset).limit(limit).all()
 
     @classmethod
     def create(
