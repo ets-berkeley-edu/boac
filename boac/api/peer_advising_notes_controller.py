@@ -32,6 +32,7 @@ from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, process_input_from_rich_text_editor
 from boac.models.note import Note
+from boac.models.note_read import NoteRead
 from boac.models.note_template import NoteTemplate
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.peer_advising_topic import PeerAdvisingTopic
@@ -151,12 +152,29 @@ def create_peer_advising_note():
         peer_advising_department_id=peer_advising_department_id,
         sid=sid,
     )
+    NoteRead.find_or_create(note_id=note.id, viewer_id=current_user.get_id())
     return tolerant_jsonify(get_boac_note_as_compatible_json(note, note_read=True))
 
 
-@app.route('/api/peer_advisor/notes/<peer_advising_dept_id>/<user_id>')
+@app.route('/api/peer_advisor/notes')
 @peer_advisor_required
-def get_notes_for_peer_advisor(peer_advising_dept_id, user_id):
-    return tolerant_jsonify([
-        {'id': 1, 'name': 'Hello World'},
-    ])
+def get_notes_for_peer_advisor():
+    offset = int(request.args.get('offset', 0))
+    limit = int(request.args.get('limit', 50))
+    memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(current_user.get_id())
+    notes = Note.get_notes_by_peer_advising_department(
+        limit=limit,
+        offset=offset,
+        peer_advising_department_id=memberships[0]['peer_advising_department_id'],
+    )
+    notes_read_by_user = NoteRead.get_notes_read_by_user(
+        note_ids=[str(note.id) for note in notes],
+        viewer_id=current_user.get_id(),
+    )
+    api_json = []
+    for note in notes:
+        api_json.append(get_boac_note_as_compatible_json(
+            note=note,
+            note_read=note.id in notes_read_by_user),
+        )
+    return tolerant_jsonify(api_json)
