@@ -57,13 +57,13 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
         clearTimeout(this.autoSaveJob)
         this.autoSaveJob = null
       }
-      this.recipients = $_getDefaultRecipients()
       this.completeSidSet = new Set()
+      this.isCreateNoteModalOpen = false
       this.isSaving = false
       this.mode = undefined
       this.model = getDefaultModel()
       this.originalModel = cloneDeep(this.model)
-      this.recipients.sids = []
+      this.recipients = $_getDefaultRecipients()
     },
     onBoaSessionExpires() {
       this.boaSessionExpired = true

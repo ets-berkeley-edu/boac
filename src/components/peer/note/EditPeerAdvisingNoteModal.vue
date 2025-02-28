@@ -39,7 +39,7 @@
         <CreateNoteFooter
           :discard="discardRequested"
           discard-button-label="Cancel"
-          :exit="exit"
+          :exit="discardRequested"
           publish-button-label="Save"
         />
       </v-card-actions>
@@ -60,16 +60,11 @@ import EditPeerAdvisingNoteHeader from '@/components/peer/note/EditPeerAdvisingN
 import PeerAdvisingNoteStudentLookup from '@/components/peer/note/PeerAdvisingNoteStudentLookup.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import {alertScreenReader, stripHtmlAndTrim} from '@/lib/utils'
-import {exitSession, getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
+import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
-  onClose: {
-    default: () => {},
-    required: false,
-    type: Function
-  },
   peerAdvisingDepartmentId: {
     required: true,
     type: Number
@@ -85,7 +80,7 @@ const {isSaving, model} = storeToRefs(noteStore)
 
 const createNoteDialog = computed({
   get: () => noteStore.isCreateNoteModalOpen,
-  set: (value: boolean) => noteStore.setIsEditedNoteModalOpen(value)
+  set: noteStore.setIsCreateNoteModalOpen
 })
 
 onMounted(() => {
@@ -99,13 +94,6 @@ onMounted(() => {
   })
 })
 
-const exit = async () => {
-  return exitSession(false).then(() => {
-    noteStore.setMode(null)
-    props.onClose()
-  })
-}
-
 const discardRequested = () => {
   const unsavedChanges = !!trim(model.value.subject)
     || !!stripHtmlAndTrim(model.value.body)
@@ -117,7 +105,7 @@ const discardRequested = () => {
   } else {
     // Discard
     alertScreenReader('Canceled edit note')
-    exit()
+    noteStore.exitSession()
   }
 }
 </script>

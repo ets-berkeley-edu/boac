@@ -2,8 +2,9 @@ import axios from 'axios'
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
 
-export async function getPeerAdvisorNotes() {
-  return axios.get(`${utils.apiBaseUrl()}/api/peer_advisor/notes`).then(response => response.data)
+export async function getPeerAdvisorNotes(offset: number, limit: number) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advisor/notes?offset=${offset}&limit=${limit}`
+  return axios.get(url).then(response => response.data)
 }
 
 export async function getPeerAdvisingTopics() {
@@ -29,7 +30,7 @@ export function createPeerAdvisingNote(
   }
   return axios.post(`${utils.apiBaseUrl()}/api/peer_advising/note/create`, data).then(response => {
     const data = response.data
-    useContextStore().broadcast('note-created', data)
+    useContextStore().broadcast('peer-advising-note-created', data)
     return data
   })
 }

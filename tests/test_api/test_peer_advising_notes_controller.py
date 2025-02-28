@@ -47,39 +47,11 @@ class TestCreatePeerAdvisingNote:
         memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(user_id)
         cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
 
-    @classmethod
-    def _api_create_peer_advising_note(
-            cls,
-            client,
-            body,
-            peer_advising_department_id,
-            sid,
-            subject='',
-            contact_type=None,
-            expected_status_code=200,
-            topics=(),
-    ):
-        data = {
-            'body': body,
-            'contactType': contact_type,
-            'peerAdvisingDepartmentId': peer_advising_department_id,
-            'sid': sid,
-            'subject': subject,
-            'topics': ','.join(topics),
-        }
-        response = client.post(
-            '/api/peer_advising/note/create',
-            content_type='application/json',
-            data=json.dumps(data),
-        )
-        assert response.status_code == expected_status_code
-        return response.json
-
     def test_not_authorized(self, app, client, fake_auth):
         """Returns 401 if not authorized."""
         for uid in (None, admin_uid, ce3_navcal_peer_advisor_manager_uid, qcadv_advisor_uid):
             fake_auth.login(uid)
-            assert self._api_create_peer_advising_note(
+            assert _api_create_peer_advising_note(
                 body='Yes, you are not authorized.',
                 client=client,
                 expected_status_code=401,
@@ -95,7 +67,7 @@ class TestCreatePeerAdvisingNote:
         coe_mech_peer_advising_department_id = memberships[0]['peer_advising_department_id']
         # Log in as CE3 peer_advisor
         fake_auth.login(ce3_navcal_peer_advisor_uid)
-        self._api_create_peer_advising_note(
+        _api_create_peer_advising_note(
             body='Yes, you are not authorized.',
             client=client,
             expected_status_code=403,
@@ -106,8 +78,8 @@ class TestCreatePeerAdvisingNote:
     def test_authorized(self, app, client, fake_auth):
         """Create a note."""
         fake_auth.login(ce3_navcal_peer_advisor_uid)
-        note = self._api_create_peer_advising_note(
-            body='Yes, you are not authorized.',
+        note = _api_create_peer_advising_note(
+            body='CE3 NAVCAL note created by Peer Advisor',
             client=client,
             peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
             sid=coe_student_sid,
@@ -116,6 +88,50 @@ class TestCreatePeerAdvisingNote:
         assert note['author']['uid'] == ce3_navcal_peer_advisor_uid
         assert note['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
         assert note['read'] is True
+
+
+class TestGetPeerAdvisingNotes:
+
+    @classmethod
+    def setup_class(cls):
+        # Get Peer Advising department ID
+        cls.ce3_navcal_peer_advisor_user = AuthorizedUser.find_by_uid(ce3_navcal_peer_advisor_uid)
+        user_id = cls.ce3_navcal_peer_advisor_user.id
+        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(user_id)
+        cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
+
+    @classmethod
+    def _api_get_notes_for_peer_advisor(cls, client, expected_status_code=200):
+        response = client.get('/api/peer_advisor/notes')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_unauthorized(self, client, fake_auth):
+        """Returns 401 unless user is a Peer Advisor."""
+        for uid in [None, admin_uid, qcadv_advisor_uid]:
+            if uid:
+                fake_auth.login(qcadv_advisor_uid)
+            self._api_get_notes_for_peer_advisor(client, expected_status_code=401)
+
+    def test_authorized(self, client, fake_auth):
+        """Delivers notes per peer_advising_department of Peer Advisor."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        # Create a note...
+        note = _api_create_peer_advising_note(
+            body='CE3 NAVCAL note created by Peer Advisor',
+            client=client,
+            peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
+            sid=coe_student_sid,
+        )
+        assert note['id']
+        assert note['author']['uid'] == ce3_navcal_peer_advisor_uid
+        assert note['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
+        # ...and now we fetch that note.
+        api_json = self._api_get_notes_for_peer_advisor(client)
+        notes = api_json['notes']
+        assert len(notes) > 0
+        assert len(notes) == api_json['totalNoteCount']
+        assert notes[0]['id'] == note['id']
 
 
 class TestGetPeerAdvisingTopics:
@@ -141,3 +157,30 @@ class TestGetPeerAdvisingTopics:
         api_json = self._api_get_peer_advising_topics(client)
         assert len(api_json)
         assert 'Probation' in [topic['topic'] for topic in api_json]
+
+
+def _api_create_peer_advising_note(
+        client,
+        body,
+        peer_advising_department_id,
+        sid,
+        subject='',
+        contact_type=None,
+        expected_status_code=200,
+        topics=(),
+):
+    data = {
+        'body': body,
+        'contactType': contact_type,
+        'peerAdvisingDepartmentId': peer_advising_department_id,
+        'sid': sid,
+        'subject': subject,
+        'topics': ','.join(topics),
+    }
+    response = client.post(
+        '/api/peer_advising/note/create',
+        content_type='application/json',
+        data=json.dumps(data),
+    )
+    assert response.status_code == expected_status_code
+    return response.json

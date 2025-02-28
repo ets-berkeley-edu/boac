@@ -21,31 +21,43 @@
         />
       </div>
     </div>
-    <div>
-      <div v-for="note in notes" :key="note.id">
-        {{ note }}
-      </div>
+    <div v-if="!isPaging">
+      <PeerAdvisorPaginatedNotes
+        :current-page="currentPage"
+        :go-to-page="goToPage"
+        :items-per-page="itemsPerPage"
+        :notes="notes"
+        :total-note-count="totalNoteCount"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import type {Handler} from 'mitt'
 import {mdiFileDocument} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
-import type {Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
-import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
+import PeerAdvisorPaginatedNotes from '@/components/peer/note/PeerAdvisorPaginatedNotes.vue'
+import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import {putFocusNextTick} from '@/lib/utils'
+import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
+import type {Note} from '@/lib/types'
 
 const contextStore = useContextStore()
+const currentPage = ref(1)
 const currentUser = contextStore.currentUser
+const isPaging = ref(false)
+const itemsPerPage = ref(50)
 const noteStore = useNoteStore()
 const notes = ref<Note[]>([])
+const offset = ref(0)
 const peerAdvisingDepartmentId = ref<number | undefined>()
 const router = useRouter()
+const totalNoteCount = ref(0)
 
 contextStore.loadingStart()
 
@@ -53,22 +65,39 @@ onMounted(() => {
   const membership = getPeerAdvisorDepartmentMembership(currentUser, 'peer_advisor')
   if (currentUser.id && membership.peerAdvisingDepartmentId) {
     peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
-    getPeerAdvisorNotes(
-      peerAdvisingDepartmentId.value,
-      currentUser.id
-    ).then(data => {
-      notes.value = data
+    goToPage(1).then(() => {
+      contextStore.loadingComplete('Notes have loaded')
+      contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
     })
   } else {
     router.push({path: '/404'})
   }
-  contextStore.loadingComplete()
 })
+
+const goToPage = (page: number) => {
+  return new Promise<void>(resolve => {
+    isPaging.value = true
+    currentPage.value = page
+    offset.value = (page - 1) * itemsPerPage.value
+    getPeerAdvisorNotes(offset.value, itemsPerPage.value).then(data => {
+      notes.value = data.notes
+      totalNoteCount.value = data.totalNoteCount
+      isPaging.value = false
+      putFocusNextTick(page > 1 ? `pagination-page-${page}` : 'page-header')
+      resolve()
+    })
+  })
+}
 
 const onClickCreateNote = () => {
   noteStore.exitSession()
   noteStore.setMode('createPeerAdvisorNote')
   noteStore.setIsCreateNoteModalOpen(true)
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
+  notes.value.unshift(note)
 }
 </script>
 
