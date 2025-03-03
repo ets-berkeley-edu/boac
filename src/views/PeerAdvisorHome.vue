@@ -16,8 +16,8 @@
           @click="onClickCreateNote"
         />
         <EditPeerAdvisingNoteModal
-          v-if="noteStore.isCreateNoteModalOpen && peerAdvisingDepartmentId"
-          :peer-advising-department-id="peerAdvisingDepartmentId"
+          v-if="noteStore.isCreateNoteModalOpen"
+          v-model="createNoteModal"
         />
       </div>
     </div>
@@ -46,8 +46,10 @@ import {useNoteStore} from '@/stores/note-edit-session'
 import {putFocusNextTick} from '@/lib/utils'
 import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
 import type {Note} from '@/lib/types'
+import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
 
 const contextStore = useContextStore()
+const createNoteModal = ref(false)
 const currentPage = ref(1)
 const currentUser = contextStore.currentUser
 const isPaging = ref(false)
@@ -79,7 +81,11 @@ const goToPage = (page: number) => {
     isPaging.value = true
     currentPage.value = page
     offset.value = (page - 1) * itemsPerPage.value
-    getPeerAdvisorNotes(offset.value, itemsPerPage.value).then(data => {
+    getPeerAdvisorNotes(
+      offset.value,
+      itemsPerPage.value,
+      true
+    ).then(data => {
       notes.value = data.notes
       totalNoteCount.value = data.totalNoteCount
       isPaging.value = false
@@ -91,7 +97,13 @@ const goToPage = (page: number) => {
 
 const onClickCreateNote = () => {
   noteStore.exitSession()
+  const note = getDefaultModel()
+  // Peer Advisors do not provide note.subject thus subject is set to empty string to satisfy not-null db constraints.
+  note.subject = ''
+  note.peerAdvisingDepartmentId = peerAdvisingDepartmentId.value
+  noteStore.setModel(note)
   noteStore.setMode('createPeerAdvisorNote')
+  createNoteModal.value = true
   noteStore.setIsCreateNoteModalOpen(true)
 }
 

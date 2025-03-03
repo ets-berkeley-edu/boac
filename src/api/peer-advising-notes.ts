@@ -2,8 +2,9 @@ import axios from 'axios'
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
 
-export async function getPeerAdvisorNotes(offset: number, limit: number) {
-  const url: string = `${utils.apiBaseUrl()}/api/peer_advisor/notes?offset=${offset}&limit=${limit}`
+export async function getPeerAdvisorNotes(offset: number, limit: number, includeStudents?: boolean) {
+  const params = `offset=${offset}&limit=${limit}&includeStudents=${includeStudents}`
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advisor/notes?${params}`
   return axios.get(url).then(response => response.data)
 }
 

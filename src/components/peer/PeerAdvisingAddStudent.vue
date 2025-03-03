@@ -76,7 +76,7 @@ import {
 import type {PropType} from 'vue'
 import {mdiPlus} from '@mdi/js'
 import {nextTick, onMounted, onUnmounted, onUpdated, ref} from 'vue'
-import type {BoaUser, StudentSearchResult} from '@/lib/types'
+import type {BasicStudent, BoaUser} from '@/lib/types'
 import {createPeerAdvisor} from '@/api/peer-advising.js'
 import {findStudentsByNameOrSid} from '@/api/student'
 import {putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
@@ -99,7 +99,7 @@ const props = defineProps({
 
 const addStudentInput = ref()
 const autocompleteErrorMessage = ref(undefined)
-const autoSuggestedStudents = ref<StudentSearchResult[]>([])
+const autoSuggestedStudents = ref<BasicStudent[]>([])
 const comboboxModel = ref()
 const contextStore = useContextStore()
 const counter = ref(0)
@@ -128,9 +128,9 @@ const resetAutocomplete = () => {
   vAutocompleteKey.value = new Date().toString()
 }
 
-const onUpdateModel = (model: StudentSearchResult) => {
+const onUpdateModel = (model: BasicStudent) => {
   const sid = get(model, 'sid')
-  const student: StudentSearchResult | undefined = sid ? find(autoSuggestedStudents.value, ['sid', sid]) : undefined
+  const student: BasicStudent | undefined = sid ? find(autoSuggestedStudents.value, ['sid', sid]) : undefined
   if (student) {
     isAddingStudent.value = true
     const done = () => {
@@ -163,7 +163,7 @@ const onUpdateSearch = input => {
       const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
       isUpdatingStudentAutocomplete.value = true
       if (size(search) > 1) {
-        findStudentsByNameOrSid(search, 20, new AbortController()).then((students: StudentSearchResult[]) => {
+        findStudentsByNameOrSid(search, 20, new AbortController()).then((students: BasicStudent[]) => {
           const existingPeerAdvisorSids = map(props.excludeTheseStudents, 'sid')
           students = filter(students, s => !includes(existingPeerAdvisorSids, s.sid))
           autoSuggestedStudents.value = map(students, s => ({label: s.label, sid: s.sid, uid: s.uid}))

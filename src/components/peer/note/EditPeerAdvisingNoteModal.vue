@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    v-model="createNoteDialog"
+    v-model="dialog"
     persistent
     scrollable
   >
@@ -10,10 +10,12 @@
       max-width="50%"
     >
       <v-card-title id="edit-note-header">
-        <EditPeerAdvisingNoteHeader />
+        <EditPeerAdvisingNoteHeader :header-text="student ? `${student.firstName} ${student.lastName}'s Note` : 'New Note'" />
       </v-card-title>
       <v-card-text class="pt-0">
-        <PeerAdvisingNoteStudentLookup />
+        <div v-if="!student">
+          <PeerAdvisingNoteStudentLookup />
+        </div>
         <RichTextEditor
           id="peer-advising-note-details"
           class="mt-3"
@@ -48,11 +50,12 @@
 </template>
 
 <script setup lang="ts">
+import type {PropType} from 'vue'
 import {computed, onMounted, ref} from 'vue'
-import {size, trim} from 'lodash'
+import {size} from 'lodash'
 import {storeToRefs} from 'pinia'
 import {useDisplay} from 'vuetify'
-import type {NoteRecipients, NoteTopic} from '@/lib/types'
+import type {BasicStudent, NoteRecipients, NoteTopic} from '@/lib/types'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
 import ContactMethod from '@/components/note/ContactMethod.vue'
 import CreateNoteFooter from '@/components/note/CreateNoteFooter.vue'
@@ -60,51 +63,43 @@ import EditPeerAdvisingNoteHeader from '@/components/peer/note/EditPeerAdvisingN
 import PeerAdvisingNoteStudentLookup from '@/components/peer/note/PeerAdvisingNoteStudentLookup.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import {alertScreenReader, stripHtmlAndTrim} from '@/lib/utils'
-import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {useNoteStore} from '@/stores/note-edit-session'
 
-const props = defineProps({
-  peerAdvisingDepartmentId: {
-    required: true,
-    type: Number
+const dialog = defineModel<boolean>({
+  required: true,
+  type: Boolean
+})
+
+defineProps({
+  student: {
+    default: undefined,
+    required: false,
+    type: Object as PropType<BasicStudent>
   }
 })
 
 const display = useDisplay()
 const noteStore = useNoteStore()
-const showDiscardNoteModal = ref(false)
 const recipients = computed<NoteRecipients>(() => noteStore.recipients)
 const topics = ref<NoteTopic[]>([])
 const {isSaving, model} = storeToRefs(noteStore)
 
-const createNoteDialog = computed({
-  get: () => noteStore.isCreateNoteModalOpen,
-  set: noteStore.setIsCreateNoteModalOpen
-})
-
 onMounted(() => {
   getPeerAdvisingTopics().then(data => {
     topics.value = data
-    const note = getDefaultModel()
-    // Peer Advisors do not provide note.subject thus subject is set to empty string to satisfy not-null db constraints.
-    note.subject = ''
-    note.peerAdvisingDepartmentId = props.peerAdvisingDepartmentId
-    noteStore.setModel(note)
   })
 })
 
 const discardRequested = () => {
-  const unsavedChanges = !!trim(model.value.subject)
-    || !!stripHtmlAndTrim(model.value.body)
-    || size(model.value.topics)
-    || size(model.value.attachments)
-    || size(recipients.value.sids)
+  const body = stripHtmlAndTrim(model.value.body)
+  const unsavedChanges = !model.value.id && !!(body || size(model.value.topics) || size(recipients.value.sids))
   if (unsavedChanges) {
-    showDiscardNoteModal.value = true
+    dialog.value = true
   } else {
     // Discard
     alertScreenReader('Canceled edit note')
+    dialog.value = false
     noteStore.exitSession()
   }
 }

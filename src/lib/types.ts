@@ -5,6 +5,13 @@ export type Attachment = {
   size: number
 }
 
+export interface BasicStudent extends HasName {
+  sid: string,
+  uid: string
+}
+
+export interface BasicStudentLabeled extends BasicStudent {label: string}
+
 export type BoaConfig = {
   academicStandingDescriptions: object,
   apiBaseUrl: string,
@@ -163,8 +170,45 @@ export interface HasDeptCode {
   deptName: string
 }
 
+export interface HasName {
+  firstName: string,
+  lastName: string
+}
+
 export type Note = {
-  id: number
+  id: number,
+  attachments: NoteAttachment,
+  author: NoteAuthor,
+  body: string,
+  contactType: string,
+  createdAt: string,
+  deletedAt: string,
+  isDraft: string,
+  isPrivate: string,
+  peerAdvisingDepartmentId: string,
+  setDate: string,
+  sid: string,
+  student?: BasicStudent | undefined,
+  subject: string,
+  topics: string[],
+  updatedAt: string
+}
+
+export type NoteAttachment = {
+  id: number,
+  displayName: string,
+  filename: string,
+  uploadedBy: string,
+}
+
+export type NoteAuthor = {
+  id: number,
+  departments: HasDeptCode[],
+  email: string,
+  name: string,
+  role: string,
+  sid: string,
+  uid: string
 }
 
 export type NoteEditSessionModel = {
@@ -231,13 +275,11 @@ export type ServiceAnnouncement = {
   text: string
 }
 
-export type Student = {
-  uid: string,
-  sid: string
-}
-
-export type StudentSearchResult = {
-  label: string,
+export interface Student extends HasName {
   sid: string,
-  uid: string
+  uid: string,
+  academicCareerStatus: string,
+  academicStanding: string,
+  alertCount?: number,
+  degrees?: object[]
 }

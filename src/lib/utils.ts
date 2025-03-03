@@ -1,7 +1,7 @@
 import numeral from 'numeral'
 import {concat, head, initial, isNil, isNumber, join, last, toLower, trim} from 'lodash'
 import {nextTick} from 'vue'
-import type {BoaUser, Cohort, CuratedGroup, ScreenReaderAlert} from '@/lib/types'
+import type {BoaUser, Cohort, CuratedGroup, HasName, ScreenReaderAlert} from '@/lib/types'
 import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 
@@ -97,7 +97,7 @@ export function isNilOrBlank(s: string | null | undefined) {
   return isNil(s) || trim(s) === ''
 }
 
-export function lastNameFirst(u: {firstName?: string, lastName?: string}) {
+export function lastNameFirst(u: HasName): string {
   return u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName || '')
 }
 
