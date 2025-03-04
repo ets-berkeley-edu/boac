@@ -10,6 +10,7 @@ const VALID_MODES = [
   'createPeerAdvisorNote',
   'editDraft',
   'editNote',
+  'editPeerAdvisorNote',
   'editTemplate',
 ]
 

@@ -101,8 +101,8 @@ class TestGetPeerAdvisingNotes:
         cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
 
     @classmethod
-    def _api_get_notes_for_peer_advisor(cls, client, expected_status_code=200):
-        response = client.get('/api/peer_advisor/notes')
+    def _api_get_notes_for_peer_advisor(cls, client, include_students=False, expected_status_code=200):
+        response = client.get(f'/api/peer_advisor/notes?includeStudents={include_students}')
         assert response.status_code == expected_status_code
         return response.json
 
@@ -126,12 +126,17 @@ class TestGetPeerAdvisingNotes:
         assert note['id']
         assert note['author']['uid'] == ce3_navcal_peer_advisor_uid
         assert note['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
-        # ...and now we fetch that note.
+        # Fetch that note, without student.
         api_json = self._api_get_notes_for_peer_advisor(client)
         notes = api_json['notes']
         assert len(notes) > 0
         assert len(notes) == api_json['totalNoteCount']
         assert notes[0]['id'] == note['id']
+        assert 'student' not in notes[0]
+        # Fetch that note, with student.
+        api_json = self._api_get_notes_for_peer_advisor(client, include_students=True)
+        notes = api_json['notes']
+        assert notes[0]['student']['sid'] == coe_student_sid
 
 
 class TestGetPeerAdvisingTopics:
