@@ -4,7 +4,7 @@ import {deleteNote, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {createPeerAdvisingNote} from '@/api/peer-advising-notes'
+import {createPeerAdvisingNote, updatePeerAdvisingNote} from '@/api/peer-advising-notes'
 
 export function clearNoteRecipients(): Promise<void> {
   return setNoteRecipients([], [], [])
@@ -153,20 +153,30 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
         throw new Error('Peer Advising notes require fields which are optional for standard notes.')
       }
     } else {
-      updateNote(
-        model.id,
-        model.body,
-        map(recipients.cohorts, 'id'),
-        model.contactType,
-        map(recipients.curatedGroups, 'id'),
-        isDraft,
-        model.isPrivate,
-        model.setDate,
-        sids,
-        model.subject,
-        [],
-        model.topics
-      ).then(resolve)
+      if (model.peerAdvisingDepartmentId) {
+        updatePeerAdvisingNote(
+          model.id,
+          model.body,
+          model.contactType,
+          model.subject,
+          model.topics
+        ).then(resolve)
+      } else {
+        updateNote(
+          model.id,
+          model.body,
+          map(recipients.cohorts, 'id'),
+          model.contactType,
+          map(recipients.curatedGroups, 'id'),
+          isDraft,
+          model.isPrivate,
+          model.setDate,
+          sids,
+          model.subject,
+          [],
+          model.topics
+        ).then(resolve)
+      }
     }
   })
 }

@@ -4,7 +4,7 @@
       <div>
         <h1>Peer Advising Notes</h1>
       </div>
-      <div>
+      <div v-if="!currentUser.isAdmin">
         <v-btn
           id="peer-advisor-create-note-button"
           aria-labelledby="peer-advising-note-modal-header"
@@ -53,6 +53,7 @@ import {getUserByUid} from '@/api/user'
 const contextStore = useContextStore()
 const createNoteModal = ref(false)
 const currentPage = ref(1)
+const currentUser = contextStore.currentUser
 const isPaging = ref(false)
 const itemsPerPage = ref(50)
 const noteStore = useNoteStore()

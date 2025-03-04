@@ -5,7 +5,7 @@
     scrollable
   >
     <v-card
-      class="modal-content"
+      class="modal-content pb-2"
       :class="{'modal-fullscreen': display.mdAndDown}"
       max-width="50%"
     >
@@ -39,7 +39,7 @@
           :disabled="isSaving"
         />
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions class="py-0">
         <CreateNoteFooter
           :discard="discardRequested"
           discard-button-label="Cancel"
