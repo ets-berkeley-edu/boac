@@ -163,3 +163,10 @@ const saveNoteTemplate = () => {
 
 }
 </script>
+
+<style>
+#note-template-details .ck-editor__editable {
+  height: 180px;
+  width: 100%;
+}
+</style>

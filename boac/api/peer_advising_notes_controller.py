@@ -32,6 +32,7 @@ from boac.externals.data_loch import get_basic_student_data
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, process_input_from_rich_text_editor, to_bool_or_none
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
 from boac.models.note_template import NoteTemplate
@@ -157,17 +158,21 @@ def create_peer_advising_note():
     return tolerant_jsonify(get_boac_note_as_compatible_json(note, note_read=True))
 
 
-@app.route('/api/peer_advisor/notes')
+@app.route('/api/peer_advisor/<uid>/notes')
 @peer_advisor_required
-def get_notes_for_peer_advisor():
+def get_notes_for_peer_advisor(uid):
     offset = int(request.args.get('offset', 0))
     limit = int(request.args.get('limit', 50))
     include_students = to_bool_or_none(request.args.get('includeStudents')) or False
-    memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(current_user.get_id())
+    user_id = AuthorizedUser.get_id_per_uid(uid)
+    if not current_user.is_admin and user_id != current_user.get_id():
+        raise ForbiddenRequestError('Unauthorized')
+    memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id)
+    peer_advising_department_id = memberships[0]['peer_advising_department_id']
     notes, total_note_count = Note.get_notes_by_peer_advising_department(
         limit=limit,
         offset=offset,
-        peer_advising_department_id=memberships[0]['peer_advising_department_id'],
+        peer_advising_department_id=peer_advising_department_id,
     )
     students_by_sid = {}
     if include_students:

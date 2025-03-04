@@ -50,6 +50,10 @@ export function alertScreenReader(message: string, persistent?: boolean, politen
   })
 }
 
+export function capitalizeAllWords(words: string) {
+  return words.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
 const decodeHtml = (snippet: string) => {
   if (snippet && snippet.indexOf('&') > 0) {
     const el = document.createElement('textarea')
