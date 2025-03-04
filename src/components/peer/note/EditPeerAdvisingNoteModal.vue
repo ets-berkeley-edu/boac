@@ -10,17 +10,19 @@
       max-width="50%"
     >
       <v-card-title id="edit-note-header">
-        <EditPeerAdvisingNoteHeader :header-text="student ? `${student.firstName} ${student.lastName}'s Note` : 'New Note'" />
+        <EditPeerAdvisingNoteHeader
+          :header-text="student ? `${student.firstName} ${student.lastName}` : 'New Note'"
+        />
       </v-card-title>
       <v-card-text class="pt-0">
         <div v-if="!student">
           <PeerAdvisingNoteStudentLookup />
         </div>
         <RichTextEditor
-          id="peer-advising-note-details"
+          id="peer-advising-note-body"
           class="mt-3"
           :disabled="isSaving"
-          :initial-value="model.body || ''"
+          :initial-value="model.body"
           :is-in-modal="true"
           label="Note Details"
           :on-value-update="noteStore.setBody"
@@ -104,3 +106,9 @@ const discardRequested = () => {
   }
 }
 </script>
+
+<style>
+#peer-advising-note-body .ck-editor__editable_inline {
+  min-height: 100px;
+}
+</style>

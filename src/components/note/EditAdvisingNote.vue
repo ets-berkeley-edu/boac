@@ -293,6 +293,13 @@ const save = isDraft => {
 }
 </script>
 
+<style>
+#edit-note-details .ck-editor__editable {
+  height: 180px;
+  width: 100%;
+}
+</style>
+
 <style scoped>
 .edit-note-form {
   cursor: auto !important;

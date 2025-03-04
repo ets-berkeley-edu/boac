@@ -218,7 +218,7 @@ def peer_advisor_or_peer_advisor_manager_in_department(func):
 def peer_advisor_required(func):
     @wraps(func)
     def _authorize(*args, **kw):
-        if current_user.is_authenticated and (is_peer_advisor(current_user) or _api_key_ok()):
+        if current_user.is_authenticated and (current_user.is_admin or is_peer_advisor(current_user) or _api_key_ok()):
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')

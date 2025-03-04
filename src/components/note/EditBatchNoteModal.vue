@@ -456,8 +456,14 @@ onBeforeUnmount(() => {
   document.documentElement.classList.remove('modal-open')
   contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
 })
-
 </script>
+
+<style>
+#note-details .ck-editor__editable {
+  height: 180px;
+  width: 100%;
+}
+</style>
 
 <!-- The 'batch' classes (below) are used by Vue transition above. -->
 <style scoped>

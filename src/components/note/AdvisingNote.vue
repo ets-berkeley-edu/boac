@@ -92,7 +92,7 @@
             {{ author.email }}
           </span>
           <span v-if="author.role || author.title">
-            - <span :id="`note-${note.id}-author-role`">{{ author.role || author.title }}</span>
+            - <span :id="`note-${note.id}-author-role`">{{ capitalizeAllWords(replace(author.role || author.title, '_', ' ')) }}</span>
           </span>
           <span v-if="note.legacySource" class="font-italic text-medium-emphasis">
             (note imported from {{ note.legacySource }})
@@ -140,12 +140,12 @@
 <script setup>
 import {DateTime} from 'luxon'
 import {computed, onMounted, ref, watch} from 'vue'
-import {get, isNil, isNumber, map, orderBy, size} from 'lodash'
+import {get, isNil, isNumber, map, orderBy, replace, size} from 'lodash'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
-import {alertScreenReader, numFormat, oxfordJoin, toInt} from '@/lib/utils'
+import {alertScreenReader, capitalizeAllWords, numFormat, oxfordJoin, toInt} from '@/lib/utils'
 import {getBoaUserRoles} from '@/lib/berkeley-department'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {termNameForSisId} from '@/lib/berkeley-utils'

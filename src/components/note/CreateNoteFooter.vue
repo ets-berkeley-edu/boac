@@ -22,7 +22,7 @@
           @click="exit"
         />
         <ProgressButton
-          v-if="!['editTemplate', 'createPeerAdvisorNote'].includes(mode)"
+          v-if="!['editTemplate', 'createPeerAdvisorNote', 'editPeerAdvisorNote'].includes(mode)"
           id="btn-save-as-template"
           :action="saveTemplate"
           :disabled="isSaving || !trim(model.subject) || !!model.setDate || !!model.contactType"
@@ -134,7 +134,7 @@ const isUpdatingDraft = ref(false)
 
 const isValidNote = () => {
   // When Peer Advisors create notes, 'subject' is not required.
-  const isPeerAdvisorMode = mode.value === 'createPeerAdvisorNote'
+  const isPeerAdvisorMode = ['createPeerAdvisorNote', 'editPeerAdvisorNote'].includes(mode.value)
   return size(completeSidSet.value) && (isPeerAdvisorMode ? trim(model.value.body) : trim(model.value.subject))
 }
 

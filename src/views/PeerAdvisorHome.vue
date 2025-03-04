@@ -27,6 +27,7 @@
         :go-to-page="goToPage"
         :items-per-page="itemsPerPage"
         :notes="notes"
+        :peer-advising-department-id="peerAdvisingDepartmentId"
         :total-note-count="totalNoteCount"
       />
     </div>
@@ -37,7 +38,7 @@
 import type {Handler} from 'mitt'
 import {mdiFileDocument} from '@mdi/js'
 import {onMounted, ref} from 'vue'
-import {useRouter} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
 import PeerAdvisorPaginatedNotes from '@/components/peer/note/PeerAdvisorPaginatedNotes.vue'
 import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
@@ -45,27 +46,64 @@ import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {putFocusNextTick} from '@/lib/utils'
 import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
-import type {Note} from '@/lib/types'
+import type {BoaUser, Note} from '@/lib/types'
 import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
+import {getUserByUid} from '@/api/user'
 
 const contextStore = useContextStore()
 const createNoteModal = ref(false)
 const currentPage = ref(1)
-const currentUser = contextStore.currentUser
 const isPaging = ref(false)
 const itemsPerPage = ref(50)
 const noteStore = useNoteStore()
 const notes = ref<Note[]>([])
 const offset = ref(0)
-const peerAdvisingDepartmentId = ref<number | undefined>()
+const peerAdvisingDepartmentId = ref<number>(NaN)
+const peerAdvisor = ref<BoaUser>()
+const route = useRoute()
 const router = useRouter()
 const totalNoteCount = ref(0)
 
 contextStore.loadingStart()
 
 onMounted(() => {
-  const membership = getPeerAdvisorDepartmentMembership(currentUser, 'peer_advisor')
-  if (currentUser.id && membership.peerAdvisingDepartmentId) {
+  const currentUser = contextStore.currentUser
+  if (currentUser.isAdmin) {
+    const uid = route.params.uid.toString()
+    getUserByUid(uid, true).then(init)
+  } else {
+    init(currentUser)
+  }
+})
+
+const goToPage = (page: number) => {
+  return new Promise<void>(resolve => {
+    if (peerAdvisor.value && peerAdvisor.value.uid) {
+      isPaging.value = true
+      currentPage.value = page
+      offset.value = (page - 1) * itemsPerPage.value
+      getPeerAdvisorNotes(
+        offset.value,
+        itemsPerPage.value,
+        peerAdvisor.value.uid,
+        true
+      ).then(data => {
+        notes.value = data.notes
+        totalNoteCount.value = data.totalNoteCount
+        isPaging.value = false
+        putFocusNextTick(page > 1 ? `pagination-page-${page}` : 'page-header')
+        resolve()
+      })
+    } else {
+      throw Error('Not Found')
+    }
+  })
+}
+
+const init = (user: BoaUser) => {
+  peerAdvisor.value = user
+  const membership = getPeerAdvisorDepartmentMembership(peerAdvisor.value, 'peer_advisor')
+  if (peerAdvisor.value.id && membership.peerAdvisingDepartmentId) {
     peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
     goToPage(1).then(() => {
       contextStore.loadingComplete('Notes have loaded')
@@ -74,25 +112,6 @@ onMounted(() => {
   } else {
     router.push({path: '/404'})
   }
-})
-
-const goToPage = (page: number) => {
-  return new Promise<void>(resolve => {
-    isPaging.value = true
-    currentPage.value = page
-    offset.value = (page - 1) * itemsPerPage.value
-    getPeerAdvisorNotes(
-      offset.value,
-      itemsPerPage.value,
-      true
-    ).then(data => {
-      notes.value = data.notes
-      totalNoteCount.value = data.totalNoteCount
-      isPaging.value = false
-      putFocusNextTick(page > 1 ? `pagination-page-${page}` : 'page-header')
-      resolve()
-    })
-  })
 }
 
 const onClickCreateNote = () => {
