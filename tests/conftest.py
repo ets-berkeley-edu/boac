@@ -37,6 +37,7 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_template import NoteTemplate
 from boac.models.note_template_attachment import NoteTemplateAttachment
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 from flask_login import logout_user
 from moto import mock_sts
 import pytest
@@ -523,3 +524,28 @@ def _create_user(
 
     std_commit(allow_test_environment=True)
     return authorized_user
+
+
+@pytest.fixture()
+def mock_peer_advising_note_template(app, db):
+    """Create peer advising note template."""
+    timestamp = datetime.now().timestamp()
+    uid = '2525'
+    navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+
+    note_template = NoteTemplate.create(
+        creator_id=AuthorizedUser.get_id_per_uid(uid),
+        title=f'Potholes in my lawn ({timestamp})',
+        subject=f'It\'s unwise to leave my garden untended ({timestamp})',
+        body="""
+            See, I've found that everyone's sayin'
+            What to do when suckers are preyin'
+        """,
+        topics=['Three Feet High', 'Rising'],
+        peer_advising_department_id=navcal_department.id,
+    )
+    std_commit(allow_test_environment=True)
+
+    yield NoteTemplate.find_by_id(note_template.id)
+
+    NoteTemplate.delete(note_template_id=note_template.id)

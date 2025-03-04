@@ -53,6 +53,10 @@ class PeerAdvisingDepartment(Base):
     def get_department_by_id(cls, peer_advising_department_id):
         return cls.query.filter_by(id=peer_advising_department_id).first()
 
+    @classmethod
+    def get_department_by_name(cls, peer_advising_department_name):
+        return cls.query.filter_by(name=peer_advising_department_name).first()
+
     def to_api_json(self):
         return {
             'id': self.id,
