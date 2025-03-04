@@ -188,7 +188,7 @@ export type Note = {
   peerAdvisingDepartmentId: string,
   setDate: string,
   sid: string,
-  student?: BasicStudent | undefined,
+  student: BasicStudent,
   subject: string,
   topics: string[],
   updatedAt: string

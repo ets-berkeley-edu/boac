@@ -57,6 +57,7 @@ def register_routes(app):
     import boac.api.note_templates_controller
     import boac.api.notes_controller
     import boac.api.peer_advising_notes_controller
+    import boac.api.peer_advising_note_templates_controller
     import boac.api.peer_advising_users_controller
     import boac.api.reports_controller
     import boac.api.search_controller

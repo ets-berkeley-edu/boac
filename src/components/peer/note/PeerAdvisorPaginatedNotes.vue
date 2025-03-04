@@ -29,7 +29,7 @@
                 v-if="currentUser.isAdmin"
                 :id="`link-to-student-${note.sid}`"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                :to="studentRoutePath(note.sid, currentUser.inDemoMode)"
+                :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
               >
                 <span v-html="lastNameFirst(note.student)" />
               </router-link>
@@ -42,7 +42,14 @@
             </div>
           </td>
           <td :id="`note-body-in-row-${index}`" class="td-note truncate-with-ellipsis">
-            <span v-if="!isPeerAdvisor(currentUser)" v-html="note.body" />
+            <router-link
+              v-if="currentUser.isAdmin"
+              :id="`link-to-student-${note.student.uid}`"
+              :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              :to="`${studentRoutePath(note.student.uid, currentUser.inDemoMode)}#permalink-note-${note.id}`"
+            >
+              <TruncatedButtonText :text="note.body" />
+            </router-link>
             <v-btn
               v-if="isPeerAdvisor(currentUser)"
               :id="`open-peer-advising-${note.id}`"
@@ -53,18 +60,7 @@
               variant="text"
               @click="() => openEditDialog(note)"
             >
-              <div
-                v-if="note.body.length <= lengthTruncateButtonText"
-                class="align-start"
-                :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                v-html="trim(note.body)"
-              />
-              <div
-                v-if="note.body.length > lengthTruncateButtonText"
-                class="align-start"
-                :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                v-html="truncate(trim(note.body), {length: lengthTruncateButtonText})"
-              />
+              <TruncatedButtonText :text="note.body" />
             </v-btn>
           </td>
           <td :id="`note-topics-in-row-${index}`" class="td-topics">
@@ -103,16 +99,15 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {DateTime} from 'luxon'
-import {computed, onMounted, ref} from 'vue'
-import {isEmpty, trim, truncate} from 'lodash'
-import {useDisplay} from 'vuetify'
+import {isEmpty} from 'lodash'
+import {ref} from 'vue'
 import type {BasicStudent, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
 import Pagination from '@/components/util/Pagination.vue'
+import TruncatedButtonText from '@/components/peer/note/TruncatedButtonText.vue'
 import {isPeerAdvisor} from '@/lib/boa-user'
 import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 defineProps({
@@ -132,6 +127,10 @@ defineProps({
     required: true,
     type: Array as PropType<Note[]>
   },
+  peerAdvisingDepartmentId: {
+    required: true,
+    type: Number
+  },
   totalNoteCount: {
     required: true,
     type: Number
@@ -140,21 +139,9 @@ defineProps({
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
-const display = useDisplay()
 const isEditDialogOpen = ref(false)
-const lengthTruncateButtonText = computed(() => display.lgAndUp.value ? 60 : (display.mdAndUp.value ? 30 : 16))
 const noteStore = useNoteStore()
-const peerAdvisingDepartmentId = ref<number>(NaN)
 const selectedStudent = ref<BasicStudent | undefined>()
-
-onMounted(() => {
-  const membership = getPeerAdvisorDepartmentMembership(currentUser, 'peer_advisor')
-  if (membership.peerAdvisingDepartmentId) {
-    peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
-  } else {
-    throw new TypeError('Peer Advising Department not found.')
-  }
-})
 
 const getStudentName = (note: Note) => {
   return note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
@@ -164,6 +151,7 @@ const openEditDialog = (note: Note) => {
   selectedStudent.value = note.student
   noteStore.setMode('editPeerAdvisorNote')
   noteStore.setModel(note)
+  noteStore.setCompleteSidSet([note.student.sid])
   noteStore.setIsCreateNoteModalOpen(true)
   isEditDialogOpen.value = true
 }
