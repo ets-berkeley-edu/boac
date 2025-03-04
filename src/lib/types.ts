@@ -214,15 +214,15 @@ export type NoteAuthor = {
 export type NoteEditSessionModel = {
   attachments: Attachment[],
   author: object,
-  body?: string,
-  contactType?: string | undefined,
+  body: string | undefined,
+  contactType: string | undefined,
   deleteAttachmentIds: number[],
   id: number,
   isDraft: boolean,
   isPrivate: boolean,
   peerAdvisingDepartmentId: number | undefined,
-  setDate?: string,
-  subject?: string,
+  setDate: string | undefined,
+  subject: string | undefined,
   topics: string[]
 }
 

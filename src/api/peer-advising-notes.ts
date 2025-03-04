@@ -40,3 +40,24 @@ export function createPeerAdvisingNote(
     return data
   })
 }
+
+export function updatePeerAdvisingNote(
+  id: number,
+  body: string | undefined,
+  contactType: string | undefined,
+  subject: string | undefined,
+  topics: string[]
+) {
+  const data = {
+    id,
+    body,
+    contactType,
+    subject,
+    topics
+  }
+  return axios.post(`${utils.apiBaseUrl()}/api/peer_advising/note/update`, data).then(response => {
+    const data = response.data
+    useContextStore().broadcast('peer-advising-note-updated', data)
+    return data
+  })
+}

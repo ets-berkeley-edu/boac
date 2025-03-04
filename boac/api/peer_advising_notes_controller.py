@@ -198,3 +198,34 @@ def get_notes_for_peer_advisor(uid):
         if include_students:
             note_json['student'] = students_by_sid[note.sid]
     return tolerant_jsonify(api_json)
+
+
+@app.route('/api/peer_advising/note/update', methods=['POST'])
+@peer_advisor_required
+def update_peer_advising_note():
+    params = request.get_json()
+    body = params.get('body', None)
+    contact_type = validate_note_contact_type(params.get('contactType'))
+    note_id = params.get('id', None)
+    subject = (params.get('subject', None) or '').strip()
+    topics = params.get('topics', [])
+    # Fetch existing note
+    note = Note.find_by_id(note_id=note_id) if note_id else None
+    if not note or not _can_current_user_edit_peer_advising_note(note):
+        raise ResourceNotFoundError('Note not found')
+    note = Note.update(
+        body=process_input_from_rich_text_editor(body),
+        contact_type=contact_type,
+        is_draft=False,
+        note_id=note.id,
+        sid=note.sid,
+        subject=subject,
+        topics=topics,
+    )
+    note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
+    api_json = get_boac_note_as_compatible_json(note=note, note_read=note_read)
+    return tolerant_jsonify(api_json)
+
+
+def _can_current_user_edit_peer_advising_note(note):
+    return True

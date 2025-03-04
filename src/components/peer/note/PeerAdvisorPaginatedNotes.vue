@@ -7,19 +7,21 @@
     >
       <thead>
         <tr>
-          <th class="th-student">Student</th>
-          <th class="th-note">Note</th>
-          <th class="th-topics">Topics</th>
-          <th class="th-created-date">Date Created</th>
+          <th class="border-b-md th-student">Student</th>
+          <th class="border-b-md th-note">Note</th>
+          <th class="border-b-md th-topics">Topic(s)</th>
+          <th class="border-b-md th-created-date">
+            <div class="float-right">Date Created</div>
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr
           v-for="(note, index) in notes"
           :key="index"
-          :class="index % 2 === 0 ? 'white-row' : 'grey-row'"
+          :class="index % 2 === 0 ? '' : 'bg-surface-light'"
         >
-          <td class="td-student">
+          <td :class="{'border-b-md': index === notes.length - 1}" class="td-student">
             <div
               v-if="note.student"
               :id="`note-student-${note.student.sid}`"
@@ -41,35 +43,46 @@
               SID: {{ note.sid }}
             </div>
           </td>
-          <td :id="`note-body-in-row-${index}`" class="td-note truncate-with-ellipsis">
+          <td :id="`note-body-in-row-${index}`" :class="{'border-b-md': index === notes.length - 1}" class="td-note">
             <router-link
               v-if="currentUser.isAdmin"
               :id="`link-to-student-${note.student.uid}`"
               :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              class="align-center d-flex font-weight-medium justify-space-between w-100"
               :to="`${studentRoutePath(note.student.uid, currentUser.inDemoMode)}#permalink-note-${note.id}`"
             >
-              <TruncatedButtonText :text="note.body" />
+              <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
             </router-link>
-            <v-btn
+            <button
               v-if="isPeerAdvisor(currentUser)"
               :id="`open-peer-advising-${note.id}`"
               :aria-label="`Edit ${getStudentName(note)} note`"
-              class="mr-1 px-0 py-2 text-left text-primary"
+              class="align-center d-flex justify-space-between text-primary w-100"
               :class="{'demo-mode-blur': currentUser.inDemoMode}"
-              size="lg"
-              variant="text"
               @click="() => openEditDialog(note)"
             >
-              <TruncatedButtonText :text="note.body" />
-            </v-btn>
+              <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
+            </button>
           </td>
-          <td :id="`note-topics-in-row-${index}`" class="td-topics">
-            <div class="truncate-with-ellipsis">
-              {{ note.topics.join(', ') }}
+          <td
+            :id="`note-topics-in-row-${index}`"
+            :class="{'border-b-md': index === notes.length - 1}"
+            class="td-topics"
+            :title="note.topics.join(', ')"
+          >
+            <div class="align-center d-flex font-weight-medium justify-space-between w-100">
+              <span v-if="note.topics.length" class="truncate-with-ellipsis">{{ note.topics.join(', ') }}</span>
+              <span v-if="!note.topics.length" class="text-medium-emphasis">&mdash;</span>
             </div>
           </td>
-          <td :id="`note-created-date-in-row-${index}`" class="td-created-date">
-            {{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}
+          <td
+            :id="`note-created-date-in-row-${index}`"
+            :class="{'border-b-md': index === notes.length - 1}"
+            class="td-created-date"
+          >
+            <div class="float-right">
+              {{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}
+            </div>
           </td>
         </tr>
       </tbody>
@@ -104,9 +117,8 @@ import {ref} from 'vue'
 import type {BasicStudent, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
 import Pagination from '@/components/util/Pagination.vue'
-import TruncatedButtonText from '@/components/peer/note/TruncatedButtonText.vue'
 import {isPeerAdvisor} from '@/lib/boa-user'
-import {lastNameFirst, studentRoutePath} from '@/lib/utils'
+import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -159,9 +171,8 @@ const openEditDialog = (note: Note) => {
 
 <style scoped>
 .td-created-date {
-  float: right;
   max-width: 120px !important;
-  padding: 5px;
+  padding: 5px 0;
   text-wrap: nowrap;
   vertical-align: top;
   width: 120px !important;
@@ -183,8 +194,7 @@ const openEditDialog = (note: Note) => {
   vertical-align: top;
 }
 .th-created-date {
-  float: right;
-  padding: 5px;
+  padding: 5px 0;
   text-wrap: nowrap;
 }
 .th-note {
@@ -192,6 +202,7 @@ const openEditDialog = (note: Note) => {
 }
 .th-student {
   font-weight: bold;
+  padding: 0 5px;
 }
 .th-topics {
   padding: 5px;
