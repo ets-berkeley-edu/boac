@@ -203,12 +203,12 @@ def get_notes_for_peer_advisor(uid):
 @app.route('/api/peer_advising/note/update', methods=['POST'])
 @peer_advisor_required
 def update_peer_advising_note():
-    params = request.get_json()
+    params = request.form
     body = params.get('body', None)
     contact_type = validate_note_contact_type(params.get('contactType'))
     note_id = params.get('id', None)
     subject = (params.get('subject', None) or '').strip()
-    topics = params.get('topics', [])
+    topics = get_note_topics_from_http_post()
     # Fetch existing note
     note = Note.find_by_id(note_id=note_id) if note_id else None
     if not note or not _can_current_user_edit_peer_advising_note(note):
