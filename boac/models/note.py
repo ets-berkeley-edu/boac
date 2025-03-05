@@ -162,6 +162,12 @@ class Note(Base):
         return draft_notes
 
     @classmethod
+    def get_notes_by_peer_advising_department(cls, peer_advising_department_id, limit=50, offset=0):
+        criteria = and_(cls.peer_advising_department_id == peer_advising_department_id, cls.deleted_at == None)  # noqa: E711
+        query = cls.query.filter(criteria).order_by(desc(cls.updated_at))
+        return query.offset(offset).limit(limit).all(), _get_total_count_peer_advising_notes(peer_advising_department_id)
+
+    @classmethod
     def get_note_counts_per_uid(cls, uids):
         query = text("""
             SELECT u.uid, count(n.id) as note_count
@@ -176,10 +182,35 @@ class Note(Base):
         return note_counts_per_uid
 
     @classmethod
-    def get_notes_by_peer_advising_department(cls, peer_advising_department_id, limit=50, offset=0):
-        criteria = and_(cls.peer_advising_department_id == peer_advising_department_id, cls.deleted_at == None)  # noqa: E711
-        query = cls.query.filter(criteria).order_by(desc(cls.updated_at))
-        return query.offset(offset).limit(limit).all(), _get_total_count_peer_advising_notes(peer_advising_department_id)
+    def get_notes_authored_by(cls, author_uid):
+        notes = []
+        sql = """
+            SELECT n.*, count(a.note_id) as attachment_count
+            FROM notes n
+            LEFT JOIN note_attachments a ON n.id = a.note_id AND a.deleted_at IS NULL
+            WHERE
+              n.is_draft IS FALSE AND n.is_private IS FALSE AND n.deleted_at IS NULL AND author_uid = :author_uid
+            GROUP BY n.id
+            ORDER BY n.updated_at DESC
+        """
+
+        def _isoformat(row_, key):
+            return row_[key].astimezone(tzutc()).isoformat()
+        for row in db.session.execute(sql, {'author_uid': author_uid}):
+            notes.append({
+                'id': row['id'],
+                'attachmentCount': row['attachment_count'],
+                'author': {
+                    'uid': row['author_uid'],
+                    'name': row['author_name'],
+                },
+                'body': row['body'],
+                'sid': row['sid'],
+                'subject': row['subject'],
+                'createdAt': _isoformat(row, 'created_at'),
+                'updatedAt': _isoformat(row, 'updated_at'),
+            })
+        return notes
 
     @classmethod
     def create(

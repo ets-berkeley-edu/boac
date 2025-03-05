@@ -56,8 +56,13 @@
         </div>
       </template>
       <template #item.notesCreatedCount="{item}">
-        <div class="float-right" :class="{'font-weight-medium text-red': item.deletedAt}">
-          {{ get(item, 'noteCount', 0) }}
+        <div class="float-right">
+          <NotesCreatedByPeerAdvisor
+            v-if="get(item, 'noteCount')"
+            :header-text="`${pluralize('note', toInt(get(item, 'noteCount') || 0))} created by ${item.name}`"
+            :user="item"
+          />
+          <span v-if="!get(item, 'noteCount')" :class="{'font-weight-medium text-red': item.deletedAt}">0</span>
         </div>
       </template>
       <template #item.createdAt="{item}">
@@ -106,6 +111,8 @@ import {useDisplay} from 'vuetify'
 import type {BoaUser} from '@/lib/types'
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
 import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising.js'
+import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
+import {pluralize, toInt} from '@/lib/utils'
 
 const props = defineProps({
   isRefreshing: {
@@ -141,7 +148,7 @@ const onClickDeletePeerAdvisor = (userId: number) => {
   })
 }
 
-const onClickRestorePeerAdvisor = userId => {
+const onClickRestorePeerAdvisor = (userId: number) => {
   isBusy.value = true
   restorePeerAdvisor(props.peerAdvisingDepartmentId, userId).then(() => {
     props.refresh().then(() => {

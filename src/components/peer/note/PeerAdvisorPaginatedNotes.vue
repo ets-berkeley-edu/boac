@@ -1,8 +1,8 @@
 <template>
   <div>
     <table
-      v-if="!isEmpty(notes)"
-      id="cohort-history-table"
+      v-if="size(notes)"
+      id="notes-for-peer-advisor-view"
       class="mt-5 w-100"
     >
       <thead>
@@ -87,6 +87,9 @@
         </tr>
       </tbody>
     </table>
+    <div v-if="!size(notes)" id="peer-advisor-no-notes" class="pt-3">
+      No notes found.
+    </div>
     <div v-if="totalNoteCount > itemsPerPage" class="pa-3">
       <hr />
       <Pagination
@@ -99,9 +102,6 @@
         :total-rows="totalNoteCount"
       />
     </div>
-    <div v-if="isEmpty(notes)" id="peer-advisor-no-notes" class="pt-3">
-      This cohort has no history available.
-    </div>
     <EditPeerAdvisingNoteModal
       v-model="isEditDialogOpen"
       :student="selectedStudent"
@@ -112,7 +112,7 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {DateTime} from 'luxon'
-import {isEmpty} from 'lodash'
+import {size} from 'lodash'
 import {ref} from 'vue'
 import type {BasicStudent, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
@@ -155,9 +155,7 @@ const isEditDialogOpen = ref(false)
 const noteStore = useNoteStore()
 const selectedStudent = ref<BasicStudent | undefined>()
 
-const getStudentName = (note: Note) => {
-  return note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
-}
+const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 
 const openEditDialog = (note: Note) => {
   selectedStudent.value = note.student
