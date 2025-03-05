@@ -4,7 +4,6 @@ import {
   each,
   filter,
   get,
-  includes,
   map,
   startsWith,
   toUpper,
@@ -12,30 +11,11 @@ import {
 } from 'lodash'
 import type {BoaUser, Course, ExportListOption, Section} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
-import {myDeptCodes} from '@/lib/berkeley-department'
 import {isCoe} from '@/lib/boa-user'
 
 export function describeCuratedGroupDomain(domain: string, capitalize?: boolean): string {
   const format = s => capitalize ? _capitalize(s) : s
   return format(domain === 'admitted_students' ? 'admissions ' : 'curated ') + format('group')
-}
-
-export function displayAsAscInactive(student: object) {
-  return (
-    includes(myDeptCodes(['advisor', 'director']), 'UWASC') &&
-    get(student, 'athleticsProfile') &&
-    !get(student, 'athleticsProfile.isActiveAsc')
-  )
-}
-
-export function displayAsCoeInactive(student: object) {
-  const isAuthorized = useContextStore().currentUser.isAdmin || includes(myDeptCodes(['advisor', 'director']), 'COENG')
-  return isAuthorized && get(student, 'coeProfile') && !get(student, 'coeProfile.isActiveCoe')
-}
-
-export function displayCoeAcademicStanding(student: object) {
-  const isAuthorized = useContextStore().currentUser.isAdmin || includes(myDeptCodes(['advisor', 'director']), 'COENG')
-  return isAuthorized && get(student, 'coeProfile') && get(student, 'coeProfile.acadStatusDescription')
 }
 
 export function getAdmitCsvExportColumns(): ExportListOption[] {

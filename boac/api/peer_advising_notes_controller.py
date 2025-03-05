@@ -27,9 +27,12 @@ from boac.api.decorators import peer_advisor_or_peer_advisor_manager, peer_advis
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import get_boac_note_as_compatible_json, get_note_author_profile_of_current_user, \
     get_note_topics_from_http_post, validate_note_contact_type
+from boac.externals import data_loch
 from boac.externals.data_loch import get_basic_student_data
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, process_input_from_rich_text_editor, to_bool_or_none
+from boac.merged.sis_terms import current_term_id
+from boac.merged.student import merge_enrollment_terms
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
@@ -70,6 +73,29 @@ def create_peer_advising_note():
     )
     NoteRead.find_or_create(note_id=note.id, viewer_id=current_user.get_id())
     return tolerant_jsonify(get_boac_note_as_compatible_json(note, note_read=True))
+
+
+@app.route('/api/peer_advising/<sid>/enrollments')
+@peer_advisor_required
+def get_enrollment_terms_by_sid(sid):
+    term_id = request.args.get('termId')
+    latest_term_id = term_id or current_term_id()
+    enrollment_results = data_loch.get_enrollments_for_sid(sid, latest_term_id=latest_term_id)
+
+    def extract(bloated_dict, keys_to_extract):
+        return {key: bloated_dict[key] for key in keys_to_extract if key in bloated_dict}
+
+    api_json = []
+    for term in merge_enrollment_terms(enrollment_results):
+        enrollments = []
+        for enrollment in term['enrollments']:
+            keys = ('displayName', 'title', 'units')
+            enrollments.append(extract(enrollment, keys))
+        api_json.append({
+            **extract(term, ('termId', 'termName')),
+            'enrollments': enrollments,
+        })
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/peer_advisor/<uid>/notes')
