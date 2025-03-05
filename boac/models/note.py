@@ -162,6 +162,20 @@ class Note(Base):
         return draft_notes
 
     @classmethod
+    def get_note_counts_per_uid(cls, uids):
+        query = text("""
+            SELECT u.uid, count(n.id) as note_count
+            FROM authorized_users u
+            JOIN notes n ON n.author_uid = u.uid AND n.deleted_at IS NULL
+            WHERE u.uid = ANY(:uids)
+            GROUP BY u.uid
+        """)
+        note_counts_per_uid = {}
+        for row in db.session.execute(query, {'uids': uids}):
+            note_counts_per_uid[row['uid']] = row['note_count']
+        return note_counts_per_uid
+
+    @classmethod
     def get_notes_by_peer_advising_department(cls, peer_advising_department_id, limit=50, offset=0):
         criteria = and_(cls.peer_advising_department_id == peer_advising_department_id, cls.deleted_at == None)  # noqa: E711
         query = cls.query.filter(criteria).order_by(desc(cls.updated_at))

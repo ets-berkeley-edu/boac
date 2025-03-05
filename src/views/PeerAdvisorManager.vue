@@ -6,10 +6,10 @@
     <v-tabs
       v-model="tab"
       aria-label="Peer Advising Management tab"
-      :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
+      :aria-orientation="display.mdAndUp ? 'horizontal' : 'vertical'"
       class="ml-3"
       density="comfortable"
-      :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
+      :direction="display.mdAndUp ? 'horizontal' : 'vertical'"
       :items="tabs"
       mobile-breakpoint="md"
     >
@@ -48,7 +48,7 @@
           role="tabpanel"
           :value="item.key"
         >
-          <div v-if="item.key === 'account'" class="mt-3 mx-4">
+          <div v-if="item.key === 'account'" class="mt-3 mr-12">
             <PeerAdvisingAccountMgmt
               v-if="peerAdvisingDepartment"
               :is-refreshing="isRefreshing"
@@ -69,21 +69,22 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {computed, onMounted, ref} from 'vue'
-import {filter as _filter} from 'lodash'
+import {filter as _filter, toString} from 'lodash'
+import {useDisplay} from 'vuetify'
 import {useRoute} from 'vue-router'
 import PeerAdvisingAccountMgmt from '@/components/peer/PeerAdvisingAccountMgmt.vue'
 import PeerAdvisingNoteTemplates from '@/components/peer/PeerAdvisingNoteTemplates.vue'
 import {getPeerAdvisingDepartment} from '@/api/peer-advising'
-import {toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
+import {toInt} from '@/lib/utils'
 
 const contextStore = useContextStore()
-
+const display = useDisplay()
 const isRefreshing = ref(false)
 const loading = computed(() => contextStore.loading)
-const peerAdvisingDeptId = toInt(useRoute().params.id)
+const peerAdvisingDeptId: string = toString(useRoute().params.id)
 const peerAdvisingDepartment = ref()
 const tab = ref(undefined)
 const tabs = [
@@ -98,9 +99,14 @@ onMounted(() => {
   reloadPeerAdvisingDepartment()
 })
 
-const reloadPeerAdvisingDepartment = () => {
+const reloadPeerAdvisingDepartment = async () => {
   isRefreshing.value = true
-  return getPeerAdvisingDepartment(peerAdvisingDeptId, 'peer_advisor', true).then(data => {
+  return getPeerAdvisingDepartment(
+    toInt(peerAdvisingDeptId),
+    'peer_advisor',
+    true,
+    true
+  ).then(data => {
     peerAdvisingDepartment.value = data
     contextStore.loadingComplete('Peer Advising Management Dashboard is ready.')
     isRefreshing.value = false

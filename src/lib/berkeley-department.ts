@@ -81,7 +81,10 @@ export function getDeptCodesPerRoles(user: BoaUser, roles: DepartmentMembershipR
 export function getDistinctRoleNames(memberships: DepartmentMembership[]): string[] {
   const roleNames: string[] = []
   each(memberships, membership => {
-    const role = map(split(membership.role, '_'), word => capitalize(word)).join(' ')
+    let role = map(split(membership.role, '_'), word => capitalize(word)).join(' ')
+    if (membership.peerAdvisingDepartmentName) {
+      role += ` (${membership.peerAdvisingDepartmentName})`
+    }
     roleNames.push(role)
   })
   return uniq(roleNames)

@@ -28,7 +28,7 @@ export async function restorePeerAdvisor(peerAdvisingDeptId: number, userId: num
   return axios.get(url, {headers}).then(response => response.data)
 }
 
-export async function createPeerAdvisingNoteTemplate(peerAdvisingDeptId: number, noteBody: string, title, topics: []) {
+export async function createPeerAdvisingNoteTemplate(peerAdvisingDeptId: number, body: string, title, topics: []) {
   const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_template/create`
   const noteTemplate = {
     peerAdvisingDeptId: peerAdvisingDeptId,
@@ -63,8 +63,9 @@ export async function deletePeerAdvisingNoteTemplate(noteTemplateId: number) {
 export async function getPeerAdvisingDepartment(
   peerAdvisingDeptId: number,
   roleType: DepartmentMembershipRole,
-  includeDeleted?: boolean
+  includeDeleted?: boolean,
+  includeNoteCounts?: boolean
 ) {
-  const url: string = `${utils.apiBaseUrl()}/api/peer/department/${peerAdvisingDeptId}/${roleType}?includeDeleted=${includeDeleted}`
+  const url: string = `${utils.apiBaseUrl()}/api/peer/department/${peerAdvisingDeptId}/${roleType}?includeDeleted=${includeDeleted}&includeNoteCounts=${includeNoteCounts}`
   return axios.get(url).then(response => response.data)
 }
