@@ -18,11 +18,13 @@
         <div v-if="!student">
           <PeerAdvisingNoteStudentLookup />
         </div>
-        <CompactStudentCourseSchedule
-          v-if="get(student, 'sid')"
-          :sid="student.sid"
-          :student-name="`${student.firstName} ${student.lastName}`"
-        />
+        <div class="compact-student-course-schedule">
+          <CompactStudentCourseSchedule
+            v-if="get(student, 'sid')"
+            :sid="student.sid"
+            :student="student"
+          />
+        </div>
         <RichTextEditor
           id="peer-advising-note-body"
           class="mt-3"
@@ -116,5 +118,8 @@ const discardRequested = () => {
 <style>
 #peer-advising-note-body .ck-editor__editable_inline {
   min-height: 100px;
+}
+.compact-student-course-schedule {
+  margin-left: -8px !important;
 }
 </style>
