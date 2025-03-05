@@ -58,7 +58,7 @@ export type BoaUser = {
     termId: string | undefined
   },
   title: string | undefined,
-  uid: string | undefined
+  uid: string
 }
 
 export interface BoaUserDepartment extends HasDeptCode {
