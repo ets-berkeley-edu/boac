@@ -972,9 +972,10 @@ class TestFindAdvisorsByName:
         """Finds matches including authors of legacy and non-legacy notes."""
         Note.refresh_search_index()
         response = self._api_search_advisors(client, 'Jo')
-        assert len(response) == 4
+        assert len(response) >= 4
         labels = set([s['label'] for s in response])
-        assert labels == {'John Deleted-in-BOA', 'Joni Mitchell', 'Joni Mitchell CC', 'Robert Johnson'}
+        for label in ('John Deleted-in-BOA', 'Joni Mitchell', 'Joni Mitchell CC', 'Robert Johnson'):
+            assert label in labels
 
 
 def _api_search(

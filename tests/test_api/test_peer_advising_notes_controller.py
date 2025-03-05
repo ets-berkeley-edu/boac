@@ -25,13 +25,16 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.note import Note
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 
 admin_uid = '2040'
 ce3_advisor_uid = '2525'
 ce3_navcal_peer_advisor_uid = '1133400'
 ce3_navcal_peer_advisor_manager_uid = '2525'
+coe_advisor_no_advising_data_uid = '1022796'
 coe_mech_peer_advisor_uid = '1913062'
 coe_student_sid = '9000000000'
 qcadv_advisor_uid = '53791'
@@ -171,6 +174,130 @@ class TestGetPeerAdvisingTopics:
         api_json = self._api_get_peer_advising_topics(client)
         assert len(api_json)
         assert 'Probation' in [topic['topic'] for topic in api_json]
+
+
+class TestUpdateNotes:
+
+    @classmethod
+    def setup_class(cls):
+        author_uid = ce3_navcal_peer_advisor_uid
+        peer_advisor_user_id = AuthorizedUser.get_id_per_uid(author_uid)
+        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(peer_advisor_user_id)
+        cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
+        cls.mock_ce3_navcal_peer_advising_note = None
+        cls.student_sid_of_note = '11667051'
+        # Create mock note
+        note = Note.create(
+            author_uid=author_uid,
+            author_name='Davey Jones',
+            author_role='peer_advisor',
+            author_dept_codes=[],
+            body="""
+                I bought you a pair of shoes, a trumpet you can blow
+                And a book of rules on what to say to people
+                When they pick on you
+                'Cause if you stay with us, you're gonna be pretty kooky, too.
+            """,
+            peer_advising_department_id=cls.ce3_navcal_peer_advising_department_id,
+            sid=cls.student_sid_of_note,
+            subject='Kooks',
+            contact_type=None,
+            topics=['collaborative synergies', 'vertical solutions'],
+        )
+        std_commit(allow_test_environment=True)
+        cls.peer_advising_note_id = note.id
+
+    @classmethod
+    def _api_peer_advising_note_update(
+            cls,
+            body,
+            client,
+            note_id,
+            subject,
+            expected_status_code=200,
+            contact_type=None,
+            topics=(),
+    ):
+        data = {
+            'id': note_id,
+            'body': body,
+            'contactType': contact_type,
+            'subject': subject,
+            'topics': ','.join(topics),
+        }
+        response = client.post(
+            '/api/peer_advising/note/update',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_unauthorized_peer_advising_note_update(self, app, client, fake_auth):
+        """Unauthorized user cannot update Peer Advising note."""
+        for uid in [None, coe_advisor_no_advising_data_uid, qcadv_advisor_uid]:
+            if uid:
+                fake_auth.login(uid)
+            self._api_peer_advising_note_update(
+                body='Hack the body!',
+                client=client,
+                expected_status_code=401,
+                note_id=self.peer_advising_note_id,
+                subject='Hack the subject!',
+            )
+
+    def test_authorized_peer_advising_note_update(self, app, client, fake_auth):
+        """Update Peer Advising note topics."""
+        body = """
+            Don't pick fights with the bullies or the cads
+            'Cause I'm not much cop at punching other people's dads
+            And if the homework brings you down
+            Then we'll throw it on the fire and take the car downtown
+        """
+        subject = 'Cause we believe in you'
+        topics = ['One', 'two', 'three', 'four']
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        api_json = self._api_peer_advising_note_update(
+            body=body,
+            client=client,
+            contact_type='Email',
+            note_id=self.peer_advising_note_id,
+            subject=subject,
+            topics=topics,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
+        assert api_json['subject'] == subject
+        assert api_json['sid'] == self.student_sid_of_note
+        for topic in topics:
+            assert topic in api_json['topics']
+
+    def test_remove_note_topics(self, app, client, fake_auth):
+        """Delete note topics."""
+        note = Note.find_by_id(self.peer_advising_note_id)
+        assert len(note.topics) > 0
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        api_json = self._api_peer_advising_note_update(
+            body=note.body,
+            client=client,
+            contact_type='Email',
+            note_id=note.id,
+            subject=note.subject,
+            topics=[],
+        )
+        assert len(api_json['topics']) == 0
+        # Put those topics back
+        fresh_topics = ['One', 'two', 'three', 'four']
+        api_json = self._api_peer_advising_note_update(
+            body=note.body,
+            client=client,
+            contact_type='Email',
+            note_id=note.id,
+            subject=note.subject,
+            topics=fresh_topics,
+        )
+        assert set(api_json['topics']) == set(fresh_topics)
 
 
 def _api_create_peer_advising_note(

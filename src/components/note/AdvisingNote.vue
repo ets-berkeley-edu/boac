@@ -76,15 +76,24 @@
       <div v-if="isAuthorDetailsLoaded && author" class="pt-2">
         <div v-if="author.name || author.email">
           <span class="sr-only">Note created by </span>
-          <a
-            v-if="author.uid && author.name"
-            :id="`note-${note.id}-author-name`"
-            :aria-label="`${author.name} UC Berkeley Directory page (opens in new window)`"
-            :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
-            target="_blank"
-          >
-            {{ author.name }}
-          </a>
+          <span v-if="author.uid && author.name">
+            <router-link
+              v-if="currentUser.isAdmin && note.peerAdvisingDepartmentId"
+              :id="`note-${note.id}-link-to-peer-advisor-home`"
+              :to="`/peer_advisor/${author.uid}/home`"
+            >
+              {{ author.name }}
+            </router-link>
+            <a
+              v-if="!currentUser.isAdmin || !note.peerAdvisingDepartmentId"
+              :id="`note-${note.id}-author-name`"
+              :aria-label="`${author.name} UC Berkeley Directory page (opens in new window)`"
+              :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
+              target="_blank"
+            >
+              {{ author.name }}
+            </a>
+          </span>
           <span v-if="!author.uid && author.name" :id="`note-${note.id}-author-name`">
             {{ author.name }}
           </span>
@@ -185,6 +194,7 @@ const noteStore = useNoteStore()
 const addAttachmentInputElementId = `note-${props.note.id}-choose-file-for-note-attachment`
 const author = ref(get(props.note, 'author'))
 const authorDepartments = computed(() => orderBy(map(author.value.departments, 'deptName')))
+const currentUser = contextStore.currentUser
 const deleteAttachmentIndex = ref(undefined)
 const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)
@@ -254,8 +264,8 @@ const loadAuthorDetails = () => {
         }
       }
       if (author_uid) {
-        if (author_uid === contextStore.currentUser.uid) {
-          callback(contextStore.currentUser)
+        if (author_uid === currentUser.uid) {
+          callback(currentUser)
           isAuthorDetailsLoaded.value = true
         } else {
           getCalnetProfileByUid(author_uid).then(callback).finally(() => isAuthorDetailsLoaded.value = true)
