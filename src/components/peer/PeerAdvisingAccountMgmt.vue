@@ -7,7 +7,7 @@
         :refresh="refresh"
       />
     </div>
-    <div v-if="peerAdvisorsActiveCount && peerAdvisorsDeletedCount" class="mr-3">
+    <div class="mr-3">
       <v-switch
         id="toggle-inactive-students-button"
         v-model="showDeletedPeerAdvisors"
@@ -22,13 +22,13 @@
       <span aria-live="polite" class="sr-only">Showing {{ showDeletedPeerAdvisors ? 'all students' : 'active students' }}</span>
     </div>
   </div>
-  <div class="border-b-sm mt-6">
+  <div class="border-b-sm ml-4 mt-6">
     <v-data-table
       :cell-props="data => {
         return {
           class: 'font-size-16 py-2 vertical-top',
           id: `td-peer-advisor-${data.item.uid}-column-${data.column.key}`,
-          style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+          style: display.mdAndUp ? 'max-width: 200px;' : ''
         }
       }"
       density="compact"
@@ -57,7 +57,7 @@
       </template>
       <template #item.notesCreatedCount="{item}">
         <div class="float-right" :class="{'font-weight-medium text-red': item.deletedAt}">
-          {{ item.notesCreatedCount }}
+          {{ get(item, 'noteCount', 0) }}
         </div>
       </template>
       <template #item.createdAt="{item}">
@@ -97,10 +97,13 @@
   </div>
 </template>
 
-<script setup>
-import {computed, ref} from 'vue'
+<script setup lang="ts">
+import type {PropType} from 'vue'
 import {DateTime} from 'luxon'
-import {filter as _filter} from 'lodash'
+import {computed, ref} from 'vue'
+import {filter as _filter, get} from 'lodash'
+import {useDisplay} from 'vuetify'
+import type {BoaUser} from '@/lib/types'
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
 import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising.js'
 
@@ -115,7 +118,7 @@ const props = defineProps({
   },
   peerAdvisors: {
     required: true,
-    type: Array
+    type: Array as PropType<BoaUser[]>
   },
   refresh: {
     required: true,
@@ -123,13 +126,13 @@ const props = defineProps({
   }
 })
 
-const dataTableRows = computed(() => _filter(props.peerAdvisors, u => showDeletedPeerAdvisors.value || !u.deletedAt))
-const peerAdvisorsActiveCount = computed(() => _filter(props.peerAdvisors, m => !m.deletedAt).length)
-const peerAdvisorsDeletedCount = computed(() => _filter(props.peerAdvisors, m => m.deletedAt).length)
+const dataTableRows = computed<BoaUser[]>(() => _filter(props.peerAdvisors, u => showDeletedPeerAdvisors.value || !u.deletedAt))
+const display = useDisplay()
 const isBusy = ref(false)
+const peerAdvisorsActiveCount = computed<number>(() => _filter(props.peerAdvisors, m => !m.deletedAt).length)
 const showDeletedPeerAdvisors = ref(!peerAdvisorsActiveCount.value)
 
-const onClickDeletePeerAdvisor = userId => {
+const onClickDeletePeerAdvisor = (userId: number) => {
   isBusy.value = true
   deletePeerAdvisor(props.peerAdvisingDepartmentId, userId).then(() => {
     props.refresh().then(() => {

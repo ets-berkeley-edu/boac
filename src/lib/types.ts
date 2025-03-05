@@ -34,13 +34,14 @@ export type BoaConfig = {
 }
 
 export type BoaUser = {
-  id: number | undefined,
+  id: number,
   automateDegreeProgressPermission: boolean,
   canAccessAdmittedStudents: boolean,
   canAccessAdvisingData: boolean,
   canAccessCanvasData: boolean,
   canEditDegreeProgress: boolean,
   canReadDegreeProgress: boolean,
+  createdAt: string,
   degreeProgressPermission: string | undefined,
   deletedAt: string | undefined,
   departments: BoaUserDepartment[],

@@ -36,8 +36,18 @@ qcadv_advisor_uid = '53791'
 class TestGetPeerAdvisingDepartment:
 
     @classmethod
-    def _api_get_peer_advising_department(cls, client, peer_advising_department_id, role_type, expected_status_code=200):
-        response = client.get(f'/api/peer/department/{peer_advising_department_id}/{role_type}')
+    def _api_get_peer_advising_department(
+            cls,
+            client,
+            peer_advising_department_id,
+            role_type,
+            expected_status_code=200,
+            include_note_counts=False,
+    ):
+        url = f'/api/peer/department/{peer_advising_department_id}/{role_type}'
+        if include_note_counts:
+            url += '?includeNoteCounts=true'
+        response = client.get(url)
         assert response.status_code == expected_status_code
         return response.json
 
@@ -69,11 +79,15 @@ class TestGetPeerAdvisingDepartment:
         assert peer_advisor_manager
         api_json = self._api_get_peer_advising_department(
             client=client,
+            include_note_counts=True,
             peer_advising_department_id=2,
             role_type='peer_advisor',
         )
         assert api_json['name']
-        assert len(api_json['peerAdvisingDepartmentMembers'])
+        department_members = api_json['peerAdvisingDepartmentMembers']
+        assert len(department_members)
+        for member in department_members:
+            assert member['noteCount'] > -1
 
 
 class TestDeleteAndRestore:

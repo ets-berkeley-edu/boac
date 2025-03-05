@@ -27,7 +27,9 @@ from boac.api.decorators import peer_advisor_manager_required
 from boac.api.errors import ResourceNotFoundError
 from boac.api.util import authorized_users_api_feed
 from boac.lib.http import tolerant_jsonify
+from boac.lib.util import to_bool_or_none
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.note import Note
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from dateutil.tz import tzutc
@@ -67,6 +69,7 @@ def create_peer_advisor():
 @peer_advisor_manager_required
 def get_peer_advising_department(peer_advising_department_id, role_type):
     include_deleted = request.args.get('includeDeleted', False)
+    include_note_counts = to_bool_or_none(request.args.get('includeNoteCounts')) or False
     peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
     if peer_advising_department:
         users = AuthorizedUser.get_peer_advising_users(
@@ -80,6 +83,10 @@ def get_peer_advising_department(peer_advising_department_id, role_type):
                 status='deleted',
             )
         users = authorized_users_api_feed(users)
+        if include_note_counts:
+            note_counts_per_uid = Note.get_note_counts_per_uid([u['uid'] for u in users])
+            for user in users:
+                user['noteCount'] = note_counts_per_uid.get(user['uid'], 0)
         users = sorted([{**user, **{'role': role_type}} for user in users], key=lambda u: u['lastName'])
         api_json = {
             **peer_advising_department.to_api_json(),
