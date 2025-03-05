@@ -501,6 +501,9 @@
 .w-40 {
   width: 40% !important;
 }
+.w-90 {
+  width: 90% !important;
+}
 a {
   color: rgb(var(--v-theme-anchor));
   text-decoration: none;
