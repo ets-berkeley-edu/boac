@@ -8,6 +8,14 @@ export function createPeerAdvisor(peerAdvisingDeptId: number, uid: string) {
     .then(response => response.data)
 }
 
+export function getStudentEnrollments(sid: string, termId?: number) {
+  let url: string = `${utils.apiBaseUrl()}/api/peer_advising/${sid}/enrollments`
+  if (termId) {
+    url += `?termId=${termId}`
+  }
+  return axios.get(url).then(response => response.data)
+}
+
 export function deletePeerAdvisor(peerAdvisingDeptId: number, userId: number) {
   const headers = {'Content-Type': 'application/json'}
   const url: string = `${utils.apiBaseUrl()}/api/peer/delete_peer_advisor/${peerAdvisingDeptId}/${userId}`

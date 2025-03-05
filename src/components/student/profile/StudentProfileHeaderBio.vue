@@ -119,8 +119,9 @@
 import {get} from 'lodash'
 import {mdiSchool} from '@mdi/js'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
-import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding, termNameForSisId} from '@/lib/berkeley-utils'
+import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding} from '@/lib/student'
 import {pluralize} from '@/lib/utils'
+import {termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

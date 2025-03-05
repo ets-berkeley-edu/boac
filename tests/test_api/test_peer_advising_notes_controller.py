@@ -176,6 +176,39 @@ class TestGetPeerAdvisingTopics:
         assert 'Probation' in [topic['topic'] for topic in api_json]
 
 
+class TestGetStudentEnrollments:
+
+    @classmethod
+    def _api_get_student_enrollments(cls, client, sid, expected_status_code=200):
+        response = client.get(f'/api/peer_advising/{sid}/enrollments')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_unauthorized(self, client, fake_auth):
+        """Only Peer Advisors can reach this API."""
+        for uid in [None, qcadv_advisor_uid]:
+            if uid:
+                fake_auth.login(uid)
+            self._api_get_student_enrollments(
+                client,
+                expected_status_code=401,
+                sid='11667051',
+            )
+
+    def test_authorized(self, client, fake_auth):
+        """Peer Advisors get minimal access to student enrollment data."""
+        fake_auth.login(coe_mech_peer_advisor_uid)
+        api_json = self._api_get_student_enrollments(client, sid='11667051')
+        # Verify term info
+        assert len(api_json)
+        term = api_json[0]
+        assert set(term.keys()) == {'termId', 'termName', 'enrollments'}
+        # Verify limited enrollment data
+        assert len(term['enrollments'])
+        enrollment = term['enrollments'][0]
+        assert set(enrollment.keys()) == {'displayName', 'title', 'units'}
+
+
 class TestUpdateNotes:
 
     @classmethod

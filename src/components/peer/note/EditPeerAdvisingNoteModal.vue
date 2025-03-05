@@ -18,6 +18,11 @@
         <div v-if="!student">
           <PeerAdvisingNoteStudentLookup />
         </div>
+        <CompactStudentCourseSchedule
+          v-if="get(student, 'sid')"
+          :sid="student.sid"
+          :student-name="`${student.firstName} ${student.lastName}`"
+        />
         <RichTextEditor
           id="peer-advising-note-body"
           class="mt-3"
@@ -54,11 +59,12 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {computed, onMounted, ref} from 'vue'
-import {size} from 'lodash'
+import {get, size} from 'lodash'
 import {storeToRefs} from 'pinia'
 import {useDisplay} from 'vuetify'
 import type {BasicStudent, NoteRecipients, NoteTopic} from '@/lib/types'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
+import CompactStudentCourseSchedule from '@/components/peer/note/CompactStudentCourseSchedule.vue'
 import ContactMethod from '@/components/note/ContactMethod.vue'
 import CreateNoteFooter from '@/components/note/CreateNoteFooter.vue'
 import EditPeerAdvisingNoteHeader from '@/components/peer/note/EditPeerAdvisingNoteHeader.vue'

@@ -189,7 +189,7 @@
 <script setup>
 import {mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
 import {find, get, includes, join, orderBy, remove, size} from 'lodash'
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import {toInt} from '@/lib/utils'
 import {isGraduate} from '@/lib/berkeley-utils'
@@ -214,36 +214,39 @@ const props = defineProps({
   }
 })
 
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
+const hasCalCentralProfile = ref(false)
+const isExpanded = ref(false)
+const visaDescription = ref()
+
+onMounted(() => {
+  const mostRecent = find(props.student.enrollmentTerms, e => hasCompletedSection(e))
+  // In the odd scheme of SIS termIds, a diff of 20 is equivalent to a diff of two years.
+  const enrolledInPastTwoYears = mostRecent && (contextStore.config.currentEnrollmentTermId - toInt(mostRecent.termId) <= 20)
+  hasCalCentralProfile.value = enrolledInPastTwoYears || includes(props.student.sisProfile.calnetAffiliations, 'SIS-EXTENDED')
+  if (get(props.student, 'demographics.visa.status') === 'G') {
+    switch (props.student.demographics.visa.type) {
+    case 'F1':
+      visaDescription.value = 'F-1 International Student'
+      break
+    case 'J1':
+      visaDescription.value = 'J-1 International Student'
+      break
+    case 'PR':
+      visaDescription.value = 'PR Verified International Student'
+      break
+    default:
+      visaDescription.value = 'Other Verified International Student'
+      break
+    }
+  }
+})
+
 const hasCompletedSection = enrollmentTerm => {
   const enrollments = enrollmentTerm.enrollments
   return enrollments.length && find(enrollments, e => {
     return size(e.sections) && find(e.sections, section => section.enrollmentStatus === 'E')
   })
-}
-
-const contextStore = useContextStore()
-const currentUser = contextStore.currentUser
-const isExpanded = ref(false)
-const mostRecent = find(props.student.enrollmentTerms, e => hasCompletedSection(e))
-// In the odd scheme of SIS termIds, a diff of 20 is equivalent to a diff of two years.
-const enrolledInPastTwoYears = mostRecent && (contextStore.config.currentEnrollmentTermId - toInt(mostRecent.termId) <= 20)
-const hasCalCentralProfile = enrolledInPastTwoYears || includes(props.student.sisProfile.calnetAffiliations, 'SIS-EXTENDED')
-let visaDescription
-
-if (get(props.student, 'demographics.visa.status') === 'G') {
-  switch (props.student.demographics.visa.type) {
-  case 'F1':
-    visaDescription = 'F-1 International Student'
-    break
-  case 'J1':
-    visaDescription = 'J-1 International Student'
-    break
-  case 'PR':
-    visaDescription = 'PR Verified International Student'
-    break
-  default:
-    visaDescription = 'Other Verified International Student'
-    break
-  }
 }
 </script>

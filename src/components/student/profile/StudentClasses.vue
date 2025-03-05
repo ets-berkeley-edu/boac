@@ -128,13 +128,14 @@
 </template>
 
 <script setup>
-import {each, find, groupBy, includes, map, orderBy, sumBy} from 'lodash'
+import {each, find, orderBy, sumBy} from 'lodash'
 import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {alertScreenReader, goToStudentDegreeChecks} from '@/lib/utils'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import {sisIdForTermName} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
+import {getEnrollmentTermsByYear} from '@/lib/student.js'
 
 const props = defineProps({
   student: {
@@ -144,24 +145,14 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
-const config = contextStore.config
 const currentUser = contextStore.currentUser
 const enrollmentTermsByYear = ref({})
 const expanded = ref(false)
 const yearSortOrder = ref('desc')
 
 onMounted(() => {
-  const grouped = groupBy(props.student.enrollmentTerms, 'academicYear')
-  const enrollmentTerms = map(grouped, (terms, year) => {
-    const semesters = [`Fall ${year - 1}`, `Spring ${year}`, `Summer ${year}`]
-    return {
-      isOpen: includes(semesters, config.currentEnrollmentTerm),
-      label: year,
-      terms
-    }
-  })
-  sort()
-  enrollmentTermsByYear.value = orderBy(enrollmentTerms, 'label', yearSortOrder.value)
+  const descending = yearSortOrder.value === 'desc'
+  enrollmentTermsByYear.value = getEnrollmentTermsByYear(props.student, descending)
 })
 
 const expandCollapseAll = () => {

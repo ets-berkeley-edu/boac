@@ -159,6 +159,12 @@ export type DraggingContext = {
   target: unknown | undefined
 }
 
+export type Enrollment = {
+  'displayName': string,
+  'title': string,
+  'units': number
+}
+
 export type ExportListOption = {
   text: string,
   value: string,
@@ -281,5 +287,12 @@ export interface Student extends HasName {
   academicCareerStatus: string,
   academicStanding: string,
   alertCount?: number,
-  degrees?: object[]
+  degrees?: object[],
+  enrollmentTerms: object
+}
+
+export type TermEnrollment = {
+  termId: number,
+  termName: string,
+  enrollments: Enrollment[]
 }
