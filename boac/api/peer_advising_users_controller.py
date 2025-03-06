@@ -33,6 +33,7 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
+from boac.models.university_dept import UniversityDept
 from dateutil.tz import tzutc
 from flask import current_app as app, request
 from flask_login import current_user
@@ -73,6 +74,7 @@ def get_peer_advising_department(peer_advising_department_id, role_type):
     include_note_counts = to_bool_or_none(request.args.get('includeNoteCounts')) or False
     peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
     if peer_advising_department:
+        university_dept = UniversityDept.find_by_id(peer_advising_department.university_dept_id)
         users = AuthorizedUser.get_peer_advising_users(
             peer_advising_department_id=peer_advising_department_id,
             role_type=role_type,
@@ -91,7 +93,11 @@ def get_peer_advising_department(peer_advising_department_id, role_type):
         users = sorted([{**user, **{'role': role_type}} for user in users], key=lambda u: u['lastName'])
         api_json = {
             **peer_advising_department.to_api_json(),
-            **{'peerAdvisingDepartmentMembers': users},
+            **{
+                'peerAdvisingDepartmentMembers': users,
+                'universityDeptCode': university_dept.dept_code,
+                'universityDeptName': university_dept.dept_name,
+            },
         }
         return tolerant_jsonify(api_json)
     else:
