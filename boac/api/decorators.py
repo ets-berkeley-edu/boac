@@ -204,7 +204,8 @@ def peer_advisor_or_peer_advisor_manager_in_department(func):
                     or is_peer_advisor(current_user)
                     or _api_key_ok())
                 and (
-                    PeerAdvisingDepartmentMember.is_user_in_peer_advising_department(
+                    current_user.is_admin
+                    or PeerAdvisingDepartmentMember.is_user_in_peer_advising_department(
                         user_id=current_user.get_id(),
                         peer_advising_department_id=peer_advising_department_id)
                 )):

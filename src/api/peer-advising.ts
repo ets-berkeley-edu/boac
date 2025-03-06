@@ -32,7 +32,7 @@ export async function createPeerAdvisingNoteTemplate(peerAdvisingDeptId: number,
   const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_template/create`
   const noteTemplate = {
     peerAdvisingDeptId: peerAdvisingDeptId,
-    noteBody: body,
+    body: body,
     topics: topics,
     title: title
   }

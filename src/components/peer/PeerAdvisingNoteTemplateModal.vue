@@ -1,27 +1,28 @@
 <template>
-  <div class="pa-4 text-center">
+  <div class="text-center">
     <v-dialog
       v-model="model"
       max-width="600"
     >
       <v-card>
         <template #title>
-          <span class="text-h5">Create New Note Template</span>
+          <span class="text-h5">{{ title }}</span>
         </template>
-        <v-divider class="border-opacity-50"></v-divider>
+        <v-divider class="border-opacity-50 ma-0"></v-divider>
 
         <div class="pt-6 pl-6 pr-6">
           <div>
             <v-text-field
               id="peer-advising-note-template-name-text"
               v-model="templateName"
+              :disabled="isSaving"
               label="Note Template Name"
               variant="outlined"
             >
             </v-text-field>
           </div>
         </div>
-        <div class="pb-6 pl-6 pr-6">
+        <div v-if="action !== 'copy'" class="pb-6 pl-6 pr-6">
           <div id="note-template-details" class="bg-transparent mt-2">
             <RichTextEditor
               id="peer-advising-note-template-details-text"
@@ -34,8 +35,12 @@
           </div>
         </div>
 
-        <div class="pr-6 pl-6 pb-3">
-          <PeerAdvisingNoteTopics :topics="topicsSelected" @update-topics="handleTopicsUpdate" />
+        <div v-if="action !== 'copy'" class="pr-6 pl-6 pb-3">
+          <PeerAdvisingNoteTopics
+            :topics="topicsSelected"
+            :read-only="action === 'view'"
+            @update-topics="handleTopicsUpdate"
+          />
         </div>
 
         <v-divider class="border-opacity-50"></v-divider>
@@ -50,6 +55,7 @@
             @click="cancel"
           />
           <ProgressButton
+            v-if="action !== 'view'"
             id="save-new-peer-advising-note-template"
             class="float-end"
             :action="saveNoteTemplate"
@@ -78,7 +84,7 @@ const props = defineProps({
     required: true,
     type: Number
   },
-  editingNoteTemplate: {
+  selectedNoteTemplate: {
     required: false,
     default: undefined,
     type: Object
@@ -95,12 +101,27 @@ const templateName = ref('')
 const isSaving = ref(false)
 const topicsSelected = ref([])
 
+const title = computed(() => {
+  switch (props.action) {
+  case 'view':
+    return 'View Note Template'
+  case 'edit':
+    return 'Edit Note Template'
+  case 'copy':
+    return 'Copy Note Template'
+  case 'create':
+    return 'Create Note Template'
+  default: // Should never happen!!
+    return 'Create Note Template'
+  }
+})
+
 const isSaveDisabled = computed(() => {
-  return !(noteDetailsText.value.length > 0 && templateName.value.length > 0)
+  return !(noteDetailsText?.value?.length > 0 && templateName?.value?.length > 0) || props.action === 'view'
 })
 
 const saveButtonText = computed(() => {
-  if (!props.editingNoteTemplate) {
+  if (!props.selectedNoteTemplate) {
     return isSaving.value ? 'Saving...' : 'Save Note Template'
   }
   if (isSaving.value) {
@@ -120,10 +141,10 @@ onMounted(() => {
 })
 
 const assignEditedNoteTemplateValues = () => {
-  if (props.editingNoteTemplate && props.action === 'edit' || props.action === 'copy') {
-    noteDetailsText.value = props.editingNoteTemplate.body
-    templateName.value = props.action === 'copy' ? props.editingNoteTemplate.title + 'Copy' : props.editingNoteTemplate.title
-    topicsSelected.value = props.editingNoteTemplate.topics
+  if (props.selectedNoteTemplate && props.action === 'edit' || props.action === 'copy' || props.action === 'view') {
+    noteDetailsText.value = props.selectedNoteTemplate.body
+    templateName.value = props.action === 'copy' ? props.selectedNoteTemplate.title + 'Copy' : props.selectedNoteTemplate.title
+    topicsSelected.value = props.selectedNoteTemplate.topics
   } else {
     noteDetailsText.value = ''
     templateName.value = ''
@@ -144,15 +165,15 @@ const handleTopicsUpdate = (newTopics) => {
 
 const saveNoteTemplate = () => {
   isSaving.value = true
-  if (props.action === 'edit' && props.editingNoteTemplate) {
+  if (props.action === 'edit' && props.selectedNoteTemplate) {
     // Update API call
-    updatePeerAdvisingNoteTemplate(props.editingNoteTemplate.id, noteDetailsText.value, templateName.value, topicsSelected.value).then((updatedNoteTemplate) => {
+    updatePeerAdvisingNoteTemplate(props.selectedNoteTemplate.id, noteDetailsText.value, templateName.value, topicsSelected.value).then((updatedNoteTemplate) => {
       model.value = false
       isSaving.value = false
       emit('note-template-updated', updatedNoteTemplate)
       alertScreenReader(`Updated ${updatedNoteTemplate.title} note template.`)
     })
-  } else { // This is a new template
+  } else if (props.action === 'create' || props.action === 'copy') { // This is a new template
     createPeerAdvisingNoteTemplate(props.peerAdvisingDeptId, noteDetailsText.value, templateName.value, topicsSelected.value).then((newNoteTemplate) => {
       model.value = false
       isSaving.value = false

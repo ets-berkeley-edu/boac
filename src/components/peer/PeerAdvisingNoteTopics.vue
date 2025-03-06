@@ -58,7 +58,7 @@ import {onMounted, ref, watch} from 'vue'
 import {each, size} from 'lodash'
 import PillItem from '@/components/util/PillItem'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {getTopicsForNotes} from '@/api/topics'
+import {getPeerAdvisingTopics} from '@/api/peer-advising-notes.js'
 
 const props = defineProps({
   template: {
@@ -99,7 +99,7 @@ watch(topicsSelected, (newVal) => {
 
 onMounted(() => {
   if (!props.readOnly) {
-    getTopicsForNotes(false).then(rows => {
+    getPeerAdvisingTopics(false).then(rows => {
       each(rows, row => {
         const value = row['topic']
         topicOptions.value.push({text: value, value, disabled})
