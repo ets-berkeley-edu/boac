@@ -15,10 +15,21 @@
             <v-text-field
               id="peer-advising-note-template-name-text"
               v-model="templateName"
+              counter="255"
               :disabled="isSaving"
               label="Note Template Name"
               variant="outlined"
+              :maxlength="maxlength"
+              persistent-counter
+              required
+              :rules="[() => isValidName]"
+              validate-on="lazy input"
             >
+              <template #counter>
+                <div>
+                  {{ size(templateName) ? `${maxlength} character limit (${maxlength - size(templateName)} left)` : `${maxlength} character limit` }}
+                </div>
+              </template>
             </v-text-field>
           </div>
         </div>
@@ -59,7 +70,7 @@
             id="save-new-peer-advising-note-template"
             class="float-end"
             :action="saveNoteTemplate"
-            :disabled="isSaveDisabled"
+            :disabled="isValidName !== true || isSaveDisabled"
             :in-progress="isSaving"
             :text="saveButtonText"
           />
@@ -72,6 +83,7 @@
 <script setup>
 
 import {computed, onMounted, ref, watch} from 'vue'
+import {isEmpty, size} from 'lodash'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import PeerAdvisingNoteTopics from '@/components/peer/PeerAdvisingNoteTopics.vue'
 import {createPeerAdvisingNoteTemplate, updatePeerAdvisingNoteTemplate} from '@/api/peer-advising.js'
@@ -92,6 +104,10 @@ const props = defineProps({
   action: {
     required: true,
     type: String
+  },
+  noteTemplates: {
+    required: true,
+    type: Array
   }
 })
 
@@ -100,6 +116,7 @@ const noteDetailsText = ref('')
 const templateName = ref('')
 const isSaving = ref(false)
 const topicsSelected = ref([])
+const maxlength = 255
 
 const title = computed(() => {
   switch (props.action) {
@@ -116,8 +133,10 @@ const title = computed(() => {
   }
 })
 
+const isValidName = computed(() => validateNoteTemplateName(templateName.value))
+
 const isSaveDisabled = computed(() => {
-  return !(noteDetailsText?.value?.length > 0 && templateName?.value?.length > 0) || props.action === 'view'
+  return !(noteDetailsText.value.length > 0 && templateName.value.length > 0) || props.action === 'view'
 })
 
 const saveButtonText = computed(() => {
@@ -141,9 +160,9 @@ onMounted(() => {
 })
 
 const assignEditedNoteTemplateValues = () => {
-  if (props.selectedNoteTemplate && props.action === 'edit' || props.action === 'copy' || props.action === 'view') {
+  if (props.selectedNoteTemplate && ['copy', 'edit', 'view'].includes(props.action)) {
     noteDetailsText.value = props.selectedNoteTemplate.body
-    templateName.value = props.action === 'copy' ? props.selectedNoteTemplate.title + 'Copy' : props.selectedNoteTemplate.title
+    templateName.value = props.action === 'copy' ? props.selectedNoteTemplate.title + ' Copy' : props.selectedNoteTemplate.title
     topicsSelected.value = props.selectedNoteTemplate.topics
   } else {
     noteDetailsText.value = ''
@@ -181,8 +200,28 @@ const saveNoteTemplate = () => {
       alertScreenReader(`Created ${newNoteTemplate.title} note template.`)
     })
   }
-
 }
+
+const validateNoteTemplateName = (name) => {
+  if (isEmpty(name)) {
+    return 'Name is required'
+  }
+  if (size(name) > 255) {
+    return 'Name must be 255 characters or fewer'
+  }
+  const msg = isExistingName(name)
+  return msg && size(msg) ? msg : true
+}
+
+const isExistingName = (name) => {
+  return props.noteTemplates.some(template => (['copy', 'create'].includes(props.action) && template.title === name)
+    || (props.action === 'edit' && template.title === name && template.id !== props.selectedNoteTemplate?.id)
+  )
+    ? 'Name already exists. Please choose a different name.' : false
+}
+
+
+
 </script>
 
 <style>

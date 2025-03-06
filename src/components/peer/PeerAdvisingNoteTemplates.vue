@@ -21,6 +21,7 @@
           :peer-advising-dept-id="peerAdvisingDepartment.id"
           :selected-note-template="selectedNoteTemplate"
           :action="action"
+          :note-templates="noteTemplates"
           @note-template-updated="getNoteTemplates"
         />
       </div>
@@ -58,7 +59,7 @@
           <td class="cursor-pointer" @click="openNoteTemplateClicked(item)"> {{ DateTime.fromISO(item.createdAt).toFormat('MMM d, yyyy') }} </td>
           <td>
             <v-btn
-              :id="`edit-note-template-${item.uid}`"
+              :id="`edit-note-template-${item.id}`"
               :aria-label="`Edit ${item.name}`"
               color="primary"
               density="compact"
@@ -69,7 +70,7 @@
             />
             |
             <v-btn
-              :id="`copy-note-template-${item.uid}`"
+              :id="`copy-note-template-${item.id}`"
               :aria-label="`Copy ${item.name}`"
               color="primary"
               density="compact"
@@ -80,7 +81,7 @@
             />
             |
             <v-btn
-              :id="`delete-note-template-${item.uid}`"
+              :id="`delete-note-template-${item.id}`"
               :aria-label="`Delete ${item.name}`"
               color="primary"
               density="compact"
