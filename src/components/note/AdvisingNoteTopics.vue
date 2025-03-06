@@ -1,7 +1,7 @@
 <template>
   <div>
     <label id="add-note-topic-label" class="font-size-16 font-weight-bold" for="add-topic-select-list">
-      Topic Categories
+      Topic {{ size(topicOptions) === 1 ? 'Category' : 'Categories' }}
     </label>
     <div v-if="!readOnly && size(topicOptions)" class="mt-2">
       <select

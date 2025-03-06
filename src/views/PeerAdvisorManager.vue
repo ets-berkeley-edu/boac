@@ -1,7 +1,12 @@
 <template>
   <div v-if="!loading" class="bg-sky-blue">
     <div class="pb-2 pt-4 px-4">
-      <h1 id="page-header" class="mr-2">Peer Advising Management Dashboard</h1>
+      <h1 id="page-header" :class="{'mb-1': currentUser.isAdmin}" class="mr-2">Peer Advising Management Dashboard</h1>
+      <div v-if="currentUser.isAdmin" class="mb-1">
+        <span class="font-weight-bold text-medium-emphasis">{{ peerAdvisingDepartment.name }}</span><span v-if="peerAdvisingDepartment.name !== peerAdvisingDepartment.universityDeptName">,
+          within {{ peerAdvisingDepartment.universityDeptName }}.
+        </span>
+      </div>
     </div>
     <v-tabs
       v-model="tab"
@@ -81,6 +86,7 @@ import {useContextStore} from '@/stores/context'
 import {toInt} from '@/lib/utils'
 
 const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
 const display = useDisplay()
 const isRefreshing = ref(false)
 const loading = computed(() => contextStore.loading)

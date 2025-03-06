@@ -11,7 +11,7 @@
           <th class="border-b-md th-note">Note</th>
           <th class="border-b-md th-topics">Topic(s)</th>
           <th class="border-b-md th-created-date">
-            <div class="float-right">Date Created</div>
+            <div class="float-right pr-2">Date Created</div>
           </th>
         </tr>
       </thead>
@@ -43,7 +43,13 @@
               SID: {{ note.sid }}
             </div>
           </td>
-          <td :id="`note-body-in-row-${index}`" :class="{'border-b-md': index === notes.length - 1}" class="td-note">
+          <td
+            :id="`note-body-in-row-${index}`"
+            :class="{'border-b-md': index === notes.length - 1}"
+            class="td-note"
+          >
+            <!--
+            TODO: Should admins link to /student profile page so they can easily delete.
             <router-link
               v-if="currentUser.isAdmin"
               :id="`link-to-student-${note.student.uid}`"
@@ -53,16 +59,37 @@
             >
               <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
             </router-link>
-            <button
-              v-if="isPeerAdvisor(currentUser)"
-              :id="`open-peer-advising-${note.id}`"
-              :aria-label="`Edit ${getStudentName(note)} note`"
-              class="align-center d-flex justify-space-between text-primary w-100"
-              :class="{'demo-mode-blur': currentUser.inDemoMode}"
-              @click="() => openEditDialog(note)"
-            >
-              <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
-            </button>
+            -->
+            <v-expand-transition>
+              <button
+                v-if="!expandedNoteIds.includes(note.id)"
+                :id="`open-peer-advising-${note.id}`"
+                :aria-label="`Edit ${getStudentName(note)} note`"
+                class="align-center d-flex justify-space-between text-primary w-100"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                @click="() => toggleShowHide(note)"
+              >
+                <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
+              </button>
+            </v-expand-transition>
+            <v-expand-transition>
+              <div v-if="expandedNoteIds.includes(note.id)">
+                <div class="margins-of-hide-note-btn text-center w-100">
+                  <v-btn
+                    :id="`hide-note-${note.id}-details`"
+                    :aria-expanded="true"
+                    class="w-100"
+                    color="primary"
+                    density="compact"
+                    :prepend-icon="mdiCloseCircle"
+                    text="Close Message"
+                    variant="text"
+                    @click="toggleShowHide(note)"
+                  />
+                </div>
+                <PeerAdvisingNoteDetails class="my-3" :note="note" />
+              </div>
+            </v-expand-transition>
           </td>
           <td
             :id="`note-topics-in-row-${index}`"
@@ -80,7 +107,7 @@
             :class="{'border-b-md': index === notes.length - 1}"
             class="td-created-date"
           >
-            <div class="float-right">
+            <div class="float-right pr-2">
               {{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}
             </div>
           </td>
@@ -102,25 +129,27 @@
         :total-rows="totalNoteCount"
       />
     </div>
+    <!--
+    TODO: Do we need a component dedicated to editing notes authored by Peer Advisors.
     <EditPeerAdvisingNoteModal
       v-model="isEditDialogOpen"
       :student="selectedStudent"
     />
+    -->
   </div>
 </template>
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {DateTime} from 'luxon'
-import {size} from 'lodash'
+import {mdiCloseCircle} from '@mdi/js'
 import {ref} from 'vue'
-import type {BasicStudent, Note} from '@/lib/types'
-import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
+import {size} from 'lodash'
+import type {Note} from '@/lib/types'
 import Pagination from '@/components/util/Pagination.vue'
-import {isPeerAdvisor} from '@/lib/boa-user'
 import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useNoteStore} from '@/stores/note-edit-session'
+import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 
 defineProps({
   currentPage: {
@@ -151,23 +180,34 @@ defineProps({
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
-const isEditDialogOpen = ref(false)
-const noteStore = useNoteStore()
-const selectedStudent = ref<BasicStudent | undefined>()
+const expandedNoteIds = ref<number[]>([])
 
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 
-const openEditDialog = (note: Note) => {
-  selectedStudent.value = note.student
-  noteStore.setMode('editPeerAdvisorNote')
-  noteStore.setModel(note)
-  noteStore.setCompleteSidSet([note.student.sid])
-  noteStore.setIsCreateNoteModalOpen(true)
-  isEditDialogOpen.value = true
+// TODO: Do we need to support note editing on this page?
+// const openEditDialog = (note: Note) => {
+//   selectedStudent.value = note.student
+//   noteStore.setMode('editPeerAdvisorNote')
+//   noteStore.setModel(note)
+//   noteStore.setCompleteSidSet([note.student.sid])
+//   noteStore.setIsCreateNoteModalOpen(true)
+//   isEditDialogOpen.value = true
+// }
+
+const toggleShowHide = (note: Note) => {
+  const index = expandedNoteIds.value.indexOf(note.id)
+  if (index > -1) {
+    expandedNoteIds.value.splice(index, 1)
+  } else {
+    expandedNoteIds.value.push(note.id)
+  }
 }
 </script>
 
 <style scoped>
+.margins-of-hide-note-btn {
+  margin-left: -15px;
+}
 .td-created-date {
   max-width: 120px !important;
   padding: 5px 0;
@@ -176,7 +216,8 @@ const openEditDialog = (note: Note) => {
   width: 120px !important;
 }
 .td-note {
-  max-width: 300px !important;
+  width: 600px !important;
+  max-width: 600px !important;
   padding: 5px;
   vertical-align: top;
 }

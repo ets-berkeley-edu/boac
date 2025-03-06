@@ -33,7 +33,7 @@ export type BoaConfig = {
   timezone: string
 }
 
-export type BoaUser = {
+export interface BoaUser extends CalNetUser {
   id: number,
   automateDegreeProgressPermission: boolean,
   canAccessAdmittedStudents: boolean,
@@ -73,6 +73,18 @@ export type BoaUsersFilter = {
   searchPhrase: string,
   status: string,
   type: string
+}
+
+export type CalNetUser = {
+  campusEmail: string,
+  email: string,
+  'firstName': string,
+  'isExpiredPerLdap': string,
+  'lastName': string,
+  'name': string | undefined,
+  'csid': string,
+  'title': string | undefined,
+  'uid': string
 }
 
 export type Cohort = {
