@@ -61,5 +61,5 @@ class PeerAdvisingDepartment(Base):
         return {
             'id': self.id,
             'name': self.name,
-            'universityDeptId': self.name,
+            'universityDeptId': self.university_dept_id,
         }
