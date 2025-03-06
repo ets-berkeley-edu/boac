@@ -8,6 +8,11 @@ export function createPeerAdvisor(peerAdvisingDeptId: number, uid: string) {
     .then(response => response.data)
 }
 
+export function getBasicStudent(sid: string) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/student/${sid}`
+  return axios.get(url).then(response => response.data)
+}
+
 export function getStudentEnrollments(sid: string, termId?: number) {
   let url: string = `${utils.apiBaseUrl()}/api/peer_advising/${sid}/enrollments`
   if (termId) {

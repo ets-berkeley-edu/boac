@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.decorators import peer_advisor_manager_required
+from boac.api.decorators import peer_advisor_manager_required, peer_advisor_required
 from boac.api.errors import ResourceNotFoundError
 from boac.api.util import authorized_users_api_feed
+from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.models.authorized_user import AuthorizedUser
@@ -95,6 +96,22 @@ def get_peer_advising_department(peer_advising_department_id, role_type):
         return tolerant_jsonify(api_json)
     else:
         raise ResourceNotFoundError('Peer Advising Department not found.')
+
+
+@app.route('/api/peer_advising/student/<sid>')
+@peer_advisor_required
+def get_basic_student(sid):
+    students = data_loch.get_basic_student_data([sid])
+    if len(students) == 1:
+        student = students[0]
+        return tolerant_jsonify({
+            'firstName': student['first_name'],
+            'lastName': student['last_name'],
+            'sid': student['sid'],
+            'uid': student['uid'],
+        })
+    else:
+        raise ResourceNotFoundError('Student not found.')
 
 
 @app.route('/api/peer/delete_peer_advisor/<peer_advising_department_id>/<peer_advisor_user_id>', methods=['DELETE'])

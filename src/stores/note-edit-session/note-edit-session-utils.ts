@@ -148,6 +148,7 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
           model.topics
         ).then(note => {
           noteStore.setModel(note)
+          resolve(note)
         })
       } else {
         throw new Error('Peer Advising notes require fields which are optional for standard notes.')
