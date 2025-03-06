@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!contextStore.loading" class="mt-10 page-container">
+  <div v-if="!contextStore.loading" class="mt-8 mx-16">
     <div class="d-flex justify-space-between">
       <div>
         <h1>Peer Advising Notes</h1>
@@ -141,7 +141,7 @@ const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
 
 <style scoped>
 .page-container {
-  margin-left: 12%;
-  margin-right: 12%;
+  margin-left: 5%;
+  margin-right: 5%;
 }
 </style>
