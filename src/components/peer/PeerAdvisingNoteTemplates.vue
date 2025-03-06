@@ -11,6 +11,7 @@
           color="primary"
           slim
           text="Create new Note Template"
+          :disabled="currentUser.isAdmin"
           variant="text"
           :prepend-icon="mdiPlus"
           @click="openNewTemplateModal"
@@ -18,7 +19,7 @@
         <PeerAdvisingNoteTemplateModal
           v-model="noteTemplateModalOpen"
           :peer-advising-dept-id="peerAdvisingDepartment.id"
-          :editing-note-template="selectedNoteTemplate"
+          :selected-note-template="selectedNoteTemplate"
           :action="action"
           @note-template-updated="getNoteTemplates"
         />
@@ -30,7 +31,6 @@
       :headers="headers"
       :header-props="{class: 'data-table-header-cell'}"
       hide-default-footer
-      hide-no-data
       hover
       :items="noteTemplates"
       :items-per-page="-1"
@@ -38,6 +38,11 @@
       :row-props="row => ({id: `row-note-template-${row.item.uid}`})"
     >
       <!-- Override header cells for each column -->
+      <template #no-data>
+        <div class="pa-4">
+          Click on <span class="font-italic">Create new Note Template</span> to add your first note template.
+        </div>
+      </template>
       <template #header.name>
         <th class="w-50">Template Name</th>
       </template>
@@ -49,14 +54,15 @@
       </template>
       <template #item="{ item, index }">
         <tr :class="index % 2 === 0 ? 'white-row' : 'grey-row'">
-          <td class="font-weight-bold"> {{ item.title }}</td>
-          <td> {{ DateTime.fromISO(item.createdAt).toFormat('MMM, d, yyyy') }} </td>
+          <td class="font-weight-bold cursor-pointer" @click="openNoteTemplateClicked(item)"> {{ item.title }}</td>
+          <td class="cursor-pointer" @click="openNoteTemplateClicked(item)"> {{ DateTime.fromISO(item.createdAt).toFormat('MMM d, yyyy') }} </td>
           <td>
             <v-btn
               :id="`edit-note-template-${item.uid}`"
               :aria-label="`Edit ${item.name}`"
               color="primary"
               density="compact"
+              :disabled="currentUser.isAdmin"
               text="Edit"
               variant="text"
               @click="editTemplateClicked(item)"
@@ -67,6 +73,7 @@
               :aria-label="`Copy ${item.name}`"
               color="primary"
               density="compact"
+              :disabled="currentUser.isAdmin"
               text="Copy"
               variant="text"
               @click="copyTemplateClicked(item)"
@@ -77,6 +84,7 @@
               :aria-label="`Delete ${item.name}`"
               color="primary"
               density="compact"
+              :disabled="currentUser.isAdmin"
               text="Delete"
               variant="text"
               @click="deleteTemplateClicked(item)"
@@ -107,6 +115,7 @@ import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
 import PeerAdvisingNoteTemplateModal from '@/components/peer/PeerAdvisingNoteTemplateModal.vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import {deletePeerAdvisingNoteTemplate} from '@/api/peer-advising.js'
+import {useContextStore} from '@/stores/context.js'
 
 const props = defineProps({
   peerAdvisingDepartment: {
@@ -125,6 +134,7 @@ const showDeleteModal = ref(false)
 const selectedNoteTemplate = ref(null)
 const noteTemplateModalOpen = ref(false)
 const action = ref('create')
+const currentUser = ref(useContextStore().currentUser)
 
 onMounted(() => {
   getNoteTemplates()
@@ -171,7 +181,19 @@ const editTemplateClicked = noteTemplate => {
   selectedNoteTemplate.value = noteTemplate
   action.value = 'edit'
   noteTemplateModalOpen.value = true
-  alertScreenReader(`Opened ${noteTemplate.title} note template.`)
+  alertScreenReader(`Opened ${noteTemplate.title} note template to edit.`)
+}
+
+const openNoteTemplateClicked = (noteTemplate) => {
+  if (currentUser.value.isAdmin) {
+    selectedNoteTemplate.value = noteTemplate
+    action.value = 'view'
+    noteTemplateModalOpen.value = true
+    alertScreenReader(`Opened ${noteTemplate.title} note template.`)
+  } else {
+    editTemplateClicked(noteTemplate)
+  }
+
 }
 </script>
 
