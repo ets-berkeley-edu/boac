@@ -9,7 +9,11 @@
     <v-card class="modal-content">
       <FocusLock :disabled="!focusLocked" @keydown.esc="functionCancel || noop">
         <v-card-title>
-          <ModalHeader header-id="are-you-sure-header" :text="modalHeader" />
+          <ModalHeader
+            :clazz="modalHeaderClass"
+            header-id="are-you-sure-header"
+            :text="modalHeader"
+          />
         </v-card-title>
         <v-card-text id="are-you-sure-text" class="modal-body">
           <span v-html="text" />
@@ -69,6 +73,11 @@ const props = defineProps({
     type: String,
     required: false,
     default: 'Are you sure?'
+  },
+  modalHeaderClass: {
+    type: String,
+    required: false,
+    default: 'modal-header'
   },
   text: {
     type: String,

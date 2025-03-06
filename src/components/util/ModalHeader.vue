@@ -1,7 +1,7 @@
 <template>
   <h3
     :id="headerId"
-    class="font-size-24 font-weight-medium mx-2"
+    class="mx-2"
     :class="clazz"
   >
     {{ text }}
@@ -12,7 +12,7 @@
 <script setup>
 defineProps({
   clazz: {
-    default: '',
+    default: 'font-size-24 font-weight-medium',
     required: false,
     type: String
   },
