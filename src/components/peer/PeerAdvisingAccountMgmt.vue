@@ -82,7 +82,7 @@
           text="Delete"
           :title="`Remove ${item.name}'s Peer Advisor role.`"
           variant="flat"
-          @click="() => onClickDeletePeerAdvisor(item.id)"
+          @click="() => onClickDelete(item)"
         />
         <v-btn
           v-if="item.deletedAt"
@@ -99,6 +99,14 @@
         />
       </template>
     </v-data-table>
+    <AreYouSureModal
+      v-model="isDeleteModalOpen"
+      :button-label-confirm="isDeleting ? 'Deleting' : 'Delete'"
+      :function-cancel="cancel"
+      :function-confirm="onConfirmDelete"
+      :modal-header="`Remove ${get(selectedPeerAdvisor, 'name')}'s Peer Advisor role?`"
+      modal-header-class="font-size-18 font-weight-medium"
+    />
   </div>
 </template>
 
@@ -109,10 +117,11 @@ import {computed, ref} from 'vue'
 import {filter as _filter, get} from 'lodash'
 import {useDisplay} from 'vuetify'
 import type {BoaUser} from '@/lib/types'
-import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
-import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising.js'
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
-import {pluralize, toInt} from '@/lib/utils'
+import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
+import {alertScreenReader, pluralize, putFocusNextTick, toInt} from '@/lib/utils'
+import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising.js'
 
 const props = defineProps({
   isRefreshing: {
@@ -132,20 +141,34 @@ const props = defineProps({
     type: Function
   }
 })
-
 const dataTableRows = computed<BoaUser[]>(() => _filter(props.peerAdvisors, u => showDeletedPeerAdvisors.value || !u.deletedAt))
 const display = useDisplay()
 const isBusy = ref(false)
+const isDeleteModalOpen = ref(false)
+const isDeleting = ref(false)
 const peerAdvisorsActiveCount = computed<number>(() => _filter(props.peerAdvisors, m => !m.deletedAt).length)
+const selectedPeerAdvisor = ref<BoaUser | undefined>()
 const showDeletedPeerAdvisors = ref(!peerAdvisorsActiveCount.value)
 
-const onClickDeletePeerAdvisor = (userId: number) => {
-  isBusy.value = true
-  deletePeerAdvisor(props.peerAdvisingDepartmentId, userId).then(() => {
-    props.refresh().then(() => {
-      isBusy.value = false
+const cancel = () => {
+  isDeleteModalOpen.value = false
+  const uid = get(selectedPeerAdvisor.value, 'uid')
+  selectedPeerAdvisor.value = undefined
+  alertScreenReader('Canceled')
+  putFocusNextTick(`delete-peer-advisor-${uid}`)
+}
+
+const onConfirmDelete = () => {
+  isBusy.value = isDeleting.value = true
+  if (selectedPeerAdvisor.value) {
+    deletePeerAdvisor(props.peerAdvisingDepartmentId, selectedPeerAdvisor.value.id).then(() => {
+      props.refresh().then(() => {
+        isBusy.value = isDeleting.value = isDeleteModalOpen.value = false
+      })
     })
-  })
+  } else {
+    throw Error('Where is the Peer Advisor we want to delete?')
+  }
 }
 
 const onClickRestorePeerAdvisor = (userId: number) => {
@@ -155,5 +178,10 @@ const onClickRestorePeerAdvisor = (userId: number) => {
       isBusy.value = false
     })
   })
+}
+
+const onClickDelete = (peerAdvisor: BoaUser) => {
+  selectedPeerAdvisor.value = peerAdvisor
+  isDeleteModalOpen.value = true
 }
 </script>
