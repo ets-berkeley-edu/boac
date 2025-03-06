@@ -141,7 +141,10 @@ const isValidNote = () => {
 const publish = () => {
   noteStore.setIsDraft(false)
   isPublishing.value = true
-  updateNote('Publishing note...').then(() => isPublishing.value = false)
+  updateNote('Publishing note...').then(() => {
+    isPublishing.value = false
+    props.exit()
+  })
 }
 
 const saveTemplate = () => {

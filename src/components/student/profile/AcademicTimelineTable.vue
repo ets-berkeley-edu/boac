@@ -437,10 +437,11 @@ import TimelineDate from '@/components/student/profile/TimelineDate'
 import {alertScreenReader, decodeStudentUriAnchor, oxfordJoin, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
-import {isDirector} from '@/lib/boa-user'
+import {isDirector, isPeerAdvisorManager} from '@/lib/boa-user'
 import {markAppointmentRead} from '@/api/appointments'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session/index'
+import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department.js'
 
 const props = defineProps({
   countPerActiveTab: {
@@ -856,7 +857,17 @@ const userCanDelete = message => {
 }
 
 const userCanEdit = message => {
-  return isEditable(message) && message.type === 'note' && (currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes))
+  let canEdit = false
+  if (isEditable(message) && message.type === 'note') {
+    if (currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)) {
+      canEdit = true
+    } else if (isPeerAdvisorManager(currentUser) && message.peerAdvisingDepartmentId) {
+      // Peer Advisor Managers can edit notes created by Peer Advisors within same Peer Advising department.
+      const membership = getPeerAdvisorDepartmentMembership(currentUser, 'peer_advisor_manager')
+      canEdit = get(membership, 'peerAdvisingDepartmentId') === message.peerAdvisingDepartmentId
+    }
+  }
+  return canEdit
 }
 </script>
 

@@ -37,18 +37,19 @@
 <script setup lang="ts">
 import type {Handler} from 'mitt'
 import {mdiFileDocument} from '@mdi/js'
-import {onMounted, ref} from 'vue'
+import {onMounted, onUnmounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
+import type {BasicStudent, BoaUser, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
 import PeerAdvisorPaginatedNotes from '@/components/peer/note/PeerAdvisorPaginatedNotes.vue'
+import {getBasicStudent} from '@/api/peer-advising'
+import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
+import {getUserByUid} from '@/api/user'
+import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {putFocusNextTick} from '@/lib/utils'
-import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
-import type {BoaUser, Note} from '@/lib/types'
-import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
-import {getUserByUid} from '@/api/user'
 
 const contextStore = useContextStore()
 const createNoteModal = ref(false)
@@ -77,6 +78,8 @@ onMounted(() => {
   }
 })
 
+onUnmounted(() => contextStore.removeEventHandler('peer-advising-note-created'))
+
 const goToPage = (page: number) => {
   return new Promise<void>(resolve => {
     if (peerAdvisor.value && peerAdvisor.value.uid) {
@@ -104,7 +107,7 @@ const goToPage = (page: number) => {
 const init = (user: BoaUser) => {
   peerAdvisor.value = user
   const membership = getPeerAdvisorDepartmentMembership(peerAdvisor.value, 'peer_advisor')
-  if (peerAdvisor.value.id && membership.peerAdvisingDepartmentId) {
+  if (peerAdvisor.value.id && membership && membership.peerAdvisingDepartmentId) {
     peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
     goToPage(1).then(() => {
       contextStore.loadingComplete('Notes have loaded')
@@ -129,7 +132,10 @@ const onClickCreateNote = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
-  notes.value.unshift(note)
+  getBasicStudent(note.sid).then((student: BasicStudent) => {
+    note.student = student
+    notes.value.unshift(note)
+  })
 }
 </script>
 

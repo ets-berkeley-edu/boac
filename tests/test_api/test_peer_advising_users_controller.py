@@ -27,10 +27,46 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 
 coe_mech_peer_advisor_manager_uid = '1133399'
+coe_student = {'sid': '9000000000', 'uid': '300847'}
 ce3_eop_peer_advisor_manager_uid = '3535'
 ce3_navcal_peer_advisor_manager_uid = '2525'
 ce3_navcal_peer_advisor_uid = '1133400'
 qcadv_advisor_uid = '53791'
+
+
+class TestGetBasicStudent:
+
+    @classmethod
+    def _api_get_basic_student(
+            cls,
+            client,
+            sid,
+            expected_status_code=200,
+    ):
+        response = client.get(f'/api/peer_advising/student/{sid}')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_unauthorized(self, client, fake_auth):
+        """Rejects all users except Peer Advisors and Admins."""
+        for uid in (None, qcadv_advisor_uid):
+            if uid:
+                fake_auth.login(uid)
+            self._api_get_basic_student(
+                client,
+                expected_status_code=401,
+                sid=coe_student['sid'],
+            )
+
+    def test_authorized(self, client, fake_auth):
+        """Peer Advisor can fetch very limited student data."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        sid = coe_student['sid']
+        api_json = self._api_get_basic_student(client=client, sid=sid)
+        assert api_json['firstName']
+        assert api_json['lastName']
+        assert api_json['sid'] == sid
+        assert api_json['uid']
 
 
 class TestGetPeerAdvisingDepartment:

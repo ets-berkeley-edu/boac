@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import {each, find, noop, size, trim} from 'lodash'
+import {each, get, noop, size, trim} from 'lodash'
 import {mdiPlus} from '@mdi/js'
 import {nextTick, onMounted, onUnmounted, onUpdated, ref, watch} from 'vue'
 import type {BasicStudent, BasicStudentLabeled} from '@/lib/types'
@@ -107,10 +107,10 @@ const resetAutocomplete = () => {
   vAutocompleteKey.value = new Date().toString()
 }
 
-const onUpdateModel = (sid: string) => {
-  const student: BasicStudent | undefined = sid ? find(autoSuggestedStudents.value, ['sid', sid]) : undefined
-  if (student) {
-    setNoteRecipient(student.sid)
+const onUpdateModel = (student: BasicStudent) => {
+  const sid = get(student, 'sid')
+  if (sid) {
+    setNoteRecipient(sid)
   }
 }
 
@@ -134,7 +134,7 @@ const onUpdateSearch = input => {
         each(students, (student: BasicStudent) => {
           autoSuggestedStudents.value.push({
             ...student,
-            ...{label: `${student.firstName} ${student.lastName}`}
+            ...{label: student.label}
           })
         })
         isUpdatingAutocomplete.value = false

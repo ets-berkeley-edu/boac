@@ -29,7 +29,7 @@
           id="peer-advising-note-body"
           class="mt-3"
           :disabled="isSaving"
-          :initial-value="model.body"
+          :initial-value="model.body || ''"
           :is-in-modal="true"
           label="Note Details"
           :on-value-update="noteStore.setBody"
@@ -50,7 +50,7 @@
         <CreateNoteFooter
           :discard="discardRequested"
           discard-button-label="Cancel"
-          :exit="discardRequested"
+          :exit="close"
           publish-button-label="Save"
         />
       </v-card-actions>
@@ -100,6 +100,11 @@ onMounted(() => {
     topics.value = data
   })
 })
+
+const close = () => {
+  dialog.value = false
+  noteStore.exitSession()
+}
 
 const discardRequested = () => {
   const body = stripHtmlAndTrim(model.value.body)
