@@ -185,6 +185,11 @@ class BEATestConfig(BEATestBaseConfigs):
         self.set_default_cohort()
         self.set_note_attachments()
 
+    def peer_advising_mgmt(self, dept=None):
+        self.set_base_configs(dept=dept)
+        self.set_peer_advising_manager()
+        self.set_test_students(count=1, opts={'active': True})
+
     def search_admits(self):
         self.set_dept(dept=Department.ZCEEE)
         self.set_advisor()

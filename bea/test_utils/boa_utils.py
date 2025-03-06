@@ -49,6 +49,14 @@ def get_boa_base_url():
     return app.config['BASE_URL']
 
 
+def get_peer_dept_id(peer_dept):
+    sql = f"SELECT id FROM peer_advising_departments WHERE name = '{peer_dept.value['name']}'"
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return results[0]['id']
+
+
 def unique_students_in_batch(students, cohorts, groups):
     uniques = []
     uniques.extend(students)
@@ -646,7 +654,23 @@ def get_user_note_templates(user):
                 FROM note_templates
                JOIN authorized_users ON note_templates.creator_id = authorized_users.id
               WHERE authorized_users.uid = '{user.uid}'
+                AND note_templates.peer_advising_department_id IS NULL
                 AND note_templates.deleted_at IS NULL"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    templates = []
+    for row in results:
+        templates.append(NoteTemplate({'record_id': row['id']}))
+    return templates
+
+
+def get_peer_note_templates(peer_dept):
+    sql = f"""SELECT note_templates.id
+                FROM note_templates
+                JOIN peer_advising_departments ON note_templates.peer_advising_department_id = peer_advising_departments.id
+               WHERE peer_advising_departments.name = '{peer_dept.value['name']}'
+                 AND note_templates.deleted_at IS NULL"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)

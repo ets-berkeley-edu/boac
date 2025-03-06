@@ -133,3 +133,23 @@ class Topics(Enum):
     WAIVE_COLLECT_REQT = {'name': 'Waive College Requirement'}
     WITHDRAWAL = {'name': 'Withdrawal'}
     OTHER = {'name': 'Other / Reason not listed'}
+
+
+class PeerTopics(Enum):
+
+    ACAD_DIFFICULTY_PROBATION = {'name': 'Academic Difficulty or Probation'}
+    DEGREE_CHECK = {'name': 'Degree Check'}
+    DEGREE_REQTS = {'name': 'Degree Requirements'}
+    DBL_MAJOR = {'name': 'Double Major / Simultaneous Degree'}
+    ENROLLMENT = {'name': 'Enrollment: Waitlist, Swaps, etc.)'}
+    GRADING_OPTS = {'name': 'Grading Options (e.g., Pass/No Pass)'}
+    INCOMPLETES = {'name': 'Incompletes'}
+    LATE_CHANGE = {'name': 'Late Change of Class Schedule'}
+    MAJOR_DECLARATION = {'name': 'Major Declaration'}
+    PETITIONS = {'name': 'Petitions (e.g., support with a petition process)'}
+    PROG_PLANNING = {'name': 'Program Planning, Semester or Longer Term)'}
+    REDUCED_LOAD = {'name': 'Reduced Course Load'}
+    TRANSFER_COURSE = {'name': 'Transfer Coursework'}
+    UNIT_CEILING_EGT = {'name': 'Unit Ceiling / Expected Graduation Term (EGT)'}
+    WITHDRAW_READMIT = {'name': 'Withdrawal / Readmission'}
+    OTHER = {'name': 'Other'}

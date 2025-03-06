@@ -41,9 +41,13 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppointment, StudentPageEForm):
 
+    def hit_student_page_url(self, student):
+        app.logger.info(f'Hitting student page URL for UID {student.uid}')
+        self.driver.get(f'{boa_utils.get_boa_base_url()}/student/{student.uid}')
+
     def load_page(self, student):
         app.logger.info(f'Loading student page for UID {student.uid}')
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/student/{student.uid}')
+        self.hit_student_page_url(student)
         self.wait_for_spinner()
 
     NOT_FOUND_MSG = By.XPATH, '//h1[text()="Not Found"]'

@@ -75,7 +75,7 @@ class Homepage(UserListPages):
         self.enter_dev_auth_creds(user)
         self.wait_for_boa_title('Home')
 
-    def switch_user(self, new_user):
+    def switch_user(self, new_user=None):
         self.load_page()
         self.log_out()
         self.dev_auth(new_user)

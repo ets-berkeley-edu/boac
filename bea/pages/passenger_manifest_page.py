@@ -274,6 +274,7 @@ class PassengerManifestPage(Pagination):
     def save_user(self):
         self.wait_for_element_and_click(self.SAVE_USER_BUTTON)
         self.when_not_present(self.SAVE_USER_BUTTON, utils.get_short_timeout())
+        time.sleep(utils.get_click_sleep())
 
     def enter_new_user_data(self, user):
         self.wait_for_textbox_and_type(self.ADD_USER_UID_INPUT, user.uid)

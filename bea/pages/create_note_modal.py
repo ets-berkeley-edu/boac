@@ -514,6 +514,7 @@ class CreateNoteModal(Page):
         self.enter_template_title(template)
         self.click_create_template()
         self.set_new_template_id(template)
+        self.when_not_present(self.TEMPLATE_TITLE_INPUT, utils.get_short_timeout())
         template.subject = note.subject
         template.body = note.body
         template.topics = note.topics
@@ -522,7 +523,8 @@ class CreateNoteModal(Page):
         template.is_private = note.is_private
         time.sleep(1)
 
-    def set_new_template_id(self, template):
+    @staticmethod
+    def set_new_template_id(template):
         start_time = datetime.now()
         tries = 0
         max_tries = 15
@@ -541,7 +543,6 @@ class CreateNoteModal(Page):
         app.logger.info(f'Template id is {template.record_id}')
         end_time = datetime.now()
         app.logger.info(f'Template was created in {(end_time - start_time).seconds} seconds')
-        self.when_not_present(self.TEMPLATE_TITLE_INPUT, utils.get_short_timeout())
         template.created_date = datetime.now()
         template.updated_date = datetime.now()
         return template.record_id

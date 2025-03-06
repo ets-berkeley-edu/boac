@@ -29,7 +29,7 @@ import os
 import random
 
 from bea.models.academic_standings import AcademicStandings
-from bea.models.advisor_role import AdvisorRole
+from bea.models.advisor_role import AdvisorRole, PeerAdvisingRole
 from bea.models.cohorts_and_groups.cohort_admit_filter import CohortAdmitFilter
 from bea.models.cohorts_and_groups.cohort_filter import CohortFilter
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
@@ -37,7 +37,7 @@ from bea.models.degree_progress.degree_check_template import DegreeCheckTemplate
 from bea.models.degree_progress.degree_reqt_category import DegreeReqtCategory
 from bea.models.degree_progress.degree_reqt_course import DegreeReqtCourse
 from bea.models.degree_progress.degree_reqt_units import DegreeReqtUnits
-from bea.models.department import Department
+from bea.models.department import Department, PeerAdvisingDepartment
 from bea.models.department_membership import DepartmentMembership
 from bea.models.incomplete_grades import IncompleteGrades
 from bea.models.notes_and_appts.note_attachment import NoteAttachment
@@ -155,6 +155,12 @@ class BEATestBaseConfigs(object):
     def set_dept(self, dept=None):
         self.dept = dept or Department.L_AND_S
 
+    @staticmethod
+    def get_peer_dept(peer_advisor_mgr):
+        for m in peer_advisor_mgr.dept_memberships:
+            if m.peer_advising_dept:
+                return m.peer_advising_dept
+
     def set_admin(self):
         self.admin = User({
             'depts': [Department.ADMIN],
@@ -201,6 +207,29 @@ class BEATestBaseConfigs(object):
                     self.advisor_read_only.first_name = nessie_advisor.first_name
                     self.advisor_read_only.last_name = nessie_advisor.last_name
                 break
+
+    def set_peer_advising_manager(self, advisor=None):
+        peer_dept = next(filter(lambda d: d.value['parent'] == self.dept, PeerAdvisingDepartment.get_peer_depts()))
+        advisor = advisor or self.advisor or self.set_advisor()
+        advisor.dept_memberships = [DepartmentMembership(advisor_role=AdvisorRole.ADVISOR,
+                                                         dept=self.dept,
+                                                         is_automated=None,
+                                                         peer_advising_dept=peer_dept,
+                                                         peer_advising_role=PeerAdvisingRole.PEER_ADVISOR_MANAGER)]
+        self.advisor = advisor
+
+    def get_peer_advisor(self, student, dept=None):
+        dept = dept or self.dept
+        peer_dept = next(filter(lambda d: d.value['parent'] == dept, PeerAdvisingDepartment.get_peer_depts()))
+        peer = User(data=student.data)
+        peer.dept_memberships = [DepartmentMembership(advisor_role=None,
+                                                      dept=None,
+                                                      is_automated=None,
+                                                      peer_advising_dept=peer_dept,
+                                                      peer_advising_role=PeerAdvisingRole.PEER_ADVISOR)]
+        peer.can_access_advising_data = False
+        peer.can_access_canvas_data = False
+        return peer
 
     @staticmethod
     def get_no_canvas_advisor():
