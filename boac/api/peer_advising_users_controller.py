@@ -39,7 +39,7 @@ from flask import current_app as app, request
 from flask_login import current_user
 
 
-@app.route('/api/peer/create_peer_advisor', methods=['POST'])
+@app.route('/api/peer_advising/create_peer_advisor', methods=['POST'])
 @peer_advisor_manager_required
 def create_peer_advisor():
     params = request.get_json()
@@ -67,7 +67,7 @@ def create_peer_advisor():
         return app.login_manager.unauthorized()
 
 
-@app.route('/api/peer/department/<peer_advising_department_id>/<role_type>')
+@app.route('/api/peer_advising/department/<peer_advising_department_id>/<role_type>')
 @peer_advisor_manager_required
 def get_peer_advising_department(peer_advising_department_id, role_type):
     include_deleted = request.args.get('includeDeleted', False)
@@ -120,7 +120,7 @@ def get_basic_student(sid):
         raise ResourceNotFoundError('Student not found.')
 
 
-@app.route('/api/peer/delete_peer_advisor/<peer_advising_department_id>/<peer_advisor_user_id>', methods=['DELETE'])
+@app.route('/api/peer_advising/delete_peer_advisor/<peer_advising_department_id>/<peer_advisor_user_id>', methods=['DELETE'])
 @peer_advisor_manager_required
 def delete_peer_advisor(peer_advising_department_id, peer_advisor_user_id):
     if _is_authorized_peer_advisor_manager(
@@ -139,7 +139,7 @@ def delete_peer_advisor(peer_advising_department_id, peer_advisor_user_id):
         return app.login_manager.unauthorized()
 
 
-@app.route('/api/peer/restore_peer_advisor/<peer_advising_department_id>/<peer_advisor_user_id>')
+@app.route('/api/peer_advising/restore_peer_advisor/<peer_advising_department_id>/<peer_advisor_user_id>')
 @peer_advisor_manager_required
 def restore_peer_advisor(peer_advising_department_id, peer_advisor_user_id):
     if _is_authorized_peer_advisor_manager(
