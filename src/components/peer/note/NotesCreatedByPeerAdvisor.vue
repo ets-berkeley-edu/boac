@@ -12,13 +12,35 @@
       v-model="isModalOpen"
       persistent
       width="800"
+      @keydown.esc="closeModal"
     >
       <v-card class="pl-3 pr-5 py-4">
         <v-card-title class="pb-0">
-          <ModalHeader :text="headerText" />
+          <div class="align-start d-flex justify-content-between w-100">
+            <ModalHeader :text="headerText" />
+            <div class="text-right w-100">
+              <v-btn
+                v-if="!isFetchingNotes"
+                id="header-close-modal"
+                aria-label="Close this modal"
+                class="font-size-14 font-weight-bold"
+                density="comfortable"
+                elevation="0"
+                icon
+                title="Close"
+                @click="closeModal"
+              >
+                <v-icon
+                  color="primary"
+                  :icon="mdiCloseThick"
+                  size="16"
+                />
+              </v-btn>
+            </div>
+          </div>
         </v-card-title>
         <v-card-text class="py-0">
-          <div v-if="isNil(notes)" class="mt-16 text-center w-100">
+          <div v-if="isFetchingNotes" class="my-16 text-center w-100">
             <v-progress-circular
               color="primary"
               indeterminate
@@ -26,7 +48,7 @@
           </div>
           <v-expand-transition>
             <table
-              v-if="!isNil(notes)"
+              v-if="!isFetchingNotes"
               id="notes-for-peer-advisor-view"
               class="mt-5 w-100"
             >
@@ -80,8 +102,6 @@
                       <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
                     </router-link>
                     -->
-
-
                     <v-expand-transition>
                       <button
                         v-if="!expandedNoteIds.includes(note.id)"
@@ -127,9 +147,9 @@
             </table>
           </v-expand-transition>
         </v-card-text>
-        <v-card-actions class="text-right">
+        <v-card-actions v-if="!isFetchingNotes" class="text-right">
           <v-btn
-            id="are-you-sure-cancel"
+            id="close-modal"
             class="mr-3"
             color="primary"
             text="Close"
@@ -146,8 +166,8 @@
 import type {PropType} from 'vue'
 import {DateTime} from 'luxon'
 import {get, isNil} from 'lodash'
-import {mdiCloseCircle} from '@mdi/js'
-import {ref} from 'vue'
+import {mdiCloseCircle, mdiCloseThick} from '@mdi/js'
+import {computed, ref} from 'vue'
 import type {BoaUser, Note} from '@/lib/types'
 import {getNotesAuthoredBy} from '@/api/notes'
 import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
@@ -168,6 +188,7 @@ const props = defineProps({
 
 const currentUser = useContextStore().currentUser
 const expandedNoteIds = ref<number[]>([])
+const isFetchingNotes = computed(() => isNil(notes.value))
 const isModalOpen = ref(false)
 const notes = ref<Note[] | undefined>()
 
