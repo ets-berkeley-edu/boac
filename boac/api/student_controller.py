@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import re
+
 from boac.api.decorators import advisor_or_peer_advisor_required, advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import is_unauthorized_domain, put_notifications
@@ -69,11 +71,14 @@ def distinct_student_count():
 @advisor_or_peer_advisor_required
 def find_by_name_or_sid():
     query = request.args.get('q')
+    query = query.strip().upper().replace('\'', '') if query else None
     if not query:
         raise BadRequestError('Search query must be supplied')
-    limit = request.args.get('limit')
-    query_fragments = filter(None, query.upper().split(' '))
-    students = match_students_by_name_or_sid(query_fragments, limit=limit)
+    limit = request.args.get('limit') or 20
+    students = match_students_by_name_or_sid(
+        prefixes=filter(None, re.split(r'[- ]', query)),
+        limit=limit,
+    )
     return tolerant_jsonify([_student_search_result(s) for s in students])
 
 
