@@ -21,7 +21,7 @@
       :clearable="!!student"
       color="primary"
       density="compact"
-      :disabled="isAddingStudent || !isEmpty(sidsManuallyAdded)"
+      :disabled="isAddingStudent"
       :error-messages="autocompleteErrorMessage"
       :hide-details="!size(autocompleteErrorMessage)"
       :hide-no-data="size(autoSuggestedStudents) < 3"
@@ -65,17 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  filter,
-  find,
-  get,
-  includes, isEmpty,
-  map,
-  size,
-  split,
-  trim,
-  uniq,
-} from 'lodash'
+import {filter, find, get, includes, map, size, split, trim, uniq} from 'lodash'
 import type {PropType} from 'vue'
 import {mdiPlusThick} from '@mdi/js'
 import {nextTick, onMounted, onUnmounted, onUpdated, ref} from 'vue'
