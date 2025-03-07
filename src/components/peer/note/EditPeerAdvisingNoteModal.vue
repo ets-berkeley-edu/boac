@@ -52,8 +52,16 @@
         <CreateNoteFooter
           :discard="discardRequested"
           discard-button-label="Cancel"
-          :exit="close"
+          :exit="() => closeModal('Closing modal')"
           publish-button-label="Save"
+        />
+        <AreYouSureModal
+          v-if="isAreYouSureModalOpen"
+          v-model="isAreYouSureModalOpen"
+          :function-cancel="() => isAreYouSureModalOpen = false"
+          :function-confirm="() => closeModal('Confirmed')"
+          modal-header="Discard unsaved note?"
+          text="Are you sure you want to discard unsaved changes?"
         />
       </v-card-actions>
     </v-card>
@@ -68,6 +76,7 @@ import {storeToRefs} from 'pinia'
 import {useDisplay} from 'vuetify'
 import type {BasicStudent, NoteRecipients, NoteTopic} from '@/lib/types'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import CompactStudentCourseSchedule from '@/components/peer/note/CompactStudentCourseSchedule.vue'
 import ContactMethod from '@/components/note/ContactMethod.vue'
 import CreateNoteFooter from '@/components/note/CreateNoteFooter.vue'
@@ -97,6 +106,7 @@ const props = defineProps({
 })
 
 const display = useDisplay()
+const isAreYouSureModalOpen = ref(false)
 const noteStore = useNoteStore()
 const recipients = computed<NoteRecipients>(() => noteStore.recipients)
 const topics = ref<NoteTopic[]>([])
@@ -118,8 +128,12 @@ const setTemplate = (template) => {
   model.value.noteTemplateId = template.id
 }
 
-const close = () => {
+const closeModal = (srText?: string) => {
+  if (srText) {
+    alertScreenReader(srText)
+  }
   dialog.value = false
+  noteStore.setIsCreateNoteModalOpen(false)
   noteStore.exitSession()
 }
 
@@ -127,12 +141,9 @@ const discardRequested = () => {
   const body = stripHtmlAndTrim(model.value.body)
   const unsavedChanges = !model.value.id && !!(body || size(model.value.topics) || size(recipients.value.sids))
   if (unsavedChanges) {
-    dialog.value = true
+    isAreYouSureModalOpen.value = true
   } else {
-    // Discard
-    alertScreenReader('Canceled edit note')
-    dialog.value = false
-    noteStore.exitSession()
+    closeModal('Canceled')
   }
 }
 </script>

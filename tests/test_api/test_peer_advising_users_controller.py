@@ -22,8 +22,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+import json
 
+from boac.lib.berkeley import is_peer_advisor, is_peer_advisor_manager
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 
 coe_mech_peer_advisor_manager_uid = '1133399'
@@ -32,6 +35,7 @@ ce3_eop_peer_advisor_manager_uid = '3535'
 ce3_navcal_peer_advisor_manager_uid = '2525'
 ce3_navcal_peer_advisor_uid = '1133400'
 qcadv_advisor_uid = '53791'
+student_uid = '61889'
 
 
 class TestGetBasicStudent:
@@ -67,6 +71,61 @@ class TestGetBasicStudent:
         assert api_json['lastName']
         assert api_json['sid'] == sid
         assert api_json['uid']
+
+
+class TestCreatePeerAdvisor:
+
+    @classmethod
+    def _api_create_peer_advisor(
+            cls,
+            client,
+            peer_advising_department_id,
+            uid,
+            expected_status_code=200,
+    ):
+        data = {
+            'peerAdvisingDeptId': peer_advising_department_id,
+            'uid': uid,
+        }
+        response = client.post(
+            '/api/peer_advising/create_peer_advisor',
+            content_type='application/json',
+            data=json.dumps(data),
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_unauthorized(self, client, fake_auth):
+        """Unauthorized to create Peer Advisor."""
+        peer_advising_department = PeerAdvisingDepartment.get_department_by_name('Mechanical Engineering')
+        assert peer_advising_department
+        for uid in (None, qcadv_advisor_uid, ce3_navcal_peer_advisor_uid, ce3_navcal_peer_advisor_manager_uid):
+            if uid:
+                fake_auth.login(uid)
+            self._api_create_peer_advisor(
+                client,
+                expected_status_code=401,
+                peer_advising_department_id=peer_advising_department.id,
+                uid=student_uid,
+            )
+
+    def test_authorized(self, client, fake_auth):
+        """Peer Advisor Managers can create Peer Advisors, if peer_advising_department_id matches."""
+        # Get student
+        user_with_student_uid = AuthorizedUser.find_by_uid(student_uid)
+        assert not user_with_student_uid
+        # Get Peer Advising department
+        peer_advising_department = PeerAdvisingDepartment.get_department_by_name('Mechanical Engineering')
+        assert peer_advising_department
+        # Log in PAM of CoE Mech Eng
+        peer_advisor_manager = fake_auth.login(coe_mech_peer_advisor_manager_uid)
+        assert is_peer_advisor_manager(peer_advisor_manager)
+        peer_advisor = self._api_create_peer_advisor(
+            client,
+            peer_advising_department_id=peer_advising_department.id,
+            uid=student_uid,
+        )
+        assert is_peer_advisor(peer_advisor)
 
 
 class TestGetPeerAdvisingDepartment:
