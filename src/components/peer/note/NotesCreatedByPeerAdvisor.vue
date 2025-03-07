@@ -68,6 +68,8 @@
                     </div>
                   </td>
                   <td :id="`note-body-in-row-${index}`" :class="{'border-b-md': index === notes.length - 1}" class="td-note">
+                    <!--
+                    TODO: Should admins link to /student profile page so they can easily delete.
                     <router-link
                       v-if="currentUser.isAdmin"
                       :id="`link-to-student-${note.student.uid}`"
@@ -77,9 +79,39 @@
                     >
                       <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
                     </router-link>
-                    <div v-if="!currentUser.isAdmin" class="d-flex justify-space-between w-100">
-                      <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
-                    </div>
+                    -->
+
+
+                    <v-expand-transition>
+                      <button
+                        v-if="!expandedNoteIds.includes(note.id)"
+                        :id="`open-peer-advising-${note.id}`"
+                        :aria-label="`Edit ${getStudentName(note)} note`"
+                        class="align-center d-flex justify-space-between text-primary w-100"
+                        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                        @click="() => toggleShowHide(note)"
+                      >
+                        <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
+                      </button>
+                    </v-expand-transition>
+                    <v-expand-transition>
+                      <div v-if="expandedNoteIds.includes(note.id)">
+                        <div class="margins-of-hide-note-btn text-center w-100">
+                          <v-btn
+                            :id="`hide-note-${note.id}-details`"
+                            :aria-expanded="true"
+                            class="w-100"
+                            color="primary"
+                            density="compact"
+                            :prepend-icon="mdiCloseCircle"
+                            text="Close Message"
+                            variant="text"
+                            @click="toggleShowHide(note)"
+                          />
+                        </div>
+                        <PeerAdvisingNoteDetails class="my-3" :note="note" />
+                      </div>
+                    </v-expand-transition>
                   </td>
                   <td
                     :id="`note-created-date-in-row-${index}`"
@@ -114,12 +146,14 @@
 import type {PropType} from 'vue'
 import {DateTime} from 'luxon'
 import {get, isNil} from 'lodash'
+import {mdiCloseCircle} from '@mdi/js'
 import {ref} from 'vue'
 import type {BoaUser, Note} from '@/lib/types'
 import {getNotesAuthoredBy} from '@/api/notes'
 import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import ModalHeader from '@/components/util/ModalHeader.vue'
+import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 
 const props = defineProps({
   headerText: {
@@ -133,6 +167,7 @@ const props = defineProps({
 })
 
 const currentUser = useContextStore().currentUser
+const expandedNoteIds = ref<number[]>([])
 const isModalOpen = ref(false)
 const notes = ref<Note[] | undefined>()
 
@@ -145,6 +180,15 @@ const showModel = () => {
     getNotesAuthoredBy(props.user.uid).then(data => {
       notes.value = data
     })
+  }
+}
+
+const toggleShowHide = (note: Note) => {
+  const index = expandedNoteIds.value.indexOf(note.id)
+  if (index > -1) {
+    expandedNoteIds.value.splice(index, 1)
+  } else {
+    expandedNoteIds.value.push(note.id)
   }
 }
 </script>

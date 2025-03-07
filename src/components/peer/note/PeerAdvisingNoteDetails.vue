@@ -29,7 +29,7 @@
               {{ note.author.name }}
             </a>
           </span>
-          - <span :id="`note-${note.id}-author-role`">{{ capitalizeAllWords(replace(note.author.role, '_', ' ')) }}</span>
+          <span v-if="note.author.role">- <span :id="`note-${note.id}-author-role`">{{ capitalizeAllWords(replace(note.author.role, '_', ' ')) }}</span></span>
         </div>
         <div v-if="size(note.author.departments)" class="text-medium-emphasis">
           <div v-for="(department, index) in note.author.departments" :key="index">
