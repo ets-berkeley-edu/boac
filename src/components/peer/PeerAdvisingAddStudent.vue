@@ -18,9 +18,10 @@
       base-color="primary"
       class="autocomplete-students autocomplete-with-add-button mt-2"
       :class="{'demo-mode-blur': currentUser.inDemoMode}"
+      :clearable="!!student"
       color="primary"
       density="compact"
-      :disabled="isAddingStudent"
+      :disabled="isAddingStudent || !isEmpty(sidsManuallyAdded)"
       :error-messages="autocompleteErrorMessage"
       :hide-details="!size(autocompleteErrorMessage)"
       :hide-no-data="size(autoSuggestedStudents) < 3"
@@ -50,10 +51,10 @@
           v-if="!isAddingStudent"
           id="add-student-add-button"
           aria-label="Add Student to Note"
-          class="add-button add-button-height"
+          class="add-button add-button-height font-size-16 font-weight-bold"
           color="primary"
-          :disabled="!size(query) && !size(sidsManuallyAdded)"
-          :prepend-icon="mdiPlus"
+          :disabled="!!size(sidsManuallyAdded) || !student"
+          :prepend-icon="mdiPlusThick"
           text="Add"
           variant="flat"
           @click="onClickAddButton"
@@ -65,16 +66,18 @@
 
 <script setup lang="ts">
 import {
-  filter, find, get,
-  includes,
-  map, noop,
+  filter,
+  find,
+  get,
+  includes, isEmpty,
+  map,
   size,
   split,
   trim,
   uniq,
 } from 'lodash'
 import type {PropType} from 'vue'
-import {mdiPlus} from '@mdi/js'
+import {mdiPlusThick} from '@mdi/js'
 import {nextTick, onMounted, onUnmounted, onUpdated, ref} from 'vue'
 import type {BasicStudent, BoaUser} from '@/lib/types'
 import {createPeerAdvisor} from '@/api/peer-advising.js'
@@ -108,8 +111,9 @@ const error = ref<string | undefined>()
 const intervalId = ref<ReturnType<typeof setTimeout>>()
 const isAddingStudent = ref(false)
 const isUpdatingStudentAutocomplete = ref(false)
-const query = ref(undefined)
+const query = ref<string | undefined>()
 const sidsManuallyAdded = ref<string[]>([])
+const student = ref<BasicStudent>()
 const vAutocompleteKey = ref<PropertyKey>(new Date().toString())
 
 onMounted(() => {
@@ -130,14 +134,22 @@ const resetAutocomplete = () => {
 
 const onUpdateModel = (model: BasicStudent) => {
   const sid = get(model, 'sid')
-  const student: BasicStudent | undefined = sid ? find(autoSuggestedStudents.value, ['sid', sid]) : undefined
-  if (student) {
+  student.value = sid ? find(autoSuggestedStudents.value, ['sid', sid]) : undefined
+}
+
+onUpdated(() => {
+  nextTick(() => setComboboxAccessibleLabel(addStudentInput.value.$el, 'Student'))
+})
+
+const onClickAddButton = () => {
+  if (student.value) {
     isAddingStudent.value = true
     const done = () => {
       comboboxModel.value = undefined
       isAddingStudent.value = false
+      student.value = undefined
     }
-    createPeerAdvisor(props.peerAdvisingDepartmentId, student.uid).then(() => {
+    createPeerAdvisor(props.peerAdvisingDepartmentId, student.value.uid).then(() => {
       props.refresh().then(done)
     }).catch(response => {
       error.value = response
@@ -146,13 +158,7 @@ const onUpdateModel = (model: BasicStudent) => {
   }
 }
 
-onUpdated(() => {
-  nextTick(() => setComboboxAccessibleLabel(addStudentInput.value.$el, 'Student'))
-})
-
-const onClickAddButton = noop
-
-const onUpdateSearch = input => {
+const onUpdateSearch = (input: string) => {
   query.value = input
   autocompleteErrorMessage.value = undefined
   autoSuggestedStudents.value = []
@@ -184,4 +190,3 @@ const onUpdateSearch = input => {
   border-top-left-radius: 0;
 }
 </style>
-
