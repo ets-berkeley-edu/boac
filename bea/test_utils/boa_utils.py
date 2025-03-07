@@ -52,9 +52,9 @@ def get_boa_base_url():
 def get_peer_dept_id(peer_dept):
     sql = f"SELECT id FROM peer_advising_departments WHERE name = '{peer_dept.value['name']}'"
     app.logger.info(sql)
-    results = db.session.execute(text(sql))
+    result = db.session.execute(text(sql)).first()
     std_commit(allow_test_environment=True)
-    return results[0]['id']
+    return result['id']
 
 
 def unique_students_in_batch(students, cohorts, groups):
@@ -103,7 +103,7 @@ def hard_delete_user(user):
     app.logger.info(sql_1)
     db.session.execute(text(sql_1))
     std_commit(allow_test_environment=True)
-    sql_2 = f"DELETE FROM json_cache WHERE key = 'calnet_user_for_uid_' || '{user.uid}'"
+    sql_2 = f"DELETE FROM json_cache WHERE key = 'calnet_user_for_uid_{user.uid}'"
     app.logger.info(sql_2)
     db.session.execute(text(sql_2))
     std_commit(allow_test_environment=True)
@@ -286,18 +286,19 @@ def get_dept_advisors(dept, membership=None):
 
 
 def get_peer_advisors(peer_dept=None):
-    clause = f"WHERE peer_advising_departments.name = '{peer_dept.value['name']}'"
+    clause = f"AND peer_advising_departments.name = '{peer_dept.value['name']}'"
     sql = f"""SELECT authorized_users.uid AS uid,
                      authorized_users.deleted_at AS user_deleted_at,
                      peer_advising_department_members.role_type AS peer_role,
                      peer_advising_department_members.deleted_at AS peer_deleted_at,
                      peer_advising_departments.name AS peer_dept
-              {clause}
                 FROM authorized_users
            LEFT JOIN peer_advising_department_members
                   ON authorized_users.id = peer_advising_department_members.authorized_user_id
            LEFT JOIN peer_advising_departments
                   ON peer_advising_department_members.peer_advising_department_id = peer_advising_departments.id
+               WHERE peer_advising_department_members.role_type = 'peer_advisor'
+                {clause}
             ORDER BY uid ASC;"""
 
     app.logger.info(sql)
@@ -307,7 +308,7 @@ def get_peer_advisors(peer_dept=None):
     for row in result:
         active = False if row['user_deleted_at'] or row['peer_deleted_at'] else True
         peer_role = row['peer_role'] and next(
-            filter(lambda r: r.value['code'] == peer_role['peer_role'], PeerAdvisingRole))
+            filter(lambda r: r.value['code'] == row['peer_role'], PeerAdvisingRole))
         peer_dept = peer_dept or row['peer_dept'] and next(
             filter(lambda d: d.value['name'] == row['peer_dept'], PeerAdvisingDepartment))
         membership = DepartmentMembership(advisor_role=None,
@@ -666,7 +667,8 @@ def get_user_note_templates(user):
 
 
 def get_peer_note_templates(peer_dept):
-    sql = f"""SELECT note_templates.id
+    sql = f"""SELECT note_templates.id,
+                     note_templates.title
                 FROM note_templates
                 JOIN peer_advising_departments ON note_templates.peer_advising_department_id = peer_advising_departments.id
                WHERE peer_advising_departments.name = '{peer_dept.value['name']}'
@@ -676,7 +678,7 @@ def get_peer_note_templates(peer_dept):
     std_commit(allow_test_environment=True)
     templates = []
     for row in results:
-        templates.append(NoteTemplate({'record_id': row['id']}))
+        templates.append(NoteTemplate({'record_id': row['id'], 'title': row['title']}))
     return templates
 
 

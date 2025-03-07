@@ -232,7 +232,8 @@ class PassengerManifestPage(Pagination):
             self.select_deg_prog_option(user)
 
     def select_deg_prog_option(self, user):
-        option = user.degree_progress_perm.desc if user.degree_progress_perm else 'Select...'
+        option = user.degree_progress_perm.desc if user.degree_progress_perm else 'None'
+        app.logger.info(f'Selecting degree progress perm option {option}')
         self.wait_for_select_and_click_option(self.DEGREE_PROGRESS_SELECT, option)
 
     def click_automate_deg_prog(self):

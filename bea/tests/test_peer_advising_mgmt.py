@@ -22,6 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+from copy import deepcopy
 from datetime import datetime
 
 from bea.config.bea_test_config import BEATestConfig
@@ -49,9 +50,6 @@ test_coe.peer_advising_mgmt(dept=Department.COE)
 pam_coe = test_coe.advisor
 peer_dept_coe = test_coe.get_peer_dept(pam_coe)
 peer_dept_coe_id = boa_utils.get_peer_dept_id(peer_dept_coe)
-peer_coe = test_coe.get_peer_advisor(test_coe.test_students[0])
-pre_existing_peers_coe = boa_utils.get_peer_advisors(peer_dept_coe)
-pre_existing_templates_coe = boa_utils.get_peer_note_templates(peer_dept_coe)
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -85,7 +83,7 @@ class TestPAMAccountMgmt:
 
     def test_pam_view_existing_deleted_peer_advisors(self):
         self.pam_page.show_deleted_peers()
-        expected = [u.uid for u in pre_existing_peers_ls if u.is_active]
+        expected = [u.uid for u in pre_existing_peers_ls]
         expected.sort()
         visible = self.pam_page.visible_peer_advisor_uids()
         visible.sort()
@@ -97,23 +95,22 @@ class TestPAMAccountMgmt:
         self.pam_page.when_visible(self.pam_page.peer_auto_suggest_option(peer_ls), utils.get_short_timeout())
 
     def test_pam_search_peer_by_uid(self):
-        self.pam_page.search_student_by_uid(peer_ls)
+        self.pam_page.search_student_by_sid(peer_ls)
         self.pam_page.when_visible(self.pam_page.peer_auto_suggest_option(peer_ls), utils.get_short_timeout())
 
     def test_pam_create_peer_advisor(self):
         self.pam_page.add_peer(peer_ls)
 
     def test_pam_peer_name(self):
-        utils.assert_equivalence(self.pam_page.peer_advisor_name(peer_ls), peer_ls.full_name)
+        visible = self.pam_page.peer_advisor_name(peer_ls)
+        utils.assert_actual_includes_expected(visible, peer_ls.first_name)
+        utils.assert_actual_includes_expected(visible, peer_ls.last_name)
 
     def test_pam_peer_note_count(self):
-        utils.assert_equivalence(self.pam_page.peer_advisor_note_count(peer_ls), '')
+        utils.assert_equivalence(self.pam_page.peer_advisor_note_count(peer_ls), '0')
 
     def test_pam_peer_date(self):
-        utils.assert_equivalence(self.pam_page.peer_advisor_date(), datetime.today().strftime('%b %-d, %Y'))
-
-    # TODO List View - JJC popover, triggered by note count button
-    # TODO List View - pagination
+        utils.assert_equivalence(self.pam_page.peer_advisor_date(peer_ls), datetime.today().strftime('%b %-d, %Y'))
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -124,15 +121,16 @@ class TestPeerAdvisingTemplateMgmt:
     template_1 = NoteTemplate({
         'body': (f'Note 1 body {test_ls.test_id} ' * 10).strip(),
         'is_peer_advising': True,
-        'title': f'Template {test_ls.test_id}',
+        'title': f'Template #1 {test_ls.test_id}',
         'topics': [],
     })
     template_2 = NoteTemplate({
         'body': f'Note 2 body {test_ls.test_id}',
         'is_peer_advising': True,
-        'title': f'Batch Template {test_ls.test_id}',
+        'title': f'Template #2 {test_ls.test_id}',
         'topics': [Topic(PeerTopics.ACAD_DIFFICULTY_PROBATION.value), Topic(PeerTopics.DEGREE_CHECK.value)],
     })
+    template_3 = deepcopy(template_1)
 
     def test_delete_existing_templates(self):
         self.pam_page.click_note_templates_tab()
@@ -142,7 +140,8 @@ class TestPeerAdvisingTemplateMgmt:
         else:
             app.logger.info(f'Peer dept {peer_dept_ls} has no existing templates to delete')
 
-    # TODO test_no_templates
+    def test_no_templates(self):
+        assert self.pam_page.is_present(self.pam_page.NO_PEER_TEMPLATES_MSG)
 
     def test_create_template_but_cancel(self):
         self.pam_page.click_create_peer_template()
@@ -160,12 +159,12 @@ class TestPeerAdvisingTemplateMgmt:
     def test_template_no_dupe_name_allowed(self):
         self.pam_page.enter_peer_template_name(self.template_1.title)
         self.pam_page.click_save_peer_template()
-        # TODO self.pam_page.wait_for_dupe_template_title_msg()
+        self.pam_page.when_visible(self.pam_page.PEER_TEMPLATE_DUPE_NAME_MSG, 2)
 
     def test_template_name_max_chars(self):
-        too_long = self.template_2.title * 11
+        too_long = self.template_2.title * 15
         self.pam_page.enter_peer_template_name(too_long)
-        # TODO - verify validation / truncation
+        assert self.pam_page.el_value(self.pam_page.PEER_TEMPLATE_NAME_INPUT) == too_long[0:255]
 
     def test_template_body_required(self):
         self.pam_page.click_cancel_peer_template()
@@ -186,7 +185,7 @@ class TestPeerAdvisingTemplateMgmt:
 
     def test_list_view_template_ids(self):
         visible = self.pam_page.visible_peer_template_ids()
-        expected = [t.record_id for t in [self.template_2.record_id, self.template_1.record_id]]
+        expected = [t.record_id for t in [self.template_1, self.template_2]]
         utils.assert_equivalence(visible, expected)
 
     def test_list_view_template_name(self):
@@ -207,17 +206,17 @@ class TestPeerAdvisingTemplateMgmt:
     def test_edit_template_no_dupe_name_allowed(self):
         self.pam_page.enter_peer_template_name(self.template_2.title)
         self.pam_page.click_save_peer_template()
-        # TODO self.pam_page.wait_for_dupe_template_title_msg()
+        self.pam_page.when_visible(self.pam_page.PEER_TEMPLATE_DUPE_NAME_MSG, 2)
 
     def test_edit_template_name_max_chars(self):
-        too_long = self.template_1.title * 11
+        too_long = self.template_1.title * 15
         self.pam_page.enter_peer_template_name(too_long)
-        # TODO - verify validation / truncation
+        assert self.pam_page.el_value(self.pam_page.PEER_TEMPLATE_NAME_INPUT) == too_long[0:255]
 
     def test_edit_template_body_required(self):
         self.pam_page.click_cancel_peer_template()
         self.pam_page.click_edit_peer_template(self.template_1)
-        # TODO - remove chars from body element
+        self.pam_page.remove_chars(self.pam_page.NOTE_BODY_TEXT_AREA)
         assert not self.pam_page.is_save_peer_template_enabled()
 
     def test_edit_peer_template(self):
@@ -227,6 +226,19 @@ class TestPeerAdvisingTemplateMgmt:
         self.pam_page.click_cancel_peer_template()
         self.pam_page.edit_peer_template(self.template_1)
 
+    def test_copy_peer_template_but_cxl(self):
+        self.pam_page.click_copy_peer_template(self.template_2)
+        self.pam_page.click_cancel_peer_template()
+        self.pam_page.when_not_present(self.pam_page.PEER_TEMPLATE_NAME_INPUT, 2)
+
+    def test_copy_peer_template(self):
+        self.pam_page.click_copy_peer_template(self.template_1)
+        self.template_3.title = f'COPIED - Template #3 {test_ls.test_id}'
+        self.pam_page.enter_peer_template_name(self.template_3.title)
+        self.pam_page.click_save_peer_template()
+        self.pam_page.set_new_template_id(self.template_3)
+        self.pam_page.when_present(self.pam_page.peer_template_row(self.template_3), 2)
+
     def test_delete_template_but_cancel(self):
         self.pam_page.click_delete_peer_template(self.template_1)
         self.pam_page.cancel_delete_or_discard()
@@ -234,13 +246,23 @@ class TestPeerAdvisingTemplateMgmt:
     def test_delete_template(self):
         self.pam_page.click_delete_peer_template(self.template_1)
         self.pam_page.confirm_delete_or_discard()
+        self.pam_page.when_not_present(self.pam_page.peer_template_row(self.template_1), utils.get_short_timeout())
+        visible = self.pam_page.visible_peer_template_ids()
+        expected = [t.record_id for t in [self.template_3, self.template_2]]
+        utils.assert_equivalence(visible, expected)
 
 
 @pytest.mark.usefixtures('page_objects')
 class TestPeerAdvisorMgmt:
 
+    def test_pam_delete_peer_but_cxl(self):
+        self.pam_page.click_acct_mgmt_tab()
+        self.pam_page.click_delete_peer(peer_ls)
+        self.pam_page.cancel_delete_or_discard()
+
     def test_pam_delete_peer(self):
-        self.pam_page.delete_peer(peer_ls)
+        self.pam_page.click_delete_peer(peer_ls)
+        self.pam_page.confirm_delete_or_discard()
         self.pam_page.when_not_present(self.pam_page.peer_advisor_row(peer_ls), utils.get_short_timeout())
 
     def test_deleted_peer(self):
@@ -259,7 +281,7 @@ class TestPeerAdvisorMgmt:
 
     def test_restored_peer(self):
         self.pam_page.log_out()
-        self.homepage.dev_auth(peer_ls)
+        self.homepage.dev_auth(peer_ls, 'Peer Advising')
         self.peer_page.when_present(self.peer_page.PEER_NEW_NOTE_BTN, utils.get_short_timeout())
 
 
@@ -270,6 +292,11 @@ class TestPeerAdvisingPerms:
         self.pam_page.hit_peer_advisor_manager_page_url(peer_dept_ls_id)
         self.peer_page.wait_for_404()
         assert not self.peer_page.is_present(self.peer_page.PAM_LINK)
+
+    def test_no_foreign_depts_for_pams(self):
+        self.homepage.switch_user(pam_coe)
+        self.pam_page.hit_peer_advisor_manager_page_url(peer_dept_ls_id)
+        self.pam_page.wait_for_404()
 
     def test_admin_revoke_pam_role(self):
         pam_ls.dept_memberships = [DepartmentMembership(advisor_role=AdvisorRole.ADVISOR,
@@ -289,5 +316,10 @@ class TestPeerAdvisingPerms:
 
     def test_pams_for_admins(self):
         self.homepage.switch_user()
-        self.pam_page.hit_peer_advisor_manager_page_url(peer_dept_ls_id)
-        self.pam_page.load_peer_advisor_manager_page()
+        self.pam_page.load_peer_advisor_manager_page(peer_dept_ls_id)
+
+
+class TestTeardown:
+
+    def test_remove_peer(self):
+        boa_utils.hard_delete_user(peer_ls)

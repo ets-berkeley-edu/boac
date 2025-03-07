@@ -188,7 +188,7 @@ class BEATestConfig(BEATestBaseConfigs):
     def peer_advising_mgmt(self, dept=None):
         self.set_base_configs(dept=dept)
         self.set_peer_advising_manager()
-        self.set_test_students(count=1, opts={'active': True})
+        self.set_test_students(count=50, opts={'active': True})
 
     def search_admits(self):
         self.set_dept(dept=Department.ZCEEE)

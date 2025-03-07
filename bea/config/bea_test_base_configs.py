@@ -286,7 +286,7 @@ class BEATestBaseConfigs(object):
                 active = []
                 for s in self.students:
                     if s.status == 'active':
-                        active.append(s)
+                        active.append(s.sid)
                 random.shuffle(active)
                 test_sids.extend(active[:count])
 
