@@ -33,7 +33,8 @@ import {createRouter, createWebHistory} from 'vue-router'
 import {filter, get, includes, size, toString, trim} from 'lodash'
 import type {BoaUser} from './lib/types'
 import PeerAdvisorHome from '@/views/PeerAdvisorHome.vue'
-import {isAdvisor, isDirector, isPeerAdvisor, isPeerAdvisorManager} from '@/lib/boa-user'
+import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import {isAdvisor, isDirector, isPeerAdvisor} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
 
@@ -147,10 +148,16 @@ const routes:RouteRecordRaw[] = [
       // Requires Peer Advising Manager
       const currentUser: BoaUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
-        if (isPeerAdvisorManager(currentUser) || currentUser.isAdmin) {
+        if (currentUser.isAdmin) {
           next()
         } else {
-          next({path: '/404'})
+          const membership = getPeerAdvisorDepartmentMembership(currentUser, 'peer_advisor_manager')
+          const peerAdvisingDepartmentId: string = toString(get(to.params, 'id'))
+          if (membership && toString(membership.peerAdvisingDepartmentId) === peerAdvisingDepartmentId) {
+            next()
+          } else {
+            next({path: '/404'})
+          }
         }
       } else {
         $_goToLogin(to, next)
