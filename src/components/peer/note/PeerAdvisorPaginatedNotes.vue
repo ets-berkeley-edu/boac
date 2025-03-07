@@ -134,6 +134,7 @@
     <EditPeerAdvisingNoteModal
       v-model="isEditDialogOpen"
       :student="selectedStudent"
+      :peer-advising-department-id="peerAdvisingDepartmentId"
     />
     -->
   </div>

@@ -230,8 +230,10 @@ class Note(Base):
             peer_advising_department_id=None,
             set_date=None,
             template_attachment_ids=(),
+            note_template_id=None,
     ):
         _validate_sid(is_draft=is_draft, note_id=None, sid=sid)
+
         if is_draft:
             note = cls(
                 author_dept_codes=author_dept_codes,
@@ -246,6 +248,7 @@ class Note(Base):
                 set_date=set_date,
                 sid=sid,
                 subject=subject,
+                note_template_id=note_template_id,
             )
             db.session.add(note)
             std_commit()
@@ -277,6 +280,7 @@ class Note(Base):
                 topics=topics,
                 attachments=attachments,
                 template_attachment_ids=template_attachment_ids,
+                note_template_id=note_template_id,
             )
 
             def _get_note_id():
@@ -303,6 +307,7 @@ class Note(Base):
             peer_advising_department_id=None,
             topics=(),
             template_attachment_ids=(),
+            note_template_id=None,
     ):
         sid_count = len(sids)
         benchmark = get_benchmarker('begin note creation' if sid_count == 1 else f'begin creation of {sid_count} notes')
@@ -319,6 +324,7 @@ class Note(Base):
             set_date=set_date,
             sids=sids,
             subject=subject,
+            note_template_id=note_template_id,
         )
         note_ids = list(ids_by_sid.values())
         benchmark('begin add 1 topic' if len(topics) == 1 else f'begin add {len(topics)} topics')
@@ -486,6 +492,7 @@ class Note(Base):
             set_date=None,
             template_attachment_ids=(),
             topics=(),
+            note_template_id=None,
     ):
         note = cls.find_by_id(note_id=note_id)
         if note:
@@ -497,6 +504,7 @@ class Note(Base):
             note.sid = sid
             note.set_date = set_date
             note.subject = subject
+            note.note_template_id = note_template_id
             cls._update_note_topics(note, topics)
             if template_attachment_ids:
                 for template_attachment in NoteTemplateAttachment.get_attachments(template_attachment_ids):
@@ -628,6 +636,7 @@ class Note(Base):
             'createdAt': self.created_at,
             'deletedAt': self.deleted_at,
             'updatedAt': self.updated_at,
+            'noteTemplateId': self.note_template_id,
         }
 
     def attachments_to_api_json(self):
@@ -647,22 +656,26 @@ def _create_notes(
         set_date,
         sids,
         subject,
+        note_template_id,
 ):
     ids_by_sid = {}
     now = utc_now().strftime('%Y-%m-%dT%H:%M:%S+00')
     # The syntax of the following is what Postgres expects in json_populate_recordset(...)
+
     joined_author_dept_codes = '{' + ','.join(author_dept_codes) + '}'
     count_per_chunk = 10000
     for chunk in range(0, len(sids), count_per_chunk):
         sids_subset = sids[chunk:chunk + count_per_chunk]
         query = """
             INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private,
-                                peer_advising_department_id, set_date, sid, subject, created_at, updated_at)
+                                peer_advising_department_id, set_date, sid, subject, created_at, updated_at,
+                                note_template_id)
             SELECT author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private,
-                    peer_advising_department_id, set_date, sid, subject, created_at, updated_at
+                    peer_advising_department_id, set_date, sid, subject, created_at, updated_at, note_template_id
             FROM json_populate_recordset(null::notes, :json_dumps)
             RETURNING id, sid;
         """
+
         data = [
             {
                 'author_uid': author_uid,
@@ -675,11 +688,13 @@ def _create_notes(
                 'contact_type': contact_type,
                 'is_private': is_private,
                 'peer_advising_department_id': peer_advising_department_id,
+                'note_template_id': note_template_id,
                 'set_date': set_date,
                 'created_at': now,
                 'updated_at': now,
             } for sid in sids_subset
         ]
+
         results_of_chunk_query = {}
         for row in db.session.execute(query, {'json_dumps': json.dumps(data)}):
             sid = row['sid']

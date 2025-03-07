@@ -100,6 +100,7 @@ def update_note():
     set_date = validate_advising_note_set_date(params)
     subject = (params.get('subject', None) or '').strip()
     topics = get_note_topics_from_http_post()
+    note_template_id = params.get('noteTemplateId', None)
     # Fetch existing note
     note = Note.find_by_id(note_id=note_id) if note_id else None
     if not note or not can_current_user_edit_note(note):
@@ -135,6 +136,7 @@ def update_note():
             subject=subject,
             template_attachment_ids=get_template_attachment_ids_from_http_post(),
             topics=topics,
+            note_template_id=note_template_id,
         )
         # Delete the draft. It has served its purpose.
         Note.delete(note_id=note.id)
@@ -150,6 +152,7 @@ def update_note():
             subject=subject,
             template_attachment_ids=get_template_attachment_ids_from_http_post(),
             topics=topics,
+            note_template_id=note_template_id,
         )
         note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
         api_json = get_boac_note_as_compatible_json(note=note, note_read=note_read)
@@ -180,6 +183,7 @@ def apply_template():
         sid=note.sid,
         subject=note_template.subject,
         topics=[topic.topic for topic in note_template.topics],
+        note_template_id=template_id,
     )
     for attachment in note_template.attachments:
         note.attachments.append(

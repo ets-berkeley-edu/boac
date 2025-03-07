@@ -12,6 +12,8 @@
       <v-card-title id="edit-note-header">
         <EditPeerAdvisingNoteHeader
           :header-text="student ? `${student.firstName} ${student.lastName}` : 'New Note'"
+          :note-templates="noteTemplates"
+          @template-selected="setTemplate"
         />
       </v-card-title>
       <v-card-text class="pt-0">
@@ -75,31 +77,46 @@ import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import {alertScreenReader, stripHtmlAndTrim} from '@/lib/utils'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
 
 const dialog = defineModel<boolean>({
   required: true,
   type: Boolean
 })
 
-defineProps({
+const props = defineProps({
   student: {
     default: undefined,
     required: false,
     type: Object as PropType<BasicStudent>
-  }
+  },
+  peerAdvisingDepartmentId: {
+    required: true,
+    type: Number
+  },
 })
 
 const display = useDisplay()
 const noteStore = useNoteStore()
 const recipients = computed<NoteRecipients>(() => noteStore.recipients)
 const topics = ref<NoteTopic[]>([])
+const noteTemplates = ref([])
 const {isSaving, model} = storeToRefs(noteStore)
 
 onMounted(() => {
   getPeerAdvisingTopics().then(data => {
     topics.value = data
   })
+  getNoteTemplatesForPeerAdvising(props.peerAdvisingDepartmentId).then(data => {
+    noteTemplates.value = data
+  })
 })
+
+const setTemplate = (template) => {
+  model.value.body = template.body
+  model.value.topics = template.topics
+  model.value.noteTemplateId = template.id
+}
 
 const close = () => {
   dialog.value = false

@@ -243,6 +243,7 @@ export type NoteEditSessionModel = {
   setDate: string | undefined,
   subject: string | undefined,
   topics: string[]
+  noteTemplateId: number | undefined,
 }
 
 export type NoteRecipients = {
