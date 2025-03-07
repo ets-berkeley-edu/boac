@@ -80,7 +80,7 @@ class TestGetPeerAdvisingDepartment:
             expected_status_code=200,
             include_note_counts=False,
     ):
-        url = f'/api/peer/department/{peer_advising_department_id}/{role_type}'
+        url = f'/api/peer_advising/department/{peer_advising_department_id}/{role_type}'
         if include_note_counts:
             url += '?includeNoteCounts=true'
         response = client.get(url)
@@ -137,13 +137,13 @@ class TestDeleteAndRestore:
 
     @classmethod
     def _api_delete_peer_advisor(cls, client, peer_advising_department_id, user_id, expected_status_code=200):
-        response = client.delete(f'/api/peer/delete_peer_advisor/{peer_advising_department_id}/{user_id}')
+        response = client.delete(f'/api/peer_advising/delete_peer_advisor/{peer_advising_department_id}/{user_id}')
         assert response.status_code == expected_status_code
         return response.json
 
     @classmethod
     def _api_restore_peer_advisor(cls, client, peer_advising_department_id, user_id, expected_status_code=200):
-        response = client.get(f'/api/peer/restore_peer_advisor/{peer_advising_department_id}/{user_id}')
+        response = client.get(f'/api/peer_advising/restore_peer_advisor/{peer_advising_department_id}/{user_id}')
         assert response.status_code == expected_status_code
         return response.json
 
