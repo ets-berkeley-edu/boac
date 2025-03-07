@@ -1,16 +1,17 @@
 <template>
   <div class="align-end d-flex justify-space-between font-weight-bold">
-    <div class="ml-4 w-40">
+    <div class="add-student-container ml-4">
       <PeerAdvisingAddStudent
         :exclude-these-students="peerAdvisors"
         :peer-advising-department-id="peerAdvisingDepartmentId"
         :refresh="refresh"
       />
     </div>
-    <div class="mr-3">
+    <div>
       <v-switch
         id="toggle-inactive-students-button"
         v-model="showDeletedPeerAdvisors"
+        :class="{'text-primary': showDeletedPeerAdvisors}"
         class="font-size-14 font-weight-bold text-medium-emphasis"
         color="primary"
         density="compact"
@@ -185,3 +186,9 @@ const onClickDelete = (peerAdvisor: BoaUser) => {
   isDeleteModalOpen.value = true
 }
 </script>
+
+<style scoped>
+.add-student-container {
+  width: 550px;
+}
+</style>
