@@ -29,7 +29,7 @@ import json
 from boac.api.errors import BadRequestError
 from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_advising
-from boac.lib.util import get_benchmarker, has_any_membership_role, join_if_present
+from boac.lib.util import get_benchmarker, join_if_present
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes, note_to_compatible_json
@@ -272,14 +272,6 @@ def get_my_curated_groups():
             'totalStudentCount': len(students),
         })
     return curated_groups
-
-
-def is_peer_advisor(user):
-    return has_any_membership_role(user, 'peer_advisor')
-
-
-def is_peer_advisor_manager(user):
-    return has_any_membership_role(user, 'peer_advisor_manager')
 
 
 def is_unauthorized_domain(domain):

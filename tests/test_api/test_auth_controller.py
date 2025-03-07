@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 from unittest import mock
 
-from boac.api.util import is_peer_advisor, is_peer_advisor_manager
+from boac.lib.berkeley import is_peer_advisor, is_peer_advisor_manager
 from boac.models.user_login import UserLogin
 import cas
 from tests.util import override_config, pause_mock_sts

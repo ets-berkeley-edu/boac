@@ -33,6 +33,7 @@ from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from flask_login import logout_user
 import pytest
 from tests.test_api.api_test_utils import all_cohorts_owned_by
@@ -40,6 +41,8 @@ from tests.util import mock_advising_note_s3_bucket, mock_eop_note_attachment, m
 
 asc_advisor_uid = '6446'
 ce3_advisor_uid = '2525'
+ce3_navcal_peer_advisor_manager_uid = '2525'
+ce3_navcal_peer_advisor_uid = '1133400'
 coe_advisor_uid = '1133399'
 coe_advisor_no_advising_data_uid = '1022796'
 l_s_director_uid = '53791'
@@ -877,6 +880,44 @@ class TestUpdateNotes:
         )
         assert api_json['read'] is True
         assert api_json['setDate'] == '2021-10-31'
+
+    def test_peer_advisor_manager(self, app, client, fake_auth):
+        """Update note contact type."""
+        # Set up the test by creating a note authored by CE3 Peer Advisor.
+        peer_advisor_author_uid = ce3_navcal_peer_advisor_uid
+        peer_advisor = AuthorizedUser.find_by_uid(peer_advisor_author_uid)
+        # Determine the peer_advising_department_id
+        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=peer_advisor.id)
+        peer_advising_department_id = memberships[0]['peer_advising_department_id']
+        assert peer_advising_department_id
+        # Create the note
+        note = Note.create(
+            author_uid=peer_advisor_author_uid,
+            author_name='Peer',
+            author_role='Advisor',
+            author_dept_codes=[],
+            sid=coe_student['sid'],
+            subject='Subject',
+            body='Body',
+            peer_advising_department_id=peer_advising_department_id,
+        )
+        # Log in the CE3 Peer Advisor Manager and verify matching peer_advising_department_id.
+        user_logged_in = fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
+        membership = next((m for m in user_logged_in['departments'][0]['memberships'] if 'peerAdvisingDepartmentId' in m), None)
+        assert membership
+        assert peer_advising_department_id == membership['peerAdvisingDepartmentId']
+        # API call to update note.
+        api_json = self._api_note_update(
+            app=app,
+            body='Updated body',
+            client=client,
+            note_id=note.id,
+            subject='Updated subject',
+            contact_type='Online same day',
+        )
+        assert api_json['body'] == 'Updated body'
+        assert api_json['subject'] == 'Updated subject'
+        assert api_json['contactType'] == 'Online same day'
 
 
 class TestApplyTemplate:

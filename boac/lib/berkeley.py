@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import re
 
-
 """A utility module collecting logic specific to the Berkeley campus."""
 
 ACADEMIC_STANDING_DESCRIPTIONS = {
@@ -305,6 +304,24 @@ def academic_year_for_term_name(term_name):
         if match.group(1) == 'Fall':
             return str(int(match.group(2)) + 1)
         return match.group(2)
+
+
+def has_any_membership_role(user, *roles):
+    is_dict = isinstance(user, dict)
+    departments = user['departments'] if is_dict else user.departments
+    for role in roles:
+        for department in departments:
+            if next((m for m in department['memberships'] if m['role'] == role), False):
+                return True
+    return False
+
+
+def is_peer_advisor_manager(user):
+    return has_any_membership_role(user, 'peer_advisor_manager')
+
+
+def is_peer_advisor(user):
+    return has_any_membership_role(user, 'peer_advisor')
 
 
 def previous_term_id(term_id):
