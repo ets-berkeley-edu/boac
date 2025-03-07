@@ -120,7 +120,7 @@
         <div class="font-weight-bold">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>
-      <div v-if="!note.legacySource || size(note.attachments)" class="note-attachments-container">
+      <div v-if="!note.peerAdvisingDepartmentId && (!note.legacySource || size(note.attachments))" class="note-attachments-container">
         <AdvisingNoteAttachments
           :add="addNoteAttachments"
           :attachments="note.attachments"

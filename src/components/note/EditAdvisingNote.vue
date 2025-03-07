@@ -60,11 +60,12 @@
     />
     <ContactMethod class="mt-3" :disabled="isSaving || boaSessionExpired" />
     <ManuallySetDate
+      v-if="!noteStore.model.peerAdvisingDepartmentId"
       class="mt-3"
       :container-id="`note-${noteId}-edit-form`"
     />
     <AdvisingNoteAttachments
-      v-if="size(noteStore.model.attachments)"
+      v-if="size(noteStore.model.attachments) && !noteStore.model.peerAdvisingDepartmentId"
       :attachments="noteStore.model.attachments"
       class="mt-3"
       :disabled="isSaving || boaSessionExpired"

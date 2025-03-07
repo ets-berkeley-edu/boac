@@ -25,8 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from functools import wraps
 
-from boac.api.util import can_access_admitted_students, is_peer_advisor, is_peer_advisor_manager
-from boac.lib.util import has_any_membership_role
+from boac.api.util import can_access_admitted_students
+from boac.lib.berkeley import has_any_membership_role, is_peer_advisor, is_peer_advisor_manager
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.routes import login_manager
 from flask import current_app as app, request
