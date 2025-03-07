@@ -31,6 +31,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
     isCreateNoteModalOpen: false,
     isFocusLockDisabled: false,
     isSaving: false,
+    noteTemplateId: undefined,
     isRecalculating: false,
     mode: undefined as string | undefined,
     model: getDefaultModel(),
@@ -143,6 +144,9 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
     setModelId(modelId: number) {
       this.model.id = modelId
     },
+    setNoteTemplateId(noteTemplateId: number) {
+      this.noteTemplateId = noteTemplateId
+    },
     setModel(note?: NoteEditSessionModel) {
       if (note) {
         const model = cloneDeep(note)
@@ -159,6 +163,8 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
           setDate: model.setDate,
           subject: model.subject,
           topics: model.topics || [],
+          noteTemplateId: model.noteTemplateId
+
         }
       } else {
         this.model = getDefaultModel()

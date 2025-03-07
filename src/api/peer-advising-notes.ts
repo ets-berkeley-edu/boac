@@ -24,7 +24,8 @@ export function createPeerAdvisingNote(
     peerAdvisingDepartmentId: number,
     sid: string,
     subject: string,
-    topics: string[]
+    topics: string[],
+    noteTemplateId?: number
 ) {
   const data = {
     body,
@@ -32,7 +33,8 @@ export function createPeerAdvisingNote(
     peerAdvisingDepartmentId,
     sid,
     subject,
-    topics
+    topics,
+    noteTemplateId
   }
   return axios.post(`${utils.apiBaseUrl()}/api/peer_advising/note/create`, data).then(response => {
     const data = response.data
@@ -46,14 +48,16 @@ export function updatePeerAdvisingNote(
   body: string | undefined,
   contactType: string | undefined,
   subject: string | undefined,
-  topics: string[]
+  topics: string[],
+  noteTemplateId?: number
 ) {
   const data = {
     id,
     body,
     contactType,
     subject,
-    topics
+    topics,
+    noteTemplateId
   }
   return axios.post(`${utils.apiBaseUrl()}/api/peer_advising/note/update`, data).then(response => {
     const data = response.data

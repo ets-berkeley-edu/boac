@@ -56,7 +56,8 @@ export function updateNote(
     sids?: string[],
     subject?: string,
     templateAttachmentIds?: number[],
-    topics?: string[]
+    topics?: string[],
+    noteTemplateId?: number
 ) {
   const args = {
     id: noteId,
@@ -70,7 +71,8 @@ export function updateNote(
     sids,
     subject,
     templateAttachmentIds,
-    topics
+    topics,
+    noteTemplateId
   }
   return utils.postMultipartFormData('/api/notes/update', args).then(data => {
     const eventType = size(sids) > 1 ? 'notes-batch-published' : 'note-updated'

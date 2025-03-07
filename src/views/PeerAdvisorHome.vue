@@ -18,6 +18,7 @@
         <EditPeerAdvisingNoteModal
           v-if="noteStore.isCreateNoteModalOpen"
           v-model="createNoteModal"
+          :peer-advising-department-id="peerAdvisingDepartmentId"
         />
       </div>
     </div>

@@ -145,7 +145,8 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
           model.peerAdvisingDepartmentId,
           sids[0],
           model.subject,
-          model.topics
+          model.topics,
+          model.noteTemplateId
         ).then(note => {
           noteStore.setModel(note)
           resolve(note)
@@ -160,7 +161,8 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
           model.body,
           model.contactType,
           model.subject,
-          model.topics
+          model.topics,
+          model.noteTemplateId
         ).then(resolve)
       } else {
         updateNote(

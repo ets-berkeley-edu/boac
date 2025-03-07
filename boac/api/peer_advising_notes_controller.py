@@ -58,6 +58,7 @@ def create_peer_advising_note():
     sid = get_param(params, 'sid')
     subject = (params.get('subject', None) or '').strip()
     topics = get_note_topics_from_http_post()
+    note_template_id = params.get('noteTemplateId', None)
     memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(current_user.get_id())
     matching_membership = next((m for m in memberships if m['peer_advising_department_id'] == peer_advising_department_id), None)
     if not matching_membership:
@@ -70,6 +71,7 @@ def create_peer_advising_note():
         topics=topics,
         peer_advising_department_id=peer_advising_department_id,
         sid=sid,
+        note_template_id=note_template_id,
     )
     NoteRead.find_or_create(note_id=note.id, viewer_id=current_user.get_id())
     return tolerant_jsonify(get_boac_note_as_compatible_json(note, note_read=True))
@@ -149,6 +151,7 @@ def update_peer_advising_note():
     note_id = params.get('id', None)
     subject = (params.get('subject', None) or '').strip()
     topics = get_note_topics_from_http_post()
+    note_template_id = params.get('noteTemplateId', None)
     # Fetch existing note
     note = Note.find_by_id(note_id=note_id) if note_id else None
     if not note or not _can_current_user_edit_peer_advising_note(note):
@@ -161,6 +164,7 @@ def update_peer_advising_note():
         sid=note.sid,
         subject=subject,
         topics=topics,
+        note_template_id=note_template_id,
     )
     note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
     api_json = get_boac_note_as_compatible_json(note=note, note_read=note_read)
