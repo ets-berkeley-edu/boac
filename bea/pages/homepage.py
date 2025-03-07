@@ -71,9 +71,9 @@ class Homepage(UserListPages):
         self.wait_for_element_and_type(Homepage.DEV_AUTH_PASSWORD_INPUT, app.config['DEVELOPER_AUTH_PASSWORD'])
         self.wait_for_element_and_click(Homepage.DEV_AUTH_SUBMIT_BUTTON)
 
-    def dev_auth(self, user=None):
+    def dev_auth(self, user=None, page_title=None):
         self.enter_dev_auth_creds(user)
-        self.wait_for_boa_title('Home')
+        self.wait_for_boa_title((page_title or 'Home'))
 
     def switch_user(self, new_user=None):
         self.load_page()

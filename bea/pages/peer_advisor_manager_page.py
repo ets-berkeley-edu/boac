@@ -54,24 +54,25 @@ class PeerAdvisorManagerPage(BoaPages):
     ADD_STUDENT_INPUT = By.ID, 'add-student-input'
     ADD_STUDENT_BTN = By.ID, 'add-student-add-button'
 
-    def search_student_by_uid(self, student):
+    def search_student_by_sid(self, student):
         # Hit escape to dismiss any existing option lists
         self.hit_escape()
-        self.wait_for_textbox_and_type(self.ADD_STUDENT_INPUT, student.uid)
+        self.wait_for_textbox_and_type_chars(self.ADD_STUDENT_INPUT, student.sid)
 
     def search_student_by_name(self, student):
         # Hit escape to dismiss any existing option lists
         self.hit_escape()
-        self.wait_for_textbox_and_type(self.ADD_STUDENT_INPUT, student.full_name)
+        self.wait_for_textbox_and_type_chars(self.ADD_STUDENT_INPUT, student.full_name)
 
     @staticmethod
     def peer_auto_suggest_option(student):
-        return By.XPATH, f'//div[@role="option"]//div[contains(., "{student.uid}")]'
+        return By.XPATH, f'//div[@role="option"]//div[contains(., "{student.sid}")]'
 
     def add_peer(self, student):
         app.logger.info(f'Looking up UID {student.uid}')
-        self.search_student_by_uid(student)
+        self.search_student_by_sid(student)
         self.wait_for_element_and_click(self.peer_auto_suggest_option(student))
+        self.wait_for_element_and_click(self.ADD_STUDENT_BTN)
         self.when_present(self.peer_advisor_row(student), utils.get_short_timeout())
 
     # Peer table
@@ -122,14 +123,14 @@ class PeerAdvisorManagerPage(BoaPages):
     def peer_advisor_restore_btn(user):
         return By.ID, f'restore-peer-advisor-{user.uid}'
 
-    def delete_peer(self, user):
+    def click_delete_peer(self, user):
         app.logger.info(f'Deleting peer UID {user.uid}')
         self.wait_for_element_and_click(self.peer_advisor_remove_btn(user))
 
     def restore_peer(self, user):
         app.logger.info(f'Restoring peer UID {user.uid}')
         self.wait_for_element_and_click(self.peer_advisor_restore_btn(user))
-        self.when_present(self.peer_advisor_remove_btn(user))
+        self.when_present(self.peer_advisor_remove_btn(user), utils.get_short_timeout())
 
     @staticmethod
     def sortable_header(header_text):
@@ -157,6 +158,8 @@ class PeerAdvisorManagerPage(BoaPages):
 
     # Template table
 
+    NO_PEER_TEMPLATES_MSG = By.XPATH, '//div[contains(., "Click on Create new Note Template to add your first note template.")]'
+
     def visible_peer_template_ids(self):
         self.when_present(self.CREATE_PEER_TEMPLATE_BTN, utils.get_short_timeout())
         time.sleep(utils.get_click_sleep())
@@ -165,7 +168,7 @@ class PeerAdvisorManagerPage(BoaPages):
 
     @staticmethod
     def peer_template_row_xpath(template):
-        return f'//tr[contains(., "{template.name}")]'
+        return f'//tr[contains(., "{template.title}")]'
 
     def peer_template_row(self, template):
         return By.XPATH, self.peer_template_row_xpath(template)
@@ -176,19 +179,23 @@ class PeerAdvisorManagerPage(BoaPages):
     def peer_template_date(self, template):
         return self.el_text_if_exists((By.XPATH, f'{self.peer_template_row_xpath(template)}/td[2]'))
 
-    def peer_template_edit_btn(self, template):
-        return By.XPATH, f'{self.peer_template_row_xpath(template)}//button[1]'
+    @staticmethod
+    def peer_template_edit_btn(template):
+        return By.ID, f'edit-note-template-{template.record_id}'
 
-    def peer_template_copy_btn(self, template):
-        return By.XPATH, f'{self.peer_template_row_xpath(template)}//button[2]'
+    @staticmethod
+    def peer_template_copy_btn(template):
+        return By.ID, f'copy-note-template-{template.record_id}'
 
-    def peer_template_delete_btn(self, template):
-        return By.XPATH, f'{self.peer_template_row_xpath(template)}//button[3]'
+    @staticmethod
+    def peer_template_delete_btn(template):
+        return By.ID, f'delete-note-template-{template.record_id}'
 
     CREATE_PEER_TEMPLATE_BTN = By.ID, 'create-new-peer-advising-note-template'
     PEER_TEMPLATE_NAME_INPUT = By.ID, 'peer-advising-note-template-name-text'
     PEER_TEMPLATE_CANCEL_BTN = By.ID, 'cancel-peer-advising-note-template'
     PEER_TEMPLATE_SAVE_BTN = By.ID, 'save-new-peer-advising-note-template'
+    PEER_TEMPLATE_DUPE_NAME_MSG = By.XPATH, '//div[text()="Name already exists. Please choose a different name."]'
 
     def enter_peer_template_name(self, name):
         app.logger.info(f'Entering peer advising template name {name}')
@@ -201,7 +208,7 @@ class PeerAdvisorManagerPage(BoaPages):
             self.when_present(self.topic_pill(topic), utils.get_short_timeout())
 
     def enter_peer_template_data(self, template):
-        self.enter_peer_template_name(template)
+        self.enter_peer_template_name(template.title)
         self.enter_note_body(template)
         self.add_peer_template_topics(template)
 
@@ -248,8 +255,6 @@ class PeerAdvisorManagerPage(BoaPages):
         app.logger.info(f'Copying template {template.record_id}')
         self.wait_for_element_and_click(self.peer_template_copy_btn(template))
 
-    # TODO - copy_peer_template
-
     # Delete
 
     def click_delete_peer_template(self, template):
@@ -260,7 +265,7 @@ class PeerAdvisorManagerPage(BoaPages):
         app.logger.info(f'Deleting template {template.record_id}')
         self.click_delete_peer_template(template)
         self.confirm_delete_or_discard()
-        self.when_not_present(self.peer_template_row(template))
+        self.when_not_present(self.peer_template_row(template), utils.get_short_timeout())
 
     # REPORTING & STATISTICS
 

@@ -174,4 +174,4 @@ class PeerAdvisingDepartment(Enum):
 
     @staticmethod
     def get_peer_depts():
-        return [value for key, value in Department.__dict__.items() if key.isupper()]
+        return [value for key, value in PeerAdvisingDepartment.__dict__.items() if key.isupper()]
