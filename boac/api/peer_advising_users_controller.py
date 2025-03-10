@@ -51,10 +51,10 @@ def create_peer_advisor():
     ):
         peer_advisor = AuthorizedUser.create_or_restore(
             uid,
-            created_by=current_user.get_id(),
             automate_degree_progress_permission=False,
             can_access_advising_data=False,
             can_access_canvas_data=False,
+            created_by=current_user.uid,
             degree_progress_permission=None,
         )
         PeerAdvisingDepartmentMember.create_or_update_membership(
@@ -62,7 +62,8 @@ def create_peer_advisor():
             peer_advising_department_id=peer_advising_department_id,
             role_type='peer_advisor',
         )
-        return tolerant_jsonify({})
+        api_json = authorized_users_api_feed([peer_advisor])[0]
+        return tolerant_jsonify(api_json)
     else:
         return app.login_manager.unauthorized()
 
@@ -167,7 +168,7 @@ def _is_authorized_peer_advisor_manager(
 ):
     def _is_authorized(membership, role_type):
         has_valid_role = membership['role_type'] == role_type
-        return has_valid_role and membership['peer_advising_department_id'] == int(peer_advising_department_id)
+        return has_valid_role and str(membership['peer_advising_department_id']) == str(peer_advising_department_id)
     peer_advisor_manager_memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(
         authorized_user_id=peer_advisor_manager_user_id,
     )
