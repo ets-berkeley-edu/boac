@@ -91,13 +91,15 @@ export type CalNetUser = {
 export type Cohort = {
   domain: string,
   id: number,
-  name: string
+  name: string,
+  totalStudentCount: number
 }
 
 export type CuratedGroup = {
   domain: string,
   id: number,
-  name: string
+  name: string,
+  totalStudentCount: number
 }
 
 export type Course = {
