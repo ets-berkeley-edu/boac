@@ -138,12 +138,15 @@ class AuthorizedUser(Base):
             can_access_canvas_data=True,
             degree_progress_permission=None,
             is_admin=False,
-            is_blocked=False,
+            is_blocked=None,
     ):
         existing_user = cls.query.filter_by(uid=uid).first()
+        if existing_user and existing_user.is_blocked and is_blocked is None:
+            # Exit because (1) existing user is blocked and (2) no overriding 'is_blocked' value was given.
+            return False
+        # Proceed
+        is_blocked = bool(is_blocked)
         if existing_user:
-            if existing_user.is_blocked:
-                return False
             # If restoring a previously deleted user, respect passed-in attributes.
             if existing_user.deleted_at:
                 existing_user.automate_degree_progress_permission = automate_degree_progress_permission
