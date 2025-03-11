@@ -8,7 +8,7 @@
       <div v-if="note.subject && note.body" class="open-note-message-container pt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.body" />
       </div>
-      <div class="mt-3">
+      <div class="mt-1">
         <div v-if="note.author.name || note.author.email">
           <span class="sr-only">Note created by </span>
           <span v-if="note.author.uid && note.author.name">
@@ -37,10 +37,10 @@
           </div>
         </div>
       </div>
-      <div v-if="note.topics && size(note.topics)" class="py-2">
+      <div v-if="note.topics && size(note.topics)" class="mt-3">
         <AdvisingNoteTopics :note="note" read-only />
       </div>
-      <div v-if="note.contactType" class="py-2">
+      <div v-if="note.contactType" class="mt-3">
         <div class="font-weight-bold">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>

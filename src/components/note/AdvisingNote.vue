@@ -113,11 +113,11 @@
           </div>
         </div>
       </div>
-      <div v-if="note.topics && size(note.topics)" class="py-2">
+      <div v-if="note.topics && size(note.topics)" class="mt-3">
         <AdvisingNoteTopics :note="note" read-only />
       </div>
-      <div v-if="note.contactType" class="py-2">
-        <div class="font-weight-bold">Contact Type</div>
+      <div v-if="note.contactType" class="mb-2 mt-3">
+        <div class="font-size-14 font-weight-bold">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>
       <div v-if="!note.peerAdvisingDepartmentId && (!note.legacySource || size(note.attachments))" class="note-attachments-container">

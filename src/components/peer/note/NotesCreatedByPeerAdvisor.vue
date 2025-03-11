@@ -74,34 +74,18 @@
                       :class="{'demo-mode-blur': currentUser.inDemoMode}"
                     >
                       <router-link
-                        v-if="currentUser.isAdmin"
                         :id="`link-to-student-${note.sid}`"
                         :class="{'demo-mode-blur': currentUser.inDemoMode}"
                         :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
                       >
                         <span v-html="lastNameFirst(note.student)" />
                       </router-link>
-                      <div v-if="!currentUser.isAdmin">
-                        <span v-html="`${getStudentName(note)}`" />
-                      </div>
                     </div>
                     <div v-if="!note.student">
                       SID: {{ note.sid }}
                     </div>
                   </td>
                   <td :id="`note-body-in-row-${index}`" :class="{'border-b-md': index === notes.length - 1}" class="td-note">
-                    <!--
-                    TODO: Should admins link to /student profile page so they can easily delete.
-                    <router-link
-                      v-if="currentUser.isAdmin"
-                      :id="`link-to-student-${note.student.uid}`"
-                      :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                      class="align-center d-flex font-weight-medium justify-space-between w-100"
-                      :to="`${studentRoutePath(note.student.uid, currentUser.inDemoMode)}#permalink-note-${note.id}`"
-                    >
-                      <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
-                    </router-link>
-                    -->
                     <v-expand-transition>
                       <button
                         v-if="!expandedNoteIds.includes(note.id)"
