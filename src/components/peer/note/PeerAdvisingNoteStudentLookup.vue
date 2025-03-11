@@ -59,8 +59,9 @@ import {each, get, noop, size, trim} from 'lodash'
 import {mdiPlus} from '@mdi/js'
 import {nextTick, onMounted, onUnmounted, onUpdated, ref, watch} from 'vue'
 import type {BasicStudent, BasicStudentLabeled} from '@/lib/types'
-import {clearNoteRecipients, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
+import {clearNoteRecipients} from '@/stores/note-edit-session/note-edit-session-utils'
 import {findStudentsByNameOrSid} from '@/api/student'
+import {getBasicStudent} from '@/api/peer-advising'
 import {putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
@@ -77,10 +78,9 @@ const query = ref(undefined)
 const vAutocompleteKey = ref<PropertyKey>(new Date().toString())
 
 const props = defineProps({
-  sid: {
-    default: undefined,
-    required: false,
-    type: String
+  onSelectStudent: {
+    required: true,
+    type: Function
   }
 })
 
@@ -91,7 +91,6 @@ watch(query, value => {
 })
 
 onMounted(() => {
-  model.value = props.sid
   return intervalId.value = setInterval(() => {
     counter.value = counter.value === 100 ? 0 : counter.value + 1
   }, 100)
@@ -103,14 +102,16 @@ const resetAutocomplete = () => {
   autoSuggestedStudents.value = []
   isUpdatingAutocomplete.value = false
   query.value = undefined
+  props.onSelectStudent(undefined)
   clearNoteRecipients()
   vAutocompleteKey.value = new Date().toString()
 }
 
-const onUpdateModel = (student: BasicStudent) => {
-  const sid = get(student, 'sid')
+const onUpdateModel = (selectedStudent: BasicStudent) => {
+  const sid = get(selectedStudent, 'sid')
   if (sid) {
-    setNoteRecipient(sid)
+    autoSuggestedStudents.value = []
+    getBasicStudent(sid).then(data => props.onSelectStudent(data))
   }
 }
 

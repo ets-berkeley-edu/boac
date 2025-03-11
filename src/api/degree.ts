@@ -130,12 +130,14 @@ export function getDegreeTemplates() {
   return axios.get(`${utils.apiBaseUrl()}/api/degree/templates`).then(response => response.data)
 }
 
+// eslint-disable-next-line import/no-named-as-default-member
 let $_getStudentsCancel = axios.CancelToken.source()
 
 export function getStudents(templateId: number, sids: number[]) {
   if ($_getStudentsCancel) {
     $_getStudentsCancel.cancel()
  }
+// eslint-disable-next-line import/no-named-as-default-member
  $_getStudentsCancel = axios.CancelToken.source()
   const url: string = `${utils.apiBaseUrl()}/api/degree/${templateId}/students`
   return axios.post(url, {sids}, {cancelToken: $_getStudentsCancel.token}).then(response => response.data)

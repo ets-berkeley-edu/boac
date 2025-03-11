@@ -133,18 +133,7 @@
 
       <template #item.departments="{ item }">
         <div class="row-padding">
-          <div v-for="(department, index) in item.departments" :key="department.deptCode">
-            <span class="font-weight-bold text-body text-success-darken-1">
-              {{ department.deptName }} - {{ getDistinctRoleNames(department.memberships).join(', ') }}
-            </span>
-            <div v-if="index !== item.departments.length - 1"></div>
-          </div>
-          <div v-if="item.canEditDegreeProgress || item.canReadDegreeProgress" class="text-medium-emphasis">
-            <span class="font-weight-bold text-medium-emphasis">Degree Progress - </span>
-            <span v-if="item.canEditDegreeProgress && item.canReadDegreeProgress" class="text-body"> read/write</span>
-            <span v-if="!(item.canEditDegreeProgress && item.canReadDegreeProgress) && item.canReadDegreeProgress" class="text-body"> read</span>
-            <span v-if="item.automateDegreeProgressPermission" class="text-body"> (automated)</span>
-          </div>
+          <BoaUserDepartmentsSummary :user="item" />
         </div>
       </template>
 
@@ -206,13 +195,13 @@ import {DateTime} from 'luxon'
 import {mdiArrowDown, mdiArrowUp, mdiEmail, mdiLoginVariant} from '@mdi/js'
 import {ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
+import BoaUserDepartmentsSummary from '@/components/admin/passenger-manifest/BoaUserDepartmentsSummary.vue'
 import BoaUserFullName from '@/components/admin/passenger-manifest/BoaUserFullName.vue'
 import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
 import {
   ADVISING_ROLE_TYPES,
   PEER_ADVISING_ROLE_TYPES,
-  getDeptCodesPerRoles,
-  getDistinctRoleNames
+  getDeptCodesPerRoles
 } from '@/lib/berkeley-department'
 import {alertScreenReader, normalizeId, pluralize, putFocusNextTick} from '@/lib/utils'
 import {becomeUser, getUserByUid} from '@/api/user'

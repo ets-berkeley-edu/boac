@@ -23,7 +23,7 @@
         <div v-if="!currentUser.canAccessCanvasData" class="pv-3">You do not have access to bCourses (LMS) data.</div>
         <div v-if="!currentUser.canAccessAdvisingData" class="pv-3">You do not have access to advising notes or appointments.</div>
         <div v-for="department in currentUser.departments" :key="department.deptCode">
-          <div id="my-dept-roles">{{ getDistinctRoleNames(department.memberships).join(', ') }} in {{ department.deptName }}</div>
+          <BoaUserDepartmentsSummary id="my-dept-roles" :user="currentUser" />
         </div>
       </v-col>
       <v-divider class="border-opacity-100" />
@@ -33,7 +33,7 @@
 
 <script setup>
 import {capitalize, filter, map} from 'lodash'
-import {getDistinctRoleNames} from '@/lib/berkeley-department.js'
+import BoaUserDepartmentsSummary from '@/components/admin/passenger-manifest/BoaUserDepartmentsSummary.vue'
 import {isCoe} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 
