@@ -82,11 +82,8 @@ export async function getPeerAdvisingUsers(
   })
 }
 
-export function getUserByUid(uid: string, ignoreDeleted?: boolean) {
-  let url = `${utils.apiBaseUrl()}/api/user/by_uid/${uid}`
-  if (!isNil(ignoreDeleted)) {
-    url += `?ignoreDeleted=${ignoreDeleted}`
-  }
+export function getUserByUid(uid: string, includeDeleted: boolean) {
+  const url = `${utils.apiBaseUrl()}/api/user/by_uid/${uid}?includeDeleted=${includeDeleted}`
   return axios.get(url).then(response => response.data)
 }
 

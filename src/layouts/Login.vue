@@ -23,17 +23,18 @@
           <div v-if="config.devAuthEnabled" class="mt-3">
             <DevAuth :report-error="reportError" />
           </div>
-          <v-alert
-            v-if="error"
-            aria-live="polite"
-            class="font-weight-medium ma-2"
-            density="compact"
-            :icon="mdiAlert"
-            type="error"
-            variant="tonal"
-          >
-            {{ error }}
-          </v-alert>
+          <div class="mt-3 mx-7">
+            <v-alert
+              v-if="error"
+              aria-live="polite"
+              class="font-weight-medium text-left"
+              density="compact"
+              :icon="mdiAlert"
+              :text="error"
+              type="error"
+              variant="tonal"
+            />
+          </div>
           <div class="contact-us">
             If you have questions or feedback then contact us at
             <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">
@@ -47,27 +48,27 @@
   </v-app>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {mdiAlert} from '@mdi/js'
 import {nextTick, ref} from 'vue'
-import {trim} from 'lodash'
+import {toString, trim} from 'lodash'
 import {useRoute} from 'vue-router'
-import {useContextStore} from '@/stores/context'
+import DevAuth from '@/components/admin/DevAuth.vue'
 import {getCasLoginURL} from '@/api/auth'
-import DevAuth from '@/components/admin/DevAuth'
+import {useContextStore} from '@/stores/context'
 
 const config = useContextStore().config
-const error = ref(undefined)
+const error = ref<string | undefined>(undefined)
 const route = useRoute()
 
-nextTick(() => reportError(route.query.error))
+nextTick(() => reportError(toString(route.query.error)))
 
 const logIn = () => {
   getCasLoginURL().then(data => window.location.href = data.casLoginUrl)
 }
 
-const reportError = message => {
-  error.value = trim(message) || null
+const reportError = (message: string) => {
+  error.value = trim(message) || undefined
 }
 </script>
 

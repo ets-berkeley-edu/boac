@@ -73,7 +73,7 @@ onMounted(() => {
   const currentUser = contextStore.currentUser
   if (currentUser.isAdmin) {
     const uid = route.params.uid.toString()
-    getUserByUid(uid, true).then(init)
+    getUserByUid(uid, false).then(init)
   } else {
     init(currentUser)
   }

@@ -38,7 +38,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {get, trim} from 'lodash'
 import {onMounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
@@ -80,6 +80,7 @@ const logIn = () => {
       },
       error => {
         props.reportError(error)
+        isLoggingIn.value = false
       }
     )
   } else if (uid.value) {

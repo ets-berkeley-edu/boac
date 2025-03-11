@@ -73,8 +73,8 @@ def calnet_profile_by_user_id(user_id):
 @app.route('/api/user/by_uid/<uid>')
 @advisor_required
 def user_by_uid(uid):
-    ignore_deleted = to_bool_or_none(util.get(request.args, 'ignoreDeleted'))
-    user = _find_user_by_uid(uid, ignore_deleted)
+    include_deleted = to_bool_or_none(request.args.get('includeDeleted')) if current_user.is_admin else False
+    user = _find_user_by_uid(uid, bool(include_deleted))
     if user:
         users_feed = authorized_users_api_feed([user])
         return tolerant_jsonify(users_feed[0])
@@ -419,12 +419,8 @@ def _delete_existing_memberships(user_id):
         )
 
 
-def _find_user_by_uid(uid, ignore_deleted=True):
-    if uid:
-        ignore_deleted_ = True if ignore_deleted is None else ignore_deleted
-        return AuthorizedUser.find_by_uid(uid, ignore_deleted=ignore_deleted_)
-    else:
-        return None
+def _find_user_by_uid(uid, include_deleted=False):
+    return AuthorizedUser.find_by_uid(uid, ignore_deleted=not include_deleted) if uid else None
 
 
 def _get_inputs_for_csv_download(api_json):

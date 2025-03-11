@@ -202,7 +202,7 @@ watch(() => filter.value.status, () => putFocusNextTick('submit-user-search-filt
 
 const onUpdateAutocompleteModel = (uid: string) => {
   manifestStore.setIsFetching(true)
-  getUserByUid(uid).then(user => {
+  getUserByUid(uid, true).then(user => {
     manifestStore.setUsers([user])
     autocompleteInput.value = userSelection.value = undefined
     manifestStore.setIsFetching(false)

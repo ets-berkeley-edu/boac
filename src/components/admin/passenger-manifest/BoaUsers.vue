@@ -295,7 +295,7 @@ const onClickEditUser = (index, uid) => {
 const onUpdateUser = (index, uid) => {
   dialogs.value[index] = false
   editUserModel.value = undefined
-  getUserByUid(uid, false).then(data => {
+  getUserByUid(uid, true).then(data => {
     manifestStore.onUpdateUser(data)
   })
 }
