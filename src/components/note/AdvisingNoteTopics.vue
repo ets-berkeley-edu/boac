@@ -1,9 +1,9 @@
 <template>
   <div>
-    <label id="add-note-topic-label" class="font-size-16 font-weight-bold" for="add-topic-select-list">
+    <label id="add-note-topic-label" class="font-size-14 font-weight-bold" for="add-topic-select-list">
       Topic {{ size(topicOptions) === 1 ? 'Category' : 'Categories' }}
     </label>
-    <div v-if="!readOnly && size(topicOptions)" class="mt-2">
+    <div v-if="!readOnly && size(topicOptions)" class="mb-1 mt-2">
       <select
         id="add-topic-select-list"
         :key="noteStore.model.topics.length"
@@ -27,7 +27,7 @@
     <div>
       <ul
         id="note-topics-list"
-        class="list-no-bullets mt-1 advising-note-pill-list"
+        class="list-no-bullets advising-note-pill-list"
         aria-labelledby="note-topics-label"
       >
         <li
@@ -37,7 +37,7 @@
         >
           <PillItem
             :id="`${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
-            clazz="w-100"
+            clazz="font-size-12 w-100"
             :closable="!readOnly"
             :disabled="disabled"
             :label="topic"
