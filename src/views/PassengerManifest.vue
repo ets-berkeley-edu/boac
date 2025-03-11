@@ -153,7 +153,7 @@ const fetchUsers = (isCsvDownloadRequest?: boolean) => {
         uidOfUser = manifestStore.uidBeingEdited.uid
       }
       if (uidOfUser) {
-        getUserByUid(uidOfUser, false).then(data => afterFetchUsers([data]))
+        getUserByUid(uidOfUser, true).then(data => afterFetchUsers([data]))
       }
     } else {
       throw new TypeError(`Invalid filter type: ${filter.type}`)

@@ -186,37 +186,38 @@ class TestCalnetProfileByUid:
 class TestUserByUid:
     """User by UID API."""
 
+    @classmethod
+    def _api_get_user_by_uid(cls, client, include_deleted, uid, expected_status_code=200):
+        response = client.get(f'/api/user/by_uid/{uid}?includeDeleted={include_deleted}')
+        assert response.status_code == expected_status_code
+        return response.json
+
     def test_not_authenticated(self, client):
         """Returns 401 when not authenticated."""
-        user = AuthorizedUser.find_by_uid(asc_advisor_uid)
-        response = client.get(f'/api/user/by_uid/{user.uid}')
-        assert response.status_code == 401
+        self._api_get_user_by_uid(client, False, asc_advisor_uid, expected_status_code=401)
 
     def test_user_not_found(self, client, fake_auth):
         """404 when user not found."""
         fake_auth.login(admin_uid)
-        assert client.get('/api/user/by_uid/99999999999999999').status_code == 404
+        self._api_get_user_by_uid(client, True, '99999999999999999', expected_status_code=404)
 
     def test_deleted_user_not_found(self, client, fake_auth):
-        """404 is default if get deleted user by UID."""
+        """404 if search deleted user with include_deleted set to False."""
         fake_auth.login(admin_uid)
-        assert client.get(f'/api/user/by_uid/{deleted_user_uid}').status_code == 404
-        assert client.get(f'/api/user/by_uid/{deleted_user_uid}?ignoreDeleted=true').status_code == 404
+        self._api_get_user_by_uid(client, False, deleted_user_uid, expected_status_code=404)
 
     def test_get_deleted_user_by_uid(self, client, fake_auth):
-        """Get deleted user by UID if specific param is passed."""
+        """Get deleted user."""
         fake_auth.login(admin_uid)
-        response = client.get(f'/api/user/by_uid/{deleted_user_uid}?ignoreDeleted=false')
-        assert response.status_code == 200
-        assert response.json['uid'] == deleted_user_uid
+        api_json = self._api_get_user_by_uid(client, True, deleted_user_uid)
+        assert api_json['uid'] == deleted_user_uid
 
     def test_user_by_csid(self, client, fake_auth):
         """Delivers CalNet profile."""
         fake_auth.login(admin_uid)
-        response = client.get('/api/user/by_uid/1133399')
-        assert response.status_code == 200
-        assert response.json['csid'] == '800700600'
-        assert response.json['uid'] == '1133399'
+        api_json = self._api_get_user_by_uid(client, False, coe_advisor_uid)
+        assert api_json['csid'] == '800700600'
+        assert api_json['uid'] == coe_advisor_uid
 
 
 class TestUniversityDeptMember:
