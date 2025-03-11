@@ -49,9 +49,22 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
 
   axios.get(`${apiBaseUrl}/api/config`).then(response => {
     contextStore.setConfig({...response.data, apiBaseUrl, isVueAppDebugMode})
-    getServiceAnnouncement().then(data => contextStore.setServiceAnnouncement(data))
-    app.use(router)
-      .use(VueGtag, getGtagConfig())
-      .mount('#app')
+    getServiceAnnouncement().then(data => {
+      contextStore.setServiceAnnouncement(data)
+      const pingFrequency: number = contextStore.config.pingFrequency
+      if (pingFrequency) {
+        // Keep session-cookie alive during user inactivity.
+        setInterval(() => {
+          axios.get(`${apiBaseUrl}/api/user/session_keep_alive`).then(response => {
+            if (!response.data.isAuthenticated) {
+              contextStore.broadcast('user-session-expired')
+            }
+          })
+        }, pingFrequency)
+      }
+      app.use(router)
+        .use(VueGtag, getGtagConfig())
+        .mount('#app')
+    })
   })
 })
