@@ -42,22 +42,22 @@
           </div>
         </v-main>
       </v-layout>
-      <footer role="footer">
+      <footer>
         <AppFooter v-if="!loading && !hideFooter" />
       </footer>
     </div>
   </v-fade-transition>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {get, split} from 'lodash'
 import {onBeforeUnmount, onMounted, ref, useTemplateRef, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useRoute} from 'vue-router'
-import AppBar from '@/layouts/shared/AppBar'
-import AppFooter from '@/layouts/shared/AppFooter'
+import AppBar from '@/layouts/shared/AppBar.vue'
+import AppFooter from '@/layouts/shared/AppFooter.vue'
 import PlaneGoRound from '@/layouts/shared/PlaneGoRound.vue'
-import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
+import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement.vue'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
@@ -67,7 +67,7 @@ const {loading} = storeToRefs(contextStore)
 const hideFooter = ref(false)
 const route = useRoute()
 const serviceAlert = useTemplateRef('serviceAlert')
-const serviceAlertOffset = ref(0)
+const serviceAlertOffset = ref<string>(0)
 
 watch(loading, value => {
   if (!value) {
@@ -100,21 +100,6 @@ const setServiceAlertOffset = () => {
 </script>
 
 <style scoped>
-.footer-sm {
-  width: 97%;
-}
-.footer-md {
-  margin-left: 256px;
-  width: 74%;
-}
-.footer-lg {
-  margin-left: 256px;
-  width: 80%;
-}
-.footer-xl {
-  margin-left: 256px;
-  width: 83%;
-}
 .loading-container {
   height: calc(100vh - 64px);
 }
@@ -124,9 +109,5 @@ const setServiceAlertOffset = () => {
 .service-alert-offset > .scroll-margins,
 .service-alert-offset h1.scroll-margins {
   scroll-margin-top: calc(v-bind(serviceAlertOffset) + 80px);
-}
-.sidebar .v-navigation-drawer__content {
-  padding-bottom: 120px;
-  scrollbar-width: none;
 }
 </style>

@@ -47,8 +47,8 @@
               </tr>
             </thead>
             <tbody v-if="size(term.enrollments)">
-              <tr v-for="(enrollment, index) in term.enrollments" :key="index">
-                <td :class="{'pt-1': index === 0}" class="font-size-12 font-weight-bold">
+              <tr v-for="(enrollment, index) in term.enrollments" :key="index" class="font-size-13">
+                <td :class="{'pt-1': index === 0}" class="font-weight-bold text-medium-emphasis">
                   {{ enrollment.displayName }}
                 </td>
                 <td :class="{'pt-1': index === 0}" class="text-right">
@@ -73,17 +73,13 @@ import type {PropType} from 'vue'
 import {isNil, size} from 'lodash'
 import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {ref, watch} from 'vue'
-import type {HasName, TermEnrollment} from '@/lib/types'
+import type {BasicStudent, TermEnrollment} from '@/lib/types'
 import {getStudentEnrollments} from '@/api/peer-advising'
 
 const props = defineProps({
-  sid: {
-    required: true,
-    type: String
-  },
   student: {
     required: true,
-    type: Object as PropType<HasName>
+    type: Object as PropType<BasicStudent>
   }
 })
 
@@ -94,7 +90,7 @@ const isFetching = ref(false)
 watch(isExpanded, value => {
   if (value && isNil(terms.value)) {
     isFetching.value = true
-    getStudentEnrollments(props.sid).then(data => {
+    getStudentEnrollments(props.student.sid).then(data => {
       terms.value = data
       isFetching.value = false
     })

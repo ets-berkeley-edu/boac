@@ -171,6 +171,7 @@ export default createVuetify({
           'pale-yellow': '#fef6e6',
           primary: '#3b7ea5',
           quaternary: '#083456',
+          // eslint-disable-next-line import/no-named-as-default-member
           red: colors.red.darken1,
           secondary: '#96C3de',
           'service-announcement': '#f0ad4e',

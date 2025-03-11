@@ -139,10 +139,3 @@ const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
   })
 }
 </script>
-
-<style scoped>
-.page-container {
-  margin-left: 5%;
-  margin-right: 5%;
-}
-</style>

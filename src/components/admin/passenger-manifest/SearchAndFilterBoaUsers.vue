@@ -226,9 +226,6 @@ const onUpdateSearch = debounce((query: string) => {
 .component-container {
   height: 50px !important;
 }
-.toggle-user-search-type {
-  width: 120px !important;
-}
 .select-menu {
   height: 40px;
 }

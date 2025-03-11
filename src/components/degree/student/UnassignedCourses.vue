@@ -413,9 +413,6 @@ th {
 .changed-units-icon {
   margin-left: 0.1em;
 }
-.table-layout {
-  table-layout: fixed;
-}
 .td-assign {
   font-size: 14px;
   vertical-align: top;

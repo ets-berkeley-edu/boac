@@ -11,22 +11,20 @@
     >
       <v-card-title id="edit-note-header">
         <EditPeerAdvisingNoteHeader
-          :header-text="student ? `${student.firstName} ${student.lastName}` : 'New Note'"
+          header-text="New Note"
           :note-templates="noteTemplates"
           @template-selected="setTemplate"
         />
       </v-card-title>
       <v-card-text class="pt-0">
-        <div v-if="!student">
-          <PeerAdvisingNoteStudentLookup />
+        <div>
+          <PeerAdvisingNoteStudentLookup :on-select-student="onSelectStudent" />
         </div>
-        <div class="compact-student-course-schedule">
-          <CompactStudentCourseSchedule
-            v-if="get(student, 'sid')"
-            :sid="student.sid"
-            :student="student"
-          />
-        </div>
+        <v-expand-transition>
+          <div v-if="student" class="compact-student-course-schedule">
+            <CompactStudentCourseSchedule :student="student" />
+          </div>
+        </v-expand-transition>
         <RichTextEditor
           id="peer-advising-note-body"
           class="mt-3"
@@ -69,7 +67,6 @@
 </template>
 
 <script setup lang="ts">
-import type {PropType} from 'vue'
 import {computed, onMounted, ref} from 'vue'
 import {get, size} from 'lodash'
 import {storeToRefs} from 'pinia'
@@ -87,6 +84,7 @@ import {alertScreenReader, stripHtmlAndTrim} from '@/lib/utils'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
+import {setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
 
 const dialog = defineModel<boolean>({
   required: true,
@@ -94,11 +92,6 @@ const dialog = defineModel<boolean>({
 })
 
 const props = defineProps({
-  student: {
-    default: undefined,
-    required: false,
-    type: Object as PropType<BasicStudent>
-  },
   peerAdvisingDepartmentId: {
     required: true,
     type: Number
@@ -109,6 +102,7 @@ const display = useDisplay()
 const isAreYouSureModalOpen = ref(false)
 const noteStore = useNoteStore()
 const recipients = computed<NoteRecipients>(() => noteStore.recipients)
+const student = ref<BasicStudent | undefined>()
 const topics = ref<NoteTopic[]>([])
 const noteTemplates = ref([])
 const {isSaving, model} = storeToRefs(noteStore)
@@ -144,6 +138,15 @@ const discardRequested = () => {
     isAreYouSureModalOpen.value = true
   } else {
     closeModal('Canceled')
+  }
+}
+
+const onSelectStudent = (selectedStudent: BasicStudent) => {
+  if (get(selectedStudent, 'sid')) {
+    student.value = selectedStudent
+    setNoteRecipient(get(student.value, 'sid'))
+  } else {
+    student.value = undefined
   }
 }
 </script>
