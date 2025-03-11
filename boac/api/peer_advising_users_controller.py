@@ -124,7 +124,7 @@ def get_basic_student(sid):
 @app.route('/api/peer_advising/delete_peer_advisor/<peer_advising_department_id>/<peer_advisor_user_id>', methods=['DELETE'])
 @peer_advisor_manager_required
 def delete_peer_advisor(peer_advising_department_id, peer_advisor_user_id):
-    if _is_authorized_peer_advisor_manager(
+    if current_user.is_admin or _is_authorized_peer_advisor_manager(
             peer_advising_department_id=peer_advising_department_id,
             peer_advisor_manager_user_id=current_user.get_id(),
             peer_advisor_user_id=peer_advisor_user_id,
@@ -143,7 +143,7 @@ def delete_peer_advisor(peer_advising_department_id, peer_advisor_user_id):
 @app.route('/api/peer_advising/restore_peer_advisor/<peer_advising_department_id>/<peer_advisor_user_id>')
 @peer_advisor_manager_required
 def restore_peer_advisor(peer_advising_department_id, peer_advisor_user_id):
-    if _is_authorized_peer_advisor_manager(
+    if current_user.is_admin or _is_authorized_peer_advisor_manager(
         include_deleted_peer_advisor_memberships=True,
         peer_advising_department_id=peer_advising_department_id,
         peer_advisor_manager_user_id=current_user.get_id(),
@@ -154,7 +154,11 @@ def restore_peer_advisor(peer_advising_department_id, peer_advisor_user_id):
             peer_advising_department_id=peer_advising_department_id,
         )
         uid = AuthorizedUser.get_uid_per_id(peer_advisor_user_id, include_deleted=True)
-        AuthorizedUser.create_or_restore(uid, created_by=current_user.get_id())
+        AuthorizedUser.create_or_restore(
+            created_by=current_user.get_id(),
+            is_blocked=False,
+            uid=uid,
+        )
         return tolerant_jsonify({})
     else:
         return app.login_manager.unauthorized()
