@@ -201,16 +201,18 @@
         </NavLink>
       </div>
     </v-list-item>
-    <v-list-item v-if="!$vuetify.display.mdAndUp" class="px-0 pt-4">
+    <v-list-item v-if="!display.mdAndUp" class="px-0 pt-4">
       <SidebarFooter />
     </v-list-item>
   </v-list>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
+import {computed} from 'vue'
 import {filter as _filter, capitalize} from 'lodash'
 import {mdiPlus} from '@mdi/js'
-import {computed} from 'vue'
+import {useDisplay} from 'vuetify'
+import type {Cohort, CuratedGroup} from '@/lib/types'
 import NavLink from '@/components/util/NavLink.vue'
 import PillCount from '@/components/util/PillCount.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
@@ -219,10 +221,11 @@ import {pluralize, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
-const myCohorts = computed(() => _filter(contextStore.currentUser.myCohorts, ['domain', 'default']))
-const myCohortsCE3 = computed(() => _filter(contextStore.currentUser.myCohorts, ['domain', 'admitted_students']))
-const myCuratedGroups = computed(() => _filter(contextStore.currentUser.myCuratedGroups, ['domain', 'default']))
-const myCuratedGroupsCE3 = computed(() => _filter(contextStore.currentUser.myCuratedGroups, ['domain', 'admitted_students']))
+const display = useDisplay()
+const myCohorts = computed<Cohort[]>(() => _filter(contextStore.currentUser.myCohorts, ['domain', 'default']))
+const myCohortsCE3 = computed<Cohort[]>(() => _filter(contextStore.currentUser.myCohorts, ['domain', 'admitted_students']))
+const myCuratedGroups = computed<CuratedGroup[]>(() => _filter(contextStore.currentUser.myCuratedGroups, ['domain', 'default']))
+const myCuratedGroupsCE3 = computed<CuratedGroup[]>(() => _filter(contextStore.currentUser.myCuratedGroups, ['domain', 'admitted_students']))
 </script>
 
 <style>
