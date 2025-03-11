@@ -29,6 +29,7 @@ export type BoaConfig = {
   isVueAppDebugMode: boolean,
   maxAttachmentsPerNote: number,
   notesDraftAutoSaveInterval: number,
+  pingFrequency: number,
   supportEmailAddress: string,
   timezone: string
 }
