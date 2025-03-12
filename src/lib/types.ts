@@ -176,9 +176,10 @@ export type DraggingContext = {
 }
 
 export type Enrollment = {
-  'displayName': string,
-  'title': string,
-  'units': number
+  displayName: string,
+  sections: Section[],
+  title: string,
+  units: number
 }
 
 export type ExportListOption = {
@@ -284,7 +285,9 @@ export type Section = {
   gradingBasis: string,
   incompleteComments: string,
   incompleteLapseGradeDate: string,
-  incompleteStatusCode: string
+  incompleteStatusCode: string,
+  sectionId: number,
+  sectionNumber: number
 }
 
 export type SelectOption<T> = {
