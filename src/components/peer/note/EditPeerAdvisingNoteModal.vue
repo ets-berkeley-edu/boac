@@ -6,7 +6,7 @@
   >
     <v-card
       class="modal-content pb-2"
-      :class="{'modal-fullscreen': display.mdAndDown}"
+      :class="{'modal-fullscreen': mdAndDown}"
       max-width="50%"
     >
       <v-card-title id="edit-note-header">
@@ -98,7 +98,6 @@ const props = defineProps({
   },
 })
 
-const display = useDisplay()
 const isAreYouSureModalOpen = ref(false)
 const noteStore = useNoteStore()
 const recipients = computed<NoteRecipients>(() => noteStore.recipients)
@@ -106,6 +105,7 @@ const student = ref<BasicStudent | undefined>()
 const topics = ref<NoteTopic[]>([])
 const noteTemplates = ref([])
 const {isSaving, model} = storeToRefs(noteStore)
+const {mdAndDown} = useDisplay()
 
 onMounted(() => {
   getPeerAdvisingTopics().then(data => {

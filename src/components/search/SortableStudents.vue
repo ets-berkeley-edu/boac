@@ -196,7 +196,8 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const defaultCellClass = {class: 'font-size-15 py-1 pl-1 pr-3 vertical-top'}
 const defaultCellProps = computed(() => {
-  return {cellProps: {...defaultCellClass, style: useDisplay().mdAndUp ? 'max-width: 200px;' : ''}}
+  const {mdAndUp} = useDisplay()
+  return {cellProps: {...defaultCellClass, style: mdAndUp ? 'max-width: 200px;' : ''}}
 })
 const headers = ref([])
 const items = ref(undefined)

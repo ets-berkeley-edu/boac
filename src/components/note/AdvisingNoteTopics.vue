@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label id="add-note-topic-label" class="font-size-14 font-weight-bold" for="add-topic-select-list">
+    <label id="add-note-topic-label" class="font-size-16 font-weight-bold" for="add-topic-select-list">
       Topic {{ size(topicOptions) === 1 ? 'Category' : 'Categories' }}
     </label>
     <div v-if="!readOnly && size(topicOptions)" class="mb-1 mt-2">
@@ -10,7 +10,7 @@
         v-model="selected"
         aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
         class="bg-white select-menu"
-        :class="{'w-100': display.xs}"
+        :class="{'w-100': xs}"
         :disabled="disabled"
       >
         <option :value="null" disabled>Select...</option>
@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {computed, onMounted, ref, watch} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {each, find, includes, size} from 'lodash'
 import {useDisplay} from 'vuetify'
 import type {NoteTopic, SelectOption} from '@/lib/types'
@@ -81,7 +81,7 @@ const props = defineProps({
   }
 })
 
-const display = useDisplay()
+const {xs} = useDisplay()
 const noteStore = useNoteStore()
 const disabled = computed(() => noteStore.isSaving || noteStore.boaSessionExpired)
 const noteId = ref(props.note ? props.note.id : noteStore.model.id)
@@ -97,7 +97,7 @@ watch(selected, value => {
   putFocusNextTick('add-topic-select-list')
 })
 
-onMounted(() => {
+watch(() => props.topics, () => {
   each(props.topics, (topic: NoteTopic) => {
     topicOptions.value.push({
       disabled: includes(noteStore.model.topics, topic.topic),

@@ -29,7 +29,7 @@
         return {
           class: 'font-size-16 py-2 vertical-top',
           id: `td-peer-advisor-${data.item.uid}-column-${data.column.key}`,
-          style: display.mdAndUp ? 'max-width: 200px;' : ''
+          style: mdAndUp ? 'max-width: 200px;' : ''
         }
       }"
       density="compact"
@@ -143,13 +143,13 @@ const props = defineProps({
   }
 })
 const dataTableRows = computed<BoaUser[]>(() => _filter(props.peerAdvisors, u => showDeletedPeerAdvisors.value || !u.deletedAt))
-const display = useDisplay()
 const isBusy = ref(false)
 const isDeleteModalOpen = ref(false)
 const isDeleting = ref(false)
 const peerAdvisorsActiveCount = computed<number>(() => _filter(props.peerAdvisors, m => !m.deletedAt).length)
 const selectedPeerAdvisor = ref<BoaUser | undefined>()
 const showDeletedPeerAdvisors = ref(!peerAdvisorsActiveCount.value)
+const {mdAndUp} = useDisplay()
 
 const cancel = () => {
   isDeleteModalOpen.value = false
