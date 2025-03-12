@@ -149,13 +149,13 @@
                 :id="`timeline-tab-${activeTab}-pill-${message.type}-${message.id}`"
                 :aria-label="filterTypes[message.type].name"
                 class="border font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
-                :class="isExpanded(message) ? `pill-${message.type} mt-3` : `pill-${message.type}`"
+                :class="isExpanded(message) ? `pill-${getPillType(message)} mt-3` : `pill-${getPillType(message)}`"
                 :color="`category-${message.type}`"
                 density="compact"
                 label
                 variant="flat"
               >
-                {{ filterTypes[message.type].name }}
+                {{ message.type === 'note' && message.peerAdvisingDepartmentId ? 'Peer Note' : filterTypes[message.type].name }}
               </v-chip>
               <div
                 v-if="isEditable(message) && !editModeNoteId && isExpanded(message)"
@@ -681,6 +681,10 @@ const getMessageSummary = message => {
   return summary
 }
 
+const getPillType = message => {
+  return message.type === 'note' && message.peerAdvisingDepartmentId ? 'peer-advising' : message.type
+}
+
 const getRowAriaLabelledBy = (message, index) => {
   const dateId = `timeline-tab-${activeTab.value}-date-${index}`
   const messageTypeId = 'eForm' === message.type ? '' : `timeline-tab-${activeTab.value}-pill-${message.type}-${message.id}`
@@ -949,6 +953,10 @@ table {
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-note {
   width: 115px;
+}
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
+.pill-peer-advising {
+  width: 85px;
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-requirement {
