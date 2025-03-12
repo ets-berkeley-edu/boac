@@ -206,7 +206,10 @@ class TestGetStudentEnrollments:
         # Verify limited enrollment data
         assert len(term['enrollments'])
         enrollment = term['enrollments'][0]
-        assert set(enrollment.keys()) == {'displayName', 'title', 'units'}
+        assert set(enrollment.keys()) == {'displayName', 'sections', 'title', 'units'}
+        sections = enrollment['sections']
+        assert len(sections)
+        assert set(sections[0]) == {'component', 'enrollmentStatus', 'primary', 'sectionId', 'sectionNumber'}
 
 
 class TestUpdateNotes:

@@ -90,14 +90,20 @@ def get_enrollment_terms_by_sid(sid):
     api_json = []
     for term in merge_enrollment_terms(enrollment_results):
         enrollments = []
-        for enrollment in term['enrollments']:
+        for row in term['enrollments']:
             keys = ('displayName', 'title', 'units')
-            enrollments.append(extract(enrollment, keys))
+            enrollment = extract(row, keys)
+            enrollment['sections'] = []
+            for section in row['sections']:
+                extracted = extract(section, ['component', 'enrollmentStatus', 'primary', 'sectionNumber'])
+                extracted['sectionId'] = section['ccn']
+                enrollment['sections'].append(extracted)
+            enrollments.append(enrollment)
         api_json.append({
             **extract(term, ('termId', 'termName')),
             'enrollments': enrollments,
         })
-    return tolerant_jsonify(api_json)
+    return tolerant_jsonify(sorted(api_json, key=lambda e: e['termId'], reverse=True))
 
 
 @app.route('/api/peer_advisor/<uid>/notes')

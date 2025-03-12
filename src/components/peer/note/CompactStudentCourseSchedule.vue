@@ -50,8 +50,19 @@
               <tr v-for="(enrollment, index) in term.enrollments" :key="index" class="font-size-13">
                 <td :class="{'pt-1': index === 0}" class="font-weight-bold text-medium-emphasis">
                   {{ enrollment.displayName }}
+                  <div
+                    v-if="getWaitlistedSections(enrollment).length"
+                    :id="`student-${student.uid}-waitlisted-for-${term.termId}-${normalizeId(enrollment.displayName)}`"
+                    class="font-weight-bolder mb-1 ml-1 text-error text-uppercase"
+                  >
+                    Waitlisted<span v-if="getWaitlistedSections(enrollment).length > 1">:
+                      <span :class="{'demo-mode-blur': currentUser.inDemoMode}">
+                        Sections {{ map(getWaitlistedSections(enrollment), s => s.sectionNumber).join(', ') }}
+                      </span>
+                    </span>
+                  </div>
                 </td>
-                <td :class="{'pt-1': index === 0}" class="text-right">
+                <td :class="{'pt-1': index === 0}" class="text-right vertical-top">
                   {{ enrollment.units }}
                 </td>
               </tr>
@@ -70,11 +81,13 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {isNil, size} from 'lodash'
+import {filter as _filter, isNil, map, size} from 'lodash'
 import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {ref, watch} from 'vue'
-import type {BasicStudent, TermEnrollment} from '@/lib/types'
+import type {BasicStudent, Enrollment, Section, TermEnrollment} from '@/lib/types'
 import {getStudentEnrollments} from '@/api/peer-advising'
+import {normalizeId} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
   student: {
@@ -83,9 +96,10 @@ const props = defineProps({
   }
 })
 
-const terms = ref<TermEnrollment[] | undefined>()
+const currentUser = useContextStore().currentUser
 const isExpanded = ref(false)
 const isFetching = ref(false)
+const terms = ref<TermEnrollment[] | undefined>()
 
 watch(isExpanded, value => {
   if (value && isNil(terms.value)) {
@@ -96,4 +110,8 @@ watch(isExpanded, value => {
     })
   }
 })
+
+const getWaitlistedSections = (enrollment: Enrollment): Section[] => {
+  return _filter(enrollment.sections, ['enrollmentStatus', 'W'])
+}
 </script>
