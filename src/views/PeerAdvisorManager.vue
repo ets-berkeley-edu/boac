@@ -11,10 +11,10 @@
     <v-tabs
       v-model="tab"
       aria-label="Peer Advising Management tab"
-      :aria-orientation="display.mdAndUp ? 'horizontal' : 'vertical'"
+      :aria-orientation="mdAndUp ? 'horizontal' : 'vertical'"
       class="ml-3"
       density="comfortable"
-      :direction="display.mdAndUp ? 'horizontal' : 'vertical'"
+      :direction="mdAndUp ? 'horizontal' : 'vertical'"
       :items="tabs"
       mobile-breakpoint="md"
     >
@@ -87,7 +87,6 @@ import {toInt} from '@/lib/utils'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
-const display = useDisplay()
 const isRefreshing = ref(false)
 const loading = computed(() => contextStore.loading)
 const peerAdvisingDeptId: string = toString(useRoute().params.id)
@@ -98,6 +97,7 @@ const tabs = [
   {key: 'templates', label: 'Note Templates'},
   {key: 'reporting', label: 'Reporting & Statistics'},
 ]
+const {mdAndUp} = useDisplay()
 
 contextStore.loadingStart()
 

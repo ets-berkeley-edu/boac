@@ -12,7 +12,7 @@
           @shortkey="() => putFocusNextTick('basic-search-input')"
         >
           <v-app-bar-nav-icon
-            v-if="!display.mdAndUp"
+            v-if="!mdAndUp"
             id="app-bar-nav-icon"
             aria-controls="small-viewport-sidebar"
             :aria-expanded="showSidebar"
@@ -22,7 +22,7 @@
           <AppBar />
         </v-app-bar>
         <v-navigation-drawer
-          v-if="display.mdAndUp"
+          v-if="mdAndUp"
           aria-labelledby="nav-header"
           class="bg-tertiary pt-1 sidebar"
           permanent
@@ -48,7 +48,7 @@
               </div>
             </div>
             <v-expand-transition>
-              <div v-if="!display.mdAndUp && showSidebar && !loading">
+              <div v-if="!mdAndUp && showSidebar && !loading">
                 <Sidebar
                   id="small-viewport-sidebar"
                   class="bg-tertiary"
@@ -83,7 +83,7 @@
         </v-main>
       </v-layout>
       <footer
-        :class="`footer-${display.smAndDown ? 'sm' : (display.mdAndDown ? 'md' : (display.lgAndDown ? 'lg' : 'xl'))}`"
+        :class="`footer-${smAndDown ? 'sm' : (mdAndDown ? 'md' : (lgAndDown ? 'lg' : 'xl'))}`"
         role="footer"
       >
         <AppFooter v-if="!loading && !hideFooter" />
@@ -110,7 +110,6 @@ import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const contextStore = useContextStore()
-const display = useDisplay()
 const hideFooter = ref(false)
 const noteStore = useNoteStore()
 const route = useRoute()
@@ -118,6 +117,7 @@ const serviceAlert = useTemplateRef('serviceAlert')
 const serviceAlertOffset = ref<string | number>(0)
 const showSidebar = ref(true)
 const {currentUser, loading} = storeToRefs(contextStore)
+const {lgAndDown, mdAndDown, mdAndUp, smAndDown} = useDisplay()
 
 watch(loading, value => {
   if (!value) {

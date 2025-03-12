@@ -201,7 +201,7 @@
         </NavLink>
       </div>
     </v-list-item>
-    <v-list-item v-if="!display.mdAndUp" class="px-0 pt-4">
+    <v-list-item v-if="!mdAndUp" class="px-0 pt-4">
       <SidebarFooter />
     </v-list-item>
   </v-list>
@@ -221,11 +221,11 @@ import {pluralize, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
-const display = useDisplay()
 const myCohorts = computed<Cohort[]>(() => _filter(contextStore.currentUser.myCohorts, ['domain', 'default']))
 const myCohortsCE3 = computed<Cohort[]>(() => _filter(contextStore.currentUser.myCohorts, ['domain', 'admitted_students']))
 const myCuratedGroups = computed<CuratedGroup[]>(() => _filter(contextStore.currentUser.myCuratedGroups, ['domain', 'default']))
 const myCuratedGroupsCE3 = computed<CuratedGroup[]>(() => _filter(contextStore.currentUser.myCuratedGroups, ['domain', 'admitted_students']))
+const {mdAndUp} = useDisplay()
 </script>
 
 <style>
