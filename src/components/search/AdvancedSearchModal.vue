@@ -218,8 +218,8 @@
                   </div>
                   <div class="pt-3 w-75" :class="{'w-100': $vuetify.display.xs}">
                     <label class="form-control-label" for="search-options-note-student-input">
-                      <span aria-hidden="true">Student (name or SID)</span>
-                      <span class="sr-only">Student (name or S I D)</span>
+                      <span aria-hidden="true">Student (name, email or SID)</span>
+                      <span class="sr-only">Student (name, email or S I D)</span>
                     </label>
                     <AccessibleCombobox
                       id-prefix="search-options-note-student"

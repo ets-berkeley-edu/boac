@@ -5,7 +5,8 @@
       class="font-size-16 font-weight-bold"
     >
       <span class="mr-2 text-weight-bold">Student</span>
-      <span class="font-weight-regular">(name or SID)</span>
+      <span aria-hidden="true" class="font-weight-regular">(name, email or SID)</span>
+      <span class="sr-only">Student (name, email or S I D)</span>
     </label>
     <v-combobox
       id="add-student-input"
