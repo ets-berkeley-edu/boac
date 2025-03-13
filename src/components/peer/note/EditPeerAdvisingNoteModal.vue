@@ -7,7 +7,7 @@
     <v-card
       class="modal-content pb-2"
       :class="{'modal-fullscreen': mdAndDown}"
-      max-width="50%"
+      width="720"
     >
       <v-card-title id="edit-note-header">
         <EditPeerAdvisingNoteHeader
@@ -17,12 +17,31 @@
         />
       </v-card-title>
       <v-card-text class="pt-0">
-        <div>
-          <PeerAdvisingNoteStudentLookup :on-select-student="onSelectStudent" />
-        </div>
         <v-expand-transition>
-          <div v-if="student" class="compact-student-course-schedule">
-            <CompactStudentCourseSchedule :student="student" />
+          <PeerAdvisingNoteStudentLookup v-if="!student" :on-select-student="onSelectStudent" />
+        </v-expand-transition>
+        <v-expand-transition>
+          <div v-if="student" class="pb-1 pt-2">
+            <div class="align-center d-flex">
+              <h4 aria-live="polite" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="font-size-18 mr-3 text-medium-emphasis">
+                {{ student.firstName }} {{ student.lastName }} (SID: {{ student.sid }})
+                <span class="sr-only">has been selected</span>
+              </h4>
+              <div class="remove-student-btn-container">
+                [<v-btn
+                  id="clear-student-selection"
+                  aria-label="Clear the student selection"
+                  class="font-size-16 letter-spacing-normal px-0 remove-student-btn"
+                  color="error"
+                  text="remove"
+                  variant="text"
+                  @click="() => onSelectStudent(undefined)"
+                />]
+              </div>
+            </div>
+            <div class="compact-student-course-schedule">
+              <CompactStudentCourseSchedule :student="student" />
+            </div>
           </div>
         </v-expand-transition>
         <RichTextEditor
@@ -71,7 +90,7 @@ import {computed, onMounted, ref} from 'vue'
 import {get, size} from 'lodash'
 import {storeToRefs} from 'pinia'
 import {useDisplay} from 'vuetify'
-import type {BasicStudent, NoteRecipients, NoteTopic} from '@/lib/types'
+import type {BasicStudent, NoteRecipients, NoteTemplate, NoteTopic} from '@/lib/types'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import CompactStudentCourseSchedule from '@/components/peer/note/CompactStudentCourseSchedule.vue'
@@ -85,6 +104,7 @@ import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
 import {setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
+import {useContextStore} from '@/stores/context'
 
 const dialog = defineModel<boolean>({
   required: true,
@@ -98,12 +118,13 @@ const props = defineProps({
   },
 })
 
+const currentUser = useContextStore().currentUser
 const isAreYouSureModalOpen = ref(false)
 const noteStore = useNoteStore()
+const noteTemplates = ref([])
 const recipients = computed<NoteRecipients>(() => noteStore.recipients)
 const student = ref<BasicStudent | undefined>()
 const topics = ref<NoteTopic[]>([])
-const noteTemplates = ref([])
 const {isSaving, model} = storeToRefs(noteStore)
 const {mdAndDown} = useDisplay()
 
@@ -116,7 +137,7 @@ onMounted(() => {
   })
 })
 
-const setTemplate = (template) => {
+const setTemplate = (template: NoteTemplate) => {
   model.value.body = template.body
   model.value.topics = template.topics
   model.value.noteTemplateId = template.id
@@ -141,10 +162,11 @@ const discardRequested = () => {
   }
 }
 
-const onSelectStudent = (selectedStudent: BasicStudent) => {
-  if (get(selectedStudent, 'sid')) {
+const onSelectStudent = (selectedStudent: BasicStudent | undefined) => {
+  const sid = get(selectedStudent, 'sid')
+  if (sid) {
     student.value = selectedStudent
-    setNoteRecipient(get(student.value, 'sid'))
+    setNoteRecipient(sid)
   } else {
     student.value = undefined
   }
@@ -157,5 +179,11 @@ const onSelectStudent = (selectedStudent: BasicStudent) => {
 }
 .compact-student-course-schedule {
   margin-left: -8px !important;
+}
+.remove-student-btn {
+  margin-bottom: 3px;
+}
+.remove-student-btn-container {
+  margin-top: 3px;
 }
 </style>

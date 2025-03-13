@@ -20,7 +20,9 @@
       :class="{'demo-mode-blur': currentUser.inDemoMode}"
       clearable
       color="primary"
+      :debounce="500"
       density="comfortable"
+      :disabled="isStudentSelected"
       :error-messages="autocompleteErrorMessage"
       :hide-details="!size(autocompleteErrorMessage)"
       :hide-no-data="size(autoSuggestedStudents) < 3"
@@ -72,6 +74,7 @@ const contextStore = useContextStore()
 const counter = ref(0)
 const currentUser = contextStore.currentUser
 const intervalId = ref<ReturnType<typeof setTimeout>>()
+const isStudentSelected = ref(false)
 const isUpdatingAutocomplete = ref(false)
 const model = ref<string | undefined>()
 const query = ref(undefined)
@@ -110,7 +113,7 @@ const resetAutocomplete = () => {
 const onUpdateModel = (selectedStudent: BasicStudent) => {
   const sid = get(selectedStudent, 'sid')
   if (sid) {
-    autoSuggestedStudents.value = []
+    isStudentSelected.value = true
     getBasicStudent(sid).then(data => props.onSelectStudent(data))
   }
 }
