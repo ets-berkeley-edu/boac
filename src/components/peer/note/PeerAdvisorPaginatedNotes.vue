@@ -48,18 +48,6 @@
             :class="{'border-b-md': index === notes.length - 1}"
             class="td-note"
           >
-            <!--
-            TODO: Should admins link to /student profile page so they can easily delete.
-            <router-link
-              v-if="currentUser.isAdmin"
-              :id="`link-to-student-${note.student.uid}`"
-              :class="{'demo-mode-blur': currentUser.inDemoMode}"
-              class="align-center d-flex font-weight-medium justify-space-between w-100"
-              :to="`${studentRoutePath(note.student.uid, currentUser.inDemoMode)}#permalink-note-${note.id}`"
-            >
-              <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
-            </router-link>
-            -->
             <v-expand-transition>
               <button
                 v-if="!expandedNoteIds.includes(note.id)"
@@ -69,7 +57,7 @@
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 @click="() => toggleShowHide(note)"
               >
-                <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
+                <span class="truncate-with-ellipsis"><span v-html="stripHtmlAndTrim(note.body)" /></span>
               </button>
             </v-expand-transition>
             <v-expand-transition>
