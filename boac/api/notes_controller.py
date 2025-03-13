@@ -120,7 +120,7 @@ def update_note():
         if not note.is_draft:
             raise BadRequestError('A published note cannot revert to draft status.')
     else:
-        if not subject or not len(sids):
+        if (not subject and not note.peer_advising_department_id) or not len(sids):
             raise BadRequestError('Note update requires subject and one SID.')
     if is_publishing_draft_note and len(sids) > 1:
         # Create a batch of notes!

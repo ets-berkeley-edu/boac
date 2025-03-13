@@ -35,7 +35,7 @@
         maxlength="255"
         :model-value="noteStore.model.subject"
         required
-        :rules="[value => (!!trim(value) || noteStore.model.isDraft) || 'Subject is required']"
+        :rules="[value => (!!trim(value) || noteStore.model.isDraft) || noteStore.model.peerAdvisingDepartmentId || 'Subject is required']"
         size="255"
         validate-on="submit"
         @input="onInput"
@@ -90,7 +90,7 @@
           id="save-note-button"
           :action="() => save(false)"
           :aria-label="noteStore.model.isDraft ? 'Publish Note' : 'Save Note'"
-          :disabled="!noteStore.recipients.sids.length || !trim(noteStore.model.subject) || isSaving || boaSessionExpired"
+          :disabled="!noteStore.recipients.sids.length || isSaving || boaSessionExpired || (!trim(noteStore.model.subject) && !noteStore.model.peerAdvisingDepartmentId)"
           :in-progress="isPublishingNote"
           :text="noteStore.model.isDraft ? 'Publish Note' : 'Save'"
         />
