@@ -20,7 +20,7 @@
         />
         <v-icon v-if="!isFetching" :icon="isExpanded ? mdiMenuDown : mdiMenuRight" size="24" />
         <div>
-          {{ isExpanded ? 'Hide' : 'Show' }} {{ student.firstName }}'s course schedule
+          {{ isExpanded ? 'Hide' : 'Show' }} <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.firstName }}</span>'s course schedule
         </div>
       </div>
     </v-btn>
@@ -48,7 +48,10 @@
             </thead>
             <tbody v-if="size(term.enrollments)">
               <tr v-for="(enrollment, index) in term.enrollments" :key="index" class="font-size-13">
-                <td :class="{'pt-1': index === 0}" class="font-weight-bold text-medium-emphasis">
+                <td
+                  :class="{'demo-mode-blur': currentUser.inDemoMode, 'pt-1': index === 0}"
+                  class="font-weight-bold text-medium-emphasis"
+                >
                   {{ enrollment.displayName }}
                   <div
                     v-if="getWaitlistedSections(enrollment).length"
