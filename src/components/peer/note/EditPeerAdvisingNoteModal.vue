@@ -167,8 +167,10 @@ const onSelectStudent = (selectedStudent: BasicStudent | undefined) => {
   if (sid) {
     student.value = selectedStudent
     setNoteRecipient(sid)
+    alertScreenReader(`${get(student.value, 'firstName')} ${get(student.value, 'lastName')} selected`)
   } else {
     student.value = undefined
+    alertScreenReader('Student selection removed')
   }
 }
 </script>

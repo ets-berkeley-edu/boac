@@ -29,6 +29,7 @@
           base-color="body"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
           color="body"
+          :debounce="500"
           density="compact"
           :disabled="disabled"
           hide-details

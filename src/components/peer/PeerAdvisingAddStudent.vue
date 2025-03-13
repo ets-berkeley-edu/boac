@@ -21,6 +21,7 @@
       :class="{'demo-mode-blur': currentUser.inDemoMode}"
       :clearable="!!student"
       color="primary"
+      :debounce="500"
       density="compact"
       :disabled="isAddingStudent"
       :error-messages="autocompleteErrorMessage"

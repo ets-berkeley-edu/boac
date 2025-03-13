@@ -22,25 +22,27 @@
         </span>
       </transition>
     </div>
-    <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
-    <v-text-field
-      id="edit-note-subject"
-      aria-label="Note Subject"
-      bg-color="white"
-      class="mt-1"
-      density="comfortable"
-      :disabled="isSaving || boaSessionExpired"
-      hide-details
-      maxlength="255"
-      :model-value="noteStore.model.subject"
-      required
-      :rules="[value => (!!trim(value) || noteStore.model.isDraft) || 'Subject is required']"
-      size="255"
-      validate-on="submit"
-      @input="onInput"
-      @keydown.esc="cancelRequested"
-    />
-    <div id="edit-note-details" class="bg-transparent mt-2">
+    <div class="mt-1">
+      <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
+      <v-text-field
+        id="edit-note-subject"
+        aria-label="Note Subject"
+        bg-color="white"
+        class="mt-1"
+        density="comfortable"
+        :disabled="isSaving || boaSessionExpired || (noteStore.model.peerAdvisingDepartmentId && !noteStore.model.subject)"
+        hide-details
+        maxlength="255"
+        :model-value="noteStore.model.subject"
+        required
+        :rules="[value => (!!trim(value) || noteStore.model.isDraft) || 'Subject is required']"
+        size="255"
+        validate-on="submit"
+        @input="onInput"
+        @keydown.esc="cancelRequested"
+      />
+    </div>
+    <div id="edit-note-details" class="bg-transparent mt-3">
       <RichTextEditor
         :disabled="isSaving || boaSessionExpired"
         :initial-value="noteStore.model.body || ''"
