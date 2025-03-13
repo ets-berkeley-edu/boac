@@ -1,9 +1,9 @@
 <template>
   <div>
     <label id="add-note-topic-label" class="font-size-16 font-weight-bold" for="add-topic-select-list">
-      Topic {{ size(topicOptions) === 1 ? 'Category' : 'Categories' }}
+      Topic {{ size(options) === 1 ? 'Category' : 'Categories' }}
     </label>
-    <div v-if="!readOnly && size(topicOptions)" class="mb-1 mt-2">
+    <div v-if="!readOnly && size(options)" class="mb-1 mt-2">
       <select
         id="add-topic-select-list"
         :key="noteStore.model.topics.length"
@@ -15,7 +15,7 @@
       >
         <option :value="null" disabled>Select...</option>
         <option
-          v-for="option in topicOptions"
+          v-for="option in options"
           :key="option.value"
           :disabled="!!find(noteStore.model.topics, value => value === option.value)"
           :value="option.value"
@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {computed, ref, watch} from 'vue'
-import {each, find, includes, size} from 'lodash'
+import {find, includes, map, size} from 'lodash'
 import {useDisplay} from 'vuetify'
 import type {NoteTopic, SelectOption} from '@/lib/types'
 import PillItem from '@/components/util/PillItem.vue'
@@ -81,12 +81,19 @@ const props = defineProps({
   }
 })
 
-const {xs} = useDisplay()
 const noteStore = useNoteStore()
 const disabled = computed(() => noteStore.isSaving || noteStore.boaSessionExpired)
 const noteId = ref(props.note ? props.note.id : noteStore.model.id)
 const selected = ref(null)
-const topicOptions = ref<SelectOption<string>[]>([])
+const {xs} = useDisplay()
+
+const options = computed<SelectOption<string>[]>(() => {
+  return map(props.topics, (topic: NoteTopic) => ({
+    disabled: includes(noteStore.model.topics, topic.topic),
+    text: topic.topic,
+    value: topic.topic
+  }))
+})
 
 watch(selected, value => {
   if (selected.value) {
@@ -95,16 +102,6 @@ watch(selected, value => {
     selected.value = null
   }
   putFocusNextTick('add-topic-select-list')
-})
-
-watch(() => props.topics, () => {
-  each(props.topics, (topic: NoteTopic) => {
-    topicOptions.value.push({
-      disabled: includes(noteStore.model.topics, topic.topic),
-      text: topic.topic,
-      value: topic.topic
-    })
-  })
 })
 
 const remove = topic => {
