@@ -66,8 +66,8 @@ import {useManifestStore} from '@/stores/manifest'
 
 const contextStore = useContextStore()
 const manifestStore = useManifestStore()
-const {isFetching, totalUserCount} = storeToRefs(manifestStore)
 const isDownloadingCsv = ref(false)
+const {isFetching, totalUserCount} = storeToRefs(manifestStore)
 
 contextStore.loadingStart()
 
