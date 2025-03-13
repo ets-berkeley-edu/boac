@@ -7,8 +7,12 @@
       Student
     </label>
     <div id="create-note-add-student-desc" class="font-size-14 pb-2">
-      Type a name, individual Student Identification (SID), or paste a list of SID numbers below.
-      (Example: 9999999990, 9999999991)
+      Type a name, email,
+      Student Identification (<span aria-hidden="true">SID</span><span class="sr-only">S I D</span>),
+      or a list of <span aria-hidden="true">SID</span><span class="sr-only">S I D</span> numbers below.
+      <div>
+        For example: <span class="text-medium-emphasis">9999999990, 9999999991</span>
+      </div>
     </div>
     <div class="align-center d-flex">
       <v-combobox

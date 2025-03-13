@@ -566,7 +566,8 @@ CREATE TABLE student.student_majors
 CREATE TABLE student.student_names
 (
     sid VARCHAR NOT NULL,
-    name VARCHAR NOT NULL
+    name VARCHAR NOT NULL,
+    email_address VARCHAR
 );
 
 CREATE TABLE student.student_enrollment_terms
@@ -2469,28 +2470,28 @@ VALUES
 
 
 INSERT INTO student.student_names
-(sid, name)
+(sid, name, email_address)
 VALUES
-('11667051', 'DAVIES'),
-('11667051', 'DEBORAH'),
-('2345678901', 'DAVE'),
-('2345678901', 'DOOLITTLE'),
-('3456789012', 'KERSCHEN'),
-('3456789012', 'PAULINE'),
-('5678901234', 'JAYAPRAKASH'),
-('5678901234', 'SANDEEP'),
-('7890123456', 'FARESTVEIT'),
-('7890123456', 'PAUL'),
-('8901234567', 'CROSSMAN'),
-('8901234567', 'DAVID'),
-('8901234567', 'JOHN'),
-('890127492', 'SCHLEMIEL'),
-('890127492', 'SIEGFRIED'),
-('9000000000', 'PAULIOROURKE'),
-('9000000000', 'WOLFGANG'),
-('9100000000', 'BARNEY'),
-('9100000000', 'NORA'),
-('9100000000', 'STANTON');
+('11667051', 'DAVIES', 'zmitchell@morgan.net'),
+('11667051', 'DEBORAH', 'zmitchell@morgan.net'),
+('2345678901', 'DAVE', 'debaser@berkeley.edu'),
+('2345678901', 'DOOLITTLE', 'debaser@berkeley.edu'),
+('3456789012', 'KERSCHEN', 'doctork@berkeley.edu'),
+('3456789012', 'PAULINE', 'doctork@berkeley.edu'),
+('5678901234', 'JAYAPRAKASH', 'ilovela@berkeley.edu'),
+('5678901234', 'SANDEEP', 'ilovela@berkeley.edu'),
+('7890123456', 'FARESTVEIT', 'qadept@berkeley.edu'),
+('7890123456', 'PAUL', 'qadept@berkeley.edu'),
+('8901234567', 'CROSSMAN', 'mrwonderful@berkeley.edu'),
+('8901234567', 'DAVID', 'mrwonderful@berkeley.edu'),
+('8901234567', 'JOHN', 'mrwonderful@berkeley.edu'),
+('890127492', 'SCHLEMIEL', 'neerdowell@berkeley.edu'),
+('890127492', 'SIEGFRIED', 'neerdowell@berkeley.edu'),
+('9000000000', 'PAULIOROURKE', 'wpo@berkeley.edu'),
+('9000000000', 'WOLFGANG', 'wpo@berkeley.edu'),
+('9100000000', 'BARNEY', 'nsb@berkeley.edu'),
+('9100000000', 'NORA', 'nsb@berkeley.edu'),
+('9100000000', 'STANTON', 'nsb@berkeley.edu');
 
 INSERT INTO student.student_enrollment_terms
 (sid, term_id, enrollment_term, midpoint_deficient_grade, incomplete_grade, enrolled_units, term_gpa)

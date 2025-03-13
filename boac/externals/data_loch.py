@@ -530,12 +530,17 @@ def match_students_by_name_or_sid(prefixes, limit=None):
         for idx, prefix in enumerate(prefixes):
             conditions.append(
                 f"""JOIN {student_schema()}.student_names sn{idx}
-                ON (sn{idx}.name LIKE %(prefix_{idx})s OR sn{idx}.sid LIKE %(prefix_{idx})s)
+                ON (
+                    sn{idx}.name LIKE %(prefix_{idx})s
+                    OR sn{idx}.sid LIKE %(prefix_{idx})s
+                    OR sn{idx}.email_address LIKE %(prefix_{idx})s
+                )
                 AND sn{idx}.sid = spi.sid""",
             )
             prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
-            # Some students in BOA have as many as seven distinct words in their name, but for sanity's sake, stop counting at ten.
             if idx > 9:
+                # Some students in BOA have as many as seven distinct words in their name.
+                # For sanity's sake, stop counting at 10.
                 break
 
     sql = f"""SELECT DISTINCT spi.first_name, spi.last_name, spi.sid, spi.uid
