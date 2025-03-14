@@ -95,7 +95,7 @@
                         :class="{'demo-mode-blur': currentUser.inDemoMode}"
                         @click="() => toggleShowHide(note)"
                       >
-                        <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
+                        <span class="truncate-with-ellipsis" v-html="stripHtmlAndTrim(note.body)" />
                       </button>
                     </v-expand-transition>
                     <v-expand-transition>
