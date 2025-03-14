@@ -185,10 +185,22 @@ class BEATestConfig(BEATestBaseConfigs):
         self.set_default_cohort()
         self.set_note_attachments()
 
-    def peer_advising_mgmt(self, dept=None):
+    def peer_advising(self, dept=None):
         self.set_base_configs(dept=dept)
         self.set_peer_advising_manager()
-        self.set_test_students(count=50, opts={'active': True})
+        self.set_note_attachments()
+        self.set_test_students(count=10, opts={'enrollments': True})
+        nessie_utils.set_student_term_enrollments(self.test_students)
+        for student in self.test_students:
+            for term_data in student.enrollment_data.enrollment_terms():
+                term_sis_id = student.enrollment_data.term_id(term_data)
+                for course_data in student.enrollment_data.courses(term_data):
+                    course_code = student.enrollment_data.course_code(course_data)
+                    course_test_case_id = f'UID {student.uid} {term_sis_id} {course_code}'
+                    self.test_cases.append(BEATestCase(student=student,
+                                                       course=course_data,
+                                                       term=term_data,
+                                                       test_case_id=course_test_case_id))
 
     def search_admits(self):
         self.set_dept(dept=Department.ZCEEE)

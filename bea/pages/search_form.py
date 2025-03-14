@@ -157,17 +157,17 @@ class SearchForm(Page):
 
     def select_notes_posted_by_anyone(self):
         app.logger.info('Selecting notes posted by anyone')
-        if not self.element(self.NOTES_BY_ANYONE_DIV).get_attribute('ischecked') == 'true':
+        if not self.element(self.NOTES_BY_ANYONE_DIV).get_dom_attribute('ischecked') == 'true':
             self.wait_for_element_and_click(self.NOTES_BY_ANYONE_DIV)
 
     def select_notes_posted_by_you(self):
         app.logger.info('Selecting notes posted by you')
-        if not self.element(self.NOTES_BY_YOU_DIV).get_attribute('ischecked') == 'true':
+        if not self.element(self.NOTES_BY_YOU_DIV).get_dom_attribute('ischecked') == 'true':
             self.wait_for_element_and_click(self.NOTES_BY_YOU_DIV)
 
     def select_notes_posted_by_your_dept(self):
         app.logger.info('Selecting notes posted by your department')
-        if not self.element(self.NOTES_BY_YOUR_DEPT_DIV).get_attribute('ischecked') == 'true':
+        if not self.element(self.NOTES_BY_YOUR_DEPT_DIV).get_dom_attribute('ischecked') == 'true':
             self.wait_for_element_and_click(self.NOTES_BY_YOUR_DEPT_DIV)
 
     # Author / Student

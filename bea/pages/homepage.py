@@ -75,10 +75,10 @@ class Homepage(UserListPages):
         self.enter_dev_auth_creds(user)
         self.wait_for_boa_title((page_title or 'Home'))
 
-    def switch_user(self, new_user=None):
+    def switch_user(self, new_user=None, page_title=None):
         self.load_page()
         self.log_out()
-        self.dev_auth(new_user)
+        self.dev_auth(new_user, page_title)
 
     # FILTERED COHORTS AND CURATED GROUPS
 

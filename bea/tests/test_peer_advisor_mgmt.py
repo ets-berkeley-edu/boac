@@ -37,7 +37,7 @@ from flask import current_app as app
 import pytest
 
 test_ls = BEATestConfig()
-test_ls.peer_advising_mgmt(dept=Department.L_AND_S)
+test_ls.peer_advising(dept=Department.L_AND_S)
 pam_ls = test_ls.advisor
 peer_dept_ls = test_ls.get_peer_dept(pam_ls)
 peer_dept_ls_id = boa_utils.get_peer_dept_id(peer_dept_ls)
@@ -46,7 +46,7 @@ pre_existing_peers_ls = boa_utils.get_peer_advisors(peer_dept_ls)
 pre_existing_templates_ls = boa_utils.get_peer_note_templates(peer_dept_ls)
 
 test_coe = BEATestConfig()
-test_coe.peer_advising_mgmt(dept=Department.COE)
+test_coe.peer_advising(dept=Department.COE)
 pam_coe = test_coe.advisor
 peer_dept_coe = test_coe.get_peer_dept(pam_coe)
 peer_dept_coe_id = boa_utils.get_peer_dept_id(peer_dept_coe)
