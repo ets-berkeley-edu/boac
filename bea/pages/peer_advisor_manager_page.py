@@ -24,14 +24,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import time
 
-from bea.pages.boa_pages import BoaPages
+from bea.pages.peer_advising_note_table import PeerAdvisingNoteTable
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
 
 
-class PeerAdvisorManagerPage(BoaPages):
+class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
 
     def hit_peer_advisor_manager_page_url(self, peer_dept_id):
         app.logger.info('Hitting peer advisor manager page URL')
@@ -147,6 +147,22 @@ class PeerAdvisorManagerPage(BoaPages):
     def sort_by_date(self):
         app.logger.info('Clicking sort-by-date_added')
         self.wait_for_element_and_click(self.sortable_header('Date Added'))
+
+    CLOSE_PEER_NOTE_TABLE = By.ID, 'header-close-modal'
+
+    @staticmethod
+    def peer_note_count_button(user):
+        return By.ID, f'open-notes-created-by-{user.uid}'
+
+    def click_peer_notes(self, user):
+        app.logger.info(f'Opening the detailed view of peer notes by UID {user.uid}')
+        self.wait_for_element_and_click(self.peer_note_count_button(user))
+        self.when_visible(self.PEER_NOTE_TABLE, 2)
+
+    def close_peer_note_modal(self):
+        app.logger.info('Closing the detailed view of peer notes')
+        self.wait_for_element_and_click(self.CLOSE_PEER_NOTE_TABLE)
+        self.when_not_present(self.PEER_NOTE_TABLE, 2)
 
     # NOTE TEMPLATES
 
@@ -275,4 +291,4 @@ class PeerAdvisorManagerPage(BoaPages):
         app.logger.info('Clicking Reporting & Statistics')
         self.wait_for_element_and_click(self.REPORTING_TAB)
 
-    # TODO
+    # TODO - reporting

@@ -286,7 +286,7 @@ def get_dept_advisors(dept, membership=None):
 
 
 def get_peer_advisors(peer_dept=None):
-    clause = f"AND peer_advising_departments.name = '{peer_dept.value['name']}'"
+    clause = f"AND peer_advising_departments.name = '{peer_dept.value['name']}'" if peer_dept else ''
     sql = f"""SELECT authorized_users.uid AS uid,
                      authorized_users.deleted_at AS user_deleted_at,
                      peer_advising_department_members.role_type AS peer_role,
@@ -499,15 +499,11 @@ def get_sids_with_notes_of_src_boa(drafts=False):
 
 
 def get_note_ids_by_subject(note, student=None):
-    if student:
-        clause = f" AND sid = '{student.sid}'"
-    else:
-        clause = ''
+    text_clause = f" AND subject = '{note.subject}'" if note.subject else f" AND body LIKE '%{note.body[0:20]}%'"
+    sid_clause = f" AND sid = '{student.sid}'" if student else ''
     sql = f"""SELECT id
                 FROM notes
-               WHERE subject = '{note.subject}'{clause}
-                 AND deleted_at IS NULL;
-    """
+               WHERE deleted_at IS NULL{text_clause}{sid_clause}"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
@@ -539,6 +535,30 @@ def get_notes_by_ids(ids):
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     return get_notes_from_pg_db_result(results)
+
+
+def get_peer_note_ids(peer):
+    sql = f"""SELECT id
+                FROM notes
+               WHERE author_uid = '{peer.uid}'
+                 AND deleted_at IS NULL
+            ORDER BY updated_at DESC"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return [str(row['id']) for row in results]
+
+
+def get_peer_dept_note_ids(peer_dept_id):
+    sql = f"""SELECT id
+                FROM notes
+               WHERE peer_advising_department_id = '{peer_dept_id}'
+                 AND deleted_at IS NULL
+            ORDER BY updated_at DESC"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return [str(row['id']) for row in results]
 
 
 def get_advisor_note_drafts(advisor=None):

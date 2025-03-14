@@ -122,12 +122,14 @@ class CreateNoteModal(Page):
     def topic_remove_button(note, topic):
         return By.XPATH, f'//span[text()=\"{topic.name}\"]/../following-sibling::div/button'
 
-    def add_topics(self, note, topics):
-        for topic in topics:
+    def add_topics(self, note, topics=None):
+        to_add = topics or note.topics
+        for topic in to_add:
             app.logger.info(f'Adding topic {topic.name}')
             self.wait_for_select_and_click_option(self.ADD_TOPIC_SELECT, topic.name)
             self.when_present(self.topic_pill(topic), utils.get_short_timeout())
-        note.topics += topics
+        if topics:
+            note.topics += topics
 
     def remove_topics(self, note, topics):
         current_topics = list(map(lambda t: t.name, note.topics))
@@ -250,6 +252,9 @@ class CreateNoteModal(Page):
     # Save
 
     NEW_NOTE_SAVE_BUTTON = By.ID, 'create-note-button'
+
+    def is_save_note_button_enabled(self):
+        return self.element(self.NEW_NOTE_SAVE_BUTTON).is_enabled()
 
     def click_save_new_note(self):
         app.logger.info('Clicking the new note Save button')
@@ -472,6 +477,7 @@ class CreateNoteModal(Page):
 
     TEMPLATES_BUTTON = By.ID, 'my-templates-button'
     TEMPLATE_BUTTON = By.XPATH, '//button[contains(@id, "load-note-template")]'
+    TEMPLATE_TITLE = By.XPATH, '//button[contains(@id, "load-note-template")]/span[3]'
     NO_TEMPLATES_MSG = By.XPATH, '//div[contains(text(), "You have no saved templates")]'
     DUPE_TEMPLATE_TITLE_MSG = By.XPATH, '//div[contains(text(), "You have an existing template with this name")]'
 
@@ -552,7 +558,8 @@ class CreateNoteModal(Page):
         self.wait_for_element_and_click(self.TEMPLATES_BUTTON)
 
     def template_options(self):
-        return [el.text for el in self.elements(self.TEMPLATE_BUTTON)]
+        time.sleep(1)
+        return [el.text for el in self.elements(self.TEMPLATE_TITLE)]
 
     @staticmethod
     def template_option_loc(template):

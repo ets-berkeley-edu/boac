@@ -234,7 +234,8 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         self.collapse_item(note)
         date = note.set_date or note.updated_date
         expected_short_updated_date = self.expected_item_short_date_format(date)
-        utils.assert_equivalence(self.collapsed_note_subject(note), note.subject)
+        if note.subject:
+            utils.assert_equivalence(self.collapsed_note_subject(note), note.subject)
         utils.assert_equivalence(self.collapsed_note_date(note), expected_short_updated_date)
 
         # Expanded
