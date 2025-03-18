@@ -17,6 +17,8 @@
         }
       }"
       class="responsive-data-table v-table-hidden-row-override"
+      disable-pagination
+      :disable-sort="totalUserCount < 2"
       :headers="[
         {key: 'data-table-expand', sortable: false, title: '', width: 40},
         {align: 'start', key: 'uid', title: 'UID'},
@@ -31,9 +33,8 @@
       :items-length="totalUserCount || 0"
       :items-per-page="0"
       :items="users"
-      :loading="isFetching"
-      disable-pagination
       item-value="uid"
+      :loading="isFetching"
       loading-text="Searching..."
       :row-props="data => {
         const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
@@ -42,7 +43,6 @@
           id: `tr-user-${data.item.uid}`
         }
       }"
-      :disable-sort="totalUserCount < 2"
       :sort-by="[{key: manifestStore.sortBy, order: sortDescending ? 'desc' : 'asc'}]"
       show-expand
       @update:sort-by="handleSort"
@@ -102,10 +102,10 @@
         <span class="font-weight-bold text-medium-emphasis">{{ item.uid }}</span>
       </template>
 
-      <template #expanded-row="{ columns, item }">
+      <template #expanded-row="{ columns, index, item }">
         <tr>
-          <td class="bg-surface-light px-4 pb-4" :colspan="columns.length">
-            <pre class="bg-white pa-2">{{ JSON.stringify(item, null, 2) }}</pre>
+          <td :class="{'bg-surface-light': index % 2 === 0}" class="border-b-md" :colspan="columns.length">
+            <pre class="pb-8 pt-4">{{ JSON.stringify(item, null, 2) }}</pre>
           </td>
         </tr>
       </template>

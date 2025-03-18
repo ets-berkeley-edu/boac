@@ -31,7 +31,7 @@ from boac.api.util import authorized_users_api_feed, get_current_user_profile
 from boac.lib import util
 from boac.lib.berkeley import has_any_membership_role, is_peer_advisor, is_peer_advisor_manager
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
-from boac.lib.util import capitalize_all_words, split_per_camel_case, to_bool_or_none
+from boac.lib.util import capitalize_all_words, get_benchmarker, split_per_camel_case, to_bool_or_none
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
@@ -137,12 +137,15 @@ def session_keep_alive():
 @admin_required
 def all_users():
     params = request.get_json()
+    benchmark = get_benchmarker('/api/users')
+    benchmark(f'begin, with params: {params}')
     is_csv_download_request = params.get('isCsvDownloadRequest')
     users, total_user_count = AuthorizedUser.get_users(
         dept_code=util.get(params, 'deptCode', None),
         role=util.get(params, 'role', None) or None,
         status=util.get(params, 'status'),
     )
+    benchmark(f'{len(users)} authorized_users')
     sort_by = util.get(params, 'sortBy', 'lastName')
     api_json = authorized_users_api_feed(
         sort_by=sort_by,
@@ -151,13 +154,17 @@ def all_users():
     )
     if is_csv_download_request:
         users_sorted, fieldnames, header_label_lookup = _get_inputs_for_csv_download(api_json)
-        return response_with_csv_download(
+        benchmark('begin CSV construction')
+        response = response_with_csv_download(
             fieldnames=fieldnames,
             filename_prefix='boa-users',
             header_label_lookup=header_label_lookup,
             rows=users_sorted,
         )
+        benchmark('end')
+        return response
     else:
+        benchmark('end')
         return tolerant_jsonify(api_json)
 
 
@@ -282,21 +289,13 @@ def set_demo_mode():
 @app.route('/api/users/departments')
 @advisor_required
 def get_departments():
-    def _to_api_json(department):
-        return {
-            'id': department['id'],
-            'deptCode': department['dept_code'],
-            'deptName': department['dept_name'],
-            'memberCount': department['member_count'],
-            'peerAdvisingDepartments': department['peer_advising_departments'],
-        }
     exclude_empty = to_bool_or_none(util.get(request.args, 'excludeEmpty')) or False
-    departments = UniversityDept.get_all_departments(exclude_empty=exclude_empty)
-    department_other = next((d for d in departments if d['dept_name'].lower() == 'other'), None)
+    departments = UniversityDept.get_all_departments(exclude_empty=exclude_empty, include_peer_advising_departments=True)
+    department_other = next((d for d in departments if d['deptName'].lower() == 'other'), None)
     if department_other:
         # Move 'Other' department to the end of the list
         departments.append(departments.pop(departments.index(department_other)))
-    return tolerant_jsonify([_to_api_json(d) for d in departments])
+    return tolerant_jsonify(departments)
 
 
 def _get_boa_users():
@@ -414,7 +413,7 @@ def _delete_existing_memberships(user_id):
         )
     for membership in PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id):
         PeerAdvisingDepartmentMember.delete_membership(
-            authorized_user_id=user_id,
+            authorized_user_id=int(user_id),
             peer_advising_department_id=membership['peer_advising_department_id'],
         )
 
