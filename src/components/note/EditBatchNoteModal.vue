@@ -70,7 +70,7 @@
               :attachments="noteStore.model.attachments"
               class="pt-5"
               :disabled="!!(noteStore.isSaving || noteStore.boaSessionExpired)"
-              :note-author-uid="noteStore.model.author.uid"
+              :note="noteStore.model"
               :remove="removeAttachmentByIndex"
             />
           </div>

@@ -51,7 +51,7 @@
         :id-prefix="`note-${note.id}-`"
         :is-downloadable="true"
         :is-read-only="true"
-        :note-author-uid="note.author.uid"
+        :note="note"
       />
     </div>
   </div>
