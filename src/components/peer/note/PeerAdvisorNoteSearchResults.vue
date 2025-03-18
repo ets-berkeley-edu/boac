@@ -9,7 +9,6 @@
         <tr>
           <th class="border-b-md th-student">Student</th>
           <th class="border-b-md th-note">Note</th>
-          <th class="border-b-md th-topics">Topic(s)</th>
           <th class="border-b-md th-created-date">
             <div class="float-right pr-2">Date Created</div>
           </th>
@@ -23,24 +22,30 @@
         >
           <td :class="{'border-b-md': index === notes.length - 1}" class="td-student">
             <div
-              v-if="note.student"
-              :id="`note-student-${note.student.sid}`"
+              v-if="note.studentName"
+              :id="`note-student-${note.studentSid}`"
               :class="{'demo-mode-blur': currentUser.inDemoMode}"
             >
               <router-link
                 v-if="currentUser.isAdmin"
-                :id="`link-to-student-${note.sid}`"
+                :id="`link-to-student-${note.studentSid}`"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
+                :to="studentRoutePath(note.studentSid, currentUser.inDemoMode)"
               >
-                <span v-html="lastNameFirst(note.student)" />
+                <span v-html="lastNameFirst(note.studentName)" />
               </router-link>
-              <div v-if="!currentUser.isAdmin">
-                <span v-html="`${getStudentName(note)}`" />
+              <div
+                v-if="!currentUser.isAdmin"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              >
+                <span v-html="`${note.studentName}`" />
               </div>
             </div>
-            <div v-if="!note.student">
-              SID: {{ note.sid }}
+            <div
+              v-if="!note.studentName"
+              :class="{'demo-mode-blur': currentUser.inDemoMode}"
+            >
+              SID: {{ note.studentSid }}
             </div>
           </td>
           <td
@@ -48,18 +53,6 @@
             :class="{'border-b-md': index === notes.length - 1}"
             class="td-note"
           >
-            <!--
-            TODO: Should admins link to /student profile page so they can easily delete.
-            <router-link
-              v-if="currentUser.isAdmin"
-              :id="`link-to-student-${note.student.uid}`"
-              :class="{'demo-mode-blur': currentUser.inDemoMode}"
-              class="align-center d-flex font-weight-medium justify-space-between w-100"
-              :to="`${studentRoutePath(note.student.uid, currentUser.inDemoMode)}#permalink-note-${note.id}`"
-            >
-              <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
-            </router-link>
-            -->
             <v-expand-transition>
               <button
                 v-if="!expandedNoteIds.includes(note.id)"
@@ -69,7 +62,7 @@
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 @click="() => toggleShowHide(note)"
               >
-                <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.body) }}</span>
+                <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.noteSnippet) }}</span>
               </button>
             </v-expand-transition>
             <v-expand-transition>
@@ -90,17 +83,6 @@
                 <PeerAdvisingNoteDetails class="my-3" :note="note" />
               </div>
             </v-expand-transition>
-          </td>
-          <td
-            :id="`note-topics-in-row-${index}`"
-            :class="{'border-b-md': index === notes.length - 1}"
-            class="td-topics"
-            :title="note.topics.join(', ')"
-          >
-            <div class="align-center d-flex font-weight-medium justify-space-between w-100">
-              <span v-if="note.topics.length" class="truncate-with-ellipsis">{{ note.topics.join(', ') }}</span>
-              <span v-if="!note.topics.length" class="text-medium-emphasis">&mdash;</span>
-            </div>
           </td>
           <td
             :id="`note-created-date-in-row-${index}`"
@@ -129,14 +111,6 @@
         :total-rows="totalNoteCount"
       />
     </div>
-    <!--
-    TODO: Do we need a component dedicated to editing notes authored by Peer Advisors.
-    <EditPeerAdvisingNoteModal
-      v-model="isEditDialogOpen"
-      :student="selectedStudent"
-      :peer-advising-department-id="peerAdvisingDepartmentId"
-    />
-    -->
   </div>
 </template>
 
@@ -184,16 +158,6 @@ const expandedNoteIds = ref<number[]>([])
 
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 
-// TODO: Do we need to support note editing on this page?
-// const openEditDialog = (note: Note) => {
-//   selectedStudent.value = note.student
-//   noteStore.setMode('editPeerAdvisorNote')
-//   noteStore.setModel(note)
-//   noteStore.setCompleteSidSet([note.student.sid])
-//   noteStore.setIsCreateNoteModalOpen(true)
-//   isEditDialogOpen.value = true
-// }
-
 const toggleShowHide = (note: Note) => {
   const index = expandedNoteIds.value.indexOf(note.id)
   if (index > -1) {
@@ -227,11 +191,6 @@ const toggleShowHide = (note: Note) => {
   padding: 5px;
   vertical-align: top;
 }
-.td-topics {
-  max-width: 100px !important;
-  padding: 5px;
-  vertical-align: top;
-}
 .th-created-date {
   padding: 5px 0;
   text-wrap: nowrap;
@@ -242,8 +201,5 @@ const toggleShowHide = (note: Note) => {
 .th-student {
   font-weight: bold;
   padding: 0 5px;
-}
-.th-topics {
-  padding: 5px;
 }
 </style>

@@ -38,6 +38,7 @@ from sqlalchemy import and_, desc
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
 
+
 note_contact_type_enum = ENUM(
     'Email',
     'Phone',
@@ -390,6 +391,7 @@ class Note(Base):
             topic,
             datetime_from,
             datetime_to,
+            peer_advising_department_id,
             include_private_notes=False,
             offset=0,
             limit=40,
@@ -410,6 +412,13 @@ class Note(Base):
             params.update({'author_uid': author_uid})
         else:
             author_filter = ''
+
+        if peer_advising_department_id:
+            peer_advising_department_notes_filter = \
+                'AND notes.peer_advising_department_id = :peer_advising_department_id'
+            params.update({'peer_advising_department_id': peer_advising_department_id})
+        else:
+            peer_advising_department_notes_filter = ''
 
         if student_csid:
             student_filter = 'AND notes.sid = :student_csid'
@@ -456,9 +465,11 @@ class Note(Base):
                     {student_filter}
                     {date_filter}
                     {department_filter}
+                    {peer_advising_department_notes_filter}
                 {topic_join}
                 {where_clause}
             """
+
             if not is_count_query:
                 query += f"""
                     ORDER BY fts.rank DESC, notes.id
