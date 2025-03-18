@@ -128,7 +128,7 @@
           :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
           :id-prefix="`note-${note.id}-`"
           :is-downloadable="true"
-          :note-author-uid="note.author.uid"
+          :note="note"
           :read-only="!!note.legacySource"
           :remove="removeAttachmentByIndex"
         />

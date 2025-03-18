@@ -97,7 +97,7 @@
         <PillItem
           :id="`${idPrefix}attachment-${index}`"
           :aria-label="isDownloadable ? `Download attachment ${attachment.displayName}` : null"
-          :closable="!isReadOnly && (currentUser.uid === noteAuthorUid || noteStore.mode === 'editTemplate')"
+          :closable="!isReadOnly && (canUserEditNote(note, currentUser) || noteStore.mode === 'editTemplate')"
           :disabled="disabled"
           :href="downloadUrl(attachment)"
           :icon="mdiPaperclip"
@@ -119,7 +119,7 @@ import {computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch} from 'vu
 import {each, size} from 'lodash'
 import {mdiAlert, mdiPaperclip} from '@mdi/js'
 import PillItem from '@/components/util/PillItem'
-import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
+import {addFileDropEventListeners, canUserEditNote, validateAttachment} from '@/lib/note'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -151,9 +151,9 @@ const props = defineProps({
     required: false,
     type: Boolean
   },
-  noteAuthorUid: {
+  note: {
     required: true,
-    type: String
+    type: Object
   },
   remove: {
     default: () => {},

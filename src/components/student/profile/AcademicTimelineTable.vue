@@ -162,7 +162,7 @@
                 class="d-flex flex-column note-actions px-2"
               >
                 <v-btn
-                  v-if="userCanEdit(message)"
+                  v-if="canUserEditNote(message, currentUser)"
                   :id="`edit-note-${message.id}-button`"
                   :aria-label="`Edit ${getButtonAriaLabel(message)}`"
                   class="mx-auto my-1"
@@ -435,13 +435,13 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import {alertScreenReader, decodeStudentUriAnchor, oxfordJoin, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import {canUserEditNote} from '@/lib/note.js'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
-import {isDirector, isPeerAdvisorManager} from '@/lib/boa-user'
+import {isDirector} from '@/lib/boa-user'
 import {markAppointmentRead} from '@/api/appointments'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session/index'
-import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department.js'
 
 const props = defineProps({
   countPerActiveTab: {
@@ -752,7 +752,7 @@ const onClickCloseMessage = (message) => {
 
 const onClickOpenMessage = message => {
   open(message)
-  if (userCanEdit(message)) {
+  if (canUserEditNote(message, currentUser)) {
     putFocusNextTick(`edit-note-${message.id}-button`, {scroll: false})
   } else if (userCanDelete(message)) {
     putFocusNextTick(`delete-note-button-${message.id}`, {scroll: false})
@@ -858,20 +858,6 @@ const toggleShowAll = () => {
 
 const userCanDelete = message => {
   return isEditable(message) && message.type === 'note' && (currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid))
-}
-
-const userCanEdit = message => {
-  let canEdit = false
-  if (isEditable(message) && message.type === 'note') {
-    if (currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)) {
-      canEdit = true
-    } else if (isPeerAdvisorManager(currentUser) && message.peerAdvisingDepartmentId) {
-      // Peer Advisor Managers can edit notes created by Peer Advisors within same Peer Advising department.
-      const membership = getPeerAdvisorDepartmentMembership(currentUser, 'peer_advisor_manager')
-      canEdit = get(membership, 'peerAdvisingDepartmentId') === message.peerAdvisingDepartmentId
-    }
-  }
-  return canEdit
 }
 </script>
 

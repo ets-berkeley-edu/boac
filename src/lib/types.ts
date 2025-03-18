@@ -40,6 +40,7 @@ export interface BoaUser extends CalNetUser {
   canAccessAdmittedStudents: boolean,
   canAccessAdvisingData: boolean,
   canAccessCanvasData: boolean,
+  canAccessPrivateNotes: boolean,
   canEditDegreeProgress: boolean,
   canReadDegreeProgress: boolean,
   createdAt: string,

@@ -73,7 +73,7 @@
       :disabled="isSaving || boaSessionExpired"
       id-prefix="edit-note-"
       :is-read-only="true"
-      :note-author-uid="noteStore.model.author.uid"
+      :note="noteStore.model"
     />
     <div>
       <div

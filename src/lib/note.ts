@@ -1,7 +1,9 @@
 import {each, filter, get, isEmpty, size, trim} from 'lodash'
-import type {Attachment, BoaConfig, NoteTemplate} from '@/lib/types'
+import type {Attachment, BoaConfig, BoaUser, DepartmentMembership, Note, NoteTemplate} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {isPeerAdvisorManager} from '@/lib/boa-user'
+import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
 
 export function addFileDropEventListeners(): void {
   const preventFileDropOutsideFormControl = e => {
@@ -15,6 +17,20 @@ export function addFileDropEventListeners(): void {
   window.addEventListener('dragenter', preventFileDropOutsideFormControl, false)
   window.addEventListener('dragover', preventFileDropOutsideFormControl)
   window.addEventListener('drop', preventFileDropOutsideFormControl)
+}
+
+export function canUserEditNote(note: Note, user: BoaUser): boolean {
+  let canEdit = false
+  if (note.type === 'note' && !note.legacySource) {
+    if (user.uid === note.author.uid && (!note.isPrivate || user.canAccessPrivateNotes)) {
+      canEdit = true
+    } else if (isPeerAdvisorManager(user) && note.peerAdvisingDepartmentId) {
+      // Peer Advisor Managers can edit notes created by Peer Advisors within same Peer Advising department.
+      const membership: DepartmentMembership = getPeerAdvisorDepartmentMembership(user, 'peer_advisor_manager')
+      canEdit = get(membership, 'peerAdvisingDepartmentId') === note.peerAdvisingDepartmentId
+    }
+  }
+  return canEdit
 }
 
 export function validateAttachment(attachments: Attachment[], existingAttachments: Attachment[]): string | null {
