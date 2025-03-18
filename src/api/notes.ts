@@ -102,7 +102,7 @@ export function deleteNote(note: NoteEditSessionModel) {
   })
 }
 
-export function addAttachments(noteId: number, attachments: object[]) {
+export function addAttachments(noteId: number, attachments: object[]): Promise<NoteEditSessionModel> {
   const data = {}
   each(attachments, (attachment, index) => data[`attachment[${index}]`] = attachment)
   return new Promise(resolve => {

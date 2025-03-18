@@ -1,6 +1,6 @@
 import {get, isNil, isString, map, trim} from 'lodash'
 import type {Attachment, Cohort, CuratedGroup, NoteEditSessionModel, NoteRecipients} from '@/lib/types'
-import {deleteNote, updateNote} from '@/api/notes'
+import {addAttachments, deleteNote, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -53,6 +53,7 @@ export function getDefaultModel(): NoteEditSessionModel {
     deleteAttachmentIds: [],
     isDraft: false,
     isPrivate: false,
+    noteTemplateId: undefined,
     peerAdvisingDepartmentId: undefined,
     setDate: undefined,
     subject: undefined,
@@ -147,9 +148,13 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
           model.subject,
           model.topics,
           model.noteTemplateId
-        ).then(note => {
-          noteStore.setModel(note)
-          resolve(note)
+        ).then((note: NoteEditSessionModel) => {
+          addAttachments(note.id, model.attachments).then((note: NoteEditSessionModel)=> {
+            noteStore.setAttachments(note.attachments)
+            noteStore.setIsSaving(false)
+            noteStore.setModel(note)
+            resolve(note)
+          })
         })
       } else {
         throw new Error('Peer Advising notes require fields which are optional for standard notes.')

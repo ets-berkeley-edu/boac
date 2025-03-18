@@ -2,12 +2,12 @@
   <div>
     <label
       :id="`${idPrefix}-attachments-list-label`"
-      class="font-size-16 font-weight-bold mb-2 d-inline-block"
+      class="font-size-16 font-weight-bold d-inline-block"
       :for="`${idPrefix}-attachments-list`"
     >
       Attachments
     </label>
-    <div class="position-relative">
+    <div v-if="!isReadOnly" class="mt-2 position-relative">
       <label
         class="note-attachment-inner-label font-size-16 align-center d-flex flex-wrap justify-center"
         :class="{
@@ -38,7 +38,7 @@
         </v-btn>
       </label>
       <v-file-input
-        v-if="!attachmentLimitReached && !isReadOnly"
+        v-if="!attachmentLimitReached"
         :id="inputId"
         ref="attachmentFileInput"
         :aria-busy="isAdding"

@@ -64,6 +64,14 @@
           class="mt-3"
           :disabled="isSaving"
         />
+        <AdvisingNoteAttachments
+          :add="addNoteAttachments"
+          :attachments="noteStore.model.attachments"
+          class="pt-5"
+          :disabled="!!(noteStore.isSaving || noteStore.boaSessionExpired)"
+          :note-author-uid="noteStore.model.author.uid"
+          :remove="removeAttachmentByIndex"
+        />
       </v-card-text>
       <v-card-actions class="py-0">
         <CreateNoteFooter
@@ -87,10 +95,11 @@
 
 <script setup lang="ts">
 import {computed, onMounted, ref} from 'vue'
-import {get, size} from 'lodash'
+import {concat, get, size} from 'lodash'
 import {storeToRefs} from 'pinia'
 import {useDisplay} from 'vuetify'
 import type {BasicStudent, NoteRecipients, NoteTemplate, NoteTopic} from '@/lib/types'
+import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments.vue'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import CompactStudentCourseSchedule from '@/components/peer/note/CompactStudentCourseSchedule.vue'
@@ -99,12 +108,13 @@ import CreateNoteFooter from '@/components/note/CreateNoteFooter.vue'
 import EditPeerAdvisingNoteHeader from '@/components/peer/note/EditPeerAdvisingNoteHeader.vue'
 import PeerAdvisingNoteStudentLookup from '@/components/peer/note/PeerAdvisingNoteStudentLookup.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
-import {alertScreenReader, stripHtmlAndTrim} from '@/lib/utils'
+import {alertScreenReader, pluralize, stripHtmlAndTrim} from '@/lib/utils'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
-import {setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
+import {isAutoSaveMode, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
 import {useContextStore} from '@/stores/context'
+import {removeAttachment} from '@/api/notes'
 
 const dialog = defineModel<boolean>({
   required: true,
@@ -137,10 +147,13 @@ onMounted(() => {
   })
 })
 
-const setTemplate = (template: NoteTemplate) => {
-  model.value.body = template.body
-  model.value.topics = template.topics
-  model.value.noteTemplateId = template.id
+const addNoteAttachments = attachments => {
+  return new Promise<void>(resolve => {
+    const pluralized = pluralize('attachment', attachments.length)
+    noteStore.setAttachments(concat(model.value.attachments, attachments))
+    alertScreenReader(`${pluralized} added`, false, 'assertive')
+    resolve()
+  })
 }
 
 const closeModal = (srText?: string) => {
@@ -172,6 +185,24 @@ const onSelectStudent = (selectedStudent: BasicStudent | undefined) => {
     student.value = undefined
     alertScreenReader('Student selection removed')
   }
+}
+
+const removeAttachmentByIndex = index => {
+  const attachment = noteStore.model.attachments[index]
+  if (attachment && attachment.id) {
+    if (isAutoSaveMode(noteStore.mode.value)) {
+      removeAttachment(model.value.id, attachment.id).then(() => {
+        alertScreenReader(`Attachment '${attachment.displayName}' removed`)
+      })
+    }
+    noteStore.removeAttachmentByIndex(index)
+  }
+}
+
+const setTemplate = (template: NoteTemplate) => {
+  model.value.body = template.body
+  model.value.topics = template.topics
+  model.value.noteTemplateId = template.id
 }
 </script>
 
