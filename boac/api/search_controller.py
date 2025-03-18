@@ -27,7 +27,7 @@ from datetime import timedelta
 from itertools import islice
 
 from boac import db
-from boac.api.decorators import advising_data_access_required, advisor_required, ce3_required
+from boac.api.decorators import advising_data_access_required, advisor_required, ce3_required, peer_advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError
 from boac.api.util import add_alert_counts, is_unauthorized_search
 from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code, \
@@ -354,4 +354,31 @@ def _notes_search(search_phrase, params):
         datetime_to=datetime_to,
         offset=offset,
         limit=limit,
+    )
+
+
+@app.route('/api/peer_advising/notes/search', methods=['POST'])
+@peer_advisor_required
+def search_peer_advising_notes():
+    params = util.remove_none_values(request.get_json())
+    peer_advising_department_id = params.get('peerAdvisingDeptId', None)
+    search_phrase = util.get(params, 'searchPhrase', '').strip()
+    if not search_phrase:
+        raise BadRequestError('Invalid or empty search input')
+
+    if not peer_advising_department_id:
+        raise BadRequestError('Invalid peer advising department id')
+
+    feed = {}
+    feed.update(_peer_advising_notes_search(search_phrase, params))
+    return tolerant_jsonify(feed)
+
+
+def _peer_advising_notes_search(search_phrase, params):
+    peer_advising_department_id = params.get('peerAdvisingDeptId')
+
+    return search_advising_notes(
+        search_phrase=search_phrase,
+        peer_advising_department_id=peer_advising_department_id,
+        limit=50,
     )

@@ -36,7 +36,7 @@
       @keydown.enter="search"
       @click.stop="search"
     />
-    <AdvancedSearchModal v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData" />
+    <AdvancedSearchModal v-if="(currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData) && !isPeerAdvisor(currentUser)" />
   </div>
 </template>
 
@@ -52,6 +52,7 @@ import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {useSearchStore} from '@/stores/search'
+import {isPeerAdvisor} from '@/lib/boa-user.js'
 
 const searchStore = useSearchStore()
 const contextStore = useContextStore()
@@ -89,19 +90,32 @@ const search = () => {
   if (!searchStore.isSearching && trim(searchStore.queryText)) {
     const q = trim(searchStore.queryText)
     if (q) {
-      router.push(
-        {
-          path: '/search',
-          query: {
-            admits: currentUser.canAccessAdmittedStudents,
-            courses: currentUser.canAccessCanvasData,
-            notes: currentUser.canAccessAdvisingData,
-            students: true,
-            q
-          }
-        },
-        noop
-      )
+      if (isPeerAdvisor(currentUser)) {
+        router.push(
+          {
+            path: '/peer_advisor/search',
+            query: {
+              q: q
+            }
+          },
+          noop
+        )
+      } else {
+        router.push(
+          {
+            path: 'search',
+            query: {
+              admits: currentUser.canAccessAdmittedStudents,
+              courses: currentUser.canAccessCanvasData,
+              notes: currentUser.canAccessAdvisingData,
+              students: true,
+              q
+            }
+          },
+          noop
+        )
+      }
+
       addToSearchHistory(q).then(history => {
         searchStore.setSearchHistory(history)
       })

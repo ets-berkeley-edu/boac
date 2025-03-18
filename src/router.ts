@@ -20,6 +20,7 @@ const NotFound = () => import('@/views/NotFound.vue')
 const PassengerManifest = () => import('@/views/PassengerManifest.vue')
 const PeerAdvisor = () => import('@/layouts/PeerAdvisor.vue')
 const PeerAdvisorManager = () => import('@/views/PeerAdvisorManager.vue')
+const PeerAdvisorSearch = () => import('@/views/PeerAdvisorSearch.vue')
 const PrintableDegreeTemplate = () => import('@/views/degree/PrintableDegreeTemplate.vue')
 const Profile = () => import('@/views/Profile.vue')
 const SearchResults = () => import('@/views/SearchResults.vue')
@@ -202,6 +203,11 @@ const routes:RouteRecordRaw[] = [
         path: '/peer_advisor/profile',
         component: Profile,
         name: 'Peer Advisor Profile'
+      },
+      {
+        path: '/peer_advisor/search',
+        component: PeerAdvisorSearch,
+        name: 'Peer Advisor Search'
       },
       {
         path: '/peer_advisor/error',

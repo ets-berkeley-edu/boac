@@ -48,6 +48,16 @@ export function search(
     .then(response => response.data)
 }
 
+export function peerAdvisorSearch(phrase: string, peerAdvisingDepartmentId: number) {
+    $_track(phrase)
+    return axios
+    .post(`${utils.apiBaseUrl()}/api/peer_advising/notes/search`, {
+      searchPhrase: phrase,
+      peerAdvisingDeptId: peerAdvisingDepartmentId,
+    })
+    .then(response => response.data)
+}
+
 export function searchAdmittedStudents(phrase: string, orderBy?: string) {
   const url: string = `${utils.apiBaseUrl()}/api/search/admits`
   const data = {searchPhrase: phrase, orderBy: orderBy || 'last_name'}

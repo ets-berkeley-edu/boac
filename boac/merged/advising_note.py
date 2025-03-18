@@ -266,6 +266,7 @@ def search_advising_notes(
     topic=None,
     datetime_from=None,
     datetime_to=None,
+    peer_advising_department_id=None,
     offset=0,
     limit=20,
 ):
@@ -301,6 +302,7 @@ def search_advising_notes(
             datetime_to=datetime_to,
             offset=(local_notes_query_batch_size * local_notes_query_iteration),
             limit=local_notes_query_batch_size,
+            peer_advising_department_id=peer_advising_department_id,
         )
         local_batch_results = local_search_results['results']
         local_total_matching_count = local_search_results['total_matching_count']
@@ -319,6 +321,13 @@ def search_advising_notes(
             local_notes_query_iteration += 1
 
     notes_feed = notes_feed[offset:]
+
+    # If peer_advising_department_id is provided, do not run the loch query; return only local results.
+    if peer_advising_department_id:
+        return {
+            'notes': notes_feed,
+            'totalNoteCount': local_total_matching_count,
+        }
 
     def _search_advising_notes(offset, limit):
         return data_loch.search_advising_notes(
