@@ -50,7 +50,6 @@
         <v-list
           v-model:selected="selectedCuratedGroups"
           :aria-label="`Select one or more ${domainLabel(true)}s`"
-          class="overflow-x-hidden"
           density="compact"
           select-strategy="leaf"
           variant="flat"
@@ -88,33 +87,37 @@
               </v-list-item-action>
             </template>
           </v-list-item>
-          <v-list-item>
-            <v-btn
-              :id="`submit-${idFragment}`"
-              :aria-label="`Add students to selected ${domainLabel(true)}s`"
-              class="px-6"
-              color="primary"
-              :disabled="!size(selectedCuratedGroups) || isConfirming || isSaving"
-              height="32"
-              text="Add"
-              @click.stop="onSubmit"
-              @keydown.enter.stop="onSubmit"
-            />
-          </v-list-item>
-          <v-list-item class="border-t-sm mt-2 pt-2 px-1" density="compact">
-            <v-btn
-              :id="`create-${idFragment}`"
-              :aria-label="`Create a new ${domainLabel(false)}`"
-              color="primary"
-              :prepend-icon="mdiPlus"
-              :text="`Create New ${domainLabel(true)}`"
-              slim
-              variant="text"
-              @click.stop="showModal = true"
-              @keydown.enter.stop="showModal = true"
-            />
-          </v-list-item>
         </v-list>
+        <div>
+          <v-list>
+            <v-list-item class="border-t-sm pt-4">
+              <v-btn
+                :id="`submit-${idFragment}`"
+                :aria-label="`Add students to selected ${domainLabel(true)}s`"
+                class="px-6"
+                color="primary"
+                :disabled="!size(selectedCuratedGroups) || isConfirming || isSaving"
+                height="32"
+                text="Add"
+                @click.stop="onSubmit"
+                @keydown.enter.stop="onSubmit"
+              />
+            </v-list-item>
+            <v-list-item class="px-1" density="compact">
+              <v-btn
+                :id="`create-${idFragment}`"
+                :aria-label="`Create a new ${domainLabel(false)}`"
+                color="primary"
+                :prepend-icon="mdiPlus"
+                :text="`Create New ${domainLabel(true)}`"
+                slim
+                variant="text"
+                @click.stop="showModal = true"
+                @keydown.enter.stop="showModal = true"
+              />
+            </v-list-item>
+          </v-list>
+        </div>
       </v-menu>
     </div>
     <CreateCuratedGroupModal
