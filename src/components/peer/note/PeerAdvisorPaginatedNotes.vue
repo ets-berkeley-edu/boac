@@ -49,16 +49,21 @@
             class="td-note"
           >
             <v-expand-transition>
-              <button
-                v-if="!expandedNoteIds.includes(note.id)"
-                :id="`open-peer-advising-${note.id}`"
-                :aria-label="`Edit ${getStudentName(note)} note`"
-                class="align-center d-flex justify-space-between text-primary w-100"
-                :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                @click="() => toggleShowHide(note)"
-              >
-                <span class="truncate-with-ellipsis" v-html="stripHtmlAndTrim(note.body)" />
-              </button>
+              <div v-if="!expandedNoteIds.includes(note.id)">
+                <button
+                  :id="`open-peer-advising-${note.id}`"
+                  :aria-label="`Edit ${getStudentName(note)} note`"
+                  class="align-center text-left text-primary w-100"
+                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                  @click="() => toggleShowHide(note)"
+                >
+                  <span class="truncate-with-ellipsis" v-html="stripHtmlAndTrim(note.body)" />
+                  <span v-if="note.attachments.length" class="ml-2">
+                    <span class="sr-only">Has attachment(s)</span>
+                    <v-icon class="mb-1" :icon="mdiPaperclip" size="small" />
+                  </span>
+                </button>
+              </div>
             </v-expand-transition>
             <v-expand-transition>
               <div v-if="expandedNoteIds.includes(note.id)">
@@ -117,20 +122,12 @@
         :total-rows="totalNoteCount"
       />
     </div>
-    <!--
-    TODO: Do we need a component dedicated to editing notes authored by Peer Advisors.
-    <EditPeerAdvisingNoteModal
-      v-model="isEditDialogOpen"
-      :student="selectedStudent"
-      :peer-advising-department-id="peerAdvisingDepartmentId"
-    />
-    -->
   </div>
 </template>
 
 <script setup lang="ts">
 import {DateTime} from 'luxon'
-import {mdiCloseCircle} from '@mdi/js'
+import {mdiCloseCircle, mdiPaperclip} from '@mdi/js'
 import {ref} from 'vue'
 import {size} from 'lodash'
 import type {Note} from '@/lib/types'
@@ -171,16 +168,6 @@ const currentUser = contextStore.currentUser
 const expandedNoteIds = ref<number[]>([])
 
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
-
-// TODO: Do we need to support note editing on this page?
-// const openEditDialog = (note: Note) => {
-//   selectedStudent.value = note.student
-//   noteStore.setMode('editPeerAdvisorNote')
-//   noteStore.setModel(note)
-//   noteStore.setCompleteSidSet([note.student.sid])
-//   noteStore.setIsCreateNoteModalOpen(true)
-//   isEditDialogOpen.value = true
-// }
 
 const toggleShowHide = (note: Note) => {
   const index = expandedNoteIds.value.indexOf(note.id)

@@ -44,6 +44,15 @@
         <div class="font-weight-bold">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>
+      <AdvisingNoteAttachments
+        :attachments="note.attachments"
+        class="attachments-edit py-3"
+        :disabled="false"
+        :id-prefix="`note-${note.id}-`"
+        :is-downloadable="true"
+        :is-read-only="true"
+        :note-author-uid="note.author.uid"
+      />
     </div>
   </div>
 </template>
@@ -52,6 +61,7 @@
 import type {PropType} from 'vue'
 import {replace, size} from 'lodash'
 import type {Note} from '@/lib/types'
+import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments.vue'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
 import {capitalizeAllWords} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
