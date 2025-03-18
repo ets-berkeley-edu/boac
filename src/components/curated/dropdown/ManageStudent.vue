@@ -53,7 +53,6 @@
       <v-list
         v-model:selected="selectedGroupIds"
         :aria-label="`${props.student.name}\'s ${domainLabel(true)} memberships`"
-        class="overflow-x-hidden"
         density="compact"
         select-strategy="leaf"
         variant="flat"
@@ -91,33 +90,37 @@
             </v-list-item-action>
           </template>
         </v-list-item>
-        <v-list-item>
-          <v-btn
-            :id="`submit-${idFragment}`"
-            :aria-label="`Apply changes to ${student.name}'s ${domainLabel(true)} memberships`"
-            class="px-6"
-            color="primary"
-            :disabled="!size(xor(existingGroupMemberships, selectedGroupIds)) || isAdding || isRemoving"
-            height="32"
-            text="Apply"
-            @click.stop="onSubmit"
-            @keydown.enter.stop="onSubmit"
-          />
-        </v-list-item>
-        <v-list-item class="align-center border-t-sm mt-2 pt-2 px-1" density="compact">
-          <v-btn
-            :id="`create-${idFragment}`"
-            color="primary"
-            :prepend-icon="mdiPlus"
-            slim
-            variant="text"
-            @click.stop="showModal = true"
-            @keydown.enter.stop="showModal = true"
-          >
-            Create New {{ domainLabel(true) }}
-          </v-btn>
-        </v-list-item>
       </v-list>
+      <div>
+        <v-list>
+          <v-list-item>
+            <v-btn
+              :id="`submit-${idFragment}`"
+              :aria-label="`Apply changes to ${student.name}'s ${domainLabel(true)} memberships`"
+              class="px-6"
+              color="primary"
+              :disabled="!size(xor(existingGroupMemberships, selectedGroupIds)) || isAdding || isRemoving"
+              height="32"
+              text="Apply"
+              @click.stop="onSubmit"
+              @keydown.enter.stop="onSubmit"
+            />
+          </v-list-item>
+          <v-list-item class="align-center border-t-sm mt-2 pt-2 px-1" density="compact">
+            <v-btn
+              :id="`create-${idFragment}`"
+              color="primary"
+              :prepend-icon="mdiPlus"
+              slim
+              variant="text"
+              @click.stop="showModal = true"
+              @keydown.enter.stop="showModal = true"
+            >
+              Create New {{ domainLabel(true) }}
+            </v-btn>
+          </v-list-item>
+        </v-list>
+      </div>
     </v-menu>
     <CreateCuratedGroupModal
       :cancel="onModalCancel"
