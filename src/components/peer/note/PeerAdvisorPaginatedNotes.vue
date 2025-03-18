@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="table-container">
     <table
       v-if="size(notes)"
       id="notes-for-peer-advisor-view"
@@ -21,7 +21,7 @@
           :key="index"
           :class="index % 2 === 0 ? '' : 'bg-surface-light'"
         >
-          <td :class="{'border-b-md': index === notes.length - 1}" class="td-student">
+          <td :class="{'border-b-md': index === notes.length - 1, 'pl-3 pt-3': smAndDown}" class="td-student">
             <div
               v-if="note.student"
               :id="`note-student-${note.student.sid}`"
@@ -45,7 +45,7 @@
           </td>
           <td
             :id="`note-body-in-row-${index}`"
-            :class="{'border-b-md': index === notes.length - 1}"
+            :class="{'border-b-md': index === notes.length - 1, 'pl-3': smAndDown}"
             class="td-note"
           >
             <v-expand-transition>
@@ -81,21 +81,20 @@
           </td>
           <td
             :id="`note-topics-in-row-${index}`"
-            :class="{'border-b-md': index === notes.length - 1}"
-            class="td-topics"
+            :class="{'border-b-md': index === notes.length - 1, 'pl-3': smAndDown, 'td-topics': !smAndDown}"
             :title="note.topics.join(', ')"
           >
             <div class="align-center d-flex font-weight-medium justify-space-between w-100">
               <span v-if="note.topics.length" class="truncate-with-ellipsis">{{ note.topics.join(', ') }}</span>
-              <span v-if="!note.topics.length" class="text-medium-emphasis">&mdash;</span>
+              <span v-if="!note.topics.length && !smAndDown" class="text-medium-emphasis">&mdash;</span>
             </div>
           </td>
           <td
             :id="`note-created-date-in-row-${index}`"
-            :class="{'border-b-md': index === notes.length - 1}"
+            :class="{'border-b-md': index === notes.length - 1, 'pl-3': smAndDown}"
             class="td-created-date"
           >
-            <div class="float-right pr-2">
+            <div :class="{'pb-3': smAndDown, 'float-right': !smAndDown}" class="pr-2">
               {{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}
             </div>
           </td>
@@ -117,14 +116,6 @@
         :total-rows="totalNoteCount"
       />
     </div>
-    <!--
-    TODO: Do we need a component dedicated to editing notes authored by Peer Advisors.
-    <EditPeerAdvisingNoteModal
-      v-model="isEditDialogOpen"
-      :student="selectedStudent"
-      :peer-advising-department-id="peerAdvisingDepartmentId"
-    />
-    -->
   </div>
 </template>
 
@@ -133,6 +124,7 @@ import {DateTime} from 'luxon'
 import {mdiCloseCircle} from '@mdi/js'
 import {ref} from 'vue'
 import {size} from 'lodash'
+import {useDisplay} from 'vuetify'
 import type {Note} from '@/lib/types'
 import Pagination from '@/components/util/Pagination.vue'
 import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
@@ -169,18 +161,9 @@ defineProps({
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const expandedNoteIds = ref<number[]>([])
+const {smAndDown} = useDisplay()
 
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
-
-// TODO: Do we need to support note editing on this page?
-// const openEditDialog = (note: Note) => {
-//   selectedStudent.value = note.student
-//   noteStore.setMode('editPeerAdvisorNote')
-//   noteStore.setModel(note)
-//   noteStore.setCompleteSidSet([note.student.sid])
-//   noteStore.setIsCreateNoteModalOpen(true)
-//   isEditDialogOpen.value = true
-// }
 
 const toggleShowHide = (note: Note) => {
   const index = expandedNoteIds.value.indexOf(note.id)
@@ -193,6 +176,25 @@ const toggleShowHide = (note: Note) => {
 </script>
 
 <style scoped>
+@media (max-width: 773px) {
+  .table-container {
+    overflow: hidden; /* Prevent horizontal scrollbar */
+  }
+  table {
+    display: block; /* Allow table to stack vertically */
+    width: 100%;
+  }
+  thead {
+    display: none;
+  }
+  th, td {
+    display: block; /* Allow cells to stack vertically */
+    width: 100%;
+  }
+  th {
+    font-weight: bold; /* Make headers bold */
+  }
+}
 .margins-of-hide-note-btn {
   margin-left: -15px;
 }
