@@ -74,6 +74,10 @@ def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
         return ()
     calnet_users = calnet.get_calnet_users_for_uids(app, [u.uid for u in users])
     profiles = []
+    peer_advising_memberships_by_user_id = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_ids(
+        authorized_user_ids=[user.id for user in users],
+    )
+    university_depts_by_id = dict((d['id'], d) for d in UniversityDept.get_all_departments())
     for user in users:
         profile = calnet_users[user.uid]
         if not profile:
@@ -105,10 +109,8 @@ def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
                     },
                 ],
             })
-        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(
-            authorized_user_id=user.id,
-        )
-        for m in memberships:
+
+        for m in peer_advising_memberships_by_user_id.get(user.id, []):
             peer_advising_dept_membership = {
                 'role': m['role_type'],
                 'peerAdvisingDepartmentId': m['peer_advising_department_id'],
@@ -122,7 +124,7 @@ def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
                 university_dept_api_json['memberships'].append(peer_advising_dept_membership)
             else:
                 profile['departments'].append({
-                    **UniversityDept.find_by_id(university_dept_id).to_api_json(),
+                    **university_depts_by_id[university_dept_id],
                     'memberships': [peer_advising_dept_membership],
                 })
         user_login = UserLogin.last_login(user.uid)

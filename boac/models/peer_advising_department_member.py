@@ -88,6 +88,14 @@ class PeerAdvisingDepartmentMember(Base):
 
     @classmethod
     def find_peer_advising_memberships_by_user_id(cls, authorized_user_id, include_deleted=False):
+        memberships_by_user_ids = cls.find_peer_advising_memberships_by_user_ids(
+            authorized_user_ids=[authorized_user_id],
+            include_deleted=include_deleted,
+        )
+        return memberships_by_user_ids[authorized_user_id] if len(memberships_by_user_ids) else []
+
+    @classmethod
+    def find_peer_advising_memberships_by_user_ids(cls, authorized_user_ids, include_deleted=False):
         def _to_dict(row):
             return {
                 'authorized_user_id': row['authorized_user_id'],
@@ -98,24 +106,29 @@ class PeerAdvisingDepartmentMember(Base):
                 'university_dept_code': row['university_dept_code'],
                 'university_dept_name': row['university_dept_name'],
             }
-        sql = """
+        sql = f"""
             SELECT
-                d.name,
-                d.university_dept_id,
-                m.authorized_user_id,
-                m.peer_advising_department_id,
-                m.role_type,
-                u.dept_code AS university_dept_code,
-                u.dept_name AS university_dept_name
-            FROM peer_advising_department_members m
-            JOIN peer_advising_departments d ON d.id = m.peer_advising_department_id
-            JOIN university_depts u ON u.id = d.university_dept_id
+                pm.authorized_user_id,
+                pm.peer_advising_department_id,
+                pm.role_type,
+                pd.name,
+                pd.university_dept_id,
+                ud.dept_code AS university_dept_code,
+                ud.dept_name AS university_dept_name
+            FROM peer_advising_department_members pm
+            JOIN peer_advising_departments pd ON pd.id = pm.peer_advising_department_id
+            JOIN university_depts ud ON ud.id = pd.university_dept_id
             WHERE
-                m.authorized_user_id = :authorized_user_id
+                pm.authorized_user_id = ANY(:authorized_user_ids)
+                {'' if include_deleted else 'AND pm.deleted_at IS NULL'}
         """
-        if not include_deleted:
-            sql += ' AND m.deleted_at IS NULL'
-        return [_to_dict(row) for row in db.session.execute(sql, {'authorized_user_id': authorized_user_id})]
+        memberships_by_user_id = {}
+        for row in db.session.execute(sql, {'authorized_user_ids': authorized_user_ids}):
+            authorized_user_id = row['authorized_user_id']
+            if authorized_user_id not in memberships_by_user_id:
+                memberships_by_user_id[authorized_user_id] = []
+            memberships_by_user_id[authorized_user_id].append(_to_dict(row))
+        return memberships_by_user_id
 
     @classmethod
     def get_peer_advising_department_members(cls, peer_advising_department_id):

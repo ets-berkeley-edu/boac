@@ -37,8 +37,11 @@
     <div class="mt-4">
       <SearchAndFilterBoaUsers :fetch-users="fetchUsers" />
     </div>
-    <div class="mt-2">
+    <div class="align-center d-flex justify-space-between mt-2 w-100">
       <QuickLinks :fetch-users="fetchUsers" />
+      <div v-if="!isFetching && !isNaN(totalUserCount)" class="text-medium-emphasis">
+        {{ pluralize('student', totalUserCount) }}
+      </div>
     </div>
     <BoaUsers
       v-if="!isFetching && !isNaN(totalUserCount)"
@@ -49,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import {get} from 'lodash'
+import {get, isNil} from 'lodash'
 import {mdiContacts} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {storeToRefs} from 'pinia'
@@ -60,7 +63,7 @@ import CreateNewBoaUser from '@/components/admin/passenger-manifest/CreateNewBoa
 import QuickLinks from '@/components/admin/passenger-manifest/QuickLinks.vue'
 import SearchAndFilterBoaUsers from '@/components/admin/passenger-manifest/SearchAndFilterBoaUsers.vue'
 import {getAdminUsers, getPeerAdvisingUsers, getUserByUid, getUsers} from '@/api/user'
-import {normalizeId, putFocusNextTick} from '@/lib/utils'
+import {normalizeId, pluralize, putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useManifestStore} from '@/stores/manifest'
 
@@ -79,84 +82,86 @@ onMounted(() => {
 })
 
 const fetchUsers = (isCsvDownloadRequest?: boolean) => {
-  const filter = manifestStore.filter
-  let isValidSelection = (filter.type !== 'search') || get(manifestStore.uidBeingEdited, 'uid')
-  let searchFirstUser: boolean = false
-  let uidOfUser: string | undefined = undefined
+  if (!contextStore.loading) {
+    const filter = manifestStore.filter
+    let isValidSelection = (filter.type !== 'search') || get(manifestStore.uidBeingEdited, 'uid')
+    let searchFirstUser: boolean = false
+    let uidOfUser: string | undefined = undefined
 
-  if (!isValidSelection && manifestStore.users.length === 1 && filter.type === 'search') {
-    isValidSelection = manifestStore.users[0].uid
-    uidOfUser = manifestStore.users[0].uid
-    searchFirstUser = true
-  }
-  if (isValidSelection) {
-    if (isCsvDownloadRequest) {
-      isDownloadingCsv.value = true
-    } else {
-      manifestStore.setIsFetching(true)
-      manifestStore.setUsers([])
+    if (!isValidSelection && manifestStore.users.length === 1 && filter.type === 'search') {
+      isValidSelection = manifestStore.users[0].uid
+      uidOfUser = manifestStore.users[0].uid
+      searchFirstUser = true
     }
-    const afterFetchUsers = (users: BoaUser[]) => {
+    if (isValidSelection) {
       if (isCsvDownloadRequest) {
-        isDownloadingCsv.value = false
+        isDownloadingCsv.value = true
       } else {
-        manifestStore.setUidBeingEdited(undefined)
-        manifestStore.setIsFetching(false)
-        manifestStore.setUsers(users)
+        manifestStore.setIsFetching(true)
+        manifestStore.setUsers([])
       }
-    }
-    const sortBy = manifestStore.sortBy
-    const sortDescending = manifestStore.sortDescending
-    if (filter.type === 'filter') {
-      if (PEER_ADVISING_ROLE_TYPES.includes(filter.role)) {
-        let csvFilenamePrefix: string | undefined
-        const peerAdvisingDepartmentId = filter.peerAdvisingDepartmentId
+      const afterFetchUsers = (users: BoaUser[]) => {
         if (isCsvDownloadRequest) {
-          csvFilenamePrefix = `BOA-${filter.role}s`
-          if (filter.peerAdvisingDepartmentId) {
-            const peerAdvisingDepartment = findPeerAdvisingDepartment(
-              manifestStore.allBerkeleyDepartments,
-              peerAdvisingDepartmentId
-            )
-            csvFilenamePrefix += `-of-peer-dept-${peerAdvisingDepartment.name}`
-          }
+          isDownloadingCsv.value = false
+        } else {
+          manifestStore.setUidBeingEdited(undefined)
+          manifestStore.setIsFetching(false)
+          manifestStore.setUsers(users)
         }
-        getPeerAdvisingUsers(
-          peerAdvisingDepartmentId,
-          filter.role,
-          sortBy,
-          sortDescending,
-          filter.status,
-          csvFilenamePrefix
-        ).then(afterFetchUsers)
-      } else if (ADVISING_ROLE_TYPES.includes(filter.role)) {
-        getUsers(
-          filter.deptCode,
-          filter.role,
-          sortBy,
-          sortDescending,
-          filter.status,
-          isCsvDownloadRequest ? normalizeId(`BOA-${filter.role}s-dept-${filter.deptCode}`) : undefined
-        ).then(afterFetchUsers)
-      } else if (filter.role === 'admin') {
-        getAdminUsers(
-          sortBy,
-          sortDescending,
-          filter.status,
-          isCsvDownloadRequest ? 'BOA-admin-users' : undefined
-        ).then(afterFetchUsers)
+      }
+      const sortBy = manifestStore.sortBy
+      const sortDescending = manifestStore.sortDescending
+      if (filter.type === 'filter') {
+        if (PEER_ADVISING_ROLE_TYPES.includes(filter.role)) {
+          let csvFilenamePrefix: string | undefined
+          const peerAdvisingDepartmentId = filter.peerAdvisingDepartmentId
+          if (isCsvDownloadRequest) {
+            csvFilenamePrefix = `BOA-${filter.role}s`
+            if (filter.peerAdvisingDepartmentId) {
+              const peerAdvisingDepartment = findPeerAdvisingDepartment(
+                manifestStore.allBerkeleyDepartments,
+                peerAdvisingDepartmentId
+              )
+              csvFilenamePrefix += `-of-peer-dept-${peerAdvisingDepartment.name}`
+            }
+          }
+          getPeerAdvisingUsers(
+            peerAdvisingDepartmentId,
+            filter.role,
+            sortBy,
+            sortDescending,
+            filter.status,
+            csvFilenamePrefix
+          ).then(afterFetchUsers)
+        } else if (ADVISING_ROLE_TYPES.includes(filter.role) || isNil(filter.role)) {
+          getUsers(
+            filter.deptCode,
+            filter.role,
+            sortBy,
+            sortDescending,
+            filter.status,
+            isCsvDownloadRequest ? normalizeId(`BOA-${filter.role}s-dept-${filter.deptCode}`) : undefined
+          ).then(afterFetchUsers)
+        } else if (filter.role === 'admin') {
+          getAdminUsers(
+            sortBy,
+            sortDescending,
+            filter.status,
+            isCsvDownloadRequest ? 'BOA-admin-users' : undefined
+          ).then(afterFetchUsers)
+        } else {
+          throw new TypeError(`Invalid role: ${filter.role}`)
+        }
+      } else if (filter.type === 'search') {
+        if (!searchFirstUser) {
+          uidOfUser = manifestStore.uidBeingEdited.uid
+        }
+        if (uidOfUser) {
+          getUserByUid(uidOfUser, true).then(data => afterFetchUsers([data]))
+        }
       } else {
-        throw new TypeError(`Invalid role: ${filter.role}`)
+        throw new TypeError(`Invalid filter type: ${filter.type}`)
       }
-    } else if (filter.type === 'search') {
-      if (!searchFirstUser) {
-        uidOfUser = manifestStore.uidBeingEdited.uid
-      }
-      if (uidOfUser) {
-        getUserByUid(uidOfUser, true).then(data => afterFetchUsers([data]))
-      }
-    } else {
-      throw new TypeError(`Invalid filter type: ${filter.type}`)
     }
   }
 }

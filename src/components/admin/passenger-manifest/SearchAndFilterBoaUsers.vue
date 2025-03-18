@@ -6,6 +6,7 @@
         v-model="filter.type"
         aria-label="Choose how you want to find users: search field or via filters."
         class="select-menu"
+        :disabled="disabled"
       >
         <option
           v-for="option in [
@@ -61,6 +62,7 @@
         >
           <option
             v-for="option in [
+              {name: 'All', value: undefined},
               {name: 'Admins', value: 'admin'},
               {name: 'Advisors', value: 'advisor'},
               {name: 'Directors', value: 'director'},
@@ -75,7 +77,7 @@
           </option>
         </select>
       </div>
-      <div v-if="['advisor', 'director'].includes(filter.role)" :class="{'mt-2': smAndDown}" class="pr-2">
+      <div v-if="['advisor', 'director', undefined].includes(filter.role)" :class="{'mt-2': smAndDown}" class="pr-2">
         <select
           id="select-user-department"
           v-model="filter.deptCode"
@@ -122,6 +124,7 @@
           >
             <option
               v-for="option in [
+                {name: 'All', value: undefined},
                 {name: 'Active', value: 'active'},
                 {name: 'Deleted', value: 'deleted'},
                 {name: 'Blocked', value: 'blocked'}

@@ -54,7 +54,7 @@ class UniversityDept(Base):
         return cls.query.filter_by(dept_code=dept_code).first()
 
     @classmethod
-    def get_all_departments(cls, exclude_empty=False):
+    def get_all_departments(cls, exclude_empty=False, include_peer_advising_departments=False):
         sql = f"""
             SELECT
                 d.id, d.dept_code, d.dept_name, COUNT(m.authorized_user_id) AS member_count,
@@ -72,21 +72,25 @@ class UniversityDept(Base):
         results = []
         for row in db.session.execute(text(sql)):
             dept_code = row['dept_code']
-            department_json = next((d for d in results if d['dept_code'] == dept_code), None)
+            department_json = next((d for d in results if d['deptCode'] == dept_code), None)
             if not department_json:
                 department_json = {
                     'id': row['id'],
-                    'dept_code': row['dept_code'],
-                    'dept_name': row['dept_name'],
-                    'member_count': row['member_count'],
-                    'peer_advising_departments': [],
+                    'deptCode': dept_code,
+                    'deptName': row['dept_name'],
+                    'memberCount': row['member_count'],
                 }
+                if include_peer_advising_departments:
+                    department_json['peerAdvisingDepartments'] = []
                 results.append(department_json)
-            if row['peer_advising_department_id']:
-                department_json['peer_advising_departments'].append({
-                    'id': row['peer_advising_department_id'],
-                    'name': row['peer_advising_department_name'],
-                })
+
+            if include_peer_advising_departments:
+                peer_advising_department_id = row['peer_advising_department_id']
+                if peer_advising_department_id:
+                    department_json['peerAdvisingDepartments'].append({
+                        'id': peer_advising_department_id,
+                        'name': row['peer_advising_department_name'],
+                    })
         return results
 
     @classmethod
