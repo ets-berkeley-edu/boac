@@ -1421,6 +1421,7 @@ class TestDownloadCsvPerFilters:
                 'sid',
                 'email',
                 'phone',
+                'college',
                 'majors',
                 'level_by_units',
                 'terms_in_attendance',
@@ -1445,7 +1446,7 @@ class TestDownloadCsvPerFilters:
         csv = response.data.decode('UTF-8').split('\n')
         # Verify that 'course_activity' related columns are present.
         header_label_lookup = get_students_csv_header_labels(current_term_id())
-        expected_headers = ['first_name', 'last_name', 'sid', 'email', 'phone', 'majors', 'level_by_units',
+        expected_headers = ['first_name', 'last_name', 'sid', 'email', 'phone', 'majors', 'college', 'level_by_units',
                             'terms_in_attendance', 'expected_graduation_term', 'units_completed', 'term_gpa_2172',
                             'term_gpa_2175', 'cumulative_gpa', 'program_status', 'college_advisor', 'coe_status',
                             'Class Name', 'Units', 'Mid-point Grade', 'Final Grade']
@@ -1457,6 +1458,7 @@ class TestDownloadCsvPerFilters:
                 assert '11667051' in row
                 assert 'Junior' in row
                 assert 'English BA' in row
+                assert ',Engineering; Undergrad Letters & Science,' in row
                 assert 'BURMESE 1A' in row or 'MED ST 205' in row or 'NUC ENG 124' in row or 'PHYSED 11' in row or 'SOCIOL 198'
 
     def test_download_csv_custom_columns(self, client, coe_advisor_login):
@@ -1467,6 +1469,7 @@ class TestDownloadCsvPerFilters:
             ],
             'csvColumnsSelected': [
                 'majors',
+                'college',
                 'level_by_units',
                 'terms_in_attendance',
                 'expected_graduation_term',
@@ -1487,7 +1490,7 @@ class TestDownloadCsvPerFilters:
         assert 'csv' in response.content_type
         csv = response.data.decode('UTF-8').split('\n')
         header_label_lookup = get_students_csv_header_labels(current_term_id())
-        expected_headers = ['majors', 'level_by_units', 'terms_in_attendance', 'expected_graduation_term',
+        expected_headers = ['majors', 'college', 'level_by_units', 'terms_in_attendance', 'expected_graduation_term',
                             'units_completed', 'term_gpa_2172', 'cumulative_gpa', 'program_status', 'intended_majors',
                             'minors']
         for expected_header in expected_headers:
@@ -1495,8 +1498,10 @@ class TestDownloadCsvPerFilters:
             assert expected_label in csv[0]
         for row in csv[1:]:
             if row.startswith('Chemistry BS'):
+                assert ',Chemistry,' in row
                 assert 'Junior,4,Fall 2019,34,3.500,3.495,Active,' in row
             elif row.startswith('English BA; Political Economy BA'):
+                assert ',Undergrad Letters & Science,' in row
                 assert 'Junior,5,Fall 2019,70,,3.005,Active,' in row
             elif row:
                 pytest.fail(f'Unexpected CSV content: {row}')
