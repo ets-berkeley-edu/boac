@@ -18,7 +18,11 @@
       </v-card-title>
       <v-card-text class="pt-0">
         <v-expand-transition>
-          <PeerAdvisingNoteStudentLookup v-if="!student" :on-select-student="onSelectStudent" />
+          <PeerAdvisingNoteStudentLookup
+            v-if="!student"
+            :on-clear-selected-student="onClearSelectedStudent"
+            :on-select-student="onSelectStudent"
+          />
         </v-expand-transition>
         <v-expand-transition>
           <div v-if="student" class="pb-1 pt-2">
@@ -112,7 +116,7 @@ import {alertScreenReader, pluralize, stripHtmlAndTrim} from '@/lib/utils'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
-import {isAutoSaveMode, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
+import {clearNoteRecipients, isAutoSaveMode, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
 import {useContextStore} from '@/stores/context'
 import {removeAttachment} from '@/api/notes'
 
@@ -175,6 +179,12 @@ const discardRequested = () => {
   }
 }
 
+const onClearSelectedStudent = () => {
+  student.value = undefined
+  clearNoteRecipients()
+  alertScreenReader('Student selection removed')
+}
+
 const onSelectStudent = (selectedStudent: BasicStudent | undefined) => {
   const sid = get(selectedStudent, 'sid')
   if (sid) {
@@ -182,8 +192,7 @@ const onSelectStudent = (selectedStudent: BasicStudent | undefined) => {
     setNoteRecipient(sid)
     alertScreenReader(`${get(student.value, 'firstName')} ${get(student.value, 'lastName')} selected`)
   } else {
-    student.value = undefined
-    alertScreenReader('Student selection removed')
+    onClearSelectedStudent()
   }
 }
 
