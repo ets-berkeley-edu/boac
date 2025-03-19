@@ -39,7 +39,6 @@ import type {
 import {findDepartment, findMembership} from '@/lib/berkeley-department'
 import {normalizeId} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useManifestStore} from '@/stores/manifest'
 
 const user = defineModel<BoaUser>({
   required: true,
@@ -57,8 +56,8 @@ const props = defineProps({
   }
 })
 
-const manifestStore = useManifestStore()
-const departments = manifestStore.allBerkeleyDepartments
+const contextStore = useContextStore()
+const departments = contextStore.allBerkeleyDepartments
 const peerAdvisingDepartments = findDepartment<Department>(departments, props.deptCode).peerAdvisingDepartments
 const selected = ref<PeerAdvisingDepartment | undefined>()
 
@@ -75,7 +74,7 @@ onMounted(() => {
     selected.value = find(peerAdvisingDepartments, ['id', peerAdvisingDepartmentId])
   }
   nextTick(() => {
-    useContextStore().setEventHandler('passenger-manifest-select-department-membership-role', () => {
+    contextStore.setEventHandler('passenger-manifest-select-department-membership-role', () => {
       selected.value = undefined
     })
   })

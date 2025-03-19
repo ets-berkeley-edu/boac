@@ -118,10 +118,7 @@ const fetchUsers = (isCsvDownloadRequest?: boolean) => {
           if (isCsvDownloadRequest) {
             csvFilenamePrefix = `BOA-${filter.role}s`
             if (filter.peerAdvisingDepartmentId) {
-              const peerAdvisingDepartment = findPeerAdvisingDepartment(
-                manifestStore.allBerkeleyDepartments,
-                peerAdvisingDepartmentId
-              )
+              const peerAdvisingDepartment = findPeerAdvisingDepartment(peerAdvisingDepartmentId)
               csvFilenamePrefix += `-of-peer-dept-${peerAdvisingDepartment.name}`
             }
           }
