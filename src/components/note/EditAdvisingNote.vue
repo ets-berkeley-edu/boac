@@ -35,7 +35,7 @@
         maxlength="255"
         :model-value="noteStore.model.subject"
         required
-        :rules="[value => (!!trim(value) || noteStore.model.isDraft) || noteStore.model.peerAdvisingDepartmentId || 'Subject is required']"
+        :rules="[value => (!!trim(value) || noteStore.model.isDraft) || !!noteStore.model.peerAdvisingDepartmentId || 'Subject is required']"
         size="255"
         validate-on="submit"
         @input="onInput"
@@ -90,7 +90,7 @@
           id="save-note-button"
           :action="() => save(false)"
           :aria-label="noteStore.model.isDraft ? 'Publish Note' : 'Save Note'"
-          :disabled="!noteStore.recipients.sids.length || isSaving || boaSessionExpired || (!trim(noteStore.model.subject) && !noteStore.model.peerAdvisingDepartmentId)"
+          :disabled="!noteStore.recipients.sids.length || isSaving || boaSessionExpired || (noteStore.model.peerAdvisingDepartmentId ? !stripHtmlAndTrim(model.body) : !trim(model.subject))"
           :in-progress="isPublishingNote"
           :text="noteStore.model.isDraft ? 'Publish Note' : 'Save'"
         />
@@ -149,10 +149,11 @@ import {
   setSubjectPerEvent
 } from '@/stores/note-edit-session/note-edit-session-utils'
 import {getNote, updateNote} from '@/api/notes'
+import {getPeerAdvisingTopics} from '@/api/peer-advising-notes.js'
+import {getTopicsForNotes} from '@/api/topics.js'
 import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {getTopicsForNotes} from '@/api/topics.js'
 
 const props = defineProps({
   afterCancel: {
@@ -170,12 +171,12 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
+const noteStore = useNoteStore()
 
 const currentUser = contextStore.currentUser
 const editNoteForm = ref()
 const isPublishingNote = ref(false)
 const isSavingDraft = ref(false)
-const noteStore = useNoteStore()
 const showAreYouSureModal = ref(false)
 const suppressAutoSaveDraftNoteAlert = ref(false)
 const topics = ref([])
@@ -184,7 +185,8 @@ const {boaSessionExpired, isSaving, mode} = storeToRefs(noteStore)
 watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = !suppressAutoSaveDraftNoteAlert.value, 5000))
 
 onMounted(() => {
-  getTopicsForNotes(false).then(data => {
+  const fetchTopics = noteStore.model.peerAdvisingDepartmentId ? getPeerAdvisingTopics() : getTopicsForNotes(false)
+  fetchTopics.then(data => {
     topics.value = data
     getNote(props.noteId).then(note => {
       const onFinish = () => {
