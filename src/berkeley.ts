@@ -122,6 +122,7 @@ export function getDefaultCsvExportColumns(): ExportListOption[] {
     {text: 'Major(s)', value: 'majors'},
     {text: 'Minor(s)', value: 'minors'},
     {text: 'Academic Subplans', value: 'subplans'},
+    {text: 'College', value: 'college'},
     {text: 'Level by Units', value: 'level_by_units'},
     {text: 'Terms in Attendance', value: 'terms_in_attendance'},
     {text: 'Expected Graduation Term', value: 'expected_graduation_term'},

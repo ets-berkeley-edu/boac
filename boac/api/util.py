@@ -374,6 +374,7 @@ def get_students_csv_header_labels(term_id):
         'academic_standing': 'Academic Standing',
         'coe_status': 'CoE status',
         'cohorts': 'Cohorts',
+        'college': 'College',
         'college_advisor': 'College Advisor',
         'course_activity': 'Course Activity',
         'cumulative_gpa': 'Cumulative GPA',
@@ -465,6 +466,9 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
     getters = {
         'academic_standing': lambda profile: _get_academic_standing(profile),
         'cohorts': lambda profile: '; '.join(_get_current_user_cohorts_containing(profile, cohorts)),
+        'college': lambda profile: '; '.join(
+            sorted(set(plan.get('program') for plan in profile.get('sisProfile', {}).get('plans', []) if plan.get('status') == 'Active')),
+        ),
         'college_advisor': lambda profile: '; '.join(_get_college_advisors(profile)),
         'cumulative_gpa': lambda profile: profile.get('sisProfile', {}).get('cumulativeGPA'),
         'curated_groups': lambda profile: '; '.join(_get_current_user_curated_groups_containing(profile, curated_groups)),
