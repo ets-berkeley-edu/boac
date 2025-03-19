@@ -81,6 +81,10 @@ const query = ref(undefined)
 const vAutocompleteKey = ref<PropertyKey>(new Date().toString())
 
 const props = defineProps({
+  onClearSelectedStudent: {
+    required: true,
+    type: Function
+  },
   onSelectStudent: {
     required: true,
     type: Function
@@ -115,6 +119,8 @@ const onUpdateModel = (selectedStudent: BasicStudent) => {
   if (sid) {
     isStudentSelected.value = true
     getBasicStudent(sid).then(data => props.onSelectStudent(data))
+  } else {
+    props.onClearSelectedStudent()
   }
 }
 
