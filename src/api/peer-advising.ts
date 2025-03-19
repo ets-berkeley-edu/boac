@@ -13,11 +13,8 @@ export function getBasicStudent(sid: string) {
   return axios.get(url).then(response => response.data)
 }
 
-export function getStudentEnrollments(sid: string, termId?: number) {
-  let url: string = `${utils.apiBaseUrl()}/api/peer_advising/${sid}/enrollments`
-  if (termId) {
-    url += `?termId=${termId}`
-  }
+export function getStudentEnrollments(sid: string) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/${sid}/enrollments`
   return axios.get(url).then(response => response.data)
 }
 

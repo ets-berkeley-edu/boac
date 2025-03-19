@@ -29,9 +29,10 @@ from boac.api.util import get_boac_note_as_compatible_json, get_note_author_prof
     get_note_topics_from_http_post, validate_note_contact_type
 from boac.externals import data_loch
 from boac.externals.data_loch import get_basic_student_data
+from boac.lib.berkeley import sis_term_id_for_name, term_name_for_sis_id
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, process_input_from_rich_text_editor, to_bool_or_none
-from boac.merged.sis_terms import current_term_id
+from boac.merged.sis_terms import future_term_id
 from boac.merged.student import merge_enrollment_terms
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
@@ -80,30 +81,18 @@ def create_peer_advising_note():
 @app.route('/api/peer_advising/<sid>/enrollments')
 @peer_advisor_required
 def get_enrollment_terms_by_sid(sid):
-    term_id = request.args.get('termId')
-    latest_term_id = term_id or current_term_id()
-    enrollment_results = data_loch.get_enrollments_for_sid(sid, latest_term_id=latest_term_id)
-
-    def extract(bloated_dict, keys_to_extract):
-        return {key: bloated_dict[key] for key in keys_to_extract if key in bloated_dict}
-
-    api_json = []
-    for term in merge_enrollment_terms(enrollment_results):
-        enrollments = []
-        for row in term['enrollments']:
-            keys = ('displayName', 'title', 'units')
-            enrollment = extract(row, keys)
-            enrollment['sections'] = []
-            for section in row['sections']:
-                extracted = extract(section, ['component', 'enrollmentStatus', 'primary', 'sectionNumber'])
-                extracted['sectionId'] = section['ccn']
-                enrollment['sections'].append(extracted)
-            enrollments.append(enrollment)
-        api_json.append({
-            **extract(term, ('termId', 'termName')),
-            'enrollments': enrollments,
-        })
-    return tolerant_jsonify(sorted(api_json, key=lambda e: e['termId'], reverse=True))
+    api_json = {}
+    for term_id, enrollments in _get_enrollments_by_term_id(sid).items():
+        season, year = term_name_for_sis_id(term_id).split()
+        year = int(year)
+        fall_year, spring_year = (year, year + 1) if season == 'Fall' else (year - 1, year)
+        # Organize by academic calendar
+        academic_calendar = f'Fall {fall_year} - Summer {spring_year}'
+        if academic_calendar not in api_json:
+            term_names = (f'Fall {fall_year}', f'Spring {spring_year}', f'Summer {spring_year}')
+            api_json[academic_calendar] = dict((sis_term_id_for_name(term_name), []) for term_name in term_names)
+        api_json[academic_calendar][term_id] = sorted(enrollments, key=lambda e: e['displayName'])
+    return tolerant_jsonify(dict(sorted(api_json.items(), reverse=True)))
 
 
 @app.route('/api/peer_advisor/<uid>/notes')
@@ -179,3 +168,23 @@ def update_peer_advising_note():
 
 def _can_current_user_edit_peer_advising_note(note):
     return True
+
+
+def _get_enrollments_by_term_id(sid):
+    def extract(bloated_dict, keys_to_extract):
+        return {key: bloated_dict[key] for key in keys_to_extract if key in bloated_dict}
+    enrollments_by_term_id = {}
+    enrollments_for_sid = data_loch.get_enrollments_for_sid(sid, latest_term_id=future_term_id())
+    for term in merge_enrollment_terms(enrollments_for_sid):
+        term_id = term['termId']
+        enrollments_by_term_id[term_id] = []
+        for row in term['enrollments']:
+            keys = ('displayName', 'title', 'units')
+            enrollment = extract(row, keys)
+            enrollment['sections'] = []
+            for section in row['sections']:
+                extracted = extract(section, ['component', 'enrollmentStatus', 'primary', 'sectionNumber'])
+                extracted['sectionId'] = section['ccn']
+                enrollment['sections'].append(extracted)
+            enrollments_by_term_id[term_id].append(enrollment)
+    return enrollments_by_term_id

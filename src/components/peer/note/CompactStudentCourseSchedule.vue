@@ -26,56 +26,30 @@
     </v-btn>
   </div>
   <v-expand-transition id="student-enrollments">
-    <div v-if="isExpanded && terms" class="border-sm mt-3 mx-2 pl-3 pt-3">
+    <div v-if="isExpanded && academicYears" class="border-sm ma-2 pl-4 py-3">
       <h4 class="mb-2 text-medium-emphasis">Course Schedule</h4>
-      <div class="d-flex flex-wrap">
-        <div
-          v-for="term of terms"
-          :key="term.termId"
-          class="mb-4"
-          style="width: 33%"
-        >
-          <table class="w-90">
-            <thead>
-              <tr>
-                <th class="border-b-md pb-1 text-medium-emphasis text-no-wrap text-grey">
-                  {{ term.termName }}
-                </th>
-                <th class="border-b-md pb-1 text-medium-emphasis text-right text-grey">
-                  Units
-                </th>
-              </tr>
-            </thead>
-            <tbody v-if="size(term.enrollments)">
-              <tr v-for="(enrollment, index) in term.enrollments" :key="index" class="font-size-13">
-                <td
-                  :class="{'demo-mode-blur': currentUser.inDemoMode, 'pt-1': index === 0}"
-                  class="font-weight-bold text-medium-emphasis"
-                >
-                  {{ enrollment.displayName }}
-                  <div
-                    v-if="getWaitlistedSections(enrollment).length"
-                    :id="`student-${student.uid}-waitlisted-for-${term.termId}-${normalizeId(enrollment.displayName)}`"
-                    class="font-weight-bolder mb-1 ml-1 text-error text-uppercase"
-                  >
-                    Waitlisted<span v-if="getWaitlistedSections(enrollment).length > 1">:
-                      <span :class="{'demo-mode-blur': currentUser.inDemoMode}">
-                        Sections {{ map(getWaitlistedSections(enrollment), s => s.sectionNumber).join(', ') }}
-                      </span>
-                    </span>
-                  </div>
-                </td>
-                <td :class="{'pt-1': index === 0}" class="text-right vertical-top">
-                  {{ enrollment.units }}
-                </td>
-              </tr>
-            </tbody>
-            <tbody v-if="!size(term.enrollments)">
-              <tr>
-                <td class="font-italic font-size-14 pt-2 text-medium-emphasis">No {{ term.termName }} enrollments</td>
-              </tr>
-            </tbody>
-          </table>
+      <div
+        v-for="(academicYear, label, index) of academicYears"
+        :key="label"
+      >
+        <h5 class="sr-only">{{ label }}</h5>
+        <div :class="{'mt-5': index}" class="align-start d-flex justify-space-between">
+          <div
+            v-for="(enrollments, termId) in academicYear"
+            :key="termId"
+            class="mr-5"
+            :class="{
+              'bg-pale-yellow elevation-1 pb-2 pt-1 px-3': currentEnrollmentTermId === termId.toString(),
+              'pt-1': currentEnrollmentTermId !== termId.toString()
+            }"
+            style="width: 33%"
+          >
+            <TermEnrollmentsTable
+              :enrollments="enrollments"
+              :student-uid="student.uid"
+              :term-id="termId"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -84,12 +58,12 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {filter as _filter, isNil, map, size} from 'lodash'
+import {isNil} from 'lodash'
 import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {ref, watch} from 'vue'
-import type {BasicStudent, Enrollment, Section, TermEnrollment} from '@/lib/types'
+import type {BasicStudent, Enrollment} from '@/lib/types'
+import TermEnrollmentsTable from '@/components/peer/note/TermEnrollmentsTable.vue'
 import {getStudentEnrollments} from '@/api/peer-advising'
-import {normalizeId} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -99,22 +73,20 @@ const props = defineProps({
   }
 })
 
-const currentUser = useContextStore().currentUser
+const contextStore = useContextStore()
+const currentEnrollmentTermId = contextStore.config.currentEnrollmentTermId.toString()
+const currentUser = contextStore.currentUser
 const isExpanded = ref(false)
 const isFetching = ref(false)
-const terms = ref<TermEnrollment[] | undefined>()
+const academicYears = ref<Map<string, Map<string, Enrollment[]>> | undefined>()
 
 watch(isExpanded, value => {
-  if (value && isNil(terms.value)) {
+  if (value && isNil(academicYears.value)) {
     isFetching.value = true
     getStudentEnrollments(props.student.sid).then(data => {
-      terms.value = data
+      academicYears.value = data
       isFetching.value = false
     })
   }
 })
-
-const getWaitlistedSections = (enrollment: Enrollment): Section[] => {
-  return _filter(enrollment.sections, ['enrollmentStatus', 'W'])
-}
 </script>
