@@ -201,15 +201,28 @@ class TestGetStudentEnrollments:
         api_json = self._api_get_student_enrollments(client, sid='11667051')
         # Verify term info
         assert len(api_json)
-        term = api_json[0]
-        assert set(term.keys()) == {'termId', 'termName', 'enrollments'}
-        # Verify limited enrollment data
-        assert len(term['enrollments'])
-        enrollment = term['enrollments'][0]
-        assert set(enrollment.keys()) == {'displayName', 'sections', 'title', 'units'}
-        sections = enrollment['sections']
-        assert len(sections)
-        assert set(sections[0]) == {'component', 'enrollmentStatus', 'primary', 'sectionId', 'sectionNumber'}
+        previous_academic_calendar = None
+        for academic_year_label, enrollments_by_term_id in api_json.items():
+            if previous_academic_calendar:
+                assert academic_year_label < previous_academic_calendar
+            previous_academic_calendar = academic_year_label
+            assert len(enrollments_by_term_id) == 3
+            previous_term_id = None
+            for term_id, enrollments in enrollments_by_term_id.items():
+                if previous_term_id:
+                    assert int(term_id) > int(previous_term_id)
+                # Verify limited enrollment data
+                previous_display_name = None
+                for enrollment in enrollments:
+                    assert set(enrollment.keys()) == {'displayName', 'sections', 'title', 'units'}
+                    display_name = enrollment['displayName']
+                    if previous_display_name:
+                        assert display_name > previous_display_name
+                    sections = enrollment['sections']
+                    assert len(sections)
+                    assert set(sections[0]) == {'component', 'enrollmentStatus', 'primary', 'sectionId', 'sectionNumber'}
+                    previous_display_name = display_name
+                previous_term_id = term_id
 
 
 class TestUpdateNotes:
