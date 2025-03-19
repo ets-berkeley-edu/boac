@@ -16,8 +16,6 @@
     >
       <EditUser
         v-model="newUser"
-        :all-berkeley-departments="allBerkeleyDepartments"
-        :is-dialog-open="isCreatingNewUser"
         :on-cancel="onCancelEditUser"
         :on-save="onCreateUser"
       />
@@ -36,7 +34,7 @@ import {ANONYMOUS_USER, alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import type {BoaUser} from '@/lib/types'
 
 const manifestStore = useManifestStore()
-const {allBerkeleyDepartments, isCreatingNewUser} = storeToRefs(manifestStore)
+const {isCreatingNewUser} = storeToRefs(manifestStore)
 
 const newUser = ref<BoaUser>(getNewUserTemplate())
 const refreshUsers = ref(false)

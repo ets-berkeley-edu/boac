@@ -1,10 +1,19 @@
 import mitt from 'mitt'
 import type {Handler} from 'mitt'
 import {defineStore} from 'pinia'
-import {get, noop, sortBy} from 'lodash'
+import {each, get, noop, sortBy} from 'lodash'
 import {nextTick} from 'vue'
 import {ANONYMOUS_USER, alertScreenReader} from '@/lib/utils'
-import type {BoaConfig, BoaUser, Cohort, CuratedGroup, ScreenReaderAlert, ServiceAnnouncement} from '@/lib/types'
+import type {
+  BoaConfig,
+  BoaUser,
+  Cohort,
+  CuratedGroup,
+  Department,
+  PeerAdvisingDepartment,
+  ScreenReaderAlert,
+  ServiceAnnouncement,
+} from '@/lib/types'
 import router from '@/router'
 
 const $_getDefaultApplicationState = () => ({
@@ -15,6 +24,8 @@ const $_getDefaultApplicationState = () => ({
 
 export const useContextStore = defineStore('context', {
   state: () => ({
+    allBerkeleyDepartments: [] as Department[],
+    allPeerAdvisingDepartments: [] as PeerAdvisingDepartment[],
     announcement: undefined as ServiceAnnouncement | undefined,
     applicationState: $_getDefaultApplicationState(),
     config: {} as BoaConfig,
@@ -100,6 +111,23 @@ export const useContextStore = defineStore('context', {
     },
     restoreServiceAnnouncement() {
       this.dismissedServiceAnnouncement = false
+    },
+    setAllBerkeleyDepartments(allBerkeleyDepartments: Department[]): void {
+      this.allBerkeleyDepartments = allBerkeleyDepartments
+      this.allPeerAdvisingDepartments = []
+      each(this.allBerkeleyDepartments, (d: Department) => {
+        each(d.peerAdvisingDepartments, (p: PeerAdvisingDepartment) => {
+          this.allPeerAdvisingDepartments.push({
+            ...p,
+            ...{
+              deptCode: d.deptCode,
+              deptName: d.deptName,
+              deptId: d.id
+            }
+          })
+        })
+      })
+      this.allPeerAdvisingDepartments = sortBy(this.allPeerAdvisingDepartments, 'name')
     },
     setApplicationState(status: number, message?: string, stacktrace?: string | null) {
       this.applicationState = {message, stacktrace, status}

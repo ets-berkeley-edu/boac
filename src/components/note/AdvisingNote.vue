@@ -107,6 +107,9 @@
             (note imported from {{ note.legacySource }})
           </span>
         </div>
+        <div v-if="note.peerAdvisingDepartmentId">
+          {{ peerAdvisingDepartment.name }}<span v-if="peerAdvisingDepartment.name !== peerAdvisingDepartment.deptName">, {{ peerAdvisingDepartment.deptName }}</span>
+        </div>
         <div v-if="size(author.departments)" class="text-medium-emphasis">
           <div v-for="(deptName, index) in authorDepartments" :key="index">
             <span :id="`note-${note.id}-author-dept-${index}`">{{ deptName }}</span>
@@ -155,7 +158,7 @@ import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {alertScreenReader, capitalizeAllWords, numFormat, oxfordJoin, toInt} from '@/lib/utils'
-import {getBoaUserRoles} from '@/lib/berkeley-department'
+import {findPeerAdvisingDepartment, getBoaUserRoles} from '@/lib/berkeley-department'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
@@ -198,6 +201,7 @@ const currentUser = contextStore.currentUser
 const deleteAttachmentIndex = ref(undefined)
 const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)
+const peerAdvisingDepartment = props.note.peerAdvisingDepartmentId ? findPeerAdvisingDepartment(props.note.peerAdvisingDepartmentId) : undefined
 const showConfirmDeleteAttachment = ref(false)
 
 watch(() => props.isOpen, () => {

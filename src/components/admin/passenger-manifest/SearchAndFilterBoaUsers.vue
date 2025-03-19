@@ -66,8 +66,8 @@
               {name: 'Admins', value: 'admin'},
               {name: 'Advisors', value: 'advisor'},
               {name: 'Directors', value: 'director'},
-              {name: 'Peer Advisors', value: 'peer_advisor', disabled: !allPeerAdvisingDepartments.length},
-              {name: 'Peer Advisor Managers', value: 'peer_advisor_manager', disabled: !allPeerAdvisingDepartments.length}
+              {name: 'Peer Advisors', value: 'peer_advisor', disabled: !contextStore.allPeerAdvisingDepartments.length},
+              {name: 'Peer Advisor Managers', value: 'peer_advisor_manager', disabled: !contextStore.allPeerAdvisingDepartments.length}
             ]"
             :id="`role-option-${toLower(option.value || option.name)}`"
             :key="option.value"
@@ -86,7 +86,7 @@
           :disabled="disabled"
         >
           <option
-            v-for="option in [{id: undefined, deptCode: undefined, deptName: 'All'}, ...manifestStore.allBerkeleyDepartments]"
+            v-for="option in [{id: undefined, deptCode: undefined, deptName: 'All'}, ...contextStore.allBerkeleyDepartments]"
             :id="normalizeId(`department-option-${option.deptCode}`)"
             :key="option.deptCode"
             :value="option.deptCode"
@@ -104,7 +104,7 @@
           :disabled="disabled"
         >
           <option
-            v-for="option in [{id: undefined, name: 'All'}, ...manifestStore.allPeerAdvisingDepartments]"
+            v-for="option in [{id: undefined, name: 'All'}, ...contextStore.allPeerAdvisingDepartments]"
             :id="normalizeId(`peer-advising-department-option-${option.name}`)"
             :key="option.id"
             :value="option.id"
@@ -182,16 +182,17 @@ defineProps({
   }
 })
 
+const contextStore = useContextStore()
 const manifestStore = useManifestStore()
 
 const autocompleteInput = ref<string | undefined>(undefined)
 const counter = ref(0)
-const currentUser = useContextStore().currentUser
+const currentUser = contextStore.currentUser
 const intervalId = ref<ReturnType<typeof setTimeout>>()
 const isSuggesting = ref(false)
 const suggestedUsers = ref<SelectOption<object>[]>([])
 const userSelection = ref<SelectOption<object>>()
-const {disabled, filter, isFetching, allPeerAdvisingDepartments} = storeToRefs(manifestStore)
+const {disabled, filter, isFetching} = storeToRefs(manifestStore)
 const {mdAndUp, smAndDown} = useDisplay()
 
 onMounted(() => {

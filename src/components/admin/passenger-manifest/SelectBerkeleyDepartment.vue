@@ -34,15 +34,16 @@ import {find, lowerCase} from 'lodash'
 import {mdiCheckBold} from '@mdi/js'
 import {ref, watch} from 'vue'
 import type {BoaUser, Department} from '@/lib/types'
-import {useManifestStore} from '@/stores/manifest'
+import {useContextStore} from '@/stores/context'
 
 const user = defineModel<BoaUser>({
   required: true,
   type: Object as PropType<BoaUser>
 })
 
+const contextStore = useContextStore()
 const department = ref<Department | undefined>()
-const allBerkeleyDepartments = useManifestStore().allBerkeleyDepartments
+const allBerkeleyDepartments = contextStore.allBerkeleyDepartments
 
 watch(department, (value: Department | undefined) => {
   if (value) {

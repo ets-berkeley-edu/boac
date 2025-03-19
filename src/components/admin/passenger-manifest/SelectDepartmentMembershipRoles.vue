@@ -62,7 +62,6 @@ import {
 } from '@/lib/berkeley-department'
 import {normalizeId} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useManifestStore} from '@/stores/manifest'
 
 const user = defineModel<BoaUser>({
   required: true,
@@ -77,7 +76,6 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
-const manifestStore = useManifestStore()
 const department: BoaUserDepartment = findDepartment(user.value.departments, props.deptCode)
 const error = computed<string | undefined>(() => {
   let error: string | undefined
@@ -131,7 +129,7 @@ const refreshSelectOptions = () => {
   const advisor: Option = {value: ['advisor'], text: 'Advisor'}
   const director: Option = {value: ['director'], text: 'Director'}
   options.value = []
-  if (getPeerAdvisingDepartments(manifestStore.allBerkeleyDepartments, props.deptCode).length) {
+  if (getPeerAdvisingDepartments(contextStore.allBerkeleyDepartments, props.deptCode).length) {
     const hasPeerAdvisingRoleElsewhere = user.value.departments.some(d => {
       return d.deptCode !== props.deptCode && d.memberships.some(m => isPeerAdvisingRole(m.role))
     })

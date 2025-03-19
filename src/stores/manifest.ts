@@ -1,8 +1,7 @@
 import type {StoreDefinition} from 'pinia'
 import {defineStore} from 'pinia'
-import {each, find, indexOf, size, sortBy} from 'lodash'
-import type {BoaUser, BoaUsersFilter, Department, PeerAdvisingDepartment} from '@/lib/types'
-import {getDepartments} from '@/api/user'
+import {find, indexOf, size} from 'lodash'
+import type {BoaUser, BoaUsersFilter} from '@/lib/types'
 
 const DEFAULT_FILTER: BoaUsersFilter = {
   deptCode: undefined,
@@ -15,8 +14,6 @@ const DEFAULT_FILTER: BoaUsersFilter = {
 
 export const useManifestStore: StoreDefinition = defineStore('manifest', {
   state: () => ({
-    allBerkeleyDepartments: [] as Department[],
-    allPeerAdvisingDepartments: [] as PeerAdvisingDepartment[],
     becomingUid: undefined as string | undefined,
     filter: DEFAULT_FILTER as BoaUsersFilter,
     isCreatingNewUser: false as boolean,
@@ -36,15 +33,7 @@ export const useManifestStore: StoreDefinition = defineStore('manifest', {
     init(): Promise<void> {
       return new Promise<void>(resolve => {
         this.reset()
-        return getDepartments().then(data => {
-          this.allBerkeleyDepartments = data
-          this.allPeerAdvisingDepartments = []
-          each(this.allBerkeleyDepartments, d => {
-            each(d.peerAdvisingDepartments, p => this.allPeerAdvisingDepartments.push(p))
-          })
-          this.allPeerAdvisingDepartments = sortBy(this.allPeerAdvisingDepartments, 'name')
-          resolve()
-        })
+        resolve()
       })
     },
     onUpdateUser(updatedUser: BoaUser) {
