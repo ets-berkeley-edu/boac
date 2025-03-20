@@ -23,23 +23,28 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import urllib.parse
+
 from boac.api.decorators import peer_advisor_or_peer_advisor_manager, peer_advisor_required
-from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_boac_note_as_compatible_json, get_note_author_profile_of_current_user, \
-    get_note_topics_from_http_post, validate_note_contact_type
+from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
+from boac.api.util import get_boac_note_as_compatible_json, get_note_attachments_from_http_post, \
+    get_note_author_profile_of_current_user, get_note_topics_from_http_post, validate_note_contact_type
 from boac.externals import data_loch
 from boac.externals.data_loch import get_basic_student_data
-from boac.lib.berkeley import sis_term_id_for_name, term_name_for_sis_id
+from boac.lib.berkeley import is_peer_advisor, sis_term_id_for_name, term_name_for_sis_id
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, process_input_from_rich_text_editor, to_bool_or_none
+from boac.merged.advising_note import get_author_uid, get_boa_attachment_stream
 from boac.merged.sis_terms import future_term_id
 from boac.merged.student import merge_enrollment_terms
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
+from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.peer_advising_topic import PeerAdvisingTopic
-from flask import current_app as app, request
+from boac.routes import login_manager
+from flask import current_app as app, request, Response
 from flask_login import current_user
 
 
@@ -93,6 +98,51 @@ def get_enrollment_terms_by_sid(sid):
             api_json[academic_calendar] = dict((sis_term_id_for_name(term_name), []) for term_name in term_names)
         api_json[academic_calendar][term_id] = sorted(enrollments, key=lambda e: e['displayName'])
     return tolerant_jsonify(dict(sorted(api_json.items(), reverse=True)))
+
+
+@app.route('/api/peer_advisor/note/<note_id>/attachments', methods=['POST'])
+@peer_advisor_required
+def add_peer_advising_attachments(note_id):
+    note = Note.find_by_id(note_id=note_id)
+    is_authorized = is_peer_advisor(current_user) and get_author_uid(note) == current_user.uid
+    if not is_authorized:
+        raise ForbiddenRequestError('Sorry, you are not the author of this note.')
+    attachments = get_note_attachments_from_http_post()
+    attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
+    if len(attachments) + len(note.attachments) > attachment_limit:
+        raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
+    for attachment in attachments:
+        note = Note.add_attachment(
+            note_id=note_id,
+            attachment=attachment,
+        )
+    return tolerant_jsonify(
+        get_boac_note_as_compatible_json(
+            note=note,
+            note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
+        ),
+    )
+
+
+@app.route('/api/peer_advisor/note/attachment/<attachment_id>', methods=['GET'])
+@peer_advisor_required
+def download_peer_advising_note_attachment(attachment_id):
+    attachment_id = int(attachment_id)
+    attachment = NoteAttachment.find_by_id(attachment_id)
+    if not attachment or not attachment.note:
+        raise ResourceNotFoundError('Note not found')
+    # Auth check
+    note = attachment.note
+    if get_author_uid(note) != current_user.uid:
+        return login_manager.unauthorized()
+    stream_data = get_boa_attachment_stream(attachment)
+    if not stream_data or not stream_data['stream']:
+        return Response('Sorry, attachment not available.', mimetype='text/html', status=404)
+    r = Response(stream_data['stream'])
+    r.headers['Content-Type'] = 'application/octet-stream'
+    encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
+    r.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoding_safe_filename}"
+    return r
 
 
 @app.route('/api/peer_advisor/<uid>/notes')

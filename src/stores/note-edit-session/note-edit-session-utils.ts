@@ -1,10 +1,10 @@
 import {get, isNil, isString, map, size, trim} from 'lodash'
 import type {Attachment, Cohort, CuratedGroup, NoteEditSessionModel, NoteRecipients} from '@/lib/types'
-import {addAttachments, deleteNote, updateNote} from '@/api/notes'
+import {addPeerAdvisingAttachments, createPeerAdvisingNote, updatePeerAdvisingNote} from '@/api/peer-advising-notes'
+import {deleteNote, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {createPeerAdvisingNote, updatePeerAdvisingNote} from '@/api/peer-advising-notes'
 
 export function clearNoteRecipients(): Promise<void> {
   return setNoteRecipients([], [], [])
@@ -150,7 +150,7 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
           model.noteTemplateId
         ).then((note: NoteEditSessionModel) => {
           if (size(model.attachments)) {
-            addAttachments(note.id, model.attachments).then((note: NoteEditSessionModel)=> {
+            addPeerAdvisingAttachments(note.id, model.attachments).then((note: NoteEditSessionModel)=> {
               noteStore.setAttachments(note.attachments)
               noteStore.setIsSaving(false)
               noteStore.setModel(note)

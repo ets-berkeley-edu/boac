@@ -53,7 +53,7 @@
                 <button
                   :id="`open-peer-advising-${note.id}`"
                   :aria-label="`Edit ${getStudentName(note)} note`"
-                  class="align-center text-left text-primary w-100"
+                  class="align-center d-flex text-primary w-100"
                   :class="{'demo-mode-blur': currentUser.inDemoMode}"
                   @click="() => toggleShowHide(note)"
                 >

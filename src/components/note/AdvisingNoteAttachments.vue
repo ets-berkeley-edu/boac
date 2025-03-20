@@ -123,6 +123,7 @@ import {addFileDropEventListeners, canUserEditNote, validateAttachment} from '@/
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {isPeerAdvisor} from '@/lib/boa-user'
 
 const props = defineProps({
   add: {
@@ -215,7 +216,14 @@ onBeforeUnmount(() => {
 })
 
 const downloadUrl = (attachment) => {
-  return props.isDownloadable ? `${contextStore.config.apiBaseUrl}/api/notes/attachment/${attachment.id}` : null
+  let url = undefined
+  if (props.isDownloadable) {
+    const apiBaseUrl = contextStore.config.apiBaseUrl
+    url = isPeerAdvisor(currentUser) ?
+      `${apiBaseUrl}/api/peer_advisor/note/attachment/${attachment.id}` :
+      `${apiBaseUrl}/api/notes/attachment/${attachment.id}`
+  }
+  return url
 }
 
 const onAttachmentsInput = files => {

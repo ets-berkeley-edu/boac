@@ -1,6 +1,19 @@
 import axios from 'axios'
+import {each} from 'lodash'
+import type {NoteEditSessionModel} from '@/lib/types'
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
+
+export async function addPeerAdvisingAttachments(noteId: number, attachments: object[]): Promise<NoteEditSessionModel> {
+  const data = {}
+  each(attachments, (attachment, index) => data[`attachment[${index}]`] = attachment)
+  return new Promise(resolve => {
+    utils.postMultipartFormData(`/api/peer_advisor/note/${noteId}/attachments`, data).then(note => {
+      useContextStore().broadcast('note-updated', note)
+      resolve(note)
+    })
+  })
+}
 
 export async function getPeerAdvisorNotes(
   offset: number,

@@ -29,6 +29,7 @@ from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
+from tests.util import mock_advising_note_s3_bucket
 
 admin_uid = '2040'
 ce3_advisor_uid = '2525'
@@ -62,6 +63,36 @@ class TestCreatePeerAdvisingNote:
                 sid=coe_student_sid,
             )
 
+    def test_not_authorized_to_add_attachments(self, app, client, fake_auth):
+        fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
+        with mock_advising_note_s3_bucket(app):
+            base_dir = app.config['BASE_DIR']
+            attachment = f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'
+            with open(attachment, 'r') as file:
+                note = Note.create(
+                    attachments=[
+                        {
+                            'name': attachment.rsplit('/', 1)[-1],
+                            'byte_stream': file.read(),
+                        },
+                    ],
+                    author_uid=ce3_navcal_peer_advisor_uid,
+                    author_name='CE3 Peer Advisor',
+                    author_role='Peer Advisor',
+                    author_dept_codes=['ZCEEE'],
+                    body='Rock \'n Roll rang sweet as victory, under neon signs',
+                    sid='11667051',
+                    subject='',
+                )
+                std_commit(allow_test_environment=True)
+                _api_note_attachments_upload(
+                    app=app,
+                    attachments=[f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'],
+                    client=client,
+                    expected_status_code=401,
+                    note_id=note.id,
+                )
+
     def test_invalid_peer_advising_department_id(self, client, fake_auth):
         coe_mech_peer_advisor = AuthorizedUser.find_by_uid(coe_mech_peer_advisor_uid)
         user_id = coe_mech_peer_advisor.id
@@ -87,10 +118,22 @@ class TestCreatePeerAdvisingNote:
             peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
             sid=coe_student_sid,
         )
-        assert note['id']
+        note_id = note['id']
+        base_dir = app.config['BASE_DIR']
+        note = _api_note_attachments_upload(
+            app=app,
+            attachments=[
+                f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
+                f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
+            ],
+            client=client,
+            note_id=note_id,
+        )
+        assert note_id
         assert note['author']['uid'] == ce3_navcal_peer_advisor_uid
         assert note['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
         assert note['read'] is True
+        assert len(note.get('attachments')) == 2
 
 
 class TestGetPeerAdvisingNotes:
@@ -374,3 +417,24 @@ def _api_create_peer_advising_note(
     )
     assert response.status_code == expected_status_code
     return response.json
+
+
+def _api_note_attachments_upload(
+    app,
+    attachments,
+    client,
+    note_id,
+    expected_status_code=200,
+):
+    with mock_advising_note_s3_bucket(app):
+        data = {}
+        for index, path in enumerate(attachments):
+            data[f'attachment[{index}]'] = open(path, 'rb')
+        response = client.post(
+            f'/api/peer_advisor/note/{note_id}/attachments',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
+        assert response.status_code == expected_status_code
+        return response.json
