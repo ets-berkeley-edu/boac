@@ -107,7 +107,6 @@ watch(roles, (value: DepartmentMembershipRole[]) => {
       user.value.canAccessAdvisingData = false
       user.value.canAccessCanvasData = false
       user.value.isAdmin = false
-      user.value.isBlocked = true
     }
     if (value.includes('peer_advisor_manager')) {
       user.value.canAccessAdvisingData = true
