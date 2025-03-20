@@ -61,13 +61,13 @@
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody v-if="!isFetchingNotes">
                 <tr
                   v-for="(note, index) in notes"
                   :key="index"
                   :class="index % 2 === 0 ? '' : 'bg-surface-light'"
                 >
-                  <td :class="{'border-b-md': index === notes.length - 1}" class="td-student text-medium-emphasis">
+                  <td :class="{'border-b-md': index === size(notes) - 1}" class="td-student text-medium-emphasis">
                     <div
                       v-if="note.student"
                       :id="`note-student-${note.student.sid}`"
@@ -85,7 +85,7 @@
                       SID: {{ note.sid }}
                     </div>
                   </td>
-                  <td :id="`note-body-in-row-${index}`" :class="{'border-b-md': index === notes.length - 1}" class="td-note">
+                  <td :id="`note-body-in-row-${index}`" :class="{'border-b-md': index === size(notes) - 1}" class="td-note">
                     <v-expand-transition>
                       <button
                         v-if="!expandedNoteIds.includes(note.id)"
@@ -119,7 +119,7 @@
                   </td>
                   <td
                     :id="`note-created-date-in-row-${index}`"
-                    :class="{'border-b-md': index === notes.length - 1}"
+                    :class="{'border-b-md': index === size(notes) - 1}"
                     class="td-created-date"
                   >
                     <div class="float-right">
@@ -148,16 +148,16 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {DateTime} from 'luxon'
-import {get, isNil} from 'lodash'
-import {mdiCloseCircle, mdiCloseThick} from '@mdi/js'
 import {computed, ref} from 'vue'
+import {DateTime} from 'luxon'
+import {get, isNil, size} from 'lodash'
+import {mdiCloseCircle, mdiCloseThick} from '@mdi/js'
+import ModalHeader from '@/components/util/ModalHeader.vue'
+import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 import type {BoaUser, Note} from '@/lib/types'
 import {getNotesAuthoredBy} from '@/api/notes'
 import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import ModalHeader from '@/components/util/ModalHeader.vue'
-import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 
 const props = defineProps({
   headerText: {
@@ -176,16 +176,18 @@ const isFetchingNotes = computed(() => isNil(notes.value))
 const isModalOpen = ref(false)
 const notes = ref<Note[] | undefined>()
 
-const closeModal = () => isModalOpen.value = false
+const closeModal = () => {
+  isModalOpen.value = false
+  notes.value = undefined
+}
+
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 
 const showModel = () => {
-  isModalOpen.value = true
-  if (isNil(notes.value)) {
-    getNotesAuthoredBy(props.user.uid).then(data => {
-      notes.value = data
-    })
-  }
+  getNotesAuthoredBy(props.user.uid).then(data => {
+    notes.value = data
+    isModalOpen.value = true
+  })
 }
 
 const toggleShowHide = (note: Note) => {

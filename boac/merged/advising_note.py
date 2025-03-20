@@ -48,13 +48,13 @@ from boac.lib.util import (
     safe_strftime,
     search_result_text_snippet,
     TEXT_SEARCH_PATTERN,
+    to_iso_format,
 )
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
-from dateutil.tz import tzutc
 from flask import current_app as app
 from flask_login import current_user
 import pytz
@@ -386,8 +386,8 @@ def _get_local_notes_search_results(local_results, cutoff, search_terms):
                 'advisorUid': note.get('authorUid'),
                 'advisorName': note.get('authorName'),
                 'noteSnippet': search_result_text_snippet(text, search_terms, TEXT_SEARCH_PATTERN),
-                'createdAt': _isoformat(note, 'createdAt'),
-                'updatedAt': _isoformat(note, 'updatedAt'),
+                'createdAt': to_iso_format(note.get('createdAt')),
+                'updatedAt': to_iso_format(note.get('updatedAt')),
             })
         if len(results) == cutoff:
             break
@@ -660,8 +660,3 @@ def _get_eop_advising_note_topics(sid):
     for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
         topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
     return topics_by_id
-
-
-def _isoformat(obj, key):
-    value = obj.get(key)
-    return value and value.astimezone(tzutc()).isoformat()
