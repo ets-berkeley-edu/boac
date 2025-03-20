@@ -287,7 +287,7 @@ def set_demo_mode():
 
 
 @app.route('/api/users/departments')
-@advisor_required
+@login_required
 def get_departments():
     departments = UniversityDept.get_all_departments(include_peer_advising_departments=True)
     department_other = next((d for d in departments if d['deptName'].lower() == 'other'), None)
