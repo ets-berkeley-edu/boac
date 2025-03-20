@@ -43,12 +43,11 @@ app.use(axiosPlugin, {baseUrl: apiBaseUrl})
 more(Highcharts)
 initializeAxios(axios)
 
-axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
+axios.get(`${apiBaseUrl}/api/config`).then(response => {
   const contextStore = useContextStore()
-  contextStore.setCurrentUser(response.data)
-
-  axios.get(`${apiBaseUrl}/api/config`).then(response => {
-    contextStore.setConfig({...response.data, apiBaseUrl, isVueAppDebugMode})
+  contextStore.setConfig({...response.data, apiBaseUrl, isVueAppDebugMode})
+  axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
+    contextStore.setCurrentUser(response.data)
     // Async API calls, whenever possible.
     getServiceAnnouncement().then(data => {
       contextStore.setServiceAnnouncement(data)
