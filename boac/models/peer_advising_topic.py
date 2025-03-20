@@ -26,8 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db, std_commit
-from boac.lib.util import utc_now
-from dateutil.tz import tzutc
+from boac.lib.util import to_iso_format, utc_now
 
 
 class PeerAdvisingTopic(db.Model):
@@ -67,10 +66,6 @@ class PeerAdvisingTopic(db.Model):
         return {
             'id': self.id,
             'topic': self.topic,
-            'createdAt': _isoformat(self.created_at),
-            'deletedAt': _isoformat(self.deleted_at),
+            'createdAt': to_iso_format(self.created_at),
+            'deletedAt': to_iso_format(self.deleted_at),
         }
-
-
-def _isoformat(value):
-    return value and value.astimezone(tzutc()).isoformat()

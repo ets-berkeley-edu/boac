@@ -34,7 +34,6 @@ from boac.models.note import Note
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
-from dateutil.tz import tzutc
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -188,7 +187,3 @@ def _is_authorized_peer_advisor_manager(
         )
         authorization_checks.append(next((m for m in peer_advisor_memberships if _is_authorized(m, 'peer_advisor')), None) is not None)
     return all(authorization_checks)
-
-
-def _isoformat(value):
-    return value and value.astimezone(tzutc()).isoformat()

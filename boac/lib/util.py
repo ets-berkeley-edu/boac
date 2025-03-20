@@ -32,6 +32,7 @@ import time
 
 from autolink import linkify
 from boac.externals import s3
+from dateutil.tz import tzutc
 from flask import current_app as app
 from nltk.stem.snowball import SnowballStemmer
 import pytz
@@ -128,6 +129,10 @@ def titleize(_str):
     if not isinstance(_str, str):
         return _str
     return titlecase(_str.upper(), callback=handle_abbreviations)
+
+
+def to_iso_format(value):
+    return value and value.astimezone(tzutc()).isoformat()
 
 
 def tolerant_remove(_list, item):
