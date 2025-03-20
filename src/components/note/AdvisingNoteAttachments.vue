@@ -2,7 +2,7 @@
   <div>
     <label
       :id="`${idPrefix}-attachments-list-label`"
-      class="font-size-16 font-weight-bold d-inline-block"
+      class="d-inline-block font-size-16 font-weight-bold text-medium-emphasis"
       :for="`${idPrefix}-attachments-list`"
     >
       Attachments

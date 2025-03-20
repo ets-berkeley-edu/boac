@@ -108,9 +108,9 @@
           </span>
         </div>
         <div v-if="note.peerAdvisingDepartmentId">
-          {{ peerAdvisingDepartment.name }}<span v-if="peerAdvisingDepartment.name !== peerAdvisingDepartment.deptName">, {{ peerAdvisingDepartment.deptName }}</span>
+          {{ peerAdvisingDepartment.name }}
         </div>
-        <div v-if="size(author.departments)" class="text-medium-emphasis">
+        <div v-if="showAuthorDepartments" class="text-medium-emphasis">
           <div v-for="(deptName, index) in authorDepartments" :key="index">
             <span :id="`note-${note.id}-author-dept-${index}`">{{ deptName }}</span>
           </div>
@@ -119,11 +119,11 @@
       <div v-if="note.topics && size(note.topics)" class="mt-3">
         <AdvisingNoteTopics :note="note" read-only />
       </div>
-      <div v-if="note.contactType" class="mb-2 mt-3">
-        <div class="font-size-14 font-weight-bold">Contact Type</div>
+      <div v-if="note.contactType" class="mt-3">
+        <div class="font-size-16 font-weight-bold text-medium-emphasis">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>
-      <div v-if="!note.legacySource || size(note.attachments)" class="note-attachments-container">
+      <div v-if="!note.legacySource || size(note.attachments)" class="note-attachments-container mt-1">
         <AdvisingNoteAttachments
           :add="addNoteAttachments"
           :attachments="note.attachments"
@@ -203,6 +203,7 @@ const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)
 const peerAdvisingDepartment = props.note.peerAdvisingDepartmentId ? findPeerAdvisingDepartment(props.note.peerAdvisingDepartmentId) : undefined
 const showConfirmDeleteAttachment = ref(false)
+const showAuthorDepartments = ref(false)
 
 watch(() => props.isOpen, () => {
   loadAuthorDetails()
@@ -283,6 +284,10 @@ const loadAuthorDetails = () => {
   } else {
     isAuthorDetailsLoaded.value = true
   }
+  const departments = author.value.departments
+  const departmentCount = size(departments)
+  const peerAdvisingDepartmentName = props.note.peerAdvisingDepartmentName
+  showAuthorDepartments.value = peerAdvisingDepartmentName ? (departmentCount > 1 || (departmentCount === 1 && peerAdvisingDepartmentName !== departments[0])) : !!departmentCount
 }
 
 const removeAttachmentByIndex = index => {

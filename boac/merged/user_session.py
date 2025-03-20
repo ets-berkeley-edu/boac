@@ -83,16 +83,12 @@ class UserSession(UserMixin):
     def departments(self):
         return self.api_json['departments']
 
-    @classmethod
-    def flush_cache_for_id(cls, user_id):
-        clear(f'boa_user_session_{user_id}')
-
     @property
     def uid(self):
         return self.api_json['uid']
 
     def flush_cached(self):
-        clear(f'boa_user_session_{self.user_id}')
+        self.flush_cached_user_session(self.user_id)
 
     @property
     def in_demo_mode(self):
@@ -114,17 +110,21 @@ class UserSession(UserMixin):
     def is_authenticated(self):
         return self.api_json['isAuthenticated']
 
-    @classmethod
-    @stow('boa_user_session_{user_id}')
-    def load_user(cls, user_id):
-        return cls._get_api_json(user=AuthorizedUser.find_by_id(user_id))
-
     @property
     def same_day_advisor_departments(self):
         return self.api_json['sameDayAdvisorStatus']
 
     def to_api_json(self):
         return self.api_json
+
+    @classmethod
+    def flush_cached_user_session(cls, user_id):
+        clear(f'boa_user_session_{user_id}')
+
+    @classmethod
+    @stow('boa_user_session_{user_id}')
+    def load_user(cls, user_id):
+        return cls._get_api_json(user=AuthorizedUser.find_by_id(user_id))
 
     @classmethod
     def _get_api_json(cls, user=None):
