@@ -289,8 +289,7 @@ def set_demo_mode():
 @app.route('/api/users/departments')
 @advisor_required
 def get_departments():
-    exclude_empty = to_bool_or_none(util.get(request.args, 'excludeEmpty')) or False
-    departments = UniversityDept.get_all_departments(exclude_empty=exclude_empty, include_peer_advising_departments=True)
+    departments = UniversityDept.get_all_departments(include_peer_advising_departments=True)
     department_other = next((d for d in departments if d['deptName'].lower() == 'other'), None)
     if department_other:
         # Move 'Other' department to the end of the list
