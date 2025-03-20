@@ -201,7 +201,7 @@ export interface HasName {
 
 export type Note = {
   id: number,
-  attachments: NoteAttachment,
+  attachments: NoteAttachment[],
   author: NoteAuthor,
   body: string,
   contactType: string,

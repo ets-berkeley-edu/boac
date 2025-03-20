@@ -142,15 +142,14 @@ import {filter as _filter, each, get, isNil, map, startsWith, toLower} from 'lod
 import {mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {useRoute} from 'vue-router'
 import {alertScreenReader, pluralize, setPageTitle} from '@/lib/utils'
-import {getDepartments} from '@/api/user'
 import {getUsersWithCohortsByDeptCode} from '@/api/cohort'
 import {getUsersWithCuratedGroupsByDeptCode} from '@/api/curated'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
-const countExpandedDepartments = computed(() => _filter(departments.value, ['isOpen', true]).length)
+const countExpandedDepartments = computed(() => _filter(departments, ['isOpen', true]).length)
 const currentUser = contextStore.currentUser
-const departments = ref([])
+const departments = contextStore.allBerkeleyDepartments
 const loading = computed(() => contextStore.loading)
 const mode = ref(undefined)
 const modeLabel = ref(undefined)
@@ -164,20 +163,17 @@ onMounted(() => {
   mode.value = startsWith(param, 'cohort') ? 'cohort' : 'curated'
   modeLabel.value = mode.value === 'cohort' ? 'Cohort' : 'Curated Group'
   setPageTitle(`All ${modeLabel.value}s`)
-  getDepartments().then(data => {
-    departments.value = data
-    contextStore.loadingComplete('List of departments has loaded')
-  })
+  contextStore.loadingComplete('List of departments has loaded')
 })
 
 const collapseAllDepartments = () => {
   panels.value = []
-  each(departments.value, department => department.isOpen = false)
+  each(departments, department => department.isOpen = false)
 }
 
 const expandAllDepartments = () => {
-  panels.value = map(departments.value, 'deptCode')
-  each(departments.value, department => department.isOpen = true)
+  panels.value = map(departments, 'deptCode')
+  each(departments, department => department.isOpen = true)
 }
 
 const onClickExpansionPanel = (department, isOpen) => {

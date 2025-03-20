@@ -45,6 +45,7 @@
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>
       <AdvisingNoteAttachments
+        v-if="note.attachments.length"
         :attachments="note.attachments"
         class="attachments-edit py-3"
         :disabled="false"
