@@ -80,7 +80,7 @@
                     @click="toggleShowHide(note)"
                   />
                 </div>
-                <PeerAdvisingNoteDetails class="my-3" :note="note" />
+                <PeerAdvisingNoteDetails class="my-3" :noteId="note.id" />
               </div>
             </v-expand-transition>
           </td>
@@ -180,8 +180,8 @@ const toggleShowHide = (note: Note) => {
   width: 120px !important;
 }
 .td-note {
-  width: 600px !important;
-  max-width: 600px !important;
+  width: 900px !important;
+  max-width: 900px !important;
   padding: 5px;
   vertical-align: top;
 }
