@@ -494,7 +494,7 @@ def match_students_by_name_or_sid(prefixes, limit=None):
     prefix_kwargs = {}
     prefixes = list(prefixes)
     # A single numeric search term can match SIDs from active or inactive students.
-    if len(prefixes) == 1 and not prefixes[0].isalpha():
+    if len(prefixes) == 1 and prefixes[0].isdigit():
         conditions.append('WHERE spi.sid LIKE %(prefix)s')
         prefix_kwargs['prefix'] = f'{prefixes[0]}%'
     else:
