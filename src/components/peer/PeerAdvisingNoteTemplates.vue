@@ -41,7 +41,12 @@
       <!-- Override header cells for each column -->
       <template #no-data>
         <div class="pa-4">
-          Click on <span class="font-italic">Create new Note Template</span> to add your first note template.
+          <span v-if="isLoading" class="font-italic">
+            Loading Note Templates...
+          </span>
+          <span v-if="!isLoading">
+            Click on <span class="font-italic">Create new Note Template</span> to add your first note template.
+          </span>
         </div>
       </template>
       <template #header.name>
@@ -126,8 +131,8 @@ const props = defineProps({
 })
 
 const headers = [
-  {align: 'start', key: 'name', title: 'Template Name', width: '50%'},
-  {align: 'end', key: 'createdAt', title: 'Created', width: '20%'},
+  {align: 'start', key: 'name', title: 'Template Name', sortable: false, width: '50%'},
+  {align: 'end', key: 'createdAt', title: 'Created', sortable: false, width: '20%'},
   {align: 'end', key: 'actions', title: 'Actions', sortable: false, width: '30%'},
 ]
 const noteTemplates = ref([])
@@ -136,14 +141,17 @@ const selectedNoteTemplate = ref(null)
 const noteTemplateModalOpen = ref(false)
 const action = ref('create')
 const currentUser = ref(useContextStore().currentUser)
+const isLoading = ref(false)
 
 onMounted(() => {
   getNoteTemplates()
 })
 
 const getNoteTemplates = () => {
+  isLoading.value = true
   getNoteTemplatesForPeerAdvising(props.peerAdvisingDepartment.id).then(response => {
     noteTemplates.value = response
+    isLoading.value = false
   })
 }
 

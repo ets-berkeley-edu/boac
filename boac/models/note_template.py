@@ -114,7 +114,7 @@ class NoteTemplate(Base):
 
     @classmethod
     def get_templates_created_by(cls, creator_id):
-        return cls.query.filter_by(creator_id=creator_id, deleted_at=None).order_by(cls.title).all()
+        return cls.query.filter_by(creator_id=creator_id, deleted_at=None, peer_advising_department_id=None).order_by(cls.title).all()
 
     @classmethod
     def get_templates_created_by_peer_advising_department(cls, peer_advising_department_id):
