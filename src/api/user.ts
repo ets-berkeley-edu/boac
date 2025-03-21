@@ -11,8 +11,8 @@ const $_getCsvFilename = (prefix: string): string => {
   return `${prefix.replaceAll('_', '-')}-${now}.csv`
 }
 
-export function getDepartments(excludeEmpty?: boolean) {
-  const url: string = `${utils.apiBaseUrl()}/api/users/departments?excludeEmpty=${excludeEmpty}`
+export function getDepartments() {
+  const url: string = `${utils.apiBaseUrl()}/api/users/departments`
   return axios.get(url).then(response => response.data)
 }
 

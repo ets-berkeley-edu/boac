@@ -29,7 +29,7 @@ import json
 from boac.api.errors import BadRequestError
 from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_advising
-from boac.lib.util import get_benchmarker, join_if_present
+from boac.lib.util import get_benchmarker, join_if_present, to_iso_format
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes, note_to_compatible_json
@@ -43,7 +43,6 @@ from boac.models.note import Note, note_contact_type_enum
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.user_login import UserLogin
-from dateutil.tz import tzutc
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -92,9 +91,9 @@ def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
             'canAccessCanvasData': user.can_access_canvas_data,
             'canEditDegreeProgress': user.degree_progress_permission == 'read_write' or user.is_admin,
             'canReadDegreeProgress': user.degree_progress_permission in ['read', 'read_write'] or user.is_admin,
-            'createdAt': _isoformat(user.created_at),
+            'createdAt': to_iso_format(user.created_at),
             'degreeProgressPermission': user.degree_progress_permission,
-            'deletedAt': _isoformat(user.deleted_at),
+            'deletedAt': to_iso_format(user.deleted_at),
             'departments': [],
             'isAdmin': user.is_admin,
             'isBlocked': user.is_blocked,
@@ -128,7 +127,7 @@ def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
                     'memberships': [peer_advising_dept_membership],
                 })
         user_login = UserLogin.last_login(user.uid)
-        profile['lastLogin'] = _isoformat(user_login.created_at) if user_login else None
+        profile['lastLogin'] = to_iso_format(user_login.created_at) if user_login else None
         profiles.append(profile)
     return sorted(profiles, key=lambda p: (p.get(sort_by) is None, p.get(sort_by)), reverse=sort_descending)
 
@@ -407,7 +406,3 @@ def _is_advisor_in_department(user, dept_code):
                 is_advisor_in_department = True
                 break
     return is_advisor_in_department
-
-
-def _isoformat(value):
-    return value and value.astimezone(tzutc()).isoformat()

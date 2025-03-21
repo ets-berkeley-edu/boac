@@ -17,7 +17,6 @@ import {useContextStore} from '@/stores/context'
 import vuetify from '@/plugins/vuetify'
 import router from '@/router'
 import axiosPlugin from '@/plugins/axios'
-import {getDepartments} from '@/api/user'
 import {getGtagConfig} from '@/lib/ga'
 
 const apiBaseUrl: string = import.meta.env.VITE_APP_API_BASE_URL
@@ -44,14 +43,12 @@ app.use(axiosPlugin, {baseUrl: apiBaseUrl})
 more(Highcharts)
 initializeAxios(axios)
 
-axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
+axios.get(`${apiBaseUrl}/api/config`).then(response => {
   const contextStore = useContextStore()
-  contextStore.setCurrentUser(response.data)
-
-  axios.get(`${apiBaseUrl}/api/config`).then(response => {
-    contextStore.setConfig({...response.data, apiBaseUrl, isVueAppDebugMode})
+  contextStore.setConfig({...response.data, apiBaseUrl, isVueAppDebugMode})
+  axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
+    contextStore.setCurrentUser(response.data)
     // Async API calls, whenever possible.
-    getDepartments().then(data => contextStore.setAllBerkeleyDepartments(data))
     getServiceAnnouncement().then(data => {
       contextStore.setServiceAnnouncement(data)
       const pingFrequency: number = contextStore.config.pingFrequency

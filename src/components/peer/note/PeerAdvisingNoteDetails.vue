@@ -50,6 +50,7 @@
         </div>
       </div>
       <AdvisingNoteAttachments
+        v-if="size(noteDetails.attachments)"
         :attachments="noteDetails.attachments"
         class="attachments-edit py-3"
         :disabled="false"

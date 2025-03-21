@@ -2,7 +2,7 @@
   <div>
     <label
       :id="`${idPrefix}-attachments-list-label`"
-      class="font-size-16 font-weight-bold d-inline-block"
+      class="d-inline-block font-size-16 font-weight-bold text-medium-emphasis"
       :for="`${idPrefix}-attachments-list`"
     >
       Attachments
@@ -88,7 +88,7 @@
     <ul
       :id="`${idPrefix}attachments-list`"
       :aria-labelledby="`${idPrefix}-attachments-list-label`"
-      class="list-no-bullets advising-note-pill-list mt-2"
+      class="list-no-bullets advising-note-pill-list mt-1"
     >
       <li
         v-for="(attachment, index) in attachments"
@@ -105,7 +105,7 @@
           name="attachment"
           @close-clicked="onRemoveAttachment(index)"
         >
-          <span class="truncate-with-ellipsis pr-1" :class="{'text-anchor': isDownloadable}">
+          <span class="truncate-with-ellipsis" :class="{'text-anchor': isDownloadable}">
             {{ attachment.displayName }}
           </span>
         </PillItem>

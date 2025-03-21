@@ -54,8 +54,8 @@ class UniversityDept(Base):
         return cls.query.filter_by(dept_code=dept_code).first()
 
     @classmethod
-    def get_all_departments(cls, exclude_empty=False, include_peer_advising_departments=False):
-        sql = f"""
+    def get_all_departments(cls, include_peer_advising_departments=False):
+        sql = """
             SELECT
                 d.id, d.dept_code, d.dept_name, COUNT(m.authorized_user_id) AS member_count,
                 p.id AS peer_advising_department_id,
@@ -66,7 +66,6 @@ class UniversityDept(Base):
             LEFT JOIN peer_advising_departments p ON p.university_dept_id = m.university_dept_id
             WHERE u.deleted_at IS NULL
             GROUP BY d.id, d.dept_code, d.dept_name, p.id, p.name
-            {'HAVING COUNT(m.authorized_user_id) > 0' if exclude_empty else ''}
             ORDER BY d.dept_name::bytea
         """
         results = []

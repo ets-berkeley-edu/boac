@@ -264,7 +264,7 @@ def create_or_update_user_profile():
         AuthorizedUser.un_delete(authorized_user.uid)
 
     user_id = authorized_user.id
-    UserSession.flush_cache_for_id(user_id)
+    UserSession.flush_cached_user_session(user_id)
     updated_user = AuthorizedUser.find_by_id(user_id, include_deleted=True)
     api_json = authorized_users_api_feed([updated_user])[0]
     return tolerant_jsonify(api_json)
@@ -287,10 +287,9 @@ def set_demo_mode():
 
 
 @app.route('/api/users/departments')
-@advisor_required
+@login_required
 def get_departments():
-    exclude_empty = to_bool_or_none(util.get(request.args, 'excludeEmpty')) or False
-    departments = UniversityDept.get_all_departments(exclude_empty=exclude_empty, include_peer_advising_departments=True)
+    departments = UniversityDept.get_all_departments(include_peer_advising_departments=True)
     department_other = next((d for d in departments if d['deptName'].lower() == 'other'), None)
     if department_other:
         # Move 'Other' department to the end of the list
@@ -357,7 +356,7 @@ def _update_or_create_authorized_user(user):
             is_blocked=is_blocked,
             user_id=user_id,
         )
-        UserSession.flush_cache_for_id(user_id=user_id)
+        UserSession.flush_cached_user_session(user_id=user_id)
         return user
     else:
         uid = user.get('uid')
@@ -401,7 +400,7 @@ def _update_or_create_department_memberships(user_id, departments):
                     peer_advising_department_id=peer_advising_department.id,
                     role_type=role,
                 )
-    UserSession.flush_cache_for_id(user_id)
+    UserSession.flush_cached_user_session(user_id)
 
 
 def _delete_existing_memberships(user_id):

@@ -27,13 +27,13 @@ import json
 
 from boac import db, std_commit
 from boac.lib.background import bg_execute
-from boac.lib.util import get_benchmarker, put_attachment_to_s3, safe_strftime, utc_now
+from boac.lib.util import get_attachment_filename, get_benchmarker, put_attachment_to_s3, safe_strftime, \
+    to_iso_format, utc_now
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.note_topic import NoteTopic
-from dateutil.tz import tzutc
 from sqlalchemy import and_, desc
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
@@ -146,8 +146,6 @@ class Note(Base):
             ORDER BY n.updated_at DESC
         """
         for row in db.session.execute(sql):
-            def _isoformat(key):
-                return row[key].astimezone(tzutc()).isoformat()
             draft_notes.append({
                 'id': row['id'],
                 'attachmentCount': row['attachment_count'],
@@ -157,8 +155,8 @@ class Note(Base):
                 },
                 'sid': row['sid'],
                 'subject': row['subject'],
-                'createdAt': _isoformat('created_at'),
-                'updatedAt': _isoformat('updated_at'),
+                'createdAt': to_iso_format(row['created_at']),
+                'updatedAt': to_iso_format(row['updated_at']),
             })
         return draft_notes
 
@@ -184,38 +182,48 @@ class Note(Base):
 
     @classmethod
     def get_notes_authored_by(cls, author_uid):
-        notes = []
-        topic_delimiter = '|'
-        sql = f"""
-            SELECT n.*, string_agg(t.topic, '{topic_delimiter}') AS topics, count(a.note_id) as attachment_count
+        sql = """
+            SELECT
+              n.*, a.id AS attachment_id, a.path_to_attachment, a.uploaded_by_uid, t.topic
             FROM notes n
             LEFT JOIN note_attachments a ON n.id = a.note_id AND a.deleted_at IS NULL
             LEFT JOIN note_topics t ON (n.id = t.note_id AND t.deleted_at IS NULL)
             WHERE
               n.is_draft IS FALSE AND n.is_private IS FALSE AND n.deleted_at IS NULL AND n.author_uid = :author_uid
-            GROUP BY n.id
+            GROUP BY n.id, a.id, t.topic
             ORDER BY n.updated_at DESC
         """
-
-        def _isoformat(row_, key):
-            return row_[key].astimezone(tzutc()).isoformat()
+        notes = []
         for row in db.session.execute(sql, {'author_uid': author_uid}):
-            topics = row['topics']
-            notes.append({
-                'id': row['id'],
-                'attachmentCount': row['attachment_count'],
-                'author': {
-                    'uid': row['author_uid'],
-                    'name': row['author_name'],
-                },
-                'body': row['body'],
-                'contactType': row['contact_type'],
-                'sid': row['sid'],
-                'subject': row['subject'],
-                'topics': topics.split(topic_delimiter) if topics else [],
-                'createdAt': _isoformat(row, 'created_at'),
-                'updatedAt': _isoformat(row, 'updated_at'),
-            })
+            note_id = row['id']
+            note = next((n for n in notes if n['id'] == note_id), None)
+            if not note:
+                note = {
+                    'id': note_id,
+                    'attachments': [],
+                    'author': {
+                        'uid': row['author_uid'],
+                        'name': row['author_name'],
+                    },
+                    'body': row['body'],
+                    'contactType': row['contact_type'],
+                    'sid': row['sid'],
+                    'subject': row['subject'],
+                    'topics': [],
+                    'createdAt': to_iso_format(row['created_at']),
+                    'updatedAt': to_iso_format(row['updated_at']),
+                }
+            if row['topic']:
+                note['topics'].append(row['topic'])
+            if row['attachment_id']:
+                filename = get_attachment_filename(row['attachment_id'], row['path_to_attachment'])
+                note['attachments'].append({
+                    'id': row['attachment_id'],
+                    'displayName': filename,
+                    'filename': filename,
+                    'uploadedByUid': row['uploaded_by_uid'],
+                })
+            notes.append(note)
         return notes
 
     @classmethod
@@ -359,7 +367,6 @@ class Note(Base):
               n.sid, n.subject, n.created_at, n.updated_at
             ORDER BY created_at
         """
-        tz_utc = tzutc()
         api_json = []
         for row in db.session.execute(query):
             sid = row['sid']
@@ -376,8 +383,8 @@ class Note(Base):
                 'student_last_name': None,
                 'subject': row['subject'],
                 'topics': row['topics'],
-                'created_at': row['created_at'].astimezone(tz_utc).isoformat(),
-                'updated_at': row['updated_at'].astimezone(tz_utc).isoformat(),
+                'created_at': to_iso_format(row['created_at']),
+                'updated_at': to_iso_format(row['updated_at']),
             })
         return api_json
 
@@ -649,9 +656,9 @@ class Note(Base):
             'sid': self.sid,
             'subject': self.subject,
             'topics': [topic.topic for topic in self.topics],
-            'createdAt': self.created_at,
-            'deletedAt': self.deleted_at,
-            'updatedAt': self.updated_at,
+            'createdAt': to_iso_format(self.created_at),
+            'deletedAt': to_iso_format(self.deleted_at),
+            'updatedAt': to_iso_format(self.updated_at),
             'noteTemplateId': self.note_template_id,
         }
 

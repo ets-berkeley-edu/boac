@@ -90,7 +90,7 @@
           id="save-note-button"
           :action="() => save(false)"
           :aria-label="noteStore.model.isDraft ? 'Publish Note' : 'Save Note'"
-          :disabled="!noteStore.recipients.sids.length || isSaving || boaSessionExpired || (noteStore.model.peerAdvisingDepartmentId ? !stripHtmlAndTrim(model.body) : !trim(model.subject))"
+          :disabled="!noteStore.recipients.sids.length || isSaving || boaSessionExpired || (noteStore.model.peerAdvisingDepartmentId ? !stripHtmlAndTrim(noteStore.model.body) : !trim(noteStore.model.subject))"
           :in-progress="isPublishingNote"
           :text="noteStore.model.isDraft ? 'Publish Note' : 'Save'"
         />
@@ -185,32 +185,32 @@ const {boaSessionExpired, isSaving, mode} = storeToRefs(noteStore)
 watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = !suppressAutoSaveDraftNoteAlert.value, 5000))
 
 onMounted(() => {
-  const fetchTopics = noteStore.model.peerAdvisingDepartmentId ? getPeerAdvisingTopics() : getTopicsForNotes(false)
-  fetchTopics.then(data => {
-    topics.value = data
-    getNote(props.noteId).then(note => {
-      const onFinish = () => {
-        noteStore.setMode('editNote')
-        putFocusNextTick('edit-note-subject')
-      }
-      noteStore.resetModel()
-      noteStore.setModel(note)
-      if (note.sid) {
-        setNoteRecipient(note.sid).then(onFinish)
-      } else {
-        // A draft-note may have a null SID value.
-        onFinish()
-      }
-      if (isAutoSaveMode(mode.value)) {
-        scheduleAutoSaveJob()
-      }
+  const resolve = note => {
+    const fetchTopics = note.peerAdvisingDepartmentId ? getPeerAdvisingTopics() : getTopicsForNotes(false)
+    fetchTopics.then(data => {
+      topics.value = data
+      noteStore.setMode('editNote')
+      putFocusNextTick('edit-note-subject')
+      contextStore.setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
     })
-    contextStore.setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
+  }
+  getNote(props.noteId).then(note => {
+    noteStore.resetModel()
+    noteStore.setModel(note)
+    if (note.sid) {
+      setNoteRecipient(note.sid).then(() => resolve(note))
+    } else {
+      // A draft-note may have a null SID value.
+      resolve(note)
+    }
+    if (isAutoSaveMode(mode.value)) {
+      scheduleAutoSaveJob()
+    }
   })
 })
 
 onBeforeMount(() => {
-  contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
+  contextStore.removeEventHandler('user-session-expired')
 })
 
 const cancelRequested = () => {

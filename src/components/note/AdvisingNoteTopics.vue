@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label id="add-note-topic-label" class="font-size-16 font-weight-bold" for="add-topic-select-list">
+    <label id="add-note-topic-label" class="font-size-16 font-weight-bold text-medium-emphasis" for="add-topic-select-list">
       Topic {{ size(options) === 1 ? 'Category' : 'Categories' }}
     </label>
     <div v-if="!readOnly && size(options)" class="mb-1 mt-2">
@@ -27,7 +27,7 @@
     <div>
       <ul
         id="note-topics-list"
-        class="list-no-bullets advising-note-pill-list"
+        class="advising-note-pill-list list-no-bullets mt-1"
         aria-labelledby="note-topics-label"
       >
         <li
