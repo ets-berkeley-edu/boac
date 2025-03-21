@@ -414,35 +414,37 @@ class Note(Base):
             fts_selector = 'SELECT id, 0 AS rank FROM notes WHERE deleted_at IS NULL AND is_draft IS FALSE'
             params = {}
 
+        author_filter = ''
         if author_uid:
             author_filter = 'AND notes.author_uid = :author_uid'
             params.update({'author_uid': author_uid})
-        else:
-            author_filter = ''
 
+        peer_advising_department_notes_filter = ''
         if peer_advising_department_id:
-            peer_advising_department_notes_filter = \
-                'AND notes.peer_advising_department_id = :peer_advising_department_id'
+            peer_advising_department_notes_filter = 'AND notes.peer_advising_department_id = :peer_advising_department_id'
             params.update({'peer_advising_department_id': peer_advising_department_id})
-        else:
-            peer_advising_department_notes_filter = ''
 
+        student_filter = ''
         if student_csid:
             student_filter = 'AND notes.sid = :student_csid'
             params.update({'student_csid': student_csid})
-        else:
-            student_filter = ''
 
         department_filter = ''
         if department_codes:
-            department_filter += """ AND notes.author_uid in
-                (select au.uid
-                from authorized_users au
-                join university_dept_members udm
-                on au.id = udm.authorized_user_id
-                join university_depts ud
-                on ud.id = udm.university_dept_id
-                where ud.dept_code = ANY(:department_codes))
+            department_filter += """
+                AND notes.author_uid in
+                (
+                    SELECT au.uid FROM authorized_users au
+                    JOIN university_dept_members udm ON au.id = udm.authorized_user_id
+                    JOIN university_depts ud ON ud.id = udm.university_dept_id
+                    WHERE ud.dept_code = ANY(:department_codes)
+                    UNION
+                    SELECT au.uid FROM authorized_users au
+                    JOIN peer_advising_department_members pdm ON pdm.authorized_user_id = au.id
+                    JOIN peer_advising_departments pd ON pd.id = pdm.peer_advising_department_id
+                    JOIN university_depts ud ON ud.id = pd.university_dept_id
+                    WHERE ud.dept_code = ANY(:department_codes)
+                )
             """
             params.update({'department_codes': department_codes})
 
@@ -453,11 +455,11 @@ class Note(Base):
         if datetime_to:
             date_filter += ' AND updated_at < :datetime_to'
             params.update({'datetime_to': datetime_to})
+
+        topic_join = ''
         if topic:
-            topic_join = 'JOIN note_topics nt on nt.topic = :topic AND nt.note_id = notes.id'
+            topic_join = 'JOIN note_topics nt ON nt.topic = :topic AND nt.note_id = notes.id'
             params.update({'topic': topic})
-        else:
-            topic_join = ''
 
         where_clause = 'WHERE notes.is_draft IS FALSE'
         where_clause += '' if include_private_notes else ' AND notes.is_private IS FALSE'
