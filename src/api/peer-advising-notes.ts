@@ -13,6 +13,11 @@ export async function getPeerAdvisorNotes(
   return axios.get(url).then(response => response.data)
 }
 
+export async function getPeerAdvisorNoteById(noteId: number) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note/${noteId}`
+  return axios.get(url).then(response => response.data)
+}
+
 export async function getPeerAdvisingTopics() {
   const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_topics`
   return axios.get(url).then(response => response.data)
