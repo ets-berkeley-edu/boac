@@ -652,6 +652,7 @@ class TestDownloadCuratedGroupCSV:
                 'email',
                 'phone',
                 'majors',
+                'college',
                 'level_by_units',
                 'terms_in_attendance',
                 'expected_graduation_term',
@@ -681,13 +682,13 @@ class TestDownloadCuratedGroupCSV:
             assert expected_label in csv[0]
         for row in csv[1:]:
             if row.startswith('Deborah,Davies'):
-                assert '11667051,barnburner@berkeley.edu,415/123-4567,English BA; Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.700,3.8,Active,' in row  # noqa: E501
+                assert '11667051,barnburner@berkeley.edu,415/123-4567,English BA; Nuclear Engineering BS,Engineering; Undergrad Letters & Science,Junior,,Fall 2019,101.3,2.700,3.8,Active,' in row  # noqa: E501
             elif row.startswith('Pauline,Kerschen'):
-                assert '3456789012,doctork@berkeley.edu,415/123-4567,English BA; Political Economy BA,Junior,5,Fall 2019,70,,3.005,Active,' in row
+                assert '3456789012,doctork@berkeley.edu,415/123-4567,English BA; Political Economy BA,Undergrad Letters & Science,Junior,5,Fall 2019,70,,3.005,Active,' in row  # noqa: E501
             elif row.startswith('Sandeep,Jayaprakash'):
-                assert '5678901234,ilovela@berkeley.edu,415/123-4567,Letters & Sci Undeclared UG,Senior,,Fall 2019,102,,3.501,Active,' in row
+                assert '5678901234,ilovela@berkeley.edu,415/123-4567,Letters & Sci Undeclared UG,Undergrad Letters & Science,Senior,,Fall 2019,102,,3.501,Active,' in row  # noqa: E501
             elif row.startswith('Paul,Farestveit'):
-                assert '7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Senior,2,Spring 2020,110,,3.9,Active,Real Advisor' in row
+                assert '7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Undergrad Engineering,Senior,2,Spring 2020,110,,3.9,Active,Real Advisor' in row  # noqa: E501
             elif row:
                 pytest.fail(f'Unexpected CSV content: {row}')
 
@@ -715,6 +716,7 @@ class TestDownloadCuratedGroupCSV:
         data = {
             'csvColumnsSelected': [
                 'majors',
+                'college',
                 'level_by_units',
                 'terms_in_attendance',
                 'expected_graduation_term',
@@ -735,7 +737,7 @@ class TestDownloadCuratedGroupCSV:
         assert 'csv' in response.content_type
         csv = response.data.decode('UTF-8').split('\n')
         header_label_lookup = get_students_csv_header_labels(current_term_id())
-        expected_headers = ['majors', 'level_by_units', 'terms_in_attendance', 'expected_graduation_term',
+        expected_headers = ['majors', 'college', 'level_by_units', 'terms_in_attendance', 'expected_graduation_term',
                             'units_completed', 'term_gpa_2175', 'cumulative_gpa', 'program_status']
         for expected_header in expected_headers:
             expected_label = header_label_lookup.get(expected_header, expected_header)
