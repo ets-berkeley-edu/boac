@@ -102,7 +102,7 @@ import {computed, onMounted, ref} from 'vue'
 import {concat, get, size} from 'lodash'
 import {storeToRefs} from 'pinia'
 import {useDisplay} from 'vuetify'
-import type {BasicStudent, NoteRecipients, NoteTemplate, NoteTopic} from '@/lib/types'
+import type {BasicStudent, NoteAttachment, NoteRecipients, NoteTemplate, NoteTopic} from '@/lib/types'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments.vue'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
@@ -151,7 +151,7 @@ onMounted(() => {
   })
 })
 
-const addNoteAttachments = attachments => {
+const addNoteAttachments = (attachments: NoteAttachment[]) => {
   return new Promise<void>(resolve => {
     const pluralized = pluralize('attachment', attachments.length)
     noteStore.setAttachments(concat(model.value.attachments, attachments))
