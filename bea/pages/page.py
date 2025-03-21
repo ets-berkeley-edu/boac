@@ -231,14 +231,14 @@ class Page(object):
         self.wait_for_page_and_click_js((By.ID, element_id), addl_pause)
         self.driver.execute_script(f"document.getElementById('{element_id}').value='{string}'")
 
-    def wait_for_textbox_and_type(self, locator, string, addl_pause=None):
+    def wait_for_textbox_and_send_keys(self, locator, string, addl_pause=None):
         self.wait_for_element_and_click(locator, addl_pause)
-        self.remove_and_send_chars(locator, string)
+        self.remove_chars_and_send_keys(locator, string)
 
     def wait_for_textbox_and_type_chars(self, locator, string, addl_pause=None):
         self.wait_for_element_and_click(locator, addl_pause)
         self.remove_chars(locator)
-        self.enter_chars(locator, string)
+        self.type_chars(locator, string)
 
     def remove_chars(self, locator):
         self.wait_for_element(locator, utils.get_short_timeout())
@@ -253,12 +253,12 @@ class Page(object):
                 self.hit_delete()
                 self.hit_backspace()
 
-    def enter_chars(self, locator, string):
+    def type_chars(self, locator, string):
         for i in string:
             time.sleep(0.1)
             self.element(locator).send_keys(i)
 
-    def remove_and_send_chars(self, locator, string):
+    def remove_chars_and_send_keys(self, locator, string):
         self.remove_chars(locator)
         string = string or ''
         self.element(locator).send_keys(string)

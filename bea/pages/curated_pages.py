@@ -55,7 +55,7 @@ class CuratedPages(CohortPages, CuratedModal):
         app.logger.info(f'Changing the name of group ID {group.cohort_id} to {new_name}')
         self.load_page(group)
         self.wait_for_page_and_click(self.RENAME_GROUP_BUTTON)
-        self.remove_and_send_chars(self.RENAME_GROUP_INPUT, new_name)
+        self.remove_chars_and_send_keys(self.RENAME_GROUP_INPUT, new_name)
         self.wait_for_element_and_click(self.RENAME_GROUP_CONFIRM_BUTTON)
         group.name = new_name
         self.when_present(self.cohort_heading_loc(group), utils.get_short_timeout())

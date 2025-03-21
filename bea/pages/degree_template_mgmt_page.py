@@ -51,7 +51,7 @@ class DegreeTemplateMgmtPage(BoaPages):
 
     def enter_degree_name(self, name):
         app.logger.info(f'Entering degree check template name {name}')
-        self.wait_for_textbox_and_type(self.CREATE_DEGREE_NAME_INPUT, name)
+        self.wait_for_textbox_and_send_keys(self.CREATE_DEGREE_NAME_INPUT, name)
 
     def degree_name_input_value(self):
         return self.el_value(self.CREATE_DEGREE_NAME_INPUT)
@@ -119,7 +119,7 @@ class DegreeTemplateMgmtPage(BoaPages):
 
     def enter_new_name(self, name):
         app.logger.info(f'Entering new degree name {name}')
-        self.wait_for_textbox_and_type(self.RENAME_DEGREE_INPUT, name)
+        self.wait_for_textbox_and_send_keys(self.RENAME_DEGREE_INPUT, name)
 
     def new_name_input_value(self):
         return self.el_value(self.RENAME_DEGREE_INPUT)
@@ -147,7 +147,7 @@ class DegreeTemplateMgmtPage(BoaPages):
 
     def enter_copy_name(self, name):
         app.logger.info(f'Entering copied degree name {name}')
-        self.wait_for_textbox_and_type(self.COPY_DEGREE_NAME_INPUT, name)
+        self.wait_for_textbox_and_send_keys(self.COPY_DEGREE_NAME_INPUT, name)
 
     def copy_name_input_value(self):
         return self.el_value(self.COPY_DEGREE_NAME_INPUT)

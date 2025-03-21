@@ -76,7 +76,7 @@ class CohortPages(BoaPages):
         self.wait_for_element_and_click(self.SAVE_COHORT_BUTTON_ONE)
 
     def name_cohort(self, cohort):
-        self.wait_for_textbox_and_type(self.COHORT_NAME_INPUT, cohort.name)
+        self.wait_for_textbox_and_send_keys(self.COHORT_NAME_INPUT, cohort.name)
         self.wait_for_element_and_click(self.SAVE_COHORT_BUTTON_TWO)
 
     def save_and_name_cohort(self, cohort):
@@ -110,7 +110,7 @@ class CohortPages(BoaPages):
     def rename_cohort(self, cohort, new_name):
         app.logger.info(f'Changing the name of cohort ID {cohort.cohort_id} to {new_name}')
         self.wait_for_page_and_click(self.RENAME_COHORT_BUTTON)
-        self.remove_and_send_chars(self.RENAME_COHORT_INPUT, new_name)
+        self.remove_chars_and_send_keys(self.RENAME_COHORT_INPUT, new_name)
         self.wait_for_element_and_click(self.RENAME_COHORT_CONFIRM_BUTTON)
         cohort.name = new_name
         self.wait_for_element(self.cohort_heading_loc(cohort), utils.get_short_timeout())

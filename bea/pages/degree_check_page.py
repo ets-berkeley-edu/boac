@@ -87,7 +87,7 @@ class DegreeCheckPage(DegreeTemplatePage):
         self.wait_for_element_and_click(self.EDIT_NOTE_BUTTON)
 
     def enter_note_body(self, string):
-        self.wait_for_textbox_and_type(self.NOTE_INPUT, string)
+        self.wait_for_textbox_and_send_keys(self.NOTE_INPUT, string)
 
     def click_save_note(self):
         self.wait_for_element_and_click(self.SAVE_NOTE_BUTTON)
@@ -529,16 +529,16 @@ class DegreeCheckPage(DegreeTemplatePage):
 
     def enter_course_name(self, name):
         app.logger.info(f'Entering course name {name}')
-        self.wait_for_textbox_and_type(self.COURSE_NAME_INPUT, name)
+        self.wait_for_textbox_and_send_keys(self.COURSE_NAME_INPUT, name)
 
     def enter_course_units(self, units):
         units = '' if units == '0' else units
         app.logger.info(f'Entering units value {units}')
-        self.wait_for_textbox_and_type(self.COURSE_UNITS_INPUT, units)
+        self.wait_for_textbox_and_send_keys(self.COURSE_UNITS_INPUT, units)
 
     def enter_course_grade(self, grade):
         app.logger.info(f'Entering grade {grade}')
-        self.wait_for_textbox_and_type(self.COURSE_GRADE_INPUT, grade)
+        self.wait_for_textbox_and_send_keys(self.COURSE_GRADE_INPUT, grade)
 
     def select_course_unit_reqt(self, course):
         button_count = len(self.elements(self.COL_REQT_COURSE_UNITS_REQT_REMOVE_BUTTON))
@@ -557,7 +557,7 @@ class DegreeCheckPage(DegreeTemplatePage):
 
     def enter_course_note(self, note):
         app.logger.info(f'Entering note value {note}')
-        self.wait_for_textbox_and_type(self.COURSE_NOTE_INPUT, note)
+        self.wait_for_textbox_and_send_keys(self.COURSE_NOTE_INPUT, note)
 
     def click_create_course(self, reqt):
         self.wait_for_element_and_click(self.create_course_button(reqt))
@@ -728,13 +728,13 @@ class DegreeCheckPage(DegreeTemplatePage):
         self.wait_for_element_and_click(self.IGNORE_REQT_CBX)
 
     def enter_reqt_grade(self, grade):
-        self.wait_for_textbox_and_type(self.GRADE_INPUT, grade)
+        self.wait_for_textbox_and_send_keys(self.GRADE_INPUT, grade)
 
     def edit_course_reqt(self, reqt):
         self.enter_col_reqt_units(reqt.units)
 
     def enter_recommended_note(self, note):
-        self.wait_for_textbox_and_type(self.RECOMMENDED_NOTE_INPUT, note)
+        self.wait_for_textbox_and_send_keys(self.RECOMMENDED_NOTE_INPUT, note)
 
     # CAMPUS REQUIREMENTS
 

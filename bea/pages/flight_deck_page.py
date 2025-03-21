@@ -61,7 +61,7 @@ class FlightDeckPage(BoaPages):
 
     def update_service_alert(self, alert_string):
         app.logger.info(f'Entering service alert {alert_string}')
-        self.wait_for_textbox_and_type(self.UPDATE_SERVICE_ALERT_INPUT, alert_string)
+        self.wait_for_textbox_and_send_keys(self.UPDATE_SERVICE_ALERT_INPUT, alert_string)
         self.wait_for_element_and_click(self.UPDATE_SERVICE_ALERT_BUTTON)
 
     def toggle_service_alert_checkbox(self, new_label):

@@ -48,7 +48,7 @@ class DegreeCheckBatchPage(BoaPages):
     def add_sids_to_batch(self, degree_batch, students):
         sids = [s.sid for s in students]
         app.logger.info(f'Adding SIDS {sids} to batch degree')
-        self.wait_for_textbox_and_type(self.STUDENT_INPUT, ', '.join(sids))
+        self.wait_for_textbox_and_send_keys(self.STUDENT_INPUT, ', '.join(sids))
         self.wait_for_element_and_click(self.STUDENT_ADD_BUTTON)
         for stu in students:
             self.when_present(self.added_student_loc(stu), utils.get_short_timeout())

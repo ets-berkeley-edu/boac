@@ -82,10 +82,10 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
             return filter_sub_option
 
     def enter_filter_range_min(self, minimum):
-        self.wait_for_textbox_and_type(self.FILTER_RANGE_MIN_INPUT, minimum)
+        self.wait_for_textbox_and_send_keys(self.FILTER_RANGE_MIN_INPUT, minimum)
 
     def enter_filter_range_max(self, maximum):
-        self.wait_for_textbox_and_type(self.FILTER_RANGE_MAX_INPUT, maximum)
+        self.wait_for_textbox_and_send_keys(self.FILTER_RANGE_MAX_INPUT, maximum)
 
     def select_new_filter_sub_option(self, filter_option, filter_sub_option):
         filter_sub_option = self.filter_sub_option_identifier(filter_option, filter_sub_option)
