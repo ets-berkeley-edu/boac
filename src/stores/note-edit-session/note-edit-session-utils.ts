@@ -149,15 +149,16 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
           model.topics,
           model.noteTemplateId
         ).then((note: NoteEditSessionModel) => {
-          if (size(model.attachments)) {
-            addPeerAdvisingAttachments(note.id, model.attachments).then((note: NoteEditSessionModel)=> {
-              noteStore.setAttachments(note.attachments)
-              noteStore.setIsSaving(false)
-              noteStore.setModel(note)
-              resolve(note)
-            })
-          } else {
+          const done = (note: NoteEditSessionModel) => {
+            noteStore.setIsSaving(false)
+            useContextStore().broadcast('peer-advising-note-created', note)
             resolve(note)
+          }
+          if (size(model.attachments)) {
+            addPeerAdvisingAttachments(note.id, model.attachments).then(done)
+          } else {
+            useContextStore().broadcast('peer-advising-note-created', note)
+            done(note)
           }
         })
       } else {

@@ -37,7 +37,7 @@
             color="primary"
             density="comfortable"
             size="large"
-            text="Peer Advisor Manager Dashboard"
+            text="Peer Advising Manager Dashboard"
             :to="`/peer/management/${peerAdvisingDepartmentId}`"
             variant="text"
           />
