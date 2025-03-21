@@ -409,7 +409,12 @@
     :function-confirm="deleteConfirmed"
     modal-header="Delete note"
   >
-    Are you sure you want to delete the <span v-if="messageForDelete">"<b>{{ messageForDelete.subject }}</b>"</span> note?
+    Are you sure you want to delete the note
+    <span v-if="get(messageForDelete, 'subject')">
+      with subject "<span class="font-weight-bold text-medium-emphasis">{{ messageForDelete.subject }}</span>"?
+    </span>
+    <span v-if="!get(messageForDelete, 'subject')">
+      containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(messageForDelete.body), {length: 30}) }}...</span>"?</span>
   </AreYouSureModal>
 </template>
 
