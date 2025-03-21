@@ -184,7 +184,7 @@
           />
         </div>
       </template>
-      <template #bottom></template>
+      <template #bottom />
     </v-data-table-virtual>
   </div>
 </template>

@@ -26,8 +26,7 @@
       :id="`advising-note-search-result-snippet-${note.id}`"
       class="advising-note-search-result-snippet"
       v-html="note.noteSnippet"
-    >
-    </div>
+    />
     <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="advising-note-search-result-footer">
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -

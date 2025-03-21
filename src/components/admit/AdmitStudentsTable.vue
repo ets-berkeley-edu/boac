@@ -2,7 +2,7 @@
   <table id="cohort-admitted-students" class="w-100">
     <thead>
       <tr>
-        <th v-if="includeCuratedCheckbox || removeStudent"></th>
+        <th v-if="includeCuratedCheckbox || removeStudent" />
         <th class="vertical-bottom">Name</th>
         <th class="text-no-wrap vertical-bottom">CS ID</th>
         <th class="vertical-bottom">SIR</th>

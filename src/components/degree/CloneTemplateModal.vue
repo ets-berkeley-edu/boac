@@ -49,7 +49,7 @@
               type="error"
               variant="tonal"
             >
-              <span v-html="error"></span>
+              <span v-html="error" />
             </v-alert>
           </v-card-text>
           <v-card-actions class="modal-footer">

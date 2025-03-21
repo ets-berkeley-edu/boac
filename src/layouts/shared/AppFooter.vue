@@ -7,7 +7,7 @@
       sm="3"
       xl="8"
     >
-      <img alt="UC Berkeley logo" src="@/assets/uc-berkeley-logo.svg" />
+      <img alt="UC Berkeley logo" src="@/assets/uc-berkeley-logo.svg">
     </v-col>
     <v-col
       class="font-size-14"

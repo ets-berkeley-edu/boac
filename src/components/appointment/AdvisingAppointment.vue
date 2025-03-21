@@ -21,7 +21,7 @@
           </span>
         </div>
         <div class="mt-2">
-          <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
+          <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details" />
         </div>
         <div
           v-if="appointment.status === 'cancelled'"

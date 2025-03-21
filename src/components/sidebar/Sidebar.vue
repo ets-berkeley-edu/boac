@@ -44,7 +44,7 @@
         </NavLink>
       </div>
     </v-list-item>
-    <hr class="sidebar-section-divider" />
+    <hr class="sidebar-section-divider">
     <v-list-item aria-labelledby="sidebar-curated-groups-header" class="pa-0" role="region">
       <div class="align-center d-flex font-weight-bold justify-space-between pretty-hover py-1">
         <div id="sidebar-curated-groups-header" class="font-size-18">
@@ -86,7 +86,7 @@
         </NavLink>
       </div>
     </v-list-item>
-    <hr v-if="contextStore.currentUser.canAccessAdmittedStudents" class="sidebar-section-divider" />
+    <hr v-if="contextStore.currentUser.canAccessAdmittedStudents" class="sidebar-section-divider">
     <v-list-item
       v-if="contextStore.currentUser.canAccessAdmittedStudents"
       aria-labelledby="sidebar-admitted-students-header admitted-students-all"
@@ -188,7 +188,7 @@
         </NavLink>
       </div>
     </v-list-item>
-    <hr class="sidebar-section-divider" />
+    <hr class="sidebar-section-divider">
     <v-list-item class="pa-0">
       <div class="font-weight-medium pretty-hover">
         <NavLink id="cohorts-all" path="/all/cohorts">

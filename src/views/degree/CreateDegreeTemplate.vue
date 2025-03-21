@@ -38,7 +38,7 @@
         type="error"
         variant="tonal"
       >
-        <span v-html="error"></span>
+        <span v-html="error" />
       </v-alert>
       <div class="d-flex justify-end pt-2 w-75">
         <ProgressButton

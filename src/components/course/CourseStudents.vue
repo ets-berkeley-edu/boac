@@ -63,8 +63,8 @@
               :class="{'demo-mode-blur': currentUser.inDemoMode}"
               class="ma-0 pa-0 student-name"
             >
-              <span v-if="item.firstName" v-html="lastNameFirst(item)"></span>
-              <span v-if="!item.firstName" v-html="item.lastName"></span>
+              <span v-if="item.firstName" v-html="lastNameFirst(item)" />
+              <span v-if="!item.firstName" v-html="item.lastName" />
             </h3>
           </router-link>
           <span
@@ -73,8 +73,8 @@
             class="font-size-16 ma-0 pa-0 "
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
           >
-            <span v-if="item.firstName" v-html="lastNameFirst(item)"></span>
-            <span v-if="!item.firstName" v-html="item.lastName"></span>
+            <span v-if="item.firstName" v-html="lastNameFirst(item)" />
+            <span v-if="!item.firstName" v-html="item.lastName" />
           </span>
         </div>
         <div :id="`row-${index}-student-sid`" class="align-baseline d-flex mr-2 student-sid">

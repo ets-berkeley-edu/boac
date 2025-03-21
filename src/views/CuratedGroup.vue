@@ -50,7 +50,7 @@
             />
           </v-container>
           <div v-if="domain === 'admitted_students'">
-            <hr />
+            <hr>
             <AdmitStudentsTable
               :include-curated-checkbox="false"
               :remove-student="removeStudent"

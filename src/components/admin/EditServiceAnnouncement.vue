@@ -21,7 +21,7 @@
           :disabled="isSaving || !originalText || !originalText.length"
           type="checkbox"
           @change="togglePublish"
-        />
+        >
         <label class="font-weight-bold text-medium-emphasis" for="checkbox-publish-service-announcement">
           {{ isPublished ? 'Posted' : 'Post' }}
         </label>

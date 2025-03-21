@@ -1,6 +1,6 @@
 <template>
   <router-link :to="{path, query}" @click="onClick">
-    <slot></slot>
+    <slot />
   </router-link>
 </template>
 

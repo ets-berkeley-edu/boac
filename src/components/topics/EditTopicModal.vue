@@ -24,8 +24,7 @@
                 required
                 :maxlength="50"
                 variant="outlined"
-              >
-              </v-text-field>
+              />
             </div>
             <div id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
               <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
@@ -37,7 +36,7 @@
               </span>
             </div>
           </v-card-text>
-          <hr />
+          <hr>
           <v-card-actions class="modal-footer">
             <ProgressButton
               id="topic-save"

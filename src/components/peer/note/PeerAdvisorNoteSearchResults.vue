@@ -80,7 +80,7 @@
                     @click="toggleShowHide(note)"
                   />
                 </div>
-                <PeerAdvisingNoteDetails class="my-3" :noteId="note.id" />
+                <PeerAdvisingNoteDetails class="my-3" :note-id="note.id" />
               </div>
             </v-expand-transition>
           </td>
