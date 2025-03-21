@@ -54,11 +54,7 @@ export function createPeerAdvisingNote(
     topics,
     noteTemplateId
   }
-  return axios.post(`${utils.apiBaseUrl()}/api/peer_advising/note/create`, data).then(response => {
-    const data = response.data
-    useContextStore().broadcast('peer-advising-note-created', data)
-    return data
-  })
+  return axios.post(`${utils.apiBaseUrl()}/api/peer_advising/note/create`, data).then(response => response.data)
 }
 
 export function updatePeerAdvisingNote(
