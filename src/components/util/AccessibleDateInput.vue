@@ -46,7 +46,7 @@
             @change="inputEvents.change"
             @focusin="inputEvents.focusin"
             @focusout="inputEvents.focusout"
-          />
+          >
         </div>
       </template>
     </date-picker>

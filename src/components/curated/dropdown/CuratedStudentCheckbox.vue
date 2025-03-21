@@ -7,7 +7,7 @@
       class="checkbox"
       type="checkbox"
       @update:model-value="toggle"
-    />
+    >
   </div>
 </template>
 

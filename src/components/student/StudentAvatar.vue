@@ -9,7 +9,7 @@
       :src="avatarUrl"
       :style="{backgroundImage: `url(${avatarUrl})`, backgroundRepeat: 'repeat'}"
       @error="avatarError"
-    />
+    >
     <PillCount
       v-if="alertCount"
       :id="`student-avatar-${student.uid}-alert-count`"

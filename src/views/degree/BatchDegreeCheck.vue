@@ -104,7 +104,7 @@
         :type="error ? 'error' : 'warning'"
         variant="tonal"
       >
-        <v-alert-title class="font-size-16" :class="{'text-warning-darken-1': warning}" v-html="error || warning"></v-alert-title>
+        <v-alert-title class="font-size-16" :class="{'text-warning-darken-1': warning}" v-html="error || warning" />
         <div v-if="size(sidsInError)">
           <ul
             id="sids-not-found"

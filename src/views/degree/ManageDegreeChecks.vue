@@ -123,7 +123,7 @@
                 type="error"
                 variant="tonal"
               >
-                <span v-html="errorDuringEdit"></span>
+                <span v-html="errorDuringEdit" />
               </v-alert>
             </div>
             <div v-if="item.id !== get(templateForEdit, 'id')">

@@ -4,7 +4,7 @@
       <div class="logo-container">
         <div class="stripe" />
         <div class="airplane-container">
-          <img src="@/assets/airplane.svg" alt="Airplane logo" class="airplane" />
+          <img src="@/assets/airplane.svg" alt="Airplane logo" class="airplane">
         </div>
       </div>
       <v-card class="card" rounded="0">

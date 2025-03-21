@@ -59,7 +59,7 @@
         @update:model-value="onAttachmentsInput"
       >
         <template #selection>
-          <div></div>
+          <div />
         </template>
       </v-file-input>
     </div>

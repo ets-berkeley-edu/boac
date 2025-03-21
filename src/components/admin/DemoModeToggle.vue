@@ -7,7 +7,7 @@
         class="avatar student-avatar-large"
         :class="{'img-blur': currentUser.inDemoMode}"
         :src="blurAvatarUrl"
-      />
+      >
     </div>
     <div class="ml-4">
       <div v-if="!isNil(currentUser.inDemoMode)">
@@ -22,7 +22,7 @@
               :disabled="isToggling"
               type="checkbox"
               @change="toggle"
-            />
+            >
             <v-progress-circular
               v-if="isToggling"
               id="toggle-demo-mode-spinner"

@@ -88,10 +88,10 @@
     >
       <caption class="sr-only">Academic Timeline: {{ activeTab === 'all' ? 'All Messages' : `${capitalize(activeTab)}s` }}</caption>
       <colgroup>
-        <col class="column-pill" />
-        <col class="column-message" />
-        <col class="column-details" />
-        <col class="column-date" />
+        <col class="column-pill">
+        <col class="column-message">
+        <col class="column-details">
+        <col class="column-date">
       </colgroup>
       <thead>
         <tr class="sr-only">
@@ -125,7 +125,7 @@
               </div>
             </div>
           </td>
-          <td class="column-details"></td>
+          <td class="column-details" />
           <td class="column-date">
             <div class="pr-2 float-right text-no-wrap text-medium-emphasis">
               <TimelineDate

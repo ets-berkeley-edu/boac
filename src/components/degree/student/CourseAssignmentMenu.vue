@@ -54,7 +54,7 @@
           <span aria-hidden="true">-- </span>{{ junkDrawerName }}<span aria-hidden="true"> --</span>
         </v-btn>
       </v-list-item-action>
-      <hr class="my-2" />
+      <hr class="my-2">
       <v-list-item-action v-for="option in options" :key="option.id">
         <v-btn
           :id="`assign-course-to-option-${option.id}`"

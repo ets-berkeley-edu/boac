@@ -13,7 +13,7 @@
         <v-card-title>
           <ModalHeader text="Name Your Template" />
         </v-card-title>
-        <hr />
+        <hr>
         <form @submit.prevent="createTemplate">
           <v-card-text class="modal-body">
             <v-text-field

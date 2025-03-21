@@ -53,7 +53,7 @@
                 title="Remove"
                 variant="text"
                 @click="() => removeUnitRequirement(unitRequirement, index)"
-              ></v-btn>
+              />
             </div>
           </div>
         </li>

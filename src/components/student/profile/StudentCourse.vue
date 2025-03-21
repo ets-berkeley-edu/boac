@@ -116,7 +116,7 @@
             :key="sectionIndex"
           >
             <span v-if="section.displayName" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-              <span v-if="sectionIndex === 0"></span><!--
+              <span v-if="sectionIndex === 0" /><!--
                 --><router-link
                 v-if="section.isViewableOnCoursePage"
                 :id="`term-${termId}-section-${section.ccn}`"
@@ -126,7 +126,7 @@
               ><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
                 --><span v-if="!section.isViewableOnCoursePage" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ section.displayName }}</span><!--
                 --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
-                --><span v-if="sectionIndex === course.sections.length - 1"></span>
+                --><span v-if="sectionIndex === course.sections.length - 1" />
             </span>
           </span>
         </div>

@@ -49,7 +49,7 @@
           :total-rows="cohortStore.totalStudentCount"
         />
       </div>
-      <hr />
+      <hr>
       <v-container
         v-if="cohortStore.domain === 'default'"
         id="cohort-students"
@@ -70,7 +70,7 @@
       </v-container>
       <div v-if="cohortStore.domain === 'admitted_students'">
         <AdmitStudentsTable :include-curated-checkbox="true" :students="cohortStore.students" />
-        <hr />
+        <hr>
       </div>
       <div class="mt-3">
         <Pagination

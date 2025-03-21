@@ -7,7 +7,7 @@
           alt="A silly boarding pass with the text, 'Error 404: Flight not found'"
           class="ticket-to-nowhere w-66"
           src="@/assets/boa-boarding-ticket.png"
-        />
+        >
       </v-slide-y-transition>
     </div>
   </div>

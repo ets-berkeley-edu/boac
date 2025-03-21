@@ -8,7 +8,7 @@
         <template #title>
           <span class="text-h5">{{ title }}</span>
         </template>
-        <v-divider class="border-opacity-50 ma-0"></v-divider>
+        <v-divider class="border-opacity-50 ma-0" />
 
         <div class="pt-6 pl-6 pr-6">
           <div>
@@ -54,7 +54,7 @@
           />
         </div>
 
-        <v-divider class="border-opacity-50"></v-divider>
+        <v-divider class="border-opacity-50" />
 
         <div class="footer pt-4 pr-6 pb-6">
           <v-btn

@@ -110,7 +110,7 @@
       No notes found.
     </div>
     <div v-if="totalNoteCount > itemsPerPage" class="pa-3">
-      <hr />
+      <hr>
       <Pagination
         :click-handler="goToPage"
         id-prefix="auxiliary-pagination"

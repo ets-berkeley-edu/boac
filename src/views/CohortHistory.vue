@@ -12,7 +12,7 @@
         :per-page="itemsPerPage"
         :total-rows="totalEventsCount"
       />
-      <hr />
+      <hr>
     </div>
     <table
       v-if="!isEmpty(events)"
@@ -69,7 +69,7 @@
       </tbody>
     </table>
     <div v-if="totalEventsCount > itemsPerPage" class="pa-3">
-      <hr />
+      <hr>
       <Pagination
         :click-handler="goToPage"
         id-prefix="auxiliary-pagination"

@@ -76,7 +76,7 @@
           :include-curated-checkbox="true"
           :students="admits"
         />
-        <hr />
+        <hr>
       </div>
       <div v-if="totalAdmitCount > pagination.itemsPerPage" class="mt-3">
         <Pagination

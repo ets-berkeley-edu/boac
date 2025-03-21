@@ -13,7 +13,7 @@
         :indeterminate="indeterminate"
         type="checkbox"
         @update:model-value="toggle"
-      />
+      >
     </div>
     <div class="button-container">
       <v-menu

@@ -34,8 +34,7 @@
       :id="`appointment-search-result-snippet-${appointment.id}`"
       class="advising-note-search-result-snippet"
       v-html="appointment.detailsSnippet"
-    >
-    </div>
+    />
     <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="advising-note-search-result-footer mb-2">
       <span v-if="appointment.advisorName" :id="`appointment-search-result-advisor-${appointment.id}`">
         {{ appointment.advisorName }} -
