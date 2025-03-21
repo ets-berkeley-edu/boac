@@ -80,7 +80,7 @@
                     @click="toggleShowHide(note)"
                   />
                 </div>
-                <PeerAdvisingNoteDetails class="my-3" :note="note" />
+                <PeerAdvisingNoteDetails class="my-3" :noteId="note.id" />
               </div>
             </v-expand-transition>
           </td>
@@ -99,18 +99,6 @@
     <div v-if="!size(notes)" id="peer-advisor-no-notes" class="pt-3">
       No notes found.
     </div>
-    <div v-if="totalNoteCount > itemsPerPage" class="pa-3">
-      <hr />
-      <Pagination
-        :click-handler="goToPage"
-        id-prefix="auxiliary-pagination"
-        :init-page-number="currentPage"
-        :is-widget-at-bottom-of-page="true"
-        :limit="10"
-        :per-page="itemsPerPage"
-        :total-rows="totalNoteCount"
-      />
-    </div>
   </div>
 </template>
 
@@ -120,7 +108,6 @@ import {mdiCloseCircle} from '@mdi/js'
 import {ref} from 'vue'
 import {size} from 'lodash'
 import type {Note} from '@/lib/types'
-import Pagination from '@/components/util/Pagination.vue'
 import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
@@ -129,10 +116,6 @@ defineProps({
   currentPage: {
     required: true,
     type: Number
-  },
-  goToPage: {
-    required: true,
-    type: Function
   },
   itemsPerPage: {
     required: true,
@@ -180,8 +163,8 @@ const toggleShowHide = (note: Note) => {
   width: 120px !important;
 }
 .td-note {
-  width: 600px !important;
-  max-width: 600px !important;
+  width: 900px !important;
+  max-width: 900px !important;
   padding: 5px;
   vertical-align: top;
 }

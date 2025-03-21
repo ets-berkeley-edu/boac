@@ -2,20 +2,23 @@
   <div v-if="!contextStore.loading" class="mt-8 mx-16">
     <div class="d-flex justify-space-between">
       <div>
-        <h1>Peer Advising Notes Search Results</h1>
-      </div>
-      <div v-if="!currentUser.isAdmin">
-        <EditPeerAdvisingNoteModal
-          v-if="noteStore.isCreateNoteModalOpen"
-          v-model="createNoteModal"
-          :peer-advising-department-id="peerAdvisingDepartmentId"
-        />
+        <h1>Peer Advising Notes</h1>
+        <div>
+          Showing {{ pluralize('result', totalNoteCount) }} for <span class="font-weight-bold">{{ queryText }}</span>
+          |
+          <v-btn
+            class="cursor-pointer text-blue-accent-2 select-none mb-1 pl-0"
+            variant="text"
+            @click="clearResults"
+          >
+            Clear Search Results
+          </v-btn>
+        </div>
       </div>
     </div>
     <div v-if="!isPaging">
       <PeerAdvisorNoteSearchResults
         :current-page="currentPage"
-        :go-to-page="goToPage"
         :items-per-page="itemsPerPage"
         :notes="notes"
         :peer-advising-department-id="peerAdvisingDepartmentId"
@@ -29,33 +32,26 @@
 import {onMounted, onUnmounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import type {BoaUser, Note} from '@/lib/types'
-import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
 import PeerAdvisorNoteSearchResults from '@/components/peer/note/PeerAdvisorNoteSearchResults.vue'
 import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
-import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, pluralize} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
-import {useNoteStore} from '@/stores/note-edit-session'
 import {peerAdvisorSearch} from '@/api/search'
 import {useSearchStore} from '@/stores/search'
 
 const contextStore = useContextStore()
 const searchStore = useSearchStore()
-const createNoteModal = ref(false)
 const currentPage = ref(1)
-const currentUser = contextStore.currentUser
 const isPaging = ref(false)
 const itemsPerPage = ref(50)
-const noteStore = useNoteStore()
 const notes = ref<Note[]>([])
-const offset = ref(0)
 const peerAdvisingDepartmentId = ref<number>(NaN)
 const peerAdvisor = ref<BoaUser>()
 const route = useRoute()
 const router = useRouter()
 const totalNoteCount = ref(0)
-
+const queryText = ref(searchStore.queryText)
 
 contextStore.loadingStart()
 
@@ -71,30 +67,6 @@ onMounted(() => {
 
 onUnmounted(() => contextStore.removeEventHandler('peer-advising-note-created'))
 
-const goToPage = (page: number) => {
-  return new Promise<void>(resolve => {
-    if (peerAdvisor.value && peerAdvisor.value.uid) {
-      isPaging.value = true
-      currentPage.value = page
-      offset.value = (page - 1) * itemsPerPage.value
-      getPeerAdvisorNotes(
-        offset.value,
-        itemsPerPage.value,
-        peerAdvisor.value.uid,
-        true
-      ).then(data => {
-        notes.value = data.notes
-        totalNoteCount.value = data.totalNoteCount
-        isPaging.value = false
-        putFocusNextTick(page > 1 ? `pagination-page-${page}` : 'page-header')
-        resolve()
-      })
-    } else {
-      throw Error('Not Found')
-    }
-  })
-}
-
 const init = (user: BoaUser) => {
   peerAdvisor.value = user
   const membership = getPeerAdvisorDepartmentMembership(peerAdvisor.value, 'peer_advisor')
@@ -106,6 +78,7 @@ const init = (user: BoaUser) => {
       notes.value = data.notes
       totalNoteCount.value = data.totalNoteCount
       isPaging.value = false
+      queryText.value = searchStore.queryText
       contextStore.loadingComplete('Notes have loaded')
     })
   } else {
@@ -113,4 +86,15 @@ const init = (user: BoaUser) => {
   }
 }
 
+const clearResults = () => {
+  notes.value = []
+  totalNoteCount.value = 0
+}
+
 </script>
+
+<style scoped>
+.select-none {
+  user-select: none;
+}
+</style>
