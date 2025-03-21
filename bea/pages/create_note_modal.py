@@ -76,14 +76,14 @@ class CreateNoteModal(Page):
 
     def enter_new_note_subject(self, note):
         app.logger.info(f'Entering new note subject {note.subject}')
-        self.wait_for_textbox_and_type(self.NEW_NOTE_SUBJECT_INPUT, note.subject)
+        self.wait_for_textbox_and_send_keys(self.NEW_NOTE_SUBJECT_INPUT, note.subject)
 
     EDIT_NOTE_SUBJECT_INPUT = By.ID, 'edit-note-subject'
     SUBJ_REQUIRED_MSG = By.XPATH, '//span[text()="Subject is required"]'
 
     def enter_edit_note_subject(self, note):
         app.logger.info(f'Entering edited note subject {note.subject}')
-        self.wait_for_textbox_and_type(self.EDIT_NOTE_SUBJECT_INPUT, note.subject)
+        self.wait_for_textbox_and_send_keys(self.EDIT_NOTE_SUBJECT_INPUT, note.subject)
 
     # Body
 
@@ -96,7 +96,7 @@ class CreateNoteModal(Page):
         app.logger.info(f'Entering note body {note.body}')
         self.wait_for_note_body_editor()
         self.scroll_to_top()
-        self.wait_for_textbox_and_type(self.NOTE_BODY_TEXT_AREA, note.body)
+        self.wait_for_textbox_and_send_keys(self.NOTE_BODY_TEXT_AREA, note.body)
 
     # Topics
 
@@ -243,7 +243,7 @@ class CreateNoteModal(Page):
         app.logger.info(f'Entering note set date {note.set_date}')
         date = note.set_date and note.set_date.strftime('%m/%d/%Y')
         if date:
-            self.wait_for_textbox_and_type(self.SET_DATE_INPUT, date)
+            self.wait_for_textbox_and_send_keys(self.SET_DATE_INPUT, date)
         else:
             self.remove_chars(self.SET_DATE_INPUT)
         time.sleep(1)
@@ -295,7 +295,7 @@ class CreateNoteModal(Page):
 
     def enter_sid_list(self, loc, sids):
         app.logger.info(f'Entering SIDs {sids}')
-        self.wait_for_textbox_and_type(loc, sids)
+        self.wait_for_textbox_and_send_keys(loc, sids)
 
     def enter_comma_sep_sids(self, loc, students):
         sids = list(map(lambda s: s.sid, students))
@@ -370,7 +370,7 @@ class CreateNoteModal(Page):
             sid = f'{student.sid}'
             app.logger.info(f'Adding SID {sid} to batch note {note_batch.subject}')
             self.remove_chars(self.BATCH_ADD_STUDENT_INPUT)
-            self.enter_chars(self.BATCH_ADD_STUDENT_INPUT, f'{sid}')
+            self.type_chars(self.BATCH_ADD_STUDENT_INPUT, f'{sid}')
             loc = By.XPATH, f'//div[@role="option" and contains(., "{sid}")]'
             self.wait_for_element_and_click(loc)
             self.append_student_to_batch(note_batch, student)
@@ -513,7 +513,7 @@ class CreateNoteModal(Page):
 
     def enter_template_title(self, template):
         app.logger.info(f'Entering template title {template.title}')
-        self.wait_for_textbox_and_type(self.TEMPLATE_TITLE_INPUT, template.title)
+        self.wait_for_textbox_and_send_keys(self.TEMPLATE_TITLE_INPUT, template.title)
 
     def create_template(self, template, note):
         self.click_save_as_template()
@@ -627,7 +627,7 @@ class CreateNoteModal(Page):
 
     def rename_template(self, template):
         self.click_rename_template(template)
-        self.wait_for_textbox_and_type(self.RENAME_TEMPLATE_INPUT, template.title)
+        self.wait_for_textbox_and_send_keys(self.RENAME_TEMPLATE_INPUT, template.title)
         self.wait_for_element_and_click(self.SAVE_TEMPLATE_RENAME_BUTTON)
         self.when_not_present(self.RENAME_TEMPLATE_INPUT, utils.get_short_timeout())
 

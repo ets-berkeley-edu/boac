@@ -83,7 +83,7 @@ class TestNoteMgmt:
         self.student_page.confirm_delete_or_discard()
         self.student_page.click_create_new_note()
         self.student_page.wait_for_note_body_editor()
-        self.student_page.wait_for_textbox_and_type(self.student_page.NOTE_BODY_TEXT_AREA, 'An edit to forget')
+        self.student_page.wait_for_textbox_and_send_keys(self.student_page.NOTE_BODY_TEXT_AREA, 'An edit to forget')
         self.student_page.click_cancel_new_note()
         self.student_page.confirm_delete_or_discard()
 
@@ -410,7 +410,7 @@ class TestNoteMgmt:
         self.student_page.show_notes()
         self.student_page.expand_item(self.note_2)
         self.student_page.click_edit_note_button(self.note_2)
-        self.student_page.wait_for_textbox_and_type(self.student_page.EDIT_NOTE_SUBJECT_INPUT, ' ')
+        self.student_page.wait_for_textbox_and_send_keys(self.student_page.EDIT_NOTE_SUBJECT_INPUT, ' ')
         assert not self.student_page.element(self.student_page.EDIT_NOTE_SAVE_BUTTON).is_enabled()
         self.student_page.click_cancel_note_edit()
         self.student_page.confirm_delete_or_discard()

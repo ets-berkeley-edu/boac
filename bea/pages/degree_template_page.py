@@ -59,14 +59,14 @@ class DegreeTemplatePage(BoaPages):
 
     def enter_unit_reqt_name(self, name):
         app.logger.info(f'Entering unit reqt {name}')
-        self.wait_for_textbox_and_type(self.UNIT_REQT_NAME_INPUT, name)
+        self.wait_for_textbox_and_send_keys(self.UNIT_REQT_NAME_INPUT, name)
 
     def unit_reqt_name_input_value(self):
         return self.el_value(self.UNIT_REQT_NAME_INPUT)
 
     def enter_unit_reqt_num(self, num):
         app.logger.info(f'Entering unit reqt count {num}')
-        self.wait_for_textbox_and_type(self.UNIT_REQT_NUM_INPUT, num)
+        self.wait_for_textbox_and_send_keys(self.UNIT_REQT_NUM_INPUT, num)
 
     def click_create_unit_reqt(self):
         app.logger.info('Clicking the create unit reqt button')
@@ -197,14 +197,14 @@ class DegreeTemplatePage(BoaPages):
 
     def enter_col_reqt_name(self, name):
         app.logger.info(f'Entering column requirement name {name}')
-        self.wait_for_textbox_and_type(self.COL_REQT_NAME_INPUT, name)
+        self.wait_for_textbox_and_send_keys(self.COL_REQT_NAME_INPUT, name)
 
     def col_reqt_name_input_value(self):
         return self.el_value(self.COL_REQT_NAME_INPUT)
 
     def enter_col_reqt_desc(self, desc):
         app.logger.info(f'Entering column requirement description {desc}')
-        self.wait_for_textbox_and_type(self.COL_REQT_DESC_INPUT, desc)
+        self.wait_for_textbox_and_send_keys(self.COL_REQT_DESC_INPUT, desc)
 
     def col_reqt_desc_input_value(self):
         return self.el_value(self.COL_REQT_DESC_INPUT)
@@ -252,8 +252,8 @@ class DegreeTemplatePage(BoaPages):
             if self.is_present(self.COL_REQT_COURSE_UNITS_SHOW_RANGE):
                 self.scroll_to_top()
                 self.wait_for_element_and_click(self.COL_REQT_UNIT_RANGE_TOGGLE)
-            self.wait_for_textbox_and_type(self.COL_REQT_UNIT_NUM_INPUT_0, unit_range[0])
-            self.wait_for_textbox_and_type(self.COL_REQT_UNIT_NUM_INPUT_1, unit_range[1])
+            self.wait_for_textbox_and_send_keys(self.COL_REQT_UNIT_NUM_INPUT_0, unit_range[0])
+            self.wait_for_textbox_and_send_keys(self.COL_REQT_UNIT_NUM_INPUT_1, unit_range[1])
         else:
             if self.is_present(self.COL_REQT_COURSE_UNITS_HIDE_RANGE):
                 self.scroll_to_top()
@@ -262,7 +262,7 @@ class DegreeTemplatePage(BoaPages):
             if units == '' or units == '0':
                 self.remove_chars(self.COL_REQT_UNIT_NUM_INPUT_0)
             else:
-                self.wait_for_textbox_and_type(self.COL_REQT_UNIT_NUM_INPUT_0, units)
+                self.wait_for_textbox_and_send_keys(self.COL_REQT_UNIT_NUM_INPUT_0, units)
 
     def col_reqt_unit_input_0_value(self):
         return self.el_value(self.COL_REQT_UNIT_NUM_INPUT_0)

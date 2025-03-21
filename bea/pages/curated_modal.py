@@ -38,7 +38,7 @@ class CuratedModal(Page):
 
     def enter_group_name(self, group):
         app.logger.info(f'Entering group name {group.name}')
-        self.wait_for_textbox_and_type(self.GROUP_NAME_INPUT, group.name)
+        self.wait_for_textbox_and_send_keys(self.GROUP_NAME_INPUT, group.name)
 
     def name_and_save_group(self, group):
         self.enter_group_name(group)

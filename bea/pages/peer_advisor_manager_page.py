@@ -215,7 +215,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
 
     def enter_peer_template_name(self, name):
         app.logger.info(f'Entering peer advising template name {name}')
-        self.wait_for_textbox_and_type(self.PEER_TEMPLATE_NAME_INPUT, name)
+        self.wait_for_textbox_and_send_keys(self.PEER_TEMPLATE_NAME_INPUT, name)
 
     def add_peer_template_topics(self, template):
         for topic in template.topics:

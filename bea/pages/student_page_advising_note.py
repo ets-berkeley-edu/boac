@@ -85,7 +85,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
     def search_within_timeline_notes(self, query):
         app.logger.info(f"Searching for '{query}'")
         self.scroll_to_top()
-        self.wait_for_textbox_and_type(self.TIMELINE_NOTES_QUERY_INPUT, query)
+        self.wait_for_textbox_and_send_keys(self.TIMELINE_NOTES_QUERY_INPUT, query)
         time.sleep(1)
         self.when_not_present(self.TIMELINE_NOTES_SPINNER, utils.get_short_timeout())
 

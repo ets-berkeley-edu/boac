@@ -46,7 +46,7 @@ class SearchForm(Page):
 
     def enter_simple_search(self, string):
         app.logger.info(f"Searching for '{string}'")
-        self.remove_and_send_chars(SearchForm.SEARCH_INPUT, string)
+        self.remove_chars_and_send_keys(SearchForm.SEARCH_INPUT, string)
 
     def enter_simple_search_and_hit_enter(self, string):
         self.enter_simple_search(string)
@@ -89,7 +89,7 @@ class SearchForm(Page):
         string = string or ''
         app.logger.info(f'Searching for "{string}"')
         self.clear_input(self.ADV_SEARCH_STUDENT_INPUT)
-        self.remove_and_send_chars(self.ADV_SEARCH_STUDENT_INPUT, string)
+        self.remove_chars_and_send_keys(self.ADV_SEARCH_STUDENT_INPUT, string)
 
     def enter_adv_search_and_hit_enter(self, string=None):
         self.enter_adv_search(string)
@@ -182,7 +182,7 @@ class SearchForm(Page):
         if alt_names:
             alt_names_lower = list(map(lambda n: n.lower(), alt_names))
             names.extend(alt_names_lower)
-        self.wait_for_textbox_and_type(self.NOTE_AUTHOR, name)
+        self.wait_for_textbox_and_send_keys(self.NOTE_AUTHOR, name)
         self.when_present(self.AUTHOR_AUTO_SUGGEST_OPTION, utils.get_short_timeout())
         for el in self.elements(self.AUTHOR_AUTO_SUGGEST_OPTION):
             text = el.get_attribute('innerText')
@@ -194,7 +194,7 @@ class SearchForm(Page):
     def set_notes_student(self, student):
         sid = f'{student.sid}'
         app.logger.info(f'Setting note search student {sid}')
-        self.wait_for_textbox_and_type(self.NOTE_STUDENT, sid)
+        self.wait_for_textbox_and_send_keys(self.NOTE_STUDENT, sid)
         loc = By.XPATH, f'//div[contains(@id, "search-options-note-student-option") and contains(., "{sid}")]'
         self.wait_for_element_and_click(loc)
 

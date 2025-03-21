@@ -78,7 +78,7 @@ class PassengerManifestPage(Pagination):
     def search_for_advisor(self, advisor):
         app.logger.info(f'Searching for advisor UID {advisor.uid}')
         self.select_search_mode()
-        self.wait_for_textbox_and_type(self.USER_SEARCH_INPUT, advisor.uid)
+        self.wait_for_textbox_and_send_keys(self.USER_SEARCH_INPUT, advisor.uid)
         loc = By.XPATH, f'//div[@role="option"]//div[contains(., "{advisor.uid}")]'
         self.wait_for_element_and_click(loc)
 
@@ -278,7 +278,7 @@ class PassengerManifestPage(Pagination):
         time.sleep(utils.get_click_sleep())
 
     def enter_new_user_data(self, user):
-        self.wait_for_textbox_and_type(self.ADD_USER_UID_INPUT, user.uid)
+        self.wait_for_textbox_and_send_keys(self.ADD_USER_UID_INPUT, user.uid)
         self.set_user_level_flags(user)
         self.add_user_dept_roles(user)
         self.wait_for_element_and_click(self.SAVE_USER_BUTTON)
