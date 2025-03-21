@@ -132,7 +132,7 @@
               {{ noteUpdatedBy ? ' edited this note' : 'Last edited' }}
               <span v-if="isToday(noteUpdatedAt)" id="degree-note-updated-at"> today.</span>
               <span v-if="!isToday(noteUpdatedAt)">
-                on <span id="degree-note-updated-at">{{ noteUpdatedAt.toFormat('MMM d, YYYY') }}.</span>
+                on <span id="degree-note-updated-at">{{ noteUpdatedAt.toFormat('MMM d, yyyy') }}.</span>
               </span>
             </span>
           </div>
