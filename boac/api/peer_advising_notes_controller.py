@@ -95,6 +95,20 @@ def get_enrollment_terms_by_sid(sid):
     return tolerant_jsonify(dict(sorted(api_json.items(), reverse=True)))
 
 
+@app.route('/api/peer_advising/note/<note_id>')
+@peer_advisor_required
+def get_peer_advising_note(note_id):
+    note = Note.find_by_id(note_id=note_id)
+    memberships = (
+        PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=current_user.get_id())
+    )
+    user_peer_advising_department_id = memberships[0]['peer_advising_department_id']
+    if not note or note.peer_advising_department_id != user_peer_advising_department_id:
+        raise ResourceNotFoundError('Note not found')
+    note_read = NoteRead.when_user_read_note(current_user.get_id(), str(note.id))
+    return tolerant_jsonify(get_boac_note_as_compatible_json(note=note, note_read=note_read))
+
+
 @app.route('/api/peer_advisor/<uid>/notes')
 @peer_advisor_required
 def get_notes_for_peer_advisor(uid):
