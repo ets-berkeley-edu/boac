@@ -157,7 +157,6 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
           if (size(model.attachments)) {
             addPeerAdvisingAttachments(note.id, model.attachments).then(done)
           } else {
-            useContextStore().broadcast('peer-advising-note-created', note)
             done(note)
           }
         })

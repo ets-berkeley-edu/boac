@@ -28,6 +28,7 @@ export type BoaConfig = {
   isProduction: boolean,
   isVueAppDebugMode: boolean,
   maxAttachmentsPerNote: number,
+  noteContactTypes: NoteContactType[],
   notesDraftAutoSaveInterval: number,
   pingFrequency: number,
   supportEmailAddress: string,
@@ -233,6 +234,11 @@ export type NoteAuthor = {
   role: string,
   sid: string,
   uid: string
+}
+
+export type NoteContactType = {
+  isAvailableToPeerAdvisors: boolean,
+  value: string
 }
 
 export type NoteEditSessionModel = {
