@@ -11,6 +11,7 @@ import type {
   Cohort,
   CuratedGroup,
   Department,
+  NoteContactType,
   PeerAdvisingDepartment,
   ScreenReaderAlert,
   ServiceAnnouncement,
@@ -39,6 +40,7 @@ export const useContextStore = defineStore('context', {
     gaMeasurementId: undefined as string | undefined,
     loading: false,
     loadingStartTime: undefined as number | undefined,
+    noteContactTypes: [] as NoteContactType[],
     routeKeyId: 0,
     screenReaderAlert: {
       message: '',

@@ -25,12 +25,13 @@
           :ripple="false"
           :value="null"
         />
-        <template v-for="(contactOption, index) in contactOptions" :key="contactOption">
+        <template v-for="(contactType, index) in contactTypes" :key="contactType.value">
           <v-radio
+            v-if="isCurrentUserPeerAdvisor ? contactType.isAvailableToPeerAdvisors : true"
             :id="`contact-option-${index}-radio-button`"
-            :label="contactOption"
+            :label="contactType.value"
             :ripple="false"
-            :value="contactOption"
+            :value="contactType.value"
           />
         </template>
       </v-radio-group>
@@ -38,14 +39,15 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import {isPeerAdvisor} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
-const contactOptions = useContextStore().config.noteContactTypes
+const contextStore = useContextStore()
+const contactTypes = contextStore.config.noteContactTypes
+const isCurrentUserPeerAdvisor = isPeerAdvisor(contextStore.currentUser)
 const noteStore = useNoteStore()
 
-const onChangeContactType = value => {
-  noteStore.setContactType(value)
-}
+const onChangeContactType = (value: string) => noteStore.setContactType(value)
 </script>

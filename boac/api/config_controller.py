@@ -43,6 +43,12 @@ from flask_login import current_user
 
 @app.route('/api/config')
 def app_config():
+    note_contact_types = []
+    for contact_type in note_contact_type_enum.enums:
+        note_contact_types.append({
+            'isAvailableToPeerAdvisors': contact_type not in ['Group event', 'Admin'],
+            'value': contact_type,
+        })
     return tolerant_jsonify({
         'academicStandingDescriptions': ACADEMIC_STANDING_DESCRIPTIONS,
         'apptDeskRefreshInterval': app.config['APPT_DESK_REFRESH_INTERVAL'],
@@ -68,7 +74,7 @@ def app_config():
         'gaMeasurementId': app.config['GA_MEASUREMENT_ID'],
         'isDemoModeAvailable': app.config['DEMO_MODE_AVAILABLE'],
         'maxAttachmentsPerNote': app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE'],
-        'noteContactTypes': note_contact_type_enum.enums,
+        'noteContactTypes': note_contact_types,
         'notesDraftAutoSaveInterval': app.config['NOTES_DRAFT_AUTO_SAVE_INTERVAL'],
         'pingFrequency': app.config['PING_FREQUENCY'],
         'supportEmailAddress': app.config['BOAC_SUPPORT_EMAIL'],
