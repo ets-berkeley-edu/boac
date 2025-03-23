@@ -100,7 +100,7 @@ import {mdiEmail} from '@mdi/js'
 import {onMounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {getBoaUserRoles} from '@/lib/berkeley-department'
-import {getUsersReport} from '@/api/reports'
+import {getUsersReport} from '@/api/admin-reports.js'
 import {oxfordJoin} from '@/lib/utils'
 
 const props = defineProps({

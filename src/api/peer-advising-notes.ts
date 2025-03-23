@@ -57,6 +57,25 @@ export function createPeerAdvisingNote(
   return axios.post(`${utils.apiBaseUrl()}/api/peer_advising/note/create`, data).then(response => response.data)
 }
 
+export async function createPeerAdvisingNoteTemplate(peerAdvisingDeptId: number, body: string, title, topics: []) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_template/create`
+  const noteTemplate = {
+    peerAdvisingDeptId: peerAdvisingDeptId,
+    body: body,
+    topics: topics,
+    title: title
+  }
+  return axios.post(url, noteTemplate).then(response => {
+    return response.data
+  })
+}
+
+export async function deletePeerAdvisingNoteTemplate(noteTemplateId: number) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_template/delete/${noteTemplateId}`
+  const headers = {'Content-Type': 'application/json'}
+  return axios.delete(url, {headers})
+}
+
 export function updatePeerAdvisingNote(
   id: number,
   body: string | undefined,
@@ -77,5 +96,18 @@ export function updatePeerAdvisingNote(
     const data = response.data
     useContextStore().broadcast('peer-advising-note-updated', data)
     return data
+  })
+}
+
+export async function updatePeerAdvisingNoteTemplate(noteTemplateId: number, noteBody: string, title: string, topics: []) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_template/update`
+  const noteTemplate = {
+    id: noteTemplateId,
+    body: noteBody,
+    topics: topics,
+    title: title
+  }
+  return axios.post(url, noteTemplate).then(response => {
+    return response.data
   })
 }

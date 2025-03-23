@@ -1,6 +1,6 @@
 <template>
-  <div class="align-end d-flex justify-space-between font-weight-bold">
-    <div class="add-student-container ml-4">
+  <div class="align-end d-flex default-margins justify-space-between font-weight-bold">
+    <div class="add-student-container">
       <PeerAdvisingAddStudent
         :exclude-these-students="peerAdvisors"
         :peer-advising-department-id="peerAdvisingDepartmentId"
@@ -122,7 +122,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
 import {alertScreenReader, pluralize, putFocusNextTick, toInt} from '@/lib/utils'
-import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising.js'
+import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising-users.js'
 
 const props = defineProps({
   isRefreshing: {

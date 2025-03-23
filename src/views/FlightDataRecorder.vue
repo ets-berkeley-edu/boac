@@ -42,7 +42,7 @@ import {mdiAirplane} from '@mdi/js'
 import {useRoute} from 'vue-router'
 import NotesReport from '@/components/reports/NotesReport'
 import UserReport from '@/components/reports/UserReport'
-import {getAvailableDepartmentReports} from '@/api/reports'
+import {getAvailableDepartmentReports} from '@/api/admin-reports.js'
 import {useContextStore} from '@/stores/context'
 
 const DEFAULT_DEPT_CODE = 'QCADV'

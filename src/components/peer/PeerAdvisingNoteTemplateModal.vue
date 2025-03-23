@@ -86,9 +86,9 @@ import {computed, onMounted, ref, watch} from 'vue'
 import {isEmpty, size} from 'lodash'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import PeerAdvisingNoteTopics from '@/components/peer/PeerAdvisingNoteTopics.vue'
-import {createPeerAdvisingNoteTemplate, updatePeerAdvisingNoteTemplate} from '@/api/peer-advising.js'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import {alertScreenReader} from '@/lib/utils.js'
+import {createPeerAdvisingNoteTemplate, updatePeerAdvisingNoteTemplate} from '@/api/peer-advising-notes.js'
 
 const emit = defineEmits(['note-template-updated'])
 const props = defineProps({
