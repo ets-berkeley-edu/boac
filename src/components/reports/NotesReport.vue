@@ -168,7 +168,7 @@ import {mdiChevronDown, mdiChevronRight} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {reverse, sortBy} from 'lodash'
 import {numFormat} from '@/lib/utils'
-import {getBoaNoteCountByMonth, getNotesReport} from '@/api/reports'
+import {getBoaNoteCountByMonth, getNotesReport} from '@/api/admin-reports.js'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

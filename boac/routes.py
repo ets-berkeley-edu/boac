@@ -43,10 +43,11 @@ def register_routes(app):
 
     # Register API routes.
     import boac.api.appointments_controller
-    import boac.api.admin_controller
+    import boac.api.admin_reports_controller
     import boac.api.admit_controller
     import boac.api.alerts_controller
     import boac.api.auth_controller
+    import boac.api.cachejob_controller
     import boac.api.cohort_controller
     import boac.api.config_controller
     import boac.api.course_controller
@@ -58,8 +59,8 @@ def register_routes(app):
     import boac.api.notes_controller
     import boac.api.peer_advising_notes_controller
     import boac.api.peer_advising_note_templates_controller
+    import boac.api.peer_advising_reports_controller
     import boac.api.peer_advising_users_controller
-    import boac.api.reports_controller
     import boac.api.search_controller
     import boac.api.student_controller
     import boac.api.status_controller

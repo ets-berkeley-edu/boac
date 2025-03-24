@@ -2,7 +2,7 @@
   <div v-if="!loading" class="bg-sky-blue">
     <div class="pb-2 pt-4 px-4">
       <h1 id="page-header" :class="{'mb-1': currentUser.isAdmin}" class="mr-2">Peer Advising Management Dashboard</h1>
-      <div v-if="currentUser.isAdmin" class="mb-1">
+      <div v-if="currentUser.isAdmin && peerAdvisingDepartment" class="mb-1">
         <span class="font-weight-bold text-medium-emphasis">{{ peerAdvisingDepartment.name }}</span><span v-if="peerAdvisingDepartment.name !== peerAdvisingDepartment.universityDeptName">,
           within {{ peerAdvisingDepartment.universityDeptName }}.
         </span>
@@ -66,7 +66,10 @@
             <PeerAdvisingNoteTemplates :peer-advising-department="peerAdvisingDepartment" />
           </div>
           <div v-if="item.key === 'reporting'">
-            CCC
+            <PeerAdvisorManagerReports
+              v-if="peerAdvisingDepartment"
+              :peer-advising-department="peerAdvisingDepartment"
+            />
           </div>
         </v-tabs-window-item>
       </template>
@@ -79,18 +82,19 @@ import {computed, onMounted, ref} from 'vue'
 import {filter as _filter, toString} from 'lodash'
 import {useDisplay} from 'vuetify'
 import {useRoute} from 'vue-router'
+import type {BoaUser, PeerAdvisingDepartment} from '@/lib/types'
 import PeerAdvisingAccountMgmt from '@/components/peer/PeerAdvisingAccountMgmt.vue'
 import PeerAdvisingNoteTemplates from '@/components/peer/PeerAdvisingNoteTemplates.vue'
-import {getPeerAdvisingDepartment} from '@/api/peer-advising'
+import PeerAdvisorManagerReports from '@/components/peer/reports/PeerAdvisorManagerReports.vue'
+import {getPeerAdvisingDepartment} from '@/api/peer-advising-users'
 import {useContextStore} from '@/stores/context'
 import {toInt} from '@/lib/utils'
 
 const contextStore = useContextStore()
-const currentUser = contextStore.currentUser
+const currentUser: BoaUser = contextStore.currentUser
 const isRefreshing = ref(false)
 const loading = computed(() => contextStore.loading)
-const peerAdvisingDeptId: string = toString(useRoute().params.id)
-const peerAdvisingDepartment = ref()
+const peerAdvisingDepartment = ref<PeerAdvisingDepartment>()
 const tab = ref(undefined)
 const tabs = [
   {key: 'account', label: 'Account Management'},
@@ -106,6 +110,7 @@ onMounted(() => {
 })
 
 const reloadPeerAdvisingDepartment = async () => {
+  const peerAdvisingDeptId: string = toString(useRoute().params.id)
   isRefreshing.value = true
   return getPeerAdvisingDepartment(
     toInt(peerAdvisingDeptId),

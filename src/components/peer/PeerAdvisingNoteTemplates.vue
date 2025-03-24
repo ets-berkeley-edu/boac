@@ -116,11 +116,11 @@
 import {mdiPlus} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
-import {alertScreenReader} from '@/lib/utils'
-import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
-import PeerAdvisingNoteTemplateModal from '@/components/peer/PeerAdvisingNoteTemplateModal.vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
-import {deletePeerAdvisingNoteTemplate} from '@/api/peer-advising.js'
+import PeerAdvisingNoteTemplateModal from '@/components/peer/PeerAdvisingNoteTemplateModal.vue'
+import {alertScreenReader} from '@/lib/utils'
+import {deletePeerAdvisingNoteTemplate} from '@/api/peer-advising-notes.ts'
+import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
 import {useContextStore} from '@/stores/context.js'
 
 const props = defineProps({

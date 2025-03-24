@@ -63,7 +63,7 @@ import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {ref, watch} from 'vue'
 import type {BasicStudent, Enrollment} from '@/lib/types'
 import TermEnrollmentsTable from '@/components/peer/note/TermEnrollmentsTable.vue'
-import {getStudentEnrollments} from '@/api/peer-advising'
+import {getStudentEnrollments} from '@/api/peer-advising-users'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({

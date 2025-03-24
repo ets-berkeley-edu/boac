@@ -63,7 +63,7 @@ import {nextTick, onMounted, onUnmounted, onUpdated, ref, watch} from 'vue'
 import type {BasicStudent, BasicStudentLabeled} from '@/lib/types'
 import {clearNoteRecipients} from '@/stores/note-edit-session/note-edit-session-utils'
 import {findStudentsByNameOrSid} from '@/api/student'
-import {getBasicStudent} from '@/api/peer-advising'
+import {getBasicStudent} from '@/api/peer-advising-users'
 import {putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
