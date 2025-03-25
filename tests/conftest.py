@@ -549,3 +549,28 @@ def mock_peer_advising_note_template(app, db):
     yield NoteTemplate.find_by_id(note_template.id)
 
     NoteTemplate.delete(note_template_id=note_template.id)
+
+
+@pytest.fixture()
+def create_peer_advising_note(fake_auth, db):
+    """Create a Peer Advising Note."""
+    # Set up the test by creating a note authored by CE3 Peer Advisor.
+    peer_advisor_author_uid = '1133400'
+    fake_auth.login(peer_advisor_author_uid)
+
+    navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+    # Create the note
+    note = Note.create(
+        author_uid=peer_advisor_author_uid,
+        author_name='Peer',
+        author_role='peer_advisor',
+        author_dept_codes=[],
+        sid='9000000000',
+        body='Anastasia has two note attachments.',
+        peer_advising_department_id=navcal_department.id,
+        subject='Test Note',
+        topics=['topic1', 'topic2', 'topic3'],
+    )
+    db.session.add(note)
+    std_commit(allow_test_environment=True)
+    return note
