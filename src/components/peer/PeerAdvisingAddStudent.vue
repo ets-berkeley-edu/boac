@@ -43,8 +43,9 @@
       <template #append>
         <v-progress-circular
           v-if="isAddingStudent"
-          :model-value="counter"
+          class="ml-3"
           :indeterminate="true"
+          :model-value="counter"
           :size="36"
           :width="7"
           :color="['primary', 'warning', 'success'][Math.round(counter / 10) % 3]"
