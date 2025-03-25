@@ -57,4 +57,8 @@ class TestPeerAdvisingNotesReport:
         fake_auth.login(uid)
         memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id)
         peer_advising_department_id = memberships[0]['peer_advising_department_id']
-        self._api_notes_report(client, peer_advising_department_id)
+        api_json = self._api_notes_report(client, peer_advising_department_id)
+        assert api_json['distinctPeerAdvisorAuthors'] >= 0
+        assert 'noteTemplates' in api_json
+        assert api_json['peerAdvisingDepartment']['name'] == 'NAVCAL'
+        assert api_json['totalPeerAdvisingNoteCount'] >= 0

@@ -18,11 +18,6 @@ export function getNote(noteId: number) {
   return axios.get(url).then(response => response.data)
 }
 
-export function getNotesAuthoredBy(uid: string) {
-  const url: string = `${utils.apiBaseUrl()}/api/notes/authored_by/${uid}`
-  return axios.get(url).then(response => response.data)
-}
-
 export function getMyDraftNotes() {
   const url: string = `${utils.apiBaseUrl()}/api/notes/my_drafts`
   return axios.get(url).then(response => response.data)

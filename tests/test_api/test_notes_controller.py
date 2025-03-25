@@ -152,31 +152,6 @@ class TestGetDraftNotes:
             logout_user()
 
 
-class TestGetNotesAuthoredBy:
-
-    @classmethod
-    def _api_notes_authored_by(cls, client, uid, expected_status_code=200):
-        response = client.get(f'/api/notes/authored_by/{uid}')
-        assert response.status_code == expected_status_code
-        return response.json
-
-    def test_unauthorized(self, app, client, fake_auth):
-        """Returns 401 if not authenticated."""
-        for uid in [None, coe_advisor_no_advising_data_uid, coe_student['uid']]:
-            if uid:
-                fake_auth.login(uid)
-        self._api_notes_authored_by(client=client, expected_status_code=401, uid=uid)
-
-    def test_authorized(self, app, client, fake_auth, mock_coe_advising_note):
-        """Advisor can view notes created by another Advisor or Peer Advisor user."""
-        fake_auth.login(asc_advisor_uid)
-        author_uid = mock_coe_advising_note.author_uid
-        assert asc_advisor_uid != author_uid
-        api_json = self._api_notes_authored_by(client=client, uid=author_uid)
-        assert len(api_json)
-        assert next((n for n in api_json if n['id'] == mock_coe_advising_note.id), None)
-
-
 class TestGetNote:
 
     def test_not_authenticated(self, app, client, mock_coe_advising_note):

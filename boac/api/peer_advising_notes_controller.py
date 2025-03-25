@@ -25,7 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import urllib.parse
 
-from boac.api.decorators import peer_advisor_or_peer_advisor_manager, peer_advisor_required
+from boac.api.decorators import advising_data_access_required, peer_advisor_or_peer_advisor_manager, \
+    peer_advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import get_boac_note_as_compatible_json, get_note_attachments_from_http_post, \
     get_note_author_profile_of_current_user, get_note_topics_from_http_post, validate_note_contact_type
@@ -143,6 +144,26 @@ def download_peer_advising_note_attachment(attachment_id):
     encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
     r.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoding_safe_filename}"
     return r
+
+
+@app.route('/api/peer_advising/<peer_advising_department_id>/note_author/<uid>')
+@advising_data_access_required
+def get_notes_authored_by(peer_advising_department_id, uid):
+    notes = Note.get_peer_advising_notes_authored_by(
+        author_uid=uid,
+        peer_advising_department_id=peer_advising_department_id,
+    )
+    sids = [note['sid'] for note in notes]
+    students_by_sid = {student['sid']: student for student in data_loch.get_basic_student_data(sids)}
+    for note in notes:
+        student = students_by_sid.get(note['sid'])
+        note['student'] = {
+            'firstName': student['first_name'],
+            'lastName': student['last_name'],
+            'sid': student['sid'],
+            'uid': student['uid'],
+        }
+    return tolerant_jsonify(notes)
 
 
 @app.route('/api/peer_advising/note/<note_id>')

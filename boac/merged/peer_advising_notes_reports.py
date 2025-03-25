@@ -56,6 +56,42 @@ def get_peer_advising_note_count_since(peer_advising_department_id, since_dateti
     return [row['count'] for row in results][0]
 
 
+def get_notes_created_by_peer_advisors(
+        peer_advising_department_id,
+        from_created_at=None,
+        to_created_at=None,
+):
+    query = f"""
+        SELECT
+          u.id as user_id,
+          u.uid,
+          n.id as note_id,
+          n.author_name AS note_author_name,
+          n.created_at as note_created_at
+        FROM notes n
+        JOIN authorized_users u ON u.uid = n.author_uid
+        JOIN peer_advising_department_members m
+          ON m.authorized_user_id = u.id AND m.role_type = 'peer_advisor' AND n.peer_advising_department_id = m.peer_advising_department_id
+        WHERE
+          n.peer_advising_department_id = :peer_advising_department_id
+          AND n.deleted_at IS NULL
+          {f" AND n.created_at >= '{from_created_at.isoformat()}'" if from_created_at else ''}
+          {f" AND n.created_at <= '{to_created_at.isoformat()}'" if to_created_at else ''}
+        GROUP BY u.id, u.uid, n.id, n.author_name, n.created_at
+    """
+
+    def _to_dict(row):
+        return {
+            'note_id': row['note_id'],
+            'note_author_name': row['note_author_name'],
+            'note_created_at': row['note_created_at'],
+            'uid': row['uid'],
+            'user_id': row['user_id'],
+        }
+    params = {'peer_advising_department_id': peer_advising_department_id}
+    return [_to_dict(row) for row in db.session.execute(query, params)]
+
+
 def get_peer_advising_note_template_usage(peer_advising_department_id):
     query = """
         SELECT DISTINCT(nt.id), nt.title, COUNT(DISTINCT nt.id) AS count

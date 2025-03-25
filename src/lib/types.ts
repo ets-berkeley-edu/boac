@@ -293,11 +293,22 @@ export type PeerAdvisingManagerReport = {
     peerAdvisors: BoaUser[]
   },
   distinctPeerAdvisorAuthors: number,
+  historical: {
+    years: {
+      label: string,
+      months: {
+        label: string,
+        peerAdvisors: BoaUser[],
+        totalNoteCount: number
+      }[]
+    }[]
+  },
   noteTemplates: {
     name: string,
     noteTemplateUsageCount: number,
     templateTitle: string
   }[],
+  peerAdvisingDepartment: PeerAdvisingDepartment,
   totalPeerAdvisingNoteCount: number
 }
 
