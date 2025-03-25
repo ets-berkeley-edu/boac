@@ -13,6 +13,7 @@
         <EditPeerAdvisingNoteHeader
           header-text="New Note"
           :note-templates="noteTemplates"
+          :is-note-templates-loading="isNoteTemplatesLoading"
           @template-selected="setTemplate"
         />
       </v-card-title>
@@ -136,6 +137,7 @@ const currentUser = useContextStore().currentUser
 const isAreYouSureModalOpen = ref(false)
 const noteStore = useNoteStore()
 const noteTemplates = ref([])
+const isNoteTemplatesLoading = ref(false)
 const recipients = computed<NoteRecipients>(() => noteStore.recipients)
 const student = ref<BasicStudent | undefined>()
 const topics = ref<NoteTopic[]>([])
@@ -146,8 +148,10 @@ onMounted(() => {
   getPeerAdvisingTopics().then(data => {
     topics.value = data
   })
+  isNoteTemplatesLoading.value = true
   getNoteTemplatesForPeerAdvising(props.peerAdvisingDepartmentId).then(data => {
     noteTemplates.value = data
+    isNoteTemplatesLoading.value = false
   })
 })
 
