@@ -104,11 +104,10 @@
                     </v-expand-transition>
                     <v-expand-transition>
                       <div v-if="expandedNoteIds.includes(note.id)">
-                        <div class="margins-of-hide-note-btn text-center w-100">
+                        <div class="margins-of-hide-note-btn">
                           <v-btn
                             :id="`hide-note-${note.id}-details`"
                             :aria-expanded="true"
-                            class="w-100"
                             color="primary"
                             density="compact"
                             :prepend-icon="mdiCloseCircle"
@@ -205,6 +204,9 @@ const toggleShowHide = (note: Note) => {
 </script>
 
 <style scoped>
+.margins-of-hide-note-btn {
+  margin-left: -15px;
+}
 .td-created-date {
   font-size: 14px;
   max-width: 120px !important;
