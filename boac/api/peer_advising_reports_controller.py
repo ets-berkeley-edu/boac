@@ -23,11 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac.api.auth_utils import is_authorized_peer_advisor_manager
 from boac.api.decorators import peer_advisor_manager_required
 from boac.api.errors import ResourceNotFoundError
 from boac.lib.http import tolerant_jsonify
+from boac.merged.peer_advising_notes_reports import get_peer_advising_note_author_count, \
+    get_peer_advising_note_count_since, get_peer_advising_note_template_usage, get_total_peer_advising_notes
 from boac.models.peer_advising_department import PeerAdvisingDepartment
+from dateutil.tz import tzutc
 from flask import current_app as app
 from flask_login import current_user
 
@@ -42,27 +47,26 @@ def peer_advising_notes_report(peer_advising_department_id):
         peer_advising_department_id=peer_advising_department.id,
         peer_advisor_manager_user_id=current_user.get_id(),
     ):
+        today = datetime.today()
+        start_of_month = datetime(today.year, today.month, 1, 0, 0, tzinfo=tzutc())
         return tolerant_jsonify({
             'currentMonth': {
-                'month': 'May',
-                'peerAdvisingNoteCount': 17,
+                'label': f"{start_of_month.strftime('%b')} {start_of_month.strftime('%Y')}",
+                'peerAdvisingNoteCount': get_peer_advising_note_count_since(
+                    peer_advising_department_id=peer_advising_department.id,
+                    since_datetime=start_of_month,
+                ),
                 'peerAdvisors': [
                     {'userId': 1, 'name': 'Patsy Simmons', 'noteCount': 2},
                     {'userId': 2, 'name': 'Max Townsend', 'noteCount': 1},
                     {'userId': 3, 'name': 'Lance Wright', 'noteCount': 5},
                     {'userId': 4, 'name': 'Kirk Holloway', 'noteCount': 9},
                 ],
-                'year': 2024,
             },
-            'distinctPeerAdvisorAuthors': 26,
-            'noteTemplates': [
-                {'name': 'Change of Major', 'usageCount': 11},
-                {'name': 'Declaring a Major', 'usageCount': 7},
-                {'name': 'Units Exception', 'usageCount': 3},
-                {'name': 'Graduation Planning', 'usageCount': 0},
-            ],
+            'distinctPeerAdvisorAuthors': get_peer_advising_note_author_count(peer_advising_department.id),
+            'noteTemplates': get_peer_advising_note_template_usage(peer_advising_department.id),
             'peerAdvisingDepartment': peer_advising_department.to_api_json(),
-            'totalPeerAdvisingNoteCount': 436,
+            'totalPeerAdvisingNoteCount': get_total_peer_advising_notes(peer_advising_department.id),
         })
     else:
         return app.login_manager.unauthorized()

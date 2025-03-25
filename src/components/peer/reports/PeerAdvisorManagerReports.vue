@@ -2,8 +2,8 @@
   <div class="ma-3">
     <h2 class="font-size-18">Reporting &amp; Statistics</h2>
     <div v-if="notesReport" class="d-flex justify-space-between mt-3">
-      <div class="w-50 pr-4">
-        <table class="w-100">
+      <div class="pr-16 w-50">
+        <table class="ml-3 w-100">
           <thead class="sr-only">
             <tr>
               <th>Measurement</th>
@@ -22,25 +22,36 @@
           </tbody>
         </table>
         <h3 class="font-size-16 mt-3">Templates Used</h3>
-        <div class="ml-3">
-          <table class="w-100">
-            <thead class="sr-only">
-              <tr>
-                <th>Measurement</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="noteTemplate in notesReport.noteTemplates" :key="noteTemplate.name">
-                <td>{{ noteTemplate.name }}</td>
-                <td class="text-right">{{ noteTemplate.usageCount }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <table class="ml-3 w-100">
+          <thead class="sr-only">
+            <tr>
+              <th>Note Template Title</th>
+              <th>Note Template Usage Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(noteTemplate, index) in notesReport.noteTemplates" :key="noteTemplate.name">
+              <td :class="{'pt-2': index === 0}">{{ noteTemplate.templateTitle }}</td>
+              <td class="text-right">{{ noteTemplate.noteTemplateUsageCount }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="pl-4 w-50">
-        XXX
+      <div class="pr-8 w-50">
+        <div class="align-center d-flex justify-space-between">
+          <div class="font-weight-bold">
+            Current Peer Note Count for {{ notesReport.currentMonth.label }}
+          </div>
+          <div class="text-right">
+            <PillCount
+              id="current-month-peer-note-count"
+              class="pa-2 sidebar-pill text-white"
+              color="primary"
+            >
+              <span class="font-size-16">{{ notesReport.currentMonth.peerAdvisingNoteCount }}</span>
+            </PillCount>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -49,8 +60,9 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {onMounted, ref} from 'vue'
-import {getPeerAdvisingNotesReport} from '@/api/peer-advising-reports'
 import type {PeerAdvisingDepartment} from '@/lib/types'
+import {getPeerAdvisingNotesReport} from '@/api/peer-advising-reports'
+import PillCount from '@/components/util/PillCount.vue'
 
 const props = defineProps({
   peerAdvisingDepartment: {
@@ -69,5 +81,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
+td {
+  padding: 4px 0 4px 0;
+}
+td:first-child {
+  padding-left: 16px;
+}
 </style>
