@@ -108,9 +108,16 @@
           </span>
         </div>
         <div v-if="note.peerAdvisingDepartmentId">
-          {{ peerAdvisingDepartment.name }}
+          <span id="peer-advising-department">{{ peerAdvisingDepartment.name }}</span>
+          <div
+            v-if="peerAdvisingDepartment.deptName !== peerAdvisingDepartment.name"
+            id="university-department-of-peer-advisor"
+            class="text-medium-emphasis"
+          >
+            {{ peerAdvisingDepartment.deptName }}
+          </div>
         </div>
-        <div v-if="showAuthorDepartments" class="text-medium-emphasis">
+        <div v-if="!note.peerAdvisingDepartmentId" class="text-medium-emphasis">
           <div v-for="(deptName, index) in authorDepartments" :key="index">
             <span :id="`note-${note.id}-author-dept-${index}`">{{ deptName }}</span>
           </div>
@@ -203,7 +210,6 @@ const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)
 const peerAdvisingDepartment = props.note.peerAdvisingDepartmentId ? findPeerAdvisingDepartment(props.note.peerAdvisingDepartmentId) : undefined
 const showConfirmDeleteAttachment = ref(false)
-const showAuthorDepartments = ref(false)
 
 watch(() => props.isOpen, () => {
   loadAuthorDetails()
@@ -284,10 +290,6 @@ const loadAuthorDetails = () => {
   } else {
     isAuthorDetailsLoaded.value = true
   }
-  const departments = author.value.departments
-  const departmentCount = size(departments)
-  const peerAdvisingDepartmentName = props.note.peerAdvisingDepartmentName
-  showAuthorDepartments.value = peerAdvisingDepartmentName ? (departmentCount > 1 || (departmentCount === 1 && peerAdvisingDepartmentName !== departments[0])) : !!departmentCount
 }
 
 const removeAttachmentByIndex = index => {
