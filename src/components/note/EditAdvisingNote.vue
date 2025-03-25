@@ -60,7 +60,11 @@
       class="mt-2"
       :disabled="isSaving || boaSessionExpired"
     />
-    <ContactMethod class="mt-3" :disabled="isSaving || boaSessionExpired" />
+    <ContactMethod
+      class="mt-3"
+      :disabled="isSaving || boaSessionExpired"
+      :is-peer-advising="!!noteStore.model.peerAdvisingDepartmentId"
+    />
     <ManuallySetDate
       v-if="!noteStore.model.peerAdvisingDepartmentId"
       class="mt-3"
