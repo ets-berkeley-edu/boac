@@ -91,11 +91,15 @@
                         v-if="!expandedNoteIds.includes(note.id)"
                         :id="`open-peer-advising-${note.id}`"
                         :aria-label="`Edit ${getStudentName(note)} note`"
-                        class="align-center d-flex justify-space-between text-primary w-100"
+                        class="align-center d-flex text-primary w-100"
                         :class="{'demo-mode-blur': currentUser.inDemoMode}"
                         @click="() => toggleShowHide(note)"
                       >
                         <span class="truncate-with-ellipsis" v-html="stripHtmlAndTrim(note.body)" />
+                        <span v-if="note.attachments.length" class="ml-2">
+                          <span class="sr-only">Has attachment(s)</span>
+                          <v-icon class="mb-1" :icon="mdiPaperclip" size="small" />
+                        </span>
                       </button>
                     </v-expand-transition>
                     <v-expand-transition>
@@ -151,7 +155,7 @@ import type {PropType} from 'vue'
 import {computed, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {get, isNil, size} from 'lodash'
-import {mdiCloseCircle, mdiCloseThick} from '@mdi/js'
+import {mdiCloseCircle, mdiCloseThick, mdiPaperclip} from '@mdi/js'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 import type {BoaUser, Note} from '@/lib/types'
