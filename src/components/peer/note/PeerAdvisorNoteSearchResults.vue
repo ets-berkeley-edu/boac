@@ -67,11 +67,10 @@
             </v-expand-transition>
             <v-expand-transition>
               <div v-if="expandedNoteIds.includes(note.id)">
-                <div class="margins-of-hide-note-btn text-center w-100">
+                <div class="margins-of-hide-note-btn">
                   <v-btn
                     :id="`hide-note-${note.id}-details`"
                     :aria-expanded="true"
-                    class="w-100"
                     color="primary"
                     density="compact"
                     :prepend-icon="mdiCloseCircle"
