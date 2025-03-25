@@ -51,6 +51,7 @@ class SearchForm(Page):
     def enter_simple_search_and_hit_enter(self, string):
         self.enter_simple_search(string)
         self.hit_enter()
+        time.sleep(1)
 
     def click_simple_search_button(self):
         app.logger.info('Clicking search button')

@@ -57,7 +57,11 @@ note_2_by_ls_peer = Note({'advisor': peer_1_in_ls})
 student_1_for_ls_peer_note = test_ls.test_students[4]
 student_2_for_ls_peer_note = test_ls.test_students[5]
 student_schedule_tcs = [tc for tc in test_ls.test_cases if tc.course and tc.student == student_1_for_ls_peer_note]
-attachments = list(filter(lambda a: a.file_size < 20000000, test_ls.attachments))
+
+test_ls.attachments.sort(key=lambda a: a.file_size, reverse=True)
+too_big_attachments = list(filter(lambda a: a.file_size > 20000000, test_ls.attachments))
+valid_attachments = list(filter(lambda a: a.file_size < 20000000, test_ls.attachments))
+
 peer_template_in_ls = NoteTemplate({
     'body': (f'LS body {test_ls.test_id} ' * 10).strip(),
     'is_peer_advising': True,
@@ -65,9 +69,9 @@ peer_template_in_ls = NoteTemplate({
     'topics': [Topic(PeerTopics.DEGREE_REQTS.value)],
 })
 peer_template_in_coe = NoteTemplate({
-    'body': (f'CoE body {test_ls.test_id} ' * 10).strip(),
+    'body': (f'CoE body {test_coe.test_id} ' * 10).strip(),
     'is_peer_advising': True,
-    'title': f'CoE Template {test_ls.test_id}',
+    'title': f'CoE Template {test_coe.test_id}',
     'topics': [],
 })
 
@@ -119,18 +123,17 @@ class TestNoteStudentLookup:
 
     def test_search_student_by_name(self):
         self.peer_page.click_new_peer_note_button()
-        self.peer_page.search_peer_note_student_by_name(student_1_for_ls_peer_note)
+        self.peer_page.search_peer_note_student_by_name(student_2_for_ls_peer_note)
 
     def test_search_student_by_sid(self):
-        self.peer_page.search_peer_note_student_by_sid(student_1_for_ls_peer_note)
+        self.peer_page.search_peer_note_student_by_sid(student_2_for_ls_peer_note)
 
     def test_search_student_by_email(self):
-        self.peer_page.search_peer_note_student_by_email(student_1_for_ls_peer_note)
+        self.peer_page.search_peer_note_student_by_email(student_2_for_ls_peer_note)
 
-    # TODO - when bug is fixed, use student_2_for_ls_peer_note instead
     def test_add_and_remove_student(self):
-        self.peer_page.add_student_to_peer_note(student_1_for_ls_peer_note)
-        self.peer_page.remove_student_from_peer_note(student_1_for_ls_peer_note)
+        self.peer_page.add_student_to_peer_note(student_2_for_ls_peer_note)
+        self.peer_page.remove_student_from_peer_note(student_2_for_ls_peer_note)
 
     def test_show_student_schedule(self):
         self.peer_page.add_student_to_peer_note(student_1_for_ls_peer_note)
@@ -171,13 +174,11 @@ class TestNoteCreation:
         self.peer_page.enter_note_body(note_1_by_ls_peer)
         assert self.peer_page.is_save_note_button_enabled()
 
-    # TODO
-    # def test_note_add_attachments(self):
-    #     self.peer_page.add_attachments_to_new_note(peer_ls_note_1, attachments)
+    def test_note_add_attachments(self):
+        self.peer_page.add_attachments_to_peer_note(note_1_by_ls_peer, valid_attachments[0:2])
 
-    # TODO
-    # def test_note_remove_attachments(self):
-    #     self.peer_page.remove_attachments_from_new_note(peer_ls_note_1, attachments)
+    def test_note_remove_attachments(self):
+        self.peer_page.remove_attachments_from_new_note(note_1_by_ls_peer, valid_attachments[0:2])
 
     def test_cancel_new_note(self):
         self.peer_page.click_cancel_new_note()
@@ -186,14 +187,25 @@ class TestNoteCreation:
         self.peer_page.confirm_delete_or_discard()
         self.peer_page.when_not_present(self.peer_page.PEER_NOTE_STUDENT_INPUT, 2)
 
+    def test_create_note_max_attachments(self):
+        self.peer_page.click_new_peer_note_button()
+        self.peer_page.enter_peer_note_attachments(test_ls.attachments)
+        self.peer_page.when_visible(self.peer_page.NOTE_ATTACHMENT_COUNT_MSG, utils.get_short_timeout())
+
+    def test_create_note_attachment_too_big(self):
+        self.peer_page.click_cancel_new_note()
+        self.peer_page.click_new_peer_note_button()
+        self.peer_page.enter_peer_note_attachments([too_big_attachments[0]])
+        self.peer_page.when_visible(self.peer_page.NOTE_ATTACHMENT_SIZE_MSG, utils.get_short_timeout())
+
     def test_create_note(self):
         note_1_by_ls_peer.body = (f'Test Note 1 {test_ls.test_id} ' * 20).strip()
         note_1_by_ls_peer.contact_type = 'Phone'
         note_1_by_ls_peer.student = student_1_for_ls_peer_note
         note_1_by_ls_peer.topics = [Topic(PeerTopics.LATE_CHANGE.value), Topic(PeerTopics.INCOMPLETES.value)]
+        self.peer_page.click_cancel_new_note()
         self.peer_page.click_new_peer_note_button()
-        # self.peer_page.create_peer_note(peer_ls_note_1, attachments)
-        self.peer_page.create_peer_note(note_1_by_ls_peer)
+        self.peer_page.create_peer_note(note_1_by_ls_peer, valid_attachments[0:3])
 
     def test_note_template_options(self):
         self.peer_page.click_new_peer_note_button()
@@ -213,6 +225,13 @@ class TestNoteCreation:
 @pytest.mark.usefixtures('page_objects')
 class TestListView:
 
+    def test_index_notes(self):
+        self.peer_page.log_out()
+        self.homepage.dev_auth()
+        self.api_admin_page.reindex_notes()
+        self.homepage.switch_user(peer_1_in_ls, 'Peer Advising')
+        self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
+
     def test_collapsed_note_student(self):
         utils.assert_equivalence(self.peer_page.peer_note_student(note_1_by_ls_peer), note_1_by_ls_peer.student.full_name)
 
@@ -226,8 +245,6 @@ class TestListView:
     def test_collapsed_note_date(self):
         utils.assert_equivalence(self.peer_page.peer_note_date(note_1_by_ls_peer),
                                  self.peer_page.peer_note_date_format(note_1_by_ls_peer))
-
-    # TODO def test_collapsed_note_attachments(self):
 
     def test_expand_note(self):
         self.peer_page.expand_peer_note(note_1_by_ls_peer)
@@ -245,18 +262,34 @@ class TestListView:
     def test_expanded_note_contact_type(self):
         utils.assert_equivalence(self.peer_page.expanded_note_contact_type(note_1_by_ls_peer), note_1_by_ls_peer.contact_type)
 
-    # TODO def test_expanded_note_attachments(self):
+    def test_expanded_note_attachments(self):
+        attachment_files = [a.file_name for a in note_1_by_ls_peer.attachments]
+        attachment_files.sort()
+        visible_attachments = self.peer_page.expanded_note_attachments(note_1_by_ls_peer)
+        visible_attachments.sort()
+        utils.assert_equivalence(visible_attachments, attachment_files)
+
+    def test_download_attachments(self):
+        for attach in note_1_by_ls_peer.attachments:
+            self.peer_page.download_attachment(note_1_by_ls_peer, attach)
 
     def test_collapse_note(self):
         self.peer_page.collapse_item(note_1_by_ls_peer)
 
-    # TODO def test_search_note_student(self):
+    def test_search_note_student(self):
+        self.peer_page.enter_simple_search_and_hit_enter(note_1_by_ls_peer.student.last_name)
+        self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
+        self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
 
-    # TODO def test_search_note_body(self):
+    def test_search_note_student_no_result(self):
+        string = note_1_by_ls_peer.student.full_name[::-1]
+        self.peer_page.enter_simple_search_and_hit_enter(string)
+        self.peer_page.when_visible(self.peer_page.PEER_NOTE_NO_RESULTS, utils.get_short_timeout())
 
-    # TODO def test_search_note_topics(self):
-
-    # TODO def test_search_note_date(self):
+    def test_search_note_body(self):
+        self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
+        self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
+        self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
 
     def test_foreign_pa_cannot_see_note(self):
         self.peer_page.log_out()
@@ -265,12 +298,19 @@ class TestListView:
         assert not self.peer_page.is_present(self.peer_page.peer_note_row(note_1_by_ls_peer))
         assert not self.peer_page.is_present(self.peer_page.peer_note_row(note_2_by_ls_peer))
 
-    # Dev auth COE PA
+    def test_foreign_pa_cannot_search_note(self):
+        self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
+        self.peer_page.when_visible(self.peer_page.PEER_NOTE_NO_RESULTS, utils.get_short_timeout())
 
     def test_domestic_pa_can_see_note(self):
         self.peer_page.log_out()
         self.homepage.dev_auth(peer_2_in_ls, 'Peer Advising')
         self.peer_page.when_visible(self.peer_page.PEER_NEW_NOTE_BTN, utils.get_short_timeout())
+        self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
+        self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
+
+    def test_domestic_pa_can_search_note(self):
+        self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
 
@@ -295,8 +335,6 @@ class TestPAMListView:
         utils.assert_equivalence(self.pam_page.peer_manager_note_date(note_1_by_ls_peer),
                                  self.pam_page.peer_note_date_format(note_1_by_ls_peer))
 
-    # TODO def test_collapsed_note_attachments(self):
-
     def test_expand_note(self):
         self.pam_page.expand_peer_note(note_1_by_ls_peer)
 
@@ -314,7 +352,12 @@ class TestPAMListView:
         utils.assert_equivalence(self.pam_page.expanded_note_contact_type(note_1_by_ls_peer),
                                  note_1_by_ls_peer.contact_type)
 
-    # TODO def test_expanded_note_attachments(self):
+    def test_expanded_note_attachments(self):
+        attachment_files = [a.file_name for a in note_1_by_ls_peer.attachments]
+        attachment_files.sort()
+        visible_attachments = self.peer_page.expanded_note_attachments(note_1_by_ls_peer)
+        visible_attachments.sort()
+        utils.assert_equivalence(visible_attachments, attachment_files)
 
     def test_collapse_note(self):
         self.pam_page.collapse_item(note_1_by_ls_peer)
@@ -323,13 +366,7 @@ class TestPAMListView:
 @pytest.mark.usefixtures('page_objects')
 class TestPAMNoteSearch:
 
-    def test_reindex_notes(self):
-        self.pam_page.log_out()
-        self.homepage.dev_auth()
-        self.api_admin_page.reindex_notes()
-
     def test_search_note(self):
-        self.homepage.switch_user(pam_in_ls)
         self.homepage.reopen_and_reset_adv_search()
         self.homepage.exclude_students()
         self.homepage.exclude_classes()
@@ -374,16 +411,15 @@ class TestPAMNoteEdit:
         topics_to_add = [Topic(PeerTopics.DBL_MAJOR.value), Topic(PeerTopics.REDUCED_LOAD.value)]
         self.student_page.remove_topics(note_1_by_ls_peer, note_1_by_ls_peer.topics)
         self.student_page.add_topics(note_1_by_ls_peer, topics_to_add)
-
-    # TODO
-    # def test_edit_note_attachments(self):
-    #     attachments_to_add = peer_ls_note_1.attachments[0:1]
-    #     self.student_page.remove_attachments_from_existing_note(peer_ls_note_1, peer_ls_note_1.attachments)
-    #     self.student_page.add_attachments_to_existing_note(peer_ls_note_1, attachments_to_add)
-
-    def test_save_edits(self):
         self.student_page.click_save_note_edit()
         self.student_page.when_not_present(self.student_page.EDIT_NOTE_SAVE_BUTTON, utils.get_short_timeout())
+
+    def test_edit_note_attachments(self):
+        attachments_to_add = valid_attachments[4:5]
+        self.student_page.remove_attachments_from_existing_note(note_1_by_ls_peer, note_1_by_ls_peer.attachments)
+        self.student_page.add_attachments_to_existing_note(note_1_by_ls_peer, attachments_to_add)
+
+    def test_verify_edits(self):
         note_1_by_ls_peer.updated_date = datetime.now()
         self.student_page.click_close_msg(note_1_by_ls_peer)
         self.student_page.verify_note(note_1_by_ls_peer, pam_in_ls)

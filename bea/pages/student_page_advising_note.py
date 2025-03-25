@@ -30,6 +30,7 @@ import re
 import time
 import zipfile
 
+from bea.models.advisor_role import PeerAdvisingRole
 from bea.models.department import Department
 from bea.models.notes_and_appts.timeline_e_form import TimelineEForm
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
@@ -170,6 +171,12 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         depts.sort()
         return depts
 
+    def expanded_note_peer_dept(self, note):
+        return self.el_text_if_exists((By.ID, f'note-{note.record_id}-peer-advising-department'))
+
+    def expanded_note_peer_dept_parent(self, note):
+        return self.el_text_if_exists((By.ID, f'note-{note.record_id}-university-department-of-peer-advisor'))
+
     def expanded_note_advisor_role(self, note):
         advisor_role_loc = By.ID, f'note-{note.record_id}-author-role'
         return self.el_text_if_exists(advisor_role_loc)
@@ -242,7 +249,13 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
         self.expand_item(note)
         utils.assert_existence(self.expanded_note_advisor(note))
-        if not note.source == TimelineRecordSource.EOP:
+
+        advisor_peer_roles = [mem.peer_advising_role for mem in note.advisor.dept_memberships if mem.peer_advising_role]
+        if PeerAdvisingRole.PEER_ADVISOR in advisor_peer_roles:
+            utils.assert_existence(self.expanded_note_advisor_role(note))
+            utils.assert_existence(self.expanded_note_peer_dept(note))
+            utils.assert_existence(self.expanded_note_peer_dept_parent(note))
+        elif note.source != TimelineRecordSource.EOP:
             utils.assert_existence(self.expanded_note_advisor_role(note))
             utils.assert_existence(self.expanded_note_advisor_depts(note))
 

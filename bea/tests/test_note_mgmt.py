@@ -132,9 +132,8 @@ class TestNoteMgmt:
         self.student_page.verify_note(self.note_6, self.test.advisor)
 
     def test_create_note_attachment_too_big(self):
-        file_path = f'{utils.attachments_dir()}/{self.too_big_attachments[0].file_name}'
         self.student_page.click_create_new_note()
-        self.student_page.enter_new_note_attachments(file_path)
+        self.student_page.enter_new_note_attachments([self.too_big_attachments[0]])
         self.student_page.when_present(self.student_page.NOTE_ATTACHMENT_SIZE_MSG, utils.get_short_timeout())
 
     def test_create_note_add_remove_topics(self):

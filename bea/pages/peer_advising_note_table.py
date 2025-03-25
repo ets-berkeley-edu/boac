@@ -33,6 +33,7 @@ from selenium.webdriver.common.by import By
 class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     PEER_NOTE_TABLE = By.ID, 'notes-for-peer-advisor-view'
+    PEER_NOTE_NO_RESULTS = By.ID, 'peer-advisor-no-notes'
 
     def visible_peer_note_ids(self):
         els = self.elements((By.XPATH, '//button[contains(@id, "open-peer-advising-")]'))
@@ -53,7 +54,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[1]'))
 
     def peer_note_body(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[2]'))
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[2]'), 'Has attachment(s)')
 
     def peer_note_topics(self, note):
         return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]'))
