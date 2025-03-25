@@ -18,7 +18,7 @@
           :id="option.value"
           :key="option.value"
           :value="option.value"
-          :disabled="topicAlreadySelected(option.value)"
+          :disabled="topicAlreadySelected(option)"
         >
           {{ option.text }}
         </option>
@@ -122,15 +122,9 @@ const remove = topic => {
   putFocusNextTick('add-topic-select-list')
 }
 
-const topicAlreadySelected = (topic) => {
-  let topicFound = false
-  topicsSelected.value.forEach(selectedTopic => {
-    if (selectedTopic === topic) {
-      topicFound = true
-    }
-  })
-  return topicFound
-}
+const topicAlreadySelected = topic =>
+  topicsSelected.value.some(selectedTopic => selectedTopic === topic.value)
+
 </script>
 
 

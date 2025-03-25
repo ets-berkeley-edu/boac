@@ -94,7 +94,7 @@ const noteLoaded = ref(false)
 onMounted(() => {
   if (!props.note) {
     getNoteById()
-  } else if (props.note) {
+  } else {
     noteDetails.value = props.note
     noteLoaded.value = true
   }

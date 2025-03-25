@@ -54,7 +54,8 @@
       </v-list>
       <v-list v-if="!noteTemplates.length">
         <v-list-item disabled>
-          <span class="font-size-16 font-weight-medium">You have no saved templates.</span>
+          <span v-if="!isNoteTemplatesLoading" class="font-size-16 font-weight-medium">You have no saved templates.</span>
+          <span v-if="isNoteTemplatesLoading" class="font-size-16 font-weight-medium">Loading Note Templates...</span>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -91,6 +92,10 @@ const props = defineProps({
   exit: {
     type: Function,
     required: true
+  },
+  isNoteTemplatesLoading: {
+    required: true,
+    type: Boolean
   }
 })
 

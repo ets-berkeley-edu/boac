@@ -6,6 +6,7 @@
     <div>
       <SelectPeerAdvisingNoteTemplateForNote
         :note-templates="noteTemplates"
+        :is-note-templates-loading="isNoteTemplatesLoading"
         :exit="noop"
         @template-selected="templateSelected"
       />
@@ -30,6 +31,10 @@ defineProps({
   noteTemplates: {
     required: true,
     type: Array
+  },
+  isNoteTemplatesLoading: {
+    required: true,
+    type: Boolean
   }
 })
 
