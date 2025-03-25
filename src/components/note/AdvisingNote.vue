@@ -108,10 +108,10 @@
           </span>
         </div>
         <div v-if="note.peerAdvisingDepartmentId">
-          <span id="peer-advising-department">{{ peerAdvisingDepartment.name }}</span>
+          <span :id="`note-${note.id}-peer-advising-department`">{{ peerAdvisingDepartment.name }}</span>
           <div
             v-if="peerAdvisingDepartment.deptName !== peerAdvisingDepartment.name"
-            id="university-department-of-peer-advisor"
+            :id="`note-${note.id}-university-department-of-peer-advisor`"
             class="text-medium-emphasis"
           >
             {{ peerAdvisingDepartment.deptName }}
