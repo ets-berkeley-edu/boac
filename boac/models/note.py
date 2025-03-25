@@ -214,12 +214,14 @@ class Note(Base):
                     'updatedAt': to_iso_format(row['updated_at']),
                 }
                 notes.append(note)
-            if row['topic']:
-                note['topics'].append(row['topic'])
-            if row['attachment_id']:
-                filename = get_attachment_filename(row['attachment_id'], row['path_to_attachment'])
+            topic = row['topic']
+            if topic and topic not in note['topics']:
+                note['topics'].append(topic)
+            attachment_id = row['attachment_id']
+            if attachment_id and attachment_id not in [a['id'] for a in note['attachments']]:
+                filename = get_attachment_filename(attachment_id, row['path_to_attachment'])
                 note['attachments'].append({
-                    'id': row['attachment_id'],
+                    'id': attachment_id,
                     'displayName': filename,
                     'filename': filename,
                     'uploadedByUid': row['uploaded_by_uid'],
