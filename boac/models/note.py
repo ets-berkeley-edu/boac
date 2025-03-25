@@ -213,6 +213,7 @@ class Note(Base):
                     'createdAt': to_iso_format(row['created_at']),
                     'updatedAt': to_iso_format(row['updated_at']),
                 }
+                notes.append(note)
             if row['topic']:
                 note['topics'].append(row['topic'])
             if row['attachment_id']:
@@ -223,7 +224,6 @@ class Note(Base):
                     'filename': filename,
                     'uploadedByUid': row['uploaded_by_uid'],
                 })
-            notes.append(note)
         return notes
 
     @classmethod
