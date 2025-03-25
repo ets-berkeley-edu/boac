@@ -79,7 +79,7 @@
 
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from 'vue'
-import {filter as _filter, get, includes, map, toLower, toString} from 'lodash'
+import {filter as _filter, get, includes, map, replace, toLower, toString} from 'lodash'
 import {useDisplay} from 'vuetify'
 import {useRoute, useRouter} from 'vue-router'
 import type {BoaUser, PeerAdvisingDepartment} from '@/lib/types'
@@ -87,8 +87,8 @@ import PeerAdvisingAccountMgmt from '@/components/peer/PeerAdvisingAccountMgmt.v
 import PeerAdvisingNoteTemplates from '@/components/peer/PeerAdvisingNoteTemplates.vue'
 import PeerAdvisorManagerReports from '@/components/peer/reports/PeerAdvisorManagerReports.vue'
 import {getPeerAdvisingDepartment} from '@/api/peer-advising-users'
-import {useContextStore} from '@/stores/context'
 import {toInt} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
 const currentUser: BoaUser = contextStore.currentUser
@@ -110,9 +110,17 @@ contextStore.loadingStart()
 watch(tab, value => onTabChange(value))
 
 onMounted(() => {
-  onTabChange(toLower(toString(useRoute().query.tab)))
-  reloadPeerAdvisingDepartment()
+  const hash = replace(route.hash, '#', '')
+  onTabChange(toLower(toString(hash)))
+  reloadPeerAdvisingDepartment().then(() => {
+    contextStore.loadingComplete('Peer Advising Management Dashboard is ready.')
+  })
 })
+
+const onTabChange = (value: string) => {
+  tab.value = includes(map(tabs, 'key'), value) ? value : tab.value
+  router.replace({hash: `#${tab.value}`})
+}
 
 const reloadPeerAdvisingDepartment = async () => {
   const peerAdvisingDeptId: string = toString(get(route.params, 'id'))
@@ -124,13 +132,7 @@ const reloadPeerAdvisingDepartment = async () => {
     true
   ).then(data => {
     peerAdvisingDepartment.value = data
-    contextStore.loadingComplete('Peer Advising Management Dashboard is ready.')
     isRefreshing.value = false
   })
-}
-
-const onTabChange = (value: string) => {
-  tab.value = includes(map(tabs, 'key'), value) ? value : tab.value
-  router.push({query: {tab: tab.value}})
 }
 </script>

@@ -286,6 +286,21 @@ export type PeerAdvisingDepartment = {
   peerAdvisingDepartmentMembers: BoaUser[]
 }
 
+export type PeerAdvisingManagerReport = {
+  currentMonth: {
+    label: string,
+    peerAdvisingNoteCount: number,
+    peerAdvisors: BoaUser[]
+  },
+  distinctPeerAdvisorAuthors: number,
+  noteTemplates: {
+    name: string,
+    noteTemplateUsageCount: number,
+    templateTitle: string
+  }[],
+  totalPeerAdvisingNoteCount: number
+}
+
 export type ScreenReaderAlert = {
   message: string,
   politeness: string
