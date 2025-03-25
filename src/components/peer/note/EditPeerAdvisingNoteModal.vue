@@ -115,12 +115,12 @@ import EditPeerAdvisingNoteHeader from '@/components/peer/note/EditPeerAdvisingN
 import PeerAdvisingNoteStudentLookup from '@/components/peer/note/PeerAdvisingNoteStudentLookup.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import {alertScreenReader, pluralize, stripHtmlAndTrim} from '@/lib/utils'
+import {clearNoteRecipients, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
-import {useNoteStore} from '@/stores/note-edit-session'
 import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
-import {clearNoteRecipients, isAutoSaveMode, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
-import {useContextStore} from '@/stores/context'
 import {removeAttachment} from '@/api/notes'
+import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 const dialog = defineModel<boolean>({
   required: true,
@@ -201,10 +201,10 @@ const onSelectStudent = (selectedStudent: BasicStudent | undefined) => {
   }
 }
 
-const removeAttachmentByIndex = index => {
+const removeAttachmentByIndex = (index: number) => {
   const attachment = noteStore.model.attachments[index]
-  if (attachment && attachment.id) {
-    if (isAutoSaveMode(noteStore.mode.value)) {
+  if (attachment) {
+    if (attachment.id) {
       removeAttachment(model.value.id, attachment.id).then(() => {
         alertScreenReader(`Attachment '${attachment.displayName}' removed`)
       })

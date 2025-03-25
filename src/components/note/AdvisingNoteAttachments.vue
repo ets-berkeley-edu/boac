@@ -97,7 +97,7 @@
         <PillItem
           :id="`${idPrefix}attachment-${index}`"
           :aria-label="isDownloadable ? `Download attachment ${attachment.displayName}` : null"
-          :closable="!isReadOnly && (canUserEditNote(note, currentUser) || noteStore.mode === 'editTemplate')"
+          :closable="canRemoveAttachments"
           :disabled="disabled"
           :href="downloadUrl(attachment)"
           :icon="mdiPaperclip"
@@ -115,7 +115,7 @@
 </template>
 
 <script setup>
-import {computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch} from 'vue'
+import {computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue'
 import {each, size} from 'lodash'
 import {mdiAlert, mdiPaperclip} from '@mdi/js'
 import PillItem from '@/components/util/PillItem'
@@ -171,6 +171,7 @@ const attachmentError = ref(undefined)
 const attachmentLimitReached = computed(() => {
   return size(props.attachments) >= contextStore.config.maxAttachmentsPerNote
 })
+const canRemoveAttachments = ref(false)
 const currentUser = reactive(contextStore.currentUser)
 const inputId = `${props.idPrefix}choose-file-for-note-attachment`
 const isAdding = ref(false)
@@ -207,6 +208,11 @@ watch(isAdding, v => {
 
 onBeforeMount(() => {
   addFileDropEventListeners()
+})
+
+onMounted(() => {
+  canRemoveAttachments.value = !props.isReadOnly
+    && (['createPeerAdvisorNote', 'editTemplate'].includes(noteStore.mode) || canUserEditNote(props.note, currentUser))
 })
 
 onBeforeUnmount(() => {

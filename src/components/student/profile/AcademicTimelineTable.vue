@@ -162,7 +162,7 @@
                 class="d-flex flex-column note-actions px-2"
               >
                 <v-btn
-                  v-if="canUserEditNote(message, currentUser)"
+                  v-if="message.type === 'note' && !message.legacySource && canUserEditNote(message, currentUser)"
                   :id="`edit-note-${message.id}-button`"
                   :aria-label="`Edit ${getButtonAriaLabel(message)}`"
                   class="mx-auto my-1"
