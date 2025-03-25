@@ -148,6 +148,7 @@ class CreateNoteModal(Page):
     # Attachments
 
     NEW_NOTE_ATTACH_INPUT = By.XPATH, '//div[@id="new-note-modal-container"]//input[@type="file"]'
+    NOTE_ATTACHMENT_COUNT_MSG = By.XPATH, '//div[contains(text(), "A note can have no more than 10 attachments.")]'
     NOTE_ATTACHMENT_SIZE_MSG = By.XPATH, '//div[contains(text(),"Attachments are limited to 20 MB in size.")]'
     NOTE_DUPE_ATTACHMENT_MSG = By.XPATH, '//div[contains(text(),"Another attachment has the name")]'
 
@@ -155,15 +156,15 @@ class CreateNoteModal(Page):
     def new_note_attachment_delete_button(attachment):
         return By.XPATH, f'//button[@aria-label="Remove attachment {attachment.file_name}"]'
 
-    def enter_new_note_attachments(self, file_string):
-        self.when_present(self.NEW_NOTE_ATTACH_INPUT, utils.get_short_timeout())
-        self.element(self.NEW_NOTE_ATTACH_INPUT).send_keys(file_string)
-
-    def add_attachments_to_new_note(self, note, attachments):
+    def enter_new_note_attachments(self, attachments):
         files = list(map(lambda a: f'{utils.attachments_dir()}/{a.file_name}', attachments))
         files = '\n'.join(files)
         app.logger.info(f'Adding attachments to an unsaved note: {files}')
-        self.enter_new_note_attachments(files)
+        self.when_present(self.NEW_NOTE_ATTACH_INPUT, utils.get_short_timeout())
+        self.element(self.NEW_NOTE_ATTACH_INPUT).send_keys(files)
+
+    def add_attachments_to_new_note(self, note, attachments):
+        self.enter_new_note_attachments(attachments)
         self.when_visible(self.new_note_attachment_delete_button(attachments[-1]), utils.get_medium_timeout())
         time.sleep(utils.get_click_sleep())
         note.attachments.extend(attachments)

@@ -22,6 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+import time
 
 from bea.pages.peer_advising_note_table import PeerAdvisingNoteTable
 from bea.test_utils import boa_utils
@@ -131,10 +132,25 @@ class PeerAdvisorPage(PeerAdvisingNoteTable):
 
     # Create and verify note
 
+    PEER_NOTE_ATTACHMENT_INPUT = By.ID, 'choose-file-for-note-attachment'
+
     def save_and_wait_for_peer_note(self, note):
         self.click_save_new_note()
         self.set_new_note_id(note, note.student)
         self.wait_for_peer_note(note)
+
+    def enter_peer_note_attachments(self, attachments):
+        files = list(map(lambda a: f'{utils.attachments_dir()}/{a.file_name}', attachments))
+        files = '\n'.join(files)
+        app.logger.info(f'Adding attachments to a peer note: {files}')
+        self.when_present(self.PEER_NOTE_ATTACHMENT_INPUT, utils.get_short_timeout())
+        self.element(self.PEER_NOTE_ATTACHMENT_INPUT).send_keys(files)
+
+    def add_attachments_to_peer_note(self, note, attachments):
+        self.enter_peer_note_attachments(attachments)
+        self.when_visible(self.new_note_attachment_delete_button(attachments[-1]), utils.get_medium_timeout())
+        time.sleep(utils.get_click_sleep())
+        note.attachments.extend(attachments)
 
     def create_peer_note(self, note, attachments=None):
         self.add_student_to_peer_note(note.student)
@@ -142,7 +158,7 @@ class PeerAdvisorPage(PeerAdvisingNoteTable):
         self.add_topics(note)
         self.select_contact_type(note)
         if attachments:
-            self.add_attachments_to_new_note(note, attachments)
+            self.add_attachments_to_peer_note(note, attachments)
         self.save_and_wait_for_peer_note(note)
 
     def verify_peer_note(self, note):

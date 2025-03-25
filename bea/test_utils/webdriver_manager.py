@@ -58,6 +58,7 @@ class WebDriverManager(object):
                 options.add_argument('--headless=new')
             prefs = {
                 'profile.default_content_settings.popups': 0,
+                'profile.default_content_setting_values.automatic_downloads': 1,
                 'download.default_directory': utils.default_download_dir(),
                 'directory_upgrade': True,
             }
