@@ -78,10 +78,10 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue'
-import {filter as _filter, toString} from 'lodash'
+import {computed, onMounted, ref, watch} from 'vue'
+import {filter as _filter, includes, map, toLower, toString} from 'lodash'
 import {useDisplay} from 'vuetify'
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import type {BoaUser, PeerAdvisingDepartment} from '@/lib/types'
 import PeerAdvisingAccountMgmt from '@/components/peer/PeerAdvisingAccountMgmt.vue'
 import PeerAdvisingNoteTemplates from '@/components/peer/PeerAdvisingNoteTemplates.vue'
@@ -95,7 +95,8 @@ const currentUser: BoaUser = contextStore.currentUser
 const isRefreshing = ref(false)
 const loading = computed(() => contextStore.loading)
 const peerAdvisingDepartment = ref<PeerAdvisingDepartment>()
-const tab = ref(undefined)
+const router = useRouter()
+const tab = ref<string>('account')
 const tabs = [
   {key: 'account', label: 'Account Management'},
   {key: 'templates', label: 'Note Templates'},
@@ -105,7 +106,10 @@ const {mdAndUp} = useDisplay()
 
 contextStore.loadingStart()
 
+watch(tab, value => onTabChange(value))
+
 onMounted(() => {
+  onTabChange(toLower(toString(useRoute().query.tab)))
   reloadPeerAdvisingDepartment()
 })
 
@@ -122,5 +126,10 @@ const reloadPeerAdvisingDepartment = async () => {
     contextStore.loadingComplete('Peer Advising Management Dashboard is ready.')
     isRefreshing.value = false
   })
+}
+
+const onTabChange = (value: string) => {
+  tab.value = includes(map(tabs, 'key'), value) ? value : tab.value
+  router.push({query: {tab: tab.value}})
 }
 </script>
