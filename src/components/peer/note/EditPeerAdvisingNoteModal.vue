@@ -68,6 +68,7 @@
         <ContactMethod
           class="mt-3"
           :disabled="isSaving"
+          :is-peer-advising="true"
         />
         <AdvisingNoteAttachments
           :add="addNoteAttachments"
