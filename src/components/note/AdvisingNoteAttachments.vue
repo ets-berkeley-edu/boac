@@ -105,7 +105,7 @@
           name="attachment"
           @close-clicked="onRemoveAttachment(index)"
         >
-          <span class="truncate-with-ellipsis" :class="{'text-anchor': isDownloadable}">
+          <span class="truncate-with-ellipsis" :class="{'demo-mode-blur': currentUser.inDemoMode, 'text-anchor': isDownloadable}">
             {{ attachment.displayName }}
           </span>
         </PillItem>

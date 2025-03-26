@@ -24,7 +24,7 @@
         </thead>
         <tbody>
           <tr v-for="peerAdvisor in notesReport.currentMonth.peerAdvisors" :key="peerAdvisor.id">
-            <td class="border-sm w-90">{{ peerAdvisor.name }}</td>
+            <td :class="{'demo-mode-blur': currentUser.inDemoMode}" class="border-sm w-90">{{ peerAdvisor.name }}</td>
             <td class="border-sm text-no-wrap text-right">
               <NotesCreatedByPeerAdvisor
                 v-if="get(peerAdvisor, 'noteCount')"
@@ -48,6 +48,7 @@ import type {PeerAdvisingManagerReport} from '@/lib/types'
 import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
 import PillCount from '@/components/util/PillCount.vue'
 import {pluralize, toInt} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
 defineProps({
   notesReport: {
@@ -55,6 +56,8 @@ defineProps({
     type: Object as PropType<PeerAdvisingManagerReport>
   }
 })
+
+const currentUser = useContextStore().currentUser
 </script>
 
 <style scoped>

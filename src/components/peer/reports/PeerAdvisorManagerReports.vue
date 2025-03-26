@@ -28,7 +28,10 @@
       <div class="pr-8 w-50">
         <PeerAdvisingCurrentMonthReport :notes-report="notesReport" />
         <div class="mt-3">
-          <PeerAdvisingHistoricalReport :peer-advising-department="peerAdvisingDepartment" />
+          <PeerAdvisingHistoricalReport
+            :current-month-label="notesReport.currentMonth.label"
+            :peer-advising-department="peerAdvisingDepartment"
+          />
         </div>
       </div>
     </div>

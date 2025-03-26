@@ -32,7 +32,7 @@
                 <h4 aria-live="polite" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="font-size-18 text-medium-emphasis">
                   {{ student.firstName }} {{ student.lastName }} <span class="sr-only">has been selected</span>
                 </h4>
-                <div class="font-size-16 text-medium-emphasis">
+                <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="font-size-16 text-medium-emphasis">
                   SID: {{ student.sid }}
                 </div>
               </div>
