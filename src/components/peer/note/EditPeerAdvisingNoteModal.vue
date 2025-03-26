@@ -26,22 +26,26 @@
           />
         </v-expand-transition>
         <v-expand-transition>
-          <div v-if="student" class="pb-1 pt-2">
-            <div class="align-center d-flex">
-              <h4 aria-live="polite" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="font-size-18 mr-3 text-medium-emphasis">
-                {{ student.firstName }} {{ student.lastName }} (SID: {{ student.sid }})
-                <span class="sr-only">has been selected</span>
-              </h4>
-              <div class="remove-student-btn-container">
-                [<v-btn
+          <div v-if="student" class="pb-1">
+            <div class="align-start d-flex">
+              <div class="d-flex flex-column pt-2">
+                <h4 aria-live="polite" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="font-size-18 text-medium-emphasis">
+                  {{ student.firstName }} {{ student.lastName }} <span class="sr-only">has been selected</span>
+                </h4>
+                <div class="font-size-16 text-medium-emphasis">
+                  SID: {{ student.sid }}
+                </div>
+              </div>
+              <div>
+                <v-btn
                   id="clear-student-selection"
                   aria-label="Clear the student selection"
-                  class="font-size-16 letter-spacing-normal px-0 remove-student-btn"
                   color="error"
-                  text="remove"
+                  :icon="mdiCloseCircle"
+                  title="Remove"
                   variant="text"
                   @click="() => onSelectStudent(undefined)"
-                />]
+                />
               </div>
             </div>
             <div class="compact-student-course-schedule">
@@ -102,6 +106,7 @@
 <script setup lang="ts">
 import {computed, onMounted, ref} from 'vue'
 import {concat, get, size} from 'lodash'
+import {mdiCloseCircle} from '@mdi/js'
 import {storeToRefs} from 'pinia'
 import {useDisplay} from 'vuetify'
 import type {BasicStudent, NoteAttachment, NoteRecipients, NoteTemplate, NoteTopic} from '@/lib/types'
@@ -225,12 +230,6 @@ const setTemplate = (template: NoteTemplate) => {
   min-height: 100px;
 }
 .compact-student-course-schedule {
-  margin-left: -8px !important;
-}
-.remove-student-btn {
-  margin-bottom: 3px;
-}
-.remove-student-btn-container {
-  margin-top: 3px;
+  margin: 8px 0 0 -8px;
 }
 </style>
