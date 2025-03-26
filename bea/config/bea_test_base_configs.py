@@ -223,7 +223,7 @@ class BEATestBaseConfigs(object):
         peer_dept = next(filter(lambda d: d.value['parent'] == dept, PeerAdvisingDepartment.get_peer_depts()))
         peer = User(data=student.data)
         peer.dept_memberships = [DepartmentMembership(advisor_role=None,
-                                                      dept=None,
+                                                      dept=dept,
                                                       is_automated=None,
                                                       peer_advising_dept=peer_dept,
                                                       peer_advising_role=PeerAdvisingRole.PEER_ADVISOR)]
