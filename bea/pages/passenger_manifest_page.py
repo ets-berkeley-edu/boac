@@ -265,12 +265,13 @@ class PassengerManifestPage(Pagination):
                     self.dept_role_select_loc(membership.dept), 'Peer Advisor')
                 self.wait_for_select_and_click_option(
                     self.PEER_ADVISING_DEPT_SELECT, membership.peer_advising_dept.value['name'])
-            if (membership.is_automated and not self.element(
-                    self.is_automated_dept_cbx_loc(membership.dept)).is_selected()) or (
-                    self.element(
-                        self.is_automated_dept_cbx_loc(membership.dept)).is_selected() and not membership.is_automated):
-                self.click_element_js(self.is_automated_dept_cbx_loc(membership.dept))
-                time.sleep(utils.get_click_sleep())
+            if membership.advisor_role:
+                if (membership.is_automated and not self.element(
+                        self.is_automated_dept_cbx_loc(membership.dept)).is_selected()) or (
+                        self.element(
+                            self.is_automated_dept_cbx_loc(membership.dept)).is_selected() and not membership.is_automated):
+                    self.click_element_js(self.is_automated_dept_cbx_loc(membership.dept))
+                    time.sleep(utils.get_click_sleep())
 
     def save_user(self):
         self.wait_for_element_and_click(self.SAVE_USER_BUTTON)

@@ -50,6 +50,7 @@ test_coe.peer_advising(dept=Department.COE)
 pam_coe = test_coe.advisor
 peer_dept_coe = test_coe.get_peer_dept(pam_coe)
 peer_dept_coe_id = boa_utils.get_peer_dept_id(peer_dept_coe)
+peer_coe = test_coe.get_peer_advisor(test_ls.test_students[1])
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -61,7 +62,11 @@ class TestPAMMgmt:
         self.pax_manifest_page.load_page_and_find_user(pam_coe)
         self.pax_manifest_page.edit_user(pam_coe)
 
-    # TODO test_admin_grant_pa_role_coe
+    def test_admin_grant_pa_role_coe(self):
+        self.pax_manifest_page.add_user(peer_coe)
+        self.pax_manifest_page.search_for_advisor(peer_coe)
+        self.pax_manifest_page.wait_for_advisor_list()
+        utils.assert_actual_includes_expected(self.pax_manifest_page.list_view_uids(), peer_coe.uid)
 
     def test_admin_grant_pam_role_ls(self):
         self.pax_manifest_page.search_for_advisor(pam_ls)
@@ -321,5 +326,6 @@ class TestPeerAdvisingPerms:
 
 class TestTeardown:
 
-    def test_remove_peer(self):
+    def test_remove_peers(self):
         boa_utils.hard_delete_user(peer_ls)
+        boa_utils.hard_delete_user(peer_coe)
