@@ -286,6 +286,15 @@ export type PeerAdvisingDepartment = {
   peerAdvisingDepartmentMembers: BoaUser[]
 }
 
+export type PeerAdvisingHistoricalReport = {
+  label: string,
+  months: {
+    label: string,
+    noteCount: number,
+    peerAdvisors: BoaUser[]
+  }[]
+}[]
+
 export type PeerAdvisingManagerReport = {
   currentMonth: {
     label: string,
@@ -293,16 +302,6 @@ export type PeerAdvisingManagerReport = {
     peerAdvisors: BoaUser[]
   },
   distinctPeerAdvisorAuthors: number,
-  historical: {
-    years: {
-      label: string,
-      months: {
-        label: string,
-        peerAdvisors: BoaUser[],
-        totalNoteCount: number
-      }[]
-    }[]
-  },
   noteTemplates: {
     name: string,
     noteTemplateUsageCount: number,
