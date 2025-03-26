@@ -7,10 +7,22 @@
       class="text-no-wrap"
       color="primary"
       variant="text"
-      @click="() => isExpanded = !isExpanded"
+      @click="onClickExpand"
     >
       <div class="align-center d-flex">
-        <v-icon :icon="isExpanded ? mdiMenuDown : mdiMenuRight" size="24" />
+        <v-progress-circular
+          v-if="isFetching"
+          class="mr-2"
+          :indeterminate="true"
+          :size="16"
+          :width="3"
+          color="primary"
+        />
+        <v-icon
+          v-if="!isFetching"
+          :icon="isExpanded ? mdiMenuDown : mdiMenuRight"
+          size="24"
+        />
         <div>
           BOA peer note count by month
           <span class="text-medium-emphasis">(reverse chronological)</span>
@@ -18,40 +30,58 @@
       </div>
     </v-btn>
     <v-expand-transition>
-      <div v-show="isExpanded">
+      <div v-if="isExpanded && report">
         <v-card
-          v-for="year in notesReport.historical.years"
+          v-for="(year, index) in report"
           :id="`peer-note-counts-year-${year.label}`"
-          :key="year.label"
-          class="bg-sky-blue"
+          :key="index"
+          :class="{'mt-1': index === 0, 'mt-3': index > 0}"
+          class="ml-2 rounded-lg v-card-border"
           flat
         >
-          <v-card-title>{{ year.label }}</v-card-title>
+          <v-card-title class="bg-primary font-size-14">
+            {{ year.label }}
+          </v-card-title>
           <v-card-text>
-            <div v-for="(month, index) in year.months" :key="index">
-              <div class="d-flex justify-space-between">
-                <div>
+            <div
+              v-for="month in year.months"
+              :key="month.label"
+              class="mt-2"
+            >
+              <div class="align-center d-flex justify-space-between pb-2">
+                <div class="font-weight-bold">
                   {{ month.label }}
                 </div>
-                <div>
-                  {{ month.totalNoteCount }}
+                <div class="pr-1 text-right">
+                  <PillCount
+                    :id="`peer-note-count-${toLower(month.label)}-${year.label}`"
+                    class="pa-2 sidebar-pill text-white"
+                    color="primary"
+                  >
+                    <span class="font-size-14">{{ month.noteCount }}</span>
+                  </PillCount>
                 </div>
               </div>
-              <table class="border-sm w-100">
+              <table :id="`peer-advisors-${toLower(month.label)}-${year.label}`" class="border-sm w-100">
                 <thead>
                   <tr>
-                    <th class="bg-grey-lighten-2 border-sm w-90">Peer Advisor</th>
-                    <th class="bg-grey-lighten-2 border-sm text-right">Notes</th>
+                    <th class="bg-grey-lighten-2 border-sm font-size-12 w-90">Peer Advisor</th>
+                    <th class="bg-grey-lighten-2 border-sm font-size-12 text-right">Notes</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="peerAdvisor in month.peerAdvisors" :key="peerAdvisor.id">
-                    <td class="border-sm w-90">{{ peerAdvisor.name }}</td>
+                  <tr v-for="peerAdvisor in month.peerAdvisors" :key="peerAdvisor.uid">
+                    <td
+                      :id="`peer-advisor-${peerAdvisor.uid}-during-${toLower(month.label)}-${year.label}`"
+                      class="border-sm w-90"
+                    >
+                      {{ peerAdvisor.name }}
+                    </td>
                     <td class="border-sm text-no-wrap text-right">
                       <NotesCreatedByPeerAdvisor
                         v-if="get(peerAdvisor, 'noteCount')"
                         :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0))} created by ${peerAdvisor.name}`"
-                        :peer-advising-department-id="notesReport.peerAdvisingDepartment.id"
+                        :peer-advising-department-id="peerAdvisingDepartment.id"
                         :user="peerAdvisor"
                       />
                       <span v-if="!get(peerAdvisor, 'noteCount')" :class="{'font-weight-medium text-red': peerAdvisor.deletedAt}">0</span>
@@ -69,21 +99,40 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {get} from 'lodash'
+import {get, isNil, toLower} from 'lodash'
 import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {ref} from 'vue'
-import type {PeerAdvisingManagerReport} from '@/lib/types'
+import type {PeerAdvisingDepartment, PeerAdvisingHistoricalReport} from '@/lib/types'
 import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
+import PillCount from '@/components/util/PillCount.vue'
+import {getPeerAdvisingHistoricalReport} from '@/api/peer-advising-reports'
 import {pluralize, toInt} from '@/lib/utils'
 
-defineProps({
-  notesReport: {
+const props = defineProps({
+  peerAdvisingDepartment: {
     required: true,
-    type: Object as PropType<PeerAdvisingManagerReport>
+    type: Object as PropType<PeerAdvisingDepartment>
   }
 })
 
 const isExpanded = ref(false)
+const isFetching = ref(false)
+const report = ref<PeerAdvisingHistoricalReport | undefined>()
+
+const onClickExpand = () => {
+  const requiresLazyLoad = isNil(report.value)
+  const done = () => isExpanded.value = !isExpanded.value
+  if (requiresLazyLoad) {
+    isFetching.value = true
+    getPeerAdvisingHistoricalReport(props.peerAdvisingDepartment.id).then(data => {
+      report.value = data
+      isFetching.value = false
+      done()
+    })
+  } else {
+    done()
+  }
+}
 </script>
 
 <style scoped>
@@ -102,5 +151,8 @@ td {
 }
 #show-hide-personal-details {
   margin-left: -16px;
+}
+.v-card-border {
+  border: 1px solid rgb(var(--v-theme-primary));
 }
 </style>
