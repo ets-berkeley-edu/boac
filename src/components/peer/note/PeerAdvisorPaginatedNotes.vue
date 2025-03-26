@@ -21,7 +21,10 @@
           :key="index"
           :class="index % 2 === 0 ? '' : 'bg-surface-light'"
         >
-          <td :class="{'border-b-md': index === notes.length - 1, 'pl-3 pt-3': smAndDown}" class="td-student">
+          <td
+            :class="{'border-b-md': index === notes.length - 1, 'pl-3 pt-3': smAndDown}"
+            class="font-weight-bold text-medium-emphasis td-student"
+          >
             <div
               v-if="note.student"
               :id="`note-student-${note.student.sid}`"
@@ -225,7 +228,6 @@ const toggleShowHide = (note: Note) => {
   vertical-align: top;
 }
 .td-student {
-  font-weight: bold;
   max-width: 230px !important;
   padding: 5px;
   vertical-align: top;

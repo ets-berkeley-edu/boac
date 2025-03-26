@@ -16,7 +16,20 @@
           :class="{'demo-mode-blur': currentUser.inDemoMode, 'pt-1': index === 0}"
           class="font-weight-bold text-medium-emphasis"
         >
-          {{ enrollment.displayName }}
+          <div class="align-center d-flex">
+            <div class="mr-1">
+              {{ enrollment.displayName }}
+            </div>
+            <v-icon
+              v-if="enrollment.sections.some(s => s.isUncompletedPerGrade)"
+              :id="`student-${studentUid}-uncompleted-course-${termId}-${normalizeId(enrollment.displayName)}`"
+              :aria-label="`${enrollment.displayName} course was uncompleted by this student`"
+              color="warning"
+              :icon="mdiAlert"
+              size="20"
+              title="Uncompleted course"
+            />
+          </div>
           <div
             v-if="getWaitlistedSections(enrollment).length"
             :id="`student-${studentUid}-waitlisted-for-${termId}-${normalizeId(enrollment.displayName)}`"
@@ -45,6 +58,7 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {filter as _filter, map, size} from 'lodash'
+import {mdiAlert} from '@mdi/js'
 import type {Enrollment, Section} from '@/lib/types'
 import {normalizeId} from '@/lib/utils'
 import {termNameForSisId} from '@/lib/berkeley-utils'

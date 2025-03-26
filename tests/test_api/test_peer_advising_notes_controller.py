@@ -314,7 +314,7 @@ class TestGetStudentEnrollments:
                         assert display_name > previous_display_name
                     sections = enrollment['sections']
                     assert len(sections)
-                    assert set(sections[0]) == {'component', 'enrollmentStatus', 'primary', 'sectionId', 'sectionNumber'}
+                    assert set(sections[0]) == {'component', 'enrollmentStatus', 'isUncompletedPerGrade', 'primary', 'sectionId', 'sectionNumber'}
                     previous_display_name = display_name
                 previous_term_id = term_id
 
