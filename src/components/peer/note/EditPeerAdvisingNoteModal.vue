@@ -26,26 +26,32 @@
           />
         </v-expand-transition>
         <v-expand-transition>
-          <div v-if="student" class="pb-1">
+          <div v-if="student">
             <div class="align-start d-flex">
-              <div class="d-flex flex-column pt-2">
-                <h4 aria-live="polite" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="font-size-18 text-medium-emphasis">
-                  {{ student.firstName }} {{ student.lastName }} <span class="sr-only">has been selected</span>
-                </h4>
+              <div class="d-flex flex-column">
+                <div aria-live="polite" class="align-center d-flex">
+                  <div
+                    :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                    class="font-size-20 font-weight-bold mr-1 pb-1 text-medium-emphasis"
+                  >
+                    {{ student.firstName }} {{ student.lastName }} <span class="sr-only">has been selected</span>
+                  </div>
+                  <div>
+                    <v-btn
+                      id="clear-student-selection"
+                      aria-label="Clear the student selection"
+                      density="compact"
+                      color="error"
+                      :icon="mdiCloseCircle"
+                      title="Remove"
+                      variant="text"
+                      @click="() => onSelectStudent(undefined)"
+                    />
+                  </div>
+                </div>
                 <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="font-size-16 text-medium-emphasis">
                   SID: {{ student.sid }}
                 </div>
-              </div>
-              <div>
-                <v-btn
-                  id="clear-student-selection"
-                  aria-label="Clear the student selection"
-                  color="error"
-                  :icon="mdiCloseCircle"
-                  title="Remove"
-                  variant="text"
-                  @click="() => onSelectStudent(undefined)"
-                />
               </div>
             </div>
             <div class="compact-student-course-schedule">

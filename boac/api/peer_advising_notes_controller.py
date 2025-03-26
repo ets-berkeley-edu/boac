@@ -270,6 +270,8 @@ def _get_enrollments_by_term_id(sid):
             for section in row['sections']:
                 extracted = extract(section, ['component', 'enrollmentStatus', 'primary', 'sectionNumber'])
                 extracted['sectionId'] = section['ccn']
+                grade = section.get('grade') or ''
+                extracted['isUncompletedPerGrade'] = grade.upper() in ['F', 'I', 'INCOMPLETE', 'M', 'NP', 'NR', 'RD']
                 enrollment['sections'].append(extracted)
             enrollments_by_term_id[term_id].append(enrollment)
     return enrollments_by_term_id
