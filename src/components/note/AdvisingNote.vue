@@ -20,7 +20,10 @@
       </span>
       <span v-if="!note.isDraft">
         <span :id="`note-${note.id}-subject`">
-          <span v-if="isOpen && !note.subject && size(note.message)" v-html="note.message" />
+          <span
+            v-if="isOpen && !note.subject && !note.peerAdvisingDepartmentId && size(note.message)"
+            v-html="note.message"
+          />
           <span v-html="messageSummary" />
         </span>
       </span>
