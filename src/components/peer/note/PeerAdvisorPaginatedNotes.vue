@@ -89,16 +89,25 @@
             :title="note.topics.join(', ')"
           >
             <div class="align-center d-flex font-weight-medium justify-space-between w-100">
-              <span v-if="note.topics.length" class="truncate-with-ellipsis">{{ note.topics.join(', ') }}</span>
+              <span
+                v-if="note.topics.length"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                class="truncate-with-ellipsis"
+              >
+                {{ note.topics.join(', ') }}
+              </span>
               <span v-if="!note.topics.length && !smAndDown" class="text-medium-emphasis">&mdash;</span>
             </div>
           </td>
           <td
             :id="`note-created-date-in-row-${index}`"
-            :class="{'border-b-md': index === notes.length - 1, 'pl-3': smAndDown}"
+            :class="{'border-b-md': index === notes.length - 1, 'demo-mode-blur': currentUser.inDemoMode, 'pl-3': smAndDown}"
             class="td-created-date"
           >
-            <div :class="{'pb-3': smAndDown, 'float-right': !smAndDown}" class="pr-2">
+            <div
+              :class="{'pb-3': smAndDown, 'float-right': !smAndDown}"
+              class="pr-2"
+            >
               {{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}
             </div>
           </td>

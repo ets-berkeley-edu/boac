@@ -44,7 +44,7 @@
             name="topic"
             @close-clicked="remove(topic)"
           >
-            <span class="truncate-with-ellipsis pr-1">
+            <span :class="{'demo-mode-blur': currentUser.inDemoMode}" class="truncate-with-ellipsis pr-1">
               {{ topic }}
             </span>
           </PillItem>
@@ -62,6 +62,7 @@ import {useDisplay} from 'vuetify'
 import type {NoteTopic, SelectOption} from '@/lib/types'
 import PillItem from '@/components/util/PillItem.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
@@ -82,6 +83,7 @@ const props = defineProps({
 })
 
 const noteStore = useNoteStore()
+const currentUser = useContextStore().currentUser
 const disabled = computed(() => noteStore.isSaving || noteStore.boaSessionExpired)
 const noteId = ref(props.note ? props.note.id : noteStore.model.id)
 const selected = ref(null)

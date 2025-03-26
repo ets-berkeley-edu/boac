@@ -4,11 +4,11 @@
       Loading...
     </div>
     <div v-if="noteDetails">
-      <div>
+      <div :class="{'demo-mode-blur': currentUser.inDemoMode}">
         <div v-if="noteDetails.subject" :id="`note-${noteDetails.id}-subject`">{{ noteDetails.subject }}</div>
         <div :id="`note-${noteDetails.id}-body`" v-html="noteDetails.body" />
       </div>
-      <div :id="`note-${noteDetails.id}-is-open`" class="w-100">
+      <div :id="`note-${noteDetails.id}-is-open`" class="w-100" :class="{'demo-mode-blur': currentUser.inDemoMode}">
         <div v-if="noteDetails.subject && noteDetails.body" class="open-note-message-container pt-2">
           <span :id="`note-${noteDetails.id}-message-open`" v-html="noteDetails.body" />
         </div>
@@ -19,6 +19,7 @@
               <router-link
                 v-if="currentUser.isAdmin && noteDetails.peerAdvisingDepartmentId"
                 :id="`note-${noteDetails.id}-link-to-peer-advisor-home`"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 :to="`/peer_advisor/${noteDetails.author.uid}/home`"
               >
                 {{ noteDetails.author.name }}
@@ -27,6 +28,7 @@
                 v-if="!currentUser.isAdmin || !noteDetails.peerAdvisingDepartmentId"
                 :id="`note-${noteDetails.id}-author-name`"
                 :aria-label="`${noteDetails.author.name} UC Berkeley Directory page (opens in new window)`"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 :href="`https://www.berkeley.edu/directory/results?search-term=${noteDetails.author.name}`"
                 target="_blank"
               >
@@ -35,7 +37,11 @@
             </span>
             <span v-if="noteDetails.author.role"> - <span :id="`note-${noteDetails.id}-author-role`">{{ capitalizeAllWords(replace(noteDetails.author.role, '_', ' ')) }}</span></span>
           </div>
-          <div v-if="size(noteDetails.author.departments)" class="text-medium-emphasis">
+          <div
+            v-if="size(noteDetails.author.departments)"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
+            class="text-medium-emphasis"
+          >
             <div v-for="(department, index) in noteDetails.author.departments" :key="index">
               <span :id="`note-${noteDetails.id}-author-dept-${index}`">{{ department.deptName }}</span>
             </div>
@@ -44,7 +50,7 @@
         <div v-if="noteDetails.topics && size(noteDetails.topics)" class="mt-3">
           <AdvisingNoteTopics :note="noteDetails" read-only />
         </div>
-        <div v-if="noteDetails.contactType" class="mt-3">
+        <div v-if="noteDetails.contactType" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="mt-3">
           <div class="font-weight-bold">Contact Type</div>
           <div :id="`note-${noteDetails.id}-contact-type`">{{ noteDetails.contactType }}</div>
         </div>

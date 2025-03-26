@@ -52,7 +52,7 @@
       :row-props="row => ({id: `tr-member-${row.item.uid}`})"
     >
       <template #item.name="{item}">
-        <div :class="{'font-weight-bold opacity-60 text-red': item.deletedAt}">
+        <div :class="{'font-weight-bold opacity-60 text-red': item.deletedAt, 'demo-mode-blur': currentUser.inDemoMode}">
           {{ item.name }}
         </div>
       </template>
@@ -124,6 +124,7 @@ import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeer
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
 import {alertScreenReader, pluralize, putFocusNextTick, toInt} from '@/lib/utils'
 import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising-users.js'
+import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
   isRefreshing: {
@@ -143,6 +144,8 @@ const props = defineProps({
     type: Function
   }
 })
+
+const currentUser = useContextStore().currentUser
 const dataTableRows = computed<BoaUser[]>(() => _filter(props.peerAdvisors, u => showDeletedPeerAdvisors.value || !u.deletedAt))
 const isBusy = ref(false)
 const isDeleteModalOpen = ref(false)
