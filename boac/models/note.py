@@ -181,20 +181,25 @@ class Note(Base):
         return note_counts_per_uid
 
     @classmethod
-    def get_notes_authored_by(cls, author_uid):
+    def get_peer_advising_notes_authored_by(cls, author_uid, peer_advising_department_id):
         sql = """
             SELECT
               n.*, a.id AS attachment_id, a.path_to_attachment, a.uploaded_by_uid, t.topic
             FROM notes n
             LEFT JOIN note_attachments a ON n.id = a.note_id AND a.deleted_at IS NULL
             LEFT JOIN note_topics t ON (n.id = t.note_id AND t.deleted_at IS NULL)
-            WHERE
-              n.is_draft IS FALSE AND n.is_private IS FALSE AND n.deleted_at IS NULL AND n.author_uid = :author_uid
+            WHERE TRUE
+              AND n.author_uid = :author_uid
+              AND n.deleted_at IS NULL
+              AND n.is_draft IS FALSE
+              AND n.is_private IS FALSE
+              AND n.peer_advising_department_id = :peer_advising_department_id
             GROUP BY n.id, a.id, t.topic
             ORDER BY n.updated_at DESC
         """
         notes = []
-        for row in db.session.execute(sql, {'author_uid': author_uid}):
+        params = {'author_uid': author_uid, 'peer_advising_department_id': peer_advising_department_id}
+        for row in db.session.execute(sql, params):
             note_id = row['id']
             note = next((n for n in notes if n['id'] == note_id), None)
             if not note:

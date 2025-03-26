@@ -4,7 +4,7 @@
       :id="`open-notes-created-by-${user.uid}`"
       :aria-label="`View notes created by ${user.name}`"
       class="text-primary"
-      @click="showModel"
+      @click="showModal"
     >
       {{ get(user, 'noteCount') }}
     </button>
@@ -155,10 +155,10 @@ import {computed, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {get, isNil, size} from 'lodash'
 import {mdiCloseCircle, mdiCloseThick, mdiPaperclip} from '@mdi/js'
+import type {BoaUser, Note} from '@/lib/types'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
-import type {BoaUser, Note} from '@/lib/types'
-import {getNotesAuthoredBy} from '@/api/notes'
+import {getPeerAdvisingNotesAuthoredBy} from '@/api/peer-advising-notes'
 import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
@@ -166,6 +166,10 @@ const props = defineProps({
   headerText: {
     required: true,
     type: String
+  },
+  peerAdvisingDepartmentId: {
+    required: true,
+    type: Number
   },
   user: {
     required: true,
@@ -186,8 +190,8 @@ const closeModal = () => {
 
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 
-const showModel = () => {
-  getNotesAuthoredBy(props.user.uid).then(data => {
+const showModal = () => {
+  getPeerAdvisingNotesAuthoredBy(props.peerAdvisingDepartmentId, props.user.uid).then(data => {
     notes.value = data
     isModalOpen.value = true
   })

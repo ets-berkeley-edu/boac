@@ -32,12 +32,16 @@ from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMe
 from tests.util import mock_advising_note_s3_bucket
 
 admin_uid = '2040'
+asc_advisor_uid = '6446'
 ce3_advisor_uid = '2525'
 ce3_navcal_peer_advisor_uid = '1133400'
 ce3_navcal_peer_advisor_manager_uid = '2525'
 coe_advisor_no_advising_data_uid = '1022796'
 coe_mech_peer_advisor_uid = '1913062'
-coe_student_sid = '9000000000'
+coe_student = {
+    'sid': '9000000000',
+    'uid': '300847',
+}
 qcadv_advisor_uid = '53791'
 
 
@@ -60,7 +64,7 @@ class TestCreatePeerAdvisingNote:
                 client=client,
                 expected_status_code=401,
                 peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
-                sid=coe_student_sid,
+                sid=coe_student['sid'],
             )
 
     def test_not_authorized_to_add_attachments(self, app, client, fake_auth):
@@ -106,7 +110,7 @@ class TestCreatePeerAdvisingNote:
             client=client,
             expected_status_code=403,
             peer_advising_department_id=coe_mech_peer_advising_department_id,
-            sid=coe_student_sid,
+            sid=coe_student['sid'],
         )
 
     def test_authorized(self, app, client, fake_auth):
@@ -116,7 +120,7 @@ class TestCreatePeerAdvisingNote:
             body='CE3 NAVCAL note created by Peer Advisor',
             client=client,
             peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
-            sid=coe_student_sid,
+            sid=coe_student['sid'],
         )
         note_id = note['id']
         base_dir = app.config['BASE_DIR']
@@ -134,6 +138,53 @@ class TestCreatePeerAdvisingNote:
         assert note['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
         assert note['read'] is True
         assert len(note.get('attachments')) == 2
+
+
+class TestGetNotesAuthoredBy:
+
+    @classmethod
+    def _api_notes_authored_by(cls, client, peer_advising_department_id, uid, expected_status_code=200):
+        response = client.get(f'/api/peer_advising/{peer_advising_department_id}/note_author/{uid}')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_unauthorized(self, app, client, fake_auth):
+        """Returns 401 if not authenticated."""
+        for uid in [None, coe_advisor_no_advising_data_uid, coe_student['uid']]:
+            if uid:
+                fake_auth.login(uid)
+        self._api_notes_authored_by(
+            client=client,
+            expected_status_code=401,
+            peer_advising_department_id=1,
+            uid=uid,
+        )
+
+    def test_authorized(self, app, client, fake_auth):
+        """Advisor can view notes created by another Advisor or Peer Advisor user."""
+        fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
+        peer_advisor = AuthorizedUser.find_by_uid(ce3_navcal_peer_advisor_uid)
+        peer_advising_department_id = PeerAdvisingDepartmentMember.get_peer_advising_department_membership(
+            role_type='peer_advisor',
+            user_id=peer_advisor.id,
+        ).peer_advising_department_id
+        note = Note.create(
+            author_uid=peer_advisor.uid,
+            peer_advising_department_id=peer_advising_department_id,
+            author_name='CE3 Peer Advisor',
+            author_role='Peer Advisor',
+            author_dept_codes=['ZCEEE'],
+            body='He spattered me with tomatoes, Hummus, chick peas',
+            sid=coe_student['sid'],
+            subject='',
+        )
+        api_json = self._api_notes_authored_by(
+            client=client,
+            peer_advising_department_id=peer_advising_department_id,
+            uid=peer_advisor.uid,
+        )
+        assert len(api_json)
+        assert next((n for n in api_json if n['id'] == note.id), None)
 
 
 class TestGetPeerAdvisingNotes:
@@ -173,7 +224,7 @@ class TestGetPeerAdvisingNotes:
             body='CE3 NAVCAL note created by Peer Advisor',
             client=client,
             peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
-            sid=coe_student_sid,
+            sid=coe_student['sid'],
         )
         assert note['id']
         assert note['author']['uid'] == ce3_navcal_peer_advisor_uid
@@ -188,7 +239,7 @@ class TestGetPeerAdvisingNotes:
         # Fetch that note, with student.
         api_json = self._api_get_notes_for_peer_advisor(client, include_students=True, uid=uid)
         notes = api_json['notes']
-        assert notes[0]['student']['sid'] == coe_student_sid
+        assert notes[0]['student']['sid'] == coe_student['sid']
         # Verify with BOA Admin
         fake_auth.login(admin_uid)
         self._api_get_notes_for_peer_advisor(client, uid=uid)

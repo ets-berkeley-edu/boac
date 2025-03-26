@@ -302,23 +302,6 @@ def download_attachment(attachment_id):
     return r
 
 
-@app.route('/api/notes/authored_by/<uid>')
-@advising_data_access_required
-def get_notes_authored_by(uid):
-    notes = Note.get_notes_authored_by(uid)
-    sids = [note['sid'] for note in notes]
-    students_by_sid = {student['sid']: student for student in data_loch.get_basic_student_data(sids)}
-    for note in notes:
-        student = students_by_sid.get(note['sid'])
-        note['student'] = {
-            'firstName': student['first_name'],
-            'lastName': student['last_name'],
-            'sid': student['sid'],
-            'uid': student['uid'],
-        }
-    return tolerant_jsonify(notes)
-
-
 @app.route('/api/notes/<sid>/download', methods=['GET'])
 @director_advising_data_access_required
 def download_notes(sid):

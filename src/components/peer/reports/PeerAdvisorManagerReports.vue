@@ -27,6 +27,9 @@
       </div>
       <div class="pr-8 w-50">
         <PeerAdvisingCurrentMonthReport :notes-report="notesReport" />
+        <div class="mt-3">
+          <PeerAdvisingHistoricalReport :notes-report="notesReport" />
+        </div>
       </div>
     </div>
     <div v-if="!notesReport" class="mt-16 text-center w-100">
@@ -46,6 +49,7 @@ import {onMounted, ref} from 'vue'
 import type {PeerAdvisingDepartment, PeerAdvisingManagerReport} from '@/lib/types'
 import PeerAdvisingCurrentMonthReport from '@/components/peer/reports/PeerAdvisingCurrentMonthReport.vue'
 import PeerAdvisingTemplatesUsed from '@/components/peer/reports/PeerAdvisingTemplatesUsed.vue'
+import PeerAdvisingHistoricalReport from '@/components/peer/reports/PeerAdvisingHistoricalReport.vue'
 import {getPeerAdvisingNotesReport} from '@/api/peer-advising-reports'
 
 const props = defineProps({

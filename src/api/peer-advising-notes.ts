@@ -15,6 +15,11 @@ export async function addPeerAdvisingAttachments(noteId: number, attachments: ob
   })
 }
 
+export function getPeerAdvisingNotesAuthoredBy(peerAdvisingDepartmentId: number, uid: string) {
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/${peerAdvisingDepartmentId}/note_author/${uid}`
+  return axios.get(url).then(response => response.data)
+}
+
 export async function getPeerAdvisorNotes(
   offset: number,
   limit: number,
