@@ -138,6 +138,8 @@ class Topics(Enum):
 class PeerTopics(Enum):
 
     ACAD_DIFFICULTY_PROBATION = {'name': 'Academic Difficulty or Probation'}
+    CHANGE_OF_COLLEGE = {'name': 'Change of College'}
+    CHANGE_OF_MAJOR = {'name': 'Change of Major'}
     DEGREE_CHECK = {'name': 'Degree Check'}
     DEGREE_REQTS = {'name': 'Degree Requirements'}
     DBL_MAJOR = {'name': 'Double Major / Simultaneous Degree'}
