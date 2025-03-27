@@ -212,6 +212,7 @@ class Note(Base):
                     },
                     'body': row['body'],
                     'contactType': row['contact_type'],
+                    'peerAdvisingDepartmentId': peer_advising_department_id,
                     'sid': row['sid'],
                     'subject': row['subject'],
                     'topics': [],

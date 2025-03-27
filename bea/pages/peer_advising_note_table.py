@@ -85,5 +85,5 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     def close_peer_note(self, note):
         app.logger.info(f'Closing note {note.record_id}')
-        self.wait_for_element_and_click((By.ID, f'hide-note-{note.record_id}-details'))
+        self.wait_for_element_and_click((By.ID, f'show-note-{note.record_id}-details'))
         self.when_not_present((By.ID, f'note-{note.record_id}-body'), 2)

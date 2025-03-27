@@ -28,6 +28,7 @@
         :go-to-page="goToPage"
         :items-per-page="itemsPerPage"
         :notes="notes"
+        :on-click-create-note="onClickCreateNote"
         :peer-advising-department-id="peerAdvisingDepartmentId"
         :total-note-count="totalNoteCount"
       />

@@ -57,7 +57,7 @@
             <PeerAdvisingAccountMgmt
               v-if="peerAdvisingDepartment"
               :is-refreshing="isRefreshing"
-              :peer-advising-department-id="peerAdvisingDepartment.id"
+              :peer-advising-department="peerAdvisingDepartment"
               :peer-advisors="_filter(peerAdvisingDepartment.peerAdvisingDepartmentMembers, ['role', 'peer_advisor'])"
               :refresh="reloadPeerAdvisingDepartment"
             />
