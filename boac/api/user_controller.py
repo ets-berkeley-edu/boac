@@ -422,7 +422,7 @@ def _find_user_by_uid(uid, include_deleted=False):
 
 
 def _get_inputs_for_csv_download(api_json):
-    users_sorted = sorted(api_json, key=lambda user: user['lastName'].upper())
+    users_sorted = sorted(api_json, key=lambda user: (user['lastName'] or '').upper())
     fieldnames = list(api_json[-1].keys())
     header_label_lookup = {}
     for key in fieldnames:
