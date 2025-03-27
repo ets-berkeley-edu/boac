@@ -469,6 +469,12 @@ class Note(Base):
             topic_join = 'JOIN note_topics nt ON nt.topic = :topic AND nt.note_id = notes.id'
             params.update({'topic': topic})
 
+        attachments_join = ''
+        group_by_clause = ''
+        if peer_advising_department_id:
+            attachments_join = 'LEFT JOIN note_attachments a ON notes.id = a.note_id AND a.deleted_at IS NULL'
+            group_by_clause = 'GROUP BY notes.id, fts.rank'
+
         where_clause = 'WHERE notes.is_draft IS FALSE'
         where_clause += '' if include_private_notes else ' AND notes.is_private IS FALSE'
 
@@ -476,6 +482,7 @@ class Note(Base):
             query = f"""
                 WITH fts AS ({fts_selector})
                 SELECT {'count(notes.*)' if is_count_query else 'notes.*'}
+                {', count(a.note_id) as attachment_count' if peer_advising_department_id else ''}
                 FROM fts JOIN notes
                     ON fts.id = notes.id
                     {author_filter}
@@ -484,18 +491,22 @@ class Note(Base):
                     {department_filter}
                     {peer_advising_department_notes_filter}
                 {topic_join}
+                {attachments_join}
                 {where_clause}
+                {group_by_clause}
             """
-
             if not is_count_query:
                 query += f"""
                     ORDER BY fts.rank DESC, notes.id
                     OFFSET {offset} LIMIT {limit}
                 """
             return text(query).bindparams(**params)
-
         total_count_result = db.session.execute(_get_query(True))
-        total_matching_count = total_count_result.fetchall()[0]['count']
+        rows = total_count_result.fetchall()
+        if rows:
+            total_matching_count = rows[0]['count']
+        else:
+            total_matching_count = 0
 
         result = db.session.execute(_get_query())
         keys = result.keys()

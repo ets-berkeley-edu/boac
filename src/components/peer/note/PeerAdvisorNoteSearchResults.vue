@@ -58,11 +58,15 @@
                 v-if="!expandedNoteIds.includes(note.id)"
                 :id="`open-peer-advising-${note.id}`"
                 :aria-label="`Edit ${getStudentName(note)} note`"
-                class="align-center d-flex justify-space-between text-primary w-100"
+                class="align-center d-flex text-primary w-100"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 @click="() => toggleShowHide(note)"
               >
                 <span class="truncate-with-ellipsis">{{ stripHtmlAndTrim(note.noteSnippet) }}</span>
+                <span v-if="note.attachmentCount > 0" class="ml-2">
+                  <span class="sr-only">Has attachment(s)</span>
+                  <v-icon class="mb-1" :icon="mdiPaperclip" size="small" />
+                </span>
               </button>
             </v-expand-transition>
             <v-expand-transition>
@@ -103,7 +107,7 @@
 
 <script setup lang="ts">
 import {DateTime} from 'luxon'
-import {mdiCloseCircle} from '@mdi/js'
+import {mdiCloseCircle, mdiPaperclip} from '@mdi/js'
 import {ref} from 'vue'
 import {size} from 'lodash'
 import type {Note} from '@/lib/types'
