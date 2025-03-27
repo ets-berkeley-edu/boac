@@ -537,7 +537,7 @@ def match_students_by_name_or_sid(prefixes, limit=None):
                 )
                 AND sn{idx}.sid = spi.sid""",
             )
-            prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
+            prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%' if idx == 0 else f'%{prefix}%'
             if idx > 9:
                 # Some students in BOA have as many as seven distinct words in their name.
                 # For sanity's sake, stop counting at 10.

@@ -700,12 +700,10 @@ class TestPrefixSearch:
 
     def test_student_prefix_search_by_name(self, client, coe_advisor_login):
         """When searching by name, results include current students only."""
-        response = client.get('/api/students/find_by_name_or_sid?q=Paul')
+        response = client.get('/api/students/find_by_name_or_sid?q=wolfgang pauli-o\'ro')
         assert response.status_code == 200
-        assert len(response.json) == 3
+        assert len(response.json) == 1
         labels = [s['label'] for s in response.json]
-        assert 'Paul Farestveit (7890123456)' in labels
-        assert 'Pauline Kerschen (3456789012)' in labels
         assert "Wolfgang Pauli-O'Rourke (9000000000)" in labels
 
     def test_student_prefix_search_by_sid(self, client, coe_advisor_login):
