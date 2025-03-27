@@ -87,12 +87,12 @@ export function getUserByUid(uid: string, includeDeleted: boolean) {
   return axios.get(url).then(response => response.data)
 }
 
-export function getUsers(
-  deptCode: string,
-  role: string,
+export async function getUsers(
+  deptCode: string | undefined,
+  role: string | undefined,
   sortBy: string,
   sortDescending: boolean,
-  status: string,
+  status: string | undefined,
   csvFilenamePrefix?: string
 ) {
   const isCsvDownloadRequest = !isNil(csvFilenamePrefix)
