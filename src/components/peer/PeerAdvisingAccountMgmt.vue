@@ -3,7 +3,7 @@
     <div class="add-student-container">
       <PeerAdvisingAddStudent
         :exclude-these-students="peerAdvisors"
-        :peer-advising-department-id="peerAdvisingDepartmentId"
+        :peer-advising-department-id="peerAdvisingDepartment.id"
         :refresh="refresh"
       />
     </div>
@@ -61,7 +61,7 @@
           <NotesCreatedByPeerAdvisor
             v-if="get(item, 'noteCount')"
             :header-text="`${pluralize('note', toInt(get(item, 'noteCount') || 0))} created by ${item.name}`"
-            :peer-advising-department-id="peerAdvisingDepartmentId"
+            :peer-advising-department="peerAdvisingDepartment"
             :user="item"
           />
           <span v-if="!get(item, 'noteCount')" :class="{'font-weight-medium text-red': item.deletedAt}">0</span>
@@ -118,7 +118,7 @@ import {DateTime} from 'luxon'
 import {computed, ref} from 'vue'
 import {filter as _filter, get} from 'lodash'
 import {useDisplay} from 'vuetify'
-import type {BoaUser} from '@/lib/types'
+import type {BoaUser, PeerAdvisingDepartment} from '@/lib/types'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
@@ -131,9 +131,9 @@ const props = defineProps({
     required: true,
     type: Boolean
   },
-  peerAdvisingDepartmentId: {
+  peerAdvisingDepartment: {
     required: true,
-    type: Number
+    type: Object as PropType<PeerAdvisingDepartment>
   },
   peerAdvisors: {
     required: true,
@@ -166,7 +166,7 @@ const cancel = () => {
 const onConfirmDelete = () => {
   isBusy.value = isDeleting.value = true
   if (selectedPeerAdvisor.value) {
-    deletePeerAdvisor(props.peerAdvisingDepartmentId, selectedPeerAdvisor.value.id).then(() => {
+    deletePeerAdvisor(props.peerAdvisingDepartment.id, selectedPeerAdvisor.value.id).then(() => {
       props.refresh().then(() => {
         isBusy.value = isDeleting.value = isDeleteModalOpen.value = false
       })
@@ -178,7 +178,7 @@ const onConfirmDelete = () => {
 
 const onClickRestorePeerAdvisor = (userId: number) => {
   isBusy.value = true
-  restorePeerAdvisor(props.peerAdvisingDepartmentId, userId).then(() => {
+  restorePeerAdvisor(props.peerAdvisingDepartment.id, userId).then(() => {
     props.refresh().then(() => {
       isBusy.value = false
     })

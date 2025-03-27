@@ -29,7 +29,7 @@
               <NotesCreatedByPeerAdvisor
                 v-if="get(peerAdvisor, 'noteCount')"
                 :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0))} created by ${peerAdvisor.name}`"
-                :peer-advising-department-id="notesReport.peerAdvisingDepartment.id"
+                :peer-advising-department="notesReport.peerAdvisingDepartment"
                 :user="peerAdvisor"
               />
               <span v-if="!get(peerAdvisor, 'noteCount')" :class="{'font-weight-medium text-red': peerAdvisor.deletedAt}">0</span>

@@ -49,7 +49,7 @@
             </div>
           </td>
           <td
-            :id="`note-body-in-row-${index}`"
+            :id="`td-note-${note.id}-body`"
             :class="{'border-b-md': index === notes.length - 1}"
             class="td-note"
           >
@@ -69,7 +69,7 @@
               <div v-if="expandedNoteIds.includes(note.id)">
                 <div class="margins-of-hide-note-btn">
                   <v-btn
-                    :id="`hide-note-${note.id}-details`"
+                    :id="`show-note-${note.id}-details`"
                     :aria-expanded="true"
                     color="primary"
                     density="compact"
@@ -84,7 +84,7 @@
             </v-expand-transition>
           </td>
           <td
-            :id="`note-created-date-in-row-${index}`"
+            :id="`td-note-${note.id}-created-at`"
             :class="{'border-b-md': index === notes.length - 1}"
             class="td-created-date"
           >

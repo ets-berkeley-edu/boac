@@ -40,8 +40,12 @@
           </div>
         </v-card-title>
         <v-card-text class="py-0">
+          <div :id="`peer-advising-department-${peerAdvisingDepartment.id}`">
+            {{ peerAdvisingDepartment.name }}
+          </div>
           <div v-if="isFetchingNotes" class="my-16 text-center w-100">
             <v-progress-circular
+              id="is-fetching-notes"
               color="primary"
               indeterminate
             />
@@ -64,10 +68,15 @@
               <tbody v-if="!isFetchingNotes">
                 <tr
                   v-for="(note, index) in notes"
+                  :id="`tr-peer-advisor-${user.uid}-note-${note.id}`"
                   :key="index"
                   :class="index % 2 === 0 ? '' : 'bg-surface-light'"
                 >
-                  <td :class="{'border-b-md': index === size(notes) - 1}" class="td-student text-medium-emphasis">
+                  <td
+                    :id="`td-peer-advisor-${user.uid}-note-${note.id}-student-${note.student.sid}`"
+                    :class="{'border-b-md': index === size(notes) - 1}"
+                    class="td-student text-medium-emphasis"
+                  >
                     <div
                       v-if="note.student"
                       :id="`note-student-${note.student.sid}`"
@@ -85,7 +94,11 @@
                       SID: {{ note.sid }}
                     </div>
                   </td>
-                  <td :id="`note-body-in-row-${index}`" :class="{'border-b-md': index === size(notes) - 1}" class="td-note">
+                  <td
+                    :id="`td-note-${note.id}-body`"
+                    :class="{'border-b-md': index === size(notes) - 1}"
+                    class="td-note"
+                  >
                     <v-expand-transition>
                       <button
                         v-if="!expandedNoteIds.includes(note.id)"
@@ -96,7 +109,11 @@
                         @click="() => toggleShowHide(note)"
                       >
                         <span class="truncate-with-ellipsis" v-html="stripHtmlAndTrim(note.body)" />
-                        <span v-if="note.attachments.length" class="ml-2">
+                        <span
+                          v-if="note.attachments.length"
+                          :id="`note-${note.id}-has-attachment`"
+                          class="ml-2"
+                        >
                           <span class="sr-only">Has attachment(s)</span>
                           <v-icon class="mb-1" :icon="mdiPaperclip" size="small" />
                         </span>
@@ -106,7 +123,7 @@
                       <div v-if="expandedNoteIds.includes(note.id)">
                         <div class="margins-of-hide-note-btn">
                           <v-btn
-                            :id="`hide-note-${note.id}-details`"
+                            :id="`show-note-${note.id}-details`"
                             :aria-expanded="true"
                             color="primary"
                             density="compact"
@@ -121,7 +138,7 @@
                     </v-expand-transition>
                   </td>
                   <td
-                    :id="`note-created-date-in-row-${index}`"
+                    :id="`td-note-${note.id}-created-at`"
                     :class="{'border-b-md': index === size(notes) - 1}"
                     class="td-created-date"
                   >
@@ -155,7 +172,7 @@ import {computed, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {get, isNil, size} from 'lodash'
 import {mdiCloseCircle, mdiCloseThick, mdiPaperclip} from '@mdi/js'
-import type {BoaUser, Note} from '@/lib/types'
+import type {BoaUser, Note, PeerAdvisingDepartment} from '@/lib/types'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 import {getPeerAdvisingNotesAuthoredBy} from '@/api/peer-advising-notes'
@@ -167,9 +184,9 @@ const props = defineProps({
     required: true,
     type: String
   },
-  peerAdvisingDepartmentId: {
+  peerAdvisingDepartment: {
     required: true,
-    type: Number
+    type: Object as PropType<PeerAdvisingDepartment>
   },
   user: {
     required: true,
@@ -191,7 +208,7 @@ const closeModal = () => {
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 
 const showModal = () => {
-  getPeerAdvisingNotesAuthoredBy(props.peerAdvisingDepartmentId, props.user.uid).then(data => {
+  getPeerAdvisingNotesAuthoredBy(props.peerAdvisingDepartment.id, props.user.uid).then(data => {
     notes.value = data
     isModalOpen.value = true
   })

@@ -47,7 +47,7 @@
             </div>
           </td>
           <td
-            :id="`note-body-in-row-${index}`"
+            :id="`td-note-${note.id}-body`"
             :class="{'border-b-md': index === notes.length - 1, 'pl-3': smAndDown}"
             class="td-note"
           >
@@ -72,7 +72,7 @@
               <div v-if="expandedNoteIds.includes(note.id)">
                 <div class="margins-of-hide-note-btn">
                   <v-btn
-                    :id="`hide-note-${note.id}-details`"
+                    :id="`show-note-${note.id}-details`"
                     :aria-expanded="true"
                     color="primary"
                     density="compact"
@@ -103,7 +103,7 @@
             </div>
           </td>
           <td
-            :id="`note-created-date-in-row-${index}`"
+            :id="`td-note-${note.id}-created-at`"
             :class="{'border-b-md': index === notes.length - 1, 'demo-mode-blur': currentUser.inDemoMode, 'pl-3': smAndDown}"
             class="td-created-date"
           >
@@ -117,8 +117,19 @@
         </tr>
       </tbody>
     </table>
-    <div v-if="!size(notes)" id="peer-advisor-no-notes" class="pt-3">
-      No notes found.
+    <div v-if="!size(notes)" id="peer-advisor-no-notes" class="align-center d-flex pt-3">
+      <div>
+        There currently are no student notes. Would you like to
+      </div>
+      <v-btn
+        id="peer-advisor-create-note-link"
+        class="font-size-15 px-1"
+        color="anchor"
+        variant="text"
+        @click="onClickCreateNote"
+      >
+        make your first note<span class="text-black text-decoration-none">?</span>
+      </v-btn>
     </div>
     <div v-if="totalNoteCount > itemsPerPage" class="pa-3">
       <hr>
@@ -163,6 +174,10 @@ defineProps({
   notes: {
     required: true,
     type: Array
+  },
+  onClickCreateNote: {
+    required: true,
+    type: Function
   },
   peerAdvisingDepartmentId: {
     required: true,
