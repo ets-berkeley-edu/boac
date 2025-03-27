@@ -207,7 +207,7 @@ const routes:RouteRecordRaw[] = [
       {
         path: '/peer_advisor/search',
         component: PeerAdvisorSearch,
-        name: 'Peer Advisor Search'
+        name: 'Peer Advising Search'
       },
       {
         path: '/peer_advisor/error',

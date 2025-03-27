@@ -2,7 +2,7 @@
   <div v-if="!contextStore.loading" class="mt-8 mx-16">
     <div class="d-flex justify-space-between">
       <div>
-        <h1>Peer Advising Notes</h1>
+        <h1>Peer Advising Search</h1>
         <div>
           Showing {{ pluralize('result', totalNoteCount) }} for <span class="font-weight-bold">{{ queryText }}</span>
           |
@@ -75,7 +75,7 @@ const init = (user: BoaUser) => {
     searchStore.setQueryText(route.query.q || searchStore.queryText)
     alertScreenReader(`Searching for "${searchStore.queryText}"`)
     peerAdvisorSearch(searchStore.queryText, peerAdvisingDepartmentId.value).then(data => {
-      notes.value = data.notes
+      notes.value = data.notes.reverse()
       totalNoteCount.value = data.totalNoteCount
       isPaging.value = false
       queryText.value = searchStore.queryText

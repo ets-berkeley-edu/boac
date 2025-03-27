@@ -7,7 +7,7 @@
     >
       Attachments
     </label>
-    <div v-if="!isReadOnly" class="mt-2 position-relative">
+    <div v-if="!isReadOnly && !attachmentLimitReached" class="mt-2 position-relative">
       <label
         class="note-attachment-inner-label font-size-16 align-center d-flex flex-wrap justify-center"
         :class="{

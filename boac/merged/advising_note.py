@@ -385,6 +385,7 @@ def _get_local_notes_search_results(local_results, cutoff, search_terms):
                 'studentName': join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')]),
                 'advisorUid': note.get('authorUid'),
                 'advisorName': note.get('authorName'),
+                'attachmentCount': note.get('attachmentCount'),
                 'noteSnippet': search_result_text_snippet(text, search_terms, TEXT_SEARCH_PATTERN),
                 'createdAt': to_iso_format(note.get('createdAt')),
                 'updatedAt': to_iso_format(note.get('updatedAt')),
