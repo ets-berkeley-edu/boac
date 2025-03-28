@@ -518,37 +518,16 @@ def match_advising_note_authors_by_name(prefixes, limit=None):
     return safe_execute_rds(sql, **prefix_kwargs)
 
 
-def match_students_by_name_or_sid(prefixes, limit=None):
-    conditions = []
-    prefix_kwargs = {}
-    prefixes = list(prefixes)
-    # A single numeric search term can match SIDs from active or inactive students.
-    if len(prefixes) == 1 and prefixes[0].isdigit():
-        conditions.append('WHERE spi.sid LIKE %(prefix)s')
-        prefix_kwargs['prefix'] = f'{prefixes[0]}%'
-    else:
-        for idx, prefix in enumerate(prefixes):
-            conditions.append(
-                f"""JOIN {student_schema()}.student_names sn{idx}
-                ON (
-                    sn{idx}.name LIKE %(prefix_{idx})s
-                    OR sn{idx}.sid LIKE %(prefix_{idx})s
-                    OR sn{idx}.email_address LIKE %(prefix_{idx})s
-                )
-                AND sn{idx}.sid = spi.sid""",
-            )
-            prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%' if idx == 0 else f'%{prefix}%'
-            if idx > 9:
-                # Some students in BOA have as many as seven distinct words in their name.
-                # For sanity's sake, stop counting at 10.
-                break
-
-    sql = f"""SELECT DISTINCT spi.first_name, spi.last_name, spi.sid, spi.uid
-        FROM {student_schema()}.student_profile_index spi
-        {' '.join(conditions)}"""
-    if limit:
-        sql += f' LIMIT {limit}'
-    return safe_execute_rds(sql, **prefix_kwargs)
+def match_students_by_name_or_sid(phrases, limit=None):
+    results = None
+    phrases = [''.join(phrase.split('-')).replace('\'', '').upper() for phrase in phrases]
+    if len(phrases) == 1:
+        phrase = phrases[0]
+        search_by_sid = phrase.isdigit()
+        results = _match_students_by_sid(phrase, limit) if search_by_sid else _match_students_by_name(phrase, limit)
+    elif len(phrases) > 1:
+        results = _search_for_students(phrases, limit)
+    return results
 
 
 def get_asc_advising_notes(sid):
@@ -1595,6 +1574,84 @@ def _level_to_code(level):
         'Doctoral Candidate > 6': '8',
     }
     return codes.get(level, level)
+
+
+def _match_students_by_sid(sid, limit=None):
+    sql = f"""
+        SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
+        FROM {student_schema()}.student_profile_index spi
+        WHERE spi.sid LIKE %(starts_with)s
+        {f' LIMIT {limit}' if limit else ''}
+    """
+    return safe_execute_rds(sql, **{'starts_with': f'{sid}%'})
+
+
+def _match_students_by_name(phrase, limit=None):
+    sql = f"""
+        SELECT s.first_name, s.last_name, s.sid, s.uid
+        FROM {student_schema()}.student_profile_index s
+        JOIN {student_schema()}.student_names n ON
+            (n.name LIKE %(contains)s OR n.email_address LIKE %(contains)s)
+            AND n.sid = s.sid
+        ORDER BY (
+            CASE
+            WHEN s.first_name ILIKE %(starts_with)s THEN 0
+            WHEN s.first_name ILIKE %(contains)s THEN 1
+            ELSE 2
+            END
+        ), s.first_name, s.last_name
+        {f'LIMIT {limit}' if limit else ''}
+    """
+    return safe_execute_rds(sql, **{
+        'contains': f'%{phrase}%',
+        'starts_with': f'{phrase}%',
+    })
+
+
+def _search_for_students(phrases, limit=None):
+    schema = student_schema()
+    selects_for_intersect = []
+    sql_params = {}
+    for index, phrase in enumerate(phrases):
+        sql_params[f'phrase_{index}_starts_with'] = f'{phrase}%'
+        # Normalize the SQL param
+        if phrase.isdigit():
+            # Search by SID
+            selects_for_intersect.append(f"""
+                SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
+                FROM {schema}.student_profile_index spi
+                WHERE spi.sid LIKE %(phrase_{index}_starts_with)s
+            """)
+        else:
+            sql_params[f'phrase_{index}_contains'] = f'%{phrase}%'
+            selects_for_intersect.append(f"""
+               SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
+               FROM {schema}.student_profile_index spi
+               JOIN {schema}.student_names sn ON
+               (
+                  sn.name LIKE %(phrase_{index}_starts_with)s
+                  OR sn.name LIKE %(phrase_{index}_contains)s
+                  OR sn.email_address LIKE %(phrase_{index}_contains)s
+               )
+               AND sn.sid = spi.sid
+            """)
+        if index > 9:
+            # Some students in BOA have as many as seven distinct words in their name.
+            # For sanity's sake, stop counting at 10.
+            break
+    sql = f"""
+        SELECT s.first_name, s.last_name, s.sid, s.uid FROM
+        ({'INTERSECT '.join(selects_for_intersect)}) s
+        ORDER BY (
+            CASE
+            WHEN s.first_name ILIKE %(phrase_0_starts_with)s THEN 0
+            WHEN s.first_name ILIKE %(phrase_0_contains)s THEN 1
+            ELSE 2
+            END
+        ), s.first_name, s.last_name
+        {f' LIMIT {limit}' if limit else ''}
+    """
+    return safe_execute_rds(sql, **sql_params)
 
 
 def _naturalize_order(column_name):
