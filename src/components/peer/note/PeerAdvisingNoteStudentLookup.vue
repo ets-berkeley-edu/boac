@@ -67,17 +67,17 @@ import {getBasicStudent} from '@/api/peer-advising-users'
 import {putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
-const findStudentTextInput = ref()
 const autocompleteErrorMessage = ref(undefined)
 const autoSuggestedStudents = ref<BasicStudentLabeled[]>([])
 const contextStore = useContextStore()
 const counter = ref(0)
 const currentUser = contextStore.currentUser
+const findStudentTextInput = ref()
 const intervalId = ref<ReturnType<typeof setTimeout>>()
 const isStudentSelected = ref(false)
 const isUpdatingAutocomplete = ref(false)
 const model = ref<string | undefined>()
-const query = ref(undefined)
+const query = ref<string | undefined>(undefined)
 const vAutocompleteKey = ref<PropertyKey>(new Date().toString())
 
 const props = defineProps({
@@ -112,6 +112,7 @@ const resetAutocomplete = () => {
   props.onSelectStudent(undefined)
   clearNoteRecipients()
   vAutocompleteKey.value = new Date().toString()
+  putFocusNextTick('find-student-autocomplete')
 }
 
 const onUpdateModel = (selectedStudent: BasicStudent) => {
@@ -130,25 +131,29 @@ onUpdated(() => {
 
 const onClickAddButton = noop
 
-const onUpdateSearch = input => {
-  query.value = input
-  autocompleteErrorMessage.value = undefined
-  autoSuggestedStudents.value = []
-  input = trim(input, ' ,\n\t')
-  if (input.length) {
-    const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
-    isUpdatingAutocomplete.value = true
-    if (size(search) > 1) {
-      findStudentsByNameOrSid(search, 20, new AbortController()).then((students: BasicStudent[]) => {
-        autoSuggestedStudents.value = []
-        each(students, (student: BasicStudent) => {
-          autoSuggestedStudents.value.push({
-            ...student,
-            ...{label: student.label}
+const onUpdateSearch = (input: string | undefined) => {
+  if (!isStudentSelected.value) {
+    query.value = input
+    autocompleteErrorMessage.value = undefined
+    autoSuggestedStudents.value = []
+    input = trim(input, ' ,\n\t')
+    if (input.length) {
+      const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
+      isUpdatingAutocomplete.value = true
+      if (size(search) > 1) {
+        findStudentsByNameOrSid(search, 20, new AbortController()).then((students: BasicStudent[]) => {
+          autoSuggestedStudents.value = []
+          each(students, (student: BasicStudent) => {
+            autoSuggestedStudents.value.push({
+              ...student,
+              ...{label: student.label}
+            })
           })
+          isUpdatingAutocomplete.value = false
+        }).catch(() => {
+          putFocusNextTick('find-student-autocomplete')
         })
-        isUpdatingAutocomplete.value = false
-      }).catch(() => putFocusNextTick('find-student-input'))
+      }
     }
   }
 }

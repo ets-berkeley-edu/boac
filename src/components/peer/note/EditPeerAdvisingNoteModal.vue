@@ -125,7 +125,7 @@ import CreateNoteFooter from '@/components/note/CreateNoteFooter.vue'
 import EditPeerAdvisingNoteHeader from '@/components/peer/note/EditPeerAdvisingNoteHeader.vue'
 import PeerAdvisingNoteStudentLookup from '@/components/peer/note/PeerAdvisingNoteStudentLookup.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
-import {alertScreenReader, pluralize, stripHtmlAndTrim} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {clearNoteRecipients, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
@@ -199,6 +199,7 @@ const onClearSelectedStudent = () => {
   student.value = undefined
   clearNoteRecipients()
   alertScreenReader('Student selection removed')
+  putFocusNextTick('find-student-autocomplete')
 }
 
 const onSelectStudent = (selectedStudent: BasicStudent | undefined) => {

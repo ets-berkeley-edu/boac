@@ -80,7 +80,10 @@ onMounted(() => {
   }
 })
 
-onUnmounted(() => contextStore.removeEventHandler('peer-advising-note-created'))
+onUnmounted(() => {
+  contextStore.removeEventHandler('peer-advising-note-created')
+  noteStore.exitSession()
+})
 
 const goToPage = (page: number) => {
   return new Promise<void>(resolve => {

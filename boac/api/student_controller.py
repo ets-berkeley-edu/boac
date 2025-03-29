@@ -71,12 +71,12 @@ def distinct_student_count():
 @advisor_or_peer_advisor_required
 def find_by_name_or_sid():
     query = request.args.get('q')
-    query = query.strip().upper().replace('\'', '') if query else None
+    query = query.strip() if query else None
     if not query:
         raise BadRequestError('Search query must be supplied')
     limit = request.args.get('limit') or 20
     students = match_students_by_name_or_sid(
-        prefixes=filter(None, re.split(r'[- ]', query)),
+        phrases=list(filter(None, re.split(r'[- ]', query))),
         limit=limit,
     )
     return tolerant_jsonify([_student_search_result(s) for s in students])
