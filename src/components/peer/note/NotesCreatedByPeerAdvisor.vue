@@ -42,6 +42,9 @@
         <v-card-text class="py-0">
           <div :id="`peer-advising-department-${peerAdvisingDepartment.id}`">
             {{ peerAdvisingDepartment.name }}
+            <span v-if="timeframe">
+              ({{ timeframe.label }})
+            </span>
           </div>
           <div v-if="isFetchingNotes" class="my-16 text-center w-100">
             <v-progress-circular
@@ -173,6 +176,7 @@ import {DateTime} from 'luxon'
 import {get, isNil, size} from 'lodash'
 import {mdiCloseCircle, mdiCloseThick, mdiPaperclip} from '@mdi/js'
 import type {BoaUser, Note, PeerAdvisingDepartment} from '@/lib/types'
+import type {Month} from '@/lib/types-peer-advising'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 import {getPeerAdvisingNotesAuthoredBy} from '@/api/peer-advising-notes'
@@ -187,6 +191,11 @@ const props = defineProps({
   peerAdvisingDepartment: {
     required: true,
     type: Object as PropType<PeerAdvisingDepartment>
+  },
+  timeframe: {
+    default: undefined,
+    required: false,
+    type: Object as PropType<Month>
   },
   user: {
     required: true,
@@ -208,7 +217,11 @@ const closeModal = () => {
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 
 const showModal = () => {
-  getPeerAdvisingNotesAuthoredBy(props.peerAdvisingDepartment.id, props.user.uid).then(data => {
+  getPeerAdvisingNotesAuthoredBy(
+    props.peerAdvisingDepartment.id,
+    props.user.uid,
+    props.timeframe
+  ).then(data => {
     notes.value = data
     isModalOpen.value = true
   })

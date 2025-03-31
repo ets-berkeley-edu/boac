@@ -143,8 +143,24 @@ class TestCreatePeerAdvisingNote:
 class TestGetNotesAuthoredBy:
 
     @classmethod
-    def _api_notes_authored_by(cls, client, peer_advising_department_id, uid, expected_status_code=200):
-        response = client.get(f'/api/peer_advising/{peer_advising_department_id}/note_author/{uid}')
+    def _api_notes_authored_by(
+            cls,
+            client,
+            peer_advising_department_id,
+            uid,
+            expected_status_code=200,
+            timeframe=None,
+    ):
+        data = {
+            'timeframe': timeframe,
+            'peerAdvisingDepartmentId': peer_advising_department_id,
+            'uid': uid,
+        }
+        response = client.post(
+            '/api/peer_advising/notes/authored_by',
+            content_type='application/json',
+            data=json.dumps(data),
+        )
         assert response.status_code == expected_status_code
         return response.json
 
@@ -185,6 +201,16 @@ class TestGetNotesAuthoredBy:
         )
         assert len(api_json)
         assert next((n for n in api_json if n['id'] == note.id), None)
+        api_json = self._api_notes_authored_by(
+            client=client,
+            peer_advising_department_id=peer_advising_department_id,
+            timeframe={
+                'year': 1999,
+                'month': 12,
+            },
+            uid=peer_advisor.uid,
+        )
+        assert not len(api_json)
 
 
 class TestGetPeerAdvisingNotes:

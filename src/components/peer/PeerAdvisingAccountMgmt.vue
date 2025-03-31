@@ -60,7 +60,7 @@
         <div class="float-right">
           <NotesCreatedByPeerAdvisor
             v-if="get(item, 'noteCount')"
-            :header-text="`${pluralize('note', toInt(get(item, 'noteCount') || 0))} created by ${item.name}`"
+            :header-text="`${pluralize('note', toInt(get(item, 'noteCount') || 0), {1: 'One'})} created by ${item.name}`"
             :peer-advising-department="peerAdvisingDepartment"
             :user="item"
           />

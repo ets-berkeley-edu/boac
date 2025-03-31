@@ -30,7 +30,7 @@ from boac.api.decorators import advising_data_access_required, director_advising
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import get_boac_note_as_compatible_json, get_note_attachments_from_http_post, \
     get_note_author_profile_of_current_user, get_note_topics_from_http_post, \
-    get_template_attachment_ids_from_http_post, validate_advising_note_set_date, validate_note_contact_type
+    get_template_attachment_ids_from_http_post, is_valid_date_string, validate_note_contact_type
 from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
@@ -97,7 +97,10 @@ def update_note():
     is_draft = to_bool_or_none(params.get('isDraft', False))
     is_private = to_bool_or_none(params.get('isPrivate', False))
     note_id = params.get('id', None)
-    set_date = validate_advising_note_set_date(params)
+    # Parse date
+    set_date = params.get('setDate')
+    if set_date and not is_valid_date_string(set_date):
+        raise BadRequestError('Invalid set date format')
     subject = (params.get('subject', None) or '').strip()
     topics = get_note_topics_from_http_post()
     note_template_id = params.get('noteTemplateId', None)

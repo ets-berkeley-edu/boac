@@ -146,11 +146,21 @@ def download_peer_advising_note_attachment(attachment_id):
     return r
 
 
-@app.route('/api/peer_advising/<peer_advising_department_id>/note_author/<uid>')
+@app.route('/api/peer_advising/notes/authored_by', methods=['POST'])
 @advising_data_access_required
-def get_notes_authored_by(peer_advising_department_id, uid):
+def get_notes_authored_by():
+    params = request.get_json()
+    peer_advising_department_id = params.get('peerAdvisingDepartmentId')
+    uid = params.get('uid')
+    # The 'timeframe' param (optional) has two properties: year and month.
+    timeframe = params.get('timeframe') or None
+    if timeframe:
+        month = timeframe['month']
+        year = timeframe['year']
+        timeframe = f"{year}-{f'0{month}' if month < 10 else month}"
     notes = Note.get_peer_advising_notes_authored_by(
         author_uid=uid,
+        timeframe_month=timeframe,
         peer_advising_department_id=peer_advising_department_id,
     )
     sids = [note['sid'] for note in notes]
@@ -234,7 +244,11 @@ def update_peer_advising_note():
     note_template_id = params.get('noteTemplateId', None)
     # Fetch existing note
     note = Note.find_by_id(note_id=note_id) if note_id else None
-    if not note or not _can_current_user_edit_peer_advising_note(note):
+    is_authorized = note and PeerAdvisingDepartmentMember.is_user_in_peer_advising_department(
+        user_id=current_user.get_id(),
+        peer_advising_department_id=note.peer_advising_department_id,
+    )
+    if not is_authorized:
         raise ResourceNotFoundError('Note not found')
     note = Note.update(
         body=process_input_from_rich_text_editor(body),
@@ -249,10 +263,6 @@ def update_peer_advising_note():
     note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
     api_json = get_boac_note_as_compatible_json(note=note, note_read=note_read)
     return tolerant_jsonify(api_json)
-
-
-def _can_current_user_edit_peer_advising_note(note):
-    return True
 
 
 def _get_enrollments_by_term_id(sid):

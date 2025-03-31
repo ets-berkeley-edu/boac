@@ -81,14 +81,18 @@
                       >
                         {{ peerAdvisor.name }}
                       </td>
-                      <td class="border-sm text-no-wrap text-right">
+                      <td
+                        :class="{'font-weight-medium text-red': peerAdvisor.deletedAt}"
+                        class="border-sm text-no-wrap text-right"
+                      >
                         <NotesCreatedByPeerAdvisor
                           v-if="get(peerAdvisor, 'noteCount')"
-                          :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0))} created by ${peerAdvisor.name}`"
+                          :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0), {1: 'One'})} created by ${peerAdvisor.name}`"
                           :peer-advising-department="peerAdvisingDepartment"
+                          :timeframe="month"
                           :user="peerAdvisor"
                         />
-                        <span v-if="!get(peerAdvisor, 'noteCount')" :class="{'font-weight-medium text-red': peerAdvisor.deletedAt}">0</span>
+                        <span v-if="!get(peerAdvisor, 'noteCount')">0</span>
                       </td>
                     </tr>
                   </tbody>
@@ -107,7 +111,8 @@ import type {PropType} from 'vue'
 import {get, isNil, toLower} from 'lodash'
 import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {ref} from 'vue'
-import type {PeerAdvisingDepartment, PeerAdvisingHistoricalReport} from '@/lib/types'
+import type {PeerAdvisingDepartment} from '@/lib/types'
+import type {PeerAdvisingHistoricalReport} from '@/lib/types-peer-advising'
 import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
 import PillCount from '@/components/util/PillCount.vue'
 import {getPeerAdvisingHistoricalReport} from '@/api/peer-advising-reports'
