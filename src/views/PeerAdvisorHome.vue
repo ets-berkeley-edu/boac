@@ -2,7 +2,13 @@
   <div v-if="!contextStore.loading" class="mt-8 mx-16">
     <div class="d-flex flex-wrap justify-space-between">
       <div>
-        <h1>Peer Advising Notes</h1>
+        <h1 class="mb-0">Peer Advising Notes</h1>
+        <div v-if="totalNoteCount > batchSizePerFetch">
+          Showing {{ notes.length + 1 }} of {{ totalNoteCount }} notes
+        </div>
+        <div v-if="totalNoteCount > 0 && totalNoteCount <= batchSizePerFetch">
+          Showing {{ totalNoteCount }} notes
+        </div>
       </div>
       <div v-if="!currentUser.isAdmin">
         <v-btn
@@ -22,16 +28,22 @@
         />
       </div>
     </div>
-    <div v-if="!isPaging">
+    <div class="w=100">
       <PeerAdvisorPaginatedNotes
-        :current-page="currentPage"
-        :go-to-page="goToPage"
-        :items-per-page="itemsPerPage"
         :notes="notes"
         :on-click-create-note="onClickCreateNote"
         :peer-advising-department-id="peerAdvisingDepartmentId"
-        :total-note-count="totalNoteCount"
       />
+      <div class="my-3 text-center">
+        <v-btn
+          v-if="totalNoteCount > notes.length + 1"
+          id="fetch-more-notes"
+          text="Show additional advising notes"
+          variant="text"
+          @click.prevent="fetchNotes"
+        />
+        <SectionSpinner v-if="notes.length" :loading="isFetchingNotes" />
+      </div>
     </div>
   </div>
 </template>
@@ -43,7 +55,6 @@ import {onMounted, onUnmounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import type {BasicStudent, BoaUser, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
-import PeerAdvisorPaginatedNotes from '@/components/peer/note/PeerAdvisorPaginatedNotes.vue'
 import {getBasicStudent} from '@/api/peer-advising-users'
 import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
@@ -52,13 +63,14 @@ import {getUserByUid} from '@/api/user'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import PeerAdvisorPaginatedNotes from '@/components/peer/note/PeerAdvisorPaginatedNotes.vue'
+import SectionSpinner from '@/components/util/SectionSpinner.vue'
 
 const contextStore = useContextStore()
+const batchSizePerFetch = ref(50)
 const createNoteModal = ref(false)
-const currentPage = ref(1)
 const currentUser = contextStore.currentUser
-const isPaging = ref(false)
-const itemsPerPage = ref(50)
+const isFetchingNotes = ref(false)
 const noteStore = useNoteStore()
 const notes = ref<Note[]>([])
 const offset = ref(0)
@@ -85,22 +97,22 @@ onUnmounted(() => {
   noteStore.exitSession()
 })
 
-const goToPage = (page: number) => {
+const fetchNotes = () => {
   return new Promise<void>(resolve => {
     if (peerAdvisor.value && peerAdvisor.value.uid) {
-      isPaging.value = true
-      currentPage.value = page
-      offset.value = (page - 1) * itemsPerPage.value
+      isFetchingNotes.value = true
+      offset.value = notes.value.length ? notes.value.length + 1 : 0
       getPeerAdvisorNotes(
         offset.value,
-        itemsPerPage.value,
+        batchSizePerFetch.value,
         peerAdvisor.value.uid,
         true
       ).then(data => {
-        notes.value = data.notes
+        const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0].id}`
+        notes.value.push(...data.notes)
         totalNoteCount.value = data.totalNoteCount
-        isPaging.value = false
-        putFocusNextTick(page > 1 ? `pagination-page-${page}` : 'page-header')
+        isFetchingNotes.value = false
+        putFocusNextTick(putFocusId)
         resolve()
       })
     } else {
@@ -114,7 +126,7 @@ const init = (user: BoaUser) => {
   const membership = getPeerAdvisorDepartmentMembership(peerAdvisor.value, 'peer_advisor')
   if (peerAdvisor.value.id && membership && membership.peerAdvisingDepartmentId) {
     peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
-    goToPage(1).then(() => {
+    fetchNotes().then(() => {
       contextStore.loadingComplete('Notes have loaded')
       contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
     })

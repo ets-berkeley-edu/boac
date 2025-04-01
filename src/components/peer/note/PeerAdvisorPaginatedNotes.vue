@@ -18,11 +18,16 @@
       <tbody>
         <tr
           v-for="(note, index) in notes"
+          :id="`tr-peer-advisor-${note.id}`"
           :key="index"
-          :class="index % 2 === 0 ? '' : 'bg-surface-light'"
+          :class="expandedNoteIds.includes(note.id) ? 'bg-sky-blue' : (index % 2 === 0 ? '' : 'bg-surface-light')"
         >
           <td
-            :class="{'border-b-md': index === notes.length - 1, 'pl-3 pt-3': smAndDown}"
+            :class="{
+              'border-b-md': index === notes.length - 1,
+              'pl-3 pt-3': smAndDown,
+              'pl-2 pt-2': expandedNoteIds.includes(note.id)
+            }"
             class="font-weight-bold text-medium-emphasis td-student"
           >
             <div
@@ -48,8 +53,13 @@
           </td>
           <td
             :id="`td-note-${note.id}-body`"
-            :class="{'border-b-md': index === notes.length - 1, 'pl-3': smAndDown}"
+            :class="{
+              'border-b-md': index === notes.length - 1,
+              'pl-3': smAndDown,
+              'py-2': expandedNoteIds.includes(note.id)
+            }"
             class="td-note"
+            :colspan="expandedNoteIds.includes(note.id) ? 2 : 1"
           >
             <v-expand-transition>
               <div v-if="!expandedNoteIds.includes(note.id)">
@@ -87,8 +97,13 @@
             </v-expand-transition>
           </td>
           <td
+            v-if="!expandedNoteIds.includes(note.id)"
             :id="`note-topics-in-row-${index}`"
-            :class="{'border-b-md': index === notes.length - 1, 'pl-3': smAndDown, 'td-topics': !smAndDown}"
+            :class="{
+              'border-b-md': index === notes.length - 1,
+              'pl-3': smAndDown,
+              'td-topics': !smAndDown
+            }"
             :title="note.topics.join(', ')"
           >
             <div class="align-center d-flex font-weight-medium justify-space-between w-100">
@@ -104,7 +119,12 @@
           </td>
           <td
             :id="`td-note-${note.id}-created-at`"
-            :class="{'border-b-md': index === notes.length - 1, 'demo-mode-blur': currentUser.inDemoMode, 'pl-3': smAndDown}"
+            :class="{
+              'border-b-md': index === notes.length - 1,
+              'demo-mode-blur': currentUser.inDemoMode,
+              'pl-3': smAndDown,
+              'pr-2 pt-2': expandedNoteIds.includes(note.id)
+            }"
             class="td-created-date"
           >
             <div
@@ -131,18 +151,6 @@
         make your first note<span class="text-black text-decoration-none">?</span>
       </v-btn>
     </div>
-    <div v-if="totalNoteCount > itemsPerPage" class="pa-3">
-      <hr>
-      <Pagination
-        :click-handler="goToPage"
-        id-prefix="auxiliary-pagination"
-        :init-page-number="currentPage"
-        :is-widget-at-bottom-of-page="true"
-        :limit="10"
-        :per-page="itemsPerPage"
-        :total-rows="totalNoteCount"
-      />
-    </div>
   </div>
 </template>
 
@@ -153,24 +161,11 @@ import {ref} from 'vue'
 import {size} from 'lodash'
 import {useDisplay} from 'vuetify'
 import type {Note} from '@/lib/types'
-import Pagination from '@/components/util/Pagination.vue'
 import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 
 defineProps({
-  currentPage: {
-    required: true,
-    type: Number
-  },
-  goToPage: {
-    required: true,
-    type: Function
-  },
-  itemsPerPage: {
-    required: true,
-    type: Number
-  },
   notes: {
     required: true,
     type: Array
@@ -180,10 +175,6 @@ defineProps({
     type: Function
   },
   peerAdvisingDepartmentId: {
-    required: true,
-    type: Number
-  },
-  totalNoteCount: {
     required: true,
     type: Number
   }
@@ -212,6 +203,7 @@ const toggleShowHide = (note: Note) => {
     overflow: hidden; /* Prevent horizontal scrollbar */
   }
   table {
+    border-collapse: collapse;
     display: block; /* Allow table to stack vertically */
     width: 100%;
   }

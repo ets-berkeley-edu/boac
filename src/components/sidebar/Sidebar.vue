@@ -196,7 +196,7 @@
         </NavLink>
       </div>
       <div class="font-weight-medium mt-1 pretty-hover">
-        <NavLink id="groups-all" path="/all/groups">
+        <NavLink id="groups-all" path="/all/curated_groups">
           Everyone's Groups
         </NavLink>
       </div>
