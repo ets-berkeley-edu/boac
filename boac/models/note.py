@@ -181,8 +181,13 @@ class Note(Base):
         return note_counts_per_uid
 
     @classmethod
-    def get_peer_advising_notes_authored_by(cls, author_uid, peer_advising_department_id):
-        sql = """
+    def get_peer_advising_notes_authored_by(
+            cls,
+            author_uid,
+            peer_advising_department_id,
+            timeframe_month=None,
+    ):
+        sql = f"""
             SELECT
               n.*, a.id AS attachment_id, a.path_to_attachment, a.uploaded_by_uid, t.topic
             FROM notes n
@@ -194,6 +199,7 @@ class Note(Base):
               AND n.is_draft IS FALSE
               AND n.is_private IS FALSE
               AND n.peer_advising_department_id = :peer_advising_department_id
+              {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
             GROUP BY n.id, a.id, t.topic
             ORDER BY n.updated_at DESC
         """

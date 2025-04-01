@@ -303,14 +303,15 @@ def is_unauthorized_search(filter_keys, order_by=None):
     return False
 
 
-def validate_advising_note_set_date(params):
-    set_date = params.get('setDate') or None
-    if set_date:
-        try:
-            datetime.strptime(set_date, '%Y-%m-%d').date()
-        except (TypeError, ValueError):
-            raise BadRequestError('Invalid set date format')
-    return set_date
+def is_valid_date_string(date_string, date_format='%Y-%m-%d'):
+    try:
+        return parse_date_param(date_string, date_format) is not None
+    except (TypeError, ValueError):
+        return False
+
+
+def parse_date_param(date_string, date_format='%Y-%m-%d'):
+    return datetime.strptime(date_string, date_format).date() if date_string else None
 
 
 def get_academic_standing(profile):

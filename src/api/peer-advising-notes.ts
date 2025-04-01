@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {each} from 'lodash'
+import type {Month} from '@/lib/types-peer-advising'
 import type {NoteEditSessionModel} from '@/lib/types'
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
@@ -15,9 +16,18 @@ export async function addPeerAdvisingAttachments(noteId: number, attachments: ob
   })
 }
 
-export function getPeerAdvisingNotesAuthoredBy(peerAdvisingDepartmentId: number, uid: string) {
-  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/${peerAdvisingDepartmentId}/note_author/${uid}`
-  return axios.get(url).then(response => response.data)
+export function getPeerAdvisingNotesAuthoredBy(
+  peerAdvisingDepartmentId: number,
+  uid: string,
+  timeframe?: Month
+) {
+  const data = {
+    peerAdvisingDepartmentId,
+    timeframe,
+    uid
+  }
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/notes/authored_by`
+  return axios.post(url, data).then(response => response.data)
 }
 
 export async function getPeerAdvisorNotes(

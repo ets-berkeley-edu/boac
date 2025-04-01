@@ -10,7 +10,7 @@
           class="pa-2 sidebar-pill text-white"
           color="primary"
         >
-          <span class="font-size-16">{{ notesReport.currentMonth.peerAdvisingNoteCount }}</span>
+          <span class="font-size-16">{{ notesReport.currentMonth.noteCount }}</span>
         </PillCount>
       </div>
     </div>
@@ -28,8 +28,9 @@
             <td class="border-sm text-no-wrap text-right">
               <NotesCreatedByPeerAdvisor
                 v-if="get(peerAdvisor, 'noteCount')"
-                :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0))} created by ${peerAdvisor.name}`"
+                :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0), {1: 'One'})} created by ${peerAdvisor.name}`"
                 :peer-advising-department="notesReport.peerAdvisingDepartment"
+                :timeframe="notesReport.currentMonth"
                 :user="peerAdvisor"
               />
               <span v-if="!get(peerAdvisor, 'noteCount')" :class="{'font-weight-medium text-red': peerAdvisor.deletedAt}">0</span>
@@ -44,7 +45,7 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {get} from 'lodash'
-import type {PeerAdvisingManagerReport} from '@/lib/types'
+import type {PeerAdvisingManagerReport} from '@/lib/types-peer-advising'
 import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
 import PillCount from '@/components/util/PillCount.vue'
 import {pluralize, toInt} from '@/lib/utils'
