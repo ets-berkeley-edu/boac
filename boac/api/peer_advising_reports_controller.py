@@ -24,17 +24,56 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from datetime import datetime
+import re
 
 from boac.api.auth_utils import is_authorized_peer_advisor_manager
 from boac.api.decorators import peer_advisor_manager_required
 from boac.api.errors import ResourceNotFoundError
-from boac.lib.http import tolerant_jsonify
-from boac.merged.peer_advising_notes_reports import get_notes_created_by_peer_advisors, \
+from boac.lib.http import response_with_csv_download, tolerant_jsonify
+from boac.merged.peer_advising_notes_reports import get_all_peer_advising_notes, get_notes_created_by_peer_advisors, \
     get_peer_advising_note_author_count, get_peer_advising_note_count_since, get_peer_advising_note_template_usage, \
     get_total_peer_advising_notes
 from boac.models.peer_advising_department import PeerAdvisingDepartment
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from flask import current_app as app
 from flask_login import current_user
+
+
+@app.route('/api/peer_advising/<peer_advising_department_id>/notes/csv', methods=['POST'])
+@peer_advisor_manager_required
+def get_peer_advising_csv_download(peer_advising_department_id):
+    if PeerAdvisingDepartmentMember.is_user_in_peer_advising_department(
+        peer_advising_department_id=peer_advising_department_id,
+        user_id=current_user.get_id(),
+    ):
+        rows = []
+        for row in get_all_peer_advising_notes(peer_advising_department_id=peer_advising_department_id):
+            # Line breaks in CSV cause problems
+            body = (row['body'] or '').replace('\n', ' ').replace('\r', ' ').strip()
+            body = re.sub(r'\s+', ' ', body)
+            row['body'] = body
+            rows.append(row)
+        return response_with_csv_download(
+            rows=sorted(rows, key=lambda row: row['created_at'], reverse=True),
+            filename_prefix='boa_peer_advising_notes',
+            fieldnames=[
+                'author_name',
+                'author_uid',
+                'author_role',
+                'author_dept_codes',
+                'body',
+                'contact_type',
+                'peer_advising_department_name',
+                'sid',
+                'student_first_name',
+                'student_last_name',
+                'topics',
+                'created_at',
+                'updated_at',
+            ],
+        )
+    else:
+        return app.login_manager.unauthorized()
 
 
 @app.route('/api/peer_advising/<peer_advising_department_id>/report/notes')

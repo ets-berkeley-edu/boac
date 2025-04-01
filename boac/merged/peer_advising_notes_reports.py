@@ -24,6 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db
+from boac.externals.data_loch import get_basic_student_data, safe_execute_rds, student_schema
+from boac.lib.util import to_iso_format
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 
 
 def get_peer_advising_note_author_count(peer_advising_department_id):
@@ -53,6 +56,78 @@ def get_peer_advising_note_count_since(peer_advising_department_id, timeframe_mo
     """
     results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
     return [row['count'] for row in results][0]
+
+
+def get_all_peer_advising_notes(peer_advising_department_id):
+    peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
+    if peer_advising_department:
+        sql = """
+            SELECT
+              n.*, t.topic
+            FROM notes n
+            LEFT JOIN note_topics t ON (n.id = t.note_id AND t.deleted_at IS NULL)
+            WHERE TRUE
+              AND n.deleted_at IS NULL
+              AND n.is_draft IS FALSE
+              AND n.peer_advising_department_id = :peer_advising_department_id
+            GROUP BY n.id, t.topic
+            ORDER BY n.updated_at DESC
+        """
+        notes = []
+        for row in db.session.execute(sql, {'peer_advising_department_id': peer_advising_department_id}):
+            note_id = row['id']
+            note = next((n for n in notes if n['id'] == note_id), None)
+            if not note:
+                note = {
+                    'id': note_id,
+                    'author_dept_codes': ', '.join(row['author_dept_codes']),
+                    'author_uid': row['author_uid'],
+                    'author_name': row['author_name'],
+                    'author_role': row['author_role'],
+                    'body': row['body'],
+                    'contact_type': row['contact_type'],
+                    'peer_advising_department_name': peer_advising_department.name,
+                    'sid': row['sid'],
+                    'student_first_name': None,
+                    'student_last_name': None,
+                    'topics': [],
+                    'created_at': to_iso_format(row['created_at'])[:10],
+                    'updated_at': to_iso_format(row['updated_at'])[:10],
+                }
+                notes.append(note)
+            topic = row['topic']
+            if topic and topic not in note['topics']:
+                note['topics'].append(topic)
+
+        distinct_sids = list(set([note['sid'] for note in notes]))
+        students_by_sid = {row['sid']: row for row in get_basic_student_data(sids=distinct_sids)}
+        for note in notes:
+            del note['id']
+            note['topics'] = ', '.join(note['topics'])
+            student = students_by_sid.get(note['sid'])
+            if student:
+                note['student_first_name'] = student['first_name']
+                note['student_last_name'] = student['last_name']
+        return notes
+    else:
+        raise ValueError(f'Peer Advising Department {peer_advising_department_id} not found.')
+
+
+def _get_basic_student_data(sids):
+    sql = f"""
+        SELECT
+          p.sid,
+          p.uid,
+          p.first_name AS student_first_name,
+          p.last_name AS student_last_name,
+          d.plan AS degree_awarded_name,
+          d.date_awarded AS degree_awarded_date
+        FROM {student_schema()}.student_profile_index p
+        LEFT JOIN {student_schema()}.student_degrees d ON d.sid = p.sid
+        WHERE p.sid = ANY(%(sids)s)
+        ORDER BY p.sid, d.date_awarded, d.plan
+        """
+    return safe_execute_rds(sql, sids=sids)
 
 
 def get_notes_created_by_peer_advisors(peer_advising_department_id, timeframe_month=None):
