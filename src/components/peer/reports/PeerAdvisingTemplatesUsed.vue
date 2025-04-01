@@ -10,7 +10,7 @@
     <tbody>
       <tr v-for="(noteTemplate, index) in notesReport.noteTemplates" :key="noteTemplate.name">
         <td :class="{'pt-2': index === 0}">{{ noteTemplate.templateTitle }}</td>
-        <td class="text-right">{{ noteTemplate.noteTemplateUsageCount }}</td>
+        <td class="font-weight-bold text-right">{{ noteTemplate.noteTemplateUsageCount }}</td>
       </tr>
     </tbody>
   </table>

@@ -274,6 +274,17 @@
         "lastName": "Turrasco"
     },
     {
+        "uid": "5405613",
+        "csid": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": false,
+        "deleted": false,
+        "firstName": "Muigi",
+        "lastName": "Langione"
+    },
+    {
         "uid": "1563405",
         "csid": "61563405340",
         "isAdmin": false,

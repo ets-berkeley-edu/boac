@@ -1,6 +1,32 @@
 <template>
   <div class="mx-3 my-6">
-    <h2 class="font-size-18">Reporting &amp; Statistics</h2>
+    <div class="align-center d-flex justify-space-between pr-15 w-50">
+      <h2 class="font-size-18 mr-3">Reporting &amp; Statistics</h2>
+      <div>
+        (<v-btn
+          id="download-csv"
+          aria-label="Download the users currently shown in Passenger Manifest"
+          class="font-size-16 letter-spacing-normal pb-1 px-0 download-csv"
+          :color="isDownloadingCsv ? 'black' : 'primary'"
+          density="compact"
+          :disabled="isDownloadingCsv"
+          slim
+          :text="isDownloadingCsv ? 'downloading...' : 'download notes'"
+          variant="text"
+          @click="() => downloadCSV()"
+        >
+          <template v-if="isDownloadingCsv" #prepend>
+            <v-progress-circular
+              class="ml-1"
+              color="primary"
+              indeterminate
+              size="16"
+              width="3"
+            />
+          </template>
+        </v-btn>)
+      </div>
+    </div>
     <div v-if="notesReport" class="d-flex justify-space-between mt-3">
       <div class="ml-3 pr-16 w-50">
         <table class="w-100">
@@ -13,15 +39,15 @@
           <tbody>
             <tr>
               <td>Total {{ peerAdvisingDepartment.name }} peer advising notes</td>
-              <td class="text-right">{{ notesReport.totalPeerAdvisingNoteCount }}</td>
+              <td class="font-weight-bold text-right">{{ notesReport.totalPeerAdvisingNoteCount }}</td>
             </tr>
             <tr>
               <td>Distinct peer advisor authors</td>
-              <td class="text-right">{{ notesReport.distinctPeerAdvisorAuthors }}</td>
+              <td class="font-weight-bold text-right">{{ notesReport.distinctPeerAdvisorAuthors }}</td>
             </tr>
           </tbody>
         </table>
-        <div class="mt-6">
+        <div class="mt-6 pr-2">
           <PeerAdvisingTemplatesUsed :notes-report="notesReport" />
         </div>
       </div>
@@ -49,11 +75,12 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {onMounted, ref} from 'vue'
-import type {PeerAdvisingDepartment, PeerAdvisingManagerReport} from '@/lib/types'
+import type {PeerAdvisingDepartment} from '@/lib/types'
+import type {PeerAdvisingManagerReport} from '@/lib/types-peer-advising'
 import PeerAdvisingCurrentMonthReport from '@/components/peer/reports/PeerAdvisingCurrentMonthReport.vue'
-import PeerAdvisingTemplatesUsed from '@/components/peer/reports/PeerAdvisingTemplatesUsed.vue'
 import PeerAdvisingHistoricalReport from '@/components/peer/reports/PeerAdvisingHistoricalReport.vue'
-import {getPeerAdvisingNotesReport} from '@/api/peer-advising-reports'
+import PeerAdvisingTemplatesUsed from '@/components/peer/reports/PeerAdvisingTemplatesUsed.vue'
+import {downloadPeerAdvisingNotes, getPeerAdvisingNotesReport} from '@/api/peer-advising-reports'
 
 const props = defineProps({
   peerAdvisingDepartment: {
@@ -62,6 +89,7 @@ const props = defineProps({
   }
 })
 
+const isDownloadingCsv = ref(false)
 const notesReport = ref<PeerAdvisingManagerReport | undefined>(undefined)
 
 onMounted(() => {
@@ -69,6 +97,13 @@ onMounted(() => {
     notesReport.value = data
   })
 })
+
+const downloadCSV = () => {
+  isDownloadingCsv.value = true
+  downloadPeerAdvisingNotes(props.peerAdvisingDepartment).then(() => {
+    isDownloadingCsv.value = false
+  })
+}
 </script>
 
 <style scoped>
