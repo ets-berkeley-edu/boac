@@ -103,7 +103,7 @@ const search = () => {
       } else {
         router.push(
           {
-            path: 'search',
+            path: '/search',
             query: {
               admits: currentUser.canAccessAdmittedStudents,
               courses: currentUser.canAccessCanvasData,
