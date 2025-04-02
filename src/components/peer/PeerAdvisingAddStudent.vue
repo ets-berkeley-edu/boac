@@ -162,7 +162,7 @@ const onUpdateSearch = (input: string) => {
       const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
       isUpdatingStudentAutocomplete.value = true
       if (size(search) > 1) {
-        findStudentsByNameOrSid(search, 20, new AbortController()).then((students: BasicStudent[]) => {
+        findStudentsByNameOrSid(search, 20, new AbortController(), true).then((students: BasicStudent[]) => {
           const existingPeerAdvisorSids = map(props.excludeTheseStudents, 'sid')
           students = filter(students, s => !includes(existingPeerAdvisorSids, s.sid))
           autoSuggestedStudents.value = map(students, s => ({label: s.label, sid: s.sid, uid: s.uid}))
