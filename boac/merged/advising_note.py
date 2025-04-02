@@ -292,18 +292,29 @@ def search_advising_notes(
     while True:
         benchmark(f'begin local notes query (iteration {local_notes_query_iteration})')
 
-        local_search_results = Note.search(
-            search_phrase=search_phrase,
-            author_uid=author_uid,
-            student_csid=student_csid,
-            department_codes=department_codes,
-            topic=topic,
-            datetime_from=datetime_from,
-            datetime_to=datetime_to,
-            offset=(local_notes_query_batch_size * local_notes_query_iteration),
-            limit=local_notes_query_batch_size,
-            peer_advising_department_id=peer_advising_department_id,
-        )
+        if peer_advising_department_id:
+            phrases = list(filter(None, re.split(r'[- ]', search_phrase.strip().upper())))
+            student_results = data_loch.match_students_by_name_or_sid(phrases=phrases, limit=100)
+            matching_sids = [s.get('sid') for s in student_results]
+            local_search_results = Note.peer_advising_notes_search(
+                search_phrase=search_phrase,
+                offset=(local_notes_query_batch_size * local_notes_query_iteration),
+                limit=local_notes_query_batch_size,
+                peer_advising_department_id=peer_advising_department_id,
+                matching_sids=matching_sids,
+            )
+        else:
+            local_search_results = Note.search(
+                search_phrase=search_phrase,
+                author_uid=author_uid,
+                student_csid=student_csid,
+                department_codes=department_codes,
+                topic=topic,
+                datetime_from=datetime_from,
+                datetime_to=datetime_to,
+                offset=(local_notes_query_batch_size * local_notes_query_iteration),
+                limit=local_notes_query_batch_size,
+            )
         local_batch_results = local_search_results['results']
         local_total_matching_count = local_search_results['total_matching_count']
         benchmark(f'end local notes query (iteration {local_notes_query_iteration})')

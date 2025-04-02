@@ -11,7 +11,7 @@
             variant="text"
             @click="clearResults"
           >
-            Clear Search Results
+            Return to Home
           </v-btn>
         </div>
       </div>
@@ -87,8 +87,7 @@ const init = (user: BoaUser) => {
 }
 
 const clearResults = () => {
-  notes.value = []
-  totalNoteCount.value = 0
+  router.push({path: '/home'})
 }
 
 </script>
