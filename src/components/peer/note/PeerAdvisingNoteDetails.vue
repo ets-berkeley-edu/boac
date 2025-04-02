@@ -49,8 +49,8 @@
             </div>
           </div>
           <div v-if="peerAdvisingDepartment" class="text-medium-emphasis">
-            <span :id="`note-${noteDetails.id}-university-department`">{{ peerAdvisingDepartment.deptName }}</span>,
-            <span v-if="peerAdvisingDepartment.name !== peerAdvisingDepartment.deptName" :id="`note-${noteDetails.id}-peer-advising-department`">{{ peerAdvisingDepartment.name }}</span>
+            <span :id="`note-${noteDetails.id}-university-department`">{{ peerAdvisingDepartment.deptName }}</span><!--
+            --><span v-if="peerAdvisingDepartment.name !== peerAdvisingDepartment.deptName" :id="`note-${noteDetails.id}-peer-advising-department`">, {{ peerAdvisingDepartment.name }}</span>
           </div>
         </div>
         <div v-if="noteDetails.topics && size(noteDetails.topics)" class="mt-3">
