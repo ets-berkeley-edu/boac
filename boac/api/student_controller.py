@@ -67,19 +67,22 @@ def distinct_student_count():
     })
 
 
-@app.route('/api/students/find_by_name_or_sid', methods=['GET'])
+@app.route('/api/students/find_by_name_or_sid', methods=['POST'])
 @advisor_or_peer_advisor_required
 def find_by_name_or_sid():
-    query = request.args.get('q')
-    query = query.strip() if query else None
+    params = request.get_json()
+    query = params.get('query')
+    include_email_address_in_label = params.get('includeEmailAddressInLabel') or False
+    limit = params.get('limit') or 20
+    query = str(query).strip() if query else None
     if not query:
         raise BadRequestError('Search query must be supplied')
-    limit = request.args.get('limit') or 20
     students = match_students_by_name_or_sid(
         phrases=list(filter(None, re.split(r'[- ]', query))),
         limit=limit,
     )
-    return tolerant_jsonify([_student_search_result(s) for s in students])
+    api_json = [_student_search_result_json(student, include_email_address_in_label) for student in students]
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/students/by_sids', methods=['POST'])
@@ -91,7 +94,7 @@ def find_by_sids():
         if next((sid for sid in sids if not sid.isnumeric()), None):
             raise BadRequestError('Each SID must be numeric')
         students = get_students_by_sids(sids=sids)
-        return tolerant_jsonify([_student_search_result(s) for s in students])
+        return tolerant_jsonify([_student_search_result_json(s) for s in students])
     else:
         raise BadRequestError('Requires \'sids\' param')
 
@@ -144,9 +147,12 @@ def _put_degree_checks_json(student):
     student['degreeChecks'] = DegreeProgressTemplate.find_by_sid(student_sid=student['sid']) if current_user.can_read_degree_progress else []
 
 
-def _student_search_result(s):
+def _student_search_result_json(student, include_email_address_in_label=False):
+    label = f"{student.get('first_name', '')} {student.get('last_name', '')} ({student.get('sid')})".strip()
+    if include_email_address_in_label and student.get('email_address', None):
+        label += f" – {student.get('email_address')}"
     return {
-        'label': f"{s.get('first_name', '')} {s.get('last_name', '')} ({s.get('sid')})".strip(),
-        'sid': s.get('sid'),
-        'uid': s.get('uid'),
+        'label': label,
+        'sid': student.get('sid'),
+        'uid': student.get('uid'),
     }

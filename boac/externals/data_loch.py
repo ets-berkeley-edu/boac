@@ -472,7 +472,7 @@ def get_enrollments_for_term(term_id, sids=None):
 
 
 def get_students_by_sids(sids):
-    sql = f"""SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
+    sql = f"""SELECT spi.first_name, spi.last_name, spi.email_address, spi.sid, spi.uid
         FROM {student_schema()}.student_profile_index spi
         WHERE spi.sid = ANY(%(sids)s)
         ORDER BY spi.sid"""
@@ -1578,7 +1578,7 @@ def _level_to_code(level):
 
 def _match_students_by_sid(sid, limit=None):
     sql = f"""
-        SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
+        SELECT spi.first_name, spi.last_name, spi.email_address, spi.sid, spi.uid
         FROM {student_schema()}.student_profile_index spi
         WHERE spi.sid LIKE %(starts_with)s
         {f' LIMIT {limit}' if limit else ''}
@@ -1588,7 +1588,7 @@ def _match_students_by_sid(sid, limit=None):
 
 def _match_students_by_name(phrase, limit=None):
     sql = f"""
-        SELECT s.first_name, s.last_name, s.sid, s.uid
+        SELECT s.first_name, s.last_name, s.email_address, s.sid, s.uid
         FROM {student_schema()}.student_profile_index s
         JOIN {student_schema()}.student_names n ON
             (n.name LIKE %(contains)s OR n.email_address LIKE %(contains)s)
@@ -1618,14 +1618,14 @@ def _search_for_students(phrases, limit=None):
         if phrase.isdigit():
             # Search by SID
             selects_for_intersect.append(f"""
-                SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
+                SELECT spi.first_name, spi.last_name, spi.email_address, spi.sid, spi.uid
                 FROM {schema}.student_profile_index spi
                 WHERE spi.sid LIKE %(phrase_{index}_starts_with)s
             """)
         else:
             sql_params[f'phrase_{index}_contains'] = f'%{phrase}%'
             selects_for_intersect.append(f"""
-               SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
+               SELECT spi.first_name, spi.last_name, spi.email_address, spi.sid, spi.uid
                FROM {schema}.student_profile_index spi
                JOIN {schema}.student_names sn ON
                (
@@ -1640,7 +1640,7 @@ def _search_for_students(phrases, limit=None):
             # For sanity's sake, stop counting at 10.
             break
     sql = f"""
-        SELECT s.first_name, s.last_name, s.sid, s.uid FROM
+        SELECT s.first_name, s.last_name, s.email_address, s.sid, s.uid FROM
         ({'INTERSECT '.join(selects_for_intersect)}) s
         ORDER BY (
             CASE

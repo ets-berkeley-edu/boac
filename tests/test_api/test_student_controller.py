@@ -694,24 +694,47 @@ class TestAlerts:
 
 class TestPrefixSearch:
 
+    @classmethod
+    def _api_find_students(
+            cls,
+            client,
+            query,
+            expected_status_code=200,
+            include_email_address_in_label=False,
+            limit=20,
+    ):
+        data = {
+            'includeEmailAddressInLabel': include_email_address_in_label,
+            'limit': limit,
+            'query': query,
+        }
+        response = client.post(
+            '/api/students/find_by_name_or_sid',
+            content_type='application/json',
+            data=json.dumps(data),
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
     def test_require_login(self, client):
-        response = client.get('/api/students/find_by_name_or_sid?q=Paul')
-        assert response.status_code == 401
+        self._api_find_students(client=client, expected_status_code=401, query='Paul')
 
     def test_student_prefix_search_by_name(self, client, coe_advisor_login):
         """When searching by name, results include current students only."""
-        response = client.get('/api/students/find_by_name_or_sid?q=wolfgang pauli-o\'ro')
-        assert response.status_code == 200
-        assert len(response.json) == 1
-        labels = [s['label'] for s in response.json]
-        assert "Wolfgang Pauli-O'Rourke (9000000000)" in labels
+        api_json = self._api_find_students(
+            client=client,
+            include_email_address_in_label=True,
+            query='wolfgang pauli-o\'ro',
+        )
+        assert len(api_json) == 1
+        labels = [student['label'] for student in api_json]
+        assert "Wolfgang Pauli-O'Rourke (9000000000) – wpo@berkeley.edu" in labels
 
     def test_student_prefix_search_by_sid(self, client, coe_advisor_login):
         """When searching by SID, results include both current and non-current students."""
-        response = client.get('/api/students/find_by_name_or_sid?q=9')
-        assert response.status_code == 200
-        assert len(response.json) == 3
-        labels = [s['label'] for s in response.json]
+        api_json = self._api_find_students(client=client, query=9)
+        assert len(api_json) == 3
+        labels = [s['label'] for s in api_json]
         assert "Wolfgang Pauli-O'Rourke (9000000000)" in labels
         assert 'Nora Stanton Barney (9100000000)' in labels
         assert 'Paul Tarsus (9191919191)' in labels
