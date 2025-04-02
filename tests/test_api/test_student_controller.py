@@ -716,8 +716,19 @@ class TestPrefixSearch:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_require_login(self, client):
+    def test_unauthorized(self, client):
         self._api_find_students(client=client, expected_status_code=401, query='Paul')
+
+    def test_distinct_sid_in_student_search(self, client, coe_advisor_login):
+        """Student search results have distinct SIDs."""
+        api_json = self._api_find_students(client=client, query='d')
+        student_count = len(api_json)
+        distinct_sid_count = len(set([student['sid'] for student in api_json]))
+        assert student_count
+        assert distinct_sid_count == student_count
+        labels = [student['label'] for student in api_json]
+        assert 'Dave Doolittle (2345678901)' in labels
+        assert 'Deborah Davies (11667051)' in labels
 
     def test_student_prefix_search_by_name(self, client, coe_advisor_login):
         """When searching by name, results include current students only."""

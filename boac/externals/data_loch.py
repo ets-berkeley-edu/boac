@@ -1588,19 +1588,21 @@ def _match_students_by_sid(sid, limit=None):
 
 def _match_students_by_name(phrase, limit=None):
     sql = f"""
-        SELECT s.first_name, s.last_name, s.email_address, s.sid, s.uid
-        FROM {student_schema()}.student_profile_index s
-        JOIN {student_schema()}.student_names n ON
-            (n.name LIKE %(contains)s OR n.email_address LIKE %(contains)s)
-            AND n.sid = s.sid
-        ORDER BY (
-            CASE
-            WHEN s.first_name ILIKE %(starts_with)s THEN 0
-            WHEN s.first_name ILIKE %(contains)s THEN 1
-            ELSE 2
-            END
-        ), s.first_name, s.last_name
-        {f'LIMIT {limit}' if limit else ''}
+        SELECT DISTINCT(s.sid), s.first_name, s.last_name, s.email_address, s.uid FROM (
+            SELECT s.first_name, s.last_name, s.email_address, s.sid, s.uid
+            FROM {student_schema()}.student_profile_index s
+            JOIN {student_schema()}.student_names n ON
+                (n.name LIKE %(contains)s OR n.email_address LIKE %(contains)s)
+                AND n.sid = s.sid
+            ORDER BY (
+                CASE
+                WHEN s.first_name ILIKE %(starts_with)s THEN 0
+                WHEN s.first_name ILIKE %(contains)s THEN 1
+                ELSE 2
+                END
+            ), s.first_name, s.last_name
+            {f'LIMIT {limit}' if limit else ''}
+        ) AS s
     """
     return safe_execute_rds(sql, **{
         'contains': f'%{phrase}%',
