@@ -3,11 +3,11 @@
     <div class="d-flex flex-wrap justify-space-between">
       <div>
         <h1 class="mb-0">Peer Advising Notes</h1>
-        <div v-if="totalNoteCount > batchSizePerFetch">
-          Showing {{ notes.length + 1 }} of {{ totalNoteCount }} notes
+        <div v-if="notes.length < totalNoteCount">
+          Showing {{ notes.length }} of {{ totalNoteCount }} notes.
         </div>
-        <div v-if="totalNoteCount > 0 && totalNoteCount <= batchSizePerFetch">
-          Showing {{ totalNoteCount }} notes
+        <div v-if="totalNoteCount === notes.length">
+          Showing all {{ notes.length }} notes.
         </div>
       </div>
       <div v-if="!currentUser.isAdmin">
@@ -66,8 +66,9 @@ import {useNoteStore} from '@/stores/note-edit-session'
 import PeerAdvisorPaginatedNotes from '@/components/peer/note/PeerAdvisorPaginatedNotes.vue'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
 
+const LIMIT_PER_FETCH = 50
+
 const contextStore = useContextStore()
-const batchSizePerFetch = ref(50)
 const createNoteModal = ref(false)
 const currentUser = contextStore.currentUser
 const isFetchingNotes = ref(false)
@@ -101,10 +102,10 @@ const fetchNotes = () => {
   return new Promise<void>(resolve => {
     if (peerAdvisor.value && peerAdvisor.value.uid) {
       isFetchingNotes.value = true
-      offset.value = notes.value.length ? notes.value.length + 1 : 0
+      offset.value = notes.value.length || 0
       getPeerAdvisorNotes(
         offset.value,
-        batchSizePerFetch.value,
+        LIMIT_PER_FETCH,
         peerAdvisor.value.uid,
         true
       ).then(data => {
