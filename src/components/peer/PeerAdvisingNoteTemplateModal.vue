@@ -3,6 +3,7 @@
     <v-dialog
       v-model="model"
       max-width="600"
+      attach="body"
     >
       <v-card>
         <template #title>
@@ -83,7 +84,7 @@
 <script setup>
 
 import {computed, onMounted, ref, watch} from 'vue'
-import {isEmpty, size} from 'lodash'
+import {cloneDeep, isEmpty, size} from 'lodash'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import PeerAdvisingNoteTopics from '@/components/peer/PeerAdvisingNoteTopics.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
@@ -163,7 +164,7 @@ const assignEditedNoteTemplateValues = () => {
   if (props.selectedNoteTemplate && ['copy', 'edit', 'view'].includes(props.action)) {
     noteDetailsText.value = props.selectedNoteTemplate.body
     templateName.value = props.action === 'copy' ? props.selectedNoteTemplate.title + ' Copy' : props.selectedNoteTemplate.title
-    topicsSelected.value = props.selectedNoteTemplate.topics
+    topicsSelected.value = cloneDeep(props.selectedNoteTemplate.topics)
   } else {
     noteDetailsText.value = ''
     templateName.value = ''
@@ -225,6 +226,7 @@ const isExistingName = (name) => {
 </script>
 
 <style>
+.ck-balloon-panel{z-index:9999 !important}
 #note-template-details .ck-editor__editable {
   height: 180px;
   width: 100%;

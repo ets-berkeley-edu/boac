@@ -149,6 +149,7 @@ onMounted(() => {
 
 const getNoteTemplates = () => {
   isLoading.value = true
+  noteTemplates.value = []
   getNoteTemplatesForPeerAdvising(props.peerAdvisingDepartment.id).then(response => {
     noteTemplates.value = response
     isLoading.value = false

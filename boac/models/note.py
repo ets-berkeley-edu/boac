@@ -403,6 +403,77 @@ class Note(Base):
         return api_json
 
     @classmethod
+    def peer_advising_notes_search(
+            cls,
+            search_phrase,
+            peer_advising_department_id,
+            matching_sids,
+            offset=0,
+            limit=40,
+    ):
+        notes_selector = """SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
+            FROM notes_fts_index
+            WHERE fts_index @@ plainto_tsquery('english', :search_phrase)"""
+        params = {
+            'search_phrase': search_phrase,
+        }
+
+        # Build a union branch that picks notes for which the student's SID is in the matching list.
+        student_branch = """
+            SELECT n.id, 0 AS rank
+            FROM notes n
+            WHERE n.sid = ANY(:matching_sids)
+            AND n.peer_advising_department_id = :peer_advising_department_id
+        """
+        params['matching_sids'] = matching_sids
+
+        # Combine both branches using UNION.
+        fts_selector = f"""
+            {notes_selector}
+            UNION
+            {student_branch}
+        """
+
+        peer_advising_department_notes_filter = 'AND notes.peer_advising_department_id = :peer_advising_department_id'
+        params.update({'peer_advising_department_id': peer_advising_department_id})
+
+        attachments_join = 'LEFT JOIN note_attachments a ON notes.id = a.note_id AND a.deleted_at IS NULL'
+        group_by_clause = 'GROUP BY notes.id, fts.rank'
+        where_clause = 'WHERE notes.is_draft IS FALSE'
+
+        def _get_query(is_count_query=False):
+            query = f"""
+                WITH fts AS ({fts_selector})
+                SELECT {'count(notes.*)' if is_count_query else 'notes.*'}
+                {', count(a.note_id) as attachment_count'}
+                FROM fts JOIN notes
+                    ON fts.id = notes.id
+                {peer_advising_department_notes_filter}
+                {attachments_join}
+                {where_clause}
+                {group_by_clause}
+            """
+            if not is_count_query:
+                query += f"""
+                    ORDER BY fts.rank DESC, notes.id
+                    OFFSET {offset} LIMIT {limit}
+                """
+            return text(query).bindparams(**params)
+        total_count_result = db.session.execute(_get_query(True))
+        rows = total_count_result.fetchall()
+        if rows:
+            total_matching_count = rows[0]['count']
+        else:
+            total_matching_count = 0
+
+        result = db.session.execute(_get_query())
+        keys = result.keys()
+        return {
+            'results': [dict(zip(keys, row)) for row in result.fetchall()],
+            'total_matching_count': total_matching_count,
+        }
+
+    @classmethod
     def search(
             cls,
             search_phrase,
@@ -412,7 +483,6 @@ class Note(Base):
             topic,
             datetime_from,
             datetime_to,
-            peer_advising_department_id,
             include_private_notes=False,
             offset=0,
             limit=40,
@@ -424,6 +494,7 @@ class Note(Base):
             params = {
                 'search_phrase': search_phrase,
             }
+
         else:
             fts_selector = 'SELECT id, 0 AS rank FROM notes WHERE deleted_at IS NULL AND is_draft IS FALSE'
             params = {}
@@ -432,11 +503,6 @@ class Note(Base):
         if author_uid:
             author_filter = 'AND notes.author_uid = :author_uid'
             params.update({'author_uid': author_uid})
-
-        peer_advising_department_notes_filter = ''
-        if peer_advising_department_id:
-            peer_advising_department_notes_filter = 'AND notes.peer_advising_department_id = :peer_advising_department_id'
-            params.update({'peer_advising_department_id': peer_advising_department_id})
 
         student_filter = ''
         if student_csid:
@@ -475,12 +541,6 @@ class Note(Base):
             topic_join = 'JOIN note_topics nt ON nt.topic = :topic AND nt.note_id = notes.id'
             params.update({'topic': topic})
 
-        attachments_join = ''
-        group_by_clause = ''
-        if peer_advising_department_id:
-            attachments_join = 'LEFT JOIN note_attachments a ON notes.id = a.note_id AND a.deleted_at IS NULL'
-            group_by_clause = 'GROUP BY notes.id, fts.rank'
-
         where_clause = 'WHERE notes.is_draft IS FALSE'
         where_clause += '' if include_private_notes else ' AND notes.is_private IS FALSE'
 
@@ -488,18 +548,14 @@ class Note(Base):
             query = f"""
                 WITH fts AS ({fts_selector})
                 SELECT {'count(notes.*)' if is_count_query else 'notes.*'}
-                {', count(a.note_id) as attachment_count' if peer_advising_department_id else ''}
                 FROM fts JOIN notes
                     ON fts.id = notes.id
                     {author_filter}
                     {student_filter}
                     {date_filter}
                     {department_filter}
-                    {peer_advising_department_notes_filter}
                 {topic_join}
-                {attachments_join}
                 {where_clause}
-                {group_by_clause}
             """
             if not is_count_query:
                 query += f"""
