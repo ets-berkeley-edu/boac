@@ -26,13 +26,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.decorators import admin_or_director_required, admin_required
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import authorized_users_api_feed
-from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_advising_note_count, \
-    get_sis_advising_note_count
+from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_advising_note_count, get_sis_advising_note_count
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.merged.advising_notes_reports import get_boa_note_count_by_month, get_note_author_count, get_note_count, \
     get_note_count_per_batch, get_note_count_per_user, get_note_with_attachments_count, \
     get_note_with_topics_count, get_private_note_count, get_summary_of_boa_notes, low_assignment_scores
+from boac.merged.peer_advising_notes_reports import get_peer_advising_note_author_count, get_total_peer_advising_notes
 from boac.merged.sis_terms import current_term_id
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.university_dept_member import UniversityDeptMember
@@ -98,6 +98,10 @@ def get_notes_report_by_dept(dept_code):
                     },
                     'withAttachments': get_note_with_attachments_count(),
                     'withTopics': get_note_with_topics_count(),
+                    'peerAdvising': {
+                        'distinctPeerAdvisorAuthors': get_peer_advising_note_author_count(),
+                        'totalPeerAdvisingNoteCount': get_total_peer_advising_notes(),
+                    },
                 },
             })
         else:

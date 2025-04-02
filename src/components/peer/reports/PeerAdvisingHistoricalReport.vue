@@ -4,7 +4,6 @@
       id="show-hide-personal-details"
       aria-controls="peer-note-count-by-month"
       :aria-expanded="isExpanded"
-      class="text-no-wrap"
       color="primary"
       variant="text"
       @click="onClickExpand"
@@ -23,8 +22,8 @@
           :icon="isExpanded ? mdiMenuDown : mdiMenuRight"
           size="24"
         />
-        <div>
-          BOA peer note count by month
+        <div class="d-flex flex-wrap">
+          <span>BOA peer note count by month </span>
           <span class="text-medium-emphasis">(reverse chronological)</span>
         </div>
       </div>

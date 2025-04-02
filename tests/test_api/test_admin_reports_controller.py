@@ -26,17 +26,27 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db, std_commit
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_topic import NoteTopic
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 
 admin_uid = '2040'
 asc_director_uid = '90412'
+ce3_navcal_peer_advisor_uid = '1133400'
 l_s_advisor_uid = '188242'
 l_s_director_uid = '53791'
 l_s_major_advisor_uid = '242881'
 
 
 class TestNotesByDeptReport:
+
+    @classmethod
+    def setup_class(cls):
+        cls.ce3_navcal_peer_advisor_user = AuthorizedUser.find_by_uid(ce3_navcal_peer_advisor_uid)
+        user_id = cls.ce3_navcal_peer_advisor_user.id
+        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(user_id)
+        cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
 
     @classmethod
     def _api_notes_report(cls, client, dept_code, expected_status_code=200):
@@ -71,15 +81,29 @@ class TestNotesByDeptReport:
         assert 'asc' in report
         assert 'ei' in report
         assert 'sis' in report
+        assert 'peerAdvising' in report['boa']
 
     def test_admin_can_access_dept_report(self, client, fake_auth):
         """Admin user can access L&S report."""
         fake_auth.login(admin_uid)
+        Note.create(
+            author_uid=ce3_navcal_peer_advisor_uid,
+            peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
+            author_name='CE3 Peer Advisor',
+            author_role='Peer Advisor',
+            author_dept_codes=['ZCEEE'],
+            body='test',
+            sid='123',
+            subject='',
+        )
         report = self._api_notes_report(client, 'qcadv')
         assert 'boa' in report
         batch_notes_report = report['boa']['batchNotes']
         assert batch_notes_report['totalBatchCount'] >= 0
         assert batch_notes_report['totalNoteCount'] >= 0
+        peer_advising_notes_report = report['boa']['peerAdvising']
+        assert peer_advising_notes_report['distinctPeerAdvisorAuthors'] == 1
+        assert peer_advising_notes_report['totalPeerAdvisingNoteCount'] == 1
 
 
 class TestBoaNotesMonthlyCountReport:
