@@ -73,11 +73,14 @@
                   v-for="(note, index) in notes"
                   :id="`tr-peer-advisor-${user.uid}-note-${note.id}`"
                   :key="index"
-                  :class="index % 2 === 0 ? '' : 'bg-surface-light'"
+                  :class="expandedNoteIds.includes(note.id) ? 'bg-sky-blue' : (index % 2 === 0 ? '' : 'bg-surface-light')"
                 >
                   <td
                     :id="`td-peer-advisor-${user.uid}-note-${note.id}-student-${note.student.sid}`"
-                    :class="{'border-b-md': index === size(notes) - 1}"
+                    :class="{
+                      'border-b-md': index === size(notes) - 1,
+                      'pl-2 pt-2': expandedNoteIds.includes(note.id)
+                    }"
                     class="td-student text-medium-emphasis"
                   >
                     <div
@@ -99,8 +102,12 @@
                   </td>
                   <td
                     :id="`td-note-${note.id}-body`"
-                    :class="{'border-b-md': index === size(notes) - 1}"
+                    :class="{
+                      'border-b-md': index === size(notes) - 1,
+                      'pt-2': expandedNoteIds.includes(note.id)
+                    }"
                     class="td-note"
+                    :colspan="expandedNoteIds.includes(note.id) ? 2 : 1"
                   >
                     <v-expand-transition>
                       <button
@@ -136,16 +143,21 @@
                             @click="toggleShowHide(note)"
                           />
                         </div>
-                        <PeerAdvisingNoteDetails class="my-3" :note="note" />
+                        <PeerAdvisingNoteDetails
+                          class="my-3"
+                          :note="note"
+                          :show-created-at="true"
+                        />
                       </div>
                     </v-expand-transition>
                   </td>
                   <td
+                    v-if="!expandedNoteIds.includes(note.id)"
                     :id="`td-note-${note.id}-created-at`"
                     :class="{'border-b-md': index === size(notes) - 1}"
                     class="td-created-date"
                   >
-                    <div class="float-right">
+                    <div :id="`note-${note.id}-created-at`" class="float-right">
                       {{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}
                     </div>
                   </td>
@@ -238,6 +250,9 @@ const toggleShowHide = (note: Note) => {
 </script>
 
 <style scoped>
+table {
+  border-collapse: collapse;
+}
 .margins-of-hide-note-btn {
   margin-left: -15px;
 }
