@@ -50,12 +50,11 @@
           hide-actions
           rounded
           :value="department.deptCode"
-          @group:selected="open => onClickExpansionPanel(department, open)"
+          @group:selected="open => onClickExpansionPanel(department, open.value)"
         >
           <v-expansion-panel-title
             :id="`department-${department.deptCode.toLowerCase()}`"
-            class="bg-transparent pl-2 py-1 w-100"
-            hide-actions
+            class="pl-2 w-100"
           >
             <template #default="{expanded}">
               <div class="align-center d-flex justify-space-between w-100">
@@ -80,10 +79,13 @@
                     {{ department.deptName }}
                   </h2>
                 </div>
+                <div v-if="department.isOpen && department.memberCount && !department.isFetching">
+                  {{ pluralize('advisor', department.users.length, {1: 'Only one'}) }} {{ department.users.length === 1 ? 'has' : 'have' }} {{ modeLabel }}s.
+                </div>
               </div>
             </template>
           </v-expansion-panel-title>
-          <v-expansion-panel-text class="bg-transparent">
+          <v-expansion-panel-text>
             <div v-if="department.isFetching" class="px-8 pt-8">
               <v-progress-linear
                 color="primary"
@@ -92,15 +94,11 @@
                 size="x-small"
               />
             </div>
-            <div v-if="!department.isFetching" class="ml-14">
-              <div class="font-size-14 font-weight-bold text-medium-emphasis" :class="{'mb-3': department.users.length}">
-                {{ department.users.length || 'Zero' }} out of
-                <span v-if="department.deptCode === 'ZZZZZ'">{{ department.memberCount }}</span>
-                <span v-if="department.deptCode !== 'ZZZZZ'">
-                  <span v-if="department.deptName.includes('Advisors')">{{ department.memberCount }} {{ department.deptName }}</span>
-                  <span v-if="!department.deptName.includes('Advisors')">{{ pluralize(`${department.deptName} advisor`, department.memberCount) }}</span>
+            <div v-if="!department.isFetching" class="ml-12">
+              <div v-if="!department.memberCount" class="font-size-14 font-weight-bold text-medium-emphasis" :class="{'mb-3': department.users.length}">
+                <span v-if="!department.memberCount">
+                  No {{ modeLabel }}s
                 </span>
-                {{ department.users.length === 1 ? 'has' : 'have' }} {{ modeLabel.toLowerCase() }}s.
               </div>
               <div
                 v-for="(user, index) in department.users"
@@ -136,51 +134,73 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {computed, onMounted, ref} from 'vue'
-import {filter as _filter, each, get, isNil, map, startsWith, toLower} from 'lodash'
+import {filter as _filter, each, isEmpty, map, toString} from 'lodash'
 import {mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {useRoute} from 'vue-router'
+import type {Cohort, CuratedGroup, Department} from '@/lib/types'
 import {alertScreenReader, pluralize, setPageTitle} from '@/lib/utils'
 import {getUsersWithCohortsByDeptCode} from '@/api/cohort'
 import {getUsersWithCuratedGroupsByDeptCode} from '@/api/curated'
 import {useContextStore} from '@/stores/context'
 
+export interface DepartmentPanel extends Department {
+  isFetching: boolean,
+  isOpen: boolean,
+  memberCount: number,
+  users: {
+    cohorts: Cohort[],
+    curatedGroups: CuratedGroup[],
+    name: string,
+    uid: string
+  }[]
+}
+
 const contextStore = useContextStore()
 const countExpandedDepartments = computed(() => _filter(departments, ['isOpen', true]).length)
 const currentUser = contextStore.currentUser
-const departments = contextStore.allBerkeleyDepartments
+const departments = ref<DepartmentPanel[]>([])
 const loading = computed(() => contextStore.loading)
-const mode = ref(undefined)
-const modeLabel = ref(undefined)
-const panels = ref([])
+const mode = ref<string>()
+const modeLabel = ref()
+const panels = ref<string[]>([])
 
 contextStore.loadingStart()
 
 onMounted(() => {
   // This component is used for both "All Cohorts" and "All Curated Groups".
-  const param = toLower(get(useRoute().params, 'mode'))
-  mode.value = startsWith(param, 'cohort') ? 'cohort' : 'curated'
+  mode.value = toString(useRoute().meta.groupsType)
   modeLabel.value = mode.value === 'cohort' ? 'Cohort' : 'Curated Group'
   setPageTitle(`All ${modeLabel.value}s`)
+  each(contextStore.allBerkeleyDepartments, department => {
+    departments.value.push({
+      ...department,
+      ...{
+        isFetching: false,
+        isOpen: false,
+        users: []
+      }
+    })
+  })
   contextStore.loadingComplete('List of departments has loaded')
 })
 
 const collapseAllDepartments = () => {
   panels.value = []
-  each(departments, department => department.isOpen = false)
+  each(departments.value, department => department.isOpen = false)
 }
 
 const expandAllDepartments = () => {
-  panels.value = map(departments, 'deptCode')
-  each(departments, department => department.isOpen = true)
+  panels.value = map(departments.value, 'deptCode')
+  each(departments.value, department => department.isOpen = true)
 }
 
-const onClickExpansionPanel = (department, isOpen) => {
-  department.isOpen = isOpen.value
+const onClickExpansionPanel = (department: DepartmentPanel, isOpen: boolean) => {
+  department.isOpen = isOpen
   if (isOpen) {
     alertScreenReader(`Showing ${mode.value}s of ${department.deptName} department`)
-    if (isNil(department.users)) {
+    if (isEmpty(department.users)) {
       department.isFetching = true
       const api = mode.value === 'cohort' ? getUsersWithCohortsByDeptCode : getUsersWithCuratedGroupsByDeptCode
       api(department.deptCode).then(data => {

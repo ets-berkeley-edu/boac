@@ -1,7 +1,7 @@
 const AdmitStudent = () => import('@/views/AdmitStudent.vue')
 const AdmitStudents = () => import('@/views/AdmitStudents.vue')
-const AllCohorts = () => import('@/views/AllCohorts.vue')
 const BatchDegreeCheck = () => import('@/views/degree/BatchDegreeCheck.vue')
+const BrowseAllGroups = () => import('@/views/BrowseAllGroups.vue')
 const Cohort = () => import('@/views/Cohort.vue')
 const CohortHistory = () => import('@/views/CohortHistory.vue')
 const Course = () => import('@/views/Course.vue')
@@ -97,8 +97,14 @@ const routes:RouteRecordRaw[] = [
     },
     children: [
       {
-        path: '/all/:mode',
-        component: AllCohorts,
+        path: '/all/cohorts',
+        component: BrowseAllGroups,
+        meta: {groupsType: 'cohort'}
+      },
+      {
+        path: '/all/curated_groups',
+        component: BrowseAllGroups,
+        meta: {groupsType: 'curated'}
       },
       {
         path: '/cohort/history',
