@@ -36,23 +36,19 @@
             <v-list-item-action v-for="template in noteStore.noteTemplates" :key="template.id">
               <v-container class="pa-2" fluid>
                 <v-row class="align-center d-flex flex-nowrap" no-gutters>
-                  <v-col cols="8">
-                    <v-btn
+                  <v-col class="py-0" cols="8">
+                    <button
                       :id="`load-note-template-${template.id}`"
                       :aria-label="`Use template &quot;${template.title}&quot;`"
-                      block
-                      class="font-weight-bold d-flex justify-start template-dropdown-title"
-                      color="primary"
-                      density="compact"
+                      class="d-flex font-size-15 font-weight-550 load-note-template-btn justify-start pl-4 text-primary"
                       :disabled="isSaving"
-                      height="24"
-                      :text="template.title"
-                      variant="text"
-                      width="400"
+                      :title="template.title"
                       @click="loadTemplate(template)"
-                    />
+                    >
+                      <div class="truncate-with-ellipsis">{{ template.title }}</div>
+                    </button>
                   </v-col>
-                  <v-col class="pl-8" cols="4">
+                  <v-col class="pl-8 pr-3" cols="4">
                     <div class="align-center d-flex justify-end">
                       <v-btn
                         :id="`btn-rename-note-template-${template.id}`"
@@ -66,7 +62,7 @@
                       >
                         Rename<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
                       </v-btn>
-                      <div class="font-weight-light mx-1" role="separator">
+                      <div class="font-weight-light mb-1 mx-1 text-medium-emphasis" role="separator">
                         |
                       </div>
                       <v-btn
@@ -81,7 +77,7 @@
                       >
                         Edit<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
                       </v-btn>
-                      <div class="font-weight-light mx-1" role="separator">
+                      <div class="font-weight-light mb-1 mx-1 text-medium-emphasis" role="separator">
                         |
                       </div>
                       <v-btn
@@ -349,11 +345,7 @@ const resetTemplate = (template, title) => {
 .close-btn-in-modal-header {
   margin: -6px 5px 0 5px;
 }
-.template-dropdown-title .v-btn__content {
-  display: inline-block;
-  justify-content: start !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+.load-note-template-btn {
+  width: 500px;
 }
 </style>
