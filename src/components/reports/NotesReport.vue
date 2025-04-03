@@ -106,7 +106,7 @@
               <h5 class="font-size-16">Peer-advisor notes</h5>
               <PeerAdvisingNotesReport class="font-size-16" :notes-report="report.boa.peerAdvising" />
               <div v-if="report.boa.peerAdvising.noteCountByDepartment" class="py-2 pl-4">
-                <table class="border-sm w-100">
+                <table class="border-sm border-b-0 w-100">
                   <caption class="sr-only">Peer advisor notes by department</caption>
                   <thead>
                     <tr class="bg-surface-light">
@@ -146,28 +146,47 @@
                   :key="annual.year"
                   :class="{'mt-5': index > 0}"
                 >
-                  <v-card-title class="bg-primary">
+                  <v-card-title class="bg-primary d-flex justify-space-between">
                     {{ annual.year }}
+                    <v-chip>{{ getYearlyTotal(annual) }}<span class="sr-only"> total notes</span></v-chip>
                   </v-card-title>
                   <v-card-text>
-                    <v-list class="border-sm rounded-lg mt-5">
+                    <v-list>
                       <v-list-item
-                        v-for="(row, monthIndex) in reverse(sortBy(annual.months, 'month'))"
-                        :key="row.month"
-                        :class="{'border-b-sm': monthIndex !== annual.months.length - 1}"
+                        v-for="m in orderBy(annual.months, ['month'], 'desc')"
+                        :key="`${annual.year}-${m.month}`"
+                        class="px-0"
                       >
-                        <div class="align-center d-flex font-size-16 justify-space-between">
-                          <div class="font-weight-medium">
-                            {{ DateTime.fromJSDate(new Date(annual.year, row.month - 1, 1)).toFormat('MMMM') }}
-                          </div>
-                          <v-chip
-                            class="px-2 sidebar-pill"
-                            color="primary"
-                            variant="flat"
-                          >
-                            {{ row.count }}
-                          </v-chip>
-                        </div>
+                        <table class="border-sm border-b-0 my-2 w-100">
+                          <caption>
+                            <div class="align-center d-flex font-size-16 font-weight-bold justify-space-between text-medium-emphasis pb-1">
+                              <span class="sr-only">Notes created in </span>
+                              {{ DateTime.fromJSDate(new Date(annual.year, m.month, 1)).toFormat('MMMM') }}
+                            </div>
+                          </caption>
+                          <thead>
+                            <tr class="bg-surface-light">
+                              <th class="border-b-sm border-e-sm px-2 py-1 w-75">Department</th>
+                              <th class="border-b-sm border-e-sm px-2 text-no-wrap py-1">Adv. No.</th>
+                              <th class="border-b-sm border-e-sm px-2 text-no-wrap py-1">Peer No.</th>
+                              <th class="border-b-sm px-2 py-1">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="(row, rowIndex) in m.data" :key="`${annual.year}-${m.month}-${rowIndex}`">
+                              <td :id="`month-total-dept-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ row.departmentName || 'Other' }}</td>
+                              <td :id="`month-total-advisor-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ row.advisorNoteCount }}</td>
+                              <td :id="`month-total-peer-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ row.peerAdvisorNoteCount }}</td>
+                              <td :id="`month-total-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm px-2 py-1">{{ row.count }}</td>
+                            </tr>
+                            <tr class="font-weight-550">
+                              <td :id="`month-total-dept-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">All Departments</td>
+                              <td :id="`month-total-advisor-notes-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">{{ sumBy(m.data, 'advisorNoteCount') }}</td>
+                              <td :id="`month-total-peer-notes-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">{{ sumBy(m.data, 'peerAdvisorNoteCount') }}</td>
+                              <td :id="`month-total-notes-${annual.year}-${m.month}-sum`" class="border-b-sm px-2 py-1">{{ sumBy(m.data, 'count') }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </v-list-item>
                     </v-list>
                   </v-card-text>
@@ -185,7 +204,7 @@
 import {DateTime} from 'luxon'
 import {mdiChevronDown, mdiChevronRight} from '@mdi/js'
 import {onMounted, ref} from 'vue'
-import {reverse, sortBy} from 'lodash'
+import {orderBy, reduce, sumBy} from 'lodash'
 import PeerAdvisingNotesReport from '@/components/peer/reports/PeerAdvisingNotesReport.vue'
 import {numFormat} from '@/lib/utils'
 import {getBoaNoteCountByMonth, getNotesReport} from '@/api/admin-reports.js'
@@ -209,10 +228,16 @@ const isShowingReport = ref(false)
 onMounted(() => {
   const requests = [
     new Promise<void>(resolve => getNotesReport(props.department.deptCode).then(data => report.value = data).finally(resolve)),
-    new Promise<void>(resolve => getBoaNoteCountByMonth().then(data => boaNoteCountsByMonth.value = reverse(sortBy(data, 'year'))).finally(resolve)),
+    new Promise<void>(resolve => getBoaNoteCountByMonth().then(data => boaNoteCountsByMonth.value = orderBy(data, ['year'], ['desc'])).finally(resolve)),
   ]
   Promise.all(requests).then(() => isLoading.value = false)
 })
+
+const getYearlyTotal = annual => {
+  return reduce(annual.months, (sum, month) => {
+    return sum + sumBy(month.data, 'count')
+  }, 0)
+}
 
 const toggleShowReport = () => {
   isShowingReport.value = !isShowingReport.value
@@ -222,7 +247,7 @@ const toggleShowReport = () => {
 
 <style scoped>
 .notes-report {
-  max-width: 40rem;
+  max-width: 42rem;
 }
 .show-hide-notes-report-btn {
   margin-bottom: 2px;
