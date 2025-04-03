@@ -159,6 +159,7 @@ export type DegreeTemplate = {
 
 export interface Department extends HasDeptCode {
   id: number,
+  memberCount: number,
   peerAdvisingDepartments: PeerAdvisingDepartment[]
 }
 
