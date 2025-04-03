@@ -1,23 +1,18 @@
 <template>
   <table v-if="notesReport" class="w-100">
-    <thead class="sr-only">
-      <tr>
-        <th>Measurement</th>
-        <th>Value</th>
-      </tr>
-    </thead>
+    <caption class="sr-only">Peer advisor notes summary</caption>
     <tbody>
       <tr v-if="notesReport.peerAdvisingDepartment">
-        <td>Total {{ notesReport.peerAdvisingDepartment.name }} peer advising notes</td>
-        <td class="font-weight-bold text-right">{{ notesReport.totalPeerAdvisingNoteCount }}</td>
+        <th scope="row">Total {{ notesReport.peerAdvisingDepartment.name }} peer advising notes</th>
+        <td id="peer-advising-notes-total" class="font-weight-bold text-right">{{ notesReport.totalPeerAdvisingNoteCount }}</td>
       </tr>
       <tr v-if="!notesReport.peerAdvisingDepartment">
-        <td>Total peer advisor notes</td>
-        <td class="font-weight-bold text-right">{{ notesReport.totalPeerAdvisingNoteCount }}</td>
+        <th scope="row">Total peer advisor notes</th>
+        <td id="peer-advising-notes-total" class="font-weight-bold text-right">{{ notesReport.totalPeerAdvisingNoteCount }}</td>
       </tr>
       <tr>
-        <td>Distinct peer advisor authors</td>
-        <td class="font-weight-bold text-right">{{ notesReport.distinctPeerAdvisorAuthors }}</td>
+        <th scope="row">Distinct peer advisor authors</th>
+        <td id="peer-advising-note-authors-total" class="font-weight-bold text-right">{{ notesReport.distinctPeerAdvisorAuthors }}</td>
       </tr>
     </tbody>
   </table>
@@ -39,7 +34,9 @@ defineProps({
 td {
   padding: 4px 0 4px 0;
 }
-td:first-child {
+th {
+  font-weight: normal;
   padding-left: 16px;
+  text-align: left;
 }
 </style>

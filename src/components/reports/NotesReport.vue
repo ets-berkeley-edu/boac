@@ -105,6 +105,26 @@
             <div class="pt-1">
               <h5 class="font-size-16">Peer-advisor notes</h5>
               <PeerAdvisingNotesReport class="font-size-16" :notes-report="report.boa.peerAdvising" />
+              <div v-if="report.boa.peerAdvising.noteCountByDepartment" class="py-2 pl-4">
+                <table class="border-sm w-100">
+                  <caption class="sr-only">Peer advisor notes by department</caption>
+                  <thead>
+                    <tr class="bg-surface-light">
+                      <th class="border-b-sm border-e-sm px-2 py-1">Department</th>
+                      <th class="text-right border-b-sm px-2 py-1">Notes <span class="sr-only">Count</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(row, index) in report.boa.peerAdvising.noteCountByDepartment"
+                      :key="index"
+                    >
+                      <td :id="`peer-advising-dept-name-${row.deptCode}`" class="border-b-sm border-e-sm px-2 py-1">{{ row.deptName }}</td>
+                      <td :id="`peer-advising-dept-notes-${row.deptCode}`" class="text-right border-b-sm px-2 py-1">{{ row.count }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
             <v-btn
               id="show-hide-boa-note-counts"

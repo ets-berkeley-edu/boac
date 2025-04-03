@@ -24,9 +24,22 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db
-from boac.externals.data_loch import get_basic_student_data, safe_execute_rds, student_schema
+from boac.externals.data_loch import get_basic_student_data
 from boac.lib.util import to_iso_format
 from boac.models.peer_advising_department import PeerAdvisingDepartment
+
+
+def get_peer_advising_department_note_counts():
+    query = """
+      SELECT ud.dept_name, ud.dept_code, COUNT(*) AS count
+        FROM peer_advising_departments pd
+        JOIN university_depts ud ON pd.university_dept_id = ud.id
+        JOIN notes n ON n.peer_advising_department_id = pd.id
+       WHERE n.deleted_at IS NULL
+         AND n.is_draft IS FALSE
+       GROUP BY ud.dept_name, ud.dept_code
+    """
+    return [row for row in db.session.execute(query)]
 
 
 def get_peer_advising_note_author_count(peer_advising_department_id=None):
@@ -117,23 +130,6 @@ def get_all_peer_advising_notes(peer_advising_department_id):
         return notes
     else:
         raise ValueError(f'Peer Advising Department {peer_advising_department_id} not found.')
-
-
-def _get_basic_student_data(sids):
-    sql = f"""
-        SELECT
-          p.sid,
-          p.uid,
-          p.first_name AS student_first_name,
-          p.last_name AS student_last_name,
-          d.plan AS degree_awarded_name,
-          d.date_awarded AS degree_awarded_date
-        FROM {student_schema()}.student_profile_index p
-        LEFT JOIN {student_schema()}.student_degrees d ON d.sid = p.sid
-        WHERE p.sid = ANY(%(sids)s)
-        ORDER BY p.sid, d.date_awarded, d.plan
-        """
-    return safe_execute_rds(sql, sids=sids)
 
 
 def get_notes_created_by_peer_advisors(peer_advising_department_id, timeframe_month=None):
