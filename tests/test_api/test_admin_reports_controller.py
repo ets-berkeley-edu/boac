@@ -137,7 +137,7 @@ class TestBoaNotesMonthlyCountReport:
         assert len(report) == 1
         assert report[0]['year'] == now.year
         assert len(report[0]['months']) == 1
-        assert report[0]['months'][0]['month'] == now.month
+        assert str(now.month) in report[0]['months']
 
 
 class TestBoaNotesMetadataReport:

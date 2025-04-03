@@ -195,21 +195,35 @@ def get_summary_of_boa_notes():
 def get_boa_note_count_by_month():
     query = """
         SELECT
-          DATE_TRUNC('month', created_at) AS created_at_month,
-          COUNT(id) AS count
-        FROM notes
-        GROUP BY DATE_TRUNC('month', created_at)
+          DATE_TRUNC('month', n.created_at) AS created_at_month,
+          COALESCE(ud.dept_name, udp.dept_name) AS dept_name,
+          COUNT(n.id) AS count,
+          COUNT(n.peer_advising_department_id) AS peer_advisor_count
+        FROM notes n
+        LEFT JOIN university_depts ud ON ud.dept_code = ANY(n.author_dept_codes)
+        LEFT JOIN peer_advising_departments pd ON n.peer_advising_department_id = pd.id
+        LEFT JOIN university_depts udp ON udp.id = pd.university_dept_id
+        GROUP BY DATE_TRUNC('month', n.created_at), COALESCE(ud.dept_name, udp.dept_name)
     """
     report = []
     for row in db.session.execute(query):
         month_date = row['created_at_month']
         year = next((r for r in report if r['year'] == month_date.year), None)
         if not year:
-            year = {'year': month_date.year, 'months': []}
+            year = {'year': month_date.year, 'months': {}}
             report.append(year)
-        year['months'].append({
-            'month': month_date.month,
+        if not next((m for m in year['months'] if m == month_date.month), None):
+            # This key on the 'months' object gets overwritten when the data is sorted on the front end,
+            # so we also set it on the 'month' object.
+            year['months'][(month_date.month)] = {
+                'month': month_date.month,
+                'data': [],
+            }
+        year['months'][month_date.month]['data'].append({
+            'departmentName': row['dept_name'],
             'count': row['count'],
+            'peerAdvisorNoteCount': row['peer_advisor_count'],
+            'advisorNoteCount': row['count'] - row['peer_advisor_count'],
         })
     return report
 
