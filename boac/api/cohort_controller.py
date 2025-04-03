@@ -29,7 +29,6 @@ from boac.api.csv_file_download_utils import response_with_students_csv_download
 from boac.api.decorators import advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import is_unauthorized_domain, is_unauthorized_search
-from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
@@ -86,7 +85,7 @@ def students_with_alerts(cohort_id):
         alert_limit=limit,
     )
     benchmark('fetched cohort')
-    if cohort and _can_current_user_view_cohort(cohort):
+    if cohort:
         _decorate_cohort(cohort)
         students = cohort.get('alerts', [])
         alert_sids = [s['sid'] for s in students]
@@ -98,10 +97,10 @@ def students_with_alerts(cohort_id):
             # The enrolled units count is the one piece of term data we want to preserve.
             if student.get('term'):
                 student['term'] = {'enrolledUnits': student['term'].get('enrolledUnits')}
+        benchmark('end')
+        return tolerant_jsonify(students)
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
-    benchmark('end')
-    return tolerant_jsonify(students)
 
 
 @app.route('/api/cohort/<cohort_id>')
@@ -129,7 +128,7 @@ def get_cohort(cohort_id):
         include_profiles=True,
         include_students=include_students,
     )
-    if cohort and _can_current_user_view_cohort(cohort):
+    if cohort:
         _decorate_cohort(cohort)
         benchmark('end')
         return tolerant_jsonify(cohort)
@@ -141,7 +140,7 @@ def get_cohort(cohort_id):
 @advisor_required
 def get_cohort_events(cohort_id):
     cohort = CohortFilter.find_by_id(cohort_id, include_students=False)
-    if not cohort or not _can_current_user_view_cohort(cohort):
+    if not cohort:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
     if cohort['domain'] != 'default':
         raise BadRequestError(f"Cohort events are not supported in domain {cohort['domain']}")
@@ -224,7 +223,7 @@ def download_cohort_csv():
         include_sids=True,
         include_students=False,
     )
-    if cohort and _can_current_user_view_cohort(cohort):
+    if cohort:
         fieldnames = get_param(params, 'csvColumnsSelected', [])
         sids = CohortFilter.get_sids(cohort['id'])
         term_id = get_param(params, 'termId') or current_term_id()
@@ -381,17 +380,6 @@ def translate_cohort_filter_to_menu(cohort_owner_uid):
 def _decorate_cohort(cohort):
     if cohort.get('owner'):
         cohort.update({'isOwnedByCurrentUser': cohort['owner'].get('uid') == current_user.uid})
-
-
-def _can_current_user_view_cohort(cohort):
-    if current_user.is_admin or not cohort.get('owner'):
-        return True
-    cohort_dept_codes = cohort['owner'].get('deptCodes', [])
-    if len(cohort_dept_codes):
-        user_dept_codes = dept_codes_where_advising(current_user.departments)
-        return len([c for c in user_dept_codes if c in cohort_dept_codes])
-    else:
-        return False
 
 
 def _construct_phantom_cohort(domain, filters, **kwargs):

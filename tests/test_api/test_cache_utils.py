@@ -33,7 +33,7 @@ from boac.models.university_dept_member import UniversityDeptMember
 import pytest
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 
-
+admin_uid = '177473'
 coe_advisor_uid = '1022796'
 
 
@@ -72,9 +72,9 @@ class TestCacheUtils:
         assert sid_not_in_data_loch not in final_sids
         assert set(final_sids) == set(original_sids)
 
-    def test_load_filtered_cohort_counts(self, admin_user_uid, app):
+    def test_load_filtered_cohort_counts(self, app):
         from boac.api.cache_utils import load_filtered_cohort_counts
-        cohorts = all_cohorts_owned_by(admin_user_uid)
+        cohorts = all_cohorts_owned_by(admin_uid)
         assert len(cohorts)
         for cohort in cohorts:
             assert cohort['alertCount'] is None

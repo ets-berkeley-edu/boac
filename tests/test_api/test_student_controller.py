@@ -29,13 +29,14 @@ from flask_login import logout_user
 import pytest
 import simplejson as json
 
+admin_with_cohorts_uid = '177473'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
 
 
 @pytest.fixture()
-def admin_login(admin_user_uid, fake_auth):
-    fake_auth.login(admin_user_uid)
+def admin_login(fake_auth):
+    fake_auth.login(admin_with_cohorts_uid)
 
 
 @pytest.fixture()
@@ -80,10 +81,6 @@ class TestStudent:
         'sid': '9999999',
         'uid': '9999999',
     }
-
-    @pytest.fixture()
-    def admin_auth(self, admin_user_uid, fake_auth):
-        fake_auth.login(admin_user_uid)
 
     @staticmethod
     def get_course_for_code(student, term_id, code):
@@ -627,7 +624,7 @@ class TestStudent:
         client.post(f'/api/appointments/{legacy_appointment_id}/mark_read')
         assert _is_appointment_read(legacy_appointment_id) is True
 
-    def test_draft_notes(self, admin_user_uid, client, fake_auth):
+    def test_draft_notes(self, client, fake_auth):
         """Draft notes are excluded when written for 2 or more students."""
         fake_auth.login(coe_advisor_uid)
         # COE advisor creates draft_note
@@ -641,7 +638,7 @@ class TestStudent:
         assert note_id
 
         expectations = {
-            admin_user_uid: True,
+            admin_with_cohorts_uid: True,
             asc_advisor_uid: False,
             coe_advisor_uid: True,
         }
@@ -666,9 +663,9 @@ class TestAlerts:
         assert response.status_code == 200
         return response.json['notifications']['alert']
 
-    def test_current_alerts_for_sid(self, admin_user_uid, create_alerts, fake_auth, client):
+    def test_current_alerts_for_sid(self, create_alerts, fake_auth, client):
         """Returns current_user's current alerts for a given sid."""
-        fake_auth.login(admin_user_uid)
+        fake_auth.login(admin_with_cohorts_uid)
         alerts = self._get_alerts(client, 61889)
         assert len(alerts) == 4
         assert alerts[0]['alertType'] == 'academic_standing'

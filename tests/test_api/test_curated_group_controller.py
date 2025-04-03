@@ -32,6 +32,7 @@ import pytest
 import simplejson as json
 from tests.test_api.api_test_utils import api_curated_group_add_students, api_curated_group_remove_student
 
+admin_uid = '177473'
 asc_advisor_uid = '6446'
 authorized_advisor_uid = '90412'
 ce3_advisor_uid = '2525'
@@ -54,13 +55,13 @@ def coe_advisor(fake_auth):
 
 
 @pytest.fixture()
-def admin_user_session(admin_user_uid, fake_auth):
-    fake_auth.login(admin_user_uid)
+def admin_user_session(fake_auth):
+    fake_auth.login(admin_uid)
 
 
 @pytest.fixture()
-def admin_curated_groups(admin_user_uid):
-    user = AuthorizedUser.find_by_uid(admin_user_uid)
+def admin_curated_groups():
+    user = AuthorizedUser.find_by_uid(admin_uid)
     return CuratedGroup.get_curated_groups(user.id)
 
 

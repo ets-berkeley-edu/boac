@@ -23,19 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import pytest
 from tests.util import override_config
-
-
-@pytest.fixture()
-def admin_session(fake_auth):
-    fake_auth.login('2040')
-
-
-@pytest.fixture()
-def asc_advisor_session(fake_auth):
-    fake_auth.login('1081940')
-
 
 advisee_sid = '5000000000'
 
@@ -47,13 +35,15 @@ class TestCachejobAccess:
         response = client.get('/api/admin/cachejob')
         assert response.status_code == 401
 
-    def test_not_an_admin(self, client, asc_advisor_session):
+    def test_not_an_admin(self, client, fake_auth):
         """Return 403 for normal users."""
+        fake_auth.login('1081940')
         response = client.get('/api/admin/cachejob')
         assert response.status_code == 401
 
-    def test_as_an_admin(self, client, admin_session):
+    def test_as_an_admin(self, client, fake_auth):
         """Return success."""
+        fake_auth.login('2040')
         response = client.get('/api/admin/cachejob')
         assert response.status_code == 200
         assert response.headers.get('Content-Type') == 'application/json'
