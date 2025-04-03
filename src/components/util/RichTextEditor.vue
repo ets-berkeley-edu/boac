@@ -63,8 +63,8 @@ const props = defineProps({
     required: true,
     type: String
   },
-  isInModal: {
-    required: false,
+  isInModal: { // @TODO - Creating links will break if this is false. Let's look into this more and see if we can implement it better.
+    required: true,
     type: Boolean
   },
   label: {
