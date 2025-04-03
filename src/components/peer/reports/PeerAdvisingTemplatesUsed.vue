@@ -8,7 +8,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(noteTemplate, index) in notesReport.noteTemplates" :key="noteTemplate.name">
+      <tr v-for="(noteTemplate, index) in get(notesReport, 'noteTemplates', [])" :key="noteTemplate.name">
         <td :class="{'pt-2': index === 0}">{{ noteTemplate.templateTitle }}</td>
         <td class="font-weight-bold text-right">{{ noteTemplate.noteTemplateUsageCount }}</td>
       </tr>
@@ -17,13 +17,14 @@
 </template>
 
 <script setup lang="ts">
+import {get} from 'lodash'
 import type {PropType} from 'vue'
-import type {PeerAdvisingManagerReport} from '@/lib/types'
+import type {PeerAdvisingManagerReport} from '@/lib/types-peer-advising'
 
 defineProps({
   notesReport: {
     required: true,
-    type: Object as PropType<PeerAdvisingManagerReport>
+    type: Object as PropType<PeerAdvisingManagerReport | undefined>
   }
 })
 </script>

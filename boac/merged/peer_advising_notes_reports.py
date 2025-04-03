@@ -29,7 +29,8 @@ from boac.lib.util import to_iso_format
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 
 
-def get_peer_advising_note_author_count(peer_advising_department_id):
+def get_peer_advising_note_author_count(peer_advising_department_id=None):
+    params = {}
     query = """
       SELECT COUNT(DISTINCT au.uid) AS count
       FROM authorized_users au
@@ -38,10 +39,15 @@ def get_peer_advising_note_author_count(peer_advising_department_id):
         n.peer_advising_department_id = pm.peer_advising_department_id
         AND n.author_uid = au.uid
         AND n.deleted_at IS NULL
+    """
+    if peer_advising_department_id:
+        query += """
       WHERE
         pm.peer_advising_department_id = :peer_advising_department_id
-    """
-    results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
+        """
+        params['peer_advising_department_id'] = peer_advising_department_id
+
+    results = db.session.execute(query, params)
     return [row['count'] for row in results][0]
 
 
@@ -168,14 +174,17 @@ def get_peer_advising_note_template_usage(peer_advising_department_id):
     return [_to_api_json(row) for row in results]
 
 
-def get_total_peer_advising_notes(peer_advising_department_id):
-    query = """
+def get_total_peer_advising_notes(peer_advising_department_id=None):
+    params = {}
+    query = f"""
       SELECT COUNT(*) AS count
       FROM notes
       WHERE
-        peer_advising_department_id = :peer_advising_department_id
+        peer_advising_department_id {'= :peer_advising_department_id' if peer_advising_department_id else 'IS NOT NULL'}
         AND deleted_at IS NULL
         AND is_draft IS FALSE
     """
-    results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
+    if peer_advising_department_id:
+        params['peer_advising_department_id'] = peer_advising_department_id
+    results = db.session.execute(query, params)
     return [row['count'] for row in results][0]

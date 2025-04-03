@@ -65,7 +65,7 @@
           <div v-if="item.key === 'templates'" class="pt-3">
             <PeerAdvisingNoteTemplates :peer-advising-department="peerAdvisingDepartment" />
           </div>
-          <div v-if="item.key === 'reporting'">
+          <div v-if="item.key === 'reporting'" class="pt-3">
             <PeerAdvisorManagerReports
               v-if="peerAdvisingDepartment"
               :peer-advising-department="peerAdvisingDepartment"

@@ -283,7 +283,8 @@ export type PeerAdvisingDepartment = {
   id: number,
   name: string,
   deptName: string,
-  peerAdvisingDepartmentMembers: BoaUser[]
+  peerAdvisingDepartmentMembers: BoaUser[],
+  universityDeptName: string
 }
 
 export type ScreenReaderAlert = {

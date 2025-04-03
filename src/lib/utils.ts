@@ -6,21 +6,29 @@ import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 
 export const ANONYMOUS_USER: BoaUser = {
-  id: undefined,
+  id: 0,
   automateDegreeProgressPermission: false,
-  degreeProgressPermission: undefined,
-  deletedAt: undefined,
-  departments: [],
+  campusEmail: '',
   canAccessAdmittedStudents: false,
   canAccessAdvisingData: false,
   canAccessCanvasData: false,
+  canAccessPrivateNotes: false,
   canEditDegreeProgress: false,
   canReadDegreeProgress: false,
+  createdAt: '',
+  csid: '',
+  degreeProgressPermission: undefined,
+  deletedAt: undefined,
+  departments: [],
+  email: '',
+  firstName: '',
   inDemoMode: false,
   isAdmin: false,
   isAuthenticated: false,
   isBlocked: false,
   isDemoModeAvailable: false,
+  isExpiredPerLdap: '',
+  lastName: '',
   myCohorts: [] as Cohort[],
   myCuratedGroups: [] as CuratedGroup[],
   myDraftNoteCount: undefined as number | undefined,
@@ -29,7 +37,7 @@ export const ANONYMOUS_USER: BoaUser = {
     termId: undefined as string | undefined
   },
   title: undefined,
-  uid: undefined
+  uid: ''
 }
 
 let $_screenReaderAlertExpiry: number
@@ -109,7 +117,7 @@ export function normalizeId(id: string) {
   return toLower(id).replace(/\W/g, ' ').trim().replace(/[ _]+/g, '-')
 }
 
-export function numFormat(num, format=null) {
+export function numFormat(num, format?: string | null) {
   return numeral(num).format(format)
 }
 
