@@ -104,6 +104,7 @@ class TestNotesByDeptReport:
         peer_advising_notes_report = report['boa']['peerAdvising']
         assert peer_advising_notes_report['distinctPeerAdvisorAuthors'] == 1
         assert peer_advising_notes_report['totalPeerAdvisingNoteCount'] == 1
+        assert peer_advising_notes_report['noteCountByDepartment']
 
 
 class TestBoaNotesMonthlyCountReport:
