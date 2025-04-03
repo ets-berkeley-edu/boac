@@ -88,7 +88,10 @@ def get_peer_advising_department(peer_advising_department_id, role_type):
             )
         users = authorized_users_api_feed(users)
         if include_note_counts:
-            note_counts_per_uid = Note.get_note_counts_per_uid([u['uid'] for u in users])
+            note_counts_per_uid = Note.get_note_counts_per_uid(
+                peer_advising_department_id=peer_advising_department.id,
+                uids=[u['uid'] for u in users],
+            )
             for user in users:
                 user['noteCount'] = note_counts_per_uid.get(user['uid'], 0)
         users = sorted([{**user, **{'role': role_type}} for user in users], key=lambda u: u['lastName'])

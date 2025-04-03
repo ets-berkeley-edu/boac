@@ -167,16 +167,18 @@ class Note(Base):
         return query.offset(offset).limit(limit).all(), _get_total_count_peer_advising_notes(peer_advising_department_id)
 
     @classmethod
-    def get_note_counts_per_uid(cls, uids):
-        query = text("""
+    def get_note_counts_per_uid(cls, uids, peer_advising_department_id=None):
+        query = text(f"""
             SELECT u.uid, count(n.id) as note_count
             FROM authorized_users u
             JOIN notes n ON n.author_uid = u.uid AND n.deleted_at IS NULL
             WHERE u.uid = ANY(:uids)
+                {'AND peer_advising_department_id = :peer_advising_department_id' if peer_advising_department_id else ''}
             GROUP BY u.uid
         """)
+        params = {'peer_advising_department_id': peer_advising_department_id, 'uids': uids}
         note_counts_per_uid = {}
-        for row in db.session.execute(query, {'uids': uids}):
+        for row in db.session.execute(query, params):
             note_counts_per_uid[row['uid']] = row['note_count']
         return note_counts_per_uid
 
