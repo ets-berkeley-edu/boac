@@ -1,12 +1,12 @@
 <template>
   <div>
     <button
-      :id="`open-notes-created-by-${user.uid}`"
+      :id="timeframe ? `open-notes-created-by-${user.uid}-during-${timeframe.year}-${timeframe.month}` : `open-notes-created-by-${user.uid}`"
       :aria-label="`View notes created by ${user.name}`"
       class="text-primary"
       @click="showModal"
     >
-      {{ get(user, 'noteCount') }}
+      {{ get(user, 'noteCount') }}<span class="sr-only"> notes <span v-if="timeframe">created during {{ timeframe.label }}</span></span>
     </button>
     <v-dialog
       v-model="isModalOpen"
