@@ -8,7 +8,7 @@
       :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
       location="bottom end"
       no-click-animation
-      width="300"
+      :width="noteTemplates.length ? 500 : 350"
       @update:model-value="onToggleTemplatesMenu"
     >
       <template #activator="{props: menuProps}">
@@ -32,21 +32,17 @@
         <v-list-item-action v-for="template in noteTemplates" :key="template.id">
           <v-container class="pa-2" fluid>
             <v-row class="align-center d-flex flex-nowrap" no-gutters>
-              <v-col cols="8">
-                <v-btn
+              <v-col class="py-0" cols="8">
+                <button
                   :id="`load-note-template-${template.id}`"
                   :aria-label="`Use template &quot;${template.title}&quot;`"
-                  block
-                  class="font-weight-bold d-flex justify-start template-dropdown-title"
-                  color="primary"
-                  density="compact"
+                  class="d-flex font-size-15 font-weight-550 load-note-template-btn justify-start pl-4 text-primary"
                   :disabled="isSaving"
-                  height="24"
-                  :text="template.title"
-                  variant="text"
-                  width="400"
+                  :title="template.title"
                   @click="loadTemplate(template)"
-                />
+                >
+                  <div class="truncate-with-ellipsis">{{ template.title }}</div>
+                </button>
               </v-col>
             </v-row>
           </v-container>
@@ -117,11 +113,7 @@ const onToggleTemplatesMenu = isOpen => {
 </script>
 
 <style scoped>
-.template-dropdown-title .v-btn__content {
-  display: inline-block;
-  justify-content: start !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+.load-note-template-btn {
+  width: 460px;
 }
 </style>
