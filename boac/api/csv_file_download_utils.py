@@ -160,8 +160,6 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
         'units_in_progress': lambda profile: profile.get('enrolledUnits', {}),
     }
 
-    def _construct_csv_row():
-        return dict((fieldname, getters[fieldname](profile)) for fieldname in fieldnames)
     if current_user.is_admin or 'COENG' in dept_codes_where_advising(current_user.departments):
         # Only admins and CoE advisors can access CoE-related data.
         getters['coe_status'] = lambda profile: get_coe_status(profile) or ''
@@ -194,7 +192,7 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
             for enrollment in enrollments_for_term['enrollments']:
                 is_waitlisted = next((u for u in enrollment.get('sections', []) if u.get('enrollmentStatus') == 'W'), False)
                 rows.append({
-                    **_construct_csv_row(),
+                    **_construct_csv_row(fieldnames, getters, profile),
                     **{
                         'Class Name': f"{enrollment['displayName']}{' (waitlisted)' if is_waitlisted else ''}",
                         'Units': enrollment['units'],
@@ -203,7 +201,7 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
                     },
                 })
         elif len(fieldnames):
-            rows.append(_construct_csv_row())
+            rows.append(_construct_csv_row(fieldnames, getters, profile))
 
     benchmark('end')
     header_label_lookup = get_students_csv_header_labels(current_term_id())
@@ -215,3 +213,10 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
         fieldnames=fieldnames,
         header_label_lookup=header_label_lookup,
     )
+
+
+def _construct_csv_row(fieldnames, getters, profile):
+    csv_row = {}
+    for fieldname in fieldnames:
+        csv_row[fieldname] = getters[fieldname](profile) if fieldname in getters else None
+    return csv_row

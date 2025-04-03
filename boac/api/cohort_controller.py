@@ -35,6 +35,7 @@ from boac.merged import calnet
 from boac.merged.cohort_filter_options import CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.cohort_filter_event import CohortFilterEvent
 from boac.models.university_dept import UniversityDept
@@ -85,7 +86,7 @@ def students_with_alerts(cohort_id):
         alert_limit=limit,
     )
     benchmark('fetched cohort')
-    if cohort:
+    if cohort and _can_current_user_view_cohort(cohort):
         _decorate_cohort(cohort)
         students = cohort.get('alerts', [])
         alert_sids = [s['sid'] for s in students]
@@ -128,7 +129,7 @@ def get_cohort(cohort_id):
         include_profiles=True,
         include_students=include_students,
     )
-    if cohort:
+    if cohort and _can_current_user_view_cohort(cohort):
         _decorate_cohort(cohort)
         benchmark('end')
         return tolerant_jsonify(cohort)
@@ -140,7 +141,7 @@ def get_cohort(cohort_id):
 @advisor_required
 def get_cohort_events(cohort_id):
     cohort = CohortFilter.find_by_id(cohort_id, include_students=False)
-    if not cohort:
+    if not cohort or not _can_current_user_view_cohort(cohort):
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
     if cohort['domain'] != 'default':
         raise BadRequestError(f"Cohort events are not supported in domain {cohort['domain']}")
@@ -223,7 +224,7 @@ def download_cohort_csv():
         include_sids=True,
         include_students=False,
     )
-    if cohort:
+    if cohort and _can_current_user_view_cohort(cohort):
         fieldnames = get_param(params, 'csvColumnsSelected', [])
         sids = CohortFilter.get_sids(cohort['id'])
         term_id = get_param(params, 'termId') or current_term_id()
@@ -380,6 +381,11 @@ def translate_cohort_filter_to_menu(cohort_owner_uid):
 def _decorate_cohort(cohort):
     if cohort.get('owner'):
         cohort.update({'isOwnedByCurrentUser': cohort['owner'].get('uid') == current_user.uid})
+
+
+def _can_current_user_view_cohort(cohort):
+    cohort_owner_uid = cohort['owner']['uid'] if cohort['owner'] else None
+    return current_user.is_admin or not cohort_owner_uid or not AuthorizedUser.is_admin_user(cohort_owner_uid)
 
 
 def _construct_phantom_cohort(domain, filters, **kwargs):

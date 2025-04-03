@@ -42,11 +42,6 @@ ce3_advisor_uid = '2525'
 
 
 @pytest.fixture()
-def admin_login(fake_auth):
-    fake_auth.login(admin_uid)
-
-
-@pytest.fixture()
 def asc_advisor_login(fake_auth):
     fake_auth.login(asc_advisor_uid)
 
@@ -58,18 +53,10 @@ def coe_advisor_login(fake_auth):
 
 class TestCohortById:
 
-    def __init__(self):
-        self.coe_owned_cohort = next((c for c in all_cohorts_owned_by(coe_advisor_uid) if c['name'] == 'Radioactive Women and Men'), None)
-        self.asc_owned_cohort = next((c for c in all_cohorts_owned_by(asc_advisor_uid) if c['name'] == 'All sports'), None)
-
     @classmethod
-    def _api_get_cohort(cls, client, cohort_id, include_students=None, expected_status_code=200):
-        url = f'/api/cohort/{cohort_id}'
-        if include_students is not None:
-            url += f'?includeStudents={str(include_students).lower()}'
-        response = client.get(url)
-        assert response.status_code == expected_status_code
-        return response.json
+    def setup_class(cls):
+        cls.coe_owned_cohort = next((c for c in all_cohorts_owned_by(coe_advisor_uid) if c['name'] == 'Radioactive Women and Men'), None)
+        cls.asc_owned_cohort = next((c for c in all_cohorts_owned_by(asc_advisor_uid) if c['name'] == 'All sports'), None)
 
     def test_students_with_alert_counts(self, asc_advisor_login, client, create_alerts, db_session):
         """Pre-load students into cache for consistent alert data."""
@@ -126,7 +113,7 @@ class TestCohortById:
     def test_get_cohort(self, coe_advisor_login, client, create_alerts):
         """Returns a well-formed response with filtered cohort and alert count per student."""
         cohort_id = self.coe_owned_cohort['id']
-        api_json = self._api_get_cohort(client, cohort_id)
+        api_json = _api_get_cohort(client, cohort_id)
         assert api_json['id'] == cohort_id
         assert api_json['name'] == self.coe_owned_cohort['name']
         assert 'students' in api_json
@@ -134,18 +121,13 @@ class TestCohortById:
 
     def test_get_cohort_without_students(self, coe_advisor_login, client):
         """Cohort with include_students set to False."""
-        api_json = self._api_get_cohort(client, self.coe_owned_cohort['id'], include_students=False)
+        api_json = _api_get_cohort(client, self.coe_owned_cohort['id'], include_students=False)
         assert 'students' not in api_json
 
-    def test_unauthorized_get_cohort(self, asc_advisor_login, client):
-        """Returns a well-formed response with custom cohort."""
-        self._api_get_cohort(client, self.coe_owned_cohort['id'], expected_status_code=404)
-
     def test_advisor_cannot_see_admin_cohort(self, asc_advisor_login, client):
+        """Cohorts created by Admin users are not viewable by non-Admin users."""
         cohort_id = all_cohorts_owned_by(admin_uid)[0]['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
-        assert response.status_code == 404
-        assert 'No cohort found' in json.loads(response.data)['message']
+        _api_get_cohort(client, cohort_id, expected_status_code=404)
 
     def test_undeclared_major(self, asc_advisor_login, client, app):
         """Returns a well-formed response with custom cohort."""
@@ -258,8 +240,9 @@ class TestCohortById:
         assert 'isActiveAsc' not in secretly_an_athlete
         assert 'statusAsc' not in secretly_an_athlete
 
-    def test_includes_cohort_member_athletics_advisors(self, admin_login, client):
+    def test_includes_cohort_member_athletics_advisors(self, fake_auth, client):
         """Includes athletic data for admins."""
+        fake_auth.login(admin_uid)
         cohort_id = self.coe_owned_cohort['id']
         response = client.get(f'/api/cohort/{cohort_id}')
         assert response.status_code == 200
@@ -317,8 +300,9 @@ class TestCohortById:
         sids = sorted([s['sid'] for s in response.json['students']])
         assert sids == ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '9100000000']
 
-    def test_my_students_filter_not_me(self, client, admin_login):
+    def test_my_students_filter_not_me(self, client, fake_auth):
         """The My Students cohort owned by some other advisor."""
+        fake_auth.login(admin_uid)
         cohort = CohortFilter.create(
             uid=asc_advisor_uid,
             name='All my students',
@@ -579,8 +563,9 @@ class TestCohortCreate:
         assert len(minors) == 1
         assert 'Physics UG' in minors
 
-    def test_admin_creation_of_asc_cohort(self, client, admin_login):
+    def test_admin_creation_of_asc_cohort(self, client, fake_auth):
         """Admin can use ASC criteria."""
+        fake_auth.login(admin_uid)
         api_cohort_create(
             client,
             {
@@ -610,8 +595,9 @@ class TestCohortCreate:
         ],
     }
 
-    def test_admin_intersecting_filters(self, client, admin_login):
+    def test_admin_intersecting_filters(self, client, fake_auth):
         """An admin can create a cohort using both ASC and COE criteria."""
+        fake_auth.login(admin_uid)
         cohort = api_cohort_create(client, self._intersecting_filter_criteria)
         assert len(cohort['students']) == 1
 
@@ -625,8 +611,9 @@ class TestCohortCreate:
         """An advisor belonging to a single department cannot create a cohort using intersecting criteria."""
         api_cohort_create(client, self._intersecting_filter_criteria, expected_status_code=403)
 
-    def test_academic_standing_cohort(self, admin_login, client, fake_auth):
+    def test_academic_standing_cohort(self, client, fake_auth):
         """Find students per academic standing."""
+        fake_auth.login(admin_uid)
         data = {
             'name': 'Probation and Subject to Dismissal',
             'filters': [
@@ -640,8 +627,9 @@ class TestCohortCreate:
         sids = [s['sid'] for s in cohort['students']]
         assert set(sids) == {'11667051', '3456789012', '5678901234'}
 
-    def test_active_students_cohort(self, admin_login, client, fake_auth):
-        """By default finds active English majors only."""
+    def test_active_students_cohort(self, client, fake_auth):
+        """Cohort with active English majors only."""
+        fake_auth.login(admin_uid)
         data = {
             'name': 'English Active',
             'filters': [
@@ -653,8 +641,9 @@ class TestCohortCreate:
         sids = [s['sid'] for s in cohort['students']]
         assert set(sids) == {'11667051', '3456789012'}
 
-    def test_completed_students_cohort(self, admin_login, client, fake_auth):
+    def test_completed_students_cohort(self, fake_auth, client):
         """Can find completed English majors on request."""
+        fake_auth.login(admin_uid)
         data = {
             'name': 'English Completed',
             'filters': [
@@ -667,8 +656,9 @@ class TestCohortCreate:
         sids = [s['sid'] for s in cohort['students']]
         assert set(sids) == {'2718281828'}
 
-    def test_active_and_completed_students_cohort(self, admin_login, client, fake_auth):
+    def test_active_and_completed_students_cohort(self, client, fake_auth):
         """Can find active and completed English majors on request."""
+        fake_auth.login(admin_uid)
         data = {
             'name': 'English All',
             'filters': [
@@ -682,8 +672,9 @@ class TestCohortCreate:
         sids = [s['sid'] for s in cohort['students']]
         assert set(sids) == {'11667051', '3456789012', '2718281828'}
 
-    def test_inactive_students_cohort(self, admin_login, client, fake_auth):
+    def test_inactive_students_cohort(self, client, fake_auth):
         """Can find inactive students on request."""
+        fake_auth.login(admin_uid)
         data = {
             'name': 'Inactive',
             'filters': [
@@ -1014,8 +1005,9 @@ class TestCohortPerFilters:
         for student in students:
             assert student['athleticsProfile']['isActiveAsc'] is True
 
-    def test_student_athletes_inactive_admin(self, client, admin_login):
+    def test_student_athletes_inactive_admin(self, client, fake_auth):
         """An admin query defaults to active and inactive athletes."""
+        fake_auth.login(admin_uid)
         students = self._get_defensive_line(client, None, 'gpa')
         assert len(students) == 4
 
@@ -1303,9 +1295,10 @@ class TestCohortPerFilters:
 
 class TestDownloadCohortCsv:
 
-    def __init__(self):
-        self.coe_owned_cohort = next((c for c in all_cohorts_owned_by(coe_advisor_uid) if c['name'] == 'Radioactive Women and Men'), None)
-        self.asc_owned_cohort = next((c for c in all_cohorts_owned_by(asc_advisor_uid) if c['name'] == 'All sports'), None)
+    @classmethod
+    def setup_class(cls):
+        cls.coe_owned_cohort = next((c for c in all_cohorts_owned_by(coe_advisor_uid) if c['name'] == 'Radioactive Women and Men'), None)
+        cls.asc_owned_cohort = next((c for c in all_cohorts_owned_by(asc_advisor_uid) if c['name'] == 'All sports'), None)
 
     @classmethod
     def _api_download_cohort_csv(cls, client, cohort_id, csv_columns_selected, expected_status_code=200):
@@ -1329,14 +1322,17 @@ class TestDownloadCohortCsv:
             expected_status_code=401,
         )
 
-    def test_download_csv_unauthorized(self, client, coe_advisor_login):
-        """ASC advisor cannot download cohort CSV containing COE attributes."""
-        self._api_download_cohort_csv(
+    def test_download_csv_unauthorized(self, client, fake_auth):
+        """Sensitive COE attributes are not available to ASC advisor, when downloading CSV."""
+        fake_auth.login(asc_advisor_uid)
+        response = self._api_download_cohort_csv(
             client,
             cohort_id=self.asc_owned_cohort['id'],
-            csv_columns_selected=['first_name', 'last_name', 'sid'],
-            expected_status_code=404,
+            csv_columns_selected=['coe_status'],
         )
+        # If you strip away line breaks and double-quotes then you are left with nothing more than a column header.
+        data = response.decode('utf-8').replace('\n', '').replace('\r', '').replace('"', '')
+        assert data == 'CoE status'
 
     def test_download_csv(self, asc_advisor_login, client, fake_auth):
         """Advisor can download cohort CSV."""
@@ -1971,6 +1967,15 @@ class TestTranslateToFilterOptions:
         assert api_json[1]['label']['primary'] == 'My Students'
         assert api_json[1]['key'] == 'cohortOwnerAcademicPlans'
         assert api_json[1]['value'] == '25I054U'
+
+
+def _api_get_cohort(client, cohort_id, include_students=None, expected_status_code=200):
+    url = f'/api/cohort/{cohort_id}'
+    if include_students is not None:
+        url += f'?includeStudents={str(include_students).lower()}'
+    response = client.get(url)
+    assert response.status_code == expected_status_code
+    return response.json
 
 
 def _new_undeclared_cohort(client):
