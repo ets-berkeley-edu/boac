@@ -28,9 +28,9 @@ from datetime import datetime
 from boac.models.authorized_user import AuthorizedUser
 import pytest
 
-unknown_uid = 'Ms. X'
-admin_uid = '2040'
+admin_uid = '177473'
 coe_advisor_uid = '1133399'
+unknown_uid = 'Ms. X'
 
 
 @pytest.mark.usefixtures('db_session')
@@ -41,10 +41,10 @@ class TestAuthorizedUser:
         """Returns None to Flask-Login for unrecognized UID."""
         assert AuthorizedUser.find_by_uid(unknown_uid) is None
 
-    def test_load_admin_user(self, admin_user_uid):
+    def test_load_admin_user(self):
         """Returns authorization record to Flask-Login for recognized UID."""
-        loaded_user = AuthorizedUser.find_by_uid(admin_user_uid)
-        assert loaded_user.uid == admin_user_uid
+        loaded_user = AuthorizedUser.find_by_uid(admin_uid)
+        assert loaded_user.uid == admin_uid
         assert loaded_user.is_admin
         assert len(loaded_user.cohort_filters) > 0
         assert loaded_user.cohort_filters[0].owner == loaded_user

@@ -51,6 +51,7 @@ from sqlalchemy.sql import text
 
 deleted_admin_uid = '44444'
 deleted_user_uid = '33333'
+uid_of_admin_with_cohorts = '177473'
 
 
 def clear():
@@ -292,6 +293,18 @@ def _create_cohorts():
         },
         domain='admitted_students',
     )
+    # Admin user's cohorts
+    admin_user_id = AuthorizedUser.get_id_per_uid(uid_of_admin_with_cohorts)
+    CuratedGroup.create(admin_user_id, 'My Students')
+    for name, group_codes in {
+        'All sports': ['MFB-DL', 'WFH'],
+        'Football, Defense': ['MFB-DB', 'MFB-DL'],
+        'Field Hockey': ['WFH'],
+    }.items():
+        CohortFilter.create(
+            uid=uid_of_admin_with_cohorts,
+            name=name, filter_criteria={'groupCodes': group_codes},
+        )
     std_commit(allow_test_environment=True)
 
 

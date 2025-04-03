@@ -344,31 +344,6 @@ def mock_private_advising_note(app, db):
     std_commit(allow_test_environment=True)
 
 
-@pytest.fixture(scope='session')
-def admin_user_uid(app, db):
-    from boac.models.cohort_filter import CohortFilter
-    from boac.models.curated_group import CuratedGroup
-
-    admin_user = _create_user(
-        app=app,
-        automate_degree_progress_permission=False,
-        can_access_canvas_data=True,
-        db=db,
-        degree_progress_permission=None,
-        has_calnet_record=True,
-        is_admin=True,
-    )
-    CuratedGroup.create(admin_user.id, 'My Students')
-    for name, group_codes in {
-        'All sports': ['MFB-DL', 'WFH'],
-        'Football, Defense': ['MFB-DB', 'MFB-DL'],
-        'Field Hockey': ['WFH'],
-    }.items():
-        CohortFilter.create(uid=admin_user.uid, name=name, filter_criteria={'groupCodes': group_codes})
-    std_commit(allow_test_environment=True)
-    return admin_user.uid
-
-
 @pytest.fixture()
 def user_factory(app, db):
     def _user_factory(
