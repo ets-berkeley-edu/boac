@@ -43,24 +43,18 @@ def get_peer_advising_department_note_counts():
 
 
 def get_peer_advising_note_author_count(peer_advising_department_id=None):
-    params = {}
-    query = """
-      SELECT COUNT(DISTINCT au.uid) AS count
-      FROM authorized_users au
-      JOIN peer_advising_department_members pm ON pm.authorized_user_id = au.id
-      JOIN notes n ON
-        n.peer_advising_department_id = pm.peer_advising_department_id
-        AND n.author_uid = au.uid
-        AND n.deleted_at IS NULL
+    query = f"""
+        SELECT COUNT(DISTINCT au.uid) AS count
+        FROM authorized_users au
+        JOIN peer_advising_department_members pm ON pm.authorized_user_id = au.id
+        JOIN notes n ON
+            n.peer_advising_department_id = pm.peer_advising_department_id
+            AND n.author_uid = au.uid
+            AND n.deleted_at IS NULL
+        WHERE TRUE
+            {'AND pm.peer_advising_department_id = :peer_advising_department_id' if peer_advising_department_id else ''}
     """
-    if peer_advising_department_id:
-        query += """
-      WHERE
-        pm.peer_advising_department_id = :peer_advising_department_id
-        """
-        params['peer_advising_department_id'] = peer_advising_department_id
-
-    results = db.session.execute(query, params)
+    results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
     return [row['count'] for row in results][0]
 
 
