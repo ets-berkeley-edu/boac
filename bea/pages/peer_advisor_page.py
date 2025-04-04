@@ -64,7 +64,7 @@ class PeerAdvisorPage(PeerAdvisingNoteTable):
 
     @staticmethod
     def selected_student(student):
-        return By.XPATH, f'//h4[contains(text(), "{student.sid}")]'
+        return By.XPATH, f'//div[contains(text(), "{student.sid}")]'
 
     def search_peer_note_student(self, student, search_term):
         self.hit_escape()
@@ -137,6 +137,7 @@ class PeerAdvisorPage(PeerAdvisingNoteTable):
     def save_and_wait_for_peer_note(self, note):
         self.click_save_new_note()
         self.set_new_note_id(note, note.student)
+        note.is_peer_advising = True
         self.wait_for_peer_note(note)
 
     def enter_peer_note_attachments(self, attachments):

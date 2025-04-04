@@ -453,9 +453,76 @@ class TestPAMNoteEdit:
         assert not self.peer_page.is_present(self.peer_page.peer_note_row(note_1_by_ls_peer))
         assert self.peer_page.is_present(self.peer_page.peer_note_row(note_2_by_ls_peer))
 
-    def test_blow_away_templates(self):
+
+@pytest.mark.usefixtures('page_objects')
+class TestPeerAdvisingReports:
+
+    def test_peer_dept_note_ct(self):
         self.homepage.switch_user(pam_in_ls)
         self.homepage.click_pam_link()
+        self.pam_page.click_reporting_tab()
+        expected_note_ct = len(boa_utils.get_peer_dept_note_ids(peer_dept_ls_id))
+        visible_note_ct = self.pam_page.peer_dept_ttl_note_ct()
+        utils.assert_equivalence(visible_note_ct, expected_note_ct)
+
+    def test_peer_advisor_note_author_ct(self):
+        expected_note_ct = boa_utils.get_peer_dept_author_ct(peer_dept_ls_id)
+        visible_note_ct = self.pam_page.peer_note_author_ct()
+        utils.assert_equivalence(visible_note_ct, expected_note_ct)
+
+    def test_peer_advisor_note_ct_current_month(self):
+        expected_note_ct = len(boa_utils.get_peer_note_ids(peer_1_in_ls, peer_dept_ls_id, datetime.today()))
+        visible_note_ct = self.pam_page.peer_notes_by_author_by_month_ct(peer_1_in_ls, datetime.today())
+        utils.assert_equivalence(visible_note_ct, expected_note_ct)
+
+    def test_peer_advisor_note_list_current_month(self):
+        self.pam_page.show_peer_notes_by_author_by_month_of_date(peer_1_in_ls, datetime.today())
+        visible_notes = self.pam_page.visible_peer_note_ids()
+        assert note_1_by_ls_peer.record_id not in visible_notes
+        assert note_2_by_ls_peer.record_id in visible_notes
+
+    def test_collapsed_note_body(self):
+        utils.assert_equivalence(self.pam_page.peer_note_body(note_2_by_ls_peer), note_2_by_ls_peer.body)
+
+    def test_collapsed_note_date(self):
+        utils.assert_equivalence(self.pam_page.peer_manager_note_date(note_2_by_ls_peer),
+                                 self.pam_page.peer_note_date_format(note_2_by_ls_peer))
+
+    def test_expand_note(self):
+        self.pam_page.expand_peer_note(note_2_by_ls_peer)
+
+    def test_expanded_note_author(self):
+        visible = self.pam_page.expanded_note_advisor(note_2_by_ls_peer)
+        utils.assert_actual_includes_expected(visible, peer_1_in_ls.first_name)
+        utils.assert_actual_includes_expected(visible, peer_1_in_ls.last_name)
+
+    def test_expanded_note_topics(self):
+        expected = [t.name.upper() for t in note_2_by_ls_peer.topics]
+        expected.sort()
+        utils.assert_equivalence(self.pam_page.expanded_note_topics(note_2_by_ls_peer), expected)
+
+    def test_expanded_note_contact_type(self):
+        utils.assert_equivalence(self.pam_page.expanded_note_contact_type(note_2_by_ls_peer),
+                                 note_2_by_ls_peer.contact_type)
+
+    def test_expanded_note_attachments(self):
+        attachment_files = [a.file_name for a in note_2_by_ls_peer.attachments]
+        attachment_files.sort()
+        visible_attachments = self.peer_page.expanded_note_attachments(note_2_by_ls_peer)
+        visible_attachments.sort()
+        utils.assert_equivalence(visible_attachments, attachment_files)
+
+    def test_collapse_note(self):
+        self.pam_page.collapse_item(note_2_by_ls_peer)
+
+    def test_peer_notes_csv(self):
+        expected_note_ct = len(boa_utils.get_peer_dept_note_ids(peer_dept_ls_id))
+        file = self.pam_page.download_peer_note_csv()
+        actual_note_ct = sum(1 for row in file)
+        utils.assert_equivalence(actual_note_ct, expected_note_ct)
+
+    def test_blow_away_templates(self):
+        self.pam_page.hit_escape()
         self.pam_page.click_note_templates_tab()
         self.pam_page.delete_peer_template(peer_template_in_ls)
 

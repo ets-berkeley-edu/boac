@@ -281,14 +281,43 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
         app.logger.info(f'Deleting template {template.record_id}')
         self.click_delete_peer_template(template)
         self.confirm_delete_or_discard()
-        self.when_not_present(self.peer_template_row(template), utils.get_short_timeout())
+        self.when_not_present(self.peer_template_delete_btn(template), utils.get_short_timeout())
 
     # REPORTING & STATISTICS
 
     REPORTING_TAB = By.ID, 'peer-advising-management-tab-reportings'
+    CSV_DOWNLOAD_BUTTON = By.ID, 'download-csv'
+
+    TTL_PEER_DEPT_NOTE_CT = By.XPATH, '//h2[text()="Reporting & Statistics"]/../following-sibling::table//tbody/tr[1]/td'
+    TTL_PEER_DEPT_AUTHOR_CT = By.XPATH, '//h2[text()="Reporting & Statistics"]/../following-sibling::table//tbody/tr[2]/td'
+
+    TEMPLATES_USED = By.XPATH, '//h3[text()="Templates Used"]/following-sibling::table/tbody/tr/td[1]'
+
+    @staticmethod
+    def peer_notes_by_author_by_month_btn(peer, date):
+        return By.ID, f"open-notes-created-by-{peer.uid}-during-{date.strftime('%Y-%-m')}"
+
+    def peer_notes_by_author_by_month_ct(self, peer, date):
+        return int(self.element(self.peer_notes_by_author_by_month_btn(peer, date)).text.split()[0])
+
+    def show_peer_notes_by_author_by_month_of_date(self, peer, date):
+        app.logger.info(f"Expanding notes by UID {peer.uid} in {date.strftime('%Y-%-m')}")
+        self.wait_for_element_and_click(self.peer_notes_by_author_by_month_btn(peer, date))
+        self.when_present(self.PEER_NOTE_TABLE, 3)
 
     def click_reporting_tab(self):
         app.logger.info('Clicking Reporting & Statistics')
         self.wait_for_element_and_click(self.REPORTING_TAB)
 
-    # TODO - reporting
+    def peer_dept_ttl_note_ct(self):
+        self.when_present(self.TTL_PEER_DEPT_NOTE_CT, utils.get_short_timeout())
+        return int(self.element(self.TTL_PEER_DEPT_NOTE_CT).text)
+
+    def peer_note_author_ct(self):
+        self.when_present(self.TTL_PEER_DEPT_AUTHOR_CT, utils.get_short_timeout())
+        return int(self.element(self.TTL_PEER_DEPT_AUTHOR_CT).text)
+
+    def download_peer_note_csv(self):
+        utils.prepare_download_dir()
+        self.wait_for_element_and_click(self.CSV_DOWNLOAD_BUTTON)
+        return utils.wait_for_export_csv()
