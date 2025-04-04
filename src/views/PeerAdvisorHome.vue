@@ -36,7 +36,7 @@
       />
       <div class="my-3 text-center">
         <v-btn
-          v-if="totalNoteCount > notes.length + 1"
+          v-if="totalNoteCount > notes.length"
           id="fetch-more-notes"
           text="Show additional advising notes"
           variant="text"

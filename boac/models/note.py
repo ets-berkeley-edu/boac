@@ -463,12 +463,10 @@ class Note(Base):
             return text(query).bindparams(**params)
         total_count_result = db.session.execute(_get_query(True))
         rows = total_count_result.fetchall()
-        if rows:
-            total_matching_count = rows[0]['count']
-        else:
-            total_matching_count = 0
+        total_matching_count = len(rows)
 
         result = db.session.execute(_get_query())
+
         keys = result.keys()
         return {
             'results': [dict(zip(keys, row)) for row in result.fetchall()],
@@ -567,10 +565,7 @@ class Note(Base):
             return text(query).bindparams(**params)
         total_count_result = db.session.execute(_get_query(True))
         rows = total_count_result.fetchall()
-        if rows:
-            total_matching_count = rows[0]['count']
-        else:
-            total_matching_count = 0
+        total_matching_count = rows[0]['count']
 
         result = db.session.execute(_get_query())
         keys = result.keys()
