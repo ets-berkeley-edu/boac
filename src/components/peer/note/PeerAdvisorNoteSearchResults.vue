@@ -116,14 +116,6 @@ import {useContextStore} from '@/stores/context'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 
 defineProps({
-  currentPage: {
-    required: true,
-    type: Number
-  },
-  itemsPerPage: {
-    required: true,
-    type: Number
-  },
   notes: {
     required: true,
     type: Array
