@@ -142,6 +142,7 @@ const sortRaw = (c1, c2) => {
     return c1.sectionNum > c2.sectionNum ? 1 : -1
   } else if (sortBy.value.key === 'courseName') {
     return c1.courseName.localeCompare(c2.courseName, undefined, {usage: 'sort', numeric: true})
+    // eslint-disable-next-line no-else-return
   } else {
     return 0
   }

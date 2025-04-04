@@ -4,6 +4,8 @@ import {useDegreeStore} from '@/stores/degree-edit-session'
 
 export const MAX_UNITS_ALLOWED = 10
 
+interface ValidationReport {valid: boolean, message?: string}
+
 export function categoryHasCourse(category: Category, course: DegreeProgressCourse): boolean {
   let courses: DegreeProgressCourse[] = []
   const extractCourses = (c: Category) => {
@@ -55,15 +57,16 @@ export function getCourseKey(course: DegreeProgressCourse) {
 
 export function getItemsForCoursesTable(category: Category): Array<DegreeProgressCourse|CourseRequirement> {
   const courses: DegreeProgressCourses = useDegreeStore().courses
+  let items: Array<DegreeProgressCourse|CourseRequirement>
   if (courses) {
     const categoryCourseIds: number[] = map(category.courses, 'id')
     const predicate = (c: DegreeProgressCourse) => includes(categoryCourseIds, c.id)
-    const items: Array<DegreeProgressCourse|CourseRequirement> = filter(courses.assigned.concat(courses.unassigned), predicate)
+    items = filter(courses.assigned.concat(courses.unassigned), predicate)
     items.push(...category.courseRequirements)
-    return items
   } else {
-    return category.courseRequirements
+    items = category.courseRequirements
   }
+  return items
 }
 
 export function isCampusRequirement(courseRequirement: CourseRequirement): boolean {
@@ -77,21 +80,24 @@ export function isValidUnits(value: number, maxAllowed: number): boolean {
 export function unitsWereEdited(course: DegreeProgressCourse): boolean {
   return !get(course, 'manuallyCreatedBy') && !isNil(get(course, 'units')) && !isNil(get(course, 'sis.units')) && (course.units !== course.sis.units)
 }
-export function validateUnitRange(unitsLower: number, unitsUpper: number, maxAllowed: number, showUnitsUpperInput?: boolean): object {
-  const invalid = message => ({valid: false, message})
-  const message = `must be a number between 0 and ${maxAllowed}`
+
+export function validateUnitRange(unitsLower: number, unitsUpper: number, maxAllowed: number, showUnitsUpperInput?: boolean): ValidationReport {
+  const registerAsInvalid = (message: string): ValidationReport => ({valid: false, message})
+  let message: ValidationReport
+  const suffix = `must be a number between 0 and ${maxAllowed}`
   if (isValidUnits(unitsLower, maxAllowed)) {
     if (isNil(unitsUpper)) {
-      return {valid: true}
+      message = {valid: true}
     } else {
       if (isValidUnits(unitsUpper, maxAllowed)) {
         const empty = isEmpty(unitsLower) && isEmpty(unitsUpper)
-        return empty || parseFloat(String(unitsLower)) <= parseFloat(String(unitsUpper)) ? {valid: true} : invalid('Units upper range value must be greater than lower range value.')
+        message = empty || parseFloat(String(unitsLower)) <= parseFloat(String(unitsUpper)) ? {valid: true} : registerAsInvalid('Units upper range value must be greater than lower range value.')
       } else {
-        return invalid(`Units upper range value ${message}.`)
+        message = registerAsInvalid(`Units upper range value ${suffix}.`)
       }
     }
   } else {
-    return invalid(showUnitsUpperInput ? `Units lower range value ${message}.` : `Units ${message}`)
+    message = registerAsInvalid(showUnitsUpperInput ? `Units lower range value ${suffix}.` : `Units ${suffix}`)
   }
+  return message
 }

@@ -731,16 +731,18 @@ const markRead = message => {
 }
 
 const messagesPerType = type => {
+  let messages
   if (!type) {
-    return props.messages
+    messages = props.messages
   } else if (showMyNotesToggle.value && showMyNotesOnly.value) {
-    return filter(props.messages, m => {
+    messages = filter(props.messages, m => {
       const uid = (m.author && m.author.uid) || (m.advisor && m.advisor.uid)
       return m.type === type && uid === currentUser.uid
     })
   } else {
-    return filter(props.messages, ['type', type])
+    messages = filter(props.messages, ['type', type])
   }
+  return messages
 }
 
 const normalizeForSearchIndex = value => trim(value).replace(/\s+/g, ' ').toLowerCase()

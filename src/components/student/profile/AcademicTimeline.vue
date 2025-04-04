@@ -142,15 +142,17 @@ const sortMessages = () => {
   messages.value.sort((m1, m2) => {
     const d1 = sortDate(m1)
     const d2 = sortDate(m2)
+    let result
     if (d1 && d2 && d1 !== d2) {
-      return d2.localeCompare(d1)
+      result = d2.localeCompare(d1)
     } else if (d1 === d2 && m1.id && m2.id) {
-      return m2.id < m1.id ? -1 : 1
+      result = m2.id < m1.id ? -1 : 1
     } else if (!d1 && !d2) {
-      return m2.transientId - m1.transientId
+      result = m2.transientId - m1.transientId
     } else {
-      return d1 ? -1 : 1
+      result = d1 ? -1 : 1
     }
+    return result
   })
 }
 

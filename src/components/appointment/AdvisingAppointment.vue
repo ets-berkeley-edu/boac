@@ -152,11 +152,7 @@ const downloadUrl = attachment => `${contextStore.config.apiBaseUrl}/api/appoint
 
 const summaryHeading = computed(() => {
   const heading = props.appointment.legacySource === 'SIS' ? 'Imported SIS Appt' : 'Advising Appt'
-  if (get(props.appointment, 'advisor.name')) {
-    return `${heading}: ${props.appointment.advisor.name}`
-  } else {
-    return heading
-  }
+  return get(props.appointment, 'advisor.name') ? `${heading}: ${props.appointment.advisor.name}` : heading
 })
 
 const setAdvisor = () => {

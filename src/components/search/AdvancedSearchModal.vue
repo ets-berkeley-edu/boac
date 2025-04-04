@@ -396,11 +396,13 @@ const searchInputRequired = computed(() => {
 })
 const validDateRange = computed(() => {
   const m = model.value
+  let isValid
   if (isDate(m.fromDate) && isDate(m.toDate) && (m.toDate < m.fromDate)) {
-    return false
+    isValid = false
   } else {
-    return (!m.fromDate || isDate(m.fromDate)) && (!m.toDate || isDate(m.toDate))
+    isValid = (!m.fromDate || isDate(m.fromDate)) && (!m.toDate || isDate(m.toDate))
   }
+  return isValid
 })
 
 watch(() => searchStore.showAdvancedSearch, show => {

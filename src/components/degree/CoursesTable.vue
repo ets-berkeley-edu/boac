@@ -522,12 +522,12 @@ const deleteConfirmed = () => {
 }
 
 const describeCategoryUnits = category => {
+  let description = null
   if (category) {
     const showRange = category.unitsUpper && category.unitsLower !== category.unitsUpper
-    return showRange ? `${category.unitsLower}-${category.unitsUpper}` : category.unitsLower
-  } else {
-    return null
+    description = showRange ? `${category.unitsLower}-${category.unitsUpper}` : category.unitsLower
   }
+  return description
 }
 
 const edit = (bundle, position) => {
@@ -571,12 +571,12 @@ const hideNote = (bundle, position, manageFocus=true) => {
 }
 
 const isCourseFulfillmentsEdited = bundle => {
+  let isEdited = false
   if (bundle.category && bundle.course) {
     const edited = xorBy(bundle.category.unitRequirements, bundle.course.unitRequirements, 'id')
-    return edited && edited.length
-  } else {
-    return false
+    isEdited = edited && edited.length
   }
+  return isEdited
 }
 
 const isDraggable = bundle => {

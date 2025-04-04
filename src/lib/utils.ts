@@ -63,13 +63,15 @@ export function capitalizeAllWords(words: string) {
 }
 
 const decodeHtml = (snippet: string) => {
+  let decoded: string
   if (snippet && snippet.indexOf('&') > 0) {
     const el = document.createElement('textarea')
     el.innerHTML = snippet
-    return el.value
+    decoded = el.value
   } else {
-    return snippet
+    decoded = snippet
   }
+  return decoded
 }
 
 export function decodeStudentUriAnchor() {
@@ -190,27 +192,29 @@ export function setComboboxAccessibleLabel(container: Element, label: string) {
   }
 }
 
-export function sortComparator(a, b, nullFirst=true) {
+export function sortComparator(a, b, nullFirst=true): number {
+  let result: number
   if (isNil(a) || isNil(b)) {
     if (nullFirst) {
-      return isNil(a) ? (isNil(b) ? 0 : -1) : 1
+      result = isNil(a) ? (isNil(b) ? 0 : -1) : 1
     } else {
-      return isNil(b) ? (isNil(a) ? 0 : -1) : 1
+      result = isNil(b) ? (isNil(a) ? 0 : -1) : 1
     }
   } else if (isNumber(a) && isNumber(b)) {
-    return a < b ? -1 : a > b ? 1 : 0
+    result = a < b ? -1 : a > b ? 1 : 0
   } else {
     const aInt = toInt(a)
     const bInt = toInt(b)
     if (aInt && bInt) {
-      return aInt < bInt ? -1 : aInt > bInt ? 1 : 0
+      result = aInt < bInt ? -1 : aInt > bInt ? 1 : 0
     } else {
-      return a.toString().localeCompare(b.toString(), undefined, {
+      result = a.toString().localeCompare(b.toString(), undefined, {
         numeric: true,
         usage: 'sort'
       })
     }
   }
+  return result
 }
 
 export function stripHtmlAndTrim(html) {
