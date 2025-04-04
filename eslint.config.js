@@ -72,6 +72,7 @@ export default [
       'key-spacing': 2,
       'no-console': 2,
       'no-debugger': 2,
+      'no-else-return': 2,
       'no-multi-spaces': 2,
       'no-trailing-spaces': 2,
       'no-unexpected-multiline': 2,

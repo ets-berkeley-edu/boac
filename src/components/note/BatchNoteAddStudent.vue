@@ -166,8 +166,9 @@ onUpdated(() => {
 
 const onClickAddButton = () => {
   const sids = sidsManuallyAdded.value
+  let promise
   if (sids.length) {
-    return getStudentsBySids(sids).then(data => {
+    promise = getStudentsBySids(sids).then(data => {
       noteStore.setIsRecalculating(true)
       const sidsToAdd = []
       each(data, student => {
@@ -193,8 +194,9 @@ const onClickAddButton = () => {
     })
   } else {
     resetAutocomplete()
-    return Promise.resolve()
+    promise = Promise.resolve()
   }
+  return promise
 }
 const onUpdateSearch = input => {
   query.value = input

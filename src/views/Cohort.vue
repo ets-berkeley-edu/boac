@@ -117,14 +117,16 @@ contextStore.loadingStart()
 const anchor = computed(() => window.location)
 const pageLoadAlert = computed(() => {
   const loadStatus = contextStore.loading ? 'has loaded' : 'is loading'
+  let alert
   if (!cohortStore.cohortId) {
-    return `Create cohort page ${loadStatus}`
+    alert = `Create cohort page ${loadStatus}`
   } else {
     const sortByOption = translateSortByOption(get(currentUser.preferences, sortByKey.value))
     const page = cohortStore.pagination.currentPage
     const pageDesc = page > 1 ? `(page ${page})` : ''
-    return `Cohort ${cohortStore.cohortName || ''} ${pageDesc} ${loadStatus}. Sorted by ${sortByOption}.`
+    alert = `Cohort ${cohortStore.cohortName || ''} ${pageDesc} ${loadStatus}. Sorted by ${sortByOption}.`
   }
+  return alert
 })
 const sortByKey = computed(() => cohortStore.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
 

@@ -294,13 +294,15 @@ export function translateSortByOption(option: string) {
     gpa: 'Cumulative GPA, ascending',
     'gpa desc': 'Cumulative GPA, descending',
   }
+  let translation: string
   if (translations[option]) {
-    return translations[option]
+    translation = translations[option]
   } else if (option.startsWith('term_gpa_')) {
     const termName = termNameForSisId(option.substr(9,4))
     const ordering = option.endsWith('desc') ? 'descending' : 'ascending'
-    return `${termName} GPA, ${ordering}`
+    translation = `${termName} GPA, ${ordering}`
   } else {
-    return option.replaceAll('_', ' ')
+    translation = option.replaceAll('_', ' ')
   }
+  return translation
 }

@@ -121,13 +121,15 @@ const isAddingStudents = ref(false)
 const pageLoadAlert = computed(() => {
   const loadStatus = contextStore.loading ? 'has loaded' : 'is loading'
   const label = `${capitalize(describeCuratedGroupDomain(domain.value))} ${curatedStore.curatedGroupName || ''}`
+  let alert
   if (!curatedStore.curatedGroupId) {
-    return `Create ${label} page ${loadStatus}`
+    alert = `Create ${label} page ${loadStatus}`
   } else {
     const sortByOption = translateSortByOption(get(currentUser.preferences, sortByKey.value))
     const pageDesc = pageNumber.value > 1 ? `(page ${pageNumber.value})` : ''
-    return `${label} ${pageDesc} ${loadStatus}. Sorted by ${sortByOption}.`
+    alert = `${label} ${pageDesc} ${loadStatus}. Sorted by ${sortByOption}.`
   }
+  return alert
 })
 const router = useRouter()
 const sortByKey = computed(() => domain.value === 'admitted_students' ? 'admitSortBy' : 'sortBy')
