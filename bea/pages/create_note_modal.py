@@ -478,7 +478,7 @@ class CreateNoteModal(Page):
 
     TEMPLATES_BUTTON = By.ID, 'my-templates-button'
     TEMPLATE_BUTTON = By.XPATH, '//button[contains(@id, "load-note-template")]'
-    TEMPLATE_TITLE = By.XPATH, '//button[contains(@id, "load-note-template")]/span[3]'
+    TEMPLATE_TITLE = By.XPATH, '//button[contains(@id, "load-note-template")]/div'
     NO_TEMPLATES_MSG = By.XPATH, '//div[contains(text(), "You have no saved templates")]'
     DUPE_TEMPLATE_TITLE_MSG = By.XPATH, '//div[contains(text(), "You have an existing template with this name")]'
 

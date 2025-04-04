@@ -147,7 +147,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def expanded_note_body(self, note):
         # Body may contain formatting elements even without text
-        body_loc = By.ID, f'note-{note.record_id}-message-open'
+        body_loc = (By.ID, f'note-{note.record_id}-subject') if note.is_peer_advising else (By.ID, f'note-{note.record_id}-message-open')
         if self.is_present(body_loc):
             text = self.element(body_loc).text
             return '' if re.sub(r'/\W/', '', text).replace('&nbsp;', '') == '' else text.replace('\n', '').strip()

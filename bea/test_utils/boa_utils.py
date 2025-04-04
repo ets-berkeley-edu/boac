@@ -22,6 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+import calendar
 from datetime import datetime
 from itertools import groupby
 import re
@@ -354,7 +355,7 @@ def get_director(auth_users):
 def get_advising_data_advisor(dept, test_advisor):
     dept_advisors = get_dept_advisors(dept)
     dept_advisors.reverse()
-    app.logger.info(f'Dept advisor UIDs are {list(map(lambda a: a.uid, dept_advisors))}')
+    app.logger.info(f'Dept advisor UIDs are {list(map(lambda adv: adv.uid, dept_advisors))}')
     for a in dept_advisors:
         if a.can_access_advising_data and a.uid != test_advisor.uid and len(a.uid) == 7:
             return a
@@ -537,11 +538,20 @@ def get_notes_by_ids(ids):
     return get_notes_from_pg_db_result(results)
 
 
-def get_peer_note_ids(peer):
+def get_peer_note_ids(peer, peer_dept_id, date=None):
+    if date:
+        first, last = calendar.monthrange(date.year, date.month)
+        start_date = datetime(date.year, date.month, first)
+        end_date = datetime(date.year, date.month, last)
+        cond = f"AND notes.created_at BETWEEN '{start_date.strftime('%Y-%m-%d')}' AND '{end_date.strftime('%Y-%m-%d')}'"
+    else:
+        cond = ''
     sql = f"""SELECT id
                 FROM notes
                WHERE author_uid = '{peer.uid}'
+                 AND peer_advising_department_id = '{peer_dept_id}'
                  AND deleted_at IS NULL
+                 {cond}
             ORDER BY updated_at DESC"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
@@ -559,6 +569,19 @@ def get_peer_dept_note_ids(peer_dept_id):
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     return [str(row['id']) for row in results]
+
+
+def get_peer_dept_author_ct(peer_dept_id):
+    sql = f"""SELECT COUNT(DISTINCT notes.author_uid)
+                FROM notes
+                JOIN authorized_users
+                  ON authorized_users.uid = notes.author_uid
+               WHERE notes.peer_advising_department_id = '{peer_dept_id}'
+                 AND notes.deleted_at IS NULL"""
+    app.logger.info(sql)
+    result = db.session.execute(text(sql)).first()
+    std_commit(allow_test_environment=True)
+    return result['count']
 
 
 def get_advisor_note_drafts(advisor=None):
