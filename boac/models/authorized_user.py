@@ -335,6 +335,14 @@ class AuthorizedUser(Base):
         return [row['uid'] for row in results]
 
     @classmethod
+    def is_admin_user(cls, uid):
+        result = db.session.execute(
+            text('SELECT is_admin FROM authorized_users WHERE uid = :uid'),
+            {'uid': uid},
+        ).first()
+        return result[0] if result else None
+
+    @classmethod
     def update_user(
         cls,
         user_id,
