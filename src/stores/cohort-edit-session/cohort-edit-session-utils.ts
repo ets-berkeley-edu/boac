@@ -2,10 +2,11 @@ import {get, size} from 'lodash'
 import type {Pagination} from '@/lib/types'
 import {getCohort, getCohortFilterOptions, getStudentsPerFilters, translateToFilterOptions} from '@/api/cohort'
 import {useCohortStore} from '@/stores/cohort-edit-session/index'
+import {useContextStore} from '@/stores/context'
 
-export function updateFilterOptions(domain: string, owner: string | undefined, existingFilters: object[]) {
+export function updateFilterOptions(domain: string, ownerUid: string | undefined, existingFilters: object[]) {
   return new Promise<void>(resolve => {
-    getCohortFilterOptions(domain, owner, existingFilters).then((data: object) => {
+    getCohortFilterOptions(domain, ownerUid, existingFilters).then((data: object) => {
       useCohortStore().updateFilterOptions(data)
       resolve()
     })
@@ -56,11 +57,11 @@ export function loadCohort(cohortId: number, orderBy: string, termId: string) {
     ).then(cohort => {
       if (cohort) {
         cohortStore.setDomain(cohort.domain)
-        const owner = cohort.isOwnedByCurrentUser ? 'me' : get(cohort, 'owner.uid')
-        translateToFilterOptions(cohort.domain, owner, cohort.criteria).then((filters: object[]) => {
+        const ownerUid = get(cohortStore.owner, 'uid') || useContextStore().currentUser.uid
+        translateToFilterOptions(cohort.domain, ownerUid, cohort.criteria).then((filters: object[]) => {
           cohortStore.updateSession(cohort, filters, cohort.students, cohort.totalStudentCount)
           cohortStore.stashOriginalFilters()
-          updateFilterOptions(cohort.domain, owner, filters).then(resolve)
+          updateFilterOptions(cohort.domain, ownerUid, filters).then(resolve)
         })
       } else {
         throw new TypeError(`Cohort ${cohortId} not found.`)
@@ -76,9 +77,9 @@ export function resetFiltersToLastApply() {
     cohortStore.setEditMode(null)
     cohortStore.setModifiedSinceLastSearch(false)
 
-    const cohortOwner = cohortStore.cohortOwner
     const domain = String(cohortStore.domain)
     const filters = cohortStore.filters
-    updateFilterOptions(domain, cohortOwner, filters).then(resolve)
+    const ownerUid = get(cohortStore.owner, 'uid') || useContextStore().currentUser.uid
+    updateFilterOptions(domain, ownerUid, filters).then(resolve)
   })
 }

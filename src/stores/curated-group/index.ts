@@ -1,7 +1,7 @@
 import type {StoreDefinition} from 'pinia'
 import {defineStore} from 'pinia'
 import {find, isNil} from 'lodash'
-import type {Student} from '@/lib/types'
+import type {BoaUserBasic, Student} from '@/lib/types'
 
 const VALID_MODES = ['bulkAdd', 'rename']
 
@@ -12,7 +12,7 @@ export const useCuratedGroupStore: StoreDefinition = defineStore('curatedGroup',
     domain: undefined as undefined | string,
     itemsPerPage: 50,
     mode: undefined as undefined | string,
-    ownerId: undefined as undefined | number,
+    owner: undefined as undefined | BoaUserBasic,
     pageNumber: undefined as undefined | number,
     referencingCohortIds: [] as number[],
     students: [] as Student[],
@@ -46,8 +46,8 @@ export const useCuratedGroupStore: StoreDefinition = defineStore('curatedGroup',
         throw new TypeError('Invalid mode: ' + mode)
       }
     },
-    setOwnerId(ownerId: number) {
-      this.ownerId = ownerId
+    setOwner(owner: BoaUserBasic) {
+      this.owner = owner
     },
     setPageNumber(pageNumber: number) {
       this.pageNumber = pageNumber

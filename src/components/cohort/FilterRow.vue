@@ -238,6 +238,7 @@ import ProgressButton from '@/components/util/ProgressButton'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {updateFilterOptions} from '@/stores/cohort-edit-session/cohort-edit-session-utils'
+import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
   position: {
@@ -247,6 +248,7 @@ const props = defineProps({
   }
 })
 
+const currentUser = useContextStore().currentUser
 const disableUpdateButton = ref(false)
 const errorPerRangeInput = ref(undefined)
 const filter = ref(undefined)
@@ -482,7 +484,8 @@ const onClickAddButton = () => {
   cohortStore.addFilter(filter.value)
   cohortStore.setModifiedSinceLastSearch(true)
   reset()
-  updateFilterOptions(cohortStore.domain, cohortStore.cohortOwner, cohortStore.filters).then(() => {
+  const ownerUid = get(cohortStore.owner, 'uid') || currentUser.uid
+  updateFilterOptions(cohortStore.domain, ownerUid, cohortStore.filters).then(() => {
     putFocusNextTick('filter-select-primary-new')
   })
 }
@@ -522,7 +525,8 @@ const onClickUpdateButton = () => {
     }
     cohortStore.updateExistingFilter({index: props.position, updatedFilter: filter.value})
     cohortStore.setModifiedSinceLastSearch(true)
-    updateFilterOptions(cohortStore.domain, cohortStore.cohortOwner, cohortStore.filters).then(() => {
+    const ownerUid = get(cohortStore.owner, 'uid') || currentUser.uid
+    updateFilterOptions(cohortStore.domain, ownerUid, cohortStore.filters).then(() => {
       isModifyingFilter.value = false
       cohortStore.setEditMode(null)
       alertScreenReader(`${filter.value.name} filter updated`)
@@ -577,7 +581,8 @@ const rangeMinLabel = () => {
 
 const remove = () => {
   cohortStore.removeFilter(props.position)
-  updateFilterOptions(cohortStore.domain, cohortStore.cohortOwner, cohortStore.filters).then(noop)
+  const ownerUid = get(cohortStore.owner, 'uid') || currentUser.uid
+  updateFilterOptions(cohortStore.domain, ownerUid, cohortStore.filters).then(noop)
   cohortStore.setEditMode(null)
   putFocusNextTick('filter-select-primary-new')
   alertScreenReader(`${filter.value.label.primary} filter removed`)

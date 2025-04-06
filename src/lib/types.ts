@@ -35,8 +35,13 @@ export type BoaConfig = {
   timezone: string
 }
 
-export interface BoaUser extends CalNetUser {
+export interface BoaUserBasic {
   id: number,
+  name: string | undefined,
+  uid: string
+}
+
+export interface BoaUser extends BoaUserBasic, CalNetUser {
   automateDegreeProgressPermission: boolean,
   canAccessAdmittedStudents: boolean,
   canAccessAdvisingData: boolean,
@@ -56,12 +61,11 @@ export interface BoaUser extends CalNetUser {
   myCohorts: Cohort[],
   myCuratedGroups: CuratedGroup[],
   myDraftNoteCount: number | undefined,
-  name: string | undefined,
   preferences: {
+    sortBy: string | undefined,
     termId: string | undefined
   },
-  title: string | undefined,
-  uid: string
+  title: string | undefined
 }
 
 export interface BoaUserDepartment extends HasDeptCode {
@@ -80,14 +84,14 @@ export type BoaUsersFilter = {
 
 export type CalNetUser = {
   campusEmail: string,
+  csid: string,
   email: string,
-  'firstName': string,
-  'isExpiredPerLdap': string,
-  'lastName': string,
-  'name': string | undefined,
-  'csid': string,
-  'title': string | undefined,
-  'uid': string
+  firstName: string,
+  isExpiredPerLdap: string,
+  lastName: string,
+  name: string | undefined,
+  title: string | undefined,
+  uid: string
 }
 
 export type Cohort = {
@@ -101,6 +105,8 @@ export type CuratedGroup = {
   domain: string,
   id: number,
   name: string,
+  ownerName?: string,
+  ownerUid?: string,
   totalStudentCount: number
 }
 

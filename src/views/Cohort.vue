@@ -211,7 +211,8 @@ const init = (cohortId, domain, orderBy, termId) => {
       } else {
         throw new TypeError('\'domain\' is required when creating a new cohort.')
       }
-      updateFilterOptions(cohortStore.domain, cohortStore.cohortOwner, []).then(() => {
+      const ownerUid = get(cohortStore.owner, 'uid') || useContextStore().currentUser.uid
+      updateFilterOptions(cohortStore.domain, ownerUid, []).then(() => {
         cohortStore.resetSession()
         cohortStore.stashOriginalFilters()
         resolve()

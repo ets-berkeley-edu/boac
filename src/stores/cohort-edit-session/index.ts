@@ -8,7 +8,6 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
   state: () => ({
     cohortId: undefined as number | undefined,
     cohortName: undefined as string | null | undefined,
-    cohortOwnerUid: undefined,
     domain: undefined as string | null | undefined,
     editMode: undefined as string | null | undefined,
     filterOptionGroups: [] as object[],
@@ -18,6 +17,7 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
     isOwnedByCurrentUser: false,
     orderBy: undefined,
     originalFilters: [] as object[],
+    owner: undefined,
     pagination: {
       currentPage: undefined as number | null | undefined,
       itemsPerPage: 50
@@ -27,7 +27,6 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
     totalStudentCount: undefined
   }),
   getters: {
-    cohortOwner: state => state.isOwnedByCurrentUser ? 'me' : state.cohortOwnerUid,
     showApplyButton: state => state.isModifiedSinceLastSearch === true && !!size(state.filters),
     showSaveButton: state => state.isModifiedSinceLastSearch === false,
     showSortBy: state => !state.isModifiedSinceLastSearch && (state.totalStudentCount || 0) > 1
@@ -47,7 +46,7 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
       this.editMode = undefined
       this.cohortId = undefined
       this.cohortName = undefined
-      this.cohortOwnerUid = undefined
+      this.owner = undefined
       this.isModifiedSinceLastSearch = true
       this.isOwnedByCurrentUser = true
       this.filters = []
@@ -95,11 +94,11 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
     },
     updateSession(cohort, filters, students, totalStudentCount) {
       this.editMode = null
+      this.filters = filters || []
       this.cohortId = cohort && cohort.id
       this.cohortName = cohort && cohort.name
-      this.cohortOwnerUid = cohort && cohort.owner && cohort.owner.uid
       this.isOwnedByCurrentUser = !cohort || cohort.isOwnedByCurrentUser
-      this.filters = filters || []
+      this.owner = cohort && cohort.owner
       this.students = students
       this.totalStudentCount = totalStudentCount
       this.pagination.currentPage = 1

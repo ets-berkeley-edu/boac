@@ -30,6 +30,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker
 from boac.merged import calnet
 from boac.merged.admitted_student import get_admitted_students_by_sids
+from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
 from boac.models.alert import Alert
@@ -112,6 +113,13 @@ def get_curated_group(curated_group_id):
         order_by=order_by,
         term_id=term_id,
     )
+    owner_user_id = curated_group['ownerId']
+    if current_user.get_id() != owner_user_id:
+        owner_uid = AuthorizedUser.get_uid_per_id(owner_user_id)
+        if owner_uid:
+            calnet_user = get_calnet_user_for_uid(app=app, uid=owner_uid)
+            curated_group['ownerName'] = calnet_user['name']
+            curated_group['ownerUid'] = owner_uid
     return tolerant_jsonify(curated_group)
 
 
