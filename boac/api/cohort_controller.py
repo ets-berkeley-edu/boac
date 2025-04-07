@@ -32,6 +32,7 @@ from boac.api.util import is_unauthorized_domain, is_unauthorized_search
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
+from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.cohort_filter_options import CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
@@ -349,8 +350,6 @@ def delete_cohort(cohort_id):
 @app.route('/api/cohort/filter_options/<cohort_owner_uid>', methods=['POST'])
 @advisor_required
 def all_cohort_filter_options(cohort_owner_uid):
-    if cohort_owner_uid == 'me':
-        cohort_owner_uid = current_user.uid
     params = request.get_json()
     existing_filters = get_param(params, 'existingFilters', [])
     domain = get_param(params, 'domain', 'default')
@@ -372,15 +371,19 @@ def translate_cohort_filter_to_menu(cohort_owner_uid):
     domain = get_param(params, 'domain', 'default')
     if is_unauthorized_domain(domain):
         raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
-    if cohort_owner_uid == 'me':
-        cohort_owner_uid = current_user.uid
     criteria = get_param(params, 'criteria')
-    return tolerant_jsonify(CohortFilterOptions.translate_to_filter_options(cohort_owner_uid, domain, criteria))
+    filter_options = CohortFilterOptions.translate_to_filter_options(cohort_owner_uid, domain, criteria)
+    return tolerant_jsonify(filter_options)
 
 
 def _decorate_cohort(cohort):
     if cohort.get('owner'):
-        cohort.update({'isOwnedByCurrentUser': cohort['owner'].get('uid') == current_user.uid})
+        owner_uid = cohort['owner'].get('uid')
+        cohort.update({'isOwnedByCurrentUser': owner_uid == current_user.uid})
+        if owner_uid and current_user.uid != owner_uid:
+            calnet_user = get_calnet_user_for_uid(app=app, uid=owner_uid)
+            cohort['owner']['name'] = calnet_user['name']
+            cohort['owner']['uid'] = owner_uid
 
 
 def _can_current_user_view_cohort(cohort):

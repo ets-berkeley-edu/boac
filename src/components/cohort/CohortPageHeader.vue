@@ -12,24 +12,33 @@
       </div>
     </div>
     <div v-if="editMode !== 'rename'" class="d-flex flex-wrap justify-space-between">
-      <h1
-        v-if="cohortName"
-        id="page-header"
-        class="align-self-center mb-0 mr-2"
-      >
-        {{ cohortName }}
-        <span
-          v-if="editMode !== 'apply' && !isUndefined(totalStudentCount)"
-          class="text-medium-emphasis ml-1"
-        ><span class="sr-only">, </span>({{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount) }})</span>
-      </h1>
-      <h1
-        v-if="!cohortName && !isUndefined(totalStudentCount)"
-        id="page-header"
-        class="align-self-center mb-0 mr-2"
-      >
-        {{ pluralize('Result', totalStudentCount) }}
-      </h1>
+      <div>
+        <h1
+          v-if="cohortName"
+          id="page-header"
+          class="align-self-center mb-0 mr-2"
+        >
+          {{ cohortName }}
+          <span
+            v-if="editMode !== 'apply' && !isUndefined(totalStudentCount)"
+            class="text-medium-emphasis ml-1"
+          ><span class="sr-only">, </span>({{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount) }})</span>
+        </h1>
+        <h1
+          v-if="!cohortName && !isUndefined(totalStudentCount)"
+          id="page-header"
+          class="align-self-center mb-0 mr-2"
+        >
+          {{ pluralize('Result', totalStudentCount) }}
+        </h1>
+        <div
+          v-if="!isOwnedByCurrentUser && (owner.name || owner.uid)"
+          :class="{'pb-2': !isCompactView}"
+          class="text-medium-emphasis"
+        >
+          Owned by {{ owner.name || `UID ${owner.uid}` }}
+        </div>
+      </div>
       <div v-if="!isCohortHistoryPage" class="d-flex align-center align-self-center pr-3">
         <a
           v-if="totalStudentCount > pagination.itemsPerPage"
@@ -180,15 +189,15 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import {get, isUndefined, size} from 'lodash'
 import {ref, watch} from 'vue'
-import {useRouter} from 'vue-router'
 import {storeToRefs} from 'pinia'
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import ExportListModal from '@/components/util/ExportListModal'
-import FerpaReminderModal from '@/components/util/FerpaReminderModal'
-import RenameCohort from '@/components/cohort/RenameCohort'
+import {useRouter} from 'vue-router'
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import ExportListModal from '@/components/util/ExportListModal.vue'
+import FerpaReminderModal from '@/components/util/FerpaReminderModal.vue'
+import RenameCohort from '@/components/cohort/RenameCohort.vue'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {deleteCohort, downloadCohortCsv, downloadCsv} from '@/api/cohort'
 import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/lib/berkeley-utils'
@@ -211,13 +220,14 @@ const {
   isCompactView,
   isOwnedByCurrentUser,
   isModifiedSinceLastSearch,
+  owner,
   pagination,
   totalStudentCount
 } = storeToRefs(cohortStore)
-const router = useRouter()
 const error = ref(undefined)
 const isDownloadingCSV = ref(false)
 const isHistorySupported = ref(cohortId.value && domain.value === 'default')
+const router = useRouter()
 const showDeleteModal = ref(false)
 const showExportAdmitsModal = ref(false)
 const showExportStudentsModal = ref(false)

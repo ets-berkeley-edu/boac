@@ -80,9 +80,8 @@ export function getCohortEvents(id: number, offset: number, limit: number) {
   return axios.get(url).then(response => response.data)
 }
 
-export function getCohortFilterOptions(domain: string, owner: string | undefined, existingFilters: object[]) {
-  owner = owner || 'me'
-  const url: string = `${utils.apiBaseUrl()}/api/cohort/filter_options/${owner}`
+export function getCohortFilterOptions(domain: string, ownerUid: string | undefined, existingFilters: object[]) {
+  const url: string = `${utils.apiBaseUrl()}/api/cohort/filter_options/${ownerUid}`
   return axios.post(url, {domain, existingFilters}).then(response => response.data)
 }
 
@@ -122,7 +121,7 @@ export function saveCohort(
   })
 }
 
-export function translateToFilterOptions(domain: string, owner: string, criteria: object) {
-  const url: string = `${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options/${owner}`
+export function translateToFilterOptions(domain: string, ownerUid: string, criteria: object) {
+  const url: string = `${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options/${ownerUid}`
   return axios.post(url, {criteria, domain}).then(response => response.data)
 }

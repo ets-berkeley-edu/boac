@@ -41,7 +41,7 @@
               :key="student.sid"
               class="border-b-sm border-t-sm pb-2 pt-3"
               :class="{'list-group-item-info': anchor === `#${student.uid}`}"
-              :list-type="curatedStore.ownerId === currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
+              :list-type="curatedStore.owner.id === currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
               :remove-student="() => removeStudent(student)"
               :row-index="index"
               :sorted-by="currentUser.preferences.sortBy"
@@ -86,23 +86,22 @@
   </div>
 </template>
 
-<script setup>
-import {capitalize, get, size} from 'lodash'
+<script lang="ts" setup>
+import {capitalize, get, multiply, size, toString} from 'lodash'
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useRoute, useRouter} from 'vue-router'
-import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
-import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
-import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd'
-import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader'
-import Pagination from '@/components/util/Pagination'
-import SortBy from '@/components/student/SortBy'
-import StudentRow from '@/components/student/StudentRow'
-import TermSelector from '@/components/student/TermSelector'
-import {addStudentsToCuratedGroups, removeFromCuratedGroups} from '@/api/curated'
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning.vue'
+import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable.vue'
+import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
+import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader.vue'
+import Pagination from '@/components/util/Pagination.vue'
+import SortBy from '@/components/student/SortBy.vue'
+import StudentRow from '@/components/student/StudentRow.vue'
+import TermSelector from '@/components/student/TermSelector.vue'
+import {addStudentsToCuratedGroups, getCuratedGroup, removeFromCuratedGroups} from '@/api/curated'
 import {alertScreenReader, pluralize, putFocusNextTick, scrollTo, setPageTitle, toInt} from '@/lib/utils'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/lib/berkeley-utils'
-import {goToCuratedGroup} from '@/stores/curated-group/curated-group-utils'
 import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
 
@@ -132,7 +131,7 @@ const pageLoadAlert = computed(() => {
   return alert
 })
 const router = useRouter()
-const sortByKey = computed(() => domain.value === 'admitted_students' ? 'admitSortBy' : 'sortBy')
+const sortByKey = computed<string>(() => domain.value === 'admitted_students' ? 'admitSortBy' : 'sortBy')
 const {curatedGroupId, domain, itemsPerPage, mode, pageNumber, students, totalStudentCount} = storeToRefs(curatedStore)
 
 
@@ -144,10 +143,10 @@ watch(() => curatedStore.domain, (newVal, oldVal) => {
 contextStore.loadingStart()
 
 onMounted(() => {
-  const idParam = toInt(get(useRoute(), 'params.id'))
+  const idParam: number = toInt(toString(useRoute().params.id))
   curatedStore.resetMode()
-  curatedStore.setCuratedGroupId(parseInt(idParam))
-  goToCuratedGroup(curatedStore.curatedGroupId, 1).then(group => {
+  curatedStore.setCuratedGroupId(idParam)
+  fetchCuratedGroup(curatedStore.curatedGroupId, 1).then(group => {
     if (group) {
       setPageTitle(curatedStore.curatedGroupName)
       contextStore.loadingComplete(pageLoadAlert.value, 'curated-group-name')
@@ -176,7 +175,7 @@ const bulkAddSids = sids => {
     alertScreenReader(`Adding ${pluralize('student', sids.length)} to ${describeCuratedGroupDomain(domain.value)}`)
     contextStore.updateCurrentUserPreference('sortBy', 'last_name')
     addStudentsToCuratedGroups([curatedGroupId.value], sids, true).then(() => {
-      goToCuratedGroup(curatedGroupId.value, 1).then(() => {
+      fetchCuratedGroup(curatedGroupId.value, 1).then(() => {
         curatedStore.resetMode()
         isAddingStudents.value = false
         putFocusNextTick('curated-group-name')
@@ -189,11 +188,39 @@ const bulkAddSids = sids => {
   }
 }
 
-const goToPage = page => {
+const fetchCuratedGroup = (curatedGroupId: number, pageNumber: number) => {
   return new Promise(resolve => {
+    const domain = curatedStore.domain
+    const itemsPerPage = curatedStore.itemsPerPage
+    const offset: number = multiply(pageNumber - 1, itemsPerPage)
+    const orderBy: string = get(currentUser.preferences, domain === 'admitted_students' ? 'admitSortBy' : 'sortBy', 'sortBy')
+    getCuratedGroup(
+      curatedGroupId,
+      itemsPerPage,
+      offset,
+      orderBy,
+      currentUser.preferences.termId
+    ).then(group => {
+      curatedStore.setCuratedGroupName(group.name)
+      curatedStore.setDomain(group.domain)
+      curatedStore.setOwner({
+        id: group.ownerId,
+        name: group.ownerName,
+        uid: group.ownerUid
+      })
+      curatedStore.setReferencingCohortIds(group.referencingCohortIds)
+      curatedStore.setStudents(group.students)
+      curatedStore.setTotalStudentCount(group.totalStudentCount)
+      resolve(group)
+    })
+  })
+}
+
+const goToPage = page => {
+  return new Promise<void>(resolve => {
     curatedStore.setPageNumber(page)
     contextStore.loadingStart(pageLoadAlert.value)
-    goToCuratedGroup(curatedGroupId.value, page).then(() => {
+    fetchCuratedGroup(curatedGroupId.value, page).then(() => {
       contextStore.loadingComplete(pageLoadAlert.value)
       resolve()
     })
@@ -202,7 +229,7 @@ const goToPage = page => {
 const onChangeSortBy = () => {
   if (!contextStore.loading) {
     contextStore.loadingStart(pageLoadAlert.value)
-    goToCuratedGroup(curatedGroupId.value, 1).then(() => {
+    fetchCuratedGroup(curatedGroupId.value, 1).then(() => {
       contextStore.loadingComplete(pageLoadAlert.value)
     })
   }
@@ -211,7 +238,7 @@ const onChangeSortBy = () => {
 const onChangeTerm = () => {
   if (!contextStore.loading) {
     contextStore.loadingStart(pageLoadAlert.value)
-    goToCuratedGroup(curatedGroupId.value, pageNumber.value ? pageNumber.value : 1).then(() => {
+    fetchCuratedGroup(curatedGroupId.value, pageNumber.value ? pageNumber.value : 1).then(() => {
       contextStore.loadingComplete(pageLoadAlert.value)
     })
   }
@@ -220,7 +247,7 @@ const onChangeTerm = () => {
 const removeStudent = student => {
   curatedStore.removeStudent(student.sid)
   removeFromCuratedGroups([curatedGroupId.value], student.sid).then(() => {
-    goToCuratedGroup(curatedGroupId.value, 1).then(() => {
+    fetchCuratedGroup(curatedGroupId.value, 1).then(() => {
       curatedStore.resetMode()
     })
   })

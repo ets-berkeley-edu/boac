@@ -8,6 +8,9 @@
             ({{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount, {1: '1'}) }})
           </span>
         </h1>
+        <div v-if="owner.id !== currentUser.id && (owner.name || owner.uid)" class="text-medium-emphasis">
+          Owned by {{ owner.name || `UID ${owner.uid}` }}
+        </div>
       </div>
       <a
         v-if="totalStudentCount > itemsPerPage"
@@ -29,7 +32,7 @@
         <RenameCuratedGroup />
       </div>
       <div v-if="!mode" class="d-flex align-center">
-        <div v-if="ownerId === currentUser.id">
+        <div v-if="owner.id === currentUser.id">
           <v-btn
             id="bulk-add-sids-button"
             class="font-size-15 px-1"
@@ -41,13 +44,13 @@
           </v-btn>
         </div>
         <div
-          v-if="ownerId === currentUser.id"
+          v-if="owner.id === currentUser.id"
           class="text-medium-emphasis"
           role="separator"
         >
           |
         </div>
-        <div v-if="ownerId === currentUser.id">
+        <div v-if="owner.id === currentUser.id">
           <v-btn
             id="rename-curated-group-button"
             :aria-label="`Rename ${domainLabel(false)}`"
@@ -58,8 +61,8 @@
             @click="enterRenameMode"
           />
         </div>
-        <div v-if="ownerId === currentUser.id" class="text-medium-emphasis">|</div>
-        <div v-if="ownerId === currentUser.id">
+        <div v-if="owner.id === currentUser.id" class="text-medium-emphasis">|</div>
+        <div v-if="owner.id === currentUser.id">
           <v-btn
             id="delete-curated-group-button"
             :aria-label="`Delete ${domainLabel(false)}`"
@@ -94,7 +97,7 @@
             </ul>
           </AreYouSureModal>
         </div>
-        <div v-if="ownerId === currentUser.id" class="text-medium-emphasis">|</div>
+        <div v-if="owner.id === currentUser.id" class="text-medium-emphasis">|</div>
         <div>
           <v-btn
             v-if="domain === 'default'"
@@ -132,7 +135,7 @@
       </div>
     </div>
     <div v-if="referencingCohorts.length">
-      <div v-if="ownerId === currentUser.id">
+      <div v-if="owner.id === currentUser.id">
         Used as a filter in {{ referencingCohorts.length === 1 ? 'cohort' : 'cohorts' }}
         <router-link
           v-if="referencingCohorts.length === 1"
@@ -153,22 +156,23 @@
           </span>
         </span>
       </div>
-      <div v-if="ownerId !== currentUser.id">
+      <div v-if="owner.id !== currentUser.id">
         Used as a filter in {{ referencingCohorts.length === 1 ? 'a cohort' : 'cohorts' }} owned by the owner of this {{ domainLabel(true) }}.
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {each, find, isNil, map, sortBy} from 'lodash'
 import {onMounted, ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useRouter} from 'vue-router'
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import ExportListModal from '@/components/util/ExportListModal'
-import FerpaReminderModal from '@/components/util/FerpaReminderModal'
-import RenameCuratedGroup from '@/components/curated/RenameCuratedGroup'
+import type {Cohort} from '@/lib/types'
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import ExportListModal from '@/components/util/ExportListModal.vue'
+import FerpaReminderModal from '@/components/util/FerpaReminderModal.vue'
+import RenameCuratedGroup from '@/components/curated/RenameCuratedGroup.vue'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/lib/berkeley-utils'
@@ -179,13 +183,13 @@ const contextStore = useContextStore()
 const curatedStore = useCuratedGroupStore()
 const router = useRouter()
 
-const {curatedGroupId, curatedGroupName, domain, itemsPerPage, mode, ownerId, referencingCohortIds, totalStudentCount} = storeToRefs(curatedStore)
+const {curatedGroupId, curatedGroupName, domain, itemsPerPage, mode, owner, referencingCohortIds, totalStudentCount} = storeToRefs(curatedStore)
 const currentUser = contextStore.currentUser
 const exportEnabled = ref(true)
 const isCohortWarningModalOpen = ref(false)
 const isDeleteModalOpen = ref(false)
 const isDeleting = ref(false)
-const referencingCohorts = ref([])
+const referencingCohorts = ref<Cohort[]>([])
 const showExportAdmitsModal = ref(false)
 const showExportStudentsModal = ref(false)
 
@@ -201,14 +205,16 @@ watch(showExportStudentsModal, isOpen => {
 })
 
 onMounted(() => {
-  if (ownerId.value === currentUser.id) {
+  if (owner.value.id === currentUser.id) {
     each(referencingCohortIds.value || [], cohortId => {
-      const cohort = find(currentUser.myCohorts, ['id', cohortId])
-      referencingCohorts.value.push(cohort)
+      const cohort: Cohort | undefined = find(currentUser.myCohorts, ['id', cohortId])
+      if (cohort) {
+        referencingCohorts.value.push(cohort)
+      }
     })
     referencingCohorts.value = sortBy(referencingCohorts.value, ['name'])
   } else {
-    referencingCohorts.value = map(referencingCohortIds.value, id => ({id}))
+    referencingCohorts.value = map<number, Cohort>(referencingCohortIds.value, (id: number): Cohort => ({id, domain: domain.value, name: '', totalStudentCount: NaN}))
   }
 })
 
