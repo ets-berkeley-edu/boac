@@ -29,8 +29,8 @@
             </v-btn>)
           </div>
         </div>
-        <PeerAdvisingNotesReport :notes-report="notesReport" :peer-advising-department="peerAdvisingDepartment" />
-        <div class="pt-6 pr-2">
+        <PeerAdvisingNotesReport v-if="notesReport" :notes-report="notesReport" :peer-advising-department="peerAdvisingDepartment" />
+        <div v-if="notesReport" class="pt-6 pr-2">
           <PeerAdvisingTemplatesUsed :notes-report="notesReport" />
         </div>
       </v-col>
