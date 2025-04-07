@@ -203,6 +203,7 @@ def get_boa_note_count_by_month():
         LEFT JOIN university_depts ud ON ud.dept_code = ANY(n.author_dept_codes)
         LEFT JOIN peer_advising_departments pd ON n.peer_advising_department_id = pd.id
         LEFT JOIN university_depts udp ON udp.id = pd.university_dept_id
+        WHERE n.deleted_at IS NULL AND n.is_draft IS FALSE
         GROUP BY DATE_TRUNC('month', n.created_at), COALESCE(ud.dept_name, udp.dept_name)
     """
     report = []

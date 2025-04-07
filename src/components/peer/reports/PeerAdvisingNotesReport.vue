@@ -4,15 +4,15 @@
     <tbody>
       <tr v-if="notesReport.peerAdvisingDepartment">
         <th scope="row">Total {{ notesReport.peerAdvisingDepartment.name }} peer advising notes</th>
-        <td id="peer-advising-notes-total" class="font-weight-bold text-right">{{ notesReport.totalPeerAdvisingNoteCount }}</td>
+        <td id="peer-advising-notes-total" class="font-weight-bold text-right">{{ numFormat(notesReport.totalPeerAdvisingNoteCount) }}</td>
       </tr>
       <tr v-if="!notesReport.peerAdvisingDepartment">
         <th scope="row">Total peer advisor notes</th>
-        <td id="peer-advising-notes-total" class="font-weight-bold text-right">{{ notesReport.totalPeerAdvisingNoteCount }}</td>
+        <td id="peer-advising-notes-total" class="font-weight-bold text-right">{{ numFormat(notesReport.totalPeerAdvisingNoteCount) }}</td>
       </tr>
       <tr>
         <th scope="row">Distinct peer advisor authors</th>
-        <td id="peer-advising-note-authors-total" class="font-weight-bold text-right">{{ notesReport.distinctPeerAdvisorAuthors }}</td>
+        <td id="peer-advising-note-authors-total" class="font-weight-bold text-right">{{ numFormat(notesReport.distinctPeerAdvisorAuthors) }}</td>
       </tr>
     </tbody>
   </table>
@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
+import {numFormat} from '@/lib/utils'
 import type {PeerAdvisingManagerReport} from '@/lib/types-peer-advising'
 
 defineProps({

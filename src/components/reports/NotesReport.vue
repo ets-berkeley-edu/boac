@@ -120,7 +120,7 @@
                       :key="index"
                     >
                       <td :id="`peer-advising-dept-name-${row.deptCode}`" class="border-b-sm border-e-sm px-2 py-1">{{ row.deptName }}</td>
-                      <td :id="`peer-advising-dept-notes-${row.deptCode}`" class="text-right border-b-sm px-2 py-1">{{ row.count }}</td>
+                      <td :id="`peer-advising-dept-notes-${row.deptCode}`" class="text-right border-b-sm px-2 py-1">{{ numFormat(row.count) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -148,7 +148,7 @@
                 >
                   <v-card-title class="bg-primary d-flex justify-space-between">
                     {{ annual.year }}
-                    <v-chip>{{ getYearlyTotal(annual) }}<span class="sr-only"> total notes</span></v-chip>
+                    <v-chip>{{ getYearlyTotal(annual) }}<span class="sr-only"> notes created</span></v-chip>
                   </v-card-title>
                   <v-card-text>
                     <v-list>
@@ -175,15 +175,15 @@
                           <tbody>
                             <tr v-for="(row, rowIndex) in m.data" :key="`${annual.year}-${m.month}-${rowIndex}`">
                               <td :id="`month-total-dept-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ row.departmentName || 'Other' }}</td>
-                              <td :id="`month-total-advisor-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ row.advisorNoteCount }}</td>
-                              <td :id="`month-total-peer-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ row.peerAdvisorNoteCount }}</td>
-                              <td :id="`month-total-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm px-2 py-1">{{ row.count }}</td>
+                              <td :id="`month-total-advisor-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ numFormat(row.advisorNoteCount) }}</td>
+                              <td :id="`month-total-peer-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ numFormat(row.peerAdvisorNoteCount) }}</td>
+                              <td :id="`month-total-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm px-2 py-1">{{ numFormat(row.count) }}</td>
                             </tr>
                             <tr class="font-weight-550">
                               <td :id="`month-total-dept-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">All Departments</td>
-                              <td :id="`month-total-advisor-notes-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">{{ sumBy(m.data, 'advisorNoteCount') }}</td>
-                              <td :id="`month-total-peer-notes-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">{{ sumBy(m.data, 'peerAdvisorNoteCount') }}</td>
-                              <td :id="`month-total-notes-${annual.year}-${m.month}-sum`" class="border-b-sm px-2 py-1">{{ sumBy(m.data, 'count') }}</td>
+                              <td :id="`month-total-advisor-notes-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">{{ numFormat(sumBy(m.data, 'advisorNoteCount')) }}</td>
+                              <td :id="`month-total-peer-notes-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">{{ numFormat(sumBy(m.data, 'peerAdvisorNoteCount')) }}</td>
+                              <td :id="`month-total-notes-${annual.year}-${m.month}-sum`" class="border-b-sm px-2 py-1">{{ numFormat(sumBy(m.data, 'count')) }}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -234,9 +234,9 @@ onMounted(() => {
 })
 
 const getYearlyTotal = annual => {
-  return reduce(annual.months, (sum, month) => {
+  return numFormat(reduce(annual.months, (sum, month) => {
     return sum + sumBy(month.data, 'count')
-  }, 0)
+  }, 0))
 }
 
 const toggleShowReport = () => {
