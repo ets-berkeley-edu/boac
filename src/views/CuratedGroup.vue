@@ -205,7 +205,8 @@ const fetchCuratedGroup = (curatedGroupId: number, pageNumber: number) => {
       curatedStore.setDomain(group.domain)
       curatedStore.setOwner({
         id: group.ownerId,
-        name: group.ownerName,
+        deptCodes: group.ownerDeptCodes || [],
+        name: group.ownerName || undefined,
         uid: group.ownerUid
       })
       curatedStore.setReferencingCohortIds(group.referencingCohortIds)

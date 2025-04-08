@@ -115,11 +115,13 @@ def get_curated_group(curated_group_id):
     )
     owner_user_id = curated_group['ownerId']
     if current_user.get_id() != owner_user_id:
-        owner_uid = AuthorizedUser.get_uid_per_id(owner_user_id)
-        if owner_uid:
-            calnet_user = get_calnet_user_for_uid(app=app, uid=owner_uid)
+        owner = AuthorizedUser.find_by_id(owner_user_id, include_deleted=True)
+        if owner:
+            calnet_user = get_calnet_user_for_uid(app=app, uid=owner.uid)
             curated_group['ownerName'] = calnet_user['name']
-            curated_group['ownerUid'] = owner_uid
+            curated_group['ownerUid'] = owner.uid
+            memberships = owner.department_memberships or []
+            curated_group['ownerDeptCodes'] = [m.university_dept.dept_code for m in memberships]
     return tolerant_jsonify(curated_group)
 
 

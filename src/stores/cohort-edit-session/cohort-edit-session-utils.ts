@@ -57,7 +57,7 @@ export function loadCohort(cohortId: number, orderBy: string, termId: string) {
     ).then(cohort => {
       if (cohort) {
         cohortStore.setDomain(cohort.domain)
-        const ownerUid = get(cohortStore.owner, 'uid') || useContextStore().currentUser.uid
+        const ownerUid = get(cohort.owner, 'uid') || useContextStore().currentUser.uid
         translateToFilterOptions(cohort.domain, ownerUid, cohort.criteria).then((filters: object[]) => {
           cohortStore.updateSession(cohort, filters, cohort.students, cohort.totalStudentCount)
           cohortStore.stashOriginalFilters()

@@ -12,6 +12,7 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
     editMode: undefined as string | null | undefined,
     filterOptionGroups: [] as object[],
     filters: [] as object[],
+    hasPrivateCohortFilterCriteria: false,
     isCompactView: false,
     isModifiedSinceLastSearch: false,
     isOwnedByCurrentUser: false,
@@ -97,6 +98,7 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
       this.filters = filters || []
       this.cohortId = cohort && cohort.id
       this.cohortName = cohort && cohort.name
+      this.hasPrivateCohortFilterCriteria = cohort && cohort.hasPrivateCohortFilterCriteria
       this.isOwnedByCurrentUser = !cohort || cohort.isOwnedByCurrentUser
       this.owner = cohort && cohort.owner
       this.students = students

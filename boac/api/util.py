@@ -34,6 +34,7 @@ from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes, note_to_compatible_json
 from boac.merged.calnet import get_calnet_user_for_uid
+from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC
 from boac.merged.sis_terms import current_term_id
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
@@ -285,19 +286,10 @@ def is_unauthorized_domain(domain):
 
 def is_unauthorized_search(filter_keys, order_by=None):
     filter_key_set = set(filter_keys)
-    asc_keys = {'inIntensiveCohort', 'isInactiveAsc', 'groupCodes'}
-    if list(filter_key_set & asc_keys) or order_by in ['group_name']:
+    if list(filter_key_set & set(PROTECTED_COHORT_FILTERS_UWASC)) or order_by in ['group_name']:
         if not current_user.is_admin and 'UWASC' not in dept_codes_where_advising(current_user.departments):
             return True
-    coe_keys = {
-        'coeAcademicStandings',
-        'coeAdvisorLdapUids',
-        'coeEthnicities',
-        'coePrepStatuses',
-        'coeUnderrepresented',
-        'isInactiveCoe',
-    }
-    if list(filter_key_set & coe_keys):
+    if list(filter_key_set & set(PROTECTED_COHORT_FILTERS_COENG)):
         if not current_user.is_admin and 'COENG' not in dept_codes_where_advising(current_user.departments):
             return True
     return False

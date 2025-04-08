@@ -40,6 +40,17 @@ from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
 from flask import current_app as app
 
+PROTECTED_COHORT_FILTERS_UWASC = ['groupCodes', 'inIntensiveCohort', 'isInactiveAsc']
+
+PROTECTED_COHORT_FILTERS_COENG = [
+    'coeAcademicStandings',
+    'coeAdvisorLdapUids',
+    'coeEthnicities',
+    'coePrepStatuses',
+    'coeUnderrepresented',
+    'isInactiveCoe',
+]
+
 
 class CohortFilterOptions:
     owner_uid = None

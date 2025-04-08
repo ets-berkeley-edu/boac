@@ -233,9 +233,8 @@ class CohortFilter(Base):
         return result
 
     @classmethod
-    def find_by_id(cls, cohort_id, **kwargs):
-        cohort = cls.query.filter_by(id=cohort_id).first()
-        return cohort and cohort.to_api_json(**kwargs)
+    def find_by_id(cls, cohort_id):
+        return cls.query.filter_by(id=cohort_id).first()
 
     @classmethod
     def delete(cls, cohort_id):

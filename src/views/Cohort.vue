@@ -5,7 +5,14 @@
       <AdmitDataWarning :updated-at="get(cohortStore.students, '[0].updatedAt')" />
     </div>
     <v-expand-transition>
-      <div v-show="!cohortStore.isCompactView" id="cohort-filters" class="mb-3">
+      <div
+        v-if="cohortStore.hasPrivateCohortFilterCriteria"
+        id="cohort-filters-unavailable"
+        class="align-center cohort-filter-row cohort-filter-row-height d-flex font-weight-550 my-2 pl-5 text-medium-emphasis w-100"
+      >
+        {{ privacyMessage }}
+      </div>
+      <div v-if="!cohortStore.isCompactView" id="cohort-filters" class="mb-3">
         <FilterRow
           v-for="(filter, index) in cohortStore.filters"
           :key="`${filter.key}-${index}`"
@@ -89,8 +96,8 @@
 </template>
 
 <script setup>
-import {computed, nextTick, onMounted, onUnmounted, reactive, watch} from 'vue'
-import {get, size, startsWith} from 'lodash'
+import {computed, nextTick, onMounted, onUnmounted, reactive, ref, watch} from 'vue'
+import {get, includes, size, startsWith} from 'lodash'
 import {useRoute} from 'vue-router'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
@@ -115,6 +122,7 @@ const currentUser = reactive(contextStore.currentUser)
 contextStore.loadingStart()
 
 const anchor = computed(() => window.location)
+const cohortOwnerDeptCodes = computed(() => get(cohortStore.owner, 'deptCodes') || [])
 const pageLoadAlert = computed(() => {
   const loadStatus = contextStore.loading ? 'has loaded' : 'is loading'
   let alert
@@ -128,6 +136,7 @@ const pageLoadAlert = computed(() => {
   }
   return alert
 })
+const privacyMessage = ref()
 const sortByKey = computed(() => cohortStore.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
 
 watch(() => cohortStore.domain, value => {
@@ -178,6 +187,15 @@ onUnmounted(() => {
 })
 
 const afterLoadingComplete = focusId => {
+  if (cohortStore.hasPrivateCohortFilterCriteria) {
+    if (includes(cohortOwnerDeptCodes.value, 'UWASC')) {
+      privacyMessage.value = 'Athletic Study Center filters unavailable.'
+    } else if (includes(cohortOwnerDeptCodes.value, 'COENG')) {
+      privacyMessage.value = 'College of Engineering filters unavailable.'
+    } else {
+      privacyMessage.value = 'Cohort filters are unavailable.'
+    }
+  }
   const pageTitle = cohortStore.cohortId ? cohortStore.cohortName : 'Create Cohort'
   setPageTitle(pageTitle)
   nextTick(() => putFocusNextTick(focusId, {scrollBlock: 'start'}))

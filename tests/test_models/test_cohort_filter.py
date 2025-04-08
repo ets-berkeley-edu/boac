@@ -68,7 +68,7 @@ class TestCohortFilter:
             },
         )
         cohort_id = cohort['id']
-        cohort = CohortFilter.find_by_id(cohort_id)
+        cohort = CohortFilter.find_by_id(cohort_id).to_api_json()
         expected = {
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
@@ -103,7 +103,7 @@ class TestCohortFilter:
             domain='admitted_students',
         )
         cohort_id = cohort['id']
-        cohort = CohortFilter.find_by_id(cohort_id)
+        cohort = CohortFilter.find_by_id(cohort_id).to_api_json()
         expected = {
             'colleges': colleges,
             'familyDependentRanges': family_dependent_ranges,
@@ -127,28 +127,28 @@ class TestCohortFilter:
 
     def test_create_and_delete_cohort(self):
         """Cohort_filter record to Flask-Login for recognized UID."""
-        owner = AuthorizedUser.find_by_uid(asc_advisor_uid).uid
+        owner = AuthorizedUser.find_by_uid(asc_advisor_uid)
         # Check validity of UID
         assert owner
 
         # Create cohort
         group_codes = ['MFB-DB', 'MFB-DL', 'MFB-MLB', 'MFB-OLB']
         cohort = CohortFilter.create(
-            uid=owner,
+            uid=owner.uid,
             name='Football, Defense',
             filter_criteria={
                 'groupCodes': group_codes,
             },
         )
         cohort_id = cohort['id']
-        assert CohortFilter.find_by_id(cohort_id)['owner']['uid'] == owner
+        assert CohortFilter.find_by_id(cohort_id).owner_id == owner.id
         assert cohort['totalStudentCount'] == len(CohortFilter.get_sids(cohort_id))
 
         # Delete cohort and verify
-        previous_owner_count = cohort_count(owner)
+        previous_owner_count = cohort_count(owner.uid)
         CohortFilter.delete(cohort_id)
         std_commit(allow_test_environment=True)
-        assert cohort_count(owner) == previous_owner_count - 1
+        assert cohort_count(owner.uid) == previous_owner_count - 1
 
     def test_jsonify_cohort(self):
         """Can be JSONified."""
