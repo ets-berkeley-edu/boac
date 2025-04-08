@@ -32,8 +32,8 @@ from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 import pytest
 import simplejson as json
-from tests.test_api.api_test_utils import all_cohorts_owned_by, api_cohort_create, api_cohort_events, api_cohort_get, \
-    api_curated_group_add_students, api_curated_group_remove_student
+from tests.test_api.api_test_utils import all_cohorts_owned_by, api_cohort_create, api_cohort_events, \
+    api_curated_group_add_students, api_curated_group_remove_student, api_get_cohort
 
 admin_uid = '177473'
 asc_advisor_uid = '1081940'
@@ -101,7 +101,7 @@ class TestCohortById:
         """Returns a well-formed response with filtered cohort and alert count per student."""
         fake_auth.login(coe_advisor_uid)
         cohort_id = self.coe_owned_cohort['id']
-        api_json = _api_get_cohort(client, cohort_id)
+        api_json = api_get_cohort(client, cohort_id, include_students=True)
         assert api_json['id'] == cohort_id
         assert api_json['name'] == self.coe_owned_cohort['name']
         assert 'students' in api_json
@@ -110,36 +110,31 @@ class TestCohortById:
     def test_get_cohort_without_students(self, client, fake_auth):
         """Cohort with include_students set to False."""
         fake_auth.login(coe_advisor_uid)
-        api_json = _api_get_cohort(client, self.coe_owned_cohort['id'], include_students=False)
+        api_json = api_get_cohort(client, self.coe_owned_cohort['id'], include_students=False)
         assert 'students' not in api_json
 
     def test_advisor_cannot_see_admin_cohort(self, client, fake_auth):
         """Cohorts created by Admin users are not viewable by non-Admin users."""
         fake_auth.login(asc_advisor_uid)
         cohort_id = all_cohorts_owned_by(admin_uid)[0]['id']
-        _api_get_cohort(client, cohort_id, expected_status_code=404)
+        api_get_cohort(client, cohort_id, expected_status_code=404)
 
     def test_undeclared_major(self, app, client, fake_auth):
-        """Returns a well-formed response with custom cohort."""
+        """Get cohort: Undeclared Major."""
         fake_auth.login(asc_advisor_uid)
         cohort = all_cohorts_owned_by(asc_advisor_uid)[-1]
-        cohort_id = cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
-        assert response.status_code == 200
-        cohort = json.loads(response.data)
-        assert cohort['name'] == 'Undeclared students'
-        students = cohort['students']
-        assert cohort['totalStudentCount'] == len(students) == 1
+        api_json = api_get_cohort(client, cohort['id'], include_students=True)
+        assert api_json['name'] == 'Undeclared students'
+        students = api_json['students']
+        assert api_json['totalStudentCount'] == len(students) == 1
         # We expect the student with 'Letters & Sci Undeclared UG' major
         assert students[0]['sid'] == '5678901234'
 
     def test_includes_cohort_member_sis_data(self, client, fake_auth):
         """Includes SIS data for custom cohort students."""
         fake_auth.login(asc_advisor_uid)
-        cohort_id = self.asc_owned_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
-        assert response.status_code == 200
-        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        api_json = api_get_cohort(client, cohort_id=self.asc_owned_cohort['id'], include_students=True)
+        athlete = next(m for m in api_json['students'] if m['firstName'] == 'Deborah')
         assert athlete['cumulativeGPA'] == 3.8
         assert athlete['cumulativeUnits'] == 101.3
         assert athlete['level'] == 'Junior'
@@ -148,10 +143,13 @@ class TestCohortById:
     def test_includes_cohort_member_current_enrollments(self, client, fake_auth):
         """Includes current-term active enrollments for custom cohort students."""
         fake_auth.login(asc_advisor_uid)
-        cohort_id = self.asc_owned_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}?orderBy=firstName')
-        assert response.status_code == 200
-        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        api_json = api_get_cohort(
+            client,
+            cohort_id=self.asc_owned_cohort['id'],
+            include_students=True,
+            order_by='firstName',
+        )
+        athlete = next(m for m in api_json['students'] if m['firstName'] == 'Deborah')
         term = athlete['term']
         assert term['termName'] == 'Fall 2017'
         assert term['enrolledUnits'] == 12.5
@@ -162,10 +160,14 @@ class TestCohortById:
     def test_includes_cohort_member_non_current_enrollments(self, client, fake_auth):
         """Includes active enrollments for a non-current term if requested."""
         fake_auth.login(asc_advisor_uid)
-        cohort_id = self.asc_owned_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}?orderBy=firstName&termId=2172')
-        assert response.status_code == 200
-        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        api_json = api_get_cohort(
+            client,
+            cohort_id=self.asc_owned_cohort['id'],
+            include_students=True,
+            order_by='firstName',
+            term_id=2172,
+        )
+        athlete = next(m for m in api_json['students'] if m['firstName'] == 'Deborah')
         term = athlete['term']
         assert term['termName'] == 'Spring 2017'
         assert term['enrolledUnits'] == 10.0
@@ -186,20 +188,27 @@ class TestCohortById:
 
     def test_includes_cohort_member_term_gpa(self, client, fake_auth):
         fake_auth.login(asc_advisor_uid)
-        cohort_id = self.asc_owned_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}?orderBy=firstName')
-        assert response.status_code == 200
-        deborah = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        api_json = api_get_cohort(
+            client,
+            cohort_id=self.asc_owned_cohort['id'],
+            include_students=True,
+            order_by='firstName',
+        )
+        deborah = next(m for m in api_json['students'] if m['firstName'] == 'Deborah')
         assert len(deborah['termGpa']) == 4
         assert deborah['termGpa'][0] == {'termName': 'Spring 2018', 'gpa': 2.9}
         assert deborah['termGpa'][3] == {'termName': 'Spring 2016', 'gpa': 3.8}
 
     def test_includes_cohort_member_academic_standing(self, client, fake_auth):
         fake_auth.login(asc_advisor_uid)
-        cohort_id = self.asc_owned_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}?orderBy=firstName')
-        assert response.status_code == 200
-        deborah = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        # cohort_id = self.asc_owned_cohort['id']
+        api_json = api_get_cohort(
+            client,
+            cohort_id=self.asc_owned_cohort['id'],
+            include_students=True,
+            order_by='firstName',
+        )
+        deborah = next(m for m in api_json['students'] if m['firstName'] == 'Deborah')
         assert deborah['academicStanding'] == {
             'actionDate': '2018-05-31',
             'status': 'GST',
@@ -209,10 +218,12 @@ class TestCohortById:
     def test_includes_cohort_member_athletics_asc(self, client, fake_auth):
         """Includes athletic data custom cohort members for ASC advisors."""
         fake_auth.login(asc_advisor_uid)
-        cohort_id = self.asc_owned_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
-        assert response.status_code == 200
-        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        api_json = api_get_cohort(
+            client,
+            cohort_id=self.asc_owned_cohort['id'],
+            include_students=True,
+        )
+        athlete = next(m for m in api_json['students'] if m['firstName'] == 'Deborah')
         assert len(athlete['athleticsProfile']['athletics']) == 2
         assert athlete['athleticsProfile']['inIntensiveCohort'] is not None
         assert athlete['athleticsProfile']['isActiveAsc'] is not None
@@ -229,10 +240,12 @@ class TestCohortById:
     def test_omits_cohort_member_athletics_non_asc(self, client, fake_auth):
         """Omits athletic data for non-ASC advisors."""
         fake_auth.login(coe_advisor_uid)
-        cohort_id = self.coe_owned_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
-        assert response.status_code == 200
-        secretly_an_athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        api_json = api_get_cohort(
+            client,
+            cohort_id=self.coe_owned_cohort['id'],
+            include_students=True,
+        )
+        secretly_an_athlete = next(m for m in api_json['students'] if m['firstName'] == 'Deborah')
         assert 'athletics' not in secretly_an_athlete
         assert 'inIntensiveCohort' not in secretly_an_athlete
         assert 'isActiveAsc' not in secretly_an_athlete
@@ -241,39 +254,47 @@ class TestCohortById:
     def test_includes_cohort_member_athletics_advisors(self, client, fake_auth):
         """Includes athletic data for admins."""
         fake_auth.login(admin_uid)
-        cohort_id = self.coe_owned_cohort['id']
-        response = client.get(f'/api/cohort/{cohort_id}')
-        assert response.status_code == 200
-        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        api_json = api_get_cohort(
+            client,
+            cohort_id=self.coe_owned_cohort['id'],
+            include_students=True,
+        )
+        athlete = next(m for m in api_json['students'] if m['firstName'] == 'Deborah')
         assert len(athlete['athleticsProfile']['athletics']) == 2
         assert athlete['athleticsProfile']['inIntensiveCohort'] is not None
         assert athlete['athleticsProfile']['isActiveAsc'] is not None
         assert athlete['athleticsProfile']['statusAsc'] is not None
 
     def test_get_cohort_404(self, client, fake_auth):
-        """Returns a well-formed response when no cohort found."""
+        """Get cohort: Dummy cohort_id results in HTTP 404."""
         fake_auth.login(coe_advisor_uid)
-        response = client.get('/api/cohort/99999999')
-        assert response.status_code == 404
-        assert 'No cohort found' in str(response.data)
+        api_get_cohort(client, cohort_id=99999999, expected_status_code=404)
 
     def test_offset_and_limit(self, client, fake_auth):
-        """Returns a well-formed response with custom cohort."""
+        """Get cohort: Offset and limit."""
         fake_auth.login(asc_advisor_uid)
         cohort_id = self.asc_owned_cohort['id']
-        api_path = f'/api/cohort/{cohort_id}'
-        # First, offset is zero
-        response = client.get(f'{api_path}?offset={0}&limit={1}')
-        assert response.status_code == 200
-        data_0 = json.loads(response.data)
-        assert data_0['totalStudentCount'] == 4
-        assert len(data_0['students']) == 1
+        api_json = api_get_cohort(
+            client,
+            cohort_id=cohort_id,
+            include_students=True,
+            limit=1,
+            offset=0,
+        )
+        assert api_json['totalStudentCount'] == 4
+        assert len(api_json['students']) == 1
+        first_student_uid = api_json['students'][0]['uid']
         # Now, offset is one
-        response = client.get(f'{api_path}?offset={1}&limit={1}')
-        data_1 = json.loads(response.data)
-        assert len(data_1['students']) == 1
+        api_json = api_get_cohort(
+            client,
+            cohort_id=cohort_id,
+            include_students=True,
+            limit=1,
+            offset=1,
+        )
+        assert len(api_json['students']) == 1
         # Verify that a different offset results in a different member
-        assert data_0['students'][0]['uid'] != data_1['students'][0]['uid']
+        assert api_json['students'][0]['uid'] != first_student_uid
 
     def test_unauthorized_request_for_athletic_study_center_data(self, client, fake_auth):
         """In order to access intensive_cohort, inactive status, etc. the user must be either ASC or Admin."""
@@ -296,9 +317,8 @@ class TestCohortById:
                 'cohortOwnerAcademicPlans': ['*'],
             },
         )
-        response = client.get(f"/api/cohort/{cohort['id']}")
-        assert response.status_code == 200
-        sids = sorted([s['sid'] for s in response.json['students']])
+        api_json = api_get_cohort(client, cohort_id=cohort['id'], include_students=True)
+        sids = sorted([s['sid'] for s in api_json['students']])
         assert sids == ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '9100000000']
 
     def test_my_students_filter_not_me(self, client, fake_auth):
@@ -311,8 +331,8 @@ class TestCohortById:
                 'cohortOwnerAcademicPlans': ['*'],
             },
         )
-        response = client.get(f"/api/cohort/{cohort['id']}").json
-        sids = sorted([s['sid'] for s in response['students']])
+        api_json = api_get_cohort(client, cohort_id=cohort['id'], include_students=True)
+        sids = sorted([student['sid'] for student in api_json['students']])
         assert sids == ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '9100000000']
 
     def test_cohort_with_curated_group_ids(self, client, fake_auth):
@@ -350,11 +370,9 @@ class TestCohortById:
                 {'key': 'curatedGroupIds', 'value': curated_group_2.id},
             ],
         }
-        cohort_id = api_cohort_create(client, data)['id']
-
-        response = client.get(f'/api/cohort/{cohort_id}')
-        assert response.status_code == 200
-        api_json = json.loads(response.data)
+        cohort = api_cohort_create(client, data)
+        cohort_id = cohort['id']
+        api_json = api_get_cohort(client, cohort_id=cohort_id, include_students=True)
         students = api_json['students']
         actual_sids = sorted([s['sid'] for s in students])
         assert actual_sids == expected_sids
@@ -395,7 +413,7 @@ class TestCohortById:
             assert e['eventType'] == 'added'
 
         api_curated_group_add_students(client, [curated_group.id], sids=['11667051', '7890123456'])
-        cohort = api_cohort_get(client, cohort['id'])
+        cohort = api_get_cohort(client, cohort['id'])
         assert cohort['totalStudentCount'] == 5
 
         events = api_cohort_events(client, cohort['id'])['events']
@@ -410,7 +428,7 @@ class TestCohortById:
 
         for sid in original_sids:
             api_curated_group_remove_student(client, curated_group_ids=[curated_group.id], sid=sid)
-        cohort = api_cohort_get(client, cohort['id'])
+        cohort = api_get_cohort(client, cohort['id'])
         assert cohort['totalStudentCount'] == 2
 
         events = api_cohort_events(client, cohort['id'])['events']
@@ -497,6 +515,7 @@ class TestCohortCreate:
         }
 
         def _verify(cohort):
+            assert 'id' in cohort
             assert cohort.get('name') == 'Tennis'
             assert cohort['alertCount'] is not None
             assert len(cohort.get('criteria', {}).get('majors')) == 2
@@ -509,11 +528,10 @@ class TestCohortCreate:
             assert len(students) == 1
             assert students[0]['underrepresented'] is False
 
-        data = api_cohort_create(client, data)
-        _verify(data)
-        cohort_id = data.get('id')
-        assert cohort_id
-        _verify(api_cohort_get(client, cohort_id))
+        api_json = api_cohort_create(client, data)
+        _verify(api_json)
+        cohort_id = api_json.get('id')
+        _verify(api_get_cohort(client, cohort_id=cohort_id, include_students=True))
 
     def test_asc_advisor_is_forbidden(self, client, fake_auth):
         """Denies ASC advisor access to COE data."""
@@ -546,7 +564,7 @@ class TestCohortCreate:
         }
         cohort = api_cohort_create(client, data)
         cohort_id = cohort['id']
-        api_json = api_cohort_get(client, cohort_id)
+        api_json = api_get_cohort(client, cohort_id)
         assert api_json['alertCount'] is not None
         criteria = api_json.get('criteria')
         # GPA
@@ -760,7 +778,7 @@ class TestCohortUpdate:
 
         def remove_empties(criteria):
             return {k: v for k, v in criteria.items() if v is not None}
-        cohort = CohortFilter.find_by_id(cohort_id)
+        cohort = CohortFilter.find_by_id(cohort_id).to_api_json()
         expected = remove_empties(cohort['criteria'])
         actual = remove_empties(updated_cohort['criteria'])
         assert expected == actual
@@ -807,7 +825,7 @@ class TestCohortUpdate:
         )
         assert response.status_code == 200
         # Verify the value of 'student_count' in db
-        updated_cohort = CohortFilter.find_by_id(cohort_id)
+        updated_cohort = CohortFilter.find_by_id(cohort_id).to_api_json()
         assert updated_cohort['totalStudentCount'] == 2
         assert 'sids' not in updated_cohort
         group_codes = updated_cohort['criteria']['groupCodes']
@@ -1391,9 +1409,8 @@ class TestDownloadCohortCsv:
                 'cohortOwnerAcademicPlans': ['*'],
             },
         )
-        response = client.get(f"/api/cohort/{cohort['id']}")
-        assert response.status_code == 200
-        sids = sorted([s['sid'] for s in response.json['students']])
+        api_json = api_get_cohort(client, cohort_id=cohort['id'], include_students=True)
+        sids = sorted([student['sid'] for student in api_json['students']])
         assert sids == expected_sids
         data = self._api_download_cohort_csv(client, cohort['id'], csv_columns_selected=['sid'])
         sids_in_csv = [s for s in data.decode('utf-8').split() if s.isdigit()]
@@ -2069,15 +2086,6 @@ class TestTranslateToFilterOptions:
         assert api_json[1]['value'] == '25I054U'
 
 
-def _api_get_cohort(client, cohort_id, include_students=None, expected_status_code=200):
-    url = f'/api/cohort/{cohort_id}'
-    if include_students is not None:
-        url += f'?includeStudents={str(include_students).lower()}'
-    response = client.get(url)
-    assert response.status_code == expected_status_code
-    return response.json
-
-
 def _new_undeclared_cohort(client):
     data = {
         'name': 'Nothing to Declare',
@@ -2085,6 +2093,4 @@ def _new_undeclared_cohort(client):
     }
     cohort = api_cohort_create(client, data)
     cohort_id = cohort['id']
-    response = client.get(f'/api/cohort/{cohort_id}')
-    assert response.status_code == 200
-    return response.json
+    return api_get_cohort(client, cohort_id, include_students=True)

@@ -2,8 +2,8 @@
   <div
     v-if="showRow"
     :id="`filter-row-${position}`"
-    class="align-center d-flex filter-row-height flex-wrap mt-1 w-100"
-    :class="{'filter-row': isExistingFilter}"
+    class="align-center d-flex cohort-filter-row-height flex-wrap mt-1 w-100"
+    :class="{'cohort-filter-row': isExistingFilter}"
   >
     <div
       v-if="isExistingFilter"
@@ -619,13 +619,5 @@ const updateRangeFilter = () => {
 .existing-filter-name {
   min-width: 210px;
   width: 30%;
-}
-.filter-row {
-  align-items: center;
-  background-color: rgb(var(--v-theme-surface-light));
-  border-left: 6px solid rgb(var(--v-theme-primary)) !important;
-}
-.filter-row-height {
-  min-height: 52px;
 }
 </style>

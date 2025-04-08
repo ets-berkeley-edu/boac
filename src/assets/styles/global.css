@@ -117,6 +117,14 @@
 .checked-checkbox-container {
   background-color: rgb(var(--v-theme-secondary)) !important;
 }
+.cohort-filter-row {
+  align-items: center;
+  background-color: rgb(var(--v-theme-surface-light));
+  border-left: 6px solid rgb(var(--v-theme-primary)) !important;
+}
+.cohort-filter-row-height {
+  min-height: 52px;
+}
 .cohort-sort-by-label {
   padding-right: 8px;
   text-align: right;

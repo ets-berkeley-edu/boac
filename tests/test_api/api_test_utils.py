@@ -52,8 +52,28 @@ def api_cohort_create(client, json_data=(), expected_status_code=200):
     return json.loads(response.data)
 
 
-def api_cohort_get(client, cohort_id, expected_status_code=200):
-    response = client.get(f'/api/cohort/{cohort_id}')
+def api_get_cohort(
+        client,
+        cohort_id,
+        expected_status_code=200,
+        include_students=False,
+        limit=None,
+        offset=0,
+        order_by=None,
+        term_id=None,
+):
+    url = f'/api/cohort/{cohort_id}?'
+    if include_students:
+        url += f'includeStudents={str(include_students).lower()}&'
+    if limit:
+        url += f'limit={limit}&'
+    if offset:
+        url += f'offset={offset}'
+    if order_by:
+        url += f'orderBy={order_by}&'
+    if term_id:
+        url += f'termId={term_id}&'
+    response = client.get(url)
     assert response.status_code == expected_status_code
     return response.json
 

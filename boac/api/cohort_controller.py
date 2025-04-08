@@ -29,11 +29,13 @@ from boac.api.csv_file_download_utils import response_with_students_csv_download
 from boac.api.decorators import advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import is_unauthorized_domain, is_unauthorized_search
+from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
 from boac.merged.calnet import get_calnet_user_for_uid
-from boac.merged.cohort_filter_options import CohortFilterOptions
+from boac.merged.cohort_filter_options import CohortFilterOptions, PROTECTED_COHORT_FILTERS_COENG, \
+    PROTECTED_COHORT_FILTERS_UWASC
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
 from boac.models.authorized_user import AuthorizedUser
@@ -79,28 +81,32 @@ def students_with_alerts(cohort_id):
     benchmark('begin')
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
-    cohort = CohortFilter.find_by_id(
-        cohort_id,
-        include_alerts_for_user_id=current_user.get_id(),
-        include_students=False,
-        alert_offset=offset,
-        alert_limit=limit,
-    )
+    cohort = CohortFilter.find_by_id(cohort_id)
     benchmark('fetched cohort')
-    if cohort and _can_current_user_view_cohort(cohort):
-        _decorate_cohort(cohort)
-        students = cohort.get('alerts', [])
-        alert_sids = [s['sid'] for s in students]
-        alert_profiles = get_student_profile_summaries(alert_sids)
-        benchmark('fetched student profiles')
-        alert_profiles_by_sid = {p['sid']: p for p in alert_profiles}
-        for student in students:
-            student.update(alert_profiles_by_sid[student['sid']])
-            # The enrolled units count is the one piece of term data we want to preserve.
-            if student.get('term'):
-                student['term'] = {'enrolledUnits': student['term'].get('enrolledUnits')}
-        benchmark('end')
-        return tolerant_jsonify(students)
+    if cohort:
+        cohort_owner_uid = AuthorizedUser.get_uid_per_id(cohort.owner_id)
+        if _can_current_user_view_cohort(cohort_owner_uid):
+            cohort = cohort.to_api_json(
+                alert_limit=limit,
+                alert_offset=offset,
+                include_alerts_for_user_id=current_user.get_id(),
+                include_students=False,
+            )
+            _decorate_cohort(cohort)
+            students = cohort.get('alerts', [])
+            alert_sids = [s['sid'] for s in students]
+            alert_profiles = get_student_profile_summaries(alert_sids)
+            benchmark('fetched student profiles')
+            alert_profiles_by_sid = {p['sid']: p for p in alert_profiles}
+            for student in students:
+                student.update(alert_profiles_by_sid[student['sid']])
+                # The enrolled units count is the one piece of term data we want to preserve.
+                if student.get('term'):
+                    student['term'] = {'enrolledUnits': student['term'].get('enrolledUnits')}
+            benchmark('end')
+            return tolerant_jsonify(students)
+        else:
+            raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
 
@@ -114,26 +120,30 @@ def get_cohort(cohort_id):
     order_by = get_param(request.args, 'orderBy', None)
     if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    include_students = to_bool(get_param(request.args, 'includeStudents'))
+    include_students = to_bool(get_param(request.args, 'includeStudents') or False)
     include_students = True if include_students is None else include_students
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
     term_id = get_param(request.args, 'termId', None)
     benchmark('begin cohort filter query')
-    cohort = CohortFilter.find_by_id(
-        int(cohort_id),
-        order_by=order_by,
-        offset=int(offset),
-        limit=int(limit),
-        term_id=term_id,
-        include_alerts_for_user_id=current_user.get_id(),
-        include_profiles=True,
-        include_students=include_students,
-    )
-    if cohort and _can_current_user_view_cohort(cohort):
-        _decorate_cohort(cohort)
-        benchmark('end')
-        return tolerant_jsonify(cohort)
+    cohort = CohortFilter.find_by_id(int(cohort_id))
+    if cohort:
+        cohort_owner_uid = AuthorizedUser.get_uid_per_id(cohort.owner_id)
+        if _can_current_user_view_cohort(cohort_owner_uid):
+            cohort = cohort.to_api_json(
+                include_alerts_for_user_id=current_user.get_id(),
+                include_profiles=True,
+                include_students=include_students,
+                limit=int(limit),
+                offset=int(offset),
+                order_by=order_by,
+                term_id=term_id,
+            )
+            _decorate_cohort(cohort)
+            benchmark('end')
+            return tolerant_jsonify(cohort)
+        else:
+            raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
 
@@ -141,35 +151,37 @@ def get_cohort(cohort_id):
 @app.route('/api/cohort/<cohort_id>/events')
 @advisor_required
 def get_cohort_events(cohort_id):
-    cohort = CohortFilter.find_by_id(cohort_id, include_students=False)
-    if not cohort or not _can_current_user_view_cohort(cohort):
+    cohort = CohortFilter.find_by_id(cohort_id)
+    if cohort:
+        cohort_owner_uid = AuthorizedUser.get_uid_per_id(cohort.owner_id)
+        if not _can_current_user_view_cohort(cohort_owner_uid):
+            raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
+        if cohort.domain != 'default':
+            raise BadRequestError(f"Cohort events are not supported for domain '{cohort.domain}'")
+    else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
-    if cohort['domain'] != 'default':
-        raise BadRequestError(f"Cohort events are not supported in domain {cohort['domain']}")
 
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
     results = CohortFilterEvent.events_for_cohort(cohort_id, offset, limit)
     count = results['count']
     events = results['events']
-    event_sids = [e.sid for e in events]
-    event_profiles_by_sid = {e['sid']: e for e in get_student_profile_summaries(event_sids)}
-
-    def _event_feed(event):
+    event_profiles_by_sid = {e['sid']: e for e in get_student_profile_summaries(sids=[e.sid for e in events])}
+    events_api_json = []
+    for event in events:
         profile = event_profiles_by_sid.get(event.sid, {})
-        return {
+        events_api_json.append({
             'createdAt': event.created_at.isoformat(),
             'eventType': event.event_type,
             'firstName': profile.get('firstName'),
             'lastName': profile.get('lastName'),
             'sid': event.sid,
             'uid': profile.get('uid'),
-        }
-    feed = {
+        })
+    return tolerant_jsonify({
         'count': count,
-        'events': [_event_feed(e) for e in events],
-    }
-    return tolerant_jsonify(feed)
+        'events': events_api_json,
+    })
 
 
 @app.route('/api/cohort/get_students_per_filters', methods=['POST'])
@@ -217,21 +229,15 @@ def download_cohort_csv():
     benchmark('begin')
     params = request.get_json()
     cohort_id = int(get_param(params, 'cohortId'))
-    cohort = CohortFilter.find_by_id(
-        cohort_id,
-        offset=0,
-        limit=None,
-        include_profiles=False,
-        include_sids=True,
-        include_students=False,
-    )
-    if cohort and _can_current_user_view_cohort(cohort):
+    cohort = CohortFilter.find_by_id(cohort_id)
+    cohort_owner_uid = AuthorizedUser.get_uid_per_id(cohort.owner_id)
+    if cohort and _can_current_user_view_cohort(cohort_owner_uid):
         fieldnames = get_param(params, 'csvColumnsSelected', [])
-        sids = CohortFilter.get_sids(cohort['id'])
+        sids = CohortFilter.get_sids(cohort.id)
         term_id = get_param(params, 'termId') or current_term_id()
         return response_with_students_csv_download(
             benchmark=benchmark,
-            domain=cohort['domain'],
+            domain=cohort.domain,
             fieldnames=fieldnames,
             sids=sids,
             term_id=term_id,
@@ -384,11 +390,23 @@ def _decorate_cohort(cohort):
             calnet_user = get_calnet_user_for_uid(app=app, uid=owner_uid)
             cohort['owner']['name'] = calnet_user['name']
             cohort['owner']['uid'] = owner_uid
+            if not current_user.is_admin:
+                # Verify that this viewer, who is not an admin and does not own the cohort,
+                # has the right to view ALL filters of this cohort.
+                dept_codes = dept_codes_where_advising(current_user.departments)
+                cohort_filter_keys = list(cohort['criteria'].keys())
+                cohort['hasPrivateCohortFilterCriteria'] = False
+                if 'COENG' not in dept_codes and set(cohort_filter_keys) & set(PROTECTED_COHORT_FILTERS_COENG):
+                    cohort['hasPrivateCohortFilterCriteria'] = True
+                if 'UWASC' not in dept_codes and set(cohort_filter_keys) & set(PROTECTED_COHORT_FILTERS_UWASC):
+                    cohort['hasPrivateCohortFilterCriteria'] = True
+                if cohort['hasPrivateCohortFilterCriteria']:
+                    cohort['criteria'] = {}
 
 
-def _can_current_user_view_cohort(cohort):
-    cohort_owner_uid = cohort['owner']['uid'] if cohort['owner'] else None
-    return current_user.is_admin or not cohort_owner_uid or not AuthorizedUser.is_admin_user(cohort_owner_uid)
+def _can_current_user_view_cohort(cohort_owner_uid):
+    # Admin users can view all cohorts. Non-admin can view all except cohorts owned by Admins.
+    return not cohort_owner_uid or current_user.is_admin or not AuthorizedUser.is_admin_user(cohort_owner_uid)
 
 
 def _construct_phantom_cohort(domain, filters, **kwargs):

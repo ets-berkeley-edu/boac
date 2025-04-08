@@ -33,10 +33,14 @@
         </h1>
         <div
           v-if="!isOwnedByCurrentUser && (owner.name || owner.uid)"
+          :id="`cohort-owner-${owner.uid}`"
           :class="{'pb-2': !isCompactView}"
           class="text-medium-emphasis"
         >
           Owned by {{ owner.name || `UID ${owner.uid}` }}
+          <span v-if="size(owner.deptCodes)">
+            (<span id="cohort-owner-dept-codes">{{ owner.deptCodes.join(', ') }}</span>)
+          </span>
         </div>
       </div>
       <div v-if="!isCohortHistoryPage" class="d-flex align-center align-self-center pr-3">

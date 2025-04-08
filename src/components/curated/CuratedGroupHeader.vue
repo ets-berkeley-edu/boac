@@ -8,8 +8,15 @@
             ({{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount, {1: '1'}) }})
           </span>
         </h1>
-        <div v-if="owner.id !== currentUser.id && (owner.name || owner.uid)" class="text-medium-emphasis">
+        <div
+          v-if="owner.id !== currentUser.id && (owner.name || owner.uid)"
+          :id="`curated-group-owner-${owner.uid}`"
+          class="text-medium-emphasis"
+        >
           Owned by {{ owner.name || `UID ${owner.uid}` }}
+          <span v-if="size(owner.deptCodes)">
+            (<span id="cohort-owner-dept-codes">{{ owner.deptCodes.join(', ') }}</span>)
+          </span>
         </div>
       </div>
       <a
@@ -164,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import {each, find, isNil, map, sortBy} from 'lodash'
+import {each, find, isNil, map, size, sortBy} from 'lodash'
 import {onMounted, ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useRouter} from 'vue-router'
