@@ -13,7 +13,6 @@
       <div v-if="!currentUser.isAdmin">
         <v-btn
           id="peer-advisor-create-note-button"
-          aria-labelledby="peer-advising-note-modal-header"
           class="px-10"
           color="primary"
           :disabled="!!noteStore.mode"

@@ -73,6 +73,7 @@
 import {size} from 'lodash'
 import {mdiClose, mdiMenuDown} from '@mdi/js'
 import {storeToRefs} from 'pinia'
+import type {NoteTemplate} from '@/lib/types'
 import {alertScreenReader} from '@/lib/utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -83,7 +84,7 @@ const emit = defineEmits([
 const props = defineProps({
   noteTemplates: {
     required: true,
-    type: Array
+    type: Array<NoteTemplate>
   },
   exit: {
     type: Function,
@@ -98,11 +99,11 @@ const props = defineProps({
 const noteStore = useNoteStore()
 const {isSaving} = storeToRefs(noteStore)
 
-const loadTemplate = template => {
+const loadTemplate = (template: NoteTemplate) => {
   emit('template-selected', template)
 }
 
-const onToggleTemplatesMenu = isOpen => {
+const onToggleTemplatesMenu = (isOpen: boolean) => {
   if (isOpen) {
     const count = size(props.noteTemplates)
     const suffix = count === 1 ? 'one saved template' : `${count || 'no'} saved templates`
