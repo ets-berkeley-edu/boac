@@ -294,7 +294,7 @@ def search_advising_notes(
 
         if peer_advising_department_id:
             phrases = list(filter(None, re.split(r'[- ]', search_phrase.strip().upper())))
-            student_results = data_loch.match_students_by_name_or_sid(phrases=phrases, limit=100)
+            student_results = data_loch.match_students_by_name_or_sid(phrases=phrases)
             matching_sids = [s.get('sid') for s in student_results]
             local_search_results = Note.peer_advising_notes_search(
                 search_phrase=search_phrase,

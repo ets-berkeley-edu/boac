@@ -413,9 +413,11 @@ class Note(Base):
             offset=0,
             limit=40,
     ):
-        notes_selector = """SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
+        notes_selector = """
+            SELECT id, ts_rank(fts_index, to_tsquery('english', :search_phrase || ':*')) AS rank
             FROM notes_fts_index
-            WHERE fts_index @@ plainto_tsquery('english', :search_phrase)"""
+            WHERE fts_index @@ to_tsquery('english', :search_phrase || ':*')
+        """
         params = {
             'search_phrase': search_phrase,
         }
