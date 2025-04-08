@@ -2,9 +2,9 @@
   <div>
     <v-menu
       v-if="noteStore.mode !== 'editTemplate'"
-      id="templates-menu"
+      id="peer-advising-note-templates-menu"
       absolute
-      attach="#edit-note-header"
+      attach="#peer-advising-note-modal-header"
       :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
       location="bottom end"
       no-click-animation
@@ -13,7 +13,7 @@
     >
       <template #activator="{props: menuProps}">
         <v-btn
-          id="my-templates-button"
+          id="peer-advising-note-templates-button"
           class="ml-auto mr-2"
           color="primary"
           :disabled="noteStore.isSaving || noteStore.boaSessionExpired"

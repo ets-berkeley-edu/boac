@@ -2,93 +2,93 @@
   <div class="text-center">
     <v-dialog
       v-model="model"
-      max-width="600"
+      aria-labelledby="peer-advising-template-modal-header"
       attach="body"
+      persistent
     >
-      <v-card>
-        <template #title>
-          <span class="text-h5">{{ title }}</span>
-        </template>
-        <v-divider class="border-opacity-50 ma-0" />
-
-        <div class="pt-6 pl-6 pr-6">
-          <div>
-            <v-text-field
-              id="peer-advising-note-template-name-text"
-              v-model="templateName"
-              counter="255"
-              :disabled="isSaving"
-              label="Note Template Name"
-              variant="outlined"
-              :maxlength="maxlength"
-              persistent-counter
-              required
-              :rules="[() => isValidName]"
-              validate-on="lazy input"
+      <v-card class="modal-content" width="600">
+        <FocusLock @keydown.esc="cancel">
+          <v-card-title>
+            <ModalHeader header-id="peer-advising-template-modal-header" :text="title" />
+          </v-card-title>
+          <v-card-text class="peer-advising-template-modal-content">
+            <div class="py-3">
+              <v-text-field
+                id="peer-advising-note-template-name-text"
+                v-model="templateName"
+                counter="255"
+                :disabled="isSaving"
+                label="Note Template Name"
+                variant="outlined"
+                :maxlength="maxlength"
+                persistent-counter
+                required
+                :rules="[() => isValidName]"
+                validate-on="lazy input"
+              >
+                <template #counter>
+                  <div>
+                    {{ size(templateName) ? `${maxlength} character limit (${maxlength - size(templateName)} left)` : `${maxlength} character limit` }}
+                  </div>
+                </template>
+              </v-text-field>
+            </div>
+            <div
+              v-if="action !== 'copy'"
+              id="note-template-details"
+              class="bg-transparent pb-3"
             >
-              <template #counter>
-                <div>
-                  {{ size(templateName) ? `${maxlength} character limit (${maxlength - size(templateName)} left)` : `${maxlength} character limit` }}
-                </div>
-              </template>
-            </v-text-field>
-          </div>
-        </div>
-        <div v-if="action !== 'copy'" class="pb-6 pl-6 pr-6">
-          <div id="note-template-details" class="bg-transparent mt-2">
-            <RichTextEditor
-              id="peer-advising-note-template-details-text"
-              :disabled="isSaving"
-              :initial-value="noteDetailsText ? noteDetailsText : ''"
-              label="Note Details"
-              :on-value-update="onEditorUpdate"
-              :is-in-modal="true"
-              :show-advising-note-best-practices="true"
+              <RichTextEditor
+                id="peer-advising-note-template-details-text"
+                :disabled="isSaving"
+                :initial-value="noteDetailsText ? noteDetailsText : ''"
+                label="Note Details"
+                :on-value-update="onEditorUpdate"
+                :is-in-modal="true"
+                :show-advising-note-best-practices="true"
+              />
+            </div>
+            <div v-if="action !== 'copy'" class="pb-3">
+              <PeerAdvisingNoteTopics
+                :topics="topicsSelected"
+                :read-only="action === 'view'"
+                @update-topics="handleTopicsUpdate"
+              />
+            </div>
+          </v-card-text>
+          <v-card-actions class="justify-end">
+            <v-btn
+              id="cancel-peer-advising-note-template"
+              class="float-end ml-3"
+              color="primary"
+              text="Cancel"
+              variant="text"
+              @click="cancel"
             />
-          </div>
-        </div>
-
-        <div v-if="action !== 'copy'" class="pr-6 pl-6 pb-3">
-          <PeerAdvisingNoteTopics
-            :topics="topicsSelected"
-            :read-only="action === 'view'"
-            @update-topics="handleTopicsUpdate"
-          />
-        </div>
-
-        <v-divider class="border-opacity-50" />
-
-        <div class="footer pt-4 pr-6 pb-6">
-          <v-btn
-            id="cancel-peer-advising-note-template"
-            class="float-end ml-3"
-            color="primary"
-            text="Cancel"
-            variant="text"
-            @click="cancel"
-          />
-          <ProgressButton
-            v-if="action !== 'view'"
-            id="save-new-peer-advising-note-template"
-            class="float-end"
-            :action="saveNoteTemplate"
-            :disabled="isValidName !== true || isSaveDisabled"
-            :in-progress="isSaving"
-            :text="saveButtonText"
-          />
-        </div>
+            <ProgressButton
+              v-if="action !== 'view'"
+              id="save-new-peer-advising-note-template"
+              class="float-end"
+              :action="saveNoteTemplate"
+              :disabled="isValidName !== true || isSaveDisabled"
+              :in-progress="isSaving"
+              :text="saveButtonText"
+            />
+          </v-card-actions>
+        </FocusLock>
       </v-card>
     </v-dialog>
   </div>
 </template>
 
 <script setup>
-
+import FocusLock from 'vue-focus-lock'
 import {computed, onMounted, ref, watch} from 'vue'
 import {cloneDeep, isEmpty, size} from 'lodash'
-import RichTextEditor from '@/components/util/RichTextEditor.vue'
+import ModalHeader from '@/components/util/ModalHeader'
 import PeerAdvisingNoteTopics from '@/components/peer/PeerAdvisingNoteTopics.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
+import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import {alertScreenReader} from '@/lib/utils.js'
 import {createPeerAdvisingNoteTemplate, updatePeerAdvisingNoteTemplate} from '@/api/peer-advising-notes.js'
 
@@ -227,9 +227,15 @@ const isExistingName = (name) => {
 </script>
 
 <style>
-.ck-balloon-panel{z-index:9999 !important}
+.ck-balloon-panel {
+  z-index: 9999 !important;
+}
 #note-template-details .ck-editor__editable {
   height: 180px;
   width: 100%;
+}
+.peer-advising-template-modal-content {
+  height: calc(100vh - 215px);
+  overflow-y: auto;
 }
 </style>
