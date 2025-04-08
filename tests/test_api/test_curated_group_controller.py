@@ -666,7 +666,6 @@ class TestDownloadCuratedGroupCSV:
         assert len(students) == 1
         data = {
             'csvColumnsSelected': [
-                'act_composite',
                 'birthdate',
                 'citizenship_country',
                 'family_dependents_num',
@@ -684,8 +683,8 @@ class TestDownloadCuratedGroupCSV:
         assert 'csv' in response.content_type
         csv = str(response.data)
         for snippet in [
-            'act_composite,birthdate,citizenship_country,family_dependents_num,highest_parent_education_level,non_immigrant_visa_current,xethnic',  # noqa: E501
-            '5,1985-06-02,Greece,05,5 - College Attended,,NotSpecified',
+            'birthdate,citizenship_country,family_dependents_num,highest_parent_education_level,non_immigrant_visa_current,xethnic',  # noqa: E501
+            '1985-06-02,Greece,05,5 - College Attended,,NotSpecified',
         ]:
             assert str(snippet) in csv
 
