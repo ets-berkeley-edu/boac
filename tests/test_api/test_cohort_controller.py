@@ -1593,17 +1593,6 @@ class TestDownloadCsvPerFilters:
         'hs_unweighted_gpa',
         'hs_weighted_gpa',
         'transfer_gpa',
-        'act_composite',
-        'act_math',
-        'act_english',
-        'act_reading',
-        'act_writing',
-        'sat_total',
-        'sat_r_evidence_based_rw_section',
-        'sat_r_math_section',
-        'sat_r_essay_reading',
-        'sat_r_essay_analysis',
-        'sat_r_essay_writing',
         'application_fee_waiver_flag',
         'foster_care_flag',
         'family_is_single_parent',
@@ -1657,13 +1646,13 @@ class TestDownloadCsvPerFilters:
             '19938035,00005852,RES,Transfer,Spring,No,No,College of Letters and Science,'
             'Ralph,,Burgess,1984-09-04,984.110.7693x347,681-857-8070,9590 Chang Extensions,'
             'Suite 478,East Jacobton,NY,55531,United States,International,F,No,Yes,MasterDegree,'
-            '3 - High School Graduate,,0.86,0.51,2.47,7,18,29,18,3,603,707,241,3,2,4,FeeWaiver,Y,,,05,02,41852,942,Y,'
+            '3 - High School Graduate,,0.86,0.51,2.47,FeeWaiver,Y,,,05,02,41852,942,Y,'
             'ReserveOfficersTrainingProgram,No,,,,,Citizen,,United States,,,,123'
         ) in csv
         assert (
             '98002344,00029117,INT,Freshman,Spring,No,No,College of Engineering,Daniel,J,Mcknight,1993-07-06,859-319-8215x8689,'
             '231.865.8093,87758 Brown Throughway,Suite 657,West Andrea,M,25101,United States,White,T,,'
-            'Yes,,5 - College Attended,,2.51,2.7,3.23,25,19,2,15,9,1445,639,724,7,5,5,,,,Y,0,02,23915,426,Y,,,Committed,,1,'
+            'Yes,,5 - College Attended,,2.51,2.7,3.23,,,,Y,0,02,23915,426,Y,,,Committed,,1,'
             'Destination College,Citizen,,United States,,,,'
         ) in csv
 
