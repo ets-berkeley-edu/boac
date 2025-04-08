@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-space-between">
     <div>
-      <ModalHeader :text="headerText" />
+      <ModalHeader header-id="peer-advising-note-modal-header" :text="headerText" />
     </div>
     <div>
       <SelectPeerAdvisingNoteTemplateForNote
