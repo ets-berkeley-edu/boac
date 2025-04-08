@@ -5,7 +5,7 @@
     persistent
   >
     <v-card
-      class="modal-content pb-2"
+      class="modal-content overflow-y-hidden pb-2"
       :class="{'modal-fullscreen': mdAndDown}"
       width="720"
     >

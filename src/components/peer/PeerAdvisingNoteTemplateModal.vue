@@ -6,7 +6,7 @@
       attach="body"
       persistent
     >
-      <v-card class="modal-content" width="600">
+      <v-card class="modal-content overflow-y-hidden" width="600">
         <FocusLock @keydown.esc="cancel">
           <v-card-title>
             <ModalHeader header-id="peer-advising-template-modal-header" :text="title" />
