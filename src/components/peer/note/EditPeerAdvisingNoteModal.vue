@@ -151,7 +151,7 @@ const props = defineProps({
 const currentUser = useContextStore().currentUser
 const isAreYouSureModalOpen = ref(false)
 const noteStore = useNoteStore()
-const noteTemplates = ref([])
+const noteTemplates = ref<NoteTemplate[]>([])
 const isNoteTemplatesLoading = ref(false)
 const recipients = computed<NoteRecipients>(() => noteStore.recipients)
 const student = ref<BasicStudent | undefined>()
