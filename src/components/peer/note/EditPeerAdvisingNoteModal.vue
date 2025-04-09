@@ -190,6 +190,7 @@ const closeModal = (srText?: string) => {
     alertScreenReader(srText)
   }
   dialog.value = false
+  student.value = undefined
   noteStore.setIsCreateNoteModalOpen(false)
   noteStore.exitSession()
 }
