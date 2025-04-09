@@ -1,27 +1,25 @@
 <template>
-  <div class="align-end d-flex default-margins justify-space-between font-weight-bold">
-    <div class="add-student-container">
+  <div class="align-end d-flex flex-wrap default-margins justify-space-between font-weight-bold">
+    <div class="add-student-container pr-4">
       <PeerAdvisingAddStudent
         :exclude-these-students="peerAdvisors"
         :peer-advising-department-id="peerAdvisingDepartment.id"
         :refresh="refresh"
       />
     </div>
-    <div>
-      <v-switch
-        id="toggle-inactive-students-button"
-        v-model="showDeletedPeerAdvisors"
-        :class="{'text-primary': showDeletedPeerAdvisors}"
-        class="font-size-14 font-weight-bold text-medium-emphasis"
-        color="primary"
-        density="compact"
-        :disabled="isBusy || isRefreshing"
-        hide-details
-        :label="`${showDeletedPeerAdvisors ? 'Hide' : 'Show'} deleted`"
-        role="switch"
-      />
-      <span aria-live="polite" class="sr-only">Showing {{ showDeletedPeerAdvisors ? 'all students' : 'active students' }}</span>
-    </div>
+    <v-switch
+      id="toggle-inactive-students-button"
+      v-model="showDeletedPeerAdvisors"
+      :class="{'text-primary': showDeletedPeerAdvisors}"
+      class="font-size-14 font-weight-bold text-medium-emphasis mb-1 ml-1"
+      color="primary"
+      density="compact"
+      :disabled="isBusy || isRefreshing"
+      hide-details
+      :label="`${showDeletedPeerAdvisors ? 'Hide' : 'Show'} deleted`"
+      role="switch"
+    />
+    <span aria-live="polite" class="sr-only">Showing {{ showDeletedPeerAdvisors ? 'all students' : 'active students' }}</span>
   </div>
   <div class="border-b-sm ml-4 mt-6">
     <v-data-table
