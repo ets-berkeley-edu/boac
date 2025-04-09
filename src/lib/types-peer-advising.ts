@@ -20,6 +20,7 @@ export type PeerAdvisingManagerReport = {
   currentMonth: PeerAdvisingReportTimeframe,
   distinctPeerAdvisorAuthors: number,
   noteTemplates: {
+    id: number,
     name: string,
     noteTemplateUsageCount: number,
     templateTitle: string

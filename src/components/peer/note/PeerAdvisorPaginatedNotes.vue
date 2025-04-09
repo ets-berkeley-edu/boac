@@ -161,7 +161,7 @@ import {ref} from 'vue'
 import {size} from 'lodash'
 import {useDisplay} from 'vuetify'
 import type {Note} from '@/lib/types'
-import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
+import {lastNameFirst, putFocusNextTick, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 
@@ -191,8 +191,10 @@ const toggleShowHide = (note: Note) => {
   const index = expandedNoteIds.value.indexOf(note.id)
   if (index > -1) {
     expandedNoteIds.value.splice(index, 1)
+    putFocusNextTick(`open-peer-advising-${note.id}`)
   } else {
     expandedNoteIds.value.push(note.id)
+    putFocusNextTick(`show-note-${note.id}-details`)
   }
 }
 </script>
