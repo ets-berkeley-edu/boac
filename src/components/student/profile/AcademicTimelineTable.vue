@@ -249,7 +249,7 @@
                           'truncate-with-ellipsis': !isExpanded(message)
                         }"
                       >
-                        {{ getMessageSummary(message) }}
+                        {{ getMessageSummary(message, true) }}
                       </span>
                       <AdvisingNote
                         v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
@@ -257,7 +257,6 @@
                         :delete-note="onClickDeleteNote"
                         :edit-note="editNote"
                         :is-open="isExpanded(message)"
-                        :message-summary="getMessageSummary(message)"
                         :note="message"
                       />
                       <EditAdvisingNote
@@ -271,7 +270,6 @@
                         v-if="message.type === 'appointment'"
                         :appointment="message"
                         :is-open="isExpanded(message)"
-                        :message-summary="getMessageSummary(message)"
                         :student="student"
                       />
                     </span>
@@ -419,7 +417,7 @@
 </template>
 
 <script setup>
-import {capitalize, each, filter, find, get, includes, isEmpty, map, remove, size, slice, trim, truncate} from 'lodash'
+import {capitalize, each, filter, find, get, includes, map, remove, size, slice, trim, truncate} from 'lodash'
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {
@@ -439,8 +437,8 @@ import AdvisingNote from '@/components/note/AdvisingNote'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import TimelineDate from '@/components/student/profile/TimelineDate'
-import {alertScreenReader, decodeStudentUriAnchor, oxfordJoin, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
-import {canUserEditNote} from '@/lib/note.js'
+import {alertScreenReader, decodeStudentUriAnchor, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import {canUserEditNote, summarizeNoteForAcademicTimeline as getMessageSummary} from '@/lib/note.js'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
 import {isDirector} from '@/lib/boa-user'
@@ -651,39 +649,7 @@ const formatDate = (isoDate, format) => DateTime.fromISO(isoDate).setZone(config
 
 const getButtonAriaLabel = message => {
   const messageType = `${message.isDraft ? 'draft ' : ''}${isCancelledAppointment(message) ? 'cancelled ' : ''}${'eForm' === message.type ? '' : props.filterTypes[message.type].name}`
-  return `${messageType} ${truncate(getMessageSummary(message), {length: 100, separator: '.'})}`
-}
-
-const getMessageSummary = message => {
-  let summary = message.message
-  if ('note' === message.type) {
-    if (message.subject) {
-      summary = message.subject
-    } else if (size(message.message)) {
-      summary = stripHtmlAndTrim(message.message).replace(/\n\r/g, ' ')
-    } else if (message.category) {
-      summary = `${message.category}${message.subcategory ? `, ${message.subcategory}` : ''}`
-    } else {
-      summary = `${!isEmpty(message.author.departments) ? message.author.departments[0].deptName : ''} advisor ${message.author.name || ''}`
-      if (message.topics && size(message.topics)) {
-        summary += `: ${oxfordJoin(message.topics)}`
-      }
-    }
-  } else if ('eForm' === message.type) {
-    summary = `eForm: ${message.eForm.action} – ${message.eForm.status}`
-  } else if ('appointment' === message.type) {
-    if (message.appointmentTitle && message.appointmentTitle.trim().length) {
-      summary = message.appointmentTitle
-    } else if (message.details && message.details.trim().length) {
-      summary = stripHtmlAndTrim(message.details).replace(/\n\r/g, ' ')
-    } else {
-      summary = message.legacySource === 'SIS' ? 'Imported SIS Appt' : 'Advising Appt'
-      if (get(message, 'advisor.name')) {
-        summary = `${summary}: ${message.advisor.name}`
-      }
-    }
-  }
-  return summary
+  return `${messageType} ${truncate(getMessageSummary(message, true), {length: 100, separator: '.'})}`
 }
 
 const getPillType = message => {
@@ -759,9 +725,10 @@ const onClickCloseMessage = (message) => {
 
 const onClickOpenMessage = message => {
   open(message)
-  if (canUserEditNote(message, currentUser)) {
+  const isReadOnly = ['alert', 'appointment', 'eForm'].includes(message.type)
+  if (!isReadOnly && canUserEditNote(message, currentUser)) {
     putFocusNextTick(`edit-note-${message.id}-button`, {scroll: false})
-  } else if (userCanDelete(message)) {
+  } else if (!isReadOnly && userCanDelete(message)) {
     putFocusNextTick(`delete-note-button-${message.id}`, {scroll: false})
   } else {
     putFocusNextTick(`timeline-tab-${activeTab.value}-message-${message.type}-${message.id}`, {scroll: false})
