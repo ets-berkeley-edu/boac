@@ -180,10 +180,6 @@ const props = defineProps({
     required: true,
     type: Function
   },
-  deleteNote: {
-    required: true,
-    type: Function
-  },
   editNote: {
     required: true,
     type: Function

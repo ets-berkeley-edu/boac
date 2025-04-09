@@ -254,7 +254,6 @@
                       <AdvisingNote
                         v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                         :after-saved="afterEditAdvisingNote"
-                        :delete-note="onClickDeleteNote"
                         :edit-note="editNote"
                         :is-open="isExpanded(message)"
                         :note="message"
@@ -411,7 +410,7 @@
     <span v-if="get(messageForDelete, 'subject')">
       with subject "<span class="font-weight-bold text-medium-emphasis">{{ messageForDelete.subject }}</span>"?
     </span>
-    <span v-if="!get(messageForDelete, 'subject')">
+    <span v-if="messageForDelete && !get(messageForDelete, 'subject')">
       containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(messageForDelete.body), {length: 30}) }}...</span>"?</span>
   </AreYouSureModal>
 </template>
