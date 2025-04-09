@@ -127,20 +127,52 @@ def get_all_peer_advising_notes(peer_advising_department_id):
 
 
 def get_notes_created_by_peer_advisors(peer_advising_department_id, timeframe_month=None):
+    params = {'peer_advising_department_id': peer_advising_department_id}
+    query = """
+        SELECT au.id, au.uid, au.deleted_at
+        FROM authorized_users au
+        JOIN peer_advising_department_members pm ON pm.authorized_user_id = au.id
+        WHERE peer_advising_department_id = :peer_advising_department_id AND role_type = 'peer_advisor';
+    """
+    peer_advisors_by_uid = {}
+    for row in [row for row in db.session.execute(query, params)]:
+        peer_advisors_by_uid[row['uid']] = {
+            'deleted_at': row['deleted_at'],
+            'notes': [],
+            'uid': row['uid'],
+        }
+
     query = f"""
         SELECT
-          n.id,
-          n.author_name,
+          n.id AS note_id,
           n.author_uid,
-          n.created_at
+          n.created_at,
+          au.deleted_at
         FROM notes n
+        LEFT JOIN authorized_users au ON au.uid = n.author_uid
         WHERE
           n.peer_advising_department_id = :peer_advising_department_id
+          AND n.author_role = 'peer_advisor'
           AND n.deleted_at IS NULL
           {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
-        ORDER BY n.author_name
+        ORDER BY n.created_at DESC
     """
-    return [row for row in db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})]
+    for row in db.session.execute(query, params):
+        uid = row['author_uid']
+        peer_advisor = peer_advisors_by_uid[uid] if uid in peer_advisors_by_uid else None
+        if not peer_advisor:
+            peer_advisor = {
+                'deleted_at': row['deleted_at'],
+                'notes': [],
+                'uid': uid,
+            }
+            peer_advisors_by_uid[uid] = peer_advisor
+        peer_advisor['notes'].append({
+            'id': row['note_id'],
+            'author_uid': uid,
+            'created_at': row['created_at'],
+        })
+    return list(peer_advisors_by_uid.values())
 
 
 def get_peer_advising_note_template_usage(peer_advising_department_id):

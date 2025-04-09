@@ -170,10 +170,11 @@ export interface Department extends HasDeptCode {
 }
 
 export type DepartmentMembership = {
+  deletedAt: string | undefined,
+  role: DepartmentMembershipRole,
   automateMembership?: boolean,
   peerAdvisingDepartmentId?: number,
-  peerAdvisingDepartmentName?: string,
-  role: DepartmentMembershipRole
+  peerAdvisingDepartmentName?: string
 }
 
 export type DepartmentMembershipRole = 'advisor' | 'director' | 'peer_advisor' | 'peer_advisor_manager'
