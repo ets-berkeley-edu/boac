@@ -30,6 +30,8 @@ from boac.api.auth_utils import is_authorized_peer_advisor_manager
 from boac.api.decorators import peer_advisor_manager_required
 from boac.api.errors import ResourceNotFoundError
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
+from boac.lib.util import to_iso_format
+from boac.merged.calnet import get_calnet_users_for_uids
 from boac.merged.peer_advising_notes_reports import get_all_peer_advising_notes, get_notes_created_by_peer_advisors, \
     get_peer_advising_note_author_count, get_peer_advising_note_count_since, get_peer_advising_note_template_usage, \
     get_total_peer_advising_notes
@@ -130,10 +132,22 @@ def peer_advising_historical_report(peer_advising_department_id):
 
 
 def _historical_peer_advisors_with_note_counts(peer_advising_department_id):
+    peer_advisors = get_notes_created_by_peer_advisors(peer_advising_department_id)
+    calnet_users_by_uids = get_calnet_users_for_uids(app, [p['uid'] for p in peer_advisors])
+    # Merge all Peer Advising notes into one list.
+    notes = []
+    for peer_advisor in peer_advisors:
+        def _to_json(note):
+            return {
+                **note,
+                **{'author_deleted_at': peer_advisor['deleted_at']},
+            }
+        notes = notes + [_to_json(n) for n in peer_advisor['notes']]
+
     years_json = []
     today = datetime.today()
-    for row in get_notes_created_by_peer_advisors(peer_advising_department_id=peer_advising_department_id):
-        created_at = row['created_at']
+    for note in notes:
+        created_at = note['created_at']
         is_historical = created_at.year != today.year or created_at.month != today.month
         if is_historical:
             year_json = next((y for y in years_json if y['year'] == created_at.year), None)
@@ -154,13 +168,20 @@ def _historical_peer_advisors_with_note_counts(peer_advising_department_id):
                     'year': created_at.year,
                 }
                 year_json['months'].append(month_json)
-            uid = row['author_uid']
-            peer_advisor = next((p for p in month_json['peerAdvisors'] if p['uid'] == uid), None)
+            author_uid = note['author_uid']
+            peer_advisor = next((p for p in month_json['peerAdvisors'] if p['uid'] == author_uid), None)
             if not peer_advisor:
+                calnet_user = calnet_users_by_uids[author_uid]
+                if author_uid in calnet_users_by_uids:
+                    author_name = calnet_user['name'] or f"{calnet_user['firstName']} {calnet_user['lastName']}"
+                else:
+                    author_name = f'UID: {author_uid}'
+                author_deleted_at = note['author_deleted_at']
                 peer_advisor = {
-                    'name': row['author_name'],
+                    'deletedAt': to_iso_format(author_deleted_at) if author_deleted_at else None,
+                    'name': author_name,
                     'noteCount': 0,
-                    'uid': uid,
+                    'uid': author_uid,
                 }
                 month_json['peerAdvisors'].append(peer_advisor)
             peer_advisor['noteCount'] = peer_advisor['noteCount'] + 1
@@ -169,6 +190,8 @@ def _historical_peer_advisors_with_note_counts(peer_advising_department_id):
     years_json = sorted(years_json, key=lambda y: y['year'], reverse=True)
     for year in years_json:
         year['months'] = sorted(year['months'], key=lambda m: m['month'], reverse=True)
+        for month in year['months']:
+            month['peerAdvisors'] = sorted(month['peerAdvisors'], key=lambda p: p['name'])
     return years_json
 
 
@@ -178,14 +201,20 @@ def _peer_advisors_with_note_counts(peer_advising_department_id, timeframe_month
         peer_advising_department_id=peer_advising_department_id,
         timeframe_month=timeframe_month,
     ):
-        uid = row['author_uid']
+        uid = row['uid']
         peer_advisor = next((p for p in peer_advisors if p['uid'] == uid), None)
         if not peer_advisor:
+            deleted_at = row['deleted_at']
             peer_advisor = {
-                'name': row['author_name'],
-                'noteCount': 0,
+                'deletedAt': to_iso_format(deleted_at) if deleted_at else None,
+                'name': f'UID: {uid}',
+                'noteCount': len(row['notes']),
                 'uid': uid,
             }
             peer_advisors.append(peer_advisor)
-        peer_advisor['noteCount'] = peer_advisor['noteCount'] + 1
-    return peer_advisors
+    calnet_users_by_uids = get_calnet_users_for_uids(app, [p['uid'] for p in peer_advisors])
+    for peer_advisor in peer_advisors:
+        if peer_advisor['uid'] in calnet_users_by_uids:
+            calnet_user = calnet_users_by_uids[peer_advisor['uid']]
+            peer_advisor['name'] = calnet_user['name'] or f"{calnet_user['firstName']} {calnet_user['lastName']}"
+    return sorted(peer_advisors, key=lambda p: p['name'])

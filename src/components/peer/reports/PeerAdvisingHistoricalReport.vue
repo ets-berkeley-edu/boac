@@ -76,9 +76,16 @@
                     <tr v-for="peerAdvisor in month.peerAdvisors" :key="peerAdvisor.uid">
                       <td
                         :id="`peer-advisor-${peerAdvisor.uid}-during-${toLower(month.label)}-${year.label}`"
+                        :class="{
+                          'demo-mode-blur': currentUser.inDemoMode,
+                          'font-weight-medium text-red': peerAdvisor.deletedAt
+                        }"
                         class="border-sm w-90"
                       >
                         {{ peerAdvisor.name }}
+                        <span v-if="peerAdvisor.deletedAt" class="text-medium-emphasis">
+                          (deleted on <span :id="`peer-advisor-${peerAdvisor.uid}-deleted-at`">{{ DateTime.fromISO(peerAdvisor.deletedAt).toLocaleString(DateTime.DATE_MED) }}</span>)
+                        </span>
                       </td>
                       <td
                         :class="{'font-weight-medium text-red': peerAdvisor.deletedAt}"
@@ -107,6 +114,7 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
+import {DateTime} from 'luxon'
 import {get, isNil, toLower} from 'lodash'
 import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {ref} from 'vue'
@@ -116,6 +124,7 @@ import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeer
 import PillCount from '@/components/util/PillCount.vue'
 import {getPeerAdvisingHistoricalReport} from '@/api/peer-advising-reports'
 import {pluralize, toInt} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
   currentMonthLabel: {
@@ -128,6 +137,7 @@ const props = defineProps({
   }
 })
 
+const currentUser = useContextStore().currentUser
 const isExpanded = ref(false)
 const isFetching = ref(false)
 const report = ref<PeerAdvisingHistoricalReport | undefined>()
