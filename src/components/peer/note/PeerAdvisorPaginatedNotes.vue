@@ -198,7 +198,7 @@ const toggleShowHide = (note: Note) => {
 </script>
 
 <style scoped>
-@media (max-width: 773px) {
+@media (max-width: 959px) {
   .table-container {
     overflow: hidden; /* Prevent horizontal scrollbar */
   }
@@ -229,8 +229,8 @@ const toggleShowHide = (note: Note) => {
   width: 120px !important;
 }
 .td-note {
-  width: 600px !important;
-  max-width: 600px !important;
+  width: 542px !important;
+  max-width: 542px !important;
   padding: 5px;
   vertical-align: top;
 }
@@ -254,7 +254,7 @@ const toggleShowHide = (note: Note) => {
 }
 .th-student {
   font-weight: bold;
-  padding: 0 5px;
+  padding: 5px;
 }
 .th-topics {
   padding: 5px;
