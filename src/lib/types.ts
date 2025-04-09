@@ -1,3 +1,18 @@
+export type AcademicTimelineMessage = {
+  advisor: BoaUserBasic,
+  appointmentTitle?: string,
+  author: NoteAuthor,
+  category?: string,
+  details?: string,
+  eForm: EForm,
+  legacySource: string,
+  message: string,
+  subcategory?: string,
+  subject: string,
+  topics: string[],
+  type: string,
+}
+
 export type Attachment = {
   displayName: string,
   id: number,
@@ -183,6 +198,11 @@ export type DraggingContext = {
   course: DegreeProgressCourse | undefined,
   dragContext: unknown | undefined,
   target: unknown | undefined
+}
+
+export type EForm = {
+  action: string,
+  status: string
 }
 
 export type Enrollment = {

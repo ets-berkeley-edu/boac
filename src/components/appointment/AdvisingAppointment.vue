@@ -6,7 +6,7 @@
   >
     <span
       :id="`appointment-${appointment.id}-details-closed`"
-      v-html="messageSummary"
+      v-html="summarizeNoteForAcademicTimeline(appointment, !isOpen)"
     />
   </div>
   <div>
@@ -116,6 +116,7 @@ import {mdiCalendarMinus, mdiPaperclip} from '@mdi/js'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import PillItem from '@/components/util/PillItem'
 import {useContextStore} from '@/stores/context'
+import {summarizeNoteForAcademicTimeline} from '@/lib/note.js'
 
 const props = defineProps({
   appointment: {
@@ -125,10 +126,6 @@ const props = defineProps({
   isOpen: {
     required: true,
     type: Boolean
-  },
-  messageSummary: {
-    required: true,
-    type: String
   },
   student: {
     required: true,

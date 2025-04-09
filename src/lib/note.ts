@@ -1,9 +1,18 @@
 import {each, filter, get, isEmpty, size, trim} from 'lodash'
-import type {Attachment, BoaConfig, BoaUser, DepartmentMembership, Note, NoteTemplate} from '@/lib/types'
+import type {
+  AcademicTimelineMessage,
+  Attachment,
+  BoaConfig,
+  BoaUser,
+  DepartmentMembership,
+  Note,
+  NoteTemplate,
+} from '@/lib/types'
+import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import {isPeerAdvisorManager} from '@/lib/boa-user'
+import {oxfordJoin, stripHtmlAndTrim} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {isPeerAdvisorManager} from '@/lib/boa-user'
-import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
 
 export function addFileDropEventListeners(): void {
   const preventFileDropOutsideFormControl = e => {
@@ -29,6 +38,38 @@ export function canUserEditNote(note: Note, user: BoaUser): boolean {
     canEdit = get(membership, 'peerAdvisingDepartmentId', '') === note.peerAdvisingDepartmentId
   }
   return canEdit
+}
+
+export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessage, stripHtml?: boolean): string {
+  let summary = message.message
+  if ('note' === message.type) {
+    if (message.subject) {
+      summary = message.subject
+    } else if (size(message.message)) {
+      summary = stripHtml ? stripHtmlAndTrim(message.message).replace(/\n\r/g, ' ') : message.message
+    } else if (message.category) {
+      summary = `${message.category}${message.subcategory ? `, ${message.subcategory}` : ''}`
+    } else {
+      summary = `${!isEmpty(message.author.departments) ? message.author.departments[0].deptName : ''} advisor ${message.author.name || ''}`
+      if (message.topics && size(message.topics)) {
+        summary += `: ${oxfordJoin(message.topics)}`
+      }
+    }
+  } else if ('eForm' === message.type) {
+    summary = `eForm: ${message.eForm.action} – ${message.eForm.status}`
+  } else if ('appointment' === message.type) {
+    if (message.appointmentTitle && message.appointmentTitle.trim().length) {
+      summary = message.appointmentTitle
+    } else if (message.details && message.details.trim().length) {
+      summary = stripHtml ? stripHtmlAndTrim(message.details).replace(/\n\r/g, ' ') : message.details
+    } else {
+      summary = message.legacySource === 'SIS' ? 'Imported SIS Appt' : 'Advising Appt'
+      if (get(message, 'advisor.name')) {
+        summary = `${summary}: ${message.advisor.name}`
+      }
+    }
+  }
+  return summary
 }
 
 export function validateAttachment(attachments: Attachment[], existingAttachments: Attachment[]): string | null {

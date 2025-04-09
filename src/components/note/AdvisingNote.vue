@@ -24,7 +24,7 @@
             v-if="isOpen && !note.subject && !note.peerAdvisingDepartmentId && size(note.message)"
             v-html="note.message"
           />
-          <span v-html="messageSummary" />
+          <span v-html="summarizeNoteForAcademicTimeline(note, !isOpen)" />
         </span>
       </span>
     </div>
@@ -173,6 +173,7 @@ import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {summarizeNoteForAcademicTimeline} from '@/lib/note.js'
 
 const props = defineProps({
   afterSaved: {
@@ -190,10 +191,6 @@ const props = defineProps({
   isOpen: {
     required: true,
     type: Boolean
-  },
-  messageSummary: {
-    required: true,
-    type: String
   },
   note: {
     required: true,
