@@ -26,7 +26,7 @@
         />
       </div>
     </div>
-    <div class="w=100">
+    <div class="w-100">
       <PeerAdvisorPaginatedNotes
         :notes="notes"
         :on-click-create-note="onClickCreateNote"
