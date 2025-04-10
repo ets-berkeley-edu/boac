@@ -94,7 +94,7 @@ def get_peer_advising_department(peer_advising_department_id, role_type):
             )
             for user in users:
                 user['noteCount'] = note_counts_per_uid.get(user['uid'], 0)
-        users = sorted([{**user, **{'role': role_type}} for user in users], key=lambda u: u['lastName'])
+        users = sorted([{**user, **{'role': role_type}} for user in users], key=lambda u: u['lastName'] or u['uid'])
         api_json = {
             **peer_advising_department.to_api_json(),
             **{

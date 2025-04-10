@@ -51,7 +51,7 @@
     >
       <template #item.name="{item}">
         <div :class="{'font-weight-bold opacity-60 text-red': item.deletedAt, 'demo-mode-blur': currentUser.inDemoMode}">
-          {{ item.name }}
+          {{ item.name || `UID: ${item.uid}` }}
         </div>
       </template>
       <template #item.notesCreatedCount="{item}">
