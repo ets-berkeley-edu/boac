@@ -148,8 +148,8 @@
                 maxlength="255"
                 persistent-counter
                 :rules="[
-                  v => !!v || 'Template name is required',
-                  v => !v || v.length <= 255 || 'Template name cannot exceed 255 characters.'
+                  v => !!trim(v) || 'Template name is required',
+                  v => !v || trim(v).length <= 255 || 'Template name cannot exceed 255 characters.'
                 ]"
               >
                 <template #counter="{max, value}">
