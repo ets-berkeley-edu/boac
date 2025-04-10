@@ -1,7 +1,7 @@
 <template>
   <div class="py-1">
     <label
-      for="add-peer-advisor-input"
+      :for="`${idPrefix}-input`"
       class="font-size-16 font-weight-bold"
     >
       <span class="mr-2 text-weight-bold">Student</span>
@@ -10,7 +10,7 @@
     </label>
     <AccessibleCombobox
       :key="vAutocompleteKey"
-      id-prefix="add-peer-advisor"
+      :id-prefix="idPrefix"
       aria-description="Name or S I D lookup. Expect auto suggest."
       autocomplete="off"
       :clazz="{'demo-mode-blur': currentUser.inDemoMode, 'autocomplete-students autocomplete-with-add-button mt-2': true}"
@@ -27,11 +27,11 @@
       list-label="Student List"
       :menu-props="{'contentClass': currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
       :on-clear="resetAutocomplete"
-      :set-value="s => student = s"
+      :set-value="selectStudent"
     >
       <template #append>
         <ProgressButton
-          id="add-student-add-button"
+          :id="`${idPrefix}-add-button`"
           :action="onClickAddButton"
           :aria-label="`${isAddingStudent ? 'Adding' : 'Add'} Student to Note`"
           class="add-button font-size-16 font-weight-bold"
@@ -50,7 +50,7 @@ import {debounce, filter, get, includes, map, size, trim} from 'lodash'
 import type {PropType} from 'vue'
 import {mdiPlusThick} from '@mdi/js'
 import {onMounted, onUnmounted, ref} from 'vue'
-import type {BasicStudent, BoaUser} from '@/lib/types'
+import type {BasicStudentLabeled, BoaUser} from '@/lib/types'
 import AccessibleCombobox from '@/components/util/AccessibleCombobox.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import {createPeerAdvisor} from '@/api/peer-advising-users.js'
@@ -73,15 +73,16 @@ const props = defineProps({
   }
 })
 
-const autoSuggestedStudents = ref<{title: string, value: BasicStudent}[]>([])
+const autoSuggestedStudents = ref<{title: string, value: BasicStudentLabeled}[]>([])
 const contextStore = useContextStore()
 const counter = ref(0)
 const currentUser = contextStore.currentUser
+const idPrefix = 'add-peer-advisor'
 const intervalId = ref<ReturnType<typeof setTimeout>>()
 const isAddingStudent = ref(false)
 const isFetchingStudents = ref(false)
 const query = ref<string | undefined>()
-const student = ref<BasicStudent>()
+const student = ref<BasicStudentLabeled>()
 const vAutocompleteKey = ref<PropertyKey>(new Date().toString())
 
 onMounted(() => {
@@ -92,14 +93,15 @@ onMounted(() => {
 
 onUnmounted(() => clearInterval(intervalId.value))
 
-const resetAutocomplete = () => {
-  autoSuggestedStudents.value = []
-  isFetchingStudents.value = false
-  query.value = ''
-  vAutocompleteKey.value = new Date().toString()
+const getInputElement = () => {
+  return document.getElementById(`${idPrefix}-input`)
 }
 
 const onClickAddButton = () => {
+  const input = getInputElement()
+  if (input) {
+    input.setAttribute('disabled', 'false')
+  }
   if (student.value) {
     isAddingStudent.value = true
     const done = () => {
@@ -121,11 +123,32 @@ const onUpdateSearch = debounce((input: string) => {
       const filteredStudents = filter(students, s => !includes(existingPeerAdvisorSids, s.sid))
       autoSuggestedStudents.value = map(filteredStudents, s => ({title: s.label, value: s}))
       isFetchingStudents.value = false
-    }).catch(() => putFocusNextTick('add-peer-advisor-input'))
+    }).catch(() => putFocusNextTick(`${idPrefix}-input`))
   } else {
     autoSuggestedStudents.value = []
   }
 }, 500)
+
+const resetAutocomplete = () => {
+  const input = getInputElement()
+  if (input) {
+    input.setAttribute('disabled', 'false')
+  }
+  autoSuggestedStudents.value = []
+  isFetchingStudents.value = false
+  query.value = ''
+  vAutocompleteKey.value = new Date().toString()
+  putFocusNextTick(`${idPrefix}-input`)
+}
+
+const selectStudent = (selected: BasicStudentLabeled) => {
+  const input = getInputElement()
+  if (input) {
+    input.setAttribute('disabled', 'true')
+  }
+  student.value = selected
+  putFocusNextTick(`${idPrefix}-add-button`)
+}
 </script>
 
 <style scoped>

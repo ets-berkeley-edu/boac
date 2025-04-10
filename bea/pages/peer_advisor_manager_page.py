@@ -52,7 +52,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
     # Create peer
 
     ADD_STUDENT_INPUT = By.ID, 'add-peer-advisor-input'
-    ADD_STUDENT_BTN = By.ID, 'add-student-add-button'
+    ADD_STUDENT_BTN = By.ID, 'add-peer-advisor-add-button'
 
     def search_student_by_sid(self, student):
         # Hit escape to dismiss any existing option lists

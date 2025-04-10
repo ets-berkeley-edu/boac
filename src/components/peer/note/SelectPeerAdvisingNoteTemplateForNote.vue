@@ -14,7 +14,7 @@
       <template #activator="{props: menuProps}">
         <v-btn
           id="peer-advising-note-templates-button"
-          class="ml-auto mr-2"
+          class="ml-auto"
           color="primary"
           :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
           flat
