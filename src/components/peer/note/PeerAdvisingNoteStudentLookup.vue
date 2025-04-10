@@ -7,77 +7,56 @@
       <span class="mr-2 text-weight-bold">Student</span>
       <span class="font-weight-regular">(name, SID or email)</span>
     </label>
-    <v-combobox
-      id="find-student-autocomplete"
-      ref="findStudentTextInput"
+    <AccessibleCombobox
       :key="vAutocompleteKey"
-      v-model="model"
-      aria-describedby="find-student-desc"
-      aria-label="Name or S I D lookup. Expect auto suggest."
+      :id-prefix="idPrefix"
+      aria-description="Name or S I D lookup. Expect auto suggest."
       autocomplete="off"
-      base-color="primary"
-      class="autocomplete-students autocomplete-with-add-button mt-2"
-      :class="{'demo-mode-blur': currentUser.inDemoMode}"
-      clearable
+      :clazz="{'demo-mode-blur': currentUser.inDemoMode, 'mt-2': true}"
+      :clearable="!isFetchingStudents && !isAddingStudent"
       color="primary"
-      :debounce="500"
       density="comfortable"
-      :disabled="isStudentSelected"
-      :error-messages="autocompleteErrorMessage"
-      :hide-details="!size(autocompleteErrorMessage)"
-      :hide-no-data="size(autoSuggestedStudents) < 3"
-      item-title="label"
-      item-value="sid"
+      :disabled="isSaving"
+      :filter-results="onUpdateSearch"
+      :get-value="() => get(student, 'label')"
+      input-type="search"
+      is-autocomplete
+      :is-busy="isFetchingStudents"
       :items="autoSuggestedStudents"
-      :menu-icon="undefined"
+      label="Student"
+      list-label="Student List"
       :menu-props="{'contentClass': currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
-      persistent-clear
-      type="search"
-      validate-on="submit"
-      variant="outlined"
-      @click:clear="resetAutocomplete"
-      @update:search="onUpdateSearch"
-      @update:model-value="onUpdateModel"
-    >
-      <template #append>
-        <v-btn
-          id="find-student-add-button"
-          aria-label="Add Student to Note"
-          class="add-button add-button-height"
-          color="primary"
-          :disabled="!size(query) || isUpdatingAutocomplete || !!size(autoSuggestedStudents)"
-          :prepend-icon="mdiPlus"
-          text="Add"
-          variant="flat"
-          @click="onClickAddButton"
-        />
-      </template>
-    </v-combobox>
+      :on-clear="resetAutocomplete"
+      :on-toggle-menu="(isOpen: boolean) => noteStore.setFocusLockDisabled(isOpen)"
+      :set-value="selectStudent"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import {each, get, noop, size, trim} from 'lodash'
-import {mdiPlus} from '@mdi/js'
-import {nextTick, onMounted, onUnmounted, onUpdated, ref, watch} from 'vue'
-import type {BasicStudent, BasicStudentLabeled} from '@/lib/types'
+import {debounce, get, map, size, trim} from 'lodash'
+import {onMounted, onUnmounted, ref} from 'vue'
+import {storeToRefs} from 'pinia'
+import type {BasicStudentLabeled} from '@/lib/types'
+import AccessibleCombobox from '@/components/util/AccessibleCombobox.vue'
 import {clearNoteRecipients} from '@/stores/note-edit-session/note-edit-session-utils'
 import {findStudentsByNameOrSid} from '@/api/student'
-import {getBasicStudent} from '@/api/peer-advising-users'
-import {putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
+import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
-const autocompleteErrorMessage = ref(undefined)
-const autoSuggestedStudents = ref<BasicStudentLabeled[]>([])
+const autoSuggestedStudents = ref<{title: string, value: BasicStudentLabeled}[]>([])
 const contextStore = useContextStore()
 const counter = ref(0)
 const currentUser = contextStore.currentUser
-const findStudentTextInput = ref()
+const idPrefix = 'find-student-autocomplete'
 const intervalId = ref<ReturnType<typeof setTimeout>>()
-const isStudentSelected = ref(false)
-const isUpdatingAutocomplete = ref(false)
-const model = ref<string | undefined>()
+const isAddingStudent = ref(false)
+const isFetchingStudents = ref(false)
+const noteStore = useNoteStore()
+const {isSaving} = storeToRefs(noteStore)
 const query = ref<string | undefined>(undefined)
+const student = ref<BasicStudentLabeled>()
 const vAutocompleteKey = ref<PropertyKey>(new Date().toString())
 
 const props = defineProps({
@@ -91,12 +70,6 @@ const props = defineProps({
   }
 })
 
-watch(query, value => {
-  if (!trim(value)) {
-    resetAutocomplete()
-  }
-})
-
 onMounted(() => {
   return intervalId.value = setInterval(() => {
     counter.value = counter.value === 100 ? 0 : counter.value + 1
@@ -105,66 +78,44 @@ onMounted(() => {
 
 onUnmounted(() => clearInterval(intervalId.value))
 
+const getInputElement = () => {
+  return document.getElementById(`${idPrefix}-input`)
+}
+
+const selectStudent = (selected: BasicStudentLabeled) => {
+  const input = getInputElement()
+  if (input) {
+    input.setAttribute('disabled', 'true')
+  }
+  student.value = selected
+  props.onSelectStudent(selected)
+}
+
+const onUpdateSearch = debounce((input: string) => {
+  const q = trim(input)
+  if (size(q) > 1 && !student.value) {
+    isFetchingStudents.value = true
+    findStudentsByNameOrSid(q, 20, new AbortController(), true).then(students => {
+      autoSuggestedStudents.value = map(students, s => ({title: s.label, value: s}))
+      isFetchingStudents.value = false
+    }).catch(() => putFocusNextTick(`${idPrefix}-input`))
+  } else {
+    autoSuggestedStudents.value = []
+  }
+}, 500)
+
 const resetAutocomplete = () => {
+  const input = getInputElement()
+  if (input) {
+    input.setAttribute('disabled', 'false')
+  }
   autoSuggestedStudents.value = []
-  isUpdatingAutocomplete.value = false
-  query.value = undefined
-  props.onSelectStudent(undefined)
+  isFetchingStudents.value = false
+  query.value = ''
+  student.value = undefined
+  props.onClearSelectedStudent()
   clearNoteRecipients()
   vAutocompleteKey.value = new Date().toString()
-  putFocusNextTick('find-student-autocomplete')
-}
-
-const onUpdateModel = (selectedStudent: BasicStudent) => {
-  const sid = get(selectedStudent, 'sid')
-  if (sid) {
-    isStudentSelected.value = true
-    getBasicStudent(sid).then(data => props.onSelectStudent(data))
-  } else {
-    props.onClearSelectedStudent()
-  }
-}
-
-onUpdated(() => {
-  nextTick(() => setComboboxAccessibleLabel(findStudentTextInput.value.$el, 'Student'))
-})
-
-const onClickAddButton = noop
-
-const onUpdateSearch = (input: string | undefined) => {
-  if (!isStudentSelected.value) {
-    query.value = input
-    autocompleteErrorMessage.value = undefined
-    autoSuggestedStudents.value = []
-    input = trim(input, ' ,\n\t')
-    if (input.length) {
-      const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
-      isUpdatingAutocomplete.value = true
-      if (size(search) > 1) {
-        findStudentsByNameOrSid(search, 20, new AbortController(), true).then((students: BasicStudent[]) => {
-          autoSuggestedStudents.value = []
-          each(students, (student: BasicStudent) => {
-            autoSuggestedStudents.value.push({
-              ...student,
-              ...{label: student.label}
-            })
-          })
-          isUpdatingAutocomplete.value = false
-        }).catch(() => {
-          putFocusNextTick('find-student-autocomplete')
-        })
-      }
-    }
-  }
+  putFocusNextTick(`${idPrefix}-input`)
 }
 </script>
-
-<style scoped>
-.add-button-height {
-  height: 48px;
-}
-.autocomplete-students {
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 0;
-}
-</style>

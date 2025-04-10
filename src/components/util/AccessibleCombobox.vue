@@ -375,4 +375,13 @@ const setResultsSummary = () => {
 :deep(.v-field) {
   color: inherit !important;
 }
+:deep(.v-field input:disabled) {
+  cursor: text;
+}
+:deep(.v-input--horizontal .v-input__append) {
+  margin-inline-start: 0;
+}
+:deep(.v-input--horizontal.autocomplete-with-add-button .v-input__append) {
+  margin-inline-start: 16px;
+}
 </style>

@@ -9,7 +9,7 @@
       :class="{'modal-fullscreen': mdAndDown}"
       width="720"
     >
-      <FocusLock @keydown.esc="closeModal">
+      <FocusLock :disabled="noteStore.isFocusLockDisabled" @keydown.esc="closeModal">
         <v-card-title>
           <EditPeerAdvisingNoteHeader
             header-text="New Note"
@@ -21,43 +21,13 @@
         <v-card-text class="peer-advising-note-modal-content pb-6 pt-0 px-6">
           <v-expand-transition>
             <PeerAdvisingNoteStudentLookup
-              v-if="!student"
               :on-clear-selected-student="onClearSelectedStudent"
               :on-select-student="onSelectStudent"
             />
           </v-expand-transition>
-          <v-expand-transition>
-            <div v-if="student">
-              <div class="align-start d-flex">
-                <div class="d-flex flex-column">
-                  <div aria-live="polite" class="align-center d-flex">
-                    <div
-                      :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                      class="font-size-20 font-weight-bold mr-1 pb-1 text-medium-emphasis"
-                    >
-                      {{ student.firstName }} {{ student.lastName }} <span class="sr-only">has been selected</span>
-                    </div>
-                    <div>
-                      <v-btn
-                        id="clear-student-selection"
-                        aria-label="Clear the student selection"
-                        density="compact"
-                        color="error"
-                        :icon="mdiCloseCircle"
-                        title="Remove"
-                        variant="text"
-                        @click="() => onSelectStudent(undefined)"
-                      />
-                    </div>
-                  </div>
-                  <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="font-size-16 text-medium-emphasis">
-                    SID: {{ student.sid }}
-                  </div>
-                </div>
-              </div>
-              <div class="compact-student-course-schedule">
-                <CompactStudentCourseSchedule :student="student" />
-              </div>
+          <v-expand-transition aria-live="polite">
+            <div v-if="student" class="pb-1 pt-2">
+              <CompactStudentCourseSchedule :student="student" />
             </div>
           </v-expand-transition>
           <RichTextEditor
@@ -114,11 +84,10 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from 'vue'
 import {concat, get, size} from 'lodash'
-import {mdiCloseCircle} from '@mdi/js'
 import {storeToRefs} from 'pinia'
 import {useDisplay} from 'vuetify'
 import FocusLock from 'vue-focus-lock'
-import type {BasicStudent, NoteAttachment, NoteRecipients, NoteTemplate, NoteTopic} from '@/lib/types'
+import type {BasicStudent, BasicStudentLabeled, NoteAttachment, NoteRecipients, NoteTemplate, NoteTopic} from '@/lib/types'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments.vue'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
@@ -130,10 +99,10 @@ import PeerAdvisingNoteStudentLookup from '@/components/peer/note/PeerAdvisingNo
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
 import {alertScreenReader, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {clearNoteRecipients, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
+import {getBasicStudent} from '@/api/peer-advising-users'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
 import {removeAttachment} from '@/api/notes'
-import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const dialog = defineModel<boolean>({
@@ -148,13 +117,13 @@ const props = defineProps({
   },
 })
 
-const currentUser = useContextStore().currentUser
 const isAreYouSureModalOpen = ref(false)
 const noteStore = useNoteStore()
 const noteTemplates = ref<NoteTemplate[]>([])
 const isNoteTemplatesLoading = ref(false)
 const recipients = computed<NoteRecipients>(() => noteStore.recipients)
 const student = ref<BasicStudent | undefined>()
+const studentName = computed(() => `${get(student.value, 'firstName')} ${get(student.value, 'lastName')}`)
 const topics = ref<NoteTopic[]>([])
 const {isSaving, model} = storeToRefs(noteStore)
 const {mdAndDown} = useDisplay()
@@ -206,18 +175,21 @@ const discardRequested = () => {
 }
 
 const onClearSelectedStudent = () => {
+  alertScreenReader(`${studentName.value} removed`)
   student.value = undefined
   clearNoteRecipients()
-  alertScreenReader('Student selection removed')
-  putFocusNextTick('find-student-autocomplete')
+  putFocusNextTick('find-student-autocomplete-input')
 }
 
-const onSelectStudent = (selectedStudent: BasicStudent | undefined) => {
+const onSelectStudent = (selectedStudent: BasicStudentLabeled | undefined) => {
   const sid = get(selectedStudent, 'sid')
   if (sid) {
-    student.value = selectedStudent
-    setNoteRecipient(sid)
-    alertScreenReader(`${get(student.value, 'firstName')} ${get(student.value, 'lastName')} selected`)
+    getBasicStudent(sid).then(data => {
+      student.value = data
+      setNoteRecipient(sid)
+      alertScreenReader(`${studentName.value} selected`)
+      putFocusNextTick('find-student-autocomplete-clear-btn')
+    })
   } else {
     onClearSelectedStudent()
   }
@@ -245,9 +217,6 @@ const setTemplate = (template: NoteTemplate) => {
 <style>
 #peer-advising-note-body .ck-editor__editable_inline {
   min-height: 100px;
-}
-.compact-student-course-schedule {
-  margin: 8px 0 0 -8px;
 }
 .peer-advising-note-modal-content {
   height: calc(100vh - 205px);

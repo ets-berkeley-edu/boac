@@ -3,7 +3,7 @@
     <div>
       <ModalHeader header-id="peer-advising-note-modal-header" :text="headerText" />
     </div>
-    <div>
+    <div class="px-4">
       <SelectPeerAdvisingNoteTemplateForNote
         :note-templates="noteTemplates"
         :is-note-templates-loading="isNoteTemplatesLoading"

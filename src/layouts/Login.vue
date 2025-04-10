@@ -89,9 +89,9 @@ h1 {
   width: 96px;
 }
 .airplane-container {
-  left: 110px;
+  left: 112px;
   position: absolute;
-  top: 64px
+  top: 64px;
 }
 .background-blue-sky {
   background: url('@/assets/blue-sky-background.jpg') no-repeat center center fixed;
