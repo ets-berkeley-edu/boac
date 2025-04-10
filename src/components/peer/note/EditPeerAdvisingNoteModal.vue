@@ -159,6 +159,7 @@ const closeModal = (srText?: string) => {
     alertScreenReader(srText)
   }
   dialog.value = false
+  isAreYouSureModalOpen.value = false
   student.value = undefined
   noteStore.setIsCreateNoteModalOpen(false)
   noteStore.exitSession()
@@ -220,6 +221,7 @@ const setTemplate = (template: NoteTemplate) => {
 }
 .peer-advising-note-modal-content {
   height: calc(100vh - 205px);
+  max-height: fit-content;
   overflow-y: auto;
 }
 </style>
