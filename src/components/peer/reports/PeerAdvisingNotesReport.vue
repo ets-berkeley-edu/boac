@@ -1,6 +1,12 @@
 <template>
   <table v-if="notesReport" class="w-100">
     <caption class="sr-only">Peer advisor notes summary</caption>
+    <thead class="sr-only">
+      <tr>
+        <th>Metric</th>
+        <th>Count</th>
+      </tr>
+    </thead>
     <tbody>
       <tr v-if="notesReport.peerAdvisingDepartment">
         <th scope="row">Total {{ notesReport.peerAdvisingDepartment.name }} peer advising notes</th>
@@ -32,6 +38,9 @@ defineProps({
 </script>
 
 <style scoped>
+table {
+  border-collapse: collapse;
+}
 td {
   padding: 4px 0 4px 0;
 }
