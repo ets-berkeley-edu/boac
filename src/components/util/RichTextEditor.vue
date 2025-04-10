@@ -84,6 +84,7 @@ const props = defineProps({
 const ckElementId = `rich-text-editor-${new Date().getTime()}`
 const domFixAttemptCount = ref(0)
 const domFixer = ref(undefined)
+const editorLinkEventController = new AbortController()
 const popupButtonEventController = new AbortController()
 const toolbarButtonEventController = new AbortController()
 const toolbarLinkButtonEventController = new AbortController()
@@ -96,6 +97,7 @@ watch(() => props.isInModal, () => {
 onBeforeUnmount(() => {
   clearInterval(domFixer.value)
   clearInterval(tooltipRepositioner.value)
+  editorLinkEventController.abort()
   popupButtonEventController.abort()
   toolbarButtonEventController.abort()
   toolbarLinkButtonEventController.abort()
@@ -120,6 +122,14 @@ const correctTheDOM = () => {
   const toolbar = editor.querySelector('.ck-editor__top')
   if (!toolbar) return abandonAttempt()
   const toolbarButtons = toolbar.querySelectorAll('button')
+  const linksInText = editor.querySelectorAll('[role="textbox"] a')
+  each(linksInText, link => {
+    link.addEventListener(
+      'click',
+      () => makePopupAccessible(editor, toolbar),
+      {signal: editorLinkEventController.signal}
+    )
+  })
   if (props.isInModal) {
     // When embedded in a modal, the CKEditor toolbar popups are unreachable because they are attached to
     // the end of the DOM and outside the modal. We must move these "ck" elements. The user should not notice.
@@ -131,7 +141,7 @@ const correctTheDOM = () => {
       if ('Link' === button.textContent) {
         button.addEventListener(
           'click',
-          () => correctPopupPosition(editor, toolbar),
+          () => makePopupAccessible(editor, toolbar),
           {signal: toolbarLinkButtonEventController.signal}
         )
       }
@@ -149,25 +159,27 @@ const correctTheDOM = () => {
     // We're not in a modal.
     each(toolbarButtons, button => {
       button.setAttribute('tabindex', 0)
+      if ('Link' === button.textContent) {
+        button.addEventListener(
+          'click',
+          () => makePopupAccessible(editor, toolbar),
+          {signal: toolbarLinkButtonEventController.signal}
+        )
+      }
     })
     clearInterval(domFixer.value)
   }
 }
 
-const correctPopupPosition = (editor, toolbar) => {
-  nextTick(() => {
-    const popup = editor.querySelector('.ck.ck-balloon-panel.ck-balloon-panel_with-arrow:not(.ck-tooltip)')
-    if (popup) {
-      const offset = parseInt(popup.style.top, 10) - (toolbar.clientHeight + popup.clientHeight)
-      const popupButtons = popup.querySelectorAll('button')
-      popup.style.transform = `translateY(-${offset}px)`
-      each(popupButtons, b => {
-        b.addEventListener('mouseenter', () => {
-          correctTooltipPosition(editor, toolbar)
-          popupButtonEventController.abort()
-        }, {signal: popupButtonEventController.signal})
-      })
-    }
+const correctPopupPosition = (popup, editor, toolbar) => {
+  const offset = parseInt(popup.style.top, 10) - (toolbar.clientHeight + popup.clientHeight)
+  const popupButtons = popup.querySelectorAll('button')
+  popup.style.transform = `translateY(-${offset}px)`
+  each(popupButtons, b => {
+    b.addEventListener('mouseenter', () => {
+      correctTooltipPosition(editor, toolbar)
+      popupButtonEventController.abort()
+    }, {signal: popupButtonEventController.signal})
   })
 }
 
@@ -178,20 +190,32 @@ const correctTooltipPosition = (editor, toolbar) => {
       clearInterval(tooltipRepositioner.value)
     }
     const tooltip = editor.querySelector('.ck.ck-balloon-panel.ck-balloon-panel_with-arrow.ck-tooltip')
+    attemptCount++
     if (tooltip) {
       const offset = parseInt(tooltip.style.top, 10) - toolbar.clientHeight
       tooltip.style.transform = `translateY(-${offset}px)`
       clearInterval(tooltipRepositioner.value)
-    } else {
-      attemptCount++
     }
-
   }, 500)
 }
 
 const initDomFixer = () => {
   domFixAttemptCount.value = 0
   domFixer.value = setInterval(correctTheDOM, 500)
+}
+
+const makePopupAccessible = (editor, toolbar) => {
+  nextTick(() => {
+    const popup = editor.querySelector('.ck.ck-balloon-panel.ck-balloon-panel_with-arrow:not(.ck-tooltip)')
+    if (popup) {
+      popup.setAttribute('aria-label', 'Create or edit link')
+      popup.setAttribute('role', 'dialog')
+      popup.setAttribute('aria-modal', 'true')
+      if (props.isInModal) {
+        correctPopupPosition(popup, editor, toolbar)
+      }
+    }
+  })
 }
 
 const onUpdate = event => {
