@@ -84,7 +84,7 @@
 <script setup>
 import FocusLock from 'vue-focus-lock'
 import {computed, onMounted, ref, watch} from 'vue'
-import {cloneDeep, isEmpty, size} from 'lodash'
+import {cloneDeep, isEmpty, size, trim} from 'lodash'
 import ModalHeader from '@/components/util/ModalHeader'
 import PeerAdvisingNoteTopics from '@/components/peer/PeerAdvisingNoteTopics.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
@@ -204,7 +204,8 @@ const saveNoteTemplate = () => {
   }
 }
 
-const validateNoteTemplateName = (name) => {
+const validateNoteTemplateName = input => {
+  const name = trim(input)
   if (isEmpty(name)) {
     return 'Name is required'
   }
@@ -219,7 +220,7 @@ const isExistingName = (name) => {
   return props.noteTemplates.some(template => (['copy', 'create'].includes(props.action) && template.title === name)
     || (props.action === 'edit' && template.title === name && template.id !== props.selectedNoteTemplate?.id)
   )
-    ? 'Name already exists. Please choose a different name.' : false
+    ? 'A template with that name already exists. Please choose a different name.' : false
 }
 
 

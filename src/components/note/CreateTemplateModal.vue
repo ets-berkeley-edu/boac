@@ -111,8 +111,8 @@ const title = ref('')
 const error = ref(undefined)
 const isSaving = ref(false)
 const validationRules = ref({
-  required: value => !!value || 'Template name is required',
-  maxLength: value => (!value || value.length <= 255) || 'Template name cannot exceed 255 characters.',
+  required: value => !!trim(value) || 'Template name is required',
+  maxLength: value => (!value || trim(value).length <= 255) || 'Template name cannot exceed 255 characters.',
 })
 
 watch(dialogModel, () => {
