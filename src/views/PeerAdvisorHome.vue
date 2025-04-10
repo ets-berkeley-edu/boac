@@ -148,6 +148,7 @@ const onClickCreateNote = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
+  totalNoteCount.value += 1
   getBasicStudent(note.sid).then((student: BasicStudent) => {
     note.student = student
     notes.value.unshift(note)
