@@ -32,7 +32,7 @@ export function applyFilters(orderBy: string, termId: string) {
         resolve()
       }
       if (isReadOnly) {
-        getCohort(cohortId, true, limit, offset, orderBy, termId).then(done)
+        getCohort(cohortId, termId, true, limit, offset, orderBy).then(done)
       } else {
         const domain = String(cohortStore.domain)
         getStudentsPerFilters(domain, filters, orderBy, termId, offset, limit).then(done)
@@ -49,11 +49,11 @@ export function loadCohort(cohortId: number, orderBy: string, termId: string) {
     const pagination: Pagination = cohortStore.pagination
     getCohort(
       cohortId,
+      termId,
       true,
       pagination.itemsPerPage,
       0,
-      orderBy,
-      termId
+      orderBy
     ).then(cohort => {
       if (cohort) {
         cohortStore.setDomain(cohort.domain)

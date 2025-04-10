@@ -64,11 +64,11 @@ export function downloadCsv(domain: string, cohortName: string, filters: object[
 
 export function getCohort(
   id: number,
+  termId: string,
   includeStudents = true,
   limit: number = 50,
   offset: number = 0,
-  orderBy = 'lastName',
-  termId: string
+  orderBy = 'lastName'
 ) {
   $_track('view')
   const url: string = `${utils.apiBaseUrl()}/api/cohort/${id}?includeStudents=${includeStudents}&limit=${limit}&offset=${offset}&orderBy=${orderBy}&termId=${termId}`
