@@ -59,7 +59,7 @@
         <th class="w-30">Actions</th>
       </template>
       <template #item="{ item, index }">
-        <tr :class="index % 2 === 0 ? 'white-row' : 'grey-row'">
+        <tr :class="index % 2 === 0 ? 'bg-white' : 'bg-surface-light'">
           <td class="font-weight-bold cursor-pointer" @click="openNoteTemplateClicked(item)"> {{ item.title }}</td>
           <td class="cursor-pointer" @click="openNoteTemplateClicked(item)"> {{ DateTime.fromISO(item.createdAt).toFormat('MMM d, yyyy') }} </td>
           <td>
@@ -203,27 +203,17 @@ const openNoteTemplateClicked = (noteTemplate) => {
   } else {
     editTemplateClicked(noteTemplate)
   }
-
 }
 </script>
 
 <style>
-
 .data-table-header-cell {
   height: 24px !important;
 }
-.white-row {
-  background-color: white;
-}
-.grey-row {
-  background-color: #f6f6f6;
-}
-
 /* Force a fixed layout so widths are respected */
 .v-data-table .v-data-table__wrapper table {
   table-layout: fixed;
 }
-
 /* Target header cells within your custom header class */
 .data-table-header-cell th:nth-child(1) {
   width: 50% !important;
