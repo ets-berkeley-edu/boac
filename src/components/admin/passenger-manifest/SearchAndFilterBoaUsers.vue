@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'component-container': mdAndUp}" class="align-start d-flex">
+  <div :class="{'component-container': mdAndUp}" class="align-center d-flex flex-wrap py-1">
     <div class="pr-2">
       <select
         id="toggle-user-search-type"
@@ -21,7 +21,7 @@
         </option>
       </select>
     </div>
-    <div v-if="filter.type === 'search'" class="align-center d-flex w-100">
+    <div v-if="filter.type === 'search'" class="align-center d-flex py-1">
       <div class="w-50">
         <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
         <v-autocomplete
@@ -46,12 +46,13 @@
           :no-data-text="isSuggesting ? undefined : 'No match found'"
           return-object
           variant="outlined"
+          width="450"
           @update:model-value="item => onUpdateAutocompleteModel(item.uid)"
           @update:search="onUpdateSearch"
         />
       </div>
     </div>
-    <div v-if="filter.type === 'filter'" :class="{'align-center d-flex': mdAndUp}">
+    <div v-if="filter.type === 'filter'" class="align-center d-flex flex-wrap py-1">
       <div class="pr-2">
         <select
           id="select-user-role"
@@ -77,7 +78,7 @@
           </option>
         </select>
       </div>
-      <div v-if="['advisor', 'director', undefined].includes(filter.role)" :class="{'mt-2': smAndDown}" class="pr-2">
+      <div v-if="['advisor', 'director', undefined].includes(filter.role)" class="pr-2 py-1">
         <select
           id="select-user-department"
           v-model="filter.deptCode"
@@ -95,7 +96,7 @@
           </option>
         </select>
       </div>
-      <div v-if="PEER_ADVISING_ROLE_TYPES.includes(filter.role)" :class="{'mt-2': smAndDown}" class="pr-2">
+      <div v-if="PEER_ADVISING_ROLE_TYPES.includes(filter.role)" class="pr-2 py-1">
         <select
           id="select-user-peer-advising-department"
           v-model="filter.peerAdvisingDepartmentId"
@@ -113,7 +114,7 @@
           </option>
         </select>
       </div>
-      <div :class="{'mt-2': smAndDown}" class="align-center d-flex">
+      <div class="align-center d-flex py-1">
         <div class="mr-3">
           <select
             id="select-user-status"
@@ -193,7 +194,7 @@ const isSuggesting = ref(false)
 const suggestedUsers = ref<SelectOption<object>[]>([])
 const userSelection = ref<SelectOption<object>>()
 const {disabled, filter, isFetching} = storeToRefs(manifestStore)
-const {mdAndUp, smAndDown} = useDisplay()
+const {mdAndUp} = useDisplay()
 
 onMounted(() => {
   return intervalId.value = setInterval(() => {
@@ -232,9 +233,6 @@ const onUpdateSearch = debounce((query: string) => {
 </script>
 
 <style scoped>
-.component-container {
-  height: 50px !important;
-}
 .select-menu {
   height: 40px;
 }
