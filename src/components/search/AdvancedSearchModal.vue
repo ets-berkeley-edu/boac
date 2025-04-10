@@ -225,8 +225,8 @@
                       id-prefix="search-options-note-student"
                       aria-description="Student name or S I D lookup. Expect auto suggest."
                       autocomplete="off"
-                      :clearable="!isFetchingStudents"
                       :clazz="{'mt-1 text-black': true, 'demo-mode-blur': currentUser.inDemoMode}"
+                      :clearable="!isFetchingStudents"
                       color="primary"
                       density="compact"
                       :disabled="searchStore.isSearching"
@@ -337,9 +337,9 @@ import {DateTime} from 'luxon'
 import {debounce, get, isDate, map, size, trim} from 'lodash'
 import {mdiTune} from '@mdi/js'
 import {useRouter} from 'vue-router'
+import AccessibleCombobox from '@/components/util/AccessibleCombobox'
 import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
-import AccessibleCombobox from '@/components/util/AccessibleCombobox'
 import ProgressButton from '@/components/util/ProgressButton'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop} from '@/lib/utils'

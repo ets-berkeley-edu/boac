@@ -16,6 +16,7 @@
   border-top-right-radius: 0;
 }
 .autocomplete-with-add-button .v-field  .v-field__input {
+  flex-wrap: nowrap;
   margin-bottom: auto !important;
   margin-top: auto !important;
 }

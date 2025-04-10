@@ -4,7 +4,7 @@ import router from '@/router'
 import type {BoaUser} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 
-const SKIP_REDIRECT_ON_ERROR = ['/api/user/create_or_update']
+const SKIP_REDIRECT_ON_ERROR = ['/api/user/create_or_update', '/api/peer_advising/create_peer_advisor']
 
 const axiosErrorHandler = (error: object, axios: AxiosStatic): void => {
   const errorStatus = get(error, 'response.status')

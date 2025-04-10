@@ -75,7 +75,10 @@
         </v-list-item>
       </template>
       <template v-if="isAutocomplete" #selection="{item}">
-        <span v-html="highlightQuery(item.props.title)" />
+        <span class="text-no-wrap truncate-with-ellipsis" v-html="highlightQuery(item.props.title)" />
+      </template>
+      <template #append>
+        <slot name="append" />
       </template>
     </component>
   </div>
@@ -281,7 +284,7 @@ const onBlur = () => {
   const input = getInputElement()
   input.removeAttribute('aria-activedescendant')
   focusedListItemIndex.value = null
-  if (isEmpty(query.value)) {
+  if (isEmpty(query.value) && isEmpty(props.getValue())) {
     props.onClear()
   }
 }
