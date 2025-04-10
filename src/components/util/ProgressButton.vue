@@ -1,15 +1,17 @@
 <template>
   <v-btn
     :id="id"
+    :aria-label="ariaLabel"
     :color="color"
     :disabled="disabled"
+    :prepend-icon="prependIcon"
     :size="size"
     :variant="variant"
     @click.prevent="action"
   >
     <div class="align-center d-flex text-no-wrap">
       <div v-if="inProgress" class="mr-2">
-        <v-progress-circular indeterminate size="16" width="2" />
+        <v-progress-circular indeterminate size="18" width="2" />
       </div>
       <div>
         {{ text }}
@@ -24,6 +26,11 @@ defineProps({
   action: {
     type: Function,
     required: true
+  },
+  ariaLabel: {
+    default: undefined,
+    type: String,
+    required: false
   },
   color: {
     default: 'primary',
@@ -40,6 +47,11 @@ defineProps({
   },
   inProgress: {
     type: Boolean,
+    required: false
+  },
+  prependIcon: {
+    default: undefined,
+    type: String,
     required: false
   },
   size: {

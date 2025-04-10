@@ -11,7 +11,7 @@
       id="toggle-inactive-students-button"
       v-model="showDeletedPeerAdvisors"
       :class="{'text-primary': showDeletedPeerAdvisors}"
-      class="font-size-14 font-weight-bold text-medium-emphasis mb-1 ml-1"
+      class="font-size-14 font-weight-bold text-medium-emphasis ml-1 mb-1"
       color="primary"
       density="compact"
       :disabled="isBusy || isRefreshing"
@@ -191,6 +191,7 @@ const onClickDelete = (peerAdvisor: BoaUser) => {
 
 <style scoped>
 .add-student-container {
-  width: 550px;
+  min-width: 550px;
+  width: 75%;
 }
 </style>
