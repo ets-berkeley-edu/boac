@@ -26,7 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 from unittest import mock
 
+from boac import std_commit
 from boac.lib.berkeley import is_peer_advisor, is_peer_advisor_manager
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
+from boac.models.university_dept_member import UniversityDeptMember
 from boac.models.user_login import UserLogin
 import cas
 from tests.util import override_config, pause_mock_sts
@@ -124,6 +127,32 @@ class TestDevAuth:
                 client,
                 params={
                     'uid': advisor.uid,
+                    'password': app.config['DEVELOPER_AUTH_PASSWORD'],
+                },
+                expected_status_code=403,
+            )
+
+    def test_peer_advisor_manager_missing_advisor_role(self, user_factory, app, client):
+        """Peer Advisor Manager cannot log in without having standard Advisor role, too."""
+        with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
+            boa_user = user_factory(can_access_canvas_data=False)
+            for membership in boa_user.department_memberships:
+                # First, we remove all university memberships.
+                UniversityDeptMember.delete_membership(
+                    authorized_user_id=boa_user.id,
+                    university_dept_id=membership.university_dept_id,
+                )
+            # Next, this non-advisor is assigned nothing more than the 'Peer Advisor Manager' role.
+            assert PeerAdvisingDepartmentMember.create_or_update_membership(
+                authorized_user_id=boa_user.id,
+                peer_advising_department_id=1,
+                role_type='peer_advisor_manager',
+            )
+            std_commit(allow_test_environment=True)
+            self._api_dev_auth_login(
+                client,
+                params={
+                    'uid': boa_user.uid,
                     'password': app.config['DEVELOPER_AUTH_PASSWORD'],
                 },
                 expected_status_code=403,

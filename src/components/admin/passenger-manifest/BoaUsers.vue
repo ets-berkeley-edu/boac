@@ -198,11 +198,7 @@ import {storeToRefs} from 'pinia'
 import BoaUserDepartmentsSummary from '@/components/admin/passenger-manifest/BoaUserDepartmentsSummary.vue'
 import BoaUserFullName from '@/components/admin/passenger-manifest/BoaUserFullName.vue'
 import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
-import {
-  ADVISING_ROLE_TYPES,
-  PEER_ADVISING_ROLE_TYPES,
-  getDeptCodesPerRoles
-} from '@/lib/berkeley-department'
+import {ADVISING_ROLE_TYPES, getDeptCodesPerRoles} from '@/lib/berkeley-department'
 import {alertScreenReader, normalizeId, pluralize, putFocusNextTick} from '@/lib/utils'
 import {becomeUser, getUserByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
@@ -253,7 +249,9 @@ const become = uid => {
 const canBecome = user => {
   const isNotMe = user.uid !== contextStore.currentUser.uid
   const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt
-  const validRoles = ADVISING_ROLE_TYPES.concat(PEER_ADVISING_ROLE_TYPES)
+  // Typically, one role (eg, advisor) is enough to authorize user. An exception to the rule is the
+  // peer_advisor_manager (PAM) role whereby the user MUST have a second role: advisor or director.
+  const validRoles = ADVISING_ROLE_TYPES.concat(['peer_advisor'])
   const hasAnyRole = user.isAdmin || getDeptCodesPerRoles(user, validRoles).length
   return contextStore.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
 }
