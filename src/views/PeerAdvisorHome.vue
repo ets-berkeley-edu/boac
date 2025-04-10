@@ -79,7 +79,7 @@ const route = useRoute()
 const router = useRouter()
 const totalNoteCount = ref(0)
 
-contextStore.loadingStart()
+contextStore.loadingStart('Peer Advising Notes page is loading')
 
 onMounted(() => {
   const currentUser = contextStore.currentUser
@@ -126,7 +126,7 @@ const init = (user: BoaUser) => {
   if (peerAdvisor.value.id && membership && membership.peerAdvisingDepartmentId) {
     peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
     fetchNotes().then(() => {
-      contextStore.loadingComplete('Notes have loaded')
+      contextStore.loadingComplete('Peer advising notes loaded')
       contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
     })
   } else {

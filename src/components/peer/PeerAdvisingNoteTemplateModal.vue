@@ -236,6 +236,7 @@ const isExistingName = (name) => {
 }
 .peer-advising-template-modal-content {
   height: calc(100vh - 215px);
+  max-height: fit-content;
   overflow-y: auto;
 }
 </style>

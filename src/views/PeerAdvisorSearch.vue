@@ -97,7 +97,7 @@ const fetchNotes = (user: BoaUser) => {
       notes.value.push(...data.notes.reverse())
       totalNoteCount.value = data.totalNoteCount
       queryText.value = searchStore.queryText
-      contextStore.loadingComplete('Notes have loaded')
+      contextStore.loadingComplete('Peer advising notes have loaded')
       isFetchingNotes.value = false
       putFocusNextTick(putFocusId)
     })
