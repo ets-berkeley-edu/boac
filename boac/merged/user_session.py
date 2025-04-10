@@ -174,7 +174,11 @@ class UserSession(UserMixin):
                 is_active = True
             else:
                 for d in departments:
-                    is_active = bool(d['memberships'])
+                    roles = [m['role'] for m in d['memberships']]
+                    # In nearly all cases, only one role (eg, 'advisor') is needed to authorize the current-user.
+                    # An exception to the rule is the 'peer_advisor_manager' role.
+                    # A peer_advisor_manager user MUST have a second role ('advisor' or 'director') to be authorized.
+                    is_active = len(roles) and roles != ['peer_advisor_manager']
                     if is_active:
                         break
 
