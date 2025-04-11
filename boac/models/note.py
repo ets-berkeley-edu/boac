@@ -407,71 +407,54 @@ class Note(Base):
     @classmethod
     def peer_advising_notes_search(
             cls,
-            search_phrase,
-            peer_advising_department_id,
             matching_sids,
+            peer_advising_department_id,
+            search_phrase,
             offset=0,
             limit=40,
     ):
-        notes_selector = """
+        params = {
+            'matching_sids': matching_sids,
+            'peer_advising_department_id': peer_advising_department_id,
+            'search_phrase': search_phrase,
+        }
+        notes_fts_index_sql = """
             SELECT id, ts_rank(fts_index, to_tsquery('english', :search_phrase || ':*')) AS rank
             FROM notes_fts_index
             WHERE fts_index @@ to_tsquery('english', :search_phrase || ':*')
         """
-        params = {
-            'search_phrase': search_phrase,
-        }
 
-        # Build a union branch that picks notes for which the student's SID is in the matching list.
-        student_branch = """
-            SELECT n.id, 0 AS rank
-            FROM notes n
-            WHERE n.sid = ANY(:matching_sids)
-            AND n.peer_advising_department_id = :peer_advising_department_id
-        """
-        params['matching_sids'] = matching_sids
-
-        # Combine both branches using UNION.
-        fts_selector = f"""
-            {notes_selector}
-            UNION
-            {student_branch}
-        """
-
-        peer_advising_department_notes_filter = 'AND notes.peer_advising_department_id = :peer_advising_department_id'
-        params.update({'peer_advising_department_id': peer_advising_department_id})
-
-        attachments_join = 'LEFT JOIN note_attachments a ON notes.id = a.note_id AND a.deleted_at IS NULL'
-        group_by_clause = 'GROUP BY notes.id, fts.rank'
-        where_clause = 'WHERE notes.is_draft IS FALSE'
-
-        def _get_query(is_count_query=False):
-            query = f"""
-                WITH fts AS ({fts_selector})
-                SELECT {'count(notes.*)' if is_count_query else 'notes.*'}
-                {', count(a.note_id) as attachment_count'}
+        def _get_sql(is_count_query=False):
+            # Combine query results with UNION.
+            sql = f"""
+                WITH fts AS (
+                    {notes_fts_index_sql}
+                    UNION
+                    SELECT n.id, 0 AS rank
+                    FROM notes n
+                    WHERE n.sid = ANY(:matching_sids)
+                    AND n.peer_advising_department_id = :peer_advising_department_id
+                )
+                SELECT {'count(notes.*)' if is_count_query else 'notes.*'}, count(a.note_id) as attachment_count
                 FROM fts JOIN notes
                     ON fts.id = notes.id
-                {peer_advising_department_notes_filter}
-                {attachments_join}
-                {where_clause}
-                {group_by_clause}
+                AND notes.peer_advising_department_id = :peer_advising_department_id
+                LEFT JOIN note_attachments a ON notes.id = a.note_id AND a.deleted_at IS NULL
+                WHERE notes.is_draft IS FALSE
+                {'' if is_count_query else 'GROUP BY notes.id, fts.rank'}
             """
             if not is_count_query:
-                query += f"""
+                sql += f"""
                     ORDER BY fts.rank DESC, notes.id
                     OFFSET {offset} LIMIT {limit}
                 """
-            return text(query).bindparams(**params)
-        total_count_result = db.session.execute(_get_query(True))
-        rows = total_count_result.fetchall()
-        total_matching_count = len(rows)
+            return sql
 
-        result = db.session.execute(_get_query())
-
-        keys = result.keys()
+        total_matching_count = db.session.execute(text(_get_sql(True)), params).first()['count']
+        results = db.session.execute(text(_get_sql()), params)
+        keys = results.keys()
         return {
-            'results': [dict(zip(keys, row)) for row in result.fetchall()],
+            'results': [dict(zip(keys, row)) for row in results],
             'total_matching_count': total_matching_count,
         }
 
