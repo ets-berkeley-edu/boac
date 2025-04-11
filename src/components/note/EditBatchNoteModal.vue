@@ -48,7 +48,6 @@
               id="note-details"
               :disabled="isSaving || boaSessionExpired"
               :initial-value="model.body || ''"
-              :is-in-modal="true"
               label="Note Details"
               :on-value-update="noteStore.setBody"
               :show-advising-note-best-practices="true"
