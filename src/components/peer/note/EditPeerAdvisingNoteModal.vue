@@ -154,6 +154,7 @@ const addNoteAttachments = (attachments: NoteAttachment[]) => {
 }
 
 const closeModal = (srText?: string) => {
+  isAreYouSureModalOpen.value = false
   if (srText) {
     alertScreenReader(srText)
   }
@@ -162,6 +163,7 @@ const closeModal = (srText?: string) => {
   student.value = undefined
   noteStore.setIsCreateNoteModalOpen(false)
   noteStore.exitSession()
+  putFocusNextTick('peer-advisor-create-note-button')
 }
 
 const discardRequested = () => {

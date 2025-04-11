@@ -4,7 +4,7 @@
       <div>
         <h1 id="page-header">Peer Advising Search</h1>
         <div>
-          Showing {{ notes.length }} of {{ pluralize('result', totalNoteCount) }} for <span class="font-weight-bold">{{ queryText }}</span>
+          {{ phrase }} <span class="font-weight-bold">{{ queryText }}</span>
           |
           <v-btn
             class="cursor-pointer text-blue-accent-2 select-none mb-1 pl-0"
@@ -61,6 +61,7 @@ const router = useRouter()
 const totalNoteCount = ref(0)
 const isFetchingNotes = ref(false)
 const offset = ref(0)
+const phrase = ref('')
 
 const queryText = ref(searchStore.queryText)
 
@@ -96,6 +97,11 @@ const fetchNotes = (user: BoaUser) => {
       const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0].id}`
       notes.value.push(...data.notes.reverse())
       totalNoteCount.value = data.totalNoteCount
+      if (totalNoteCount.value === 0) {
+        phrase.value = 'No results found for '
+      } else {
+        phrase.value = `Showing ${notes.value.length} of ${pluralize('result', totalNoteCount.value)} for `
+      }
       queryText.value = searchStore.queryText
       contextStore.loadingComplete('Peer advising notes have loaded')
       isFetchingNotes.value = false

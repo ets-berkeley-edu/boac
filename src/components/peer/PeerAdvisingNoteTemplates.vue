@@ -22,6 +22,7 @@
           :selected-note-template="selectedNoteTemplate"
           :action="action"
           :note-templates="noteTemplates"
+          :id-to-focus-after-closing="afterClosefocusId"
           @note-template-updated="getNoteTemplates"
         />
       </div>
@@ -60,12 +61,16 @@
       </template>
       <template #item="{ item, index }">
         <tr :class="index % 2 === 0 ? 'bg-white' : 'bg-surface-light'">
-          <td class="font-weight-bold cursor-pointer" @click="openNoteTemplateClicked(item)"> {{ item.title }}</td>
-          <td class="cursor-pointer" @click="openNoteTemplateClicked(item)"> {{ DateTime.fromISO(item.createdAt).toFormat('MMM d, yyyy') }} </td>
+          <td class="font-weight-bold cursor-pointer">
+            {{ item.title }}
+          </td>
+          <td class="cursor-pointer">
+            {{ DateTime.fromISO(item.createdAt).toFormat('MMM d, yyyy') }}
+          </td>
           <td>
             <v-btn
               :id="`edit-note-template-${item.id}`"
-              :aria-label="`Edit ${item.name}`"
+              :aria-label="`Edit ${item.title}`"
               color="primary"
               density="compact"
               :disabled="currentUser.isAdmin"
@@ -76,7 +81,7 @@
             |
             <v-btn
               :id="`copy-note-template-${item.id}`"
-              :aria-label="`Copy ${item.name}`"
+              :aria-label="`Copy ${item.title}`"
               color="primary"
               density="compact"
               :disabled="currentUser.isAdmin"
@@ -87,7 +92,7 @@
             |
             <v-btn
               :id="`delete-note-template-${item.id}`"
-              :aria-label="`Delete ${item.name}`"
+              :aria-label="`Delete ${item.title}`"
               color="primary"
               density="compact"
               :disabled="currentUser.isAdmin"
@@ -118,7 +123,7 @@ import {onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import PeerAdvisingNoteTemplateModal from '@/components/peer/PeerAdvisingNoteTemplateModal.vue'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {deletePeerAdvisingNoteTemplate} from '@/api/peer-advising-notes.ts'
 import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
 import {useContextStore} from '@/stores/context.js'
@@ -142,6 +147,7 @@ const noteTemplateModalOpen = ref(false)
 const action = ref('create')
 const currentUser = ref(useContextStore().currentUser)
 const isLoading = ref(false)
+const afterClosefocusId = ref('create-new-peer-advising-note-template')
 
 onMounted(() => {
   getNoteTemplates()
@@ -153,18 +159,21 @@ const getNoteTemplates = () => {
   getNoteTemplatesForPeerAdvising(props.peerAdvisingDepartment.id).then(response => {
     noteTemplates.value = response
     isLoading.value = false
+    putFocusNextTick(afterClosefocusId.value)
   })
 }
 
 const openNewTemplateModal = () => {
   selectedNoteTemplate.value = null
   action.value = 'create'
+  afterClosefocusId.value = 'create-new-peer-advising-note-template'
   noteTemplateModalOpen.value = true
 }
 
 const copyTemplateClicked = noteTemplate => {
   selectedNoteTemplate.value = noteTemplate
   action.value = 'copy'
+  afterClosefocusId.value = `copy-note-template-${noteTemplate.id}`
   noteTemplateModalOpen.value = true
 }
 
@@ -190,20 +199,11 @@ const deleteTemplateApi = () => {
 const editTemplateClicked = noteTemplate => {
   selectedNoteTemplate.value = noteTemplate
   action.value = 'edit'
+  afterClosefocusId.value = `edit-note-template-${noteTemplate.id}`
   noteTemplateModalOpen.value = true
   alertScreenReader(`Opened ${noteTemplate.title} note template to edit.`)
 }
 
-const openNoteTemplateClicked = (noteTemplate) => {
-  if (currentUser.value.isAdmin) {
-    selectedNoteTemplate.value = noteTemplate
-    action.value = 'view'
-    noteTemplateModalOpen.value = true
-    alertScreenReader(`Opened ${noteTemplate.title} note template.`)
-  } else {
-    editTemplateClicked(noteTemplate)
-  }
-}
 </script>
 
 <style>
