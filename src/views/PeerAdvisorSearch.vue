@@ -7,7 +7,7 @@
           {{ phrase }} <span class="font-weight-bold">{{ queryText }}</span>
           |
           <v-btn
-            class="cursor-pointer text-blue-accent-2 select-none mb-1 pl-0"
+            class="text-blue-accent-2 mb-1 pl-0"
             variant="text"
             @click="clearResults"
           >
@@ -99,8 +99,10 @@ const fetchNotes = (user: BoaUser) => {
       totalNoteCount.value = data.totalNoteCount
       if (totalNoteCount.value === 0) {
         phrase.value = 'No results found for '
-      } else {
+      } else if (notes.value.length < totalNoteCount.value) {
         phrase.value = `Showing ${notes.value.length} of ${pluralize('result', totalNoteCount.value)} for `
+      } else {
+        phrase.value = `Showing ${pluralize('result', totalNoteCount.value)} for `
       }
       queryText.value = searchStore.queryText
       contextStore.loadingComplete('Peer advising notes have loaded')
@@ -115,11 +117,4 @@ const fetchNotes = (user: BoaUser) => {
 const clearResults = () => {
   router.push({path: '/home'})
 }
-
 </script>
-
-<style scoped>
-.select-none {
-  user-select: none;
-}
-</style>
