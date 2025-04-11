@@ -178,7 +178,7 @@ const currentUser = useContextStore().currentUser
 const dataTableRows = computed<BoaUser[]>(() => _filter(props.peerAdvisors, u => showDeletedPeerAdvisors.value || !u.deletedAt))
 const headers = computed(() => [
   {align: 'start' as 'start' | 'end' | 'center', key: 'name', sortable: dataTableRows.value.length > 1, title: 'Peer Advisor'},
-  {align: 'end' as 'start' | 'end' | 'center', key: 'notesCreatedCount', sortable: dataTableRows.value.length > 1, title: 'Notes Created'},
+  {align: 'end' as 'start' | 'end' | 'center', key: 'notesCreatedCount', sortable: dataTableRows.value.length > 1, sortRaw: sortByNoteCount, title: 'Notes Created'},
   {align: 'end' as 'start' | 'end' | 'center', key: 'createdAt', sortable: dataTableRows.value.length > 1, title: 'Date Added'},
   {align: 'end' as 'start' | 'end' | 'center', ariaLabel: 'actions', key: 'actions', sortable: false}
 ])
@@ -226,13 +226,22 @@ const onClickRestorePeerAdvisor = (userId: number) => {
   })
 }
 
-const onUpdateSortBy = primarySortBy => {
+const onUpdateSortBy = (primarySortBy: {key: string, order: 'asc' | 'desc'}[]) => {
   const key = primarySortBy[0].key
   const header = find(headers.value, {key: key})
   sortBy.value = primarySortBy[0]
   if (header) {
     alertScreenReader(`Sorted by ${header.ariaLabel || header.title}, ${sortBy.value.order}ending`)
   }
+}
+
+const sortByNoteCount = (c1: {noteCount: number}, c2: {noteCount: number}) => {
+  if (c1.noteCount < c2.noteCount) {
+    return -1
+  } else if (c1.noteCount > c2.noteCount) {
+    return 1
+  }
+  return 0
 }
 </script>
 
