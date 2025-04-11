@@ -384,12 +384,14 @@ def _peer_advising_users_sql(
                 m.peer_advising_department_id = d.id
                 AND m.role_type = :role_type
                 AND m.authorized_user_id = u.id
+                AND m.deleted_at IS NULL
         """
     elif not peer_advising_department_id and role_type:
         query_tables += """
             JOIN peer_advising_department_members m ON
                 m.authorized_user_id = u.id
                 AND m.role_type = :role_type
+                AND m.deleted_at IS NULL
         """
     elif peer_advising_department_id and not role_type:
         query_tables += """
@@ -398,10 +400,13 @@ def _peer_advising_users_sql(
             JOIN peer_advising_department_members m ON
                 m.peer_advising_department_id = d.id
                 AND m.authorized_user_id = u.id
+                AND m.deleted_at IS NULL
         """
     elif not peer_advising_department_id and not role_type:
         query_tables += """
-            JOIN peer_advising_department_members m ON m.authorized_user_id = u.id
+            JOIN peer_advising_department_members m ON
+                m.authorized_user_id = u.id
+                AND m.deleted_at IS NULL
         """
     return query_tables, _users_sql_where_clause(status), query_bindings
 
