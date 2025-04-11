@@ -41,7 +41,7 @@
     <div class="align-center d-flex justify-space-between mt-2 w-100">
       <QuickLinks :fetch-users="fetchUsers" />
       <div v-if="!isFetching && !isNaN(totalUserCount)" class="text-medium-emphasis">
-        {{ pluralize('student', totalUserCount) }}
+        {{ pluralize('user', totalUserCount) }}
       </div>
     </div>
     <BoaUsers

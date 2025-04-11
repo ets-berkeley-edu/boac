@@ -61,10 +61,10 @@
       </template>
       <template #item="{ item, index }">
         <tr :class="index % 2 === 0 ? 'bg-white' : 'bg-surface-light'">
-          <td class="font-weight-bold cursor-pointer">
+          <td class="font-weight-bold">
             {{ item.title }}
           </td>
-          <td class="cursor-pointer">
+          <td>
             {{ DateTime.fromISO(item.createdAt).toFormat('MMM d, yyyy') }}
           </td>
           <td>
