@@ -161,7 +161,7 @@
                           <caption>
                             <div class="align-center d-flex font-size-16 font-weight-bold justify-space-between text-medium-emphasis pb-1">
                               <span class="sr-only">Notes created in </span>
-                              {{ DateTime.fromJSDate(new Date(annual.year, m.month, 1)).toFormat('MMMM') }}
+                              {{ DateTime.fromJSDate(new Date(annual.year, m.month - 1, 1)).toFormat('MMMM') }}
                             </div>
                           </caption>
                           <thead>
