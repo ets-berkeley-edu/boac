@@ -99,9 +99,6 @@
         </tr>
       </tbody>
     </table>
-    <div v-if="!size(notes)" id="peer-advisor-no-notes" class="pt-3">
-      No notes found.
-    </div>
   </div>
 </template>
 

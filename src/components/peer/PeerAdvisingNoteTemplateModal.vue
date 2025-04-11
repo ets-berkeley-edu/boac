@@ -89,7 +89,7 @@ import ModalHeader from '@/components/util/ModalHeader'
 import PeerAdvisingNoteTopics from '@/components/peer/PeerAdvisingNoteTopics.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
-import {alertScreenReader} from '@/lib/utils.js'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils.js'
 import {createPeerAdvisingNoteTemplate, updatePeerAdvisingNoteTemplate} from '@/api/peer-advising-notes.js'
 
 const emit = defineEmits(['note-template-updated'])
@@ -110,6 +110,10 @@ const props = defineProps({
   noteTemplates: {
     required: true,
     type: Array
+  },
+  idToFocusAfterClosing: {
+    required: true,
+    type: String
   }
 })
 
@@ -178,6 +182,7 @@ const onEditorUpdate = value => {
 }
 const cancel = () => {
   model.value = false
+  putFocusNextTick(props.idToFocusAfterClosing)
 }
 
 const handleTopicsUpdate = (newTopics) => {
@@ -191,13 +196,16 @@ const saveNoteTemplate = () => {
     updatePeerAdvisingNoteTemplate(props.selectedNoteTemplate.id, noteDetailsText.value, templateName.value, topicsSelected.value).then((updatedNoteTemplate) => {
       model.value = false
       isSaving.value = false
+      putFocusNextTick(props.idToFocusAfterClosing)
       emit('note-template-updated', updatedNoteTemplate)
       alertScreenReader(`Updated ${updatedNoteTemplate.title} note template.`)
+
     })
   } else if (props.action === 'create' || props.action === 'copy') { // This is a new template
     createPeerAdvisingNoteTemplate(props.peerAdvisingDeptId, noteDetailsText.value, templateName.value, topicsSelected.value).then((newNoteTemplate) => {
       model.value = false
       isSaving.value = false
+      putFocusNextTick(props.idToFocusAfterClosing)
       emit('note-template-updated', newNoteTemplate)
       alertScreenReader(`Created ${newNoteTemplate.title} note template.`)
     })
