@@ -44,7 +44,6 @@
                 :initial-value="noteDetailsText ? noteDetailsText : ''"
                 label="Note Details"
                 :on-value-update="onEditorUpdate"
-                :is-in-modal="true"
                 :show-advising-note-best-practices="true"
               />
             </div>

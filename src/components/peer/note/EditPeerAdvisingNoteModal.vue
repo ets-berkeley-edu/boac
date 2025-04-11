@@ -35,7 +35,6 @@
             class="mt-3"
             :disabled="isSaving"
             :initial-value="model.body || ''"
-            :is-in-modal="true"
             label="Note Details"
             :on-value-update="noteStore.setBody"
             :show-advising-note-best-practices="true"
