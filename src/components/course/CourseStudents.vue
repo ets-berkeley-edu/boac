@@ -183,7 +183,8 @@
             </span>
             <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" :class="{'pt-3': index, 'pt-1': !index}">
               <StudentBoxplot
-                :chart-description="`Chart of ${item.firstName} ${item.lastName}'s assignments submitted in ${canvasSite.courseCode}`"
+                axis-description="assignments submitted"
+                :chart-description="`${item.firstName} ${item.lastName}'s assignments submitted in ${canvasSite.courseCode}`"
                 :dataset="canvasSite.analytics.assignmentsSubmitted"
                 :numeric-id="`${item.uid}-${canvasSite.canvasCourseId}-assignments`"
               />
@@ -230,7 +231,8 @@
             </span>
             <div v-if="canvasSite.analytics.currentScore.boxPlottable" :class="{'pt-3': index, 'pt-1': !index}">
               <StudentBoxplot
-                :chart-description="`Chart of ${item.firstName} ${item.lastName}'s assignment grades in ${canvasSite.courseCode}`"
+                axis-description="assignment grades"
+                :chart-description="`${item.firstName} ${item.lastName}'s assignment grades in ${canvasSite.courseCode}`"
                 :dataset="canvasSite.analytics.currentScore"
                 :numeric-id="`${item.uid}-${canvasSite.canvasCourseId}`"
               />

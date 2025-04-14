@@ -13,6 +13,10 @@ import {onMounted, ref} from 'vue'
 import {useTheme} from 'vuetify'
 
 const props = defineProps({
+  axisDescription: {
+    required: true,
+    type: String
+  },
   chartDescription: {
     required: true,
     type: String
@@ -44,7 +48,11 @@ const getHighchartsOptions = () => {
       },
       point: {
         valueDescriptionFormat: '{index}. {point.name}, {point.y}.'
-      }
+      },
+      screenReaderSection: {
+        beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartLongdesc}</div><div>{typeDescription}</div><div>{yAxisDescription}</div>'
+      },
+      typeDescription: `Boxplot with two data series representing the student's ${props.axisDescription} compared with the rest of the class.`
     },
     chart: {
       backgroundColor: 'transparent',
@@ -84,7 +92,8 @@ const getHighchartsOptions = () => {
     },
     series: generateSeriesFromDataset(currentTheme),
     title: {
-      text: ''
+      style: {display: 'none'},
+      text: props.chartDescription
     },
     tooltip: {
       backgroundColor: currentTheme.colors.surface,
@@ -145,8 +154,9 @@ const getHighchartsOptions = () => {
     },
     yAxis: {
       accessibility: {
-        description: '',
-        enabled: true
+        description: props.axisDescription,
+        enabled: true,
+        rangeDescription: `Range: ${getCourseDecile(0)} to ${getCourseDecile(10)}`
       },
       endOnTick: false,
       gridLineWidth: 0,

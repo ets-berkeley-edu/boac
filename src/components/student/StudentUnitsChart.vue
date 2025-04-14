@@ -35,7 +35,10 @@ onMounted(() => {
   const yMax = max([120, props.currentEnrolledUnits + props.cumulativeUnits])
   options.value = {
     accessibility: {
-      description,
+      screenReaderSection: {
+        beforeChartFormat: '<div>{chartLongdesc}</div><div>{typeDescription}</div><div>{yAxisDescription}</div>'
+      },
+      description: description,
       enabled: true,
       keyboardNavigation: {
         enabled: true
@@ -59,7 +62,7 @@ onMounted(() => {
     },
     plotOptions: {
       accessibility: {
-        description,
+        description: description,
         enabled: true,
         exposeAsGroupOnly: true,
         keyboardNavigation: {
@@ -99,7 +102,9 @@ onMounted(() => {
       }
     ],
     title: {
-      text: ''
+      style: {display: 'none'},
+      text: '',
+      useHTML: true
     },
     tooltip: {
       animation: false,
@@ -138,10 +143,6 @@ onMounted(() => {
       useHTML: true
     },
     xAxis: {
-      accessibility: {
-        description: 'Time',
-        enabled: true
-      },
       labels: {
         enabled: false
       },

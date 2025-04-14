@@ -30,13 +30,6 @@
           <div v-if="!cumulativeUnits && !currentEnrolledUnits" class="section-label">
             Units Not Yet Available
           </div>
-          <div
-            v-if="cumulativeUnits || currentEnrolledUnits"
-            id="currently-enrolled-units"
-            class="sr-only"
-          >
-            Currently enrolled units: {{ currentEnrolledUnits || '0' }}
-          </div>
         </div>
       </v-col>
       <v-col
