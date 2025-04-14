@@ -7,7 +7,7 @@
 </template>
 
 <script setup>
-import {eachRight} from 'lodash'
+import {eachRight, first, get, last} from 'lodash'
 import {onMounted, ref} from 'vue'
 import {useTheme} from 'vuetify'
 
@@ -31,9 +31,10 @@ const options = ref(undefined)
 
 onMounted(() => {
   const currentTheme = useTheme().current.value
+  const maximumTerm = get(first(props.student.termGpa), 'termName')
+  const minimumTerm = get(last(props.student.termGpa), 'termName')
   options.value = {
     accessibility: {
-      description: props.chartDescription,
       enabled: true,
       keyboardNavigation: {
         enabled: true
@@ -53,7 +54,8 @@ onMounted(() => {
     yAxis: {
       accessibility: {
         description: 'GPA',
-        enabled: true
+        enabled: true,
+        rangeDescription: 'Range: 0 to 5'
       },
       endOnTick: false,
       startOnTick: false,
@@ -76,8 +78,9 @@ onMounted(() => {
     },
     xAxis: {
       accessibility: {
-        description: 'Time',
-        enabled: true
+        description: 'academic terms',
+        enabled: true,
+        rangeDescription: `Range: ${minimumTerm} to ${maximumTerm}`
       },
       labels: {
         enabled: false

@@ -81,7 +81,7 @@
       </div>
       <StudentGpaChart
         v-if="size(student.termGpa) > 1"
-        :chart-description="`Chart of GPA over time. ${student.name}'s cumulative GPA is ${round(student.cumulativeGPA, 3)}`"
+        :chart-description="`${student.name}'s GPA by academic term.`"
         :student="student"
         :width="130"
       />
