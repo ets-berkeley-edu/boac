@@ -116,6 +116,5 @@ const resetAutocomplete = () => {
   props.onClearSelectedStudent()
   clearNoteRecipients()
   vAutocompleteKey.value = new Date().toString()
-  putFocusNextTick(`${idPrefix}-input`)
 }
 </script>
