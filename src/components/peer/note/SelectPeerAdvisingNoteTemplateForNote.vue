@@ -26,27 +26,19 @@
       </template>
       <v-list
         v-if="noteTemplates.length"
-        class="scrollbar-gutter-stable"
         variant="flat"
       >
-        <v-list-item-action v-for="template in noteTemplates" :key="template.id">
-          <v-container class="pa-2" fluid>
-            <v-row class="align-center d-flex flex-nowrap" no-gutters>
-              <v-col class="py-0" cols="8">
-                <button
-                  :id="`load-note-template-${template.id}`"
-                  :aria-label="`Use template &quot;${template.title}&quot;`"
-                  class="d-flex font-size-15 font-weight-550 load-note-template-btn justify-start pl-4 text-primary"
-                  :disabled="isSaving"
-                  :title="template.title"
-                  @click="loadTemplate(template)"
-                >
-                  <div class="truncate-with-ellipsis">{{ template.title }}</div>
-                </button>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-list-item-action>
+        <v-list-item
+          v-for="template in noteTemplates"
+          :id="`load-note-template-${template.id}`"
+          :key="template.id"
+          :aria-label="`Use template &quot;${template.title}&quot;`"
+          class="font-size-15 font-weight-550 px-3 text-primary"
+          :disabled="isSaving"
+          @click="loadTemplate(template)"
+        >
+          <div class="truncate-with-ellipsis">{{ template.title }}</div>
+        </v-list-item>
       </v-list>
       <v-list v-if="!noteTemplates.length">
         <v-list-item disabled>
@@ -110,11 +102,4 @@ const onToggleTemplatesMenu = (isOpen: boolean) => {
     alertScreenReader(`You have ${suffix}.`)
   }
 }
-
 </script>
-
-<style scoped>
-.load-note-template-btn {
-  width: 460px;
-}
-</style>
