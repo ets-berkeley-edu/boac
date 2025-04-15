@@ -66,7 +66,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
 
     @staticmethod
     def peer_auto_suggest_option(student):
-        return By.XPATH, f'//div[@role="option"]//div[contains(., "{student.sid}")]'
+        return By.XPATH, f'//div[contains(@id, "add-peer-advisor-option-")][contains(., "{student.sid}")]'
 
     def add_peer(self, student):
         app.logger.info(f'Looking up UID {student.uid}')
@@ -288,8 +288,8 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
     REPORTING_TAB = By.ID, 'peer-advising-management-tab-reportings'
     CSV_DOWNLOAD_BUTTON = By.ID, 'download-csv'
 
-    TTL_PEER_DEPT_NOTE_CT = By.XPATH, '//h2[text()="Reporting & Statistics"]/../following-sibling::table//tbody/tr[1]/td'
-    TTL_PEER_DEPT_AUTHOR_CT = By.XPATH, '//h2[text()="Reporting & Statistics"]/../following-sibling::table//tbody/tr[2]/td'
+    TTL_PEER_DEPT_NOTE_CT = By.ID, 'peer-advising-notes-total'
+    TTL_PEER_DEPT_AUTHOR_CT = By.ID, 'peer-advising-note-authors-total'
 
     TEMPLATES_USED = By.XPATH, '//h3[text()="Templates Used"]/following-sibling::table/tbody/tr/td[1]'
 

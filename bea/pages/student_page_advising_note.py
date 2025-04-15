@@ -127,7 +127,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def collapsed_note_subject(self, note):
         subj_loc = By.ID, f'note-{note.record_id}-subject'
-        return self.element(subj_loc).get_attribute('innerText') if self.is_present(subj_loc) else None
+        return self.element(subj_loc).get_dom_attribute('innerText') if self.is_present(subj_loc) else None
 
     def collapsed_note_date(self, note):
         date_loc = By.ID, f'collapsed-note-{note.record_id}-created-at'
@@ -199,7 +199,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def expanded_note_permalink_url(self, note):
         permalink_loc = By.ID, f'advising-note-permalink-{note.record_id}'
-        return self.element(permalink_loc).get_attribute('href') if self.is_present(permalink_loc) else None
+        return self.element(permalink_loc).get_dom_attribute('href') if self.is_present(permalink_loc) else None
 
     def expanded_note_set_date(self, note):
         set_date_loc = By.ID, f'expanded-note-{note.record_id}-set-date'

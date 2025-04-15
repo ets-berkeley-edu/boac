@@ -92,8 +92,21 @@ def create_admin_user(user):
     std_commit(allow_test_environment=True)
 
 
-def soft_delete_user(user):
-    sql = f"UPDATE authorized_users SET deleted_at = NOW() WHERE uid = '{user.uid}'"
+def soft_delete_users(users):
+    uids = utils.in_op([u.uid for u in users])
+    sql = f'UPDATE authorized_users SET deleted_at = now() WHERE uid IN ({uids})'
+    app.logger.info(sql)
+    db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+
+
+def soft_delete_peer_memberships(users):
+    uids = utils.in_op([u.uid for u in users])
+    sql = f"""UPDATE peer_advising_department_members
+                 SET deleted_at = now()
+                FROM authorized_users
+               WHERE peer_advising_department_members.authorized_user_id = authorized_users.id
+                 AND authorized_users.uid IN ({uids})"""
     app.logger.info(sql)
     db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
@@ -559,10 +572,11 @@ def get_peer_note_ids(peer, peer_dept_id, date=None):
     return [str(row['id']) for row in results]
 
 
-def get_peer_dept_note_ids(peer_dept_id):
+def get_peer_dept_note_ids(peer_dept_id=None):
+    clause = f"= '{peer_dept_id}'" if peer_dept_id else 'IS NOT NULL'
     sql = f"""SELECT id
                 FROM notes
-               WHERE peer_advising_department_id = '{peer_dept_id}'
+               WHERE peer_advising_department_id {clause}
                  AND deleted_at IS NULL
             ORDER BY updated_at DESC"""
     app.logger.info(sql)
@@ -571,13 +585,29 @@ def get_peer_dept_note_ids(peer_dept_id):
     return [str(row['id']) for row in results]
 
 
-def get_peer_dept_author_ct(peer_dept_id):
+def get_peer_dept_author_ct(peer_dept_id=None):
+    clause = f"= '{peer_dept_id}'" if peer_dept_id else 'IS NOT NULL'
     sql = f"""SELECT COUNT(DISTINCT notes.author_uid)
                 FROM notes
                 JOIN authorized_users
                   ON authorized_users.uid = notes.author_uid
-               WHERE notes.peer_advising_department_id = '{peer_dept_id}'
+               WHERE notes.peer_advising_department_id {clause}
                  AND notes.deleted_at IS NULL"""
+    app.logger.info(sql)
+    result = db.session.execute(text(sql)).first()
+    std_commit(allow_test_environment=True)
+    return result['count']
+
+
+def get_parent_dept_peer_note_ct(dept):
+    sql = f"""SELECT COUNT(*)
+                FROM notes
+                JOIN peer_advising_departments
+                  ON peer_advising_departments.id = notes.peer_advising_department_id
+                JOIN university_depts
+                  ON peer_advising_departments.university_dept_id = university_depts.id
+               WHERE notes.deleted_at IS NULL
+                 AND university_depts.dept_code = '{dept.value['code']}'"""
     app.logger.info(sql)
     result = db.session.execute(text(sql)).first()
     std_commit(allow_test_environment=True)

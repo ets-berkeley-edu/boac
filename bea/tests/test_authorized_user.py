@@ -46,7 +46,7 @@ class TestAuthorizedUser:
 
     def test_deleted_user_login_not_ok(self):
         self.homepage.log_out()
-        boa_utils.soft_delete_user(self.auth_user)
+        boa_utils.soft_delete_users([self.auth_user])
         self.homepage.load_page()
         self.homepage.click_sign_in_button()
         self.calnet_page.log_in(self.auth_user.username, utils.get_admin_password())

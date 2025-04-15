@@ -47,27 +47,37 @@ class PeerAdvisorPage(PeerAdvisingNoteTable):
     # Note modal
 
     PEER_NEW_NOTE_BTN = By.ID, 'peer-advisor-create-note-button'
+    PEER_TEMPLATES_BTN = By.ID, 'peer-advising-note-templates-button'
 
     def click_new_peer_note_button(self):
         app.logger.info('Clicking the New Note button')
         self.wait_for_element_and_click(self.PEER_NEW_NOTE_BTN)
         self.when_present(self.PEER_NOTE_STUDENT_INPUT, 2)
 
+    def click_peer_templates_button(self):
+        app.logger.info('Clicking the peer templates button')
+        self.wait_for_element_and_click(self.PEER_TEMPLATES_BTN)
+
+    def select_and_apply_peer_template(self, template, note):
+        self.click_peer_templates_button()
+        self.wait_for_element_and_click(self.template_option_loc(template))
+        self.apply_template_attributes(template, note)
+        time.sleep(2)
+
     # Adding student
 
-    PEER_NOTE_STUDENT_INPUT = By.ID, 'find-student-autocomplete'
-    REMOVE_ADDED_STUDENT_BTN = By.ID, 'clear-student-selection'
+    PEER_NOTE_STUDENT_INPUT = By.ID, 'find-student-autocomplete-input'
+    REMOVE_ADDED_STUDENT_BTN = By.ID, 'find-student-autocomplete-clear-btn'
 
     @staticmethod
     def student_auto_suggest_option(student):
-        return By.XPATH, f'//div[@role="option"]//div[contains(., "{student.sid}")]'
+        return By.XPATH, f'//div[contains(@id, "find-student-autocomplete-option-")][contains(., "{student.sid}")]'
 
     @staticmethod
     def selected_student(student):
         return By.XPATH, f'//div[contains(text(), "{student.sid}")]'
 
     def search_peer_note_student(self, student, search_term):
-        self.hit_escape()
         # The lookup is flaky so give it a few tries
         tries = 3
         while tries > 0:
@@ -93,12 +103,10 @@ class PeerAdvisorPage(PeerAdvisingNoteTable):
         app.logger.info(f'Looking up UID {student.uid}')
         self.search_peer_note_student_by_sid(student)
         self.wait_for_element_and_click(self.student_auto_suggest_option(student))
-        self.when_present(self.selected_student(student), 3)
 
     def remove_student_from_peer_note(self, student):
         app.logger.info(f'Removing SID {student.sid} from peer note')
         self.wait_for_element_and_click(self.REMOVE_ADDED_STUDENT_BTN)
-        self.when_not_present(self.selected_student(student), 3)
 
     # Student enrollments
 
@@ -161,23 +169,3 @@ class PeerAdvisorPage(PeerAdvisingNoteTable):
         if attachments:
             self.add_attachments_to_peer_note(note, attachments)
         self.save_and_wait_for_peer_note(note)
-
-    def verify_peer_note(self, note):
-        self.wait_for_peer_note(note)
-        utils.assert_equivalence(self.peer_note_student(note), note.student.full_name)
-        utils.assert_equivalence(self.peer_note_body(note), note.body.strip())
-        if note.topics:
-            for topic in note.topics:
-                utils.assert_actual_includes_expected(self.peer_note_topics(note), topic.name)
-        else:
-            utils.assert_equivalence(self.peer_note_topics(note), '—')
-        utils.assert_equivalence(self.peer_note_date(note), note.date.strftime('%b %-d, %Y'))
-
-        self.expand_peer_note(note)
-        utils.assert_equivalence(self.expanded_note_advisor(note), note.advisor.full_name)
-        if note.topics:
-            for topic in note.topics:
-                utils.assert_actual_includes_expected(self.expanded_note_topics(note), topic.name)
-        if note.contact_type:
-            utils.assert_equivalence(self.expanded_note_contact_type(note), note.contact_type)
-        # TODO verify attachment pills

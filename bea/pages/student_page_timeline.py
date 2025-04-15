@@ -65,7 +65,7 @@ class StudentPageTimeline(BoaPages):
         els = self.elements((By.XPATH, f"//div[contains(@id, '{item_type}-') and contains(@id, '-is-closed')]"))
         ids = []
         for el in els:
-            parts = el.get_attribute('id').split('-')
+            parts = el.get_dom_attribute('id').split('-')
             if parts[2] == 'is':
                 ids.append(parts[1])
             else:
@@ -80,7 +80,7 @@ class StudentPageTimeline(BoaPages):
         els = self.elements((By.XPATH, '//tr[contains(@class, "message-row")]'))
         ids = []
         for el in els:
-            parts = el.get_attribute('id').split('-')
+            parts = el.get_dom_attribute('id').split('-')
             ids.append('-'.join(parts[2:-1]))
         return ids
 

@@ -82,9 +82,9 @@ class TestSetup:
     def test_blow_away_residual_test_peers(self):
         existing_peers = boa_utils.get_peer_advisors()
         student_uids = [s.uid for s in test_ls.students]
-        for peer in existing_peers:
-            if peer.uid in student_uids:
-                boa_utils.hard_delete_user(peer)
+        to_delete = [p for p in existing_peers if p.uid in student_uids]
+        boa_utils.soft_delete_users(to_delete)
+        boa_utils.soft_delete_peer_memberships(to_delete)
 
     def test_create_pams(self):
         self.homepage.load_page()
@@ -119,7 +119,12 @@ class TestNoteStudentLookup:
         self.peer_page.when_visible(self.peer_page.PEER_NEW_NOTE_BTN, utils.get_short_timeout())
 
     def test_visible_peer_dept_notes(self):
-        utils.assert_equivalence(self.peer_page.visible_peer_note_ids(), pre_existing_peer_note_ids)
+        utils.assert_equivalence(self.peer_page.visible_peer_note_ids(), pre_existing_peer_note_ids[:50])
+
+    def test_show_more_peer_notes(self):
+        if len(pre_existing_peer_note_ids) > 50:
+            self.peer_page.show_more_peer_notes()
+            assert len(self.peer_page.visible_peer_note_ids()) > 50
 
     def test_search_student_by_name(self):
         self.peer_page.click_new_peer_note_button()
@@ -210,15 +215,15 @@ class TestNoteCreation:
     def test_note_template_options(self):
         self.peer_page.click_new_peer_note_button()
         self.peer_page.add_student_to_peer_note(student_1_for_ls_peer_note)
-        self.peer_page.click_templates_button()
+        self.peer_page.click_peer_templates_button()
         visible_opts = self.peer_page.template_options()
         assert peer_template_in_ls.title in visible_opts
         assert peer_template_in_coe.title not in visible_opts
 
     def test_create_note_from_template(self):
-        self.peer_page.click_templates_button()
+        self.peer_page.click_peer_templates_button()
         note_2_by_ls_peer.student = student_1_for_ls_peer_note
-        self.peer_page.select_and_apply_template(peer_template_in_ls, note_2_by_ls_peer)
+        self.peer_page.select_and_apply_peer_template(peer_template_in_ls, note_2_by_ls_peer)
         self.peer_page.save_and_wait_for_peer_note(note_2_by_ls_peer)
 
 
@@ -521,8 +526,32 @@ class TestPeerAdvisingReports:
         actual_note_ct = sum(1 for row in file)
         utils.assert_equivalence(actual_note_ct, expected_note_ct)
 
-    def test_blow_away_templates(self):
+
+@pytest.mark.usefixtures('page_objects')
+class TestFDR:
+
+    def test_fdr_ttl_peer_note_count(self):
         self.pam_page.hit_escape()
+        self.homepage.switch_user()
+        self.homepage.click_flight_data_recorder_link()
+        self.flight_data_recorder_page.toggle_note_report_visibility()
+        visible = self.flight_data_recorder_page.el_text_if_exists(self.flight_data_recorder_page.TTL_PEER_NOTES)
+        expected = str(len(boa_utils.get_peer_dept_note_ids()))
+        utils.assert_equivalence(visible, expected)
+
+    def test_fdr_ttl_peer_note_authors(self):
+        visible = self.flight_data_recorder_page.el_text_if_exists(self.flight_data_recorder_page.TTL_PEER_NOTE_AUTHORS)
+        expected = str(boa_utils.get_peer_dept_author_ct())
+        utils.assert_equivalence(visible, expected)
+
+    def test_fdr_dept_peer_note_count(self):
+        visible = self.flight_data_recorder_page.ttl_dept_peer_notes(test_ls.dept)
+        expected = str(boa_utils.get_parent_dept_peer_note_ct(test_ls.dept))
+        utils.assert_equivalence(visible, expected)
+
+    def test_blow_away_templates(self):
+        self.homepage.switch_user(pam_in_ls)
+        self.homepage.click_pam_link()
         self.pam_page.click_note_templates_tab()
         self.pam_page.delete_peer_template(peer_template_in_ls)
 
@@ -532,5 +561,5 @@ class TestPeerAdvisingReports:
         self.pam_page.delete_peer_template(peer_template_in_coe)
 
     def test_blow_away_test_peers(self):
-        for peer in [peer_1_in_ls, peer_2_in_ls, peer_in_coe]:
-            boa_utils.hard_delete_user(peer)
+        boa_utils.soft_delete_users([peer_1_in_ls, peer_2_in_ls, peer_in_coe])
+        boa_utils.soft_delete_peer_memberships([peer_1_in_ls, peer_2_in_ls, peer_in_coe])

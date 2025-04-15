@@ -67,12 +67,13 @@ class FlightDataRecorderPage(BoaPages):
     def toggle_note_report_visibility(self):
         app.logger.info('Clicking the show/hide report button')
         self.wait_for_element_and_click(self.SHOW_HIDE_REPORT_BUTTON)
+        time.sleep(utils.get_click_sleep())
 
     def list_view_uids(self):
         time.sleep(2)
         self.when_present(self.ADVISOR_LINK, utils.get_short_timeout())
         link_els = self.elements(self.ADVISOR_LINK)
-        uids = [el.get_attribute('id').split('-')[-1] for el in link_els]
+        uids = [el.get_dom_attribute('id').split('-')[-1] for el in link_els]
         non_link_els = self.elements(self.ADVISOR_NON_LINK)
         non_link_uids = [el.split[-1].replace(')') for el in non_link_els]
         uids.extend(non_link_uids)
@@ -90,3 +91,11 @@ class FlightDataRecorderPage(BoaPages):
 
     def advisor_last_login(self, advisor):
         return self.el_text_if_exists((By.ID, f'user-last-login-{advisor.uid}'))
+
+    # Peer notes
+
+    TTL_PEER_NOTES = By.ID, 'peer-advising-notes-total'
+    TTL_PEER_NOTE_AUTHORS = By.ID, 'peer-advising-note-authors-total'
+
+    def ttl_dept_peer_notes(self, dept):
+        return self.el_text_if_exists((By.ID, f"peer-advising-dept-notes-{dept.value['code']}"))

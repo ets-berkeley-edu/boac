@@ -140,7 +140,7 @@ class ListViewAdmitPages(Pagination, AdmitPages):
     ADMIT_ROW_CBX = By.XPATH, '//input[contains(@id, "-admissions-group-checkbox")]'
 
     def admit_row_cbx_sids(self):
-        return [el.get_attribute('id').split('-')[1] for el in self.elements(self.ADMIT_ROW_CBX)]
+        return [el.get_dom_attribute('id').split('-')[1] for el in self.elements(self.ADMIT_ROW_CBX)]
 
     def wait_for_admit_checkboxes(self):
         Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.ADMIT_ROW_CBX))

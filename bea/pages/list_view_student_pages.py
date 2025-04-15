@@ -93,10 +93,10 @@ class ListViewStudentPages(Pagination, UserListPages):
 
     def student_sports(self, student):
         loc = By.XPATH, f'{self.student_row_xpath(student)}//span[contains(@id, "student-team")]/..'
-        return list(map(lambda el: el.get_attribute('innerText'), self.elements(loc)))
+        return list(map(lambda el: el.get_dom_attribute('innerText'), self.elements(loc)))
 
     def list_view_uids(self):
-        return list(map(lambda el: el.get_attribute('id').split('-')[-1], self.elements(self.PLAYER_LINK)))
+        return list(map(lambda el: el.get_dom_attribute('id').split('-')[-1], self.elements(self.PLAYER_LINK)))
 
     def visible_sids(self, filtered_cohort=None):
         if filtered_cohort and filtered_cohort.members:

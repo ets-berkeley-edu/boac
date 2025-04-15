@@ -108,7 +108,7 @@ class CreateNoteModal(Page):
     def topic_options(self):
         self.when_present(self.ADD_TOPIC_SELECT, 3)
         sel = Select(self.element(self.ADD_TOPIC_SELECT))
-        return [el.get_attribute('value') for el in sel.options if el.get_attribute('value')]
+        return [el.get_dom_attribute('value') for el in sel.options if el.get_dom_attribute('value')]
 
     @staticmethod
     def topic_pill(topic):

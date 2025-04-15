@@ -327,5 +327,5 @@ class TestPeerAdvisingPerms:
 class TestTeardown:
 
     def test_remove_peers(self):
-        boa_utils.hard_delete_user(peer_ls)
-        boa_utils.hard_delete_user(peer_coe)
+        boa_utils.soft_delete_users([peer_coe, peer_ls])
+        boa_utils.soft_delete_peer_memberships([peer_coe, peer_ls])

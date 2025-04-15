@@ -171,7 +171,7 @@ class DegreeCheckPage(DegreeTemplatePage):
         return self.el_text_if_exists(self.course_reqt_name(course))
 
     def is_visible_course_reqt_name_struck(self, course):
-        return 'strikethrough' in self.element(self.course_reqt_name(course)).get_attribute('class')
+        return 'strikethrough' in self.element(self.course_reqt_name(course)).get_dom_attribute('class')
 
     def visible_course_reqt_grade(self, course):
         return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[3]//span'))
@@ -211,7 +211,7 @@ class DegreeCheckPage(DegreeTemplatePage):
     def in_progress_course_ccns(self):
         ccns = []
         for el in self.elements(self.IN_PROGRESS_COURSE):
-            parts = el.get_attribute('id').split('-')
+            parts = el.get_dom_attribute('id').split('-')
             ccns.append(f'{parts[4]}-{parts[6]}')
         return ccns
 
@@ -234,7 +234,7 @@ class DegreeCheckPage(DegreeTemplatePage):
     UNASSIGNED_DROP_ZONE = By.ID, 'drop-zone-unassigned-courses'
 
     def unassigned_course_ccns(self):
-        ids = list(map(lambda el: el.get_attribute('id'), self.elements(self.UNASSIGNED_COURSE)))
+        ids = list(map(lambda el: el.get_dom_attribute('id'), self.elements(self.UNASSIGNED_COURSE)))
         ids = [i for i in ids if '-manually-created' not in i]
         return ['-'.join(i.split('-')[2:4]) for i in ids]
 
@@ -550,7 +550,7 @@ class DegreeCheckPage(DegreeTemplatePage):
 
     def select_color_option(self, color='none'):
         app.logger.info(f'Setting color to {color}')
-        if f'border-color-{color}' not in self.element(self.COURSE_COLOR_BUTTON).get_attribute('class'):
+        if f'border-color-{color}' not in self.element(self.COURSE_COLOR_BUTTON).get_dom_attribute('class'):
             self.wait_for_element_and_click(self.COURSE_COLOR_BUTTON)
             el_id = f'color-code-option-{color}' if color else 'color-code-option-none'
             self.wait_for_element_and_click((By.ID, el_id))
