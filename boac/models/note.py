@@ -473,11 +473,15 @@ class Note(Base):
             offset=0,
     ):
         if search_phrases:
-            fts_selector = """SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
+            # Append the prefix operator to each token individually
+            tokens_with_prefix = [f'{token}:*' for token in search_phrases]
+            ts_query_str = ' & '.join(tokens_with_prefix)
+
+            fts_selector = """SELECT id, ts_rank(fts_index, to_tsquery('english', :search_phrase)) AS rank
                 FROM notes_fts_index
-                WHERE fts_index @@ plainto_tsquery('english', :search_phrase)"""
+                WHERE fts_index @@ to_tsquery('english', :search_phrase)"""
             params = {
-                'search_phrase': ' & '.join(search_phrases),
+                'search_phrase': ts_query_str,
             }
 
         else:
