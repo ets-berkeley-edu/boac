@@ -407,77 +407,88 @@ class Note(Base):
     @classmethod
     def peer_advising_notes_search(
             cls,
-            matching_sids,
             peer_advising_department_id,
-            search_phrase,
+            search_phrases,
+            sids,
             offset=0,
             limit=40,
     ):
         params = {
-            'matching_sids': matching_sids,
+            'limit': limit,
+            'offset': offset,
             'peer_advising_department_id': peer_advising_department_id,
-            'search_phrase': search_phrase,
+            'sids': sids,
         }
-        notes_fts_index_sql = """
-            SELECT id, ts_rank(fts_index, to_tsquery('english', :search_phrase || ':*')) AS rank
-            FROM notes_fts_index
-            WHERE fts_index @@ to_tsquery('english', :search_phrase || ':*')
-        """
 
-        def _get_sql(is_count_query=False):
-            # Combine query results with UNION.
-            sql = f"""
-                WITH fts AS (
+        def _get_fts_sql(param_key, phrase, append_union_operator=False):
+            params[param_key] = phrase.upper()
+            return f"""
+                SELECT id, ts_rank(fts_index, to_tsquery('english', :{param_key} || ':*')) AS rank
+                FROM notes_fts_index
+                WHERE fts_index @@ to_tsquery('english', :{param_key} || ':*')
+                {'UNION' if append_union_operator else ''}
+            """
+        notes_fts_index_sql = ''
+        if len(search_phrases) > 1:
+            notes_fts_index_sql += _get_fts_sql('search_phrases_joined', ''.join(search_phrases), True)
+        for index, search_phrase in enumerate(search_phrases):
+            append_union_operator = index < len(search_phrases) - 1
+            notes_fts_index_sql += _get_fts_sql(f'search_phrase_{index}', search_phrase, append_union_operator)
+
+        def _get_fts_rank_query(is_count_query=False):
+            fts_rank_sql = f"""
+                SELECT {'COUNT(DISTINCT fts.id)' if is_count_query else 'DISTINCT ON (fts.id) fts.id, fts.rank'} FROM (
                     {notes_fts_index_sql}
                     UNION
-                    SELECT n.id, 0 AS rank
-                    FROM notes n
-                    WHERE n.sid = ANY(:matching_sids)
-                    AND n.peer_advising_department_id = :peer_advising_department_id
-                )
-                SELECT {'count(notes.*)' if is_count_query else 'notes.*'}, count(a.note_id) as attachment_count
-                FROM fts JOIN notes
-                    ON fts.id = notes.id
-                AND notes.peer_advising_department_id = :peer_advising_department_id
-                LEFT JOIN note_attachments a ON notes.id = a.note_id AND a.deleted_at IS NULL
-                WHERE notes.is_draft IS FALSE
-                {'' if is_count_query else 'GROUP BY notes.id, fts.rank'}
+                    SELECT id, 0 AS rank
+                    FROM notes
+                    WHERE sid = ANY(:sids) AND peer_advising_department_id = :peer_advising_department_id
+                ) AS fts
+                JOIN notes n ON n.id = fts.id
+                WHERE n.peer_advising_department_id = :peer_advising_department_id AND deleted_at IS NULL
+                {'' if is_count_query else 'OFFSET :offset LIMIT :limit'}
             """
-            if not is_count_query:
-                sql += f"""
-                    ORDER BY fts.rank DESC, notes.id
-                    OFFSET {offset} LIMIT {limit}
-                """
-            return sql
-
-        total_matching_count = db.session.execute(text(_get_sql(True)), params).first()['count']
-        results = db.session.execute(text(_get_sql()), params)
-        keys = results.keys()
+            results = db.session.execute(text(fts_rank_sql), params).fetchall()
+            return results[0]['count'] if is_count_query else results
+        total_matching_count = _get_fts_rank_query(is_count_query=True)
+        search_results = []
+        note_id_by_rank = ', '.join([f"({row['id']}, {row['rank']})" for row in _get_fts_rank_query()])
+        if note_id_by_rank:
+            sql = f"""
+                SELECT n.*, COUNT(a.note_id) AS attachment_count
+                FROM notes n
+                JOIN (VALUES {note_id_by_rank}) AS rank(id, ordering) ON rank.id = n.id
+                LEFT JOIN note_attachments a ON n.id = a.note_id AND a.deleted_at IS NULL
+                GROUP BY n.id, rank.ordering
+                ORDER BY rank.ordering
+            """
+            search_results = db.session.execute(text(sql), {'peer_advising_department_id': peer_advising_department_id})
+            keys = search_results.keys()
         return {
-            'results': [dict(zip(keys, row)) for row in results],
+            'results': [dict(zip(keys, row)) for row in search_results],
             'total_matching_count': total_matching_count,
         }
 
     @classmethod
     def search(
             cls,
-            search_phrase,
             author_uid,
-            student_csid,
-            department_codes,
-            topic,
             datetime_from,
             datetime_to,
+            department_codes,
+            search_phrases,
+            student_csid,
+            topic,
             include_private_notes=False,
-            offset=0,
             limit=40,
+            offset=0,
     ):
-        if search_phrase:
+        if search_phrases:
             fts_selector = """SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
                 FROM notes_fts_index
                 WHERE fts_index @@ plainto_tsquery('english', :search_phrase)"""
             params = {
-                'search_phrase': search_phrase,
+                'search_phrase': ' & '.join(search_phrases),
             }
 
         else:

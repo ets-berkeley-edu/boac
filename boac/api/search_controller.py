@@ -370,18 +370,9 @@ def search_peer_advising_notes():
     if not peer_advising_department_id:
         raise BadRequestError('Invalid peer advising department id')
 
-    feed = {}
-    feed.update(_peer_advising_notes_search(search_phrase, params))
-    return tolerant_jsonify(feed)
-
-
-def _peer_advising_notes_search(search_phrase, params):
-    peer_advising_department_id = params.get('peerAdvisingDeptId')
-    limit = int(util.get(params, 'limit', 50))
-    offset = int(util.get(params, 'offset', 0))
-    return search_advising_notes(
+    return tolerant_jsonify(search_advising_notes(
         search_phrase=search_phrase,
         peer_advising_department_id=peer_advising_department_id,
-        limit=limit,
-        offset=offset,
-    )
+        limit=int(util.get(params, 'limit', 50)),
+        offset=int(util.get(params, 'offset', 0)),
+    ))

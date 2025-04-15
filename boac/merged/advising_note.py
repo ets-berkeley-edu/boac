@@ -273,12 +273,10 @@ def search_advising_notes(
     benchmark = get_benchmarker('search_advising_notes')
     benchmark('begin')
 
+    search_phrases = []
+    search_phrase = search_phrase.strip() if search_phrase else None
     if search_phrase:
-        search_terms = list({t.group(0) for t in list(re.finditer(TEXT_SEARCH_PATTERN, search_phrase)) if t})
-        search_phrase = ' & '.join(search_terms)
-    else:
-        search_terms = []
-
+        search_phrases = list({t.group(0) for t in list(re.finditer(TEXT_SEARCH_PATTERN, search_phrase)) if t})
     author_uid = get_uid_for_csid(app, author_csid) if (not author_uid and author_csid) else author_uid
 
     # Our offset calculations are unforuntately fussy because note parsing might reveal notes associated with students no
@@ -293,25 +291,25 @@ def search_advising_notes(
         benchmark(f'begin local notes query (iteration {local_notes_query_iteration})')
 
         if peer_advising_department_id:
-            phrases = list(filter(None, re.split(r'[- ]', search_phrase.strip().upper())))
-            student_results = data_loch.match_students_by_name_or_sid(phrases=phrases)
-            matching_sids = [s.get('sid') for s in student_results]
+            students = data_loch.match_students_by_name_or_sid(
+                phrases=list(filter(None, re.split(r'[- ]', search_phrase))),
+            )
             local_search_results = Note.peer_advising_notes_search(
-                search_phrase=search_phrase,
+                peer_advising_department_id=peer_advising_department_id,
+                search_phrases=search_phrases,
+                sids=[s.get('sid') for s in students],
                 offset=(local_notes_query_batch_size * local_notes_query_iteration),
                 limit=local_notes_query_batch_size,
-                peer_advising_department_id=peer_advising_department_id,
-                matching_sids=matching_sids,
             )
         else:
             local_search_results = Note.search(
-                search_phrase=search_phrase,
                 author_uid=author_uid,
-                student_csid=student_csid,
-                department_codes=department_codes,
-                topic=topic,
                 datetime_from=datetime_from,
                 datetime_to=datetime_to,
+                department_codes=department_codes,
+                search_phrases=search_phrases,
+                student_csid=student_csid,
+                topic=topic,
                 offset=(local_notes_query_batch_size * local_notes_query_iteration),
                 limit=local_notes_query_batch_size,
             )
@@ -321,7 +319,7 @@ def search_advising_notes(
 
         benchmark(f'begin local notes parsing (iteration {local_notes_query_iteration})')
         cutoff = min(len(local_batch_results), (offset + limit - len(notes_feed)))
-        notes_feed += _get_local_notes_search_results(local_batch_results, cutoff, search_terms)
+        notes_feed += _get_local_notes_search_results(local_batch_results, cutoff, search_phrases)
 
         benchmark(f'end local notes parsing (iteration {local_notes_query_iteration})')
 
@@ -368,7 +366,7 @@ def search_advising_notes(
     benchmark('end loch notes query')
 
     benchmark('begin loch notes parsing')
-    notes_feed += _get_loch_notes_search_results(loch_results['rows'], search_terms)
+    notes_feed += _get_loch_notes_search_results(loch_results['rows'], search_phrases)
     benchmark('end loch notes parsing')
 
     return {
