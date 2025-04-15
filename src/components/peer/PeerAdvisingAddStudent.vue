@@ -138,7 +138,6 @@ const resetAutocomplete = () => {
   isFetchingStudents.value = false
   query.value = ''
   vAutocompleteKey.value = new Date().toString()
-  putFocusNextTick(`${idPrefix}-input`)
 }
 
 const selectStudent = (selected: BasicStudentLabeled) => {
