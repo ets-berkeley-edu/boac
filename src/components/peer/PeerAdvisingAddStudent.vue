@@ -39,6 +39,7 @@
           :in-progress="isAddingStudent"
           :prepend-icon="isAddingStudent ? undefined : mdiPlusThick"
           text="Add"
+          @keyup.enter="onClickAddButton"
         />
       </template>
     </AccessibleCombobox>
@@ -100,16 +101,17 @@ const getInputElement = () => {
 const onClickAddButton = () => {
   const input = getInputElement()
   if (input) {
-    input.setAttribute('disabled', 'false')
+    input.removeAttribute('disabled')
   }
   if (student.value) {
     isAddingStudent.value = true
     const done = () => {
       isAddingStudent.value = false
       student.value = undefined
+      putFocusNextTick(`${idPrefix}-input`)
     }
     createPeerAdvisor(props.peerAdvisingDepartmentId, student.value.uid).then(() => {
-      props.refresh().then(done)
+      props.refresh().finally(done)
     })
   }
 }
@@ -119,11 +121,11 @@ const onUpdateSearch = debounce((input: string) => {
   if (size(q) > 1) {
     isFetchingStudents.value = true
     findStudentsByNameOrSid(q, 20, new AbortController(), true).then(students => {
-      const existingPeerAdvisorSids = map(props.excludeTheseStudents, 'sid')
+      const existingPeerAdvisorSids = map(props.excludeTheseStudents, 'csid')
       const filteredStudents = filter(students, s => !includes(existingPeerAdvisorSids, s.sid))
       autoSuggestedStudents.value = map(filteredStudents, s => ({title: s.label, value: s}))
-      isFetchingStudents.value = false
-    }).catch(() => putFocusNextTick(`${idPrefix}-input`))
+    }).catch(() => putFocusNextTick(`${idPrefix}-input`)
+    ).finally(() => isFetchingStudents.value = false)
   } else {
     autoSuggestedStudents.value = []
   }
