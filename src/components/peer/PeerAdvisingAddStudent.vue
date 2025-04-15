@@ -33,7 +33,7 @@
         <ProgressButton
           :id="`${idPrefix}-add-button`"
           :action="onClickAddButton"
-          :aria-label="`${isAddingStudent ? 'Adding' : 'Add'} Student to Note`"
+          :aria-label="`${isAddingStudent ? 'Adding' : 'Add'} Peer Advisor to department`"
           class="add-button font-size-16 font-weight-bold"
           :disabled="!student || isAddingStudent"
           :in-progress="isAddingStudent"
