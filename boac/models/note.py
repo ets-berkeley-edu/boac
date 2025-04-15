@@ -413,32 +413,12 @@ class Note(Base):
             offset=0,
             limit=40,
     ):
-        params = {
-            'limit': limit,
-            'offset': offset,
-            'peer_advising_department_id': peer_advising_department_id,
-            'sids': sids,
-        }
-
-        def _get_fts_sql(param_key, phrase, append_union_operator=False):
-            params[param_key] = phrase.upper()
-            return f"""
-                SELECT id, ts_rank(fts_index, to_tsquery('english', :{param_key} || ':*')) AS rank
-                FROM notes_fts_index
-                WHERE fts_index @@ to_tsquery('english', :{param_key} || ':*')
-                {'UNION' if append_union_operator else ''}
-            """
-        notes_fts_index_sql = ''
-        if len(search_phrases) > 1:
-            notes_fts_index_sql += _get_fts_sql('search_phrases_joined', ''.join(search_phrases), True)
-        for index, search_phrase in enumerate(search_phrases):
-            append_union_operator = index < len(search_phrases) - 1
-            notes_fts_index_sql += _get_fts_sql(f'search_phrase_{index}', search_phrase, append_union_operator)
-
-        def _get_fts_rank_query(is_count_query=False):
+        def _get_fts_union_query(is_count_query=False):
             fts_rank_sql = f"""
                 SELECT {'COUNT(DISTINCT fts.id)' if is_count_query else 'DISTINCT ON (fts.id) fts.id, fts.rank'} FROM (
-                    {notes_fts_index_sql}
+                    SELECT id, ts_rank(fts_index, to_tsquery('english', :query_text || ':*')) AS rank
+                    FROM notes_fts_index
+                    WHERE fts_index @@ to_tsquery('english', :query_text || ':*')
                     UNION
                     SELECT id, 0 AS rank
                     FROM notes
@@ -448,12 +428,21 @@ class Note(Base):
                 WHERE n.peer_advising_department_id = :peer_advising_department_id AND deleted_at IS NULL
                 {'' if is_count_query else 'OFFSET :offset LIMIT :limit'}
             """
-            results = db.session.execute(text(fts_rank_sql), params).fetchall()
+            results = db.session.execute(
+                params={
+                    'limit': limit,
+                    'offset': offset,
+                    'peer_advising_department_id': peer_advising_department_id,
+                    'query_text': ' & '.join(search_phrases),
+                    'sids': sids,
+                },
+                statement=text(fts_rank_sql),
+            ).fetchall()
             return results[0]['count'] if is_count_query else results
-        total_matching_count = _get_fts_rank_query(is_count_query=True)
-        search_results = []
-        note_id_by_rank = ', '.join([f"({row['id']}, {row['rank']})" for row in _get_fts_rank_query()])
-        if note_id_by_rank:
+
+        search_results = _get_fts_union_query()
+        if search_results:
+            note_id_by_rank = ', '.join([f"({row['id']}, {row['rank']})" for row in search_results])
             sql = f"""
                 SELECT n.*, COUNT(a.note_id) AS attachment_count
                 FROM notes n
@@ -462,11 +451,11 @@ class Note(Base):
                 GROUP BY n.id, rank.ordering
                 ORDER BY rank.ordering
             """
-            search_results = db.session.execute(text(sql), {'peer_advising_department_id': peer_advising_department_id})
+            search_results = db.session.execute(text(sql))
             keys = search_results.keys()
         return {
             'results': [dict(zip(keys, row)) for row in search_results],
-            'total_matching_count': total_matching_count,
+            'total_matching_count': _get_fts_union_query(is_count_query=True),
         }
 
     @classmethod
