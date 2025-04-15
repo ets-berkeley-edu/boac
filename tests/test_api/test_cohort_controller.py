@@ -1659,7 +1659,7 @@ class TestDownloadCsvPerFilters:
     def test_admit_domain_denies_non_ce3_advisor(self, user_factory, client, fake_auth):
         advisor = user_factory(dept_codes=['GUEST'])
         fake_auth.login(advisor.uid)
-        self._api_download_admit_csv(client, 403)
+        self._api_download_admit_csv(client, 404)
 
 
 class TestCohortFilterOptions:
@@ -1928,7 +1928,7 @@ class TestCohortFilterOptions:
         fake_auth.login(advisor.uid)
         self._api_cohort_filter_options(
             client,
-            expected_status_code=403,
+            expected_status_code=404,
             json_data={
                 'domain': 'admitted_students',
                 'existingFilters': [],

@@ -119,7 +119,7 @@ def get_cohort(cohort_id):
     filter_keys = list(request.args.keys())
     order_by = get_param(request.args, 'orderBy', None)
     if is_unauthorized_search(filter_keys, order_by):
-        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+        raise ResourceNotFoundError('Cohort not found')
     include_students = to_bool(get_param(request.args, 'includeStudents') or False)
     include_students = True if include_students is None else include_students
     offset = get_param(request.args, 'offset', 0)
@@ -197,7 +197,7 @@ def get_cohort_per_filters():
     include_students = True if include_students is None else include_students
     domain = get_param(params, 'domain', 'default')
     if is_unauthorized_domain(domain):
-        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
+        raise ResourceNotFoundError(f'Domain \'{domain}\' is unavailable.')
     order_by = get_param(params, 'orderBy', None)
     offset = get_param(params, 'offset', 0)
     limit = get_param(params, 'limit', 50)
@@ -263,7 +263,7 @@ def download_csv_per_filters():
     if is_unauthorized_search(filter_keys):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     if is_unauthorized_domain(domain):
-        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
+        raise ResourceNotFoundError(f'Domain \'{domain}\' is unavailable.')
     cohort = _construct_phantom_cohort(
         domain=domain,
         filters=filters,
@@ -288,7 +288,7 @@ def create_cohort():
     params = request.get_json()
     domain = get_param(params, 'domain', 'default')
     if is_unauthorized_domain(domain):
-        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
+        raise ResourceNotFoundError(f'Domain \'{domain}\' is unavailable.')
     name = get_param(params, 'name', None)
     filters = get_param(params, 'filters', None)
     order_by = params.get('orderBy')
@@ -360,7 +360,7 @@ def all_cohort_filter_options(cohort_owner_uid):
     existing_filters = get_param(params, 'existingFilters', [])
     domain = get_param(params, 'domain', 'default')
     if is_unauthorized_domain(domain):
-        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
+        raise ResourceNotFoundError(f'Domain \'{domain}\' is unavailable.')
     return tolerant_jsonify(
         CohortFilterOptions.get_cohort_filter_option_groups(
             domain=domain,
@@ -376,7 +376,7 @@ def translate_cohort_filter_to_menu(cohort_owner_uid):
     params = request.get_json()
     domain = get_param(params, 'domain', 'default')
     if is_unauthorized_domain(domain):
-        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
+        raise ResourceNotFoundError(f'Domain \'{domain}\' is unavailable.')
     criteria = get_param(params, 'criteria')
     filter_options = CohortFilterOptions.translate_to_filter_options(cohort_owner_uid, domain, criteria)
     return tolerant_jsonify(filter_options)
