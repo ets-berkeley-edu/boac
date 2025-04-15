@@ -148,7 +148,7 @@ const addNoteAttachments = (attachments: NoteAttachment[]) => {
   return new Promise<void>(resolve => {
     const pluralized = pluralize('attachment', attachments.length)
     noteStore.setAttachments(concat(model.value.attachments, attachments))
-    alertScreenReader(`${pluralized} added`, false, 'assertive')
+    alertScreenReader(`Added ${pluralized}`, false, 'assertive')
     resolve()
   })
 }
@@ -177,10 +177,9 @@ const discardRequested = () => {
 }
 
 const onClearSelectedStudent = () => {
-  alertScreenReader(`${studentName.value} removed`)
+  alertScreenReader(`Removed ${studentName.value}`)
   student.value = undefined
   clearNoteRecipients()
-  putFocusNextTick('find-student-autocomplete-input')
 }
 
 const onSelectStudent = (selectedStudent: BasicStudentLabeled | undefined) => {
@@ -202,7 +201,7 @@ const removeAttachmentByIndex = (index: number) => {
   if (attachment) {
     if (attachment.id) {
       removeAttachment(model.value.id, attachment.id).then(() => {
-        alertScreenReader(`Attachment '${attachment.displayName}' removed`)
+        alertScreenReader(`Removed attachment '${attachment.displayName}'`)
       })
     }
     noteStore.removeAttachmentByIndex(index)
