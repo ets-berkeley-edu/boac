@@ -41,7 +41,7 @@ from titlecase import titlecase
 
 """Generic utilities."""
 
-TEXT_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
+TEXT_SEARCH_PATTERN = r'[0-9A-Za-z/\-]+'
 
 
 def camelize(text):

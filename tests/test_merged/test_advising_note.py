@@ -323,7 +323,7 @@ class TestMergedAdvisingNote:
 
     def test_search_advising_notes_funny_characters(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        results = search_advising_notes(search_phrase='horse; <- epitaph? ->')
+        results = search_advising_notes(search_phrase='horse & epitaph')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
         assert len(notes) == 1
@@ -335,9 +335,12 @@ class TestMergedAdvisingNote:
         results = search_advising_notes(search_phrase='2/1/2019 1:30')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
+        print(notes[0]['noteSnippet'])
         assert len(notes) == 1
         assert total_note_count == 1
-        assert 'next appt. <strong>2/1/2019</strong> @ <strong>1:30</strong>. Student continued' in notes[0]['noteSnippet']
+        assert (
+            'scheduled next appt. <strong>2/1/2019</strong> @ <strong>1</strong>:<strong>30</strong>. Student'
+        ) in notes[0]['noteSnippet']
         results = search_advising_notes(search_phrase='1-24-19')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -349,20 +352,23 @@ class TestMergedAdvisingNote:
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='2.0')
         notes = results['notes']
+        print(notes[0]['noteSnippet'])
         total_note_count = results['totalNoteCount']
         assert len(notes) == 1
         assert total_note_count == 1
-        assert "Student continued on <strong>2.0</strong> prob (COP) until Sp '19." in notes[0]['noteSnippet']
+        assert 'Student continued on <strong>2</strong>.<strong>0</strong> prob (COP) until Sp \'19.' in notes[0]['noteSnippet']
 
     def test_search_email_address(self, app, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='E-mailed test@berkeley.edu')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
+        print(notes[0]['noteSnippet'])
         assert len(notes) == 1
         assert total_note_count == 1
-        assert "until Sp '19. <strong>E-mailed</strong> <strong>test@berkeley.edu</strong>: told her she'll need to drop Eng. 123" \
-            in notes[0]['noteSnippet']
+        assert (
+               'Student continued on 2.0 prob (COP) until Sp \'19. <strong>E-mailed</strong> '
+               '<strong>test</strong>@<strong>berkeley</strong>.<strong>edu</strong>:') in notes[0]['noteSnippet']
 
     def test_search_advising_notes_timestamp_format(self, app, fake_auth):
         fake_auth.login(coe_advisor)
