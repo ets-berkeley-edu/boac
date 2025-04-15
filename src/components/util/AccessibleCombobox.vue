@@ -12,7 +12,6 @@
       :class="clazz"
       :clearable="clearable"
       :color="color"
-      :debounce="500"
       :density="density"
       :disabled="disabled"
       hide-details
