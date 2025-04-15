@@ -41,7 +41,7 @@ class DraftNotesPage(BoaPages):
     def visible_draft_ids(self):
         self.when_present(self.DRAFTS_HEADING, utils.get_short_timeout())
         time.sleep(2)
-        return [el.get_attribute('id').split('-')[-1] for el in self.elements(self.DRAFT_NOTE_ROW)]
+        return [el.get_dom_attribute('id').split('-')[-1] for el in self.elements(self.DRAFT_NOTE_ROW)]
 
     @staticmethod
     def draft_row_xpath(note):

@@ -223,7 +223,7 @@ class BoaPages(CreateNoteModal, SearchForm):
     def click_view_everyone_groups(self):
         time.sleep(1)
         self.wait_for_page_and_click(self.VIEW_EVERYONE_GROUPS_LINK)
-        self.wait_for_boa_title('All Groups')
+        self.wait_for_boa_title('All Curated Groups')
 
     def click_sidebar_group_link(self, group):
         els = self.elements(self.SIDEBAR_ADMIT_GROUP_LINK) if group.is_ce3 else self.elements(self.SIDEBAR_GROUP_LINK)

@@ -77,7 +77,7 @@ class StudentPageAppointment(StudentPageTimeline, CreateNoteModal):
         ids = []
         els = self.elements((By.XPATH, '//tr[starts-with(@id, "permalink-appointment")]'))
         for el in els:
-            parts = el.get_attribute('id').split('-')[2:]
+            parts = el.get_dom_attribute('id').split('-')[2:]
             ids.append('-'.join(parts))
         return ids
 

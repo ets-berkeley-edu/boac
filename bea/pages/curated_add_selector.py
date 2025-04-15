@@ -166,7 +166,7 @@ class CuratedAddSelector(BoaPages, CuratedModal):
         app.logger.info(f'There are {len(cbx_els)} individual checkboxes')
         # Don't try to add users to the group if they're already in the group
         group_sids = list(map(lambda member: member.sid, group.members))
-        visible_sids = list(map(lambda el: el.get_attribute('id').split('-')[1], cbx_els))
+        visible_sids = list(map(lambda el: el.get_dom_attribute('id').split('-')[1], cbx_els))
         sids_to_add = [sid for sid in visible_sids if sid not in group_sids]
         members_to_add = list(filter(lambda st: st.sid in sids_to_add, all_students_or_admits))
         self.click_add_to_group_from_list_view_header_button(group)

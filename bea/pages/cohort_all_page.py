@@ -24,16 +24,20 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from bea.pages.boa_pages import BoaPages
+from bea.test_utils import utils
 from selenium.webdriver.common.by import By
 
 
 class EveryoneCohortsPage(BoaPages):
 
+    EXPAND_ALL_BTN = By.ID, 'expand-all-departments'
     STUDENT_COHORT = By.XPATH, '//li[not(contains(., "Admitted Students"))]/a'
     ADMIT_COHORT = By.XPATH, '//li[contains(., "Admitted Students")]/a'
 
     def visible_student_cohorts(self):
         self.wait_for_spinner()
+        self.wait_for_element_and_click(self.EXPAND_ALL_BTN)
+        self.when_present(self.STUDENT_COHORT, utils.get_short_timeout())
         return self.els_text_if_exist(self.STUDENT_COHORT)
 
     def visible_admit_cohorts(self):

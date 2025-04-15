@@ -54,7 +54,7 @@ class Pagination(BoaPages):
                 self.wait_for_element_and_click(self.GO_TO_LAST_PAGE_LINK)
                 self.wait_for_spinner()
                 Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.GO_TO_PAGE_LINK))
-            pages = list(map(lambda el: el.get_attribute('id').split('-')[-1], self.elements(self.GO_TO_PAGE_LINK)))
+            pages = list(map(lambda el: el.get_dom_attribute('id').split('-')[-1], self.elements(self.GO_TO_PAGE_LINK)))
             app.logger.info(f'Pages are {pages}')
             pages = [page for page in pages if page not in ['first', 'prev', 'next', 'last']]
             app.logger.info(f'Number of pages is {len(pages)}')

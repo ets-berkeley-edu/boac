@@ -341,7 +341,7 @@ class SearchResultsPage(ListViewAdmitPages):
         self.wait_for_element_and_click(self.ADD_ALL_TO_GROUP_CBX)
         els = self.elements(self.ADD_INDIVIDUAL_TO_GROUP_CBX)
         app.logger.info(f'There are {len(els)} individual checkboxes')
-        visible_sids = list(map(lambda el: el.get_attribute('id').split('-')[1], els))
+        visible_sids = list(map(lambda el: el.get_dom_attribute('id').split('-')[1], els))
         students = list(filter(lambda s: s.sid in visible_sids, all_students))
         self.click_add_to_group_from_list_view_header_button(group)
         self.add_members_to_grp(students, group)

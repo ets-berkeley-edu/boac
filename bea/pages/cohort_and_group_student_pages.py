@@ -55,7 +55,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         self.when_present((By.ID, 'csv-column-options-0'), utils.get_short_timeout())
         checkbox_count = 25 if Department.ADMIN in user.depts or Department.COE in user.depts else 24
         for i in range(checkbox_count):
-            self.element((By.ID, f'csv-column-options-{i}')).click()
+            self.click_element_js((By.ID, f'csv-column-options-{i}'), addl_pause=0.1)
         self.confirm_export(cohort)
         return utils.wait_for_export_csv()
 
@@ -171,7 +171,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
     def selected_term_sis_id(self):
         select = Select(self.element(self.TERM_SELECT))
         option = select.first_selected_option
-        return option.get_attribute('value')
+        return option.get_dom_attribute('value')
 
     def scroll_to_student(self, student):
         self.scroll_to_element(self.element((By.XPATH, self.student_row_xpath(student))))

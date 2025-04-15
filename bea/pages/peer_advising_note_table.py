@@ -33,12 +33,17 @@ from selenium.webdriver.common.by import By
 class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     PEER_NOTE_TABLE = By.ID, 'notes-for-peer-advisor-view'
-    PEER_NOTE_NO_RESULTS = By.ID, 'peer-advisor-no-notes'
+    PEER_NOTE_NO_RESULTS = By.XPATH, '//div[contains(text(), "No results found for")]'
+    SHOW_MORE_NOTES_BTN = By.ID, 'fetch-more-notes'
 
     def visible_peer_note_ids(self):
         els = self.elements((By.XPATH, '//button[contains(@id, "open-peer-advising-")]'))
         ids = [el.get_dom_attribute('id').split('-')[-1] for el in els]
         return ids
+
+    def show_more_peer_notes(self):
+        self.wait_for_element_and_click(self.SHOW_MORE_NOTES_BTN)
+        time.sleep(1)
 
     @staticmethod
     def peer_note_row_xpath(note):

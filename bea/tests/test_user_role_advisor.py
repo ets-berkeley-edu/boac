@@ -43,13 +43,20 @@ test = BEATestConfig()
 test.user_role_advisor()
 random.shuffle(test.students)
 
+all_cohorts = boa_utils.get_everyone_filtered_cohorts()
 admin_cohorts = boa_utils.get_everyone_filtered_cohorts(Department.ADMIN)
+admin_cohort_ids = [ac.cohort_id for ac in admin_cohorts]
+everyone_cohorts = [ec for ec in all_cohorts if ec.cohort_id not in admin_cohort_ids]
+
+all_groups = boa_utils.get_everyone_curated_groups()
 admin_groups = boa_utils.get_everyone_curated_groups(Department.ADMIN)
+admin_group_ids = [ag.cohort_id for ag in admin_groups]
+everyone_groups = [eg for eg in all_groups if eg.cohort_id not in admin_group_ids]
 
 # ASC config
 test_asc = BEATestConfig()
 test_asc.user_role_asc(test)
-asc_cohorts = boa_utils.get_everyone_filtered_cohorts(test_asc.dept)
+asc_group = Cohort({'members': test.students[0:25], 'name': f'ASC Group {test_asc.test_id}'})
 asc_groups = boa_utils.get_everyone_curated_groups(test_asc.dept)
 
 asc_inactive_filter = CohortFilter(data={'asc_inactive': True}, dept=test_asc.dept)
@@ -57,6 +64,7 @@ asc_inactive_sids = nessie_filter_students_utils.get_cohort_result(test_asc, asc
 student_asc_inactive = next(filter(lambda s: s.sid == asc_inactive_sids[0], test.students))
 
 asc_active_filter = CohortFilter(data={'asc_teams': [{'squad': Squad.MTE.value['name']}]}, dept=test_asc.dept)
+asc_cohort = FilteredCohort({'search_criteria': asc_active_filter, 'name': f'ASC Cohort {test_asc.test_id}'})
 asc_active_sids = nessie_filter_students_utils.get_cohort_result(test_asc, asc_active_filter)
 student_asc_active = next(filter(lambda s: s.sid == asc_active_sids[0], test.students))
 
@@ -125,11 +133,20 @@ class TestASCAdvisor:
 
     # Cohort visibility
 
-    def test_cohorts_all(self):
+    def test_create_asc_cohort(self):
         self.filtered_admits_page.log_out()
         self.homepage.dev_auth(test_asc.advisor)
+        self.homepage.click_sidebar_create_filtered()
+        self.filtered_students_page.perform_student_search(asc_cohort)
+        self.filtered_students_page.create_new_cohort(asc_cohort)
+
+    def test_create_asc_group(self):
+        self.homepage.click_sidebar_create_student_group()
+        self.curated_students_page.create_group_with_bulk_sids(asc_group, asc_group.members)
+
+    def test_cohorts_all(self):
         self.homepage.click_view_everyone_cohorts()
-        expected = [c.name for c in asc_cohorts]
+        expected = [c.name for c in everyone_cohorts]
         expected.sort()
         visible = self.cohorts_all_page.visible_student_cohorts()
         visible.sort()
@@ -139,10 +156,6 @@ class TestASCAdvisor:
         if admin_cohorts:
             self.filtered_students_page.hit_non_auth_cohort(admin_cohorts[0])
 
-    def test_cannot_reach_other_dept_cohort(self):
-        if coe_cohorts:
-            self.filtered_students_page.hit_non_auth_cohort(coe_cohorts[0])
-
     def test_cannot_reach_admit_cohort(self):
         self.filtered_admits_page.hit_non_auth_cohort(ce3_cohort)
 
@@ -150,7 +163,7 @@ class TestASCAdvisor:
 
     def test_groups_all(self):
         self.homepage.click_view_everyone_groups()
-        expected = [g.name for g in asc_groups]
+        expected = [g.name for g in everyone_groups]
         expected.sort()
         visible = self.curated_all_page.visible_student_groups()
         visible.sort()
@@ -159,10 +172,6 @@ class TestASCAdvisor:
     def test_cannot_reach_admin_group(self):
         if admin_groups:
             self.curated_students_page.hit_non_auth_group(admin_groups[0])
-
-    def test_cannot_reach_other_dept_group(self):
-        if coe_groups:
-            self.curated_students_page.hit_non_auth_group(coe_groups[0])
 
     # Student / Admit pages
 
@@ -274,7 +283,7 @@ class TestCoEAdvisor:
         self.homepage.log_out()
         self.homepage.dev_auth(test_coe.advisor)
         self.homepage.click_view_everyone_cohorts()
-        expected = [c.name for c in coe_cohorts]
+        expected = [c.name for c in everyone_cohorts]
         expected.sort()
         visible = self.cohorts_all_page.visible_student_cohorts()
         visible.sort()
@@ -284,9 +293,11 @@ class TestCoEAdvisor:
         if admin_cohorts:
             self.filtered_students_page.hit_non_auth_cohort(admin_cohorts[0])
 
-    def test_cannot_reach_other_dept_cohort(self):
-        if asc_cohorts:
-            self.filtered_students_page.hit_non_auth_cohort(asc_cohorts[0])
+    def test_can_reach_other_dept_cohort(self):
+        self.filtered_students_page.load_cohort(asc_cohort)
+
+    def test_cannot_view_protected_filters(self):
+        assert self.filtered_students_page.is_present(self.filtered_students_page.COHORT_FILTERS_UNAVAILABLE)
 
     def test_cannot_reach_admit_cohort(self):
         self.filtered_admits_page.hit_non_auth_cohort(ce3_cohort)
@@ -295,7 +306,7 @@ class TestCoEAdvisor:
 
     def test_groups_all(self):
         self.homepage.click_view_everyone_groups()
-        expected = [g.name for g in coe_groups]
+        expected = [g.name for g in everyone_groups]
         expected.sort()
         visible = self.curated_all_page.visible_student_groups()
         visible.sort()
@@ -305,9 +316,8 @@ class TestCoEAdvisor:
         if admin_groups:
             self.curated_students_page.hit_non_auth_group(admin_groups[0])
 
-    def test_cannot_reach_other_dept_group(self):
-        if asc_groups:
-            self.curated_students_page.hit_non_auth_group(asc_groups[0])
+    def test_can_reach_other_dept_group(self):
+        self.curated_students_page.load_page(asc_group)
 
     # Student / Admit pages
 
@@ -405,7 +415,7 @@ class TestLandSAdvisor:
         self.homepage.log_out()
         self.homepage.dev_auth(test_ls.advisor)
         self.homepage.click_view_everyone_cohorts()
-        expected = [c.name for c in ls_cohorts]
+        expected = [c.name for c in everyone_cohorts]
         expected.sort()
         visible = self.cohorts_all_page.visible_student_cohorts()
         visible.sort()
@@ -418,7 +428,7 @@ class TestLandSAdvisor:
     def test_cannot_reach_admit_cohort(self):
         self.filtered_admits_page.hit_non_auth_cohort(ce3_cohort)
 
-    def test_can_reach_cohort_in_same_dept(self):
+    def test_can_reach_cohort_belonging_to_other(self):
         cohort = next(filter(lambda c: c.owner_uid != test_ls.advisor.uid, ls_cohorts))
         self.filtered_students_page.load_cohort(cohort)
 
@@ -441,7 +451,7 @@ class TestLandSAdvisor:
 
     def test_groups_all(self):
         self.homepage.click_view_everyone_groups()
-        expected = [g.name for g in ls_groups]
+        expected = [g.name for g in everyone_groups]
         expected.sort()
         visible = self.curated_all_page.visible_student_groups()
         visible.sort()
@@ -451,8 +461,8 @@ class TestLandSAdvisor:
         if admin_groups:
             self.curated_students_page.hit_non_auth_group(admin_groups[0])
 
-    def test_can_reach_group_in_same_dept(self):
-        group = next(filter(lambda c: c.owner_uid != test_ls.advisor.uid, ls_groups))
+    def test_can_reach_group_belonging_to_other(self):
+        group = next(filter(lambda c: c.owner_uid != test_ls.advisor.uid, everyone_groups))
         self.curated_students_page.load_page(group)
 
     def test_can_export_group_student_list(self):
