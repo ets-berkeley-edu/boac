@@ -135,6 +135,7 @@ class TestCreatePeerAdvisingNote:
         )
         assert note_id
         assert note['author']['uid'] == ce3_navcal_peer_advisor_uid
+        assert note['author']['departments'] == [{'deptCode': 'ZCEEE', 'deptName': 'Centers for Educational Equity and Excellence'}]
         assert note['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
         assert note['read'] is True
         assert len(note.get('attachments')) == 2

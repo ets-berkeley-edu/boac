@@ -70,8 +70,12 @@ def create_peer_advising_note():
     matching_membership = next((m for m in memberships if m['peer_advising_department_id'] == peer_advising_department_id), None)
     if not matching_membership:
         raise ForbiddenRequestError('Unauthorized')
+    calnet_profile = get_note_author_profile_of_current_user()
     note = Note.create(
-        **get_note_author_profile_of_current_user(),
+        author_uid=calnet_profile['author_uid'],
+        author_name=calnet_profile['author_name'],
+        author_role=matching_membership['role_type'],
+        author_dept_codes=[matching_membership['university_dept_code']],
         body=body,
         contact_type=contact_type,
         subject=subject,
