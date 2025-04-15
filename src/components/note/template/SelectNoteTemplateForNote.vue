@@ -1,110 +1,118 @@
 <template>
   <div>
     <div class="align-start d-flex">
-      <div>
-        <v-menu
-          v-if="noteStore.mode !== 'editTemplate'"
-          id="templates-menu"
-          absolute
-          attach="#edit-note-header"
-          :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
-          left="100"
-          location="bottom"
-          max-width="1000"
-          no-click-animation
-          :width="noteStore.noteTemplates.length ? 1000 : 350"
-          @update:model-value="onToggleTemplatesMenu"
-        >
-          <template #activator="{props: menuProps}">
-            <v-btn
-              id="my-templates-button"
-              class="ml-auto mr-2"
-              color="primary"
-              :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
-              flat
-              v-bind="menuProps"
-            >
-              <div class="pr-1">Templates</div>
-              <v-icon :icon="mdiMenuDown" size="24" />
-            </v-btn>
-          </template>
-          <v-list
-            v-if="noteStore.noteTemplates.length"
-            class="scrollbar-gutter-stable"
-            variant="flat"
+      <v-menu
+        v-if="noteStore.mode !== 'editTemplate'"
+        id="templates-menu"
+        absolute
+        attach="#edit-note-header"
+        :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
+        left="100"
+        location="bottom"
+        max-width="1000"
+        no-click-animation
+        :width="noteStore.noteTemplates.length ? 1000 : 350"
+        @update:model-value="onToggleTemplatesMenu"
+      >
+        <template #activator="{props: menuProps}">
+          <v-btn
+            id="my-templates-button"
+            class="ml-auto mr-2"
+            color="primary"
+            :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
+            flat
+            v-bind="menuProps"
           >
-            <v-list-item-action v-for="template in noteStore.noteTemplates" :key="template.id">
-              <v-container class="pa-2" fluid>
-                <v-row class="align-center d-flex flex-nowrap" no-gutters>
-                  <v-col class="py-0" cols="8">
-                    <button
-                      :id="`load-note-template-${template.id}`"
-                      :aria-label="`Use template &quot;${template.title}&quot;`"
-                      class="d-flex font-size-15 font-weight-550 load-note-template-btn justify-start pl-4 text-primary"
+            <div class="pr-1">Templates</div>
+            <v-icon :icon="mdiMenuDown" size="24" />
+          </v-btn>
+        </template>
+        <v-list
+          v-if="noteStore.noteTemplates.length"
+          class="scrollbar-gutter-stable"
+          variant="flat"
+        >
+          <v-list-item
+            v-for="template in noteStore.noteTemplates"
+            :key="template.id"
+            class="pa-0"
+            :active="size(noteStore.noteTemplates) > 1 && template.id === activeTemplateId"
+          >
+            <v-container class="pa-2" fluid>
+              <v-row class="align-center d-flex" no-gutters>
+                <v-col class="template-name py-0" cols="12" md="8">
+                  <button
+                    :id="`load-note-template-${template.id}`"
+                    :aria-label="`Use template &quot;${template.title}&quot;`"
+                    class="v-btn d-flex font-size-15 font-weight-550 load-note-template-btn justify-start ml-2 pl-2 text-primary text-capitalize w-100"
+                    :disabled="isSaving"
+                    :title="template.title"
+                    @click="loadTemplate(template)"
+                    @focus="activeTemplateId = template.id"
+                  >
+                    <span class="v-btn__overlay" />
+                    <div class="truncate-with-ellipsis">{{ template.title }}</div>
+                  </button>
+                </v-col>
+                <v-col class="template-actions pl-8 pr-3" cols="12" md="4">
+                  <div class="align-center d-flex justify-end">
+                    <v-btn
+                      :id="`btn-rename-note-template-${template.id}`"
+                      class="min-width-unset font-size-14 px-1"
+                      color="primary"
+                      density="compact"
                       :disabled="isSaving"
-                      :title="template.title"
-                      @click="loadTemplate(template)"
+                      height="24"
+                      variant="text"
+                      @click.stop.prevent="openRenameTemplateDialog(template)"
+                      @focus="activeTemplateId = template.id"
                     >
-                      <div class="truncate-with-ellipsis">{{ template.title }}</div>
-                    </button>
-                  </v-col>
-                  <v-col class="pl-8 pr-3" cols="4">
-                    <div class="align-center d-flex justify-end">
-                      <v-btn
-                        :id="`btn-rename-note-template-${template.id}`"
-                        class="min-width-unset font-size-14 px-1"
-                        color="primary"
-                        density="compact"
-                        :disabled="isSaving"
-                        height="24"
-                        variant="text"
-                        @click.stop.prevent="openRenameTemplateDialog(template)"
-                      >
-                        Rename<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
-                      </v-btn>
-                      <div class="font-weight-light mb-1 mx-1 text-medium-emphasis" role="separator">
-                        |
-                      </div>
-                      <v-btn
-                        :id="`btn-edit-note-template-${template.id}`"
-                        class="min-width-unset font-size-14 px-1"
-                        color="primary"
-                        density="compact"
-                        :disabled="isSaving"
-                        height="24"
-                        variant="text"
-                        @click="editTemplate(template)"
-                      >
-                        Edit<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
-                      </v-btn>
-                      <div class="font-weight-light mb-1 mx-1 text-medium-emphasis" role="separator">
-                        |
-                      </div>
-                      <v-btn
-                        :id="`btn-delete-note-template-${template.id}`"
-                        class="min-width-unset font-size-14 px-1"
-                        color="primary"
-                        density="compact"
-                        :disabled="isSaving"
-                        height="24"
-                        variant="text"
-                        @click.stop="openDeleteTemplateDialog(template)"
-                      >
-                        Delete<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
-                      </v-btn>
+                      Rename<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
+                    </v-btn>
+                    <div class="font-weight-light mb-1 mx-1 text-medium-emphasis" role="separator">
+                      |
                     </div>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-list-item-action>
-          </v-list>
-          <v-list v-if="!noteStore.noteTemplates.length">
-            <v-list-item disabled>
-              <span class="font-size-16 font-weight-medium">You have no saved templates.</span>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </div>
+                    <v-btn
+                      :id="`btn-edit-note-template-${template.id}`"
+                      class="min-width-unset font-size-14 px-1"
+                      color="primary"
+                      density="compact"
+                      :disabled="isSaving"
+                      height="24"
+                      variant="text"
+                      @click="editTemplate(template)"
+                      @focus="activeTemplateId = template.id"
+                    >
+                      Edit<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
+                    </v-btn>
+                    <div class="font-weight-light mb-1 mx-1 text-medium-emphasis" role="separator">
+                      |
+                    </div>
+                    <v-btn
+                      :id="`btn-delete-note-template-${template.id}`"
+                      class="min-width-unset font-size-14 px-1"
+                      color="primary"
+                      density="compact"
+                      :disabled="isSaving"
+                      height="24"
+                      variant="text"
+                      @click.stop="openDeleteTemplateDialog(template)"
+                      @focus="activeTemplateId = template.id"
+                    >
+                      Delete<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
+                    </v-btn>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-list-item>
+        </v-list>
+        <v-list v-if="!noteStore.noteTemplates.length">
+          <v-list-item disabled>
+            <span class="font-size-16 font-weight-medium">You have no saved templates.</span>
+          </v-list-item>
+        </v-list>
+      </v-menu>
       <div class="close-btn-in-modal-header">
         <v-btn
           v-if="noteStore.mode === 'editDraft'"
@@ -237,6 +245,7 @@ const props = defineProps({
   }
 })
 
+const activeTemplateId = ref()
 const error = ref<string | undefined>()
 const isSaving = ref(false)
 const templateToDelete = ref<NoteTemplate | undefined>(undefined)
@@ -316,7 +325,12 @@ const renameTemplate = () => {
     const templateTitle = trim(updatedTemplateTitle.value)
     error.value = undefined
     isSaving.value = true
-    const errorMessage = validateTemplateTitle({id: template.id, title: templateTitle})
+    const errorMessage = validateTemplateTitle({
+      id: template.id,
+      title: templateTitle,
+      body: template.body,
+      topics: template.topics
+    })
     if (errorMessage) {
       error.value = errorMessage
       isSaving.value = false
@@ -346,6 +360,10 @@ const resetTemplate = (template, title) => {
   margin: -6px 5px 0 5px;
 }
 .load-note-template-btn {
-  width: 500px;
+  height: 24px;
+  letter-spacing: normal;
+}
+.template-actions {
+  min-width: 235px !important;
 }
 </style>
