@@ -158,7 +158,7 @@ export interface DepartmentPanel extends Department {
 }
 
 const contextStore = useContextStore()
-const countExpandedDepartments = computed(() => _filter(departments, ['isOpen', true]).length)
+const countExpandedDepartments = computed(() => _filter(departments.value, ['isOpen', true]).length)
 const currentUser = contextStore.currentUser
 const departments = ref<DepartmentPanel[]>([])
 const loading = computed(() => contextStore.loading)
