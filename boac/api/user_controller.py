@@ -31,7 +31,7 @@ from boac.api.util import authorized_users_api_feed, get_current_user_profile
 from boac.lib import util
 from boac.lib.berkeley import has_any_membership_role, is_peer_advisor, is_peer_advisor_manager
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
-from boac.lib.util import capitalize_all_words, get_benchmarker, split_per_camel_case, to_bool_or_none
+from boac.lib.util import capitalize_all_words, get_benchmarker, split_per_camel_case, to_bool_or_none, utc_now
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
@@ -250,22 +250,23 @@ def create_or_update_user_profile():
     params = request.get_json()
     user = params.get('user', None)
     departments = user.get('departments') if user else None
+    is_user_being_deleted = bool(user.get('deletedAt'))
 
     if not user or not user.get('uid') or departments is None:
         raise errors.BadRequestError('Required parameters are missing')
 
     authorized_user = _update_or_create_authorized_user(user=user)
+    if is_user_being_deleted and not authorized_user.deleted_at:
+        authorized_user = AuthorizedUser.delete(authorized_user.uid)
+    elif not is_user_being_deleted and authorized_user.deleted_at:
+        authorized_user = AuthorizedUser.un_delete(authorized_user.uid)
     _delete_existing_memberships(authorized_user.id)
-    _update_or_create_department_memberships(authorized_user.id, departments)
-
-    if user.get('deletedAt') and not authorized_user.deleted_at:
-        AuthorizedUser.delete(authorized_user.uid)
-    elif not user.get('deletedAt') and authorized_user.deleted_at:
-        AuthorizedUser.un_delete(authorized_user.uid)
-
-    user_id = authorized_user.id
-    UserSession.flush_cached_user_session(user_id)
-    updated_user = AuthorizedUser.find_by_id(user_id, include_deleted=True)
+    _update_or_create_department_memberships(
+        authorized_user=authorized_user,
+        departments=departments,
+    )
+    UserSession.flush_cached_user_session(authorized_user.id)
+    updated_user = AuthorizedUser.find_by_id(authorized_user.id, include_deleted=True)
     api_json = authorized_users_api_feed([updated_user])[0]
     return tolerant_jsonify(api_json)
 
@@ -379,7 +380,7 @@ def _update_or_create_authorized_user(user):
             raise errors.BadRequestError('Invalid UID')
 
 
-def _update_or_create_department_memberships(user_id, departments):
+def _update_or_create_department_memberships(authorized_user, departments):
     valid_roles = ('advisor', 'director', 'peer_advisor', 'peer_advisor_manager')
     for department in departments:
         for membership in [m for m in department['memberships'] if m['role'] in valid_roles]:
@@ -388,7 +389,7 @@ def _update_or_create_department_memberships(user_id, departments):
             if role in ['advisor', 'director']:
                 UniversityDeptMember.create_or_update_membership(
                     automate_membership=to_bool_or_none(membership['automateMembership']),
-                    authorized_user_id=user_id,
+                    authorized_user_id=authorized_user.id,
                     role=role,
                     university_dept_id=university_dept.id,
                 )
@@ -396,11 +397,12 @@ def _update_or_create_department_memberships(user_id, departments):
                 peer_advising_department_id = membership['peerAdvisingDepartmentId']
                 peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
                 PeerAdvisingDepartmentMember.create_or_update_membership(
-                    authorized_user_id=user_id,
+                    authorized_user_id=authorized_user.id,
+                    deleted_at=utc_now() if authorized_user.deleted_at else None,
                     peer_advising_department_id=peer_advising_department.id,
                     role_type=role,
                 )
-    UserSession.flush_cached_user_session(user_id)
+    UserSession.flush_cached_user_session(authorized_user.id)
 
 
 def _delete_existing_memberships(user_id):

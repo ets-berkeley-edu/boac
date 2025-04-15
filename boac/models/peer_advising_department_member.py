@@ -55,6 +55,7 @@ class PeerAdvisingDepartmentMember(Base):
             authorized_user_id,
             peer_advising_department_id,
             role_type,
+            deleted_at=None,
     ):
         membership = cls.query.filter_by(
             authorized_user_id=authorized_user_id,
@@ -63,7 +64,7 @@ class PeerAdvisingDepartmentMember(Base):
         ).first()
         if membership:
             membership.role_type = role_type
-            membership.deleted_at = None
+            membership.deleted_at = deleted_at
         else:
             membership = cls(
                 authorized_user_id=authorized_user_id,
