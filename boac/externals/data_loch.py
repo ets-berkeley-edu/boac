@@ -962,7 +962,7 @@ def search_sis_advising(
     sql = f"""SELECT DISTINCT {query_columns} FROM {query_tables}
         {topic_join}
         WHERE {where_clause}
-        ORDER BY rank DESC, an.id"""
+        ORDER BY an.created_at DESC, rank DESC"""
 
     if offset is not None and offset > 0:
         sql += ' OFFSET %(offset)s'

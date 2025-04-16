@@ -2,7 +2,7 @@
   <div
     :id="`advising-note-search-result-${note.id}`"
     :class="{'demo-mode-blur': currentUser.inDemoMode}"
-    class="pb-2"
+    class="mt-2"
   >
     <h3 class="advising-note-search-result-header">
       <router-link
@@ -22,16 +22,21 @@
       />
       ({{ note.studentSid }})
     </h3>
-    <div
-      :id="`advising-note-search-result-snippet-${note.id}`"
-      class="advising-note-search-result-snippet"
-      v-html="note.noteSnippet"
-    />
-    <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="advising-note-search-result-footer">
-      <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
-        {{ note.advisorName }} -
-      </span>
-      <span v-if="lastModified">{{ lastModified }}</span>
+    <div class="ml-1">
+      <div
+        :id="`advising-note-search-result-snippet-${note.id}`"
+        class="advising-note-search-result-snippet"
+        v-html="note.noteSnippet"
+      />
+      <div
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+        class="advising-note-search-result-footer font-size-15 font-weight-bold text-grey"
+      >
+        <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
+          {{ note.advisorName }} -
+        </span>
+        <span v-if="lastModified" :id="`advising-note-last-modified-${note.id}`">{{ lastModified }}</span>
+      </div>
     </div>
   </div>
 </template>

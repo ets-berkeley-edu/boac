@@ -2,7 +2,7 @@
   <div
     :id="`appointment-search-result-${appointment.id}`"
     :class="{'demo-mode-blur': currentUser.inDemoMode}"
-    class="advising-note-search-result"
+    class="advising-note-search-result mt-2"
   >
     <h3 v-if="appointment.student" class="advising-note-search-result-header">
       <router-link
@@ -30,16 +30,23 @@
         <i>No student record found.</i>
       </div>
     </div>
-    <div
-      :id="`appointment-search-result-snippet-${appointment.id}`"
-      class="advising-note-search-result-snippet"
-      v-html="appointment.detailsSnippet"
-    />
-    <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="advising-note-search-result-footer mb-2">
-      <span v-if="appointment.advisorName" :id="`appointment-search-result-advisor-${appointment.id}`">
-        {{ appointment.advisorName }} -
-      </span>
-      <span v-if="createdAt">{{ DateTime.fromISO(createdAt, 'yyyy-MM-dd').setZone(timezone).toLocaleString(DateTime.DATE_MED) }}</span>
+    <div class="ml-1">
+      <div
+        :id="`appointment-search-result-snippet-${appointment.id}`"
+        class="advising-note-search-result-snippet"
+        v-html="appointment.detailsSnippet"
+      />
+      <div
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+        class="advising-note-search-result-footer font-size-15 font-weight-bold text-grey"
+      >
+        <span v-if="appointment.advisorName" :id="`appointment-search-result-advisor-${appointment.id}`">
+          {{ appointment.advisorName }} -
+        </span>
+        <span v-if="createdAt" :id="`appointment-created-at-date-${appointment.id}`">
+          {{ DateTime.fromISO(createdAt, 'yyyy-MM-dd').setZone(timezone).toLocaleString(DateTime.DATE_MED) }}
+        </span>
+      </div>
     </div>
   </div>
 </template>

@@ -301,8 +301,8 @@ class TestMergedAdvisingNote:
         total_note_count = results['totalNoteCount']
         assert len(notes) == 2
         assert total_note_count == 2
-        assert notes[0]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
-        assert '<strong>confounded</strong> that of himself' in notes[1]['noteSnippet']
+        assert '<strong>confounded</strong> that of himself' in notes[0]['noteSnippet']
+        assert notes[1]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
 
     def test_search_advising_notes_multiple_terms(self, app, fake_auth):
         fake_auth.login(coe_advisor)
@@ -394,8 +394,8 @@ class TestMergedAdvisingNote:
         assert len(notes) == 3
         assert total_note_count == 3
         assert notes[0]['noteSnippet'] == '<strong>Confound</strong> this note - and its successors and assigns'
-        assert notes[1]['noteSnippet'].startswith('I am <strong>confounded</strong>')
-        assert notes[2]['noteSnippet'].startswith('...pity the founder')
+        assert notes[1]['noteSnippet'].startswith('...pity the founder')
+        assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
 
     def test_search_advising_notes_paginates_new_and_old(self, app, fake_auth):
         fake_auth.login(coe_advisor)
@@ -419,8 +419,8 @@ class TestMergedAdvisingNote:
         total_note_count = results['totalNoteCount']
         assert len(notes) == 3
         assert notes[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 5'
-        assert notes[1]['noteSnippet'].startswith('I am <strong>confounded</strong>')
-        assert notes[2]['noteSnippet'].startswith('...pity the founder')
+        assert notes[1]['noteSnippet'].startswith('...pity the founder')
+        assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
 
     def test_search_advising_notes_narrowed_by_author(self, app, fake_auth):
         """Narrows results for both new and legacy advising notes by author SID."""
