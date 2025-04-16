@@ -377,36 +377,36 @@ def _peer_advising_users_sql(
         'role_type': role_type,
     }
     if peer_advising_department_id and role_type:
-        query_tables += """
+        query_tables += f"""
             JOIN peer_advising_departments d ON
                 d.id = :peer_advising_department_id
             JOIN peer_advising_department_members m ON
                 m.peer_advising_department_id = d.id
                 AND m.role_type = :role_type
                 AND m.authorized_user_id = u.id
-                AND m.deleted_at IS NULL
+                {_get_deleted_at_condition(status)}
         """
     elif not peer_advising_department_id and role_type:
-        query_tables += """
+        query_tables += f"""
             JOIN peer_advising_department_members m ON
                 m.authorized_user_id = u.id
                 AND m.role_type = :role_type
-                AND m.deleted_at IS NULL
+                {_get_deleted_at_condition(status)}
         """
     elif peer_advising_department_id and not role_type:
-        query_tables += """
+        query_tables += f"""
             JOIN peer_advising_departments d ON
                 d.id = :peer_advising_department_id
             JOIN peer_advising_department_members m ON
                 m.peer_advising_department_id = d.id
                 AND m.authorized_user_id = u.id
-                AND m.deleted_at IS NULL
+                {_get_deleted_at_condition(status)}
         """
     elif not peer_advising_department_id and not role_type:
-        query_tables += """
+        query_tables += f"""
             JOIN peer_advising_department_members m ON
                 m.authorized_user_id = u.id
-                AND m.deleted_at IS NULL
+                {_get_deleted_at_condition(status)}
         """
     return query_tables, _users_sql_where_clause(status), query_bindings
 
@@ -454,4 +454,13 @@ def _users_sql_where_clause(status):
         query_filter += 'AND u.deleted_at IS NOT NULL '
     elif status == 'active':
         query_filter += 'AND u.deleted_at IS NULL '
+    return query_filter
+
+
+def _get_deleted_at_condition(status):
+    query_filter = ''
+    if status == 'deleted':
+        query_filter += ' AND m.deleted_at IS NOT NULL '
+    elif status == 'active':
+        query_filter += ' AND m.deleted_at IS NULL '
     return query_filter
