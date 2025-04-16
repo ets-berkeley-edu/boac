@@ -55,7 +55,7 @@ class TestCreatePeerAdvisingNoteTemplate:
     def test_not_authenticated(self, client, mock_peer_advising_note_template):
         """Returns 401 if not authenticated."""
         data = {
-            'peerAdvisingDeptId': self.ce3_navcal_peer_advising_department_id,
+            'peerAdvisingDepartmentId': self.ce3_navcal_peer_advising_department_id,
             'body': mock_peer_advising_note_template.body,
             'title': mock_peer_advising_note_template.title,
             'topics': [t.topic for t in mock_peer_advising_note_template.topics],
@@ -66,7 +66,7 @@ class TestCreatePeerAdvisingNoteTemplate:
         """Returns 401 if current user is an admin (or lacks proper advising access)."""
         fake_auth.login(qcadv_advisor_uid)
         data = {
-            'peerAdvisingDeptId': self.ce3_navcal_peer_advising_department_id,
+            'peerAdvisingDepartmentId': self.ce3_navcal_peer_advising_department_id,
             'body': mock_peer_advising_note_template.body,
             'title': mock_peer_advising_note_template.title,
             'topics': [t.topic for t in mock_peer_advising_note_template.topics],
@@ -76,7 +76,7 @@ class TestCreatePeerAdvisingNoteTemplate:
     def test_invalid_parameters(self, client, fake_auth, mock_peer_advising_note_template):
         """Returns 400 if required parameters are missing."""
         fake_auth.login(peer_advisor_manager_uid)
-        # Missing peerAdvisingDeptId.
+        # Missing peerAdvisingDepartmentId.
         data = {
             'body': mock_peer_advising_note_template.body,
             'title': mock_peer_advising_note_template.title,
@@ -88,7 +88,7 @@ class TestCreatePeerAdvisingNoteTemplate:
         """Creates a peer advising note template and returns its JSON."""
         fake_auth.login(peer_advisor_manager_uid)
         data = {
-            'peerAdvisingDeptId': self.ce3_navcal_peer_advising_department_id,
+            'peerAdvisingDepartmentId': self.ce3_navcal_peer_advising_department_id,
             'body': mock_peer_advising_note_template.body,
             'title': mock_peer_advising_note_template.title,
             'topics': [t.topic for t in mock_peer_advising_note_template.topics],

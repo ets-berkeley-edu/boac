@@ -65,7 +65,7 @@ def _api_search(
         content_type='application/json',
         data=json.dumps({
             'searchPhrase': phrase,
-            'peerAdvisingDeptId': peer_advising_department_id,
+            'peerAdvisingDepartmentId': peer_advising_department_id,
         }),
     )
 

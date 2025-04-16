@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.auth_utils import is_authorized_peer_advisor_manager
-from boac.api.decorators import peer_advisor_manager_required, peer_advisor_required
+from boac.api.decorators import peer_advisor_manager_in_department, peer_advisor_manager_required, peer_advisor_required
 from boac.api.errors import ResourceNotFoundError
 from boac.api.util import authorized_users_api_feed
 from boac.externals import data_loch
@@ -40,72 +40,63 @@ from flask_login import current_user
 
 
 @app.route('/api/peer_advising/create_peer_advisor', methods=['POST'])
-@peer_advisor_manager_required
+@peer_advisor_manager_in_department
 def create_peer_advisor():
     params = request.get_json()
-    peer_advising_department_id = params.get('peerAdvisingDeptId')
+    peer_advising_department_id = params.get('peerAdvisingDepartmentId')
     uid = params.get('uid')
-    if is_authorized_peer_advisor_manager(
-            peer_advising_department_id=peer_advising_department_id,
-            peer_advisor_manager_user_id=current_user.get_id(),
-    ):
-        peer_advisor = AuthorizedUser.create_or_restore(
-            uid,
-            automate_degree_progress_permission=False,
-            can_access_advising_data=False,
-            can_access_canvas_data=False,
-            created_by=current_user.uid,
-            degree_progress_permission=None,
-        )
-        PeerAdvisingDepartmentMember.create_or_update_membership(
-            authorized_user_id=peer_advisor.id,
-            peer_advising_department_id=peer_advising_department_id,
-            role_type='peer_advisor',
-        )
-        api_json = authorized_users_api_feed([peer_advisor])[0]
-        return tolerant_jsonify(api_json)
-    else:
-        return app.login_manager.unauthorized()
+    peer_advisor = AuthorizedUser.create_or_restore(
+        uid,
+        automate_degree_progress_permission=False,
+        can_access_advising_data=False,
+        can_access_canvas_data=False,
+        created_by=current_user.uid,
+        degree_progress_permission=None,
+    )
+    PeerAdvisingDepartmentMember.create_or_update_membership(
+        authorized_user_id=peer_advisor.id,
+        peer_advising_department_id=peer_advising_department_id,
+        role_type='peer_advisor',
+    )
+    api_json = authorized_users_api_feed([peer_advisor])[0]
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/peer_advising/department/<peer_advising_department_id>/<role_type>')
-@peer_advisor_manager_required
+@peer_advisor_manager_in_department
 def get_peer_advising_department(peer_advising_department_id, role_type):
     include_deleted = request.args.get('includeDeleted', False)
     include_note_counts = to_bool_or_none(request.args.get('includeNoteCounts')) or False
     peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
-    if peer_advising_department:
-        university_dept = UniversityDept.find_by_id(peer_advising_department.university_dept_id)
-        users = AuthorizedUser.get_peer_advising_users(
+    university_dept = UniversityDept.find_by_id(peer_advising_department.university_dept_id)
+    users = AuthorizedUser.get_peer_advising_users(
+        peer_advising_department_id=peer_advising_department_id,
+        role_type=role_type,
+    )
+    if include_deleted:
+        users = users + AuthorizedUser.get_peer_advising_users(
             peer_advising_department_id=peer_advising_department_id,
             role_type=role_type,
+            status='deleted',
         )
-        if include_deleted:
-            users = users + AuthorizedUser.get_peer_advising_users(
-                peer_advising_department_id=peer_advising_department_id,
-                role_type=role_type,
-                status='deleted',
-            )
-        users = authorized_users_api_feed(users)
-        if include_note_counts:
-            note_counts_per_uid = Note.get_note_counts_per_uid(
-                peer_advising_department_id=peer_advising_department.id,
-                uids=[u['uid'] for u in users],
-            )
-            for user in users:
-                user['noteCount'] = note_counts_per_uid.get(user['uid'], 0)
-        users = sorted([{**user, **{'role': role_type}} for user in users], key=lambda u: u['lastName'] or u['uid'])
-        api_json = {
-            **peer_advising_department.to_api_json(),
-            **{
-                'peerAdvisingDepartmentMembers': users,
-                'universityDeptCode': university_dept.dept_code,
-                'universityDeptName': university_dept.dept_name,
-            },
-        }
-        return tolerant_jsonify(api_json)
-    else:
-        raise ResourceNotFoundError('Peer Advising Department not found.')
+    users = authorized_users_api_feed(users)
+    if include_note_counts:
+        note_counts_per_uid = Note.get_note_counts_per_uid(
+            peer_advising_department_id=peer_advising_department.id,
+            uids=[u['uid'] for u in users],
+        )
+        for user in users:
+            user['noteCount'] = note_counts_per_uid.get(user['uid'], 0)
+    users = sorted([{**user, **{'role': role_type}} for user in users], key=lambda u: u['lastName'] or u['uid'])
+    api_json = {
+        **peer_advising_department.to_api_json(),
+        **{
+            'peerAdvisingDepartmentMembers': users,
+            'universityDeptCode': university_dept.dept_code,
+            'universityDeptName': university_dept.dept_name,
+        },
+    }
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/peer_advising/student/<sid>')

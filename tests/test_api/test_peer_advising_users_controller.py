@@ -84,7 +84,7 @@ class TestCreatePeerAdvisor:
             expected_status_code=200,
     ):
         data = {
-            'peerAdvisingDeptId': peer_advising_department_id,
+            'peerAdvisingDepartmentId': peer_advising_department_id,
             'uid': uid,
         }
         response = client.post(
@@ -175,7 +175,7 @@ class TestGetPeerAdvisingDepartment:
         api_json = self._api_get_peer_advising_department(
             client=client,
             include_note_counts=True,
-            peer_advising_department_id=2,
+            peer_advising_department_id=peer_advisor_manager['peerAdvisingDepartmentId'],
             role_type='peer_advisor',
         )
         assert api_json['name']

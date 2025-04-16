@@ -25,8 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from functools import wraps
 
+from boac.api.auth_utils import is_authorized_peer_advisor_manager
 from boac.api.util import can_access_admitted_students
 from boac.lib.berkeley import has_any_membership_role, is_peer_advisor, is_peer_advisor_manager
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.routes import login_manager
 from flask import current_app as app, request
@@ -185,6 +187,38 @@ def peer_advisor_or_peer_advisor_manager(func):
             app.logger.warning(f'Unauthorized request to {request.path}')
             return login_manager.unauthorized()
     return _peer_advisor_or_peer_advisor_manager
+
+
+def peer_advisor_manager_in_department(func):
+    # Checks if the peer_advisor_manager is in the peer_advising_department in the request
+    @wraps(func)
+    def _peer_advisor_manager_in_department(*args, **kw):
+        # Extract the peer_advising_department_id from the request
+        peer_advising_department_id = kw.get('peer_advising_department_id') or request.view_args.get(
+            'peer_advising_department_id')
+        if peer_advising_department_id is None and request.method == 'POST':
+            peer_advising_department_id = request.get_json().get('peerAdvisingDepartmentId', None)
+        if peer_advising_department_id is None:
+            app.logger.error('Department ID missing from request.')
+            return login_manager.unauthorized()
+        peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
+        if not peer_advising_department:
+            app.logger.error('Peer Advising department not found')
+            return login_manager.unauthorized()
+        if (current_user.is_authenticated
+                and (
+                    current_user.is_admin
+                    or is_authorized_peer_advisor_manager(
+                        peer_advising_department_id=peer_advising_department.id,
+                        peer_advisor_manager_user_id=current_user.get_id(),
+                    )
+                    or _api_key_ok()
+                )):
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return login_manager.unauthorized()
+    return _peer_advisor_manager_in_department
 
 
 def peer_advisor_or_peer_advisor_manager_in_department(func):

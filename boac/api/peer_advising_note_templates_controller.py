@@ -38,7 +38,7 @@ from flask_login import current_user
 @peer_advisor_manager_required
 def create_peer_advising_note_template():
     params = request.get_json()
-    peer_advising_department_id = params.get('peerAdvisingDeptId', None)
+    peer_advising_department_id = params.get('peerAdvisingDepartmentId', None)
     note_body = params.get('body', None)
     topics = params.get('topics', None)
     title = params.get('title', None)

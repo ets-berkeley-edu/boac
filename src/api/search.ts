@@ -53,7 +53,7 @@ export function peerAdvisorSearch(phrase: string, peerAdvisingDepartmentId: numb
     return axios
     .post(`${utils.apiBaseUrl()}/api/peer_advising/notes/search`, {
       searchPhrase: phrase,
-      peerAdvisingDeptId: peerAdvisingDepartmentId,
+      peerAdvisingDepartmentId: peerAdvisingDepartmentId,
       offset: offset || 0,
       limit: limit || 50
     })
