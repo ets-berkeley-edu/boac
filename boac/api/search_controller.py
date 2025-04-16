@@ -362,7 +362,7 @@ def _notes_search(search_phrase, params):
 def search_peer_advising_notes():
     params = util.remove_none_values(request.get_json())
 
-    peer_advising_department_id = params.get('peerAdvisingDeptId', None)
+    peer_advising_department_id = params.get('peerAdvisingDepartmentId', None)
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     if not search_phrase:
         raise BadRequestError('Invalid or empty search input')

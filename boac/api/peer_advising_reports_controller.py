@@ -26,9 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 import re
 
-from boac.api.auth_utils import is_authorized_peer_advisor_manager
-from boac.api.decorators import peer_advisor_manager_required
-from boac.api.errors import ResourceNotFoundError
+from boac.api.decorators import peer_advisor_manager_in_department
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import to_iso_format
 from boac.merged.calnet import get_calnet_users_for_uids
@@ -36,99 +34,74 @@ from boac.merged.peer_advising_notes_reports import get_all_peer_advising_notes,
     get_peer_advising_note_author_count, get_peer_advising_note_count_since, get_peer_advising_note_template_usage, \
     get_total_peer_advising_notes
 from boac.models.peer_advising_department import PeerAdvisingDepartment
-from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from flask import current_app as app
-from flask_login import current_user
 
 
 @app.route('/api/peer_advising/<peer_advising_department_id>/notes/csv', methods=['POST'])
-@peer_advisor_manager_required
+@peer_advisor_manager_in_department
 def get_peer_advising_csv_download(peer_advising_department_id):
-    if PeerAdvisingDepartmentMember.is_user_in_peer_advising_department(
-        peer_advising_department_id=peer_advising_department_id,
-        user_id=current_user.get_id(),
-    ):
-        rows = []
-        for row in get_all_peer_advising_notes(peer_advising_department_id=peer_advising_department_id):
-            # Line breaks in CSV cause problems
-            body = (row['body'] or '').replace('\n', ' ').replace('\r', ' ').strip()
-            body = re.sub(r'\s+', ' ', body)
-            row['body'] = body
-            rows.append(row)
-        return response_with_csv_download(
-            rows=sorted(rows, key=lambda row: row['created_at'], reverse=True),
-            filename_prefix='boa_peer_advising_notes',
-            fieldnames=[
-                'author_name',
-                'author_uid',
-                'author_role',
-                'author_dept_codes',
-                'body',
-                'contact_type',
-                'peer_advising_department_name',
-                'sid',
-                'student_first_name',
-                'student_last_name',
-                'topics',
-                'created_at',
-                'updated_at',
-            ],
-        )
-    else:
-        return app.login_manager.unauthorized()
+    rows = []
+    for row in get_all_peer_advising_notes(peer_advising_department_id=peer_advising_department_id):
+        # Line breaks in CSV cause problems
+        body = (row['body'] or '').replace('\n', ' ').replace('\r', ' ').strip()
+        body = re.sub(r'\s+', ' ', body)
+        row['body'] = body
+        rows.append(row)
+    return response_with_csv_download(
+        rows=sorted(rows, key=lambda row: row['created_at'], reverse=True),
+        filename_prefix='boa_peer_advising_notes',
+        fieldnames=[
+            'author_name',
+            'author_uid',
+            'author_role',
+            'author_dept_codes',
+            'body',
+            'contact_type',
+            'peer_advising_department_name',
+            'sid',
+            'student_first_name',
+            'student_last_name',
+            'topics',
+            'created_at',
+            'updated_at',
+        ],
+    )
 
 
 @app.route('/api/peer_advising/<peer_advising_department_id>/report/notes')
-@peer_advisor_manager_required
+@peer_advisor_manager_in_department
 def peer_advising_notes_report(peer_advising_department_id):
+    today = datetime.today()
+    timeframe_month = f"{today.year}-{f'0{today.month}' if today.month < 10 else today.month}"
     peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
-    if not peer_advising_department:
-        raise ResourceNotFoundError('Peer Advising department not found')
-    if current_user.is_admin or is_authorized_peer_advisor_manager(
-        peer_advising_department_id=peer_advising_department.id,
-        peer_advisor_manager_user_id=current_user.get_id(),
-    ):
-        today = datetime.today()
-        timeframe_month = f"{today.year}-{f'0{today.month}' if today.month < 10 else today.month}"
-        return tolerant_jsonify({
-            'currentMonth': {
-                'label': f"{today.strftime('%b')} {today.strftime('%Y')}",
-                'month': today.month,
-                'noteCount': get_peer_advising_note_count_since(
-                    peer_advising_department_id=peer_advising_department.id,
-                    timeframe_month=timeframe_month,
-                ),
-                'peerAdvisingDepartmentId': int(peer_advising_department_id),
-                'peerAdvisors': _peer_advisors_with_note_counts(
-                    peer_advising_department_id=peer_advising_department.id,
-                    timeframe_month=timeframe_month,
-                ),
-                'year': today.year,
-            },
-            'distinctPeerAdvisorAuthors': get_peer_advising_note_author_count(peer_advising_department.id),
-            'noteTemplates': get_peer_advising_note_template_usage(peer_advising_department.id),
-            'peerAdvisingDepartment': peer_advising_department.to_api_json(),
-            'totalPeerAdvisingNoteCount': get_total_peer_advising_notes(peer_advising_department.id),
-        })
-    else:
-        return app.login_manager.unauthorized()
+    return tolerant_jsonify({
+        'currentMonth': {
+            'label': f"{today.strftime('%b')} {today.strftime('%Y')}",
+            'month': today.month,
+            'noteCount': get_peer_advising_note_count_since(
+                peer_advising_department_id=peer_advising_department.id,
+                timeframe_month=timeframe_month,
+            ),
+            'peerAdvisingDepartmentId': int(peer_advising_department_id),
+            'peerAdvisors': _peer_advisors_with_note_counts(
+                peer_advising_department_id=peer_advising_department.id,
+                timeframe_month=timeframe_month,
+            ),
+            'year': today.year,
+        },
+        'distinctPeerAdvisorAuthors': get_peer_advising_note_author_count(peer_advising_department.id),
+        'noteTemplates': get_peer_advising_note_template_usage(peer_advising_department.id),
+        'peerAdvisingDepartment': peer_advising_department.to_api_json(),
+        'totalPeerAdvisingNoteCount': get_total_peer_advising_notes(peer_advising_department.id),
+    })
 
 
 @app.route('/api/peer_advising/<peer_advising_department_id>/report/historical')
-@peer_advisor_manager_required
+@peer_advisor_manager_in_department
 def peer_advising_historical_report(peer_advising_department_id):
-    peer_advising_department = PeerAdvisingDepartment.get_department_by_id(peer_advising_department_id)
-    if not peer_advising_department:
-        raise ResourceNotFoundError('Peer Advising department not found')
-    if current_user.is_admin or is_authorized_peer_advisor_manager(
-        peer_advising_department_id=peer_advising_department.id,
-        peer_advisor_manager_user_id=current_user.get_id(),
-    ):
-        return tolerant_jsonify(_historical_peer_advisors_with_note_counts(
-            peer_advising_department_id=peer_advising_department.id,
-        ))
-    else:
-        return app.login_manager.unauthorized()
+    return tolerant_jsonify(_historical_peer_advisors_with_note_counts(
+        peer_advising_department_id=peer_advising_department_id,
+    ))
 
 
 def _historical_peer_advisors_with_note_counts(peer_advising_department_id):

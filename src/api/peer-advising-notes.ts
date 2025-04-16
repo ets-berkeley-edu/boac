@@ -72,10 +72,10 @@ export function createPeerAdvisingNote(
   return axios.post(`${utils.apiBaseUrl()}/api/peer_advising/note/create`, data).then(response => response.data)
 }
 
-export async function createPeerAdvisingNoteTemplate(peerAdvisingDeptId: number, body: string, title, topics: []) {
+export async function createPeerAdvisingNoteTemplate(peerAdvisingDepartmentId: number, body: string, title, topics: []) {
   const url: string = `${utils.apiBaseUrl()}/api/peer_advising/note_template/create`
   const noteTemplate = {
-    peerAdvisingDeptId: peerAdvisingDeptId,
+    peerAdvisingDepartmentId: peerAdvisingDepartmentId,
     body: body,
     topics: topics,
     title: title
