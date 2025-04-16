@@ -56,7 +56,7 @@
       :topics="topics"
     />
     <PrivacyPermissions
-      v-if="currentUser.canAccessPrivateNotes"
+      v-if="currentUser.canAccessPrivateNotes && !noteStore.model.peerAdvisingDepartmentId"
       class="mt-2"
       :disabled="isSaving || boaSessionExpired"
     />
