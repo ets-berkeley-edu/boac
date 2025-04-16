@@ -136,6 +136,14 @@
   min-width: 300px;
   width: 100% !important;
 }
+.curated-group-menu-item-create {
+  bottom: 0;
+  position: sticky;
+}
+.curated-group-menu-item-submit {
+  bottom: 49px;
+  position: sticky;
+}
 .date-input-opacity-override .v-field__input {
   opacity: 1 !important;
 }

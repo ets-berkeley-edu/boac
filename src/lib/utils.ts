@@ -34,6 +34,7 @@ export const ANONYMOUS_USER: BoaUser = {
   myDraftNoteCount: undefined as number | undefined,
   name: undefined,
   preferences: {
+    sortBy: undefined as string | undefined,
     termId: undefined as string | undefined
   },
   title: undefined,

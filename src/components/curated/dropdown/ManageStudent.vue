@@ -53,7 +53,9 @@
       <v-list
         v-model:selected="selectedGroupIds"
         :aria-label="`${props.student.name}\'s ${domainLabel(true)} memberships`"
+        class="pb-1"
         density="compact"
+        max-height="400"
         select-strategy="leaf"
         variant="flat"
       >
@@ -62,12 +64,14 @@
         </v-list-item>
         <v-list-item
           v-for="group in filteredCuratedGroups"
+          :id="`${idFragment}-${group.id}`"
           :key="group.id"
           :aria-checked="!!includes(selectedGroupIds, group.id)"
           density="compact"
           class="v-list-item-override py-0"
           role="checkbox"
           :value="group.id"
+          @focus="scrollToItem(`${idFragment}-${group.id}`)"
         >
           <template #prepend="{isSelected}">
             <v-list-item-action start>
@@ -90,37 +94,33 @@
             </v-list-item-action>
           </template>
         </v-list-item>
+        <v-list-item class="curated-group-menu-item-submit px-3">
+          <v-btn
+            :id="`submit-${idFragment}`"
+            :aria-label="`Apply changes to ${student.name}'s ${domainLabel(true)} memberships`"
+            class="px-6 my-1"
+            color="primary"
+            :disabled="!size(xor(existingGroupMemberships, selectedGroupIds)) || isAdding || isRemoving"
+            height="32"
+            text="Apply"
+            @click.stop="onSubmit"
+            @keydown.enter.stop="onSubmit"
+          />
+        </v-list-item>
+        <v-list-item class="curated-group-menu-item-create align-center border-t-sm pt-2 px-3" density="compact">
+          <v-btn
+            :id="`create-${idFragment}`"
+            color="primary"
+            :prepend-icon="mdiPlus"
+            slim
+            variant="text"
+            @click.stop="showModal = true"
+            @keydown.enter.stop="showModal = true"
+          >
+            Create New {{ domainLabel(true) }}
+          </v-btn>
+        </v-list-item>
       </v-list>
-      <div>
-        <v-list>
-          <v-list-item>
-            <v-btn
-              :id="`submit-${idFragment}`"
-              :aria-label="`Apply changes to ${student.name}'s ${domainLabel(true)} memberships`"
-              class="px-6"
-              color="primary"
-              :disabled="!size(xor(existingGroupMemberships, selectedGroupIds)) || isAdding || isRemoving"
-              height="32"
-              text="Apply"
-              @click.stop="onSubmit"
-              @keydown.enter.stop="onSubmit"
-            />
-          </v-list-item>
-          <v-list-item class="align-center border-t-sm mt-2 pt-2 px-1" density="compact">
-            <v-btn
-              :id="`create-${idFragment}`"
-              color="primary"
-              :prepend-icon="mdiPlus"
-              slim
-              variant="text"
-              @click.stop="showModal = true"
-              @keydown.enter.stop="showModal = true"
-            >
-              Create New {{ domainLabel(true) }}
-            </v-btn>
-          </v-list-item>
-        </v-list>
-      </div>
     </v-menu>
     <CreateCuratedGroupModal
       :cancel="onModalCancel"
@@ -276,10 +276,14 @@ const onSubmit = () => {
 const onUpdateMenuModelValue = isOpen => {
   isMenuOpen.value = isOpen
   refresh()
-  if (!isMenuOpen.value) {
+  if (isOpen) {
+    document.documentElement.classList.add('modal-open')
+  } else {
+    document.documentElement.classList.remove('modal-open')
     contextStore.broadcast('curated-group-deselect-all', props.domain)
   }
 }
+
 const onUpdateMyCuratedGroups = domain => {
   if (domain === props.domain) {
     refresh()
@@ -289,6 +293,16 @@ const onUpdateMyCuratedGroups = domain => {
 const refresh = () => {
   selectedGroupIds.value = clone(existingGroupMemberships.value)
   groupsLoading.value = false
+}
+
+const scrollToItem = elementId => {
+  const {scrollX, scrollY} = window
+  const element = document.getElementById(elementId)
+  if (element) {
+    element.scrollIntoView({behavior: 'smooth', block: 'center'})
+    // Preserve the window's original coordinates to prevent the page behind the menu from scrolling.
+    window.scroll(scrollX, scrollY)
+  }
 }
 </script>
 
