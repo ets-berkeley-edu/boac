@@ -50,7 +50,9 @@
         <v-list
           v-model:selected="selectedCuratedGroups"
           :aria-label="`Select one or more ${domainLabel(true)}s`"
+          class="pb-1"
           density="compact"
+          max-height="400"
           select-strategy="leaf"
           variant="flat"
         >
@@ -59,12 +61,14 @@
           </v-list-item>
           <v-list-item
             v-for="group in myCuratedGroups"
+            :id="`${idFragment}-${group.id}`"
             :key="group.id"
             :aria-checked="!!find(selectedCuratedGroups, {'id': group.id})"
             class="v-list-item-override py-0"
             density="compact"
             role="checkbox"
             :value="group"
+            @focus="scrollToItem(`${idFragment}-${group.id}`)"
           >
             <template #prepend="{isSelected}">
               <v-list-item-action start>
@@ -87,37 +91,33 @@
               </v-list-item-action>
             </template>
           </v-list-item>
+          <v-list-item class="curated-group-menu-item-submit px-3">
+            <v-btn
+              :id="`submit-${idFragment}`"
+              :aria-label="`Add students to selected ${domainLabel(true)}s`"
+              class="px-6 my-1"
+              color="primary"
+              :disabled="!size(selectedCuratedGroups) || isConfirming || isSaving"
+              height="32"
+              text="Add"
+              @click.stop="onSubmit"
+              @keydown.enter.stop="onSubmit"
+            />
+          </v-list-item>
+          <v-list-item class="curated-group-menu-item-create align-center border-t-sm pt-2 px-3" density="compact">
+            <v-btn
+              :id="`create-${idFragment}`"
+              :aria-label="`Create a new ${domainLabel(false)}`"
+              color="primary"
+              :prepend-icon="mdiPlus"
+              :text="`Create New ${domainLabel(true)}`"
+              slim
+              variant="text"
+              @click.stop="showModal = true"
+              @keydown.enter.stop="showModal = true"
+            />
+          </v-list-item>
         </v-list>
-        <div>
-          <v-list>
-            <v-list-item class="border-t-sm pt-4">
-              <v-btn
-                :id="`submit-${idFragment}`"
-                :aria-label="`Add students to selected ${domainLabel(true)}s`"
-                class="px-6"
-                color="primary"
-                :disabled="!size(selectedCuratedGroups) || isConfirming || isSaving"
-                height="32"
-                text="Add"
-                @click.stop="onSubmit"
-                @keydown.enter.stop="onSubmit"
-              />
-            </v-list-item>
-            <v-list-item class="px-1" density="compact">
-              <v-btn
-                :id="`create-${idFragment}`"
-                :aria-label="`Create a new ${domainLabel(false)}`"
-                color="primary"
-                :prepend-icon="mdiPlus"
-                :text="`Create New ${domainLabel(true)}`"
-                slim
-                variant="text"
-                @click.stop="showModal = true"
-                @keydown.enter.stop="showModal = true"
-              />
-            </v-list-item>
-          </v-list>
-        </div>
       </v-menu>
     </div>
     <CreateCuratedGroupModal
@@ -273,6 +273,16 @@ const refresh = () => {
   isSelectAllChecked.value = size(sids.value) === size(props.students)
 }
 
+const scrollToItem = elementId => {
+  const {scrollX, scrollY} = window
+  const element = document.getElementById(elementId)
+  if (element) {
+    element.scrollIntoView({behavior: 'smooth', block: 'center'})
+    // Preserve the window's original coordinates to prevent the page behind the menu from scrolling.
+    window.scroll(scrollX, scrollY)
+  }
+}
+
 const toggle = checked => {
   sids.value = []
   if (checked) {
@@ -290,4 +300,5 @@ const toggle = checked => {
 <style scoped>
 .button-container {
   min-width: 15rem;
-}</style>
+}
+</style>
