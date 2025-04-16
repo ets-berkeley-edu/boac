@@ -442,7 +442,7 @@ class TestNoteSearch:
     def test_search_includes_notes_if_requested(self, coe_advisor, client):
         """Includes notes in search results if notes param is true."""
         api_json = _api_search(client, 'Brigitte', notes=True)
-        self._assert(api_json, note_count=2, note_ids=['11667051-00001', '11667051-00002'])
+        self._assert(api_json, note_count=2, note_ids=['11667051-00002', '11667051-00001'])
 
     def test_search_note_with_null_body(self, asc_advisor, client):
         """Finds newly created BOA note when note body is null."""
@@ -573,7 +573,7 @@ class TestNoteSearch:
             notes=True,
             note_options={'offset': '1'},
         )
-        self._assert(api_json, note_count=2, note_ids=['9000000000-00002', '9100000000-00001'])
+        self._assert(api_json, note_count=2, note_ids=['9100000000-00001', '9000000000-00002'])
 
     def test_search_notes_no_canvas_data_access(self, user_factory, client, fake_auth):
         """A user with no access to Canvas data can still search for notes."""

@@ -449,7 +449,7 @@ class Note(Base):
                 JOIN (VALUES {note_id_by_rank}) AS rank(id, ordering) ON rank.id = n.id
                 LEFT JOIN note_attachments a ON n.id = a.note_id AND a.deleted_at IS NULL
                 GROUP BY n.id, rank.ordering
-                ORDER BY rank.ordering
+                ORDER BY n.updated_at DESC, rank.ordering
             """
             search_results = db.session.execute(text(sql))
             keys = search_results.keys()
@@ -548,7 +548,7 @@ class Note(Base):
             """
             if not is_count_query:
                 query += f"""
-                    ORDER BY fts.rank DESC, notes.id
+                    ORDER BY notes.updated_at DESC, fts.rank DESC
                     OFFSET {offset} LIMIT {limit}
                 """
             return text(query).bindparams(**params)
