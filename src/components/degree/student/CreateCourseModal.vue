@@ -20,9 +20,13 @@
     persistent
     @update:model-value="onToggle"
   >
-    <v-card class="modal-content" min-width="600">
+    <v-card
+      class="modal-content"
+      :max-width="smAndDown ? 440 : undefined"
+      :min-width="mdAndUp ? 600 : undefined"
+    >
       <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="() => cancel(false)">
-        <v-card-title class="py-0">
+        <v-card-title class="py-0 text-wrap">
           <ModalHeader :text="`Create Course for ${parentCategory.name}`" />
         </v-card-title>
         <v-card-text class="modal-body">
@@ -147,19 +151,20 @@
 
 <script setup>
 import FocusLock from 'vue-focus-lock'
-import {mdiPlus} from '@mdi/js'
 import {computed, nextTick, onUnmounted, ref, watch} from 'vue'
 import {isEmpty as _isEmpty, trim} from 'lodash'
-import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
-import AreYouSureModal from '@/components/util/AreYouSureModal'
-import ModalHeader from '@/components/util/ModalHeader'
-import ProgressButton from '@/components/util/ProgressButton'
-import UnitsInput from '@/components/degree/UnitsInput'
+import {mdiPlus} from '@mdi/js'
+import {useDisplay} from 'vuetify'
+import AccentColorSelect from '@/components/degree/student/AccentColorSelect.vue'
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import ModalHeader from '@/components/util/ModalHeader.vue'
+import ProgressButton from '@/components/util/ProgressButton.vue'
+import UnitsInput from '@/components/degree/UnitsInput.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createCourse} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
+import {useDegreeStore} from '@/stores/degree-edit-session'
 import {validateUnitRange} from '@/lib/degree-progress'
-import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
 const props = defineProps({
   parentCategory: {
@@ -171,22 +176,22 @@ const props = defineProps({
 const degreeStore = useDegreeStore()
 
 const accentColor = ref(undefined)
+const disableSaveButton = computed(() => isSaving.value || !!unitsErrorMessage.value || !trim(name.value))
 const error = ref(undefined)
 const grade = ref(undefined)
+const isDirty = computed(() => !!(accentColor.value || grade.value || name.value || trim(note.value) || units.value))
 const isFocusLockDisabled = ref(false)
 const isSaving = ref(false)
 const name = ref('')
 const note = ref('')
-const showModal = ref(false)
 const showCancelConfirm = ref(false)
+const showModal = ref(false)
 const units = ref(undefined)
-
-const disableSaveButton = computed(() => isSaving.value || !!unitsErrorMessage.value || !trim(name.value))
-const isDirty = computed(() => !!(accentColor.value || grade.value || name.value || trim(note.value) || units.value))
 const unitsErrorMessage = computed(() => {
   const isEmpty = _isEmpty(trim(units.value))
   return isEmpty ? null : validateUnitRange(units.value, undefined, 10).message
 })
+const {mdAndUp, smAndDown} = useDisplay()
 
 onUnmounted(() => {
   closeModal()

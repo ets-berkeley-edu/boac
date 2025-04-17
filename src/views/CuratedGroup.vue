@@ -105,13 +105,6 @@ import {describeCuratedGroupDomain, translateSortByOption} from '@/lib/berkeley-
 import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
 
-defineProps({
-  id: {
-    required: true,
-    type: [String, Number]
-  }
-})
-
 const anchor = computed(() => location.hash)
 const contextStore = useContextStore()
 const curatedStore = useCuratedGroupStore()
