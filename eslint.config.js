@@ -16,7 +16,6 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
   allConfig: js.configs.all
 })
-const gitignorePath = path.resolve(__dirname, '.gitignore')
 
 configureVueProject({
   scriptLangs: [
@@ -27,15 +26,8 @@ configureVueProject({
 })
 
 export default [
-  includeIgnoreFile(gitignorePath),
-  {
-    ignores: [
-      '**/vue2.*',
-      '**/src-vue2/**'
-    ],
-  },
   ...defineConfigWithVueTs(
-    pluginVue.configs['flat/essential'],
+    pluginVue.configs['flat/recommended'],
     vueTsConfigs.recommended
   ),
   ...compat.extends(
@@ -45,8 +37,9 @@ export default [
     'plugin:import/typescript',
     'plugin:import/warnings',
     'plugin:vue-scoped-css/vue3-recommended',
-    'plugin:vue/vue3-recommended'
+    'plugin:vue/recommended'
   ),
+  includeIgnoreFile(path.resolve(__dirname, '.gitignore')),
   {
     languageOptions: {
       globals: {
@@ -75,6 +68,7 @@ export default [
       'no-else-return': 2,
       'no-multi-spaces': 2,
       'no-trailing-spaces': 2,
+      'no-undef': 1,
       'no-unexpected-multiline': 2,
       'object-curly-spacing': 2,
       quotes: [2, 'single'],
@@ -91,12 +85,12 @@ export default [
       ],
       'vue/arrow-spacing': 2,
       'vue/attributes-order': 2,
+      'vue/block-order': 2,
       'vue/block-spacing': 2,
       'vue/brace-style': 2,
       'vue/camelcase': 2,
       'vue/comma-dangle': 2,
       'vue/component-name-in-template-casing': 2,
-      'vue/component-tags-order': 2,
       'vue/no-deprecated-v-bind-sync': 1,
       'vue/eqeqeq': 2,
       'vue/html-closing-bracket-newline': 2,
@@ -120,14 +114,20 @@ export default [
       'vue/multiline-html-element-content-newline': 2,
       'vue/mustache-interpolation-spacing': 2,
       'vue/no-boolean-default': 2,
+      'vue/no-deprecated-delete-set': 2,
       'vue/no-deprecated-destroyed-lifecycle': 2,
       'vue/no-deprecated-dollar-listeners-api': 2,
+      'vue/no-deprecated-model-definition': 2,
       'vue/no-deprecated-props-default-this': 2,
       'vue/no-deprecated-slot-attribute': 2,
       'vue/no-deprecated-v-on-native-modifier': 1,
       'vue/no-multi-spaces': 2,
       'vue/no-mutating-props': 2,
+      'vue/no-required-prop-with-default': 2,
+      'vue/no-restricted-props': 2,
       'vue/no-restricted-syntax': 2,
+      'vue/no-undef-properties': 2,
+      'vue/no-unused-refs': 2,
       'vue/no-use-v-if-with-v-for': 2,
       'vue/no-v-html': 0,
       'vue/no-v-for-template-key-on-child': 2,
@@ -143,13 +143,12 @@ export default [
       'vue/space-infix-ops': 2,
       'vue/space-unary-ops': 2,
       'vue/this-in-template': 2,
+      'vue/valid-define-options': 2,
       'vue/valid-next-tick': 1,
-      'vue/valid-v-slot': [2, {
-        allowModifiers: true,
-      }],
+      'vue/valid-v-slot': [2, {allowModifiers: true}],
       'vue/v-bind-style': 2,
       'vue/v-on-event-hyphenation': 2,
-      'vue/v-on-function-call': 2,
+      'vue/v-on-handler-style': 0,
       'vue/v-on-style': 2,
       'vue/v-slot-style': 2,
     },
