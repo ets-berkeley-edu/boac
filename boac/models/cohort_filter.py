@@ -153,7 +153,7 @@ class CohortFilter(Base):
             WHERE c.owner_id = :user_id
             ORDER BY c.domain, c.name
         """)
-        results = db.session.execute(query, {'user_id': user_id})
+        results = db.session.execute(query, {'user_id': user_id}).mappings()
 
         def transform(row):
             return {

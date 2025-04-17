@@ -165,9 +165,6 @@ PING_FREQUENCY = 900000
 # Used to encrypt session cookie.
 SECRET_KEY = 'secret'
 
-# Save DB changes at the end of a request.
-SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-
 # Override in local configs.
 SQLALCHEMY_DATABASE_URI = 'postgresql://boac:boac@localhost:5432/boac'
 

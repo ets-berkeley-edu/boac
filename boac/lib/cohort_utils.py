@@ -113,7 +113,7 @@ def curated_group_options(user_id):
     results = db.session.execute(
         text("SELECT id, name FROM student_groups WHERE domain='default' AND owner_id = :user_id"),
         {'user_id': user_id},
-    )
+    ).mappings()
     return [{'name': row['name'], 'value': row['id']} for row in results]
 
 
