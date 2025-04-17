@@ -32,7 +32,7 @@ from boac import db, std_commit
 from boac.api.errors import BadRequestError
 from boac.externals import data_loch
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, section_is_eligible_for_alerts, term_name_for_sis_id
-from boac.lib.util import camelize, unix_timestamp_to_localtime, utc_timestamp_to_localtime
+from boac.lib.util import camelize, unix_timestamp_to_localtime
 from boac.merged.sis_terms import current_term_id, current_term_name
 from boac.merged.student import get_academic_standing_by_sid
 from boac.models.base import Base
@@ -399,14 +399,6 @@ class Alert(Base):
                             enrollment['displayName'],
                             days_since,
                         )
-
-    @classmethod
-    def update_assignment_alerts(cls, sid, term_id, assignment_id, due_at, status, course_site_name):
-        alert_type = status + '_assignment'
-        key = f'{term_id}_{assignment_id}'
-        due_at_date = utc_timestamp_to_localtime(due_at).strftime('%b %-d, %Y')
-        message = f'{course_site_name} assignment due on {due_at_date}.'
-        cls.create_or_activate(sid=sid, alert_type=alert_type, key=key, message=message)
 
     @classmethod
     def update_midterm_grade_alerts(cls, sid, term_id, section_id, class_name, grade):

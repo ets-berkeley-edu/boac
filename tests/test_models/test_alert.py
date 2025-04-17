@@ -23,10 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime, timedelta, timezone
 from time import sleep
 
-from boac import std_commit
 from boac.models.alert import Alert
 from dateutil import parser
 import pytest
@@ -51,51 +49,6 @@ alert_props = {
 @pytest.mark.usefixtures('db_session')
 class TestAlert:
     """Student status alerts."""
-
-    def test_no_duplicate_alerts(self):
-        """If an alert exists with the same key, updates the message rather than creating a duplicate."""
-        assert len(get_current_alerts('11667051')) == 0
-        Alert.update_assignment_alerts(**alert_props)
-        updated_alert_props = dict(alert_props, due_at='2017-12-25T12:00:00Z')
-        Alert.update_assignment_alerts(**updated_alert_props)
-        alerts = get_current_alerts('11667051')
-        assert len(alerts) == 1
-        assert alerts[0]['key'] == '2178_987654321'
-        assert alerts[0]['message'] == 'MED ST 205 assignment due on Dec 25, 2017.'
-
-    def test_deactivate_reactivate_alerts(self):
-        """Can be deactivated and reactivated, preserving id."""
-        assert len(get_current_alerts('11667051')) == 0
-        Alert.update_assignment_alerts(**alert_props)
-        alerts = get_current_alerts('11667051')
-        assert len(alerts) == 1
-        alert_id = alerts[0]['id']
-
-        Alert.deactivate_all(sid='11667051', term_id='2178', alert_types=['missing_assignment'])
-        assert len(get_current_alerts('11667051')) == 0
-
-        Alert.update_assignment_alerts(**alert_props)
-        alerts = get_current_alerts('11667051')
-        assert len(alerts) == 1
-        assert alerts[0]['id'] == alert_id
-
-    def test_deactivate_create_new_alert(self):
-        """If a matching alert was deactivated in the past, a new alert will be created."""
-        assert len(get_current_alerts('11667051')) == 0
-        Alert.update_assignment_alerts(**alert_props)
-        alerts = get_current_alerts('11667051')
-        assert len(alerts) == 1
-        old_alert = alerts[0]
-
-        Alert.deactivate_all(sid='11667051', term_id='2178', alert_types=['missing_assignment'])
-        assert len(get_current_alerts('11667051')) == 0
-        Alert.query.filter_by(id=old_alert['id']).first().updated_at = datetime.now(timezone.utc) - timedelta(days=1)
-        std_commit(allow_test_environment=True)
-
-        Alert.update_assignment_alerts(**alert_props)
-        alerts = get_current_alerts('11667051')
-        assert len(alerts) == 1
-        assert alerts[0]['id'] != old_alert['id']
 
     def test_activation_deactivation_all_students(self):
         """Can activate and deactive across entire population for term."""
@@ -159,17 +112,6 @@ class TestAlert:
         assert inactive_alert_1.updated_at == inactivation_timestamp
         assert inactive_alert_2.updated_at > inactivation_timestamp
 
-    def test_alert_timezones(self):
-        """For purposes of displaying due dates, loves LA."""
-        Alert.update_assignment_alerts(**dict(alert_props, due_at='2017-02-03T07:59:01Z'))
-        assert get_current_alerts('11667051')[0]['message'] == 'MED ST 205 assignment due on Feb 2, 2017.'
-        Alert.update_assignment_alerts(**dict(alert_props, due_at='2017-02-03T08:00:01Z'))
-        assert get_current_alerts('11667051')[0]['message'] == 'MED ST 205 assignment due on Feb 3, 2017.'
-        Alert.update_assignment_alerts(**dict(alert_props, due_at='2017-06-17T06:59:59Z'))
-        assert get_current_alerts('11667051')[0]['message'] == 'MED ST 205 assignment due on Jun 16, 2017.'
-        Alert.update_assignment_alerts(**dict(alert_props, due_at='2017-06-17T07:00:01Z'))
-        assert get_current_alerts('11667051')[0]['message'] == 'MED ST 205 assignment due on Jun 17, 2017.'
-
     def test_academic_standing_action_date_as_created_at(self):
         actual_action_date = '2017-12-30'
         Alert.update_all_for_term(2178)
@@ -187,21 +129,6 @@ class TestAlert:
         created_at = academic_standing_alert['createdAt']
         assert created_at.startswith(actual_action_date)
         assert academic_standing_alert['updatedAt'] == created_at
-
-
-class TestAssignmentAlert:
-    """Assignment alerts."""
-
-    def test_update_assignment_alerts(self):
-        """Can be created from assignment data."""
-        assert len(get_current_alerts('11667051')) == 0
-        Alert.update_assignment_alerts(**alert_props)
-        alerts = get_current_alerts('11667051')
-        assert len(alerts) == 1
-        assert alerts[0]['id'] > 0
-        assert alerts[0]['alertType'] == 'missing_assignment'
-        assert alerts[0]['key'] == '2178_987654321'
-        assert alerts[0]['message'] == 'MED ST 205 assignment due on Oct 31, 2017.'
 
 
 class TestNoActivityAlert:
