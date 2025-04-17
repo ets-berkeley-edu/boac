@@ -25,9 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import os
 
-
 _db_port = os.environ.get('PGPORT') or '5432'
-
 
 ALERT_INFREQUENT_ACTIVITY_ENABLED = False
 ALERT_WITHDRAWAL_ENABLED = False
@@ -42,7 +40,7 @@ DATA_LOCH_RDS_URI = f'postgresql://boac:boac@localhost:{_db_port}/boac_loch_test
 
 INDEX_HTML = 'tests/static/test-index.html'
 
-LOGGING_LOCATION = 'STDOUT'
+LOGGING_LOCATION = 'boa-test.log'
 
 SQLALCHEMY_DATABASE_URI = f'postgresql://boac:boac@localhost:{_db_port}/boac_test'
 
