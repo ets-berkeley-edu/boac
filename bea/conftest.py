@@ -62,7 +62,7 @@ from boac.factory import create_app
 import pytest
 
 
-os.environ['BOAC_ENV'] = 'bea'  # noqa
+os.environ['BOAC_ENV'] = 'bea'
 
 _app = create_app()
 

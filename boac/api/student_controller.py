@@ -150,7 +150,7 @@ def _put_degree_checks_json(student):
 def _student_search_result_json(student, include_email_address_in_label=False):
     label = f"{student.get('first_name', '')} {student.get('last_name', '')} ({student.get('sid')})".strip()
     if include_email_address_in_label and student.get('email_address', None):
-        label += f" – {student.get('email_address')}"
+        label += f" - {student.get('email_address')}"
     return {
         'label': label,
         'sid': student.get('sid'),

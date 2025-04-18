@@ -33,7 +33,7 @@ from sqlalchemy import text
 class Topic(db.Model):
     __tablename__ = 'topics'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     topic = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     deleted_at = db.Column(db.DateTime, nullable=True)
@@ -73,7 +73,7 @@ class Topic(db.Model):
 
     @classmethod
     def find_by_id(cls, topic_id):
-        return cls.query.filter(cls.id == topic_id).first()  # noqa: E711
+        return cls.query.filter(cls.id == topic_id).first()
 
     @classmethod
     def get_usage_statistics(cls):

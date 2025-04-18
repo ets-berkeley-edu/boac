@@ -55,7 +55,7 @@ class TestCreatePeerAdvisingNote:
         memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(user_id)
         cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
 
-    def test_not_authorized(self, app, client, fake_auth):
+    def test_not_authorized(self, client, fake_auth):
         """Returns 401 if not authorized."""
         for uid in (None, ce3_navcal_peer_advisor_manager_uid, qcadv_advisor_uid):
             fake_auth.login(uid)
@@ -165,7 +165,7 @@ class TestGetNotesAuthoredBy:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_unauthorized(self, app, client, fake_auth):
+    def test_unauthorized(self, client, fake_auth):
         """Returns 401 if not authenticated."""
         for uid in [None, coe_advisor_no_advising_data_uid, coe_student['uid']]:
             if uid:
@@ -177,7 +177,7 @@ class TestGetNotesAuthoredBy:
             uid=uid,
         )
 
-    def test_authorized(self, app, client, fake_auth):
+    def test_authorized(self, client, fake_auth):
         """Advisor can view notes created by another Advisor or Peer Advisor user."""
         fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
         peer_advisor = AuthorizedUser.find_by_uid(ce3_navcal_peer_advisor_uid)
@@ -280,7 +280,7 @@ class TestGetPeerAdvisingTopics:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, app, client):
+    def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         self._api_get_peer_advising_topics(client, expected_status_code=401)
 
@@ -404,7 +404,7 @@ class TestUpdateNotes:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_unauthorized_peer_advising_note_update(self, app, client, fake_auth):
+    def test_unauthorized_peer_advising_note_update(self, client, fake_auth):
         """Unauthorized user cannot update Peer Advising note."""
         for uid in [None, coe_advisor_no_advising_data_uid, qcadv_advisor_uid]:
             if uid:
@@ -417,7 +417,7 @@ class TestUpdateNotes:
                 subject='Hack the subject!',
             )
 
-    def test_authorized_peer_advising_note_update(self, app, client, fake_auth):
+    def test_authorized_peer_advising_note_update(self, client, fake_auth):
         """Update Peer Advising note topics."""
         body = """
             Don't pick fights with the bullies or the cads
@@ -443,7 +443,7 @@ class TestUpdateNotes:
         for topic in topics:
             assert topic in api_json['topics']
 
-    def test_remove_note_topics(self, app, client, fake_auth):
+    def test_remove_note_topics(self, client, fake_auth):
         """Delete note topics."""
         note = Note.find_by_id(self.peer_advising_note_id)
         assert len(note.topics) > 0

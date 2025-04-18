@@ -30,7 +30,7 @@ from sqlalchemy import and_
 class NoteTemplateTopic(db.Model):
     __tablename__ = 'note_template_topics'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     note_template_id = db.Column(db.Integer, db.ForeignKey('note_templates.id'), nullable=False)
     topic = db.Column(db.String(50), nullable=False)
     note_template = db.relationship('NoteTemplate', back_populates='topics')

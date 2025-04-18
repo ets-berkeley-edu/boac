@@ -37,7 +37,7 @@ from flask import current_app as app
 def get_sis_advising_topics(ids):
     topics = data_loch.get_sis_advising_topics(ids)
     topics_by_id = {}
-    for note_or_appointment_id, topics in groupby(topics, key=itemgetter('advising_note_id')):
+    for note_or_appointment_id, topics in groupby(topics, key=itemgetter('advising_note_id')):  # noqa: B020
         topics_by_id[note_or_appointment_id] = [topic['note_topic'] for topic in topics]
     return topics_by_id
 
@@ -53,7 +53,7 @@ def get_sis_advising_attachments(ids):
             'sisFilename': sis_file_name,
             'displayName': sis_file_name if attachment.get('created_by') == 'UCBCONVERSION' else attachment.get('user_file_name'),
         }
-    for note_or_appointment_id, attachments in groupby(attachments, key=itemgetter('advising_note_id')):
+    for note_or_appointment_id, attachments in groupby(attachments, key=itemgetter('advising_note_id')):  # noqa: B020
         attachments_by_id[note_or_appointment_id] = [_attachment_to_json(a) for a in attachments]
     return attachments_by_id
 

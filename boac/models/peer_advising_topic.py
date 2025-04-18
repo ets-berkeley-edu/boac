@@ -32,7 +32,7 @@ from boac.lib.util import to_iso_format, utc_now
 class PeerAdvisingTopic(db.Model):
     __tablename__ = 'peer_advising_topics'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     topic = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     deleted_at = db.Column(db.DateTime, nullable=True)

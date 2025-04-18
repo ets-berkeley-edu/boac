@@ -129,7 +129,7 @@ class TestBoaNotesMonthlyCountReport:
         fake_auth.login(l_s_director_uid)
         self._api_notes_report(client)
 
-    def test_admin(self, client, fake_auth, mock_advising_note):
+    def test_admin(self, client, fake_auth, mock_advising_note):  # noqa: ARG002
         """Admin can access BOA notes monthly count report."""
         fake_auth.login(admin_uid)
         report = self._api_notes_report(client)

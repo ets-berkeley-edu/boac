@@ -66,7 +66,7 @@ def _safe_execute(sql, cursor, **kwargs):
         cursor.execute(sql, kwargs)
         query_time = datetime.now().timestamp() - ts
     except psycopg2.Error as e:
-        app.logger.error(f'SQL {sql} threw {e}')
+        app.logger.exception(f'Error running SQL: {sql}', exc_info=e)
         return None
     rows = [dict(r) for r in cursor.fetchall()]
     app.logger.debug(f'Query returned {len(rows)} rows in {query_time} seconds:\n{sql}\n{kwargs}')
@@ -1010,11 +1010,11 @@ def get_advisor_uids_for_affiliations(program, affiliations):
 
 
 def get_coe_ethnicity_codes(scope=()):
-    # TODO Scoping remains in place for the moment, as ethnicity is still a COE-specific category.
+    # TODO: Scoping remains in place for the moment, as ethnicity is still a COE-specific category.
     query_tables = _student_query_tables_for_scope(scope)
     if not query_tables:
         return []
-    # TODO 'Z' is an international visa status rather than an ethnicity, and should be suppressed for now.
+    # TODO: 'Z' is an international visa status rather than an ethnicity, and should be suppressed for now.
     # BOAC will handle international status separately from ethnicity after switching to campus-wide demographic
     # data.
     return safe_execute_rds(f"""SELECT DISTINCT s.ethnicity AS ethnicity_code
@@ -1104,7 +1104,7 @@ def get_other_visa_types():
     return safe_execute_rds(sql)
 
 
-def get_students_query(     # noqa
+def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
     academic_career=None,
     academic_career_status=None,
     academic_division=None,
@@ -1660,7 +1660,7 @@ def _naturalize_order(column_name):
 
 
 def _number_range_to_sql(column, numrange):
-    # TODO BOAC currently expresses range criteria using Postgres-specific numrange syntax, which must be
+    # TODO: BOAC currently expresses range criteria using Postgres-specific numrange syntax, which must be
     # translated into vanilla SQL for use against Redshift. If we end up keeping these criteria in Redshift
     # long-term, we should look into migrating stored ranges.
     numrange_syntax = re.compile('^numrange\(([0-9\.NUL]+), ([0-9\.NUL]+), \'(.)(.)\'\)$')

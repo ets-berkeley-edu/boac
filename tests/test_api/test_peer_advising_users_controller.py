@@ -146,7 +146,7 @@ class TestGetPeerAdvisingDepartment:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, app, client):
+    def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         self._api_get_peer_advising_department(
             client,
@@ -206,7 +206,7 @@ class TestDeleteAndRestore:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, app, client):
+    def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         self._api_delete_peer_advisor(
             client,

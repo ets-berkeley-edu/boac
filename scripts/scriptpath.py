@@ -27,7 +27,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import os
 import sys
 
-from boac.lib import scriptify # noqa
+from boac.lib import scriptify  # noqa: F401
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 

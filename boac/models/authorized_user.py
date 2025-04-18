@@ -44,7 +44,7 @@ class AuthorizedUser(Base):
 
     SEARCH_HISTORY_ITEM_MAX_LENGTH = 256
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     automate_degree_progress_permission = db.Column(db.Boolean, nullable=False)
     can_access_advising_data = db.Column(db.Boolean, nullable=False)
     can_access_canvas_data = db.Column(db.Boolean, nullable=False)

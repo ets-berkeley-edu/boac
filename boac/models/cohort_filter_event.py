@@ -42,7 +42,7 @@ cohort_filter_event_type = ENUM(
 class CohortFilterEvent(db.Model):
     __tablename__ = 'cohort_filter_events'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     cohort_filter_id = db.Column(db.Integer, db.ForeignKey('cohort_filters.id'), nullable=False)
     sid = db.Column(db.String(80), nullable=False)
     event_type = db.Column(cohort_filter_event_type, nullable=False)

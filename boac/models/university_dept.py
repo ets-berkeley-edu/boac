@@ -31,7 +31,7 @@ from sqlalchemy.sql import text
 class UniversityDept(Base):
     __tablename__ = 'university_depts'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     dept_code = db.Column(db.String(80), nullable=False)
     dept_name = db.Column(db.String(255), nullable=False)
     authorized_users = db.relationship(

@@ -36,12 +36,12 @@ l_s_advisor_no_advising_data_uid = '19735'
 student_sid = '3456789012'
 
 
-@pytest.fixture()
+@pytest.fixture
 def coe_advisor_id():
     return AuthorizedUser.get_id_per_uid(coe_advisor_uid)
 
 
-@pytest.fixture()
+@pytest.fixture
 def l_s_advisor_id():
     return AuthorizedUser.get_id_per_uid(l_s_college_advisor_uid)
 
@@ -67,18 +67,18 @@ class TestMarkAppointmentRead:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_mark_read_not_authenticated(self, app, client):
+    def test_mark_read_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         self._mark_appointment_read(client, '11667051-00010', expected_status_code=401)
 
-    def test_user_without_advising_data_access(self, app, client, fake_auth):
+    def test_user_without_advising_data_access(self, client, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
         self._mark_appointment_read(client, '11667051-00010', expected_status_code=401)
         fake_auth.login(l_s_advisor_no_advising_data_uid)
         self._mark_appointment_read(client, '11667051-00010', expected_status_code=401)
 
-    def test_advisor_read_legacy_appointment(self, app, client, fake_auth):
+    def test_advisor_read_legacy_appointment(self, client, fake_auth):
         """L&S advisor reads an imported SIS appointment."""
         appointment_id = '11667051-00010'
         user_id = AuthorizedUser.get_id_per_uid(l_s_college_advisor_uid)

@@ -61,7 +61,7 @@ class MockResponse:
         self.headers = headers
         self.body = body
 
-    def __call__(self, *args):
+    def __call__(self):
         return self.status, self.headers, self.body
 
 
@@ -267,7 +267,7 @@ def register_mock(request_function, response):
     A MockResponse object may be supplied, or, if dynamic behavior is required, a function that returns a MockResponse.
     """
     if isinstance(response, MockResponse):
-        response_function = lambda *args: response
+        response_function = lambda *args: response  # noqa: ARG005
     else:
         response_function = response
 
@@ -317,7 +317,7 @@ def _write_fixture(func, fixture_output_path, pattern, suffix):
         json_path = f'{fixture_output_path}/{pattern_from_args}.{suffix}'
 
         if not response:
-            app.logger.warn(f'Error response, will not write fixture to {json_path}')
+            app.logger.warning(f'Error response, will not write fixture to {json_path}')
             return response
 
         response_body = response.json() if hasattr(response, 'json') else response

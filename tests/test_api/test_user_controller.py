@@ -137,7 +137,7 @@ class TestMyCuratedGroups:
         assert 'totalStudentCount' in group
         assert group['name'] == 'I have two students'
 
-    def test_admitted_students_domain(self, app, client, fake_auth):
+    def test_admitted_students_domain(self, client, fake_auth):
         """Returns 'admitted_students' groups of CE3 advisor."""
         fake_auth.login(ce3_advisor_uid)
         curated_groups = _api_my_profile(client)['myCuratedGroups']
@@ -497,7 +497,7 @@ class TestUserSearch:
         """Deny anonymous user."""
         assert self._api_users_autocomplete(client, 'Jo', expected_status_code=401)
 
-    def test_unauthorized(self, client, fake_auth):
+    def test_unauthorized(self, client):
         """Deny non-admin user."""
         assert self._api_users_autocomplete(client, 'Jo', expected_status_code=401)
 
@@ -561,29 +561,25 @@ class TestDemoMode:
 
     def test_demo_mode_unavailable(self, client, fake_auth):
         """Return 404 when dev_auth is not enabled."""
-        with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
-            # Enable dev_auth to confirm that it is ignored
-            with override_config(app, 'DEMO_MODE_AVAILABLE', False):
-                fake_auth.login(admin_uid)
-                assert client.post('/api/user/demo_mode').status_code == 404
+        with override_config(app, 'DEVELOPER_AUTH_ENABLED', True), override_config(app, 'DEMO_MODE_AVAILABLE', False):
+            fake_auth.login(admin_uid)
+            assert client.post('/api/user/demo_mode').status_code == 404
 
     def test_set_demo_mode(self, client, fake_auth):
         """Both admin and advisor can toggle demo mode."""
-        with override_config(app, 'DEVELOPER_AUTH_ENABLED', False):
-            # Disable dev_auth to confirm that it is ignored
-            with override_config(app, 'DEMO_MODE_AVAILABLE', True):
-                for uid in admin_uid, coe_advisor_uid:
-                    fake_auth.login(uid)
-                    for in_demo_mode in [True, False]:
-                        response = client.post(
-                            '/api/user/demo_mode',
-                            data=json.dumps({'demoMode': in_demo_mode}),
-                            content_type='application/json',
-                        )
-                        assert response.status_code == 200
-                        assert response.json['inDemoMode'] is in_demo_mode
-                        user = AuthorizedUser.find_by_uid(uid)
-                        assert user.in_demo_mode is in_demo_mode
+        with override_config(app, 'DEVELOPER_AUTH_ENABLED', False), override_config(app, 'DEMO_MODE_AVAILABLE', True):
+            for uid in admin_uid, coe_advisor_uid:
+                fake_auth.login(uid)
+                for in_demo_mode in [True, False]:
+                    response = client.post(
+                        '/api/user/demo_mode',
+                        data=json.dumps({'demoMode': in_demo_mode}),
+                        content_type='application/json',
+                    )
+                    assert response.status_code == 200
+                    assert response.json['inDemoMode'] is in_demo_mode
+                    user = AuthorizedUser.find_by_uid(uid)
+                    assert user.in_demo_mode is in_demo_mode
 
 
 class TestDownloadBoaUsersCSV:

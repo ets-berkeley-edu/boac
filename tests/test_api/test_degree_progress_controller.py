@@ -41,7 +41,7 @@ coe_student_sid = '9000000000'
 qcadv_advisor_uid = '53791'
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_degree_check():
     user_id = AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid)
     parent_template = DegreeProgressTemplate.create(
@@ -63,7 +63,7 @@ def mock_degree_check():
     std_commit(allow_test_environment=True)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_template():
     return DegreeProgressTemplate.create(
         advisor_dept_codes=['COENG'],
@@ -72,7 +72,7 @@ def mock_template():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_unit_requirement():
     template = DegreeProgressTemplate.create(
         advisor_dept_codes=['COENG'],

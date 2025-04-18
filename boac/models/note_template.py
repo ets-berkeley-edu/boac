@@ -36,7 +36,7 @@ from sqlalchemy import and_
 class NoteTemplate(Base):
     __tablename__ = 'note_templates'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     body = db.Column(db.Text, nullable=False)
     creator_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)

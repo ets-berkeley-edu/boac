@@ -41,7 +41,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 class DegreeProgressTemplate(Base):
     __tablename__ = 'degree_progress_templates'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     advisor_dept_codes = db.Column(ARRAY(db.String), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     degree_name = db.Column(db.String(255), nullable=False)
@@ -307,7 +307,7 @@ def _get_enrollment_sections(sid):
     enrollments = data_loch.get_enrollments_for_sid(sid=sid)
     for index, term in enumerate(merge_enrollment_terms(enrollments)):
         for enrollment in term.get('enrollments', []):
-            if 'UGRD' == enrollment.get('academicCareer', 'UGRD'):
+            if enrollment.get('academicCareer', 'UGRD') == 'UGRD':
                 for section in enrollment['sections']:
                     section['displayName'] = enrollment['displayName']
                     section['termId'] = term['termId']

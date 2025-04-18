@@ -32,7 +32,7 @@ from dateutil.tz import tzutc
 class DegreeProgressUnitRequirement(Base):
     __tablename__ = 'degree_progress_unit_requirements'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     created_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     min_units = db.Column(db.Integer, nullable=False)
     name = db.Column(db.String(255), nullable=False)

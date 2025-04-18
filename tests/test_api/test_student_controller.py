@@ -34,17 +34,17 @@ asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
 
 
-@pytest.fixture()
+@pytest.fixture
 def admin_login(fake_auth):
     fake_auth.login(admin_with_cohorts_uid)
 
 
-@pytest.fixture()
+@pytest.fixture
 def asc_advisor_login(fake_auth):
     fake_auth.login(asc_advisor_uid)
 
 
-@pytest.fixture()
+@pytest.fixture
 def coe_advisor_login(fake_auth):
     fake_auth.login(coe_advisor_uid)
 
@@ -93,7 +93,7 @@ class TestStudent:
         self._api_student_by_sid(client=client, sid=self.asc_student['sid'], expected_status_code=401)
         self._api_student_by_uid(client=client, uid=self.asc_student['uid'], expected_status_code=401)
 
-    def test_user_with_no_enrollments_in_current_term(self, asc_advisor_login, client):
+    def test_user_with_no_enrollments_in_current_term(self, asc_advisor_login, client):  # noqa: ARG002
         """Flags student with no enrollments in current term and appends the current term."""
         sid = self.asc_student['sid']
         uid = self.asc_student['uid']
@@ -104,7 +104,7 @@ class TestStudent:
             assert len(enrollment_terms) == 3
             assert [t['termName'] for t in enrollment_terms] == ['Summer 2017', 'Spring 2017', 'Fall 2017']
 
-    def test_user_feed_authenticated(self, client, coe_advisor_login):
+    def test_user_feed_authenticated(self, client, coe_advisor_login):  # noqa: ARG002
         """Returns a well-formed response if authenticated."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -126,7 +126,7 @@ class TestStudent:
                         assert canvas_site['courseCode']
                         assert canvas_site['analytics']
 
-    def test_user_feed_holds(self, asc_advisor_login, client):
+    def test_user_feed_holds(self, asc_advisor_login, client):  # noqa: ARG002
         """Returns holds if any."""
         response = client.get('/api/student/by_uid/9933311')
         assert response.status_code == 200
@@ -137,7 +137,7 @@ class TestStudent:
         assert holds[1]['reason']['description'] == 'Semester Out'
         assert holds[1]['reason']['formalDescription'].startswith('You are not eligible to register')
 
-    def test_user_feed_multiple_terms(self, client, coe_advisor_login):
+    def test_user_feed_multiple_terms(self, client, coe_advisor_login):  # noqa: ARG002
         """Returns all terms with enrollment data in reverse order."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -170,7 +170,7 @@ class TestStudent:
             assert student['enrollmentTerms'][3]['academicStanding']['status'] == 'GST'
             assert len(student['enrollmentTerms'][3]['enrollments']) == 1
 
-    def test_user_feed_academic_standing(self, client, coe_advisor_login):
+    def test_user_feed_academic_standing(self, client, coe_advisor_login):  # noqa: ARG002
         """Includes most recent academic standing, in addition to per-term merges."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -183,7 +183,7 @@ class TestStudent:
                 'termName': 'Spring 2018',
             }
 
-    def test_user_feed_earliest_term_cutoff(self, client, coe_advisor_login):
+    def test_user_feed_earliest_term_cutoff(self, client, coe_advisor_login):  # noqa: ARG002
         """Ignores terms before the configured earliest term."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -193,7 +193,7 @@ class TestStudent:
             for term in student['enrollmentTerms']:
                 assert term['termName'] != 'Spring 2001'
 
-    def test_user_feed_future_term_cutoff(self, client, coe_advisor_login):
+    def test_user_feed_future_term_cutoff(self, client, coe_advisor_login):  # noqa: ARG002
         """Ignores terms after the configured future term."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -203,7 +203,7 @@ class TestStudent:
             for term in student['enrollmentTerms']:
                 assert term['termName'] != 'Summer 2018'
 
-    def test_enrollment_without_course_site(self, client, coe_advisor_login):
+    def test_enrollment_without_course_site(self, client, coe_advisor_login):  # noqa: ARG002
         """Returns enrollments with no associated course sites."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -214,7 +214,7 @@ class TestStudent:
             assert enrollment_without_site['title'] == 'Private Carillon Lessons for Advanced Students'
             assert enrollment_without_site['canvasSites'] == []
 
-    def test_enrollment_with_multiple_course_sites(self, client, coe_advisor_login):
+    def test_enrollment_with_multiple_course_sites(self, client, coe_advisor_login):  # noqa: ARG002
         """Returns multiple course sites associated with an enrollment, sorted by site id."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -227,7 +227,7 @@ class TestStudent:
             assert canvas_sites[0]['courseName'] == 'Radioactive Waste Management'
             assert canvas_sites[1]['courseName'] == 'Optional Friday Night Radioactivity Group'
 
-    def test_multiple_primary_section_enrollments(self, client, coe_advisor_login):
+    def test_multiple_primary_section_enrollments(self, client, coe_advisor_login):  # noqa: ARG002
         """Disambiguates multiple primary sections under a single course display name."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -252,7 +252,7 @@ class TestStudent:
             assert classics_second['gradingBasis'] == 'Letter'
             assert classics_second['grade'] == 'B-'
 
-    def test_enrollments_sorted(self, client, coe_advisor_login):
+    def test_enrollments_sorted(self, client, coe_advisor_login):  # noqa: ARG002
         """Sorts enrollments by course display name."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -264,7 +264,7 @@ class TestStudent:
             assert spring_2017_enrollments[1]['displayName'] == 'CLASSIC 130 LEC 002'
             assert spring_2017_enrollments[2]['displayName'] == 'MUSIC 41C'
 
-    def test_course_site_without_membership(self, client, coe_advisor_login):
+    def test_course_site_without_membership(self, client, coe_advisor_login):  # noqa: ARG002
         """Returns a graceful error if the expected membership is not found in the course site."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -275,7 +275,7 @@ class TestStudent:
             for metric in ['assignmentsSubmitted', 'currentScore', 'lastActivity']:
                 assert course_without_membership['canvasSites'][0]['analytics'][metric]['error']
 
-    def test_course_site_with_enrollment(self, client, coe_advisor_login):
+    def test_course_site_with_enrollment(self, client, coe_advisor_login):  # noqa: ARG002
         """Returns sensible data if the expected enrollment is found in the course site."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -309,7 +309,7 @@ class TestStudent:
             course_with_enrollment = self.get_course_for_code(student, '2178', 'MED ST 205')
             assert course_with_enrollment['canvasSites'] == []
 
-    def test_student_not_found(self, coe_advisor_login, client):
+    def test_student_not_found(self, coe_advisor_login, client):  # noqa: ARG002
         """Returns 404 if no viewable student."""
         sid = self.unrecognized_student['sid']
         uid = self.unrecognized_student['uid']
@@ -318,7 +318,7 @@ class TestStudent:
         for response in [student_by_sid, student_by_uid]:
             assert response['message'] == 'Unknown student'
 
-    def test_sis_enrollment_merge(self, client, coe_advisor_login):
+    def test_sis_enrollment_merge(self, client, coe_advisor_login):  # noqa: ARG002, PLR0915
         """Merges sorted SIS enrollment data."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -389,7 +389,7 @@ class TestStudent:
             assert music['gradingBasis'] == 'Letter'
             assert music['grade'] == 'A-'
 
-    def test_dropped_sections(self, client, coe_advisor_login):
+    def test_dropped_sections(self, client, coe_advisor_login):  # noqa: ARG002
         """Collects dropped sections in a separate feed."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -402,7 +402,7 @@ class TestStudent:
             assert dropped_sections[0]['component'] == 'TUT'
             assert dropped_sections[0]['sectionNumber'] == '002'
 
-    def test_generic_haas_advisor(self, client, coe_advisor_login):
+    def test_generic_haas_advisor(self, client, coe_advisor_login):  # noqa: ARG002
         """Populates UCBUGADHAAS advisor with name and email."""
         sid = self.coe_student['sid']
         uid = self.coe_student['uid']
@@ -434,7 +434,7 @@ class TestStudent:
                 'plan': 'Business Administration BS',
             }
 
-    def test_sis_profile(self, client, coe_advisor_login):
+    def test_sis_profile(self, client, coe_advisor_login):  # noqa: ARG002
         """Provides SIS profile data."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -464,7 +464,7 @@ class TestStudent:
             assert sis_profile['primaryName'] == 'Oski Bear'
             assert sis_profile['termsInAttendance'] is None
 
-    def test_sis_profile_expected_graduation_term(self, client, coe_advisor_login):
+    def test_sis_profile_expected_graduation_term(self, client, coe_advisor_login):  # noqa: ARG002
         """Provides the last of any expected graduation terms listed in SIS profile."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -475,7 +475,7 @@ class TestStudent:
             assert sis_profile['expectedGraduationTerm']['id'] == '2198'
             assert sis_profile['expectedGraduationTerm']['name'] == 'Fall 2019'
 
-    def test_student_profile_inactive_status(self, client, coe_advisor_login):
+    def test_student_profile_inactive_status(self, client, coe_advisor_login):  # noqa: ARG002
         inactive_student_by_sid = self._api_student_by_sid(client=client, sid='3141592653')
         inactive_student_by_uid = self._api_student_by_uid(client=client, uid='314159')
         for student in [inactive_student_by_sid, inactive_student_by_uid]:
@@ -501,7 +501,7 @@ class TestStudent:
             assert student['enrollmentTerms'][1]['enrolledUnits'] == 0
             assert len(student['enrollmentTerms'][1]['enrollments']) == 0
 
-    def test_student_profile_completed_status(self, client, coe_advisor_login):
+    def test_student_profile_completed_status(self, client, coe_advisor_login):  # noqa: ARG002
         inactive_student_by_sid = self._api_student_by_sid(client=client, sid='2718281828')
         inactive_student_by_uid = self._api_student_by_uid(client=client, uid='271828')
         for student in [inactive_student_by_sid, inactive_student_by_uid]:
@@ -522,7 +522,7 @@ class TestStudent:
             assert student['enrollmentTerms'][1]['termName'] == 'Fall 2005'
             assert student['enrollmentTerms'][1]['enrollments'][0]['title'] == 'Chaucer'
 
-    def test_athletics_profile_non_asc(self, client, coe_advisor_login):
+    def test_athletics_profile_non_asc(self, client, coe_advisor_login):  # noqa: ARG002
         """Does not include select athletics profile data for non-ASC users."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -531,7 +531,7 @@ class TestStudent:
         for student in [student_by_sid, student_by_uid]:
             assert 'inIntensiveCohort' not in student['athleticsProfile']
 
-    def test_athletics_profile_asc(self, asc_advisor_login, client):
+    def test_athletics_profile_asc(self, asc_advisor_login, client):  # noqa: ARG002
         """Includes athletics profile for ASC users."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -553,7 +553,7 @@ class TestStudent:
             assert tennis['teamCode'] == 'TNW'
             assert tennis['teamName'] == 'Women\'s Tennis'
 
-    def test_college_of_engineering_profile(self, client, coe_advisor_login):
+    def test_college_of_engineering_profile(self, client, coe_advisor_login):  # noqa: ARG002
         """Includes COE profile (eg, PREP) for COE students."""
         sid = self.coe_student['sid']
         uid = self.coe_student['uid']
@@ -589,7 +589,7 @@ class TestStudent:
             for key, value in expected_coe_profile.items():
                 assert student['coeProfile'].get(key) == value
 
-    def test_athletics_profile_admin(self, admin_login, client):
+    def test_athletics_profile_admin(self, admin_login, client):  # noqa: ARG002
         """Includes athletics profile for admins."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -602,13 +602,13 @@ class TestStudent:
             assert athletics_profile['inIntensiveCohort'] is True
             assert len(athletics_profile['athletics']) == 2
 
-    def test_student_with_appointment(self, app, client, asc_advisor_login):
+    def test_student_with_appointment(self, client, asc_advisor_login):  # noqa: ARG002
         """Includes advising appointments."""
         student = self._api_student_by_sid(client=client, sid='11667051')
         appointments = student['notifications']['appointment']
         assert len(appointments) == 3
 
-    def test_appointment_marked_read(self, app, client, asc_advisor_login):
+    def test_appointment_marked_read(self, client, asc_advisor_login):  # noqa: ARG002
         """Includes flag indicating whether user has seen each appointment."""
         student_sid = '11667051'
 
@@ -663,7 +663,7 @@ class TestAlerts:
         assert response.status_code == 200
         return response.json['notifications']['alert']
 
-    def test_current_alerts_for_sid(self, create_alerts, fake_auth, client):
+    def test_current_alerts_for_sid(self, create_alerts, fake_auth, client):  # noqa: ARG002
         """Returns current_user's current alerts for a given sid."""
         fake_auth.login(admin_with_cohorts_uid)
         alerts = self._get_alerts(client, 61889)
@@ -716,7 +716,7 @@ class TestPrefixSearch:
     def test_unauthorized(self, client):
         self._api_find_students(client=client, expected_status_code=401, query='Paul')
 
-    def test_distinct_sid_in_student_search(self, client, coe_advisor_login):
+    def test_distinct_sid_in_student_search(self, client, coe_advisor_login):  # noqa: ARG002
         """Student search results have distinct SIDs."""
         api_json = self._api_find_students(client=client, query='d')
         student_count = len(api_json)
@@ -727,7 +727,7 @@ class TestPrefixSearch:
         assert 'Dave Doolittle (2345678901)' in labels
         assert 'Deborah Davies (11667051)' in labels
 
-    def test_student_prefix_search_by_name(self, client, coe_advisor_login):
+    def test_student_prefix_search_by_name(self, client, coe_advisor_login):  # noqa: ARG002
         """When searching by name, results include current students only."""
         api_json = self._api_find_students(
             client=client,
@@ -736,9 +736,9 @@ class TestPrefixSearch:
         )
         assert len(api_json) == 1
         labels = [student['label'] for student in api_json]
-        assert "Wolfgang Pauli-O'Rourke (9000000000) – wpo@berkeley.edu" in labels
+        assert "Wolfgang Pauli-O'Rourke (9000000000) - wpo@berkeley.edu" in labels
 
-    def test_student_prefix_search_by_sid(self, client, coe_advisor_login):
+    def test_student_prefix_search_by_sid(self, client, coe_advisor_login):  # noqa: ARG002
         """When searching by SID, results include both current and non-current students."""
         api_json = self._api_find_students(client=client, query=9)
         assert len(api_json) == 3
@@ -781,7 +781,7 @@ class TestNotes:
         note = next((n for n in notes if n.get('id') == '11667051-00001'), None)
         assert len(note)
         assert note['legacySource'] == 'SIS'
-        assert 'Brigitte is making athletic and moral progress' == note['message']
+        assert note['message'] == 'Brigitte is making athletic and moral progress'
         author = note['author']
         assert not author['name']
         assert not author['role']
@@ -882,11 +882,11 @@ class TestFindBySids:
         """Requires authentication."""
         self._api_find_by_sids(client, expected_status_code=401)
 
-    def test_missing_param(self, client, coe_advisor_login):
+    def test_missing_param(self, client, coe_advisor_login):  # noqa: ARG002
         """Requires list of SIDs."""
         self._api_find_by_sids(client, expected_status_code=400)
 
-    def test_invalid_param(self, client, coe_advisor_login):
+    def test_invalid_param(self, client, coe_advisor_login):  # noqa: ARG002
         """Requires SIDs to be numeric."""
         self._api_find_by_sids(
             client,
@@ -894,7 +894,7 @@ class TestFindBySids:
             expected_status_code=400,
         )
 
-    def test_(self, client, coe_advisor_login):
+    def test_(self, client, coe_advisor_login):  # noqa: ARG002
         """Returns basic attributes for SIDs found."""
         api_json = self._api_find_by_sids(
             client,
@@ -929,11 +929,11 @@ class TestValidateSids:
         """Requires authentication."""
         self._api_validate_sids(client, expected_status_code=401)
 
-    def test_validate_sids_with_invalid_sid(self, client, coe_advisor_login):
+    def test_validate_sids_with_invalid_sid(self, client, coe_advisor_login):  # noqa: ARG002
         """Complains about non-numeric SID."""
         self._api_validate_sids(client, sids=['7890123456', 'ABC'], expected_status_code=400)
 
-    def test_validate_sids_with_some_invalid(self, client, coe_advisor_login):
+    def test_validate_sids_with_some_invalid(self, client, coe_advisor_login):  # noqa: ARG002
         """SID status is 404 if student is not found."""
         api_json = self._api_validate_sids(
             client,
@@ -948,13 +948,13 @@ class TestValidateSids:
         assert api_json[2]['sid'] == '2345678901'
         assert api_json[2]['status'] == 200
 
-    def test_validate_sids_with_some_inactive(self, client, coe_advisor_login):
+    def test_validate_sids_with_some_inactive(self, client, coe_advisor_login):  # noqa: ARG002
         """Accepts inactive SIDs."""
         api_json = self._api_validate_sids(client, sids=['7890123456', '2718281828', '3141592653'])
         assert len(api_json) == 3
         assert [a['status'] for a in api_json] == [200, 200, 200]
 
-    def test_validate_sids_by_admin(self, client, admin_login):
+    def test_validate_sids_by_admin(self, client, admin_login):  # noqa: ARG002
         """Admin has access to all students."""
         api_json = self._api_validate_sids(
             client,

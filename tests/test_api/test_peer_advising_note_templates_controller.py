@@ -94,12 +94,9 @@ class TestCreatePeerAdvisingNoteTemplate:
             'topics': [t.topic for t in mock_peer_advising_note_template.topics],
         }
         api_json = self._api_create_peer_advising_note_template(client, data)
-        print(api_json)
         note_template_id = api_json.get('id')
-        print(note_template_id)
 
         note_template = NoteTemplate.find_by_id(note_template_id)
-        print(note_template)
 
         assert note_template is not None
         assert note_template.body == mock_peer_advising_note_template.body
@@ -129,13 +126,13 @@ class TestGetPeerAdvisingNoteTemplate:
         """Returns 401 if not authenticated."""
         self._api_get_peer_advising_note_template(client, mock_peer_advising_note_template.id, expected_status_code=401)
 
-    def test_template_not_found(self, client, fake_auth, mock_peer_advising_note_template):
+    def test_template_not_found(self, client, fake_auth, mock_peer_advising_note_template):  # noqa: ARG002
         """Returns 404 if the template is not found."""
         fake_auth.login(peer_advisor_uid)
         self._api_get_peer_advising_note_template(client, note_template_id=999999, expected_status_code=404)
 
     def test_user_not_in_peer_advising_department(self, client, fake_auth, mock_peer_advising_note_template):
-        """Returns 401 if the user is not in the template’s peer advising department."""
+        """Returns 401 if the user is not in the template's peer advising department."""
         fake_auth.login(qcadv_advisor_uid)
         self._api_get_peer_advising_note_template(client, mock_peer_advising_note_template.id, expected_status_code=401)
 
@@ -276,16 +273,19 @@ class TestDeletePeerAdvisingNoteTemplate:
         self._api_delete_peer_advising_note_template(client, mock_peer_advising_note_template.id,
                                                      expected_status_code=401)
 
-    def test_template_not_found(self, client, fake_auth, mock_peer_advising_note_template):
+    def test_template_not_found(self, client, fake_auth, mock_peer_advising_note_template):  # noqa: ARG002
         """Returns 404 if the template does not exist."""
         fake_auth.login(peer_advisor_manager_uid)
         self._api_delete_peer_advising_note_template(client, 999999, expected_status_code=404)
 
     def test_user_not_in_peer_advising_department(self, client, fake_auth, mock_peer_advising_note_template):
-        """Returns 401 if the current user is not a member of the template’s peer advising department."""
+        """Returns 401 if the current user is not a member of the template's peer advising department."""
         fake_auth.login(qcadv_advisor_uid)
-        self._api_delete_peer_advising_note_template(client, mock_peer_advising_note_template.id,
-                                                     expected_status_code=401)
+        self._api_delete_peer_advising_note_template(
+            client,
+            mock_peer_advising_note_template.id,
+            expected_status_code=401,
+        )
 
     def test_delete_peer_advising_note_template_success(self, client, fake_auth, mock_peer_advising_note_template):
         """Deletes a peer advising note template and returns a confirmation message."""

@@ -51,7 +51,7 @@ def _get_current_term_start():
 class Alert(Base):
     __tablename__ = 'alerts'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     sid = db.Column(db.String(80), nullable=False)
     alert_type = db.Column(db.String(80), nullable=False)
     key = db.Column(db.String(255), nullable=False)
@@ -171,14 +171,13 @@ class Alert(Base):
         sids = list(alert_counts_by_sid.keys())
 
         def result_to_dict(result):
-            result_dict = {
+            return {
                 'sid': result.get('sid'),
                 'uid': result.get('uid'),
                 'firstName': result.get('first_name'),
                 'lastName': result.get('last_name'),
                 'alertCount': alert_counts_by_sid.get(result.get('sid')),
             }
-            return result_dict
         benchmark('begin get_basic_student_data query')
         students = data_loch.get_basic_student_data(sids)
         benchmark('end get_basic_student_data query')

@@ -397,8 +397,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def note_export_file_names(self, student):
         names = self.downloaded_zip_file_name_list(self.notes_export_zip_file_name(student))
-        names = list(map(lambda n: n.lower(), names))
-        return names
+        return list(map(lambda n: n.lower(), names))
 
     def expected_note_export_file_names(self, student, notes, downloader):
         names = [self.notes_export_csv_file_name(student)]

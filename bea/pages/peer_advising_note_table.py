@@ -38,8 +38,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     def visible_peer_note_ids(self):
         els = self.elements((By.XPATH, '//button[contains(@id, "open-peer-advising-")]'))
-        ids = [el.get_dom_attribute('id').split('-')[-1] for el in els]
-        return ids
+        return [el.get_dom_attribute('id').split('-')[-1] for el in els]
 
     def show_more_peer_notes(self):
         self.wait_for_element_and_click(self.SHOW_MORE_NOTES_BTN)

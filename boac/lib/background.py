@@ -114,7 +114,7 @@ def _bg_executor(app, method):
                     advisory_unlock(app, lock_connection, BACKGROUND_THREAD_LOCK_ID)
                     app.logger.debug('Background task complete.')
             else:
-                app.logger.warn('Was not granted advisory lock, will not run background method.')
+                app.logger.warning('Was not granted advisory lock, will not run background method.')
 
 
 def try_advisory_lock(app, connection, lock_id):
@@ -123,7 +123,7 @@ def try_advisory_lock(app, connection, lock_id):
     if locked:
         app.logger.info(f'Granted advisory lock {lock_id} for PID {pid}')
     else:
-        app.logger.warn(f'Was not granted advisory lock {lock_id} for PID {pid}')
+        app.logger.warning(f'Was not granted advisory lock {lock_id} for PID {pid}')
     return locked
 
 

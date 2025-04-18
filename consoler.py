@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.factory import create_app
-from pprintpp import pprint as pp # noqa
+from pprintpp import pprint as pp  # noqa: F401
 
 """Run Flask-wrapped code from a Python console.
 
@@ -59,5 +59,5 @@ app = create_app()
 ac = app.app_context()
 ac.push()
 
-print('You are now in a Flask app context. To run normal app teardown processes, type:')
-print('   ac.pop()')
+print('You are now in a Flask app context. To run normal app teardown processes, type:')  # noqa: T201
+print('   ac.pop()')  # noqa: T201

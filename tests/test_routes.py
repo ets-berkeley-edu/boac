@@ -27,20 +27,20 @@ import pytest
 from tests.util import override_config
 
 
-@pytest.fixture()
+@pytest.fixture
 def asc_advisor_session(fake_auth):
     fake_auth.login('1081940')
 
 
 class TestFrontEndRoute:
 
-    def test_front_end_route(self, app, client, asc_advisor_session):
+    def test_front_end_route(self, app, client, asc_advisor_session):  # noqa: ARG002
         """No server-side redirect if Vue code is bundled in deployment (AWS environment)."""
         with override_config(app, 'VUE_LOCALHOST_BASE_URL', None):
             response = client.get('/student/123?r=1')
             assert response.status_code == 200
 
-    def test_front_end_route_redirect(self, app, client, asc_advisor_session):
+    def test_front_end_route_redirect(self, app, client, asc_advisor_session):  # noqa: ARG002
         """Server-side redirect to Vue.js (separate port) on developer workstation."""
         vue_path = '/student/12345?r=1'
         vue_base_url = 'http://localhost:8080'

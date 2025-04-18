@@ -651,7 +651,7 @@ def _filter_notes(download_type, notes):
 def _get_asc_advising_note_topics(sid):
     topics = data_loch.get_asc_advising_note_topics(sid)
     topics_by_id = {}
-    for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
+    for advising_note_id, topics in groupby(topics, key=itemgetter('id')):  # noqa: B020
         topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
     return topics_by_id
 
@@ -659,7 +659,7 @@ def _get_asc_advising_note_topics(sid):
 def _get_e_i_advising_note_topics(sid):
     topics = data_loch.get_e_i_advising_note_topics(sid)
     topics_by_id = {}
-    for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
+    for advising_note_id, topics in groupby(topics, key=itemgetter('id')):  # noqa: B020
         topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
     return topics_by_id
 
@@ -667,6 +667,6 @@ def _get_e_i_advising_note_topics(sid):
 def _get_eop_advising_note_topics(sid):
     topics = data_loch.get_eop_advising_note_topics(sid)
     topics_by_id = {}
-    for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
+    for advising_note_id, topics in groupby(topics, key=itemgetter('id')):  # noqa: B020
         topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
     return topics_by_id

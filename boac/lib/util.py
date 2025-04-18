@@ -232,7 +232,7 @@ def get_attachment_filename(attachment_id, path_to_attachment):
     if match:
         return match[1]
     else:
-        app.logger.warn(
+        app.logger.warning(
             f'Note attachment S3 filename did not match expected format: ID = {attachment_id}, filename = {raw_filename}')
         return raw_filename
 

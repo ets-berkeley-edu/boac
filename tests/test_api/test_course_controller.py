@@ -33,12 +33,12 @@ student_sid = '11667051'
 section_id = 90100
 
 
-@pytest.fixture()
+@pytest.fixture
 def asc_advisor(fake_auth):
     fake_auth.login(asc_advisor_uid)
 
 
-@pytest.fixture()
+@pytest.fixture
 def coe_advisor(fake_auth):
     fake_auth.login(coe_advisor_uid)
 
@@ -55,12 +55,12 @@ class TestCourseController:
         fake_auth.login(advisor.uid)
         assert client.get('/api/section/2182/1').status_code == 403
 
-    def test_api_route_not_found(self, coe_advisor, client):
+    def test_api_route_not_found(self, coe_advisor, client):  # noqa: ARG002
         """Returns a 404 for non-existent section_id."""
         response = client.get('/api/section/2222/1')
         assert response.status_code == 404
 
-    def test_get_section(self, coe_advisor, client):
+    def test_get_section(self, coe_advisor, client):  # noqa: ARG002
         """Returns section info from data loch."""
         response = client.get(f'/api/section/{term_id}/{section_id}')
         assert response.status_code == 200
@@ -75,7 +75,7 @@ class TestCourseController:
         assert section['meetings'][0]['time'] == '12:00 pm - 12:59 pm'
         assert section['meetings'][0]['location'] == 'Wheeler 999'
 
-    def test_section_student_details(self, coe_advisor, client):
+    def test_section_student_details(self, coe_advisor, client):  # noqa: ARG002
         """Includes per-student details."""
         response = client.get(f'/api/section/{term_id}/{section_id}')
         students = response.json['students']
@@ -96,7 +96,7 @@ class TestCourseController:
         assert students[0]['enrollment']['midtermGrade'] == 'D+'
         assert isinstance(students[0].get('alertCount'), int)
 
-    def test_section_student_analytics(self, coe_advisor, client):
+    def test_section_student_analytics(self, coe_advisor, client):  # noqa: ARG002
         section_id = 90200
         response = client.get(f'/api/section/{term_id}/{section_id}')
         students = response.json['students']
@@ -119,7 +119,7 @@ class TestCourseController:
         assert students[0]['analytics']['assignmentsSubmitted']['percentile'] == 64
         assert students[0]['analytics']['currentScore']['percentile'] == 42.5
 
-    def test_section_mean_course_analytics(self, coe_advisor, client):
+    def test_section_mean_course_analytics(self, coe_advisor, client):  # noqa: ARG002
         """Calculates mean course analytics across all sites associated with the section."""
         section_id = 90200
         response = client.get(f'/api/section/{term_id}/{section_id}')
@@ -134,20 +134,20 @@ class TestCourseController:
         assert mean_metrics['gpa']['2175'] == 3.055
         assert mean_metrics['gpa']['2172'] == 3.23
 
-    def test_section_student_athletics_asc(self, asc_advisor, client):
+    def test_section_student_athletics_asc(self, asc_advisor, client):  # noqa: ARG002
         """Includes athletics for ASC advisors."""
         response = client.get(f'/api/section/{term_id}/{section_id}')
         students = response.json['students']
         assert len(students[0]['athleticsProfile']['athletics']) == 2
         assert isinstance(students[0].get('alertCount'), int)
 
-    def test_section_student_athletics_non_asc(self, coe_advisor, client):
+    def test_section_student_athletics_non_asc(self, coe_advisor, client):  # noqa: ARG002
         """Does not include athletics for non-ASC advisors."""
         response = client.get(f'/api/section/{term_id}/{section_id}')
         students = response.json['students']
         assert 'athletics' not in students[0]
 
-    def test_section_student_alert_count(self, create_alerts, coe_advisor, client):
+    def test_section_student_alert_count(self, create_alerts, coe_advisor, client):  # noqa: ARG002
         """Includes alert count of COE student."""
         response = client.get(f'/api/section/{term_id}/{section_id}')
         assert response.json['students'][0].get('alertCount') == 4

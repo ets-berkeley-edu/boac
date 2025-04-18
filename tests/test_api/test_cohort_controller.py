@@ -49,7 +49,7 @@ class TestCohortById:
         cls.coe_owned_cohort = next((c for c in all_cohorts_owned_by(coe_advisor_uid) if c['name'] == 'Radioactive Women and Men'), None)
         cls.asc_owned_cohort = next((c for c in all_cohorts_owned_by(asc_advisor_uid) if c['name'] == 'All sports'), None)
 
-    def test_students_with_alert_counts(self, client, fake_auth, create_alerts, db_session):
+    def test_students_with_alert_counts(self, client, fake_auth, create_alerts):  # noqa: ARG002
         """Pre-load students into cache for consistent alert data."""
         fake_auth.login(asc_advisor_uid)
         Alert.update_all_for_term(2178)
@@ -97,7 +97,7 @@ class TestCohortById:
         assert students_with_alerts[0]['sid'] == '11667051'
         assert students_with_alerts[0]['alertCount'] == 3
 
-    def test_get_cohort(self, client, fake_auth, create_alerts):
+    def test_get_cohort(self, client, fake_auth, create_alerts):  # noqa: ARG002
         """Returns a well-formed response with filtered cohort and alert count per student."""
         fake_auth.login(coe_advisor_uid)
         cohort_id = self.coe_owned_cohort['id']
@@ -119,7 +119,7 @@ class TestCohortById:
         cohort_id = all_cohorts_owned_by(admin_uid)[0]['id']
         api_get_cohort(client, cohort_id, expected_status_code=404)
 
-    def test_undeclared_major(self, app, client, fake_auth):
+    def test_undeclared_major(self, client, fake_auth):
         """Get cohort: Undeclared Major."""
         fake_auth.login(asc_advisor_uid)
         cohort = all_cohorts_owned_by(asc_advisor_uid)[-1]
@@ -201,7 +201,6 @@ class TestCohortById:
 
     def test_includes_cohort_member_academic_standing(self, client, fake_auth):
         fake_auth.login(asc_advisor_uid)
-        # cohort_id = self.asc_owned_cohort['id']
         api_json = api_get_cohort(
             client,
             cohort_id=self.asc_owned_cohort['id'],
@@ -462,7 +461,6 @@ class TestCohortsEveryone:
         assert len(api_json) == 1
         for index, user in enumerate(api_json):
             cohorts = user['cohorts']
-            # count = len(cohorts)
             assert len(cohorts)
             if 0 < index < len(cohorts):
                 # Verify order
@@ -502,7 +500,7 @@ class TestCohortsEveryone:
 
 class TestCohortCreate:
 
-    def test_create_cohort(self, app, client, fake_auth):
+    def test_create_cohort(self, client, fake_auth):
         """Creates custom cohort, owned by current user."""
         fake_auth.login(asc_advisor_uid)
         data = {
@@ -552,7 +550,7 @@ class TestCohortCreate:
         data = {
             'name': 'Complex',
             'filters': [
-                {'key': 'majors', 'value': 'Gender and Women''s Studies'},
+                {'key': 'majors', 'value': 'Gender and Womens Studies'},
                 {'key': 'gpaRanges', 'value': gpa_range_1},
                 {'key': 'levels', 'value': 'Junior'},
                 {'key': 'gpaRanges', 'value': gpa_range_2},
@@ -582,7 +580,7 @@ class TestCohortCreate:
         # Majors
         majors = criteria.get('majors')
         assert len(majors) == 2
-        assert 'Gender and Women''s Studies' in majors
+        assert 'Gender and Womens Studies' in majors
         # Minors
         minors = criteria.get('minors')
         assert len(minors) == 1
@@ -738,7 +736,7 @@ class TestCohortUpdate:
             'name': 'Hack the name!',
         }
         response = self._post_cohort_update(client, data)
-        assert 403 == response.status_code
+        assert response.status_code == 403
 
     def test_update_filters(self, client, fake_auth):
         fake_auth.login(asc_advisor_uid)
@@ -758,7 +756,7 @@ class TestCohortUpdate:
         # First, we POST an empty name
         cohort_id = cohort['id']
         response = self._post_cohort_update(client, {'id': cohort_id})
-        assert 400 == response.status_code
+        assert response.status_code == 400
         # Now, we POST a valid name
         gpa_range = {'min': 2, 'max': 2.499}
         data = {
@@ -769,7 +767,7 @@ class TestCohortUpdate:
             ],
         }
         response = self._post_cohort_update(client, data)
-        assert 200 == response.status_code
+        assert response.status_code == 200
         updated_cohort = response.json
         assert updated_cohort['alertCount'] is not None
         assert updated_cohort['criteria']['majors'] == ['Engineering Undeclared UG']
@@ -937,8 +935,8 @@ class TestCohortPerFilters:
         )
         students = api_json['students']
         assert len(students) == api_json.get('totalStudentCount')
-        assert ['Doolittle', 'Farestveit', 'Jayaprakash', 'Kerschen'] == [s['lastName'] for s in students]
-        assert [3.495, 3.9, 3.501, 3.005] == [s['cumulativeGPA'] for s in students]
+        assert [s['lastName'] for s in students] == ['Doolittle', 'Farestveit', 'Jayaprakash', 'Kerschen']
+        assert [s['cumulativeGPA'] for s in students] == [3.495, 3.9, 3.501, 3.005]
         criteria = api_json['criteria']
         assert len(criteria['gpaRanges']) == 2
         assert len(criteria['lastNameRanges']) == 1
@@ -1514,7 +1512,7 @@ class TestDownloadCsvPerFilters:
                 assert 'Junior' in row
                 assert 'English BA' in row
                 assert ',Engineering; Undergrad Letters & Science,' in row
-                assert 'BURMESE 1A' in row or 'MED ST 205' in row or 'NUC ENG 124' in row or 'PHYSED 11' in row or 'SOCIOL 198'
+                assert 'BURMESE 1A' in row or 'MED ST 205' in row or 'NUC ENG 124' in row or 'PHYSED 11' in row or 'SOCIOL 198' in row
 
     def test_download_csv_custom_columns(self, client, fake_auth):
         """Advisor can generate a CSV with the columns they want."""
@@ -1641,7 +1639,6 @@ class TestDownloadCsvPerFilters:
         assert 'csv' in response.content_type
         csv = str(response.data)
         assert ','.join(self.admit_keys) in csv
-        print(csv)
         assert (
             '19938035,00005852,RES,Transfer,Spring,No,No,College of Letters and Science,'
             'Ralph,,Burgess,1984-09-04,984.110.7693x347,681-857-8070,9590 Chang Extensions,'
@@ -1951,7 +1948,7 @@ class TestCohortFilterOptions:
         for label, option_group in api_json.items():
             for entry in option_group:
                 # Verify the 'default' filters are not present.
-                assert 'unitRanges' != entry['key']
+                assert entry['key'] != 'unitRanges'
                 assert entry['domain'] == 'admitted_students'
 
 
@@ -1970,13 +1967,13 @@ class TestTranslateToFilterOptions:
     def test_translate_criteria_when_empty(self, client, fake_auth):
         """Empty criteria translates to zero rows."""
         fake_auth.login(coe_advisor_uid)
-        assert [] == self._api_translate_to_filter_options(
+        assert self._api_translate_to_filter_options(
             client,
             json_data={
                 'criteria': {},
             },
             owner_uid=coe_advisor_uid,
-        )
+        ) == []
 
     def test_translate_criteria_with_boolean(self, client, fake_auth):
         """Filter-criteria with boolean is properly translated."""

@@ -42,7 +42,7 @@ coe_advisor = '1133399'
 class TestMergedAdvisingNote:
     """Advising note data, merged."""
 
-    def test_get_advising_notes(self, app, mock_advising_note, fake_auth):
+    def test_get_advising_notes(self, mock_advising_note, fake_auth):  # noqa: PLR0915
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
 
@@ -160,7 +160,7 @@ class TestMergedAdvisingNote:
         assert len(boa_created_note['attachments']) == 1
         assert 'legacySource' not in boa_created_note
 
-    def test_get_advising_notes_ucbconversion_attachment(self, app, fake_auth):
+    def test_get_advising_notes_ucbconversion_attachment(self, fake_auth):
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
         assert notes[0]['attachments'] == [
@@ -171,7 +171,7 @@ class TestMergedAdvisingNote:
             },
         ]
 
-    def test_get_advising_notes_cs_attachment(self, app, mock_advising_note, fake_auth):
+    def test_get_advising_notes_cs_attachment(self, mock_advising_note, fake_auth):
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('11667051')
         assert notes[1]['attachments'] == [
@@ -206,7 +206,7 @@ class TestMergedAdvisingNote:
             assert notes[0]['attachments'] is None
             assert notes[0]['body'] is None
 
-    def test_get_advising_notes_timestamp_format(self, app, fake_auth):
+    def test_get_advising_notes_timestamp_format(self, fake_auth):
         fake_auth.login(coe_advisor)
         notes = get_advising_notes('9000000000')
         ucbconversion_note = notes[0]
@@ -216,7 +216,7 @@ class TestMergedAdvisingNote:
         assert parse(cs_note['createdAt']) == parse('2017-11-02T12:00:00+00')
         assert parse(cs_note['updatedAt']) == parse('2017-11-02T13:00:00+00')
 
-    def test_search_advising_notes(self, app, fake_auth):
+    def test_search_advising_notes(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='herostratus')
         notes = results['notes']
@@ -234,7 +234,7 @@ class TestMergedAdvisingNote:
         assert parse(notes[0]['createdAt']) == parse('2017-11-05T12:00:00+00')
         assert notes[0]['updatedAt'] is None
 
-    def test_search_for_private_advising_notes(self, fake_auth, mock_private_advising_note):
+    def test_search_for_private_advising_notes(self, fake_auth, mock_private_advising_note):  # noqa: ARG002
         fake_auth.login(ce3_advisor_uid)
         results = search_advising_notes(search_phrase='neon', author_uid=ce3_advisor_uid)
         notes = results['notes']
@@ -242,7 +242,7 @@ class TestMergedAdvisingNote:
         assert total_note_count == 0
         assert notes == []
 
-    def test_search_advising_notes_by_category(self, app, fake_auth):
+    def test_search_advising_notes_by_category(self, fake_auth):
         """Matches legacy category/subcategory for SIS advising notes only if body is blank."""
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='Quick Question')
@@ -252,7 +252,7 @@ class TestMergedAdvisingNote:
         assert total_note_count == 1
         assert notes[0]['noteSnippet'] == '<strong>Quick</strong> <strong>Question</strong>, Unanswered'
 
-    def test_search_for_asc_advising_notes(self, app, fake_auth):
+    def test_search_for_asc_advising_notes(self, fake_auth):
         fake_auth.login(asc_advisor)
         results = search_advising_notes(search_phrase='kilmister')
         notes = results['notes']
@@ -272,7 +272,7 @@ class TestMergedAdvisingNote:
         assert parse(notes[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
         assert notes[0]['updatedAt'] is None
 
-    def test_search_advising_notes_stemming(self, app, fake_auth):
+    def test_search_advising_notes_stemming(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='spare')
         notes = results['notes']
@@ -285,7 +285,7 @@ class TestMergedAdvisingNote:
         notes = results['notes']
         assert '<strong>felicities</strong>' in notes[0]['noteSnippet']
 
-    def test_search_advising_notes_too_short_to_snippet(self, app, fake_auth):
+    def test_search_advising_notes_too_short_to_snippet(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='campus')
         notes = results['notes']
@@ -294,7 +294,7 @@ class TestMergedAdvisingNote:
         assert total_note_count == 1
         assert notes[0]['noteSnippet'] == 'Is this student even on <strong>campus</strong>?'
 
-    def test_search_advising_notes_ordered_by_relevance(self, app, fake_auth):
+    def test_search_advising_notes_ordered_by_relevance(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='confound')
         notes = results['notes']
@@ -304,7 +304,7 @@ class TestMergedAdvisingNote:
         assert '<strong>confounded</strong> that of himself' in notes[0]['noteSnippet']
         assert notes[1]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
 
-    def test_search_advising_notes_multiple_terms(self, app, fake_auth):
+    def test_search_advising_notes_multiple_terms(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='burnt diana temple')
         notes = results['notes']
@@ -313,7 +313,7 @@ class TestMergedAdvisingNote:
         assert total_note_count == 1
         assert 'Herostratus lives that <strong>burnt</strong> the <strong>Temple</strong> of <strong>Diana</strong>' in notes[0]['noteSnippet']
 
-    def test_search_advising_notes_no_match(self, app, fake_auth):
+    def test_search_advising_notes_no_match(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='pyramid octopus')
         notes = results['notes']
@@ -321,7 +321,7 @@ class TestMergedAdvisingNote:
         assert len(notes) == 0
         assert total_note_count == 0
 
-    def test_search_advising_notes_funny_characters(self, app, fake_auth):
+    def test_search_advising_notes_funny_characters(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='horse & epitaph')
         notes = results['notes']
@@ -330,12 +330,11 @@ class TestMergedAdvisingNote:
         assert total_note_count == 1
         assert 'Time hath spared the <strong>Epitaph</strong> of Adrians <strong>horse</strong>' in notes[0]['noteSnippet']
 
-    def test_search_dates(self, app, fake_auth):
+    def test_search_dates(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='2/1/2019 1:30')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
-        print(notes[0]['noteSnippet'])
         assert len(notes) == 1
         assert total_note_count == 1
         assert (
@@ -348,29 +347,27 @@ class TestMergedAdvisingNote:
         assert total_note_count == 1
         assert 'drop Eng. 123 by <strong>1-24-19</strong>' in notes[0]['noteSnippet']
 
-    def test_search_decimals(self, app, fake_auth):
+    def test_search_decimals(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='2.0')
         notes = results['notes']
-        print(notes[0]['noteSnippet'])
         total_note_count = results['totalNoteCount']
         assert len(notes) == 1
         assert total_note_count == 1
         assert 'Student continued on <strong>2</strong>.<strong>0</strong> prob (COP) until Sp \'19.' in notes[0]['noteSnippet']
 
-    def test_search_email_address(self, app, fake_auth):
+    def test_search_email_address(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='E-mailed test@berkeley.edu')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
-        print(notes[0]['noteSnippet'])
         assert len(notes) == 1
         assert total_note_count == 1
         assert (
                'Student continued on 2.0 prob (COP) until Sp \'19. <strong>E-mailed</strong> '
                '<strong>test</strong>@<strong>berkeley</strong>.<strong>edu</strong>:') in notes[0]['noteSnippet']
 
-    def test_search_advising_notes_timestamp_format(self, app, fake_auth):
+    def test_search_advising_notes_timestamp_format(self, fake_auth):
         fake_auth.login(coe_advisor)
         results = search_advising_notes(search_phrase='confound')
         notes = results['notes']
@@ -381,7 +378,7 @@ class TestMergedAdvisingNote:
         assert cs_note['createdAt']
         assert cs_note['updatedAt'] is None
 
-    def test_search_advising_notes_includes_newly_created(self, app, fake_auth):
+    def test_search_advising_notes_includes_newly_created(self, fake_auth):
         fake_auth.login(coe_advisor)
         _create_coe_advisor_note(
             sid='11667051',
@@ -397,9 +394,9 @@ class TestMergedAdvisingNote:
         assert notes[1]['noteSnippet'].startswith('...pity the founder')
         assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
 
-    def test_search_advising_notes_paginates_new_and_old(self, app, fake_auth):
+    def test_search_advising_notes_paginates_new_and_old(self, fake_auth):
         fake_auth.login(coe_advisor)
-        for i in range(0, 5):
+        for i in range(5):
             _create_coe_advisor_note(
                 sid='11667051',
                 subject='Planned redundancy',
@@ -422,7 +419,7 @@ class TestMergedAdvisingNote:
         assert notes[1]['noteSnippet'].startswith('...pity the founder')
         assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
 
-    def test_search_advising_notes_narrowed_by_author(self, app, fake_auth):
+    def test_search_advising_notes_narrowed_by_author(self, fake_auth):
         """Narrows results for both new and legacy advising notes by author SID."""
         joni = {
             'name': 'Joni Mitchell',
@@ -456,7 +453,7 @@ class TestMergedAdvisingNote:
         assert new_note['advisorUid'] == joni['uid']
         assert legacy_note['advisorSid'] == joni['sid']
 
-    def test_search_advising_notes_narrowed_by_student(self, app, fake_auth):
+    def test_search_advising_notes_narrowed_by_student(self, fake_auth):
         """Narrows results for both new and legacy advising notes by student SID."""
         for sid in ['9000000000', '9100000000']:
             _create_coe_advisor_note(
@@ -477,7 +474,7 @@ class TestMergedAdvisingNote:
         assert new_note['studentSid'] == '9100000000'
         assert legacy_note['studentSid'] == '9100000000'
 
-    def test_search_advising_notes_restricted_to_students_in_loch(self, app, fake_auth):
+    def test_search_advising_notes_restricted_to_students_in_loch(self, fake_auth):
         fake_auth.login(coe_advisor)
         _create_coe_advisor_note(
             sid='6767676767',
@@ -492,7 +489,7 @@ class TestMergedAdvisingNote:
         )
         assert len(search_advising_notes(search_phrase='loch')['notes']) == 1
 
-    def test_search_advising_notes_narrowed_by_topic(self, app, fake_auth):
+    def test_search_advising_notes_narrowed_by_topic(self, fake_auth):
         for topic in ['Good Show', 'Bad Show']:
             _create_coe_advisor_note(
                 sid='11667051',

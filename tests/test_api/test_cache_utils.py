@@ -40,17 +40,17 @@ coe_advisor_uid = '1022796'
 @pytest.mark.usefixtures('db_session')
 class TestCacheUtils:
 
-    def test_creates_alert_for_midterm_grade(self, app):
+    def test_creates_alert_for_midterm_grade(self):
         from boac.api.cache_utils import refresh_alerts
         refresh_alerts(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
         alert = next((a for a in alerts if a['alertType'] == 'midterm'), None)
         assert alert
-        assert 'midterm' == alert['alertType']
-        assert '2178_90100' == alert['key']
-        assert 'BURMESE 1A midpoint deficient grade of D+.' == alert['message']
+        assert alert['alertType'] == 'midterm'
+        assert alert['key'] == '2178_90100'
+        assert alert['message'] == 'BURMESE 1A midpoint deficient grade of D+.'
 
-    def test_update_curated_group_lists(self, app):
+    def test_update_curated_group_lists(self):
         from boac.api.cache_utils import update_curated_group_lists
         curated_group = CuratedGroup.create(
             owner_id=AuthorizedUser.find_by_uid('6446').id,
@@ -72,7 +72,7 @@ class TestCacheUtils:
         assert sid_not_in_data_loch not in final_sids
         assert set(final_sids) == set(original_sids)
 
-    def test_load_filtered_cohort_counts(self, app):
+    def test_load_filtered_cohort_counts(self):
         from boac.api.cache_utils import load_filtered_cohort_counts
         cohorts = all_cohorts_owned_by(admin_uid)
         assert len(cohorts)
@@ -85,7 +85,7 @@ class TestCacheUtils:
 
 class TestRefreshCalnetAttributes:
 
-    def test_removes_and_restores(self, app):
+    def test_removes_and_restores(self):
         from boac.api.cache_utils import refresh_calnet_attributes
         from boac.models import json_cache
         from boac.models.json_cache import JsonCache
@@ -108,7 +108,7 @@ class TestRefreshCalnetAttributes:
 class TestRefreshCurrentTermIndex:
     """Test current term index refresh."""
 
-    def test_refresh_current_term_index(self, app):
+    def test_refresh_current_term_index(self):
         """Deletes existing index from the cache and adds a fresh one."""
         from boac.api.cache_utils import refresh_current_term_index
         from boac.models import json_cache
@@ -129,7 +129,7 @@ class TestRefreshCurrentTermIndex:
 
 class TestRefreshDepartmentMemberships:
 
-    def test_adds_coe_advisors(self, app):
+    def test_adds_coe_advisors(self):
         """Adds COE advisors newly found in the loch."""
         # Note: You will not find this UID in development_db (test data setup). It is seeded in loch.sql test data.
         coe_uid = '1234567'
@@ -192,7 +192,7 @@ class TestRefreshDepartmentMemberships:
         assert user.created_by == '0'
         assert user.department_memberships[0].automate_membership is True
 
-    def test_removes_coe_advisors(self, app):
+    def test_removes_coe_advisors(self):
         """Removes COE advisors not found in the loch."""
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         bad_user = AuthorizedUser.create_or_restore(uid='666', created_by='2040')
@@ -218,7 +218,7 @@ class TestRefreshDepartmentMemberships:
         assert next((u for u in coe_users if u.uid == '666'), None) is None
         assert AuthorizedUser.query.filter_by(uid='666').first().deleted_at
 
-    def test_respects_automate_memberships_flag(self, app, db):
+    def test_respects_automate_memberships_flag(self, db):
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         manually_added_user = AuthorizedUser.create_or_restore(
             uid='1024',
@@ -256,7 +256,7 @@ class TestRefreshDepartmentMemberships:
         assert next((u for u in coe_users if u.uid == '1024'), None) is None
         assert not AuthorizedUser.find_by_uid(uid='1024')
 
-    def test_replaces_non_automated_user_with_automated_user(self, app, db):
+    def test_replaces_non_automated_user_with_automated_user(self):
         authorized_user_id = AuthorizedUser.query.filter_by(uid='1133397').first().id
         memberships = UniversityDeptMember.query.filter_by(authorized_user_id=authorized_user_id).all()
         assert len(memberships) == 1

@@ -61,7 +61,7 @@ class TestCreateCuratedGroup:
         curated_group = _api_get_curated_group(client, curated_group_id)
         assert curated_group['ownerName'] == 'Joni Mitchell'
 
-    def test_unauthorized(self, app, client, fake_auth):
+    def test_unauthorized(self, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
         _api_curated_group_create(
             client=client,
@@ -71,7 +71,7 @@ class TestCreateCuratedGroup:
             sids=['5678901234'],
         )
 
-    def test_authorized_ce3(self, app, client, fake_auth):
+    def test_authorized_ce3(self, client, fake_auth):
         fake_auth.login(ce3_advisor_uid)
         sid = '11667051'
         group = _api_curated_group_create(
@@ -106,7 +106,7 @@ class TestGetCuratedGroup:
         admin_curated_groups = CuratedGroup.get_curated_groups(AuthorizedUser.get_id_per_uid(admin_uid))
         _api_get_curated_group(client, admin_curated_groups[0].id, expected_status_code=403)
 
-    def test_curated_group_includes_alert_count(self, client, fake_auth, create_alerts):
+    def test_curated_group_includes_alert_count(self, client, fake_auth, create_alerts):  # noqa: ARG002
         """Includes alert count per student."""
         fake_auth.login(asc_advisor_uid)
         api_json = _api_get_curated_group(client, self.asc_curated_groups[0]['id'])
@@ -151,7 +151,7 @@ class TestGetCuratedGroup:
             self,
             client,
             fake_auth,
-            create_alerts,
+            create_alerts,  # noqa: ARG002
     ):
         """Includes students in response."""
         fake_auth.login(asc_advisor_uid)
@@ -257,7 +257,7 @@ class TestGetCuratedGroup:
             'None (Jayaprakash)',
         ]
 
-    def test_curated_group_detail_includes_profiles(self, client, fake_auth, create_alerts):
+    def test_curated_group_detail_includes_profiles(self, client, fake_auth, create_alerts):  # noqa: ARG002
         """Returns all students with profile data."""
         fake_auth.login(asc_advisor_uid)
         api_json = _api_get_curated_group(client, self.asc_curated_groups[0]['id'])
@@ -343,7 +343,7 @@ class TestGetCuratedGroupStudentsWithAlerts:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_students_with_alerts(self, client, fake_auth, create_alerts, db_session):
+    def test_students_with_alerts(self, client, fake_auth, create_alerts, db_session):  # noqa: ARG002
         """Students with alerts per group id."""
         fake_auth.login(asc_advisor_uid)
         api_json = self._api_students_with_alerts(client, self.asc_curated_groups[0]['id'])
@@ -358,7 +358,7 @@ class TestGetCuratedGroupStudentsWithAlerts:
         students_with_alerts = client.get(f'/api/curated_group/{curated_group_id}/students_with_alerts').json
         assert students_with_alerts[0]['alertCount'] == 3
 
-    def test_group_includes_student_summary(self, client, fake_auth, create_alerts):
+    def test_group_includes_student_summary(self, client, fake_auth, create_alerts):  # noqa: ARG002
         """Returns summary details but not full term and analytics data."""
         fake_auth.login(asc_advisor_uid)
         api_json = self._api_students_with_alerts(client, self.asc_curated_groups[0]['id'])
@@ -650,9 +650,8 @@ class TestDownloadCuratedGroupCSV:
             content_type='application/json',
         )
         # TODO: Do we want to forbid such downloads?
-        # assert response.status_code == 403
 
-    def test_download_admits_csv(self, app, client, fake_auth):
+    def test_download_admits_csv(self, client, fake_auth):
         """Advisor can download CSV of 'admits' group."""
         fake_auth.login(ce3_advisor_uid)
         curated_group = _api_curated_group_create(
@@ -683,7 +682,7 @@ class TestDownloadCuratedGroupCSV:
         assert 'csv' in response.content_type
         csv = str(response.data)
         for snippet in [
-            'birthdate,citizenship_country,family_dependents_num,highest_parent_education_level,non_immigrant_visa_current,xethnic',  # noqa: E501
+            'birthdate,citizenship_country,family_dependents_num,highest_parent_education_level,non_immigrant_visa_current,xethnic',
             '1985-06-02,Greece,05,5 - College Attended,,NotSpecified',
         ]:
             assert str(snippet) in csv

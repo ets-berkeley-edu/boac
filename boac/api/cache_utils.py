@@ -47,7 +47,7 @@ def refresh_request_handler(term_id):
     JobProgress().start({
         'term_id': term_id,
     })
-    app.logger.warn('About to start background thread')
+    app.logger.warning('About to start background thread')
     thread = Thread(
         target=background_thread_refresh,
         daemon=True,
@@ -97,8 +97,7 @@ def background_thread_refresh(app_arg, term_id):
             load_term(term_id)
             JobProgress().end()
         except Exception as e:
-            app.logger.exception(e)
-            app.logger.error('Background thread is stopping')
+            app.logger.exception('Background thread is stopping', exc_info=e)
             JobProgress().update(f'An unexpected error occured: {e}')
             raise e
 

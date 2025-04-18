@@ -56,7 +56,7 @@ coe_student = {
 }
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_coe_advising_note():
     return Note.create(
         author_uid=coe_advisor_uid,
@@ -69,7 +69,7 @@ def mock_coe_advising_note():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_asc_advising_note(app, db):
     return Note.create(
         author_uid='1133399',
@@ -86,7 +86,7 @@ def mock_asc_advising_note(app, db):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_private_advising_note(app):
     with mock_advising_note_s3_bucket(app):
         base_dir = app.config['BASE_DIR']
@@ -113,16 +113,16 @@ class TestGetDraftNotes:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, app, client, mock_coe_advising_note):
+    def test_not_authenticated(self, client, mock_coe_advising_note):  # noqa: ARG002
         """Returns 401 if not authenticated."""
         self._api_draft_notes(client=client, expected_status_code=401)
 
-    def test_user_without_advising_data_access(self, client, fake_auth, mock_coe_advising_note):
+    def test_user_without_advising_data_access(self, client, fake_auth, mock_coe_advising_note):  # noqa: ARG002
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
         self._api_draft_notes(client=client, expected_status_code=401)
 
-    def test_get_note_by_id(self, app, client, fake_auth):
+    def test_get_note_by_id(self, client, fake_auth):
         """Get advising note by ID returns normalized JSON."""
         uid = coe_advisor_uid
         fake_auth.login(uid)
@@ -154,7 +154,7 @@ class TestGetDraftNotes:
 
 class TestGetNote:
 
-    def test_not_authenticated(self, app, client, mock_coe_advising_note):
+    def test_not_authenticated(self, client, mock_coe_advising_note):
         """Returns 401 if not authenticated."""
         _api_note_by_id(client=client, note_id=mock_coe_advising_note.id, expected_status_code=401)
 
@@ -176,7 +176,7 @@ class TestGetNote:
         assert 'Private Idaho' in api_json['subject']
         assert 'potato' in api_json['body']
 
-    def test_get_note_by_id(self, app, client, fake_auth, mock_coe_advising_note):
+    def test_get_note_by_id(self, client, fake_auth, mock_coe_advising_note):
         """Returns note in JSON compatible with BOA front-end."""
         fake_auth.login(admin_uid)
         note = _api_note_by_id(client=client, note_id=mock_coe_advising_note.id)
@@ -209,7 +209,7 @@ class TestGetNote:
 
 class TestCreateNote:
 
-    def test_not_authenticated(self, app, client):
+    def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         assert _api_update_note(
             client=client,
@@ -219,7 +219,7 @@ class TestCreateNote:
             subject='Authorization is overrated.',
         )
 
-    def test_admin_user_is_not_authorized(self, app, client, fake_auth, mock_note_draft):
+    def test_admin_user_is_not_authorized(self, client, fake_auth, mock_note_draft):
         """Returns 404 if user is an admin."""
         fake_auth.login(admin_uid)
         assert _api_update_note(
@@ -230,7 +230,7 @@ class TestCreateNote:
             subject=mock_note_draft.subject,
         )
 
-    def test_unauthorized_private_note(self, app, client, fake_auth, mock_note_draft):
+    def test_unauthorized_private_note(self, client, fake_auth, mock_note_draft):
         """Non-CE3 advisor cannot create a private note."""
         fake_auth.login(mock_note_draft.author_uid)
         assert 'ZCEEE' not in mock_note_draft.author_dept_codes
@@ -243,7 +243,7 @@ class TestCreateNote:
             subject=mock_note_draft.subject,
         )
 
-    def test_user_without_advising_data_access(self, app, client, fake_auth):
+    def test_user_without_advising_data_access(self, client, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
         assert _api_create_draft_note(
@@ -251,7 +251,7 @@ class TestCreateNote:
             expected_status_code=401,
         )
 
-    def test_create_note(self, app, client, fake_auth, mock_note_draft):
+    def test_create_note(self, client, fake_auth, mock_note_draft):
         """Create a note."""
         fake_auth.login(mock_note_draft.author_uid)
         subject = 'Vicar in a Tutu'
@@ -264,7 +264,8 @@ class TestCreateNote:
         )
         note_id = new_note.get('id')
         assert new_note['read'] is True
-        assert isinstance(note_id, int) and note_id > 0
+        assert isinstance(note_id, int)
+        assert note_id > 0
         assert new_note['author']['uid'] == mock_note_draft.author_uid
         assert 'name' in new_note['author']
         assert new_note['author']['role']
@@ -273,9 +274,10 @@ class TestCreateNote:
         # Get notes per SID and compare
         notes = _get_student_notifications(client, coe_student['uid'])['note']
         match = next((n for n in notes if n['id'] == note_id), None)
-        assert match and match['subject'] == subject
+        assert match
+        assert match['subject'] == subject
 
-    def test_create_private_note(self, app, client, fake_auth):
+    def test_create_private_note(self, client, fake_auth):
         """CE3 advisor can create a private note."""
         fake_auth.login(ce3_advisor_uid)
         draft_note = _api_create_draft_note(client=client)
@@ -290,7 +292,7 @@ class TestCreateNote:
         assert note['isPrivate'] is True
         assert 'rock' in note['body']
 
-    def test_create_note_prefers_ldap_dept_affiliation_and_title(self, app, client, fake_auth):
+    def test_create_note_prefers_ldap_dept_affiliation_and_title(self, client, fake_auth):
         fake_auth.login(l_s_major_advisor_uid)
         draft_note = _api_create_draft_note(client=client)
         new_note = _api_update_note(
@@ -303,14 +305,14 @@ class TestCreateNote:
         assert new_note['author']['departments'][0]['deptName'] == 'Department of English'
         assert new_note['author']['role'] == 'Harmless Drudge'
 
-    def test_updated_date_is_none_when_note_create(self, app, client, fake_auth):
+    def test_updated_date_is_none_when_note_create(self, client, fake_auth):
         """Create a note and expect none updated_at."""
         fake_auth.login(coe_advisor_uid)
         draft_note = _api_create_draft_note(client=client, sid=coe_student['sid'])
         assert draft_note['createdAt'] is not None
         assert draft_note['updatedAt'] is None
 
-    def test_create_note_with_topics(self, app, client, fake_auth):
+    def test_create_note_with_topics(self, client, fake_auth):
         """Create a note with topics."""
         fake_auth.login(coe_advisor_uid)
         draft_note = _api_create_draft_note(client=client)
@@ -328,7 +330,7 @@ class TestCreateNote:
         assert note['createdAt'] is not None
         assert note['updatedAt'] is None
 
-    def test_create_note_with_raw_url_in_body(self, app, client, fake_auth):
+    def test_create_note_with_raw_url_in_body(self, client, fake_auth):
         """Create a note with topics."""
         fake_auth.login(coe_advisor_uid)
         draft_note = _api_create_draft_note(client=client)
@@ -371,7 +373,7 @@ class TestCreateNote:
         expected_attachment_count = template_attachment_count + 2
         assert len(note.get('attachments')) == expected_attachment_count
 
-    def test_create_note_with_contact_type(self, app, client, fake_auth):
+    def test_create_note_with_contact_type(self, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
         draft_note = _api_create_draft_note(client=client)
         note = _api_update_note(
@@ -383,7 +385,7 @@ class TestCreateNote:
         )
         assert note['contactType'] == 'In-person same day'
 
-    def test_invalid_contact_type(self, app, client, fake_auth):
+    def test_invalid_contact_type(self, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
         draft_note = _api_create_draft_note(client=client)
         _api_update_note(
@@ -395,7 +397,7 @@ class TestCreateNote:
             subject='Career Opportunities',
         )
 
-    def test_create_note_with_set_date(self, app, client, fake_auth):
+    def test_create_note_with_set_date(self, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
         draft_note = _api_create_draft_note(client=client)
         note = _api_update_note(
@@ -408,7 +410,7 @@ class TestCreateNote:
         )
         assert note['setDate'] == '2021-12-25'
 
-    def test_invalid_set_date(self, app, client, fake_auth):
+    def test_invalid_set_date(self, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
         draft_note = _api_create_draft_note(client=client)
         _api_update_note(
@@ -431,7 +433,7 @@ class TestBatchNoteCreation:
         '3456789012', '11667051',
     ]
 
-    def test_user_without_advising_data_access(self, app, client, fake_auth):
+    def test_user_without_advising_data_access(self, client, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
         _api_create_draft_note(client=client, expected_status_code=401)
@@ -623,7 +625,7 @@ class TestMarkNoteRead:
         fake_auth.login(coe_advisor_no_advising_data_uid)
         assert client.post('/api/notes/11667051-00001/mark_read').status_code == 401
 
-    def test_mark_note_read(self, app, client, fake_auth):
+    def test_mark_note_read(self, client, fake_auth):
         """Marks a note as read."""
         fake_auth.login(coe_advisor_uid)
         all_notes_unread = _get_student_notifications(client, 61889)['note']
@@ -917,7 +919,7 @@ class TestApplyTemplate:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, app, client):
+    def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         self._api_apply_template(
             client=client,
@@ -926,7 +928,7 @@ class TestApplyTemplate:
             template_id=1,
         )
 
-    def test_unauthorized(self, app, client, fake_auth, mock_coe_advising_note):
+    def test_unauthorized(self, client, fake_auth, mock_coe_advising_note):
         """Deny user's attempt to edit someone else's note."""
         fake_auth.login(asc_advisor_uid)
         assert self._api_apply_template(
@@ -936,7 +938,7 @@ class TestApplyTemplate:
             template_id=1,
         )
 
-    def test_apply_template(self, app, client, fake_auth, mock_note_template):
+    def test_apply_template(self, client, fake_auth, mock_note_template):
         """Update note set date."""
         advisor = AuthorizedUser.find_by_id(mock_note_template.creator_id)
         fake_auth.login(advisor.uid)
@@ -995,7 +997,7 @@ class TestDeleteNote:
         response = client.delete(f'/api/notes/delete/{note_id}')
         assert response.status_code == 200
         assert not Note.find_by_id(note_id)
-        assert 1 == len(notes) - len(Note.get_notes_by_sid(sid=mock_coe_advising_note.sid))
+        assert len(notes) - len(Note.get_notes_by_sid(sid=mock_coe_advising_note.sid)) == 1
         assert not Note.update(
             is_draft=False,
             note_id=note_id,
@@ -1003,7 +1005,7 @@ class TestDeleteNote:
             subject='Deleted note cannot be updated',
         )
 
-    def test_delete_note_with_topics(self, app, client, fake_auth):
+    def test_delete_note_with_topics(self, client, fake_auth):
         """Delete a note with topics."""
         fake_auth.login(coe_advisor_uid)
         draft_note = _api_create_draft_note(client=client)
@@ -1020,8 +1022,6 @@ class TestDeleteNote:
         note_id = note.get('id')
         response = client.delete(f'/api/notes/delete/{note_id}')
         assert response.status_code == 200
-        # TODO: add deleted_at column to NoteTopic and populate it when parent Note is deleted.
-        # assert not NoteTopic.find_by_note_id(note_id)
 
     def test_delete_note_with_attachments(self, app, client, fake_auth):
         """Delete a note with two attachments."""
@@ -1047,7 +1047,8 @@ class TestDeleteNote:
         )
         attachment_ids = [a['id'] for a in note.get('attachments')]
         assert len(attachment_ids) == 2
-        assert NoteAttachment.find_by_id(attachment_ids[0]) and NoteAttachment.find_by_id(attachment_ids[1])
+        assert NoteAttachment.find_by_id(attachment_ids[0])
+        assert NoteAttachment.find_by_id(attachment_ids[1])
 
         # Log in as Admin and delete the note
         fake_auth.login(admin_uid)
@@ -1070,14 +1071,14 @@ class TestStreamNoteAttachments:
             fake_auth.login(coe_advisor_no_advising_data_uid)
             assert client.get('/api/notes/attachment/9000000000_00002_1.pdf').status_code == 401
 
-    def test_unauthorized_request_for_private_note(self, app, client, mock_private_advising_note, fake_auth):
+    def test_unauthorized_request_for_private_note(self, client, mock_private_advising_note, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_uid)
         attachments = mock_private_advising_note.attachments
         assert attachments
         assert client.get(f'/api/notes/attachment/{attachments[0].id}').status_code == 404
 
-    def test_authorized_request_for_private_note(self, app, client, mock_private_advising_note, fake_auth):
+    def test_authorized_request_for_private_note(self, client, mock_private_advising_note, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(ce3_advisor_uid)
         attachments = mock_private_advising_note.attachments

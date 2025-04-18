@@ -33,8 +33,8 @@ from boac.lib import scriptify
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../..')))
 
 
-@scriptify.in_app  # noqa: C901
-def main(app):  # noqa: C901
+@scriptify.in_app
+def main(app):  # noqa: C901, PLR0912
     from boac import std_commit
     from boac.models.cohort_filter import CohortFilter
 
@@ -84,7 +84,7 @@ def main(app):  # noqa: C901
                         print(f"""
                             [INFO] Cohort {cohort.id}:
                                 'gpaRanges'=[{old_values_joined}] converted to 'gpaRanges'=[{joined}]
-                        """)
+                        """)  # noqa: T201
                         db_update_needed = True
 
                 elif key == 'lastNameRange':
@@ -93,7 +93,7 @@ def main(app):  # noqa: C901
                         [INFO] Cohort {cohort.id}:
                             'lastNameRange'={old_values_joined} converted to
                             'lastNameRanges'=[{criteria['lastNameRanges']}]
-                    """)
+                    """)  # noqa: T201
                     db_update_needed = True
 
         if db_update_needed:
@@ -102,8 +102,8 @@ def main(app):  # noqa: C901
             std_commit()
 
     if errors:
-        print('\n[ERROR] Invalid ranges were found (see below) and not migrated.')
-        print('\n'.join(errors))
+        print('\n[ERROR] Invalid ranges were found (see below) and not migrated.')  # noqa: T201
+        print('\n'.join(errors))  # noqa: T201
 
 
 main()

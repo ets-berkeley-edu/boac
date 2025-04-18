@@ -31,7 +31,7 @@ from boac.models.base import Base
 class ToolSetting(Base):
     __tablename__ = 'tool_settings'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     key = db.Column(db.String(255), nullable=False, unique=True)
     value = db.Column(db.String(255), nullable=False)
 

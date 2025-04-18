@@ -30,7 +30,7 @@ from boac.models.base import Base
 class PeerAdvisingDepartment(Base):
     __tablename__ = 'peer_advising_departments'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     university_dept_id = db.Column(db.Integer, db.ForeignKey('university_depts.id'), nullable=False)
 

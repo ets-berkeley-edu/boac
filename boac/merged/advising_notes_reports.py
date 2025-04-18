@@ -73,13 +73,13 @@ def low_assignment_scores(term_id=None):
                             max_score = score_info['courseDeciles'][9]
                             if score_info['student']['raw'] < (max_score * 0.7):
                                 sids_with_low_raw_scores.add(sid)
-    app.logger.warn(f'Total of {len(examined_sids)} students in classes. {len(low_sids)} with low scores in a class.')
-    app.logger.warn(f'Low scorers: {sorted(low_sids)}')
-    app.logger.warn(f'  {len(multiple_low_sids)} Low scorers in multiple sites: {sorted(multiple_low_sids)}')
-    app.logger.warn(f'  {len(sids_with_low_raw_scores)} Low scorers with raw score < 70% of max: {sorted(sids_with_low_raw_scores)}')
-    app.logger.warn(f'Total of {len(primary_sections)} primary sections. '
-                    f'{len(primary_sections_with_scored_assignments)} have scores. '
-                    f'{len(primary_sections_with_plottable_assignments)} have a reasonable range of scores.')
+    app.logger.warning(f'Total of {len(examined_sids)} students in classes. {len(low_sids)} with low scores in a class.')
+    app.logger.warning(f'Low scorers: {sorted(low_sids)}')
+    app.logger.warning(f'  {len(multiple_low_sids)} Low scorers in multiple sites: {sorted(multiple_low_sids)}')
+    app.logger.warning(f'  {len(sids_with_low_raw_scores)} Low scorers with raw score < 70% of max: {sorted(sids_with_low_raw_scores)}')
+    app.logger.warning(f'Total of {len(primary_sections)} primary sections. '
+                       f'{len(primary_sections_with_scored_assignments)} have scores. '
+                       f'{len(primary_sections_with_plottable_assignments)} have a reasonable range of scores.')
     return {
         'sids': sorted(examined_sids),
         'low_sids': sorted(low_sids),

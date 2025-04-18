@@ -51,7 +51,7 @@ def main(app):
             # Update db
             cohort.filter_criteria = json.dumps(criteria)
             std_commit()
-            print(f'Cohort {cohort.id} updated to have {coe_key}: {criteria[coe_key]}')
+            print(f'Cohort {cohort.id} updated to have {coe_key}: {criteria[coe_key]}')  # noqa: T201
 
 
 main()

@@ -45,7 +45,7 @@ class TestGetNoteTemplate:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, app, client, mock_note_template):
+    def test_not_authenticated(self, client, mock_note_template):
         """Returns 401 if not authenticated."""
         self._api_note_template(client=client, note_template_id=mock_note_template.id, expected_status_code=401)
 
@@ -54,12 +54,12 @@ class TestGetNoteTemplate:
         fake_auth.login(coe_advisor_no_advising_data_uid)
         self._api_note_template(client=client, note_template_id=mock_note_template.id, expected_status_code=403)
 
-    def test_unauthorized(self, app, client, fake_auth, mock_note_template):
+    def test_unauthorized(self, client, fake_auth, mock_note_template):
         """Returns 403 if user did not create the requested note template."""
         fake_auth.login(coe_advisor_uid)
         self._api_note_template(client=client, note_template_id=mock_note_template.id, expected_status_code=403)
 
-    def test_get_note_template_by_id(self, app, client, fake_auth, mock_note_template):
+    def test_get_note_template_by_id(self, client, fake_auth, mock_note_template):
         """Returns note template in JSON."""
         fake_auth.login(l_s_major_advisor_uid)
         api_json = self._api_note_template(client=client, note_template_id=mock_note_template.id)
@@ -78,7 +78,7 @@ class TestMyNoteTemplates:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, app, client):
+    def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         self._api_my_note_templates(client=client, expected_status_code=401)
 
@@ -87,12 +87,12 @@ class TestMyNoteTemplates:
         fake_auth.login(coe_advisor_no_advising_data_uid)
         self._api_my_note_templates(client=client, expected_status_code=401)
 
-    def test_get_note_template_by_id(self, app, client, fake_auth):
+    def test_get_note_template_by_id(self, client, fake_auth):
         """Returns note templates created by current user."""
         fake_auth.login(l_s_major_advisor_uid)
         creator_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
         names = ['Johnny', 'Tommy', 'Joey', 'Dee Dee']
-        for i in range(0, 4):
+        for i in range(4):
             NoteTemplate.create(creator_id=creator_id, title=f'{names[i]}', subject=f'Subject {i}')
         api_json = self._api_my_note_templates(client=client)
         expected_order = [template['title'] for template in api_json]
@@ -102,7 +102,7 @@ class TestMyNoteTemplates:
 
 class TestCreateNoteTemplate:
 
-    def test_not_authenticated(self, app, client):
+    def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         _api_create_note_template(
             client=client,
@@ -111,7 +111,7 @@ class TestCreateNoteTemplate:
             title='Keep a knockin\'',
         )
 
-    def test_admin_is_unauthorized(self, app, client, fake_auth):
+    def test_admin_is_unauthorized(self, client, fake_auth):
         """Returns 403 if user is an admin."""
         fake_auth.login(admin_uid)
         _api_create_note_template(
@@ -121,7 +121,7 @@ class TestCreateNoteTemplate:
             title='Ain\'t gonna happen',
         )
 
-    def test_user_without_advising_data_access(self, app, client, fake_auth, mock_note_draft):
+    def test_user_without_advising_data_access(self, client, fake_auth, mock_note_draft):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
         _api_create_note_template(
@@ -131,7 +131,7 @@ class TestCreateNoteTemplate:
             title='Nope',
         )
 
-    def test_create_note_template(self, app, client, fake_auth, mock_advising_note):
+    def test_create_note_template(self, client, fake_auth, mock_advising_note):
         """Create a note template."""
         fake_auth.login(coe_advisor_uid)
         title = 'I get it, I got it'
@@ -315,7 +315,7 @@ class TestRenameNoteTemplate:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_rename_note_template_not_authenticated(self, app, mock_note_template, client):
+    def test_rename_note_template_not_authenticated(self, mock_note_template, client):
         """Returns 401 if not authenticated."""
         self._api_note_template_rename(
             client,
@@ -334,7 +334,7 @@ class TestRenameNoteTemplate:
             expected_status_code=401,
         )
 
-    def test_rename_note_template_unauthorized(self, app, client, fake_auth, mock_note_template):
+    def test_rename_note_template_unauthorized(self, client, fake_auth, mock_note_template):
         """Deny user's attempt to rename someone else's note template."""
         original_subject = mock_note_template.subject
         fake_auth.login(coe_advisor_uid)
@@ -346,7 +346,7 @@ class TestRenameNoteTemplate:
         )
         assert NoteTemplate.find_by_id(mock_note_template.id).subject == original_subject
 
-    def test_update_note_template_topics(self, app, client, fake_auth, mock_note_template):
+    def test_update_note_template_topics(self, client, fake_auth, mock_note_template):
         """Update note template title."""
         user = AuthorizedUser.find_by_id(mock_note_template.creator_id)
         fake_auth.login(user.uid)
@@ -381,7 +381,7 @@ class TestDeleteNoteTemplate:
         assert response.status_code == 403
         assert NoteTemplate.find_by_id(mock_note_template.id)
 
-    def test_delete_note_template_with_attachments(self, app, client, fake_auth, mock_note_draft):
+    def test_delete_note_template_with_attachments(self, client, fake_auth, mock_note_draft):
         """Delete note template that has an attachment."""
         fake_auth.login(l_s_major_advisor_uid)
         note_template = _api_create_note_template(

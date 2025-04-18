@@ -45,7 +45,7 @@ def get_sis_section(term_id, sis_section_id):
         return False
 
     # If there are multiple rows, all values should be repeated except for meeting schedules and/or instructors.
-    section = {
+    return {
         'termId': term_id,
         'termName': term_name_for_sis_id(term_id),
         'sectionId': rows[0]['sis_section_id'],
@@ -56,7 +56,6 @@ def get_sis_section(term_id, sis_section_id):
         'units': _maximum_units(rows[0]),
         'meetings': _get_meetings(rows),
     }
-    return section
 
 
 def _get_meetings(section_rows):
