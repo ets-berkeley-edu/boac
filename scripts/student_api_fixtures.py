@@ -54,10 +54,10 @@ def main(app):
             else:
                 failures.append(csid)
 
-    print(f'Complete. Generated fixtures for {success_count} CSIDs.')
+    print(f'Complete. Generated fixtures for {success_count} CSIDs.')  # noqa: T201
     if len(failures):
-        print(f'Failed to generate fixtures for {len(failures)} CSIDs:')
-        print(failures)
+        print(f'Failed to generate fixtures for {len(failures)} CSIDs:')  # noqa: T201
+        print(failures)  # noqa: T201
 
 
 main()

@@ -33,7 +33,7 @@ from sqlalchemy import and_
 class NoteTemplateAttachment(db.Model):
     __tablename__ = 'note_template_attachments'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     note_template_id = db.Column(db.Integer, db.ForeignKey('note_templates.id'), nullable=False)
     path_to_attachment = db.Column('path_to_attachment', db.String(255), nullable=False)
     uploaded_by_uid = db.Column('uploaded_by_uid', db.String(255), nullable=False)

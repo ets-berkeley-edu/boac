@@ -55,7 +55,7 @@ class TestGetLegacyAttachmentStream:
         with mock_sis_note_attachment(app):
             assert get_legacy_attachment_stream('h0ax.lol') is None
 
-    def test_stream_attachment_handles_file_not_in_database(self, app, fake_auth, caplog):
+    def test_stream_attachment_handles_file_not_in_database(self, app, fake_auth):
         with mock_sis_note_attachment(app):
             fake_auth.login(coe_advisor)
             assert get_legacy_attachment_stream('11667051_00002_1.pdf') is None

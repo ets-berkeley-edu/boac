@@ -46,11 +46,11 @@ def main(app):
             label=label,
             advisor_ldap_uid=uid,
         )
-        print(f'Cohort created: {cohort}')
+        print(f'Cohort created: {cohort}')  # noqa: T201
     else:
-        print('ERROR: Failed to create cohort')
+        print('ERROR: Failed to create cohort')  # noqa: T201
 
-    print('\nDone.\n')
+    print('\nDone.\n')  # noqa: T201
 
 
 main()

@@ -29,22 +29,22 @@ import simplejson as json
 from tests.util import override_config
 
 
-@pytest.fixture()
+@pytest.fixture
 def admin_session(fake_auth):
     fake_auth.login('2040')
 
 
-@pytest.fixture()
+@pytest.fixture
 def advisor_session(fake_auth):
     fake_auth.login('1081940')
 
 
-@pytest.fixture()
+@pytest.fixture
 def announcement_unpublished():
     return _update_service_announcement(text='Not reddy four prime tyme', is_published=False)
 
 
-@pytest.fixture()
+@pytest.fixture
 def announcement_published():
     return _update_service_announcement(text='Papa was a rodeo', is_published=True)
 
@@ -97,15 +97,15 @@ class TestServiceAnnouncement:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, client, announcement_published):
+    def test_not_authenticated(self, client, announcement_published):  # noqa: ARG002
         """Returns None to anonymous user."""
         assert self._api_service_announcement(client) is None
 
-    def test_advisor_cannot_read_unpublished(self, client, advisor_session, announcement_unpublished):
+    def test_advisor_cannot_read_unpublished(self, client, advisor_session, announcement_unpublished):  # noqa: ARG002
         """Advisor does not have access to the unpublished announcement."""
         assert self._api_service_announcement(client) is None
 
-    def test_admin_can_read_unpublished(self, client, admin_session, announcement_unpublished):
+    def test_admin_can_read_unpublished(self, client, admin_session, announcement_unpublished):  # noqa: ARG002
         """Admin has access to the unpublished announcement."""
         api_json = self._api_service_announcement(client)
         assert api_json == {
@@ -113,7 +113,7 @@ class TestServiceAnnouncement:
             'isPublished': False,
         }
 
-    def test_announcement_published(self, client, advisor_session, announcement_published):
+    def test_announcement_published(self, client, advisor_session, announcement_published):  # noqa: ARG002
         """All users get the service announcement."""
         assert self._api_service_announcement(client) == announcement_published
 
@@ -149,15 +149,15 @@ class TestUpdateAnnouncement:
         """Rejects anonymous user's attempt to publish."""
         self._publish_announcement(client, publish=True, expected_status_code=401)
 
-    def test_not_authorized_update(self, client, advisor_session):
+    def test_not_authorized_update(self, client, advisor_session):  # noqa: ARG002
         """Rejects advisor's attempt to update."""
         self._update_announcement(client, text='Abigail, Belle of Kilronan', expected_status_code=401)
 
-    def test_not_authorized_publish(self, client, advisor_session):
+    def test_not_authorized_publish(self, client, advisor_session):  # noqa: ARG002
         """Rejects advisor's attempt to publish."""
         self._publish_announcement(client, publish=True, expected_status_code=401)
 
-    def test_update_service_announcement(self, client, admin_session, announcement_published):
+    def test_update_service_announcement(self, client, admin_session, announcement_published):  # noqa: ARG002
         """Admin can update the service announcement text."""
         text = """
         Papa was a rodeo, Mama was a rock'n'roll band

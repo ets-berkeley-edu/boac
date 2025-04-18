@@ -42,7 +42,7 @@ cache_thread = threading.local()
 
 class JsonCache(Base):
     __tablename__ = 'json_cache'
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     key = db.Column(db.String, nullable=False, unique=True)
     json = db.Column(JSONB)
 
@@ -112,7 +112,7 @@ def insert_row(key, json):
         db.session.add(row)
         std_commit()
     except IntegrityError:
-        app.logger.warn(f'Conflict for key {key}; will attempt to return stowed JSON')
+        app.logger.warning(f'Conflict for key {key}; will attempt to return stowed JSON')
         stowed = JsonCache.query.filter_by(key=key).first()
         if stowed is not None:
             return stowed.json
@@ -142,8 +142,8 @@ def log_table_sizes():
         std_commit()
         sizes = [dict(r) for r in dbresp.fetchall()]
         for s in sizes:
-            app.logger.info('Table ' + s['table_name'] + ' currently uses ' + s['total'])
+            app.logger.info(f"Table {s['table_name']} currently uses {s['total']}")
         return sizes
     except SQLAlchemyError as err:
-        app.logger.error(f'SQL {sql} threw {err}')
+        app.logger.exception(f'SQL {sql} threw {err}', exc_info=err)
         return None

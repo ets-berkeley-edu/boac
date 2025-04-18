@@ -46,14 +46,14 @@ class MockRows:
     def __init__(self, csv_in):
         self.csv_in = csv_in
 
-    def __call__(self, *args):
+    def __call__(self):
         if self.csv_in is None:
             return None
         # Unless otherwise instructed, `pandas` will interpret numeric strings as numbers instead of strings.
-        df = pandas.read_csv(self.csv_in, dtype={'ldap_uid': object, 'sis_section_num': object, 'uid': object})
+        data_frames = pandas.read_csv(self.csv_in, dtype={'ldap_uid': object, 'sis_section_num': object, 'uid': object})
         # `pandas` also likes to store its numbers as numpy.int64, which is not JSON serializable, so we have
         # to pipe the dataframe through JSON conversion before returning.
-        result = json.loads(df.to_json(None, 'records'))
+        result = json.loads(data_frames.to_json(None, 'records'))
         # Be kind, rewind.
         if hasattr(self.csv_in, 'seek'):
             self.csv_in.seek(0)
@@ -167,7 +167,7 @@ def register_mock(request_function, response):
     A MockRows object may be supplied, or, if dynamic behavior is required, a function that returns a MockRows.
     """
     if isinstance(response, MockRows):
-        response_function = lambda *args: response
+        response_function = lambda *args: response  # noqa: ARG005
     else:
         response_function = response
     _register_mock(request_function, response_function)

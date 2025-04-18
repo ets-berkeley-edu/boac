@@ -195,5 +195,4 @@ def _peer_advising_notes_granular_dept_report(university_dept_id):
 
 
 def _term():
-    term_id = request.args.get('term') or current_term_id()
-    return term_id
+    return request.args.get('term') or current_term_id()

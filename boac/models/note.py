@@ -56,7 +56,7 @@ note_contact_type_enum = ENUM(
 class Note(Base):
     __tablename__ = 'notes'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     author_uid = db.Column(db.String(255), nullable=False)
     author_name = db.Column(db.String(255), nullable=False)
     author_role = db.Column(db.String(255), nullable=False)

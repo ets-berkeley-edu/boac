@@ -32,31 +32,9 @@ import simplejson as json
 
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
-
-
-@pytest.fixture()
-def admin_login(fake_auth):
-    fake_auth.login(admin_uid)
-
-
-@pytest.fixture()
-def asc_advisor(fake_auth):
-    fake_auth.login(asc_advisor_uid)
-
-
-@pytest.fixture()
-def coe_advisor(fake_auth):
-    fake_auth.login('1133399')
-
-
-@pytest.fixture()
-def coe_advisor_no_advising_data(fake_auth):
-    fake_auth.login('1022796')
-
-
-@pytest.fixture()
-def ce3_advisor(fake_auth):
-    fake_auth.login('2525')
+ce3_advisor_uid = '2525'
+coe_advisor_no_advising_data_uid = '1022796'
+coe_advisor_uid = '1133399'
 
 
 @pytest.fixture(scope='session')
@@ -92,7 +70,7 @@ class TestStudentSearch:
         api_json = _api_search(client, 'barn', students=True)
         students = api_json['students']
         assert len(students) == api_json['totalStudentCount'] == 2
-        assert ['Barney', 'Davies'] == [s['lastName'] for s in students]
+        assert [s['lastName'] for s in students] == ['Barney', 'Davies']
 
     def test_search_by_sid_snippet(self, client, fake_auth, asc_inactive_students):
         """Search by snippet of SID."""
@@ -136,7 +114,7 @@ class TestStudentSearch:
         students = api_json['students']
         assert len(students) == 0
 
-    def test_alerts_in_search_results(self, client, create_alerts, fake_auth):
+    def test_alerts_in_search_results(self, client, create_alerts, fake_auth):  # noqa: ARG002
         """Search results include alert counts."""
         fake_auth.login(admin_uid)
         api_json = _api_search(client, 'davies', students=True)
@@ -159,7 +137,7 @@ class TestStudentSearch:
         api_json = _api_search(client, 'dav', students=True)
         students = api_json['students']
         assert len(students) == api_json['totalStudentCount'] == 3
-        assert ['Crossman', 'Davies', 'Doolittle'] == [s['lastName'] for s in students]
+        assert [s['lastName'] for s in students] == ['Crossman', 'Davies', 'Doolittle']
 
     def test_search_by_full_name_snippet(self, client, fake_auth):
         """Search by snippet of full name."""
@@ -171,8 +149,9 @@ class TestStudentSearch:
             assert len(students) == api_json['totalStudentCount'] == 1
             assert students[0]['lastName'] == 'Crossman'
 
-    def test_search_by_name_coe(self, coe_advisor, client):
+    def test_search_by_name_coe(self, client, fake_auth):
         """A COE name search finds all Pauls, including COE-specific data for COE Pauls."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, 'Paul', students=True)
         students = api_json['students']
         assert len(students) == 3
@@ -182,8 +161,9 @@ class TestStudentSearch:
         for s in students:
             assert 'inIntensiveCohort' not in s.get('athleticsProfile', {})
 
-    def test_search_by_name_asc(self, asc_advisor, client):
+    def test_search_by_name_asc(self, client, fake_auth):
         """An ASC advisor finds all Pauls, including ASC-specific data for ASC Pauls."""
+        fake_auth.login(asc_advisor_uid)
         api_json = _api_search(client, 'Paul', students=True)
         students = api_json['students']
         assert len(students) == 3
@@ -193,8 +173,9 @@ class TestStudentSearch:
         for s in students:
             assert 'coeProfile' not in s
 
-    def test_search_by_name_admin(self, admin_login, client):
+    def test_search_by_name_admin(self, client, fake_auth):
         """An admin name search finds all Pauls, including both ASC and COE data."""
+        fake_auth.login(admin_uid)
         api_json = _api_search(client, 'Paul', students=True)
         students = api_json['students']
         assert len(students) == 3
@@ -202,8 +183,9 @@ class TestStudentSearch:
         assert next(s for s in students if s['name'] == 'Paul Farestveit' and 'athleticsProfile' in s and 'coeProfile' in s)
         assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke' and s['coeProfile']['isActiveCoe'] is False)
 
-    def test_search_by_name_with_special_characters(self, admin_login, client):
+    def test_search_by_name_with_special_characters(self, client, fake_auth):
         """Search by name where name has special characters: hyphen, etc."""
+        fake_auth.login(admin_uid)
         api_json = _api_search(client, 'Pauli-O\'Rourke', students=True)
         students = api_json['students']
         assert len(students) == 1
@@ -222,7 +204,7 @@ class TestStudentSearch:
         api_json = _api_search(client, 'dav', students=True, order_by='major', offset=1, limit=1)
         assert api_json['totalStudentCount'] == 3
         assert len(api_json['students']) == 1
-        assert 'Crossman' == api_json['students'][0]['lastName']
+        assert api_json['students'][0]['lastName'] == 'Crossman'
 
 
 class TestCourseSearch:
@@ -237,7 +219,8 @@ class TestCourseSearch:
         for course in courses:
             assert course['courseName'] == 'MATH 16A'
 
-    def test_search_by_name_excludes_courses_unless_requested(self, coe_advisor, client):
+    def test_search_by_name_excludes_courses_unless_requested(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, 'da', students=True)
         assert 'courses' not in api_json
         assert 'totalCourseCount' not in api_json
@@ -247,7 +230,8 @@ class TestCourseSearch:
         fake_auth.login(admin_uid)
         _api_search(client, ' \t  ', courses=True, expected_status_code=400)
 
-    def test_search_by_name_includes_courses_if_requested(self, coe_advisor, client):
+    def test_search_by_name_includes_courses_if_requested(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         """A name search returns matching courses if any."""
         api_json = _api_search(client, 'paul', courses=True, students=True)
         assert api_json['courses'] == []
@@ -269,15 +253,18 @@ class TestCourseSearch:
             'instructors': 'Karen Blixen',
         }
 
-    def test_search_by_name_normalizes_queries(self, coe_advisor, client):
+    def test_search_by_name_normalizes_queries(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         queries = ['MATH 16A', 'Math 16 A', 'math  16a']
         for query in queries:
             self._assert_finds_math_16a(client, query)
 
-    def test_search_by_abbreviated_subject_area_returns_courses(self, coe_advisor, client):
+    def test_search_by_abbreviated_subject_area_returns_courses(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         self._assert_finds_math_16a(client, 'Ma 16A')
 
-    def test_search_by_catalog_id_alone_returns_courses(self, coe_advisor, client):
+    def test_search_by_catalog_id_alone_returns_courses(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, '1A', courses=True, students=True)
         courses = api_json['courses']
         assert len(courses) == 3
@@ -303,17 +290,20 @@ class TestNoteSearch:
         for idx, note_id in enumerate(note_ids):
             assert notes[idx].get('id') == note_id
 
-    def test_search_with_missing_input_no_options(self, coe_advisor, client):
+    def test_search_with_missing_input_no_options(self, client, fake_auth):
         """Notes search is nothing without input when no additional options are set."""
+        fake_auth.login(coe_advisor_uid)
         _api_search(client, ' \t  ', notes=True, expected_status_code=400)
 
-    def test_search_notes(self, coe_advisor, client):
+    def test_search_notes(self, client, fake_auth):
         """Search results include notes ordered by rank."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, 'life', notes=True)
         self._assert(api_json, note_count=1, note_ids=['11667051-00003'])
 
-    def test_search_respects_date_filters(self, coe_advisor, client):
+    def test_search_respects_date_filters(self, client, fake_auth):
         """Search results include notes updated within provided date range."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'making',
@@ -325,7 +315,8 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=1, note_ids=['11667051-00001'])
 
-    def test_note_search_validates_date_formatting(self, coe_advisor, client):
+    def test_note_search_validates_date_formatting(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Brigitte',
@@ -338,7 +329,8 @@ class TestNoteSearch:
         )
         assert api_json['message'] == 'Invalid dateTo value'
 
-    def test_note_search_validates_date_ranges(self, coe_advisor, client):
+    def test_note_search_validates_date_ranges(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Brigitte',
@@ -351,7 +343,8 @@ class TestNoteSearch:
         )
         assert api_json['message'] == 'dateFrom must be less than dateTo'
 
-    def test_note_search_validates_department_codes_are_present(self, coe_advisor, client):
+    def test_note_search_validates_department_codes_are_present(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Independence',
@@ -363,7 +356,8 @@ class TestNoteSearch:
         )
         assert api_json['message'] == 'Department codes not specified'
 
-    def test_note_search_validates_department_codes_are_valid(self, coe_advisor, client):
+    def test_note_search_validates_department_codes_are_valid(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Independence',
@@ -375,7 +369,8 @@ class TestNoteSearch:
         )
         assert api_json['message'] == 'Invalid department code'
 
-    def test_note_search_matches_correct_department_codes(self, coe_advisor, client, mock_advising_note):
+    def test_note_search_matches_correct_department_codes(self, client, fake_auth, mock_advising_note):  # noqa: ARG002
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Independence',
@@ -387,7 +382,8 @@ class TestNoteSearch:
         assert len(api_json['notes']) == 1
         assert 'Independence' in api_json['notes'][0]['noteSnippet']
 
-    def test_note_search_excludes_incorrect_department_codes(self, coe_advisor, client, mock_advising_note):
+    def test_note_search_excludes_incorrect_department_codes(self, client, fake_auth, mock_advising_note):  # noqa: ARG002
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Independence',
@@ -398,7 +394,8 @@ class TestNoteSearch:
         )
         assert len(api_json['notes']) == 0
 
-    def test_note_data_loch_search_department_code(self, coe_advisor, client, fake_loch):
+    def test_note_data_loch_search_department_code(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'happen around us',
@@ -407,11 +404,11 @@ class TestNoteSearch:
                 'departmentCodes': ['EGCEE'],
             },
         )
-        print(api_json['notes'])
         assert len(api_json['notes']) == 1
 
-    def test_search_with_no_input_and_date(self, coe_advisor, client):
+    def test_search_with_no_input_and_date(self, client, fake_auth):
         """Notes search needs no input when date options are set."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             '',
@@ -420,7 +417,7 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=4)
 
-    def test_search_with_midnight_creation(self, coe_advisor, client):
+    def test_search_with_midnight_creation(self, client, fake_auth):
         """Notes search correctly returns legacy notes with midnight creation times."""
         def _single_date_search(date):
             api_json = _api_search(
@@ -430,22 +427,26 @@ class TestNoteSearch:
                 note_options={'dateFrom': date, 'dateTo': date},
             )
             return api_json['notes']
+        fake_auth.login(coe_advisor_uid)
         assert len(_single_date_search('2017-11-01')) == 0
         assert len(_single_date_search('2017-11-02')) == 1
         assert len(_single_date_search('2017-11-03')) == 0
 
-    def test_search_excludes_notes_unless_requested(self, coe_advisor, client):
+    def test_search_excludes_notes_unless_requested(self, client, fake_auth):
         """Excludes notes from search results if notes param is false."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, 'life', appointments=True, courses=True, students=True)
         assert 'notes' not in api_json
 
-    def test_search_includes_notes_if_requested(self, coe_advisor, client):
+    def test_search_includes_notes_if_requested(self, client, fake_auth):
         """Includes notes in search results if notes param is true."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, 'Brigitte', notes=True)
         self._assert(api_json, note_count=2, note_ids=['11667051-00002', '11667051-00001'])
 
-    def test_search_note_with_null_body(self, asc_advisor, client):
+    def test_search_note_with_null_body(self, client, fake_auth):
         """Finds newly created BOA note when note body is null."""
+        fake_auth.login(asc_advisor_uid)
         response = client.post(
             '/api/note/create_draft',
             content_type='application/json',
@@ -463,18 +464,21 @@ class TestNoteSearch:
         api_json = _api_search(client, 'a conquering virtue', notes=True)
         self._assert(api_json, note_count=1, note_ids=[note['id']])
 
-    def test_search_asc_notes(self, asc_advisor, client):
+    def test_search_asc_notes(self, client, fake_auth):
         """Includes ASC notes in search results."""
+        fake_auth.login(asc_advisor_uid)
         api_json = _api_search(client, 'ginger', notes=True)
         self._assert(api_json, note_count=3, note_ids=['11667051-139379', '2345678901-139379', '8901234567-139379'])
 
-    def test_search_notes_by_asc_topic(self, asc_advisor, client):
+    def test_search_notes_by_asc_topic(self, client, fake_auth):
         """Includes ASC notes with advisor name match in search results."""
+        fake_auth.login(asc_advisor_uid)
         api_json = _api_search(client, 'academic', notes=True)
         self._assert(api_json, note_count=1, note_ids=['11667051-139362'])
 
-    def test_search_by_topic(self, coe_advisor, client):
+    def test_search_by_topic(self, client, fake_auth):
         """Searches notes by topic if topics option is selected."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'making',
@@ -483,8 +487,9 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=1, note_ids=['11667051-00001'])
 
-    def test_search_with_no_input_and_topic(self, coe_advisor, client):
+    def test_search_with_no_input_and_topic(self, client, fake_auth):
         """Notes search needs no input when topic set."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             '',
@@ -493,8 +498,9 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=1, note_ids=['11667051-00001'])
 
-    def test_search_by_note_author_sis(self, coe_advisor, client):
+    def test_search_by_note_author_sis(self, client, fake_auth):
         """Searches SIS notes by advisor CSID if posted by option is selected."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Brigitte',
@@ -503,8 +509,9 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=1, note_ids=['11667051-00001'])
 
-    def test_search_by_note_author_asc(self, coe_advisor, client):
+    def test_search_by_note_author_asc(self, client, fake_auth):
         """Searches ASC notes by advisor CSID if posted by option is selected."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Academic',
@@ -513,8 +520,9 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=1, note_ids=['11667051-139362'])
 
-    def test_search_by_note_author_data_science(self, coe_advisor, client):
+    def test_search_by_note_author_data_science(self, client, fake_auth):
         """Searches Data Science notes by advisor CSID if posted by option is selected."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Buyer beware',
@@ -523,8 +531,9 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=1, note_ids=['11667051-20190801112456'])
 
-    def test_search_with_no_input_and_author(self, coe_advisor, client):
+    def test_search_with_no_input_and_author(self, client, fake_auth):
         """Notes search needs no input when author set."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             '',
@@ -533,8 +542,9 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=3)
 
-    def test_search_by_student(self, coe_advisor, client):
+    def test_search_by_student(self, client, fake_auth):
         """Searches notes by student CSID."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'life',
@@ -543,8 +553,9 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=1, note_ids=['11667051-00003'])
 
-    def test_search_with_no_input_and_student(self, coe_advisor, client):
+    def test_search_with_no_input_and_student(self, client, fake_auth):
         """Notes search needs no input when student set."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             '',
@@ -555,8 +566,9 @@ class TestNoteSearch:
         notes = api_json['notes']
         assert len(notes) >= 12
 
-    def test_note_search_limit(self, coe_advisor, client):
+    def test_note_search_limit(self, client, fake_auth):
         """Limits search to the first n notes."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'life',
@@ -565,8 +577,9 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=1, note_ids=['11667051-00003'])
 
-    def test_note_search_offset(self, coe_advisor, client):
+    def test_note_search_offset(self, client, fake_auth):
         """Returns results beginning from the offset."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'student',
@@ -589,7 +602,8 @@ class TestNoteSearch:
         notes = api_json['notes']
         assert len(notes) >= 12
 
-    def test_search_notes_includes_inactive_students(self, coe_advisor, client):
+    def test_search_notes_includes_inactive_students(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, 'vocation', notes=True)
         self._assert(api_json, note_count=1, note_ids=['2718281828-00001'])
 
@@ -613,17 +627,20 @@ class TestAppointmentSearch:
             assert appointment['student']['lastName']
             assert appointment['studentSid']
 
-    def test_search_with_missing_input_no_options(self, coe_advisor, client):
+    def test_search_with_missing_input_no_options(self, client, fake_auth):
         """Appointments search is nothing without input when no additional options are set."""
+        fake_auth.login(coe_advisor_uid)
         _api_search(client, ' \t  ', appointments=True, expected_status_code=400)
 
-    def test_search_appointments(self, coe_advisor, client):
+    def test_search_appointments(self, client, fake_auth):
         """Search results include legacy appointments."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, 'life', appointments=True)
         self._assert(api_json, appointment_count=1)
 
-    def test_search_respects_date_filters(self, coe_advisor, client):
+    def test_search_respects_date_filters(self, client, fake_auth):
         """Search results include appointments created within provided date range."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'art',
@@ -635,7 +652,8 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=1)
 
-    def test_appointment_search_validates_date_formatting(self, coe_advisor, client):
+    def test_appointment_search_validates_date_formatting(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Brigitte',
@@ -648,7 +666,8 @@ class TestAppointmentSearch:
         )
         assert api_json['message'] == 'Invalid dateTo value'
 
-    def test_appointment_search_validates_date_ranges(self, coe_advisor, client):
+    def test_appointment_search_validates_date_ranges(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'Brigitte',
@@ -661,8 +680,9 @@ class TestAppointmentSearch:
         )
         assert api_json['message'] == 'dateFrom must be less than dateTo'
 
-    def test_appointment_search_with_no_input_and_date(self, coe_advisor, client):
+    def test_appointment_search_with_no_input_and_date(self, client, fake_auth):
         """Appointments search needs no input when date options are set."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             '',
@@ -671,13 +691,15 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=3)
 
-    def test_search_excludes_appointments_unless_requested(self, coe_advisor, client):
+    def test_search_excludes_appointments_unless_requested(self, client, fake_auth):
         """Excludes appointments from search results if appointments param is false."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, 'life', courses=True, students=True, notes=True)
         assert 'appointments' not in api_json
 
-    def test_search_by_appointment_scheduler(self, coe_advisor, client):
+    def test_search_by_appointment_scheduler(self, client, fake_auth):
         """Searches appointments by advisor UID if posted by option is selected."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'union',
@@ -686,8 +708,9 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=1)
 
-    def test_search_appointments_with_no_input_and_author(self, coe_advisor, client):
+    def test_search_appointments_with_no_input_and_author(self, client, fake_auth):
         """Appointments search needs no input when author set."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             '',
@@ -696,8 +719,9 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=2)
 
-    def test_search_appointments_by_student(self, coe_advisor, client):
+    def test_search_appointments_by_student(self, client, fake_auth):
         """Searches appointments by student CSID."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'wingspan',
@@ -706,8 +730,9 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=1)
 
-    def test_search_appointments_with_no_input_and_student(self, coe_advisor, client):
+    def test_search_appointments_with_no_input_and_student(self, client, fake_auth):
         """Appointments search needs no input when student set."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             '',
@@ -716,8 +741,9 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=3)
 
-    def test_appointments_search_limit(self, coe_advisor, client):
+    def test_appointments_search_limit(self, client, fake_auth):
         """Limits search to the first n appointments."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             '',
@@ -726,8 +752,9 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=1)
 
-    def test_appointments_search_offset(self, coe_advisor, client):
+    def test_appointments_search_offset(self, client, fake_auth):
         """Returns appointment results beginning from the offset."""
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             '',
@@ -748,11 +775,13 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=3)
 
-    def test_search_appointments_includes_inactive_students(self, coe_advisor, client):
+    def test_search_appointments_includes_inactive_students(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, 'pez', appointments=True)
         self._assert(api_json, appointment_count=1)
 
-    def test_search_appointments_by_dept_code(self, coe_advisor, client):
+    def test_search_appointments_by_dept_code(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         api_json = _api_search(
             client,
             'perfect union',
@@ -798,18 +827,21 @@ class TestAdmittedStudentSearch:
             assert 'applicationFeeWaiverFlag' in admit
             assert 'freshmanOrTransfer' in admit
 
-    def test_search_admits_performed_by_non_ce3_advisor(self, client, coe_advisor):
+    def test_search_admits_performed_by_non_ce3_advisor(self, client, fake_auth):
         """Excludes admit results if user is a non-CE3 advisor."""
+        fake_auth.login(coe_advisor_uid)
         api_json = self._api_search_admits(client, '0000', expected_status_code=401)
         assert 'admits' not in api_json
 
-    def test_search_admits_by_sid(self, client, ce3_advisor):
+    def test_search_admits_by_sid(self, client, fake_auth):
         """Search by SID yields admit results."""
+        fake_auth.login(ce3_advisor_uid)
         api_json = self._api_search_admits(client, '0000')
         self._assert(api_json, admit_count=1)
 
-    def test_search_admits_by_name(self, client, ce3_advisor):
+    def test_search_admits_by_name(self, client, fake_auth):
         """Search by first, last, and/or middle name yields admits."""
+        fake_auth.login(ce3_advisor_uid)
         api_json = self._api_search_admits(client, 'da')
         self._assert(api_json, admit_count=2)
 
@@ -819,7 +851,8 @@ class TestAdmittedStudentSearch:
         api_json = self._api_search_admits(client, 'j ly')
         self._assert(api_json, admit_count=1)
 
-    def test_search_admits_ordering(self, client, ce3_advisor):
+    def test_search_admits_ordering(self, client, fake_auth):
+        fake_auth.login(ce3_advisor_uid)
         api_json = self._api_search_admits(client, 'da', order_by='first_name')
         self._assert(api_json, admit_count=2)
         assert api_json['admits'][0]['firstName'] == 'Daniel'
@@ -860,17 +893,20 @@ class TestSearchHistory:
         """/add_to_search_history returns 401 if not authenticated."""
         self._api_add_to_my_search_history(client, 'I want it all', expected_status_code=401)
 
-    def test_empty_search_history(self, client, coe_advisor):
+    def test_empty_search_history(self, client, fake_auth):
         """Returns empty array if user has no search history."""
+        fake_auth.login(coe_advisor_uid)
         assert self._api_my_search_history(client) == []
 
-    def test_blank_input(self, asc_advisor, client):
+    def test_blank_input(self, client, fake_auth):
         """Blank search phrase is not added to search history."""
+        fake_auth.login(asc_advisor_uid)
         self._api_add_to_my_search_history(client, '    ', expected_status_code=400)
         assert self._api_my_search_history(client=client) == ['Moe', 'Larry', 'Curly']
 
-    def test_search_history(self, asc_advisor, client):
+    def test_search_history(self, client, fake_auth):
         """Returns search history."""
+        fake_auth.login(asc_advisor_uid)
         api_json = self._api_my_search_history(client)
         expected_history = ['Moe', 'Larry', 'Curly']
         assert api_json == expected_history
@@ -878,8 +914,9 @@ class TestSearchHistory:
         self._api_add_to_my_search_history(client, 'Moe')
         assert self._api_my_search_history(client=client) == expected_history
 
-    def test_search_history_truncate(self, client, coe_advisor):
+    def test_search_history_truncate(self, client, fake_auth):
         # The string expected in search history will be shorter than MAX_LENGTH
+        fake_auth.login(coe_advisor_uid)
         expected_length = AuthorizedUser.SEARCH_HISTORY_ITEM_MAX_LENGTH - 20
         expected_search_history_string = 's' * expected_length
         search_string = f'  {expected_search_history_string}  this_suffix_has_no_whitespace_and_will_be_dropped  '
@@ -896,14 +933,16 @@ class TestSearchHistory:
             assert snippet in actual_search_history_string
         assert '  ' not in actual_search_history_string
 
-    def test_search_history_truncate_when_no_whitespace(self, client, coe_advisor):
+    def test_search_history_truncate_when_no_whitespace(self, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
         expected_search_history_string = 's' * AuthorizedUser.SEARCH_HISTORY_ITEM_MAX_LENGTH
         no_whitespace_in_search_string = f'{expected_search_history_string}truncate_me'
         self._api_add_to_my_search_history(client, f'  {no_whitespace_in_search_string}   ')
         assert self._api_my_search_history(client)[0] == expected_search_history_string
 
-    def test_manage_search_history(self, admin_login, client):
+    def test_manage_search_history(self, client, fake_auth):
         """Properly manages search history."""
+        fake_auth.login(admin_uid)
         assert self._api_my_search_history(client) == []
         polythene_pam = 'Polythene Pam'
         phrases = [
@@ -958,19 +997,22 @@ class TestFindAdvisorsByName:
         """Denies anonymous access."""
         self._api_search_advisors(client, 'Vis', expected_status_code=401)
 
-    def test_user_without_advising_data_access(self, client, coe_advisor_no_advising_data):
+    def test_user_without_advising_data_access(self, client, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
         self._api_search_advisors(client, 'Vis', expected_status_code=401)
 
-    def test_find_advisors_by_name(self, client, coe_advisor):
+    def test_find_advisors_by_name(self, client, fake_auth):
         """Finds matches including appointment advisors."""
+        fake_auth.login(coe_advisor_uid)
         response = self._api_search_advisors(client, 'Lor')
         assert len(response) == 1
         labels = [s['label'] for s in response]
         assert 'Loramps Glub' in labels
 
-    def test_find_note_authors_by_name(self, client, coe_advisor, mock_advising_note):
+    def test_find_note_authors_by_name(self, client, fake_auth, mock_advising_note):  # noqa: ARG002
         """Finds matches including authors of legacy and non-legacy notes."""
+        fake_auth.login(coe_advisor_uid)
         Note.refresh_search_index()
         response = self._api_search_advisors(client, 'Jo')
         assert len(response) >= 4

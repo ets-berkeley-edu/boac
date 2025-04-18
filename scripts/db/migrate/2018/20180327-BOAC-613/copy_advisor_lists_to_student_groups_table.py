@@ -53,14 +53,14 @@ def main(app):
                         if Student.find_by_sid(sid):
                             group = StudentGroup.get_or_create_my_primary(owner.id)
                             StudentGroup.add_student(group.id, sid)
-                            print(f'[INFO] Student {sid} added to the \'My Students\' group owned by UID {owner.uid}')
+                            print(f'[INFO] Student {sid} added to the \'My Students\' group owned by UID {owner.uid}')  # noqa: T201
                         else:
-                            print(f'[WARN] Student {sid} does not exist')
+                            print(f'[WARN] Student {sid} does not exist')  # noqa: T201
                     else:
-                        print(f'[WARN] AuthorizedUser {owner_uid} does not exist')
+                        print(f'[WARN] AuthorizedUser {owner_uid} does not exist')  # noqa: T201
     else:
-        print(f'[ERROR] File not found: {advisor_watchlists_data}')
-    print('\nDone. Enjoy the rest of your day.\n')
+        print(f'[ERROR] File not found: {advisor_watchlists_data}')  # noqa: T201
+    print('\nDone. Enjoy the rest of your day.\n')  # noqa: T201
 
 
 main()

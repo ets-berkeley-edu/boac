@@ -43,7 +43,7 @@ coe_student_uid = '300847'
 qcadv_advisor_uid = '53791'
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_degree_check():
     authorized_user_id = AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid)
     dept_codes = ['COENG']
@@ -61,7 +61,7 @@ def mock_degree_check():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_degree_course():
     marker = datetime.now().timestamp()
     sid = '11667051'
@@ -82,7 +82,7 @@ def mock_degree_course():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_degree_checks():
     user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
     marker = datetime.now().timestamp()
@@ -106,7 +106,7 @@ def mock_degree_checks():
     return degree_checks
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_template():
     user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
     marker = datetime.now().timestamp()
@@ -141,7 +141,7 @@ def mock_template():
     return template
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_note():
     user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
     template = DegreeProgressTemplate.create(
@@ -753,14 +753,13 @@ class TestCopyCourse:
 
         # Set up
         def _create_category(category_type='Category', parent_category_id=None):
-            category = DegreeProgressCategory.create(
+            return DegreeProgressCategory.create(
                 category_type=category_type,
                 name=f'{category_type} for {sid} ({datetime.now().timestamp()})',
                 parent_category_id=parent_category_id,
                 position=1,
                 template_id=degree_check_id,
             )
-            return category
         category_1 = _create_category()
         category_2 = _create_category()
         std_commit(allow_test_environment=True)

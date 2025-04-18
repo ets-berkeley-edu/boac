@@ -131,7 +131,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
         if featured_enrollment_rows:
             sids = [str(featured_enrollment_rows[0]['sid'])] + sids
 
-    # TODO It's probably more efficient to store class profiles in the loch, rather than distilling them
+    # TODO: It's probably more efficient to store class profiles in the loch, rather than distilling them
     # on the fly from full profiles.
     students = get_full_student_profiles(sids)
 
@@ -244,7 +244,7 @@ def get_student_profile_summaries(sids, term_id=None):
         merge_coe_student_profile_data(profiles_by_sid)
         benchmark('end COE profile merge')
 
-    # TODO Many views require no term enrollment information other than a units count. This datum too should be
+    # TODO: Many views require no term enrollment information other than a units count. This datum too should be
     # stored in the loch without BOAC having to crunch it.
     if not term_id:
         term_id = current_term_id()
@@ -320,7 +320,7 @@ def get_term_units_by_sid(term, sids):
     return term_units_dict
 
 
-def query_students(
+def query_students(  # noqa: PLR0913
     academic_career=None,
     academic_career_status=None,
     academic_division=None,
@@ -672,10 +672,10 @@ def _suppress_canvas_sites(enrollment_term):
 
 def _construct_student_profile(student):
     if not student:
-        return
+        return None
     profiles = get_full_student_profiles([student['sid']])
     if not profiles or not profiles[0]:
-        return
+        return None
     profile = profiles[0]
     sis_profile = profile.get('sisProfile', None)
     if sis_profile and 'level' in sis_profile:
@@ -734,7 +734,7 @@ def _merge_asc_student_profile_data(profiles_by_sid, scope):
 
 
 def _omit_zombie_waitlisted_enrollments(past_term):
-    # TODO Even for current terms, it may be a mistake when SIS data sources show both active and waitlisted
+    # TODO: Even for current terms, it may be a mistake when SIS data sources show both active and waitlisted
     # section enrollments for a single class, but that needs confirmation.
     for course in past_term['enrollments']:
         sections = course['sections']
@@ -744,6 +744,6 @@ def _omit_zombie_waitlisted_enrollments(past_term):
                 if enrollment.get('enrollmentStatus') != 'W':
                     fixed_sections.append(enrollment)
             if not fixed_sections:
-                app.logger.warn(f'SIS provided only waitlisted enrollments in a past term: {past_term}')
+                app.logger.warning(f'SIS provided only waitlisted enrollments in a past term: {past_term}')
             else:
                 course['sections'] = fixed_sections

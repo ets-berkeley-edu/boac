@@ -86,7 +86,7 @@ def request(url, headers={}, method='get', auth=None, auth_params=None, **kwargs
     app.logger.debug({'message': 'HTTP request', 'url': url, 'method': method, 'headers': sanitize_headers(headers)})
     response = None
     try:
-        # TODO handle methods other than GET
+        # TODO: handle methods other than GET
 
         # By default, the urllib3 package used by Requests will log all request parameters at DEBUG level.
         # If authorization credentials were provided as params, keep them out of log files.
@@ -100,7 +100,7 @@ def request(url, headers={}, method='get', auth=None, auth_params=None, **kwargs
             urllib_logger.setLevel(saved_level)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        app.logger.error(e)
+        app.logger.exception(e)
         return ResponseExceptionWrapper(e, response)
     else:
         return response

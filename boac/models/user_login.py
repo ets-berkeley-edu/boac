@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from datetime import datetime
 
 from boac import db, std_commit
@@ -33,7 +32,7 @@ from sqlalchemy.sql import desc
 class UserLogin(db.Model):
     __tablename__ = 'user_logins'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     uid = db.Column(db.String(255), db.ForeignKey('authorized_users.uid'), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 

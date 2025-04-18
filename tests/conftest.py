@@ -45,8 +45,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from tests.util import mock_advising_note_s3_bucket, override_config
 
-os.environ['BOAC_ENV'] = 'test'  # noqa
-os.environ['EC2_INSTANCE_ID'] = 'test: EC2_INSTANCE_ID'  # noqa
+os.environ['BOAC_ENV'] = 'test'
+os.environ['EC2_INSTANCE_ID'] = 'test: EC2_INSTANCE_ID'
 
 DATA_LOCH_TEST_DATA_BY_DEPT = {
     'COENG': {
@@ -108,7 +108,7 @@ DATA_LOCH_TEST_DATA_BY_DEPT = {
 }
 
 
-class FakeAuth(object):
+class FakeAuth:
     def __init__(self, the_app, the_client):
         self.app = the_app
         self.client = the_client
@@ -119,12 +119,11 @@ class FakeAuth(object):
                 'uid': uid,
                 'password': self.app.config['DEVELOPER_AUTH_PASSWORD'],
             }
-            user_profile = self.client.post(
+            return self.client.post(
                 '/api/auth/dev_auth_login',
                 data=json.dumps(params),
                 content_type='application/json',
             ).json
-        return user_profile
 
 
 # Because app and db fixtures are only created once per pytest run, individual tests
@@ -144,12 +143,12 @@ def app(request):
     # Pop the context after running tests.
     def teardown():
         ctx.pop()
-    request.addfinalizer(teardown)
+    request.addfinalizer(teardown)  # noqa: PT021
 
     return _app
 
 
-# TODO Perform DB schema creation and deletion outside an app context, enabling test-specific app configurations.
+# TODO: Perform DB schema creation and deletion outside an app context, enabling test-specific app configurations.
 @pytest.fixture(scope='session')
 def db(app):
     """Fixture database object, shared by all tests."""
@@ -160,12 +159,12 @@ def db(app):
     return development_db.load(load_test_data=True)
 
 
-@pytest.fixture(autouse=True, scope='function')
+@pytest.fixture(autouse=True)
 def logout():
     logout_user()
 
 
-@pytest.fixture(scope='function', autouse=True)
+@pytest.fixture(autouse=True)
 def db_session(db):
     """Fixture database session used for the scope of a single test.
 
@@ -195,7 +194,7 @@ def db_session(db):
     return _session
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def fake_auth(app, db, client):
     """Shortcut to start an authenticated session."""
     yield FakeAuth(app, client)
@@ -227,7 +226,7 @@ def fake_sts(app):
     mock_sts().stop()
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_alerts(client, db_session):
     """Create assignment and midterm grade alerts."""
     # Create three canned alerts for the current term and one for the previous term.
@@ -261,7 +260,7 @@ def create_alerts(client, db_session):
     Alert.update_all_for_term(2178)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_advising_note(app, db):
     """Create advising note with attachment (mock s3)."""
     note = _create_mock_note(
@@ -279,7 +278,7 @@ def mock_advising_note(app, db):
     std_commit(allow_test_environment=True)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_note_draft(app, db):
     """Create advising note draft with attachment (mock s3)."""
     note = _create_mock_note(
@@ -296,7 +295,7 @@ def mock_note_draft(app, db):
     std_commit(allow_test_environment=True)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_note_template(app, db):
     """Create advising note template with attachment (mock s3)."""
     with mock_advising_note_s3_bucket(app):
@@ -328,7 +327,7 @@ def mock_note_template(app, db):
             NoteTemplate.delete(note_template_id=note_template.id)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_private_advising_note(app, db):
     """Create a private advising note with attachment (mock s3)."""
     note = _create_mock_note(
@@ -344,7 +343,7 @@ def mock_private_advising_note(app, db):
     std_commit(allow_test_environment=True)
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_factory(app, db):
     def _user_factory(
             automate_degree_progress_permission=None,
@@ -480,7 +479,7 @@ def _create_user(
         )
     is_coe = 'COENG' in dept_codes
     authorized_user = AuthorizedUser(
-        automate_degree_progress_permission=is_coe if automate_degree_progress_permission is None else automate_degree_progress_permission,  # noqa: E501
+        automate_degree_progress_permission=is_coe if automate_degree_progress_permission is None else automate_degree_progress_permission,
         can_access_canvas_data=can_access_canvas_data,
         created_by='0',
         degree_progress_permission=degree_progress_permission,
@@ -501,7 +500,7 @@ def _create_user(
     return authorized_user
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_peer_advising_note_template(app, db):
     """Create peer advising note template."""
     timestamp = datetime.now().timestamp()
@@ -526,7 +525,7 @@ def mock_peer_advising_note_template(app, db):
     NoteTemplate.delete(note_template_id=note_template.id)
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_peer_advising_note(fake_auth, db):
     """Create a Peer Advising Note."""
     # Set up the test by creating a note authored by CE3 Peer Advisor.

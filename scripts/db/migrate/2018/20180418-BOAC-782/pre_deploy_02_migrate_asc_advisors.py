@@ -47,7 +47,7 @@ def main(app):
     result = connection.execute(text('SELECT id FROM university_depts WHERE dept_code = \'UWASC\''))
     university_dept_id = result.fetchall()[0][0]
 
-    print(f'[INFO] Inserted \'Athletic Study Center\' department in db (university_dept_id = {university_dept_id})')
+    print(f'[INFO] Inserted \'Athletic Study Center\' department in db (university_dept_id = {university_dept_id})')  # noqa: T201
 
     for user in AuthorizedUser.query.all():
         if user.is_advisor or user.is_director:
@@ -58,9 +58,9 @@ def main(app):
                     ({university_dept_id}, {user.id}, {user.is_advisor}, {user.is_director}, now(), now())
             """
             connection.execute(text(sql))
-            print(f'[INFO] User {user.uid} added to \'Athletic Study Center\' with is_advisor={user.is_advisor} and is_director={user.is_director}')
+            print(f'[INFO] User {user.uid} added to \'Athletic Study Center\' with is_advisor={user.is_advisor} and is_director={user.is_director}')  # noqa: T201
     connection.close()
-    print('\nDone.\n')
+    print('\nDone.\n')  # noqa: T201
 
 
 main()

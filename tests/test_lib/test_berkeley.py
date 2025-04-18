@@ -49,7 +49,7 @@ class TestBerkeleySisTermIdForName:
         """Returns None for missing term names."""
         assert berkeley.sis_term_id_for_name(None) is None
 
-    def test_term_ids_range(self, app):
+    def test_term_ids_range(self):
         assert berkeley.term_ids_range('2158', '2208') == [
             '2158', '2162', '2165', '2168', '2172', '2175', '2178', '2182', '2185', '2188', '2192', '2195', '2198', '2202', '2205', '2208',
         ]

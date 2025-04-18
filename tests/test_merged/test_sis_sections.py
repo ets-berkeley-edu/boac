@@ -34,7 +34,7 @@ import pytest
 @pytest.mark.usefixtures('db_session')
 class TestGetSisSection:
 
-    def test_get_section(self, app):
+    def test_get_section(self):
         section_id = 90100
         section = get_sis_section('2178', section_id)
         assert section['sectionId'] == section_id
@@ -46,7 +46,7 @@ class TestGetSisSection:
         assert section['meetings'][0]['time'] == '12:00 pm - 12:59 pm'
         assert section['meetings'][0]['location'] == 'Wheeler 999'
 
-    def test_handles_multiple_locations_and_instructors(self, app):
+    def test_handles_multiple_locations_and_instructors(self):
         section = get_sis_section('2178', 90200)
         assert section['meetings'][0]['days'] == 'Tue, Thu'
         assert section['meetings'][0]['time'] == '6:00 pm - 6:59 pm'
@@ -57,7 +57,7 @@ class TestGetSisSection:
         assert section['meetings'][1]['location'] == 'Campbell Hall 501B'
         assert section['meetings'][1]['instructors'] == ['Johan Huizinga', 'Ernst Robert Curtius']
 
-    def test_handles_eap_courses(self, app):
+    def test_handles_eap_courses(self):
         section_id = 98000
         rows = [
             'sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,'
@@ -78,7 +78,7 @@ class TestGetSisSection:
             assert section['meetings'][0]['location'] is None
             assert section['meetings'][0]['instructors'] == []
 
-    def test_handles_online_courses(self, app):
+    def test_handles_online_courses(self):
         section_id = 99000
         rows = [
             'sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,'

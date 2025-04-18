@@ -29,21 +29,6 @@ asc_advisor_id = '1081940'
 ce3_advisor_id = '2525'
 
 
-@pytest.fixture()
-def admin_login(fake_auth):
-    fake_auth.login(admin_uid)
-
-
-@pytest.fixture()
-def asc_advisor_login(fake_auth):
-    fake_auth.login(asc_advisor_id)
-
-
-@pytest.fixture()
-def ce3_advisor_login(fake_auth):
-    fake_auth.login(ce3_advisor_id)
-
-
 @pytest.mark.usefixtures('db_session')
 class TestAdmitBySid:
     """Admit by SID API."""
@@ -60,12 +45,14 @@ class TestAdmitBySid:
         """Returns 401 if not authenticated."""
         self._api_admit_by_sid(client=client, sid=self.admit_sid, expected_status_code=401)
 
-    def test_admit_by_sid_non_ce3_advisor(self, client, asc_advisor_login):
+    def test_admit_by_sid_non_ce3_advisor(self, client, fake_auth):
         """Returns 401 if user is a non-CE3 advisor."""
+        fake_auth.login(asc_advisor_id)
         self._api_admit_by_sid(client=client, sid=self.admit_sid, expected_status_code=401)
 
-    def test_admit_by_sid_ce3_advisor(self, client, ce3_advisor_login):
+    def test_admit_by_sid_ce3_advisor(self, client, fake_auth):
         """Returns admit data if user is a CE3 advisor."""
+        fake_auth.login(ce3_advisor_id)
         response = self._api_admit_by_sid(client=client, sid=self.admit_sid)
         assert response['sid'] == self.admit_sid
 
@@ -84,12 +71,14 @@ class TestAllAdmits:
         """Returns 401 if not authenticated."""
         self._api_all_admits(client=client, expected_status_code=401)
 
-    def test_all_admits_non_ce3_advisor(self, client, asc_advisor_login):
+    def test_all_admits_non_ce3_advisor(self, client, fake_auth):
         """Returns 401 if user is a non-CE3 advisor."""
+        fake_auth.login(asc_advisor_id)
         self._api_all_admits(client=client, expected_status_code=401)
 
-    def test_all_admits_ce3_advisor(self, client, ce3_advisor_login):
+    def test_all_admits_ce3_advisor(self, client, fake_auth):
         """Returns admit data if user is a CE3 advisor."""
+        fake_auth.login(ce3_advisor_id)
         response = self._api_all_admits(client=client)
         assert len(response['students']) == 3
         assert response['totalStudentCount'] == 3

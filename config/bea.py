@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import logging
 import os
 
-ADMIN_PASSWORD = 'secret'
+ADMIN_PASSWORD = 'secret'  # noqa: S105
 ADMIN_UID = '123456'
 ADMIN_USERNAME = 'secret'
 

@@ -43,7 +43,7 @@ class TestAlertsController:
     def _get_dismissed(cls, alerts):
         return list(filter(lambda a: a['dismissed'], alerts))
 
-    def test_dismiss_alerts(self, create_alerts, fake_auth, client):
+    def test_dismiss_alerts(self, create_alerts, fake_auth, client):  # noqa: ARG002
         """Can dismiss alerts for one user without affecting visibility for other users."""
         fake_auth.login(admin_uid)
         advisor_1_alerts = self._get_alerts(client, 61889)
@@ -65,7 +65,7 @@ class TestAlertsController:
         assert len(advisor_2_alerts) == 4
         assert len(self._get_dismissed(advisor_2_alerts)) == 0
 
-    def test_duplicate_dismiss_alerts(self, create_alerts, fake_auth, client):
+    def test_duplicate_dismiss_alerts(self, create_alerts, fake_auth, client):  # noqa: ARG002
         """Shrugs off duplicate dismissals."""
         fake_auth.login(admin_uid)
         advisor_1_alerts = self._get_alerts(client, 61889)
@@ -75,14 +75,14 @@ class TestAlertsController:
         response = client.get('/api/alerts/' + str(alert_id) + '/dismiss')
         assert response.status_code == 200
 
-    def test_dismiss_nonexistent_alerts(self, create_alerts, fake_auth, client):
+    def test_dismiss_nonexistent_alerts(self, create_alerts, fake_auth, client):  # noqa: ARG002
         """Politely handles nonexistent alert dismissals."""
         fake_auth.login(admin_uid)
         response = client.get('/api/alerts/99999999/dismiss')
         assert response.status_code == 400
         assert response.json['message'] == 'No alert found for id 99999999'
 
-    def test_deactivate_alerts(self, create_alerts, fake_auth, client):
+    def test_deactivate_alerts(self, create_alerts, fake_auth, client):  # noqa: ARG002
         """Can programmatically deactivate alerts, removing them for all users."""
         Alert.query.filter_by(key='2178_800900300').first().deactivate()
 
@@ -98,7 +98,7 @@ class TestAlertsController:
         assert next((a for a in advisor_2_alerts if a['key'] == '2178_500600700'), None)
         assert len(self._get_dismissed(advisor_1_alerts)) == 0
 
-    def test_alert_dismissal_updates_cohort_alert_counts(self, db, create_alerts, fake_auth, client):
+    def test_alert_dismissal_updates_cohort_alert_counts(self, db, create_alerts, fake_auth, client):  # noqa: ARG002
         fake_auth.login(asc_advisor_uid)
         cohort_id = all_cohorts_owned_by(asc_advisor_uid)[0]['id']
         response = client.get(f'/api/cohort/{cohort_id}')

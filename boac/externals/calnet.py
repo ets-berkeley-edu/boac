@@ -66,8 +66,7 @@ class Client:
         self.server = server
 
     def connect(self):
-        conn = ldap3.Connection(self.server, user=self.bind, password=self.password, auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND)
-        return conn
+        return ldap3.Connection(self.server, user=self.bind, password=self.password, auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND)
 
     def search_csids(self, csids, search_expired=False):
         all_out = []

@@ -204,7 +204,7 @@ class TestTopicUsageStatistics:
         fake_auth.login(l_s_college_advisor_uid)
         self._api_usage_statistics(client, expected_status_code=401)
 
-    def test_get_topic_usage_statistics(self, client, fake_auth, mock_advising_note):
+    def test_get_topic_usage_statistics(self, client, fake_auth, mock_advising_note):  # noqa: ARG002
         """Admin user can get topic usage report."""
         fake_auth.login(admin_uid)
         api_json = self._api_usage_statistics(client)

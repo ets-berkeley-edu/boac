@@ -36,7 +36,7 @@ from sqlalchemy import text
 class CuratedGroup(Base):
     __tablename__ = 'student_groups'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     domain = db.Column(cohort_domain_type, nullable=False)
     name = db.Column(db.String(255), nullable=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)

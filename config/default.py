@@ -117,7 +117,7 @@ DEPARTMENTS_SUPPORTING_DROP_INS = []
 DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS = []
 
 DEVELOPER_AUTH_ENABLED = False
-DEVELOPER_AUTH_PASSWORD = 'another secret'
+DEVELOPER_AUTH_PASSWORD = 'another secret'  # noqa: S105
 
 # Notify BOA users when they are accessing boa-dev, boa-qa, and boa-demo. Unlike service announcements, this
 # warning can only be unpublished by setting config to None.
@@ -137,7 +137,7 @@ INDEX_HTML = 'dist/static/index.html'
 
 LDAP_HOST = 'ldap-test.berkeley.edu'
 LDAP_BIND = 'mybind'
-LDAP_PASSWORD = 'secret'
+LDAP_PASSWORD = 'secret'  # noqa: S105
 
 LEGACY_EARLIEST_TERM = 'Fall 2001'
 
@@ -163,7 +163,7 @@ PHOTO_SIGNED_URL_EXPIRES_IN_SECONDS = 15 * 60
 PING_FREQUENCY = 900000
 
 # Used to encrypt session cookie.
-SECRET_KEY = 'secret'
+SECRET_KEY = 'secret'  # noqa: S105
 
 # Save DB changes at the end of a request.
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
@@ -185,5 +185,5 @@ USER_SEARCH_HISTORY_MAX_SIZE = 5
 VUE_LOCALHOST_BASE_URL = None
 
 # We keep these out of alphabetical sort above for readability's sake.
-HOST = '0.0.0.0'
+HOST = '0.0.0.0'  # noqa: S104
 PORT = 5000

@@ -48,7 +48,7 @@ degree_progress_category_type = ENUM(
 class DegreeProgressCategory(Base):
     __tablename__ = 'degree_progress_categories'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     accent_color = db.Column(db.String(255))
     category_type = db.Column(degree_progress_category_type, nullable=False)
     course_units = db.Column(NUMRANGE)

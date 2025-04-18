@@ -30,7 +30,7 @@ from sqlalchemy import and_
 class NoteTopic(db.Model):
     __tablename__ = 'note_topics'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), nullable=False)
     topic = db.Column(db.String(50), nullable=False)
     author_uid = db.Column(db.String(255), db.ForeignKey('authorized_users.uid'), nullable=False)

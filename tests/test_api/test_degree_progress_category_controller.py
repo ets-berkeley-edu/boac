@@ -38,7 +38,7 @@ coe_advisor_read_write_uid = '1133399'
 qcadv_advisor_uid = '53791'
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_template():
     user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
     marker = datetime.now().timestamp()
@@ -102,7 +102,7 @@ class TestCreateDegreeCategory:
         assert api_json['position'] == 1
         assert api_json['templateId'] == mock_template.id
 
-    def test_create_campus_requirements(self, client, fake_auth, mock_template, app):
+    def test_create_campus_requirements(self, client, fake_auth, mock_template):
         """Campus Requirements is created as a category with four children."""
         fake_auth.login(coe_advisor_read_write_uid)
         api_json = _api_create_category(

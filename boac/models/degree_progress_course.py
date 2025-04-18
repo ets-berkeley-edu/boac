@@ -45,7 +45,7 @@ ACCENT_COLOR_CODES = {
 class DegreeProgressCourse(Base):
     __tablename__ = 'degree_progress_courses'
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
     accent_color = db.Column(db.String(255))
     category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'))
     degree_check_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)

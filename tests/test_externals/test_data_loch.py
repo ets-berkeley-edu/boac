@@ -35,7 +35,7 @@ import pytest
 @pytest.mark.usefixtures('db_session')
 class TestDataLoch:
 
-    def test_get_advisor_uids_for_affiliations(self, app):
+    def test_get_advisor_uids_for_affiliations(self):
         """Returns one or more rows for each advisor in the program."""
         advisors = data_loch.get_advisor_uids_for_affiliations('UCOE', None)
         assert len(advisors)
@@ -88,14 +88,14 @@ class TestDataLoch:
         assert profile['demographics']['underrepresented'] is False
         assert profile['sisProfile']['academicCareer'] == 'UGRD'
 
-    def test_get_enrolled_primary_sections(self, app):
+    def test_get_enrolled_primary_sections(self):
         sections = data_loch.get_enrolled_primary_sections('2178', 'MATH1')
         assert len(sections) == 6
         for section in sections:
             assert section['term_id'] == '2178'
             assert section['sis_course_name'].startswith('MATH 1')
 
-    def test_get_term_gpas(self, app):
+    def test_get_term_gpas(self):
         term_gpas = data_loch.get_term_gpas(['11667051'])
         assert len(term_gpas) == 4
         assert term_gpas[0]['term_id'] == '2182'
@@ -107,7 +107,7 @@ class TestDataLoch:
         assert term_gpas[3]['gpa'] == Decimal('3.800')
         assert term_gpas[3]['units_taken_for_gpa'] == 15
 
-    def test_get_asc_advising_notes(self, app):
+    def test_get_asc_advising_notes(self):
         notes = data_loch.get_asc_advising_notes('11667051')
         assert len(notes) == 2
         assert notes[0]['id'] == '11667051-139362'
@@ -136,7 +136,7 @@ class TestDataLoch:
         assert notes[1]['note_body']
         assert notes[1]['created_at']
 
-    def test_get_e_i_advising_notes(self, app):
+    def test_get_e_i_advising_notes(self):
         """Excludes notes with author name 'Reception Front Desk'."""
         notes = data_loch.get_e_i_advising_notes('11667051')
         assert len(notes) == 1
@@ -147,17 +147,17 @@ class TestDataLoch:
         assert notes[0]['created_at']
         assert notes[0]['updated_at']
 
-    def test_get_e_i_advising_note_topics(self, app):
+    def test_get_e_i_advising_note_topics(self):
         topics = data_loch.get_e_i_advising_note_topics('11667051')
         assert len(topics) == 2
         assert topics[0]['id'] == '11667051-151620'
         assert topics[0]['topic'] == 'Course Planning'
 
-    def test_get_admitted_student_by_sid(self, app):
+    def test_get_admitted_student_by_sid(self):
         admit = data_loch.get_admitted_student_by_sid('00005852')
         assert admit['sid'] == '00005852'
 
-    def test_get_sis_advising_note_attachment(self, app):
+    def test_get_sis_advising_note_attachment(self):
         attachment = data_loch.get_sis_advising_note_attachment('11667051', '11667051_00001_1.pdf')
         assert len(attachment) == 1
         assert attachment[0]['advising_note_id'] == '11667051-00001'
@@ -165,7 +165,7 @@ class TestDataLoch:
         assert attachment[0]['sis_file_name'] == '11667051_00001_1.pdf'
         assert attachment[0]['user_file_name'] == 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf'
 
-    def test_get_sis_advising_appointments(self, app):
+    def test_get_sis_advising_appointments(self):
         appointments = data_loch.get_sis_advising_appointments('11667051')
         assert len(appointments) == 3
         assert appointments[0]['id'] == '11667051-00010'
@@ -235,16 +235,16 @@ class TestDataLoch:
         assert 'LEFT JOIN student.student_enrollment_terms set' in supplemental_query_tables
         assert 'ON set.sid = spi.sid AND set.term_id = \'2202\'' in supplemental_query_tables
 
-    def test_override_fixture(self, app):
+    def test_override_fixture(self):
         mr = MockRows(io.StringIO('sid,first_name,last_name\n20000000,Martin,Van Buren'))
         with register_mock(data_loch.get_sis_section_enrollments, mr):
             data = data_loch.get_sis_section_enrollments(2178, 12345)
         assert len(data) == 1
-        assert {'sid': 20000000, 'first_name': 'Martin', 'last_name': 'Van Buren'} == data[0]
+        assert data[0] == {'sid': 20000000, 'first_name': 'Martin', 'last_name': 'Van Buren'}
 
-    def test_fixture_not_found(self, app):
+    def test_fixture_not_found(self):
         no_db = data_loch.get_sis_section_enrollments(0, 0)
-        # TODO Real data_loch queries will return an empty list if the course is not found.
+        # TODO: Real data_loch queries will return an empty list if the course is not found.
         assert no_db is None
 
     def test_user_permissions_per_affiliations(self):
