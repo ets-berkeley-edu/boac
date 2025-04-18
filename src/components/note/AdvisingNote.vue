@@ -139,7 +139,7 @@
           :attachments="note.attachments"
           class="attachments-edit py-3"
           :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
-          :id-prefix="`note-${note.id}-`"
+          :id-prefix="`note-${note.id}`"
           :is-downloadable="true"
           :note="note"
           :read-only="!!note.legacySource"

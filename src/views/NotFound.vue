@@ -1,24 +1,26 @@
 <template>
-  <div class="boarding-pass-container d-flex text-center">
-    <div class="my-auto">
-      <v-slide-y-transition>
-        <img
-          v-show="showImage"
-          alt="A silly boarding pass with the text, 'Error 404: Flight not found'"
-          class="ticket-to-nowhere w-66"
-          src="@/assets/boa-boarding-ticket.png"
-        >
-      </v-slide-y-transition>
+  <div>
+    <div class="boarding-pass-container d-flex text-center">
+      <div class="my-auto">
+        <v-slide-y-transition>
+          <img
+            v-show="showImage"
+            alt="A silly boarding pass with the text, 'Error 404: Flight not found'"
+            class="ticket-to-nowhere w-66"
+            src="@/assets/boa-boarding-ticket.png"
+          >
+        </v-slide-y-transition>
+      </div>
     </div>
+    <span
+      aria-live="assertive"
+      class="cloud-background ma-0 pa-0 h-100 w-100"
+      role="alert"
+      :style="{backgroundImage: `url(${cloudBackground})`, backgroundRepeat: 'repeat'}"
+    >
+      <span class="sr-only">Sorry, page not found. Contact us if the system is misbehaving.</span>
+    </span>
   </div>
-  <span
-    aria-live="assertive"
-    class="cloud-background ma-0 pa-0 h-100 w-100"
-    role="alert"
-    :style="{backgroundImage: `url(${cloudBackground})`, backgroundRepeat: 'repeat'}"
-  >
-    <span class="sr-only">Sorry, page not found. Contact us if the system is misbehaving.</span>
-  </span>
 </template>
 
 <script setup>

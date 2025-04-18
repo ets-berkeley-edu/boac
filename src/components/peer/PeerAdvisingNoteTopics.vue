@@ -1,13 +1,14 @@
 <template>
   <div>
-    <label id="add-note-topic-label" class="font-size-16 font-weight-bold" for="add-topic-select-list">
+    <label id="note-topics-label" class="font-size-16 font-weight-bold">
       Topic Categories
     </label>
     <div v-if="!readOnly && size(topicOptions)" class="pt-2">
       <select
         id="add-topic-select-list"
         v-model="selected"
-        aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
+        aria-labelledby="note-topics-label"
+        autocomplete="off"
         class="bg-white select-menu"
         :class="{'w-100': $vuetify.display.xs}"
         :disabled="disabled"

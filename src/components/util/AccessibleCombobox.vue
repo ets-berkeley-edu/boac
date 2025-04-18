@@ -5,6 +5,7 @@
       :id="`${idPrefix}-input`"
       ref="container"
       v-model="model"
+      :aria-describedby="undefined"
       :aria-required="required"
       :autocomplete="autocomplete"
       :base-color="color"
@@ -80,14 +81,14 @@
         <slot name="append" />
       </template>
     </component>
+    <span aria-live="polite" class="sr-only">{{ resultsSummary }}</span>
   </div>
-  <span aria-live="polite" class="sr-only">{{ resultsSummary }}</span>
 </template>
 
 <script setup>
 import {filter, get, includes, isEmpty} from 'lodash'
 import {mdiCloseCircle} from '@mdi/js'
-import {nextTick, onMounted, ref} from 'vue'
+import {nextTick, onMounted, onUpdated, ref} from 'vue'
 import {alertScreenReader, escapeForRegExp, pluralize, putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({
@@ -238,29 +239,45 @@ const resultsSummary = ref(undefined)
 const resultsSummaryInterval = ref(undefined)
 
 onMounted(() => {
-  const combobox = getComboboxElement()
-  if (combobox) {
-    combobox.removeAttribute('role')
-    combobox.removeAttribute('aria-expanded')
-  }
-  const input = getInputElement()
-  if (input) {
-    input.setAttribute('role', 'combobox')
-    input.setAttribute('aria-autocomplete', 'list')
-    input.setAttribute('aria-controls', `${props.idPrefix}-menu`)
-    input.setAttribute('aria-expanded', false)
-    input.setAttribute('aria-label', props.label)
-  }
-  mergedMenuProps.value = {
-    id: `${props.idPrefix}-menu`,
-    closeOnContentClick: true,
-    ...props.menuProps
-  }
+  nextTick(() => {
+    const combobox = getComboboxElement()
+    if (combobox) {
+      combobox.setAttribute('role', 'none')
+      combobox.removeAttribute('aria-controls')
+      combobox.removeAttribute('aria-expanded')
+      combobox.removeAttribute('aria-haspopup')
+    }
+    const input = getInputElement()
+    if (input) {
+      input.setAttribute('role', 'combobox')
+      input.setAttribute('aria-autocomplete', 'list')
+      input.setAttribute('aria-controls', `${props.idPrefix}-menu`)
+      input.setAttribute('aria-expanded', false)
+      input.setAttribute('aria-label', props.label)
+    }
+    mergedMenuProps.value = {
+      id: `${props.idPrefix}-menu`,
+      closeOnContentClick: true,
+      eager: true,
+      ...props.menuProps
+    }
+  })
+})
+
+onUpdated(() => {
+  nextTick(() => {
+    const combobox = getComboboxElement()
+    if (combobox) {
+      combobox.removeAttribute('aria-controls')
+      combobox.removeAttribute('aria-expanded')
+      combobox.removeAttribute('aria-haspopup')
+    }
+  })
 })
 
 const getComboboxElement = () => {
   const container = document.getElementById(`${props.idPrefix}-container`)
-  return container ? container.querySelector('[role=\'combobox\']') : null
+  return container ? container.querySelector('.v-field') : null
 }
 
 const getInputElement = () => {

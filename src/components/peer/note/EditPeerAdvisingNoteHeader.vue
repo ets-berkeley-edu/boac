@@ -5,6 +5,7 @@
     </div>
     <div class="px-4">
       <SelectPeerAdvisingNoteTemplateForNote
+        v-if="isMounted"
         :note-templates="noteTemplates"
         :is-note-templates-loading="isNoteTemplatesLoading"
         :exit="noop"
@@ -16,6 +17,7 @@
 
 <script setup lang="ts">
 import {noop} from 'lodash'
+import {onMounted, ref} from 'vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import type {NoteTemplate} from '@/lib/types'
 import ModalHeader from '@/components/util/ModalHeader.vue'
@@ -38,6 +40,14 @@ defineProps({
     required: true,
     type: Boolean
   }
+})
+
+const isMounted = ref(false)
+
+onMounted(() => {
+  // EditPeerAdvisingNoteHeader must be mounted before SelectPeerAdvisingNoteTemplateForNote
+  // attaches its menu to the ModalHeader.
+  isMounted.value = true
 })
 
 const templateSelected = (template: NoteTemplate) => {

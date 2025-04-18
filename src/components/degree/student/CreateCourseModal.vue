@@ -13,140 +13,140 @@
       v-bind="props"
       @click="openModal"
     />
-  </div>
-  <v-dialog
-    v-model="showModal"
-    aria-labelledby="modal-header"
-    persistent
-    @update:model-value="onToggle"
-  >
-    <v-card
-      class="modal-content"
-      :max-width="smAndDown ? 440 : undefined"
-      :min-width="mdAndUp ? 600 : undefined"
+    <v-dialog
+      v-model="showModal"
+      aria-labelledby="modal-header"
+      persistent
+      @update:model-value="onToggle"
     >
-      <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="() => cancel(false)">
-        <v-card-title class="py-0 text-wrap">
-          <ModalHeader :text="`Create Course for ${parentCategory.name}`" />
-        </v-card-title>
-        <v-card-text class="modal-body">
-          <div>
-            <label
-              for="course-name-input"
-              class="font-weight-bold"
-            >
-              <span class="sr-only">Course </span>Name
-            </label>
-            <v-text-field
-              id="course-name-input"
-              v-model="name"
-              class="mt-1"
-              :disabled="isSaving"
-              density="comfortable"
-              hide-details
-              maxlength="255"
-            />
-            <div class="text-surface-variant mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
-            <div
-              v-if="error"
-              id="create-error"
-              class="text-error"
-              aria-live="polite"
-              role="alert"
-            >
-              {{ error }}
+      <v-card
+        class="modal-content"
+        :max-width="smAndDown ? 440 : undefined"
+        :min-width="mdAndUp ? 600 : undefined"
+      >
+        <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="() => cancel(false)">
+          <v-card-title class="py-0 text-wrap">
+            <ModalHeader :text="`Create Course for ${parentCategory.name}`" />
+          </v-card-title>
+          <v-card-text class="modal-body">
+            <div>
+              <label
+                for="course-name-input"
+                class="font-weight-bold"
+              >
+                <span class="sr-only">Course </span>Name
+              </label>
+              <v-text-field
+                id="course-name-input"
+                v-model="name"
+                class="mt-1"
+                :disabled="isSaving"
+                density="comfortable"
+                hide-details
+                maxlength="255"
+              />
+              <div class="text-surface-variant mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
+              <div
+                v-if="error"
+                id="create-error"
+                class="text-error"
+                aria-live="polite"
+                role="alert"
+              >
+                {{ error }}
+              </div>
+              <div
+                v-if="name.length === 255"
+                aria-live="polite"
+                class="sr-only"
+                role="alert"
+              >
+                Course name cannot exceed 255 characters.
+              </div>
             </div>
-            <div
-              v-if="name.length === 255"
-              aria-live="polite"
-              class="sr-only"
-              role="alert"
-            >
-              Course name cannot exceed 255 characters.
-            </div>
-          </div>
-          <div class="mt-2">
-            <label id="units-grade-label" for="course-grade-input" class="font-weight-bold mb-1 pr-2">
-              <span class="sr-only">Course </span>Grade
-            </label>
-            <v-text-field
-              id="course-grade-input"
-              v-model="grade"
-              :aria-autocomplete="false"
-              aria-labelledby="units-grade-label"
-              class="grade-input mt-1"
-              density="compact"
-              :disabled="isSaving"
-              hide-details
-              maxlength="3"
-              @keydown.enter="save"
-            />
-          </div>
-          <div class="mt-1">
-            <UnitsInput
-              :disable="isSaving"
-              :error-message="unitsErrorMessage"
-              input-id="course-units-input"
-              label-class="font-weight-bold mb-1 pr-2"
-              :on-submit="save"
-              :set-units-lower="setUnits"
-              :units-lower="units"
-            />
-          </div>
-          <div class="mt-2">
-            <AccentColorSelect
-              :accent-color="accentColor"
-              :disabled="isSaving"
-              :on-change="value => accentColor = value"
-              :on-open-menu="isOpen => isFocusLockDisabled = isOpen"
-            />
-          </div>
-          <div class="mt-3">
-            <label for="course-note-textarea" class="font-weight-bold">
-              <span class="sr-only">Course </span>Note
-            </label>
-            <div class="mt-1">
-              <v-textarea
-                id="course-note-textarea"
-                v-model="note"
+            <div class="mt-2">
+              <label id="units-grade-label" for="course-grade-input" class="font-weight-bold mb-1 pr-2">
+                <span class="sr-only">Course </span>Grade
+              </label>
+              <v-text-field
+                id="course-grade-input"
+                v-model="grade"
+                :aria-autocomplete="false"
+                aria-labelledby="units-grade-label"
+                class="grade-input mt-1"
                 density="compact"
                 :disabled="isSaving"
                 hide-details
-                rows="4"
-                variant="outlined"
+                maxlength="3"
+                @keydown.enter="save"
               />
             </div>
-          </div>
-        </v-card-text>
-        <v-card-actions class="modal-footer">
-          <ProgressButton
-            id="create-course-save-btn"
-            :action="save"
-            aria-label="Save Course"
-            class="mr-1"
-            color="primary"
-            :disabled="disableSaveButton"
-            :in-progress="isSaving"
-            :text="isSaving ? 'Saving' : 'Save'"
-          />
-          <v-btn
-            id="create-course-cancel-btn"
-            aria-label="Cancel Create Course"
-            :disabled="isSaving"
-            text="Cancel"
-            variant="text"
-            @click="() => cancel(false)"
-          />
-        </v-card-actions>
-      </FocusLock>
-    </v-card>
-  </v-dialog>
-  <AreYouSureModal
-    v-model="showCancelConfirm"
-    :function-confirm="() => cancel(true)"
-    :function-cancel="() => showCancelConfirm = false"
-    modal-header="Discard unsaved course?"
-  />
+            <div class="mt-1">
+              <UnitsInput
+                :disable="isSaving"
+                :error-message="unitsErrorMessage"
+                input-id="course-units-input"
+                label-class="font-weight-bold mb-1 pr-2"
+                :on-submit="save"
+                :set-units-lower="setUnits"
+                :units-lower="units"
+              />
+            </div>
+            <div class="mt-2">
+              <AccentColorSelect
+                :accent-color="accentColor"
+                :disabled="isSaving"
+                :on-change="value => accentColor = value"
+                :on-open-menu="isOpen => isFocusLockDisabled = isOpen"
+              />
+            </div>
+            <div class="mt-3">
+              <label for="course-note-textarea" class="font-weight-bold">
+                <span class="sr-only">Course </span>Note
+              </label>
+              <div class="mt-1">
+                <v-textarea
+                  id="course-note-textarea"
+                  v-model="note"
+                  density="compact"
+                  :disabled="isSaving"
+                  hide-details
+                  rows="4"
+                  variant="outlined"
+                />
+              </div>
+            </div>
+          </v-card-text>
+          <v-card-actions class="modal-footer">
+            <ProgressButton
+              id="create-course-save-btn"
+              :action="save"
+              aria-label="Save Course"
+              class="mr-1"
+              color="primary"
+              :disabled="disableSaveButton"
+              :in-progress="isSaving"
+              :text="isSaving ? 'Saving' : 'Save'"
+            />
+            <v-btn
+              id="create-course-cancel-btn"
+              aria-label="Cancel Create Course"
+              :disabled="isSaving"
+              text="Cancel"
+              variant="text"
+              @click="() => cancel(false)"
+            />
+          </v-card-actions>
+        </FocusLock>
+      </v-card>
+    </v-dialog>
+    <AreYouSureModal
+      v-model="showCancelConfirm"
+      :function-confirm="() => cancel(true)"
+      :function-cancel="() => showCancelConfirm = false"
+      modal-header="Discard unsaved course?"
+    />
+  </div>
 </template>
 
 <script setup>

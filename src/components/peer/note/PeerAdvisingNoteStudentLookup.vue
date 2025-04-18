@@ -1,7 +1,7 @@
 <template>
   <div class="py-1">
     <label
-      for="find-student-input"
+      for="find-student-autocomplete-input"
       class="font-size-16 font-weight-bold"
     >
       <span class="mr-2 text-weight-bold">Student</span>

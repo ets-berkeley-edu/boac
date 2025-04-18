@@ -25,8 +25,6 @@
         :student="student"
       />
     </div>
-  </div>
-  <div class="text-center">
     <StudentPersonalDetails
       v-if="!compact"
       :inactive-majors="size(plansPartitionedByStatus[0]) ? plansPartitionedByStatus[1] : []"

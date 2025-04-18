@@ -51,6 +51,7 @@
               <div v-if="!mdAndUp && showSidebar && !loading">
                 <Sidebar
                   id="small-viewport-sidebar"
+                  aria-labelledby="nav-header"
                   class="bg-tertiary"
                   role="navigation"
                 />
@@ -66,6 +67,7 @@
                 id="content"
                 class="scroll-margins"
                 role="main"
+                tabindex="-1"
               >
                 <router-view :key="split(route.fullPath, '#', 1)[0]" />
               </div>

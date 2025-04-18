@@ -6,6 +6,7 @@
       absolute
       attach="#peer-advising-note-modal-header"
       :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
+      eager
       location="bottom end"
       no-click-animation
       :width="noteTemplates.length ? 500 : 350"

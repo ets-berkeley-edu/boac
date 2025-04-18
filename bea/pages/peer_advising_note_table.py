@@ -68,7 +68,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     @staticmethod
     def peer_manager_note_student_link(note):
-        return By.ID, f'link-to-student-{note.student.sid}'
+        return By.ID, f'note-{note.record_id}-link-to-student'
 
     def click_peer_manager_note_student_link(self, note):
         app.logger.info(f'Clicking link to UID {note.student.uid} on note {note.record_id}')

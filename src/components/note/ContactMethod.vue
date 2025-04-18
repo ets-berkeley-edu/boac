@@ -3,7 +3,6 @@
     <label
       id="contact-type-label"
       class="font-size-16 font-weight-bold"
-      for="contact-type-options"
     >
       Contact Method
     </label>
@@ -25,10 +24,11 @@
           :ripple="false"
           :value="null"
         />
-        <template v-for="(contactType, index) in contactTypes" :key="contactType.value">
+        <template v-for="(contactType, index) in contactTypes">
           <v-radio
             v-if="isPeerAdvising ? contactType.isAvailableToPeerAdvisors : true"
             :id="`contact-option-${index}-radio-button`"
+            :key="contactType.value"
             :label="contactType.value"
             :ripple="false"
             :value="contactType.value"

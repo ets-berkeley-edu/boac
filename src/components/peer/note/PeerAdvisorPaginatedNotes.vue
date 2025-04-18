@@ -18,26 +18,26 @@
       <tbody>
         <tr
           v-for="(note, index) in notes"
-          :id="`tr-peer-advisor-${note.id}`"
+          :id="`tr-peer-advisor-note-${note.id}`"
           :key="index"
           :class="expandedNoteIds.includes(note.id) ? 'bg-sky-blue' : (index % 2 === 0 ? '' : 'bg-surface-light')"
         >
           <td
+            :id="`td-note-${note.id}-student`"
             :class="{
               'border-b-md': index === notes.length - 1,
-              'pl-3 pt-3': smAndDown,
+              'pl-5 pt-3': smAndDown,
               'pl-2 pt-2': expandedNoteIds.includes(note.id)
             }"
             class="font-weight-bold text-medium-emphasis td-student"
           >
             <div
               v-if="note.student"
-              :id="`note-student-${note.student.sid}`"
               :class="{'demo-mode-blur': currentUser.inDemoMode}"
             >
               <router-link
                 v-if="currentUser.isAdmin"
-                :id="`link-to-student-${note.sid}`"
+                :id="`note-${note.id}-link-to-student`"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
               >
@@ -55,7 +55,7 @@
             :id="`td-note-${note.id}-body`"
             :class="{
               'border-b-md': index === notes.length - 1,
-              'pl-3': smAndDown,
+              'pl-5': smAndDown,
               'py-2': expandedNoteIds.includes(note.id)
             }"
             class="td-note"
@@ -65,7 +65,8 @@
               <div v-if="!expandedNoteIds.includes(note.id)">
                 <button
                   :id="`open-peer-advising-${note.id}`"
-                  :aria-label="`Edit ${getStudentName(note)} note`"
+                  :aria-describedby="`td-note-${note.id}-student td-note-${note.id}-created-at`"
+                  :aria-expanded="false"
                   class="align-center d-flex text-primary w-100"
                   :class="{'demo-mode-blur': currentUser.inDemoMode}"
                   @click="() => toggleShowHide(note)"
@@ -84,6 +85,7 @@
                   <v-btn
                     :id="`show-note-${note.id}-details`"
                     :aria-expanded="true"
+                    :aria-label="`Close note for ${getStudentName(note)}`"
                     color="primary"
                     density="compact"
                     :prepend-icon="mdiCloseCircle"
@@ -98,13 +100,12 @@
           </td>
           <td
             v-if="!expandedNoteIds.includes(note.id)"
-            :id="`note-topics-in-row-${index}`"
+            :id="`td-note-${note.id}-topics`"
             :class="{
               'border-b-md': index === notes.length - 1,
-              'pl-3': smAndDown,
+              'pl-5': smAndDown,
               'td-topics': !smAndDown
             }"
-            :title="note.topics.join(', ')"
           >
             <div class="align-center d-flex font-weight-medium justify-space-between w-100">
               <span
@@ -122,7 +123,7 @@
             :class="{
               'border-b-md': index === notes.length - 1,
               'demo-mode-blur': currentUser.inDemoMode,
-              'pl-3': smAndDown,
+              'pl-5': smAndDown,
               'pr-2 pt-2': expandedNoteIds.includes(note.id)
             }"
             class="td-created-date"
@@ -168,7 +169,7 @@ import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDeta
 defineProps({
   notes: {
     required: true,
-    type: Array
+    type: Array<Note>
   },
   onClickCreateNote: {
     required: true,

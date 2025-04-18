@@ -8,13 +8,13 @@
             Cohorts
           </h2>
           <v-expansion-panels flat multiple>
-            <template v-for="cohort in cohorts" :key="cohort.id">
-              <SortableGroup
-                :id="`cohort-${cohort.id}`"
-                :group="cohort"
-                :is-cohort="true"
-              />
-            </template>
+            <SortableGroup
+              v-for="cohort in cohorts"
+              :id="`cohort-${cohort.id}`"
+              :key="cohort.id"
+              :group="cohort"
+              :is-cohort="true"
+            />
           </v-expansion-panels>
         </div>
         <div v-if="!cohorts.length">
@@ -30,12 +30,12 @@
       <div v-if="_filter(curatedGroups, ['domain', 'default']).length">
         <h2 class="page-section-header" tabindex="-1">Curated Groups</h2>
         <v-expansion-panels flat multiple>
-          <template
+          <SortableGroup
             v-for="curatedGroup in _filter(curatedGroups, ['domain', 'default'])"
             :key="curatedGroup.id"
-          >
-            <SortableGroup :group="curatedGroup" :is-cohort="false" />
-          </template>
+            :group="curatedGroup"
+            :is-cohort="false"
+          />
         </v-expansion-panels>
       </div>
     </div>

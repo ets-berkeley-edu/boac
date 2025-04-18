@@ -232,6 +232,18 @@ export function toBoolean(value: string) {
   return value && value !== 'false'
 }
 
+export function toggleModalBackgroundDisabled(isModalOpen: boolean) {
+  const inactiveModals = document.querySelectorAll('.v-overlay:not(.v-overlay-active')
+  useContextStore().setIsModalOpen(isModalOpen)
+  if (isModalOpen) {
+    document.documentElement.classList.add('modal-open')
+    inactiveModals.forEach(modal => modal.setAttribute('aria-hidden', 'true'))
+  } else {
+    document.documentElement.classList.remove('modal-open')
+    inactiveModals.forEach(modal => modal.removeAttribute('aria-hidden'))
+  }
+}
+
 export function toInt(value: string | number, defaultValue: number = NaN): number {
   const parsed = isNumber(value) ? value : parseInt(value, 10)
   return Number.isInteger(parsed) ? parsed : defaultValue

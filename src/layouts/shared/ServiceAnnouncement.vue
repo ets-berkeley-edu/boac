@@ -1,33 +1,35 @@
 <template>
-  <div aria-live="assertive" role="alert">
-    <div
-      v-if="!contextStore.loading && announcement && announcement.isPublished"
-      ref="serviceAlert"
-    >
-      <div v-if="!dismissedServiceAnnouncement" class="align-center bg-service-announcement d-flex font-weight-medium py-4 px-6">
-        <div class="d-inline-block pr-1 service-announcement-container w-100">
-          <span id="service-announcement-banner" v-html="announcement.text" />
+  <div>
+    <div aria-live="assertive" role="alert">
+      <div
+        v-if="!contextStore.loading && announcement && announcement.isPublished"
+        ref="serviceAlert"
+      >
+        <div v-if="!dismissedServiceAnnouncement" class="align-center bg-service-announcement d-flex font-weight-medium py-4 px-6">
+          <div class="d-inline-block pr-1 service-announcement-container w-100">
+            <span id="service-announcement-banner" v-html="announcement.text" />
+          </div>
+          <v-btn
+            id="dismiss-service-announcement"
+            color="transparent"
+            elevation="0"
+            :icon="mdiClose"
+            size="x-small"
+            title="Dismiss BOA Service Alert"
+            @click="toggle"
+          />
         </div>
-        <v-btn
-          id="dismiss-service-announcement"
-          color="transparent"
-          elevation="0"
-          :icon="mdiClose"
-          size="x-small"
-          title="Dismiss BOA Service Alert"
-          @click="toggle"
-        />
       </div>
     </div>
+    <v-btn
+      v-if="!contextStore.loading && announcement && announcement.isPublished && dismissedServiceAnnouncement"
+      id="restore-service-announcement"
+      class="sr-only"
+      @click="toggle"
+    >
+      Restore BOA Service Alert
+    </v-btn>
   </div>
-  <v-btn
-    v-if="!contextStore.loading && announcement && announcement.isPublished && dismissedServiceAnnouncement"
-    id="restore-service-announcement"
-    class="sr-only"
-    @click="toggle"
-  >
-    Restore BOA Service Alert
-  </v-btn>
 </template>
 
 <script setup>

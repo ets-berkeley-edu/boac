@@ -23,20 +23,20 @@
             class="d-flex flex-column flex-wrap card-height csv-column-options pb-5 px-1"
             role="group"
           >
-            <template v-for="(option, index) in csvColumns" :key="index">
-              <v-checkbox
-                :id="`csv-column-options-${index}`"
-                :model-value="includes(selected, option.value)"
-                :aria-label="`${option.text} column included in export`"
-                class="csv-column-option"
-                color="primary"
-                density="compact"
-                :disabled="isExporting || option.disabled"
-                hide-details
-                :label="option.text"
-                @update:model-value="isChecked => onChange(option.value, isChecked)"
-              />
-            </template>
+            <v-checkbox
+              v-for="(option, index) in csvColumns"
+              :id="`csv-column-options-${index}`"
+              :key="index"
+              :model-value="includes(selected, option.value)"
+              :aria-label="`${option.text} column included in export`"
+              class="csv-column-option"
+              color="primary"
+              density="compact"
+              :disabled="isExporting || option.disabled"
+              hide-details
+              :label="option.text"
+              @update:model-value="isChecked => onChange(option.value, isChecked)"
+            />
           </div>
           <div>
             <span class="font-weight-bold">Reminder:</span> <FerpaReminder />

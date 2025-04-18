@@ -137,6 +137,10 @@ const correctTheDOM = () => {
     // the end of the DOM and outside the modal. We must move these "ck" elements. The user should not notice.
     toolbar.insertAdjacentElement('afterend', popupsContainer)
     each(toolbarButtons, button => {
+      const buttonImage = button.querySelector('.ck-icon')
+      if (buttonImage) {
+        buttonImage.setAttribute('aria-hidden', 'true')
+      }
       button.setAttribute('tabindex', 0)
       if ('Link' === button.textContent) {
         button.addEventListener(

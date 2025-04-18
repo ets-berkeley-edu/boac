@@ -1,333 +1,335 @@
 <template>
-  <v-tooltip location="bottom" text="Advanced search options">
-    <template #activator="{props}">
-      <v-btn
-        id="search-options-panel-toggle"
-        v-bind="props"
-        aria-label="Open Advanced Search dialog"
-        class="mx-1"
-        :class="{'border-0': !isFocusAdvSearchButton}"
-        clearable
-        color="white"
-        :disabled="searchStore.isSearching"
-        height="46"
-        min-height="46"
-        min-width="46"
-        variant="text"
-        width="46"
-        @click="openAdvancedSearch"
-        @focusin="() => isFocusAdvSearchButton = true"
-        @focusout="() => isFocusAdvSearchButton = false"
-      >
-        <v-icon :icon="mdiTune" size="large" />
-      </v-btn>
-    </template>
-  </v-tooltip>
-  <v-dialog
-    id="advanced-search-modal"
-    aria-labelledby="advanced-search-header"
-    persistent
-    scrollable
-    :model-value="searchStore.showAdvancedSearch"
-    @update:model-value="searchStore.setShowAdvancedSearch"
-  >
-    <v-card
-      class="modal-content"
-      :class="{'modal-fullscreen': $vuetify.display.smAndDown}"
-      max-width="800"
-      min-width="700"
-      width="80%"
+  <div>
+    <v-tooltip location="bottom" text="Advanced search options">
+      <template #activator="{props}">
+        <v-btn
+          id="search-options-panel-toggle"
+          v-bind="props"
+          aria-label="Open Advanced Search dialog"
+          class="mx-1"
+          :class="{'border-0': !isFocusAdvSearchButton}"
+          clearable
+          color="white"
+          :disabled="searchStore.isSearching"
+          height="46"
+          min-height="46"
+          min-width="46"
+          variant="text"
+          width="46"
+          @click="openAdvancedSearch"
+          @focusin="() => isFocusAdvSearchButton = true"
+          @focusout="() => isFocusAdvSearchButton = false"
+        >
+          <v-icon :icon="mdiTune" size="large" />
+        </v-btn>
+      </template>
+    </v-tooltip>
+    <v-dialog
+      id="advanced-search-modal"
+      aria-labelledby="advanced-search-header"
+      persistent
+      scrollable
+      :model-value="searchStore.showAdvancedSearch"
+      @update:model-value="searchStore.setShowAdvancedSearch"
     >
-      <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="cancel">
-        <v-card-title>
-          <AdvancedSearchModalHeader :on-click-close="cancel" />
-        </v-card-title>
-        <v-card-text class="modal-body">
-          <div class="pb-4">
-            <label for="advanced-search-input" class="sr-only">{{ labelForSearchInput() }}</label>
-            <AccessibleCombobox
-              :key="searchStore.autocompleteInputResetKey"
-              id-prefix="advanced-search"
-              autocomplete="off"
-              clearable
-              :get-value="() => model.queryText"
-              input-type="search"
-              :items="searchStore.searchHistory"
-              label="Search"
-              list-label="Previous Search List"
-              :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
-              :on-submit="search"
-              :required="searchInputRequired"
-              :set-value="v => model.queryText = v"
-            />
-          </div>
-          <div class="font-size-16 font-weight-bold">
-            What is the extent of your search?
-            <span
-              v-if="!model.includeAdmits && !model.includeStudents && !model.includeCourses && !model.includeNotes"
-              class="text-error"
-            >
-              Please select one or more.
-            </span>
-          </div>
-          <div class="align-center d-flex flex-wrap">
-            <v-checkbox
-              v-if="currentUser.canAccessAdmittedStudents"
-              id="search-include-admits-checkbox"
-              v-model="model.includeAdmits"
-              color="primary"
-              hide-details
-              label="Students"
-            >
-              <template #label>
-                <span class="sr-only">Search includes </span>Admitted Students
-              </template>
-            </v-checkbox>
-            <v-checkbox
-              id="search-include-students-checkbox"
-              v-model="model.includeStudents"
-              color="primary"
-              hide-details
-            >
-              <template #label>
-                <span class="sr-only">Search includes </span>Students
-              </template>
-            </v-checkbox>
-            <v-checkbox
-              v-if="currentUser.canAccessCanvasData"
-              id="search-include-courses-checkbox"
-              v-model="model.includeCourses"
-              color="primary"
-              hide-details
-            >
-              <template #label>
-                <span class="sr-only">Search includes </span>Classes
-              </template>
-            </v-checkbox>
-            <v-checkbox
-              v-if="currentUser.canAccessAdvisingData"
-              id="search-include-notes-checkbox"
-              v-model="model.includeNotes"
-              aria-controls="search-option-note-filters"
-              :aria-expanded="model.includeNotes"
-              color="primary"
-              hide-details
-              @change="onChangeIncludeNotes"
-            >
-              <template #label>
-                <span class="sr-only">Search includes</span>
-                Notes &amp; Appointments
-              </template>
-            </v-checkbox>
-          </div>
-          <v-expand-transition v-if="currentUser.canAccessAdvisingData">
-            <v-card
-              v-show="model.includeNotes"
-              id="search-option-note-filters"
-              color="primary"
-              min-width="350"
-              variant="outlined"
-            >
-              <v-card-title>
-                <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
-              </v-card-title>
-              <v-card-text class="w-100">
-                <div class="px-3">
-                  <label class="form-control-label" for="search-option-note-filters-topic"><span class="sr-only">Search Notes by </span>Topic</label>
-                  <div>
-                    <select
-                      id="search-option-note-filters-topic"
-                      v-model="model.topic"
-                      class="ml-0 my-2 select-menu w-75"
-                      :class="{'w-100': $vuetify.display.xs}"
-                      :disabled="searchStore.isSearching"
-                    >
-                      <option
-                        v-for="topic in searchStore.topicOptions"
-                        :id="`search-notes-by-topic-${normalizeId(topic.value)}`"
-                        :key="topic.value"
-                        :value="topic.value"
+      <v-card
+        class="modal-content"
+        :class="{'modal-fullscreen': $vuetify.display.smAndDown}"
+        max-width="800"
+        min-width="700"
+        width="80%"
+      >
+        <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="cancel">
+          <v-card-title>
+            <AdvancedSearchModalHeader :on-click-close="cancel" />
+          </v-card-title>
+          <v-card-text class="modal-body">
+            <div class="pb-4">
+              <label for="advanced-search-input" class="sr-only">{{ labelForSearchInput() }}</label>
+              <AccessibleCombobox
+                :key="searchStore.autocompleteInputResetKey"
+                id-prefix="advanced-search"
+                autocomplete="off"
+                clearable
+                :get-value="() => model.queryText"
+                input-type="search"
+                :items="searchStore.searchHistory"
+                label="Search"
+                list-label="Previous Search List"
+                :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
+                :on-submit="search"
+                :required="searchInputRequired"
+                :set-value="v => model.queryText = v"
+              />
+            </div>
+            <div class="font-size-16 font-weight-bold">
+              What is the extent of your search?
+              <span
+                v-if="!model.includeAdmits && !model.includeStudents && !model.includeCourses && !model.includeNotes"
+                class="text-error"
+              >
+                Please select one or more.
+              </span>
+            </div>
+            <div class="align-center d-flex flex-wrap">
+              <v-checkbox
+                v-if="currentUser.canAccessAdmittedStudents"
+                id="search-include-admits-checkbox"
+                v-model="model.includeAdmits"
+                color="primary"
+                hide-details
+                label="Students"
+              >
+                <template #label>
+                  <span class="sr-only">Search includes </span>Admitted Students
+                </template>
+              </v-checkbox>
+              <v-checkbox
+                id="search-include-students-checkbox"
+                v-model="model.includeStudents"
+                color="primary"
+                hide-details
+              >
+                <template #label>
+                  <span class="sr-only">Search includes </span>Students
+                </template>
+              </v-checkbox>
+              <v-checkbox
+                v-if="currentUser.canAccessCanvasData"
+                id="search-include-courses-checkbox"
+                v-model="model.includeCourses"
+                color="primary"
+                hide-details
+              >
+                <template #label>
+                  <span class="sr-only">Search includes </span>Classes
+                </template>
+              </v-checkbox>
+              <v-checkbox
+                v-if="currentUser.canAccessAdvisingData"
+                id="search-include-notes-checkbox"
+                v-model="model.includeNotes"
+                aria-controls="search-option-note-filters"
+                :aria-expanded="model.includeNotes"
+                color="primary"
+                hide-details
+                @change="onChangeIncludeNotes"
+              >
+                <template #label>
+                  <span class="sr-only">Search includes</span>
+                  Notes &amp; Appointments
+                </template>
+              </v-checkbox>
+            </div>
+            <v-expand-transition v-if="currentUser.canAccessAdvisingData">
+              <v-card
+                v-show="model.includeNotes"
+                id="search-option-note-filters"
+                color="primary"
+                min-width="350"
+                variant="outlined"
+              >
+                <v-card-title>
+                  <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
+                </v-card-title>
+                <v-card-text class="w-100">
+                  <div class="px-3">
+                    <label class="form-control-label" for="search-option-note-filters-topic"><span class="sr-only">Search Notes by </span>Topic</label>
+                    <div>
+                      <select
+                        id="search-option-note-filters-topic"
+                        v-model="model.topic"
+                        class="ml-0 my-2 select-menu w-75"
+                        :class="{'w-100': $vuetify.display.xs}"
+                        :disabled="searchStore.isSearching"
                       >
-                        {{ topic.text }}
-                      </option>
-                    </select>
-                  </div>
-                  <div class="pt-4">
-                    <label class="form-control-label" for="note-filters-posted-by"><span class="sr-only">Search Notes </span>Posted By</label>
-                    <v-radio-group
-                      id="note-filters-posted-by"
-                      v-model="model.postedBy"
-                      hide-details
-                      inline
-                    >
-                      <v-radio
-                        id="search-options-note-filters-posted-by-anyone"
-                        aria-label="Search notes posted by anyone"
-                        :disabled="searchStore.isSearching"
-                        :ischecked="model.postedBy === 'anyone'"
-                        label="Anyone"
-                        value="anyone"
-                      />
-                      <v-radio
-                        id="search-options-note-filters-posted-by-you"
-                        aria-label="Search notes you posted"
-                        :disabled="searchStore.isSearching"
-                        :ischecked="model.postedBy === 'you'"
-                        label="You"
-                        value="you"
-                        @change="() => model.author = null"
-                      />
-                      <v-radio
-                        id="search-options-note-filters-posted-by-your department"
-                        aria-label="Search notes posted by your department"
-                        :disabled="searchStore.isSearching"
-                        :ischecked="model.postedBy === 'yourDepartment'"
-                        label="Your Department(s)"
-                        value="yourDepartment"
-                      />
-                    </v-radio-group>
-                  </div>
-                  <div class="pt-2 w-75" :class="{'w-100': $vuetify.display.xs}">
-                    <label class="form-control-label" for="search-options-note-author-input">Advisor</label>
-                    <AccessibleCombobox
-                      id-prefix="search-options-note-author"
-                      aria-description="Advisor name or S I D lookup. Expect auto suggest."
-                      autocomplete="off"
-                      :clearable="!isFetchingAdvisors"
-                      :clazz="{'mt-1 text-black': true}"
-                      color="primary"
-                      density="compact"
-                      :disabled="searchStore.isSearching || model.postedBy === 'you' || model.postedBy === 'yourDepartment'"
-                      :filter-results="suggestAdvisors"
-                      :get-value="() => model.postedBy === 'anyone' ? get(model.author, 'label') : null"
-                      is-autocomplete
-                      :is-busy="isFetchingAdvisors"
-                      :items="suggestedAdvisors"
-                      label="Note Author Advisor"
-                      list-label="Note Author Advisors List"
-                      :maxlength="56"
-                      min-width="12rem"
-                      :on-clear="onClearAdvisorSearch"
-                      :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
-                      placeholder="Enter name..."
-                      :set-value="author => {
-                        model.postedBy = 'anyone'
-                        model.author = author
-                      }"
-                    />
-                  </div>
-                  <div class="pt-3 w-75" :class="{'w-100': $vuetify.display.xs}">
-                    <label class="form-control-label" for="search-options-note-student-input">
-                      <span aria-hidden="true">Student (name, email or SID)</span>
-                      <span class="sr-only">Student (name, email or S I D)</span>
-                    </label>
-                    <AccessibleCombobox
-                      id-prefix="search-options-note-student"
-                      aria-description="Student name or S I D lookup. Expect auto suggest."
-                      autocomplete="off"
-                      :clazz="{'mt-1 text-black': true, 'demo-mode-blur': currentUser.inDemoMode}"
-                      :clearable="!isFetchingStudents"
-                      color="primary"
-                      density="compact"
-                      :disabled="searchStore.isSearching"
-                      :filter-results="suggestStudents"
-                      :get-value="() => get(model.student, 'label')"
-                      is-autocomplete
-                      :is-busy="isFetchingStudents"
-                      :items="suggestedStudents"
-                      label="Note Students"
-                      list-label="Note Student List"
-                      :maxlength="56"
-                      :menu-props="{'content-class': currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
-                      min-width="12rem"
-                      :on-clear="onClearStudentSearch"
-                      :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
-                      placeholder="Enter name or SID..."
-                      :set-value="student => model.student = student"
-                    />
-                  </div>
-                  <div class="pt-3">
-                    <label id="search-options-date-range-label" class="form-control-label">
-                      <span class="sr-only">Search Notes by </span>Date Range
-                    </label>
-                    <div class="d-flex flex-wrap mt-1">
-                      <div class="d-flex align-center justify-end pb-2">
-                        <label
-                          id="search-options-from-date-label"
-                          class="text-black date-range-label"
-                          for="search-options-from-date-input"
+                        <option
+                          v-for="topic in searchStore.topicOptions"
+                          :id="`search-notes-by-topic-${normalizeId(topic.value)}`"
+                          :key="topic.value"
+                          :value="topic.value"
                         >
-                          <span aria-hidden="true">From</span>
-                          <span class="sr-only">Search notes by date range: <q>begin</q> date.</span>
-                          <span class="sr-only">Format: M M slash D D slash Y Y Y Y.</span>
-                        </label>
-                        <AccessibleDateInput
-                          aria-label="Begin date"
-                          container-id="advanced-search-modal"
-                          :get-value="() => model.fromDate"
-                          id-prefix="search-options-from-date"
-                          :max-date="model.toDate || new Date()"
-                          :set-value="fromDate => model.fromDate = fromDate"
+                          {{ topic.text }}
+                        </option>
+                      </select>
+                    </div>
+                    <div class="pt-4">
+                      <label class="form-control-label" for="note-filters-posted-by"><span class="sr-only">Search Notes </span>Posted By</label>
+                      <v-radio-group
+                        id="note-filters-posted-by"
+                        v-model="model.postedBy"
+                        hide-details
+                        inline
+                      >
+                        <v-radio
+                          id="search-options-note-filters-posted-by-anyone"
+                          aria-label="Search notes posted by anyone"
+                          :disabled="searchStore.isSearching"
+                          :ischecked="model.postedBy === 'anyone'"
+                          label="Anyone"
+                          value="anyone"
                         />
-                      </div>
-                      <div class="d-flex align-center justify-end pb-2">
-                        <label
-                          id="search-options-to-date-label"
-                          class="text-black date-range-label d-flex justify-center"
-                          for="search-options-to-date-input"
-                        >
-                          <span aria-hidden="true">To</span>
-                          <span class="sr-only">Search notes by date range: <q>end</q> date.</span>
-                          <span class="sr-only">Format: M M slash D D slash Y Y Y Y.</span>
-                        </label>
-                        <AccessibleDateInput
-                          aria-label="End date"
-                          container-id="advanced-search-modal"
-                          :get-value="() => model.toDate"
-                          id-prefix="search-options-to-date"
-                          :max-date="new Date()"
-                          :min-date="model.fromDate"
-                          :set-value="toDate => model.toDate = toDate"
+                        <v-radio
+                          id="search-options-note-filters-posted-by-you"
+                          aria-label="Search notes you posted"
+                          :disabled="searchStore.isSearching"
+                          :ischecked="model.postedBy === 'you'"
+                          label="You"
+                          value="you"
+                          @change="() => model.author = null"
                         />
+                        <v-radio
+                          id="search-options-note-filters-posted-by-your department"
+                          aria-label="Search notes posted by your department"
+                          :disabled="searchStore.isSearching"
+                          :ischecked="model.postedBy === 'yourDepartment'"
+                          label="Your Department(s)"
+                          value="yourDepartment"
+                        />
+                      </v-radio-group>
+                    </div>
+                    <div class="pt-2 w-75" :class="{'w-100': $vuetify.display.xs}">
+                      <label class="form-control-label" for="search-options-note-author-input">Advisor</label>
+                      <AccessibleCombobox
+                        id-prefix="search-options-note-author"
+                        aria-description="Advisor name or S I D lookup. Expect auto suggest."
+                        autocomplete="off"
+                        :clearable="!isFetchingAdvisors"
+                        :clazz="{'mt-1 text-black': true}"
+                        color="primary"
+                        density="compact"
+                        :disabled="searchStore.isSearching || model.postedBy === 'you' || model.postedBy === 'yourDepartment'"
+                        :filter-results="suggestAdvisors"
+                        :get-value="() => model.postedBy === 'anyone' ? get(model.author, 'label') : null"
+                        is-autocomplete
+                        :is-busy="isFetchingAdvisors"
+                        :items="suggestedAdvisors"
+                        label="Note Author Advisor"
+                        list-label="Note Author Advisors List"
+                        :maxlength="56"
+                        min-width="12rem"
+                        :on-clear="onClearAdvisorSearch"
+                        :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
+                        placeholder="Enter name..."
+                        :set-value="author => {
+                          model.postedBy = 'anyone'
+                          model.author = author
+                        }"
+                      />
+                    </div>
+                    <div class="pt-3 w-75" :class="{'w-100': $vuetify.display.xs}">
+                      <label class="form-control-label" for="search-options-note-student-input">
+                        <span aria-hidden="true">Student (name, email or SID)</span>
+                        <span class="sr-only">Student (name, email or S I D)</span>
+                      </label>
+                      <AccessibleCombobox
+                        id-prefix="search-options-note-student"
+                        aria-description="Student name or S I D lookup. Expect auto suggest."
+                        autocomplete="off"
+                        :clazz="{'mt-1 text-black': true, 'demo-mode-blur': currentUser.inDemoMode}"
+                        :clearable="!isFetchingStudents"
+                        color="primary"
+                        density="compact"
+                        :disabled="searchStore.isSearching"
+                        :filter-results="suggestStudents"
+                        :get-value="() => get(model.student, 'label')"
+                        is-autocomplete
+                        :is-busy="isFetchingStudents"
+                        :items="suggestedStudents"
+                        label="Note Students"
+                        list-label="Note Student List"
+                        :maxlength="56"
+                        :menu-props="{'content-class': currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
+                        min-width="12rem"
+                        :on-clear="onClearStudentSearch"
+                        :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
+                        placeholder="Enter name or SID..."
+                        :set-value="student => model.student = student"
+                      />
+                    </div>
+                    <div class="pt-3">
+                      <label id="search-options-date-range-label" class="form-control-label">
+                        <span class="sr-only">Search Notes by </span>Date Range
+                      </label>
+                      <div class="d-flex flex-wrap mt-1">
+                        <div class="d-flex align-center justify-end pb-2">
+                          <label
+                            id="search-options-from-date-label"
+                            class="text-black date-range-label"
+                            for="search-options-from-date-input"
+                          >
+                            <span aria-hidden="true">From</span>
+                            <span class="sr-only">Search notes by date range: <q>begin</q> date.</span>
+                            <span class="sr-only">Format: M M slash D D slash Y Y Y Y.</span>
+                          </label>
+                          <AccessibleDateInput
+                            aria-label="Begin date"
+                            container-id="advanced-search-modal"
+                            :get-value="() => model.fromDate"
+                            id-prefix="search-options-from-date"
+                            :max-date="model.toDate || new Date()"
+                            :set-value="fromDate => model.fromDate = fromDate"
+                          />
+                        </div>
+                        <div class="d-flex align-center justify-end pb-2">
+                          <label
+                            id="search-options-to-date-label"
+                            class="text-black date-range-label d-flex justify-center"
+                            for="search-options-to-date-input"
+                          >
+                            <span aria-hidden="true">To</span>
+                            <span class="sr-only">Search notes by date range: <q>end</q> date.</span>
+                            <span class="sr-only">Format: M M slash D D slash Y Y Y Y.</span>
+                          </label>
+                          <AccessibleDateInput
+                            aria-label="End date"
+                            container-id="advanced-search-modal"
+                            :get-value="() => model.toDate"
+                            id-prefix="search-options-to-date"
+                            :max-date="new Date()"
+                            :min-date="model.fromDate"
+                            :set-value="toDate => model.toDate = toDate"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-expand-transition>
-        </v-card-text>
-        <v-card-actions class="modal-footer">
-          <div class="flex-grow-1">
-            <v-btn
-              v-if="model.includeNotes && !isModelEmpty()"
-              id="reset-advanced-search-form-btn"
-              aria-label="Reset Advanced Search Form"
-              :disabled="searchStore.isSearching"
-              text="Reset"
-              variant="text"
-              @click="() => reset(true)"
+                </v-card-text>
+              </v-card>
+            </v-expand-transition>
+          </v-card-text>
+          <v-card-actions class="modal-footer">
+            <div class="flex-grow-1">
+              <v-btn
+                v-if="model.includeNotes && !isModelEmpty()"
+                id="reset-advanced-search-form-btn"
+                aria-label="Reset Advanced Search Form"
+                :disabled="searchStore.isSearching"
+                text="Reset"
+                variant="text"
+                @click="() => reset(true)"
+              />
+            </div>
+            <ProgressButton
+              id="advanced-search"
+              :action="search"
+              :disabled="isSearchDisabled"
+              :in-progress="searchStore.isSearching"
+              :text="searchStore.isSearching ? 'Searching...' : 'Search'"
             />
-          </div>
-          <ProgressButton
-            id="advanced-search"
-            :action="search"
-            :disabled="isSearchDisabled"
-            :in-progress="searchStore.isSearching"
-            :text="searchStore.isSearching ? 'Searching...' : 'Search'"
-          />
-          <v-btn
-            id="advanced-search-cancel"
-            aria-label="Cancel Advanced Search"
-            :disabled="searchStore.isSearching"
-            text="Cancel"
-            variant="text"
-            @click="cancel"
-          />
-        </v-card-actions>
-      </FocusLock>
-    </v-card>
-  </v-dialog>
+            <v-btn
+              id="advanced-search-cancel"
+              aria-label="Cancel Advanced Search"
+              :disabled="searchStore.isSearching"
+              text="Cancel"
+              variant="text"
+              @click="cancel"
+            />
+          </v-card-actions>
+        </FocusLock>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script setup>
