@@ -105,21 +105,30 @@
             <div class="pt-1">
               <h5 class="font-size-16">Peer-advisor notes</h5>
               <PeerAdvisingNotesReport class="font-size-16" :notes-report="report.boa.peerAdvising" />
-              <div v-if="report.boa.peerAdvising.noteCountByDepartment" class="py-2 pl-4">
+              <div v-if="report.boa.peerAdvising.noteCountByUniversityDepartment" class="py-2 pl-4">
                 <table class="border-sm border-b-0 w-100">
                   <caption class="sr-only">Peer advisor notes by department</caption>
                   <thead>
                     <tr class="bg-surface-light">
                       <th class="border-b-sm border-e-sm px-2 py-1">Department</th>
-                      <th class="text-right border-b-sm px-2 py-1">Notes <span class="sr-only">Count</span></th>
+                      <th class="text-right border-b-sm px-2 py-1">Total Notes <span class="sr-only">Count</span></th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
-                      v-for="(row, index) in report.boa.peerAdvising.noteCountByDepartment"
+                      v-for="(row, index) in report.boa.peerAdvising.noteCountByUniversityDepartment"
                       :key="index"
                     >
-                      <td :id="`peer-advising-dept-name-${row.deptCode}`" class="border-b-sm border-e-sm px-2 py-1">{{ row.deptName }}</td>
+                      <td :id="`peer-advising-dept-name-${row.deptCode}`" class="border-b-sm border-e-sm px-2 py-1 font-weight-bold">
+                        {{ row.deptName }}
+                        <div
+                          v-for="(subDept, index) in row.subDepartments"
+                          :key="index"
+                          class="ml-9 font-weight-regular"
+                        >
+                          <span>{{ subDept.deptName }}: {{ subDept.count }}</span>
+                        </div>
+                      </td>
                       <td :id="`peer-advising-dept-notes-${row.deptCode}`" class="text-right border-b-sm px-2 py-1">{{ numFormat(row.count) }}</td>
                     </tr>
                   </tbody>
