@@ -27,19 +27,41 @@ from boac import db
 from boac.externals.data_loch import get_basic_student_data
 from boac.lib.util import to_iso_format
 from boac.models.peer_advising_department import PeerAdvisingDepartment
+from sqlalchemy import text
 
 
 def get_peer_advising_department_note_counts():
     query = """
-      SELECT ud.dept_name, ud.dept_code, COUNT(*) AS count
+      SELECT ud.dept_name, ud.dept_code, ud.id, COUNT(*) AS count
         FROM peer_advising_departments pd
         JOIN university_depts ud ON pd.university_dept_id = ud.id
         JOIN notes n ON n.peer_advising_department_id = pd.id
        WHERE n.deleted_at IS NULL
          AND n.is_draft IS FALSE
-       GROUP BY ud.dept_name, ud.dept_code
+       GROUP BY ud.dept_name, ud.dept_code, ud.id
     """
     return [row for row in db.session.execute(query)]
+
+
+def get_granular_peer_advising_department_note_counts(university_dept_id):
+    sql = text("""
+        SELECT
+            pd.name,
+            pd.university_dept_id,
+            COUNT(n.id) AS count
+        FROM peer_advising_departments pd
+        LEFT JOIN notes n
+          ON n.peer_advising_department_id = pd.id
+             AND n.deleted_at IS NULL
+             AND n.is_draft = FALSE
+        WHERE pd.university_dept_id = :university_dept_id
+        GROUP BY
+            pd.name,
+            pd.university_dept_id
+    """)
+
+    result = db.session.execute(sql, {'university_dept_id': university_dept_id})
+    return result.mappings().all()
 
 
 def get_peer_advising_note_author_count(peer_advising_department_id=None):
