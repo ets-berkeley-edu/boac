@@ -8,6 +8,7 @@ exclude = [
     ".ruff_cache",
     ".tox",
     "__pycache__",
+    "*-local.py",
     "dist",
     "fixtures",
     "node_modules",

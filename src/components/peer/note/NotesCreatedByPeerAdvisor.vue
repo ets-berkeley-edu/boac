@@ -76,7 +76,7 @@
                   :class="expandedNoteIds.includes(note.id) ? 'bg-sky-blue' : (index % 2 === 0 ? '' : 'bg-surface-light')"
                 >
                   <td
-                    :id="`td-peer-advisor-${user.uid}-note-${note.id}-student-${note.student.sid}`"
+                    :id="`td-peer-advisor-${user.uid}-note-${note.id}-student`"
                     :class="{
                       'border-b-md': index === size(notes) - 1,
                       'pl-2 pt-2': expandedNoteIds.includes(note.id)
@@ -85,11 +85,11 @@
                   >
                     <div
                       v-if="note.student"
-                      :id="`note-student-${note.student.sid}`"
+                      :id="`note-${note.id}-student`"
                       :class="{'demo-mode-blur': currentUser.inDemoMode}"
                     >
                       <router-link
-                        :id="`link-to-student-${note.sid}`"
+                        :id="`note-${note.id}-link-to-student`"
                         :class="{'demo-mode-blur': currentUser.inDemoMode}"
                         :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
                       >

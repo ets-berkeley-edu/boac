@@ -1,7 +1,7 @@
 <template>
   <div class="accessible-date-picker d-flex position-relative">
     <date-picker
-      v-model.date="model"
+      v-model="model"
       :disabled="disabled"
       :input-debounce="500"
       :max-date="maxDate"

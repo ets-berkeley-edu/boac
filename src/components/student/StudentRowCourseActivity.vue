@@ -1,109 +1,111 @@
 <template>
-  <table v-if="termEnrollments.length" class="student-row-courses table-hover w-100">
-    <thead class="text-none">
-      <tr>
-        <th class="border-b-sm col-course vertical-bottom">Class</th>
-        <th class="border-b-sm col-units vertical-bottom">Units</th>
-        <th v-if="currentUser.canAccessCanvasData" class="border-b-sm col-bcourses vertical-bottom">
-          <span aria-hidden="true">bCourses Activity</span>
-          <span class="sr-only">Most recent B Courses activity</span>
-        </th>
-        <th class="border-b-sm col-midterm vertical-bottom">
-          <span aria-hidden="true">Mid</span>
-          <span class="sr-only">Midpoint grade</span>
-        </th>
-        <th class="border-b-sm col-final vertical-bottom">
-          <span>Final<span class="sr-only"> grade</span></span>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(enrollment, index) in termEnrollments" :key="index" :class="{'bg-pale-blue': !(index % 2)}">
-        <td class="col-course">
-          <span :id="`row-${rowIndex}-student-enrollment-name-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-            {{ enrollment.displayName }}
-          </span>
-          <span
-            v-if="enrollment.waitlisted"
-            :id="`student-${student.uid}-waitlisted-for-${enrollment.sections.length ? enrollment.sections[0].ccn : enrollment.displayName}`"
-            aria-hidden="true"
-            class="pl-1 text-error font-weight-bold"
-          >(W)</span>
-          <span v-if="enrollment.waitlisted" class="sr-only">
-            Waitlisted
-          </span>
-        </td>
-        <td class="col-units">
-          {{ enrollment.units || '&mdash;' }}
-        </td>
-        <td v-if="currentUser.canAccessCanvasData" class="col-bcourses">
-          <div
-            v-for="(canvasSite, cIndex) in enrollment.canvasSites"
-            :key="cIndex"
-          >
-            <span
-              v-if="enrollment.canvasSites.length > 1"
-              class="sr-only"
-            >
-              {{ `Course site ${cIndex + 1} of ${enrollment.canvasSites.length}` }}
+  <div>
+    <table v-if="termEnrollments.length" class="student-row-courses table-hover w-100">
+      <thead class="text-none">
+        <tr>
+          <th class="border-b-sm col-course vertical-bottom">Class</th>
+          <th class="border-b-sm col-units vertical-bottom">Units</th>
+          <th v-if="currentUser.canAccessCanvasData" class="border-b-sm col-bcourses vertical-bottom">
+            <span aria-hidden="true">bCourses Activity</span>
+            <span class="sr-only">Most recent B Courses activity</span>
+          </th>
+          <th class="border-b-sm col-midterm vertical-bottom">
+            <span aria-hidden="true">Mid</span>
+            <span class="sr-only">Midpoint grade</span>
+          </th>
+          <th class="border-b-sm col-final vertical-bottom">
+            <span>Final<span class="sr-only"> grade</span></span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(enrollment, index) in termEnrollments" :key="index" :class="{'bg-pale-blue': !(index % 2)}">
+          <td class="col-course">
+            <span :id="`row-${rowIndex}-student-enrollment-name-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+              {{ enrollment.displayName }}
             </span>
-            {{ lastActivityDays(canvasSite.analytics) }}
-          </div>
-          <div v-if="!get(enrollment, 'canvasSites').length">
-            <span class="sr-only">No data </span>&mdash;
-          </div>
-        </td>
-        <td class="col-midterm">
-          <div class="d-flex align-center">
             <span
-              v-if="enrollment.midtermGrade"
-              v-accessible-grade="enrollment.midtermGrade"
-              class="font-weight-bold"
-              :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            />
-            <v-icon
-              v-if="isAlertGrade(enrollment.midtermGrade) && !currentUser.inDemoMode"
-              color="warning"
-              :icon="mdiAlert"
-              size="small"
-              title="Non-passing grade"
-            />
-            <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
-          </div>
-        </td>
-        <td class="col-final">
-          <div class="d-flex align-center">
-            <span
-              v-if="enrollment.grade"
-              v-accessible-grade="enrollment.grade"
-              :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            />
-            <v-icon
-              v-if="isAlertGrade(enrollment.grade) && !currentUser.inDemoMode"
-              class="grade-alert"
-              color="warning"
-              :icon="mdiAlert"
-              size="small"
-              title="Non-passing grade"
-            />
-            <IncompleteGradeAlertIcon
-              v-if="getSectionsWithIncompleteStatus(enrollment.sections).length && !currentUser.inDemoMode"
-              :course="enrollment"
-              :index="index"
-              :term-id="termId"
-            />
-            <span
-              v-if="!enrollment.grade"
-              class="cohort-grading-basis"
-            >{{ enrollment.gradingBasis }}</span>
-            <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div v-if="!termEnrollments.length" class="col-course font-size-13 pl-3 text-medium-emphasis">
-    No {{ termNameForSisId(termId) }} enrollments
+              v-if="enrollment.waitlisted"
+              :id="`student-${student.uid}-waitlisted-for-${enrollment.sections.length ? enrollment.sections[0].ccn : enrollment.displayName}`"
+              aria-hidden="true"
+              class="pl-1 text-error font-weight-bold"
+            >(W)</span>
+            <span v-if="enrollment.waitlisted" class="sr-only">
+              Waitlisted
+            </span>
+          </td>
+          <td class="col-units">
+            {{ enrollment.units || '&mdash;' }}
+          </td>
+          <td v-if="currentUser.canAccessCanvasData" class="col-bcourses">
+            <div
+              v-for="(canvasSite, cIndex) in enrollment.canvasSites"
+              :key="cIndex"
+            >
+              <span
+                v-if="enrollment.canvasSites.length > 1"
+                class="sr-only"
+              >
+                {{ `Course site ${cIndex + 1} of ${enrollment.canvasSites.length}` }}
+              </span>
+              {{ lastActivityDays(canvasSite.analytics) }}
+            </div>
+            <div v-if="!get(enrollment, 'canvasSites').length">
+              <span class="sr-only">No data </span>&mdash;
+            </div>
+          </td>
+          <td class="col-midterm">
+            <div class="d-flex align-center">
+              <span
+                v-if="enrollment.midtermGrade"
+                v-accessible-grade="enrollment.midtermGrade"
+                class="font-weight-bold"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              />
+              <v-icon
+                v-if="isAlertGrade(enrollment.midtermGrade) && !currentUser.inDemoMode"
+                color="warning"
+                :icon="mdiAlert"
+                size="small"
+                title="Non-passing grade"
+              />
+              <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
+            </div>
+          </td>
+          <td class="col-final">
+            <div class="d-flex align-center">
+              <span
+                v-if="enrollment.grade"
+                v-accessible-grade="enrollment.grade"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              />
+              <v-icon
+                v-if="isAlertGrade(enrollment.grade) && !currentUser.inDemoMode"
+                class="grade-alert"
+                color="warning"
+                :icon="mdiAlert"
+                size="small"
+                title="Non-passing grade"
+              />
+              <IncompleteGradeAlertIcon
+                v-if="getSectionsWithIncompleteStatus(enrollment.sections).length && !currentUser.inDemoMode"
+                :course="enrollment"
+                :index="index"
+                :term-id="termId"
+              />
+              <span
+                v-if="!enrollment.grade"
+                class="cohort-grading-basis"
+              >{{ enrollment.gradingBasis }}</span>
+              <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div v-if="!termEnrollments.length" class="col-course font-size-13 pl-3 text-medium-emphasis">
+      No {{ termNameForSisId(termId) }} enrollments
+    </div>
   </div>
 </template>
 

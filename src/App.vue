@@ -1,13 +1,15 @@
 <template>
-  <div
-    id="announcer"
-    :aria-live="contextStore.screenReaderAlert.politeness"
-    class="sr-only"
-  >
-    {{ contextStore.screenReaderAlert.message }}
+  <div>
+    <div
+      id="announcer"
+      :aria-live="contextStore.screenReaderAlert.politeness"
+      class="sr-only"
+    >
+      {{ contextStore.screenReaderAlert.message }}
+    </div>
+    <router-view :aria-hidden="contextStore.isModalOpen" :inert="contextStore.isModalOpen || undefined" />
+    <DismissibleFooterAlert :aria-hidden="contextStore.isModalOpen" :inert="contextStore.isModalOpen || undefined" />
   </div>
-  <router-view />
-  <DismissibleFooterAlert />
 </template>
 
 <script setup>

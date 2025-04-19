@@ -96,7 +96,7 @@ import CreateNoteFooter from '@/components/note/CreateNoteFooter.vue'
 import EditPeerAdvisingNoteHeader from '@/components/peer/note/EditPeerAdvisingNoteHeader.vue'
 import PeerAdvisingNoteStudentLookup from '@/components/peer/note/PeerAdvisingNoteStudentLookup.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
-import {alertScreenReader, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick, stripHtmlAndTrim, toggleModalBackgroundDisabled} from '@/lib/utils'
 import {clearNoteRecipients, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getBasicStudent} from '@/api/peer-advising-users'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
@@ -139,9 +139,8 @@ onMounted(() => {
 })
 
 watch(dialog, isOpen => {
-  if (isOpen) {
-    putFocusNextTick('peer-advising-note-templates-button')
-  }
+  toggleModalBackgroundDisabled(isOpen)
+  putFocusNextTick(isOpen ? 'peer-advising-note-templates-button' : 'peer-advisor-create-note-button')
 })
 
 const addNoteAttachments = (attachments: NoteAttachment[]) => {
@@ -163,7 +162,6 @@ const closeModal = (srText?: string) => {
   student.value = undefined
   noteStore.setIsCreateNoteModalOpen(false)
   noteStore.exitSession()
-  putFocusNextTick('peer-advisor-create-note-button')
 }
 
 const discardRequested = () => {

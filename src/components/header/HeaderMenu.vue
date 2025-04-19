@@ -1,9 +1,10 @@
 <template>
-  <div class="d-flex justify-space-around">
+  <div class="d-flex justify-space-around" role="navigation">
     <v-menu
-      :width="isPeerAdvisorManager(currentUser) ? 320 : 220"
+      eager
       transition="slide-y-transition"
       variant="link"
+      :width="isPeerAdvisorManager(currentUser) ? 320 : 220"
       @update:model-value="isOpen => isMenuOpen = isOpen"
     >
       <template #activator="{ props }">

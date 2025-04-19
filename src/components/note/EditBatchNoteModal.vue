@@ -1,135 +1,137 @@
 <template>
-  <v-dialog
-    v-if="mode"
-    v-model="dialogModel"
-    aria-labelledby="dialog-header-note"
-    persistent
-    scrollable
-  >
-    <v-card
-      id="new-note-modal-container"
-      class="modal-content"
-      :class="{'modal-fullscreen': $vuetify.display.mdAndDown}"
-      width="800"
-      max-width="90%"
+  <div>
+    <v-dialog
+      v-if="mode"
+      v-model="dialogModel"
+      aria-labelledby="dialog-header-note"
+      persistent
+      scrollable
     >
-      <div>
-        <CreateNoteHeader :exit="discardRequested" />
-        <v-card-text class="modal-body">
-          <Transition
-            v-if="['createBatch', 'editDraft'].includes(mode)"
-            class="mb-3"
-            name="batch-transition"
-          >
-            <div v-show="mode !== 'editTemplate'">
-              <BatchNoteFeatures :discard="discardRequested" />
-            </div>
-          </Transition>
-          <div>
-            <label
-              id="create-note-subject-label"
-              for="create-note-subject"
-              class="font-size-16 font-weight-bold"
+      <v-card
+        id="new-note-modal-container"
+        class="modal-content"
+        :class="{'modal-fullscreen': $vuetify.display.mdAndDown}"
+        width="800"
+        max-width="90%"
+      >
+        <div>
+          <CreateNoteHeader :exit="discardRequested" />
+          <v-card-text class="modal-body">
+            <Transition
+              v-if="['createBatch', 'editDraft'].includes(mode)"
+              class="mb-3"
+              name="batch-transition"
             >
-              Subject
-            </label>
-            <v-text-field
-              id="create-note-subject"
-              :model-value="model.subject"
-              aria-label="Note Subject"
-              class="mt-1"
-              color="primary"
-              :disabled="isSaving || boaSessionExpired"
-              maxlength="255"
-              type="text"
-              @input="setSubjectPerEvent"
-            />
-            <RichTextEditor
-              id="note-details"
-              :disabled="isSaving || boaSessionExpired"
-              :initial-value="model.body || ''"
-              label="Note Details"
-              :on-value-update="noteStore.setBody"
-              :show-advising-note-best-practices="true"
-            />
-          </div>
-          <div class="py-3">
-            <AdvisingNoteTopics :topics="topics" />
-            <PrivacyPermissions v-if="contextStore.currentUser.canAccessPrivateNotes" class="mt-4" />
-            <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
-              <div key="0" class="pt-4">
-                <ContactMethod :is-peer-advising="!!noteStore.model.peerAdvisingDepartmentId" />
+              <div v-show="mode !== 'editTemplate'">
+                <BatchNoteFeatures :discard="discardRequested" />
               </div>
-              <div key="1" class="pt-4">
-                <ManuallySetDate container-id="new-note-modal-container" />
-              </div>
-            </TransitionGroup>
-            <AdvisingNoteAttachments
-              :add="addNoteAttachments"
-              :attachments="noteStore.model.attachments"
-              class="pt-5"
-              :disabled="!!(noteStore.isSaving || noteStore.boaSessionExpired)"
-              :note="noteStore.model"
-              :remove="removeAttachmentByIndex"
-            />
-          </div>
-          <v-alert
-            v-if="alert"
-            id="alert-in-note-modal"
-            :model-value="alert && !!dismissAlertSeconds"
-            class="font-weight-bold w-100 mb-2"
-            color="info"
-            density="comfortable"
-            variant="tonal"
-          >
-            <div class="d-flex">
-              <div v-if="isSaving" class="mr-2">
-                <v-icon :icon="mdiSync" spin />
-              </div>
-              <div>{{ alert }}</div>
-            </div>
-            <template #close>
-              <v-btn
-                id="note-modal-alert-close-btn"
-                aria-label="Dismiss alert"
-                density="comfortable"
-                :icon="mdiCloseCircle"
-                size="large"
-                variant="text"
-                @click.prevent="dismissAlert"
+            </Transition>
+            <div>
+              <label
+                id="create-note-subject-label"
+                for="create-note-subject"
+                class="font-size-16 font-weight-bold"
+              >
+                Subject
+              </label>
+              <v-text-field
+                id="create-note-subject"
+                :model-value="model.subject"
+                aria-label="Note Subject"
+                class="mt-1"
+                color="primary"
+                :disabled="isSaving || boaSessionExpired"
+                maxlength="255"
+                type="text"
+                @input="setSubjectPerEvent"
               />
-            </template>
-          </v-alert>
-        </v-card-text>
-        <CreateNoteFooter
-          :discard="discardRequested"
-          discard-button-color="error"
-          :exit="exit"
-          :save-as-template="saveAsTemplate"
-          :show-alert="showAlert"
-          :update-template="updateTemplate"
-        />
-      </div>
-    </v-card>
-  </v-dialog>
-  <AreYouSureModal
-    v-model="showDiscardNoteModal"
-    :function-cancel="cancelDiscardNote"
-    :function-confirm="discardNote"
-    modal-header="Discard unsaved note?"
-  />
-  <CreateTemplateModal
-    v-model="showCreateTemplateModal"
-    :cancel="cancelCreateTemplate"
-    :create="createTemplate"
-    :on-hidden="() => noteStore.setIsSaving(false)"
-  />
-  <AreYouSureModal
-    v-model="showDiscardTemplateModal"
-    :function-cancel="cancelDiscardTemplate"
-    :function-confirm="discardTemplate"
-    modal-header="Discard unsaved template?"
-  />
+              <RichTextEditor
+                id="note-details"
+                :disabled="isSaving || boaSessionExpired"
+                :initial-value="model.body || ''"
+                label="Note Details"
+                :on-value-update="noteStore.setBody"
+                :show-advising-note-best-practices="true"
+              />
+            </div>
+            <div class="py-3">
+              <AdvisingNoteTopics :topics="topics" />
+              <PrivacyPermissions v-if="contextStore.currentUser.canAccessPrivateNotes" class="mt-4" />
+              <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
+                <div key="0" class="pt-4">
+                  <ContactMethod :is-peer-advising="!!noteStore.model.peerAdvisingDepartmentId" />
+                </div>
+                <div key="1" class="pt-4">
+                  <ManuallySetDate container-id="new-note-modal-container" />
+                </div>
+              </TransitionGroup>
+              <AdvisingNoteAttachments
+                :add="addNoteAttachments"
+                :attachments="noteStore.model.attachments"
+                class="pt-5"
+                :disabled="!!(noteStore.isSaving || noteStore.boaSessionExpired)"
+                :note="noteStore.model"
+                :remove="removeAttachmentByIndex"
+              />
+            </div>
+            <v-alert
+              v-if="alert"
+              id="alert-in-note-modal"
+              :model-value="alert && !!dismissAlertSeconds"
+              class="font-weight-bold w-100 mb-2"
+              color="info"
+              density="comfortable"
+              variant="tonal"
+            >
+              <div class="d-flex">
+                <div v-if="isSaving" class="mr-2">
+                  <v-icon :icon="mdiSync" spin />
+                </div>
+                <div>{{ alert }}</div>
+              </div>
+              <template #close>
+                <v-btn
+                  id="note-modal-alert-close-btn"
+                  aria-label="Dismiss alert"
+                  density="comfortable"
+                  :icon="mdiCloseCircle"
+                  size="large"
+                  variant="text"
+                  @click.prevent="dismissAlert"
+                />
+              </template>
+            </v-alert>
+          </v-card-text>
+          <CreateNoteFooter
+            :discard="discardRequested"
+            discard-button-color="error"
+            :exit="exit"
+            :save-as-template="saveAsTemplate"
+            :show-alert="showAlert"
+            :update-template="updateTemplate"
+          />
+        </div>
+      </v-card>
+    </v-dialog>
+    <AreYouSureModal
+      v-model="showDiscardNoteModal"
+      :function-cancel="cancelDiscardNote"
+      :function-confirm="discardNote"
+      modal-header="Discard unsaved note?"
+    />
+    <CreateTemplateModal
+      v-model="showCreateTemplateModal"
+      :cancel="cancelCreateTemplate"
+      :create="createTemplate"
+      :on-hidden="() => noteStore.setIsSaving(false)"
+    />
+    <AreYouSureModal
+      v-model="showDiscardTemplateModal"
+      :function-cancel="cancelDiscardTemplate"
+      :function-confirm="discardTemplate"
+      modal-header="Discard unsaved template?"
+    />
+  </div>
 </template>
 
 <script setup>

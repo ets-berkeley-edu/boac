@@ -1,15 +1,15 @@
 <template>
-  <div
-    v-if="!isOpen"
-    :id="`appointment-${appointment.id}-is-closed`"
-    class="appointment-snippet-when-closed"
-  >
-    <span
-      :id="`appointment-${appointment.id}-details-closed`"
-      v-html="summarizeNoteForAcademicTimeline(appointment, !isOpen)"
-    />
-  </div>
   <div>
+    <div
+      v-if="!isOpen"
+      :id="`appointment-${appointment.id}-is-closed`"
+      class="appointment-snippet-when-closed"
+    >
+      <span
+        :id="`appointment-${appointment.id}-details-closed`"
+        v-html="summarizeNoteForAcademicTimeline(appointment, !isOpen)"
+      />
+    </div>
     <div class="advising-appointment-outer pb-3">
       <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
         <div v-if="appointment.appointmentTitle">

@@ -39,97 +39,94 @@
       flat
       multiple
     >
-      <template
+      <v-expansion-panel
         v-for="department in departments"
         :key="department.id"
+        :bg-color="department.isOpen ? 'pale-blue' : 'transparent'"
+        class="sortable-group"
+        :class="department.isOpen ? 'border-1 pb-6' : 'border-0'"
+        hide-actions
+        rounded
+        :value="department.deptCode"
+        @group:selected="open => onClickExpansionPanel(department, open.value)"
       >
-        <v-expansion-panel
-          :bg-color="department.isOpen ? 'pale-blue' : 'transparent'"
-          class="sortable-group"
-          :class="department.isOpen ? 'border-1 pb-6' : 'border-0'"
-          hide-actions
-          rounded
-          :value="department.deptCode"
-          @group:selected="open => onClickExpansionPanel(department, open.value)"
+        <v-expansion-panel-title
+          :id="`department-${department.deptCode.toLowerCase()}`"
+          class="pl-2 w-100"
         >
-          <v-expansion-panel-title
-            :id="`department-${department.deptCode.toLowerCase()}`"
-            class="pl-2 w-100"
-          >
-            <template #default="{expanded}">
-              <div class="align-center d-flex justify-space-between w-100">
-                <div class="align-center d-flex">
-                  <div class="expand-icon-container">
-                    <v-progress-circular
-                      v-if="department.isFetching"
-                      color="primary"
-                      indeterminate
-                      size="x-small"
-                      width="2"
-                    />
-                    <v-icon
-                      v-if="!department.isFetching"
-                      color="primary"
-                      :icon="expanded ? mdiMenuDown : mdiMenuRight"
-                      size="large"
-                    />
-                  </div>
-                  <h2 class="page-section-header-sub pr-8 text-primary">
-                    <span class="sr-only">{{ `${department.isOpen ? 'Hide' : 'Show'} details for ${department.deptName} ` }}</span>
-                    {{ department.deptName }}
-                  </h2>
+          <template #default="{expanded}">
+            <div class="align-center d-flex justify-space-between w-100">
+              <div class="align-center d-flex">
+                <div class="expand-icon-container">
+                  <v-progress-circular
+                    v-if="department.isFetching"
+                    color="primary"
+                    indeterminate
+                    size="x-small"
+                    width="2"
+                  />
+                  <v-icon
+                    v-if="!department.isFetching"
+                    color="primary"
+                    :icon="expanded ? mdiMenuDown : mdiMenuRight"
+                    size="large"
+                  />
                 </div>
-                <div v-if="department.isOpen && department.memberCount && !department.isFetching">
-                  {{ pluralize('advisor', department.users.length, {1: 'Only one'}) }} {{ department.users.length === 1 ? 'has' : 'have' }} {{ modeLabel }}s.
-                </div>
+                <h2 class="page-section-header-sub pr-8 text-primary">
+                  <span class="sr-only">{{ `${department.isOpen ? 'Hide' : 'Show'} details for ${department.deptName} ` }}</span>
+                  {{ department.deptName }}
+                </h2>
               </div>
-            </template>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <div v-if="department.isFetching" class="px-8 pt-8">
-              <v-progress-linear
-                color="primary"
-                height="2"
-                indeterminate
-                size="x-small"
-              />
+              <div v-if="department.isOpen && department.memberCount && !department.isFetching">
+                {{ pluralize('advisor', department.users.length, {1: 'Only one'}) }} {{ department.users.length === 1 ? 'has' : 'have' }} {{ modeLabel }}s.
+              </div>
             </div>
-            <div v-if="!department.isFetching" class="ml-12">
-              <div v-if="!department.memberCount" class="font-size-14 font-weight-bold text-medium-emphasis" :class="{'mb-3': department.users.length}">
-                <span v-if="!department.memberCount">
-                  No {{ modeLabel }}s
-                </span>
-              </div>
-              <div
-                v-for="(user, index) in department.users"
-                :id="`users-of-department-${department.deptCode.toLowerCase()}`"
-                :key="index"
-                :class="{'mt-3': index > 0}"
+          </template>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
+          <div v-if="department.isFetching" class="px-8 pt-8">
+            <v-progress-linear
+              color="primary"
+              height="2"
+              indeterminate
+              size="x-small"
+            />
+          </div>
+          <div v-if="!department.isFetching" class="ml-12">
+            <div v-if="!department.memberCount" class="font-size-14 font-weight-bold text-medium-emphasis" :class="{'mb-3': department.users.length}">
+              <span v-if="!department.memberCount">
+                No {{ modeLabel }}s
+              </span>
+            </div>
+            <div
+              v-for="(user, index) in department.users"
+              :id="`users-of-department-${department.deptCode.toLowerCase()}`"
+              :key="index"
+              :class="{'mt-3': index > 0}"
+            >
+              <h3 :id="`user-${user.uid}-name`" class="font-size-14">
+                <span class="sr-only">{{ modeLabel }}s of</span>
+                <span v-if="user.name">{{ user.name }}</span>
+                <span v-if="!user.name">UID: {{ user.uid }}</span>
+              </h3>
+              <ul
+                :id="`${mode}s-of-user-${user.uid}`"
+                :aria-labelledby="`user-${user.uid}`"
+                class="mt-1"
               >
-                <h3 :id="`user-${user.uid}-name`" class="font-size-14">
-                  <span class="sr-only">{{ modeLabel }}s of</span>
-                  <span v-if="user.name">{{ user.name }}</span>
-                  <span v-if="!user.name">UID: {{ user.uid }}</span>
-                </h3>
-                <ul
-                  :id="`${mode}s-of-user-${user.uid}`"
-                  :aria-labelledby="`user-${user.uid}`"
-                  class="mt-1"
-                >
-                  <li v-for="object in (mode === 'cohort' ? user.cohorts : user.curatedGroups)" :key="object.id" class="ml-8">
-                    <span v-if="object.domain === 'admitted_students'" class="mr-1">
-                      <v-icon class="vertical-bottom" color="warning" :icon="mdiStar" />
-                      <span class="sr-only">Star: Admitted Students {{ mode }}</span>
-                    </span>
-                    <router-link :id="`${mode}-${object.id}`" :to="`/${mode}/${object.id}`">{{ object.name }}</router-link>
-                    (<span :id="`${mode}-${object.id}-student-count`">{{ object.totalStudentCount }}</span><span class="sr-only">students</span>)
-                  </li>
-                </ul>
-              </div>
+                <li v-for="object in (mode === 'cohort' ? user.cohorts : user.curatedGroups)" :key="object.id" class="ml-8">
+                  <span v-if="object.domain === 'admitted_students'" class="mr-1">
+                    <v-icon class="vertical-bottom" color="warning" :icon="mdiStar" />
+                    <span class="sr-only">Star: Admitted Students {{ mode }}</span>
+                  </span>
+                  <router-link :id="`${mode}-${object.id}`" :to="`/${mode}/${object.id}`">{{ object.name }}</router-link>
+                  (<span :id="`${mode}-${object.id}-student-count`">{{ object.totalStudentCount }}</span><span class="sr-only">students</span>)
+                </li>
+              </ul>
             </div>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </template>
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
     </v-expansion-panels>
   </div>
 </template>

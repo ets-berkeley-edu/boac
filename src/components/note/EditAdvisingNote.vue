@@ -75,7 +75,7 @@
       :attachments="noteStore.model.attachments"
       class="mt-3"
       :disabled="isSaving || boaSessionExpired"
-      id-prefix="edit-note-"
+      id-prefix="edit-note"
       :is-read-only="true"
       :note="noteStore.model"
     />

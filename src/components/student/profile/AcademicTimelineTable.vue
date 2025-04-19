@@ -1,143 +1,145 @@
 <template>
-  <div v-if="isExpandAllAvailable" class="align-center d-flex flex-wrap font-size-14">
-    <h3 class="sr-only">Quick Links</h3>
-    <div class="pl-2 pb-2">
-      <v-btn
-        :id="`toggle-expand-all-${selectedFilter}s`"
-        class="px-1"
-        color="primary"
-        density="compact"
-        :disabled="!messagesVisible.length"
-        variant="text"
-        @click.prevent="toggleExpandAll"
-      >
-        <v-icon :icon="allExpanded ? mdiMenuDown : mdiMenuRight" />
-        <span class="text-no-wrap">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ selectedFilter }}s</span>
-      </v-btn>
-    </div>
-    <div v-if="showDownloadNotesLink" class="pl-3 pb-2" role="separator">|</div>
-    <div v-if="showDownloadNotesLink" class="pl-3 pb-2">
-      <a id="download-notes-link" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${selectedFilter}`">Download {{ selectedFilter }}s</a>
-    </div>
-    <div class="pl-3 pb-2" role="separator">|</div>
-    <div class="align-center d-flex pl-3 pb-2">
-      <label
-        :id="`timeline-${selectedFilter}s-query-label`"
-        :for="`timeline-${selectedFilter}s-query-input`"
-        class="font-weight-bold mb-0 mr-1 text-no-wrap v-btn--variant-plain"
-      >
-        Search {{ selectedFilter === 'eForm' ? 'eForm' : capitalize(selectedFilter) }}s:
-      </label>
-      <v-text-field
-        :id="`timeline-${selectedFilter}s-query-input`"
-        v-model="timelineQuery"
-        bg-color="pale-blue"
-        class="academic-timeline-search-input"
-        color="primary"
-        flat
-        hide-details
-        type="search"
-      />
-    </div>
-    <div v-if="showMyNotesToggle" class="pl-3 pb-2" role="separator">|</div>
-    <div v-if="showMyNotesToggle" class="pl-3 pb-2">
-      <div class="align-center d-flex font-weight-bold">
-        <label for="toggle-my-notes-button" class="mr-3" :class="showMyNotesOnly ? 'text-medium-emphasis' : 'text-primary'">
-          <span class="sr-only">Show </span>All {{ selectedFilter }}s
+  <div>
+    <div v-if="isExpandAllAvailable" class="align-center d-flex flex-wrap font-size-14">
+      <h3 class="sr-only">Quick Links</h3>
+      <div class="pl-2 pb-2">
+        <v-btn
+          :id="`toggle-expand-all-${selectedFilter}s`"
+          class="px-1"
+          color="primary"
+          density="compact"
+          :disabled="!messagesVisible.length"
+          variant="text"
+          @click.prevent="toggleExpandAll"
+        >
+          <v-icon :icon="allExpanded ? mdiMenuDown : mdiMenuRight" />
+          <span class="text-no-wrap">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ selectedFilter }}s</span>
+        </v-btn>
+      </div>
+      <div v-if="showDownloadNotesLink" class="pl-3 pb-2" role="separator">|</div>
+      <div v-if="showDownloadNotesLink" class="pl-3 pb-2">
+        <a id="download-notes-link" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${selectedFilter}`">Download {{ selectedFilter }}s</a>
+      </div>
+      <div class="pl-3 pb-2" role="separator">|</div>
+      <div class="align-center d-flex pl-3 pb-2">
+        <label
+          :id="`timeline-${selectedFilter}s-query-label`"
+          :for="`timeline-${selectedFilter}s-query-input`"
+          class="font-weight-bold mb-0 mr-1 text-no-wrap v-btn--variant-plain"
+        >
+          Search {{ selectedFilter === 'eForm' ? 'eForm' : capitalize(selectedFilter) }}s:
         </label>
-        <div class="mr-3">
-          <v-switch
-            id="toggle-my-notes-button"
-            v-model="showMyNotesOnly"
-            aria-label="Show Only My Notes"
-            density="compact"
-            color="primary"
-            hide-details
-            role="switch"
-          />
+        <v-text-field
+          :id="`timeline-${selectedFilter}s-query-input`"
+          v-model="timelineQuery"
+          bg-color="pale-blue"
+          class="academic-timeline-search-input"
+          color="primary"
+          flat
+          hide-details
+          type="search"
+        />
+      </div>
+      <div v-if="showMyNotesToggle" class="pl-3 pb-2" role="separator">|</div>
+      <div v-if="showMyNotesToggle" class="pl-3 pb-2">
+        <div class="align-center d-flex font-weight-bold">
+          <label for="toggle-my-notes-button" class="mr-3" :class="showMyNotesOnly ? 'text-medium-emphasis' : 'text-primary'">
+            <span class="sr-only">Show </span>All {{ selectedFilter }}s
+          </label>
+          <div class="mr-3">
+            <v-switch
+              id="toggle-my-notes-button"
+              v-model="showMyNotesOnly"
+              aria-label="Show Only My Notes"
+              density="compact"
+              color="primary"
+              hide-details
+              role="switch"
+            />
+          </div>
+          <label for="toggle-my-notes-button" :class="showMyNotesOnly ? 'text-primary' : 'text-medium-emphasis'">
+            <span class="sr-only">Show only </span>My {{ selectedFilter }}s
+          </label>
+          <span aria-live="polite" class="sr-only">Showing {{ showMyNotesOnly ? 'only my notes' : 'all notes' }}</span>
         </div>
-        <label for="toggle-my-notes-button" :class="showMyNotesOnly ? 'text-primary' : 'text-medium-emphasis'">
-          <span class="sr-only">Show only </span>My {{ selectedFilter }}s
-        </label>
-        <span aria-live="polite" class="sr-only">Showing {{ showMyNotesOnly ? 'only my notes' : 'all notes' }}</span>
       </div>
     </div>
-  </div>
-  <div
-    v-if="!searchResults && !messagesVisible.length"
-    id="zero-messages"
-    aria-live="polite"
-    class="font-size-16 font-weight-bold ml-6 my-4 text-medium-emphasis"
-  >
-    <span v-if="selectedFilter && showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s authored by you.</span>
-    <span v-if="selectedFilter && !showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s</span>
-    <span v-if="!selectedFilter">None</span>
-  </div>
-  <div v-if="searchResults" class="mb-2">
-    <h3 id="search-results-header" class="font-size-16">
-      {{ pluralize(`advising ${selectedFilter}`, searchResults.length, {1: 'One'}) }} for
-      <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
-      with '{{ trim(timelineQuery) }}'
-    </h3>
-  </div>
-  <div v-if="countPerActiveTab">
-    <table
-      id="timeline-messages"
-      :aria-rowcount="size(messages)"
-      class="w-100"
+    <div
+      v-if="!searchResults && !messagesVisible.length"
+      id="zero-messages"
+      aria-live="polite"
+      class="font-size-16 font-weight-bold ml-6 my-4 text-medium-emphasis"
     >
-      <caption class="sr-only">Academic Timeline: {{ activeTab === 'all' ? 'All Messages' : `${capitalize(activeTab)}s` }}</caption>
-      <colgroup>
-        <col class="column-pill">
-        <col class="column-message">
-        <col class="column-details">
-        <col class="column-date">
-      </colgroup>
-      <thead>
-        <tr class="sr-only">
-          <th>Type</th>
-          <th>Summary</th>
-          <th>Details</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="creatingNoteEvent" class="message-row-read message-row border-t-sm border-b-sm">
-          <td class="column-pill">
-            <v-chip
-              :id="`timeline-tab-${activeTab}-pill-creating-note`"
-              class="border pill-note font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
-              color="category-note"
-              density="compact"
-              label
-              variant="flat"
-            >
-              <span class="sr-only">Creating new</span> advising note
-            </v-chip>
-          </td>
-          <td class="column-message">
-            <div class="d-flex px-2">
-              <div class="pr-2">
-                <v-progress-circular indeterminate size="16" width="2" />
+      <span v-if="selectedFilter && showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s authored by you.</span>
+      <span v-if="selectedFilter && !showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s</span>
+      <span v-if="!selectedFilter">None</span>
+    </div>
+    <div v-if="searchResults" class="mb-2">
+      <h3 id="search-results-header" class="font-size-16">
+        {{ pluralize(`advising ${selectedFilter}`, searchResults.length, {1: 'One'}) }} for
+        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
+        with '{{ trim(timelineQuery) }}'
+      </h3>
+    </div>
+    <div v-if="countPerActiveTab">
+      <table
+        id="timeline-messages"
+        :aria-rowcount="size(messages)"
+        class="w-100"
+      >
+        <caption class="sr-only">Academic Timeline: {{ activeTab === 'all' ? 'All Messages' : `${capitalize(activeTab)}s` }}</caption>
+        <colgroup>
+          <col class="column-pill">
+          <col class="column-message">
+          <col class="column-details">
+          <col class="column-date">
+        </colgroup>
+        <thead>
+          <tr class="sr-only">
+            <th>Type</th>
+            <th>Summary</th>
+            <th>Details</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="creatingNoteEvent" class="message-row-read message-row border-t-sm border-b-sm">
+            <td class="column-pill">
+              <v-chip
+                :id="`timeline-tab-${activeTab}-pill-creating-note`"
+                class="border pill-note font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
+                color="category-note"
+                density="compact"
+                label
+                variant="flat"
+              >
+                <span class="sr-only">Creating new</span> advising note
+              </v-chip>
+            </td>
+            <td class="column-message">
+              <div class="d-flex px-2">
+                <div class="pr-2">
+                  <v-progress-circular indeterminate size="16" width="2" />
+                </div>
+                <div class="text-medium-emphasis">
+                  {{ creatingNoteEvent.subject }}
+                </div>
               </div>
-              <div class="text-medium-emphasis">
-                {{ creatingNoteEvent.subject }}
+            </td>
+            <td class="column-details" />
+            <td class="column-date">
+              <div class="pr-2 float-right text-no-wrap text-medium-emphasis">
+                <TimelineDate
+                  :date="new Date()"
+                  :include-time-of-day="false"
+                />
               </div>
-            </div>
-          </td>
-          <td class="column-details" />
-          <td class="column-date">
-            <div class="pr-2 float-right text-no-wrap text-medium-emphasis">
-              <TimelineDate
-                :date="new Date()"
-                :include-time-of-day="false"
-              />
-            </div>
-          </td>
-        </tr>
-        <template v-for="(message, index) in messagesVisible" :key="index">
+            </td>
+          </tr>
           <tr
+            v-for="(message, index) in messagesVisible"
             :id="`permalink-${message.type}-${message.id}`"
+            :key="index"
             :aria-labelledby="getRowAriaLabelledBy(message, index)"
             :aria-rowindex="index + 1"
             :class="{'message-row-read': message.read}"
@@ -380,39 +382,39 @@
               </div>
             </td>
           </tr>
-        </template>
-      </tbody>
-    </table>
-  </div>
-  <div v-if="offerShowAll" class="text-center mb-4 mt-2">
-    <v-btn
-      :id="`timeline-tab-${activeTab}-previous-messages`"
-      aria-controls="timeline-messages"
-      :aria-expanded="isShowingAll"
-      class="text-no-wrap"
-      color="primary"
-      density="comfortable"
-      variant="text"
-      @click="toggleShowAll"
+        </tbody>
+      </table>
+    </div>
+    <div v-if="offerShowAll" class="text-center mb-4 mt-2">
+      <v-btn
+        :id="`timeline-tab-${activeTab}-previous-messages`"
+        aria-controls="timeline-messages"
+        :aria-expanded="isShowingAll"
+        class="text-no-wrap"
+        color="primary"
+        density="comfortable"
+        variant="text"
+        @click="toggleShowAll"
+      >
+        <v-icon :icon="isShowingAll ? mdiMenuUp : mdiMenuRight" />
+        {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
+      </v-btn>
+    </div>
+    <AreYouSureModal
+      v-model="showDeleteConfirmModal"
+      button-label-confirm="Delete"
+      :function-cancel="cancelTheDelete"
+      :function-confirm="deleteConfirmed"
+      modal-header="Delete note"
     >
-      <v-icon :icon="isShowingAll ? mdiMenuUp : mdiMenuRight" />
-      {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
-    </v-btn>
+      Are you sure you want to delete the note
+      <span v-if="get(messageForDelete, 'subject')">
+        with subject "<span class="font-weight-bold text-medium-emphasis">{{ messageForDelete.subject }}</span>"?
+      </span>
+      <span v-if="messageForDelete && !get(messageForDelete, 'subject')">
+        containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(messageForDelete.body), {length: 30}) }}...</span>"?</span>
+    </AreYouSureModal>
   </div>
-  <AreYouSureModal
-    v-model="showDeleteConfirmModal"
-    button-label-confirm="Delete"
-    :function-cancel="cancelTheDelete"
-    :function-confirm="deleteConfirmed"
-    modal-header="Delete note"
-  >
-    Are you sure you want to delete the note
-    <span v-if="get(messageForDelete, 'subject')">
-      with subject "<span class="font-weight-bold text-medium-emphasis">{{ messageForDelete.subject }}</span>"?
-    </span>
-    <span v-if="messageForDelete && !get(messageForDelete, 'subject')">
-      containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(messageForDelete.body), {length: 30}) }}...</span>"?</span>
-  </AreYouSureModal>
 </template>
 
 <script setup>

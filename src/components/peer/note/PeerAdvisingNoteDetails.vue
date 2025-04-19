@@ -63,7 +63,7 @@
         :attachments="noteDetails.attachments"
         class="attachments-edit mt-3"
         :disabled="false"
-        :id-prefix="`note-${noteDetails.id}-`"
+        :id-prefix="`note-${noteDetails.id}`"
         :is-downloadable="true"
         :is-read-only="true"
         :note="noteDetails"

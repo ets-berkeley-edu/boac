@@ -1,7 +1,6 @@
 <template>
   <div>
     <label
-      :id="`${idPrefix}-attachments-list-label`"
       class="d-inline-block font-size-16 font-weight-bold"
       :for="`${idPrefix}-attachments-list`"
     >
@@ -24,7 +23,7 @@
         </div>
         <v-btn
           v-if="!isAdding"
-          :id="`${idPrefix}choose-file-for-note-attachment-btn`"
+          :id="`${inputId}-btn`"
           class="bg-white"
           color="black"
           :disabled="disabled"
@@ -54,6 +53,7 @@
         :model-value="attachments"
         multiple
         :prepend-icon="null"
+        role="button"
         :variant="disabled ? 'outlined' : 'solo-filled'"
         @click:control="onClickBrowseForAttachment"
         @update:model-value="onAttachmentsInput"
@@ -65,7 +65,7 @@
     </div>
     <v-alert
       v-if="attachmentError"
-      :id="`${idPrefix}attachment-error`"
+      :id="`${idPrefix}-attachment-error`"
       aria-live="polite"
       class="font-size-14 w-100 mb-1 mt-2"
       density="compact"
@@ -76,7 +76,7 @@
     />
     <v-alert
       v-if="attachmentLimitReached"
-      :id="`${idPrefix}attachment-limit`"
+      :id="`${idPrefix}-attachment-limit`"
       aria-live="polite"
       class="w-100 mt-2"
       density="compact"
@@ -86,8 +86,7 @@
       <v-alert-title class="text-warning-darken-1 font-size-16">A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.</v-alert-title>
     </v-alert>
     <ul
-      :id="`${idPrefix}attachments-list`"
-      :aria-labelledby="`${idPrefix}-attachments-list-label`"
+      :id="`${idPrefix}-attachments-list`"
       class="list-no-bullets advising-note-pill-list mt-1"
     >
       <li
@@ -95,7 +94,7 @@
         :key="index"
       >
         <PillItem
-          :id="`${idPrefix}attachment-${index}`"
+          :id="`${idPrefix}-attachment-${index}`"
           :aria-label="isDownloadable ? `Download attachment ${attachment.displayName}` : null"
           :closable="canRemoveAttachments"
           :disabled="disabled"
@@ -140,7 +139,7 @@ const props = defineProps({
     type: Boolean
   },
   idPrefix: {
-    default: '',
+    default: 'note',
     required: false,
     type: String
   },
@@ -173,10 +172,10 @@ const attachmentLimitReached = computed(() => {
 })
 const canRemoveAttachments = ref(false)
 const currentUser = reactive(contextStore.currentUser)
-const inputId = `${props.idPrefix}choose-file-for-note-attachment`
+const inputId = `${props.idPrefix}-choose-file-for-note-attachment`
 const isAdding = ref(false)
 let progressBarAlert
-const progressBarId = `${props.idPrefix}note-attachment-progress`
+const progressBarId = `${props.idPrefix}-attachment-progress`
 
 watch(isAdding, v => {
   if (v) {
@@ -189,6 +188,7 @@ watch(isAdding, v => {
       const id = progressBarId
       progressBar.removeAttribute('aria-valuemin')
       progressBar.removeAttribute('aria-valuemax')
+      progressBar.removeAttribute('aria-hidden')
       progressBar.setAttribute('aria-label', 'Attachment file upload')
       progressBar.setAttribute('aria-valuetext', 'Uploading attachments...')
       progressBar.setAttribute('tabindex', '0')
@@ -264,7 +264,7 @@ const onRemoveAttachment = index => {
   const lastItemIndex = size(props.attachments) - 1
   if (lastItemIndex > 0) {
     const nextFocusIndex = (index === lastItemIndex ) ? index - 1 : index
-    putFocusNextTick(`remove-${props.idPrefix}attachment-${nextFocusIndex}-btn`)
+    putFocusNextTick(`remove-${props.idPrefix}-attachment-${nextFocusIndex}-btn`)
   } else {
     putFocusNextTick(inputId)
   }

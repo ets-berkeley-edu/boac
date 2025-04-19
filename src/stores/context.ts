@@ -38,6 +38,7 @@ export const useContextStore = defineStore('context', {
     dismissedServiceAnnouncement: false,
     eventHub: mitt(),
     gaMeasurementId: undefined as string | undefined,
+    isModalOpen: false,
     loading: false,
     loadingStartTime: undefined as number | undefined,
     noteContactTypes: [] as NoteContactType[],
@@ -152,6 +153,9 @@ export const useContextStore = defineStore('context', {
     },
     setEventHandler(type: string, handler: Handler) {
       this.eventHub.on(type, handler)
+    },
+    setIsModalOpen(isOpen: boolean) {
+      this.isModalOpen = isOpen
     },
     setMyDraftNoteCount(count: number) {
       this.currentUser.myDraftNoteCount = count

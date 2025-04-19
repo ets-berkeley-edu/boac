@@ -116,8 +116,8 @@
                   </thead>
                   <tbody>
                     <tr
-                      v-for="(row, index) in report.boa.peerAdvising.noteCountByUniversityDepartment"
-                      :key="index"
+                      v-for="(row, rowIndex) in report.boa.peerAdvising.noteCountByUniversityDepartment"
+                      :key="rowIndex"
                     >
                       <td :id="`peer-advising-dept-name-${row.deptCode}`" class="border-b-sm border-e-sm px-2 py-1 font-weight-bold">
                         {{ row.deptName }}

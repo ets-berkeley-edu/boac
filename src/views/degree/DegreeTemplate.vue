@@ -20,9 +20,7 @@
         </v-col>
       </v-row>
     </v-container>
-  </div>
-  <div v-if="contextStore.config.isVueAppDebugMode">
-    <DebugTemplate />
+    <DebugTemplate v-if="contextStore.config.isVueAppDebugMode" />
   </div>
 </template>
 
