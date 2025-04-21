@@ -5,14 +5,12 @@
       id="notes-for-peer-advisor-view"
       class="mt-5 w-100"
     >
-      <thead>
+      <thead :class="{'sr-only': smAndDown}">
         <tr>
           <th class="border-b-md th-student">Student</th>
           <th class="border-b-md th-note">Note</th>
           <th class="border-b-md th-topics">Topic(s)</th>
-          <th class="border-b-md th-created-date">
-            <div class="float-right pr-2">Date Created</div>
-          </th>
+          <th class="border-b-md th-created-date text-right">Date Created</th>
         </tr>
       </thead>
       <tbody>
@@ -20,44 +18,32 @@
           v-for="(note, index) in notes"
           :id="`tr-peer-advisor-note-${note.id}`"
           :key="index"
-          :class="expandedNoteIds.includes(note.id) ? 'bg-sky-blue' : (index % 2 === 0 ? '' : 'bg-surface-light')"
+          :class="{
+            'bg-sky-blue': expandedNoteIds.includes(note.id),
+            'bg-surface-light': (index % 2 === 0),
+            'border-b-md': smAndDown && index === notes.length - 1
+          }"
         >
           <td
             :id="`td-note-${note.id}-student`"
-            :class="{
-              'border-b-md': index === notes.length - 1,
-              'pl-5 pt-3': smAndDown,
-              'pl-2 pt-2': expandedNoteIds.includes(note.id)
-            }"
+            :class="{'border-b-md': !smAndDown && index === notes.length - 1}"
             class="font-weight-bold text-medium-emphasis td-student"
           >
-            <div
-              v-if="note.student"
+            <router-link
+              v-if="currentUser.isAdmin"
+              :id="`note-${note.id}-link-to-student`"
               :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
             >
-              <router-link
-                v-if="currentUser.isAdmin"
-                :id="`note-${note.id}-link-to-student`"
-                :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
-              >
-                <span v-html="lastNameFirst(note.student)" />
-              </router-link>
-              <div v-if="!currentUser.isAdmin">
-                <span v-html="`${getStudentName(note)}`" />
-              </div>
-            </div>
-            <div v-if="!note.student">
-              SID: {{ note.sid }}
+              {{ note.student ? lastNameFirst(note.student) : getStudentName(note) }}
+            </router-link>
+            <div v-if="!currentUser.isAdmin" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+              {{ getStudentName(note) }}
             </div>
           </td>
           <td
             :id="`td-note-${note.id}-body`"
-            :class="{
-              'border-b-md': index === notes.length - 1,
-              'pl-5': smAndDown,
-              'py-2': expandedNoteIds.includes(note.id)
-            }"
+            :class="{'border-b-md': !smAndDown && index === notes.length - 1}"
             class="td-note"
             :colspan="expandedNoteIds.includes(note.id) ? 2 : 1"
           >
@@ -65,12 +51,13 @@
               <div v-if="!expandedNoteIds.includes(note.id)">
                 <button
                   :id="`open-peer-advising-${note.id}`"
-                  :aria-describedby="`td-note-${note.id}-student td-note-${note.id}-created-at`"
                   :aria-expanded="false"
-                  class="align-center d-flex text-primary w-100"
+                  :aria-label="`Expand message ${getNoteLabel(note, index)}`"
+                  class="toggle-note-btn align-center d-flex px-3 text-capitalize text-primary v-btn"
                   :class="{'demo-mode-blur': currentUser.inDemoMode}"
                   @click="() => toggleShowHide(note)"
                 >
+                  <span class="v-btn__overlay" />
                   <span class="truncate-with-ellipsis" v-html="stripHtmlAndTrim(note.body)" />
                   <span v-if="note.attachments.length" class="ml-2">
                     <span class="sr-only">Has attachment(s)</span>
@@ -81,19 +68,17 @@
             </v-expand-transition>
             <v-expand-transition>
               <div v-if="expandedNoteIds.includes(note.id)">
-                <div class="margins-of-hide-note-btn">
-                  <v-btn
-                    :id="`show-note-${note.id}-details`"
-                    :aria-expanded="true"
-                    :aria-label="`Close note for ${getStudentName(note)}`"
-                    color="primary"
-                    density="compact"
-                    :prepend-icon="mdiCloseCircle"
-                    text="Close Message"
-                    variant="text"
-                    @click="toggleShowHide(note)"
-                  />
-                </div>
+                <v-btn
+                  :id="`show-note-${note.id}-details`"
+                  :aria-expanded="true"
+                  :aria-label="`Close message ${getNoteLabel(note, index)}`"
+                  class="toggle-note-btn px-4"
+                  color="primary"
+                  :prepend-icon="mdiCloseCircle"
+                  text="Close Message"
+                  variant="text"
+                  @click="toggleShowHide(note)"
+                />
                 <PeerAdvisingNoteDetails class="my-3" :note="note" />
               </div>
             </v-expand-transition>
@@ -102,10 +87,9 @@
             v-if="!expandedNoteIds.includes(note.id)"
             :id="`td-note-${note.id}-topics`"
             :class="{
-              'border-b-md': index === notes.length - 1,
-              'pl-5': smAndDown,
-              'td-topics': !smAndDown
+              'border-b-md': !smAndDown && index === notes.length - 1
             }"
+            class="td-topics"
           >
             <div class="align-center d-flex font-weight-medium justify-space-between w-100">
               <span
@@ -115,25 +99,21 @@
               >
                 {{ note.topics.join(', ') }}
               </span>
-              <span v-if="!note.topics.length && !smAndDown" class="text-medium-emphasis">&mdash;</span>
+              <span v-if="!note.topics.length && !smAndDown">
+                <span aria-hidden="true" class="text-medium-emphasis">&mdash;</span>
+                <span class="sr-only">blank</span>
+              </span>
             </div>
           </td>
           <td
             :id="`td-note-${note.id}-created-at`"
             :class="{
-              'border-b-md': index === notes.length - 1,
-              'demo-mode-blur': currentUser.inDemoMode,
-              'pl-5': smAndDown,
-              'pr-2 pt-2': expandedNoteIds.includes(note.id)
+              'border-b-md': !smAndDown && index === notes.length - 1,
+              'demo-mode-blur': currentUser.inDemoMode
             }"
-            class="td-created-date"
+            class="td-created-date text-right"
           >
-            <div
-              :class="{'pb-3': smAndDown, 'float-right': !smAndDown}"
-              class="pr-2"
-            >
-              {{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}
-            </div>
+            {{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}
           </td>
         </tr>
       </tbody>
@@ -166,7 +146,7 @@ import {lastNameFirst, putFocusNextTick, stripHtmlAndTrim, studentRoutePath} fro
 import {useContextStore} from '@/stores/context'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 
-defineProps({
+const props = defineProps({
   notes: {
     required: true,
     type: Array<Note>
@@ -186,6 +166,10 @@ const currentUser = contextStore.currentUser
 const expandedNoteIds = ref<number[]>([])
 const {smAndDown} = useDisplay()
 
+const getNoteLabel = (note: Note, index: number) => {
+  return `${index + 1} of ${size(props.notes) || 'unknown'}, ${getStudentName(note)}, dated ${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}. ${stripHtmlAndTrim(note.body)}`
+}
+
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 
 const toggleShowHide = (note: Note) => {
@@ -203,63 +187,75 @@ const toggleShowHide = (note: Note) => {
 <style scoped>
 @media (max-width: 959px) {
   .table-container {
+    min-width: 300px;
     overflow: hidden; /* Prevent horizontal scrollbar */
   }
-  table {
+  table, tbody, tr {
     border-collapse: collapse;
     display: block; /* Allow table to stack vertically */
-    width: 100%;
   }
-  thead {
-    display: none;
-  }
-  th, td {
+  td {
     display: block; /* Allow cells to stack vertically */
-    width: 100%;
+    max-width: unset !important;
+    padding: 2px 20px !important;
+    width: 100% !important;
   }
-  th {
-    font-weight: bold; /* Make headers bold */
+  td.td-created-date {
+    position: absolute;
+    top: 12px;
   }
-}
-.margins-of-hide-note-btn {
-  margin-left: -15px;
+  td.td-student {
+    max-width: 100px !important;
+  }
+  tr {
+    padding: 12px 0;
+    position: relative;
+  }
 }
 .td-created-date {
-  max-width: 120px !important;
-  padding: 5px 0;
+  min-width: 125px;
+  padding: 8px 5px;
   text-wrap: nowrap;
   vertical-align: top;
-  width: 120px !important;
+  width: 125px;
 }
 .td-note {
-  width: 542px !important;
-  max-width: 542px !important;
-  padding: 5px;
+  max-width: 300px;
+  padding: 8px 5px;
   vertical-align: top;
+  width: 60%;
 }
 .td-student {
-  max-width: 230px !important;
-  padding: 5px;
+  max-width: 250px;
+  min-width: 150px;
+  padding: 8px 5px;
   vertical-align: top;
-  width: 230px !important;
+  width: 15%;
 }
 .td-topics {
-  max-width: 100px !important;
-  padding: 5px;
+  max-width: 200px;
+  padding: 8px 5px;
   vertical-align: top;
+  width: 25%;
 }
 .th-created-date {
-  padding: 5px 0;
+  padding: 5px;
   text-wrap: nowrap;
 }
 .th-note {
   padding: 5px;
 }
 .th-student {
-  font-weight: bold;
   padding: 5px;
 }
 .th-topics {
   padding: 5px;
+}
+.toggle-note-btn {
+  height: 24px;
+  justify-content: start;
+  letter-spacing: normal;
+  margin-left: -13px;
+  width: 100%;
 }
 </style>

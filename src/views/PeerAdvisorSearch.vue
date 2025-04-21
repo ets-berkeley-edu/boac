@@ -1,13 +1,14 @@
 <template>
-  <div v-if="!contextStore.loading" class="mt-8 mx-16">
+  <div v-if="!contextStore.loading" class="mt-8 mx-8 mx-md-16">
     <div class="d-flex justify-space-between">
       <div>
         <h1 id="page-header">Peer Advising Search</h1>
         <div>
           {{ phrase }} <span class="font-weight-bold">{{ queryText }}</span>
-          |
+          <span :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
           <v-btn
-            class="text-blue-accent-2 mb-1 pl-0"
+            class="text-anchor mb-1 px-1"
+            role="link"
             variant="text"
             @click="clearResults"
           >
@@ -24,22 +25,23 @@
       />
       <div class="my-3 text-center">
         <v-btn
-          v-if="totalNoteCount > notes.length"
+          v-if="totalNoteCount > size(notes)"
           id="fetch-more-notes"
           text="Show additional advising notes"
           variant="text"
           @click.prevent="fetchNotes(contextStore.currentUser)"
         />
-        <SectionSpinner v-if="notes.length" :loading="isFetchingNotes" />
+        <SectionSpinner v-if="size(notes)" :loading="isFetchingNotes" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import {get, size} from 'lodash'
 import {onMounted, onUnmounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import type {BoaUser, Note} from '@/lib/types'
+import type {BoaUser, NoteSearchResult} from '@/lib/types'
 import PeerAdvisorNoteSearchResults from '@/components/peer/note/PeerAdvisorNoteSearchResults.vue'
 import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
 import {getUserByUid} from '@/api/user'
@@ -52,16 +54,16 @@ import SectionSpinner from '@/components/util/SectionSpinner.vue'
 const LIMIT_PER_FETCH = 50
 
 const contextStore = useContextStore()
-const searchStore = useSearchStore()
-const notes = ref<Note[]>([])
+const isFetchingNotes = ref(false)
+const notes = ref<NoteSearchResult[]>([])
+const offset = ref(0)
 const peerAdvisingDepartmentId = ref<number>(NaN)
 const peerAdvisor = ref<BoaUser>()
+const phrase = ref('')
 const route = useRoute()
 const router = useRouter()
+const searchStore = useSearchStore()
 const totalNoteCount = ref(0)
-const isFetchingNotes = ref(false)
-const offset = ref(0)
-const phrase = ref('')
 
 const queryText = ref(searchStore.queryText)
 
@@ -86,7 +88,7 @@ const fetchNotes = (user: BoaUser) => {
     peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
     searchStore.setQueryText(route.query.q || searchStore.queryText)
     alertScreenReader(`Searching for "${searchStore.queryText}"`)
-    offset.value = notes.value.length ? notes.value.length : 0
+    offset.value = get(notes.value, 'length', 0)
     isFetchingNotes.value = true
     peerAdvisorSearch(
       searchStore.queryText,
@@ -95,14 +97,14 @@ const fetchNotes = (user: BoaUser) => {
       LIMIT_PER_FETCH
     ).then(data => {
       const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0].id}`
-      notes.value.push(...data.notes.reverse())
+      notes.value = data.notes.reverse()
       totalNoteCount.value = data.totalNoteCount
       if (totalNoteCount.value === 0) {
-        phrase.value = 'No results found for '
-      } else if (notes.value.length < totalNoteCount.value) {
-        phrase.value = `Showing ${notes.value.length} of ${pluralize('result', totalNoteCount.value)} for `
+        phrase.value = 'No results found matching '
+      } else if (size(notes.value) < totalNoteCount.value) {
+        phrase.value = `Showing ${notes.value.length} of ${pluralize('result', totalNoteCount.value)} matching `
       } else {
-        phrase.value = `Showing ${pluralize('result', totalNoteCount.value)} for `
+        phrase.value = `Showing ${pluralize('result', totalNoteCount.value)} matching `
       }
       queryText.value = searchStore.queryText
       contextStore.loadingComplete('Peer advising notes have loaded')

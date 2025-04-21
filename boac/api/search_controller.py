@@ -104,6 +104,27 @@ def search_admits():
     return tolerant_jsonify(admit_results)
 
 
+@app.route('/api/search/peer_advising_notes', methods=['POST'])
+@peer_advisor_required
+def search_peer_advising_notes():
+    params = util.remove_none_values(request.get_json())
+
+    peer_advising_department_id = params.get('peerAdvisingDepartmentId', None)
+    search_phrase = util.get(params, 'searchPhrase', '').strip()
+    if not search_phrase:
+        raise BadRequestError('Invalid or empty search input')
+
+    if not peer_advising_department_id:
+        raise BadRequestError('Invalid peer advising department id')
+
+    return tolerant_jsonify(search_advising_notes(
+        search_phrase=search_phrase,
+        peer_advising_department_id=peer_advising_department_id,
+        limit=int(util.get(params, 'limit', 50)),
+        offset=int(util.get(params, 'offset', 0)),
+    ))
+
+
 @app.route('/api/search/add_to_search_history', methods=['POST'])
 @login_required
 def add_to_search_history():
@@ -355,24 +376,3 @@ def _notes_search(search_phrase, params):
         offset=offset,
         limit=limit,
     )
-
-
-@app.route('/api/peer_advising/notes/search', methods=['POST'])
-@peer_advisor_required
-def search_peer_advising_notes():
-    params = util.remove_none_values(request.get_json())
-
-    peer_advising_department_id = params.get('peerAdvisingDepartmentId', None)
-    search_phrase = util.get(params, 'searchPhrase', '').strip()
-    if not search_phrase:
-        raise BadRequestError('Invalid or empty search input')
-
-    if not peer_advising_department_id:
-        raise BadRequestError('Invalid peer advising department id')
-
-    return tolerant_jsonify(search_advising_notes(
-        search_phrase=search_phrase,
-        peer_advising_department_id=peer_advising_department_id,
-        limit=int(util.get(params, 'limit', 50)),
-        offset=int(util.get(params, 'offset', 0)),
-    ))

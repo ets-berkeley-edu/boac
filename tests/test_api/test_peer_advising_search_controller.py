@@ -61,7 +61,7 @@ def _api_search(
         expected_status_code=200,
 ):
     response = client.post(
-        '/api/peer_advising/notes/search',
+        '/api/search/peer_advising_notes',
         content_type='application/json',
         data=json.dumps({
             'searchPhrase': phrase,

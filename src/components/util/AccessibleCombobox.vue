@@ -241,11 +241,16 @@ const resultsSummaryInterval = ref(undefined)
 onMounted(() => {
   nextTick(() => {
     const combobox = getComboboxElement()
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (includes(['aria-controls', 'aria-expanded', 'aria-haspopup'], m.attributeName)) {
+          combobox.removeAttribute(m.attributeName)
+        }
+      }
+    })
     if (combobox) {
       combobox.setAttribute('role', 'none')
-      combobox.removeAttribute('aria-controls')
-      combobox.removeAttribute('aria-expanded')
-      combobox.removeAttribute('aria-haspopup')
+      observer.observe(combobox, {attributes: true})
     }
     const input = getInputElement()
     if (input) {
@@ -265,14 +270,12 @@ onMounted(() => {
 })
 
 onUpdated(() => {
-  nextTick(() => {
-    const combobox = getComboboxElement()
-    if (combobox) {
-      combobox.removeAttribute('aria-controls')
-      combobox.removeAttribute('aria-expanded')
-      combobox.removeAttribute('aria-haspopup')
-    }
-  })
+  const combobox = getComboboxElement()
+  if (combobox) {
+    combobox.removeAttribute('aria-controls')
+    combobox.removeAttribute('aria-expanded')
+    combobox.removeAttribute('aria-haspopup')
+  }
 })
 
 const getComboboxElement = () => {

@@ -107,7 +107,7 @@ const onUpdateSearch = debounce((input: string) => {
 const resetAutocomplete = () => {
   const input = getInputElement()
   if (input) {
-    input.setAttribute('disabled', 'false')
+    input.removeAttribute('disabled')
   }
   autoSuggestedStudents.value = []
   isFetchingStudents.value = false

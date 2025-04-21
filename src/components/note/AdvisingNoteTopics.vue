@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label id="note-topics-label" class="font-size-16 font-weight-bold">
+    <label :id="`note-topics-label-${noteId}`" class="font-size-16 font-weight-bold">
       Topic {{ size(options) === 1 ? 'Category' : 'Categories' }}
     </label>
     <div v-if="!readOnly && size(options)" class="mb-1 mt-2">
@@ -8,7 +8,7 @@
         id="add-topic-select-list"
         :key="noteStore.model.topics.length"
         v-model="selected"
-        aria-labelledby="note-topics-label"
+        :aria-labelledby="`note-topics-label-${noteId}`"
         autocomplete="off"
         class="bg-white select-menu"
         :class="{'w-100': xs}"
@@ -27,13 +27,13 @@
     </div>
     <div>
       <ul
-        id="note-topics-list"
+        :id="`note-topics-list-${noteId}`"
         class="advising-note-pill-list list-no-bullets mt-1"
-        aria-labelledby="note-topics-label"
+        :aria-labelledby="`note-topics-label-${noteId}`"
       >
         <li
           v-for="(topic, index) in (note ? note.topics : noteStore.model.topics)"
-          :id="`note-topic-${index}`"
+          :id="`note-topics-list-item-${noteId}-${index}`"
           :key="index"
         >
           <PillItem

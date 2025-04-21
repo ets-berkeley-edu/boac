@@ -51,7 +51,7 @@ export function search(
 export function peerAdvisorSearch(phrase: string, peerAdvisingDepartmentId: number, offset: number, limit: number) {
     $_track(phrase)
     return axios
-    .post(`${utils.apiBaseUrl()}/api/peer_advising/notes/search`, {
+    .post(`${utils.apiBaseUrl()}/api/search/peer_advising_notes`, {
       searchPhrase: phrase,
       peerAdvisingDepartmentId: peerAdvisingDepartmentId,
       offset: offset || 0,
