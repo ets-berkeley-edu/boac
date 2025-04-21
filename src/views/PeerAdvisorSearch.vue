@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import {get, size} from 'lodash'
+import {get, orderBy, size} from 'lodash'
 import {onMounted, onUnmounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import type {BoaUser, NoteSearchResult} from '@/lib/types'
@@ -97,7 +97,7 @@ const fetchNotes = (user: BoaUser) => {
       LIMIT_PER_FETCH
     ).then(data => {
       const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0].id}`
-      notes.value = data.notes.reverse()
+      notes.value = orderBy(data.notes, ['createdAt'], ['desc'])
       totalNoteCount.value = data.totalNoteCount
       if (totalNoteCount.value === 0) {
         phrase.value = 'No results found matching '

@@ -5,6 +5,7 @@
       id="notes-for-peer-advisor-view"
       class="mt-5 w-100"
     >
+      <caption class="sr-only">Search results, sorted by date created descending</caption>
       <thead :class="{'sr-only': !smAndUp}">
         <tr>
           <th class="border-b-md th-student">Student</th>
