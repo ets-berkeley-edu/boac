@@ -1,7 +1,6 @@
 <template>
   <div class="align-center d-flex" role="search">
     <div class="on-surface mr-2">
-      <label for="basic-search-input" class="sr-only">Search</label>
       <AccessibleCombobox
         :key="searchStore.autocompleteInputResetKey"
         :aria-description="`${labelForSearchInput()} (Type / to put focus in the search input field.)`"

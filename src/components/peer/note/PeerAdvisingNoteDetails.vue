@@ -4,10 +4,8 @@
       Loading...
     </div>
     <div v-if="noteDetails" :class="{'img-blur': currentUser.inDemoMode}">
-      <div>
-        <div v-if="noteDetails.subject" :id="`note-${noteDetails.id}-subject`">{{ noteDetails.subject }}</div>
-        <div :id="`note-${noteDetails.id}-body`" v-html="noteDetails.body" />
-      </div>
+      <div v-if="noteDetails.subject" :id="`note-${noteDetails.id}-subject`">{{ noteDetails.subject }}</div>
+      <div :id="`note-${noteDetails.id}-body`" v-html="noteDetails.body" />
       <div :id="`note-${noteDetails.id}-is-open`" class="w-100" :class="{'demo-mode-blur': currentUser.inDemoMode}">
         <div v-if="noteDetails.subject && noteDetails.body" class="open-note-message-container pt-2">
           <span :id="`note-${noteDetails.id}-message-open`" v-html="noteDetails.body" />

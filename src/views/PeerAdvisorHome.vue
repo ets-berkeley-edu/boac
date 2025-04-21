@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!contextStore.loading" class="mt-8 mx-16">
+  <div v-if="!contextStore.loading" class="mt-8 mx-8 mx-md-16">
     <div class="d-flex flex-wrap justify-space-between">
       <div>
         <h1 class="mb-0">Peer Advising Notes</h1>
