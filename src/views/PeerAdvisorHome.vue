@@ -50,6 +50,7 @@
 import type {Handler} from 'mitt'
 import {mdiFileDocument} from '@mdi/js'
 import {onMounted, onUnmounted, ref} from 'vue'
+import {orderBy} from 'lodash'
 import {useRoute, useRouter} from 'vue-router'
 import type {BasicStudent, BoaUser, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
@@ -108,7 +109,7 @@ const fetchNotes = () => {
         true
       ).then(data => {
         const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0].id}`
-        notes.value.push(...data.notes)
+        notes.value = orderBy(data.notes, ['createdAt'], ['desc'])
         totalNoteCount.value = data.totalNoteCount
         isFetchingNotes.value = false
         putFocusNextTick(putFocusId)

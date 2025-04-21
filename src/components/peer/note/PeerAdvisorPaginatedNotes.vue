@@ -5,6 +5,7 @@
       id="notes-for-peer-advisor-view"
       class="mt-5 w-100"
     >
+      <caption class="sr-only">Peer Advising notes, sorted by date created descending.</caption>
       <thead :class="{'sr-only': smAndDown}">
         <tr>
           <th class="border-b-md th-student">Student</th>
