@@ -136,7 +136,7 @@ class NoteTemplate(Base):
             body,
             note_template_id,
             subject='',
-            title='',
+            title=None,
             attachments=(),
             delete_attachment_ids=(),
             is_private=False,
@@ -148,7 +148,8 @@ class NoteTemplate(Base):
             note_template.body = body
             note_template.is_private = is_private
             note_template.subject = subject
-            note_template.title = title
+            if title:
+                note_template.title = title
             cls._update_note_template_topics(note_template, topics)
             if delete_attachment_ids:
                 cls._delete_attachments(note_template, delete_attachment_ids)
