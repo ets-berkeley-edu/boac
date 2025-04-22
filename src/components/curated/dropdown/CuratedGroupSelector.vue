@@ -48,12 +48,11 @@
           </button>
         </template>
         <v-list
-          v-model:selected="selectedCuratedGroups"
           :aria-label="`Select one or more ${domainLabel(true)}s`"
           class="pb-1"
           density="compact"
           max-height="400"
-          select-strategy="leaf"
+          :model-value="selectedCuratedGroups"
           variant="flat"
         >
           <v-list-item v-if="!size(myCuratedGroups)" disabled>
@@ -63,11 +62,13 @@
             v-for="group in myCuratedGroups"
             :id="`${idFragment}-${group.id}`"
             :key="group.id"
-            :aria-checked="!!find(selectedCuratedGroups, {'id': group.id})"
+            :aria-checked="!!find(selectedCuratedGroups, g => g.id === group.id)"
+            :aria-selected="undefined"
             class="v-list-item-override py-0"
             density="compact"
             role="checkbox"
             :value="group"
+            @click.stop="() => onClickListItem(group)"
             @focus="scrollToItem(`${idFragment}-${group.id}`)"
           >
             <template #prepend="{isSelected}">
@@ -131,7 +132,7 @@
 
 <script setup>
 import {computed, onMounted, onUnmounted, reactive, ref} from 'vue'
-import {filter as _filter, each, find, inRange, map, remove, size} from 'lodash'
+import {filter as _filter, each, find, findIndex, inRange, map, remove, size} from 'lodash'
 import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import {addStudentsToCuratedGroups, createCuratedGroup} from '@/api/curated'
@@ -238,6 +239,15 @@ const onCheckboxUnchecked = args => {
   if (props.domain === args.domain) {
     sids.value = remove(sids.value, s => s !== args.sid)
     refresh()
+  }
+}
+
+const onClickListItem = group => {
+  const index = findIndex(selectedCuratedGroups.value, g => g.id === group.id)
+  if (index >= 0) {
+    selectedCuratedGroups.value.splice(index, 1)
+  } else {
+    selectedCuratedGroups.value.push(group)
   }
 }
 

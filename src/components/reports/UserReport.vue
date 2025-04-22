@@ -1,11 +1,11 @@
 <template>
   <div class="pr-3">
     <v-data-table-server
-      v-model:expanded="expanded"
       class="responsive-data-table"
       density="compact"
       disable-pagination
       disable-sort
+      :expanded="expanded"
       :header-props="{class: 'font-size-14 font-weight-bold py-3 text-no-wrap'}"
       :headers="[
         {key: 'data-table-expand'},

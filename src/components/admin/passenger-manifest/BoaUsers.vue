@@ -7,8 +7,6 @@
       Showing {{ pluralize('user', totalUserCount) }}
     </div>
     <v-data-table-virtual
-      v-model:expanded="expanded"
-      v-model:items-per-page="itemsPerPage"
       :cell-props="data => {
         const padding = ['becomeUser', 'data-table-expand'].includes(data.column.key) ? 'px-0' : ''
         return {
@@ -19,6 +17,7 @@
       class="responsive-data-table v-table-hidden-row-override"
       disable-pagination
       :disable-sort="totalUserCount < 2"
+      :expanded="expanded"
       :headers="[
         {key: 'data-table-expand', sortable: false, title: '', width: 40},
         {align: 'start', key: 'uid', title: 'UID'},
@@ -222,7 +221,6 @@ const dialogs = ref([])
 const editUserModel = ref(undefined)
 const expanded = ref([])
 const isBecomingUid = ref(false)
-const itemsPerPage = 10
 
 watch(() => props.refresh, value => {
   if (value) {
