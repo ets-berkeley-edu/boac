@@ -44,6 +44,7 @@ export default [
     languageOptions: {
       globals: {
         ...globals.node,
+        ...globals.browser
       },
       parser: parser,
       parserOptions: {
@@ -133,7 +134,7 @@ export default [
       'vue/no-v-html': 0,
       'vue/no-v-for-template-key': 1,
       'vue/no-v-for-template-key-on-child': 2,
-      'vue/no-v-model-argument': 1,
+      'vue/no-v-model-argument': 2,
       'vue/no-v-text-v-html-on-component': 0,
       'vue/order-in-components': 2,
       'vue/require-default-prop': 2,

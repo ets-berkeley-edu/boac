@@ -51,12 +51,12 @@
         </button>
       </template>
       <v-list
-        v-model:selected="selectedGroupIds"
         :aria-label="`${props.student.name}\'s ${domainLabel(true)} memberships`"
         class="pb-1"
         density="compact"
         max-height="400"
-        select-strategy="leaf"
+        :model-value="selectedGroupIds"
+        selectable
         variant="flat"
       >
         <v-list-item v-if="!size(filteredCuratedGroups)" disabled>
@@ -67,17 +67,19 @@
           :id="`${idFragment}-${group.id}`"
           :key="group.id"
           :aria-checked="!!includes(selectedGroupIds, group.id)"
-          density="compact"
+          :aria-selected="undefined"
           class="v-list-item-override py-0"
+          density="compact"
           role="checkbox"
           :value="group.id"
+          @click.stop="() => onClickListItem(group.id)"
           @focus="scrollToItem(`${idFragment}-${group.id}`)"
         >
-          <template #prepend="{isSelected}">
+          <template #prepend>
             <v-list-item-action start>
               <v-checkbox-btn
                 :id="`${idFragment}-${group.id}-checkbox`"
-                :model-value="isSelected"
+                :model-value="!!includes(selectedGroupIds, group.id)"
                 class="mr-7 w-100"
                 color="primary"
                 density="compact"
@@ -132,8 +134,8 @@
 </template>
 
 <script setup>
-import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {filter as _filter, clone, difference, includes, map, noop, size, xor} from 'lodash'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {mdiCheckBold, mdiCloseThick, mdiMenuDown, mdiPlus} from '@mdi/js'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import {
@@ -178,7 +180,7 @@ const props = defineProps({
 
 const contextStore = useContextStore()
 
-const selectedGroupIds = ref(undefined)
+const selectedGroupIds = ref([])
 const confirmationTimeout = ref(1500)
 const currentUser = contextStore.currentUser
 const eventName = 'my-curated-groups-updated'
@@ -212,6 +214,15 @@ onUnmounted(() => {
 
 const domainLabel = capitalize => {
   return describeCuratedGroupDomain(props.domain, capitalize)
+}
+
+const onClickListItem = groupId => {
+  const index = selectedGroupIds.value.indexOf(groupId)
+  if (index >= 0) {
+    selectedGroupIds.value.splice(index, 1)
+  } else {
+    selectedGroupIds.value.push(groupId)
+  }
 }
 
 const onCreateCuratedGroup = name => {
