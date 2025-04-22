@@ -31,10 +31,10 @@ const StudentDegreeCreate = () => import('@/views/degree/StudentDegreeCreate.vue
 const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.vue')
 import type {NavigationGuardNext, RouteLocation, RouteRecordRaw} from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
-import {filter, get, includes, size, toString, trim} from 'lodash'
+import {get, toString, trim} from 'lodash'
 import type {BoaUser} from './lib/types'
 import PeerAdvisorHome from '@/views/PeerAdvisorHome.vue'
-import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import {getDeptCodesPerRoles, getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
 import {isAdvisor, isDirector, isPeerAdvisor} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
@@ -49,8 +49,6 @@ const $_goToLogin = (to: RouteLocation, next: NavigationGuardNext) => {
     }
   })
 }
-
-const $_isCE3 = user => !!size(filter(user.departments, d => d.deptCode === 'ZCEEE' && includes(['advisor', 'director'], d.role)))
 
 const $_requiresDegreeProgress = (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
   const currentUser: BoaUser = useContextStore().currentUser
@@ -292,7 +290,7 @@ const routes:RouteRecordRaw[] = [
       // Requires CE3
       const currentUser: BoaUser = useContextStore().currentUser
       if (currentUser.isAuthenticated) {
-        if (currentUser.isAdmin || $_isCE3(currentUser)) {
+        if (currentUser.isAdmin || getDeptCodesPerRoles(currentUser, ['advisor', 'director']).includes('ZCEEE')) {
           next()
         } else {
           next({path: '/404'})
