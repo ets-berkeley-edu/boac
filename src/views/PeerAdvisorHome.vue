@@ -109,7 +109,7 @@ const fetchNotes = () => {
         true
       ).then(data => {
         const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0].id}`
-        notes.value = orderBy(data.notes, ['createdAt'], ['desc'])
+        notes.value = orderBy([...notes.value, ...data.notes], ['createdAt'], ['desc'])
         totalNoteCount.value = data.totalNoteCount
         isFetchingNotes.value = false
         putFocusNextTick(putFocusId)
