@@ -81,10 +81,6 @@ class CohortAndGroupAdmitPages(CohortPages, ListViewAdmitPages):
         last_names = []
         parent_1_education_levels = []
         parent_2_education_levels = []
-        permanent_cities = []
-        permanent_countries = []
-        permanent_postals = []
-        permanent_street_1s = []
         reentry_statuses = []
         residency_categories = []
         urems = []
@@ -104,10 +100,6 @@ class CohortAndGroupAdmitPages(CohortPages, ListViewAdmitPages):
             last_names.append(r['last_name'])
             parent_1_education_levels.append(r['parent_1_education_level'])
             parent_2_education_levels.append(r['parent_2_education_level'])
-            permanent_cities.append(r['permanent_city'])
-            permanent_countries.append(r['permanent_country'])
-            permanent_postals.append(r['permanent_postal'])
-            permanent_street_1s.append(r['permanent_street_1'])
             reentry_statuses.append(r['reentry_status'])
             residency_categories.append(r['residency_category'])
             urems.append(r['urem'])
@@ -126,10 +118,6 @@ class CohortAndGroupAdmitPages(CohortPages, ListViewAdmitPages):
         assert list(filter(None, last_names)) == last_names
         assert list(filter(None, parent_1_education_levels)) == parent_1_education_levels
         assert list(filter(None, parent_2_education_levels)) == parent_2_education_levels
-        assert list(filter(None, permanent_cities)) == permanent_cities
-        assert list(filter(None, permanent_countries)) == permanent_countries
-        assert list(filter(None, permanent_postals)) == permanent_postals
-        assert list(filter(None, permanent_street_1s)) == permanent_street_1s
         assert list(filter(None, reentry_statuses)) == reentry_statuses
         assert list(filter(None, residency_categories)) == residency_categories
         assert list(filter(None, urems)) == urems
@@ -161,7 +149,6 @@ class CohortAndGroupAdmitPages(CohortPages, ListViewAdmitPages):
         student_dependents_nums = []
         student_incomes = []
         student_is_single_parents = []
-        summer_bridge_statuses = []
         transfer_gpas = []
         us_non_citizen_statuses = []
         for r in csv_reader:
@@ -188,7 +175,6 @@ class CohortAndGroupAdmitPages(CohortPages, ListViewAdmitPages):
             student_dependents_nums.append(r['student_dependents_num'])
             student_incomes.append(r['student_income'])
             student_is_single_parents.append(r['student_is_single_parent'])
-            summer_bridge_statuses.append(r['summer_bridge_status'])
             transfer_gpas.append(r['transfer_gpa'])
             us_non_citizen_statuses.append(r['us_non_citizen_status'])
         assert list(filter(None, application_fee_waiver_flags))
@@ -213,6 +199,5 @@ class CohortAndGroupAdmitPages(CohortPages, ListViewAdmitPages):
         assert list(filter(None, student_dependents_nums))
         assert list(filter(None, student_incomes))
         assert list(filter(None, student_is_single_parents))
-        assert list(filter(None, summer_bridge_statuses))
         assert list(filter(None, transfer_gpas))
         assert list(filter(None, us_non_citizen_statuses))

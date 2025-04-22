@@ -53,7 +53,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         utils.prepare_download_dir()
         self.click_export_list()
         self.when_present((By.ID, 'csv-column-options-0'), utils.get_short_timeout())
-        checkbox_count = 25 if Department.ADMIN in user.depts or Department.COE in user.depts else 24
+        checkbox_count = 26 if Department.ADMIN in user.depts or Department.COE in user.depts else 25
         for i in range(checkbox_count):
             self.click_element_js((By.ID, f'csv-column-options-{i}'), addl_pause=0.1)
         self.confirm_export(cohort)

@@ -477,8 +477,7 @@ class CreateNoteModal(Page):
     # TEMPLATES
 
     TEMPLATES_BUTTON = By.ID, 'my-templates-button'
-    TEMPLATE_BUTTON = By.XPATH, '//button[contains(@id, "load-note-template")]'
-    TEMPLATE_TITLE = By.XPATH, '//button[contains(@id, "load-note-template")]/div'
+    TEMPLATE_BUTTON = By.XPATH, '//div[starts-with(@id, "load-note-template")]'
     NO_TEMPLATES_MSG = By.XPATH, '//div[contains(text(), "You have no saved templates")]'
     DUPE_TEMPLATE_TITLE_MSG = By.XPATH, '//div[contains(text(), "You have an existing template with this name")]'
 
@@ -560,7 +559,7 @@ class CreateNoteModal(Page):
 
     def template_options(self):
         time.sleep(1)
-        return [el.text for el in self.elements(self.TEMPLATE_TITLE)]
+        return [el.text for el in self.elements(self.TEMPLATE_BUTTON)]
 
     @staticmethod
     def template_option_loc(template):

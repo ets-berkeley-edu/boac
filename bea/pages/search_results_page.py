@@ -303,12 +303,7 @@ class SearchResultsPage(ListViewAdmitPages):
         return self.el_text_if_exists(advisor_loc, '-')
 
     def appt_result_date(self, appt):
-        xpath = f'//div[@id="appointment-search-result-{appt.record_id}"]/div[contains(@class, "result-footer")]'
-        date_loc = By.XPATH, xpath
-        if self.is_present(date_loc):
-            return self.element(date_loc).text.split('-')[-1].strip()
-        else:
-            return None
+        return self.el_text_if_exists((By.ID, f'appointment-created-at-date-{appt.record_id}'))
 
     def click_appt_link(self, appt):
         self.wait_for_element_and_click(self.appt_link(appt))

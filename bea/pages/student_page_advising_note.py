@@ -36,6 +36,7 @@ from bea.models.notes_and_appts.timeline_e_form import TimelineEForm
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.pages.create_note_modal import CreateNoteModal
 from bea.pages.student_page_timeline import StudentPageTimeline
+from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
@@ -126,8 +127,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         }
 
     def collapsed_note_subject(self, note):
-        subj_loc = By.ID, f'note-{note.record_id}-subject'
-        return self.element(subj_loc).get_dom_attribute('innerText') if self.is_present(subj_loc) else None
+        return self.el_text_if_exists((By.ID, f'note-{note.record_id}-subject'))
 
     def collapsed_note_date(self, note):
         date_loc = By.ID, f'collapsed-note-{note.record_id}-created-at'
@@ -199,7 +199,10 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def expanded_note_permalink_url(self, note):
         permalink_loc = By.ID, f'advising-note-permalink-{note.record_id}'
-        return self.element(permalink_loc).get_dom_attribute('href') if self.is_present(permalink_loc) else None
+        if self.is_present(permalink_loc):
+            return f"{boa_utils.get_boa_base_url()}{self.element(permalink_loc).get_dom_attribute('href')}"
+        else:
+            return None
 
     def expanded_note_set_date(self, note):
         set_date_loc = By.ID, f'expanded-note-{note.record_id}-set-date'
@@ -250,11 +253,12 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         self.expand_item(note)
         utils.assert_existence(self.expanded_note_advisor(note))
 
-        advisor_peer_roles = [mem.peer_advising_role for mem in note.advisor.dept_memberships if mem.peer_advising_role]
-        if PeerAdvisingRole.PEER_ADVISOR in advisor_peer_roles:
-            utils.assert_existence(self.expanded_note_advisor_role(note))
-            utils.assert_existence(self.expanded_note_peer_dept(note))
-            utils.assert_existence(self.expanded_note_peer_dept_parent(note))
+        if note.advisor.dept_memberships:
+            advisor_peer_roles = [mem.peer_advising_role for mem in note.advisor.dept_memberships if mem.peer_advising_role]
+            if PeerAdvisingRole.PEER_ADVISOR in advisor_peer_roles:
+                utils.assert_existence(self.expanded_note_advisor_role(note))
+                utils.assert_existence(self.expanded_note_peer_dept(note))
+                utils.assert_existence(self.expanded_note_peer_dept_parent(note))
         elif note.source != TimelineRecordSource.EOP:
             utils.assert_existence(self.expanded_note_advisor_role(note))
             utils.assert_existence(self.expanded_note_advisor_depts(note))

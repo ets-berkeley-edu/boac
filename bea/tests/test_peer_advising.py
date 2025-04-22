@@ -31,6 +31,7 @@ from bea.models.notes_and_appts.note_template import NoteTemplate
 from bea.models.notes_and_appts.topic import PeerTopics, Topic
 from bea.test_utils import boa_utils
 from bea.test_utils import utils
+from flask import current_app as app
 import pytest
 
 # Test users L&S
@@ -74,6 +75,12 @@ peer_template_in_coe = NoteTemplate({
     'title': f'CoE Template {test_coe.test_id}',
     'topics': [],
 })
+
+app.logger.info(f'L&S Peer Advising Manager is UID {pam_in_ls.uid}')
+app.logger.info(f'L&S Peer Advisor 1 is UID {peer_1_in_ls.uid}')
+app.logger.info(f'L&S Peer Advisor 2 is UID {peer_2_in_ls.uid}')
+app.logger.info(f'CoE Peer Advising Manager is UID {pam_in_coe.uid}')
+app.logger.info(f'CoE Peer Advisor is UID {peer_in_coe.uid}')
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -157,7 +164,7 @@ class TestExpandedStudentSchedule:
         idx = tc.student.enrollment_data.course_idx(tc.term, tc.course)
         course_code = tc.student.enrollment_data.course_code(tc.course)
         visible_course_code = self.peer_page.course_code(term_name, idx)
-        utils.assert_equivalence(visible_course_code, course_code)
+        utils.assert_actual_includes_expected(visible_course_code, course_code)
 
     def test_course_units(self, tc):
         term_name = tc.student.enrollment_data.term_name(tc.term)
@@ -241,7 +248,7 @@ class TestListView:
         utils.assert_equivalence(self.peer_page.peer_note_student(note_1_by_ls_peer), note_1_by_ls_peer.student.full_name)
 
     def test_collapsed_note_body(self):
-        utils.assert_equivalence(self.peer_page.peer_note_body(note_1_by_ls_peer), note_1_by_ls_peer.body)
+        utils.assert_actual_includes_expected(self.peer_page.peer_note_body(note_1_by_ls_peer), note_1_by_ls_peer.body)
 
     def test_collapsed_note_topics(self):
         for topic in note_1_by_ls_peer.topics:

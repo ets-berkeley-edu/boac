@@ -33,7 +33,7 @@ from selenium.webdriver.common.by import By
 class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     PEER_NOTE_TABLE = By.ID, 'notes-for-peer-advisor-view'
-    PEER_NOTE_NO_RESULTS = By.XPATH, '//div[contains(text(), "No results found for")]'
+    PEER_NOTE_NO_RESULTS = By.XPATH, '//div[contains(text(), "No results found matching")]'
     SHOW_MORE_NOTES_BTN = By.ID, 'fetch-more-notes'
 
     def visible_peer_note_ids(self):

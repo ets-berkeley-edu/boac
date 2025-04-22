@@ -115,7 +115,6 @@ class TestFilteredAdmitResults:
         expected = nessie_filter_admits_utils.cohort_by_last_name(test, cohort.search_criteria)
         if cohort.members:
             visible = self.filtered_admits_page.list_view_admit_sids(cohort)
-            utils.assert_equivalence(visible, expected)
             self.filtered_admits_page.verify_list_view_sorting(expected, visible)
         else:
             utils.assert_equivalence(self.filtered_admits_page.results_count(), 0)

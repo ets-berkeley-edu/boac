@@ -225,7 +225,8 @@ def get_dept_advisors(dept, membership=None):
                          authorized_users.can_access_advising_data AS can_access_advising_data,
                          authorized_users.can_access_canvas_data AS can_access_canvas_data,
                          authorized_users.degree_progress_permission AS deg_prog_perm,
-                         string_agg(ud.dept_code,',') AS depts
+                         string_agg(ud.dept_code,',') AS depts,
+                         university_dept_members.role
                     FROM authorized_users
                     JOIN university_dept_members
                       ON authorized_users.id = university_dept_members.authorized_user_id
@@ -237,7 +238,8 @@ def get_dept_advisors(dept, membership=None):
                 GROUP BY authorized_users.uid,
                          authorized_users.can_access_advising_data,
                          authorized_users.can_access_canvas_data,
-                         authorized_users.degree_progress_permission"""
+                         authorized_users.degree_progress_permission,
+                         university_dept_members.role"""
     else:
         if membership:
             role_code = membership.advisor_role.value['code']
@@ -246,7 +248,8 @@ def get_dept_advisors(dept, membership=None):
                          authorized_users.can_access_advising_data AS can_access_advising_data,
                          authorized_users.can_access_canvas_data AS can_access_canvas_data,
                          authorized_users.degree_progress_permission AS deg_prog_perm,
-                         string_agg(ud2.dept_code,',') AS depts
+                         string_agg(ud2.dept_code,',') AS depts,
+                         udm1.role
                     FROM authorized_users
                     JOIN university_dept_members udm1
                       ON authorized_users.id = udm1.authorized_user_id
@@ -262,7 +265,8 @@ def get_dept_advisors(dept, membership=None):
                 GROUP BY authorized_users.uid,
                          authorized_users.can_access_advising_data,
                          authorized_users.can_access_canvas_data,
-                         authorized_users.degree_progress_permission"""
+                         authorized_users.degree_progress_permission,
+                         udm1.role"""
 
     app.logger.info(sql)
     result = db.session.execute(text(sql))
@@ -277,7 +281,10 @@ def get_dept_advisors(dept, membership=None):
             for dept in Department:
                 if dept.value['code'] == dc:
                     depts.append(dept)
-                    dept_memberships.append(dept)
+                    dept_memb = DepartmentMembership(advisor_role=row['role'],
+                                                     dept=dept,
+                                                     is_automated=None)
+                    dept_memberships.append(dept_memb)
 
         if row['deg_prog_perm'] == 'read':
             degree_progress_perm = DegreeCheckPerms.READ
@@ -421,17 +428,23 @@ def get_user_curated_groups(user, admits=False):
     return groups
 
 
-def get_everyone_filtered_cohorts(dept=None, admits=False):
+def get_everyone_filtered_cohorts(dept=None, admin=False, admits=False):
     cohorts = []
+    dept_join = """JOIN university_dept_members
+                     ON university_dept_members.authorized_user_id = authorized_users.id
+                   JOIN university_depts
+                     ON university_depts.id = university_dept_members.university_dept_id"""
     if dept:
-        dept_clause = f""" JOIN university_dept_members
-                             ON university_dept_members.authorized_user_id = authorized_users.id
-                           JOIN university_depts
-                             ON university_depts.id = university_dept_members.university_dept_id
-                          WHERE university_depts.dept_code = '{dept.value['code']}'"""
+        dept_cond = f"AND university_depts.dept_code = '{dept.value['code']}'"
     else:
-        dept_clause = ''
-    conjunction = 'AND' if dept else 'WHERE'
+        dept_cond = ''
+
+    if admin:
+        admin_cond = 'AND authorized_users.is_admin IS TRUE'
+        dept_join = ''
+    else:
+        admin_cond = ''
+
     domain = 'admitted_students' if admits else 'default'
 
     sql = f"""SELECT cohort_filters.id AS cohort_id,
@@ -442,7 +455,10 @@ def get_everyone_filtered_cohorts(dept=None, admits=False):
                 JOIN authorized_users
                   ON authorized_users.id = cohort_filters.owner_id
                  AND authorized_users.deleted_at IS NULL
-                {dept_clause} {conjunction} cohort_filters.domain = '{domain}'
+                {dept_join}
+               WHERE cohort_filters.domain = '{domain}'
+                 {admin_cond}
+                 {dept_cond}
             ORDER BY uid, cohort_id ASC"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
@@ -459,17 +475,23 @@ def get_everyone_filtered_cohorts(dept=None, admits=False):
     return cohorts
 
 
-def get_everyone_curated_groups(dept=None, admits=False):
+def get_everyone_curated_groups(dept=None, admin=False, admits=False):
     groups = []
+    dept_join = """JOIN university_dept_members
+                     ON university_dept_members.authorized_user_id = authorized_users.id
+                   JOIN university_depts
+                     ON university_depts.id = university_dept_members.university_dept_id"""
     if dept:
-        dept_clause = f""" JOIN university_dept_members
-                             ON university_dept_members.authorized_user_id = authorized_users.id
-                           JOIN university_depts
-                             ON university_depts.id = university_dept_members.university_dept_id
-                          WHERE university_depts.dept_code = '{dept.value['code']}'"""
+        dept_cond = f"AND university_depts.dept_code = '{dept.value['code']}'"
     else:
-        dept_clause = ''
-    conjunction = 'AND' if dept else 'WHERE'
+        dept_cond = ''
+
+    if admin:
+        admin_cond = 'AND authorized_users.is_admin IS TRUE'
+        dept_join = ''
+    else:
+        admin_cond = ''
+
     domain = 'admitted_students' if admits else 'default'
 
     sql = f"""SELECT student_groups.id AS group_id,
@@ -479,7 +501,10 @@ def get_everyone_curated_groups(dept=None, admits=False):
                 JOIN authorized_users
                   ON authorized_users.id = student_groups.owner_id
                  AND authorized_users.deleted_at IS NULL
-                {dept_clause} {conjunction} student_groups.domain = '{domain}'
+                {dept_join}
+               WHERE student_groups.domain = '{domain}'
+                 {admin_cond}
+                 {dept_cond}
             ORDER BY uid, group_id ASC"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
@@ -578,7 +603,7 @@ def get_peer_dept_note_ids(peer_dept_id=None):
                 FROM notes
                WHERE peer_advising_department_id {clause}
                  AND deleted_at IS NULL
-            ORDER BY updated_at DESC"""
+            ORDER BY created_at DESC"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)

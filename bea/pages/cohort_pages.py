@@ -36,7 +36,7 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 class CohortPages(BoaPages):
 
-    RESULTS = By.XPATH, '//h1'
+    RESULTS = By.XPATH, '//h1[contains(text(), "Result")]'
     EXPORT_LIST_BUTTON = By.ID, 'export-student-list-button'
     FERPA_WARNING_LINK = By.ID, 'ferpa-guide-external-href'
     EXPORT_LIST_CXL_BUTTON = By.ID, 'export-list-cancel'
@@ -48,7 +48,7 @@ class CohortPages(BoaPages):
 
     def results_count(self):
         time.sleep(2)
-        Wait(self.driver, utils.get_short_timeout())
+        self.when_present(self.RESULTS, utils.get_short_timeout())
         return int(self.element(self.RESULTS).text.split(' ')[0].replace(',', ''))
 
     def click_export_list(self):

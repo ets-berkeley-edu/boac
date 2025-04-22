@@ -311,6 +311,10 @@ class Page(object):
 
     # NAVIGATION AND KEYSTROKES
 
+    def navigate_to(self, url):
+        app.logger.info(f'Loading page at {url}')
+        self.driver.get(url)
+
     def reload_page(self):
         self.driver.refresh()
 

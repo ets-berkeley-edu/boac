@@ -140,7 +140,7 @@ class PeerAdvisorPage(PeerAdvisingNoteTable):
 
     # Create and verify note
 
-    PEER_NOTE_ATTACHMENT_INPUT = By.ID, 'choose-file-for-note-attachment'
+    PEER_NOTE_ATTACHMENT_INPUT = By.ID, 'note-choose-file-for-note-attachment'
 
     def save_and_wait_for_peer_note(self, note):
         self.click_save_new_note()
