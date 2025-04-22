@@ -215,7 +215,7 @@ class TestNoteMgmt:
 
     def test_view_new_note_hit_permalink(self):
         permalink = self.student_page.expanded_note_permalink_url(self.note_5)
-        self.driver.get(permalink)
+        self.student_page.navigate_to(permalink)
         self.student_page.when_present(self.student_page.expanded_item_loc(self.note_5), utils.get_short_timeout())
 
     def test_view_new_notes_in_right_order(self):

@@ -218,7 +218,7 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
 
     TOGGLE_FILTERS_VISIBILITY_BUTTON = By.ID, 'show-hide-details-button'
     SHOW_FILTERS_BUTTON = By.XPATH, '//button[contains(.,"Show Filters")]'
-    COHORT_FILTER_ROW = By.CLASS_NAME, 'filter-row'
+    COHORT_FILTER_ROW = By.XPATH, '//div[contains(@id, "filter-row-")]'
     COHORT_FILTERS_UNAVAILABLE = By.ID, 'cohort-filters-unavailable'
 
     def show_filters(self):

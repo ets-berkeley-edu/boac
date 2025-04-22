@@ -211,7 +211,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
     PEER_TEMPLATE_NAME_INPUT = By.ID, 'peer-advising-note-template-name-text'
     PEER_TEMPLATE_CANCEL_BTN = By.ID, 'cancel-peer-advising-note-template'
     PEER_TEMPLATE_SAVE_BTN = By.ID, 'save-new-peer-advising-note-template'
-    PEER_TEMPLATE_DUPE_NAME_MSG = By.XPATH, '//div[text()="Name already exists. Please choose a different name."]'
+    PEER_TEMPLATE_DUPE_NAME_MSG = By.XPATH, '//div[contains(text(), "A template with that name already exists")]'
 
     def enter_peer_template_name(self, name):
         app.logger.info(f'Entering peer advising template name {name}')

@@ -143,9 +143,11 @@ class PassengerManifestPage(Pagination):
             return {}
 
     def visible_dept_roles(self, user, dept):
-        loc = By.XPATH, f"//td[@id='td-user-{user.uid}-column-departments']//span[contains(., '{dept.value['name']}')]"
-        if self.is_present(loc):
-            return self.element(loc).text.split(' - ')[-1].lower()
+        loc = (By.XPATH,
+               f"//td[@id='td-user-{user.uid}-column-departments']//span[contains(., '{dept.value['name']}')]/following-sibling::span")
+        visible = self.el_text_if_exists(loc, ', ')
+        if visible:
+            return visible.lower()
         else:
             return ''
 

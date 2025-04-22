@@ -43,15 +43,8 @@ test = BEATestConfig()
 test.user_role_advisor()
 random.shuffle(test.students)
 
-all_cohorts = boa_utils.get_everyone_filtered_cohorts()
-admin_cohorts = boa_utils.get_everyone_filtered_cohorts(Department.ADMIN)
-admin_cohort_ids = [ac.cohort_id for ac in admin_cohorts]
-everyone_cohorts = [ec for ec in all_cohorts if ec.cohort_id not in admin_cohort_ids]
-
-all_groups = boa_utils.get_everyone_curated_groups()
-admin_groups = boa_utils.get_everyone_curated_groups(Department.ADMIN)
-admin_group_ids = [ag.cohort_id for ag in admin_groups]
-everyone_groups = [eg for eg in all_groups if eg.cohort_id not in admin_group_ids]
+admin_cohorts = boa_utils.get_everyone_filtered_cohorts(admin=True)
+admin_groups = boa_utils.get_everyone_curated_groups(admin=True)
 
 # ASC config
 test_asc = BEATestConfig()
@@ -146,6 +139,7 @@ class TestASCAdvisor:
 
     def test_cohorts_all(self):
         self.homepage.click_view_everyone_cohorts()
+        everyone_cohorts = boa_utils.get_everyone_filtered_cohorts()
         expected = [c.name for c in everyone_cohorts]
         expected.sort()
         visible = self.cohorts_all_page.visible_student_cohorts()
@@ -163,6 +157,7 @@ class TestASCAdvisor:
 
     def test_groups_all(self):
         self.homepage.click_view_everyone_groups()
+        everyone_groups = boa_utils.get_everyone_curated_groups()
         expected = [g.name for g in everyone_groups]
         expected.sort()
         visible = self.curated_all_page.visible_student_groups()
@@ -283,6 +278,7 @@ class TestCoEAdvisor:
         self.homepage.log_out()
         self.homepage.dev_auth(test_coe.advisor)
         self.homepage.click_view_everyone_cohorts()
+        everyone_cohorts = boa_utils.get_everyone_filtered_cohorts()
         expected = [c.name for c in everyone_cohorts]
         expected.sort()
         visible = self.cohorts_all_page.visible_student_cohorts()
@@ -306,6 +302,7 @@ class TestCoEAdvisor:
 
     def test_groups_all(self):
         self.homepage.click_view_everyone_groups()
+        everyone_groups = boa_utils.get_everyone_curated_groups()
         expected = [g.name for g in everyone_groups]
         expected.sort()
         visible = self.curated_all_page.visible_student_groups()
@@ -415,6 +412,7 @@ class TestLandSAdvisor:
         self.homepage.log_out()
         self.homepage.dev_auth(test_ls.advisor)
         self.homepage.click_view_everyone_cohorts()
+        everyone_cohorts = boa_utils.get_everyone_filtered_cohorts()
         expected = [c.name for c in everyone_cohorts]
         expected.sort()
         visible = self.cohorts_all_page.visible_student_cohorts()
@@ -451,6 +449,7 @@ class TestLandSAdvisor:
 
     def test_groups_all(self):
         self.homepage.click_view_everyone_groups()
+        everyone_groups = boa_utils.get_everyone_curated_groups()
         expected = [g.name for g in everyone_groups]
         expected.sort()
         visible = self.curated_all_page.visible_student_groups()
@@ -462,6 +461,7 @@ class TestLandSAdvisor:
             self.curated_students_page.hit_non_auth_group(admin_groups[0])
 
     def test_can_reach_group_belonging_to_other(self):
+        everyone_groups = boa_utils.get_everyone_curated_groups()
         group = next(filter(lambda c: c.owner_uid != test_ls.advisor.uid, everyone_groups))
         self.curated_students_page.load_page(group)
 
