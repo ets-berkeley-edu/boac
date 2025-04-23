@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="w-100">
     <div
       v-if="!isOpen"
       :id="`appointment-${appointment.id}-is-closed`"
