@@ -270,4 +270,7 @@ def _curated_group_with_complete_student_profiles(
 
 def _can_current_user_view_curated_group(curated_group):
     owner_id = curated_group.owner_id
-    return current_user.is_admin or bool(len(AuthorizedUser.find_by_id(owner_id).department_memberships))
+    return current_user.is_admin or (
+        bool(len(AuthorizedUser.find_by_id(owner_id).department_memberships))
+        and (current_user.can_access_admitted_students or curated_group.domain == 'default')
+    )

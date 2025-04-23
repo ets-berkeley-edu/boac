@@ -106,6 +106,20 @@ class TestGetCuratedGroup:
         admin_curated_groups = CuratedGroup.get_curated_groups(AuthorizedUser.get_id_per_uid(admin_uid))
         _api_get_curated_group(client, admin_curated_groups[0].id, expected_status_code=403)
 
+    def test_non_ce3_advisor_cannot_see_admit_curated_group(self, client, fake_auth):
+        """403 if non-CE3 advisor tries to access admitted students curated group."""
+        fake_auth.login(ce3_advisor_uid)
+        curated_group = _api_curated_group_create(
+            client=client,
+            domain='admitted_students',
+            name='Curated admits',
+            sids=['11667051'],
+        )
+        curated_group_id = curated_group['id']
+
+        fake_auth.login(coe_advisor_uid)
+        _api_get_curated_group(client, curated_group_id, expected_status_code=403)
+
     def test_curated_group_includes_alert_count(self, client, fake_auth, create_alerts):  # noqa: ARG002
         """Includes alert count per student."""
         fake_auth.login(asc_advisor_uid)
@@ -342,6 +356,23 @@ class TestGetCuratedGroupStudentsWithAlerts:
         response = client.get(f'/api/curated_group/{curated_group_id}/students_with_alerts')
         assert response.status_code == expected_status_code
         return response.json
+
+    def test_not_authenticated(self, client):
+        self._api_students_with_alerts(client, self.asc_curated_groups[0]['id'], expected_status_code=401)
+
+    def test_non_ce3_advisor_cannot_see_admit_curated_group(self, client, fake_auth):
+        """403 if non-CE3 advisor tries to access admits with alerts in admissions curated group."""
+        fake_auth.login(ce3_advisor_uid)
+        curated_group = _api_curated_group_create(
+            client=client,
+            domain='admitted_students',
+            name='Admissions curation',
+            sids=['11667051'],
+        )
+        curated_group_id = curated_group['id']
+
+        fake_auth.login(coe_advisor_uid)
+        self._api_students_with_alerts(client, curated_group_id, expected_status_code=403)
 
     def test_students_with_alerts(self, client, fake_auth, create_alerts, db_session):  # noqa: ARG002
         """Students with alerts per group id."""
@@ -651,8 +682,34 @@ class TestDownloadCuratedGroupCSV:
         )
         # TODO: Do we want to forbid such downloads?
 
+    def test_download_admits_csv_unauthorized(self, client, fake_auth):
+        """Non-CE3 advisor cannot download CSV of 'admits' group."""
+        fake_auth.login(ce3_advisor_uid)
+        curated_group = _api_curated_group_create(
+            client=client,
+            domain='admitted_students',
+            name='Another admit group',
+            sids=['11667051'],
+        )
+        curated_group_id = curated_group['id']
+
+        fake_auth.login(coe_advisor_uid)
+        data = {
+            'csvColumnsSelected': [
+                'first_name',
+                'last_name',
+                'sid',
+            ],
+        }
+        response = client.post(
+            f'/api/curated_group/{curated_group_id}/download_csv',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
+        assert response.status_code == 403
+
     def test_download_admits_csv(self, client, fake_auth):
-        """Advisor can download CSV of 'admits' group."""
+        """CE3 advisor can download CSV of 'admits' group."""
         fake_auth.login(ce3_advisor_uid)
         curated_group = _api_curated_group_create(
             client=client,
