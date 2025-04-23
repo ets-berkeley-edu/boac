@@ -10,17 +10,18 @@
     </button>
     <v-dialog
       v-model="isModalOpen"
+      max-width="1100"
+      min-width="500"
       persistent
-      width="800"
+      width="80vw"
       @keydown.esc="closeModal"
     >
-      <v-card class="pl-3 pr-5 py-4">
+      <v-card class="peer-advising-notes-modal modal-content scrollbar-gutter-stable w-100">
         <v-card-title class="pb-0">
           <div class="align-start d-flex justify-content-between w-100">
             <ModalHeader :text="headerText" />
             <div class="text-right w-100">
               <v-btn
-                v-if="!isFetchingNotes"
                 id="header-close-modal"
                 aria-label="Close this modal"
                 class="font-size-14 font-weight-bold"
@@ -39,14 +40,14 @@
             </div>
           </div>
         </v-card-title>
-        <v-card-text class="py-0">
+        <v-card-text class="modal-body">
           <div :id="`peer-advising-department-${peerAdvisingDepartment.id}`">
             {{ peerAdvisingDepartment.name }}
             <span v-if="timeframe">
               ({{ timeframe.label }})
             </span>
           </div>
-          <div v-if="isFetchingNotes" class="my-16 text-center w-100">
+          <div v-if="isFetchingNotes" class="py-16 text-center w-100">
             <v-progress-circular
               id="is-fetching-notes"
               color="primary"
@@ -54,119 +55,26 @@
             />
           </div>
           <v-expand-transition>
-            <table
+            <PeerAdvisingNotesTable
               v-if="!isFetchingNotes"
-              id="notes-for-peer-advisor-view"
-              class="mt-5 w-100"
+              class="d-block font-size-14 w-100"
+              :get-note-label="getNoteLabel"
+              :notes="notes"
+              :set-note-details="setPeerAdvisingDepartment"
             >
-              <thead>
-                <tr>
-                  <th class="border-b-md th-student">Student</th>
-                  <th class="border-b-md th-note">Note</th>
-                  <th class="border-b-md th-created-date">
-                    <div class="float-right">Date Created</div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody v-if="!isFetchingNotes">
-                <tr
-                  v-for="(note, index) in notes"
-                  :id="`tr-peer-advisor-${user.uid}-note-${note.id}`"
-                  :key="index"
-                  :class="expandedNoteIds.includes(note.id) ? 'bg-sky-blue' : (index % 2 === 0 ? '' : 'bg-surface-light')"
+              <template #studentName="{note}">
+                <router-link
+                  :id="`note-${note.id}-link-to-student`"
+                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                  :to="studentRoutePath((note as Note).student.uid, currentUser.inDemoMode)"
                 >
-                  <td
-                    :id="`td-peer-advisor-${user.uid}-note-${note.id}-student`"
-                    :class="{
-                      'border-b-md': index === size(notes) - 1,
-                      'pl-2 pt-2': expandedNoteIds.includes(note.id)
-                    }"
-                    class="td-student text-medium-emphasis"
-                  >
-                    <div
-                      v-if="note.student"
-                      :id="`note-${note.id}-student`"
-                      :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                    >
-                      <router-link
-                        :id="`note-${note.id}-link-to-student`"
-                        :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                        :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
-                      >
-                        <span v-html="lastNameFirst(note.student)" />
-                      </router-link>
-                    </div>
-                    <div v-if="!note.student">
-                      SID: {{ note.sid }}
-                    </div>
-                  </td>
-                  <td
-                    :id="`td-note-${note.id}-body`"
-                    :class="{
-                      'border-b-md': index === size(notes) - 1,
-                      'pt-2': expandedNoteIds.includes(note.id)
-                    }"
-                    class="td-note"
-                    :colspan="expandedNoteIds.includes(note.id) ? 2 : 1"
-                  >
-                    <v-expand-transition>
-                      <button
-                        v-if="!expandedNoteIds.includes(note.id)"
-                        :id="`open-peer-advising-${note.id}`"
-                        :aria-label="`Edit ${getStudentName(note)} note`"
-                        class="align-center d-flex text-primary w-100"
-                        :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                        @click="() => toggleShowHide(note)"
-                      >
-                        <span class="truncate-with-ellipsis" v-html="stripHtmlAndTrim(note.body)" />
-                        <span
-                          v-if="note.attachments.length"
-                          :id="`note-${note.id}-has-attachment`"
-                          class="ml-2"
-                        >
-                          <span class="sr-only">Has attachment(s)</span>
-                          <v-icon class="mb-1" :icon="mdiPaperclip" size="small" />
-                        </span>
-                      </button>
-                    </v-expand-transition>
-                    <v-expand-transition>
-                      <div v-if="expandedNoteIds.includes(note.id)">
-                        <div class="margins-of-hide-note-btn">
-                          <v-btn
-                            :id="`show-note-${note.id}-details`"
-                            :aria-expanded="true"
-                            color="primary"
-                            density="compact"
-                            :prepend-icon="mdiCloseCircle"
-                            text="Close Message"
-                            variant="text"
-                            @click="toggleShowHide(note)"
-                          />
-                        </div>
-                        <PeerAdvisingNoteDetails
-                          class="my-3"
-                          :note="note"
-                          :show-created-at="true"
-                        />
-                      </div>
-                    </v-expand-transition>
-                  </td>
-                  <td
-                    v-if="!expandedNoteIds.includes(note.id)"
-                    :id="`td-note-${note.id}-created-at`"
-                    :class="{'border-b-md': index === size(notes) - 1}"
-                    class="td-created-date"
-                  >
-                    <div :id="`note-${note.id}-created-at`" class="float-right">
-                      {{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  <span v-html="lastNameFirst((note as Note).student)" />
+                </router-link>
+              </template>
+            </PeerAdvisingNotesTable>
           </v-expand-transition>
         </v-card-text>
-        <v-card-actions v-if="!isFetchingNotes" class="text-right">
+        <v-card-actions class="modal-footer">
           <v-btn
             id="close-modal"
             class="mr-3"
@@ -183,14 +91,15 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {computed, ref} from 'vue'
+import {ref} from 'vue'
 import {DateTime} from 'luxon'
-import {get, isNil, size} from 'lodash'
-import {mdiCloseCircle, mdiCloseThick, mdiPaperclip} from '@mdi/js'
+import {get, size} from 'lodash'
+import {mdiCloseThick} from '@mdi/js'
 import type {BoaUser, Note, PeerAdvisingDepartment} from '@/lib/types'
 import type {Month} from '@/lib/types-peer-advising'
 import ModalHeader from '@/components/util/ModalHeader.vue'
-import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
+import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
+import {findPeerAdvisingDepartment} from '@/lib/berkeley-department'
 import {getPeerAdvisingNotesAuthoredBy} from '@/api/peer-advising-notes'
 import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
@@ -216,76 +125,41 @@ const props = defineProps({
 })
 
 const currentUser = useContextStore().currentUser
-const expandedNoteIds = ref<number[]>([])
-const isFetchingNotes = computed(() => isNil(notes.value))
+const isFetchingNotes = ref(false)
 const isModalOpen = ref(false)
-const notes = ref<Note[] | undefined>()
+const notes = ref<Note[]>([])
 
 const closeModal = () => {
   isModalOpen.value = false
-  notes.value = undefined
+  notes.value = []
+}
+
+const getNoteLabel = (note: Note, index: number) => {
+  const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
+  const createdDate = `${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}`
+  const rowPosition = `${index + 1} of ${size(notes.value) || 'unknown'}`
+  return `${rowPosition}, ${getStudentName(note)}, dated ${createdDate}${attachments}. ${stripHtmlAndTrim(note.body)}`
 }
 
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 
+const setPeerAdvisingDepartment = (note: Note) => {
+  if (!note.peerAdvisingDepartment) {
+    const peerAdvisingDepartment = findPeerAdvisingDepartment(props.peerAdvisingDepartment.id)
+    note.peerAdvisingDepartment = peerAdvisingDepartment
+  }
+}
+
 const showModal = () => {
+  isModalOpen.value = true
+  isFetchingNotes.value = true
   getPeerAdvisingNotesAuthoredBy(
     props.peerAdvisingDepartment.id,
     props.user.uid,
     props.timeframe
   ).then(data => {
     notes.value = data
-    isModalOpen.value = true
+    isFetchingNotes.value = false
   })
 }
-
-const toggleShowHide = (note: Note) => {
-  const index = expandedNoteIds.value.indexOf(note.id)
-  if (index > -1) {
-    expandedNoteIds.value.splice(index, 1)
-  } else {
-    expandedNoteIds.value.push(note.id)
-  }
-}
 </script>
-
-<style scoped>
-table {
-  border-collapse: collapse;
-}
-.margins-of-hide-note-btn {
-  margin-left: -15px;
-}
-.td-created-date {
-  font-size: 14px;
-  max-width: 120px !important;
-  padding: 5px 0;
-  text-wrap: nowrap;
-  vertical-align: top;
-  width: 120px !important;
-}
-.td-note {
-  font-size: 14px;
-  max-width: 300px !important;
-  padding: 5px;
-  vertical-align: top;
-}
-.td-student {
-  font-size: 14px;
-  font-weight: bolder;
-  max-width: 200px !important;
-  padding: 5px;
-  vertical-align: top;
-}
-.th-created-date {
-  padding: 5px 0;
-  text-wrap: nowrap;
-}
-.th-note {
-  padding: 5px;
-}
-.th-student {
-  font-weight: bold;
-  padding: 0 5px;
-}
-</style>

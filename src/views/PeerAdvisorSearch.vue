@@ -3,11 +3,11 @@
     <div class="d-flex justify-space-between">
       <div>
         <h1 id="page-header">Peer Advising Search</h1>
-        <div>
-          {{ phrase }} <span class="font-weight-bold">{{ queryText }}</span>
+        <div class="d-flex align-center">
+          {{ phrase }}&nbsp;<span class="font-weight-bold">{{ queryText }}</span>
           <span :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
           <v-btn
-            class="text-anchor mb-1 px-1"
+            class="text-anchor mx-1 px-1"
             role="link"
             variant="text"
             @click="clearResults"
@@ -18,11 +18,26 @@
       </div>
     </div>
     <div>
-      <PeerAdvisorNoteSearchResults
+      <PeerAdvisingNotesTable
+        :get-note="(noteSearchResult: NoteSearchResult) => noteSearchResult.note"
+        :get-note-label="getNoteLabel"
         :notes="notes"
-        :peer-advising-department-id="peerAdvisingDepartmentId"
-        :total-note-count="totalNoteCount"
-      />
+        :set-note-details="setNoteDetails"
+      >
+        <template #studentName="{note}">
+          <router-link
+            v-if="currentUser.isAdmin"
+            :id="`note-${(note as NoteSearchResult).id}-link-to-student`"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
+            :to="studentRoutePath((note as NoteSearchResult).studentUid, currentUser.inDemoMode)"
+          >
+            {{ getStudentName(note as NoteSearchResult) }}
+          </router-link>
+          <div v-if="!currentUser.isAdmin" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+            {{ getStudentName(note as NoteSearchResult) }}
+          </div>
+        </template>
+      </PeerAdvisingNotesTable>
       <div class="my-3 text-center">
         <v-btn
           v-if="totalNoteCount > size(notes)"
@@ -38,14 +53,16 @@
 </template>
 
 <script setup lang="ts">
+import {DateTime} from 'luxon'
 import {get, orderBy, size} from 'lodash'
 import {onMounted, onUnmounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import type {BoaUser, NoteSearchResult} from '@/lib/types'
-import PeerAdvisorNoteSearchResults from '@/components/peer/note/PeerAdvisorNoteSearchResults.vue'
-import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import type {BoaUser, Note, NoteSearchResult} from '@/lib/types'
+import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
+import {alertScreenReader, pluralize, putFocusNextTick, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
+import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import {getPeerAdvisorNoteById} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
-import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {peerAdvisorSearch} from '@/api/search'
 import {useSearchStore} from '@/stores/search'
@@ -54,6 +71,7 @@ import SectionSpinner from '@/components/util/SectionSpinner.vue'
 const LIMIT_PER_FETCH = 50
 
 const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
 const isFetchingNotes = ref(false)
 const notes = ref<NoteSearchResult[]>([])
 const offset = ref(0)
@@ -80,6 +98,10 @@ onMounted(() => {
 })
 
 onUnmounted(() => contextStore.removeEventHandler('peer-advising-note-created'))
+
+const clearResults = () => {
+  router.push({path: '/home'})
+}
 
 const fetchNotes = (user: BoaUser) => {
   peerAdvisor.value = user
@@ -117,7 +139,18 @@ const fetchNotes = (user: BoaUser) => {
   }
 }
 
-const clearResults = () => {
-  router.push({path: '/home'})
+const getNoteLabel = (noteSearchResult: NoteSearchResult, index: number) => {
+  return `${index + 1} of ${size(notes.value) || 'unknown'}, ${getStudentName(noteSearchResult)}, dated ${DateTime.fromISO(noteSearchResult.createdAt).toLocaleString(DateTime.DATE_FULL)}. ${stripHtmlAndTrim(noteSearchResult.noteSnippet)}`
+}
+
+const getStudentName = (noteSearchResult: NoteSearchResult) => noteSearchResult.studentName || `SID: ${noteSearchResult.studentSid}`
+
+const setNoteDetails = (noteSearchResult: NoteSearchResult) => {
+  getPeerAdvisorNoteById(noteSearchResult.id).then((note: Note) => {
+    if (!note.peerAdvisingDepartment) {
+      note.peerAdvisingDepartment = findPeerAdvisingDepartment(note.peerAdvisingDepartmentId)
+    }
+    noteSearchResult.note = note
+  })
 }
 </script>

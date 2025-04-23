@@ -1,13 +1,13 @@
 <template>
-  <div v-if="!contextStore.loading" class="mt-8 mx-8 mx-md-16">
+  <div v-if="!contextStore.loading" class="pt-8 px-8 px-md-16">
     <div class="d-flex flex-wrap justify-space-between">
       <div>
         <h1 id="page-header" class="mb-0">Peer Advising Notes</h1>
         <div id="notes-description">
-          <span v-if="!isFetchingNotes">{{ notesDescription }}</span>
+          <span v-if="!isFetchingNotes && notes.length">{{ notesDescription }}</span>
         </div>
       </div>
-      <div v-if="!currentUser.isAdmin">
+      <div v-if="!currentUser.isAdmin" class="d-flex align-end">
         <v-btn
           id="peer-advisor-create-note-button"
           class="px-10"
@@ -24,14 +24,42 @@
       </div>
     </div>
     <div class="w-100">
-      <PeerAdvisorPaginatedNotes
+      <PeerAdvisingNotesTable
+        :get-note-label="getNoteLabel"
         :notes="notes"
-        :on-click-create-note="onClickCreateNote"
-        :peer-advising-department-id="peerAdvisingDepartmentId"
-      />
-      <div class="my-3 text-center">
+        :set-note-details="setPeerAdvisingDepartment"
+      >
+        <template #studentName="{note}">
+          <router-link
+            v-if="currentUser.isAdmin"
+            :id="`note-${note.id}-link-to-student`"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
+            :to="studentRoutePath((note as Note).student.uid, currentUser.inDemoMode)"
+          >
+            {{ (note as Note).student ? lastNameFirst((note as Note).student) : getStudentName((note as Note)) }}
+          </router-link>
+          <div v-if="!currentUser.isAdmin" class="text-medium-emphasis" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+            {{ getStudentName(note as Note) }}
+          </div>
+        </template>
+        <template #noData>
+          <div class="d-flex align-center">
+            There currently are no student notes. Would you like to
+            <v-btn
+              id="peer-advisor-create-note-link"
+              class="font-size-15 px-1 mx-1"
+              color="anchor"
+              variant="text"
+              @click="onClickCreateNote"
+            >
+              make your first note<span class="text-black text-decoration-none">?</span>
+            </v-btn>
+          </div>
+        </template>
+      </PeerAdvisingNotesTable>
+      <div class="py-3 text-center">
         <v-btn
-          v-if="totalNoteCount > notes.length"
+          v-if="notes.length && totalNoteCount > notes.length"
           id="fetch-more-notes"
           text="Show additional advising notes"
           variant="text"
@@ -44,23 +72,24 @@
 </template>
 
 <script setup lang="ts">
+import {DateTime} from 'luxon'
 import type {Handler} from 'mitt'
-import {get, last, orderBy} from 'lodash'
+import {get, last, orderBy, size} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
 import {onMounted, onUnmounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import type {BasicStudent, BoaUser, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
+import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
+import SectionSpinner from '@/components/util/SectionSpinner.vue'
+import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
 import {getBasicStudent} from '@/api/peer-advising-users'
 import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
-import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
 import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, lastNameFirst, putFocusNextTick, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import PeerAdvisorPaginatedNotes from '@/components/peer/note/PeerAdvisorPaginatedNotes.vue'
-import SectionSpinner from '@/components/util/SectionSpinner.vue'
 
 const LIMIT_PER_FETCH = 50
 
@@ -118,6 +147,15 @@ const fetchNotes = () => {
   })
 }
 
+const getNoteLabel = (note: Note, index: number) => {
+  const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
+  const createdDate = `${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}`
+  const rowPosition = `${index + 1} of ${size(notes.value) || 'unknown'}`
+  return `${rowPosition}, ${getStudentName(note)}, dated ${createdDate}${attachments}. ${stripHtmlAndTrim(note.body)}`
+}
+
+const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
+
 const init = (user: BoaUser) => {
   peerAdvisor.value = user
   const membership = getPeerAdvisorDepartmentMembership(peerAdvisor.value, 'peer_advisor')
@@ -160,5 +198,12 @@ const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
     note.student = student
     notes.value.unshift(note)
   })
+}
+
+const setPeerAdvisingDepartment = (note: Note) => {
+  if (!note.peerAdvisingDepartment) {
+    const peerAdvisingDepartment = findPeerAdvisingDepartment(note.peerAdvisingDepartmentId)
+    note.peerAdvisingDepartment = peerAdvisingDepartment
+  }
 }
 </script>
