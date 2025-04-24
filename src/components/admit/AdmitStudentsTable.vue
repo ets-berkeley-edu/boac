@@ -131,7 +131,7 @@ const admitRoutePath = student => {
 }
 
 const curatedGroupRemoveStudent = student => {
-  props.removeStudent({...student, ...{sid: getSid(student)}})
+  props.removeStudent({...student, sid: getSid(student)})
   alertScreenReader(`Removed ${fullName(student)} from group`)
 }
 

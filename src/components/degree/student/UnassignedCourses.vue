@@ -21,6 +21,7 @@
           </tr>
         </thead>
         <tbody>
+          <!-- eslint-disable-next-line vue/no-v-for-template-key -->
           <template v-for="(course, index) in degreeStore.courses[key]" :key="`tr-${index}`">
             <tr
               :id="course.manuallyCreatedBy ? `${key}-course-${course.id}-manually-created` : `${key}-course-${course.termId}-${course.sectionId}`"

@@ -106,7 +106,7 @@ const create = name => {
       savedCohortCallback(`Cohort "${cohort.cohortName}" created`)
       setPageTitle(cohort.cohortName)
       await router.push(`/cohort/${cohort.cohortId}`)
-      window.history.replaceState({...window.history.state, ...{}}, null)
+      window.history.replaceState(window.history.state, null)
       currentAction.value = null
     }
   })

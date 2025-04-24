@@ -24,7 +24,7 @@ const contextStore = useContextStore()
 const query = computed(() => {
   const args = props.queryArgs || {}
   return {
-    ...{'_': contextStore.routeKeyId},
+    '_': contextStore.routeKeyId,
     ...args
   }
 })
