@@ -1218,7 +1218,7 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
             {'curated_group_ids': curated_group_ids},
         )
         query_filter += ' AND spi.sid = ANY(%(sids_of_curated_groups)s)'
-        query_bindings.update({'sids_of_curated_groups': [row['sid'] for row in results]})
+        query_bindings.update({'sids_of_curated_groups': [row['sid'] for row in results.mappings()]})
 
     # Generic SIS criteria
     if academic_standings:

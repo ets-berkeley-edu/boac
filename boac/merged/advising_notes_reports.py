@@ -96,7 +96,7 @@ def get_note_author_count(dept_code=None):
     if dept_code:
         query += f" AND '{dept_code}' = ANY(author_dept_codes)"
     results = db.session.execute(query)
-    return [row['count'] for row in results][0]
+    return [row['count'] for row in results.mappings()][0]
 
 
 def get_note_count(dept_code=None):
@@ -104,7 +104,7 @@ def get_note_count(dept_code=None):
     if dept_code:
         query += f" AND '{dept_code}' = ANY(author_dept_codes)"
     results = db.session.execute(query)
-    return [row['count'] for row in results][0]
+    return [row['count'] for row in results.mappings()][0]
 
 
 def get_note_count_per_batch(dept_code=None):
@@ -117,7 +117,7 @@ def get_note_count_per_batch(dept_code=None):
         query += f" AND '{dept_code}' = ANY(author_dept_codes)"
     query += ' GROUP BY created_at HAVING COUNT(*) > 1'
     results = db.session.execute(query)
-    return [row['count'] for row in results]
+    return [row['count'] for row in results.mappings()]
 
 
 def get_private_note_count():
@@ -126,7 +126,7 @@ def get_private_note_count():
         FROM notes
         WHERE deleted_at IS NULL AND is_private IS TRUE AND is_draft IS FALSE
     """)
-    return [row['count'] for row in results][0]
+    return [row['count'] for row in results.mappings()][0]
 
 
 def get_note_count_per_user(dept_code):
@@ -155,7 +155,7 @@ def get_note_with_attachments_count(dept_code=None):
     if dept_code:
         query += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
     results = db.session.execute(query)
-    return [row['count'] for row in results][0]
+    return [row['count'] for row in results.mappings()][0]
 
 
 def get_note_with_topics_count(dept_code=None):
@@ -168,7 +168,7 @@ def get_note_with_topics_count(dept_code=None):
     if dept_code:
         query += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
     results = db.session.execute(query)
-    return [row['count'] for row in results][0]
+    return [row['count'] for row in results.mappings()][0]
 
 
 def get_summary_of_boa_notes():

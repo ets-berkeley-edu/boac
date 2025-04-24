@@ -286,7 +286,7 @@ class AuthorizedUser(Base):
             {query_filter}
         """)
         results = db.session.execute(query, query_bindings)
-        user_ids = [row['id'] for row in results]
+        user_ids = [row['id'] for row in results.mappings()]
         return cls.query.filter(cls.id.in_(user_ids)).all()
 
     @classmethod
@@ -313,7 +313,7 @@ class AuthorizedUser(Base):
             {query_filter}
         """)
         results = db.session.execute(query, query_bindings)
-        user_ids = [row['id'] for row in results]
+        user_ids = [row['id'] for row in results.mappings()]
         return cls.query.filter(cls.id.in_(user_ids)).all(), len(user_ids)
 
     @classmethod
@@ -332,7 +332,7 @@ class AuthorizedUser(Base):
                 AND u.deleted_at IS NULL
             """
         results = db.session.execute(sql, {'scope': scope})
-        return [row['uid'] for row in results]
+        return [row['uid'] for row in results.mappings()]
 
     @classmethod
     def is_admin_user(cls, uid):

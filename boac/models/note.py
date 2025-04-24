@@ -693,7 +693,7 @@ class Note(Base):
                 {'AND is_draft IS FALSE' if exclude_draft_notes else ''}
         """
         results = db.session.execute(sql, {'sid': sid})
-        note_ids = [row['id'] for row in results]
+        note_ids = [row['id'] for row in results.mappings()]
         return cls.query.filter(cls.id.in_(note_ids)).order_by(cls.updated_at, cls.id).all()
 
     @classmethod

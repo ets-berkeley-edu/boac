@@ -588,23 +588,24 @@ class TestMergedAdvisingNote:
                     assert len(contents) == 2
                     assert len(csv_rows) == 3
                     assert contents['dog_eaten_homework.pdf'] == b'When in the course of human events, it becomes necessarf arf woof woof woof'
-                    assert csv_rows[0] == 'date_created,student_sid,student_name,author_uid,author_csid,author_name,' \
-                                          'subject,body,topics,attachments,is_private'
-                    assert csv_rows[1] == "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,700600500,,," \
-                                          'I am confounded by this confounding student,,dog_eaten_homework.pdf,False'
-                    assert csv_rows[2] == "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,600500400,,," \
-                                          'Is this student even on campus?,Ne Scéaw,,False'
+                    assert csv_rows[0] == """
+                        date_created,student_sid,student_name,author_uid,author_csid,author_name,subject,body,topics,attachments,is_private
+                    """.strip()
+                    assert csv_rows[1] == """
+                        2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,700600500,,,I am confounded by this confounding student,,dog_eaten_homework.pdf,False
+                    """.strip()  # noqa: E501
+                    assert csv_rows[2] == """
+                        2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,600500400,,,Is this student even on campus?,Ne Scéaw,,False
+                    """.strip()
                 else:
                     assert len(contents) == 1
                     assert len(csv_rows) == 2
-                    assert csv_rows[0] == 'student_sid,student_name,eform_id,eform_type,requested_action,' \
-                                          'grading_basis,requested_grading_basis,units_taken,requested_units_taken,' \
-                                          'late_change_request_action,late_change_request_status,' \
-                                          'late_change_request_term,late_change_request_course,date_created,updated_at'
-                    assert csv_rows[1] == "9000000000,Wolfgang Pauli-O'Rourke,469118,SRLATEDROP," \
-                                          'Late Grading Basis Change,Elective Pass/No Pass,Graded,3,0.00,' \
-                                          'Late Grading Basis Change,In Error,Fall 2020,' \
-                                          '24460 PSYCH 110 - INTROD BIOL PSYCH 001,2020-12-05,2020-12-04'
+                    assert csv_rows[0] == """
+                        student_sid,student_name,eform_id,eform_type,requested_action,grading_basis,requested_grading_basis,units_taken,requested_units_taken,late_change_request_action,late_change_request_status,late_change_request_term,late_change_request_course,date_created,updated_at
+                    """.strip()
+                    assert csv_rows[1] == """
+                        9000000000,Wolfgang Pauli-O'Rourke,469118,SRLATEDROP,Late Grading Basis Change,Elective Pass/No Pass,Graded,3,0.00,Late Grading Basis Change,In Error,Fall 2020,24460 PSYCH 110 - INTROD BIOL PSYCH 001,2020-12-05,2020-12-04
+                    """.strip()  # noqa: E501
 
 
 def _create_coe_advisor_note(
