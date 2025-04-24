@@ -107,8 +107,9 @@ const fetchNotes = (user: BoaUser) => {
         phrase.value = `Showing ${pluralize('result', totalNoteCount.value)} matching `
       }
       queryText.value = searchStore.queryText
-      contextStore.loadingComplete('Peer advising notes have loaded')
+      contextStore.loadingComplete('Search results loaded')
       isFetchingNotes.value = false
+      searchStore.setIsSearching(false)
       putFocusNextTick(putFocusId)
     })
   } else {

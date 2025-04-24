@@ -2,12 +2,9 @@
   <div v-if="!contextStore.loading" class="mt-8 mx-8 mx-md-16">
     <div class="d-flex flex-wrap justify-space-between">
       <div>
-        <h1 class="mb-0">Peer Advising Notes</h1>
-        <div v-if="notes.length < totalNoteCount">
-          Showing {{ notes.length }} of {{ totalNoteCount }} notes.
-        </div>
-        <div v-if="totalNoteCount === notes.length">
-          Showing all {{ notes.length }} notes.
+        <h1 id="page-header" class="mb-0">Peer Advising Notes</h1>
+        <div id="notes-description">
+          <span v-if="!isFetchingNotes">{{ notesDescription }}</span>
         </div>
       </div>
       <div v-if="!currentUser.isAdmin">
@@ -38,7 +35,7 @@
           id="fetch-more-notes"
           text="Show additional advising notes"
           variant="text"
-          @click.prevent="fetchNotes"
+          @click.prevent="onClickShowMore"
         />
         <SectionSpinner v-if="notes.length" :loading="isFetchingNotes" />
       </div>
@@ -48,9 +45,9 @@
 
 <script setup lang="ts">
 import type {Handler} from 'mitt'
+import {get, last, orderBy} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
 import {onMounted, onUnmounted, ref} from 'vue'
-import {orderBy} from 'lodash'
 import {useRoute, useRouter} from 'vue-router'
 import type {BasicStudent, BoaUser, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
@@ -59,7 +56,7 @@ import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-util
 import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
 import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
-import {putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 import PeerAdvisorPaginatedNotes from '@/components/peer/note/PeerAdvisorPaginatedNotes.vue'
@@ -73,6 +70,7 @@ const currentUser = contextStore.currentUser
 const isFetchingNotes = ref(false)
 const noteStore = useNoteStore()
 const notes = ref<Note[]>([])
+const notesDescription = ref('')
 const offset = ref(0)
 const peerAdvisingDepartmentId = ref<number>(NaN)
 const peerAdvisor = ref<BoaUser>()
@@ -80,7 +78,7 @@ const route = useRoute()
 const router = useRouter()
 const totalNoteCount = ref(0)
 
-contextStore.loadingStart('Peer Advising Notes page is loading')
+contextStore.loadingStart('Peer advising home page is loading')
 
 onMounted(() => {
   const currentUser = contextStore.currentUser
@@ -108,11 +106,10 @@ const fetchNotes = () => {
         peerAdvisor.value.uid,
         true
       ).then(data => {
-        const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0].id}`
         notes.value = orderBy([...notes.value, ...data.notes], ['createdAt'], ['desc'])
         totalNoteCount.value = data.totalNoteCount
+        notesDescription.value = notes.value.length < totalNoteCount.value ? `Showing ${notes.value.length} of ${totalNoteCount.value} notes.` : `Showing all ${notes.value.length} notes.`
         isFetchingNotes.value = false
-        putFocusNextTick(putFocusId)
         resolve()
       })
     } else {
@@ -127,8 +124,9 @@ const init = (user: BoaUser) => {
   if (peerAdvisor.value.id && membership && membership.peerAdvisingDepartmentId) {
     peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
     fetchNotes().then(() => {
-      contextStore.loadingComplete('Peer advising notes loaded')
+      contextStore.loadingComplete(`Home page loaded. ${notesDescription.value}`)
       contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
+      putFocusNextTick('page-header')
     })
   } else {
     router.push({path: '/404'})
@@ -145,6 +143,14 @@ const onClickCreateNote = () => {
   noteStore.setMode('createPeerAdvisorNote')
   createNoteModal.value = true
   noteStore.setIsCreateNoteModalOpen(true)
+}
+
+const onClickShowMore = () => {
+  alertScreenReader('Loading additional notes')
+  fetchNotes().then(() => {
+    alertScreenReader(notesDescription.value)
+    putFocusNextTick(`tr-peer-advisor-note-${get(last(notes.value), 'id')}`)
+  })
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

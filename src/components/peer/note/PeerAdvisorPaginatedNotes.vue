@@ -8,10 +8,10 @@
       <caption class="sr-only">Peer Advising notes, sorted by date created descending.</caption>
       <thead :class="{'sr-only': smAndDown}">
         <tr>
-          <th class="border-b-md th-student">Student</th>
-          <th class="border-b-md th-note">Note</th>
-          <th class="border-b-md th-topics">Topic(s)</th>
-          <th class="border-b-md th-created-date text-right">Date Created</th>
+          <th class="border-b-md th-student" role="columnheader" scope="col">Student</th>
+          <th class="border-b-md th-note" role="columnheader" scope="col">Note</th>
+          <th class="border-b-md th-topics" role="columnheader" scope="col">Topic(s)</th>
+          <th class="border-b-md th-created-date text-right" role="columnheader" scope="col">Date Created</th>
         </tr>
       </thead>
       <tbody>
@@ -19,11 +19,13 @@
           v-for="(note, index) in notes"
           :id="`tr-peer-advisor-note-${note.id}`"
           :key="index"
+          :aria-description="`Note ${getNotePosition(note, index)}`"
           :class="{
             'bg-sky-blue': expandedNoteIds.includes(note.id),
             'bg-surface-light': (index % 2 === 0),
             'border-b-md': smAndDown && index === notes.length - 1
           }"
+          tabindex="-1"
         >
           <td
             :id="`td-note-${note.id}-student`"
@@ -61,7 +63,6 @@
                   <span class="v-btn__overlay" />
                   <span class="truncate-with-ellipsis" v-html="stripHtmlAndTrim(note.body)" />
                   <span v-if="note.attachments.length" class="ml-2">
-                    <span class="sr-only">Has attachment(s)</span>
                     <v-icon class="mb-1" :icon="mdiPaperclip" size="small" />
                   </span>
                 </button>
@@ -80,7 +81,7 @@
                   variant="text"
                   @click="toggleShowHide(note)"
                 />
-                <PeerAdvisingNoteDetails class="my-3" :note="note" />
+                <PeerAdvisingNoteDetails class="my-3" :note="note" :note-description="`Note ${getNotePosition(note, index)}`" />
               </div>
             </v-expand-transition>
           </td>
@@ -114,7 +115,8 @@
             }"
             class="td-created-date text-right"
           >
-            {{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}
+            <span :aria-hidden="true">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}</span>
+            <span class="sr-only">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL) }}</span>
           </td>
         </tr>
       </tbody>
@@ -168,8 +170,13 @@ const expandedNoteIds = ref<number[]>([])
 const {smAndDown} = useDisplay()
 
 const getNoteLabel = (note: Note, index: number) => {
-  return `${index + 1} of ${size(props.notes) || 'unknown'}, ${getStudentName(note)}, dated ${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}. ${stripHtmlAndTrim(note.body)}`
+  const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
+  const createdDate = `${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}`
+  const rowPosition = getNotePosition(note, index)
+  return `${rowPosition}, ${getStudentName(note)}, dated ${createdDate}${attachments}. ${stripHtmlAndTrim(note.body)}`
 }
+
+const getNotePosition = (note: Note, index: number) => `${index + 1} of ${size(props.notes) || 'unknown'}`
 
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 

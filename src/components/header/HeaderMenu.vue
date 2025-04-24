@@ -10,8 +10,10 @@
       <template #activator="{ props }">
         <button
           id="header-dropdown-under-name"
+          aria-label="User Profile"
           class="button-menu header-button-menu bg-primary pr-3 text-body-1 text-white"
           :class="{'button-menu-active': isMenuOpen}"
+          :title="`User profile for ${currentUser.name || `UID ${currentUser.uid}` }`"
           v-bind="props"
         >
           {{ currentUser.firstName || `UID:${currentUser.uid}` }}
@@ -85,7 +87,7 @@
         <v-list-item v-if="!currentUser.isAdmin" class="pa-0" density="compact">
           <v-btn
             id="header-menu-profile"
-            :aria-current="route.path === '/profile' ? 'page' : false"
+            :aria-current="route.path === (isPeerAdvisor(currentUser) ? '/peer_advisor/profile' : '/profile') ? 'page' : false"
             class="header-menu-item"
             color="primary"
             density="comfortable"
@@ -130,8 +132,9 @@ import {each, find, get} from 'lodash'
 import {mdiMenuDown} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
+import {alertScreenReader} from '@/lib/utils'
 import {getCasLogoutUrl} from '@/api/auth'
-import {isPeerAdvisorManager} from '@/lib/boa-user'
+import {isPeerAdvisor, isPeerAdvisorManager} from '@/lib/boa-user'
 import {myDeptCodes} from '@/lib/berkeley-department'
 import {useContextStore} from '@/stores/context'
 
@@ -151,7 +154,10 @@ onMounted(() => {
   })
 })
 
-const logOut = () => getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl)
+const logOut = () => {
+  alertScreenReader('BOA: signing out.')
+  getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl)
+}
 </script>
 
 <style scoped>
