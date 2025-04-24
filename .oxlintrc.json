@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "import",
+    "oxc",
+    "typescript",
+    "unicorn",
+    "jsdoc",
+    "node",
+    "promise"
+  ],
+  "overrides": [
+    {
+     "files": ["**/*.{js,ts,vue}"],
+      "rules": {
+        "filename-case": 0,
+        "func-names": 0,
+        "no-anonymous-default-export": 0,
+        "no-magic-numbers": 0,
+        "no-nesting": 0,
+        "no-null": 0,
+        "no-ternary": 0,
+        "prefer-await-to-then": 0,
+        "prefer-await-to-callbacks": 0,
+        "yoda": 0
+      }
+    }
+  ],
+  "env": {
+    "browser": true
+  }
+}

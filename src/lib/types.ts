@@ -323,6 +323,7 @@ export type Pagination = {
 export type PeerAdvisingDepartment = {
   id: number,
   name: string,
+  deptCode: string,
   deptName: string,
   peerAdvisingDepartmentMembers: BoaUser[],
   universityDeptName: string

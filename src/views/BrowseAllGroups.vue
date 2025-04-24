@@ -173,11 +173,9 @@ onMounted(() => {
   each(contextStore.allBerkeleyDepartments, department => {
     departments.value.push({
       ...department,
-      ...{
-        isFetching: false,
-        isOpen: false,
-        users: []
-      }
+      isFetching: false,
+      isOpen: false,
+      users: []
     })
   })
   contextStore.loadingComplete('List of departments has loaded')

@@ -359,10 +359,10 @@ const hoverUid = ref(undefined)
 
 onBeforeMount(() => {
   const rows = document.querySelectorAll('tr[id*=\'tr-student-\']')
-  each(rows, row => row.removeEventListener('focusin', () => onFocus(row)))
-  each(rows, row => row.removeEventListener('mouseover', () => onFocus(row)))
-  each(rows, row => row.removeEventListener('blur', onBlur))
-  each(rows, row => row.removeEventListener('mouseleave', onBlur))
+  each(rows, row => row.removeEventListener('focusin'))
+  each(rows, row => row.removeEventListener('mouseover'))
+  each(rows, row => row.removeEventListener('blur'))
+  each(rows, row => row.removeEventListener('mouseleave'))
 })
 
 onMounted(() => {

@@ -21,6 +21,7 @@
         </tr>
       </thead>
       <tbody>
+        <!-- eslint-disable-next-line vue/no-v-for-template-key -->
         <template v-for="(bundle, index) in categoryCourseBundles" :key="`tr-${index}`">
           <tr
             :id="`course-${bundle.category.id}-table-row-${index}`"

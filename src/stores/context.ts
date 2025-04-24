@@ -136,11 +136,8 @@ export const useContextStore = defineStore('context', {
             each(d.peerAdvisingDepartments, (p: PeerAdvisingDepartment) => {
               this.allPeerAdvisingDepartments.push({
                 ...p,
-                ...{
-                  deptCode: d.deptCode,
-                  deptName: d.deptName,
-                  deptId: d.id
-                }
+                deptCode: d.deptCode,
+                deptName: d.deptName
               })
             })
           })
