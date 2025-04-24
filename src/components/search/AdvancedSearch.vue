@@ -30,6 +30,7 @@
     <v-btn
       id="go-search"
       class="btn-search"
+      :disabled="isSearchDisabled"
       text="Search"
       variant="outlined"
       @keydown.enter="search"
@@ -41,7 +42,7 @@
 
 <script setup>
 import {computed, onMounted, onUnmounted} from 'vue'
-import {get, noop, trim} from 'lodash'
+import {get, isEmpty, trim} from 'lodash'
 import {useRoute, useRouter} from 'vue-router'
 import AccessibleCombobox from '@/components/util/AccessibleCombobox'
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
@@ -56,15 +57,20 @@ import {isPeerAdvisor} from '@/lib/boa-user.js'
 const searchStore = useSearchStore()
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
+const isSearchDisabled = computed(() => {
+  const q = trim(searchStore.queryText)
+  return searchStore.isSearching || isEmpty(q) || q === route.query.q
+})
 const queryTextModel = computed({
   get: () => searchStore.queryText || null,
   set: v => searchStore.setQueryText(v)
 })
+const route = useRoute()
 const router = useRouter()
 
 onMounted(() => {
   document.addEventListener('keyup', onKeyUp, true)
-  searchStore.resetAdvancedSearch(useRoute().query.q)
+  searchStore.resetAdvancedSearch(route.query.q)
   getMySearchHistory().then(history => searchStore.setSearchHistory(history))
 })
 
@@ -86,35 +92,26 @@ const onKeyUp = event => {
 }
 
 const search = () => {
-  if (!searchStore.isSearching && trim(searchStore.queryText)) {
+  if (!isSearchDisabled.value) {
     const q = trim(searchStore.queryText)
     if (q) {
-      if (isPeerAdvisor(currentUser)) {
-        router.push(
-          {
-            path: '/peer_advisor/search',
-            query: {
-              q: q
-            }
-          },
-          noop
-        )
-      } else {
-        router.push(
-          {
-            path: '/search',
-            query: {
-              admits: currentUser.canAccessAdmittedStudents,
-              courses: currentUser.canAccessCanvasData,
-              notes: currentUser.canAccessAdvisingData,
-              students: true,
-              q
-            }
-          },
-          noop
-        )
+      const searchPage = isPeerAdvisor(currentUser) ? {
+        path: '/peer_advisor/search',
+        query: {
+          q: q
+        }
+      } : {
+        path: '/search',
+        query: {
+          admits: currentUser.canAccessAdmittedStudents,
+          courses: currentUser.canAccessCanvasData,
+          notes: currentUser.canAccessAdvisingData,
+          students: true,
+          q
+        }
       }
-
+      searchStore.setIsSearching(true)
+      router.push(searchPage)
       addToSearchHistory(q).then(history => {
         searchStore.setSearchHistory(history)
       })

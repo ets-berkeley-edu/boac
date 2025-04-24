@@ -24,11 +24,10 @@
               <a
                 v-if="!currentUser.isAdmin || !noteDetails.peerAdvisingDepartmentId"
                 :id="`note-${noteDetails.id}-author-name`"
-                :aria-label="`${noteDetails.author.name} UC Berkeley Directory page (opens in new window)`"
                 :href="`https://www.berkeley.edu/directory/results?search-term=${noteDetails.author.name}`"
                 target="_blank"
               >
-                {{ noteDetails.author.name }}
+                {{ noteDetails.author.name }} <span class="sr-only">&nbsp;UC Berkeley Directory page (opens in new window)</span>
               </a>
             </div>
             <div :id="`note-${noteDetails.id}-author-role`">
@@ -52,7 +51,7 @@
           <AdvisingNoteTopics :note="noteDetails" read-only />
         </div>
         <div v-if="noteDetails.contactType" class="mt-3">
-          <div class="font-size-16 font-weight-bold text-medium-emphasis">Contact Type</div>
+          <div class="font-size-16 font-weight-bold">Contact Type</div>
           <div :id="`note-${noteDetails.id}-contact-type`">{{ noteDetails.contactType }}</div>
         </div>
       </div>
@@ -65,6 +64,7 @@
         :is-downloadable="true"
         :is-read-only="true"
         :note="noteDetails"
+        :note-description="noteDescription"
       />
       <div v-if="showCreatedAt" :id="`note-${note.id}-created-at`" class="mt-2 text-medium-emphasis">
         Date created: {{ DateTime.fromISO(noteDetails.createdAt).toLocaleString(DateTime.DATE_MED) }}
@@ -96,6 +96,10 @@ const props = defineProps({
     required: false,
     type: Number,
     default: undefined
+  },
+  noteDescription: {
+    required: true,
+    type: String
   },
   showCreatedAt: {
     required: false,

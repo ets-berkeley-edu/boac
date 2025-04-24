@@ -1,8 +1,8 @@
 <template>
   <div>
     <label
+      :id="`${idPrefix}-attachments-list-label`"
       class="d-inline-block font-size-16 font-weight-bold"
-      :for="`${idPrefix}-attachments-list`"
     >
       Attachments
     </label>
@@ -87,6 +87,7 @@
     </v-alert>
     <ul
       :id="`${idPrefix}-attachments-list`"
+      :aria-labelledby="`${idPrefix}-attachments-list-label`"
       class="list-no-bullets advising-note-pill-list mt-1"
     >
       <li
@@ -95,7 +96,6 @@
       >
         <PillItem
           :id="`${idPrefix}-attachment-${index}`"
-          :aria-label="isDownloadable ? `Download attachment ${attachment.displayName}` : null"
           :closable="canRemoveAttachments"
           :disabled="disabled"
           :href="downloadUrl(attachment)"
@@ -104,9 +104,11 @@
           name="attachment"
           @close-clicked="onRemoveAttachment(index)"
         >
+          <span v-if="isDownloadable" class="sr-only text-capitalize">Download attachment&nbsp;</span>
           <span class="truncate-with-ellipsis" :class="{'demo-mode-blur': currentUser.inDemoMode, 'text-anchor': isDownloadable}">
             {{ attachment.displayName }}
           </span>
+          <span v-if="noteDescription" class="sr-only text-capitalize">, {{ noteDescription }}</span>
         </PillItem>
       </li>
     </ul>
@@ -154,6 +156,11 @@ const props = defineProps({
   note: {
     required: true,
     type: Object
+  },
+  noteDescription: {
+    default: '',
+    required: false,
+    type: String
   },
   remove: {
     default: () => {},

@@ -50,10 +50,11 @@
 
 <script setup lang="ts">
 import {mdiAlert} from '@mdi/js'
-import {nextTick, ref} from 'vue'
+import {nextTick, onMounted, ref} from 'vue'
 import {toString, trim} from 'lodash'
 import {useRoute} from 'vue-router'
 import DevAuth from '@/components/admin/DevAuth.vue'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {getCasLoginURL} from '@/api/auth'
 import {useContextStore} from '@/stores/context'
 
@@ -62,6 +63,11 @@ const error = ref<string | undefined>(undefined)
 const route = useRoute()
 
 nextTick(() => reportError(toString(route.query.error)))
+
+onMounted(() => {
+  alertScreenReader('Sign-in page loaded.')
+  putFocusNextTick(config.devAuthEnabled ? 'dev-auth-uid' : 'sign-in')
+})
 
 const logIn = () => {
   getCasLoginURL().then(data => window.location.href = data.casLoginUrl)

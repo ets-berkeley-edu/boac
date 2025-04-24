@@ -67,7 +67,7 @@ const {loading} = storeToRefs(contextStore)
 const hideFooter = ref(false)
 const route = useRoute()
 const serviceAlert = useTemplateRef('serviceAlert')
-const serviceAlertOffset = ref<string>(0)
+const serviceAlertOffset = ref<string>('0px')
 
 watch(loading, value => {
   if (!value) {

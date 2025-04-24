@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import {get, trim} from 'lodash'
-import {onMounted, ref} from 'vue'
+import {ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {devAuthLogIn} from '@/api/auth'
 import {putFocusNextTick} from '@/lib/utils'
@@ -58,8 +58,6 @@ const isLoggingIn = ref(false)
 const uid = ref('')
 const password = ref('')
 const router = useRouter()
-
-onMounted(() => putFocusNextTick('dev-auth-uid'))
 
 const logIn = () => {
   uid.value = trim(uid.value)
