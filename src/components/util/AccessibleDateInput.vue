@@ -221,7 +221,9 @@ const onClickClear = (e, inputEvents) => {
   const inputElement = document.getElementById(inputId)
   if (inputElement) {
     inputElement.value = ''
-    inputEvents.change(e)
+    if (inputEvents && typeof inputEvents.change === 'function') {
+      inputEvents.change(e)
+    }
     alertScreenReader('Cleared')
     putFocusNextTick(inputId)
     model.value = null
