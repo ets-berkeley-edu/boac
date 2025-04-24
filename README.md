@@ -67,3 +67,13 @@ tox -e lint-vue-fix
 # Lint specific file(s)
 tox -e lint-py -- scripts/cohort_fixtures.py
 ```
+
+Lastly, we are experimenting with [Oxlint](https://oxc.rs), using the custom configs in `.oxlintrc.json`.
+Fix issues (eg, violations of the 'sort-imports' rule) at your leisure.
+```
+# Run Oxlint
+tox -e oxlint
+
+# Lint specific file(s)
+tox -e oxlint -- src/components/cohort/FilterRow.vue
+```
