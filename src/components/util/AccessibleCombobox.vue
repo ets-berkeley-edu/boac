@@ -31,7 +31,7 @@
       :type="inputType"
       variant="outlined"
       @blur.stop.prevent="onBlur"
-      @keydown.enter.stop.prevent="onSubmit"
+      @keydown.enter.stop.prevent="onKeyEnter"
       @update:focused="onFocusInput"
       @update:menu="onToggleMenu"
       @update:search="onUpdateSearch"
@@ -48,9 +48,9 @@
       </template>
       <template #clear>
         <v-btn
-          v-if="!isBusy"
+          v-if="!isBusy && !focusedListItemIndex"
           :id="`${idPrefix}-clear-btn`"
-          :aria-label="`Clear ${label} input`"
+          :aria-label="`Clear ${label} Input`"
           class="d-flex align-self-center v-icon"
           :class="{'disabled-opacity': !model}"
           density="compact"
@@ -81,7 +81,6 @@
         <slot name="append" />
       </template>
     </component>
-    <span aria-live="polite" class="sr-only">{{ resultsSummary }}</span>
   </div>
 </template>
 
@@ -235,7 +234,6 @@ const model = defineModel({
   type: String
 })
 const query = ref(undefined)
-const resultsSummary = ref(undefined)
 const resultsSummaryInterval = ref(undefined)
 
 onMounted(() => {
@@ -335,7 +333,13 @@ const onFocusListItem = (event, index) => {
   focusedListItemIndex.value = index
 }
 
+const onKeyEnter = () => {
+  clearInterval(resultsSummaryInterval.value)
+  props.onSubmit()
+}
+
 const onSelectItem = item => {
+  clearInterval(resultsSummaryInterval.value)
   model.value = get(item.raw, 'value', item.raw)
   if (props.isAutocomplete) {
     container.value.search = ''
@@ -355,9 +359,9 @@ const onToggleMenu = isOpen => {
       }
       input.setAttribute('aria-expanded', true)
     } else {
+      clearInterval(resultsSummaryInterval.value)
       input.setAttribute('aria-expanded', false)
       input.removeAttribute('aria-activedescendant')
-      clearInterval(resultsSummaryInterval.value)
     }
   })
 }
@@ -366,18 +370,18 @@ const onUpdateSearch = q => {
   query.value = q
   props.filterResults(q)
   clearInterval(resultsSummaryInterval.value)
-  resultsSummaryInterval.value = setInterval(setResultsSummary, 1000)
+  resultsSummaryInterval.value = setInterval(summarizeResults, 1000)
 }
 
-const setResultsSummary = () => {
-  const menuOverlay = document.getElementById(`${props.idPrefix}-menu`)
-  const listbox = menuOverlay && menuOverlay.querySelector('[role="listbox"]')
+const summarizeResults = () => {
   clearInterval(resultsSummaryInterval.value)
-  if (listbox) {
-    const suggestions = filter(listbox.children, child => includes(child.classList, 'v-list-item'))
-    resultsSummary.value = pluralize('result', suggestions.length)
-  } else {
-    resultsSummary.value = ''
+  if (!props.isBusy) {
+    const menuOverlay = document.getElementById(`${props.idPrefix}-menu`)
+    const listbox = menuOverlay && menuOverlay.querySelector('[role="listbox"]')
+    if (listbox ) {
+      const suggestions = filter(listbox.children, child => includes(child.classList, 'v-list-item'))
+      alertScreenReader(pluralize('result', suggestions.length))
+    }
   }
 }
 </script>

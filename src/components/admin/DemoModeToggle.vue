@@ -49,7 +49,7 @@
 import {ref} from 'vue'
 import {isNil} from 'lodash'
 import sampleBlurAvatar from '@/assets/sampleBlurAvatar.jpg'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {putFocusNextTick} from '@/lib/utils'
 import {setDemoMode} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 
@@ -60,7 +60,6 @@ const isToggling = ref(false)
 
 const toggle = () => {
   isToggling.value = true
-  alertScreenReader('Toggling Demo Mode')
   setDemoMode(inDemoMode.value).then(() => {
     isToggling.value = false
     putFocusNextTick('toggle-demo-mode')

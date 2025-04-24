@@ -19,9 +19,13 @@
 
 <script setup>
 import {mdiAccountCircle} from '@mdi/js'
+import {onMounted} from 'vue'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import MyProfile from '@/components/admin/MyProfile'
 import {useContextStore} from '@/stores/context'
 
-const config = useContextStore().config
+const contextStore = useContextStore()
+const config = contextStore.config
+
+onMounted(contextStore.loadingComplete)
 </script>
