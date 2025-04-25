@@ -64,7 +64,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]'))
 
     def peer_note_date(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[4]'))
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[4]/span[1]'))
 
     @staticmethod
     def peer_manager_note_student_link(note):

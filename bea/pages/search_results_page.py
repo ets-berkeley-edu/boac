@@ -222,12 +222,8 @@ class SearchResultsPage(ListViewAdmitPages):
         return self.el_text_if_exists(advisor_loc, '-')
 
     def note_result_date(self, note):
-        xpath = f'//div[@id="advising-note-search-result-{note.record_id}"]/div[@class="advising-note-search-result-footer"]'
-        date_loc = By.XPATH, xpath
-        if self.is_present(date_loc):
-            return self.element(date_loc).text.split('-')[-1].strip()
-        else:
-            return None
+        date_loc = By.ID, f'advising-note-last-modified-{note.record_id}'
+        return self.el_text_if_exists(date_loc)
 
     def click_note_link(self, note):
         self.wait_for_element_and_click(self.note_link(note))

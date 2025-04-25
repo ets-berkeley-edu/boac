@@ -349,7 +349,7 @@ class TestNoteDraft:
         assert not self.draft_notes_page.is_present(self.draft_notes_page.draft_row_loc(self.note_2))
         visible_note_1_subj = self.draft_notes_page.visible_draft_subject(self.note_1)
         expected_note_1_subject = self.draft_notes_page.expected_draft_note_subject(self.note_1)
-        utils.assert_actual_includes_expected(visible_note_1_subj, expected_note_1_subject)
+        utils.assert_expected_includes_actual(expected_note_1_subject, visible_note_1_subj)
 
     def test_author_advisor_student_page(self):
         self.draft_notes_page.click_draft_student_link(self.note_1)
@@ -483,9 +483,9 @@ class TestNoteDraft:
                                               str(self.student.sid))
 
     def test_advisor_draft_list_view_subjects(self):
-        utils.assert_equivalence(self.draft_notes_page.visible_draft_subject(self.note_4), self.note_4.subject)
-        utils.assert_equivalence(self.draft_notes_page.visible_draft_subject(self.note_5), '[DRAFT NOTE]')
-        utils.assert_equivalence(self.draft_notes_page.visible_draft_subject(self.note_6), self.note_6.subject)
+        utils.assert_expected_includes_actual(self.note_4.subject, self.draft_notes_page.visible_draft_subject(self.note_4))
+        utils.assert_expected_includes_actual('[DRAFT NOTE]', self.draft_notes_page.visible_draft_subject(self.note_5))
+        utils.assert_expected_includes_actual(self.note_6.subject, self.draft_notes_page.visible_draft_subject(self.note_6))
 
     def test_advisor_draft_list_view_dates(self):
         today = datetime.today().strftime('%b %-d')

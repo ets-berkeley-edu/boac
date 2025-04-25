@@ -38,7 +38,7 @@ class NoteTemplate(TimelineNoteAppt):
 
     @property
     def is_private(self):
-        return self.data.get('is_private')
+        return self.data.get('is_private') or False
 
     @is_private.setter
     def is_private(self, value):

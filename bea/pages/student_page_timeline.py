@@ -147,7 +147,7 @@ class StudentPageTimeline(BoaPages):
 
     def item_attachment_el(self, item, attachment_name):
         for el in self.item_attachment_els(item):
-            if el.text.strip().lower() == attachment_name.lower():
+            if el.text.split('\n')[1].strip().lower() == attachment_name.lower():
                 return el
 
     def download_attachment(self, item, attachment, student=None):

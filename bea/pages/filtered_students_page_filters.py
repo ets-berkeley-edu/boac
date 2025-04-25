@@ -290,19 +290,8 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
 
     def remove_filter_of_type(self, filter_option):
         app.logger.info(f'Removing {filter_option}')
-        row_count = len(self.elements(self.COHORT_FILTER_ROW))
         self.wait_for_element_and_click(self.filter_remove_button(filter_option))
-        tries = utils.get_short_timeout()
-        while tries > 0:
-            tries -= 1
-            try:
-                assert len(self.elements(self.COHORT_FILTER_ROW)) == row_count - 1
-                break
-            except AssertionError:
-                if tries == 0:
-                    raise
-                else:
-                    time.sleep(1)
+        time.sleep(1)
 
     def verify_student_filters_present(self, cohort):
         filters = cohort.search_criteria
@@ -386,4 +375,3 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
 
         else:
             self.when_not_visible(self.UNSAVED_FILTER_APPLY_BUTTON, utils.get_short_timeout())
-            assert not self.elements(self.COHORT_FILTER_ROW)

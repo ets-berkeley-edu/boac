@@ -138,11 +138,10 @@ def wait_for_export_zip():
 
 
 def assert_equivalence(actual, expected):
+    if isinstance(actual, list) and isinstance(expected, list):
+        app.logger.info(f'Missing: {[e for e in expected if e not in actual]}')
+        app.logger.info(f'Unexpected: {[a for a in actual if a not in expected]}')
     if actual != expected:
-        if isinstance(actual, list) and isinstance(expected, list):
-            app.logger.info(f'Missing: {[e for e in expected if e not in actual]}')
-            app.logger.info(f'Unexpected: {[a for a in actual if a not in expected]}')
-    else:
         app.logger.info(f'Expecting {expected}, got {actual}')
     assert actual == expected
 
@@ -151,6 +150,12 @@ def assert_actual_includes_expected(actual, expected):
     if expected not in actual:
         app.logger.info(f'Expected {actual} to include {expected}')
     assert expected in actual
+
+
+# For visible text that is truncated with ellipsis
+def assert_expected_includes_actual(expected, actual):
+    actual = actual.replace('...', '')
+    assert actual in expected
 
 
 def assert_matching_advisor_name(actual_name, advisor):
