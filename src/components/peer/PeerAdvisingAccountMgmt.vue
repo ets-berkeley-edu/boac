@@ -187,9 +187,8 @@ const headers = computed(() => [
 const isBusy = ref(false)
 const isDeleteModalOpen = ref(false)
 const isDeleting = ref(false)
-const peerAdvisorsActiveCount = computed<number>(() => _filter(props.peerAdvisors, m => !m.deletedAt).length)
 const selectedPeerAdvisor = ref<BoaUser | undefined>()
-const showDeletedPeerAdvisors = ref(!peerAdvisorsActiveCount.value)
+const showDeletedPeerAdvisors = ref<boolean>()
 const sortBy = ref<{key: string, order: 'asc' | 'desc'}>({key: 'createdAt', order: 'desc'})
 const {mdAndUp} = useDisplay()
 
