@@ -26,15 +26,17 @@
           <tr
             :id="`course-${bundle.category.id}-table-row-${index}`"
             :class="{
+              'border-e-md border-s-md border-t-md': isNoteVisible(bundle),
+              'cursor-grab': isDraggable(bundle),
+              'drop-zone-on': isDroppable(bundle.category),
+              'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !degreeStore.draggingContext.course,
+              'pt-0': index === 0,
+              'pt-2': index > 0,
               'text-accent-blue': getAccentColor(bundle) === 'Blue',
               'text-accent-green': getAccentColor(bundle) === 'Green',
               'text-accent-orange': getAccentColor(bundle) === 'Orange',
               'text-accent-purple': getAccentColor(bundle) === 'Purple',
               'text-accent-red': getAccentColor(bundle) === 'Red',
-              'border-e-md border-s-md border-t-md': isNoteVisible(bundle),
-              'cursor-grab': isDraggable(bundle),
-              'drop-zone-on': isDroppable(bundle.category),
-              'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !degreeStore.draggingContext.course,
               'tr-while-dragging': bundle.course && (degreeStore.draggingCourseId === get(bundle.course, 'id'))
             }"
             :draggable="isDraggable(bundle)"
@@ -704,7 +706,6 @@ table {
 tbody:before {
   content: '';
   display: block;
-  height: 10px;
 }
 th {
   height: 20px;
@@ -717,24 +718,25 @@ th {
   margin-left: -24px;
 }
 .td-actions {
-  padding: 3px 0 0 0;
+  padding: 6px 0 0 0;
 }
 .td-assign {
   font-size: 14px;
+  padding: 6px 0 0 0;
   vertical-align: top;
 }
 .td-fulfillment {
-  padding: 3px 0 0 0;
+  padding: 6px 0 0 0;
   word-break: break-word;
 }
 .td-grade {
-  padding: 3px 0 0 0;
+  padding: 6px 0 0 0;
   text-transform: capitalize;
   vertical-align: top;
 }
 .td-name {
   font-size: 14px;
-  padding: 3px 0 0 0;
+  padding: 6px 0 0 0;
 }
 .td-name-printable {
   font-size: 12px;
@@ -743,15 +745,15 @@ th {
   width: 180px !important;
 }
 .td-note {
-  padding: 3px 4px 0 4px;
+  padding: 6px 4px 0 4px;
 }
 .td-note-when-all-notes-empty {
   max-width: 10px;
-  padding: 3px 0 0 0;
+  padding: 6px 0 0 0;
 }
 .td-note-printable {
   font-size: 12px;
-  padding: 3px 0.5em 0 0;
+  padding: 6px 0.5em 0 0;
   vertical-align: middle;
   width: 100px !important;
 }
@@ -760,7 +762,7 @@ th {
   width: 50px;
 }
 .td-units {
-  padding: 3px 8px 0 0;
+  padding: 6px 8px 0 0;
   vertical-align: top;
   white-space: nowrap;
 }
