@@ -45,7 +45,7 @@ def get_degree_templates():
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     templates = []
-    for row in results:
+    for row in results.mappings():
         templates.append(DegreeCheckTemplate({
             'template_id': row['id'],
             'name': row['degree_name'],
@@ -80,7 +80,7 @@ def get_student_degrees(student):
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     degrees = []
-    for row in results:
+    for row in results.mappings():
         degrees.append(DegreeCheckTemplate({
             'template_id': row['id'],
             'name': row['degree_name'],
@@ -99,7 +99,7 @@ def get_degree_sids_by_degree_name(degree_name):
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     sids = []
-    for row in results:
+    for row in results.mappings():
         sids.append(str(row['student_sid']))
     app.logger.info(f'Degree SIDs are {sids}')
     return sids

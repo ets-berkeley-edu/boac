@@ -165,7 +165,7 @@ class CohortFilter(Base):
                 'sids': row['sids'],
                 'totalStudentCount': row['student_count'],
             }
-        return [transform(row) for row in results]
+        return [transform(row) for row in results.mappings()]
 
     @classmethod
     def get_cohorts_owned_by_uids(cls, include_admitted_students, uids):
@@ -190,7 +190,7 @@ class CohortFilter(Base):
                 'alertCount': row['alert_count'],
                 'totalStudentCount': row['student_count'],
             }
-        return [transform(row) for row in results]
+        return [transform(row) for row in results.mappings()]
 
     @classmethod
     def is_cohort_owned_by(cls, cohort_id, user_id):

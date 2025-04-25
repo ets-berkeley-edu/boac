@@ -116,7 +116,9 @@ def load_all_terms():
         JobProgress().update(f'Term {term_id} loaded', properties={'terms_done': terms_done})
 
 
-def load_term(term_id=current_term_id(use_cache=False)):
+def load_term(term_id=None):
+    if not term_id:
+        term_id = current_term_id(use_cache=False)
     if term_id == 'all':
         load_all_terms()
         return

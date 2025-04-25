@@ -272,7 +272,7 @@ def get_dept_advisors(dept, membership=None):
     result = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     advisors = []
-    for row in result:
+    for row in result.mappings():
 
         depts = []
         dept_memberships = []
@@ -326,7 +326,7 @@ def get_peer_advisors(peer_dept=None):
     result = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     advisors = []
-    for row in result:
+    for row in result.mappings():
         active = False if row['user_deleted_at'] or row['peer_deleted_at'] else True
         peer_role = row['peer_role'] and next(
             filter(lambda r: r.value['code'] == row['peer_role'], PeerAdvisingRole))
@@ -394,7 +394,7 @@ def get_user_filtered_cohorts(user, admits=False):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    for row in results:
+    for row in results.mappings():
         cohort = FilteredCohort({
             'cohort_id': row['cohort_id'],
             'is_ce3': admits,
@@ -417,7 +417,7 @@ def get_user_curated_groups(user, admits=False):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    for row in results:
+    for row in results.mappings():
         group = Cohort({
             'cohort_id': row['cohort_id'],
             'is_ce3': admits,
@@ -463,7 +463,7 @@ def get_everyone_filtered_cohorts(dept=None, admin=False, admits=False):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    for row in results:
+    for row in results.mappings():
         cohort = FilteredCohort({
             'cohort_id': row['cohort_id'],
             'is_ce3': admits,
@@ -509,7 +509,7 @@ def get_everyone_curated_groups(dept=None, admin=False, admits=False):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    for row in results:
+    for row in results.mappings():
         group = Cohort({
             'cohort_id': row['group_id'],
             'is_ce3': admits,
@@ -594,7 +594,7 @@ def get_peer_note_ids(peer, peer_dept_id, date=None):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    return [str(row['id']) for row in results]
+    return [str(row['id']) for row in results.mappings()]
 
 
 def get_peer_dept_note_ids(peer_dept_id=None):
@@ -607,7 +607,7 @@ def get_peer_dept_note_ids(peer_dept_id=None):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    return [str(row['id']) for row in results]
+    return [str(row['id']) for row in results.mappings()]
 
 
 def get_peer_dept_author_ct(peer_dept_id=None):
@@ -653,7 +653,7 @@ def get_advisor_note_drafts(advisor=None):
 
 def get_notes_from_pg_db_result(results, student=None):
     notes = []
-    for row in results:
+    for row in results.mappings():
         app.logger.info(f"Gathering data for BOA note ID {row['id']}")
 
         depts = list(filter(lambda d: d.value['code'] in row['author_dept_codes'], Department))
@@ -759,7 +759,7 @@ def get_user_note_templates(user):
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     templates = []
-    for row in results:
+    for row in results.mappings():
         templates.append(NoteTemplate({'record_id': row['id']}))
     return templates
 
@@ -775,7 +775,7 @@ def get_peer_note_templates(peer_dept):
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     templates = []
-    for row in results:
+    for row in results.mappings():
         templates.append(NoteTemplate({'record_id': row['id'], 'title': row['title']}))
     return templates
 

@@ -348,7 +348,7 @@ def user_factory(app, db):
     def _user_factory(
             automate_degree_progress_permission=None,
             can_access_canvas_data=True,
-            dept_codes=['COENG'],
+            dept_codes=None,
             degree_progress_permission=None,
             has_calnet_record=True,
             is_admin=False,
@@ -359,7 +359,7 @@ def user_factory(app, db):
             can_access_canvas_data=can_access_canvas_data,
             db=db,
             degree_progress_permission=degree_progress_permission,
-            dept_codes=dept_codes,
+            dept_codes=dept_codes or ['COENG'],
             has_calnet_record=has_calnet_record,
             is_admin=is_admin,
         )
@@ -421,10 +421,10 @@ def _create_user(
         automate_degree_progress_permission,
         can_access_canvas_data,
         db,
+        dept_codes,
         degree_progress_permission,
         has_calnet_record,
         is_admin,
-        dept_codes=[],
 ):
     from boac.models.json_cache import insert_row as insert_in_json_cache
     from boac.models.university_dept import UniversityDept

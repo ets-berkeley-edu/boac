@@ -77,7 +77,7 @@ def get_peer_advising_note_author_count(peer_advising_department_id=None):
             {'AND pm.peer_advising_department_id = :peer_advising_department_id' if peer_advising_department_id else ''}
     """
     results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
-    return [row['count'] for row in results][0]
+    return [row['count'] for row in results.mappings()][0]
 
 
 def get_peer_advising_note_count_since(peer_advising_department_id, timeframe_month=None):
@@ -90,7 +90,7 @@ def get_peer_advising_note_count_since(peer_advising_department_id, timeframe_mo
         {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
     """
     results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
-    return [row['count'] for row in results][0]
+    return [row['count'] for row in results.mappings()][0]
 
 
 def get_all_peer_advising_notes(peer_advising_department_id):
@@ -215,7 +215,7 @@ def get_peer_advising_note_template_usage(peer_advising_department_id):
             'templateTitle': row['title'],
             'noteTemplateUsageCount': row['count'],
         }
-    return [_to_api_json(row) for row in results]
+    return [_to_api_json(row) for row in results.mappings()]
 
 
 def get_total_peer_advising_notes(peer_advising_department_id=None):
@@ -231,4 +231,4 @@ def get_total_peer_advising_notes(peer_advising_department_id=None):
     if peer_advising_department_id:
         params['peer_advising_department_id'] = peer_advising_department_id
     results = db.session.execute(query, params)
-    return [row['count'] for row in results][0]
+    return [row['count'] for row in results.mappings()][0]
