@@ -254,6 +254,8 @@ class BEATestConfig(BEATestBaseConfigs):
             for student_note in all_student_notes:
                 if student_note.subject and 'QA Test' in student_note.subject:
                     app.logger.info(f'Skipping note {student_note.record_id} because it is a testing artifact')
+                elif (student_note.advisor and student_note.advisor.uid == 'None') or not student_note.advisor:
+                    app.logger.info(f'Skipping note {student_note.record_id} because the advisor has no UID')
                 else:
                     all_notes.append(student_note)
 

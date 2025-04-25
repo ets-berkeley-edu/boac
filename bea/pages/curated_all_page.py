@@ -35,11 +35,17 @@ class EveryoneGroupsPage(BoaPages):
     ADMIT_GROUP = By.XPATH, '//li[contains(., "Admitted Students")]/a'
 
     def visible_student_groups(self):
-        self.wait_for_element_and_click(self.EXPAND_ALL_BTN)
+        self.wait_for_spinner()
+        if self.is_present(self.EXPAND_ALL_BTN):
+            self.wait_for_element_and_click(self.EXPAND_ALL_BTN)
         self.when_present(self.STUDENT_GROUP, utils.get_short_timeout())
         self.wait_for_spinner()
         return self.els_text_if_exist(self.STUDENT_GROUP)
 
     def visible_admit_groups(self):
+        self.wait_for_spinner()
+        if self.is_present(self.EXPAND_ALL_BTN):
+            self.wait_for_element_and_click(self.EXPAND_ALL_BTN)
+        self.when_present(self.ADMIT_GROUP, utils.get_short_timeout())
         self.wait_for_spinner()
         return self.els_text_if_exist(self.ADMIT_GROUP)

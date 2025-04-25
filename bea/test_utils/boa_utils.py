@@ -94,22 +94,24 @@ def create_admin_user(user):
 
 def soft_delete_users(users):
     uids = utils.in_op([u.uid for u in users])
-    sql = f'UPDATE authorized_users SET deleted_at = now() WHERE uid IN ({uids})'
-    app.logger.info(sql)
-    db.session.execute(text(sql))
-    std_commit(allow_test_environment=True)
+    if uids:
+        sql = f'UPDATE authorized_users SET deleted_at = now() WHERE uid IN ({uids})'
+        app.logger.info(sql)
+        db.session.execute(text(sql))
+        std_commit(allow_test_environment=True)
 
 
 def soft_delete_peer_memberships(users):
     uids = utils.in_op([u.uid for u in users])
-    sql = f"""UPDATE peer_advising_department_members
-                 SET deleted_at = now()
-                FROM authorized_users
-               WHERE peer_advising_department_members.authorized_user_id = authorized_users.id
-                 AND authorized_users.uid IN ({uids})"""
-    app.logger.info(sql)
-    db.session.execute(text(sql))
-    std_commit(allow_test_environment=True)
+    if uids:
+        sql = f"""UPDATE peer_advising_department_members
+                     SET deleted_at = now()
+                    FROM authorized_users
+                   WHERE peer_advising_department_members.authorized_user_id = authorized_users.id
+                     AND authorized_users.uid IN ({uids})"""
+        app.logger.info(sql)
+        db.session.execute(text(sql))
+        std_commit(allow_test_environment=True)
 
 
 def hard_delete_user(user):

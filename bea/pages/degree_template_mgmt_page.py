@@ -185,4 +185,4 @@ class DegreeTemplateMgmtPage(BoaPages):
 
     # BATCH SUCCESS
 
-    BATCH_SUCCESS_MSG = By.ID, 'alert-batch-created'
+    BATCH_SUCCESS_MSG = By.XPATH, '//div[@class="v-alert__content"][contains(., "Success!")]'

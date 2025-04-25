@@ -246,7 +246,7 @@ class CreateNoteModal(Page):
         if date:
             self.wait_for_textbox_and_send_keys(self.SET_DATE_INPUT, date)
         else:
-            self.remove_chars(self.SET_DATE_INPUT)
+            self.clear_element(self.SET_DATE_INPUT)
         time.sleep(1)
         self.hit_tab()
 
@@ -477,7 +477,7 @@ class CreateNoteModal(Page):
     # TEMPLATES
 
     TEMPLATES_BUTTON = By.ID, 'my-templates-button'
-    TEMPLATE_BUTTON = By.XPATH, '//div[starts-with(@id, "load-note-template")]'
+    TEMPLATE_BUTTON = By.XPATH, '//*[starts-with(@id, "load-note-template")]'
     NO_TEMPLATES_MSG = By.XPATH, '//div[contains(text(), "You have no saved templates")]'
     DUPE_TEMPLATE_TITLE_MSG = By.XPATH, '//div[contains(text(), "You have an existing template with this name")]'
 

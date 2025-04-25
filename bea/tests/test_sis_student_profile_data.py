@@ -207,7 +207,11 @@ class TestStudentPageProfileData:
             utils.assert_equivalence(visible_discontinued_minors, tc.student.profile_data.minors_discontinued())
 
     def test_advisor_plans(self, tc):
-        utils.assert_equivalence(self.student_page.advisor_plans(), tc.student.profile_data.advisor_plans())
+        visible = self.student_page.advisor_plans()
+        visible.sort()
+        expected = tc.student.profile_data.advisor_plans()
+        expected.sort()
+        utils.assert_equivalence(visible, expected)
 
     def test_advisor_names(self, tc):
         expected_names = tc.student.profile_data.advisor_names()

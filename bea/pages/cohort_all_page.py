@@ -36,10 +36,16 @@ class EveryoneCohortsPage(BoaPages):
 
     def visible_student_cohorts(self):
         self.wait_for_spinner()
-        self.wait_for_element_and_click(self.EXPAND_ALL_BTN)
+        if self.is_present(self.EXPAND_ALL_BTN):
+            self.wait_for_element_and_click(self.EXPAND_ALL_BTN)
         self.when_present(self.STUDENT_COHORT, utils.get_short_timeout())
+        self.wait_for_spinner()
         return self.els_text_if_exist(self.STUDENT_COHORT)
 
     def visible_admit_cohorts(self):
+        self.wait_for_spinner()
+        if self.is_present(self.EXPAND_ALL_BTN):
+            self.wait_for_element_and_click(self.EXPAND_ALL_BTN)
+        self.when_present(self.ADMIT_COHORT, utils.get_short_timeout())
         self.wait_for_spinner()
         return self.els_text_if_exist(self.ADMIT_COHORT)

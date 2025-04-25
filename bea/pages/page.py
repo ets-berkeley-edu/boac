@@ -246,12 +246,15 @@ class Page(object):
         if el_tag in ['input', 'textarea'] and not self.el_value(locator):
             app.logger.info(f'Element of type {el_tag} at {locator} has no value, no need to clear it')
         else:
-            self.wait_for_element_and_click(locator)
-            time.sleep(utils.get_click_sleep())
-            repeat = 500
-            for x in range(repeat):
-                self.hit_delete()
-                self.hit_backspace()
+            self.clear_element(locator)
+
+    def clear_element(self, locator):
+        self.wait_for_element_and_click(locator)
+        time.sleep(utils.get_click_sleep())
+        repeat = 500
+        for x in range(repeat):
+            self.hit_delete()
+            self.hit_backspace()
 
     def type_chars(self, locator, string):
         for i in string:

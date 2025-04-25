@@ -186,8 +186,7 @@ class SearchForm(Page):
         self.wait_for_textbox_and_send_keys(self.NOTE_AUTHOR, name)
         self.when_present(self.AUTHOR_AUTO_SUGGEST_OPTION, utils.get_short_timeout())
         for el in self.elements(self.AUTHOR_AUTO_SUGGEST_OPTION):
-            text = el.get_dom_attribute('innerText')
-            if text.lower() in names:
+            if el.text.lower() in names:
                 el.click()
             else:
                 raise RuntimeError(f'No match found for any name in {names}')

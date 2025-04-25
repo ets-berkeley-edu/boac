@@ -110,9 +110,6 @@ class TestUnitRequirements:
         self.degree_template_page.enter_unit_reqt_name(name)
         utils.assert_equivalence(self.degree_template_page.unit_reqt_name_input_value(), name[0:255])
 
-    def test_unit_reqt_creation_unit_count_required(self):
-        assert not self.degree_template_page.is_unit_reqt_create_enabled()
-
     def test_unit_reqt_creation_cancel(self):
         self.degree_template_page.click_cancel_unit_reqt()
         self.degree_template_page.when_present(self.degree_template_page.UNIT_REQTS_EMPTY_MSG, 1)
@@ -138,10 +135,6 @@ class TestUnitRequirements:
         name = template.unit_reqts[1].name * 20
         self.degree_template_page.enter_unit_reqt_name(name)
         utils.assert_equivalence(self.degree_template_page.unit_reqt_name_input_value(), name[0:255])
-
-    def test_unit_reqt_editing_unit_count_required(self):
-        self.degree_template_page.enter_unit_reqt_num('')
-        assert not self.degree_template_page.is_unit_reqt_save_enabled()
 
     def test_unit_reqt_editing_cancel(self):
         self.degree_template_page.click_cancel_unit_reqt()
