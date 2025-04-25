@@ -32,11 +32,11 @@
       />
     </div>
     <div
-      v-for="category in _filter(degreeStore.categories, c => c.position === position && isNil(c.parentCategoryId))"
+      v-for="(category, index) in _filter(degreeStore.categories, c => c.position === position && isNil(c.parentCategoryId))"
       :id="`column-${position}-category-${category.id}`"
       :key="category.id"
       :aria-labelledby="`column-${position}-category-${category.id}-header`"
-      class="mt-4"
+      :class="{'mt-3': index === 0, 'mt-6': index > 0}"
       role="region"
     >
       <Category
@@ -80,7 +80,7 @@
           v-for="subcategory in category.subcategories"
           :id="`column-${position}-subcategory-${subcategory.id}`"
           :key="subcategory.id"
-          class="mt-4"
+          class="mt-6"
         >
           <Category
             v-if="subcategory.id !== get(categoryForEdit, 'id')"
@@ -96,7 +96,7 @@
             :existing-category="subcategory"
             :position="position"
           />
-          <div class="mt-2">
+          <div class="mt-3">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"
               :items="getItemsForCoursesTable(subcategory)"
