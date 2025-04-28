@@ -1,5 +1,9 @@
 <template>
-  <div v-if="!isTimelineLoading" aria-labelledby="student-academic-timeline-header" role="region">
+  <div
+    v-if="!isTimelineLoading"
+    aria-labelledby="student-academic-timeline-header"
+    role="region"
+  >
     <AcademicTimelineHeader
       :counts-per-type="countsPerType"
       :filter="selectedFilter"
@@ -7,7 +11,12 @@
       :set-filter="setFilter"
       :student="student"
     />
-    <div class="pt-3">
+    <div
+      :class="{
+        'pt-3': ['appointment', 'note'].includes(selectedFilter)
+      }"
+      class="border-sm"
+    >
       <AcademicTimelineTable
         :count-per-active-tab="selectedFilter ? countsPerType[selectedFilter] : size(messages)"
         :selected-filter="selectedFilter"
@@ -70,6 +79,7 @@ onMounted(() => {
       messages.value.push(message)
     })
   })
+  countsPerType.value['all'] = messages.value.length
   sortMessages()
   isTimelineLoading.value = false
   eventHandlers.value = {

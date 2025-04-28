@@ -23,47 +23,55 @@
         />
       </div>
     </div>
-    <div class="border-b-sm">
-      <v-tabs
-        v-model="selectedTab"
-        aria-label="Academic Timeline"
-        :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
-        class="mt-2"
-        :class="{'horizontal-tabs': $vuetify.display.mdAndUp}"
-        color="primary"
-        density="compact"
-        :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
-        selected-class="bg-sky-blue font-weight-bold"
-        @update:model-value="onUpdateTabsModel"
+    <v-tabs
+      v-model="selectedTab"
+      aria-label="Academic Timeline"
+      :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
+      :class="{'horizontal-tabs': $vuetify.display.mdAndUp}"
+      color="primary"
+      density="compact"
+      :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
+      selected-class="bg-sky-blue font-weight-bold"
+      @update:model-value="onUpdateTabsModel"
+    >
+      <v-tab
+        v-if="tabs.length > 1"
+        id="timeline-tab-all"
+        aria-controls="timeline-messages"
+        :class="{
+          'bg-white border-b-0': selectedTab === 'all',
+          'bg-grey-lighten-4 border-b-md': selectedTab !== 'all'
+        }"
+        class="border-s-sm border-e-sm border-t-sm pb-1 rounded-t-lg"
+        value="all"
+        variant="text"
       >
+        <span class="sr-only">Show </span>All <span class="letter-spacing-compact ml-1">({{ countsPerType['all'] }})</span>
+      </v-tab>
+      <template v-for="(tab, index) in tabs" :key="tab">
+        <div v-if="tabs.length > 1" class="border-b-md tab-divider" />
         <v-tab
-          id="timeline-tab-all"
-          aria-controls="timeline-messages"
-          class="border-s-sm border-t-sm"
-          value="all"
-          variant="tonal"
+          :id="`timeline-tab-${tab}`"
+          class="border-s-sm border-e-sm border-t-sm pb-1 rounded-t-lg"
+          :class="{
+            'bg-white border-b-0': selectedTab === tab,
+            'bg-grey-lighten-4 border-b-md': selectedTab !== tab,
+            'ml-0': index === 0
+          }"
+          :value="tab"
+          variant="text"
         >
-          <span class="sr-only">Show </span>All
+          <span class="sr-only">Show </span>{{ filterTypes[tab].tab }} <span class="letter-spacing-compact ml-1">({{ countsPerType[tab] }})</span>
         </v-tab>
-        <v-tab
-          v-for="type in keys(filterTypes)"
-          :id="`timeline-tab-${type}`"
-          :key="type"
-          :disabled="!countsPerType[type]"
-          :value="type"
-          variant="tonal"
-        >
-          <span class="sr-only">Show </span>{{ filterTypes[type].tab }}
-        </v-tab>
-      </v-tabs>
-    </div>
+      </template>
+    </v-tabs>
   </div>
 </template>
 
 <script setup>
-import {includes, keys} from 'lodash'
+import {filter as _filter, includes, keys} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
-import {ref} from 'vue'
+import {computed, ref} from 'vue'
 import {putFocusNextTick} from '@/lib/utils'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import {useContextStore} from '@/stores/context'
@@ -99,6 +107,7 @@ const noteStore = useNoteStore()
 const currentUser = contextStore.currentUser
 const isEditingNote = ref(false)
 const selectedTab = ref(undefined)
+const tabs = computed(() => _filter(keys(props.filterTypes), key => !!props.countsPerType[key]))
 
 const onModalClose = note => {
   isEditingNote.value = false
@@ -111,5 +120,8 @@ const onUpdateTabsModel = value => props.setFilter(value === 'all' ? null : valu
 <style scoped>
 .horizontal-tabs {
   min-width: 680px;
+}
+.tab-divider {
+  width: 8px;
 }
 </style>
