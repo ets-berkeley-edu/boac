@@ -72,7 +72,7 @@ class CohortFilterOptions:
                     # If it is available then populate menu options
                     options = d.pop('options')
                     options = options() if callable(options) else options
-                    if d['type']['ux'] == 'dropdown' and not len(options):
+                    if d['type']['ux'] == 'dropdown' and not (options and len(options)):
                         d['disabled'] = True
                     else:
                         d['options'] = options
