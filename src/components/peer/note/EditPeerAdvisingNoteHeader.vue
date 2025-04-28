@@ -53,6 +53,6 @@ onMounted(() => {
 const templateSelected = (template: NoteTemplate) => {
   emit('template-selected', template)
   alertScreenReader(`Using template ${template.title}.`)
-  putFocusNextTick('find-student-autocomplete')
+  putFocusNextTick('find-student-autocomplete-input')
 }
 </script>
