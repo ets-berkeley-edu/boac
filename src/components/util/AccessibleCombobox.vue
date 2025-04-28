@@ -6,6 +6,7 @@
       ref="container"
       v-model="model"
       :aria-describedby="undefined"
+      :aria-description="ariaDescription"
       :aria-required="required"
       :autocomplete="autocomplete"
       :base-color="color"
