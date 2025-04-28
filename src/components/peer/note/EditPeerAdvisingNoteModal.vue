@@ -19,16 +19,12 @@
           />
         </v-card-title>
         <v-card-text class="peer-advising-note-modal-content pb-6 pt-0 px-6">
+          <PeerAdvisingNoteStudentLookup
+            :on-clear-selected-student="onClearSelectedStudent"
+            :on-select-student="onSelectStudent"
+          />
           <v-expand-transition>
-            <PeerAdvisingNoteStudentLookup
-              :on-clear-selected-student="onClearSelectedStudent"
-              :on-select-student="onSelectStudent"
-            />
-          </v-expand-transition>
-          <v-expand-transition aria-live="polite">
-            <div v-if="student" class="pb-1 pt-2">
-              <CompactStudentCourseSchedule :student="student" />
-            </div>
+            <CompactStudentCourseSchedule v-if="student" class="pb-1 pt-2" :student="student" />
           </v-expand-transition>
           <RichTextEditor
             id="peer-advising-note-body"
@@ -189,7 +185,7 @@ const onSelectStudent = (selectedStudent: BasicStudentLabeled | undefined) => {
       student.value = data
       setNoteRecipient(sid)
       alertScreenReader(`${studentName.value} selected`)
-      putFocusNextTick('find-student-autocomplete-clear-btn')
+      putFocusNextTick('show-hide-student-enrollments')
     })
   } else {
     onClearSelectedStudent()
