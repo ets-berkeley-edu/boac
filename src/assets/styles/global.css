@@ -283,6 +283,9 @@
   -webkit-filter: blur(15px) contrast(0.2);
   filter: blur(15px) contrast(0.2);
 }
+.letter-spacing-compact {
+  letter-spacing: -1px;
+}
 .letter-spacing-normal {
   letter-spacing: normal;
 }
