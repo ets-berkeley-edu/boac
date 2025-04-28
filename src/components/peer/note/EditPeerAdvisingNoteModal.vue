@@ -175,8 +175,10 @@ const discardRequested = () => {
 }
 
 const onClearSelectedStudent = () => {
-  alertScreenReader(`Removed ${studentName.value}`)
-  student.value = undefined
+  if (student.value) {
+    alertScreenReader(`Removed ${studentName.value}`)
+    student.value = undefined
+  }
   clearNoteRecipients()
 }
 

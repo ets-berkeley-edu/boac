@@ -6,15 +6,18 @@
       class="font-size-16 font-weight-bold"
     >
       {{ label }}
-      <span v-if="showAdvisingNoteBestPractices" class="font-size-14 font-weight-500">
-        (<a
-          id="link-to-advising-note-best-practices"
-          href="https://advisingmatters.berkeley.edu/resources/shared-advising-notes"
-          target="_blank"
-          aria-label="Shared advising note best practices (opens in new window)"
-        >Shared advising note best practices<v-icon :icon="mdiOpenInNew" class="pl-1" /></a>)
-      </span>
     </label>
+    <span v-if="showAdvisingNoteBestPractices" class="font-size-14 font-weight-500 pl-2">
+      <span :aria-hidden="true">(</span>
+      <a
+        id="link-to-advising-note-best-practices"
+        class="d-inline-block"
+        href="https://advisingmatters.berkeley.edu/resources/shared-advising-notes"
+        target="_blank"
+        aria-label="Shared advising note best practices (opens in new window)"
+      >Shared advising note best practices<v-icon :icon="mdiOpenInNew" class="pl-1" /></a>
+      <span :aria-hidden="true">)</span>
+    </span>
     <div
       :id="ckElementId"
       aria-details="link-to-advising-note-best-practices"
