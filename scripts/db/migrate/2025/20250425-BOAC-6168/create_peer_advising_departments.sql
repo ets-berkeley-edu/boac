@@ -4,9 +4,7 @@ BEGIN;
 INSERT INTO peer_advising_departments
   (name, university_dept_id, created_at, updated_at)
 VALUES
- ('Educational Opportunity Program', 12, now(), now()),
- ('NAVCAL', 12, now(), now()),
- ('Transfer Student Center', 12, now(), now());
+  ('CE3', 12, now(), now());
 
 -- College of Engineering (COENG)
 INSERT INTO peer_advising_departments
