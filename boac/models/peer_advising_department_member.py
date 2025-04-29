@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.lib.util import utc_now
 from boac.models.base import Base
+from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import ENUM
 
 role_types = ENUM(
@@ -124,7 +125,7 @@ class PeerAdvisingDepartmentMember(Base):
                 {'' if include_deleted else 'AND pm.deleted_at IS NULL'}
         """
         memberships_by_user_id = {}
-        for row in db.session.execute(sql, {'authorized_user_ids': authorized_user_ids}):
+        for row in db.session.execute(text(sql), {'authorized_user_ids': authorized_user_ids}).mappings():
             authorized_user_id = row['authorized_user_id']
             if authorized_user_id not in memberships_by_user_id:
                 memberships_by_user_id[authorized_user_id] = []

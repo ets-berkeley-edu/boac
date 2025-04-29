@@ -108,7 +108,7 @@ def _bg_executor(app, method):
                     session = scoped_session(session_factory)
                     method(db_session=session)
                 except Exception as e:
-                    app.logger.exception(e)
+                    app.logger.exception(f'Failed during background thread, when invoking method {method}.', exc_info=e)
                     raise e
                 finally:
                     advisory_unlock(app, lock_connection, BACKGROUND_THREAD_LOCK_ID)

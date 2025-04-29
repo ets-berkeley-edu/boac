@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 import json
 import re
 import time
@@ -185,7 +185,8 @@ class Alert(Base):
 
     @classmethod
     def current_alerts_for_sid(cls, viewer_id, sid):
-        query = text("""
+        feed = []
+        sql = """
             SELECT alerts.*, alert_views.dismissed_at
             FROM alerts LEFT JOIN alert_views
                 ON alert_views.alert_id = alerts.id
@@ -194,13 +195,13 @@ class Alert(Base):
                 AND alerts.key LIKE :key
                 AND alerts.sid = :sid
             ORDER BY alerts.created_at
-        """)
-        results = db.session.execute(query, {'viewer_id': viewer_id, 'key': current_term_id() + '_%', 'sid': sid})
-        feed = []
+        """
 
         def result_to_dict(result):
             return {camelize(key): result[key] for key in ['id', 'alert_type', 'key', 'message']}
-        for result in results:
+
+        results = db.session.execute(text(sql), {'viewer_id': viewer_id, 'key': current_term_id() + '_%', 'sid': sid})
+        for result in results.mappings():
             dismissed_at = result['dismissed_at']
             alert = {
                 **result_to_dict(result),
@@ -241,7 +242,7 @@ class Alert(Base):
         # If the existing alert was only just deactivated in the last two hours, assume that the deactivation was part of the
         # current refresh cycle, and go ahead and reactivate it. But if the alert was deactivated farther back in the past,
         # assume that it represents a previous state of affairs, and create a new alert for current conditions.
-        if existing_alert and (force_use_existing or (datetime.now(timezone.utc) - existing_alert.updated_at).total_seconds() < (2 * 3600)):
+        if existing_alert and (force_use_existing or (datetime.now(UTC) - existing_alert.updated_at).total_seconds() < (2 * 3600)):
             existing_alert.message = message
             existing_alert.activate(preserve_creation_date=preserve_creation_date)
         else:

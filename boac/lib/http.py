@@ -105,7 +105,7 @@ def request(url, headers=None, method='get', auth=None, auth_params=None, **kwar
             urllib_logger.setLevel(saved_level)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        app.logger.exception(e)
+        app.logger.exception(f'Failed on HTTP {method} with URL {url}', exc_info=e)
         return ResponseExceptionWrapper(e, response)
     else:
         return response
