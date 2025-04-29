@@ -24,6 +24,7 @@
       </div>
     </div>
     <v-tabs
+      v-if="!isAcademicTimelineEmpty"
       v-model="selectedTab"
       aria-label="Academic Timeline"
       :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
@@ -105,6 +106,7 @@ const contextStore = useContextStore()
 const noteStore = useNoteStore()
 
 const currentUser = contextStore.currentUser
+const isAcademicTimelineEmpty = !props.countsPerType['all']
 const isEditingNote = ref(false)
 const selectedTab = ref(undefined)
 const tabs = computed(() => _filter(keys(props.filterTypes), key => !!props.countsPerType[key]))

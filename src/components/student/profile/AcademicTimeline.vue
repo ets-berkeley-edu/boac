@@ -13,9 +13,9 @@
     />
     <div
       :class="{
+        'border-sm': !!messages.length,
         'pt-3': ['appointment', 'note'].includes(selectedFilter)
       }"
-      class="border-sm"
     >
       <AcademicTimelineTable
         :count-per-active-tab="selectedFilter ? countsPerType[selectedFilter] : size(messages)"
