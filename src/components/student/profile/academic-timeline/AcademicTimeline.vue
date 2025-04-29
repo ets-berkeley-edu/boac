@@ -14,7 +14,7 @@
     <div
       :class="{
         'border-sm': !!messages.length,
-        'pt-3': ['appointment', 'note'].includes(selectedFilter)
+        'pt-3': ['appointment', 'eForm', 'note'].includes(selectedFilter) && countsPerType[selectedFilter] > 1
       }"
     >
       <AcademicTimelineTable
@@ -33,8 +33,8 @@
 import {DateTime} from 'luxon'
 import {each, find, findIndex, get, keys, remove, size} from 'lodash'
 import {onMounted, onUnmounted, ref} from 'vue'
-import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelineHeader'
-import AcademicTimelineTable from '@/components/student/profile/AcademicTimelineTable'
+import AcademicTimelineHeader from '@/components/student/profile/academic-timeline/AcademicTimelineHeader'
+import AcademicTimelineTable from '@/components/student/profile/academic-timeline/AcademicTimelineTable'
 import {getNote} from '@/api/notes'
 import {useContextStore} from '@/stores/context'
 

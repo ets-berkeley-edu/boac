@@ -40,7 +40,7 @@
 import {each, get, noop} from 'lodash'
 import {onBeforeRouteLeave, useRoute} from 'vue-router'
 import {onMounted, reactive, ref} from 'vue'
-import AcademicTimeline from '@/components/student/profile/AcademicTimeline'
+import AcademicTimeline from '@/components/student/profile/academic-timeline/AcademicTimeline'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import StudentClasses from '@/components/student/profile/StudentClasses'
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'

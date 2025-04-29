@@ -136,7 +136,7 @@
       <div v-if="!note.legacySource || size(note.attachments)" class="note-attachments-container mt-1">
         <AdvisingNoteAttachments
           :add="addNoteAttachments"
-          :attachments="note.attachments"
+          :attachments="note.attachments || []"
           class="attachments-edit py-3"
           :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
           :id-prefix="`note-${note.id}`"

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-expand-transition>
+    <v-expand-transition v-if="countPerActiveTab > 1">
       <div v-if="isExpandAllAvailable" class="align-center d-flex flex-wrap font-size-14">
         <h3 class="sr-only">Quick Links</h3>
         <div class="pl-2 pb-2">
@@ -14,21 +14,27 @@
             @click.prevent="toggleExpandAll"
           >
             <v-icon :icon="allExpanded ? mdiMenuDown : mdiMenuRight" />
-            <span class="text-no-wrap">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ selectedFilter }}s</span>
+            <span class="text-no-wrap">{{ allExpanded ? 'Collapse' : 'Expand' }} all<span class="sr-only"> {{ selectedFilter }}s</span></span>
           </v-btn>
         </div>
         <div v-if="showDownloadNotesLink" class="pl-3 pb-2" role="separator">|</div>
         <div v-if="showDownloadNotesLink" class="pl-3 pb-2">
-          <a id="download-notes-link" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${selectedFilter}`">Download {{ selectedFilter }}s</a>
+          <a
+            id="download-notes-link"
+            :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${selectedFilter}`"
+          >
+            Download {{ selectedFilter }}s
+          </a>
         </div>
         <div class="pl-3 pb-2" role="separator">|</div>
         <div class="align-center d-flex pl-3 pb-2">
           <label
             :id="`timeline-${selectedFilter}s-query-label`"
             :for="`timeline-${selectedFilter}s-query-input`"
-            class="font-weight-bold mb-0 mr-1 text-no-wrap v-btn--variant-plain"
+            :class="{'text-grey': !messagesVisible.length}"
+            class="font-weight-bold mb-0 mr-2 text-no-wrap v-btn--variant-plain"
           >
-            Search {{ selectedFilter === 'eForm' ? 'eForm' : capitalize(selectedFilter) }}s:
+            Search<span class="sr-only"> {{ selectedFilter === 'eForm' ? 'eForm' : capitalize(selectedFilter) }}s</span>:
           </label>
           <v-text-field
             :id="`timeline-${selectedFilter}s-query-input`"
@@ -36,32 +42,49 @@
             bg-color="pale-blue"
             class="academic-timeline-search-input"
             color="primary"
+            :disabled="!messagesVisible.length && !timelineQuery"
             flat
             hide-details
             type="search"
           />
         </div>
-        <div v-if="showMyNotesToggle" class="pl-3 pb-2" role="separator">|</div>
-        <div v-if="showMyNotesToggle" class="pl-3 pb-2">
-          <div class="align-center d-flex font-weight-bold">
-            <label for="toggle-my-notes-button" class="mr-3" :class="showMyNotesOnly ? 'text-medium-emphasis' : 'text-primary'">
-              <span class="sr-only">Show </span>All {{ selectedFilter }}s
+        <div v-if="['appointment', 'note'].includes(selectedFilter)" class="align-center d-flex pl-3">
+          <div class="pb-2" role="separator">|</div>
+          <div class="align-center d-flex font-weight-bold pl-3 pb-2">
+            <label for="toggle-my-notes-button" class="mr-2">
+              Show {{ selectedFilter }}s:
             </label>
-            <div class="mr-3">
-              <v-switch
-                id="toggle-my-notes-button"
-                v-model="showMyNotesOnly"
-                aria-label="Show Only My Notes"
-                density="compact"
+            <v-btn-toggle
+              v-model="showing"
+              class="border-sm"
+              color="primary"
+              density="compact"
+              divided
+              mandatory
+              variant="flat"
+            >
+              <v-btn
+                id="show-all"
                 color="primary"
-                hide-details
-                role="switch"
+                density="compact"
+                text="All"
+                value="all"
               />
-            </div>
-            <label for="toggle-my-notes-button" :class="showMyNotesOnly ? 'text-primary' : 'text-medium-emphasis'">
-              <span class="sr-only">Show only </span>My {{ selectedFilter }}s
-            </label>
-            <span aria-live="polite" class="sr-only">Showing {{ showMyNotesOnly ? 'only my notes' : 'all notes' }}</span>
+              <v-btn
+                id="show-mine"
+                color="primary"
+                density="compact"
+                text="Mine"
+                value="mine"
+              />
+              <v-btn
+                id="show-department"
+                color="primary"
+                density="compact"
+                text="Department"
+                value="department"
+              />
+            </v-btn-toggle>
           </div>
         </div>
       </div>
@@ -70,15 +93,18 @@
       v-if="!searchResults && !messagesVisible.length"
       id="zero-messages"
       aria-live="polite"
-      :class="{'my-4': selectedFilter, 'mb-8': !selectedFilter}"
-      class="font-size-16 font-weight-bold ml-6 text-medium-emphasis"
+      :class="{'mb-6 mt-4': selectedFilter, 'mb-8': !selectedFilter}"
+      class="font-size-16 ml-6 text-medium-emphasis"
     >
-      <span v-if="selectedFilter && showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s authored by you.</span>
-      <span v-if="selectedFilter && !showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s</span>
+      <span v-if="selectedFilter">
+        No {{ filterTypes[selectedFilter].name.toLowerCase() }}s
+        <span v-if="showing === 'mine'">authored by you.</span>
+        <span v-if="showing === 'department'">authored by your department.</span>
+      </span>
       <span v-if="!selectedFilter">None</span>
     </div>
-    <div v-if="searchResults" class="mb-2">
-      <h3 id="search-results-header" class="font-size-16">
+    <div v-if="searchResults" class="mb-4 ml-8 mt-2">
+      <h3 id="search-results-header" class="font-size-16 font-weight-500">
         {{ pluralize(`advising ${selectedFilter}`, searchResults.length, {1: 'One'}) }} for
         <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
         with '{{ trim(timelineQuery) }}'
@@ -504,7 +530,7 @@ const messageForDelete = ref(undefined)
 const openMessages = ref([])
 const searchIndex = ref(undefined)
 const searchResults = ref(undefined)
-const showMyNotesOnly = ref(false)
+const showing = ref('all')
 const timelineQuery = ref('')
 
 const activeTab = computed(() => props.selectedFilter || 'all')
@@ -512,7 +538,7 @@ const isExpandAllAvailable = computed(() => ['appointment', 'eForm', 'note'].inc
 const messagesVisible = computed(() => {
   return (searchResults.value || (isShowingAll.value ? messagesPerType(props.selectedFilter) : slice(messagesPerType(props.selectedFilter), 0, defaultShowPerTab.value)))
 })
-const offerShowAll = computed(() => !searchResults.value && (props.countPerActiveTab > defaultShowPerTab.value))
+const offerShowAll = computed(() => !searchResults.value && messagesVisible.value.length && (props.countPerActiveTab > defaultShowPerTab.value))
 const showDeleteConfirmModal = computed(() => !!messageForDelete.value)
 const showDownloadNotesLink = computed(() => {
   const hasNonDrafts = () => {
@@ -523,7 +549,6 @@ const showDownloadNotesLink = computed(() => {
     && (currentUser.isAdmin || isDirector(currentUser))
     && hasNonDrafts()
 })
-const showMyNotesToggle = computed(() => ['appointment', 'note'].includes(props.selectedFilter))
 
 watch(() => props.selectedFilter, () => {
   allExpanded.value = false
@@ -715,7 +740,7 @@ const messagesPerType = type => {
   let messages
   if (!type) {
     messages = props.messages
-  } else if (showMyNotesToggle.value && showMyNotesOnly.value) {
+  } else if (['appointment', 'note'].includes(props.selectedFilter) && showing.value !== 'all') {
     messages = filter(props.messages, m => {
       const uid = (m.author && m.author.uid) || (m.advisor && m.advisor.uid)
       return m.type === type && uid === currentUser.uid
