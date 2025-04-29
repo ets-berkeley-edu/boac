@@ -171,6 +171,10 @@ const props = defineProps({
   noteId: {
     required: true,
     type: Number
+  },
+  initialMode: {
+    required: true,
+    type: String
   }
 })
 
@@ -201,6 +205,7 @@ onMounted(() => {
   getNote(props.noteId).then(note => {
     noteStore.resetModel()
     noteStore.setModel(note)
+    noteStore.setMode(props.initialMode)
     if (note.sid) {
       setNoteRecipient(note.sid).then(() => resolve(note))
     } else {
