@@ -70,7 +70,8 @@
       v-if="!searchResults && !messagesVisible.length"
       id="zero-messages"
       aria-live="polite"
-      class="font-size-16 font-weight-bold ml-6 my-4 text-medium-emphasis"
+      :class="{'my-4': selectedFilter, 'mb-8': !selectedFilter}"
+      class="font-size-16 font-weight-bold ml-6 text-medium-emphasis"
     >
       <span v-if="selectedFilter && showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s authored by you.</span>
       <span v-if="selectedFilter && !showMyNotesOnly">No {{ filterTypes[selectedFilter].name.toLowerCase() }}s</span>
