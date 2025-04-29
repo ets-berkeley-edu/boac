@@ -36,7 +36,7 @@
             <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
           </div>
         </div>
-        <div v-if="advisor.name && (appointment.legacySource || appointment.createdBy === 'YCBM')" class="mt-2">
+        <div v-if="get(advisor, 'name') && (appointment.legacySource || appointment.createdBy === 'YCBM')" class="mt-2">
           <a
             v-if="advisor.uid"
             :id="`appointment-${appointment.id}-advisor-name`"
@@ -56,7 +56,7 @@
             (appointment imported from {{ appointment.legacySource }})
           </span>
         </div>
-        <div v-if="size(advisor.departments)" class="mt-2 text-medium-emphasis">
+        <div v-if="size(get(advisor, 'departments'))" class="mt-2 text-medium-emphasis">
           <span v-for="(dept, index) in advisor.departments" :key="dept.deptCode">
             <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.deptName }}</span>
           </span>

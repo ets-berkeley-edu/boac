@@ -3,7 +3,7 @@
     <v-expand-transition v-if="countPerActiveTab > 1">
       <div v-if="isExpandAllAvailable" class="align-center d-flex flex-wrap font-size-14">
         <h3 class="sr-only">Quick Links</h3>
-        <div class="pl-2 pb-2">
+        <div class="pb-2 pl-2 toggle-expand-all-container">
           <v-btn
             :id="`toggle-expand-all-${selectedFilter}s`"
             class="px-1"
@@ -27,7 +27,7 @@
           </a>
         </div>
         <div class="pl-3 pb-2" role="separator">|</div>
-        <div class="align-center d-flex pl-3 pb-2">
+        <div class="align-center d-flex pb-2 pl-4">
           <label
             :id="`timeline-${selectedFilter}s-query-label`"
             :for="`timeline-${selectedFilter}s-query-input`"
@@ -48,15 +48,15 @@
             type="search"
           />
         </div>
-        <div v-if="['appointment', 'note'].includes(selectedFilter)" class="align-center d-flex pl-3">
+        <div v-if="['appointment', 'note'].includes(selectedFilter)" class="align-center d-flex pl-4">
           <div class="pb-2" role="separator">|</div>
-          <div class="align-center d-flex font-weight-bold pl-3 pb-2">
+          <div class="align-center d-flex flex-wrap font-weight-bold pb-2 pl-4 text-grey">
             <label for="toggle-my-notes-button" class="mr-2">
               Show {{ selectedFilter }}s:
             </label>
             <v-btn-toggle
-              v-model="showing"
-              class="border-sm"
+              v-model="filterWithinTheTab"
+              class="border-sm btn-toggle-showing-subset"
               color="primary"
               density="compact"
               divided
@@ -64,24 +64,28 @@
               variant="flat"
             >
               <v-btn
-                id="show-all"
+                id="show-all-items"
+                :aria-label="`Show all ${selectedFilter}s`"
                 color="primary"
                 density="compact"
-                text="All"
+                text="All "
                 value="all"
               />
               <v-btn
-                id="show-mine"
+                id="show-items-created-by-me"
+                :aria-label="`Show ${selectedFilter}s created by me`"
                 color="primary"
                 density="compact"
                 text="Mine"
                 value="mine"
               />
               <v-btn
-                id="show-department"
+                v-if="selectedFilter === 'note'"
+                id="show-items-created-by-my-department"
+                :aria-label="`Show ${selectedFilter}s created by my department`"
                 color="primary"
                 density="compact"
-                text="Department"
+                text="My Department"
                 value="department"
               />
             </v-btn-toggle>
@@ -98,8 +102,8 @@
     >
       <span v-if="selectedFilter">
         No {{ filterTypes[selectedFilter].name.toLowerCase() }}s
-        <span v-if="showing === 'mine'">authored by you.</span>
-        <span v-if="showing === 'department'">authored by your department.</span>
+        <span v-if="filterWithinTheTab === 'mine'">authored by you.</span>
+        <span v-if="filterWithinTheTab === 'department'">authored by your department.</span>
       </span>
       <span v-if="!selectedFilter">None</span>
     </div>
@@ -297,13 +301,14 @@
                         v-if="['eForm', 'note'].includes(message.type) && message.id === editModeNoteId"
                         :after-cancel="afterNoteEditCancel"
                         :after-saved="afterEditAdvisingNote"
-                        initial-mode="editDraft"
                         class="pt-2"
+                        initial-mode="editDraft"
                         :note-id="message.id"
                       />
                       <AdvisingAppointment
                         v-if="message.type === 'appointment'"
                         :appointment="message"
+                        class="pt-2"
                         :is-open="isExpanded(message)"
                         :student="student"
                       />
@@ -525,12 +530,12 @@ const currentUser = contextStore.currentUser
 const defaultShowPerTab = ref(5)
 const editModeNoteId = ref(undefined)
 const eventHandlers = ref(undefined)
+const filterWithinTheTab = ref('all')
 const isShowingAll = ref(false)
 const messageForDelete = ref(undefined)
 const openMessages = ref([])
 const searchIndex = ref(undefined)
 const searchResults = ref(undefined)
-const showing = ref('all')
 const timelineQuery = ref('')
 
 const activeTab = computed(() => props.selectedFilter || 'all')
@@ -552,6 +557,7 @@ const showDownloadNotesLink = computed(() => {
 
 watch(() => props.selectedFilter, () => {
   allExpanded.value = false
+  filterWithinTheTab.value = 'all'
   openMessages.value = []
   searchResults.value = null
   timelineQuery.value = ''
@@ -739,13 +745,28 @@ const markRead = message => {
 const messagesPerType = type => {
   let messages
   if (!type) {
+    // Show ALL items: appointments, eForms, notes, etc.
     messages = props.messages
-  } else if (['appointment', 'note'].includes(props.selectedFilter) && showing.value !== 'all') {
-    messages = filter(props.messages, m => {
-      const uid = (m.author && m.author.uid) || (m.advisor && m.advisor.uid)
-      return m.type === type && uid === currentUser.uid
-    })
+  } else if (['appointment', 'note'].includes(props.selectedFilter)) {
+    if (filterWithinTheTab.value === 'mine') {
+      // Show appointments or notes authored by the current-user.
+      messages = filter(props.messages, m => {
+        const author = m.author || m.advisor
+        return m.type === type && get(author, 'uid') === currentUser.uid
+      })
+    } else if (filterWithinTheTab.value === 'department') {
+      // Show notes authored by the department(s) of current-user.
+      const myDeptCodes = map(currentUser.departments, 'deptCode')
+      messages = filter(props.messages, m => {
+        const deptCodes = map(get(m.author || m.advisor, 'departments') || [], 'deptCode')
+        return m.type === type && deptCodes.filter(x => myDeptCodes.includes(x)).length
+      })
+    } else {
+      // Show ALL items of the active tab.
+      messages = filter(props.messages, ['type', type])
+    }
   } else {
+    // Show ALL items of the active tab.
     messages = filter(props.messages, ['type', type])
   }
   return messages
@@ -893,6 +914,9 @@ table {
 .academic-timeline-search-input {
   width: 200px;
 }
+.btn-toggle-showing-subset {
+  height: 32px;
+}
 .collapsed-cancelled-icon {
   font-size: 14px;
   text-transform: uppercase;
@@ -969,5 +993,8 @@ table {
 .td-note-timeline-expanded {
   min-height: 180px;
   position: relative;
+}
+.toggle-expand-all-container {
+  width: 124px;
 }
 </style>
