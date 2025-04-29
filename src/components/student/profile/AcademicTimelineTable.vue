@@ -264,6 +264,7 @@
                         v-if="['eForm', 'note'].includes(message.type) && message.id === editModeNoteId"
                         :after-cancel="afterNoteEditCancel"
                         :after-saved="afterEditAdvisingNote"
+                        initial-mode="editDraft"
                         class="pt-2"
                         :note-id="message.id"
                       />
