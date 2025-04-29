@@ -129,7 +129,7 @@ class Note(Base):
               deleted_at IS NULL AND is_draft IS TRUE
               { f"AND author_uid = '{author_uid}'" if author_uid else ''}
         """)
-        return db.session.execute(query).first()['count']
+        return db.session.execute(query).mappings().first()['count']
 
     @classmethod
     def get_draft_notes(cls, author_uid=None):
@@ -145,7 +145,7 @@ class Note(Base):
             GROUP BY n.id
             ORDER BY n.updated_at DESC
         """
-        for row in db.session.execute(sql):
+        for row in db.session.execute(text(sql)):
             draft_notes.append({
                 'id': row['id'],
                 'attachmentCount': row['attachment_count'],
@@ -207,7 +207,7 @@ class Note(Base):
         """
         notes = []
         params = {'author_uid': author_uid, 'peer_advising_department_id': peer_advising_department_id}
-        for row in db.session.execute(sql, params):
+        for row in db.session.execute(text(sql), params):
             note_id = row['id']
             note = next((n for n in notes if n['id'] == note_id), None)
             if not note:
@@ -692,7 +692,7 @@ class Note(Base):
                 AND sid = :sid
                 {'AND is_draft IS FALSE' if exclude_draft_notes else ''}
         """
-        results = db.session.execute(sql, {'sid': sid})
+        results = db.session.execute(text(sql), {'sid': sid})
         note_ids = [row['id'] for row in results.mappings()]
         return cls.query.filter(cls.id.in_(note_ids)).order_by(cls.updated_at, cls.id).all()
 

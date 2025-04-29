@@ -145,5 +145,5 @@ def log_table_sizes():
             app.logger.info(f"Table {s['table_name']} currently uses {s['total']}")
         return sizes
     except SQLAlchemyError as err:
-        app.logger.exception(f'SQL {sql} threw {err}', exc_info=err)
+        app.logger.exception(f'Error in executing SQL:\n{sql}', exc_info=err)
         return None

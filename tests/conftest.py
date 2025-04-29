@@ -214,8 +214,8 @@ def fake_loch(app):
         key = fixture.replace(f'{fixture_path}/loch/student_', '').replace('.json', '')
         with open(fixture, 'r') as f:
             params[key] = f.read()
-    data_loch_db = create_engine(app.config['DATA_LOCH_RDS_URI'])
-    data_loch_db.execute(text(ddltext), params)
+    with create_engine(app.config['DATA_LOCH_RDS_URI']).begin() as conn:
+        conn.execute(text(ddltext), params)
 
 
 @pytest.fixture(scope='session', autouse=True)
