@@ -292,7 +292,8 @@ def _change_grade_in_data_loch(app, grade, section_id, sid, term_id):
             section['grade'] = grade
             data_loch_db = create_engine(app.config['DATA_LOCH_RDS_URI'])
             sql = f"UPDATE student.student_enrollment_terms SET enrollment_term = '{json.dumps(enrollment_term)}' {where_clause}"
-            data_loch_db.execute(text(sql))
+            with data_loch_db.connect() as conn:
+                conn.execute(text(sql))
             break
 
 

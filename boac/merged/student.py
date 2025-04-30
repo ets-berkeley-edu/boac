@@ -194,7 +194,8 @@ def get_distinct_sids(sids=(), cohort_ids=(), curated_group_ids=()):
         FROM cohort_filters
         WHERE id = ANY(:cohort_ids) AND owner_id = :current_user_id
     """)
-    for row in db.session.execute(query, {'cohort_ids': cohort_ids, 'current_user_id': current_user.get_id()}):
+    params = {'cohort_ids': cohort_ids, 'current_user_id': current_user.get_id()}
+    for row in db.session.execute(query, params).mappings():
         if row and row['sids']:
             all_sids.extend(row['sids'])
     query = text("""
@@ -209,7 +210,7 @@ def get_distinct_sids(sids=(), cohort_ids=(), curated_group_ids=()):
             'curated_group_ids': curated_group_ids,
             'current_user_id': current_user.get_id(),
         },
-    )
+    ).mappings()
     curated_group_sids = [row['sid'] for row in rows]
     all_sids.extend(curated_group_sids)
     return set(all_sids)

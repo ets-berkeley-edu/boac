@@ -464,7 +464,8 @@ def _create_user(
                     {_to_sql_value(advisor_role['cs_permissions'])}
                 );
             """  # noqa: E501
-        create_engine(app.config['DATA_LOCH_RDS_URI']).execute(text(sql))
+        with create_engine(app.config['DATA_LOCH_RDS_URI']).connect() as conn:
+            conn.execute(text(sql))
 
     if has_calnet_record:
         insert_in_json_cache(
