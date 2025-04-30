@@ -1213,12 +1213,12 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
         query_filter += ' AND spi.sid = ANY(%(sids)s)'
         query_bindings.update({'sids': sids})
     if curated_group_ids:
-        results = db.session.execute(
-            'SELECT DISTINCT(sid) FROM student_group_members WHERE student_group_id = ANY(:curated_group_ids)',
-            {'curated_group_ids': curated_group_ids},
-        )
+        sql = 'SELECT DISTINCT(sid) FROM student_group_members WHERE student_group_id = ANY(:curated_group_ids)'
         query_filter += ' AND spi.sid = ANY(%(sids_of_curated_groups)s)'
-        query_bindings.update({'sids_of_curated_groups': [row['sid'] for row in results.mappings()]})
+        params = {'curated_group_ids': curated_group_ids}
+        query_bindings.update({
+            'sids_of_curated_groups': [row['sid'] for row in db.session.execute(text(sql), params).mappings()],
+        })
 
     # Generic SIS criteria
     if academic_standings:

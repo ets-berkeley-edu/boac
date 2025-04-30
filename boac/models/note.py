@@ -168,6 +168,7 @@ class Note(Base):
 
     @classmethod
     def get_note_counts_per_uid(cls, uids, peer_advising_department_id=None):
+        note_counts_per_uid = {}
         sql = f"""
             SELECT u.uid, count(n.id) as note_count
             FROM authorized_users u
@@ -177,8 +178,7 @@ class Note(Base):
             GROUP BY u.uid
         """
         params = {'peer_advising_department_id': peer_advising_department_id, 'uids': uids}
-        note_counts_per_uid = {}
-        for row in db.session.execute(text(sql), params):
+        for row in db.session.execute(text(sql), params).mappings():
             note_counts_per_uid[row['uid']] = row['note_count']
         return note_counts_per_uid
 
@@ -207,7 +207,7 @@ class Note(Base):
         """
         notes = []
         params = {'author_uid': author_uid, 'peer_advising_department_id': peer_advising_department_id}
-        for row in db.session.execute(text(sql), params):
+        for row in db.session.execute(text(sql), params).mappings():
             note_id = row['id']
             note = next((n for n in notes if n['id'] == note_id), None)
             if not note:
@@ -384,7 +384,7 @@ class Note(Base):
             ORDER BY created_at
         """
         api_json = []
-        for row in db.session.execute(text(sql)):
+        for row in db.session.execute(text(sql)).mappings():
             sid = row['sid']
             api_json.append({
                 'author_uid': row['author_uid'],
@@ -428,21 +428,18 @@ class Note(Base):
                 WHERE n.peer_advising_department_id = :peer_advising_department_id AND deleted_at IS NULL
                 {'' if is_count_query else 'OFFSET :offset LIMIT :limit'}
             """
-            results = db.session.execute(
-                params={
-                    'limit': limit,
-                    'offset': offset,
-                    'peer_advising_department_id': peer_advising_department_id,
-                    'query_text': ' & '.join(search_phrases),
-                    'sids': sids,
-                },
-                statement=text(fts_rank_sql),
-            ).fetchall()
-            return results[0]['count'] if is_count_query else results
-
-        search_results = _get_fts_union_query()
-        if search_results:
-            note_id_by_rank = ', '.join([f"({row['id']}, {row['rank']})" for row in search_results])
+            params = {
+                'limit': limit,
+                'offset': offset,
+                'peer_advising_department_id': peer_advising_department_id,
+                'query_text': ' & '.join(search_phrases),
+                'sids': sids,
+            }
+            rows = db.session.execute(text(fts_rank_sql), params).mappings()
+            return rows.first()['count'] if is_count_query else rows
+        rows = [row for row in _get_fts_union_query()]
+        if rows:
+            note_id_by_rank = ', '.join([f"({row['id']}, {row['rank']})" for row in _get_fts_union_query()])
             sql = f"""
                 SELECT n.*, COUNT(a.note_id) AS attachment_count
                 FROM notes n
@@ -454,7 +451,7 @@ class Note(Base):
             search_results = db.session.execute(text(sql))
             keys = search_results.keys()
         return {
-            'results': [dict(zip(keys, row)) for row in search_results],
+            'results': [dict(zip(keys, row)) for row in rows],
             'total_matching_count': _get_fts_union_query(is_count_query=True),
         }
 
@@ -533,8 +530,8 @@ class Note(Base):
         where_clause = 'WHERE notes.is_draft IS FALSE'
         where_clause += '' if include_private_notes else ' AND notes.is_private IS FALSE'
 
-        def _get_query(is_count_query=False):
-            query = f"""
+        def _fetch_result(is_count_query=False):
+            sql = f"""
                 WITH fts AS ({fts_selector})
                 SELECT {'count(notes.*)' if is_count_query else 'notes.*'}
                 FROM fts JOIN notes
@@ -547,20 +544,14 @@ class Note(Base):
                 {where_clause}
             """
             if not is_count_query:
-                query += f"""
+                sql += f"""
                     ORDER BY notes.updated_at DESC, fts.rank DESC
                     OFFSET {offset} LIMIT {limit}
                 """
-            return text(query).bindparams(**params)
-        total_count_result = db.session.execute(_get_query(True))
-        rows = total_count_result.fetchall()
-        total_matching_count = rows[0]['count']
-
-        result = db.session.execute(_get_query())
-        keys = result.keys()
+            return db.session.execute(text(sql), params).mappings()
         return {
-            'results': [dict(zip(keys, row)) for row in result.fetchall()],
-            'total_matching_count': total_matching_count,
+            'results': [row for row in _fetch_result().all()],
+            'total_matching_count': _fetch_result(True).first()['count'],
         }
 
     @classmethod
@@ -877,8 +868,8 @@ def _get_total_count_peer_advising_notes(peer_advising_department_id):
         SELECT count(*) FROM notes
         WHERE deleted_at IS NULL AND is_draft IS FALSE AND peer_advising_department_id = :peer_advising_department_id
     """
-    results = db.session.execute(text(sql), {'peer_advising_department_id': peer_advising_department_id})
-    return results.first()['count']
+    rows = db.session.execute(text(sql), {'peer_advising_department_id': peer_advising_department_id}).mappings()
+    return rows.first()['count']
 
 
 def _validate_sid(is_draft, note_id, sid):

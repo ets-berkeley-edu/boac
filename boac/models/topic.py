@@ -80,14 +80,14 @@ class Topic(db.Model):
         statistics = {
             'notes': {},
         }
-        query = text("""
+        sql = """
             SELECT t.id AS topic_id, COUNT(n.id) AS count
             FROM note_topics n
             JOIN topics t ON t.topic = n.topic
             WHERE n.deleted_at IS NULL
             GROUP BY t.id, n.topic
-        """)
-        for row in db.session.execute(query):
+        """
+        for row in db.session.execute(text(sql)).mappings():
             topic_id = row['topic_id']
             statistics['notes'][topic_id] = row['count']
         return statistics

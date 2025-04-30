@@ -90,13 +90,14 @@ class UniversityDeptMember(Base):
 
     @classmethod
     def get_membership_uids(cls, university_dept_id):
-        query = text("""
+        sql = """
             SELECT a.uid FROM authorized_users a
             JOIN university_dept_members m ON m.authorized_user_id = a.id
             WHERE m.university_dept_id = :university_dept_id
                 AND a.deleted_at IS NULL
-        """)
-        return [row['uid'] for row in db.session.execute(query, {'university_dept_id': university_dept_id}).all()]
+        """
+        params = {'university_dept_id': university_dept_id}
+        return [row['uid'] for row in db.session.execute(text(sql), params).mappings()]
 
     @classmethod
     def get_existing_memberships(cls, authorized_user_id):
@@ -135,7 +136,8 @@ class UniversityDeptMember(Base):
             sql += ' AND d.id IN (SELECT DISTINCT university_dept_id FROM university_depts)'
         if role is not None:
             sql += f" AND m.role = '{role}'"
-        return [row['dept_code'] for row in db.session.execute(sql, {'authorized_user_id': authorized_user_id})]
+        params = {'authorized_user_id': authorized_user_id}
+        return [row['dept_code'] for row in db.session.execute(text(sql), params).mappings()]
 
     @classmethod
     def delete_membership(cls, university_dept_id, authorized_user_id):
