@@ -110,7 +110,7 @@ class CohortFilter(Base):
 
     @classmethod
     def get_sids(cls, cohort_id):
-        query = db.session.query(cls).options(undefer('sids'))
+        query = db.session.query(cls).options(undefer(cls.sids))
         cohort = query.filter_by(id=cohort_id).first()
         return cohort and cohort.sids
 

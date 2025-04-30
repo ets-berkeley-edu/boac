@@ -122,14 +122,14 @@ class Note(Base):
 
     @classmethod
     def get_draft_note_count(cls, author_uid=None):
-        query = text(f"""
+        sql = f"""
             SELECT
               count(*) FROM notes
             WHERE
               deleted_at IS NULL AND is_draft IS TRUE
               { f"AND author_uid = '{author_uid}'" if author_uid else ''}
-        """)
-        return db.session.execute(query).mappings().first()['count']
+        """
+        return db.session.execute(text(sql)).mappings().first()['count']
 
     @classmethod
     def get_draft_notes(cls, author_uid=None):
@@ -145,7 +145,7 @@ class Note(Base):
             GROUP BY n.id
             ORDER BY n.updated_at DESC
         """
-        for row in db.session.execute(text(sql)):
+        for row in db.session.execute(text(sql)).mappings():
             draft_notes.append({
                 'id': row['id'],
                 'attachmentCount': row['attachment_count'],
@@ -168,17 +168,17 @@ class Note(Base):
 
     @classmethod
     def get_note_counts_per_uid(cls, uids, peer_advising_department_id=None):
-        query = text(f"""
+        sql = f"""
             SELECT u.uid, count(n.id) as note_count
             FROM authorized_users u
             JOIN notes n ON n.author_uid = u.uid AND n.deleted_at IS NULL
             WHERE u.uid = ANY(:uids)
                 {'AND peer_advising_department_id = :peer_advising_department_id' if peer_advising_department_id else ''}
             GROUP BY u.uid
-        """)
+        """
         params = {'peer_advising_department_id': peer_advising_department_id, 'uids': uids}
         note_counts_per_uid = {}
-        for row in db.session.execute(query, params):
+        for row in db.session.execute(text(sql), params):
             note_counts_per_uid[row['uid']] = row['note_count']
         return note_counts_per_uid
 
@@ -371,7 +371,7 @@ class Note(Base):
 
     @classmethod
     def get_notes_report(cls):
-        query = """
+        sql = """
             SELECT
               n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.contact_type, n.is_private, n.set_date,
               n.sid, n.subject, n.created_at, n.updated_at, string_agg(t.topic, ', ') AS topics
@@ -384,7 +384,7 @@ class Note(Base):
             ORDER BY created_at
         """
         api_json = []
-        for row in db.session.execute(query):
+        for row in db.session.execute(text(sql)):
             sid = row['sid']
             api_json.append({
                 'author_uid': row['author_uid'],
@@ -758,7 +758,7 @@ def _create_notes(
     count_per_chunk = 10000
     for chunk in range(0, len(sids), count_per_chunk):
         sids_subset = sids[chunk:chunk + count_per_chunk]
-        query = """
+        sql = """
             INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private,
                                 peer_advising_department_id, set_date, sid, subject, created_at, updated_at,
                                 note_template_id)
@@ -788,11 +788,11 @@ def _create_notes(
         ]
 
         results_of_chunk_query = {}
-        for row in db.session.execute(query, {'json_dumps': json.dumps(data)}):
+        for row in db.session.execute(text(sql), {'json_dumps': json.dumps(data)}).mappings():
             sid = row['sid']
             results_of_chunk_query[sid] = row['id']
         # Yes, the note author has read the note.
-        notes_read_query = """
+        sql = """
             INSERT INTO notes_read (note_id, viewer_id, created_at)
             SELECT note_id, viewer_id, created_at
             FROM json_populate_recordset(null::notes_read, :json_dumps)
@@ -804,7 +804,7 @@ def _create_notes(
                 'created_at': now,
             } for note_id in results_of_chunk_query.values()
         ]
-        db.session.execute(notes_read_query, {'json_dumps': json.dumps(notes_read_data)})
+        db.session.execute(text(sql), {'json_dumps': json.dumps(notes_read_data)})
         ids_by_sid.update(results_of_chunk_query)
     return ids_by_sid
 
@@ -813,7 +813,7 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
     for topic in topics:
         count_per_chunk = 10000
         for chunk in range(0, len(note_ids), count_per_chunk):
-            query = """
+            sql = """
                 INSERT INTO note_topics (author_uid, note_id, topic)
                 SELECT author_uid, note_id, topic
                 FROM json_populate_recordset(null::note_topics, :json_dumps);
@@ -826,7 +826,7 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
                     'topic': topic,
                 } for note_id in note_ids_subset
             ]
-            db.session.execute(query, {'json_dumps': json.dumps(data)})
+            db.session.execute(text(sql), {'json_dumps': json.dumps(data)})
 
 
 def _add_attachments_and_template_attachments(attachments, author_uid, note_ids, template_attachment_ids):
@@ -855,7 +855,7 @@ def _add_attachments_and_template_attachments(attachments, author_uid, note_ids,
 def _add_attachments(author_uid, note_ids, s3_path, now=None):
     count_per_chunk = 10000
     for chunk in range(0, len(note_ids), count_per_chunk):
-        query = """
+        sql = """
             INSERT INTO note_attachments (created_at, note_id, path_to_attachment, uploaded_by_uid)
             SELECT created_at, note_id, path_to_attachment, uploaded_by_uid
             FROM json_populate_recordset(null::note_attachments, :json_dumps);
@@ -869,15 +869,15 @@ def _add_attachments(author_uid, note_ids, s3_path, now=None):
                 'uploaded_by_uid': author_uid,
             } for note_id in note_ids_subset
         ]
-        db.session.execute(query, {'json_dumps': json.dumps(data)})
+        db.session.execute(text(sql), {'json_dumps': json.dumps(data)})
 
 
 def _get_total_count_peer_advising_notes(peer_advising_department_id):
-    query = text("""
+    sql = """
         SELECT count(*) FROM notes
         WHERE deleted_at IS NULL AND is_draft IS FALSE AND peer_advising_department_id = :peer_advising_department_id
-    """)
-    results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
+    """
+    results = db.session.execute(text(sql), {'peer_advising_department_id': peer_advising_department_id})
     return results.first()['count']
 
 
