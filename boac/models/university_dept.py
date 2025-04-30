@@ -69,7 +69,7 @@ class UniversityDept(Base):
             ORDER BY d.dept_name::bytea
         """
         results = []
-        for row in db.session.execute(text(sql)):
+        for row in db.session.execute(text(sql)).mappings():
             dept_code = row['dept_code']
             department_json = next((d for d in results if d['deptCode'] == dept_code), None)
             if not department_json:
@@ -115,8 +115,16 @@ class UniversityDept(Base):
 
     def to_api_json(self):
         dept_code = self.dept_code
-        return {
+        api_json = {
             'id': self.id,
             'deptCode': dept_code,
             'deptName': self.dept_name,
+            'members': [],
         }
+        for member in self.authorized_users:
+            user = member.authorized_user
+            api_json['members'].append({
+                **member.to_api_json(),
+                'uid': user.uid,
+            })
+        return api_json

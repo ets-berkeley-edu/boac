@@ -31,7 +31,7 @@ from sqlalchemy import text
 
 
 def get_peer_advising_department_note_counts():
-    query = """
+    sql = """
       SELECT ud.dept_name, ud.dept_code, ud.id, COUNT(*) AS count
         FROM peer_advising_departments pd
         JOIN university_depts ud ON pd.university_dept_id = ud.id
@@ -40,11 +40,11 @@ def get_peer_advising_department_note_counts():
          AND n.is_draft IS FALSE
        GROUP BY ud.dept_name, ud.dept_code, ud.id
     """
-    return [row for row in db.session.execute(query)]
+    return [row for row in db.session.execute(text(sql)).mappings()]
 
 
 def get_granular_peer_advising_department_note_counts(university_dept_id):
-    sql = text("""
+    sql = """
         SELECT
             pd.name,
             pd.university_dept_id,
@@ -58,14 +58,13 @@ def get_granular_peer_advising_department_note_counts(university_dept_id):
         GROUP BY
             pd.name,
             pd.university_dept_id
-    """)
-
-    result = db.session.execute(sql, {'university_dept_id': university_dept_id})
-    return result.mappings().all()
+    """
+    params = {'university_dept_id': university_dept_id}
+    return db.session.execute(text(sql), params).mappings()
 
 
 def get_peer_advising_note_author_count(peer_advising_department_id=None):
-    query = f"""
+    sql = f"""
         SELECT COUNT(DISTINCT au.uid) AS count
         FROM authorized_users au
         JOIN peer_advising_department_members pm ON pm.authorized_user_id = au.id
@@ -76,12 +75,12 @@ def get_peer_advising_note_author_count(peer_advising_department_id=None):
         WHERE TRUE
             {'AND pm.peer_advising_department_id = :peer_advising_department_id' if peer_advising_department_id else ''}
     """
-    results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
-    return [row['count'] for row in results.mappings()][0]
+    params = {'peer_advising_department_id': peer_advising_department_id}
+    return db.session.execute(text(sql), params).mappings().first()['count']
 
 
 def get_peer_advising_note_count_since(peer_advising_department_id, timeframe_month=None):
-    query = f"""
+    sql = f"""
       SELECT COUNT(n.id) AS count
       FROM notes n
       WHERE
@@ -89,8 +88,8 @@ def get_peer_advising_note_count_since(peer_advising_department_id, timeframe_mo
         AND n.deleted_at IS NULL
         {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
     """
-    results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
-    return [row['count'] for row in results.mappings()][0]
+    params = {'peer_advising_department_id': peer_advising_department_id}
+    return db.session.execute(text(sql), params).mappings().first()['count']
 
 
 def get_all_peer_advising_notes(peer_advising_department_id):
@@ -109,7 +108,8 @@ def get_all_peer_advising_notes(peer_advising_department_id):
             ORDER BY n.updated_at DESC
         """
         notes = []
-        for row in db.session.execute(sql, {'peer_advising_department_id': peer_advising_department_id}):
+        params = {'peer_advising_department_id': peer_advising_department_id}
+        for row in db.session.execute(text(sql), params).mappings():
             note_id = row['id']
             note = next((n for n in notes if n['id'] == note_id), None)
             if not note:
@@ -149,22 +149,22 @@ def get_all_peer_advising_notes(peer_advising_department_id):
 
 
 def get_notes_created_by_peer_advisors(peer_advising_department_id, timeframe_month=None):
-    params = {'peer_advising_department_id': peer_advising_department_id}
-    query = """
+    peer_advisors_by_uid = {}
+    sql = """
         SELECT au.id, au.uid, au.deleted_at
         FROM authorized_users au
         JOIN peer_advising_department_members pm ON pm.authorized_user_id = au.id
         WHERE peer_advising_department_id = :peer_advising_department_id AND role_type = 'peer_advisor';
     """
-    peer_advisors_by_uid = {}
-    for row in [row for row in db.session.execute(query, params)]:
+    params = {'peer_advising_department_id': peer_advising_department_id}
+    for row in db.session.execute(text(sql), params).mappings():
         peer_advisors_by_uid[row['uid']] = {
             'deleted_at': row['deleted_at'],
             'notes': [],
             'uid': row['uid'],
         }
 
-    query = f"""
+    sql = f"""
         SELECT
           n.id AS note_id,
           n.author_uid,
@@ -179,7 +179,7 @@ def get_notes_created_by_peer_advisors(peer_advising_department_id, timeframe_mo
           {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
         ORDER BY n.created_at DESC
     """
-    for row in db.session.execute(query, params):
+    for row in db.session.execute(text(sql), params).mappings():
         uid = row['author_uid']
         peer_advisor = peer_advisors_by_uid[uid] if uid in peer_advisors_by_uid else None
         if not peer_advisor:
@@ -198,7 +198,7 @@ def get_notes_created_by_peer_advisors(peer_advising_department_id, timeframe_mo
 
 
 def get_peer_advising_note_template_usage(peer_advising_department_id):
-    query = """
+    sql = """
         SELECT DISTINCT(nt.id), nt.title, COUNT(DISTINCT nt.id) AS count
         FROM note_templates nt
         WHERE
@@ -207,7 +207,6 @@ def get_peer_advising_note_template_usage(peer_advising_department_id):
         GROUP BY nt.id
         ORDER BY count DESC, nt.title
     """
-    results = db.session.execute(query, {'peer_advising_department_id': peer_advising_department_id})
 
     def _to_api_json(row):
         return {
@@ -215,12 +214,13 @@ def get_peer_advising_note_template_usage(peer_advising_department_id):
             'templateTitle': row['title'],
             'noteTemplateUsageCount': row['count'],
         }
-    return [_to_api_json(row) for row in results.mappings()]
+    params = {'peer_advising_department_id': peer_advising_department_id}
+    return [_to_api_json(row) for row in db.session.execute(text(sql), params).mappings()]
 
 
 def get_total_peer_advising_notes(peer_advising_department_id=None):
     params = {}
-    query = f"""
+    sql = f"""
       SELECT COUNT(*) AS count
       FROM notes
       WHERE
@@ -230,5 +230,4 @@ def get_total_peer_advising_notes(peer_advising_department_id=None):
     """
     if peer_advising_department_id:
         params['peer_advising_department_id'] = peer_advising_department_id
-    results = db.session.execute(query, params)
-    return [row['count'] for row in results.mappings()][0]
+    return [row['count'] for row in db.session.execute(text(sql), params).mappings()][0]

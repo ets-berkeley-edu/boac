@@ -214,10 +214,10 @@ class AuthorizedUser(Base):
 
     @classmethod
     def get_uids_like(cls, uid_snippet=None):
-        query = 'SELECT uid FROM authorized_users'
+        sql = 'SELECT uid FROM authorized_users'
         if uid_snippet:
-            query += f" WHERE uid LIKE '{uid_snippet}%'"
-        return [row['uid'] for row in db.session.execute(query).all()]
+            sql += f" WHERE uid LIKE '{uid_snippet}%'"
+        return [row['uid'] for row in db.session.execute(text(sql)).mappings()]
 
     @classmethod
     def find_by_uid(cls, uid, ignore_deleted=True):
@@ -242,8 +242,8 @@ class AuthorizedUser(Base):
     @classmethod
     def add_to_search_history(cls, user_id, search_phrase):
         search_phrase = vacuum_whitespace(search_phrase)
-        query = text('SELECT search_history FROM authorized_users WHERE id = :user_id')
-        result = db.session.execute(query, {'user_id': user_id}).mappings().first()
+        sql = 'SELECT search_history FROM authorized_users WHERE id = :user_id'
+        result = db.session.execute(text(sql), {'user_id': user_id}).mappings().first()
         if result:
             search_history = result['search_history'] or []
             if len(search_phrase) > cls.SEARCH_HISTORY_ITEM_MAX_LENGTH:
@@ -280,20 +280,20 @@ class AuthorizedUser(Base):
             role_type=role_type,
             status=status,
         )
-        query = text(f"""
+        sql = f"""
             SELECT u.id
             {query_tables}
             {query_filter}
-        """)
-        results = db.session.execute(query, query_bindings)
-        user_ids = [row['id'] for row in results.mappings()]
+        """
+        user_ids = [row['id'] for row in db.session.execute(text(sql), query_bindings).mappings()]
         return cls.query.filter(cls.id.in_(user_ids)).all()
 
     @classmethod
     def get_search_history(cls, user_id):
-        query = text('SELECT search_history FROM authorized_users WHERE id = :id')
-        result = db.session.execute(query, {'id': user_id}).mappings().first()
-        return result and result['search_history']
+        sql = 'SELECT search_history FROM authorized_users WHERE id = :id'
+        params = {'id': user_id}
+        rows = db.session.execute(text(sql), params).mappings()
+        return rows.first()['search_history']
 
     @classmethod
     def get_users(
@@ -307,13 +307,13 @@ class AuthorizedUser(Base):
             role=role,
             status=status,
         )
-        query = text(f"""
+        sql = f"""
             SELECT u.id
             {query_tables}
             {query_filter}
-        """)
-        results = db.session.execute(query, query_bindings)
-        user_ids = [row['id'] for row in results.mappings()]
+        """
+        rows = db.session.execute(text(sql), query_bindings).mappings()
+        user_ids = [row['id'] for row in rows]
         return cls.query.filter(cls.id.in_(user_ids)).all(), len(user_ids)
 
     @classmethod
@@ -331,7 +331,7 @@ class AuthorizedUser(Base):
                 d.dept_code = ANY(:scope)
                 AND u.deleted_at IS NULL
             """
-        results = db.session.execute(sql, {'scope': scope})
+        results = db.session.execute(text(sql), {'scope': scope})
         return [row['uid'] for row in results.mappings()]
 
     @classmethod

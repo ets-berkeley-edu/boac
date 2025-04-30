@@ -173,13 +173,14 @@ class TestRefreshDepartmentMemberships:
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
         coe_user_count = len(coe_users)
         assert coe_user_count
-        assert next((u for u in coe_users if u.uid == uid), None) is None
+        assert next((u for u in coe_users if u.id == user_id), None) is None
 
         refresh_department_memberships()
         std_commit(allow_test_environment=True)
 
+        dept_coe = UniversityDept.find_by_dept_code(dept_code='COENG')
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert next(u for u in coe_users if u.uid == uid)
+        assert next((u for u in coe_users if u.id == user_id), None)
 
         user = AuthorizedUser.find_by_uid(uid=uid, ignore_deleted=False)
         std_commit(allow_test_environment=True)
