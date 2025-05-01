@@ -246,24 +246,26 @@
                     v-if="!degreeStore.draggingCourseId || degreeStore.draggingCourseId !== get(bundle.course, 'id')"
                     :id="`column-${position}-edit-${bundle.key}-btn`"
                     :aria-label="`Edit ${bundle.name}`"
-                    :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
-                    density="compact"
+                    :color="degreeStore.disableButtons ? 'grey' : 'primary'"
                     :disabled="degreeStore.disableButtons"
+                    density="compact"
                     flat
                     :icon="mdiNoteEditOutline"
                     size="small"
+                    variant="text"
                     @click="edit(bundle, position)"
                   />
                   <v-btn
                     v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
                     :id="`column-${position}-delete-${bundle.key}-btn`"
                     :aria-label="`Delete ${bundle.name}`"
-                    :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
-                    density="compact"
+                    :color="degreeStore.disableButtons ? 'grey' : 'primary'"
                     :disabled="degreeStore.disableButtons"
+                    density="compact"
                     flat
                     :icon="mdiTrashCan"
                     size="small"
+                    variant="text"
                     @click="() => onDelete(bundle)"
                   />
                 </div>

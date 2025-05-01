@@ -147,6 +147,7 @@
                       :id="`edit-${key}-course-${course.id}-btn`"
                       :aria-label="`Edit ${course.name}`"
                       :color="degreeStore.disableButtons ? 'grey' : 'primary'"
+                      :disabled="degreeStore.disableButtons"
                       density="compact"
                       flat
                       :icon="mdiNoteEditOutline"
@@ -158,12 +159,13 @@
                       v-if="course.manuallyCreatedBy && degreeStore.draggingCourseId !== course.id"
                       :id="`delete-${course.id}-btn`"
                       :aria-label="`Delete ${course.name}`"
-                      :class="{'bg-transparent text-primary': !degreeStore.disableButtons}"
                       density="compact"
+                      :color="degreeStore.disableButtons ? 'grey' : 'primary'"
                       :disabled="degreeStore.disableButtons"
                       flat
                       :icon="mdiTrashCan"
                       size="small"
+                      variant="text"
                       @click="onDelete(course)"
                     />
                   </div>
