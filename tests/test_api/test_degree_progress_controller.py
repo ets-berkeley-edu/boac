@@ -184,6 +184,67 @@ class TestCreateDegreeTemplate:
         assert 'already exists' in api_json['message']
 
 
+class TestArchiveTemplate:
+    """Archive Template API."""
+
+    def test_not_authenticated(self, client):
+        """Denies anonymous user."""
+        _api_archive_degree_template(client, 1, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        _api_archive_degree_template(client, 1, expected_status_code=401)
+
+    def test_delete(self, client, fake_auth):
+        """COE advisor can archive template."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        assert user.degree_progress_permission == 'read_write'
+        template = DegreeProgressTemplate.create(['COENG'], user.id, f'Classical Civilizations, by {user.id}')
+        api_json = _api_archive_degree_template(client, template.id)
+        assert api_json['id'] == template.id
+        assert api_json['archivedAt']
+
+
+class TestUnarchiveTemplate:
+    """Unarchive Template API."""
+
+    @classmethod
+    def _api_unarchive_degree_template(cls, client, template_id, expected_status_code=200):
+        data = {'templateId': template_id}
+        response = client.post(
+            '/api/degree/unarchive',
+            buffered=True,
+            content_type='application/json',
+            data=json.dumps(data),
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Denies anonymous user."""
+        self._api_unarchive_degree_template(client, 1, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_unarchive_degree_template(client, 1, expected_status_code=401)
+
+    def test_delete(self, client, fake_auth):
+        """COE advisor can unarchive template."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        assert user.degree_progress_permission == 'read_write'
+        template = DegreeProgressTemplate.create(['COENG'], user.id, f'Classical Civilizations, by {user.id}')
+        # First, archive the template.
+        api_json = _api_archive_degree_template(client, template.id)
+        assert api_json['archivedAt']
+        # Unarchive it and verify.
+        api_json = self._api_unarchive_degree_template(client, template.id)
+        assert not api_json['archivedAt']
+
+
 class TestDeleteTemplate:
     """Delete Template API."""
 
@@ -230,6 +291,7 @@ class TestGetDegreeTemplate:
         template = self._api_get_template(client, mock_template.id)
         assert template
         assert template['id'] == mock_template.id
+        assert template['archivedAt'] is None
         assert template['parentTemplateId'] is None
         assert template['unitRequirements'] == []
 
@@ -515,6 +577,18 @@ class TestUpdateUnitRequirement:
         assert api_json['id'] == mock_unit_requirement.id
         assert api_json['name'] == mock_unit_requirement.name
         assert api_json['minUnits'] == min_units
+
+
+def _api_archive_degree_template(client, template_id, expected_status_code=200):
+    data = {'templateId': template_id}
+    response = client.post(
+        '/api/degree/archive',
+        buffered=True,
+        content_type='application/json',
+        data=json.dumps(data),
+    )
+    assert response.status_code == expected_status_code
+    return response.json
 
 
 def _api_create_template(client, name, expected_status_code=200):
