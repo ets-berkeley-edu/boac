@@ -128,7 +128,7 @@ onMounted(() => {
 })
 
 const disableSaveButton = computed(() => {
-  return isSaving.value || !name.value || !!unitsErrorMessage.value || !!nameErrorMessage.value
+  return isSaving.value || !name.value || !minUnits.value || !!unitsErrorMessage.value || !!nameErrorMessage.value
 })
 
 const cancel = () => {
