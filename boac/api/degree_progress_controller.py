@@ -78,6 +78,34 @@ def create_degree():
     return tolerant_jsonify(degree.to_api_json())
 
 
+@app.route('/api/degree/archive', methods=['POST'])
+@can_edit_degree_progress
+def archive_template():
+    params = request.get_json()
+    template_id = params.get('templateId')
+    degree_template = fetch_degree_template(template_id) if template_id else None
+    if not degree_template:
+        raise ResourceNotFoundError('Degree Template not found')
+    if degree_template.student_sid:
+        raise BadRequestError('Degree Template with an associated student cannot be archived.')
+    archived_template = DegreeProgressTemplate.archive(template_id)
+    return tolerant_jsonify(archived_template.to_api_json())
+
+
+@app.route('/api/degree/unarchive', methods=['POST'])
+@can_edit_degree_progress
+def unarchive_template():
+    params = request.get_json()
+    template_id = params.get('templateId')
+    degree_template = fetch_degree_template(template_id) if template_id else None
+    if not degree_template:
+        raise ResourceNotFoundError('Degree Template not found')
+    if not degree_template.archived_at:
+        raise BadRequestError('Degree Template is not archived.')
+    restored_template = DegreeProgressTemplate.unarchive(template_id)
+    return tolerant_jsonify(restored_template.to_api_json())
+
+
 @app.route('/api/degree/<template_id>', methods=['DELETE'])
 @can_edit_degree_progress
 def delete_template(template_id):

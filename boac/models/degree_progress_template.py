@@ -109,6 +109,14 @@ class DegreeProgressTemplate(Base):
         template = cls.query.filter_by(id=template_id).first()
         template.archived_at = utc_now()
         std_commit()
+        return template
+
+    @classmethod
+    def unarchive(cls, template_id):
+        template = cls.query.filter_by(id=template_id).first()
+        template.archived_at = None
+        std_commit()
+        return template
 
     @classmethod
     def delete(cls, template_id):
