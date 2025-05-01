@@ -43,6 +43,7 @@ class DegreeProgressTemplate(Base):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     advisor_dept_codes = db.Column(ARRAY(db.String), nullable=False)
+    archived_at = db.Column(db.DateTime)
     created_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     degree_name = db.Column(db.String(255), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
@@ -75,6 +76,7 @@ class DegreeProgressTemplate(Base):
                     student_sid={self.student_sid},
                     advisor_dept_codes={self.advisor_dept_codes},
                     parent_template_id={self.parent_template_id},
+                    archived_at={self.archived_at},
                     deleted_at={self.deleted_at},
                     created_at={self.created_at},
                     created_by={self.created_by},
@@ -103,6 +105,12 @@ class DegreeProgressTemplate(Base):
         return degree
 
     @classmethod
+    def archive(cls, template_id):
+        template = cls.query.filter_by(id=template_id).first()
+        template.archived_at = utc_now()
+        std_commit()
+
+    @classmethod
     def delete(cls, template_id):
         template = cls.query.filter_by(id=template_id).first()
         template.deleted_at = utc_now()
@@ -123,8 +131,8 @@ class DegreeProgressTemplate(Base):
     def find_by_sid(cls, student_sid):
         sql = text(f"""
             SELECT
-              d.id, d.created_at, d.degree_name, d.created_by, au1.uid AS created_by_uid, d.parent_template_id,
-              d.student_sid, d.updated_at, d.updated_by, au2.uid AS updated_by_uid,
+              d.id, d.archived_at, d.created_at, d.degree_name, d.created_by, au1.uid AS created_by_uid,
+              d.parent_template_id, d.student_sid, d.updated_at, d.updated_by, au2.uid AS updated_by_uid,
               t.updated_at AS parent_template_updated_at, t.deleted_at AS parent_template_deleted_at
             FROM degree_progress_templates d
             JOIN degree_progress_templates t ON t.id = d.parent_template_id
@@ -149,7 +157,7 @@ class DegreeProgressTemplate(Base):
     @classmethod
     def get_all_templates(cls):
         sql = """
-            SELECT id, created_at, degree_name, created_by, parent_template_id, student_sid, updated_at, updated_by
+            SELECT id, archived_at, created_at, degree_name, created_by, parent_template_id, student_sid, updated_at, updated_by
             FROM degree_progress_templates
             WHERE student_sid IS NULL AND deleted_at IS NULL
             ORDER BY created_at DESC
@@ -200,6 +208,7 @@ class DegreeProgressTemplate(Base):
         api_json = {
             'id': self.id,
             'advisorDeptCodes': self.advisor_dept_codes,
+            'archivedAt': _isoformat(self.archived_at),
             'categories': DegreeProgressCategory.get_categories(template_id=self.id),
             'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
@@ -323,6 +332,7 @@ def _isoformat(value):
 def _row_to_simple_json(row):
     return {
         'id': row['id'],
+        'archivedAt': _isoformat(row['archived_at']),
         'createdAt': _isoformat(row['created_at']),
         'createdBy': row['created_by'],
         'name': row['degree_name'],
