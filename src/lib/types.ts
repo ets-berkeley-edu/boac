@@ -163,6 +163,7 @@ export type DegreeProgressCourses = {
 }
 
 export type DegreeTemplate = {
+  archivedAt: string | undefined,
   categories: object[] | undefined,
   courses: DegreeProgressCourse[] | undefined,
   createdAt: string | undefined,

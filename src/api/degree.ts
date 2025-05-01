@@ -9,6 +9,18 @@ export function addUnitRequirement(templateId: number, name: string, minUnits: n
   return axios.post(url, {minUnits, name}).then(response => response.data)
 }
 
+export function archiveDegreeTemplate(templateId: number) {
+  $_track('archive', 'Archive Degree Template')
+  const url: string = `${utils.apiBaseUrl()}/api/degree/archive`
+  return axios.post(url, {templateId}).then(response => response.data)
+}
+
+export function unarchiveDegreeTemplate(templateId: number) {
+  $_track('unarchive', 'Un-archive Degree Template')
+  const url: string = `${utils.apiBaseUrl()}/api/degree/unarchive`
+  return axios.post(url, {templateId}).then(response => response.data)
+}
+
 export function copyCourse(courseId: number, parentCategoryId?: number) {
   const url: string = `${utils.apiBaseUrl()}/api/degree/course/copy`
   return axios.post(url, {courseId, parentCategoryId}).then(response => response.data)
