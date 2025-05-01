@@ -224,6 +224,7 @@ CREATE TABLE degree_progress_templates (
   advisor_dept_codes character varying[] NOT NULL,
   parent_template_id integer,
   student_sid character varying(80),
+  archived_at timestamp with time zone,
   created_at timestamp with time zone NOT NULL,
   created_by integer NOT NULL,
   updated_at timestamp with time zone NOT NULL,
