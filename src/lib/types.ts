@@ -164,12 +164,13 @@ export type DegreeProgressCourses = {
 }
 
 export type DegreeTemplate = {
+  id: number,
   archivedAt: string | undefined,
   categories: object[] | undefined,
   courses: DegreeProgressCourse[] | undefined,
   createdAt: string | undefined,
   createdBy: string | undefined,
-  id: number,
+  deletedAt: string | undefined,
   name: string | undefined,
   note: string | undefined,
   parentTemplateId: string | undefined,
