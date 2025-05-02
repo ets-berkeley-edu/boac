@@ -8,7 +8,7 @@
         id="degree-checks-table"
         :cell-props="data => {
           const column = data.column.key
-          const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
+          const bgColor = tableRowHighlightId === data.item.id ? 'bg-light-yellow border-b-md border-t-md' : (data.index % 2 === 0 ? 'bg-surface-light' : '')
           const padding = column === 'name' ? 'pl-4 py-2' : 'pl-0 pr-2'
           const wrap = column === 'name' ? 'overflow-wrap-break-word' : ''
           return {
@@ -235,6 +235,11 @@ const props = defineProps({
   mode: {
     required: true,
     type: String
+  },
+  tableRowHighlightId: {
+    default: undefined,
+    required: false,
+    type: Number,
   },
   onUpdateDegreeTemplate: {
     required: true,

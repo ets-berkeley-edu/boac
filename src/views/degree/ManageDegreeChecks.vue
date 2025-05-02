@@ -53,6 +53,7 @@
             :degree-templates="unarchivedDegreeTemplates"
             mode="unarchived"
             :on-update-degree-template="onUpdateDegreeTemplate"
+            :table-row-highlight-id="tableRowHighlightId"
           />
         </div>
         <div v-if="!unarchivedDegreeTemplates.length">
@@ -77,6 +78,7 @@
               :degree-templates="archivedDegreeTemplates"
               mode="archived"
               :on-update-degree-template="onUpdateDegreeTemplate"
+              :table-row-highlight-id="tableRowHighlightId"
             />
           </v-expand-transition>
         </div>
@@ -85,22 +87,25 @@
   </div>
 </template>
 
-<script setup>
-import {filter as _filter, size, sortBy} from 'lodash'
+<script lang="ts" setup>
+import {filter as _filter, remove, size, sortBy} from 'lodash'
 import {computed, onMounted, ref} from 'vue'
 import {mdiMenuDown, mdiMenuRight, mdiPlus} from '@mdi/js'
 import {useRoute} from 'vue-router'
+import type {DegreeTemplate} from '@/lib/types'
 import {getDegreeTemplates} from '@/api/degree'
 import {useContextStore} from '@/stores/context'
-import DegreeTemplatesDataTable from '@/components/degree/DegreeTemplatesDataTable'
+import DegreeTemplatesDataTable from '@/components/degree/DegreeTemplatesDataTable.vue'
+import {putFocusNextTick} from '@/lib/utils.js'
 
 const contextStore = useContextStore()
 
 const archivedDegreeTemplates = computed(() => _filter(degreeTemplates.value, 'archivedAt'))
 const currentUser = contextStore.currentUser
-const degreeTemplates = ref([])
+const degreeTemplates = ref<DegreeTemplate[]>([])
 const isShowingArchivedTemplates = ref(false)
 const successMessage = ref(useRoute().query.m)
+const tableRowHighlightId = ref<number | undefined>()
 const unarchivedDegreeTemplates = computed(() => _filter(degreeTemplates.value, t => !t.archivedAt))
 
 contextStore.loadingStart()
@@ -112,13 +117,22 @@ onMounted(() => {
   })
 })
 
-const onUpdateDegreeTemplate = degreeTemplate => {
+const onUpdateDegreeTemplate = (degreeTemplate: DegreeTemplate) => {
   const index = degreeTemplates.value.findIndex(d => d.id === degreeTemplate.id)
+  tableRowHighlightId.value = degreeTemplate.id
   if (degreeTemplate.deletedAt) {
     degreeTemplates.value.splice(index, 1)
   } else {
-    degreeTemplates.value = sortBy(degreeTemplates.value.concat([degreeTemplate]), 'name')
+    // Remove stale element from list, if present.
+    const modifiedList = remove(degreeTemplates.value, t => t.id !== degreeTemplate.id)
+    degreeTemplates.value = sortBy(modifiedList.concat([degreeTemplate]), 'name')
+    // If an item is created or updated then we want its table row to be temporarily highlighted.
+    setTimeout(() => {tableRowHighlightId.value = undefined}, 3000)
   }
+  if (degreeTemplate.archivedAt) {
+    isShowingArchivedTemplates.value = true
+  }
+  putFocusNextTick(`tr-degree-check-${degreeTemplate.id}`)
 }
 </script>
 
