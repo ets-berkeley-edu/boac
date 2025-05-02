@@ -9,6 +9,7 @@
         />
       </div>
       <v-switch
+        v-if="peerAdvisors.length"
         id="toggle-inactive-students-button"
         v-model="showDeletedPeerAdvisors"
         :class="{'text-primary': showDeletedPeerAdvisors}"
@@ -22,7 +23,7 @@
       />
       <span aria-live="polite" class="sr-only">Showing {{ showDeletedPeerAdvisors ? 'all students' : 'active students' }}</span>
     </div>
-    <div class="border-b-sm ml-4 mt-6">
+    <div v-if="peerAdvisors.length" class="border-b-sm ml-4 mt-6">
       <v-data-table
         :cell-props="data => {
           return {
@@ -139,6 +140,9 @@
         :modal-header="`Remove ${get(selectedPeerAdvisor, 'name')}'s Peer Advisor role?`"
         modal-header-class="font-size-18 font-weight-medium"
       />
+    </div>
+    <div v-if="!peerAdvisors.length" class="font-size-16 pl-6 mt-2 text-grey">
+      Peer Advisors have yet to be created for <span class="font-weight-550">{{ peerAdvisingDepartment.name }}</span>.
     </div>
   </div>
 </template>
