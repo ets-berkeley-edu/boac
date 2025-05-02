@@ -58,6 +58,7 @@ export interface BoaUserBasic {
 
 export interface BoaUser extends BoaUserBasic, CalNetUser {
   automateDegreeProgressPermission: boolean,
+  calNetDepartments: HasDeptCode[],
   canAccessAdmittedStudents: boolean,
   canAccessAdvisingData: boolean,
   canAccessCanvasData: boolean,

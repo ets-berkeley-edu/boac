@@ -113,7 +113,7 @@ class UniversityDept(Base):
         db.session.execute(text(sql), {'id': self.id})
         std_commit()
 
-    def to_api_json(self):
+    def to_api_json(self, include_members=False):
         dept_code = self.dept_code
         api_json = {
             'id': self.id,
@@ -121,10 +121,11 @@ class UniversityDept(Base):
             'deptName': self.dept_name,
             'members': [],
         }
-        for member in self.authorized_users:
-            user = member.authorized_user
-            api_json['members'].append({
-                **member.to_api_json(),
-                'uid': user.uid,
-            })
+        if include_members:
+            for member in self.authorized_users:
+                user = member.authorized_user
+                api_json['members'].append({
+                    **member.to_api_json(),
+                    'uid': user.uid,
+                })
         return api_json

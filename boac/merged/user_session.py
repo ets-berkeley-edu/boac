@@ -183,13 +183,16 @@ class UserSession(UserMixin):
                         break
 
         degree_progress_permission = 'read_write' if is_admin else (user and user.degree_progress_permission)
+        # If BOA and CalNet data collide then reduce CalNet data accordingly.
+        reduced_calnet_profile = {k: v for k, v in (calnet_profile or {}).items() if k != 'departments'}
         can_access_ce3_features = user and (user.is_admin or 'ZCEEE' in [d['deptCode'] for d in departments])
 
         return {
-            **(calnet_profile or {}),
+            **reduced_calnet_profile,
             **{
                 'id': user and user.id,
                 'automateDegreeProgressPermission': user.automate_degree_progress_permission if user else False,
+                'calNetDepartments': (calnet_profile or {}).get('departments', []),
                 'canAccessAdmittedStudents': can_access_ce3_features,
                 'canAccessAdvisingData': user.can_access_advising_data if user else False,
                 'canAccessCanvasData': user.can_access_canvas_data if user else False,

@@ -8,6 +8,7 @@ import {useContextStore} from '@/stores/context'
 export const ANONYMOUS_USER: BoaUser = {
   id: 0,
   automateDegreeProgressPermission: false,
+  calNetDepartments: [],
   campusEmail: '',
   canAccessAdmittedStudents: false,
   canAccessAdvisingData: false,

@@ -42,7 +42,7 @@
           <span class="sr-only">Actions</span>
         </template>
         <template #item.name="{item}">
-          <div v-if="item.id === get(templateForEdit, 'id')" class="pt-2">
+          <div v-if="templateForEdit && item.id === templateForEdit.id" class="pt-2">
             <v-text-field
               id="rename-template-input"
               v-model="templateForEdit.name"
@@ -94,13 +94,13 @@
           </div>
         </template>
         <template #item.actions="{item}">
-          <div v-if="item.id === get(templateForEdit, 'id')" class="d-flex h-100 justify-end pt-4">
+          <div v-if="templateForEdit && item.id === templateForEdit.id" class="d-flex h-100 justify-end pt-4">
             <ProgressButton
               id="confirm-rename-btn"
               :action="save"
               aria-label="Rename Degree Template"
               color="primary"
-              :disabled="isRenaming || !templateForEdit.name.trim() || !!errorDuringEdit"
+              :disabled="isRenaming || !trim(templateForEdit.name) || !!errorDuringEdit"
               :in-progress="isRenaming"
               :text="isRenaming ? 'Saving...' : 'Rename'"
             />
