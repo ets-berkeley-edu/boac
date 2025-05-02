@@ -756,7 +756,7 @@ const messagesPerType = type => {
       })
     } else if (filterWithinTheTab.value === 'department') {
       // Show notes authored by the department(s) of current-user.
-      const myDeptCodes = map(currentUser.departments, 'deptCode')
+      const myDeptCodes = map(currentUser.departments.concat(currentUser.calNetDepartments), 'deptCode')
       messages = filter(props.messages, m => {
         const deptCodes = map(get(m.author || m.advisor, 'departments') || [], 'deptCode')
         return m.type === type && deptCodes.filter(x => myDeptCodes.includes(x)).length

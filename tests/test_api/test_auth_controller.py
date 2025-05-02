@@ -35,7 +35,7 @@ import cas
 from tests.util import override_config, pause_mock_sts
 
 admin_uid = '177473'
-advisor_uid = '211159'
+advisor_uid = '242881'
 peer_advisor_manager_uid = '1133399'
 peer_advisor_uid = '1133400'
 unauthorized_uid = '1015674'
@@ -184,6 +184,9 @@ class TestAuthorization:
         api_json = self._api_my_profile(client)
         assert api_json['isActive']
         assert len(api_json['departments']) == 1
+        assert api_json['departments'][0]['deptCode'] == 'QCADVMAJ'
+        assert len(api_json['calNetDepartments']) == 1
+        assert api_json['calNetDepartments'][0]['deptCode'] == 'HENGL'
         assert is_peer_advisor(api_json) is False
         assert is_peer_advisor_manager(api_json) is False
 
