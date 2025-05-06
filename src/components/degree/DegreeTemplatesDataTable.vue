@@ -8,7 +8,7 @@
         id="degree-checks-table"
         :cell-props="data => {
           const column = data.column.key
-          const bgColor = tableRowHighlightId === data.item.id ? 'bg-light-yellow border-b-md border-t-md' : (data.index % 2 === 0 ? 'bg-surface-light' : '')
+          const bgColor = tableRowHighlightId === data.item.id ? 'bg-sky-blue border-b-md border-t-md' : (data.index % 2 === 0 ? 'bg-surface-light' : '')
           const padding = column === 'name' ? 'pl-4 py-2' : 'pl-0 pr-2'
           const wrap = column === 'name' ? 'overflow-wrap-break-word' : ''
           return {
@@ -221,7 +221,6 @@ import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {
   archiveDegreeTemplate,
   deleteDegreeTemplate,
-  getDegreeTemplates,
   unarchiveDegreeTemplate,
   updateDegreeTemplate,
 } from '@/api/degree'
@@ -275,14 +274,12 @@ const toggleArchivedAt = (degreeTemplate: DegreeTemplate) => {
   })
 }
 
-const afterClone = clone => {
+const afterClone = (clone: DegreeTemplate) => {
+  props.onUpdateDegreeTemplate(clone)
   templateToClone.value = undefined
-  getDegreeTemplates().then(data => {
-    props.onUpdateDegreeTemplate(data)
-    isBusy.value = false
-    alertScreenReader('Degree copy is complete.')
-    putFocusNextTick(`degree-check-${clone.id}-link`)
-  })
+  isBusy.value = false
+  alertScreenReader('Degree copy is complete.')
+  putFocusNextTick(`degree-check-${clone.id}-link`)
 }
 
 const cancelEdit = () => {
@@ -314,8 +311,8 @@ const deleteCanceled = () => {
 
 const deleteConfirmed = () => {
   if (templateForDelete.value) {
-    deleteDegreeTemplate(templateForDelete.value.id).then(getDegreeTemplates).then(data => {
-      props.onUpdateDegreeTemplate(data)
+    deleteDegreeTemplate(templateForDelete.value.id).then(() => {
+      props.onUpdateDegreeTemplate(templateForDelete.value)
       alertScreenReader(`Deleted "${get(templateForDelete.value, 'name')}".`)
       putFocusNextTick('page-header')
       deleteModalBody.value = templateForDelete.value = undefined
@@ -349,14 +346,12 @@ const save = () => {
       isRenaming.value = true
       alertScreenReader('Renaming template')
       updateDegreeTemplate(templateForEdit.value.id, name).then(() => {
+        props.onUpdateDegreeTemplate(templateForEdit.value)
         templateForEdit.value = undefined
-        getDegreeTemplates().then(data => {
-          props.onUpdateDegreeTemplate(data)
-          isBusy.value = false
-          isRenaming.value = false
-          putFocusNextTick(`degree-check-${templateId}-rename-btn`)
-          alertScreenReader(`Saved changes to template "${name}"`)
-        })
+        isRenaming.value = false
+        putFocusNextTick(`degree-check-${templateId}-rename-btn`)
+        alertScreenReader(`Saved changes to template "${name}"`)
+        isBusy.value = false
       })
     }
   }
