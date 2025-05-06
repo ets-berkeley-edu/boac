@@ -88,7 +88,7 @@
 </template>
 
 <script lang="ts" setup>
-import {filter as _filter, remove, size, sortBy} from 'lodash'
+import {filter as _filter, size, sortBy} from 'lodash'
 import {computed, onMounted, ref} from 'vue'
 import {mdiMenuDown, mdiMenuRight, mdiPlus} from '@mdi/js'
 import {useRoute} from 'vue-router'
@@ -100,13 +100,13 @@ import {putFocusNextTick} from '@/lib/utils.js'
 
 const contextStore = useContextStore()
 
-const archivedDegreeTemplates = computed(() => _filter(degreeTemplates.value, 'archivedAt'))
+const archivedDegreeTemplates = computed(() => sortBy(_filter(degreeTemplates.value, 'archivedAt'), 'name'))
 const currentUser = contextStore.currentUser
 const degreeTemplates = ref<DegreeTemplate[]>([])
 const isShowingArchivedTemplates = ref(false)
 const successMessage = ref(useRoute().query.m)
 const tableRowHighlightId = ref<number | undefined>()
-const unarchivedDegreeTemplates = computed(() => _filter(degreeTemplates.value, t => !t.archivedAt))
+const unarchivedDegreeTemplates = computed(() => sortBy(_filter(degreeTemplates.value, t => !t.archivedAt), 'name'))
 
 contextStore.loadingStart()
 
@@ -123,11 +123,11 @@ const onUpdateDegreeTemplate = (degreeTemplate: DegreeTemplate) => {
   if (degreeTemplate.deletedAt) {
     degreeTemplates.value.splice(index, 1)
   } else {
-    // Remove stale element from list, if present.
-    const modifiedList = remove(degreeTemplates.value, t => t.id !== degreeTemplate.id)
-    degreeTemplates.value = sortBy(modifiedList.concat([degreeTemplate]), 'name')
-    // If an item is created or updated then we want its table row to be temporarily highlighted.
-    setTimeout(() => {tableRowHighlightId.value = undefined}, 3000)
+    getDegreeTemplates().then(data => {
+      degreeTemplates.value = data
+      // If an item is created or updated then we want its table row to be temporarily highlighted.
+      setTimeout(() => {tableRowHighlightId.value = undefined}, 3000)
+    })
   }
   if (degreeTemplate.archivedAt) {
     isShowingArchivedTemplates.value = true
