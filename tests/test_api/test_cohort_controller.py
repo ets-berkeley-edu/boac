@@ -517,10 +517,6 @@ class TestCohortCreate:
             assert cohort.get('name') == 'Tennis'
             assert cohort['alertCount'] is not None
             assert len(cohort.get('criteria', {}).get('majors')) == 2
-            # ASC specific
-            team_groups = cohort.get('teamGroups')
-            assert len(team_groups) == 1
-            assert team_groups[0].get('groupCode') == 'MTE'
             # Students
             students = cohort.get('students')
             assert len(students) == 1

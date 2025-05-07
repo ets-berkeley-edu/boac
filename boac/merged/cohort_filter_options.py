@@ -60,33 +60,21 @@ class CohortFilterOptions:
         self.owner_uid = owner_uid
         self.scope = scope
 
-    def get_available_filter_option_groups(self, domain, populate_options=True):
-        option_groups = {}
-
-        def is_available(d):
-            if domain in [d['domain'], '*']:
-                available = 'ADMIN' in self.scope \
-                            or d['availableTo'] == '*' \
-                            or next((dept_code for dept_code in d['availableTo'] if dept_code in self.scope), False)
-                if available and populate_options and 'options' in d:
-                    # If it is available then populate menu options
-                    options = d.pop('options')
-                    options = options() if callable(options) else options
-                    if d['type']['ux'] == 'dropdown' and not (options and len(options)):
-                        d['disabled'] = True
-                    else:
-                        d['options'] = options
-                return available
-            else:
-                return False
-
-        for label, option_group in self.get_filter_option_groups().items():
-            options = list(filter(lambda option: is_available(option), option_group))
+    def get_available_filter_option_groups(self, domain):
+        available_option_groups = {}
+        for label, cohort_filter_options in self.get_cohort_filter_options_by_label().items():
+            def _is_available(cohort_filter_option):
+                return _is_cohort_filter_option_available(
+                    cohort_filter_option=cohort_filter_option,
+                    domain=domain,
+                    scope=self.scope,
+                )
+            options = list(filter(_is_available, cohort_filter_options))
             if len(options):
-                option_groups[label] = options
-        return option_groups
+                available_option_groups[label] = options
+        return available_option_groups
 
-    def get_filter_option_groups(self):
+    def get_cohort_filter_options_by_label(self):
         owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid) if self.owner_uid else None
         academic_standing_years_cutoff = app.config['COHORT_FILTER_ACADEMIC_STANDING_YEARS_CUTOFF']
         academic_standing_min_term = f'Fall {datetime.now().year - academic_standing_years_cutoff}'
@@ -403,6 +391,23 @@ def _boolean_filter_coe(key, label_primary, default_value=None, domain_='default
         domain_=domain_,
         available_to=['COENG'],
     )
+
+
+def _is_cohort_filter_option_available(cohort_filter_option, domain, scope):
+    if domain in [cohort_filter_option['domain'], '*']:
+        available_to = cohort_filter_option['availableTo']
+        available = 'ADMIN' in scope or available_to == '*' or next((dept_code for dept_code in available_to if dept_code in scope), False)
+        if available and 'options' in cohort_filter_option:
+            # If it is available then populate menu options
+            options = cohort_filter_option.pop('options')
+            options = options() if callable(options) else options
+            if cohort_filter_option['type']['ux'] == 'dropdown' and not (options and len(options)):
+                cohort_filter_option['disabled'] = True
+            else:
+                cohort_filter_option['options'] = options
+        return available
+    else:
+        return False
 
 
 def _range_filter(

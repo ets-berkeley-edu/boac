@@ -28,7 +28,6 @@ from boac import db
 from boac.externals import data_loch
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, COE_ACADEMIC_STANDING_DESCRIPTIONS, COE_ETHNICITIES_PER_CODE, \
     term_ids_range, term_name_for_sis_id
-from boac.merged import athletics
 from boac.merged.calnet import get_calnet_users_for_uids
 from boac.merged.calnet import get_csid_for_uid
 from boac.merged.sis_terms import current_term_id, future_term_id
@@ -229,8 +228,13 @@ def coe_prep_status_options():
 
 @stow('cohort_filter_options_team_groups')
 def team_groups():
-    rows = athletics.all_team_groups()
-    return [{'name': row['groupName'], 'value': row['groupCode']} for row in rows]
+    def _to_api_json(row):
+        group_code = row['group_code']
+        return {
+            'value': group_code,
+            'name': row['group_name'] + ' (AA)' if group_code.endswith('-AA') else row['group_name'],
+        }
+    return [_to_api_json(row) for row in data_loch.get_athletic_team_groups()]
 
 
 @stow('cohort_filter_options_majors')

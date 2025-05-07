@@ -29,7 +29,6 @@ from boac import db, std_commit
 from boac.api.errors import InternalServerError
 from boac.lib import util
 from boac.lib.util import get_benchmarker
-from boac.merged import athletics
 from boac.merged.admitted_student import query_admitted_students
 from boac.merged.calnet import get_csid_for_uid
 from boac.merged.cohort_filter_options import CohortFilterOptions
@@ -242,19 +241,17 @@ class CohortFilter(Base):
         std_commit()
 
     def to_base_json(self):
-        c = self.filter_criteria
-        c = c if isinstance(c, dict) else json.loads(c)
+        filter_criteria = self.filter_criteria
+        filter_criteria = filter_criteria if isinstance(filter_criteria, dict) else json.loads(filter_criteria)
         user_uid = self.owner.uid if self.owner else None
-        option_groups = CohortFilterOptions(user_uid, scope_for_criteria()).get_filter_option_groups()
-        for label, option_group in option_groups.items():
-            for option in option_group:
-                key = option['key']
-                if key in c:
-                    value = c.get(key)
-                    if option['type']['db'] == 'boolean':
-                        c[key] = util.to_bool_or_none(value)
-                    else:
-                        c[key] = value
+        cohort_filter_options_by_label = CohortFilterOptions(user_uid, scope_for_criteria()).get_cohort_filter_options_by_label()
+        for label, cohort_filter_options in cohort_filter_options_by_label.items():
+            for cohort_filter_option in cohort_filter_options:
+                key = cohort_filter_option['key']
+                if key in filter_criteria:
+                    db_type = cohort_filter_option['type']['db']
+                    value = filter_criteria.get(key)
+                    filter_criteria[key] = util.to_bool_or_none(value) if db_type == 'boolean' else value
 
         def _owner_to_json(owner):
             if not owner:
@@ -268,9 +265,8 @@ class CohortFilter(Base):
             'domain': self.domain,
             'name': self.name,
             'code': self.id,
-            'criteria': c,
+            'criteria': filter_criteria,
             'owner': _owner_to_json(self.owner),
-            'teamGroups': athletics.get_team_groups(c.get('groupCodes')) if c.get('groupCodes') else [],
             'alertCount': self.alert_count,
         }
 
