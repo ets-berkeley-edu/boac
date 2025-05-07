@@ -309,7 +309,7 @@ def get_sis_section_mean_gpas(term_id, sis_section_id):
     return safe_execute_rds(sql, **params)
 
 
-def get_team_groups(group_codes=None, team_code=None):
+def get_athletic_team_groups(group_codes=None, team_code=None):
     params = {}
     sql = f"""SELECT group_code, group_name, team_code, team_name, COUNT(DISTINCT sid)
         FROM {asc_schema()}.students
