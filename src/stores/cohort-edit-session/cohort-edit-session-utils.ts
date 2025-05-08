@@ -1,13 +1,14 @@
 import {get, size} from 'lodash'
 import type {Pagination} from '@/lib/types'
-import {getCohort, getCohortFilterOptions, getStudentsPerFilters, translateToFilterOptions} from '@/api/cohort'
+import {getCohort, getStudentsPerFilters} from '@/api/cohort'
+import {getCohortFilterOptions, translateToFilterOptions} from '@/api/cohort-filter-options'
 import {useCohortStore} from '@/stores/cohort-edit-session/index'
 import {useContextStore} from '@/stores/context'
 
 export function updateFilterOptions(domain: string, ownerUid: string | undefined, existingFilters: object[]) {
   return new Promise<void>(resolve => {
     getCohortFilterOptions(domain, ownerUid, existingFilters).then((data: object) => {
-      useCohortStore().updateFilterOptions(data)
+      useCohortStore().setFilterCategories(data)
       resolve()
     })
   })

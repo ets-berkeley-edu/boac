@@ -10,7 +10,7 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
     cohortName: undefined as string | null | undefined,
     domain: undefined as string | null | undefined,
     editMode: undefined as string | null | undefined,
-    filterOptionGroups: [] as object[],
+    filterCategories: [] as object[],
     filters: [] as object[],
     hasPrivateCohortFilterCriteria: false,
     isCompactView: false,
@@ -77,6 +77,9 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
         throw new TypeError('Invalid page mode: ' + editMode)
       }
     },
+    setFilterCategories(filterCategories: object[]) {
+      this.filterCategories = filterCategories
+    },
     setModifiedSinceLastSearch(value: boolean) {
       this.isModifiedSinceLastSearch = value
     },
@@ -86,9 +89,6 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
     },
     toggleCompactView() {
       this.isCompactView = !this.isCompactView
-    },
-    updateFilterOptions(filterOptionGroups: object[]) {
-      this.filterOptionGroups = filterOptionGroups
     },
     updateExistingFilter({index, updatedFilter}) {
       this.filters[index] = updatedFilter
