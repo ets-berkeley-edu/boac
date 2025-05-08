@@ -11,20 +11,20 @@
         Select...
       </option>
       <optgroup
-        v-for="(options, label) in optionGroups"
-        :id="normalizeId(`primary-option-group-${label}`)"
+        v-for="(options, label) in filterCategories"
+        :id="normalizeId(`primary-option-group-${normalizeId(label)}`)"
         :key="label"
         :label="label"
       >
         <option
           v-for="option in options"
-          :id="normalizeId(`primary-option-${option.value}`)"
+          :id="normalizeId(`primary-option-${normalizeId(option.key)}`)"
           :key="option.key"
           :aria-disabled="option.disabled"
           :disabled="option.disabled"
           :value="option"
         >
-          {{ option.name }}
+          {{ option.label.primary }}
         </option>
       </optgroup>
     </select>
@@ -32,13 +32,12 @@
 </template>
 
 <script lang="ts" setup>
-import type {PropType} from 'vue'
-import {computed} from 'vue'
-import {each, includes} from 'lodash'
-import type {FilterCategory} from '@/lib/types-cohorts'
+import {cloneDeep} from 'lodash'
+import type {FilterCategories} from '@/lib/types-cohorts'
 import {normalizeId} from '@/lib/utils'
+import {useCohortStore} from '@/stores/cohort-edit-session'
 
-const props = defineProps({
+defineProps({
   disabled: {
     required: false,
     type: Boolean
@@ -50,38 +49,12 @@ const props = defineProps({
   labelledBy: {
     required: true,
     type: String
-  },
-  filterCategories: {
-    required: true,
-    type: Array as PropType<FilterCategory[]>
   }
 })
 
-const model = defineModel<string>()
+const model = defineModel<object>()
 
-// TODO: The types and computed values below will be removed when the structure of props.filterCategories is modified.
-export type OptionGroups = {
-  [label: string | number]: Option[];
-}
-
-export type Option = {
-  key: string,
-  disabled?: boolean,
-  name: string,
-  value: string
-}
-
-const optionGroups = computed<OptionGroups>(() => {
-  const value = {}
-  each(props.filterCategories, option => {
-    if (option.header && !includes(value, option.header)) {
-      value[option.key] = []
-    } else {
-      value[option.group].push(option)
-    }
-  })
-  return value
-})
+const filterCategories: FilterCategories = cloneDeep(useCohortStore().filterCategories)
 </script>
 
 <style scoped>
