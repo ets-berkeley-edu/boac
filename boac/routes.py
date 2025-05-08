@@ -49,6 +49,8 @@ def register_routes(app):
     import boac.api.auth_controller
     import boac.api.cachejob_controller
     import boac.api.cohort_controller
+    import boac.api.cohort_csv_controller
+    import boac.api.cohort_filter_options_controller
     import boac.api.config_controller
     import boac.api.course_controller
     import boac.api.curated_group_controller

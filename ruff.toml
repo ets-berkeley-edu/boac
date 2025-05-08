@@ -54,7 +54,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 [lint.pylint]
 max-args = 21
 max-branches = 15
-max-statements = 58
+max-statements = 60
 
 [lint.mccabe]
 max-complexity = 13

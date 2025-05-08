@@ -23,20 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
-
-from boac.api.csv_file_download_utils import response_with_students_csv_download
 from boac.api.decorators import advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import is_unauthorized_domain, is_unauthorized_search
+from boac.api.util import is_unauthorized_domain, is_unauthorized_search, construct_phantom_cohort, \
+    translate_filters_to_cohort_criteria, can_current_user_view_cohort
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
 from boac.merged.calnet import get_calnet_user_for_uid
-from boac.merged.cohort_filter_options import CohortFilterOptions, PROTECTED_COHORT_FILTERS_COENG, \
-    PROTECTED_COHORT_FILTERS_UWASC
-from boac.merged.sis_terms import current_term_id
+from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC
 from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -85,7 +81,7 @@ def students_with_alerts(cohort_id):
     benchmark('fetched cohort')
     if cohort:
         cohort_owner_uid = AuthorizedUser.get_uid_per_id(cohort.owner_id)
-        if _can_current_user_view_cohort(cohort_owner_uid):
+        if can_current_user_view_cohort(cohort_owner_uid):
             cohort = cohort.to_api_json(
                 alert_limit=limit,
                 alert_offset=offset,
@@ -129,7 +125,7 @@ def get_cohort(cohort_id):
     cohort = CohortFilter.find_by_id(int(cohort_id))
     if cohort:
         cohort_owner_uid = AuthorizedUser.get_uid_per_id(cohort.owner_id)
-        if _can_current_user_view_cohort(cohort_owner_uid):
+        if can_current_user_view_cohort(cohort_owner_uid):
             cohort = cohort.to_api_json(
                 include_alerts_for_user_id=current_user.get_id(),
                 include_profiles=True,
@@ -154,7 +150,7 @@ def get_cohort_events(cohort_id):
     cohort = CohortFilter.find_by_id(cohort_id)
     if cohort:
         cohort_owner_uid = AuthorizedUser.get_uid_per_id(cohort.owner_id)
-        if not _can_current_user_view_cohort(cohort_owner_uid):
+        if not can_current_user_view_cohort(cohort_owner_uid):
             raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
         if cohort.domain != 'default':
             raise BadRequestError(f"Cohort events are not supported for domain '{cohort.domain}'")
@@ -206,7 +202,7 @@ def get_cohort_per_filters():
     if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     benchmark('begin phantom cohort query')
-    cohort = _construct_phantom_cohort(
+    cohort = construct_phantom_cohort(
         domain=domain,
         filters=filters,
         order_by=order_by,
@@ -220,66 +216,6 @@ def get_cohort_per_filters():
     _decorate_cohort(cohort)
     benchmark('end')
     return tolerant_jsonify(cohort)
-
-
-@app.route('/api/cohort/download_csv', methods=['POST'])
-@advisor_required
-def download_cohort_csv():
-    benchmark = get_benchmarker('cohort download_csv')
-    benchmark('begin')
-    params = request.get_json()
-    cohort_id = int(get_param(params, 'cohortId'))
-    cohort = CohortFilter.find_by_id(cohort_id)
-    cohort_owner_uid = AuthorizedUser.get_uid_per_id(cohort.owner_id)
-    if cohort and _can_current_user_view_cohort(cohort_owner_uid):
-        fieldnames = get_param(params, 'csvColumnsSelected', [])
-        sids = CohortFilter.get_sids(cohort.id)
-        term_id = get_param(params, 'termId') or current_term_id()
-        return response_with_students_csv_download(
-            benchmark=benchmark,
-            domain=cohort.domain,
-            fieldnames=fieldnames,
-            sids=sids,
-            term_id=term_id,
-        )
-    else:
-        raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
-
-
-@app.route('/api/cohort/download_csv_per_filters', methods=['POST'])
-@advisor_required
-def download_csv_per_filters():
-    benchmark = get_benchmarker('cohort download_csv_per_filters')
-    benchmark('begin')
-    params = request.get_json()
-    filters = get_param(params, 'filters', [])
-    fieldnames = get_param(params, 'csvColumnsSelected', [])
-    domain = get_param(params, 'domain', 'default')
-    term_id = get_param(params, 'termId') or current_term_id()
-
-    if (domain == 'default' and not filters) or filters is None:
-        raise BadRequestError('API requires \'filters\'')
-    filter_keys = list(map(lambda f: f['key'], filters))
-    if is_unauthorized_search(filter_keys):
-        raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    if is_unauthorized_domain(domain):
-        raise ResourceNotFoundError(f'Domain \'{domain}\' is unavailable.')
-    cohort = _construct_phantom_cohort(
-        domain=domain,
-        filters=filters,
-        offset=0,
-        limit=None,
-        include_profiles=False,
-        include_sids=True,
-        include_students=False,
-    )
-    return response_with_students_csv_download(
-        benchmark=benchmark,
-        domain=domain,
-        fieldnames=fieldnames,
-        sids=cohort['sids'],
-        term_id=term_id,
-    )
 
 
 @app.route('/api/cohort/create', methods=['POST'])
@@ -296,7 +232,7 @@ def create_cohort():
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    filter_criteria = _translate_filters_to_cohort_criteria(filters, domain)
+    filter_criteria = translate_filters_to_cohort_criteria(filters, domain)
     if not name or not filter_criteria:
         raise BadRequestError('Cohort creation requires \'name\' and \'filters\'')
     cohort = CohortFilter.create(
@@ -327,7 +263,7 @@ def update_cohort():
     if is_unauthorized_search(filter_keys):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     domain = CohortFilter.get_domain_of_cohort(cohort_id)
-    filter_criteria = _translate_filters_to_cohort_criteria(filters, domain)
+    filter_criteria = translate_filters_to_cohort_criteria(filters, domain)
     updated = CohortFilter.update(
         cohort_id=cohort_id,
         name=name,
@@ -353,35 +289,6 @@ def delete_cohort(cohort_id):
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
 
 
-@app.route('/api/cohort/filter_options/<cohort_owner_uid>', methods=['POST'])
-@advisor_required
-def all_cohort_filter_options(cohort_owner_uid):
-    params = request.get_json()
-    existing_filters = get_param(params, 'existingFilters', [])
-    domain = get_param(params, 'domain', 'default')
-    if is_unauthorized_domain(domain):
-        raise ResourceNotFoundError(f'Domain \'{domain}\' is unavailable.')
-    return tolerant_jsonify(
-        CohortFilterOptions.get_cohort_filter_option_groups(
-            domain=domain,
-            owner_uid=cohort_owner_uid,
-            existing_filters=existing_filters,
-        ),
-    )
-
-
-@app.route('/api/cohort/translate_to_filter_options/<cohort_owner_uid>', methods=['POST'])
-@advisor_required
-def translate_cohort_filter_to_menu(cohort_owner_uid):
-    params = request.get_json()
-    domain = get_param(params, 'domain', 'default')
-    if is_unauthorized_domain(domain):
-        raise ResourceNotFoundError(f'Domain \'{domain}\' is unavailable.')
-    criteria = get_param(params, 'criteria')
-    filter_options = CohortFilterOptions.translate_to_filter_options(cohort_owner_uid, domain, criteria)
-    return tolerant_jsonify(filter_options)
-
-
 def _decorate_cohort(cohort):
     if cohort.get('owner'):
         owner_uid = cohort['owner'].get('uid')
@@ -402,42 +309,3 @@ def _decorate_cohort(cohort):
                     cohort['hasPrivateCohortFilterCriteria'] = True
                 if cohort['hasPrivateCohortFilterCriteria']:
                     cohort['criteria'] = {}
-
-
-def _can_current_user_view_cohort(cohort_owner_uid):
-    # Admin users can view all cohorts. Non-admin can view all except cohorts owned by Admins.
-    return not cohort_owner_uid or current_user.is_admin or not AuthorizedUser.is_admin_user(cohort_owner_uid)
-
-
-def _construct_phantom_cohort(domain, filters, **kwargs):
-    # A "phantom" cohort is an unsaved search.
-    cohort = CohortFilter(
-        domain=domain,
-        name=f'phantom_cohort_{datetime.now().timestamp()}',
-        filter_criteria=_translate_filters_to_cohort_criteria(filters, domain),
-    )
-    return cohort.to_api_json(**kwargs)
-
-
-def _translate_filters_to_cohort_criteria(filters, domain):
-    db_type_per_key = _get_filter_db_type_per_key(domain)
-    criteria = {}
-    for row in filters:
-        key = row['key']
-        db_type = db_type_per_key[key]
-        if db_type == 'boolean':
-            criteria[key] = row['value']
-        elif db_type in ['string[]', 'json[]']:
-            if not criteria.get(key):
-                criteria[key] = []
-            criteria[key].append(row['value'])
-    return criteria
-
-
-def _get_filter_db_type_per_key(domain):
-    filter_type_per_key = {}
-    option_groups = CohortFilterOptions.get_cohort_filter_option_groups(domain=domain, owner_uid=current_user.uid)
-    for label, option_group in option_groups.items():
-        for option in option_group:
-            filter_type_per_key[option['key']] = option['type']['db']
-    return filter_type_per_key

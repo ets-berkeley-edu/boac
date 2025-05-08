@@ -34,9 +34,11 @@ from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes, note_to_compatible_json
 from boac.merged.calnet import get_calnet_user_for_uid
-from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC
+from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC, \
+    CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
 from boac.models.alert import Alert
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
@@ -131,6 +133,21 @@ def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
         profile['lastLogin'] = to_iso_format(user_login.created_at) if user_login else None
         profiles.append(profile)
     return sorted(profiles, key=lambda p: (p.get(sort_by) is None, p.get(sort_by)), reverse=sort_descending)
+
+
+def can_current_user_view_cohort(cohort_owner_uid):
+    # Admin users can view all cohorts. Non-admin can view all except cohorts owned by Admins.
+    return not cohort_owner_uid or current_user.is_admin or not AuthorizedUser.is_admin_user(cohort_owner_uid)
+
+
+def construct_phantom_cohort(domain, filters, **kwargs):
+    # A "phantom" cohort is an unsaved search.
+    cohort = CohortFilter(
+        domain=domain,
+        name=f'phantom_cohort_{datetime.now().timestamp()}',
+        filter_criteria=translate_filters_to_cohort_criteria(filters, domain),
+    )
+    return cohort.to_api_json(**kwargs)
 
 
 def put_notifications(student):
@@ -382,10 +399,34 @@ def get_note_author_profile_of_current_user():
     }
 
 
+def translate_filters_to_cohort_criteria(filters, domain):
+    db_type_per_key = get_cohort_filter_db_type_per_key(domain)
+    criteria = {}
+    for row in filters:
+        key = row['key']
+        db_type = db_type_per_key[key]
+        if db_type == 'boolean':
+            criteria[key] = row['value']
+        elif db_type in ['string[]', 'json[]']:
+            if not criteria.get(key):
+                criteria[key] = []
+            criteria[key].append(row['value'])
+    return criteria
+
+
 def validate_note_contact_type(contact_type):
     if contact_type and contact_type not in note_contact_type_enum.enums:
         raise BadRequestError('Unrecognized contact type')
     return contact_type
+
+
+def get_cohort_filter_db_type_per_key(domain):
+    filter_type_per_key = {}
+    option_groups = CohortFilterOptions.get_cohort_filter_option_groups(domain=domain, owner_uid=current_user.uid)
+    for label, option_group in option_groups.items():
+        for option in option_group:
+            filter_type_per_key[option['key']] = option['type']['db']
+    return filter_type_per_key
 
 
 def _is_advisor_in_department(user, dept_code):

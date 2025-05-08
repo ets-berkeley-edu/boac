@@ -1,8 +1,7 @@
 import axios from 'axios'
-import fileDownload from 'js-file-download'
+import type {Cohort} from '@/lib/types-cohorts'
 import ga from '@/lib/ga'
 import utils from '@/api/api-utils'
-import type {Cohort} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 
 const $_track = (action: string, label?: string) => ga.cohort(action, label)
@@ -41,27 +40,6 @@ export function deleteCohort(id: number) {
   return axios.delete(url, {headers}).then(() => $_onDelete(id))
 }
 
-export function downloadCohortCsv(cohortId: number, cohortName: string, csvColumnsSelected: string[]) {
-  const contextStore = useContextStore()
-  const termId = contextStore.currentUser.preferences.termId || contextStore.config.currentEnrollmentTermId
-  const url: string = `${utils.apiBaseUrl()}/api/cohort/download_csv`
-  return axios.post(url, {cohortId, csvColumnsSelected, termId}).then(response => {
-    const filename = utils.createDownloadFilename(cohortName ? `${cohortName}-students` : 'students', 'csv')
-    $_track('download', filename)
-    return fileDownload(response.data, filename)
-  })
-}
-
-export function downloadCsv(domain: string, cohortName: string, filters: object[], csvColumnsSelected: string[]) {
-  const contextStore = useContextStore()
-  const termId = contextStore.currentUser.preferences.termId || contextStore.config.currentEnrollmentTermId
-  const url: string = `${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`
-  return axios.post(url, {csvColumnsSelected, domain, filters, termId}).then(response => {
-    $_track('download', `Cohort: ${cohortName || '[Not yet named]'}`)
-    return fileDownload(response.data, utils.createDownloadFilename(cohortName || 'students', 'csv'))
-  })
-}
-
 export function getCohort(
   id: number,
   termId: string,
@@ -78,11 +56,6 @@ export function getCohort(
 export function getCohortEvents(id: number, offset: number, limit: number) {
   const url: string = `${utils.apiBaseUrl()}/api/cohort/${id}/events?offset=${offset}&limit=${limit}`
   return axios.get(url).then(response => response.data)
-}
-
-export function getCohortFilterOptions(domain: string, ownerUid: string | undefined, existingFilters: object[]) {
-  const url: string = `${utils.apiBaseUrl()}/api/cohort/filter_options/${ownerUid}`
-  return axios.post(url, {domain, existingFilters}).then(response => response.data)
 }
 
 export function getStudentsPerFilters(
@@ -119,9 +92,4 @@ export function saveCohort(
     $_onUpdate(data)
     return data
   })
-}
-
-export function translateToFilterOptions(domain: string, ownerUid: string, criteria: object) {
-  const url: string = `${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options/${ownerUid}`
-  return axios.post(url, {criteria, domain}).then(response => response.data)
 }
