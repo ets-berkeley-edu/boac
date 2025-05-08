@@ -10,23 +10,30 @@
       <option :id="`secondary-option-null`" :value="undefined">
         Select...
       </option>
-      <option
-        v-for="option in options"
-        :id="normalizeId(`secondary-option-${option.value}`)"
-        :key="option.key"
-        :aria-disabled="option.disabled"
-        :disabled="option.disabled"
-        :value="option"
+      <optgroup
+        v-for="(options, label) in optionGroups"
+        :id="normalizeId(`secondary-option-group-${label}`)"
+        :key="label"
+        :label="label"
       >
-        {{ option.name || option.label.primary }}
-      </option>
+        <option
+          v-for="option in options"
+          :id="normalizeId(`secondary-option-${normalizeId(option.value)}`)"
+          :key="option.key"
+          :aria-disabled="option.disabled"
+          :disabled="option.disabled"
+          :value="option"
+        >
+          {{ option }}
+        </option>
+      </optgroup>
     </select>
   </div>
 </template>
 
 <script lang="ts" setup>
 import type {PropType} from 'vue'
-import type {FilterOption} from '@/lib/types-cohorts'
+import type {FilterOptionGroup} from '@/lib/types-cohorts'
 import {normalizeId} from '@/lib/utils'
 
 defineProps({
@@ -38,13 +45,17 @@ defineProps({
     required: true,
     type: [Number, String]
   },
+  hasLeftBorderStyle: {
+    required: false,
+    type: Boolean
+  },
   labelledby: {
     required: true,
     type: String
   },
-  options: {
+  optionGroups: {
     required: true,
-    type: Array as PropType<FilterOption[]>
+    type: Object as PropType<FilterOptionGroup>
   }
 })
 

@@ -33,7 +33,7 @@
 
 <script lang="ts" setup>
 import {cloneDeep} from 'lodash'
-import type {FilterCategories} from '@/lib/types-cohorts'
+import type {FilterOptionGroup} from '@/lib/types-cohorts'
 import {normalizeId} from '@/lib/utils'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 
@@ -54,7 +54,7 @@ defineProps({
 
 const model = defineModel<object>()
 
-const filterCategories: FilterCategories = cloneDeep(useCohortStore().filterCategories)
+const filterCategories: FilterOptionGroup = cloneDeep(useCohortStore().filterCategories)
 </script>
 
 <style scoped>

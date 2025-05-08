@@ -38,13 +38,20 @@
         <div v-if="isUX('dropdown')">
           <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
           <FilterSelect
+            v-if="filter.options instanceof Array"
             v-model="selectedOption"
             :disabled="isUpdatingExistingFilter"
             :filter-row-index="position"
-            :has-opt-groups="!!filter.options[0].header"
             :labelledby="`filter-secondary-${position}-label`"
             :options="filter.options"
-            type="secondary"
+          />
+          <FilterSelectOptionGroups
+            v-if="!(filter.options instanceof Array)"
+            v-model="selectedOption"
+            :disabled="isUpdatingExistingFilter"
+            :filter-row-index="position"
+            :labelledby="`filter-secondary-${position}-label`"
+            :option-groups="filter.options"
           />
         </div>
         <div
@@ -232,6 +239,7 @@ import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import FilterCategorySelect from '@/components/cohort/FilterCategorySelect'
 import FilterSelect from '@/components/cohort/FilterSelect'
 import ProgressButton from '@/components/util/ProgressButton'
+import FilterSelectOptionGroups from '@/components/cohort/FilterSelectOptionGroups'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {updateFilterOptions} from '@/stores/cohort-edit-session/cohort-edit-session-utils'
@@ -396,16 +404,18 @@ const formatGPA = value => {
 }
 
 const getDropdownSelectedLabel = () => {
-  const options = find(flattenOptions(cohortStore.filterCategories), ['key', filter.value.key]).options
+  const category = find(flattenOptions(cohortStore.filterCategories), ['key', filter.value.key])
   let label = ''
-  if (Array.isArray(options) && !options[0].header) {
-    const option = find(options, ['value', filter.value.value])
-    label = get(option, 'name')
-  } else {
-    each(options, option => {
-      label = option.value === filter.value.value ? `${get(option, 'name')} (${option.group})` : null
+  const isOptGroup = !Array.isArray(category.options)
+  if (isOptGroup) {
+    each(category.options, (optGroupOptions, optGroupLabel) => {
+      const option = find(optGroupOptions, ['value', filter.value.value])
+      label = option ? `${get(option, 'name')} (${optGroupLabel})` : null
       return !label
     })
+  } else {
+    const option = find(category.options, ['value', filter.value.value])
+    label = get(option, 'name')
   }
   return label
 }
