@@ -1,3 +1,5 @@
+import type {Cohort} from '@/lib/types-cohorts'
+
 export type AcademicTimelineMessage = {
   advisor: BoaUserBasic,
   appointmentTitle?: string,
@@ -108,13 +110,6 @@ export type CalNetUser = {
   name: string | undefined,
   title: string | undefined,
   uid: string
-}
-
-export type Cohort = {
-  domain: string,
-  id: number,
-  name: string,
-  totalStudentCount: number
 }
 
 export type CuratedGroup = {

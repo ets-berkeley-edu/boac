@@ -15,15 +15,12 @@
       </div>
       <div v-if="isModifyingFilter && !isExistingFilter">
         <span :id="`new-filter-${position}-label`" class="sr-only">Add a Cohort Filter</span>
-        <FilterSelect
+        <FilterCategorySelect
           v-model="selectedFilter"
           :disabled="isUpdatingExistingFilter"
+          :filter-categories="filterCategories"
           :filter-row-index="position"
-          :has-left-border-style="true"
-          :has-opt-groups="cohortStore.domain === 'default'"
-          :labelledby="`new-filter-${position}-label`"
-          :options="primaryOptions"
-          type="primary"
+          :labelled-by="`new-filter-${position}-label`"
         />
       </div>
       <div
@@ -235,6 +232,7 @@ import {
 import {DateTime} from 'luxon'
 import {computed, onMounted, ref, watch} from 'vue'
 import AccessibleDateInput from '@/components/util/AccessibleDateInput'
+import FilterCategorySelect from '@/components/cohort/FilterCategorySelect'
 import FilterSelect from '@/components/cohort/FilterSelect'
 import ProgressButton from '@/components/util/ProgressButton'
 import {useCohortStore} from '@/stores/cohort-edit-session'
@@ -267,14 +265,14 @@ const showRow = ref(true)
 
 const cohortStore = useCohortStore()
 
-const primaryOptions = computed(() => {
+const filterCategories = computed(() => {
   // If we have only one option-group then flatten the object to an array of options.
   const optionGroups = cohortStore.filterOptionGroups
   const flatten = size(optionGroups) === 1
-  const preparedOptions = []
+  const categories = []
   each(optionGroups, (items, group) => {
     if (!flatten) {
-      preparedOptions.push({
+      categories.push({
         header: group,
         name: group,
         key: group
@@ -304,14 +302,14 @@ const primaryOptions = computed(() => {
         })
         item.options = subOptions
       }
-      preparedOptions.push({
+      categories.push({
         group: flatten ? null : group,
         name: item.label.primary,
         ...item
       })
     })
   })
-  return preparedOptions
+  return categories
 })
 
 const onRangeUpdate = () => {
