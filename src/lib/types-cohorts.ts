@@ -6,12 +6,14 @@ export type Cohort = {
   totalStudentCount: number
 }
 
-export type FilterCategories = Record<string, FilterOption[]>
+export type FilterOptionGroup = Record<string, FilterOption[]>
 
 export type FilterOption = {
   disabled: boolean,
   label: FilterOptionLabel,
-  key: string
+  key: string,
+  name: string,
+  value: object
 }
 
 export type FilterOptionLabel = {

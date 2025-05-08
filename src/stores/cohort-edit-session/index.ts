@@ -1,6 +1,7 @@
 import type {StoreDefinition} from 'pinia'
 import {cloneDeep, find, isNil, size} from 'lodash'
 import {defineStore} from 'pinia'
+import type {FilterOptionGroup} from '@/lib/types-cohorts'
 
 const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 
@@ -10,7 +11,7 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
     cohortName: undefined as string | null | undefined,
     domain: undefined as string | null | undefined,
     editMode: undefined as string | null | undefined,
-    filterCategories: [] as object[],
+    filterCategories: [] as FilterOptionGroup[],
     filters: [] as object[],
     hasPrivateCohortFilterCriteria: false,
     isCompactView: false,
@@ -77,7 +78,7 @@ export const useCohortStore: StoreDefinition = defineStore('cohort', {
         throw new TypeError('Invalid page mode: ' + editMode)
       }
     },
-    setFilterCategories(filterCategories: object[]) {
+    setFilterCategories(filterCategories: FilterOptionGroup[]) {
       this.filterCategories = filterCategories
     },
     setModifiedSinceLastSearch(value: boolean) {
