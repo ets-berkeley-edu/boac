@@ -18,7 +18,6 @@
         <FilterCategorySelect
           v-model="selectedFilter"
           :disabled="isUpdatingExistingFilter"
-          :filter-categories="filterCategories"
           :filter-row-index="position"
           :labelled-by="`new-filter-${position}-label`"
         />
@@ -221,16 +220,14 @@ import {
   get,
   isNaN,
   isNil,
-  isPlainObject,
   isUndefined,
   noop,
-  size,
   toLower,
   trim,
   values
 } from 'lodash'
 import {DateTime} from 'luxon'
-import {computed, onMounted, ref, watch} from 'vue'
+import {onMounted, ref, watch} from 'vue'
 import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import FilterCategorySelect from '@/components/cohort/FilterCategorySelect'
 import FilterSelect from '@/components/cohort/FilterSelect'
@@ -264,53 +261,6 @@ const showAdd = ref(false)
 const showRow = ref(true)
 
 const cohortStore = useCohortStore()
-
-const filterCategories = computed(() => {
-  // If we have only one option-group then flatten the object to an array of options.
-  const optionGroups = cohortStore.filterOptionGroups
-  const flatten = size(optionGroups) === 1
-  const categories = []
-  each(optionGroups, (items, group) => {
-    if (!flatten) {
-      categories.push({
-        header: group,
-        name: group,
-        key: group
-      })
-    }
-    each(items, item => {
-      if (isPlainObject(item.options)) {
-        const subOptions = []
-        each(item.options, (subItems, subGroup) => {
-          if (!flatten) {
-            subOptions.push({
-              header: subGroup,
-              name: subGroup,
-              key: subGroup
-            })
-          }
-          each(subItems, subItem => {
-            const value = subItem.value
-            subOptions.push({
-              disabled: subItem.disabled,
-              group: flatten ? null : subGroup,
-              key: value,
-              name: subItem.name,
-              value
-            })
-          })
-        })
-        item.options = subOptions
-      }
-      categories.push({
-        group: flatten ? null : group,
-        name: item.label.primary,
-        ...item
-      })
-    })
-  })
-  return categories
-})
 
 const onRangeUpdate = () => {
   disableUpdateButton.value = false
@@ -446,7 +396,7 @@ const formatGPA = value => {
 }
 
 const getDropdownSelectedLabel = () => {
-  const options = find(flattenOptions(cohortStore.filterOptionGroups), ['key', filter.value.key]).options
+  const options = find(flattenOptions(cohortStore.filterCategories), ['key', filter.value.key]).options
   let label = ''
   if (Array.isArray(options) && !options[0].header) {
     const option = find(options, ['value', filter.value.value])
@@ -503,7 +453,7 @@ const onClickEditButton = () => {
   if (isUX('dropdown')) {
     // Populate select options, with selected option based on current filter.value.
     const findOption = (options, value) => find(options, ['value', value])
-    const options = find(flattenOptions(cohortStore.filterOptionGroups), ['key', filter.value.key]).options
+    const options = find(flattenOptions(cohortStore.filterCategories), ['key', filter.value.key]).options
     filter.value.options = options
     selectedOption.value = Array.isArray(options) ? findOption(options, filter.value.value) : find(flattenOptions(options), filter.value.value)
     putFocusNextTick(`filter-select-secondary-${props.position}`)
