@@ -11,13 +11,13 @@
         Select...
       </option>
       <optgroup
-        v-for="(options, label) in filterCategories"
-        :id="normalizeId(`primary-option-group-${normalizeId(label)}`)"
-        :key="label"
-        :label="label"
+        v-for="filterCategory in filterCategories"
+        :id="normalizeId(`primary-option-group-${normalizeId(filterCategory['label'])}`)"
+        :key="filterCategory['label']"
+        :label="filterCategory['label']"
       >
         <option
-          v-for="option in options"
+          v-for="option in filterCategory['options']"
           :id="normalizeId(`primary-option-${normalizeId(option.key)}`)"
           :key="option.key"
           :aria-disabled="option.disabled"

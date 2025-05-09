@@ -24,7 +24,7 @@
           :disabled="option.disabled"
           :value="option"
         >
-          {{ option }}
+          {{ option.name }}
         </option>
       </optgroup>
     </select>

@@ -1,8 +1,12 @@
 import axios from 'axios'
 import utils from '@/api/api-utils'
 
-export function getCohortFilterOptions(domain: string, ownerUid: string | undefined, existingFilters: object[]) {
-  const url: string = `${utils.apiBaseUrl()}/api/cohort_filter_options`
+export function getCohortFilterCategories(
+  domain: string,
+  ownerUid: string | undefined,
+  existingFilters: object[]
+) {
+  const url: string = `${utils.apiBaseUrl()}/api/cohort_filter_categories`
   return axios.post(url, {domain, existingFilters, ownerUid}).then(response => response.data)
 }
 
