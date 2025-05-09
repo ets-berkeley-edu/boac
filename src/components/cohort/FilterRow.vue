@@ -38,7 +38,7 @@
         <div v-if="isUX('dropdown')">
           <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
           <FilterSelect
-            v-if="filter.options instanceof Array"
+            v-if="!isOptGroup(filter.options)"
             v-model="selectedOption"
             :disabled="isUpdatingExistingFilter"
             :filter-row-index="position"
@@ -46,7 +46,7 @@
             :options="filter.options"
           />
           <FilterSelectOptionGroups
-            v-if="!(filter.options instanceof Array)"
+            v-if="isOptGroup(filter.options)"
             v-model="selectedOption"
             :disabled="isUpdatingExistingFilter"
             :filter-row-index="position"
@@ -223,11 +223,10 @@ import {
   cloneDeep,
   each,
   find,
-  flatten,
   get,
   isNaN,
   isNil,
-  isUndefined, map,
+  isUndefined,
   noop,
   toLower,
   trim
@@ -394,8 +393,6 @@ onMounted(() => {
   reset()
 })
 
-const flattenOptions = filterCategories => flatten(map(filterCategories, 'options'))
-
 const formatGPA = value => {
   // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
   const gpa = trim(value)
@@ -403,22 +400,21 @@ const formatGPA = value => {
 }
 
 const getDropdownSelectedLabel = () => {
-  const allOptions = flattenOptions(cohortStore.filterCategories)
-  const option = find(allOptions, ['key', filter.value.key])
   let label = ''
-  const isOptGroup = !Array.isArray(option.options)
-  if (isOptGroup) {
-    each(option.options, (optGroupOptions, optGroupLabel) => {
-      const option = find(optGroupOptions, ['value', filter.value.value])
-      label = option ? `${get(option, 'name')} (${optGroupLabel})` : null
+  if (isOptGroup(filter.value.options)) {
+    each(filter.value.options, option => {
+      const dropdownOption = find(option.options, ['value', filter.value.value])
+      label = dropdownOption ? `${get(dropdownOption, 'name')} (${option.label})` : null
       return !label
     })
   } else {
-    const option = find(option.options, ['value', filter.value.value])
-    label = get(option, 'name')
+    const dropdownOption = find(filter.value.options, ['value', filter.value.value])
+    label = get(dropdownOption, 'name')
   }
   return label
 }
+
+const isOptGroup = dropdownOptions => !!dropdownOptions[0].options
 
 const isUX = type => {
   return get(filter.value, 'type.ux') === type
@@ -460,16 +456,20 @@ const onClickCancelEdit = () => {
 
 const onClickEditButton = () => {
   disableUpdateButton.value = false
+  const selection = filter.value.value
   if (isUX('dropdown')) {
-    // Populate select options, with selected option based on current filter.value.
-    const findOption = (options, value) => find(options, ['value', value])
-    const options = find(flattenOptions(cohortStore.filterCategories), ['key', filter.value.key]).options
-    filter.value.options = options
-    selectedOption.value = Array.isArray(options) ? findOption(options, filter.value.value) : find(flattenOptions(options), filter.value.value)
+    if (isOptGroup(filter.value.options)) {
+      each(filter.value.options, option => {
+        selectedOption.value = find(option.options, ['value', filter.value.value])
+        return !selectedOption.value
+      })
+    } else {
+      selectedOption.value = find(filter.value.options, ['value', selection])
+    }
     putFocusNextTick(`filter-select-secondary-${props.position}`)
   } else if (isUX('range')) {
-    rangeMin.value = filter.value.value.min
-    rangeMax.value = filter.value.value.max
+    rangeMin.value = selection.min
+    rangeMax.value = selection.max
     putFocusNextTick(`filter-range-min-${props.position}`)
   }
   isModifyingFilter.value = true

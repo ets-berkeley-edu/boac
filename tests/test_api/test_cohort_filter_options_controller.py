@@ -34,7 +34,7 @@ ce3_advisor_uid = '2525'
 coe_advisor_uid = '1133399'
 
 
-class TestCohortFilterOptions:
+class TestCohortFilterCategories:
 
     @classmethod
     def _api_cohort_filter_categories(cls, client, data, expected_status_code=200):
@@ -204,8 +204,12 @@ class TestCohortFilterOptions:
         academic_filter_category = next((category for category in api_json if category['label'] == 'Academic'), None)
         entering_terms_dropdown = next((option for option in academic_filter_category['options'] if option['key'] == 'expectedGradTerms'), None)
         options = entering_terms_dropdown['options']
-        assert len(options['Past']) == 1
-        assert options['Past'][0]['name'] == '1997 Fall'
+        assert len(options) == 2
+        assert options[0]['label'] == 'Future'
+        assert options[1]['label'] == 'Past'
+        options_past = options[1]['options']
+        assert len(options_past) == 1
+        assert options_past[0]['name'] == '1997 Fall'
 
     def test_range_of_majors(self, user_factory, client, fake_auth):
         """Cohort filter: Range of major terms."""

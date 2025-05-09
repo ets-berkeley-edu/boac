@@ -11,15 +11,15 @@
         Select...
       </option>
       <optgroup
-        v-for="(options, label) in optionGroups"
-        :id="normalizeId(`secondary-option-group-${label}`)"
-        :key="label"
-        :label="label"
+        v-for="optionGroup in optionGroups"
+        :id="normalizeId(`secondary-option-group-${optionGroup.label}`)"
+        :key="optionGroup.label"
+        :label="optionGroup.label"
       >
         <option
-          v-for="option in options"
+          v-for="option in optionGroup.options"
           :id="normalizeId(`secondary-option-${normalizeId(option.value)}`)"
-          :key="option.key"
+          :key="option.value"
           :aria-disabled="option.disabled"
           :disabled="option.disabled"
           :value="option"
