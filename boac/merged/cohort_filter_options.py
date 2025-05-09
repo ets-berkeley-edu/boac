@@ -60,8 +60,8 @@ class CohortFilterOptions:
         self.owner_uid = owner_uid
         self.scope = scope
 
-    def get_available_filter_option_groups(self, domain):
-        available_option_groups = {}
+    def get_available_filter_categories(self, domain):
+        filter_categories = []
         for label, cohort_filter_options in self.get_cohort_filter_options_by_label().items():
             def _is_available(cohort_filter_option):
                 return _is_cohort_filter_option_available(
@@ -71,8 +71,11 @@ class CohortFilterOptions:
                 )
             options = list(filter(_is_available, cohort_filter_options))
             if len(options):
-                available_option_groups[label] = options
-        return available_option_groups
+                filter_categories.append({
+                    'label': label,
+                    'options': options,
+                })
+        return filter_categories
 
     def get_cohort_filter_options_by_label(self):
         owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid) if self.owner_uid else None
@@ -220,9 +223,9 @@ class CohortFilterOptions:
         # Transform cohort filter criteria in the database to a UX-compatible data structure.
         rows = []
         if criteria:
-            option_groups = cls(owner_uid, get_student_query_scope()).get_available_filter_option_groups(domain)
-            for label, option_group in option_groups.items():
-                for option in option_group:
+            filter_categories = cls(owner_uid, get_student_query_scope()).get_available_filter_categories(domain)
+            for filter_category in filter_categories:
+                for option in filter_category['options']:
                     selected = criteria.get(option['key'])
                     if selected is not None:
                         def _append_row(value_):
@@ -252,13 +255,13 @@ class CohortFilterOptions:
         return value in [item['value'] for item in flattened]
 
     @classmethod
-    def get_cohort_filter_option_groups(cls, domain, owner_uid, existing_filters=()):
+    def get_cohort_filter_categories(cls, domain, owner_uid, existing_filters=()):
         # Disable filter options based on existing cohort criteria.
-        option_groups = cls(owner_uid, get_student_query_scope()).get_available_filter_option_groups(domain)
+        filter_categories = cls(owner_uid, get_student_query_scope()).get_available_filter_categories(domain)
         cohort_filter_per_key = {}
         filter_type_per_key = {}
-        for label, option_group in option_groups.items():
-            for option in option_group:
+        for filter_category in filter_categories:
+            for option in filter_category['options']:
                 _key = option['key']
                 cohort_filter_per_key[_key] = option
                 filter_type_per_key[_key] = option['type']['db']
@@ -272,7 +275,7 @@ class CohortFilterOptions:
             selected_values_per_key[key].append(value)
 
         cls.populate_cohort_filter_options(cohort_filter_per_key, selected_values_per_key)
-        return option_groups
+        return filter_categories
 
     @classmethod
     def populate_cohort_filter_options(cls, cohort_filter_per_key, selected_values_per_key):

@@ -227,11 +227,10 @@ import {
   get,
   isNaN,
   isNil,
-  isUndefined,
+  isUndefined, map,
   noop,
   toLower,
-  trim,
-  values
+  trim
 } from 'lodash'
 import {DateTime} from 'luxon'
 import {onMounted, ref, watch} from 'vue'
@@ -395,7 +394,7 @@ onMounted(() => {
   reset()
 })
 
-const flattenOptions = optGroup => flatten(values(optGroup))
+const flattenOptions = filterCategories => flatten(map(filterCategories, 'options'))
 
 const formatGPA = value => {
   // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
@@ -404,17 +403,18 @@ const formatGPA = value => {
 }
 
 const getDropdownSelectedLabel = () => {
-  const category = find(flattenOptions(cohortStore.filterCategories), ['key', filter.value.key])
+  const allOptions = flattenOptions(cohortStore.filterCategories)
+  const option = find(allOptions, ['key', filter.value.key])
   let label = ''
-  const isOptGroup = !Array.isArray(category.options)
+  const isOptGroup = !Array.isArray(option.options)
   if (isOptGroup) {
-    each(category.options, (optGroupOptions, optGroupLabel) => {
+    each(option.options, (optGroupOptions, optGroupLabel) => {
       const option = find(optGroupOptions, ['value', filter.value.value])
       label = option ? `${get(option, 'name')} (${optGroupLabel})` : null
       return !label
     })
   } else {
-    const option = find(category.options, ['value', filter.value.value])
+    const option = find(option.options, ['value', filter.value.value])
     label = get(option, 'name')
   }
   return label

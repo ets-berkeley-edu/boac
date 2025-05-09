@@ -32,9 +32,9 @@ from boac.merged.cohort_filter_options import CohortFilterOptions
 from flask import current_app as app, request
 
 
-@app.route('/api/cohort_filter_options', methods=['POST'])
+@app.route('/api/cohort_filter_categories', methods=['POST'])
 @advisor_required
-def all_cohort_filter_options():
+def get_cohort_filter_categories():
     params = request.get_json()
     existing_filters = get_param(params, 'existingFilters', [])
     domain = get_param(params, 'domain', 'default')
@@ -42,7 +42,7 @@ def all_cohort_filter_options():
     if is_unauthorized_domain(domain):
         raise ResourceNotFoundError(f'Domain \'{domain}\' is unavailable.')
     return tolerant_jsonify(
-        CohortFilterOptions.get_cohort_filter_option_groups(
+        CohortFilterOptions.get_cohort_filter_categories(
             domain=domain,
             owner_uid=owner_uid,
             existing_filters=existing_filters,

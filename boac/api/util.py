@@ -422,9 +422,9 @@ def validate_note_contact_type(contact_type):
 
 def get_cohort_filter_db_type_per_key(domain):
     filter_type_per_key = {}
-    option_groups = CohortFilterOptions.get_cohort_filter_option_groups(domain=domain, owner_uid=current_user.uid)
-    for label, option_group in option_groups.items():
-        for option in option_group:
+    filter_categories = CohortFilterOptions.get_cohort_filter_categories(domain=domain, owner_uid=current_user.uid)
+    for filter_category in filter_categories:
+        for option in filter_category['options']:
             filter_type_per_key[option['key']] = option['type']['db']
     return filter_type_per_key
 
