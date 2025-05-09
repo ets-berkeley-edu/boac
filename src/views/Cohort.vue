@@ -1,10 +1,10 @@
 <template>
   <div v-if="!contextStore.loading" class="default-margins">
     <CohortPageHeader :is-cohort-history-page="false" />
-    <div v-if="cohortStore.domain === 'admitted_students' && cohortStore.students">
+    <div v-if="cohortStore.domain === 'admitted_students' && cohortStore.students" class="mt-2">
       <AdmitDataWarning :updated-at="get(cohortStore.students, '[0].updatedAt')" />
     </div>
-    <v-expand-transition>
+    <v-expand-transition class="mt-4">
       <div
         v-if="cohortStore.hasPrivateCohortFilterCriteria"
         id="cohort-filters-unavailable"
@@ -198,7 +198,7 @@ const afterLoadingComplete = focusId => {
   }
   const pageTitle = cohortStore.cohortId ? cohortStore.cohortName : 'Create Cohort'
   setPageTitle(pageTitle)
-  nextTick(() => putFocusNextTick(focusId, {scrollBlock: 'start'}))
+  nextTick(() => putFocusNextTick(focusId))
 }
 
 const getFocusElementId = isBackButtonToCohort => {

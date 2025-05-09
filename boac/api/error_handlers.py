@@ -23,10 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 import boac.api.errors
-from boac.lib.http import tolerant_jsonify
-from flask import current_app as app
+from flask import current_app as app, jsonify
 
 
 @app.errorhandler(boac.api.errors.BadRequestError)
@@ -57,4 +55,8 @@ def handle_internal_server_error(error):
 @app.errorhandler(Exception)
 def handle_unexpected_error(error):
     app.logger.exception(error)
-    return tolerant_jsonify({'message': 'An unexpected server error occurred.'}), 500
+    return jsonify(
+        error_class=str(type(error)) if error else None,
+        message='An unexpected server error occurred.',
+        success=False,
+    ), 500

@@ -29,6 +29,7 @@ const axiosErrorHandler = (error: object, axios: AxiosStatic): void => {
         router.push({
           path: '/error',
           query: {
+            c: get(error, 'response.data.error_class'),
             m: get(error, 'response.data.message') || get(error, 'message'),
             s: errorStatus,
             t: get(error, 'response.statusText')
