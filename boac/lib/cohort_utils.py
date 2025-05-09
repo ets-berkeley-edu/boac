@@ -92,19 +92,22 @@ def academic_division_options():
 
 
 @stow('cohort_filter_options_academic_standing')
-def academic_standing_options(min_term_id=0):
-    option_groups = {}
+def academic_standing_options(min_term_id):
+    option_groups = []
     for term_id, rows in groupby(data_loch.get_academic_standing_terms(min_term_id), lambda r: r['term_id']):
-        group = term_name_for_sis_id(term_id)
-        option_groups[group] = []
+        options = []
         for row in rows:
             value = row['status']
             standing = ACADEMIC_STANDING_DESCRIPTIONS.get(value)
             if standing:
-                option_groups[group].append({
+                options.append({
                     'name': standing,
                     'value': f'{term_id}:{value}',
                 })
+        option_groups.append({
+            'label': term_name_for_sis_id(term_id),
+            'options': options,
+        })
     return option_groups
 
 
@@ -147,17 +150,18 @@ def ethnicities():
 @stow('cohort_filter_options_grad_terms')
 def grad_terms():
     current_term_id_ = current_term_id()
-    option_groups = {
-        'Future': [],
-        'Past': [],
-    }
+    options_future = []
+    options_past = []
     for term_id in [r['expected_grad_term'] for r in data_loch.get_expected_graduation_terms()]:
-        key = 'Past' if term_id < current_term_id_ else 'Future'
-        option_groups[key].append({
+        options = options_past if term_id < current_term_id_ else options_future
+        options.append({
             'name': ' '.join(term_name_for_sis_id(term_id).split()[::-1]),
             'value': term_id,
         })
-    return option_groups
+    return [
+        {'label': 'Future', 'options': options_future},
+        {'label': 'Past', 'options': options_past},
+    ]
 
 
 @stow('cohort_filter_options_grading_terms')
