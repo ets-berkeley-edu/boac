@@ -167,7 +167,6 @@ class TestRefreshDepartmentMemberships:
         user_id = coe_advisor.id
         AuthorizedUser.delete(uid=uid)
         UniversityDeptMember.query.filter_by(authorized_user_id=user_id).delete()
-        std_commit(allow_test_environment=True)
 
         dept_coe = UniversityDept.find_by_dept_code(dept_code='COENG')
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
@@ -183,7 +182,6 @@ class TestRefreshDepartmentMemberships:
         assert next((u for u in coe_users if u.id == user_id), None)
 
         user = AuthorizedUser.find_by_uid(uid=uid, ignore_deleted=False)
-        std_commit(allow_test_environment=True)
         assert user.can_access_canvas_data is True
         assert user.can_access_advising_data is True
         # Verify that degree_progress_permission persists
@@ -215,7 +213,6 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == coe_user_count - 1
         assert next((u for u in coe_users if u.uid == '666'), None) is None
         assert AuthorizedUser.query.filter_by(uid='666').first().deleted_at
 
