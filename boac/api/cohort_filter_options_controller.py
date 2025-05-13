@@ -42,10 +42,10 @@ def get_cohort_filter_categories():
     if is_unauthorized_domain(domain):
         raise ResourceNotFoundError(f'Domain \'{domain}\' is unavailable.')
     return tolerant_jsonify(
-        CohortFilterOptions.get_cohort_filter_categories(
+        CohortFilterOptions.get_customized_filter_categories(
             domain=domain,
-            owner_uid=owner_uid,
             existing_filters=existing_filters,
+            owner_uid=owner_uid,
         ),
     )
 

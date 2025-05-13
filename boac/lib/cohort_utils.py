@@ -178,8 +178,8 @@ def grading_terms():
 
 def incomplete_types():
     return [
-        {'name': 'Frozen', 'value': 'frozen'},
         {'name': 'Failing grade, formerly an incomplete', 'value': 'failing'},
+        {'name': 'Frozen', 'value': 'frozen'},
         {'name': 'Passing grade, formerly an incomplete', 'value': 'passing'},
         {'name': 'Scheduled to become an F/NP', 'value': 'scheduled'},
     ]

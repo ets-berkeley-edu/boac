@@ -27,7 +27,7 @@
         class="font-weight-500 truncate-with-ellipsis py-2 w-40"
       >
         <span class="sr-only">Selected filter value is </span>
-        <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
+        <span v-if="isUX('options') || isUX('option_groups')">{{ getLabelPerSelectedOption() }}</span>
         <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
       </div>
       <div
@@ -35,18 +35,19 @@
         class="py-1"
         :class="{'mr-4': showAdd}"
       >
-        <div v-if="isUX('dropdown')">
+        <div v-if="isUX('options')">
           <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
           <FilterSelect
-            v-if="!isOptGroup(filter.options)"
             v-model="selectedOption"
             :disabled="isUpdatingExistingFilter"
             :filter-row-index="position"
             :labelledby="`filter-secondary-${position}-label`"
             :options="filter.options"
           />
+        </div>
+        <div v-if="isUX('option_groups')">
+          <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
           <FilterSelectOptionGroups
-            v-if="isOptGroup(filter.options)"
             v-model="selectedOption"
             :disabled="isUpdatingExistingFilter"
             :filter-row-index="position"
@@ -135,7 +136,7 @@
             id="unsaved-filter-add"
             :action="onClickAddButton"
             aria-label="Add Cohort Filter"
-            :disabled="isSaving || (isUX('dropdown') && !selectedOption)"
+            :disabled="isSaving || ((isUX('options') || isUX('option_groups')) && !selectedOption)"
             :in-progress="isSaving"
             text="Add"
           />
@@ -185,7 +186,7 @@
             :action="onClickUpdateButton"
             :aria-label="`Update Cohort Filter ${filter.name}`"
             density="comfortable"
-            :disabled="disableUpdateButton || isUpdatingExistingFilter || (isUX('dropdown') && !selectedOption)"
+            :disabled="disableUpdateButton || isUpdatingExistingFilter || ((isUX('options') || isUX('option_groups')) && !selectedOption)"
             :in-progress="isUpdatingExistingFilter"
             size="large"
             :text="isUpdatingExistingFilter ? 'Updating' : 'Update'"
@@ -366,7 +367,8 @@ watch(selectedFilter, () => {
     const type = get(filter.value, 'type.ux')
     showAdd.value = type === 'boolean'
     switch (type) {
-    case 'dropdown':
+    case 'options':
+    case 'option_groups':
       putFocusNextTick(`filter-select-secondary-${props.position}`)
       break
     case 'boolean':
@@ -399,22 +401,20 @@ const formatGPA = value => {
   return gpa ? parseFloat(gpa.startsWith('.') ? `0${gpa}` : gpa).toFixed(3) : NaN
 }
 
-const getDropdownSelectedLabel = () => {
+const getLabelPerSelectedOption = () => {
   let label = ''
-  if (isOptGroup(filter.value.options)) {
+  if (isUX('option_groups')) {
     each(filter.value.options, option => {
-      const dropdownOption = find(option.options, ['value', filter.value.value])
-      label = dropdownOption ? `${get(dropdownOption, 'name')} (${option.label})` : null
+      const selectedOption = find(option.options, ['value', filter.value.value])
+      label = selectedOption ? `${get(selectedOption, 'name')} (${option.label})` : null
       return !label
     })
   } else {
-    const dropdownOption = find(filter.value.options, ['value', filter.value.value])
-    label = get(dropdownOption, 'name')
+    const selectedOption = find(filter.value.options, ['value', filter.value.value])
+    label = get(selectedOption, 'name')
   }
   return label
 }
-
-const isOptGroup = dropdownOptions => !!dropdownOptions[0].options
 
 const isUX = type => {
   return get(filter.value, 'type.ux') === type
@@ -423,9 +423,10 @@ const isUX = type => {
 const onClickAddButton = () => {
   isSaving.value = true
   switch (get(filter.value, 'type.ux')) {
-  case 'dropdown':
+  case 'options':
+  case 'option_groups':
     filter.value.value = selectedOption.value.value
-    alertScreenReader(`Added ${filter.value.name} filter with value ${getDropdownSelectedLabel()}`)
+    alertScreenReader(`Added ${filter.value.name} filter with value ${getLabelPerSelectedOption()}`)
     break
   case 'boolean':
     alertScreenReader(`Added ${filter.value.name} filter`)
@@ -457,15 +458,14 @@ const onClickCancelEdit = () => {
 const onClickEditButton = () => {
   disableUpdateButton.value = false
   const selection = filter.value.value
-  if (isUX('dropdown')) {
-    if (isOptGroup(filter.value.options)) {
-      each(filter.value.options, option => {
-        selectedOption.value = find(option.options, ['value', filter.value.value])
-        return !selectedOption.value
-      })
-    } else {
-      selectedOption.value = find(filter.value.options, ['value', selection])
-    }
+  if (isUX('options')) {
+    selectedOption.value = find(filter.value.options, ['value', selection])
+    putFocusNextTick(`filter-select-secondary-${props.position}`)
+  } else if (isUX('option_groups')) {
+    each(filter.value.options, option => {
+      selectedOption.value = find(option.options, ['value', filter.value.value])
+      return !selectedOption.value
+    })
     putFocusNextTick(`filter-select-secondary-${props.position}`)
   } else if (isUX('range')) {
     rangeMin.value = selection.min
