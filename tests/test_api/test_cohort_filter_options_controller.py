@@ -58,7 +58,7 @@ class TestCohortFilterCategories:
         for filter_category in api_json:
             for option in filter_category['options']:
                 assert 'disabled' not in option
-                if option['type']['ux'] == 'dropdown':
+                if option['type']['ux'] == 'options':
                     for dropdown_option in option['options']:
                         assert 'disabled' not in dropdown_option
 

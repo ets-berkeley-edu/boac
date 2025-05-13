@@ -4,7 +4,7 @@
     <div v-if="cohortStore.domain === 'admitted_students' && cohortStore.students" class="mt-2">
       <AdmitDataWarning :updated-at="get(cohortStore.students, '[0].updatedAt')" />
     </div>
-    <v-expand-transition class="mt-4">
+    <v-expand-transition class="mt-3">
       <div
         v-if="cohortStore.hasPrivateCohortFilterCriteria"
         id="cohort-filters-unavailable"

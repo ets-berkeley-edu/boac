@@ -158,7 +158,12 @@ def get_admit_special_program_cep():
 
 
 def _get_admit_options_excluding_blanks(column):
-    return safe_execute_rds(f"SELECT DISTINCT({column}) FROM {oua_schema()}.student_admits WHERE {column} IS NOT NULL AND {column} != ''")
+    return safe_execute_rds(f"""
+        SELECT DISTINCT({column})
+        FROM {oua_schema()}.student_admits
+        WHERE {column} IS NOT NULL AND {column} != ''
+        ORDER BY {column}
+    """)
 
 
 def get_current_term_index():

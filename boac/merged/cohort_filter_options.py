@@ -60,170 +60,413 @@ class CohortFilterOptions:
         self.owner_uid = owner_uid
         self.scope = scope
 
-    def get_available_filter_categories(self, domain):
+    def get_filter_categories_per_domain(self, domain):
         filter_categories = []
-        for label, cohort_filter_options in self.get_cohort_filter_options_by_label().items():
+        for filter_category in self.get_all_filter_categories():
             def _is_available(cohort_filter_option):
                 return _is_cohort_filter_option_available(
                     cohort_filter_option=cohort_filter_option,
                     domain=domain,
                     scope=self.scope,
                 )
-            options = list(filter(_is_available, cohort_filter_options))
+            options = list(filter(_is_available, filter_category['filters']))
             if len(options):
                 filter_categories.append({
-                    'label': label,
+                    'label': filter_category['label'],
                     'options': options,
                 })
         return filter_categories
 
-    def get_cohort_filter_options_by_label(self):
+    def get_all_filter_categories(self):
         owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid) if self.owner_uid else None
         academic_standing_years_cutoff = app.config['COHORT_FILTER_ACADEMIC_STANDING_YEARS_CUTOFF']
         academic_standing_min_term = f'Fall {datetime.now().year - academic_standing_years_cutoff}'
-        return {
-            'Academic': [
-                _filter('academicCareers', 'Academic Career', options=academic_career_options()),
-                _filter('academicDivisions', 'Academic Division', options=academic_division_options()),
-                _filter(
-                    'academicStandings',
-                    'Academic Standing',
-                    options=academic_standing_options(min_term_id=sis_term_id_for_name(academic_standing_min_term)),
-                ),
-                _filter('academicCareerStatus', 'Career Status', options=academic_career_status_options()),
-                _filter('colleges', 'College', options=colleges()),
-                _filter('degrees', 'Degree Awarded', options=degrees()),
-                _filter('degreeTerms', 'Degree Term', options=degree_terms()),
-                _filter('enteringTerms', 'Entering Term', options=entering_terms()),
-                _filter('epnCpnGradingTerms', 'EPN/CPN Grading Option', options=grading_terms()),
-                _filter('expectedGradTerms', 'Expected Graduation Term', options=grad_terms()),
-                _range_filter('gpaRanges', 'GPA (Cumulative)', labels_range=['', '-'], validation='gpa'),
-                _range_filter('lastTermGpaRanges', 'GPA (Last Term)', labels_range=['', '-'], validation='gpa'),
-                _filter('graduatePrograms', 'Graduate Plan', options=graduate_programs()),
-                _boolean_filter('studentHolds', 'Holds'),
-                _filter('incomplete', 'Incomplete Grade', options=incomplete_types()),
-                _range_filter('incompleteDateRanges', 'Incomplete Pending Grades', labels_range=['From', 'to'], validation='date'),
-                _filter('intendedMajors', 'Intended Major', options=intended_majors()),
-                _filter('levels', 'Level', options=level_options()),
-                _filter('majors', 'Major', options=majors()),
-                _boolean_filter('midpointDeficient', 'Midpoint Deficient Grade'),
-                _filter('minors', 'Minor', options=minors()),
-                _boolean_filter('transfer', 'Transfer Student'),
-                _filter('unitRanges', 'Units Completed', options=unit_range_options()),
-            ],
-            'Demographics': [
-                _filter('ethnicities', 'Ethnicity', options=ethnicities()),
-                _range_filter(
-                    'lastNameRanges',
-                    'Last Name',
-                    labels_range=['Initials', 'through'],
-                    label_min_equals_max='Starts with',
-                    validation='char[2]',
-                ),
-                _boolean_filter('underrepresented', 'Underrepresented Minority'),
-                _filter('visaTypes', 'Visa Type', options=visa_types()),
-            ],
-            'Departmental (ASC)': [
-                _boolean_filter_asc(
-                    'isInactiveAsc',
-                    'Inactive (ASC)',
-                    default_value=False if 'UWASC' in self.scope else None,
-                ),
-                _boolean_filter('inIntensiveCohort', 'Intensive (ASC)', available_to=['UWASC']),
-                _filter('groupCodes', 'Team (ASC)', options=team_groups(), available_to=['UWASC']),
-            ],
-            'Departmental (COE)': [
-                _filter('coeAdvisorLdapUids', 'Advisor (COE)', options=get_coe_profiles(), available_to=['COENG']),
-                _filter('coeEthnicities', 'Ethnicity (COE)', options=coe_ethnicities(), available_to=['COENG']),
-                _filter('coePrepStatuses', 'PREP (COE)', options=coe_prep_status_options(), available_to=['COENG']),
-                _filter('coeAcademicStandings', 'Academic Standing (COE)', options=coe_academic_standing_options(), available_to=['COENG']),
-                _boolean_filter_coe('isInactiveCoe', 'Inactive (COE)', default_value=False if 'COENG' in self.scope else None),
-                _boolean_filter_coe('coeUnderrepresented', 'Underrepresented Minority (COE)'),
-            ],
-            'Advising': [
-                _filter(
-                    'curatedGroupIds',
-                    'My Curated Groups',
-                    options=curated_group_options(owner_user_id) if owner_user_id else None,
-                ),
-                _filter(
-                    'cohortOwnerAcademicPlans',
-                    'My Students',
-                    options=academic_plans_for_cohort_owner(self.owner_uid) if self.owner_uid else None,
-                ),
-
-                _filter(
-                    'freshmanOrTransfer',
-                    'Freshman or Transfer',
-                    options=student_admit_freshman_or_transfer_options(),
-                    available_to=['ZCEEE'],
-                    domain_='admitted_students',
-                ),
-                _boolean_filter_ce3('sir', 'Current SIR'),
-                _filter(
-                    'admitColleges',
-                    'College',
-                    available_to=['ZCEEE'],
-                    domain_='admitted_students',
-                    options=student_admit_college_options(),
-                ),
-                _filter(
-                    'xEthnicities',
-                    'XEthnic',
-                    available_to=['ZCEEE'],
-                    domain_='admitted_students',
-                    options=student_admit_ethnicity_options(),
-                ),
-                _boolean_filter_ce3('isHispanic', 'Hispanic'),
-                _boolean_filter_ce3('isUrem', 'UREM'),
-                _boolean_filter_ce3('isFirstGenerationCollege', 'First Generation College'),
-                _boolean_filter_ce3('hasFeeWaiver', 'Application Fee Waiver'),
-                _filter(
-                    'residencyCategories',
-                    'Residency',
-                    available_to=['ZCEEE'],
-                    domain_='admitted_students',
-                    options=student_admit_residency_category_options(),
-                ),
-                _boolean_filter_ce3('inFosterCare', 'Foster Care'),
-                _boolean_filter_ce3('isFamilySingleParent', 'Family Is Single Parent'),
-                _boolean_filter_ce3('isStudentSingleParent', 'Student Is Single Parent'),
-                _range_filter(
-                    'familyDependentRanges',
-                    'Family Dependents',
-                    labels_range=['', '-'],
-                    label_min_equals_max='Exactly',
-                    available_to=['ZCEEE'],
-                    domain_='admitted_students',
-                    validation='dependents',
-                ),
-                _range_filter(
-                    'studentDependentRanges',
-                    'Student Dependents',
-                    labels_range=['', '-'],
-                    label_min_equals_max='Exactly',
-                    available_to=['ZCEEE'],
-                    domain_='admitted_students',
-                    validation='dependents',
-                ),
-                _boolean_filter_ce3('isReentry', 'Re-entry Status'),
-                _boolean_filter_ce3('isLastSchoolLCFF', 'Last School LCFF+'),
-                _filter(
-                    'specialProgramCep',
-                    'Special Program CEP',
-                    available_to=['ZCEEE'],
-                    domain_='admitted_students',
-                    options=student_admit_special_program_cep_options(),
-                ),
-            ],
-        }
+        filter_categories = [
+            {
+                'label': 'Academic',
+                'filters': [
+                    _filter(
+                        key='academicCareers',
+                        label_primary='Academic Career',
+                        options=academic_career_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='academicDivisions',
+                        label_primary='Academic Division',
+                        options=academic_division_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='academicStandings',
+                        label_primary='Academic Standing',
+                        options=academic_standing_options(min_term_id=sis_term_id_for_name(academic_standing_min_term)),
+                        type_db='string[]',
+                        type_ux='option_groups',
+                    ),
+                    _filter(
+                        key='academicCareerStatus',
+                        label_primary='Career Status',
+                        options=academic_career_status_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        available_to=['ZCEEE'],
+                        domain_='admitted_students',
+                        key='admitColleges',
+                        label_primary='College',
+                        options=student_admit_college_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='colleges',
+                        label_primary='College',
+                        options=colleges(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='degrees',
+                        label_primary='Degree Awarded',
+                        options=degrees(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='degreeTerms',
+                        label_primary='Degree Term',
+                        options=degree_terms(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='enteringTerms',
+                        label_primary='Entering Term',
+                        options=entering_terms(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='epnCpnGradingTerms',
+                        label_primary='EPN/CPN Grading Option',
+                        options=grading_terms(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='expectedGradTerms',
+                        label_primary='Expected Graduation Term',
+                        options=grad_terms(),
+                        type_db='string[]',
+                        type_ux='option_groups',
+                    ),
+                    _filter(
+                        available_to=['ZCEEE'],
+                        domain_='admitted_students',
+                        key='freshmanOrTransfer',
+                        label_primary='Freshman or Transfer',
+                        options=student_admit_freshman_or_transfer_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _range_filter(
+                        key='gpaRanges',
+                        label_primary='GPA (Cumulative)',
+                        labels_range=['', '-'],
+                        validation='gpa',
+                    ),
+                    _range_filter(
+                        key='lastTermGpaRanges',
+                        label_primary='GPA (Last Term)', labels_range=['', '-'],
+                        validation='gpa',
+                    ),
+                    _filter(
+                        key='graduatePrograms',
+                        label_primary='Graduate Plan',
+                        options=graduate_programs(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _boolean_filter(
+                        key='studentHolds',
+                        label_primary='Holds',
+                    ),
+                    _filter(
+                        key='incomplete',
+                        label_primary='Incomplete Grade',
+                        options=incomplete_types(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _range_filter(
+                        key='incompleteDateRanges',
+                        label_primary='Incomplete Pending Grades',
+                        labels_range=['From', 'to'],
+                        validation='date',
+                    ),
+                    _filter(
+                        key='intendedMajors',
+                        label_primary='Intended Major',
+                        options=intended_majors(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='levels',
+                        label_primary='Level',
+                        options=level_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='majors',
+                        label_primary='Major',
+                        options=majors(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _boolean_filter(
+                        key='midpointDeficient',
+                        label_primary='Midpoint Deficient Grade',
+                    ),
+                    _filter(
+                        key='minors',
+                        label_primary='Minor',
+                        options=minors(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _boolean_filter(
+                        key='transfer',
+                        label_primary='Transfer Student',
+                    ),
+                    _filter(
+                        key='unitRanges',
+                        label_primary='Units Completed',
+                        options=unit_range_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                ],
+            },
+            {
+                'label': 'Advising',
+                'filters': [
+                    _filter(
+                        key='curatedGroupIds',
+                        label_primary='My Curated Groups',
+                        options=curated_group_options(owner_user_id) if owner_user_id else None,
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        key='cohortOwnerAcademicPlans',
+                        label_primary='My Students',
+                        options=academic_plans_for_cohort_owner(self.owner_uid) if self.owner_uid else None,
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _boolean_filter_ce3(
+                        key='sir',
+                        label_primary='Current SIR',
+                    ),
+                    _boolean_filter_ce3(
+                        key='isHispanic',
+                        label_primary='Hispanic',
+                    ),
+                    _boolean_filter_ce3(
+                        key='hasFeeWaiver',
+                        label_primary='Application Fee Waiver',
+                    ),
+                    _filter(
+                        key='residencyCategories',
+                        label_primary='Residency',
+                        available_to=['ZCEEE'],
+                        domain_='admitted_students',
+                        options=student_admit_residency_category_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _boolean_filter_ce3(
+                        key='isReentry',
+                        label_primary='Re-entry Status',
+                    ),
+                    _boolean_filter_ce3(
+                        key='isLastSchoolLCFF',
+                        label_primary='Last School LCFF+'),
+                    _filter(
+                        available_to=['ZCEEE'],
+                        domain_='admitted_students',
+                        key='specialProgramCep',
+                        label_primary='Special Program CEP',
+                        options=student_admit_special_program_cep_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                ],
+            },
+            {
+                'label': 'Demographics',
+                'filters': [
+                    _filter(
+                        key='ethnicities',
+                        label_primary='Ethnicity',
+                        options=ethnicities(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _range_filter(
+                        available_to=['ZCEEE'],
+                        domain_='admitted_students',
+                        key='familyDependentRanges',
+                        label_min_equals_max='Exactly',
+                        label_primary='Family Dependents',
+                        labels_range=['', '-'],
+                        validation='dependents',
+                    ),
+                    _boolean_filter_ce3(
+                        key='isFamilySingleParent',
+                        label_primary='Family Is Single Parent',
+                    ),
+                    _boolean_filter_ce3(
+                        key='inFosterCare',
+                        label_primary='Foster Care',
+                    ),
+                    _boolean_filter_ce3(
+                        key='isFirstGenerationCollege',
+                        label_primary='First Generation College',
+                    ),
+                    _boolean_filter_ce3(
+                        key='isStudentSingleParent',
+                        label_primary='Student Is Single Parent',
+                    ),
+                    _boolean_filter_ce3(
+                        key='isUrem',
+                        label_primary='UREM',
+                    ),
+                    _range_filter(
+                        key='lastNameRanges',
+                        label_min_equals_max='Starts with',
+                        label_primary='Last Name',
+                        labels_range=['Initials', 'through'],
+                        validation='char[2]',
+                    ),
+                    _range_filter(
+                        available_to=['ZCEEE'],
+                        domain_='admitted_students',
+                        key='studentDependentRanges',
+                        label_primary='Student Dependents',
+                        label_min_equals_max='Exactly',
+                        labels_range=['', '-'],
+                        validation='dependents',
+                    ),
+                    _boolean_filter(
+                        key='underrepresented',
+                        label_primary='Underrepresented Minority',
+                    ),
+                    _filter(
+                        key='visaTypes',
+                        label_primary='Visa Type',
+                        options=visa_types(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        available_to=['ZCEEE'],
+                        domain_='admitted_students',
+                        key='xEthnicities',
+                        label_primary='XEthnic',
+                        options=student_admit_ethnicity_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                ],
+            },
+            {
+                'label': 'Departmental (ASC)',
+                'filters': [
+                    _boolean_filter_asc(
+                        default_value=False if 'UWASC' in self.scope else None,
+                        key='isInactiveAsc',
+                        label_primary='Inactive (ASC)',
+                    ),
+                    _boolean_filter(
+                        available_to=['UWASC'],
+                        key='inIntensiveCohort',
+                        label_primary='Intensive (ASC)',
+                    ),
+                    _filter(
+                        available_to=['UWASC'],
+                        key='groupCodes',
+                        label_primary='Team (ASC)',
+                        options=team_groups(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                ],
+            },
+            {
+                'label': 'Departmental (COE)',
+                'filters': [
+                    _filter(
+                        available_to=['COENG'],
+                        key='coeAdvisorLdapUids',
+                        label_primary='Advisor (COE)',
+                        options=get_coe_profiles(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        available_to=['COENG'],
+                        key='coeEthnicities',
+                        label_primary='Ethnicity (COE)',
+                        options=coe_ethnicities(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        available_to=['COENG'],
+                        key='coePrepStatuses',
+                        label_primary='PREP (COE)',
+                        options=coe_prep_status_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _filter(
+                        available_to=['COENG'],
+                        key='coeAcademicStandings',
+                        label_primary='Academic Standing (COE)',
+                        options=coe_academic_standing_options(),
+                        type_db='string[]',
+                        type_ux='options',
+                    ),
+                    _boolean_filter_coe(
+                        default_value=False if 'COENG' in self.scope else None,
+                        key='isInactiveCoe',
+                        label_primary='Inactive (COE)',
+                    ),
+                    _boolean_filter_coe(
+                        key='coeUnderrepresented',
+                        label_primary='Underrepresented Minority (COE)',
+                    ),
+                ],
+            },
+        ]
+        filter_categories.sort(key=lambda c: c['label'])
+        for filter_category in filter_categories:
+            filter_category['filters'].sort(key=lambda f: f['label']['primary'])
+        return filter_categories
 
     @classmethod
     def translate_to_filter_options(cls, owner_uid, domain, criteria=None):
         # Transform cohort filter criteria in the database to a UX-compatible data structure.
         rows = []
         if criteria:
-            filter_categories = cls(owner_uid, get_student_query_scope()).get_available_filter_categories(domain)
+            filter_categories = cls(owner_uid, get_student_query_scope()).get_filter_categories_per_domain(domain)
             for filter_category in filter_categories:
                 for option in filter_category['options']:
                     selected = criteria.get(option['key'])
@@ -237,7 +480,11 @@ class CohortFilterOptions:
                         if filter_type == 'string[]':
                             all_options = option.get('options')
                             for selection in selected:
-                                if cls._is_value_in_filter_options(selection, all_options):
+                                if cls._is_value_in_filter_options(
+                                    options=all_options,
+                                    value=selection,
+                                    ux_type=option['type']['ux'],
+                                ):
                                     _append_row(selection)
                         elif filter_type == 'boolean':
                             _append_row(selected)
@@ -249,15 +496,22 @@ class CohortFilterOptions:
         return rows
 
     @classmethod
-    def _is_value_in_filter_options(cls, value, options):
-        # Options are either a list or option groups (dict) in which each group is a list of options.
-        flattened = options if isinstance(options, list) else [o for group in options.values() for o in group]
-        return value in [item['value'] for item in flattened]
+    def _is_value_in_filter_options(cls, options, value, ux_type):
+        if ux_type == 'option_groups':
+            # In this case, the 'options' list is actually a list of 'option_groups'.
+            values = []
+            for inner_options in [option_group['options'] for option_group in options]:
+                values.extend([o['value'] for o in inner_options])
+        elif ux_type == 'options':
+            values = [o['value'] for o in options]
+        else:
+            raise ValueError(f'Invalid ux_type: {ux_type}')
+        return value in values
 
     @classmethod
-    def get_cohort_filter_categories(cls, domain, owner_uid, existing_filters=()):
+    def get_customized_filter_categories(cls, domain, owner_uid, existing_filters=()):
         # Disable filter options based on existing cohort criteria.
-        filter_categories = cls(owner_uid, get_student_query_scope()).get_available_filter_categories(domain)
+        filter_categories = cls(owner_uid, get_student_query_scope()).get_filter_categories_per_domain(domain)
         cohort_filter_per_key = {}
         filter_type_per_key = {}
         for filter_category in filter_categories:
@@ -284,14 +538,14 @@ class CohortFilterOptions:
             cohort_filter = cohort_filter_per_key[key]
             if cohort_filter['type']['ux'] == 'boolean':
                 cohort_filter['disabled'] = True
-            if cohort_filter['type']['ux'] == 'dropdown':
+            if cohort_filter['type']['ux'] in ['options', 'option_groups']:
                 # Populate dropdown
                 selected_values = selected_values_per_key[key]
                 available_options = cohort_filter['options']
                 all_options_disabled = True
-                if isinstance(available_options, dict):
-                    for group_name, options in available_options.items():
-                        for option in options:
+                if cohort_filter['type']['ux'] == 'option_groups':
+                    for option_group in available_options:
+                        for option in option_group['options']:
                             if option.get('value') in selected_values:
                                 option['disabled'] = True
                             all_options_disabled = all_options_disabled and option.get('disabled')
@@ -313,8 +567,8 @@ class CohortFilterOptions:
 def _filter(
         key,
         label_primary,
-        type_db='string[]',
-        type_ux='dropdown',
+        type_db,
+        type_ux,
         available_to=None,
         default_value=None,
         domain_='default',
@@ -345,54 +599,54 @@ def _filter(
 def _boolean_filter(
         key,
         label_primary,
+        available_to=None,
         default_value=None,
         domain_='default',
-        available_to=None,
 ):
     return _filter(
-        key,
-        label_primary,
-        type_db='boolean',
-        type_ux='boolean',
+        available_to=available_to,
         default_value=default_value,
         domain_=domain_,
-        available_to=available_to,
+        key=key,
+        label_primary=label_primary,
+        type_db='boolean',
+        type_ux='boolean',
     )
 
 
 def _boolean_filter_asc(key, label_primary, default_value=None, domain_='default'):
     return _filter(
-        key,
-        label_primary,
-        type_db='boolean',
-        type_ux='boolean',
+        available_to=['UWASC'],
         default_value=default_value,
         domain_=domain_,
-        available_to=['UWASC'],
+        key=key,
+        label_primary=label_primary,
+        type_db='boolean',
+        type_ux='boolean',
     )
 
 
 def _boolean_filter_ce3(key, label_primary, default_value=None):
     return _filter(
-        key,
-        label_primary,
-        type_db='boolean',
-        type_ux='boolean',
+        available_to=['ZCEEE'],
         default_value=default_value,
         domain_='admitted_students',
-        available_to=['ZCEEE'],
+        key=key,
+        label_primary=label_primary,
+        type_db='boolean',
+        type_ux='boolean',
     )
 
 
 def _boolean_filter_coe(key, label_primary, default_value=None, domain_='default'):
     return _filter(
-        key,
-        label_primary,
-        type_db='boolean',
-        type_ux='boolean',
+        available_to=['COENG'],
         default_value=default_value,
         domain_=domain_,
-        available_to=['COENG'],
+        key=key,
+        label_primary=label_primary,
+        type_db='boolean',
+        type_ux='boolean',
     )
 
 
@@ -404,7 +658,7 @@ def _is_cohort_filter_option_available(cohort_filter_option, domain, scope):
             # If it is available then populate menu options
             options = cohort_filter_option.pop('options')
             options = options() if callable(options) else options
-            if cohort_filter_option['type']['ux'] == 'dropdown' and not (options and len(options)):
+            if cohort_filter_option['type']['ux'] in ['options', 'option_groups'] and not (options and len(options)):
                 cohort_filter_option['disabled'] = True
             else:
                 cohort_filter_option['options'] = options
@@ -417,19 +671,19 @@ def _range_filter(
         key,
         label_primary,
         labels_range,
-        label_min_equals_max='',
-        domain_='default',
         available_to=None,
+        domain_='default',
+        label_min_equals_max='',
         validation=None,
 ):
     return _filter(
-        key,
-        label_primary,
+        available_to=available_to,
+        domain_=domain_,
+        key=key,
+        label_min_equals_max=label_min_equals_max,
+        label_primary=label_primary,
+        labels_range=labels_range,
         type_db='json[]',
         type_ux='range',
-        labels_range=labels_range,
-        label_min_equals_max=label_min_equals_max,
-        domain_=domain_,
-        available_to=available_to,
         validation=validation,
     )
