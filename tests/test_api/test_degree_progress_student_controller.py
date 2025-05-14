@@ -282,8 +282,11 @@ class TestAssignCourse:
 
 
 def _change_grade_in_data_loch(app, grade, section_id, sid, term_id):
-    where_clause = f"WHERE sid = '{sid}' AND term_id = '{term_id}'"
-    rows = safe_execute_rds(f'SELECT enrollment_term FROM student.student_enrollment_terms {where_clause}')
+    rows = safe_execute_rds(f"""
+        SELECT enrollment_term
+        FROM student.student_enrollment_terms
+        WHERE sid = '{sid}' AND term_id = '{term_id}'
+    """)
     enrollment_term = json.loads(rows[0]['enrollment_term'])
     sections = [e['sections'] for e in enrollment_term['enrollments']]
 
@@ -291,10 +294,15 @@ def _change_grade_in_data_loch(app, grade, section_id, sid, term_id):
         if section['ccn'] == section_id:
             section['grade'] = grade
             data_loch_db = create_engine(app.config['DATA_LOCH_RDS_URI'])
-            sql = f"UPDATE student.student_enrollment_terms SET enrollment_term = '{json.dumps(enrollment_term)}' {where_clause}"
+            sql = f"""
+                UPDATE student.student_enrollment_terms
+                SET enrollment_term = '{json.dumps(enrollment_term)}'
+                WHERE sid = '{sid}' AND term_id = '{term_id}'
+            """
             with data_loch_db.connect() as conn:
                 conn.execute(text(sql))
-            break
+                conn.commit()
+                break
 
 
 class TestBatchStudentDegreeChecks:

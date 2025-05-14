@@ -3,7 +3,7 @@ boto3==1.20.24
 decorator==5.1.1
 Flask-Caching==2.1.0
 Flask-Login==0.6.3
-Flask-SQLAlchemy==3.0.5
+Flask-SQLAlchemy==3.1.1
 Flask==3.0.3
 ldap3==2.7
 names==0.3.0
@@ -17,7 +17,7 @@ pytz==2024.2
 requests==2.32.3
 simplejson==3.19.3
 smart-open==1.8.3
-SQLAlchemy==1.4.45
+SQLAlchemy==2.0.40
 titlecase==2.4.1
 Werkzeug==3.0.6
 xmltodict==0.13.0

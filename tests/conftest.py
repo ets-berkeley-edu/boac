@@ -466,6 +466,7 @@ def _create_user(
             """  # noqa: E501
         with create_engine(app.config['DATA_LOCH_RDS_URI']).connect() as conn:
             conn.execute(text(sql))
+            conn.commit()
 
     if has_calnet_record:
         insert_in_json_cache(
