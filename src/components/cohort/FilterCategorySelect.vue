@@ -11,7 +11,7 @@
         Select...
       </option>
       <optgroup
-        v-for="filterCategory in filterCategories"
+        v-for="filterCategory in useCohortStore().filterCategories"
         :id="normalizeId(`primary-option-group-${normalizeId(filterCategory['label'])}`)"
         :key="filterCategory['label']"
         :label="filterCategory['label']"
@@ -32,8 +32,6 @@
 </template>
 
 <script lang="ts" setup>
-import {cloneDeep} from 'lodash'
-import type {FilterOptionGroup} from '@/lib/types-cohorts'
 import {normalizeId} from '@/lib/utils'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 
@@ -53,8 +51,6 @@ defineProps({
 })
 
 const model = defineModel<object>()
-
-const filterCategories: FilterOptionGroup = cloneDeep(useCohortStore().filterCategories)
 </script>
 
 <style scoped>
