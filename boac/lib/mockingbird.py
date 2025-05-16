@@ -71,11 +71,11 @@ _mock_registry = {}
 
 
 def _register_mock(request_function, response_function):
-    _mock_registry[request_function.__name__].append(response_function)
+    _mock_registry[_qualified_name(request_function)].append(response_function)
 
 
 def _unregister_mock(request_function):
-    _mock_registry[request_function.__name__].pop()
+    _mock_registry[_qualified_name(request_function)].pop()
 
 
 def mockable(func):
@@ -103,12 +103,12 @@ def mockable(func):
         with mock(url, method='post'):
             response = requests.post(url)
     """
-    _mock_registry[func.__name__] = []
+    _mock_registry[_qualified_name(func)] = []
 
     @wraps(func)
     def mockable_wrapper(*args, **kw):
-        if _environment_supports_mocks() and _mock_registry.get(func.__name__):
-            mock_response = _mock_registry[func.__name__][-1](*args, **kw)
+        if _environment_supports_mocks() and _mock_registry.get(_qualified_name(func)):
+            mock_response = _mock_registry[_qualified_name(func)][-1](*args, **kw)
             kw['mock'] = partial(_activate_mock, mock_response=mock_response)
         else:
             kw['mock'] = _noop_mock
@@ -306,6 +306,10 @@ def _get_fixtures_path():
 @contextmanager
 def _noop_mock(url, **kwargs):
     yield None
+
+
+def _qualified_name(func):
+    return f'{func.__module__}.{func.__name__}'
 
 
 def _write_fixture(func, fixture_output_path, pattern, suffix):
