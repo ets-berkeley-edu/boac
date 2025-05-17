@@ -450,8 +450,10 @@ class Note(Base):
             """
             search_results = db.session.execute(text(sql))
             keys = search_results.keys()
+        else:
+            search_results = []
         return {
-            'results': [dict(zip(keys, row)) for row in rows],
+            'results': [dict(zip(keys, row)) for row in search_results],
             'total_matching_count': _get_fts_union_query(is_count_query=True),
         }
 
