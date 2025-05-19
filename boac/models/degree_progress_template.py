@@ -325,7 +325,7 @@ def _get_enrollment_sections(sid):
     enrollments = data_loch.get_enrollments_for_sid(sid=sid)
     for index, term in enumerate(merge_enrollment_terms(enrollments)):
         for enrollment in term.get('enrollments', []):
-            if enrollment.get('academicCareer', 'UGRD') == 'UGRD':
+            if enrollment.get('academicCareer', 'UGRD') in ('UGRD', 'UCBX'):
                 for section in enrollment['sections']:
                     section['displayName'] = enrollment['displayName']
                     section['termId'] = term['termId']
