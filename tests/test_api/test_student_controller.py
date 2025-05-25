@@ -606,7 +606,7 @@ class TestStudent:
         """Includes advising appointments."""
         student = self._api_student_by_sid(client=client, sid='11667051')
         appointments = student['notifications']['appointment']
-        assert len(appointments) == 3
+        assert len(appointments) == 4
 
     def test_appointment_marked_read(self, client, asc_advisor_login):  # noqa: ARG002
         """Includes flag indicating whether user has seen each appointment."""

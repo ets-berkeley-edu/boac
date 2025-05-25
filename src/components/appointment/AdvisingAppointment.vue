@@ -20,7 +20,7 @@
             {{ summaryHeading }}
           </span>
         </div>
-        <div class="mt-2">
+        <div class="pl-3 py-2">
           <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details" />
         </div>
         <div
@@ -36,7 +36,10 @@
             <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
           </div>
         </div>
-        <div v-if="get(advisor, 'name') && (appointment.legacySource || appointment.createdBy === 'YCBM')" class="mt-2">
+        <div
+          v-if="get(advisor, 'name') && (appointment.legacySource || ['Calendly', 'YCBM'].includes(appointment.createdBy))"
+          class="mt-2"
+        >
           <a
             v-if="advisor.uid"
             :id="`appointment-${appointment.id}-advisor-name`"
@@ -61,8 +64,13 @@
             <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.deptName }}</span>
           </span>
         </div>
-        <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="mt-2">
-          {{ appointment.appointmentType }}
+        <div
+          v-if="appointment.appointmentType"
+          :id="`appointment-${appointment.id}-type`"
+          class="mt-2"
+          :class="{'text-grey': ['Calendly', 'YCBM'].includes(appointment.appointmentType)}"
+        >
+          <span class="font-weight-bold">Source:</span> {{ appointment.appointmentType }}
         </div>
         <div v-if="appointment.topics && size(appointment.topics)" class="mt-2">
           <div class="font-size-16 font-weight-bold">Topics</div>
