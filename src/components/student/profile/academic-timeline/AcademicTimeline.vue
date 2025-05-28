@@ -14,7 +14,7 @@
     <div
       :class="{
         'border-sm': !!messages.length,
-        'pt-3': ['appointment', 'eForm', 'note'].includes(selectedFilter) && countsPerType[selectedFilter] > 1
+        'pt-3': ['appointment', 'eForm', 'note'].includes(selectedFilter) && countsPerType[selectedFilter]
       }"
     >
       <AcademicTimelineTable

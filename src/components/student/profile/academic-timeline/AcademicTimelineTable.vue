@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-expand-transition v-if="countPerActiveTab > 1">
+    <v-expand-transition>
       <div v-if="isExpandAllAvailable" class="align-center d-flex flex-wrap font-size-14">
         <h3 class="sr-only">Quick Links</h3>
         <div class="pb-2 pl-2 toggle-expand-all-container">
