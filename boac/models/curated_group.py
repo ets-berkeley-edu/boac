@@ -83,7 +83,7 @@ class CuratedGroup(Base):
             GROUP BY sg.id, sg.name, au.id, sgm.sid, au.uid
         """)
         curated_groups_by_id = {}
-        for row in db.session.execute(query, {'uids': uids}):
+        for row in db.session.execute(query, {'uids': uids}).mappings():
             id_ = row['id']
             curated_group = curated_groups_by_id[id_] if id_ in curated_groups_by_id else {
                 'id': id_,
