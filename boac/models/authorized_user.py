@@ -262,8 +262,9 @@ class AuthorizedUser(Base):
             if len(search_history) > max_size:
                 del search_history[max_size:]
 
-            sql_text = text('UPDATE authorized_users SET search_history = :history WHERE id = :id')
-            db.session.execute(sql_text, {'history': search_history, 'id': user_id})
+            sql = 'UPDATE authorized_users SET search_history = :history WHERE id = :id'
+            db.session.execute(text(sql), {'history': search_history, 'id': user_id})
+            std_commit()
             return cls.get_search_history(user_id)
         else:
             return None

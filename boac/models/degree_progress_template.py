@@ -196,13 +196,8 @@ class DegreeProgressTemplate(Base):
             SET updated_at = now(), updated_by = :updated_by
             WHERE id = :id
         """)
-        db.session.execute(
-            sql_text,
-            {
-                'id': template_id,
-                'updated_by': updated_by,
-            },
-        )
+        db.session.execute(sql_text, {'id': template_id, 'updated_by': updated_by})
+        std_commit()
 
     @classmethod
     def update(cls, template_id, name):
