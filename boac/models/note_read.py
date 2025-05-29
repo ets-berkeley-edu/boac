@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db
+from boac import db, std_commit
 from sqlalchemy import text
 
 
@@ -57,6 +57,7 @@ class NoteRead(db.Model):
             'note_id': note_id,
             'viewer_id': viewer_id,
         })
+        std_commit()
         return cls.query.filter(cls.viewer_id == viewer_id, cls.note_id == note_id).first()
 
     @classmethod

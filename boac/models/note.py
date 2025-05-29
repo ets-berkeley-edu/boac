@@ -781,7 +781,9 @@ def _create_notes(
         ]
 
         results_of_chunk_query = {}
-        for row in db.session.execute(text(sql), {'json_dumps': json.dumps(data)}).mappings():
+        results = db.session.execute(text(sql), {'json_dumps': json.dumps(data)})
+        std_commit()
+        for row in results.mappings():
             sid = row['sid']
             results_of_chunk_query[sid] = row['id']
         # Yes, the note author has read the note.
@@ -798,6 +800,7 @@ def _create_notes(
             } for note_id in results_of_chunk_query.values()
         ]
         db.session.execute(text(sql), {'json_dumps': json.dumps(notes_read_data)})
+        std_commit()
         ids_by_sid.update(results_of_chunk_query)
     return ids_by_sid
 
@@ -820,6 +823,7 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
                 } for note_id in note_ids_subset
             ]
             db.session.execute(text(sql), {'json_dumps': json.dumps(data)})
+            std_commit()
 
 
 def _add_attachments_and_template_attachments(attachments, author_uid, note_ids, template_attachment_ids):
@@ -863,6 +867,7 @@ def _add_attachments(author_uid, note_ids, s3_path, now=None):
             } for note_id in note_ids_subset
         ]
         db.session.execute(text(sql), {'json_dumps': json.dumps(data)})
+        std_commit()
 
 
 def _get_total_count_peer_advising_notes(peer_advising_department_id):
