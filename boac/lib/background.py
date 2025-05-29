@@ -29,6 +29,7 @@ import time
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.sql import text
 
 
 def initialize_scheduler_loop(app):
@@ -118,7 +119,7 @@ def _bg_executor(app, method):
 
 
 def try_advisory_lock(app, connection, lock_id):
-    result = connection.execute(f'SELECT pg_try_advisory_lock({lock_id}) as locked, pg_backend_pid() as pid')
+    result = connection.execute(text(f'SELECT pg_try_advisory_lock({lock_id}) as locked, pg_backend_pid() as pid'))
     (locked, pid) = next(result)
     if locked:
         app.logger.info(f'Granted advisory lock {lock_id} for PID {pid}')
@@ -128,7 +129,7 @@ def try_advisory_lock(app, connection, lock_id):
 
 
 def advisory_unlock(app, connection, lock_id):
-    result = connection.execute(f'SELECT pg_advisory_unlock({lock_id}) as unlocked, pg_backend_pid() as pid')
+    result = connection.execute(text(f'SELECT pg_advisory_unlock({lock_id}) as unlocked, pg_backend_pid() as pid'))
     (unlocked, pid) = next(result)
     if unlocked:
         app.logger.info(f'Released advisory lock {lock_id} for PID {pid}')
@@ -136,5 +137,5 @@ def advisory_unlock(app, connection, lock_id):
         app.logger.error(f'Failed to release advisory lock {lock_id} for PID {pid}')
     # Guard against the possibility of duplicate successful lock requests from this connection.
     while unlocked:
-        result = connection.execute(f'SELECT pg_advisory_unlock({lock_id}) as unlocked')
+        result = connection.execute(text(f'SELECT pg_advisory_unlock({lock_id}) as unlocked'))
         unlocked = next(result).unlocked
