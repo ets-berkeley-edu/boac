@@ -407,10 +407,13 @@ class TestMergedAdvisingNote:
         total_note_count = results['totalNoteCount']
         assert len(notes) == 4
         assert total_note_count > 4
-        assert notes[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 1'
-        assert notes[1]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 2'
-        assert notes[2]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 3'
-        assert notes[3]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 4'
+        previous_created_at = None
+        for note in notes:
+            assert 'Planned redundancy - <strong>Confounded</strong> note' in note['noteSnippet']
+            if previous_created_at:
+                # Assert order by created_at, descending.
+                assert note['createdAt'] <= previous_created_at
+            previous_created_at = note['createdAt']
         results = search_advising_notes(search_phrase='confound', offset=4, limit=4)
         notes = results['notes']
         total_note_count = results['totalNoteCount']
