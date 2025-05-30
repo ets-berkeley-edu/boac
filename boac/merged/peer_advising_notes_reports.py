@@ -64,18 +64,18 @@ def get_granular_peer_advising_department_note_counts(university_dept_id):
 
 
 def get_peer_advising_note_author_count(peer_advising_department_id=None):
-    sql = f"""
+    sql = """
         SELECT COUNT(DISTINCT au.uid) AS count
         FROM authorized_users au
-        JOIN peer_advising_department_members pm ON pm.authorized_user_id = au.id
         JOIN notes n ON
-            n.peer_advising_department_id = pm.peer_advising_department_id
+            n.peer_advising_department_id IS NOT NULL
             AND n.author_uid = au.uid
             AND n.deleted_at IS NULL
-        WHERE TRUE
-            {'AND pm.peer_advising_department_id = :peer_advising_department_id' if peer_advising_department_id else ''}
     """
-    params = {'peer_advising_department_id': peer_advising_department_id}
+    params = {}
+    if peer_advising_department_id:
+        sql += 'WHERE n.peer_advising_department_id = :peer_advising_department_id'
+        params['peer_advising_department_id'] = peer_advising_department_id
     return db.session.execute(text(sql), params).mappings().first()['count']
 
 
