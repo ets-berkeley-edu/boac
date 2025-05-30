@@ -31,11 +31,12 @@ const StudentDegreeCreate = () => import('@/views/degree/StudentDegreeCreate.vue
 const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.vue')
 import type {NavigationGuardNext, RouteLocation, RouteRecordRaw} from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
-import {get, toString, trim} from 'lodash'
+import {get, map, toString, trim} from 'lodash'
 import type {BoaUser} from './lib/types'
 import PeerAdvisorHome from '@/views/PeerAdvisorHome.vue'
-import {getDeptCodesPerRoles, getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import {getDeptCodesPerRoles, getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {isAdvisor, isDirector, isPeerAdvisor} from '@/lib/boa-user'
+import {toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
 
@@ -156,9 +157,9 @@ const routes:RouteRecordRaw[] = [
         if (currentUser.isAdmin) {
           next()
         } else {
-          const membership = getPeerAdvisorDepartmentMembership(currentUser, 'peer_advisor_manager')
-          const peerAdvisingDepartmentId: string = toString(get(to.params, 'id'))
-          if (membership && toString(membership.peerAdvisingDepartmentId) === peerAdvisingDepartmentId) {
+          const memberships = getPeerAdvisorDepartmentMemberships(currentUser, 'peer_advisor_manager')
+          const peerAdvisingDepartmentId: number = toInt(toString(to.params.id))
+          if (map(memberships, 'peerAdvisingDepartmentId').includes(peerAdvisingDepartmentId)) {
             next()
           } else {
             next({path: '/404'})

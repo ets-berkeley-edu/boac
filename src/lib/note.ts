@@ -1,4 +1,4 @@
-import {each, filter, get, isEmpty, size, trim} from 'lodash'
+import {each, filter, get, isEmpty, map, size, trim} from 'lodash'
 import type {
   AcademicTimelineMessage,
   Attachment,
@@ -8,7 +8,7 @@ import type {
   Note,
   NoteTemplate,
 } from '@/lib/types'
-import {getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import {getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
 import {oxfordJoin, stripHtmlAndTrim} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
@@ -34,8 +34,8 @@ export function canUserEditNote(note: Note, user: BoaUser): boolean {
     canEdit = true
   } else if (isPeerAdvisorManager(user) && note.peerAdvisingDepartmentId) {
     // Peer Advisor Managers can edit notes created by Peer Advisors within same Peer Advising department.
-    const membership: DepartmentMembership | undefined = getPeerAdvisorDepartmentMembership(user, 'peer_advisor_manager')
-    canEdit = get(membership, 'peerAdvisingDepartmentId', '') === note.peerAdvisingDepartmentId
+    const memberships: DepartmentMembership[] = getPeerAdvisorDepartmentMemberships(user, 'peer_advisor_manager')
+    canEdit = map(memberships, 'peerAdvisingDepartmentId').includes(note.peerAdvisingDepartmentId)
   }
   return canEdit
 }

@@ -32,8 +32,13 @@
             variant="text"
           />
         </v-list-item>
-        <v-list-item v-if="isPeerAdvisorManager(currentUser)" class="pa-0">
+        <v-list-item
+          v-for="peerAdvisingDepartment in peerAdvisingDepartments"
+          :key="peerAdvisingDepartment.peerAdvisingDepartmentId"
+          class="pa-0"
+        >
           <v-btn
+            v-if="peerAdvisingDepartments.length === 1"
             id="header-menu-peer-management"
             :aria-current="route.path.startsWith('/peer/management') ? 'page' : false"
             class="header-menu-item"
@@ -41,7 +46,19 @@
             density="comfortable"
             size="large"
             text="Peer Advising Manager Dashboard"
-            :to="`/peer/management/${peerAdvisingDepartmentId}`"
+            :to="`/peer/management/${peerAdvisingDepartment.peerAdvisingDepartmentId}`"
+            variant="text"
+          />
+          <v-btn
+            v-if="peerAdvisingDepartments.length > 1"
+            :id="`header-menu-peer-management-${peerAdvisingDepartment.peerAdvisingDepartmentId}`"
+            :aria-current="route.path.startsWith(`/peer/management/${peerAdvisingDepartment.peerAdvisingDepartmentId}`) ? 'page' : false"
+            class="header-menu-item"
+            color="primary"
+            density="comfortable"
+            size="large"
+            :text="`Peer Advising Dashboard: ${peerAdvisingDepartment.name}`"
+            :to="`/peer/management/${peerAdvisingDepartment.peerAdvisingDepartmentId}`"
             variant="text"
           />
         </v-list-item>
@@ -128,14 +145,13 @@
 </template>
 
 <script setup>
-import {each, find, get} from 'lodash'
 import {mdiMenuDown} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {alertScreenReader} from '@/lib/utils'
 import {getCasLogoutUrl} from '@/api/auth'
 import {isPeerAdvisor, isPeerAdvisorManager} from '@/lib/boa-user'
-import {myDeptCodes} from '@/lib/berkeley-department'
+import {getPeerAdvisorDepartmentMemberships, myDeptCodes} from '@/lib/berkeley-department'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
@@ -143,15 +159,11 @@ const currentUser = contextStore.currentUser
 const deptCodes = myDeptCodes(['director'])
 const isMenuOpen = ref(false)
 const myDirectorDepartment = deptCodes && deptCodes[0]
+const peerAdvisingDepartments = ref()
 const route = useRoute()
-const peerAdvisingDepartmentId = ref(NaN)
 
 onMounted(() => {
-  each(currentUser.departments, department => {
-    const peerAdvisingDepartment = find(department.memberships, 'peerAdvisingDepartmentId')
-    peerAdvisingDepartmentId.value = get(peerAdvisingDepartment, 'peerAdvisingDepartmentId')
-    return !!peerAdvisingDepartmentId.value
-  })
+  peerAdvisingDepartments.value = getPeerAdvisorDepartmentMemberships(currentUser, 'peer_advisor_manager')
 })
 
 const logOut = () => {

@@ -82,7 +82,7 @@ import type {BasicStudent, BoaUser, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
-import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {getBasicStudent} from '@/api/peer-advising-users'
 import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
@@ -101,7 +101,7 @@ const noteStore = useNoteStore()
 const notes = ref<Note[]>([])
 const notesDescription = ref('')
 const offset = ref(0)
-const peerAdvisingDepartmentId = ref<number>(NaN)
+const peerAdvisingDepartmentId = ref<number | undefined>()
 const peerAdvisor = ref<BoaUser>()
 const route = useRoute()
 const router = useRouter()
@@ -158,9 +158,10 @@ const getStudentName = (note: Note) => note.student ? `${note.student.firstName}
 
 const init = (user: BoaUser) => {
   peerAdvisor.value = user
-  const membership = getPeerAdvisorDepartmentMembership(peerAdvisor.value, 'peer_advisor')
-  if (peerAdvisor.value.id && membership && membership.peerAdvisingDepartmentId) {
-    peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
+  // Peer Advisors can belong to one and only one Peer Advising Department.
+  const memberships = getPeerAdvisorDepartmentMemberships(peerAdvisor.value, 'peer_advisor')
+  peerAdvisingDepartmentId.value = memberships.length ? memberships[0].peerAdvisingDepartmentId : undefined
+  if (peerAdvisor.value.id && peerAdvisingDepartmentId.value) {
     fetchNotes().then(() => {
       contextStore.loadingComplete(`Home page loaded. ${notesDescription.value}`)
       contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
