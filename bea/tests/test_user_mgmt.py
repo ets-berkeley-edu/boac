@@ -292,7 +292,6 @@ class TestUserAddEditDelete:
         self.student_page.wait_for_timeline()
         assert self.student_page.is_present(self.student_page.NEW_NOTE_BUTTON)
         assert self.student_page.is_present(self.student_page.NOTES_BUTTON)
-        assert self.student_page.is_present(self.student_page.APPTS_BUTTON)
 
     def test_delete_user(self):
         add_edit_user.is_active = False

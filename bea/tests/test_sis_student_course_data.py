@@ -170,7 +170,7 @@ class TestListViewTermSelect:
         visible_final_grade = self.curated_students_page.course_final_grade(tc.student, idx)
         if course_final_grade:
             utils.assert_equivalence(visible_final_grade, course_final_grade)
-            if course_final_grade in ['D+', 'D', 'D−', 'F', 'NP', 'RD', 'I']:
+            if course_final_grade in ['D+', 'D', 'D−', 'F', 'NP', 'RD', 'I', 'IP']:
                 assert self.curated_students_page.is_course_final_flagged(tc.student, idx)
             else:
                 assert not self.curated_students_page.is_course_final_flagged(tc.student, idx)
@@ -233,7 +233,7 @@ class TestStudentPageCourseData:
         visible_final_grade = self.student_page.collapsed_course_final_grade(tc.term_sis_id, tc.section_id)
         if course_final_grade:
             utils.assert_equivalence(visible_final_grade, course_final_grade)
-            if course_final_grade in ['D+', 'D', 'D−', 'F', 'NP', 'RD', 'I']:
+            if course_final_grade in ['D+', 'D', 'D−', 'F', 'NP', 'RD', 'I', 'IP']:
                 assert self.student_page.is_collapsed_course_final_grade_alert(tc.term_sis_id, tc.section_id)
             else:
                 assert not self.student_page.is_collapsed_course_final_grade_alert(tc.term_sis_id, tc.section_id)

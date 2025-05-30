@@ -137,13 +137,9 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
         xpath = f'//h3[contains(text(), "Degree")]/following-sibling::div[contains(., "{field}")]'
         deg_type_loc = By.XPATH, f'{xpath}/div[contains(@id, "student-bio-degree-type")]'
         deg_date_loc = By.XPATH, f'{xpath}/div[contains(@class, "text-medium-emphasis")][1]'
-        deg_college_loc_1 = By.XPATH, f'{xpath}/div[contains(@class, "text-medium-emphasis")][2]'
-        deg_college_loc_2 = By.XPATH, f'{xpath}/div[contains(@class, "text-medium-emphasis")][3]'
-        college = self.el_text_if_exists(deg_college_loc_1) or self.el_text_if_exists(deg_college_loc_2)
         return {
             'deg_type': self.el_text_if_exists(deg_type_loc),
             'deg_date': self.el_text_if_exists(deg_date_loc),
-            'deg_college': college,
         }
 
     def degree_minor(self, field):
@@ -219,11 +215,12 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
     # TIMELINE
 
     TIMELINE_LOADED_MSG = By.XPATH, '//div[text()="Academic Timeline has loaded"]'
+    TIMELINE_HEADING = By.ID, 'student-academic-timeline-header'
     TIMELINE_ALL_BUTTON = By.ID, 'timeline-tab-all'
     SHOW_HIDE_ALL_BUTTON = By.ID, 'timeline-tab-all-previous-messages'
 
     def wait_for_timeline(self):
-        self.when_visible(self.TIMELINE_ALL_BUTTON, utils.get_short_timeout())
+        self.when_present(self.TIMELINE_HEADING, utils.get_short_timeout())
 
     # Requirements
 

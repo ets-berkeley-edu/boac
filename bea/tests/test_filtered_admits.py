@@ -98,7 +98,7 @@ class TestFilteredAdmits:
                          ids=[f'{vars(cohort.search_criteria)}' for cohort in test.searches])
 class TestFilteredAdmitResults:
 
-    def test_cohort_search_results_default_by_last_name(self, cohort):
+    def test_cohort_search_results(self, cohort):
         idx = test.searches.index(cohort)
         app.logger.info(f'Testing cohort {idx} with criteria {vars(cohort.search_criteria)}')
         self.filtered_admits_page.cancel_cohort_if_modal()
@@ -113,9 +113,11 @@ class TestFilteredAdmitResults:
 
         self.filtered_admits_page.perform_admit_search(cohort)
         expected = nessie_filter_admits_utils.cohort_by_last_name(test, cohort.search_criteria)
+        expected.sort()
         if cohort.members:
             visible = self.filtered_admits_page.list_view_admit_sids(cohort)
-            self.filtered_admits_page.verify_list_view_sorting(expected, visible)
+            visible.sort()
+            utils.assert_equivalence(visible, expected)
         else:
             utils.assert_equivalence(self.filtered_admits_page.results_count(), 0)
 

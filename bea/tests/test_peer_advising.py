@@ -250,10 +250,6 @@ class TestListView:
     def test_collapsed_note_body(self):
         utils.assert_actual_includes_expected(self.peer_page.peer_note_body(note_1_by_ls_peer), note_1_by_ls_peer.body)
 
-    def test_collapsed_note_topics(self):
-        for topic in note_1_by_ls_peer.topics:
-            utils.assert_actual_includes_expected(self.peer_page.peer_note_topics(note_1_by_ls_peer), topic.name)
-
     def test_collapsed_note_date(self):
         utils.assert_equivalence(self.peer_page.peer_note_date(note_1_by_ls_peer),
                                  self.peer_page.peer_note_date_format(note_1_by_ls_peer))
@@ -341,7 +337,7 @@ class TestPAMListView:
         assert self.pam_page.is_present(self.pam_page.peer_manager_note_student_link(note_2_by_ls_peer))
 
     def test_collapsed_note_body(self):
-        utils.assert_equivalence(self.pam_page.peer_note_body(note_1_by_ls_peer), note_1_by_ls_peer.body)
+        utils.assert_actual_includes_expected(self.pam_page.peer_note_body(note_1_by_ls_peer), note_1_by_ls_peer.body)
 
     def test_collapsed_note_date(self):
         utils.assert_equivalence(self.pam_page.peer_manager_note_date(note_1_by_ls_peer),

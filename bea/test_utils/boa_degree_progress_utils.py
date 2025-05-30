@@ -40,6 +40,7 @@ def get_degree_templates():
                FROM degree_progress_templates
               WHERE degree_progress_templates.deleted_at IS NULL
                 AND degree_progress_templates.student_sid IS NULL
+                AND degree_progress_templates.archived_at IS NULL
            ORDER BY degree_progress_templates.id ASC"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))

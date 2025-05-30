@@ -79,6 +79,7 @@ class PeerAdvisorPage(PeerAdvisingNoteTable):
 
     def search_peer_note_student(self, student, search_term):
         # The lookup is flaky so give it a few tries
+        time.sleep(2)
         tries = 3
         while tries > 0:
             try:

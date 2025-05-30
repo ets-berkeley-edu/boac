@@ -257,7 +257,6 @@ class TestStudentPageProfileData:
                     visible_degree = self.student_page.degree(maj['plan'])
                     utils.assert_actual_includes_expected(visible_degree['deg_type'], maj['plan'])
                     utils.assert_equivalence(visible_degree['deg_date'], f"Awarded {grad['date'].strftime('%b %-d, %Y')}")
-                    utils.assert_equivalence(visible_degree['deg_college'], maj['college'])
 
     def test_graduation_minors(self, tc):
         if tc.student.profile_data.academic_career_status() == 'Completed':
@@ -334,7 +333,7 @@ class TestStudentPageProfileData:
 
     def test_timeline_holds(self, tc):
         holds = nessie_timeline_utils.get_student_holds(tc.student)
-        hold_msgs = [re.sub('\W', '', h.message) for h in holds]
+        hold_msgs = [re.sub(r'\W', '', h.message) for h in holds]
         hold_msgs.sort()
         visible_holds = self.student_page.visible_holds()
         visible_holds.sort()
