@@ -60,7 +60,7 @@ import {useRoute, useRouter} from 'vue-router'
 import type {BoaUser, Note, NoteSearchResult} from '@/lib/types'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import {alertScreenReader, pluralize, putFocusNextTick, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
-import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMembership} from '@/lib/berkeley-department'
+import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {getPeerAdvisorNoteById} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
@@ -75,7 +75,7 @@ const currentUser = contextStore.currentUser
 const isFetchingNotes = ref(false)
 const notes = ref<NoteSearchResult[]>([])
 const offset = ref(0)
-const peerAdvisingDepartmentId = ref<number>(NaN)
+const peerAdvisingDepartmentId = ref<number | undefined>()
 const peerAdvisor = ref<BoaUser>()
 const phrase = ref('')
 const route = useRoute()
@@ -105,9 +105,10 @@ const clearResults = () => {
 
 const fetchNotes = (user: BoaUser) => {
   peerAdvisor.value = user
-  const membership = getPeerAdvisorDepartmentMembership(peerAdvisor.value, 'peer_advisor')
-  if (peerAdvisor.value.id && membership && membership.peerAdvisingDepartmentId) {
-    peerAdvisingDepartmentId.value = membership.peerAdvisingDepartmentId
+  // Peer Advisors can belong to one and only one Peer Advising Department.
+  const memberships = getPeerAdvisorDepartmentMemberships(peerAdvisor.value, 'peer_advisor')
+  peerAdvisingDepartmentId.value = memberships.length ? memberships[0].peerAdvisingDepartmentId : undefined
+  if (peerAdvisor.value.id && peerAdvisingDepartmentId.value) {
     searchStore.setQueryText(route.query.q || searchStore.queryText)
     alertScreenReader(`Searching for "${searchStore.queryText}"`)
     offset.value = get(notes.value, 'length', 0)

@@ -46,17 +46,16 @@ export function findPeerAdvisingDepartment(peerAdvisingDepartmentId: number): Pe
   return peerAdvisingDepartment
 }
 
-export function getPeerAdvisorDepartmentMembership(user: BoaUser, role: DepartmentMembershipRole): DepartmentMembership | undefined {
-  let departmentMembership: DepartmentMembership | undefined
-  each(user.departments, (department: BoaUserDepartment) => {
-    each(department.memberships, (membership: DepartmentMembership) => {
-      if (role === membership.role) {
-        departmentMembership = membership
+export function getPeerAdvisorDepartmentMemberships(user: BoaUser, role: DepartmentMembershipRole): DepartmentMembership[] {
+  const memberships: DepartmentMembership[] = []
+  each(user.departments, (d: BoaUserDepartment) => {
+    each(d.memberships, (m: DepartmentMembership) => {
+      if (role === m.role) {
+        memberships.push(m)
       }
-      return !departmentMembership
     })
   })
-  return departmentMembership
+  return memberships
 }
 
 export function getDeptCodesPerRoles(user: BoaUser, roles: DepartmentMembershipRole[]): string[] {
