@@ -46,7 +46,7 @@
                 :id="`open-peer-advising-${note.id}`"
                 :aria-expanded="false"
                 :aria-label="`Expand message ${getNoteLabel(note, index)}`"
-                class="toggle-note-btn align-center d-flex justify-start px-3 text-capitalize text-primary v-btn"
+                class="align-center d-flex justify-start px-3 text-none text-primary toggle-note-btn v-btn"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 @click="() => toggleShowHide(note)"
               >
@@ -54,7 +54,7 @@
                 <span class="truncate-with-ellipsis" v-html="stripHtmlAndTrim((note as Note).body || (note as NoteSearchResult).noteSnippet)" />
                 <span v-if="(note as NoteSearchResult).attachmentCount || size((note as Note).attachments)" class="ml-2">
                   <span class="sr-only">Has attachment(s)</span>
-                  <v-icon class="mb-1" :icon="mdiPaperclip" size="small" />
+                  <v-icon class="has-attachment-icon" :icon="mdiPaperclip" size="small" />
                 </span>
               </button>
             </div>
@@ -237,6 +237,9 @@ const toggleShowHide = (note: Note | NoteSearchResult) => {
 }
 .d-contents {
   display: contents;
+}
+.has-attachment-icon {
+  margin-bottom: 1px;
 }
 .peer-advising-table-wrapper .grid-cell {
   padding: 8px 12px;

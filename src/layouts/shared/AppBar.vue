@@ -1,8 +1,6 @@
 <template>
   <div class="align-center d-flex flex-nowrap justify-space-between my-2 w-100">
-    <div
-      class="font-size-16 header-text ml-3 text-white"
-    >
+    <div class="font-size-16 header-text ml-6 pr-2 text-white">
       <NavLink
         id="home-header"
         class="text-no-wrap"
@@ -15,8 +13,8 @@
         <v-icon class="show-in-narrow-viewport" :icon="mdiHome" />
       </NavLink>
     </div>
-    <AdvancedSearch class="ml-3" />
-    <HeaderMenu class="mx-3" />
+    <AdvancedSearch class="mr-3" />
+    <HeaderMenu class="mr-8" />
   </div>
 </template>
 
