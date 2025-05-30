@@ -163,7 +163,7 @@ class Note(Base):
     @classmethod
     def get_notes_by_peer_advising_department(cls, peer_advising_department_id, limit=50, offset=0):
         criteria = and_(cls.peer_advising_department_id == peer_advising_department_id, cls.deleted_at == None)  # noqa: E711
-        query = cls.query.filter(criteria).order_by(desc(cls.updated_at))
+        query = cls.query.filter(criteria).order_by(desc(cls.created_at))
         return query.offset(offset).limit(limit).all(), _get_total_count_peer_advising_notes(peer_advising_department_id)
 
     @classmethod
