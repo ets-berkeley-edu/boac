@@ -108,17 +108,17 @@ class TestAdmitPage:
 
     def test_address_1(self, tc):
         utils.assert_equivalence(self.admit_page.address_street_1(),
-                                 re.sub('\s+', ' ', tc.student.admit_data['permanent_street_1']))
+                                 re.sub(r'\s+', ' ', tc.student.admit_data['permanent_street_1']))
 
     def test_address_2(self, tc):
         utils.assert_equivalence(self.admit_page.address_street_2(),
-                                 re.sub('\s+', ' ', tc.student.admit_data['permanent_street_2']))
+                                 re.sub(r'\s+', ' ', tc.student.admit_data['permanent_street_2']))
 
     def test_address_city_region_postal(self, tc):
         city = tc.student.admit_data['permanent_city']
         region = f" {tc.student.admit_data['permanent_region']}" if tc.student.admit_data['permanent_region'] else ''
         post_code = tc.student.admit_data['permanent_postal']
-        expected = re.sub('\s+', ' ', f'{city},{region} {post_code}')
+        expected = re.sub(r'\s+', ' ', f'{city},{region} {post_code}')
         utils.assert_equivalence(self.admit_page.address_city_region_postal(), expected)
 
     def test_address_county(self, tc):

@@ -52,7 +52,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         return By.XPATH, self.peer_note_row_xpath(note)
 
     def wait_for_peer_note(self, note):
-        self.when_visible(self.peer_note_row(note), utils.get_short_timeout())
+        self.when_present(self.peer_note_row(note), utils.get_short_timeout())
 
     def peer_note_student(self, note):
         return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[1]'))
@@ -60,11 +60,8 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
     def peer_note_body(self, note):
         return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[2]'), 'Has attachment(s)')
 
-    def peer_note_topics(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]'))
-
     def peer_note_date(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[4]/span[1]'))
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]//span'))
 
     @staticmethod
     def peer_manager_note_student_link(note):
@@ -75,7 +72,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         self.wait_for_element_and_click(self.peer_manager_note_student_link(note))
 
     def peer_manager_note_date(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]'))
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]/span[1]'))
 
     @staticmethod
     def peer_note_date_format(note):

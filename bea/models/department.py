@@ -155,16 +155,8 @@ class PeerAdvisingDepartment(Enum):
         'name': 'Global Poverty & Practice Minor',
         'parent': Department.L_AND_S_MAJ,
     }
-    EOP = {
-        'name': 'Educational Opportunity Program',
-        'parent': Department.ZCEEE,
-    }
-    NAVCAL = {
-        'name': 'NAVCAL',
-        'parent': Department.ZCEEE,
-    }
-    TRANSFER = {
-        'name': 'Transfer Student Center',
+    CE3 = {
+        'name': 'CE3',
         'parent': Department.ZCEEE,
     }
     PUB_HEALTH = {

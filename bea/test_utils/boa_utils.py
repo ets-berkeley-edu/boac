@@ -358,7 +358,7 @@ def get_advisor_names(advisor):
     result = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
 
-    names = list(map(lambda n: n['author_name'], result))
+    names = [row['author_name'] for row in result.mappings()]
     names = list(set(names))
     if names:
         advisor.full_name = names[0]

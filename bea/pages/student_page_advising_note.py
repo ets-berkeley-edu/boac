@@ -46,7 +46,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
     # EXISTING NOTES
 
     NOTES_BUTTON = (By.ID, 'timeline-tab-note')
-    FILTER_NOTES_BUTTON = (By.ID, 'toggle-my-notes-button')
+    FILTER_NOTES_BUTTON = (By.ID, 'show-items-created-by-me')
     SHOW_HIDE_NOTES_BUTTON = (By.ID, 'timeline-tab-note-previous-messages')
     TOGGLE_ALL_NOTES_BUTTON = (By.ID, 'toggle-expand-all-notes')
     NOTES_EXPANDED_MSG = (By.XPATH, '//span[text()="Collapse all notes"]')

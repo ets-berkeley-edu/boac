@@ -457,8 +457,7 @@ class TestDegreeCheckBatch:
         students = boa_utils.unique_students_in_batch(batch_students, cohorts, groups)
         expected_msg = f'Success! Degree check {template.name} added to {len(students)} student profiles'
         utils.assert_actual_includes_expected(
-            self.degree_template_mgmt_page.element(self.degree_template_mgmt_page.BATCH_SUCCESS_MSG).get_dom_attribute(
-                'innerText'),
+            self.degree_template_mgmt_page.el_text_if_exists(self.degree_template_mgmt_page.BATCH_SUCCESS_MSG),
             expected_msg,
         )
 
