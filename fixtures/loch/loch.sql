@@ -32,6 +32,27 @@ CREATE SCHEMA sis_data;
 CREATE SCHEMA student;
 CREATE SCHEMA terms;
 
+CREATE TABLE boac_advising_appointments.calendly_advising_appointments
+(
+    id VARCHAR PRIMARY KEY,
+    canceled_at TIMESTAMP WITH TIME ZONE,
+    canceled_by VARCHAR,
+    cancellation_reason TEXT,
+    end_time TIMESTAMP WITH TIME ZONE,
+    host_name VARCHAR,
+    host_sid VARCHAR,
+    host_uid VARCHAR,
+    meeting_notes_html TEXT,
+    meeting_notes_plain TEXT,
+    questions_and_answers TEXT,
+    start_time TIMESTAMP WITH TIME ZONE,
+    student_sid VARCHAR,
+    student_uid VARCHAR,
+    title VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
 CREATE TABLE boac_advising_appointments.ycbm_advising_appointments
 (
     id VARCHAR NOT NULL,
@@ -596,6 +617,13 @@ CREATE TABLE terms.term_definitions
     term_begins DATE NOT NULL,
     term_ends DATE NOT NULL
 );
+
+INSERT INTO boac_advising_appointments.calendly_advising_appointments
+(id, student_uid, student_sid, title, start_time, end_time, canceled_at, cancellation_reason, host_name, questions_and_answers)
+VALUES
+('34789-925470-48723', '191919', '11667051', 'Shake it like a Polaroid', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', NULL, NULL, 'Edwin Land', '[{"question": "Can you picture this?", "answer": "Yes"}]'),
+('78342-847236-73423', '191919', '9191919191', 'Calendly in the house', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', NULL, NULL, 'YCBM can suck it!', '[{"question": "Are you happy?", "answer": "No"}]'),
+('83920-809233-32433', '191919', '9191919191', 'Writers on the Storm', '2015-08-13 11:00:00+00', '2015-08-13 1:00:00+00', '2015-08-12 1:00:00+00', 'The Doors closed on this one', 'Mr. Morrison', '[{"question": "Are you happy?", "answer": "Maybe"}]');
 
 INSERT INTO boac_advising_appointments.ycbm_advising_appointments
 (id, student_uid, student_sid, title, starts_at, ends_at, cancelled, cancellation_reason, advisor_name, appointment_type, details)

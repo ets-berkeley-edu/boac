@@ -386,7 +386,7 @@
                         :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')"
                       />
                       <div
-                        v-if="message.createdBy === 'YCBM' && message.endsAt"
+                        v-if="['Calendly', 'YCBM'].includes(message.createdBy) && message.endsAt"
                         :id="`expanded-${message.type}-${message.id}-appt-time-range`"
                       >
                         <span :aria-hidden="true">{{ getSameDayDate(message).visual }}</span>
@@ -718,7 +718,7 @@ const getSameDayDate = message => {
 }
 
 const isCancelledAppointment = message => {
-  return (message.type === 'appointment' && message.createdBy === 'YCBM' && message.status === 'cancelled')
+  return (message.type === 'appointment' && ['Calendly', 'YCBM'].includes(message.createdBy) && message.status === 'cancelled')
 }
 
 const isEditable = message => {

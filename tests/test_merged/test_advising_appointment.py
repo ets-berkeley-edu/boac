@@ -36,34 +36,43 @@ class TestMergedAdvisingAppointment:
     def test_get_advising_appointments(self):
         """Returns all legacy appointments for a given SID."""
         appointments = get_advising_appointments(student_sid)
-        assert len(appointments) == 3
+        assert len(appointments) == 4
 
-        # Legacy SIS appointments
-        assert appointments[0]['id'] == '11667051-00010'
-        assert appointments[0]['advisor']
-        assert appointments[0]['advisor']['name'] == 'Milicent Balthazar'
-        assert appointments[0]['advisor']['sid'] == '53791'
-        assert appointments[0]['advisor']['title'] is None
-        assert appointments[0]['advisor']['uid'] == '53791'
-        assert appointments[0]['advisor']['departments'] == []
-        assert appointments[0]['appointmentType'] is None
-        assert len(appointments[0]['attachments']) == 1
-        assert appointments[0]['createdAt'] == '2017-10-31T12:00:00+00:00'
-        assert appointments[0]['createdBy'] in [None, 'YCBM']
-        assert appointments[0]['deptCode'] is None
-        assert appointments[0]['details'] == 'To my people who keep an impressive wingspan even when the cubicle shrink: \
+        # Verify Calendly appointment
+        calendly_appointment = next((a for a in appointments if a['createdBy'] == 'Calendly'), None)
+        assert calendly_appointment
+        assert calendly_appointment['advisor']['name'] == 'Edwin Land'
+        assert 'Can you picture this?' in calendly_appointment['details']
+        assert calendly_appointment['appointmentTitle'] == 'Shake it like a Polaroid'
+
+        # Verify YCBM appointment
+        ycbm_appointment = next((a for a in appointments if a['createdBy'] == 'YCBM'), None)
+        assert ycbm_appointment
+        assert ycbm_appointment['id'] == '11667051-00010'
+        assert ycbm_appointment['advisor']
+        assert ycbm_appointment['advisor']['name'] == 'Milicent Balthazar'
+        assert ycbm_appointment['advisor']['sid'] == '53791'
+        assert ycbm_appointment['advisor']['title'] is None
+        assert ycbm_appointment['advisor']['uid'] == '53791'
+        assert ycbm_appointment['advisor']['departments'] == []
+        assert ycbm_appointment['appointmentType'] is None
+        assert len(ycbm_appointment['attachments']) == 1
+        assert ycbm_appointment['createdAt'] == '2017-10-31T12:00:00+00:00'
+        assert ycbm_appointment['createdBy'] == 'YCBM'
+        assert ycbm_appointment['deptCode'] is None
+        assert ycbm_appointment['details'] == 'To my people who keep an impressive wingspan even when the cubicle shrink: \
 you got to pull up the intruder by the root of the weed; N.Y. Chew through the machine'
-        assert appointments[0]['legacySource'] == 'SIS'
-        assert appointments[0]['student']
-        assert appointments[0]['student']['sid'] == student_sid
-        assert appointments[0]['topics'] == ['Ofscéaw']
-        assert appointments[0]['updatedAt'] is None
-        assert appointments[0]['updatedBy'] is None
-        assert appointments[0]['cancelReason'] is None
-        assert appointments[0]['status'] in [None, 'cancelled']
-        assert 'cancelReasonExplained' not in appointments[0]
-        assert 'statusBy' not in appointments[0]
-        assert 'statusDate' not in appointments[0]
+        assert ycbm_appointment['legacySource'] == 'SIS'
+        assert ycbm_appointment['student']
+        assert ycbm_appointment['student']['sid'] == student_sid
+        assert ycbm_appointment['topics'] == ['Ofscéaw']
+        assert ycbm_appointment['updatedAt'] is None
+        assert ycbm_appointment['updatedBy'] is None
+        assert ycbm_appointment['cancelReason'] is None
+        assert ycbm_appointment['status'] in [None, 'cancelled']
+        assert 'cancelReasonExplained' not in ycbm_appointment
+        assert 'statusBy' not in ycbm_appointment
+        assert 'statusDate' not in ycbm_appointment
 
     def test_search(self):
         """Finds legacy appointments matching the criteria, ordered by rank."""

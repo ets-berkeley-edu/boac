@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
+import json
 import re
 
 from boac.externals import data_loch
@@ -46,6 +46,8 @@ def get_advising_appointments(sid):
     appointments_by_id = {}
     benchmark('begin SIS advising appointments query')
     appointments_by_id.update(get_sis_advising_appointments(sid))
+    benchmark('begin Calendly advising appointments query')
+    appointments_by_id.update(get_calendly_advising_appointments(sid))
     benchmark('begin YCBM advising appointments query')
     appointments_by_id.update(get_ycbm_advising_appointments(sid))
     if not appointments_by_id.values():
@@ -59,6 +61,25 @@ def get_advising_appointments(sid):
             app.logger.error(f'DB query mismatch for appointment id {appointment_read.appointment_id}')
     benchmark('end')
     return list(appointments_by_id.values())
+
+
+def get_calendly_advising_appointments(sid):
+    appointments_by_id = {}
+    for row in data_loch.get_calendly_advising_appointments(sid):
+        appointment = row
+        appointment_id = appointment['id']
+        # Calendly content demands markup and HTML is the logical choice.
+        details = appointment['meeting_notes_html'] or appointment['meeting_notes_plain']
+        questions_and_answers = json.loads(appointment['questions_and_answers'] or '[]')
+        if questions_and_answers:
+            details = '<ul>'
+            for q_and_a in questions_and_answers:
+                details += f"<li><b>{q_and_a['question']}</b> {q_and_a['answer']}</li>"
+            details += '</ul>'
+
+        appointment['details'] = details
+        appointments_by_id[str(appointment_id)] = appointment_to_compatible_json(appointment=appointment)
+    return appointments_by_id
 
 
 def get_sis_advising_appointments(sid):
@@ -173,14 +194,14 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
         'createdBy': created_by,
         'deptCode': appointment.get('dept_code'),
         'details': appointment.get('details'),
-        'endsAt': appointment.get('ends_at').isoformat() if created_by == 'YCBM' and appointment.get('ends_at') else None,
+        'endsAt': appointment.get('ends_at').isoformat() if created_by in ['Calendly', 'YCBM'] and appointment.get('ends_at') else None,
         'student': {
             'sid': appointment.get('student_sid'),
         },
         'topics': topics,
         'updatedAt': resolve_sis_updated_at(appointment),
         'updatedBy': appointment.get('updated_by'),
-        'cancelReason': appointment.get('cancellation_reason') if created_by == 'YCBM' else None,
+        'cancelReason': appointment.get('cancellation_reason') if created_by in ['Calendly', 'YCBM'] else None,
         'status': 'cancelled' if cancelled else None,
     }
     if appointment_type and appointment_type == 'Scheduled':
