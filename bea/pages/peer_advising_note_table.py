@@ -72,7 +72,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         self.wait_for_element_and_click(self.peer_manager_note_student_link(note))
 
     def peer_manager_note_date(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]/span[1]'))
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]//span'))
 
     @staticmethod
     def peer_note_date_format(note):

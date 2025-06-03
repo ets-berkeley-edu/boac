@@ -737,7 +737,7 @@ class TestNoteDraft:
         self.student_page.verify_note(self.note_4, self.test.advisor)
 
     def test_converted_draft_removed_from_drafts_page(self):
-        self.student_page.click_draft_notes()
+        self.draft_notes_page.load_page()
         self.draft_notes_page.wait_for_draft_row(self.note_5)
         assert not self.draft_notes_page.is_present(self.draft_notes_page.draft_row_loc(self.note_4))
 

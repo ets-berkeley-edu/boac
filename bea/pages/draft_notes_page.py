@@ -27,6 +27,7 @@ import time
 
 from bea.models.notes_and_appts.note import Note
 from bea.pages.boa_pages import BoaPages
+from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
@@ -37,6 +38,9 @@ class DraftNotesPage(BoaPages):
     DRAFTS_HEADING = By.XPATH, '//h1[contains(text(), "Draft Notes")]'
     NO_DRAFTS_MSG = By.ID, ''
     DRAFT_NOTE_ROW = By.XPATH, '//tbody/tr'
+
+    def load_page(self):
+        self.navigate_to(f'{boa_utils.get_boa_base_url()}/note/drafts')
 
     def visible_draft_ids(self):
         self.when_present(self.DRAFTS_HEADING, utils.get_short_timeout())
