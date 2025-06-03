@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {computed, onMounted, ref, watch} from 'vue'
-import {each, find, isUndefined, map, size} from 'lodash'
+import {each, find, get, isUndefined, map, reduce, size} from 'lodash'
 import type {
   BoaUser,
   BoaUserDepartment,
@@ -95,9 +95,10 @@ const roles = ref<DepartmentMembershipRole[]>([])
 
 watch(roles, (value: DepartmentMembershipRole[]) => {
   if (size(value)) {
+    const automateMembership = reduce(department.memberships, (m, n) => m || get(n, 'automateMembership', false), false)
     department.memberships = []
     each(value, (role: DepartmentMembershipRole) => {
-      const membership = ADVISING_ROLE_TYPES.includes(role) ? {automateMembership: true, role} : {role}
+      const membership = ADVISING_ROLE_TYPES.includes(role) ? {automateMembership, role} : {role}
       department.memberships.push(membership)
     })
     if (department.memberships.length) {
