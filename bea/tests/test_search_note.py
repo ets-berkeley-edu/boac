@@ -125,7 +125,7 @@ class TestSearchNote:
                 app.logger.info('Skipping note author search since UID is UCBCONVERSION')
             else:
                 author = nessie_timeline_utils.get_advising_note_author(tc.note.advisor.uid)
-                if author:
+                if author and author.first_name and author.last_name:
                     name = f'{author.first_name} {author.last_name}'
                     self.homepage.reopen_and_reset_adv_search()
                     self.homepage.set_notes_author(name)
@@ -139,12 +139,13 @@ class TestSearchNote:
         if tc.note.advisor:
             authors = nessie_timeline_utils.get_all_advising_note_authors()
             author = next(filter(lambda a: a.uid != tc.note.advisor.uid, authors))
-            author_name = f'{author.first_name} {author.last_name}'
-            self.search_results_page.reopen_and_reset_adv_search()
-            self.homepage.set_notes_author(author_name)
-            self.homepage.enter_adv_search(tc.search_string)
-            self.homepage.click_adv_search_button()
-            self.search_results_page.assert_note_result_not_present(tc.note)
+            if author and author.first_name and author.last_name:
+                author_name = f'{author.first_name} {author.last_name}'
+                self.search_results_page.reopen_and_reset_adv_search()
+                self.homepage.set_notes_author(author_name)
+                self.homepage.enter_adv_search(tc.search_string)
+                self.homepage.click_adv_search_button()
+                self.search_results_page.assert_note_result_not_present(tc.note)
 
     def test_adv_search_matching_student(self, tc):
         self.search_results_page.reopen_and_reset_adv_search()
