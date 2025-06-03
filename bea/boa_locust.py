@@ -79,7 +79,7 @@ class TestData:
                                 AND notes.deleted_at IS NULL"""
     user_draft_note_results = db.session.execute(text(user_draft_note_sql))
     std_commit(allow_test_environment=True)
-    for uid, rows in groupby(user_draft_note_results, lambda x: x['uid']):
+    for uid, rows in groupby(user_draft_note_results.mappings(), lambda x: x['uid']):
         users.append({
             'uid': uid,
             'note_drafts': [_row_to_note_draft(r) for r in rows],
@@ -98,7 +98,7 @@ class TestData:
                     AND au.uid IN ({uids})
                ORDER BY uid"""))
     std_commit(allow_test_environment=True)
-    for uid, rows in groupby(user_cohort_results, lambda x: x['uid']):
+    for uid, rows in groupby(user_cohort_results.mappings(), lambda x: x['uid']):
         cohort_users.append({
             'uid': uid,
             'cohorts': [_row_to_cohort(r) for r in rows],
@@ -183,8 +183,8 @@ class BoaTaskSet(TaskSet):
         try:
             cohort = sample(self.user.user_data['cohorts'])
             self.client.get(f"/api/cohort/{cohort['id']}", name='/api/cohort/[id]')
-            self.client.post('/api/cohort/filter_options/me', json={'existingFilters': []})
-            self.client.post('/api/cohort/translate_to_filter_options/me',
+            self.client.post('/api/cohort_filter_categories', json={'existingFilters': []})
+            self.client.post('/api/cohort_filter_options/translate',
                              json={'filterCriteria': cohort['filter_criteria']})
         except KeyError:
             pass

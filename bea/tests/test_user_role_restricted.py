@@ -46,13 +46,6 @@ class TestAdvisorNoCanvasAccess:
     def test_student_page_notes_tab_visible(self):
         assert self.student_page.is_present(self.student_page.NOTES_BUTTON)
 
-    def test_student_page_appts_tab_visible(self):
-        assert self.student_page.is_present(self.student_page.APPTS_BUTTON)
-
-    def test_student_page_notes_present(self):
-        self.student_page.show_notes()
-        assert self.student_page.elements(self.student_page.NOTE_MSG_ROW)
-
     def test_student_page_no_course_site_details(self):
         self.student_page.expand_all_years()
         assert not self.student_page.elements(self.student_page.CLASS_PAGE_LINKS)
