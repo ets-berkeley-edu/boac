@@ -550,12 +550,10 @@ class Note(Base):
                     ORDER BY notes.updated_at DESC, fts.rank DESC
                     OFFSET {offset} LIMIT {limit}
                 """
-            return db.session.execute(text(sql), params)
-
-        search_results = _fetch_result()
+            return db.session.execute(text(sql), params).mappings()
         return {
-            'results': [dict(zip(search_results.keys(), row)) for row in search_results.fetchall()],
-            'total_matching_count': _fetch_result(True).mappings().first()['count'],
+            'results': [row for row in _fetch_result().all()],
+            'total_matching_count': _fetch_result(True).first()['count'],
         }
 
     @classmethod
