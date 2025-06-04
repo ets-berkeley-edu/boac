@@ -62,12 +62,12 @@
         <v-container fluid>
           <v-row>
             <v-col
-              v-for="position in [1, 2, 3]"
-              :id="`student-degree-check-column-${position}`"
-              :key="position"
+              v-for="uxPositionX in [1, 2, 3]"
+              :id="`student-degree-check-column-${uxPositionX}`"
+              :key="uxPositionX"
               class="degree-check-column"
             >
-              <TemplateCategoryColumn :position="position" />
+              <TemplateCategoryColumn :ux-position-x="uxPositionX" />
             </v-col>
           </v-row>
         </v-container>

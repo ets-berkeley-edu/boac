@@ -1,7 +1,7 @@
 <template>
   <div>
     <table
-      :id="`column-${position}-courses-of-category-${parentCategory.id}`"
+      :id="`column-${uxPositionX}-courses-of-category-${parentCategory.id}`"
       class="mb-0"
     >
       <caption class="sr-only">{{ parentCategory.name }} Courses</caption>
@@ -161,8 +161,8 @@
             <td v-if="degreeStore.sid && isCampusRequirements" class="td-satisfied float-right">
               <CampusRequirementCheckbox
                 :campus-requirement="bundle"
-                :position="position"
                 :printable="printable"
+                :ux-position-x="uxPositionX"
               />
             </td>
             <td
@@ -179,27 +179,27 @@
               <div v-if="getNote(bundle)">
                 <pre
                   v-if="printable"
-                  :id="`column-${position}-${bundle.key}-note`"
+                  :id="`column-${uxPositionX}-${bundle.key}-note`"
                   class="font-size-12"
                   v-html="getNote(bundle)"
                 />
                 <div v-if="!printable && !isNoteVisible(bundle)" class="font-size-14 truncate-with-ellipsis">
                   <a
-                    :id="`column-${position}-${bundle.key}-note`"
+                    :id="`column-${uxPositionX}-${bundle.key}-note`"
                     :aria-label="truncate(getNote(bundle), {length: 30, separator: ' '})"
-                    :aria-controls="`column-${position}-${bundle.key}-full-note`"
+                    :aria-controls="`column-${uxPositionX}-${bundle.key}-full-note`"
                     :aria-expanded="isNoteVisible(bundle)"
                     href
                     role="button"
                     title="Expand note"
-                    @click.prevent="showNote(bundle, position)"
+                    @click.prevent="showNote(bundle, uxPositionX)"
                     v-html="getNote(bundle)"
                   />
                 </div>
               </div>
               <div
                 v-if="!getNote(bundle)"
-                :id="`column-${position}-${bundle.key}-note`"
+                :id="`column-${uxPositionX}-${bundle.key}-note`"
                 :class="{'font-size-12': printable, 'font-size-14': !printable}"
               >
                 &mdash;
@@ -244,7 +244,7 @@
                 <div class="degree-check-action-buttons align-center d-flex text-no-wrap">
                   <v-btn
                     v-if="!degreeStore.draggingCourseId || degreeStore.draggingCourseId !== get(bundle.course, 'id')"
-                    :id="`column-${position}-edit-${bundle.key}-btn`"
+                    :id="`column-${uxPositionX}-edit-${bundle.key}-btn`"
                     :aria-label="`Edit ${bundle.name}`"
                     :color="degreeStore.disableButtons ? 'grey' : 'primary'"
                     :disabled="degreeStore.disableButtons"
@@ -253,11 +253,11 @@
                     :icon="mdiNoteEditOutline"
                     size="small"
                     variant="text"
-                    @click="edit(bundle, position)"
+                    @click="edit(bundle, uxPositionX)"
                   />
                   <v-btn
                     v-if="!degreeStore.sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && (degreeStore.draggingCourseId !== get(bundle.course, 'id'))"
-                    :id="`column-${position}-delete-${bundle.key}-btn`"
+                    :id="`column-${uxPositionX}-delete-${bundle.key}-btn`"
                     :aria-label="`Delete ${bundle.name}`"
                     :color="degreeStore.disableButtons ? 'grey' : 'primary'"
                     :disabled="degreeStore.disableButtons"
@@ -274,7 +274,7 @@
           </tr>
           <tr v-if="isEditing(bundle)" :key="`tr-${index}-edit`">
             <td
-              :id="`column-${position}-${bundle.key}-edit`"
+              :id="`column-${uxPositionX}-${bundle.key}-edit`"
               :class="{'pb-3 pl-4 pt-1': bundle.course || !degreeStore.sid}"
               :colspan="columnCount"
             >
@@ -284,28 +284,28 @@
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :course="bundle.course"
-                  :position="position"
+                  :ux-position-x="uxPositionX"
                 />
                 <EditCategory
                   v-if="!bundle.course && !degreeStore.sid"
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :existing-category="bundle.category"
-                  :position="position"
+                  :ux-position-x="uxPositionX"
                 />
                 <EditCourseRequirement
                   v-if="!bundle.course && degreeStore.sid"
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :category="bundle.category"
-                  :position="position"
+                  :ux-position-x="uxPositionX"
                 />
               </div>
             </td>
           </tr>
           <tr
             v-if="isNoteVisible(bundle)"
-            :id="`column-${position}-${bundle.key}-full-note`"
+            :id="`column-${uxPositionX}-${bundle.key}-full-note`"
             :key="`tr-${index}-note`"
             class="border-b-md border-e-md border-s-md"
           >
@@ -319,14 +319,14 @@
               </div>
               <div class="font-size-12 text-no-wrap">
                 [<v-btn
-                  :id="`column-${position}-${bundle.key}-hide-note-btn`"
-                  :aria-controls="`column-${position}-${bundle.key}-full-note`"
+                  :id="`column-${uxPositionX}-${bundle.key}-hide-note-btn`"
+                  :aria-controls="`column-${uxPositionX}-${bundle.key}-full-note`"
                   :aria-expanded="true"
                   class="px-0 py-1 text-primary"
                   size="small"
                   text="Hide note"
                   variant="text"
-                  @click="hideNote(bundle, position)"
+                  @click="hideNote(bundle, uxPositionX)"
                 />]
               </div>
             </td>
@@ -408,13 +408,13 @@ const props = defineProps({
     required: true,
     type: Object
   },
-  position: {
-    required: true,
-    type: Number
-  },
   printable: {
     required: false,
     type: Boolean
+  },
+  uxPositionX: {
+    required: true,
+    type: Number
   }
 })
 
@@ -483,14 +483,14 @@ const isCampusRequirements = computed(() => {
 
 const afterCancel = () => {
   alertScreenReader('Canceled')
-  putFocusNextTick(`column-${props.position}-edit-${bundleForEdit.value.key}-btn`)
+  putFocusNextTick(`column-${props.uxPositionX}-edit-${bundleForEdit.value.key}-btn`)
   bundleForEdit.value = null
   degreeStore.setDisableButtons(false)
 }
 
 const afterSave = () => {
   alertScreenReader(`Updated "${bundleForEdit.value.name}" ${bundleForEdit.value.type}`)
-  putFocusNextTick(`column-${props.position}-edit-${bundleForEdit.value.key}-btn`)
+  putFocusNextTick(`column-${props.uxPositionX}-edit-${bundleForEdit.value.key}-btn`)
   bundleForEdit.value = null
   degreeStore.setDisableButtons(false)
 }
@@ -500,7 +500,7 @@ const getCourse = courseId => {
 }
 
 const deleteCanceled = () => {
-  putFocusNextTick(`column-${props.position}-delete-${bundleForDelete.value.key}-btn`)
+  putFocusNextTick(`column-${props.uxPositionX}-delete-${bundleForDelete.value.key}-btn`)
   isDeleting.value = false
   bundleForDelete.value = null
   alertScreenReader('Canceled. Nothing deleted.')
@@ -512,7 +512,7 @@ const deleteConfirmed = () => {
   const type = bundleForDelete.value.type
   const done = () => {
     alertScreenReader(`Deleted "${name}" ${type}.`)
-    const putFocus = degreeStore.sid ? `column-${props.position}-add-course-to-category-${props.parentCategory.id}` : 'page-header'
+    const putFocus = degreeStore.sid ? `column-${props.uxPositionX}-add-course-to-category-${props.parentCategory.id}` : 'page-header'
     isDeleting.value = false
     bundleForDelete.value = null
     degreeStore.setDisableButtons(false)
@@ -535,12 +535,12 @@ const describeCategoryUnits = category => {
   return description
 }
 
-const edit = (bundle, position) => {
-  hideNote(bundle, position, false)
+const edit = (bundle, uxPositionX) => {
+  hideNote(bundle, uxPositionX, false)
   hoverCourseId.value = null
   degreeStore.setDisableButtons(true)
   bundleForEdit.value = bundle
-  putFocusNextTick(`column-${position}-${bundle.key}-edit`, 'input,textarea,button')
+  putFocusNextTick(`column-${uxPositionX}-${bundle.key}-edit`, 'input,textarea,button')
 }
 
 const getAccentColor = bundle => bundle.course ? bundle.course.accentColor : bundle.category.accentColor
@@ -568,10 +568,10 @@ const getGrade = bundle => {
 }
 const getNote = bundle => trim(bundle.course ? bundle.course.note : bundle.category.note)
 
-const hideNote = (bundle, position, manageFocus=true) => {
+const hideNote = (bundle, uxPositionX, manageFocus=true) => {
   notesVisible.value = remove(notesVisible.value, key => bundle.key !== key)
   if (manageFocus) {
-    putFocusNextTick(`column-${position}-${bundle.key}-note`)
+    putFocusNextTick(`column-${uxPositionX}-${bundle.key}-note`)
   }
 }
 
@@ -688,9 +688,9 @@ const onMouse = (stage, bundle) => {
   }
 }
 
-const showNote = (bundle, position) => {
+const showNote = (bundle, uxPositionX) => {
   notesVisible.value.push(bundle.key)
-  putFocusNextTick(`column-${position}-${bundle.key}-hide-note-btn`)
+  putFocusNextTick(`column-${uxPositionX}-${bundle.key}-hide-note-btn`)
 }
 </script>
 

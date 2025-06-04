@@ -35,7 +35,7 @@
       </div>
     </div>
     <div v-if="course.categoryId || size(selectedUnitRequirements)">
-      <label :for="`column-${position}-unit-requirement-select`" class="font-weight-500">
+      <label :for="`column-${uxPositionX}-unit-requirement-select`" class="font-weight-500">
         Counts Towards Unit Fulfillment
       </label>
       <div class="pb-2">
@@ -43,8 +43,8 @@
           :fulfilled-by="name"
           :disable="isSaving"
           :on-unit-requirements-change="onUnitRequirementsChange"
-          :position="position"
           :selected-unit-requirements="selectedUnitRequirements"
+          :ux-position-x="uxPositionX"
         />
       </div>
     </div>
@@ -151,7 +151,7 @@ const props = defineProps({
     required: true,
     type: Object
   },
-  position: {
+  uxPositionX: {
     required: true,
     type: Number
   }
@@ -181,7 +181,7 @@ const unitsErrorMessage = computed(() => {
 })
 
 onMounted(() => {
-  putFocusNextTick(props.course.manuallyCreatedBy ? 'course-name-input' : `column-${props.position}-unit-requirement-select`)
+  putFocusNextTick(props.course.manuallyCreatedBy ? 'course-name-input' : `column-${props.uxPositionX}-unit-requirement-select`)
 })
 
 const cancel = () => {

@@ -1,18 +1,18 @@
 <template>
   <div>
     <select
-      :id="`column-${position}-unit-requirement-select`"
+      :id="`column-${uxPositionX}-unit-requirement-select`"
       v-model="model"
       class="select-menu w-100"
       :disabled="disable"
       @change="onChangeUnitRequirement"
     >
-      <option :id="`column-${position}-unit-requirement-option-null`" :value="null">
+      <option :id="`column-${uxPositionX}-unit-requirement-option-null`" :value="null">
         Choose...
       </option>
       <option
         v-for="(option, index) in degreeStore.unitRequirements"
-        :id="`column-${position}-unit-requirement-option-${index}`"
+        :id="`column-${uxPositionX}-unit-requirement-option-${index}`"
         :key="index"
         :disabled="includes(map(selectedUnitRequirements, 'id'), option.id)"
         :value="option"
@@ -22,19 +22,19 @@
     </select>
     <div v-if="size(selectedUnitRequirements)" class="w-100">
       <label
-        :for="`column-${position}-unit-requirement-list`"
+        :for="`column-${uxPositionX}-unit-requirement-list`"
         class="sr-only"
       >
         Selected Requirement Fulfillment(s)
       </label>
       <ul
-        :id="`column-${position}-unit-requirement-list`"
+        :id="`column-${uxPositionX}-unit-requirement-list`"
         :aria-label="`Unit Requirements Fulfilled by ${fulfilledBy}`"
         class="mb-2 list-no-bullets pl-0"
       >
         <li
           v-for="(unitRequirement, index) in selectedUnitRequirements"
-          :id="`column-${position}-unit-requirement-${index}`"
+          :id="`column-${uxPositionX}-unit-requirement-${index}`"
           :key="index"
           class="list-item text-medium-emphasis"
         >
@@ -44,7 +44,7 @@
             </div>
             <div class="float-right">
               <v-btn
-                :id="`column-${position}-unit-requirement-remove-${index}`"
+                :id="`column-${uxPositionX}-unit-requirement-remove-${index}`"
                 :aria-label="`Remove ${unitRequirement.name} from Unit Requirements`"
                 color="error"
                 density="compact"
@@ -84,14 +84,14 @@ const props = defineProps({
     required: true,
     type: Function
   },
-  position: {
-    required: true,
-    type: Number
-  },
   selectedUnitRequirements: {
     default: undefined,
     required: false,
     type: Array
+  },
+  uxPositionX: {
+    required: true,
+    type: Number
   }
 })
 
@@ -107,9 +107,9 @@ const removeUnitRequirement = (item, index) => {
   props.onUnitRequirementsChange(remove(props.selectedUnitRequirements, s => s.id !== item.id))
   if (lastItemIndex > 0) {
     const nextFocusIndex = (index === lastItemIndex ) ? index - 1 : index
-    putFocusNextTick(`column-${props.position}-unit-requirement-remove-${nextFocusIndex}`)
+    putFocusNextTick(`column-${props.uxPositionX}-unit-requirement-remove-${nextFocusIndex}`)
   } else {
-    putFocusNextTick(`column-${props.position}-unit-requirement-select`)
+    putFocusNextTick(`column-${props.uxPositionX}-unit-requirement-select`)
   }
   alertScreenReader(`"${item.name}" removed`)
 }

@@ -18,7 +18,7 @@
       <div class="align-center d-flex justify-space-between w-100">
         <h3
           v-if="category.categoryType === 'Category'"
-          :id="`column-${position}-category-${category.id}-header`"
+          :id="`column-${uxPositionX}-category-${category.id}-header`"
           class="category-header text-medium-emphasis"
           :class="{'font-size-14': printable, 'font-size-16': !printable}"
         >
@@ -33,7 +33,7 @@
         </h4>
         <div v-if="!degreeStore.sid && canEdit" class="degree-check-action-buttons align-center d-flex text-no-wrap">
           <v-btn
-            :id="`column-${position}-edit-category-${category.id}-btn`"
+            :id="`column-${uxPositionX}-edit-category-${category.id}-btn`"
             :aria-label="`Edit ${category.name}`"
             :class="{'text-primary': !degreeStore.disableButtons}"
             class="action-btn"
@@ -45,7 +45,7 @@
             @click.prevent="edit"
           />
           <v-btn
-            :id="`column-${position}-delete-category-${category.id}-btn`"
+            :id="`column-${uxPositionX}-delete-category-${category.id}-btn`"
             :aria-label="`Delete ${category.name}`"
             :class="{'text-primary': !degreeStore.disableButtons}"
             class="action-btn"
@@ -100,7 +100,7 @@ const props = defineProps({
     required: true,
     type: Object
   },
-  position: {
+  uxPositionX: {
     required: true,
     type: Number
   },
@@ -129,7 +129,7 @@ const deleteCanceled = () => {
   isDeleting.value = false
   alertScreenReader('Canceled. Nothing deleted.')
   degreeStore.setDisableButtons(false)
-  putFocusNextTick(`column-${props.position}-delete-category-${props.category.id}-btn`)
+  putFocusNextTick(`column-${props.uxPositionX}-delete-category-${props.category.id}-btn`)
 }
 
 const deleteConfirmed = () => {
@@ -138,7 +138,7 @@ const deleteConfirmed = () => {
     alertScreenReader(`Deleted "${props.category.name}" ${props.category.categoryType}.`)
     isDeleting.value = false
     degreeStore.setDisableButtons(false)
-    putFocusNextTick(`column-${props.position}-create-btn`)
+    putFocusNextTick(`column-${props.uxPositionX}-create-btn`)
   })
 }
 

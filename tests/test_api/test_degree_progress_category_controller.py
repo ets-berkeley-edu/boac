@@ -57,11 +57,11 @@ class TestCreateDegreeCategory:
         _api_create_category(
             client,
             category_type='Category',
+            expected_status_code=401,
             name='Anonymous hack!',
             parent_category_id=1,
-            position=1,
             template_id=1,
-            expected_status_code=401,
+            ux_position_x=1,
         )
 
     def test_unauthorized(self, client, fake_auth):
@@ -70,11 +70,11 @@ class TestCreateDegreeCategory:
         _api_create_category(
             client,
             category_type='Category',
+            expected_status_code=401,
             name='Unauthorized hack!',
             parent_category_id=1,
-            position=2,
             template_id=1,
-            expected_status_code=401,
+            ux_position_x=2,
         )
 
     def test_create_category(self, client, fake_auth, mock_template):
@@ -84,23 +84,23 @@ class TestCreateDegreeCategory:
             client,
             category_type='Category',
             name='I am the sun',
-            position=1,
             template_id=mock_template.id,
+            ux_position_x=1,
         )
         api_json = _api_create_category(
             client,
             category_type='Subcategory',
             name='I am the rain',
             parent_category_id=parent['id'],
-            position=1,
             template_id=mock_template.id,
+            ux_position_x=1,
         )
         assert api_json['id']
         assert api_json['categoryType'] == 'Subcategory'
         assert api_json['name'] == 'I am the rain'
         assert api_json['parentCategoryId'] == parent['id']
-        assert api_json['position'] == 1
         assert api_json['templateId'] == mock_template.id
+        assert api_json['uxPositionX'] == 1
 
     def test_create_campus_requirements(self, client, fake_auth, mock_template):
         """Campus Requirements is created as a category with four children."""
@@ -109,15 +109,15 @@ class TestCreateDegreeCategory:
             client,
             category_type='Campus Requirements',
             name='hacked name',
-            position=2,
             template_id=mock_template.id,
+            ux_position_x=2,
         )
         assert api_json['id']
         assert api_json['categoryType'] == 'Category'
         assert api_json['name'] == 'Campus Requirements'
         assert api_json['parentCategoryId'] is None
-        assert api_json['position'] == 2
         assert api_json['templateId'] == mock_template.id
+        assert api_json['uxPositionX'] == 2
         children = DegreeProgressCategory.find_by_parent_category_id(api_json['id'])
         assert len(children) == 4
 
@@ -141,24 +141,24 @@ class TestDeleteCategory:
             category_type='Category',
             client=client,
             name='Blister in the sun',
-            position=3,
             template_id=mock_template.id,
+            ux_position_x=3,
         )
         subcategory = _api_create_category(
             category_type='Subcategory',
             client=client,
             name='Gone Daddy Gone',
             parent_category_id=category['id'],
-            position=3,
             template_id=mock_template.id,
+            ux_position_x=3,
         )
         course = _api_create_category(
             category_type='Course Requirement',
             client=client,
             name='Blister in the sun',
             parent_category_id=subcategory['id'],
-            position=3,
             template_id=mock_template.id,
+            ux_position_x=3,
         )
         category_id = category['id']
         assert client.delete(f'/api/degree/category/{category_id}').status_code == 200
@@ -188,26 +188,26 @@ class TestGetTemplateWithCategory:
             client=client,
             description='Seeking subcategories for casual companionship.',
             name='Hot metal in the sun',
-            position=3,
             template_id=mock_template.id,
+            ux_position_x=3,
         )
         _api_create_category(
             category_type='Course Requirement',
             client=client,
             name='It\'s a lot of face, a lot of crank air',
             parent_category_id=category['id'],
-            position=3,
             template_id=mock_template.id,
             units_lower=2.5,
             units_upper=3,
+            ux_position_x=3,
         )
         subcategory = _api_create_category(
             category_type='Subcategory',
             client=client,
             name='Pony in the air',
             parent_category_id=category['id'],
-            position=3,
             template_id=mock_template.id,
+            ux_position_x=3,
         )
         unit_requirement = _create_unit_requirement(name='I am requirement.', template_id=mock_template.id, user=user)
         _api_create_category(
@@ -216,9 +216,9 @@ class TestGetTemplateWithCategory:
             units_lower=3,
             name='Sooey and saints at the fair',
             parent_category_id=subcategory['id'],
-            position=3,
             template_id=mock_template.id,
             unit_requirement_ids=[unit_requirement.id],
+            ux_position_x=3,
         )
         std_commit(allow_test_environment=True)
 
@@ -305,8 +305,8 @@ class TestRecommendDegreeCategory:
         category = DegreeProgressCategory.create(
             category_type='Category',
             name='Recommend me to your friends.',
-            position=1,
             template_id=mock_template.id,
+            ux_position_x=1,
         )
         category_id = category.id
         note = 'Four out of five dentists surveyed recommend sugarless gum for their patients who chew gum.'
@@ -420,7 +420,7 @@ class TestUpdateDegreeCategory:
             preserve_me,
             _create_unit_requirement(name='initial_unit_requirement #3', template_id=mock_template.id, user=user),
         ]
-        position = 3
+        ux_position_x = 3
         categories = []
         for index, name in enumerate(['Never Go Back', 'Seven Languages']):
             categories.append(
@@ -428,9 +428,9 @@ class TestUpdateDegreeCategory:
                     category_type='Category',
                     client=client,
                     name=name,
-                    position=position,
                     template_id=mock_template.id,
                     unit_requirement_ids=[u.id for u in initial_unit_requirements],
+                    ux_position_x=ux_position_x,
                 ),
             )
         subcategories = []
@@ -441,9 +441,9 @@ class TestUpdateDegreeCategory:
                     category_type='Subcategory',
                     client=client,
                     name=name,
-                    position=position,
                     template_id=mock_template.id,
                     parent_category_id=parent_category_id,
+                    ux_position_x=ux_position_x,
                 ),
             )
         std_commit(allow_test_environment=True)
@@ -530,8 +530,8 @@ class TestSatisfyCampusRequirement:
             client,
             category_type='Campus Requirements',
             name='Campus Requirements',
-            position=3,
             template_id=mock_template.id,
+            ux_position_x=3,
         )
         # Requirements are initially unsatisfied
         requirements = DegreeProgressCategory.find_by_parent_category_id(parent_category['id'])
@@ -565,8 +565,8 @@ def _api_create_category(
         client,
         category_type,
         name,
-        position,
         template_id,
+        ux_position_x,
         description=None,
         expected_status_code=200,
         parent_category_id=None,
@@ -581,11 +581,11 @@ def _api_create_category(
             'description': description,
             'name': name,
             'parentCategoryId': parent_category_id,
-            'position': position,
             'templateId': template_id,
             'unitRequirementIds': ','.join(str(id_) for id_ in unit_requirement_ids),
             'unitsLower': units_lower,
             'unitsUpper': units_upper,
+            'uxPositionX': ux_position_x,
         }),
         content_type='application/json',
     )

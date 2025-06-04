@@ -118,15 +118,15 @@ def mock_template():
     category = DegreeProgressCategory.create(
         category_type='Category',
         name='Category',
-        position=1,
         template_id=template.id,
+        ux_position_x=1,
     )
     sub_category = DegreeProgressCategory.create(
         category_type='Subcategory',
         name='Subcategory',
         parent_category_id=category.id,
-        position=1,
         template_id=template.id,
+        ux_position_x=1,
     )
     DegreeProgressCategory.create(
         category_type='Course Requirement',
@@ -135,8 +135,8 @@ def mock_template():
         is_satisfied_by_transfer_course=True,
         name='Course',
         parent_category_id=sub_category.id,
-        position=1,
         template_id=template.id,
+        ux_position_x=1,
     )
     return template
 
@@ -159,15 +159,23 @@ def mock_note():
 class TestAssignCourse:
 
     @classmethod
-    def _api_create_category(cls, client, template_id, category_type='Category', parent_category_id=None, expected_status_code=200):
+    def _api_create_category(
+            cls,
+            client,
+            template_id,
+            ux_position_x,
+            category_type='Category',
+            expected_status_code=200,
+            parent_category_id=None,
+    ):
         response = client.post(
             '/api/degree/category/create',
             data=json.dumps({
                 'categoryType': category_type,
                 'name': f'Category of the now: {datetime.now()}',
                 'parentCategoryId': parent_category_id,
-                'position': 2,
                 'templateId': template_id,
+                'uxPositionX': ux_position_x,
             }),
             content_type='application/json',
         )
@@ -197,14 +205,24 @@ class TestAssignCourse:
         )
         std_commit(allow_test_environment=True)
 
-        category = self._api_create_category(client, degree_check.id)
+        category = self._api_create_category(
+            client,
+            degree_check.id,
+            ux_position_x=1,
+        )
         subcategory = self._api_create_category(
             client,
             degree_check.id,
             category_type='Subcategory',
             parent_category_id=category['id'],
+            ux_position_x=1,
         )
-        campus_requirements_category = self._api_create_category(client, degree_check.id, category_type='Campus Requirements')
+        campus_requirements_category = self._api_create_category(
+            client=client,
+            category_type='Campus Requirements',
+            template_id=degree_check.id,
+            ux_position_x=1,
+        )
         campus_requirements = DegreeProgressCategory.find_by_parent_category_id(campus_requirements_category['id'])
 
         api_json = _api_get_degree(client, degree_check_id=degree_check.id)
@@ -232,8 +250,8 @@ class TestAssignCourse:
         category = DegreeProgressCategory.create(
             category_type='Category',
             name=f'Category for {sid}',
-            position=1,
             template_id=degree_check.id,
+            ux_position_x=1,
         )
         std_commit(allow_test_environment=True)
         # Assign
@@ -700,8 +718,8 @@ class TestUnassignedCourses:
         category = DegreeProgressCategory.create(
             category_type='Category',
             name=f'Category for {sid}',
-            position=1,
             template_id=degree_check.id,
+            ux_position_x=1,
         )
         std_commit(allow_test_environment=True)
         # Fetch
@@ -766,8 +784,8 @@ class TestCopyCourse:
                 category_type=category_type,
                 name=f'{category_type} for {sid} ({datetime.now().timestamp()})',
                 parent_category_id=parent_category_id,
-                position=1,
                 template_id=degree_check_id,
+                ux_position_x=1,
             )
         category_1 = _create_category()
         category_2 = _create_category()
@@ -904,8 +922,8 @@ class TestDeleteCategory:
             client,
             category_type,
             name,
-            position,
             template_id,
+            ux_position_x,
             description=None,
             expected_status_code=200,
             parent_category_id=None,
@@ -920,11 +938,11 @@ class TestDeleteCategory:
                 'description': description,
                 'name': name,
                 'parentCategoryId': parent_category_id,
-                'position': position,
                 'templateId': template_id,
                 'unitRequirementIds': ','.join(str(id_) for id_ in unit_requirement_ids),
                 'unitsLower': units_lower,
                 'unitsUpper': units_upper,
+                'uxPositionX': ux_position_x,
             }),
             content_type='application/json',
         )
@@ -955,14 +973,14 @@ class TestDeleteCategory:
         api_json = _api_get_degree(client, degree_check_id=degree_check.id)
         course_id = api_json['courses']['unassigned'][-1]['id']
         categories = []
-        for index in (1, 2, 3):
+        for ux_position_x in (1, 2, 3):
             categories.append(
                 self._api_create_category(
                     category_type='Category',
                     client=client,
-                    name=f'Category {index}',
-                    position=index,
+                    name=f'Category {ux_position_x}',
                     template_id=degree_check.id,
+                    ux_position_x=ux_position_x,
                 ),
             )
         # Category #2 gets a child 'Course Requirement'
@@ -971,8 +989,8 @@ class TestDeleteCategory:
             client=client,
             name='Course Requirement',
             parent_category_id=categories[1]['id'],
-            position=categories[1]['position'],
             template_id=degree_check.id,
+            ux_position_x=categories[1]['uxPositionX'],
         )
         # Assign course to Category #1
         course = _api_assign_course(

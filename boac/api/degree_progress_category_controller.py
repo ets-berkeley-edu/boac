@@ -45,14 +45,19 @@ def create_category():
     is_satisfied_by_transfer_course = get_param(params, 'isSatisfiedByTransferCourse', False)
     name = get_param(params, 'name')
     parent_category_id = get_param(params, 'parentCategoryId')
-    position = get_param(params, 'position')
     template_id = get_param(params, 'templateId')
     # Categories are mapped to degree_progress_unit_requirements
     value = get_param(request.get_json(), 'unitRequirementIds')
     unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
+    ux_position_x = get_param(params, 'uxPositionX')
 
-    if not category_type or not name or not _is_valid_position(position) or not template_id:
-        raise BadRequestError("Insufficient data: categoryType, name, position and templateId are required.'")
+    if (
+        not category_type
+        or not name
+        or not _is_valid_ux_position_x(ux_position_x)
+        or not template_id
+    ):
+        raise BadRequestError('Required parameters are missing')
     if category_type in ['Category', 'Campus Requirements'] and parent_category_id:
         raise BadRequestError(f'{category_type} cannot have a parent.')
     if category_type in ('Course Requirement', 'Subcategory') and not parent_category_id:
@@ -62,8 +67,8 @@ def create_category():
         parent_type = parent.category_type
         if parent_type == 'Course Requirement' or (parent_type == 'Subcategory' and category_type == 'Category'):
             raise BadRequestError(f'Type {category_type} not allowed, based on parent type: {parent_type}.')
-        if position != parent.position:
-            raise BadRequestError(f'Category position ({position}) must match its parent ({parent.position}).')
+        if ux_position_x != parent.ux_position_x:
+            raise BadRequestError(f'Category ux_position_x ({ux_position_x}) must match its parent ({parent.ux_position_x}).')
 
     category = _create_category(
         category_type=category_type,
@@ -73,9 +78,9 @@ def create_category():
         is_satisfied_by_transfer_course=is_satisfied_by_transfer_course,
         name=name,
         parent_category_id=parent_category_id,
-        position=position,
         template_id=template_id,
         unit_requirement_ids=unit_requirement_ids,
+        ux_position_x=ux_position_x,
     )
     # Update updated_at date of top-level record
     DegreeProgressTemplate.refresh_updated_at(template_id, current_user.get_id())
@@ -96,6 +101,18 @@ def delete_degree_category(category_id):
     # Update updated_at date of top-level record
     DegreeProgressTemplate.refresh_updated_at(category.template_id, current_user.get_id())
     return tolerant_jsonify({'message': f'Template {category_id} deleted'}), 200
+
+
+@app.route('/api/degree/category/<category_id>/move_down')
+@can_edit_degree_progress
+def move_down(category_id):
+    return tolerant_jsonify(_get_degree_category(category_id))
+
+
+@app.route('/api/degree/category/<category_id>/move_up')
+@can_edit_degree_progress
+def move_up(category_id):
+    return tolerant_jsonify(_get_degree_category(category_id))
 
 
 @app.route('/api/degree/category/<category_id>/recommend', methods=['POST'])
@@ -190,9 +207,9 @@ def _create_category(
         is_satisfied_by_transfer_course,
         name,
         parent_category_id,
-        position,
         template_id,
         unit_requirement_ids,
+        ux_position_x,
 ):
     campus_requirements = []
     if category_type == 'Campus Requirements':
@@ -207,17 +224,17 @@ def _create_category(
         is_satisfied_by_transfer_course=is_satisfied_by_transfer_course,
         name=name,
         parent_category_id=parent_category_id,
-        position=position,
         template_id=template_id,
         unit_requirement_ids=unit_requirement_ids,
+        ux_position_x=ux_position_x,
     )
     for name in campus_requirements:
         DegreeProgressCategory.create(
             category_type='Campus Requirement, Unsatisfied',
             name=name,
             parent_category_id=category.id,
-            position=position,
             template_id=template_id,
+            ux_position_x=ux_position_x,
         )
     return category
 
@@ -229,5 +246,9 @@ def _get_degree_category(category_id):
     return category
 
 
-def _is_valid_position(position):
-    return position and (0 < position < 4)
+def _is_valid_ux_position_x(ux_position_x):
+    return ux_position_x and (0 < ux_position_x < 4)
+
+
+def _is_valid_ux_position_y(ux_position_y):
+    return ux_position_y is not None and ux_position_y >= 0

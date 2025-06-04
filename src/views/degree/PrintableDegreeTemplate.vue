@@ -72,29 +72,29 @@
       </v-row>
       <v-row no-gutters>
         <v-col
-          v-for="position in [1, 2, 3]"
-          :key="position"
-          :class="{'pr-2': position > 1}"
+          v-for="uxPositionX in [1, 2, 3]"
+          :key="uxPositionX"
+          :class="{'pr-2': uxPositionX > 1}"
         >
           <div
-            v-for="category in _filter(degreeStore.categories, c => c.position === position && isNil(c.parentCategoryId))"
+            v-for="category in _filter(degreeStore.categories, c => c.uxPositionX === uxPositionX && isNil(c.parentCategoryId))"
             :key="category.id"
             class="mt-4"
-            :class="{'pr-3': position < 3}"
+            :class="{'pr-3': uxPositionX < 3}"
           >
             <Category
               v-if="category.id"
               :category="category"
-              :position="position"
               :printable="true"
+              :ux-position-x="uxPositionX"
             />
             <div v-if="!category.subcategories.length" class="py-1">
               <CoursesTable
-                :id="`column-${position}-category-${category.id}-courses`"
+                :id="`column-${uxPositionX}-category-${category.id}-courses`"
                 :items="getItemsForCoursesTable(category)"
                 :parent-category="category"
-                :position="position"
                 :printable="true"
+                :ux-position-x="uxPositionX"
               />
             </div>
             <div v-if="size(category.subcategories)">
@@ -102,15 +102,15 @@
                 <Category
                   v-if="subcategory.id"
                   :category="subcategory"
-                  :position="position"
                   :printable="true"
+                  :ux-position-x="uxPositionX"
                 />
                 <div class="py-1">
                   <CoursesTable
                     :items="getItemsForCoursesTable(subcategory)"
                     :parent-category="subcategory"
-                    :position="position"
                     :printable="true"
+                    :ux-position-x="uxPositionX"
                   />
                 </div>
               </div>
