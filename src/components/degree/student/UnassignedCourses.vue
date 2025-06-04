@@ -178,7 +178,7 @@
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :course="course"
-                  :position="0"
+                  :ux-position-x="0"
                 />
               </td>
             </tr>

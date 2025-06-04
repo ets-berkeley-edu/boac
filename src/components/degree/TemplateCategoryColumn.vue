@@ -1,5 +1,5 @@
 <template>
-  <div :id="`category-column-${position}`">
+  <div :id="`category-column-${uxPositionX}`">
     <div v-if="!degreeStore.sid" class="align-center d-flex flex-wrap justify-space-between">
       <v-chip
         class="font-size-13 text-no-wrap mb-1 mr-1 px-2 text-uppercase column-label"
@@ -8,17 +8,17 @@
         label
         variant="flat"
       >
-        Column {{ position }}
+        Column {{ uxPositionX }}
       </v-chip>
       <v-btn
         v-if="currentUser.canEditDegreeProgress"
-        :id="`column-${position}-create-btn`"
+        :id="`column-${uxPositionX}-create-btn`"
         :append-icon="mdiPlus"
         class="mb-1 ml-auto text-body-2"
         color="primary"
         density="comfortable"
         :disabled="degreeStore.disableButtons"
-        :text="`Add column ${position} requirement`"
+        :text="`Add column ${uxPositionX} requirement`"
         slim
         variant="text"
         @click="add"
@@ -28,14 +28,14 @@
       <EditCategory
         :after-cancel="onExitEditCategory"
         :after-save="onExitEditCategory"
-        :position="position"
+        :ux-position-x="uxPositionX"
       />
     </div>
     <div
-      v-for="(category, index) in _filter(degreeStore.categories, c => c.position === position && isNil(c.parentCategoryId))"
-      :id="`column-${position}-category-${category.id}`"
+      v-for="(category, index) in _filter(degreeStore.categories, c => c.uxPositionX === uxPositionX && isNil(c.parentCategoryId))"
+      :id="`column-${uxPositionX}-category-${category.id}`"
       :key="category.id"
-      :aria-labelledby="`column-${position}-category-${category.id}-header`"
+      :aria-labelledby="`column-${uxPositionX}-category-${category.id}-header`"
       :class="{'mt-3': index === 0, 'mt-6': index > 0}"
       role="region"
     >
@@ -44,7 +44,7 @@
         :key="`cat-${category.id}`"
         :category="category"
         :on-click-edit="edit"
-        :position="position"
+        :ux-position-x="uxPositionX"
       />
       <v-alert
         v-if="category.categoryType !== 'Category'"
@@ -65,20 +65,20 @@
         :after-cancel="onExitEditCategory"
         :after-save="onExitEditCategory"
         :existing-category="category"
-        :position="position"
+        :ux-position-x="uxPositionX"
       />
       <div v-if="!category.subcategories.length" class="mt-4">
         <CoursesTable
-          :id="`column-${position}-category-${category.id}-courses`"
+          :id="`column-${uxPositionX}-category-${category.id}-courses`"
           :items="getItemsForCoursesTable(category)"
           :parent-category="category"
-          :position="position"
+          :ux-position-x="uxPositionX"
         />
       </div>
       <div v-if="category.subcategories.length">
         <div
           v-for="subcategory in category.subcategories"
-          :id="`column-${position}-subcategory-${subcategory.id}`"
+          :id="`column-${uxPositionX}-subcategory-${subcategory.id}`"
           :key="subcategory.id"
           class="mt-6"
         >
@@ -87,31 +87,31 @@
             :key="`cat-${subcategory.id}`"
             :category="subcategory"
             :on-click-edit="edit"
-            :position="position"
+            :ux-position-x="uxPositionX"
           />
           <EditCategory
             v-if="subcategory.id === get(categoryForEdit, 'id')"
             :after-cancel="onExitEditCategory"
             :after-save="onExitEditCategory"
             :existing-category="subcategory"
-            :position="position"
+            :ux-position-x="uxPositionX"
           />
           <div class="mt-3">
             <CoursesTable
-              :id="`column-${position}-subcategory-${subcategory.id}-courses`"
+              :id="`column-${uxPositionX}-subcategory-${subcategory.id}-courses`"
               :items="getItemsForCoursesTable(subcategory)"
               :parent-category="subcategory"
-              :position="position"
+              :ux-position-x="uxPositionX"
             />
           </div>
         </div>
       </div>
     </div>
     <div
-      v-if="!degreeStore.sid && !isAddingCategory && !_filter(degreeStore.categories, c => c.position === position).length"
+      v-if="!degreeStore.sid && !isAddingCategory && !_filter(degreeStore.categories, c => c.uxPositionX === uxPositionX).length"
       class="no-data-text pb-3"
     >
-      No <span class="sr-only">Column {{ position }}&nbsp;</span>requirements
+      No <span class="sr-only">Column {{ uxPositionX }}&nbsp;</span>requirements
     </div>
   </div>
 </template>
@@ -132,7 +132,7 @@ const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
 
 const props = defineProps({
-  position: {
+  uxPositionX: {
     required: true,
     type: Number
   }
@@ -151,11 +151,11 @@ const add = () => {
 const edit = category => {
   categoryForEdit.value = category
   degreeStore.setDisableButtons(true)
-  putFocusNextTick(`column-${props.position}-name-input`)
+  putFocusNextTick(`column-${props.uxPositionX}-name-input`)
 }
 
 const onExitEditCategory = () => {
-  const putFocus = categoryForEdit.value ? `column-${props.position}-edit-category-${categoryForEdit.value.id}-btn` : `column-${props.position}-create-btn`
+  const putFocus = categoryForEdit.value ? `column-${props.uxPositionX}-edit-category-${categoryForEdit.value.id}-btn` : `column-${props.uxPositionX}-create-btn`
   categoryForEdit.value = null
   isAddingCategory.value = false
   degreeStore.setDisableButtons(false)

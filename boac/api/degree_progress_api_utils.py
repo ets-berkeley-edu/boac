@@ -99,9 +99,9 @@ def clone(template, created_by, name=None, sid=None):
             is_satisfied_by_transfer_course=False if sid else is_satisfied_by_transfer_course,
             name=category_name,
             parent_category_id=parent_id,
-            position=category_['position'],
             template_id=template_clone_id,
             unit_requirement_ids=unit_requirement_ids,
+            ux_position_x=category_['uxPositionX'],
         )
         if sid and is_satisfied_by_transfer_course:
             transfer_course = DegreeProgressCourse.create(

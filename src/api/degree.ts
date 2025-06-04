@@ -69,11 +69,11 @@ export function createDegreeCategory(
   isSatisfiedByTransferCourse: boolean,
   name: string,
   parentCategoryId: number,
-  position: number,
   templateId: number,
   unitRequirementIds: number[],
   unitsLower: number,
-  unitsUpper: number
+  unitsUpper: number,
+  uxPositionX: number
 ) {
   const data = {
     categoryType,
@@ -81,11 +81,11 @@ export function createDegreeCategory(
     isSatisfiedByTransferCourse,
     name,
     parentCategoryId,
-    position,
     templateId,
     unitRequirementIds,
     unitsLower,
-    unitsUpper
+    unitsUpper,
+    uxPositionX
   }
   const url: string = `${utils.apiBaseUrl()}/api/degree/category/create`
   return axios.post(url, data).then(response => response.data)

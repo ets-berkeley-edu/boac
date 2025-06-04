@@ -274,8 +274,9 @@ CREATE TABLE degree_progress_categories (
     name character varying(255) NOT NULL,
     note TEXT,
     parent_category_id integer,
-    position integer NOT NULL,
-    template_id integer NOT NULL,
+    template_id INTEGER NOT NULL,
+    ux_position_x INTEGER NOT NULL,
+    ux_position_y INTEGER NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL
 );

@@ -366,12 +366,12 @@ def _create_placeholder_category_and_assign(course, degree_check_id, parent_cate
     course_requirement = DegreeProgressCategory.create(
         category_type='Placeholder: Course Copy',
         name=course.display_name,
-        position=parent_category.position,
         template_id=degree_check_id,
         course_units_lower=course.units,
         course_units_upper=course.units,
         parent_category_id=parent_category.id,
         unit_requirement_ids=[u.unit_requirement_id for u in parent_category.unit_requirements],
+        ux_position_x=parent_category.ux_position_x,
     )
     DegreeProgressCourse.assign(category_id=course_requirement.id, course_id=course.id)
 

@@ -31,7 +31,7 @@ from boac.models.degree_progress_course import DegreeProgressCourse
 from dateutil.tz import tzutc
 from psycopg2.extras import NumericRange
 from sqlalchemy.dialects.postgresql import ENUM, NUMRANGE
-from sqlalchemy.sql import asc
+from sqlalchemy.sql import asc, text
 
 degree_progress_category_type = ENUM(
     'Category',
@@ -60,8 +60,9 @@ class DegreeProgressCategory(Base):
     name = db.Column(db.String(255), nullable=False)
     note = db.Column(db.Text)
     parent_category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'))
-    position = db.Column(db.Integer, nullable=False)
     template_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
+    ux_position_x = db.Column(db.Integer, nullable=False)
+    ux_position_y = db.Column(db.Integer, nullable=False)
     unit_requirements = db.relationship(
         DegreeProgressCategoryUnitRequirement.__name__,
         back_populates='category',
@@ -72,8 +73,9 @@ class DegreeProgressCategory(Base):
             self,
             category_type,
             name,
-            position,
             template_id,
+            ux_position_x,
+            ux_position_y,
             accent_color=None,
             course_units=None,
             description=None,
@@ -93,8 +95,9 @@ class DegreeProgressCategory(Base):
         self.is_satisfied_by_transfer_course = is_satisfied_by_transfer_course
         self.name = name
         self.parent_category_id = parent_category_id
-        self.position = position
         self.template_id = template_id
+        self.ux_position_x = ux_position_x
+        self.ux_position_y = ux_position_y
 
     def __repr__(self):
         return f"""<DegreeProgressCategory id={self.id},
@@ -109,8 +112,9 @@ class DegreeProgressCategory(Base):
                     name={self.name},
                     note={self.note},
                     parent_category_id={self.parent_category_id},
-                    position={self.position},
                     template_id={self.template_id},
+                    ux_position_x={self.ux_position_x},
+                    ux_position_y={self.ux_position_y},
                     created_at={self.created_at},
                     updated_at={self.updated_at}>"""
 
@@ -119,8 +123,8 @@ class DegreeProgressCategory(Base):
             cls,
             category_type,
             name,
-            position,
             template_id,
+            ux_position_x,
             accent_color=None,
             course_units_lower=None,
             course_units_upper=None,
@@ -135,6 +139,10 @@ class DegreeProgressCategory(Base):
             float(course_units_upper or course_units_lower),
             '[]',
         )
+        # Auto-calculate ux_position_y when category is created.
+        list_of_ux_position_y = cls.fetch_list_of_ux_position_y(parent_category_id=parent_category_id)
+        ux_position_y = max(list_of_ux_position_y) + 1 if len(list_of_ux_position_y) else 0
+
         category = cls(
             accent_color=accent_color,
             category_type=category_type,
@@ -144,8 +152,9 @@ class DegreeProgressCategory(Base):
             is_satisfied_by_transfer_course=is_satisfied_by_transfer_course,
             name=name,
             parent_category_id=parent_category_id,
-            position=position,
             template_id=template_id,
+            ux_position_x=ux_position_x,
+            ux_position_y=ux_position_y,
         )
         # TODO: Use 'unit_requirement_ids' in mapping this instance to 'unit_requirements' table
         db.session.add(category)
@@ -202,6 +211,16 @@ class DegreeProgressCategory(Base):
                 hierarchy.append(category)
 
         return hierarchy
+
+    @classmethod
+    def fetch_list_of_ux_position_y(cls, parent_category_id):
+        sql = """
+            SELECT ux_position_y FROM degree_progress_categories
+            WHERE parent_category_id = :parent_category_id
+            ORDER BY ux_position_y
+        """
+        rows = db.session.execute(text(sql), {'parent_category_id': parent_category_id}).mappings()
+        return [row['ux_position_y'] for row in rows]
 
     @classmethod
     def recommend(
@@ -297,12 +316,13 @@ class DegreeProgressCategory(Base):
             'name': self.name,
             'note': self.note,
             'parentCategoryId': self.parent_category_id,
-            'position': self.position,
             'templateId': self.template_id,
             'unitsLower': self.course_units and self.course_units.lower,
             'unitsUpper': self.course_units and self.course_units.upper,
             'unitRequirements': sorted(unit_requirements, key=lambda r: r['name']),
             'updatedAt': _isoformat(self.updated_at),
+            'uxPositionX': self.ux_position_x,
+            'uxPositionY': self.ux_position_y,
         }
 
 

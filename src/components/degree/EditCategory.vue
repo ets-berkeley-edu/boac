@@ -1,25 +1,25 @@
 <template>
-  <form :id="`column-${position}-edit-category`" class="pb-3" @submit.prevent="onSubmit">
+  <form :id="`column-${uxPositionX}-edit-category`" class="pb-3" @submit.prevent="onSubmit">
     <div v-if="!existingCategory" class="pb-3">
-      <label class="font-weight-500" :for="`column-${position}-add-category-select`">
+      <label class="font-weight-500" :for="`column-${uxPositionX}-add-category-select`">
         Requirement Type (required)
       </label>
       <div>
         <select
-          :id="`column-${position}-add-category-select`"
+          :id="`column-${uxPositionX}-add-category-select`"
           v-model="selectedCategoryType"
           class="select-menu w-100"
           :disabled="isSaving"
         >
           <option
-            :id="`column-${position}-select-option-null`"
+            :id="`column-${uxPositionX}-select-option-null`"
             :value="undefined"
           >
             Choose...
           </option>
           <option
             v-for="option in config.degreeCategoryTypeOptions"
-            :id="`column-${position}-select-option-${option}`"
+            :id="`column-${uxPositionX}-select-option-${option}`"
             :key="option"
             :disabled="disableCategoryOption(option)"
             :value="option"
@@ -31,12 +31,12 @@
     </div>
     <div v-if="selectedCategoryType">
       <div v-if="!isCampusRequirements(existingCategory)">
-        <label class="font-weight-500" :for="`column-${position}-name-input`">
+        <label class="font-weight-500" :for="`column-${uxPositionX}-name-input`">
           {{ selectedCategoryType }} Name (required)
         </label>
         <div>
           <v-text-field
-            :id="`column-${position}-name-input`"
+            :id="`column-${uxPositionX}-name-input`"
             v-model="name"
             :disabled="isSaving"
             hide-details
@@ -57,7 +57,7 @@
         </div>
       </div>
       <div v-if="existingCategory && isCampusRequirements(existingCategory)" class="mt-2">
-        <h3 :id="`column-${position}-name`" class="font-weight-bold font-size-18">{{ name }}</h3>
+        <h3 :id="`column-${uxPositionX}-name`" class="font-weight-bold font-size-18">{{ name }}</h3>
       </div>
       <div v-if="selectedCategoryType === 'Course Requirement'" class="mt-2">
         <UnitsInput
@@ -87,7 +87,7 @@
         </div>
       </div>
       <div v-if="degreeStore.unitRequirements.length && !isCampusRequirements(existingCategory)" class="mt-1">
-        <label class="font-weight-500" :for="`column-${position}-unit-requirement-select`">
+        <label class="font-weight-500" :for="`column-${uxPositionX}-unit-requirement-select`">
           Requirement Fulfillment
         </label>
         <div>
@@ -95,18 +95,18 @@
             :disable="isSaving"
             :fulfilled-by="name"
             :on-unit-requirements-change="onUnitRequirementsChange"
-            :position="position"
             :selected-unit-requirements="selectedUnitRequirements"
+            :ux-position-x="uxPositionX"
           />
         </div>
       </div>
       <div v-if="selectedCategoryType !== 'Course Requirement'" class="mt-2">
-        <label class="font-weight-500" :for="`column-${position}-description-input`">
+        <label class="font-weight-500" :for="`column-${uxPositionX}-description-input`">
           {{ selectedCategoryType }} Description
         </label>
         <div>
           <v-textarea
-            :id="`column-${position}-description-input`"
+            :id="`column-${uxPositionX}-description-input`"
             v-model="descriptionText"
             density="compact"
             :disabled="isSaving"
@@ -118,26 +118,26 @@
         </div>
       </div>
       <div v-if="!includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="mt-2">
-        <label class="font-weight-500 pb-1" :for="`column-${position}-parent-category-select`">
+        <label class="font-weight-500 pb-1" :for="`column-${uxPositionX}-parent-category-select`">
           Requirement Location (required)
         </label>
         <div>
           <select
-            :id="`column-${position}-parent-category-select`"
+            :id="`column-${uxPositionX}-parent-category-select`"
             v-model="selectedParentCategory"
             class="select-menu w-100"
             :disabled="isSaving"
             @change="onChangeParentCategory"
           >
             <option
-              :id="`column-${position}-parent-select-option-null`"
+              :id="`column-${uxPositionX}-parent-select-option-null`"
               :value="null"
             >
               Choose...
             </option>
             <option
-              v-for="category in reject(findCategoriesByTypes(['Category', 'Subcategory'], props.position), isCampusRequirements)"
-              :id="`column-${position}-parent-select-option-${category.name}`"
+              v-for="category in reject(findCategoriesByTypes(['Category', 'Subcategory'], uxPositionX), isCampusRequirements)"
+              :id="`column-${uxPositionX}-parent-select-option-${category.name}`"
               :key="category.id"
               :aria-label="`${category.categoryType} ${category.name}`"
               :disabled="disableLocationOption(category)"
@@ -152,7 +152,7 @@
     <div class="d-flex justify-end mt-3">
       <div class="mr-2">
         <ProgressButton
-          :id="`column-${position}-create-requirement-btn`"
+          :id="`column-${uxPositionX}-create-requirement-btn`"
           :action="onSubmit"
           :aria-label="existingCategory ? 'Save Requirement' : 'Create Requirement'"
           color="primary"
@@ -164,7 +164,7 @@
       </div>
       <div>
         <v-btn
-          :id="`column-${position}-cancel-create-requirement-btn`"
+          :id="`column-${uxPositionX}-cancel-create-requirement-btn`"
           :aria-label="existingCategory ? 'Cancel Edit Requirement' : 'Cancel Create Requirement'"
           color="primary"
           density="comfortable"
@@ -205,7 +205,7 @@ const props = defineProps({
     required: false,
     type: Object
   },
-  position: {
+  uxPositionX: {
     required: true,
     type: Number
   }
@@ -230,18 +230,18 @@ watch(selectedCategoryType, option => {
     if (selectedCategoryType.value === 'Campus Requirements') {
       name.value = 'Campus Requirements'
       descriptionText.value = 'American History, American Institutions, and American Cultures courses can also count as H/SS courses.'
-      putFocusNextTick(`column-${props.position}-description-input`)
+      putFocusNextTick(`column-${props.uxPositionX}-description-input`)
     } else {
       descriptionText.value = null
       name.value = ''
-      putFocusNextTick(`column-${props.position}-name-input`)
+      putFocusNextTick(`column-${props.uxPositionX}-name-input`)
     }
   }
 })
 
 onMounted(() => {
   selectedParentCategory.value = props.existingCategory ? findCategoryById(props.existingCategory.parentCategoryId) : null
-  putFocusNextTick(props.existingCategory ? `column-${props.position}-name-input` : `column-${props.position}-add-category-select`)
+  putFocusNextTick(props.existingCategory ? `column-${props.uxPositionX}-name-input` : `column-${props.uxPositionX}-add-category-select`)
 })
 
 const disableSaveButton = computed(() => {
@@ -268,7 +268,7 @@ const cancel = () => {
 
 const disableCategoryOption = option => {
   const hasCampusRequirements = some(findCategoriesByTypes(['Category']), isCampusRequirements)
-  const withTypeCategory = reject(findCategoriesByTypes(['Category'], props.position), isCampusRequirements)
+  const withTypeCategory = reject(findCategoriesByTypes(['Category'], props.uxPositionX), isCampusRequirements)
   return (option === 'Campus Requirements' && hasCampusRequirements)
     || (!withTypeCategory.length && !includes(['Category', 'Campus Requirements'], option))
 }
@@ -281,9 +281,9 @@ const disableLocationOption = option => {
     || (selectedType === 'Course Requirement' && optionType === 'Category' && !!option.subcategories.length)
 }
 
-const findCategoriesByTypes = (types, position) => {
+const findCategoriesByTypes = (types, uxPositionX) => {
   const categories = degreeStore.categories
-  return filter(flattenCategories(categories), c => (!position || c.position === position) && includes(types, c.categoryType))
+  return filter(flattenCategories(categories), c => (!uxPositionX || c.uxPositionX === uxPositionX) && includes(types, c.categoryType))
 }
 
 const isCampusRequirements = category => {
@@ -297,7 +297,7 @@ const onChangeParentCategory = option => {
 
   if (option) {
     selectedUnitRequirements.value = unionBy(parentUnitRequirements, initialUnitRequirements, 'id')
-    putFocusNextTick(`column-${props.position}-create-requirement-btn`)
+    putFocusNextTick(`column-${props.uxPositionX}-create-requirement-btn`)
   } else {
     const removed = []
     each(parentUnitRequirements, unitRequirement => {
@@ -341,11 +341,11 @@ const onSubmit = () => {
         isSatisfiedByTransferCourse.value,
         name.value,
         parentCategoryId,
-        props.position,
         degreeStore.templateId,
         unitRequirementIds,
         unitsLower.value,
-        unitsUpper.value
+        unitsUpper.value,
+        props.uxPositionX
       ).then(() => {
         refreshDegreeTemplate(degreeStore.templateId).then(done)
       })

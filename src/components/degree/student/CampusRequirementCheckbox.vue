@@ -2,7 +2,7 @@
   <div class="d-flex align-center">
     <v-checkbox
       v-if="canEdit"
-      :id="`column-${position}-${campusRequirement.key}-satisfy-checkbox`"
+      :id="`column-${uxPositionX}-${campusRequirement.key}-satisfy-checkbox`"
       v-model="isSatisfied"
       :aria-label="`${campusRequirement.name} is ${isSatisfied ? 'satisfied' : 'unsatisfied'}`"
       color="primary"
@@ -13,7 +13,7 @@
     />
     <v-icon
       v-if="!canEdit"
-      :id="`column-${position}-${campusRequirement.key}-satisfied-icon`"
+      :id="`column-${uxPositionX}-${campusRequirement.key}-satisfied-icon`"
       class="satisfied-icon"
       :icon="isSatisfied ? mdiCheckBold : mdiCloseThick"
       disabled
@@ -38,13 +38,13 @@ const props = defineProps({
     required: true,
     type: Object
   },
-  position: {
-    required: true,
-    type: Number
-  },
   printable: {
     required: true,
     type: Boolean
+  },
+  uxPositionX: {
+    required: true,
+    type: Number
   }
 })
 
@@ -58,7 +58,7 @@ const isSatisfied = ref(props.campusRequirement.category.categoryType === 'Campu
 const toggle = () => {
   toggleCampusRequirement(props.campusRequirement.category.id, isSatisfied.value).then(() => {
     refreshDegreeTemplate(degreeStore.templateId)
-    putFocusNextTick(`column-${props.position}-${props.campusRequirement.key}-satisfy-checkbox`)
+    putFocusNextTick(`column-${props.uxPositionX}-${props.campusRequirement.key}-satisfy-checkbox`)
   })
 }
 </script>
