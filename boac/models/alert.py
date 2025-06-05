@@ -60,7 +60,7 @@ class Alert(Base):
     views = db.relationship(
         'AlertView',
         back_populates='alert',
-        lazy=False,
+        lazy=True,
     )
 
     __table_args__ = (db.UniqueConstraint(
