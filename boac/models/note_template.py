@@ -48,13 +48,13 @@ class NoteTemplate(Base):
         'NoteTemplateTopic',
         primaryjoin='and_(NoteTemplate.id==NoteTemplateTopic.note_template_id)',
         back_populates='note_template',
-        lazy=True,
+        lazy=False,
     )
     attachments = db.relationship(
         'NoteTemplateAttachment',
         primaryjoin='and_(NoteTemplate.id==NoteTemplateAttachment.note_template_id, NoteTemplateAttachment.deleted_at==None)',
         back_populates='note_template',
-        lazy=True,
+        lazy=False,
     )
 
     __table_args__ = (db.UniqueConstraint(

@@ -75,13 +75,13 @@ class Note(Base):
         'NoteTopic',
         primaryjoin='and_(Note.id==NoteTopic.note_id, NoteTopic.deleted_at==None)',
         back_populates='note',
-        lazy=True,
+        lazy=False,
     )
     attachments = db.relationship(
         'NoteAttachment',
         primaryjoin='and_(Note.id==NoteAttachment.note_id, NoteAttachment.deleted_at==None)',
         back_populates='note',
-        lazy=True,
+        lazy=False,
     )
 
     def __init__(
