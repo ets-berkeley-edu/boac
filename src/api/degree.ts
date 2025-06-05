@@ -155,6 +155,14 @@ export function getStudents(templateId: number, sids: number[]) {
   return axios.post(url, {sids}, {cancelToken: $_getStudentsCancel.token}).then(response => response.data)
 }
 
+export function moveCategoryDown(categoryId: number) {
+  return axios.get(`${utils.apiBaseUrl()}/api/degree/category/${categoryId}/move_down`).then(response => response.data)
+}
+
+export function moveCategoryUp(categoryId: number) {
+  return axios.get(`${utils.apiBaseUrl()}/api/degree/category/${categoryId}/move_up`).then(response => response.data)
+}
+
 export function toggleCampusRequirement(categoryId: number, isSatisfied: boolean) {
   const url: string = `${utils.apiBaseUrl()}/api/degree/category/${categoryId}/satisfy`
   return axios.post(url, {isSatisfied}).then(response => response.data)

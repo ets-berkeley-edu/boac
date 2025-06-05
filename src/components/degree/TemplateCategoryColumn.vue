@@ -86,6 +86,7 @@
             v-if="subcategory.id !== get(categoryForEdit, 'id')"
             :key="`cat-${subcategory.id}`"
             :category="subcategory"
+            class="w-100"
             :on-click-edit="edit"
             :ux-position-x="uxPositionX"
           />

@@ -15,7 +15,7 @@
       @dragstart="onDrag($event, 'start')"
       @drop="onDropCourse($event)"
     >
-      <div class="align-center d-flex justify-space-between w-100">
+      <div>
         <h3
           v-if="category.categoryType === 'Category'"
           :id="`column-${uxPositionX}-category-${category.id}-header`"
@@ -31,7 +31,10 @@
         >
           {{ category.name }}
         </h4>
-        <div v-if="!degreeStore.sid && canEdit" class="degree-check-action-buttons align-center d-flex text-no-wrap">
+        <div
+          v-if="!degreeStore.sid && canEdit"
+          class="align-center degree-check-action-buttons d-flex flex-wrap w-100"
+        >
           <v-btn
             :id="`column-${uxPositionX}-edit-category-${category.id}-btn`"
             :aria-label="`Edit ${category.name}`"
@@ -56,6 +59,13 @@
             size="small"
             @click="deleteDegreeCategory"
           />
+          <div class="ms-auto">
+            <CategoryControlPositionY
+              v-if="!degreeStore.sid"
+              :category="category"
+              :ux-position-x="uxPositionX"
+            />
+          </div>
         </div>
       </div>
       <div
@@ -89,6 +99,7 @@ import {mdiNoteEditOutline, mdiTrashCan} from '@mdi/js'
 import {computed, ref} from 'vue'
 import {every, get, isEmpty, size} from 'lodash'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import CategoryControlPositionY from '@/components/degree/CategoryControlPositionY'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 import {deleteCategory, onDrop} from '@/stores/degree-edit-session/degree-edit-session-utils'

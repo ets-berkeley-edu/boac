@@ -138,7 +138,10 @@ export type Category = {
   courses: DegreeProgressCourse[],
   id: number,
   name: string,
-  subcategories: Category[]
+  parentCategoryId?: number,
+  subcategories: Category[],
+  uxPositionX: number,
+  uxPositionY: number
 }
 
 export type DegreeProgressCourse = {
