@@ -106,13 +106,15 @@ def delete_degree_category(category_id):
 @app.route('/api/degree/category/<category_id>/move_down')
 @can_edit_degree_progress
 def move_down(category_id):
-    return tolerant_jsonify(_get_degree_category(category_id))
+    DegreeProgressCategory.move_category_down(category_id)
+    return tolerant_jsonify({'message': f'Category {category_id} was moved down'})
 
 
 @app.route('/api/degree/category/<category_id>/move_up')
 @can_edit_degree_progress
 def move_up(category_id):
-    return tolerant_jsonify(_get_degree_category(category_id))
+    DegreeProgressCategory.move_category_up(category_id)
+    return tolerant_jsonify({'message': f'Category {category_id} was moved up.'})
 
 
 @app.route('/api/degree/category/<category_id>/recommend', methods=['POST'])

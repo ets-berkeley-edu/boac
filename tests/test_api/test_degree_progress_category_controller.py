@@ -467,19 +467,174 @@ class TestUpdateDegreeCategory:
 
         # Verify the update
         api_json = _api_get_template(client=client, template_id=mock_template.id)
-        categories = api_json['categories']
-        assert len(categories) == 2
-        assert len(categories[0]['subcategories']) == 1
-        assert len(categories[1]['subcategories']) == 1
-        # Verify change of parent
-        updated_subcategory = categories[1]['subcategories'][0]
-        assert updated_subcategory['id'] == target_subcategory_id
+        subcategories = api_json['categories'][0]['subcategories']
+        updated_subcategory = next((s for s in subcategories if s['id'] == target_subcategory_id), None)
+        assert updated_subcategory
         assert updated_subcategory['description'] is None
         assert updated_subcategory['name'] == name
         assert updated_subcategory['parentCategoryId'] == new_parent_category_id
         # Verify add/remove of unit requirements
         unit_requirement_id_set = set([u['id'] for u in updated_subcategory['unitRequirements']])
         assert unit_requirement_id_set == set(new_unit_requirement_ids)
+
+
+class TestCategoryUpAndDown:
+    """Move Degree Category API."""
+
+    @classmethod
+    def _api_move_category_down(
+            cls,
+            category_id,
+            client,
+            expected_status_code=200,
+    ):
+        response = client.get(f'/api/degree/category/{category_id}/move_down')
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    @classmethod
+    def _api_move_category_up(
+            cls,
+            category_id,
+            client,
+            expected_status_code=200,
+    ):
+        response = client.get(f'/api/degree/category/{category_id}/move_up')
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_move_category_down(category_id=1, client=client, expected_status_code=401)
+        self._api_move_category_up(category_id=1, client=client, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_move_category_down(category_id=1, client=client, expected_status_code=401)
+
+    def test_move_category(self, client, fake_auth, mock_template):
+        """Move category up or down via ux_position_y property."""
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(user.uid)
+        for index, name in enumerate(['Cat 1', 'Cat 2', 'Cat 3']):
+            category = _api_create_category(
+                category_type='Category',
+                client=client,
+                name=name,
+                template_id=mock_template.id,
+                ux_position_x=1,
+            )
+            assert category['uxPositionY'] == index
+
+        # Before we move anything, assert order per order of created_at.
+        template = _api_get_template(client=client, template_id=mock_template.id)
+        _assert_order_of_categories_by_names(
+            names=['Cat 3', 'Cat 2', 'Cat 1'],
+            categories=template['categories'],
+        )
+        # 'Cat 1' up.
+        cat_1 = next(c for c in template['categories'] if c['name'] == 'Cat 1')
+        self._api_move_category_up(category_id=cat_1['id'], client=client)
+        template = _api_get_template(client=client, template_id=mock_template.id)
+        _assert_order_of_categories_by_names(
+            names=['Cat 3', 'Cat 1', 'Cat 2'],
+            categories=template['categories'],
+        )
+        # 'Cat 1' up, again.
+        self._api_move_category_up(category_id=cat_1['id'], client=client)
+        template = _api_get_template(client=client, template_id=mock_template.id)
+        _assert_order_of_categories_by_names(
+            names=['Cat 1', 'Cat 3', 'Cat 2'],
+            categories=template['categories'],
+        )
+        # 'Cat 1' down.
+        self._api_move_category_down(category_id=cat_1['id'], client=client)
+        template = _api_get_template(client=client, template_id=mock_template.id)
+        _assert_order_of_categories_by_names(
+            names=['Cat 3', 'Cat 1', 'Cat 2'],
+            categories=template['categories'],
+        )
+        # Down with 'Cat 1', again.
+        self._api_move_category_down(category_id=cat_1['id'], client=client)
+        template = _api_get_template(client=client, template_id=mock_template.id)
+        _assert_order_of_categories_by_names(
+            names=['Cat 3', 'Cat 2', 'Cat 1'],
+            categories=template['categories'],
+        )
+
+    def test_move_subcategory(self, client, fake_auth, mock_template):
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(user.uid)
+        subcategories = []
+        category = _api_create_category(
+            category_type='Category',
+            client=client,
+            name='Parent Category',
+            template_id=mock_template.id,
+            ux_position_x=1,
+        )
+        parent_category_id = category['id']
+        for index, name in enumerate(['Subcat 1', 'Subcat 2', 'Subcat 3']):
+            subcategory = _api_create_category(
+                category_type='Subcategory',
+                client=client,
+                name=name,
+                template_id=mock_template.id,
+                parent_category_id=parent_category_id,
+                ux_position_x=1,
+            )
+            subcategories.append(subcategory)
+            assert subcategory['uxPositionY'] == index
+
+        # Before we move anything, assert order per order of created_at.
+        template = _api_get_template(client=client, template_id=mock_template.id)
+        _assert_order_of_categories_by_names(
+            categories=template['categories'][0]['subcategories'],
+            names=['Subcat 3', 'Subcat 2', 'Subcat 1'],
+        )
+        # 'Subcat 1' up.
+        subcat_1 = next(c for c in template['categories'][0]['subcategories'] if c['name'] == 'Subcat 1')
+        self._api_move_category_up(category_id=subcat_1['id'], client=client)
+        template = _api_get_template(client=client, template_id=mock_template.id)
+        _assert_order_of_categories_by_names(
+            categories=template['categories'][0]['subcategories'],
+            names=['Subcat 3', 'Subcat 1', 'Subcat 2'],
+        )
+        # 'Subcat 1' up, again.
+        self._api_move_category_up(category_id=subcat_1['id'], client=client)
+        template = _api_get_template(client=client, template_id=mock_template.id)
+        _assert_order_of_categories_by_names(
+            categories=template['categories'][0]['subcategories'],
+            names=['Subcat 1', 'Subcat 3', 'Subcat 2'],
+        )
+        # 'Subcat 1' down.
+        self._api_move_category_down(category_id=subcat_1['id'], client=client)
+        template = _api_get_template(client=client, template_id=mock_template.id)
+        _assert_order_of_categories_by_names(
+            categories=template['categories'][0]['subcategories'],
+            names=['Subcat 3', 'Subcat 1', 'Subcat 2'],
+        )
+        # Down with 'Subcat 1', again.
+        self._api_move_category_down(category_id=subcat_1['id'], client=client)
+        template = _api_get_template(client=client, template_id=mock_template.id)
+        _assert_order_of_categories_by_names(
+            categories=template['categories'][0]['subcategories'],
+            names=['Subcat 3', 'Subcat 2', 'Subcat 1'],
+        )
+
+
+def _assert_order_of_categories_by_names(categories, names):
+    # First, assert order by ux_position_y, descending
+    previous_position_y = None
+    for c in categories:
+        ux_position_y = c['uxPositionY']
+        if previous_position_y is not None:
+            assert previous_position_y > ux_position_y
+        previous_position_y = ux_position_y
+    # Next, assert expected order of names.
+    actual_names = [c['name'] for c in categories]
+    assert actual_names == names
 
 
 class TestSatisfyCampusRequirement:

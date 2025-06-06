@@ -132,8 +132,8 @@ def delete_unit_requirement(unit_requirement_id):
 def get_degree_template(template_id):
     template = fetch_degree_template(template_id).to_api_json(include_courses=True)
     parent_template_id = template['parentTemplateId']
-    parent_template = DegreeProgressTemplate.find_by_id(parent_template_id) if parent_template_id else None
-    if parent_template:
+    if parent_template_id:
+        parent_template = DegreeProgressTemplate.find_by_id(parent_template_id)
         template['parentTemplateUpdatedAt'] = _isoformat(parent_template.updated_at)
     return tolerant_jsonify(template)
 

@@ -31,7 +31,7 @@ from boac.models.degree_progress_course import DegreeProgressCourse
 from dateutil.tz import tzutc
 from psycopg2.extras import NumericRange
 from sqlalchemy.dialects.postgresql import ENUM, NUMRANGE
-from sqlalchemy.sql import asc, text
+from sqlalchemy.sql import text
 
 degree_progress_category_type = ENUM(
     'Category',
@@ -140,8 +140,12 @@ class DegreeProgressCategory(Base):
             '[]',
         )
         # Auto-calculate ux_position_y when category is created.
-        list_of_ux_position_y = cls.fetch_list_of_ux_position_y(parent_category_id=parent_category_id)
-        ux_position_y = max(list_of_ux_position_y) + 1 if len(list_of_ux_position_y) else 0
+        list_of_ux_position_y = cls.fetch_list_of_ux_position_y(
+            parent_category_id=parent_category_id,
+            template_id=template_id,
+            ux_position_x=ux_position_x,
+        )
+        ux_position_y = max(list_of_ux_position_y) + 1 if list_of_ux_position_y else 0
 
         category = cls(
             accent_color=accent_color,
@@ -189,7 +193,7 @@ class DegreeProgressCategory(Base):
     def get_categories(cls, template_id):
         hierarchy = []
         categories = []
-        for category in cls.query.filter_by(template_id=template_id).order_by(asc(cls.created_at)).all():
+        for category in cls.query.filter_by(template_id=template_id).all():
             category_type = category.category_type
             api_json = category.to_api_json()
             if category_type == 'Category':
@@ -210,17 +214,36 @@ class DegreeProgressCategory(Base):
             else:
                 hierarchy.append(category)
 
+        # Order by ux_position_y, descending.
+        hierarchy = sorted(hierarchy, key=lambda c: c['uxPositionY'], reverse=True)
+        for category in hierarchy:
+            category['subcategories'] = sorted(category['subcategories'], key=lambda s: s['uxPositionY'], reverse=True)
         return hierarchy
 
     @classmethod
-    def fetch_list_of_ux_position_y(cls, parent_category_id):
+    def fetch_list_of_ux_position_y(cls, parent_category_id, template_id, ux_position_x):
+        params = {
+            'template_id': template_id,
+            'ux_position_x': ux_position_x,
+        }
         sql = """
             SELECT ux_position_y FROM degree_progress_categories
-            WHERE parent_category_id = :parent_category_id
-            ORDER BY ux_position_y
+            WHERE template_id = :template_id
+                AND ux_position_x = :ux_position_x
         """
-        rows = db.session.execute(text(sql), {'parent_category_id': parent_category_id}).mappings()
+        if parent_category_id:
+            sql += ' AND parent_category_id = :parent_category_id'
+            params['parent_category_id'] = parent_category_id
+        rows = db.session.execute(text(sql), params).mappings()
         return [row['ux_position_y'] for row in rows]
+
+    @classmethod
+    def move_category_down(cls, category_id):
+        cls._move_category(category_id, -1)
+
+    @classmethod
+    def move_category_up(cls, category_id):
+        cls._move_category(category_id, 1)
 
     @classmethod
     def recommend(
@@ -299,6 +322,33 @@ class DegreeProgressCategory(Base):
 
         std_commit()
         return cls.find_by_id(category_id=category_id)
+
+    @classmethod
+    def _move_category(cls, category_id, ux_position_y_delta):
+        # Get category data.
+        category = cls.find_by_id(category_id)
+        sql = """
+            UPDATE degree_progress_categories
+            SET ux_position_y = :ux_position_y_target
+            WHERE id = :category_id;
+            -- The UPDATE above might result in two categories having the same 'ux_position_y' value.
+            -- So, we will appropriately update the 'ux_position_y' value of this other category.
+            UPDATE degree_progress_categories
+            SET ux_position_y = :ux_position_y_existing
+            WHERE id != :category_id
+                AND template_id = :template_id
+                AND ux_position_x = :ux_position_x
+                AND ux_position_y = :ux_position_y_target;
+        """
+        params = {
+            'category_id': category_id,
+            'template_id': category.template_id,
+            'ux_position_x': category.ux_position_x,
+            'ux_position_y_existing': category.ux_position_y,
+            'ux_position_y_target': category.ux_position_y + ux_position_y_delta,
+        }
+        db.session.execute(text(sql), params)
+        std_commit()
 
     def to_api_json(self):
         unit_requirements = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
