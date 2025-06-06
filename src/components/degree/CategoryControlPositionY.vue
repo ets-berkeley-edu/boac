@@ -1,31 +1,41 @@
 <template>
-  <div>
+  <div class="controls-container">
+    <div
+      v-if="isMovingCategory"
+      class="d-flex align-center text-success font-size-14 font-weight-bold"
+    >
+      <v-progress-circular
+        class="mr-2"
+        indeterminate
+        size="16"
+        width="2"
+      />
+      Moving...
+    </div>
     <v-btn-toggle
+      v-if="!isMovingCategory"
       class="border-sm btn-control-position-y"
       color="primary"
       density="compact"
+      :disabled="!canMoveUp && !canMoveDown"
       divided
-      mandatory
+      size="sm"
       variant="flat"
     >
       <v-btn
-        v-if="canMoveUp"
-        :id="`increase-position-y-category-${category.id}`"
-        color="primary"
-        density="compact"
-        elevation="0"
-        :icon="mdiMenuUp"
-        :title="`Move ${category.categoryType} up`"
-        @click="moveUp"
-      />
-      <v-btn
-        v-if="canMoveDown"
         :id="`decrease-position-y-category-${category.id}`"
-        density="compact"
-        elevation="0"
-        :icon="mdiMenuDown"
+        :disabled="!canMoveDown || degreeStore.disableButtons"
+        :icon="mdiArrowDownBoldBoxOutline"
         :title="`Move ${category.categoryType} down`"
         @click="moveDown"
+      />
+      <v-btn
+        :id="`increase-position-y-category-${category.id}`"
+        color="primary"
+        :disabled="!canMoveUp || degreeStore.disableButtons"
+        :icon="mdiArrowUpBoldBoxOutline"
+        :title="`Move ${category.categoryType} up`"
+        @click="moveUp"
       />
     </v-btn-toggle>
   </div>
@@ -33,14 +43,23 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {computed} from 'vue'
-import {filter as _filter, find, isNil, map, max, min, remove} from 'lodash'
-import {mdiMenuDown, mdiMenuUp} from '@mdi/js'
+import {ref} from 'vue'
+import {mdiArrowDownBoldBoxOutline, mdiArrowUpBoldBoxOutline} from '@mdi/js'
 import type {Category} from '@/lib/types'
-import {useDegreeStore} from '@/stores/degree-edit-session'
+import {alertScreenReader} from '@/lib/utils'
 import {moveCategoryDown, moveCategoryUp} from '@/api/degree'
+import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
+import {useDegreeStore} from '@/stores/degree-edit-session'
 
 const props = defineProps({
+  canMoveDown: {
+    required: true,
+    type: Boolean
+  },
+  canMoveUp: {
+    required: false,
+    type: Boolean
+  },
   category: {
     required: true,
     type: Object as PropType<Category>
@@ -48,47 +67,39 @@ const props = defineProps({
 })
 
 const degreeStore = useDegreeStore()
-
-const canMoveDown = computed(() => {
-  const maxUxPositionY = max(map(siblingCategories.value, 'uxPositionY'))
-  return !isNil(maxUxPositionY) && props.category.uxPositionY < maxUxPositionY
-})
-
-const canMoveUp = computed(() => {
-  const minUxPositionY = min(map(siblingCategories.value, 'uxPositionY'))
-  return !isNil(minUxPositionY) && props.category.uxPositionY > minUxPositionY
-})
-
-const siblingCategories = computed(() => {
-  let siblings: Category[]
-  if (props.category.parentCategoryId) {
-    const parent = find(degreeStore.categories, ['id', props.category.parentCategoryId])
-    siblings = parent.subcategories
-  } else {
-    siblings = _filter(degreeStore.categories, c => c.uxPositionX === props.category.uxPositionX && isNil(c.parentCategoryId))
-  }
-  return remove(siblings,s => s.id !== props.category.id)
-})
+const isMovingCategory = ref(false)
 
 const moveDown = () => {
+  isMovingCategory.value = true
+  degreeStore.setDisableButtons(true)
   moveCategoryDown(props.category.id).then(() => {
-    // eslint-disable-next-line no-console
-    console.log('Category is down.')
+    refreshDegreeTemplate(degreeStore.templateId).then(() => {
+      degreeStore.setDisableButtons(false)
+      isMovingCategory.value = false
+      alertScreenReader(`"Category ${props.category.name}" moved down.`)
+    })
   })
 }
 
 const moveUp = () => {
+  isMovingCategory.value = true
+  degreeStore.setDisableButtons(true)
   moveCategoryUp(props.category.id).then(() => {
-    // eslint-disable-next-line no-console
-    console.log('Category is up!')
+    refreshDegreeTemplate(degreeStore.templateId).then(() => {
+      degreeStore.setDisableButtons(false)
+      isMovingCategory.value = false
+      alertScreenReader(`"Category ${props.category.name}" moved down.`)
+    })
   })
 }
 </script>
 
 <style scoped>
 .btn-control-position-y {
-  border-color: rgb(var(--v-theme-primary)) !important;
   color: rgb(var(--v-theme-primary));
   height: 28px;
+}
+.controls-container {
+  height: 30px !important;
 }
 </style>

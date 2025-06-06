@@ -4,6 +4,7 @@
       id="drop-zone-category"
       class="w-100"
       :class="{
+        'border-b-sm border-e-sm border-t-sm': category.categoryType !== 'Subcategory' && !degreeStore.sid && canEdit,
         'drop-zone-container-category': category.categoryType === 'Category' && !printable,
         'drop-zone-container-subcategory': category.categoryType === 'Subcategory' && !size(category.subcategories) && !printable,
         'drop-zone-on': isDroppable() && degreeStore.draggingContext.target === category.id
@@ -15,7 +16,16 @@
       @dragstart="onDrag($event, 'start')"
       @drop="onDropCourse($event)"
     >
-      <div>
+      <div class="align-center d-flex py-1">
+        <div class="mr-2">
+          <CategoryControlPositionY
+            v-if="!degreeStore.sid"
+            :can-move-down="canMoveDown"
+            :can-move-up="canMoveUp"
+            :category="category"
+            :ux-position-x="uxPositionX"
+          />
+        </div>
         <h3
           v-if="category.categoryType === 'Category'"
           :id="`column-${uxPositionX}-category-${category.id}-header`"
@@ -33,7 +43,7 @@
         </h4>
         <div
           v-if="!degreeStore.sid && canEdit"
-          class="align-center degree-check-action-buttons d-flex flex-wrap w-100"
+          class="align-center degree-check-action-buttons d-flex float-right mr-2 ms-auto"
         >
           <v-btn
             :id="`column-${uxPositionX}-edit-category-${category.id}-btn`"
@@ -59,13 +69,6 @@
             size="small"
             @click="deleteDegreeCategory"
           />
-          <div class="ms-auto">
-            <CategoryControlPositionY
-              v-if="!degreeStore.sid"
-              :category="category"
-              :ux-position-x="uxPositionX"
-            />
-          </div>
         </div>
       </div>
       <div
@@ -107,6 +110,14 @@ import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
 const props = defineProps({
+  canMoveDown: {
+    required: true,
+    type: Boolean
+  },
+  canMoveUp: {
+    required: false,
+    type: Boolean
+  },
   category: {
     required: true,
     type: Object
