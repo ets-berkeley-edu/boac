@@ -336,11 +336,7 @@
           <td class="pa-2" :class="{'pb-3': !degreeStore.sid}" :colspan="columnCount">
             <span
               :id="emptyCategoryId"
-              class="font-italic text-surface-variant"
-              :class="{
-                'font-size-14': printable,
-                'font-size-16': !printable
-              }"
+              class="font-italic font-size-14 text-surface-variant"
             >
               No completed requirements
             </span>

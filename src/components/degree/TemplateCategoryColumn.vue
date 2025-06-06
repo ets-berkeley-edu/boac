@@ -32,7 +32,7 @@
       />
     </div>
     <div
-      v-for="(category, index) in _filter(degreeStore.categories, c => c.uxPositionX === uxPositionX && isNil(c.parentCategoryId))"
+      v-for="(category, index) in categories"
       :id="`column-${uxPositionX}-category-${category.id}`"
       :key="category.id"
       :aria-labelledby="`column-${uxPositionX}-category-${category.id}-header`"
@@ -42,6 +42,8 @@
       <Category
         v-if="category.id !== get(categoryForEdit, 'id')"
         :key="`cat-${category.id}`"
+        :can-move-down="index < categories.length - 1"
+        :can-move-up="index > 0"
         :category="category"
         :on-click-edit="edit"
         :ux-position-x="uxPositionX"
@@ -77,7 +79,7 @@
       </div>
       <div v-if="category.subcategories.length">
         <div
-          v-for="subcategory in category.subcategories"
+          v-for="(subcategory, subcategoryIndex) in category.subcategories"
           :id="`column-${uxPositionX}-subcategory-${subcategory.id}`"
           :key="subcategory.id"
           class="mt-6"
@@ -85,6 +87,8 @@
           <Category
             v-if="subcategory.id !== get(categoryForEdit, 'id')"
             :key="`cat-${subcategory.id}`"
+            :can-move-down="subcategoryIndex < category.subcategories.length - 1"
+            :can-move-up="subcategoryIndex > 0"
             :category="subcategory"
             class="w-100"
             :on-click-edit="edit"
@@ -118,9 +122,9 @@
 </template>
 
 <script setup>
+import {computed, ref} from 'vue'
+import {filter as _filter, get, isNil, orderBy} from 'lodash'
 import {mdiPlus} from '@mdi/js'
-import {ref} from 'vue'
-import {filter as _filter, get, isNil} from 'lodash'
 import Category from '@/components/degree/Category'
 import CoursesTable from '@/components/degree/CoursesTable'
 import EditCategory from '@/components/degree/EditCategory'
@@ -129,9 +133,6 @@ import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
-const contextStore = useContextStore()
-const degreeStore = useDegreeStore()
-
 const props = defineProps({
   uxPositionX: {
     required: true,
@@ -139,6 +140,12 @@ const props = defineProps({
   }
 })
 
+const contextStore = useContextStore()
+const degreeStore = useDegreeStore()
+const categories = computed(() => {
+  const siblings = _filter(degreeStore.categories, c => c.uxPositionX === props.uxPositionX && isNil(c.parentCategoryId))
+  return orderBy(siblings, 'uxPositionY', 'desc')
+})
 const categoryForEdit = ref(undefined)
 const config = contextStore.config
 const currentUser = contextStore.currentUser
