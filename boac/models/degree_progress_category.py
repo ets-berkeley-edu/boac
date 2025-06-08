@@ -141,6 +141,7 @@ class DegreeProgressCategory(Base):
         )
         # Auto-calculate ux_position_y when category is created.
         list_of_ux_position_y = cls.fetch_list_of_ux_position_y(
+            category_type=category_type,
             parent_category_id=parent_category_id,
             template_id=template_id,
             ux_position_x=ux_position_x,
@@ -221,14 +222,22 @@ class DegreeProgressCategory(Base):
         return hierarchy
 
     @classmethod
-    def fetch_list_of_ux_position_y(cls, parent_category_id, template_id, ux_position_x):
+    def fetch_list_of_ux_position_y(
+            cls,
+            category_type,
+            parent_category_id,
+            template_id,
+            ux_position_x,
+    ):
         params = {
+            'category_type': category_type,
             'template_id': template_id,
             'ux_position_x': ux_position_x,
         }
         sql = """
             SELECT ux_position_y FROM degree_progress_categories
-            WHERE template_id = :template_id
+            WHERE category_type = :category_type
+                AND template_id = :template_id
                 AND ux_position_x = :ux_position_x
         """
         if parent_category_id:
@@ -239,11 +248,35 @@ class DegreeProgressCategory(Base):
 
     @classmethod
     def move_category_down(cls, category_id):
-        cls._move_category(category_id, -1)
+        category = cls.find_by_id(category_id)
+        list_of_ux_position_y = sorted(
+            cls.fetch_list_of_ux_position_y(
+                category.category_type,
+                parent_category_id=category.parent_category_id,
+                template_id=category.template_id,
+                ux_position_x=category.ux_position_x,
+            ),
+            reverse=True,
+        )
+        index_of = list_of_ux_position_y.index(category.ux_position_y)
+        if index_of < len(list_of_ux_position_y):
+            cls._move_category(category, list_of_ux_position_y[index_of + 1])
 
     @classmethod
     def move_category_up(cls, category_id):
-        cls._move_category(category_id, 1)
+        category = cls.find_by_id(category_id)
+        list_of_ux_position_y = sorted(
+            cls.fetch_list_of_ux_position_y(
+                category_type=category.category_type,
+                parent_category_id=category.parent_category_id,
+                template_id=category.template_id,
+                ux_position_x=category.ux_position_x,
+            ),
+            reverse=True,
+        )
+        index_of = list_of_ux_position_y.index(category.ux_position_y)
+        if index_of > 0:
+            cls._move_category(category, list_of_ux_position_y[index_of - 1])
 
     @classmethod
     def recommend(
@@ -324,9 +357,7 @@ class DegreeProgressCategory(Base):
         return cls.find_by_id(category_id=category_id)
 
     @classmethod
-    def _move_category(cls, category_id, ux_position_y_delta):
-        # Get category data.
-        category = cls.find_by_id(category_id)
+    def _move_category(cls, category, ux_position_y_target):
         sql = """
             UPDATE degree_progress_categories
             SET ux_position_y = :ux_position_y_target
@@ -341,11 +372,11 @@ class DegreeProgressCategory(Base):
                 AND ux_position_y = :ux_position_y_target;
         """
         params = {
-            'category_id': category_id,
+            'category_id': category.id,
             'template_id': category.template_id,
             'ux_position_x': category.ux_position_x,
             'ux_position_y_existing': category.ux_position_y,
-            'ux_position_y_target': category.ux_position_y + ux_position_y_delta,
+            'ux_position_y_target': ux_position_y_target,
         }
         db.session.execute(text(sql), params)
         std_commit()
