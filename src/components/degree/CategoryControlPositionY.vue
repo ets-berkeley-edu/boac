@@ -1,50 +1,36 @@
 <template>
   <div class="controls-container">
-    <div
-      v-if="isMovingCategory"
-      class="d-flex align-center text-success font-size-14 font-weight-bold"
-    >
-      <v-progress-circular
-        class="mr-2"
-        indeterminate
-        size="16"
-        width="2"
-      />
-      Moving...
-    </div>
-    <v-btn-toggle
-      v-if="!isMovingCategory"
-      class="border-sm btn-control-position-y"
-      color="primary"
+    <v-btn-group
+      class="btn-control-position-y"
+      :color="isMovingDown || isMovingUp ? 'green' : 'primary'"
       density="compact"
       :disabled="!canMoveUp && !canMoveDown"
       divided
       size="sm"
-      variant="flat"
+      variant="outlined"
     >
       <v-btn
         :id="`decrease-position-y-category-${category.id}`"
         :disabled="!canMoveDown || degreeStore.disableButtons"
-        :icon="mdiArrowDownBoldBoxOutline"
+        :icon="isMovingDown ? mdiProgressCheck : mdiArrowDownBoldBoxOutline"
         :title="`Move ${category.categoryType} down`"
         @click="moveDown"
       />
       <v-btn
         :id="`increase-position-y-category-${category.id}`"
-        color="primary"
         :disabled="!canMoveUp || degreeStore.disableButtons"
-        :icon="mdiArrowUpBoldBoxOutline"
+        :icon="isMovingUp ? mdiProgressCheck : mdiArrowUpBoldBoxOutline"
         :title="`Move ${category.categoryType} up`"
         @click="moveUp"
       />
-    </v-btn-toggle>
+    </v-btn-group>
   </div>
 </template>
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {ref} from 'vue'
-import {mdiArrowDownBoldBoxOutline, mdiArrowUpBoldBoxOutline} from '@mdi/js'
+import {mdiArrowDownBoldBoxOutline, mdiArrowUpBoldBoxOutline, mdiProgressCheck} from '@mdi/js'
 import type {Category} from '@/lib/types'
 import {alertScreenReader} from '@/lib/utils'
 import {moveCategoryDown, moveCategoryUp} from '@/api/degree'
@@ -67,27 +53,28 @@ const props = defineProps({
 })
 
 const degreeStore = useDegreeStore()
-const isMovingCategory = ref(false)
+const isMovingDown = ref(false)
+const isMovingUp = ref(false)
 
 const moveDown = () => {
-  isMovingCategory.value = true
+  isMovingDown.value = true
   degreeStore.setDisableButtons(true)
   moveCategoryDown(props.category.id).then(() => {
     refreshDegreeTemplate(degreeStore.templateId).then(() => {
       degreeStore.setDisableButtons(false)
-      isMovingCategory.value = false
+      isMovingDown.value = false
       alertScreenReader(`"Category ${props.category.name}" moved down.`)
     })
   })
 }
 
 const moveUp = () => {
-  isMovingCategory.value = true
+  isMovingUp.value = true
   degreeStore.setDisableButtons(true)
   moveCategoryUp(props.category.id).then(() => {
     refreshDegreeTemplate(degreeStore.templateId).then(() => {
       degreeStore.setDisableButtons(false)
-      isMovingCategory.value = false
+      isMovingUp.value = false
       alertScreenReader(`"Category ${props.category.name}" moved down.`)
     })
   })
@@ -101,5 +88,6 @@ const moveUp = () => {
 }
 .controls-container {
   height: 30px !important;
+  width: 58px !important;
 }
 </style>

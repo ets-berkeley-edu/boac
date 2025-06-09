@@ -17,7 +17,7 @@
       @drop="onDropCourse($event)"
     >
       <div class="align-center d-flex py-1">
-        <div class="mr-2">
+        <div v-if="!printable" class="mr-2">
           <CategoryControlPositionY
             v-if="!degreeStore.sid"
             :can-move-down="canMoveDown"
@@ -111,7 +111,7 @@ import {useDegreeStore} from '@/stores/degree-edit-session/index'
 
 const props = defineProps({
   canMoveDown: {
-    required: true,
+    required: false,
     type: Boolean
   },
   canMoveUp: {
