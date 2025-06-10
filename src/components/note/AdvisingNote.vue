@@ -33,42 +33,7 @@
         <span :id="`note-${note.id}-message-open`" v-html="note.message" />
       </div>
       <div v-if="!note.subject && !note.message && note.eForm" class="pt-2">
-        <dl :id="`note-${note.id}-message-open`">
-          <div class="mb-3">
-            <dt class="font-weight-bold">Term</dt>
-            <dd>{{ termNameForSisId(note.eForm.term) }}</dd>
-          </div>
-          <div class="mb-3">
-            <dt class="font-weight-bold">Course</dt>
-            <dd>{{ note.eForm.sectionId }} {{ note.eForm.courseName }} - {{ note.eForm.courseTitle }} {{ note.eForm.section }}</dd>
-          </div>
-          <div class="mb-3">
-            <dt class="font-weight-bold">Action</dt>
-            <dd>
-              {{ note.eForm.action }}
-              <span v-if="note.eForm.action === 'Late Grading Basis Change' && note.eForm.gradingBasis"> from <span class="font-italic">{{ note.eForm.gradingBasis }}</span></span>
-              <span v-if="note.eForm.action === 'Late Grading Basis Change' && note.eForm.requestedGradingBasis"> to <span class="font-italic">{{ note.eForm.requestedGradingBasis }}</span></span>
-              <span v-if="note.eForm.action === 'Unit Change' && note.eForm.unitsTaken"> from <span class="font-italic">{{ numFormat(note.eForm.unitsTaken, '0.0') }}</span>{{ 1 === toInt(note.eForm.unitsTaken) ? ' unit' : ' units' }}</span>
-              <span v-if="note.eForm.action === 'Unit Change' && note.eForm.requestedUnitsTaken"> to <span class="font-italic">{{ numFormat(note.eForm.requestedUnitsTaken, '0.0') }}</span>{{ 1 === toInt(note.eForm.requestedUnitsTaken) ? ' unit' : ' units' }}</span>
-            </dd>
-          </div>
-          <div class="mb-3">
-            <dt class="font-weight-bold">Form ID</dt>
-            <dd>{{ note.eForm.id }}</dd>
-          </div>
-          <div class="mb-3">
-            <dt class="font-weight-bold">Date Initiated</dt>
-            <dd>{{ DateTime.fromISO(note.createdAt).toFormat('MM/dd/yyyy') }}</dd>
-          </div>
-          <div class="mb-3">
-            <dt class="font-weight-bold">Form Status </dt>
-            <dd>{{ note.eForm.status }}</dd>
-          </div>
-          <div class="mb-3">
-            <dt class="font-weight-bold">Final Date &amp; Time Stamp</dt>
-            <dd>{{ DateTime.fromISO(note.updatedAt).toFormat('MM/dd/yyyy h:mm:ssa') }}</dd>
-          </div>
-        </dl>
+        <AdvisingEForm :note="note" />
       </div>
       <div v-if="isAuthorDetailsLoaded && !isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 pt-2 text-medium-emphasis">
         Advisor profile not found
@@ -160,17 +125,16 @@
 </template>
 
 <script setup>
-import {DateTime} from 'luxon'
 import {computed, onMounted, ref, watch} from 'vue'
 import {get, isNil, isNumber, map, orderBy, replace, size} from 'lodash'
+import AdvisingEForm from '@/components/note/AdvisingEForm'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
-import {alertScreenReader, capitalizeAllWords, numFormat, oxfordJoin, toInt} from '@/lib/utils'
+import {alertScreenReader, capitalizeAllWords, oxfordJoin} from '@/lib/utils'
 import {findPeerAdvisingDepartment, getBoaUserRoles} from '@/lib/berkeley-department'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
-import {termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {summarizeNoteForAcademicTimeline} from '@/lib/note.js'

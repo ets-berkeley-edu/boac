@@ -64,14 +64,14 @@
     </div>
     <StudentAcademicStanding
       v-if="student.academicStanding"
-      class="font-size-14"
+      class="font-size-13"
       :id-prefix="`student-${student.sid}`"
       :standing="student.academicStanding"
     />
     <div
       v-if="displayCoeAcademicStanding(student)"
       :id="`row-${rowIndex}-acad-standing-coe`"
-      class="text-error font-weight-bold font-size-13 text-no-wrap"
+      class="text-error font-weight-bold font-size-13"
     >
       {{ student.coeProfile.acadStatusDescription }} ({{ termNameForSisId(student.coeProfile.acadStatusTermId) }}, COE)
     </div>
