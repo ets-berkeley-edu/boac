@@ -760,11 +760,25 @@ def get_sis_advising_appointments(sid):
     return safe_execute_rds(sql, sid=sid)
 
 
+def get_sis_career_program_plan_eforms(sid):
+    sql = f"""
+        SELECT
+            id, acad_plan_name, created_at, 'student_cpp_change_eforms' AS data_source, degree_expected_term_id,
+            eform_action_description, eform_id, eform_status, eform_type, overlap_course_1, overlap_course_2, overlap_course_3, overlap_course_4,
+            overlap_course_5, program_name, requirement_term_id, sid, student_name, subplan_name,
+            to_academic_plan_name, to_academic_program_name, to_academic_subplan_name, to_degree_expected_term_id,
+            to_requirement_term_id, updated_at
+        FROM {sis_advising_notes_schema()}.student_cpp_change_eforms
+        WHERE sid=%(sid)s
+        ORDER BY created_at, updated_at, id"""
+    return safe_execute_rds(sql, sid=sid)
+
+
 def get_sis_late_drop_eforms(sid):
     sql = f"""
         SELECT
-            id, course_display_name, course_title, created_at, eform_id, eform_status, eform_type,
-            NULLIF(grading_basis_description, ' ') AS grading_basis_description, requested_action,
+            id, course_display_name, course_title, created_at, 'student_late_drop_eforms' AS data_source, eform_id,
+            eform_status, eform_type, NULLIF(grading_basis_description, ' ') AS grading_basis_description, requested_action,
             NULLIF(requested_grading_basis_description, ' ') AS requested_grading_basis_description,
             requested_units_taken, section_id, section_num, sid, student_name, term_id, units_taken, updated_at
         FROM {sis_advising_notes_schema()}.student_late_drop_eforms

@@ -106,8 +106,10 @@ def get_advising_notes(sid, exclude_draft_notes=False):
         note = native_boa_notes[note_id]
         if can_current_user_access_note(note):
             notes_by_id[note_id] = note
-    benchmark('begin SIS late drop eforms  query')
+    benchmark('begin SIS late drop eForms query')
     notes_by_id.update(get_sis_late_drop_eforms(sid))
+    benchmark('begin SIS CPP eForms query')
+    notes_by_id.update(get_sis_career_program_plan_eforms(sid))
     if not notes_by_id.values():
         return None
     notes_read = NoteRead.get_notes_read_by_user(current_user.get_id(), notes_by_id.keys())
@@ -244,6 +246,17 @@ def get_native_boa_notes(sid, exclude_draft_notes=False):
                 topics=[t.to_api_json() for t in row.topics if not t.deleted_at],
             )
     return notes_by_id
+
+
+def get_sis_career_program_plan_eforms(sid):
+    eforms_by_id = {}
+    for eform in data_loch.get_sis_career_program_plan_eforms(sid):
+        eform_id = eform['id']
+        eforms_by_id[eform_id] = {
+            **note_to_compatible_json(eform),
+            **{'legacySource': 'SIS'},
+        }
+    return eforms_by_id
 
 
 def get_sis_late_drop_eforms(sid):
@@ -622,23 +635,52 @@ def note_to_compatible_json(
 
 
 def _eform_to_json(eform):
-    return {
-        'action': eform.get('requested_action'),
-        'courseName': eform.get('course_display_name'),
-        'courseTitle': eform.get('course_title'),
-        'gradingBasis': eform.get('grading_basis_description'),
-        'id': eform.get('eform_id'),
-        'requestedAction': eform['requested_action'],
-        'requestedGradingBasis': eform.get('requested_grading_basis_description'),
-        'requestedUnitsTaken': eform.get('requested_units_taken'),
-        'section': eform.get('section_num'),
-        'sectionId': eform.get('section_id'),
-        'status': eform.get('eform_status'),
-        'term': eform.get('term_id'),
-        'type': eform.get('eform_type'),
-        'unitsTaken': eform.get('units_taken'),
-        'updatedAt': eform.get('updated_at').astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%Y-%m-%d'),
-    }
+    api_json = None
+    if eform.get('data_source') == 'student_late_drop_eforms':
+        api_json = {
+            'action': eform.get('requested_action'),
+            'courseName': eform.get('course_display_name'),
+            'courseTitle': eform.get('course_title'),
+            'dataSource': eform.get('data_source'),
+            'gradingBasis': eform.get('grading_basis_description'),
+            'id': eform.get('eform_id'),
+            'requestedAction': eform['requested_action'],
+            'requestedGradingBasis': eform.get('requested_grading_basis_description'),
+            'requestedUnitsTaken': eform.get('requested_units_taken'),
+            'section': eform.get('section_num'),
+            'sectionId': eform.get('section_id'),
+            'status': eform.get('eform_status'),
+            'term': eform.get('term_id'),
+            'type': eform.get('eform_type'),
+            'unitsTaken': eform.get('units_taken'),
+            'updatedAt': eform.get('updated_at').astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%Y-%m-%d'),
+        }
+    elif eform.get('data_source') == 'student_cpp_change_eforms':
+        overlap_courses = []
+        for index in range(5):
+            overlap_course = (eform.get(f'overlap_course_{index + 1}') or '').strip()
+            if overlap_course:
+                overlap_courses.append(overlap_course)
+        api_json = {
+            'id': eform.get('eform_id'),
+            'academicPlanName': eform.get('acad_plan_name'),
+            'academicSubplanName': eform.get('subplan_name'),
+            'action': eform.get('eform_action_description'),
+            'dataSource': eform.get('data_source'),
+            'degreeExpectedTermId': eform.get('degree_expected_term_id'),
+            'overlapCourses': overlap_courses,
+            'programName': eform.get('program_name'),
+            'requirementTermId': eform.get('requirement_term_id'),
+            'status': eform.get('eform_status'),
+            'toAcademicPlanName': eform.get('to_academic_plan_name'),
+            'toAcademicProgramName': eform.get('to_academic_program_name'),
+            'toAcademicSubplanName': eform.get('to_academic_subplan_name'),
+            'toDegreeExpectedTermId': eform.get('to_degree_expected_term_id'),
+            'toRequirementTermId': eform.get('to_requirement_term_id'),
+            'type': eform.get('eform_type'),
+            'updatedAt': eform.get('updated_at').astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%Y-%m-%d'),
+        }
+    return api_json
 
 
 def _filter_notes(download_type, notes):
