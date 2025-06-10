@@ -32,7 +32,7 @@ import type {PropType} from 'vue'
 import {ref} from 'vue'
 import {mdiArrowDownBoldBoxOutline, mdiArrowUpBoldBoxOutline, mdiProgressCheck} from '@mdi/js'
 import type {Category} from '@/lib/types'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {moveCategoryDown, moveCategoryUp} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useDegreeStore} from '@/stores/degree-edit-session'
@@ -64,6 +64,7 @@ const moveDown = () => {
       degreeStore.setDisableButtons(false)
       isMovingDown.value = false
       alertScreenReader(`"Category ${props.category.name}" moved down.`)
+      putFocusNextTick(`increase-position-y-category-${props.category.id}`)
     })
   })
 }
@@ -76,6 +77,7 @@ const moveUp = () => {
       degreeStore.setDisableButtons(false)
       isMovingUp.value = false
       alertScreenReader(`"Category ${props.category.name}" moved down.`)
+      putFocusNextTick(`decrease-position-y-category-${props.category.id}`)
     })
   })
 }

@@ -69,45 +69,47 @@
         :existing-category="category"
         :ux-position-x="uxPositionX"
       />
-      <div v-if="!category.subcategories.length" class="mt-4">
-        <CoursesTable
-          :id="`column-${uxPositionX}-category-${category.id}-courses`"
-          :items="getItemsForCoursesTable(category)"
-          :parent-category="category"
-          :ux-position-x="uxPositionX"
-        />
-      </div>
-      <div v-if="category.subcategories.length">
-        <div
-          v-for="(subcategory, subcategoryIndex) in category.subcategories"
-          :id="`column-${uxPositionX}-subcategory-${subcategory.id}`"
-          :key="subcategory.id"
-          class="mt-6"
-        >
-          <Category
-            v-if="subcategory.id !== get(categoryForEdit, 'id')"
-            :key="`cat-${subcategory.id}`"
-            :can-move-down="subcategoryIndex < category.subcategories.length - 1"
-            :can-move-up="subcategoryIndex > 0"
-            :category="subcategory"
-            class="w-100"
-            :on-click-edit="edit"
+      <div class="pb-1 pl-1">
+        <div v-if="!category.subcategories.length" class="mt-4">
+          <CoursesTable
+            :id="`column-${uxPositionX}-category-${category.id}-courses`"
+            :items="getItemsForCoursesTable(category)"
+            :parent-category="category"
             :ux-position-x="uxPositionX"
           />
-          <EditCategory
-            v-if="subcategory.id === get(categoryForEdit, 'id')"
-            :after-cancel="onExitEditCategory"
-            :after-save="onExitEditCategory"
-            :existing-category="subcategory"
-            :ux-position-x="uxPositionX"
-          />
-          <div class="mt-3">
-            <CoursesTable
-              :id="`column-${uxPositionX}-subcategory-${subcategory.id}-courses`"
-              :items="getItemsForCoursesTable(subcategory)"
-              :parent-category="subcategory"
+        </div>
+        <div v-if="category.subcategories.length">
+          <div
+            v-for="(subcategory, subcategoryIndex) in category.subcategories"
+            :id="`column-${uxPositionX}-subcategory-${subcategory.id}`"
+            :key="subcategory.id"
+            class="mt-6"
+          >
+            <Category
+              v-if="subcategory.id !== get(categoryForEdit, 'id')"
+              :key="`cat-${subcategory.id}`"
+              :can-move-down="subcategoryIndex < category.subcategories.length - 1"
+              :can-move-up="subcategoryIndex > 0"
+              :category="subcategory"
+              class="w-100"
+              :on-click-edit="edit"
               :ux-position-x="uxPositionX"
             />
+            <EditCategory
+              v-if="subcategory.id === get(categoryForEdit, 'id')"
+              :after-cancel="onExitEditCategory"
+              :after-save="onExitEditCategory"
+              :existing-category="subcategory"
+              :ux-position-x="uxPositionX"
+            />
+            <div class="mt-3">
+              <CoursesTable
+                :id="`column-${uxPositionX}-subcategory-${subcategory.id}-courses`"
+                :items="getItemsForCoursesTable(subcategory)"
+                :parent-category="subcategory"
+                :ux-position-x="uxPositionX"
+              />
+            </div>
           </div>
         </div>
       </div>
