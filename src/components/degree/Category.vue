@@ -49,24 +49,26 @@
             :id="`column-${uxPositionX}-edit-category-${category.id}-btn`"
             :aria-label="`Edit ${category.name}`"
             :class="{'text-primary': !degreeStore.disableButtons}"
-            class="action-btn"
+            :color="degreeStore.disableButtons ? 'grey' : 'transparent'"
             density="compact"
             :disabled="degreeStore.disableButtons"
             flat
             :icon="mdiNoteEditOutline"
             size="small"
+            variant="text"
             @click.prevent="edit"
           />
           <v-btn
             :id="`column-${uxPositionX}-delete-category-${category.id}-btn`"
             :aria-label="`Delete ${category.name}`"
             :class="{'text-primary': !degreeStore.disableButtons}"
-            class="action-btn"
+            :color="degreeStore.disableButtons ? 'grey' : 'transparent'"
             density="compact"
             :disabled="degreeStore.disableButtons"
             flat
             :icon="mdiTrashCan"
             size="small"
+            variant="text"
             @click="deleteDegreeCategory"
           />
         </div>
@@ -224,11 +226,13 @@ const onDropCourse = event => {
   padding: 0;
 }
 .drop-zone-container-category {
+  background-color: rgb(var(--v-theme-surface-light));
   border-left: 3px solid rgb(var(--v-theme-primary));
   padding: 0 0 0 0.5em;
   margin: 0.2em 0 0.2em 0;
 }
 .drop-zone-container-subcategory {
+  background-color: rgb(var(--v-theme-light-grey));
   border-left: 3px solid rgb(var(--v-theme-secondary));
   padding: 0 0 0 0.5em;
   margin: 0.2em 0 0.2em 0;

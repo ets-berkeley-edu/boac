@@ -129,26 +129,28 @@
                     :id="`unit-requirement-${item.id}-edit-btn`"
                     :aria-label="`Edit ${item.name}`"
                     :class="{'text-primary': !degreeStore.disableButtons}"
-                    color="transparent"
+                    :color="degreeStore.disableButtons ? 'grey' : 'transparent'"
                     density="compact"
                     :disabled="degreeStore.disableButtons"
                     flat
                     :icon="mdiNoteEditOutline"
                     size="small"
                     title="Edit"
+                    variant="text"
                     @click.prevent="() => onClickEdit(item)"
                   />
                   <v-btn
                     :id="`unit-requirement-${item.id}-delete-btn`"
                     :aria-label="`Delete ${item.name}`"
                     :class="{'text-primary': !degreeStore.disableButtons}"
-                    color="transparent"
+                    :color="degreeStore.disableButtons ? 'grey' : 'transparent'"
                     density="compact"
                     :disabled="degreeStore.disableButtons"
                     flat
                     :icon="mdiTrashCan"
                     size="small"
                     title="Delete"
+                    variant="text"
                     @click.prevent="onClickDelete(item)"
                   />
                 </div>
