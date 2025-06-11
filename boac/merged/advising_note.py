@@ -662,24 +662,37 @@ def _eform_to_json(eform):
             if overlap_course:
                 overlap_courses.append(overlap_course)
         api_json = {
-            'id': eform.get('eform_id'),
-            'academicPlanName': eform.get('acad_plan_name'),
-            'academicSubplanName': eform.get('subplan_name'),
-            'action': eform.get('eform_action_description'),
-            'dataSource': eform.get('data_source'),
-            'degreeExpectedTermId': eform.get('degree_expected_term_id'),
+            'id': eform['eform_id'],
+            'academicCareerCode': eform['academic_career_code'],
+            'academicPlanCode': eform['academic_plan_code'],
+            'academicPlanName': eform['academic_plan_name'],
+            'academicPlanTypeDescription': eform['academic_plan_type_description'],
+            'academicProgramCode': eform['academic_program_code'],
+            'academicProgramName': eform['academic_program_name'],
+            'academicSubplanCode': eform['academic_subplan_code'],
+            'academicSubplanName': eform['academic_subplan_name'],
+            'action': eform['eform_action_description'],
+            'dataSource': eform['data_source'],
+            'degreeExpectedTermId': eform['degree_expected_term_id'],
             'overlapCourses': overlap_courses,
-            'programName': eform.get('program_name'),
-            'requirementTermId': eform.get('requirement_term_id'),
-            'status': eform.get('eform_status'),
-            'toAcademicPlanName': eform.get('to_academic_plan_name'),
-            'toAcademicProgramName': eform.get('to_academic_program_name'),
-            'toAcademicSubplanName': eform.get('to_academic_subplan_name'),
-            'toDegreeExpectedTermId': eform.get('to_degree_expected_term_id'),
-            'toRequirementTermId': eform.get('to_requirement_term_id'),
-            'type': eform.get('eform_type'),
-            'updatedAt': eform.get('updated_at').astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%Y-%m-%d'),
+            'requirementTermId': eform['requirement_term_id'],
+            'status': eform['eform_status'],
+            'toAcademicPlanCode': eform['to_academic_plan_code'],
+            'toAcademicPlanName': eform['to_academic_plan_name'],
+            'toAcademicPlanRequirementTermId': eform['to_academic_plan_requirement_term_id'],
+            'toAcademicProgramCode': eform['to_academic_program_code'],
+            'toAcademicProgramName': eform['to_academic_program_name'],
+            'toAcademicSubplanCode': eform['to_academic_subplan_code'],
+            'toAcademicSubplanName': eform['to_academic_subplan_name'],
+            'toAcademicSubplanRequirementTermId': eform['to_academic_subplan_requirement_term_id'],
+            'toDegreeExpectedTermId': eform['to_degree_expected_term_id'],
+            'toRequirementTermId': eform['to_requirement_term_id'],
+            'type': eform['eform_type'],
+            'updatedAt': eform['updated_at'].astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%Y-%m-%d'),
         }
+        for key, value in api_json.items():
+            if isinstance(value, str):
+                api_json[key] = value.strip()
     return api_json
 
 
