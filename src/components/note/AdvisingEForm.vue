@@ -1,42 +1,45 @@
 <template>
   <dl :id="`note-${note.id}-message-open`">
-    <div v-if="note.eForm.requirementTermId" class="mb-3">
-      <dt class="font-weight-bold">Requirement Term</dt>
-      <dd>
-        {{ termNameForSisId(note.eForm.requirementTermId) }}
-        <span v-if="trim(note.eForm.toRequirementTermId)"> to {{ termNameForSisId(note.eForm.toRequirementTermId) }}</span>
-      </dd>
-    </div>
-    <div v-if="note.eForm.degreeExpectedTermId" class="mb-3">
-      <dt class="font-weight-bold">Degree Expected Term</dt>
-      <dd>
-        {{ termNameForSisId(note.eForm.degreeExpectedTermId) }}
-        <span v-if="trim(note.eForm.toDegreeExpectedTermId)"> to {{ termNameForSisId(note.eForm.toDegreeExpectedTermId) }}</span>
-      </dd>
-    </div>
     <div v-if="note.eForm.dataSource === 'student_cpp_change_eforms'">
-      <div v-if="note.eForm.programName" class="mb-3">
-        <dt class="font-weight-bold">Program Name</dt>
+      <div v-if="trim(note.eForm.type)" class="mb-3">
+        <dt class="font-weight-bold">eForm Type</dt>
+        <dd>
+          {{ note.eForm.type }}
+        </dd>
+      </div>
+      <div v-if="note.eForm.academicProgramName" class="mb-3">
+        <dt class="font-weight-bold">Academic Program</dt>
         <dd :id="`note-${note.id}-eform-program-name`">
-          {{ note.eForm.programName }}<span v-if="note.eForm.toAcademicProgramName"> to {{ note.eForm.toAcademicProgramName }}</span>
+          {{ note.eForm.academicProgramName }} ({{ note.eForm.academicCareerCode }})
+          <span v-if="note.eForm.toAcademicProgramName">(requesting {{ note.eForm.toAcademicProgramName }}.</span>
+        </dd>
+      </div>
+      <div v-if="note.eForm.degreeExpectedTermId" class="mb-3">
+        <dt class="font-weight-bold">Expected Graduation Term</dt>
+        <dd>
+          {{ termNameForSisId(note.eForm.degreeExpectedTermId) }}
+          <span v-if="note.eForm.toDegreeExpectedTermId">(requesting {{ termNameForSisId(note.eForm.toDegreeExpectedTermId) }})</span>
         </dd>
       </div>
       <div v-if="note.eForm.academicPlanName" class="mb-3">
         <dt class="font-weight-bold">Academic Plan</dt>
         <dd :id="`note-${note.id}-eform-academic-plan-name`">
-          {{ note.eForm.academicPlanName }}<span v-if="note.eForm.toAcademicPlanName"> to {{ note.eForm.toAcademicPlanName }}</span>
+          {{ note.eForm.academicPlanName }}
+          <span v-if="note.eForm.academicPlanTypeDescription">({{ note.eForm.academicPlanTypeDescription }})</span>
+          <span v-if="note.eForm.toAcademicPlanName">and is requesting {{ note.eForm.toAcademicPlanName }}.</span>
         </dd>
       </div>
       <div v-if="note.eForm.academicSubplanName" class="mb-3">
         <dt class="font-weight-bold">Academic Subplan</dt>
         <dd :id="`note-${note.id}-eform-academic-subplan-name`">
-          {{ note.eForm.academicSubplanName }}<span v-if="note.eForm.toAcademicSubplanName"> to {{ note.eForm.toAcademicSubplanName }}</span>
+          {{ note.eForm.academicSubplanName }}
+          <span v-if="note.eForm.toAcademicSubplanName">(requesting {{ note.eForm.toAcademicSubplanName }}<span v-if="note.eForm.toAcademicSubplanRequirementTermId"> for {{ note.eForm.toAcademicSubplanRequirementTermId }}</span>)</span>
         </dd>
       </div>
       <div v-if="note.eForm.overlapCourses.length" class="mb-3">
         <dt class="font-weight-bold">Overlap Course{{ note.eForm.overlapCourses.length === 1 ? '' : 's' }}</dt>
         <dd :id="`note-${note.id}-eform-overlap-courses`">
-          <ul>
+          <ul class="ml-5">
             <li
               v-for="(overlapCourse, index) in note.eForm.overlapCourses"
               :key="index"
@@ -44,7 +47,6 @@
               {{ overlapCourse }}
             </li>
           </ul>
-          {{ note.eForm.academicSubplanName }}<span v-if="note.eForm.toAcademicSubplanName"> to {{ note.eForm.toAcademicSubplanName }}</span>
         </dd>
       </div>
     </div>

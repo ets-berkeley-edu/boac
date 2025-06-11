@@ -763,11 +763,14 @@ def get_sis_advising_appointments(sid):
 def get_sis_career_program_plan_eforms(sid):
     sql = f"""
         SELECT
-            id, acad_plan_name, created_at, 'student_cpp_change_eforms' AS data_source, degree_expected_term_id,
-            eform_action_description, eform_id, eform_status, eform_type, overlap_course_1, overlap_course_2, overlap_course_3, overlap_course_4,
-            overlap_course_5, program_name, requirement_term_id, sid, student_name, subplan_name,
-            to_academic_plan_name, to_academic_program_name, to_academic_subplan_name, to_degree_expected_term_id,
-            to_requirement_term_id, updated_at
+            id, academic_career_code, academic_plan_code, academic_plan_name, academic_plan_type_description,
+            academic_program_code, academic_program_name, academic_subplan_code, academic_subplan_name, created_at,
+            'student_cpp_change_eforms' AS data_source, degree_expected_term_id, eform_action_description, eform_id,
+            eform_status, eform_type, overlap_course_1, overlap_course_2, overlap_course_3, overlap_course_4,
+            overlap_course_5, requirement_term_id, sid, student_name, to_academic_plan_code,
+            to_academic_plan_requirement_term_id, to_academic_plan_name, to_academic_program_code,
+            to_academic_program_name, to_academic_subplan_code, to_academic_subplan_name,
+            to_academic_subplan_requirement_term_id, to_degree_expected_term_id, to_requirement_term_id, updated_at
         FROM {sis_advising_notes_schema()}.student_cpp_change_eforms
         WHERE sid=%(sid)s
         ORDER BY created_at, updated_at, id"""

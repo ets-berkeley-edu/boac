@@ -423,8 +423,14 @@ CREATE TABLE sis_advising_notes.advising_note_topic_mappings (
 
 CREATE TABLE sis_advising_notes.student_cpp_change_eforms (
     id VARCHAR,
-    acad_plan_name VARCHAR,
-    career_code VARCHAR,
+    academic_career_code VARCHAR,
+    academic_plan_code VARCHAR,
+    academic_plan_name VARCHAR,
+    academic_plan_type_description VARCHAR,
+    academic_program_code VARCHAR,
+    academic_program_name VARCHAR,
+    academic_subplan_code VARCHAR,
+    academic_subplan_name VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE,
     degree_expected_term_id VARCHAR(4),
     eform_action_code VARCHAR,
@@ -437,23 +443,17 @@ CREATE TABLE sis_advising_notes.student_cpp_change_eforms (
     overlap_course_3 VARCHAR,
     overlap_course_4 VARCHAR,
     overlap_course_5 VARCHAR,
-    plan_code VARCHAR,
-    plan_type_description VARCHAR,
-    program_code VARCHAR,
-    program_name VARCHAR,
     requirement_term_id VARCHAR(4),
-    sid VARCHAR,
+    sid VARCHAR NOT NULL,
     student_name VARCHAR,
-    subplan_code VARCHAR,
-    subplan_name VARCHAR,
     to_academic_plan_code VARCHAR,
     to_academic_plan_name VARCHAR,
-    to_academic_plan_req_term VARCHAR,
+    to_academic_plan_requirement_term_id VARCHAR(4),
     to_academic_program_code VARCHAR,
     to_academic_program_name VARCHAR,
     to_academic_subplan_code VARCHAR,
     to_academic_subplan_name VARCHAR,
-    to_academic_subplan_req_term VARCHAR,
+    to_academic_subplan_requirement_term_id VARCHAR(4),
     to_degree_expected_term_id VARCHAR(4),
     to_requirement_term_id VARCHAR(4),
     updated_at TIMESTAMP WITH TIME ZONE
@@ -1001,13 +1001,13 @@ VALUES
 ('11667051-00010', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051-00010_1.pdf', '11667051-00010_1.pdf');
 
 INSERT INTO sis_advising_notes.student_cpp_change_eforms
-(id, acad_plan_name, career_code, created_at, degree_expected_term_id, eform_action_code, eform_action_description, eform_id, eform_status, eform_type, overlap_course_1, overlap_course_2, plan_code, plan_type_description, program_code, program_name, requirement_term_id, sid, student_name, subplan_code, subplan_name, to_academic_plan_code, to_academic_plan_name, to_academic_plan_req_term, to_academic_program_code, to_academic_program_name, to_academic_subplan_code, to_academic_subplan_name, to_academic_subplan_req_term, to_degree_expected_term_id, to_requirement_term_id, updated_at)
+(id, academic_career_code, academic_plan_name, created_at, degree_expected_term_id, eform_action_code, eform_action_description, eform_id, eform_status, eform_type, overlap_course_1, overlap_course_2, academic_plan_code, academic_plan_type_description, academic_program_code, academic_program_name, requirement_term_id, sid, student_name, academic_subplan_code, academic_subplan_name, to_academic_plan_code, to_academic_plan_name, to_academic_plan_requirement_term_id, to_academic_program_code, to_academic_program_name, to_academic_subplan_code, to_academic_subplan_name, to_academic_subplan_requirement_term_id, to_degree_expected_term_id, to_requirement_term_id, updated_at)
 VALUES
-('eform-12', 'Ethnic Studies BA', 'UGRD', now(), '', 'UNMJ', 'Declare Major', 22656, 'Executed', 'CPPSTACK', NULL, NULL, '25360U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '22945418', 'Topl Rauete', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now()),
-('eform-10', 'Comp and Genomic Biology DE', 'GRAD', now(), NULL, 'GADE', 'Add Plan', 22664, 'Executed', 'CPPSTACK', NULL, NULL, '00E002G', 'Major', 'GACAD', 'Graduate Academic Programs', '2168', '22787365', 'Sonis Denun', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now()),
-('eform-28', 'Economics BA', 'UGRD', now(), NULL, 'UAMJ', 'Add Plan', 22610, 'Withdrawn', 'CPPSTACK', NULL, NULL, '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '25920103', 'Sananvataratcha Prananont', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now()),
-('eform-5', 'Economics BA', 'UGRD', now(), NULL, 'UCMJ', 'Change Plan', 22615, 'Executed', 'CPPSTACK', NULL, NULL, '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '42994232', 'Zhing Yiju', NULL, NULL, '25891U', 'Statistics BA', '2168', ' ', NULL ,' ', NULL, ' ', NULL, NULL, now()),
-('eform-29', 'Economics BA', 'UGRD', now(), NULL, 'UAMJ', 'Add Plan', 22633, 'Withdrawn', 'CPPSTACK', 'none', 'none', '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '25201039', 'Pratcha Sananvatananont', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now());
+('eform-12', 'UGRD', 'Ethnic Studies BA', now(), '', 'UNMJ', 'Declare Major', 22656, 'Executed', 'CPPSTACK', NULL, NULL, '25360U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '22945418', 'Topl Rauete', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now()),
+('eform-10', 'GRAD', 'Comp and Genomic Biology DE', now(), NULL, 'GADE', 'Add Plan', 22664, 'Executed', 'CPPSTACK', NULL, NULL, '00E002G', 'Major', 'GACAD', 'Graduate Academic Programs', '2168', '22787365', 'Sonis Denun', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now()),
+('eform-28', 'UGRD', 'Economics BA', now(), NULL, 'UAMJ', 'Add Plan', 22610, 'Withdrawn', 'CPPSTACK', NULL, NULL, '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '25920103', 'Sananvataratcha Prananont', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now()),
+('eform-5', 'UGRD', 'Economics BA', now(), NULL, 'UCMJ', 'Change Plan', 22615, 'Executed', 'CPPSTACK', NULL, NULL, '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '42994232', 'Zhing Yiju', NULL, NULL, '25891U', 'Statistics BA', '2168', ' ', NULL ,' ', NULL, ' ', NULL, NULL, now()),
+('eform-29', 'UGRD', 'Economics BA', now(), NULL, 'UAMJ', 'Add Plan', 22633, 'Withdrawn', 'CPPSTACK', 'none', 'none', '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '25201039', 'Pratcha Sananvatananont', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now());
 
 INSERT INTO sis_advising_notes.student_late_drop_eforms
 (id, career_code, course_display_name, course_title, created_at, edl_load_date, eform_id, eform_status, eform_type, grading_basis_code, grading_basis_description, requested_action, requested_grading_basis_code, requested_grading_basis_description, requested_units_taken, section_id, section_num, sid, student_name, term_id, units_taken, updated_at)
