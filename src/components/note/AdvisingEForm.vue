@@ -2,11 +2,17 @@
   <dl :id="`note-${note.id}-message-open`">
     <div v-if="note.eForm.requirementTermId" class="mb-3">
       <dt class="font-weight-bold">Requirement Term</dt>
-      <dd>{{ termNameForSisId(note.eForm.requirementTermId) }}<span v-if="note.eForm.toRequirementTermId"> to {{ termNameForSisId(note.eForm.toRequirementTermId) }}</span></dd>
+      <dd>
+        {{ termNameForSisId(note.eForm.requirementTermId) }}
+        <span v-if="trim(note.eForm.toRequirementTermId)"> to {{ termNameForSisId(note.eForm.toRequirementTermId) }}</span>
+      </dd>
     </div>
     <div v-if="note.eForm.degreeExpectedTermId" class="mb-3">
       <dt class="font-weight-bold">Degree Expected Term</dt>
-      <dd>{{ termNameForSisId(note.eForm.degreeExpectedTermId) }}<span v-if="note.eForm.toDegreeExpectedTermId"> to {{ termNameForSisId(note.eForm.toDegreeExpectedTermId) }}</span></dd>
+      <dd>
+        {{ termNameForSisId(note.eForm.degreeExpectedTermId) }}
+        <span v-if="trim(note.eForm.toDegreeExpectedTermId)"> to {{ termNameForSisId(note.eForm.toDegreeExpectedTermId) }}</span>
+      </dd>
     </div>
     <div v-if="note.eForm.dataSource === 'student_cpp_change_eforms'">
       <div v-if="note.eForm.programName" class="mb-3">
@@ -70,15 +76,20 @@
       <dt class="font-weight-bold">Form Status </dt>
       <dd>{{ note.eForm.status }}</dd>
     </div>
-    <div class="mb-3">
+    <div v-if="note.eForm.dataSource === 'student_late_drop_eforms'" class="mb-3">
       <dt class="font-weight-bold">Final Date &amp; Time Stamp</dt>
       <dd>{{ DateTime.fromISO(note.updatedAt).toFormat('MM/dd/yyyy h:mm:ssa') }}</dd>
+    </div>
+    <div v-if="note.eForm.dataSource !== 'student_late_drop_eforms'" class="mb-3">
+      <dt class="font-weight-bold">Last Updated</dt>
+      <dd>{{ DateTime.fromISO(note.updatedAt).toFormat('MM/dd/yyyy') }}</dd>
     </div>
   </dl>
 </template>
 
 <script setup lang="ts">
 import {DateTime} from 'luxon'
+import {trim} from 'lodash'
 import {numFormat, toInt} from '@/lib/utils'
 import {termNameForSisId} from '@/lib/berkeley-utils'
 
