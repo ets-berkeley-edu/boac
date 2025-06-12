@@ -550,7 +550,7 @@ const showDownloadNotesLink = computed(() => {
     const notes = messagesPerType('note')
     return find(notes, n => !n.isDraft)
   }
-  return ['eForm', 'note'].includes(props.selectedFilter)
+  return props.selectedFilter === 'note'
     && (currentUser.isAdmin || isDirector(currentUser))
     && hasNonDrafts()
 })
@@ -934,7 +934,7 @@ table {
 .column-pill {
   vertical-align: top;
   white-space: nowrap;
-  width: 7.5rem;
+  width: 8.0rem;
 }
 .expanded-timeline-container {
   position: absolute;

@@ -22,14 +22,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-import csv
-from io import TextIOWrapper
 import re
-import zipfile
 
 from bea.pages.create_note_modal import CreateNoteModal
 from bea.pages.student_page_timeline import StudentPageTimeline
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
 
@@ -41,7 +37,6 @@ class StudentPageEForm(StudentPageTimeline, CreateNoteModal):
     E_FORMS_BUTTON = (By.ID, 'timeline-tab-eForm')
     SHOW_HIDE_E_FORMS_BUTTON = (By.ID, 'toggle-expand-all-eForms')
     E_FORM_MSG_ROW = By.XPATH, '//tr[contains(@id, "permalink-eForm-")]'
-    E_FORMS_DOWNLOAD_LINK = (By.ID, 'download-notes-link')
 
     def show_e_forms(self):
         app.logger.info('Checking eForms tab')
@@ -100,53 +95,3 @@ class StudentPageEForm(StudentPageTimeline, CreateNoteModal):
 
     def expanded_e_form_term(self, e_form):
         return self.el_text_if_exists(self.e_form_data_loc(e_form, 'Term'))
-
-    # Downloads
-
-    def e_forms_export_zip_file_name(self, student):
-        return self.export_zip_file_name(student, 'eForms')
-
-    def e_forms_export_csv_file_name(self, student):
-        return self.export_csv_file_name(student, 'eForms')
-
-    def download_e_forms(self, student):
-        app.logger.info(f'Downloading eForms for UID {student.uid}')
-        self.download_file(self.E_FORMS_DOWNLOAD_LINK, self.e_forms_export_zip_file_name(student))
-
-    def e_form_export_file_names(self, student):
-        return self.downloaded_zip_file_name_list(self.e_forms_export_zip_file_name(student))
-
-    def expected_e_form_export_file_names(self, student):
-        return [self.e_forms_export_csv_file_name(student)]
-
-    def verify_e_form_in_export_csv(self, student, e_form):
-        file_path = f'{utils.default_download_dir()}/{self.e_forms_export_zip_file_name(student)}'
-        with zipfile.ZipFile(file_path, 'r') as zip_file:
-            with zip_file.open(self.e_forms_export_csv_file_name(student)) as csv_file:
-                csv_reader = csv.DictReader(TextIOWrapper(csv_file))
-                rows = list(csv_reader)
-                for row in rows:
-                    try:
-                        assert row['created_date'] == e_form.created_date.strftime('%Y-%m-%d')
-                        assert row['student_sid'] == int(student.sid)
-                        assert row['student_name'] == student.full_name
-                        assert row['eform_id'] == e_form.form_id
-                        if e_form.action:
-                            assert row['late_change_request_action'] == e_form.action
-                        if e_form.grading_basis:
-                            assert row['grading_basis'] == e_form.grading_basis
-                        if e_form.requested_grading_basis:
-                            assert row['requested_grading_basis'] == e_form.requested_grading_basis
-                        if e_form.units_taken:
-                            assert row['units_taken'] == e_form.units_taken
-                        if e_form.requested_units_taken:
-                            assert row['requested_units_taken'] == e_form.requested_units_taken
-                        if e_form.status:
-                            assert row['late_change_request_status'] == e_form.status
-                        if e_form.term:
-                            assert row['late_change_request_term'] == e_form.term
-                        assert row['late_change_request_course'] == e_form.course
-                        return True
-                    except AssertionError:
-                        if row == rows[-1]:
-                            return False
