@@ -32,7 +32,7 @@ from os import path
 import re
 
 from boac.externals import data_loch, s3
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, is_peer_advisor_manager, term_name_for_sis_id
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, is_peer_advisor_manager
 from boac.lib.sis_advising import (
     get_legacy_attachment_stream,
     get_sis_advising_attachments,
@@ -462,7 +462,6 @@ def get_zip_stream(
         student,
 ):
     app_timezone = pytz.timezone(app.config['TIMEZONE'])
-    is_eforms_download = download_type == 'eForm'
     notes = _filter_notes(download_type, notes)
 
     def iter_csv():
@@ -472,38 +471,19 @@ def get_zip_stream(
             return csv_output.getvalue().encode('utf-8')
             csv_output.close()
 
-        if is_eforms_download:
-            csv_headers = [
-                'student_sid',
-                'student_name',
-                'eform_id',
-                'eform_type',
-                'requested_action',
-                'grading_basis',
-                'requested_grading_basis',
-                'units_taken',
-                'requested_units_taken',
-                'late_change_request_action',
-                'late_change_request_status',
-                'late_change_request_term',
-                'late_change_request_course',
-                'date_created',
-                'updated_at',
-            ]
-        else:
-            csv_headers = [
-                'date_created',
-                'student_sid',
-                'student_name',
-                'author_uid',
-                'author_csid',
-                'author_name',
-                'subject',
-                'body',
-                'topics',
-                'attachments',
-                'is_private',
-            ]
+        csv_headers = [
+            'date_created',
+            'student_sid',
+            'student_name',
+            'author_uid',
+            'author_csid',
+            'author_name',
+            'subject',
+            'body',
+            'topics',
+            'attachments',
+            'is_private',
+        ]
 
         yield csv_line(csv_headers)
 
@@ -513,49 +493,27 @@ def get_zip_stream(
             datetime_created = pytz.utc.localize(datetime.strptime(timestamp_created, '%Y-%m-%dT%H:%M:%S'))
             localized_created_at = datetime_created.astimezone(app_timezone).strftime('%Y-%m-%d')
 
-            if is_eforms_download:
-                e_form = note.get('eForm')
-                section_id = e_form.get('sectionId')
-                course = f"{e_form['sectionId']} {e_form['courseName']} - {e_form['courseTitle']} {e_form['section']}" if section_id else None
-                column_data = [
-                    student['sid'],
-                    join_if_present(' ', [student.get('first_name', ''), student.get('last_name', '')]),
-                    e_form.get('id'),
-                    e_form.get('type'),
-                    e_form.get('requestedAction'),
-                    e_form.get('gradingBasis'),
-                    e_form.get('requestedGradingBasis'),
-                    e_form.get('unitsTaken'),
-                    e_form.get('requestedUnitsTaken'),
-                    e_form.get('action'),
-                    e_form.get('status'),
-                    term_name_for_sis_id(e_form.get('term')),
-                    course,
-                    localized_created_at,
-                    e_form.get('updatedAt'),
-                ]
-            else:
-                author_sids = [n['author']['sid'] for n in notes if n['author']['sid'] and not n['author']['name']]
-                author_sids = list(set(author_sids))
-                supplemental_calnet_advisor_feeds = get_calnet_users_for_csids(app, author_sids)
-                author = supplemental_calnet_advisor_feeds.get(note['author']['sid']) or {}
-                author_name = author.get('name') or join_if_present(' ', [author.get('firstName'), author.get('lastName')])
-                author_uid = author.get('uid')
+            author_sids = [n['author']['sid'] for n in notes if n['author']['sid'] and not n['author']['name']]
+            author_sids = list(set(author_sids))
+            supplemental_calnet_advisor_feeds = get_calnet_users_for_csids(app, author_sids)
+            author = supplemental_calnet_advisor_feeds.get(note['author']['sid']) or {}
+            author_name = author.get('name') or join_if_present(' ', [author.get('firstName'), author.get('lastName')])
+            author_uid = author.get('uid')
 
-                omit_note_body = note.get('isPrivate') and not current_user.can_access_private_notes
-                column_data = [
-                    localized_created_at,
-                    student['sid'],
-                    join_if_present(' ', [student.get('first_name', ''), student.get('last_name', '')]),
-                    (note['author']['uid'] or author_uid),
-                    note['author']['sid'],
-                    (note['author']['name'] or author_name),
-                    note['subject'],
-                    '' if omit_note_body else note['body'],
-                    '; '.join([t for t in note['topics'] or []]),
-                    '' if omit_note_body else '; '.join([a['displayName'] for a in note['attachments'] or []]),
-                    note.get('isPrivate'),
-                ]
+            omit_note_body = note.get('isPrivate') and not current_user.can_access_private_notes
+            column_data = [
+                localized_created_at,
+                student['sid'],
+                join_if_present(' ', [student.get('first_name', ''), student.get('last_name', '')]),
+                (note['author']['uid'] or author_uid),
+                note['author']['sid'],
+                (note['author']['name'] or author_name),
+                note['subject'],
+                '' if omit_note_body else note['body'],
+                '; '.join([t for t in note['topics'] or []]),
+                '' if omit_note_body else '; '.join([a['displayName'] for a in note['attachments'] or []]),
+                note.get('isPrivate'),
+            ]
             yield csv_line(column_data)
 
     z = zipstream.ZipFile(mode='w', compression=zipstream.ZIP_DEFLATED)
