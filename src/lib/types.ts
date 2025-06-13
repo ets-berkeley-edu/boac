@@ -203,6 +203,7 @@ export type DraggingContext = {
 
 export type EForm = {
   action: string,
+  dataSource: string,
   status: string
 }
 
