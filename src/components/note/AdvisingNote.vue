@@ -127,7 +127,7 @@
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {get, isNil, isNumber, map, orderBy, replace, size} from 'lodash'
-import AdvisingEForm from '@/components/note/AdvisingEForm'
+import AdvisingEForm from '@/components/note/eform/AdvisingEForm'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'

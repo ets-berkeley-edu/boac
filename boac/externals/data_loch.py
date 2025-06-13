@@ -777,6 +777,20 @@ def get_sis_career_program_plan_eforms(sid):
     return safe_execute_rds(sql, sid=sid)
 
 
+def get_sis_reduced_course_load_eforms(sid):
+    sql = f"""
+        SELECT
+            id, academic_career_code, academic_standing_status, academic_standing_description,
+            request_type || ' (' || request_type_description || ')' AS action,
+            'student_course_load_eforms' AS data_source, eform_id, eform_last_user_uid, eform_last_user_name,
+            eform_orig_user_name, eform_status, eform_type, request_type, request_type_description,
+            requested_reduced_units, sid, term_enrolled_units, term_id, term_waitlist_units, created_at, updated_at
+        FROM {sis_advising_notes_schema()}.student_course_load_eforms
+        WHERE sid=%(sid)s
+        ORDER BY created_at, updated_at, id"""
+    return safe_execute_rds(sql, sid=sid)
+
+
 def get_sis_late_drop_eforms(sid):
     sql = f"""
         SELECT

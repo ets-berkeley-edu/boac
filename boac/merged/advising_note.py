@@ -106,10 +106,13 @@ def get_advising_notes(sid, exclude_draft_notes=False):
         note = native_boa_notes[note_id]
         if can_current_user_access_note(note):
             notes_by_id[note_id] = note
-    benchmark('begin SIS late drop eForms query')
+    benchmark('begin SIS "Late Drop" eForms query')
     notes_by_id.update(get_sis_late_drop_eforms(sid))
-    benchmark('begin SIS CPP eForms query')
+    benchmark('begin SIS "Career Program Plan" eForms query')
     notes_by_id.update(get_sis_career_program_plan_eforms(sid))
+    benchmark('begin SIS "Reduced Course Load" eForms query')
+    notes_by_id.update(get_sis_reduced_course_load_eforms(sid))
+
     if not notes_by_id.values():
         return None
     notes_read = NoteRead.get_notes_read_by_user(current_user.get_id(), notes_by_id.keys())
@@ -251,6 +254,17 @@ def get_native_boa_notes(sid, exclude_draft_notes=False):
 def get_sis_career_program_plan_eforms(sid):
     eforms_by_id = {}
     for eform in data_loch.get_sis_career_program_plan_eforms(sid):
+        eform_id = eform['id']
+        eforms_by_id[eform_id] = {
+            **note_to_compatible_json(eform),
+            **{'legacySource': 'SIS'},
+        }
+    return eforms_by_id
+
+
+def get_sis_reduced_course_load_eforms(sid):
+    eforms_by_id = {}
+    for eform in data_loch.get_sis_reduced_course_load_eforms(sid):
         eform_id = eform['id']
         eforms_by_id[eform_id] = {
             **note_to_compatible_json(eform),
@@ -596,12 +610,12 @@ def _eform_to_json(eform):
     api_json = None
     if eform.get('data_source') == 'student_late_drop_eforms':
         api_json = {
+            'id': eform.get('eform_id'),
             'action': eform.get('requested_action'),
             'courseName': eform.get('course_display_name'),
             'courseTitle': eform.get('course_title'),
             'dataSource': eform.get('data_source'),
             'gradingBasis': eform.get('grading_basis_description'),
-            'id': eform.get('eform_id'),
             'requestedAction': eform['requested_action'],
             'requestedGradingBasis': eform.get('requested_grading_basis_description'),
             'requestedUnitsTaken': eform.get('requested_units_taken'),
@@ -620,7 +634,7 @@ def _eform_to_json(eform):
             if overlap_course:
                 overlap_courses.append(overlap_course)
         api_json = {
-            'id': eform['eform_id'],
+            'id': eform['id'],
             'academicCareerCode': eform['academic_career_code'],
             'academicPlanCode': eform['academic_plan_code'],
             'academicPlanName': eform['academic_plan_name'],
@@ -648,9 +662,32 @@ def _eform_to_json(eform):
             'type': eform['eform_type'],
             'updatedAt': eform['updated_at'].astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%Y-%m-%d'),
         }
-        for key, value in api_json.items():
-            if isinstance(value, str):
-                api_json[key] = value.strip()
+    elif eform.get('data_source') == 'student_course_load_eforms':
+        api_json = {
+            'id': eform['id'],
+            'academicCareerCode': eform['academic_career_code'],
+            'academicStandingStatus': eform['academic_standing_status'],
+            'academicStandingDescription': eform['academic_standing_description'],
+            'action': eform['action'],
+            'dataSource': eform['data_source'],
+            'lastUserName': eform['eform_last_user_name'],
+            'lastUserUid': eform['eform_last_user_uid'],
+            'originalUserName': eform['eform_orig_user_name'],
+            'requestedReducedUnits': eform['requested_reduced_units'],
+            'requestType': eform['request_type'],
+            'requestTypeDescription': eform['request_type_description'],
+            'sid': eform['sid'],
+            'status': eform['eform_status'],
+            'termEnrolledUnits': eform['term_enrolled_units'],
+            'termId': eform['term_id'],
+            'termWaitlistUnits': eform['term_waitlist_units'],
+            'type': eform['eform_type'],
+            'createdAt': eform['created_at'].astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%Y-%m-%d'),
+            'updatedAt': eform['updated_at'].astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%Y-%m-%d'),
+        }
+    for key, value in api_json.items():
+        if isinstance(value, str):
+            api_json[key] = value.strip()
     return api_json
 
 

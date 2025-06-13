@@ -5,6 +5,7 @@ import type {
   BoaConfig,
   BoaUser,
   DepartmentMembership,
+  EForm,
   Note,
   NoteTemplate,
 } from '@/lib/types'
@@ -56,7 +57,16 @@ export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessag
       }
     }
   } else if ('eForm' === message.type) {
-    summary = `eForm: ${message.eForm.action} – ${message.eForm.status}`
+    const eForm: EForm = message.eForm
+    if (eForm.dataSource === 'student_cpp_change_eforms') {
+      summary = `Career Program Plan eForm: ${eForm.action} – ${eForm.status}`
+    } else if (eForm.dataSource === 'student_course_load_eforms') {
+      summary = `Reduced Course Load eForm: ${eForm.action} – ${eForm.status}`
+    } else if (eForm.dataSource === 'student_late_drop_eforms') {
+      summary = `Late Change of Schedule Request eForm: ${eForm.action} – ${eForm.status}`
+    } else {
+      summary = `eForm: ${eForm.action} – ${eForm.status}`
+    }
   } else if ('appointment' === message.type) {
     if (message.appointmentTitle && message.appointmentTitle.trim().length) {
       summary = message.appointmentTitle

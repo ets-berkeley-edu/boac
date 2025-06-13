@@ -459,6 +459,28 @@ CREATE TABLE sis_advising_notes.student_cpp_change_eforms (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
+CREATE TABLE sis_advising_notes.student_course_load_eforms (
+    id VARCHAR,
+    academic_career_code VARCHAR,
+    academic_standing_status VARCHAR,
+    academic_standing_description VARCHAR,
+    eform_id INTEGER,
+    eform_last_user_uid VARCHAR,
+    eform_last_user_name VARCHAR,
+    eform_orig_user_name VARCHAR,
+    eform_status VARCHAR,
+    eform_type VARCHAR,
+    request_type VARCHAR,
+    request_type_description VARCHAR,
+    requested_reduced_units VARCHAR,
+    sid VARCHAR NOT NULL,
+    term_enrolled_units VARCHAR,
+    term_id VARCHAR(4),
+    term_waitlist_units VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
 CREATE TABLE sis_advising_notes.student_late_drop_eforms (
     id VARCHAR,
     career_code VARCHAR,
@@ -999,6 +1021,13 @@ VALUES
 ('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf'),
 ('9100000000-00010', '9100000000', 1, '2017-10-31', '8901', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9100000000_00010_1.pdf', 'not_a_virus.exe'),
 ('11667051-00010', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051-00010_1.pdf', '11667051-00010_1.pdf');
+
+INSERT INTO sis_advising_notes.student_course_load_eforms
+(id, academic_career_code, academic_standing_status, academic_standing_description, eform_id, eform_last_user_uid, eform_last_user_name, eform_orig_user_name, eform_status, eform_type, request_type, request_type_description, requested_reduced_units, sid, term_enrolled_units, term_id, term_waitlist_units, created_at, updated_at)
+VALUES
+('scl-eform-82', 'UGRD', 'SUB', NULL, 1248476, '5219502', 'Naoko Yamano', 'Naoko Yamano', 'Executed', 'SRCRSLOAD', 'RCL', 'Reduced', '8', '9326995302', '12.000', '2252', '3.00', now(), now()),
+('scl-eform-204', 'UGRD', 'SUB', 'Subject to Disqualification', 1254029, '2881574', 'Michie Nakatani', 'Atsuko Yamano', 'Executed', 'SRCRSLOAD', 'RCLT', 'Reduced with Reduced Tuition', '11', '4636463076', '11.000', '2252', '0.00', now(), now()),
+('scl-eform-529', 'UGRD', 'SUB', NULL, 1276201, '7288415', 'Atsuko Yamano', 'Risa Kawano', 'Executed', 'SRCRSLOAD', 'RCL', 'Reduced', '9', '3813202730', '9.000', '2252', '0.00', now(), now());
 
 INSERT INTO sis_advising_notes.student_cpp_change_eforms
 (id, academic_career_code, academic_plan_name, created_at, degree_expected_term_id, eform_action_code, eform_action_description, eform_id, eform_status, eform_type, overlap_course_1, overlap_course_2, academic_plan_code, academic_plan_type_description, academic_program_code, academic_program_name, requirement_term_id, sid, student_name, academic_subplan_code, academic_subplan_name, to_academic_plan_code, to_academic_plan_name, to_academic_plan_requirement_term_id, to_academic_program_code, to_academic_program_name, to_academic_subplan_code, to_academic_subplan_name, to_academic_subplan_requirement_term_id, to_degree_expected_term_id, to_requirement_term_id, updated_at)
