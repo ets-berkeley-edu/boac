@@ -1,14 +1,16 @@
 <template>
-  <div class="notes-report pb-3">
-    <div class="align-center border-b-sm d-flex pb-2">
+  <div class="notes-report pb-1">
+    <div :class="{'pt-1': isLoading, 'pb-2': !isLoading}" class="align-center d-flex">
       <h2 class="font-size-20 mr-2">Notes</h2>
-      <v-progress-circular
-        v-if="isLoading"
-        indeterminate
-        size="16"
-        width="2"
-      />
-      <div v-if="!isLoading" class="text-no-wrap">
+      <div v-if="isLoading" class="ml-1">
+        <v-progress-circular
+          color="primary"
+          indeterminate
+          size="18"
+          width="3"
+        />
+      </div>
+      <div v-if="!isLoading" class="pt-1 text-no-wrap">
         (<v-btn
           id="show-hide-notes-report"
           :aria-expanded="isShowingReport"
@@ -25,8 +27,8 @@
     <div aria-live="polite" class="sr-only" role="status">
       <span v-if="isLoading">Notes report is loading.</span>
     </div>
-    <div v-if="!isLoading && report">
-      <div class="align-center d-flex flex-wrap justify-space-between mt-3">
+    <div v-if="!isLoading && report" class="mt-3">
+      <div class="align-center d-flex flex-wrap">
         <h3 class="font-size-16 pr-2" :class="{'font-weight-bold': isShowingReport}">
           {{ numFormat(report.boa.total) }} notes have been created in BOA
         </h3>
@@ -135,19 +137,17 @@
                 </table>
               </div>
             </div>
-            <v-btn
-              id="show-hide-boa-note-counts"
-              :prepend-icon="isShowingBoaNoteCounts ? mdiChevronDown : mdiChevronRight"
-              class="mt-3 px-0"
-              flat
-              slim
-              @click="isShowingBoaNoteCounts = !isShowingBoaNoteCounts"
-            >
-              <div class="d-flex flex-wrap justify-start">
-                <div>BOA note count by month </div>
-                <div>(reverse chronological)</div>
-              </div>
-            </v-btn>
+            <div class="border-t-sm mt-8 pt-8">
+              <v-btn
+                id="show-hide-boa-note-counts"
+                :prepend-icon="isShowingBoaNoteCounts ? mdiChevronDown : mdiChevronRight"
+                class="font-weight-550"
+                color="primary"
+                flat
+                text="BOA note count by month (reverse chronological)"
+                @click="isShowingBoaNoteCounts = !isShowingBoaNoteCounts"
+              />
+            </div>
             <v-expand-transition>
               <div v-if="isShowingBoaNoteCounts" class="pt-3">
                 <v-card
@@ -162,15 +162,15 @@
                   <v-card-text>
                     <v-list>
                       <v-list-item
-                        v-for="m in orderBy(annual.months, ['month'], 'desc')"
-                        :key="`${annual.year}-${m.month}`"
+                        v-for="month in orderBy(annual.months, ['month'], 'desc')"
+                        :key="`${annual.year}-${month.month}`"
                         class="px-0"
                       >
                         <table class="border-sm border-b-0 my-2 w-100">
                           <caption>
                             <div class="align-center d-flex font-size-16 font-weight-bold justify-space-between text-medium-emphasis pb-1">
                               <span class="sr-only">Notes created in </span>
-                              {{ DateTime.fromJSDate(new Date(annual.year, m.month - 1, 1)).toFormat('MMMM') }}
+                              {{ DateTime.fromJSDate(new Date(annual.year, month.month - 1, 1)).toFormat('MMMM') }}
                             </div>
                           </caption>
                           <thead>
@@ -182,17 +182,33 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <tr v-for="(row, rowIndex) in m.data" :key="`${annual.year}-${m.month}-${rowIndex}`">
-                              <td :id="`month-total-dept-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ row.departmentName || 'Other' }}</td>
-                              <td :id="`month-total-advisor-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ numFormat(row.advisorNoteCount) }}</td>
-                              <td :id="`month-total-peer-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">{{ numFormat(row.peerAdvisorNoteCount) }}</td>
-                              <td :id="`month-total-notes-${annual.year}-${m.month}-${rowIndex}`" class="border-b-sm px-2 py-1">{{ numFormat(row.count) }}</td>
+                            <tr v-for="(row, rowIndex) in month.data" :key="`${annual.year}-${month.month}-${rowIndex}`">
+                              <td :id="`month-total-dept-${annual.year}-${month.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">
+                                {{ row.departmentName || 'Other' }}
+                              </td>
+                              <td :id="`month-total-advisor-notes-${annual.year}-${month.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">
+                                {{ numFormat(row.advisorNoteCount) }}
+                              </td>
+                              <td :id="`month-total-peer-notes-${annual.year}-${month.month}-${rowIndex}`" class="border-b-sm border-e-sm px-2 py-1">
+                                {{ numFormat(row.peerAdvisorNoteCount) }}
+                              </td>
+                              <td :id="`month-total-notes-${annual.year}-${month.month}-${rowIndex}`" class="border-b-sm px-2 py-1">
+                                {{ numFormat(row.count) }}
+                              </td>
                             </tr>
                             <tr class="font-weight-550">
-                              <td :id="`month-total-dept-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">All Departments</td>
-                              <td :id="`month-total-advisor-notes-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">{{ numFormat(sumBy(m.data, 'advisorNoteCount')) }}</td>
-                              <td :id="`month-total-peer-notes-${annual.year}-${m.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">{{ numFormat(sumBy(m.data, 'peerAdvisorNoteCount')) }}</td>
-                              <td :id="`month-total-notes-${annual.year}-${m.month}-sum`" class="border-b-sm px-2 py-1">{{ numFormat(sumBy(m.data, 'count')) }}</td>
+                              <td :id="`month-total-dept-${annual.year}-${month.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">
+                                All Departments
+                              </td>
+                              <td :id="`month-total-advisor-notes-${annual.year}-${month.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">
+                                {{ numFormat(sumBy(month.data, 'advisorNoteCount')) }}
+                              </td>
+                              <td :id="`month-total-peer-notes-${annual.year}-${month.month}-sum`" class="border-b-sm border-e-sm px-2 py-1">
+                                {{ numFormat(sumBy(month.data, 'peerAdvisorNoteCount')) }}
+                              </td>
+                              <td :id="`month-total-notes-${annual.year}-${month.month}-sum`" class="border-b-sm px-2 py-1">
+                                {{ numFormat(sumBy(month.data, 'count')) }}
+                              </td>
                             </tr>
                           </tbody>
                         </table>
@@ -210,10 +226,12 @@
 </template>
 
 <script setup lang="ts">
+import type {PropType} from 'vue'
 import {DateTime} from 'luxon'
 import {mdiChevronDown, mdiChevronRight} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {orderBy, reduce, sumBy} from 'lodash'
+import type {Department} from '@/lib/types'
 import PeerAdvisingNotesReport from '@/components/peer/reports/PeerAdvisingNotesReport.vue'
 import {numFormat} from '@/lib/utils'
 import {getBoaNoteCountByMonth, getNotesReport} from '@/api/admin-reports.js'
@@ -222,7 +240,7 @@ import {useContextStore} from '@/stores/context'
 const props = defineProps({
   department: {
     required: true,
-    type: Object
+    type: Object as PropType<Department>
   }
 })
 
@@ -235,11 +253,19 @@ const isShowingBoaNoteCounts = ref(false)
 const isShowingReport = ref(false)
 
 onMounted(() => {
-  const requests = [
-    new Promise<void>(resolve => getNotesReport(props.department.deptCode).then(data => report.value = data).finally(resolve)),
-    new Promise<void>(resolve => getBoaNoteCountByMonth().then(data => boaNoteCountsByMonth.value = orderBy(data, ['year'], ['desc'])).finally(resolve)),
+  const promises = [
+    new Promise<void>(resolve => {
+      getNotesReport(props.department.deptCode).then(data => report.value = data).finally(resolve)
+    }),
+    new Promise<void>(resolve => {
+      getBoaNoteCountByMonth().then(data => {
+        boaNoteCountsByMonth.value = orderBy(data, ['year'], ['desc'])
+      }).finally(resolve)
+    }),
   ]
-  Promise.all(requests).then(() => isLoading.value = false)
+  Promise.all(promises).then(() => {
+    isLoading.value = false
+  })
 })
 
 const getYearlyTotal = annual => {

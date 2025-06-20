@@ -28,6 +28,7 @@ import json
 from boac import db
 from boac.externals import data_loch
 from boac.externals.data_loch import get_student_degrees_report
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.merged.sis_terms import current_term_id
 from boac.models.note import Note
 from flask import current_app as app
@@ -192,7 +193,7 @@ def get_boa_note_count_by_month():
     sql = """
         SELECT
           DATE_TRUNC('month', n.created_at) AS created_at_month,
-          COALESCE(ud.dept_name, udp.dept_name) AS dept_name,
+          COALESCE(ud.dept_name, udp.dept_name, n.author_dept_codes[1]) AS dept_name,
           COUNT(n.id) AS count,
           COUNT(n.peer_advising_department_id) AS peer_advisor_count
         FROM notes n
@@ -200,7 +201,7 @@ def get_boa_note_count_by_month():
         LEFT JOIN peer_advising_departments pd ON n.peer_advising_department_id = pd.id
         LEFT JOIN university_depts udp ON udp.id = pd.university_dept_id
         WHERE n.deleted_at IS NULL AND n.is_draft IS FALSE
-        GROUP BY DATE_TRUNC('month', n.created_at), COALESCE(ud.dept_name, udp.dept_name)
+        GROUP BY DATE_TRUNC('month', n.created_at), COALESCE(ud.dept_name, udp.dept_name, n.author_dept_codes[1])
     """
     report = []
     for row in db.session.execute(text(sql)).mappings():
@@ -216,8 +217,12 @@ def get_boa_note_count_by_month():
                 'month': month_date.month,
                 'data': [],
             }
+        department_name = row['dept_name']
+        is_dept_code = department_name and department_name.isupper() and ' ' not in department_name
+        if is_dept_code:
+            department_name = BERKELEY_DEPT_CODE_TO_NAME.get(department_name)
         year['months'][month_date.month]['data'].append({
-            'departmentName': row['dept_name'],
+            'departmentName': department_name,
             'count': row['count'],
             'peerAdvisorNoteCount': row['peer_advisor_count'],
             'advisorNoteCount': row['count'] - row['peer_advisor_count'],
