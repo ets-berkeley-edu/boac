@@ -1,73 +1,76 @@
 <template>
   <div v-if="!loading" class="default-margins">
-    <div class="align-center d-flex pb-0">
-      <div class="pr-2">
-        <v-icon :icon="mdiAirplane" color="primary" size="42" />
-      </div>
-      <div class="pt-2">
-        <h1 id="page-header">Flight Data Recorder</h1>
-      </div>
+    <div class="align-start d-flex">
+      <v-icon
+        class="mr-2"
+        color="primary"
+        :icon="mdiAirplane"
+        size="42"
+      />
+      <h1 id="page-header" class="mt-1">Flight Data Recorder</h1>
     </div>
-    <NotesReport :department="department" />
-    <div class="pb-4 pt-4">
-      <h2 class="page-section-header-sub ma-0 pt-0" :class="{'sr-only': availableDepartments.length !== 1}">{{ department.deptName }}</h2>
-      <div v-if="availableDepartments.length > 1" class="align-items-center d-flex">
+    <div v-if="department" class="border-sm mt-3 pa-4">
+      <NotesReport :department="department" />
+    </div>
+    <div class="mt-6 pt-4">
+      <h2 class="page-section-header-sub">Departments</h2>
+      <div v-if="availableDepartments.length > 1" class="my-2">
         <label class="sr-only" for="available-department-reports">Departments:</label>
-        <div>
-          <select
-            id="available-department-reports"
-            v-model="selected"
-            class="select-menu"
+        <select
+          id="available-department-reports"
+          v-model="selected"
+          class="select-menu"
+        >
+          <option
+            v-for="d in availableDepartments"
+            :id="`department-report-${d.deptCode}`"
+            :key="d.deptCode"
+            :value="d.deptCode"
           >
-            <option
-              v-for="d in availableDepartments"
-              :id="`department-report-${d.deptCode}`"
-              :key="d.deptCode"
-              :value="d.deptCode"
-            >
-              {{ d.deptName }}
-            </option>
-          </select>
-        </div>
+            {{ d.deptName }}
+          </option>
+        </select>
       </div>
     </div>
     <UserReport :department="department" />
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {find, trim} from 'lodash'
 import {mdiAirplane} from '@mdi/js'
 import {useRoute} from 'vue-router'
-import NotesReport from '@/components/reports/NotesReport'
-import UserReport from '@/components/reports/UserReport'
+import type {Department} from '@/lib/types'
+import NotesReport from '@/components/reports/NotesReport.vue'
+import UserReport from '@/components/reports/UserReport.vue'
 import {getAvailableDepartmentReports} from '@/api/admin-reports.js'
 import {useContextStore} from '@/stores/context'
 
 const DEFAULT_DEPT_CODE = 'QCADV'
 
 const contextStore = useContextStore()
-
-const availableDepartments = ref([])
-const department = ref(undefined)
+const availableDepartments = ref<Department[]>([])
+const department = ref<Department | undefined>(undefined)
 const loading = computed(() => contextStore.loading)
-const selected = ref(undefined)
+const selected = ref<string>()
 
 watch(selected, () => {
-  department.value = getDepartment(selected.value) || getDepartment(DEFAULT_DEPT_CODE)
+  department.value = selected.value ? getDepartment(selected.value) : getDepartment(DEFAULT_DEPT_CODE)
 })
 
 contextStore.loadingStart()
 
 onMounted(() => {
-  const deptCode = useRoute().params.deptCode
-  getAvailableDepartmentReports().then(data => {
-    availableDepartments.value = data
-    selected.value = trim(deptCode).toUpperCase()
-    contextStore.loadingComplete('Reports loaded')
-  })
+  const deptCode = useRoute().params.deptCode.toString()
+  if (deptCode) {
+    getAvailableDepartmentReports().then(data => {
+      availableDepartments.value = data
+      selected.value = trim(deptCode).toUpperCase()
+      contextStore.loadingComplete('Reports loaded')
+    })
+  }
 })
 
-const getDepartment = deptCode => find(availableDepartments.value, ['deptCode', deptCode])
+const getDepartment = (deptCode: string): Department | undefined => find(availableDepartments.value, ['deptCode', deptCode])
 </script>
