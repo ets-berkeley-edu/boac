@@ -14,7 +14,7 @@
       {{ plan.program }}
     </div>
     <div v-if="!active" class="font-weight-bold text-error small text-uppercase">
-      {{ plan.status }}
+      {{ plan.status === 'Completed' ? 'Completed' : 'Inactive' }}
     </div>
   </div>
 </template>
