@@ -178,11 +178,6 @@ class DegreeTemplateMgmtPage(BoaPages):
         app.logger.info('Clicking delete cancel button')
         self.wait_for_element_and_click(self.CANCEL_DELETE_OR_DISCARD)
 
-    # PRINT
-
-    def degree_check_print_button(self, degree_check):
-        return By.XPATH, f'{self.degree_check_row_xpath(degree_check)}//a[contains(@id, "print-link")]'
-
     # BATCH SUCCESS
 
     BATCH_SUCCESS_MSG = By.XPATH, '//div[@class="v-alert__content"][contains(., "Success!")]'

@@ -140,16 +140,6 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
         app.logger.info('Clicking sort-by-name')
         self.wait_for_element_and_click(self.sortable_header('Peer Advisor'))
 
-    def sort_by_notes_count(self):
-        app.logger.info('Clicking sort-by-note-count')
-        self.wait_for_element_and_click(self.sortable_header('Notes Created'))
-
-    def sort_by_date(self):
-        app.logger.info('Clicking sort-by-date_added')
-        self.wait_for_element_and_click(self.sortable_header('Date Added'))
-
-    CLOSE_PEER_NOTE_TABLE = By.ID, 'header-close-modal'
-
     @staticmethod
     def peer_note_count_button(user):
         return By.ID, f'open-notes-created-by-{user.uid}'
@@ -158,11 +148,6 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
         app.logger.info(f'Opening the detailed view of peer notes by UID {user.uid}')
         self.wait_for_element_and_click(self.peer_note_count_button(user))
         self.when_visible(self.PEER_NOTE_TABLE, 2)
-
-    def close_peer_note_modal(self):
-        app.logger.info('Closing the detailed view of peer notes')
-        self.wait_for_element_and_click(self.CLOSE_PEER_NOTE_TABLE)
-        self.when_not_present(self.PEER_NOTE_TABLE, 2)
 
     # NOTE TEMPLATES
 

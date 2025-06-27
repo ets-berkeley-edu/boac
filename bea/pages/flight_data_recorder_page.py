@@ -51,14 +51,6 @@ class FlightDataRecorderPage(BoaPages):
     ADVISOR_LINK = By.XPATH, '//a[contains(@id, "directory-link-")]'
     ADVISOR_NON_LINK = By.XPATH, '//span[contains(text(), "Name unavailable (UID:")]'
 
-    def boa_note_count(self):
-        return self.el_text_if_exists(self.NOTES_COUNT_BOA, 'notes have been created in BOA')
-
-    def select_dept_report(self, dept):
-        app.logger.info(f"Selecting report for {dept.value['code']}")
-        self.wait_for_select_and_click_option(self.DEPT_SELECT, dept.value['code'])
-        time.sleep(2)
-
     def dept_select_option_names(self):
         self.when_present(self.DEPT_SELECT, utils.get_short_timeout())
         sel = Select(self.element(self.DEPT_SELECT))

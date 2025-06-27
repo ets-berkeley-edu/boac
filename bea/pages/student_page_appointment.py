@@ -37,8 +37,6 @@ class StudentPageAppointment(StudentPageTimeline, CreateNoteModal):
     APPTS_BUTTON = By.ID, 'timeline-tab-appointment'
     SHOW_HIDE_APPTS_BUTTON = By.ID, 'timeline-tab-appointment-previous-messages'
     TOGGLE_ALL_APPTS_BUTTON = By.ID, 'toggle-expand-all-appointments'
-    APPTS_EXPANDED_MSG = By.XPATH, '//span[text()="Collapse all appointments"]'
-    APPTS_COLLAPSED_MSG = By.XPATH, '//span[text()="Expand all appointments"]'
     APPT_MSG_ROW = By.XPATH, '//div[contains(@id,"timeline-tab-appointment-message")]'
     APPT_TOPIC = By.XPATH, '//li[contains(@id, "topic")]'
 
@@ -47,16 +45,6 @@ class StudentPageAppointment(StudentPageTimeline, CreateNoteModal):
         self.wait_for_element_and_click(self.APPTS_BUTTON)
         if self.is_present(self.SHOW_HIDE_APPTS_BUTTON) and 'Show' in self.element(self.SHOW_HIDE_APPTS_BUTTON).text:
             self.wait_for_element_and_click(self.SHOW_HIDE_APPTS_BUTTON)
-
-    def expand_all_appts(self):
-        app.logger.info('Expanding all appointments')
-        self.wait_for_element_and_click(self.TOGGLE_ALL_APPTS_BUTTON)
-        self.when_visible(self.APPTS_EXPANDED_MSG, 2)
-
-    def collapse_all_appts(self):
-        app.logger.info('Collapsing all appointments')
-        self.wait_for_element_and_click(self.TOGGLE_ALL_APPTS_BUTTON)
-        self.when_visible(self.APPTS_COLLAPSED_MSG, 2)
 
     def appt_els(self):
         return self.elements(self.APPT_MSG_ROW)
@@ -80,9 +68,6 @@ class StudentPageAppointment(StudentPageTimeline, CreateNoteModal):
             parts = el.get_dom_attribute('id').split('-')[2:]
             ids.append('-'.join(parts))
         return ids
-
-    def collapsed_appt_ids(self):
-        return self.visible_collapsed_item_ids('appointment')
 
     @staticmethod
     def appt_advisor_loc(appt):

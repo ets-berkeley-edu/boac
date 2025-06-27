@@ -238,10 +238,6 @@ class PassengerManifestPage(Pagination):
         app.logger.info(f'Selecting degree progress perm option {option}')
         self.wait_for_select_and_click_option(self.DEGREE_PROGRESS_SELECT, option)
 
-    def click_automate_deg_prog(self):
-        self.when_present(self.AUTOMATE_DEG_PROG_CBX, utils.get_short_timeout())
-        self.click_element_js(self.AUTOMATE_DEG_PROG_CBX)
-
     def add_user_dept_roles(self, user):
         for membership in user.dept_memberships:
             app.logger.info(f'Adding UID {user.uid} department role {vars(membership)}')
@@ -313,11 +309,6 @@ class PassengerManifestPage(Pagination):
             self.click_element_js(self.DELETED_CBX)
             time.sleep(utils.get_click_sleep())
         self.save_user()
-
-    def search_for_and_edit_user(self, user):
-        self.search_for_advisor(user)
-        self.when_present(self.edit_user_button_loc(user), utils.get_short_timeout())
-        self.edit_user(user)
 
     def set_deg_prog_perm(self, user, dept, perm):
         if not user.degree_progress_perm == perm:

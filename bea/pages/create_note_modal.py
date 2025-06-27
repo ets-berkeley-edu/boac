@@ -354,11 +354,6 @@ class CreateNoteModal(Page):
         self.wait_for_element_and_click(self.BATCH_ADD_STUDENTS_BUTTON)
         self.wait_for_batch_students(students)
 
-    def add_line_sep_sids_to_batch(self, students):
-        self.enter_line_sep_sids(self.BATCH_ADD_STUDENT_INPUT, students)
-        self.wait_for_element_and_click(self.BATCH_ADD_STUDENTS_BUTTON)
-        self.wait_for_batch_students(students)
-
     def add_space_sep_sids_to_batch(self, students):
         self.enter_space_sep_sids(self.BATCH_ADD_STUDENT_INPUT, students)
         self.wait_for_element_and_click(self.BATCH_ADD_STUDENTS_BUTTON)
@@ -455,12 +450,9 @@ class CreateNoteModal(Page):
     def create_note_batch(self, note_batch, students, cohorts, groups, topics, attachments):
         app.logger.info(f'Creating note batch with {len(students)} students, {len(cohorts)} cohorts, {len(groups)} groups')
         self.click_create_note_batch()
-        # TODO - remove the following once the auto-suggest behaves itself
         self.add_space_sep_sids_to_batch(students)
         for student in students:
             self.append_student_to_batch(note_batch, student)
-        # TODO - use the following once the auto-suggest behaves itself
-        # self.add_students_to_batch(note_batch, students)
         self.add_cohorts_to_batch(note_batch, cohorts)
         self.add_groups_to_batch(note_batch, groups)
         self.enter_new_note_subject(note_batch)

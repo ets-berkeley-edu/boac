@@ -273,20 +273,6 @@ def get_my_students_test_advisor(academic_plan_code, auth_users):
     return user
 
 
-def get_academic_plans(advisor):
-    sql = f"""SELECT DISTINCT boac_advisor.advisor_students.academic_plan_code AS plan_code
-                FROM boac_advisor.advisor_students
-                JOIN boac_advising_notes.advising_note_authors
-                  ON boac_advising_notes.advising_note_authors.uid = '{advisor.uid}'
-                 AND boac_advising_notes.advising_note_authors.sid = boac_advisor.advisor_students.advisor_sid
-                JOIN student.student_profiles
-                  ON student.student_profiles.sid = boac_advisor.advisor_students.student_sid
-            ORDER BY boac_advisor.advisor_students.academic_plan_code"""
-    app.logger.info(sql)
-    results = data_loch.safe_execute_rds(sql)
-    return list(map(lambda r: r['plan_code'], results))
-
-
 # SECTIONS
 
 

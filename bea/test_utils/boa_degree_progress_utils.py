@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 from datetime import datetime
-import time
 
 from bea.models.degree_progress.degree_check import DegreeCheck
 from bea.models.degree_progress.degree_check_template import DegreeCheckTemplate
@@ -106,17 +105,6 @@ def get_degree_sids_by_degree_name(degree_name):
     return sids
 
 
-def get_degree_id_by_name(degree, student):
-    sql = f"""SELECT id
-                FROM degree_progress_templates
-               WHERE degree_name = '{degree.name}'
-                 AND student_sid = '{student.sis_id}'"""
-    app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
-    std_commit(allow_test_environment=True)
-    return result['id']
-
-
 def degree_id(degree):
     return degree.check_id if isinstance(degree, DegreeCheck) else degree.template_id
 
@@ -137,19 +125,6 @@ def set_course_reqt_id(degree, course_reqt):
                 FROM degree_progress_categories
                WHERE name = '{course_reqt.name}'
                  AND template_id = '{degree_id(degree)}'"""
-    app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
-    std_commit(allow_test_environment=True)
-    course_reqt.course_id = result['id']
-    app.logger.info(f'Course reqt id is {course_reqt.course_id}')
-
-
-def set_dummy_course_reqt_id(course_reqt):
-    sql = f"""SELECT id
-                FROM degree_progress_categories
-               WHERE category_type = 'Placeholder: Course Copy'
-                 AND parent_category_id = '{course_reqt.parent.category_id}'
-                 AND name = '{course_reqt.completed_course.name}'"""
     app.logger.info(sql)
     result = db.session.execute(text(sql)).first()
     std_commit(allow_test_environment=True)
@@ -206,20 +181,6 @@ def set_degree_sis_course_copy_id(degree, course):
     std_commit(allow_test_environment=True)
     app.logger.info(f"Course copy {course.name} id is {result['id']}")
     course.course_id = result['id']
-
-
-def update_degree_course_grade(degree, course, student, grade):
-    sql = f"""UPDATE degree_progress_courses
-                 SET grade = '{grade}'
-               WHERE section_id = {course.ccn}
-                 AND sid = '{student.sid}'
-                 AND term_id = '{course.term_id}'
-                 AND degree_check_id = '{degree.check_id}'"""
-    app.logger.info(sql)
-    db.session.execute(text(sql))
-    std_commit(allow_test_environment=True)
-    course.grade = grade
-    time.sleep(utils.get_short_timeout())
 
 
 def set_degree_check_ids(degree_check):

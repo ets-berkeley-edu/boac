@@ -241,10 +241,6 @@ class SearchForm(Page):
         self.wait_for_element_and_click(self.ADV_SEARCH_CXL_BUTTON)
         self.when_not_present(self.ADV_SEARCH_CXL_BUTTON, 2)
 
-    def close_adv_search_if_open(self):
-        if self.is_visible(self.ADV_SEARCH_CXL_BUTTON):
-            self.wait_for_element_and_click(self.ADV_SEARCH_CXL_BUTTON)
-
     def reopen_and_reset_adv_search(self):
         self.hit_escape()
         self.open_adv_search()

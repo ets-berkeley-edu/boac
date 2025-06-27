@@ -691,10 +691,6 @@ class DegreeCheckPage(DegreeTemplatePage):
         opts.remove('Choose...')
         return opts
 
-    def click_cancel_course_copy(self):
-        app.logger.info('Clicking course copy cancel button')
-        self.wait_for_element_and_click(self.COPY_COURSE_CANCEL_BUTTON)
-
     def copy_course(self, course, copy, dest_reqt):
         app.logger.info(f'Copying {course.name} to destination {dest_reqt.name}')
         self.click_copy_course_button()

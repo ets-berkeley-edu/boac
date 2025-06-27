@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import time
 
 from bea.pages.peer_advising_note_table import PeerAdvisingNoteTable
-from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
@@ -34,15 +33,6 @@ from selenium.webdriver.common.by import By
 class PeerAdvisorPage(PeerAdvisingNoteTable):
 
     PEER_PAGE_HEADING = By.XPATH, '//h1[text()="Peer Advising Notes"]'
-
-    def hit_peer_page_url(self):
-        app.logger.info('Hitting peer advisor page')
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/peer_advisor/home')
-
-    def load_peer_page_admin_view(self, peer):
-        app.logger.info(f'Loading peer advisor page for UID {peer.uid}')
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/peer_advisor/{peer.uid}/home')
-        self.when_visible(self.PEER_PAGE_HEADING, utils.get_short_timeout())
 
     # Note modal
 

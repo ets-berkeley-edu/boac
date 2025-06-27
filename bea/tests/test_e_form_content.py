@@ -29,8 +29,6 @@ import pytest
 
 test = BEATestConfig()
 test.e_form_content()
-list_tcs = [tc for tc in test.test_cases if isinstance(tc.note, list)]
-detail_tcs = [tc for tc in test.test_cases if not isinstance(tc.note, list)]
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -43,35 +41,13 @@ class TestAdvisorLogin:
 
 @pytest.mark.usefixtures('page_objects')
 @pytest.mark.parametrize(argnames='tc',
-                         argvalues=list_tcs,
-                         ids=[tc.test_case_id for tc in list_tcs],
-                         scope='class')
-class TestEFormList:
-
-    def test_load_student_e_forms(self, tc):
-        self.student_page.load_page(tc.student)
-        self.student_page.show_e_forms()
-
-    def test_e_form_count(self, tc):
-        visible = self.student_page.elements(self.student_page.E_FORM_MSG_ROW)
-        utils.assert_equivalence(len(visible), len(tc.note))
-
-    def test_e_form_order(self, tc):
-        visible = self.student_page.visible_collapsed_note_ids()
-        expected = self.student_page.expected_e_form_id_sort_order(tc.note)
-        utils.assert_equivalence(visible, expected)
-
-
-@pytest.mark.usefixtures('page_objects')
-@pytest.mark.parametrize(argnames='tc',
-                         argvalues=detail_tcs,
-                         ids=[tc.test_case_id for tc in detail_tcs],
+                         argvalues=test.test_cases,
+                         ids=[tc.test_case_id for tc in test.test_cases],
                          scope='class')
 class TestEFormDetail:
 
     def test_load_student_e_form(self, tc):
-        if tc.student.uid not in self.driver.current_url:
-            self.student_page.load_page(tc.student)
+        self.student_page.load_page(tc.student)
         self.student_page.show_e_forms()
 
     def test_collapsed_date(self, tc):

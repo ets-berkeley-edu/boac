@@ -27,7 +27,6 @@ import time
 
 from bea.pages.cohort_and_group_student_pages import CohortAndGroupStudentPages
 from bea.pages.curated_pages import CuratedPages
-from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from selenium.webdriver.common.by import By
 
@@ -39,10 +38,6 @@ class CuratedStudentsPage(CohortAndGroupStudentPages, CuratedPages):
 
     def remove_student_button_loc(self, student):
         return By.XPATH, f'{self.student_row_xpath(student)}//button[contains(@id, "remove-student-from-curated-group")]'
-
-    def load_everyone_groups_page(self):
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/all/groups')
-        self.wait_for_boa_title('Groups')
 
     @staticmethod
     def group_name_heading_loc(group):
