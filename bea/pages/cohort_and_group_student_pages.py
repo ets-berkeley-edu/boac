@@ -173,9 +173,6 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         option = select.first_selected_option
         return option.get_dom_attribute('value')
 
-    def scroll_to_student(self, student):
-        self.scroll_to_element(self.element((By.XPATH, self.student_row_xpath(student))))
-
     # Per student data
 
     def academic_standing(self, student):

@@ -104,10 +104,6 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
     def calcentral_link(student):
         return By.XPATH, f'//a[@href="https://calcentral.berkeley.edu/user/overview/{student.uid}"]'
 
-    @staticmethod
-    def perceptive_link():
-        return By.XPATH, '//a[contains(text(), "Perceptive Content (Image Now) documents")]'
-
     def academic_standing(self):
         return self.el_text_if_exists(self.ACADEMIC_STANDING)
 
@@ -312,9 +308,6 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
     def term_data_heading(self, term_name):
         return By.XPATH, self.term_data_xpath(term_name)
 
-    def click_expand_collapse_years_toggle(self):
-        self.wait_for_element_and_click(self.TOGGLE_COLLAPSE_ALL_YEARS)
-
     def expand_all_years(self):
         if self.is_present(self.TOGGLE_COLLAPSE_ALL_YEARS) and 'Expand' in self.element(self.TOGGLE_COLLAPSE_ALL_YEARS).text:
             self.wait_for_element_and_click(self.TOGGLE_COLLAPSE_ALL_YEARS)
@@ -447,9 +440,6 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
     def analytics_trigger_loc(self, site_xpath, label):
         return By.XPATH, self.site_boxplot_xpath(site_xpath, label)
 
-    def is_no_data_loc(self, site_xpath, label):
-        return self.is_present((By.XPATH, f'{self.site_analytics_score_xpath(site_xpath, label)}[contains(., "No Data")]'))
-
     def perc_round(self, site_xpath, label):
         xpath = f'{self.site_analytics_percentile_xpath(site_xpath, label)}//strong'
         return self.el_text_if_exists((By.XPATH, xpath))
@@ -487,20 +477,4 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
             'perc_50': (visible_details[2] if visible_details else None),
             'perc_30': (visible_details[3] if visible_details else None),
             'minimum': (visible_details[4] if visible_details else None),
-        }
-
-    def visible_assignment_analytics(self, site_xpath, analytics):
-        return self.visible_analytics(site_xpath, 'Assignments Submitted', analytics)
-
-    def visible_grades_analytics(self, site_xpath, analytics):
-        return self.visible_analytics(site_xpath, 'Assignment Grades', analytics)
-
-    def visible_last_activity(self, term_id, ccn, idx):
-        xpath = f'{self.course_site_xpath(term_id, ccn, idx)}//th[contains(.,\"Last bCourses Activity\")]/following-sibling::td/div'
-        app.logger.info(f'Checking for last activity at {xpath}')
-        self.when_present((By.XPATH, xpath), utils.get_click_sleep())
-        visible = self.el_text_if_exists((By.XPATH, xpath))
-        return {
-            'days': (visible.split('.')[0] if visible else None),
-            'context': (visible.split('.')[1] if visible else None),
         }

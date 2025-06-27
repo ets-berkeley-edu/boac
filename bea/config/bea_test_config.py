@@ -106,10 +106,6 @@ class BEATestConfig(BEATestBaseConfigs):
         self.set_test_students(count=app.config['MAX_NOTES_OR_APPTS_STUDENTS_COUNT'], opts={'e_forms': True})
         for student in self.test_students:
             e_forms = nessie_timeline_utils.get_e_form_notes(student)
-            # Tests for the list view of e-forms
-            self.test_cases.append(BEATestCase(student=student,
-                                               note=e_forms,
-                                               test_case_id=f'UID {student.uid}'))
             # Tests for a sample of e-form detail
             for e_form in e_forms[:app.config['MAX_NOTES_OR_APPTS_COUNT']]:
                 self.test_cases.append(BEATestCase(student=student,

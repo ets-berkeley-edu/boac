@@ -39,7 +39,6 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 class ListViewStudentPages(Pagination, UserListPages):
 
     PLAYER_LINK = By.XPATH, '//a[contains(@href, "/student/")]'
-    PLAYER_NAME = By.XPATH, '//h3[contains(@class, "student-name")]'
     PLAYER_SID = By.XPATH, '//div[contains(@id, "student-sid")]'
 
     def wait_for_players(self):
@@ -53,10 +52,6 @@ class ListViewStudentPages(Pagination, UserListPages):
             app.logger.info(f'Took {(datetime.datetime.now() - start).total_seconds()} seconds for users to appear')
         except TimeoutError:
             app.logger.info('There are no students listed')
-
-    def list_view_names(self):
-        self.wait_for_players()
-        return list(map(lambda el: el.text, self.elements(self.PLAYER_NAME)))
 
     def list_view_sids(self):
         if self.is_present((By.XPATH, '//span[contains(., "(0 students)")]')) or self.is_present(
@@ -120,11 +115,6 @@ class ListViewStudentPages(Pagination, UserListPages):
                 sids.extend(self.list_view_sids())
         app.logger.info(f'Visible SIDs: {sids}')
         return sids
-
-    def click_student_link(self, student):
-        app.logger.info(f'Clicking the link for UID {student.uid}')
-        self.wait_for_page_and_click(self.student_link_loc(student))
-        Wait(self.driver, utils.get_medium_timeout()).until(ec.visibility_of_element_located(self.STUDENT_NAME_HEADING))
 
     def compare_visible_sid_sorting_to_expected(self, expected_sids):
         visible_results = self.visible_sids()

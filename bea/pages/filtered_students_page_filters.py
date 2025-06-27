@@ -202,13 +202,11 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
             self.select_new_filter('Underrepresented Minority (COE)')
 
         # Advising
-        # TODO - 'My Curated Groups'
+
         for plan in cohort.search_criteria.cohort_owner_acad_plans:
             self.select_new_filter('My Students', plan)
 
         self.execute_search()
-
-    # TODO - def perform_admit_search()
 
     def execute_search(self):
         self.wait_for_element_and_click(self.UNSAVED_FILTER_APPLY_BUTTON)

@@ -49,8 +49,6 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
     FILTER_NOTES_BUTTON = (By.ID, 'show-items-created-by-me')
     SHOW_HIDE_NOTES_BUTTON = (By.ID, 'timeline-tab-note-previous-messages')
     TOGGLE_ALL_NOTES_BUTTON = (By.ID, 'toggle-expand-all-notes')
-    NOTES_EXPANDED_MSG = (By.XPATH, '//span[text()="Collapse all notes"]')
-    NOTES_COLLAPSED_MSG = (By.XPATH, '//span[text()="Expand all notes"]')
     NOTES_DOWNLOAD_LINK = (By.ID, 'download-notes-link')
     NOTE_MSG_ROW = (By.XPATH, '//div[contains(@id,"timeline-tab-note-message")]')
     DRAFT_NOTE_FLAG = (By.XPATH, '//span[text()="Draft"]')
@@ -64,16 +62,6 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
     def toggle_my_notes(self):
         self.wait_for_element_and_click(self.FILTER_NOTES_BUTTON)
         time.sleep(1)
-
-    def expand_all_notes(self):
-        app.logger.info('Expanding all notes')
-        self.wait_for_element_and_click(self.TOGGLE_ALL_NOTES_BUTTON)
-        self.when_visible(self.NOTES_EXPANDED_MSG, 2)
-
-    def collapse_all_notes(self):
-        app.logger.info('Collapsing all notes')
-        self.wait_for_element_and_click(self.TOGGLE_ALL_NOTES_BUTTON)
-        self.when_visible(self.NOTES_COLLAPSED_MSG, 2)
 
     def hit_note_permalink(self, note, url):
         app.logger.info(f'Hitting permalink for note {note.record_id} at {url}')
@@ -142,9 +130,6 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     # Expanded note
 
-    def expand_note_by_subject(self, note_subject):
-        self.wait_for_element_and_click(self.note_loc(note_subject))
-
     def expanded_note_body(self, note):
         # Body may contain formatting elements even without text
         body_loc = (By.ID, f'note-{note.record_id}-subject') if note.is_peer_advising else (By.ID, f'note-{note.record_id}-message-open')
@@ -160,10 +145,6 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def expanded_note_advisor(self, note):
         return self.el_text_if_exists(self.expanded_note_advisor_loc(note))
-
-    def is_expanded_note_advisor_link_present(self, note):
-        return self.is_present(self.expanded_note_advisor_loc(note)) and self.element(
-            self.expanded_note_advisor_loc(note)).tag_name == 'a'
 
     def expanded_note_advisor_depts(self, note):
         advisor_dept_loc = By.XPATH, f"//span[contains(@id, 'note-{note.record_id}-author-dept-')]"
@@ -273,8 +254,6 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
         utils.assert_equivalence(self.expanded_note_contact_type(note), note.contact_type)
 
-        # TODO - verify created_date, updated_date
-
         expected_set_date = self.expected_item_short_date_format(note.set_date) if note.set_date else None
         utils.assert_equivalence(self.expanded_note_set_date(note), expected_set_date)
 
@@ -294,24 +273,6 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         else:
             utils.assert_equivalence(visible_body, note.body)
             utils.assert_equivalence(visible_attachments, attachments)
-
-    def visible_expanded_note_data(self, note):
-        time.sleep(2)
-        return {
-            'advisor': self.expanded_note_advisor(note),
-            'advisor_role': self.expanded_note_advisor_role(note),
-            'advisor_depts': self.expanded_note_advisor_depts(note),
-            'attachments': self.expanded_note_attachments(note),
-            'body': self.expanded_note_body(note),
-            'contact_type': self.expanded_note_contact_type(note),
-            'created_date': self.expanded_note_created_date(note) or self.expanded_note_updated_date(note),
-            'note_src': self.expanded_note_source(note),
-            'permalink_url': self.expanded_note_permalink_url(note),
-            'remove_topic_btns': self.expanded_note_topic_remove_btn_els(note),
-            'set_date': self.expanded_note_set_date(note),
-            'topics': self.expanded_note_topics(note),
-            'updated_date': self.expanded_note_updated_date(note),
-        }
 
     # EDIT / DELETE
 

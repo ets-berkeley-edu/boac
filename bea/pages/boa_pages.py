@@ -74,7 +74,6 @@ class BoaPages(CreateNoteModal, SearchForm):
     PAM_LINK = (By.ID, 'header-menu-peer-management')
     PAX_MANIFEST_LINK = (By.ID, 'header-menu-passengers')
     PROFILE_LINK = (By.ID, 'header-menu-profile')
-    FEEDBACK_LINK = (By.XPATH, '//a[contains(text(), "Feedback/Help")]')
     LOG_OUT_LINK = (By.ID, 'header-menu-log-out')
     STUDENT_NAME_HEADING = (By.ID, 'student-name-header')
 
@@ -165,11 +164,6 @@ class BoaPages(CreateNoteModal, SearchForm):
         self.wait_for_page_and_click(self.VIEW_EVERYONE_COHORTS_LINK)
         self.wait_for_boa_title('All Cohorts')
 
-    def click_sidebar_filtered_link(self, cohort):
-        links = self.elements(self.FILTERED_COHORT_LINK)
-        link = next(filter(lambda el: el.text == cohort.name, links))
-        link.click()
-
     @staticmethod
     def sidebar_member_count_loc(cohort):
         return By.XPATH, f'//a[contains(@id,"sidebar-")][contains(.,"{cohort.name}")]/span[contains(@id, "count")]'
@@ -225,11 +219,6 @@ class BoaPages(CreateNoteModal, SearchForm):
         self.wait_for_page_and_click(self.VIEW_EVERYONE_GROUPS_LINK)
         self.wait_for_boa_title('All Curated Groups')
 
-    def click_sidebar_group_link(self, group):
-        els = self.elements(self.SIDEBAR_ADMIT_GROUP_LINK) if group.is_ce3 else self.elements(self.SIDEBAR_GROUP_LINK)
-        link = next(filter(lambda a: a.text == group.name, els))
-        link.click()
-
     def wait_for_sidebar_group(self, group):
         self.wait_for_sidebar_member_count(group)
         if not group.cohort_id:
@@ -259,9 +248,6 @@ class BoaPages(CreateNoteModal, SearchForm):
     # SIDEBAR - DRAFT NOTES
 
     DRAFT_NOTES_LINK = By.ID, 'link-to-draft-notes'
-
-    def draft_note_count(self):
-        return self.el_text_if_exists((By.ID, 'draft-note-count'))
 
     def click_draft_notes(self):
         app.logger.info('Clicking link to Draft Notes page')

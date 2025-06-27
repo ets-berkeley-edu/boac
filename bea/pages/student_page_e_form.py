@@ -46,12 +46,6 @@ class StudentPageEForm(StudentPageTimeline, CreateNoteModal):
             self.wait_for_element_and_click(self.SHOW_HIDE_E_FORMS_BUTTON)
 
     @staticmethod
-    def expected_e_form_id_sort_order(e_forms):
-        e_forms.sort(key=lambda ef: [ef.created_date, ef.record_id])
-        e_forms.reverse()
-        return [e_form.record_id for e_form in e_forms]
-
-    @staticmethod
     def e_form_data_loc(e_form, label):
         return By.XPATH, f"//tr[@id='permalink-eForm-{e_form.record_id}']//dt[text()='{label}']/following-sibling::dd"
 

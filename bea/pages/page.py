@@ -23,8 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import glob
-import json
 import time
 
 from bea.test_utils import utils
@@ -150,34 +148,6 @@ class Page(object):
             message=f'Failed wait for presence_of_element_located: {str(locator)}',
         )
 
-    def wait_for_text_in_element(self, locator, string):
-        tries = 0
-        retries = utils.get_short_timeout()
-        while tries <= retries:
-            tries += 1
-            try:
-                assert string in self.element(locator).get_dom_attribute('innerText')
-                break
-            except AssertionError:
-                if tries == retries:
-                    raise
-                else:
-                    time.sleep(1)
-
-    def wait_for_element_attribute(self, locator, attribute):
-        tries = 0
-        retries = utils.get_short_timeout()
-        while tries <= retries:
-            tries += 1
-            try:
-                assert self.element(locator).get_dom_attribute(attribute)
-                break
-            except AssertionError:
-                if tries == retries:
-                    raise
-                else:
-                    time.sleep(1)
-
     def wait_for_title_containing(self, string):
         Wait(self.driver, utils.get_medium_timeout()).until(ec.title_contains(string))
 
@@ -227,10 +197,6 @@ class Page(object):
         self.element(locator).clear()
         self.element(locator).send_keys(string)
 
-    def wait_for_element_and_type_js(self, element_id, string, addl_pause=None):
-        self.wait_for_page_and_click_js((By.ID, element_id), addl_pause)
-        self.driver.execute_script(f"document.getElementById('{element_id}').value='{string}'")
-
     def wait_for_textbox_and_send_keys(self, locator, string, addl_pause=None):
         self.wait_for_element_and_click(locator, addl_pause)
         self.remove_chars_and_send_keys(locator, string)
@@ -266,10 +232,6 @@ class Page(object):
         string = string or ''
         self.element(locator).send_keys(string)
 
-    def selected_option_text(self, select_el_loc):
-        sel = Select(self.element(select_el_loc))
-        return sel.first_selected_option.text
-
     def wait_for_select_and_click_option(self, select_el_loc, option_str):
         self.wait_for_page_and_click(select_el_loc)
         if self.driver.name == 'firefox':
@@ -302,13 +264,6 @@ class Page(object):
             message=f'Failed wait_for_title: {string}',
         )
 
-    def wait_for_title_contains(self, string):
-        app.logger.info(f"Waiting for page title containing '{string}")
-        Wait(self.driver, utils.get_short_timeout()).until(
-            method=(ec.title_contains(string)),
-            message=f'Failed wait_for_title_contains: {string}',
-        )
-
     def visible_heading(self):
         return self.element(Page.PAGE_HEADING).text
 
@@ -323,13 +278,6 @@ class Page(object):
 
     def scroll_to_top(self):
         self.driver.execute_script('window.scrollTo(0, 0);')
-
-    def scroll_to_bottom(self):
-        self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-
-    def scroll_to_element(self, element):
-        self.driver.execute_script('arguments[0].scrollIntoView(true);', element)
-        time.sleep(0.5)
 
     def mouseover(self, element, horizontal_offset=None, vertical_offset=None):
         horizontal_offset = horizontal_offset or 0
@@ -385,28 +333,3 @@ class Page(object):
         finally:
             if len(self.window_handles()) > 1:
                 self.close_window_and_switch()
-
-    # FILES
-
-    def download_file(self, download_button, file):
-        app.logger.info(f'Downloading to {utils.default_download_dir()}')
-        utils.prepare_download_dir()
-        self.wait_for_page_and_click(download_button)
-        extension = file.file_name.split('.')[-1]
-        tries = 0
-        max_tries = 15
-        while tries <= max_tries:
-            tries += 1
-            try:
-                assert len(glob.glob(f'{utils.default_download_dir()}/*.{extension}')) == 1
-                break
-            except AssertionError:
-                if tries == max_tries:
-                    raise
-                else:
-                    time.sleep(1)
-
-    def parse_json(self):
-        loc = By.XPATH, '//pre'
-        self.when_present(loc, utils.get_medium_timeout())
-        return json.loads(self.element(loc).text)

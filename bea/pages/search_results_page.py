@@ -214,19 +214,9 @@ class SearchResultsPage(ListViewAdmitPages):
         else:
             return None
 
-    def note_result_snippet(self, note):
-        return self.el_text_if_exists((By.ID, f'advising-note-search-result-snippet-{note.record_id}'))
-
-    def note_result_advisor_name(self, note):
-        advisor_loc = By.ID, f'advising-note-search-result-advisor-{note.record_id}'
-        return self.el_text_if_exists(advisor_loc, '-')
-
     def note_result_date(self, note):
         date_loc = By.ID, f'advising-note-last-modified-{note.record_id}'
         return self.el_text_if_exists(date_loc)
-
-    def click_note_link(self, note):
-        self.wait_for_element_and_click(self.note_link(note))
 
     # APPOINTMENTS
 
@@ -241,9 +231,6 @@ class SearchResultsPage(ListViewAdmitPages):
     def appt_results_count(self):
         self.wait_for_spinner()
         return self.element(self.APPT_RESULTS_COUNT).text
-
-    def wait_for_appt_search_result_rows(self):
-        Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.APPT_SEARCH_RESULT))
 
     @staticmethod
     def appt_link(appt):
@@ -291,18 +278,8 @@ class SearchResultsPage(ListViewAdmitPages):
         else:
             return None
 
-    def appt_result_snippet(self, appt):
-        return self.el_text_if_exists((By.ID, f'appointment-search-result-snippet-{appt.record_id}'))
-
-    def appt_result_advisor_name(self, appt):
-        advisor_loc = By.ID, f'appointment-search-result-advisor-{appt.record_id}'
-        return self.el_text_if_exists(advisor_loc, '-')
-
     def appt_result_date(self, appt):
         return self.el_text_if_exists((By.ID, f'appointment-created-at-date-{appt.record_id}'))
-
-    def click_appt_link(self, appt):
-        self.wait_for_element_and_click(self.appt_link(appt))
 
     # GROUPS
 

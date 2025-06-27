@@ -71,10 +71,6 @@ class CohortPages(BoaPages):
         time.sleep(2)
         self.wait_for_element_and_click(self.SAVE_COHORT_BUTTON_ONE)
 
-    def apply_and_save_cohort(self):
-        self.wait_for_element_and_click(self.APPLY_BUTTON)
-        self.wait_for_element_and_click(self.SAVE_COHORT_BUTTON_ONE)
-
     def name_cohort(self, cohort):
         self.wait_for_textbox_and_send_keys(self.COHORT_NAME_INPUT, cohort.name)
         self.wait_for_element_and_click(self.SAVE_COHORT_BUTTON_TWO)
@@ -126,13 +122,6 @@ class CohortPages(BoaPages):
         Wait(self.driver, utils.get_short_timeout()).until(ec.url_contains(f'{boa_utils.get_boa_base_url()}/home'))
         time.sleep(utils.get_click_sleep())
 
-    def cancel_cohort_deletion(self, cohort):
-        app.logger.info(f'Canceling the deletion of cohort {cohort.name}')
-        self.wait_for_page_and_click(self.DELETE_COHORT_BUTTON)
-        self.wait_for_element_and_click(self.ARE_YOU_SURE_CONFIRM_BUTTON)
-        self.when_not_present(self.ARE_YOU_SURE_CONFIRM_BUTTON, utils.get_short_timeout())
-        Wait(self.driver, 1).until(ec.url_contains(f'{cohort.cohort_id}'))
-
     # SORTING
 
     COHORT_SORT_BUTTON = By.ID, 'students-sort-by'
@@ -149,6 +138,3 @@ class CohortPages(BoaPages):
 
     def sort_by_first_name(self):
         self.sort_by('first_name')
-
-    def sort_by_last_name(self):
-        self.sort_by('last_name')

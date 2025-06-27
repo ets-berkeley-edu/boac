@@ -22,7 +22,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-import time
 
 from bea.pages.curated_add_selector import CuratedAddSelector
 from bea.pages.curated_modal import CuratedModal
@@ -31,8 +30,6 @@ from bea.test_utils import boa_utils
 from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
 class ClassPage(ListViewStudentPages,
@@ -109,13 +106,6 @@ class ClassPage(ListViewStudentPages,
 
     STUDENT_LINK = By.XPATH, '//tr//a[contains(@href, "/student/")]'
     STUDENT_SID = By.XPATH, '//div[@class="student-sid"]'
-
-    def class_list_view_sids(self):
-        Wait(self.driver, utils.get_medium_timeout()).until(ec.presence_of_all_elements_located(self.STUDENT_LINK))
-        time.sleep(utils.get_click_sleep())
-        sids = []
-        for el in self.elements(self.STUDENT_SID):
-            sids.append(el.text.replace('INACTIVE', '').replace('WAITLISTED', '').strip())
 
     @staticmethod
     def student_xpath(student):
@@ -217,15 +207,4 @@ class ClassPage(ListViewStudentPages,
             'assigns_submit_no_data': self.assigns_submit_no_data(student, node),
             'assigns_grade': self.assigns_grade_score(student, node),
             'assigns_grade_no_data': self.assigns_grade_no_data(student, node),
-        }
-
-    def last_activity(self, student, node):
-        loc = By.XPATH, f'{self.student_xpath(student)}/td[@data-label="bCourses Activity"]//div/div/div[{node}]'
-        return self.element(loc).text.split(' ')[0] if self.is_present(loc) else None
-
-    def visible_last_activity(self, student, index):
-        node = index + 1
-        return {
-            'site_code': self.site_code(student, node),
-            'days': self.last_activity(student, node),
         }

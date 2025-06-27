@@ -790,13 +790,6 @@ def get_note_template_ids(template):
     return list(map(lambda r: str(r['id']), results))
 
 
-def hard_delete_template(template_id):
-    sql = f"DELETE FROM note_templates WHERE id = '{template_id}'"
-    app.logger.info(sql)
-    db.session.execute(text(sql))
-    std_commit(allow_test_environment=True)
-
-
 def generate_note_search_query(note):
     search_string = ''
     if note.subject:

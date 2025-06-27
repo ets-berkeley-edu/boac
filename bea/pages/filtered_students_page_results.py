@@ -33,10 +33,6 @@ class FilteredStudentsPageResults(CohortPages):
         self.wait_for_spinner()
         return self.results_count()
 
-    # TODO - ADMIT FILTERS
-
-    # TODO - ADMIT SORTING
-
     @staticmethod
     def set_cohort_members(test, cohort):
         expected_sids = nessie_filter_students_utils.cohort_by_last_name(test, cohort.search_criteria)

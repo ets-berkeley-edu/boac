@@ -54,11 +54,6 @@ class FlightDeckPage(BoaPages):
     def service_alert_checkbox_label(self):
         return self.element(self.POST_SERVICE_ALERT_LABEL).text
 
-    def dismiss_alert(self):
-        app.logger.info('Dismissing service alert')
-        self.wait_for_element_and_click(self.DISMISS_ALERT_BUTTON)
-        self.when_not_present(self.SERVICE_ALERT_BANNER, 1)
-
     def update_service_alert(self, alert_string):
         app.logger.info(f'Entering service alert {alert_string}')
         self.wait_for_textbox_and_send_keys(self.UPDATE_SERVICE_ALERT_INPUT, alert_string)
