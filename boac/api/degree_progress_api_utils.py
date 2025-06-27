@@ -79,60 +79,39 @@ def clone(template, created_by, name=None, sid=None):
             template_id=template_clone_id,
         )
 
-    def _create_category(category_, parent_id):
-        unit_requirement_ids = []
-        for u in category_['unitRequirements']:
-            source_id_ = u['id']
-            cross_reference = unit_requirements_by_source_id[source_id_]
-            unit_requirement_ids.append(cross_reference.id)
-        category_name = category_['name']
-        units_lower = category_['unitsLower']
-        units_upper = category_['unitsUpper']
-        is_satisfied_by_transfer_course = category_['isSatisfiedByTransferCourse']
-        now = datetime.now()
-
-        category_created = DegreeProgressCategory.create(
-            category_type=category_['categoryType'],
-            course_units_lower=units_lower,
-            course_units_upper=units_upper,
-            description=category_['description'],
-            is_satisfied_by_transfer_course=False if sid else is_satisfied_by_transfer_course,
-            name=category_name,
-            parent_category_id=parent_id,
-            template_id=template_clone_id,
-            unit_requirement_ids=unit_requirement_ids,
-            ux_position_x=category_['uxPositionX'],
-        )
-        if sid and is_satisfied_by_transfer_course:
-            transfer_course = DegreeProgressCourse.create(
-                accent_color='Purple',
-                category_id=category_created.id,
-                degree_check_id=template_clone_id,
-                display_name=category_name,
-                grade='T',
-                manually_created_at=now,
-                manually_created_by=current_user.user_id,
-                section_id=None,
-                sid=sid,
-                term_id=None,
-                units=units_lower or units_upper,
-                unit_requirement_ids=unit_requirement_ids,
-            )
-            DegreeProgressCourse.assign(
-                category_id=category_created.id,
-                course_id=transfer_course.id,
-            )
-        return category_created
-
     categories = DegreeProgressCategory.get_categories(template_id=template.id)
     for category in categories:
-        c = _create_category(category_=category, parent_id=None)
+        c = _clone_category(
+            category=category,
+            parent_id=None,
+            sid=sid,
+            template_id=template_clone_id,
+            unit_requirements_by_source_id=unit_requirements_by_source_id,
+        )
         for course in category['courseRequirements']:
-            _create_category(category_=course, parent_id=c.id)
+            _clone_category(
+                category=course,
+                parent_id=c.id,
+                sid=sid,
+                template_id=template_clone_id,
+                unit_requirements_by_source_id=unit_requirements_by_source_id,
+            )
         for subcategory in category['subcategories']:
-            s = _create_category(category_=subcategory, parent_id=c.id)
+            s = _clone_category(
+                category=subcategory,
+                parent_id=c.id,
+                sid=sid,
+                template_id=template_clone_id,
+                unit_requirements_by_source_id=unit_requirements_by_source_id,
+            )
             for course in subcategory['courseRequirements']:
-                _create_category(category_=course, parent_id=s.id)
+                _clone_category(
+                    category=course,
+                    parent_id=s.id,
+                    sid=sid,
+                    template_id=template_clone_id,
+                    unit_requirements_by_source_id=unit_requirements_by_source_id,
+                )
     return DegreeProgressTemplate.find_by_id(template_clone_id)
 
 
@@ -151,3 +130,56 @@ def validate_template_upsert(name, template_id=None):
     if template and (template_id is None or template_id != template.id):
         raise BadRequestError(f'A degree named <strong>{name}</strong> already exists. Please choose a different name.')
     return template
+
+
+def _clone_category(
+    category,
+    parent_id,
+    sid,
+    template_id,
+    unit_requirements_by_source_id,
+):
+    unit_requirement_ids = []
+    for u in category['unitRequirements']:
+        source_id_ = u['id']
+        cross_reference = unit_requirements_by_source_id[source_id_]
+        unit_requirement_ids.append(cross_reference.id)
+    category_name = category['name']
+    units_lower = category['unitsLower']
+    units_upper = category['unitsUpper']
+    is_satisfied_by_transfer_course = category['isSatisfiedByTransferCourse']
+    now = datetime.now()
+
+    category_created = DegreeProgressCategory.create(
+        category_type=category['categoryType'],
+        course_units_lower=units_lower,
+        course_units_upper=units_upper,
+        description=category['description'],
+        is_satisfied_by_transfer_course=False if sid else is_satisfied_by_transfer_course,
+        name=category_name,
+        parent_category_id=parent_id,
+        template_id=template_id,
+        unit_requirement_ids=unit_requirement_ids,
+        ux_position_x=category['uxPositionX'],
+        ux_position_y=category['uxPositionY'],
+    )
+    if sid and is_satisfied_by_transfer_course:
+        transfer_course = DegreeProgressCourse.create(
+            accent_color='Purple',
+            category_id=category_created.id,
+            degree_check_id=template_id,
+            display_name=category_name,
+            grade='T',
+            manually_created_at=now,
+            manually_created_by=current_user.user_id,
+            section_id=None,
+            sid=sid,
+            term_id=None,
+            units=units_lower or units_upper,
+            unit_requirement_ids=unit_requirement_ids,
+        )
+        DegreeProgressCourse.assign(
+            category_id=category_created.id,
+            course_id=transfer_course.id,
+        )
+    return category_created

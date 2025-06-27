@@ -133,20 +133,22 @@ class DegreeProgressCategory(Base):
             is_satisfied_by_transfer_course=False,
             parent_category_id=None,
             unit_requirement_ids=None,
+            ux_position_y=None,
     ):
         course_units = None if course_units_lower is None else NumericRange(
             float(course_units_lower),
             float(course_units_upper or course_units_lower),
             '[]',
         )
-        # Auto-calculate ux_position_y when category is created.
-        list_of_ux_position_y = cls.fetch_list_of_ux_position_y(
-            category_type=category_type,
-            parent_category_id=parent_category_id,
-            template_id=template_id,
-            ux_position_x=ux_position_x,
-        )
-        ux_position_y = max(list_of_ux_position_y) + 1 if list_of_ux_position_y else 0
+        if not ux_position_y:
+            # Auto-calculate the 'ux_position_y' value.
+            list_of_ux_position_y = cls.fetch_list_of_ux_position_y(
+                category_type=category_type,
+                parent_category_id=parent_category_id,
+                template_id=template_id,
+                ux_position_x=ux_position_x,
+            )
+            ux_position_y = max(list_of_ux_position_y) + 1 if list_of_ux_position_y else 0
 
         category = cls(
             accent_color=accent_color,
