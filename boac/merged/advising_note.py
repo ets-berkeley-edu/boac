@@ -634,7 +634,7 @@ def _eform_to_json(eform):
             if overlap_course:
                 overlap_courses.append(overlap_course)
         api_json = {
-            'id': eform['id'],
+            'id': eform['eform_id'],
             'academicCareerCode': eform['academic_career_code'],
             'academicPlanCode': eform['academic_plan_code'],
             'academicPlanName': eform['academic_plan_name'],
