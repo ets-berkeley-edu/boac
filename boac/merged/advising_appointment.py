@@ -174,6 +174,7 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
             'deptCode': dept_code,
             'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
         })
+    starts_at = appointment.get('starts_at').isoformat() if appointment.get('starts_at') else None
     api_json = {
         'id': appointment_id,
         'advisor': {
@@ -190,11 +191,12 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
         'appointmentTitle': appointment.get('title'),
         'appointmentType': appointment_type,
         'attachments': attachments,
-        'createdAt': resolve_sis_created_at(appointment) or appointment.get('starts_at').isoformat(),
+        'createdAt': resolve_sis_created_at(appointment) or starts_at,
         'createdBy': created_by,
         'deptCode': appointment.get('dept_code'),
         'details': appointment.get('details'),
         'endsAt': appointment.get('ends_at').isoformat() if created_by in ['Calendly', 'YCBM'] and appointment.get('ends_at') else None,
+        'startsAt': starts_at,
         'student': {
             'sid': appointment.get('student_sid'),
         },
