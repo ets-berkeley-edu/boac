@@ -711,9 +711,11 @@ const getRowAriaLabelledBy = (message, index) => {
 
 const getSameDayDate = message => {
   const format = 'h:mm a'
+  const startTime = formatDate(message.startsAt || message.createdAt, format)
+  const endTime = formatDate(message.endsAt, format)
   return {
-    visual: `${formatDate(message.createdAt, format)} - ${formatDate(message.endsAt, format)}`,
-    screenReader: `${formatDate(message.createdAt, format)} to ${formatDate(message.endsAt, format)}`
+    visual: `${startTime} - ${endTime}`,
+    screenReader: `${startTime} to ${endTime}`
   }
 }
 
