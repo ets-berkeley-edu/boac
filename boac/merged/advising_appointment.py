@@ -68,8 +68,9 @@ def get_calendly_advising_appointments(sid):
     for row in data_loch.get_calendly_advising_appointments(sid):
         appointment = row
         appointment_id = appointment['id']
-        # Calendly content demands markup and HTML is the logical choice.
-        details = appointment['meeting_notes_html'] or appointment['meeting_notes_plain']
+        # NOTE: We intentionally ignore Calendly's 'meeting_notes_html' property because our service-lead wants advisors
+        # to create and manage notes BOA. If we were to show 'meeting_notes' in BOA then we might enable bad habits.
+        details = None
         questions_and_answers = json.loads(appointment['questions_and_answers'] or '[]')
         if questions_and_answers:
             details = '<ul>'
