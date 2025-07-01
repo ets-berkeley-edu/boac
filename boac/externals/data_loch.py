@@ -566,8 +566,9 @@ def get_calendly_advising_appointments(sid):
             id, 'Calendly' AS appointment_type,
             CASE WHEN canceled_at IS NOT NULL THEN TRUE ELSE FALSE END AS cancelled, canceled_at, canceled_by,
             cancellation_reason, created_at, 'Calendly' AS created_by, end_time AS ends_at, host_name AS advisor_name,
-            host_sid AS advisor_sid, host_uid AS advisor_uid, meeting_notes_html, meeting_notes_plain,
-            questions_and_answers, start_time AS starts_at, student_sid, student_uid, title, updated_at
+            host_sid AS advisor_sid, host_uid AS advisor_uid, is_rescheduled, is_student_no_show, meeting_notes_html,
+            meeting_notes_plain, questions_and_answers, start_time AS starts_at, student_sid, student_uid, title,
+            updated_at
         FROM {advising_appointments_schema()}.calendly_advising_appointments
         WHERE student_sid=%(sid)s"""
     return safe_execute_rds(sql, sid=sid)

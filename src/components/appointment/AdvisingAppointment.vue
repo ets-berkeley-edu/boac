@@ -24,13 +24,14 @@
           <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details" />
         </div>
         <div
-          v-if="appointment.status === 'cancelled'"
+          v-if="appointment.status === 'cancelled' || appointment.isRescheduled || appointment.isStudentNoShow"
+          :id="`appointment-${appointment.id}-${appointment.status === 'cancelled' ? 'canceled' : (appointment.isStudentNoShow ? 'no-show' : 'rescheduled')}`"
           class="mt-2"
           :class="{'border-sm pa-2': appointment.cancelReason}"
         >
           <div class="font-size-14 text-error text-uppercase">
             <v-icon class="mr-1" :icon="mdiCalendarMinus" />
-            Canceled
+            {{ appointment.status === 'cancelled' ? 'Canceled' : (appointment.isStudentNoShow ? 'No Show' : 'Rescheduled') }}
           </div>
           <div v-if="appointment.cancelReason" class="mt-1 pl-7">
             <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
