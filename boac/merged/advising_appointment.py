@@ -79,7 +79,10 @@ def get_calendly_advising_appointments(sid):
             details += '</ul>'
 
         appointment['details'] = details
-        appointments_by_id[str(appointment_id)] = appointment_to_compatible_json(appointment=appointment)
+        api_json = appointment_to_compatible_json(appointment=appointment)
+        api_json['isRescheduled'] = appointment['is_rescheduled']
+        api_json['isStudentNoShow'] = appointment['is_student_no_show']
+        appointments_by_id[str(appointment_id)] = api_json
     return appointments_by_id
 
 

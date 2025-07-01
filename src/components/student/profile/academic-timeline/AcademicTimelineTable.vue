@@ -342,13 +342,13 @@
               class="column-details text-right"
             >
               <div
-                v-if="!isExpanded(message) && isCancelledAppointment(message)"
+                v-if="!isExpanded(message) && (isCancelledAppointment(message) || message.isRescheduled || message.isStudentNoShow)"
                 :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
                 class="collapsed-cancelled-icon float-right d-flex px-2 h-100 text-error text-no-wrap"
               >
                 <v-icon :icon="mdiCalendarMinus" class="mr-1" />
                 <div>
-                  Canceled
+                  {{ isCancelledAppointment(message) ? 'Canceled' : (message.isStudentNoShow ? 'No Show' : 'Rescheduled') }}
                 </div>
               </div>
               <div v-if="['appointment', 'eForm', 'note'].includes(message.type) && size(message.attachments)" class="px-2">
@@ -381,7 +381,7 @@
                       <div :aria-hidden="true" class="text-medium-emphasis font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
                       <TimelineDate
                         :id="`expanded-${message.type}-${message.id}-created-at`"
-                        :date="message.createdAt"
+                        :date="message.startsAt || message.createdAt"
                         :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Created on'"
                         :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')"
                       />
