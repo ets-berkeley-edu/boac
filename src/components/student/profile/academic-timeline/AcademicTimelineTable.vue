@@ -344,11 +344,14 @@
               <div
                 v-if="!isExpanded(message) && (isCancelledAppointment(message) || message.isRescheduled || message.isStudentNoShow)"
                 :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
-                class="collapsed-cancelled-icon float-right d-flex px-2 h-100 text-error text-no-wrap"
+                class="align-center collapsed-cancelled-icon float-right d-flex px-2 h-100 text-error text-no-wrap"
               >
-                <v-icon :icon="mdiCalendarMinus" class="mr-1" />
+                <v-icon
+                  class="mr-1"
+                  :icon="message.isRescheduled ? mdiCalendarClock : (message.isStudentNoShow ? mdiCalendarRemove : mdiCalendarMinus)"
+                />
                 <div>
-                  {{ isCancelledAppointment(message) ? 'Canceled' : (message.isStudentNoShow ? 'No Show' : 'Rescheduled') }}
+                  {{ message.isRescheduled ? 'Rescheduled' : (message.isStudentNoShow ? 'No Show' : 'Canceled') }}
                 </div>
               </div>
               <div v-if="['appointment', 'eForm', 'note'].includes(message.type) && size(message.attachments)" class="px-2">
@@ -467,7 +470,9 @@ import {capitalize, each, filter, find, get, includes, map, remove, size, slice,
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {
+  mdiCalendarClock,
   mdiCalendarMinus,
+  mdiCalendarRemove,
   mdiCheckBold,
   mdiClockOutline,
   mdiCloseCircle,
