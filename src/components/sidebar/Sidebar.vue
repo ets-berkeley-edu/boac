@@ -212,7 +212,8 @@ import {computed} from 'vue'
 import {filter as _filter, capitalize} from 'lodash'
 import {mdiPlus} from '@mdi/js'
 import {useDisplay} from 'vuetify'
-import type {Cohort, CuratedGroup} from '@/lib/types'
+import type {Cohort} from '@/lib/types-cohorts'
+import type {CuratedGroup} from '@/lib/types'
 import NavLink from '@/components/util/NavLink.vue'
 import PillCount from '@/components/util/PillCount.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
@@ -233,10 +234,7 @@ const {mdAndUp} = useDisplay()
   border-left: 6px solid transparent;
   padding: 0 8px 0 6px;
 }
-.pretty-hover:hover,
-.pretty-hover:focus,
-.pretty-hover:focus-within,
-.pretty-hover:active {
+.pretty-hover:hover, .pretty-hover:focus, .pretty-hover:focus-within, .pretty-hover:active {
   background-color: rgb(var(--v-theme-quaternary));
   border: 0;
   border-left: 6px solid rgb(var(--v-theme-warning)) !important;
@@ -245,16 +243,11 @@ const {mdAndUp} = useDisplay()
   outline-style: none;
   text-decoration: none;
 }
-.pretty-hover:hover .sidebar-pill,
-.pretty-hover:focus .sidebar-pill,
-.pretty-hover:focus-within .sidebar-pill,
-.pretty-hover:active .sidebar-pill {
+.pretty-hover:hover .sidebar-pill, .pretty-hover:focus .sidebar-pill, .pretty-hover:focus-within .sidebar-pill, .pretty-hover:active .sidebar-pill {
   background-color: rgb(var(--v-theme-warning)) !important;
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.pretty-hover a:link,
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.pretty-hover a:visited {
+.pretty-hover a:link, .pretty-hover a:visited {
   text-decoration: none;
   border: 0;
   color: inherit;

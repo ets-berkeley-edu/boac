@@ -79,8 +79,8 @@ class TestCohortFilter:
             'minors': minors,
             'unitRanges': unit_ranges,
         }
-        for key, value in expected.items():
-            assert cohort['criteria'][key] == expected[key]
+        for key, expected_value in expected.items():
+            assert cohort['criteria'][key] == expected_value
         assert cohort['totalStudentCount'] == len(CohortFilter.get_sids(cohort_id))
 
     def test_ce3_filter_criteria(self):
@@ -110,8 +110,8 @@ class TestCohortFilter:
             'freshmanOrTransfer': freshman_or_transfer,
             'hasFeeWaiver': has_fee_waiver,
         }
-        for key, value in expected.items():
-            assert cohort['criteria'][key] == expected[key]
+        for key, expected_value in expected.items():
+            assert cohort['criteria'][key] == expected_value
         assert cohort['totalStudentCount'] == len(CohortFilter.get_sids(cohort_id))
         assert cohort['students']
 

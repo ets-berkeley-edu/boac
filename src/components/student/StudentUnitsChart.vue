@@ -184,9 +184,7 @@ onMounted(() => {
 </script>
 
 <style>
-.student-chart-units-container,
-.student-chart-units-container .highcharts-container,
-.student-chart-units-container .highcharts-root {
+.student-chart-units-container, .student-chart-units-container .highcharts-container, .student-chart-units-container .highcharts-root {
   overflow: visible !important;
 }
 .units-chart-font-family {

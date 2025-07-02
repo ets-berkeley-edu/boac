@@ -213,7 +213,6 @@ const getCourseDecile = index => {
 <style>
 .boxplot-tooltip-font-family {
   font-family: Verdana, "Open Sans", Roboto, Helvetica, Arial, sans-serif;
-
 }
 .boxplot-tooltip-header {
   background-color: rgb(var(--v-theme-surface-light));
@@ -223,8 +222,7 @@ const getCourseDecile = index => {
   font-size: 16px;
   font-weight: 500;
 }
-.student-boxplot .highcharts-container,
-.student-boxplot .highcharts-root {
+.student-boxplot .highcharts-container, .student-boxplot .highcharts-root {
   max-width: 85px;
   width: 100% !important;
 }

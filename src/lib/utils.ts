@@ -1,7 +1,8 @@
 import numeral from 'numeral'
 import {concat, head, initial, isNil, isNumber, join, last, toLower, trim} from 'lodash'
 import {nextTick} from 'vue'
-import type {BoaUser, Cohort, CuratedGroup, HasName, ScreenReaderAlert} from '@/lib/types'
+import type {BoaUser, CuratedGroup, HasName, ScreenReaderAlert} from '@/lib/types'
+import type {Cohort} from '@/lib/types-cohorts'
 import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 
@@ -138,7 +139,7 @@ export function pluralize(noun: string, count: number, substitutions = {}, plura
   return (`${substitutions[count] || substitutions['other'] || count.toLocaleString()} ` + (count !== 1 ? `${noun}${pluralSuffix}` : noun))
 }
 
-
+// eslint-disable-next-line no-undef
 export function putFocusNextTick(id: string, {scroll=true, scrollBlock='center', cssSelector=undefined}: {scroll?: boolean, scrollBlock?: ScrollLogicalPosition, cssSelector?: string}={}) {
   nextTick(() => {
     let counter = 0
@@ -169,7 +170,7 @@ export function setPageTitle(phrase: string): void {
   document.title = `${title || 'UC Berkeley'} | BOA`
 }
 
-
+// eslint-disable-next-line no-undef
 export function scrollTo(anchor: string, scrollBlock?: ScrollLogicalPosition) {
   nextTick(() => {
     const element = document.getElementById(anchor)

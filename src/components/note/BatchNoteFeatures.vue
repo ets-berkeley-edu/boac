@@ -153,12 +153,10 @@ const addCuratedGroup = curatedGroup => {
 
 <!-- The CSS 'alert' classes below are used by the 'transition' block above. -->
 <style scoped>
-.alert-enter-active,
-.alert-leave-active {
+.alert-enter-active, .alert-leave-active {
   transition: opacity 0.5s ease;
 }
-.alert-enter-from,
-.alert-leave-to {
+.alert-enter-from, .alert-leave-to {
   opacity: 0;
 }
 </style>

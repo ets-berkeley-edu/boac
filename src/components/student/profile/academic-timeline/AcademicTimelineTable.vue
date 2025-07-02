@@ -953,10 +953,7 @@ table {
   min-height: 40px;
   scroll-margin-top: 110px !important;
 }
-.message-row:active,
-.message-row:focus,
-.message-row:focus-within,
-.message-row:hover {
+.message-row:active, .message-row:focus, .message-row:focus-within, .message-row:hover {
   background-color: rgb(var(--v-theme-sky-blue));
 }
 .message-row-read {

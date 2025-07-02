@@ -106,8 +106,7 @@ const setServiceAlertOffset = () => {
 </style>
 
 <style>
-.service-alert-offset > .scroll-margins,
-.service-alert-offset h1.scroll-margins {
+.service-alert-offset > .scroll-margins, .service-alert-offset h1.scroll-margins {
   scroll-margin-top: calc(v-bind(serviceAlertOffset) + 80px);
 }
 </style>
