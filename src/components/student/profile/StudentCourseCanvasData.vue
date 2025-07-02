@@ -195,8 +195,7 @@ const lastActivityInContext = (analytics: Analytics) => {
 .bcourses {
   background-color: rgb(var(--v-theme-pale-blue));
 }
-.bcourses td,
-.bcourses th {
+.bcourses td, .bcourses th {
   font-size: 14px;
   padding: 0 10px 0 0;
   text-align: left;

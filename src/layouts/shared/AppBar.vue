@@ -27,8 +27,7 @@ import NavLink from '@/components/util/NavLink.vue'
 
 <style scoped>
 /* eslint-disable vue-scoped-css/no-unused-selector */
-.header-text a:link,
-.header-text a:visited {
+.header-text a:link, .header-text a:visited {
 /* eslint-enable vue-scoped-css/no-unused-selector */
   border: 0;
   color: white;
@@ -38,9 +37,7 @@ import NavLink from '@/components/util/NavLink.vue'
   text-decoration: none;
 }
 /* eslint-disable vue-scoped-css/no-unused-selector */
-.header-text a:hover,
-.header-text a:focus,
-.header-text a:active {
+.header-text a:hover, .header-text a:focus, .header-text a:active {
 /* eslint-enable vue-scoped-css/no-unused-selector */
   opacity: var(--v-high-emphasis-opacity )
 }
