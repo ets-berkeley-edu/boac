@@ -27,13 +27,16 @@
           v-if="appointment.status === 'cancelled' || appointment.isRescheduled || appointment.isStudentNoShow"
           :id="`appointment-${appointment.id}-${appointment.status === 'cancelled' ? 'canceled' : (appointment.isStudentNoShow ? 'no-show' : 'rescheduled')}`"
           class="mt-2"
-          :class="{'border-sm pa-2': appointment.cancelReason}"
+          :class="{'border-sm px-4 py-3': appointment.cancelReason}"
         >
-          <div class="font-size-14 text-error text-uppercase">
-            <v-icon class="mr-1" :icon="mdiCalendarMinus" />
-            {{ appointment.status === 'cancelled' ? 'Canceled' : (appointment.isStudentNoShow ? 'No Show' : 'Rescheduled') }}
+          <div class="align-center d-flex font-size-14 mt-1 text-error text-uppercase">
+            <v-icon
+              class="mr-1"
+              :icon="appointment.isRescheduled ? mdiCalendarClock : (appointment.isStudentNoShow ? mdiCalendarRemove : mdiCalendarMinus)"
+            />
+            {{ appointment.isRescheduled ? 'Rescheduled' : (appointment.isStudentNoShow ? 'No Show' : 'Canceled') }}
           </div>
-          <div v-if="appointment.cancelReason" class="mt-1 pl-7">
+          <div v-if="appointment.cancelReason" class="ml-1 mt-1">
             <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
           </div>
         </div>
@@ -121,7 +124,7 @@
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {get, size} from 'lodash'
-import {mdiCalendarMinus, mdiPaperclip} from '@mdi/js'
+import {mdiCalendarClock, mdiCalendarMinus, mdiCalendarRemove, mdiPaperclip} from '@mdi/js'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import PillItem from '@/components/util/PillItem'
 import {useContextStore} from '@/stores/context'
