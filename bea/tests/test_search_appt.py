@@ -36,7 +36,7 @@ test = BEATestConfig()
 test.search_appts()
 
 
-# NB: YCBM appointments are *not* searchable
+# NB: Calendly and YCBM appointments are *not* searchable
 
 
 @pytest.mark.usefixtures('page_objects')

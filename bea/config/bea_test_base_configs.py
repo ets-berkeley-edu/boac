@@ -295,6 +295,10 @@ class BEATestBaseConfigs(object):
                 app.logger.info('Running tests using students with appointments')
                 sids = nessie_utils.get_all_student_sids()
 
+                calendly_sids = nessie_timeline_utils.get_sids_with_calendly_appts()
+                calendly_sids = list(set(sids) & set(calendly_sids))
+                app.logger.info(f'There are {len(calendly_sids)} students with Calendly appointments')
+
                 sis_sids = nessie_timeline_utils.get_sids_with_sis_appts()
                 sis_sids = list(set(sids) & set(sis_sids))
                 app.logger.info(f'There are {len(sis_sids)} students with SIS appointments')
@@ -303,7 +307,7 @@ class BEATestBaseConfigs(object):
                 ycbm_sids = list(set(sids) & set(ycbm_sids))
                 app.logger.info(f'There are {len(ycbm_sids)} students with YCBM appointments')
 
-                for sid_list in [sis_sids, ycbm_sids]:
+                for sid_list in [calendly_sids, sis_sids, ycbm_sids]:
                     random.shuffle(sid_list)
                     test_sids.extend(sid_list[:count])
 

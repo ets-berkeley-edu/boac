@@ -60,7 +60,8 @@ class TestApptsList:
     def test_appt_sort_order(self, student):
         appts = nessie_timeline_utils.get_sis_appts(student)
         appts.extend(nessie_timeline_utils.get_ycbm_appts(student))
-        appts.sort(key=lambda ap: [ap.created_date, ap.record_id], reverse=True)
+        appts.extend(nessie_timeline_utils.get_calendly_appts(student))
+        appts.sort(key=lambda ap: [(ap.created_date or ap.start_time), ap.record_id], reverse=True)
         expected_ids = [a.record_id for a in appts]
         visible_ids = self.student_page.visible_appt_ids()
         utils.assert_equivalence(visible_ids, expected_ids)
@@ -79,7 +80,7 @@ class TestApptContent:
 
     def test_collapsed_detail(self, tc):
         visible = self.student_page.collapsed_appt_detail(tc.appt)
-        if tc.appt.source == TimelineRecordSource.YCBM:
+        if tc.appt.source in [TimelineRecordSource.CALENDLY, TimelineRecordSource.YCBM]:
             assert tc.appt.title
             utils.assert_equivalence(visible, tc.appt.title)
         elif tc.appt.source == TimelineRecordSource.SIS:
@@ -90,15 +91,14 @@ class TestApptContent:
                 utils.assert_actual_includes_expected(visible, placeholder)
 
     def test_collapsed_status(self, tc):
-        if tc.appt.status == 'Canceled':
-            utils.assert_equivalence(self.student_page.collapsed_appt_status(tc.appt), 'CANCELED')
+        if tc.appt.status:
+            utils.assert_equivalence(self.student_page.collapsed_appt_status(tc.appt), tc.appt.status.upper())
 
     def test_collapsed_date(self, tc):
         if tc.appt.source == TimelineRecordSource.SIS:
-            assert tc.appt.updated_date
             expected = self.student_page.expected_item_short_date_format(tc.appt.updated_date)
         else:
-            expected = self.student_page.expected_item_short_date_format(tc.appt.created_date)
+            expected = self.student_page.expected_item_short_date_format(tc.appt.start_time)
         utils.assert_actual_includes_expected(self.student_page.collapsed_appt_date(tc.appt), expected)
 
     def test_expanded_details(self, tc):
@@ -107,21 +107,18 @@ class TestApptContent:
             assert self.student_page.expanded_appt_details(tc.appt)
 
     def test_expanded_date(self, tc):
-        assert tc.appt.created_date
-        expected = self.student_page.expected_item_short_date_format(tc.appt.created_date)
+        if tc.appt.source == TimelineRecordSource.SIS:
+            expected = self.student_page.expected_item_short_date_format(tc.appt.created_date)
+        else:
+            expected = self.student_page.expected_item_short_date_format(tc.appt.start_time)
         utils.assert_equivalence(self.student_page.expanded_appt_date(tc.appt), expected)
 
     def test_expanded_times(self, tc):
-        if tc.appt.source == TimelineRecordSource.YCBM:
-            assert tc.appt.start_time
-            assert tc.appt.end_time
+        if tc.appt.source in [TimelineRecordSource.CALENDLY, TimelineRecordSource.YCBM]:
             start = datetime.datetime.strftime(tc.appt.start_time, '%-l:%M %p')
             end = datetime.datetime.strftime(tc.appt.end_time, '%-l:%M %p')
             utils.assert_actual_includes_expected(self.student_page.expanded_appt_time_range(tc.appt),
                                                   f'{start} - {end}')
-        else:
-            assert not tc.appt.start_time
-            assert not tc.appt.end_time
 
     def test_expanded_advisor(self, tc):
         # Appts have varying amounts of advisor info, just verify something's there
@@ -131,7 +128,7 @@ class TestApptContent:
         elif tc.appt.advisor.last_name:
             assert visible
 
-    def test_expanded_cancellation(self, tc):
+    def test_expanded_status(self, tc):
         visible = self.student_page.expanded_appt_cancel_reason(tc.appt)
         if tc.appt.status == 'Canceled' and tc.appt.cancel_reason:
             actual = re.sub(r'\W', '', visible)
@@ -143,7 +140,9 @@ class TestApptContent:
     def test_expanded_contact_type(self, tc):
         visible = self.student_page.expanded_appt_type(tc.appt)
         if tc.appt.contact_type and tc.appt.contact_type != 'None':
-            utils.assert_equivalence(visible, tc.appt.contact_type)
+            utils.assert_actual_includes_expected(visible, tc.appt.contact_type)
+        elif tc.appt.source == TimelineRecordSource.CALENDLY:
+            utils.assert_actual_includes_expected(visible, TimelineRecordSource.CALENDLY.value['name'])
         else:
             assert not visible
 
@@ -170,13 +169,14 @@ class TestApptContent:
                     self.student_page.download_attachment(tc.appt, attach, tc.student)
 
     def test_appt_search(self, tc):
-        search_string = boa_utils.generate_appt_search_query(tc.appt)
-        if search_string:
-            self.student_page.show_appts()
-            self.student_page.clear_timeline_appt_search()
-            appt_count = len(self.student_page.visible_appt_ids())
-            self.student_page.search_within_timeline_appts(search_string)
-            results = self.student_page.visible_appt_ids()
-            utils.assert_actual_includes_expected(results, tc.appt.record_id)
-            if appt_count > 1:
-                assert len(results) < appt_count
+        if tc.appt.source != TimelineRecordSource.CALENDLY:
+            search_string = boa_utils.generate_appt_search_query(tc.appt)
+            if search_string:
+                self.student_page.show_appts()
+                self.student_page.clear_timeline_appt_search()
+                appt_count = len(self.student_page.visible_appt_ids())
+                self.student_page.search_within_timeline_appts(search_string)
+                results = self.student_page.visible_appt_ids()
+                utils.assert_actual_includes_expected(results, tc.appt.record_id)
+                if appt_count > 1:
+                    assert len(results) < appt_count

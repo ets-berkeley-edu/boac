@@ -47,7 +47,10 @@ class BEATestConfig(BEATestBaseConfigs):
         # Generate test cases for parameterized tests
         for student in self.test_students:
             # Throw out junk SIS appts
-            appts = [a for a in nessie_timeline_utils.get_sis_appts(student) if '504GatewayTimeout' not in a.detail][0:limit]
+            appts = [a for a in nessie_timeline_utils.get_sis_appts(student) if '504GatewayTimeout' not in a.detail]
+            appts = appts[0:limit] if appts else []
+            calendly_appts = nessie_timeline_utils.get_calendly_appts(student)[0:limit]
+            appts.extend(calendly_appts)
             ycbm_appts = nessie_timeline_utils.get_ycbm_appts(student)[0:limit]
             appts.extend(ycbm_appts)
             for appt in appts:
