@@ -74,7 +74,7 @@
           class="mt-2"
           :class="{'text-grey': ['Calendly', 'YCBM'].includes(appointment.appointmentType)}"
         >
-          <span class="font-weight-bold">Source:</span> {{ appointment.appointmentType }}
+          {{ appointment.appointmentType }}
         </div>
         <div v-if="appointment.topics && size(appointment.topics)" class="mt-2">
           <div class="font-size-16 font-weight-bold">Topics</div>
