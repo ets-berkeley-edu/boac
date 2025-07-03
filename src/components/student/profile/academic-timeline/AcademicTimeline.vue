@@ -141,7 +141,7 @@ const setFilter = filter => {
 const sortDate = message => {
   let date
   if (message.type === 'appointment' || message.type === 'note') {
-    date = message.setDate || message.createdAt
+    date = message.startsAt || message.setDate || message.createdAt
   } else {
     date = message.updatedAt || message.createdAt
   }
