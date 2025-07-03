@@ -36,6 +36,10 @@ class TimelineRecordSource(Enum):
         'name': 'BOA',
         'schema': None,
     }
+    CALENDLY = {
+        'name': 'Calendly',
+        'schema': 'calendly_advising_appointments',
+    }
     DATA = {
         'name': 'Data Science',
         'schema': 'boac_advising_data_science',

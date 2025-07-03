@@ -402,6 +402,51 @@ def get_sis_notes(student):
 # APPOINTMENTS
 
 
+def get_calendly_appts(student):
+    sql = f"""SELECT boac_advising_appointments.calendly_advising_appointments.id,
+                     boac_advising_appointments.calendly_advising_appointments.title,
+                     boac_advising_appointments.calendly_advising_appointments.questions_and_answers,
+                     boac_advising_appointments.calendly_advising_appointments.host_name,
+                     boac_advising_appointments.calendly_advising_appointments.start_time,
+                     boac_advising_appointments.calendly_advising_appointments.end_time,
+                     boac_advising_appointments.calendly_advising_appointments.canceled_at,
+                     boac_advising_appointments.calendly_advising_appointments.canceled_by,
+                     boac_advising_appointments.calendly_advising_appointments.cancellation_reason,
+                     boac_advising_appointments.calendly_advising_appointments.is_rescheduled,
+                     boac_advising_appointments.calendly_advising_appointments.is_student_no_show
+                FROM boac_advising_appointments.calendly_advising_appointments
+               WHERE boac_advising_appointments.calendly_advising_appointments.student_sid = '{student.sid}'"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    appts = []
+    for row in results:
+        advisor = User({'full_name': row['host_name']})
+        canceled = True if row['canceled_at'] else False
+        no_show = row['is_student_no_show']
+        rescheduled = row['is_rescheduled']
+        if no_show:
+            status = 'No Show'
+        elif rescheduled:
+            status = 'Rescheduled'
+        elif canceled:
+            status = 'Cancelled'
+        else:
+            status = None
+        appts.append(Appointment(data={
+            'record_id': row['id'],
+            'advisor': advisor,
+            'cancel_reason': row['cancellation_reason'],
+            'detail': row['questions_and_answers'],
+            'end_time': (row['end_time'] and utils.date_to_local_tz(row['end_time'])),
+            'source': TimelineRecordSource.CALENDLY,
+            'start_time': (row['start_time'] and utils.date_to_local_tz(row['start_time'])),
+            'status': status,
+            'student': student,
+            'title': re.sub(r'\s+', ' ', str(row['title'])).strip(),
+        }))
+    return appts
+
+
 def get_sis_appts(student):
     sql = f"""SELECT sis_advising_notes.advising_appointments.id AS id,
                      sis_advising_notes.advising_appointments.note_body AS body,
@@ -472,6 +517,7 @@ def get_sis_appts(student):
             if t['topic']:
                 topics.append(t['topic'].upper())
         topics.sort()
+        topics = list(set(topics))
 
         appts.append(Appointment(attachments=attachments,
                                  data=appt_data,
@@ -504,7 +550,6 @@ def get_ycbm_appts(student):
             'record_id': str(k),
             'advisor': advisor,
             'cancel_reason': cancel_reason,
-            'created_date': (v[0]['starts_at'] and utils.date_to_local_tz(v[0]['starts_at'])),
             'detail': v[0]['details'],
             'end_time': (v[0]['ends_at'] and utils.date_to_local_tz(v[0]['ends_at'])),
             'source': TimelineRecordSource.YCBM,
@@ -515,6 +560,15 @@ def get_ycbm_appts(student):
             'contact_type': str(v[0]['appointment_type']).strip(),
         }))
     return appts
+
+
+def get_sids_with_calendly_appts():
+    sql = """SELECT DISTINCT student_sid AS sid
+               FROM boac_advising_appointments.calendly_advising_appointments
+              WHERE student_uid IS NOT NULL"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    return list(map(lambda r: str(r['sid']), results))
 
 
 def get_sids_with_sis_appts():
