@@ -570,7 +570,9 @@ def get_calendly_advising_appointments(sid):
             meeting_notes_plain, questions_and_answers, start_time AS starts_at, student_sid, student_uid, title,
             updated_at
         FROM {advising_appointments_schema()}.calendly_advising_appointments
-        WHERE student_sid=%(sid)s"""
+        WHERE student_sid=%(sid)s
+        ORDER BY start_time DESC
+        """
     return safe_execute_rds(sql, sid=sid)
 
 
