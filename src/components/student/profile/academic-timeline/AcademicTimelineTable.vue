@@ -369,7 +369,7 @@
                 <div v-if="!isExpanded(message) || !includes(['appointment', 'eForm', 'note'], message.type)">
                   <TimelineDate
                     :id="`collapsed-${message.type}-${message.id}-created-at`"
-                    :date="message.setDate || message.updatedAt || message.createdAt"
+                    :date="message.startsAt || message.setDate || message.updatedAt || message.createdAt"
                     :include-time-of-day="false"
                     :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
                   />
