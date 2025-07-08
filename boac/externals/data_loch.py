@@ -561,6 +561,7 @@ def get_asc_advising_note_topics(sid):
 
 
 def get_calendly_advising_appointments(sid):
+    # NOTE: We are excluding 'rescheduled' appointments per BOAC-6254. Essentially, they are canceled meetings.
     sql = f"""
         SELECT
             id, 'Calendly' AS appointment_type,
@@ -570,7 +571,7 @@ def get_calendly_advising_appointments(sid):
             meeting_notes_plain, questions_and_answers, start_time AS starts_at, student_sid, student_uid, title,
             updated_at
         FROM {advising_appointments_schema()}.calendly_advising_appointments
-        WHERE student_sid=%(sid)s
+        WHERE student_sid=%(sid)s AND is_rescheduled IS FALSE
         ORDER BY start_time DESC
         """
     return safe_execute_rds(sql, sid=sid)
