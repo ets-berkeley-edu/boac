@@ -5,6 +5,7 @@ export type AcademicTimelineMessage = {
   appointmentTitle?: string,
   author: NoteAuthor,
   category?: string,
+  createdBy?: string,
   details?: string,
   eForm: EForm,
   legacySource: string,
