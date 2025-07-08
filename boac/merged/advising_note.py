@@ -74,7 +74,11 @@ def can_current_user_access_note(note):
 
 def can_current_user_edit_note(note):
     is_authorized = current_user.can_access_advising_data and get_author_uid(note) == current_user.uid
-    if not is_authorized and note.peer_advising_department_id and is_peer_advisor_manager(current_user):
+    if (
+        not is_authorized
+        and note.peer_advising_department_id
+        and is_peer_advisor_manager(current_user, note.peer_advising_department_id)
+    ):
         user_id = current_user.get_id()
         memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id)
         for membership in memberships:

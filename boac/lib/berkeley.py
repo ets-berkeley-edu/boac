@@ -306,6 +306,16 @@ def academic_year_for_term_name(term_name):
         return match.group(2)
 
 
+def get_department_membership_with_role(user, role):
+    membership = None
+    departments = user['departments'] if isinstance(user, dict) else user.departments
+    for d in departments:
+        membership = next((m for m in d['memberships'] if m['role'] == role), None)
+        if membership:
+            break
+    return membership
+
+
 def has_any_membership_role(user, *roles):
     is_dict = isinstance(user, dict)
     departments = user['departments'] if is_dict else user.departments
@@ -316,8 +326,13 @@ def has_any_membership_role(user, *roles):
     return False
 
 
-def is_peer_advisor_manager(user):
-    return has_any_membership_role(user, 'peer_advisor_manager')
+def is_peer_advisor_manager(user, peer_advising_department_id=None):
+    if peer_advising_department_id:
+        membership = get_department_membership_with_role(user, 'peer_advisor_manager')
+        result = membership and membership['peerAdvisingDepartmentId'] == peer_advising_department_id
+    else:
+        result = has_any_membership_role(user, 'peer_advisor_manager')
+    return result
 
 
 def is_peer_advisor(user):
