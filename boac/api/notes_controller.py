@@ -206,9 +206,21 @@ def delete_note(note_id):
     note = Note.find_by_id(note_id=note_id)
     if not note:
         raise ResourceNotFoundError('Note not found')
-    can_user_delete = current_user.is_admin or (note.is_draft and can_current_user_edit_note(note))
+    # Authorization check
+    can_user_delete = False
+    if current_user.is_admin:
+        can_user_delete = True
+    else:
+        is_authored_by_current_user = get_author_uid(note) == current_user.uid
+        if note.is_draft and is_authored_by_current_user:
+            can_user_delete = current_user.can_access_advising_data
+        elif not is_authored_by_current_user:
+            # Peer Advisor Managers can delete (and edit) all notes authored within their Peer Advising department.
+            can_user_delete = can_current_user_edit_note(note)
+
     if not can_user_delete:
         raise ForbiddenRequestError('Sorry, you are not authorized to delete notes.')
+    # Woo-hoo! User is authorized to delete.
     Note.delete(note_id=note_id)
     return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
 

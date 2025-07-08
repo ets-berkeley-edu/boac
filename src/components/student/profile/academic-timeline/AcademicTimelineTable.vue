@@ -496,6 +496,7 @@ import {isDirector} from '@/lib/boa-user'
 import {markAppointmentRead} from '@/api/appointments'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session/index'
+import {getUserDepartmentsWithRoles} from '@/lib/berkeley-department.js'
 
 const props = defineProps({
   countPerActiveTab: {
@@ -899,7 +900,21 @@ const toggleShowAll = () => {
 }
 
 const userCanDelete = message => {
-  return isEditable(message) && message.type === 'note' && (currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid))
+  let canDelete = false
+  if (isEditable(message)) {
+    canDelete = currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)
+    if (!canDelete && message.peerAdvisingDepartmentId) {
+      const departments = getUserDepartmentsWithRoles(currentUser, ['peer_advisor_manager'])
+      each(departments, department => {
+        // Peer Advisor Manager can delete note if author is a Peer Advisor in the same Peer Advising department.
+        const membership = find(department.memberships, ['role', 'peer_advisor_manager'])
+        canDelete = membership.peerAdvisingDepartmentId === message.peerAdvisingDepartmentId
+        // Break out of loop if canDelete is true.
+        return !canDelete
+      })
+    }
+  }
+  return canDelete
 }
 </script>
 
