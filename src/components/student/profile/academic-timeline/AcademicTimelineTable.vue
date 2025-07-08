@@ -873,6 +873,15 @@ const refreshSearchIndex = () => {
         e.term
       ])
     }
+    if (m.type === 'appointment') {
+      idx = idx.concat([
+        m.cancelReason,
+        m.status
+      ])
+    }
+    if (m.createdBy === 'Calendly') {
+      idx = idx.concat([m.appointmentTitle])
+    }
     searchIndex.value.push({idx: normalizeForSearchIndex(idx.join()), message: m})
   })
 }
