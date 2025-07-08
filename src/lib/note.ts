@@ -68,7 +68,9 @@ export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessag
       summary = `eForm: ${eForm.action} – ${eForm.status}`
     }
   } else if ('appointment' === message.type) {
-    if (message.appointmentTitle && message.appointmentTitle.trim().length) {
+    if (message.createdBy === 'Calendly') {
+      summary = `${message.appointmentTitle}, with ${message.advisor.name}`
+    } else if (message.appointmentTitle && message.appointmentTitle.trim().length) {
       summary = message.appointmentTitle
     } else if (message.details && message.details.trim().length) {
       summary = stripHtml ? stripHtmlAndTrim(message.details).replace(/\n\r/g, ' ') : message.details
