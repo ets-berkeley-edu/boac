@@ -344,6 +344,7 @@
               <div
                 v-if="!isExpanded(message) && (isCancelledAppointment(message) || message.isRescheduled || message.isStudentNoShow)"
                 :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
+                :class="isCancelledAppointment(message) ? 'text-accent-orange' : 'text-error'"
                 class="align-center collapsed-cancelled-icon float-right d-flex px-2 h-100 text-error text-no-wrap"
               >
                 <v-icon

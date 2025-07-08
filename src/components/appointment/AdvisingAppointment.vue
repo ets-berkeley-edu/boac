@@ -29,7 +29,10 @@
           class="mt-2"
           :class="{'border-sm px-4 py-3': appointment.cancelReason}"
         >
-          <div class="align-center d-flex font-size-14 mt-1 text-error text-uppercase">
+          <div
+            :class="appointment.status === 'cancelled' ? 'text-accent-orange' : 'text-error'"
+            class="align-center d-flex font-size-14 mt-1 text-uppercase"
+          >
             <v-icon
               class="mr-1"
               :icon="appointment.isRescheduled ? mdiCalendarClock : (appointment.isStudentNoShow ? mdiCalendarRemove : mdiCalendarMinus)"
