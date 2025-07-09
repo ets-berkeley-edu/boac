@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from 'vue'
+import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {filter as _filter, get, includes, map, replace, toLower, toString} from 'lodash'
 import {useDisplay} from 'vuetify'
 import {useRoute, useRouter} from 'vue-router'
@@ -109,22 +109,28 @@ contextStore.loadingStart()
 
 watch(tab, value => onTabChange(value))
 
+onBeforeUnmount(() => contextStore.removeEventHandler('note-deleted'))
+
 onMounted(() => {
   const hash = replace(route.hash, '#', '')
   onTabChange(toLower(toString(hash)))
   reloadPeerAdvisingDepartment().then(() => {
     contextStore.loadingComplete('Peer Advising Management Dashboard is ready.')
   })
+  contextStore.setEventHandler('note-deleted', refresh)
 })
 
 const onTabChange = (value: string) => {
   tab.value = includes(map(tabs, 'key'), value) ? value : tab.value
   router.replace({hash: `#${tab.value}`})
 }
-
 const reloadPeerAdvisingDepartment = async () => {
-  const peerAdvisingDeptId: string = toString(get(route.params, 'id'))
   isRefreshing.value = true
+  return refresh().then(() => isRefreshing.value = false)
+}
+
+const refresh = async () => {
+  const peerAdvisingDeptId: string = toString(get(route.params, 'id'))
   return getPeerAdvisingDepartment(
     toInt(peerAdvisingDeptId),
     'peer_advisor',
@@ -132,7 +138,6 @@ const reloadPeerAdvisingDepartment = async () => {
     true
   ).then(data => {
     peerAdvisingDepartment.value = data
-    isRefreshing.value = false
   })
 }
 </script>

@@ -243,6 +243,7 @@ const deleteConfirmed = () => {
     deleteNote(noteForDelete.value.id).then(() => {
       alertScreenReader('Note deleted')
       noteForDelete.value = undefined
+      putFocusNextTick('modal-header')
     })
   }
 }
