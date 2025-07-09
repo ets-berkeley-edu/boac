@@ -234,7 +234,7 @@ const deleteDraftNote = () => {
   const selectedNoteIndex = findIndex(myDraftNotes.value, {'id': selectedNote.value.id})
   const nextNote = get(myDraftNotes.value, selectedNoteIndex >= (size(myDraftNotes.value) - 1) ? 0 : selectedNoteIndex + 1)
   isDeleting.value = true
-  deleteNote(selectedNote.value).then(() => {
+  deleteNote(selectedNote.value.id).then(() => {
     myDraftNotes.value.splice(selectedNoteIndex, 1)
     isDeleting.value = isDeleteDialogOpen.value = false
     alertScreenReader('Draft note deleted')
