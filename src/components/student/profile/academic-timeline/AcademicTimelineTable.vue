@@ -674,7 +674,7 @@ const deleteConfirmed = () => {
   remove(props.messages, predicate)
   remove(openMessages.value, value => transientId === value)
   messageForDelete.value = undefined
-  deleteNote(note).then(() => {
+  deleteNote(note.id).then(() => {
     alertScreenReader('Note deleted')
     refreshSearchIndex()
   })

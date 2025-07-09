@@ -1,5 +1,6 @@
 import {get, isNil, isString, map, size, trim} from 'lodash'
-import type {Attachment, Cohort, CuratedGroup, NoteEditSessionModel, NoteRecipients} from '@/lib/types'
+import type {Attachment, CuratedGroup, NoteEditSessionModel, NoteRecipients} from '@/lib/types'
+import type {Cohort} from '@/lib/types-cohorts'
 import {addPeerAdvisingAttachments, createPeerAdvisingNote, updatePeerAdvisingNote} from '@/api/peer-advising-notes'
 import {deleteNote, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
@@ -30,7 +31,7 @@ export function exitSession(revert: boolean): Promise<NoteEditSessionModel | voi
     }
     if (revert) {
       if (model.id && mode && ['createBatch', 'createNote'].includes(mode)) {
-        deleteNote(model).then(done)
+        deleteNote(model.id).then(done)
       } else if (mode === 'editNote' && model.isDraft) {
         noteStore.setModel(originalModel)
         updateAdvisingNote().then(done)

@@ -91,7 +91,7 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {ref} from 'vue'
+import {onBeforeUnmount, onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {get, size} from 'lodash'
 import {mdiCloseThick} from '@mdi/js'
@@ -124,10 +124,21 @@ const props = defineProps({
   }
 })
 
-const currentUser = useContextStore().currentUser
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
 const isFetchingNotes = ref(false)
 const isModalOpen = ref(false)
 const notes = ref<Note[]>([])
+
+onMounted(() => {
+  contextStore.setEventHandler('note-deleted', () => {
+    getPeerAdvisingNotesAuthoredBy(props.peerAdvisingDepartment.id, props.user.uid, props.timeframe).then(data => {
+      notes.value = data
+    })
+  })
+})
+
+onBeforeUnmount(() => contextStore.removeEventHandler('note-deleted'))
 
 const closeModal = () => {
   isModalOpen.value = false
@@ -145,8 +156,7 @@ const getStudentName = (note: Note) => note.student ? `${note.student.firstName}
 
 const setPeerAdvisingDepartment = (note: Note) => {
   if (!note.peerAdvisingDepartment) {
-    const peerAdvisingDepartment = findPeerAdvisingDepartment(props.peerAdvisingDepartment.id)
-    note.peerAdvisingDepartment = peerAdvisingDepartment
+    note.peerAdvisingDepartment = findPeerAdvisingDepartment(props.peerAdvisingDepartment.id)
   }
 }
 

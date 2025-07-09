@@ -88,10 +88,10 @@ export function applyNoteTemplate(noteId: number, templateId: number) {
   })
 }
 
-export function deleteNote(note: NoteEditSessionModel) {
+export function deleteNote(noteId: number) {
   $_track('delete')
-  return axios.delete(`${utils.apiBaseUrl()}/api/notes/delete/${note.id}`).then(response => {
-    useContextStore().broadcast('note-deleted', note.id)
+  return axios.delete(`${utils.apiBaseUrl()}/api/notes/delete/${noteId}`).then(response => {
+    useContextStore().broadcast('note-deleted', noteId)
     $_refreshMyDraftNoteCount()
     return response.data
   })

@@ -92,14 +92,41 @@
             class="td-created-date"
           >
             <div class="grid-cell">
-              <div class="created-date text-nowrap">
+              <div :class="{'mt-2': isExpanded(note)}" class="created-date text-nowrap">
                 <span :aria-hidden="true">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}</span>
                 <span class="sr-only">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL) }}</span>
               </div>
               <v-expand-transition>
                 <div v-if="getNote(note) && isExpanded(note)" class="mt-3">
-                  <div v-if="getNote(note).author.name || getNote(note).author.email">
-                    <div class="font-size-15 text-medium-emphasis text-nowrap pb-2">Created by:</div>
+                  <div
+                    v-if="canUserEditNote(getNote(note), currentUser)"
+                    class="border-b-sm border-t-sm py-2 mr-4"
+                  >
+                    <v-btn
+                      :id="`edit-note-${note.id}-button`"
+                      :aria-label="`Edit ${getNoteLabel(note, index)}`"
+                      class="pl-0"
+                      color="primary"
+                      density="compact"
+                      slim
+                      text="Edit Note"
+                      variant="text"
+                      @click="() => editNote(note.id)"
+                    />
+                    <v-btn
+                      :id="`delete-note-button-${note.id}`"
+                      :aria-label="`Delete ${getNoteLabel(note, index)}`"
+                      class="pl-0"
+                      color="primary"
+                      density="compact"
+                      slim
+                      text="Delete Note"
+                      variant="text"
+                      @click="() => onClickDeleteNote(getNote(note))"
+                    />
+                  </div>
+                  <div v-if="getNote(note).author.name || getNote(note).author.email" class="mt-2">
+                    <div class="font-size-15 text-medium-emphasis text-nowrap">Created by:</div>
                     <div v-if="getNote(note).author.uid && getNote(note).author.name">
                       <router-link
                         v-if="currentUser.isAdmin && getNote(note).peerAdvisingDepartmentId"
@@ -123,13 +150,13 @@
                   </div>
                   <div
                     v-if="size(getNote(note).author.departments)"
-                    class="text-medium-emphasis"
+                    class="mt-2 text-medium-emphasis"
                   >
                     <div v-for="(department, deptIndex) in getNote(note).author.departments" :key="deptIndex">
                       <span :id="`note-${note.id}-author-dept-${deptIndex}`">{{ department.deptName }}</span>
                     </div>
                   </div>
-                  <div v-if="getNote(note).peerAdvisingDepartment" class="text-medium-emphasis">
+                  <div v-if="getNote(note).peerAdvisingDepartment" class="mt-2 text-medium-emphasis">
                     <span :id="`note-${note.id}-university-department`">{{ getNote(note).peerAdvisingDepartment.deptName }}</span><!--
                     --><span v-if="getNote(note).peerAdvisingDepartment.name !== getNote(note).peerAdvisingDepartment.deptName" :id="`note-${note.id}-peer-advising-department`">, {{ getNote(note).peerAdvisingDepartment.name }}</span>
                   </div>
@@ -143,19 +170,36 @@
     <div v-if="!size(notes)" id="peer-advisor-no-notes" class="align-center d-flex pt-3">
       <slot name="append" />
     </div>
+    <AreYouSureModal
+      v-model="showDeleteConfirmation"
+      button-label-confirm="Delete"
+      :function-cancel="cancelTheDelete"
+      :function-confirm="deleteConfirmed"
+      modal-header="Delete note"
+    >
+      Are you sure you want to delete the note
+      <span v-if="get(noteForDelete, 'subject')">
+        with subject "<span class="font-weight-bold text-medium-emphasis">{{ get(noteForDelete, 'subject') }}</span>"?
+      </span>
+      <span v-if="noteForDelete && !get(noteForDelete, 'subject')">
+        containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(noteForDelete.body), {length: 30}) }}...</span>"?</span>
+    </AreYouSureModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import {DateTime} from 'luxon'
 import {mdiCloseCircle, mdiPaperclip} from '@mdi/js'
-import {ref} from 'vue'
-import {replace, size} from 'lodash'
+import {computed, ref} from 'vue'
+import {get, replace, size, truncate} from 'lodash'
 import {useDisplay} from 'vuetify'
 import type {Note, NoteSearchResult} from '@/lib/types'
-import {capitalizeAllWords, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import {canUserEditNote} from '@/lib/note'
+import {alertScreenReader, capitalizeAllWords, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
+import {deleteNote} from '@/api/notes'
 
 const props = defineProps({
   getNote: {
@@ -178,14 +222,44 @@ const props = defineProps({
   }
 })
 
+const {smAndDown} = useDisplay()
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
+const editingNoteId = ref<number | undefined>()
 const expandedNoteIds = ref<number[]>([])
-const {smAndDown} = useDisplay()
+const noteForDelete = ref<Note | undefined>()
+const showDeleteConfirmation = computed(() => !!noteForDelete.value)
+
+const cancelTheDelete = () => {
+  if (noteForDelete.value) {
+    alertScreenReader('Canceled')
+    putFocusNextTick(`delete-note-button-${noteForDelete.value.id}`)
+    noteForDelete.value = undefined
+  }
+}
+
+const deleteConfirmed = () => {
+  if (noteForDelete.value) {
+    deleteNote(noteForDelete.value.id).then(() => {
+      alertScreenReader('Note deleted')
+      noteForDelete.value = undefined
+    })
+  }
+}
+
+const editNote = (noteId: number) => {
+  editingNoteId.value = noteId
+  putFocusNextTick('edit-note-subject')
+}
 
 const getNotePosition = (index: number) => `${index + 1} of ${size(props.notes) || 'unknown'}`
 
 const isExpanded = (note: Note | NoteSearchResult) => expandedNoteIds.value.includes(note.id)
+
+const onClickDeleteNote = (note: Note) => {
+  // The following opens the "Are you sure?" modal
+  noteForDelete.value = note
+}
 
 const toggleShowHide = (note: Note | NoteSearchResult) => {
   const index = expandedNoteIds.value.indexOf(note.id)
