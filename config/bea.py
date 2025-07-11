@@ -56,6 +56,7 @@ TERM_START_DATE = '2024-01-16'
 
 TEST_DATA = f'{BASE_DIR}/bea/fixtures/bea-test-data.json'
 TEST_DEFAULT_COHORT_MAJOR = 'History BA'
+TEST_NOTE_SOURCE_BOA_ONLY = True
 TEST_USER_UID = '987654'
 
 TESTING = True

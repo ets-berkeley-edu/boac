@@ -159,9 +159,11 @@ class BEATestConfig(BEATestBaseConfigs):
                                                test_case_id=f'UID {student.uid}'))
             # Tests for a representative sample of notes in more detail
             for note in sample_notes:
-                source = note.source.value['schema'] if note.source else 'BOA'
+                source = note.source.value['schema']
                 if note.subject and 'QA Test' in note.subject:
                     app.logger.info(f'Skipping note {note.record_id} because it is a testing artifact')
+                elif app.config['TEST_NOTE_SOURCE_BOA_ONLY'] and note.source != TimelineRecordSource.BOA:
+                    app.logger.info(f'Skipping note {note.record_id} because we only want BOA notes!')
                 else:
                     self.test_cases.append(BEATestCase(student=student,
                                                        note=note,
@@ -253,6 +255,8 @@ class BEATestConfig(BEATestBaseConfigs):
             for student_note in all_student_notes:
                 if student_note.subject and 'QA Test' in student_note.subject:
                     app.logger.info(f'Skipping note {student_note.record_id} because it is a testing artifact')
+                elif app.config['TEST_NOTE_SOURCE_BOA_ONLY'] and student_note.source != TimelineRecordSource.BOA:
+                    app.logger.info(f'Skipping note {student_note.record_id} because we only want BOA notes!')
                 elif (student_note.advisor and student_note.advisor.uid == 'None') or not student_note.advisor:
                     app.logger.info(f'Skipping note {student_note.record_id} because the advisor has no UID')
                 else:
@@ -268,7 +272,8 @@ class BEATestConfig(BEATestBaseConfigs):
                                               search_string=search_string,
                                               test_case_id=test_case_id))
 
-        sources = list(set(TimelineRecordSource) - {TimelineRecordSource.E_FORM, TimelineRecordSource.YCBM})
+        sources = list(set(TimelineRecordSource) - {TimelineRecordSource.E_FORM, TimelineRecordSource.YCBM,
+                                                    TimelineRecordSource.CALENDLY})
         for source in sources:
             source_notes = [tc for tc in test_cases if tc.note.source == source]
             self.test_cases.extend(source_notes[:count])
