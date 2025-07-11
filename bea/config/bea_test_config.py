@@ -208,7 +208,6 @@ class BEATestConfig(BEATestBaseConfigs):
         self.set_advisor()
         self.set_admits()
         self.set_test_admits(count=app.config['MAX_SEARCH_STUDENTS_COUNT'])
-        self.set_search_cohorts(opts={'admits': True})
 
     def search_appts(self):
         self.set_base_configs(opts={'include_inactive': True})
@@ -339,7 +338,6 @@ class BEATestConfig(BEATestBaseConfigs):
 
     def user_role_admin(self):
         self.set_base_configs(dept=Department.ADMIN)
-        self.set_search_cohorts(opts={'students': True})
 
     def user_role_advisor(self):
         self.set_note_attachments()

@@ -149,10 +149,10 @@ class TestFilteredAdmitResults:
 
 
 @pytest.mark.usefixtures('page_objects')
-class FilteredAdmitSorting:
+class TestFilteredAdmitSorting:
 
     def test_cohort_sort_first_name(self):
-        cohort = test.searches[-1]
+        cohort = test.searches[0]
         self.filtered_admits_page.load_cohort(cohort)
         self.filtered_admits_page.sort_by_first_name()
         expected = nessie_filter_admits_utils.cohort_by_first_name(test, cohort.search_criteria)
@@ -160,14 +160,14 @@ class FilteredAdmitSorting:
         utils.assert_equivalence(visible, expected)
 
     def test_cohort_sort_cs_id(self):
-        cohort = test.searches[-1]
+        cohort = test.searches[0]
         self.filtered_admits_page.sort_by('cs_empl_id')
         expected = nessie_filter_admits_utils.cohort_by_cs_empl_id(test, cohort.search_criteria)
         visible = self.filtered_admits_page.list_view_admit_sids(cohort)
         utils.assert_equivalence(visible, expected)
 
     def test_link_to_admit_page(self):
-        sid = self.filtered_admits_page.admit_cohort_row_sids[0]
+        sid = self.filtered_admits_page.admit_cohort_row_sids()[0]
         self.filtered_admits_page.click_admit_link(sid)
-        self.admit_page.when_present(self.admit_page.SID, utils.get_short_timeout())
-        assert self.admit_page.element(self.admit_page.SID).text == sid
+        self.admit_page.when_present(self.admit_page.NAME, utils.get_short_timeout())
+        assert self.admit_page.sid() == sid

@@ -150,10 +150,7 @@ class TestSearchAdmitSearches:
         assert self.search_results_page.visible_admit_urem(admit) == admit.admit_data['urem']
 
     def test_visible_fee_waiver(self, admit):
-        # The element locator has to strip 'Waiver' out of the text. Sad!
-        data = admit.admit_data['application_fee_waiver_flag']
-        expected = 'Fee' if data == 'FeeWaiver' else data
-        assert self.search_results_page.visible_admit_fee_waiver(admit) == expected
+        assert self.search_results_page.visible_admit_fee_waiver(admit) == admit.admit_data['application_fee_waiver_flag']
 
     def test_visible_freshman_or_transfer(self, admit):
         assert self.search_results_page.visible_admit_residency(admit) == admit.admit_data['residency_category']
@@ -170,5 +167,3 @@ class TestSearchAdmitSearches:
     def test_admit_page_link(self, admit):
         self.search_results_page.click_admit_result(admit)
         self.admit_page.when_present(self.admit_page.NAME, utils.get_short_timeout())
-
-    # TODO def test_admit_page_back_to_results_button(self, admit):

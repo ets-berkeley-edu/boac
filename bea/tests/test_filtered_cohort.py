@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from bea.config.bea_test_config import BEATestConfig
-from bea.models.cohorts_and_groups.cohort import Cohort
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.department import Department
 from bea.test_utils import boa_utils
@@ -89,7 +88,7 @@ class TestFilteredCohortResults:
 @pytest.mark.usefixtures('page_objects')
 class TestFilteredCohortSorting:
 
-    cohort = next(filter(lambda c: len(c.members) in list(range(25, 100)), test.searches))
+    cohort = next(filter(lambda c: len(c.members) in list(range(25, 150)), test.searches))
     sids = [m.sid for m in cohort.members]
     cohort_alerts = boa_utils.get_un_dismissed_users_alerts(cohort.members, test.advisor)
 
@@ -191,7 +190,7 @@ class TestFilteredCohortSorting:
 @pytest.mark.usefixtures('page_objects')
 class TestFilteredCohortHomepage:
 
-    cohort = next(filter(lambda c: len(c.members) in list(range(50, 150)), test.searches))
+    cohort = next(filter(lambda c: len(c.members) in list(range(25, 150)), test.searches))
     cohort_alerts = boa_utils.get_un_dismissed_users_alerts(cohort.members, test.advisor)
     alert_members = boa_utils.get_members_with_alerts(cohort, cohort_alerts)
     sids = list(map(lambda m: m.sid, alert_members))
@@ -395,9 +394,6 @@ class TestFilteredCohortExport:
 
     def test_ferpa_before_export(self):
         test.set_default_cohort(opts={'major': 'Computer Science BA'})
-        test_group = Cohort({'name': f'Group {test.test_id}'})
-        self.homepage.click_sidebar_create_student_group()
-        self.curated_students_page.create_group_with_bulk_sids(test_group, test.default_cohort.members)
         self.filtered_students_page.search_and_create_new_student_cohort(test.default_cohort)
         self.filtered_students_page.click_export_list()
         title = 'FERPA (Privacy Disclosure) - Office of the Registrar'

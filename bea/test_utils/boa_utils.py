@@ -161,7 +161,7 @@ def get_authorized_users():
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
 
-    advisors = groupby(results, key=lambda u: u.uid)
+    advisors = groupby(results.mappings(), key=lambda u: u.uid)
     for k, v in advisors:
         app.logger.info(f'Getting advisor role(s) for UID {k}')
         v = list(v)
@@ -746,7 +746,7 @@ def get_topic_id(topic):
     app.logger.info(sql)
     result = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    topic.topic_id = [row['id'] for row in result][0]
+    topic.topic_id = [row['id'] for row in result.mappings()][0]
     return topic.topic_id
 
 
@@ -827,7 +827,7 @@ def set_filtered_cohort_id(cohort):
     app.logger.info(sql)
     result = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    cohort_id = [row['id'] for row in result][0]
+    cohort_id = [row['id'] for row in result.mappings()][0]
     app.logger.info(f'Filtered cohort {cohort.name} ID is {cohort_id}')
     cohort.cohort_id = cohort_id
 
@@ -847,7 +847,7 @@ def set_curated_group_id(group):
     app.logger.info(sql)
     result = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    group_id = [row['id'] for row in result][0]
+    group_id = [row['id'] for row in result.mappings()][0]
     app.logger.info(f'Curated group {group.name} ID is {group_id}')
     group.cohort_id = group_id
 
