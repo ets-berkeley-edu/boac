@@ -536,7 +536,7 @@ def get_sids_with_notes_of_src_boa(drafts=False):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    return list(map(lambda r: r['sid'], results))
+    return list(map(lambda r: r['sid'], results.mappings()))
 
 
 def get_note_ids_by_subject(note, student=None):
@@ -691,7 +691,7 @@ def get_notes_from_pg_db_result(results, student=None):
         app.logger.info(attach_query)
         attach_results = db.session.execute(text(attach_query))
         std_commit(allow_test_environment=True)
-        for a in attach_results:
+        for a in attach_results.mappings():
             if a['note_id'] == row['id']:
                 file_name = a['path_to_attachment'].split('/')[-1]
                 if not re.sub(r'(20)\d{6}(_)\d{6}(_)', '', file_name[0:16]):
@@ -709,7 +709,7 @@ def get_notes_from_pg_db_result(results, student=None):
         app.logger.info(topic_query)
         topic_results = db.session.execute(text(topic_query))
         std_commit(allow_test_environment=True)
-        for t in topic_results:
+        for t in topic_results.mappings():
             if t['note_id'] == row['id']:
                 topics.append(t['topic'])
 
