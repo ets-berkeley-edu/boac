@@ -492,6 +492,14 @@ class BEATestBaseConfigs(object):
             })
             self.searches.append(cohort)
 
+            if not app.config['TEST_ALL_COHORT_FILTERS']:
+                cohorts = []
+                for c in self.searches:
+                    if len(c.members) in (list(range(25, 150))):
+                        cohorts.append(c)
+                        break
+                self.searches = cohorts
+
     # TEST ADMIT CONFIGS
 
     def set_admits(self):

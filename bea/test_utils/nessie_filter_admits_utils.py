@@ -34,7 +34,7 @@ from flask import current_app as app
 def select_from(sort=None):
     if sort and (sort['col'] != 'first_name'):
         sort_select = sort_value(sort, 'select')
-        select = f', {sort_select}' if sort_select else f", {sort['table']}.{sort['col']}"
+        select = f', {sort_select}' if sort_select else f", {sort['col']}"
     else:
         select = ''
     return f"""SELECT DISTINCT boac_advising_oua.student_admits.cs_empl_id AS sid,
