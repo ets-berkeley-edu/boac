@@ -82,7 +82,10 @@ class TestApptContent:
         visible = self.student_page.collapsed_appt_detail(tc.appt)
         if tc.appt.source in [TimelineRecordSource.CALENDLY, TimelineRecordSource.YCBM]:
             assert tc.appt.title
-            utils.assert_equivalence(visible, tc.appt.title)
+            if tc.appt.source == TimelineRecordSource.YCBM:
+                utils.assert_equivalence(visible, tc.appt.title)
+            else:
+                utils.assert_equivalence(visible, f'{tc.appt.title}, with {tc.appt.advisor.full_name}')
         elif tc.appt.source == TimelineRecordSource.SIS:
             if tc.appt.detail:
                 assert visible

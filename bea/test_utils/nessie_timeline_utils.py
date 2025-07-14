@@ -403,19 +403,19 @@ def get_sis_notes(student):
 
 
 def get_calendly_appts(student):
-    sql = f"""SELECT boac_advising_appointments.calendly_advising_appointments.id,
-                     boac_advising_appointments.calendly_advising_appointments.title,
-                     boac_advising_appointments.calendly_advising_appointments.questions_and_answers,
-                     boac_advising_appointments.calendly_advising_appointments.host_name,
-                     boac_advising_appointments.calendly_advising_appointments.start_time,
-                     boac_advising_appointments.calendly_advising_appointments.end_time,
-                     boac_advising_appointments.calendly_advising_appointments.canceled_at,
-                     boac_advising_appointments.calendly_advising_appointments.canceled_by,
-                     boac_advising_appointments.calendly_advising_appointments.cancellation_reason,
-                     boac_advising_appointments.calendly_advising_appointments.is_rescheduled,
-                     boac_advising_appointments.calendly_advising_appointments.is_student_no_show
+    sql = f"""SELECT id,
+                     title,
+                     questions_and_answers,
+                     host_name,
+                     start_time,
+                     end_time,
+                     canceled_at,
+                     canceled_by,
+                     cancellation_reason,
+                     is_student_no_show
                 FROM boac_advising_appointments.calendly_advising_appointments
-               WHERE boac_advising_appointments.calendly_advising_appointments.student_sid = '{student.sid}'"""
+               WHERE student_sid = '{student.sid}'
+                 AND is_rescheduled IS FALSE"""
     app.logger.info(sql)
     results = data_loch.safe_execute_rds(sql)
     appts = []
@@ -423,13 +423,10 @@ def get_calendly_appts(student):
         advisor = User({'full_name': row['host_name']})
         canceled = True if row['canceled_at'] else False
         no_show = row['is_student_no_show']
-        rescheduled = row['is_rescheduled']
         if no_show:
             status = 'No Show'
-        elif rescheduled:
-            status = 'Rescheduled'
         elif canceled:
-            status = 'Cancelled'
+            status = 'Canceled'
         else:
             status = None
         appts.append(Appointment(data={
@@ -480,7 +477,7 @@ def get_sis_appts(student):
             'first_name': v[0]['first_name'],
             'last_name': v[0]['last_name'],
         })
-        body = v[0]['body'] and v[0]['body'].replace('&Tab;', '').strip()
+        body = v[0]['body'].replace('&Tab;', '').strip() if v[0]['body'] else ''
         created_date = v[0]['created_date'] and utils.date_to_local_tz(v[0]['created_date'])
         if advisor.uid == 'UCBCONVERSION':
             updated_date = created_date
@@ -526,38 +523,35 @@ def get_sis_appts(student):
 
 
 def get_ycbm_appts(student):
-    sql = f"""SELECT boac_advising_appointments.ycbm_advising_appointments.id,
-                     boac_advising_appointments.ycbm_advising_appointments.appointment_type,
-                     boac_advising_appointments.ycbm_advising_appointments.title,
-                     boac_advising_appointments.ycbm_advising_appointments.details,
-                     boac_advising_appointments.ycbm_advising_appointments.advisor_name,
-                     boac_advising_appointments.ycbm_advising_appointments.starts_at,
-                     boac_advising_appointments.ycbm_advising_appointments.ends_at,
-                     boac_advising_appointments.ycbm_advising_appointments.cancelled,
-                     boac_advising_appointments.ycbm_advising_appointments.cancellation_reason
+    sql = f"""SELECT id,
+                     appointment_type,
+                     title,
+                     details,
+                     advisor_name,
+                     starts_at,
+                     ends_at,
+                     cancelled,
+                     cancellation_reason
                 FROM boac_advising_appointments.ycbm_advising_appointments
-               WHERE boac_advising_appointments.ycbm_advising_appointments.student_sid = '{student.sid}'
+               WHERE student_sid = '{student.sid}'
             ORDER BY starts_at ASC"""
     app.logger.info(sql)
     results = data_loch.safe_execute_rds(sql)
     appts = []
-    grouped = groupby(results, key=lambda n: n['id'])
-    for k, v in grouped:
-        v = list(v)
-        advisor = User({'full_name': v[0]['advisor_name']})
-        cancel_reason = str(v[0]['cancellation_reason']).strip() or 'Canceled'
+    for row in results:
+        advisor = User({'full_name': row['advisor_name']})
         appts.append(Appointment(data={
-            'record_id': str(k),
+            'record_id': str(row['id']),
             'advisor': advisor,
-            'cancel_reason': cancel_reason,
-            'detail': v[0]['details'],
-            'end_time': (v[0]['ends_at'] and utils.date_to_local_tz(v[0]['ends_at'])),
+            'cancel_reason': (str(row['cancellation_reason']).strip() if row['cancellation_reason'] else ''),
+            'detail': row['details'],
+            'end_time': (row['ends_at'] and utils.date_to_local_tz(row['ends_at'])),
             'source': TimelineRecordSource.YCBM,
-            'start_time': (v[0]['starts_at'] and utils.date_to_local_tz(v[0]['starts_at'])),
-            'status': ('Canceled' if v[0]['cancelled'] else ''),
+            'start_time': (row['starts_at'] and utils.date_to_local_tz(row['starts_at'])),
+            'status': ('Canceled' if row['cancelled'] else ''),
             'student': student,
-            'title': re.sub(r'\s+', ' ', str(v[0]['title'])).strip(),
-            'contact_type': str(v[0]['appointment_type']).strip(),
+            'title': re.sub(r'\s+', ' ', str(row['title'])).strip(),
+            'contact_type': str(row['appointment_type']).strip(),
         }))
     return appts
 
