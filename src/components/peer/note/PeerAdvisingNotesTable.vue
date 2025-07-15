@@ -81,6 +81,7 @@
                 >
                   <PeerAdvisingNoteDetails
                     v-if="note.id !== editingNoteId"
+                    class="ml-10"
                     :note="getNote(note)"
                     :note-description="`Note ${getNotePosition(index)}`"
                   />
@@ -106,40 +107,38 @@
             class="td-created-date"
           >
             <div class="grid-cell">
-              <div :class="{'mt-2': isExpanded(note)}" class="created-date text-nowrap">
+              <div v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(getNote(note), currentUser)">
+                <v-btn
+                  :id="`edit-note-${note.id}-button`"
+                  :aria-label="`Edit ${getNoteLabel(note, index)}`"
+                  class="action-button"
+                  color="primary"
+                  density="compact"
+                  size="md"
+                  slim
+                  text="Edit Note"
+                  variant="text"
+                  @click="() => editNote(note.id)"
+                />
+                <v-btn
+                  v-if="isPeerAdvisorManager(currentUser)"
+                  :id="`delete-note-button-${note.id}`"
+                  :aria-label="`Delete ${getNoteLabel(note, index)}`"
+                  class="action-button"
+                  color="primary"
+                  density="compact"
+                  size="md"
+                  text="Delete Note"
+                  variant="text"
+                  @click="() => onClickDeleteNote(getNote(note))"
+                />
+              </div>
+              <div class="created-date text-nowrap">
                 <span :aria-hidden="true">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}</span>
                 <span class="sr-only">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL) }}</span>
               </div>
               <v-expand-transition>
-                <div v-if="getNote(note) && isExpanded(note)" class="mt-3">
-                  <div
-                    v-if="editingNoteId !== note.id && canUserEditNote(getNote(note), currentUser)"
-                    class="border-b-sm border-t-sm py-2 mr-4"
-                  >
-                    <v-btn
-                      :id="`edit-note-${note.id}-button`"
-                      :aria-label="`Edit ${getNoteLabel(note, index)}`"
-                      class="pl-0"
-                      color="primary"
-                      density="compact"
-                      slim
-                      text="Edit Note"
-                      variant="text"
-                      @click="() => editNote(note.id)"
-                    />
-                    <v-btn
-                      v-if="isPeerAdvisorManager(currentUser)"
-                      :id="`delete-note-button-${note.id}`"
-                      :aria-label="`Delete ${getNoteLabel(note, index)}`"
-                      class="pl-0"
-                      color="primary"
-                      density="compact"
-                      slim
-                      text="Delete Note"
-                      variant="text"
-                      @click="() => onClickDeleteNote(getNote(note))"
-                    />
-                  </div>
+                <div v-if="getNote(note) && isExpanded(note)" :class="{'mt-4': !isExpanded(note)}">
                   <div v-if="getNote(note).author.name || getNote(note).author.email" class="mt-2">
                     <div class="font-size-15 text-medium-emphasis text-nowrap">Created by:</div>
                     <div v-if="getNote(note).author.uid && getNote(note).author.name">
@@ -159,19 +158,19 @@
                         {{ getNote(note).author.name }} <span class="sr-only">&nbsp;UC Berkeley Directory page (opens in new window)</span>
                       </a>
                     </div>
-                    <div :id="`note-${note.id}-author-role`">
+                    <div :id="`note-${note.id}-author-role`" class="font-weight-550 mt-2">
                       {{ capitalizeAllWords(replace(getNote(note).author.role, '_', ' ')) }}
                     </div>
                   </div>
                   <div
                     v-if="size(getNote(note).author.departments)"
-                    class="mt-2 text-medium-emphasis"
+                    class="text-medium-emphasis"
                   >
                     <div v-for="(department, deptIndex) in getNote(note).author.departments" :key="deptIndex">
                       <span :id="`note-${note.id}-author-dept-${deptIndex}`">{{ department.deptName }}</span>
                     </div>
                   </div>
-                  <div v-if="getNote(note).peerAdvisingDepartment" class="mt-2 text-medium-emphasis">
+                  <div v-if="getNote(note).peerAdvisingDepartment" class="text-medium-emphasis">
                     <span :id="`note-${note.id}-university-department`">{{ getNote(note).peerAdvisingDepartment.deptName }}</span><!--
                     --><span v-if="getNote(note).peerAdvisingDepartment.name !== getNote(note).peerAdvisingDepartment.deptName" :id="`note-${note.id}-peer-advising-department`">, {{ getNote(note).peerAdvisingDepartment.name }}</span>
                   </div>
@@ -336,6 +335,10 @@ const toggleShowHide = (note: Note | NoteSearchResult) => {
   .peer-advising-table-wrapper tr.expanded {
     padding-bottom: 12px !important;
   }
+}
+.action-button {
+  font-weight: 590;
+  margin-left: -10px;
 }
 .d-contents {
   display: contents;
