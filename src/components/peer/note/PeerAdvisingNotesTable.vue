@@ -114,6 +114,7 @@
                       @click="() => editNote(note.id)"
                     />
                     <v-btn
+                      v-if="isPeerAdvisorManager(currentUser)"
                       :id="`delete-note-button-${note.id}`"
                       :aria-label="`Delete ${getNoteLabel(note, index)}`"
                       class="pl-0"
@@ -200,6 +201,7 @@ import {useContextStore} from '@/stores/context'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 import {deleteNote} from '@/api/notes'
+import {isPeerAdvisorManager} from '@/lib/boa-user'
 
 const props = defineProps({
   getNote: {
