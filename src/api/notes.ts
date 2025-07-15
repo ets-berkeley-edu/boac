@@ -3,18 +3,24 @@ import {each, size, toNumber} from 'lodash'
 import ga from '@/lib/ga'
 import utils from '@/api/api-utils'
 import type {NoteEditSessionModel} from '@/lib/types'
+import {isPeerAdvisor} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 
 const $_refreshMyDraftNoteCount = () => {
-  axios.get(`${utils.apiBaseUrl()}/api/notes/my_draft_note_count`).then(response => {
-    useContextStore().setMyDraftNoteCount(toNumber(response.data))
-  })
+  const contextStore = useContextStore()
+  if (!isPeerAdvisor(contextStore.currentUser)) {
+    axios.get(`${utils.apiBaseUrl()}/api/notes/my_draft_note_count`).then(response => {
+      contextStore.setMyDraftNoteCount(toNumber(response.data))
+    })
+  }
 }
 const $_track = action => ga.note(action)
 
 export function getNote(noteId: number) {
   $_track('view')
-  const url: string = `${utils.apiBaseUrl()}/api/note/${noteId}`
+  const currentUser = useContextStore().currentUser
+  const apiPath: string = isPeerAdvisor(currentUser) ? '/api/peer_advising/note/' : '/api/note/'
+  const url: string = `${utils.apiBaseUrl()}${apiPath}${noteId}`
   return axios.get(url).then(response => response.data)
 }
 
@@ -69,9 +75,11 @@ export function updateNote(
     topics,
     noteTemplateId
   }
-  return utils.postMultipartFormData('/api/notes/update', args).then(data => {
+  const contextStore = useContextStore()
+  const apiPath: string = isPeerAdvisor(contextStore.currentUser) ? '/api/peer_advising/note/update' : '/api/note/update'
+  return utils.postMultipartFormData(apiPath, args).then(data => {
     const eventType = size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
-    useContextStore().broadcast(eventType, data)
+    contextStore.broadcast(eventType, data)
     $_track('update')
     $_refreshMyDraftNoteCount()
     return data

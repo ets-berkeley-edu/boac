@@ -2,7 +2,7 @@
   <v-form
     :id="`note-${noteId}-edit-form`"
     ref="editNoteForm"
-    class="edit-note-form pl-2"
+    :class="wrapperClass"
     @submit.prevent="save"
   >
     <div v-if="noteStore.model.isDraft" class="font-size-18 text-error pa-2">
@@ -22,7 +22,7 @@
         </span>
       </transition>
     </div>
-    <div class="mt-1">
+    <div v-if="!isPeerAdvisor(currentUser)" class="mt-1">
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
       <v-text-field
         id="edit-note-subject"
@@ -156,6 +156,7 @@ import {getNote, updateNote} from '@/api/notes'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes.js'
 import {getTopicsForNotes} from '@/api/topics.js'
 import {getUserProfile} from '@/api/user'
+import {isPeerAdvisor} from '@/lib/boa-user.js'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -168,12 +169,17 @@ const props = defineProps({
     required: true,
     type: Function
   },
+  initialMode: {
+    required: true,
+    type: String
+  },
   noteId: {
     required: true,
     type: Number
   },
-  initialMode: {
-    required: true,
+  wrapperClass: {
+    default: 'edit-note-form pl-2',
+    required: false,
     type: String
   }
 })

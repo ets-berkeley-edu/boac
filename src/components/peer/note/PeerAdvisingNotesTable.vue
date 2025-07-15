@@ -61,6 +61,7 @@
             <div v-if="isExpanded(note)" :class="{'d-contents': !smAndDown}">
               <div class="grid-cell">
                 <v-btn
+                  v-if="editingNoteId !== note.id"
                   :id="`show-note-${note.id}-details`"
                   :aria-expanded="true"
                   :aria-label="`Close message ${getNoteLabel(note, index)}`"
@@ -73,13 +74,26 @@
                 />
               </div>
               <v-expand-transition>
-                <PeerAdvisingNoteDetails
+                <div
                   v-if="isExpanded(note)"
-                  class="grid-cell note-details"
                   :class="{'mb-3': !smAndDown}"
-                  :note="getNote(note)"
-                  :note-description="`Note ${getNotePosition(index)}`"
-                />
+                  class="grid-cell note-details"
+                >
+                  <PeerAdvisingNoteDetails
+                    v-if="note.id !== editingNoteId"
+                    :note="getNote(note)"
+                    :note-description="`Note ${getNotePosition(index)}`"
+                  />
+                  <div v-if="note.id === editingNoteId" class="edit-advising-note-container">
+                    <EditAdvisingNote
+                      :after-cancel="afterNoteEditCancel"
+                      :after-saved="afterEditAdvisingNote"
+                      initial-mode="editNote"
+                      wrapper-class="pl-10 w-100"
+                      :note-id="note.id"
+                    />
+                  </div>
+                </div>
               </v-expand-transition>
             </div>
           </td>
@@ -99,7 +113,7 @@
               <v-expand-transition>
                 <div v-if="getNote(note) && isExpanded(note)" class="mt-3">
                   <div
-                    v-if="canUserEditNote(getNote(note), currentUser)"
+                    v-if="editingNoteId !== note.id && canUserEditNote(getNote(note), currentUser)"
                     class="border-b-sm border-t-sm py-2 mr-4"
                   >
                     <v-btn
@@ -195,13 +209,14 @@ import {computed, ref} from 'vue'
 import {get, replace, size, truncate} from 'lodash'
 import {useDisplay} from 'vuetify'
 import type {Note, NoteSearchResult} from '@/lib/types'
-import {canUserEditNote} from '@/lib/note'
 import {alertScreenReader, capitalizeAllWords, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
-import {useContextStore} from '@/stores/context'
-import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
-import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
+import {canUserEditNote} from '@/lib/note'
 import {deleteNote} from '@/api/notes'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
+import {useContextStore} from '@/stores/context'
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import EditAdvisingNote from '@/components/note/EditAdvisingNote.vue'
+import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 
 const props = defineProps({
   getNote: {
@@ -231,6 +246,16 @@ const editingNoteId = ref<number | undefined>()
 const expandedNoteIds = ref<number[]>([])
 const noteForDelete = ref<Note | undefined>()
 const showDeleteConfirmation = computed(() => !!noteForDelete.value)
+
+const afterEditAdvisingNote = (updatedNote: Note, putFocusId: string) => {
+  editingNoteId.value = undefined
+  putFocusNextTick(putFocusId || `edit-note-${updatedNote.id}-button`)
+}
+
+const afterNoteEditCancel = () => {
+  putFocusNextTick(`edit-note-${editingNoteId.value}-button`)
+  editingNoteId.value = undefined
+}
 
 const cancelTheDelete = () => {
   if (noteForDelete.value) {
@@ -314,6 +339,10 @@ const toggleShowHide = (note: Note | NoteSearchResult) => {
 }
 .d-contents {
   display: contents;
+}
+.edit-advising-note-container {
+  margin-top: -25px;
+  padding-right: 25px;
 }
 .has-attachment-icon {
   margin-bottom: 1px;

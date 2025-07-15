@@ -18,6 +18,7 @@
           @click="onClickCreateNote"
         />
         <EditPeerAdvisingNoteModal
+          v-if="peerAdvisingDepartmentId"
           v-model="createNoteModal"
           :peer-advising-department-id="peerAdvisingDepartmentId"
         />
@@ -74,7 +75,7 @@
 <script setup lang="ts">
 import {DateTime} from 'luxon'
 import type {Handler} from 'mitt'
-import {get, last, orderBy, size} from 'lodash'
+import {findIndex, get, last, orderBy, size} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
 import {onMounted, onUnmounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
@@ -121,13 +122,13 @@ onMounted(() => {
 
 onUnmounted(() => {
   contextStore.removeEventHandler('peer-advising-note-created')
+  contextStore.removeEventHandler('note-updated')
   noteStore.exitSession()
 })
 
 const fetchNotes = () => {
   return new Promise<void>(resolve => {
     if (peerAdvisor.value && peerAdvisor.value.uid) {
-      isFetchingNotes.value = true
       offset.value = notes.value.length || 0
       getPeerAdvisorNotes(
         offset.value,
@@ -165,6 +166,13 @@ const init = (user: BoaUser) => {
     fetchNotes().then(() => {
       contextStore.loadingComplete(`Home page loaded. ${notesDescription.value}`)
       contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
+      contextStore.setEventHandler('note-updated', (note: Note) => {
+        const index = findIndex(notes.value, {'id': note.id})
+        if (index > -1) {
+          note.peerAdvisingDepartment = notes.value[index].peerAdvisingDepartment
+          notes.value[index] = note
+        }
+      })
       putFocusNextTick('page-header')
     })
   } else {
