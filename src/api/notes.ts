@@ -76,7 +76,7 @@ export function updateNote(
     noteTemplateId
   }
   const contextStore = useContextStore()
-  const apiPath: string = isPeerAdvisor(contextStore.currentUser) ? '/api/peer_advising/note/update' : '/api/note/update'
+  const apiPath: string = isPeerAdvisor(contextStore.currentUser) ? '/api/peer_advising/note/update' : '/api/notes/update'
   return utils.postMultipartFormData(apiPath, args).then(data => {
     const eventType = size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
     contextStore.broadcast(eventType, data)
