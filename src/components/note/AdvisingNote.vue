@@ -168,7 +168,7 @@ const currentUser = contextStore.currentUser
 const deleteAttachmentIndex = ref(undefined)
 const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)
-const peerAdvisingDepartment = props.note.peerAdvisingDepartmentId ? findPeerAdvisingDepartment(props.note.peerAdvisingDepartmentId) : undefined
+const peerAdvisingDepartment = computed(() => props.note.peerAdvisingDepartmentId ? findPeerAdvisingDepartment(props.note.peerAdvisingDepartmentId) : undefined)
 const showConfirmDeleteAttachment = ref(false)
 
 watch(() => props.isOpen, () => {
