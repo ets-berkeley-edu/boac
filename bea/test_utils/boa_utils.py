@@ -548,7 +548,7 @@ def get_note_ids_by_subject(note, student=None):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    return list(map(lambda r: str(r['id']), results))
+    return list(map(lambda r: str(r['id']), results.mappings()))
 
 
 def get_note_sids_by_subject(note):
@@ -559,7 +559,7 @@ def get_note_sids_by_subject(note):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    return list(map(lambda r: str(r['sid']), results))
+    return list(map(lambda r: str(r['sid']), results.mappings()))
 
 
 def get_student_notes(student):
@@ -724,7 +724,7 @@ def is_note_private(note):
     app.logger.info(sql)
     result = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    return [row['is_private'] for row in result][0]
+    return [row['is_private'] for row in result.mappings()][0]
 
 
 def get_attachment_id_by_file_name(note, attachment):
@@ -735,7 +735,7 @@ def get_attachment_id_by_file_name(note, attachment):
     app.logger.info(sql)
     result = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    ids = [row['id'] for row in result]
+    ids = [row['id'] for row in result.mappings()]
     attachment.attachment_id = ids[-1]
 
 
@@ -787,7 +787,7 @@ def get_note_template_ids(template):
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
-    return list(map(lambda r: str(r['id']), results))
+    return list(map(lambda r: str(r['id']), results.mappings()))
 
 
 def generate_note_search_query(note):
@@ -871,7 +871,7 @@ def get_students_alerts(users):
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     alerts = []
-    for r in results:
+    for r in results.mappings():
         if r['alert_type'] in ['midterm', 'withdrawal']:
             date = r['created_at']
         else:
@@ -910,7 +910,7 @@ def get_dismissed_alerts(alerts, advisor=None):
         results = db.session.execute(text(sql))
         std_commit(allow_test_environment=True)
         dismissed = []
-        for r in results:
+        for r in results.mappings():
             dismissed.append(str(r['alert_id']))
         return list(filter(lambda a: a.alert_id in dismissed, alerts))
     else:
