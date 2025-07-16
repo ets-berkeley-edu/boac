@@ -107,7 +107,9 @@
             class="td-created-date"
           >
             <div class="grid-cell">
-              <div v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(getNote(note), currentUser)">
+              <div v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(getNote(note), currentUser)" class="pl-2">
+                <!--
+                TODO: Give Peer Advisors the power to edit their own notes.
                 <v-btn
                   :id="`edit-note-${note.id}-button`"
                   :aria-label="`Edit ${getNoteLabel(note, index)}`"
@@ -120,6 +122,7 @@
                   variant="text"
                   @click="() => editNote(note.id)"
                 />
+                -->
                 <v-btn
                   v-if="isPeerAdvisorManager(currentUser)"
                   :id="`delete-note-button-${note.id}`"
@@ -199,7 +202,7 @@
         with subject "<span class="font-weight-bold text-medium-emphasis">{{ get(noteForDelete, 'subject') }}</span>"?
       </span>
       <span v-if="noteForDelete && !get(noteForDelete, 'subject')">
-        containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(noteForDelete.body), {length: 30}) }}...</span>"?</span>
+        containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(noteForDelete.body), {length: 30}) }}</span>"?</span>
     </AreYouSureModal>
   </div>
 </template>
@@ -277,10 +280,11 @@ const deleteConfirmed = () => {
   }
 }
 
-const editNote = (noteId: number) => {
-  editingNoteId.value = noteId
-  putFocusNextTick('edit-note-subject')
-}
+// TODO: Give Peer Advisors the power to edit their own notes.
+// const editNote = (noteId: number) => {
+//   editingNoteId.value = noteId
+//   putFocusNextTick('edit-note-subject')
+// }
 
 const getNotePosition = (index: number) => `${index + 1} of ${size(props.notes) || 'unknown'}`
 
