@@ -133,7 +133,10 @@
                   @click="() => onClickDeleteNote(getNote(note))"
                 />
               </div>
-              <div class="created-date text-nowrap">
+              <div
+                :class="{'mt-4': isExpanded(note) && editingNoteId !== note.id && canUserEditNote(getNote(note), currentUser)}"
+                class="created-date text-nowrap"
+              >
                 <span :aria-hidden="true">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}</span>
                 <span class="sr-only">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL) }}</span>
               </div>
