@@ -45,7 +45,15 @@ export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessag
     if (message.subject) {
       summary = message.subject
     } else if (size(message.message)) {
-      summary = stripHtml ? stripHtmlAndTrim(message.message).replace(/\n\r/g, ' ') : message.message
+      if (stripHtml) {
+        const cleanse = (s: string) => stripHtmlAndTrim(s).replace(/\n\r/g, ' ')
+        const regex: string = ['<br>', '<br/>', '</p>', '</div>'].map(phrase => `(${phrase})`).join('|')
+        const index: number = message.message.search(new RegExp(regex))
+        summary = cleanse(index === -1 ? summary : summary.slice(0, index))
+        summary = summary || cleanse(message.message)
+      } else {
+        summary = message.message
+      }
     } else if (message.category) {
       summary = `${message.category}${message.subcategory ? `, ${message.subcategory}` : ''}`
     } else {
