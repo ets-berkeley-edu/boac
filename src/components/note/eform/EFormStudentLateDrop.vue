@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div v-if="eForm.term" class="mb-3">
+      <dt class="font-weight-bold">Term</dt>
+      <dd>{{ termNameForSisId(eForm.term) }}</dd>
+    </div>
     <div class="mb-3">
       <dt class="font-weight-bold">Course</dt>
       <dd>{{ eForm.sectionId }} {{ eForm.courseName }} - {{ eForm.courseTitle }} {{ eForm.section }}</dd>
@@ -19,6 +23,7 @@
 
 <script setup lang="ts">
 import {numFormat, toInt} from '@/lib/utils'
+import {termNameForSisId} from '@/lib/berkeley-utils'
 
 defineProps({
   eForm: {
