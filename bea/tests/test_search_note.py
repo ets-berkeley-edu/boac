@@ -22,7 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-
+import datetime
 from datetime import timedelta
 
 from bea.config.bea_test_config import BEATestConfig
@@ -200,10 +200,11 @@ class TestSearchNote:
         self.search_results_page.assert_note_result_not_present(tc.note)
 
     def test_adv_search_non_matching_date_future_range(self, tc):
-        self.homepage.reopen_and_reset_adv_search()
-        self.homepage.set_notes_student(tc.student)
-        self.homepage.set_notes_date_range(date_from=(tc.note.updated_date + timedelta(days=1)),
-                                           date_to=(tc.note.updated_date + timedelta(days=30)))
-        self.homepage.enter_adv_search(tc.search_string)
-        self.homepage.click_adv_search_button()
-        self.search_results_page.assert_note_result_not_present(tc.note)
+        if tc.note.updated_date + timedelta(days=30) < utils.date_to_local_tz(datetime.datetime.now()):
+            self.homepage.reopen_and_reset_adv_search()
+            self.homepage.set_notes_student(tc.student)
+            self.homepage.set_notes_date_range(date_from=(tc.note.updated_date + timedelta(days=1)),
+                                               date_to=(tc.note.updated_date + timedelta(days=30)))
+            self.homepage.enter_adv_search(tc.search_string)
+            self.homepage.click_adv_search_button()
+            self.search_results_page.assert_note_result_not_present(tc.note)

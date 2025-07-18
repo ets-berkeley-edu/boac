@@ -53,7 +53,7 @@ def get_boa_base_url():
 def get_peer_dept_id(peer_dept):
     sql = f"SELECT id FROM peer_advising_departments WHERE name = '{peer_dept.value['name']}'"
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     return result['id']
 
@@ -77,7 +77,7 @@ def unique_students_in_batch(students, cohorts, groups):
 def get_user_login_count(user):
     sql = f"SELECT COUNT(uid) FROM user_logins WHERE uid = '{user.uid}'"
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     return result['count']
 
@@ -529,8 +529,7 @@ def get_everyone_curated_groups(dept=None, admin=False, admits=False):
 def get_sids_with_notes_of_src_boa(drafts=False):
     sql = f"""SELECT DISTINCT sid
                 FROM notes
-               WHERE body NOT LIKE '%QA Test%'
-                 AND deleted_at IS NULL
+               WHERE deleted_at IS NULL
                  AND is_private IS FALSE
                  AND is_draft IS {'TRUE' if drafts else 'FALSE'}"""
     app.logger.info(sql)
@@ -621,7 +620,7 @@ def get_peer_dept_author_ct(peer_dept_id=None):
                WHERE notes.peer_advising_department_id {clause}
                  AND notes.deleted_at IS NULL"""
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     return result['count']
 
@@ -636,7 +635,7 @@ def get_parent_dept_peer_note_ct(dept):
                WHERE notes.deleted_at IS NULL
                  AND university_depts.dept_code = '{dept.value['code']}'"""
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     return result['count']
 

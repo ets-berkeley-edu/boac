@@ -22,6 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+import datetime
 import time
 
 from bea.pages.student_page_advising_note import StudentPageAdvisingNote
@@ -83,3 +84,20 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         self.wait_for_element_and_click((By.ID, f'open-peer-advising-{note.record_id}'))
         self.when_visible((By.ID, f'note-{note.record_id}-body'), 2)
         time.sleep(utils.get_click_sleep())
+
+    @staticmethod
+    def peer_note_edit_button(note):
+        return By.ID, f'edit-note-{note.record_id}-button'
+
+    def click_peer_note_edit_button(self, note):
+        self.wait_for_element_and_click(self.peer_note_edit_button(note))
+
+    @staticmethod
+    def peer_note_delete_button(note):
+        return By.ID, f'delete-note-button-{note.record_id}'
+
+    def delete_peer_note(self, note):
+        app.logger.info(f'Deleting peer note {note.record_id}')
+        self.wait_for_element_and_click(self.peer_note_delete_button(note))
+        self.confirm_delete_or_discard()
+        note.deleted_date = datetime.datetime.now()

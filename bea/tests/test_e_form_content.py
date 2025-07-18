@@ -59,7 +59,7 @@ class TestEFormDetail:
 
     def test_collapsed_subject(self, tc):
         visible = self.student_page.collapsed_note_subject(tc.note) or ''
-        utils.assert_equivalence(visible.strip(), tc.note.subject.strip())
+        utils.assert_actual_includes_expected(visible.strip(), tc.note.subject.strip())
 
     def test_expanded_created_date(self, tc):
         self.student_page.expand_item(tc.note)

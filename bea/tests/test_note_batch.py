@@ -137,12 +137,7 @@ class TestNoteBatch:
         assert not self.homepage.element(self.homepage.NEW_NOTE_SAVE_BUTTON).is_enabled()
 
     def test_note_count_alert(self):
-        # TODO - remove the following once the auto-suggest behaves itself
-        self.homepage.add_space_sep_sids_to_batch(self.students)
-        for student in self.students:
-            self.homepage.append_student_to_batch(self.batch_note_1, student)
-        # TODO - use the following once the auto-suggest behaves itself
-        # self.homepage.add_students_to_batch(self.batch_note_1, self.students)
+        self.homepage.add_students_to_batch(self.batch_note_1, self.students)
         self.homepage.add_cohorts_to_batch(self.batch_note_1, self.cohorts)
         self.homepage.add_groups_to_batch(self.batch_note_1, self.groups)
         self.homepage.verify_batch_note_alert(self.students, self.cohorts, self.groups)

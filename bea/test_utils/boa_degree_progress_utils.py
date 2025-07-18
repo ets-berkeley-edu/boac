@@ -59,7 +59,7 @@ def set_new_template_id(template):
                 FROM degree_progress_templates
                WHERE degree_name = '{template.name}'"""
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     template.template_id = result['id']
     template.created_date = datetime.today().date()
@@ -114,7 +114,7 @@ def set_unit_reqt_id(degree, unit_reqt):
                 FROM degree_progress_unit_requirements
                WHERE name = '{unit_reqt.name}' AND template_id = '{degree_id(degree)}'"""
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     unit_reqt.reqt_id = result['id']
     app.logger.info(f'Unit reqt id is {unit_reqt.reqt_id}')
@@ -126,7 +126,7 @@ def set_course_reqt_id(degree, course_reqt):
                WHERE name = '{course_reqt.name}'
                  AND template_id = '{degree_id(degree)}'"""
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     course_reqt.course_id = result['id']
     app.logger.info(f'Course reqt id is {course_reqt.course_id}')
@@ -138,7 +138,7 @@ def set_category_id(degree, category):
                WHERE name = '{category.name}'
                  AND template_id = '{degree_id(degree)}'"""
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     category.category_id = result['id']
     app.logger.info(f'Reqt category id is {category.category_id}')
@@ -151,7 +151,7 @@ def set_degree_manual_course_id(degree, course):
                WHERE degree_check_id = '{degree.check_id}'
                  AND display_name = '{course.name}'"""
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     app.logger.info(f"Manual course {course.name} id is {result['id']}")
     course.course_id = result['id']
@@ -164,7 +164,7 @@ def set_degree_sis_course_id(degree, course):
                  AND term_id = '{course.term_id}'
                  AND section_id = '{course.ccn}'"""
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     app.logger.info(f"Completed course {course.name} id is {result['id']}")
     course.course_id = result['id']
@@ -177,7 +177,7 @@ def set_degree_sis_course_copy_id(degree, course):
                  AND term_id = '{course.course_orig.term_id}'
                  AND section_id = '{course.course_orig.ccn}'"""
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     app.logger.info(f"Course copy {course.name} id is {result['id']}")
     course.course_id = result['id']
@@ -189,7 +189,7 @@ def set_degree_check_ids(degree_check):
                WHERE degree_name = '{degree_check.name}'
                  AND student_sid = '{degree_check.student.sid}'"""
     app.logger.info(sql)
-    result = db.session.execute(text(sql)).first()
+    result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
     app.logger.info(f"Degree check id is {result['id']}")
     degree_check.check_id = result['id']

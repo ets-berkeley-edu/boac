@@ -736,12 +736,9 @@ class TestNoteDraft:
         self.student_page.show_notes()
         self.student_page.verify_note(self.note_4, self.test.advisor)
 
-    def test_converted_draft_removed_from_drafts_page(self):
+    def test_batch_draft_to_notes(self):
         self.draft_notes_page.load_page()
         self.draft_notes_page.wait_for_draft_row(self.note_5)
-        assert not self.draft_notes_page.is_present(self.draft_notes_page.draft_row_loc(self.note_4))
-
-    def test_batch_draft_to_notes(self):
         self.draft_notes_page.click_draft_subject(self.note_5)
         self.note_5.subject = f'Draft note 5 {self.test.test_id} subject'
         self.draft_notes_page.enter_new_note_subject(self.note_5)

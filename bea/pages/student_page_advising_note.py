@@ -217,6 +217,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def verify_note(self, note, viewer):
         app.logger.info(f'Verifying visible data for note ID {note.record_id}')
+        self.show_notes()
 
         # Collapsed
 
