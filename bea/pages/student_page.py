@@ -347,7 +347,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
 
     def visible_term_concurrent_enrollment(self, term_sis_id):
         self.wait_for_term_data(term_sis_id)
-        term_concurrent_enroll_loc = By.XPATH, f'{self.term_data_xpath(term_sis_id)}/following-sibling::span[text()="UCBX"]'
+        term_concurrent_enroll_loc = By.XPATH, f'//h3[@id="term-{term_sis_id}-header"]/following-sibling::span[text()="UCBX"]'
         return self.is_present(term_concurrent_enroll_loc)
 
     # COURSES

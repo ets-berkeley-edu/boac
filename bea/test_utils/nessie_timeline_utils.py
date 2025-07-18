@@ -255,9 +255,9 @@ def get_eop_notes(student):
     app.logger.info(sql)
     results = data_loch.safe_execute_rds(sql)
     notes = []
-    grouped = groupby(results, key=lambda n: n['id'])
-    for k, v in grouped:
-        v = list(v)
+    sorted_rows = sorted(results, key=lambda i: i['id'])
+    grouped = [list(result) for key, result in groupby(sorted_rows, key=lambda n: n['id'])]
+    for v in grouped:
         advisor = User({
             'uid': str(v[0]['advisor_uid']),
             'first_name': v[0]['advisor_first_name'],

@@ -92,6 +92,9 @@ class CreateNoteModal(Page):
     def wait_for_note_body_editor(self):
         self.when_present(self.NOTE_BODY_TEXT_AREA, utils.get_short_timeout())
 
+    def click_note_body_input(self):
+        self.wait_for_element_and_click(self.NOTE_BODY_TEXT_AREA)
+
     def enter_note_body(self, note):
         app.logger.info(f'Entering note body {note.body}')
         self.wait_for_note_body_editor()
@@ -319,7 +322,7 @@ class CreateNoteModal(Page):
     BATCH_NO_STUDENTS_PER_COHORTS = By.ID, 'no-students-per-cohorts-alert'
     BATCH_NO_STUDENTS_PER_GROUPS = By.ID, 'no-students-per-curated-groups-alert'
     BATCH_NO_STUDENTS = By.ID, 'no-students-alert'
-    BATCH_STUDENT_COUNT = By.ID, 'target-student-count-alert'
+    BATCH_STUDENT_COUNT = By.XPATH, '//div[@id="target-student-count-alert"]/span'
     BATCH_DRAFT_STUDENT_WARNING = By.XPATH, '//span[contains(text(), "but not the associated students")]'
 
     def click_create_note_batch(self):

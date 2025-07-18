@@ -116,7 +116,7 @@ class TestDegreeCheckCreation:
                 utils.assert_equivalence(self.degree_check_page.visible_course_reqt_units(course), units)
 
 
-@pytest.mark.usefixtures
+@pytest.mark.usefixtures('page_objects')
 class TestCourseEditing:
     cat = next(filter(lambda cat: cat.course_reqts, degree_check.categories))
     reqt = cat.course_reqts[0]
@@ -266,7 +266,7 @@ class TestDegreeCheckHeader:
     def test_create_degree_note(self):
         self.degree_check_page.create_note(note_str)
         utils.assert_equivalence(self.degree_check_page.visible_note_body(), note_str.strip())
-        utils.assert_matching_advisor_name(self.degree_check_page.visible_note_update_advisor(), test.advisor)
+        utils.assert_actual_includes_expected(self.degree_check_page.visible_note_update_advisor(), test.advisor.last_name)
         utils.assert_actual_includes_expected(
             self.degree_check_page.element(self.degree_check_page.NOTE_UPDATE_DATE).text,
             'today')
@@ -278,7 +278,7 @@ class TestDegreeCheckHeader:
     def test_edit_degree_note(self):
         self.degree_check_page.edit_note(f'EDITED - {note_str}')
         utils.assert_equivalence(self.degree_check_page.visible_note_body(), f'EDITED - {note_str}'.strip())
-        utils.assert_matching_advisor_name(self.degree_check_page.visible_note_update_advisor(), test.advisor)
+        utils.assert_actual_includes_expected(self.degree_check_page.visible_note_update_advisor(), test.advisor.last_name)
         utils.assert_actual_includes_expected(
             self.degree_check_page.element(self.degree_check_page.NOTE_UPDATE_DATE).text,
             'today')

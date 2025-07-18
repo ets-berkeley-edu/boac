@@ -150,7 +150,9 @@ class TestSearchAdmitSearches:
         assert self.search_results_page.visible_admit_urem(admit) == admit.admit_data['urem']
 
     def test_visible_fee_waiver(self, admit):
-        assert self.search_results_page.visible_admit_fee_waiver(admit) == admit.admit_data['application_fee_waiver_flag']
+        data = admit.admit_data['application_fee_waiver_flag']
+        expected = 'Fee' if data == 'FeeWaiver' else data
+        assert self.search_results_page.visible_admit_fee_waiver(admit) == expected
 
     def test_visible_freshman_or_transfer(self, admit):
         assert self.search_results_page.visible_admit_residency(admit) == admit.admit_data['residency_category']

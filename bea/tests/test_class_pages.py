@@ -86,8 +86,6 @@ class TestClassPagesSectionInfo:
         for meeting in tc.section.meetings:
             idx = tc.section.meetings.index(meeting)
             meeting_time = f'{meeting.start_time} - {meeting.end_time}'.strip() if meeting.start_time else None
-            if meeting_time and meeting_time.startswith('12:00 am'):
-                meeting_time = None
             utils.assert_equivalence(self.class_page.meeting_time(idx), meeting_time)
 
     def test_class_page_meeting_locations(self, tc):

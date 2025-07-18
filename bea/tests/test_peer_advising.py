@@ -34,7 +34,7 @@ from bea.test_utils import utils
 from flask import current_app as app
 import pytest
 
-# Test users L&S
+# Test users L&S - they will own the notes
 test_ls = BEATestConfig()
 test_ls.peer_advising(dept=Department.L_AND_S)
 pam_in_ls = test_ls.advisor
@@ -43,7 +43,7 @@ peer_dept_ls_id = boa_utils.get_peer_dept_id(peer_dept_ls)
 peer_1_in_ls = test_ls.get_peer_advisor(test_ls.test_students[0])
 peer_2_in_ls = test_ls.get_peer_advisor(test_ls.test_students[1])
 
-# Test users CoE
+# Test users CoE - they will not own the notes
 test_coe = BEATestConfig()
 test_coe.peer_advising(dept=Department.COE)
 pam_in_coe = test_coe.advisor
@@ -51,10 +51,11 @@ peer_dept_coe = test_coe.get_peer_dept(pam_in_coe)
 peer_dept_coe_id = boa_utils.get_peer_dept_id(peer_dept_coe)
 peer_in_coe = test_coe.get_peer_advisor(test_ls.test_students[3])
 
-# Test notes
+# Test notes - created by L&S
 pre_existing_peer_note_ids = boa_utils.get_peer_dept_note_ids(peer_dept_ls_id)
 note_1_by_ls_peer = Note({'advisor': peer_1_in_ls})
 note_2_by_ls_peer = Note({'advisor': peer_1_in_ls})
+note_3_by_ls_peer = Note({'advisor': peer_1_in_ls})
 student_1_for_ls_peer_note = test_ls.test_students[4]
 student_2_for_ls_peer_note = test_ls.test_students[5]
 student_schedule_tcs = [tc for tc in test_ls.test_cases if tc.course and tc.student == student_1_for_ls_peer_note]
@@ -233,6 +234,14 @@ class TestNoteCreation:
         self.peer_page.select_and_apply_peer_template(peer_template_in_ls, note_2_by_ls_peer)
         self.peer_page.save_and_wait_for_peer_note(note_2_by_ls_peer)
 
+    def test_create_another_note(self):
+        note_3_by_ls_peer.body = (f'Test Note 3 {test_ls.test_id} ' * 20).strip()
+        note_3_by_ls_peer.contact_type = 'Phone'
+        note_3_by_ls_peer.student = student_1_for_ls_peer_note
+        note_3_by_ls_peer.topics = [Topic(PeerTopics.DBL_MAJOR.value)]
+        self.peer_page.click_new_peer_note_button()
+        self.peer_page.create_peer_note(note_3_by_ls_peer, valid_attachments[:2])
+
 
 @pytest.mark.usefixtures('page_objects')
 class TestListView:
@@ -242,52 +251,59 @@ class TestListView:
         self.homepage.dev_auth()
         self.api_admin_page.reindex_notes()
         self.homepage.switch_user(peer_1_in_ls, 'Peer Advising')
-        self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
+        self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
 
     def test_collapsed_note_student(self):
-        utils.assert_equivalence(self.peer_page.peer_note_student(note_1_by_ls_peer), note_1_by_ls_peer.student.full_name)
+        utils.assert_equivalence(self.peer_page.peer_note_student(note_3_by_ls_peer), note_3_by_ls_peer.student.full_name)
 
     def test_collapsed_note_body(self):
-        utils.assert_actual_includes_expected(self.peer_page.peer_note_body(note_1_by_ls_peer), note_1_by_ls_peer.body)
+        utils.assert_actual_includes_expected(self.peer_page.peer_note_body(note_3_by_ls_peer), note_3_by_ls_peer.body)
 
     def test_collapsed_note_date(self):
-        utils.assert_equivalence(self.peer_page.peer_note_date(note_1_by_ls_peer),
-                                 self.peer_page.peer_note_date_format(note_1_by_ls_peer))
+        utils.assert_equivalence(self.peer_page.peer_note_date(note_3_by_ls_peer),
+                                 self.peer_page.peer_note_date_format(note_3_by_ls_peer))
 
     def test_expand_note(self):
-        self.peer_page.expand_peer_note(note_1_by_ls_peer)
+        self.peer_page.expand_peer_note(note_3_by_ls_peer)
 
     def test_expanded_note_author(self):
-        visible = self.peer_page.expanded_note_advisor(note_1_by_ls_peer)
+        visible = self.peer_page.expanded_note_advisor(note_3_by_ls_peer)
         utils.assert_actual_includes_expected(visible, peer_1_in_ls.first_name)
         utils.assert_actual_includes_expected(visible, peer_1_in_ls.last_name)
 
     def test_expanded_note_topics(self):
-        expected = [t.name.upper() for t in note_1_by_ls_peer.topics]
+        expected = [t.name.upper() for t in note_3_by_ls_peer.topics]
         expected.sort()
-        utils.assert_equivalence(self.peer_page.expanded_note_topics(note_1_by_ls_peer), expected)
+        utils.assert_equivalence(self.peer_page.expanded_note_topics(note_3_by_ls_peer), expected)
 
     def test_expanded_note_contact_type(self):
-        utils.assert_equivalence(self.peer_page.expanded_note_contact_type(note_1_by_ls_peer), note_1_by_ls_peer.contact_type)
+        utils.assert_equivalence(self.peer_page.expanded_note_contact_type(note_3_by_ls_peer), note_3_by_ls_peer.contact_type)
 
     def test_expanded_note_attachments(self):
-        attachment_files = [a.file_name for a in note_1_by_ls_peer.attachments]
+        attachment_files = [a.file_name for a in note_3_by_ls_peer.attachments]
         attachment_files.sort()
-        visible_attachments = self.peer_page.expanded_note_attachments(note_1_by_ls_peer)
+        visible_attachments = self.peer_page.expanded_note_attachments(note_3_by_ls_peer)
         visible_attachments.sort()
         utils.assert_equivalence(visible_attachments, attachment_files)
 
+    def test_expanded_note_no_editing(self):
+        assert not self.peer_page.is_present(self.peer_page.peer_note_edit_button(note_3_by_ls_peer))
+
+    def test_expanded_note_no_deleting(self):
+        assert not self.peer_page.is_present(self.peer_page.peer_note_delete_button(note_3_by_ls_peer))
+
     def test_download_attachments(self):
-        for attach in note_1_by_ls_peer.attachments:
-            self.peer_page.download_attachment(note_1_by_ls_peer, attach)
+        for attach in note_3_by_ls_peer.attachments:
+            self.peer_page.download_attachment(note_3_by_ls_peer, attach)
 
     def test_collapse_note(self):
-        self.peer_page.collapse_item(note_1_by_ls_peer)
+        self.peer_page.collapse_item(note_3_by_ls_peer)
 
     def test_search_note_student(self):
-        self.peer_page.enter_simple_search_and_hit_enter(note_1_by_ls_peer.student.last_name)
+        self.peer_page.enter_simple_search_and_hit_enter(note_3_by_ls_peer.student.last_name)
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
+        self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
 
     def test_search_note_student_no_result(self):
         string = note_1_by_ls_peer.student.full_name[::-1]
@@ -298,6 +314,7 @@ class TestListView:
         self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
+        self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
 
     def test_foreign_pa_cannot_see_note(self):
         self.peer_page.log_out()
@@ -305,6 +322,7 @@ class TestListView:
         self.peer_page.when_visible(self.peer_page.PEER_NEW_NOTE_BTN, utils.get_short_timeout())
         assert not self.peer_page.is_present(self.peer_page.peer_note_row(note_1_by_ls_peer))
         assert not self.peer_page.is_present(self.peer_page.peer_note_row(note_2_by_ls_peer))
+        assert not self.peer_page.is_present(self.peer_page.peer_note_row(note_3_by_ls_peer))
 
     def test_foreign_pa_cannot_search_note(self):
         self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
@@ -316,11 +334,20 @@ class TestListView:
         self.peer_page.when_visible(self.peer_page.PEER_NEW_NOTE_BTN, utils.get_short_timeout())
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
+        self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
 
     def test_domestic_pa_can_search_note(self):
         self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
+        self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
+
+    def test_domestic_pa_cannot_edit_note(self):
+        self.peer_page.expand_peer_note(note_3_by_ls_peer)
+        assert not self.peer_page.is_present(self.peer_page.peer_note_edit_button(note_3_by_ls_peer))
+
+    def test_domestic_pa_cannot_delete_note(self):
+        assert not self.peer_page.is_present(self.peer_page.peer_note_delete_button(note_3_by_ls_peer))
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -335,6 +362,7 @@ class TestPAMListView:
     def test_collapsed_note_student(self):
         assert self.pam_page.is_present(self.pam_page.peer_manager_note_student_link(note_1_by_ls_peer))
         assert self.pam_page.is_present(self.pam_page.peer_manager_note_student_link(note_2_by_ls_peer))
+        assert self.pam_page.is_present(self.pam_page.peer_manager_note_student_link(note_3_by_ls_peer))
 
     def test_collapsed_note_body(self):
         utils.assert_actual_includes_expected(self.pam_page.peer_note_body(note_1_by_ls_peer), note_1_by_ls_peer.body)
@@ -389,7 +417,7 @@ class TestPAMNoteSearch:
 
 
 @pytest.mark.usefixtures('page_objects')
-class TestPAMNoteEdit:
+class TestPAMNoteEditOnStudentPage:
 
     def test_timeline_note(self):
         self.search_results_page.click_pam_link()
@@ -432,34 +460,43 @@ class TestPAMNoteEdit:
         self.student_page.click_close_msg(note_1_by_ls_peer)
         self.student_page.verify_note(note_1_by_ls_peer, pam_in_ls)
 
-    def test_no_deleting(self):
-        assert not self.student_page.is_present(self.student_page.delete_note_button_loc(note_1_by_ls_peer))
-
     def test_no_foreign_pam_edits(self):
         self.homepage.switch_user(pam_in_coe)
         self.student_page.load_page(student_1_for_ls_peer_note)
         self.student_page.expand_item(note_1_by_ls_peer)
         assert not self.student_page.is_present(self.student_page.edit_note_button_loc(note_1_by_ls_peer))
 
-    def test_admin_deletion(self):
-        self.homepage.switch_user()
+
+@pytest.mark.usefixtures('page_objects')
+class TestPeerNoteDeletion:
+
+    def test_no_foreign_pam_deletes(self):
+        assert not self.student_page.is_present(self.student_page.delete_note_button_loc(note_1_by_ls_peer))
+
+    def test_student_page_deletion(self):
+        self.homepage.switch_user(pam_in_ls)
         self.student_page.load_page(student_1_for_ls_peer_note)
         self.student_page.expand_item(note_1_by_ls_peer)
         self.student_page.delete_note(note_1_by_ls_peer)
         self.student_page.when_not_present(self.student_page.collapsed_item_loc(note_1_by_ls_peer), utils.get_short_timeout())
 
-    def test_deleted_notes_removed_from_pam_dashboard(self):
-        self.homepage.switch_user(pam_in_ls)
-        self.homepage.click_pam_link()
+    def test_pam_page_deletion(self):
+        self.student_page.click_pam_link()
         self.pam_page.click_peer_notes(peer_1_in_ls)
+        self.pam_page.expand_peer_note(note_3_by_ls_peer)
+        self.pam_page.delete_peer_note(note_3_by_ls_peer)
+
+    def test_deleted_notes_removed_from_pam_dashboard(self):
         assert not self.pam_page.is_present(self.pam_page.peer_note_row(note_1_by_ls_peer))
         assert self.pam_page.is_present(self.pam_page.peer_note_row(note_2_by_ls_peer))
+        assert not self.pam_page.is_present(self.pam_page.peer_note_row(note_3_by_ls_peer))
 
     def test_deleted_notes_removed_from_peer_page(self):
         self.homepage.switch_user(peer_1_in_ls, 'Peer Advising')
         self.peer_page.when_visible(self.peer_page.PEER_NEW_NOTE_BTN, utils.get_short_timeout())
         assert not self.peer_page.is_present(self.peer_page.peer_note_row(note_1_by_ls_peer))
         assert self.peer_page.is_present(self.peer_page.peer_note_row(note_2_by_ls_peer))
+        assert not self.peer_page.is_present(self.peer_page.peer_note_row(note_3_by_ls_peer))
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -526,7 +563,7 @@ class TestPeerAdvisingReports:
     def test_peer_notes_csv(self):
         expected_note_ct = len(boa_utils.get_peer_dept_note_ids(peer_dept_ls_id))
         file = self.pam_page.download_peer_note_csv()
-        actual_note_ct = sum(1 for row in file)
+        actual_note_ct = len(list(file))
         utils.assert_equivalence(actual_note_ct, expected_note_ct)
 
 

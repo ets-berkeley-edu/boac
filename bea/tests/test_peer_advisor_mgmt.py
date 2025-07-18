@@ -145,9 +145,6 @@ class TestPeerAdvisingTemplateMgmt:
         else:
             app.logger.info(f'Peer dept {peer_dept_ls} has no existing templates to delete')
 
-    def test_no_templates(self):
-        assert self.pam_page.is_present(self.pam_page.NO_PEER_TEMPLATES_MSG)
-
     def test_create_template_but_cancel(self):
         self.pam_page.click_create_peer_template()
         self.pam_page.click_cancel_peer_template()

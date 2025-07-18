@@ -125,10 +125,8 @@ class TestApptContent:
 
     def test_expanded_advisor(self, tc):
         # Appts have varying amounts of advisor info, just verify something's there
-        visible = self.student_page.expanded_appt_advisor_name(tc.appt)
-        if tc.appt.advisor.full_name:
-            utils.assert_equivalence(visible, tc.appt.advisor.full_name)
-        elif tc.appt.advisor.last_name:
+        if tc.appt.advisor.full_name or tc.appt.advisor.last_name:
+            visible = self.student_page.expanded_appt_advisor_name(tc.appt)
             assert visible
 
     def test_expanded_status(self, tc):

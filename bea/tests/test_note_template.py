@@ -107,6 +107,7 @@ class TestNoteTemplate:
         self.student_page.wait_for_template_option(self.template_1)
 
     def test_template_title_required(self):
+        self.student_page.click_note_body_input()
         self.student_page.enter_new_note_subject(self.note_create)
         self.student_page.click_save_as_template()
         assert not self.student_page.is_create_template_enabled()

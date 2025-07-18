@@ -165,11 +165,20 @@ def get_all_student_sids():
     return list(map(lambda r: r['sid'], results))
 
 
-def get_sids_with_enrollments(term_id):
-    sql = f"""SELECT sid
-                FROM student.student_enrollment_terms
-               WHERE enrolled_units > 0
-                 AND term_id = '{term_id}'"""
+def get_sids_with_enrollments(term_id, undergrad=False):
+    if undergrad:
+        sql = f"""SELECT student.student_enrollment_terms.sid
+                    FROM student.student_enrollment_terms
+                    JOIN student.student_profile_index
+                      ON student.student_profile_index.sid = student.student_enrollment_terms.sid
+                   WHERE student.student_enrollment_terms.enrolled_units > 0
+                     AND student.student_enrollment_terms.term_id = '{term_id}'
+                     AND student.student_profile_index.level IN ('10', '20', '30', '40');"""
+    else:
+        sql = f"""SELECT sid
+                    FROM student.student_enrollment_terms
+                   WHERE enrolled_units > 0
+                     AND term_id = '{term_id}'"""
     app.logger.info(sql)
     results = data_loch.safe_execute_rds(sql)
     return list(map(lambda r: r['sid'], results))

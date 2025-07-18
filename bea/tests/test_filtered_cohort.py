@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from bea.config.bea_test_config import BEATestConfig
+from bea.models.cohorts_and_groups.cohort import Cohort
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.department import Department
 from bea.test_utils import boa_utils
@@ -394,6 +395,12 @@ class TestFilteredCohortExport:
 
     def test_ferpa_before_export(self):
         test.set_default_cohort(opts={'major': 'Computer Science BA'})
+
+        # Create a group before running tests so that export CSV will contain Curated Group column
+        test_group = Cohort({'name': f'Group {test.test_id}'})
+        self.homepage.click_sidebar_create_student_group()
+        self.curated_students_page.create_group_with_bulk_sids(test_group, test.default_cohort.members)
+
         self.filtered_students_page.search_and_create_new_student_cohort(test.default_cohort)
         self.filtered_students_page.click_export_list()
         title = 'FERPA (Privacy Disclosure) - Office of the Registrar'

@@ -102,7 +102,9 @@ class BEATestConfig(BEATestBaseConfigs):
         cohort_filter = CohortFilter(dept=self.dept, data=data)
         self.set_default_cohort(cohort_filter=cohort_filter, opts={'include_inactive': True})
         self.set_degree_templates()
-        self.set_test_students(count=50, opts={'enrollments': True, 'enrollment_term': utils.get_prev_term_sis_id()})
+        self.set_test_students(count=50, opts={'enrollments': True,
+                                               'enrollment_term': utils.get_prev_term_sis_id(),
+                                               'undergrad': True})
 
     def e_form_content(self):
         self.set_base_configs(opts={'include_inactive': True})
@@ -252,9 +254,7 @@ class BEATestConfig(BEATestBaseConfigs):
         for student in self.test_students:
             all_student_notes, _ = self.get_test_notes(student, count)
             for student_note in all_student_notes:
-                if student_note.subject and 'QA Test' in student_note.subject:
-                    app.logger.info(f'Skipping note {student_note.record_id} because it is a testing artifact')
-                elif app.config['TEST_NOTE_SOURCE_BOA_ONLY'] and student_note.source != TimelineRecordSource.BOA:
+                if app.config['TEST_NOTE_SOURCE_BOA_ONLY'] and student_note.source != TimelineRecordSource.BOA:
                     app.logger.info(f'Skipping note {student_note.record_id} because we only want BOA notes!')
                 elif (student_note.advisor and student_note.advisor.uid == 'None') or not student_note.advisor:
                     app.logger.info(f'Skipping note {student_note.record_id} because the advisor has no UID')

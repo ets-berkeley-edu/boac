@@ -325,7 +325,9 @@ class BEATestBaseConfigs(object):
             if opts.get('enrollments'):
                 term_sis_id = opts['enrollment_term'] if opts.get('enrollment_term') else self.term.sis_id
                 app.logger.info('Running tests using students with enrollments')
-                enrolled_sids = nessie_utils.get_sids_with_enrollments(term_sis_id)
+                # Degree check tests don't want grad students
+                undergrad = True if opts.get('undergrad') else False
+                enrolled_sids = nessie_utils.get_sids_with_enrollments(term_sis_id, undergrad)
                 random.shuffle(enrolled_sids)
                 test_sids.extend(enrolled_sids[:count])
 
