@@ -83,7 +83,7 @@
           </tr>
         </template>
         <template #item.name="{item}">
-          <div :class="{'font-weight-bold opacity-60 text-red': item.deletedAt, 'demo-mode-blur': currentUser.inDemoMode}">
+          <div :class="{'font-weight-bold opacity-60 text-red': item.deletedAt && !currentUser.inDemoMode, 'demo-mode-blur': currentUser.inDemoMode}">
             {{ item.name || `UID: ${item.uid}` }}
           </div>
         </template>
@@ -91,7 +91,7 @@
           <div class="float-right">
             <NotesCreatedByPeerAdvisor
               v-if="get(item, 'noteCount')"
-              :header-text="`${pluralize('note', toInt(get(item, 'noteCount') || 0), {1: 'One'})} created by ${item.name}`"
+              :header-text="`${pluralize('note', toInt(get(item, 'noteCount') || 0), {1: 'One'})} created by ${currentUser.inDemoMode ? '...' : item.name}`"
               :peer-advising-department="peerAdvisingDepartment"
               :user="item"
             />
