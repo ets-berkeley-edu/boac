@@ -1,13 +1,16 @@
-import {each, filter, get, isEmpty, size, trim} from 'lodash'
+import {each, filter, get, isEmpty, map, size, trim} from 'lodash'
 import type {
   AcademicTimelineMessage,
   Attachment,
   BoaConfig,
   BoaUser,
+  DepartmentMembership,
   EForm,
   Note,
   NoteTemplate,
 } from '@/lib/types'
+import {getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
+import {isPeerAdvisorManager} from '@/lib/boa-user'
 import {oxfordJoin, stripHtmlAndTrim} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -30,11 +33,10 @@ export function canUserEditNote(note: Note, user: BoaUser): boolean {
   let canEdit: boolean = false
   if (user.uid === note.author.uid && (!note.isPrivate || user.canAccessPrivateNotes)) {
     canEdit = true
-  // TODO: Give Peer Advisor Managers the power to edit their own notes.
-  // } else if (isPeerAdvisorManager(user) && note.peerAdvisingDepartmentId) {
-  //   // Peer Advisor Managers can edit notes created by Peer Advisors within same Peer Advising department.
-  //   const memberships: DepartmentMembership[] = getPeerAdvisorDepartmentMemberships(user, 'peer_advisor_manager')
-  //   canEdit = map(memberships, 'peerAdvisingDepartmentId').includes(note.peerAdvisingDepartmentId)
+  } else if (isPeerAdvisorManager(user) && note.peerAdvisingDepartmentId) {
+    // Peer Advisor Managers can edit notes created by Peer Advisors within same Peer Advising department.
+    const memberships: DepartmentMembership[] = getPeerAdvisorDepartmentMemberships(user, 'peer_advisor_manager')
+    canEdit = map(memberships, 'peerAdvisingDepartmentId').includes(note.peerAdvisingDepartmentId)
   }
   return canEdit
 }
@@ -46,6 +48,7 @@ export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessag
       summary = message.subject
     } else if (size(message.message)) {
       if (stripHtml) {
+        // Notes without a subject get a pseudo-subject line using the first line of the message body.
         const cleanse = (s: string) => stripHtmlAndTrim(s).replace(/\n\r/g, ' ')
         const regex: string = ['<br>', '<br/>', '</p>', '</div>'].map(phrase => `(${phrase})`).join('|')
         const index: number = message.message.search(new RegExp(regex))
