@@ -151,6 +151,7 @@
                       <router-link
                         v-if="currentUser.isAdmin && getNote(note).peerAdvisingDepartmentId"
                         :id="`note-${note.id}-link-to-peer-advisor-home`"
+                        :class="{'demo-mode-blur': currentUser.inDemoMode}"
                         :to="`/peer_advisor/${getNote(note).author.uid}/home`"
                       >
                         {{ getNote(note).author.name }}
@@ -158,6 +159,7 @@
                       <a
                         v-if="!currentUser.isAdmin || !getNote(note).peerAdvisingDepartmentId"
                         :id="`note-${note.id}-author-name`"
+                        :class="{'demo-mode-blur': currentUser.inDemoMode}"
                         :href="`https://www.berkeley.edu/directory/results?search-term=${getNote(note).author.name}`"
                         target="_blank"
                       >
