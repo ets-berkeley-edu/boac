@@ -32,7 +32,7 @@
               :id="`td-current-month-peer-advisor-${peerAdvisor.uid}-name`"
               :class="{
                 'demo-mode-blur': currentUser.inDemoMode,
-                'font-weight-medium text-red': peerAdvisor.deletedAt
+                'font-weight-medium text-red': peerAdvisor.deletedAt && !currentUser.inDemoMode
               }"
               class="border-sm w-90"
             >
@@ -47,7 +47,7 @@
             >
               <NotesCreatedByPeerAdvisor
                 v-if="get(peerAdvisor, 'noteCount')"
-                :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0), {1: 'One'})} created by ${peerAdvisor.name}`"
+                :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0), {1: 'One'})} created by ${currentUser.inDemoMode ? '...' : peerAdvisor.name}`"
                 :peer-advising-department="notesReport.peerAdvisingDepartment"
                 :timeframe="notesReport.currentMonth"
                 :user="peerAdvisor"
