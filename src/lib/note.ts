@@ -41,6 +41,14 @@ export function canUserEditNote(note: Note, user: BoaUser): boolean {
   return canEdit
 }
 
+export function stripHtmlAndSummarize(message: string) {
+  const cleanse = (s: string) => stripHtmlAndTrim(s).replace(/\n\r/g, ' ')
+  const regex: string = ['<br>', '<br/>', '</p>', '</div>'].map(phrase => `(${phrase})`).join('|')
+  const index: number = message.search(new RegExp(regex))
+  const summary = cleanse(index === -1 ? message : message.slice(0, index))
+  return summary || cleanse(message)
+}
+
 export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessage, stripHtml?: boolean): string {
   let summary = message.message
   if ('note' === message.type) {
@@ -49,11 +57,7 @@ export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessag
     } else if (size(message.message)) {
       if (stripHtml) {
         // Notes without a subject get a pseudo-subject line using the first line of the message body.
-        const cleanse = (s: string) => stripHtmlAndTrim(s).replace(/\n\r/g, ' ')
-        const regex: string = ['<br>', '<br/>', '</p>', '</div>'].map(phrase => `(${phrase})`).join('|')
-        const index: number = message.message.search(new RegExp(regex))
-        summary = cleanse(index === -1 ? summary : summary.slice(0, index))
-        summary = summary || cleanse(message.message)
+        summary = stripHtmlAndSummarize(message.message)
       } else {
         summary = message.message
       }
