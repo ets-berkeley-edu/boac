@@ -93,7 +93,7 @@
                       >
                         <NotesCreatedByPeerAdvisor
                           v-if="get(peerAdvisor, 'noteCount')"
-                          :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0), {1: 'One'})} created by ${peerAdvisor.name}`"
+                          :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0), {1: 'One'})} created by ${currentUser.inDemoMode ? '...' : peerAdvisor.name}`"
                           :peer-advising-department="peerAdvisingDepartment"
                           :timeframe="month"
                           :user="peerAdvisor"
