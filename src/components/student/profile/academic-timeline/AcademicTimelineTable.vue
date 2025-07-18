@@ -461,7 +461,7 @@
         with subject "<span class="font-weight-bold text-medium-emphasis">{{ messageForDelete.subject }}</span>"?
       </span>
       <span v-if="messageForDelete && !get(messageForDelete, 'subject')">
-        containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(messageForDelete.body), {length: 30}) }}...</span>"?</span>
+        containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(messageForDelete.body), {length: 30}) }}</span>"?</span>
     </AreYouSureModal>
   </div>
 </template>
