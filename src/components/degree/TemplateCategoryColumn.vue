@@ -146,7 +146,7 @@ const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
 const categories = computed(() => {
   const siblings = _filter(degreeStore.categories, c => c.uxPositionX === props.uxPositionX && isNil(c.parentCategoryId))
-  return orderBy(siblings, 'uxPositionY', 'desc')
+  return orderBy(siblings, ['uxPositionY'], ['asc'])
 })
 const categoryForEdit = ref(undefined)
 const config = contextStore.config
