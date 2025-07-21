@@ -58,20 +58,9 @@
             <PeerAdvisingNotesTable
               v-if="!isFetchingNotes"
               class="d-block font-size-14 w-100"
-              :get-note-label="getNoteLabel"
+              :get-student-name="n => n.student ? `${n.student.firstName} ${n.student.lastName}` : `SID: ${n.sid}`"
               :notes="notes"
-              :set-note-details="setPeerAdvisingDepartment"
-            >
-              <template #studentName="{note}">
-                <router-link
-                  :id="`note-${note.id}-link-to-student`"
-                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                  :to="studentRoutePath((note as Note).student.uid, currentUser.inDemoMode)"
-                >
-                  <span v-html="lastNameFirst((note as Note).student)" />
-                </router-link>
-              </template>
-            </PeerAdvisingNotesTable>
+            />
           </v-expand-transition>
         </v-card-text>
         <v-card-actions class="modal-footer">
@@ -91,17 +80,14 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {onBeforeUnmount, onMounted, ref} from 'vue'
-import {DateTime} from 'luxon'
-import {get, size} from 'lodash'
+import {get} from 'lodash'
 import {mdiCloseThick} from '@mdi/js'
+import {onBeforeUnmount, onMounted, ref} from 'vue'
 import type {BoaUser, Note, PeerAdvisingDepartment} from '@/lib/types'
 import type {Month} from '@/lib/types-peer-advising'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
-import {findPeerAdvisingDepartment} from '@/lib/berkeley-department'
 import {getPeerAdvisingNotesAuthoredBy} from '@/api/peer-advising-notes'
-import {lastNameFirst, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -125,7 +111,6 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
-const currentUser = contextStore.currentUser
 const isFetchingNotes = ref(false)
 const isModalOpen = ref(false)
 const notes = ref<Note[]>([])
@@ -143,21 +128,6 @@ onBeforeUnmount(() => contextStore.removeEventHandler('note-deleted'))
 const closeModal = () => {
   isModalOpen.value = false
   notes.value = []
-}
-
-const getNoteLabel = (note: Note, index: number) => {
-  const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
-  const createdDate = `${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}`
-  const rowPosition = `${index + 1} of ${size(notes.value) || 'unknown'}`
-  return `${rowPosition}, ${getStudentName(note)}, dated ${createdDate}${attachments}. ${stripHtmlAndTrim(note.body)}`
-}
-
-const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
-
-const setPeerAdvisingDepartment = (note: Note) => {
-  if (!note.peerAdvisingDepartment) {
-    note.peerAdvisingDepartment = findPeerAdvisingDepartment(props.peerAdvisingDepartment.id)
-  }
 }
 
 const showModal = () => {

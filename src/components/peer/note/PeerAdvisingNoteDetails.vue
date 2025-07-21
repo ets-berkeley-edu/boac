@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div v-if="!get(note, 'peerAdvisingDepartment')">
-      Loading...
-    </div>
-    <div v-if="get(note, 'peerAdvisingDepartment')" :class="{'img-blur': currentUser.inDemoMode}">
+    <div :class="{'img-blur': currentUser.inDemoMode}">
       <div v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</div>
       <div :id="`note-${note.id}-body`" class="note-body" v-html="note.body" />
       <div :id="`note-${note.id}-is-open`" class="w-100" :class="{'demo-mode-blur': currentUser.inDemoMode}">
@@ -35,7 +32,7 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {get, size} from 'lodash'
+import {size} from 'lodash'
 import type {Note} from '@/lib/types'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments.vue'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
