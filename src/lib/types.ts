@@ -231,10 +231,6 @@ export interface HasName {
   lastName: string
 }
 
-export interface HasBasicStudent {student: BasicStudent}
-
-export interface HasPeerAdvisingDepartment {peerAdvisingDepartment: PeerAdvisingDepartment}
-
 export type Note = {
   id: number,
   attachments: NoteAttachment[],
@@ -243,11 +239,13 @@ export type Note = {
   contactType: string,
   createdAt: string,
   deletedAt: string,
-  isDraft: boolean,
-  isPrivate: boolean,
-  peerAdvisingDepartmentId?: number,
+  isDraft: string,
+  isPrivate: string,
+  peerAdvisingDepartmentId: number,
+  peerAdvisingDepartment?: PeerAdvisingDepartment,
   setDate: string,
   sid: string,
+  student: BasicStudent,
   subject: string,
   topics: string[],
   updatedAt: string
@@ -303,6 +301,7 @@ export type NoteSearchResult = {
   attachmentCount: number,
   createdAt: string,
   id: number,
+  note?: Note,
   noteSnippet: string,
   studentName: string,
   studentSid: string,
