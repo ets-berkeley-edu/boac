@@ -38,7 +38,7 @@
       />
       <div
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
-        class="advising-note-search-result-footer font-size-15 font-weight-bold text-grey"
+        class="advising-note-search-result-footer font-size-15 font-weight-bold text-medium-emphasis"
       >
         <span v-if="appointment.advisorName" :id="`appointment-search-result-advisor-${appointment.id}`">
           {{ appointment.advisorName }} -
