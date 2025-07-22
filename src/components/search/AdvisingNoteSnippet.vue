@@ -30,7 +30,7 @@
       />
       <div
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
-        class="advising-note-search-result-footer font-size-15 font-weight-bold text-grey"
+        class="advising-note-search-result-footer font-size-15 font-weight-bold text-medium-emphasis"
       >
         <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
           {{ note.advisorName }} -

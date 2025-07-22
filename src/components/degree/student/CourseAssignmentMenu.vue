@@ -20,7 +20,7 @@
           'button-menu-active': isMenuOpen,
           'text-surface-variant': !course.accentColor,
           'text-white': degreeStore.draggingCourseId === course.id,
-          'text-grey': degreeStore.disableButtons || isSaving
+          'text-medium-emphasis': degreeStore.disableButtons || isSaving
         }"
         v-bind="menuProps"
       >
