@@ -31,7 +31,7 @@
           <label
             :id="`timeline-${selectedFilter}s-query-label`"
             :for="`timeline-${selectedFilter}s-query-input`"
-            :class="{'text-grey': !messagesVisible.length}"
+            :class="{'text-medium-emphasis': !messagesVisible.length}"
             class="font-weight-bold mb-0 mr-2 text-no-wrap v-btn--variant-plain"
           >
             Search<span class="sr-only"> {{ selectedFilter === 'eForm' ? 'eForm' : capitalize(selectedFilter) }}s</span>:
@@ -50,7 +50,7 @@
         </div>
         <div v-if="['appointment', 'note'].includes(selectedFilter)" class="align-center d-flex pl-4">
           <div class="pb-2" role="separator">|</div>
-          <div class="align-center d-flex flex-wrap font-weight-bold pb-2 pl-4 text-grey">
+          <div class="align-center d-flex flex-wrap font-weight-bold pb-2 pl-4 text-medium-emphasis">
             <label for="toggle-my-notes-button" class="mr-2">
               Show {{ selectedFilter }}s:
             </label>
