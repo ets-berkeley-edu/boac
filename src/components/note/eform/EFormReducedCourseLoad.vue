@@ -14,35 +14,44 @@
     </div>
     <div v-if="eForm.lastUserName || eForm.originalUserName" class="mt-3">
       <dt class="font-weight-bold">Staff</dt>
-      <dd class="ml-2 mt-2">
-        <table>
-          <tr v-if="eForm.lastUserName" class="mt-1">
-            <td class="font-weight-bold pr-5 text-grey-darken-1">Advisor:</td>
-            <td :id="`note-${noteId}-eform-advisor`" class="float-right">{{ replace(eForm.lastUserName, ',', ', ') }} ({{ eForm.lastUserUid }})</td>
+      <dd class="ml-2 mt-1">
+        <table class="w-100">
+          <tr v-if="eForm.lastUserName">
+            <th class="font-weight-bold pr-5 pt-1 text-left text-medium-emphasis vertical-top" scope="row">
+              Advisor:
+            </th>
+            <td :id="`note-${noteId}-eform-advisor`" class="pt-1 vertical-bottom">{{ replace(eForm.lastUserName, ',', ', ') }} ({{ eForm.lastUserUid }})</td>
           </tr>
           <tr v-if="eForm.originalUserName">
-            <td class="font-weight-bold pr-5 text-grey-darken-1">DSP Specialist:</td>
-            <td :id="`note-${noteId}-eform-dsp-specialist`" class="float-right">{{ replace(eForm.originalUserName, ',', ', ') }}</td>
+            <th class="font-weight-bold pr-5 pt-1 text-left text-medium-emphasis vertical-top" scope="row">
+              DSP Specialist:
+            </th>
+            <td :id="`note-${noteId}-eform-dsp-specialist`" class="pt-1 vertical-bottom">{{ replace(eForm.originalUserName, ',', ', ') }}</td>
           </tr>
         </table>
       </dd>
     </div>
-
     <div v-if="eForm.requestedReducedUnits || eForm.termEnrolledUnits || eForm.termWaitlistUnits" class="mt-3">
       <dt class="font-weight-bold">Units ({{ termNameForSisId(eForm.termId) }})</dt>
-      <dd class="ml-2 mt-2">
-        <table>
+      <dd class="ml-2 mt-1">
+        <table class="w-100">
           <tr v-if="eForm.termEnrolledUnits" :id="`note-${noteId}-eform-term-enrolled-units`">
-            <td class="font-weight-bold pr-5 text-grey-darken-1">Enrolled Units:</td>
-            <td class="float-right">{{ numeral(eForm.termEnrolledUnits).format('0.0') }}</td>
+            <th class="font-weight-bold pr-5 pt-1 text-left text-medium-emphasis vertical-top" scope="row">
+              Enrolled Units (at time of submission):
+            </th>
+            <td class="pt-1 text-right vertical-bottom">{{ numeral(eForm.termEnrolledUnits).format('0.0') }}</td>
           </tr>
           <tr v-if="eForm.requestedReducedUnits" :id="`note-${noteId}-eform-requested-reduced-units`">
-            <td class="font-weight-bold pr-5 text-grey-darken-1">Requested Reduced Units:</td>
-            <td class="float-right">{{ numeral(eForm.requestedReducedUnits).format('0.0') }}</td>
+            <th class="font-weight-bold pr-5 pt-1 text-left text-medium-emphasis vertical-top" scope="row">
+              Requested Reduced Units:
+            </th>
+            <td class="pt-1 text-right vertical-bottom">{{ numeral(eForm.requestedReducedUnits).format('0.0') }}</td>
           </tr>
           <tr v-if="eForm.termWaitlistUnits" :id="`note-${noteId}-eform-term-waitlist-units`">
-            <td class="font-weight-bold pr-5 text-grey-darken-1">Waitlist Units:</td>
-            <td class="float-right">{{ numeral(eForm.termWaitlistUnits).format('0.0') }}</td>
+            <th class="font-weight-bold pr-5 pt-1 text-left text-medium-emphasis vertical-top" scope="row">
+              Waitlist Units:
+            </th>
+            <td class="pt-1 text-right vertical-bottom">{{ numeral(eForm.termWaitlistUnits).format('0.0') }}</td>
           </tr>
         </table>
       </dd>

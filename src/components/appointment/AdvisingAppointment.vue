@@ -59,7 +59,7 @@
           <span v-if="!advisor.uid" :id="`appointment-${appointment.id}-advisor-name`">
             {{ advisor.name }}
           </span>
-          <span v-if="advisor.title" :id="`appointment-${appointment.id}-advisor-role`" class="text-dark">
+          <span v-if="advisor.title" :id="`appointment-${appointment.id}-advisor-role`">
             - {{ advisor.title }}
           </span>
           <span v-if="appointment.legacySource" class="font-italic text-medium-emphasis">
@@ -75,7 +75,7 @@
           v-if="appointment.appointmentType"
           :id="`appointment-${appointment.id}-type`"
           class="mt-2"
-          :class="{'text-grey': ['Calendly', 'YCBM'].includes(appointment.appointmentType)}"
+          :class="{'text-medium-emphasis': ['Calendly', 'YCBM'].includes(appointment.appointmentType)}"
         >
           {{ appointment.appointmentType }}
         </div>

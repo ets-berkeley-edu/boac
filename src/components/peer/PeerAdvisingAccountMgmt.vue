@@ -141,7 +141,7 @@
         modal-header-class="font-size-18 font-weight-medium"
       />
     </div>
-    <div v-if="!peerAdvisors.length" class="font-size-16 pl-6 mt-2 text-grey">
+    <div v-if="!peerAdvisors.length" class="font-size-16 pl-6 mt-2 text-medium-emphasis">
       Peer Advisors have yet to be created for <span class="font-weight-550">{{ peerAdvisingDepartment.name }}</span>.
     </div>
   </div>
