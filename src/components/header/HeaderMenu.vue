@@ -27,6 +27,8 @@
             :aria-current="route.path === '/degrees' ? 'page' : false"
             class="header-menu-item"
             color="primary"
+            density="comfortable"
+            size="large"
             text="Degree Checks"
             to="/degrees"
             variant="text"
