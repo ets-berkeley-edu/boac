@@ -148,7 +148,7 @@ class DegreeProgressCategory(Base):
                 template_id=template_id,
                 ux_position_x=ux_position_x,
             )
-            ux_position_y = max(list_of_ux_position_y) + 1 if list_of_ux_position_y else 0
+            ux_position_y = min(list_of_ux_position_y) - 1 if len(list_of_ux_position_y) else 0
 
         category = cls(
             accent_color=accent_color,
@@ -360,7 +360,20 @@ class DegreeProgressCategory(Base):
 
     @classmethod
     def _move_category(cls, category, ux_position_y_target):
-        sql = """
+        params = {
+            'category_id': category.id,
+            'template_id': category.template_id,
+            'ux_position_x': category.ux_position_x,
+            'ux_position_y_existing': category.ux_position_y,
+            'ux_position_y_target': ux_position_y_target,
+        }
+        if category.parent_category_id:
+            parent_category_clause = 'AND parent_category_id = :parent_category_id'
+            params['parent_category_id'] = category.parent_category_id
+        else:
+            parent_category_clause = 'AND parent_category_id IS NULL'
+
+        sql = f"""
             UPDATE degree_progress_categories
             SET ux_position_y = :ux_position_y_target
             WHERE id = :category_id;
@@ -370,16 +383,10 @@ class DegreeProgressCategory(Base):
             SET ux_position_y = :ux_position_y_existing
             WHERE id != :category_id
                 AND template_id = :template_id
+                {parent_category_clause}
                 AND ux_position_x = :ux_position_x
                 AND ux_position_y = :ux_position_y_target;
         """
-        params = {
-            'category_id': category.id,
-            'template_id': category.template_id,
-            'ux_position_x': category.ux_position_x,
-            'ux_position_y_existing': category.ux_position_y,
-            'ux_position_y_target': ux_position_y_target,
-        }
         db.session.execute(text(sql), params)
         std_commit()
 
