@@ -63,7 +63,7 @@ const moveDown = () => {
     refreshDegreeTemplate(degreeStore.templateId).then(() => {
       degreeStore.setDisableButtons(false)
       isMovingDown.value = false
-      alertScreenReader(`${props.category.categoryType} "${props.category.name}" moved down.`)
+      alertScreenReader(`"Category ${props.category.name}" moved down.`)
       putFocusNextTick(`increase-position-y-category-${props.category.id}`)
     })
   })
@@ -76,7 +76,7 @@ const moveUp = () => {
     refreshDegreeTemplate(degreeStore.templateId).then(() => {
       degreeStore.setDisableButtons(false)
       isMovingUp.value = false
-      alertScreenReader(`${props.category.categoryType} "${props.category.name}" moved up.`)
+      alertScreenReader(`"Category ${props.category.name}" moved down.`)
       putFocusNextTick(`decrease-position-y-category-${props.category.id}`)
     })
   })
