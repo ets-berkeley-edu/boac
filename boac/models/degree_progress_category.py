@@ -148,7 +148,7 @@ class DegreeProgressCategory(Base):
                 template_id=template_id,
                 ux_position_x=ux_position_x,
             )
-            ux_position_y = max(list_of_ux_position_y) + 1 if len(list_of_ux_position_y) else 0
+            ux_position_y = min(list_of_ux_position_y) - 1 if len(list_of_ux_position_y) else 0
 
         category = cls(
             accent_color=accent_color,
@@ -196,7 +196,7 @@ class DegreeProgressCategory(Base):
     def get_categories(cls, template_id):
         hierarchy = []
         categories = []
-        for category in cls.query.filter_by(template_id=template_id).order_by(cls.ux_position_x, cls.ux_position_y).all():
+        for category in cls.query.filter_by(template_id=template_id).all():
             category_type = category.category_type
             api_json = category.to_api_json()
             if category_type == 'Category':
@@ -216,6 +216,11 @@ class DegreeProgressCategory(Base):
                 parent[key].append(category)
             else:
                 hierarchy.append(category)
+
+        # Order by ux_position_y, descending.
+        hierarchy = sorted(hierarchy, key=lambda c: c['uxPositionY'], reverse=True)
+        for category in hierarchy:
+            category['subcategories'] = sorted(category['subcategories'], key=lambda s: s['uxPositionY'], reverse=True)
         return hierarchy
 
     @classmethod
@@ -253,6 +258,7 @@ class DegreeProgressCategory(Base):
                 template_id=category.template_id,
                 ux_position_x=category.ux_position_x,
             ),
+            reverse=True,
         )
         index_of = list_of_ux_position_y.index(category.ux_position_y)
         if index_of < len(list_of_ux_position_y):
@@ -268,6 +274,7 @@ class DegreeProgressCategory(Base):
                 template_id=category.template_id,
                 ux_position_x=category.ux_position_x,
             ),
+            reverse=True,
         )
         index_of = list_of_ux_position_y.index(category.ux_position_y)
         if index_of > 0:
@@ -353,7 +360,19 @@ class DegreeProgressCategory(Base):
 
     @classmethod
     def _move_category(cls, category, ux_position_y_target):
-        parent_category_clause = 'AND parent_category_id = :parent_category_id' if category.parent_category_id else 'AND parent_category_id IS NULL'
+        params = {
+            'category_id': category.id,
+            'template_id': category.template_id,
+            'ux_position_x': category.ux_position_x,
+            'ux_position_y_existing': category.ux_position_y,
+            'ux_position_y_target': ux_position_y_target,
+        }
+        if category.parent_category_id:
+            parent_category_clause = 'AND parent_category_id = :parent_category_id'
+            params['parent_category_id'] = category.parent_category_id
+        else:
+            parent_category_clause = 'AND parent_category_id IS NULL'
+
         sql = f"""
             UPDATE degree_progress_categories
             SET ux_position_y = :ux_position_y_target
@@ -368,15 +387,6 @@ class DegreeProgressCategory(Base):
                 AND ux_position_x = :ux_position_x
                 AND ux_position_y = :ux_position_y_target;
         """
-        params = {
-            'category_id': category.id,
-            'template_id': category.template_id,
-            'ux_position_x': category.ux_position_x,
-            'ux_position_y_existing': category.ux_position_y,
-            'ux_position_y_target': ux_position_y_target,
-        }
-        if category.parent_category_id:
-            params['parent_category_id'] = category.parent_category_id
         db.session.execute(text(sql), params)
         std_commit()
 

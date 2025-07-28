@@ -467,7 +467,7 @@ class TestUpdateDegreeCategory:
 
         # Verify the update
         api_json = _api_get_template(client=client, template_id=mock_template.id)
-        subcategories = api_json['categories'][1]['subcategories']
+        subcategories = api_json['categories'][-1]['subcategories']
         updated_subcategory = next((s for s in subcategories if s['id'] == target_subcategory_id), None)
         assert updated_subcategory
         assert updated_subcategory['description'] is None
@@ -525,7 +525,7 @@ class TestCategoryUpAndDown:
                 template_id=mock_template.id,
                 ux_position_x=1,
             )
-            assert category['uxPositionY'] == index
+            assert category['uxPositionY'] == 0 - index
 
         # Before we move anything, assert order per order of created_at.
         template = _api_get_template(client=client, template_id=mock_template.id)
@@ -585,7 +585,7 @@ class TestCategoryUpAndDown:
                 ux_position_x=1,
             )
             subcategories.append(subcategory)
-            assert subcategory['uxPositionY'] == index
+            assert subcategory['uxPositionY'] == 0 - index
 
         # Before we move anything, assert order per order of created_at.
         template = _api_get_template(client=client, template_id=mock_template.id)
@@ -593,30 +593,30 @@ class TestCategoryUpAndDown:
             categories=template['categories'][0]['subcategories'],
             names=['Subcat 1', 'Subcat 2', 'Subcat 3'],
         )
-        # 'Subcat 1' down.
-        subcat_1 = next(c for c in template['categories'][0]['subcategories'] if c['name'] == 'Subcat 1')
-        self._api_move_category_down(category_id=subcat_1['id'], client=client)
+        # 'Subcat 3' up.
+        subcat_3 = next(c for c in template['categories'][0]['subcategories'] if c['name'] == 'Subcat 3')
+        self._api_move_category_up(category_id=subcat_3['id'], client=client)
         template = _api_get_template(client=client, template_id=mock_template.id)
         _assert_order_of_categories_by_names(
             categories=template['categories'][0]['subcategories'],
-            names=['Subcat 2', 'Subcat 1', 'Subcat 3'],
+            names=['Subcat 1', 'Subcat 3', 'Subcat 2'],
         )
-        # 'Subcat 1' down, again.
-        self._api_move_category_down(category_id=subcat_1['id'], client=client)
+        # 'Subcat 3' up, again.
+        self._api_move_category_up(category_id=subcat_3['id'], client=client)
         template = _api_get_template(client=client, template_id=mock_template.id)
         _assert_order_of_categories_by_names(
             categories=template['categories'][0]['subcategories'],
-            names=['Subcat 2', 'Subcat 3', 'Subcat 1'],
+            names=['Subcat 3', 'Subcat 1', 'Subcat 2'],
         )
-        # 'Subcat 1' up.
-        self._api_move_category_up(category_id=subcat_1['id'], client=client)
+        # 'Subcat 3' down.
+        self._api_move_category_down(category_id=subcat_3['id'], client=client)
         template = _api_get_template(client=client, template_id=mock_template.id)
         _assert_order_of_categories_by_names(
             categories=template['categories'][0]['subcategories'],
-            names=['Subcat 2', 'Subcat 1', 'Subcat 3'],
+            names=['Subcat 1', 'Subcat 3', 'Subcat 2'],
         )
-        # Up with 'Subcat 1', again.
-        self._api_move_category_up(category_id=subcat_1['id'], client=client)
+        # Down with 'Subcat 3', again.
+        self._api_move_category_down(category_id=subcat_3['id'], client=client)
         template = _api_get_template(client=client, template_id=mock_template.id)
         _assert_order_of_categories_by_names(
             categories=template['categories'][0]['subcategories'],
@@ -625,12 +625,12 @@ class TestCategoryUpAndDown:
 
 
 def _assert_order_of_categories_by_names(categories, names):
-    # First, assert order by ux_position_y, ascending
+    # First, assert order by ux_position_y, descending
     previous_position_y = None
     for c in categories:
         ux_position_y = c['uxPositionY']
         if previous_position_y is not None:
-            assert ux_position_y == previous_position_y + 1
+            assert previous_position_y > ux_position_y
         previous_position_y = ux_position_y
     # Next, assert expected order of names.
     actual_names = [c['name'] for c in categories]

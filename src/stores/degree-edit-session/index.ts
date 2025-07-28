@@ -1,6 +1,6 @@
 import type {StoreDefinition} from 'pinia'
 import {defineStore} from 'pinia'
-import {each, get, sortBy} from 'lodash'
+import {get} from 'lodash'
 import type {Category, DegreeProgressCourse, DegreeTemplate, DraggingContext} from '@/lib/types'
 
 function $_getDefaultDraggingContext(): DraggingContext {
@@ -64,9 +64,6 @@ export const useDegreeStore: StoreDefinition = defineStore('degree', {
       this.draggingContext = $_getDefaultDraggingContext()
       if (template) {
         this.categories = template.categories
-        each(this.categories, category => {
-          category.subcategories = sortBy(category.subcategories, 'uxPositionY')
-        })
         this.courses = template.courses
         this.createdAt = template.createdAt
         this.createdBy = template.createdBy
