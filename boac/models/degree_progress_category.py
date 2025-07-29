@@ -217,10 +217,17 @@ class DegreeProgressCategory(Base):
             else:
                 hierarchy.append(category)
 
-        # Order by ux_position_y, descending.
-        hierarchy = sorted(hierarchy, key=lambda c: c['uxPositionY'], reverse=True)
+        def _sort(_categories):
+            # Order by ux_position_y, descending.
+            _categories = sorted(_categories, key=lambda c: c['uxPositionY'], reverse=True)
+            for _category in _categories:
+                # Order courses and course_requirements by name, ascending.
+                _category['courses'] = sorted(_category['courses'], key=lambda c: (c['name'], c['createdAt']))
+                _category['courseRequirements'] = sorted(_category['courseRequirements'], key=lambda c: (c['name'], c['createdAt']))
+            return _categories
+        hierarchy = _sort(hierarchy)
         for category in hierarchy:
-            category['subcategories'] = sorted(category['subcategories'], key=lambda s: s['uxPositionY'], reverse=True)
+            category['subcategories'] = _sort(category['subcategories'])
         return hierarchy
 
     @classmethod

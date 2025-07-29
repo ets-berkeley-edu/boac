@@ -701,19 +701,36 @@ class TestSatisfyCampusRequirement:
         api_json = _api_get_template(client=client, template_id=mock_template.id)
         category = api_json['categories'][0]
         assert category['id'] == parent_category['id']
-        assert category['courseRequirements'][0]['id'] == requirement_id
-        assert category['courseRequirements'][0]['categoryType'] == 'Campus Requirement, Satisfied'
+        matching_course_requirement = next((r for r in category['courseRequirements'] if r['id'] == requirement_id), None)
+        assert matching_course_requirement
+        assert matching_course_requirement['categoryType'] == 'Campus Requirement, Satisfied'
 
         self._api_toggle_satisfied(
             category_id=requirements[0].id,
             client=client,
             is_satisfied=False,
         )
+        # Next, fetch updated degree-template.
         api_json = _api_get_template(client=client, template_id=mock_template.id)
         category = api_json['categories'][0]
         assert category['id'] == parent_category['id']
-        assert category['courseRequirements'][0]['id'] == requirement_id
-        assert category['courseRequirements'][0]['categoryType'] == 'Campus Requirement, Unsatisfied'
+        # Verify that value was toggled.
+        matching_course_requirement = next((r for r in category['courseRequirements'] if r['id'] == requirement_id), None)
+        assert matching_course_requirement
+        assert matching_course_requirement['categoryType'] == 'Campus Requirement, Unsatisfied'
+
+        def _verify_sorted_by_name(_courses):
+            previous_name = None
+            for _course in _courses:
+                if previous_name:
+                    assert _course['name'] > previous_name
+                previous_name = _course['name']
+        for _category in api_json['categories']:
+            _verify_sorted_by_name(_category['courses'])
+            _verify_sorted_by_name(_category['courseRequirements'])
+            for _subcategory in _category['subcategories']:
+                _verify_sorted_by_name(_subcategory['courses'])
+                _verify_sorted_by_name(_subcategory['courseRequirements'])
 
 
 def _api_create_category(
