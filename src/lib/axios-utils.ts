@@ -1,4 +1,5 @@
 import type {AxiosError, AxiosResponse, AxiosStatic} from 'axios'
+import type {ComponentPublicInstance} from 'vue'
 import {find, get, includes} from 'lodash'
 import router from '@/router'
 import type {BoaUser} from '@/lib/types'
@@ -40,7 +41,7 @@ const axiosErrorHandler = (error: object, axios: AxiosStatic): void => {
   }
 }
 
-export function appErrorHandler(error: object, vm: object, info: string) {
+export function appErrorHandler(error: unknown, instance: ComponentPublicInstance | null, info: string) {
   const message = get(error, 'message') || info
   const stacktrace = get(error, 'stack', null)
   // eslint-disable-next-line no-console
