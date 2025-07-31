@@ -3,7 +3,6 @@ import axios from 'axios'
 import CKEditor from '@ckeditor/ckeditor5-vue'
 import Highcharts from 'highcharts'
 import more from 'highcharts/highcharts-more'
-import VueGtag from 'vue-gtag'
 import VueHighcharts from 'vue-highcharts'
 import {createApp} from 'vue'
 import {createPinia} from 'pinia'
@@ -17,7 +16,7 @@ import {useContextStore} from '@/stores/context'
 import vuetify from '@/plugins/vuetify'
 import router from '@/router'
 import axiosPlugin from '@/plugins/axios'
-import {getGtagConfig} from '@/lib/ga'
+import {initGoogleAnalytics} from '@/lib/ga'
 
 const apiBaseUrl: string = import.meta.env.VITE_APP_API_BASE_URL
 const isVueAppDebugMode: boolean = trim(import.meta.env.VITE_APP_DEBUG).toLowerCase() === 'true'
@@ -48,6 +47,7 @@ axios.get(`${apiBaseUrl}/api/config`).then(response => {
   contextStore.setConfig({...response.data, apiBaseUrl, isVueAppDebugMode})
   axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     contextStore.setCurrentUser(response.data)
+    initGoogleAnalytics()
     // Async API calls, whenever possible.
     getServiceAnnouncement().then(data => {
       contextStore.setServiceAnnouncement(data)
@@ -62,9 +62,7 @@ axios.get(`${apiBaseUrl}/api/config`).then(response => {
           })
         }, pingFrequency)
       }
-      app.use(router)
-        .use(VueGtag, getGtagConfig())
-        .mount('#app')
+      app.use(router).mount('#app')
     })
   })
 })
