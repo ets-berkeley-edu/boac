@@ -51,7 +51,10 @@
                 @click="() => toggleShowHide(note)"
               >
                 <span class="v-btn__overlay" />
-                <span class="truncate-with-ellipsis" v-html="stripHtmlAndSummarize((note as Note).body || (note as NoteSearchResult).noteSnippet)" />
+                <span
+                  class="truncate-with-ellipsis"
+                  v-html="stripHtmlAndSummarize((note as Note).body || (note as NoteSearchResult).noteSnippet) || summarizeTopics(note.topics)"
+                />
                 <span v-if="(note as NoteSearchResult).attachmentCount || size((note as Note).attachments)" class="ml-2">
                   <span class="sr-only">Has attachment(s)</span>
                   <v-icon class="has-attachment-icon" :icon="mdiPaperclip" size="small" />
@@ -217,7 +220,7 @@ import {get, replace, size, truncate} from 'lodash'
 import {useDisplay} from 'vuetify'
 import type {Note, NoteSearchResult} from '@/lib/types'
 import {alertScreenReader, capitalizeAllWords, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
-import {canUserEditNote, stripHtmlAndSummarize} from '@/lib/note'
+import {canUserEditNote, stripHtmlAndSummarize, summarizeTopics} from '@/lib/note'
 import {deleteNote} from '@/api/notes'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'

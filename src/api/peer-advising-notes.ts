@@ -52,7 +52,7 @@ export async function getPeerAdvisingTopics() {
 }
 
 export function createPeerAdvisingNote(
-    body: string,
+    body: string | undefined,
     contactType: string | undefined,
     peerAdvisingDepartmentId: number,
     sid: string,
