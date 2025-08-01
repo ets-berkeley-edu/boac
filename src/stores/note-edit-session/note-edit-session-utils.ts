@@ -140,7 +140,7 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
     const sids: string[] = Array.from(completeSidSet)
     const isDraft = model.isDraft
     if (noteStore.mode === 'createPeerAdvisorNote') {
-      if (model.body && model.peerAdvisingDepartmentId && !isNil(model.subject)) {
+      if (model.peerAdvisingDepartmentId && !isNil(model.subject)) {
         createPeerAdvisingNote(
           model.body,
           model.contactType,

@@ -135,7 +135,9 @@ const isUpdatingDraft = ref(false)
 const isValidNote = () => {
   // When Peer Advisors create notes, 'subject' is not required.
   const isPeerAdvisorMode = ['createPeerAdvisorNote', 'editPeerAdvisorNote'].includes(mode.value)
-  return size(completeSidSet.value) && (isPeerAdvisorMode ? trim(model.value.body) : trim(model.value.subject))
+  const hasStudents = size(completeSidSet.value)
+  const hasRequiredFields = isPeerAdvisorMode ? (trim(model.value.body) || model.value.topics.length) : trim(model.value.subject)
+  return hasStudents && hasRequiredFields
 }
 
 const publish = () => {

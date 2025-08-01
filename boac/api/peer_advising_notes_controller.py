@@ -59,13 +59,16 @@ def get_peer_advising_topics():
 @peer_advisor_required
 def create_peer_advising_note():
     params = request.get_json()
-    body = params.get('body', None)
+    # Unlike standard notes, peer-advising notes can have an empty 'body'.
+    body = params.get('body', '').strip() or None
     contact_type = validate_note_contact_type(params.get('contactType'))
     peer_advising_department_id = get_param(params, 'peerAdvisingDepartmentId')
     sid = get_param(params, 'sid')
     subject = (params.get('subject', None) or '').strip()
     topics = get_note_topics_from_http_post()
     note_template_id = params.get('noteTemplateId', None)
+    if not sid and (not subject or (not body and not len(topics))):
+        raise BadRequestError('Request has missing or invalid request parameters')
     memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(current_user.get_id())
     matching_membership = next((m for m in memberships if m['peer_advising_department_id'] == peer_advising_department_id), None)
     if not matching_membership:
@@ -240,12 +243,14 @@ def get_notes_for_peer_advisor(uid):
 @peer_advisor_required
 def update_peer_advising_note():
     params = request.form
-    body = params.get('body', None)
+    body = params.get('body', None) or ''
     contact_type = validate_note_contact_type(params.get('contactType'))
     note_id = params.get('id', None)
     subject = (params.get('subject', None) or '').strip()
     topics = get_note_topics_from_http_post()
     note_template_id = params.get('noteTemplateId', None)
+    if not subject or (not body and not len(topics)):
+        raise BadRequestError('Request has missing or invalid request parameters')
     # Fetch existing note
     note = Note.find_by_id(note_id=note_id) if note_id else None
     is_authorized = note and PeerAdvisingDepartmentMember.is_user_in_peer_advising_department(

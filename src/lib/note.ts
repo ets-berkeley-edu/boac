@@ -43,19 +43,23 @@ export function canUserEditNote(note: Note, user: BoaUser): boolean {
 
 export function stripHtmlAndSummarize(message: string) {
   const cleanse = (s: string) => stripHtmlAndTrim(s).replace(/\n\r/g, ' ')
-  const regex: string = ['<br>', '<br/>', '</p>', '</div>'].map(phrase => `(${phrase})`).join('|')
-  const index: number = message.search(new RegExp(regex))
-  const summary = cleanse(index === -1 ? message : message.slice(0, index))
-  return summary || cleanse(message)
+  let summary: string | undefined = undefined
+  const cleansed: string = cleanse(message)
+  if (cleansed) {
+    const regex: string = ['<br>', '<br/>', '</p>', '</div>'].map(phrase => `(${phrase})`).join('|')
+    const index: number = message.search(new RegExp(regex))
+    summary = cleanse(index === -1 ? message : message.slice(0, index))
+  }
+  return summary || cleansed
 }
 
-export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessage, stripHtml?: boolean): string {
+export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessage, isCollapsedView?: boolean): string {
   let summary = message.message
   if ('note' === message.type) {
     if (message.subject) {
       summary = message.subject
     } else if (size(message.message)) {
-      if (stripHtml) {
+      if (isCollapsedView) {
         // Notes without a subject get a pseudo-subject line using the first line of the message body.
         summary = stripHtmlAndSummarize(message.message)
       } else {
@@ -63,6 +67,8 @@ export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessag
       }
     } else if (message.category) {
       summary = `${message.category}${message.subcategory ? `, ${message.subcategory}` : ''}`
+    } else if (message.peerAdvisingDepartmentId && size(message.topics)) {
+      summary = isCollapsedView ? summarizeTopics(message.topics) : ''
     } else {
       summary = `${!isEmpty(message.author.departments) ? message.author.departments[0].deptName : ''} advisor ${message.author.name || ''}`
       if (message.topics && size(message.topics)) {
@@ -86,7 +92,7 @@ export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessag
     } else if (message.appointmentTitle && message.appointmentTitle.trim().length) {
       summary = message.appointmentTitle
     } else if (message.details && message.details.trim().length) {
-      summary = stripHtml ? stripHtmlAndTrim(message.details).replace(/\n\r/g, ' ') : message.details
+      summary = isCollapsedView ? stripHtmlAndTrim(message.details).replace(/\n\r/g, ' ') : message.details
     } else {
       summary = message.legacySource === 'SIS' ? 'Imported SIS Appt' : 'Advising Appt'
       if (get(message, 'advisor.name')) {
@@ -95,6 +101,10 @@ export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessag
     }
   }
   return summary
+}
+
+export function summarizeTopics(topics: string[]): string {
+  return `Topic${topics.length === 1 ? '' : 's'}: ${oxfordJoin(topics)}`
 }
 
 export function validateAttachment(attachments: Attachment[], existingAttachments: Attachment[]): string | null {

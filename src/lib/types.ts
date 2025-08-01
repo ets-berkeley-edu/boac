@@ -10,6 +10,7 @@ export type AcademicTimelineMessage = {
   eForm: EForm,
   legacySource: string,
   message: string,
+  peerAdvisingDepartmentId?: number,
   subcategory?: string,
   subject: string,
   topics: string[],
