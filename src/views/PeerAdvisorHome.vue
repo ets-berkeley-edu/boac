@@ -25,22 +25,18 @@
       </div>
     </div>
     <div class="w-100">
-      <PeerAdvisingNotesTable
-        :get-note-label="getNoteLabel"
-        :notes="notes"
-        :set-note-details="setPeerAdvisingDepartment"
-      >
+      <PeerAdvisingNotesTable :notes="notes">
         <template #studentName="{note}">
           <router-link
             v-if="currentUser.isAdmin"
             :id="`note-${note.id}-link-to-student`"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            :to="studentRoutePath((note as Note).student.uid, currentUser.inDemoMode)"
+            :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
           >
-            {{ (note as Note).student ? lastNameFirst((note as Note).student) : getStudentName((note as Note)) }}
+            {{ note.student ? lastNameFirst(note.student) : getStudentName(note) }}
           </router-link>
           <div v-if="!currentUser.isAdmin" class="text-medium-emphasis" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-            {{ getStudentName(note as Note) }}
+            {{ getStudentName(note) }}
           </div>
         </template>
         <template #noData>
@@ -73,9 +69,8 @@
 </template>
 
 <script setup lang="ts">
-import {DateTime} from 'luxon'
 import type {Handler} from 'mitt'
-import {findIndex, get, last, orderBy, size} from 'lodash'
+import {findIndex, get, last, orderBy} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
 import {onMounted, onUnmounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
@@ -83,12 +78,12 @@ import type {BasicStudent, BoaUser, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
-import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {getBasicStudent} from '@/api/peer-advising-users'
 import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
+import {getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
-import {alertScreenReader, lastNameFirst, putFocusNextTick, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
+import {alertScreenReader, lastNameFirst, putFocusNextTick, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -148,13 +143,6 @@ const fetchNotes = () => {
   })
 }
 
-const getNoteLabel = (note: Note, index: number) => {
-  const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
-  const createdDate = `${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}`
-  const rowPosition = `${index + 1} of ${size(notes.value) || 'unknown'}`
-  return `${rowPosition}, ${getStudentName(note)}, dated ${createdDate}${attachments}. ${stripHtmlAndTrim(note.body)}`
-}
-
 const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
 
 const init = (user: BoaUser) => {
@@ -166,7 +154,8 @@ const init = (user: BoaUser) => {
     fetchNotes().then(() => {
       contextStore.loadingComplete(`Home page loaded. ${notesDescription.value}`)
       contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
-      contextStore.setEventHandler('note-updated', (note: Note) => {
+      contextStore.setEventHandler('note-updated', data => {
+        const note: Note = (data as Note)
         const index = findIndex(notes.value, {'id': note.id})
         if (index > -1) {
           note.peerAdvisingDepartment = notes.value[index].peerAdvisingDepartment
@@ -207,12 +196,5 @@ const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
     note.student = student
     notes.value.unshift(note)
   })
-}
-
-const setPeerAdvisingDepartment = (note: Note) => {
-  if (!note.peerAdvisingDepartment) {
-    const peerAdvisingDepartment = findPeerAdvisingDepartment(note.peerAdvisingDepartmentId)
-    note.peerAdvisingDepartment = peerAdvisingDepartment
-  }
 }
 </script>

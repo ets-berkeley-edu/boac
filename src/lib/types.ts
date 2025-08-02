@@ -296,20 +296,6 @@ export type NoteRecipients = {
   sids: string[]
 }
 
-export type NoteSearchResult = {
-  advisorName: string,
-  advisorUid: string,
-  attachmentCount: number,
-  createdAt: string,
-  id: number,
-  note?: Note,
-  noteSnippet: string,
-  studentName: string,
-  studentSid: string,
-  studentUid: string,
-  updatedAt: string,
-}
-
 export type NoteTemplate = {
   id: number,
   body: string,

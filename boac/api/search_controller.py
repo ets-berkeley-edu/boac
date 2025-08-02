@@ -30,18 +30,20 @@ from boac import db
 from boac.api.decorators import advising_data_access_required, advisor_required, ce3_required, peer_advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError
 from boac.api.util import add_alert_counts, is_unauthorized_search
-from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code, \
-    match_advising_note_authors_by_name, match_appointment_advisors_by_name
+from boac.externals.data_loch import get_basic_student_data, get_enrolled_primary_sections, \
+    get_enrolled_primary_sections_for_parsed_code, match_advising_note_authors_by_name, \
+    match_appointment_advisors_by_name
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.admitted_student import search_for_admitted_students
 from boac.merged.advising_appointment import search_advising_appointments
-from boac.merged.advising_note import search_advising_notes
+from boac.merged.advising_note import search_advising_notes, get_note_author_summary
 from boac.merged.calnet import get_uid_for_csid
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import search_for_students
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.note import Note
 from boac.models.university_dept import UniversityDept
 from flask import current_app as app, request
 from flask_login import current_user, login_required
@@ -118,12 +120,35 @@ def search_peer_advising_notes():
     if not peer_advising_department_id:
         raise BadRequestError('Invalid peer advising department id')
 
-    return tolerant_jsonify(search_advising_notes(
+    search_results = search_advising_notes(
         search_phrase=search_phrase,
         peer_advising_department_id=peer_advising_department_id,
         limit=int(util.get(params, 'limit', 50)),
         offset=int(util.get(params, 'offset', 0)),
-    ))
+    )
+    # The front-end needs full-blown note objects because they are editable by the current-user.
+    note_ids = [n['id'] for n in search_results['notes']]
+    notes = Note.find_by_ids(note_ids)
+    all_sids = [note.sid for note in notes]
+    students_by_sid = {student['sid']: student for student in get_basic_student_data(sids=all_sids)}
+    notes_json = []
+    for note in notes:
+        note_json = note.to_api_json()
+        student = students_by_sid[note.sid]
+        notes_json.append({
+            **note_json,
+            'author': get_note_author_summary(note_json),
+            'student': {
+                'sid': student['sid'],
+                'uid': student['uid'],
+                'firstName': student['first_name'],
+                'lastName': student['last_name'],
+            } if student else None,
+        })
+    return tolerant_jsonify({
+        'notes': sorted(notes_json, key=lambda n: note_ids.index(n['id'])),
+        'totalNoteCount': search_results['totalNoteCount'],
+    })
 
 
 @app.route('/api/search/add_to_search_history', methods=['POST'])
