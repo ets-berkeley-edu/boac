@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="w-100">
-      <PeerAdvisingNotesTable :notes="notes">
+      <PeerAdvisingNotesTable :after-note-edit="fetchNotes" :notes="notes">
         <template #studentName="{note}">
           <router-link
             v-if="currentUser.isAdmin"

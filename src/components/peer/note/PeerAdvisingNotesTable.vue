@@ -84,6 +84,7 @@
                 >
                   <PeerAdvisingNoteDetails
                     v-if="note.id !== editingNoteId"
+                    :after-note-edit="afterNoteUpdated"
                     class="ml-10"
                     :note="note"
                     :note-description="`Note ${getNotePosition(index)}`"
@@ -181,10 +182,10 @@
                       <span :id="`note-${note.id}-author-dept-${deptIndex}`">{{ department.deptName }}</span>
                     </div>
                   </div>
-                  <div v-if="note.peerAdvisingDepartment" class="text-medium-emphasis">
-                    <span :id="`note-${note.id}-university-department`">{{ note.peerAdvisingDepartment.deptName }}</span><!--
-                    --><span v-if="note.peerAdvisingDepartment.name !== note.peerAdvisingDepartment.deptName" :id="`note-${note.id}-peer-advising-department`">, {{ note.peerAdvisingDepartment.name }}</span>
-                  </div>
+                  <PeerAdvisingDepartmentSummary
+                    :id-prefix="`note-${note.id}`"
+                    :peer-advising-department-id="note.peerAdvisingDepartmentId"
+                  />
                 </div>
               </v-expand-transition>
             </div>
@@ -222,14 +223,18 @@ import type {Note} from '@/lib/types'
 import {alertScreenReader, capitalizeAllWords, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {canUserEditNote, stripHtmlAndSummarize, summarizeTopics} from '@/lib/note'
 import {deleteNote} from '@/api/notes'
-import {findPeerAdvisingDepartment} from '@/lib/berkeley-department'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
+import PeerAdvisingDepartmentSummary from '@/components/peer/PeerAdvisingDepartmentSummary.vue'
 
 const props = defineProps({
+  afterNoteEdit: {
+    required: true,
+    type: Function
+  },
   notes: {
     required: true,
     type: Array<Note>
@@ -249,6 +254,11 @@ const afterEditAdvisingNote = (updatedNote: Note, putFocusId: string) => {
   putFocusNextTick(putFocusId || `edit-note-${updatedNote.id}-button`)
 }
 
+const afterNoteUpdated = async () => {
+  await props.afterNoteEdit()
+  putFocusNextTick(`show-note-${editingNoteId.value}-details`)
+  editingNoteId.value = undefined
+}
 const afterNoteEditCancel = () => {
   putFocusNextTick(`edit-note-${editingNoteId.value}-button`)
   editingNoteId.value = undefined
@@ -281,8 +291,8 @@ const deleteConfirmed = () => {
 const getNoteLabel = (note: Note, index: number) => {
   const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
   const createdDate = `${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}`
-  const rowPosition = `${index + 1} of ${size(props.notes) || 'unknown'}`
-  return `${rowPosition}, ${getStudentName(note)}, dated ${createdDate}${attachments}. ${stripHtmlAndTrim(note.body)}`
+  const rowPosition = `${index + 1} of ${size(props.notes)}`
+  return `${rowPosition}, ${getStudentName(note)}, dated ${createdDate}${attachments}. ${truncate(stripHtmlAndSummarize(note.body))}`
 }
 
 const getNotePosition = (index: number) => `${index + 1} of ${size(props.notes) || 'unknown'}`
@@ -302,7 +312,6 @@ const toggleShowHide = (note: Note) => {
     expandedNoteIds.value.splice(index, 1)
     putFocusNextTick(`open-peer-advising-${note.id}`)
   } else {
-    note.peerAdvisingDepartment = findPeerAdvisingDepartment(note.peerAdvisingDepartmentId)
     expandedNoteIds.value.push(note.id)
     putFocusNextTick(`show-note-${note.id}-details`)
   }

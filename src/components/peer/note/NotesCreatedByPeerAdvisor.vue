@@ -57,6 +57,7 @@
           <v-expand-transition>
             <PeerAdvisingNotesTable
               v-if="!isFetchingNotes"
+              :after-note-edit="afterNoteEdit"
               class="d-block font-size-14 w-100"
               :notes="notes"
             >
@@ -135,6 +136,16 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => contextStore.removeEventHandler('note-deleted'))
+
+const afterNoteEdit = () => {
+  getPeerAdvisingNotesAuthoredBy(
+    props.peerAdvisingDepartment.id,
+    props.user.uid,
+    props.timeframe
+  ).then(data => {
+    notes.value = data
+  })
+}
 
 const closeModal = () => {
   isModalOpen.value = false

@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div v-if="!get(note, 'peerAdvisingDepartment')">
-      Loading...
-    </div>
-    <div v-if="get(note, 'peerAdvisingDepartment')" :class="{'img-blur': currentUser.inDemoMode}">
+    <div :class="{'img-blur': currentUser.inDemoMode}">
       <div v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</div>
       <div :id="`note-${note.id}-body`" class="note-body" v-html="note.body" />
       <div :id="`note-${note.id}-is-open`" class="w-100" :class="{'demo-mode-blur': currentUser.inDemoMode}">
@@ -20,32 +17,52 @@
       </div>
       <AdvisingNoteAttachments
         v-if="size(note.attachments)"
+        :add="addNoteAttachments"
         :attachments="note.attachments"
         class="attachments-edit mt-4"
         :disabled="false"
         :id-prefix="`note-${note.id}`"
         :is-downloadable="true"
-        :is-read-only="true"
+        :is-read-only="!canUserEditNote(note, currentUser)"
         :note="note"
         :note-description="noteDescription"
+        :remove="removeAttachmentByIndex"
       />
+      <AreYouSureModal
+        v-model="showConfirmDeleteAttachment"
+        button-label-confirm="Delete"
+        :function-cancel="cancelRemoveAttachment"
+        :function-confirm="confirmedRemoveAttachment"
+        modal-header="Delete Attachment"
+      >
+        Are you sure you want to delete the <strong>'{{ note.attachments[deleteAttachmentIndex].displayName }}'</strong> attachment?
+      </AreYouSureModal>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {get, size} from 'lodash'
-import type {Note} from '@/lib/types'
+import {ref} from 'vue'
+import {size} from 'lodash'
+import type {Note, NoteAttachment} from '@/lib/types'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments.vue'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import {addPeerAdvisingAttachments} from '@/api/peer-advising-notes'
+import {alertScreenReader} from '@/lib/utils'
+import {canUserEditNote} from '@/lib/note'
+import {removeAttachment} from '@/api/notes'
 import {useContextStore} from '@/stores/context'
 
-defineProps({
+const props = defineProps({
+  afterNoteEdit: {
+    required: true,
+    type: Function
+  },
   note: {
-    required: false,
-    type: Object as PropType<Note>,
-    default: undefined
+    required: true,
+    type: Object as PropType<Note>
   },
   noteId: {
     required: false,
@@ -58,7 +75,44 @@ defineProps({
   }
 })
 
+const addAttachmentInputElementId = `note-${props.note.id}-choose-file-for-note-attachment`
 const currentUser = useContextStore().currentUser
+const deleteAttachmentIndex = ref<number>(NaN)
+const isUpdatingAttachments = ref<boolean>()
+const showConfirmDeleteAttachment = ref(false)
+
+const addNoteAttachments = (attachments: NoteAttachment[]) => {
+  return new Promise<void>(resolve => {
+    isUpdatingAttachments.value = true
+    addPeerAdvisingAttachments(props.note.id, attachments).then(updatedNote => {
+      props.afterNoteEdit(updatedNote, addAttachmentInputElementId)
+      alertScreenReader('Attachment added', false, 'assertive')
+      isUpdatingAttachments.value = false
+      resolve()
+    })
+  })
+}
+
+const cancelRemoveAttachment = () => {
+  showConfirmDeleteAttachment.value = false
+  deleteAttachmentIndex.value = NaN
+}
+
+const confirmedRemoveAttachment = () => {
+  showConfirmDeleteAttachment.value = false
+  const attachment = props.note.attachments[deleteAttachmentIndex.value]
+  if (attachment && attachment.id) {
+    removeAttachment(props.note.id, attachment.id).then(updatedNote => {
+      alertScreenReader(`Attachment "${attachment.displayName}" removed`)
+      props.afterNoteEdit(updatedNote, addAttachmentInputElementId)
+    })
+  }
+}
+
+const removeAttachmentByIndex = (index: number) => {
+  deleteAttachmentIndex.value = index
+  showConfirmDeleteAttachment.value = true
+}
 </script>
 
 <style scoped>
