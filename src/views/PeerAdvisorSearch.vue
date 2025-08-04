@@ -18,23 +18,18 @@
       </div>
     </div>
     <div>
-      <PeerAdvisingNotesTable
-        :get-note="(noteSearchResult: NoteSearchResult) => noteSearchResult.note"
-        :get-note-label="getNoteLabel"
-        :notes="notes"
-        :set-note-details="setNoteDetails"
-      >
+      <PeerAdvisingNotesTable :notes="notes">
         <template #studentName="{note}">
           <router-link
             v-if="currentUser.isAdmin"
-            :id="`note-${(note as NoteSearchResult).id}-link-to-student`"
+            :id="`note-${note.id}-link-to-student`"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            :to="studentRoutePath((note as NoteSearchResult).studentUid, currentUser.inDemoMode)"
+            :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
           >
-            {{ getStudentName(note as NoteSearchResult) }}
+            {{ getStudentName(note) }}
           </router-link>
           <div v-if="!currentUser.isAdmin" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-            {{ getStudentName(note as NoteSearchResult) }}
+            {{ getStudentName(note) }}
           </div>
         </template>
       </PeerAdvisingNotesTable>
@@ -53,15 +48,13 @@
 </template>
 
 <script setup lang="ts">
-import {DateTime} from 'luxon'
 import {get, orderBy, size} from 'lodash'
 import {onMounted, onUnmounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import type {BoaUser, Note, NoteSearchResult} from '@/lib/types'
+import type {BoaUser, Note} from '@/lib/types'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
-import {alertScreenReader, pluralize, putFocusNextTick, stripHtmlAndTrim, studentRoutePath} from '@/lib/utils'
-import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
-import {getPeerAdvisorNoteById} from '@/api/peer-advising-notes'
+import {alertScreenReader, pluralize, putFocusNextTick, studentRoutePath} from '@/lib/utils'
+import {getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {getUserByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {peerAdvisorSearch} from '@/api/search'
@@ -73,7 +66,7 @@ const LIMIT_PER_FETCH = 50
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const isFetchingNotes = ref(false)
-const notes = ref<NoteSearchResult[]>([])
+const notes = ref<Note[]>([])
 const offset = ref(0)
 const peerAdvisingDepartmentId = ref<number | undefined>()
 const peerAdvisor = ref<BoaUser>()
@@ -140,18 +133,10 @@ const fetchNotes = (user: BoaUser) => {
   }
 }
 
-const getNoteLabel = (noteSearchResult: NoteSearchResult, index: number) => {
-  return `${index + 1} of ${size(notes.value) || 'unknown'}, ${getStudentName(noteSearchResult)}, dated ${DateTime.fromISO(noteSearchResult.createdAt).toLocaleString(DateTime.DATE_FULL)}. ${stripHtmlAndTrim(noteSearchResult.noteSnippet)}`
-}
+// TODO: Should this be used when we're showing search results?
+// const getNoteLabel = (note: Note, index: number) => {
+//   return `${index + 1} of ${size(notes.value) || 'unknown'}, ${getStudentName(note)}, dated ${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}. ${stripHtmlAndTrim(note.body)}`
+// }
 
-const getStudentName = (noteSearchResult: NoteSearchResult) => noteSearchResult.studentName || `SID: ${noteSearchResult.studentSid}`
-
-const setNoteDetails = (noteSearchResult: NoteSearchResult) => {
-  getPeerAdvisorNoteById(noteSearchResult.id).then((note: Note) => {
-    if (!note.peerAdvisingDepartment) {
-      note.peerAdvisingDepartment = findPeerAdvisingDepartment(note.peerAdvisingDepartmentId)
-    }
-    noteSearchResult.note = note
-  })
-}
+const getStudentName = (note: Note) => note.student.lastName ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.student.sid}`
 </script>

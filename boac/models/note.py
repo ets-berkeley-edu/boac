@@ -121,6 +121,11 @@ class Note(Base):
         return cls.query.filter(criteria).first()
 
     @classmethod
+    def find_by_ids(cls, note_ids):
+        criteria = and_(cls.id.in_(note_ids), cls.deleted_at == None)  # noqa: E711
+        return cls.query.filter(criteria).all()
+
+    @classmethod
     def get_draft_note_count(cls, author_uid=None):
         sql = f"""
             SELECT

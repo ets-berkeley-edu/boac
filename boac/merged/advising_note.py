@@ -473,6 +473,25 @@ def get_boa_attachment_stream(attachment):
         return None
 
 
+def get_note_author_summary(note):
+    departments = []
+    dept_codes = note.get('dept_code') if 'dept_code' in note else note.get('author_dept_codes') or []
+    for dept_code in dept_codes:
+        departments.append({
+            'deptCode': dept_code,
+            'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
+        })
+    return {
+        'id': note.get('author_id'),
+        'uid': note.get('author_uid'),
+        'sid': note.get('advisor_sid'),
+        'name': note.get('author_name'),
+        'role': note.get('author_role'),
+        'departments': departments,
+        'email': note.get('advisor_email'),
+    }
+
+
 def get_zip_stream(
         download_type,
         filename,
@@ -569,26 +588,11 @@ def note_to_compatible_json(
         note_read=False,
 ):
     # We have legacy notes and notes created via BOAC. The following sets a standard for the front-end.
-    departments = []
-    dept_codes = note.get('dept_code') if 'dept_code' in note else note.get('author_dept_codes') or []
-    for dept_code in dept_codes:
-        departments.append({
-            'deptCode': dept_code,
-            'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
-        })
     omit_note_body = note.get('is_private') and not current_user.can_access_private_notes
     return {
         'appointmentId': note.get('appointmentId'),
         'attachments': None if omit_note_body else attachments,
-        'author': {
-            'id': note.get('author_id'),
-            'uid': note.get('author_uid'),
-            'sid': note.get('advisor_sid'),
-            'name': note.get('author_name'),
-            'role': note.get('author_role'),
-            'departments': departments,
-            'email': note.get('advisor_email'),
-        },
+        'author': get_note_author_summary(note),
         'body': None if omit_note_body else note.get('body') or note.get('note_body'),
         'category': note.get('note_category'),
         'contactType': note.get('contact_type'),

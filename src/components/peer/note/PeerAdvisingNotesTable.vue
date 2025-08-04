@@ -53,9 +53,9 @@
                 <span class="v-btn__overlay" />
                 <span
                   class="truncate-with-ellipsis"
-                  v-html="stripHtmlAndSummarize((note as Note).body || (note as NoteSearchResult).noteSnippet) || summarizeTopics(note.topics)"
+                  v-html="stripHtmlAndSummarize(note.body || summarizeTopics(note.topics))"
                 />
-                <span v-if="(note as NoteSearchResult).attachmentCount || size((note as Note).attachments)" class="ml-2">
+                <span v-if="size(note.attachments)" class="ml-2">
                   <span class="sr-only">Has attachment(s)</span>
                   <v-icon class="has-attachment-icon" :icon="mdiPaperclip" size="small" />
                 </span>
@@ -85,7 +85,7 @@
                   <PeerAdvisingNoteDetails
                     v-if="note.id !== editingNoteId"
                     class="ml-10"
-                    :note="getNote(note)"
+                    :note="note"
                     :note-description="`Note ${getNotePosition(index)}`"
                   />
                   <div v-if="note.id === editingNoteId" class="edit-advising-note-container">
@@ -110,7 +110,7 @@
             class="td-created-date"
           >
             <div class="grid-cell">
-              <div v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(getNote(note), currentUser)" class="pl-2">
+              <div v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(note, currentUser)" class="pl-2">
                 <!--
                 TODO: Give Peer Advisors the power to edit their own notes.
                 <v-btn
@@ -136,54 +136,54 @@
                   size="md"
                   text="Delete Note"
                   variant="text"
-                  @click="() => onClickDeleteNote(getNote(note))"
+                  @click="() => onClickDeleteNote(note)"
                 />
               </div>
               <div
-                :class="{'mt-4': isExpanded(note) && editingNoteId !== note.id && canUserEditNote(getNote(note), currentUser)}"
+                :class="{'mt-4': isExpanded(note) && editingNoteId !== note.id && canUserEditNote(note, currentUser)}"
                 class="created-date text-nowrap"
               >
                 <span :aria-hidden="true">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}</span>
                 <span class="sr-only">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL) }}</span>
               </div>
               <v-expand-transition>
-                <div v-if="getNote(note) && isExpanded(note)" :class="{'mt-4': !isExpanded(note)}">
-                  <div v-if="getNote(note).author.name || getNote(note).author.email" class="mt-2">
+                <div v-if="note && isExpanded(note)" :class="{'mt-4': !isExpanded(note)}">
+                  <div v-if="note.author.name || note.author.email" class="mt-2">
                     <div class="font-size-15 text-medium-emphasis text-nowrap">Created by:</div>
-                    <div v-if="getNote(note).author.uid && getNote(note).author.name">
+                    <div v-if="note.author.uid && note.author.name">
                       <router-link
-                        v-if="currentUser.isAdmin && getNote(note).peerAdvisingDepartmentId"
+                        v-if="currentUser.isAdmin && note.peerAdvisingDepartmentId"
                         :id="`note-${note.id}-link-to-peer-advisor-home`"
                         :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                        :to="`/peer_advisor/${getNote(note).author.uid}/home`"
+                        :to="`/peer_advisor/${note.author.uid}/home`"
                       >
-                        {{ getNote(note).author.name }}
+                        {{ note.author.name }}
                       </router-link>
                       <a
-                        v-if="!currentUser.isAdmin || !getNote(note).peerAdvisingDepartmentId"
+                        v-if="!currentUser.isAdmin || !note.peerAdvisingDepartmentId"
                         :id="`note-${note.id}-author-name`"
                         :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                        :href="`https://www.berkeley.edu/directory/results?search-term=${getNote(note).author.name}`"
+                        :href="`https://www.berkeley.edu/directory/results?search-term=${note.author.name}`"
                         target="_blank"
                       >
-                        {{ getNote(note).author.name }} <span class="sr-only">&nbsp;UC Berkeley Directory page (opens in new window)</span>
+                        {{ note.author.name }} <span class="sr-only">&nbsp;UC Berkeley Directory page (opens in new window)</span>
                       </a>
                     </div>
                     <div :id="`note-${note.id}-author-role`" class="font-weight-550 mt-2">
-                      {{ capitalizeAllWords(replace(getNote(note).author.role, '_', ' ')) }}
+                      {{ capitalizeAllWords(replace(note.author.role, '_', ' ')) }}
                     </div>
                   </div>
                   <div
-                    v-if="size(getNote(note).author.departments)"
+                    v-if="size(note.author.departments)"
                     class="text-medium-emphasis"
                   >
-                    <div v-for="(department, deptIndex) in getNote(note).author.departments" :key="deptIndex">
+                    <div v-for="(department, deptIndex) in note.author.departments" :key="deptIndex">
                       <span :id="`note-${note.id}-author-dept-${deptIndex}`">{{ department.deptName }}</span>
                     </div>
                   </div>
-                  <div v-if="getNote(note).peerAdvisingDepartment" class="text-medium-emphasis">
-                    <span :id="`note-${note.id}-university-department`">{{ getNote(note).peerAdvisingDepartment.deptName }}</span><!--
-                    --><span v-if="getNote(note).peerAdvisingDepartment.name !== getNote(note).peerAdvisingDepartment.deptName" :id="`note-${note.id}-peer-advising-department`">, {{ getNote(note).peerAdvisingDepartment.name }}</span>
+                  <div v-if="note.peerAdvisingDepartment" class="text-medium-emphasis">
+                    <span :id="`note-${note.id}-university-department`">{{ note.peerAdvisingDepartment.deptName }}</span><!--
+                    --><span v-if="note.peerAdvisingDepartment.name !== note.peerAdvisingDepartment.deptName" :id="`note-${note.id}-peer-advising-department`">, {{ note.peerAdvisingDepartment.name }}</span>
                   </div>
                 </div>
               </v-expand-transition>
@@ -214,14 +214,15 @@
 
 <script setup lang="ts">
 import {DateTime} from 'luxon'
-import {mdiCloseCircle, mdiPaperclip} from '@mdi/js'
 import {computed, ref} from 'vue'
 import {get, replace, size, truncate} from 'lodash'
+import {mdiCloseCircle, mdiPaperclip} from '@mdi/js'
 import {useDisplay} from 'vuetify'
-import type {Note, NoteSearchResult} from '@/lib/types'
+import type {Note} from '@/lib/types'
 import {alertScreenReader, capitalizeAllWords, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {canUserEditNote, stripHtmlAndSummarize, summarizeTopics} from '@/lib/note'
 import {deleteNote} from '@/api/notes'
+import {findPeerAdvisingDepartment} from '@/lib/berkeley-department'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
@@ -229,23 +230,9 @@ import EditAdvisingNote from '@/components/note/EditAdvisingNote.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 
 const props = defineProps({
-  getNote: {
-    default: (note: Note) => note,
-    required: false,
-    type: Function
-  },
-  getNoteLabel: {
-    required: true,
-    type: Function
-  },
   notes: {
     required: true,
-    type: Array<Note | NoteSearchResult>
-  },
-  setNoteDetails: {
-    default: () => {},
-    required: false,
-    type: Function
+    type: Array<Note>
   }
 })
 
@@ -291,22 +278,31 @@ const deleteConfirmed = () => {
 //   putFocusNextTick('edit-note-subject')
 // }
 
+const getNoteLabel = (note: Note, index: number) => {
+  const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
+  const createdDate = `${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}`
+  const rowPosition = `${index + 1} of ${size(props.notes) || 'unknown'}`
+  return `${rowPosition}, ${getStudentName(note)}, dated ${createdDate}${attachments}. ${stripHtmlAndTrim(note.body)}`
+}
+
 const getNotePosition = (index: number) => `${index + 1} of ${size(props.notes) || 'unknown'}`
 
-const isExpanded = (note: Note | NoteSearchResult) => expandedNoteIds.value.includes(note.id)
+const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
+
+const isExpanded = (note: Note) => expandedNoteIds.value.includes(note.id)
 
 const onClickDeleteNote = (note: Note) => {
   // The following opens the "Are you sure?" modal
   noteForDelete.value = note
 }
 
-const toggleShowHide = (note: Note | NoteSearchResult) => {
+const toggleShowHide = (note: Note) => {
   const index = expandedNoteIds.value.indexOf(note.id)
   if (index > -1) {
     expandedNoteIds.value.splice(index, 1)
     putFocusNextTick(`open-peer-advising-${note.id}`)
   } else {
-    props.setNoteDetails(note)
+    note.peerAdvisingDepartment = findPeerAdvisingDepartment(note.peerAdvisingDepartmentId)
     expandedNoteIds.value.push(note.id)
     putFocusNextTick(`show-note-${note.id}-details`)
   }
