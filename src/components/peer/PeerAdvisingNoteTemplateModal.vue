@@ -141,7 +141,7 @@ const title = computed(() => {
 const isValidName = computed(() => validateNoteTemplateName(templateName.value))
 
 const isSaveDisabled = computed(() => {
-  return !(noteDetailsText.value.length > 0 && templateName.value.length > 0) || props.action === 'view'
+  return !((noteDetailsText.value.length > 0 || topicsSelected.value.length > 0) && templateName.value.length > 0) || props.action === 'view'
 })
 
 const saveButtonText = computed(() => {
