@@ -249,7 +249,7 @@ def update_peer_advising_note():
     subject = (params.get('subject', None) or '').strip()
     topics = get_note_topics_from_http_post()
     note_template_id = params.get('noteTemplateId', None)
-    if not subject or (not body and not len(topics)):
+    if not (subject or body or len(topics)):
         raise BadRequestError('Request has missing or invalid request parameters')
     # Fetch existing note
     note = Note.find_by_id(note_id=note_id) if note_id else None
