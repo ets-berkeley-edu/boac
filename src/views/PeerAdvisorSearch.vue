@@ -18,7 +18,7 @@
       </div>
     </div>
     <div>
-      <PeerAdvisingNotesTable :notes="notes">
+      <PeerAdvisingNotesTable :after-note-edit="refresh" :notes="notes">
         <template #studentName="{note}">
           <router-link
             v-if="currentUser.isAdmin"
@@ -81,13 +81,7 @@ const queryText = ref(searchStore.queryText)
 contextStore.loadingStart()
 
 onMounted(() => {
-  const currentUser = contextStore.currentUser
-  if (currentUser.isAdmin) {
-    const uid = route.params.uid.toString()
-    getUserByUid(uid, false).then(() => fetchNotes(currentUser))
-  } else {
-    fetchNotes(currentUser)
-  }
+  refresh()
 })
 
 onUnmounted(() => contextStore.removeEventHandler('peer-advising-note-created'))
@@ -133,10 +127,15 @@ const fetchNotes = (user: BoaUser) => {
   }
 }
 
-// TODO: Should this be used when we're showing search results?
-// const getNoteLabel = (note: Note, index: number) => {
-//   return `${index + 1} of ${size(notes.value) || 'unknown'}, ${getStudentName(note)}, dated ${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}. ${stripHtmlAndTrim(note.body)}`
-// }
-
 const getStudentName = (note: Note) => note.student.lastName ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.student.sid}`
+
+const refresh = () => {
+  const currentUser = contextStore.currentUser
+  if (currentUser.isAdmin) {
+    const uid = route.params.uid.toString()
+    getUserByUid(uid, false).then(() => fetchNotes(currentUser))
+  } else {
+    fetchNotes(currentUser)
+  }
+}
 </script>

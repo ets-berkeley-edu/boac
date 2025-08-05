@@ -22,7 +22,7 @@
         </span>
       </transition>
     </div>
-    <div v-if="!isPeerAdvisor(currentUser)" class="mt-1">
+    <div v-if="!isPeerAdvisor(currentUser) && !noteStore.model.peerAdvisingDepartmentId" class="mt-1">
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
       <v-text-field
         id="edit-note-subject"
