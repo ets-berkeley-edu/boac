@@ -116,11 +116,13 @@ class TestCreatePeerAdvisingNote:
     def test_authorized(self, app, client, fake_auth):
         """Create a note."""
         fake_auth.login(ce3_navcal_peer_advisor_uid)
+        topics = ['Enrollment: Waitlist, Swaps, etc.', 'Program Planning, Semester or Longer Term']
         note = _api_create_peer_advising_note(
             body='CE3 NAVCAL note created by Peer Advisor',
             client=client,
             peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
             sid=coe_student['sid'],
+            topics=topics,
         )
         note_id = note['id']
         base_dir = app.config['BASE_DIR']
@@ -138,10 +140,12 @@ class TestCreatePeerAdvisingNote:
         assert note['author']['departments'] == [{'deptCode': 'ZCEEE', 'deptName': 'Centers for Educational Equity and Excellence'}]
         assert note['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
         assert note['read'] is True
+        # Verify that topics containing commas do not confuse server-side parsing.
+        assert set(note['topics']) == set(topics)
         assert len(note.get('attachments')) == 2
 
 
-class TestGetNotesAuthoredBy:
+class TestGetPeerAdvisingNotesAuthoredBy:
 
     @classmethod
     def _api_notes_authored_by(
@@ -346,7 +350,7 @@ class TestGetStudentEnrollments:
                 previous_term_id = term_id
 
 
-class TestUpdateNotes:
+class TestUpdatePeerAdvisingNotes:
 
     @classmethod
     def setup_class(cls):
@@ -386,14 +390,14 @@ class TestUpdateNotes:
             subject,
             expected_status_code=200,
             contact_type=None,
-            topics=(),
+            topics=None,
     ):
         data = {
             'id': note_id,
             'body': body,
             'contactType': contact_type,
             'subject': subject,
-            'topics': ','.join(topics),
+            'topics': topics or [],
         }
         response = client.post(
             '/api/peer_advising/note/update',
@@ -486,7 +490,7 @@ def _api_create_peer_advising_note(
         'peerAdvisingDepartmentId': peer_advising_department_id,
         'sid': sid,
         'subject': subject,
-        'topics': ','.join(topics),
+        'topics': topics,
     }
     response = client.post(
         '/api/peer_advising/note/create',

@@ -165,7 +165,7 @@ class TestUpdateNoteTemplate:
             delete_attachment_ids=(),
             expected_status_code=200,
             is_private=False,
-            topics=(),
+            topics=None,
     ):
         with mock_advising_note_s3_bucket(app):
             data = {
@@ -174,7 +174,7 @@ class TestUpdateNoteTemplate:
                 'id': note_template_id,
                 'isPrivate': is_private,
                 'subject': subject,
-                'topics': ','.join(topics),
+                'topics': topics or [],
                 'title': title,
             }
             for index, path in enumerate(attachments):
@@ -255,7 +255,6 @@ class TestUpdateNoteTemplate:
             note_template_id=mock_note_template.id,
             subject=mock_note_template.subject,
             title=mock_note_template.title,
-            topics=(),
         )
         assert not api_json['topics']
 

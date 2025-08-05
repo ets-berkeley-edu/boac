@@ -178,7 +178,14 @@ def _create_peer_advising_departments():
 
 def _create_peer_advising_topics():
     PeerAdvisingTopic.create_topic('Other / Reason not listed')
-    for topic in ('Major Declaration', 'Other', 'Probation', 'Withdrawal'):
+    for topic in (
+            'Enrollment: Waitlist, Swaps, etc.',
+            'Major Declaration',
+            'Probation',
+            'Program Planning, Semester or Longer Term',
+            'Withdrawal',
+            'Other',
+    ):
         PeerAdvisingTopic.create_topic(topic=topic)
     PeerAdvisingTopic.delete(Topic.create_topic('Transfer Student').id)
     std_commit(allow_test_environment=True)

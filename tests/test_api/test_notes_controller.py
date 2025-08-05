@@ -281,6 +281,7 @@ class TestCreateNote:
         """CE3 advisor can create a private note."""
         fake_auth.login(ce3_advisor_uid)
         draft_note = _api_create_draft_note(client=client)
+        topics = ['Topic for notes, 2', 'Topic for notes, 6']
         note = _api_update_note(
             body='Somebody went under a dock and there they saw a rock.',
             client=client,
@@ -288,9 +289,11 @@ class TestCreateNote:
             note_id=draft_note['id'],
             sids=[coe_student['sid']],
             subject='Rock Lobster',
+            topics=topics,
         )
         assert note['isPrivate'] is True
         assert 'rock' in note['body']
+        assert set(note['topics']) == set(topics)
 
     def test_create_note_prefers_ldap_dept_affiliation_and_title(self, client, fake_auth):
         fake_auth.login(l_s_major_advisor_uid)
@@ -697,7 +700,7 @@ class TestUpdateNotes:
             contact_type=None,
             is_private=False,
             set_date=None,
-            topics=(),
+            topics=None,
     ):
         with mock_advising_note_s3_bucket(app):
             data = {
@@ -705,7 +708,7 @@ class TestUpdateNotes:
                 'body': body,
                 'isPrivate': is_private,
                 'subject': subject,
-                'topics': ','.join(topics),
+                'topics': topics,
             }
             if contact_type:
                 data['contactType'] = contact_type
@@ -1191,7 +1194,7 @@ def _api_update_note(
         set_date=None,
         sids=None,
         template_attachment_ids=(),
-        topics=(),
+        topics=None,
 ):
     data = {
         'body': body,
@@ -1203,7 +1206,7 @@ def _api_update_note(
         'sids': sids or [],
         'subject': subject,
         'templateAttachmentIds': template_attachment_ids or [],
-        'topics': ','.join(topics),
+        'topics': topics or [],
     }
     if contact_type:
         data['contactType'] = contact_type
