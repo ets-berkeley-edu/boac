@@ -222,8 +222,8 @@ class DegreeProgressCategory(Base):
             _categories = sorted(_categories, key=lambda c: c['uxPositionY'], reverse=True)
             for _category in _categories:
                 # Order courses and course_requirements by name, ascending.
-                _category['courses'] = sorted(_category['courses'], key=lambda c: (c['name'], c['createdAt']))
-                _category['courseRequirements'] = sorted(_category['courseRequirements'], key=lambda c: (c['name'], c['createdAt']))
+                _category['courses'] = sorted(_category['courses'], key=lambda c: c['createdAt'])
+                _category['courseRequirements'] = sorted(_category['courseRequirements'], key=lambda c: c['createdAt'])
             return _categories
         hierarchy = _sort(hierarchy)
         for category in hierarchy:

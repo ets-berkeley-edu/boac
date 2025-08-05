@@ -719,18 +719,18 @@ class TestSatisfyCampusRequirement:
         assert matching_course_requirement
         assert matching_course_requirement['categoryType'] == 'Campus Requirement, Unsatisfied'
 
-        def _verify_sorted_by_name(_courses):
-            previous_name = None
+        def _verify_sort(_courses):
+            _previous_value = None
             for _course in _courses:
-                if previous_name:
-                    assert _course['name'] > previous_name
-                previous_name = _course['name']
+                if _previous_value:
+                    assert _course['createdAt'] > _previous_value
+                _previous_value = _course['createdAt']
         for _category in api_json['categories']:
-            _verify_sorted_by_name(_category['courses'])
-            _verify_sorted_by_name(_category['courseRequirements'])
+            _verify_sort(_category['courses'])
+            _verify_sort(_category['courseRequirements'])
             for _subcategory in _category['subcategories']:
-                _verify_sorted_by_name(_subcategory['courses'])
-                _verify_sorted_by_name(_subcategory['courseRequirements'])
+                _verify_sort(_subcategory['courses'])
+                _verify_sort(_subcategory['courseRequirements'])
 
 
 def _api_create_category(
