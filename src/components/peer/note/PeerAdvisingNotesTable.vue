@@ -61,7 +61,7 @@
                 </span>
               </button>
             </div>
-            <div v-if="isExpanded(note)" :class="{'d-contents': !smAndDown}">
+            <div v-if="isExpanded(note)" :class="{'d-contents': !smAndDown && editingNoteId !== note.id}">
               <div class="grid-cell">
                 <v-btn
                   v-if="editingNoteId !== note.id"
@@ -89,7 +89,7 @@
                     :note="note"
                     :note-description="`Note ${getNotePosition(index)}`"
                   />
-                  <div v-if="note.id === editingNoteId" class="edit-advising-note-container">
+                  <div v-if="note.id === editingNoteId" :class="{'edit-advising-note-container': !smAndDown}">
                     <EditAdvisingNote
                       :after-cancel="afterNoteEditCancel"
                       :after-saved="afterEditAdvisingNote"
@@ -110,10 +110,8 @@
             }"
             class="td-created-date"
           >
-            <div class="grid-cell">
+            <div class="grid-cell pr-8">
               <div v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(note, currentUser)" class="pl-2">
-                <!--
-                TODO: Give Peer Advisors the power to edit their own notes.
                 <v-btn
                   :id="`edit-note-${note.id}-button`"
                   :aria-label="`Edit ${getNoteLabel(note, index)}`"
@@ -126,7 +124,6 @@
                   variant="text"
                   @click="() => editNote(note.id)"
                 />
-                -->
                 <v-btn
                   v-if="isPeerAdvisorManager(currentUser)"
                   :id="`delete-note-button-${note.id}`"
@@ -282,11 +279,10 @@ const deleteConfirmed = () => {
   }
 }
 
-// TODO: Give Peer Advisors the power to edit their own notes.
-// const editNote = (noteId: number) => {
-//   editingNoteId.value = noteId
-//   putFocusNextTick('edit-note-subject')
-// }
+const editNote = (noteId: number) => {
+  editingNoteId.value = noteId
+  putFocusNextTick('edit-note-subject')
+}
 
 const getNoteLabel = (note: Note, index: number) => {
   const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
@@ -321,7 +317,7 @@ const toggleShowHide = (note: Note) => {
 <style scoped>
 @media (max-width: 959px) {
   .grid-cell {
-    padding-bottom: 0px !important;
+    padding-bottom: 0 !important;
   }
   .peer-advising-table-wrapper {
     min-width: 300px;
@@ -361,7 +357,8 @@ const toggleShowHide = (note: Note) => {
   display: contents;
 }
 .edit-advising-note-container {
-  margin-top: -25px;
+  margin-left: -34%;
+  margin-top: -50px;
   padding-right: 25px;
 }
 .has-attachment-icon {

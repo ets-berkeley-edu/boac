@@ -474,21 +474,23 @@ def get_boa_attachment_stream(attachment):
 
 
 def get_note_author_summary(note):
+    def _get(key, fallback_key):
+        return note.get(key) or note.get(fallback_key)
     departments = []
-    dept_codes = note.get('dept_code') if 'dept_code' in note else note.get('author_dept_codes') or []
+    dept_codes = _get('dept_code', 'deptCode') or _get('author_dept_codes', 'authorDeptCodes') or []
     for dept_code in dept_codes:
         departments.append({
             'deptCode': dept_code,
             'deptName': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
         })
     return {
-        'id': note.get('author_id'),
-        'uid': note.get('author_uid'),
-        'sid': note.get('advisor_sid'),
-        'name': note.get('author_name'),
-        'role': note.get('author_role'),
+        'id': _get('author_id', 'authorId'),
+        'uid': _get('author_uid', 'authorUid'),
+        'sid': _get('advisor_sid', 'advisorSid'),
+        'name': _get('author_name', 'authorName'),
+        'role': _get('author_role', 'authorRole'),
         'departments': departments,
-        'email': note.get('advisor_email'),
+        'email': _get('advisor_email', 'advisorEmail'),
     }
 
 

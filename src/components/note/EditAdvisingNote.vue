@@ -5,7 +5,7 @@
     :class="wrapperClass"
     @submit.prevent="save"
   >
-    <div v-if="noteStore.model.isDraft" class="font-size-18 text-error pa-2">
+    <div v-if="model.isDraft" class="font-size-18 text-error pa-2">
       <v-icon :icon="mdiAlert" />
       <span class="edit-draft-text">
         You are editing a draft note.
@@ -22,7 +22,7 @@
         </span>
       </transition>
     </div>
-    <div v-if="!isPeerAdvisor(currentUser) && !noteStore.model.peerAdvisingDepartmentId" class="mt-1">
+    <div v-if="!isPeerAdvisor(currentUser) && !model.peerAdvisingDepartmentId" class="mt-1">
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
       <v-text-field
         id="edit-note-subject"
@@ -30,12 +30,12 @@
         bg-color="white"
         class="mt-1"
         density="comfortable"
-        :disabled="isSaving || boaSessionExpired || (noteStore.model.peerAdvisingDepartmentId && !noteStore.model.subject)"
+        :disabled="isSaving || boaSessionExpired || (model.peerAdvisingDepartmentId && !model.subject)"
         hide-details
         maxlength="255"
-        :model-value="noteStore.model.subject"
+        :model-value="model.subject"
         required
-        :rules="[value => (!!trim(value) || noteStore.model.isDraft) || !!noteStore.model.peerAdvisingDepartmentId || 'Subject is required']"
+        :rules="[value => (!!trim(value) || model.isDraft) || !!model.peerAdvisingDepartmentId || 'Subject is required']"
         size="255"
         validate-on="submit"
         @input="onInput"
@@ -45,7 +45,7 @@
     <div id="edit-note-details" class="bg-transparent mt-3">
       <RichTextEditor
         :disabled="isSaving || boaSessionExpired"
-        :initial-value="noteStore.model.body || ''"
+        :initial-value="model.body || ''"
         label="Note Details"
         :on-value-update="noteStore.setBody"
         :show-advising-note-best-practices="true"
@@ -56,28 +56,28 @@
       :topics="topics"
     />
     <PrivacyPermissions
-      v-if="currentUser.canAccessPrivateNotes && !noteStore.model.peerAdvisingDepartmentId"
+      v-if="currentUser.canAccessPrivateNotes && !model.peerAdvisingDepartmentId"
       class="mt-2"
       :disabled="isSaving || boaSessionExpired"
     />
     <ContactMethod
       class="mt-3"
       :disabled="isSaving || boaSessionExpired"
-      :is-peer-advising="!!noteStore.model.peerAdvisingDepartmentId"
+      :is-peer-advising="!!model.peerAdvisingDepartmentId"
     />
     <ManuallySetDate
-      v-if="!noteStore.model.peerAdvisingDepartmentId"
+      v-if="!model.peerAdvisingDepartmentId"
       class="mt-3"
       :container-id="`note-${noteId}-edit-form`"
     />
     <AdvisingNoteAttachments
-      v-if="size(noteStore.model.attachments) && !noteStore.model.peerAdvisingDepartmentId"
-      :attachments="noteStore.model.attachments"
+      v-if="size(model.attachments)"
+      :attachments="model.attachments"
       class="mt-3"
       :disabled="isSaving || boaSessionExpired"
       id-prefix="edit-note"
       :is-read-only="true"
-      :note="noteStore.model"
+      :note="model"
     />
     <div>
       <div
@@ -93,13 +93,13 @@
         <ProgressButton
           id="save-note-button"
           :action="() => save(false)"
-          :aria-label="noteStore.model.isDraft ? 'Publish Note' : 'Save Note'"
-          :disabled="!noteStore.recipients.sids.length || isSaving || boaSessionExpired || (noteStore.model.peerAdvisingDepartmentId ? !stripHtmlAndTrim(noteStore.model.body) : !trim(noteStore.model.subject))"
+          :aria-label="model.isDraft ? 'Publish Note' : 'Save Note'"
+          :disabled="!noteStore.recipients.sids.length || isSaving || boaSessionExpired || (model.peerAdvisingDepartmentId ? (!stripHtmlAndTrim(model.body) && !model.topics.length) : !trim(model.subject))"
           :in-progress="isPublishingNote"
-          :text="noteStore.model.isDraft ? 'Publish Note' : 'Save'"
+          :text="model.isDraft ? 'Publish Note' : 'Save'"
         />
         <ProgressButton
-          v-if="noteStore.model.isDraft"
+          v-if="model.isDraft"
           id="update-draft-note-button"
           :action="() => save(true)"
           class="ml-2"
@@ -110,7 +110,7 @@
         />
         <v-btn
           id="cancel-edit-note-button"
-          :aria-label="`Cancel Edit ${noteStore.model.isDraft ? 'Draft' : ' Note'}`"
+          :aria-label="`Cancel Edit ${model.isDraft ? 'Draft' : ' Note'}`"
           class="ml-2"
           color="primary"
           :disabled="isSaving || boaSessionExpired"
@@ -194,7 +194,7 @@ const isSavingDraft = ref(false)
 const showAreYouSureModal = ref(false)
 const suppressAutoSaveDraftNoteAlert = ref(false)
 const topics = ref([])
-const {boaSessionExpired, isSaving, mode} = storeToRefs(noteStore)
+const {boaSessionExpired, isSaving, mode, model} = storeToRefs(noteStore)
 
 watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = !suppressAutoSaveDraftNoteAlert.value, 5000))
 
@@ -230,8 +230,8 @@ onBeforeMount(() => {
 
 const cancelRequested = () => {
   getNote(props.noteId).then(note => {
-    const isPristine = trim(noteStore.model.subject) === note.subject
-      && stripHtmlAndTrim(noteStore.model.body) === stripHtmlAndTrim(note.body)
+    const isPristine = trim(model.value.subject) === note.subject
+      && stripHtmlAndTrim(model.value.body) === stripHtmlAndTrim(note.body)
     if (isPristine) {
       cancelConfirmed()
     } else {
@@ -269,20 +269,20 @@ const save = isDraft => {
     }
     validate().then(({valid}) => {
       if (valid) {
-        const trimmedSubject = trim(noteStore.model.subject)
+        const trimmedSubject = trim(model.value.subject)
         updateNote(
-          noteStore.model.id,
-          trim(noteStore.model.body),
+          model.value.id,
+          trim(model.value.body),
           [],
-          noteStore.model.contactType,
+          model.value.contactType,
           [],
           isDraft,
-          noteStore.model.isPrivate,
-          noteStore.model.setDate,
+          model.value.isPrivate,
+          model.value.setDate,
           noteStore.recipients.sids,
           trimmedSubject,
           [],
-          noteStore.model.topics
+          model.value.topics
         ).then(updatedNote => {
           props.afterSaved(updatedNote)
           isSavingDraft.value = false
