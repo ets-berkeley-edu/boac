@@ -1,6 +1,6 @@
 import {DateTime} from 'luxon'
 import axios from 'axios'
-import {each, isNil, trim, truncate} from 'lodash'
+import {each, isNil, toString, trim, truncate} from 'lodash'
 import {useContextStore} from '@/stores/context'
 
 export default {
@@ -15,7 +15,11 @@ export default {
     const formData = new FormData()
     each(data, (value, key) => {
       if (!isNil(value)) {
-        formData.append(key, value)
+        if (Array.isArray(value)) {
+          each(value, v => formData.append(key, toString(v)))
+        } else {
+          formData.append(key, value)
+        }
       }
     })
     const apiBaseUrl = useContextStore().config.apiBaseUrl

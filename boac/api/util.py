@@ -266,7 +266,7 @@ def get_template_attachment_ids_from_http_post():
 
 def get_note_topics_from_http_post():
     arg = 'topics'
-    topics = request.form.get(arg, [])
+    topics = request.form.getlist(arg)
     if not topics and request.content_type == 'application/json':
         topics = request.get_json().get(arg)
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
