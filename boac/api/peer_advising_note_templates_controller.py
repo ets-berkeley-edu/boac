@@ -39,10 +39,10 @@ from flask_login import current_user
 def create_peer_advising_note_template():
     params = request.get_json()
     peer_advising_department_id = params.get('peerAdvisingDepartmentId', None)
-    note_body = params.get('body', None)
+    note_body = params.get('body', None) or ''
     topics = params.get('topics', None)
     title = params.get('title', None)
-    if not peer_advising_department_id or not note_body or not title:
+    if not peer_advising_department_id or (not note_body and not len(topics)) or not title:
         raise BadRequestError('Invalid or missing parameters')
     user_dept_codes = dept_codes_where_advising(current_user.departments)
     if current_user.is_admin or not len(user_dept_codes):
@@ -84,7 +84,7 @@ def get_note_templates_for_peer_advising_department(peer_advising_department_id)
 def update_peer_advising_note_template():
     params = request.get_json() or {}
     note_template_id = params.get('id', None)
-    body = params.get('body', None)
+    body = params.get('body', None) or ''
     title = params.get('title', None)
     topics = params.get('topics', None)
     note_template = NoteTemplate.find_by_id(note_template_id=note_template_id)
