@@ -246,15 +246,16 @@ const expandedNoteIds = ref<number[]>([])
 const noteForDelete = ref<Note | undefined>()
 const showDeleteConfirmation = computed(() => !!noteForDelete.value)
 
-const afterEditAdvisingNote = (updatedNote: Note, putFocusId: string) => {
+const afterEditAdvisingNote = async (updatedNote: Note, putFocusId: string) => {
+  await props.afterNoteEdit(editingNoteId.value)
   editingNoteId.value = undefined
   putFocusNextTick(putFocusId || `edit-note-${updatedNote.id}-button`)
 }
 
 const afterNoteUpdated = async () => {
-  await props.afterNoteEdit()
-  putFocusNextTick(`show-note-${editingNoteId.value}-details`)
+  await props.afterNoteEdit(editingNoteId.value)
   editingNoteId.value = undefined
+  putFocusNextTick(`show-note-${editingNoteId.value}-details`)
 }
 const afterNoteEditCancel = () => {
   putFocusNextTick(`edit-note-${editingNoteId.value}-button`)
