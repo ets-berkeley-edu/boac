@@ -61,7 +61,7 @@
                 </span>
               </button>
             </div>
-            <div v-if="isExpanded(note)" :class="{'d-contents': !smAndDown && editingNoteId !== note.id}">
+            <div v-if="isExpanded(note)" :class="{'d-contents': !smAndDown}">
               <div class="grid-cell">
                 <v-btn
                   v-if="editingNoteId !== note.id"
@@ -358,8 +358,7 @@ const toggleShowHide = (note: Note) => {
   display: contents;
 }
 .edit-advising-note-container {
-  margin-left: -34%;
-  margin-top: -50px;
+  margin-top: -30px;
   padding-right: 25px;
 }
 .has-attachment-icon {
