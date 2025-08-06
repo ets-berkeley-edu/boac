@@ -2,7 +2,7 @@ import axios from 'axios'
 import {each, size, toNumber} from 'lodash'
 import ga from '@/lib/ga'
 import utils from '@/api/api-utils'
-import type {NoteAttachment, NoteEditSessionModel} from '@/lib/types'
+import type {Note, NoteAttachment, NoteEditSessionModel} from '@/lib/types'
 import {isPeerAdvisor} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 
@@ -116,8 +116,9 @@ export function addAttachments(noteId: number, attachments: NoteAttachment[]): P
   })
 }
 
-export function removeAttachment(noteId: number, attachmentId: number) {
-  return axios.delete(`${utils.apiBaseUrl()}/api/notes/${noteId}/attachment/${attachmentId}`).then(response => {
+export function removeAttachment(note: Note, attachmentId: number) {
+  const api: string = note.peerAdvisingDepartmentId ? `/api/peer_advising/note/${note.id}/attachment/${attachmentId}` : `/api/notes/${note.id}/attachment/${attachmentId}`
+  return axios.delete(`${utils.apiBaseUrl()}${api}`).then(response => {
     const note = response.data
     useContextStore().broadcast('note-updated', note)
     return note

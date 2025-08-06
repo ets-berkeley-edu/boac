@@ -16,7 +16,7 @@
         </div>
       </div>
       <AdvisingNoteAttachments
-        v-if="size(note.attachments)"
+        v-if="canUserEditNote(note, currentUser) || note.attachments.length"
         :add="addNoteAttachments"
         :attachments="note.attachments"
         class="attachments-edit mt-4"
@@ -102,7 +102,7 @@ const confirmedRemoveAttachment = () => {
   showConfirmDeleteAttachment.value = false
   const attachment = props.note.attachments[deleteAttachmentIndex.value]
   if (attachment && attachment.id) {
-    removeAttachment(props.note.id, attachment.id).then(updatedNote => {
+    removeAttachment(props.note, attachment.id).then(updatedNote => {
       alertScreenReader(`Attachment "${attachment.displayName}" removed`)
       props.afterNoteEdit(updatedNote, addAttachmentInputElementId)
     })
