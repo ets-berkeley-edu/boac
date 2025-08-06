@@ -183,9 +183,9 @@
               <v-chip
                 :id="`timeline-tab-${activeTab}-pill-${message.type}-${message.id}`"
                 :aria-label="filterTypes[message.type].name"
-                class="border font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
+                class="border-md font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
                 :class="isExpanded(message) ? `pill-${getPillType(message)} mt-3` : `pill-${getPillType(message)}`"
-                :color="`category-${message.type}`"
+                :color="getVChipColor(message)"
                 density="compact"
                 label
                 variant="flat"
@@ -725,6 +725,8 @@ const getSameDayDate = message => {
     screenReader: `${startTime} to ${endTime}`
   }
 }
+
+const getVChipColor = message => `category-${message.type === 'note' && message.peerAdvisingDepartmentId ? 'peer-note' : message.type}`
 
 const isCancelledAppointment = message => {
   return (message.type === 'appointment' && ['Calendly', 'YCBM'].includes(message.createdBy) && message.status === 'cancelled')

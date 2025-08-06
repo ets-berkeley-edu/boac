@@ -150,6 +150,7 @@ export default createVuetify({
           'category-eForm': '#5fbeb6',
           'category-hold': '#bc74fe',
           'category-note': '#999',
+          'category-peer-note': '#fff',
           'category-requirement': '#93c165',
           'chart-boxplot': '#ccc',
           'chart-boxplot-median': '#666',
