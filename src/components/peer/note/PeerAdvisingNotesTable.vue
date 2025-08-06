@@ -378,7 +378,7 @@ const toggleShowHide = (note: Note) => {
 .peer-advising-table-wrapper .td-note .grid-cell.note-details {
   grid-area: 2 / 1 / 1 / 3;
   margin-top: 68px;
-  z-index: 1;
+  z-index: 3;
 }
 .peer-advising-table-wrapper .td-student .grid-cell {
   grid-area: 1 / 1 / 1 / 1;
