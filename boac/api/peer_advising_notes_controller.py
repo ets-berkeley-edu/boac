@@ -35,7 +35,7 @@ from boac.externals.data_loch import get_basic_student_data
 from boac.lib.berkeley import is_peer_advisor, sis_term_id_for_name, term_name_for_sis_id
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, process_input_from_rich_text_editor, to_bool_or_none
-from boac.merged.advising_note import get_author_uid, get_boa_attachment_stream
+from boac.merged.advising_note import get_author_uid, get_boa_attachment_stream, can_current_user_edit_note
 from boac.merged.sis_terms import future_term_id
 from boac.merged.student import merge_enrollment_terms
 from boac.models.authorized_user import AuthorizedUser
@@ -151,6 +151,26 @@ def download_peer_advising_note_attachment(attachment_id):
     encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
     r.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoding_safe_filename}"
     return r
+
+
+@app.route('/api/peer_advising/note/<note_id>/attachment/<attachment_id>', methods=['DELETE'])
+@peer_advisor_or_peer_advisor_manager
+def remove_peer_advising_note_attachment(note_id, attachment_id):
+    note = Note.find_by_id(note_id=note_id)
+    if not note:
+        raise ResourceNotFoundError('Note not found.')
+    if not can_current_user_edit_note(note):
+        raise ForbiddenRequestError('You are not authorized to remove attachments from this note.')
+    note = Note.delete_attachment(
+        note_id=note_id,
+        attachment_id=int(attachment_id),
+    )
+    return tolerant_jsonify(
+        get_boac_note_as_compatible_json(
+            note=note,
+            note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
+        ),
+    )
 
 
 @app.route('/api/peer_advising/notes/authored_by', methods=['POST'])

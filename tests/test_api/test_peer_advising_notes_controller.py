@@ -228,19 +228,13 @@ class TestGetPeerAdvisingNotes:
         memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(user_id)
         cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
 
-    @classmethod
-    def _api_get_notes_for_peer_advisor(cls, client, uid, include_students=False, expected_status_code=200):
-        response = client.get(f'/api/peer_advisor/{uid}/notes?includeStudents={include_students}')
-        assert response.status_code == expected_status_code
-        return response.json
-
     def test_unauthorized(self, client, fake_auth):
         """Returns 401 unless user is a Peer Advisor."""
         peer_advisor_uid = coe_mech_peer_advisor_uid
         for uid in [None, qcadv_advisor_uid]:
             if uid:
                 fake_auth.login(uid)
-            self._api_get_notes_for_peer_advisor(
+            _api_get_notes_for_peer_advisor(
                 client,
                 expected_status_code=401,
                 uid=peer_advisor_uid,
@@ -261,19 +255,19 @@ class TestGetPeerAdvisingNotes:
         assert note['author']['uid'] == ce3_navcal_peer_advisor_uid
         assert note['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
         # Fetch that note, without student.
-        api_json = self._api_get_notes_for_peer_advisor(client, uid=uid)
+        api_json = _api_get_notes_for_peer_advisor(client, uid=uid)
         notes = api_json['notes']
         assert len(notes) > 0
         assert len(notes) == api_json['totalNoteCount']
         assert notes[0]['id'] == note['id']
         assert 'student' not in notes[0]
         # Fetch that note, with student.
-        api_json = self._api_get_notes_for_peer_advisor(client, include_students=True, uid=uid)
+        api_json = _api_get_notes_for_peer_advisor(client, include_students=True, uid=uid)
         notes = api_json['notes']
         assert notes[0]['student']['sid'] == coe_student['sid']
         # Verify with BOA Admin
         fake_auth.login(admin_uid)
-        self._api_get_notes_for_peer_advisor(client, uid=uid)
+        _api_get_notes_for_peer_advisor(client, uid=uid)
 
 
 class TestGetPeerAdvisingTopics:
@@ -299,6 +293,50 @@ class TestGetPeerAdvisingTopics:
         api_json = self._api_get_peer_advising_topics(client)
         assert len(api_json)
         assert 'Probation' in [topic['topic'] for topic in api_json]
+
+
+class TestPeerAdvisingNoteAttachments:
+
+    @classmethod
+    def setup_class(cls):
+        author_uid = ce3_navcal_peer_advisor_uid
+        peer_advisor_user_id = AuthorizedUser.get_id_per_uid(author_uid)
+        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(peer_advisor_user_id)
+        cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
+
+    def test_remove_attachment(self, app, client, fake_auth):
+        """Remove an attachment from an existing Peer Advising note."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        note = _api_create_peer_advising_note(
+            body='CE3 NAVCAL note created by Peer Advisor',
+            client=client,
+            peer_advising_department_id=self.ce3_navcal_peer_advising_department_id,
+            sid=coe_student['sid'],
+        )
+        note_id = note['id']
+        base_dir = app.config['BASE_DIR']
+        note = _api_note_attachments_upload(
+            app=app,
+            attachments=[
+                f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
+                f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
+            ],
+            client=client,
+            note_id=note_id,
+        )
+        attachment_ids = [note['attachments'][0]['id'], note['attachments'][1]['id']]
+        # Both PAM and Peer Advisors can delete attachments of this note.
+        for uid in (ce3_navcal_peer_advisor_uid, ce3_navcal_peer_advisor_manager_uid):
+            fake_auth.login(uid)
+            # Delete attachment
+            attachment_id_to_delete = attachment_ids.pop()
+            delete_response = client.delete(f'/api/peer_advising/note/{note_id}/attachment/{attachment_id_to_delete}')
+            assert delete_response.status_code == 200
+            std_commit(allow_test_environment=True)
+            # Verify
+            note = Note.find_by_id(note_id)
+            attachment = next((a for a in note.attachments if a.id == attachment_id_to_delete), None)
+            assert attachment is None
 
 
 class TestGetStudentEnrollments:
@@ -497,6 +535,12 @@ def _api_create_peer_advising_note(
         content_type='application/json',
         data=json.dumps(data),
     )
+    assert response.status_code == expected_status_code
+    return response.json
+
+
+def _api_get_notes_for_peer_advisor(client, uid, include_students=False, expected_status_code=200):
+    response = client.get(f'/api/peer_advisor/{uid}/notes?includeStudents={include_students}')
     assert response.status_code == expected_status_code
     return response.json
 

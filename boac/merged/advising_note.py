@@ -32,7 +32,7 @@ from os import path
 import re
 
 from boac.externals import data_loch, s3
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, is_peer_advisor_manager
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, is_peer_advisor_manager, is_peer_advisor
 from boac.lib.sis_advising import (
     get_legacy_attachment_stream,
     get_sis_advising_attachments,
@@ -73,19 +73,25 @@ def can_current_user_access_note(note):
 
 
 def can_current_user_edit_note(note):
-    is_authorized = current_user.can_access_advising_data and get_author_uid(note) == current_user.uid
-    if (
-        not is_authorized
-        and note.peer_advising_department_id
-        and is_peer_advisor_manager(current_user, note.peer_advising_department_id)
-    ):
-        user_id = current_user.get_id()
-        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id)
-        for membership in memberships:
-            if membership['role_type'] == 'peer_advisor_manager' and membership['peer_advising_department_id'] == note.peer_advising_department_id:
-                is_authorized = True
-                break
-    return is_authorized
+    can_edit_note = False
+    is_author = get_author_uid(note) == current_user.uid
+    if current_user.can_access_advising_data and is_author:
+        can_edit_note = True
+    elif note.peer_advising_department_id:
+        def _has_peer_advising_role_type(_role_type):
+            has_role_type = False
+            user_id = current_user.get_id()
+            memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id)
+            for membership in memberships:
+                if membership['role_type'] == _role_type and membership['peer_advising_department_id'] == note.peer_advising_department_id:
+                    has_role_type = True
+                    break
+            return has_role_type
+        if is_peer_advisor_manager(current_user, note.peer_advising_department_id):
+            can_edit_note = _has_peer_advising_role_type('peer_advisor_manager')
+        elif is_author and is_peer_advisor(current_user):
+            can_edit_note = _has_peer_advising_role_type('peer_advisor')
+    return can_edit_note
 
 
 def get_advising_notes(sid, exclude_draft_notes=False):
