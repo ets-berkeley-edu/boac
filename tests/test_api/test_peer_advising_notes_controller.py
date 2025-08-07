@@ -28,6 +28,7 @@ import json
 from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from tests.util import mock_advising_note_s3_bucket
 
@@ -67,7 +68,8 @@ class TestCreatePeerAdvisingNote:
                 sid=coe_student['sid'],
             )
 
-    def test_not_authorized_to_add_attachments(self, app, client, fake_auth):
+    def test_peer_advisor_manager_attach_to_peer_advisor_note(self, app, client, fake_auth):
+        navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
         fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
         with mock_advising_note_s3_bucket(app):
             base_dir = app.config['BASE_DIR']
@@ -85,6 +87,7 @@ class TestCreatePeerAdvisingNote:
                     author_role='Peer Advisor',
                     author_dept_codes=['ZCEEE'],
                     body='Rock \'n Roll rang sweet as victory, under neon signs',
+                    peer_advising_department_id=navcal_department.id,
                     sid='11667051',
                     subject='',
                 )
@@ -93,7 +96,6 @@ class TestCreatePeerAdvisingNote:
                     app=app,
                     attachments=[f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'],
                     client=client,
-                    expected_status_code=401,
                     note_id=note.id,
                 )
 
@@ -259,12 +261,13 @@ class TestGetPeerAdvisingNotes:
         notes = api_json['notes']
         assert len(notes) > 0
         assert len(notes) == api_json['totalNoteCount']
-        assert notes[0]['id'] == note['id']
-        assert 'student' not in notes[0]
+        note = next((n for n in notes if n['id'] == note['id']), None)
+        assert note
+        assert 'student' not in note
         # Fetch that note, with student.
         api_json = _api_get_notes_for_peer_advisor(client, include_students=True, uid=uid)
-        notes = api_json['notes']
-        assert notes[0]['student']['sid'] == coe_student['sid']
+        student = next((student for student in api_json['notes'] if student['sid'] == coe_student['sid']), None)
+        assert student
         # Verify with BOA Admin
         fake_auth.login(admin_uid)
         _api_get_notes_for_peer_advisor(client, uid=uid)
