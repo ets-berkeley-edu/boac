@@ -27,8 +27,7 @@ import re
 from threading import Thread
 
 from boac import std_commit
-from boac.externals import data_loch
-from boac.externals.data_loch import get_user_permissions_per_affiliations
+from boac.externals.data_loch import get_admitted_students_by_sids, get_student_profiles, get_user_permissions_per_affiliations
 from boac.merged.sis_terms import all_term_ids, current_term_id
 from boac.models.alert import Alert
 from boac.models.curated_group import CuratedGroupStudent
@@ -216,7 +215,9 @@ def update_curated_group_lists():
     from boac.models.curated_group import CuratedGroup
     for curated_group in CuratedGroup.query.all():
         all_sids = CuratedGroupStudent.get_sids(curated_group.id)
-        available_students = [s['sid'] for s in data_loch.get_student_profiles(all_sids)]
+        is_admitted_students = curated_group.domain == 'admitted_students'
+        students = get_admitted_students_by_sids(offset=0, sids=all_sids) if is_admitted_students else get_student_profiles(all_sids)
+        available_students = [s['sid'] for s in students]
         if len(all_sids) > len(available_students):
             unavailable_sids = set(all_sids) - set(available_students)
             app.logger.info(f'Deleting inaccessible SIDs from curated group {curated_group.id}: {unavailable_sids}')
