@@ -47,7 +47,11 @@ class WebDriverManager(object):
             p.set_preference(key='devtools.jsonview.enabled', value=False)
             options = Foptions()
             options.profile = p
-            options.headless = _headless
+            p.set_preference('browser.download.folderList', 2)
+            p.set_preference('browser.helperApps.neverAsk.saveToDisk', 'text/csv')
+            p.set_preference('browser.download.dir', utils.default_download_dir())
+            if _headless:
+                options.add_argument('-headless')
             driver = webdriver.Firefox(options=options)
         elif _browser == 'safari':
             driver = webdriver.Safari()
@@ -64,7 +68,7 @@ class WebDriverManager(object):
             }
             options.add_experimental_option('prefs', prefs)
             driver = webdriver.Chrome(options=options)
-        driver.set_window_size(1600, 900) if app.config['BROWSER_HEADLESS'] else driver.maximize_window()
+        driver.set_window_size(1600, 900) if _headless else driver.maximize_window()
         return driver
 
     @classmethod

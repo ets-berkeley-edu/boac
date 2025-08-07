@@ -85,16 +85,28 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         self.when_visible((By.ID, f'note-{note.record_id}-body'), 2)
         time.sleep(utils.get_click_sleep())
 
+    # EDIT / DELETE
+
+    PEER_NOTE_EDIT_SAVE_BTN = By.ID, 'save-note-button'
+
     @staticmethod
     def peer_note_edit_button(note):
         return By.ID, f'edit-note-{note.record_id}-button'
 
-    def click_peer_note_edit_button(self, note):
-        self.wait_for_element_and_click(self.peer_note_edit_button(note))
-
     @staticmethod
     def peer_note_delete_button(note):
         return By.ID, f'delete-note-button-{note.record_id}'
+
+    def is_peer_note_edit_save_btn_enabled(self):
+        return self.element(self.PEER_NOTE_EDIT_SAVE_BTN).is_enabled()
+
+    def click_peer_note_edit_button(self, note):
+        self.wait_for_element_and_click(self.peer_note_edit_button(note))
+
+    def save_peer_note_edit(self, note):
+        app.logger.info(f'Saving edit for peer note {note.record_id}')
+        self.wait_for_element_and_click(self.PEER_NOTE_EDIT_SAVE_BTN)
+        self.when_not_present(self.PEER_NOTE_EDIT_SAVE_BTN, utils.get_short_timeout())
 
     def delete_peer_note(self, note):
         app.logger.info(f'Deleting peer note {note.record_id}')
