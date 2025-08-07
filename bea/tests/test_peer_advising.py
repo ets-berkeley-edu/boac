@@ -181,10 +181,15 @@ class TestNoteCreation:
     def test_hide_student_schedule(self):
         self.peer_page.collapse_student_schedule()
 
-    def test_note_body_required(self):
+    def test_note_body_or_topic_required(self):
         assert not self.peer_page.is_save_note_button_enabled()
         note_1_by_ls_peer.body = 'This is my body'
         self.peer_page.enter_note_body(note_1_by_ls_peer)
+        assert self.peer_page.is_save_note_button_enabled()
+        note_1_by_ls_peer.body = ''
+        self.peer_page.enter_note_body(note_1_by_ls_peer)
+        note_1_by_ls_peer.topics = [Topic(PeerTopics.LATE_CHANGE.value), Topic(PeerTopics.INCOMPLETES.value)]
+        self.peer_page.add_topics(note_1_by_ls_peer)
         assert self.peer_page.is_save_note_button_enabled()
 
     def test_note_add_attachments(self):
@@ -244,6 +249,40 @@ class TestNoteCreation:
 
 
 @pytest.mark.usefixtures('page_objects')
+class TestPeerNoteEdit:
+
+    def test_edit_note_body_or_topic_required(self):
+        old_body = note_3_by_ls_peer.body
+        new_body = ''
+        note_3_by_ls_peer.body = new_body
+        self.peer_page.expand_peer_note(note_3_by_ls_peer)
+        self.peer_page.click_peer_note_edit_button(note_3_by_ls_peer)
+        self.peer_page.enter_note_body(note_3_by_ls_peer)
+        assert self.peer_page.is_peer_note_edit_save_btn_enabled()
+        self.peer_page.remove_topics(note_3_by_ls_peer, note_3_by_ls_peer.topics)
+        assert not self.peer_page.is_peer_note_edit_save_btn_enabled()
+        note_3_by_ls_peer.body = old_body
+        self.peer_page.enter_note_body(note_3_by_ls_peer)
+        assert self.peer_page.is_peer_note_edit_save_btn_enabled()
+
+    def test_edit_note(self):
+        note_3_by_ls_peer.body = f'Peer advisor edit {note_3_by_ls_peer.body}'
+        note_3_by_ls_peer.contact_type = 'Phone'
+        topics_to_add = [Topic(PeerTopics.DBL_MAJOR.value), Topic(PeerTopics.REDUCED_LOAD.value)]
+        self.peer_page.enter_note_body(note_3_by_ls_peer)
+        self.peer_page.add_topics(note_3_by_ls_peer, topics_to_add)
+        self.peer_page.select_contact_type(note_3_by_ls_peer)
+        self.peer_page.save_peer_note_edit(note_3_by_ls_peer)
+
+    def test_edit_note_attachments(self):
+        attachments_to_add = valid_attachments[4:5]
+        self.peer_page.add_attachments_to_existing_note(note_3_by_ls_peer, attachments_to_add)
+
+    def test_no_deleting(self):
+        assert not self.peer_page.is_present(self.peer_page.peer_note_delete_button(note_3_by_ls_peer))
+
+
+@pytest.mark.usefixtures('page_objects')
 class TestListView:
 
     def test_index_notes(self):
@@ -285,9 +324,6 @@ class TestListView:
         visible_attachments = self.peer_page.expanded_note_attachments(note_3_by_ls_peer)
         visible_attachments.sort()
         utils.assert_equivalence(visible_attachments, attachment_files)
-
-    def test_expanded_note_no_editing(self):
-        assert not self.peer_page.is_present(self.peer_page.peer_note_edit_button(note_3_by_ls_peer))
 
     def test_expanded_note_no_deleting(self):
         assert not self.peer_page.is_present(self.peer_page.peer_note_delete_button(note_3_by_ls_peer))
@@ -426,14 +462,14 @@ class TestPAMNoteEditOnStudentPage:
         self.student_page.show_notes()
         self.student_page.verify_note(note_1_by_ls_peer, pam_in_ls)
 
-    def test_edit_note_body_required(self):
+    def test_edit_note_body_not_required(self):
         old_body = note_1_by_ls_peer.body
         new_body = ''
         note_1_by_ls_peer.body = new_body
         self.student_page.click_edit_note_button(note_1_by_ls_peer)
         self.student_page.enter_note_body(note_1_by_ls_peer)
         note_1_by_ls_peer.body = old_body
-        assert not self.student_page.element(self.student_page.EDIT_NOTE_SAVE_BUTTON).is_enabled()
+        assert self.student_page.element(self.student_page.EDIT_NOTE_SAVE_BUTTON).is_enabled()
 
     def test_edit_note_body(self):
         note_1_by_ls_peer.body = f'EDITED {note_1_by_ls_peer.body}'
@@ -468,9 +504,47 @@ class TestPAMNoteEditOnStudentPage:
 
 
 @pytest.mark.usefixtures('page_objects')
+class TestPAMNoteEditOnListView:
+
+    def test_list_view_note(self):
+        self.homepage.switch_user(pam_in_ls)
+        self.student_page.click_pam_link()
+        self.pam_page.click_peer_notes(peer_1_in_ls)
+        self.pam_page.expand_peer_note(note_3_by_ls_peer)
+        self.pam_page.click_peer_note_edit_button(note_3_by_ls_peer)
+
+    def test_edit_note_body_not_required(self):
+        old_body = note_3_by_ls_peer.body
+        new_body = ''
+        note_3_by_ls_peer.body = new_body
+        self.pam_page.enter_note_body(note_3_by_ls_peer)
+        note_3_by_ls_peer.body = old_body
+        assert self.pam_page.is_peer_note_edit_save_btn_enabled()
+
+    def test_edit_list_view_note(self):
+        note_3_by_ls_peer.body = f'PAM edit {note_3_by_ls_peer.body}'
+        note_3_by_ls_peer.contact_type = 'Email'
+        topics_to_remove = note_3_by_ls_peer.topics
+        topics_to_add = [Topic(PeerTopics.INCOMPLETES.value)]
+        self.pam_page.enter_note_body(note_3_by_ls_peer)
+        self.pam_page.remove_topics(note_3_by_ls_peer, topics_to_remove)
+        self.pam_page.add_topics(note_3_by_ls_peer, topics_to_add)
+        self.pam_page.select_contact_type(note_3_by_ls_peer)
+        self.pam_page.save_peer_note_edit(note_3_by_ls_peer)
+
+    def test_edit_note_add_remove_attachments(self):
+        attachments = [note_3_by_ls_peer.attachments[0]]
+        self.pam_page.remove_attachments_from_existing_note(note_3_by_ls_peer, attachments)
+        self.pam_page.add_attachments_to_existing_note(note_3_by_ls_peer, attachments)
+
+
+@pytest.mark.usefixtures('page_objects')
 class TestPeerNoteDeletion:
 
     def test_no_foreign_pam_deletes(self):
+        self.homepage.switch_user(pam_in_coe)
+        self.student_page.load_page(student_1_for_ls_peer_note)
+        self.student_page.expand_item(note_1_by_ls_peer)
         assert not self.student_page.is_present(self.student_page.delete_note_button_loc(note_1_by_ls_peer))
 
     def test_student_page_deletion(self):
