@@ -32,9 +32,9 @@ import re
 import shutil
 import time
 
-from bea.models.term import Term
 from flask import current_app as app
 
+from bea.models.term import Term
 
 # Driver config
 

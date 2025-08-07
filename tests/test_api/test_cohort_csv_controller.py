@@ -23,11 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+import simplejson as json
+
 from boac.api.csv_file_download_utils import get_students_csv_header_labels
 from boac.merged.sis_terms import current_term_id
 from boac.models.cohort_filter import CohortFilter
-import pytest
-import simplejson as json
 from tests.test_api.api_test_utils import all_cohorts_owned_by, api_get_cohort
 
 admin_uid = '177473'

@@ -26,14 +26,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import datetime
 import time
 
-from bea.pages.pagination import Pagination
-from bea.pages.user_list_pages import UserListPages
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
+
+from bea.pages.pagination import Pagination
+from bea.pages.user_list_pages import UserListPages
+from bea.test_utils import utils
 
 
 class ListViewStudentPages(Pagination, UserListPages):

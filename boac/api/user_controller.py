@@ -25,6 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import re
 
+from flask import current_app as app
+from flask import request
+from flask_login import current_user, login_required, login_user
+
 from boac.api import errors
 from boac.api.decorators import admin_required, advisor_or_peer_advisor_required, advisor_required
 from boac.api.util import authorized_users_api_feed, get_current_user_profile
@@ -39,8 +43,6 @@ from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
-from flask import current_app as app, request
-from flask_login import current_user, login_required, login_user
 
 
 @app.route('/api/profile/my')

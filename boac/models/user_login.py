@@ -25,8 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db, std_commit
 from sqlalchemy.sql import desc
+
+from boac import db, std_commit
 
 
 class UserLogin(db.Model):

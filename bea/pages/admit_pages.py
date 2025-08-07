@@ -23,8 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.pages.curated_add_selector import CuratedAddSelector
 from selenium.webdriver.common.by import By
+
+from bea.pages.curated_add_selector import CuratedAddSelector
 
 
 class AdmitPages(CuratedAddSelector):

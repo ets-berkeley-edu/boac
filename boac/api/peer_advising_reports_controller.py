@@ -23,18 +23,24 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 import re
+from datetime import datetime
+
+from flask import current_app as app
 
 from boac.api.decorators import peer_advisor_manager_in_department
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import to_iso_format
 from boac.merged.calnet import get_calnet_users_for_uids
-from boac.merged.peer_advising_notes_reports import get_all_peer_advising_notes, get_notes_created_by_peer_advisors, \
-    get_peer_advising_note_author_count, get_peer_advising_note_count_since, get_peer_advising_note_template_usage, \
-    get_total_peer_advising_notes
+from boac.merged.peer_advising_notes_reports import (
+    get_all_peer_advising_notes,
+    get_notes_created_by_peer_advisors,
+    get_peer_advising_note_author_count,
+    get_peer_advising_note_count_since,
+    get_peer_advising_note_template_usage,
+    get_total_peer_advising_notes,
+)
 from boac.models.peer_advising_department import PeerAdvisingDepartment
-from flask import current_app as app
 
 
 @app.route('/api/peer_advising/<peer_advising_department_id>/notes/csv', methods=['POST'])

@@ -24,12 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import time
 
-from bea.pages.list_view_admit_pages import ListViewAdmitPages
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
+
+from bea.pages.list_view_admit_pages import ListViewAdmitPages
+from bea.test_utils import utils
 
 
 class SearchResultsPage(ListViewAdmitPages):

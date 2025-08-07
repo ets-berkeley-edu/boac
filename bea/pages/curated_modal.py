@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.pages.page import Page
 from flask import current_app as app
 from selenium.webdriver.common.by import By
+
+from bea.pages.page import Page
 
 
 class CuratedModal(Page):

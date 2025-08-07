@@ -24,16 +24,20 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import csv
-from datetime import datetime
 import io
+import re
+from datetime import datetime
 from itertools import groupby
 from operator import itemgetter
 from os import path
-import re
+
+import pytz
+import zipstream
+from flask import current_app as app
+from flask_login import current_user
 
 from boac.externals import data_loch, s3
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, is_peer_advisor_manager, is_peer_advisor, \
-    has_peer_advising_role_type
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, has_peer_advising_role_type, is_peer_advisor, is_peer_advisor_manager
 from boac.lib.sis_advising import (
     get_legacy_attachment_stream,
     get_sis_advising_attachments,
@@ -42,23 +46,19 @@ from boac.lib.sis_advising import (
     resolve_sis_updated_at,
 )
 from boac.lib.util import (
+    TEXT_SEARCH_PATTERN,
     camelize,
     get_benchmarker,
     is_int,
     join_if_present,
     safe_strftime,
     search_result_text_snippet,
-    TEXT_SEARCH_PATTERN,
     to_iso_format,
 )
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
-from flask import current_app as app
-from flask_login import current_user
-import pytz
-import zipstream
 
 """Provide advising note data from local and external sources."""
 

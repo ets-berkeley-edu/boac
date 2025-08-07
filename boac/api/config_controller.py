@@ -26,6 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 import os
 
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
+
 from boac import __version__ as version
 from boac.api.decorators import admin_required
 from boac.api.errors import BadRequestError
@@ -37,8 +41,6 @@ from boac.models.degree_progress_category import degree_progress_category_type
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.note import note_contact_type_enum
 from boac.models.tool_setting import ToolSetting
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/config')

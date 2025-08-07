@@ -23,13 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+import simplejson as json
+
 from boac import std_commit
 from boac.api.csv_file_download_utils import get_students_csv_header_labels
 from boac.merged.sis_terms import current_term_id
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
-import pytest
-import simplejson as json
 from tests.test_api.api_test_utils import api_curated_group_add_students, api_curated_group_remove_student
 
 admin_uid = '177473'

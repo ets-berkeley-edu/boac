@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import simplejson as json
+
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
-import simplejson as json
 
 admin_uid = '177473'
 asc_advisor_uid = '1081940'

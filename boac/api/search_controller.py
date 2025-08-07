@@ -26,18 +26,27 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import timedelta
 from itertools import islice
 
+from flask import current_app as app
+from flask import request
+from flask_login import current_user, login_required
+from sqlalchemy import text
+
 from boac import db
 from boac.api.decorators import advising_data_access_required, advisor_required, ce3_required, peer_advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError
 from boac.api.util import add_alert_counts, is_unauthorized_search
-from boac.externals.data_loch import get_basic_student_data, get_enrolled_primary_sections, \
-    get_enrolled_primary_sections_for_parsed_code, match_advising_note_authors_by_name, \
-    match_appointment_advisors_by_name
+from boac.externals.data_loch import (
+    get_basic_student_data,
+    get_enrolled_primary_sections,
+    get_enrolled_primary_sections_for_parsed_code,
+    match_advising_note_authors_by_name,
+    match_appointment_advisors_by_name,
+)
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.admitted_student import search_for_admitted_students
 from boac.merged.advising_appointment import search_advising_appointments
-from boac.merged.advising_note import search_advising_notes, get_note_author_summary
+from boac.merged.advising_note import get_note_author_summary, search_advising_notes
 from boac.merged.calnet import get_uid_for_csid
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import search_for_students
@@ -45,9 +54,6 @@ from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.university_dept import UniversityDept
-from flask import current_app as app, request
-from flask_login import current_user, login_required
-from sqlalchemy import text
 
 
 @app.route('/api/search', methods=['POST'])

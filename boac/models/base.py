@@ -29,7 +29,6 @@ from datetime import datetime
 
 from boac import db, std_commit
 
-
 """
 This base model class defines common behavior inherited by all database-backed models. Here the
 only such common behavior is timestamp columns.

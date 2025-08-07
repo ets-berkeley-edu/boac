@@ -23,15 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from dateutil.tz import tzutc
+from psycopg2.extras import NumericRange
+from sqlalchemy.dialects.postgresql import ENUM, NUMRANGE
+from sqlalchemy.sql import text
+
 from boac import db, std_commit
 from boac.lib.util import to_float_or_none
 from boac.models.base import Base
 from boac.models.degree_progress_category_unit_requirement import DegreeProgressCategoryUnitRequirement
 from boac.models.degree_progress_course import DegreeProgressCourse
-from dateutil.tz import tzutc
-from psycopg2.extras import NumericRange
-from sqlalchemy.dialects.postgresql import ENUM, NUMRANGE
-from sqlalchemy.sql import text
 
 degree_progress_category_type = ENUM(
     'Category',

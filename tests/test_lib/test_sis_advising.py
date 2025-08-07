@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.lib.sis_advising import get_legacy_attachment_stream
 from tests.util import mock_legacy_appointment_attachment, mock_sis_note_attachment
 
-
 coe_advisor = '1133399'
 
 

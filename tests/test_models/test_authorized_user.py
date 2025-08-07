@@ -25,8 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac.models.authorized_user import AuthorizedUser
 import pytest
+
+from boac.models.authorized_user import AuthorizedUser
 
 admin_uid = '177473'
 coe_advisor_uid = '1133399'

@@ -26,19 +26,44 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from copy import copy, deepcopy
 from datetime import datetime
 
+from flask import current_app as app
+
 from boac.lib.berkeley import sis_term_id_for_name
-from boac.lib.cohort_utils import academic_career_options, academic_career_status_options, \
-    academic_division_options, academic_plans_for_cohort_owner, academic_standing_options, \
-    coe_academic_standing_options, coe_ethnicities, coe_prep_status_options, colleges, curated_group_options, \
-    degree_terms, degrees, entering_terms, ethnicities, get_coe_profiles, \
-    grad_terms, grading_terms, graduate_programs, incomplete_types, intended_majors, \
-    level_options, majors, minors, student_admit_college_options, \
-    student_admit_ethnicity_options, student_admit_freshman_or_transfer_options, \
-    student_admit_residency_category_options, student_admit_special_program_cep_options, team_groups, \
-    unit_range_options, visa_types
+from boac.lib.cohort_utils import (
+    academic_career_options,
+    academic_career_status_options,
+    academic_division_options,
+    academic_plans_for_cohort_owner,
+    academic_standing_options,
+    coe_academic_standing_options,
+    coe_ethnicities,
+    coe_prep_status_options,
+    colleges,
+    curated_group_options,
+    degree_terms,
+    degrees,
+    entering_terms,
+    ethnicities,
+    get_coe_profiles,
+    grad_terms,
+    grading_terms,
+    graduate_programs,
+    incomplete_types,
+    intended_majors,
+    level_options,
+    majors,
+    minors,
+    student_admit_college_options,
+    student_admit_ethnicity_options,
+    student_admit_freshman_or_transfer_options,
+    student_admit_residency_category_options,
+    student_admit_special_program_cep_options,
+    team_groups,
+    unit_range_options,
+    visa_types,
+)
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
-from flask import current_app as app
 
 PROTECTED_COHORT_FILTERS_UWASC = ['groupCodes', 'inIntensiveCohort', 'isInactiveAsc']
 

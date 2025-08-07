@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+
 from boac import std_commit
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
@@ -30,7 +32,6 @@ from boac.models.curated_group import CuratedGroup, CuratedGroupStudent
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
-import pytest
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 
 admin_uid = '177473'

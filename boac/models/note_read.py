@@ -25,8 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db, std_commit
 from sqlalchemy import text
+
+from boac import db, std_commit
 
 
 class NoteRead(db.Model):

@@ -25,9 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import datetime
 
-from boac.merged.user_session import UserSession
 from flask import jsonify, make_response, redirect, request, session
 from flask_login import LoginManager
+
+from boac.merged.user_session import UserSession
 
 login_manager = LoginManager()
 
@@ -42,10 +43,10 @@ def register_routes(app):
     login_manager.anonymous_user = _user_loader
 
     # Register API routes.
-    import boac.api.appointments_controller
     import boac.api.admin_reports_controller
     import boac.api.admit_controller
     import boac.api.alerts_controller
+    import boac.api.appointments_controller
     import boac.api.auth_controller
     import boac.api.cachejob_controller
     import boac.api.cohort_controller
@@ -54,23 +55,23 @@ def register_routes(app):
     import boac.api.config_controller
     import boac.api.course_controller
     import boac.api.curated_group_controller
-    import boac.api.degree_progress_controller
     import boac.api.degree_progress_category_controller
+    import boac.api.degree_progress_controller
     import boac.api.degree_progress_student_controller
-    import boac.api.note_templates_controller
-    import boac.api.notes_controller
-    import boac.api.peer_advising_notes_controller
-    import boac.api.peer_advising_note_templates_controller
-    import boac.api.peer_advising_reports_controller
-    import boac.api.peer_advising_users_controller
-    import boac.api.search_controller
-    import boac.api.student_controller
-    import boac.api.status_controller
-    import boac.api.topic_controller
-    import boac.api.user_controller
 
     # Register error handlers.
     import boac.api.error_handlers
+    import boac.api.note_templates_controller
+    import boac.api.notes_controller
+    import boac.api.peer_advising_note_templates_controller
+    import boac.api.peer_advising_notes_controller
+    import boac.api.peer_advising_reports_controller
+    import boac.api.peer_advising_users_controller
+    import boac.api.search_controller
+    import boac.api.status_controller
+    import boac.api.student_controller
+    import boac.api.topic_controller
+    import boac.api.user_controller
 
     index_html = open(app.config['INDEX_HTML']).read()
 

@@ -23,9 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 import calendar
+import re
 from datetime import datetime
 from itertools import groupby
-import re
+
+from flask import current_app as app
+from sqlalchemy import text
 
 from bea.models.advisor_role import AdvisorRole, PeerAdvisingRole
 from bea.models.alert import Alert
@@ -42,8 +45,6 @@ from bea.models.student import Student
 from bea.models.user import User
 from bea.test_utils import utils
 from boac import db, std_commit
-from flask import current_app as app
-from sqlalchemy import text
 
 
 def get_boa_base_url():

@@ -23,9 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
-from datetime import timedelta
 import re
+from datetime import datetime, timedelta
 
 from bea.models.degree_progress.degree_completed_course import DegreeCompletedCourse
 from bea.test_utils import utils

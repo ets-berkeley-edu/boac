@@ -25,6 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
+from flask_login import current_user
+
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.util import get_benchmarker
@@ -32,7 +34,6 @@ from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
-from flask_login import current_user
 
 
 def clone_degree_template(template_id, name=None, sid=None):

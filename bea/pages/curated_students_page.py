@@ -25,10 +25,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import time
 
+from selenium.webdriver.common.by import By
+
 from bea.pages.cohort_and_group_student_pages import CohortAndGroupStudentPages
 from bea.pages.curated_pages import CuratedPages
 from bea.test_utils import utils
-from selenium.webdriver.common.by import By
 
 
 class CuratedStudentsPage(CohortAndGroupStudentPages, CuratedPages):

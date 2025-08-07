@@ -23,8 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.pages.page import Page
 from selenium.webdriver.common.by import By
+
+from bea.pages.page import Page
 
 
 class ApiPage(Page):

@@ -25,8 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import time
 
-from bea.test_utils import utils
-from bea.test_utils.webdriver_manager import WebDriverManager
 from flask import current_app as app
 from selenium.common import exceptions
 from selenium.webdriver.common.action_chains import ActionChains
@@ -35,6 +33,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait as Wait
+
+from bea.test_utils import utils
+from bea.test_utils.webdriver_manager import WebDriverManager
 
 
 class Page(object):

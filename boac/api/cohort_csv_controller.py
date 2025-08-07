@@ -23,16 +23,18 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import request
+
 from boac.api.csv_file_download_utils import response_with_students_csv_download
 from boac.api.decorators import advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import is_unauthorized_domain, is_unauthorized_search, can_current_user_view_cohort, \
-    construct_phantom_cohort
-from boac.lib.util import get as get_param, get_benchmarker
+from boac.api.util import can_current_user_view_cohort, construct_phantom_cohort, is_unauthorized_domain, is_unauthorized_search
+from boac.lib.util import get as get_param
+from boac.lib.util import get_benchmarker
 from boac.merged.sis_terms import current_term_id
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
-from flask import current_app as app, request
 
 
 @app.route('/api/cohort_csv/download', methods=['POST'])

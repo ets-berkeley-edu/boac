@@ -25,6 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import os
 
+import pytest
+
 from bea.models.term import Term
 from bea.pages.admit_page import AdmitPage
 from bea.pages.api_admin_page import ApiAdminPage
@@ -59,8 +61,6 @@ from bea.pages.search_results_page import SearchResultsPage
 from bea.pages.student_page import StudentPage
 from bea.test_utils.webdriver_manager import WebDriverManager
 from boac.factory import create_app
-import pytest
-
 
 os.environ['BOAC_ENV'] = 'bea'
 

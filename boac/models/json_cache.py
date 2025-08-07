@@ -26,16 +26,17 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import threading
 
-from boac import db, std_commit
-from boac.lib.berkeley import term_name_for_sis_id
-from boac.lib.util import get_args_dict
-from boac.models.base import Base
 from decorator import decorator
 from flask import current_app as app
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql import text
+
+from boac import db, std_commit
+from boac.lib.berkeley import term_name_for_sis_id
+from boac.lib.util import get_args_dict
+from boac.models.base import Base
 
 cache_thread = threading.local()
 

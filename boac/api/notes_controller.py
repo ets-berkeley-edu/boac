@@ -25,28 +25,43 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import urllib.parse
 
+from flask import Response, request, stream_with_context
+from flask import current_app as app
+from flask_login import current_user
+
 from boac import std_commit
 from boac.api.decorators import advising_data_access_required, director_advising_data_access_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_boac_note_as_compatible_json, get_note_attachments_from_http_post, \
-    get_note_author_profile_of_current_user, get_note_topics_from_http_post, \
-    get_template_attachment_ids_from_http_post, is_valid_date_string, validate_note_contact_type
+from boac.api.util import (
+    get_boac_note_as_compatible_json,
+    get_note_attachments_from_http_post,
+    get_note_author_profile_of_current_user,
+    get_note_topics_from_http_post,
+    get_template_attachment_ids_from_http_post,
+    is_valid_date_string,
+    validate_note_contact_type,
+)
 from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream as get_sis_attachment_stream
-from boac.lib.util import get as get_param, is_int, localize_datetime, process_input_from_rich_text_editor, \
-    to_bool_or_none, utc_now
-from boac.merged.advising_note import can_current_user_access_note, can_current_user_edit_note, get_advising_notes, \
-    get_author_uid, get_boa_attachment_stream, get_eop_attachment_stream, get_zip_stream
+from boac.lib.util import get as get_param
+from boac.lib.util import is_int, localize_datetime, process_input_from_rich_text_editor, to_bool_or_none, utc_now
+from boac.merged.advising_note import (
+    can_current_user_access_note,
+    can_current_user_edit_note,
+    get_advising_notes,
+    get_author_uid,
+    get_boa_attachment_stream,
+    get_eop_attachment_stream,
+    get_zip_stream,
+)
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 from boac.models.note_template import NoteTemplate
-from flask import current_app as app, request, Response, stream_with_context
-from flask_login import current_user
 
 DEFAULT_DRAFT_NOTE_SUBJECT = ''
 

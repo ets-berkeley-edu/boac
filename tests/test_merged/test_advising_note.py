@@ -23,17 +23,17 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime, timedelta
 import io
+from datetime import datetime, timedelta
 from zipfile import ZipFile
+
+import pytest
+import pytz
+from dateutil.parser import parse
 
 from boac.merged.advising_note import get_advising_notes, get_zip_stream, search_advising_notes
 from boac.models.note import Note
-from dateutil.parser import parse
-import pytest
-import pytz
 from tests.util import mock_eop_note_attachment, mock_sis_note_attachment
-
 
 asc_advisor = '6446'
 ce3_advisor_uid = '2525'

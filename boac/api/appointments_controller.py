@@ -25,12 +25,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import urllib.parse
 
+from flask import Response
+from flask import current_app as app
+from flask_login import current_user
+
 from boac.api.decorators import advising_data_access_required
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream
 from boac.models.appointment_read import AppointmentRead
-from flask import current_app as app, Response
-from flask_login import current_user
 
 
 @app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])

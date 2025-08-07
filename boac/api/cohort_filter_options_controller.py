@@ -23,13 +23,15 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import request
+
 from boac.api.decorators import advisor_required
 from boac.api.errors import ResourceNotFoundError
 from boac.api.util import is_unauthorized_domain
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.merged.cohort_filter_options import CohortFilterOptions
-from flask import current_app as app, request
 
 
 @app.route('/api/cohort_filter_categories', methods=['POST'])

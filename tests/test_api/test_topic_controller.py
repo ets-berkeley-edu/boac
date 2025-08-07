@@ -25,9 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+from sqlalchemy import and_
+
 from boac.models.note import Note
 from boac.models.topic import Topic
-from sqlalchemy import and_
 
 admin_uid = '2040'
 coe_advisor_uid = '1133399'

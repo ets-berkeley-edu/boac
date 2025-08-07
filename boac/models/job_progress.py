@@ -26,9 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
+from flask import current_app as app
+
 from boac import db, std_commit
 from boac.models.json_cache import JsonCache, update_jsonb_row
-from flask import current_app as app
 
 
 class JobProgress:

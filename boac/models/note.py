@@ -25,19 +25,18 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+from sqlalchemy import and_, desc
+from sqlalchemy.dialects.postgresql import ARRAY, ENUM
+from sqlalchemy.sql import text
+
 from boac import db, std_commit
 from boac.lib.background import bg_execute
-from boac.lib.util import get_attachment_filename, get_benchmarker, put_attachment_to_s3, safe_strftime, \
-    to_iso_format, utc_now
+from boac.lib.util import get_attachment_filename, get_benchmarker, put_attachment_to_s3, safe_strftime, to_iso_format, utc_now
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.note_topic import NoteTopic
-from sqlalchemy import and_, desc
-from sqlalchemy.dialects.postgresql import ARRAY, ENUM
-from sqlalchemy.sql import text
-
 
 note_contact_type_enum = ENUM(
     'Email',

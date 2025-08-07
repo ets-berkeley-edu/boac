@@ -24,14 +24,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import csv
-from datetime import datetime
 import logging
 import urllib
+from datetime import datetime
 
-from flask import current_app as app
-from flask import Response
 import requests
 import simplejson as json
+from flask import Response
+from flask import current_app as app
 from werkzeug.wrappers import ResponseStream
 
 

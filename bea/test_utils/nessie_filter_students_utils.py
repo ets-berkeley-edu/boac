@@ -23,11 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+
 from bea.models.cohorts_and_groups.cohort_filter import CohortFilter
 from bea.test_utils import utils
 from boac.externals import data_loch
-from flask import current_app as app
-
 
 # SELECT FROM
 

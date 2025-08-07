@@ -23,6 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
+
 from boac.api.decorators import can_edit_degree_progress, can_read_degree_progress
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import normalize_accent_color
@@ -30,8 +34,6 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_template import DegreeProgressTemplate
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/degree/category/create', methods=['POST'])

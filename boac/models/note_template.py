@@ -23,14 +23,15 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from dateutil.tz import tzutc
+from sqlalchemy import and_
+
 from boac import db, std_commit
 from boac.lib.util import titleize, utc_now, vacuum_whitespace
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.note_template_topic import NoteTemplateTopic
-from dateutil.tz import tzutc
-from sqlalchemy import and_
 
 
 class NoteTemplate(Base):

@@ -24,8 +24,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import sched
-from threading import Thread
 import time
+from threading import Thread
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker

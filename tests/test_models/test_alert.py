@@ -25,9 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from time import sleep
 
-from boac.models.alert import Alert
-from dateutil import parser
 import pytest
+from dateutil import parser
+
+from boac.models.alert import Alert
 from tests.util import override_config
 
 

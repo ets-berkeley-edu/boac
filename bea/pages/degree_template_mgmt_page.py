@@ -23,14 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 import time
+from datetime import datetime
 
-from bea.pages.boa_pages import BoaPages
-from bea.test_utils import boa_degree_progress_utils
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
+
+from bea.pages.boa_pages import BoaPages
+from bea.test_utils import boa_degree_progress_utils, utils
 
 
 class DegreeTemplateMgmtPage(BoaPages):

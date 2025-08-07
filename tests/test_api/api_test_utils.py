@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import simplejson as json
+
 from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
-import simplejson as json
 
 
 def all_cohorts_owned_by(uid):

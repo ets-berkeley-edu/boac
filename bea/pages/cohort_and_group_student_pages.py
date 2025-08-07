@@ -23,14 +23,15 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
+
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.department import Department
 from bea.pages.cohort_pages import CohortPages
 from bea.pages.list_view_student_pages import ListViewStudentPages
 from bea.test_utils import utils
-from flask import current_app as app
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.select import Select
 
 
 class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):

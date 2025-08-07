@@ -23,22 +23,37 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
+
 from boac.api.decorators import admin_or_director_required, admin_required
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import authorized_users_api_feed
 from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_advising_note_count, get_sis_advising_note_count
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
-from boac.merged.advising_notes_reports import get_boa_note_count_by_month, get_note_author_count, get_note_count, \
-    get_note_count_per_batch, get_note_count_per_user, get_note_with_attachments_count, \
-    get_note_with_topics_count, get_private_note_count, get_summary_of_boa_notes, low_assignment_scores
-from boac.merged.peer_advising_notes_reports import get_granular_peer_advising_department_note_counts, get_peer_advising_department_note_counts, \
-    get_peer_advising_note_author_count, get_total_peer_advising_notes
+from boac.merged.advising_notes_reports import (
+    get_boa_note_count_by_month,
+    get_note_author_count,
+    get_note_count,
+    get_note_count_per_batch,
+    get_note_count_per_user,
+    get_note_with_attachments_count,
+    get_note_with_topics_count,
+    get_private_note_count,
+    get_summary_of_boa_notes,
+    low_assignment_scores,
+)
+from boac.merged.peer_advising_notes_reports import (
+    get_granular_peer_advising_department_note_counts,
+    get_peer_advising_department_note_counts,
+    get_peer_advising_note_author_count,
+    get_total_peer_advising_notes,
+)
 from boac.merged.sis_terms import current_term_id
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.university_dept_member import UniversityDeptMember
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/reports/boa_notes/monthly_count')

@@ -27,7 +27,6 @@ from boac.lib.cohort_utils import academic_plans_for_cohort_owner, academic_stan
 from boac.models import json_cache
 from tests.util import override_config
 
-
 coe_advisor = '1133399'
 
 

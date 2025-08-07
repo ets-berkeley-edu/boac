@@ -22,10 +22,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+import simplejson as json
+
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note_template import NoteTemplate
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
-import simplejson as json
 
 peer_advisor_manager_uid = '2525'
 peer_advisor_uid = '1133400'

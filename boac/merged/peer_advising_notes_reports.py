@@ -23,11 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from sqlalchemy import text
+
 from boac import db
 from boac.externals.data_loch import get_basic_student_data
 from boac.lib.util import to_iso_format
 from boac.models.peer_advising_department import PeerAdvisingDepartment
-from sqlalchemy import text
 
 
 def get_peer_advising_department_note_counts():

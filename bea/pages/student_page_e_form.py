@@ -24,10 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import re
 
-from bea.pages.create_note_modal import CreateNoteModal
-from bea.pages.student_page_timeline import StudentPageTimeline
 from flask import current_app as app
 from selenium.webdriver.common.by import By
+
+from bea.pages.create_note_modal import CreateNoteModal
+from bea.pages.student_page_timeline import StudentPageTimeline
 
 
 class StudentPageEForm(StudentPageTimeline, CreateNoteModal):

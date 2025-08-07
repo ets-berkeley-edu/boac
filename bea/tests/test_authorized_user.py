@@ -23,11 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+
 from bea.models.user import User
 from bea.pages.homepage import Homepage
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
-import pytest
+from bea.test_utils import boa_utils, utils
 
 
 @pytest.mark.usefixtures('page_objects')

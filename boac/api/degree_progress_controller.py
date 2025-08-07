@@ -23,6 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from dateutil.tz import tzutc
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
+
 from boac.api.decorators import can_edit_degree_progress, can_read_degree_progress
 from boac.api.degree_progress_api_utils import clone_degree_template, fetch_degree_template, validate_template_upsert
 from boac.api.errors import BadRequestError, ResourceNotFoundError
@@ -31,9 +36,6 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
-from dateutil.tz import tzutc
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/degree/<template_id>/unit_requirement', methods=['POST'])

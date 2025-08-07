@@ -24,10 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 from datetime import datetime
 
-from bea.pages.filtered_students_page import FilteredStudentsPage
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
+
+from bea.pages.filtered_students_page import FilteredStudentsPage
+from bea.test_utils import utils
 
 
 class FilteredStudentsHistoryPage(FilteredStudentsPage):

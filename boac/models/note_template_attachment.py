@@ -25,9 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
+from sqlalchemy import and_
+
 from boac import db, std_commit
 from boac.lib.util import get_attachment_filename, note_attachment_to_api_json, put_attachment_to_s3
-from sqlalchemy import and_
 
 
 class NoteTemplateAttachment(db.Model):

@@ -26,13 +26,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import re
 from threading import Thread
 
+from flask import current_app as app
+
 from boac import std_commit
 from boac.externals.data_loch import get_admitted_students_by_sids, get_student_profiles, get_user_permissions_per_affiliations
 from boac.merged.sis_terms import all_term_ids, current_term_id
 from boac.models.alert import Alert
 from boac.models.curated_group import CuratedGroupStudent
 from boac.models.job_progress import JobProgress
-from flask import current_app as app
 
 
 def refresh_request_handler(term_id):
@@ -143,8 +144,8 @@ def refresh_alerts(term_id):
 
 def refresh_calnet_attributes():
     from boac.merged import calnet
-    from boac.models.authorized_user import AuthorizedUser
     from boac.models import json_cache
+    from boac.models.authorized_user import AuthorizedUser
     active_uids = {u.uid for u in AuthorizedUser.get_all_active_users()}
     json_cache.clear('calnet_user_for_uid_%')
     new_attrs = calnet.get_calnet_users_for_uids(app, active_uids)
@@ -199,8 +200,8 @@ def refresh_department_memberships():
 
 
 def load_filtered_cohort_counts():
-    from boac.models.cohort_filter import CohortFilter
     from boac.models import json_cache
+    from boac.models.cohort_filter import CohortFilter
     json_cache.clear('cohort_filter_options_%')
     for cohort in CohortFilter.query.all():
         # Remove!

@@ -25,11 +25,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db, std_commit
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.sql import desc
 
+from boac import db, std_commit
 
 cohort_filter_event_type = ENUM(
     'added',

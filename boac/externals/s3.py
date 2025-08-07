@@ -24,9 +24,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import boto3
-from flask import current_app as app
 import smart_open
-
+from flask import current_app as app
 
 """Client code to run file operations against S3."""
 

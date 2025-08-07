@@ -24,6 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import random
 
+import pytest
+from flask import current_app as app
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.cohorts_and_groups.cohort import Cohort
 from bea.models.cohorts_and_groups.cohort_admit_filter import CohortAdmitFilter
@@ -31,13 +34,7 @@ from bea.models.cohorts_and_groups.cohort_filter import CohortFilter
 from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.department import Department
 from bea.models.squad import Squad
-from bea.test_utils import boa_utils
-from bea.test_utils import nessie_filter_students_utils
-from bea.test_utils import nessie_utils
-from bea.test_utils import utils
-from flask import current_app as app
-import pytest
-
+from bea.test_utils import boa_utils, nessie_filter_students_utils, nessie_utils, utils
 
 test = BEATestConfig()
 test.user_role_advisor()

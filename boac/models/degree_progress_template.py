@@ -23,6 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from dateutil.tz import tzutc
+from sqlalchemy import and_, text
+from sqlalchemy.dialects.postgresql import ARRAY
+
 from boac import db, std_commit
 from boac.externals import data_loch
 from boac.lib.util import utc_now
@@ -33,9 +37,6 @@ from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
-from dateutil.tz import tzutc
-from sqlalchemy import and_, text
-from sqlalchemy.dialects.postgresql import ARRAY
 
 
 class DegreeProgressTemplate(Base):

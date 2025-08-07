@@ -23,11 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import simplejson as json
+from sqlalchemy import and_
+
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note_template import NoteTemplate
 from boac.models.note_template_attachment import NoteTemplateAttachment
-import simplejson as json
-from sqlalchemy import and_
 from tests.util import mock_advising_note_s3_bucket
 
 admin_uid = '2040'

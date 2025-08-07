@@ -23,11 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from sqlalchemy import text
+from sqlalchemy.dialects.postgresql import ENUM
+
 from boac import db, std_commit
 from boac.lib.util import utc_now
 from boac.models.base import Base
-from sqlalchemy import text
-from sqlalchemy.dialects.postgresql import ENUM
 
 role_types = ENUM(
     'peer_advisor',

@@ -24,14 +24,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import time
 
-from bea.models.degree_progress.degree_reqt_category import DegreeReqtCategory
-from bea.models.degree_progress.degree_reqt_course import DegreeReqtCourse
-from bea.pages.boa_pages import BoaPages
-from bea.test_utils import boa_degree_progress_utils
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+
+from bea.models.degree_progress.degree_reqt_category import DegreeReqtCategory
+from bea.models.degree_progress.degree_reqt_course import DegreeReqtCourse
+from bea.pages.boa_pages import BoaPages
+from bea.test_utils import boa_degree_progress_utils, utils
 
 
 class DegreeTemplatePage(BoaPages):

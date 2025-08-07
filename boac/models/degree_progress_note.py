@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from dateutil.tz import tzutc
+
 from boac import db, std_commit
 from boac.models.base import Base
-from dateutil.tz import tzutc
 
 
 class DegreeProgressNote(Base):

@@ -23,12 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+import simplejson as json
+
 from boac import std_commit
 from boac.externals import data_loch
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
-import pytest
-import simplejson as json
 
 admin_uid = '2040'
 asc_advisor_uid = '1081940'

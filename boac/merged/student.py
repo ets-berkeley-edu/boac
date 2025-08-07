@@ -23,20 +23,20 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from itertools import groupby
 import json
 import operator
+from itertools import groupby
 
-from boac import db
-from boac.externals import data_loch, s3
-from boac.lib import analytics
-from boac.lib.berkeley import academic_year_for_term_name, COE_ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_advising, term_name_for_sis_id
-from boac.lib.util import get_benchmarker
-from boac.merged.sis_terms import current_term_id, current_term_name, future_term_id
 from flask import current_app as app
 from flask_login import current_user
 from sqlalchemy import text
 
+from boac import db
+from boac.externals import data_loch, s3
+from boac.lib import analytics
+from boac.lib.berkeley import COE_ACADEMIC_STANDING_DESCRIPTIONS, academic_year_for_term_name, dept_codes_where_advising, term_name_for_sis_id
+from boac.lib.util import get_benchmarker
+from boac.merged.sis_terms import current_term_id, current_term_name, future_term_id
 
 """Provide merged student data from external sources."""
 

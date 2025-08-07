@@ -25,17 +25,18 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import re
 
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
+
 from boac.api.decorators import advisor_or_peer_advisor_required, advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import is_unauthorized_domain, put_notifications
 from boac.externals.data_loch import get_admitted_students_by_sids, get_students_by_sids, match_students_by_name_or_sid
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
-from boac.merged.student import get_distinct_sids, get_student_and_terms_by_sid, get_student_and_terms_by_uid, \
-    query_students
+from boac.merged.student import get_distinct_sids, get_student_and_terms_by_sid, get_student_and_terms_by_uid, query_students
 from boac.models.degree_progress_template import DegreeProgressTemplate
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/student/by_sid/<sid>')

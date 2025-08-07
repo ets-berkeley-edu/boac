@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.merged.student import get_course_student_profiles, get_distilled_student_profiles
 
-
 coe_advisor = '1133399'
 
 

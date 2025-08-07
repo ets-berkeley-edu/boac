@@ -25,15 +25,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import datetime
 import time
 
-from bea.pages.create_note_modal import CreateNoteModal
-from bea.pages.search_form import SearchForm
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
+
+from bea.pages.create_note_modal import CreateNoteModal
+from bea.pages.search_form import SearchForm
+from bea.test_utils import boa_utils, utils
 
 
 class BoaPages(CreateNoteModal, SearchForm):

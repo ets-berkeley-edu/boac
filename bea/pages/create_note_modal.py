@@ -23,16 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 import time
+from datetime import datetime
 
-from bea.models.department import Department
-from bea.pages.page import Page
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+
+from bea.models.department import Department
+from bea.pages.page import Page
+from bea.test_utils import boa_utils, utils
 
 
 class CreateNoteModal(Page):

@@ -23,10 +23,15 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime, UTC
 import json
 import re
 import time
+from datetime import UTC, datetime
+
+from dateutil.tz import tzutc
+from flask import current_app as app
+from sqlalchemy import and_, text
+from sqlalchemy.sql import desc
 
 from boac import db, std_commit
 from boac.api.errors import BadRequestError
@@ -37,10 +42,6 @@ from boac.merged.sis_terms import current_term_id, current_term_name
 from boac.merged.student import get_academic_standing_by_sid
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
-from dateutil.tz import tzutc
-from flask import current_app as app
-from sqlalchemy import and_, text
-from sqlalchemy.sql import desc
 
 
 def _get_current_term_start():

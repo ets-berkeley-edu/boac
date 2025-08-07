@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from selenium.webdriver.common.by import By
+
 from bea.pages.cohort_and_group_admit_pages import CohortAndGroupAdmitPages
 from bea.pages.curated_pages import CuratedPages
-from selenium.webdriver.common.by import By
 
 
 class CuratedAdmitsPage(CohortAndGroupAdmitPages, CuratedPages):

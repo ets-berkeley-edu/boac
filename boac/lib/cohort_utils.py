@@ -24,18 +24,23 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 from itertools import groupby
 
-from boac import db
-from boac.externals import data_loch
-from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, COE_ACADEMIC_STANDING_DESCRIPTIONS, COE_ETHNICITIES_PER_CODE, \
-    term_ids_range, term_name_for_sis_id
-from boac.merged.calnet import get_calnet_users_for_uids
-from boac.merged.calnet import get_csid_for_uid
-from boac.merged.sis_terms import current_term_id, future_term_id
-from boac.models.authorized_user import AuthorizedUser
-from boac.models.json_cache import stow
 from flask import current_app as app
 from flask_login import current_user
 from sqlalchemy import text
+
+from boac import db
+from boac.externals import data_loch
+from boac.lib.berkeley import (
+    ACADEMIC_STANDING_DESCRIPTIONS,
+    COE_ACADEMIC_STANDING_DESCRIPTIONS,
+    COE_ETHNICITIES_PER_CODE,
+    term_ids_range,
+    term_name_for_sis_id,
+)
+from boac.merged.calnet import get_calnet_users_for_uids, get_csid_for_uid
+from boac.merged.sis_terms import current_term_id, future_term_id
+from boac.models.authorized_user import AuthorizedUser
+from boac.models.json_cache import stow
 
 
 @stow('cohort_filter_options_coe_profiles')

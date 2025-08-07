@@ -25,12 +25,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import re
 
+import pytest
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.cohorts_and_groups.cohort import Cohort
-from bea.test_utils import boa_utils
-from bea.test_utils import nessie_timeline_utils
-from bea.test_utils import utils
-import pytest
+from bea.test_utils import boa_utils, nessie_timeline_utils, utils
 
 test = BEATestConfig()
 test.sis_student_data()

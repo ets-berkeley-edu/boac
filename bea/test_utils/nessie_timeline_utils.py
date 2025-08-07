@@ -22,9 +22,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-from itertools import groupby
 import json
 import re
+from itertools import groupby
+
+from flask import current_app as app
 
 from bea.models.alert import Alert
 from bea.models.notes_and_appts.appointment import Appointment
@@ -35,7 +37,6 @@ from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSour
 from bea.models.user import User
 from bea.test_utils import utils
 from boac.externals import data_loch
-from flask import current_app as app
 
 
 def get_advising_note_author_data(uid):

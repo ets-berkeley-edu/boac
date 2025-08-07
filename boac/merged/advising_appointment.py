@@ -26,16 +26,17 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 import re
 
-from boac.externals import data_loch
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.sis_advising import get_sis_advising_attachments, get_sis_advising_topics, resolve_sis_created_at, resolve_sis_updated_at
-from boac.lib.util import get_benchmarker, join_if_present, search_result_text_snippet, TEXT_SEARCH_PATTERN
-from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
-from boac.models.appointment_read import AppointmentRead
-from boac.models.authorized_user import AuthorizedUser
 from dateutil.tz import tzutc
 from flask import current_app as app
 from flask_login import current_user
+
+from boac.externals import data_loch
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
+from boac.lib.sis_advising import get_sis_advising_attachments, get_sis_advising_topics, resolve_sis_created_at, resolve_sis_updated_at
+from boac.lib.util import TEXT_SEARCH_PATTERN, get_benchmarker, join_if_present, search_result_text_snippet
+from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
+from boac.models.appointment_read import AppointmentRead
+from boac.models.authorized_user import AuthorizedUser
 
 """Provide advising appointment data from local and external sources."""
 

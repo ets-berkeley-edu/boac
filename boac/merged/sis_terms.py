@@ -23,10 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+
 from boac.externals import data_loch
 from boac.lib.berkeley import previous_term_id, sis_term_id_for_name
 from boac.models.json_cache import stow
-from flask import current_app as app
 
 
 @stow('current_term_index')

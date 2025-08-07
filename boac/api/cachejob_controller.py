@@ -23,13 +23,15 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import request
+
 from boac.api import cache_utils
 from boac.api.decorators import admin_required
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_terms import current_term_id
 from boac.models.job_progress import JobProgress
 from boac.models.note import Note
-from flask import current_app as app, request
 
 
 def term():

@@ -23,14 +23,15 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import simplejson as json
+from flask import current_app as app
+
 from boac import std_commit
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.json_cache import insert_row as insert_in_json_cache
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.university_dept import UniversityDept
-from flask import current_app as app
-import simplejson as json
 from tests.util import override_config
 
 admin_uid = '2040'

@@ -25,14 +25,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import random
 import time
 
+import pytest
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.department import Department
 from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_template import NoteTemplate
 from bea.models.notes_and_appts.topic import Topic, Topics
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
-import pytest
+from bea.test_utils import boa_utils, utils
 
 
 @pytest.mark.usefixtures('page_objects')

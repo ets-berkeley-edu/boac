@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.models.tool_setting import ToolSetting
 import pytest
 import simplejson as json
+
+from boac.models.tool_setting import ToolSetting
 from tests.util import override_config
 
 

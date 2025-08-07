@@ -22,12 +22,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-from boac.models.appointment_read import AppointmentRead
-from boac.models.authorized_user import AuthorizedUser
 import pytest
 import simplejson as json
-from tests.util import mock_legacy_appointment_attachment
 
+from boac.models.appointment_read import AppointmentRead
+from boac.models.authorized_user import AuthorizedUser
+from tests.util import mock_legacy_appointment_attachment
 
 coe_advisor_uid = '211159'
 coe_advisor_no_advising_data_uid = '1022796'
