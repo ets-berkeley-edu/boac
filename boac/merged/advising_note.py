@@ -32,7 +32,8 @@ from os import path
 import re
 
 from boac.externals import data_loch, s3
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, is_peer_advisor_manager, is_peer_advisor
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, is_peer_advisor_manager, is_peer_advisor, \
+    has_peer_advising_role_type
 from boac.lib.sis_advising import (
     get_legacy_attachment_stream,
     get_sis_advising_attachments,
@@ -54,7 +55,6 @@ from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
-from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from flask import current_app as app
 from flask_login import current_user
 import pytz
@@ -79,14 +79,11 @@ def can_current_user_edit_note(note):
         can_edit_note = True
     elif note.peer_advising_department_id:
         def _has_peer_advising_role_type(_role_type):
-            has_role_type = False
-            user_id = current_user.get_id()
-            memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id)
-            for membership in memberships:
-                if membership['role_type'] == _role_type and membership['peer_advising_department_id'] == note.peer_advising_department_id:
-                    has_role_type = True
-                    break
-            return has_role_type
+            return has_peer_advising_role_type(
+                peer_advising_department_id=note.peer_advising_department_id,
+                peer_advising_role_type=_role_type,
+                user_id=current_user.get_id(),
+            )
         if is_peer_advisor_manager(current_user, note.peer_advising_department_id):
             can_edit_note = _has_peer_advising_role_type('peer_advisor_manager')
         elif is_author and is_peer_advisor(current_user):

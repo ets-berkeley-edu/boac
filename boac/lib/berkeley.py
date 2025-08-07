@@ -25,6 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import re
 
+from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
+
 """A utility module collecting logic specific to the Berkeley campus."""
 
 ACADEMIC_STANDING_DESCRIPTIONS = {
@@ -324,6 +326,16 @@ def has_any_membership_role(user, *roles):
             if next((m for m in department['memberships'] if m['role'] == role), False):
                 return True
     return False
+
+
+def has_peer_advising_role_type(peer_advising_department_id, peer_advising_role_type, user_id):
+    has_role_type = False
+    memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id)
+    for membership in memberships:
+        if membership['role_type'] == peer_advising_role_type and membership['peer_advising_department_id'] == peer_advising_department_id:
+            has_role_type = True
+            break
+    return has_role_type
 
 
 def is_peer_advisor_manager(user, peer_advising_department_id=None):
