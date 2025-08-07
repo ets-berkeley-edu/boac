@@ -32,7 +32,7 @@ from boac.api.util import get_boac_note_as_compatible_json, get_note_attachments
     get_note_author_profile_of_current_user, get_note_topics_from_http_post, validate_note_contact_type
 from boac.externals import data_loch
 from boac.externals.data_loch import get_basic_student_data
-from boac.lib.berkeley import has_peer_advising_role_type, is_peer_advisor, sis_term_id_for_name, term_name_for_sis_id
+from boac.lib.berkeley import has_peer_advising_role_type, sis_term_id_for_name, term_name_for_sis_id
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, process_input_from_rich_text_editor, to_bool_or_none
 from boac.merged.advising_note import get_author_uid, get_boa_attachment_stream, can_current_user_edit_note
@@ -109,10 +109,21 @@ def get_enrollment_terms_by_sid(sid):
 
 
 @app.route('/api/peer_advisor/note/<note_id>/attachments', methods=['POST'])
-@peer_advisor_required
+@peer_advisor_or_peer_advisor_manager
 def add_peer_advising_attachments(note_id):
     note = Note.find_by_id(note_id=note_id)
-    is_authorized = is_peer_advisor(current_user) and get_author_uid(note) == current_user.uid
+    user_id = current_user.get_id()
+    is_authorized = get_author_uid(note) == current_user.uid \
+        or has_peer_advising_role_type(
+            peer_advising_department_id=note.peer_advising_department_id,
+            peer_advising_role_type='peer_advisor_manager',
+            user_id=user_id,
+        ) \
+        or has_peer_advising_role_type(
+            peer_advising_department_id=note.peer_advising_department_id,
+            peer_advising_role_type='peer_advisor',
+            user_id=user_id,
+        )
     if not is_authorized:
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
     attachments = get_note_attachments_from_http_post()
@@ -127,7 +138,7 @@ def add_peer_advising_attachments(note_id):
     return tolerant_jsonify(
         get_boac_note_as_compatible_json(
             note=note,
-            note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
+            note_read=NoteRead.find_or_create(user_id, note_id),
         ),
     )
 
