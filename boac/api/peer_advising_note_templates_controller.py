@@ -22,16 +22,21 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-from boac.api.decorators import (peer_advisor_manager_required, peer_advisor_or_peer_advisor_manager,
-                                 peer_advisor_or_peer_advisor_manager_in_department)
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
+
+from boac.api.decorators import (
+    peer_advisor_manager_required,
+    peer_advisor_or_peer_advisor_manager,
+    peer_advisor_or_peer_advisor_manager_in_department,
+)
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor
 from boac.models.note_template import NoteTemplate
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/peer_advising/note_template/create', methods=['POST'])

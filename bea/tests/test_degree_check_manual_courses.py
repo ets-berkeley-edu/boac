@@ -23,15 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+from flask import current_app as app
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.degree_progress.degree_check import DegreeCheck
 from bea.models.degree_progress.degree_check_perms import DegreeCheckPerms
 from bea.models.degree_progress.degree_completed_course import DegreeCompletedCourse
-from bea.test_utils import boa_degree_progress_utils
-from bea.test_utils import nessie_utils
-from bea.test_utils import utils
-from flask import current_app as app
-import pytest
+from bea.test_utils import boa_degree_progress_utils, nessie_utils, utils
 
 test = BEATestConfig()
 test.degree_check()

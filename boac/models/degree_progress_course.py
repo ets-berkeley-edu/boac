@@ -23,14 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from dateutil.tz import tzutc
+
 from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
 from boac.lib.util import is_float
 from boac.models.base import Base
 from boac.models.degree_progress_category_unit_requirement import DegreeProgressCategoryUnitRequirement
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
-from dateutil.tz import tzutc
-
 
 # TODO: Get hex codes from UX Dept.
 ACCENT_COLOR_CODES = {

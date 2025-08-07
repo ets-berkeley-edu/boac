@@ -25,14 +25,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import datetime
 import time
 
-from bea.models.cohorts_and_groups.cohort_filter import CohortFilter
-from bea.pages.filtered_students_page_results import FilteredStudentsPageResults
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
+
+from bea.models.cohorts_and_groups.cohort_filter import CohortFilter
+from bea.pages.filtered_students_page_results import FilteredStudentsPageResults
+from bea.test_utils import utils
 
 
 class FilteredStudentsPageFilters(FilteredStudentsPageResults):

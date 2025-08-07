@@ -23,13 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac import db, std_commit
-from boac.lib.util import utc_now, vacuum_whitespace
-from boac.models.base import Base
 from flask import current_app as app
 from sqlalchemy import and_, text
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.orm import deferred
+
+from boac import db, std_commit
+from boac.lib.util import utc_now, vacuum_whitespace
+from boac.models.base import Base
 
 generic_permission_type_enum = ENUM(
     'read',

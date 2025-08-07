@@ -26,13 +26,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import datetime
 import re
 
-from bea.config.bea_test_config import BEATestConfig
-from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
-from bea.test_utils import boa_utils
-from bea.test_utils import nessie_timeline_utils
-from bea.test_utils import utils
 import pytest
 
+from bea.config.bea_test_config import BEATestConfig
+from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
+from bea.test_utils import boa_utils, nessie_timeline_utils, utils
 
 test = BEATestConfig()
 test.appts_content()

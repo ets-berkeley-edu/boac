@@ -24,15 +24,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-from contextlib import contextmanager
-from functools import wraps
 import json
 import os
+from contextlib import contextmanager
+from functools import wraps
+
+import pandas
+from flask import current_app as app
 
 from boac.lib.util import fill_pattern_from_args
-from flask import current_app as app
-import pandas
-
 
 """This module stubs SQL-querying functions by a CSV-derived array of dicts in test or demo mode.
 

@@ -25,16 +25,16 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 import time
 
-from bea.models.advisor_role import AdvisorRole, PeerAdvisingRole
-from bea.models.department import Department
-from bea.models.department_membership import DepartmentMembership
-from bea.pages.pagination import Pagination
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+
+from bea.models.advisor_role import AdvisorRole, PeerAdvisingRole
+from bea.models.department import Department
+from bea.models.department_membership import DepartmentMembership
+from bea.pages.pagination import Pagination
+from bea.test_utils import boa_utils, utils
 
 
 class PassengerManifestPage(Pagination):

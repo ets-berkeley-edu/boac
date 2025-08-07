@@ -46,6 +46,7 @@ class TestSisTerms:
     def test_current_term_id_caching(self):
         """Fetches current term ID from the loch instead of cache when asked."""
         import json
+
         from boac.models import json_cache
         from boac.models.json_cache import JsonCache
 

@@ -23,12 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.pages.admit_pages import AdmitPages
-from bea.pages.curated_add_selector import CuratedAddSelector
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
+
+from bea.pages.admit_pages import AdmitPages
+from bea.pages.curated_add_selector import CuratedAddSelector
+from bea.test_utils import boa_utils, utils
 
 
 class AdmitPage(AdmitPages, CuratedAddSelector):

@@ -23,12 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as Coptions
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.options import Options as Foptions
+
+from bea.test_utils import utils
 
 
 class WebDriverManager(object):

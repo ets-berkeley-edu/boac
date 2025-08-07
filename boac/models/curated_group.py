@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from sqlalchemy import text
+
 from boac import db, std_commit
 from boac.lib.util import get_benchmarker
 from boac.merged.admitted_student import get_admitted_students_by_sids
@@ -30,7 +32,6 @@ from boac.merged.student import query_students
 from boac.models.base import Base
 from boac.models.cohort_filter import CohortFilter
 from boac.models.db_relationships import cohort_domain_type
-from sqlalchemy import text
 
 
 class CuratedGroup(Base):

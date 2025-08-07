@@ -27,17 +27,15 @@ import os
 import random
 import time
 
-from bea.config.bea_test_config import BEATestConfig
-from bea.models.notes_and_appts.note import Note
-from bea.models.notes_and_appts.topic import Topic
-from bea.models.notes_and_appts.topic import Topics
-from bea.test_utils import boa_utils
-from bea.test_utils import nessie_timeline_utils
-from bea.test_utils import utils
-from flask import current_app as app
 import pytest
+from flask import current_app as app
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
+
+from bea.config.bea_test_config import BEATestConfig
+from bea.models.notes_and_appts.note import Note
+from bea.models.notes_and_appts.topic import Topic, Topics
+from bea.test_utils import boa_utils, nessie_timeline_utils, utils
 
 
 @pytest.mark.usefixtures('page_objects')

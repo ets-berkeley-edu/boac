@@ -23,6 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
+
 from boac.api.decorators import advisor_required
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
 from boac.lib import util
@@ -30,8 +34,6 @@ from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_sections import get_sis_section
 from boac.merged.student import get_course_student_profiles
 from boac.models.alert import Alert
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/section/<term_id>/<section_id>')

@@ -23,6 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+from flask import current_app as app
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.cohorts_and_groups.cohort import Cohort
 from bea.models.notes_and_appts.note import Note
@@ -30,8 +33,6 @@ from bea.models.notes_and_appts.note_batch import NoteBatch
 from bea.models.notes_and_appts.note_template import NoteTemplate
 from bea.models.notes_and_appts.topic import Topic, Topics
 from bea.test_utils import boa_utils
-from flask import current_app as app
-import pytest
 
 
 @pytest.mark.usefixtures('page_objects')

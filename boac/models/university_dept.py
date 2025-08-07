@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from sqlalchemy.sql import text
+
 from boac import db, std_commit
 from boac.models.base import Base
-from sqlalchemy.sql import text
 
 
 class UniversityDept(Base):

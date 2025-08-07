@@ -25,9 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db, std_commit
 from dateutil.tz import tzutc
 from sqlalchemy import and_
+
+from boac import db, std_commit
 
 
 class AppointmentRead(db.Model):

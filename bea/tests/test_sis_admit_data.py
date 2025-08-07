@@ -25,10 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import datetime
 import re
 
-from bea.config.bea_test_config import BEATestConfig
-from bea.test_utils import nessie_utils
-from bea.test_utils import utils
 import pytest
+
+from bea.config.bea_test_config import BEATestConfig
+from bea.test_utils import nessie_utils, utils
 
 test = BEATestConfig()
 test.sis_admit_data()

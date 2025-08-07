@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+
 from bea.config.bea_test_base_configs import BEATestBaseConfigs
 from bea.config.bea_test_case import BEATestCase
 from bea.models.cohorts_and_groups.cohort_filter import CohortFilter
@@ -30,11 +32,7 @@ from bea.models.cohorts_and_groups.filtered_cohort import FilteredCohort
 from bea.models.department import Department
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.term import Term
-from bea.test_utils import boa_utils
-from bea.test_utils import nessie_timeline_utils
-from bea.test_utils import nessie_utils
-from bea.test_utils import utils
-from flask import current_app as app
+from bea.test_utils import boa_utils, nessie_timeline_utils, nessie_utils, utils
 
 
 class BEATestConfig(BEATestBaseConfigs):

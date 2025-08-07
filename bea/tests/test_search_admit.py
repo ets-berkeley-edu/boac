@@ -25,12 +25,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import datetime
 
+import pytest
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.department import Department
-from bea.test_utils import boa_utils
-from bea.test_utils import nessie_utils
-from bea.test_utils import utils
-import pytest
+from bea.test_utils import boa_utils, nessie_utils, utils
 
 test = BEATestConfig()
 test.search_admits()

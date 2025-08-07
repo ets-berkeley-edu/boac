@@ -23,13 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from selenium.webdriver.common.by import By
+
 from bea.pages.curated_add_selector import CuratedAddSelector
 from bea.pages.curated_modal import CuratedModal
 from bea.pages.list_view_student_pages import ListViewStudentPages
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
-from flask import current_app as app
-from selenium.webdriver.common.by import By
+from bea.test_utils import boa_utils, utils
 
 
 class ClassPage(ListViewStudentPages,

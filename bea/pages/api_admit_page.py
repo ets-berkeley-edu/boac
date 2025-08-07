@@ -24,10 +24,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import json
 
-from bea.pages.api_page import ApiPage
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
 from flask import current_app as app
+
+from bea.pages.api_page import ApiPage
+from bea.test_utils import boa_utils, utils
 
 
 class ApiAdmitPage(ApiPage):

@@ -23,17 +23,26 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 import json
 import random
 import string
+from datetime import datetime
+
+from flask import current_app as app
+from sqlalchemy.sql import text
 
 from boac import db, std_commit
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import utc_now
+
+# Models below are included so that db.create_all will find them.
+from boac.models.alert import Alert  # noqa: F401
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
+from boac.models.db_relationships import AlertView  # noqa: F401
+from boac.models.job_progress import JobProgress  # noqa: F401
+from boac.models.json_cache import JsonCache  # noqa: F401
 from boac.models.json_cache import insert_row as insert_in_json_cache
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
@@ -41,13 +50,6 @@ from boac.models.peer_advising_topic import PeerAdvisingTopic
 from boac.models.topic import Topic
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
-# Models below are included so that db.create_all will find them.
-from boac.models.alert import Alert  # noqa: F401
-from boac.models.db_relationships import AlertView  # noqa: F401
-from boac.models.job_progress import JobProgress  # noqa: F401
-from boac.models.json_cache import JsonCache  # noqa: F401
-from flask import current_app as app
-from sqlalchemy.sql import text
 
 deleted_admin_uid = '44444'
 deleted_user_uid = '33333'

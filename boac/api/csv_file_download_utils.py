@@ -25,9 +25,16 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+from flask_login import current_user
+
 from boac.api.decorators import ce3_required
-from boac.api.util import get_academic_standing, get_coe_status, get_college_advisors, \
-    get_current_user_cohorts_containing, get_current_user_curated_groups_containing
+from boac.api.util import (
+    get_academic_standing,
+    get_coe_status,
+    get_college_advisors,
+    get_current_user_cohorts_containing,
+    get_current_user_curated_groups_containing,
+)
 from boac.externals import data_loch
 from boac.externals.data_loch import get_admitted_students_by_sids, get_student_profiles
 from boac.lib.berkeley import dept_codes_where_advising, previous_term_id, term_name_for_sis_id
@@ -36,7 +43,6 @@ from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_term_gpas_by_sid, get_term_units_by_sid, merge_coe_student_profile_data
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
-from flask_login import current_user
 
 
 def get_students_csv_header_labels(term_id):

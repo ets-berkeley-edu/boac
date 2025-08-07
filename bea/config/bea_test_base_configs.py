@@ -24,9 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import calendar
-from datetime import datetime as dt
 import os
 import random
+from datetime import datetime as dt
+
+from flask import current_app as app
 
 from bea.models.academic_standings import AcademicStandings
 from bea.models.advisor_role import AdvisorRole, PeerAdvisingRole
@@ -43,13 +45,7 @@ from bea.models.incomplete_grades import IncompleteGrades
 from bea.models.notes_and_appts.note_attachment import NoteAttachment
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.user import User
-from bea.test_utils import boa_utils
-from bea.test_utils import nessie_filter_admits_utils
-from bea.test_utils import nessie_filter_students_utils
-from bea.test_utils import nessie_timeline_utils
-from bea.test_utils import nessie_utils
-from bea.test_utils import utils
-from flask import current_app as app
+from bea.test_utils import boa_utils, nessie_filter_admits_utils, nessie_filter_students_utils, nessie_timeline_utils, nessie_utils, utils
 
 
 class BEATestBaseConfigs(object):

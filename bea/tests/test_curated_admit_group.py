@@ -25,14 +25,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import datetime
 import random
 
+import pytest
+from flask import current_app as app
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.cohorts_and_groups.cohort import Cohort
 from bea.models.department import Department
-from bea.test_utils import boa_utils
-from bea.test_utils import nessie_utils
-from bea.test_utils import utils
-from flask import current_app as app
-import pytest
+from bea.test_utils import boa_utils, nessie_utils, utils
 
 
 @pytest.mark.usefixtures('page_objects')

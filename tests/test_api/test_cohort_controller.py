@@ -23,14 +23,21 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import simplejson as json
+
 from boac import std_commit
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
-import simplejson as json
-from tests.test_api.api_test_utils import all_cohorts_owned_by, api_cohort_create, api_cohort_events, \
-    api_curated_group_add_students, api_curated_group_remove_student, api_get_cohort
+from tests.test_api.api_test_utils import (
+    all_cohorts_owned_by,
+    api_cohort_create,
+    api_cohort_events,
+    api_curated_group_add_students,
+    api_curated_group_remove_student,
+    api_get_cohort,
+)
 
 admin_uid = '177473'
 asc_advisor_uid = '1081940'

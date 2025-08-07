@@ -23,8 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 import json
+from datetime import datetime
+
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
 
 from boac.api.errors import BadRequestError
 from boac.externals.data_loch import get_sis_holds
@@ -34,8 +38,7 @@ from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes, note_to_compatible_json
 from boac.merged.calnet import get_calnet_user_for_uid
-from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC, \
-    CohortFilterOptions
+from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC, CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
@@ -46,8 +49,6 @@ from boac.models.note import Note, note_contact_type_enum
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.user_login import UserLogin
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 def can_access_admitted_students(user):

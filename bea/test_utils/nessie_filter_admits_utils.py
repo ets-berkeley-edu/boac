@@ -23,10 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.test_utils import utils
-from boac.externals import data_loch
 from flask import current_app as app
 
+from bea.test_utils import utils
+from boac.externals import data_loch
 
 # SELECT FROM
 

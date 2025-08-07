@@ -24,13 +24,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import random
 
+import pytest
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.degree_progress.degree_check import DegreeCheck
 from bea.models.degree_progress.degree_check_perms import DegreeCheckPerms
-from bea.test_utils import boa_degree_progress_utils
-from bea.test_utils import nessie_utils
-from bea.test_utils import utils
-import pytest
+from bea.test_utils import boa_degree_progress_utils, nessie_utils, utils
 
 test = BEATestConfig()
 test.degree_check(opts={'enrolled': True})

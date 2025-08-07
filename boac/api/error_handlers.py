@@ -23,8 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import jsonify
+
 import boac.api.errors
-from flask import current_app as app, jsonify
 
 
 @app.errorhandler(boac.api.errors.BadRequestError)

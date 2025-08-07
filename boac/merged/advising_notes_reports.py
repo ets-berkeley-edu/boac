@@ -25,14 +25,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+from flask import current_app as app
+from sqlalchemy import text
+
 from boac import db
 from boac.externals import data_loch
 from boac.externals.data_loch import get_student_degrees_report
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.merged.sis_terms import current_term_id
 from boac.models.note import Note
-from flask import current_app as app
-from sqlalchemy import text
 
 
 def low_assignment_scores(term_id=None):

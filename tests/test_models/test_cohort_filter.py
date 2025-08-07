@@ -23,11 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+
 from boac import std_commit
 from boac.api.errors import InternalServerError
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
-import pytest
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 
 asc_advisor_uid = '2040'

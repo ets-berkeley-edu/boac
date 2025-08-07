@@ -23,6 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import request
+from flask_login import current_user, login_required
+
 from boac.api.decorators import advising_data_access_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import get_note_attachments_from_http_post, get_note_topics_from_http_post
@@ -31,8 +35,6 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
 from boac.models.note import Note
 from boac.models.note_template import NoteTemplate
-from flask import current_app as app, request
-from flask_login import current_user, login_required
 
 
 @app.route('/api/note_template/create', methods=['POST'])

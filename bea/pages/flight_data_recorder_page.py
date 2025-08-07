@@ -24,12 +24,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import time
 
-from bea.pages.boa_pages import BoaPages
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+
+from bea.pages.boa_pages import BoaPages
+from bea.test_utils import boa_utils, utils
 
 
 class FlightDataRecorderPage(BoaPages):

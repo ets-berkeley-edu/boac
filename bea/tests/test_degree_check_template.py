@@ -23,13 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+from selenium.webdriver.common.by import By
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.degree_progress.degree_check_perms import DegreeCheckPerms
 from bea.models.degree_progress.degree_check_template import DegreeCheckTemplate
-from bea.test_utils import boa_degree_progress_utils
-from bea.test_utils import utils
-import pytest
-from selenium.webdriver.common.by import By
+from bea.test_utils import boa_degree_progress_utils, utils
 
 test = BEATestConfig()
 test.degree_check()

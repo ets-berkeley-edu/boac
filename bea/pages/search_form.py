@@ -25,10 +25,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import time
 
-from bea.pages.page import Page
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
+
+from bea.pages.page import Page
+from bea.test_utils import utils
 
 
 class SearchForm(Page):

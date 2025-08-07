@@ -25,10 +25,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import io
 
+import pytest
+
 from boac.externals import data_loch
 from boac.lib.mockingdata import MockRows, register_mock
 from boac.merged.sis_sections import get_sis_section
-import pytest
 
 
 @pytest.mark.usefixtures('db_session')

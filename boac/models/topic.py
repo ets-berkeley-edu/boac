@@ -25,9 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
+from sqlalchemy import text
+
 from boac import db, std_commit
 from boac.lib.util import to_iso_format, utc_now
-from sqlalchemy import text
 
 
 class Topic(db.Model):

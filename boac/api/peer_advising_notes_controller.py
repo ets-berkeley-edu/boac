@@ -25,17 +25,26 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import urllib.parse
 
-from boac.api.decorators import advising_data_access_required, peer_advisor_or_peer_advisor_manager, \
-    peer_advisor_required
+from flask import Response, request
+from flask import current_app as app
+from flask_login import current_user
+
+from boac.api.decorators import advising_data_access_required, peer_advisor_or_peer_advisor_manager, peer_advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import get_boac_note_as_compatible_json, get_note_attachments_from_http_post, \
-    get_note_author_profile_of_current_user, get_note_topics_from_http_post, validate_note_contact_type
+from boac.api.util import (
+    get_boac_note_as_compatible_json,
+    get_note_attachments_from_http_post,
+    get_note_author_profile_of_current_user,
+    get_note_topics_from_http_post,
+    validate_note_contact_type,
+)
 from boac.externals import data_loch
 from boac.externals.data_loch import get_basic_student_data
 from boac.lib.berkeley import has_peer_advising_role_type, sis_term_id_for_name, term_name_for_sis_id
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import get as get_param, process_input_from_rich_text_editor, to_bool_or_none
-from boac.merged.advising_note import get_author_uid, get_boa_attachment_stream, can_current_user_edit_note
+from boac.lib.util import get as get_param
+from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
+from boac.merged.advising_note import can_current_user_edit_note, get_author_uid, get_boa_attachment_stream
 from boac.merged.sis_terms import future_term_id
 from boac.merged.student import merge_enrollment_terms
 from boac.models.authorized_user import AuthorizedUser
@@ -45,8 +54,6 @@ from boac.models.note_read import NoteRead
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.peer_advising_topic import PeerAdvisingTopic
 from boac.routes import login_manager
-from flask import current_app as app, request, Response
-from flask_login import current_user
 
 
 @app.route('/api/peer_advising/note_topics')

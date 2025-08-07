@@ -26,12 +26,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 from unittest import mock
 
+import cas
+
 from boac import std_commit
 from boac.lib.berkeley import is_peer_advisor, is_peer_advisor_manager
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept_member import UniversityDeptMember
 from boac.models.user_login import UserLogin
-import cas
 from tests.util import override_config, pause_mock_sts
 
 admin_uid = '177473'

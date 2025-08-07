@@ -25,14 +25,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import time
 
-from bea.pages.cohort_pages import CohortPages
-from bea.pages.curated_modal import CuratedModal
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait as Wait
+
+from bea.pages.cohort_pages import CohortPages
+from bea.pages.curated_modal import CuratedModal
+from bea.test_utils import boa_utils, utils
 
 
 class CuratedPages(CohortPages, CuratedModal):

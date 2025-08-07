@@ -23,22 +23,23 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import re
 from contextlib import contextmanager
 from datetime import datetime
 from functools import reduce
 from itertools import groupby
 from operator import itemgetter
-import re
+
+import psycopg2
+import psycopg2.extras
+from flask import current_app as app
+from psycopg2.pool import ThreadedConnectionPool
+from sqlalchemy.sql import text
 
 from boac import db
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS, previous_term_id, sis_term_id_for_name
 from boac.lib.mockingdata import fixture
 from boac.lib.util import join_if_present, tolerant_remove
-from flask import current_app as app
-import psycopg2
-import psycopg2.extras
-from psycopg2.pool import ThreadedConnectionPool
-from sqlalchemy.sql import text
 
 connection_pool = None
 

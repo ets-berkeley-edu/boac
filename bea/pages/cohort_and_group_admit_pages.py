@@ -23,11 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from selenium.webdriver.common.by import By
+
 from bea.pages.cohort_pages import CohortPages
 from bea.pages.list_view_admit_pages import ListViewAdmitPages
 from bea.test_utils import utils
-from flask import current_app as app
-from selenium.webdriver.common.by import By
 
 
 class CohortAndGroupAdmitPages(CohortPages, ListViewAdmitPages):

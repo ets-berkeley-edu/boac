@@ -23,12 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import request
+
 from boac.api.decorators import ce3_required
 from boac.api.errors import ResourceNotFoundError
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.merged.admitted_student import get_admitted_student_by_sid, query_admitted_students
-from flask import current_app as app, request
 
 
 @app.route('/api/admit/by_sid/<sid>')

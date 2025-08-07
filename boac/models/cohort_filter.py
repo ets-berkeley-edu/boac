@@ -25,6 +25,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+from flask import current_app as app
+from flask_login import current_user
+from sqlalchemy import text
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.orm import deferred, undefer
+
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
 from boac.lib import util
@@ -39,11 +45,6 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.cohort_filter_event import CohortFilterEvent
 from boac.models.db_relationships import cohort_domain_type
-from flask import current_app as app
-from flask_login import current_user
-from sqlalchemy import text
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
-from sqlalchemy.orm import deferred, undefer
 
 
 class CohortFilter(Base):

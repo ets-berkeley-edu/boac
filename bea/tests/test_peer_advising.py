@@ -24,15 +24,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 from datetime import datetime
 
+import pytest
+from flask import current_app as app
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.department import Department
 from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_template import NoteTemplate
 from bea.models.notes_and_appts.topic import PeerTopics, Topic
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
-from flask import current_app as app
-import pytest
+from bea.test_utils import boa_utils, utils
 
 # Test users L&S - they will own the notes
 test_ls = BEATestConfig()

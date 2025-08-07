@@ -24,12 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 from datetime import datetime
 
+from flask import current_app as app
+from sqlalchemy import text
+
 from bea.models.degree_progress.degree_check import DegreeCheck
 from bea.models.degree_progress.degree_check_template import DegreeCheckTemplate
 from bea.test_utils import utils
 from boac import db, std_commit
-from flask import current_app as app
-from sqlalchemy import text
 
 
 def get_degree_templates():

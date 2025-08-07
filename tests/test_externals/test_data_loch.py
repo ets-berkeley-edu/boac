@@ -23,13 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from decimal import Decimal
 import io
+from decimal import Decimal
+
+import pytest
 
 from boac.externals import data_loch
 from boac.externals.data_loch import get_user_permissions_per_affiliations
 from boac.lib.mockingdata import MockRows, register_mock
-import pytest
 
 
 @pytest.mark.usefixtures('db_session')

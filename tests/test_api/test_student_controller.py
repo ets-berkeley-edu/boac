@@ -22,12 +22,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+import pytest
+import simplejson as json
+from flask_login import logout_user
+
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
-from flask_login import logout_user
-import pytest
-import simplejson as json
 
 admin_with_cohorts_uid = '177473'
 asc_advisor_uid = '1081940'

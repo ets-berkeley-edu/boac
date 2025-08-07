@@ -23,11 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from datetime import date
 
-from boac.models.job_progress import JobProgress
 import pytest
+
+from boac.models.job_progress import JobProgress
 
 
 @pytest.mark.usefixtures('db_session')

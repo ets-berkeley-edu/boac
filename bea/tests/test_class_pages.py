@@ -23,10 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+from flask import current_app as app
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.test_utils import utils
-from flask import current_app as app
-import pytest
 
 test = BEATestConfig()
 test.class_pages()

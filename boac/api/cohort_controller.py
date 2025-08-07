@@ -23,24 +23,34 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
+
 from boac.api.decorators import advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import is_unauthorized_domain, is_unauthorized_search, construct_phantom_cohort, \
-    translate_filters_to_cohort_criteria, can_current_user_view_cohort
+from boac.api.util import (
+    can_current_user_view_cohort,
+    construct_phantom_cohort,
+    is_unauthorized_domain,
+    is_unauthorized_search,
+    translate_filters_to_cohort_criteria,
+)
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
+from boac.lib.util import get as get_param
+from boac.lib.util import get_benchmarker
+from boac.lib.util import to_bool_or_none as to_bool
 from boac.merged import calnet
 from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC
-from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
+from boac.merged.student import get_student_profile_summaries
+from boac.merged.student import get_student_query_scope as get_query_scope
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.cohort_filter_event import CohortFilterEvent
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/cohorts/by_dept_code/<dept_code>')

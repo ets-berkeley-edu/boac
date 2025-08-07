@@ -23,11 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.cohorts_and_groups.cohort import Cohort
 from bea.test_utils import utils
-import pytest
-
 
 test = BEATestConfig()
 test.user_role_notes_only()

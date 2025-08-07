@@ -23,15 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 import json
+from datetime import datetime
+
+import pytest
 
 from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
-import pytest
 
 coe_advisor_read_only_uid = '6972201'
 coe_advisor_read_write_uid = '1133399'

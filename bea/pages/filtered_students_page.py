@@ -23,17 +23,17 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.wait import WebDriverWait as Wait
+
 from bea.pages.cohort_and_group_student_pages import CohortAndGroupStudentPages
 from bea.pages.curated_add_selector import CuratedAddSelector
 from bea.pages.curated_modal import CuratedModal
 from bea.pages.filtered_students_page_filters import FilteredStudentsPageFilters
 from bea.pages.filtered_students_page_results import FilteredStudentsPageResults
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
-from flask import current_app as app
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait as Wait
+from bea.test_utils import boa_utils, utils
 
 
 class FilteredStudentsPage(CohortAndGroupStudentPages,

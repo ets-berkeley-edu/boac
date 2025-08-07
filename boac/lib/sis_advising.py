@@ -26,10 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from itertools import groupby
 from operator import itemgetter
 
-from boac.externals import data_loch, s3
 from dateutil.tz import tzutc
 from flask import current_app as app
 
+from boac.externals import data_loch, s3
 
 """A utility module collecting logic specific to SIS advising notes and appointments."""
 

@@ -23,8 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac import db, std_commit
 from sqlalchemy import and_
+
+from boac import db, std_commit
 
 
 class NoteTemplateTopic(db.Model):

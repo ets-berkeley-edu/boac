@@ -26,17 +26,17 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import re
 import time
 
+from flask import current_app as app
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.wait import WebDriverWait as Wait
+
 from bea.pages.class_page import ClassPage
 from bea.pages.curated_add_selector import CuratedAddSelector
 from bea.pages.student_page_advising_note import StudentPageAdvisingNote
 from bea.pages.student_page_appointment import StudentPageAppointment
 from bea.pages.student_page_e_form import StudentPageEForm
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
-from flask import current_app as app
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait as Wait
+from bea.test_utils import boa_utils, utils
 
 
 class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppointment, StudentPageEForm):

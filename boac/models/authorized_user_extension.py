@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from sqlalchemy.ext.declarative import declared_attr
+
 from boac import db, std_commit
 from boac.models.base import Base
-from sqlalchemy.ext.declarative import declared_attr
 
 
 class AuthorizedUserExtension(Base):

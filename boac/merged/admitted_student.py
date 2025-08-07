@@ -25,10 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from itertools import islice
 
-from boac.externals import data_loch
-from boac.lib.util import camelize, get_benchmarker
 from dateutil.tz import tzutc
 
+from boac.externals import data_loch
+from boac.lib.util import camelize, get_benchmarker
 
 """Provide merged admit data from external sources."""
 

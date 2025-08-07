@@ -23,26 +23,27 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 import glob
 import json
 import os
 import random
 import string
 import time
+from datetime import datetime
 
-from boac import std_commit
+import pytest
+from flask_login import logout_user
+from moto import mock_sts
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+
 import boac.factory
+from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_template import NoteTemplate
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.peer_advising_department import PeerAdvisingDepartment
-from flask_login import logout_user
-from moto import mock_sts
-import pytest
-from sqlalchemy.engine import Engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from tests.util import mock_advising_note_s3_bucket, override_config
 
 os.environ['BOAC_ENV'] = 'test'
@@ -426,11 +427,12 @@ def _create_user(
         has_calnet_record,
         is_admin,
 ):
+    from sqlalchemy import create_engine
+    from sqlalchemy.sql import text
+
     from boac.models.json_cache import insert_row as insert_in_json_cache
     from boac.models.university_dept import UniversityDept
     from boac.models.university_dept_member import UniversityDeptMember
-    from sqlalchemy import create_engine
-    from sqlalchemy.sql import text
 
     uid = str(round(time.time() * 1000))
     csid = datetime.now().strftime('%H%M%S%f')

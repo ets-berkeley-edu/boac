@@ -23,6 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
+
 from boac.api.auth_utils import is_authorized_peer_advisor_manager
 from boac.api.decorators import peer_advisor_manager_in_department, peer_advisor_manager_required, peer_advisor_required
 from boac.api.errors import ResourceNotFoundError
@@ -35,8 +39,6 @@ from boac.models.note import Note
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/peer_advising/create_peer_advisor', methods=['POST'])

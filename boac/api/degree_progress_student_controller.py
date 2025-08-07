@@ -25,13 +25,18 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
+from flask import current_app as app
+from flask import redirect, request
+from flask_login import current_user
+
 from boac.api.decorators import can_edit_degree_progress, can_read_degree_progress
 from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import normalize_accent_color
 from boac.externals.data_loch import get_basic_student_data, get_student_by_sid
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import get as get_param, is_int, to_bool_or_none, to_int_or_none
+from boac.lib.util import get as get_param
+from boac.lib.util import is_int, to_bool_or_none, to_int_or_none
 from boac.merged import calnet
 from boac.merged.sis_sections import get_sis_section
 from boac.models.degree_progress_category import DegreeProgressCategory
@@ -39,8 +44,6 @@ from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
-from flask import current_app as app, redirect, request
-from flask_login import current_user
 
 
 @app.route('/api/degree/check/batch', methods=['POST'])

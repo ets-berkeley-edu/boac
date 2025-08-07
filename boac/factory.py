@@ -25,12 +25,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import os
 
+from flask import Flask
+
 from boac import cache, db
 from boac.configs import load_configs
 from boac.lib.background import initialize_scheduler_loop
 from boac.logger import initialize_logger
 from boac.routes import register_routes
-from flask import Flask
 
 
 def create_app():

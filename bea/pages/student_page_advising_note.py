@@ -24,11 +24,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import csv
 import datetime
-from io import TextIOWrapper
 import itertools
 import re
 import time
 import zipfile
+from io import TextIOWrapper
+
+from flask import current_app as app
+from selenium.webdriver.common.by import By
 
 from bea.models.advisor_role import PeerAdvisingRole
 from bea.models.department import Department
@@ -36,10 +39,7 @@ from bea.models.notes_and_appts.timeline_e_form import TimelineEForm
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.pages.create_note_modal import CreateNoteModal
 from bea.pages.student_page_timeline import StudentPageTimeline
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
-from flask import current_app as app
-from selenium.webdriver.common.by import By
+from bea.test_utils import boa_utils, utils
 
 
 class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):

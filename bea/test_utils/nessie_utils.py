@@ -28,19 +28,17 @@ import itertools
 import json
 import re
 
+from flask import current_app as app
+
 from bea.models.academic_standings import AcademicStanding, AcademicStandings
 from bea.models.person import Person
-from bea.models.section import Section
-from bea.models.section import SectionEnrollment
-from bea.models.section import SectionMeeting
+from bea.models.section import Section, SectionEnrollment, SectionMeeting
 from bea.models.student import Student
 from bea.models.student_enrollment_data import EnrollmentData
 from bea.models.student_profile_data import Profile
 from bea.models.term import Term
 from bea.test_utils import utils
 from boac.externals import data_loch
-from flask import current_app as app
-
 
 # STUDENTS
 

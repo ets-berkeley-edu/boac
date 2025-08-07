@@ -23,21 +23,21 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
-from html.parser import HTMLParser
 import inspect
 import re
 import string
 import time
+from datetime import datetime
+from html.parser import HTMLParser
 
+import pytz
 from autolink import linkify
-from boac.externals import s3
 from dateutil.tz import tzutc
 from flask import current_app as app
 from nltk.stem.snowball import SnowballStemmer
-import pytz
 from titlecase import titlecase
 
+from boac.externals import s3
 
 """Generic utilities."""
 

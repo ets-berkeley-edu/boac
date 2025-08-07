@@ -27,9 +27,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import os
 import sys
 
+from sqlalchemy import text
+
 from boac import db
 from boac.lib import scriptify
-from sqlalchemy import text
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../..')))
 

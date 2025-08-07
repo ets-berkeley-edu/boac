@@ -25,15 +25,16 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import time
 
+import pytest
+from flask import current_app as app
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.wait import WebDriverWait as Wait
+
 from bea.pages.boa_pages import BoaPages
 from bea.pages.homepage import Homepage
 from bea.pages.page import Page
 from bea.test_utils import utils
-from flask import current_app as app
-import pytest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 
 class CalNetPage(Page):

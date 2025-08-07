@@ -26,8 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import os
 import ssl
 
-from boac.lib import mockingbird
 import ldap3
+
+from boac.lib import mockingbird
 
 SCHEMA_DICT = {
     'berkeleyEduAffiliations': 'affiliations',

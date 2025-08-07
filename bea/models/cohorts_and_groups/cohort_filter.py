@@ -23,13 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
+
+from flask import current_app as app
 
 from bea.models.department import Department
 from bea.models.squad import Squad
 from bea.test_utils import utils
-from flask import current_app as app
 
 
 class CohortFilter(object):

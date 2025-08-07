@@ -23,11 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from flask import current_app as app
+from sqlalchemy import text
+
 from boac import db
 from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
-from flask import current_app as app
-from sqlalchemy import text
 
 
 @app.route('/api/ping')

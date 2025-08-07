@@ -23,8 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 import json
+from datetime import datetime
+
+import pytest
+from sqlalchemy import create_engine, text
 
 from boac import std_commit
 from boac.externals.data_loch import get_student_by_sid, safe_execute_rds
@@ -33,8 +36,6 @@ from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
-import pytest
-from sqlalchemy import create_engine, text
 
 coe_advisor_read_only_uid = '6972201'
 coe_advisor_read_write_uid = '1133399'

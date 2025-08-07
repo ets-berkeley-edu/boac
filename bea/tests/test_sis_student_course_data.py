@@ -25,10 +25,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
+import pytest
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.cohorts_and_groups.cohort import Cohort
 from bea.test_utils import utils
-import pytest
 
 test = BEATestConfig()
 test.sis_student_data()

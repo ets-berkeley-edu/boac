@@ -25,16 +25,16 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from copy import deepcopy
 from datetime import datetime
 
+import pytest
+from flask import current_app as app
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.advisor_role import AdvisorRole
 from bea.models.department import Department
 from bea.models.department_membership import DepartmentMembership
 from bea.models.notes_and_appts.note_template import NoteTemplate
 from bea.models.notes_and_appts.topic import PeerTopics, Topic
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
-from flask import current_app as app
-import pytest
+from bea.test_utils import boa_utils, utils
 
 test_ls = BEATestConfig()
 test_ls.peer_advising(dept=Department.L_AND_S)

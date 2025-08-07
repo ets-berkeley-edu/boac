@@ -22,24 +22,28 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+from flask import current_app as app
+from flask import request
+from flask_login import current_user
+
 from boac.api.csv_file_download_utils import response_with_students_csv_download
 from boac.api.decorators import advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import is_unauthorized_domain
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import get as get_param, get_benchmarker
+from boac.lib.util import get as get_param
+from boac.lib.util import get_benchmarker
 from boac.merged import calnet
 from boac.merged.admitted_student import get_admitted_students_by_sids
 from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.sis_terms import current_term_id
-from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
+from boac.merged.student import get_student_profile_summaries
+from boac.merged.student import get_student_query_scope as get_query_scope
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
-from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/curated_groups/by_dept_code/<dept_code>')

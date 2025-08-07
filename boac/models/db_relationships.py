@@ -25,9 +25,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db
 from sqlalchemy.dialects.postgresql import ENUM
 
+from boac import db
 
 cohort_domain_type = ENUM(
     'default',

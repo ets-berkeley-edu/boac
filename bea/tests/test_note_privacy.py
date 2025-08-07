@@ -22,9 +22,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-from datetime import datetime
 import random
 import time
+from datetime import datetime
+
+import pytest
+from flask import current_app as app
 
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.advisor_role import AdvisorRole
@@ -35,11 +38,7 @@ from bea.models.notes_and_appts.note_batch import NoteBatch
 from bea.models.notes_and_appts.note_template import NoteTemplate
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.notes_and_appts.topic import Topic, Topics
-from bea.test_utils import boa_utils
-from bea.test_utils import nessie_timeline_utils
-from bea.test_utils import utils
-from flask import current_app as app
-import pytest
+from bea.test_utils import boa_utils, nessie_timeline_utils, utils
 
 test = BEATestConfig()
 test.user_role_advisor()

@@ -25,10 +25,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import datetime
 import time
 
-from bea.pages.student_page_advising_note import StudentPageAdvisingNote
-from bea.test_utils import utils
 from flask import current_app as app
 from selenium.webdriver.common.by import By
+
+from bea.pages.student_page_advising_note import StudentPageAdvisingNote
+from bea.test_utils import utils
 
 
 class PeerAdvisingNoteTable(StudentPageAdvisingNote):

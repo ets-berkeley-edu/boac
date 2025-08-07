@@ -25,11 +25,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import time
 
+from flask import current_app as app
+from selenium.webdriver.common.by import By
+
 from bea.pages.create_note_modal import CreateNoteModal
 from bea.pages.student_page_timeline import StudentPageTimeline
 from bea.test_utils import utils
-from flask import current_app as app
-from selenium.webdriver.common.by import By
 
 
 class StudentPageAppointment(StudentPageTimeline, CreateNoteModal):

@@ -25,13 +25,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+import pytest
+
 from boac import std_commit
 from boac.lib.berkeley import get_dept_codes
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
-import pytest
-
 
 admin_uid = '2040'
 coe_advisor_no_access_uid = '90412'

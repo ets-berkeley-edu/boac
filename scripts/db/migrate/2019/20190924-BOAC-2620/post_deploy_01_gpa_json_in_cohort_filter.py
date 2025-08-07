@@ -23,10 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from copy import deepcopy
 import json
 import os
 import sys
+from copy import deepcopy
 
 from boac.lib import scriptify
 

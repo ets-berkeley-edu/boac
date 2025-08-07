@@ -24,17 +24,17 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-from contextlib import contextmanager
-from functools import partial, wraps
 import json
 import os
 import re
 import urllib
+from contextlib import contextmanager
+from functools import partial, wraps
+
+import responses
+from flask import current_app as app
 
 from boac.lib.util import fill_pattern_from_args
-from flask import current_app as app
-import responses
-
 
 """This module wraps the responses package to return fake external API responses in test or demo mode.
 

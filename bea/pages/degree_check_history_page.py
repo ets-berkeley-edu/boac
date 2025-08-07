@@ -23,8 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from bea.pages.boa_pages import BoaPages
 from selenium.webdriver.common.by import By
+
+from bea.pages.boa_pages import BoaPages
 
 
 class DegreeCheckHistoryPage(BoaPages):

@@ -23,12 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac import db, std_commit
-from boac.models.base import Base
-from boac.models.university_dept import UniversityDept
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import ENUM
 
+from boac import db, std_commit
+from boac.models.base import Base
+from boac.models.university_dept import UniversityDept
 
 university_dept_member_role_type = ENUM(
     'advisor',

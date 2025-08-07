@@ -25,14 +25,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import datetime
 from datetime import timedelta
 
+import pytest
+from flask import current_app as app
+
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.notes_and_appts.topic import Topics
-from bea.test_utils import nessie_timeline_utils
-from bea.test_utils import utils
-from flask import current_app as app
-import pytest
-
+from bea.test_utils import nessie_timeline_utils, utils
 
 test = BEATestConfig()
 test.search_notes()

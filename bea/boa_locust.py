@@ -12,18 +12,18 @@ In your browser, go to localhost:8089 to start tests and view charts.
 Visit https://locust.io for more information.
 """
 
-from itertools import groupby
 import os
 import random
+from itertools import groupby
 
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
+from locust import HttpUser, TaskSet, between, task
+from pyquery import PyQuery
+from sqlalchemy import text
+
+from bea.test_utils import boa_utils, utils
 from boac import db, std_commit
 from boac.externals import data_loch
 from boac.factory import create_app
-from locust import between, HttpUser, task, TaskSet
-from pyquery import PyQuery
-from sqlalchemy import text
 
 os.environ['BOAC_ENV'] = 'bea'
 

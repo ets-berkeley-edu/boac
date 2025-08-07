@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from selenium.webdriver.common.by import By
+
 from bea.pages.boa_pages import BoaPages
 from bea.test_utils import utils
-from selenium.webdriver.common.by import By
 
 
 class EveryoneCohortsPage(BoaPages):

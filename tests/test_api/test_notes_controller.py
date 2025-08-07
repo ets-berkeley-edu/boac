@@ -22,9 +22,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-from datetime import date, datetime
 import json
+from datetime import date, datetime
 from urllib.parse import quote
+
+import pytest
+from flask_login import logout_user
 
 from boac.lib.util import localize_datetime, utc_now
 from boac.models.authorized_user import AuthorizedUser
@@ -34,8 +37,6 @@ from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
-from flask_login import logout_user
-import pytest
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 from tests.util import mock_advising_note_s3_bucket, mock_eop_note_attachment, mock_sis_note_attachment
 

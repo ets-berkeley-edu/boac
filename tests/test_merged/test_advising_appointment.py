@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.merged.advising_appointment import get_advising_appointments, search_advising_appointments
 
-
 student_sid = '11667051'
 
 

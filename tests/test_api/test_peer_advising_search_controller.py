@@ -23,8 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.models.peer_advising_department import PeerAdvisingDepartment
 import simplejson as json
+
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 
 ce3_navcal_peer_advisor_uid = '1133400'
 

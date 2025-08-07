@@ -22,11 +22,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-from datetime import date
-from datetime import datetime
-from datetime import timedelta
 import random
 import time
+from datetime import date, datetime, timedelta
+
+import pytest
+from flask import current_app as app
 
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.advisor_role import AdvisorRole
@@ -36,10 +37,7 @@ from bea.models.department_membership import DepartmentMembership
 from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_batch import NoteBatch
 from bea.models.notes_and_appts.topic import Topic, Topics
-from bea.test_utils import boa_utils
-from bea.test_utils import utils
-from flask import current_app as app
-import pytest
+from bea.test_utils import boa_utils, utils
 
 
 @pytest.mark.usefixtures('page_objects')
