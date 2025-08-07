@@ -32,7 +32,7 @@ from boac.api.util import get_boac_note_as_compatible_json, get_note_attachments
     get_note_author_profile_of_current_user, get_note_topics_from_http_post, validate_note_contact_type
 from boac.externals import data_loch
 from boac.externals.data_loch import get_basic_student_data
-from boac.lib.berkeley import is_peer_advisor, sis_term_id_for_name, term_name_for_sis_id
+from boac.lib.berkeley import has_peer_advising_role_type, is_peer_advisor, sis_term_id_for_name, term_name_for_sis_id
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, process_input_from_rich_text_editor, to_bool_or_none
 from boac.merged.advising_note import get_author_uid, get_boa_attachment_stream, can_current_user_edit_note
@@ -133,7 +133,7 @@ def add_peer_advising_attachments(note_id):
 
 
 @app.route('/api/peer_advisor/note/attachment/<attachment_id>', methods=['GET'])
-@peer_advisor_required
+@peer_advisor_or_peer_advisor_manager
 def download_peer_advising_note_attachment(attachment_id):
     attachment_id = int(attachment_id)
     attachment = NoteAttachment.find_by_id(attachment_id)
@@ -141,7 +141,19 @@ def download_peer_advising_note_attachment(attachment_id):
         raise ResourceNotFoundError('Note not found')
     # Auth check
     note = attachment.note
-    if get_author_uid(note) != current_user.uid:
+    user_id = current_user.get_id()
+    is_authorized = get_author_uid(note) == current_user.uid \
+        or has_peer_advising_role_type(
+            peer_advising_department_id=note.peer_advising_department_id,
+            peer_advising_role_type='peer_advisor_manager',
+            user_id=user_id,
+        ) \
+        or has_peer_advising_role_type(
+            peer_advising_department_id=note.peer_advising_department_id,
+            peer_advising_role_type='peer_advisor',
+            user_id=user_id,
+        )
+    if not is_authorized:
         return login_manager.unauthorized()
     stream_data = get_boa_attachment_stream(attachment)
     if not stream_data or not stream_data['stream']:
