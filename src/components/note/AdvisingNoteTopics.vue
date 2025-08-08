@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label :id="`note-topics-label-${noteId}`" class="font-size-16 font-weight-bold">
+    <label :id="`note-topics-label-${noteId}`" class="font-size-16 font-weight-bold text-medium-emphasis">
       Topic {{ size(options) === 1 ? 'Category' : 'Categories' }}
     </label>
     <div v-if="!readOnly && size(options)" class="mb-1 mt-2">
