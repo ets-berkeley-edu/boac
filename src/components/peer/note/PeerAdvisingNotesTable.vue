@@ -1,6 +1,6 @@
 <template>
   <div class="peer-advising-table-wrapper">
-    <slot v-if="!size(notes)" name="noData" />
+    <slot v-if="!size(notes) && !isFetchingNotes" name="noData" />
     <table
       v-if="size(notes)"
       id="notes-for-peer-advisor-view"
@@ -235,6 +235,10 @@ const props = defineProps({
   notes: {
     required: true,
     type: Array<Note>
+  },
+  isFetchingNotes: {
+    required: true,
+    type: Boolean
   }
 })
 

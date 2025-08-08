@@ -3,13 +3,30 @@
     <div class="d-flex justify-space-between">
       <div>
         <h1 id="page-header">Peer Advising Search</h1>
+        <div class="notes-toggle">
+          <span class="show-notes">Show Notes: All</span>
+          <v-switch
+            v-model="showMyNotesOnly"
+            class="switch"
+            label="Me"
+            color="indigo"
+            :disabled="isFetchingNotes"
+          />
+          <SectionSpinner :loading="isFetchingNotes" />
+        </div>
         <div class="d-flex align-center">
-          {{ phrase }}&nbsp;<span class="font-weight-bold">{{ queryText }}</span>
+          <span v-if="!isFetchingNotes">
+            {{ phrase }}&nbsp;<span class="font-weight-bold">{{ queryText }}</span>
+          </span>
+          <span v-if="isFetchingNotes">
+            Searching Notes...
+          </span>
           <span :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
           <v-btn
             class="text-anchor mx-1 px-1"
             role="link"
             variant="text"
+            :disabled="isFetchingNotes"
             @click="clearResults"
           >
             Return to Home
@@ -18,7 +35,11 @@
       </div>
     </div>
     <div>
-      <PeerAdvisingNotesTable :after-note-edit="afterNoteEdit" :notes="notes">
+      <PeerAdvisingNotesTable
+        :after-note-edit="afterNoteEdit"
+        :notes="notes"
+        :is-fetching-notes="isFetchingNotes"
+      >
         <template #studentName="{note}">
           <router-link
             v-if="currentUser.isAdmin"
@@ -49,7 +70,7 @@
 
 <script setup lang="ts">
 import {findIndex, get, orderBy, size} from 'lodash'
-import {onMounted, onUnmounted, ref} from 'vue'
+import {onMounted, onUnmounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import type {BoaUser, Note} from '@/lib/types'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
@@ -76,6 +97,16 @@ const route = useRoute()
 const router = useRouter()
 const searchStore = useSearchStore()
 const totalNoteCount = ref(0)
+const showMyNotesOnly = ref(false)
+
+watch(showMyNotesOnly, async () => {
+  // clear out the old notes and set loading
+  notes.value = []
+  totalNoteCount.value = 0
+  isFetchingNotes.value = true
+  // fetch fresh data filtered by the new switch state
+  search()
+})
 
 const queryText = ref(searchStore.queryText)
 
@@ -118,6 +149,8 @@ const afterNoteEdit = (noteId: number) => {
 const getStudentName = (note: Note) => note.student.lastName ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.student.sid}`
 
 const search = () => {
+  peerAdvisor.value = contextStore.currentUser
+
   // Peer Advisors can belong to one and only one Peer Advising Department.
   const memberships = getPeerAdvisorDepartmentMemberships(peerAdvisor.value, 'peer_advisor')
   peerAdvisingDepartmentId.value = memberships.length ? memberships[0].peerAdvisingDepartmentId : undefined
@@ -129,7 +162,9 @@ const search = () => {
       searchStore.queryText,
       peerAdvisingDepartmentId.value,
       offset.value,
-      LIMIT_PER_FETCH
+      LIMIT_PER_FETCH,
+      peerAdvisor.value.uid,
+      showMyNotesOnly.value
     ).then(data => {
       const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0].id}`
       notes.value = orderBy(data.notes, ['createdAt'], ['desc'])
@@ -157,3 +192,20 @@ const showMoreNotes = () => {
   search()
 }
 </script>
+
+<style scoped>
+.notes-toggle {
+  display: flex;
+  height: 30px;
+}
+
+.show-notes {
+  //margin-left: 10px;
+}
+
+.switch {
+  position: relative;
+  top: -16px;
+  margin-left: 10px;
+}
+</style>

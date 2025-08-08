@@ -3,8 +3,22 @@
     <div class="d-flex flex-wrap justify-space-between">
       <div>
         <h1 id="page-header" class="mb-0">Peer Advising Notes</h1>
+        <div class="notes-toggle">
+          <span class="show-notes">Show Notes: All</span>
+          <v-switch
+            v-model="showMyNotesOnly"
+            class="switch"
+            label="Me"
+            color="indigo"
+            :disabled="isFetchingNotes"
+          />
+          <SectionSpinner :loading="isFetchingNotes" />
+        </div>
         <div id="notes-description">
           <span v-if="!isFetchingNotes && notes.length">{{ notesDescription }}</span>
+          <span v-if="isFetchingNotes">
+            Loading...
+          </span>
         </div>
       </div>
       <div v-if="!currentUser.isAdmin" class="d-flex align-end">
@@ -25,7 +39,11 @@
       </div>
     </div>
     <div class="w-100">
-      <PeerAdvisingNotesTable :after-note-edit="fetchNotes" :notes="notes">
+      <PeerAdvisingNotesTable
+        :notes="notes"
+        :is-fetching-notes="isFetchingNotes"
+        :after-note-edit="fetchNotes"
+      >
         <template #studentName="{note}">
           <router-link
             v-if="currentUser.isAdmin"
@@ -72,7 +90,7 @@
 import type {Handler} from 'mitt'
 import {findIndex, get, last, orderBy} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
-import {onMounted, onUnmounted, ref} from 'vue'
+import {onMounted, onUnmounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import type {BasicStudent, BoaUser, Note} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
@@ -102,6 +120,15 @@ const peerAdvisor = ref<BoaUser>()
 const route = useRoute()
 const router = useRouter()
 const totalNoteCount = ref(0)
+const showMyNotesOnly = ref(false)
+
+watch(showMyNotesOnly, async () => {
+  // clear out the old notes and set loading
+  notes.value = []
+  isFetchingNotes.value = true
+  // fetch fresh data filtered by the new switch state
+  await fetchNotes()
+})
 
 contextStore.loadingStart('Peer advising home page is loading')
 
@@ -129,7 +156,8 @@ const fetchNotes = () => {
         offset.value,
         LIMIT_PER_FETCH,
         peerAdvisor.value.uid,
-        true
+        true,
+        showMyNotesOnly.value
       ).then(data => {
         notes.value = orderBy([...notes.value, ...data.notes], ['createdAt'], ['desc'])
         totalNoteCount.value = data.totalNoteCount
@@ -183,9 +211,11 @@ const onClickCreateNote = () => {
 
 const onClickShowMore = () => {
   alertScreenReader('Loading additional notes')
+  isFetchingNotes.value = true
   fetchNotes().then(() => {
     alertScreenReader(notesDescription.value)
     putFocusNextTick(`tr-peer-advisor-note-${get(last(notes.value), 'id')}`)
+    isFetchingNotes.value = false
   })
 }
 
@@ -198,3 +228,26 @@ const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
   })
 }
 </script>
+
+
+<style scoped>
+#notes-description {
+  display: flex;
+}
+
+.notes-toggle {
+  display: flex;
+  height: 30px;
+}
+
+.show-notes {
+  //margin-left: 10px;
+}
+
+.switch {
+  position: relative;
+  top: -16px;
+  margin-left: 10px;
+}
+
+</style>

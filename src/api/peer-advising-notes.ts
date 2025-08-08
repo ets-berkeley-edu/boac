@@ -34,9 +34,13 @@ export async function getPeerAdvisorNotes(
   offset: number,
   limit: number,
   uid: string,
-  includeStudents?: boolean
+  includeStudents?: boolean,
+  onlyMyNotes?: boolean
 ) {
-  const params = `offset=${offset}&limit=${limit}&includeStudents=${includeStudents}`
+  let params = `offset=${offset}&limit=${limit}&includeStudents=${includeStudents}`
+  if (onlyMyNotes) {
+    params += `&peerAdvisorNotes=${uid}`
+  }
   const url: string = `${utils.apiBaseUrl()}/api/peer_advisor/${uid}/notes?${params}`
   return axios.get(url).then(response => response.data)
 }
