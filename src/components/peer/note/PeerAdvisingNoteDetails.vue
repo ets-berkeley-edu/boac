@@ -7,11 +7,11 @@
         <div v-if="note.subject && note.body" class="open-note-message-container pt-2">
           <span :id="`note-${note.id}-message-open`" v-html="note.body" />
         </div>
-        <div v-if="note.topics && size(note.topics)" class="mt-4">
+        <div v-if="note.topics && size(note.topics)" class="mt-5">
           <AdvisingNoteTopics :note="note" read-only />
         </div>
-        <div v-if="note.contactType" class="mt-4">
-          <div class="font-size-16 font-weight-bold">Contact Type</div>
+        <div v-if="note.contactType" class="mt-5">
+          <div class="font-size-16 font-weight-bold text-medium-emphasis">Contact Type</div>
           <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
         </div>
       </div>
@@ -19,7 +19,7 @@
         v-if="canUserEditNote(note, currentUser) || note.attachments.length"
         :add="addNoteAttachments"
         :attachments="note.attachments"
-        class="attachments-edit mt-4"
+        class="attachments-edit mt-5"
         :disabled="false"
         :id-prefix="`note-${note.id}`"
         :is-downloadable="true"
@@ -84,8 +84,8 @@ const showConfirmDeleteAttachment = ref(false)
 const addNoteAttachments = (attachments: NoteAttachment[]) => {
   return new Promise<void>(resolve => {
     isUpdatingAttachments.value = true
-    addPeerAdvisingAttachments(props.note.id, attachments).then(updatedNote => {
-      props.afterNoteEdit(updatedNote, addAttachmentInputElementId)
+    addPeerAdvisingAttachments(props.note.id, attachments).then(() => {
+      props.afterNoteEdit(props.note.id, addAttachmentInputElementId)
       alertScreenReader('Attachment added', false, 'assertive')
       isUpdatingAttachments.value = false
       resolve()
@@ -102,9 +102,9 @@ const confirmedRemoveAttachment = () => {
   showConfirmDeleteAttachment.value = false
   const attachment = props.note.attachments[deleteAttachmentIndex.value]
   if (attachment && attachment.id) {
-    removeAttachment(props.note, attachment.id).then(updatedNote => {
+    removeAttachment(props.note, attachment.id).then(() => {
       alertScreenReader(`Attachment "${attachment.displayName}" removed`)
-      props.afterNoteEdit(updatedNote, addAttachmentInputElementId)
+      props.afterNoteEdit(props.note.id, addAttachmentInputElementId)
     })
   }
 }

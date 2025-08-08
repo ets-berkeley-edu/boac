@@ -256,10 +256,10 @@ const afterEditAdvisingNote = async (updatedNote: Note, putFocusId: string) => {
   putFocusNextTick(putFocusId || `edit-note-${updatedNote.id}-button`)
 }
 
-const afterNoteUpdated = async () => {
-  await props.afterNoteEdit(editingNoteId.value)
+const afterNoteUpdated = async (noteId: number, putFocusElementId?: string) => {
+  await props.afterNoteEdit(noteId)
   editingNoteId.value = undefined
-  putFocusNextTick(`show-note-${editingNoteId.value}-details`)
+  putFocusNextTick(putFocusElementId || `show-note-${editingNoteId.value}-details`)
 }
 const afterNoteEditCancel = () => {
   putFocusNextTick(`edit-note-${editingNoteId.value}-button`)
