@@ -120,6 +120,8 @@ def search_peer_advising_notes():
 
     peer_advising_department_id = params.get('peerAdvisingDepartmentId', None)
     search_phrase = util.get(params, 'searchPhrase', '').strip()
+    peer_advisor_id = params.get('peerAdvisorId', None)
+
     if not search_phrase:
         raise BadRequestError('Invalid or empty search input')
 
@@ -131,6 +133,7 @@ def search_peer_advising_notes():
         peer_advising_department_id=peer_advising_department_id,
         limit=int(util.get(params, 'limit', 50)),
         offset=int(util.get(params, 'offset', 0)),
+        peer_advisor_id=peer_advisor_id,
     )
     # The front-end needs full-blown note objects because they are editable by the current-user.
     note_ids = [n['id'] for n in search_results['notes']]

@@ -253,15 +253,18 @@ def get_notes_for_peer_advisor(uid):
     offset = int(request.args.get('offset', 0))
     limit = int(request.args.get('limit', 50))
     include_students = to_bool_or_none(request.args.get('includeStudents')) or False
+    filter_by_uid = request.args.get('peerAdvisorNotes') or None
     user_id = AuthorizedUser.get_id_per_uid(uid)
     if not current_user.is_admin and user_id != current_user.get_id():
         raise ForbiddenRequestError('Unauthorized')
     memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id)
     peer_advising_department_id = memberships[0]['peer_advising_department_id']
+
     notes, total_note_count = Note.get_notes_by_peer_advising_department(
         limit=limit,
         offset=offset,
         peer_advising_department_id=peer_advising_department_id,
+        peer_advisor_id=filter_by_uid,
     )
     students_by_sid = {}
     if include_students:

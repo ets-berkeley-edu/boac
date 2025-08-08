@@ -165,10 +165,28 @@ class Note(Base):
         return draft_notes
 
     @classmethod
-    def get_notes_by_peer_advising_department(cls, peer_advising_department_id, limit=50, offset=0):
-        criteria = and_(cls.peer_advising_department_id == peer_advising_department_id, cls.deleted_at == None)  # noqa: E711
-        query = cls.query.filter(criteria).order_by(desc(cls.created_at))
-        return query.offset(offset).limit(limit).all(), _get_total_count_peer_advising_notes(peer_advising_department_id)
+    def get_notes_by_peer_advising_department(cls, peer_advising_department_id, limit=50, offset=0, peer_advisor_id=None):
+        criteria = [
+            cls.peer_advising_department_id == peer_advising_department_id,
+            cls.deleted_at.is_(None),
+            cls.is_draft.is_(False),
+        ]
+        # Add advisor filter if provided
+        if peer_advisor_id is not None:
+            criteria.append(cls.author_uid == peer_advisor_id)
+
+        query = (
+            cls.query
+               .filter(and_(*criteria))
+               .order_by(desc(cls.created_at))
+        )
+
+        notes = query.offset(offset).limit(limit).all()
+        total = _get_total_count_peer_advising_notes(
+            peer_advising_department_id,
+            peer_advisor_id=peer_advisor_id,
+        )
+        return notes, total
 
     @classmethod
     def get_note_counts_per_uid(cls, uids, peer_advising_department_id=None):
@@ -416,8 +434,12 @@ class Note(Base):
             sids,
             offset=0,
             limit=40,
+            peer_advisor_id=None,
     ):
         def _get_fts_union_query(is_count_query=False):
+            author_filter = ""
+            if peer_advisor_id is not None:
+                author_filter = "AND n.author_uid = :peer_advisor_id"
             fts_rank_sql = f"""
                 SELECT {'COUNT(DISTINCT fts.id)' if is_count_query else 'DISTINCT ON (fts.id) fts.id, fts.rank'} FROM (
                     SELECT id, ts_rank(fts_index, to_tsquery('english', :query_text || ':*')) AS rank
@@ -426,10 +448,13 @@ class Note(Base):
                     UNION
                     SELECT id, 0 AS rank
                     FROM notes
-                    WHERE sid = ANY(:sids) AND peer_advising_department_id = :peer_advising_department_id
+                    WHERE sid = ANY(:sids)
+                        AND peer_advising_department_id = :peer_advising_department_id
                 ) AS fts
                 JOIN notes n ON n.id = fts.id
-                WHERE n.peer_advising_department_id = :peer_advising_department_id AND deleted_at IS NULL
+                WHERE n.peer_advising_department_id = :peer_advising_department_id
+                    AND deleted_at IS NULL
+                    {author_filter}
                 {'' if is_count_query else 'OFFSET :offset LIMIT :limit'}
             """
             params = {
@@ -439,6 +464,8 @@ class Note(Base):
                 'query_text': ' & '.join(search_phrases),
                 'sids': sids,
             }
+            if peer_advisor_id is not None:
+                params['peer_advisor_id'] = peer_advisor_id
             rows = db.session.execute(text(fts_rank_sql), params).mappings()
             return rows.first()['count'] if is_count_query else rows
         rows = [row for row in _get_fts_union_query()]
@@ -874,13 +901,22 @@ def _add_attachments(author_uid, note_ids, s3_path, now=None):
         std_commit()
 
 
-def _get_total_count_peer_advising_notes(peer_advising_department_id):
+def _get_total_count_peer_advising_notes(peer_advising_department_id, peer_advisor_id=None):
     sql = """
-        SELECT count(*) FROM notes
-        WHERE deleted_at IS NULL AND is_draft IS FALSE AND peer_advising_department_id = :peer_advising_department_id
+        SELECT count(*) AS count
+        FROM notes
+        WHERE deleted_at IS NULL
+          AND is_draft IS FALSE
+          AND peer_advising_department_id = :dept_id
     """
-    rows = db.session.execute(text(sql), {'peer_advising_department_id': peer_advising_department_id}).mappings()
-    return rows.first()['count']
+    params = {'dept_id': peer_advising_department_id}
+
+    if peer_advisor_id is not None:
+        sql += " AND author_uid = :pa_id"
+        params['pa_id'] = peer_advisor_id
+
+    row = db.session.execute(text(sql), params).mappings().first()
+    return row['count']
 
 
 def _validate_sid(is_draft, note_id, sid):

@@ -48,15 +48,17 @@ export function search(
     .then(response => response.data)
 }
 
-export function peerAdvisorSearch(phrase: string, peerAdvisingDepartmentId: number, offset: number, limit: number) {
+export function peerAdvisorSearch(phrase: string, peerAdvisingDepartmentId: number, offset: number, limit: number, peerAdvisorUid: string, showMyNotesOnly = false) {
     $_track(phrase)
-    return axios
-    .post(`${utils.apiBaseUrl()}/api/search/peer_advising_notes`, {
+    const data = {
       searchPhrase: phrase,
       peerAdvisingDepartmentId: peerAdvisingDepartmentId,
       offset: offset || 0,
-      limit: limit || 50
-    })
+      limit: limit || 50,
+      peerAdvisorId: showMyNotesOnly ? peerAdvisorUid : null,
+    }
+    return axios
+    .post(`${utils.apiBaseUrl()}/api/search/peer_advising_notes`, data)
     .then(response => response.data)
 }
 
