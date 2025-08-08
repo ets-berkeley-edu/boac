@@ -55,7 +55,7 @@ export function peerAdvisorSearch(phrase: string, peerAdvisingDepartmentId: numb
       peerAdvisingDepartmentId: peerAdvisingDepartmentId,
       offset: offset || 0,
       limit: limit || 50,
-      peerAdvisorId: showMyNotesOnly ? peerAdvisorUid : null,
+      peerAdvisorUid: showMyNotesOnly ? peerAdvisorUid : null,
     }
     return axios
     .post(`${utils.apiBaseUrl()}/api/search/peer_advising_notes`, data)
