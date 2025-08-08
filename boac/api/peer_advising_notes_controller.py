@@ -264,7 +264,7 @@ def get_notes_for_peer_advisor(uid):
         limit=limit,
         offset=offset,
         peer_advising_department_id=peer_advising_department_id,
-        peer_advisor_id=filter_by_uid,
+        peer_advisor_uid=filter_by_uid,
     )
     students_by_sid = {}
     if include_students:

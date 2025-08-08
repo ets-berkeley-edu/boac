@@ -303,7 +303,7 @@ def search_advising_notes(
     peer_advising_department_id=None,
     offset=0,
     limit=20,
-    peer_advisor_id=None,
+    peer_advisor_uid=None,
 ):
     benchmark = get_benchmarker('search_advising_notes')
     benchmark('begin')
@@ -331,7 +331,7 @@ def search_advising_notes(
             )
             local_search_results = Note.peer_advising_notes_search(
                 peer_advising_department_id=peer_advising_department_id,
-                peer_advisor_id=peer_advisor_id,
+                peer_advisor_uid=peer_advisor_uid,
                 search_phrases=search_phrases,
                 sids=[s.get('sid') for s in students],
                 offset=(local_notes_query_batch_size * local_notes_query_iteration),
