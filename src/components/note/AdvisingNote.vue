@@ -28,7 +28,7 @@
         </span>
       </span>
     </div>
-    <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="pb-2 w-100">
+    <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="pb-8 w-100">
       <div v-if="(note.subject || note.isDraft) && note.message" class="open-note-message-container pt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message" />
       </div>
@@ -91,14 +91,14 @@
           </div>
         </div>
       </div>
-      <div v-if="note.topics && size(note.topics)" class="mt-3">
+      <div v-if="note.topics && size(note.topics)" class="mt-5">
         <AdvisingNoteTopics :note="note" read-only />
       </div>
-      <div v-if="note.contactType" class="mt-3">
+      <div v-if="note.contactType" class="mt-5">
         <div class="font-size-16 font-weight-bold text-medium-emphasis">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>
-      <div v-if="!note.legacySource || size(note.attachments)" class="note-attachments-container mt-1">
+      <div v-if="showNoteAttachmentsWidget" class="note-attachments-container mt-1">
         <AdvisingNoteAttachments
           :add="addNoteAttachments"
           :attachments="note.attachments || []"
@@ -107,7 +107,7 @@
           :id-prefix="`note-${note.id}`"
           :is-downloadable="true"
           :note="note"
-          :read-only="!!note.legacySource"
+          :read-only="!!note.legacySource || !canUserEditNote(note, currentUser)"
           :remove="removeAttachmentByIndex"
         />
       </div>
@@ -133,11 +133,11 @@ import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {alertScreenReader, capitalizeAllWords, oxfordJoin} from '@/lib/utils'
+import {canUserEditNote, summarizeNoteForAcademicTimeline} from '@/lib/note.js'
 import {findPeerAdvisingDepartment, getBoaUserRoles} from '@/lib/berkeley-department'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
-import {summarizeNoteForAcademicTimeline} from '@/lib/note.js'
 
 const props = defineProps({
   afterSaved: {
@@ -170,6 +170,7 @@ const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)
 const peerAdvisingDepartment = computed(() => props.note.peerAdvisingDepartmentId ? findPeerAdvisingDepartment(props.note.peerAdvisingDepartmentId) : undefined)
 const showConfirmDeleteAttachment = ref(false)
+const showNoteAttachmentsWidget = (!props.note.legacySource && canUserEditNote(props.note, currentUser)) || size(props.note.attachments)
 
 watch(() => props.isOpen, () => {
   loadAuthorDetails()
