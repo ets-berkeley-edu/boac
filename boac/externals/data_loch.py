@@ -1375,8 +1375,9 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
         query_bindings.update({'minors': minors})
     if student_holds is True:
         query_tables += f' JOIN {student_schema()}.student_holds sh ON sh.sid = spi.sid'
-    if transfer is True:
-        query_filter += ' AND spi.transfer = TRUE'
+    if transfer is not None:
+        query_filter += ' AND spi.transfer IS %(transfer)s'
+        query_bindings.update({'transfer': transfer})
     if advisor_plan_mappings:
         advisor_plan_filters = []
         for idx, mapping in enumerate(advisor_plan_mappings):

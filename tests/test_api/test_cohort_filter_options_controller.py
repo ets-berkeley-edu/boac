@@ -106,8 +106,8 @@ class TestCohortFilterCategories:
         assert {'name': 'English UG', 'value': '25I039U'} in my_students['options']
         assert {'name': 'Medieval Studies UG', 'value': '25I054U'} in my_students['options']
 
-    def test_filter_options_with_category_disabled(self, client, fake_auth):
-        """The transfer option is disabled if it is in existing-filters."""
+    def test_transfer_students_filter_disabled(self, client, fake_auth):
+        """Verify unique rule of when to disable Transfer Students filter."""
         fake_auth.login(coe_advisor_uid)
         post_data = {'existingFilters': [{'key': 'transfer', 'value': True}], 'ownerUid': coe_advisor_uid}
         api_json = self._api_cohort_filter_categories(client, data=post_data)
@@ -115,6 +115,19 @@ class TestCohortFilterCategories:
         for filter_category in api_json:
             for option in filter_category['options']:
                 if option['key'] == 'transfer':
+                    assert option['disabled'] is True
+                else:
+                    assert 'disabled' not in option
+
+    def test_disabled_boolean_ux_filter(self, client, fake_auth):
+        """The underrepresented option is disabled if it is in existing-filters."""
+        fake_auth.login(coe_advisor_uid)
+        post_data = {'existingFilters': [{'key': 'underrepresented', 'value': True}], 'ownerUid': coe_advisor_uid}
+        api_json = self._api_cohort_filter_categories(client, data=post_data)
+        assert len(api_json)
+        for filter_category in api_json:
+            for option in filter_category['options']:
+                if option['key'] == 'underrepresented':
                     assert option['disabled'] is True
                 else:
                     assert 'disabled' not in option

@@ -363,7 +363,7 @@ watch(rangeMin, onRangeUpdate)
 watch(selectedFilter, () => {
   selectedOption.value = undefined
   filter.value = cloneDeep(selectedFilter.value)
-  if (filter.value) {
+  if (!isNil(filter.value)) {
     const type = get(filter.value, 'type.ux')
     showAdd.value = type === 'boolean'
     switch (type) {
@@ -382,7 +382,7 @@ watch(selectedFilter, () => {
 })
 watch(selectedOption, () => {
   const value = get(selectedOption.value, 'value')
-  if (value) {
+  if (!isNil(value)) {
     filter.value.value = value
     showAdd.value = !!selectedOption.value
     if (selectedOption.value) {
@@ -430,7 +430,9 @@ const onClickAddButton = () => {
     break
   case 'boolean':
     alertScreenReader(`Added ${filter.value.name} filter`)
-    filter.value.value = true
+    // In the case of type 'boolean', if 'selectedOption' is NULL then the user was NOT given
+    // the options of (TRUE, FALSE) and the selected value is implicitly equal to TRUE.
+    filter.value.value = isNil(selectedOption.value) ? true : selectedOption.value.value
     break
   case 'range':
     alertScreenReader(`Added ${filter.value.name} filter, ${rangeMin.value} to ${rangeMax.value}`)
