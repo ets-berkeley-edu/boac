@@ -59,6 +59,7 @@ from boac.lib.cohort_utils import (
     student_admit_residency_category_options,
     student_admit_special_program_cep_options,
     team_groups,
+    transfer_student_options,
     unit_range_options,
     visa_types,
 )
@@ -265,9 +266,12 @@ class CohortFilterOptions:
                         type_db='string[]',
                         type_ux='options',
                     ),
-                    _boolean_filter(
+                    _filter(
                         key='transfer',
                         label_primary='Transfer Student',
+                        options=transfer_student_options(),
+                        type_db='boolean',
+                        type_ux='options',
                     ),
                     _filter(
                         key='unitRanges',
@@ -561,7 +565,7 @@ class CohortFilterOptions:
         for key, selected_values in selected_values_per_key.items():
             # Disable options that are represented in 'existing_filters'
             cohort_filter = cohort_filter_per_key[key]
-            if cohort_filter['type']['ux'] == 'boolean':
+            if cohort_filter['type']['db'] == 'boolean':
                 cohort_filter['disabled'] = True
             if cohort_filter['type']['ux'] in ['options', 'option_groups']:
                 # Populate dropdown

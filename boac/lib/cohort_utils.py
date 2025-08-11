@@ -294,6 +294,14 @@ def student_admit_special_program_cep_options():
     return [{'name': special_program_cep, 'value': special_program_cep} for special_program_cep in special_program_cep_results]
 
 
+@stow('cohort_filter_options_transfer_student')
+def transfer_student_options():
+    return [
+        {'name': 'Exclude Transfer Students', 'value': False},
+        {'name': 'Transfer Students Only', 'value': True},
+    ]
+
+
 def unit_range_options():
     return [
         {'name': '0 - 29', 'value': 'numrange(NULL, 30, \'[)\')'},
