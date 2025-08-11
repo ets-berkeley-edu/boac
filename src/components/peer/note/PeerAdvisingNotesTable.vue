@@ -33,7 +33,10 @@
             :class="{'d-contents': !smAndDown}"
           >
             <div class="grid-cell">
-              <slot name="studentName" :note="note" />
+              <PeerAdvisorNoteAuthorName
+                :show-student-last-name-first="showStudentLastNameFirst"
+                :note="note"
+              />
             </div>
           </td>
           <td
@@ -226,6 +229,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 import PeerAdvisingDepartmentSummary from '@/components/peer/PeerAdvisingDepartmentSummary.vue'
+import PeerAdvisorNoteAuthorName from '@/components/peer/note/PeerAdvisorNoteAuthorName.vue'
 
 const props = defineProps({
   afterNoteEdit: {
@@ -239,6 +243,10 @@ const props = defineProps({
   isFetchingNotes: {
     required: true,
     type: Boolean
+  },
+  showStudentLastNameFirst: {
+    required: false,
+    type: Boolean
   }
 })
 
@@ -251,8 +259,8 @@ const noteForDelete = ref<Note | undefined>()
 const showDeleteConfirmation = computed(() => !!noteForDelete.value)
 
 const afterEditAdvisingNote = async (updatedNote: Note, putFocusId: string) => {
-  await props.afterNoteEdit(editingNoteId.value)
   editingNoteId.value = undefined
+  await props.afterNoteEdit(editingNoteId.value)
   putFocusNextTick(putFocusId || `edit-note-${updatedNote.id}-button`)
 }
 

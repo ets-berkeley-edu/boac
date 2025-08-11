@@ -16,7 +16,7 @@
       aria-label="Reset Cohort Filters"
       class="text-uppercase"
       color="surface-variant"
-      :disabled="!!cohort.editMode"
+      :disabled="!!cohort.editMode || currentAction"
       text="Reset"
       variant="outlined"
       @click="resetToLastApply"
@@ -40,7 +40,7 @@
         v-if="!currentAction && cohort.cohortId"
         id="reset-to-saved-cohort"
         class="ml-2"
-        :disabled="!!cohort.editMode"
+        :disabled="!!cohort.editMode || currentAction"
         text="Reset"
         variant="text"
         @click="resetToSaved"
@@ -113,8 +113,10 @@ const create = name => {
 }
 
 const resetToLastApply = () => {
+  currentAction.value = 'search'
   alertScreenReader('Resetting filters')
   resetFiltersToLastApply().then(() => {
+    currentAction.value = null
     alertScreenReader('Filters reset')
     putFocusNextTick('filter-select-primary-new')
   })
