@@ -1,25 +1,9 @@
 <template>
   <div v-if="!contextStore.loading" class="pt-8 px-8 px-md-16">
-    <div class="d-flex flex-wrap justify-space-between">
+    <div class="align-start d-flex flex-wrap justify-space-between">
       <div>
         <h1 id="page-header" class="mb-0">Peer Advising Notes</h1>
-        <div class="notes-toggle">
-          <span class="show-notes">Show Notes: All</span>
-          <v-switch
-            v-model="showMyNotesOnly"
-            class="switch"
-            label="Me"
-            color="indigo"
-            :disabled="isFetchingNotes"
-          />
-          <SectionSpinner :loading="isFetchingNotes" />
-        </div>
-        <div id="notes-description">
-          <span v-if="!isFetchingNotes && notes.length">{{ notesDescription }}</span>
-          <span v-if="isFetchingNotes">
-            Loading...
-          </span>
-        </div>
+        <div>{{ get(peerAdvisingDepartment, 'name') }}</div>
       </div>
       <div v-if="!currentUser.isAdmin" class="d-flex align-end">
         <v-btn
@@ -32,10 +16,19 @@
           @click="onClickCreateNote"
         />
         <EditPeerAdvisingNoteModal
-          v-if="peerAdvisingDepartmentId"
+          v-if="peerAdvisingDepartment"
           v-model="createNoteModal"
-          :peer-advising-department-id="peerAdvisingDepartmentId"
+          :peer-advising-department-id="peerAdvisingDepartment.id"
         />
+      </div>
+    </div>
+    <div v-if="notes.length" class="align-center d-flex flex-wrap justify-space-between mt-2">
+      <ShowMyPeerAdvisingNotesToggle
+        v-model="showMyNotesOnly"
+        :is-fetching-notes="isFetchingNotes"
+      />
+      <div v-if="!isFetchingNotes" id="notes-description">
+        {{ notesDescription }}
       </div>
     </div>
     <div class="w-100">
@@ -44,22 +37,10 @@
         :is-fetching-notes="isFetchingNotes"
         :after-note-edit="fetchNotes"
       >
-        <template #studentName="{note}">
-          <router-link
-            v-if="currentUser.isAdmin"
-            :id="`note-${note.id}-link-to-student`"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
-          >
-            {{ note.student ? lastNameFirst(note.student) : getStudentName(note) }}
-          </router-link>
-          <div v-if="!currentUser.isAdmin" class="text-medium-emphasis" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-            {{ getStudentName(note) }}
-          </div>
-        </template>
         <template #noData>
           <div class="d-flex align-center">
-            There currently are no student notes. Would you like to
+            {{ showMyNotesOnly ? 'You currently have' : 'There are currently' }} no student notes.
+            Would you like to
             <v-btn
               id="peer-advisor-create-note-link"
               class="font-size-15 px-1 mx-1"
@@ -92,16 +73,17 @@ import {findIndex, get, last, orderBy} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
 import {onMounted, onUnmounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import type {BasicStudent, BoaUser, Note} from '@/lib/types'
+import type {BasicStudent, BoaUser, Note, PeerAdvisingDepartment} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
+import ShowMyPeerAdvisingNotesToggle from '@/components/peer/note/ShowMyPeerAdvisingNotesToggle.vue'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {getBasicStudent} from '@/api/peer-advising-users'
 import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-utils'
-import {getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
+import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
-import {alertScreenReader, lastNameFirst, putFocusNextTick, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -115,7 +97,7 @@ const noteStore = useNoteStore()
 const notes = ref<Note[]>([])
 const notesDescription = ref('')
 const offset = ref(0)
-const peerAdvisingDepartmentId = ref<number | undefined>()
+const peerAdvisingDepartment = ref<PeerAdvisingDepartment | undefined>()
 const peerAdvisor = ref<BoaUser>()
 const route = useRoute()
 const router = useRouter()
@@ -171,14 +153,13 @@ const fetchNotes = () => {
   })
 }
 
-const getStudentName = (note: Note) => note.student ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.sid}`
-
 const init = (user: BoaUser) => {
   peerAdvisor.value = user
   // Peer Advisors can belong to one and only one Peer Advising Department.
   const memberships = getPeerAdvisorDepartmentMemberships(peerAdvisor.value, 'peer_advisor')
-  peerAdvisingDepartmentId.value = memberships.length ? memberships[0].peerAdvisingDepartmentId : undefined
-  if (peerAdvisor.value.id && peerAdvisingDepartmentId.value) {
+  const peerAdvisingDepartmentId = memberships.length ? memberships[0].peerAdvisingDepartmentId : undefined
+  peerAdvisingDepartment.value = peerAdvisingDepartmentId ? findPeerAdvisingDepartment(peerAdvisingDepartmentId) : undefined
+  if (peerAdvisor.value.id && peerAdvisingDepartment) {
     fetchNotes().then(() => {
       contextStore.loadingComplete(`Home page loaded. ${notesDescription.value}`)
       contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
@@ -202,7 +183,7 @@ const onClickCreateNote = () => {
   const note = getDefaultModel()
   // Peer Advisors do not provide note.subject thus subject is set to empty string to satisfy not-null db constraints.
   note.subject = ''
-  note.peerAdvisingDepartmentId = peerAdvisingDepartmentId.value
+  note.peerAdvisingDepartmentId = get(peerAdvisingDepartment.value, 'id')
   noteStore.setModel(note)
   noteStore.setMode('createPeerAdvisorNote')
   createNoteModal.value = true
@@ -228,26 +209,3 @@ const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
   })
 }
 </script>
-
-
-<style scoped>
-#notes-description {
-  display: flex;
-}
-
-.notes-toggle {
-  display: flex;
-  height: 30px;
-}
-
-.show-notes {
-  //margin-left: 10px;
-}
-
-.switch {
-  position: relative;
-  top: -16px;
-  margin-left: 10px;
-}
-
-</style>

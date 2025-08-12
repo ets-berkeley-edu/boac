@@ -1,37 +1,27 @@
 <template>
   <div v-if="!contextStore.loading" class="mt-8 mx-8 mx-md-16">
-    <div class="d-flex justify-space-between">
+    <div class="align-center d-flex">
       <div>
-        <h1 id="page-header">Peer Advising Search</h1>
-        <div class="notes-toggle">
-          <span class="show-notes">Show Notes: All</span>
-          <v-switch
-            v-model="showMyNotesOnly"
-            class="switch"
-            label="Me"
-            color="indigo"
-            :disabled="isFetchingNotes"
-          />
-          <SectionSpinner :loading="isFetchingNotes" />
-        </div>
-        <div class="d-flex align-center">
-          <span v-if="!isFetchingNotes">
-            {{ phrase }}&nbsp;<span class="font-weight-bold">{{ queryText }}</span>
-          </span>
-          <span v-if="isFetchingNotes">
-            Searching Notes...
-          </span>
-          <span :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
-          <v-btn
-            class="text-anchor mx-1 px-1"
-            role="link"
-            variant="text"
-            :disabled="isFetchingNotes"
-            @click="clearResults"
-          >
-            Return to Home
-          </v-btn>
-        </div>
+        <h1 id="page-header" class="mr-4">Peer Advising Search</h1>
+      </div>
+      <div class="pb-1">
+        [<v-btn
+          class="text-anchor px-0"
+          :disabled="isFetchingNotes"
+          role="link"
+          text="Return to Home"
+          variant="text"
+          @click="clearResults"
+        />]
+      </div>
+    </div>
+    <div class="align-center d-flex justify-space-between">
+      <ShowMyPeerAdvisingNotesToggle
+        v-model="showMyNotesOnly"
+        :is-fetching-notes="isFetchingNotes"
+      />
+      <div v-if="!isFetchingNotes">
+        {{ phrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
       </div>
     </div>
     <div>
@@ -39,21 +29,7 @@
         :after-note-edit="afterNoteEdit"
         :notes="notes"
         :is-fetching-notes="isFetchingNotes"
-      >
-        <template #studentName="{note}">
-          <router-link
-            v-if="currentUser.isAdmin"
-            :id="`note-${note.id}-link-to-student`"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
-          >
-            {{ getStudentName(note) }}
-          </router-link>
-          <div v-if="!currentUser.isAdmin" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-            {{ getStudentName(note) }}
-          </div>
-        </template>
-      </PeerAdvisingNotesTable>
+      />
       <div class="my-3 text-center">
         <v-btn
           v-if="totalNoteCount > size(notes)"
@@ -74,14 +50,15 @@ import {onMounted, onUnmounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import type {BoaUser, Note} from '@/lib/types'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
-import {alertScreenReader, pluralize, putFocusNextTick, studentRoutePath} from '@/lib/utils'
+import SectionSpinner from '@/components/util/SectionSpinner.vue'
+import ShowMyPeerAdvisingNotesToggle from '@/components/peer/note/ShowMyPeerAdvisingNotesToggle.vue'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {getPeerAdvisorNoteById} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {peerAdvisorSearch} from '@/api/search'
 import {useSearchStore} from '@/stores/search'
-import SectionSpinner from '@/components/util/SectionSpinner.vue'
 
 const LIMIT_PER_FETCH = 50
 
@@ -146,8 +123,6 @@ const afterNoteEdit = (noteId: number) => {
   })
 }
 
-const getStudentName = (note: Note) => note.student.lastName ? `${note.student.firstName} ${note.student.lastName}` : `SID: ${note.student.sid}`
-
 const search = () => {
   peerAdvisor.value = contextStore.currentUser
 
@@ -170,11 +145,11 @@ const search = () => {
       notes.value = orderBy(data.notes, ['createdAt'], ['desc'])
       totalNoteCount.value = data.totalNoteCount
       if (totalNoteCount.value === 0) {
-        phrase.value = 'No results found matching '
+        phrase.value = 'No results found matching'
       } else if (size(notes.value) < totalNoteCount.value) {
-        phrase.value = `Showing ${notes.value.length} of ${pluralize('result', totalNoteCount.value)} matching `
+        phrase.value = `Showing ${notes.value.length} of ${pluralize('result', totalNoteCount.value)} matching`
       } else {
-        phrase.value = `Showing ${pluralize('result', totalNoteCount.value)} matching `
+        phrase.value = `Showing ${pluralize('result', totalNoteCount.value)} matching`
       }
       queryText.value = searchStore.queryText
       contextStore.loadingComplete('Search results loaded')
@@ -192,20 +167,3 @@ const showMoreNotes = () => {
   search()
 }
 </script>
-
-<style scoped>
-.notes-toggle {
-  display: flex;
-  height: 30px;
-}
-
-.show-notes {
-  //margin-left: 10px;
-}
-
-.switch {
-  position: relative;
-  top: -16px;
-  margin-left: 10px;
-}
-</style>

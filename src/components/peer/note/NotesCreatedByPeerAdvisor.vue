@@ -59,18 +59,10 @@
               v-if="!isFetchingNotes"
               :after-note-edit="afterNoteEdit"
               class="d-block font-size-14 w-100"
+              :is-fetching-notes="isFetchingNotes"
               :notes="notes"
-            >
-              <template #studentName="{note}">
-                <router-link
-                  :id="`note-${note.id}-link-to-student`"
-                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                  :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
-                >
-                  <span v-html="lastNameFirst(note.student)" />
-                </router-link>
-              </template>
-            </PeerAdvisingNotesTable>
+              :show-student-last-name-first="true"
+            />
           </v-expand-transition>
         </v-card-text>
         <v-card-actions class="modal-footer">
@@ -98,7 +90,6 @@ import type {Month} from '@/lib/types-peer-advising'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import {getPeerAdvisingNotesAuthoredBy} from '@/api/peer-advising-notes'
-import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -122,9 +113,8 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
-const currentUser = contextStore.currentUser
-const isFetchingNotes = ref(false)
-const isModalOpen = ref(false)
+const isFetchingNotes = ref<boolean>(false)
+const isModalOpen = ref<boolean>(false)
 const notes = ref<Note[]>([])
 
 onMounted(() => {
