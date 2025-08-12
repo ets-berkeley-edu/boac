@@ -121,44 +121,74 @@ def search_peer_advising_notes():
     peer_advising_department_id = params.get('peerAdvisingDepartmentId', None)
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     peer_advisor_uid = params.get('peerAdvisorUid', None)
+    order_by = util.get(params, 'orderBy', None)
+
+    domain = {
+        'students': util.get(params, 'students'),
+        'notes': util.get(params, 'notes'),
+    }
 
     if not search_phrase:
         raise BadRequestError('Invalid or empty search input')
-
     if not peer_advising_department_id:
         raise BadRequestError('Invalid peer advising department id')
+    if not domain['students'] and not domain['notes']:
+        raise BadRequestError('No search domain specified')
 
-    search_results = search_advising_notes(
-        search_phrase=search_phrase,
-        peer_advising_department_id=peer_advising_department_id,
-        limit=int(util.get(params, 'limit', 50)),
-        offset=int(util.get(params, 'offset', 0)),
-        peer_advisor_uid=peer_advisor_uid,
-    )
-    # The front-end needs full-blown note objects because they are editable by the current-user.
-    note_ids = [n['id'] for n in search_results['notes']]
-    notes = Note.find_by_ids(note_ids)
-    all_sids = [note.sid for note in notes]
-    students_by_sid = {student['sid']: student for student in get_basic_student_data(sids=all_sids)}
-    notes_json = []
-    for note in notes:
-        note_json = note.to_api_json()
-        student = students_by_sid[note.sid]
-        notes_json.append({
-            **note_json,
-            'author': get_note_author_summary(note_json),
-            'student': {
-                'sid': student['sid'],
-                'uid': student['uid'],
-                'firstName': student['first_name'],
-                'lastName': student['last_name'],
-            } if student else None,
-        })
-    return tolerant_jsonify({
-        'notes': sorted(notes_json, key=lambda n: note_ids.index(n['id'])),
-        'totalNoteCount': search_results['totalNoteCount'],
-    })
+    # Initialize final feed structure
+    feed = {
+        'students': [],
+        'notes': [],
+        'totalStudentCount': 0,
+        'totalNoteCount': 0,
+    }
 
+    # Student search (if requested)
+    if domain.get('students'):
+        student_results = _student_search(search_phrase, params, order_by)
+        feed['students'] = student_results.get('students', [])
+        # Prefer the service's count if provided, otherwise fallback to length
+        feed['totalStudentCount'] = student_results.get('totalStudentCount', len(feed['students']))
+
+    # Notes search (if requested)
+    if domain.get('notes'):
+        search_results = search_advising_notes(
+            search_phrase=search_phrase,
+            peer_advising_department_id=peer_advising_department_id,
+            limit=int(util.get(params, 'limit', 50)),
+            offset=int(util.get(params, 'offset', 0)),
+            peer_advisor_uid=peer_advisor_uid,
+        )
+
+        # The front-end needs full-blown note objects because they are editable by the current-user.
+        note_ids = [n['id'] for n in search_results.get('notes', [])]
+        notes_json = []
+        if note_ids:
+            notes = Note.find_by_ids(note_ids)
+            all_sids = [note.sid for note in notes]
+            students_by_sid = {s['sid']: s for s in get_basic_student_data(sids=all_sids)}
+
+            for note in notes:
+                note_json = note.to_api_json()
+                student = students_by_sid.get(note.sid)
+                notes_json.append({
+                    **note_json,
+                    'author': get_note_author_summary(note_json),
+                    'student': {
+                        'sid': student['sid'],
+                        'uid': student['uid'],
+                        'firstName': student['first_name'],
+                        'lastName': student['last_name'],
+                    } if student else None,
+                })
+
+            # Preserve original ordering from search results
+            notes_json = sorted(notes_json, key=lambda n: note_ids.index(n['id']))
+
+        feed['notes'] = notes_json
+        feed['totalNoteCount'] = search_results.get('totalNoteCount', len(notes_json))
+
+    return tolerant_jsonify(feed)
 
 @app.route('/api/search/add_to_search_history', methods=['POST'])
 @login_required

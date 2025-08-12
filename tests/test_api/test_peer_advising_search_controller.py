@@ -67,6 +67,8 @@ def _api_search(
         data=json.dumps({
             'searchPhrase': phrase,
             'peerAdvisingDepartmentId': peer_advising_department_id,
+            'notes': 'true',
+            'students': 'false',
         }),
     )
 
