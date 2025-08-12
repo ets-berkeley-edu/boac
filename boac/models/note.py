@@ -178,7 +178,7 @@ class Note(Base):
         query = (
             cls.query
                .filter(and_(*criteria))
-               .order_by(desc(cls.created_at))
+               .order_by(desc(cls.updated_at))
         )
 
         notes = query.offset(offset).limit(limit).all()

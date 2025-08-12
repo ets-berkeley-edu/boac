@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {get} from 'lodash'
+import {get, orderBy} from 'lodash'
 import {onBeforeUnmount, onMounted, ref} from 'vue'
 import {mdiCloseThick} from '@mdi/js'
 import type {BoaUser, Note, PeerAdvisingDepartment} from '@/lib/types'
@@ -120,7 +120,7 @@ const notes = ref<Note[]>([])
 onMounted(() => {
   contextStore.setEventHandler('note-deleted', () => {
     getPeerAdvisingNotesAuthoredBy(props.peerAdvisingDepartment.id, props.user.uid, props.timeframe).then(data => {
-      notes.value = data
+      notes.value = orderBy(data, n => n.updatedAt || n.createdAt, ['desc'])
     })
   })
 })
