@@ -118,7 +118,7 @@
                 <v-btn
                   :id="`edit-note-${note.id}-button`"
                   :aria-label="`Edit ${getNoteLabel(note, index)}`"
-                  class="action-button"
+                  class="edit-note-button"
                   color="primary"
                   density="compact"
                   size="md"
@@ -131,7 +131,7 @@
                   v-if="isPeerAdvisorManager(currentUser)"
                   :id="`delete-note-button-${note.id}`"
                   :aria-label="`Delete ${getNoteLabel(note, index)}`"
-                  class="action-button"
+                  class="delete-note-button"
                   color="primary"
                   density="compact"
                   size="md"
@@ -140,15 +140,40 @@
                   @click="() => onClickDeleteNote(note)"
                 />
               </div>
+              <div v-if="!isExpanded(note)" class="created-date text-nowrap">
+                <TimelineDate
+                  :id="`collapsed-note-${note.id}-updated-at`"
+                  :date="note.updatedAt || note.createdAt"
+                  :include-time-of-day="false"
+                  sr-prefix="Last updated on"
+                />
+              </div>
               <div
-                :class="{'mt-4': isExpanded(note) && editingNoteId !== note.id && canUserEditNote(note, currentUser)}"
+                v-if="isExpanded(note)"
+                :class="{'mt-4': editingNoteId !== note.id && canUserEditNote(note, currentUser)}"
                 class="created-date text-nowrap"
               >
-                <span :aria-hidden="true">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_MED) }}</span>
-                <span class="sr-only">{{ DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL) }}</span>
+                <div>
+                  <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Created:</div>
+                  <TimelineDate
+                    :id="`expanded-note-${note.id}-created-at`"
+                    :date="note.createdAt"
+                    sr-prefix="Created on"
+                    :include-time-of-day="note.createdAt.length > 10"
+                  />
+                </div>
+                <div v-if="note.updatedAt" class="mt-2">
+                  <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Updated:</div>
+                  <TimelineDate
+                    :id="`expanded-note-${note.id}-updated-at`"
+                    :date="note.updatedAt"
+                    :include-time-of-day="note.updatedAt.length > 10"
+                    sr-prefix="Last updated on"
+                  />
+                </div>
               </div>
               <v-expand-transition>
-                <div v-if="note && isExpanded(note)" :class="{'mt-4': !isExpanded(note)}">
+                <div v-if="isExpanded(note)" :class="{'mt-4': !isExpanded(note)}">
                   <div v-if="note.author.name || note.author.email" class="mt-2">
                     <div class="font-size-15 text-medium-emphasis text-nowrap">Created by:</div>
                     <div v-if="note.author.uid && note.author.name">
@@ -230,6 +255,7 @@ import EditAdvisingNote from '@/components/note/EditAdvisingNote.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
 import PeerAdvisingDepartmentSummary from '@/components/peer/PeerAdvisingDepartmentSummary.vue'
 import PeerAdvisorNoteAuthorName from '@/components/peer/note/PeerAdvisorNoteAuthorName.vue'
+import TimelineDate from '@/components/student/profile/TimelineDate.vue'
 
 const props = defineProps({
   afterNoteEdit: {
@@ -362,16 +388,20 @@ const toggleShowHide = (note: Note) => {
     padding-bottom: 12px !important;
   }
 }
-.action-button {
-  font-weight: 590;
-  margin-left: -10px;
-}
 .d-contents {
   display: contents;
+}
+.delete-note-button {
+  font-weight: 590;
+  margin-left: -10px;
 }
 .edit-advising-note-container {
   margin-top: -30px;
   padding-right: 25px;
+}
+.edit-note-button {
+  font-weight: 590;
+  margin-left: -18px;
 }
 .has-attachment-icon {
   margin-bottom: 1px;

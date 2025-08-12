@@ -141,7 +141,7 @@ const fetchNotes = () => {
         true,
         showMyNotesOnly.value
       ).then(data => {
-        notes.value = orderBy([...notes.value, ...data.notes], ['createdAt'], ['desc'])
+        notes.value = orderBy([...notes.value, ...data.notes], n => n.updatedAt || n.createdAt, ['desc'])
         totalNoteCount.value = data.totalNoteCount
         notesDescription.value = notes.value.length < totalNoteCount.value ? `Showing ${notes.value.length} of ${totalNoteCount.value} notes.` : `Showing all ${notes.value.length} notes.`
         isFetchingNotes.value = false

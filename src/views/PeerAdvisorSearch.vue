@@ -142,7 +142,7 @@ const search = () => {
       showMyNotesOnly.value
     ).then(data => {
       const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0].id}`
-      notes.value = orderBy(data.notes, ['createdAt'], ['desc'])
+      notes.value = orderBy(data.notes, n => n.updatedAt || n.createdAt, ['desc'])
       totalNoteCount.value = data.totalNoteCount
       if (totalNoteCount.value === 0) {
         phrase.value = 'No results found matching'
