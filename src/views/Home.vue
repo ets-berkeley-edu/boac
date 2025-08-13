@@ -55,16 +55,12 @@ const cohorts = reactive(_filter(currentUser.myCohorts, ['domain', 'default']))
 const curatedGroups = reactive(_filter(currentUser.myCuratedGroups, ['domain', 'default']))
 
 onMounted(() => {
-  if (contextStore.currentUser.isStale) {
-    contextStore.loadingStart()
-    getUserProfile().then(data => {
-      contextStore.setCurrentUser(data)
-      contextStore.currentUser.isStale = true
-      contextStore.loadingComplete()
-    })
-  } else {
-    contextStore.currentUser.isStale = true
+  // The BOA homepage presents a summary of the user's cohorts and curated groups and must always be fresh.
+  // If, for example, a cohort was deleted in a separate browser tab then we want this browser tab to reflect
+  // that change. Therefore, we always refresh the user session object when user visits /home.
+  getUserProfile().then(data => {
+    contextStore.setCurrentUser(data).then()
     contextStore.loadingComplete()
-  }
+  })
 })
 </script>
