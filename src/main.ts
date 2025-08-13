@@ -46,23 +46,24 @@ axios.get(`${apiBaseUrl}/api/config`).then(response => {
   const contextStore = useContextStore()
   contextStore.setConfig({...response.data, apiBaseUrl, isVueAppDebugMode})
   axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
-    contextStore.setCurrentUser(response.data)
-    initGoogleAnalytics()
-    // Async API calls, whenever possible.
-    getServiceAnnouncement().then(data => {
-      contextStore.setServiceAnnouncement(data)
-      const pingFrequency: number = contextStore.config.pingFrequency
-      if (pingFrequency) {
-        // Keep session-cookie alive during user inactivity.
-        setInterval(() => {
-          axios.get(`${apiBaseUrl}/api/user/session_keep_alive`).then(response => {
-            if (!response.data.isAuthenticated) {
-              contextStore.broadcast('user-session-expired')
-            }
-          })
-        }, pingFrequency)
-      }
-      app.use(router).mount('#app')
+    contextStore.setCurrentUser(response.data).then(() => {
+      initGoogleAnalytics()
+      // Async API calls, whenever possible.
+      getServiceAnnouncement().then(data => {
+        contextStore.setServiceAnnouncement(data)
+        const pingFrequency: number = contextStore.config.pingFrequency
+        if (pingFrequency) {
+          // Keep session-cookie alive during user inactivity.
+          setInterval(() => {
+            axios.get(`${apiBaseUrl}/api/user/session_keep_alive`).then(response => {
+              if (!response.data.isAuthenticated) {
+                contextStore.broadcast('user-session-expired')
+              }
+            })
+          }, pingFrequency)
+        }
+        app.use(router).mount('#app')
+      })
     })
   })
 })

@@ -17,6 +17,7 @@
     </div>
     <div class="align-center d-flex justify-space-between">
       <ShowMyPeerAdvisingNotesToggle
+        v-if="showMyNotesOnly || notes.length"
         v-model="showMyNotesOnly"
         :is-fetching-notes="isFetchingNotes"
       />

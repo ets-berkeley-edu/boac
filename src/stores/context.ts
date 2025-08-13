@@ -8,7 +8,6 @@ import {ANONYMOUS_USER, alertScreenReader} from '@/lib/utils'
 import type {
   BoaConfig,
   BoaUser,
-  Cohort,
   CuratedGroup,
   Department,
   NoteContactType,
@@ -16,6 +15,7 @@ import type {
   ScreenReaderAlert,
   ServiceAnnouncement,
 } from '@/lib/types'
+import type {Cohort} from '@/lib/types-cohorts'
 import {getDepartments} from '@/api/user'
 
 const $_getDefaultApplicationState = () => ({
@@ -23,8 +23,6 @@ const $_getDefaultApplicationState = () => ({
   stacktrace: undefined as string | undefined | null,
   status: 200
 })
-
-let HAS_LAZY_LOADED = false
 
 export const useContextStore = defineStore('context', {
   state: () => ({
@@ -124,26 +122,29 @@ export const useContextStore = defineStore('context', {
     setConfig(data: BoaConfig) {
       this.config = data
     },
-    setCurrentUser(currentUser: BoaUser) {
-      this.currentUser = currentUser
-      // Lazy-load departmental data (and more?) when user is first authenticated.
-      if (this.currentUser.isAuthenticated && !HAS_LAZY_LOADED) {
-        HAS_LAZY_LOADED = true
-        getDepartments().then(data => {
-          this.allBerkeleyDepartments = data
-          this.allPeerAdvisingDepartments = []
-          each(this.allBerkeleyDepartments, (d: Department) => {
-            each(d.peerAdvisingDepartments, (p: PeerAdvisingDepartment) => {
-              this.allPeerAdvisingDepartments.push({
-                ...p,
-                deptCode: d.deptCode,
-                deptName: d.deptName
+    setCurrentUser(currentUser: BoaUser): Promise<void> {
+      return new Promise<void>(resolve => {
+        this.currentUser = currentUser
+        if (this.currentUser.isAuthenticated) {
+          getDepartments().then(data => {
+            this.allBerkeleyDepartments = data
+            this.allPeerAdvisingDepartments = []
+            each(this.allBerkeleyDepartments, (d: Department) => {
+              each(d.peerAdvisingDepartments, (p: PeerAdvisingDepartment) => {
+                this.allPeerAdvisingDepartments.push({
+                  ...p,
+                  deptCode: d.deptCode,
+                  deptName: d.deptName
+                })
               })
             })
+            this.allPeerAdvisingDepartments = sortBy(this.allPeerAdvisingDepartments, 'name')
+            resolve()
           })
-          this.allPeerAdvisingDepartments = sortBy(this.allPeerAdvisingDepartments, 'name')
-        })
-      }
+        } else {
+          resolve()
+        }
+      })
     },
     setDemoMode(inDemoMode: boolean): void {
       this.currentUser.inDemoMode = inDemoMode
