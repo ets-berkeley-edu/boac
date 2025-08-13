@@ -15,7 +15,7 @@
       <div v-if="!cohortStore.isCompactView" id="cohort-filters" class="mb-3">
         <FilterRow
           v-for="(filter, index) in cohortStore.filters"
-          :key="`${filter.key}-${index}`"
+          :key="`${filter.key}-${filter.value}`"
           :position="index"
         />
         <FilterRow v-if="cohortStore.isOwnedByCurrentUser" />
