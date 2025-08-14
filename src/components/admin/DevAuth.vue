@@ -53,6 +53,8 @@ const props = defineProps({
   }
 })
 
+const DEFAULT_ERROR_MESSAGE = 'Sorry, user is not authorized to use BOA.'
+
 const contextStore = useContextStore()
 const isLoggingIn = ref(false)
 const uid = ref('')
@@ -72,12 +74,12 @@ const logIn = () => {
             isLoggingIn.value = false
           })
         } else {
-          props.reportError('Sorry, user is not authorized to use BOA.')
+          props.reportError(DEFAULT_ERROR_MESSAGE)
           isLoggingIn.value = false
         }
       },
       error => {
-        props.reportError(error)
+        props.reportError(get(error, 'response.data.message') || DEFAULT_ERROR_MESSAGE)
         isLoggingIn.value = false
       }
     )
