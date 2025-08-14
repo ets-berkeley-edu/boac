@@ -4,14 +4,19 @@ import {initGoogleAnalytics} from '@/lib/ga'
 import {useContextStore} from '@/stores/context'
 
 export function devAuthLogIn(uid: string, password: string): Promise<void> {
-  return new Promise(resolve => {
-    const url: string = `${utils.apiBaseUrl()}/api/auth/dev_auth_login`
-    axios.post(url, {uid, password}).then(response => {
-      useContextStore().setCurrentUser(response.data).then(() => {
-        initGoogleAnalytics()
-        resolve()
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise(async (resolve, reject) => {
+    try {
+      const url: string = `${utils.apiBaseUrl()}/api/auth/dev_auth_login`
+      await axios.post(url, {uid, password}).then(response => {
+        useContextStore().setCurrentUser(response.data).then(() => {
+          initGoogleAnalytics()
+          resolve()
+        })
       })
-    })
+    } catch (error) {
+      reject(error)
+    }
   })
 }
 
