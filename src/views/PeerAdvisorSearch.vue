@@ -17,13 +17,16 @@
     </div>
     <div class="align-center d-flex justify-space-between">
       <ShowMyPeerAdvisingNotesToggle
-        v-if="showMyNotesOnly || notes.length"
+        v-if="showMyNotesOnly || isFetchingNotes || notes.length"
         v-model="showMyNotesOnly"
         :is-fetching-notes="isFetchingNotes"
       />
-      <div v-if="!isFetchingNotes">
+      <div v-if="!isFetchingNotes && totalNoteCount">
         {{ phrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
       </div>
+    </div>
+    <div v-if="!isFetchingNotes && !totalNoteCount" class="mt-5">
+      {{ phrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
     </div>
     <div>
       <PeerAdvisingNotesTable

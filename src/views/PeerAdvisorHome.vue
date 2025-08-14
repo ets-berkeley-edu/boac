@@ -22,14 +22,18 @@
         />
       </div>
     </div>
-    <div v-if="notes.length" class="align-center d-flex flex-wrap justify-space-between mt-2">
+    <div class="align-center d-flex flex-wrap justify-space-between mt-2">
       <ShowMyPeerAdvisingNotesToggle
+        v-if="showMyNotesOnly || isFetchingNotes || notes.length"
         v-model="showMyNotesOnly"
         :is-fetching-notes="isFetchingNotes"
       />
-      <div v-if="!isFetchingNotes" id="notes-description">
+      <div v-if="!isFetchingNotes && totalNoteCount" id="notes-description">
         {{ notesDescription }}
       </div>
+    </div>
+    <div v-if="!isFetchingNotes && !totalNoteCount" class="mt-5">
+      {{ notesDescription }}
     </div>
     <div class="w-100">
       <PeerAdvisingNotesTable
