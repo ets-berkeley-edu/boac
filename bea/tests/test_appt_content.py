@@ -104,7 +104,7 @@ class TestApptContent:
 
     def test_expanded_details(self, tc):
         self.student_page.expand_item(tc.appt)
-        if tc.appt.detail:
+        if tc.appt.detail and tc.appt.detail.strip():
             assert self.student_page.expanded_appt_details(tc.appt)
 
     def test_expanded_date(self, tc):

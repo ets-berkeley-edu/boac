@@ -63,7 +63,9 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[2]'), 'Has attachment(s)')
 
     def peer_note_date(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]//span'))
+        return self.el_text_if_exists(
+            (By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]//div[contains(@id, "updated-at")]'),
+            text_to_remove='Last updated on')
 
     @staticmethod
     def peer_manager_note_student_link(note):
@@ -74,11 +76,16 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         self.wait_for_element_and_click(self.peer_manager_note_student_link(note))
 
     def peer_manager_note_date(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]//span'))
+        return self.el_text_if_exists(
+            (By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]//div[contains(@id, "updated-at")]'),
+            text_to_remove='Last updated on')
 
     @staticmethod
     def peer_note_date_format(note):
-        return note.updated_date.strftime('%b %-d, %Y')
+        if datetime.datetime.now().strftime('%Y') == note.updated_date.strftime('%Y'):
+            return note.updated_date.strftime('%b %-d')
+        else:
+            return note.updated_date.strftime('%b %-d, %Y')
 
     def expand_peer_note(self, note):
         app.logger.info(f'Expanding note {note.record_id}')

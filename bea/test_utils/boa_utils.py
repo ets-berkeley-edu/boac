@@ -605,7 +605,7 @@ def get_peer_dept_note_ids(peer_dept_id=None):
                 FROM notes
                WHERE peer_advising_department_id {clause}
                  AND deleted_at IS NULL
-            ORDER BY created_at DESC"""
+            ORDER BY updated_at DESC"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
