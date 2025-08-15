@@ -38,29 +38,34 @@
           :disabled="!student || isAddingStudent"
           :in-progress="isAddingStudent"
           :prepend-icon="isAddingStudent ? undefined : mdiPlusThick"
-          text="Add"
+          :text="isDeletedPeerAdvisor ? 'Restore' : 'Add'"
           @keyup.enter="onClickAddButton"
         />
       </template>
     </AccessibleCombobox>
+    <v-expand-transition>
+      <div v-if="isDeletedPeerAdvisor" class="ma-3 text-warning">
+        <v-icon color="warning" :icon="mdiAlert" /> This student is a deleted Peer Advisor. Click 'Restore' to make them active again.
+      </div>
+    </v-expand-transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import {debounce, filter, get, includes, map, size, trim} from 'lodash'
 import type {PropType} from 'vue'
-import {mdiPlusThick} from '@mdi/js'
-import {onMounted, onUnmounted, ref} from 'vue'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {debounce, filter, find, get, includes, map, size, trim} from 'lodash'
+import {mdiAlert, mdiPlusThick} from '@mdi/js'
 import type {BasicStudentLabeled, BoaUser} from '@/lib/types'
 import AccessibleCombobox from '@/components/util/AccessibleCombobox.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
-import {createPeerAdvisor} from '@/api/peer-advising-users.js'
+import {createPeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising-users.js'
 import {findStudentsByNameOrSid} from '@/api/student'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
-  excludeTheseStudents: {
+  activeAndDeletedPeerAdvisors: {
     required: true,
     type: Array as PropType<BoaUser[]>
   },
@@ -81,7 +86,13 @@ const currentUser = contextStore.currentUser
 const idPrefix = 'add-peer-advisor'
 const intervalId = ref<ReturnType<typeof setTimeout>>()
 const isAddingStudent = ref(false)
+const isDeletedPeerAdvisor = computed(() => {
+  const sid = get(student.value, 'sid')
+  return !!sid && map(peerAdvisorsDeleted.value, 'csid').includes(sid)
+})
 const isFetchingStudents = ref(false)
+const peerAdvisorsActive = computed(() => filter(props.activeAndDeletedPeerAdvisors, p => !p.deletedAt) as BoaUser[])
+const peerAdvisorsDeleted = computed(() => filter(props.activeAndDeletedPeerAdvisors, p => p.deletedAt) as BoaUser[])
 const query = ref<string | undefined>()
 const student = ref<BasicStudentLabeled>()
 const vAutocompleteKey = ref<PropertyKey>(new Date().toString())
@@ -110,9 +121,18 @@ const onClickAddButton = () => {
       student.value = undefined
       putFocusNextTick(`${idPrefix}-input`)
     }
-    createPeerAdvisor(props.peerAdvisingDepartmentId, student.value.uid).then(() => {
-      props.refresh().finally(done)
-    })
+    if (isDeletedPeerAdvisor.value) {
+      const deletedPeerAdvisor: BoaUser | undefined = find(peerAdvisorsDeleted.value, ['csid', student.value.sid])
+      if (deletedPeerAdvisor) {
+        restorePeerAdvisor(props.peerAdvisingDepartmentId, deletedPeerAdvisor.id).then(() => {
+          props.refresh().finally(done)
+        })
+      }
+    } else {
+      createPeerAdvisor(props.peerAdvisingDepartmentId, student.value.uid).then(() => {
+        props.refresh().finally(done)
+      })
+    }
   }
 }
 
@@ -121,8 +141,7 @@ const onUpdateSearch = debounce((input: string) => {
   if (size(q) > 1) {
     isFetchingStudents.value = true
     findStudentsByNameOrSid(q, 20, new AbortController(), true).then(students => {
-      const existingPeerAdvisorSids = map(props.excludeTheseStudents, 'csid')
-      const filteredStudents = filter(students, s => !includes(existingPeerAdvisorSids, s.sid))
+      const filteredStudents = filter(students, s => !includes(map(peerAdvisorsActive.value, 'csid'), s.sid))
       autoSuggestedStudents.value = map(filteredStudents, s => ({title: s.label, value: s}))
     }).catch(() => putFocusNextTick(`${idPrefix}-input`)
     ).finally(() => isFetchingStudents.value = false)
