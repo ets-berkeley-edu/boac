@@ -3,7 +3,7 @@
     <div class="align-end d-flex flex-wrap default-margins justify-space-between font-weight-bold">
       <div class="add-student-container pr-4">
         <PeerAdvisingAddStudent
-          :exclude-these-students="peerAdvisors"
+          :active-and-deleted-peer-advisors="peerAdvisors"
           :peer-advising-department-id="peerAdvisingDepartment.id"
           :refresh="refresh"
         />
