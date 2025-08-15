@@ -55,7 +55,8 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def show_notes(self):
         app.logger.info('Checking notes tab')
-        self.wait_for_element_and_click(self.NOTES_BUTTON)
+        if self.is_present(self.NOTES_BUTTON):
+            self.wait_for_element_and_click(self.NOTES_BUTTON)
         if self.is_present(self.SHOW_HIDE_NOTES_BUTTON) and 'Show' in self.element(self.SHOW_HIDE_NOTES_BUTTON).text:
             self.wait_for_element_and_click(self.SHOW_HIDE_NOTES_BUTTON)
 
@@ -211,7 +212,8 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
             return None
 
     def expanded_note_attachments(self, note):
-        attachment_names = [el.text.split('\n')[1].strip().lower() for el in self.item_attachment_els(note)]
+        els = self.item_attachment_els(note)
+        attachment_names = [el.text.split('\n')[1].strip().lower() for el in els]
         attachment_names.sort()
         return attachment_names
 

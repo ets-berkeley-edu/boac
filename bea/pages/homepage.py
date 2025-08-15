@@ -44,7 +44,7 @@ class Homepage(UserListPages):
     COPYRIGHT = (By.CLASS_NAME, 'copyright')
     NOT_AUTH_MSG = (By.XPATH, '//div[contains(., "Sorry, you are not registered to use BOA.")]')
     DELETED_MSG = (By.XPATH, '//div[contains(., "Sorry, user is not authorized to use BOA.")]')
-    AXIOS_ERROR_MSG = (By.XPATH, '//div[text()="AxiosError: Request failed with status code 403"]')
+    AXIOS_ERROR_MSG = (By.XPATH, '//div[contains(., "not registered to use BOA.")]')
 
     def load_page(self):
         self.driver.get(boa_utils.get_boa_base_url())

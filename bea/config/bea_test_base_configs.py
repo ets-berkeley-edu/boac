@@ -458,16 +458,16 @@ class BEATestBaseConfigs(object):
     def set_search_cohorts(self, opts):
         test_data = utils.parse_test_data()
         self.searches = []
-        if opts.get('students') and opts['students']:
+        if opts.get('students'):
             data = test_data['filters']['students']
-        elif opts.get('admits') and opts['admits']:
+        elif opts.get('admits'):
             data = test_data['filters']['admits']
         else:
             app.logger.error('Unable to determine search cohorts')
             raise
 
         for test_case in data:
-            if opts.get('students') and opts['students']:
+            if opts.get('students'):
                 nessie_utils.remove_unavailable_student_cohort_test_data(test_case)
                 search_criteria = CohortFilter(test_case, self.dept)
                 sids = nessie_filter_students_utils.get_cohort_result(self, search_criteria)
@@ -493,9 +493,14 @@ class BEATestBaseConfigs(object):
             if not app.config['TEST_ALL_COHORT_FILTERS']:
                 cohorts = []
                 for c in self.searches:
-                    if len(c.members) in (list(range(25, 150))):
-                        cohorts.append(c)
-                        break
+                    if opts.get('admits'):
+                        if len(c.members) in (list(range(25, 250))):
+                            cohorts.append(c)
+                            break
+                    else:
+                        if len(c.members) in (list(range(25, 150))):
+                            cohorts.append(c)
+                            break
                 self.searches = cohorts
 
     # TEST ADMIT CONFIGS
