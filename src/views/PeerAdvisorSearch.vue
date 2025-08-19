@@ -1,57 +1,137 @@
 <template>
-  <div v-if="!contextStore.loading" class="mt-8 mx-8 mx-md-16">
-    <div class="align-center d-flex">
-      <div>
-        <h1 id="page-header" class="mr-4">Peer Advising Search</h1>
-      </div>
-      <div class="pb-1">
-        [<v-btn
-          class="text-anchor px-0"
-          :disabled="isFetchingNotes"
-          role="link"
-          text="Return to Home"
-          variant="text"
-          @click="clearResults"
-        />]
-      </div>
+  <div v-if="!contextStore.loading">
+    <!-- HEADER (title + tabs) -->
+    <div class="peer-header pt-10 px-12">
+      <h1 id="page-header" class="mb-3">Peer Advising Search</h1>
+
+      <!-- Tabs strip (header background applies here too) -->
+      <v-tabs
+        v-model="tab"
+        aria-label="peer-advising tabs"
+        :aria-orientation="tabsDirection"
+        density="comfortable"
+        :direction="tabsDirection"
+        :items="tabs"
+        mobile-breakpoint="md"
+        class="tab-strip"
+      >
+        <template #tab="{ item }">
+          <v-tab
+            :id="`peer-tab-${item.key}`"
+            :aria-controls="`peer-tab-panel-${item.key}`"
+            class="border-s-sm border-e-sm border-t-sm mx-1 rounded-t-lg"
+            :class="{
+              'bg-white border-b-0': item.key === tab,
+              'bg-grey-lighten-4 border-b-md': item.key !== tab
+            }"
+            hide-slider
+            min-width="120"
+            :value="item.key"
+            variant="text"
+          >
+            <template #default>
+              <div class="d-flex flex-row-reverse font-size-12 font-weight-bold">
+                <div :id="`peer-tab-count-${item.key}`" class="text-black">
+                  {{ item.countLabel }}
+                </div>
+                <div
+                  class="mr-1 text-uppercase"
+                  :class="{'text-black': item.key === tab, 'text-primary': item.key !== tab}"
+                >
+                  {{ item.title }}
+                </div>
+              </div>
+            </template>
+          </v-tab>
+        </template>
+      </v-tabs>
     </div>
-    <div class="align-center d-flex justify-space-between">
-      <ShowMyPeerAdvisingNotesToggle
-        v-if="showMyNotesOnly || isFetchingNotes || notes.length"
-        v-model="showMyNotesOnly"
-        :is-fetching-notes="isFetchingNotes"
-      />
-      <div v-if="!isFetchingNotes && totalNoteCount">
-        {{ phrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
-      </div>
-    </div>
-    <div v-if="!isFetchingNotes && !totalNoteCount" class="mt-5">
-      {{ phrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
-    </div>
-    <div>
-      <PeerAdvisingNotesTable
-        :after-note-edit="afterNoteEdit"
-        :notes="notes"
-        :is-fetching-notes="isFetchingNotes"
-      />
-      <div class="my-3 text-center">
-        <v-btn
-          v-if="totalNoteCount > size(notes)"
-          id="fetch-more-notes"
-          text="Show additional advising notes"
-          variant="text"
-          @click.prevent="showMoreNotes"
-        />
-        <SectionSpinner v-if="size(notes)" :loading="isFetchingNotes" />
-      </div>
+
+    <!-- PANELS (full-width below tabs) -->
+    <div class="peer-content">
+      <v-window v-model="tab">
+        <!-- STUDENTS TAB -->
+        <v-window-item
+          :id="'peer-tab-panel-student'"
+          value="student"
+          :aria-labelledby="'peer-tab-student'"
+          role="tabpanel"
+          class="w-100"
+        >
+          <div class="px-4 py-6 mx-12">
+            <div class="d-flex align-center">
+              <span v-if="!isFetchingNotes">
+                {{ studentPhrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
+              </span>
+              <span v-else>Searching Notes...</span>
+              <span :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
+              <v-btn
+                class="text-anchor mx-1 px-1"
+                role="link"
+                variant="text"
+                :disabled="isFetchingNotes"
+                @click="clearResults"
+              >
+                Return to Home
+              </v-btn>
+            </div>
+            <PeerAdvisingStudentsTable :students="students" />
+          </div>
+        </v-window-item>
+
+        <!-- NOTES TAB -->
+        <v-window-item
+          :id="'peer-tab-panel-note'"
+          value="note"
+          :aria-labelledby="'peer-tab-note'"
+          role="tabpanel"
+          class="w-100"
+        >
+          <div class="px-12 py-4">
+            <div class="d-flex justify-space-between">
+              <div>
+                <div class="d-flex align-center">
+                  <span v-if="!isFetchingNotes && totalNoteCount">
+                    {{ notePhrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
+                  </span>
+                  <span v-else>Searching Notes...</span>
+                  <span :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
+                  <ShowMyPeerAdvisingNotesToggle
+                    v-if="showMyNotesOnly || isFetchingNotes || notes.length"
+                    v-model="showMyNotesOnly"
+                    :is-fetching-notes="isFetchingNotes"
+                  />
+                </div>
+              </div>
+            </div>
+            <PeerAdvisingNotesTable
+              class="mt-4"
+              :after-note-edit="afterNoteEdit"
+              :notes="notes"
+              :is-fetching-notes="isFetchingNotes"
+            />
+            <div class="my-3 text-center">
+              <v-btn
+                v-if="hasMoreNotes"
+                id="fetch-more-notes"
+                text="Show additional advising notes"
+                variant="text"
+                @click.prevent="showMoreNotes"
+              />
+              <SectionSpinner v-if="size(notes)" :loading="isFetchingNotes" />
+            </div>
+          </div>
+        </v-window-item>
+      </v-window>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import {findIndex, get, orderBy, size} from 'lodash'
-import {onMounted, onUnmounted, ref, watch} from 'vue'
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
+import {useDisplay} from 'vuetify'
 import type {BoaUser, Note} from '@/lib/types'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
@@ -63,6 +143,10 @@ import {getUserByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {peerAdvisorSearch} from '@/api/search'
 import {useSearchStore} from '@/stores/search'
+import PeerAdvisingStudentsTable from '@/components/peer/PeerAdvisingStudentsTable.vue'
+
+const {mdAndUp} = useDisplay()
+const tabsDirection = computed(() => (mdAndUp.value ? 'horizontal' : 'vertical'))
 
 const LIMIT_PER_FETCH = 50
 
@@ -70,26 +154,46 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const isFetchingNotes = ref(false)
 const notes = ref<Note[]>([])
+const students = ref<[]>([])
 const offset = ref(0)
 const peerAdvisingDepartmentId = ref<number | undefined>()
 const peerAdvisor = ref<BoaUser>(contextStore.currentUser)
-const phrase = ref('')
+const notePhrase = ref('')
+const studentPhrase = ref('')
 const route = useRoute()
 const router = useRouter()
 const searchStore = useSearchStore()
 const totalNoteCount = ref(0)
+const totalStudentCount = ref(0)
 const showMyNotesOnly = ref(false)
+const queryText = ref(searchStore.queryText)
+
+// Tabs
+const tab = ref<'note' | 'student'>('student')
+const hasMoreNotes = computed(() => totalNoteCount.value > size(notes.value))
+const tabs = computed(() => ([
+  {
+    key: 'student',
+    title: 'STUDENTS',
+    countLabel: totalStudentCount.value
+      ? `${Math.min(size(students.value), totalStudentCount.value)}${size(students.value) < totalStudentCount.value ? '+' : ''}`
+      : '0'
+  },
+  {
+    key: 'note',
+    title: 'NOTES',
+    countLabel: totalNoteCount.value
+      ? `${Math.min(size(notes.value), totalNoteCount.value)}${size(notes.value) < totalNoteCount.value ? '+' : ''}`
+      : '0'
+  }
+] as const))
 
 watch(showMyNotesOnly, async () => {
-  // clear out the old notes and set loading
   notes.value = []
   totalNoteCount.value = 0
   isFetchingNotes.value = true
-  // fetch fresh data filtered by the new switch state
   search()
 })
-
-const queryText = ref(searchStore.queryText)
 
 contextStore.loadingStart()
 
@@ -129,8 +233,6 @@ const afterNoteEdit = (noteId: number) => {
 
 const search = () => {
   peerAdvisor.value = contextStore.currentUser
-
-  // Peer Advisors can belong to one and only one Peer Advising Department.
   const memberships = getPeerAdvisorDepartmentMemberships(peerAdvisor.value, 'peer_advisor')
   peerAdvisingDepartmentId.value = memberships.length ? memberships[0].peerAdvisingDepartmentId : undefined
   if (peerAdvisor.value.id && peerAdvisingDepartmentId.value) {
@@ -145,15 +247,25 @@ const search = () => {
       peerAdvisor.value.uid,
       showMyNotesOnly.value
     ).then(data => {
-      const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0].id}`
+      const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0]?.id}`
       notes.value = orderBy(data.notes, n => n.updatedAt || n.createdAt, ['desc'])
+      students.value = data.students
       totalNoteCount.value = data.totalNoteCount
+      totalStudentCount.value = data.totalStudentCount
       if (totalNoteCount.value === 0) {
-        phrase.value = 'No results found matching'
+        notePhrase.value = 'No results found matching '
       } else if (size(notes.value) < totalNoteCount.value) {
-        phrase.value = `Showing ${notes.value.length} of ${pluralize('result', totalNoteCount.value)} matching`
+        notePhrase.value = `Showing ${notes.value.length} of ${pluralize('result', totalNoteCount.value)} matching `
       } else {
-        phrase.value = `Showing ${pluralize('result', totalNoteCount.value)} matching`
+        notePhrase.value = `Showing ${pluralize('result', totalNoteCount.value)} matching `
+      }
+
+      if (totalStudentCount.value === 0) {
+        studentPhrase.value = 'No results found matching '
+      } else if (size(students.value) < totalStudentCount.value) {
+        studentPhrase.value = `Showing ${students.value.length} of ${pluralize('result', totalStudentCount.value)} matching `
+      } else {
+        studentPhrase.value = `Showing ${pluralize('result', totalStudentCount.value)} matching `
       }
       queryText.value = searchStore.queryText
       contextStore.loadingComplete('Search results loaded')
@@ -171,3 +283,13 @@ const showMoreNotes = () => {
   search()
 }
 </script>
+
+<style scoped>
+.peer-header {
+  background-color: rgb(var(--v-theme-sky-blue)) !important;
+}
+
+.peer-content {
+  width: 100%;
+}
+</style>
