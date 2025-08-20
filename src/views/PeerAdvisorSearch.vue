@@ -58,12 +58,12 @@
           role="tabpanel"
           class="w-100"
         >
-          <div class="px-4 py-6 mx-12">
+          <div class="px-4 py-6 mx-4">
             <div class="d-flex align-center">
               <span v-if="!isFetchingNotes">
                 {{ studentPhrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
               </span>
-              <span v-else>Searching Notes...</span>
+              <span v-else>Searching Students...</span>
               <span :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
               <v-btn
                 class="text-anchor mx-1 px-1"
@@ -75,7 +75,20 @@
                 Return to Home
               </v-btn>
             </div>
-            <PeerAdvisingStudentsTable :students="students" />
+            <PeerAdvisingStudentsTable
+              :students="students"
+              :peer-advising-department-id="peerAdvisingDepartmentId"
+            />
+            <div class="my-3 text-center">
+              <v-btn
+                v-if="hasMoreStudents"
+                id="fetch-more-students"
+                text="Show additional students"
+                variant="text"
+                @click.prevent="showMoreStudents"
+              />
+              <SectionSpinner v-if="size(notes)" :loading="isFetchingNotes" />
+            </div>
           </div>
         </v-window-item>
 
@@ -91,11 +104,11 @@
             <div class="d-flex justify-space-between">
               <div>
                 <div class="d-flex align-center">
-                  <span v-if="!isFetchingNotes && totalNoteCount">
+                  <span v-if="!isFetchingNotes && totalNoteCount >= 0">
                     {{ notePhrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
                   </span>
                   <span v-else>Searching Notes...</span>
-                  <span :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
+                  <span v-if="showMyNotesOnly || isFetchingNotes || notes.length" :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
                   <ShowMyPeerAdvisingNotesToggle
                     v-if="showMyNotesOnly || isFetchingNotes || notes.length"
                     v-model="showMyNotesOnly"
@@ -171,6 +184,8 @@ const queryText = ref(searchStore.queryText)
 // Tabs
 const tab = ref<'note' | 'student'>('student')
 const hasMoreNotes = computed(() => totalNoteCount.value > size(notes.value))
+const hasMoreStudents = computed(() => totalStudentCount.value > size(students.value))
+
 const tabs = computed(() => ([
   {
     key: 'student',
@@ -192,20 +207,22 @@ watch(showMyNotesOnly, async () => {
   notes.value = []
   totalNoteCount.value = 0
   isFetchingNotes.value = true
-  search()
+  search(true, false)
 })
 
 contextStore.loadingStart()
 
 onMounted(() => {
+  const memberships = getPeerAdvisorDepartmentMemberships(peerAdvisor.value, 'peer_advisor')
+  peerAdvisingDepartmentId.value = memberships.length ? memberships[0].peerAdvisingDepartmentId : undefined
   if (currentUser.isAdmin) {
     const uid = route.params.uid.toString()
     getUserByUid(uid, false).then(data => {
       peerAdvisor.value = data
-      search()
+      search(true, true)
     })
   } else {
-    search()
+    search(true, true)
   }
 })
 
@@ -231,7 +248,7 @@ const afterNoteEdit = (noteId: number) => {
   })
 }
 
-const search = () => {
+const search = (getNotes = true, getStudents = true) => {
   peerAdvisor.value = contextStore.currentUser
   const memberships = getPeerAdvisorDepartmentMemberships(peerAdvisor.value, 'peer_advisor')
   peerAdvisingDepartmentId.value = memberships.length ? memberships[0].peerAdvisingDepartmentId : undefined
@@ -239,34 +256,43 @@ const search = () => {
     searchStore.setQueryText(route.query.q || searchStore.queryText)
     alertScreenReader(`Searching for "${searchStore.queryText}"`)
     isFetchingNotes.value = true
+
     peerAdvisorSearch(
       searchStore.queryText,
       peerAdvisingDepartmentId.value,
       offset.value,
       LIMIT_PER_FETCH,
       peerAdvisor.value.uid,
-      showMyNotesOnly.value
+      showMyNotesOnly.value,
+      getNotes,
+      getStudents
     ).then(data => {
       const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0]?.id}`
-      notes.value = orderBy(data.notes, n => n.updatedAt || n.createdAt, ['desc'])
-      students.value = data.students
-      totalNoteCount.value = data.totalNoteCount
-      totalStudentCount.value = data.totalStudentCount
-      if (totalNoteCount.value === 0) {
-        notePhrase.value = 'No results found matching '
-      } else if (size(notes.value) < totalNoteCount.value) {
-        notePhrase.value = `Showing ${notes.value.length} of ${pluralize('result', totalNoteCount.value)} matching `
-      } else {
-        notePhrase.value = `Showing ${pluralize('result', totalNoteCount.value)} matching `
+      // notes.value = orderBy(data.notes, n => n.updatedAt || n.createdAt, ['desc'])
+      if (getNotes) {
+        notes.value = orderBy([...notes.value, ...data.notes], n => n.updatedAt || n.createdAt, ['desc'])
+        totalNoteCount.value = data.totalNoteCount
+        if (totalNoteCount.value === 0) {
+          notePhrase.value = 'No results found matching '
+        } else if (size(notes.value) < totalNoteCount.value) {
+          notePhrase.value = `Showing ${notes.value.length} of ${pluralize('result', totalNoteCount.value)} matching `
+        } else {
+          notePhrase.value = `Showing ${pluralize('result', totalNoteCount.value)} matching `
+        }
       }
 
-      if (totalStudentCount.value === 0) {
-        studentPhrase.value = 'No results found matching '
-      } else if (size(students.value) < totalStudentCount.value) {
-        studentPhrase.value = `Showing ${students.value.length} of ${pluralize('result', totalStudentCount.value)} matching `
-      } else {
-        studentPhrase.value = `Showing ${pluralize('result', totalStudentCount.value)} matching `
+      if (getStudents) {
+        students.value = [...students.value, ...data.students]
+        totalStudentCount.value = data.totalStudentCount
+        if (totalStudentCount.value === 0) {
+          studentPhrase.value = 'No results found matching '
+        } else if (size(students.value) < totalStudentCount.value) {
+          studentPhrase.value = `Showing ${students.value.length} of ${pluralize('result', totalStudentCount.value)} matching `
+        } else {
+          studentPhrase.value = `Showing ${pluralize('result', totalStudentCount.value)} matching `
+        }
       }
+
       queryText.value = searchStore.queryText
       contextStore.loadingComplete('Search results loaded')
       isFetchingNotes.value = false
@@ -280,7 +306,12 @@ const search = () => {
 
 const showMoreNotes = () => {
   offset.value = get(notes.value, 'length', 0)
-  search()
+  search(true, false)
+}
+
+const showMoreStudents = () => {
+  offset.value = get(students.value, 'length', 0)
+  search(false, true)
 }
 </script>
 

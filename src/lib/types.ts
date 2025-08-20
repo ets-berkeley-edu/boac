@@ -288,6 +288,7 @@ export type NoteEditSessionModel = {
   subject: string | undefined,
   topics: string[]
   noteTemplateId: number | undefined,
+  peerAdvisingStudentRecipient: string | null
 }
 
 export type NoteRecipients = {

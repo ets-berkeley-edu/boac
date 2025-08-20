@@ -225,10 +225,15 @@ def get_student_profile_summaries(sids, term_id=None):
     if not profile_results:
         return []
     profiles_by_sid = _get_profiles_by_sid(profile_results)
+
+    email_rows = data_loch.get_students_by_sids(sids) or []
+    email_by_sid = {str(r['sid']): r.get('email_address') for r in email_rows}
+
     profiles = []
     for sid in sids:
         profile = profiles_by_sid.get(sid)
         if profile:
+            profile['email'] = email_by_sid.get(str(sid))
             profiles.append(profile)
 
     benchmark('begin photo merge')

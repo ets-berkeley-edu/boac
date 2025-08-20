@@ -48,7 +48,7 @@ export function search(
     .then(response => response.data)
 }
 
-export function peerAdvisorSearch(phrase: string, peerAdvisingDepartmentId: number, offset: number, limit: number, peerAdvisorUid: string, showMyNotesOnly = false) {
+export function peerAdvisorSearch(phrase: string, peerAdvisingDepartmentId: number, offset: number, limit: number, peerAdvisorUid: string, showMyNotesOnly = false, notes = true, students = true) {
     $_track(phrase)
     const data = {
       searchPhrase: phrase,
@@ -56,8 +56,8 @@ export function peerAdvisorSearch(phrase: string, peerAdvisingDepartmentId: numb
       offset: offset || 0,
       limit: limit || 50,
       peerAdvisorUid: showMyNotesOnly ? peerAdvisorUid : null,
-      students: true,
-      notes: true
+      students: students,
+      notes: notes
     }
     return axios
     .post(`${utils.apiBaseUrl()}/api/search/peer_advising_notes`, data)
