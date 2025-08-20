@@ -37,6 +37,8 @@ from bea.test_utils import boa_utils, utils
 
 
 class StudentPageTimeline(BoaPages):
+
+    TIMELINE_TABLE = By.ID, 'timeline-messages'
     SORRY_NO_ATTACHMENT_MSG = By.XPATH, '//body[text()="Sorry, attachment not available."]'
     TOPIC = By.XPATH, '//li[contains(@id, "topic")]'
 
