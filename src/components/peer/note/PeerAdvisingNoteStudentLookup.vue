@@ -7,7 +7,17 @@
       <span class="mr-2 text-weight-bold">Student</span>
       <span class="font-weight-regular">(name, SID or email)</span>
     </label>
+    <div v-if="loadingStatus === 'prefill'" class="mt-4 d-flex align-center">
+      <v-progress-circular
+        indeterminate
+        size="18"
+        width="2"
+        class="mr-2"
+      />
+      <span>Loading student…</span>
+    </div>
     <AccessibleCombobox
+      v-else
       :key="vAutocompleteKey"
       :id-prefix="idPrefix"
       aria-description="Name, S I D, or email lookup. Expect auto suggest."
@@ -35,7 +45,7 @@
 
 <script setup lang="ts">
 import {debounce, get, map, size, trim} from 'lodash'
-import {onMounted, onUnmounted, ref} from 'vue'
+import {nextTick, onMounted, onUnmounted, ref} from 'vue'
 import {storeToRefs} from 'pinia'
 import type {BasicStudentLabeled} from '@/lib/types'
 import AccessibleCombobox from '@/components/util/AccessibleCombobox.vue'
@@ -58,6 +68,7 @@ const {isSaving} = storeToRefs(noteStore)
 const query = ref<string | undefined>(undefined)
 const student = ref<BasicStudentLabeled>()
 const vAutocompleteKey = ref<PropertyKey>(new Date().toString())
+const loadingStatus = ref<'ready' | 'prefill'>('ready')
 
 const props = defineProps({
   onClearSelectedStudent: {
@@ -71,9 +82,35 @@ const props = defineProps({
 })
 
 onMounted(() => {
-  return intervalId.value = setInterval(() => {
+  // Prefill from recipients if a student was preselected (e.g., via + New Note button)
+  const preselectedSid = noteStore.recipients?.sids?.[0]
+  if (preselectedSid && !student.value) {
+    loadingStatus.value = 'prefill'
+    isFetchingStudents.value = true
+    findStudentsByNameOrSid(preselectedSid, 1, new AbortController(), true)
+      .then(results => {
+        const s = results && results[0]
+        if (s) {
+          // Set the combobox's model so the value shows up
+          student.value = s
+          // Mirror the "selected" behavior by disabling the input
+          const input = getInputElement()
+          if (input) {
+            input.setAttribute('disabled', 'true')
+          }
+          return nextTick().then(() => selectStudent(s))
+        }
+      })
+      .then(() => {
+        loadingStatus.value = 'ready'
+        isFetchingStudents.value = false
+      })
+  }
+
+  // existing ticker
+  return (intervalId.value = setInterval(() => {
     counter.value = counter.value === 100 ? 0 : counter.value + 1
-  }, 100)
+  }, 100))
 })
 
 onUnmounted(() => clearInterval(intervalId.value))

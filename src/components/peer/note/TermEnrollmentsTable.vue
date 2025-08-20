@@ -6,7 +6,7 @@
           {{ termNameForSisId(termId) }}
         </th>
         <th v-if="size(enrollments)" class="border-b-md pb-1 text-medium-emphasis text-right text-medium-emphasis">
-          Units
+          {{ totalUnits }} Units
         </th>
       </tr>
     </thead>
@@ -57,6 +57,7 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
+import {computed} from 'vue'
 import {filter as _filter, map, size} from 'lodash'
 import {mdiAlert} from '@mdi/js'
 import type {Enrollment, Section} from '@/lib/types'
@@ -64,7 +65,7 @@ import {normalizeId} from '@/lib/utils'
 import {termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 
-defineProps({
+const props = defineProps({
   enrollments: {
     required: true,
     type: Array as PropType<Enrollment[]>
@@ -81,6 +82,9 @@ defineProps({
 
 const currentUser = useContextStore().currentUser
 
+const totalUnits = computed(() =>
+  (props.enrollments ?? []).reduce((sum, e) => sum + (Number(e?.units) || 0), 0)
+)
 const getWaitlistedSections = (enrollment: Enrollment): Section[] => {
   return _filter(enrollment.sections, ['enrollmentStatus', 'W'])
 }

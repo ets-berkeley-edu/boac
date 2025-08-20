@@ -109,7 +109,7 @@ const props = defineProps({
   peerAdvisingDepartmentId: {
     required: true,
     type: Number
-  },
+  }
 })
 
 const isAreYouSureModalOpen = ref(false)

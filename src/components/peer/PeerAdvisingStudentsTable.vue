@@ -1,3 +1,4 @@
+<!-- StudentCurriculumTable.vue -->
 <template>
   <div class="student-table-wrapper">
     <slot v-if="!students?.length && !isFetching" name="noData" />
@@ -19,6 +20,7 @@
           <th scope="col">Student</th>
           <th scope="col">UID</th>
           <th scope="col">Email</th>
+          <th scope="col">Major</th>
           <th scope="col">Expand</th>
         </tr>
       </thead>
@@ -64,6 +66,25 @@
             </div>
           </td>
 
+          <!-- Major -->
+          <td class="td-major">
+            <div class="grid-cell">
+              <template v-if="getMajors(student).length">
+                <v-tooltip location="top">
+                  <template #activator="{ props }">
+                    <span v-bind="props" class="truncate">
+                      {{ getMajors(student).join(', ') }}
+                    </span>
+                  </template>
+                  <div class="pa-2" style="max-width: 360px; white-space: normal;">
+                    <div v-for="(m, i) in getMajors(student)" :key="i">{{ m }}</div>
+                  </div>
+                </v-tooltip>
+              </template>
+              <span v-else>—</span>
+            </div>
+          </td>
+
           <!-- Expand/Collapse -->
           <td class="td-expand">
             <div class="grid-cell ta-right">
@@ -74,11 +95,22 @@
                 variant="outlined"
                 color="primary"
                 size="small"
-                class="expand-btn"
+                class="expand-btn mr-2"
                 @click="onToggleExpand(student)"
               >
                 <v-icon :icon="isExpanded(student) ? mdiChevronUp : mdiChevronDown" class="mr-1" />
-                {{ isExpanded(student) ? 'Collapse' : 'View Curriculum' }}
+                {{ isExpanded(student) ? 'Hide Curriculum' : 'View Curriculum' }}
+              </v-btn>
+
+              <v-btn
+                color="primary"
+                variant="elevated"
+                size="small"
+                class="text-white mr-2"
+                :disabled="!!noteStore.mode"
+                @click="openNoteModal(student)"
+              >
+                + New Note
               </v-btn>
             </div>
           </td>
@@ -96,10 +128,21 @@
                 :aria-label="`Curriculum for ${getStudentName(student)}`"
               >
                 <div class="expansion-content">
-                  <div v-if="isExpanded(student) && getAcademicYears(student)" class="border-sm ma-2 pl-4 py-3">
+                  <!-- per-student spinner inside panel -->
+                  <div v-if="isLoading(student)" class="d-flex align-center py-3">
+                    <v-progress-circular
+                      indeterminate
+                      size="16"
+                      width="2"
+                      class="mr-2"
+                    />
+                    <span>Loading schedule…</span>
+                  </div>
+
+                  <div v-else-if="getAcademicYears(student)" class="border-sm ma-2 pl-4 py-3">
                     <h4 class="mb-2 text-medium-emphasis">Course Schedule</h4>
                     <div
-                      v-for="(academicYear, label, yearIndex) of getAcademicYears(student)"
+                      v-for="(academicYear, label, yearIndex) in getAcademicYears(student)"
                       :key="label"
                     >
                       <h5 class="sr-only">{{ label }}</h5>
@@ -123,6 +166,10 @@
                       </div>
                     </div>
                   </div>
+
+                  <div v-else class="text-medium-emphasis py-2">
+                    No enrollment data available.
+                  </div>
                 </div>
               </div>
             </v-expand-transition>
@@ -130,6 +177,10 @@
         </tr>
       </tbody>
     </table>
+    <EditPeerAdvisingNoteModal
+      v-model="isNoteModalOpen"
+      :peer-advising-department-id="peerAdvisingDepartmentId"
+    />
   </div>
 </template>
 
@@ -139,6 +190,12 @@ import {mdiChevronDown, mdiChevronUp} from '@mdi/js'
 import TermEnrollmentsTable from '@/components/peer/note/TermEnrollmentsTable.vue'
 import {getStudentEnrollments} from '@/api/peer-advising-users'
 import {useContextStore} from '@/stores/context'
+import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
+import {useNoteStore} from '@/stores/note-edit-session'
+import {clearNoteRecipients, getDefaultModel, setNoteRecipient} from '@/stores/note-edit-session/note-edit-session-utils'
+
+
+type YearTermMap<T = unknown> = Record<string, Record<string, T[]>>
 
 interface Advisor {
   uid: string
@@ -159,13 +216,18 @@ interface Student {
   lastName?: string
   name?: string
   email?: string
+  majors?: string[]
   advisors?: Advisor[]
   photoUrl?: string
 }
 
-const {students, isFetching} = defineProps<{
+const noteStore = useNoteStore()
+const isNoteModalOpen = ref(false)
+
+const {students, isFetching, peerAdvisingDepartmentId} = defineProps<{
   students: Student[]
   isFetching?: boolean
+  peerAdvisingDepartmentId: number | undefined
 }>()
 
 const {config} = useContextStore()
@@ -177,8 +239,43 @@ const expanded = ref<Set<string | number>>(new Set())
 // Per-student cache of enrollments (plain nested object: year -> term -> enrollments[])
 const academicYearsByStudent = ref(new Map())
 
+// per-student loading state, to show loading status for each students' enrollment data
+const loadingByStudent = ref(new Map<string | number, boolean>())
+
 const studentKey = (s: Student, i: number) => s.uid ?? s.sid ?? i
 const isExpanded = (s: Student) => expanded.value.has(studentKey(s, 0))
+const isLoading = (s: Student) => !!loadingByStudent.value.get(studentKey(s, 0))
+
+// Helpers to update Maps reactively (clone to trigger updates)
+function setAcademicYearsFor(key: string | number, data) {
+  const m = new Map(academicYearsByStudent.value)
+  m.set(key, data)
+  academicYearsByStudent.value = m
+}
+function setLoadingFor(key: string | number, val: boolean) {
+  const m = new Map(loadingByStudent.value)
+  m.set(key, val)
+  loadingByStudent.value = m
+}
+
+function openNoteModal(student: Student) {
+  noteStore.exitSession()
+
+  const model = getDefaultModel()
+  model.subject = '' // Peer advisors don’t provide subject
+  model.peerAdvisingDepartmentId = peerAdvisingDepartmentId
+  noteStore.setModel(model)
+  noteStore.setMode('createPeerAdvisorNote')
+
+  // recipients-based preselect
+  clearNoteRecipients()
+  if (student?.sid) {
+    setNoteRecipient(String(student.sid))
+  }
+
+  isNoteModalOpen.value = true
+  noteStore.setIsCreateNoteModalOpen(true)
+}
 
 const onToggleExpand = (s: Student) => {
   const key = studentKey(s, 0)
@@ -195,33 +292,39 @@ const onToggleExpand = (s: Student) => {
 
 const fetchEnrollmentsFor = (s: Student) => {
   const key = studentKey(s, 0)
+  setLoadingFor(key, true)
   getStudentEnrollments(s.sid)
     .then((data) => {
-      academicYearsByStudent.value.set(key, normalizeToPlainObject(data))
+      setAcademicYearsFor(key, normalizeToPlainObject(data))
     })
     .catch(() => {
-      academicYearsByStudent.value.set(key, {}) // cache empty to avoid re-fetch loop
+      setAcademicYearsFor(key, {})
+    })
+    .then(() => {
+      setLoadingFor(key, false)
     })
 }
 
-// Keep your template’s object-style v-for by normalizing to plain objects.
-function normalizeToPlainObject(raw) {
-  // If already a plain object in desired shape, return as-is
+function normalizeToPlainObject<T = unknown>(raw: unknown): YearTermMap<T> {
   if (raw && typeof raw === 'object' && !(raw instanceof Map)) {
-    return raw
+    return raw as YearTermMap<T>
   }
-  // If nested Maps, convert to plain objects
-  const out = {}
+
+  const out: YearTermMap<T> = {}
+
+  // If it's a Map of Maps (year -> term -> enrollments[]), convert to plain objects.
   if (raw instanceof Map) {
-    for (const [yearLabel, terms] of raw.entries()) {
-      out[yearLabel] = {}
+    for (const [yearLabel, terms] of raw.entries() as Iterable<[string | number, unknown]>) {
+      const yearKey = String(yearLabel)
+      out[yearKey] = {}
       if (terms instanceof Map) {
-        for (const [termId, enrolls] of terms.entries()) {
-          (out[yearLabel])[String(termId)] = enrolls
+        for (const [termId, enrolls] of terms.entries() as Iterable<[string | number, T[]]>) {
+          out[yearKey][String(termId)] = enrolls
         }
       }
     }
   }
+
   return out
 }
 
@@ -233,16 +336,27 @@ const getStudentName = (s: Student) =>
   s.name || [s.firstName, s.lastName].filter(Boolean).join(' ') || `SID: ${s.sid}`
 
 const getStudentEmail = (s: Student) => s.email || ''
+
+const getMajors = (s: Student) => Array.isArray(s.majors) ? s.majors : []
 </script>
 
 <style scoped>
 .bg-alt { background: #fafafa; }
 .ta-right { text-align: right; }
 
+/* Ellipsis for long majors line */
+.truncate {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .student-table-wrapper tr {
   display: grid;
   grid-auto-rows: min-content;
-  grid-template-columns: 32% 18% 35% 15%;
+    /* Student | UID | Email | Major | Expand Schedule + New Note */
+  grid-template-columns: 20% 10% 24% 26% 22%;
   width: 100%;
 }
 
@@ -255,18 +369,23 @@ const getStudentEmail = (s: Student) => s.email || ''
 }
 
 .td-expansion .grid-cell.expansion {
-  grid-area: 2 / 1 / 2 / 5;
+  grid-area: 2 / 1 / 2 / 6;
   background: #f6fbff;
   border-left: 3px solid #1e88e5;
   margin-top: 8px;
   border-radius: 4px;
 }
 
-.td-student  { grid-area: 1 / 1 / 1 / 1; }
-.td-uid      { grid-area: 1 / 2 / 1 / 2; }
-.td-email    { grid-area: 1 / 3 / 1 / 3; }
-.td-expand   { grid-area: 1 / 4 / 1 / 4; }
-.td-expansion{ grid-area: 2 / 1 / 2 / 5; }
+.td-student   { grid-area: 1 / 1 / 1 / 1; }
+.td-uid       { grid-area: 1 / 2 / 1 / 2; }
+.td-email     { grid-area: 1 / 3 / 1 / 3; }
+.td-major     { grid-area: 1 / 4 / 1 / 4; }
+.td-expand    { grid-area: 1 / 5 / 1 / 5; }
+
+.td-expansion { grid-area: 2 / 1 / 2 / 7; }
+.td-expansion .grid-cell.expansion {
+  grid-area: 2 / 1 / 2 / 7;
+}
 
 .student-table-wrapper tr:not(.expanded) td {
   padding-top: 0px;
