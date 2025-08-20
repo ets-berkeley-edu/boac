@@ -55,6 +55,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def show_notes(self):
         app.logger.info('Checking notes tab')
+        self.when_present(self.TIMELINE_TABLE, utils.get_short_timeout())
         if self.is_present(self.NOTES_BUTTON):
             self.wait_for_element_and_click(self.NOTES_BUTTON)
         if self.is_present(self.SHOW_HIDE_NOTES_BUTTON) and 'Show' in self.element(self.SHOW_HIDE_NOTES_BUTTON).text:
