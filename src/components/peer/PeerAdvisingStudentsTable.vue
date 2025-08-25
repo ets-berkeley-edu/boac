@@ -99,7 +99,7 @@
                 @click="onToggleExpand(student)"
               >
                 <v-icon :icon="isExpanded(student) ? mdiChevronUp : mdiChevronDown" class="mr-1" />
-                {{ isExpanded(student) ? 'Hide Curriculum' : 'View Curriculum' }}
+                {{ isExpanded(student) ? 'Hide Courses' : 'View Courses' }}
               </v-btn>
 
               <v-btn
@@ -125,7 +125,7 @@
                 v-if="isExpanded(student)"
                 class="grid-cell expansion"
                 role="region"
-                :aria-label="`Curriculum for ${getStudentName(student)}`"
+                :aria-label="`Courses for ${getStudentName(student)}`"
               >
                 <div class="expansion-content">
                   <!-- per-student spinner inside panel -->
