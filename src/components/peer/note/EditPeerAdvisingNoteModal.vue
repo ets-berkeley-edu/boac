@@ -1,6 +1,7 @@
 <template>
   <v-dialog
     v-model="dialog"
+    class="peer-advising-note-modal"
     aria-labelledby="peer-advising-note-modal-header"
     persistent
   >
@@ -214,6 +215,9 @@ const setTemplate = (template: NoteTemplate) => {
 <style>
 #peer-advising-note-body .ck-editor__editable_inline {
   min-height: 100px;
+}
+.peer-advising-note-modal {
+  --v-overlay-opacity: 0.9;
 }
 .peer-advising-note-modal-content {
   height: calc(100vh - 205px);
