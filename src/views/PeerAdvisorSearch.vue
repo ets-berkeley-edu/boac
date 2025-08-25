@@ -76,6 +76,7 @@
               </v-btn>
             </div>
             <PeerAdvisingStudentsTable
+              :sids-with-notes="sidsWithNotes"
               :students="students"
               :peer-advising-department-id="peerAdvisingDepartmentId"
             />
@@ -141,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import {findIndex, get, orderBy, size} from 'lodash'
+import {findIndex, get, map, orderBy, size, uniq} from 'lodash'
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {useDisplay} from 'vuetify'
@@ -179,10 +180,12 @@ const searchStore = useSearchStore()
 const totalNoteCount = ref(0)
 const totalStudentCount = ref(0)
 const showMyNotesOnly = ref(false)
+const sidsWithNotes = ref<[]>([])
 const queryText = ref(searchStore.queryText)
 
 // Tabs
-const tab = ref<'note' | 'student'>('student')
+const initialTab = route.query.tab
+const tab = ref<'note' | 'student'>(initialTab || 'student')
 const hasMoreNotes = computed(() => totalNoteCount.value > size(notes.value))
 const hasMoreStudents = computed(() => totalStudentCount.value > size(students.value))
 
@@ -268,10 +271,10 @@ const search = (getNotes = true, getStudents = true) => {
       getStudents
     ).then(data => {
       const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0]?.id}`
-      // notes.value = orderBy(data.notes, n => n.updatedAt || n.createdAt, ['desc'])
       if (getNotes) {
         notes.value = orderBy([...notes.value, ...data.notes], n => n.updatedAt || n.createdAt, ['desc'])
         totalNoteCount.value = data.totalNoteCount
+        sidsWithNotes.value = uniq(map(notes.value, 'sid'))
         if (totalNoteCount.value === 0) {
           notePhrase.value = 'No results found matching '
         } else if (size(notes.value) < totalNoteCount.value) {
