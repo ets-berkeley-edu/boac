@@ -1,4 +1,3 @@
-<!-- StudentCurriculumTable.vue -->
 <template>
   <div class="student-table-wrapper">
     <slot v-if="!students?.length && !isFetching" name="noData" />
@@ -40,14 +39,21 @@
           <!-- Student Name -->
           <td class="td-student">
             <div class="grid-cell">
-              <span class="font-weight-bold">
+              <span v-if="!sidsWithNotes.includes(student.sid)" class="font-weight-bold">
                 {{ getStudentName(student) }}
               </span>
+              <a
+                v-if="sidsWithNotes.includes(student.sid)"
+                class="font-weight-bold"
+                :href="`search?q=${student.sid}&tab=note`"
+              >
+                {{ getStudentName(student) }}
+              </a>
             </div>
           </td>
 
-          <!-- UID -->
-          <td class="td-uid">
+          <!-- SID -->
+          <td class="td-sid">
             <div class="grid-cell">
               <span class="mono">{{ student.sid ?? '—' }}</span>
             </div>
@@ -224,8 +230,9 @@ interface Student {
 const noteStore = useNoteStore()
 const isNoteModalOpen = ref(false)
 
-const {students, isFetching, peerAdvisingDepartmentId} = defineProps<{
+const {students, sidsWithNotes, isFetching, peerAdvisingDepartmentId} = defineProps<{
   students: Student[]
+  sidsWithNotes: string[]
   isFetching?: boolean
   peerAdvisingDepartmentId: number | undefined
 }>()
@@ -377,7 +384,7 @@ const getMajors = (s: Student) => Array.isArray(s.majors) ? s.majors : []
 }
 
 .td-student   { grid-area: 1 / 1 / 1 / 1; }
-.td-uid       { grid-area: 1 / 2 / 1 / 2; }
+.td-sid       { grid-area: 1 / 2 / 1 / 2; }
 .td-email     { grid-area: 1 / 3 / 1 / 3; }
 .td-major     { grid-area: 1 / 4 / 1 / 4; }
 .td-expand    { grid-area: 1 / 5 / 1 / 5; }
