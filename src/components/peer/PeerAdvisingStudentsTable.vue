@@ -290,6 +290,7 @@ const onToggleExpand = (s: Student) => {
     expanded.value.delete(key)
     return
   }
+  expanded.value = new Set()
   expanded.value.add(key)
   // Fetch enrollments once per student
   if (!academicYearsByStudent.value.get(key)) {
