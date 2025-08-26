@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import pytest
 from flask import current_app as app
 
 from bea.config.bea_test_base_configs import BEATestBaseConfigs
@@ -81,6 +82,8 @@ class BEATestConfig(BEATestBaseConfigs):
         self.set_dept(Department.ZCEEE)
         self.set_advisor()
         self.set_admits()
+        if len(self.admits) < 4000:
+            pytest.exit(f'Admit count of {len(self.admits)} is abnormally low, Bea cannot reliably execute tests')
         nessie_utils.get_admits_data(self.admits)
         self.set_search_cohorts(opts={'admits': True})
 
@@ -119,6 +122,8 @@ class BEATestConfig(BEATestBaseConfigs):
         self.set_dept(Department.ZCEEE)
         self.set_advisor()
         self.set_admits()
+        if len(self.admits) < 4000:
+            pytest.exit(f'Admit count of {len(self.admits)} is abnormally low, Bea cannot reliably execute tests')
         self.set_search_cohorts(opts={'admits': True})
 
     def filtered_cohorts(self):

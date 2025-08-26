@@ -109,11 +109,12 @@ class CuratedAddSelector(BoaPages, CuratedModal):
         members.sort(key=lambda a: a.last_name)
         sids = list(map(lambda member: member.sid, members))
         app.logger.info(f'Selecting SIDs {sids}')
-        self.scroll_to_top()
         for m in members:
             if group.is_ce3:
+                self.scroll_to_top()
                 self.wait_for_element_and_click(self.admit_checkbox_loc(m))
             else:
+                self.scroll_to_top()
                 self.wait_for_element_and_click(self.student_checkbox_loc(m))
 
     def add_members_to_grp(self, members, group):
