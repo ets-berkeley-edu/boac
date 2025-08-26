@@ -18,7 +18,7 @@
       <thead class="sr-only">
         <tr>
           <th scope="col">Student</th>
-          <th scope="col">UID</th>
+          <th scope="col">SID</th>
           <th scope="col">Email</th>
           <th scope="col">Major</th>
           <th scope="col">Expand</th>
@@ -49,7 +49,7 @@
           <!-- UID -->
           <td class="td-uid">
             <div class="grid-cell">
-              <span class="mono">{{ student.uid ?? '—' }}</span>
+              <span class="mono">{{ student.sid ?? '—' }}</span>
             </div>
           </td>
 
