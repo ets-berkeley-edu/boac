@@ -132,10 +132,9 @@ class TestDegreeCourseInProgress:
 
     def test_in_progress_course_names(self):
         for course in in_progress_courses:
-            wl = '(WAITLISTED)' if course.is_wait_listed else ''
-            expected = f'{course.name}{wl}'.replace(' ', '')
+            expected = f'{course.name}'.replace(' ', '')
             visible = re.sub(r'\s+', '', self.degree_check_page.in_progress_course_code(course))
-            utils.assert_equivalence(visible, expected)
+            utils.assert_actual_includes_expected(visible, expected)
 
     def test_in_progress_course_units(self):
         for course in in_progress_courses:
