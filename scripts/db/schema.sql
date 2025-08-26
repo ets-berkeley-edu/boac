@@ -461,6 +461,8 @@ CREATE MATERIALIZED VIEW notes_fts_index AS (
   WHERE deleted_at IS NULL AND is_draft IS FALSE
 );
 
+CREATE UNIQUE INDEX idx_notes_fts_index_id_idx ON notes_fts_index(id);
+
 CREATE INDEX idx_notes_fts_index
 ON notes_fts_index
 USING gin(fts_index);
@@ -472,6 +474,8 @@ CREATE MATERIALIZED VIEW advisor_author_index AS (
   FROM notes
   ORDER BY advisor_name
 );
+
+CREATE UNIQUE INDEX idx_advisor_author_name_uid_idx ON advisor_author_index(advisor_name, advisor_uid);
 
 CREATE INDEX idx_advisor_author_index ON advisor_author_index USING btree(advisor_name);
 
