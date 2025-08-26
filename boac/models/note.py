@@ -590,8 +590,8 @@ class Note(Base):
     @classmethod
     def refresh_search_index(cls):
         def _refresh_search_index(db_session):
-            db_session.execute(text('REFRESH MATERIALIZED VIEW notes_fts_index'))
-            db_session.execute(text('REFRESH MATERIALIZED VIEW advisor_author_index'))
+            db_session.execute(text('REFRESH MATERIALIZED VIEW CONCURRENTLY notes_fts_index'))
+            db_session.execute(text('REFRESH MATERIALIZED VIEW CONCURRENTLY advisor_author_index'))
             std_commit(session=db_session)
         bg_execute(_refresh_search_index)
 
