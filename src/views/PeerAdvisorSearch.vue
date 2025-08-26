@@ -60,7 +60,7 @@
         >
           <div class="px-4 py-6 mx-4">
             <div class="d-flex align-center">
-              <span v-if="!isFetchingNotes">
+              <span v-if="!isFetchingNotes" id="peer-tab-student-summary">
                 {{ studentPhrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
               </span>
               <span v-else>Searching Students...</span>
@@ -105,7 +105,7 @@
             <div class="d-flex justify-space-between">
               <div>
                 <div class="d-flex align-center">
-                  <span v-if="!isFetchingNotes && totalNoteCount >= 0">
+                  <span v-if="!isFetchingNotes && totalNoteCount >= 0" id="peer-tab-note-summary">
                     {{ notePhrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
                   </span>
                   <span v-else>Searching Notes...</span>

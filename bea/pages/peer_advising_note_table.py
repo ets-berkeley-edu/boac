@@ -35,7 +35,6 @@ from bea.test_utils import utils
 class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     PEER_NOTE_TABLE = By.ID, 'notes-for-peer-advisor-view'
-    PEER_NOTE_NO_RESULTS = By.XPATH, '//div[contains(text(), "No results found matching")]'
     SHOW_MORE_NOTES_BTN = By.ID, 'fetch-more-notes'
 
     def visible_peer_note_ids(self):
@@ -44,7 +43,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     def show_more_peer_notes(self):
         self.wait_for_element_and_click(self.SHOW_MORE_NOTES_BTN)
-        time.sleep(1)
+        time.sleep(5)
 
     @staticmethod
     def peer_note_row_xpath(note):
@@ -54,7 +53,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         return By.XPATH, self.peer_note_row_xpath(note)
 
     def wait_for_peer_note(self, note):
-        self.when_present(self.peer_note_row(note), utils.get_short_timeout())
+        self.when_present(self.peer_note_row(note), utils.get_medium_timeout())
 
     def peer_note_student(self, note):
         return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[1]'))

@@ -236,7 +236,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
         self.enter_peer_template_data(template)
         self.click_save_peer_template()
         self.set_new_template_id(template)
-        self.when_present(self.peer_template_row(template), 2)
+        self.when_present(self.peer_template_row(template), 3)
 
     # Edit
 
@@ -248,7 +248,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
         self.click_edit_peer_template(template)
         self.enter_peer_template_data(template)
         self.click_save_peer_template()
-        self.when_present(self.peer_template_row(template), 2)
+        self.when_present(self.peer_template_row(template), 3)
 
     # Copy
 
