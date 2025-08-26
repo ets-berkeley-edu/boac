@@ -337,6 +337,7 @@ class TestListView:
 
     def test_search_note_student(self):
         self.peer_page.enter_simple_search_and_hit_enter(note_3_by_ls_peer.student.last_name)
+        self.peer_search_page.assert_note_results_present()
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
@@ -344,10 +345,11 @@ class TestListView:
     def test_search_note_student_no_result(self):
         string = note_1_by_ls_peer.student.full_name[::-1]
         self.peer_page.enter_simple_search_and_hit_enter(string)
-        self.peer_page.when_visible(self.peer_page.PEER_NOTE_NO_RESULTS, utils.get_short_timeout())
+        self.peer_search_page.assert_note_results_not_present()
 
     def test_search_note_body(self):
         self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
+        self.peer_search_page.assert_note_results_present()
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
@@ -362,7 +364,7 @@ class TestListView:
 
     def test_foreign_pa_cannot_search_note(self):
         self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
-        self.peer_page.when_visible(self.peer_page.PEER_NOTE_NO_RESULTS, utils.get_short_timeout())
+        self.peer_search_page.assert_note_results_not_present()
 
     def test_domestic_pa_can_see_note(self):
         self.peer_page.log_out()
@@ -374,6 +376,7 @@ class TestListView:
 
     def test_domestic_pa_can_search_note(self):
         self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
+        self.peer_search_page.assert_note_results_present()
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
