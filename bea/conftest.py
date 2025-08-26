@@ -56,6 +56,7 @@ from bea.pages.homepage import Homepage
 from bea.pages.passenger_manifest_page import PassengerManifestPage
 from bea.pages.peer_advisor_manager_page import PeerAdvisorManagerPage
 from bea.pages.peer_advisor_page import PeerAdvisorPage
+from bea.pages.peer_advisor_search_page import PeerAdvisorSearchPage
 from bea.pages.search_form import SearchForm
 from bea.pages.search_results_page import SearchResultsPage
 from bea.pages.student_page import StudentPage
@@ -113,6 +114,7 @@ def page_objects(request):
     pam_page = PeerAdvisorManagerPage(driver, headless)
     pax_manifest_page = PassengerManifestPage(driver, headless)
     peer_page = PeerAdvisorPage(driver, headless)
+    peer_search_page = PeerAdvisorSearchPage(driver, headless)
     search_form = SearchForm(driver, headless)
     search_results_page = SearchResultsPage(driver, headless)
     student_page = StudentPage(driver, headless)
@@ -151,6 +153,7 @@ def page_objects(request):
             setattr(cls.obj, 'pam_page', pam_page)
             setattr(cls.obj, 'pax_manifest_page', pax_manifest_page)
             setattr(cls.obj, 'peer_page', peer_page)
+            setattr(cls.obj, 'peer_search_page', peer_search_page)
             setattr(cls.obj, 'search_form', search_form)
             setattr(cls.obj, 'search_results_page', search_results_page)
             setattr(cls.obj, 'student_page', student_page)

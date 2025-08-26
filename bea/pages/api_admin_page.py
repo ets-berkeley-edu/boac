@@ -41,4 +41,4 @@ class ApiAdminPage(ApiPage):
     def reindex_notes(self):
         app.logger.info('Reindexing BOA notes')
         self.driver.get(f'{boa_utils.get_boa_base_url()}/api/admin/reindex/notes')
-        time.sleep(utils.get_short_timeout())
+        time.sleep(utils.get_medium_timeout())
