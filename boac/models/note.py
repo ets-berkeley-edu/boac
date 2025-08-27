@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import json
+import threading
 
 from sqlalchemy import and_, desc
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
@@ -593,7 +594,18 @@ class Note(Base):
             db_session.execute(text('REFRESH MATERIALIZED VIEW CONCURRENTLY notes_fts_index'))
             db_session.execute(text('REFRESH MATERIALIZED VIEW CONCURRENTLY advisor_author_index'))
             std_commit(session=db_session)
-        bg_execute(_refresh_search_index)
+        bg_execute(method=_refresh_search_index, thread_name='refresh_search_index')
+
+    @classmethod
+    def is_currently_refreshing_search_index(cls):
+        is_refreshing = False
+        active_threads = threading.enumerate()
+        for thread in active_threads:
+            if thread.name == 'refresh_search_index':
+                is_refreshing = thread.is_alive()
+                break
+        return is_refreshing
+
 
     @classmethod
     def update(

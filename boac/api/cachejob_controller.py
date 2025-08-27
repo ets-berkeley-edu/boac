@@ -74,3 +74,9 @@ def start_refresh():
 def reindex_notes():
     Note.refresh_search_index()
     return tolerant_jsonify({'started': True})
+
+
+@app.route('/api/admin/status/reindex_notes')
+@admin_required
+def reindex_notes_status():
+    return tolerant_jsonify({'isActive': Note.is_currently_refreshing_search_index()})

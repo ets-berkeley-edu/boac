@@ -56,17 +56,18 @@ def execute_scheduled(method, scheduler, app):
             method()
 
 
-def bg_execute(method):
+def bg_execute(method, thread_name=None):
     from flask import current_app as app
     if app.config['BACKGROUND_TASKS']:
         app.logger.debug('Launching background task.')
         t = Thread(
-            target=_bg_executor,
             daemon=True,
             kwargs={
                 'app': app._get_current_object(),
                 'method': method,
             },
+            name=thread_name,
+            target=_bg_executor,
         )
         t.start()
     else:
