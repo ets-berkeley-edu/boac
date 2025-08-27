@@ -26,6 +26,7 @@ import json
 import time
 
 from flask import current_app as app
+from selenium.webdriver.common.by import By
 
 from bea.pages.api_page import ApiPage
 from bea.test_utils import boa_utils, utils
@@ -40,5 +41,21 @@ class ApiAdminPage(ApiPage):
 
     def reindex_notes(self):
         app.logger.info('Reindexing BOA notes')
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/api/admin/reindex/notes')
-        time.sleep(utils.get_medium_timeout())
+        base_url = boa_utils.get_boa_base_url()
+        self.driver.get(f'{base_url}/api/admin/reindex/notes')
+        tries = 0
+        max_tries = 60
+        while tries <= max_tries:
+            tries += 1
+            try:
+                app.logger.info('Checking reindexing status')
+                time.sleep(5)
+                self.driver.get(f'{base_url}/api/admin/status/reindex_notes')
+                self.wait_for_element((By.XPATH, '//*[contains(text(), "isActive")]'), utils.get_short_timeout())
+                assert self.is_present((By.XPATH, '//*[contains(text(), "false")]'))
+                break
+            except AssertionError:
+                if tries == max_tries:
+                    raise
+                else:
+                    time.sleep(1)
