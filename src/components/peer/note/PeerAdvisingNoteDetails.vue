@@ -35,7 +35,7 @@
         :function-confirm="confirmedRemoveAttachment"
         modal-header="Delete Attachment"
       >
-        Are you sure you want to delete the <strong>'{{ note.attachments[deleteAttachmentIndex].displayName }}'</strong> attachment?
+        Are you sure you want to delete the <strong>'{{ get(note, `attachments[${deleteAttachmentIndex}].displayName`) }}'</strong> attachment?
       </AreYouSureModal>
     </div>
   </div>
@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {ref} from 'vue'
-import {size} from 'lodash'
+import {get, size} from 'lodash'
 import type {Note, NoteAttachment} from '@/lib/types'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments.vue'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
