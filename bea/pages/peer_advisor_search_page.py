@@ -64,4 +64,4 @@ class PeerAdvisorSearchPage(PeerAdvisingNoteTable):
         assert count == '0'
         self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
         time.sleep(1)
-        assert self.note_results_summary().startswith(f'No results found matching')
+        assert self.note_results_summary().startswith('No results found matching')
