@@ -148,6 +148,7 @@ export default [
       'vue/space-unary-ops': 2,
       'vue/this-in-template': 2,
       'vue/valid-define-options': 2,
+      'vue/valid-v-else': 2,
       'vue/valid-next-tick': 1,
       'vue/valid-v-slot': [2, {allowModifiers: true}],
       'vue/v-bind-style': 2,

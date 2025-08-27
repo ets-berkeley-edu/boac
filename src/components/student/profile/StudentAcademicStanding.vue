@@ -11,7 +11,7 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import {get} from 'lodash'
 import {sisIdForTermName, termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
@@ -27,7 +27,8 @@ const props = defineProps({
   }
 })
 
-const currentUser = useContextStore().currentUser
-const standingStatus = get(useContextStore().config.academicStandingDescriptions, props.standing.status, props.standing.status)
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
+const standingStatus = get(contextStore.config.academicStandingDescriptions, props.standing.status, props.standing.status)
 const termId = props.standing.termId || sisIdForTermName(props.standing.termName)
 </script>
