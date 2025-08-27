@@ -93,8 +93,10 @@ class Profile(object):
             'date': profile['degreeProgress']['reportDate'],
             'writing': f"{progress['entryLevelWriting']['name']} {progress['entryLevelWriting']['status']}",
             'cultures': f"{progress['americanCultures']['name']} {progress['americanCultures']['status']}",
-            'history': f"{progress['americanHistory']['name']} {progress['americanHistory']['status']}",
-            'institutions': f"{progress['americanInstitutions']['name']} {progress['americanInstitutions']['status']}",
+            'history': f"{progress['americanHistory']['name']} {progress['americanHistory']['status']}" \
+              if 'americanHistory' in progress else None,
+            'institutions': f"{progress['americanInstitutions']['name']} {progress['americanInstitutions']['status']}" \
+              if 'americanInstitutions' in progress else None,
         }
 
     def email(self):
