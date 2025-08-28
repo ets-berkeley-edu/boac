@@ -119,7 +119,7 @@ def _historical_peer_advisors_with_note_counts(peer_advising_department_id):
         def _to_json(note):
             return {
                 **note,
-                **{'author_deleted_at': peer_advisor['deleted_at']},
+                'author_deleted_at': peer_advisor['deleted_at'],
             }
         notes = notes + [_to_json(n) for n in peer_advisor['notes']]
 

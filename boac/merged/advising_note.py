@@ -264,7 +264,7 @@ def get_sis_career_program_plan_eforms(sid):
         eform_id = eform['id']
         eforms_by_id[eform_id] = {
             **note_to_compatible_json(eform),
-            **{'legacySource': 'SIS'},
+            'legacySource': 'SIS',
         }
     return eforms_by_id
 
@@ -275,7 +275,7 @@ def get_sis_reduced_course_load_eforms(sid):
         eform_id = eform['id']
         eforms_by_id[eform_id] = {
             **note_to_compatible_json(eform),
-            **{'legacySource': 'SIS'},
+            'legacySource': 'SIS',
         }
     return eforms_by_id
 
@@ -286,7 +286,7 @@ def get_sis_late_drop_eforms(sid):
         eform_id = eform['id']
         eforms_by_id[eform_id] = {
             **note_to_compatible_json(eform),
-            **{'legacySource': 'SIS'},
+            'legacySource': 'SIS',
         }
     return eforms_by_id
 
