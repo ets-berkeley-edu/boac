@@ -256,13 +256,11 @@ class DegreeProgressTemplate(Base):
         def _categorize_course(course_, is_copy, units_original_value=None):
             api_json = {
                 **course_.to_api_json(),
-                **{
-                    'sis': {
-                        # If user edits degreeCheck.units then we alert the user of diff with original sis.units.
-                        'units': units_original_value,
-                    },
-                },
                 'isCopy': is_copy,
+                'sis': {
+                    # If user edits degreeCheck.units then we alert the user of diff with original sis.units.
+                    'units': units_original_value,
+                },
             }
             if api_json['categoryId']:
                 assigned.append(api_json)
@@ -299,12 +297,10 @@ class DegreeProgressTemplate(Base):
                     )
                     unassigned.append({
                         **course.to_api_json(),
-                        **{
-                            'sis': {
-                                'units': units,
-                            },
-                        },
                         'isCopy': False,
+                        'sis': {
+                            'units': units,
+                        },
                     })
                 elif term_id == term_id_current:
                     in_progress.append(section)

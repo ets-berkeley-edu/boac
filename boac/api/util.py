@@ -166,10 +166,8 @@ def put_notifications(student):
             message = appointment['details']
             student['notifications']['appointment'].append({
                 **appointment,
-                **{
-                    'message': message.strip() if message else None,
-                    'type': 'appointment',
-                },
+                'message': message.strip() if message else None,
+                'type': 'appointment',
             })
 
         # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
@@ -178,42 +176,34 @@ def put_notifications(student):
             note_type = 'eForm' if note.get('eForm') else 'note'
             student['notifications'][note_type].append({
                 **note,
-                **{
-                    'message': message.strip() if message else None,
-                    'type': note_type,
-                },
+                'message': message.strip() if message else None,
+                'type': note_type,
             })
     for alert in Alert.current_alerts_for_sid(viewer_id=current_user.get_id(), sid=sid):
         student['notifications']['alert'].append({
             **alert,
-            **{
-                'id': alert['id'],
-                'read': alert['dismissed'],
-                'type': 'alert',
-            },
+            'id': alert['id'],
+            'read': alert['dismissed'],
+            'type': 'alert',
         })
     for row in get_sis_holds(sid):
         hold = json.loads(row['feed'])
         reason = hold.get('reason', {})
         student['notifications']['hold'].append({
             **hold,
-            **{
-                'createdAt': hold.get('fromDate'),
-                'message': join_if_present('. ', [reason.get('description'), reason.get('formalDescription')]),
-                'read': True,
-                'type': 'hold',
-            },
+            'createdAt': hold.get('fromDate'),
+            'message': join_if_present('. ', [reason.get('description'), reason.get('formalDescription')]),
+            'read': True,
+            'type': 'hold',
         })
     degree_progress = student.get('sisProfile', {}).get('degreeProgress', {})
     if degree_progress:
-        for key, requirement in degree_progress.get('requirements', {}).items():
+        for requirement in degree_progress.get('requirements', {}).values():
             student['notifications']['requirement'].append({
                 **requirement,
-                **{
-                    'type': 'requirement',
-                    'message': requirement['name'] + ' ' + requirement['status'],
-                    'read': True,
-                },
+                'message': requirement['name'] + ' ' + requirement['status'],
+                'read': True,
+                'type': 'requirement',
             })
 
 
@@ -343,10 +333,8 @@ def get_boac_note_as_compatible_json(note, note_read):
             attachments=[a.to_api_json() for a in note.attachments if not a.deleted_at],
             topics=[t.topic for t in note.topics if not t.deleted_at],
         ),
-        **{
-            'message': note.body,
-            'type': 'note',
-        },
+        'message': note.body,
+        'type': 'note',
     }
 
 

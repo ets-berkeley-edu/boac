@@ -42,7 +42,7 @@ def get_calnet_user_for_uid(app, uid, force_feed=True, skip_expired_users=False)
         return None
     return {
         **_calnet_user_api_feed(persons[0] if len(persons) else None),
-        **{'uid': uid},
+        'uid': uid,
     }
 
 
@@ -54,7 +54,7 @@ def get_calnet_user_for_csid(app, csid):
             break
     return {
         **_calnet_user_api_feed(persons[0] if len(persons) else None),
-        **{'csid': csid},
+        'csid': csid,
     }
 
 
@@ -94,7 +94,7 @@ def _get_calnet_users(app, id_type, ids):
         calnet_result = next((r for r in calnet_results if r[id_type] == _id), None)
         feed = {
             **_calnet_user_api_feed(calnet_result),
-            **{id_type: _id},
+            id_type: _id,
         }
         insert_row(f'calnet_user_for_{id_type}_{_id}', feed)
         users_by_id[_id] = feed

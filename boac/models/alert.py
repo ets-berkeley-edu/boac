@@ -206,11 +206,9 @@ class Alert(Base):
             dismissed_at = result['dismissed_at']
             alert = {
                 **result_to_dict(result),
-                **{
-                    'dismissed': dismissed_at and dismissed_at.strftime('%Y-%m-%d %H:%M:%S'),
-                    'createdAt': result['created_at'].astimezone(tzutc()).isoformat(),
-                    'updatedAt': result['updated_at'].astimezone(tzutc()).isoformat(),
-                },
+                'createdAt': result['created_at'].astimezone(tzutc()).isoformat(),
+                'dismissed': dismissed_at and dismissed_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'updatedAt': result['updated_at'].astimezone(tzutc()).isoformat(),
             }
             feed.append(alert)
         return feed
@@ -329,7 +327,7 @@ class Alert(Base):
                     cls.update_withdrawal_cancel_alerts(row['sid'], term_id)
 
         sids = [p['sid'] for p in profiles]
-        for sid, academic_standing_list in get_academic_standing_by_sid(sids).items():
+        for academic_standing_list in get_academic_standing_by_sid(sids).values():
             standing = next((s for s in academic_standing_list if s['termId'] == str(term_id)), None)
             if standing and standing['status'] in ('DIS', 'PRO', 'SUB'):
                 cls.update_academic_standing_alerts(
