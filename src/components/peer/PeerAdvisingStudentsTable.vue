@@ -75,18 +75,9 @@
           <!-- Major -->
           <td class="td-major">
             <div class="grid-cell">
-              <template v-if="getMajors(student).length">
-                <v-tooltip location="top">
-                  <template #activator="{ props }">
-                    <span v-bind="props" class="truncate">
-                      {{ getMajors(student).join(', ') }}
-                    </span>
-                  </template>
-                  <div class="pa-2" style="max-width: 360px; white-space: normal;">
-                    <div v-for="(m, i) in getMajors(student)" :key="i">{{ m }}</div>
-                  </div>
-                </v-tooltip>
-              </template>
+              <div v-if="getMajors(student).length" class="student-majors pa-2">
+                <div v-for="(m, i) in getMajors(student)" :key="i">{{ m }}</div>
+              </div>
               <span v-else>—</span>
             </div>
           </td>
@@ -352,12 +343,9 @@ const getMajors = (s: Student) => Array.isArray(s.majors) ? s.majors : []
 .bg-alt { background: #fafafa; }
 .ta-right { text-align: right; }
 
-/* Ellipsis for long majors line */
-.truncate {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.student-majors {
+  max-width: 360px;
+  white-space: normal;
 }
 
 .student-table-wrapper tr {

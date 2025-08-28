@@ -49,6 +49,7 @@
       >
         <span class="sr-only">Show </span>All <span class="letter-spacing-compact ml-1">({{ countsPerType['all'] }})</span>
       </v-tab>
+      <!-- eslint-disable-next-line vue/no-v-for-template-key -->
       <template v-for="(tab, index) in tabs" :key="tab">
         <div v-if="tabs.length > 1" class="border-b-md tab-divider" />
         <v-tab
