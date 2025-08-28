@@ -360,7 +360,7 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
                 assert self.is_present(self.existing_filter_loc('Ethnicity (COE)', e))
             if filters.coe_inactive:
                 assert self.is_present(self.existing_filter_loc('Inactive (COE)'))
-            for p in filters.coe_preps:
+            for _p in filters.coe_preps:
                 assert self.is_present(self.existing_filter_loc('PREP (COE)'))
             if filters.coe_academic_standings:
                 assert self.is_present(self.existing_filter_loc('Academic Standing (COE)'))

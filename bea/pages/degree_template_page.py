@@ -259,7 +259,7 @@ class DegreeTemplatePage(BoaPages):
                 self.scroll_to_top()
                 self.wait_for_element_and_click(self.COL_REQT_UNIT_RANGE_TOGGLE)
                 time.sleep(utils.get_click_sleep())
-            if units == '' or units == '0':
+            if units in {'', '0'}:
                 self.remove_chars(self.COL_REQT_UNIT_NUM_INPUT_0)
             else:
                 self.wait_for_textbox_and_send_keys(self.COL_REQT_UNIT_NUM_INPUT_0, units)

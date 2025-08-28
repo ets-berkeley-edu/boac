@@ -177,6 +177,6 @@ def _isoformat(value):
 
 def _to_api_json(admit):
     updated_at = admit.pop('updated_at', None)
-    admit_json = {camelize(key): admit[key] for key in admit.keys()}
+    admit_json = {camelize(key): admit[key] for key in admit}
     admit_json['updatedAt'] = _isoformat(updated_at) if updated_at else None
     return admit_json

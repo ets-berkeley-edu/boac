@@ -231,4 +231,4 @@ def get_total_peer_advising_notes(peer_advising_department_id=None):
     """
     if peer_advising_department_id:
         params['peer_advising_department_id'] = peer_advising_department_id
-    return [row['count'] for row in db.session.execute(text(sql), params).mappings()][0]
+    return next(row['count'] for row in db.session.execute(text(sql), params).mappings())

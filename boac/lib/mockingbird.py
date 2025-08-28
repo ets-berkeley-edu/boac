@@ -296,7 +296,7 @@ def _environment_supports_mocks():
     if os.environ.get('FIXTURE_OUTPUT_PATH'):
         return False
     env = os.environ.get('BOAC_ENV')
-    return env == 'test' or env == 'demo'
+    return env in {'test', 'demo'}
 
 
 def _get_fixtures_path():

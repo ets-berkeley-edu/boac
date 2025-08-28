@@ -362,8 +362,7 @@ def search_advising_notes(
         # Stop querying local notes if 1) we didn't return a full batch, 2) we have all the notes we need.
         if local_total_matching_count < local_notes_query_batch_size or len(notes_feed) == offset + limit:
             break
-        else:
-            local_notes_query_iteration += 1
+        local_notes_query_iteration += 1
 
     notes_feed = notes_feed[offset:]
 
@@ -416,7 +415,7 @@ def _get_local_notes_search_results(local_results, cutoff, search_terms):
     student_rows = data_loch.get_basic_student_data([row.get('sid') for row in local_results])
     students_by_sid = {r.get('sid'): r for r in student_rows}
     for row in local_results:
-        note = {camelize(key): row[key] for key in row.keys()}
+        note = {camelize(key): row[key] for key in row}
         sid = note.get('sid')
         student_row = students_by_sid.get(sid, {})
         if student_row:
@@ -610,7 +609,7 @@ def note_to_compatible_json(
         'isPrivate': note.get('is_private') or False,
         'isDraft': note.get('is_draft'),
         'peerAdvisingDepartmentId': note.get('peer_advising_department_id'),
-        'read': True if note_read else False,
+        'read': bool(note_read),
         'setDate': safe_strftime(note.get('set_date'), '%Y-%m-%d'),
         'sid': note.get('sid'),
         'subcategory': note.get('note_subcategory'),

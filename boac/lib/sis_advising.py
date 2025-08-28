@@ -60,7 +60,7 @@ def get_sis_advising_attachments(ids):
 
 def get_legacy_attachment_stream(filename):
     # Filenames come prefixed with SID by convention.
-    for i, c in enumerate(filename):
+    for i, c in enumerate(filename):  # noqa: B007
         if not c.isdigit():
             break
     sid = filename[:i]

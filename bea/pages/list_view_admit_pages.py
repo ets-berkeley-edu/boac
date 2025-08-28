@@ -122,7 +122,7 @@ class ListViewAdmitPages(Pagination, AdmitPages):
                 app.logger.info('There is 1 page')
             else:
                 app.logger.info(f'There are {page_count} pages')
-                for i in range(page_count - 1):
+                for _i in range(page_count - 1):
                     page += 1
                     self.wait_for_element_and_click(self.go_to_page_link(page))
                     self.wait_for_admit_sids()

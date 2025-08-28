@@ -423,7 +423,7 @@ class TestUpdateDegreeCategory:
         ]
         ux_position_x = 3
         categories = []
-        for index, name in enumerate(['Never Go Back', 'Seven Languages']):
+        for _index, name in enumerate(['Never Go Back', 'Seven Languages']):
             categories.append(
                 _api_create_category(
                     category_type='Category',
@@ -436,7 +436,7 @@ class TestUpdateDegreeCategory:
             )
         subcategories = []
         parent_category_id = categories[0]['id']
-        for index, name in enumerate(['Processional', 'Ice Cream Everyday']):
+        for _index, name in enumerate(['Processional', 'Ice Cream Everyday']):
             subcategories.append(
                 _api_create_category(
                     category_type='Subcategory',

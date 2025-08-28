@@ -304,13 +304,12 @@ def search_result_text_snippet(text, search_terms, search_pattern):
             if index == len(words) - 1:
                 snippet += tag_stripped_body[word_match.end(0):len(tag_stripped_body)]
                 break
-            elif index == match_index + snippet_padding:
+            if index == match_index + snippet_padding:
                 end_position = words[index].end(0)
                 snippet += tag_stripped_body[word_match.end(0):end_position]
                 snippet += '...'
                 break
-            else:
-                start_position = word_match.end(0)
+            start_position = word_match.end(0)
 
     if snippet:
         return snippet

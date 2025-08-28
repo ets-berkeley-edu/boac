@@ -315,7 +315,7 @@ class DegreeProgressTemplate(Base):
 def _get_enrollment_sections(sid):
     sections = []
     enrollments = data_loch.get_enrollments_for_sid(sid=sid)
-    for index, term in enumerate(merge_enrollment_terms(enrollments)):
+    for _index, term in enumerate(merge_enrollment_terms(enrollments)):
         for enrollment in term.get('enrollments', []):
             if enrollment.get('academicCareer', 'UGRD') in ('UGRD', 'UCBX'):
                 for section in enrollment['sections']:

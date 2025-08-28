@@ -70,7 +70,7 @@ class TestCohortFilterCategories:
         post_data = {'existingFilters': [], 'ownerUid': advisor.uid}
         api_json = self._api_cohort_filter_categories(client, data=post_data)
         assert len(api_json)
-        assert 'options' in list(api_json)[0]
+        assert 'options' in next(iter(api_json))
 
     def test_filter_options_for_user_of_type_other(self, user_factory, client, fake_auth):
         """Filter options available to ZZZZZ user."""
@@ -79,7 +79,7 @@ class TestCohortFilterCategories:
         post_data = {'existingFilters': [], 'ownerUid': advisor.uid}
         api_json = self._api_cohort_filter_categories(client, data=post_data)
         assert len(api_json)
-        assert 'options' in list(api_json)[0]
+        assert 'options' in next(iter(api_json))
 
     def test_filter_options_my_students_for_me(self, client, fake_auth):
         """Returns user's own academic plans under 'My Students'."""
