@@ -34,10 +34,12 @@ class TestPeerAdvisingNoteSearch:
     """Peer Advising Notes search API."""
 
     @classmethod
-    def _assert(cls, api_json, note_count=0, note_ids=()):
+    def _assert(cls, api_json, note_count=0, student_count=0, note_ids=()):
         assert 'notes' in api_json
         notes = api_json['notes']
+        students = api_json['students']
         assert len(notes) == note_count
+        assert len(students) == student_count
         for idx, note_id in enumerate(note_ids):
             assert notes[idx].get('id') == note_id
 
@@ -52,7 +54,7 @@ class TestPeerAdvisingNoteSearch:
         fake_auth.login(ce3_navcal_peer_advisor_uid)
         navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
         api_json = _api_search(client, 'Brigitte', peer_advising_department_id=navcal_department.id)
-        self._assert(api_json, note_count=0)
+        self._assert(api_json, note_count=0, student_count=0)
 
 
 def _api_search(
@@ -60,6 +62,8 @@ def _api_search(
         phrase,
         peer_advising_department_id,
         expected_status_code=200,
+        notes=True,
+        students=True,
 ):
     response = client.post(
         '/api/search/peer_advising_notes',
@@ -67,8 +71,8 @@ def _api_search(
         data=json.dumps({
             'searchPhrase': phrase,
             'peerAdvisingDepartmentId': peer_advising_department_id,
-            'notes': 'true',
-            'students': 'false',
+            'notes': notes,
+            'students': students,
         }),
     )
 
