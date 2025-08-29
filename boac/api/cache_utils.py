@@ -177,7 +177,7 @@ def refresh_department_memberships():
             if not re.match(r'^\d+$', uid):
                 continue
             automate_degree_progress_permission, degree_progress_permission = _get_degree_progress_permissions(
-                degree_progress_permission=degree_progress_permission_by_uid.get(uid, None),
+                degree_progress_permission=degree_progress_permission_by_uid.get(uid),
                 dept_code=dept.dept_code,
                 uid=uid,
                 user_permissions=user_permissions,

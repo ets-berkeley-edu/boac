@@ -107,7 +107,7 @@ class ListViewStudentPages(Pagination, UserListPages):
         else:
             app.logger.info(f'There are {page_count} pages')
             sids.extend(self.list_view_sids())
-            for i in range(page_count - 1):
+            for _i in range(page_count - 1):
                 start = datetime.datetime.now()
                 page += 1
                 self.wait_for_page_and_click(self.GO_TO_NEXT_PAGE_LINK)

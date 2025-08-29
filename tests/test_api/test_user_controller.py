@@ -145,7 +145,7 @@ class TestMyCuratedGroups:
         assert len(curated_groups) > 0
         domains = set([c['domain'] for c in curated_groups])
         assert len(domains) == 1
-        assert list(domains)[0] == 'admitted_students'
+        assert next(iter(domains)) == 'admitted_students'
         next((c for c in curated_groups if c['name'] == "My 'admitted_students' group"), False)
 
 

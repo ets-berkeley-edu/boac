@@ -63,7 +63,7 @@ class FilteredStudentsHistoryPage(FilteredStudentsPage):
         else:
             app.logger.info(f'There are {page_count} pages')
             entries.extend(self.visible_row_data())
-            for i in range(page_count - 1):
+            for _i in range(page_count - 1):
                 page += 1
                 self.wait_for_element_and_click(self.go_to_page_link(page))
                 self.wait_for_history()

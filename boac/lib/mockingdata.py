@@ -181,7 +181,7 @@ def register_mock(request_function, response):
 # currently set up such that this code is loaded before app config is in place.
 def _environment_supports_mocks():
     env = os.environ.get('BOAC_ENV')
-    return env == 'test' or env == 'demo'
+    return env in {'test', 'demo'}
 
 
 def _get_fixtures_path():

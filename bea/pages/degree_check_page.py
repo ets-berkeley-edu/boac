@@ -541,7 +541,7 @@ class DegreeCheckPage(DegreeTemplatePage):
 
     def select_course_unit_reqt(self, course):
         button_count = len(self.elements(self.COL_REQT_COURSE_UNITS_REQT_REMOVE_BUTTON))
-        for i in range(button_count):
+        for _i in range(button_count):
             self.elements(self.COL_REQT_COURSE_UNITS_REQT_REMOVE_BUTTON)[0].click()
             time.sleep(1)
         for u_reqt in course.unit_reqts:

@@ -219,7 +219,7 @@ class Page(object):
         self.wait_for_element_and_click(locator)
         time.sleep(utils.get_click_sleep())
         repeat = 500
-        for x in range(repeat):
+        for _x in range(repeat):
             self.hit_delete()
             self.hit_backspace()
 
