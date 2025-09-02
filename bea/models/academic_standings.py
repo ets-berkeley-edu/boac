@@ -94,6 +94,10 @@ class AcademicStandings(Enum):
         'code': 'SUB',
         'descrip': 'Subject to Disqualification',
     }
+    SUB_OBSOLETE = {
+        'code': 'SUB-OBSOLETE',
+        'descrip': 'Subject to Dismissal',
+    }
     SUS = {
         'code': 'SUS',
         'descrip': 'Academic Suspension',
