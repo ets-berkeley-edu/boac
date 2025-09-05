@@ -147,6 +147,9 @@ LOGGING_LOCATION = 'boa.log'
 LOGGING_LEVEL = logging.DEBUG
 LOGGING_PROPAGATION_LEVEL = logging.INFO
 
+# Upping this Flask config allows bulk note creation for groups of several thousand students.
+MAX_FORM_PARTS = 10000
+
 # If the top decile of any analytics measure is below this number, treat it as zero ("no data").
 # At the beginning of a term, the bar may be lowered.
 MEANINGFUL_STATS_MINIMUM = 4
