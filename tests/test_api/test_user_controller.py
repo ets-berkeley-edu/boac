@@ -722,11 +722,14 @@ class TestUserUpdate:
         assert membership['role'] == 'advisor'
         assert membership['automateMembership'] is True
 
-        # Next, remove advisor from 'QCADV' and add him to 'QCADVMAJ', as "Director".
+        # Next, remove advisor from 'COENG' and add him to 'QCADVMAJ', as "Director".
+        # NOTE: Only COE advisors can have automate_degree_progress_permission equal to True. Because the following
+        #       update removes the user from COENG, we will silently set automate_degree_progress_permission to False.
         authorized_user_id = AuthorizedUser.get_id_per_uid(uid)
         _api_create_or_update(
             client,
             user=_get_user_update_post_payload(
+                automate_degree_progress_permission=True,
                 authorized_user_id=authorized_user_id,
                 departments=[
                     {
@@ -741,6 +744,7 @@ class TestUserUpdate:
 
         user = AuthorizedUser.find_by_uid(uid)
         assert len(user.department_memberships) == 1
+        assert user.automate_degree_progress_permission is False
         assert user.department_memberships[0].university_dept.dept_code == 'QCADVMAJ'
         assert user.department_memberships[0].automate_membership is False
 

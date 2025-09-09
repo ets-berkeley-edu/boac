@@ -327,15 +327,18 @@ def _get_boa_users():
 
 def _update_or_create_authorized_user(user):
     user_id = user.get('id')
-    automate_degree_progress_permission = user.get('automateDegreeProgressPermission')
-    can_access_canvas_data = to_bool_or_none(user.get('canAccessCanvasData'))
-    can_access_advising_data = to_bool_or_none(user.get('canAccessAdvisingData'))
-    degree_progress_permission = user.get('degreeProgressPermission')
     departments = user.get('departments')
     dept_codes = [d['deptCode'] for d in departments]
+    # Permissions applicable to all advisors
+    can_access_canvas_data = to_bool_or_none(user.get('canAccessCanvasData'))
+    can_access_advising_data = to_bool_or_none(user.get('canAccessAdvisingData'))
+    # Permissions applicable to only COENG (default to False/None in case the db has an obsolete value)
+    automate_degree_progress_permission = False
+    degree_progress_permission = None
+    if 'COENG' in dept_codes:
+        automate_degree_progress_permission = user.get('automateDegreeProgressPermission')
+        degree_progress_permission = user.get('degreeProgressPermission')
 
-    if (automate_degree_progress_permission or degree_progress_permission) and 'COENG' not in dept_codes:
-        raise errors.BadRequestError('Degree Progress feature is only available to the College of Engineering.')
     if is_peer_advisor(user):
         if len(departments) > 1:
             raise errors.BadRequestError('Peer Advisor cannot belong to multiple departments.')
