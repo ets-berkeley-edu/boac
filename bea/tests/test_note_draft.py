@@ -47,13 +47,11 @@ class TestNoteDraft:
     today = date.today().strftime('%Y-%m-%d')
 
     auth_users = boa_utils.get_authorized_users()
-    director = boa_utils.get_director(auth_users)
     other_advisor = boa_utils.get_advising_data_advisor(test.dept, test.advisor)
     random.shuffle(test.test_students)
     student = test.test_students[0]
 
-    app.logger.info(
-        f'Advisor UID {test.advisor.uid}, director UID {director.uid}, other advisor UID {other_advisor.uid}')
+    app.logger.info(f'Advisor UID {test.advisor.uid}, other advisor UID {other_advisor.uid}')
 
     note_1 = Note({'advisor': test.advisor, 'is_draft': True})
     note_2 = NoteBatch({'advisor': other_advisor, 'is_draft': True})

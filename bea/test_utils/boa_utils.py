@@ -372,7 +372,7 @@ def get_director(auth_users):
         for m in u.dept_memberships:
             if m.advisor_role and m.advisor_role.value['code'] == AdvisorRole.DIRECTOR.value['code']:
                 directors.append(u)
-    return directors[0]
+    return directors[0] if directors else None
 
 
 def get_advising_data_advisor(dept, test_advisor):
@@ -580,8 +580,8 @@ def get_notes_by_ids(ids):
 
 def get_peer_note_ids(peer, peer_dept_id, date=None):
     if date:
-        first, last = calendar.monthrange(date.year, date.month)
-        start_date = datetime(date.year, date.month, first)
+        _, last = calendar.monthrange(date.year, date.month)
+        start_date = datetime(date.year, date.month, 1)
         end_date = datetime(date.year, date.month, last)
         cond = f"AND notes.created_at BETWEEN '{start_date.strftime('%Y-%m-%d')}' AND '{end_date.strftime('%Y-%m-%d')}'"
     else:
