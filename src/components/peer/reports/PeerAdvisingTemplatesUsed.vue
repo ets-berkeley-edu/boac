@@ -12,7 +12,7 @@
         <tbody>
           <tr
             v-for="(noteTemplate, index) in noteTemplates"
-            :id="`tr-note-template=${noteTemplate.id}`"
+            :id="`tr-note-template-${noteTemplate.id}`"
             :key="noteTemplate.id"
             :class="{
               'bg-surface-light': index % 2 !== 0,
@@ -20,10 +20,10 @@
             }"
           >
             <td :class="{'pt-2': index === 0}" class="pl-3">
-              <span :id="`peer-advising-note-template-${noteTemplate.id}-title`">{{ noteTemplate.templateTitle }}</span>
+              <span :id="`peer-advising-note-template-${noteTemplate.id}-title`">{{ noteTemplate.title }}</span>
             </td>
             <td class="font-weight-550 pr-3 text-right">
-              <span :id="`peer-advising-note-template-${noteTemplate.id}-usage-count`">{{ noteTemplate.noteTemplateUsageCount }}</span>
+              <span :id="`peer-advising-note-template-${noteTemplate.id}-usage-count`">{{ noteTemplate.usageCount }}</span>
             </td>
           </tr>
         </tbody>

@@ -217,9 +217,9 @@ def get_peer_advising_note_template_usage(peer_advising_department_id):
 
     def _to_api_json(row):
         return {
-            'templateId': row['id'],
-            'templateTitle': row['title'],
-            'noteTemplateUsageCount': row['usage_count'],
+            'id': row['id'],
+            'title': row['title'],
+            'usageCount': row['usage_count'],
         }
 
     params = {'peer_advising_department_id': peer_advising_department_id}
