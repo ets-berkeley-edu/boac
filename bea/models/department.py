@@ -139,6 +139,10 @@ class PeerAdvisingDepartment(Enum):
         'name': 'College of Computing, Data Science, and Society',
         'parent': Department.DATA_SCI,
     }
+    EPS = {
+        'name': 'Department of Earth and Planetary Science',
+        'parent': Department.L_AND_S_MAJ,
+    }
     L_AND_S = {
         'name': 'L&S College Advising',
         'parent': Department.L_AND_S,

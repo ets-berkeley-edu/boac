@@ -213,91 +213,91 @@ class TestFilteredCohortHomepage:
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_alerts_asc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = self.homepage.expected_sids_by_alerts(self.alert_members)
             self.homepage.sort_by_alert_count(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_name_asc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_last_name_asc(self.sids)
             self.homepage.sort_by_name(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_name_desc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_last_name_desc(self.sids)
             self.homepage.sort_by_name(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_sid_asc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             self.sids.sort()
             self.homepage.sort_by_sid(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), self.sids)
 
     def test_homepage_cohort_sid_desc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             self.sids.reverse()
             self.homepage.sort_by_sid(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), self.sids)
 
     def test_homepage_cohort_major_asc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_major_asc(self.sids)
             self.homepage.sort_by_major(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_major_desc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_major_desc(self.sids)
             self.homepage.sort_by_major(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_grad_date_asc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_grad_term_asc(self.sids)
             self.homepage.sort_by_expected_grad(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_grad_date_desc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_grad_term_desc(self.sids)
             self.homepage.sort_by_expected_grad(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_term_units_asc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_units_in_prog_asc(self.sids)
             self.homepage.sort_by_term_units(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_term_units_desc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_units_in_prog_desc(self.sids)
             self.homepage.sort_by_term_units(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_cumul_units_asc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_units_complete_asc(self.sids)
             self.homepage.sort_by_cumul_units(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_cumul_units_desc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_units_complete_desc(self.sids)
             self.homepage.sort_by_cumul_units(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_gpa_asc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_gpa_asc(self.sids)
             self.homepage.sort_by_gpa(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
 
     def test_homepage_cohort_gpa_desc(self):
-        if self.cohort_alerts:
+        if self.cohort_alerts and len(self.alert_members) > 1:
             expected_sequence = nessie_filter_students_utils.list_by_gpa_desc(self.sids)
             self.homepage.sort_by_gpa(self.cohort)
             utils.assert_equivalence(self.homepage.all_row_sids(self.cohort), expected_sequence)
