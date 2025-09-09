@@ -231,8 +231,17 @@ onMounted(() => {
   ], header => {
     headers.value.push(header)
   })
+  const alertCountCellAttributes = {
+    cellProps: {class: 'font-size-15 text-center vertical-top'},
+    key: 'alertCount',
+    isNumber: true,
+    sortable,
+    sortRaw,
+    title: 'Alerts',
+    value: 'alertCount'
+  }
   if (props.compact) {
-    headers.value.push({key: 'alertCount', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'Alerts', value: 'alertCount'})
+    headers.value.push(alertCountCellAttributes)
   } else {
     each([
       {key: 'major', ...defaultCellProps.value, sortable, sortRaw, title: 'Major', value: 'majors[0]'},
@@ -240,16 +249,7 @@ onMounted(() => {
       {key: 'enrolledUnits', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'Term units', value: 'term.enrolledUnits'},
       {key: 'cumulativeUnits', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'Units completed', value: 'cumulativeUnits'},
       {key: 'cumulativeGPA', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'GPA', value: 'cumulativeGPA'},
-      {
-        key: 'alertCount',
-        align: 'end',
-        cellProps: {class: 'py-1 pl-1 pr-2 vertical-top'},
-        isNumber: true,
-        sortable,
-        sortRaw,
-        title: 'Alerts',
-        value: 'alertCount'
-      }
+      alertCountCellAttributes
     ], header => {
       headers.value.push(header)
     })
