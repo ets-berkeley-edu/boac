@@ -27,11 +27,11 @@
           </div>
         </div>
       </div>
-      <div v-if="_filter(curatedGroups, ['domain', 'default']).length">
+      <div v-if="curatedGroups.length">
         <h2 class="page-section-header" tabindex="-1">Curated Groups</h2>
         <v-expansion-panels flat multiple>
           <SortableGroup
-            v-for="curatedGroup in _filter(curatedGroups, ['domain', 'default'])"
+            v-for="curatedGroup in curatedGroups"
             :key="curatedGroup.id"
             :group="curatedGroup"
             :is-cohort="false"
@@ -42,17 +42,18 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {filter as _filter} from 'lodash'
-import {onMounted, reactive} from 'vue'
+import {computed, onMounted} from 'vue'
+import type {Cohort} from '@/lib/types-cohorts'
+import type {CuratedGroup} from '@/lib/types'
 import SortableGroup from '@/components/search/SortableGroup.vue'
 import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
-const currentUser = contextStore.currentUser
-const cohorts = reactive(_filter(currentUser.myCohorts, ['domain', 'default']))
-const curatedGroups = reactive(_filter(currentUser.myCuratedGroups, ['domain', 'default']))
+const cohorts = computed<Cohort[]>(() => _filter(contextStore.currentUser.myCohorts, ['domain', 'default']))
+const curatedGroups = computed<CuratedGroup[]>(() =>_filter(contextStore.currentUser.myCuratedGroups, ['domain', 'default']))
 
 onMounted(() => {
   // The BOA homepage presents a summary of the user's cohorts and curated groups and must always be fresh.
