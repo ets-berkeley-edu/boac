@@ -200,23 +200,31 @@ def get_notes_created_by_peer_advisors(peer_advising_department_id, timeframe_mo
 
 def get_peer_advising_note_template_usage(peer_advising_department_id):
     sql = """
-        SELECT DISTINCT(nt.id), nt.title, COUNT(DISTINCT nt.id) AS count
+        SELECT
+          nt.id    AS id,
+          nt.title AS title,
+          COALESCE(COUNT(n.id), 0) AS usage_count
         FROM note_templates nt
-        WHERE
-          nt.peer_advising_department_id = :peer_advising_department_id
+        LEFT JOIN notes n
+          ON n.note_template_id = nt.id
+         AND n.deleted_at IS NULL
+         AND n.peer_advising_department_id = nt.peer_advising_department_id
+        WHERE nt.peer_advising_department_id = :peer_advising_department_id
           AND nt.deleted_at IS NULL
-        GROUP BY nt.id
-        ORDER BY count DESC, nt.title
+        GROUP BY nt.id, nt.title
+        ORDER BY usage_count DESC, nt.title
     """
 
     def _to_api_json(row):
         return {
             'templateId': row['id'],
             'templateTitle': row['title'],
-            'noteTemplateUsageCount': row['count'],
+            'noteTemplateUsageCount': row['usage_count'],
         }
+
     params = {'peer_advising_department_id': peer_advising_department_id}
     return [_to_api_json(row) for row in db.session.execute(text(sql), params).mappings()]
+
 
 
 def get_total_peer_advising_notes(peer_advising_department_id=None):
