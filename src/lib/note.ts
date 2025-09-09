@@ -31,7 +31,7 @@ export function addFileDropEventListeners(): void {
 
 export function canUserEditNote(note: Note, user: BoaUser): boolean {
   let canEdit: boolean = false
-  if (user.uid === note.author.uid && (!note.isPrivate || user.canAccessPrivateNotes)) {
+  if (user.uid === get(note.author, 'uid') && (!note.isPrivate || user.canAccessPrivateNotes)) {
     canEdit = true
   } else if (note.peerAdvisingDepartmentId) {
     // Within any given Peer Advising Dept, PAMs can edit notes of PAs and PAs can edit their own notes.
