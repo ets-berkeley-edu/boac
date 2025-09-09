@@ -19,13 +19,7 @@
         <span :id="`note-${note.id}-subject`">{{ note.subject || contextStore.config.draftNoteSubjectPlaceholder }}</span>
       </span>
       <span v-if="!note.isDraft">
-        <span :id="`note-${note.id}-subject`">
-          <span
-            v-if="isOpen && !note.subject && !note.peerAdvisingDepartmentId && size(note.message)"
-            v-html="note.message"
-          />
-          <span v-html="summarizeNoteForAcademicTimeline(note, !isOpen)" />
-        </span>
+        <span :id="`note-${note.id}-subject`" v-html="noteSummary" />
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="pb-8 w-100">
@@ -168,6 +162,11 @@ const currentUser = contextStore.currentUser
 const deleteAttachmentIndex = ref(undefined)
 const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)
+const noteSummary = computed(() => {
+  const note = props.note
+  const showNoteMessage = props.isOpen && !note.subject && !note.peerAdvisingDepartmentId && size(note.message)
+  return showNoteMessage ? note.message : summarizeNoteForAcademicTimeline(note, !props.isOpen)
+})
 const peerAdvisingDepartment = computed(() => props.note.peerAdvisingDepartmentId ? findPeerAdvisingDepartment(props.note.peerAdvisingDepartmentId) : undefined)
 const showConfirmDeleteAttachment = ref(false)
 const showNoteAttachmentsWidget = (!props.note.legacySource && canUserEditNote(props.note, currentUser)) || size(props.note.attachments)
