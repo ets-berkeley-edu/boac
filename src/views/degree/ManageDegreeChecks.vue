@@ -132,7 +132,7 @@ const onUpdateDegreeTemplate = (degreeTemplate: DegreeTemplate) => {
   if (degreeTemplate.archivedAt) {
     isShowingArchivedTemplates.value = true
   }
-  putFocusNextTick(`tr-degree-check-${degreeTemplate.id}`)
+  putFocusNextTick('page-header')
 }
 </script>
 
