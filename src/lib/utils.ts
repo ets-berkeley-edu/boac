@@ -165,9 +165,9 @@ export function round(value: number, decimals: number) {
   return (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals)
 }
 
-export function setPageTitle(phrase: string): void {
+export function setPageTitle(phrase: string, useRawTitle?: boolean): void {
   const title: string = phrase && decodeHtml(phrase)
-  document.title = `${title || 'UC Berkeley'} | BOA`
+  document.title = useRawTitle ? title : `${title || 'UC Berkeley'} | BOA`
 }
 
 // eslint-disable-next-line no-undef
