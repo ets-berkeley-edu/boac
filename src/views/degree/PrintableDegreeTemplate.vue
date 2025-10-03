@@ -166,8 +166,7 @@ onMounted(() => {
     if (degreeStore.sid) {
       getStudentBySid(degreeStore.sid).then(data => {
         student.value = data
-        const studentName = currentUser.inDemoMode ? 'Student' : student.value.name
-        setPageTitle(`${studentName} - ${degreeStore.degreeName}`)
+        setPageTitle(`${student.value.lastName} ${student.value.firstName}`, true)
         contextStore.loadingComplete(`${degreeStore.degreeName} for ${student.value.name} is ready to print.`)
       })
     } else {
