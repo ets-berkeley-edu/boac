@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 import threading
 
+from flask import current_app as app
 from sqlalchemy import and_, desc
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
@@ -591,9 +592,12 @@ class Note(Base):
     @classmethod
     def refresh_search_index(cls):
         def _refresh_search_index(db_session):
+            app.logger.info('Starting background refresh of notes_fts_index...')
             db_session.execute(text('REFRESH MATERIALIZED VIEW CONCURRENTLY notes_fts_index'))
+            app.logger.info('Starting background refresh of advisor_author_index...')
             db_session.execute(text('REFRESH MATERIALIZED VIEW CONCURRENTLY advisor_author_index'))
             std_commit(session=db_session)
+            app.logger.info('Background refresh of search indexes complete.')
         bg_execute(method=_refresh_search_index, thread_name='refresh_search_index')
 
     @classmethod
