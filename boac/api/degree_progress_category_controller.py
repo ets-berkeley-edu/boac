@@ -219,7 +219,7 @@ def _create_category(
     if category_type == 'Campus Requirements':
         category_type = 'Category'
         name = 'Campus Requirements'
-        campus_requirements = ['Entry Level Writing', 'American History', 'American Institutions', 'American Cultures']
+        campus_requirements = ['Entry Level Writing', 'American History & Institutions', 'American Cultures']
     category = DegreeProgressCategory.create(
         category_type=category_type,
         course_units_lower=course_units_lower,
