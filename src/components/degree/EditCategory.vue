@@ -229,7 +229,7 @@ watch(selectedCategoryType, option => {
   if (option) {
     if (selectedCategoryType.value === 'Campus Requirements') {
       name.value = 'Campus Requirements'
-      descriptionText.value = 'American History, American Institutions, and American Cultures courses can also count as H/SS courses.'
+      descriptionText.value = 'American History & Institutions and American Cultures courses can also count as H/SS courses.'
       putFocusNextTick(`column-${props.uxPositionX}-description-input`)
     } else {
       descriptionText.value = null

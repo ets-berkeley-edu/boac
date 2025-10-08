@@ -104,7 +104,7 @@ class TestCreateDegreeCategory:
         assert api_json['uxPositionX'] == 1
 
     def test_create_campus_requirements(self, client, fake_auth, mock_template):
-        """Campus Requirements is created as a category with four children."""
+        """Campus Requirements is created as a category with three children."""
         fake_auth.login(coe_advisor_read_write_uid)
         api_json = _api_create_category(
             client,
@@ -120,7 +120,7 @@ class TestCreateDegreeCategory:
         assert api_json['templateId'] == mock_template.id
         assert api_json['uxPositionX'] == 2
         children = DegreeProgressCategory.find_by_parent_category_id(api_json['id'])
-        assert len(children) == 4
+        assert len(children) == 3
 
 
 class TestDeleteCategory:
