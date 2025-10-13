@@ -80,16 +80,21 @@
             </v-alert>
           </div>
           <div v-if="item.id !== get(templateForEdit, 'id')">
-            <router-link
+            <component
+              :is="isBusy ? 'span' : 'router-link'"
               :id="`degree-check-${item.id}-link`"
-              :disabled="isBusy"
+              :class="{'text-disabled': isBusy}"
               :to="`/degree/${item.id}`"
               v-html="`${item.name}`"
             />
           </div>
         </template>
         <template #item.createdAt="{item}">
-          <div v-if="item.id !== get(templateForEdit, 'id')" class="text-no-wrap">
+          <div
+            v-if="item.id !== get(templateForEdit, 'id')"
+            class="text-no-wrap"
+            :class="{'text-disabled': isBusy}"
+          >
             {{ DateTime.fromISO(item.createdAt).toFormat('DD') }}
           </div>
         </template>
@@ -210,7 +215,7 @@
 
 <script lang="ts" setup>
 import type {PropType} from 'vue'
-import {filter as _filter, clone, get, map, size, trim} from 'lodash'
+import {filter as _filter, clone, findIndex, get, map, size, trim} from 'lodash'
 import {computed, ref} from 'vue'
 import {DateTime} from 'luxon'
 import type {DegreeTemplate} from '@/lib/types'
@@ -266,20 +271,27 @@ const errorDuringEdit = computed(() => {
 })
 
 const toggleArchivedAt = (degreeTemplate: DegreeTemplate) => {
-  isBusy.value = true
+  const nextFocusId = getNextFocusId(degreeTemplate.id, props.mode)
+  const templateName = degreeTemplate.name
   const api = props.mode === 'archived' ? unarchiveDegreeTemplate : archiveDegreeTemplate
+  isBusy.value = true
+  alertScreenReader(`${props.mode === 'archived' ? 'Unarchiving' : 'Archiving'} degree template`)
   api(degreeTemplate.id).then(data => {
-    props.onUpdateDegreeTemplate(data)
-    isBusy.value = false
+    props.onUpdateDegreeTemplate(data).then(() => {
+      isBusy.value = false
+      alertScreenReader(`${props.mode === 'archived' ? 'Unarchived' : 'Archived'} ${templateName}`)
+      putFocusNextTick(nextFocusId)
+    })
   })
 }
 
 const afterClone = (clone: DegreeTemplate) => {
-  props.onUpdateDegreeTemplate(clone)
-  templateToClone.value = undefined
-  isBusy.value = false
-  alertScreenReader('Degree copy is complete.')
-  putFocusNextTick(`degree-check-${clone.id}-link`)
+  props.onUpdateDegreeTemplate(clone).then(() => {
+    templateToClone.value = undefined
+    isBusy.value = false
+    alertScreenReader('Degree copy is complete.')
+    putFocusNextTick(`degree-check-${clone.id}-link`)
+  })
 }
 
 const cancelEdit = () => {
@@ -296,7 +308,7 @@ const cloneCanceled = () => {
     putFocusNextTick(`degree-check-${templateToClone.value.id}-copy-btn`)
     templateToClone.value = undefined
     isBusy.value = false
-    alertScreenReader('Copy canceled.')
+    alertScreenReader('Canceled copy.')
   }
 }
 
@@ -311,12 +323,15 @@ const deleteCanceled = () => {
 
 const deleteConfirmed = () => {
   if (templateForDelete.value) {
+    const nextFocusId = getNextFocusId(templateForDelete.value.id, 'delete')
+    alertScreenReader('Deleting degree template')
     deleteDegreeTemplate(templateForDelete.value.id).then(() => {
-      props.onUpdateDegreeTemplate(templateForDelete.value)
-      alertScreenReader(`Deleted "${get(templateForDelete.value, 'name')}".`)
-      putFocusNextTick('page-header')
-      deleteModalBody.value = templateForDelete.value = undefined
-      isBusy.value = isDeleting.value = false
+      props.onUpdateDegreeTemplate(templateForDelete.value).then(() => {
+        alertScreenReader(`Deleted "${get(templateForDelete.value, 'name')}".`)
+        putFocusNextTick(nextFocusId)
+        deleteModalBody.value = templateForDelete.value = undefined
+        isBusy.value = isDeleting.value = false
+      })
     })
   }
 }
@@ -325,6 +340,17 @@ const edit = (template: DegreeTemplate) => {
   templateForEdit.value = clone(template)
   isBusy.value = true
   putFocusNextTick('rename-template-input')
+}
+
+const getNextFocusId = (currentTemplateId: number, action: string) => {
+  const currentTemplateIndex = findIndex(props.degreeTemplates, {id: currentTemplateId})
+  const lastTemplateIndex = size(props.degreeTemplates) - 1
+  if (lastTemplateIndex > 0) {
+    const nextTemplateIndex = (currentTemplateIndex === lastTemplateIndex ) ? currentTemplateIndex - 1 : currentTemplateIndex + 1
+    const nextTemplateId = get(props.degreeTemplates, `${nextTemplateIndex}.id`)
+    return `degree-check-${nextTemplateId}-${action}-btn`
+  }
+  return 'show-hide-archived-degree-templates'
 }
 
 const isNameAvailable = (name: string, ignoreTemplateId: number) => {
@@ -346,12 +372,13 @@ const save = () => {
       isRenaming.value = true
       alertScreenReader('Renaming template')
       updateDegreeTemplate(templateForEdit.value.id, name).then(() => {
-        props.onUpdateDegreeTemplate(templateForEdit.value)
-        templateForEdit.value = undefined
-        isRenaming.value = false
-        putFocusNextTick(`degree-check-${templateId}-rename-btn`)
-        alertScreenReader(`Saved changes to template "${name}"`)
-        isBusy.value = false
+        props.onUpdateDegreeTemplate(templateForEdit.value).then(() => {
+          templateForEdit.value = undefined
+          isRenaming.value = false
+          putFocusNextTick(`degree-check-${templateId}-rename-btn`)
+          alertScreenReader(`Saved changes to template "${name}"`)
+          isBusy.value = false
+        })
       })
     }
   }

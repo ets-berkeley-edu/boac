@@ -96,7 +96,6 @@ import type {DegreeTemplate} from '@/lib/types'
 import {getDegreeTemplates} from '@/api/degree'
 import {useContextStore} from '@/stores/context'
 import DegreeTemplatesDataTable from '@/components/degree/DegreeTemplatesDataTable.vue'
-import {putFocusNextTick} from '@/lib/utils.js'
 
 const contextStore = useContextStore()
 
@@ -117,22 +116,25 @@ onMounted(() => {
   })
 })
 
-const onUpdateDegreeTemplate = (degreeTemplate: DegreeTemplate) => {
+const onUpdateDegreeTemplate = (degreeTemplate: DegreeTemplate): Promise<void> => {
   const index = degreeTemplates.value.findIndex(d => d.id === degreeTemplate.id)
   tableRowHighlightId.value = degreeTemplate.id
-  if (degreeTemplate.deletedAt) {
-    degreeTemplates.value.splice(index, 1)
-  } else {
-    getDegreeTemplates().then(data => {
-      degreeTemplates.value = data
-      // If an item is created or updated then we want its table row to be temporarily highlighted.
-      setTimeout(() => {tableRowHighlightId.value = undefined}, 3000)
-    })
-  }
-  if (degreeTemplate.archivedAt) {
-    isShowingArchivedTemplates.value = true
-  }
-  putFocusNextTick(`tr-degree-check-${degreeTemplate.id}`)
+  return new Promise((resolve) => {
+    if (degreeTemplate.deletedAt) {
+      degreeTemplates.value.splice(index, 1)
+      resolve()
+    } else {
+      getDegreeTemplates().then(data => {
+        degreeTemplates.value = data
+        resolve()
+        // If an item is created or updated then we want its table row to be temporarily highlighted.
+        setTimeout(() => {tableRowHighlightId.value = undefined}, 3000)
+      })
+    }
+    if (degreeTemplate.archivedAt) {
+      isShowingArchivedTemplates.value = true
+    }
+  })
 }
 </script>
 
