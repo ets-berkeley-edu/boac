@@ -47,8 +47,10 @@ def download_cohort_csv():
     cohort = CohortFilter.find_by_id(cohort_id)
     cohort_owner_uid = AuthorizedUser.get_uid_per_id(cohort.owner_id)
     if cohort and can_current_user_view_cohort(cohort_owner_uid):
-        fieldnames = get_param(params, 'csvColumnsSelected', [])
         sids = CohortFilter.get_sids(cohort.id)
+        if len(sids) > app.config['COHORT_CSV_MAXIMUM_POPULATION']:
+            raise BadRequestError(f"CSV maximum of {app.config['COHORT_CSV_MAXIMUM_POPULATION']} exceeded")
+        fieldnames = get_param(params, 'csvColumnsSelected', [])
         term_id = get_param(params, 'termId') or current_term_id()
         return response_with_students_csv_download(
             benchmark=benchmark,
@@ -88,6 +90,8 @@ def download_csv_per_filters():
         include_sids=True,
         include_students=False,
     )
+    if len(cohort['sids']) > app.config['COHORT_CSV_MAXIMUM_POPULATION']:
+        raise BadRequestError(f"CSV maximum of {app.config['COHORT_CSV_MAXIMUM_POPULATION']} exceeded")
     return response_with_students_csv_download(
         benchmark=benchmark,
         domain=domain,
