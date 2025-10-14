@@ -14,6 +14,7 @@ function $_getDefaultDraggingContext(): DraggingContext {
 export const useDegreeStore: StoreDefinition = defineStore('degree', {
   state: () => ({
     addCourseMenuOptions: undefined,
+    archivedAt: null as string | null,
     categories: undefined as Category[] | undefined,
     courses: undefined as DegreeProgressCourse[] | undefined,
     createdAt: undefined as string | undefined,
@@ -63,6 +64,7 @@ export const useDegreeStore: StoreDefinition = defineStore('degree', {
       this.disableButtons = false
       this.draggingContext = $_getDefaultDraggingContext()
       if (template) {
+        this.archivedAt = template.archivedAt
         this.categories = template.categories
         this.courses = template.courses
         this.createdAt = template.createdAt
@@ -83,6 +85,9 @@ export const useDegreeStore: StoreDefinition = defineStore('degree', {
         this.sid = this.unitRequirements = this.updatedAt = this.updatedBy = undefined
       }
       this.lastPageRefreshAt = new Date()
+    },
+    setArchivedAt(archivedAt: string | null) {
+      this.archivedAt = archivedAt
     },
     setDisableButtons(disableAll: boolean) {
       this.disableButtons = disableAll

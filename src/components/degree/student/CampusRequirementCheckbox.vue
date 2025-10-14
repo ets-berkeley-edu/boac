@@ -52,7 +52,7 @@ const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
 
 const currentUser = contextStore.currentUser
-const canEdit = currentUser.canEditDegreeProgress && !props.printable
+const canEdit = currentUser.canEditDegreeProgress && !props.printable && !degreeStore.archivedAt
 const isSatisfied = ref(props.campusRequirement.category.categoryType === 'Campus Requirement, Satisfied')
 
 const toggle = () => {
