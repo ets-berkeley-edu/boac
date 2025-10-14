@@ -28,6 +28,7 @@ from flask import request
 from flask_login import current_user
 
 from boac.api.decorators import can_edit_degree_progress, can_read_degree_progress
+from boac.api.degree_progress_api_utils import validate_template_not_archived
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import normalize_accent_color
 from boac.lib.http import tolerant_jsonify
@@ -52,6 +53,8 @@ def create_category():
     value = get_param(request.get_json(), 'unitRequirementIds')
     unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
     ux_position_x = get_param(params, 'uxPositionX')
+
+    validate_template_not_archived(template_id)
 
     if (
         not category_type
@@ -99,6 +102,7 @@ def get_degree_category(category_id):
 @can_edit_degree_progress
 def delete_degree_category(category_id):
     category = _get_degree_category(category_id)
+    validate_template_not_archived(category.template_id)
     DegreeProgressCategory.delete(category.id)
     # Update updated_at date of top-level record
     DegreeProgressTemplate.refresh_updated_at(category.template_id, current_user.get_id())
@@ -108,15 +112,19 @@ def delete_degree_category(category_id):
 @app.route('/api/degree/category/<category_id>/move_down')
 @can_edit_degree_progress
 def move_down(category_id):
-    DegreeProgressCategory.move_category_down(category_id)
-    return tolerant_jsonify({'message': f'Category {category_id} was moved down'})
+    category = _get_degree_category(category_id)
+    validate_template_not_archived(category.template_id)
+    DegreeProgressCategory.move_category_down(category.id)
+    return tolerant_jsonify({'message': f'Category {category.id} was moved down'})
 
 
 @app.route('/api/degree/category/<category_id>/move_up')
 @can_edit_degree_progress
 def move_up(category_id):
-    DegreeProgressCategory.move_category_up(category_id)
-    return tolerant_jsonify({'message': f'Category {category_id} was moved up.'})
+    category = _get_degree_category(category_id)
+    validate_template_not_archived(category.template_id)
+    DegreeProgressCategory.move_category_up(category.id)
+    return tolerant_jsonify({'message': f'Category {category.id} was moved up.'})
 
 
 @app.route('/api/degree/category/<category_id>/recommend', methods=['POST'])
@@ -135,6 +143,9 @@ def recommend_category(category_id):
     note = get_param(params, 'note')
     units_lower = get_param(params, 'unitsLower')
     units_upper = get_param(params, 'unitsUpper')
+
+    category = _get_degree_category(category_id)
+    validate_template_not_archived(category.template_id)
 
     category = DegreeProgressCategory.recommend(
         accent_color=accent_color,
@@ -159,6 +170,8 @@ def toggle_campus_requirement(category_id):
     if is_satisfied is None:
         raise BadRequestError('Parameter \'isSatisfied\' is required')
     category = _get_degree_category(category_id)
+    validate_template_not_archived(category.template_id)
+
     if category.category_type not in ['Campus Requirement, Satisfied', 'Campus Requirement, Unsatisfied']:
         raise BadRequestError('Category must be a \'Campus Requirement\' type')
     if ((category.category_type == 'Campus Requirement, Satisfied' and is_satisfied is True)
@@ -187,6 +200,9 @@ def update_category(category_id):
     # Courses can be mapped to degree_progress_unit_requirements
     value = get_param(request.get_json(), 'unitRequirementIds')
     unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
+
+    category = _get_degree_category(category_id)
+    validate_template_not_archived(category.template_id)
 
     category = DegreeProgressCategory.update(
         category_id=category_id,

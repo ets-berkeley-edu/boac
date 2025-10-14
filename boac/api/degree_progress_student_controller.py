@@ -30,7 +30,7 @@ from flask import redirect, request
 from flask_login import current_user
 
 from boac.api.decorators import can_edit_degree_progress, can_read_degree_progress
-from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks
+from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks, validate_template_not_archived
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import normalize_accent_color
 from boac.externals.data_loch import get_basic_student_data, get_student_by_sid
@@ -54,6 +54,7 @@ def batch_degree_checks():
     template_id = get_param(params, 'templateId')
     if not template_id or not sids:
         raise BadRequestError('sids and templateId are required.')
+    validate_template_not_archived(template_id)
     return tolerant_jsonify(create_batch_degree_checks(template_id=template_id, sids=sids))
 
 
@@ -64,6 +65,7 @@ def create_degree_check(sid):
     template_id = get_param(params, 'templateId')
     if not template_id or not is_int(sid):
         raise BadRequestError('sid and templateId are required.')
+    validate_template_not_archived(template_id)
     return tolerant_jsonify(clone_degree_template(template_id=template_id, sid=sid).to_api_json())
 
 
@@ -82,6 +84,7 @@ def copy_course():
     section_id = course.section_id
     term_id = course.term_id
     degree_check_id = course.degree_check_id
+    validate_template_not_archived(course.degree_check_id)
     courses = DegreeProgressCourse.get_courses(
         degree_check_id=degree_check_id,
         manually_created_at=course.manually_created_at,
@@ -148,6 +151,8 @@ def delete_course(course_id):
             term_id=course.term_id,
         )
 
+        validate_template_not_archived(course.degree_check_id)
+
         def _delete_course(c):
             category = DegreeProgressCategory.find_by_id(c.category_id)
             DegreeProgressCourseUnitRequirement.delete(c.id)
@@ -178,6 +183,7 @@ def assign_course(course_id):
     params = request.get_json()
     course = DegreeProgressCourse.find_by_id(course_id)
     if course:
+        validate_template_not_archived(course.degree_check_id)
         # Get existing category assignment. If it's a placeholder then delete it at end of transaction.
         previous_category = DegreeProgressCategory.find_by_id(course.category_id) if course.category_id else None
         category_id = get_param(params, 'categoryId')
@@ -263,6 +269,8 @@ def create_course():
     unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
     units = get_param(params, 'units')
 
+    validate_template_not_archived(degree_check_id)
+
     if 0 in map(lambda v: len(str(v).strip()) if v else 0, (name, sid)):
         raise BadRequestError('Missing one or more required parameters')
     course = DegreeProgressCourse.create(
@@ -296,6 +304,8 @@ def create_course():
 def update_course(course_id):
     course = DegreeProgressCourse.find_by_id(course_id)
     if course:
+        validate_template_not_archived(course.degree_check_id)
+
         params = request.get_json()
         accent_color = normalize_accent_color(get_param(params, 'accentColor'))
 
@@ -331,6 +341,7 @@ def update_course(course_id):
 @app.route('/api/degree/<degree_check_id>/note', methods=['POST'])
 @can_edit_degree_progress
 def update_degree_note(degree_check_id):
+    validate_template_not_archived(degree_check_id)
     params = request.get_json()
     body = get_param(params, 'body')
     note = DegreeProgressNote.upsert(
