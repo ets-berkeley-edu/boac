@@ -51,7 +51,7 @@
                 @drop="dropToUnassign($event, 'unassigned')"
               >
                 <h3 id="unassigned-courses-header" class="font-size-18 pb-0 text-medium-emphasis text-no-wrap mb-1" tabindex="-1">Unassigned Courses</h3>
-                <div v-if="currentUser.canEditDegreeProgress" class="pb-2">
+                <div v-if="currentUser.canEditDegreeProgress && !degreeStore.archivedAt" class="pb-2">
                   <DuplicateExistingCourse />
                 </div>
                 <UnassignedCourses />

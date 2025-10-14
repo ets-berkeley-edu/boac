@@ -11,13 +11,13 @@
         <caption class="sr-only">{{ capitalize(key) }} Courses</caption>
         <thead class="border-b-sm">
           <tr class="text-no-wrap">
-            <th v-if="currentUser.canEditDegreeProgress" class="th-assign force-width-18"><span class="sr-only">Options to assign course</span></th>
+            <th v-if="canEdit" class="th-assign force-width-18"><span class="sr-only">Options to assign course</span></th>
             <th class="font-size-11 force-width-80 pr-1">Course</th>
             <th class="font-size-11 force-width-24 truncate-with-ellipsis" title="Grade">Grade</th>
             <th class="font-size-11 force-width-24 text-right truncate-with-ellipsis pr-2" title="Units">Units</th>
             <th v-if="!ignored" class="font-size-11 force-width-42">Term</th>
             <th class="font-size-11 force-width-50">Note</th>
-            <th v-if="currentUser.canEditDegreeProgress" class="force-width-20" />
+            <th v-if="canEdit" class="force-width-20" />
           </tr>
         </thead>
         <tbody>
@@ -47,7 +47,7 @@
               @mouseleave="onMouse('leave', course)"
             >
               <td
-                v-if="currentUser.canEditDegreeProgress"
+                v-if="canEdit"
                 class="td-assign"
               >
                 <CourseAssignmentMenu
@@ -138,7 +138,7 @@
                 <div v-if="!course.note" :id="`course-${course.id}-note`">&mdash;</div>
               </td>
               <td
-                v-if="currentUser.canEditDegreeProgress"
+                v-if="canEdit"
               >
                 <div class="d-flex h-100 justify-end">
                   <div class="degree-check-action-buttons d-flex pt-1 text-no-wrap">
@@ -173,7 +173,7 @@
               </td>
             </tr>
             <tr v-if="isEditing(course)" :key="`tr-${index}-edit`">
-              <td class="pb-3" :colspan="currentUser.canEditDegreeProgress ? (ignored ? 6 : 7) : (ignored ? 4 : 5)">
+              <td class="pb-3" :colspan="canEdit ? (ignored ? 6 : 7) : (ignored ? 4 : 5)">
                 <EditCourse
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
@@ -187,7 +187,7 @@
               :key="`tr-${index}-note`"
               class="border-b-md border-e-md border-s-md"
             >
-              <td class="px-4" :colspan="currentUser.canEditDegreeProgress ? (ignored ? 6 : 7) : (ignored ? 4 : 5)">
+              <td class="px-4" :colspan="canEdit ? (ignored ? 6 : 7) : (ignored ? 4 : 5)">
                 <div class="d-flex flex-column-reverse">
                   <div class="font-size-12 py-2 text-no-wrap">
                     [<v-btn
@@ -237,7 +237,7 @@ import {
   mdiNoteEditOutline,
   mdiTrashCan
 } from '@mdi/js'
-import {ref} from 'vue'
+import {computed, ref} from 'vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import EditCourse from '@/components/degree/student/EditCourse'
@@ -302,8 +302,12 @@ const afterSave = course => {
 }
 
 const canDrag = () => {
-  return !degreeStore.disableButtons && currentUser.canEditDegreeProgress
+  return !degreeStore.disableButtons && currentUser.canEditDegreeProgress && !degreeStore.archivedAt
 }
+
+const canEdit = computed(() => {
+  return currentUser.canEditDegreeProgress && !degreeStore.archivedAt
+})
 
 const deleteCanceled = () => {
   putFocusNextTick(`delete-${courseForDelete.value.id}-btn`)

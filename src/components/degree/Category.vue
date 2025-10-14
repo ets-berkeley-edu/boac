@@ -143,7 +143,7 @@ const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
 
 const currentUser = contextStore.currentUser
-const canEdit = currentUser.canEditDegreeProgress && !props.printable
+const canEdit = currentUser.canEditDegreeProgress && !props.printable && !degreeStore.archivedAt
 const isCampusRequirements = computed(() => {
   return !isEmpty(props.category.courseRequirements) && every(props.category.courseRequirements, isCampusRequirement)
 })

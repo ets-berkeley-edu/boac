@@ -49,7 +49,7 @@
     <div v-if="!isMenuOpen">
       <span v-if="!options.length" aria-live="polite" class="sr-only">No courses available to copy.</span>
       <v-btn
-        v-if="currentUser.canEditDegreeProgress"
+        v-if="currentUser.canEditDegreeProgress && !degreeStore.archivedAt"
         id="duplicate-existing-course"
         class="align-center d-flex flex-row-reverse font-size-16 pl-0 text-no-wrap"
         color="primary"

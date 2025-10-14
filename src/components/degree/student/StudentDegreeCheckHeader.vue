@@ -36,6 +36,38 @@
       <v-row no-gutters>
         <v-col cols="12" md="7">
           <h2 id="degree-check-header" class="font-size-20 page-section-header">{{ degreeStore.degreeName }}</h2>
+          <div v-if="currentUser.isAdmin || isDirector(currentUser)">
+            <label for="lock-degree-check-toggle" class="d-flex align-center">
+              Lock degree check?
+              <span
+                class="align-center d-flex pl-4"
+                :class="{'text-anchor': isLocked, 'text-disabled': !isLocked}"
+              >
+                <v-switch
+                  id="lock-degree-check-toggle"
+                  v-model="isLocked"
+                  :class="{'text-medium-emphasis': !isLocked}"
+                  :disabled="isSaving"
+                  color="anchor"
+                  density="compact"
+                  :true-icon="mdiLock"
+                  :false-icon="mdiLockOpenVariant"
+                  hide-details
+                />
+                <span class="font-size-14 font-weight-bold pl-4 toggle-label-width">
+                  {{ isLocked ? 'Locked' : 'Unlocked' }}
+                </span>
+              </span>
+            </label>
+          </div>
+          <div
+            v-if="degreeStore.archivedAt"
+            class="font-italic mb-2"
+            :class="{'font-weight-bold': !(currentUser.isAdmin || isDirector(currentUser))}"
+          >
+            <v-icon v-if="!(currentUser.isAdmin || isDirector(currentUser))" :aria-hidden="true" :icon="mdiLock" />
+            Degree check locked on {{ DateTime.fromISO(degreeStore.archivedAt).setZone(timezone).toFormat('MMM d, yyyy') }}
+          </div>
           <div class="text-surface-variant font-size-16 font-weight-500 pb-2">
             {{ updatedAtDescription }}
           </div>
@@ -110,7 +142,7 @@
             </label>
           </div>
           <v-btn
-            v-if="currentUser.canEditDegreeProgress && !isEditingNote && !noteBody"
+            v-if="canEdit && !isEditingNote && !noteBody"
             id="create-degree-note-btn"
             class="font-size-16 pl-0"
             color="primary"
@@ -144,7 +176,7 @@
               v-html="noteBody"
             />
             <v-btn
-              v-if="currentUser.canEditDegreeProgress"
+              v-if="canEdit"
               id="edit-degree-note-btn"
               class="font-weight-medium pl-0 mb-1 mt-2"
               color="primary"
@@ -280,15 +312,16 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {DateTime} from 'luxon'
-import {mdiCloseThick, mdiOpenInNew, mdiPrinter} from '@mdi/js'
+import {mdiCloseThick, mdiLock, mdiLockOpenVariant, mdiOpenInNew, mdiPrinter} from '@mdi/js'
 import {computed, onMounted, ref, watch} from 'vue'
 import {each, get, includes} from 'lodash'
 import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
+import {archiveDegreeTemplate, unarchiveDegreeTemplate, updateDegreeNote} from '@/api/degree'
 import {getCalnetProfileByUserId} from '@/api/user'
+import {isDirector} from '@/lib/boa-user'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
-import {updateDegreeNote} from '@/api/degree'
 import {useContextStore} from '@/stores/context'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import ProgressButton from '@/components/util/ProgressButton.vue'
@@ -302,9 +335,11 @@ defineProps({
 
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
-
 const currentUser = contextStore.currentUser
+const timezone = contextStore.config.timezone
+
 const isEditingNote = ref(false)
+const isLocked = ref(!!degreeStore.archivedAt)
 const isSaving = ref(false)
 const noteBody = ref(undefined)
 const noteUpdatedBy = ref(undefined)
@@ -313,8 +348,23 @@ const showInProgressCourses = ref(true)
 const showRevisionIndicator = ref(false)
 const updatedAtDescription = ref(undefined)
 
+const canEdit = computed(() => {
+  return currentUser.canEditDegreeProgress && !degreeStore.archivedAt
+})
+
 const noteUpdatedAt = computed(() => {
   return degreeStore.degreeNote && DateTime.fromJSDate(new Date(degreeStore.degreeNote.updatedAt))
+})
+
+watch(isLocked, () => {
+  const api = isLocked.value ? archiveDegreeTemplate : unarchiveDegreeTemplate
+  isSaving.value = true
+  alertScreenReader(`${isLocked.value ? 'Locking' : 'Unlocking'} degree template`)
+  api(degreeStore.templateId).then(data => {
+    degreeStore.setArchivedAt(data.archivedAt)
+    isSaving.value = false
+    alertScreenReader(`${isLocked.value ? 'Locked' : 'Unlocked'} ${degreeStore.degreeName}`)
+  })
 })
 
 watch(notesWhenPrintModel, () => {
