@@ -73,6 +73,7 @@ CANVAS_FUTURE_ENROLLMENT_TERM = 'auto'
 CAS_SERVER = 'https://auth-test.berkeley.edu/cas/'
 CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
 
+COHORT_CSV_MAXIMUM_POPULATION = 10000
 COHORT_FILTER_ACADEMIC_STANDING_YEARS_CUTOFF = 5
 
 # Some defaults.
