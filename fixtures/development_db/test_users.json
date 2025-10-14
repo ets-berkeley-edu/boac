@@ -111,6 +111,17 @@
         "lastName": "Mitchell"
     },
     {
+        "uid": "9933311",
+        "csid": "600700800",
+        "isAdmin": false,
+        "inDemoMode": false,
+        "canAccessAdvisingData": true,
+        "canAccessCanvasData": true,
+        "degreeProgressPermission": "read_write",
+        "firstName": "Herbie",
+        "lastName": "Hancock"
+    },
+    {
         "uid": "1133400",
         "csid": "800700601",
         "canAccessAdvisingData": false,

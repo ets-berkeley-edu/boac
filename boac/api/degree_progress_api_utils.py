@@ -123,6 +123,14 @@ def fetch_degree_template(template_id):
     return template
 
 
+def validate_template_not_archived(template_id):
+    if template_id:
+        template = fetch_degree_template(template_id)
+        # Templates specific to a student are not editable when in archived mode.
+        if template and template.student_sid and template.archived_at:
+            raise BadRequestError('Degree is locked and cannot be edited.')
+
+
 def validate_template_upsert(name, template_id=None):
     if not name:
         raise BadRequestError('\'name\' is required.')

@@ -37,6 +37,7 @@ admin_uid = '2040'
 coe_advisor_no_access_uid = '90412'
 coe_advisor_read_only_uid = '6972201'
 coe_advisor_read_write_uid = '1133399'
+coe_director_uid = '9933311'
 coe_student_sid = '9000000000'
 qcadv_advisor_uid = '53791'
 
@@ -206,6 +207,23 @@ class TestArchiveTemplate:
         assert api_json['id'] == template.id
         assert api_json['archivedAt']
 
+    def test_lock_student_degree_check(self, client, fake_auth, mock_degree_check):
+        """A COE advisor cannot archive (i.e. lock) a student degree check, but a director can."""
+        fake_auth.login(AuthorizedUser.get_uid_per_id(mock_degree_check.created_by))
+        _api_archive_degree_template(client, mock_degree_check.id, expected_status_code=400)
+
+        fake_auth.login(coe_director_uid)
+        api_json = _api_archive_degree_template(client, mock_degree_check.id)
+        assert api_json['id'] == mock_degree_check.id
+        assert api_json['archivedAt']
+
+    def test_admin_lock_student_degree_check(self, client, fake_auth, mock_degree_check):
+        """An admin can archive a student degree check."""
+        fake_auth.login(admin_uid)
+        api_json = _api_archive_degree_template(client, mock_degree_check.id)
+        assert api_json['id'] == mock_degree_check.id
+        assert api_json['archivedAt']
+
 
 class TestUnarchiveTemplate:
     """Unarchive Template API."""
@@ -243,6 +261,33 @@ class TestUnarchiveTemplate:
         # Unarchive it and verify.
         api_json = self._api_unarchive_degree_template(client, template.id)
         assert not api_json['archivedAt']
+
+    def test_lock_student_degree_check(self, client, fake_auth, mock_degree_check):
+        """A COE advisor cannot unarchive (i.e. unlock) a student degree check, but a director can."""
+        fake_auth.login(coe_director_uid)
+        api_json = _api_archive_degree_template(client, mock_degree_check.id)
+        assert api_json['id'] == mock_degree_check.id
+        assert api_json['archivedAt']
+
+        fake_auth.login(AuthorizedUser.get_uid_per_id(mock_degree_check.created_by))
+        self._api_unarchive_degree_template(client, mock_degree_check.id, expected_status_code=400)
+
+        fake_auth.login(coe_director_uid)
+        api_json = self._api_unarchive_degree_template(client, mock_degree_check.id)
+        assert api_json['id'] == mock_degree_check.id
+        assert api_json['archivedAt'] is None
+
+    def test_admin_lock_student_degree_check(self, client, fake_auth, mock_degree_check):
+        """An admin can unarchive a student degree check."""
+        fake_auth.login(coe_director_uid)
+        api_json = _api_archive_degree_template(client, mock_degree_check.id)
+        assert api_json['id'] == mock_degree_check.id
+        assert api_json['archivedAt']
+
+        fake_auth.login(admin_uid)
+        api_json = self._api_unarchive_degree_template(client, mock_degree_check.id)
+        assert api_json['id'] == mock_degree_check.id
+        assert api_json['archivedAt'] is None
 
 
 class TestDeleteTemplate:

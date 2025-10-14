@@ -28,8 +28,9 @@ from flask import current_app as app
 from flask import request
 from flask_login import current_user
 
+from boac.api.auth_utils import is_admin_or_director
 from boac.api.decorators import can_edit_degree_progress, can_read_degree_progress
-from boac.api.degree_progress_api_utils import clone_degree_template, fetch_degree_template, validate_template_upsert
+from boac.api.degree_progress_api_utils import clone_degree_template, fetch_degree_template, validate_template_not_archived, validate_template_upsert
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
@@ -46,6 +47,7 @@ def add_unit_requirement(template_id):
     min_units = params.get('minUnits')
     if not name or not min_units:
         raise BadRequestError('Unit requirement \'name\' and \'minUnits\' must be provided.')
+    validate_template_not_archived(template_id)
     fetch_degree_template(template_id)
     unit_requirement = DegreeProgressUnitRequirement.create(
         created_by=current_user.get_id(),
@@ -62,6 +64,7 @@ def add_unit_requirement(template_id):
 @can_edit_degree_progress
 def clone_template(template_id):
     name = request.get_json().get('name')
+    validate_template_not_archived(template_id)
     clone = clone_degree_template(template_id=template_id, name=name)
     return tolerant_jsonify(clone.to_api_json())
 
@@ -88,7 +91,7 @@ def archive_template():
     degree_template = fetch_degree_template(template_id) if template_id else None
     if not degree_template:
         raise ResourceNotFoundError('Degree Template not found')
-    if degree_template.student_sid:
+    if degree_template.student_sid and not is_admin_or_director(current_user):
         raise BadRequestError('Degree Template with an associated student cannot be archived.')
     archived_template = DegreeProgressTemplate.archive(template_id)
     return tolerant_jsonify(archived_template.to_api_json())
@@ -104,6 +107,8 @@ def unarchive_template():
         raise ResourceNotFoundError('Degree Template not found')
     if not degree_template.archived_at:
         raise BadRequestError('Degree Template is not archived.')
+    if degree_template.student_sid and not is_admin_or_director(current_user):
+        raise BadRequestError('Degree Template with an associated student cannot be unarchived.')
     restored_template = DegreeProgressTemplate.unarchive(template_id)
     return tolerant_jsonify(restored_template.to_api_json())
 
@@ -111,6 +116,7 @@ def unarchive_template():
 @app.route('/api/degree/<template_id>', methods=['DELETE'])
 @can_edit_degree_progress
 def delete_template(template_id):
+    validate_template_not_archived(template_id)
     DegreeProgressTemplate.delete(template_id)
     return tolerant_jsonify({'message': f'Template {template_id} deleted'}), 200
 
@@ -120,6 +126,7 @@ def delete_template(template_id):
 def delete_unit_requirement(unit_requirement_id):
     unit_requirement = DegreeProgressUnitRequirement.find_by_id(unit_requirement_id)
     if unit_requirement:
+        validate_template_not_archived(unit_requirement.template_id)
         DegreeProgressUnitRequirement.delete(unit_requirement_id)
         # Update updated_at date of top-level record
         DegreeProgressTemplate.refresh_updated_at(unit_requirement.template_id, current_user.get_id())
@@ -151,6 +158,7 @@ def get_degree_templates():
 def update_degree_template(template_id):
     name = request.get_json().get('name')
     template_id = int(template_id)
+    validate_template_not_archived(template_id)
     validate_template_upsert(name=name, template_id=template_id)
     template = DegreeProgressTemplate.update(name=name, template_id=template_id)
     return tolerant_jsonify(template.to_api_json())
@@ -164,6 +172,9 @@ def update_unit_requirement(unit_requirement_id):
     min_units = params.get('minUnits')
     if not name or not min_units:
         raise BadRequestError('Unit requirement \'name\' and \'minUnits\' must be provided.')
+    unit_requirement = DegreeProgressUnitRequirement.find_by_id(unit_requirement_id)
+    if unit_requirement:
+        validate_template_not_archived(unit_requirement.template_id)
     unit_requirement = DegreeProgressUnitRequirement.update(
         id_=unit_requirement_id,
         min_units=min_units,

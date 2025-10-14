@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.lib.berkeley import has_any_membership_role
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 
 
@@ -49,3 +50,10 @@ def is_authorized_peer_advisor_manager(
         )
         authorization_checks.append(next((m for m in peer_advisor_memberships if _is_authorized(m, 'peer_advisor')), None) is not None)
     return all(authorization_checks)
+
+
+def is_admin_or_director(user):
+    return user.is_authenticated and (
+        user.is_admin
+        or has_any_membership_role(user, 'director')
+    )

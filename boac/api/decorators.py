@@ -29,7 +29,7 @@ from flask import current_app as app
 from flask import request
 from flask_login import current_user
 
-from boac.api.auth_utils import is_authorized_peer_advisor_manager
+from boac.api.auth_utils import is_admin_or_director, is_authorized_peer_advisor_manager
 from boac.api.util import can_access_admitted_students
 from boac.lib.berkeley import has_any_membership_role, is_peer_advisor, is_peer_advisor_manager
 from boac.models.peer_advising_department import PeerAdvisingDepartment
@@ -40,11 +40,7 @@ from boac.routes import login_manager
 def admin_or_director_required(func):
     @wraps(func)
     def _admin_or_director_required(*args, **kw):
-        is_authorized = current_user.is_authenticated and (
-            current_user.is_admin
-            or (current_user.is_authenticated and has_any_membership_role(current_user, 'director'))
-        )
-        if is_authorized or _api_key_ok():
+        if is_admin_or_director(current_user) or _api_key_ok():
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')

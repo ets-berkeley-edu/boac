@@ -22,6 +22,11 @@
                 "automate_membership": true
             },
             {
+                "uid": "9933311",
+                "role": "director",
+                "automate_membership": false
+            },
+            {
                 "uid": "211159",
                 "role": "advisor",
                 "automate_membership": true
