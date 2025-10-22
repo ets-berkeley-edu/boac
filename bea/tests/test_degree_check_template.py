@@ -603,7 +603,7 @@ class TestColumnReqtCategoryDeletion:
 
 @pytest.mark.usefixtures('page_objects')
 class TestCampusReqts:
-    default_desc = 'American History, American Institutions, and American Cultures courses can also count as H/SS courses.'
+    default_desc = 'American History & Institutions and American Cultures courses can also count as H/SS courses.'
 
     def test_select_reqts(self):
         self.degree_template_page.click_add_col_reqt_button(3)
@@ -629,8 +629,7 @@ class TestCampusReqts:
         self.degree_template_page.save_col_reqt()
         self.degree_template_page.when_present(self.degree_template_page.campus_reqt_row('Entry Level Writing'),
                                                utils.get_short_timeout())
-        assert self.degree_template_page.is_present(self.degree_template_page.campus_reqt_row('American History'))
-        assert self.degree_template_page.is_present(self.degree_template_page.campus_reqt_row('American Institutions'))
+        assert self.degree_template_page.is_present(self.degree_template_page.campus_reqt_row('American History & Institutions'))
         assert self.degree_template_page.is_present(self.degree_template_page.campus_reqt_row('American Cultures'))
 
     def test_no_adding_twice(self):

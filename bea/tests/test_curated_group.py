@@ -39,7 +39,7 @@ class TestCuratedGroup:
     advisor = test.advisor
     pre_existing_cohorts = boa_utils.get_user_filtered_cohorts(advisor)
     pre_existing_groups = boa_utils.get_user_curated_groups(advisor)
-    test_student = test.default_cohort.members[0]
+    test_student = next(filter(lambda m: m.enrollment_data.enrollment_terms(), test.default_cohort.members))
     app.logger.info(f'Test student is UID {test_student.uid}')
 
     group_1 = Cohort({'name': f'Group 1 {test.test_id}'})

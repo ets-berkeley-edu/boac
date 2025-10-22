@@ -263,6 +263,8 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
         attachments = [a.file_name for a in note.attachments if not a.deleted_at]
         attachments.sort()
+        if attachments:
+            self.wait_for_attachments()
         visible_attachments = self.expanded_note_attachments(note)
         visible_attachments.sort()
 

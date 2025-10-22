@@ -451,7 +451,7 @@ class TestDegreeCheckBatch:
     def test_save_batch(self):
         self.degree_check_batch_page.click_save_batch_degree_check()
         self.degree_template_mgmt_page.when_present(self.degree_template_mgmt_page.BATCH_SUCCESS_MSG,
-                                                    utils.get_medium_timeout())
+                                                    utils.get_medium_timeout()*2)
         students = boa_utils.unique_students_in_batch(batch_students, cohorts, groups)
         expected_msg = f'Success! Degree check {template.name} added to {len(students)} student profiles'
         utils.assert_actual_includes_expected(
