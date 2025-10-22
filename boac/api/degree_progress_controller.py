@@ -143,7 +143,8 @@ def get_degree_template(template_id):
     parent_template_id = template['parentTemplateId']
     if parent_template_id:
         parent_template = DegreeProgressTemplate.find_by_id(parent_template_id)
-        template['parentTemplateUpdatedAt'] = _isoformat(parent_template.updated_at)
+        if parent_template:
+            template['parentTemplateUpdatedAt'] = _isoformat(parent_template.updated_at)
     return tolerant_jsonify(template)
 
 
