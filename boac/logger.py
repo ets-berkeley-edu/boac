@@ -66,10 +66,8 @@ def initialize_logger(app):
             logger.addHandler(handler)
             logger.setLevel(level)
 
-    logging.getLogger('boto3').setLevel(log_propagation_level)
-    logging.getLogger('botocore').setLevel(log_propagation_level)
-    logging.getLogger('s3transfer').setLevel(log_propagation_level)
-    logging.getLogger('werkzeug').setLevel(log_propagation_level)
+    for name in ['boto3', 'botocore', 'cas', 's3transfer', 'werkzeug']:
+        logging.getLogger(name).setLevel(log_propagation_level)
 
     def address_string(self):
         forwarded_for = self.headers.get('X-Forwarded-For')
