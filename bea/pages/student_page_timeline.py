@@ -130,6 +130,11 @@ class StudentPageTimeline(BoaPages):
         else:
             app.logger.info(f'{item_type} ID {item.record_id} is already collapsed')
 
+    ATTACHMENT_EL = By.XPATH, '//*[contains(@id, "-attachment")]'
+
+    def wait_for_attachments(self):
+        self.when_present(self.ATTACHMENT_EL, utils.get_short_timeout())
+
     def attachment_span_loc(self, item):
         item_type = self.item_type(item)
         return By.XPATH, f'//span[contains(@id, "{item_type}-{item.record_id}-attachment")]'

@@ -158,6 +158,7 @@ class BEATestConfig(BEATestBaseConfigs):
                                opts={'notes': True, 'inactive': True})
         for student in self.test_students:
             all_notes, sample_notes = self.get_test_notes(student, app.config['MAX_NOTES_OR_APPTS_COUNT'])
+            all_notes = [n for n in all_notes if not n.deleted_date]
             # Tests for the list view all a student's notes
             self.test_cases.append(BEATestCase(student=student,
                                                note=all_notes,
