@@ -6,15 +6,24 @@ import {defineConfig} from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern'
+      }
+    }
+  },
+  define: {'process.env': {}},
+  optimizeDeps: {
+    exclude: ['fsevents']
+  },
   plugins: [
     viteCompression(),
     vue({
       template: {transformAssetUrls}
     }),
     vuetify({
-      styles: {
-        configFile: 'src/assets/styles/settings.scss'
-      }
+      autoImport: false
     })
   ],
   resolve: {

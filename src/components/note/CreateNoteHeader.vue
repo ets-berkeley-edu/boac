@@ -22,11 +22,12 @@
               SAVING DRAFT
             </div>
           </v-fade-transition>
-          <v-btn
-            class="sr-only"
-            :text="isAutoSaveAlertPaused ? 'Resume Auto-Save Notifications' : 'Pause Auto-Save Notifications'"
-            @click="() => isAutoSaveAlertPaused = !isAutoSaveAlertPaused"
-          />
+          <div class="sr-only">
+            <v-btn
+              :text="isAutoSaveAlertPaused ? 'Resume Auto-Save Notifications' : 'Pause Auto-Save Notifications'"
+              @click="() => isAutoSaveAlertPaused = !isAutoSaveAlertPaused"
+            />
+          </div>
         </div>
       </div>
     </div>
