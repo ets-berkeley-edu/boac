@@ -169,7 +169,7 @@ const noteSummary = computed(() => {
 })
 const peerAdvisingDepartment = computed(() => props.note.peerAdvisingDepartmentId ? findPeerAdvisingDepartment(props.note.peerAdvisingDepartmentId) : undefined)
 const showConfirmDeleteAttachment = ref(false)
-const showNoteAttachmentsWidget = (!props.note.legacySource && canUserEditNote(props.note, currentUser)) || size(props.note.attachments)
+const showNoteAttachmentsWidget = computed(() => (!props.note.legacySource && canUserEditNote(props.note, currentUser)) || size(props.note.attachments))
 
 watch(() => props.isOpen, () => {
   loadAuthorDetails()
