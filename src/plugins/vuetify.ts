@@ -3,19 +3,20 @@ import {aliases, mdi} from 'vuetify/iconsets/mdi-svg'
 import {createVuetify} from 'vuetify'
 import {DatePicker} from 'v-calendar'
 import {Intersect, Resize} from 'vuetify/directives'
-import {VAlert} from 'vuetify/components/VAlert'
+import {VAlert, VAlertTitle} from 'vuetify/components/VAlert'
 import {VAppBar, VAppBarNavIcon, VAppBarTitle} from 'vuetify/components/VAppBar'
 import {VApp} from 'vuetify/components/VApp'
 import {VAutocomplete} from 'vuetify/components/VAutocomplete'
 import {VBanner} from 'vuetify/components/VBanner'
 import {VBtn} from 'vuetify/components/VBtn'
+import {VBtnGroup} from 'vuetify/components/VBtnGroup'
 import {VBtnToggle} from 'vuetify/components/VBtnToggle'
 import {VCard, VCardActions, VCardSubtitle, VCardText, VCardTitle} from 'vuetify/components/VCard'
 import {VCheckbox, VCheckboxBtn} from 'vuetify/components/VCheckbox'
 import {VChip} from 'vuetify/components/VChip'
 import {VCol, VContainer, VRow, VSpacer} from 'vuetify/components/VGrid'
 import {VCombobox} from 'vuetify/components/VCombobox'
-import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
+import {VDataTable, VDataTableServer, VDataTableVirtual} from 'vuetify/components/VDataTable'
 import {VDateInput} from 'vuetify/labs/VDateInput'
 import {VDialog} from 'vuetify/components/VDialog'
 import {VDivider} from 'vuetify/components/VDivider'
@@ -31,10 +32,14 @@ import {VMain} from 'vuetify/components/VMain'
 import {VMenu} from 'vuetify/components/VMenu'
 import {VNavigationDrawer} from 'vuetify/components/VNavigationDrawer'
 import {VOverlay} from 'vuetify/components/VOverlay'
+import {VPagination} from 'vuetify/components/VPagination'
 import {VProgressCircular} from 'vuetify/components/VProgressCircular'
+import {VProgressLinear} from 'vuetify/components/VProgressLinear'
 import {VRadio} from 'vuetify/components/VRadio'
 import {VRadioGroup} from 'vuetify/components/VRadioGroup'
+import {VSwitch} from 'vuetify/components/VSwitch'
 import {VTable} from 'vuetify/components/VTable'
+import {VTab, VTabs, VTabsWindowItem} from 'vuetify/components/VTabs'
 import {VTextarea} from 'vuetify/components/VTextarea'
 import {VTextField} from 'vuetify/components/VTextField'
 import {VTooltip} from 'vuetify/components/VTooltip'
@@ -49,9 +54,11 @@ export default createVuetify({
     VAppBarNavIcon,
     VAppBarTitle,
     VAlert,
+    VAlertTitle,
     VAutocomplete,
     VBanner,
     VBtn,
+    VBtnGroup,
     VBtnToggle,
     VCard,
     VCardActions,
@@ -65,6 +72,7 @@ export default createVuetify({
     VCombobox,
     VContainer,
     VDataTable,
+    VDataTableServer,
     VDataTableVirtual,
     VDateInput,
     VDialog,
@@ -89,12 +97,18 @@ export default createVuetify({
     VMenu,
     VNavigationDrawer,
     VOverlay,
+    VPagination,
     VProgressCircular,
+    VProgressLinear,
     VRadio,
     VRadioGroup,
     VRow,
     VSpacer,
+    VSwitch,
     VTable,
+    VTab,
+    VTabs,
+    VTabsWindowItem,
     VTextarea,
     VTextField,
     VTooltip

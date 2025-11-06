@@ -92,7 +92,7 @@
               </v-list-item-action>
             </template>
           </v-list-item>
-          <v-list-item class="curated-group-menu-item-submit px-3">
+          <v-list-item class="px-3">
             <v-btn
               :id="`submit-${idFragment}`"
               :aria-label="`Add students to selected ${domainLabel(true)}s`"

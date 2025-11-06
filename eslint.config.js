@@ -54,8 +54,10 @@ export default [
     rules: {
       '@typescript-eslint/consistent-type-imports': 2,
       '@typescript-eslint/default-param-last': 2,
+      '@typescript-eslint/no-explicit-any': 2,
       '@typescript-eslint/no-require-imports': 2,
       // TODO: '@typescript-eslint/no-shadow': 2,
+      '@typescript-eslint/no-unsafe-function-type': 1,
       '@typescript-eslint/no-unused-vars': 2,
       'array-bracket-spacing': 2,
       eqeqeq: 2,
@@ -154,6 +156,7 @@ export default [
       'vue/v-on-event-hyphenation': 2,
       'vue/v-on-handler-style': 0,
       'vue/v-on-style': 2,
-      'vue/v-slot-style': 2,
-    },
-  }]
+      'vue/v-slot-style': 2
+    }
+  }
+]
