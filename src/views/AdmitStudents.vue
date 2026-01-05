@@ -58,7 +58,7 @@
             :students="admits"
           />
         </div>
-        <div class="mr-4">
+        <div class="mr-4 ml-4">
           <SortBy domain="admitted_students" />
         </div>
       </div>
