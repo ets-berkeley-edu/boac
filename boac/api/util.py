@@ -99,6 +99,7 @@ def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
             'degreeProgressPermission': user.degree_progress_permission,
             'deletedAt': to_iso_format(user.deleted_at),
             'departments': [],
+            'disabledAt': user.disabled_at,
             'isAdmin': user.is_admin,
             'isBlocked': user.is_blocked,
         })

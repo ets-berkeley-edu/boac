@@ -108,6 +108,7 @@ CREATE TABLE authorized_users (
     created_by character varying(255) NOT NULL,
     degree_progress_permission generic_permission_types,
     deleted_at timestamp with time zone,
+    disabled_at timestamp with time zone,
     id integer NOT NULL,
     in_demo_mode boolean DEFAULT false NOT NULL,
     is_admin boolean,

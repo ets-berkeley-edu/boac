@@ -202,6 +202,7 @@ class UserSession(UserMixin):
             'degreeProgressPermission': degree_progress_permission,
             'deletedAt': user and user.deleted_at,
             'departments': departments,
+            'disabledAt': user and user.disabled_at,
             'inDemoMode': user.in_demo_mode if user else False,
             'isActive': is_active,
             'isAdmin': is_admin,
