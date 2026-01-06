@@ -85,6 +85,14 @@ class User(Person):
         self.data['depts'] = value
 
     @property
+    def disabled_at(self):
+        return self.data.get('disabled_at')
+
+    @disabled_at.setter
+    def disabled_at(self, value):
+        self.data['disabled_at'] = value
+
+    @property
     def is_admin(self):
         return self.data.get('is_admin')
 

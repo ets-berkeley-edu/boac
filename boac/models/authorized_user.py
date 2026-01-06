@@ -52,6 +52,7 @@ class AuthorizedUser(Base):
     created_by = db.Column(db.String(255), nullable=False)
     degree_progress_permission = db.Column(generic_permission_type_enum)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    disabled_at = db.Column(db.DateTime, nullable=True)
     in_demo_mode = db.Column(db.Boolean, nullable=False)
     is_admin = db.Column(db.Boolean)
     # When True, is_blocked prevents a deleted user from being revived by the automated refresh.
@@ -79,6 +80,7 @@ class AuthorizedUser(Base):
             uid,
             created_by,
             automate_degree_progress_permission=False,
+            disabled_at=None,
             is_admin=False,
             is_blocked=False,
             in_demo_mode=False,
@@ -92,6 +94,7 @@ class AuthorizedUser(Base):
         self.can_access_canvas_data = can_access_canvas_data
         self.created_by = created_by
         self.degree_progress_permission = degree_progress_permission
+        self.disabled_at = disabled_at
         self.in_demo_mode = in_demo_mode
         self.is_admin = is_admin
         self.is_blocked = is_blocked
@@ -107,6 +110,7 @@ class AuthorizedUser(Base):
                     created_by={self.created_by},
                     degree_progress_permission={self.degree_progress_permission},
                     deleted={self.deleted_at},
+                    disabled={self.disabled_at},
                     in_demo_mode={self.in_demo_mode},
                     is_admin={self.is_admin},
                     is_blocked={self.is_blocked},
@@ -138,6 +142,7 @@ class AuthorizedUser(Base):
             can_access_advising_data=True,
             can_access_canvas_data=True,
             degree_progress_permission=None,
+            disabled_at=None,
             is_admin=False,
             is_blocked=None,
     ):
@@ -158,6 +163,7 @@ class AuthorizedUser(Base):
                 existing_user.created_by = created_by
                 existing_user.degree_progress_permission = degree_progress_permission
                 existing_user.deleted_at = None
+                existing_user.disabled_at = disabled_at
             # If the user currently exists in a non-deleted state, attributes passed in as True
             # should replace existing attributes set to False, but not vice versa.
             else:
@@ -172,6 +178,7 @@ class AuthorizedUser(Base):
                 if is_blocked and not existing_user.is_blocked:
                     existing_user.is_blocked = True
                 existing_user.degree_progress_permission = degree_progress_permission
+                existing_user.disabled_at = disabled_at
                 existing_user.created_by = created_by
             user = existing_user
         else:
@@ -181,6 +188,7 @@ class AuthorizedUser(Base):
                 can_access_canvas_data=can_access_canvas_data,
                 created_by=created_by,
                 degree_progress_permission=degree_progress_permission,
+                disabled_at=disabled_at,
                 in_demo_mode=False,
                 is_admin=is_admin,
                 is_blocked=is_blocked,
@@ -238,6 +246,8 @@ class AuthorizedUser(Base):
             where_clause = and_(cls.is_admin, cls.is_blocked.isnot(False))
         elif status == 'deleted':
             where_clause = and_(cls.is_admin, cls.deleted_at.isnot(None))
+        elif status == 'disabled':
+            where_clause = and_(cls.is_admin, cls.disabled_at.isnot(None))
         return cls.query.filter(where_clause).all()
 
     @classmethod
@@ -350,6 +360,7 @@ class AuthorizedUser(Base):
         can_access_advising_data=False,
         can_access_canvas_data=False,
         degree_progress_permission=None,
+        disabled_at=None,
         is_admin=False,
         is_blocked=False,
         include_deleted=False,
@@ -360,6 +371,7 @@ class AuthorizedUser(Base):
         user.can_access_advising_data = can_access_advising_data
         user.can_access_canvas_data = can_access_canvas_data
         user.degree_progress_permission = degree_progress_permission
+        user.disabled_at = disabled_at
         user.is_admin = is_admin
         user.is_blocked = is_blocked
         std_commit()
@@ -452,6 +464,8 @@ def _users_sql_where_clause(status):
         query_filter += 'AND u.is_blocked IS TRUE '
     elif status == 'deleted':
         query_filter += 'AND u.deleted_at IS NOT NULL '
+    elif status == 'disabled':
+        query_filter += 'AND u.disabled_at IS NOT NULL '
     elif status == 'active':
         query_filter += 'AND u.deleted_at IS NULL '
     return query_filter

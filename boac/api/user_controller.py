@@ -317,6 +317,7 @@ def _get_boa_users():
                     'title': user.get('title'),
                     'email': user.get('campusEmail') or user.get('email'),
                     'department': f'{{ {department_description} }}',
+                    'disabled_at': user.get('disabledAt'),
                     'can_access_advising_data': user.get('canAccessAdvisingData'),
                     'can_access_canvas_data': user.get('canAccessCanvasData'),
                     'is_blocked': user.get('isBlocked'),
@@ -349,6 +350,7 @@ def _update_or_create_authorized_user(user):
     if is_peer_advisor_manager(user) and not can_access_advising_data:
         raise errors.BadRequestError('Peer Advisor Managers must have access to advising data.')
 
+    disabled_at = user.get('disabledAt')
     is_admin = to_bool_or_none(user.get('isAdmin'))
     is_blocked = to_bool_or_none(user.get('isBlocked'))
     if user_id:
@@ -357,6 +359,7 @@ def _update_or_create_authorized_user(user):
             can_access_advising_data=can_access_advising_data,
             can_access_canvas_data=can_access_canvas_data,
             degree_progress_permission=degree_progress_permission,
+            disabled_at=disabled_at,
             include_deleted=True,
             is_admin=is_admin,
             is_blocked=is_blocked,
@@ -377,6 +380,7 @@ def _update_or_create_authorized_user(user):
                 can_access_canvas_data=can_access_canvas_data,
                 created_by=current_user.uid,
                 degree_progress_permission=degree_progress_permission,
+                disabled_at=disabled_at,
                 is_admin=is_admin,
                 is_blocked=is_blocked,
                 uid=uid,

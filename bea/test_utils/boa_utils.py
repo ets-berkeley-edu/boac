@@ -139,6 +139,7 @@ def get_authorized_users():
                     authorized_users.can_access_advising_data AS can_access_advising_data,
                     authorized_users.can_access_canvas_data AS can_access_canvas_data,
                     authorized_users.deleted_at AS deleted_at,
+                    authorized_users.disabled_at AS disabled_at,
                     authorized_users.is_admin AS is_admin,
                     authorized_users.is_blocked AS is_blocked,
                     authorized_users.degree_progress_permission AS deg_prog_perm,
@@ -169,6 +170,7 @@ def get_authorized_users():
         active = False if v[0]['deleted_at'] else True
         can_access_advising_data = v[0]['can_access_advising_data']
         can_access_canvas_data = v[0]['can_access_canvas_data']
+        disabled_at = v[0]['disabled_at']
         is_admin = v[0]['is_admin']
         is_blocked = v[0]['is_blocked']
         degree_progress_automated = v[0]['deg_prog_automated']
@@ -207,6 +209,7 @@ def get_authorized_users():
             'degree_progress_automated': degree_progress_automated,
             'dept_memberships': memberships,
             'depts': depts,
+            'disabled_at': disabled_at,
             'is_active': active,
             'is_admin': is_admin,
             'is_blocked': is_blocked,
