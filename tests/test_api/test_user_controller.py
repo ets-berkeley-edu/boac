@@ -748,6 +748,31 @@ class TestUserUpdate:
         assert user.department_memberships[0].university_dept.dept_code == 'QCADVMAJ'
         assert user.department_memberships[0].automate_membership is False
 
+    def test_update_disabled_account(self, client, fake_auth):
+        """Disable and then un-disable user account."""
+        fake_auth.login(admin_uid)
+        # First, create advisor
+        uid = '9000000007'
+        insert_in_json_cache(
+            f'calnet_user_for_uid_{uid}',
+            {'uid': uid, 'csid': '700000009'},
+        )
+        user = _api_create_or_update(
+            client,
+            user=_get_user_update_post_payload(uid=uid),
+        )
+        assert user['disabledAt'] is None
+        user = _api_create_or_update(
+            client,
+            user=_get_user_update_post_payload(uid=uid, authorized_user_id=user['id'], is_disabled=True),
+        )
+        assert user['disabledAt']
+        user = _api_create_or_update(
+            client,
+            user=_get_user_update_post_payload(uid=uid, authorized_user_id=user['id'], is_disabled=False),
+        )
+        assert user['disabledAt'] is None
+
     def test_update_deleted_user(self, client, fake_auth):
         """Update and then un-delete user."""
         fake_auth.login(admin_uid)
@@ -804,6 +829,7 @@ class TestUserUpdate:
         assert uid
         assert user['isAdmin'] is False
         assert user['isBlocked'] is False
+        assert user['disabledAt'] is None
         assert user['canAccessAdvisingData'] is False
         assert user['canAccessCanvasData'] is False
         assert len(user['departments']) == 1
@@ -902,6 +928,7 @@ class TestPeerAdvisorManager:
         assert user['isBlocked'] is False
         assert user['canAccessAdvisingData'] is True
         assert user['canAccessCanvasData'] is False
+        assert user['disabledAt'] is None
         # Verify University Dept membership
         departments = user['departments']
         assert len(departments) == 1
@@ -992,6 +1019,7 @@ def _get_user_update_post_payload(
         departments=(),
         is_admin=False,
         is_blocked=False,
+        is_disabled=None,
 ):
     return {
         'automateDegreeProgressPermission': automate_degree_progress_permission,
@@ -1001,5 +1029,6 @@ def _get_user_update_post_payload(
         'id': authorized_user_id,
         'isAdmin': is_admin,
         'isBlocked': is_blocked,
+        'isDisabled': is_disabled,
         'uid': uid,
     }

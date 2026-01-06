@@ -350,19 +350,19 @@ def _update_or_create_authorized_user(user):
     if is_peer_advisor_manager(user) and not can_access_advising_data:
         raise errors.BadRequestError('Peer Advisor Managers must have access to advising data.')
 
-    disabled_at = user.get('disabledAt')
     is_admin = to_bool_or_none(user.get('isAdmin'))
     is_blocked = to_bool_or_none(user.get('isBlocked'))
+    is_disabled = to_bool_or_none(user.get('isDisabled'))
     if user_id:
         user = AuthorizedUser.update_user(
             automate_degree_progress_permission=automate_degree_progress_permission,
             can_access_advising_data=can_access_advising_data,
             can_access_canvas_data=can_access_canvas_data,
             degree_progress_permission=degree_progress_permission,
-            disabled_at=disabled_at,
             include_deleted=True,
             is_admin=is_admin,
             is_blocked=is_blocked,
+            is_disabled=is_disabled,
             user_id=user_id,
         )
         UserSession.flush_cached_user_session(user_id=user_id)
@@ -380,9 +380,9 @@ def _update_or_create_authorized_user(user):
                 can_access_canvas_data=can_access_canvas_data,
                 created_by=current_user.uid,
                 degree_progress_permission=degree_progress_permission,
-                disabled_at=disabled_at,
                 is_admin=is_admin,
                 is_blocked=is_blocked,
+                is_disabled=is_disabled,
                 uid=uid,
             )
         else:
