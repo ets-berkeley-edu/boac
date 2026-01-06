@@ -84,6 +84,7 @@
           v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage"
           :click-handler="goToPage"
           id-prefix="auxiliary-pagination"
+          label="bottom-page-pagination"
           :init-page-number="cohortStore.pagination.currentPage"
           :is-widget-at-bottom-of-page="true"
           :limit="10"

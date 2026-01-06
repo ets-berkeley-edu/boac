@@ -5,7 +5,7 @@
       :id="`${idPrefix}-widget`"
       v-model="currentPage"
       active-color="primary"
-      aria-label="Pagination"
+      :aria-label="label"
       density="comfortable"
       :length="totalPages"
       rounded="0"
@@ -140,6 +140,11 @@ const props = defineProps({
   totalRows: {
     required: true,
     type: Number
+  },
+  label: {
+    required: false,
+    default: 'Pagination',
+    type: String
   }
 })
 
