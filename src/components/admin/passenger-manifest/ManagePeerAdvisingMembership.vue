@@ -8,6 +8,7 @@
         id="peer-advising-department-select"
         v-model="selected"
         aria-label="Department"
+        autocomplete="off"
         class="mt-1 select-menu select-department-role"
       >
         <option id="department-null" :value="undefined">

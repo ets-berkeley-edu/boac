@@ -6,6 +6,7 @@
         v-model="filter.type"
         aria-label="Choose how you want to find users: search field or via filters."
         class="select-menu"
+        autocomplete="off"
         :disabled="disabled"
       >
         <option
@@ -59,6 +60,7 @@
           v-model="filter.role"
           aria-label="User roles"
           class="select-menu"
+          autocomplete="off"
           :disabled="disabled"
         >
           <option
@@ -84,6 +86,7 @@
           v-model="filter.deptCode"
           aria-label="department"
           class="select-menu"
+          autocomplete="off"
           :disabled="disabled"
         >
           <option
@@ -102,6 +105,7 @@
           v-model="filter.peerAdvisingDepartmentId"
           aria-label="department"
           class="select-menu"
+          autocomplete="off"
           :disabled="disabled"
         >
           <option
@@ -121,6 +125,7 @@
             v-model="filter.status"
             aria-label="user status"
             class="select-menu"
+            autocomplete="off"
             :disabled="disabled"
           >
             <option

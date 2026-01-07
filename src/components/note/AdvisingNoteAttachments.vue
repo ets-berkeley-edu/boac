@@ -53,7 +53,6 @@
         :model-value="attachments"
         multiple
         :prepend-icon="null"
-        role="button"
         :variant="disabled ? 'outlined' : 'solo-filled'"
         @click:control="onClickBrowseForAttachment"
         @update:model-value="onAttachmentsInput"

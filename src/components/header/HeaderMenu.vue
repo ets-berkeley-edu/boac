@@ -10,7 +10,7 @@
       <template #activator="{ props }">
         <button
           id="header-dropdown-under-name"
-          aria-label="User Profile"
+          :aria-label="`${currentUser.firstName} quick links`"
           class="button-menu header-button-menu bg-primary pr-3 text-body-1 text-white"
           :class="{'button-menu-active': isMenuOpen}"
           :title="`User profile for ${currentUser.name || `UID ${currentUser.uid}` }`"

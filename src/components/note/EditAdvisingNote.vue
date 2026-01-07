@@ -33,6 +33,7 @@
         :disabled="isSaving || boaSessionExpired || (model.peerAdvisingDepartmentId && !model.subject)"
         hide-details
         maxlength="255"
+        autocomplete="on"
         :model-value="model.subject"
         required
         :rules="[value => (!!trim(value) || model.isDraft) || !!model.peerAdvisingDepartmentId || 'Subject is required']"

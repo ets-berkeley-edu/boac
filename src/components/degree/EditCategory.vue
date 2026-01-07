@@ -9,6 +9,7 @@
           :id="`column-${uxPositionX}-add-category-select`"
           v-model="selectedCategoryType"
           class="select-menu w-100"
+          autocomplete="off"
           :disabled="isSaving"
         >
           <option
@@ -41,6 +42,7 @@
             :disabled="isSaving"
             hide-details
             maxlength="255"
+            autocomplete="on"
             @keydown.enter="onSubmit"
           />
           <div class="pl-1">
@@ -113,6 +115,7 @@
             hide-details
             max-rows="6"
             rows="3"
+            autocomplete="on"
             variant="outlined"
           />
         </div>
@@ -126,6 +129,7 @@
             :id="`column-${uxPositionX}-parent-category-select`"
             v-model="selectedParentCategory"
             class="select-menu w-100"
+            autocomplete="off"
             :disabled="isSaving"
             @change="onChangeParentCategory"
           >

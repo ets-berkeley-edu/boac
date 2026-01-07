@@ -6,7 +6,7 @@
         v-model="name"
         :aria-invalid="!name"
         aria-label="Cohort name"
-        autocomplete="off"
+        autocomplete="on"
         class="v-input-details-override mr-3"
         counter="255"
         density="comfortable"

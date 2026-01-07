@@ -21,6 +21,7 @@
               aria-label="Cohort name"
               class="v-input-details-override"
               counter="255"
+              autocomplete="on"
               :disabled="isSaving"
               maxlength="255"
               required

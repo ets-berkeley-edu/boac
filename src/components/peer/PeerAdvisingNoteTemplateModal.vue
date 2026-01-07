@@ -19,6 +19,7 @@
                 counter="255"
                 :disabled="isSaving"
                 label="Note Template Name"
+                autocomplete="on"
                 variant="outlined"
                 :maxlength="maxlength"
                 persistent-counter

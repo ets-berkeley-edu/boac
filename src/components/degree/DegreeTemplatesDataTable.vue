@@ -51,6 +51,7 @@
               aria-required="true"
               class="bg-white w-100"
               :disabled="isRenaming"
+              autocomplete="on"
               hide-details
               :maxlength="255"
               required

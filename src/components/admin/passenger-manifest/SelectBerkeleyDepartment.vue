@@ -9,6 +9,7 @@
         v-model="department"
         aria-label="Department"
         class="select-menu w-100"
+        autocomplete="off"
         :disabled="user.isAdmin"
       >
         <option id="department-null" :value="undefined">

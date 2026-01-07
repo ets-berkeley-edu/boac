@@ -17,6 +17,7 @@
         class="unit-requirement-name"
         hide-details
         maxlength="255"
+        autocomplete="on"
         required
         @keydown.enter="unitRequirement ? update : create"
         @update:model-value="() => nameErrorMessage = null"

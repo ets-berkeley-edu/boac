@@ -8,6 +8,7 @@
       id="degree-template-select"
       v-model="selectedTemplate"
       class="d-block my-2 ml-0 select-menu w-100"
+      autocomplete="off"
       :disabled="disabled"
     >
       <option

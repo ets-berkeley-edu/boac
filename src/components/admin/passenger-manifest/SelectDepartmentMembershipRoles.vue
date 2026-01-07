@@ -11,6 +11,7 @@
         :id="`select-department-${deptCode.toLowerCase()}-role`"
         v-model="roles"
         class="select-menu select-department-role"
+        autocomplete="off"
       >
         <option
           id="department-role-null"

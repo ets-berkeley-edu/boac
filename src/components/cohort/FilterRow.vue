@@ -105,6 +105,7 @@
               bg-color="white"
               :error="!!errorPerRangeInput"
               hide-details
+              autocomplete="on"
               :maxlength="rangeInputSize()"
               :size="rangeInputSize()"
               @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
@@ -120,6 +121,7 @@
               bg-color="white"
               :error="!!errorPerRangeInput"
               hide-details
+              autocomplete="on"
               :maxlength="rangeInputSize()"
               :size="rangeInputSize()"
               @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"

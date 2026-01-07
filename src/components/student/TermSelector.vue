@@ -15,6 +15,7 @@
       v-model="selected"
       class="select-menu"
       :class="selectClass"
+      autocomplete="off"
     >
       <option
         v-for="option in options"

@@ -29,7 +29,7 @@
         <v-text-field
           id="uid-input"
           v-model="user.uid"
-          autocomplete="off"
+          autocomplete="on"
           density="compact"
           hide-details
           maxlength="10"

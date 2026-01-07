@@ -23,6 +23,7 @@
                 hide-details
                 required
                 :maxlength="50"
+                autocomplete="on"
                 variant="outlined"
               />
             </div>

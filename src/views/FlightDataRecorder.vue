@@ -20,6 +20,7 @@
           id="available-department-reports"
           v-model="selected"
           class="select-menu"
+          autocomplete="off"
         >
           <option
             v-for="d in availableDepartments"

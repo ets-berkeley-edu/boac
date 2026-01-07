@@ -43,6 +43,7 @@
                 :disabled="isSaving || boaSessionExpired"
                 maxlength="255"
                 type="text"
+                autocomplete="on"
                 @input="setSubjectPerEvent"
               />
               <RichTextEditor

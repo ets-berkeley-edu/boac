@@ -29,7 +29,7 @@
             :aria-expanded="isPopoverVisible"
             aria-haspopup="dialog"
             :aria-required="required"
-            autocomplete="off"
+            autocomplete="on"
             :disabled="disabled"
             maxlength="10"
             placeholder="MM/DD/YYYY"

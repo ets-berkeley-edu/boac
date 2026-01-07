@@ -29,6 +29,7 @@
               :required="!isSaving"
               :rules="[validate]"
               type="text"
+              autocomplete="on"
               validate-on="lazy input"
               @keyup.esc="cancel"
             >

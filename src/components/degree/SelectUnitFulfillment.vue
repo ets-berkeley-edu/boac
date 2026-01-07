@@ -4,6 +4,7 @@
       :id="`column-${uxPositionX}-unit-requirement-select`"
       v-model="model"
       class="select-menu w-100"
+      autocomplete="off"
       :disabled="disable"
       @change="onChangeUnitRequirement"
     >

@@ -37,6 +37,7 @@
         :disabled="isSaving"
         hide-details
         maxlength="3"
+        autocomplete="on"
         @keydown.enter="onSubmit"
       />
     </div>
@@ -71,6 +72,7 @@
         :disabled="isSaving"
         hide-details
         rows="3"
+        autocomplete="on"
         variant="outlined"
         @keyup.esc="cancel"
       />
