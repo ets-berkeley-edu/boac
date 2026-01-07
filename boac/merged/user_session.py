@@ -112,6 +112,10 @@ class UserSession(UserMixin):
         return self.api_json['isAuthenticated']
 
     @property
+    def is_disabled(self):
+        return self.api_json['disabledAt'] is not None
+
+    @property
     def same_day_advisor_departments(self):
         return self.api_json['sameDayAdvisorStatus']
 
@@ -200,9 +204,9 @@ class UserSession(UserMixin):
             'canEditDegreeProgress': degree_progress_permission == 'read_write',
             'canReadDegreeProgress': degree_progress_permission in ['read', 'read_write'],
             'degreeProgressPermission': degree_progress_permission,
-            'deletedAt': user and user.deleted_at,
+            'deletedAt': user and user.deleted_at and user.deleted_at.isoformat(),
             'departments': departments,
-            'disabledAt': user and user.disabled_at,
+            'disabledAt': user and user.disabled_at and user.disabled_at.isoformat(),
             'inDemoMode': user.in_demo_mode if user else False,
             'isActive': is_active,
             'isAdmin': is_admin,

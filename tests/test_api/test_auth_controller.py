@@ -30,6 +30,7 @@ import cas
 
 from boac import std_commit
 from boac.lib.berkeley import is_peer_advisor, is_peer_advisor_manager
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept_member import UniversityDeptMember
 from boac.models.user_login import UserLogin
@@ -190,6 +191,26 @@ class TestAuthorization:
         assert api_json['calNetDepartments'][0]['deptCode'] == 'HENGL'
         assert is_peer_advisor(api_json) is False
         assert is_peer_advisor_manager(api_json) is False
+
+    def test_disabled_account(self, client, fake_auth):
+        advisor = AuthorizedUser.find_by_uid(advisor_uid)
+        AuthorizedUser.update_user(advisor.id, is_disabled=True)
+        std_commit(allow_test_environment=True)
+
+        fake_auth.login(advisor_uid)
+        api_json = self._api_my_profile(client)
+        assert api_json['isAuthenticated'] is False
+        assert api_json['isActive'] is False
+
+        AuthorizedUser.update_user(advisor.id, is_disabled=False)
+        std_commit(allow_test_environment=True)
+
+        fake_auth.login(advisor_uid)
+        api_json = self._api_my_profile(client)
+        assert api_json['isAuthenticated']
+        assert api_json['isActive']
+        assert api_json['departments']
+        assert not api_json['disabledAt']
 
     def test_authorized_peer_advisor_manager(self, client, fake_auth):
         fake_auth.login(peer_advisor_manager_uid)
