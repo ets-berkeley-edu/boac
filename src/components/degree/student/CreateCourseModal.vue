@@ -43,6 +43,7 @@
                 :disabled="isSaving"
                 density="comfortable"
                 hide-details
+                autocomplete="on"
                 maxlength="255"
               />
               <div class="text-surface-variant mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
@@ -78,6 +79,7 @@
                 :disabled="isSaving"
                 hide-details
                 maxlength="3"
+                autocomplete="on"
                 @keydown.enter="save"
               />
             </div>
@@ -112,6 +114,7 @@
                   :disabled="isSaving"
                   hide-details
                   rows="4"
+                  autocomplete="on"
                   variant="outlined"
                 />
               </div>

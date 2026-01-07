@@ -21,6 +21,7 @@
           <select
             id="degree-template-select"
             v-model="selectedOption"
+            autocomplete="off"
             :aria-label="`Select a degree template for ${student.name}`"
             class="select-menu select-menu-max-width"
             :disabled="isSaving"

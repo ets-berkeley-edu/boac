@@ -12,6 +12,7 @@
       v-model="selected"
       class="select-menu"
       :class="selectClass"
+      autocomplete="off"
     >
       <optgroup
         v-for="(options, label) in optGroups"

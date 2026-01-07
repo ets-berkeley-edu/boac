@@ -24,6 +24,7 @@
               class="mt-2"
               color="primary"
               density="comfortable"
+              autocomplete="on"
               :disabled="isSaving"
               hide-details
               maxlength="255"

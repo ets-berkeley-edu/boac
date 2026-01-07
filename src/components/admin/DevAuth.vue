@@ -9,6 +9,7 @@
       :disabled="isLoggingIn"
       hide-details
       placeholder="UID"
+      autocomplete="on"
       @keydown.enter="logIn"
       @update:model-value="() => reportError(null)"
     />

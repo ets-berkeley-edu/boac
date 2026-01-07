@@ -6,6 +6,7 @@
         id="degree-progress-permission-select"
         v-model="permission"
         class="select-menu w-50"
+        autocomplete="off"
       >
         <option id="department-null" :value="undefined">None</option>
         <option

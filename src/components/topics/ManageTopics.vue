@@ -7,7 +7,7 @@
             id="filter-topics"
             v-model="filter"
             aria-label="Search Topics"
-            autocomplete="off"
+            autocomplete="on"
             class="d-inline"
             clearable
             density="compact"

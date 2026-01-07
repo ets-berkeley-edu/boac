@@ -5,6 +5,7 @@
       v-model="model"
       :aria-labelledBy="labelledBy"
       class="bg-white select-menu filter-select"
+      autocomplete="off"
       :disabled="disabled"
     >
       <option :id="`primary-option-null`" :value="undefined">

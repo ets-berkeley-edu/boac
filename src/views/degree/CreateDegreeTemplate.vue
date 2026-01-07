@@ -11,7 +11,7 @@
         id="create-degree-input"
         v-model="templateName"
         aria-labelledby="create-degree-label"
-        autocomplete="off"
+        autocomplete="on"
         class="mt-2 w-75"
         density="comfortable"
         :disabled="isBusy"

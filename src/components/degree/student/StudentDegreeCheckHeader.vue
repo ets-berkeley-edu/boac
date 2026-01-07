@@ -194,6 +194,7 @@
               auto-grow
               density="compact"
               :disabled="isSaving"
+              autocomplete="on"
               hide-details
               rows="3"
               variant="outlined"

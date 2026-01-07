@@ -25,6 +25,7 @@
             :disabled="isSaving"
             :error="!!error"
             label="Template name"
+            autocomplete="on"
             maxlength="255"
             persistent-counter
             :rules="[validationRules.required, validationRules.maxLength]"

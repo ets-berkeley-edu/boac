@@ -152,6 +152,7 @@
                 aria-label="Template name"
                 counter="255"
                 :disabled="isSaving"
+                autocomplete="on"
                 label="Template name"
                 maxlength="255"
                 persistent-counter

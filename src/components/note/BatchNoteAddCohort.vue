@@ -15,6 +15,7 @@
       class="select-menu mt-1 w-75"
       :class="{'w-100': $vuetify.display.smAndDown}"
       :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
+      autocomplete="off"
       @change="onSelect"
     >
       <option

@@ -11,6 +11,7 @@
       v-model="model"
       :aria-label="`Add ${header} to Degree Check`"
       class="d-block mb-2 ml-0 select-menu w-100"
+      autocomplete="off"
       :disabled="disabled"
     >
       <option

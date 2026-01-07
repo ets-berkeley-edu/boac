@@ -35,6 +35,7 @@
           maxlength="4"
           min-width="70"
           :required="required"
+          autocomplete="on"
           @keydown.enter="onSubmit"
           @keyup.esc="onEscape"
           @update:model-value="setUnitsLower"
@@ -55,6 +56,7 @@
           hide-details
           maxlength="4"
           min-width="70"
+          autocomplete="on"
           @keydown.enter="onSubmit"
           @update:model-value="setUnitsUpper"
         />

@@ -38,6 +38,7 @@
         v-model="textarea"
         :aria-describedby="`${headingId} page-description`"
         aria-label="Student S I D numbers"
+        autocomplete="on"
         :disabled="isValidating || isSaving"
         label="Enter SIDs here"
         variant="outlined"
