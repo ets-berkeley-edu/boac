@@ -142,9 +142,9 @@ class AuthorizedUser(Base):
             can_access_advising_data=True,
             can_access_canvas_data=True,
             degree_progress_permission=None,
-            disabled_at=None,
             is_admin=False,
             is_blocked=None,
+            is_disabled=None,
     ):
         existing_user = cls.query.filter_by(uid=uid).first()
         if existing_user and existing_user.is_blocked and is_blocked is None:
@@ -163,7 +163,6 @@ class AuthorizedUser(Base):
                 existing_user.created_by = created_by
                 existing_user.degree_progress_permission = degree_progress_permission
                 existing_user.deleted_at = None
-                existing_user.disabled_at = disabled_at
             # If the user currently exists in a non-deleted state, attributes passed in as True
             # should replace existing attributes set to False, but not vice versa.
             else:
@@ -178,8 +177,14 @@ class AuthorizedUser(Base):
                 if is_blocked and not existing_user.is_blocked:
                     existing_user.is_blocked = True
                 existing_user.degree_progress_permission = degree_progress_permission
-                existing_user.disabled_at = disabled_at
                 existing_user.created_by = created_by
+
+            # If the disabled account parameter is set to a boolean rather than the default None, update timestamp.
+            if is_disabled is True:
+                existing_user.disabled_at = utc_now()
+            elif is_disabled is False:
+                existing_user.disabled_at = None
+
             user = existing_user
         else:
             user = cls(
@@ -188,7 +193,7 @@ class AuthorizedUser(Base):
                 can_access_canvas_data=can_access_canvas_data,
                 created_by=created_by,
                 degree_progress_permission=degree_progress_permission,
-                disabled_at=disabled_at,
+                disabled_at=utc_now() if is_disabled else None,
                 in_demo_mode=False,
                 is_admin=is_admin,
                 is_blocked=is_blocked,
@@ -360,9 +365,9 @@ class AuthorizedUser(Base):
         can_access_advising_data=False,
         can_access_canvas_data=False,
         degree_progress_permission=None,
-        disabled_at=None,
         is_admin=False,
         is_blocked=False,
+        is_disabled=None,
         include_deleted=False,
     ):
         user = AuthorizedUser.find_by_id(user_id, include_deleted)
@@ -371,8 +376,11 @@ class AuthorizedUser(Base):
         user.can_access_advising_data = can_access_advising_data
         user.can_access_canvas_data = can_access_canvas_data
         user.degree_progress_permission = degree_progress_permission
-        user.disabled_at = disabled_at
         user.is_admin = is_admin
+        if is_disabled is False:
+            user.disabled_at = None
+        elif is_disabled is True:
+            user.disabled_at = utc_now()
         user.is_blocked = is_blocked
         std_commit()
         return user
@@ -474,7 +482,7 @@ def _users_sql_where_clause(status):
 def _get_deleted_at_condition(status):
     query_filter = ''
     if status == 'deleted':
-        query_filter += ' AND m.deleted_at IS NOT NULL '
+        query_filter += ' AND (m.deleted_at IS NOT NULL OR u.disabled_at IS NOT NULL)'
     elif status == 'active':
-        query_filter += ' AND m.deleted_at IS NULL '
+        query_filter += ' AND m.deleted_at IS NULL AND u.disabled_at IS NULL'
     return query_filter
