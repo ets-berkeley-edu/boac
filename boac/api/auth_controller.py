@@ -67,6 +67,10 @@ def cas_login():
             logger.error(f'UID {uid} is in the BOA db but is not authorized to use the tool.')
             param = ('error', 'Sorry, you are not registered to use BOA.')
             redirect_url = add_param_to_url('/', param)
+        elif user.is_disabled:
+            logger.error(f'UID {uid} is in the BOA db but has been disabled.')
+            param = ('error', 'Your account has been disabled due to inactivity. Please contact boahelp@berkeley.edu for further assistance.')
+            redirect_url = add_param_to_url('/', param)
         else:
             login_user(user)
             flash('Logged in successfully.')
@@ -132,6 +136,9 @@ def _dev_auth_login(uid, password):
         user = UserSession(user_id=user_id, flush_cached=True)
         if not user.is_active:
             logger.error(f'Dev-auth: UID {uid} is registered with BOA but not active.')
+            return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not authorized to use BOA.'}, 403)
+        elif user.is_disabled:
+            logger.error(f'Dev-auth: UID {uid} is in the BOA db but has been disabled.')
             return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not authorized to use BOA.'}, 403)
         logger.info(f'Dev-auth used to log in as UID {uid}')
 
