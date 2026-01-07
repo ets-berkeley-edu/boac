@@ -256,6 +256,9 @@ const canBecome = user => {
 
 const getUserStatuses = user => {
   const statuses = user.deletedAt ? ['Deleted'] : ['Active']
+  if (user.disabledAt) {
+    statuses.push('Disabled')
+  }
   if (user.isBlocked) {
     statuses.push('Blocked')
   }

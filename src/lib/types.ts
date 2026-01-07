@@ -73,6 +73,7 @@ export interface BoaUser extends BoaUserBasic, CalNetUser {
   degreeProgressPermission: string | undefined,
   deletedAt: string | undefined,
   departments: BoaUserDepartment[],
+  disabledAt: string | undefined,
   inDemoMode: boolean,
   isAdmin: boolean,
   isAuthenticated: boolean,

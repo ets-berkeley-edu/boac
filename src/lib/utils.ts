@@ -22,6 +22,7 @@ export const ANONYMOUS_USER: BoaUser = {
   degreeProgressPermission: undefined,
   deletedAt: undefined,
   departments: [],
+  disabledAt: undefined,
   email: '',
   firstName: '',
   inDemoMode: false,
