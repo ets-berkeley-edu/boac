@@ -1,10 +1,20 @@
 <template>
-  <v-list density="compact" role="none">
-    <v-list-item class="pa-0 min-height-unset">
+  <v-list
+    class="pa-0 sidebar-list"
+    tag="ul"
+    density="compact"
+    role="list"
+    lines="one"
+  >
+    <v-list-item
+      class="pa-0 min-height-unset zero-height"
+      role="listitem"
+      tag="li"
+    >
       <a id="skip-nav-link" class="sr-only" href="#content">skip navigation</a>
       <h2 id="nav-header" class="scroll-margins sr-only" tabindex="-1">Main Menu</h2>
     </v-list-item>
-    <v-list-item aria-labelledby="sidebar-cohorts-header" class="pa-0" role="region">
+    <v-list-item aria-labelledby="sidebar-cohorts-header" class="pa-0" role="listitem">
       <div class="align-center d-flex font-size-18 font-weight-bold justify-space-between pretty-hover py-1">
         <div id="sidebar-cohorts-header">
           Cohorts
@@ -18,34 +28,57 @@
           <v-icon color="white" :icon="mdiPlus" size="22" />
         </NavLink>
       </div>
-      <div
-        v-for="cohort in myCohorts"
-        :key="cohort.id"
-        class="pretty-hover"
+      <v-list
+        tag="ul"
+        density="compact"
+        lines="one"
+        class="py-0 sidebar-list"
+        role="group"
+        aria-labelledby="sidebar-cohorts-header"
       >
-        <NavLink
-          :id="`sidebar-cohort-${cohort.id}`"
-          :aria-label="`Cohort ${cohort.name} has ${pluralize('student', cohort.totalStudentCount)}`"
-          class="align-center d-flex font-weight-medium justify-space-between text-secondary w-100"
-          :path="`/cohort/${cohort.id}`"
-          :title="cohort.name"
+        <v-list-item
+          v-for="cohort in myCohorts"
+          :key="cohort.id"
+          tag="li"
+          role="listitem"
+          class="py-0 pl-1 pr-2 pretty-hover"
         >
-          <div :aria-hidden="true" class="truncate-with-ellipsis">
-            {{ cohort.name }}
-          </div>
-          <PillCount
-            :id="`sidebar-cohort-${cohort.id}-total-student-count`"
-            :aria-hidden="true"
-            class="text-quaternary sidebar-pill"
-            color="secondary"
+          <NavLink
+            :id="`sidebar-cohort-${cohort.id}`"
+            :aria-label="`Cohort ${cohort.name} has ${pluralize('student', cohort.totalStudentCount)}`"
+            class="align-center d-flex font-weight-medium justify-space-between text-secondary w-100"
+            :path="`/cohort/${cohort.id}`"
+            :title="cohort.name"
           >
-            <span class="font-size-14">{{ toInt(cohort.totalStudentCount, 0).toLocaleString() }}</span>
-          </PillCount>
-        </NavLink>
-      </div>
+            <div :aria-hidden="true" class="truncate-with-ellipsis">
+              {{ cohort.name }}
+            </div>
+            <PillCount
+              :id="`sidebar-cohort-${cohort.id}-total-student-count`"
+              :aria-hidden="true"
+              class="text-quaternary sidebar-pill"
+              color="secondary"
+            >
+              <span class="font-size-14">{{ toInt(cohort.totalStudentCount, 0).toLocaleString() }}</span>
+            </PillCount>
+          </NavLink>
+        </v-list-item>
+      </v-list>
     </v-list-item>
-    <hr class="sidebar-section-divider">
-    <v-list-item aria-labelledby="sidebar-curated-groups-header" class="pa-0" role="region">
+    <v-list-item
+      tag="li"
+      role="listitem"
+      class="pa-0"
+      aria-hidden="true"
+    >
+      <hr class="sidebar-section-divider">
+    </v-list-item>
+    <v-list-item
+      aria-labelledby="sidebar-curated-groups-header"
+      class="pa-0"
+      role="listitem"
+      tag="li"
+    >
       <div class="align-center d-flex font-weight-bold justify-space-between pretty-hover py-1">
         <div id="sidebar-curated-groups-header" class="font-size-18">
           Curated Groups
@@ -60,38 +93,57 @@
           <v-icon color="white" :icon="mdiPlus" size="22" />
         </NavLink>
       </div>
-      <div
-        v-for="(group, index) in myCuratedGroups"
-        :key="group.id"
-        class="pretty-hover"
+      <v-list
+        tag="ul"
+        density="compact"
+        class="py-0 sidebar-list"
+        role="group"
+        lines="one"
+        aria-labelledby="sidebar-curated-groups-header"
       >
-        <NavLink
-          :id="`sidebar-${describeCuratedGroupDomain('default', false).replace(' ', '-')}-${index}`"
-          :aria-label="`${capitalize(describeCuratedGroupDomain('default', false))} ${group.name} has ${pluralize('student', group.totalStudentCount)}`"
-          class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
-          :path="`/curated/${group.id}`"
-          :title="group.name"
+        <v-list-item
+          v-for="(group, index) in myCuratedGroups"
+          :key="group.id"
+          tag="li"
+          role="listitem"
+          class="py-0 pl-1 pr-2 pretty-hover"
         >
-          <div :aria-hidden="true" class="truncate-with-ellipsis">
-            {{ group.name }}
-          </div>
-          <PillCount
-            :id="`sidebar-curated-${index}-count`"
-            :aria-hidden="true"
-            class="text-quaternary sidebar-pill"
-            color="secondary"
+          <NavLink
+            :id="`sidebar-${describeCuratedGroupDomain('default', false).replace(' ', '-')}-${index}`"
+            :aria-label="`${capitalize(describeCuratedGroupDomain('default', false))} ${group.name} has ${pluralize('student', group.totalStudentCount)}`"
+            class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
+            :path="`/curated/${group.id}`"
+            :title="group.name"
           >
-            <span class="font-size-14">{{ toInt(group.totalStudentCount, 0).toLocaleString() }}</span>
-          </PillCount>
-        </NavLink>
-      </div>
+            <div :aria-hidden="true" class="truncate-with-ellipsis">
+              {{ group.name }}
+            </div>
+            <PillCount
+              :id="`sidebar-curated-${index}-count`"
+              :aria-hidden="true"
+              class="text-quaternary sidebar-pill"
+              color="secondary"
+            >
+              <span class="font-size-14">{{ toInt(group.totalStudentCount, 0).toLocaleString() }}</span>
+            </PillCount>
+          </NavLink>
+        </v-list-item>
+      </v-list>
     </v-list-item>
-    <hr v-if="contextStore.currentUser.canAccessAdmittedStudents" class="sidebar-section-divider">
+    <v-list-item
+      tag="li"
+      role="listitem"
+      class="pa-0"
+      aria-hidden="true"
+    >
+      <hr v-if="contextStore.currentUser.canAccessAdmittedStudents" class="sidebar-section-divider">
+    </v-list-item>
     <v-list-item
       v-if="contextStore.currentUser.canAccessAdmittedStudents"
       aria-labelledby="sidebar-admitted-students-header admitted-students-all"
       class="mt-2 pa-0"
-      role="region"
+      role="listitem"
+      tag="li"
     >
       <div id="sidebar-admitted-students-header" class="font-size-18 font-weight-bold pl-3">
         Admitted Students
@@ -113,37 +165,49 @@
           <v-icon class="text-white" :icon="mdiPlus" size="22" />
         </NavLink>
       </div>
-      <div
-        v-for="(cohort, index) in myCohortsCE3"
-        :key="cohort.id"
-        class="pretty-hover"
+      <v-list
+        tag="ul"
+        density="compact"
+        class="py-0 sidebar-list"
+        role="group"
+        lines="one"
+        aria-labelledby="sidebar-admitted-students-header admitted-students-all"
       >
-        <NavLink
-          :id="`sidebar-admitted-students-cohort-${index}`"
-          :aria-label="`Cohort ${cohort.name} has ${pluralize('admit', cohort.totalStudentCount)}`"
-          class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
-          :path="`/cohort/${cohort.id}`"
-          :title="cohort.name"
+        <v-list-item
+          v-for="(cohort, index) in myCohortsCE3"
+          :key="cohort.id"
+          tag="li"
+          role="listitem"
+          class="py-0 pl-1 pr-2 pretty-hover"
         >
-          <div :aria-hidden="true" class="truncate-with-ellipsis">
-            {{ cohort.name }}
-          </div>
-          <PillCount
-            :id="`sidebar-admitted-students-cohort-${cohort.id}-total-student-count`"
-            :aria-hidden="true"
-            class="text-quaternary sidebar-pill"
-            color="secondary"
+          <NavLink
+            :id="`sidebar-admitted-students-cohort-${index}`"
+            :aria-label="`Cohort ${cohort.name} has ${pluralize('admit', cohort.totalStudentCount)}`"
+            class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
+            :path="`/cohort/${cohort.id}`"
+            :title="cohort.name"
           >
-            <span class="font-size-14">{{ toInt(cohort.totalStudentCount, 0).toLocaleString() }}</span>
-          </PillCount>
-        </NavLink>
-      </div>
+            <div :aria-hidden="true" class="truncate-with-ellipsis">
+              {{ cohort.name }}
+            </div>
+            <PillCount
+              :id="`sidebar-admitted-students-cohort-${cohort.id}-total-student-count`"
+              :aria-hidden="true"
+              class="text-quaternary sidebar-pill"
+              color="secondary"
+            >
+              <span class="font-size-14">{{ toInt(cohort.totalStudentCount, 0).toLocaleString() }}</span>
+            </PillCount>
+          </NavLink>
+        </v-list-item>
+      </v-list>
     </v-list-item>
     <v-list-item
       v-if="contextStore.currentUser.canAccessAdmittedStudents"
       aria-labelledby="sidebar-admitted-students-header sidebar-admit-curated-groups-header"
       class="pa-0"
-      role="region"
+      role="listitem"
+      tag="li"
     >
       <div
         class="align-center d-flex font-weight-bold justify-space-between pretty-hover py-1"
@@ -162,34 +226,52 @@
           <v-icon color="white" :icon="mdiPlus" size="22" />
         </NavLink>
       </div>
-      <div
-        v-for="(group, index) in myCuratedGroupsCE3"
-        :key="group.id"
-        class="pretty-hover"
+      <v-list
+        tag="ul"
+        density="compact"
+        class="py-0 sidebar-list"
+        role="group"
+        lines="one"
+        aria-labelledby="sidebar-admit-curated-groups-header"
       >
-        <NavLink
-          :id="`sidebar-admitted-students-curated-${index}`"
-          :aria-label="`${capitalize(describeCuratedGroupDomain('admitted_students', false))} ${group.name} has ${pluralize('student', group.totalStudentCount)}`"
-          class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
-          :path="`/curated/${group.id}`"
-          :title="group.name"
+        <v-list-item
+          v-for="(group, index) in myCuratedGroupsCE3"
+          :key="group.id"
+          tag="li"
+          role="listitem"
+          class="py-0 pl-1 pr-2 pretty-hover"
         >
-          <div :aria-hidden="true" class="truncate-with-ellipsis">
-            {{ group.name }}
-          </div>
-          <PillCount
-            :id="`sidebar-admitted-students-curated-${index}-count`"
-            :aria-hidden="true"
-            class="text-quaternary sidebar-pill"
-            color="secondary"
+          <NavLink
+            :id="`sidebar-admitted-students-curated-${index}`"
+            :aria-label="`${capitalize(describeCuratedGroupDomain('admitted_students', false))} ${group.name} has ${pluralize('student', group.totalStudentCount)}`"
+            class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
+            :path="`/curated/${group.id}`"
+            :title="group.name"
           >
-            <span class="font-size-14">{{ toInt(group.totalStudentCount, 0).toLocaleString() }}</span>
-          </PillCount>
-        </NavLink>
-      </div>
+            <div :aria-hidden="true" class="truncate-with-ellipsis">
+              {{ group.name }}
+            </div>
+            <PillCount
+              :id="`sidebar-admitted-students-curated-${index}-count`"
+              :aria-hidden="true"
+              class="text-quaternary sidebar-pill"
+              color="secondary"
+            >
+              <span class="font-size-14">{{ toInt(group.totalStudentCount, 0).toLocaleString() }}</span>
+            </PillCount>
+          </NavLink>
+        </v-list-item>
+      </v-list>
     </v-list-item>
-    <hr class="sidebar-section-divider">
-    <v-list-item class="pa-0">
+    <v-list-item
+      tag="li"
+      role="listitem"
+      class="pa-0"
+      aria-hidden="true"
+    >
+      <hr class="sidebar-section-divider">
+    </v-list-item>
+    <v-list-item class="pa-0" role="listitem" tag="li">
       <div class="font-weight-medium pretty-hover">
         <NavLink id="cohorts-all" path="/all/cohorts">
           Everyone's Cohorts
@@ -201,7 +283,12 @@
         </NavLink>
       </div>
     </v-list-item>
-    <v-list-item v-if="!mdAndUp" class="px-0 pt-4">
+    <v-list-item
+      v-if="!mdAndUp"
+      class="px-0 pt-4"
+      role="listitem"
+      tag="li"
+    >
       <SidebarFooter />
     </v-list-item>
   </v-list>
@@ -229,7 +316,22 @@ const myCuratedGroupsCE3 = computed<CuratedGroup[]>(() => _filter(contextStore.c
 const {mdAndUp} = useDisplay()
 </script>
 
-<style>
+<style scoped>
+
+.sidebar-list :deep(.v-list-item) {
+  min-height: 24px !important;
+}
+
+/* override when zero-height is present */
+.sidebar-list :deep(.v-list-item.zero-height) {
+  min-height: 6px !important;
+}
+
+:deep(.sidebar-list .v-list-item__content) {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
 .pretty-hover {
   border-left: 6px solid transparent;
   padding: 0 8px 0 6px;

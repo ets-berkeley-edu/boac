@@ -1,5 +1,5 @@
 <template>
-  <div class="align-center d-flex justify-space-between pretty-hover">
+  <div class="align-center d-flex justify-space-between pretty-hover pr-2 pl-3">
     <NavLink
       id="link-to-draft-notes"
       class="font-size-18 font-weight-bold text-secondary truncate-with-ellipsis"
