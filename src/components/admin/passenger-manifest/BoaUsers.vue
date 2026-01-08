@@ -24,6 +24,7 @@
         {align: 'start', cellProps: {class: ['td-name']}, key: 'lastName', sortable: true, title: 'Name'},
         {align: 'start', title: 'Departments', key: 'departments', headerProps: {class: 'pl-3'}},
         {align: 'start', title: 'Status', key: 'deletedAt', sortable: false},
+        {align: 'start', cellProps: {class: 'td-last-login'}, headerProps: {class: 'pl-8'}, key: 'createdAt', sortable: true, title: 'Created At'},
         {align: 'start', cellProps: {class: 'td-last-login'}, headerProps: {class: 'pl-8'}, key: 'lastLogin', sortable: true, title: 'Last Login'},
         {align: 'start', key: 'campusEmail', sortable: false, title: 'Email'},
         {key: 'becomeUser', sortable: false, title: ''}
@@ -142,8 +143,16 @@
         </div>
       </template>
 
+      <template #item.createdAt="{ item }">
+        <span :id="`user-created-at-${item.uid}`" class="font-weight-bold text-medium-emphasis">
+          <span class="hidden-sm-and-up">Created </span>
+          {{ DateTime.fromISO(item.createdAt).toFormat('DD') }}
+        </span>
+      </template>
+
       <template #item.lastLogin="{ item }">
         <span :id="`user-last-login-${item.uid}`" class="font-weight-bold text-medium-emphasis">
+          <span v-if="item.lastLogin" class="hidden-sm-and-up">Last login </span>
           <span v-if="item.lastLogin">{{ DateTime.fromISO(item.lastLogin).toFormat('DD') }}</span>
           <span v-if="!item.lastLogin">&mdash;</span>
         </span>
