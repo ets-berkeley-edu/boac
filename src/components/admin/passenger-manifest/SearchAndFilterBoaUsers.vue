@@ -133,7 +133,8 @@
                 {name: 'All', value: undefined},
                 {name: 'Active', value: 'active'},
                 {name: 'Deleted', value: 'deleted'},
-                {name: 'Blocked', value: 'blocked'}
+                {name: 'Blocked', value: 'blocked'},
+                {name: 'Disabled', value: 'disabled'}
               ]"
               :id="`option-status-${toLower(option.value || option.name)}`"
               :key="option.value"
