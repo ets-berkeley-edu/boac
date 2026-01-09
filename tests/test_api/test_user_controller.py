@@ -762,16 +762,21 @@ class TestUserUpdate:
             user=_get_user_update_post_payload(uid=uid),
         )
         assert user['disabledAt'] is None
+        assert user['lastLogin'] is None
+
         user = _api_create_or_update(
             client,
             user=_get_user_update_post_payload(uid=uid, authorized_user_id=user['id'], is_disabled=True),
         )
         assert user['disabledAt']
+        assert user['lastLogin'] is None
+
         user = _api_create_or_update(
             client,
             user=_get_user_update_post_payload(uid=uid, authorized_user_id=user['id'], is_disabled=False),
         )
         assert user['disabledAt'] is None
+        assert user['lastLogin']
 
     def test_update_deleted_user(self, client, fake_auth):
         """Update and then un-delete user."""

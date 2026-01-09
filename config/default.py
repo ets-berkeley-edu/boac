@@ -136,6 +136,9 @@ INACTIVE_SESSION_LIFETIME = 20
 # These "INDEX_HTML" defaults are good in boac-dev, boac-qa, etc. See development.py for appropriate local configs.
 INDEX_HTML = 'dist/static/index.html'
 
+# Accounts with no login activity in this number of days will be disabled.
+LOGIN_INACTIVITY_THRESHOLD = 365
+
 LDAP_HOST = 'ldap-test.berkeley.edu'
 LDAP_BIND = 'mybind'
 LDAP_PASSWORD = 'secret'  # noqa: S105

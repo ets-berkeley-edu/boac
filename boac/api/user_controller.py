@@ -43,6 +43,7 @@ from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
+from boac.models.user_login import UserLogin
 
 
 @app.route('/api/profile/my')
@@ -300,32 +301,6 @@ def get_departments():
     return tolerant_jsonify(departments)
 
 
-def _get_boa_users():
-    users = []
-    admin_pseudo_department = {'deptCode': 'ADMIN', 'deptName': 'Admins', 'memberships': [{'role': 'Admin'}]}
-    for user in authorized_users_api_feed(AuthorizedUser.get_all_active_users()):
-        departments = [admin_pseudo_department] if user.get('isAdmin') else user.get('departments')
-        for department in departments:
-            for membership in department['memberships']:
-                department_description = f"{department['deptCode']}: {membership['role']}"
-                if 'automateMembership' in membership:
-                    department_description += f" (automated={membership['automateMembership'] is True})"
-                users.append({
-                    'last_name': user.get('lastName') or '',
-                    'first_name': user.get('firstName') or '',
-                    'uid': user.get('uid'),
-                    'title': user.get('title'),
-                    'email': user.get('campusEmail') or user.get('email'),
-                    'department': f'{{ {department_description} }}',
-                    'disabled_at': user.get('disabledAt'),
-                    'can_access_advising_data': user.get('canAccessAdvisingData'),
-                    'can_access_canvas_data': user.get('canAccessCanvasData'),
-                    'is_blocked': user.get('isBlocked'),
-                    'last_login': user.get('lastLogin'),
-                })
-    return users
-
-
 def _update_or_create_authorized_user(user):
     user_id = user.get('id')
     departments = user.get('departments')
@@ -353,6 +328,11 @@ def _update_or_create_authorized_user(user):
     is_admin = to_bool_or_none(user.get('isAdmin'))
     is_blocked = to_bool_or_none(user.get('isBlocked'))
     is_disabled = to_bool_or_none(user.get('isDisabled'))
+
+    # When un-disabling an account, update the last-login timestamp to prevent automated re-disabling.
+    if is_disabled is False and user.get('uid'):
+        UserLogin.record_user_login(user['uid'])
+
     if user_id:
         user = AuthorizedUser.update_user(
             automate_degree_progress_permission=automate_degree_progress_permission,
