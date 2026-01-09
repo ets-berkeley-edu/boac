@@ -86,7 +86,7 @@
       </v-layout>
       <footer
         :class="`footer-${smAndDown ? 'sm' : (mdAndDown ? 'md' : (lgAndDown ? 'lg' : 'xl'))}`"
-        role="footer"
+        role="contentinfo"
       >
         <AppFooter v-if="!loading && !hideFooter" />
       </footer>
