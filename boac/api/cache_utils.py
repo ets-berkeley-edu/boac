@@ -30,6 +30,7 @@ from flask import current_app as app
 
 from boac import std_commit
 from boac.externals.data_loch import get_admitted_students_by_sids, get_student_profiles, get_user_permissions_per_affiliations
+from boac.lib.util import utc_now
 from boac.merged.sis_terms import all_term_ids, current_term_id
 from boac.models.alert import Alert
 from boac.models.curated_group import CuratedGroupStudent
@@ -129,12 +130,31 @@ def load_term(term_id=None):
     if term_id == current_term_id():
         JobProgress().update('About to refresh department memberships')
         refresh_department_memberships()
+        disable_accounts_with_no_recent_activity()
         JobProgress().update('About to refresh CalNet attributes for active users')
         refresh_calnet_attributes()
         JobProgress().update('About to load filtered cohort counts')
         load_filtered_cohort_counts()
         JobProgress().update('About to update curated group memberships')
         update_curated_group_lists()
+
+
+def disable_accounts_with_no_recent_activity():
+    from boac.models.authorized_user import AuthorizedUser
+    from boac.models.user_login import UserLogin
+    now = utc_now()
+    for user in AuthorizedUser.get_all_active_users():
+        if user.disabled_at:
+            continue
+        last_login = UserLogin.last_login(user.uid)
+        if (
+            (last_login and (now - last_login.created_at).days > app.config['LOGIN_INACTIVITY_THRESHOLD']) or
+            (not last_login and (now - user.created_at).days > app.config['LOGIN_INACTIVITY_THRESHOLD'])
+        ):
+            app.logger.info(
+                f'Disabling account without recent activity for UID {user.uid} '
+                f'(created {user.created_at}, last login {last_login.created_at})')
+            AuthorizedUser.update_user(user.id, is_disabled=True)
 
 
 def refresh_alerts(term_id):

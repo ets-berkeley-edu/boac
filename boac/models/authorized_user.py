@@ -239,8 +239,8 @@ class AuthorizedUser(Base):
         return query.first()
 
     @classmethod
-    def get_all_active_users(cls, include_deleted=False):
-        return cls.query.all() if include_deleted else cls.query.filter_by(deleted_at=None).all()
+    def get_all_active_users(cls):
+        return cls.query.filter_by(deleted_at=None, disabled_at=None).all()
 
     @classmethod
     def get_admin_users(cls, status):
