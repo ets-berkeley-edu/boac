@@ -32,6 +32,7 @@ from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
 
 from boac import db, std_commit
+from boac.externals import sqs
 from boac.lib.background import bg_execute
 from boac.lib.util import get_attachment_filename, get_benchmarker, put_attachment_to_s3, safe_strftime, to_iso_format, utc_now
 from boac.models.authorized_user import AuthorizedUser
@@ -306,6 +307,13 @@ class Note(Base):
             )
             db.session.add(note)
             std_commit()
+
+            sqs.send(
+                table='notes',
+                operation='create',
+                rows=[note.to_sqs_json()],
+            )
+
             _add_topics_to_notes(
                 author_uid=author_uid,
                 note_ids=[note.id],
@@ -384,6 +392,7 @@ class Note(Base):
         benchmark('begin add 1 topic' if len(topics) == 1 else f'begin add {len(topics)} topics')
         _add_topics_to_notes(author_uid=author_uid, note_ids=note_ids, topics=topics)
         benchmark('begin add 1 attachment' if len(attachments) == 1 else f'begin add {len(attachments)} attachments')
+        note_ids = list(ids_by_sid.values())
         _add_attachments_and_template_attachments(
             attachments=attachments,
             author_uid=author_uid,
@@ -647,6 +656,11 @@ class Note(Base):
                     )
             std_commit()
             db.session.refresh(note)
+            sqs.send(
+                table='notes',
+                operation='update',
+                rows=[note.to_sqs_json()],
+            )
             return note
         else:
             return None
@@ -658,6 +672,11 @@ class Note(Base):
             note.subject = subject
             std_commit()
             db.session.refresh(note)
+            sqs.send(
+                table='notes',
+                operation='update',
+                rows=[note.to_sqs_json()],
+            )
             return note
 
     @classmethod
@@ -688,18 +707,35 @@ class Note(Base):
         existing_topics = set(note_topic.topic for note_topic in NoteTopic.find_by_note_id(note.id))
         topics_to_delete = existing_topics - topics
         topics_to_add = topics - existing_topics
+        sqs_topic_creations = []
+        sqs_topic_updates = []
+
         for topic in topics_to_delete:
             topic_to_delete = next((t for t in note.topics if t.topic == topic), None)
             if topic_to_delete:
                 topic_to_delete.deleted_at = now
+                sqs_topic_updates.append(topic_to_delete.to_sqs_json())
                 modified = True
         for topic in topics_to_add:
-            note.topics.append(
-                NoteTopic.create(note, topic, note.author_uid),
-            )
+            new_topic = NoteTopic.create(note, topic, note.author_uid)
+            note.topics.append(new_topic)
+            sqs_topic_creations.append(new_topic.to_sqs_json())
             modified = True
+
         if modified:
             note.updated_at = now
+            if len(sqs_topic_creations):
+                sqs.send(
+                    table='note_topics',
+                    operation='create',
+                    rows=sqs_topic_creations,
+                )
+            if len(sqs_topic_updates):
+                sqs.send(
+                    table='note_topics',
+                    operation='update',
+                    rows=sqs_topic_updates,
+                )
 
     @classmethod
     def _add_attachment(cls, note, attachment):
@@ -743,9 +779,17 @@ class Note(Base):
             note.deleted_at = utc_now()
             for attachment in note.attachments:
                 attachment.deleted_at = utc_now()
+            sqs_topic_messages = []
             for topic in note.topics:
                 topic.deleted_at = utc_now()
+                sqs_topic_messages.append(topic.to_sqs_json())
             std_commit()
+            if len(sqs_topic_messages):
+                sqs.send(
+                    table='note_topics',
+                    operation='update',
+                    rows=sqs_topic_messages,
+                )
 
     def to_api_json(self):
         attachments = self.attachments_to_api_json()
@@ -774,6 +818,26 @@ class Note(Base):
     def attachments_to_api_json(self):
         return [a.to_api_json() for a in self.attachments if not a.deleted_at]
 
+    def to_sqs_json(self):
+        return {
+            'id': self.id,
+            'author_uid': self.author_uid,
+            'author_name': self.author_name,
+            'author_role': self.author_role,
+            'author_dept_codes': self.author_dept_codes,
+            'body': self.body,
+            'contact_type': self.contact_type,
+            'is_draft': self.is_draft,
+            'is_private': self.is_private,
+            'peer_advising_department_id': self.peer_advising_department_id,
+            'set_date': safe_strftime(self.set_date, '%Y-%m-%d'),
+            'sid': self.sid,
+            'subject': self.subject,
+            'created_at': to_iso_format(self.created_at),
+            'deleted_at': to_iso_format(self.deleted_at),
+            'updated_at': to_iso_format(self.updated_at),
+            'note_template_id': self.note_template_id,
+        }
 
 def _create_notes(
         author_id,
@@ -849,6 +913,21 @@ def _create_notes(
         db.session.execute(text(sql), {'json_dumps': json.dumps(notes_read_data)})
         std_commit()
         ids_by_sid.update(results_of_chunk_query)
+
+        def _to_sqs_json(data_row):
+            return {
+                **data_row,
+                'id': ids_by_sid.get(data_row['sid']),
+                'is_draft': False,
+                'deleted_at': None,
+            }
+
+        sqs.send(
+            table='notes',
+            operation='create',
+            rows=[_to_sqs_json(data_row) for data_row in data],
+        )
+
     return ids_by_sid
 
 
@@ -859,7 +938,8 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
             sql = """
                 INSERT INTO note_topics (author_uid, note_id, topic)
                 SELECT author_uid, note_id, topic
-                FROM json_populate_recordset(null::note_topics, :json_dumps);
+                FROM json_populate_recordset(null::note_topics, :json_dumps)
+                RETURNING id, note_id;
             """
             note_ids_subset = note_ids[chunk:chunk + count_per_chunk]
             data = [
@@ -869,8 +949,24 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
                     'topic': topic,
                 } for note_id in note_ids_subset
             ]
-            db.session.execute(text(sql), {'json_dumps': json.dumps(data)})
+            results = db.session.execute(text(sql), {'json_dumps': json.dumps(data)})
             std_commit()
+
+            def _to_sqs_json(row):
+                return {
+                    'id': row['id'],
+                    'note_id': row['note_id'],
+                    'topic': topic,
+                    'author_uid': author_uid,
+                    'deleted_at': None,
+                }
+
+            sqs.send(
+                table='note_topics',
+                operation='create',
+                rows=[_to_sqs_json(row) for row in results.mappings()],
+            )
+
 
 
 def _add_attachments_and_template_attachments(attachments, author_uid, note_ids, template_attachment_ids):

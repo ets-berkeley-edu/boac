@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from sqlalchemy import and_
 
 from boac import db, std_commit
+from boac.lib.util import to_iso_format
 
 
 class NoteTopic(db.Model):
@@ -60,3 +61,12 @@ class NoteTopic(db.Model):
 
     def to_api_json(self):
         return self.topic
+
+    def to_sqs_json(self):
+        return {
+            'id': self.id,
+            'note_id': self.note_id,
+            'topic': self.topic,
+            'author_uid': self.author_uid,
+            'deleted_at': to_iso_format(self.deleted_at),
+        }
