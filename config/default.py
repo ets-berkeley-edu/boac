@@ -51,6 +51,8 @@ APPT_DESK_REFRESH_INTERVAL = 60000
 # BOAC-specific AWS credentials.
 AWS_APP_ROLE_ARN = 'aws:arn::<account>:role/<app_boa_role>'
 
+AWS_SQS_QUEUE_URL = None
+
 # Time, in seconds, between iterations of background task loop.
 BACKGROUND_TASK_LOOP_INTERVAL = 3600
 
