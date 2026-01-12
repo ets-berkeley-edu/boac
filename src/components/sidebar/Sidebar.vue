@@ -33,7 +33,6 @@
         density="compact"
         lines="one"
         class="py-0 sidebar-list"
-        role="group"
         aria-labelledby="sidebar-cohorts-header"
       >
         <v-list-item
@@ -97,7 +96,6 @@
         tag="ul"
         density="compact"
         class="py-0 sidebar-list"
-        role="group"
         lines="one"
         aria-labelledby="sidebar-curated-groups-header"
       >
@@ -169,7 +167,6 @@
         tag="ul"
         density="compact"
         class="py-0 sidebar-list"
-        role="group"
         lines="one"
         aria-labelledby="sidebar-admitted-students-header admitted-students-all"
       >
@@ -230,8 +227,8 @@
         tag="ul"
         density="compact"
         class="py-0 sidebar-list"
-        role="group"
         lines="one"
+        role="list"
         aria-labelledby="sidebar-admit-curated-groups-header"
       >
         <v-list-item

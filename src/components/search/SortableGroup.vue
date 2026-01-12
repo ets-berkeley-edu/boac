@@ -10,6 +10,7 @@
   >
     <v-expansion-panel-title
       :id="`sortable-${keyword}-${props.group.id}-expand-btn`"
+      :aria-controls="`sortable-${keyword}-${props.group.id}-details`"
       class="bg-transparent pl-2 py-1 w-100"
       hide-actions
     >
@@ -32,33 +33,24 @@
               />
             </div>
             <h3 class="page-section-header-sub pr-8 text-primary">
-              <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${groupTypeName} ` }}</span>
+              <span class="sr-only">{{ groupTypeName }}</span>
               {{ group.name }}<span class="sr-only">: </span>
               (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ toInt(group.totalStudentCount, 0).toLocaleString() }}</span>
               <span class="sr-only">&nbsp;students.</span>)
             </h3>
           </div>
           <div class="d-flex align-center">
-            <div v-if="!compact" class="pr-2 text-no-wrap">
+            <div v-if="!compact" aria-hidden="true" class="pr-2 text-no-wrap">
               Total Alerts:
             </div>
             <PillCount
-              v-if="!group.alertCount"
               :id="`sortable-${keyword}-${group.id}-total-alerts-count`"
-              :aria-label="`No alerts for ${groupTypeName} '${group.name}'`"
-              color="grey"
-            >
-              0
-            </PillCount>
-            <PillCount
-              v-if="group.alertCount"
-              :id="`sortable-${keyword}-${group.id}-total-alerts-count`"
-              :aria-label="`${pluralize('alert', group.alertCount)} for ${groupTypeName} '${group.name}'`"
+              :color="toInt(group.alertCount, 0) ? 'warning' : 'grey'"
               class="px-2"
-              color="warning"
             >
               {{ toInt(group.alertCount, 0).toLocaleString() }}
             </PillCount>
+            <span v-if="!compact" class="sr-only">total alerts</span>
           </div>
         </div>
       </template>
