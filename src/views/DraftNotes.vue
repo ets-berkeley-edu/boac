@@ -45,7 +45,7 @@
               <span class="sr-only">{{ item.sid || 'blank' }}</span>
             </span>
           </template>
-          <template #item.subject="{item}">
+          <template #item.subject="{ item, index }">
             <div class="align-center overflow-wrap-break-word">
               <span
                 v-if="item.author.uid !== currentUser.uid"
@@ -59,11 +59,11 @@
               <v-btn
                 v-if="item.author.uid === currentUser.uid"
                 :id="`open-draft-note-${item.id}`"
-                :aria-label="`Open ${trim(item.subject) || config.draftNoteSubjectPlaceholder} for editing`"
+                :aria-label="editNoteAriaLabel(item, index)"
                 class="mr-1 px-0 py-2 text-left text-primary"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 size="lg"
-                :title="item.subject"
+                :title="draftNoteLabel(item)"
                 variant="text"
                 @click="() => openEditDialog(item)"
               >
@@ -72,14 +72,14 @@
                   class="align-start"
                   :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 >
-                  {{ trim(item.subject) || config.draftNoteSubjectPlaceholder }}
+                  {{ draftNoteLabel(item) }}
                 </div>
                 <div
                   v-if="item.subject.length > lengthTruncateButtonText"
                   class="align-start"
                   :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 >
-                  {{ truncate(trim(item.subject), {length: lengthTruncateButtonText}) }}
+                  {{ truncate(draftNoteLabel(item), {length: lengthTruncateButtonText}) }}
                 </div>
               </v-btn>
               <span v-if="item.attachmentCount">
@@ -97,14 +97,15 @@
               sr-prefix="Draft note saved on"
             />
           </template>
-          <template #item.delete="{item}">
+          <template #item.delete="{ item, index }">
             <v-btn
               :id="`delete-draft-note-${item.id}`"
               class="bg-transparent text-error"
               :disabled="isDeleteDialogOpen || isDeleting || isEditDialogOpen"
               :icon="mdiTrashCan"
               size="md"
-              :title="`Delete ${trim(item.subject) || config.draftNoteSubjectPlaceholder}`"
+              :aria-label="deleteNoteAriaLabel(item, index)"
+              :title="`Delete ${draftNoteLabel(item)}`"
               variant="flat"
               @click="() => openDeleteDialog(item)"
             />
@@ -185,6 +186,16 @@ const isDeleting = ref(false)
 const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 60 : (vuetify.display.mdAndUp.value ? 30 : 16))
 const myDraftNotes = ref(undefined)
 const selectedNote = ref(undefined)
+
+const draftNotesCount = computed(() => size(myDraftNotes.value) || 0)
+
+const draftNoteLabel = note => trim(note?.subject) || config.draftNoteSubjectPlaceholder
+
+const editNoteAriaLabel = (note, index) =>
+  `Edit note ${index + 1} of ${draftNotesCount.value}: ${draftNoteLabel(note)}`
+
+const deleteNoteAriaLabel = (note, index) =>
+  `Delete note ${index + 1} of ${draftNotesCount.value}: ${draftNoteLabel(note)}`
 
 contextStore.loadingStart()
 
