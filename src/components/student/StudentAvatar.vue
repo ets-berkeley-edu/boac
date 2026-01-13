@@ -80,18 +80,13 @@ const avatarError = () => {
 }
 .avatar .student-avatar-alert-count {
   display: block;
-  border: 2px solid #fff;
-  font-size: 14px !important;
-  font-weight: 500;
   margin: 0px auto;
   object-fit: cover;
-  padding: 2px !important;
+  padding: 0 8px !important;
   position: absolute;
   text-align: center;
-  height: 30px;
-  width: 30px;
   top: 5%;
-  right: 5%;
+  right: -5%;
 }
 .student-avatar-large {
   border-radius: 75px;
