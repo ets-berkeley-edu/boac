@@ -4,7 +4,6 @@
       <AccessibleCombobox
         :key="searchStore.autocompleteInputResetKey"
         :aria-description="`${labelForSearchInput()} (Type / to put focus in the search input field.)`"
-        autocomplete="off"
         :clazz="{
           'search-focus-in': searchStore.isFocusOnSearch || searchStore.queryText,
           'search-focus-out': !searchStore.isFocusOnSearch && !searchStore.queryText
@@ -17,7 +16,7 @@
         :is-busy="searchStore.isSearching"
         :items="searchStore.searchHistory"
         label="Search"
-        list-label="Previous Search List"
+        list-label="Previous Searches"
         :menu-props="{'location': 'bottom'}"
         :on-submit="search"
         :on-update-focused="isFocused => searchStore.setIsFocusOnSearch(isFocused)"

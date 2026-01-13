@@ -12,7 +12,6 @@
       :key="vAutocompleteKey"
       :id-prefix="idPrefix"
       aria-description="Name or S I D lookup. Expect auto suggest."
-      autocomplete="off"
       :clazz="{'demo-mode-blur': currentUser.inDemoMode, 'autocomplete-students autocomplete-with-add-button mt-2': true}"
       :clearable="!isFetchingStudents && !isAddingStudent"
       color="primary"

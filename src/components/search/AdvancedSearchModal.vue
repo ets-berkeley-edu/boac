@@ -49,13 +49,12 @@
               <AccessibleCombobox
                 :key="searchStore.autocompleteInputResetKey"
                 id-prefix="advanced-search"
-                autocomplete="off"
                 clearable
                 :get-value="() => model.queryText"
                 input-type="search"
                 :items="searchStore.searchHistory"
-                label="Search"
-                list-label="Previous Search List"
+                label="Advanced Search"
+                list-label="Previous Searches"
                 :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
                 :on-submit="search"
                 :required="searchInputRequired"
@@ -193,7 +192,6 @@
                       <AccessibleCombobox
                         id-prefix="search-options-note-author"
                         aria-description="Advisor name or S I D lookup. Expect auto suggest."
-                        autocomplete="off"
                         :clearable="!isFetchingAdvisors"
                         :clazz="{'mt-1 text-black': true}"
                         color="primary"
@@ -225,7 +223,6 @@
                       <AccessibleCombobox
                         id-prefix="search-options-note-student"
                         aria-description="Student name or S I D lookup. Expect auto suggest."
-                        autocomplete="off"
                         :clazz="{'mt-1 text-black': true, 'demo-mode-blur': currentUser.inDemoMode}"
                         :clearable="!isFetchingStudents"
                         color="primary"
