@@ -182,6 +182,7 @@ export default createVuetify({
           'on-category-eForm': '#fff',
           'on-category-hold': '#fff',
           'on-category-requirement': '#fff',
+          'on-warning': '#573300',
           'pale-blue': '#f3fbff',
           'pale-yellow': '#fef6e6',
           primary: '#37769a',
