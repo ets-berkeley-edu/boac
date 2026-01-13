@@ -98,7 +98,7 @@ const props = defineProps({
     type: String
   },
   autocomplete: {
-    default: 'list',
+    default: 'off',
     required: false,
     type: String
   },
@@ -242,7 +242,7 @@ onMounted(() => {
     const combobox = getComboboxElement()
     const observer = new MutationObserver((mutations) => {
       for (const m of mutations) {
-        if (includes(['aria-controls', 'aria-expanded', 'aria-haspopup'], m.attributeName)) {
+        if (includes(['aria-controls', 'aria-expanded', 'aria-haspopup', 'aria-owns'], m.attributeName)) {
           combobox.removeAttribute(m.attributeName)
         }
       }
@@ -274,6 +274,7 @@ onUpdated(() => {
     combobox.removeAttribute('aria-controls')
     combobox.removeAttribute('aria-expanded')
     combobox.removeAttribute('aria-haspopup')
+    combobox.removeAttribute('aria-owns')
   }
 })
 
