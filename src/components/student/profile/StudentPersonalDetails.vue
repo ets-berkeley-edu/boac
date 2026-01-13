@@ -102,7 +102,7 @@
                   <div v-if="hasCalCentralProfile">
                     <a
                       id="link-to-calcentral"
-                      aria-label="Student profile in CalCentral (opens in new window)"
+                      aria-label="Student profile in CalCentral (opens in new tab)"
                       class="text-no-wrap"
                       :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
                       target="_blank"
@@ -113,7 +113,7 @@
                   <div class="mt-2">
                     <a
                       id="link-to-perceptive-content"
-                      aria-label="Perceptive Content (Image Now) documents (opens in new window)"
+                      aria-label="Perceptive Content (Image Now) documents (opens in new tab)"
                       :href="`https://imagine-content.berkeley.edu/#documents/view/321Z05B_01EFZBH4W0004XD?simplemode=true&constraint=[field1] = '${student.sid}'`"
                       target="_blank"
                     >
@@ -134,7 +134,7 @@
                       <a
                         v-if="plan.degreeProgramUrl"
                         :href="plan.degreeProgramUrl"
-                        :aria-label="`${plan.description} program page (opens in new window)`"
+                        :aria-label="`${plan.description} program page (opens in new tab)`"
                         target="_blank"
                       >
                         {{ plan.description }}</a>

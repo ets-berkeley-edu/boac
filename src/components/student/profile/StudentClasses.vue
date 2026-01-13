@@ -1,49 +1,50 @@
 <template>
   <div id="student-terms-container" aria-labelledby="student-classes-header" role="region">
-    <div class="align-center d-flex">
-      <h2 id="student-classes-header" class="student-section-header">Classes</h2>
-      <div>
+    <div class="align-center d-flex flex-wrap">
+      <h2 id="student-classes-header" class="student-section-header mr-4">Classes</h2>
+      <div class="d-flex flex-grow-1">
+        <StudentDegreeCheckLink
+          v-if="currentUser.canReadDegreeProgress"
+          class="mt-1 ml-auto"
+          :student="student"
+        />
+      </div>
+    </div>
+    <div class="d-flex flex-nowrap mt-1">
+      <div class="toggle-collapse-all-container">
         <v-btn
           v-if="enrollmentTermsByYear.length > 1"
           id="toggle-collapse-all-years"
           variant="text"
           @click="expandCollapseAll"
         >
-          <v-icon :icon="expanded ? mdiMenuDown : mdiMenuRight" />
+          <v-icon :class="expanded ? 'ml-1' : 'mr-1'" size="large" :icon="expanded ? mdiMenuDown : mdiMenuRight" />
           {{ expanded ? 'Collapse' : 'Expand' }} all years
         </v-btn>
       </div>
-      <div v-if="enrollmentTermsByYear.length > 1">|</div>
-      <div class="flex-grow-1">
-        <v-btn
-          v-if="enrollmentTermsByYear.length > 1"
-          id="sort-academic-year"
-          variant="text"
-          @click="toggleSortOrder"
-        >
-          Sort academic year
-          <span class="sr-only">, sorted {{ yearSortOrder === 'desc' ? 'descending' : 'ascending' }}</span>
-          <v-icon :icon="yearSortOrder === 'desc' ? mdiArrowDownThin : mdiArrowUpThin" />
-        </v-btn>
+      <div
+        v-if="enrollmentTermsByYear.length > 1"
+        aria-hidden="true"
+        class="pt-1 px-1"
+      >
+        |
       </div>
-      <div v-if="currentUser.canReadDegreeProgress">
-        <v-btn
-          id="degree-checks-of-student"
-          color="primary"
-          variant="text"
-          tag="a"
-          @click="() => goToStudentDegreeChecks(student.sid)"
-        >
-          Undergraduate Degree Checks <span class="sr-only">of {{ student.name }} (will open new browser tab)</span>
-          <v-icon class="ml-1" :icon="mdiOpenInNew" size="16" />
-        </v-btn>
-      </div>
+      <v-btn
+        v-if="enrollmentTermsByYear.length > 1"
+        id="sort-academic-year"
+        variant="text"
+        @click="toggleSortOrder"
+      >
+        Sort academic year
+        <span class="sr-only">, sorted {{ yearSortOrder === 'desc' ? 'descending' : 'ascending' }}</span>
+        <v-icon :icon="yearSortOrder === 'desc' ? mdiArrowDownThin : mdiArrowUpThin" />
+      </v-btn>
     </div>
     <div
       v-for="year in enrollmentTermsByYear"
       :id="`academic-year-${year.label}-container`"
       :key="year.label"
-      class="pt-3 w-100"
+      class="pt-2 w-100"
     >
       <button
         :id="`academic-year-${year.label}-toggle`"
@@ -129,9 +130,10 @@
 
 <script setup>
 import {each, find, orderBy, sumBy} from 'lodash'
-import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight, mdiOpenInNew} from '@mdi/js'
+import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {onMounted, ref} from 'vue'
-import {alertScreenReader, goToStudentDegreeChecks} from '@/lib/utils'
+import {alertScreenReader} from '@/lib/utils'
+import StudentDegreeCheckLink from '@/components/student/StudentDegreeCheckLink'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import {sisIdForTermName} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
@@ -177,3 +179,9 @@ const totalEnrolledUnits = year => {
   return sumBy(year.terms, 'enrolledUnits') || 0
 }
 </script>
+
+<style scoped>
+.toggle-collapse-all-container {
+  width: 190px;
+}
+</style>

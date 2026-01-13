@@ -20,7 +20,7 @@
       <div class="float-right">
         <div>
           Problem? Question? Suggestion?
-          <a :href="`mailto:${supportEmailAddress}`" target="_blank">Email {{ supportEmailAddress }} <span class="sr-only">&nbsp;(opens in new window)</span></a>
+          <a :href="`mailto:${supportEmailAddress}`" target="_blank">Email {{ supportEmailAddress }} <span class="sr-only">&nbsp;(opens in new tab)</span></a>
         </div>
         <div>
           &copy; {{ new Date().getFullYear() }} The Regents of the University of California

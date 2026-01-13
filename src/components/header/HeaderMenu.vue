@@ -126,7 +126,7 @@
             target="_blank"
             variant="text"
           >
-            Feedback/Help<span class="sr-only">: Email the BOA team (opens in new window)</span>
+            Feedback/Help<span class="sr-only">: Email the BOA team (opens in new tab)</span>
           </v-btn>
         </v-list-item>
         <v-list-item class="pa-0">

@@ -59,7 +59,7 @@
       >
         <span class="font-weight-600 text-error">Warning:</span> <span class="font-weight-500">"{{ category.name }}"</span>
         is a <span class="font-weight-500">{{ category.categoryType }}</span>, which is not allowed as a top-level
-        category. <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">Email {{ config.supportEmailAddress }}<span class="sr-only"> (opens in new window)</span></a>
+        category. <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">Email {{ config.supportEmailAddress }}<span class="sr-only"> (opens in new tab)</span></a>
         to report the problem.
       </v-alert>
       <EditCategory

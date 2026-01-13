@@ -130,23 +130,6 @@
         <span v-if="student.athleticsProfile.isActiveAsc === false"> (Inactive)</span>
       </div>
     </div>
-    <v-btn
-      v-if="currentUser.canReadDegreeProgress"
-      :id="`degree-checks-of-${student.sid}`"
-      class="font-size-13 font-weight-medium letter-spacing-normal"
-      color="primary"
-      size="sm"
-      tag="a"
-      variant="text"
-      @click="() => goToStudentDegreeChecks(student.sid)"
-    >
-      <div class="align-center d-flex text-anchor">
-        <div>
-          Undergraduate Degree Checks <span class="sr-only">of {{ student.name }} (will open new browser tab)</span>
-        </div>
-        <v-icon class="ml-1" :icon="mdiOpenInNew" size="14" />
-      </div>
-    </v-btn>
   </div>
 </template>
 
@@ -154,11 +137,11 @@
 import {computed} from 'vue'
 import {DateTime} from 'luxon'
 import {get, map, uniq} from 'lodash'
-import {mdiOpenInNew, mdiSchool} from '@mdi/js'
+import {mdiSchool} from '@mdi/js'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding} from '@/lib/student'
-import {goToStudentDegreeChecks, lastNameFirst, studentRoutePath} from '@/lib/utils'
+import {lastNameFirst, studentRoutePath} from '@/lib/utils'
 import {termNameForSisId} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 

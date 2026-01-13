@@ -192,7 +192,7 @@
                         :href="`https://www.berkeley.edu/directory/results?search-term=${note.author.name}`"
                         target="_blank"
                       >
-                        {{ note.author.name }} <span class="sr-only">&nbsp;UC Berkeley Directory page (opens in new window)</span>
+                        {{ note.author.name }} <span class="sr-only">&nbsp;UC Berkeley Directory page (opens in new tab)</span>
                       </a>
                     </div>
                     <div :id="`note-${note.id}-author-role`" class="font-weight-550 mt-2">
