@@ -161,7 +161,7 @@
       <template #item.campusEmail="{ item }">
         <div class="text-center">
           <a
-            :aria-label="`Send email to ${item.name} (opens in new window)`"
+            :aria-label="`Send email to ${item.name} (opens in new tab)`"
             :href="`mailto:${item.campusEmail}`"
             target="_blank"
           >

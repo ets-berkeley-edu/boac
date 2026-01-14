@@ -78,7 +78,7 @@
             target="_blank"
           >
             <span class="sr-only">Email student at </span> {{ student.sisProfile.emailAddress }}
-            <span class="sr-only"> (opens in new window)</span>
+            <span class="sr-only"> (opens in new tab)</span>
           </a>
         </div>
       </div>

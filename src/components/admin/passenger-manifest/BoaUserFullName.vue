@@ -25,7 +25,7 @@
     <div v-if="user.name">
       <a
         :id="`directory-link-${user.uid}`"
-        :aria-label="`${user.name} UC Berkeley Directory page (opens in new window)`"
+        :aria-label="`${user.name} UC Berkeley Directory page (opens in new tab)`"
         style="word-wrap: break-word;"
         :href="`https://www.berkeley.edu/directory/results?search-term=${user.name}`"
         target="_blank"

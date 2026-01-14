@@ -38,7 +38,7 @@
           <div class="contact-us">
             If you have questions or feedback then contact us at
             <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">
-              {{ config.supportEmailAddress }}<span class="sr-only"> (opens in new window)</span>
+              {{ config.supportEmailAddress }}<span class="sr-only"> (opens in new tab)</span>
             </a>
           </div>
         </v-card-text>

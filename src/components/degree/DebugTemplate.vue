@@ -8,7 +8,7 @@
         target="_blank"
         :to="`/degree/${degreeStore.parentTemplateId}`"
       >
-        Created from template <span class="sr-only"> (will open new browser tab)</span>
+        Created from template <span class="sr-only"> (opens in new tab)</span>
         <v-icon :icon="mdiOpenInNew" size="14" />
       </router-link>
     </div>

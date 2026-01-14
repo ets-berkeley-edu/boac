@@ -50,12 +50,14 @@
               :student="student"
             />
           </v-col>
-          <v-col class="pl-sm-2">
+          <v-col>
             <StudentRowBioColumn
+              class="pl-3 mt-1"
               :row-index="rowIndex"
               :student="student"
               :sorted-by="sortedBy"
             />
+            <StudentDegreeCheckLink class="px-3" :student="student" />
           </v-col>
         </v-row>
       </v-container>
@@ -163,6 +165,7 @@ import {mdiAlert, mdiCloseCircle} from '@mdi/js'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
+import StudentDegreeCheckLink from '@/components/student/StudentDegreeCheckLink'
 import StudentGpaChart from '@/components/student/StudentGpaChart'
 import StudentRowBioColumn from '@/components/student/StudentRowBioColumn'
 import StudentRowCourseActivity from '@/components/student/StudentRowCourseActivity'

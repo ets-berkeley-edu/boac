@@ -132,7 +132,7 @@
               :to="`/degree/${item.id}/print`"
             >
               Print
-              <span class="sr-only">{{ item.name }} (will open new browser tab)</span>
+              <span class="sr-only">{{ item.name }} (opens in new tab)</span>
             </v-btn>
             <div v-if="currentUser.canEditDegreeProgress" class="d-flex align-center">
               <span class="text-disabled" role="separator">|</span>

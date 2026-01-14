@@ -13,7 +13,7 @@
           :to="`/degree/${degreeStore.parentTemplateId}`"
         >
           original degree template <v-icon :icon="mdiOpenInNew" class="pr-1" size="small" />
-          <span class="sr-only"> (will open new browser tab)</span>
+          <span class="sr-only"> (opens in new tab)</span>
         </router-link>
         have been made since the creation of <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}'s</span>
         degree check. Please update below if necessary.
@@ -82,7 +82,7 @@
               >
                 <v-icon :aria-hidden="true" :icon="mdiPrinter" />
                 Print
-                <span class="sr-only">this page (will open new browser tab)</span>
+                <span class="sr-only">this page (opens in new tab)</span>
               </router-link>
             </div>
             <div class="pr-2">

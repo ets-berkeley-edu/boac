@@ -48,7 +48,7 @@
             <span class="sr-only">Name</span>
             <a
               :id="`directory-link-${item.uid}`"
-              :aria-label="`${item.name} UC Berkeley Directory page (opens in new window)`"
+              :aria-label="`${item.name} UC Berkeley Directory page (opens in new tab)`"
               :href="`https://www.berkeley.edu/directory/results?search-term=${item.name}`"
               class="ma-0"
               target="_blank"
@@ -81,7 +81,7 @@
             :aria-label="`Send email to ${item.name}`"
             :href="`mailto:${item.campusEmail}`"
             target="_blank"
-          ><v-icon color="primary" :icon="mdiEmail" /><span class="sr-only"> (opens in new window)</span></a>
+          ><v-icon color="primary" :icon="mdiEmail" /><span class="sr-only"> (opens in new tab)</span></a>
         </span>
       </template>
       <template #expanded-row="{ columns, item }">

@@ -49,7 +49,7 @@
             <a
               v-if="!currentUser.isAdmin || !note.peerAdvisingDepartmentId"
               :id="`note-${note.id}-author-name`"
-              :aria-label="`${author.name} UC Berkeley Directory page (opens in new window)`"
+              :aria-label="`${author.name} UC Berkeley Directory page (opens in new tab)`"
               :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
               target="_blank"
             >

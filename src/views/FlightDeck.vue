@@ -16,7 +16,7 @@
           target="_blank"
         >
           <span class="sr-only">Github commit {{ BOA.build.gitCommit }}</span>
-          <span class="sr-only">(opens in new window)</span>
+          <span class="sr-only">(opens in new tab)</span>
           <v-icon :icon="mdiGithub" />
         </a>
       </div>
