@@ -2,6 +2,7 @@
   <highcharts
     v-if="options"
     id="student-chart-units-container"
+    v-highchartsA11y
     class="student-chart-units-container"
     :options="options"
   />
@@ -35,13 +36,13 @@ onMounted(() => {
   const yMax = max([120, props.currentEnrolledUnits + props.cumulativeUnits])
   options.value = {
     accessibility: {
-      screenReaderSection: {
-        beforeChartFormat: '<div>{chartLongdesc}</div><div>{typeDescription}</div><div>{yAxisDescription}</div>'
-      },
       description: description,
       enabled: true,
       keyboardNavigation: {
         enabled: true
+      },
+      screenReaderSection: {
+        beforeChartFormat: '<div>{chartLongdesc}</div><div>{typeDescription}</div><div>{yAxisDescription}</div>'
       }
     },
     chart: {

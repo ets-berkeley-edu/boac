@@ -45,6 +45,7 @@ import {VTextField} from 'vuetify/components/VTextField'
 import {VTooltip} from 'vuetify/components/VTooltip'
 
 import colors from 'vuetify/lib/util/colors.mjs'
+import highchartsA11y from './highcharts'
 
 export default createVuetify({
   components: {
@@ -132,6 +133,7 @@ export default createVuetify({
     }
   },
   directives: {
+    highchartsA11y,
     Intersect,
     Resize
   },
