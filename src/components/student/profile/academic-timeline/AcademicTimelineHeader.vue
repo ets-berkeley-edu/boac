@@ -26,6 +26,7 @@
     <v-tabs
       v-if="!isAcademicTimelineEmpty"
       v-model="selectedTab"
+      class="timeline-tabs"
       aria-label="Academic Timeline"
       :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
       :class="{'horizontal-tabs': $vuetify.display.mdAndUp}"
@@ -51,7 +52,6 @@
       </v-tab>
       <!-- eslint-disable-next-line vue/no-v-for-template-key -->
       <template v-for="(tab, index) in tabs" :key="tab">
-        <div v-if="tabs.length > 1" class="border-b-md tab-divider" />
         <v-tab
           :id="`timeline-tab-${tab}`"
           class="border-s-sm border-e-sm border-t-sm pb-1 rounded-t-lg"
@@ -124,7 +124,7 @@ const onUpdateTabsModel = value => props.setFilter(value === 'all' ? null : valu
 .horizontal-tabs {
   min-width: 680px;
 }
-.tab-divider {
-  width: 8px;
+.timeline-tabs :deep(.v-slide-group__content) {
+  gap: 8px;
 }
 </style>
