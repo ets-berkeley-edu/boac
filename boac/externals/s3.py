@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import boto3
 import smart_open
 from flask import current_app as app
+
+from boac.externals.aws import get_session
 
 """Client code to run file operations against S3."""
 
@@ -41,7 +42,7 @@ def get_signed_urls(bucket, keys, expiration):
 
 def stream_object(bucket, key):
     s3_url = build_s3_url(bucket, key)
-    session = _get_session()
+    session = get_session()
     try:
         return smart_open.open(s3_url, 'rb', transport_params=dict(session=session))
     except Exception as e:
@@ -57,29 +58,9 @@ def put_binary_data_to_s3(bucket, key, binary_data):
     _get_client().put_object(Body=binary_data, Bucket=bucket, Key=key, ServerSideEncryption=app.config['DATA_LOCH_S3_ENCRYPTION'])
 
 
-def _get_sts_credentials():
-    sts_client = boto3.client('sts')
-    role_arn = app.config['AWS_APP_ROLE_ARN']
-    assumed_role_object = sts_client.assume_role(
-        RoleArn=role_arn,
-        RoleSessionName='AssumeAppRoleSession',
-        DurationSeconds=900,
-    )
-    return assumed_role_object['Credentials']
-
-
-def _get_session():
-    credentials = _get_sts_credentials()
-    return boto3.Session(
-        aws_access_key_id=credentials['AccessKeyId'],
-        aws_secret_access_key=credentials['SecretAccessKey'],
-        aws_session_token=credentials['SessionToken'],
-    )
-
-
 def _get_client():
-    session = _get_session()
-    return session.client('s3', region_name=app.config['DATA_LOCH_S3_REGION'])
+    session = get_session()
+    return session.client('s3', region_name=app.config['AWS_REGION'])
 
 
 def _get_signed_url(client, bucket, key, expiration):

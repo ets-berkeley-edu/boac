@@ -50,6 +50,7 @@ APPT_DESK_REFRESH_INTERVAL = 60000
 
 # BOAC-specific AWS credentials.
 AWS_APP_ROLE_ARN = 'aws:arn::<account>:role/<app_boa_role>'
+AWS_REGION = 'us-west-2'
 
 AWS_SQS_QUEUE_URL = None
 
@@ -107,7 +108,6 @@ DATA_LOCH_S3_EOP_ADVISING_NOTE_BUCKET = 'eop-advising-note-bucket'
 DATA_LOCH_S3_EOP_NOTE_ATTACHMENTS_PATH = 'eop-attachment-path'
 DATA_LOCH_S3_PHOTO_BUCKET = 'photo-bucket'
 DATA_LOCH_S3_PHOTO_PATH = 'photo-path'
-DATA_LOCH_S3_REGION = 'us-west-2'
 DATA_LOCH_SIS_ADVISING_NOTES_SCHEMA = 'sis_advising_notes'
 DATA_LOCH_SIS_SCHEMA = 'sis_data'
 DATA_LOCH_STUDENT_SCHEMA = 'student'

@@ -231,7 +231,7 @@ def fake_sts(app):
 @pytest.fixture(scope='session', autouse=True)
 def fake_sqs(app):
     with mock_sqs():
-        client = boto3.client('sqs', region_name=app.config['DATA_LOCH_S3_REGION'])
+        client = boto3.client('sqs', region_name=app.config['AWS_REGION'])
         queue = client.create_queue(QueueName='fake_sqs')
         with override_config(app, 'AWS_SQS_QUEUE_URL', queue['QueueUrl']):
             yield

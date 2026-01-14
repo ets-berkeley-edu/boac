@@ -26,8 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 import uuid
 
-import boto3
 from flask import current_app as app
+
+from boac.externals.aws import get_session
 
 """Client code to run SQS message operations."""
 
@@ -71,31 +72,10 @@ def receive():
     queue_url = app.config['AWS_SQS_QUEUE_URL']
     if not queue_url:
         return None
-
     client = _get_client()
-    return client.receive_message(QueueUrl=app.queue_url)
-
-
-def _get_sts_credentials():
-    sts_client = boto3.client('sts')
-    role_arn = app.config['AWS_APP_ROLE_ARN']
-    assumed_role_object = sts_client.assume_role(
-        RoleArn=role_arn,
-        RoleSessionName='AssumeAppRoleSession',
-        DurationSeconds=900,
-    )
-    return assumed_role_object['Credentials']
-
-
-def _get_session():
-    credentials = _get_sts_credentials()
-    return boto3.Session(
-        aws_access_key_id=credentials['AccessKeyId'],
-        aws_secret_access_key=credentials['SecretAccessKey'],
-        aws_session_token=credentials['SessionToken'],
-    )
+    return client.receive_message(QueueUrl=queue_url, AttributeNames=['All'], WaitTimeSeconds=1)
 
 
 def _get_client():
-    session = _get_session()
-    return session.client('sqs', region_name=app.config['DATA_LOCH_S3_REGION'])
+    session = get_session()
+    return session.client('sqs', region_name=app.config['AWS_REGION'])
