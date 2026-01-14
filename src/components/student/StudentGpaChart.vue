@@ -2,6 +2,7 @@
   <highcharts
     v-if="options"
     :id="`student-chart-gpa-container-${student.uid}`"
+    v-highchartsA11y
     :options="options"
   />
 </template>

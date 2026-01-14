@@ -2,6 +2,7 @@
   <highcharts
     v-if="options"
     :id="`student-chart-boxplot-container-${numericId}`"
+    v-highchartsA11y
     class="student-boxplot"
     :options="options"
   />
