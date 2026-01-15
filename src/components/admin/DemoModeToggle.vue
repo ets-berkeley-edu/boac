@@ -12,7 +12,7 @@
     <div class="ml-4">
       <div v-if="!isNil(currentUser.inDemoMode)">
         <div class="align-center widget-container d-flex">
-          <div class="checkbox-container" :class="{'pt-1': isToggling}">
+          <div class="checkbox-container">
             <input
               id="toggle-demo-mode"
               v-model="inDemoMode"

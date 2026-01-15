@@ -3,6 +3,7 @@
     aria-labelledby="page-header"
     class="mr-5"
     fluid
+    role="list"
     tag="dl"
   >
     <v-row
