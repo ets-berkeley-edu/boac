@@ -93,12 +93,12 @@ class Homepage(UserListPages):
     def filtered_cohorts(self):
         Wait(self.driver, utils.get_medium_timeout()).until(ec.presence_of_all_elements_located(self.FILTERED_COHORT))
         els = self.elements(self.FILTERED_COHORT)
-        return list(map(lambda el: el.text.replace('Show details for cohort', '').split(':')[0].strip(), els))
+        return list(map(lambda el: el.text.replace('cohort', '').split(':')[0].strip(), els))
 
     def curated_groups(self):
         Wait(self.driver, utils.get_medium_timeout()).until(ec.presence_of_all_elements_located(self.CURATED_GROUP))
         els = self.elements(self.CURATED_GROUP)
-        return list(map(lambda el: el.text.replace('Show details for curated group', '').split(':')[0].strip(), els))
+        return list(map(lambda el: el.text.replace('curated group', '').split(':')[0].strip(), els))
 
     @staticmethod
     def view_all_members_link_loc(cohort):
