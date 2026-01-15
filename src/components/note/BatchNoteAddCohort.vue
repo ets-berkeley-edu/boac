@@ -28,7 +28,6 @@
         v-for="option in options"
         :id="`batch-note-${type}-option-${option.id}`"
         :key="option.id"
-        :aria-label="`Add ${type} ${option.name}`"
         :disabled="!!find(selectedOptions, ['id', option.id])"
         :value="option"
       >

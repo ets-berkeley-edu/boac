@@ -315,6 +315,10 @@ const {mdAndUp} = useDisplay()
 
 <style scoped>
 
+.sidebar-list {
+  background-color: var(--v-theme-primary);
+}
+
 .sidebar-list :deep(.v-list-item) {
   min-height: 24px !important;
 }
