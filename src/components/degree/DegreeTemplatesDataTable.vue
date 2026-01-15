@@ -24,7 +24,7 @@
           {key: 'createdAt', headerProps: {class: 'manage-degree-checks-column-header text-medium-emphasis'}, width: '125px'},
           {key: 'actions', headerProps: {class: 'pr-1 manage-degree-checks-column-header text-medium-emphasis'}, width: '40%'}
         ]"
-        :header-props="{class: 'pl-0 text-no-wrap'}"
+        :header-props="{class: 'pl-0 text-no-wrap', tabindex: undefined}"
         hide-default-footer
         :items="degreeTemplates"
         :items-per-page="-1"

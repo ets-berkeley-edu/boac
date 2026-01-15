@@ -15,7 +15,7 @@
           class="table-striped"
           disable-sort
           :headers="headers"
-          :header-props="{class: 'data-table-header-cell'}"
+          :header-props="{class: 'data-table-header-cell', tabindex: undefined}"
           hide-default-footer
           hide-no-data
           :items="myDraftNotes || []"

@@ -79,6 +79,6 @@ echo
 echo "Fasten your seatbelts and extinguish your cigarettes, we're off to ${test_suite}!"
 
 test_suite="*${test_suite}*"
-USERNAME="${username}" PASSWORD="${password}" pytest tests/test_${test_suite}.py --browser ${browser} --headless ${headless}
+USERNAME="${username}" PASSWORD="${password}" pytest -vvv tests/test_${test_suite}.py --browser ${browser} --headless ${headless}
 
 exit 0
