@@ -141,7 +141,7 @@
             <td class="column-pill">
               <v-chip
                 :id="`timeline-tab-${activeTab}-pill-creating-note`"
-                class="border pill-note font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
+                class="border pill-note font-weight-bold font-size-12 justify-center text-uppercase ma-2 px-1"
                 color="category-note"
                 density="compact"
                 label
@@ -180,11 +180,11 @@
             class="message-row border-t-sm border-b-sm"
             role="region"
           >
-            <td :class="{'pt-1': index === 0}" class="column-pill pl-2">
+            <td :class="{'pt-1': index === 0}" class="column-pill">
               <v-chip
                 :id="`timeline-tab-${activeTab}-pill-${message.type}-${message.id}`"
                 :aria-label="filterTypes[message.type].name"
-                class="border-md font-weight-medium font-size-12 justify-center text-uppercase ma-2 px-1"
+                class="border-md font-weight-bold font-size-12 justify-center text-uppercase ma-2 px-1"
                 :class="isExpanded(message) ? `pill-${getPillType(message)} mt-3` : `pill-${getPillType(message)}`"
                 :color="getVChipColor(message)"
                 density="compact"
@@ -987,20 +987,17 @@ table {
 .message-row-read {
   background-color: rgb(var(--v-theme-light-grey));
 }
-.note-actions {
-  width: 116px;
-}
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-alert {
   width: 60px;
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-appointment {
-  width: 100px;
+  width: 120px;
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-eForm {
-  width: 60px;
+  width: 68px;
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-hold {
@@ -1008,15 +1005,15 @@ table {
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-note {
-  width: 115px;
+  width: 120px;
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-peer-advising {
-  width: 85px;
+  width: 96px;
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pill-requirement {
-  width: 100px;
+  width: 112px;
 }
 .requirements-icon {
   padding: 0 4px 0 0;
