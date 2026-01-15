@@ -36,7 +36,7 @@
           {key: 'updatedBy', headerProps: {class: 'degree-history-column-header text-medium-emphasis'}, title: 'Advisor'},
           {key: 'parentTemplateUpdatedAt', headerProps: {class: 'degree-history-column-header text-medium-emphasis'}, title: 'Template Last Updated'}
         ]"
-        :header-props="{class: 'font-weight-bold text-no-wrap'}"
+        :header-props="{class: 'font-weight-bold text-no-wrap', tabindex: undefined}"
         hide-default-footer
         disable-sort
         :items="degreeChecks"

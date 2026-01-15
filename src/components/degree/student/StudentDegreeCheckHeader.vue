@@ -267,6 +267,7 @@
                 {headerProps: {class: 'data-table-column-header text-medium-emphasis'}, key: 'displayName', title: 'Course'},
                 {headerProps: {class: 'data-table-column-header text-medium-emphasis float-right'}, key: 'units', title: 'Units'}
               ]"
+              :header-props="{tabindex: undefined}"
               hide-default-footer
               hide-default-header
               :items="inProgressCourses"

@@ -6,7 +6,7 @@
       disable-pagination
       disable-sort
       :expanded="expanded"
-      :header-props="{class: 'font-size-14 font-weight-bold py-3 text-no-wrap'}"
+      :header-props="{class: 'font-size-14 font-weight-bold py-3 text-no-wrap', tabindex: undefined}"
       :headers="[
         {key: 'data-table-expand'},
         {key: 'name', headerProps: {class: 'text-medium-emphasis pl-4'}, title: 'Name'},
