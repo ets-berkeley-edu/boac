@@ -126,6 +126,13 @@ def hard_delete_user(user):
     std_commit(allow_test_environment=True)
 
 
+def disable_user(user):
+    sql = f"UPDATE authorized_users SET disabled_at = now() WHERE uid = '{user.uid}'"
+    app.logger.info(sql)
+    db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+
+
 def restore_user(user):
     sql = f"UPDATE authorized_users SET deleted_at = NULL WHERE uid = '{user.uid}'"
     app.logger.info(sql)

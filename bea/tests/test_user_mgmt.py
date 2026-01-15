@@ -308,6 +308,20 @@ class TestUserAddEditDelete:
         self.pax_manifest_page.log_out()
         self.homepage.dev_auth(add_edit_user)
 
+    def test_disable_user(self):
+        boa_utils.disable_user(add_edit_user)
+        self.pax_manifest_page.log_out()
+        self.homepage.enter_dev_auth_creds(add_edit_user)
+        self.homepage.when_present(self.homepage.DISABLED_MSG, utils.get_short_timeout())
+
+    def test_un_disable_user(self):
+        self.homepage.dev_auth(test.admin)
+        self.pax_manifest_page.load_page_and_find_user(add_edit_user)
+        add_edit_user.disabled_at = None
+        self.pax_manifest_page.edit_user(add_edit_user)
+        self.pax_manifest_page.log_out()
+        self.homepage.dev_auth(add_edit_user)
+
     def test_add_dept_membership(self):
         membership = DepartmentMembership(dept=Department.ASC, advisor_role=AdvisorRole.ADVISOR, is_automated=False)
         add_edit_user.dept_memberships.append(membership)
