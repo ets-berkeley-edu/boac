@@ -24,6 +24,7 @@ import {VExpandTransition, VFadeTransition} from 'vuetify/components/transitions
 import {VExpansionPanel, VExpansionPanelText, VExpansionPanelTitle, VExpansionPanels} from 'vuetify/components/VExpansionPanel'
 import {VFileInput} from 'vuetify/components/VFileInput'
 import {VFooter} from 'vuetify/components/VFooter'
+import {VForm} from 'vuetify/components/VForm'
 import {VIcon} from 'vuetify/components/VIcon'
 import {VImg} from 'vuetify/components/VImg'
 import {VLayout} from 'vuetify/components/VLayout'
@@ -86,6 +87,7 @@ export default createVuetify({
     VFadeTransition,
     VFileInput,
     VFooter,
+    VForm,
     VIcon,
     VImg,
     VLayout,
