@@ -38,7 +38,7 @@
       />
       <v-checkbox
         v-if="user.id && user.disabledAt"
-        id="is-deleted"
+        id="is-disabled"
         v-model="disabled"
         color="primary"
         density="compact"
