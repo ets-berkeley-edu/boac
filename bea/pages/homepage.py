@@ -45,6 +45,7 @@ class Homepage(UserListPages):
     NOT_AUTH_MSG = (By.XPATH, '//div[contains(., "Sorry, you are not registered to use BOA.")]')
     DELETED_MSG = (By.XPATH, '//div[contains(., "Sorry, user is not authorized to use BOA.")]')
     AXIOS_ERROR_MSG = (By.XPATH, '//div[contains(., "not registered to use BOA.")]')
+    DISABLED_MSG = (By.XPATH, '//div[contains(., "has been disabled due to inactivity.")]')
 
     def load_page(self):
         self.driver.get(boa_utils.get_boa_base_url())

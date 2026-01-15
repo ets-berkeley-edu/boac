@@ -58,6 +58,12 @@ class Department(Enum):
         'export_name': None,
         'notes_only': False,
     }
+    EDUC = {
+        'code': 'EAEDU',
+        'name': 'School of Education',
+        'export_name': None,
+        'notes_only': False,
+    }
     ENV_DESIGN = {
         'code': 'DACED',
         'name': 'College of Environmental Design',

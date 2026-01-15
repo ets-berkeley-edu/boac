@@ -139,7 +139,7 @@ def _dev_auth_login(uid, password):
             return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not authorized to use BOA.'}, 403)
         elif user.is_disabled:
             logger.error(f'Dev-auth: UID {uid} is in the BOA db but has been disabled.')
-            return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not authorized to use BOA.'}, 403)
+            return tolerant_jsonify({'message': f'Sorry, user with UID {uid} has been disabled due to inactivity.'}, 403)
         logger.info(f'Dev-auth used to log in as UID {uid}')
 
         login_user(user, force=True, remember=True)

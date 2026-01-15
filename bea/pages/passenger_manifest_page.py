@@ -166,6 +166,7 @@ class PassengerManifestPage(Pagination):
     ADMIN_CBX = By.ID, 'is-admin'
     BLOCKED_CBX = By.ID, 'is-blocked'
     DELETED_CBX = By.ID, 'is-deleted'
+    DISABLED_CBX = By.ID, 'is-disabled'
     CANVAS_DATA_CBX = By.ID, 'can-access-canvas-data'
     NOTES_APPTS_CBX = By.ID, 'can-access-advising-data'
     DEGREE_PROGRESS_SELECT = By.ID, 'degree-progress-permission-select'
@@ -307,6 +308,10 @@ class PassengerManifestPage(Pagination):
                 not self.element(self.DELETED_CBX).is_selected() and not user.is_active):
             app.logger.info('Clicking is-deleted checkbox')
             self.click_element_js(self.DELETED_CBX)
+            time.sleep(utils.get_click_sleep())
+        if (not user.disabled_at and self.element(self.DISABLED_CBX).is_selected()):
+            app.logger.info('Clicking is-disabled checkbox')
+            self.click_element_js(self.DISABLED_CBX)
             time.sleep(utils.get_click_sleep())
         self.save_user()
 
