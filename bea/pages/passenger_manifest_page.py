@@ -309,7 +309,7 @@ class PassengerManifestPage(Pagination):
             app.logger.info('Clicking is-deleted checkbox')
             self.click_element_js(self.DELETED_CBX)
             time.sleep(utils.get_click_sleep())
-        if (not user.disabled_at and self.element(self.DISABLED_CBX).is_selected()):
+        if (not user.disabled_at and self.is_present(self.DISABLED_CBX) and self.element(self.DISABLED_CBX).is_selected()):
             app.logger.info('Clicking is-disabled checkbox')
             self.click_element_js(self.DISABLED_CBX)
             time.sleep(utils.get_click_sleep())
