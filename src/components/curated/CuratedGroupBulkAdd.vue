@@ -140,6 +140,7 @@ const setWarning = message => {
   warning.value = message
   showWarning.value = true
   alertScreenReader(message)
+  putFocusNextTick('remove-invalid-sids-btn')
 }
 
 const submit = () => {
