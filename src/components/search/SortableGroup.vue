@@ -33,14 +33,18 @@
               />
             </div>
             <h3 class="page-section-header-sub pr-8 text-primary">
-              <span class="sr-only">{{ groupTypeName }}</span>
-              {{ group.name }}<span class="sr-only">: </span>
-              (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ toInt(group.totalStudentCount, 0).toLocaleString() }}</span>
-              <span class="sr-only">&nbsp;students.</span>)
+              <span aria-hidden="true">
+                {{ group.name }}
+                (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ toInt(group.totalStudentCount, 0).toLocaleString() }}</span>)
+              </span>
+              <span class="sr-only">
+                {{ group.name }} {{ groupTypeName }}: {{ pluralize('student', toInt(group.totalStudentCount, 0)) }},
+                {{ pluralize('alert', toInt(group.alertCount, 0)) }}
+              </span>
             </h3>
           </div>
-          <div class="d-flex align-center">
-            <div v-if="!compact" aria-hidden="true" class="pr-2 text-no-wrap">
+          <div aria-hidden="true" class="d-flex align-center">
+            <div v-if="!compact" class="pr-2 text-no-wrap">
               Total Alerts:
             </div>
             <PillCount
@@ -50,7 +54,6 @@
             >
               {{ toInt(group.alertCount, 0).toLocaleString() }}
             </PillCount>
-            <span v-if="!compact" class="sr-only">total alerts</span>
           </div>
         </div>
       </template>
