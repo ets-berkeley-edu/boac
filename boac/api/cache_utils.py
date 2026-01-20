@@ -153,7 +153,7 @@ def disable_accounts_with_no_recent_activity():
         ):
             app.logger.info(
                 f'Disabling account without recent activity for UID {user.uid} '
-                f'(created {user.created_at}, last login {last_login.created_at})')
+                f'(created {user.created_at}, last login {last_login.created_at if last_login else "never"})')
             AuthorizedUser.update_user(user.id, is_disabled=True)
 
 
