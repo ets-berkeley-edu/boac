@@ -171,7 +171,7 @@ class TestAdminUserRole:
 
     def test_search_note_by_new_topic(self):
         self.student_page.load_page(self.student)
-        self.student_page.create_note(self.note, topics=[self.topic], attachments=None)
+        self.student_page.create_note(self.note, topics=[self.topic], attachments=None, student=self.student)
         self.student_page.log_out()
         self.homepage.dev_auth()
         self.api_admin_page.reindex_notes()
