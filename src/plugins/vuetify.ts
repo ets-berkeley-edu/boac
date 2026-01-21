@@ -20,7 +20,7 @@ import {VDataTable, VDataTableServer, VDataTableVirtual} from 'vuetify/component
 import {VDateInput} from 'vuetify/labs/VDateInput'
 import {VDialog} from 'vuetify/components/VDialog'
 import {VDivider} from 'vuetify/components/VDivider'
-import {VExpandTransition, VFadeTransition} from 'vuetify/components/transitions'
+import {VExpandTransition, VFadeTransition, VSlideYTransition} from 'vuetify/components/transitions'
 import {VExpansionPanel, VExpansionPanelText, VExpansionPanelTitle, VExpansionPanels} from 'vuetify/components/VExpansionPanel'
 import {VFileInput} from 'vuetify/components/VFileInput'
 import {VFooter} from 'vuetify/components/VFooter'
@@ -106,6 +106,7 @@ export default createVuetify({
     VRadio,
     VRadioGroup,
     VRow,
+    VSlideYTransition,
     VSpacer,
     VSwitch,
     VTable,
