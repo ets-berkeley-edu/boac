@@ -84,8 +84,8 @@ class Homepage(UserListPages):
     # FILTERED COHORTS AND CURATED GROUPS
 
     NO_FILTERED_COHORTS_MSG = By.ID, 'no-cohorts-header'
-    FILTERED_COHORT = By.XPATH, '//button[contains(@id,"sortable-cohort")]//h3'
-    CURATED_GROUP = By.XPATH, '//div[contains(@id,"sortable-curated")]//h3'
+    FILTERED_COHORT = By.XPATH, '//button[contains(@id,"sortable-cohort")]//h3/span[@class="sr-only"]'
+    CURATED_GROUP = By.XPATH, '//div[contains(@id,"sortable-curated")]//h3/span[@class="sr-only"]'
 
     @staticmethod
     def user_rows(xpath):
