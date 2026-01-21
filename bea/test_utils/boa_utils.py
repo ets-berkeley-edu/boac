@@ -246,6 +246,7 @@ def get_dept_advisors(dept, membership=None):
                     JOIN university_depts ud
                       ON university_dept_members.university_dept_id = ud.id
                    WHERE authorized_users.deleted_at IS NULL
+                     AND authorized_users.disabled_at IS NULL
                      AND authorized_users.can_access_canvas_data IS FALSE
                         {clause}
                 GROUP BY authorized_users.uid,
@@ -274,6 +275,7 @@ def get_dept_advisors(dept, membership=None):
                     JOIN university_depts ud2
                       ON udm2.university_dept_id = ud2.id
                    WHERE authorized_users.deleted_at IS NULL
+                     AND authorized_users.disabled_at IS NULL
                         {clause}
                 GROUP BY authorized_users.uid,
                          authorized_users.can_access_advising_data,
