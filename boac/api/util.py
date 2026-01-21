@@ -91,7 +91,7 @@ def authorized_users_api_feed(users, sort_by='lastName', sort_descending=False):
         profile.update({
             'id': user.id,
             'automateDegreeProgressPermission': user.automate_degree_progress_permission,
-            'canAccessAdvisingData': user.can_access_advising_data,
+            'canAccessAdvisingData': user.can_access_advising_data and bool(profile['name']),
             'canAccessCanvasData': user.can_access_canvas_data,
             'canEditDegreeProgress': user.degree_progress_permission == 'read_write' or user.is_admin,
             'canReadDegreeProgress': user.degree_progress_permission in ['read', 'read_write'] or user.is_admin,
