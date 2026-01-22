@@ -78,7 +78,7 @@ class PassengerManifestPage(Pagination):
     def search_for_advisor(self, advisor):
         app.logger.info(f'Searching for advisor UID {advisor.uid}')
         self.select_search_mode()
-        self.wait_for_textbox_and_send_keys(self.USER_SEARCH_INPUT, advisor.uid)
+        self.wait_for_textbox_and_send_keys(self.USER_SEARCH_INPUT, advisor.uid, typing_interval=0.5)
         loc = By.XPATH, f'//div[@role="option"]//div[contains(., "{advisor.uid}")]'
         self.wait_for_element_and_click(loc)
 
