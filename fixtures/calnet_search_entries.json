@@ -75,6 +75,8 @@
             "attributes": {
                 "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
                 "berkeleyEduCSID": "2040",
+                "displayName": "Grist Cumberland",
+                "givenName": [ "Grist" ],
                 "objectClass": [
                     "top",
                     "eduPerson",
@@ -85,11 +87,14 @@
                     "ucEduPerson"
                 ],
                 "ou": [ "people" ],
+                "sn": [ "Cumberland" ],
                 "uid": [ "2040" ]
             },
             "dn": "uid=2040,ou=people,dc=berkeley,dc=edu",
             "raw": {
                 "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "displayName": "Grist Cumberland",
+                "givenName": [ "Grist" ],
                 "objectClass": [
                     "top",
                     "eduPerson",
@@ -100,6 +105,7 @@
                     "ucEduPerson"
                 ],
                 "ou": [ "people" ],
+                "sn": [ "Cumberland" ],
                 "uid": [ "2040" ]
             }
         },
