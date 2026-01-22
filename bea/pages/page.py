@@ -198,9 +198,9 @@ class Page(object):
         self.element(locator).clear()
         self.element(locator).send_keys(string)
 
-    def wait_for_textbox_and_send_keys(self, locator, string, addl_pause=None):
+    def wait_for_textbox_and_send_keys(self, locator, string, addl_pause=None, typing_interval=None):
         self.wait_for_element_and_click(locator, addl_pause)
-        self.remove_chars_and_send_keys(locator, string)
+        self.remove_chars_and_send_keys(locator, string, typing_interval)
 
     def wait_for_textbox_and_type_chars(self, locator, string, addl_pause=None):
         self.wait_for_element_and_click(locator, addl_pause)
@@ -223,15 +223,18 @@ class Page(object):
             self.hit_delete()
             self.hit_backspace()
 
-    def type_chars(self, locator, string):
+    def type_chars(self, locator, string, interval=0.1):
         for i in string:
-            time.sleep(0.1)
+            time.sleep(interval)
             self.element(locator).send_keys(i)
 
-    def remove_chars_and_send_keys(self, locator, string):
+    def remove_chars_and_send_keys(self, locator, string, interval=None):
         self.remove_chars(locator)
         string = string or ''
-        self.element(locator).send_keys(string)
+        if interval:
+            self.type_chars(locator, string, interval)
+        else:
+            self.element(locator).send_keys(string)
 
     def wait_for_select_and_click_option(self, select_el_loc, option_str):
         self.wait_for_page_and_click(select_el_loc)
