@@ -339,7 +339,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         app.logger.debug('Clicking the New Note button')
         self.wait_for_element_and_click(self.NEW_NOTE_BUTTON)
 
-    def create_note(self, note, topics, attachments):
+    def create_note(self, note, topics, attachments, student=None):
         self.click_create_new_note()
         self.enter_new_note_subject(note)
         self.enter_note_body(note)
@@ -350,7 +350,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         self.select_contact_type(note)
         self.enter_set_date(note)
         self.click_save_new_note()
-        self.set_new_note_id(note)
+        self.set_new_note_id(note, student)
 
     # Notes
 
