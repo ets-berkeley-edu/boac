@@ -198,7 +198,7 @@ class UserSession(UserMixin):
             'automateDegreeProgressPermission': user.automate_degree_progress_permission if user else False,
             'calNetDepartments': (calnet_profile or {}).get('departments', []),
             'canAccessAdmittedStudents': can_access_ce3_features,
-            'canAccessAdvisingData': user.can_access_advising_data if user else False,
+            'canAccessAdvisingData': user.can_access_advising_data if (user and (calnet_profile or {}).get('name')) else False,
             'canAccessCanvasData': user.can_access_canvas_data if user else False,
             'canAccessPrivateNotes': can_access_ce3_features,
             'canEditDegreeProgress': degree_progress_permission == 'read_write',
