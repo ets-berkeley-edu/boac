@@ -139,6 +139,7 @@
                         id="search-option-note-filters-topic"
                         v-model="model.topic"
                         class="ml-0 my-2 select-menu w-75"
+                        autocomplete="off"
                         :class="{'w-100': $vuetify.display.xs}"
                         :disabled="searchStore.isSearching"
                       >

@@ -70,7 +70,7 @@
       class="pa-0"
       aria-hidden="true"
     >
-      <hr class="sidebar-section-divider">
+      <hr class="sidebar-section-divider" role="presentation">
     </v-list-item>
     <v-list-item
       aria-labelledby="sidebar-curated-groups-header"
@@ -134,7 +134,7 @@
       class="pa-0"
       aria-hidden="true"
     >
-      <hr v-if="contextStore.currentUser.canAccessAdmittedStudents" class="sidebar-section-divider">
+      <hr v-if="contextStore.currentUser.canAccessAdmittedStudents" class="sidebar-section-divider" role="presentation">
     </v-list-item>
     <v-list-item
       v-if="contextStore.currentUser.canAccessAdmittedStudents"
@@ -266,7 +266,7 @@
       class="pa-0"
       aria-hidden="true"
     >
-      <hr class="sidebar-section-divider">
+      <hr class="sidebar-section-divider" role="presentation">
     </v-list-item>
     <v-list-item class="pa-0" role="listitem" tag="li">
       <div class="font-weight-medium pretty-hover">
