@@ -88,14 +88,14 @@ class DraftNotesPage(BoaPages):
         self.wait_for_element_and_click(self.draft_student_link_loc(note))
 
     def draft_subject_button_loc(self, note):
-        return By.XPATH, f'{self.draft_row_xpath(note)}/td[3]//button'
+        return By.ID, f'open-draft-note-{note.record_id}'
 
     def click_draft_subject(self, note):
         app.logger.info(f'Opening note edit modal for draft note {note.record_id}')
         self.wait_for_element_and_click(self.draft_subject_button_loc(note))
 
     def draft_delete_button_loc(self, note):
-        return By.XPATH, f'{self.draft_row_xpath(note)}/td[last()]'
+        return By.ID, f'delete-draft-note-{note.record_id}'
 
     def click_delete_draft(self, note):
         app.logger.info(f'Clicking delete button for draft note {note.record_id}')

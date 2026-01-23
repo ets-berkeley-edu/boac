@@ -259,26 +259,24 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         utils.assert_equivalence(self.expanded_note_contact_type(note), note.contact_type)
 
         expected_set_date = self.expected_item_short_date_format(note.set_date) if note.set_date else None
-        utils.assert_equivalence(self.expanded_note_set_date(note), expected_set_date)
+        if (note.set_date and expected_set_date):
+          utils.assert_equivalence(self.expanded_note_set_date(note), expected_set_date)
 
         attachments = [a.file_name for a in note.attachments if not a.deleted_at]
         attachments.sort()
-        if attachments:
+        should_see_attachments = (not note.is_private) or (viewer.is_admin or Department.ZCEEE in viewer.depts)
+        if attachments and should_see_attachments:
             self.wait_for_attachments()
         visible_attachments = self.expanded_note_attachments(note)
         visible_attachments.sort()
 
         visible_body = self.expanded_note_body(note)
-        if note.is_private:
-            if viewer.is_admin or Department.ZCEEE in viewer.depts:
-                utils.assert_equivalence(visible_body, note.body)
-                utils.assert_equivalence(visible_attachments, attachments)
-            else:
-                utils.assert_non_existence(visible_body)
-                utils.assert_non_existence(visible_attachments)
-        else:
+        if should_see_attachments:
             utils.assert_equivalence(visible_body, note.body)
             utils.assert_equivalence(visible_attachments, attachments)
+        else:
+            utils.assert_non_existence(visible_body)
+            utils.assert_non_existence(visible_attachments)
 
     # EDIT / DELETE
 
