@@ -293,10 +293,10 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
     WITHDRAWAL_MSG = By.XPATH, '//span[contains(@id, "withdrawal-term-")]'
     TOGGLE_COLLAPSE_ALL_YEARS = By.ID, 'toggle-collapse-all-years'
 
-    def click_degree_checks_button(self):
+    def click_degree_checks(self, student):
         app.logger.info('Clicking the degree checks link')
         current_windows = self.driver.window_handles
-        self.wait_for_element_and_click(self.DEGREE_CHECKS_LINK)
+        self.wait_for_element_and_click((By.ID, f'degree-checks-of-{student.sid}'))
         Wait(self.driver, 2).until(ec.new_window_is_opened(current_windows))
         self.driver.close()
         self.driver.switch_to.window(self.driver.window_handles[0])

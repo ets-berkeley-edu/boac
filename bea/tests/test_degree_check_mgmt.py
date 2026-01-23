@@ -254,7 +254,7 @@ class TestDegreeCheckHeader:
 
     def test_student_page_link(self):
         self.student_page.load_page(student)
-        self.student_page.click_degree_checks_button()
+        self.student_page.click_degree_checks(student)
 
     def test_add_degree_note_but_cancel(self):
         self.degree_check_page.load_page(degree_check)
@@ -342,7 +342,7 @@ class TestReadOnlyAdvisor:
 
     def test_can_view_degree_check(self):
         self.student_page.load_page(student)
-        self.student_page.click_degree_checks_button()
+        self.student_page.click_degree_checks(student)
         self.degree_check_page.when_present(self.degree_check_page.degree_check_heading(degree_check),
                                             utils.get_short_timeout())
 
