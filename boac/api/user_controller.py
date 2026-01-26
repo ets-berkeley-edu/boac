@@ -143,7 +143,7 @@ def all_users():
     benchmark = get_benchmarker('/api/users')
     benchmark(f'begin, with params: {params}')
     is_csv_download_request = params.get('isCsvDownloadRequest')
-    users, total_user_count = AuthorizedUser.get_users(
+    users, _total_user_count = AuthorizedUser.get_users(
         dept_code=util.get(params, 'deptCode', None),
         role=util.get(params, 'role', None) or None,
         status=util.get(params, 'status'),
@@ -236,7 +236,7 @@ def get_peer_advising_users():
     )
     api_json = authorized_users_api_feed(users, sort_by=sort_by, sort_descending=sort_descending)
     if is_csv_download_request:
-        users_sorted, fieldnames, header_label_lookup = _get_inputs_for_csv_download(api_json)
+        users_sorted, _fieldnames, header_label_lookup = _get_inputs_for_csv_download(api_json)
         return response_with_csv_download(
             fieldnames=api_json[-1].keys(),
             filename_prefix='peer-advising-users',

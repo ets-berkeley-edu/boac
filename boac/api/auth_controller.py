@@ -52,7 +52,7 @@ def cas_login():
     logger = app.logger
     ticket = request.args['ticket']
     target_url = request.args.get('url')
-    uid, attributes, proxy_granting_ticket = _cas_client(target_url).verify_ticket(ticket)
+    uid, _attributes, _proxy_granting_ticket = _cas_client(target_url).verify_ticket(ticket)
     logger.info(f'Logged into CAS as user {uid}')
     user_id = AuthorizedUser.get_id_per_uid(uid)
 

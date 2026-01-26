@@ -34,9 +34,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../.
 
 @scriptify.in_app
 def main(app):
-    from boac.models.authorized_user import AuthorizedUser
     from boac.models.student import Student
     from boac.models.student_group import StudentGroup
+
+    from boac.models.authorized_user import AuthorizedUser
 
     advisor_watchlists_data = '/tmp/advisor_watchlists.csv'
     if os.path.isfile(advisor_watchlists_data):
