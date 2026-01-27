@@ -80,6 +80,8 @@
             domain="default"
             :initial-sort-by="{key: 'alertCount', order: 'desc'}"
             :students="studentsWithAlerts"
+            :table-uid="`${keyword}-${group.id}`"
+            :table-name="`${groupTypeName} ${group.name}`"
           />
         </div>
       </div>
