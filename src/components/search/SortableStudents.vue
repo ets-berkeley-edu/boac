@@ -2,7 +2,7 @@
   <v-data-table-virtual
     :cell-props="data => ({
       'data-label': data.column.title,
-      id: `td-student-${data.item.sid}-column-${data.column.key}`
+      id: withTableUid(`td-student-${data.item.sid}-column-${data.column.key}`)
     })"
     class="responsive-data-table v-table-hidden-row-override"
     density="compact"
@@ -11,7 +11,7 @@
     mobile-breakpoint="md"
     must-sort
     :row-props="data => ({
-      id: `tr-student-${data.item.sid}`
+      id: withTableUid(`tr-student-${data.item.sid}`)
     })"
     :sort-by="[sortBy]"
     @update:sort-by="onUpdateSortBy"
@@ -28,9 +28,9 @@
         >
           <template v-if="column.sortable">
             <v-btn
-              :id="`students-sort-by-${column.key}-btn`"
+              :id="withTableUid(`sort-by-${column.key}-btn`)"
               :append-icon="getSortIcon(column)"
-              :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
+              :aria-label="`Sort${tableNameForAria} by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
               class="align-start font-size-12 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"
               :class="{'icon-visible': isSorted(column)}"
               color="body"
@@ -57,23 +57,21 @@
       />
     </template>
 
-    <template #item.avatar="{item}">
-      <StudentAvatar
-        :key="item.sid"
-        size="small"
-        :student="item"
-      />
-      <div v-if="includeCuratedCheckbox" class="sr-only">
-        <ManageStudent domain="default" :student="item" />
-      </div>
-    </template>
-
     <template #item.lastName="{item}">
       <div class="align-start d-flex">
         <span class="sr-only">Student name</span>
+        <StudentAvatar
+          :key="item.sid"
+          class="mr-2"
+          size="small"
+          :student="item"
+        />
+        <div v-if="includeCuratedCheckbox" class="sr-only">
+          <ManageStudent domain="default" :student="item" />
+        </div>
         <router-link
           v-if="item.uid"
-          :id="`link-to-student-${item.uid}`"
+          :id="withTableUid(`link-to-student-${item.uid}`)"
           class="mr-1"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
           :to="studentRoutePath(item.uid, useContextStore().currentUser.inDemoMode)"
@@ -81,7 +79,7 @@
         />
         <div
           v-if="!item.uid"
-          :id="`student-${item.sid}-has-no-uid`"
+          :id="withTableUid(`student-${item.sid}-has-no-uid`)"
           class="font-weight-500 mr-1"
           :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
           v-html="lastNameFirst(item)"
@@ -145,7 +143,7 @@
 
     <template #item.alertCount="{item}">
       <PillCount
-        :id="`student-${item.uid}-alert-count`"
+        :id="withTableUid(`student-${item.uid || item.sid}-alert-count`)"
         :aria-label="`${pluralize('alert', item.alertCount, {0: 'No'})} for ${item.firstName} ${item.lastName}`"
         :color="item.alertCount ? 'warning' : 'grey'"
       >
@@ -188,12 +186,26 @@ const props = defineProps({
   students: {
     required: true,
     type: Array
+  },
+  tableUid: {
+    required: false,
+    type: String,
+    default: ''
+  },
+  tableName: {
+    required: false,
+    type: String,
+    default: ''
   }
 })
 
 const contextStore = useContextStore()
 
 const currentUser = contextStore.currentUser
+
+const withTableUid = suffix => (props.tableUid ? `${props.tableUid}-${suffix}` : suffix)
+const tableNameForAria = computed(() => (props.tableName ? ` ${props.tableName}` : ''))
+
 const defaultCellClass = {class: 'font-size-15 py-1 pl-1 pr-3 vertical-top'}
 const defaultCellProps = computed(() => {
   const {mdAndUp} = useDisplay()
@@ -217,15 +229,6 @@ onMounted(() => {
   }
   const sortable = props.students.length > 1
   each([
-    {
-      key: 'avatar',
-      align: 'start',
-      ...defaultCellProps.value,
-      headerProps: {class: 'sr-only'},
-      sortable: false,
-      title: 'Photo',
-      value: 'photo'
-    },
     {key: 'lastName', ...defaultCellProps.value, ariaLabel: 'last name', sortable, sortRaw, title: 'Name', value: 'lastName'},
     {key: 'sid', ...defaultCellProps.value, ariaLabel: 'S I D', sortable, sortRaw, title: 'SID', value: 'sid'}
   ], header => {
@@ -268,7 +271,8 @@ const onUpdateSortBy = primarySortBy => {
   const header = find(headers.value, {key: key})
   sortBy.value = primarySortBy[0]
   if (header) {
-    alertScreenReader(`Sorted by ${header.ariaLabel || header.title}, ${sortBy.value.order}ending`)
+    const tablePart = props.tableName ? ` ${props.tableName}` : ''
+    alertScreenReader(`Sorted${tablePart} by ${header.ariaLabel || header.title}, ${sortBy.value.order}ending`)
   }
 }
 
