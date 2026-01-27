@@ -208,7 +208,7 @@ watch(() => noteStore.isSaving, (newValue, oldValue) => {
 onMounted(() => {
   headers.push(
     {align: 'start', key: 'student', title: 'Student', width: 200},
-    {align: 'start', key: 'sid', title: 'SID', width: 150},
+    {align: 'start', ariaLabel: 'S I D', key: 'sid', title: 'SID', width: 150},
     {align: 'start', key: 'subject', title: 'Subject'}
   )
   if (currentUser.isAdmin) {

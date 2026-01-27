@@ -24,7 +24,10 @@
     </h3>
     <div v-if="!appointment.student">
       <h3 class="advising-note-search-result-header">
-        <span class="font-weight-500">Appointment for SID {{ appointment.studentSid }}</span>
+        <span class="font-weight-500">
+          Appointment for <span aria-hidden="true">SID</span><span class="sr-only">S I D</span>
+          {{ appointment.studentSid }}
+        </span>
       </h3>
       <div>
         <i>No student record found.</i>
