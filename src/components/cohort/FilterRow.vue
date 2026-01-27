@@ -560,6 +560,7 @@ const reset = () => {
   rangeMin.value = undefined
   isExistingFilter.value = props.position !== 'new'
   filter.value = isExistingFilter.value ? cloneDeep(cohortStore.filters[props.position]) : {}
+  filter.value.name = get(filter.value, 'label.primary') || `number ${props.position}`
   isModifyingFilter.value = !isExistingFilter.value
   isSaving.value = false
 }
