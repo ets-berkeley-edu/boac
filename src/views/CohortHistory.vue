@@ -24,7 +24,7 @@
           <th class="pr-2 pb-2">Status</th>
           <th class="pr-2 pb-2 text-no-wrap">Change Date</th>
           <th class="pr-2 pb-2">Name</th>
-          <th class="pr-2 pb-2">SID</th>
+          <th class="pr-2 pb-2"><span aria-hidden="true">SID</span><span class="sr-only">S I D</span></th>
         </tr>
       </thead>
       <tbody>

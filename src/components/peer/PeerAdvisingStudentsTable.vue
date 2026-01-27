@@ -17,7 +17,7 @@
       <thead class="sr-only">
         <tr>
           <th scope="col">Student</th>
-          <th scope="col">SID</th>
+          <th scope="col">S I D</th>
           <th scope="col">Email</th>
           <th scope="col">Major</th>
           <th scope="col">Expand</th>

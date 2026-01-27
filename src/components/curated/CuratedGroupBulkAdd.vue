@@ -1,7 +1,14 @@
 <template>
   <div>
     <div id="page-description">
-      <div>Type or paste a list of {{ domain === 'admitted_students' ? 'CS ID' : 'Student Identification (SID)' }} numbers below.</div>
+      <div>
+        Type or paste a list of
+        {{ domain === 'admitted_students' ?
+          'CSID' :
+          'Student Identification (<span :aria-hidden="true">SID</span><span class="sr-only">S I D</span>)'
+        }}
+        numbers below.
+      </div>
       <div class="text-medium-emphasis">Example: 9999999990, 9999999991</div>
     </div>
     <div class="mt-3 w-100">
@@ -20,7 +27,7 @@
           <div v-if="!sids.length || sidsNotFound.length" class="ml-2" :class="{'ms-auto': !sids.length}">
             <v-btn
               id="remove-invalid-sids-btn"
-              :aria-label="sids.length ? 'Remove invalid SIDs' : 'Clear the textarea'"
+              :aria-label="sids.length ? 'Remove invalid S I Deez' : 'Clear the textarea'"
               class="font-size-16"
               color="primary-darken-1"
               :text="sids.length ? 'Yes' : 'Clear the textarea'"
@@ -130,7 +137,7 @@ const clearWarning = () => {
 const scrub = () => {
   sids.value = uniq(sids.value)
   textarea.value = sids.value.length ? sids.value.join(', ') : ''
-  alertScreenReader(`${sidsNotFound.value.length} invalid SIDs removed from textarea.`)
+  alertScreenReader(`${sidsNotFound.value.length} invalid S I Deez removed from textarea.`)
   sidsNotFound.value = []
   clearWarning()
   putFocusNextTick('curated-group-bulk-add-sids')
@@ -139,7 +146,7 @@ const scrub = () => {
 const setWarning = message => {
   warning.value = message
   showWarning.value = true
-  alertScreenReader(message)
+  alertScreenReader(message.replace('SIDs', 'S I Deez'))
   putFocusNextTick('remove-invalid-sids-btn')
 }
 
