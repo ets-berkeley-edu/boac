@@ -47,7 +47,7 @@
           {{ appointment.advisorName }} -
         </span>
         <span v-if="createdAt" :id="`appointment-created-at-date-${appointment.id}`">
-          {{ DateTime.fromISO(createdAt, 'yyyy-MM-dd').setZone(timezone).toLocaleString(DateTime.DATE_MED) }}
+          <Date :date="createdAt" :timezone="timezone" />)
         </span>
       </div>
     </div>
@@ -55,8 +55,8 @@
 </template>
 
 <script setup>
-import {DateTime} from 'luxon'
 import {get} from 'lodash'
+import Date from '@/components/util/Date.vue'
 import {studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 

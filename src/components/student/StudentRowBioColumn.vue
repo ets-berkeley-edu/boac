@@ -60,7 +60,7 @@
       class="text-error font-weight-bold font-size-13 text-no-wrap"
     >
       {{ student.withdrawalCancel.description }}
-      {{ DateTime.fromSQL(student.withdrawalCancel.date).toLocaleString(DateTime.DATE_MED) }}
+      <Date :date="student.withdrawalCancel.date" />
     </div>
     <StudentAcademicStanding
       v-if="student.academicStanding"
@@ -135,9 +135,9 @@
 
 <script setup>
 import {computed} from 'vue'
-import {DateTime} from 'luxon'
 import {get, map, uniq} from 'lodash'
 import {mdiSchool} from '@mdi/js'
+import Date from '@/components/util/Date.vue'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import {displayAsAscInactive, displayAsCoeInactive, displayCoeAcademicStanding} from '@/lib/student'

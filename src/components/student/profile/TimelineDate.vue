@@ -1,7 +1,12 @@
 <template>
   <div v-if="adjustedDate">
     <span class="sr-only">{{ srPrefix }} </span>
-    {{ adjustedDate.toFormat(adjustedDate && adjustedDate.year === today.year ? 'MMM d' : 'MMM d, yyyy') }}
+    <span :aria-hidden="true">
+      {{ adjustedDate.toFormat(adjustedDate && adjustedDate.year === today.year ? 'MMM d' : 'MMM d, yyyy') }}
+    </span>
+    <span class="sr-only">
+      {{ adjustedDate.toFormat(adjustedDate && adjustedDate.year === today.year ? 'MMMM d' : 'MMMM d, yyyy') }}
+    </span>
     <div v-if="includeTimeOfDay">
       {{ adjustedDate.toFormat('h:mma') }}
     </div>

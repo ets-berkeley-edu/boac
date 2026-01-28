@@ -38,7 +38,7 @@
             >
               {{ peerAdvisor.name }}
               <span v-if="peerAdvisor.deletedAt" class="text-medium-emphasis">
-                (deleted on <span :id="`peer-advisor-${peerAdvisor.uid}-deleted-at`">{{ DateTime.fromISO(peerAdvisor.deletedAt).toLocaleString(DateTime.DATE_MED) }}</span>)
+                (deleted on <Date :id="`peer-advisor-${peerAdvisor.uid}-deleted-at`" :date="peerAdvisor.deletedAt" />)
               </span>
             </td>
             <td
@@ -72,9 +72,9 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {DateTime} from 'luxon'
 import {get} from 'lodash'
 import type {PeerAdvisingManagerReport} from '@/lib/types-peer-advising'
+import Date from '@/components/util/Date.vue'
 import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
 import PillCount from '@/components/util/PillCount.vue'
 import {pluralize, toInt} from '@/lib/utils'

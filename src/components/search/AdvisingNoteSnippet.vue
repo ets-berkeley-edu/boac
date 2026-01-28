@@ -35,15 +35,17 @@
         <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
           {{ note.advisorName }} -
         </span>
-        <span v-if="lastModified" :id="`advising-note-last-modified-${note.id}`">{{ lastModified }}</span>
+        <span v-if="timestamp" :id="`advising-note-last-modified-${note.id}`">
+          <Date :date="timestamp" :timezone="timezone" />)
+        </span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import {DateTime} from 'luxon'
 import {get} from 'lodash'
+import Date from '@/components/util/Date.vue'
 import {studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
@@ -58,5 +60,4 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const timestamp = get(props.note, 'updatedAt') || get(props.note, 'createdAt')
 const timezone = contextStore.config.timezone
-const lastModified = timestamp ? DateTime.fromISO(timestamp).setZone(timezone).toFormat('MMM d, yyyy') : null
 </script>
