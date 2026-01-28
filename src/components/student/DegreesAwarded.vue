@@ -5,15 +5,15 @@
       :key="dateAwarded"
       class="font-size-13 text-medium-emphasis"
     >
-      Graduated {{ DateTime.fromSQL(dateAwarded).toLocaleString(DateTime.DATE_MED) }} ({{ join(plans, '; ') }})
+      Graduated <Date :date="dateAwarded" /> ({{ join(plans, '; ') }})
     </div>
   </div>
 </template>
 
 <script setup>
-import {DateTime} from 'luxon'
 import {each, filter, includes, join, map} from 'lodash'
 import {onMounted, ref} from 'vue'
+import Date from '@/components/util/Date.vue'
 
 const props = defineProps({
   student: {

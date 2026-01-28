@@ -39,7 +39,7 @@
             </div>
           </td>
           <td class="pr-2 py-1 text-no-wrap">
-            <div :id="`event-${index}-date`">{{ DateTime.fromISO(event.createdAt).toLocaleString(DateTime.DATE_MED) }}</div>
+            <Date :id="`event-${index}-date`" :date="event.createdAt" tag="div" />
           </td>
           <td class="pr-2 py-1 text-no-wrap">
             <router-link
@@ -87,11 +87,11 @@
 </template>
 
 <script setup>
-import {DateTime} from 'luxon'
 import {get, isEmpty} from 'lodash'
 import {onMounted, ref} from 'vue'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning.vue'
 import CohortPageHeader from '@/components/cohort/CohortPageHeader.vue'
+import Date from '@/components/util/Date.vue'
 import Pagination from '@/components/util/Pagination'
 import {getCohortEvents} from '@/api/cohort'
 import {lastNameFirst, putFocusNextTick, scrollToTop, studentRoutePath} from '@/lib/utils'

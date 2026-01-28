@@ -90,7 +90,7 @@
           {{ degree.plans.filter(plan => planTypes.includes(plan.type)).map(degree => degree.plan).join(', ') }}
         </div>
         <div class="font-size-13 text-medium-emphasis">
-          Awarded {{ DateTime.fromISO(degree.dateAwarded).toLocaleString(DateTime.DATE_MED) }}
+          Awarded <Date :date="degree.dateAwarded" />
         </div>
         <div v-for="owner in degree.planOwners" :key="owner" class="font-size-13 text-medium-emphasis">
           {{ owner }}
@@ -103,7 +103,7 @@
               {{ minorPlan + " UG" }}
             </div>
           </div>
-          <span class="font-size-13 text-medium-emphasis">Awarded {{ DateTime.fromISO(degree.dateAwarded).toFormat('MMM dd, yyyy') }}</span>
+          <span class="font-size-13 text-medium-emphasis">Awarded <Date :date="degree.dateAwarded" /></span>
         </div>
       </div>
     </div>
@@ -112,8 +112,8 @@
 
 <script setup>
 import {compact as _compact, each, get, includes, isEmpty, map, size, uniq} from 'lodash'
-import {DateTime} from 'luxon'
 import {computed, onMounted, ref} from 'vue'
+import Date from '@/components/util/Date.vue'
 import {isGraduate} from '@/lib/berkeley-utils'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import {pluralize} from '@/lib/utils'
