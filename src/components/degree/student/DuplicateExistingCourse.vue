@@ -8,9 +8,9 @@
         <select
           id="add-course-select"
           v-model="selected"
+          autocomplete="off"
           class="select-menu w-100"
           :disabled="isSaving || !options.length"
-          autocomplete="off"
         >
           <option id="add-course-select-option-null" :value="null">
             Choose a course to duplicate...

@@ -19,13 +19,12 @@
             id="template-title-input"
             v-model="title"
             aria-label="Template name"
+            autocomplete="on"
             class="v-input-details-override"
-            counter="255"
             density="compact"
             :disabled="isSaving"
             :error="!!error"
             label="Template name"
-            autocomplete="on"
             maxlength="255"
             persistent-counter
             :rules="[validationRules.required, validationRules.maxLength]"
@@ -33,17 +32,7 @@
             variant="outlined"
           >
             <template #counter="{max, value}">
-              <div id="name-template-counter" class="font-size-13 text-no-wrap my-1">
-                <span class="sr-only">Template name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
-                <span
-                  v-if="value === 255"
-                  aria-live="polite"
-                  class="sr-only"
-                  role="alert"
-                >
-                  Template name cannot exceed 255 characters.
-                </span>
-              </div>
+              <CharacterCount :count="toInt(value)" id-prefix="template-name" :max="toInt(max)" />
             </template>
           </v-text-field>
           <div
@@ -83,9 +72,10 @@
 <script setup>
 import {ref, watch} from 'vue'
 import {trim} from 'lodash'
+import CharacterCount from '@/components/util/CharacterCount'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {putFocusNextTick} from '@/lib/utils'
+import {putFocusNextTick, toInt} from '@/lib/utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
 

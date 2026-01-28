@@ -19,7 +19,7 @@ const isExistingName = (name: string, id?: number) => {
         (!id || id !== existing.id) &&
         name.toUpperCase() === existing.name.toUpperCase()
         ) {
-        msg = `You have an existing ${cohortType} with this name. Please choose a different name.`
+        msg = `You have an existing ${cohortType} named '${name}'. Please choose a different name.`
         return false
       }
     })

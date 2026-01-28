@@ -20,51 +20,54 @@
             <v-text-field
               id="degree-name-input"
               v-model="name"
+              aria-describedby="degree-name-input-messages"
+              :aria-invalid="!!errorMessage"
               aria-labelledby="degree-name-input-label"
+              autocomplete="on"
               class="mt-2"
               color="primary"
               density="comfortable"
-              autocomplete="on"
               :disabled="isSaving"
-              hide-details
+              :error="!!errorMessage"
+              :error-messages="errorMessage"
               maxlength="255"
+              persistent-counter
+              required
+              :rules="[validate]"
+              validate-on="lazy invalid-input"
               @keydoown.enter="() => name.length && createClone()"
               @keyup.esc="cancel"
-            />
-            <div class="ml-2">
-              <span class="text-surface-variant font-size-12"><span class="sr-only">Degree name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
-              <span
-                v-if="name.length === 255"
-                aria-live="polite"
-                class="sr-only"
-                role="alert"
-              >
-                Degree name cannot exceed 255 characters.
-              </span>
-            </div>
-            <v-alert
-              v-if="error"
-              aria-live="polite"
-              class="mt-2"
-              density="compact"
-              type="error"
-              variant="tonal"
             >
-              <span v-html="error" />
-            </v-alert>
+              <template #counter="{max, value}">
+                <CharacterCount :count="toInt(value)" id-prefix="degree-name" :max="toInt(max)" />
+              </template>
+              <template #message="{message}">
+                <v-alert
+                  id="degree-name-input-error"
+                  class="font-size-14 line-height-normal"
+                  density="compact"
+                  role="none"
+                  type="error"
+                  variant="tonal"
+                >
+                  <span v-html="message" />
+                </v-alert>
+              </template>
+            </v-text-field>
           </v-card-text>
           <v-card-actions class="modal-footer">
             <ProgressButton
               id="clone-confirm"
               :action="createClone"
-              aria-label="Save Template Copy"
-              :disabled="!name.trim().length || isSaving || !!error || (templateToClone.name === name)"
+              :aria-disabled="!name.trim().length || isSaving || !!errorMessage || (templateToClone.name === name)"
+              aria-label="Save Degree Copy"
+              :disabled="isSaving"
               :in-progress="isSaving"
               :text="isSaving ? 'Saving' : 'Save Copy'"
             />
             <v-btn
               id="clone-cancel"
-              aria-label="Cancel Copy Template"
+              aria-label="Cancel Copy Degree"
               class="ml-2"
               :disabled="isSaving"
               text="Cancel"
@@ -81,11 +84,13 @@
 <script setup>
 import FocusLock from 'vue-focus-lock'
 import {computed, onMounted, ref, watch} from 'vue'
-import {map, trim} from 'lodash'
+import {trim} from 'lodash'
+import CharacterCount from '@/components/util/CharacterCount'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
-import {cloneDegreeTemplate, getDegreeTemplates} from '@/api/degree'
+import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
+import {cloneDegreeTemplate} from '@/api/degree'
+import {validateDegreeTemplateName} from '@/lib/degree-progress'
 
 const props = defineProps({
   cancel: {
@@ -96,13 +101,17 @@ const props = defineProps({
     required: true,
     type: Function
   },
+  existingTemplates: {
+    required: true,
+    type: Array
+  },
   templateToClone: {
     required: true,
     type: Object
   }
 })
 
-const error = ref(undefined)
+const errorMessage = ref('')
 const isSaving = ref(false)
 const name = ref(props.templateToClone.name)
 const showModal = computed({
@@ -116,25 +125,28 @@ const showModal = computed({
   }
 })
 watch(name, () => {
-  error.value = null
+  errorMessage.value = ''
 })
 
 onMounted(() => putFocusNextTick('degree-name-input'))
 
 const createClone = () => {
   isSaving.value = true
-  getDegreeTemplates().then(data => {
-    const lower = trim(name.value).toLowerCase()
-    if (map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
-      alertScreenReader('Cloning template')
-      cloneDegreeTemplate(props.templateToClone.id, trim(name.value)).then(data => {
-        props.afterCreate(data)
-        isSaving.value = false
-      })
-    } else {
-      error.value = `A degree named <span class="font-weight-500">'${name.value}'</span> already exists. Please choose a different name.`
+  if (validate() === true) {
+    alertScreenReader('Cloning template')
+    cloneDegreeTemplate(props.templateToClone.id, trim(name.value)).then(data => {
+      props.afterCreate(data)
       isSaving.value = false
-    }
-  })
+    })
+  } else {
+    putFocusNextTick('degree-name-input')
+    isSaving.value = false
+  }
+}
+
+const validate = () => {
+  const validationReport = validateDegreeTemplateName(name.value, props.existingTemplates)
+  errorMessage.value = validationReport.message
+  return validationReport.valid || validationReport.message
 }
 </script>

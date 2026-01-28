@@ -5,47 +5,50 @@
       To begin the degree check creation process, input a name below and click enter.
       After clicking the create button, you will be prompted to enter the requirements.
     </div>
-    <form class="mt-3" @submit.prevent="create">
+    <form class="mt-3 w-sm-75" @submit.prevent="create">
       <label id="create-degree-label" class="font-weight-bold font-size-16" for="create-degree-input">Degree Name</label>
       <v-text-field
         id="create-degree-input"
         v-model="templateName"
+        aria-describedby="create-degree-input-messages"
+        :aria-invalid="!!errorMessage"
         aria-labelledby="create-degree-label"
         autocomplete="on"
-        class="mt-2 w-75"
+        class="mt-2"
         density="comfortable"
         :disabled="isBusy"
-        hide-details
+        :error="!!errorMessage"
+        :error-messages="errorMessage"
         maxlength="255"
+        persistent-counter
+        required
+        :rules="[validate]"
+        validate-on="lazy invalid-input"
         @keydown.enter="create"
-      />
-      <div class="pl-2">
-        <span class="text-surface-variant font-size-12">255 character limit <span v-if="templateName.length">({{ 255 - templateName.length }} left)</span></span>
-        <span
-          v-if="templateName.length === 255"
-          aria-live="polite"
-          class="sr-only"
-          role="alert"
-        >
-          Degree name cannot exceed 255 characters.
-        </span>
-      </div>
-      <v-alert
-        v-if="error"
-        aria-live="polite"
-        class="mt-2 w-75"
-        density="compact"
-        type="error"
-        variant="tonal"
       >
-        <span v-html="error" />
-      </v-alert>
-      <div class="d-flex justify-end pt-2 w-75">
+        <template #counter="{max, value}">
+          <CharacterCount :count="toInt(value)" id-prefix="create-degree-name" :max="toInt(max)" />
+        </template>
+        <template #message="{message}">
+          <v-alert
+            id="create-degree-name-error"
+            class="font-size-14 line-height-normal"
+            density="compact"
+            role="none"
+            type="error"
+            variant="tonal"
+          >
+            <span v-html="message" />
+          </v-alert>
+        </template>
+      </v-text-field>
+      <div class="d-flex justify-end pt-2">
         <ProgressButton
           id="start-degree-btn"
           :action="create"
+          :aria-disabled="isBusy || !!errorMessage || !trim(templateName)"
           color="primary"
-          :disabled="isBusy || !!error || !trim(templateName)"
+          :disabled="isBusy"
           :in-progress="isBusy"
           :text="isBusy ? 'Saving' : 'Start Degree'"
         />
@@ -56,44 +59,52 @@
 
 <script setup>
 import {onMounted, ref, watch} from 'vue'
-import {map, trim} from 'lodash'
+import {trim} from 'lodash'
 import {useRouter} from 'vue-router'
+import CharacterCount from '@/components/util/CharacterCount'
 import ProgressButton from '@/components/util/ProgressButton'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
 import {createDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 import {useContextStore} from '@/stores/context'
+import {validateDegreeTemplateName} from '@/lib/degree-progress'
 
 const contextStore = useContextStore()
 const router = useRouter()
 
-const error = ref('')
+const degreeTemplates = ref([])
+const errorMessage = ref('')
 const isBusy = ref(false)
 const templateName = ref('')
 
-watch(templateName, () => error.value = null)
+watch(templateName, () => errorMessage.value = '')
 
 contextStore.loadingStart()
 
-onMounted(() => contextStore.loadingComplete())
+onMounted(() => {
+  getDegreeTemplates().then(data => {
+    degreeTemplates.value = data
+    contextStore.loadingComplete()
+  })
+})
 
 const create = () => {
-  if (!error.value && trim(templateName.value)) {
-    isBusy.value = true
-    getDegreeTemplates().then(data => {
-      const lower = trim(templateName.value).toLowerCase()
-      if (map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
-        alertScreenReader('Creating template')
-        createDegreeTemplate(trim(templateName.value)).then(data => {
-          router.push(`/degree/${data.id}`).then(() => {
-            isBusy.value = false
-          })
-        })
-      } else {
-        error.value = `A degree named <span class="font-weight-500">'${templateName.value}'</span> already exists. Please choose a different name.`
-        alertScreenReader(error.value)
+  isBusy.value = true
+  if (validate() === true) {
+    alertScreenReader('Creating template')
+    createDegreeTemplate(trim(templateName.value)).then(data => {
+      router.push(`/degree/${data.id}`).then(() => {
         isBusy.value = false
-      }
+      })
     })
+  } else {
+    putFocusNextTick('create-degree-input')
+    isBusy.value = false
   }
+}
+
+const validate = () => {
+  const validationReport = validateDegreeTemplateName(templateName.value, degreeTemplates.value)
+  errorMessage.value = validationReport.message
+  return validationReport.valid || validationReport.message
 }
 </script>

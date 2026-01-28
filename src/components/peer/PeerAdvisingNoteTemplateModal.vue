@@ -16,21 +16,18 @@
               <v-text-field
                 id="peer-advising-note-template-name-text"
                 v-model="templateName"
-                counter="255"
+                autocomplete="on"
                 :disabled="isSaving"
                 label="Note Template Name"
-                autocomplete="on"
-                variant="outlined"
                 :maxlength="maxlength"
                 persistent-counter
                 required
                 :rules="[() => isValidName]"
                 validate-on="lazy input"
+                variant="outlined"
               >
-                <template #counter>
-                  <div>
-                    {{ size(templateName) ? `${maxlength} character limit (${maxlength - size(templateName)} left)` : `${maxlength} character limit` }}
-                  </div>
+                <template #counter="{max, value}">
+                  <CharacterCount :count="toInt(value)" id-prefix="peer-advising-note-template-name" :max="toInt(max)" />
                 </template>
               </v-text-field>
             </div>
@@ -85,11 +82,12 @@
 import FocusLock from 'vue-focus-lock'
 import {computed, onMounted, ref, watch} from 'vue'
 import {cloneDeep, isEmpty, size, trim} from 'lodash'
+import CharacterCount from '@/components/util/CharacterCount.vue'
 import ModalHeader from '@/components/util/ModalHeader'
 import PeerAdvisingNoteTopics from '@/components/peer/PeerAdvisingNoteTopics.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils.js'
+import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils.js'
 import {createPeerAdvisingNoteTemplate, updatePeerAdvisingNoteTemplate} from '@/api/peer-advising-notes.js'
 
 const emit = defineEmits(['note-template-updated'])

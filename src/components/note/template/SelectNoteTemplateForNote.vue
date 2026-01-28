@@ -149,33 +149,20 @@
               <v-text-field
                 id="rename-template-input"
                 v-model="updatedTemplateTitle"
-                aria-label="Template name"
+                autocomplete="on"
                 counter="255"
                 :disabled="isSaving"
-                autocomplete="on"
                 label="Template name"
                 maxlength="255"
                 persistent-counter
+                required
                 :rules="[
                   v => !!trim(v) || 'Template name is required',
                   v => !v || trim(v).length <= 255 || 'Template name cannot exceed 255 characters.'
                 ]"
               >
                 <template #counter="{max, value}">
-                  <div v-if="!isUndefined(max)" id="rename-template-counter" class="font-size-13 text-no-wrap my-1">
-                    <span class="sr-only">
-                      Template name has a
-                    </span>
-                    {{ max }} character limit <span v-if="value">({{ toInt(max) - toInt(value) }} left)</span>
-                    <span
-                      v-if="value === 255"
-                      aria-live="polite"
-                      class="sr-only"
-                      role="alert"
-                    >
-                      Template name cannot exceed 255 characters.
-                    </span>
-                  </div>
+                  <CharacterCount :count="value" id-prefix="rename-template" :max="max" />
                 </template>
               </v-text-field>
               <div
@@ -183,7 +170,6 @@
                 id="rename-template-error"
                 aria-live="polite"
                 class="text-error font-size-13 font-weight-regular"
-                role="alert"
               >
                 {{ error }}
               </div>
@@ -229,10 +215,11 @@ import {computed, ref} from 'vue'
 import {find, get, isUndefined, size, trim} from 'lodash'
 import {mdiCloseThick, mdiMenuDown} from '@mdi/js'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import CharacterCount from '@/components/util/CharacterCount.vue'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import type {NoteTemplate} from '@/lib/types'
-import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {applyNoteTemplate} from '@/api/notes'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/note-edit-session-utils'

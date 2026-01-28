@@ -1,10 +1,10 @@
-import {concat, each, filter, find, get, includes, isEmpty, isNaN, isNil, map, startsWith} from 'lodash'
-import type {Category, CourseRequirement, DegreeProgressCourse, DegreeProgressCourses} from '@/lib/types'
+import {concat, each, filter, find, get, includes, isEmpty, isNaN, isNil, map, startsWith, trim} from 'lodash'
+import type {Category, CourseRequirement, DegreeProgressCourse, DegreeProgressCourses, DegreeTemplate} from '@/lib/types'
 import {useDegreeStore} from '@/stores/degree-edit-session'
 
 export const MAX_UNITS_ALLOWED = 10
 
-interface ValidationReport {valid: boolean, message?: string}
+interface ValidationReport {valid: boolean, message: string}
 
 export function categoryHasCourse(category: Category, course: DegreeProgressCourse): boolean {
   let courses: DegreeProgressCourse[] = []
@@ -81,23 +81,37 @@ export function unitsWereEdited(course: DegreeProgressCourse): boolean {
   return !get(course, 'manuallyCreatedBy') && !isNil(get(course, 'units')) && !isNil(get(course, 'sis.units')) && (course.units !== course.sis.units)
 }
 
+export function validateDegreeTemplateName(templateName: string, existingTemplates: DegreeTemplate[]): ValidationReport {
+  const registerAsInvalid = (message: string): ValidationReport => ({valid: false, message})
+  let report: ValidationReport = {valid: true, message: ''}
+  if (!trim(templateName)) {
+    report = registerAsInvalid('Degree Name is required')
+  } else {
+    const lower = trim(templateName).toLowerCase()
+    if (map(existingTemplates, 'name').findIndex((s: string|undefined) => (s || '').toLowerCase() === lower) >= 0) {
+      report = registerAsInvalid(`A degree named <span class="font-weight-600">'${templateName}'</span> already exists. Please choose a different name.`)
+    }
+  }
+  return report
+}
+
 export function validateUnitRange(unitsLower: number, unitsUpper: number, maxAllowed: number, showUnitsUpperInput?: boolean): ValidationReport {
   const registerAsInvalid = (message: string): ValidationReport => ({valid: false, message})
-  let message: ValidationReport
+  let report: ValidationReport
   const suffix = `must be a number between 0 and ${maxAllowed}`
   if (isValidUnits(unitsLower, maxAllowed)) {
     if (isNil(unitsUpper)) {
-      message = {valid: true}
+      report = {valid: true, message: ''}
     } else {
       if (isValidUnits(unitsUpper, maxAllowed)) {
         const empty = isEmpty(unitsLower) && isEmpty(unitsUpper)
-        message = empty || parseFloat(String(unitsLower)) <= parseFloat(String(unitsUpper)) ? {valid: true} : registerAsInvalid('Units upper range value must be greater than lower range value.')
+        report = empty || parseFloat(String(unitsLower)) <= parseFloat(String(unitsUpper)) ? {valid: true, message: ''} : registerAsInvalid('Units upper range value must be greater than lower range value.')
       } else {
-        message = registerAsInvalid(`Units upper range value ${suffix}.`)
+        report = registerAsInvalid(`Units upper range value ${suffix}.`)
       }
     }
   } else {
-    message = registerAsInvalid(showUnitsUpperInput ? `Units lower range value ${suffix}.` : `Units ${suffix}`)
+    report = registerAsInvalid(showUnitsUpperInput ? `Units lower range value ${suffix}.` : `Units ${suffix}`)
   }
-  return message
+  return report
 }

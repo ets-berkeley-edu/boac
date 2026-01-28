@@ -31,6 +31,7 @@
           :aria-label="`Course Units${showUnitsUpperInput ? ', Start of Range' : ''}`"
           density="compact"
           :disabled="disable"
+          :error="!!errorMessage"
           hide-details
           maxlength="4"
           min-width="70"
@@ -53,6 +54,7 @@
           aria-label="Course Units, End of Range"
           density="compact"
           :disabled="disable"
+          :error="!!errorMessage"
           hide-details
           maxlength="4"
           min-width="70"
@@ -63,14 +65,20 @@
       </div>
     </div>
     <v-expand-transition>
-      <div
-        v-show="!!errorMessage"
-        :id="`${inputId}-messages`"
-        aria-live="assertive"
-        class="text-error font-size-12 pl-1"
-        role="alert"
-      >
-        {{ errorMessage }}
+      <div class="v-input__details">
+        <div class="v-messages opacity-100">
+          <v-alert
+            v-if="errorMessage"
+            :id="`${inputId}-messages`"
+            class="font-size-14 line-height-normal"
+            density="compact"
+            role="none"
+            :text="errorMessage"
+            type="error"
+            variant="tonal"
+            width="fit-content"
+          />
+        </div>
       </div>
     </v-expand-transition>
   </div>

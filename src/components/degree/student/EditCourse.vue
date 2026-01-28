@@ -10,13 +10,17 @@
       <v-text-field
         id="course-name-input"
         v-model="name"
+        autocomplete="on"
         density="comfortable"
         :disabled="isSaving"
-        hide-details
-        autocomplete="on"
         maxlength="255"
-      />
-      <div class="text-surface-variant mb-2"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
+        persistent-counter
+        required
+      >
+        <template #counter="{max, value}">
+          <CharacterCount :count="toInt(value)" id-prefix="course-name" :max="toInt(max)" />
+        </template>
+      </v-text-field>
       <div
         v-if="error"
         id="create-error"
@@ -25,14 +29,6 @@
         role="alert"
       >
         {{ error }}
-      </div>
-      <div
-        v-if="name.length === 255"
-        aria-live="polite"
-        class="sr-only"
-        role="alert"
-      >
-        Course name cannot exceed 255 characters.
       </div>
     </div>
     <div v-if="course.categoryId || size(selectedUnitRequirements)">
@@ -132,9 +128,10 @@
 import {computed, onMounted, ref} from 'vue'
 import {isEmpty, map, size, trim} from 'lodash'
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
+import CharacterCount from '@/components/util/CharacterCount.vue'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {updateCourse} from '@/api/degree'
 import {validateUnitRange} from '@/lib/degree-progress'
