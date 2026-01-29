@@ -29,7 +29,6 @@
               :id="`csv-column-options-${index}`"
               :key="index"
               :model-value="includes(selected, option.value)"
-              :aria-label="`${option.text} column included in export`"
               class="csv-column-option"
               color="primary"
               density="compact"
