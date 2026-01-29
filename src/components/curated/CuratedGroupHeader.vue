@@ -36,6 +36,9 @@
         Skip to students
       </a>
       <div v-if="mode === 'rename'" class="w-100">
+        <h1 id="curated-group-renaming" class="mt-0">
+          Renaming Curated Group
+        </h1>
         <RenameCuratedGroup />
       </div>
       <div v-if="!mode" class="d-flex align-center">

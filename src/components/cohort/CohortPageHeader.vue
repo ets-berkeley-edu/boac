@@ -162,6 +162,9 @@
       </div>
     </div>
     <div v-if="editMode === 'rename'" class="mt-1">
+      <h1 id="page-header">
+        Renaming Cohort
+      </h1>
       <RenameCohort />
     </div>
     <AreYouSureModal
