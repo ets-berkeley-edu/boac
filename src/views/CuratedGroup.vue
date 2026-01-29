@@ -171,13 +171,13 @@ const bulkAddSids = sids => {
       fetchCuratedGroup(curatedGroupId.value, 1).then(() => {
         curatedStore.resetMode()
         isAddingStudents.value = false
-        putFocusNextTick('curated-group-name')
+        putFocusNextTick('bulk-add-sids-button')
       })
     })
   } else {
     curatedStore.resetMode()
     alertScreenReader(`Canceled add students to ${describeCuratedGroupDomain(domain.value)}`)
-    putFocusNextTick('curated-group-name')
+    putFocusNextTick('bulk-add-sids-button')
   }
 }
 
