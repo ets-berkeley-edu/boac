@@ -368,18 +368,6 @@ watch(selectedFilter, () => {
   if (!isNil(filter.value)) {
     const type = get(filter.value, 'type.ux')
     showAdd.value = type === 'boolean'
-    switch (type) {
-    case 'options':
-    case 'option_groups':
-      putFocusNextTick(`filter-select-secondary-${props.position}`)
-      break
-    case 'boolean':
-      putFocusNextTick('unsaved-filter-add')
-      break
-    case 'range':
-      putFocusNextTick(`filter-range-min-${props.position}`)
-      break
-    }
   }
 })
 watch(selectedOption, () => {
@@ -387,9 +375,6 @@ watch(selectedOption, () => {
   if (!isNil(value)) {
     filter.value.value = value
     showAdd.value = !!selectedOption.value
-    if (selectedOption.value) {
-      putFocusNextTick('unsaved-filter-add')
-    }
   }
 })
 
