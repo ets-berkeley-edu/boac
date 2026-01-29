@@ -46,39 +46,44 @@
             <v-text-field
               id="rename-template-input"
               v-model="templateForEdit.name"
+              aria-describedby="rename-template-input-messages"
               :aria-invalid="!templateForEdit.name"
-              aria-label="Degree Template name"
               aria-required="true"
+              autocomplete="on"
               class="bg-white w-100"
               :disabled="isRenaming"
-              autocomplete="on"
-              hide-details
+              :error="!!errorMessage"
+              :error-messages="errorMessage"
+              label="Degree Name"
               :maxlength="255"
+              persistent-counter
               required
-              @keydown.enter="() => size(templateForEdit.name) && save()"
+              :rules="[validate]"
+              validate-on="lazy invalid-input"
+              @keydown.enter="save"
               @keyup.esc="cancelEdit"
-            />
-            <div class="pl-2">
-              <span class="font-size-12">255 character limit <span v-if="templateForEdit.name.length">({{ 255 - templateForEdit.name.length }} left)</span></span>
-              <span
-                v-if="templateForEdit.name.length === 255"
-                aria-live="polite"
-                class="sr-only"
-                role="alert"
-              >
-                Template name cannot exceed 255 characters.
-              </span>
-            </div>
-            <v-alert
-              v-if="errorDuringEdit"
-              aria-live="polite"
-              class="my-2"
-              density="compact"
-              type="error"
-              variant="tonal"
             >
-              <span v-html="errorDuringEdit" />
-            </v-alert>
+              <template #counter="{max, value}">
+                <CharacterCount
+                  v-if="value && max"
+                  :count="toInt(value)"
+                  id-prefix="rename-cohort"
+                  :max="toInt(max)"
+                />
+              </template>
+              <template #message="{message}">
+                <v-alert
+                  id="rename-template-input-error"
+                  class="font-size-14 line-height-normal"
+                  density="compact"
+                  role="none"
+                  type="error"
+                  variant="tonal"
+                >
+                  <span v-html="message" />
+                </v-alert>
+              </template>
+            </v-text-field>
           </div>
           <div v-if="item.id !== get(templateForEdit, 'id')">
             <component
@@ -92,9 +97,12 @@
         </template>
         <template #item.createdAt="{item}">
           <div
-            v-if="item.id !== get(templateForEdit, 'id')"
+            v-if="item.createdAt"
             class="text-no-wrap"
-            :class="{'text-disabled': isBusy}"
+            :class="{
+              'text-disabled': isBusy && item.id !== get(templateForEdit, 'id'),
+              'h-100 pt-6': templateForEdit && item.id === templateForEdit.id
+            }"
           >
             {{ DateTime.fromISO(item.createdAt).toFormat('DD') }}
           </div>
@@ -106,7 +114,7 @@
               :action="save"
               aria-label="Rename Degree Template"
               color="primary"
-              :disabled="isRenaming || !trim(templateForEdit.name) || !!errorDuringEdit"
+              :disabled="isRenaming"
               :in-progress="isRenaming"
               :text="isRenaming ? 'Saving...' : 'Rename'"
             />
@@ -209,6 +217,7 @@
       v-if="templateToClone"
       :after-create="afterClone"
       :cancel="cloneCanceled"
+      :existing-templates="degreeTemplates"
       :template-to-clone="templateToClone"
     />
   </div>
@@ -216,14 +225,15 @@
 
 <script lang="ts" setup>
 import type {PropType} from 'vue'
-import {filter as _filter, clone, findIndex, get, map, size, trim} from 'lodash'
-import {computed, ref} from 'vue'
+import {clone, findIndex, get, reject, size, trim} from 'lodash'
+import {ref} from 'vue'
 import {DateTime} from 'luxon'
 import type {DegreeTemplate} from '@/lib/types'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import CharacterCount from '@/components/util/CharacterCount.vue'
 import CloneTemplateModal from '@/components/degree/CloneTemplateModal.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
 import {
   archiveDegreeTemplate,
   deleteDegreeTemplate,
@@ -231,6 +241,7 @@ import {
   updateDegreeTemplate,
 } from '@/api/degree'
 import {useContextStore} from '@/stores/context'
+import {validateDegreeTemplateName} from '@/lib/degree-progress'
 
 const props = defineProps({
   degreeTemplates: {
@@ -254,22 +265,13 @@ const props = defineProps({
 
 const currentUser = useContextStore().currentUser
 const deleteModalBody = ref<string | undefined>()
+const errorMessage = ref<string | undefined>()
 const isBusy = ref(false)
 const isDeleting = ref(false)
 const isRenaming = ref(false)
 const templateForDelete = ref<DegreeTemplate | undefined>()
 const templateForEdit = ref<DegreeTemplate | undefined>()
 const templateToClone = ref<DegreeTemplate | undefined>()
-
-const errorDuringEdit = computed(() => {
-  let message: string | null = null
-  if (templateForEdit.value) {
-    const name = trim(templateForEdit.value.name)
-    const exists = !!name && !isNameAvailable(name, templateForEdit.value.id)
-    message = exists ? `A degree named <span class="font-weight-500">${name}</span> already exists. Please choose a different name.` : null
-  }
-  return message
-})
 
 const toggleArchivedAt = (degreeTemplate: DegreeTemplate) => {
   const nextFocusId = getNextFocusId(degreeTemplate.id, props.mode)
@@ -338,6 +340,7 @@ const deleteConfirmed = () => {
 }
 
 const edit = (template: DegreeTemplate) => {
+  errorMessage.value = ''
   templateForEdit.value = clone(template)
   isBusy.value = true
   putFocusNextTick('rename-template-input')
@@ -354,12 +357,6 @@ const getNextFocusId = (currentTemplateId: number, action: string) => {
   return 'show-hide-archived-degree-templates'
 }
 
-const isNameAvailable = (name: string, ignoreTemplateId: number) => {
-  const lower = name.trim().toLowerCase()
-  const templates = ignoreTemplateId ? _filter(props.degreeTemplates, t => t.id !== ignoreTemplateId) : props.degreeTemplates
-  return map(templates, 'name').findIndex(t => t.toLowerCase() === lower) === -1
-}
-
 const openCreateCloneModal = (template: DegreeTemplate) => {
   templateToClone.value = template
   isBusy.value = true
@@ -367,28 +364,39 @@ const openCreateCloneModal = (template: DegreeTemplate) => {
 
 const save = () => {
   if (templateForEdit.value) {
-    const name = trim(templateForEdit.value.name)
-    if (name) {
+    isRenaming.value = true
+    if (validate() === true) {
+      const name = trim(templateForEdit.value.name)
       const templateId = templateForEdit.value.id
-      isRenaming.value = true
       alertScreenReader('Renaming template')
-      updateDegreeTemplate(templateForEdit.value.id, name).then(() => {
+      updateDegreeTemplate(templateId, name).then(() => {
         props.onUpdateDegreeTemplate(templateForEdit.value).then(() => {
           templateForEdit.value = undefined
-          isRenaming.value = false
           putFocusNextTick(`degree-check-${templateId}-rename-btn`)
           alertScreenReader(`Saved changes to template "${name}"`)
-          isBusy.value = false
+          isRenaming.value = false
         })
       })
+    } else {
+      putFocusNextTick('rename-template-input')
+      isRenaming.value = false
     }
   }
 }
 
-const showDeleteModal = template => {
+const showDeleteModal = (template: DegreeTemplate) => {
   deleteModalBody.value = `Are you sure you want to delete <b>"${template.name}"</b>?`
   templateForDelete.value = template
   isBusy.value = isDeleting.value = true
+}
+
+const validate = () => {
+  const validationReport = validateDegreeTemplateName(
+    trim(get(templateForEdit.value, 'name')),
+    reject(props.degreeTemplates, {'id': get(templateForEdit.value, 'id')})
+  )
+  errorMessage.value = validationReport.message
+  return validationReport.valid || validationReport.message
 }
 </script>
 
@@ -397,6 +405,11 @@ const showDeleteModal = template => {
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
+}
+.bg-surface-light {
+  .v-input__details {
+    background-color: rgba(var(--v-theme-surface-light));
+  }
 }
 .manage-degree-checks-column-header {
   font-weight: 700 !important;

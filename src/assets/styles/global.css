@@ -604,6 +604,9 @@ table thead th {
       width: 30%;
     }
   }
+  .v-input__details .v-counter {
+    width: 100%;
+  }
 }
 
 @media print {

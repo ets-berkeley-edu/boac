@@ -8,7 +8,7 @@
       class="modal-content"
       min-width="400"
       max-width="600"
-      width="60%"
+      width="100%"
     >
       <FocusLock @keydown.esc="cancelModal">
         <v-card-title>
@@ -18,33 +18,36 @@
           <v-card-text class="modal-body">
             <v-text-field
               id="create-curated-group-input"
+              ref="groupNameInput"
               v-model="name"
-              :aria-label="`${describeCuratedGroupDomain(domain, true)} name`"
-              class="v-input-details-override"
+              aria-describedby="create-curated-group-input-messages"
+              :aria-invalid="!!errorMessage"
+              autocomplete="on"
               counter="255"
               :disabled="isSaving"
-              label="Name"
+              :error="!!errorMessage"
+              :error-messages="errorMessage"
+              :label="`${describeCuratedGroupDomain(domain, true)} Name`"
               maxlength="255"
               persistent-counter
-              :required="!isSaving"
+              required
               :rules="[validate]"
-              type="text"
-              autocomplete="on"
-              validate-on="lazy input"
+              validate-on="lazy invalid-input"
               @keyup.esc="cancel"
             >
               <template #counter="{max, value}">
-                <div id="name-create-cohort-counter" class="font-size-13 text-no-wrap ml-2 mt-1">
-                  <span class="sr-only">{{ describeCuratedGroupDomain(domain, true) }} name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
-                  <span
-                    v-if="value === 255"
-                    aria-live="polite"
-                    class="sr-only"
-                    role="alert"
-                  >
-                    {{ describeCuratedGroupDomain(domain, true) }} name cannot exceed 255 characters.
-                  </span>
-                </div>
+                <CharacterCount :count="toInt(value)" id-prefix="create-curated-group-name" :max="toInt(max)" />
+              </template>
+              <template #message="{message}">
+                <v-alert
+                  id="create-curated-group-name-error"
+                  class="font-size-14 line-height-normal"
+                  density="compact"
+                  role="none"
+                  :text="message"
+                  type="error"
+                  variant="tonal"
+                />
               </template>
             </v-text-field>
           </v-card-text>
@@ -52,8 +55,9 @@
             <ProgressButton
               id="create-curated-group-confirm"
               :action="createCuratedGroup"
+              :aria-disabled="isEmpty(name) || isInvalid"
               aria-label="Save Curated Group"
-              :disabled="isSaving || !name.length || isInvalid"
+              :disabled="isSaving"
               :in-progress="isSaving"
               text="Save"
             />
@@ -73,12 +77,14 @@
 </template>
 
 <script setup>
+import {isEmpty} from 'lodash'
 import FocusLock from 'vue-focus-lock'
 import {computed, ref, watch} from 'vue'
+import CharacterCount from '@/components/util/CharacterCount'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
-import {putFocusNextTick} from '@/lib/utils'
+import {putFocusNextTick, toInt} from '@/lib/utils'
 import {validateCohortName} from '@/lib/cohort'
 
 const props = defineProps({
@@ -104,8 +110,10 @@ const props = defineProps({
   }
 })
 
-const name = ref('')
+const errorMessage = ref('')
+const groupNameInput = ref('')
 const isInvalid = ref(false)
+const name = ref('')
 
 const showModalProxy = computed(() => {
   return props.showModal
@@ -113,27 +121,41 @@ const showModalProxy = computed(() => {
 
 watch(showModalProxy, isOpen => {
   if (isOpen) {
-    name.value = ''
     putFocusNextTick('create-curated-group-input')
+  } else {
+    props.cancel()
   }
 })
 
 const cancelModal = () => {
+  groupNameInput.value.resetValidation()
+  reset()
   props.cancel()
-  name.value = ''
 }
 
 const createCuratedGroup = () => {
-  if (true !== validateCohortName({name: name.value})) {
-    putFocusNextTick('create-cohort-input')
+  if (true !== validate(name.value)) {
+    putFocusNextTick('create-curated-group-input')
   } else {
     props.create(name.value)
   }
 }
 
+const reset = () => {
+  name.value = ''
+  errorMessage.value = ''
+  isInvalid.value = false
+}
+
 const validate = name => {
-  const isValid = validateCohortName({name})
-  isInvalid.value = true !== isValid
-  return isValid
+  const result = validateCohortName({name})
+  if (result === true) {
+    errorMessage.value = ''
+    isInvalid.value = false
+  } else {
+    errorMessage.value = result
+    isInvalid.value = true
+  }
+  return result
 }
 </script>

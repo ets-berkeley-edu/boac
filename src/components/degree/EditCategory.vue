@@ -39,23 +39,17 @@
           <v-text-field
             :id="`column-${uxPositionX}-name-input`"
             v-model="name"
-            :disabled="isSaving"
-            hide-details
-            maxlength="255"
             autocomplete="on"
+            :disabled="isSaving"
+            maxlength="255"
+            persistent-counter
+            required
             @keydown.enter="onSubmit"
-          />
-          <div class="pl-1">
-            <span class="text-surface-variant font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
-            <span
-              v-if="name.length === 255"
-              aria-live="polite"
-              class="sr-only"
-              role="alert"
-            >
-              Fulfillment requirement name cannot exceed 255 characters.
-            </span>
-          </div>
+          >
+            <template #counter="{max, value}">
+              <CharacterCount :count="toInt(value)" :id-prefix="`column-${uxPositionX}-name`" :max="toInt(max)" />
+            </template>
+          </v-text-field>
         </div>
       </div>
       <div v-if="existingCategory && isCampusRequirements(existingCategory)" class="mt-2">
@@ -185,10 +179,11 @@
 <script setup>
 import {each, every, filter, get, includes, isEmpty, map, reject, size, some, unionBy} from 'lodash'
 import {computed, onMounted, ref, watch} from 'vue'
+import CharacterCount from '@/components/util/CharacterCount'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
-import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick, toInt} from '@/lib/utils'
 import {createDegreeCategory, updateCategory} from '@/api/degree'
 import {MAX_UNITS_ALLOWED, findCategoryById, flattenCategories, getItemsForCoursesTable, isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'

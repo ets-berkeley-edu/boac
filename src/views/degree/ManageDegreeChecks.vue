@@ -126,9 +126,9 @@ const onUpdateDegreeTemplate = (degreeTemplate: DegreeTemplate): Promise<void> =
     } else {
       getDegreeTemplates().then(data => {
         degreeTemplates.value = data
-        resolve()
         // If an item is created or updated then we want its table row to be temporarily highlighted.
         setTimeout(() => {tableRowHighlightId.value = undefined}, 3000)
+        resolve()
       })
     }
     if (degreeTemplate.archivedAt) {

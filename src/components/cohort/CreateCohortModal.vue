@@ -8,6 +8,7 @@
       class="modal-content"
       min-width="400"
       max-width="600"
+      width="100%"
     >
       <FocusLock @keydown.esc="cancelModal">
         <v-card-title>
@@ -17,32 +18,36 @@
           <v-card-text class="modal-body">
             <v-text-field
               id="create-cohort-input"
+              ref="cohortNameInput"
               v-model="name"
-              aria-label="Cohort name"
-              class="v-input-details-override"
-              counter="255"
+              aria-describedby="create-cohort-input-messages"
+              :aria-invalid="!!errorMessage"
               autocomplete="on"
+              counter="255"
               :disabled="isSaving"
+              :error="!!errorMessage"
+              :error-messages="errorMessage"
+              label="Cohort name"
               maxlength="255"
-              required
-              type="text"
               persistent-counter
+              required
               :rules="[validate]"
-              validate-on="lazy input"
+              validate-on="lazy invalid-input"
               @keyup.esc="cancelModal"
             >
               <template #counter="{max, value}">
-                <div id="name-create-cohort-counter" class="font-size-13 text-no-wrap ml-2 mt-1">
-                  <span class="sr-only">Cohort name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
-                  <span
-                    v-if="value === 255"
-                    aria-live="polite"
-                    class="sr-only"
-                    role="alert"
-                  >
-                    Cohort name cannot exceed 255 characters.
-                  </span>
-                </div>
+                <CharacterCount :count="toInt(value)" id-prefix="create-cohort-name" :max="toInt(max)" />
+              </template>
+              <template #message="{message}">
+                <v-alert
+                  id="create-cohort-name-error"
+                  class="font-size-14 line-height-normal"
+                  density="compact"
+                  role="none"
+                  :text="message"
+                  type="error"
+                  variant="tonal"
+                />
               </template>
             </v-text-field>
           </v-card-text>
@@ -50,8 +55,9 @@
             <ProgressButton
               id="create-cohort-confirm-btn"
               :action="createCohort"
+              :aria-disabled="isEmpty(name) || isInvalid"
               aria-label="Save Cohort"
-              :disabled="!name.length || isInvalid"
+              :disabled="isSaving"
               :in-progress="isSaving"
               text="Save"
             />
@@ -71,11 +77,13 @@
 </template>
 
 <script setup>
+import {isEmpty} from 'lodash'
 import FocusLock from 'vue-focus-lock'
 import {computed, ref, watch} from 'vue'
+import CharacterCount from '@/components/util/CharacterCount'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
 import {validateCohortName} from '@/lib/cohort'
 
 const props = defineProps({
@@ -93,6 +101,8 @@ const props = defineProps({
   }
 })
 
+const cohortNameInput = ref()
+const errorMessage = ref('')
 const isInvalid = ref(true)
 const isSaving = ref(false)
 const name = ref('')
@@ -111,13 +121,14 @@ watch(showModalProxy, isOpen => {
 
 const cancelModal = () => {
   alertScreenReader('Canceled save cohort')
-  props.cancel()
+  cohortNameInput.value.resetValidation()
   reset()
+  props.cancel()
   putFocusNextTick('save-cohort-button')
 }
 
 const createCohort = () => {
-  if (true !== validateCohortName({name: name.value})) {
+  if (true !== validate(name.value)) {
     putFocusNextTick('create-cohort-input')
   } else {
     isSaving.value = true
@@ -128,11 +139,19 @@ const createCohort = () => {
 const reset = () => {
   isSaving.value = false
   name.value = ''
+  errorMessage.value = ''
+  isInvalid.value = false
 }
 
 const validate = name => {
-  const valid = validateCohortName({name})
-  isInvalid.value = true !== valid
-  return valid
+  const result = validateCohortName({name})
+  if (result === true) {
+    errorMessage.value = ''
+    isInvalid.value = false
+  } else {
+    errorMessage.value = result
+    isInvalid.value = true
+  }
+  return result
 }
 </script>

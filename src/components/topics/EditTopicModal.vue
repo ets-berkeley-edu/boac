@@ -20,12 +20,16 @@
                 v-model="topic"
                 aria-describedby="input-live-help topic-label-error"
                 aria-label="Topic name"
-                hide-details
-                required
-                :maxlength="50"
                 autocomplete="on"
+                :maxlength="50"
+                persistent-counter
+                required
                 variant="outlined"
-              />
+              >
+                <template #counter="{max, value}">
+                  <CharacterCount :count="toInt(value)" id-prefix="create-topic-name" :max="toInt(max)" />
+                </template>
+              </v-text-field>
             </div>
             <div id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
               <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
@@ -67,10 +71,11 @@
 import FocusLock from 'vue-focus-lock'
 import {computed, onMounted, ref, watch} from 'vue'
 import {find, trim} from 'lodash'
+import CharacterCount from '@/components/util/CharacterCount'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {createTopic} from '@/api/topics'
-import {putFocusNextTick} from '@/lib/utils'
+import {putFocusNextTick, toInt} from '@/lib/utils'
 
 const props = defineProps({
   afterSave: {

@@ -14,39 +14,36 @@
         aria-describedby="unit-requirement-name-input-messages"
         :aria-invalid="!name"
         aria-required="true"
-        class="unit-requirement-name"
-        hide-details
-        maxlength="255"
         autocomplete="on"
+        class="unit-requirement-name"
+        :error="!!nameErrorMessage"
+        :error-messages="nameErrorMessage"
+        maxlength="255"
+        persistent-counter
         required
         @keydown.enter="unitRequirement ? update : create"
         @update:model-value="() => nameErrorMessage = null"
-      />
-      <div id="unit-requirement-name-input-messages" class="d-flex pl-1">
-        <v-expand-transition>
-          <div
-            v-show="nameErrorMessage"
-            aria-live="assertive"
-            class="text-error font-size-12"
-            role="alert"
-          >
-            {{ nameErrorMessage }}
-          </div>
-        </v-expand-transition>
-        <span class="ml-auto pr-1 text-surface-variant font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
-        <span
-          v-if="name.length === 255"
-          aria-live="assertive"
-          class="sr-only"
-          role="alert"
-        >
-          Fulfillment requirement name cannot exceed 255 characters.
-        </span>
-      </div>
+      >
+        <template #counter="{max, value}">
+          <CharacterCount :count="toInt(value)" id-prefix="unit-requirement-name" :max="toInt(max)" />
+        </template>
+        <template #message="{message}">
+          <v-alert
+            id="unit-requirement-name-error"
+            class="font-size-14 line-height-normal"
+            density="compact"
+            role="none"
+            :text="message"
+            type="error"
+            variant="tonal"
+          />
+        </template>
+      </v-text-field>
     </div>
     <div class="pt-1">
       <UnitsInput
         :disable="isSaving"
+        :error="!!unitsErrorMessage"
         :error-message="unitsErrorMessage"
         input-id="unit-requirement-min-units-input"
         label="Minimum Units (required)"
@@ -92,9 +89,10 @@
 <script setup>
 import {computed, onMounted, ref} from 'vue'
 import {filter as _filter, get, isEmpty, map, trim} from 'lodash'
+import CharacterCount from '@/components/util/CharacterCount'
 import UnitsInput from '@/components/degree/UnitsInput'
 import {addUnitRequirement, updateUnitRequirement} from '@/api/degree'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {validateUnitRange} from '@/lib/degree-progress'
@@ -150,9 +148,6 @@ const create = () => {
     })
   }
 }
-const putFocusRequiredField = () => {
-  putFocusNextTick(name.value ? 'unit-requirement-min-units-input' : 'unit-requirement-name-input')
-}
 
 const setUnitsLower = units => {
   minUnits.value = units
@@ -179,14 +174,16 @@ const validate = () => {
     const lowerCase = requirementName.toLowerCase()
     const existingNames = map(otherUnitRequirements.value, u => u.name.toLowerCase())
     if (existingNames.findIndex(existingName => lowerCase === existingName) > -1) {
-      nameErrorMessage.value = 'Name cannot match the name of an existing Unit Requirement.'
+      nameErrorMessage.value = `Degree has an existing unit requirement named '${requirementName}'. Please choose a different name.`
     }
   } else {
     nameErrorMessage.value = 'Name is required'
   }
   unitsErrorMessage.value = isEmpty(trim(minUnits.value)) ? 'Minimum Units is required' : validateUnitRange(minUnits.value, undefined, 100).message
-  if (disableSaveButton.value) {
-    putFocusRequiredField()
+  if (nameErrorMessage.value) {
+    putFocusNextTick('unit-requirement-name-input')
+  } else if (unitsErrorMessage.value) {
+    putFocusNextTick('unit-requirement-min-units-input')
   } else {
     return true
   }

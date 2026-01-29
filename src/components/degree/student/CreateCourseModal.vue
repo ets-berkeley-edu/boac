@@ -39,31 +39,18 @@
               <v-text-field
                 id="course-name-input"
                 v-model="name"
+                autocomplete="on"
                 class="mt-1"
                 :disabled="isSaving"
                 density="comfortable"
-                hide-details
-                autocomplete="on"
                 maxlength="255"
-              />
-              <div class="text-surface-variant mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
-              <div
-                v-if="error"
-                id="create-error"
-                class="text-error"
-                aria-live="polite"
-                role="alert"
+                persistent-counter
+                required
               >
-                {{ error }}
-              </div>
-              <div
-                v-if="name.length === 255"
-                aria-live="polite"
-                class="sr-only"
-                role="alert"
-              >
-                Course name cannot exceed 255 characters.
-              </div>
+                <template #counter="{max, value}">
+                  <CharacterCount :count="toInt(value)" id-prefix="course-name" :max="toInt(max)" />
+                </template>
+              </v-text-field>
             </div>
             <div class="mt-2">
               <label id="units-grade-label" for="course-grade-input" class="font-weight-bold mb-1 pr-2">
@@ -160,10 +147,11 @@ import {mdiPlus} from '@mdi/js'
 import {useDisplay} from 'vuetify'
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect.vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import CharacterCount from '@/components/util/CharacterCount.vue'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import UnitsInput from '@/components/degree/UnitsInput.vue'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
 import {createCourse} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useDegreeStore} from '@/stores/degree-edit-session'
@@ -180,7 +168,6 @@ const degreeStore = useDegreeStore()
 
 const accentColor = ref(undefined)
 const disableSaveButton = computed(() => isSaving.value || !!unitsErrorMessage.value || !trim(name.value))
-const error = ref(undefined)
 const grade = ref(undefined)
 const isDirty = computed(() => !!(accentColor.value || grade.value || name.value || trim(note.value) || units.value))
 const isFocusLockDisabled = ref(false)
@@ -215,7 +202,6 @@ const cancel = force => {
 
 const closeModal = () => {
   accentColor.value = undefined
-  error.value = undefined
   grade.value = undefined
   isSaving.value = false
   name.value = ''

@@ -42,8 +42,8 @@ const bulkAddSids = data => {
 const cancel = () => {
   showCreateModal.value = false
   isSaving.value = false
-  alertScreenReader(`Canceled create new ${describeCuratedGroupDomain(domain)}.`)
-  putFocusNextTick('curated-group-bulk-add-sids')
+  alertScreenReader(`Canceled create ${describeCuratedGroupDomain(domain)}.`)
+  putFocusNextTick('btn-curated-group-bulk-add-sids')
 }
 
 const create = name => {

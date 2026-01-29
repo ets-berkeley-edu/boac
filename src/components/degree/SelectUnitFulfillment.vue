@@ -3,8 +3,8 @@
     <select
       :id="`column-${uxPositionX}-unit-requirement-select`"
       v-model="model"
-      class="select-menu w-100"
       autocomplete="off"
+      class="select-menu w-100"
       :disabled="disable"
       @change="onChangeUnitRequirement"
     >
