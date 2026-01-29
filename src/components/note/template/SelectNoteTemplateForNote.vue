@@ -149,9 +149,13 @@
               <v-text-field
                 id="rename-template-input"
                 v-model="updatedTemplateTitle"
+                aria-describedby="rename-template-input-messages"
+                :aria-invalid="!!error"
                 autocomplete="on"
                 counter="255"
                 :disabled="isSaving"
+                :error="!!error"
+                :error-messages="error"
                 label="Template name"
                 maxlength="255"
                 persistent-counter
@@ -160,19 +164,28 @@
                   v => !!trim(v) || 'Template name is required',
                   v => !v || trim(v).length <= 255 || 'Template name cannot exceed 255 characters.'
                 ]"
+                validate-on="lazy invalid-input"
               >
                 <template #counter="{max, value}">
-                  <CharacterCount :count="value" id-prefix="rename-template" :max="max" />
+                  <CharacterCount
+                    v-if="max"
+                    :count="toInt(value || 0)"
+                    id-prefix="rename-template"
+                    :max="toInt(max)"
+                  />
+                </template>
+                <template #message="{message}">
+                  <v-alert
+                    id="rename-template-error"
+                    class="font-size-14 line-height-normal"
+                    density="compact"
+                    role="none"
+                    :text="message"
+                    type="error"
+                    variant="tonal"
+                  />
                 </template>
               </v-text-field>
-              <div
-                v-if="error"
-                id="rename-template-error"
-                aria-live="polite"
-                class="text-error font-size-13 font-weight-regular"
-              >
-                {{ error }}
-              </div>
             </v-card-text>
           </form>
           <v-card-actions class="modal-footer">
@@ -211,7 +224,7 @@
 
 <script setup lang="ts">
 import FocusLock from 'vue-focus-lock'
-import {computed, ref} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {find, get, isUndefined, size, trim} from 'lodash'
 import {mdiCloseThick, mdiMenuDown} from '@mdi/js'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
@@ -219,7 +232,7 @@ import CharacterCount from '@/components/util/CharacterCount.vue'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import type {NoteTemplate} from '@/lib/types'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
 import {applyNoteTemplate} from '@/api/notes'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/note-edit-session-utils'
@@ -248,6 +261,10 @@ const isDeleteTemplateDialogOpen = computed(() => {
 
 const isRenameTemplateDialogOpen = computed(() => {
   return !!templateToRename.value
+})
+
+watch(updatedTemplateTitle, () => {
+  error.value = ''
 })
 
 const cancel = template => {
@@ -322,6 +339,7 @@ const renameTemplate = () => {
     if (errorMessage) {
       error.value = errorMessage
       isSaving.value = false
+      putFocusNextTick('rename-template-input')
     } else {
       alertScreenReader('Renaming template')
       renameNoteTemplate(template.id, templateTitle).then(() => {

@@ -142,7 +142,7 @@ export function validateTemplateTitle(template: NoteTemplate) {
   const title = template.title
   let msg: string | undefined = undefined
   if (isEmpty(title)) {
-    msg = 'Required'
+    msg = 'Name is required'
   } else if (size(title) > 255) {
     msg = 'Name must be 255 characters or fewer'
   } else {
@@ -152,7 +152,7 @@ export function validateTemplateTitle(template: NoteTemplate) {
         (!template.id || template.id !== existing.id) &&
         title.toUpperCase() === trim(existing.title.toUpperCase())
       ) {
-        msg = 'You have an existing template with this name. Please choose a different name.'
+        msg = `You have an existing template named '${title}'. Please choose a different name.`
         return false
       }
     })

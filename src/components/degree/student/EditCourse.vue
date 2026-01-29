@@ -21,18 +21,9 @@
           <CharacterCount :count="toInt(value)" id-prefix="course-name" :max="toInt(max)" />
         </template>
       </v-text-field>
-      <div
-        v-if="error"
-        id="create-error"
-        aria-live="polite"
-        class="text-error"
-        role="alert"
-      >
-        {{ error }}
-      </div>
     </div>
     <div v-if="course.categoryId || size(selectedUnitRequirements)">
-      <label :for="`column-${uxPositionX}-unit-requirement-select`" class="font-weight-500">
+      <label :for="`column-${uxPositionX}-unit-requirement-select`" class="font-weight-bold">
         Counts Towards Unit Fulfillment
       </label>
       <div class="pb-2">
@@ -62,11 +53,13 @@
         @keydown.enter="update"
       />
     </div>
-    <div>
+    <div class="mt-2">
       <UnitsInput
         :disable="isSaving"
+        :error="!!unitsErrorMessage"
         :error-message="unitsErrorMessage"
         input-id="course-units-input"
+        label-class="font-weight-bold"
         :on-escape="cancel"
         :on-submit="update"
         :set-units-lower="setUnits"
@@ -81,7 +74,7 @@
       />
     </div>
     <div class="mt-2">
-      <label for="course-note-textarea" class="font-weight-500">
+      <label for="course-note-textarea" class="font-weight-bold">
         <span class="sr-only">Course</span>Note
       </label>
       <v-textarea
@@ -160,7 +153,6 @@ const props = defineProps({
 const degreeStore = useDegreeStore()
 
 const accentColor = ref(props.course.accentColor)
-const error = ref(undefined)
 const grade = ref(props.course.grade)
 const isSaving = ref(false)
 const name = ref(props.course.name)

@@ -70,7 +70,7 @@
                 @keydown.enter="save"
               />
             </div>
-            <div class="mt-1">
+            <div class="mt-2">
               <UnitsInput
                 :disable="isSaving"
                 :error-message="unitsErrorMessage"

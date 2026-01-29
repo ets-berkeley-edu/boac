@@ -65,8 +65,8 @@
             >
               <template #counter="{max, value}">
                 <CharacterCount
-                  v-if="value && max"
-                  :count="toInt(value)"
+                  v-if="max"
+                  :count="toInt(value || 0)"
                   id-prefix="rename-cohort"
                   :max="toInt(max)"
                 />
