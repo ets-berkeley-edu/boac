@@ -18,40 +18,45 @@
           <v-text-field
             id="template-title-input"
             v-model="title"
-            aria-label="Template name"
+            aria-describedby="template-title-input-messages"
+            :aria-invalid="!!error"
             autocomplete="on"
-            class="v-input-details-override"
             density="compact"
             :disabled="isSaving"
             :error="!!error"
+            :error-messages="error"
             label="Template name"
             maxlength="255"
             persistent-counter
+            required
             :rules="[validationRules.required, validationRules.maxLength]"
-            validate-on="blur lazy"
+            validate-on="lazy invalid-input"
             variant="outlined"
           >
             <template #counter="{max, value}">
               <CharacterCount :count="toInt(value)" id-prefix="template-name" :max="toInt(max)" />
             </template>
+            <template #message="{message}">
+              <v-alert
+                id="template-title-error"
+                class="font-size-14 line-height-normal"
+                density="compact"
+                role="none"
+                :text="message"
+                type="error"
+                variant="tonal"
+              />
+            </template>
           </v-text-field>
-          <div
-            v-if="error"
-            id="create-template-error"
-            aria-live="polite"
-            class="text-error font-size-13 font-weight-regular"
-            role="alert"
-          >
-            {{ error }}
-          </div>
         </v-card-text>
         <v-card-actions class="modal-footer">
           <ProgressButton
             id="create-template-confirm"
             :action="createTemplate"
+            :aria-disabled="error || isSaving || useNoteStore().boaSessionExpired"
             aria-label="Save Template"
             class="mr-1"
-            :disabled="isSaving || !title.length || title.length > 255 || useNoteStore().boaSessionExpired"
+            :disabled="isSaving || useNoteStore().boaSessionExpired"
             :in-progress="isSaving"
             :text="isSaving ? 'Saving' : 'Save'"
           />

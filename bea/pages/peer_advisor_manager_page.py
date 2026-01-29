@@ -193,7 +193,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
         return By.ID, f'delete-note-template-{template.record_id}'
 
     CREATE_PEER_TEMPLATE_BTN = By.ID, 'create-new-peer-advising-note-template'
-    PEER_TEMPLATE_NAME_INPUT = By.ID, 'peer-advising-note-template-name-text'
+    PEER_TEMPLATE_NAME_INPUT = By.ID, 'peer-advising-note-template-name'
     PEER_TEMPLATE_CANCEL_BTN = By.ID, 'cancel-peer-advising-note-template'
     PEER_TEMPLATE_SAVE_BTN = By.ID, 'save-new-peer-advising-note-template'
     PEER_TEMPLATE_DUPE_NAME_MSG = By.XPATH, '//div[contains(text(), "A template with that name already exists")]'

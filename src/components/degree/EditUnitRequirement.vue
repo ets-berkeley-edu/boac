@@ -12,7 +12,7 @@
         id="unit-requirement-name-input"
         v-model="name"
         aria-describedby="unit-requirement-name-input-messages"
-        :aria-invalid="!name"
+        :aria-invalid="!!nameErrorMessage"
         aria-required="true"
         autocomplete="on"
         class="unit-requirement-name"
@@ -43,7 +43,6 @@
     <div class="pt-1">
       <UnitsInput
         :disable="isSaving"
-        :error="!!unitsErrorMessage"
         :error-message="unitsErrorMessage"
         input-id="unit-requirement-min-units-input"
         label="Minimum Units (required)"

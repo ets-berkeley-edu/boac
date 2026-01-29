@@ -18,27 +18,35 @@
               <v-text-field
                 id="create-topic-input"
                 v-model="topic"
-                aria-describedby="input-live-help topic-label-error"
-                aria-label="Topic name"
+                aria-describedby="create-topic-input-messages"
+                :aria-invalid="errorMessage"
+                aria-required="true"
                 autocomplete="on"
-                :maxlength="50"
+                :error="!!errorMessage"
+                :error-messages="errorMessage"
+                label="Topic name"
+                :maxlength="maxLabelLength"
                 persistent-counter
                 required
+                :rules="[validate]"
+                validate-on="lazy invalid-input"
                 variant="outlined"
               >
                 <template #counter="{max, value}">
                   <CharacterCount :count="toInt(value)" id-prefix="create-topic-name" :max="toInt(max)" />
                 </template>
+                <template #message="{message}">
+                  <v-alert
+                    id="create-topic-input-error"
+                    class="font-size-14 line-height-normal"
+                    density="compact"
+                    role="none"
+                    :text="message"
+                    type="error"
+                    variant="tonal"
+                  />
+                </template>
               </v-text-field>
-            </div>
-            <div id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
-              <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
-              <span v-if="isLabelReserved">Sorry, the label '{{ trim(topic) }}' is assigned to an existing topic.</span>
-            </div>
-            <div class="text-medium-emphasis font-size-14 pl-2 pt-2">
-              <span v-if="!isLabelReserved && isValidLabel" id="input-live-help">
-                {{ maxLabelLength }} character limit <span v-if="topic.length">({{ maxLabelLength - topic.length }} left)</span>
-              </span>
             </div>
           </v-card-text>
           <hr>
@@ -46,8 +54,9 @@
             <ProgressButton
               id="topic-save"
               :action="save"
+              :aria-disabled="!isValidLabel || isSaving || isLabelReserved"
               aria-label="Save Topic"
-              :disabled="disableSaveButton"
+              :disabled="isSaving"
               :in-progress="isSaving"
               :text="isSaving ? 'Saving' : 'Save'"
             />
@@ -92,14 +101,12 @@ const props = defineProps({
   }
 })
 
+const errorMessage = ref('')
 const isSaving = ref(false)
-const maxLabelLength = ref(50)
-const minLabelLength = ref(3)
+const maxLabelLength = 50
+const minLabelLength = 3
 const showEditTopicModal = ref(false)
 const topic = ref(undefined)
-const disableSaveButton = computed(() => {
-  return !isValidLabel.value || isSaving.value || isLabelReserved.value
-})
 const isLabelReserved = computed(() => {
   return !!find(props.allTopics, t => {
     const trimmed = trim(topic.value)
@@ -107,7 +114,7 @@ const isLabelReserved = computed(() => {
   })
 })
 const isValidLabel = computed(() => {
-  return trim(topic.value).length >= minLabelLength.value
+  return trim(topic.value).length >= minLabelLength
 })
 
 watch(showEditTopicModal, () => {
@@ -127,13 +134,28 @@ const cancel = () => {
 }
 
 const save = () => {
-  isSaving.value = true
-  topic.value = trim(topic.value)
-  createTopic(topic.value).then(data => {
-    props.afterSave(data)
-    isSaving.value = false
-    showEditTopicModal.value = false
-  })
+  if (validate() === true) {
+    isSaving.value = true
+    topic.value = trim(topic.value)
+    createTopic(topic.value).then(data => {
+      props.afterSave(data)
+      isSaving.value = false
+      showEditTopicModal.value = false
+    })
+  } else {
+    putFocusNextTick('create-topic-input')
+  }
+}
+
+const validate = () => {
+  if (!isValidLabel.value) {
+    errorMessage.value = `Label must be ${minLabelLength} or more characters.`
+  } else if (isLabelReserved.value) {
+    errorMessage.value = `Sorry, the label '${trim(topic.value)}' is assigned to an existing topic.`
+  } else {
+    errorMessage.value = ''
+    return true
+  }
 }
 </script>
 
