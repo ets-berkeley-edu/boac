@@ -5,8 +5,8 @@
       <AdmitDataWarning :updated-at="get(students, '[0].updatedAt')" />
     </div>
     <div v-if="mode !== 'bulkAdd'">
-      <div class="align-start d-flex flex-wrap-reverse justify-space-between">
-        <div class="my-2">
+      <div class="align-start d-flex flex-wrap justify-space-between">
+        <div class="align-self-end my-2">
           <Pagination
             v-if="totalStudentCount > itemsPerPage"
             :click-handler="goToPage"
