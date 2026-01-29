@@ -20,6 +20,7 @@
           class="font-size-14 px-2"
           color="primary"
           :disabled="disabled"
+          role="button"
           slim
           :tabindex="disabled ? -1 : 0"
           tag="a"
@@ -36,6 +37,7 @@
           color="primary"
           :disabled="disabled"
           :icon="mdiChevronLeft"
+          role="button"
           :tabindex="disabled ? -1 : 0"
           tag="a"
           tile
@@ -48,7 +50,6 @@
         <v-btn
           :id="itemProps.ellipsis ? `${idPrefix}-ellipsis` : `${idPrefix}-page-${key}`"
           :aria-current="isActive"
-          :aria-hidden="itemProps.ellipsis"
           :aria-label="itemProps.ellipsis ? undefined : `Page ${page}${isActive ? ', current page' : ''}`"
           :class="{
             'bg-surface text-primary': !isActive && !itemProps.ellipsis,
@@ -56,6 +57,7 @@
             'pagination-ellipsis': itemProps.ellipsis
           }"
           :disabled="!!itemProps.ellipsis"
+          role="button"
           :tabindex="itemProps.ellipsis ? -1 : 0"
           tag="a"
           :text="page"
@@ -73,6 +75,7 @@
           color="primary"
           :disabled="disabled"
           :icon="mdiChevronRight"
+          role="button"
           :tabindex="disabled ? -1 : 0"
           tag="a"
           variant="outlined"
@@ -87,6 +90,7 @@
           class="font-size-14 px-2"
           color="primary"
           :disabled="disabled"
+          role="button"
           slim
           :tabindex="disabled ? -1 : 0"
           tag="a"
