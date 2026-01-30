@@ -70,7 +70,7 @@
             :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`"
             :to="getRoutePath(group)"
           >
-            View all {{ toInt(group.totalStudentCount, 0).toLocaleString() }} students in {{ groupTypeName }} "{{ group.name }}"
+            View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${toInt(group.totalStudentCount, 0).toLocaleString()}`}) }}
           </router-link>
         </div>
         <div class="ma-4">
@@ -95,7 +95,7 @@
           :to="getRoutePath(group)"
         >
           <span v-if="group.totalStudentCount">
-            View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}
+            View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${toInt(group.totalStudentCount, 0).toLocaleString()}`}) }}
             in {{ groupTypeName }} "{{ group.name }}"
           </span>
           <div v-if="!group.totalStudentCount" class="pl-3">
