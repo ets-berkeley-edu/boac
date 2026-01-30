@@ -112,7 +112,6 @@ import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import {applyFilters, loadCohort, resetFiltersToLastApply, updateFilterOptions} from '@/stores/cohort-edit-session/cohort-edit-session-utils'
 import {putFocusNextTick, setPageTitle, toInt} from '@/lib/utils'
-import {translateSortByOption} from '@/lib/berkeley-utils'
 import {useCohortStore} from '@/stores/cohort-edit-session'
 import {useContextStore} from '@/stores/context'
 
@@ -124,19 +123,6 @@ contextStore.loadingStart()
 
 const anchor = computed(() => window.location)
 const cohortOwnerDeptCodes = computed(() => get(cohortStore.owner, 'deptCodes') || [])
-const pageLoadAlert = computed(() => {
-  const loadStatus = contextStore.loading ? 'has loaded' : 'is loading'
-  let alert
-  if (!cohortStore.cohortId) {
-    alert = `Create cohort page ${loadStatus}`
-  } else {
-    const sortByOption = translateSortByOption(get(currentUser.preferences, sortByKey.value))
-    const page = cohortStore.pagination.currentPage
-    const pageDesc = page > 1 ? `(page ${page})` : ''
-    alert = `Cohort ${cohortStore.cohortName || ''} ${pageDesc} ${loadStatus}. Sorted by ${sortByOption}.`
-  }
-  return alert
-})
 const privacyMessage = ref()
 const sortByKey = computed(() => cohortStore.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
 
@@ -166,7 +152,7 @@ onMounted(() => {
   const isBackButtonToCohort = (startsWith(refererURI, '/student') || startsWith(refererURI, '/admit/student')) && size(cohortStore.filters)
   const focusElementId = getFocusElementId(isBackButtonToCohort)
   if (isBackButtonToCohort) {
-    contextStore.loadingComplete(pageLoadAlert.value)
+    contextStore.loadingComplete()
     afterLoadingComplete(focusElementId)
   } else {
     const cohortId = toInt(get(useRoute(), 'params.id'))
@@ -174,7 +160,7 @@ onMounted(() => {
     const orderBy = get(currentUser.preferences, sortByKey.value)
     const termId = get(currentUser.preferences, 'termId')
     init(cohortId, domain, orderBy, termId).then(() => {
-      contextStore.loadingComplete(pageLoadAlert.value)
+      contextStore.loadingComplete()
       afterLoadingComplete(focusElementId)
     })
   }
@@ -246,10 +232,10 @@ const goToPage = page => {
       resolve()
     } else {
       cohortStore.setCurrentPage(page)
-      contextStore.loadingStart(pageLoadAlert.value)
+      contextStore.loadingStart()
       return onPageNumberChange().then(() => {
         afterLoadingComplete(getFocusElementId(false))
-        contextStore.loadingComplete(pageLoadAlert.value)
+        contextStore.loadingComplete()
       }).then(resolve)
     }
   })

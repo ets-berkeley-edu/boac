@@ -108,7 +108,7 @@ onMounted(() => {
     setPageTitle(currentUser.inDemoMode ? 'Student' : student.value.name)
     getDegreeTemplates().then(data => {
       templates.value = data
-      contextStore.loadingComplete(`Add Degree Check for ${student.value.name}`)
+      contextStore.loadingComplete()
     })
   })
 })

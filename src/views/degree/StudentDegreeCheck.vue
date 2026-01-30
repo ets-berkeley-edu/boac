@@ -117,7 +117,7 @@ onMounted(() => {
       student.value = data
       const studentName = currentUser.inDemoMode ? 'Student' : student.value.name
       setPageTitle(`${studentName} - ${degreeStore.degreeName}`)
-      contextStore.loadingComplete(`${degreeStore.degreeName} for ${student.value.name} has loaded`)
+      contextStore.loadingComplete()
     })
   })
 })

@@ -167,11 +167,11 @@ onMounted(() => {
       getStudentBySid(degreeStore.sid).then(data => {
         student.value = data
         setPageTitle(`${student.value.lastName} ${student.value.firstName}`, true)
-        contextStore.loadingComplete(`${degreeStore.degreeName} for ${student.value.name} is ready to print.`)
+        contextStore.loadingComplete()
       })
     } else {
       setPageTitle(degreeStore.degreeName)
-      contextStore.loadingComplete(`${degreeStore.degreeName} is ready to print.`)
+      contextStore.loadingComplete()
     }
   })
 })

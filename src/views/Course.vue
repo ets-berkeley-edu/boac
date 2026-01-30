@@ -183,11 +183,6 @@ const defaultItemsPerPage = ref(DEFAULT_ITEMS_PER_PAGE)
 const isToggling = ref(false)
 const loading = computed(() => contextStore.loading)
 const meetings = ref(undefined)
-const pageLoadAlert = computed(() => {
-  const loadStatus = contextStore.loading ? 'has loaded' : 'is loading'
-  const pageDesc = currentPage.value > 1 ? `(page ${currentPage.value})` : ''
-  return `Course ${section.value.displayName || ''} ${pageDesc} ${loadStatus}.`
-})
 const perPageQuery = isNaN(query.s) ? DEFAULT_ITEMS_PER_PAGE : parseInt(query.s, 10)
 const itemsPerPage = ref(PAGINATION_OPTIONS.includes(perPageQuery) ? perPageQuery : DEFAULT_ITEMS_PER_PAGE)
 const section = ref({students: []})
@@ -222,7 +217,7 @@ const goToPage = page => {
 const reload = (sectionId, termId) => {
   const limit = itemsPerPage.value
   const offset = currentPage.value === 0 ? 0 : (currentPage.value - 1) * limit
-  contextStore.loadingStart(pageLoadAlert.value)
+  contextStore.loadingStart()
   return getSection(termId, sectionId, offset, limit, featured).then(
     data => {
       section.value = data
@@ -232,13 +227,9 @@ const reload = (sectionId, termId) => {
       // Discrepancies in our loch-hosted SIS data dumps may occasionally result in students without enrollment
       // objects. A placeholder object keeps the front end from breaking.
       each(students, student => !student.enrollment && (student.enrollment = {canvasSites: []}))
-      const totalStudentCount = data.totalStudentCount
-      const message = totalStudentCount < itemsPerPage.value ?
-        `Showing all ${totalStudentCount} students.` :
-        `Showing ${size(students)} of ${totalStudentCount} total students.`
       ga.course('view', displayName)
       setPageTitle(displayName)
-      contextStore.loadingComplete(`${pageLoadAlert.value} ${message}`)
+      contextStore.loadingComplete()
     },
     e => error.value = e,
   )

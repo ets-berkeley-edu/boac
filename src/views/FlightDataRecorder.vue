@@ -68,7 +68,7 @@ onMounted(() => {
     getAvailableDepartmentReports().then(data => {
       availableDepartments.value = data
       selected.value = trim(deptCode).toUpperCase()
-      contextStore.loadingComplete('Reports loaded')
+      contextStore.loadingComplete()
     })
   }
 })

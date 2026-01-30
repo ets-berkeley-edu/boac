@@ -91,7 +91,7 @@ onMounted(() => {
     const permalink = decodeStudentUriAnchor()
     const putFocusElementId = permalink ? `permalink-${permalink.messageType}-${permalink.messageId}` : 'student-name-header'
     // If custom scroll-to-note is happening then skip the default put-focus-on-h1.
-    contextStore.loadingComplete(`${student.value.name} loaded`, putFocusElementId)
+    contextStore.loadingComplete(putFocusElementId)
   })
 })
 

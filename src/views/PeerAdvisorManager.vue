@@ -115,7 +115,7 @@ onMounted(() => {
   const hash = replace(route.hash, '#', '')
   onTabChange(toLower(toString(hash)))
   reloadPeerAdvisingDepartment().then(() => {
-    contextStore.loadingComplete('Peer Advising Management Dashboard is ready.')
+    contextStore.loadingComplete()
   })
   contextStore.setEventHandler('note-deleted', refresh)
 })

@@ -50,7 +50,7 @@ onMounted(() => {
       router.push(`/student/degree/${id}`)
     } else {
       setPageTitle(degreeStore.degreeName)
-      contextStore.loadingComplete(degreeStore.templateId ? `Degree template "${degreeStore.degreeName}" has loaded` : 'Create degree page has loaded')
+      contextStore.loadingComplete()
       putFocusNextTick('add-unit-requirement')
     }
   })

@@ -87,7 +87,7 @@
 </template>
 
 <script lang="ts" setup>
-import {capitalize, get, multiply, size, toString} from 'lodash'
+import {get, multiply, size, toString} from 'lodash'
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useRoute, useRouter} from 'vue-router'
@@ -101,7 +101,7 @@ import StudentRow from '@/components/student/StudentRow.vue'
 import TermSelector from '@/components/student/TermSelector.vue'
 import {addStudentsToCuratedGroups, getCuratedGroup, removeFromCuratedGroups} from '@/api/curated'
 import {alertScreenReader, pluralize, putFocusNextTick, scrollTo, setPageTitle, toInt} from '@/lib/utils'
-import {describeCuratedGroupDomain, translateSortByOption} from '@/lib/berkeley-utils'
+import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 import {useCuratedGroupStore} from '@/stores/curated-group'
 
@@ -110,19 +110,6 @@ const contextStore = useContextStore()
 const curatedStore = useCuratedGroupStore()
 const currentUser = contextStore.currentUser
 const isAddingStudents = ref(false)
-const pageLoadAlert = computed(() => {
-  const loadStatus = contextStore.loading ? 'has loaded' : 'is loading'
-  const label = `${capitalize(describeCuratedGroupDomain(domain.value))} ${curatedStore.curatedGroupName || ''}`
-  let alert
-  if (!curatedStore.curatedGroupId) {
-    alert = `Create ${label} page ${loadStatus}`
-  } else {
-    const sortByOption = translateSortByOption(get(currentUser.preferences, sortByKey.value))
-    const pageDesc = pageNumber.value > 1 ? `(page ${pageNumber.value})` : ''
-    alert = `${label} ${pageDesc} ${loadStatus}. Sorted by ${sortByOption}.`
-  }
-  return alert
-})
 const router = useRouter()
 const sortByKey = computed<string>(() => domain.value === 'admitted_students' ? 'admitSortBy' : 'sortBy')
 const {curatedGroupId, domain, itemsPerPage, mode, pageNumber, students, totalStudentCount} = storeToRefs(curatedStore)
@@ -142,7 +129,7 @@ onMounted(() => {
   fetchCuratedGroup(curatedStore.curatedGroupId, 1).then(group => {
     if (group) {
       setPageTitle(curatedStore.curatedGroupName)
-      contextStore.loadingComplete(pageLoadAlert.value, 'curated-group-name')
+      contextStore.loadingComplete('curated-group-name')
     } else {
       router.push({path: '/404'})
     }
@@ -213,27 +200,27 @@ const fetchCuratedGroup = (curatedGroupId: number, pageNumber: number) => {
 const goToPage = page => {
   return new Promise<void>(resolve => {
     curatedStore.setPageNumber(page)
-    contextStore.loadingStart(pageLoadAlert.value)
+    contextStore.loadingStart()
     fetchCuratedGroup(curatedGroupId.value, page).then(() => {
-      contextStore.loadingComplete(pageLoadAlert.value)
+      contextStore.loadingComplete()
       resolve()
     })
   })
 }
 const onChangeSortBy = () => {
   if (!contextStore.loading) {
-    contextStore.loadingStart(pageLoadAlert.value)
+    contextStore.loadingStart()
     fetchCuratedGroup(curatedGroupId.value, 1).then(() => {
-      contextStore.loadingComplete(pageLoadAlert.value)
+      contextStore.loadingComplete()
     })
   }
 }
 
 const onChangeTerm = () => {
   if (!contextStore.loading) {
-    contextStore.loadingStart(pageLoadAlert.value)
+    contextStore.loadingStart()
     fetchCuratedGroup(curatedGroupId.value, pageNumber.value ? pageNumber.value : 1).then(() => {
-      contextStore.loadingComplete(pageLoadAlert.value)
+      contextStore.loadingComplete()
     })
   }
 }

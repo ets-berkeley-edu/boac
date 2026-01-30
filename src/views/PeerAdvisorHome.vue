@@ -116,7 +116,7 @@ watch(showMyNotesOnly, async () => {
   await fetchNotes()
 })
 
-contextStore.loadingStart('Peer advising home page is loading')
+contextStore.loadingStart()
 
 onMounted(() => {
   const currentUser = contextStore.currentUser
@@ -165,7 +165,7 @@ const init = (user: BoaUser) => {
   peerAdvisingDepartment.value = peerAdvisingDepartmentId ? findPeerAdvisingDepartment(peerAdvisingDepartmentId) : undefined
   if (peerAdvisor.value.id && peerAdvisingDepartment) {
     fetchNotes().then(() => {
-      contextStore.loadingComplete(`Home page loaded. ${notesDescription.value}`)
+      contextStore.loadingComplete()
       contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
       contextStore.setEventHandler('note-updated', data => {
         const note: Note = (data as Note)
