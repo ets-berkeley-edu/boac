@@ -22,7 +22,9 @@
       {{ studentName }}
     </span>
     <div class="d-flex align-center font-weight-bold font-size-13">
-      <div :id="`row-${rowIndex}-student-sid`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.sid }}</div>
+      <div :id="`row-${rowIndex}-student-sid`" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+        <span class="sr-only">S I D</span> {{ student.sid }}
+      </div>
       <div
         v-if="student.academicCareerStatus === 'Inactive'"
         :id="`row-${rowIndex}-inactive`"
@@ -95,7 +97,9 @@
         :id="`row-${rowIndex}-student-grad-term`"
         aria-label="Expected graduation term"
       >
-        Grad:&nbsp;{{ student.expectedGraduationTerm.name }}
+        <span aria-hidden="true">Grad:</span>
+        <span class="sr-only">Expected graduation</span>
+        {{ student.expectedGraduationTerm.name }}
       </div>
       <div
         v-if="student.termsInAttendance"
