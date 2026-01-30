@@ -273,25 +273,3 @@ export function termNameForSisId(termId: number | string) {
   }
   return termName
 }
-
-export function translateSortByOption(option: string) {
-  const translations = {
-    cs_empl_id: 'CS ID',
-    group_name: 'Team',
-    terms_in_attendance: 'Terms in Attendance, ascending',
-    'terms_in_attendance desc': 'Terms in Attendance, descending',
-    gpa: 'Cumulative GPA, ascending',
-    'gpa desc': 'Cumulative GPA, descending',
-  }
-  let translation: string
-  if (translations[option]) {
-    translation = translations[option]
-  } else if (option.startsWith('term_gpa_')) {
-    const termName = termNameForSisId(option.substr(9,4))
-    const ordering = option.endsWith('desc') ? 'descending' : 'ascending'
-    translation = `${termName} GPA, ${ordering}`
-  } else {
-    translation = option.replaceAll('_', ' ')
-  }
-  return translation
-}

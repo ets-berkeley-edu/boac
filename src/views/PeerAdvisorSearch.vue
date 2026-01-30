@@ -297,7 +297,7 @@ const search = (getNotes = true, getStudents = true) => {
       }
 
       queryText.value = searchStore.queryText
-      contextStore.loadingComplete('Search results loaded')
+      contextStore.loadingComplete()
       isFetchingNotes.value = false
       searchStore.setIsSearching(false)
       putFocusNextTick(putFocusId)

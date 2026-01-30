@@ -3,7 +3,6 @@ import type {Handler} from 'mitt'
 import {defineStore} from 'pinia'
 import {each, get, noop, sortBy} from 'lodash'
 import {nextTick} from 'vue'
-import router from '@/router'
 import {ANONYMOUS_USER, alertScreenReader} from '@/lib/utils'
 import type {
   BoaConfig,
@@ -63,14 +62,12 @@ export const useContextStore = defineStore('context', {
     dismissServiceAnnouncement() {
       this.dismissedServiceAnnouncement = true
     },
-    loadingComplete(srAlert?: string, putFocusElementId?: string) {
+    loadingComplete(putFocusElementId?: string) {
       if (!get(this.config, 'isProduction')) {
         // eslint-disable-next-line no-console
         console.log(`Page loaded in ${(new Date().getTime() - (this.loadingStartTime || 0)) / 1000} seconds`)
       }
-      const route = router.currentRoute.value
       this.loading = false
-      alertScreenReader(srAlert || `${String(get(route, 'name', ''))} page loaded.`, true)
       const callable = () => {
         let element: HTMLElement | null
         if (putFocusElementId) {
@@ -97,11 +94,10 @@ export const useContextStore = defineStore('context', {
         const job = setInterval(() => (callable() || ++counter > 3) && clearInterval(job), 500)
       }).then(noop)
     },
-    loadingStart(srAlert?: string) {
+    loadingStart() {
       this.loading = true
       this.loadingStartTime = new Date().getTime()
-      const route = router.currentRoute.value
-      alertScreenReader(srAlert || `${String(get(route, 'name', ''))} page is loading.`, true)
+      alertScreenReader('Loading.', true)
     },
     removeEventHandler(type: string, handler?: Handler) {
       this.eventHub.off(type, handler)

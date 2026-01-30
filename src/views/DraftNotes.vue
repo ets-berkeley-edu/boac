@@ -220,7 +220,7 @@ onMounted(() => {
   )
   getMyDraftNotes().then(data => {
     myDraftNotes.value = data
-    contextStore.loadingComplete('Draft notes list is ready.')
+    contextStore.loadingComplete()
     each(eventHandlers, (handler, eventType) => contextStore.setEventHandler(eventType, handler))
   })
 })

@@ -123,7 +123,7 @@ const goToPage = page => {
     getCohortEvents(cohortStore.cohortId, offset.value, itemsPerPage.value).then(data => {
       totalEventsCount.value = data.count
       events.value = data.events
-      contextStore.loadingComplete('Cohort history has loaded')
+      contextStore.loadingComplete()
       putFocusNextTick(page > 1 ? `pagination-page-${page}` : 'page-header')
       resolve()
     })

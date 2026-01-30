@@ -298,7 +298,7 @@ onMounted(() => {
       }
       birthDate = birthDate.toFormat('MMM d, yyyy')
       setPageTitle(currentUser.inDemoMode ? 'Admitted Student' : fullName.value)
-      contextStore.loadingComplete(null, 'admit-name-header')
+      contextStore.loadingComplete('admit-name-header')
     } else {
       router.push({path: '/404'})
     }

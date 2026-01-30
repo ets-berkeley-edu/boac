@@ -196,7 +196,7 @@ const loadAdmits = () => {
     if (response) {
       admits.value = get(response, 'students')
       totalAdmitCount.value = get(response, 'totalStudentCount')
-      contextStore.loadingComplete(`${totalAdmitCount.value} CE3 admits loaded`, 'cohort-name')
+      contextStore.loadingComplete('cohort-name')
     } else {
       router.push({path: '/404'})
     }

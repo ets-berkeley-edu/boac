@@ -128,8 +128,7 @@ onMounted(() => {
           degreeCheck.showRevisionIndicator = false
         }
       })
-      const studentName = currentUser.inDemoMode ? 'Student' : student.value.name
-      contextStore.loadingComplete(`${studentName} Degree History page loaded`)
+      contextStore.loadingComplete()
     })
   })
 })

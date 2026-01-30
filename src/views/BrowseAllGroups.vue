@@ -178,7 +178,7 @@ onMounted(() => {
       users: []
     })
   })
-  contextStore.loadingComplete('List of departments has loaded')
+  contextStore.loadingComplete()
 })
 
 const collapseAllDepartments = () => {
