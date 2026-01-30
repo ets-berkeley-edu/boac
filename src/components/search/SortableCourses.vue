@@ -3,14 +3,12 @@
     :cell-props="data => ({
       class: 'px-1 vertical-top',
       'data-label': data.column.title,
-      id: `td-term-${data.item.termId}-section-${data.item.sectionId}-column-${data.column.key}`,
-      style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+      id: `td-term-${data.item.termId}-section-${data.item.sectionId}-column-${data.column.key}`
     })"
     class="responsive-data-table"
     density="compact"
     :headers="headers"
     :items="items"
-    mobile-breakpoint="md"
     must-sort
     no-sort-reset
     :row-props="data => ({
@@ -19,44 +17,25 @@
     :sort-by="[sortBy]"
     @update:sort-by="onUpdateSortBy"
   >
-    <template #headers="{columns, isSorted, toggleSort, getSortIcon}">
-      <tr>
-        <th
-          v-for="column in columns"
-          :key="column.key"
-          :aria-label="column.ariaLabel || column.title"
-          :aria-sort="isSorted(column) ? `${sortBy.order}ending` : null"
-          class="pl-0 pr-3"
-        >
-          <template v-if="column.sortable">
-            <v-btn
-              :id="`students-sort-by-${column.key}-btn`"
-              :append-icon="getSortIcon(column)"
-              :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
-              class="align-start font-size-12 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"
-              :class="{'icon-visible': isSorted(column)}"
-              color="body"
-              density="compact"
-              variant="plain"
-              @click="() => toggleSort(column)"
-            >
-              <span class="text-left text-wrap">{{ column.title }}</span>
-            </v-btn>
-          </template>
-          <template v-else>
-            <div class="font-weight-bold line-height-normal pa-1">{{ column.title }}</div>
-          </template>
-        </th>
-      </tr>
+    <template #headers="{columns, isSorted, toggleSort, getSortIcon, sortBy: sortedBy}">
+      <SortableTableHeader
+        v-if="columns.length"
+        :columns="columns"
+        id-prefix="courses"
+        :is-compact="$vuetify.display.width <= 600"
+        :is-sorted="isSorted"
+        :set-order="onUpdateSortBy"
+        :sorted-by="sortedBy[0]"
+        :sort-icon="getSortIcon"
+        :toggle-sort="toggleSort"
+      />
     </template>
     <template #item.section="{item}">
-      <span class="sr-only">Section</span>
       <router-link class="font-weight-600" :to="`/course/${item.termId}/${item.sectionId}`">
         {{ item.courseName }} - {{ item.instructionFormat }} {{ item.sectionNum }}
       </router-link>
     </template>
     <template #item.courseName="{item}">
-      <span class="sr-only">Course Name</span>
       {{ item.courseTitle }}
     </template>
     <template #item.instructors="{item}">
@@ -73,6 +52,7 @@
 <script setup>
 import {find, size} from 'lodash'
 import {onMounted, ref} from 'vue'
+import SortableTableHeader from '@/components/util/SortableTableHeader'
 import {alertScreenReader} from '@/lib/utils'
 
 const props = defineProps({
@@ -88,8 +68,8 @@ const sortBy = ref({})
 
 onMounted(() => {
   headers.value = [
-    {key: 'section', sortable: true, sortRaw, title: 'Section', value: item => `${item.courseName} ${item.instructionFormat} ${item.sectionNum}`, width: '220px'},
-    {key: 'courseName', sortable: true, sortRaw, title: 'Course Name', width: '360px'},
+    {key: 'section', sortable: true, sortRaw, title: 'Section', value: item => `${item.courseName} ${item.instructionFormat} ${item.sectionNum}`},
+    {key: 'courseName', sortable: true, sortRaw, title: 'Course Name'},
     {key: 'instructors', sortable: false, title: 'Instructor(s)'}
   ]
   sortBy.value = {key: 'section', order: 'asc'}

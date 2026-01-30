@@ -554,6 +554,7 @@ table thead th {
       &[data-label]::before {
         color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
         content: attr(data-label);
+        flex: 0 0;
         float: left;
         font-weight: bold;
         min-width: 10rem;

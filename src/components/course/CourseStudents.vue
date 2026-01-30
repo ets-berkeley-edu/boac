@@ -6,18 +6,17 @@
         class: 'px-1 py-2 vertical-top',
         'data-label': data.column.title,
         id: `td-student-${data.item.uid}-column-${data.column.key}`,
-        style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+        style: $vuetify.display.width > 600 ? 'max-width: 200px;' : ''
       }
     }"
     class="responsive-data-table scroll-margins"
     density="compact"
+    disable-sort
     :headers="headers"
     hide-default-footer
     hover
     :items="section.students"
     :items-per-page="-1"
-    mobile-breakpoint="md"
-    must-sort
     :row-props="data => {
       const highlights = featured === data.item.uid ? 'list-group-item-info' : ''
       return {
@@ -27,9 +26,10 @@
     }"
   >
     <template #headers="{columns}">
-      <tr>
+      <tr :class="{'sr-only': $vuetify.display.width <= 600}">
         <th v-for="column in columns" :key="column.key" class="px-1 pb-2 vertical-bottom">
-          <span v-if="!['avatar', 'profile'].includes(column.key)" class="font-weight-bold">{{ column.title }}</span>
+          <span v-if="column.title" :aria-hidden="!!column.ariaLabel" class="font-weight-bold">{{ column.title }}</span>
+          <span v-if="column.ariaLabel" class="sr-only">{{ column.ariaLabel }}</span>
         </th>
       </tr>
     </template>
@@ -367,18 +367,18 @@ onBeforeMount(() => {
 
 onMounted(() => {
   const h = [
-    {key: 'avatar'},
-    {key: 'profile'},
-    {key: 'courseSites', title: 'Course Site(s)'},
-    {key: 'assignmentsSubmitted', title: 'Assignments Submitted'},
-    {key: 'assignmentGrades', title: 'Assignment Grades'}
+    {key: 'avatar', ariaLabel: 'select student', sortable: false},
+    {key: 'profile', ariaLabel: 'name', sortable: false},
+    {key: 'courseSites', ariaLabel: 'course sites', sortable: false, title: 'Course Site(s)'},
+    {key: 'assignmentsSubmitted', sortable: false, title: 'Assignments Submitted'},
+    {key: 'assignmentGrades', sortable: false, title: 'Assignment Grades'}
   ]
   if (contextStore.config.currentEnrollmentTermId === parseInt(props.section.termId)) {
-    h.push({key: 'bCourses', title: 'bCourses Activity'})
+    h.push({key: 'bCourses', sortable: false, title: 'bCourses Activity'})
   }
   headers.value = h.concat([
-    {key: 'midtermGrade', title: 'Mid'},
-    {key: 'finalGrade', title: 'Final'}
+    {key: 'midtermGrade', ariaLabel: 'midterm grade', sortable: false, title: 'Mid'},
+    {key: 'finalGrade', ariaLabel: 'final grade', sortable: false, title: 'Final'}
   ])
   const rows = document.querySelectorAll('tr[id*=\'tr-student-\']')
   each(rows, row => row.addEventListener('focusin', () => onFocus(row)))
