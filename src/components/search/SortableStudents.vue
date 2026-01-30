@@ -19,7 +19,6 @@
       <SortableTableHeader
         v-if="columns.length"
         :columns="columns"
-        :default-sort="initialSortBy"
         :id-prefix="tableUid"
         :is-compact="!mdAndUp"
         :is-sorted="isSorted"
@@ -239,7 +238,6 @@ onMounted(() => {
       headers.value.push(header)
     })
   }
-  sortBy.value = props.initialSortBy
 })
 
 const abbreviateTermName = termName => termName && termName.replace('20', ' \'').replace('Spring', 'Spr').replace('Summer', 'Sum')

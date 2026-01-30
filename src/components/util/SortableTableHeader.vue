@@ -4,7 +4,7 @@
       <th
         v-for="column in columns"
         :key="column.key"
-        :aria-label="column.title"
+        :aria-label="column.ariaLabel || column.title"
         :aria-sort="isSorted(column) ? (sortDesc ? 'descending' : 'ascending') : 'none'"
         class="px-0"
         :class="column.class"
@@ -15,7 +15,7 @@
           v-if="column.sortable"
           :id="`${idPrefix}-sort-col-${column.value}-btn`"
           :append-icon="sortIcon(column)"
-          :aria-label="`Sort ${tableName} by ${column.title} ${isSorted(column) && !sortDesc ? 'descending' : 'ascending'}`"
+          :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && !sortDesc ? 'descending' : 'ascending'}, ${tableName}`"
           block
           class="sort-col-btn font-weight-bold text-no-wrap text-uppercase v-table-sort-btn-override"
           :class="{'icon-visible': isSorted(column)}"
@@ -27,32 +27,35 @@
         >
           {{ column.title }}
         </v-btn>
-        <div v-if="!column.sortable">
+        <div v-if="!column.sortable" class="sort-col-btn font-weight-bold d-flex align-center">
           <span :class="get(column, 'headerProps.class', '')">{{ column.title }}</span>
         </div>
       </th>
     </template>
     <th v-if="isCompact" :colspan="columns.length">
-      <label :for="`${idPrefix}-sort-col-select`">
-        Sort by
-      </label>
-      <select
-        :id="`${idPrefix}-sort-col-select`"
-        :aria-label="`Sort ${tableName} by`"
-        autocomplete="off"
-        class="select-menu mb-2 ml-2 w-75 w-sm-50"
-        :model-value="selectedSortColumn"
-        @change="onSelectSortColumn"
-      >
-        <option
-          v-for="col in sortColumnOptions"
-          :key="col.title"
-          :selected="col.title === selectedSortColumn.title"
-          :value="col.title"
+      <div class="pb-4">
+        <label :for="`${idPrefix}-sort-col-select`">
+          Sort by
+        </label>
+        <select
+          :id="`${idPrefix}-sort-col-select`"
+          :aria-label="`Sort ${tableName} by`"
+          autocomplete="off"
+          class="select-menu mb-2 ml-2 w-75 w-sm-50"
+          :model-value="selectedSortColumn"
+          @change="onSelectSortColumn"
         >
-          {{ col.title }}
-        </option>
-      </select>
+          <option
+            v-for="col in sortColumnOptions"
+            :key="col.title"
+            :aria-label="col.ariaLabel || col.title"
+            :selected="col.title === selectedSortColumn.title"
+            :value="col.title"
+          >
+            {{ col.title }}
+          </option>
+        </select>
+      </div>
     </th>
   </tr>
 </template>
@@ -113,13 +116,13 @@ onMounted(() => {
     return [
       {
         ...col,
-        ariaLabel: `${col.ariaLabel}, ascending`,
+        ariaLabel: col.ariaLabel ? `${col.ariaLabel}, ascending` : undefined,
         order: 'asc',
         title: `${col.title}, ascending`,
       },
       {
         ...col,
-        ariaLabel: `${col.ariaLabel}, descending`,
+        ariaLabel: col.ariaLabel ? `${col.ariaLabel}, descending` : undefined,
         order: 'desc',
         title: `${col.title}, descending`
       }
