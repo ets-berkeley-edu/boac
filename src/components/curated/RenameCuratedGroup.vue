@@ -48,7 +48,7 @@
           :disabled="isSaving"
           height="48px"
           :in-progress="isSaving"
-          :text="isSaving ? 'Renaming' : 'Rename'"
+          :text="isSaving ? 'Saving' : 'Save'"
         />
         <v-btn
           id="rename-curated-group-cancel"
