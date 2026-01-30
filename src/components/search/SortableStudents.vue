@@ -4,7 +4,8 @@
       'data-label': data.column.title,
       id: withTableUid(`td-student-${data.item.sid}-column-${data.column.key}`)
     })"
-    class="responsive-data-table v-table-hidden-row-override"
+    class="responsive-data-table responsive-data-table--sortable-students v-table-hidden-row-override"
+    :class="{'responsive-data-table--stacked': !lgAndUp}"
     density="compact"
     :headers="headers"
     :items="items"
@@ -20,7 +21,7 @@
         v-if="columns.length"
         :columns="columns"
         :id-prefix="tableUid"
-        :is-compact="!mdAndUp"
+        :is-compact="!lgAndUp"
         :is-sorted="isSorted"
         :set-order="onUpdateSortBy"
         :sorted-by="sortedBy[0]"
@@ -103,7 +104,9 @@
     <template v-if="!compact" #item.expectedGraduationTerm="{item}">
       <span class="sr-only">Expected graduation term</span>
       <div v-if="!item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
-      <span class="text-no-wrap">{{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}</span>
+      <span :class="{'text-no-wrap': lgAndUp}">
+        {{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}
+      </span>
     </template>
 
     <template v-if="!compact" #item.enrolledUnits="{item}">
@@ -186,13 +189,13 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const defaultCellClass = {class: 'font-size-15 py-1 pl-1 pr-3 vertical-top'}
 const headers = ref([])
-const {mdAndUp} = useDisplay()
+const {lgAndUp} = useDisplay()
 const items = ref(undefined)
 const sortBy = ref([props.initialSortBy])
 const withTableUid = suffix => (props.tableUid ? `${props.tableUid}-${suffix}` : suffix)
 
 const defaultCellProps = computed(() => {
-  return {cellProps: {...defaultCellClass, style: mdAndUp ? 'max-width: 200px;' : ''}}
+  return {cellProps: {...defaultCellClass, style: lgAndUp.value ? 'max-width: 200px;' : ''}}
 })
 
 onMounted(() => {
@@ -282,3 +285,47 @@ const sortRaw = (a, b) => {
   return result
 }
 </script>
+
+<style scoped>
+/* This stacks the table to avoid horizontal scrolling, especially on laptops that have lower resolutions. */
+@media (max-width: 1280px) {
+  .responsive-data-table--sortable-students :deep(.v-table__wrapper) {
+    overflow-x: visible !important;
+  }
+
+  .responsive-data-table--sortable-students :deep(td) {
+    align-items: baseline !important;
+    display: flex !important;
+    height: fit-content !important;
+    padding-left: 3px !important;
+    max-width: unset !important;
+    width: 100% !important;
+  }
+
+  .responsive-data-table--sortable-students :deep(td[data-label]::before) {
+    color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+    content: attr(data-label);
+    flex: 0 0;
+    float: left;
+    font-weight: bold;
+    min-width: 10rem;
+    padding-right: 16px;
+    text-align: left;
+    width: 30%;
+  }
+
+  .responsive-data-table--sortable-students :deep(td .sr-only) {
+    display: none;
+  }
+
+  .responsive-data-table--sortable-students :deep(tr.v-data-table__tr) {
+    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+    display: block;
+    padding: 12px 0 !important;
+  }
+
+  .responsive-data-table--sortable-students :deep(tr.v-data-table__tr:nth-last-child(2)) {
+    margin-bottom: 8px;
+  }
+}
+</style>
