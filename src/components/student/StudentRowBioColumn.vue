@@ -4,14 +4,10 @@
       v-if="student.uid"
       :id="`link-to-student-${student.uid}`"
       :to="studentRoutePath(student.uid, currentUser.inDemoMode)"
+      class="font-size-16 font-weight-bold"
+      :class="{'demo-mode-blur': currentUser.inDemoMode}"
     >
-      <h3
-        :id="`row-${rowIndex}-student-name`"
-        class="font-size-16"
-        :class="{'demo-mode-blur': currentUser.inDemoMode}"
-      >
-        {{ studentName }} <span class="sr-only">Profile page</span>
-      </h3>
+      {{ studentName }} <span class="sr-only">Profile page</span>
     </router-link>
     <span
       v-if="!student.uid"
