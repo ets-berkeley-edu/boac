@@ -455,26 +455,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.v-input-details-override {
-  .v-input__details {
-    align-items: baseline;
-    flex-wrap: wrap;
-    padding: 6px 10px 0 10px;
-    .v-counter {
-      flex-grow: 1;
-      flex-shrink: 0;
-      text-align: end;
-    }
-    .v-messages {
-      font-size: 14px;
-      line-height: 14px;
-      min-height: unset;
-      .v-messages__message {
-        margin: 4px 0;
-      }
-    }
-  }
-}
 .v-chip-content-override {
   .v-chip__content {
     overflow: hidden !important;
@@ -562,18 +542,8 @@ table thead th {
   vertical-align: top;
 }
 
-@media screen and (max-width: 600px) {
+@media (max-width: 600px) {
   .responsive-data-table.v-data-table {
-    thead {
-      border: none;
-      clip: rect(0 0 0 0);
-      height: 1px;
-      margin: -1px;
-      overflow: hidden;
-      padding: 0;
-      position: absolute;
-      width: 1px;
-    }
     td {
       align-items: baseline !important;
       display: flex !important;
@@ -581,31 +551,28 @@ table thead th {
       padding-left: 3px !important;
       max-width: unset !important;
       width: 100% !important;
+      &[data-label]::before {
+        color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        min-width: 10rem;
+        padding-right: 16px;
+        text-align: left;
+        width: 30%;
+      }
+      .sr-only {
+        display: none;
+      }
     }
-    tr {
-      border-bottom: 1px solid rgb(var(--v-theme-quaternary)) !important;
+    tr.v-data-table__tr {
+      border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
       display: block;
       padding: 12px 0 !important;
+      &:nth-last-child(2) {
+        margin-bottom: 8px;
+      }
     }
-    tr:last-child {
-      margin-bottom: 8px;
-    }
-    td .sr-only {
-      display: none;
-    }
-    td[data-label]::before {
-      color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-      content: attr(data-label);
-      float: left;
-      font-weight: bold;
-      min-width: 10rem;
-      padding-right: 16px;
-      text-align: left;
-      width: 30%;
-    }
-  }
-  .v-input__details .v-counter {
-    width: 100%;
   }
 }
 

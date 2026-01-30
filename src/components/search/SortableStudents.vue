@@ -8,7 +8,6 @@
     density="compact"
     :headers="headers"
     :items="items"
-    mobile-breakpoint="md"
     must-sort
     :row-props="data => ({
       id: withTableUid(`tr-student-${data.item.sid}`)
@@ -16,36 +15,20 @@
     :sort-by="[sortBy]"
     @update:sort-by="onUpdateSortBy"
   >
-    <template #headers="{columns, isSorted, toggleSort, getSortIcon}">
-      <tr>
-        <th
-          v-for="column in columns"
-          :key="column.key"
-          :aria-label="column.ariaLabel || column.title"
-          :aria-sort="isSorted(column) ? `${sortBy.order}ending` : null"
-          class="pl-0 pr-3 text-left"
-          :style="column.headerProps"
-        >
-          <template v-if="column.sortable">
-            <v-btn
-              :id="withTableUid(`sort-by-${column.key}-btn`)"
-              :append-icon="getSortIcon(column)"
-              :aria-label="`Sort${tableNameForAria} by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
-              class="align-start font-size-12 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"
-              :class="{'icon-visible': isSorted(column)}"
-              color="body"
-              density="compact"
-              variant="plain"
-              @click="() => toggleSort(column)"
-            >
-              <span class="text-left text-wrap">{{ column.title }}</span>
-            </v-btn>
-          </template>
-          <template v-else>
-            <span :class="get(column, 'headerProps.class', '')">{{ column.title }}</span>
-          </template>
-        </th>
-      </tr>
+    <template #headers="{columns, isSorted, toggleSort, getSortIcon, sortBy: sortedBy}">
+      <SortableTableHeader
+        v-if="columns.length"
+        :columns="columns"
+        :default-sort="initialSortBy"
+        :id-prefix="tableUid"
+        :is-compact="!mdAndUp"
+        :is-sorted="isSorted"
+        :set-order="onUpdateSortBy"
+        :sorted-by="sortedBy[0]"
+        :sort-icon="getSortIcon"
+        :table-name="tableName"
+        :toggle-sort="toggleSort"
+      />
     </template>
 
     <template #item.curated="{item}">
@@ -161,6 +144,7 @@ import {useDisplay} from 'vuetify'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import PillCount from '@/components/util/PillCount'
+import SortableTableHeader from '@/components/util/SortableTableHeader'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import {alertScreenReader, lastNameFirst, numFormat, pluralize, round, sortComparator, studentRoutePath} from '@/lib/utils'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/lib/student'
@@ -200,20 +184,17 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
-
 const currentUser = contextStore.currentUser
-
-const withTableUid = suffix => (props.tableUid ? `${props.tableUid}-${suffix}` : suffix)
-const tableNameForAria = computed(() => (props.tableName ? ` ${props.tableName}` : ''))
-
 const defaultCellClass = {class: 'font-size-15 py-1 pl-1 pr-3 vertical-top'}
+const headers = ref([])
+const {mdAndUp} = useDisplay()
+const items = ref(undefined)
+const sortBy = ref([props.initialSortBy])
+const withTableUid = suffix => (props.tableUid ? `${props.tableUid}-${suffix}` : suffix)
+
 const defaultCellProps = computed(() => {
-  const {mdAndUp} = useDisplay()
   return {cellProps: {...defaultCellClass, style: mdAndUp ? 'max-width: 200px;' : ''}}
 })
-const headers = ref([])
-const items = ref(undefined)
-const sortBy = ref({})
 
 onMounted(() => {
   items.value = props.students
@@ -235,8 +216,9 @@ onMounted(() => {
     headers.value.push(header)
   })
   const alertCountCellAttributes = {
-    cellProps: {class: 'font-size-15 text-center vertical-top'},
     key: 'alertCount',
+    ariaLabel: 'alert count',
+    cellProps: {class: 'font-size-15 text-center vertical-top'},
     isNumber: true,
     sortable,
     sortRaw,

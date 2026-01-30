@@ -70,4 +70,9 @@ onMounted(() => {
     width: 30%;
   }
 }
+@media (max-width: 600px) {
+  .v-input__details .v-counter {
+    width: 100%;
+  }
+}
 </style>
