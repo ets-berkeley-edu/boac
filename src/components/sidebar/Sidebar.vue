@@ -65,16 +65,8 @@
       </v-list>
     </v-list-item>
     <v-list-item
-      tag="li"
-      role="listitem"
-      class="pa-0"
-      aria-hidden="true"
-    >
-      <hr class="sidebar-section-divider" role="presentation">
-    </v-list-item>
-    <v-list-item
       aria-labelledby="sidebar-curated-groups-header"
-      class="pa-0"
+      class="pa-0 sidebar-list-divided-section"
       role="listitem"
       tag="li"
     >
@@ -129,17 +121,9 @@
       </v-list>
     </v-list-item>
     <v-list-item
-      tag="li"
-      role="listitem"
-      class="pa-0"
-      aria-hidden="true"
-    >
-      <hr v-if="contextStore.currentUser.canAccessAdmittedStudents" class="sidebar-section-divider" role="presentation">
-    </v-list-item>
-    <v-list-item
       v-if="contextStore.currentUser.canAccessAdmittedStudents"
       aria-labelledby="sidebar-admitted-students-header admitted-students-all"
-      class="mt-2 pa-0"
+      class="pa-0 sidebar-list-divided-section"
       role="listitem"
       tag="li"
     >
@@ -164,6 +148,7 @@
         </NavLink>
       </div>
       <v-list
+        v-if="myCohortsCE3.length"
         tag="ul"
         density="compact"
         class="py-0 sidebar-list"
@@ -224,6 +209,7 @@
         </NavLink>
       </div>
       <v-list
+        v-if="myCuratedGroupsCE3.length"
         tag="ul"
         density="compact"
         class="py-0 sidebar-list"
@@ -260,15 +246,7 @@
         </v-list-item>
       </v-list>
     </v-list-item>
-    <v-list-item
-      tag="li"
-      role="listitem"
-      class="pa-0"
-      aria-hidden="true"
-    >
-      <hr class="sidebar-section-divider" role="presentation">
-    </v-list-item>
-    <v-list-item class="pa-0" role="listitem" tag="li">
+    <v-list-item class="pa-0 sidebar-list-divided-section" role="listitem" tag="li">
       <div class="font-weight-medium pretty-hover">
         <NavLink id="cohorts-all" path="/all/cohorts">
           Everyone's Cohorts
@@ -333,6 +311,12 @@ const {mdAndUp} = useDisplay()
   padding-bottom: 0 !important;
 }
 
+.sidebar-list-divided-section {
+  border-top: solid 1px rgb(var(--v-theme-primary));
+  padding-top: 12px !important;
+  margin-top: 12px !important;
+}
+
 .pretty-hover {
   border-left: 6px solid transparent;
   padding: 0 8px 0 6px;
@@ -355,12 +339,5 @@ const {mdAndUp} = useDisplay()
   border: 0;
   color: inherit;
   outline-style: none;
-}
-.sidebar-section-divider {
-  background-color: rgb(var(--v-theme-primary));
-  border: none;
-  color: rgb(var(--v-theme-primary));
-  height: 1px;
-  margin: 12px;
 }
 </style>
