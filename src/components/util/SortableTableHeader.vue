@@ -12,13 +12,17 @@
         :style="column.headerProps"
       >
         <v-btn
-          v-if="column.sortable"
+          v-if="column.sortable && !disableSort"
           :id="`${idPrefix}-sort-col-${column.value}-btn`"
           :append-icon="sortIcon(column)"
           :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && !sortDesc ? 'descending' : 'ascending'}, ${tableName}`"
           block
           class="sort-col-btn font-weight-bold text-no-wrap text-uppercase v-table-sort-btn-override"
-          :class="{'icon-visible': isSorted(column)}"
+          :class="{
+            'icon-visible': isSorted(column),
+            'ml-auto': column.align === 'end',
+            'mx-auto': column.align === 'center'
+          }"
           color="body"
           density="compact"
           size="small"
@@ -27,21 +31,25 @@
         >
           {{ column.title }}
         </v-btn>
-        <div v-if="!column.sortable" class="sort-col-btn font-weight-bold d-flex align-center">
+        <div
+          v-if="!column.sortable || disableSort"
+          class="sort-col-btn font-weight-bold d-flex align-center"
+          :class="{'justify-end': column.align === 'end'}"
+        >
           <span :class="get(column, 'headerProps.class', '')">{{ column.title }}</span>
         </div>
       </th>
     </template>
     <th v-if="isCompact" :colspan="columns.length">
-      <div class="pb-4">
-        <label :for="`${idPrefix}-sort-col-select`">
+      <div v-if="size(sortColumnOptions)" class="d-flex align-baseline pb-4 w-100 w-sm-75 w-lg-50">
+        <label class="text-no-wrap" :for="`${idPrefix}-sort-col-select`">
           Sort by
         </label>
         <select
           :id="`${idPrefix}-sort-col-select`"
           :aria-label="`Sort ${tableName} by`"
           autocomplete="off"
-          class="select-menu mb-2 ml-2 w-75 w-sm-50"
+          class="select-menu w-100 mb-2 ml-2"
           :model-value="selectedSortColumn"
           @change="onSelectSortColumn"
         >
@@ -61,13 +69,17 @@
 </template>
 
 <script setup>
-import {filter, find, flatMap, get} from 'lodash'
+import {filter, find, flatMap, get, size} from 'lodash'
 import {computed, defineModel, nextTick, onMounted, ref} from 'vue'
 
 const props = defineProps({
   columns: {
     required: true,
     type: Array
+  },
+  disableSort: {
+    required: false,
+    type: Boolean
   },
   idPrefix: {
     default: 'table',
@@ -133,6 +145,7 @@ onMounted(() => {
 
 const onSelectSortColumn = e => {
   const column = find(sortColumnOptions.value, {'title': e.target.value})
+  selectedSortColumn.value = column
   props.setOrder([{key: column.key, order: column.order}])
 }
 

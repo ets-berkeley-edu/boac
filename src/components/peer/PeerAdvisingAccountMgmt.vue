@@ -27,11 +27,13 @@
       <v-data-table
         :cell-props="data => {
           return {
-            class: 'font-size-16 py-2 vertical-top',
+            class: 'font-size-16 pl-1 py-2 vertical-top',
+            'data-label': data.column.title,
             id: `td-peer-advisor-${data.item.uid}-column-${data.column.key}`,
-            style: mdAndUp ? 'max-width: 200px;' : ''
+            style: $vuetify.display.width > 600 ? 'max-width: 200px;' : ''
           }
         }"
+        class="responsive-data-table"
         density="compact"
         fixed-header
         :headers="headers"
@@ -39,48 +41,28 @@
           class: 'data-table-header-cell'
         }"
         hide-default-footer
-        :hide-default-header="!mdAndUp && dataTableRows.length <= 1"
         hide-no-data
         hover
         :items="dataTableRows"
         :items-per-page="-1"
-        mobile-breakpoint="md"
         must-sort
         :row-props="row => ({id: `tr-member-${row.item.uid}`})"
         :sort-by="[sortBy]"
         @update:sort-by="onUpdateSortBy"
       >
-        <template #headers="{columns, isSorted, toggleSort, getSortIcon}">
-          <tr>
-            <th
-              v-for="column in columns"
-              :key="(column.key as string)"
-              :aria-label="column.sortable ? (column.ariaLabel || column.title) : undefined"
-              :aria-sort="column.sortable ? `${sortBy.order}ending` : undefined"
-              class="px-2"
-              :class="{'text-left': column.align === 'start', 'text-right': column.align === 'end'}"
-              :style="column.headerProps"
-            >
-              <template v-if="column.sortable">
-                <v-btn
-                  :id="`students-sort-by-${column.key}-btn`"
-                  :append-icon="getSortIcon(column)"
-                  :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
-                  class="align-start font-size-12 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"
-                  :class="{'icon-visible': isSorted(column)}"
-                  color="body"
-                  density="compact"
-                  variant="plain"
-                  @click="() => toggleSort(column)"
-                >
-                  <span class="text-left text-wrap">{{ column.title }}</span>
-                </v-btn>
-              </template>
-              <template v-else>
-                <span :class="get(column, 'headerProps.class', '')">{{ column.title }}</span>
-              </template>
-            </th>
-          </tr>
+        <template #headers="{columns, isSorted, toggleSort, getSortIcon, sortBy: sortedBy}">
+          <SortableTableHeader
+            v-if="columns.length && (size(dataTableRows) || $vuetify.display.width > 600)"
+            :columns="columns"
+            :disable-sort="size(dataTableRows) <= 1"
+            id-prefix="students"
+            :is-compact="$vuetify.display.width <= 600"
+            :is-sorted="isSorted"
+            :set-order="onUpdateSortBy"
+            :sorted-by="sortedBy[0]"
+            :sort-icon="getSortIcon"
+            :toggle-sort="toggleSort"
+          />
         </template>
         <template #item.name="{item}">
           <div :class="{'font-weight-bold opacity-60 text-red': item.deletedAt && !currentUser.inDemoMode, 'demo-mode-blur': currentUser.inDemoMode}">
@@ -95,7 +77,13 @@
               :peer-advising-department="peerAdvisingDepartment"
               :user="item"
             />
-            <span v-if="!get(item, 'noteCount')" :class="{'font-weight-medium text-red': item.deletedAt}">0</span>
+            <span
+              v-if="!get(item, 'noteCount')"
+              class="pa-1 border-sm border-opacity-0"
+              :class="{'font-weight-medium text-red': item.deletedAt}"
+            >
+              0
+            </span>
           </div>
         </template>
         <template #item.createdAt="{item}">
@@ -109,11 +97,10 @@
             :id="`delete-peer-advisor-${item.uid}`"
             :aria-label="`Remove ${item.name}'s 'Peer Advisor' role`"
             :class="{'bg-transparent text-primary': !isBusy}"
-            class="mb-1"
+            class="peer-advisor-btn d-flex py-1 px-2 mb-1"
             :disabled="isBusy || isRefreshing"
             size="md"
             text="Delete"
-            :title="`Remove ${item.name}'s Peer Advisor role.`"
             variant="flat"
             @click="() => onClickDelete(item)"
           />
@@ -122,13 +109,12 @@
             :id="`restore-peer-advisor-${item.uid}`"
             :aria-label="`Restore ${item.name}'s 'Peer Advisor' role`"
             :class="{'bg-transparent text-primary': !isBusy}"
-            class="mb-1"
+            class="peer-advisor-btn d-flex pa-1 mb-1"
             :disabled="isBusy || isRefreshing"
             size="md"
             text="Restore"
-            :title="`Restore ${item.name}'s Peer Advisor role.`"
             variant="flat"
-            @click="() => onClickRestorePeerAdvisor(item.id)"
+            @click="() => onClickRestorePeerAdvisor(item)"
           />
         </template>
       </v-data-table>
@@ -151,12 +137,12 @@
 import type {PropType} from 'vue'
 import {DateTime} from 'luxon'
 import {computed, ref} from 'vue'
-import {filter as _filter, find, get} from 'lodash'
-import {useDisplay} from 'vuetify'
+import {filter as _filter, find, get, size} from 'lodash'
 import type {BoaUser, PeerAdvisingDepartment} from '@/lib/types'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
 import PeerAdvisingAddStudent from '@/components/peer/PeerAdvisingAddStudent.vue'
+import SortableTableHeader from '@/components/util/SortableTableHeader.vue'
 import {alertScreenReader, pluralize, putFocusNextTick, toInt} from '@/lib/utils'
 import {deletePeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising-users.js'
 import {useContextStore} from '@/stores/context'
@@ -183,10 +169,10 @@ const props = defineProps({
 const currentUser = useContextStore().currentUser
 const dataTableRows = computed<BoaUser[]>(() => _filter(props.peerAdvisors, u => showDeletedPeerAdvisors.value || !u.deletedAt))
 const headers = computed(() => [
-  {align: 'start' as 'start' | 'end' | 'center', key: 'name', sortable: dataTableRows.value.length > 1, title: 'Peer Advisor'},
-  {align: 'end' as 'start' | 'end' | 'center', key: 'notesCreatedCount', sortable: dataTableRows.value.length > 1, sortRaw: sortByNoteCount, title: 'Notes Created'},
-  {align: 'end' as 'start' | 'end' | 'center', key: 'createdAt', sortable: dataTableRows.value.length > 1, title: 'Date Added'},
-  {align: 'end' as 'start' | 'end' | 'center', ariaLabel: 'actions', key: 'actions', sortable: false}
+  {align: 'start' as 'start' | 'end' | 'center', key: 'name', sortable: true, title: 'Peer Advisor'},
+  {align: 'end' as 'start' | 'end' | 'center', key: 'notesCreatedCount', sortable: true, sortRaw: sortByNoteCount, title: 'Notes Created'},
+  {align: 'end' as 'start' | 'end' | 'center', key: 'createdAt', sortable: true, title: 'Date Added'},
+  {align: 'center' as 'start' | 'end' | 'center', key: 'actions', sortable: false}
 ])
 const isBusy = ref(false)
 const isDeleteModalOpen = ref(false)
@@ -194,7 +180,6 @@ const isDeleting = ref(false)
 const selectedPeerAdvisor = ref<BoaUser | undefined>()
 const showDeletedPeerAdvisors = ref<boolean>()
 const sortBy = ref<{key: string, order: 'asc' | 'desc'}>({key: 'createdAt', order: 'desc'})
-const {mdAndUp} = useDisplay()
 
 const cancel = () => {
   isDeleteModalOpen.value = false
@@ -205,11 +190,26 @@ const cancel = () => {
 }
 
 const onConfirmDelete = () => {
-  isBusy.value = isDeleting.value = true
   if (selectedPeerAdvisor.value) {
-    deletePeerAdvisor(props.peerAdvisingDepartment.id, selectedPeerAdvisor.value.id).then(() => {
+    const peerAdvisor = selectedPeerAdvisor.value
+    const indexOf = props.peerAdvisors.findIndex(u => u.id === peerAdvisor.id)
+    isBusy.value = isDeleting.value = true
+    alertScreenReader(`Removing ${peerAdvisor.name}'s 'Peer Advisor' role`)
+    deletePeerAdvisor(props.peerAdvisingDepartment.id, peerAdvisor.id).then(() => {
       props.refresh().then(() => {
         isBusy.value = isDeleting.value = isDeleteModalOpen.value = false
+        alertScreenReader(`${peerAdvisor.name}'s 'Peer Advisor' role has been removed.`)
+        if (showDeletedPeerAdvisors.value) {
+          putFocusNextTick(`restore-peer-advisor-${peerAdvisor.uid}`)
+        } else {
+          const peerAdvisorsCount = size(dataTableRows.value)
+          if (!peerAdvisorsCount) {
+            putFocusNextTick('toggle-inactive-students-button')
+          } else {
+            const nextPeerAdvisor = indexOf < peerAdvisorsCount ? props.peerAdvisors[indexOf] : props.peerAdvisors[indexOf - 1]
+            putFocusNextTick(`${nextPeerAdvisor.deletedAt ? 'restore' : 'delete'}-peer-advisor-${peerAdvisor.uid}`)
+          }
+        }
       })
     })
   } else {
@@ -222,11 +222,14 @@ const onClickDelete = (peerAdvisor: BoaUser) => {
   isDeleteModalOpen.value = true
 }
 
-const onClickRestorePeerAdvisor = (userId: number) => {
+const onClickRestorePeerAdvisor = (peerAdvisor: BoaUser) => {
   isBusy.value = true
-  restorePeerAdvisor(props.peerAdvisingDepartment.id, userId).then(() => {
+  alertScreenReader(`Restoring ${peerAdvisor.name}'s 'Peer Advisor' role`)
+  restorePeerAdvisor(props.peerAdvisingDepartment.id, peerAdvisor.id).then(() => {
     props.refresh().then(() => {
       isBusy.value = false
+      alertScreenReader(`${peerAdvisor.name}'s 'Peer Advisor' role is restored.`)
+      putFocusNextTick(`delete-peer-advisor-${peerAdvisor.uid}`)
     })
   })
 }
@@ -236,7 +239,7 @@ const onUpdateSortBy = (primarySortBy: {key: string, order: 'asc' | 'desc'}[]) =
   const header = find(headers.value, {key: key})
   sortBy.value = primarySortBy[0]
   if (header) {
-    alertScreenReader(`Sorted by ${header.ariaLabel || header.title}, ${sortBy.value.order}ending`)
+    alertScreenReader(`Sorted by ${header.title}, ${sortBy.value.order}ending`)
   }
 }
 
@@ -254,5 +257,11 @@ const sortByNoteCount = (c1: {noteCount: number}, c2: {noteCount: number}) => {
 .add-student-container {
   min-width: 550px;
   width: 75%;
+}
+</style>
+
+<style>
+.peer-advisor-btn {
+  margin-top: -2px;
 }
 </style>
