@@ -131,14 +131,14 @@ watch(() => cohortStore.domain, value => {
   contextStore.removeEventHandler('sortBy-user-preference-change')
   contextStore.setEventHandler(
     `${value === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`,
-    () => goToPage(1)
+    () => goToPage(1, 'students-sort-by')
   )
 })
 
 onMounted(() => {
   contextStore.setEventHandler(
     `${sortByKey.value}-user-preference-change`,
-    () => goToPage(1)
+    () => goToPage(1, 'students-sort-by')
   )
   contextStore.setEventHandler(
     'cohort-apply-filters',
@@ -146,7 +146,7 @@ onMounted(() => {
   )
   contextStore.setEventHandler(
     'termId-user-preference-change',
-    () => goToPage(cohortStore.pagination.currentPage)
+    () => goToPage(cohortStore.pagination.currentPage, 'students-term-select')
   )
   const refererURI = window.history.state.forward
   const isBackButtonToCohort = (startsWith(refererURI, '/student') || startsWith(refererURI, '/admit/student')) && size(cohortStore.filters)
@@ -226,7 +226,7 @@ const init = (cohortId, domain, orderBy, termId) => {
   })
 }
 
-const goToPage = page => {
+const goToPage = (page, focusId) => {
   return new Promise(resolve => {
     if (contextStore.loading) {
       resolve()
@@ -234,7 +234,7 @@ const goToPage = page => {
       cohortStore.setCurrentPage(page)
       contextStore.loadingStart()
       return onPageNumberChange().then(() => {
-        afterLoadingComplete(getFocusElementId(false))
+        afterLoadingComplete(focusId || getFocusElementId(false))
         contextStore.loadingComplete()
       }).then(resolve)
     }

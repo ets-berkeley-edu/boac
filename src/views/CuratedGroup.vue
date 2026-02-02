@@ -211,6 +211,7 @@ const onChangeSortBy = () => {
   if (!contextStore.loading) {
     contextStore.loadingStart()
     fetchCuratedGroup(curatedGroupId.value, 1).then(() => {
+      nextTick(() => putFocusNextTick('students-sort-by'))
       contextStore.loadingComplete()
     })
   }
@@ -220,6 +221,7 @@ const onChangeTerm = () => {
   if (!contextStore.loading) {
     contextStore.loadingStart()
     fetchCuratedGroup(curatedGroupId.value, pageNumber.value ? pageNumber.value : 1).then(() => {
+      nextTick(() => putFocusNextTick('students-term-select'))
       contextStore.loadingComplete()
     })
   }
