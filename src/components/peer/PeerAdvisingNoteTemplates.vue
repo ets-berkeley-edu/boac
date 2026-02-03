@@ -29,6 +29,7 @@
     </div>
     <v-data-table
       id="peer-advising-note-templates-table"
+      v-table-caption="'Peer Advising Note Templates'"
       :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
       density="compact"
       disable-sort

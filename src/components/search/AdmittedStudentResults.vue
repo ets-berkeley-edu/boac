@@ -15,7 +15,10 @@
       :students="results.admits"
     />
     <div>
-      <SortableAdmits :admitted-students="results.admits" />
+      <SortableAdmits
+        :admitted-students="results.admits"
+        :table-name="searchPhrase ? `Search results: ${searchPhrase}` : 'Search results'"
+      />
     </div>
   </div>
 </template>

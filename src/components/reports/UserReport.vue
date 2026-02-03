@@ -2,6 +2,7 @@
   <div class="pr-3">
     <v-data-table-server
       id="user-report"
+      v-table-caption="tableCaption"
       :cell-props="data => {
         const alignCenter = data.column.key === 'email'
         const alignEnd = ['lastLogin', 'notesCreated'].includes(data.column.key)
@@ -14,6 +15,7 @@
         }
       }"
       :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
+      class="responsive-data-table"
       density="compact"
       disable-pagination
       disable-sort
@@ -99,7 +101,7 @@
 
 <script setup>
 import {mdiEmail} from '@mdi/js'
-import {onMounted, ref, watch} from 'vue'
+import {computed, onMounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {getBoaUserRoles} from '@/lib/berkeley-department'
 import {getUsersReport} from '@/api/admin-reports.js'
@@ -116,6 +118,11 @@ const expanded = ref([])
 const mobileBreakpoint = 1040
 const totalUserCount = ref(undefined)
 const users = ref([])
+
+const tableCaption = computed(() => {
+  const dept = props.department?.deptName || props.department?.deptCode
+  return dept ? `User report: ${dept}` : 'User report'
+})
 
 watch(() => props.department, () => {
   refresh()

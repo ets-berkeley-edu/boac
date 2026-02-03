@@ -38,6 +38,7 @@
     </div>
     <div class="border-b-sm mt-6">
       <v-data-table
+        v-table-caption="'Manage Topics'"
         density="compact"
         fixed-header
         :headers="headers"

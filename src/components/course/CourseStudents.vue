@@ -1,6 +1,7 @@
 <template>
   <v-data-table
     id="course-students"
+    v-table-caption="tableCaption"
     :cell-props="data => {
       return {
         class: 'px-1 py-2 vertical-top',
@@ -329,7 +330,7 @@
 <script setup>
 import {each, get, map, size, split, uniq} from 'lodash'
 import {mdiAlert, mdiSchool} from '@mdi/js'
-import {onBeforeMount, onMounted, ref} from 'vue'
+import {computed, onBeforeMount, onMounted, ref} from 'vue'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
@@ -357,6 +358,11 @@ const currentUser = contextStore.currentUser
 const headers = ref([])
 const hoverUid = ref(undefined)
 const mobileBreakpoint = 1070
+
+const tableCaption = computed(() => {
+  const name = props.section?.displayName
+  return name ? `Course students: ${name}` : 'Course students'
+})
 
 onBeforeMount(() => {
   const rows = document.querySelectorAll('tr[id*=\'tr-student-\']')

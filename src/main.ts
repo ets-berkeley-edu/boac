@@ -17,6 +17,7 @@ import vuetify from '@/plugins/vuetify'
 import router from '@/router'
 import axiosPlugin from '@/plugins/axios'
 import {initGoogleAnalytics} from '@/lib/ga'
+import {tableCaption} from '@/directives/tableCaption'
 
 const apiBaseUrl: string = import.meta.env.VITE_APP_API_BASE_URL
 const isVueAppDebugMode: boolean = trim(import.meta.env.VITE_APP_DEBUG).toLowerCase() === 'true'
@@ -38,6 +39,7 @@ app.use(axiosPlugin, {baseUrl: apiBaseUrl})
     // See https://github.com/Hypercontext/linkifyjs?tab=readme-ov-file#installation-and-usage
     beforeMount: el => el.innerHTML = linkifyHtml(el.innerHTML, {defaultProtocol: 'https', target: '_blank'})
   })
+  .directive('tableCaption', tableCaption)
 
 more(Highcharts)
 initializeAxios(axios)
