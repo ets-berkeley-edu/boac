@@ -1,5 +1,6 @@
 <template>
   <v-data-table-virtual
+    v-table-caption="tableCaption"
     :cell-props="data => ({
       class: 'py-1 pl-1 pr-3 vertical-top',
       'data-label': data.column.title,
@@ -142,7 +143,7 @@
 <script setup>
 import {each, find, get, isNil, isString} from 'lodash'
 import {mdiInformation, mdiSchool} from '@mdi/js'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import PillCount from '@/components/util/PillCount'
@@ -192,6 +193,10 @@ const items = ref(undefined)
 const mobileBreakpoint = 1200
 const sortBy = ref(props.initialSortBy)
 const withTableUid = suffix => (props.tableUid ? `${props.tableUid}-${suffix}` : suffix)
+
+const tableCaption = computed(() =>
+  props.tableName ? `Students table: ${props.tableName}` : 'Students table'
+)
 
 onMounted(() => {
   items.value = props.students

@@ -20,6 +20,7 @@
       <v-data-table
         v-if="size(degreeChecks)"
         id="degree-checks-table"
+        v-table-caption="tableCaption"
         :cell-props="data => {
           const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
           return {
@@ -106,6 +107,14 @@ const currentUser = contextStore.currentUser
 const degreeChecks = ref(undefined)
 const loading = computed(() => contextStore.loading)
 const student = ref(undefined)
+
+const tableCaption = computed(() => {
+  // In demo mode, avoid having a real student identity in the caption
+  const studentLabel = currentUser.inDemoMode ? 'Student' : student.value?.name
+  return studentLabel
+    ? `Degree Check History table for ${studentLabel}`
+    : 'Degree Check History table'
+})
 
 contextStore.loadingStart()
 

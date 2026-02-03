@@ -6,6 +6,7 @@
     <div v-if="degreeTemplates.length" class="pt-2 w-100">
       <v-data-table
         id="degree-checks-table"
+        v-table-caption="tableCaption"
         :cell-props="data => {
           const column = data.column.key
           const bgColor = tableRowHighlightId === data.item.id ? 'bg-sky-blue border-b-md border-t-md' : (data.index % 2 === 0 ? 'bg-surface-light' : '')
@@ -226,7 +227,7 @@
 <script lang="ts" setup>
 import type {PropType} from 'vue'
 import {clone, findIndex, get, reject, size, trim} from 'lodash'
-import {ref} from 'vue'
+import {computed, ref} from 'vue'
 import {DateTime} from 'luxon'
 import type {DegreeTemplate} from '@/lib/types'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
@@ -272,6 +273,10 @@ const isRenaming = ref(false)
 const templateForDelete = ref<DegreeTemplate | undefined>()
 const templateForEdit = ref<DegreeTemplate | undefined>()
 const templateToClone = ref<DegreeTemplate | undefined>()
+
+const tableCaption = computed(() =>
+  props.mode === 'archived' ? 'Archived degree checks table' : 'Degree checks table'
+)
 
 const toggleArchivedAt = (degreeTemplate: DegreeTemplate) => {
   const nextFocusId = getNextFocusId(degreeTemplate.id, props.mode)

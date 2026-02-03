@@ -251,6 +251,7 @@
             <v-data-table
               v-show="showInProgressCourses"
               id="in-progress-courses"
+              v-table-caption="inProgressCaption"
               borderless
               :cell-props="data => {
                 const float = data.column.key === 'units' ? 'float-right' : null
@@ -277,7 +278,6 @@
               })"
             >
               <template #thead="{columns}">
-                <caption class="sr-only">In-progress Courses</caption>
                 <thead>
                   <tr>
                     <th
@@ -356,6 +356,11 @@ const canEdit = computed(() => {
 
 const noteUpdatedAt = computed(() => {
   return degreeStore.degreeNote && DateTime.fromJSDate(new Date(degreeStore.degreeNote.updatedAt))
+})
+
+const inProgressCaption = computed(() => {
+  const name = degreeStore.degreeName
+  return name ? `In-progress courses: ${name}` : 'In-progress courses'
 })
 
 watch(isLocked, () => {

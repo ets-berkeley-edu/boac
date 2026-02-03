@@ -7,6 +7,7 @@
       Showing {{ pluralize('user', totalUserCount) }}
     </div>
     <v-data-table-virtual
+      v-table-caption="'BOA Users Table'"
       :cell-props="data => {
         const padding = ['becomeUser', 'data-table-expand'].includes(data.column.key) ? 'px-0' : ''
         return {

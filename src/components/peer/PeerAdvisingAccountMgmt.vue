@@ -25,6 +25,7 @@
     </div>
     <div v-if="peerAdvisors.length" class="border-b-sm ml-4 mt-6">
       <v-data-table
+        v-table-caption="'Account Management for Peer Advising'"
         :cell-props="data => {
           return {
             class: 'font-size-16 pl-1 py-2 vertical-top',

@@ -1,5 +1,6 @@
 <template>
   <v-data-table-virtual
+    v-table-caption="tableCaption"
     :cell-props="data => ({
       class: 'px-1 vertical-top',
       'data-label': data.column.title,
@@ -51,7 +52,7 @@
 
 <script setup>
 import {find, size} from 'lodash'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import SortableTableHeader from '@/components/util/SortableTableHeader'
 import {alertScreenReader} from '@/lib/utils'
 
@@ -59,6 +60,11 @@ const props = defineProps({
   courses: {
     required: true,
     type: Array
+  },
+  tableName: {
+    required: false,
+    type: String,
+    default: ''
   }
 })
 
@@ -66,6 +72,10 @@ const headers = ref([])
 const items = ref([])
 const mobileBreakpoint = 600
 const sortBy = ref({})
+
+const tableCaption = computed(() =>
+  props.tableName ? `Courses table: ${props.tableName}` : 'Courses table'
+)
 
 onMounted(() => {
   headers.value = [

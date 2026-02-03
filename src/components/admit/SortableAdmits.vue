@@ -1,5 +1,6 @@
 <template>
   <v-data-table-virtual
+    v-table-caption="tableCaption"
     :cell-props="data => ({
       class: 'pl-0',
       'data-label': data.column.title,
@@ -98,7 +99,7 @@
 
 <script setup>
 import {concat, find, join, map, orderBy, remove} from 'lodash'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import SortableTableHeader from '@/components/util/SortableTableHeader'
 import {alertScreenReader} from '@/lib/utils'
@@ -108,6 +109,11 @@ const props = defineProps({
   admittedStudents: {
     required: true,
     type: Array
+  },
+  tableName: {
+    required: false,
+    type: String,
+    default: ''
   }
 })
 
@@ -128,6 +134,10 @@ const headers = [
 const items = ref(undefined)
 const mobileBreakpoint = 1070
 const sortBy = ref({})
+
+const tableCaption = computed(() =>
+  props.tableName ? `Admit students table: ${props.tableName}` : 'Admit students table'
+)
 
 onMounted(() => {
   onUpdateSortBy([{key: 'lastName', order: 'asc'}])

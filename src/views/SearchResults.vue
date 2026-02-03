@@ -137,7 +137,10 @@
                       :students="results.admits"
                     />
                   </div>
-                  <SortableAdmits :admitted-students="results.admits" />
+                  <SortableAdmits
+                    :admitted-students="results.admits"
+                    :table-name="searchPhraseSubmitted ? `Search results: ${searchPhraseSubmitted}` : 'Search results'"
+                  />
                 </div>
               </div>
               <div v-if="item.key === 'course'">
@@ -151,6 +154,7 @@
                 </div>
                 <SortableCourses
                   v-if="size(results.courses)"
+                  :table-name="searchPhraseSubmitted ? `Search results: ${searchPhraseSubmitted}` : 'Search results'"
                   :courses="results.courses"
                 />
               </div>

@@ -8,6 +8,7 @@
         </div>
         <v-data-table
           id="draft-notes-table"
+          v-table-caption="tableCaption"
           :cell-props="data => ({
             class: 'font-size-16 vertical-baseline',
             'data-label': data.column.title,
@@ -191,6 +192,10 @@ const myDraftNotes = ref(undefined)
 const selectedNote = ref(undefined)
 
 const draftNotesCount = computed(() => size(myDraftNotes.value) || 0)
+
+const pageTitle = computed(() => currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes')
+
+const tableCaption = computed(() => `Draft Notes Table: ${pageTitle.value}`)
 
 const draftNoteLabel = note => trim(note?.subject) || config.draftNoteSubjectPlaceholder
 
