@@ -5,7 +5,7 @@
       'data-label': data.column.title,
       id: `td-term-${data.item.termId}-section-${data.item.sectionId}-column-${data.column.key}`
     })"
-    class="responsive-data-table"
+    :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
     density="compact"
     :headers="headers"
     :items="items"
@@ -22,7 +22,7 @@
         v-if="columns.length"
         :columns="columns"
         id-prefix="courses"
-        :is-compact="$vuetify.display.width <= 600"
+        :is-compact="$vuetify.display.width <= mobileBreakpoint"
         :is-sorted="isSorted"
         :set-order="onUpdateSortBy"
         :sorted-by="sortedBy[0]"
@@ -64,6 +64,7 @@ const props = defineProps({
 
 const headers = ref([])
 const items = ref([])
+const mobileBreakpoint = 600
 const sortBy = ref({})
 
 onMounted(() => {

@@ -7,20 +7,22 @@
           A draft note is only visible to its author.
         </div>
         <v-data-table
-          id="responsive-data-table"
-          :cell-props="{
+          id="draft-notes-table"
+          :cell-props="data => ({
             class: 'font-size-16 vertical-baseline',
-            style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
-          }"
+            'data-label': data.column.title,
+            id: `draft-note-${data.item.id}-column-${data.column.key}`
+          })"
           class="table-striped"
+          :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
           disable-sort
           :headers="headers"
           :header-props="{class: 'data-table-header-cell', tabindex: undefined}"
           hide-default-footer
+          :hide-default-header="$vuetify.display.width <= mobileBreakpoint"
           hide-no-data
           :items="myDraftNotes || []"
           :items-per-page="-1"
-          mobile-breakpoint="md"
           :row-props="row => ({id: `draft-note-${row.item.id}`})"
         >
           <template #item.student="{item}">
@@ -100,7 +102,7 @@
           <template #item.delete="{ item, index }">
             <v-btn
               :id="`delete-draft-note-${item.id}`"
-              class="bg-transparent text-error"
+              class="align-self-center bg-transparent text-error"
               :disabled="isDeleteDialogOpen || isDeleting || isEditDialogOpen"
               :icon="mdiTrashCan"
               size="md"
@@ -184,6 +186,7 @@ const isDeleteDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const isDeleting = ref(false)
 const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 60 : (vuetify.display.mdAndUp.value ? 30 : 16))
+const mobileBreakpoint = 600
 const myDraftNotes = ref(undefined)
 const selectedNote = ref(undefined)
 

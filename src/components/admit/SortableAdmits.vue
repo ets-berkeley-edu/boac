@@ -3,59 +3,33 @@
     :cell-props="data => ({
       class: 'pl-0',
       'data-label': data.column.title,
-      id: `td-admit-${data.item.csEmplId}-column-${data.column.key}`,
-      style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+      id: `td-admit-${data.item.csEmplId}-column-${data.column.key}`
     })"
-    class="responsive-data-table v-table-hidden-row-override"
+    class="v-table-hidden-row-override"
+    :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
     density="compact"
-    :header-props="{class: 'pl-0 text-no-wrap'}"
     :headers="headers"
     :items="admittedStudents"
-    mobile-breakpoint="md"
     must-sort
     no-sort-reset
     :row-props="data => ({
       id: `tr-admit-${data.item.csEmplId}`
     })"
+    :sort-by="[sortBy]"
     @update:sort-by="onUpdateSortBy"
   >
-    <template #headers="{columns, isSorted, toggleSort, getSortIcon}">
-      <tr>
-        <th
-          v-for="column in columns"
-          :key="column.key"
-          :aria-label="column.ariaLabel || column.title"
-          :aria-sort="isSorted(column) ? `${sortBy.order}ending` : null"
-          class="pl-0 text-no-wrap text-left"
-          :style="column.headerProps"
-        >
-          <template v-if="column.sortable">
-            <v-btn
-              :id="`admits-sort-by-${column.key}-btn`"
-              :append-icon="getSortIcon(column)"
-              :aria-label="`Sort by ${column.ariaLabel || column.title} ${isSorted(column) && sortBy.order === 'asc' ? 'descending' : 'ascending'}`"
-              class="align-start font-size-12 font-weight-bold height-unset min-width-unset pa-1 text-uppercase v-table-sort-btn-override"
-              :class="{'icon-visible': isSorted(column)}"
-              color="body"
-              density="compact"
-              variant="plain"
-              @click="() => toggleSort(column)"
-            >
-              <span class="text-left text-wrap">{{ column.title }}</span>
-            </v-btn>
-          </template>
-          <template v-else>
-            <div
-              :aria-hidden="!!column.ariaLabel"
-              class="not-sortable font-size-12 font-weight-bold text-body"
-              :class="get(column, 'headerProps.class', '')"
-            >
-              {{ column.title }}
-            </div>
-            <span v-if="!!column.ariaLabel" class="sr-only">{{ column.ariaLabel }}</span>
-          </template>
-        </th>
-      </tr>
+    <template #headers="{columns, isSorted, toggleSort, getSortIcon, sortBy: sortedBy}">
+      <SortableTableHeader
+        v-if="columns.length"
+        :columns="columns"
+        id-prefix="admits"
+        :is-compact="$vuetify.display.width <= mobileBreakpoint"
+        :is-sorted="isSorted"
+        :set-order="onUpdateSortBy"
+        :sorted-by="sortedBy[0]"
+        :sort-icon="getSortIcon"
+        :toggle-sort="toggleSort"
+      />
     </template>
 
     <template #item.curated="{item}">
@@ -123,9 +97,10 @@
 </template>
 
 <script setup>
-import {concat, find, get, join, map, orderBy, remove} from 'lodash'
+import {concat, find, join, map, orderBy, remove} from 'lodash'
 import {onMounted, ref} from 'vue'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
+import SortableTableHeader from '@/components/util/SortableTableHeader'
 import {alertScreenReader} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
@@ -138,7 +113,7 @@ const props = defineProps({
 
 const currentUser = useContextStore().currentUser
 const headers = [
-  {key: 'curated', title: '', sortable: false},
+  {key: 'curated', ariaLabel: 'select', sortable: false},
   {key: 'lastName', ariaLabel: 'last name', title: 'Name', sortable: true, width: '220px'},
   {key: 'csEmplId', ariaLabel: 'C S I D', title: 'CS ID', sortable: true},
   {key: 'currentSir', title: 'SIR', sortable: false},
@@ -151,6 +126,7 @@ const headers = [
   {key: 'freshmanOrTransfer', title: 'Freshman/Transfer', sortable: false},
 ]
 const items = ref(undefined)
+const mobileBreakpoint = 1070
 const sortBy = ref({})
 
 onMounted(() => {
@@ -185,9 +161,6 @@ const onUpdateSortBy = primarySortBy => {
 }
 </script>
 
-<style scoped>
-.not-sortable {
-  opacity: 0.62;
-  padding-top: 2px;
-}
+<style scoped lang="scss">
+$boa-breakpoint: 1070px !important;
 </style>

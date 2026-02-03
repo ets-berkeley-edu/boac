@@ -1,7 +1,19 @@
 <template>
   <div class="pr-3">
     <v-data-table-server
-      class="responsive-data-table"
+      id="user-report"
+      :cell-props="data => {
+        const alignCenter = data.column.key === 'email'
+        const alignEnd = ['lastLogin', 'notesCreated'].includes(data.column.key)
+        const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
+        return {
+          align: alignEnd ? 'end' : (alignCenter ? 'center' : undefined),
+          'data-label': data.column.title,
+          class: `${bgColor} font-size-16 py-2`,
+          id: `td-user-${data.item.uid}-column-${data.column.key}`
+        }
+      }"
+      :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
       density="compact"
       disable-pagination
       disable-sort
@@ -16,23 +28,13 @@
         {key: 'email', align: 'center', headerProps: {class: 'text-medium-emphasis'}, title: 'Email'}
       ]"
       hide-default-footer
+      :hide-default-header="$vuetify.display.width <= mobileBreakpoint"
       hide-no-data
       :items="users"
       :items-length="totalUserCount || 0"
       :items-per-page="0"
       :loading="totalUserCount === undefined"
       loading-text="Fetching users..."
-      mobile-breakpoint="md"
-      :cell-props="data => {
-        const alignCenter = data.column.key === 'email'
-        const alignEnd = ['lastLogin', 'notesCreated'].includes(data.column.key)
-        const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
-        return {
-          align: alignEnd ? 'end' : (alignCenter ? 'center' : undefined),
-          class: `${bgColor} font-size-16 py-2`,
-          id: `td-user-${data.item.uid}-column-${data.column.key}`
-        }
-      }"
       :row-props="data => {
         const bgColor = data.index % 2 === 0 ? 'bg-surface-light' : ''
         return {
@@ -111,6 +113,7 @@ const props = defineProps({
 })
 
 const expanded = ref([])
+const mobileBreakpoint = 1040
 const totalUserCount = ref(undefined)
 const users = ref([])
 
