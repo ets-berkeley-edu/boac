@@ -62,6 +62,7 @@
         id="cohort-students"
         class="pl-3 pt-0 scroll-margins"
         fluid
+        tabindex="-1"
       >
         <StudentRow
           v-for="(student, index) in cohortStore.students"

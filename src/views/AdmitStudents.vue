@@ -11,7 +11,7 @@
       <a
         v-if="totalAdmitCount > pagination.itemsPerPage"
         id="skip-to-pagination-widget"
-        class="sr-only"
+        class="sr-only sr-only-focusable"
         href="#pagination-container"
       >
         Skip to pagination
