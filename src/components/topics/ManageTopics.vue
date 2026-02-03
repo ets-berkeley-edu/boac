@@ -47,7 +47,7 @@
         hover
         :items="topics"
         :items-per-page="-1"
-        mobile-breakpoint="md"
+        mobile-breakpoint="sm"
         :row-props="row => ({id: `row-topic-${normalizeId(row.item.topic)}`})"
         :search="filter"
       >

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="align-end d-flex flex-wrap default-margins justify-space-between font-weight-bold">
-      <div class="add-student-container pr-4">
+      <div class="add-student-container w-100 w-md-75 pr-4">
         <PeerAdvisingAddStudent
           :active-and-deleted-peer-advisors="peerAdvisors"
           :peer-advising-department-id="peerAdvisingDepartment.id"
@@ -29,11 +29,10 @@
           return {
             class: 'font-size-16 pl-1 py-2 vertical-top',
             'data-label': data.column.title,
-            id: `td-peer-advisor-${data.item.uid}-column-${data.column.key}`,
-            style: $vuetify.display.width > 600 ? 'max-width: 200px;' : ''
+            id: `td-peer-advisor-${data.item.uid}-column-${data.column.key}`
           }
         }"
-        class="responsive-data-table"
+        :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
         density="compact"
         fixed-header
         :headers="headers"
@@ -52,11 +51,11 @@
       >
         <template #headers="{columns, isSorted, toggleSort, getSortIcon, sortBy: sortedBy}">
           <SortableTableHeader
-            v-if="columns.length && (size(dataTableRows) || $vuetify.display.width > 600)"
+            v-if="columns.length && (size(dataTableRows) || $vuetify.display.width > mobileBreakpoint)"
             :columns="columns"
             :disable-sort="size(dataTableRows) <= 1"
             id-prefix="students"
-            :is-compact="$vuetify.display.width <= 600"
+            :is-compact="$vuetify.display.width <= mobileBreakpoint"
             :is-sorted="isSorted"
             :set-order="onUpdateSortBy"
             :sorted-by="sortedBy[0]"
@@ -177,6 +176,7 @@ const headers = computed(() => [
 const isBusy = ref(false)
 const isDeleteModalOpen = ref(false)
 const isDeleting = ref(false)
+const mobileBreakpoint = 600
 const selectedPeerAdvisor = ref<BoaUser | undefined>()
 const showDeletedPeerAdvisors = ref<boolean>()
 const sortBy = ref<{key: string, order: 'asc' | 'desc'}>({key: 'createdAt', order: 'desc'})
@@ -255,8 +255,7 @@ const sortByNoteCount = (c1: {noteCount: number}, c2: {noteCount: number}) => {
 
 <style scoped>
 .add-student-container {
-  min-width: 550px;
-  width: 75%;
+  max-width: 50rem;
 }
 </style>
 

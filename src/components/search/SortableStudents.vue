@@ -1,11 +1,12 @@
 <template>
   <v-data-table-virtual
     :cell-props="data => ({
+      class: 'py-1 pl-1 pr-3 vertical-top',
       'data-label': data.column.title,
       id: withTableUid(`td-student-${data.item.sid}-column-${data.column.key}`)
     })"
-    class="responsive-data-table responsive-data-table--sortable-students v-table-hidden-row-override"
-    :class="{'responsive-data-table--stacked': !lgAndUp}"
+    class="responsive-data-table--sortable-students v-table-hidden-row-override"
+    :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
     density="compact"
     :headers="headers"
     :items="items"
@@ -21,7 +22,7 @@
         v-if="columns.length"
         :columns="columns"
         :id-prefix="tableUid"
-        :is-compact="!lgAndUp"
+        :is-compact="$vuetify.display.width <= mobileBreakpoint"
         :is-sorted="isSorted"
         :set-order="onUpdateSortBy"
         :sorted-by="sortedBy[0]"
@@ -104,7 +105,7 @@
     <template v-if="!compact" #item.expectedGraduationTerm="{item}">
       <span class="sr-only">Expected graduation term</span>
       <div v-if="!item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
-      <span :class="{'text-no-wrap': lgAndUp}">
+      <span :class="{'text-no-wrap': $vuetify.display.width > mobileBreakpoint}">
         {{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}
       </span>
     </template>
@@ -139,10 +140,9 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from 'vue'
 import {each, find, get, isNil, isString} from 'lodash'
 import {mdiInformation, mdiSchool} from '@mdi/js'
-import {useDisplay} from 'vuetify'
+import {onMounted, ref} from 'vue'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import PillCount from '@/components/util/PillCount'
@@ -187,16 +187,11 @@ const props = defineProps({
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
-const defaultCellClass = {class: 'font-size-15 py-1 pl-1 pr-3 vertical-top'}
 const headers = ref([])
-const {lgAndUp} = useDisplay()
 const items = ref(undefined)
-const sortBy = ref([props.initialSortBy])
+const mobileBreakpoint = 1200
+const sortBy = ref(props.initialSortBy)
 const withTableUid = suffix => (props.tableUid ? `${props.tableUid}-${suffix}` : suffix)
-
-const defaultCellProps = computed(() => {
-  return {cellProps: {...defaultCellClass, style: lgAndUp.value ? 'max-width: 200px;' : ''}}
-})
 
 onMounted(() => {
   items.value = props.students
@@ -204,16 +199,15 @@ onMounted(() => {
     headers.value.push({
       key: 'curated',
       align: 'start',
-      cellProps: {...defaultCellClass, width: 0},
-      headerProps: {width: 0},
+      ariaLabel: 'select',
       sortable: false,
       value: 'curated'
     })
   }
   const sortable = props.students.length > 1
   each([
-    {key: 'lastName', ...defaultCellProps.value, ariaLabel: 'last name', sortable, sortRaw, title: 'Name', value: 'lastName'},
-    {key: 'sid', ...defaultCellProps.value, ariaLabel: 'S I D', sortable, sortRaw, title: 'SID', value: 'sid'}
+    {key: 'lastName', ariaLabel: 'last name', sortable, sortRaw, title: 'Name', value: 'lastName'},
+    {key: 'sid', ariaLabel: 'S I D', sortable, sortRaw, title: 'SID', value: 'sid'}
   ], header => {
     headers.value.push(header)
   })
@@ -231,11 +225,11 @@ onMounted(() => {
     headers.value.push(alertCountCellAttributes)
   } else {
     each([
-      {key: 'major', ...defaultCellProps.value, sortable, sortRaw, title: 'Major', value: 'majors[0]'},
-      {key: 'expectedGraduationTerm', ...defaultCellProps.value, sortable, sortRaw, title: 'Grad', value: 'expectedGraduationTerm.id'},
-      {key: 'enrolledUnits', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'Term units', value: 'term.enrolledUnits'},
-      {key: 'cumulativeUnits', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'Units completed', value: 'cumulativeUnits'},
-      {key: 'cumulativeGPA', ...defaultCellProps.value, isNumber: true, sortable, sortRaw, title: 'GPA', value: 'cumulativeGPA'},
+      {key: 'major', sortable, sortRaw, title: 'Major', value: 'majors[0]'},
+      {key: 'expectedGraduationTerm', sortable, sortRaw, title: 'Grad', value: 'expectedGraduationTerm.id'},
+      {key: 'enrolledUnits', isNumber: true, sortable, sortRaw, title: 'Term units', value: 'term.enrolledUnits'},
+      {key: 'cumulativeUnits', isNumber: true, sortable, sortRaw, title: 'Units completed', value: 'cumulativeUnits'},
+      {key: 'cumulativeGPA', isNumber: true, sortable, sortRaw, title: 'GPA', value: 'cumulativeGPA'},
       alertCountCellAttributes
     ], header => {
       headers.value.push(header)
@@ -287,45 +281,9 @@ const sortRaw = (a, b) => {
 </script>
 
 <style scoped>
-/* This stacks the table to avoid horizontal scrolling, especially on laptops that have lower resolutions. */
-@media (max-width: 1280px) {
+@media (max-width: 1200px) {
   .responsive-data-table--sortable-students :deep(.v-table__wrapper) {
     overflow-x: visible !important;
-  }
-
-  .responsive-data-table--sortable-students :deep(td) {
-    align-items: baseline !important;
-    display: flex !important;
-    height: fit-content !important;
-    padding-left: 3px !important;
-    max-width: unset !important;
-    width: 100% !important;
-  }
-
-  .responsive-data-table--sortable-students :deep(td[data-label]::before) {
-    color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-    content: attr(data-label);
-    flex: 0 0;
-    float: left;
-    font-weight: bold;
-    min-width: 10rem;
-    padding-right: 16px;
-    text-align: left;
-    width: 30%;
-  }
-
-  .responsive-data-table--sortable-students :deep(td .sr-only) {
-    display: none;
-  }
-
-  .responsive-data-table--sortable-students :deep(tr.v-data-table__tr) {
-    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
-    display: block;
-    padding: 12px 0 !important;
-  }
-
-  .responsive-data-table--sortable-students :deep(tr.v-data-table__tr:nth-last-child(2)) {
-    margin-bottom: 8px;
   }
 }
 </style>

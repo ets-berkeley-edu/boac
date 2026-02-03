@@ -28,16 +28,18 @@
       </div>
     </div>
     <v-data-table
+      id="peer-advising-note-templates-table"
+      :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
       density="compact"
+      disable-sort
       fixed-header
       :headers="headers"
       :header-props="{class: 'data-table-header-cell'}"
       hide-default-footer
+      :hide-default-header="$vuetify.display.width <= mobileBreakpoint"
       hover
       :items="noteTemplates"
       :items-per-page="-1"
-      mobile-breakpoint="md"
-      :row-props="row => ({id: `row-note-template-${row.item.uid}`})"
     >
       <!-- Override header cells for each column -->
       <template #no-data>
@@ -50,24 +52,30 @@
           </span>
         </div>
       </template>
-      <template #header.name>
-        <th class="w-50">Template Name</th>
-      </template>
-      <template #header.createdAt>
-        <th class="w-20">Created</th>
-      </template>
-      <template #header.actions>
-        <th class="w-30">Actions</th>
-      </template>
       <template #item="{ item, index }">
-        <tr :class="index % 2 === 0 ? 'bg-white' : 'bg-surface-light'">
-          <td class="font-weight-bold">
+        <tr
+          :id="`peer-advising-note-template-${item.id}`"
+          :class="index % 2 === 0 ? 'bg-white' : 'bg-surface-light'"
+        >
+          <td
+            :id="`peer-advising-note-template-${item.id}-name`"
+            class="font-weight-bold py-1"
+            data-label="Template Name"
+          >
             {{ item.title }}
           </td>
-          <td>
+          <td
+            :id="`peer-advising-note-template-${item.id}-column-createdAt`"
+            class="text-right py-1"
+            data-label="Created"
+          >
             {{ DateTime.fromISO(item.createdAt).toFormat('MMM d, yyyy') }}
           </td>
-          <td>
+          <td
+            :id="`peer-advising-note-template-${item.id}-column-actions`"
+            class="py-1"
+            data-label="Actions"
+          >
             <v-btn
               :id="`edit-note-template-${item.id}`"
               :aria-label="`Edit ${item.title}`"
@@ -136,18 +144,19 @@ const props = defineProps({
 })
 
 const headers = [
-  {align: 'start', key: 'name', title: 'Template Name', sortable: false, width: '50%'},
-  {align: 'end', key: 'createdAt', title: 'Created', sortable: false, width: '20%'},
-  {align: 'end', key: 'actions', title: 'Actions', sortable: false, width: '30%'},
+  {align: 'start', key: 'name', sortable: false, title: 'Template Name', width: '50%'},
+  {align: 'end', key: 'createdAt', sortable: false, title: 'Created', width: '20%'},
+  {align: 'center', key: 'actions', minWidth: '18.125rem', sortable: false, title: 'Actions', width: '30%'},
 ]
-const noteTemplates = ref([])
-const showDeleteModal = ref(false)
-const selectedNoteTemplate = ref(null)
-const noteTemplateModalOpen = ref(false)
 const action = ref('create')
+const afterClosefocusId = ref('create-new-peer-advising-note-template')
 const currentUser = ref(useContextStore().currentUser)
 const isLoading = ref(false)
-const afterClosefocusId = ref('create-new-peer-advising-note-template')
+const mobileBreakpoint = 700
+const noteTemplateModalOpen = ref(false)
+const noteTemplates = ref([])
+const selectedNoteTemplate = ref(null)
+const showDeleteModal = ref(false)
 
 onMounted(() => {
   getNoteTemplates()
@@ -209,19 +218,5 @@ const editTemplateClicked = noteTemplate => {
 <style>
 .data-table-header-cell {
   height: 24px !important;
-}
-/* Force a fixed layout so widths are respected */
-.v-data-table .v-data-table__wrapper table {
-  table-layout: fixed;
-}
-/* Target header cells within your custom header class */
-.data-table-header-cell th:nth-child(1) {
-  width: 50% !important;
-}
-.data-table-header-cell th:nth-child(2) {
-  width: 20% !important;
-}
-.data-table-header-cell th:nth-child(3) {
-  width: 30% !important;
 }
 </style>

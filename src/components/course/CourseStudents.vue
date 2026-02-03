@@ -5,11 +5,11 @@
       return {
         class: 'px-1 py-2 vertical-top',
         'data-label': data.column.title,
-        id: `td-student-${data.item.uid}-column-${data.column.key}`,
-        style: $vuetify.display.width > 600 ? 'max-width: 200px;' : ''
+        id: `td-student-${data.item.uid}-column-${data.column.key}`
       }
     }"
-    class="responsive-data-table scroll-margins"
+    class="scroll-margins"
+    :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
     density="compact"
     disable-sort
     :headers="headers"
@@ -26,7 +26,7 @@
     }"
   >
     <template #headers="{columns}">
-      <tr :class="{'sr-only': $vuetify.display.width <= 600}">
+      <tr :class="{'sr-only': $vuetify.display.width <= mobileBreakpoint}">
         <th v-for="column in columns" :key="column.key" class="px-1 pb-2 vertical-bottom">
           <span v-if="column.title" :aria-hidden="!!column.ariaLabel" class="font-weight-bold">{{ column.title }}</span>
           <span v-if="column.ariaLabel" class="sr-only">{{ column.ariaLabel }}</span>
@@ -356,6 +356,7 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const headers = ref([])
 const hoverUid = ref(undefined)
+const mobileBreakpoint = 1070
 
 onBeforeMount(() => {
   const rows = document.querySelectorAll('tr[id*=\'tr-student-\']')

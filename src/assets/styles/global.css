@@ -426,6 +426,35 @@
   white-space: nowrap;
   border: 0;
 }
+.stacked-table.v-data-table {
+  td {
+    align-items: baseline !important;
+    display: flex !important;
+    height: fit-content !important;
+    padding-left: 3px !important;
+    max-width: unset !important;
+    width: 100% !important;
+    &[data-label]::before {
+      color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+      content: attr(data-label);
+      flex: 33% 0 0;
+      float: left;
+      font-weight: bold;
+      min-width: 10rem;
+      padding-right: 16px;
+      text-align: left;
+      width: 33%;
+    }
+  }
+  tr.v-data-table__tr {
+    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+    display: block;
+    padding: 12px 0 !important;
+    &:nth-last-child(2) {
+      margin-bottom: 8px;
+    }
+  }
+}
 .student-profile-h3 {
   border-bottom: 1px solid rgba(var(--v-border-color), var(--v-disabled-opacity));
   color: rgba(var(--v-theme-on-surface),var(--v-medium-emphasis-opacity));
@@ -531,41 +560,6 @@ table thead th {
   text-align: left;
   text-transform: uppercase !important;
   vertical-align: top;
-}
-
-@media (max-width: 600px) {
-  .responsive-data-table.v-data-table {
-    td {
-      align-items: baseline !important;
-      display: flex !important;
-      height: fit-content !important;
-      padding-left: 3px !important;
-      max-width: unset !important;
-      width: 100% !important;
-      &[data-label]::before {
-        color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-        content: attr(data-label);
-        flex: 0 0;
-        float: left;
-        font-weight: bold;
-        min-width: 10rem;
-        padding-right: 16px;
-        text-align: left;
-        width: 30%;
-      }
-      .sr-only {
-        display: none;
-      }
-    }
-    tr.v-data-table__tr {
-      border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
-      display: block;
-      padding: 12px 0 !important;
-      &:nth-last-child(2) {
-        margin-bottom: 8px;
-      }
-    }
-  }
 }
 
 @media print {
