@@ -23,7 +23,7 @@
         v-if="totalStudentCount > itemsPerPage"
         id="skip-to-pagination-link"
         href="#pagination-container"
-        class="sr-only"
+        class="sr-only sr-only-focusable"
       >
         Skip to pagination
       </a>
@@ -31,7 +31,7 @@
         v-if="totalStudentCount"
         id="skip-to-students-link"
         href="#curated-cohort-students"
-        class="sr-only"
+        class="sr-only sr-only-focusable"
       >
         Skip to students
       </a>

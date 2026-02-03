@@ -1,8 +1,8 @@
 <template>
   <v-fade-transition>
     <div class="d-flex flex-column vh-100">
-      <a id="skip-to-content-link" href="#content" class="sr-only">Skip to main content</a>
-      <a id="skip-to-nav-link" href="#nav-header" class="sr-only">Skip to navigation</a>
+      <a id="skip-to-content-link" href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+      <a id="skip-to-nav-link" href="#nav-header" class="sr-only sr-only-focusable">Skip to navigation</a>
       <v-layout>
         <v-app-bar
           color="primary"

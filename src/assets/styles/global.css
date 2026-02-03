@@ -416,15 +416,24 @@
   vertical-align: top;
 }
 .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  clip: rect(0,0,0,0);
-  overflow: hidden;
-  white-space: nowrap;
-  border: 0;
+  position: absolute !important;
+  left: -10000px !important;
+  top: auto !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+.sr-only-focusable:active, .sr-only-focusable:focus {
+  background-color: color-mix(in srgb, rgb(var(--v-theme-tertiary)) 80%, white 20%);
+  box-shadow: inset 0 0 0 0.125rem white !important;
+  color: white;
+  height: auto !important;
+  left: auto !important;
+  outline: none !important;
+  padding: 10px;
+  white-space: normal;
+  width: auto !important;
+  z-index: 2000;
 }
 .stacked-table.v-data-table {
   td {

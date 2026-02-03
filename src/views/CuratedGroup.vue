@@ -33,7 +33,7 @@
         </div>
       </div>
       <div v-if="size(students)">
-        <div id="curated-cohort-students" class="scroll-margins">
+        <div id="curated-cohort-students" class="scroll-margins" tabindex="-1">
           <v-container v-if="domain === 'default'" class="pl-1" fluid>
             <StudentRow
               v-for="(student, index) in students"
