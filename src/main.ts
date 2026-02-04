@@ -1,8 +1,9 @@
-import accessibility from 'highcharts/modules/accessibility'
+import Highcharts from 'highcharts/highcharts'
+import 'highcharts/highcharts-more'
+import 'highcharts/modules/sonification'
+import 'highcharts/modules/accessibility'
 import axios from 'axios'
 import CKEditor from '@ckeditor/ckeditor5-vue'
-import Highcharts from 'highcharts'
-import more from 'highcharts/highcharts-more'
 import VueHighcharts from 'vue-highcharts'
 import {createApp} from 'vue'
 import {createPinia} from 'pinia'
@@ -24,7 +25,6 @@ const isVueAppDebugMode: boolean = trim(import.meta.env.VITE_APP_DEBUG).toLowerC
 
 const app = createApp(App)
 app.config.errorHandler = appErrorHandler
-accessibility(Highcharts)
 app.use(axiosPlugin, {baseUrl: apiBaseUrl})
   .use(CKEditor)
   .use(createPinia())
@@ -41,7 +41,6 @@ app.use(axiosPlugin, {baseUrl: apiBaseUrl})
   })
   .directive('tableCaption', tableCaption)
 
-more(Highcharts)
 initializeAxios(axios)
 
 axios.get(`${apiBaseUrl}/api/config`).then(response => {

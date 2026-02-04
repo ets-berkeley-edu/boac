@@ -15,7 +15,7 @@
     "@popperjs/core": "2.11.8",
     "axios": "1.13.2",
     "core-js": "3.48.0",
-    "highcharts": "9.3.3",
+    "highcharts": "12.5.0",
     "js-file-download": "0.4.12",
     "linkify-html": "4.3.2",
     "linkifyjs": "4.3.2",
