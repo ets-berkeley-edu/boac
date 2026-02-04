@@ -250,17 +250,26 @@ const cancel = () => {
 
 const deleteDraftNote = () => {
   alertScreenReader('Deleting draft note')
-  const selectedNoteIndex = findIndex(myDraftNotes.value, {'id': selectedNote.value.id})
-  const nextNote = get(myDraftNotes.value, selectedNoteIndex >= (size(myDraftNotes.value) - 1) ? 0 : selectedNoteIndex + 1)
+
+  const selectedNoteId = selectedNote.value.id
+  const selectedNoteIndex = findIndex(myDraftNotes.value, {id: selectedNoteId})
+
   isDeleting.value = true
-  deleteNote(selectedNote.value.id).then(() => {
+
+  deleteNote(selectedNoteId).then(() => {
     myDraftNotes.value.splice(selectedNoteIndex, 1)
-    isDeleting.value = isDeleteDialogOpen.value = false
+
+    const newLength = size(myDraftNotes.value)
+    const focusIndex = newLength ? Math.min(selectedNoteIndex, newLength - 1) : -1
+    const focusNote = focusIndex >= 0 ? myDraftNotes.value[focusIndex] : null
+
+    isDeleting.value = false
+    isDeleteDialogOpen.value = false
+
     alertScreenReader('Draft note deleted')
-    putFocusNextTick(nextNote ? `delete-draft-note-${nextNote.id}` : 'draft-notes-no-data')
+    putFocusNextTick(focusNote ? `delete-draft-note-${focusNote.id}` : 'draft-notes-no-data')
   })
 }
-
 const formatFromISO = isoDate => {
   const date = DateTime.fromISO(isoDate).setZone(config.timezone)
   return date.toFormat(date.year === DateTime.now().year ? 'MMM d' : 'MMM d, yyyy')
