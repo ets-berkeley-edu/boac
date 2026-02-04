@@ -455,6 +455,21 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.v-badge-override {
+  .v-badge__badge {
+    border-color: rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+    border-style: solid !important;
+    border-width: 1px !important;
+    display: block;
+    height: max-content;
+    padding: 5px 12px;
+    font-family: Verdana, "Open Sans", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px !important;
+    font-weight: 800;
+    border-radius: 16px;
+    min-width: fit-content;
+  }
+}
 .v-chip-content-override {
   .v-chip__content {
     overflow: hidden !important;

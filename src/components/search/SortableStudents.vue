@@ -127,13 +127,14 @@
     </template>
 
     <template #item.alertCount="{item}">
-      <PillCount
+      <v-badge
         :id="withTableUid(`student-${item.uid || item.sid}-alert-count`)"
-        :aria-label="`${pluralize('alert', item.alertCount, {0: 'No'})} for ${item.firstName} ${item.lastName}`"
         :color="item.alertCount ? 'warning' : 'grey'"
-      >
-        {{ item.alertCount || 0 }} <span class="sr-only">alerts</span>
-      </PillCount>
+        :content="item.alertCount || 0"
+        :aria-label="pluralize('alert', item.alertCount, {0: 'No'})"
+        class="v-badge-override"
+        inline
+      />
     </template>
   </v-data-table-virtual>
 </template>
@@ -145,7 +146,6 @@ import {mdiInformation, mdiSchool} from '@mdi/js'
 import {useDisplay} from 'vuetify'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
-import PillCount from '@/components/util/PillCount'
 import SortableTableHeader from '@/components/util/SortableTableHeader'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import {alertScreenReader, lastNameFirst, numFormat, pluralize, round, sortComparator, studentRoutePath} from '@/lib/utils'

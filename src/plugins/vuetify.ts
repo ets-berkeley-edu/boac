@@ -7,6 +7,7 @@ import {VAlert, VAlertTitle} from 'vuetify/components/VAlert'
 import {VAppBar, VAppBarNavIcon, VAppBarTitle} from 'vuetify/components/VAppBar'
 import {VApp} from 'vuetify/components/VApp'
 import {VAutocomplete} from 'vuetify/components/VAutocomplete'
+import {VBadge} from 'vuetify/components/VBadge'
 import {VBanner} from 'vuetify/components/VBanner'
 import {VBtn} from 'vuetify/components/VBtn'
 import {VBtnGroup} from 'vuetify/components/VBtnGroup'
@@ -58,6 +59,7 @@ export default createVuetify({
     VAlert,
     VAlertTitle,
     VAutocomplete,
+    VBadge,
     VBanner,
     VBtn,
     VBtnGroup,

@@ -47,13 +47,13 @@
             <div v-if="!compact" class="pr-2 text-no-wrap">
               Total Alerts:
             </div>
-            <PillCount
+            <v-badge
               :id="`sortable-${keyword}-${group.id}-total-alerts-count`"
               :color="toInt(group.alertCount, 0) ? 'warning' : 'grey'"
-              class="px-2"
-            >
-              {{ toInt(group.alertCount, 0).toLocaleString() }}
-            </PillCount>
+              :content="toInt(group.alertCount, 0).toLocaleString()"
+              class="v-badge-override"
+              inline
+            />
           </div>
         </div>
       </template>
@@ -111,7 +111,6 @@
 import {capitalize, isNil, size} from 'lodash'
 import {computed, ref} from 'vue'
 import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
-import PillCount from '@/components/util/PillCount'
 import SortableStudents from '@/components/search/SortableStudents'
 import {alertScreenReader, pluralize, toInt} from '@/lib/utils'
 import {getStudentsWithAlerts as getCohortStudentsWithAlerts} from '@/api/cohort'
