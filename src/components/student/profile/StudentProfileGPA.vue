@@ -23,7 +23,7 @@
           </h4>
           <StudentGpaChart
             v-if="get(student, 'termGpa.length') > 1"
-            :chart-description="`${student.name}'s GPA by academic term.`"
+            :chart-description="`GPA of ${student.name} by academic term`"
             class="ml-4 gpa-trends-chart"
             :student="student"
           />

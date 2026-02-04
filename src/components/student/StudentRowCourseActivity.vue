@@ -103,7 +103,7 @@
         </tr>
       </tbody>
     </table>
-    <div v-if="!termEnrollments.length" class="col-course font-size-13 pl-3 text-medium-emphasis">
+    <div v-if="!termEnrollments.length" class="col-course text-medium-emphasis text-no-wrap">
       No {{ termNameForSisId(termId) }} enrollments
     </div>
   </div>
