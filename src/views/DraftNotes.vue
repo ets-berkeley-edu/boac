@@ -9,18 +9,24 @@
         <v-data-table
           id="draft-notes-table"
           v-table-caption="tableCaption"
-          :cell-props="data => ({
-            class: 'font-size-16 vertical-baseline',
-            'data-label': data.column.title,
-            id: `draft-note-${data.item.id}-column-${data.column.key}`
-          })"
+          :cell-props="data => {
+            const classes = ['font-size-16', 'vertical-baseline']
+            if (data.column.key === 'subject') {
+              classes.push('subject-cell')
+            }
+            return {
+              class: classes.join(' '),
+              'data-label': data.column.title,
+              id: `draft-note-${data.item.id}-column-${data.column.key}`
+            }
+          }"
           class="table-striped"
-          :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
+          :class="{'stacked-table': isStacked}"
+          :hide-default-header="isStacked"
           disable-sort
           :headers="headers"
           :header-props="{class: 'data-table-header-cell', tabindex: undefined}"
           hide-default-footer
-          :hide-default-header="$vuetify.display.width <= mobileBreakpoint"
           hide-no-data
           :items="myDraftNotes || []"
           :items-per-page="-1"
@@ -49,7 +55,7 @@
             </span>
           </template>
           <template #item.subject="{ item, index }">
-            <div class="align-center overflow-wrap-break-word">
+            <div class="d-flex align-center flex-wrap subject-content">
               <span
                 v-if="item.author.uid !== currentUser.uid"
                 class="font-size-16"
@@ -59,33 +65,27 @@
                   {{ trim(item.subject) || config.draftNoteSubjectPlaceholder }}
                 </span>
               </span>
+
               <v-btn
                 v-if="item.author.uid === currentUser.uid"
                 :id="`open-draft-note-${item.id}`"
                 :aria-label="editNoteAriaLabel(item, index)"
-                class="mr-1 px-0 py-2 text-left text-primary"
+                class="mr-1 px-0 py-2 text-left text-primary subject-btn"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 size="lg"
                 :title="draftNoteLabel(item)"
                 variant="text"
                 @click="() => openEditDialog(item)"
               >
-                <div
-                  v-if="item.subject.length <= lengthTruncateButtonText"
-                  class="align-start"
-                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                >
-                  {{ draftNoteLabel(item) }}
-                </div>
-                <div
-                  v-if="item.subject.length > lengthTruncateButtonText"
-                  class="align-start"
-                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                >
-                  {{ truncate(draftNoteLabel(item), {length: lengthTruncateButtonText}) }}
-                </div>
+                <span class="subject-btn-text">
+                  {{ item.subject.length > lengthTruncateButtonText
+                    ? truncate(draftNoteLabel(item), {length: lengthTruncateButtonText})
+                    : draftNoteLabel(item)
+                  }}
+                </span>
               </v-btn>
-              <span v-if="item.attachmentCount">
+
+              <span v-if="item.attachmentCount" class="ml-1">
                 <span class="sr-only">Has attachment(s)</span>
                 <v-icon class="mb-1" :icon="mdiPaperclip" size="small" />
               </span>
@@ -182,20 +182,43 @@ const eventHandlers = {
     }
   }
 }
-const headers = []
 const isDeleteDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const isDeleting = ref(false)
-const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 60 : (vuetify.display.mdAndUp.value ? 30 : 16))
-const mobileBreakpoint = 600
+const mobileBreakpoint = 800
 const myDraftNotes = ref(undefined)
 const selectedNote = ref(undefined)
+
+const isStacked = computed(() => vuetify.display.width.value <= mobileBreakpoint)
+
+const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 60 : (vuetify.display.mdAndUp.value ? 30 : 16))
 
 const draftNotesCount = computed(() => size(myDraftNotes.value) || 0)
 
 const pageTitle = computed(() => currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes')
 
 const tableCaption = computed(() => `Draft Notes Table: ${pageTitle.value}`)
+
+const headers = computed(() => {
+  const isLg = vuetify.display.lgAndUp.value
+
+  const cols = [
+    {align: 'start', key: 'student', title: 'Student', width: isLg ? 220 : 170},
+    {align: 'start', ariaLabel: 'S I D', key: 'sid', title: 'SID', width: isLg ? 150 : 120},
+    {align: 'start', key: 'subject', title: 'Subject'}
+  ]
+
+  if (currentUser.isAdmin) {
+    cols.push({align: 'start', key: 'author', title: 'Author', width: isLg ? 200 : 160})
+  }
+
+  cols.push(
+    {align: 'start', key: 'updatedAt', title: 'Date', width: isLg ? 135 : 115},
+    {align: 'center', key: 'delete', title: 'Delete', width: isLg ? 100 : 84}
+  )
+
+  return cols
+})
 
 const draftNoteLabel = note => trim(note?.subject) || config.draftNoteSubjectPlaceholder
 
@@ -214,18 +237,6 @@ watch(() => noteStore.isSaving, (newValue, oldValue) => {
 })
 
 onMounted(() => {
-  headers.push(
-    {align: 'start', key: 'student', title: 'Student', width: 200},
-    {align: 'start', ariaLabel: 'S I D', key: 'sid', title: 'SID', width: 150},
-    {align: 'start', key: 'subject', title: 'Subject'}
-  )
-  if (currentUser.isAdmin) {
-    headers.push({align: 'start', key: 'author', title: 'Author', width: 200})
-  }
-  headers.push(
-    {align: 'start', key: 'updatedAt', title: 'Date', width: 135},
-    {align: 'center', key: 'delete', title: 'Delete', width: 100}
-  )
   getMyDraftNotes().then(data => {
     myDraftNotes.value = data
     contextStore.loadingComplete()
@@ -294,4 +305,69 @@ const reloadDraftNotes = () => getMyDraftNotes().then(data => myDraftNotes.value
   font-weight: bold;
   height: 32px !important;
 }
+
+.data-table-header-cell {
+  font-size: 14px;
+  font-weight: bold;
+  height: 32px !important;
+}
+
+#draft-notes-table .v-table__wrapper {
+  overflow-x: auto;
+}
+
+#draft-notes-table .v-table__wrapper > table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#draft-notes-table td,
+#draft-notes-table th {
+  overflow: hidden;
+}
+
+#draft-notes-table .subject-cell {
+  overflow-wrap: anywhere;
+}
+
+#draft-notes-table .subject-content {
+  min-width: 0;
+  gap: 4px;
+}
+
+#draft-notes-table .subject-btn {
+  max-width: 100%;
+  height: auto;
+  justify-content: flex-start;
+  text-align: left;
+  white-space: normal;
+  min-width: 0;
+}
+
+#draft-notes-table .subject-btn .v-btn__content {
+  width: 100%;
+  white-space: normal;
+}
+
+#draft-notes-table .subject-btn-text {
+  overflow-wrap: anywhere;
+}
+
+#draft-notes-table.stacked-table .v-table__wrapper tbody tr > td {
+  display: block !important;
+  width: 100% !important;
+  text-align: left !important;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+#draft-notes-table.stacked-table .v-table__wrapper tbody tr > td::before {
+  content: attr(data-label);
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  opacity: 0.75;
+}
+
 </style>
