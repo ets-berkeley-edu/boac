@@ -11,7 +11,7 @@
         <button
           id="header-dropdown-under-name"
           :aria-label="`${currentUser.firstName} quick links`"
-          class="button-menu header-button-menu bg-primary pr-3 text-body-1 text-white"
+          class="v-btn button-menu header-button-menu bg-primary pr-3 text-body-1 text-white"
           :class="{'button-menu-active': isMenuOpen}"
           :title="`User profile for ${currentUser.name || `UID ${currentUser.uid}` }`"
           v-bind="props"
@@ -118,7 +118,7 @@
         </v-list-item>
         <v-list-item class="pa-0">
           <v-btn
-            class="font-size-16 font-weight-500 justify-start text-decoration-none w-100"
+            class="header-menu-item font-size-16 font-weight-500 justify-start text-decoration-none w-100"
             color="primary"
             density="comfortable"
             :href="`mailto:${contextStore.config.supportEmailAddress}`"
@@ -174,11 +174,16 @@ const logOut = () => {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .header-button-menu {
   height: 46px;
+  &::after {
+    outline-style: solid;
+    outline-width: 0.125rem;
+  }
 }
 .header-menu-item {
+  border-radius: 0;
   font-size: 16px;
   letter-spacing: normal;
   justify-content: start;

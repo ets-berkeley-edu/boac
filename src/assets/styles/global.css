@@ -66,38 +66,6 @@
     background-color: lch(from rgb(var(--boa-button-menu-color)) 56 c h) !important;
   }
 }
-@supports selector(:focus-visible) {
-  .button-menu:focus-visible {
-    background-color: lch(from rgb(var(--boa-button-menu-color)) 56 c h) !important;
-    border: 2px solid rgba(255, 255, 255, var(--v-border-opacity)) !important;
-    &.button-menu-active {
-      background-color: lch(from rgb(var(--boa-button-menu-color)) 61 c h) !important;
-    }
-  }
-  .button-menu:hover:not(:disabled):not(:focus-visible) {
-    background-color: lch(from rgb(var(--boa-button-menu-color)) 52 c h) !important;
-    border-color: transparent;
-    &.button-menu-active {
-      background-color: lch(from rgb(var(--boa-button-menu-color)) 59 c h) !important;
-    }
-  }
-}
-@supports not selector(:focus-visible) {
-  .button-menu:focus {
-    background-color: lch(from rgb(var(--boa-button-menu-color)) 56 c h) !important;
-    border: 2px solid rgba(255, 255, 255, var(--v-border-opacity)) !important;
-    &.button-menu-active {
-      background-color: lch(from rgb(var(--boa-button-menu-color)) 61 c h) !important;
-    }
-  }
-  .button-menu:hover:not(:disabled):not(:focus) {
-    background-color: lch(from rgb(var(--boa-button-menu-color)) 52 c h) !important;
-    border-color: transparent;
-    &.button-menu-active {
-      background-color: lch(from rgb(var(--boa-button-menu-color)) 59 c h) !important;
-    }
-  }
-}
 .checkbox {
   accent-color: rgb(var(--v-theme-primary));
   height: 20px;

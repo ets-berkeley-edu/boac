@@ -40,7 +40,7 @@
           :key="cohort.id"
           tag="li"
           role="listitem"
-          class="py-0 pl-1 pr-2 pretty-hover"
+          class="py-0 pl-1 pr-2 pretty-hover sub-item"
         >
           <NavLink
             :id="`sidebar-cohort-${cohort.id}`"
@@ -96,7 +96,7 @@
           :key="group.id"
           tag="li"
           role="listitem"
-          class="py-0 pl-1 pr-2 pretty-hover"
+          class="pl-1 pr-2 pretty-hover sub-item"
         >
           <NavLink
             :id="`sidebar-${describeCuratedGroupDomain('default', false).replace(' ', '-')}-${index}`"
@@ -160,7 +160,7 @@
           :key="cohort.id"
           tag="li"
           role="listitem"
-          class="py-0 pl-1 pr-2 pretty-hover"
+          class="py-0 pl-1 pr-2 pretty-hover sub-item"
         >
           <NavLink
             :id="`sidebar-admitted-students-cohort-${index}`"
@@ -222,7 +222,7 @@
           :key="group.id"
           tag="li"
           role="listitem"
-          class="py-0 pl-1 pr-2 pretty-hover"
+          class="py-0 pl-1 pr-2 pretty-hover sub-item"
         >
           <NavLink
             :id="`sidebar-admitted-students-curated-${index}`"
@@ -247,7 +247,7 @@
       </v-list>
     </v-list-item>
     <v-list-item class="pa-0 sidebar-list-divided-section" role="listitem" tag="li">
-      <div class="font-weight-medium pretty-hover">
+      <div class="font-weight-medium mt-1 pretty-hover">
         <NavLink id="cohorts-all" path="/all/cohorts">
           Everyone's Cohorts
         </NavLink>
@@ -292,45 +292,46 @@ const {mdAndUp} = useDisplay()
 </script>
 
 <style scoped>
-
 .sidebar-list {
   background-color: var(--v-theme-primary);
 }
-
 .sidebar-list :deep(.v-list-item) {
   min-height: 24px !important;
 }
-
 /* override when zero-height is present */
 .sidebar-list :deep(.v-list-item.zero-height) {
   min-height: 6px !important;
 }
-
 :deep(.sidebar-list .v-list-item__content) {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
-
 .sidebar-list-divided-section {
   border-top: solid 1px rgb(var(--v-theme-primary));
   padding-top: 12px !important;
   margin-top: 12px !important;
 }
-
 .pretty-hover {
   border-left: 6px solid transparent;
-  padding: 0 8px 0 6px;
+  padding: 2px 8px 2px 6px !important;
 }
-.pretty-hover:hover, .pretty-hover:focus, .pretty-hover:focus-within, .pretty-hover:active {
+.pretty-hover:hover,
+.pretty-hover:focus-within,
+.pretty-hover:active {
   background-color: rgb(var(--v-theme-quaternary));
   border: 0;
   border-left: 6px solid rgb(var(--v-theme-warning)) !important;
   color: rgb(var(--v-theme-warning));
-  -moz-outline-style: none;
-  outline-style: none;
   text-decoration: none;
 }
-.pretty-hover:hover .sidebar-pill, .pretty-hover:focus .sidebar-pill, .pretty-hover:focus-within .sidebar-pill, .pretty-hover:active .sidebar-pill {
+.pretty-hover.sub-item:focus-within {
+  outline-color: rgba(var(--v-theme-warning));
+  outline-offset: -0.1rem;
+  outline-style: solid;
+}
+.pretty-hover:hover .sidebar-pill,
+.pretty-hover:focus-within .sidebar-pill,
+.pretty-hover:active .sidebar-pill {
   background-color: rgb(var(--v-theme-warning)) !important;
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
@@ -338,6 +339,5 @@ const {mdAndUp} = useDisplay()
   text-decoration: none;
   border: 0;
   color: inherit;
-  outline-style: none;
 }
 </style>

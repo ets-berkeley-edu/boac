@@ -1,20 +1,24 @@
 <template>
   <div class="align-center d-flex flex-nowrap justify-space-between my-2 w-100">
-    <div class="font-size-16 header-text ml-6 pr-2 text-white">
+    <div class="font-size-16 header-text px-3">
       <NavLink
         id="home-header"
-        class="text-no-wrap"
+        class="text-no-wrap text-white"
         path="/home"
       >
         <span class="hide-in-narrow-viewport">
           <span class="font-weight-bold">UC Berkeley</span>
           Online Advising <span class="sr-only">&nbsp;home page</span>
         </span>
-        <v-icon class="show-in-narrow-viewport" :icon="mdiHome" />
+        <v-icon
+          aria-label="UC Berkeley Online Advising home page"
+          class="show-in-narrow-viewport"
+          :icon="mdiHome"
+        />
       </NavLink>
     </div>
     <AdvancedSearch class="mr-3" />
-    <HeaderMenu class="mr-8" />
+    <HeaderMenu class="mr-4" />
   </div>
 </template>
 
@@ -32,8 +36,6 @@ import NavLink from '@/components/util/NavLink.vue'
   border: 0;
   color: white;
   cursor: pointer;
-  -moz-outline-style: none;
-  outline-style: none;
   text-decoration: none;
 }
 /* eslint-disable vue-scoped-css/no-unused-selector */
@@ -41,12 +43,12 @@ import NavLink from '@/components/util/NavLink.vue'
 /* eslint-enable vue-scoped-css/no-unused-selector */
   opacity: var(--v-high-emphasis-opacity )
 }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .hide-in-narrow-viewport {
     display: none;
   }
 }
-@media (min-width: 600px) {
+@media (min-width: 900px) {
   .show-in-narrow-viewport {
     display: none;
   }

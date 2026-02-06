@@ -20,7 +20,8 @@ const contextStore = useContextStore()
 </script>
 
 <style>
-@import "@/assets/styles/global.css";
 @import 'v-calendar/style.css';
 @import "@/assets/styles/vcalendar-custom.css";
+@import "@/assets/styles/global.css";
+@import "@/assets/styles/vuetify-overrides.scss";
 </style>

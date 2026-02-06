@@ -1,36 +1,38 @@
 <template>
-  <div class="align-center d-flex" role="search">
-    <div class="on-surface mr-2">
-      <AccessibleCombobox
-        :key="searchStore.autocompleteInputResetKey"
-        :aria-description="`${labelForSearchInput()} (Type / to put focus in the search input field.)`"
-        :clazz="{
-          'search-focus-in': searchStore.isFocusOnSearch || searchStore.queryText,
-          'search-focus-out': !searchStore.isFocusOnSearch && !searchStore.queryText
-        }"
-        clearable
-        :disabled="searchStore.isSearching"
-        :get-value="() => queryTextModel"
-        id-prefix="basic-search"
-        input-type="search"
-        :is-busy="searchStore.isSearching"
-        :items="searchStore.searchHistory"
-        label="Search"
-        list-label="Previous Searches"
-        :menu-props="{'location': 'bottom'}"
-        :on-submit="search"
-        :on-update-focused="isFocused => searchStore.setIsFocusOnSearch(isFocused)"
-        open-on-focus
-        placeholder="/ to search"
-        :when-item-selected="search"
-        :set-value="v => queryTextModel = v"
-      />
-    </div>
+  <div class="align-center d-flex flex-grow-1" role="search">
+    <label id="basic-search-input-label" class="sr-only">basic search</label>
+    <AccessibleCombobox
+      :key="searchStore.autocompleteInputResetKey"
+      :aria-description="`${labelForSearchInput()} (Type / to put focus in the search input field.)`"
+      class="d-flex on-surface mr-2 w-100"
+      :clazz="{
+        'basic-search': true,
+        'search-focus-in': shouldExpandInput,
+        'search-focus-out': !shouldExpandInput
+      }"
+      clearable
+      :disabled="searchStore.isSearching"
+      :get-value="() => queryTextModel"
+      id-prefix="basic-search"
+      input-type="search"
+      :is-busy="searchStore.isSearching"
+      :items="searchStore.searchHistory"
+      label="Search"
+      list-label="Previous Searches"
+      :menu-props="{'location': 'bottom'}"
+      :on-submit="search"
+      :on-update-focused="isFocused => searchStore.setIsFocusOnSearch(isFocused)"
+      open-on-focus
+      placeholder="/ to search"
+      :when-item-selected="search"
+      :set-value="v => queryTextModel = v"
+    />
     <v-btn
       id="go-search"
-      class="btn-search"
+      class="btn-search mx-1"
       :disabled="isSearchDisabled"
-      text="Search"
+      :icon="$vuetify.display.width < mobileBreakpoint ? mdiMagnify : false"
+      :text="$vuetify.display.width >= mobileBreakpoint ? 'Search' : undefined"
       variant="outlined"
       @keydown.enter="search"
       @click.stop="search"
@@ -42,6 +44,8 @@
 <script setup>
 import {computed, onMounted, onUnmounted} from 'vue'
 import {get, isEmpty, trim} from 'lodash'
+import {mdiMagnify} from '@mdi/js'
+import {useDisplay} from 'vuetify'
 import {useRoute, useRouter} from 'vue-router'
 import AccessibleCombobox from '@/components/util/AccessibleCombobox'
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
@@ -53,19 +57,22 @@ import {useDegreeStore} from '@/stores/degree-edit-session/index'
 import {useSearchStore} from '@/stores/search'
 import {isPeerAdvisor} from '@/lib/boa-user.js'
 
-const searchStore = useSearchStore()
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
+const display = useDisplay()
 const isSearchDisabled = computed(() => {
   const q = trim(searchStore.queryText)
   return searchStore.isSearching || isEmpty(q) || q === route.query.q
 })
+const mobileBreakpoint = 600
 const queryTextModel = computed({
   get: () => searchStore.queryText || null,
   set: v => searchStore.setQueryText(v)
 })
 const route = useRoute()
 const router = useRouter()
+const searchStore = useSearchStore()
+const shouldExpandInput = computed(() => display.width.value >= mobileBreakpoint && (searchStore.isFocusOnSearch || searchStore.queryText))
 
 onMounted(() => {
   document.addEventListener('keyup', onKeyUp, true)
@@ -124,14 +131,13 @@ const search = () => {
 <style scoped>
 :deep(.search-focus-in) {
   border: 0;
+  flex: 1 0 100%;
   max-width: 300px;
-  width: 300px;
   transition: max-width ease-out 0.2s;
 }
 :deep(.search-focus-out) {
   max-width: 200px;
   transition: min-width ease-in 0.2s;
-  width: 200px;
 }
 .btn-search {
   background-color: transparent;
