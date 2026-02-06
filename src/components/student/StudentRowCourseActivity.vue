@@ -67,7 +67,7 @@
                 color="warning"
                 :icon="mdiAlert"
                 size="small"
-                title="Non-passing grade"
+                alt="Non-passing grade"
               />
               <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
             </div>
@@ -85,7 +85,7 @@
                 color="warning"
                 :icon="mdiAlert"
                 size="small"
-                title="Non-passing grade"
+                alt="Non-passing grade"
               />
               <IncompleteGradeAlertIcon
                 v-if="getSectionsWithIncompleteStatus(enrollment.sections).length && !currentUser.inDemoMode"
