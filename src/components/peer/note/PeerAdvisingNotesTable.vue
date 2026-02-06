@@ -140,7 +140,7 @@
                   @click="() => onClickDeleteNote(note)"
                 />
               </div>
-              <div v-if="!isExpanded(note)" class="created-date text-nowrap">
+              <div v-if="!isExpanded(note)" class="created-date text-no-wrap">
                 <TimelineDate
                   :id="`collapsed-note-${note.id}-updated-at`"
                   :date="note.updatedAt || note.createdAt"
@@ -151,7 +151,7 @@
               <div
                 v-if="isExpanded(note)"
                 :class="{'mt-4': editingNoteId !== note.id && canUserEditNote(note, currentUser)}"
-                class="created-date text-nowrap"
+                class="created-date text-no-wrap"
               >
                 <div>
                   <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Created:</div>
@@ -175,7 +175,7 @@
               <v-expand-transition>
                 <div v-if="isExpanded(note)" :class="{'mt-4': !isExpanded(note)}">
                   <div v-if="note.author.name || note.author.email" class="mt-2">
-                    <div class="font-size-15 text-medium-emphasis text-nowrap">Created by:</div>
+                    <div class="font-size-15 text-medium-emphasis text-no-wrap">Created by:</div>
                     <div v-if="note.author.uid && note.author.name">
                       <router-link
                         v-if="currentUser.isAdmin && note.peerAdvisingDepartmentId"

@@ -52,8 +52,8 @@ const options = ref(undefined)
 
 onMounted(() => {
   const currentTheme = useTheme().current.value
-  const maximumTerm = get(first(props.student.termGpa), 'termName')
-  const minimumTerm = get(last(props.student.termGpa), 'termName')
+  const maximumTerm = get(first(props.student.termGpa), 'termName') || get(first(props.student.termGpa), 'name')
+  const minimumTerm = get(last(props.student.termGpa), 'termName') || get(last(props.student.termGpa), 'name')
   options.value = {
     accessibility: {
       enabled: true,
@@ -77,8 +77,10 @@ onMounted(() => {
       type: 'area',
       width: props.width
     },
-    credits: false,
     colors: [currentTheme.colors.primary],
+    credits: {
+      enabled: false
+    },
     legend: {
       enabled: false
     },
@@ -90,17 +92,6 @@ onMounted(() => {
           keyboardNavigation: {
             enabled: true
           }
-        },
-        states: {
-          hover: {
-            enabled: true
-          }
-        }
-      },
-      series: {
-        marker: {
-          enabled: true,
-          radius: 0
         }
       }
     },
@@ -150,8 +141,9 @@ onMounted(() => {
       useHTML: true
     },
     tooltip: {
-      enabled: true,
+      borderRadius: 8,
       distance: 50,
+      enabled: true,
       format: '{description}',
       outside: true,
       valueDecimals: 3
@@ -209,14 +201,14 @@ const generateGpaDataSeries = (currentTheme) => {
       accessibility: {
         enabled: true
       },
-      description: `${term.termName} GPA is <b>${numFormat(term.gpa, '0.000')}</b>`,
+      description: `${term.termName || term.name} GPA is <b>${numFormat(term.gpa, '0.000')}</b>`,
       marker: {
         enabled: true,
         fillColor: 'transparent',
         lineColor: 'transparent',
         radius: 1
       },
-      name: `${term.termName}`,
+      name: `${term.termName || term.name}`,
       x: i,
       y: term.gpa
     })
