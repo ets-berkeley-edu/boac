@@ -35,7 +35,8 @@ class CuratedModal(Page):
     GROUP_SAVE_BUTTON = By.ID, 'create-curated-group-confirm'
     GROUP_CANCEL_BUTTON = By.ID, 'create-curated-group-cancel'
     DUPE_GROUP_NAME_MSG = By.XPATH, '//div[contains(text(), "You have an existing")]'
-    NO_CHARS_LEFT_MSG = By.XPATH, '//span[text()="(0 left)"]'
+    MISSING_GROUP_NAME_MSG = By.XPATH, '//div[contains(text(), "Name is required")]'
+    NO_CHARS_LEFT_MSG = By.XPATH, '//span[contains(text(), "0 characters left")]'
 
     def enter_group_name(self, group):
         app.logger.info(f'Entering group name {group.name}')

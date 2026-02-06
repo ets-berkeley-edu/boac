@@ -307,10 +307,14 @@ class TestFilteredCohortHomepage:
 class TestFilteredCohortValidation:
 
     def test_title_required(self):
+        cohort = FilteredCohort({
+            'name': '',
+        })
         self.homepage.click_sidebar_create_filtered()
         self.filtered_students_page.perform_student_search(test.searches[0])
-        self.filtered_students_page.click_save_cohort_button_one()
-        assert not self.filtered_students_page.element(self.filtered_students_page.SAVE_COHORT_BUTTON_TWO).is_enabled()
+        self.filtered_students_page.save_and_name_cohort(cohort)
+        self.filtered_students_page.when_visible(self.filtered_students_page.MISSING_FILTERED_NAME_MSG,
+                                                 utils.get_short_timeout())
 
     def test_title_255_chars_max_truncated(self):
         cohort = FilteredCohort({
