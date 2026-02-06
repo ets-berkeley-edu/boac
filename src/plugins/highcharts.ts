@@ -24,6 +24,10 @@ export default ((el: Element) => {
   nextTick(() => {
     const chartDetails = first(el.querySelectorAll('[id^="highcharts-screen-reader-region-before"]'))
     const container = first(el.getElementsByClassName('highcharts-container'))
+
+    // prevent screen reader text from being announced as 'clickable' due to the attached mousedown handler
+    el.setAttribute('role', 'presentation')
+
     if (container) {
       // make keyboard navigation work with JAWS
       container.setAttribute('role', 'application')

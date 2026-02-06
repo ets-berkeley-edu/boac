@@ -39,7 +39,7 @@
           Waitlisted
         </div>
       </div>
-      <div class="align-center column-grade d-flex pl-1 text-nowrap" role="cell">
+      <div class="align-center column-grade d-flex pl-1 text-no-wrap" role="cell">
         <span
           v-if="course.midtermGrade"
           :id="`${baseElementId}-midterm-grade`"
@@ -58,7 +58,7 @@
           title="Non-passing grade"
         />
       </div>
-      <div class="align-center column-grade d-flex text-nowrap" role="cell">
+      <div class="align-center column-grade d-flex text-no-wrap" role="cell">
         <span
           v-if="course.grade"
           :id="`${baseElementId}-final-grade`"
@@ -88,7 +88,7 @@
           <span class="sr-only">No data</span>&mdash;
         </span>
       </div>
-      <div class="column-units font-size-14 pl-1 pt-1 text-nowrap text-right" role="cell">
+      <div class="column-units font-size-14 pl-1 pt-1 text-no-wrap text-right" role="cell">
         <span :id="`${baseElementId}-units`">{{ numeral(course.units).format('0.0') }}</span>
       </div>
     </div>
@@ -136,9 +136,9 @@
             v-for="requirement in course.courseRequirements"
             :id="`term-${termId}-section-${get(course.sections, '[0].ccn')}-${normalizeId(requirement)}`"
             :key="requirement"
-            class="d-flex align-center font-size-14 text-no-wrap"
+            class="d-flex align-center font-size-14"
           >
-            <v-icon class="text-warning mr-1" :icon="mdiStar" /> {{ requirement }}
+            <v-icon class="align-self-start text-warning mr-1" :icon="mdiStar" /> {{ requirement }}
           </div>
         </div>
         <StudentCourseCanvasData
@@ -156,7 +156,7 @@
         >
           <v-chip
             v-if="!currentUser.inDemoMode"
-            class="align-center d-flex font-size-12 font-weight-black mr-2 text-uppercase text-nowrap"
+            class="align-center d-flex font-size-12 font-weight-black mr-2 text-uppercase text-no-wrap"
             color="error"
             density="compact"
             :prepend-icon="mdiInformationSlabBox"

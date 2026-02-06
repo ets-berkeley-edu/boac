@@ -33,6 +33,7 @@ const options = ref(undefined)
 onMounted(() => {
   const currentTheme = useTheme().current.value
   const description = `${props.student.firstName} ${props.student.lastName} is currently enrolled in ${props.currentEnrolledUnits || 'zero'} units and has completed ${props.cumulativeUnits || '0'} units.`
+  const rangeMax = props.currentEnrolledUnits + props.cumulativeUnits < 120 ? 120 : 150
   const yMax = max([120, props.currentEnrolledUnits + props.cumulativeUnits])
   options.value = {
     accessibility: {
@@ -40,6 +41,10 @@ onMounted(() => {
       enabled: true,
       keyboardNavigation: {
         enabled: true
+      },
+      landmarkVerbosity: 'disabled',
+      point: {
+        descriptionFormat: '{point.description}'
       },
       screenReaderSection: {
         beforeChartFormat: '<div>{chartLongdesc}</div><div>{typeDescription}</div><div>{yAxisDescription}</div>'
@@ -75,8 +80,14 @@ onMounted(() => {
         groupPadding: 0,
         pointPadding: 0
       },
-      enableMouseTracking: false,
+      enableMouseTracking: true,
       series: {
+        marker: {
+          enabled: true,
+          fillColor: 'transparent',
+          lineColor: 'transparent',
+          radius: 1
+        },
         states: {
           hover: {
             enabled: false
@@ -87,19 +98,23 @@ onMounted(() => {
     series: [
       {
         accessibility: {
-          description: `${props.currentEnrolledUnits} currently enrolled units`,
           enabled: true
         },
+        data: [{
+          description: `${props.currentEnrolledUnits} enrolled units this term`,
+          y: props.currentEnrolledUnits
+        }],
         name: 'Term units',
-        data: [props.currentEnrolledUnits]
       },
       {
         accessibility: {
-          description: `${props.cumulativeUnits} cumulative units`,
           enabled: true
         },
+        data: [{
+          description: `${props.cumulativeUnits} completed units`,
+          y: props.cumulativeUnits
+        }],
         name: 'Cumulative units',
-        data: [props.cumulativeUnits]
       }
     ],
     title: {
@@ -154,7 +169,8 @@ onMounted(() => {
     yAxis: {
       accessibility: {
         description: 'Units',
-        enabled: true
+        enabled: true,
+        rangeDescription: `Range: 0 to ${rangeMax}`
       },
       min: 0,
       max: yMax,

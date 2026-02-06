@@ -48,7 +48,7 @@
     >
       <template #item.name="{item}">
         <div class="d-flex">
-          <div v-if="item.name" class="text-nowrap">
+          <div v-if="item.name" class="text-no-wrap">
             <span class="sr-only">Name</span>
             <a
               :id="`directory-link-${item.uid}`"
@@ -60,7 +60,7 @@
               {{ item.name }}
             </a>
           </div>
-          <div v-if="!item.name" class="text-nowrap">
+          <div v-if="!item.name" class="text-no-wrap">
             <span class="text-medium-emphasis">Name unavailable (UID: {{ item.uid }})</span>
           </div>
         </div>

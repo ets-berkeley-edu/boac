@@ -38,7 +38,7 @@
     <div class="pt-2 px-0">
       <div role="table">
         <div role="rowgroup">
-          <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-bold mx-1 text-medium-emphasis text-nowrap text-uppercase">
+          <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-bold mx-1 text-medium-emphasis text-no-wrap text-uppercase">
             <div role="columnheader" class="student-course-column-name mr-2">Course</div>
             <div role="columnheader" class="student-course-column-grade mr-2">Mid</div>
             <div role="columnheader" class="student-course-column-grade mr-1">Final</div>

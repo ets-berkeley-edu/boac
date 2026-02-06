@@ -94,7 +94,7 @@
           :id="`academic-year-${year.label}-section`"
           class="border-b-thin border-e-thin border-s-thin"
         >
-          <v-container class="pl-6 pt-0" fluid>
+          <v-container class="pt-0" fluid>
             <v-row>
               <v-col :cols="$vuetify.display.lgAndUp ? 4 : 12">
                 <StudentEnrollmentTerm

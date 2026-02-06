@@ -1,7 +1,7 @@
 <template>
   <highcharts
     v-if="options"
-    :id="`student-chart-boxplot-container-${numericId}`"
+    ref="highchartsRef"
     v-highchartsA11y
     class="student-boxplot"
     :options="options"
@@ -22,6 +22,11 @@ const props = defineProps({
     required: true,
     type: String
   },
+  chartSummary: {
+    default: '',
+    required: false,
+    type: String
+  },
   dataset: {
     required: true,
     type: Object
@@ -29,10 +34,15 @@ const props = defineProps({
   numericId: {
     required: true,
     type: String
+  },
+  studentName: {
+    required: true,
+    type: String
   }
 })
 
 const courseDeciles = get(props.dataset, 'courseDeciles')
+const highchartsRef = ref()
 const options = ref(undefined)
 
 onMounted(() => {
@@ -47,13 +57,11 @@ const getHighchartsOptions = () => {
       keyboardNavigation: {
         enabled: true
       },
-      point: {
-        valueDescriptionFormat: '{index}. {point.name}, {point.y}.'
-      },
+      landmarkVerbosity: 'disabled',
       screenReaderSection: {
-        beforeChartFormat: '<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartLongdesc}</div><div>{typeDescription}</div><div>{yAxisDescription}</div>'
+        beforeChartFormat: `<div>{typeDescription}</div><div>${props.chartSummary}</div><div>{yAxisDescription}</div>`
       },
-      typeDescription: `Boxplot with two data series representing the student's ${props.axisDescription} compared with the rest of the class.`
+      typeDescription: `Boxplot with two data series representing the student's ${props.axisDescription} compared with the overall class.`
     },
     chart: {
       backgroundColor: 'transparent',
@@ -72,15 +80,6 @@ const getHighchartsOptions = () => {
     },
     plotOptions: {
       boxplot: {
-        accessibility: {
-          description: props.chartDescription,
-          enabled: true,
-          exposeAsGroupOnly: true,
-          keyboardNavigation: {
-            enabled: true
-          },
-          valueDescriptionFormat: point => `${point.index + 1}. ${point.name} (y value: ${point.y})`
-        },
         color: currentTheme.colors['chart-boxplot'],
         enableMouseTracking: false,
         fillColor: currentTheme.colors['chart-boxplot'],
@@ -89,6 +88,14 @@ const getHighchartsOptions = () => {
         medianWidth: 3,
         whiskerLength: 9,
         whiskerWidth: 1
+      },
+      series: {
+        accessibility: {
+          enabled: true,
+          keyboardNavigation: {
+            enabled: true
+          }
+        }
       }
     },
     series: generateSeriesFromDataset(currentTheme),
@@ -102,7 +109,7 @@ const getHighchartsOptions = () => {
       borderRadius: 16,
       headerFormat: `
         <div class="align-center boxplot-tooltip-font-family boxplot-tooltip-header d-flex justify-space-between px-3 py-2">
-          <div>User Score</div>
+          <div>Student Score</div>
           <div class="ml-3 pl-5">${get(props.dataset.student, 'raw', '&mdash;')}</div>
         </div>
       `,
@@ -113,23 +120,23 @@ const getHighchartsOptions = () => {
         <div class="boxplot-tooltip-font-family px-3 py-2 w-100">
           <div class="align-center d-flex justify-space-between">
             <div>Maximum</div>
-            <div class="ml-3 pl-5">${getCourseDecile(10)}</div>
+            <div class="ml-3 pl-5">${get(courseDeciles, 10, '&mdash;')}</div>
           </div>
           <div class="align-center d-flex justify-space-between pt-1">
             <div>70th Percentile</div>
-            <div class="ml-3 pl-5">${getCourseDecile(7)}</div>
+            <div class="ml-3 pl-5">${get(courseDeciles, 7, '&mdash;')}</div>
           </div>
           <div class="align-center d-flex justify-space-between pt-1">
             <div>50th Percentile</div>
-            <div class="ml-3 pl-5">${getCourseDecile(5)}</div>
+            <div class="ml-3 pl-5">${get(courseDeciles, 5, '&mdash;')}</div>
           </div>
           <div class="align-center d-flex justify-space-between pt-1">
             <div>30th Percentile</div>
-            <div class="ml-3 pl-5">${getCourseDecile(3)}</div>
+            <div class="ml-3 pl-5">${get(courseDeciles, 3, '&mdash;')}</div>
           </div>
           <div class="align-center d-flex justify-space-between pt-1">
             <div>Minimum</div>
-            <div class="ml-3 pl-5">${getCourseDecile(0)}</div>
+            <div class="ml-3 pl-5">${get(courseDeciles, 0, '&mdash;')}</div>
           </div>
         </div>
       `,
@@ -157,7 +164,7 @@ const getHighchartsOptions = () => {
       accessibility: {
         description: props.axisDescription,
         enabled: true,
-        rangeDescription: `Range: ${getCourseDecile(0)} to ${getCourseDecile(10)}`
+        rangeDescription: 'Range: 0 to 100'
       },
       endOnTick: false,
       gridLineWidth: 0,
@@ -179,17 +186,37 @@ const getHighchartsOptions = () => {
 const generateSeriesFromDataset = currentTheme => {
   return [
     {
+      accessibility: {
+        description: `5 data points representing ${props.axisDescription} by percentile`,
+        keyboardNavigation: {
+          enabled: true
+        },
+        point: {
+          descriptionFormat: 'minimum: {low}, 30th percentile: {q1}, 50th percentile: {median}, 70th percentile: {q3}, maximum: {high}'
+        }
+      },
       data: courseDeciles ? [
         [
-          getCourseDecile(0),
-          getCourseDecile(3),
-          getCourseDecile(5),
-          getCourseDecile(7),
-          getCourseDecile(10)
+          get(courseDeciles, 0, null),
+          get(courseDeciles, 3, null),
+          get(courseDeciles, 5, null),
+          get(courseDeciles, 7, null),
+          get(courseDeciles, 10, null)
         ]
-      ] : []
+      ] : [],
+      keys: ['low', 'q1', 'median', 'q3', 'high'],
+      name: `Overall class ${props.axisDescription}`,
+      type: 'boxplot'
     },
     {
+      accessibility: {
+        keyboardNavigation: {
+          enabled: true
+        },
+        point: {
+          descriptionFormat: '{y}'
+        }
+      },
       data: props.dataset.student ? [[0, props.dataset.student.raw]] : [],
       marker: {
         fillColor: currentTheme.colors.primary,
@@ -201,13 +228,10 @@ const generateSeriesFromDataset = currentTheme => {
           }
         }
       },
+      name: `${props.studentName} ${props.axisDescription}`,
       type: 'scatter'
     }
   ]
-}
-
-const getCourseDecile = index => {
-  return get(courseDeciles, index, '&mdash;')
 }
 </script>
 
@@ -222,6 +246,10 @@ const getCourseDecile = index => {
   border-top-right-radius: 8px;
   font-size: 16px;
   font-weight: 500;
+}
+.student-boxplot {
+  max-width: 90px;
+  width: 100% !important;
 }
 .student-boxplot .highcharts-container, .student-boxplot .highcharts-root {
   max-width: 85px;
