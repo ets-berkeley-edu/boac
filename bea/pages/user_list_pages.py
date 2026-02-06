@@ -55,7 +55,7 @@ class UserListPages(BoaPages):
         no_cumul_units_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Units completed\")]/following-sibling::div/span'
         gpa_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"GPA\")]/following-sibling::div'
         no_gpa_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"GPA\")]/following-sibling::div/span'
-        alerts_loc = By.XPATH, f'{row_xpath}//span[contains(@id, "alert-count")]/div'
+        alerts_loc = By.XPATH, f'{row_xpath}//div[contains(@id, "alert-count")]/div'
         if self.is_present(cumul_units_loc):
             units = self.element(cumul_units_loc).text
         elif self.is_present(no_cumul_units_loc):

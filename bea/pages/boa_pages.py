@@ -151,7 +151,10 @@ class BoaPages(CreateNoteModal, SearchForm):
     FILTERED_COHORT_LINK = (By.XPATH, '//a[contains(@id,"sidebar-cohort")]')
     DUPE_FILTERED_NAME_MSG = (
         By.XPATH,
-        '//div[contains(text(), "You have an existing cohort with this name. Please choose a different name.")]')
+        '//div[contains(text(), "You have an existing cohort named")]')
+    MISSING_FILTERED_NAME_MSG = (
+        By.XPATH,
+        '//div[contains(text(), "Name is required")]')
 
     def click_sidebar_create_filtered(self):
         app.logger.info('Clicking sidebar button to create a filtered cohort')

@@ -114,10 +114,12 @@ class TestCuratedGroup:
         self.student_page.load_page(self.test_student)
         self.student_page.click_add_to_group_per_student_button(self.test_student)
         self.student_page.click_create_new_grp(group)
-        assert not self.student_page.element(self.student_page.GROUP_SAVE_BUTTON).is_enabled()
+        self.student_page.name_and_save_group(group)
+        self.student_page.when_visible(self.student_page.MISSING_GROUP_NAME_MSG, utils.get_short_timeout())
 
     def test_group_name_truncated_255_chars(self):
         self.student_page.cancel_group()
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
         group = Cohort({'name': ('A llooooong title ' * 15)})
         self.student_page.click_create_new_grp(group)
         self.student_page.enter_group_name(group)
@@ -137,6 +139,7 @@ class TestCuratedGroup:
 
     def test_group_name_cannot_match_existing_cohort_of_same_advisor(self):
         self.student_page.cancel_group()
+        self.student_page.click_add_to_group_per_student_button(self.test_student)
         new_group = Cohort({'name': self.test.default_cohort.name})
         self.student_page.click_create_new_grp(new_group)
         self.student_page.name_and_save_group(new_group)
