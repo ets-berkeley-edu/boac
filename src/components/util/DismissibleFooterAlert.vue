@@ -15,6 +15,7 @@
           <v-btn
             id="speedbird"
             aria-label="Dismiss BOA environment type warning"
+            class="text-white"
             color="primary"
             :icon="mdiAirplane"
             size="sm"

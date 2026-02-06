@@ -1,0 +1,185 @@
+@supports not selector(:focus) {
+  .bg-accent-blue:focus::after,
+  .text-accent-blue:focus::after {
+    outline-color: rgba(var(--v-theme-accent-blue)) !important;
+  }
+  .bg-accent-green:focus::after,
+  .text-accent-green:focus::after {
+    outline-color: rgba(var(--v-theme-accent-green)) !important;
+  }
+  .bg-accent-orange:focus::after,
+  .text-accent-orange:focus::after {
+    outline-color: rgba(var(--v-theme-accent-orange)) !important;
+  }
+  .bg-accent-purple:focus::after,
+  .text-accent-purple:focus::after {
+    outline-color: rgba(var(--v-theme-accent-purple)) !important;
+  }
+  .bg-accent-red:focus::after,
+  .text-accent-red:focus::after {
+    outline-color: rgba(var(--v-theme-accent-red)) !important;
+  }
+  .bg-primary:focus::after,
+  .text-primary:focus::after {
+    outline-color: rgba(var(--v-theme-primary)) !important;
+  }
+  .bg-quaternary:focus::after,
+  .text-quaternary:focus::after {
+    outline-color: rgba(var(--v-theme-quaternary)) !important;
+  }
+  .bg-secondary:focus::after,
+  .text-secondary:focus::after {
+    outline-color: rgba(var(--v-theme-secondary)) !important;
+  }
+  .bg-tertiary:focus::after,
+  .text-on-tertiary:focus::after,
+  .text-tertiary:focus::after {
+    outline-color: rgba(var(--v-theme-tertiary)) !important;
+  }
+  .sidebar a:focus,
+  .v-btn.text-white:focus::after,
+  a.text-white:focus {
+    outline-color: rgba(white, calc(0.25 * var(--v-theme-overlay-multiplier))) !important;
+  }
+  .v-btn:focus > .v-btn__overlay {
+    opacity: var(--v-focus-opacity);
+  }
+  .v-btn:focus::after,
+  .v-expansion-panel-title:focus,
+  .v-list-item:focus::after,
+  .v-list-item:focus-within::after,
+  .v-selection-control--focus-visible .v-selection-control__input::before,
+  a:not(.v-btn):focus,
+  *[tabindex="-1"]:focus {
+    --v-theme-overlay-multiplier: 3;
+    border-width: 0;
+    box-shadow: 0 0 0 0.125rem var(--v-theme-surface);
+    outline-color: currentColor;
+    outline-offset: 0.125rem;
+    outline-style: solid;
+    outline-width: 0.125rem;
+  }
+  .v-menu .v-list-item:focus::after,
+  .v-menu .v-list-item:focus-within::after,
+  .v-menu .v-list-item .v-btn:focus::after {
+    outline-offset: -0.125rem !important;
+  }
+  .v-expansion-panel-title:focus {
+    outline-offset: 0.025rem !important;
+    .v-expansion-panel-title__overlay {
+      --v-theme-overlay-multiplier: 1 !important;
+    }
+  }
+  .v-list-item:focus > .v-list-item__overlay {
+    opacity: calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)) !important;
+  }
+  .v-list-item:focus::after {
+    box-shadow: inset 0 0 0 0.125rem var(--v-theme-surface);
+    opacity: calc(0.25 * var(--v-theme-overlay-multiplier));
+  }
+  .v-selection-control--focus-visible .v-selection-control__input::before {
+    --current-color: currentColor;
+    background-color: rgba(var(--current-color), calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)));
+  }
+  a:not(.v-btn):focus {
+    --current-color: currentColor;
+    border-radius: 1px;
+    outline-color: rgba(var(--current-color), calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)));
+    outline-offset: 0.2rem;
+  }
+}
+@supports selector(:focus-visible) {
+  .bg-accent-blue:focus-visible::after,
+  .text-accent-blue:focus-visible::after {
+    outline-color: rgba(var(--v-theme-accent-blue)) !important;
+  }
+  .bg-accent-green:focus-visible::after,
+  .text-accent-green:focus-visible::after {
+    outline-color: rgba(var(--v-theme-accent-green)) !important;
+  }
+  .bg-accent-orange:focus-visible::after,
+  .text-accent-orange:focus-visible::after {
+    outline-color: rgba(var(--v-theme-accent-orange)) !important;
+  }
+  .bg-accent-purple:focus-visible::after,
+  .text-accent-purple:focus-visible::after {
+    outline-color: rgba(var(--v-theme-accent-purple)) !important;
+  }
+  .bg-accent-red:focus-visible::after,
+  .text-accent-red:focus-visible::after {
+    outline-color: rgba(var(--v-theme-accent-red)) !important;
+  }
+  .bg-primary:focus-visible::after,
+  .text-primary:focus-visible::after {
+    outline-color: rgba(var(--v-theme-primary)) !important;
+  }
+  .bg-quaternary:focus-visible::after,
+  .text-quaternary:focus-visible::after {
+    outline-color: rgba(var(--v-theme-quaternary)) !important;
+  }
+  .bg-secondary:focus-visible::after,
+  .text-secondary:focus-visible::after {
+    outline-color: rgba(var(--v-theme-secondary)) !important;
+  }
+  .bg-tertiary:focus-visible::after,
+  .text-on-tertiary:focus-visible::after,
+  .text-tertiary:focus-visible::after {
+    outline-color: rgba(var(--v-theme-tertiary)) !important;
+  }
+  .sidebar a:focus-visible,
+  .v-btn.text-white:focus-visible::after,
+  a.text-white:focus-visible {
+    outline-color: rgba(white, calc(0.25 * var(--v-theme-overlay-multiplier))) !important;
+  }
+  .v-btn:focus-visible > .v-btn__overlay {
+    opacity: var(--v-focus-opacity);
+  }
+  .v-btn:focus-visible::after,
+  .v-expansion-panel-title:focus-visible,
+  .v-list-item:focus-visible::after,
+  .v-list-item:focus-within::after,
+  .v-selection-control--focus-visible .v-selection-control__input::before,
+  a:not(.v-btn):focus-visible,
+  *[tabindex="-1"]:focus-visible {
+    --v-theme-overlay-multiplier: 3;
+    border-width: 0;
+    box-shadow: 0 0 0 0.125rem var(--v-theme-surface);
+    outline-color: currentColor;
+    outline-offset: 0.125rem;
+    outline-style: solid;
+    outline-width: 0.125rem;
+  }
+  .v-menu .v-list-item:focus-visible::after,
+  .v-menu .v-list-item:focus-within::after,
+  .v-menu .v-list-item .v-btn:focus-visible::after {
+    outline-offset: -0.125rem !important;
+  }
+  .v-expansion-panel-title:focus-visible {
+    outline-offset: 0.025rem !important;
+    .v-expansion-panel-title__overlay {
+      --v-theme-overlay-multiplier: 1 !important;
+    }
+  }
+  .v-list-item:focus-visible > .v-list-item__overlay {
+    opacity: calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)) !important;
+  }
+  .v-list-item:focus-visible::after {
+    box-shadow: inset 0 0 0 0.125rem var(--v-theme-surface);
+    opacity: calc(0.25 * var(--v-theme-overlay-multiplier));
+  }
+  .v-selection-control--focus-visible .v-selection-control__input::before {
+    --current-color: currentColor;
+    background-color: rgba(var(--current-color), calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)));
+  }
+  a:not(.v-btn):focus-visible {
+    --current-color: currentColor;
+    border-radius: 1px;
+    outline-color: rgba(var(--current-color), calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)));
+    outline-offset: 0.2rem;
+  }
+}
+.v-input--focused.basic-search .v-field--focused {
+  --v-theme-overlay-multiplier: 3;
+  outline-color: rgba(white, calc(0.25 * var(--v-theme-overlay-multiplier))) !important;
+  outline-style: solid;
+}
