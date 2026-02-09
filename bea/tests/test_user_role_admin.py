@@ -120,14 +120,14 @@ class TestAdminUserRole:
         existing_topic = Topic(Topics.ACADEMIC_DIFFICULTY.value)
         self.flight_deck_page.click_create_topic()
         self.flight_deck_page.enter_topic_label(existing_topic.name)
+        self.flight_deck_page.click_save_topic()
         expected = f"Sorry, the label '{existing_topic.name}' is assigned to an existing topic."
         utils.assert_equivalence(self.flight_deck_page.label_validation_error(), expected)
-        assert not self.flight_deck_page.element(self.flight_deck_page.TOPIC_SAVE_BUTTON).is_enabled()
 
     def test_new_note_topic_max_chars(self):
         long_label = 'A long label ' * 4
         self.flight_deck_page.enter_topic_label(long_label[0:50])
-        utils.assert_actual_includes_expected(self.flight_deck_page.label_length_error(), '0 left')
+        utils.assert_actual_includes_expected(self.flight_deck_page.label_length_error(), '0 characters left')
 
     def test_new_note_topic_cancel(self):
         self.flight_deck_page.click_cancel_topic()

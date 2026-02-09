@@ -87,11 +87,11 @@ class FlightDeckPage(BoaPages):
     TOPIC_NAME_INPUT = By.ID, 'create-topic-input'
     TOPIC_SAVE_BUTTON = By.ID, 'topic-save'
     TOPIC_CANCEL_BUTTON = By.ID, 'cancel'
-    TOPIC_VALIDATION_MSG = By.ID, 'topic-label-error'
-    TOPIC_LENGTH_MSG = By.ID, 'input-live-help'
+    TOPIC_VALIDATION_MSG = By.ID, 'create-topic-input-messages'
+    TOPIC_LENGTH_MSG = By.ID, 'create-topic-name-counter'
 
     def label_validation_error(self):
-        return self.element(self.TOPIC_VALIDATION_MSG).text
+        return self.element(self.TOPIC_VALIDATION_MSG).get_attribute('innerText')
 
     def label_length_error(self):
         return self.element(self.TOPIC_LENGTH_MSG).text
