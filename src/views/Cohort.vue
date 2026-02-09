@@ -25,7 +25,7 @@
     <div v-if="size(cohortStore.students) && cohortStore.editMode !== 'apply'">
       <div class="align-start d-flex flex-wrap justify-space-between w-100" :class="{'pt-2': cohortStore.isCompactView}">
         <CuratedGroupSelector
-          class="align-self-end mr-auto mb-2"
+          class="align-self-end mr-auto py-1"
           :context-description="cohortStore.domain === 'default' ? `Cohort ${cohortStore.cohortName || ''}` : `Admitted Students Cohort ${cohortStore.cohortName || ''}`"
           :domain="cohortStore.domain"
           :on-create-curated-group="resetFiltersToLastApply"
@@ -34,12 +34,13 @@
         <div class="ml-auto">
           <TermSelector
             v-if="cohortStore.domain === 'default'"
-            class="mb-1"
+            class="py-1"
             label-class="cohort-sort-by-label"
             select-class="cohort-sort-by-select"
           />
           <SortBy
             v-if="cohortStore.showSortBy"
+            class="py-1"
             :domain="cohortStore.domain"
             label-class="cohort-sort-by-label"
             select-class="cohort-sort-by-select"

@@ -13,7 +13,7 @@
       >
         {{ get(filter, 'label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
       </div>
-      <div v-if="isModifyingFilter && !isExistingFilter">
+      <div v-if="isModifyingFilter && !isExistingFilter" class="py-1">
         <span :id="`new-filter-${position}-label`" class="sr-only">Add a Cohort Filter</span>
         <FilterCategorySelect
           v-model="selectedFilter"
@@ -32,11 +32,11 @@
       </div>
       <div
         v-if="isModifyingFilter"
-        class="py-1"
+        class="py-1 pr-2"
         :class="{'mr-4': showAdd}"
       >
         <div v-if="isUX('options')">
-          <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
+          <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.label.primary }} options</span>
           <FilterSelect
             v-model="selectedOption"
             :disabled="isUpdatingExistingFilter"
@@ -46,7 +46,7 @@
           />
         </div>
         <div v-if="isUX('option_groups')">
-          <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.name }} options</span>
+          <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.label.primary }} options</span>
           <FilterSelectOptionGroups
             v-model="selectedOption"
             :disabled="isUpdatingExistingFilter"
@@ -61,23 +61,23 @@
         >
           <label class="font-weight-500 px-2" :for="`filter-range-min-${position}-input`">
             <span aria-hidden="true">{{ rangeMinLabel() }}</span>
-            <span class="sr-only">Start of date range for {{ filter.name }}</span>
+            <span class="sr-only">Start of date range for {{ filter.label.primary }}</span>
           </label>
           <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">
             Format: M M slash D D slash Y Y Y Y.
           </span>
           <AccessibleDateInput
             :aria-describedby="`filter-range-min-placeholder-${position}`"
-            :aria-label="`Start date for ${filter.name}`"
+            :aria-label="`Start date for ${filter.label.primary}`"
             :container-id="`filter-row-${position}`"
             :get-value="() => DateTime.fromISO(rangeMin).toJSDate()"
             :id-prefix="`filter-range-min-${position}`"
-            :max-date="rangeMax"
+            :max-date="DateTime.fromISO(rangeMax).toJSDate()"
             required
             :set-value="d => rangeMin = DateTime.fromJSDate(d).toISODate()"
           />
           <label class="font-weight-500 px-2" :for="`filter-range-max-${position}-input`">
-            <span class="sr-only">End of date range for {{ filter.name }}</span>
+            <span class="sr-only">End of date range for {{ filter.label.primary }}</span>
             <span aria-hidden="true">{{ rangeMaxLabel() }}</span>
           </label>
           <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">
@@ -85,102 +85,94 @@
           </span>
           <AccessibleDateInput
             :aria-describedby="`filter-range-max-placeholder-${position}`"
-            :aria-label="`End date for ${filter.name}`"
+            :aria-label="`End date for ${filter.label.primary}`"
             :container-id="`filter-row-${position}`"
             :get-value="() => DateTime.fromISO(rangeMax).toJSDate()"
             :id-prefix="`filter-range-max-${position}`"
-            :min-date="rangeMin"
+            :min-date="DateTime.fromISO(rangeMin).toJSDate()"
             required
             :set-value="d => rangeMax = DateTime.fromJSDate(d).toISODate()"
           />
         </div>
         <div v-if="isUX('range') && filter.validation !== 'date'" class="align-center d-flex">
           <label class="font-weight-500 ml-4 mr-3" :for="`filter-range-min-${position}`">
-            <span aria-hidden="true">{{ rangeMinLabel() }}</span><span class="sr-only">Start of {{ filter.name }} range</span>
+            <span aria-hidden="true">{{ rangeMinLabel() }}</span><span class="sr-only">Start of {{ filter.label.primary }} range</span>
           </label>
-          <div>
-            <v-text-field
-              :id="`filter-range-min-${position}`"
-              v-model="rangeMin"
-              bg-color="white"
-              :error="!!errorPerRangeInput"
-              hide-details
-              autocomplete="on"
-              :maxlength="rangeInputSize()"
-              :size="rangeInputSize()"
-              @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
-            />
-          </div>
+          <v-text-field
+            :id="`filter-range-min-${position}`"
+            v-model="rangeMin"
+            bg-color="white"
+            :error="!!errorPerRangeInput"
+            hide-details
+            autocomplete="on"
+            :maxlength="rangeInputSize()"
+            :size="rangeInputSize()"
+            @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
+          />
           <label class="font-weight-500 mx-3" :for="`filter-range-max-${position}`">
-            <span aria-hidden="true">{{ rangeMaxLabel() }}</span><span class="sr-only">End of {{ filter.name }} range</span>
+            <span aria-hidden="true">{{ rangeMaxLabel() }}</span><span class="sr-only">End of {{ filter.label.primary }} range</span>
           </label>
-          <div class="mr-2">
-            <v-text-field
-              :id="`filter-range-max-${position}`"
-              v-model="rangeMax"
-              bg-color="white"
-              :error="!!errorPerRangeInput"
-              hide-details
-              autocomplete="on"
-              :maxlength="rangeInputSize()"
-              :size="rangeInputSize()"
-              @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
-            />
-          </div>
+          <v-text-field
+            :id="`filter-range-max-${position}`"
+            v-model="rangeMax"
+            bg-color="white"
+            :error="!!errorPerRangeInput"
+            hide-details
+            autocomplete="on"
+            :maxlength="rangeInputSize()"
+            :size="rangeInputSize()"
+            @keydown.enter="() => isExistingFilter ? onClickUpdateButton() : onClickAddButton()"
+          />
         </div>
       </div>
       <div
         v-if="!isExistingFilter"
-        class="align-center d-flex text-right py-1"
+        class="align-center d-flex text-right ml-auto py-1"
       >
-        <div v-if="showAdd">
-          <ProgressButton
-            id="unsaved-filter-add"
-            :action="onClickAddButton"
-            aria-label="Add Cohort Filter"
-            :disabled="isSaving || ((isUX('options') || isUX('option_groups')) && !selectedOption)"
-            :in-progress="isSaving"
-            text="Add"
-          />
-        </div>
-        <div v-if="isModifyingFilter && get(filter, 'type.ux')">
+        <ProgressButton
+          v-if="showAdd"
+          id="unsaved-filter-add"
+          :action="onClickAddButton"
+          aria-label="Add Cohort Filter"
+          class="mr-1"
+          :disabled="isSaving || ((isUX('options') || isUX('option_groups')) && !selectedOption)"
+          :in-progress="isSaving"
+          text="Add"
+        />
+        <v-btn
+          v-if="isModifyingFilter && get(filter, 'type.ux')"
+          id="unsaved-filter-reset"
+          aria-label="Discard Cohort Filter"
+          class="text-uppercase ml-2 mr-3"
+          color="primary"
+          text="Cancel"
+          variant="text"
+          @click="reset"
+        />
+      </div>
+      <div v-if="cohortStore.isOwnedByCurrentUser && isExistingFilter" class="ml-auto pr-3 py-2">
+        <div v-if="!isModifyingFilter" class="align-center d-flex">
           <v-btn
-            id="unsaved-filter-reset"
-            aria-label="Discard Cohort Filter"
+            v-if="!isUX('boolean')"
+            :id="`edit-added-filter-${position}`"
+            :aria-label="`Edit Cohort Filter ${filter.name}`"
             class="text-uppercase"
             color="primary"
-            text="Cancel"
+            text="Edit"
             variant="text"
-            @click="reset"
+            @click="onClickEditButton"
           />
-        </div>
-      </div>
-      <div v-if="cohortStore.isOwnedByCurrentUser && isExistingFilter" class="ml-auto mr-3 py-1">
-        <div v-if="!isModifyingFilter" class="align-center d-flex justify-space-between">
-          <div v-if="!isUX('boolean')">
-            <v-btn
-              :id="`edit-added-filter-${position}`"
-              :aria-label="`Edit Cohort Filter ${filter.name}`"
-              class="text-uppercase"
-              color="primary"
-              text="Edit"
-              variant="text"
-              @click="onClickEditButton"
-            />
-          </div>
           <div v-if="!isUX('boolean')" class="mb-1 mx-1">|</div>
-          <div>
-            <v-btn
-              :id="`remove-added-filter-${position}`"
-              :aria-label="`Remove Cohort Filter ${filter.name}`"
-              class="text-uppercase"
-              color="primary"
-              :disabled="!!cohortStore.editMode"
-              text="Remove"
-              variant="text"
-              @click="remove"
-            />
-          </div>
+          <v-btn
+            :id="`remove-added-filter-${position}`"
+            :aria-label="`Remove Cohort Filter ${filter.name}`"
+            class="text-uppercase"
+            color="primary"
+            :disabled="!!cohortStore.editMode"
+            text="Remove"
+            variant="text"
+            @click="remove"
+          />
         </div>
         <div v-if="isModifyingFilter" class="align-center d-flex">
           <ProgressButton

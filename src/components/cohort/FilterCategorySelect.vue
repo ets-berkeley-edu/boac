@@ -4,8 +4,8 @@
       :id="`filter-select-primary-${filterRowIndex}`"
       v-model="model"
       :aria-labelledBy="labelledBy"
-      class="bg-white select-menu filter-select"
       autocomplete="off"
+      class="bg-white select-menu filter-select"
       :disabled="disabled"
     >
       <option :id="`primary-option-null`" :value="undefined">
@@ -63,7 +63,7 @@ const model = defineModel<object>()
   border-top-left-radius: 0;
 }
 .filter-select {
-  height: 44px;
-  width: 320px;
+  height: 2.75rem;
+  width: 20rem;
 }
 </style>

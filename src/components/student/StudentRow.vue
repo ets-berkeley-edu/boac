@@ -20,15 +20,13 @@
               <v-btn
                 v-if="listType === 'curatedGroupForOwner'"
                 :id="`row-${rowIndex}-remove-student-from-curated-group`"
-                variant="flat"
+                class="mx-3 text-primary"
+                density="compact"
                 :icon="mdiCloseCircle"
+                variant="flat"
                 @click="removeStudent"
               >
-                <v-icon
-                  color="primary"
-                  :icon="mdiCloseCircle"
-                  size="22"
-                />
+                <v-icon :icon="mdiCloseCircle" size="22" />
                 <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }} from curated group</span>
               </v-btn>
               <CuratedStudentCheckbox
@@ -67,9 +65,7 @@
     <v-col>
       <v-container class="pa-0" fluid>
         <v-row>
-          <v-col
-            class="font-size-13 student-gpa-col"
-          >
+          <v-col class="font-size-13 student-gpa-col">
             <div>
               <template v-if="isNil(student.cumulativeGPA)">
                 <span :id="`row-${rowIndex}-student-cumulative-gpa`" class="font-weight-bold">

@@ -145,4 +145,7 @@ const onSubmit = () => {
 .csv-column-option {
   height: 30px;
 }
+:deep(.csv-column-option .v-selection-control__wrapper) {
+  margin-right: 4px;
+}
 </style>

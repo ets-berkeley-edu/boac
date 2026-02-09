@@ -140,25 +140,29 @@
         >
           |
         </div>
-        <router-link
+        <v-btn
           v-if="isHistorySupported"
           id="cohort-history-link"
-          class="v-btn v-btn--variant-text text-anchor text-capitalize font-size-15 px-1 text-no-wrap"
+          class="text-capitalize text-decoration-none font-size-15 px-1 text-no-wrap"
+          color="anchor"
           :disabled="isModifiedSinceLastSearch"
+          variant="text"
           to="/cohort/history"
         >
           <span class="sr-only">Cohort</span>&nbsp;History
-        </router-link>
+        </v-btn>
       </div>
       <div v-if="isCohortHistoryPage" class="d-flex align-self-center mr-4">
-        <router-link
+        <v-btn
           v-if="isHistorySupported"
           id="back-to-cohort-link"
-          class="v-btn v-btn--variant-text text-anchor text-capitalize font-size-15 px-1 text-no-wrap"
+          class="text-capitalize text-decoration-none font-size-15 px-1 text-no-wrap"
+          color="anchor"
+          variant="text"
           :to="`/cohort/${cohortId}`"
         >
           Back to Cohort
-        </router-link>
+        </v-btn>
       </div>
     </div>
     <div v-if="editMode === 'rename'" class="mt-1">
