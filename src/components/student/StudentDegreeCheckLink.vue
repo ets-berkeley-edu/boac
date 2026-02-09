@@ -2,7 +2,7 @@
   <v-btn
     v-if="currentUser.canReadDegreeProgress"
     :id="`degree-checks-of-${student.sid}`"
-    class="font-size-13 font-weight-medium letter-spacing-normal"
+    class="degree-check-link font-size-13 font-weight-medium letter-spacing-normal"
     color="primary"
     href="#"
     role="link"
@@ -11,9 +11,7 @@
     @click="() => goToStudentDegreeChecks(student.sid)"
   >
     <div class="align-center d-flex text-anchor">
-      <div>
-        Undergraduate Degree Checks <span class="sr-only">of {{ student.name }} (opens in new tab)</span>
-      </div>
+      Undergraduate Degree Checks <span class="sr-only">of {{ student.name }} (opens in new tab)</span>
       <v-icon class="ml-1" :icon="mdiOpenInNew" size="14" />
     </div>
   </v-btn>
@@ -33,3 +31,9 @@ defineProps({
 
 const currentUser = useContextStore().currentUser
 </script>
+
+<style>
+.degree-check-link .v-btn__content {
+  white-space: normal !important;
+}
+</style>
