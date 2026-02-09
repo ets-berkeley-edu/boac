@@ -229,7 +229,7 @@ const isCurrentTerm = computed(() => {
   min-width: 11rem;
 }
 .student-profile-col {
-  max-width: 18rem;
+  max-width: 24rem;
 }
 .student-row {
   border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
