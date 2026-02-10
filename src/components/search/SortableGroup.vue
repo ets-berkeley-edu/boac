@@ -112,7 +112,7 @@ import {capitalize, isNil, size} from 'lodash'
 import {computed, ref} from 'vue'
 import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import SortableStudents from '@/components/search/SortableStudents'
-import {alertScreenReader, pluralize, toInt} from '@/lib/utils'
+import {pluralize, toInt} from '@/lib/utils'
 import {getStudentsWithAlerts as getCohortStudentsWithAlerts} from '@/api/cohort'
 import {getStudentsWithAlerts as getCuratedStudentsWithAlerts} from '@/api/curated'
 
@@ -153,7 +153,6 @@ const fetchStudents = param => {
     apiCall(props.group.id).then(students => {
       studentsWithAlerts.value = students
       isFetching.value = false
-      alertScreenReader(`Loaded students with alerts who are in ${groupTypeName} ${props.group.name}`)
     })
   }
 }
