@@ -73,49 +73,54 @@
     >
       {{ student.coeProfile.acadStatusDescription }} ({{ termNameForSisId(student.coeProfile.acadStatusTermId) }}, COE)
     </div>
-    <div
+    <dl
       v-if="student.academicCareerStatus !== 'Completed'"
       class="font-size-13 text-medium-emphasis"
       :class="{'demo-mode-blur': currentUser.inDemoMode}"
     >
-      <div :id="`row-${rowIndex}-student-level`">
+      <dt class="sr-only">Level</dt>
+      <dd :id="`row-${rowIndex}-student-level`" class="ma-0 ml-0">
         {{ student.level }}
-      </div>
-      <div
-        v-if="student.matriculation"
-        :id="`row-${rowIndex}-student-matriculation`"
-        aria-label="Entering term"
-      >
-        Entered {{ student.matriculation }}
-      </div>
-      <div
-        v-if="student.expectedGraduationTerm"
-        :id="`row-${rowIndex}-student-grad-term`"
-        aria-label="Expected graduation term"
-      >
-        <span aria-hidden="true">Grad:</span>
-        <span class="sr-only">Expected graduation</span>
-        {{ student.expectedGraduationTerm.name }}
-      </div>
-      <div
-        v-if="student.termsInAttendance"
-        :id="`row-${rowIndex}-student-terms-in-attendance`"
-        aria-label="Terms in attendance"
-      >
-        Terms in Attendance:&nbsp;{{ student.termsInAttendance }}
-      </div>
-      <div v-for="(major, index) in student.majors" :key="index">
-        <span :id="`row-${rowIndex}-student-major-${index}`">{{ major }}</span>
-      </div>
-    </div>
+      </dd>
+      <template v-if="student.matriculation">
+        <dt class="sr-only">Entering term</dt>
+        <dd :id="`row-${rowIndex}-student-matriculation`" class="ma-0 ml-0">
+          Entered {{ student.matriculation }}
+        </dd>
+      </template>
+      <template v-if="student.expectedGraduationTerm">
+        <dt class="sr-only">Expected graduation term</dt>
+        <dd :id="`row-${rowIndex}-student-grad-term`" class="ma-0 ml-0">
+          <span aria-hidden="true">Grad:</span>
+          <span class="sr-only">Expected graduation</span>
+          {{ student.expectedGraduationTerm.name }}
+        </dd>
+      </template>
+      <template v-if="student.termsInAttendance">
+        <dt class="sr-only">Terms in attendance</dt>
+        <dd :id="`row-${rowIndex}-student-terms-in-attendance`" class="ma-0 ml-0">
+          Terms in Attendance:&nbsp;{{ student.termsInAttendance }}
+        </dd>
+      </template>
+      <template v-if="student.majors && student.majors.length">
+        <dt class="sr-only">Major</dt>
+        <dd
+          v-for="(major, index) in student.majors"
+          :id="`row-${rowIndex}-student-major-${index}`"
+          :key="index"
+          class="ma-0 ml-0"
+        >
+          {{ major }}
+        </dd>
+      </template>
+    </dl>
     <div v-if="student.academicCareerStatus === 'Completed'" class="font-size-13 text-medium-emphasis">
-      <div
-        v-if="student.matriculation"
-        :id="`row-${rowIndex}-student-matriculation`"
-        aria-label="Entering term"
-      >
-        Entered {{ student.matriculation }}
-      </div>
+      <dl v-if="student.matriculation" class="ma-0">
+        <dt class="sr-only">Entering term</dt>
+        <dd :id="`row-${rowIndex}-student-matriculation`" class="ma-0 ml-0">
+          Entered {{ student.matriculation }}
+        </dd>
+      </dl>
       <DegreesAwarded :student="student" />
       <div v-for="(owner, index) in degreePlanOwners" :key="owner">
         <span :id="`row-${rowIndex}-student-degree-plan-owner-${index}`">{{ owner }}</span>
