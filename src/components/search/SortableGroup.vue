@@ -74,7 +74,7 @@
           </router-link>
         </div>
         <SortableStudents
-          class="bg-pale-blue ma-4"
+          class="bg-pale-blue pa-4"
           :compact="compact"
           domain="default"
           :initial-sort-by="{key: 'alertCount', order: 'desc'}"
