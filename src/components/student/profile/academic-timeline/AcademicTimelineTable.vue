@@ -238,7 +238,6 @@
                   <div
                     :id="`timeline-tab-${activeTab}-message-${message.type}-${message.id}`"
                     class="d-flex flex-no-wrap"
-                    tabindex="0"
                   >
                     <v-icon
                       v-if="message.status === 'Satisfied'"
@@ -267,16 +266,16 @@
                 <template v-else>
                   <div
                     :id="`timeline-tab-${activeTab}-message-${message.type}-${message.id}`"
-                    :aria-controls="'requirement' === message.type ? undefined : `${message.type}-${message.id}-outer`"
-                    :aria-expanded="'requirement' === message.type ? undefined : isExpanded(message)"
+                    :aria-controls="`${message.type}-${message.id}-outer`"
+                    :aria-expanded="isExpanded(message)"
                     :aria-label="'requirement' === message.type ? undefined : `Expand ${getButtonAriaLabel(message)}`"
-                    class="pl-2"
+                    class="ml-2"
                     :class="{
                       'message-open': isExpanded(message),
                       'img-blur': currentUser.inDemoMode && ['appointment', 'eForm', 'note'].includes(message.type)
                     }"
-                    :role="'requirement' === message.type || isExpanded(message) ? undefined : 'button'"
-                    :tabindex="0"
+                    :role="isExpanded(message) ? undefined : 'button'"
+                    :tabindex="isExpanded(message) ? undefined : 0"
                     @keyup.enter="onClickOpenMessage(message)"
                     @click="onClickOpenMessage(message)"
                   >
@@ -309,7 +308,6 @@
                       <AdvisingAppointment
                         v-if="message.type === 'appointment'"
                         :appointment="message"
-                        class="pt-2"
                         :is-open="isExpanded(message)"
                         :student="student"
                       />
@@ -420,6 +418,7 @@
                       <router-link
                         v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                         :id="`advising-${message.type}-permalink-${message.id}`"
+                        class="d-inline-block"
                         :to="`#permalink-${message.type}-${message.id}`"
                         @click.prevent="scrollToPermalink(message)"
                       >

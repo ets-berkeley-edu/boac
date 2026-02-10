@@ -352,8 +352,8 @@ const onUpdateFocus = (hasFocus, inputEvents) => {
   transition: border-color 0.3s;
   &:focus-within {
     --v-field-border-opacity: 1;
-    --v-field-border-width: 1.875px;
-    border-color: rgb(var(--v-theme-on-surface));
+    --v-field-border-width: 0.125rem;
+    border-color: rgb(var(--v-theme-primary));
     outline: 0;
   }
   &:hover:not(.disabled) {

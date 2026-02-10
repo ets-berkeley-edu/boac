@@ -4,69 +4,66 @@
       <label class="font-weight-500" :for="`column-${uxPositionX}-add-category-select`">
         Requirement Type (required)
       </label>
-      <div>
-        <select
-          :id="`column-${uxPositionX}-add-category-select`"
-          v-model="selectedCategoryType"
-          class="select-menu w-100"
-          autocomplete="off"
-          :disabled="isSaving"
+      <select
+        :id="`column-${uxPositionX}-add-category-select`"
+        v-model="selectedCategoryType"
+        class="select-menu mt-1 w-100"
+        autocomplete="off"
+        :disabled="isSaving"
+      >
+        <option
+          :id="`column-${uxPositionX}-select-option-null`"
+          :value="undefined"
         >
-          <option
-            :id="`column-${uxPositionX}-select-option-null`"
-            :value="undefined"
-          >
-            Choose...
-          </option>
-          <option
-            v-for="option in config.degreeCategoryTypeOptions"
-            :id="`column-${uxPositionX}-select-option-${option}`"
-            :key="option"
-            :disabled="disableCategoryOption(option)"
-            :value="option"
-          >
-            {{ option }}
-          </option>
-        </select>
-      </div>
+          Choose...
+        </option>
+        <option
+          v-for="option in config.degreeCategoryTypeOptions"
+          :id="`column-${uxPositionX}-select-option-${option}`"
+          :key="option"
+          :disabled="disableCategoryOption(option)"
+          :value="option"
+        >
+          {{ option }}
+        </option>
+      </select>
     </div>
     <div v-if="selectedCategoryType">
       <div v-if="!isCampusRequirements(existingCategory)">
         <label class="font-weight-500" :for="`column-${uxPositionX}-name-input`">
           {{ selectedCategoryType }} Name (required)
         </label>
-        <div>
-          <v-text-field
-            :id="`column-${uxPositionX}-name-input`"
-            v-model="name"
-            autocomplete="on"
-            :disabled="isSaving"
-            maxlength="255"
-            persistent-counter
-            required
-            @keydown.enter="onSubmit"
-          >
-            <template #counter="{max, value}">
-              <CharacterCount :count="toInt(value)" :id-prefix="`column-${uxPositionX}-name`" :max="toInt(max)" />
-            </template>
-          </v-text-field>
-        </div>
+        <v-text-field
+          :id="`column-${uxPositionX}-name-input`"
+          v-model="name"
+          autocomplete="on"
+          class="mt-1"
+          :disabled="isSaving"
+          maxlength="255"
+          persistent-counter
+          required
+          @keydown.enter="onSubmit"
+        >
+          <template #counter="{max, value}">
+            <CharacterCount :count="toInt(value)" :id-prefix="`column-${uxPositionX}-name`" :max="toInt(max)" />
+          </template>
+        </v-text-field>
       </div>
       <div v-if="existingCategory && isCampusRequirements(existingCategory)" class="mt-2">
         <h3 :id="`column-${uxPositionX}-name`" class="font-weight-bold font-size-18">{{ name }}</h3>
       </div>
-      <div v-if="selectedCategoryType === 'Course Requirement'" class="mt-2">
-        <UnitsInput
-          :disable="isSaving"
-          :error-message="unitsErrorMessage"
-          :on-submit="onSubmit"
-          :range="true"
-          :set-units-lower="units => unitsLower = units"
-          :set-units-upper="units => unitsUpper = units"
-          :units-lower="unitsLower"
-          :units-upper="unitsUpper"
-        />
-      </div>
+      <UnitsInput
+        v-if="selectedCategoryType === 'Course Requirement'"
+        class="mt-2"
+        :disable="isSaving"
+        :error-message="unitsErrorMessage"
+        :on-submit="onSubmit"
+        :range="true"
+        :set-units-lower="units => unitsLower = units"
+        :set-units-upper="units => unitsUpper = units"
+        :units-lower="unitsLower"
+        :units-upper="unitsUpper"
+      />
       <div v-if="selectedCategoryType === 'Course Requirement'" class="mt-2">
         <label class="font-weight-500" for="is-satisfied-by-transfer-course-checkbox">
           Transfer Course
@@ -86,92 +83,85 @@
         <label class="font-weight-500" :for="`column-${uxPositionX}-unit-requirement-select`">
           Requirement Fulfillment
         </label>
-        <div>
-          <SelectUnitFulfillment
-            :disable="isSaving"
-            :fulfilled-by="name"
-            :on-unit-requirements-change="onUnitRequirementsChange"
-            :selected-unit-requirements="selectedUnitRequirements"
-            :ux-position-x="uxPositionX"
-          />
-        </div>
+        <SelectUnitFulfillment
+          class="mt-1"
+          :disable="isSaving"
+          :fulfilled-by="name"
+          :on-unit-requirements-change="onUnitRequirementsChange"
+          :selected-unit-requirements="selectedUnitRequirements"
+          :ux-position-x="uxPositionX"
+        />
       </div>
       <div v-if="selectedCategoryType !== 'Course Requirement'" class="mt-2">
         <label class="font-weight-500" :for="`column-${uxPositionX}-description-input`">
           {{ selectedCategoryType }} Description
         </label>
-        <div>
-          <v-textarea
-            :id="`column-${uxPositionX}-description-input`"
-            v-model="descriptionText"
-            density="compact"
-            :disabled="isSaving"
-            hide-details
-            max-rows="6"
-            rows="3"
-            autocomplete="on"
-            variant="outlined"
-          />
-        </div>
+        <v-textarea
+          :id="`column-${uxPositionX}-description-input`"
+          v-model="descriptionText"
+          autocomplete="on"
+          class="mt-1"
+          density="compact"
+          :disabled="isSaving"
+          hide-details
+          max-rows="6"
+          rows="3"
+          variant="outlined"
+        />
       </div>
       <div v-if="!includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="mt-2">
         <label class="font-weight-500 pb-1" :for="`column-${uxPositionX}-parent-category-select`">
           Requirement Location (required)
         </label>
-        <div>
-          <select
-            :id="`column-${uxPositionX}-parent-category-select`"
-            v-model="selectedParentCategory"
-            class="select-menu w-100"
-            autocomplete="off"
-            :disabled="isSaving"
-            @change="onChangeParentCategory"
+        <select
+          :id="`column-${uxPositionX}-parent-category-select`"
+          v-model="selectedParentCategory"
+          class="select-menu mt-1 w-100"
+          autocomplete="off"
+          :disabled="isSaving"
+          @change="onChangeParentCategory"
+        >
+          <option
+            :id="`column-${uxPositionX}-parent-select-option-null`"
+            :value="null"
           >
-            <option
-              :id="`column-${uxPositionX}-parent-select-option-null`"
-              :value="null"
-            >
-              Choose...
-            </option>
-            <option
-              v-for="category in reject(findCategoriesByTypes(['Category', 'Subcategory'], uxPositionX), isCampusRequirements)"
-              :id="`column-${uxPositionX}-parent-select-option-${category.name}`"
-              :key="category.id"
-              :aria-label="`${category.categoryType} ${category.name}`"
-              :disabled="disableLocationOption(category)"
-              :value="category"
-            >
-              {{ category.name }}
-            </option>
-          </select>
-        </div>
+            Choose...
+          </option>
+          <option
+            v-for="category in reject(findCategoriesByTypes(['Category', 'Subcategory'], uxPositionX), isCampusRequirements)"
+            :id="`column-${uxPositionX}-parent-select-option-${category.name}`"
+            :key="category.id"
+            :aria-label="`${category.categoryType} ${category.name}`"
+            :disabled="disableLocationOption(category)"
+            :value="category"
+          >
+            {{ category.name }}
+          </option>
+        </select>
       </div>
     </div>
     <div class="d-flex justify-end mt-3">
-      <div class="mr-2">
-        <ProgressButton
-          :id="`column-${uxPositionX}-create-requirement-btn`"
-          :action="onSubmit"
-          :aria-label="existingCategory ? 'Save Requirement' : 'Create Requirement'"
-          color="primary"
-          density="comfortable"
-          :disabled="disableSaveButton"
-          :in-progress="isSaving"
-          :text="isSaving ? 'Saving...' : (existingCategory ? 'Save' : 'Create Requirement')"
-        />
-      </div>
-      <div>
-        <v-btn
-          :id="`column-${uxPositionX}-cancel-create-requirement-btn`"
-          :aria-label="existingCategory ? 'Cancel Edit Requirement' : 'Cancel Create Requirement'"
-          color="primary"
-          density="comfortable"
-          :disabled="isSaving"
-          text="Cancel"
-          variant="outlined"
-          @click="cancel"
-        />
-      </div>
+      <ProgressButton
+        :id="`column-${uxPositionX}-create-requirement-btn`"
+        :action="onSubmit"
+        :aria-label="existingCategory ? 'Save Requirement' : 'Create Requirement'"
+        class="mr-2"
+        color="primary"
+        density="comfortable"
+        :disabled="disableSaveButton"
+        :in-progress="isSaving"
+        :text="isSaving ? 'Saving...' : (existingCategory ? 'Save' : 'Create Requirement')"
+      />
+      <v-btn
+        :id="`column-${uxPositionX}-cancel-create-requirement-btn`"
+        :aria-label="existingCategory ? 'Cancel Edit Requirement' : 'Cancel Create Requirement'"
+        color="primary"
+        density="comfortable"
+        :disabled="isSaving"
+        text="Cancel"
+        variant="outlined"
+        @click="cancel"
+      />
     </div>
   </form>
 </template>

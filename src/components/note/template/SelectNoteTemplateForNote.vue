@@ -17,7 +17,7 @@
         <template #activator="{props: menuProps}">
           <v-btn
             id="my-templates-button"
-            class="ml-auto mr-2"
+            class="ml-auto mr-2 mb-1"
             color="primary"
             :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
             flat

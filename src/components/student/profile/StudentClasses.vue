@@ -51,7 +51,7 @@
         :aria-controls="`academic-year-${year.label}-section`"
         :aria-expanded="year.isOpen"
         :aria-label="`Expand Fall ${year.label - 1} to Summer ${year.label}: ${totalEnrolledUnits(year)} Units`"
-        class="w-100"
+        class="text-primary w-100"
         @click="year.isOpen = !year.isOpen"
       >
         <v-container

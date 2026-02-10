@@ -11,7 +11,7 @@
       v-if="isChartLoaded"
       :id="`student-chart-gpa-sonify-btn-${student.uid}`"
       :aria-label="`Play chart audio, ${chartDescription}`"
-      class="text-primary"
+      class="text-primary d-flex"
       density="compact"
       :icon="isPlayingSound ? mdiStopCircle : mdiPlayCircle"
       size="22"

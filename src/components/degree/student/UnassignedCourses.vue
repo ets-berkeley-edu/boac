@@ -16,7 +16,7 @@
             <th class="font-size-11 force-width-24 truncate-with-ellipsis" title="Grade">Grade</th>
             <th class="font-size-11 force-width-24 text-right truncate-with-ellipsis pr-2" title="Units">Units</th>
             <th v-if="!ignored" class="font-size-11 force-width-42">Term</th>
-            <th class="font-size-11 force-width-50">Note</th>
+            <th class="th-note font-size-11 force-width-50">Note</th>
             <th v-if="canEdit" class="force-width-20" />
           </tr>
         </thead>
@@ -146,6 +146,7 @@
                       v-if="degreeStore.draggingCourseId !== course.id"
                       :id="`edit-${key}-course-${course.id}-btn`"
                       :aria-label="`Edit ${course.name}`"
+                      class="mr-1"
                       :color="degreeStore.disableButtons ? 'grey' : 'primary'"
                       :disabled="degreeStore.disableButtons"
                       density="compact"
@@ -159,8 +160,9 @@
                       v-if="course.manuallyCreatedBy && degreeStore.draggingCourseId !== course.id"
                       :id="`delete-${course.id}-btn`"
                       :aria-label="`Delete ${course.name}`"
-                      density="compact"
+                      class="mr-1"
                       :color="degreeStore.disableButtons ? 'grey' : 'primary'"
+                      density="compact"
                       :disabled="degreeStore.disableButtons"
                       flat
                       :icon="mdiTrashCan"
@@ -434,6 +436,7 @@ th {
   vertical-align: top;
 }
 .td-note {
+  padding-left: 5px;
   padding-top: 3px;
   vertical-align: top;
 }
@@ -448,6 +451,9 @@ th {
 }
 .th-assign {
   width: 6% !important;
+}
+.th-note {
+  padding-left: 5px;
 }
 .tr-course td {
   height: 40px !important;

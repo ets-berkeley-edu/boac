@@ -94,25 +94,23 @@
         id="update-note-btn"
         :action="update"
         aria-label="Save Course"
-        class="mr-1"
+        class="mr-2"
         color="primary"
         :disabled="disableSaveButton"
         :in-progress="isSaving"
         size="small"
         :text="isSaving ? 'Saving...' : 'Save'"
       />
-      <div>
-        <v-btn
-          id="cancel-update-note-btn"
-          aria-label="Cancel Edit Course"
-          color="primary"
-          :disabled="isSaving"
-          size="small"
-          text="Cancel"
-          variant="outlined"
-          @click="cancel"
-        />
-      </div>
+      <v-btn
+        id="cancel-update-note-btn"
+        aria-label="Cancel Edit Course"
+        color="primary"
+        :disabled="isSaving"
+        size="small"
+        text="Cancel"
+        variant="outlined"
+        @click="cancel"
+      />
     </div>
   </div>
 </template>

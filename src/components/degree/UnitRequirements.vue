@@ -68,7 +68,7 @@
             :id="item.type === 'course' ? `unit-requirement-${item.parent.id}-course-${item.id}` : `unit-requirement-${item.id}`"
             :key="index"
           >
-            <td class="overflow-wrap-break-word" :class="{'font-size-12': printable, 'font-size-16': !printable}">
+            <td class="overflow-wrap-break-word py-1" :class="{'font-size-12': printable, 'font-size-16': !printable}">
               <div v-if="!degreeStore.sid || printable" class="mr-1">
                 {{ item.name }}
               </div>
@@ -111,7 +111,7 @@
             </td>
             <td
               v-if="degreeStore.sid"
-              class="text-right"
+              class="text-right py-1"
               :class="{
                 'font-size-12': printable,
                 'font-size-16': !printable
@@ -121,13 +121,14 @@
             </td>
             <td
               v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable"
-              class="font-size-16"
+              class="py-1"
             >
               <div class="d-flex justify-end">
-                <div class="degree-check-action-buttons align-center d-flex text-no-wrap">
+                <div class="degree-check-action-buttons d-flex text-no-wrap">
                   <v-btn
                     :id="`unit-requirement-${item.id}-edit-btn`"
                     :aria-label="`Edit ${item.name}`"
+                    class="mr-1"
                     :class="{'text-primary': !degreeStore.disableButtons}"
                     :color="degreeStore.disableButtons ? 'grey' : 'transparent'"
                     density="compact"
@@ -135,13 +136,13 @@
                     flat
                     :icon="mdiNoteEditOutline"
                     size="small"
-                    title="Edit"
                     variant="text"
                     @click.prevent="() => onClickEdit(item)"
                   />
                   <v-btn
                     :id="`unit-requirement-${item.id}-delete-btn`"
                     :aria-label="`Delete ${item.name}`"
+                    class="mr-1"
                     :class="{'text-primary': !degreeStore.disableButtons}"
                     :color="degreeStore.disableButtons ? 'grey' : 'transparent'"
                     density="compact"
@@ -149,26 +150,25 @@
                     flat
                     :icon="mdiTrashCan"
                     size="small"
-                    title="Delete"
                     variant="text"
                     @click.prevent="onClickDelete(item)"
                   />
                 </div>
               </div>
-              <AreYouSureModal
-                v-model="isDeleting"
-                button-label-confirm="Delete"
-                :function-cancel="deleteCanceled"
-                :function-confirm="deleteConfirmed"
-                modal-header="Delete Unit Requirement"
-              >
-                Are you sure you want to delete <strong>{{ get(selected, 'name') }}</strong>?
-              </AreYouSureModal>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+    <AreYouSureModal
+      v-model="isDeleting"
+      button-label-confirm="Delete"
+      :function-cancel="deleteCanceled"
+      :function-confirm="deleteConfirmed"
+      modal-header="Delete Unit Requirement"
+    >
+      Are you sure you want to delete <strong>{{ get(selected, 'name') }}</strong>?
+    </AreYouSureModal>
     <div v-if="isEditing" class="mb-3">
       <EditUnitRequirement :on-exit="reset" :unit-requirement="selected" />
     </div>
@@ -333,12 +333,9 @@ table {
   width: 100%;
 }
 td {
-  height: 25px;
-  padding-top: 3px;
   vertical-align: top;
 }
 th {
-  height: 20px;
   padding-bottom: 5px;
 }
 .th-actions {

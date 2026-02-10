@@ -1,6 +1,6 @@
 <template>
   <div class="default-margins">
-    <div class="align-items-baseline d-flex flex-wrap justify-space-between">
+    <div class="align-baseline d-flex flex-wrap justify-space-between">
       <h1 id="page-header" class="text-no-wrap mr-2">Batch Degree Checks</h1>
       <router-link id="manage-degrees-link" to="/degrees">
         <div class="text-no-wrap">

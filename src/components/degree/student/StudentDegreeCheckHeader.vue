@@ -9,6 +9,7 @@
         <span class="font-weight-bold">Note:</span> Revisions to the
         <router-link
           id="original-degree-template"
+          class="d-inline-block"
           target="_blank"
           :to="`/degree/${degreeStore.parentTemplateId}`"
         >
@@ -32,10 +33,12 @@
         />
       </div>
     </div>
-    <v-container class="mr-6 pb-0" fluid>
+    <h2 id="degree-check-header" class="font-size-20 page-section-header mx-4 mt-4 mb-0">
+      {{ degreeStore.degreeName }}
+    </h2>
+    <v-container class="mr-6 pb-0 pt-2" fluid>
       <v-row no-gutters>
         <v-col cols="12" md="7">
-          <h2 id="degree-check-header" class="font-size-20 page-section-header">{{ degreeStore.degreeName }}</h2>
           <div v-if="currentUser.isAdmin || isDirector(currentUser)">
             <label for="lock-degree-check-toggle" class="d-flex align-center">
               Lock degree check?
@@ -74,21 +77,22 @@
         </v-col>
         <v-col class="pr-3" cols="12" md="5">
           <div class="align-baseline d-flex flex-wrap justify-end">
-            <div class="pr-2">
+            <div class="pr-2 pb-1">
               <router-link
                 id="print-degree-plan"
+                class="d-inline-block"
                 target="_blank"
                 :to="`/degree/${degreeStore.templateId}/print?includeNote=${degreeStore.includeNotesWhenPrint}`"
               >
-                <v-icon :aria-hidden="true" :icon="mdiPrinter" />
+                <v-icon :aria-hidden="true" :icon="mdiPrinter" size="20" />
                 Print
                 <span class="sr-only">this page (opens in new tab)</span>
               </router-link>
             </div>
-            <div class="pr-2">
+            <div class="pr-2 pb-1">
               |
             </div>
-            <div class="pr-2">
+            <div class="pr-2 pb-1">
               <router-link
                 id="view-degree-history"
                 :to="`${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/history`"
@@ -96,10 +100,10 @@
                 History
               </router-link>
             </div>
-            <div v-if="currentUser.canEditDegreeProgress" class="pr-2">
+            <div v-if="currentUser.canEditDegreeProgress" class="pr-2 pb-1">
               |
             </div>
-            <div v-if="currentUser.canEditDegreeProgress" class="pr-2">
+            <div v-if="currentUser.canEditDegreeProgress" class="pr-2 pb-1">
               <router-link
                 id="create-new-degree"
                 :to="`${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`"
