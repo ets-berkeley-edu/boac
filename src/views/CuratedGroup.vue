@@ -6,7 +6,7 @@
     </div>
     <div v-if="mode !== 'bulkAdd'">
       <div class="align-start d-flex flex-wrap justify-space-between">
-        <div class="align-self-end my-2">
+        <div class="align-self-end py-1">
           <Pagination
             v-if="totalStudentCount > itemsPerPage"
             :click-handler="goToPage"
@@ -16,16 +16,16 @@
             :total-rows="totalStudentCount"
           />
         </div>
-        <div class="ml-auto my-2">
+        <div class="ml-auto py-1">
           <TermSelector
             v-if="totalStudentCount && domain === 'default'"
-            class="mb-1"
+            class="py-1"
             label-class="cohort-sort-by-label"
             select-class="cohort-sort-by-select"
           />
           <SortBy
             v-if="totalStudentCount > 1"
-            class="mb-1"
+            class="py-1"
             :domain="domain"
             label-class="cohort-sort-by-label"
             select-class="cohort-sort-by-select"

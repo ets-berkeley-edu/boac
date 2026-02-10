@@ -43,7 +43,7 @@
           :action="submit"
           :ariadisabled="isEmpty(name) || isInvalid"
           aria-label="Rename Cohort"
-          class="mr-1"
+          class="mr-2"
           :class="{'w-50': xs}"
           :disabled="isSaving"
           height="48px"
@@ -53,6 +53,7 @@
         <v-btn
           id="rename-cohort-cancel"
           aria-label="Cancel Rename Cohort"
+          class="mr-2"
           :class="{'w-50': xs}"
           :disabled="isSaving"
           height="48px"

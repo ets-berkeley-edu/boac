@@ -43,7 +43,7 @@
           :action="rename"
           :aria-disabled="isEmpty(name) || isInvalid"
           :aria-label="`Rename ${describeCuratedGroupDomain(domain.value, false)}`"
-          class="mr-1"
+          class="mr-2"
           :class="{'w-50': xs}"
           :disabled="isSaving"
           height="48px"
@@ -53,6 +53,7 @@
         <v-btn
           id="rename-curated-group-cancel"
           :aria-label="`Cancel Rename ${describeCuratedGroupDomain(domain.value, false)}`"
+          class="mr-2"
           :class="{'w-50': xs}"
           :disabled="isSaving"
           height="48px"

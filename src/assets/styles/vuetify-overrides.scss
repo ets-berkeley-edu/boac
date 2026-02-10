@@ -20,7 +20,9 @@
     outline-color: rgba(var(--v-theme-accent-red)) !important;
   }
   .bg-primary:focus::after,
-  .text-primary:focus::after {
+  .button-menu.bg-primary:focus,
+  .text-primary:focus::after,
+  button.clear-button:focus {
     outline-color: rgba(var(--v-theme-primary)) !important;
   }
   .bg-quaternary:focus::after,
@@ -36,6 +38,12 @@
   .text-tertiary:focus::after {
     outline-color: rgba(var(--v-theme-tertiary)) !important;
   }
+  .select-menu:focus {
+    outline-color: currentColor;
+    outline-offset: 0.1rem;
+    outline-style: solid;
+    outline-width: 0.125rem;
+  }
   .sidebar a:focus,
   .v-btn.text-white:focus::after,
   a.text-white:focus {
@@ -44,16 +52,20 @@
   .v-btn:focus > .v-btn__overlay {
     opacity: var(--v-focus-opacity);
   }
+  .button-menu:focus,
+  .checkbox-container:focus-within,
+  .vc-focus:focus,
   .v-btn:focus::after,
   .v-expansion-panel-title:focus,
   .v-list-item:focus::after,
   .v-list-item:focus-within::after,
   .v-selection-control--focus-visible .v-selection-control__input::before,
   a:not(.v-btn):focus,
+  button.clear-button:focus,
   *[tabindex="-1"]:focus {
     --v-theme-overlay-multiplier: 3;
     border-width: 0;
-    box-shadow: 0 0 0 0.125rem var(--v-theme-surface);
+    box-shadow: inset 0 0 0 0.125rem var(--v-theme-surface);
     outline-color: currentColor;
     outline-offset: 0.125rem;
     outline-style: solid;
@@ -61,7 +73,8 @@
   }
   .v-menu .v-list-item:focus::after,
   .v-menu .v-list-item:focus-within::after,
-  .v-menu .v-list-item .v-btn:focus::after {
+  .v-menu .v-list-item .v-btn.v-btn--block:focus::after,
+  .v-pagination .v-pagination__list .v-btn:focus::after {
     outline-offset: -0.125rem !important;
   }
   .v-expansion-panel-title:focus {
@@ -78,14 +91,21 @@
     opacity: calc(0.25 * var(--v-theme-overlay-multiplier));
   }
   .v-selection-control--focus-visible .v-selection-control__input::before {
-    --current-color: currentColor;
-    background-color: rgba(var(--current-color), calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)));
+    background-color: transparent;
+    opacity: calc(0.25 * var(--v-theme-overlay-multiplier)) !important;
+    outline-offset: -0.075rem !important;
   }
   a:not(.v-btn):focus {
     --current-color: currentColor;
     border-radius: 1px;
     outline-color: rgba(var(--current-color), calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)));
     outline-offset: 0.2rem;
+  }
+  button.clear-button:focus {
+    outline-offset: -0.175rem;
+  }
+  input[type="checkbox"]:focus {
+    outline: none;
   }
 }
 @supports selector(:focus-visible) {
@@ -110,7 +130,9 @@
     outline-color: rgba(var(--v-theme-accent-red)) !important;
   }
   .bg-primary:focus-visible::after,
-  .text-primary:focus-visible::after {
+  .button-menu.bg-primary:focus-visible,
+  .text-primary:focus-visible::after,
+  button.clear-button:focus-visible {
     outline-color: rgba(var(--v-theme-primary)) !important;
   }
   .bg-quaternary:focus-visible::after,
@@ -126,6 +148,12 @@
   .text-tertiary:focus-visible::after {
     outline-color: rgba(var(--v-theme-tertiary)) !important;
   }
+  .select-menu:focus-visible {
+    outline-color: currentColor;
+    outline-offset: 0.1rem;
+    outline-style: solid;
+    outline-width: 0.125rem;
+  }
   .sidebar a:focus-visible,
   .v-btn.text-white:focus-visible::after,
   a.text-white:focus-visible {
@@ -134,16 +162,20 @@
   .v-btn:focus-visible > .v-btn__overlay {
     opacity: var(--v-focus-opacity);
   }
+  .button-menu:focus-visible,
+  .checkbox-container:focus-within,
+  .vc-focus:focus-visible,
   .v-btn:focus-visible::after,
   .v-expansion-panel-title:focus-visible,
   .v-list-item:focus-visible::after,
   .v-list-item:focus-within::after,
   .v-selection-control--focus-visible .v-selection-control__input::before,
   a:not(.v-btn):focus-visible,
+  button.clear-button:focus-visible,
   *[tabindex="-1"]:focus-visible {
     --v-theme-overlay-multiplier: 3;
     border-width: 0;
-    box-shadow: 0 0 0 0.125rem var(--v-theme-surface);
+    box-shadow: inset 0 0 0 0.125rem var(--v-theme-surface);
     outline-color: currentColor;
     outline-offset: 0.125rem;
     outline-style: solid;
@@ -151,7 +183,8 @@
   }
   .v-menu .v-list-item:focus-visible::after,
   .v-menu .v-list-item:focus-within::after,
-  .v-menu .v-list-item .v-btn:focus-visible::after {
+  .v-menu .v-list-item .v-btn.v-btn--block:focus-visible::after,
+  .v-pagination .v-pagination__list .v-btn:focus-visible::after {
     outline-offset: -0.125rem !important;
   }
   .v-expansion-panel-title:focus-visible {
@@ -168,14 +201,21 @@
     opacity: calc(0.25 * var(--v-theme-overlay-multiplier));
   }
   .v-selection-control--focus-visible .v-selection-control__input::before {
-    --current-color: currentColor;
-    background-color: rgba(var(--current-color), calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)));
+    background-color: transparent;
+    opacity: calc(0.25 * var(--v-theme-overlay-multiplier)) !important;
+    outline-offset: -0.075rem !important;
   }
   a:not(.v-btn):focus-visible {
     --current-color: currentColor;
     border-radius: 1px;
     outline-color: rgba(var(--current-color), calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)));
     outline-offset: 0.2rem;
+  }
+  button.clear-button:focus-visible {
+    outline-offset: -0.175rem;
+  }
+  input[type="checkbox"]:focus-visible {
+    outline: none;
   }
 }
 .v-input--focused.basic-search .v-field--focused {

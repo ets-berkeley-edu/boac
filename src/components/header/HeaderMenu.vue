@@ -25,6 +25,7 @@
           <v-btn
             id="header-menu-degree-check"
             :aria-current="route.path === '/degrees' ? 'page' : false"
+            block
             class="header-menu-item"
             color="primary"
             density="comfortable"
@@ -43,6 +44,7 @@
             v-if="peerAdvisingDepartments.length === 1"
             id="header-menu-peer-management"
             :aria-current="route.path.startsWith('/peer/management') ? 'page' : false"
+            block
             class="header-menu-item"
             color="primary"
             density="comfortable"
@@ -55,6 +57,7 @@
             v-if="peerAdvisingDepartments.length > 1"
             :id="`header-menu-peer-management-${peerAdvisingDepartment.peerAdvisingDepartmentId}`"
             :aria-current="route.path.startsWith(`/peer/management/${peerAdvisingDepartment.peerAdvisingDepartmentId}`) ? 'page' : false"
+            block
             class="header-menu-item"
             color="primary"
             density="comfortable"
@@ -68,6 +71,7 @@
           <v-btn
             id="header-menu-analytics"
             :aria-current="route.path.startsWith('/analytics') ? 'page' : false"
+            block
             class="header-menu-item"
             color="primary"
             density="comfortable"
@@ -81,6 +85,7 @@
           <v-btn
             id="header-menu-flight-deck"
             :aria-current="route.path === '/admin' ? 'page' : false"
+            block
             class="header-menu-item"
             color="primary"
             density="comfortable"
@@ -94,6 +99,7 @@
           <v-btn
             id="header-menu-passengers"
             :aria-current="route.path === '/admin/passengers' ? 'page' : false"
+            block
             class="header-menu-item"
             color="primary"
             density="comfortable"
@@ -107,6 +113,7 @@
           <v-btn
             id="header-menu-profile"
             :aria-current="route.path === (isPeerAdvisor(currentUser) ? '/peer_advisor/profile' : '/profile') ? 'page' : false"
+            block
             class="header-menu-item"
             color="primary"
             density="comfortable"
@@ -118,6 +125,7 @@
         </v-list-item>
         <v-list-item class="pa-0">
           <v-btn
+            block
             class="header-menu-item font-size-16 font-weight-500 justify-start text-decoration-none w-100"
             color="primary"
             density="comfortable"
@@ -132,6 +140,7 @@
         <v-list-item class="pa-0">
           <v-btn
             id="header-menu-log-out"
+            block
             class="header-menu-item"
             color="primary"
             density="comfortable"
@@ -188,6 +197,5 @@ const logOut = () => {
   letter-spacing: normal;
   justify-content: start;
   text-decoration-line: none;
-  width: 100%;
 }
 </style>

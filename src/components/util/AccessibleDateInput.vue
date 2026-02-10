@@ -54,12 +54,13 @@
       v-if="model"
       :id="`${idPrefix}-clear-btn`"
       :aria-label="`Clear ${ariaLabel}`"
-      class="clear-button clear-icon mb-1"
+      class="clear-button clear-icon"
       :disabled="disabled"
       @click.stop.prevent="onClickClear($event, dateInputEvents)"
     >
       <v-icon
-        color="secondary"
+        class="vertical-top"
+        color="primary"
         height="20"
         :icon="mdiCloseCircle"
         width="20"
@@ -321,17 +322,17 @@ const onUpdateFocus = (hasFocus, inputEvents) => {
 
 <style scoped>
 .accessible-date-picker {
-  width: 150px;
+  width: 10rem;
 }
 .clear-button {
   background: transparent;
   border: none;
   border-radius: 100%;
   cursor: pointer;
-  padding: 2px 4px 2px 2px;
+  padding: 2px;
   position: absolute;
-  right: 5px;
-  top: 5px;
+  right: 8px;
+  top: 6px;
   &:disabled {
     cursor: not-allowed;
     opacity: var(--v-disabled-opacity);

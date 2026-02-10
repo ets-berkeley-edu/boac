@@ -10,3 +10,6 @@
   --vc-accent-800: #97c4de !important;
   --vc-accent-900: #8bbdda !important;
 }
+.vc-focus:focus-within {
+  box-shadow: none;
+}

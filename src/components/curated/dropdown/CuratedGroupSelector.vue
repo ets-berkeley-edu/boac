@@ -76,7 +76,7 @@
                 <v-checkbox-btn
                   :id="`${idFragment}-${group.id}-checkbox`"
                   :model-value="isSelected"
-                  class="mr-7 w-100"
+                  class="mx-1 mr-7 w-100"
                   color="primary"
                   density="compact"
                   hide-details
@@ -96,7 +96,7 @@
             <v-btn
               :id="`submit-${idFragment}`"
               :aria-label="`Add students to selected ${domainLabel(true)}s`"
-              class="px-6 my-1"
+              class="mx-1 px-6 my-1"
               color="primary"
               :disabled="!size(selectedCuratedGroups) || isConfirming || isSaving"
               height="32"
@@ -109,6 +109,7 @@
             <v-btn
               :id="`create-${idFragment}`"
               :aria-label="`Create a new ${domainLabel(false)}`"
+              class="ma-1"
               color="primary"
               :prepend-icon="mdiPlus"
               :text="`Create New ${domainLabel(true)}`"
