@@ -116,7 +116,7 @@
 }
 .degree-check-action-buttons {
   min-width: 2.5rem;
-  padding-right: 1px;
+  padding: 1px 1px 0 0;
   width: 2.5rem;
 }
 .default-margins {

@@ -43,19 +43,17 @@
             <div class="truncate-with-ellipsis">
               {{ unitRequirement.name }}
             </div>
-            <div class="float-right">
-              <v-btn
-                :id="`column-${uxPositionX}-unit-requirement-remove-${index}`"
-                :aria-label="`Remove ${unitRequirement.name} from Unit Requirements`"
-                color="error"
-                density="compact"
-                :disabled="disable"
-                :icon="mdiCloseCircleOutline"
-                title="Remove"
-                variant="text"
-                @click="() => removeUnitRequirement(unitRequirement, index)"
-              />
-            </div>
+            <v-btn
+              :id="`column-${uxPositionX}-unit-requirement-remove-${index}`"
+              :aria-label="`Remove ${unitRequirement.name} from Unit Requirements`"
+              color="error"
+              density="compact"
+              :disabled="disable"
+              :icon="mdiCloseCircleOutline"
+              size="sm"
+              variant="text"
+              @click="() => removeUnitRequirement(unitRequirement, index)"
+            />
           </div>
         </li>
       </ul>
@@ -122,7 +120,7 @@ const removeUnitRequirement = (item, index) => {
   border: 1px solid rgba(var(--v-border-color), var(--v-disabled-opacity));
   height: 36px;
   margin-top: 6px;
-  padding: 3px 8px;
+  padding: 5px 8px;
   min-width: 50%;
 }
 </style>

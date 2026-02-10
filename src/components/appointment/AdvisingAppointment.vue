@@ -10,8 +10,8 @@
         v-html="summarizeNoteForAcademicTimeline(appointment, !isOpen)"
       />
     </div>
-    <div class="advising-appointment-outer pb-3">
-      <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
+    <div class="advising-appointment-outer">
+      <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`" class="pb-2">
         <div v-if="appointment.appointmentTitle">
           <span :id="`appointment-${appointment.id}-title`" v-html="appointment.appointmentTitle" />
         </div>

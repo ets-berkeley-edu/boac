@@ -90,7 +90,10 @@
             <component
               :is="isBusy ? 'span' : 'router-link'"
               :id="`degree-check-${item.id}-link`"
+              :aria-disabled="isBusy"
+              class="d-inline-block"
               :class="{'text-disabled': isBusy}"
+              role="link"
               :to="`/degree/${item.id}`"
               v-html="`${item.name}`"
             />
@@ -157,7 +160,7 @@
                 Rename<span class="sr-only"> {{ item.name }}</span>
               </v-btn>
             </div>
-            <div v-if="currentUser.canEditDegreeProgress" class="d-flex flex-wrap flex-sm-nowrap justify-end">
+            <div v-if="currentUser.canEditDegreeProgress" class="d-flex flex-wrap flex-sm-nowrap justify-end pb-1">
               <div class="align-center d-flex">
                 <span class="text-disabled" role="separator">|</span>
                 <v-btn

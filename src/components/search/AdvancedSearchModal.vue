@@ -75,6 +75,7 @@
                 v-if="currentUser.canAccessAdmittedStudents"
                 id="search-include-admits-checkbox"
                 v-model="model.includeAdmits"
+                class="mr-2"
                 color="primary"
                 hide-details
                 label="Students"
@@ -86,6 +87,7 @@
               <v-checkbox
                 id="search-include-students-checkbox"
                 v-model="model.includeStudents"
+                class="mr-2"
                 color="primary"
                 hide-details
               >
@@ -97,6 +99,7 @@
                 v-if="currentUser.canAccessCanvasData"
                 id="search-include-courses-checkbox"
                 v-model="model.includeCourses"
+                class="mr-2"
                 color="primary"
                 hide-details
               >
@@ -110,6 +113,7 @@
                 v-model="model.includeNotes"
                 aria-controls="search-option-note-filters"
                 :aria-expanded="model.includeNotes"
+                class="mr-2"
                 color="primary"
                 hide-details
                 @change="onChangeIncludeNotes"
@@ -164,6 +168,7 @@
                         <v-radio
                           id="search-options-note-filters-posted-by-anyone"
                           aria-label="Search notes posted by anyone"
+                          class="mr-2"
                           :disabled="searchStore.isSearching"
                           :ischecked="model.postedBy === 'anyone'"
                           label="Anyone"
@@ -172,6 +177,7 @@
                         <v-radio
                           id="search-options-note-filters-posted-by-you"
                           aria-label="Search notes you posted"
+                          class="mr-2"
                           :disabled="searchStore.isSearching"
                           :ischecked="model.postedBy === 'you'"
                           label="You"
@@ -181,6 +187,7 @@
                         <v-radio
                           id="search-options-note-filters-posted-by-your department"
                           aria-label="Search notes posted by your department"
+                          class="mr-2"
                           :disabled="searchStore.isSearching"
                           :ischecked="model.postedBy === 'yourDepartment'"
                           label="Your Department(s)"

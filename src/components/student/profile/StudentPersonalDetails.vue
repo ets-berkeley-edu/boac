@@ -114,6 +114,7 @@
                     <a
                       id="link-to-perceptive-content"
                       aria-label="Perceptive Content (Image Now) documents (opens in new tab)"
+                      class="d-inline-block"
                       :href="`https://imagine-content.berkeley.edu/#documents/view/321Z05B_01EFZBH4W0004XD?simplemode=true&constraint=[field1] = '${student.sid}'`"
                       target="_blank"
                     >

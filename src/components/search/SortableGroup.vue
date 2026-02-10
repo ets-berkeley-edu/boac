@@ -73,17 +73,15 @@
             View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${toInt(group.totalStudentCount, 0).toLocaleString()}`}) }}
           </router-link>
         </div>
-        <div class="ma-4">
-          <SortableStudents
-            class="bg-pale-blue"
-            :compact="compact"
-            domain="default"
-            :initial-sort-by="{key: 'alertCount', order: 'desc'}"
-            :students="studentsWithAlerts"
-            :table-uid="`${keyword}-${group.id}`"
-            :table-name="`${groupTypeName} ${group.name}`"
-          />
-        </div>
+        <SortableStudents
+          class="bg-pale-blue ma-4"
+          :compact="compact"
+          domain="default"
+          :initial-sort-by="{key: 'alertCount', order: 'desc'}"
+          :students="studentsWithAlerts"
+          :table-uid="`${keyword}-${group.id}`"
+          :table-name="`${groupTypeName} ${group.name}`"
+        />
       </div>
       <div
         v-if="openAndLoaded"

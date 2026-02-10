@@ -4,7 +4,9 @@
       <label
         :for="`batch-degree-check-${objectType}`"
         class="font-weight-bold"
-      ><span class="sr-only">Select a </span>{{ header }}</label>
+      >
+        <span class="sr-only">Select a </span>{{ header }}
+      </label>
     </div>
     <select
       :id="`batch-degree-check-${objectType}`"
@@ -43,18 +45,18 @@
         >
           {{ addedObject.name }}
         </div>
-        <div class="float-right">
-          <v-btn
-            :id="`remove-${objectType}-from-batch-${index}`"
-            class="remove-topic-btn"
-            :aria-label="`Remove ${header} ${addedObject.name} from Degree Check`"
-            color="error"
-            :disabled="disabled"
-            :icon="mdiCloseCircleOutline"
-            variant="text"
-            @click="() => remove(addedObject)"
-          />
-        </div>
+        <v-btn
+          :id="`remove-${objectType}-from-batch-${index}`"
+          :aria-label="`Remove ${header} ${addedObject.name} from Degree Check`"
+          class="ml-auto mr-2"
+          color="error"
+          density="compact"
+          :disabled="disabled"
+          :icon="mdiCloseCircleOutline"
+          size="sm"
+          variant="text"
+          @click="() => remove(addedObject)"
+        />
       </li>
     </ul>
   </div>
@@ -126,8 +128,5 @@ const remove = object => {
   margin-top: 6px;
   padding: 0 0 0 8px;
   min-width: 50%;
-}
-.remove-topic-btn {
-  margin-right: -10px;
 }
 </style>

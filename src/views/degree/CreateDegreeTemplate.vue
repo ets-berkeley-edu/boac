@@ -12,7 +12,6 @@
         v-model="templateName"
         aria-describedby="create-degree-input-messages"
         :aria-invalid="!!errorMessage"
-        aria-labelledby="create-degree-label"
         autocomplete="on"
         class="mt-2"
         density="comfortable"

@@ -38,22 +38,8 @@
   .text-tertiary:focus::after {
     outline-color: rgba(var(--v-theme-tertiary)) !important;
   }
-  .select-menu:focus {
-    outline-color: currentColor;
-    outline-offset: 0.1rem;
-    outline-style: solid;
-    outline-width: 0.125rem;
-  }
-  .sidebar a:focus,
-  .v-btn.text-white:focus::after,
-  a.text-white:focus {
-    outline-color: rgba(white, calc(0.25 * var(--v-theme-overlay-multiplier))) !important;
-  }
-  .v-btn:focus > .v-btn__overlay {
-    opacity: var(--v-focus-opacity);
-  }
-  .button-menu:focus,
   .checkbox-container:focus-within,
+  .select-menu:focus,
   .vc-focus:focus,
   .v-btn:focus::after,
   .v-expansion-panel-title:focus,
@@ -61,8 +47,9 @@
   .v-list-item:focus-within::after,
   .v-selection-control--focus-visible .v-selection-control__input::before,
   a:not(.v-btn):focus,
-  button.clear-button:focus,
-  *[tabindex="-1"]:focus {
+  button:not(.v-btn):focus,
+  h1[tabindex="-1"]:focus,
+  *[role="button"]:focus {
     --v-theme-overlay-multiplier: 3;
     border-width: 0;
     box-shadow: inset 0 0 0 0.125rem var(--v-theme-surface);
@@ -71,11 +58,22 @@
     outline-style: solid;
     outline-width: 0.125rem;
   }
-  .v-menu .v-list-item:focus::after,
-  .v-menu .v-list-item:focus-within::after,
-  .v-menu .v-list-item .v-btn.v-btn--block:focus::after,
-  .v-pagination .v-pagination__list .v-btn:focus::after {
-    outline-offset: -0.125rem !important;
+  .select-menu:focus {
+    outline-offset: 0.1rem !important;
+  }
+  .sidebar a:focus,
+  .v-btn.text-white:focus::after,
+  a.text-white:focus {
+    outline-color: rgba(white, calc(0.25 * var(--v-theme-overlay-multiplier))) !important;
+  }
+  .sort-col-btn:focus::after {
+    outline-offset: -0.2rem !important;
+  }
+  .v-btn:focus > .v-btn__overlay {
+    opacity: var(--v-focus-opacity);
+  }
+  .v-btn-group > .v-btn:focus::after {
+    outline-offset: -0.1rem !important;
   }
   .v-expansion-panel-title:focus {
     outline-offset: 0.025rem !important;
@@ -90,10 +88,14 @@
     box-shadow: inset 0 0 0 0.125rem var(--v-theme-surface);
     opacity: calc(0.25 * var(--v-theme-overlay-multiplier));
   }
-  .v-selection-control--focus-visible .v-selection-control__input::before {
-    background-color: transparent;
-    opacity: calc(0.25 * var(--v-theme-overlay-multiplier)) !important;
-    outline-offset: -0.075rem !important;
+  .v-menu .v-list-item:focus::after,
+  .v-menu .v-list-item:focus-within::after,
+  .v-menu .v-list-item .v-btn.v-btn--block:focus::after,
+  .v-pagination .v-pagination__list .v-btn:focus::after {
+    outline-offset: -0.125rem !important;
+  }
+  .v-tab:focus::after {
+    outline-offset: -0.1rem !important;
   }
   a:not(.v-btn):focus {
     --current-color: currentColor;
@@ -148,22 +150,8 @@
   .text-tertiary:focus-visible::after {
     outline-color: rgba(var(--v-theme-tertiary)) !important;
   }
-  .select-menu:focus-visible {
-    outline-color: currentColor;
-    outline-offset: 0.1rem;
-    outline-style: solid;
-    outline-width: 0.125rem;
-  }
-  .sidebar a:focus-visible,
-  .v-btn.text-white:focus-visible::after,
-  a.text-white:focus-visible {
-    outline-color: rgba(white, calc(0.25 * var(--v-theme-overlay-multiplier))) !important;
-  }
-  .v-btn:focus-visible > .v-btn__overlay {
-    opacity: var(--v-focus-opacity);
-  }
-  .button-menu:focus-visible,
   .checkbox-container:focus-within,
+  .select-menu:focus-visible,
   .vc-focus:focus-visible,
   .v-btn:focus-visible::after,
   .v-expansion-panel-title:focus-visible,
@@ -171,8 +159,9 @@
   .v-list-item:focus-within::after,
   .v-selection-control--focus-visible .v-selection-control__input::before,
   a:not(.v-btn):focus-visible,
-  button.clear-button:focus-visible,
-  *[tabindex="-1"]:focus-visible {
+  button:not(.v-btn):focus-visible,
+  h1[tabindex="-1"]:focus-visible,
+  *[role="button"]:focus-visible {
     --v-theme-overlay-multiplier: 3;
     border-width: 0;
     box-shadow: inset 0 0 0 0.125rem var(--v-theme-surface);
@@ -181,11 +170,22 @@
     outline-style: solid;
     outline-width: 0.125rem;
   }
-  .v-menu .v-list-item:focus-visible::after,
-  .v-menu .v-list-item:focus-within::after,
-  .v-menu .v-list-item .v-btn.v-btn--block:focus-visible::after,
-  .v-pagination .v-pagination__list .v-btn:focus-visible::after {
-    outline-offset: -0.125rem !important;
+  .select-menu:focus-visible {
+    outline-offset: 0.1rem !important;
+  }
+  .sidebar a:focus-visible,
+  .v-btn.text-white:focus-visible::after,
+  a.text-white:focus-visible {
+    outline-color: rgba(white, calc(0.25 * var(--v-theme-overlay-multiplier))) !important;
+  }
+  .sort-col-btn:focus-visible::after {
+    outline-offset: -0.2rem !important;
+  }
+  .v-btn:focus-visible > .v-btn__overlay {
+    opacity: var(--v-focus-opacity);
+  }
+  .v-btn-group > .v-btn:focus-visible::after {
+    outline-offset: -0.1rem !important;
   }
   .v-expansion-panel-title:focus-visible {
     outline-offset: 0.025rem !important;
@@ -200,10 +200,14 @@
     box-shadow: inset 0 0 0 0.125rem var(--v-theme-surface);
     opacity: calc(0.25 * var(--v-theme-overlay-multiplier));
   }
-  .v-selection-control--focus-visible .v-selection-control__input::before {
-    background-color: transparent;
-    opacity: calc(0.25 * var(--v-theme-overlay-multiplier)) !important;
-    outline-offset: -0.075rem !important;
+  .v-menu .v-list-item:focus-visible::after,
+  .v-menu .v-list-item:focus-within::after,
+  .v-menu .v-list-item .v-btn.v-btn--block:focus-visible::after,
+  .v-pagination .v-pagination__list .v-btn:focus-visible::after {
+    outline-offset: -0.125rem !important;
+  }
+  .v-tab:focus-visible::after {
+    outline-offset: -0.1rem !important;
   }
   a:not(.v-btn):focus-visible {
     --current-color: currentColor;
@@ -222,4 +226,12 @@
   --v-theme-overlay-multiplier: 3;
   outline-color: rgba(white, calc(0.25 * var(--v-theme-overlay-multiplier))) !important;
   outline-style: solid;
+}
+.v-selection-control--focus-visible .v-selection-control__input::before {
+  background-color: transparent;
+  opacity: calc(0.25 * var(--v-theme-overlay-multiplier)) !important;
+  outline-offset: -0.4rem !important;
+}
+.v-selection-control--focus-visible.v-selection-control--density-compact .v-selection-control__input::before {
+  outline-offset: -0.075rem !important;
 }

@@ -43,11 +43,12 @@
         </h4>
         <div
           v-if="!degreeStore.sid && canEdit"
-          class="align-center degree-check-action-buttons d-flex float-right mr-2 ms-auto"
+          class="align-center degree-check-action-buttons d-flex mr-2 ms-auto"
         >
           <v-btn
             :id="`column-${uxPositionX}-edit-category-${category.id}-btn`"
             :aria-label="`Edit ${category.name}`"
+            class="mr-1"
             :class="{'text-primary': !degreeStore.disableButtons}"
             :color="degreeStore.disableButtons ? 'grey' : 'transparent'"
             density="compact"
@@ -61,6 +62,7 @@
           <v-btn
             :id="`column-${uxPositionX}-delete-category-${category.id}-btn`"
             :aria-label="`Delete ${category.name}`"
+            class="mr-1"
             :class="{'text-primary': !degreeStore.disableButtons}"
             :color="degreeStore.disableButtons ? 'grey' : 'transparent'"
             density="compact"

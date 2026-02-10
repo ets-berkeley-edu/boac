@@ -49,7 +49,7 @@
           :id="`${idPrefix}-sort-col-select`"
           :aria-label="`Sort ${tableName} by`"
           autocomplete="off"
-          class="select-menu w-100 mb-2 ml-2"
+          class="select-menu w-100 my-2 ml-2"
           :model-value="selectedSortColumn"
           @change="onSelectSortColumn"
         >

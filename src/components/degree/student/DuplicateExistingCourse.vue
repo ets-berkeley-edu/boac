@@ -30,7 +30,7 @@
           id="add-course-save-btn"
           :action="onClickSave"
           aria-label="Save Duplicate Course"
-          class="mr-1"
+          class="mr-2"
           color="primary"
           :disabled="isSaving || !selected"
           :in-progress="isSaving"

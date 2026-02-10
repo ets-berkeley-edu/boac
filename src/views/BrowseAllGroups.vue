@@ -8,6 +8,7 @@
           id="collapse-all-departments"
           aria-controls="department-expansion-panels"
           aria-label="Collapse all departments"
+          class="ml-2"
           color="primary"
           slim
           text="Collapse all"
@@ -20,6 +21,7 @@
           id="expand-all-departments"
           aria-controls="department-expansion-panels"
           aria-label="Expand all departments"
+          class="ml-2"
           color="primary"
           slim
           text="Expand all"
@@ -136,7 +138,8 @@ import {computed, onMounted, ref} from 'vue'
 import {filter as _filter, each, isEmpty, map, toString} from 'lodash'
 import {mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {useRoute} from 'vue-router'
-import type {Cohort, CuratedGroup, Department} from '@/lib/types'
+import type {Cohort} from '@/lib/types-cohorts'
+import type {CuratedGroup, Department} from '@/lib/types'
 import {alertScreenReader, pluralize, setPageTitle} from '@/lib/utils'
 import {getUsersWithCohortsByDeptCode} from '@/api/cohort'
 import {getUsersWithCuratedGroupsByDeptCode} from '@/api/curated'

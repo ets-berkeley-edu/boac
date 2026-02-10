@@ -52,7 +52,7 @@
           v-if="!isBusy && !focusedListItemIndex"
           :id="`${idPrefix}-clear-btn`"
           :aria-label="`Clear ${label} Input`"
-          class="d-flex align-self-center v-icon"
+          class="d-flex align-self-center v-icon mx-1"
           :class="{'disabled-opacity': !model}"
           density="compact"
           :disabled="!model"
