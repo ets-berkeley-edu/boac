@@ -97,9 +97,9 @@
         </dd>
       </template>
       <template v-if="student.termsInAttendance">
-        <dt class="sr-only">Terms in attendance</dt>
+        <dt>Terms in attendance</dt>
         <dd :id="`row-${rowIndex}-student-terms-in-attendance`" class="ma-0 ml-0">
-          Terms in Attendance:&nbsp;{{ student.termsInAttendance }}
+          {{ student.termsInAttendance }}
         </dd>
       </template>
       <template v-if="student.majors && student.majors.length">

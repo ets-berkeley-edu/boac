@@ -62,13 +62,15 @@
                 class="font-weight-bold"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
               />
-              <v-icon
-                v-if="isAlertGrade(enrollment.midtermGrade) && !currentUser.inDemoMode"
-                color="warning"
-                :icon="mdiAlert"
-                size="small"
-                alt="Non-passing grade"
-              />
+              <template v-if="isAlertGrade(enrollment.midtermGrade) && !currentUser.inDemoMode">
+                <v-icon
+                  color="warning"
+                  :icon="mdiAlert"
+                  size="small"
+                  alt="Non-passing grade"
+                />
+                <span class="sr-only">Non-passing grade</span>
+              </template>
               <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
             </div>
           </td>
@@ -79,14 +81,17 @@
                 v-accessible-grade="enrollment.grade"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
               />
-              <v-icon
-                v-if="isAlertGrade(enrollment.grade) && !currentUser.inDemoMode"
-                class="grade-alert"
-                color="warning"
-                :icon="mdiAlert"
-                size="small"
-                alt="Non-passing grade"
-              />
+              <template v-if="isAlertGrade(enrollment.grade) && !currentUser.inDemoMode">
+                <v-icon
+                  class="grade-alert"
+                  color="warning"
+                  :icon="mdiAlert"
+                  size="small"
+                  alt="Non-passing grade"
+                />
+                <span class="sr-only">Non-passing grade</span>
+              </template>
+
               <IncompleteGradeAlertIcon
                 v-if="getSectionsWithIncompleteStatus(enrollment.sections).length && !currentUser.inDemoMode"
                 :course="enrollment"
