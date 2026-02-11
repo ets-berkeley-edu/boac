@@ -72,7 +72,7 @@ class DegreeCheckBatchPage(BoaPages):
 
     @staticmethod
     def cohort_remove_button(cohort):
-        return By.XPATH, f'//div[text()="{cohort.name}"]/following-sibling::div/button'
+        return By.XPATH, f'//div[text()="{cohort.name}"]/following-sibling::button'
 
     def add_cohorts_to_batch(self, degree_batch, cohorts):
         for cohort in cohorts:
@@ -101,7 +101,7 @@ class DegreeCheckBatchPage(BoaPages):
 
     @staticmethod
     def group_remove_button(group):
-        return By.XPATH, f'//div[text()="{group.name}"]/following-sibling::div/button'
+        return By.XPATH, f'//div[text()="{group.name}"]/following-sibling::button'
 
     def add_groups_to_batch(self, degree_batch, groups):
         for group in groups:
