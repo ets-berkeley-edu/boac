@@ -59,13 +59,16 @@ class ClassPage(ListViewStudentPages,
         return self.el_text_if_exists(self.COURSE_CODE)
 
     def section_format(self):
-        return self.element(self.COURSE_DETAILS).text.split()[1] if self.is_present(self.COURSE_DETAILS) else None
+        return self.element(self.COURSE_DETAILS).get_attribute('innerText').split()[1] if self.is_present(self.COURSE_DETAILS) else None
 
     def section_number(self):
-        return self.element(self.COURSE_DETAILS).text.split()[2] if self.is_present(self.COURSE_DETAILS) else None
+        return self.element(self.COURSE_DETAILS).get_attribute('innerText').split()[2] if self.is_present(self.COURSE_DETAILS) else None
 
     def course_units_completed(self):
-        return self.element(self.COURSE_DETAILS).text.split('—')[-1].split(' ')[0] if self.is_present(self.COURSE_DETAILS) else None
+        if self.is_present(self.COURSE_DETAILS):
+            return self.element(self.COURSE_DETAILS).get_attribute('innerText').split('—')[-1].split(' ')[0]
+        else:
+            return None
 
     def course_title(self):
         return self.el_text_if_exists(self.COURSE_TITLE)
@@ -92,15 +95,15 @@ class ClassPage(ListViewStudentPages,
 
     def meeting_days(self, index):
         loc = By.XPATH, f'{self.meeting_schedule_xpath(index)}//div[1]'
-        return self.element(loc).text.strip() if self.is_present(loc) and self.element(loc).text.strip() else None
+        return self.element(loc).get_attribute('innerText').strip() if self.is_present(loc) and self.element(loc).text.strip() else None
 
     def meeting_time(self, index):
         loc = By.XPATH, f'{self.meeting_schedule_xpath(index)}//div[2]'
-        return self.element(loc).text.strip() if self.is_present(loc) and self.element(loc).text.strip() else None
+        return self.element(loc).get_attribute('innerText').strip() if self.is_present(loc) and self.element(loc).text.strip() else None
 
     def meeting_location(self, index):
         loc = By.XPATH, f'{self.meeting_schedule_xpath(index)}//div[3]'
-        return self.element(loc).text.strip() if self.is_present(loc) and self.element(loc).text.strip() else None
+        return self.element(loc).get_attribute('innerText').strip() if self.is_present(loc) and self.element(loc).text.strip() else None
 
     # STUDENT SIS DATA
 
@@ -165,7 +168,7 @@ class ClassPage(ListViewStudentPages,
         has_boxplot = self.is_present((By.XPATH, boxplot_xpath))
         app.logger.info(f'Has-boxplot is {has_boxplot}')
         if has_boxplot:
-            loc = By.XPATH, '//div[@class="highcharts-tooltip-container"][last()]//div[contains(text(), "User Score")]/following-sibling::div'
+            loc = By.XPATH, '//div[@class="highcharts-tooltip-container"][last()]//div[contains(text(), "Student Score")]/following-sibling::div'
             self.mouseover(self.element((By.XPATH, boxplot_xpath)))
             if not self.is_present(loc):
                 self.mouseover(self.element((By.XPATH, boxplot_xpath)), horizontal_offset=-15)
@@ -173,11 +176,11 @@ class ClassPage(ListViewStudentPages,
                 self.mouseover(self.element((By.XPATH, boxplot_xpath)), horizontal_offset=15)
         else:
             loc = By.XPATH, f'{score_xpath}//strong'
-        return self.element(loc).text.split(' ')[-1] if self.is_present(loc) else None
+        return self.element(loc).get_attribute('innerText').split(' ')[-1] if self.is_present(loc) else None
 
     def assignment_no_data(self, xpath):
         loc = By.XPATH, f'{xpath}/div[contains(., "No Data")]'
-        return self.element(loc).text if self.is_present(loc) else None
+        return self.element(loc).get_attribute('innerText') if self.is_present(loc) else None
 
     @staticmethod
     def assigns_submit_xpath(student, node):
