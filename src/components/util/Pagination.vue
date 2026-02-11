@@ -16,6 +16,7 @@
       <template #first="{disabled}">
         <v-btn
           :id="`${idPrefix}-first`"
+          :aria-disabled="disabled"
           aria-label="First Page"
           class="font-size-14 px-2"
           color="primary"
@@ -33,6 +34,7 @@
       <template #prev="{disabled}">
         <v-btn
           :id="`${idPrefix}-prev`"
+          :aria-disabled="disabled"
           aria-label="Previous Page"
           color="primary"
           :disabled="disabled"
@@ -50,7 +52,8 @@
         <v-btn
           :id="itemProps.ellipsis ? `${idPrefix}-ellipsis` : `${idPrefix}-page-${key}`"
           :aria-current="isActive"
-          :aria-label="itemProps.ellipsis ? undefined : `Page ${page}${isActive ? ', current page' : ''}`"
+          :aria-disabled="!!itemProps.ellipsis"
+          :aria-label="itemProps.ellipsis ? undefined : `Page ${page}`"
           :class="{
             'bg-surface text-primary': !isActive && !itemProps.ellipsis,
             'bg-primary text-white': isActive && itemProps.ellipsis,
@@ -71,6 +74,7 @@
       <template #next="{disabled}">
         <v-btn
           :id="`${idPrefix}-next`"
+          :aria-disabled="disabled"
           aria-label="Next Page"
           color="primary"
           :disabled="disabled"
@@ -86,6 +90,7 @@
       <template #last="{disabled}">
         <v-btn
           :id="`${idPrefix}-last`"
+          :aria-disabled="disabled"
           aria-label="Last Page"
           class="font-size-14 px-2"
           color="primary"
