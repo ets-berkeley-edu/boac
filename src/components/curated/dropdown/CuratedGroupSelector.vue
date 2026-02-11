@@ -25,7 +25,7 @@
         <template #activator="{props: menuProps}">
           <button
             :id="`add-to-${idFragment}`"
-            class="button-menu bg-primary py-0 px-2 text-body-1 text-white"
+            class="button-menu bg-primary mx-1 py-0 px-2 text-body-1 text-white"
             :class="{'bg-success': isConfirming, 'button-menu-active': isMenuOpen}"
             :disabled="!size(sids)"
             v-bind="menuProps"

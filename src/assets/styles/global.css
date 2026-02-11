@@ -405,7 +405,7 @@
     align-items: baseline !important;
     display: flex !important;
     height: fit-content !important;
-    padding-left: 3px !important;
+    padding-left: 8px !important;
     max-width: unset !important;
     width: 100% !important;
     &[data-label]::before {

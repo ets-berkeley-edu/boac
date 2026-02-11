@@ -1,14 +1,14 @@
 <template>
   <div>
-    <label
+    <div
       :id="`${idPrefix}-attachments-list-label`"
       class="d-inline-block font-size-16 font-weight-bold text-medium-emphasis"
     >
       Attachments
-    </label>
+    </div>
     <div v-if="!isReadOnly && !attachmentLimitReached" class="mt-2 position-relative">
       <label
-        class="note-attachment-inner-label font-size-16 align-center d-flex flex-wrap justify-center"
+        class="note-attachment-inner-label cursor-pointer font-size-16 align-center d-flex flex-wrap justify-center"
         :class="{
           'font-weight-bold text-black text-center': disabled,
           'font-weight-medium': !disabled
@@ -55,6 +55,7 @@
         :prepend-icon="null"
         :variant="disabled ? 'outlined' : 'solo-filled'"
         @click:control="onClickBrowseForAttachment"
+        @update:focused="v => isFocused = v"
         @update:model-value="onAttachmentsInput"
       >
         <template #selection>
@@ -180,6 +181,7 @@ const canRemoveAttachments = ref(false)
 const currentUser = reactive(contextStore.currentUser)
 const inputId = `${props.idPrefix}-choose-file-for-note-attachment`
 const isAdding = ref(false)
+const isFocused = ref(false)
 let progressBarAlert
 const progressBarId = `${props.idPrefix}-attachment-progress`
 
