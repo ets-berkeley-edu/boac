@@ -29,6 +29,7 @@
         </NavLink>
       </div>
       <v-list
+        v-if="myCohorts.length"
         tag="ul"
         density="compact"
         lines="one"
@@ -84,6 +85,7 @@
         </NavLink>
       </div>
       <v-list
+        v-if="myCuratedGroups.length"
         tag="ul"
         density="compact"
         class="py-0 sidebar-list"
