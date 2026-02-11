@@ -32,7 +32,7 @@
       />
     </template>
     <template #item.section="{item}">
-      <router-link class="font-weight-600" :to="`/course/${item.termId}/${item.sectionId}`">
+      <router-link class="d-inline-block font-weight-600 ml-1" :to="`/course/${item.termId}/${item.sectionId}`">
         {{ item.courseName }} - {{ item.instructionFormat }} {{ item.sectionNum }}
       </router-link>
     </template>
@@ -79,7 +79,7 @@ const tableCaption = computed(() =>
 
 onMounted(() => {
   headers.value = [
-    {key: 'section', sortable: true, sortRaw, title: 'Section', value: item => `${item.courseName} ${item.instructionFormat} ${item.sectionNum}`},
+    {key: 'section', class: 'pl-1', sortable: true, sortRaw, title: 'Section', value: item => `${item.courseName} ${item.instructionFormat} ${item.sectionNum}`},
     {key: 'courseName', sortable: true, sortRaw, title: 'Course Name'},
     {key: 'instructors', sortable: false, title: 'Instructor(s)'}
   ]

@@ -47,7 +47,6 @@
             :aria-label="`Cohort ${cohort.name} has ${pluralize('student', cohort.totalStudentCount)}`"
             class="align-center d-flex font-weight-medium justify-space-between text-secondary w-100"
             :path="`/cohort/${cohort.id}`"
-            :title="cohort.name"
           >
             <div :aria-hidden="true" class="truncate-with-ellipsis">
               {{ cohort.name }}
@@ -103,7 +102,6 @@
             :aria-label="`${capitalize(describeCuratedGroupDomain('default', false))} ${group.name} has ${pluralize('student', group.totalStudentCount)}`"
             class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
             :path="`/curated/${group.id}`"
-            :title="group.name"
           >
             <div :aria-hidden="true" class="truncate-with-ellipsis">
               {{ group.name }}
@@ -167,7 +165,6 @@
             :aria-label="`Cohort ${cohort.name} has ${pluralize('admit', cohort.totalStudentCount)}`"
             class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
             :path="`/cohort/${cohort.id}`"
-            :title="cohort.name"
           >
             <div :aria-hidden="true" class="truncate-with-ellipsis">
               {{ cohort.name }}
@@ -229,7 +226,6 @@
             :aria-label="`${capitalize(describeCuratedGroupDomain('admitted_students', false))} ${group.name} has ${pluralize('student', group.totalStudentCount)}`"
             class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
             :path="`/curated/${group.id}`"
-            :title="group.name"
           >
             <div :aria-hidden="true" class="truncate-with-ellipsis">
               {{ group.name }}
@@ -247,12 +243,14 @@
       </v-list>
     </v-list-item>
     <v-list-item class="pa-0 sidebar-list-divided-section" role="listitem" tag="li">
-      <div class="font-weight-medium mt-1 pretty-hover">
+      <div class="font-weight-medium mt-1 pretty-hover sub-item">
         <NavLink id="cohorts-all" path="/all/cohorts">
           Everyone's Cohorts
         </NavLink>
       </div>
-      <div class="font-weight-medium mt-1 pretty-hover">
+    </v-list-item>
+    <v-list-item class="pa-0" role="listitem" tag="li">
+      <div class="font-weight-medium mt-1 pretty-hover sub-item">
         <NavLink id="groups-all" path="/all/curated_groups">
           Everyone's Groups
         </NavLink>
@@ -324,10 +322,17 @@ const {mdAndUp} = useDisplay()
   color: rgb(var(--v-theme-warning));
   text-decoration: none;
 }
+.pretty-hover:focus-within a {
+  box-shadow: none;
+}
 .pretty-hover.sub-item:focus-within {
   outline-color: rgba(var(--v-theme-warning));
   outline-offset: -0.1rem;
   outline-style: solid;
+  a {
+    box-shadow: none;
+      outline: none;
+  }
 }
 .pretty-hover:hover .sidebar-pill,
 .pretty-hover:focus-within .sidebar-pill,

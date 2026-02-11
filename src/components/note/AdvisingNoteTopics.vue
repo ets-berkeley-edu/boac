@@ -28,7 +28,7 @@
     <div>
       <ul
         :id="`note-topics-list-${noteId}`"
-        class="advising-note-pill-list list-no-bullets mt-1"
+        class="advising-note-pill-list list-no-bullets mt-2"
         :aria-labelledby="`note-topics-label-${noteId}`"
       >
         <li
@@ -38,7 +38,7 @@
         >
           <PillItem
             :id="`${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
-            clazz="font-size-12 w-100"
+            clazz="w-100"
             :closable="!readOnly"
             :disabled="disabled"
             :label="topic"

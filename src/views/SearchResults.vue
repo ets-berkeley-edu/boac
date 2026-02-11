@@ -171,10 +171,11 @@
                   :key="advisingNote.id"
                   :note="advisingNote"
                 />
-                <div class="text-center">
+                <div class="text-center py-2">
                   <v-btn
                     v-if="hasMoreNotesToShow"
                     id="fetch-more-notes"
+                    :disabled="loadingAdditionalNotes"
                     text="Show additional advising notes"
                     variant="text"
                     @click.prevent="fetchMoreNotes"
@@ -195,10 +196,11 @@
                   :key="appointment.id"
                   :appointment="appointment"
                 />
-                <div class="text-center">
+                <div class="text-center py-2">
                   <v-btn
                     v-if="hasMoreAppointmentsToShow"
                     id="fetch-more-appointments"
+                    :disabled="loadingAdditionalAppointments"
                     text="Show additional advising appointments"
                     variant="text"
                     @click.prevent="fetchMoreAppointments"

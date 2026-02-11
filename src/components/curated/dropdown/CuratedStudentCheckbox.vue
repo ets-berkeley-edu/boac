@@ -1,5 +1,5 @@
 <template>
-  <div class="checkbox-container" :class="{'checked-checkbox-container': status}">
+  <div class="checkbox-container mx-1" :class="{'checked-checkbox-container': status}">
     <input
       :id="checkboxId"
       v-model="status"

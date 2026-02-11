@@ -48,7 +48,7 @@
               </div>
             </div>
             <v-expand-transition>
-              <div v-if="!mdAndUp && showSidebar && !loading">
+              <div v-if="!mdAndUp && showSidebar && !loading" class="sidebar">
                 <Sidebar
                   id="small-viewport-sidebar"
                   aria-labelledby="nav-header"

@@ -23,5 +23,5 @@ const contextStore = useContextStore()
 @import 'v-calendar/style.css';
 @import "@/assets/styles/vcalendar-custom.css";
 @import "@/assets/styles/global.css";
-@import "@/assets/styles/vuetify-overrides.scss";
+@import "@/assets/styles/focus.scss";
 </style>

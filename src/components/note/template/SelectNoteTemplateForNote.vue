@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="align-start d-flex">
+    <div>
       <v-menu
         v-if="noteStore.mode !== 'editTemplate'"
         id="templates-menu"
@@ -17,7 +17,7 @@
         <template #activator="{props: menuProps}">
           <v-btn
             id="my-templates-button"
-            class="ml-auto mr-2 mb-1"
+            class="ml-auto mb-3"
             color="primary"
             :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
             flat
@@ -113,25 +113,6 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <div class="close-btn-in-modal-header">
-        <v-btn
-          v-if="noteStore.mode === 'editDraft'"
-          id="close-btn-in-modal-header"
-          aria-label="Close dialog"
-          class="font-size-14 font-weight-bold"
-          density="comfortable"
-          elevation="0"
-          icon
-          title="Close"
-          @click="props.exit"
-        >
-          <v-icon
-            color="primary"
-            :icon="mdiCloseThick"
-            size="16"
-          />
-        </v-btn>
-      </div>
     </div>
     <v-dialog
       v-model="isRenameTemplateDialogOpen"
@@ -226,7 +207,7 @@
 import FocusLock from 'vue-focus-lock'
 import {computed, ref, watch} from 'vue'
 import {find, get, isUndefined, size, trim} from 'lodash'
-import {mdiCloseThick, mdiMenuDown} from '@mdi/js'
+import {mdiMenuDown} from '@mdi/js'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import CharacterCount from '@/components/util/CharacterCount.vue'
 import ModalHeader from '@/components/util/ModalHeader.vue'
@@ -238,13 +219,6 @@ import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/note-edit-session-utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
-
-const props = defineProps({
-  exit: {
-    type: Function,
-    required: true
-  }
-})
 
 const activeTemplateId = ref()
 const error = ref<string | undefined>()
@@ -362,9 +336,6 @@ const resetTemplate = (template, title) => {
 </script>
 
 <style scoped>
-.close-btn-in-modal-header {
-  margin: -6px 5px 0 5px;
-}
 .load-note-template-btn {
   height: 24px;
   letter-spacing: normal;
