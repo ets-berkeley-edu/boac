@@ -3,10 +3,12 @@
     <div id="page-description">
       <div>
         Type or paste a list of
-        {{ domain === 'admitted_students' ?
-          'CSID' :
-          'Student Identification (<span :aria-hidden="true">SID</span><span class="sr-only">S I D</span>)'
-        }}
+        <span v-if="domain === 'admitted_students'">
+          CSID
+        </span>
+        <span v-if="domain !== 'admitted_students'">
+          Student Identification (<span :aria-hidden="true">SID</span><span class="sr-only">S I D</span>)
+        </span>
         numbers below.
       </div>
       <div class="text-medium-emphasis">Example: 9999999990, 9999999991</div>
