@@ -38,7 +38,7 @@
       </div>
       <div id="student-bio-sid" class="align-center d-flex font-size-14 font-weight-bold">
         <div class="mr-1">
-          <span aria-hidden="true">SID</span><span class="sr-only">S I D</span>
+          <span aria-hidden="true">SID</span> <span class="sr-only">S I D</span>
           <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.sid }}</span>
         </div>
         <div
