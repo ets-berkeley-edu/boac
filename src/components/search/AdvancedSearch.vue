@@ -1,43 +1,47 @@
 <template>
-  <div class="align-center d-flex flex-grow-1" role="search">
-    <label id="basic-search-input-label" class="sr-only">basic search</label>
-    <AccessibleCombobox
-      :key="searchStore.autocompleteInputResetKey"
-      :aria-description="`${labelForSearchInput()} (Type / to put focus in the search input field.)`"
-      class="d-flex on-surface mr-2 w-100"
-      :clazz="{
-        'basic-search': true,
-        'search-focus-in': shouldExpandInput,
-        'search-focus-out': !shouldExpandInput
-      }"
-      clearable
-      :disabled="searchStore.isSearching"
-      :get-value="() => queryTextModel"
-      id-prefix="basic-search"
-      input-type="search"
-      :is-busy="searchStore.isSearching"
-      :items="searchStore.searchHistory"
-      label="Search"
-      list-label="Previous Searches"
-      :menu-props="{'location': 'bottom'}"
-      :on-submit="search"
-      :on-update-focused="isFocused => searchStore.setIsFocusOnSearch(isFocused)"
-      open-on-focus
-      placeholder="/ to search"
-      :when-item-selected="search"
-      :set-value="v => queryTextModel = v"
-    />
-    <v-btn
-      id="go-search"
-      class="btn-search mx-1"
-      :disabled="isSearchDisabled"
-      :icon="$vuetify.display.width < mobileBreakpoint ? mdiMagnify : false"
-      :text="$vuetify.display.width >= mobileBreakpoint ? 'Search' : undefined"
-      variant="outlined"
-      @keydown.enter="search"
-      @click.stop="search"
-    />
-    <AdvancedSearchModal v-if="(currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData) && !isPeerAdvisor(currentUser)" />
+  <div class="align-center d-flex w-100 justify-center" role="search">
+    <div class="d-flex w-66 w-md-50">
+      <label id="basic-search-input-label" class="sr-only">basic search</label>
+      <AccessibleCombobox
+        :key="searchStore.autocompleteInputResetKey"
+        :aria-description="`${labelForSearchInput()} (Type / to put focus in the search input field.)`"
+        class="d-flex on-surface mr-2 flex-grow-1"
+        :clazz="{
+          'basic-search ml-auto': true,
+          'search-focus-in': shouldExpandInput,
+          'search-focus-out': !shouldExpandInput
+        }"
+        clearable
+        :disabled="searchStore.isSearching"
+        :get-value="() => queryTextModel"
+        id-prefix="basic-search"
+        input-type="search"
+        :is-busy="searchStore.isSearching"
+        :items="searchStore.searchHistory"
+        label="Search"
+        list-label="Previous Searches"
+        :menu-props="{'location': 'bottom'}"
+        :on-submit="search"
+        :on-update-focused="isFocused => searchStore.setIsFocusOnSearch(isFocused)"
+        open-on-focus
+        placeholder="/ to search"
+        :when-item-selected="search"
+        :set-value="v => queryTextModel = v"
+      />
+    </div>
+    <div class="d-flex w-33 w-md-50">
+      <v-btn
+        id="go-search"
+        class="btn-search mx-1"
+        :disabled="isSearchDisabled"
+        :icon="$vuetify.display.width < mobileBreakpoint ? mdiMagnify : false"
+        :text="$vuetify.display.width >= mobileBreakpoint ? 'Search' : undefined"
+        variant="outlined"
+        @keydown.enter="search"
+        @click.stop="search"
+      />
+      <AdvancedSearchModal v-if="(currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData) && !isPeerAdvisor(currentUser)" />
+    </div>
   </div>
 </template>
 
