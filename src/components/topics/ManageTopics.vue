@@ -175,7 +175,7 @@ const deleteConfirm = () => {
 const onCancelEdit = () => {
   isEditTopicModalOpen.value = false
   alertScreenReader('Canceled')
-  putFocusNextTick('filter-topics')
+  putFocusNextTick('create-topic-button')
   topicEdit.value = null
 }
 

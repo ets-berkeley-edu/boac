@@ -12,64 +12,64 @@
       <v-card-title>
         <ModalHeader text="Name Your Template" />
       </v-card-title>
-      <hr>
-      <form @submit.prevent="createTemplate">
-        <v-card-text class="modal-body">
-          <v-text-field
-            id="template-title-input"
-            v-model="title"
-            aria-describedby="template-title-input-messages"
-            :aria-invalid="!!error"
-            autocomplete="on"
-            density="compact"
-            :disabled="isSaving"
-            :error="!!error"
-            :error-messages="error"
-            label="Template name"
-            maxlength="255"
-            persistent-counter
-            required
-            :rules="[validationRules.required, validationRules.maxLength]"
-            validate-on="lazy invalid-input"
-            variant="outlined"
-          >
-            <template #counter="{max, value}">
-              <CharacterCount :count="toInt(value)" id-prefix="template-name" :max="toInt(max)" />
-            </template>
-            <template #message="{message}">
-              <v-alert
-                id="template-title-error"
-                class="font-size-14 line-height-normal"
-                density="compact"
-                role="none"
-                :text="message"
-                type="error"
-                variant="tonal"
-              />
-            </template>
-          </v-text-field>
-        </v-card-text>
-        <v-card-actions class="modal-footer">
-          <ProgressButton
-            id="create-template-confirm"
-            :action="createTemplate"
-            :aria-disabled="error || isSaving || useNoteStore().boaSessionExpired"
-            aria-label="Save Template"
-            class="mr-1"
-            :disabled="isSaving || useNoteStore().boaSessionExpired"
-            :in-progress="isSaving"
-            :text="isSaving ? 'Saving' : 'Save'"
-          />
-          <v-btn
-            id="cancel-template-create"
-            aria-label="Cancel Create Template"
-            :disabled="isSaving"
-            text="Cancel"
-            variant="text"
-            @click="cancel"
-          />
-        </v-card-actions>
-      </form>
+      <v-card-text class="modal-body">
+        <v-text-field
+          id="template-title-input"
+          v-model="title"
+          aria-describedby="template-title-input-details"
+          :aria-invalid="!!error"
+          autocomplete="on"
+          class="my-3"
+          density="compact"
+          :disabled="isSaving"
+          :error="!!error"
+          :error-messages="error"
+          label="Template name"
+          maxlength="255"
+          persistent-counter
+          required
+          :rules="[validationRules.required, validationRules.maxLength]"
+          validate-on="lazy submit"
+          variant="outlined"
+          @keydown.stop.prevent.esc="cancel"
+          @keydown.enter="createTemplate"
+        >
+          <template #counter="{max, value}">
+            <CharacterCount :count="toInt(value)" id-prefix="template-name" :max="toInt(max)" />
+          </template>
+          <template #message="{message}">
+            <v-alert
+              id="template-title-error"
+              class="font-size-14 line-height-normal"
+              density="compact"
+              role="none"
+              :text="message"
+              type="error"
+              variant="tonal"
+            />
+          </template>
+        </v-text-field>
+      </v-card-text>
+      <v-card-actions class="modal-footer">
+        <ProgressButton
+          id="create-template-confirm"
+          :action="createTemplate"
+          :aria-disabled="error || isSaving || useNoteStore().boaSessionExpired"
+          aria-label="Save Template"
+          class="mr-2"
+          :disabled="isSaving || useNoteStore().boaSessionExpired"
+          :in-progress="isSaving"
+          :text="isSaving ? 'Saving' : 'Save'"
+        />
+        <v-btn
+          id="cancel-template-create"
+          aria-label="Cancel Create Template"
+          :disabled="isSaving"
+          text="Cancel"
+          variant="text"
+          @click="cancel"
+        />
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

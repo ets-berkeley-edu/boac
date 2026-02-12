@@ -47,7 +47,7 @@
             <v-text-field
               id="rename-template-input"
               v-model="templateForEdit.name"
-              aria-describedby="rename-template-input-messages"
+              aria-describedby="rename-template-input-details"
               :aria-invalid="!templateForEdit.name"
               aria-required="true"
               autocomplete="on"
@@ -60,9 +60,10 @@
               persistent-counter
               required
               :rules="[validate]"
-              validate-on="lazy invalid-input"
+              validate-on="lazy submit"
               @keydown.enter="save"
               @keyup.esc="cancelEdit"
+              @update:model-value="resetValidation"
             >
               <template #counter="{max, value}">
                 <CharacterCount
@@ -307,6 +308,7 @@ const afterClone = (clone: DegreeTemplate) => {
 
 const cancelEdit = () => {
   if (templateForEdit.value) {
+    resetValidation()
     putFocusNextTick(`degree-check-${templateForEdit.value.id}-rename-btn`)
     templateForEdit.value = undefined
     isBusy.value = false
@@ -368,6 +370,10 @@ const getNextFocusId = (currentTemplateId: number, action: string) => {
 const openCreateCloneModal = (template: DegreeTemplate) => {
   templateToClone.value = template
   isBusy.value = true
+}
+
+const resetValidation = () => {
+  errorMessage.value = ''
 }
 
 const save = () => {

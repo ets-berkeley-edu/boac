@@ -11,7 +11,7 @@
       <v-text-field
         id="unit-requirement-name-input"
         v-model="name"
-        aria-describedby="unit-requirement-name-input-messages"
+        aria-describedby="unit-requirement-name-input-details"
         :aria-invalid="!!nameErrorMessage"
         aria-required="true"
         autocomplete="on"

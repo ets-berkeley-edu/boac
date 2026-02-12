@@ -38,7 +38,7 @@
             class="pa-0"
             :active="size(noteStore.noteTemplates) > 1 && template.id === activeTemplateId"
           >
-            <v-container class="pa-2" fluid>
+            <v-container class="pl-0 py-2" fluid>
               <v-row class="align-center d-flex" no-gutters>
                 <v-col class="template-name py-0" cols="12" md="8">
                   <button
@@ -125,50 +125,48 @@
           <v-card-title>
             <ModalHeader header-id="rename-template-dialog-header" text="Rename Your Template" />
           </v-card-title>
-          <form @submit.prevent="renameTemplate">
-            <v-card-text class="modal-body">
-              <v-text-field
-                id="rename-template-input"
-                v-model="updatedTemplateTitle"
-                aria-describedby="rename-template-input-messages"
-                :aria-invalid="!!error"
-                autocomplete="on"
-                counter="255"
-                :disabled="isSaving"
-                :error="!!error"
-                :error-messages="error"
-                label="Template name"
-                maxlength="255"
-                persistent-counter
-                required
-                :rules="[
-                  v => !!trim(v) || 'Template name is required',
-                  v => !v || trim(v).length <= 255 || 'Template name cannot exceed 255 characters.'
-                ]"
-                validate-on="lazy invalid-input"
-              >
-                <template #counter="{max, value}">
-                  <CharacterCount
-                    v-if="max"
-                    :count="toInt(value || 0)"
-                    id-prefix="rename-template"
-                    :max="toInt(max)"
-                  />
-                </template>
-                <template #message="{message}">
-                  <v-alert
-                    id="rename-template-error"
-                    class="font-size-14 line-height-normal"
-                    density="compact"
-                    role="none"
-                    :text="message"
-                    type="error"
-                    variant="tonal"
-                  />
-                </template>
-              </v-text-field>
-            </v-card-text>
-          </form>
+          <v-card-text class="modal-body">
+            <v-text-field
+              id="rename-template-input"
+              v-model="updatedTemplateTitle"
+              aria-describedby="rename-template-input-details"
+              :aria-invalid="!!error"
+              autocomplete="on"
+              counter="255"
+              :disabled="isSaving"
+              :error="!!error"
+              :error-messages="error"
+              label="Template name"
+              maxlength="255"
+              persistent-counter
+              required
+              :rules="[
+                v => !!trim(v) || 'Template name is required',
+                v => !v || trim(v).length <= 255 || 'Template name cannot exceed 255 characters.'
+              ]"
+              validate-on="lazy invalid-input"
+            >
+              <template #counter="{max, value}">
+                <CharacterCount
+                  v-if="max"
+                  :count="toInt(value || 0)"
+                  id-prefix="rename-template"
+                  :max="toInt(max)"
+                />
+              </template>
+              <template #message="{message}">
+                <v-alert
+                  id="rename-template-error"
+                  class="font-size-14 line-height-normal"
+                  density="compact"
+                  role="none"
+                  :text="message"
+                  type="error"
+                  variant="tonal"
+                />
+              </template>
+            </v-text-field>
+          </v-card-text>
           <v-card-actions class="modal-footer">
             <ProgressButton
               id="rename-template-confirm"

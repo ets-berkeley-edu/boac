@@ -1,10 +1,10 @@
 <template>
-  <v-card class="py-1 w-100" flat>
+  <v-card class="py-2 w-100" flat>
     <div class="d-flex flex-wrap flex-sm-nowrap">
       <v-text-field
         id="rename-curated-group-input"
         v-model="name"
-        aria-describedby="rename-cohort-input-messages"
+        aria-describedby="rename-curated-group-input-details"
         :aria-invalid="!!errorMessage"
         autocomplete="on"
         class="flex-1-1 mr-3 mb-3"
@@ -18,16 +18,17 @@
         persistent-counter
         required
         :rules="[validate]"
-        validate-on="lazy invalid-input"
+        validate-on="lazy submit"
         @keyup.enter="rename"
         @keyup.esc="exitRenameMode"
+        @update:model-value="resetValidation"
       >
         <template #counter="{max, value}">
           <CharacterCount :count="toInt(value)" id-prefix="rename-curated-group" :max="toInt(max)" />
         </template>
         <template #message="{message}">
           <v-alert
-            id="rename-cohort-error"
+            id="rename-curated-group-error"
             class="font-size-14 line-height-normal"
             density="compact"
             role="none"
@@ -98,12 +99,6 @@ const exitRenameMode = () => {
   alertScreenReader('Canceled rename')
   putFocusNextTick('rename-curated-group-button')
 }
-const reset = () => {
-  isSaving.value = false
-  name.value = ''
-  errorMessage.value = ''
-  isInvalid.value = false
-}
 
 const rename = () => {
   if (true !== validate()) {
@@ -122,11 +117,21 @@ const rename = () => {
   }
 }
 
+const reset = () => {
+  isSaving.value = false
+  name.value = ''
+  resetValidation()
+}
+
+const resetValidation = () => {
+  errorMessage.value = ''
+  isInvalid.value = false
+}
+
 const validate = () => {
   const result = validateCohortName({id: curatedGroupId.value, name: name.value})
   if (result === true) {
-    errorMessage.value = ''
-    isInvalid.value = false
+    resetValidation()
   } else {
     errorMessage.value = result
     isInvalid.value = true

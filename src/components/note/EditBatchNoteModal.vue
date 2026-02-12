@@ -204,7 +204,7 @@ const showDiscardTemplateModal = ref(false)
 const topics = ref([])
 
 const selectEscape = event => {
-  if (event.key === 'Escape' && !noteStore.isSaving && dialogModel.value) {
+  if (event.key === 'Escape' && !noteStore.isSaving && !showCreateTemplateModal.value && dialogModel.value) {
     discardRequested()
   }
 }
@@ -213,8 +213,8 @@ watch(dialogModel, () => {
   if (dialogModel.value) {
     // remove scrollbar for content behind the modal
     document.documentElement.classList.add('modal-open')
-    document.removeEventListener('keyup', selectEscape)
-    document.addEventListener('keyup', selectEscape, {capture: true})
+    document.removeEventListener('keydown', selectEscape)
+    document.addEventListener('keydown', selectEscape, {capture: true})
     enableFocusLock()
     getMyNoteTemplates().then(noteStore.setNoteTemplates)
     noteStore.resetModel()
@@ -239,7 +239,7 @@ watch(dialogModel, () => {
     noteStore.clearAutoSaveJob()
     disableFocusLock()
     document.documentElement.classList.remove('modal-open')
-    document.removeEventListener('keyup', selectEscape)
+    document.removeEventListener('keydown', selectEscape)
     contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
   }
 })

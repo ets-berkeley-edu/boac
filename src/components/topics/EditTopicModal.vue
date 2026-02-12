@@ -12,65 +12,65 @@
         <v-card-title>
           <ModalHeader text="Create Topic" />
         </v-card-title>
-        <form @submit.prevent="save">
-          <v-card-text class="modal-body">
-            <div class="text-field-width d-block">
-              <v-text-field
-                id="create-topic-input"
-                v-model="topic"
-                aria-describedby="create-topic-input-messages"
-                :aria-invalid="errorMessage"
-                aria-required="true"
-                autocomplete="on"
-                :error="!!errorMessage"
-                :error-messages="errorMessage"
-                label="Topic name"
-                :maxlength="maxLabelLength"
-                persistent-counter
-                required
-                :rules="[validate]"
-                validate-on="lazy invalid-input"
-                variant="outlined"
-              >
-                <template #counter="{max, value}">
-                  <CharacterCount :count="toInt(value)" id-prefix="create-topic-name" :max="toInt(max)" />
-                </template>
-                <template #message="{message}">
-                  <v-alert
-                    id="create-topic-input-error"
-                    class="font-size-14 line-height-normal"
-                    density="compact"
-                    role="none"
-                    :text="message"
-                    type="error"
-                    variant="tonal"
-                  />
-                </template>
-              </v-text-field>
-            </div>
-          </v-card-text>
-          <hr>
-          <v-card-actions class="modal-footer">
-            <ProgressButton
-              id="topic-save"
-              :action="save"
-              :aria-disabled="!isValidLabel || isSaving || isLabelReserved"
-              aria-label="Save Topic"
+        <v-card-text class="modal-body">
+          <div class="text-field-width d-block">
+            <v-text-field
+              id="create-topic-input"
+              v-model="topic"
+              aria-describedby="create-topic-input-details"
+              :aria-invalid="errorMessage"
+              autocomplete="on"
               :disabled="isSaving"
-              :in-progress="isSaving"
-              :text="isSaving ? 'Saving' : 'Save'"
-            />
-            <v-btn
-              id="cancel"
-              aria-label="Cancel Create Topic"
-              class="ml-2"
-              :disabled="isSaving"
-              text="Cancel"
-              variant="text"
-              @click.stop="cancel"
-            />
-          </v-card-actions>
-        </form>
+              :error="!!errorMessage"
+              :error-messages="errorMessage"
+              label="Topic name"
+              :maxlength="maxLabelLength"
+              persistent-counter
+              required
+              :rules="[validate]"
+              validate-on="lazy submit"
+              variant="outlined"
+              @keydown.enter="save"
+              @update:model-value="resetValidation"
+            >
+              <template #counter="{max, value}">
+                <CharacterCount :count="toInt(value)" id-prefix="create-topic-name" :max="toInt(max)" />
+              </template>
+              <template #message="{message}">
+                <v-alert
+                  id="create-topic-input-error"
+                  class="font-size-14 line-height-normal"
+                  density="compact"
+                  role="none"
+                  :text="message"
+                  type="error"
+                  variant="tonal"
+                />
+              </template>
+            </v-text-field>
+          </div>
+        </v-card-text>
+        <hr>
+        <v-card-actions class="modal-footer">
+          <ProgressButton
+            id="topic-save"
+            :action="save"
+            :aria-disabled="!isValidLabel || isSaving || isLabelReserved"
+            aria-label="Save Topic"
+            :disabled="isSaving"
+            :in-progress="isSaving"
+            :text="isSaving ? 'Saving' : 'Save'"
+          />
+          <v-btn
+            id="cancel"
+            aria-label="Cancel Create Topic"
+            class="ml-2"
+            :disabled="isSaving"
+            text="Cancel"
+            variant="text"
+            @click.stop="cancel"
+          />
+        </v-card-actions>
       </FocusLock>
     </v-card>
   </v-dialog>
@@ -130,7 +130,12 @@ onMounted(() => {
 
 const cancel = () => {
   showEditTopicModal.value = false
+  resetValidation()
   props.onCancel()
+}
+
+const resetValidation = () => {
+  errorMessage.value = ''
 }
 
 const save = () => {
@@ -153,7 +158,7 @@ const validate = () => {
   } else if (isLabelReserved.value) {
     errorMessage.value = `Sorry, the label '${trim(topic.value)}' is assigned to an existing topic.`
   } else {
-    errorMessage.value = ''
+    resetValidation()
     return true
   }
 }

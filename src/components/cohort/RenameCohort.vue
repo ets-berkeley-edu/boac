@@ -1,10 +1,10 @@
 <template>
-  <v-card class="py-1 w-100" flat>
+  <v-card class="py-2 w-100" flat>
     <div class="d-flex flex-wrap flex-sm-nowrap">
       <v-text-field
         id="rename-cohort-input"
         v-model="name"
-        aria-describedby="rename-cohort-input-messages"
+        aria-describedby="rename-cohort-input-details"
         :aria-invalid="!!errorMessage"
         autocomplete="on"
         class="flex-1-1 mr-3 mb-3"
@@ -18,9 +18,10 @@
         persistent-counter
         required
         :rules="[validate]"
-        validate-on="lazy invalid-input"
+        validate-on="lazy submit"
         @keyup.enter="submit"
         @keyup.esc="cancel"
+        @update:model-value="resetValidation"
       >
         <template #counter="{max, value}">
           <CharacterCount :count="toInt(value)" id-prefix="rename-cohort" :max="toInt(max)" />
@@ -42,7 +43,7 @@
           id="rename-cohort-confirm"
           :action="submit"
           :ariadisabled="isEmpty(name) || isInvalid"
-          aria-label="Rename Cohort"
+          aria-label="Save Cohort Name"
           class="mr-2"
           :class="{'w-50': xs}"
           :disabled="isSaving"
@@ -101,6 +102,10 @@ const cancel = () => {
 const reset = () => {
   isSaving.value = false
   name.value = ''
+  resetValidation()
+}
+
+const resetValidation = () => {
   errorMessage.value = ''
   isInvalid.value = false
 }
@@ -125,8 +130,7 @@ const submit = () => {
 const validate = () => {
   const result = validateCohortName({id: cohortId.value, name: name.value})
   if (result === true) {
-    errorMessage.value = ''
-    isInvalid.value = false
+    resetValidation()
   } else {
     errorMessage.value = result
     isInvalid.value = true
