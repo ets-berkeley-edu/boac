@@ -10,67 +10,66 @@
       max-width="600"
       width="100%"
     >
-      <FocusLock @keydown.esc="cancelModal">
+      <FocusLock @keydown.esc="cancel">
         <v-card-title>
           <ModalHeader text="Name Your Cohort" />
         </v-card-title>
-        <form @submit.prevent="createCohort">
-          <v-card-text class="modal-body">
-            <v-text-field
-              id="create-cohort-input"
-              ref="cohortNameInput"
-              v-model="name"
-              aria-describedby="create-cohort-input-messages"
-              :aria-invalid="!!errorMessage"
-              autocomplete="on"
-              counter="255"
-              :disabled="isSaving"
-              :error="!!errorMessage"
-              :error-messages="errorMessage"
-              label="Cohort name"
-              maxlength="255"
-              persistent-counter
-              required
-              :rules="[validate]"
-              validate-on="lazy invalid-input"
-              @keyup.esc="cancelModal"
-            >
-              <template #counter="{max, value}">
-                <CharacterCount :count="toInt(value)" id-prefix="create-cohort-name" :max="toInt(max)" />
-              </template>
-              <template #message="{message}">
-                <v-alert
-                  id="create-cohort-name-error"
-                  class="font-size-14 line-height-normal"
-                  density="compact"
-                  role="none"
-                  :text="message"
-                  type="error"
-                  variant="tonal"
-                />
-              </template>
-            </v-text-field>
-          </v-card-text>
-          <v-card-actions class="modal-footer py-0">
-            <ProgressButton
-              id="create-cohort-confirm-btn"
-              :action="createCohort"
-              :aria-disabled="isEmpty(name) || isInvalid"
-              aria-label="Save Cohort"
-              :disabled="isSaving"
-              :in-progress="isSaving"
-              text="Save"
-            />
-            <v-btn
-              id="create-cohort-cancel-btn"
-              aria-label="Cancel Save Cohort"
-              :disabled="isSaving"
-              text="Cancel"
-              variant="text"
-              @click="cancelModal"
-            />
-          </v-card-actions>
-        </form>
+        <v-card-text class="modal-body">
+          <v-text-field
+            id="create-cohort-input"
+            ref="cohortNameInput"
+            v-model="name"
+            aria-describedby="create-cohort-input-details"
+            :aria-invalid="!!errorMessage"
+            autocomplete="on"
+            counter="255"
+            :disabled="isSaving"
+            :error="!!errorMessage"
+            :error-messages="errorMessage"
+            label="Cohort name"
+            maxlength="255"
+            persistent-counter
+            required
+            :rules="[validate]"
+            validate-on="lazy submit"
+            @keydown.enter="createCohort"
+            @update:model-value="resetValidation"
+          >
+            <template #counter="{max, value}">
+              <CharacterCount :count="toInt(value)" id-prefix="create-cohort-name" :max="toInt(max)" />
+            </template>
+            <template #message="{message}">
+              <v-alert
+                id="create-cohort-name-error"
+                class="font-size-14 line-height-normal"
+                density="compact"
+                role="none"
+                :text="message"
+                type="error"
+                variant="tonal"
+              />
+            </template>
+          </v-text-field>
+        </v-card-text>
+        <v-card-actions class="modal-footer py-0">
+          <ProgressButton
+            id="create-cohort-confirm-btn"
+            :action="createCohort"
+            :aria-disabled="isEmpty(name) || isInvalid"
+            aria-label="Save Cohort"
+            :disabled="isSaving"
+            :in-progress="isSaving"
+            text="Save"
+          />
+          <v-btn
+            id="create-cohort-cancel-btn"
+            aria-label="Cancel Save Cohort"
+            :disabled="isSaving"
+            text="Cancel"
+            variant="text"
+            @click="cancel"
+          />
+        </v-card-actions>
       </FocusLock>
     </v-card>
   </v-dialog>
@@ -115,15 +114,13 @@ watch(showModalProxy, isOpen => {
   if (isOpen) {
     putFocusNextTick('create-cohort-input')
   } else {
-    props.cancel()
+    cancelModal()
   }
 })
 
 const cancelModal = () => {
   alertScreenReader('Canceled save cohort')
-  cohortNameInput.value.resetValidation()
   reset()
-  props.cancel()
   putFocusNextTick('save-cohort-button')
 }
 
@@ -139,15 +136,19 @@ const createCohort = () => {
 const reset = () => {
   isSaving.value = false
   name.value = ''
+  resetValidation()
+}
+
+const resetValidation = () => {
   errorMessage.value = ''
   isInvalid.value = false
+  cohortNameInput.value.resetValidation()
 }
 
 const validate = name => {
   const result = validateCohortName({name})
   if (result === true) {
-    errorMessage.value = ''
-    isInvalid.value = false
+    resetValidation()
   } else {
     errorMessage.value = result
     isInvalid.value = true

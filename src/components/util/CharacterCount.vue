@@ -2,24 +2,19 @@
   <div
     :id="`${idPrefix}-counter`"
     ref="counter"
-    :aria-live="count ? 'polite' : 'off'"
     class="font-size-14 text-no-wrap text-right"
-    :role="count ? 'status' : 'none'"
   >
-    <div
-      v-if="!isUndefined(max)"
-      :class="{'text-error': count === max}"
-    >
-      <span v-if="!count">
-        {{ max }} characters allowed
-      </span>
-      <span v-if="count">{{ pluralize('character', max - count) }} left</span>
-    </div>
+    <span v-if="count" :class="{'text-error': count === max}">
+      {{ pluralize('character', max - count) }} left
+    </span>
+    <span v-if="!count">
+      {{ max }} characters allowed
+    </span>
   </div>
 </template>
 
 <script setup lang="ts">
-import {first, isUndefined} from 'lodash'
+import {first} from 'lodash'
 import {onMounted, ref} from 'vue'
 import {pluralize} from '@/lib/utils'
 

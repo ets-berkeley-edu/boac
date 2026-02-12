@@ -5,12 +5,12 @@
       To begin the degree check creation process, input a name below and click enter.
       After clicking the create button, you will be prompted to enter the requirements.
     </div>
-    <form class="mt-3 w-sm-75" @submit.prevent="create">
+    <div class="mt-3 w-sm-75">
       <label id="create-degree-label" class="font-weight-bold font-size-16" for="create-degree-input">Degree Name</label>
       <v-text-field
         id="create-degree-input"
         v-model="templateName"
-        aria-describedby="create-degree-input-messages"
+        aria-describedby="create-degree-input-details"
         :aria-invalid="!!errorMessage"
         autocomplete="on"
         class="mt-2"
@@ -22,7 +22,7 @@
         persistent-counter
         required
         :rules="[validate]"
-        validate-on="lazy invalid-input"
+        validate-on="lazy submit"
         @keydown.enter="create"
       >
         <template #counter="{max, value}">
@@ -52,7 +52,7 @@
           :text="isBusy ? 'Saving' : 'Start Degree'"
         />
       </div>
-    </form>
+    </div>
   </div>
 </template>
 

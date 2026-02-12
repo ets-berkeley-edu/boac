@@ -16,7 +16,7 @@
               <v-text-field
                 id="peer-advising-note-template-name"
                 v-model="templateName"
-                aria-describedby="peer-advising-note-template-name-messages"
+                aria-describedby="peer-advising-note-template-name-details"
                 :aria-invalid="!isValidName"
                 aria-required
                 autocomplete="on"
@@ -67,23 +67,22 @@
               />
             </div>
           </v-card-text>
-          <v-card-actions class="justify-end">
-            <v-btn
-              id="cancel-peer-advising-note-template"
-              class="float-end ml-3"
-              color="primary"
-              text="Cancel"
-              variant="text"
-              @click="cancel"
-            />
+          <v-card-actions class="modal-footer">
             <ProgressButton
               v-if="action !== 'view'"
               id="save-new-peer-advising-note-template"
-              class="float-end"
               :action="saveNoteTemplate"
               :disabled="isValidName !== true || isSaveDisabled"
               :in-progress="isSaving"
               :text="saveButtonText"
+            />
+            <v-btn
+              id="cancel-peer-advising-note-template"
+              class="ml-2"
+              color="primary"
+              text="Cancel"
+              variant="text"
+              @click="cancel"
             />
           </v-card-actions>
         </FocusLock>
