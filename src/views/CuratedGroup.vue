@@ -5,17 +5,7 @@
       <AdmitDataWarning :updated-at="get(students, '[0].updatedAt')" />
     </div>
     <div v-if="mode !== 'bulkAdd'">
-      <div class="align-start d-flex flex-wrap justify-space-between">
-        <div class="align-self-end py-1">
-          <Pagination
-            v-if="totalStudentCount > itemsPerPage"
-            :click-handler="goToPage"
-            :init-page-number="pageNumber"
-            :limit="10"
-            :per-page="itemsPerPage"
-            :total-rows="totalStudentCount"
-          />
-        </div>
+      <div class="align-start d-flex flex-wrap w-100">
         <div class="ml-auto py-1">
           <TermSelector
             v-if="totalStudentCount && domain === 'default'"
@@ -31,6 +21,16 @@
             select-class="cohort-sort-by-select"
           />
         </div>
+      </div>
+      <div class="align-self-end mr-auto py-1">
+        <Pagination
+          v-if="totalStudentCount > itemsPerPage"
+          :click-handler="goToPage"
+          :init-page-number="pageNumber"
+          :limit="10"
+          :per-page="itemsPerPage"
+          :total-rows="totalStudentCount"
+        />
       </div>
       <div v-if="size(students)">
         <div id="curated-cohort-students" class="scroll-margins" tabindex="-1">
