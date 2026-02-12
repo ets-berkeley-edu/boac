@@ -92,7 +92,6 @@
         <dt class="sr-only">Expected graduation term</dt>
         <dd :id="`row-${rowIndex}-student-grad-term`" class="ma-0 ml-0">
           <span aria-hidden="true">Grad:</span>
-          <span class="sr-only">Expected graduation</span>
           {{ student.expectedGraduationTerm.name }}
         </dd>
       </template>
