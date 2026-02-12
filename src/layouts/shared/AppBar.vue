@@ -17,7 +17,7 @@
         />
       </NavLink>
     </div>
-    <AdvancedSearch class="mr-3" />
+    <AdvancedSearch class="mx-3" />
     <HeaderMenu class="mr-4" />
   </div>
 </template>
