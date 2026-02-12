@@ -23,14 +23,7 @@
       </div>
     </v-expand-transition>
     <div v-if="size(cohortStore.students) && cohortStore.editMode !== 'apply'">
-      <div class="align-start d-flex flex-wrap justify-space-between w-100" :class="{'pt-2': cohortStore.isCompactView}">
-        <CuratedGroupSelector
-          class="align-self-end mr-auto py-1"
-          :context-description="cohortStore.domain === 'default' ? `Cohort ${cohortStore.cohortName || ''}` : `Admitted Students Cohort ${cohortStore.cohortName || ''}`"
-          :domain="cohortStore.domain"
-          :on-create-curated-group="resetFiltersToLastApply"
-          :students="cohortStore.students"
-        />
+      <div class="align-start d-flex flex-wrap w-100" :class="{'pt-2': cohortStore.isCompactView}">
         <div class="ml-auto">
           <TermSelector
             v-if="cohortStore.domain === 'default'"
@@ -47,7 +40,14 @@
           />
         </div>
       </div>
-      <div v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage" :class="{'mt-3': cohortStore.domain === 'default'}">
+      <div v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage" class="d-flex flex-wrap">
+        <CuratedGroupSelector
+          class="align-self-end mr-auto py-1"
+          :context-description="cohortStore.domain === 'default' ? `Cohort ${cohortStore.cohortName || ''}` : `Admitted Students Cohort ${cohortStore.cohortName || ''}`"
+          :domain="cohortStore.domain"
+          :on-create-curated-group="resetFiltersToLastApply"
+          :students="cohortStore.students"
+        />
         <Pagination
           class="mt-2"
           :click-handler="goToPage"
