@@ -24,6 +24,10 @@ const props = defineProps({
     require: false,
     type: Object
   },
+  sqlFormat: {
+    required: false,
+    type: Boolean
+  },
   tag: {
     default: 'span',
     required: false,
@@ -47,7 +51,12 @@ const accessibleFormat = computed(() => {
   return format
 })
 
-let dateTime = DateTime.fromISO(props.date)
+let dateTime
+if (props.sqlFormat) {
+  dateTime = DateTime.fromSQL(props.date)
+} else {
+  dateTime = DateTime.fromISO(props.date)
+}
 if (props.timezone) {
   dateTime = dateTime.setZone(props.timezone)
 }
