@@ -193,7 +193,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         return self.el_text_if_exists(loc)
 
     def entered_term(self, student):
-        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "student-matriculation")]'
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//dd[contains(@id, "student-matriculation")]'
         return self.el_text_if_exists(loc, 'Entered')
 
     def gpa(self, student):
@@ -201,7 +201,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         return self.el_text_if_exists(loc, 'No data')
 
     def grad_term(self, student):
-        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "student-grad-term")]'
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//dd[contains(@id, "student-grad-term")]'
         return self.element(loc).text.split(':')[1].strip() if self.is_present(loc) else None
 
     def graduation(self, student):
@@ -213,11 +213,11 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         return self.is_present(loc) and self.element(loc).text.strip() == 'INACTIVE'
 
     def level(self, student):
-        loc = By.XPATH, f'{self.student_row_xpath(student)}//div[contains(@id, "student-level")]'
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//dd[contains(@id, "student-level")]'
         return self.el_text_if_exists(loc)
 
     def majors(self, student):
-        loc = By.XPATH, f'{self.student_row_xpath(student)}//span[contains(@id, "student-major")]'
+        loc = By.XPATH, f'{self.student_row_xpath(student)}//dd[contains(@id, "student-major")]'
         return self.els_text_if_exist(loc)
 
     def sports(self, student):

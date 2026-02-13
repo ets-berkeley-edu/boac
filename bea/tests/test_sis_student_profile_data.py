@@ -326,8 +326,8 @@ class TestStudentPageProfileData:
         alert_data = [{'text': a.message, 'date': self.student_page.expected_item_short_date_format(a.date)} for a in alerts]
         visible_alerts = self.student_page.visible_alerts()
         if alerts:
-            visible_alerts.sort(key=lambda a: a['date'])
-            alert_data.sort(key=lambda a: a['date'])
+            visible_alerts.sort(key=lambda a: [a['date'], a['text']])
+            alert_data.sort(key=lambda a: [a['date'], a['text']])
             utils.assert_equivalence(visible_alerts, alert_data)
 
     def test_timeline_holds(self, tc):
