@@ -36,7 +36,7 @@
           {{ note.advisorName }} -
         </span>
         <span v-if="timestamp" :id="`advising-note-last-modified-${note.id}`">
-          <Date :date="timestamp" :timezone="timezone" />)
+          <Date :date="timestamp" :timezone="timezone" />
         </span>
       </div>
     </div>
