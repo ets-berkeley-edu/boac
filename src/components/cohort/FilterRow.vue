@@ -405,15 +405,18 @@ const onClickAddButton = () => {
   case 'options':
   case 'option_groups':
     filter.value.value = selectedOption.value.value
+    setFilterName()
     alertScreenReader(`Added ${filter.value.name} filter with value ${getLabelPerSelectedOption()}`)
     break
   case 'boolean':
+    setFilterName()
     alertScreenReader(`Added ${filter.value.name} filter`)
     // In the case of type 'boolean', if 'selectedOption' is NULL then the user was NOT given
     // the options of (TRUE, FALSE) and the selected value is implicitly equal to TRUE.
     filter.value.value = isNil(selectedOption.value) ? true : selectedOption.value.value
     break
   case 'range':
+    setFilterName()
     alertScreenReader(`Added ${filter.value.name} filter, ${rangeMin.value} to ${rangeMax.value}`)
     updateRangeFilter()
     rangeMin.value = rangeMax.value = undefined
@@ -537,9 +540,20 @@ const reset = () => {
   rangeMin.value = undefined
   isExistingFilter.value = props.position !== 'new'
   filter.value = isExistingFilter.value ? cloneDeep(cohortStore.filters[props.position]) : {}
-  filter.value.name = get(filter.value, 'label.primary') || `number ${props.position}`
+  setFilterName()
   isModifyingFilter.value = !isExistingFilter.value
   isSaving.value = false
+}
+
+const setFilterName = () => {
+  const filterLabel = get(filter.value, 'label.primary')
+  if (filterLabel) {
+    filter.value.name = filterLabel
+  } else if (props.position === 'new') {
+    filter.value.name = 'new'
+  } else {
+    filter.value.name = `number ${props.position}`
+  }
 }
 
 const updateRangeFilter = () => {
