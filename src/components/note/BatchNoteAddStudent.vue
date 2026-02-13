@@ -65,9 +65,9 @@
       </v-combobox>
     </div>
     <ul class="list-no-bullets mt-1">
-      <li v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid">
+      <li v-for="(addedStudent) in addedStudents" :key="addedStudent.sid">
         <PillItem
-          :id="`batch-note-student-${index}`"
+          :id="`batch-note-student-${addedStudent.uid}`"
           :clazz="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
           closable
           :disabled="noteStore.isSaving || noteStore.boaSessionExpired"

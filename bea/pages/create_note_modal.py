@@ -342,7 +342,7 @@ class CreateNoteModal(Page):
 
     @staticmethod
     def added_student_loc(student):
-        return By.XPATH, f'//span[text()="{student.full_name} ({student.sid})"]'
+        return By.ID, f'batch-note-student-{student.uid}'
 
     @staticmethod
     def student_remove_button_loc(student):
@@ -350,7 +350,7 @@ class CreateNoteModal(Page):
 
     def wait_for_batch_students(self, students):
         for student in students:
-            self.when_present(self.added_student_loc(student), 2)
+            self.when_present(self.added_student_loc(student), 3)
 
     def add_comma_sep_sids_to_batch(self, students):
         self.enter_comma_sep_sids(self.BATCH_ADD_STUDENT_INPUT, students)
