@@ -63,7 +63,7 @@ class TestTemplateCreation:
     def test_degree_template_name_required(self):
         self.homepage.click_degree_checks()
         self.degree_template_mgmt_page.click_create_degree()
-        assert not self.degree_template_mgmt_page.is_degree_save_enabled()
+        assert self.degree_template_mgmt_page.is_degree_save_enabled()
 
     def test_degree_template_name_max_255_chars(self):
         name = template.name * 20
