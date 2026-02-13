@@ -26,8 +26,8 @@
           tag="a"
           text="First"
           variant="outlined"
-          @click="onClick('first')"
-          @keyup.enter="onClick('first')"
+          @click="disabled ? noop : onClick('first')"
+          @keyup.enter="disabled ? noop : onClick('first')"
         />
       </template>
       <template #prev="{disabled}">
@@ -42,8 +42,8 @@
           tag="a"
           tile
           variant="outlined"
-          @click="onClick('prev')"
-          @keyup.enter="onClick('prev')"
+          @click="disabled ? noop : onClick('prev')"
+          @keyup.enter="disabled ? noop : onClick('prev')"
         />
       </template>
       <template #item="{isActive, key, page, props: itemProps}">
@@ -64,8 +64,8 @@
           tile
           variant="flat"
           v-bind="props"
-          @click="onClick(page)"
-          @keyup.enter="onClick(page)"
+          @click="itemProps.ellipsis ? noop : onClick(page)"
+          @keyup.enter="itemProps.ellipsis ? noop : onClick(page)"
         />
       </template>
       <template #next="{disabled}">
@@ -79,8 +79,8 @@
           :tabindex="disabled ? -1 : 0"
           tag="a"
           variant="outlined"
-          @click="onClick('next')"
-          @keyup.enter="onClick('next')"
+          @click="disabled ? noop : onClick('next')"
+          @keyup.enter="disabled ? noop : onClick('next')"
         />
       </template>
       <template #last="{disabled}">
@@ -96,8 +96,8 @@
           tag="a"
           text="Last"
           variant="outlined"
-          @click="onClick('last')"
-          @keyup.enter="onClick('last')"
+          @click="disabled ? noop : onClick('last')"
+          @keyup.enter="disabled ? noop : onClick('last')"
         />
       </template>
     </v-pagination>
@@ -107,7 +107,7 @@
 <script setup>
 import {computed} from 'vue'
 import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
-import {toNumber} from 'lodash'
+import {noop, toNumber} from 'lodash'
 import {putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({
