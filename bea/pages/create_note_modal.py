@@ -342,7 +342,7 @@ class CreateNoteModal(Page):
 
     @staticmethod
     def added_student_loc(student):
-        return By.ID, f'batch-note-student-{student.uid}'
+        return By.XPATH, f'//span[text()="{student.full_name} ({student.sid})"]'
 
     @staticmethod
     def student_remove_button_loc(student):
