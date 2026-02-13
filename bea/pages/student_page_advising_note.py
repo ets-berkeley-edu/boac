@@ -214,7 +214,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
 
     def expanded_note_attachments(self, note):
         els = self.item_attachment_els(note)
-        attachment_names = [el.text.split('\n')[1].strip().lower() for el in els]
+        attachment_names = [el.get_attribute('innerText').split('\n')[1].strip().lower() for el in els]
         attachment_names.sort()
         return attachment_names
 
