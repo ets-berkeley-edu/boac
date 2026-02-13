@@ -178,7 +178,7 @@ class BEATestBaseConfigs(object):
             boa_advisor = next(filter(lambda a: a.uid == uid, boa_advisors))
         else:
             boa_advisor = next(
-                filter(lambda a: a.depts == [self.dept] and a.can_access_advising_data and a.can_access_canvas_data,
+                filter(lambda a: self.dept in a.depts and a.can_access_advising_data and a.can_access_canvas_data,
                        boa_advisors))
 
         nessie_advisor = nessie_timeline_utils.get_advising_note_author(boa_advisor.uid)
