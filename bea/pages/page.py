@@ -88,6 +88,8 @@ class Page(object):
             # Sometimes the text property doesn't work, but the innerText attribute does.
             if not text:
                 text = self.element(locator).get_dom_attribute('innerText')
+            if text is None:
+                return None
             if text_to_remove:
                 text = text.replace(text_to_remove, '')
             return text.strip()

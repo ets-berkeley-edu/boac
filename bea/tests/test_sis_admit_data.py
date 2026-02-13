@@ -107,12 +107,12 @@ class TestAdmitPage:
         utils.assert_equivalence(self.admit_page.mobile_phone(), phone)
 
     def test_address_1(self, tc):
-        utils.assert_equivalence(self.admit_page.address_street_1(),
-                                 re.sub(r'\s+', ' ', tc.student.admit_data['permanent_street_1']))
+        address_1 = re.sub(r'\s+', ' ', tc.student.admit_data['permanent_street_1']) or ''
+        utils.assert_equivalence(self.admit_page.address_street_1(), address_1)
 
     def test_address_2(self, tc):
-        utils.assert_equivalence(self.admit_page.address_street_2(),
-                                 re.sub(r'\s+', ' ', tc.student.admit_data['permanent_street_2']))
+        address_2 = re.sub(r'\s+', ' ', tc.student.admit_data['permanent_street_2']) or None
+        utils.assert_equivalence(self.admit_page.address_street_2(), address_2)
 
     def test_address_city_region_postal(self, tc):
         city = tc.student.admit_data['permanent_city']

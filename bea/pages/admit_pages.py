@@ -32,4 +32,4 @@ class AdmitPages(CuratedAddSelector):
 
     @staticmethod
     def data_update_date_heading(date_string):
-        return By.XPATH, f'//div[text()="Admit data was last updated on {date_string}"]'
+        return By.XPATH, f'//div[contains(text(), "Admit data was last updated on")]/span/span[contains(text(), "{date_string}")]'
