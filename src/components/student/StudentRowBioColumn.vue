@@ -58,7 +58,7 @@
       class="text-error font-weight-bold font-size-13 text-no-wrap"
     >
       {{ student.withdrawalCancel.description }}
-      <Date :date="student.withdrawalCancel.date" />
+      <Date :date="student.withdrawalCancel.date" sql-format />
     </div>
     <StudentAcademicStanding
       v-if="student.academicStanding"
