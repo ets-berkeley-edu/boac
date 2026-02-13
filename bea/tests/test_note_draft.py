@@ -464,8 +464,7 @@ class TestNoteDraft:
         utils.assert_equivalence(visible_ids, expected_ids)
 
     def test_advisor_draft_list_view_students(self):
-        utils.assert_equivalence(self.draft_notes_page.visible_draft_student(self.note_4),
-                                 '—\nblank')
+        utils.assert_equivalence(self.draft_notes_page.visible_draft_student(self.note_4), '—')
         utils.assert_equivalence(self.draft_notes_page.visible_draft_student(self.note_5),
                                  f'{self.student.first_name} {self.student.last_name}')
         utils.assert_equivalence(self.draft_notes_page.visible_draft_student(self.note_6),
