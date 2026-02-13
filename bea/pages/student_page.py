@@ -69,7 +69,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
 
     # SIS PROFILE DATA
 
-    ACADEMIC_STANDING = By.XPATH, '//span[contains(@id, "academic-standing-term-")]'
+    ACADEMIC_STANDING = By.XPATH, '//span[contains(@id, "profile-academic-standing-term-")]'
     ACADEMIC_STANDING_COE = By.ID, 'student-bio-acad-standing-coe'
     ADVISOR_EMAIL = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-email")]'
     ADVISOR_NAME = By.XPATH, '//div[@id="student-profile-advisors"]//div[contains(@id,"-name")]'
@@ -148,7 +148,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
         }
 
     def email(self):
-        return self.element(self.EMAIL).text.split()[3] if self.is_present(self.EMAIL) else None
+        return self.element(self.EMAIL).get_attribute('innerText').split()[3] if self.is_present(self.EMAIL) else None
 
     def email_alternate(self):
         return self.el_text_if_exists(self.EMAIL_ALTERNATE)
