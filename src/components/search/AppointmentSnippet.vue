@@ -47,7 +47,7 @@
           {{ appointment.advisorName }} -
         </span>
         <span v-if="createdAt" :id="`appointment-created-at-date-${appointment.id}`">
-          <Date :date="createdAt" :timezone="timezone" />)
+          <Date :date="createdAt" :timezone="timezone" />
         </span>
       </div>
     </div>
