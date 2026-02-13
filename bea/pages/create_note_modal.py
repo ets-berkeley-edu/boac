@@ -474,10 +474,14 @@ class CreateNoteModal(Page):
     TEMPLATES_BUTTON = By.ID, 'my-templates-button'
     TEMPLATE_BUTTON = By.XPATH, '//*[starts-with(@id, "load-note-template")]'
     NO_TEMPLATES_MSG = By.XPATH, '//div[contains(text(), "You have no saved templates")]'
-    DUPE_TEMPLATE_TITLE_MSG = By.XPATH, '//div[contains(text(), "You have an existing template with this name")]'
+    MISSING_TEMPLATE_TITLE_MSG = By.XPATH, '//div[contains(text(), "Template name is required")]'
+    DUPE_TEMPLATE_TITLE_MSG = By.XPATH, '//div[contains(text(), "You have an existing template named")]'
 
     def wait_for_no_templates_msg(self):
         self.when_present(self.NO_TEMPLATES_MSG, utils.get_short_timeout())
+
+    def wait_for_missing_template_title_msg(self):
+        self.when_present(self.MISSING_TEMPLATE_TITLE_MSG, utils.get_short_timeout())
 
     def wait_for_dupe_template_title_msg(self):
         self.when_present(self.DUPE_TEMPLATE_TITLE_MSG, utils.get_short_timeout())

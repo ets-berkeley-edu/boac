@@ -111,7 +111,8 @@ class TestNoteTemplate:
         self.student_page.click_note_body_input()
         self.student_page.enter_new_note_subject(self.note_create)
         self.student_page.click_save_as_template()
-        assert not self.student_page.is_create_template_enabled()
+        self.student_page.click_create_template()
+        self.student_page.wait_for_missing_template_title_msg()
 
     def test_template_no_dupe_title_allowed(self):
         self.student_page.enter_template_title(self.template_1)
@@ -176,7 +177,6 @@ class TestNoteTemplate:
     # Student page template deletion
 
     def test_cancel_deletion(self):
-        self.student_page.click_templates_button()
         self.student_page.click_delete_template(self.template_1)
         self.student_page.cancel_delete_or_discard()
 
@@ -220,7 +220,8 @@ class TestNoteTemplate:
     def test_batch_template_title_required(self):
         self.homepage.enter_new_note_subject(self.note_batch_create)
         self.homepage.click_save_as_template()
-        assert not self.homepage.is_create_template_enabled()
+        self.homepage.click_create_template()
+        self.homepage.wait_for_missing_template_title_msg()
 
     def test_batch_template_no_dupe_title_allowed(self):
         self.homepage.enter_template_title(self.template_2)
@@ -305,7 +306,6 @@ class TestNoteTemplate:
     # Batch note template deletion
 
     def test_batch_cancel_deletion(self):
-        self.homepage.click_templates_button()
         self.homepage.click_delete_template(self.template_2)
         self.homepage.cancel_delete_or_discard()
 
