@@ -40,7 +40,7 @@
           />
         </div>
       </div>
-      <div v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage" class="d-flex flex-wrap">
+      <div class="d-flex flex-wrap">
         <CuratedGroupSelector
           class="align-self-end mr-auto py-1"
           :context-description="cohortStore.domain === 'default' ? `Cohort ${cohortStore.cohortName || ''}` : `Admitted Students Cohort ${cohortStore.cohortName || ''}`"
@@ -49,6 +49,7 @@
           :students="cohortStore.students"
         />
         <Pagination
+          v-if="cohortStore.totalStudentCount > cohortStore.pagination.itemsPerPage"
           class="mt-2"
           :click-handler="goToPage"
           :init-page-number="cohortStore.pagination.currentPage"
