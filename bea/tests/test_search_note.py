@@ -168,7 +168,7 @@ class TestSearchNote:
             show_update_date = self.student_page.is_updated_date_expected(tc.note)
             expected_date = tc.note.set_date or (tc.note.updated_date if show_update_date else tc.note.created_date)
             expected = self.search_results_page.expected_note_or_appt_date_format(expected_date)
-            utils.assert_equivalence(self.search_results_page.note_result_date(tc.note).replace(')', '').strip(), expected)
+            utils.assert_equivalence(self.search_results_page.note_result_date(tc.note), expected)
 
     def test_adv_search_matching_date_future_range(self, tc):
         self.homepage.reopen_and_reset_adv_search()
