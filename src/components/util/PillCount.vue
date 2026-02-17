@@ -1,7 +1,6 @@
 <template>
   <v-chip
     :id="id"
-    :aria-label="ariaLabel"
     class="border-sm pill-count"
     :class="{'pill-color-override': outlined}"
     :color="color"
@@ -14,11 +13,6 @@
 
 <script setup>
 defineProps({
-  ariaLabel: {
-    default: undefined,
-    required: false,
-    type: String
-  },
   color: {
     default: 'surface-variant',
     required: false,

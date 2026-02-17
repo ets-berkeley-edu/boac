@@ -27,6 +27,7 @@ export default ((el: Element) => {
 
     // prevent screen reader text from being announced as 'clickable' due to the attached mousedown handler
     el.setAttribute('role', 'presentation')
+    el.removeAttribute('aria-label')
 
     if (container) {
       // make keyboard navigation work with JAWS
