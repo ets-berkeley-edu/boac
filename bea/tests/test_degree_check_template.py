@@ -63,7 +63,9 @@ class TestTemplateCreation:
     def test_degree_template_name_required(self):
         self.homepage.click_degree_checks()
         self.degree_template_mgmt_page.click_create_degree()
-        assert self.degree_template_mgmt_page.is_degree_save_enabled()
+        self.degree_template_mgmt_page.click_save_new_degree()
+        self.degree_template_mgmt_page.when_present(self.degree_template_mgmt_page.MISSING_NAME_MSG,
+                                                    utils.get_short_timeout())
 
     def test_degree_template_name_max_255_chars(self):
         name = template.name * 20
@@ -693,8 +695,9 @@ class TestTemplateCopying:
         self.degree_template_mgmt_page.when_present(self.degree_template_mgmt_page.COPY_DEGREE_SAVE_BUTTON,
                                                     utils.get_short_timeout())
         utils.assert_equivalence(self.degree_template_mgmt_page.copy_name_input_value(), template.name)
-        assert not self.degree_template_mgmt_page.element(
-            self.degree_template_mgmt_page.COPY_DEGREE_SAVE_BUTTON).is_enabled()
+        self.degree_template_mgmt_page.click_save_copy()
+        self.degree_template_mgmt_page.when_present(self.degree_template_mgmt_page.DUPE_NAME_MSG,
+                                                    utils.get_short_timeout())
 
     def test_max_255_chars(self):
         name = template.name * 20
