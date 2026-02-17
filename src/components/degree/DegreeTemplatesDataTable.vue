@@ -388,7 +388,7 @@ const save = () => {
           templateForEdit.value = undefined
           putFocusNextTick(`degree-check-${templateId}-rename-btn`)
           alertScreenReader(`Saved changes to template "${name}"`)
-          isRenaming.value = false
+          isBusy.value = isRenaming.value = false
         })
       })
     } else {
