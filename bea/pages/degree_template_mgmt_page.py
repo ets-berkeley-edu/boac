@@ -40,6 +40,7 @@ class DegreeTemplateMgmtPage(BoaPages):
     CREATE_DEGREE_SAVE_BUTTON = By.ID, 'start-degree-btn'
     CREATE_DEGREE_NAME_INPUT = By.ID, 'create-degree-input'
     DUPE_NAME_MSG = By.XPATH, '//span[contains(., "already exists. Please choose a different name.")]'
+    MISSING_NAME_MSG = By.XPATH, '//span[contains(., "Degree Name is required")]'
 
     def click_create_degree(self):
         app.logger.info('Clicking the add-degree button')
