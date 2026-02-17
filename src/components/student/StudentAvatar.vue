@@ -13,11 +13,11 @@
     <PillCount
       v-if="alertCount"
       :id="`student-avatar-${student.uid}-alert-count`"
-      :aria-label="pluralize('alert', alertCount)"
       class="student-avatar-alert-count"
       color="warning"
     >
-      {{ alertCount }}
+      <span aria-hidden="true">{{ alertCount }}</span>
+      <span class="sr-only">{{ pluralize('alert', alertCount) }}</span>
       <v-tooltip
         :id="`student-avatar-${student.uid}-tooltip`"
         activator="parent"
