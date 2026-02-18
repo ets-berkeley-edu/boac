@@ -68,7 +68,7 @@
           <div
             v-for="(droppedSection, droppedIndex) in term.droppedSections"
             :key="droppedIndex"
-            class="student-course-dropped text-disabled"
+            class="student-course-dropped text-medium-emphasis"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
             role="row"
           >
