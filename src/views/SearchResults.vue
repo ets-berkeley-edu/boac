@@ -25,16 +25,13 @@
     </div>
     <div v-if="!loading && !searchStore.isSearching">
       <div
-        v-if="hasSearchResults"
-        aria-live="polite"
+        id="search-results-summary"
         class="sr-only"
         role="status"
+        aria-live="polite"
+        aria-atomic="true"
       >
-        Search results include {{ describe('Admits', results.totalAdmitCount) }}
-        {{ describe('student', results.totalStudentCount) }}
-        {{ describe('course', results.totalCourseCount) }}
-        {{ describe('note', size(results.notes)) }}{{ hasMoreNotesToShow ? '+' : '' }}
-        {{ describe('appointment', size(results.appointments)) }}{{ hasMoreAppointmentsToShow ? '+' : '' }}
+        {{ srSearchResultsSummary }}
       </div>
       <div v-if="!hasSearchResults" id="page-header-no-results" class="my-4 px-5">
         <h3>Suggestions</h3>
@@ -172,12 +169,18 @@
                   :note="advisingNote"
                 />
                 <div class="text-center py-2">
+                  <v-divider class="mb-4" />
                   <v-btn
                     v-if="hasMoreNotesToShow"
                     id="fetch-more-notes"
                     :disabled="loadingAdditionalNotes"
+                    color="primary"
+                    variant="outlined"
+                    size="large"
+                    rounded="lg"
+                    class="px-6"
+                    :prepend-icon="mdiChevronDown"
                     text="Show additional advising notes"
-                    variant="text"
                     @click.prevent="fetchMoreNotes"
                   />
                   <SectionSpinner :loading="loadingAdditionalNotes" />
@@ -197,14 +200,22 @@
                   :appointment="appointment"
                 />
                 <div class="text-center py-2">
+                  <v-divider class="mb-4" />
+
                   <v-btn
                     v-if="hasMoreAppointmentsToShow"
                     id="fetch-more-appointments"
                     :disabled="loadingAdditionalAppointments"
+                    color="primary"
+                    variant="outlined"
+                    size="large"
+                    rounded="lg"
+                    class="px-6"
+                    :prepend-icon="mdiChevronDown"
                     text="Show additional advising appointments"
-                    variant="text"
                     @click.prevent="fetchMoreAppointments"
                   />
+
                   <SectionSpinner :loading="loadingAdditionalAppointments" />
                 </div>
               </div>
@@ -217,9 +228,9 @@
 </template>
 
 <script setup>
-import {capitalize, concat, each, extend, get, merge, size, trim} from 'lodash'
+import {concat, each, extend, get, merge, size, trim} from 'lodash'
 import {computed, onMounted, reactive, ref} from 'vue'
-import {mdiAccountSchool, mdiCalendarCheck, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
+import {mdiAccountSchool, mdiCalendarCheck, mdiChevronDown, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
 import {useRoute, useRouter} from 'vue-router'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
@@ -230,7 +241,7 @@ import SectionSpinner from '@/components/util/SectionSpinner'
 import SortableAdmits from '@/components/admit/SortableAdmits'
 import SortableCourses from '@/components/search/SortableCourses'
 import SortableStudents from '@/components/search/SortableStudents'
-import {alertScreenReader, putFocusNextTick, toBoolean, toInt} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick, toBoolean, toInt} from '@/lib/utils'
 import {search, searchAdmittedStudents} from '@/api/search'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
@@ -271,8 +282,11 @@ const results = reactive({
   students: [],
   totalAdmitCount: 0,
   totalCourseCount: 0,
-  totalStudentCount: 0
+  totalStudentCount: 0,
+  totalNoteCount: undefined,
+  totalAppointmentCount: undefined
 })
+const srSearchResultsSummary = ref('')
 const searchPhraseSubmitted = ref(undefined)
 const tab = ref(undefined)
 const tabs = computed(() => {
@@ -313,6 +327,7 @@ onMounted(() => {
   }
   if (searchStore.queryText || includeNotesAndAppointments) {
     searchStore.setIsSearching(true)
+    srSearchResultsSummary.value = ''
     alertScreenReader(`Searching for "${searchStore.queryText}"`)
     const queries = []
     if (searchStore.includeCourses || includeNotesAndAppointments || searchStore.includeStudents) {
@@ -341,6 +356,7 @@ onMounted(() => {
     })
       .then(() => {
         contextStore.loadingComplete()
+        srSearchResultsSummary.value = buildSearchResultsSummary()
         const totalCount = toInt(results.totalCourseCount, 0) + toInt(results.totalStudentCount, 0)
         const focusId = totalCount ? 'page-header' : 'page-header-no-results'
         putFocusNextTick(focusId)
@@ -377,10 +393,6 @@ const getTabLabel = item => {
   return label
 }
 
-const describe = (noun, count) => {
-  return count > 0 ? `${toInt(count, 0).toLocaleString()} ${capitalize(noun)}${count === 1 ? '' : 's'}, ` : ''
-}
-
 const fetchMoreAppointments = () => {
   appointmentsQuery.offset = appointmentsQuery.offset + appointmentsQuery.limit
   appointmentsQuery.limit = 20
@@ -396,6 +408,10 @@ const fetchMoreAppointments = () => {
   )
     .then(data => {
       results.appointments = concat(results.appointments, data.appointments)
+      const nowShowing = size(results.appointments)
+      const total = results.totalAppointmentCount === null ? null : toInt(results.totalAppointmentCount, 0)
+      alertScreenReader(total ? `Now showing ${nowShowing} of ${total} advising appointments.` : `Now showing ${nowShowing} advising appointments.`)
+    }).finally(() => {
       loadingAdditionalAppointments.value = false
     })
 }
@@ -415,9 +431,48 @@ const fetchMoreNotes = () => {
   )
     .then(data => {
       results.notes = concat(results.notes, data.notes)
+      const nowShowing = size(results.notes)
+      const total = results.totalNoteCount === null ? null : toInt(results.totalNoteCount, 0)
+      alertScreenReader(total ? `Now showing ${nowShowing} of ${total} advising notes.` : `Now showing ${nowShowing} advising notes.`)
+    }).finally(() => {
       loadingAdditionalNotes.value = false
     })
+
 }
+
+const formatCount = (count) => toInt(count, 0).toLocaleString()
+
+const buildSearchResultsSummary = () => {
+  if (!hasSearchResults.value || searchStore.isSearching) {
+    return ''
+  }
+
+  const parts = []
+
+  const admitCount = toInt(results.totalAdmitCount, 0)
+  const studentCount = toInt(results.totalStudentCount, 0)
+  const courseCount = toInt(results.totalCourseCount, 0)
+
+  const noteCount = results.totalNoteCount === null ? size(results.notes) : toInt(results.totalNoteCount, 0)
+  const apptCount = results.totalAppointmentCount === null ? size(results.appointments) : toInt(results.totalAppointmentCount, 0)
+
+  if (admitCount) parts.push(`${formatCount(admitCount)} ${pluralize('admit', admitCount)}`)
+  if (studentCount) parts.push(`${formatCount(studentCount)} ${pluralize('student', studentCount)}`)
+  if (courseCount) parts.push(`${formatCount(courseCount)} ${pluralize('course', courseCount)}`)
+
+  if (noteCount) {
+    const suffix = results.totalNoteCount === null && hasMoreNotesToShow.value ? '+' : ''
+    parts.push(`${formatCount(noteCount)} ${pluralize('note', noteCount)}${suffix}`)
+  }
+
+  if (apptCount) {
+    const suffix = results.totalAppointmentCount === null && hasMoreAppointmentsToShow.value ? '+' : ''
+    parts.push(`${formatCount(apptCount)} ${pluralize('appointment', apptCount)}${suffix}`)
+  }
+
+  return parts.length ? `Search results include ${parts.join(', ')}.` : ''
+}
+
 
 const openAdvancedSearch = () => {
   searchStore.setShowAdvancedSearch(true)
