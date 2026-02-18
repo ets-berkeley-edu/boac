@@ -52,7 +52,7 @@
         <div v-if="['appointment', 'note'].includes(selectedFilter)" class="align-center d-flex pl-4">
           <div class="pb-2" role="separator">|</div>
           <div class="align-center d-flex flex-wrap font-weight-bold pb-2 pl-4 text-medium-emphasis">
-            <label for="toggle-my-notes-button" class="mr-2">
+            <label aria-hidden="true" class="mr-2">
               Show {{ selectedFilter }}s:
             </label>
             <v-btn-toggle
