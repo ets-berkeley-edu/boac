@@ -21,7 +21,6 @@
         :disabled="disabled"
         :icon="mdiCloseCircle"
         size="20"
-        title="Remove"
         variant="text"
         @click.stop.prevent="emit('closeClicked')"
       />

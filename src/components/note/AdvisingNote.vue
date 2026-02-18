@@ -22,20 +22,27 @@
         <span :id="`note-${note.id}-subject`" v-html="noteSummary" />
       </span>
     </div>
-    <div v-if="isOpen" :id="`note-${note.id}-is-open`" class="pb-8 w-100">
-      <div v-if="(note.subject || note.isDraft) && note.message" class="open-note-message-container pt-2">
+    <div
+      :id="`note-${note.id}-is-open`"
+      class="pb-4"
+      :class="{
+        'sr-only': !isOpen,
+        'timeline-message-full-width': !note.eForm
+      }"
+    >
+      <div v-if="(note.subject || note.isDraft) && note.message" class="open-note-message-container py-3">
         <span :id="`note-${note.id}-message-open`" v-html="note.message" />
       </div>
-      <div v-if="!note.subject && !note.message && note.eForm" class="pt-2">
+      <div v-if="!note.subject && !note.message && note.eForm" class="py-3">
         <AdvisingEForm :note="note" />
       </div>
-      <div v-if="isAuthorDetailsLoaded && !isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 pt-2 text-medium-emphasis">
+      <div v-if="isAuthorDetailsLoaded && !isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 py-3 text-medium-emphasis">
         Advisor profile not found
         <span v-if="note.legacySource" class="font-italic">
           (note imported from {{ note.legacySource }})
         </span>
       </div>
-      <div v-if="isAuthorDetailsLoaded && author" class="pt-2">
+      <div v-if="isAuthorDetailsLoaded && author && !note.eForm" class="py-3">
         <div v-if="author.name || author.email">
           <span class="sr-only">Note created by </span>
           <span v-if="author.uid && author.name">
@@ -186,7 +193,6 @@ const addNoteAttachments = attachments => {
     addAttachments(props.note.id, attachments).then(updatedNote => {
       props.afterSaved(updatedNote, addAttachmentInputElementId)
       noteStore.setAttachments(updatedNote.attachments)
-      alertScreenReader('Attachment added', false, 'assertive')
       isUpdatingAttachments.value = false
       resolve()
     })
@@ -203,7 +209,7 @@ const confirmedRemoveAttachment = () => {
   const attachment = props.note.attachments[deleteAttachmentIndex.value]
   if (attachment && attachment.id) {
     removeAttachment(props.note, attachment.id).then(updatedNote => {
-      alertScreenReader(`Attachment "${attachment.displayName}" removed`)
+      alertScreenReader(`Removed attachment "${attachment.displayName}"`)
       props.afterSaved(updatedNote, addAttachmentInputElementId)
     })
   }
@@ -275,9 +281,6 @@ const removeAttachmentByIndex = index => {
 }
 .open-note-message-container {
   overflow-wrap: break-word;
-}
-.note-attachments-container {
-  width: 90%;
 }
 .note-snippet-when-closed {
   height: 24px;

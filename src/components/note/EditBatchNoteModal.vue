@@ -398,7 +398,7 @@ const removeAttachmentByIndex = index => {
   if (attachment && attachment.id) {
     if (isAutoSaveMode(mode.value)) {
       removeAttachment(model.value, attachment.id).then(() => {
-        alertScreenReader(`Attachment '${attachment.displayName}' removed`)
+        alertScreenReader(`Removed attachment '${attachment.displayName}'`)
       })
     }
     noteStore.removeAttachmentByIndex(index)
