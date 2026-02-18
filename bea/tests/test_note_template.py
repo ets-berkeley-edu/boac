@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import time
+
 import pytest
 from flask import current_app as app
 
@@ -78,6 +80,8 @@ class TestNoteTemplate:
             self.homepage.click_create_note_batch()
             for template in self.user_templates:
                 self.homepage.delete_template(template)
+                time.sleep(0.5)
+
         else:
             app.logger.info(f'UID {self.test.advisor.uid} has no existing templates to delete')
 
