@@ -562,13 +562,16 @@ const showDownloadNotesLink = computed(() => {
     && hasNonDrafts()
 })
 
-watch(() => props.selectedFilter, () => {
+watch(() => props.selectedFilter, (newValue, oldValue) => {
   allExpanded.value = false
   filterWithinTheTab.value = 'all'
   openMessages.value = []
   searchResults.value = null
   timelineQuery.value = ''
-  alertScreenReader(describeTheActiveTab())
+  // No screenreader alert on initial load, when values are null/undefined
+  if (newValue || oldValue) {
+    alertScreenReader(describeTheActiveTab())
+  }
   refreshSearchIndex()
 })
 
