@@ -16,7 +16,7 @@
       </div>
       <div v-if="!hasSearchResults && !searchStore.isSearching">
         <div v-if="searchPhraseSubmitted && searchPhraseSubmitted.length > 0">
-          No results found for <span class="font-weight-bold">{{ searchPhraseSubmitted }}</span>.
+          No results found for <strong>{{ searchPhraseSubmitted }}</strong>.
         </div>
         <div v-if="!searchPhraseSubmitted || searchPhraseSubmitted.length === 0">
           No results found for your search query.
@@ -47,7 +47,7 @@
       <div v-if="results.totalAdmitCount || results.totalStudentCount || results.totalCourseCount || size(results.appointments) || size(results.notes)">
         <v-tabs
           v-model="tab"
-          aria-label="search results tab"
+          aria-label="Search results"
           :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
           class="ml-3"
           density="comfortable"

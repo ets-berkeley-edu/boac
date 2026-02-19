@@ -61,7 +61,7 @@
                 :set-value="v => model.queryText = v"
               />
             </div>
-            <div class="font-size-16 font-weight-bold">
+            <div id="advanced-search-extent-help" class="font-size-16 font-weight-bold">
               What is the extent of your search?
               <span
                 v-if="!model.includeAdmits && !model.includeStudents && !model.includeCourses && !model.includeNotes"
@@ -75,36 +75,39 @@
                 v-if="currentUser.canAccessAdmittedStudents"
                 id="search-include-admits-checkbox"
                 v-model="model.includeAdmits"
+                aria-describedby="advanced-search-extent-help"
                 class="mr-2"
                 color="primary"
                 hide-details
                 label="Students"
               >
                 <template #label>
-                  <span class="sr-only">Search includes </span>Admitted Students
+                  Admitted students
                 </template>
               </v-checkbox>
               <v-checkbox
                 id="search-include-students-checkbox"
                 v-model="model.includeStudents"
+                aria-describedby="advanced-search-extent-help"
                 class="mr-2"
                 color="primary"
                 hide-details
               >
                 <template #label>
-                  <span class="sr-only">Search includes </span>Students
+                  Students
                 </template>
               </v-checkbox>
               <v-checkbox
                 v-if="currentUser.canAccessCanvasData"
                 id="search-include-courses-checkbox"
                 v-model="model.includeCourses"
+                aria-describedby="advanced-search-extent-help"
                 class="mr-2"
                 color="primary"
                 hide-details
               >
                 <template #label>
-                  <span class="sr-only">Search includes </span>Classes
+                  Classes
                 </template>
               </v-checkbox>
               <v-checkbox
@@ -113,13 +116,13 @@
                 v-model="model.includeNotes"
                 aria-controls="search-option-note-filters"
                 :aria-expanded="model.includeNotes"
+                aria-describedby="advanced-search-extent-help"
                 class="mr-2"
                 color="primary"
                 hide-details
                 @change="onChangeIncludeNotes"
               >
                 <template #label>
-                  <span class="sr-only">Search includes</span>
                   Notes &amp; Appointments
                 </template>
               </v-checkbox>
