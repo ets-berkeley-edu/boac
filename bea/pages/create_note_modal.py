@@ -157,7 +157,7 @@ class CreateNoteModal(Page):
 
     @staticmethod
     def new_note_attachment_delete_button(attachment):
-        return By.XPATH, f'//button[@aria-label="Remove attachment {attachment.file_name}"]'
+        return By.XPATH, f'//ul[@id="note-attachments-list"]//li[contains(., "{attachment.file_name}")]//button'
 
     def enter_new_note_attachments(self, attachments):
         files = list(map(lambda a: f'{utils.attachments_dir()}/{a.file_name}', attachments))

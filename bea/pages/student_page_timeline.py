@@ -115,7 +115,7 @@ class StudentPageTimeline(BoaPages):
         else:
             app.logger.info(f'Expanding {item_type} ID {item.record_id}')
             self.scroll_to_top()
-            xpath = f'//tr[@id="permalink-{item_type}-{item.record_id}"]//div[@role="button"]'
+            xpath = f'//tr[@id="permalink-{item_type}-{item.record_id}"]'
             self.wait_for_element_and_click((By.XPATH, xpath))
         time.sleep(2)
 

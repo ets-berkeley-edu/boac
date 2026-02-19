@@ -4,11 +4,11 @@
       <div>
         <h2 id="student-academic-timeline-header" class="font-size-24 font-weight-bold py-0">Academic Timeline</h2>
       </div>
-      <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="mt-1">
+      <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData">
         <v-btn
           id="new-note-button"
           :aria-label="`New Note for ${student.name}`"
-          class="border-e-sm"
+          class="border-e-sm mb-1"
           color="primary"
           :disabled="!!noteStore.mode"
           :prepend-icon="mdiFileDocument"

@@ -15,7 +15,7 @@
         }"
         :for="inputId"
       >
-        <div v-if="isAdding">
+        <div v-if="isAdding" class="text-medium-emphasis">
           Adding attachments...
         </div>
         <div v-if="!isAdding" class="mr-2 ">
@@ -88,7 +88,7 @@
     <ul
       :id="`${idPrefix}-attachments-list`"
       :aria-labelledby="`${idPrefix}-attachments-list-label`"
-      class="list-no-bullets advising-note-pill-list mt-1"
+      class="list-no-bullets mt-1"
     >
       <li
         v-for="(attachment, index) in attachments"
@@ -96,6 +96,7 @@
       >
         <PillItem
           :id="`${idPrefix}-attachment-${index}`"
+          clazz="text-anchor"
           :closable="canRemoveAttachments"
           :disabled="disabled"
           :href="downloadUrl(attachment)"
@@ -253,7 +254,7 @@ const onAttachmentsInput = files => {
         attachments.push(attachment)
       })
       props.add(attachments).then(() => {
-        alertScreenReader(`${pluralized} added`)
+        alertScreenReader(`Added ${pluralized}`)
         isAdding.value = false
       })
     } else {
