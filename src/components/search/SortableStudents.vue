@@ -99,13 +99,17 @@
 
     <template v-if="!compact" #item.major="{item}">
       <span class="sr-only">Major</span>
-      <div v-if="!item.majors || item.majors.length === 0">--<span class="sr-only">No data</span></div>
+      <div v-if="!item.majors || item.majors.length === 0">
+        <span aria-hidden="true">--</span><span class="sr-only">No data</span>
+      </div>
       <div v-for="major in item.majors" :key="major" class="pr-1">{{ major }}</div>
     </template>
 
     <template v-if="!compact" #item.expectedGraduationTerm="{item}">
       <span class="sr-only">Expected graduation term</span>
-      <div v-if="!item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
+      <div v-if="!item.expectedGraduationTerm">
+        <span aria-hidden="true">--</span><span class="sr-only">No data</span>
+      </div>
       <span :class="{'text-no-wrap': $vuetify.display.width > mobileBreakpoint}">
         {{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}
       </span>
@@ -118,13 +122,17 @@
 
     <template v-if="!compact" #item.cumulativeUnits="{item}">
       <span class="sr-only">Units completed</span>
-      <div v-if="!item.cumulativeUnits">--<span class="sr-only">No data</span></div>
+      <div v-if="!item.cumulativeUnits">
+        <span aria-hidden="true">--</span><span class="sr-only">No data</span>
+      </div>
       <div v-if="item.cumulativeUnits">{{ numFormat(item.cumulativeUnits, '0.00') }}</div>
     </template>
 
     <template v-if="!compact" #item.cumulativeGPA="{item}">
       <span class="sr-only">GPA</span>
-      <div v-if="isNil(item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
+      <div v-if="isNil(item.cumulativeGPA)">
+        <span aria-hidden="true">--</span><span class="sr-only">No data</span>
+      </div>
       <div v-if="!isNil(item.cumulativeGPA)">{{ round(item.cumulativeGPA, 3) }}</div>
     </template>
 

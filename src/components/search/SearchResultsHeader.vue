@@ -2,14 +2,26 @@
   <h2 :id="`${resultsType}-results-page-header`" class="font-size-18 font-weight-regular mr-2 py-1">
     <span v-if="countTotal">
       <span v-if="countTotal <= countInView">
-        Showing {{ pluralize(resultsType, countTotal, {1: 'one'}) }}<span v-if="searchPhrase"> matching <span class="font-weight-500">{{ searchPhrase }}</span></span>.
+        Showing {{ pluralize(resultsType, countTotal, {1: 'one'}) }}.
+        <span v-if="searchPhrase">
+          matching <strong class="font-weight-500">{{ searchPhrase }}</strong>
+        </span>.
       </span>
       <span v-if="countTotal > countInView" class="font-size-18">
-        Showing {{ resultsType }}s 1-{{ countInView }} of {{ toInt(countTotal, 0).toLocaleString() }}<span v-if="searchPhrase"> matching <span class="font-weight-500">{{ searchPhrase }}</span></span>.
+        Showing {{ resultsType }}s
+        <span aria-hidden="true"> 1-{{ countInView }}</span>
+        <span class="sr-only"> 1 to {{ countInView }}</span>
+        of {{ toInt(countTotal, 0).toLocaleString() }}
+        <span v-if="searchPhrase">
+          matching <strong class="font-weight-500">{{ searchPhrase }}</strong>
+        </span>
       </span>
     </span>
     <span v-if="!countTotal">
-      Showing {{ countInView }} {{ resultsType }}s<span v-if="searchPhrase"> matching <span class="font-weight-500">{{ searchPhrase }}</span></span>.
+      Showing {{ countInView }} {{ resultsType }}s
+      <span v-if="searchPhrase">
+        matching <strong class="font-weight-500">{{ searchPhrase }}</strong>
+      </span>
     </span>
     <span v-if="!countTotal || countTotal > countInView">
       Refine your search if you have too many results.
