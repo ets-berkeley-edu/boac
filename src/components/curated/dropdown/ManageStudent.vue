@@ -1,6 +1,7 @@
 <template>
   <div :class="{'opacity-zero': srOnly && !isAdding && !isRemoving && !showModal}">
     <v-menu
+      id="manage-student-menu"
       :aria-label="`${domainLabel(true)}s for ${student.name}`"
       :close-on-content-click="false"
       :disabled="isAdding || isRemoving"
@@ -11,6 +12,8 @@
           :id="menuButtonId"
           v-bind="menuProps"
           :aria-label="`Add ${student.name} to ${domainLabel(true)}s`"
+          :aria-controls="isMenuOpen ? 'manage-student-menu' : null"
+          :aria-owns="isMenuOpen ? 'manage-student-menu' : null"
           class="button-menu bg-primary py-0 px-2 text-body-1 text-white"
           :class="{
             'bg-error': isRemoving,

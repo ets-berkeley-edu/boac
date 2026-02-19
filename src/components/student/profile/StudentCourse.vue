@@ -9,7 +9,7 @@
         <v-btn
           :id="`${baseElementId}-toggle`"
           :aria-expanded="showCourseDetails ? 'true' : 'false'"
-          :aria-controls="`${baseElementId}-details`"
+          :aria-controls="`course-details-${year}-${termId}-${index}`"
           :aria-label="`${showCourseDetails ? 'Hide' : 'Show'} ${course.displayName} class details for ${student.name}`"
           class="pl-0 text-left"
           color="primary"
@@ -102,7 +102,7 @@
         'span-columns': $vuetify.display.lgAndUp
       }"
     >
-      <div v-if="showCourseDetails">
+      <div v-show="showCourseDetails">
         <div
           :id="`${baseElementId}-details-name`"
           class="font-size-16 font-weight-bold text-medium-emphasis"
