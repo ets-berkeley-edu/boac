@@ -161,10 +161,12 @@
                       </select>
                     </div>
                     <div class="pt-4">
-                      <label class="form-control-label" for="note-filters-posted-by"><span class="sr-only">Search Notes </span>Posted By</label>
+                      <div id="note-filters-posted-by-label" class="form-control-label">
+                        <span class="sr-only">Search Notes </span>Posted By
+                      </div>
                       <v-radio-group
-                        id="note-filters-posted-by"
                         v-model="model.postedBy"
+                        aria-labelledby="note-filters-posted-by-label"
                         hide-details
                         inline
                       >
@@ -188,7 +190,7 @@
                           @change="() => model.author = null"
                         />
                         <v-radio
-                          id="search-options-note-filters-posted-by-your department"
+                          id="search-options-note-filters-posted-by-your-department"
                           aria-label="Search notes posted by your department"
                           class="mr-2"
                           :disabled="searchStore.isSearching"
@@ -339,7 +341,6 @@
     </v-dialog>
   </div>
 </template>
-
 <script setup>
 import FocusLock from 'vue-focus-lock'
 import {computed, ref, watch} from 'vue'
