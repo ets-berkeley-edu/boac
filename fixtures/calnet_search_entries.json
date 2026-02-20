@@ -3,6 +3,7 @@
         {
             "attributes": {
                 "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduAlternateID": [ "joni@berkeley.edu" ],
                 "berkeleyEduCSID": "800700600",
                 "berkeleyEduConfidentialFlag": false,
                 "berkeleyEduEmailRelFlag": false,
@@ -14,7 +15,6 @@
                     "cn=edu:berkeley:official:all-accounts,ou=campus groups,dc=berkeley,dc=edu"
                 ],
                 "berkeleyEduModDate": "2016-08-29 14:51:46+00:00",
-                "berkeleyEduOfficialEmail": [ "joni@berkeley.edu" ],
                 "berkeleyEduStuID": "800700600",
                 "cn": [ "Anderson, Roberta Joan" ],
                 "departmentNumber": "QCADV",
@@ -38,6 +38,7 @@
             "dn": "uid=1133399,ou=people,dc=berkeley,dc=edu",
             "raw": {
                 "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduAlternateID": [ "joni@berkeley.edu" ],
                 "berkeleyEduCSID": [ "800700600" ],
                 "berkeleyEduConfidentialFlag": [ "false" ],
                 "berkeleyEduEmailRelFlag": [ "false" ],
@@ -49,7 +50,6 @@
                     "cn=edu:berkeley:official:all-accounts,ou=campus groups,dc=berkeley,dc=edu"
                 ],
                 "berkeleyEduModDate": [ "20160829145146Z" ],
-                "berkeleyEduOfficialEmail": [ "joni@berkeley.edu" ],
                 "berkeleyEduStuID": [ "800700600" ],
                 "cn": [ "Anderson, Roberta Joan" ],
                 "departmentNumber": [ "QCADV" ],
@@ -440,6 +440,7 @@
         {
             "attributes": {
                 "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduAlternateID": [ "33333@berkeley.edu" ],
                 "berkeleyEduCSID": "333333333",
                 "berkeleyEduConfidentialFlag": false,
                 "berkeleyEduEmailRelFlag": false,
@@ -448,7 +449,6 @@
                     "cn=edu:berkeley:official:all,ou=campus groups,dc=berkeley,dc=edu"
                 ],
                 "berkeleyEduModDate": "2016-08-29 14:51:46+00:00",
-                "berkeleyEduOfficialEmail": [ "33333@berkeley.edu" ],
                 "berkeleyEduStuID": "333333333",
                 "cn": [ "Deleted-in-BOA, John" ],
                 "departmentNumber": "QCADV",
@@ -470,6 +470,7 @@
             "dn": "uid=33333,ou=people,dc=berkeley,dc=edu",
             "raw": {
                 "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduAlternateID": [ "deleted-in-boa@berkeley.edu" ],
                 "berkeleyEduCSID": [ "333333333" ],
                 "berkeleyEduConfidentialFlag": [ "false" ],
                 "berkeleyEduEmailRelFlag": [ "false" ],
@@ -478,7 +479,6 @@
                     "cn=edu:berkeley:official:all,ou=campus groups,dc=berkeley,dc=edu"
                 ],
                 "berkeleyEduModDate": [ "20160829145146Z" ],
-                "berkeleyEduOfficialEmail": [ "deleted-in-boa@berkeley.edu" ],
                 "berkeleyEduStuID": [ "333333333" ],
                 "cn": [ "Deleted-in-BOA, John" ],
                 "departmentNumber": [ "QCADV" ],
