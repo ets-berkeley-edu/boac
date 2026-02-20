@@ -60,7 +60,7 @@ onMounted(() => {
   filterTypes.value = {
     alert: {name: 'Alert', tab: 'Alerts', tabWidth: 65},
     hold: {name: 'Hold', tab: 'Holds', tabWidth: 62},
-    requirement: {name: 'Requirement', tab: 'Reqs', tabWidth: 58}
+    requirement: {ariaLabel: 'requirements', name: 'Requirement', tab: 'Reqs', tabWidth: 58}
   }
   if (currentUser.canAccessAdvisingData) {
     filterTypes.value.eForm = {name: 'eForm', tab: 'eForms', tabWidth: 76}

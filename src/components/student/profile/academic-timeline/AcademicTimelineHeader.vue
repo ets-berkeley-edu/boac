@@ -23,16 +23,45 @@
         />
       </div>
     </div>
+    <div v-if="$vuetify.display.width < mobileBreakpoint && !isAcademicTimelineEmpty" class="d-flex align-baseline">
+      <label for="timeline-tab-select" class="mr-2">Showing:</label>
+      <select
+        id="timeline-tab-select"
+        ref="timelineTabSelect"
+        autocomplete="off"
+        class="d-block mb-2 select-menu"
+        :model-value="selectedTab"
+        @change="onSelectTab"
+      >
+        <option
+          id="timeline-tab-all"
+          key="all"
+          :aria-label="`All ${pluralize('message', countsPerType['all'])}`"
+          value="all"
+        >
+          All ({{ countsPerType['all'] }})
+        </option>
+        <option
+          v-for="(tab) in tabs"
+          :id="`timeline-tab-${tab}`"
+          :key="tab"
+          :aria-label="`${filterTypes[tab].ariaLabel || filterTypes[tab].tab}, ${pluralize('message', countsPerType[tab])}`"
+          :selected="selectedTab === tab"
+          :value="tab"
+        >
+          {{ filterTypes[tab].tab }} ({{ countsPerType[tab] }})
+        </option>
+      </select>
+    </div>
     <v-tabs
-      v-if="!isAcademicTimelineEmpty"
+      v-if="$vuetify.display.width >= mobileBreakpoint && !isAcademicTimelineEmpty"
       v-model="selectedTab"
       class="timeline-tabs"
       aria-label="Academic Timeline"
-      :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
-      :class="{'horizontal-tabs': $vuetify.display.mdAndUp}"
+      aria-orientation="horizontal"
       color="primary"
       density="compact"
-      :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
+      direction="horizontal"
       selected-class="bg-sky-blue font-weight-bold"
       @update:model-value="onUpdateTabsModel"
     >
@@ -40,6 +69,7 @@
         v-if="tabs.length > 1"
         id="timeline-tab-all"
         aria-controls="timeline-messages"
+        :aria-label="`All ${pluralize('message', countsPerType['all'])}`"
         :class="{
           'bg-white border-b-0': selectedTab === 'all',
           'bg-grey-lighten-4 border-b-md': selectedTab !== 'all'
@@ -48,12 +78,13 @@
         value="all"
         variant="text"
       >
-        <span class="sr-only">Show </span>All <span class="letter-spacing-compact ml-1">({{ countsPerType['all'] }})</span>
+        All <span class="letter-spacing-compact ml-1">({{ countsPerType['all'] }})</span>
       </v-tab>
       <!-- eslint-disable-next-line vue/no-v-for-template-key -->
       <template v-for="(tab, index) in tabs" :key="tab">
         <v-tab
           :id="`timeline-tab-${tab}`"
+          :aria-label="`${filterTypes[tab].ariaLabel || filterTypes[tab].tab}, ${pluralize('message', countsPerType[tab])}`"
           class="border-s-sm border-e-sm border-t-sm pb-1 rounded-t-lg"
           :class="{
             'bg-white border-b-0': selectedTab === tab,
@@ -63,7 +94,7 @@
           :value="tab"
           variant="text"
         >
-          <span class="sr-only">Show </span>{{ filterTypes[tab].tab }} <span class="letter-spacing-compact ml-1">({{ countsPerType[tab] }})</span>
+          {{ filterTypes[tab].tab }} <span class="letter-spacing-compact ml-1">({{ countsPerType[tab] }})</span>
         </v-tab>
       </template>
     </v-tabs>
@@ -71,10 +102,10 @@
 </template>
 
 <script setup>
-import {filter as _filter, includes, keys} from 'lodash'
+import {filter as _filter, includes, keys, size} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
 import {computed, ref} from 'vue'
-import {putFocusNextTick} from '@/lib/utils'
+import {pluralize, putFocusNextTick} from '@/lib/utils'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -109,22 +140,29 @@ const noteStore = useNoteStore()
 const currentUser = contextStore.currentUser
 const isAcademicTimelineEmpty = !props.countsPerType['all']
 const isEditingNote = ref(false)
+// set breakpoint based on the number of tabs, providing 90px width for each tab and subtracting 60px to account for the sidebar.
+const mobileBreakpoint = computed(() => (size(tabs) * 90) - 60)
 const selectedTab = ref(undefined)
 const tabs = computed(() => _filter(keys(props.filterTypes), key => !!props.countsPerType[key]))
+const timelineTabSelect = ref()
 
 const onModalClose = note => {
   isEditingNote.value = false
   putFocusNextTick(note && includes(['all', 'note'], selectedTab) ? `timeline-tab-${selectedTab.value}-message-0` : 'new-note-button')
 }
 
-const onUpdateTabsModel = value => props.setFilter(value === 'all' ? null : value)
+const onSelectTab = () => {
+  selectedTab.value = timelineTabSelect.value.value
+  onUpdateTabsModel(selectedTab.value)
+}
+
+const onUpdateTabsModel = value => {
+  props.setFilter(value === 'all' ? null : value)
+}
 </script>
 
 <style scoped>
-.horizontal-tabs {
-  min-width: 680px;
-}
 .timeline-tabs :deep(.v-slide-group__content) {
-  gap: 8px;
+  gap: 2px;
 }
 </style>
