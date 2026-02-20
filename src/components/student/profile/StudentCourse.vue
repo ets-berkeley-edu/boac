@@ -102,71 +102,73 @@
         'span-columns': $vuetify.display.lgAndUp
       }"
     >
-      <div v-show="showCourseDetails">
-        <div
-          :id="`${baseElementId}-details-name`"
-          class="font-size-16 font-weight-bold text-medium-emphasis"
-          :class="{'demo-mode-blur': currentUser.inDemoMode}"
-        >
-          {{ course.displayName }}
-        </div>
-        <div class="d-inline-block font-size-14 font-weight-regular mt-1 text-no-wrap">
-          <span
-            v-for="(section, sectionIndex) in course.sections"
-            :key="sectionIndex"
-          >
-            <span v-if="section.displayName" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-              <span v-if="sectionIndex === 0" /><!--
-                --><router-link
-                v-if="section.isViewableOnCoursePage"
-                :id="`term-${termId}-section-${section.ccn}`"
-                :to="`/course/${termId}/${section.ccn}?u=${student.uid}`"
-                class="font-weight-black"
-                :class="{'demo-mode-blur': currentUser.inDemoMode}"
-              ><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
-                --><span v-if="!section.isViewableOnCoursePage" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ section.displayName }}</span><!--
-                --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
-                --><span v-if="sectionIndex === course.sections.length - 1" />
-            </span>
-          </span>
-        </div>
-        <div :id="`${baseElementId}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
-        <div v-if="course.courseRequirements">
+      <div v-show="showCourseDetails" role="row">
+        <div role="cell">
           <div
-            v-for="requirement in course.courseRequirements"
-            :id="`term-${termId}-section-${get(course.sections, '[0].ccn')}-${normalizeId(requirement)}`"
-            :key="requirement"
-            class="d-flex align-center font-size-14"
+            :id="`${baseElementId}-details-name`"
+            class="font-size-16 font-weight-bold text-medium-emphasis"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
           >
-            <v-icon class="align-self-start text-warning mr-1" :icon="mdiStar" /> {{ requirement }}
+            {{ course.displayName }}
           </div>
-        </div>
-        <StudentCourseCanvasData
-          v-if="currentUser.canAccessCanvasData"
-          :course="course"
-          :index="index"
-          :student="student"
-          :term="term"
-        />
-        <div
-          v-for="section in sectionsWithIncompleteStatus"
-          :key="section.ccn"
-          class="align-items-center d-flex pb-2"
-          :class="{'demo-mode-blur': currentUser.inDemoMode}"
-        >
-          <v-chip
-            v-if="!currentUser.inDemoMode"
-            class="align-center d-flex font-size-12 font-weight-black mr-2 text-uppercase text-no-wrap"
-            color="error"
-            density="compact"
-            :prepend-icon="mdiInformationSlabBox"
-            size="small"
-            text="Incomplete Grade"
-            variant="flat"
+          <div class="d-inline-block font-size-14 font-weight-regular mt-1 text-no-wrap">
+            <span
+              v-for="(section, sectionIndex) in course.sections"
+              :key="sectionIndex"
+            >
+              <span v-if="section.displayName" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+                <span v-if="sectionIndex === 0" /><!--
+                  --><router-link
+                  v-if="section.isViewableOnCoursePage"
+                  :id="`term-${termId}-section-${section.ccn}`"
+                  :to="`/course/${termId}/${section.ccn}?u=${student.uid}`"
+                  class="font-weight-black"
+                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                ><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
+                  --><span v-if="!section.isViewableOnCoursePage" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ section.displayName }}</span><!--
+                  --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
+                  --><span v-if="sectionIndex === course.sections.length - 1" />
+              </span>
+            </span>
+          </div>
+          <div :id="`${baseElementId}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
+          <div v-if="course.courseRequirements">
+            <div
+              v-for="requirement in course.courseRequirements"
+              :id="`term-${termId}-section-${get(course.sections, '[0].ccn')}-${normalizeId(requirement)}`"
+              :key="requirement"
+              class="d-flex align-center font-size-14"
+            >
+              <v-icon class="align-self-start text-warning mr-1" :icon="mdiStar" /> {{ requirement }}
+            </div>
+          </div>
+          <StudentCourseCanvasData
+            v-if="currentUser.canAccessCanvasData"
+            :course="course"
+            :index="index"
+            :student="student"
+            :term="term"
           />
-          <div :id="`term-${termId}-section-${section.ccn}-has-incomplete-grade`" class="font-size-14">
-            {{ sectionsWithIncompleteStatus.length > 1 ? `${section.displayName} :` : '' }}
-            {{ getIncompleteGradeDescription(course.displayName, [section]) }}
+          <div
+            v-for="section in sectionsWithIncompleteStatus"
+            :key="section.ccn"
+            class="align-items-center d-flex pb-2"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          >
+            <v-chip
+              v-if="!currentUser.inDemoMode"
+              class="align-center d-flex font-size-12 font-weight-black mr-2 text-uppercase text-no-wrap"
+              color="error"
+              density="compact"
+              :prepend-icon="mdiInformationSlabBox"
+              size="small"
+              text="Incomplete Grade"
+              variant="flat"
+            />
+            <div :id="`term-${termId}-section-${section.ccn}-has-incomplete-grade`" class="font-size-14">
+              {{ sectionsWithIncompleteStatus.length > 1 ? `${section.displayName} :` : '' }}
+              {{ getIncompleteGradeDescription(course.displayName, [section]) }}
+            </div>
           </div>
         </div>
       </div>

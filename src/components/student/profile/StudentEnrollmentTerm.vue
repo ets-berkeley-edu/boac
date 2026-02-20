@@ -65,18 +65,21 @@
           />
         </div>
       </div>
-      <div
-        v-for="(droppedSection, droppedIndex) in term.droppedSections"
-        :key="droppedIndex"
-        class="student-course-dropped text-medium-emphasis"
-        :class="{'demo-mode-blur': currentUser.inDemoMode}"
-      >
-        <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
-          <div>
-            {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
-          </div>
-          <div class="font-size-14">
-            (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromISO(droppedSection.dropDate).toFormat('MMM dd, yyyy') }}</span>)
+      <div v-if="!isEmpty(term.droppedSections)" role="table">
+        <div
+          v-for="(droppedSection, droppedIndex) in term.droppedSections"
+          :key="droppedIndex"
+          class="student-course-dropped text-medium-emphasis"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          role="row"
+        >
+          <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
+            <div>
+              {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
+            </div>
+            <div class="font-size-14">
+              (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromISO(droppedSection.dropDate).toFormat('MMM dd, yyyy') }}</span>)
+            </div>
           </div>
         </div>
       </div>
