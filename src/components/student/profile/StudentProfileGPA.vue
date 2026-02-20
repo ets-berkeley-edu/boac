@@ -68,7 +68,7 @@
       id="term-gpa-collapse"
       class="border-t-sm mr-3 mt-2"
     >
-      <v-card v-if="showTermGpa" class="px-4" elevation="0">
+      <v-card v-show="showTermGpa" class="px-4" elevation="0">
         <table
           id="table-with-gpa-per-term"
           class="term-gpa-table w-100"
