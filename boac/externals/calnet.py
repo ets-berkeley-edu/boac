@@ -32,8 +32,8 @@ from boac.lib import mockingbird
 
 SCHEMA_DICT = {
     'berkeleyEduAffiliations': 'affiliations',
+    'berkeleyEduAlternateID': 'campus_email',
     'berkeleyEduCSID': 'csid',
-    'berkeleyEduOfficialEmail': 'campus_email',
     'berkeleyEduPrimaryDeptUnit': 'primary_dept_code',
     'cn': 'sortable_name',
     'departmentNumber': 'dept_code',
