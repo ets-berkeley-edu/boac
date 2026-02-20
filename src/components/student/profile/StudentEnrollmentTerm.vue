@@ -36,7 +36,14 @@
       </div>
     </div>
     <div class="pt-2 px-0">
-      <div role="table">
+      <div
+        v-if="isEmpty(term.enrollments)"
+        :id="`term-${term.termId}-no-enrollments`"
+        class="font-italic pl-2 pb-2 text-surface-variant"
+      >
+        {{ `No ${term.termName} enrollments` }}
+      </div>
+      <div v-if="!isEmpty(term.enrollments)" role="table">
         <div role="rowgroup">
           <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-bold mx-1 text-medium-emphasis text-no-wrap text-uppercase">
             <div role="columnheader" class="student-course-column-name mr-2">Course</div>
@@ -46,15 +53,6 @@
           </div>
         </div>
         <div role="rowgroup" class="pt-2">
-          <div v-if="isEmpty(term.enrollments)" role="row">
-            <div
-              :id="`term-${term.termId}-no-enrollments`"
-              role="cell"
-              class="font-italic pl-2 pb-2 text-surface-variant"
-            >
-              {{ `No ${term.termName} enrollments` }}
-            </div>
-          </div>
           <StudentCourse
             v-for="(course, courseIndex) in term.enrollments"
             :key="courseIndex"
@@ -65,21 +63,20 @@
             :term="term"
             :year="term.academicYear"
           />
-          <div
-            v-for="(droppedSection, droppedIndex) in term.droppedSections"
-            :key="droppedIndex"
-            class="student-course-dropped text-medium-emphasis"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            role="row"
-          >
-            <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
-              <div>
-                {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
-              </div>
-              <div class="font-size-14">
-                (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromISO(droppedSection.dropDate).toFormat('MMM dd, yyyy') }}</span>)
-              </div>
-            </div>
+        </div>
+      </div>
+      <div
+        v-for="(droppedSection, droppedIndex) in term.droppedSections"
+        :key="droppedIndex"
+        class="student-course-dropped text-medium-emphasis"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+      >
+        <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
+          <div>
+            {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
+          </div>
+          <div class="font-size-14">
+            (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromISO(droppedSection.dropDate).toFormat('MMM dd, yyyy') }}</span>)
           </div>
         </div>
       </div>
