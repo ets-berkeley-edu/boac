@@ -320,15 +320,15 @@ const {mdAndUp} = useDisplay()
 .pretty-hover:active {
   background-color: rgb(var(--v-theme-quaternary));
   border: 0;
-  border-left: 6px solid rgb(var(--v-theme-warning)) !important;
-  color: rgb(var(--v-theme-warning));
+  border-left: 6px solid rgb(var(--v-theme-category-alert)) !important;
+  color: rgb(var(--v-theme-category-alert));
   text-decoration: none;
 }
 .pretty-hover:focus-within a {
   box-shadow: none;
 }
 .pretty-hover.sub-item:focus-within {
-  outline-color: rgba(var(--v-theme-warning));
+  outline-color: rgba(var(--v-theme-category-alert));
   outline-offset: -0.1rem;
   outline-style: solid;
   a {
@@ -339,7 +339,7 @@ const {mdAndUp} = useDisplay()
 .pretty-hover:hover .sidebar-pill,
 .pretty-hover:focus-within .sidebar-pill,
 .pretty-hover:active .sidebar-pill {
-  background-color: rgb(var(--v-theme-warning)) !important;
+  background-color: rgb(var(--v-theme-category-alert)) !important;
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pretty-hover a:link, .pretty-hover a:visited {

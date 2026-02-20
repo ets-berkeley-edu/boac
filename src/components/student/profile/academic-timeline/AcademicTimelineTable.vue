@@ -347,20 +347,12 @@
               }"
               class="column-details text-right"
             >
-              <div
+              <AppointmentCanceledIndicator
                 v-if="!isExpanded(message) && (isCancelledAppointment(message) || message.isRescheduled || message.isStudentNoShow)"
                 :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
-                :class="isCancelledAppointment(message) ? 'text-accent-orange' : 'text-error'"
-                class="align-center collapsed-cancelled-icon float-right d-flex px-2 h-100 text-error text-no-wrap"
-              >
-                <v-icon
-                  class="mr-1"
-                  :icon="message.isRescheduled ? mdiCalendarClock : (message.isStudentNoShow ? mdiCalendarRemove : mdiCalendarMinus)"
-                />
-                <div>
-                  {{ message.isRescheduled ? 'Rescheduled' : (message.isStudentNoShow ? 'No Show' : 'Canceled') }}
-                </div>
-              </div>
+                :appointment="message"
+                class="collapsed-cancelled-icon"
+              />
               <div v-if="['appointment', 'eForm', 'note'].includes(message.type) && size(message.attachments)" class="px-2">
                 <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
               </div>
@@ -477,9 +469,6 @@ import {capitalize, each, filter, find, get, includes, map, pull, remove, size, 
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {
-  mdiCalendarClock,
-  mdiCalendarMinus,
-  mdiCalendarRemove,
   mdiCheckBold,
   mdiClockOutline,
   mdiCloseCircle,
@@ -492,6 +481,7 @@ import {
 } from '@mdi/js'
 import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
 import AdvisingNote from '@/components/note/AdvisingNote'
+import AppointmentCanceledIndicator from '@/components/appointment/AppointmentCanceledIndicator'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import TimelineDate from '@/components/student/profile/TimelineDate'
@@ -941,6 +931,9 @@ const userCanDelete = message => {
   min-height: 30px !important;
   padding: 0 10px;
 }
+.collapsed-cancelled-icon .v-alert__prepend {
+  margin-inline-end: 4px !important;
+}
 .timeline-message-full-width {
   margin-left: -8.0rem;
   padding: 0 24px;
@@ -963,6 +956,7 @@ table {
 }
 .collapsed-cancelled-icon {
   font-size: 14px;
+  padding: 6px;
   text-transform: uppercase;
 }
 .column-date {

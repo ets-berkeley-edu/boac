@@ -14,7 +14,7 @@
       v-if="alertCount"
       :id="`student-avatar-${student.uid}-alert-count`"
       class="student-avatar-alert-count"
-      color="warning"
+      color="category-alert"
     >
       <span aria-hidden="true">{{ alertCount }}</span>
       <span class="sr-only">{{ pluralize('alert', alertCount) }}</span>

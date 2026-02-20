@@ -36,16 +36,9 @@
             class="py-3"
             :class="{'border-sm px-4': appointment.cancelReason}"
           >
-            <div
-              :class="appointment.status === 'cancelled' ? 'text-accent-orange' : 'text-error'"
-              class="align-center d-flex font-size-14 mt-1 text-uppercase"
-            >
-              <v-icon
-                class="mr-1"
-                :icon="appointment.isRescheduled ? mdiCalendarClock : (appointment.isStudentNoShow ? mdiCalendarRemove : mdiCalendarMinus)"
-              />
-              {{ appointment.isRescheduled ? 'Rescheduled' : (appointment.isStudentNoShow ? 'No Show' : 'Canceled') }}
-            </div>
+            <AppointmentCanceledIndicator
+              :appointment="appointment"
+            />
             <div v-if="appointment.cancelReason" class="ml-1 mt-1">
               <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
             </div>
@@ -135,7 +128,8 @@
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {get, size} from 'lodash'
-import {mdiCalendarClock, mdiCalendarMinus, mdiCalendarRemove, mdiPaperclip} from '@mdi/js'
+import {mdiPaperclip} from '@mdi/js'
+import AppointmentCanceledIndicator from '@/components/appointment/AppointmentCanceledIndicator'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import PillItem from '@/components/util/PillItem'
 import {useContextStore} from '@/stores/context'

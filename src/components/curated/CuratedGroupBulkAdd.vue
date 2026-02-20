@@ -23,7 +23,7 @@
         type="warning"
         variant="tonal"
       >
-        <v-alert-title class="font-size-16 text-warning-darken-1">
+        <v-alert-title class="font-size-16">
           <div v-if="warning" class="mr-2">{{ warning }}</div>
           <div v-if="sids.length && sidsNotFound.length">{{ sidsNotFound.length === 1 ? 'Remove from list?' : 'Remove these from your list?' }}</div>
           <div v-if="!sids.length || sidsNotFound.length" class="ml-2" :class="{'ms-auto': !sids.length}">
