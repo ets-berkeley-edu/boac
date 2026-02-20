@@ -436,7 +436,6 @@ watch(() => searchStore.showAdvancedSearch, show => {
     searchStore.resetAutocompleteInput()
     suggestedAdvisors.value = []
     suggestedStudents.value = []
-    alertScreenReader('Closed advanced search')
     putFocusNextTick('search-options-panel-toggle')
   }
 })

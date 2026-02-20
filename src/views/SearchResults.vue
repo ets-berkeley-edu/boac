@@ -328,7 +328,6 @@ onMounted(() => {
   if (searchStore.queryText || includeNotesAndAppointments) {
     searchStore.setIsSearching(true)
     srSearchResultsSummary.value = ''
-    alertScreenReader(`Searching for "${searchStore.queryText}"`)
     const queries = []
     if (searchStore.includeCourses || includeNotesAndAppointments || searchStore.includeStudents) {
       queries.push(
