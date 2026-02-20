@@ -37,16 +37,15 @@
         </v-btn>
       </label>
       <v-file-input
-        v-if="!attachmentLimitReached"
         :id="inputId"
         ref="attachmentFileInput"
         :aria-busy="isAdding"
-        :aria-describedby="isAdding ? progressBarId : null"
+        :aria-describedby="isAdding ? progressBarId : `${idPrefix}-attachment-details`"
         :aria-label="`Select file for attachment; ${pluralize('file', attachments.length)} attached.`"
         class="border-sm choose-file-for-note-attachment rounded"
         :class="{'border-success': disabled, 'border-md border-error': !!attachmentError}"
         :clearable="false"
-        :disabled="isAdding || disabled"
+        :disabled="isAdding || disabled || attachmentLimitReached"
         flat
         hide-details
         :loading="isAdding ? 'primary' : false"
@@ -63,28 +62,31 @@
         </template>
       </v-file-input>
     </div>
-    <v-alert
-      v-if="attachmentError"
-      :id="`${idPrefix}-attachment-error`"
-      aria-live="polite"
-      class="font-size-14 w-100 mb-1 mt-2"
-      density="compact"
-      :icon="mdiAlert"
-      :text="attachmentError"
-      type="error"
-      variant="tonal"
-    />
-    <v-alert
-      v-if="attachmentLimitReached"
-      :id="`${idPrefix}-attachment-limit`"
-      aria-live="polite"
-      class="w-100 mt-2"
-      density="compact"
-      type="warning"
-      variant="tonal"
-    >
-      <v-alert-title class="font-size-16">A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.</v-alert-title>
-    </v-alert>
+    <div :id="`${idPrefix}-attachment-details`">
+      <v-alert
+        v-if="attachmentError"
+        :id="`${idPrefix}-attachment-error`"
+        aria-live="polite"
+        class="font-size-14 w-100 mb-1 mt-2"
+        density="compact"
+        :icon="mdiAlert"
+        role="none"
+        :text="attachmentError"
+        type="error"
+        variant="tonal"
+      />
+      <v-alert
+        v-if="attachmentLimitReached"
+        :id="`${idPrefix}-attachment-limit`"
+        class="w-100 mt-2"
+        density="compact"
+        role="none"
+        type="warning"
+        variant="tonal"
+      >
+        <v-alert-title class="font-size-16">A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.</v-alert-title>
+      </v-alert>
+    </div>
     <ul
       :id="`${idPrefix}-attachments-list`"
       :aria-labelledby="`${idPrefix}-attachments-list-label`"

@@ -39,10 +39,10 @@
           <v-text-field
             :id="`timeline-${selectedFilter}s-query-input`"
             v-model="timelineQuery"
+            autocomplete="on"
             bg-color="pale-blue"
             class="academic-timeline-search-input"
             color="primary"
-            autocomplete="on"
             :disabled="!messagesVisible.length && !timelineQuery"
             flat
             hide-details
