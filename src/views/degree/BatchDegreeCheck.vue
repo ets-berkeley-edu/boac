@@ -104,7 +104,7 @@
         :type="error ? 'error' : 'warning'"
         variant="tonal"
       >
-        <v-alert-title class="font-size-16" :class="{'text-warning-darken-1': warning}" v-html="error || warning" />
+        <v-alert-title class="font-size-16" v-html="error || warning" />
         <div v-if="size(sidsInError)">
           <ul
             id="sids-not-found"
@@ -157,7 +157,7 @@
         type="warning"
         variant="tonal"
       >
-        <v-alert-title class="font-size-16 text-warning-darken-1">
+        <v-alert-title class="font-size-16">
           {{ pluralize('student', excludedStudents.length) }} currently {{ excludedStudents.length === 1 ? 'uses' : 'use' }} the {{ selectedTemplate.name }} degree check. The degree check will not be added to their student record.
         </v-alert-title>
         <ul aria-label="Students already using this Degree Check" class="ml-5 mt-1 mb-0">

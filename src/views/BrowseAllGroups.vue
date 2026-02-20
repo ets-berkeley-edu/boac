@@ -31,7 +31,7 @@
       </div>
     </div>
     <div v-if="currentUser.canAccessAdmittedStudents" class="pl-1">
-      <v-icon class="mr-1 vertical-bottom" color="warning" :icon="mdiStar" />
+      <v-icon class="mr-1 vertical-bottom" color="gold" :icon="mdiStar" />
       <span class="sr-only">Star icon</span>denotes a {{ modeLabel.toLowerCase() }} of admitted students.
     </div>
     <v-expansion-panels
@@ -118,7 +118,7 @@
               >
                 <li v-for="object in (mode === 'cohort' ? user.cohorts : user.curatedGroups)" :key="object.id" class="ml-8">
                   <span v-if="object.domain === 'admitted_students'" class="mr-1">
-                    <v-icon class="vertical-bottom" color="warning" :icon="mdiStar" />
+                    <v-icon class="vertical-bottom" color="gold" :icon="mdiStar" />
                     <span class="sr-only">Star: Admitted Students {{ mode }}</span>
                   </span>
                   <router-link :id="`${mode}-${object.id}`" :to="`/${mode}/${object.id}`">{{ object.name }}</router-link>

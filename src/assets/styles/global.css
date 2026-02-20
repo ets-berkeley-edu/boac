@@ -458,6 +458,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.v-alert--variant-tonal .v-alert__underlay {
+  opacity: 0.06 !important;
+}
 .v-badge-override {
   .v-badge__badge {
     border-color: rgba(var(--v-border-color), var(--v-border-opacity)) !important;

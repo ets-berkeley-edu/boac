@@ -43,8 +43,10 @@
       </template>
     </AccessibleCombobox>
     <v-expand-transition>
-      <div v-if="isDeletedPeerAdvisor" class="ma-3 text-warning">
-        <v-icon color="warning" :icon="mdiAlert" /> This student is a deleted Peer Advisor. Click 'Restore' to make them active again.
+      <div aria-live="polite">
+        <div v-if="isDeletedPeerAdvisor" class="ma-3 text-warning">
+          <v-icon color="warning" :icon="mdiAlert" /> This student is a deleted Peer Advisor. Click 'Restore' to make them active again.
+        </div>
       </div>
     </v-expand-transition>
   </div>

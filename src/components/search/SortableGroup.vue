@@ -49,7 +49,7 @@
             </div>
             <v-badge
               :id="`sortable-${keyword}-${group.id}-total-alerts-count`"
-              :color="toInt(group.alertCount, 0) ? 'warning' : 'grey'"
+              :color="toInt(group.alertCount, 0) ? 'category-alert' : 'grey'"
               :content="toInt(group.alertCount, 0).toLocaleString()"
               class="v-badge-override"
               inline
