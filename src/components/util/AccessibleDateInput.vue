@@ -1,5 +1,5 @@
 <template>
-  <div class="accessible-date-picker d-flex position-relative">
+  <div :id="`${idPrefix}-popover`" class="accessible-date-picker d-flex position-relative">
     <date-picker
       v-model="model"
       :disabled="disabled"
@@ -265,7 +265,6 @@ const onPopoverShown = popoverContent => {
   const helpContainer = popoverContent.querySelector('[data-helptext]')
   popoverContent.ariaLabel = `choose ${props.ariaLabel}`
   popoverContent.ariaModal = false
-  popoverContent.id = `${props.idPrefix}-popover`
   popoverContent.role = 'dialog'
 
   if (helpContainer) {
