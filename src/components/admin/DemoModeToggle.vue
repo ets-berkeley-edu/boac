@@ -3,7 +3,7 @@
     <div>
       <img
         id="avatar-verify-blur"
-        alt="Picture of woman demonstrates blur effect when BOA demo mode is on."
+        :alt="currentUser.inDemoMode ? 'Woman\'s face blurred for demo mode' : 'Woman\'s face'"
         class="avatar student-avatar-large"
         :class="{'img-blur': currentUser.inDemoMode}"
         :src="blurAvatarUrl"
