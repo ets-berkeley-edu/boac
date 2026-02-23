@@ -54,7 +54,7 @@ const props = defineProps({
   }
 })
 
-const ariaLabel = ref(`Photo of ${props.student.firstName} ${props.student.lastName}`)
+const ariaLabel = ref(`${props.student.firstName} ${props.student.lastName}`)
 const avatarUrl = ref(props.student.photoUrl)
 const currentUser = useContextStore().currentUser
 
