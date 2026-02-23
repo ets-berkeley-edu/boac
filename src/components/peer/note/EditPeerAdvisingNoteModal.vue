@@ -29,7 +29,7 @@
           </v-expand-transition>
           <RichTextEditor
             id="peer-advising-note-body"
-            class="mt-3"
+            class="pt-4"
             :disabled="isSaving"
             :initial-value="model.body || ''"
             label="Note Details"
@@ -38,12 +38,12 @@
           />
           <AdvisingNoteTopics
             v-if="topics.length"
-            class="mt-3"
+            class="pt-5"
             :disabled="isSaving"
             :topics="topics"
           />
           <ContactMethod
-            class="mt-3"
+            class="pt-4"
             :disabled="isSaving"
             :is-peer-advising="true"
           />

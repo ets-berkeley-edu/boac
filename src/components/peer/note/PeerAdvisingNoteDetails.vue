@@ -8,7 +8,11 @@
           <span :id="`note-${note.id}-message-open`" v-html="note.body" />
         </div>
         <div v-if="note.topics && size(note.topics)" class="mt-5">
-          <AdvisingNoteTopics :note="note" read-only />
+          <AdvisingNoteTopics
+            label-class="text-medium-emphasis"
+            :note="note"
+            read-only
+          />
         </div>
         <div v-if="note.contactType" class="mt-5">
           <div class="font-size-16 font-weight-bold text-medium-emphasis">Contact Type</div>
@@ -24,6 +28,7 @@
         :id-prefix="`note-${note.id}`"
         :is-downloadable="true"
         :is-read-only="!canUserEditNote(note, currentUser)"
+        label-class="text-medium-emphasis"
         :note="note"
         :note-description="noteDescription"
         :remove="removeAttachmentByIndex"

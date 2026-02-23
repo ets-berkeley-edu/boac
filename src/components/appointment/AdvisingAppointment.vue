@@ -3,12 +3,23 @@
     <div
       v-if="!isOpen"
       :id="`appointment-${appointment.id}-is-closed`"
-      class="appointment-snippet-when-closed"
+      class="appointment-snippet-when-closed d-flex"
     >
-      <span
+      <div
         :id="`appointment-${appointment.id}-details-closed`"
+        class="flex-grow-1 truncate-with-ellipsis"
         v-html="summarizeNoteForAcademicTimeline(appointment, !isOpen)"
       />
+      <AppointmentCanceledIndicator
+        v-if="!isOpen && ['Calendly', 'YCBM'].includes(appointment.createdBy) && (appointment.status === 'cancelled' || appointment.isRescheduled || appointment.isStudentNoShow)"
+        :id="`collapsed-${appointment.type}-${appointment.id}-status-cancelled`"
+        :appointment="appointment"
+        class="collapsed-cancelled-icon"
+      />
+      <div v-if="size(appointment.attachments)" class="px-2">
+        <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
+        <span class="sr-only">Has attachments</span>
+      </div>
     </div>
     <div class="advising-appointment-outer">
       <div
@@ -16,109 +27,104 @@
         class="pb-4"
         :class="{'sr-only': !isOpen}"
       >
-        <div v-if="appointment.appointmentTitle">
-          <span :id="`appointment-${appointment.id}-title`" v-html="appointment.appointmentTitle" />
+        <h3 :id="`appointment-${appointment.id}-title`" class="font-size-18 pr-10">
+          <span v-if="appointment.appointmentTitle" v-html="appointment.appointmentTitle" />
+          <span v-if="!appointment.appointmentTitle">{{ summaryHeading }}</span>
+        </h3>
+        <div
+          :id="`appointment-${appointment.id}-details`"
+          class="py-3"
+          v-html="appointment.details"
+        />
+        <div
+          v-if="appointment.status === 'cancelled' || appointment.isRescheduled || appointment.isStudentNoShow"
+          :id="`appointment-${appointment.id}-${appointment.status === 'cancelled' ? 'canceled' : (appointment.isStudentNoShow ? 'no-show' : 'rescheduled')}`"
+          class="py-3"
+        >
+          <AppointmentCanceledIndicator
+            :appointment="appointment"
+            show-reason
+          />
         </div>
-        <div v-if="!appointment.appointmentTitle">
-          <span :id="`appointment-${appointment.id}-title`">
-            {{ summaryHeading }}
+        <div
+          v-if="get(advisor, 'name') && (appointment.legacySource || ['Calendly', 'YCBM'].includes(appointment.createdBy))"
+          class="pt-2"
+        >
+          <a
+            v-if="advisor.uid"
+            :id="`appointment-${appointment.id}-advisor-name`"
+            :aria-label="`${advisor.name} UC Berkeley Directory page (opens in new tab)`"
+            :href="`https://www.berkeley.edu/directory/results?search-term=${advisor.name}`"
+            target="_blank"
+          >
+            {{ advisor.name }}
+          </a>
+          <span v-if="!advisor.uid" :id="`appointment-${appointment.id}-advisor-name`">
+            {{ advisor.name }}
+          </span>
+          <span v-if="advisor.title" :id="`appointment-${appointment.id}-advisor-role`">
+            - {{ advisor.title }}
+          </span>
+          <span v-if="appointment.legacySource" class="font-italic text-medium-emphasis">
+            (appointment imported from {{ appointment.legacySource }})
           </span>
         </div>
-        <div class="timeline-message-full-width">
-          <div
-            :id="`appointment-${appointment.id}-details`"
-            class="py-3"
-            v-html="appointment.details"
-          />
-          <div
-            v-if="appointment.status === 'cancelled' || appointment.isRescheduled || appointment.isStudentNoShow"
-            :id="`appointment-${appointment.id}-${appointment.status === 'cancelled' ? 'canceled' : (appointment.isStudentNoShow ? 'no-show' : 'rescheduled')}`"
-            class="py-3"
-            :class="{'border-sm px-4': appointment.cancelReason}"
-          >
-            <AppointmentCanceledIndicator
-              :appointment="appointment"
-            />
-            <div v-if="appointment.cancelReason" class="ml-1 mt-1">
-              <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
-            </div>
+        <div v-if="size(get(advisor, 'departments'))" class="text-medium-emphasis">
+          <span v-for="(dept, index) in advisor.departments" :key="dept.deptCode">
+            <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.deptName }}</span>
+          </span>
+        </div>
+        <div
+          v-if="appointment.appointmentType"
+          :id="`appointment-${appointment.id}-type`"
+          class="pt-2"
+          :class="{'text-medium-emphasis': ['Calendly', 'YCBM'].includes(appointment.appointmentType)}"
+        >
+          {{ appointment.appointmentType }}
+        </div>
+        <div v-if="appointment.topics && size(appointment.topics)" class="pt-3">
+          <div :id="`appointment-${appointment.id}-topics-label`" class="font-size-16 font-weight-bold text-medium-emphasis pb-1">
+            Topics
           </div>
-          <div
-            v-if="get(advisor, 'name') && (appointment.legacySource || ['Calendly', 'YCBM'].includes(appointment.createdBy))"
-            class="pt-2"
-          >
-            <a
-              v-if="advisor.uid"
-              :id="`appointment-${appointment.id}-advisor-name`"
-              :aria-label="`${advisor.name} UC Berkeley Directory page (opens in new tab)`"
-              :href="`https://www.berkeley.edu/directory/results?search-term=${advisor.name}`"
-              target="_blank"
+          <ul :aria-labelledby="`appointment-${appointment.id}-topics-label`" class="list-no-bullets">
+            <li
+              v-for="(topic, index) in appointment.topics"
+              :key="topic"
             >
-              {{ advisor.name }}
-            </a>
-            <span v-if="!advisor.uid" :id="`appointment-${appointment.id}-advisor-name`">
-              {{ advisor.name }}
-            </span>
-            <span v-if="advisor.title" :id="`appointment-${appointment.id}-advisor-role`">
-              - {{ advisor.title }}
-            </span>
-            <span v-if="appointment.legacySource" class="font-italic text-medium-emphasis">
-              (appointment imported from {{ appointment.legacySource }})
-            </span>
-          </div>
-          <div v-if="size(get(advisor, 'departments'))" class="text-medium-emphasis">
-            <span v-for="(dept, index) in advisor.departments" :key="dept.deptCode">
-              <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.deptName }}</span>
-            </span>
-          </div>
-          <div
-            v-if="appointment.appointmentType"
-            :id="`appointment-${appointment.id}-type`"
-            class="pt-2"
-            :class="{'text-medium-emphasis': ['Calendly', 'YCBM'].includes(appointment.appointmentType)}"
-          >
-            {{ appointment.appointmentType }}
-          </div>
-          <div v-if="appointment.topics && size(appointment.topics)" class="pt-2">
-            <div class="font-size-16 font-weight-bold">Topics</div>
-            <ul class="list-no-bullets">
-              <li
-                v-for="(topic, index) in appointment.topics"
-                :key="topic"
+              <PillItem
+                :id="`appointment-${appointment.id}-topic-${index}`"
+                clazz="text-uppercase w-100"
+                :label="topic"
+                name="topic"
               >
-                <PillItem
-                  :id="`appointment-${appointment.id}-topic-${index}`"
-                  clazz="text-uppercase w-100"
-                  :label="topic"
-                  name="topic"
-                >
-                  <span class="truncate-with-ellipses pr-1">
-                    {{ topic }}
-                  </span>
-                </PillItem>
-              </li>
-            </ul>
+                <span class="truncate-with-ellipses pr-1">
+                  {{ topic }}
+                </span>
+              </PillItem>
+            </li>
+          </ul>
+        </div>
+        <div v-if="appointment.attachments && size(appointment.attachments)" class="pt-3">
+          <div :id="`appointment-${appointment.id}-attachments-label`" class="font-size-16 font-weight-bold text-medium-emphasis pb-1">
+            Attachments
           </div>
-          <div v-if="appointment.attachments && size(appointment.attachments)" class="pt-2">
-            <div class="font-size-16 font-weight-bold">Attachments</div>
-            <ul class="list-no-bullets">
-              <li
-                v-for="(attachment, index) in appointment.attachments"
-                :key="attachment.name"
+          <ul :aria-labelledby="`appointment-${appointment.id}-attachments-label`" class="list-no-bullets">
+            <li
+              v-for="(attachment, index) in appointment.attachments"
+              :key="attachment.name"
+            >
+              <PillItem
+                :id="`appointment-${appointment.id}-attachment-${index}`"
+                :aria-label="`Download attachment ${attachment.displayName}`"
+                :href="downloadUrl(attachment)"
+                :icon="mdiPaperclip"
               >
-                <PillItem
-                  :id="`appointment-${appointment.id}-attachment-${index}`"
-                  :aria-label="`Download attachment ${attachment.displayName}`"
-                  :href="downloadUrl(attachment)"
-                  :icon="mdiPaperclip"
-                >
-                  <span class="text-anchor truncate-with-ellipses pr-1">
-                    {{ attachment.displayName }}
-                  </span>
-                </PillItem>
-              </li>
-            </ul>
-          </div>
+                <span class="text-anchor truncate-with-ellipses pr-1">
+                  {{ attachment.displayName }}
+                </span>
+              </PillItem>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -198,8 +204,12 @@ const setAdvisor = () => {
 }
 .appointment-snippet-when-closed {
   height: 24px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+.collapsed-cancelled-icon {
+  margin-top: -2px;
+  padding: 0 10px;
+}
+:deep(.collapsed-cancelled-icon .v-alert__prepend) {
+  margin-inline-end: 4px !important;
 }
 </style>

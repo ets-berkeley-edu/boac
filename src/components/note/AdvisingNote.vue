@@ -1,34 +1,44 @@
 <template>
   <div :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
-    <div
+    <component
+      :is="note.peerAdvisingDepartmentId ? 'div' : 'h3'"
       :id="`note-${note.id}-is-closed`"
-      class="w-100"
-      :class="{'note-snippet-when-closed': !isOpen}"
+      class="d-flex w-100"
+      :class="{
+        'font-size-18': !note.peerAdvisingDepartmentId,
+        'note-snippet-when-closed': !isOpen
+      }"
     >
-      <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`" class="d-flex align-center">
-        <v-chip
-          class="font-weight-black mr-2"
+      <div v-if="note.isDraft" :id="`note-${note.id}-is-draft`" class="d-flex align-center">
+        <v-badge
+          :aria-label="undefined"
+          aria-live="off"
+          class="mr-1"
           color="error"
-          density="compact"
-          rounded
-          size="small"
-          variant="flat"
+          inline
+          role="none"
         >
-          Draft
-        </v-chip>
+          <template #badge>
+            <span class="font-weight-black pa-1 text-body-2">Draft</span>
+          </template>
+        </v-badge>
         <span :id="`note-${note.id}-subject`">{{ note.subject || contextStore.config.draftNoteSubjectPlaceholder }}</span>
-      </span>
-      <span v-if="!note.isDraft">
-        <span :id="`note-${note.id}-subject`" v-html="noteSummary" />
-      </span>
-    </div>
+      </div>
+      <div
+        v-if="!note.isDraft"
+        :id="`note-${note.id}-subject`"
+        :class="{'truncate-with-ellipsis': !isOpen}"
+        v-html="noteSummary"
+      />
+      <div v-if="!isOpen && size(note.attachments)" class="px-2 ml-auto">
+        <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
+        <span class="sr-only">Has attachments</span>
+      </div>
+    </component>
     <div
       :id="`note-${note.id}-is-open`"
       class="pb-4"
-      :class="{
-        'sr-only': !isOpen,
-        'timeline-message-full-width': !note.eForm
-      }"
+      :class="{'sr-only': !isOpen}"
     >
       <div v-if="(note.subject || note.isDraft) && note.message" class="open-note-message-container py-3">
         <span :id="`note-${note.id}-message-open`" v-html="note.message" />
@@ -93,7 +103,11 @@
         </div>
       </div>
       <div v-if="note.topics && size(note.topics)" class="mt-5">
-        <AdvisingNoteTopics :note="note" read-only />
+        <AdvisingNoteTopics
+          label-class="text-medium-emphasis"
+          :note="note"
+          read-only
+        />
       </div>
       <div v-if="note.contactType" class="mt-5">
         <div class="font-size-16 font-weight-bold text-medium-emphasis">Contact Type</div>
@@ -107,6 +121,7 @@
           :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
           :id-prefix="`note-${note.id}`"
           :is-downloadable="true"
+          label-class="text-medium-emphasis"
           :note="note"
           :read-only="!!note.legacySource || !canUserEditNote(note, currentUser)"
           :remove="removeAttachmentByIndex"
@@ -128,6 +143,7 @@
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {get, isNil, isNumber, map, orderBy, replace, size} from 'lodash'
+import {mdiPaperclip} from '@mdi/js'
 import AdvisingEForm from '@/components/note/eform/AdvisingEForm'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
@@ -283,9 +299,8 @@ const removeAttachmentByIndex = index => {
   overflow-wrap: break-word;
 }
 .note-snippet-when-closed {
+  font-size: 1rem !important;
+  font-weight: 400;
   height: 24px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 </style>
