@@ -48,7 +48,7 @@
               <button
                 :id="`open-peer-advising-${note.id}`"
                 :aria-expanded="false"
-                :aria-label="`Expand message ${getNoteLabel(note, index)}`"
+                :aria-label="`Message ${getNoteLabel(note, index)}`"
                 class="align-center d-flex justify-start px-3 text-none text-primary toggle-note-btn v-btn"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 @click="() => toggleShowHide(note)"

@@ -4,7 +4,6 @@
       id="show-hide-personal-details"
       aria-controls="student-personal-details"
       :aria-expanded="isExpanded"
-      :aria-label="`Show Personal Details for ${student.name}`"
       class="text-no-wrap"
       color="primary"
       variant="text"
