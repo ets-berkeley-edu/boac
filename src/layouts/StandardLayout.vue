@@ -16,7 +16,7 @@
             id="app-bar-nav-icon"
             aria-controls="small-viewport-sidebar"
             :aria-expanded="showSidebar"
-            :aria-label="showSidebar ? 'Collapse navigation menu' : 'Expand navigation menu'"
+            aria-label="Navigation menu"
             @click.stop="onToggleShowSidebar"
           />
           <AppBar />

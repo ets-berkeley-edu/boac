@@ -10,7 +10,6 @@
           :id="`${baseElementId}-toggle`"
           :aria-expanded="showCourseDetails ? 'true' : 'false'"
           :aria-controls="`course-details-${year}-${termId}-${index}`"
-          :aria-label="`${showCourseDetails ? 'Hide' : 'Show'} ${course.displayName} class details for ${student.name}`"
           class="pl-0 text-left"
           color="primary"
           density="compact"
