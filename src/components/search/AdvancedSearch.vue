@@ -4,7 +4,7 @@
       <label id="basic-search-input-label" class="sr-only">basic search</label>
       <AccessibleCombobox
         :key="searchStore.autocompleteInputResetKey"
-        :aria-description="`${labelForSearchInput()} (Type / to put focus in the search input field.)`"
+        :aria-description="`${labelForSearchInput()}`"
         class="d-flex on-surface mr-2 flex-grow-1"
         :clazz="{
           'basic-search ml-auto': true,
