@@ -6,16 +6,33 @@
     @submit.prevent="save"
   >
     <div v-if="model.isDraft" class="font-size-18 text-error pa-2">
-      <v-icon :icon="mdiAlert" />
+      <v-icon :icon="mdiAlert" aria-hidden="true" />
+
       <span class="edit-draft-text">
         You are editing a draft note.
       </span>
-      <transition
-        aria-live="polite"
-        name="bounce"
-      >
+
+      <div class="d-inline-flex align-center ml-2" :class="{'sr-only': !isPauseButtonFocused}">
+        <v-btn
+          :id="`pause-auto-save-notifications-btn-${noteId}`"
+          type="button"
+          :aria-pressed="isAutoSaveAlertPaused"
+          :aria-label="isAutoSaveAlertPaused ? 'Resume Auto-Save Notifications' : 'Pause Auto-Save Notifications'"
+          height="16"
+          size="small"
+          slim
+          :text="isAutoSaveAlertPaused ? 'Resume Notifications' : 'Pause Notifications'"
+          variant="flat"
+          @blur="() => isPauseButtonFocused = false"
+          @focus="() => isPauseButtonFocused = true"
+          @click.prevent="() => isAutoSaveAlertPaused = !isAutoSaveAlertPaused"
+        />
+      </div>
+
+      <transition name="bounce">
         <span
-          v-if="noteStore.isAutoSavingDraftNote && !suppressAutoSaveDraftNoteAlert"
+          v-if="showDraftSavedBadge"
+          :aria-hidden="isAutoSaveAlertPaused"
           class="text-success font-size-12 font-weight-bold mb-1 ml-2"
         >
           DRAFT SAVED
@@ -193,11 +210,30 @@ const editNoteForm = ref()
 const isPublishingNote = ref(false)
 const isSavingDraft = ref(false)
 const showAreYouSureModal = ref(false)
-const suppressAutoSaveDraftNoteAlert = ref(false)
+const isAutoSaveAlertPaused = ref(false)
+const isPauseButtonFocused = ref(false)
+const showDraftSavedBadge = ref(false)
 const topics = ref([])
 const {boaSessionExpired, isSaving, mode, model} = storeToRefs(noteStore)
 
-watch(() => noteStore.isAutoSavingDraftNote, value => value && setTimeout(() => suppressAutoSaveDraftNoteAlert.value = !suppressAutoSaveDraftNoteAlert.value, 5000))
+watch(isAutoSaveAlertPaused, paused => {
+  alertScreenReader(paused ? 'Auto-save notifications paused.' : 'Auto-save notifications resumed.')
+})
+
+watch(
+  () => noteStore.isAutoSavingDraftNote,
+  (isSaving, wasSaving) => {
+    // Announce AFTER autosave completes
+    if (wasSaving && !isSaving && model.value.isDraft) {
+      showDraftSavedBadge.value = true
+      window.setTimeout(() => (showDraftSavedBadge.value = false), 5000)
+
+      if (!isAutoSaveAlertPaused.value) {
+        alertScreenReader('Draft saved.')
+      }
+    }
+  }
+)
 
 onMounted(() => {
   const resolve = note => {
@@ -206,6 +242,11 @@ onMounted(() => {
       topics.value = data
       noteStore.setMode('editNote')
       putFocusNextTick('edit-note-subject')
+      if (note.isDraft) {
+        setTimeout(() => {
+          alertScreenReader('You are editing a draft note.')
+        }, 250)
+      }
       contextStore.setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
     })
   }
