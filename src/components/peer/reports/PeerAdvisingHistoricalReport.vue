@@ -58,7 +58,7 @@
                   <div class="pr-1 text-right">
                     <PillCount
                       :id="`peer-note-count-${toLower(month.label)}-${year.label}`"
-                      class="pa-2 sidebar-pill text-white"
+                      class="px-2 sidebar-pill text-white"
                       color="primary"
                     >
                       <span class="font-size-14">{{ month.noteCount }}</span>

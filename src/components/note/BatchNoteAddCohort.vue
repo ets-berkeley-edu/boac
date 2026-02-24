@@ -34,10 +34,11 @@
         {{ option.name }}
       </option>
     </select>
-    <ul class="list-no-bullets mt-1">
+    <ul class="list-no-bullets mt-2">
       <li v-for="selectedOption in selectedOptions" :key="selectedOption.id">
         <PillItem
           :id="`batch-note-${type}-${selectedOption.id}`"
+          class="my-1 w-fit-content"
           closable
           :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
           :label="selectedOption.name"

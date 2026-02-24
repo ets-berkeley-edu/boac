@@ -135,39 +135,6 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-if="creatingNoteEvent" class="message-row-read message-row border-t-sm border-b-sm">
-            <td class="column-pill">
-              <v-chip
-                :id="`timeline-tab-${activeTab}-pill-creating-note`"
-                class="border pill-note font-weight-bold font-size-12 justify-center text-uppercase ma-2 px-1"
-                color="category-note"
-                density="compact"
-                label
-                variant="flat"
-              >
-                <span class="sr-only">Creating new</span> advising note
-              </v-chip>
-            </td>
-            <td class="column-message">
-              <div class="d-flex px-2">
-                <div class="pr-2">
-                  <v-progress-circular indeterminate size="16" width="2" />
-                </div>
-                <div class="text-medium-emphasis">
-                  {{ creatingNoteEvent.subject }}
-                </div>
-              </div>
-            </td>
-            <td class="column-details" />
-            <td class="column-date">
-              <div class="pr-2 float-right text-no-wrap text-medium-emphasis">
-                <TimelineDate
-                  :date="new Date()"
-                  :include-time-of-day="false"
-                />
-              </div>
-            </td>
-          </tr>
           <tr
             v-for="(message, index) in messagesVisible"
             :id="`permalink-${message.type}-${message.id}`"
@@ -183,17 +150,10 @@
             @click="onClickOpenMessage(message)"
           >
             <td class="column-pill">
-              <v-chip
-                :id="`timeline-tab-${activeTab}-pill-${message.type}-${message.id}`"
-                class="border-md font-weight-bold font-size-12 justify-center text-uppercase ma-2 px-1"
-                :class="isExpanded(message) ? `pill-${getPillType(message)}` : `pill-${getPillType(message)}`"
-                :color="getVChipColor(message)"
-                density="compact"
-                label
-                variant="flat"
-              >
-                {{ message.type === 'note' && message.peerAdvisingDepartmentId ? 'Peer Note' : filterTypes[message.type].name }}
-              </v-chip>
+              <AcademicTimelineCategory
+                :label="message.type === 'note' && message.peerAdvisingDepartmentId ? 'Peer Note' : filterTypes[message.type].name"
+                :message="message"
+              />
             </td>
             <td
               :class="{
@@ -450,6 +410,7 @@ import {
   mdiMenuRight,
   mdiMenuUp
 } from '@mdi/js'
+import AcademicTimelineCategory from '@/components/student/profile/academic-timeline/AcademicTimelineCategory.vue'
 import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
 import AdvisingNote from '@/components/note/AdvisingNote'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
@@ -671,10 +632,6 @@ const getButtonAriaLabel = message => {
   return `${messageType} ${truncate(getMessageSummary(message, true), {length: 100, separator: '.'})}`
 }
 
-const getPillType = message => {
-  return message.type === 'note' && message.peerAdvisingDepartmentId ? 'peer-advising' : message.type
-}
-
 const getSameDayDate = message => {
   const format = 'h:mm a'
   const startTime = formatDate(message.startsAt || message.createdAt, format)
@@ -684,8 +641,6 @@ const getSameDayDate = message => {
     screenReader: `${startTime} to ${endTime}`
   }
 }
-
-const getVChipColor = message => `category-${message.type === 'note' && message.peerAdvisingDepartmentId ? 'peer-note' : message.type}`
 
 const isCancelledAppointment = message => {
   return (message.type === 'appointment' && ['Calendly', 'YCBM'].includes(message.createdBy) && message.status === 'cancelled')
@@ -917,9 +872,10 @@ table {
   width: calc(100% - 17rem);
 }
 .column-pill {
+  padding: 0 8px;
   vertical-align: top;
   white-space: nowrap;
-  width: 8.0rem;
+  width: 8.5rem;
 }
 .expanded-timeline-container {
   position: absolute;
@@ -937,40 +893,12 @@ table {
 .message-row-read {
   background-color: rgb(var(--v-theme-light-grey));
 }
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.pill-alert {
-  width: 3.75rem;
-}
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.pill-appointment {
-  width: 7.5rem;
-}
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.pill-eForm {
-  width: 4.5rem;
-}
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.pill-hold {
-  width: 3.75rem;
-}
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.pill-note {
-  width: 7.5rem;
-}
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.pill-peer-advising {
-  width: 6rem;
-}
-/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
-.pill-requirement {
-  width: 7.25rem;
-}
 .requirements-icon {
   padding: 0 4px 0 0;
   width: 20px;
 }
 .timeline-message-full-width {
-  margin: 0 -8.0rem;
+  margin: 0 -8.5rem;
   padding: 0 24px;
   width: calc(100% + 8rem) !important;
   &.timeline-requirement {

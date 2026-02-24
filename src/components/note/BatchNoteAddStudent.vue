@@ -64,11 +64,12 @@
         </template>
       </v-combobox>
     </div>
-    <ul class="list-no-bullets mt-1">
+    <ul class="list-no-bullets mt-2">
       <li v-for="(addedStudent) in addedStudents" :key="addedStudent.sid">
         <PillItem
           :id="`batch-note-student-${addedStudent.uid}`"
-          :clazz="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
+          class="my-1 w-fit-content"
+          :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
           closable
           :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
           :label="addedStudent.label"

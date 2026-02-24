@@ -42,7 +42,7 @@
         >
           <PillItem
             :id="`${noteId ? `note-${noteId}` : 'note'}-topic-${index}`"
-            clazz="w-100"
+            class="my-1"
             :closable="!readOnly"
             :disabled="disabled"
             :label="topic"

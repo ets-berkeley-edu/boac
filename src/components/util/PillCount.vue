@@ -1,14 +1,11 @@
 <template>
-  <v-chip
+  <div
     :id="id"
-    class="border-sm pill-count"
-    :class="{'pill-color-override': outlined}"
-    :color="color"
-    density="comfortable"
-    :variant="outlined ? 'outlined' : 'flat'"
+    class="pill-count rounded-xl"
+    :class="`bg-${color}`"
   >
     <slot />
-  </v-chip>
+  </div>
 </template>
 
 <script setup>
@@ -29,14 +26,14 @@ defineProps({
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .pill-count {
+  border-color: rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+  border-style: solid !important;
+  border-width: 1px !important;
   font-size: 16px !important;
   font-weight: 800;
-  min-width: fit-content;
-  padding: 0 12px 1px;
-}
-.pill-color-override {
-  color: rgb(var(--v-theme-surface)) !important;
+  line-height: 1rem;
+  padding-top: 1px;
 }
 </style>

@@ -86,20 +86,17 @@
           <div :id="`appointment-${appointment.id}-topics-label`" class="font-size-16 font-weight-bold text-medium-emphasis pb-1">
             Topics
           </div>
-          <ul :aria-labelledby="`appointment-${appointment.id}-topics-label`" class="list-no-bullets">
+          <ul :aria-labelledby="`appointment-${appointment.id}-topics-label`" class="advising-note-pill-list list-no-bullets">
             <li
               v-for="(topic, index) in appointment.topics"
               :key="topic"
             >
               <PillItem
                 :id="`appointment-${appointment.id}-topic-${index}`"
-                clazz="text-uppercase w-100"
+                class="my-1"
                 :label="topic"
-                name="topic"
               >
-                <span class="truncate-with-ellipses pr-1">
-                  {{ topic }}
-                </span>
+                {{ topic }}
               </PillItem>
             </li>
           </ul>
@@ -116,12 +113,11 @@
               <PillItem
                 :id="`appointment-${appointment.id}-attachment-${index}`"
                 :aria-label="`Download attachment ${attachment.displayName}`"
+                class="my-1 w-fit-content"
                 :href="downloadUrl(attachment)"
                 :icon="mdiPaperclip"
               >
-                <span class="text-anchor truncate-with-ellipses pr-1">
-                  {{ attachment.displayName }}
-                </span>
+                {{ attachment.displayName }}
               </PillItem>
             </li>
           </ul>
