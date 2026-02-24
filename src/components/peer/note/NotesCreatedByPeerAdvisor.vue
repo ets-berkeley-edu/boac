@@ -12,10 +12,12 @@
     </v-btn>
     <v-dialog
       v-model="isModalOpen"
+      class="overflow-y-hidden"
+      :fullscreen="$vuetify.display.smAndDown"
       max-width="1100"
       min-width="500"
       persistent
-      width="80vw"
+      width="90vw"
       @keydown.esc="closeModal"
     >
       <v-card class="peer-advising-notes-modal modal-content scrollbar-gutter-stable w-100">
@@ -60,7 +62,7 @@
             <PeerAdvisingNotesTable
               v-if="!isFetchingNotes"
               :after-note-edit="afterNoteEdit"
-              class="d-block font-size-14 w-100"
+              class="d-block font-size-16 w-100"
               :is-fetching-notes="isFetchingNotes"
               :notes="notes"
               :show-student-last-name-first="true"

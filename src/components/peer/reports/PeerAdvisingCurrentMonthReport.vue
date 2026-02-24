@@ -7,7 +7,7 @@
       <div class="text-right">
         <PillCount
           id="current-month-peer-note-count"
-          class="pa-2 sidebar-pill text-white"
+          class="px-2 sidebar-pill text-white"
           color="primary"
         >
           <span class="font-size-16">{{ notesReport.currentMonth.noteCount }}</span>

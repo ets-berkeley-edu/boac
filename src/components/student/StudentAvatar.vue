@@ -82,7 +82,7 @@ const avatarError = () => {
   display: block;
   margin: 0px auto;
   object-fit: cover;
-  padding: 0 8px !important;
+  padding: 4px 8px !important;
   position: absolute;
   text-align: center;
   top: 5%;

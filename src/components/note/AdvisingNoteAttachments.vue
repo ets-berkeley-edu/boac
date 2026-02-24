@@ -93,7 +93,7 @@
     <ul
       :id="`${idPrefix}-attachments-list`"
       :aria-labelledby="`${idPrefix}-attachments-list-label`"
-      class="list-no-bullets mt-1"
+      class="list-no-bullets mt-2"
     >
       <li
         v-for="(attachment, index) in attachments"
@@ -101,7 +101,7 @@
       >
         <PillItem
           :id="`${idPrefix}-attachment-${index}`"
-          clazz="text-anchor"
+          class="my-1 w-fit-content"
           :closable="canRemoveAttachments"
           :disabled="disabled"
           :href="downloadUrl(attachment)"

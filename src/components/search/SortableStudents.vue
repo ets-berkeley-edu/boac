@@ -139,11 +139,14 @@
     <template #item.alertCount="{item}">
       <v-badge
         :id="withTableUid(`student-${item.uid || item.sid}-alert-count`)"
+        :aria-atomic="undefined"
+        :aria-label="pluralize('alert', item.alertCount, {0: 'No'})"
+        :aria-live="undefined"
+        class="alerts-count v-badge-override"
         :color="item.alertCount ? 'category-alert' : 'grey'"
         :content="item.alertCount || 0"
-        :aria-label="pluralize('alert', item.alertCount, {0: 'No'})"
-        class="v-badge-override"
         inline
+        role="none"
       />
     </template>
   </v-data-table-virtual>

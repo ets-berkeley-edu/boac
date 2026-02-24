@@ -49,10 +49,14 @@
             </div>
             <v-badge
               :id="`sortable-${keyword}-${group.id}-total-alerts-count`"
+              :aria-atomic="undefined"
+              :aria-label="undefined"
+              :aria-live="undefined"
               :color="toInt(group.alertCount, 0) ? 'category-alert' : 'grey'"
               :content="toInt(group.alertCount, 0).toLocaleString()"
-              class="v-badge-override"
+              class="alerts-count v-badge-override"
               inline
+              role="none"
             />
           </div>
         </div>

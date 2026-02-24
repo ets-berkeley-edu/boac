@@ -4,9 +4,14 @@
       v-model="model"
       aria-labelledby="peer-advising-template-modal-header"
       attach="body"
+      class="overflow-y-hidden"
+      :fullscreen="$vuetify.display.xs"
+      max-width="1100"
+      min-width="400"
       persistent
+      width="90vw"
     >
-      <v-card class="modal-content overflow-y-hidden" min-width="400" max-width="600">
+      <v-card class="modal-content overflow-y-hidden">
         <FocusLock @keydown.esc="cancel">
           <v-card-title>
             <ModalHeader header-id="peer-advising-template-modal-header" :text="title" />

@@ -11,8 +11,9 @@
     >
       <div v-if="note.isDraft" :id="`note-${note.id}-is-draft`" class="d-flex align-center">
         <v-badge
+          :aria-atomic="undefined"
           :aria-label="undefined"
-          aria-live="off"
+          :aria-live="undefined"
           class="mr-1"
           color="error"
           inline

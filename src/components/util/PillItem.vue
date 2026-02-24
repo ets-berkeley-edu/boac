@@ -1,31 +1,42 @@
 <template>
-  <v-chip
+  <div
     :id="id"
     :aria-label="ariaLabel"
-    class="bg-white font-weight-bold my-1 text-medium-emphasis text-no-wrap text-uppercase pill-item v-chip-content-override"
-    :class="clazz"
-    :disabled="disabled"
-    :href="href"
-    :prepend-icon="icon"
-    variant="outlined"
+    class="pill-item rounded-pill text-medium-emphasis text-no-wrap text-uppercase"
+    :class="{'text-anchor': href}"
   >
-    <slot />
-    <template #append>
-      <v-btn
-        v-if="closable"
-        :id="`remove-${id}-btn`"
-        :aria-label="`Remove ${name} ${label}`"
-        class="ml-2"
-        color="error"
-        density="compact"
-        :disabled="disabled"
-        :icon="mdiCloseCircle"
-        size="20"
-        variant="text"
-        @click.stop.prevent="emit('closeClicked')"
+    <component
+      :is="href ? 'a' : 'span'"
+      class="align-center d-flex truncate-with-ellipsis"
+      :class="{
+        'cursor-pointer': href,
+        'mr-2': closable
+      }"
+      :disabled="disabled"
+      :download="!!href"
+      :href="href"
+    >
+      <v-icon
+        v-if="icon"
+        class="mr-2"
+        :icon="icon"
+        size="1.125rem"
       />
-    </template>
-  </v-chip>
+      <slot />
+    </component>
+    <v-btn
+      v-if="closable"
+      :id="`remove-${id}-btn`"
+      :aria-label="`Remove ${name} ${label}`"
+      class="ml-auto"
+      color="error"
+      :disabled="disabled"
+      :icon="mdiCloseCircle"
+      size="1.5rem"
+      variant="text"
+      @click.stop.prevent="emit('closeClicked')"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -38,11 +49,6 @@ defineProps({
     default: undefined,
     required: false,
     type: String
-  },
-  clazz: {
-    default: undefined,
-    required: false,
-    type: [Object, String]
   },
   closable: {
     required: false,
@@ -84,8 +90,15 @@ defineProps({
 })
 </script>
 
-<style scoped>
+<style lang="scss">
 .pill-item {
-  padding: 0 2px 0 12px;
+  background-color: rgba(var(--v-theme-surface));
+  border-color: color-mix(in srgb, currentColor 60%, transparent) !important;
+  border-style: solid !important;
+  border-width: 1px !important;
+  display: flex;
+  font-size: 0.875rem;
+  font-weight: bold;
+  padding: 3px 12px;
 }
 </style>

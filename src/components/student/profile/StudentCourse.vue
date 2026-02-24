@@ -151,19 +151,28 @@
           <div
             v-for="section in sectionsWithIncompleteStatus"
             :key="section.ccn"
-            class="align-items-center d-flex pb-2"
+            class="align-center d-flex py-2"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
           >
-            <v-chip
+            <v-badge
               v-if="!currentUser.inDemoMode"
-              class="align-center d-flex font-size-12 font-weight-black mr-2 text-uppercase text-no-wrap"
+              :aria-atomic="undefined"
+              :aria-label="undefined"
+              :aria-live="undefined"
+              class="v-badge-override mr-2 text-uppercase text-no-wrap"
               color="error"
-              density="compact"
-              :prepend-icon="mdiInformationSlabBox"
-              size="small"
-              text="Incomplete Grade"
-              variant="flat"
-            />
+              height="1.6rem"
+              inline
+              role="none"
+              rounded="xl"
+            >
+              <template #badge>
+                <div class="d-flex align-center px-1">
+                  <v-icon class="mr-1" :icon="mdiInformationSlabBox" size="1rem" />
+                  <span class="font-size-14 font-weight-black">Incomplete Grade</span>
+                </div>
+              </template>
+            </v-badge>
             <div :id="`term-${termId}-section-${section.ccn}-has-incomplete-grade`" class="font-size-14">
               {{ sectionsWithIncompleteStatus.length > 1 ? `${section.displayName} :` : '' }}
               {{ getIncompleteGradeDescription(course.displayName, [section]) }}
