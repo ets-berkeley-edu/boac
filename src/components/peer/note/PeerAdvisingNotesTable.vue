@@ -49,7 +49,7 @@
                 :id="`open-peer-advising-${note.id}`"
                 :aria-expanded="false"
                 :aria-label="`Message ${getNoteLabel(note, index)}`"
-                class="align-center d-flex justify-start px-3 text-none text-primary toggle-note-btn v-btn"
+                class="align-center d-flex justify-start px-3 text-none text-primary toggle-note-btn v-btn w-100"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 @click="() => toggleShowHide(note)"
               >
@@ -66,18 +66,20 @@
             </div>
             <div v-if="isExpanded(note)" :class="{'d-contents': !smAndDown}">
               <div class="grid-cell">
-                <v-btn
-                  v-if="editingNoteId !== note.id"
-                  :id="`show-note-${note.id}-details`"
-                  :aria-expanded="true"
-                  :aria-label="`Close message ${getNoteLabel(note, index)}`"
-                  class="toggle-note-btn px-4"
-                  color="primary"
-                  :prepend-icon="mdiCloseCircle"
-                  text="Close Message"
-                  variant="outlined"
-                  @click="toggleShowHide(note)"
-                />
+                <div class="d-flex pl-4 pr-md-4">
+                  <v-btn
+                    v-if="editingNoteId !== note.id"
+                    :id="`show-note-${note.id}-details`"
+                    :aria-expanded="true"
+                    :aria-label="`Close message ${getNoteLabel(note, index)}`"
+                    class="toggle-note-btn w-75 w-md-100"
+                    color="primary"
+                    :prepend-icon="mdiCloseCircle"
+                    text="Close Message"
+                    variant="text"
+                    @click="toggleShowHide(note)"
+                  />
+                </div>
               </div>
               <v-expand-transition>
                 <div
@@ -88,7 +90,7 @@
                   <PeerAdvisingNoteDetails
                     v-if="note.id !== editingNoteId"
                     :after-note-edit="afterNoteUpdated"
-                    class="ml-10"
+                    class="px-1 px-sm-5"
                     :note="note"
                     :note-description="`Note ${getNotePosition(index)}`"
                   />
@@ -113,16 +115,17 @@
             }"
             class="td-created-date"
           >
-            <div class="grid-cell pr-8">
-              <div v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(note, currentUser)" class="pl-2">
+            <div class="grid-cell px-4 px-sm-8 px-md-2">
+              <div
+                v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(note, currentUser)"
+                class="d-flex flex-column pl-5"
+              >
                 <v-btn
                   :id="`edit-note-${note.id}-button`"
                   :aria-label="`Edit ${getNoteLabel(note, index)}`"
-                  class="edit-note-button"
+                  class="edit-note-button font-size-16 mb-2 w-md-100"
                   color="primary"
                   density="compact"
-                  size="md"
-                  slim
                   text="Edit Note"
                   variant="text"
                   @click="() => editNote(note.id)"
@@ -131,7 +134,7 @@
                   v-if="isPeerAdvisorManager(currentUser)"
                   :id="`delete-note-button-${note.id}`"
                   :aria-label="`Delete ${getNoteLabel(note, index)}`"
-                  class="delete-note-button"
+                  class="delete-note-button font-size-16 my-2 w-md-100"
                   color="primary"
                   density="compact"
                   size="md"
@@ -150,7 +153,6 @@
               </div>
               <div
                 v-if="isExpanded(note)"
-                :class="{'mt-4': editingNoteId !== note.id && canUserEditNote(note, currentUser)}"
                 class="created-date text-no-wrap"
               >
                 <div>
@@ -362,6 +364,9 @@ const toggleShowHide = (note: Note) => {
     min-width: 300px;
     overflow: hidden; /* Prevent horizontal scrollbar */
   }
+  .peer-advising-table-wrapper .td-created-date {
+    width: calc(100% - 10rem) !important;
+  }
   .peer-advising-table-wrapper .td-created-date .created-date {
     position: absolute;
     right: 12px;
@@ -369,7 +374,8 @@ const toggleShowHide = (note: Note) => {
     width: 20% !important;
   }
   .peer-advising-table-wrapper .td-note .grid-cell.note-details {
-    margin-top: 8px !important;
+    margin: 12px 0 !important;
+    width: calc(100% - 10rem) !important;
   }
   .peer-advising-table-wrapper table, tbody, tr {
     border-collapse: collapse;
@@ -393,7 +399,7 @@ const toggleShowHide = (note: Note) => {
 }
 .delete-note-button {
   font-weight: 590;
-  margin-left: -10px;
+  margin-left: -18px;
 }
 .edit-advising-note-container {
   margin-top: -30px;
@@ -428,7 +434,6 @@ const toggleShowHide = (note: Note) => {
 .peer-advising-table-wrapper .toggle-note-btn {
   height: 24px;
   letter-spacing: normal;
-  width: 100%;
 }
 .peer-advising-table-wrapper td {
   padding: 8px 12px;

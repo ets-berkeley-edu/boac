@@ -50,10 +50,9 @@
         </div>
         <div
           v-if="academicCareerStatus === 'Completed'"
-          aria-label="Graduated"
         >
-          <v-icon :icon="mdiSchool" />
-          <v-tooltip activator="parent" location="bottom">
+          <v-icon id="student-bio-grad-icon" :aria-hidden="false" :icon="mdiSchool" />
+          <v-tooltip activator="#student-bio-grad-icon" location="bottom">
             Graduated
           </v-tooltip>
         </div>

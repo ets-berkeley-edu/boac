@@ -1,6 +1,11 @@
 <template>
   <div>
-    <label :id="`note-topics-label-${noteId}`" class="font-size-16 font-weight-bold text-medium-emphasis">
+    <label
+      :id="`note-topics-label-${noteId}`"
+      class="font-size-16 font-weight-bold"
+      :class="labelClass"
+      for="add-topic-select-list"
+    >
       Topic {{ size(options) === 1 ? 'Category' : 'Categories' }}
     </label>
     <div v-if="!readOnly && size(options)" class="mb-1 mt-2">
@@ -8,7 +13,6 @@
         id="add-topic-select-list"
         :key="noteStore.model.topics.length"
         v-model="selected"
-        :aria-labelledby="`note-topics-label-${noteId}`"
         autocomplete="off"
         class="bg-white select-menu"
         :class="{'w-100': xs}"
@@ -67,6 +71,11 @@ import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
+  labelClass: {
+    default: '',
+    required: false,
+    type: String
+  },
   note: {
     default: undefined,
     required: false,
@@ -86,10 +95,10 @@ const props = defineProps({
 const noteStore = useNoteStore()
 const currentUser = useContextStore().currentUser
 const disabled = computed(() => noteStore.isSaving || noteStore.boaSessionExpired)
-const noteId = ref(props.note ? props.note.id : noteStore.model.id)
 const selected = ref(null)
 const {xs} = useDisplay()
 
+const noteId = computed(() => props.note ? props.note.id : noteStore.model.id)
 const options = computed<SelectOption<string>[]>(() => {
   return map(props.topics, (topic: NoteTopic) => ({
     disabled: includes(noteStore.model.topics, topic.topic),

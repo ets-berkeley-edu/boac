@@ -53,28 +53,28 @@
       />
     </div>
     <AdvisingNoteTopics
-      class="mt-2"
+      class="pt-5"
       :topics="topics"
     />
     <PrivacyPermissions
       v-if="currentUser.canAccessPrivateNotes && !model.peerAdvisingDepartmentId"
-      class="mt-2"
+      class="pt-2"
       :disabled="isSaving || boaSessionExpired"
     />
     <ContactMethod
-      class="mt-3"
+      class="pt-4"
       :disabled="isSaving || boaSessionExpired"
       :is-peer-advising="!!model.peerAdvisingDepartmentId"
     />
     <ManuallySetDate
       v-if="!model.peerAdvisingDepartmentId"
-      class="mt-3"
+      class="pt-4"
       :container-id="`note-${noteId}-edit-form`"
     />
     <AdvisingNoteAttachments
       v-if="size(model.attachments)"
       :attachments="model.attachments"
-      class="mt-3"
+      class="pt-4"
       :disabled="isSaving || boaSessionExpired"
       id-prefix="edit-note"
       :is-read-only="true"

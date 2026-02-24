@@ -1,5 +1,5 @@
 .advising-note-pill-list {
-  max-width: 450px;
+  max-width: max-content;
   width: 100%;
 }
 .autocomplete-with-add-button .v-input__append {

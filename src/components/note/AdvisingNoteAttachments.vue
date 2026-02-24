@@ -2,23 +2,24 @@
   <div>
     <div
       :id="`${idPrefix}-attachments-list-label`"
-      class="d-inline-block font-size-16 font-weight-bold text-medium-emphasis"
+      class="d-inline-block font-size-16 font-weight-bold"
+      :class="labelClass"
     >
       Attachments
     </div>
-    <div v-if="!isReadOnly && !attachmentLimitReached" class="mt-2 position-relative">
+    <div v-if="!isReadOnly" class="mt-2 position-relative">
       <label
-        class="note-attachment-inner-label cursor-pointer font-size-16 align-center d-flex flex-wrap justify-center"
+        class="note-attachment-inner-label font-size-16 align-center d-flex flex-wrap justify-center"
         :class="{
-          'font-weight-bold text-black text-center': disabled,
-          'font-weight-medium': !disabled
+          'text-medium-emphasis': disabled,
+          'cursor-pointer': !(isAdding || disabled || attachmentLimitReached)
         }"
         :for="inputId"
       >
         <div v-if="isAdding" class="text-medium-emphasis">
           Adding attachments...
         </div>
-        <div v-if="!isAdding" class="mr-2 ">
+        <div v-if="!isAdding" class="mr-2">
           Add attachment:
         </div>
         <v-btn
@@ -26,7 +27,7 @@
           :id="`${inputId}-btn`"
           class="bg-white"
           color="black"
-          :disabled="disabled"
+          :disabled="isAdding || disabled || attachmentLimitReached"
           density="comfortable"
           tabindex="-1"
           type="file"
@@ -43,7 +44,7 @@
         :aria-describedby="isAdding ? progressBarId : `${idPrefix}-attachment-details`"
         :aria-label="`Select file for attachment; ${pluralize('file', attachments.length)} attached.`"
         class="border-sm choose-file-for-note-attachment rounded"
-        :class="{'border-success': disabled, 'border-md border-error': !!attachmentError}"
+        :class="{'border-md border-error': !!attachmentError}"
         :clearable="false"
         :disabled="isAdding || disabled || attachmentLimitReached"
         flat
@@ -52,7 +53,7 @@
         :model-value="attachments"
         multiple
         :prepend-icon="null"
-        :variant="disabled ? 'outlined' : 'solo-filled'"
+        variant="solo-filled"
         @click:control="onClickBrowseForAttachment"
         @update:focused="v => isFocused = v"
         @update:model-value="onAttachmentsInput"
@@ -67,9 +68,10 @@
         v-if="attachmentError"
         :id="`${idPrefix}-attachment-error`"
         aria-live="polite"
-        class="font-size-14 w-100 mb-1 mt-2"
+        class="bg-white font-size-14 w-100 my-1"
         density="compact"
         :icon="mdiAlert"
+        icon-size="21"
         role="none"
         :text="attachmentError"
         type="error"
@@ -78,13 +80,14 @@
       <v-alert
         v-if="attachmentLimitReached"
         :id="`${idPrefix}-attachment-limit`"
-        class="w-100 mt-2"
+        class="bg-white w-100 my-1"
         density="compact"
+        icon-size="21"
         role="none"
         type="warning"
         variant="tonal"
       >
-        <v-alert-title class="font-size-16">A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.</v-alert-title>
+        <v-alert-title class="font-size-14">A note can have no more than {{ contextStore.config.maxAttachmentsPerNote }} attachments.</v-alert-title>
       </v-alert>
     </div>
     <ul
@@ -155,6 +158,11 @@ const props = defineProps({
   isReadOnly: {
     required: false,
     type: Boolean
+  },
+  labelClass: {
+    default: '',
+    required: false,
+    type: String
   },
   note: {
     required: true,

@@ -125,14 +125,12 @@
         <colgroup>
           <col class="column-pill">
           <col class="column-message">
-          <col class="column-details">
           <col class="column-date">
         </colgroup>
         <thead>
           <tr class="sr-only">
             <th>Type</th>
             <th>Summary</th>
-            <th>Details</th>
             <th>Date</th>
           </tr>
         </thead>
@@ -174,14 +172,13 @@
             v-for="(message, index) in messagesVisible"
             :id="`permalink-${message.type}-${message.id}`"
             :key="index"
-            :aria-labelledby="getRowAriaLabelledBy(message, index)"
             :aria-rowindex="index + 1"
             class="message-row border-t-sm border-b-sm"
             :class="{
               'cursor-pointer': !isExpanded(message),
               'message-row-read': message.read
             }"
-            tabindex="0"
+            :tabindex="isExpanded(message) ? -1 : 0"
             @keyup.enter="onClickOpenMessage(message)"
             @click="onClickOpenMessage(message)"
           >
@@ -206,91 +203,54 @@
               class="column-message"
             >
               <div class="d-flex flex-column">
-                <div
+                <v-btn
                   v-if="isExpanded(message) && (!editModeNoteId || message.id !== editModeNoteId)"
-                  class="pa-1 pb-2 d-flex flex-wrap message-actions"
-                >
-                  <v-btn
-                    :id="`${activeTab}-close-message-${message.id}`"
-                    :aria-controls="`${message.type}-${message.id}-is-open`"
-                    :aria-expanded="true"
-                    :aria-label="`Close Message ${getButtonAriaLabel(message)}`"
-                    class="ma-1"
-                    color="primary"
-                    density="compact"
-                    :prepend-icon="mdiCloseCircle"
-                    text="Close Message"
-                    variant="text"
-                    @click.stop="onClickCloseMessage(message)"
-                  />
-                  <div class="d-flex">
-                    <span
-                      v-if="!editModeNoteId && isEditable(message) && canUserEditNote(message, currentUser)"
-                      :aria-hidden="true"
-                      class="align-self-center text-disabled ma-1"
-                    >|</span>
-                    <v-btn
-                      v-if="!editModeNoteId && isEditable(message) && canUserEditNote(message, currentUser)"
-                      :id="`edit-note-${message.id}-button`"
-                      :aria-label="`Edit ${getButtonAriaLabel(message)}`"
-                      class="ma-1"
-                      :class="{'sr-only': !isExpanded(message)}"
-                      color="primary"
-                      density="compact"
-                      :disabled="noteStore.disableNewNoteButton"
-                      :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
-                      variant="text"
-                      @click.stop="editNote(message)"
-                    />
-                    <span
-                      v-if="!editModeNoteId && isEditable(message) && userCanDelete(message)"
-                      :aria-hidden="true"
-                      class="align-self-center text-disabled ma-1"
-                    >|</span>
-                    <v-btn
-                      v-if="!editModeNoteId && isEditable(message) && userCanDelete(message)"
-                      :id="`delete-note-button-${message.id}`"
-                      :aria-label="`Delete ${getButtonAriaLabel(message)}`"
-                      class="ma-1"
-                      :class="{'sr-only': !isExpanded(message)}"
-                      color="primary"
-                      density="compact"
-                      :disabled="noteStore.disableNewNoteButton"
-                      :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
-                      variant="text"
-                      @click.stop="onClickDeleteNote(message)"
-                    />
-                  </div>
-                </div>
+                  :id="`${activeTab}-close-message-${message.id}`"
+                  :aria-controls="`${message.type}-${message.id}-is-open`"
+                  :aria-expanded="true"
+                  :aria-label="`Close Message ${getButtonAriaLabel(message)}`"
+                  block
+                  class="ma-2"
+                  color="primary"
+                  density="compact"
+                  :prepend-icon="mdiCloseCircle"
+                  text="Close Message"
+                  variant="text"
+                  @click.stop="onClickCloseMessage(message)"
+                />
                 <div
                   v-if="message.type === 'requirement'"
                   :id="`timeline-tab-${activeTab}-message-${message.type}-${message.id}`"
-                  class="d-flex flex-nowrap ml-1"
+                  class="ml-1 w-100"
                   :class="{
-                    'message-open pb-4': isExpanded(message)
+                    'message-open pb-4 pt-2': isExpanded(message)
                   }"
                 >
-                  <v-icon
-                    v-if="message.status === 'Satisfied'"
-                    :icon="mdiCheckBold"
-                    class="requirements-icon"
-                    color="success"
-                  />
-                  <v-icon
-                    v-if="message.status === 'Not Satisfied'"
-                    :icon="mdiExclamationThick"
-                    class="requirements-icon"
-                    color="warning"
-                  />
-                  <v-icon
-                    v-if="message.status === 'In Progress'"
-                    :icon="mdiClockOutline"
-                    class="requirements-icon"
-                    color="secondary"
-                  />
-                  <div :id="`${message.type}-${message.id}-is-closed`" :class="{'truncate-with-ellipsis': !isExpanded(message)}">
-                    <span class="sr-only">{{ message.status }}: {{ message.name }}</span>
-                    <span :aria-hidden="true">{{ message.message }}</span>
+                  <div class="timeline-requirement" :class="{'timeline-message-full-width': isExpanded(message)}">
+                    <div class="d-flex flex-nowrap">
+                      <v-icon
+                        v-if="message.status === 'Satisfied'"
+                        :icon="mdiCheckBold"
+                        class="requirements-icon"
+                        color="success"
+                      />
+                      <v-icon
+                        v-if="message.status === 'Not Satisfied'"
+                        :icon="mdiExclamationThick"
+                        class="requirements-icon"
+                        color="warning"
+                      />
+                      <v-icon
+                        v-if="message.status === 'In Progress'"
+                        :icon="mdiClockOutline"
+                        class="requirements-icon"
+                        color="secondary"
+                      />
+                      <div :id="`${message.type}-${message.id}-is-closed`" :class="{'truncate-with-ellipsis': !isExpanded(message)}">
+                        <span class="sr-only">{{ message.status }}: {{ message.name }}</span>
+                        <span :aria-hidden="true">{{ message.message }}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div
@@ -299,7 +259,7 @@
                   class="ml-2"
                   :class="{
                     'img-blur': currentUser.inDemoMode && ['appointment', 'eForm', 'note'].includes(message.type),
-                    'message-open': isExpanded(message)
+                    'message-open pt-2': isExpanded(message)
                   }"
                 >
                   <div :id="`${message.type}-${message.id}-message`" class="d-flex align-center w-100">
@@ -307,8 +267,9 @@
                       v-if="!includes(['appointment', 'eForm', 'note'] , message.type)"
                       :id="`${message.type}-${message.id}-is-closed`"
                       :class="{
+                        'pb-4': isExpanded(message),
                         'truncate-with-ellipsis': !isExpanded(message),
-                        'pb-4': isExpanded(message)
+                        'timeline-message-full-width': isExpanded(message)
                       }"
                     >
                       <span :aria-hidden="true">
@@ -319,6 +280,7 @@
                     <AdvisingNote
                       v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                       :after-saved="afterEditAdvisingNote"
+                      :class="{'timeline-message-full-width': isExpanded(message)}"
                       :edit-note="editNote"
                       :is-open="isExpanded(message)"
                       :note="message"
@@ -334,6 +296,7 @@
                     <AdvisingAppointment
                       v-if="message.type === 'appointment'"
                       :appointment="message"
+                      :class="{'timeline-message-full-width': isExpanded(message)}"
                       :is-open="isExpanded(message)"
                       :student="student"
                     />
@@ -341,26 +304,35 @@
                 </div>
               </div>
             </td>
-            <td
-              :class="{
-                'vertical-top pt-2': isExpanded(message)
-              }"
-              class="column-details text-right"
-            >
-              <AppointmentCanceledIndicator
-                v-if="!isExpanded(message) && (isCancelledAppointment(message) || message.isRescheduled || message.isStudentNoShow)"
-                :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
-                :appointment="message"
-                class="collapsed-cancelled-icon"
-              />
-              <div v-if="['appointment', 'eForm', 'note'].includes(message.type) && size(message.attachments)" class="px-2">
-                <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
-              </div>
-              <span v-if="['appointment', 'eForm', 'note'].includes(message.type)" class="sr-only">
-                {{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}
-              </span>
-            </td>
             <td class="column-date vertical-top text-right pr-4">
+              <v-btn
+                v-if="!editModeNoteId && isEditable(message) && canUserEditNote(message, currentUser)"
+                :id="`edit-note-${message.id}-button`"
+                :aria-label="`Edit ${getButtonAriaLabel(message)}`"
+                block
+                class="my-2"
+                :class="{'sr-only': !isExpanded(message)}"
+                color="primary"
+                density="compact"
+                :disabled="noteStore.disableNewNoteButton"
+                :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
+                variant="text"
+                @click.stop="editNote(message)"
+              />
+              <v-btn
+                v-if="!editModeNoteId && isEditable(message) && userCanDelete(message)"
+                :id="`delete-note-button-${message.id}`"
+                :aria-label="`Delete ${getButtonAriaLabel(message)}`"
+                block
+                class="my-2"
+                :class="{'sr-only': !isExpanded(message)}"
+                color="primary"
+                density="compact"
+                :disabled="noteStore.disableNewNoteButton"
+                :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
+                variant="text"
+                @click.stop="onClickDeleteNote(message)"
+              />
               <div
                 :id="`timeline-tab-${activeTab}-date-${index}`"
                 class="position-relative text-no-wrap py-2"
@@ -476,12 +448,10 @@ import {
   mdiLinkVariant,
   mdiMenuDown,
   mdiMenuRight,
-  mdiMenuUp,
-  mdiPaperclip
+  mdiMenuUp
 } from '@mdi/js'
 import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
 import AdvisingNote from '@/components/note/AdvisingNote'
-import AppointmentCanceledIndicator from '@/components/appointment/AppointmentCanceledIndicator'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import TimelineDate from '@/components/student/profile/TimelineDate'
@@ -705,13 +675,6 @@ const getPillType = message => {
   return message.type === 'note' && message.peerAdvisingDepartmentId ? 'peer-advising' : message.type
 }
 
-const getRowAriaLabelledBy = (message, index) => {
-  const dateId = `timeline-tab-${activeTab.value}-date-${index}`
-  const messageTypeId = 'eForm' === message.type ? '' : `timeline-tab-${activeTab.value}-pill-${message.type}-${message.id}`
-  const messageSummaryId = 'requirement' === message.type ? `timeline-tab-${activeTab.value}-message-${message.type}-${message.id}` : `${message.type}-${message.id}-message`
-  return `${messageTypeId} ${messageSummaryId} ${dateId}`
-}
-
 const getSameDayDate = message => {
   const format = 'h:mm a'
   const startTime = formatDate(message.startsAt || message.createdAt, format)
@@ -931,14 +894,6 @@ const userCanDelete = message => {
   min-height: 30px !important;
   padding: 0 10px;
 }
-.collapsed-cancelled-icon .v-alert__prepend {
-  margin-inline-end: 4px !important;
-}
-.timeline-message-full-width {
-  margin-left: -8.0rem;
-  padding: 0 24px;
-  width: calc(100% + 13rem);
-}
 </style>
 
 <style scoped>
@@ -954,20 +909,12 @@ table {
 .btn-toggle-showing-subset {
   height: 32px;
 }
-.collapsed-cancelled-icon {
-  font-size: 14px;
-  padding: 6px;
-  text-transform: uppercase;
-}
 .column-date {
-  width: 8rem;
-}
-.column-details {
-  width: 7rem;
+  width: 9rem;
 }
 .column-message {
   min-width: 12.5rem;
-  width: 60%;
+  width: calc(100% - 17rem);
 }
 .column-pill {
   vertical-align: top;
@@ -977,9 +924,6 @@ table {
 .expanded-timeline-container {
   position: absolute;
   right: 0;
-}
-.message-actions {
-  width: calc(100% + 8rem);
 }
 .message-open {
   flex-flow: row wrap;
@@ -1024,6 +968,14 @@ table {
 .requirements-icon {
   padding: 0 4px 0 0;
   width: 20px;
+}
+.timeline-message-full-width {
+  margin: 0 -8.0rem;
+  padding: 0 24px;
+  width: calc(100% + 8rem) !important;
+  &.timeline-requirement {
+    width: calc(100% + 16rem) !important;
+  }
 }
 .toggle-expand-all-container {
   width: 7.75rem;
