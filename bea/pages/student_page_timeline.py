@@ -64,7 +64,7 @@ class StudentPageTimeline(BoaPages):
             return item_time.strftime('%b %-d, %Y\n%-I:%M%p')
 
     def visible_collapsed_item_ids(self, item_type):
-        els = self.elements((By.XPATH, f"//div[contains(@id, '{item_type}-') and contains(@id, '-is-closed')]"))
+        els = self.elements((By.XPATH, f"//*[self::div or self::h3][contains(@id, '{item_type}-') and contains(@id, '-is-closed')]"))
         ids = []
         for el in els:
             parts = el.get_dom_attribute('id').split('-')
