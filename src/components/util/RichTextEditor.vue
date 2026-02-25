@@ -70,6 +70,11 @@ const props = defineProps({
     required: true,
     type: String
   },
+  onTogglePopover: {
+    default: () => {},
+    required: false,
+    type: Function
+  },
   onValueUpdate: {
     required: true,
     type: Function
@@ -114,6 +119,7 @@ const abandonAttempt = () => {
   domFixAttemptCount.value++
   return false
 }
+
 const correctTheDOM = () => {
   if (domFixAttemptCount.value >= 10) {
     // Abort after N tries.
@@ -131,11 +137,12 @@ const correctTheDOM = () => {
   each(linksInText, link => {
     link.addEventListener(
       'click',
-      () => makePopupAccessible(popupsContainer, toolbar),
+      () => makePopupAccessible(popupsContainer, toolbar, 'Edit link'),
       {signal: editorLinkEventController.signal}
     )
   })
   if (isInModal.value) {
+    registerPopupListener(editor)
     // When embedded in a modal, the CKEditor toolbar popups are unreachable because they are attached to
     // the end of the DOM and outside the modal. We must move these "ck" elements. The user should not notice.
     toolbar.insertAdjacentElement('afterend', popupsContainer)
@@ -148,7 +155,7 @@ const correctTheDOM = () => {
       if ('Link' === button.textContent) {
         button.addEventListener(
           'click',
-          () => makePopupAccessible(popupsContainer, toolbar),
+          () => makePopupAccessible(popupsContainer, toolbar, 'Create link'),
           {signal: toolbarLinkButtonEventController.signal}
         )
       }
@@ -169,7 +176,7 @@ const correctTheDOM = () => {
       if ('Link' === button.textContent) {
         button.addEventListener(
           'click',
-          () => makePopupAccessible(popupsContainer, toolbar),
+          () => makePopupAccessible(popupsContainer, toolbar, 'Create link'),
           {signal: toolbarLinkButtonEventController.signal}
         )
       }
@@ -180,7 +187,7 @@ const correctTheDOM = () => {
 
 const correctPopupPosition = (popup, popupsContainer, toolbar) => {
   const offset = parseInt(popup.style.top, 10) - (toolbar.clientHeight + popup.clientHeight)
-  const popupButtons = popup.querySelectorAll('button')
+  const popupButtons = popup.querySelectorAll(':where(button, a)')
   popup.style.transform = `translateY(-${offset}px)`
   each(popupButtons, b => {
     b.addEventListener('mouseenter', () => {
@@ -211,7 +218,7 @@ const initDomFixer = () => {
   domFixer.value = setInterval(correctTheDOM, 500)
 }
 
-const makePopupAccessible = (popupsContainer, toolbar) => {
+const makePopupAccessible = (popupsContainer, toolbar, ariaLabel) => {
   let attemptCount = 0
   popupFixer.value = setInterval(() => {
     if (attemptCount >= 10) {
@@ -220,7 +227,7 @@ const makePopupAccessible = (popupsContainer, toolbar) => {
     const popup = popupsContainer.querySelector('.ck.ck-balloon-panel.ck-balloon-panel_with-arrow:not(.ck-tooltip)')
     attemptCount++
     if (popup) {
-      popup.setAttribute('aria-label', 'Create or edit link')
+      popup.setAttribute('aria-label', ariaLabel)
       popup.setAttribute('role', 'dialog')
       popup.setAttribute('aria-modal', 'true')
       if (isInModal.value) {
@@ -231,8 +238,23 @@ const makePopupAccessible = (popupsContainer, toolbar) => {
   }, 500)
 }
 
+const onChangePopoverVisible = (e, propertyName, newValue) => {
+  props.onTogglePopover(newValue)
+}
+
 const onUpdate = event => {
   props.onValueUpdate(isString(event) ? event : event.target.value)
+}
+
+const registerPopupListener = editor => {
+  const editable = editor.querySelector('.ck-editor__editable_inline')
+  if (editable) {
+    const editorInstance = editable.ckeditorInstance
+    const balloonInstance = editorInstance.plugins.get('ContextualBalloon')
+    const balloonPanelView = balloonInstance.view
+    balloonPanelView.off('change:isVisible', onChangePopoverVisible)
+    balloonPanelView.on('change:isVisible', onChangePopoverVisible)
+  }
 }
 </script>
 
@@ -240,6 +262,12 @@ const onUpdate = event => {
 .ck.ck-balloon-panel.ck-balloon-panel_with-arrow:not(.ck-tooltip) {
   /* make sure the Link popup doesn't cover its own tooltips */
   z-index: 9998 !important;
+}
+.ck.ck-balloon-panel .ck-link-actions__preview {
+  font-size: 1rem;
+}
+.ck.ck-balloon-panel.ck-powered-by-balloon {
+  display: none !important;
 }
 .ck-content ul {
   padding-left: 25px !important;
@@ -250,8 +278,4 @@ const onUpdate = event => {
 .ck.ck-sticky-panel .ck-sticky-panel__content_sticky {
   position: static !important;
 }
-</style>
-
-<style>
-@import "@/assets/styles/ckeditor-custom.css";
 </style>
