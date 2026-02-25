@@ -1,3 +1,6 @@
+.ck.ck-button.ck-on, a.ck.ck-button.ck-on {
+  border: 1px solid var(--ck-color-button-on-color);
+}
 .ck-editor__editable.ck-read-only {
   opacity: var(--v-disabled-opacity);
 }
@@ -7,13 +10,13 @@
 }
 :root {
   /* Overrides the border radius setting in the theme. */
-  --ck-border-radius: 4px;
+  --ck-border-radius: 4px !important;
   /* Overrides the default font size in the theme. */
-  --ck-font-size-base: 13px;
+  --ck-font-size-base: 14px !important;
   /* Helper variables to avoid duplication in the colors. */
-  --ck-custom-background: hsl(270, 1%, 29%);
-  --ck-custom-foreground: hsl(255, 3%, 18%);
-  --ck-custom-white: hsl(0, 0%, 100%);
+  --ck-custom-background: hsl(270, 1%, 29%) !important;
+  --ck-custom-foreground: hsl(255, 3%, 18%) !important;
+  --ck-custom-white: hsl(0, 0%, 100%) !important;
   /* -- BOAC custom colors. ------------------------------------------------------------- */
   --boac-white: hsl(270, 1%, 29%);
   --boac-color-button-default-background: hsl(0, 0%, 95%);
@@ -39,6 +42,7 @@
   --ck-color-button-default-active-shadow: var(--boac-color-button-default-active-shadow);
   --ck-color-button-default-disabled-background: var(--boac-color-button-on-disabled-background);
   /* ---------------------------------------- */
+  --ck-color-button-on-color: rgb(var(--v-theme-primary)) !important;
   --ck-color-button-on-background: var(--boac-color-button-on-background);
   --ck-color-button-on-hover-background: var(--boac-color-button-on-hover-background);
   --ck-color-button-on-active-background: var(--boac-color-button-on-active-background);
@@ -52,8 +56,8 @@
   --ck-color-button-action-disabled-background: var(--boac-color-button-on-disabled-background);
   --ck-color-button-action-text: var(--ck-custom-white);
   /* ---------------------------------------- */
-  --ck-color-button-save: hwb(120 0% 28%);
-  --ck-color-button-cancel: hsl(15, 100%, 56%);
+  --ck-color-button-save: rgb(var(--v-theme-success)) !important;
+  --ck-color-button-cancel: rgb(var(--v-theme-error)) !important;
   /* -- Overrides the default .ck-dropdown class colors. -------------------------------------- */
   --ck-color-dropdown-panel-background: var(--boac-color-button-default-background);
   --ck-color-dropdown-panel-border: var(--ck-custom-foreground);
@@ -64,8 +68,8 @@
   --ck-color-list-button-on-background-focus: var(--ck-color-base-active-focus);
   --ck-color-list-button-on-text: var(--ck-color-base-background);
   /* -- Overrides the default .ck-toolbar class colors. --------------------------------------- */
-  --ck-color-toolbar-background: var(--ck-custom-white);
-  --ck-color-toolbar-border: var(--ck-custom-white);
+  /* --ck-color-toolbar-background: var(--ck-custom-white) !important;
+  --ck-color-toolbar-border: var(--ck-custom-white) !important; */
   /* -- Overrides the default .ck-tooltip class colors. --------------------------------------- */
   --ck-color-tooltip-background: hsl(252, 7%, 14%);
   --ck-color-tooltip-text: hsl(0, 0%, 93%);
@@ -77,7 +81,7 @@
   --ck-color-widget-hover-border: hsl(43, 100%, 68%);
   --ck-color-widget-editable-focus-background: var(--ck-custom-white);
   /* -- Overrides the default colors used by the ckeditor5-link package. ---------------------- */
-  --ck-color-link-default: rgb(var(--v-theme-anchor));
+  --ck-color-link-default: rgb(var(--v-theme-anchor)) !important;
   /* -- Configure the z-index of the editor UI so it doesn't appear behind modals. ------------ */
   --ck-z-default: 2400 !important;
   --ck-z-panel: calc( var(--ck-z-default) + 999 ) !important;

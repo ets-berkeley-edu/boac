@@ -2,10 +2,12 @@
   <div>
     <v-dialog
       v-if="mode"
+      id="edit-batch-note-modal"
       v-model="dialogModel"
       aria-labelledby="dialog-header-note"
       persistent
       scrollable
+      @after-enter="afterModalShown"
     >
       <v-card
         id="new-note-modal-container"
@@ -53,6 +55,7 @@
                 label="Note Details"
                 :on-value-update="noteStore.setBody"
                 :show-advising-note-best-practices="true"
+                :on-toggle-popover="toggleFocusLock"
               />
             </div>
             <div class="py-3">
@@ -198,24 +201,23 @@ const alert = ref(undefined)
 // eslint-disable-next-line vue/require-prop-types
 const dialogModel = defineModel()
 const dismissAlertSeconds = ref(undefined)
+const isSecondModalOpen = ref(false)
 const showCreateTemplateModal = ref(false)
 const showDiscardNoteModal = ref(false)
 const showDiscardTemplateModal = ref(false)
 const topics = ref([])
 
 const selectEscape = event => {
-  if (event.key === 'Escape' && !noteStore.isSaving && !showCreateTemplateModal.value && dialogModel.value) {
+  if (event.key === 'Escape' && !isSecondModalOpen.value && !noteStore.isSaving && !showCreateTemplateModal.value && dialogModel.value) {
     discardRequested()
   }
+  return false
 }
 
 watch(dialogModel, () => {
   if (dialogModel.value) {
     // remove scrollbar for content behind the modal
     document.documentElement.classList.add('modal-open')
-    document.removeEventListener('keydown', selectEscape)
-    document.addEventListener('keydown', selectEscape, {capture: true})
-    enableFocusLock()
     getMyNoteTemplates().then(noteStore.setNoteTemplates)
     noteStore.resetModel()
     init().then(note => {
@@ -237,9 +239,8 @@ watch(dialogModel, () => {
   } else {
     noteStore.setMode(null)
     noteStore.clearAutoSaveJob()
-    disableFocusLock()
     document.documentElement.classList.remove('modal-open')
-    document.removeEventListener('keydown', selectEscape)
+    disableFocusLock()
     contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
   }
 })
@@ -264,6 +265,13 @@ const addNoteAttachments = attachments => {
       resolve()
     }
   })
+}
+
+const afterModalShown = () => {
+  const modal = document.getElementById('edit-batch-note-modal')
+  modal.removeEventListener('keydown', selectEscape)
+  modal.addEventListener('keydown', selectEscape, {capture: true})
+  enableFocusLock()
 }
 
 const cancelCreateTemplate = () => {
@@ -420,11 +428,14 @@ const showAlert = (value, seconds=3) => {
   dismissAlertSeconds.value = seconds
 }
 
-const toggleFocusLock = isSecondModalOpen => {
+const toggleFocusLock = isOpen => {
+  isSecondModalOpen.value = isOpen
   if (dialogModel.value) {
-    if (isSecondModalOpen) {
+    if (isSecondModalOpen.value) {
       disableFocusLock()
-    } else enableFocusLock()
+    } else {
+      enableFocusLock()
+    }
   }
 }
 
