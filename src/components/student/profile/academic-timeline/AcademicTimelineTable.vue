@@ -146,8 +146,8 @@
               'message-row-read': message.read
             }"
             :tabindex="isExpanded(message) ? -1 : 0"
-            @keyup.enter="onClickOpenMessage(message)"
             @click="onClickOpenMessage(message)"
+            @keyup.enter="onClickOpenMessage(message)"
           >
             <td class="column-pill">
               <AcademicTimelineCategory
@@ -397,7 +397,7 @@
 </template>
 
 <script setup>
-import {capitalize, each, filter, find, get, includes, map, pull, remove, size, slice, trim, truncate} from 'lodash'
+import {capitalize, each, filter, find, findIndex, get, includes, map, pull, remove, size, slice, trim, truncate} from 'lodash'
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
 import {
@@ -597,11 +597,18 @@ const close = message => {
 const deleteConfirmed = () => {
   const transientId = messageForDelete.value.transientId
   const predicate = ['transientId', transientId]
-  const note = find(props.messages, predicate)
+  const indexOfNote = findIndex(messagesVisible.value, predicate)
+  const note = messagesVisible.value[indexOfNote]
   remove(props.messages, predicate)
   remove(openMessages.value, value => transientId === value)
   messageForDelete.value = undefined
   deleteNote(note.id).then(() => {
+    if (size(messagesVisible.value)) {
+      const nextFocusMessage = indexOfNote < size(messagesVisible.value) ? messagesVisible.value[indexOfNote] : messagesVisible.value[indexOfNote - 1]
+      putFocusNextTick(isExpanded(nextFocusMessage) ? `${activeTab.value}-close-message-${nextFocusMessage.id}` : `permalink-${nextFocusMessage.type}-${nextFocusMessage.id}`)
+    } else {
+      putFocusNextTick('new-note-button')
+    }
     alertScreenReader('Note deleted')
     refreshSearchIndex()
   })
