@@ -1,20 +1,13 @@
 <template>
   <v-list
-    class="pa-0 sidebar-list"
-    tag="ul"
+    class="pa-0 sidebar-list sidebar-parent-list"
     density="compact"
-    role="list"
     lines="one"
+    role="list"
+    tabindex="-1"
+    tag="ul"
   >
-    <v-list-item
-      class="pa-0 min-height-unset zero-height"
-      role="listitem"
-      tag="li"
-    >
-      <a id="skip-nav-link" class="sr-only" href="#content">skip navigation</a>
-      <h2 id="nav-header" class="scroll-margins sr-only" tabindex="-1">Main Menu</h2>
-    </v-list-item>
-    <v-list-item aria-labelledby="sidebar-cohorts-header" class="pa-0" role="listitem">
+    <v-list-item aria-labelledby="sidebar-cohorts-header" class="pa-0 mt-2" role="listitem">
       <div class="align-center d-flex font-size-18 font-weight-bold justify-space-between pretty-hover py-1">
         <div id="sidebar-cohorts-header">
           Cohorts
@@ -30,22 +23,23 @@
       </div>
       <v-list
         v-if="myCohorts.length"
-        tag="ul"
+        aria-labelledby="sidebar-cohorts-header"
+        class="py-0 sidebar-list"
         density="compact"
         lines="one"
-        class="py-0 sidebar-list"
-        aria-labelledby="sidebar-cohorts-header"
+        tabindex="-1"
+        tag="ul"
       >
         <v-list-item
           v-for="cohort in myCohorts"
           :key="cohort.id"
-          tag="li"
-          role="listitem"
           class="py-0 pl-1 pr-2 pretty-hover sub-item"
+          role="listitem"
+          tag="li"
         >
           <NavLink
             :id="`sidebar-cohort-${cohort.id}`"
-            :aria-label="`Cohort ${cohort.name} has ${pluralize('student', cohort.totalStudentCount)}`"
+            :aria-label="`Cohort ${cohort.name}: ${pluralize('student', cohort.totalStudentCount)}`"
             class="align-center d-flex font-weight-medium justify-space-between text-secondary w-100"
             :path="`/cohort/${cohort.id}`"
           >
@@ -86,22 +80,23 @@
       </div>
       <v-list
         v-if="myCuratedGroups.length"
-        tag="ul"
-        density="compact"
-        class="py-0 sidebar-list"
-        lines="one"
         aria-labelledby="sidebar-curated-groups-header"
+        class="py-0 sidebar-list"
+        density="compact"
+        lines="one"
+        tabindex="-1"
+        tag="ul"
       >
         <v-list-item
           v-for="(group, index) in myCuratedGroups"
           :key="group.id"
-          tag="li"
-          role="listitem"
           class="pl-1 pr-2 pretty-hover sub-item"
+          role="listitem"
+          tag="li"
         >
           <NavLink
             :id="`sidebar-${describeCuratedGroupDomain('default', false).replace(' ', '-')}-${index}`"
-            :aria-label="`${capitalize(describeCuratedGroupDomain('default', false))} ${group.name} has ${pluralize('student', group.totalStudentCount)}`"
+            :aria-label="`${capitalize(describeCuratedGroupDomain('default', false))} ${group.name}: ${pluralize('student', group.totalStudentCount)}`"
             class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
             :path="`/curated/${group.id}`"
           >
@@ -149,22 +144,23 @@
       </div>
       <v-list
         v-if="myCohortsCE3.length"
-        tag="ul"
-        density="compact"
-        class="py-0 sidebar-list"
-        lines="one"
         aria-labelledby="sidebar-admitted-students-header admitted-students-all"
+        class="py-0 sidebar-list"
+        density="compact"
+        lines="one"
+        tabindex="-1"
+        tag="ul"
       >
         <v-list-item
           v-for="(cohort, index) in myCohortsCE3"
           :key="cohort.id"
-          tag="li"
-          role="listitem"
           class="py-0 pl-1 pr-2 pretty-hover sub-item"
+          role="listitem"
+          tag="li"
         >
           <NavLink
             :id="`sidebar-admitted-students-cohort-${index}`"
-            :aria-label="`Cohort ${cohort.name} has ${pluralize('admit', cohort.totalStudentCount)}`"
+            :aria-label="`Cohort ${cohort.name}: ${pluralize('admit', cohort.totalStudentCount)}`"
             class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
             :path="`/cohort/${cohort.id}`"
           >
@@ -209,23 +205,24 @@
       </div>
       <v-list
         v-if="myCuratedGroupsCE3.length"
-        tag="ul"
-        density="compact"
+        aria-labelledby="sidebar-admit-curated-groups-header"
         class="py-0 sidebar-list"
+        density="compact"
         lines="one"
         role="list"
-        aria-labelledby="sidebar-admit-curated-groups-header"
+        tabindex="-1"
+        tag="ul"
       >
         <v-list-item
           v-for="(group, index) in myCuratedGroupsCE3"
           :key="group.id"
-          tag="li"
-          role="listitem"
           class="py-0 pl-1 pr-2 pretty-hover sub-item"
+          role="listitem"
+          tag="li"
         >
           <NavLink
             :id="`sidebar-admitted-students-curated-${index}`"
-            :aria-label="`${capitalize(describeCuratedGroupDomain('admitted_students', false))} ${group.name} has ${pluralize('student', group.totalStudentCount)}`"
+            :aria-label="`${capitalize(describeCuratedGroupDomain('admitted_students', false))} ${group.name}: ${pluralize('student', group.totalStudentCount)}`"
             class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
             :path="`/curated/${group.id}`"
           >
@@ -324,6 +321,7 @@ const {mdAndUp} = useDisplay()
   color: rgb(var(--v-theme-category-alert));
   text-decoration: none;
 }
+/* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .pretty-hover:focus-within a {
   box-shadow: none;
 }
@@ -331,9 +329,10 @@ const {mdAndUp} = useDisplay()
   outline-color: rgba(var(--v-theme-category-alert));
   outline-offset: -0.1rem;
   outline-style: solid;
+  /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
   a {
     box-shadow: none;
-      outline: none;
+    outline: none;
   }
 }
 .pretty-hover:hover .sidebar-pill,

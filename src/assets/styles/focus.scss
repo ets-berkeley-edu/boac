@@ -1,4 +1,4 @@
-@supports not selector(:focus) {
+@supports not selector(:focus-visible) {
   .bg-accent-blue:focus::after,
   .text-accent-blue:focus::after {
     outline-color: rgba(var(--v-theme-accent-blue)) !important;
@@ -60,11 +60,22 @@
     outline-width: 0.125rem;
   }
   .select-menu:focus,
+  .v-chip:focus,
   .v-btn-group > .v-btn:focus::after,
-  .v-chip:focus-visible,
   .v-file-input.v-input--focused,
   .v-tab:focus::after {
+    box-shadow: inset 0 0 0.1rem 0.05rem white !important;
     outline-offset: -0.1rem !important;
+  }
+  .sidebar:focus {
+    outline: none;
+    .sidebar-parent-list {
+      border-color: transparent;
+      box-shadow: inset 0 0 0.125rem 0.25rem rgba(var(--v-theme-secondary));
+      outline-color: rgba(var(--v-theme-tertiary)) !important;
+      outline-style: solid;
+      outline-offset: -0.125rem;
+    }
   }
   .sidebar .v-btn:focus::after,
   .v-btn.text-white:focus::after,
@@ -76,8 +87,8 @@
     outline-offset: -0.2rem !important;
   }
   .v-btn:focus > .v-btn__overlay,
-  .v-chip:focus-visible {
-    opacity: var(--v-focus-opacity);
+  .v-chip:focus > .v-chip__overlay {
+    opacity: var(--v-focus-opacity) !important;
   }
   .v-expansion-panel-title:focus {
     outline-offset: 0.025rem !important;
@@ -112,6 +123,10 @@
   }
   button.clear-button:focus {
     outline-offset: -0.175rem;
+  }
+  div#content[tabindex="-1"]:focus {
+    outline-color: rgba(var(--v-theme-primary)) !important;
+    outline-offset: -0.5rem
   }
   input[type="checkbox"]:focus {
     outline: none;
@@ -186,6 +201,16 @@
     box-shadow: inset 0 0 0.1rem 0.05rem white !important;
     outline-offset: -0.1rem !important;
   }
+  .sidebar:focus-visible {
+    outline: none;
+    .sidebar-parent-list {
+      border-color: transparent;
+      box-shadow: inset 0 0 0.125rem 0.25rem rgba(var(--v-theme-secondary));
+      outline-color: rgba(var(--v-theme-tertiary)) !important;
+      outline-style: solid;
+      outline-offset: -0.125rem;
+    }
+  }
   .sidebar .v-btn:focus-visible::after,
   .v-btn.text-white:focus-visible::after,
   a.text-white:focus-visible {
@@ -232,6 +257,10 @@
   }
   button.clear-button:focus-visible {
     outline-offset: -0.175rem;
+  }
+  div#content[tabindex="-1"]:focus-visible {
+    outline-color: rgba(var(--v-theme-primary)) !important;
+    outline-offset: -0.5rem
   }
   input[type="checkbox"]:focus-visible {
     outline: none;
