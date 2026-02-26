@@ -32,16 +32,13 @@
         :toggle-sort="toggleSort"
       />
     </template>
-
     <template #item.curated="{item}">
       <CuratedStudentCheckbox
         domain="admitted_students"
         :student="item"
       />
     </template>
-
     <template #item.lastName="{item}">
-      <span class="sr-only">Admitted student name</span>
       <router-link
         :id="`link-to-admit-${item.csEmplId}`"
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
@@ -49,49 +46,31 @@
         v-html="fullName(item)"
       />
     </template>
-
     <template #item.csEmplId="{item}">
-      <span class="sr-only">C S I D<span aria-hidden="true">&nbsp;</span></span>
       <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.csEmplId }}</span>
     </template>
-
     <template #item.currentSir="{item}">
-      <span class="sr-only">S I R</span>
       {{ item.currentSir }}
     </template>
-
     <template #item.specialProgramCep="{item}">
-      <span class="sr-only">C E P</span>
       {{ item.specialProgramCep || '&mdash;' }}
     </template>
-
     <template #item.reentryStatus="{item}">
-      <span class="sr-only">Re-entry</span>
       {{ item.reentryStatus }}
     </template>
-
     <template #item.firstGenerationCollege="{item}">
-      <span class="sr-only">First generation</span>
       {{ item.firstGenerationCollege }}
     </template>
-
     <template #item.urem="{item}">
-      <span class="sr-only">U R E M</span>
       {{ item.urem }}
     </template>
-
     <template #item.applicationFeeWaiverFlag="{item}">
-      <span class="sr-only">Waiver</span>
       {{ item.applicationFeeWaiverFlag }}
     </template>
-
     <template #item.residencyCategory="{item}">
-      <span class="sr-only">Residency</span>
       {{ item.residencyCategory }}
     </template>
-
     <template #item.freshmanOrTransfer="{item}">
-      <span class="sr-only">Freshman or Transfer</span>
       {{ item.freshmanOrTransfer }}
     </template>
   </v-data-table-virtual>
@@ -120,7 +99,7 @@ const props = defineProps({
 const currentUser = useContextStore().currentUser
 const headers = [
   {key: 'curated', ariaLabel: 'select', sortable: false},
-  {key: 'lastName', ariaLabel: 'last name', title: 'Name', sortable: true, width: '220px'},
+  {key: 'lastName', title: 'Name', sortable: true, width: '220px'},
   {key: 'csEmplId', ariaLabel: 'C S I D', title: 'CS ID', sortable: true},
   {key: 'currentSir', title: 'SIR', sortable: false},
   {key: 'specialProgramCep', ariaLabel: 'C E P', title: 'CEP', sortable: false},
