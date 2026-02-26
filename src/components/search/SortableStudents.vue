@@ -13,7 +13,8 @@
     :items="items"
     must-sort
     :row-props="data => ({
-      id: withTableUid(`tr-student-${data.item.sid}`)
+      id: withTableUid(`tr-student-${data.item.sid}`),
+      class: 'sortable-student-row'
     })"
     :sort-by="[sortBy]"
     @update:sort-by="onUpdateSortBy"
@@ -51,13 +52,17 @@
           size="small"
           :student="item"
         />
-        <div v-if="includeCuratedCheckbox" class="sr-only">
-          <ManageStudent domain="default" :student="item" />
+        <div v-if="includeCuratedCheckbox">
+          <ManageStudent
+            :domain="domain"
+            :student="item"
+            sr-only
+          />
         </div>
         <router-link
           v-if="item.uid"
           :id="withTableUid(`link-to-student-${item.uid}`)"
-          class="mr-1"
+          class="mr-1 ml-1"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
           :to="studentRoutePath(item.uid, useContextStore().currentUser.inDemoMode)"
           v-html="lastNameFirst(item)"
