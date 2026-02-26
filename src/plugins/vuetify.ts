@@ -47,7 +47,7 @@ import {VTextField} from 'vuetify/components/VTextField'
 import {VTooltip} from 'vuetify/components/VTooltip'
 
 import colors from 'vuetify/lib/util/colors.mjs'
-import highchartsA11y from './highcharts'
+import highchartsA11y from '../directives/highcharts'
 
 export default createVuetify({
   components: {

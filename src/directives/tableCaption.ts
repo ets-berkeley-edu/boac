@@ -1,4 +1,5 @@
 import type {DirectiveBinding, ObjectDirective} from 'vue'
+import type {ElWithObserver} from '@/lib/types'
 
 type CaptionBindingValue =
   | string
@@ -6,10 +7,6 @@ type CaptionBindingValue =
       text?: string
       id?: string
     }
-
-type ElWithObserver = HTMLElement & {
-  __tableCaptionObserver?: MutationObserver
-}
 
 function normalizeValue(value: CaptionBindingValue | undefined) {
   if (!value) return {text: ''}
@@ -48,7 +45,7 @@ export const tableCaption: ObjectDirective = {
     })
 
     observer.observe(el, {childList: true, subtree: true})
-    el.__tableCaptionObserver = observer
+    el.__observer = observer
   },
 
   updated(el: ElWithObserver, binding: DirectiveBinding<CaptionBindingValue>) {
@@ -57,7 +54,7 @@ export const tableCaption: ObjectDirective = {
   },
 
   unmounted(el: ElWithObserver) {
-    el.__tableCaptionObserver?.disconnect()
-    delete el.__tableCaptionObserver
+    el.__observer?.disconnect()
+    delete el.__observer
   }
 }
