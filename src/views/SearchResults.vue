@@ -107,12 +107,14 @@
                     domain="default"
                     :students="results.students"
                   />
-                  <SortableStudents
-                    class="mt-4"
-                    domain="default"
-                    :include-curated-checkbox="true"
-                    :students="results.students"
-                  />
+                  <div class="search-results-students-table">
+                    <SortableStudents
+                      class="mt-4"
+                      domain="default"
+                      :include-curated-checkbox="true"
+                      :students="results.students"
+                    />
+                  </div>
                 </div>
               </div>
               <div v-if="item.key === 'admit'">
@@ -482,5 +484,18 @@ const openAdvancedSearch = () => {
 li {
   margin-left: 24px;
   padding-top: 6px;
+}
+
+.search-results-students-table :deep(.sortable-student-row:hover .opacity-zero),
+.search-results-students-table :deep(.sortable-student-row:focus-within .opacity-zero) {
+  opacity: 1 !important;
+}
+
+.search-results-students-table :deep(.stacked-table .opacity-zero) {
+  opacity: 1 !important;
+}
+
+.search-results-students-table :deep(.opacity-zero) {
+  transition: opacity 120ms ease-in-out;
 }
 </style>
