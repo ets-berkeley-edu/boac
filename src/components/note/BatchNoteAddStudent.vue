@@ -21,7 +21,8 @@
         :key="vAutocompleteKey"
         aria-describedby="create-note-add-student-desc"
         aria-label="Name or S I D lookup. Expect auto suggest."
-        autocomplete="list"
+        :aria-labelledby="undefined"
+        autocomplete="off"
         base-color="primary"
         class="autocomplete-students autocomplete-with-add-button note-add-student-input"
         :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
@@ -64,7 +65,7 @@
         </template>
       </v-combobox>
     </div>
-    <ul class="list-no-bullets mt-2">
+    <ul v-if="size(addedStudents)" aria-label="students" class="list-no-bullets mt-2">
       <li v-for="(addedStudent) in addedStudents" :key="addedStudent.sid">
         <PillItem
           :id="`batch-note-student-${addedStudent.uid}`"
