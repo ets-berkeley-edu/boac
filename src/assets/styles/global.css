@@ -132,7 +132,7 @@
   width: 2.5rem;
 }
 .default-margins {
-  margin: 24px;
+  padding: 24px;
 }
 .demo-mode-blur,
 .demo-mode-blur.bg-light-blue,

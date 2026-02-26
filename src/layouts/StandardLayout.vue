@@ -1,8 +1,6 @@
 <template>
   <v-fade-transition>
     <div class="d-flex flex-column vh-100">
-      <a id="skip-to-content-link" href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
-      <a id="skip-to-nav-link" href="#nav-header" class="sr-only sr-only-focusable">Skip to navigation</a>
       <v-layout>
         <v-app-bar
           color="primary"
@@ -11,6 +9,8 @@
           tag="banner"
           @shortkey="() => putFocusNextTick('basic-search-input')"
         >
+          <a id="skip-to-content-link" href="#content" class="sr-only sr-only-focusable align-self-start">Skip to main content</a>
+          <a id="skip-to-nav-link" href="#main-menu-nav" class="sr-only sr-only-focusable align-self-start">Skip to navigation</a>
           <v-app-bar-nav-icon
             v-if="!mdAndUp"
             id="app-bar-nav-icon"
@@ -23,13 +23,18 @@
         </v-app-bar>
         <v-navigation-drawer
           v-if="mdAndUp"
-          aria-labelledby="nav-header"
-          class="bg-tertiary pt-1 sidebar"
+          id="main-menu-nav"
+          aria-label="main menu"
+          class="bg-tertiary sidebar"
           permanent
           role="navigation"
           :scrim="false"
+          tabindex="-1"
           tag="nav"
         >
+          <template #prepend>
+            <a id="skip-nav-link" class="sr-only sr-only-focusable" href="#content">Skip navigation</a>
+          </template>
           <template #append>
             <SidebarFooter v-if="currentUser.canAccessAdvisingData" />
           </template>
@@ -48,14 +53,17 @@
               </div>
             </div>
             <v-expand-transition>
-              <div v-if="!mdAndUp && showSidebar && !loading" class="sidebar">
-                <Sidebar
-                  id="small-viewport-sidebar"
-                  aria-labelledby="nav-header"
-                  class="bg-tertiary"
-                  role="navigation"
-                />
-              </div>
+              <nav
+                v-if="!mdAndUp && showSidebar && !loading"
+                id="main-menu-nav"
+                aria-label="main menu"
+                class="sidebar"
+                role="navigation"
+                tabindex="-1"
+              >
+                <a id="skip-nav-link" class="sr-only sr-only-focusable" href="#content">Skip navigation</a>
+                <Sidebar id="small-viewport-sidebar" class="bg-tertiary" />
+              </nav>
             </v-expand-transition>
             <div
               class="w-100"
@@ -65,6 +73,7 @@
               <div
                 v-show="!loading"
                 id="content"
+                aria-labelledby="page-header"
                 class="scroll-margins"
                 role="main"
                 tabindex="-1"
