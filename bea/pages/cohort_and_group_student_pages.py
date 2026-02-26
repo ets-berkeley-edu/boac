@@ -240,7 +240,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         return f'{self.student_row_xpath(student)}//tbody/tr[{course_idx + 1}]'
 
     def course_code(self, student, course_idx):
-        return self.el_text_if_exists((By.XPATH, f'{self.course_row_xpath(student, course_idx)}/td[1]'), '(W)\nWaitlisted')
+        return self.el_text_if_exists((By.XPATH, f'{self.course_row_xpath(student, course_idx)}/td[1]/span[1]'))
 
     def course_units(self, student, course_idx):
         return self.el_text_if_exists((By.XPATH, f'{self.course_row_xpath(student, course_idx)}/td[2]'))
