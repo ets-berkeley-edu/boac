@@ -210,6 +210,10 @@ export type EForm = {
   status: string
 }
 
+export type ElWithObserver = HTMLElement & {
+  __observer?: MutationObserver
+}
+
 export type Enrollment = {
   displayName: string,
   sections: Section[],
