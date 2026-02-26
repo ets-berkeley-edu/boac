@@ -37,6 +37,7 @@
     </div>
     <div class="w-100">
       <PeerAdvisingNotesTable
+        :key="totalNoteCount"
         :notes="notes"
         :is-fetching-notes="isFetchingNotes"
         :after-note-edit="fetchNotes"
@@ -75,7 +76,7 @@
 import type {Handler} from 'mitt'
 import {findIndex, get, last, orderBy} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
-import {onMounted, onUnmounted, ref, watch} from 'vue'
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import type {BasicStudent, BoaUser, Note, PeerAdvisingDepartment} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
@@ -99,7 +100,6 @@ const currentUser = contextStore.currentUser
 const isFetchingNotes = ref(false)
 const noteStore = useNoteStore()
 const notes = ref<Note[]>([])
-const notesDescription = ref('')
 const offset = ref(0)
 const peerAdvisingDepartment = ref<PeerAdvisingDepartment | undefined>()
 const peerAdvisor = ref<BoaUser>()
@@ -134,6 +134,13 @@ onUnmounted(() => {
   noteStore.exitSession()
 })
 
+const notesDescription = computed(() => {
+  if (notes.value.length < totalNoteCount.value) {
+    return `Showing ${notes.value.length} of ${totalNoteCount.value} notes.`
+  }
+  return `Showing all ${notes.value.length} notes.`
+})
+
 const fetchNotes = () => {
   return new Promise<void>(resolve => {
     if (peerAdvisor.value && peerAdvisor.value.uid) {
@@ -147,7 +154,6 @@ const fetchNotes = () => {
       ).then(data => {
         notes.value = orderBy([...notes.value, ...data.notes], n => n.updatedAt || n.createdAt, ['desc'])
         totalNoteCount.value = data.totalNoteCount
-        notesDescription.value = notes.value.length < totalNoteCount.value ? `Showing ${notes.value.length} of ${totalNoteCount.value} notes.` : `Showing all ${notes.value.length} notes.`
         isFetchingNotes.value = false
         resolve()
       })
@@ -206,10 +212,10 @@ const onClickShowMore = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
-  totalNoteCount.value += 1
   getBasicStudent(note.sid).then((student: BasicStudent) => {
     note.student = student
     notes.value.unshift(note)
+    totalNoteCount.value += 1
   })
 }
 </script>
