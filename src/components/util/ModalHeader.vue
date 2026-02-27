@@ -1,12 +1,12 @@
 <template>
-  <h3
+  <h2
     :id="headerId"
     class="mx-2"
     :class="clazz"
   >
     {{ text }}
     <slot />
-  </h3>
+  </h2>
 </template>
 
 <script setup>
