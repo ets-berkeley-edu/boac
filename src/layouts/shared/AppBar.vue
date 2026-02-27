@@ -5,13 +5,14 @@
         id="home-header"
         class="text-no-wrap text-white"
         path="/home"
+        aria-label="UC Berkeley Online Advising home page"
       >
         <span class="hide-in-narrow-viewport">
           <span class="font-weight-bold">UC Berkeley</span>
           Online Advising <span class="sr-only">&nbsp;home page</span>
         </span>
         <v-icon
-          aria-label="UC Berkeley Online Advising home page"
+          aria-hidden="true"
           class="show-in-narrow-viewport"
           :icon="mdiHome"
         />

@@ -11,6 +11,7 @@
     <v-expansion-panel-title
       :id="`sortable-${keyword}-${props.group.id}-expand-btn`"
       :aria-controls="`sortable-${keyword}-${props.group.id}-details`"
+      :aria-describedby="`sortable-${keyword}-${props.group.id}-heading-desc`"
       class="bg-transparent pl-2 py-1 w-100"
       hide-actions
     >
@@ -42,6 +43,12 @@
                 {{ pluralize('alert', toInt(group.alertCount, 0)) }}
               </span>
             </h3>
+            <div
+              :id="`sortable-${keyword}-${props.group.id}-heading-desc`"
+              class="sr-only"
+            >
+              Expand to view students with alerts and a link to view all students in this {{ groupTypeName }}.
+            </div>
           </div>
           <div aria-hidden="true" class="d-flex align-center">
             <div v-if="!compact" class="pr-2 text-no-wrap">
