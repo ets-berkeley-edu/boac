@@ -54,6 +54,7 @@
       >
         <v-expansion-panel-title
           :id="`department-${department.deptCode.toLowerCase()}`"
+          :aria-describedby="`department-${department.deptCode.toLowerCase()}-support`"
           class="pl-2 w-100"
         >
           <template #default="{expanded}">
@@ -78,6 +79,9 @@
                   <span class="sr-only">{{ `${department.isOpen ? 'Hide' : 'Show'} details for ${department.deptName} ` }}</span>
                   {{ department.deptName }}
                 </h2>
+                <div :id="`department-${department.deptCode.toLowerCase()}-support`" class="sr-only">
+                  Expand to view users and their {{ modeLabel.toLowerCase() }}s in this department.
+                </div>
               </div>
               <div v-if="department.isOpen && department.memberCount && !department.isFetching">
                 {{ pluralize('advisor', department.users.length, {1: 'Only one'}) }} {{ department.users.length === 1 ? 'has' : 'have' }} {{ modeLabel }}s.
@@ -102,7 +106,7 @@
             </div>
             <div
               v-for="(user, index) in department.users"
-              :id="`users-of-department-${department.deptCode.toLowerCase()}`"
+              :id="`users-of-department-${department.deptCode.toLowerCase()}-${user.uid}`"
               :key="index"
               :class="{'mt-3': index > 0}"
             >
@@ -111,6 +115,12 @@
                 <span v-if="user.name">{{ user.name }}</span>
                 <span v-if="!user.name">UID: {{ user.uid }}</span>
               </h3>
+              <div
+                v-if="!(mode === 'cohort' ? user.cohorts : user.curatedGroups).length"
+                class="sr-only"
+              >
+                No {{ modeLabel.toLowerCase() }}s.
+              </div>
               <ul
                 :id="`${mode}s-of-user-${user.uid}`"
                 :aria-labelledby="`user-${user.uid}`"
