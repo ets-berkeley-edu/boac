@@ -45,7 +45,6 @@
 
     <template #item.lastName="{item}">
       <div class="align-start d-flex">
-        <span class="sr-only">Student name</span>
         <StudentAvatar
           :key="item.sid"
           class="mr-2"
@@ -98,12 +97,10 @@
     </template>
 
     <template #item.sid="{item}">
-      <span class="sr-only">S I D<span aria-hidden="true">&nbsp;</span></span>
       <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.sid }}</span>
     </template>
 
     <template v-if="!compact" #item.major="{item}">
-      <span class="sr-only">Major</span>
       <div v-if="!item.majors || item.majors.length === 0">
         <span aria-hidden="true">--</span><span class="sr-only">No data</span>
       </div>
@@ -111,7 +108,6 @@
     </template>
 
     <template v-if="!compact" #item.expectedGraduationTerm="{item}">
-      <span class="sr-only">Expected graduation term</span>
       <div v-if="!item.expectedGraduationTerm">
         <span aria-hidden="true">--</span><span class="sr-only">No data</span>
       </div>
@@ -121,12 +117,10 @@
     </template>
 
     <template v-if="!compact" #item.enrolledUnits="{item}">
-      <span class="sr-only">Term units</span>
       {{ get(item.term, 'enrolledUnits', 0) }}
     </template>
 
     <template v-if="!compact" #item.cumulativeUnits="{item}">
-      <span class="sr-only">Units completed</span>
       <div v-if="!item.cumulativeUnits">
         <span aria-hidden="true">--</span><span class="sr-only">No data</span>
       </div>
@@ -134,7 +128,6 @@
     </template>
 
     <template v-if="!compact" #item.cumulativeGPA="{item}">
-      <span class="sr-only">GPA</span>
       <div v-if="isNil(item.cumulativeGPA)">
         <span aria-hidden="true">--</span><span class="sr-only">No data</span>
       </div>
@@ -227,7 +220,7 @@ onMounted(() => {
   }
   const sortable = props.students.length > 1
   each([
-    {key: 'lastName', ariaLabel: 'last name', sortable, sortRaw, title: 'Name', value: 'lastName'},
+    {key: 'lastName', sortable, sortRaw, title: 'Name', value: 'lastName'},
     {key: 'sid', ariaLabel: 'S I D', sortable, sortRaw, title: 'SID', value: 'sid'}
   ], header => {
     headers.value.push(header)
@@ -247,7 +240,7 @@ onMounted(() => {
   } else {
     each([
       {key: 'major', sortable, sortRaw, title: 'Major', value: 'majors[0]'},
-      {key: 'expectedGraduationTerm', sortable, sortRaw, title: 'Grad', value: 'expectedGraduationTerm.id'},
+      {key: 'expectedGraduationTerm', ariaLabel: 'expected graduation term', sortable, sortRaw, title: 'Grad', value: 'expectedGraduationTerm.id'},
       {key: 'enrolledUnits', isNumber: true, sortable, sortRaw, title: 'Term units', value: 'term.enrolledUnits'},
       {key: 'cumulativeUnits', isNumber: true, sortable, sortRaw, title: 'Units completed', value: 'cumulativeUnits'},
       {key: 'cumulativeGPA', isNumber: true, sortable, sortRaw, title: 'GPA', value: 'cumulativeGPA'},
