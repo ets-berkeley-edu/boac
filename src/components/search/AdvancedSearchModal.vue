@@ -136,7 +136,7 @@
                 variant="outlined"
               >
                 <v-card-title>
-                  <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
+                  <h2 class="notes-and-appointments-filters-header">Filters for notes and appointments</h2>
                 </v-card-title>
                 <v-card-text class="w-100">
                   <div class="px-3">

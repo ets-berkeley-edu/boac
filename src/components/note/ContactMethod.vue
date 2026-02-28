@@ -1,15 +1,16 @@
 <template>
-  <div>
-    <label
+  <fieldset class="pa-0 ma-0 border-0">
+    <legend
       id="contact-type-label"
       class="font-size-16 font-weight-bold"
     >
       Contact Method
-    </label>
+    </legend>
+
     <div class="mt-1">
       <v-radio-group
         id="contact-type-options"
-        aria-describedby="contact-type-label"
+        aria-labelledby="contact-type-label"
         color="primary"
         density="compact"
         :disabled="disabled || noteStore.isSaving || noteStore.boaSessionExpired"
@@ -36,7 +37,7 @@
         </template>
       </v-radio-group>
     </div>
-  </div>
+  </fieldset>
 </template>
 
 <script setup lang="ts">
