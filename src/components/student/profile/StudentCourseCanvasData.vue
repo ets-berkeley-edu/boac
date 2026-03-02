@@ -41,7 +41,7 @@
               <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteId}-assignments-score`">
                 <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                   Score:
-                  <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
+                  <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}<span class="sr-only">.</span></strong>
                   <span class="text-medium-emphasis text-no-wrap">
                     (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
                   </span>

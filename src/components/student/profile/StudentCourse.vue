@@ -123,7 +123,7 @@
                   :to="`/course/${termId}/${section.ccn}?u=${student.uid}`"
                   class="font-weight-black"
                   :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                ><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
+                ><span class="sr-only">{{ course.displayName }}, </span>{{ section.displayName }}<span class="sr-only"> class page</span></router-link><!--
                   --><span v-if="!section.isViewableOnCoursePage" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ section.displayName }}</span><!--
                   --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
                   --><span v-if="sectionIndex === course.sections.length - 1" />
