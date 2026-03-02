@@ -47,8 +47,8 @@
         <div role="rowgroup">
           <div role="row" class="align-center border-b-sm d-flex font-size-12 font-weight-bold mx-1 text-medium-emphasis text-no-wrap text-uppercase">
             <div role="columnheader" class="student-course-column-name mr-2">Course</div>
-            <div role="columnheader" class="student-course-column-grade mr-2">Mid</div>
-            <div role="columnheader" class="student-course-column-grade mr-1">Final</div>
+            <div role="columnheader" class="student-course-column-grade mr-2">Mid<span class="sr-only">term grade</span></div>
+            <div role="columnheader" class="student-course-column-grade mr-1">Final<span class="sr-only"> grade</span></div>
             <div role="columnheader" class="student-course-column-units ml-1">Units</div>
           </div>
         </div>
@@ -89,7 +89,9 @@
         <div class="d-flex justify-space-between">
           <div class="pr-1">
             <span class="font-weight-500 pr-1 mr-2">Term GPA:</span>
-            <span :id="`term-${term.termId}-gpa`">{{ termGpa ? round(termGpa || 0, 3) : '&mdash;' }}</span>
+            <span v-if="termGpa" :id="`term-${term.termId}-gpa`">{{ round(termGpa || 0, 3) }}</span>
+            <span v-if="!termGpa" :id="`term-${term.termId}-gpa`" aria-hidden="true">&mdash;</span>
+            <span v-if="!termGpa" class="sr-only">No data</span>
           </div>
           <div>
             <span class="font-weight-500 pr-1 ml-2">Total Units:</span>
