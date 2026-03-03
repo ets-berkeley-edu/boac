@@ -1,5 +1,5 @@
 <template>
-  <div class="py-1">
+  <div class="py-1 d-flex flex-column">
     <label
       :for="`batch-note-${type}`"
       class="font-size-16 font-weight-bold"
