@@ -29,7 +29,14 @@
     <template #headers="{columns}">
       <tr :class="{'sr-only': $vuetify.display.width <= mobileBreakpoint}">
         <th v-for="column in columns" :key="column.key" class="px-1 pb-2 vertical-bottom">
-          <span v-if="column.title" :aria-hidden="!!column.ariaLabel" class="font-weight-bold">{{ column.title }}</span>
+          <span
+            v-if="column.title"
+            :aria-hidden="!!column.ariaLabel"
+            class="font-weight-bold"
+            :class="{'sr-only': column.key === 'avatar' || column.key === 'profile'}"
+          >
+            {{ column.title }}
+          </span>
           <span v-if="column.ariaLabel" class="sr-only">{{ column.ariaLabel }}</span>
         </th>
       </tr>
@@ -374,8 +381,8 @@ onBeforeMount(() => {
 
 onMounted(() => {
   const h = [
-    {key: 'avatar', ariaLabel: 'select student', sortable: false},
-    {key: 'profile', ariaLabel: 'name', sortable: false},
+    {key: 'avatar', title: 'Select student', sortable: false},
+    {key: 'profile', title: 'Student details', sortable: false},
     {key: 'courseSites', ariaLabel: 'course sites', sortable: false, title: 'Course Site(s)'},
     {key: 'assignmentsSubmitted', sortable: false, title: 'Assignments Submitted'},
     {key: 'assignmentGrades', sortable: false, title: 'Assignment Grades'}
