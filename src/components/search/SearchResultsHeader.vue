@@ -4,7 +4,7 @@
       <span v-if="countTotal <= countInView">
         Showing {{ pluralize(resultsType, countTotal, {1: 'one'}) }}.
         <span v-if="searchPhrase">
-          matching <strong class="font-weight-500">{{ searchPhrase }}</strong>
+          matching <strong class="font-weight-600">{{ searchPhrase }}</strong>.
         </span>.
       </span>
       <span v-if="countTotal > countInView" class="font-size-18">
@@ -13,14 +13,14 @@
         <span class="sr-only"> 1 to {{ countInView }}</span>
         of {{ toInt(countTotal, 0).toLocaleString() }}
         <span v-if="searchPhrase">
-          matching <strong class="font-weight-500">{{ searchPhrase }}</strong>
+          matching <strong class="font-weight-600">{{ searchPhrase }}</strong>.
         </span>
       </span>
     </span>
     <span v-if="!countTotal">
       Showing {{ countInView }} {{ resultsType }}s
       <span v-if="searchPhrase">
-        matching <strong class="font-weight-500">{{ searchPhrase }}</strong>
+        matching <strong class="font-weight-600">{{ searchPhrase }}</strong>.
       </span>
     </span>
     <span v-if="!countTotal || countTotal > countInView">
