@@ -16,7 +16,7 @@
         @click="onClickQuickLink('ZCEEE')"
       />
     </div>
-    <div>
+    <div :aria-hidden="true">
       |
     </div>
     <div>
@@ -32,7 +32,7 @@
         @click="onClickQuickLink('COENG')"
       />
     </div>
-    <div>
+    <div :aria-hidden="true">
       |
     </div>
     <div>
@@ -48,7 +48,7 @@
         @click="onClickQuickLink('QCADV')"
       />
     </div>
-    <div>
+    <div :aria-hidden="true">
       |
     </div>
     <div>
@@ -64,7 +64,7 @@
         @click="() => onClickPeerAdvisingQuickLink('peer_advisor')"
       />
     </div>
-    <div>
+    <div :aria-hidden="true">
       |
     </div>
     <div>

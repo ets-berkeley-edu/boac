@@ -74,8 +74,8 @@
         />
         <div
           v-if="cohortId && isOwnedByCurrentUser && size(filters)"
+          :aria-hidden="true"
           class="text-medium-emphasis"
-          role="separator"
         >
           |
         </div>
@@ -91,8 +91,8 @@
         />
         <div
           v-if="cohortId && isOwnedByCurrentUser"
+          :aria-hidden="true"
           class="text-medium-emphasis"
-          role="separator"
         >
           |
         </div>
@@ -108,8 +108,8 @@
         />
         <div
           v-if="(cohortId && isOwnedByCurrentUser) || (cohortId && size(filters))"
+          :aria-hidden="true"
           class="text-medium-emphasis"
-          role="separator"
         >
           |
         </div>
@@ -135,8 +135,8 @@
         />
         <div
           v-if="isHistorySupported"
+          :aria-hidden="true"
           class="text-medium-emphasis"
-          role="separator"
         >
           |
         </div>

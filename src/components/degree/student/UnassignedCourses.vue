@@ -192,7 +192,7 @@
               <td class="px-4" :colspan="canEdit ? (ignored ? 6 : 7) : (ignored ? 4 : 5)">
                 <div class="d-flex flex-column-reverse">
                   <div class="font-size-12 py-2 text-no-wrap">
-                    [<v-btn
+                    <span :aria-hidden="true">[</span><v-btn
                       :id="`course-${course.id}-hide-note-btn`"
                       :aria-expanded="true"
                       class="pa-1 text-primary"
@@ -200,7 +200,7 @@
                       text="Hide note"
                       variant="text"
                       @click="hideNote(course)"
-                    />]
+                    /><span :aria-hidden="true">]</span>
                   </div>
                   <div
                     :id="`${course.id}-note`"

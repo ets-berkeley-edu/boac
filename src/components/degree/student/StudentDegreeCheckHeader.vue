@@ -89,7 +89,7 @@
                 <span class="sr-only">this page (opens in new tab)</span>
               </router-link>
             </div>
-            <div class="pr-2 pb-1">
+            <div :aria-hidden="true" class="pr-2 pb-1">
               |
             </div>
             <div class="pr-2 pb-1">
@@ -100,7 +100,7 @@
                 History
               </router-link>
             </div>
-            <div v-if="currentUser.canEditDegreeProgress" class="pr-2 pb-1">
+            <div v-if="currentUser.canEditDegreeProgress" :aria-hidden="true" class="pr-2 pb-1">
               |
             </div>
             <div v-if="currentUser.canEditDegreeProgress" class="pr-2 pb-1">
@@ -235,7 +235,7 @@
           <div class="align-center d-flex pb-2">
             <h3 id="in-progress-courses-header" class="font-size-18 text-medium-emphasis text-no-wrap">In-progress Courses</h3>
             <div v-if="degreeStore.courses.inProgress.length" class="text-no-wrap px-1">
-              [<v-btn
+              <span :aria-hidden="true">[</span><v-btn
                 id="show-upper-units-input"
                 aria-controls="in-progress-courses"
                 :aria-expanded="showInProgressCourses"
@@ -248,7 +248,7 @@
                 :text="showInProgressCourses ? 'hide' : 'show'"
                 variant="text"
                 @click="() => showInProgressCourses = !showInProgressCourses"
-              />]
+              /><span :aria-hidden="true">]</span>
             </div>
           </div>
           <v-expand-transition v-if="degreeStore.courses.inProgress.length">

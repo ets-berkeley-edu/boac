@@ -34,7 +34,7 @@
           </div>
         </div>
       </v-btn>
-      <div v-if="size(degreeTemplates)" class="mx-2">|</div>
+      <div v-if="size(degreeTemplates)" :aria-hidden="true" class="mx-2">|</div>
       <v-btn
         v-if="size(degreeTemplates)"
         id="degree-check-batch-btn"

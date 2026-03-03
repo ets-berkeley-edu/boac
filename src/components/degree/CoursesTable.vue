@@ -318,7 +318,7 @@
                 ><span class="sr-only">Note: </span><span v-html="getNote(bundle)" /></pre>
               </div>
               <div class="font-size-12 text-no-wrap">
-                [<v-btn
+                <span :aria-hidden="true">[</span><v-btn
                   :id="`column-${uxPositionX}-${bundle.key}-hide-note-btn`"
                   :aria-controls="`column-${uxPositionX}-${bundle.key}-full-note`"
                   :aria-expanded="true"
@@ -327,7 +327,7 @@
                   text="Hide note"
                   variant="text"
                   @click="hideNote(bundle, uxPositionX)"
-                />]
+                /><span :aria-hidden="true">]</span>
               </div>
             </td>
           </tr>
