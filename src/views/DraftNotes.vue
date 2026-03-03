@@ -195,9 +195,7 @@ const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 
 
 const draftNotesCount = computed(() => size(myDraftNotes.value) || 0)
 
-const pageTitle = computed(() => currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes')
-
-const tableCaption = computed(() => `Draft Notes Table: ${pageTitle.value}`)
+const tableCaption = computed(() => currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes')
 
 const headers = computed(() => {
   const isLg = vuetify.display.lgAndUp.value
