@@ -27,7 +27,7 @@
         >
           Create Cohort
         </v-btn>
-        <div class="text-medium-emphasis" role="separator">|</div>
+        <div :aria-hidden="true" class="text-medium-emphasis">|</div>
         <v-btn
           id="export-student-list-button"
           :disabled="!exportEnabled || !totalAdmitCount"
