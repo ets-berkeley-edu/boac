@@ -121,7 +121,7 @@
         :aria-rowcount="size(messages)"
         class="w-100"
       >
-        <caption class="sr-only">Academic Timeline: {{ activeTab === 'all' ? 'All Messages' : `${capitalize(activeTab)}s` }}</caption>
+        <caption class="sr-only">Academic Timeline: {{ activeTab === 'all' ? 'All Messages' : `${activeTab}s` }}</caption>
         <colgroup>
           <col class="column-pill">
           <col class="column-message">
@@ -129,9 +129,9 @@
         </colgroup>
         <thead>
           <tr class="sr-only">
-            <th>Type</th>
-            <th>Summary</th>
-            <th>Date</th>
+            <th>Category</th>
+            <th>Message</th>
+            <th>Metadata</th>
           </tr>
         </thead>
         <tbody>
