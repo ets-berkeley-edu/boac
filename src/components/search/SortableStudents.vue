@@ -204,7 +204,7 @@ const sortBy = ref(props.initialSortBy)
 const withTableUid = suffix => (props.tableUid ? `${props.tableUid}-${suffix}` : suffix)
 
 const tableCaption = computed(() =>
-  props.tableName ? `Students table: ${props.tableName}` : 'Students table'
+  props.tableName ? `Students: ${props.tableName}` : 'Students'
 )
 
 onMounted(() => {

@@ -74,7 +74,7 @@ const mobileBreakpoint = 600
 const sortBy = ref({})
 
 const tableCaption = computed(() =>
-  props.tableName ? `Courses table: ${props.tableName}` : 'Courses table'
+  props.tableName ? `Courses: ${props.tableName}` : 'Courses'
 )
 
 onMounted(() => {
