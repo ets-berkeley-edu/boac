@@ -1,6 +1,6 @@
 <template>
   <div :id="`${idPrefix}-container`" class="d-flex justify-start scroll-margins py-1" tabindex="-1">
-    <span class="sr-only"><span id="total-rows">{{ totalPages }}</span> pages of search results. Use Tab to navigate.</span>
+    <span class="sr-only"><span :id="`${idPrefix}-total-rows`">{{ totalPages }}</span> pages of search results. Use Tab to navigate.</span>
     <v-pagination
       :id="`${idPrefix}-widget`"
       v-model="currentPage"
