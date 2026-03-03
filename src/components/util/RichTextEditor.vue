@@ -53,7 +53,10 @@ const props = defineProps({
       link: {
         addTargetToExternalLinks: true
       },
-      toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
+      toolbar: {
+        items: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
+        shouldNotGroupWhenFull: true
+      },
       typing: {
         transformations: {
           remove: ['oneForth', 'oneHalf', 'oneThird', 'threeQuarters', 'twoThirds']
