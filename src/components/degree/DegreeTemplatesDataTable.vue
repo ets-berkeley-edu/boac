@@ -279,7 +279,7 @@ const templateForEdit = ref<DegreeTemplate | undefined>()
 const templateToClone = ref<DegreeTemplate | undefined>()
 
 const tableCaption = computed(() =>
-  props.mode === 'archived' ? 'Archived degree checks table' : 'Degree checks table'
+  props.mode === 'archived' ? 'Archived degree checks' : 'Degree checks'
 )
 
 const toggleArchivedAt = (degreeTemplate: DegreeTemplate) => {
