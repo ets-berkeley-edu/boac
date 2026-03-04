@@ -6,21 +6,26 @@
     :aria-live="undefined"
     bordered
     class="v-badge-override timeline-category"
-    :class="`timeline-category-${getCategoryType(message)}`"
-    :color="getCategoryColor(message)"
+    :class="`timeline-category-${categoryType}`"
+    :color="categoryColor"
     height="1.5rem"
     inline
     role="none"
     rounded="sm"
   >
     <template #badge>
-      <span class="font-weight-bold font-size-12 text-uppercase">{{ message.type === 'note' && message.peerAdvisingDepartmentId ? 'Peer Note' : label }}</span>
+      <span :aria-hidden="true" class="font-weight-bold font-size-12 text-uppercase">
+        {{ label }}
+      </span>
+      <span class="sr-only">{{ label }}</span>
     </template>
   </v-badge>
 </template>
 
 <script setup>
-defineProps({
+import {computed} from 'vue'
+
+const props = defineProps({
   label: {
     required: true,
     type: String
@@ -31,11 +36,11 @@ defineProps({
   }
 })
 
-const getCategoryColor = message => `category-${message.type === 'note' && message.peerAdvisingDepartmentId ? 'peer-note' : message.type}`
+const categoryColor = computed(() => `category-${props.message.type === 'note' && props.message.peerAdvisingDepartmentId ? 'peer-note' : props.message.type}`)
 
-const getCategoryType = message => {
-  return message.type === 'note' && message.peerAdvisingDepartmentId ? 'peer-advising' : message.type
-}
+const categoryType = (() => {
+  return props.message.type === 'note' && props.message.peerAdvisingDepartmentId ? 'peer-advising' : props.message.type
+})
 </script>
 
 <style>
