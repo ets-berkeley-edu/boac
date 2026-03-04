@@ -410,8 +410,9 @@ const fetchMoreAppointments = () => {
     .then(data => {
       results.appointments = concat(results.appointments, data.appointments)
       const nowShowing = size(results.appointments)
-      const total = results.totalAppointmentCount === null ? null : toInt(results.totalAppointmentCount, 0)
+      const total = results.totalAppointmentCount === null ? null : formatCount(results.totalAppointmentCount)
       alertScreenReader(total ? `Now showing ${nowShowing} of ${total} advising appointments.` : `Now showing ${nowShowing} advising appointments.`)
+      putFocusNextTick('fetch-more-appointments')
     }).finally(() => {
       loadingAdditionalAppointments.value = false
     })
@@ -433,8 +434,9 @@ const fetchMoreNotes = () => {
     .then(data => {
       results.notes = concat(results.notes, data.notes)
       const nowShowing = size(results.notes)
-      const total = results.totalNoteCount === null ? null : toInt(results.totalNoteCount, 0)
+      const total = results.totalNoteCount === null ? null : formatCount(results.totalNoteCount)
       alertScreenReader(total ? `Now showing ${nowShowing} of ${total} advising notes.` : `Now showing ${nowShowing} advising notes.`)
+      putFocusNextTick('fetch-more-notes')
     }).finally(() => {
       loadingAdditionalNotes.value = false
     })
