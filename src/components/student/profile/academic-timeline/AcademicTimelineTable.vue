@@ -17,7 +17,7 @@
             <span class="text-no-wrap">{{ allExpanded ? 'Collapse' : 'Expand' }} all<span class="sr-only"> {{ selectedFilter }}s</span></span>
           </v-btn>
         </div>
-        <div v-if="showDownloadNotesLink" class="pl-3 pb-2" role="separator">|</div>
+        <div v-if="showDownloadNotesLink" :aria-hidden="true" class="pl-3 pb-2">|</div>
         <div v-if="showDownloadNotesLink" class="pl-3 pb-2">
           <a
             id="download-notes-link"
@@ -26,7 +26,7 @@
             Download {{ selectedFilter }}s
           </a>
         </div>
-        <div class="pl-3 pb-2" role="separator">|</div>
+        <div :aria-hidden="true" class="pl-3 pb-2">|</div>
         <div class="align-center d-flex pb-2 pl-4">
           <label
             :id="`timeline-${selectedFilter}s-query-label`"
@@ -50,7 +50,7 @@
           />
         </div>
         <div v-if="['appointment', 'note'].includes(selectedFilter)" class="align-center d-flex pl-4">
-          <div class="pb-2" role="separator">|</div>
+          <div :aria-hidden="true" class="pb-2">|</div>
           <div class="align-center d-flex flex-wrap font-weight-bold pb-2 pl-4 text-medium-emphasis">
             <label aria-hidden="true" class="mr-2">
               Show {{ selectedFilter }}s:

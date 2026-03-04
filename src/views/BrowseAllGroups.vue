@@ -15,7 +15,13 @@
           variant="text"
           @click="collapseAllDepartments"
         />
-        <div v-if="countExpandedDepartments && countExpandedDepartments < departments.length" class="mb-1">|</div>
+        <div
+          v-if="countExpandedDepartments && countExpandedDepartments < departments.length"
+          :aria-hidden="true"
+          class="mb-1"
+        >
+          |
+        </div>
         <v-btn
           v-if="countExpandedDepartments < departments.length"
           id="expand-all-departments"

@@ -148,7 +148,7 @@
               <span class="sr-only">{{ item.name }} (opens in new tab)</span>
             </v-btn>
             <div v-if="currentUser.canEditDegreeProgress" class="d-flex align-center">
-              <span class="text-disabled" role="separator">|</span>
+              <span :aria-hidden="true" class="text-disabled">|</span>
               <v-btn
                 :id="`degree-check-${item.id}-rename-btn`"
                 class="font-size-14 degree-check-btn"
@@ -163,7 +163,7 @@
             </div>
             <div v-if="currentUser.canEditDegreeProgress" class="d-flex flex-wrap flex-sm-nowrap justify-end pb-1">
               <div class="align-center d-flex">
-                <span class="text-disabled" role="separator">|</span>
+                <span :aria-hidden="true" class="text-disabled">|</span>
                 <v-btn
                   :id="`degree-check-${item.id}-copy-btn`"
                   class="font-size-14 degree-check-btn"
@@ -177,7 +177,7 @@
                 </v-btn>
               </div>
               <div class="align-center d-flex">
-                <span class="text-disabled" role="separator">|</span>
+                <span :aria-hidden="true" class="text-disabled">|</span>
                 <v-btn
                   :id="`degree-check-${item.id}-${mode}-btn`"
                   class="font-size-14 degree-check-btn"
@@ -191,7 +191,7 @@
                 </v-btn>
               </div>
               <div class="align-center d-flex">
-                <span class="text-disabled" role="separator">|</span>
+                <span :aria-hidden="true" class="text-disabled">|</span>
                 <v-btn
                   :id="`degree-check-${item.id}-delete-btn`"
                   class="font-size-14 degree-check-btn"

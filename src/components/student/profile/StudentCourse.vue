@@ -125,7 +125,7 @@
                   :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 ><span class="sr-only">{{ course.displayName }}, </span>{{ section.displayName }}<span class="sr-only"> class page</span></router-link><!--
                   --><span v-if="!section.isViewableOnCoursePage" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ section.displayName }}</span><!--
-                  --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
+                  --><span v-if="sectionIndex < course.sections.length - 1" :aria-hidden="true"> | </span><!--
                   --><span v-if="sectionIndex === course.sections.length - 1" />
               </span>
             </span>

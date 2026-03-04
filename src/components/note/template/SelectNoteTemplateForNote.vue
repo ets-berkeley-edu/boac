@@ -70,7 +70,7 @@
                       Rename<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
                     </v-btn>
                     <div class="font-weight-light mb-1 mx-1 text-medium-emphasis" role="separator">
-                      |
+                      <span :aria-hidden="true">|</span>
                     </div>
                     <v-btn
                       :id="`btn-edit-note-template-${template.id}`"
@@ -86,7 +86,7 @@
                       Edit<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
                     </v-btn>
                     <div class="font-weight-light mb-1 mx-1 text-medium-emphasis" role="separator">
-                      |
+                      <span :aria-hidden="true">|</span>
                     </div>
                     <v-btn
                       :id="`btn-delete-note-template-${template.id}`"

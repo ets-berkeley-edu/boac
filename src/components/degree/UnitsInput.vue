@@ -5,7 +5,7 @@
         {{ label }}
       </label>
       <div v-if="range" class="d-flex font-size-14 pb-1">
-        [<v-btn
+        <span :aria-hidden="true">[</span><v-btn
           id="show-upper-units-input"
           :aria-expanded="showUnitsUpperInput"
           :aria-controls="`upper-${inputId}-container`"
@@ -18,7 +18,7 @@
           variant="text"
           width="5.5rem"
           @click="toggle"
-        />]
+        /><span :aria-hidden="true">]</span>
       </div>
     </div>
     <div class="align-center d-flex">
