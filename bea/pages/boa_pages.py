@@ -169,7 +169,7 @@ class BoaPages(CreateNoteModal, SearchForm):
 
     @staticmethod
     def sidebar_member_count_loc(cohort):
-        return By.XPATH, f'//a[contains(@id,"sidebar-")][contains(.,"{cohort.name}")]/span[contains(@id, "count")]'
+        return By.XPATH, f'//a[contains(@id,"sidebar-")][contains(.,"{cohort.name}")]/div[contains(@id, "count")]'
 
     def wait_for_sidebar_member_count(self, cohort):
         app.logger.info(f'Waiting for cohort {cohort.name} member count of {len(cohort.members)}')
