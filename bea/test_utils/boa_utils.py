@@ -381,6 +381,8 @@ def get_advisor_names(advisor):
 def get_director(auth_users):
     directors = []
     for u in auth_users:
+        if u.disabled_at:
+            continue
         for m in u.dept_memberships:
             if m.advisor_role and m.advisor_role.value['code'] == AdvisorRole.DIRECTOR.value['code']:
                 directors.append(u)
