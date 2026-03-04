@@ -41,20 +41,20 @@ class UserListPages(BoaPages):
 
     def all_row_sids(self, cohort=None):
         xpath = self.filtered_cohort_xpath(cohort) if cohort and cohort.__class__.__name__ == 'FilteredCohort' else ''
-        els = self.elements((By.XPATH, f'{xpath}//span[contains(text(), \"S I D\")]/following-sibling::span'))
+        els = self.elements((By.XPATH, f'{xpath}//td[contains(@id, \"column-sid\")]/span'))
         return list(map(lambda el: el.text, els))
 
     def user_row_data(self, sid, cohort=None):
         xpath = self.filtered_cohort_xpath(cohort) if cohort and cohort.__class__.__name__ == 'FilteredCohort' else ''
         row_xpath = f'{xpath}//tr[contains(., "{sid}")]'
-        name_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Student name\")]/following-sibling::a'
-        sid_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"S I D\")]/following-sibling::span'
-        major_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Major\")]/following-sibling::div'
-        term_units_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Term units\")]/following-sibling::div'
-        cumul_units_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Units completed\")]/following-sibling::div'
-        no_cumul_units_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"Units completed\")]/following-sibling::div/span'
-        gpa_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"GPA\")]/following-sibling::div'
-        no_gpa_loc = By.XPATH, f'{row_xpath}//span[contains(text(), \"GPA\")]/following-sibling::div/span'
+        name_loc = By.XPATH, f'{row_xpath}//td[contains(@id, \"td-student-{sid}-column-lastName\")]/a'
+        sid_loc = By.XPATH, f'{row_xpath}//td[contains(@id, \"td-student-{sid}-column-sid\")]/span'
+        major_loc = By.XPATH, f'{row_xpath}//td[contains(@id, \"td-student-{sid}-column-major\")]/div'
+        term_units_loc = By.XPATH, f'{row_xpath}//td[contains(@id, \"td-student-{sid}-column-enrolledUnits\")]'
+        cumul_units_loc = By.XPATH, f'{row_xpath}//td[contains(@id, \"td-student-{sid}-column-cumulativeUnits\")]/div'
+        no_cumul_units_loc = By.XPATH, f'{row_xpath}//td[contains(@id, \"td-student-{sid}-column-cumulativeUnits\")]/div/span'
+        gpa_loc = By.XPATH, f'{row_xpath}//td[contains(@id, \"td-student-{sid}-column-cumulativeGPA\")]/div'
+        no_gpa_loc = By.XPATH, f'{row_xpath}//td[contains(@id, \"td-student-{sid}-column-cumulativeGPA\")]/div/span'
         alerts_loc = By.XPATH, f'{row_xpath}//div[contains(@id, "alert-count")]/div'
         if self.is_present(cumul_units_loc):
             units = self.element(cumul_units_loc).text
