@@ -89,7 +89,7 @@ class Homepage(UserListPages):
 
     @staticmethod
     def user_rows(xpath):
-        return By.XPATH, f'{xpath}//tbody/tr[@class="v-data-table__tr"]'
+        return By.XPATH, f'{xpath}//tbody/tr[@class="v-data-table__tr sortable-student-row"]'
 
     def filtered_cohorts(self):
         Wait(self.driver, utils.get_medium_timeout()).until(ec.presence_of_all_elements_located(self.FILTERED_COHORT))
