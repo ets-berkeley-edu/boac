@@ -55,8 +55,8 @@
         </div>
         <div
           v-if="owner.id === currentUser.id"
+          :aria-hidden="true"
           class="text-medium-emphasis"
-          role="separator"
         >
           |
         </div>
@@ -71,7 +71,7 @@
             @click="enterRenameMode"
           />
         </div>
-        <div v-if="owner.id === currentUser.id" class="text-medium-emphasis">|</div>
+        <div v-if="owner.id === currentUser.id" :aria-hidden="true" class="text-medium-emphasis">|</div>
         <div v-if="owner.id === currentUser.id">
           <v-btn
             id="delete-curated-group-button"
@@ -107,7 +107,7 @@
             </ul>
           </AreYouSureModal>
         </div>
-        <div v-if="owner.id === currentUser.id" class="text-medium-emphasis">|</div>
+        <div v-if="owner.id === currentUser.id" :aria-hidden="true" class="text-medium-emphasis">|</div>
         <div>
           <v-btn
             v-if="domain === 'default'"

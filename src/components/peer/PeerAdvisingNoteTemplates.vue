@@ -87,7 +87,7 @@
               variant="text"
               @click="editTemplateClicked(item)"
             />
-            |
+            <span :aria-hidden="true">|</span>
             <v-btn
               :id="`copy-note-template-${item.id}`"
               :aria-label="`Copy ${item.title}`"
@@ -98,7 +98,7 @@
               variant="text"
               @click="copyTemplateClicked(item)"
             />
-            |
+            <span :aria-hidden="true">|</span>
             <v-btn
               :id="`delete-note-template-${item.id}`"
               :aria-label="`Delete ${item.title}`"

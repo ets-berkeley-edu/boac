@@ -4,14 +4,14 @@
       <div class="align-center d-flex">
         <h1 id="page-header" class="mr-2">{{ searchStore.isSearching ? 'Searching...' : 'Search Results' }}</h1>
         <div v-if="!loading && (currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData)" class="pb-1">
-          [<v-btn
+          <span :aria-hidden="true">[</span><v-btn
             id="edit-search-btn"
             class="px-0"
             color="primary"
             text="edit search"
             variant="text"
             @click.prevent="openAdvancedSearch"
-          />]
+          /><span :aria-hidden="true">]</span>
         </div>
       </div>
       <div v-if="!hasSearchResults && !searchStore.isSearching">
