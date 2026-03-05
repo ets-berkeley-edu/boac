@@ -79,7 +79,7 @@
       :disabled="isSaving || boaSessionExpired"
     />
     <ContactMethod
-      class="pt-4"
+      class="mt-4"
       :disabled="isSaving || boaSessionExpired"
       :is-peer-advising="!!model.peerAdvisingDepartmentId"
     />
