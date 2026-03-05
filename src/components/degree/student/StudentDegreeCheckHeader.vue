@@ -56,6 +56,7 @@
                   :true-icon="mdiLock"
                   :false-icon="mdiLockOpenVariant"
                   hide-details
+                  role="switch"
                 />
                 <span class="font-size-14 font-weight-bold pl-4 toggle-label-width">
                   {{ isLocked ? 'Locked' : 'Unlocked' }}
@@ -141,6 +142,7 @@
                   color="success"
                   density="compact"
                   hide-details
+                  role="switch"
                 />
               </span>
             </label>
