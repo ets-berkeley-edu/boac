@@ -99,7 +99,14 @@ class Page(object):
     def els_text_if_exist(self, locator, text_to_remove=None):
         els_text = []
         for el in self.elements(locator):
-            text = el.text.replace(text_to_remove, '') if text_to_remove else el.text
+            text = el.text
+            # Sometimes the text property doesn't work, but the innerText attribute does.
+            if not text:
+                text = el.get_dom_attribute('innerText')
+            if text is None:
+                text = ''
+            if text_to_remove:
+                text = text.replace(text_to_remove, '')
             els_text.append(text.strip())
         return els_text
 
