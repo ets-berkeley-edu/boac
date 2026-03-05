@@ -2,10 +2,10 @@
   <table class="w-100">
     <thead>
       <tr>
-        <th class="border-b-md pb-1 text-medium-emphasis text-no-wrap text-medium-emphasis">
+        <th class="border-b-md pb-1 text-medium-emphasis text-no-wrap text-medium-emphasis w-66">
           {{ termNameForSisId(termId) }}
         </th>
-        <th v-if="size(enrollments)" class="border-b-md pb-1 text-medium-emphasis text-right text-medium-emphasis">
+        <th v-if="size(enrollments)" class="border-b-md pb-1 text-medium-emphasis text-right text-medium-emphasis w-33">
           {{ totalUnits }} Units
         </th>
       </tr>
