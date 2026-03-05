@@ -137,7 +137,7 @@ class StudentPageTimeline(BoaPages):
 
     def attachment_span_loc(self, item):
         item_type = self.item_type(item)
-        return By.XPATH, f'//li/div[contains(@id, "{item_type}-{item.record_id}-attachment-")]/a/span[last()]'
+        return By.XPATH, f'//li/div[contains(@id, "{item_type}-{item.record_id}-attachment-")]/a/span[position() = 2]'
 
     def attachment_link_loc(self, item):
         item_type = self.item_type(item)

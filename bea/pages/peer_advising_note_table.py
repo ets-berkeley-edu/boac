@@ -47,7 +47,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     @staticmethod
     def peer_note_row_xpath(note):
-        return f'//button[@id="open-peer-advising-{note.record_id}"]/ancestor::tr'
+        return f'//tr[@id="tr-peer-advisor-note-{note.record_id}"]'
 
     def peer_note_row(self, note):
         return By.XPATH, self.peer_note_row_xpath(note)

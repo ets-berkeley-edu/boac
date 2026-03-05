@@ -154,8 +154,8 @@ class SearchForm(Page):
     NOTES_BY_ANYONE_DIV = (By.XPATH, '//input[@id="search-options-note-filters-posted-by-anyone"]/..')
     NOTES_BY_YOU_RADIO = (By.ID, 'search-options-note-filters-posted-by-you')
     NOTES_BY_YOU_DIV = (By.XPATH, '//input[@id="search-options-note-filters-posted-by-you"]/..')
-    NOTES_BY_YOUR_DEPT = (By.ID, 'search-options-note-filters-posted-by-your department')
-    NOTES_BY_YOUR_DEPT_DIV = (By.XPATH, '//input[@id="search-options-note-filters-posted-by-your department"]/..')
+    NOTES_BY_YOUR_DEPT = (By.ID, 'search-options-note-filters-posted-by-your-department')
+    NOTES_BY_YOUR_DEPT_DIV = (By.XPATH, '//input[@id="search-options-note-filters-posted-by-your-department"]/..')
 
     def select_notes_posted_by_anyone(self):
         app.logger.info('Selecting notes posted by anyone')
@@ -169,7 +169,7 @@ class SearchForm(Page):
 
     def select_notes_posted_by_your_dept(self):
         app.logger.info('Selecting notes posted by your department')
-        if not self.element(self.NOTES_BY_YOUR_DEPT_DIV).get_dom_attribute('ischecked') == 'true':
+        if not self.element(self.NOTES_BY_YOUR_DEPT).get_dom_attribute('ischecked') == 'true':
             self.wait_for_element_and_click(self.NOTES_BY_YOUR_DEPT_DIV)
 
     # Author / Student

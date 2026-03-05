@@ -653,17 +653,17 @@ class TestFDR:
         self.homepage.click_flight_data_recorder_link()
         self.flight_data_recorder_page.toggle_note_report_visibility()
         visible = self.flight_data_recorder_page.el_text_if_exists(self.flight_data_recorder_page.TTL_PEER_NOTES)
-        expected = str(len(boa_utils.get_peer_dept_note_ids()))
+        expected = utils.number_with_thousands_separator(len(boa_utils.get_peer_dept_note_ids()))
         utils.assert_equivalence(visible, expected)
 
     def test_fdr_ttl_peer_note_authors(self):
         visible = self.flight_data_recorder_page.el_text_if_exists(self.flight_data_recorder_page.TTL_PEER_NOTE_AUTHORS)
-        expected = str(boa_utils.get_peer_dept_author_ct())
+        expected = utils.number_with_thousands_separator(boa_utils.get_peer_dept_author_ct())
         utils.assert_equivalence(visible, expected)
 
     def test_fdr_dept_peer_note_count(self):
         visible = self.flight_data_recorder_page.ttl_dept_peer_notes(test_ls.dept)
-        expected = str(boa_utils.get_parent_dept_peer_note_ct(test_ls.dept))
+        expected = utils.number_with_thousands_separator(boa_utils.get_parent_dept_peer_note_ct(test_ls.dept))
         utils.assert_equivalence(visible, expected)
 
     def test_blow_away_templates(self):
