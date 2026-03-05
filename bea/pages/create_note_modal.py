@@ -123,7 +123,7 @@ class CreateNoteModal(Page):
 
     @staticmethod
     def topic_remove_button(note, topic):
-        return By.XPATH, f'//span[text()=\"{topic.name}\"]/../following-sibling::div/button'
+        return By.XPATH, f'//span[text()=\"{topic.name}\"]/../following-sibling::button'
 
     def add_topics(self, note, topics=None):
         to_add = topics or note.topics
@@ -393,7 +393,7 @@ class CreateNoteModal(Page):
 
     @staticmethod
     def added_cohort_loc(cohort):
-        return By.XPATH, f'//span[contains(@id, "batch-note-cohort")][contains(., "{cohort.name}")]'
+        return By.XPATH, f'//div[contains(@id, "batch-note-cohort")][contains(., "{cohort.name}")]'
 
     @staticmethod
     def cohort_remove_button(cohort):
@@ -420,7 +420,7 @@ class CreateNoteModal(Page):
 
     @staticmethod
     def added_group_loc(group):
-        return By.XPATH, f'//span[contains(@id, "batch-note-curated")][contains(., "{group.name}")]'
+        return By.XPATH, f'//div[contains(@id, "batch-note-curated")][contains(., "{group.name}")]'
 
     @staticmethod
     def group_remove_button(group):

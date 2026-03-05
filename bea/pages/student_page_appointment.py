@@ -114,7 +114,7 @@ class StudentPageAppointment(StudentPageTimeline, CreateNoteModal):
         return self.el_text_if_exists((By.ID, f'appointment-{appt.record_id}-type'))
 
     def expanded_appt_topics(self, appt):
-        return self.els_text_if_exist((By.XPATH, f'//span[contains(@id, "appointment-{appt.record_id}-topic")]'))
+        return self.els_text_if_exist((By.XPATH, f'//div[contains(@id, "appointment-{appt.record_id}-topic-")]'))
 
     def expanded_appt_attachments(self, appt):
         return [el.text.strip().lower() for el in self.item_attachment_els(appt)]
