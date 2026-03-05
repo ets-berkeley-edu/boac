@@ -339,7 +339,10 @@ class DegreeCheckPage(DegreeTemplatePage):
         return self.is_present(flag)
 
     def assigned_course_grade(self, course):
-        return self.el_text_if_exists((By.XPATH, f'{self.assigned_course_xpath(course)}/td[contains(@class, "td-grade")]//span'))
+        text = self.el_text_if_exists(
+            (By.XPATH, f'{self.assigned_course_xpath(course)}/td[contains(@class, "td-grade")]//span'),
+        )
+        return '' if text is None else text
 
     def assigned_course_note(self, course):
         return self.el_text_if_exists((By.XPATH, f'{self.assigned_course_xpath(course)}/td[contains(@class, "td-note")]'))
