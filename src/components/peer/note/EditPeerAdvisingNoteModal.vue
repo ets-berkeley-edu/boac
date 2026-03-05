@@ -43,7 +43,7 @@
             :topics="topics"
           />
           <ContactMethod
-            class="pt-4"
+            class="mt-4"
             :disabled="isSaving"
             :is-peer-advising="true"
           />
