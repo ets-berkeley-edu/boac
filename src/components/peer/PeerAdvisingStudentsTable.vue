@@ -30,7 +30,7 @@
           :id="`tr-student-${studentKey(student, index)}`"
           :key="studentKey(student, index)"
           :class="{
-            'bg-alt': index % 2 === 0,
+            'bg-surface-light': index % 2 === 0,
             'expanded border-b-sm': isExpanded(student),
             'border-b-md': index === students.length - 1
           }"
@@ -55,44 +55,54 @@
           <!-- SID -->
           <td class="td-sid">
             <div class="grid-cell">
-              <span class="mono">{{ student.sid ?? '—' }}</span>
+              <span v-if="student.sid">{{ student.sid }}</span>
+              <span v-else>
+                <span aria-hidden="true">&mdash;</span>
+                <span class="sr-only">blank</span>
+              </span>
             </div>
           </td>
 
           <!-- Email -->
           <td class="td-email">
-            <div class="grid-cell">
+            <div class="grid-cell truncate-with-ellipsis">
               <a
                 v-if="getStudentEmail(student)"
                 :href="`mailto:${getStudentEmail(student)}`"
               >
                 {{ getStudentEmail(student) }}
               </a>
-              <span v-else>—</span>
+              <span v-else>
+                <span aria-hidden="true">&mdash;</span>
+                <span class="sr-only">blank</span>
+              </span>
             </div>
           </td>
 
           <!-- Major -->
           <td class="td-major">
             <div class="grid-cell">
-              <div v-if="getMajors(student).length" class="student-majors pa-2">
+              <div v-if="getMajors(student).length" class="student-majors">
                 <div v-for="(m, i) in getMajors(student)" :key="i">{{ m }}</div>
               </div>
-              <span v-else>—</span>
+              <span v-else>
+                <span aria-hidden="true">&mdash;</span>
+                <span class="sr-only">blank</span>
+              </span>
             </div>
           </td>
 
           <!-- Expand/Collapse -->
           <td class="td-expand">
-            <div class="grid-cell ta-right">
+            <div class="grid-cell text-right">
               <v-btn
                 :id="`expand-${studentKey(student, index)}`"
-                :aria-expanded="String(isExpanded(student))"
                 :aria-controls="`expand-panel-${studentKey(student, index)}`"
-                variant="outlined"
+                :aria-expanded="String(isExpanded(student))"
+                class="expand-btn mr-2 mb-2"
                 color="primary"
                 size="small"
-                class="expand-btn mr-2"
+                variant="outlined"
                 @click="onToggleExpand(student)"
               >
                 <v-icon :icon="isExpanded(student) ? mdiChevronUp : mdiChevronDown" class="mr-1" />
@@ -100,14 +110,15 @@
               </v-btn>
 
               <v-btn
+                class="text-white mr-2 mb-2"
                 color="primary"
-                variant="elevated"
-                size="small"
-                class="text-white mr-2"
                 :disabled="!!noteStore.mode"
+                size="small"
+                variant="elevated"
                 @click="openNoteModal(student)"
               >
-                + New Note
+                <v-icon class="mr-2" :icon="mdiPlus" />
+                New Note
               </v-btn>
             </div>
           </td>
@@ -122,37 +133,35 @@
                 v-if="isExpanded(student)"
                 class="grid-cell expansion"
                 role="region"
-                :aria-label="`Courses for ${getStudentName(student)}`"
+                :aria-labelledby="`courses-heading-${studentKey(student, index)}`"
               >
-                <div class="expansion-content">
+                <div>
                   <!-- per-student spinner inside panel -->
-                  <div v-if="isLoading(student)" class="d-flex align-center py-3">
+                  <div v-if="isLoading(student)" class="d-flex align-center px-4 py-3">
                     <v-progress-circular
+                      class="mr-2"
                       indeterminate
                       size="16"
                       width="2"
-                      class="mr-2"
                     />
                     <span>Loading schedule…</span>
                   </div>
 
-                  <div v-else-if="getAcademicYears(student)" class="border-sm ma-2 pl-4 py-3">
-                    <h4 class="mb-2 text-medium-emphasis">Course Schedule</h4>
+                  <div v-else-if="getAcademicYears(student)" class="border-sm pl-4 pt-3 pb-5">
+                    <h3 :id="`courses-heading-${studentKey(student, index)}`" class="font-size-16 ma-2 text-medium-emphasis">
+                      Course Schedule <span class="sr-only"> for {{ getStudentName(student) }}</span>
+                    </h3>
                     <div
                       v-for="(academicYear, label, yearIndex) in getAcademicYears(student)"
                       :key="label"
                     >
-                      <h5 class="sr-only">{{ label }}</h5>
+                      <h4 class="sr-only">{{ label }}</h4>
                       <div :class="{'mt-5': yearIndex}" class="align-start d-flex justify-space-between">
                         <div
                           v-for="(enrollments, termId) in academicYear"
                           :key="termId"
-                          class="mr-5"
-                          :class="{
-                            'bg-pale-yellow elevation-1 pb-2 pt-1 px-3': currentEnrollmentTermId === termId.toString(),
-                            'pt-1': currentEnrollmentTermId !== termId.toString()
-                          }"
-                          style="width: 33%"
+                          class="pt-2 px-3 w-33"
+                          :class="{'current-term bg-pale-yellow elevation-1 pb-2': currentEnrollmentTermId === termId.toString()}"
                         >
                           <TermEnrollmentsTable
                             :enrollments="enrollments"
@@ -163,7 +172,6 @@
                       </div>
                     </div>
                   </div>
-
                   <div v-else class="text-medium-emphasis py-2">
                     No enrollment data available.
                   </div>
@@ -183,7 +191,7 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
-import {mdiChevronDown, mdiChevronUp} from '@mdi/js'
+import {mdiChevronDown, mdiChevronUp, mdiPlus} from '@mdi/js'
 import TermEnrollmentsTable from '@/components/peer/note/TermEnrollmentsTable.vue'
 import {getStudentEnrollments} from '@/api/peer-advising-users'
 import {useContextStore} from '@/stores/context'
@@ -340,9 +348,6 @@ const getMajors = (s: Student) => Array.isArray(s.majors) ? s.majors : []
 </script>
 
 <style scoped>
-.bg-alt { background: #fafafa; }
-.ta-right { text-align: right; }
-
 .student-majors {
   max-width: 360px;
   white-space: normal;
@@ -352,7 +357,7 @@ const getMajors = (s: Student) => Array.isArray(s.majors) ? s.majors : []
   display: grid;
   grid-auto-rows: min-content;
     /* Student | UID | Email | Major | Expand Schedule + New Note */
-  grid-template-columns: 20% 10% 24% 26% 22%;
+  grid-template-columns: calc(32% - 6rem) 7.5rem calc(36% - 6rem) calc(32% - 6rem) 10.5rem;
   width: 100%;
 }
 
@@ -365,11 +370,13 @@ const getMajors = (s: Student) => Array.isArray(s.majors) ? s.majors : []
 }
 
 .td-expansion .grid-cell.expansion {
-  grid-area: 2 / 1 / 2 / 6;
   background: #f6fbff;
-  border-left: 3px solid #1e88e5;
+  border-bottom-right-radius: 4px;
+  border-left: 3px solid rgb(var(--v-theme-info));
+  border-top-right-radius: 4px;
+  grid-area: 2 / 1 / 2 / 6;
   margin-top: 8px;
-  border-radius: 4px;
+  padding: 0;
 }
 
 .td-student   { grid-area: 1 / 1 / 1 / 1; }
@@ -396,7 +403,7 @@ const getMajors = (s: Student) => Array.isArray(s.majors) ? s.majors : []
     overflow: hidden;
     min-width: 300px;
   }
-  .student-table-wrapper table, tbody, tr {
+  .student-table-wrapper tbody, tr {
     display: block !important;
   }
   .student-table-wrapper td {
@@ -405,8 +412,8 @@ const getMajors = (s: Student) => Array.isArray(s.majors) ? s.majors : []
     padding: 2px 8px !important;
     width: 100% !important;
   }
-  .student-table-wrapper tr.expanded {
-    padding-bottom: 12px !important;
+  .student-table-wrapper .td-expansion {
+    padding: 0 !important;
   }
   .td-expand .grid-cell { text-align: left; }
 }

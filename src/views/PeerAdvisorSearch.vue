@@ -1,19 +1,15 @@
 <template>
   <div v-if="!contextStore.loading">
-    <!-- HEADER (title + tabs) -->
-    <div class="peer-header pt-10 px-12">
-      <h1 id="page-header" class="mb-3">Peer Advising Search</h1>
-
-      <!-- Tabs strip (header background applies here too) -->
+    <div class="bg-sky-blue pt-8">
+      <h1 id="page-header" class="mb-3 mx-10 ">Peer Advising Search</h1>
       <v-tabs
         v-model="tab"
         aria-label="peer-advising tabs"
-        :aria-orientation="tabsDirection"
+        aria-orientation="horizontal"
+        class="mx-8"
         density="comfortable"
-        :direction="tabsDirection"
+        direction="horizontal"
         :items="tabs"
-        mobile-breakpoint="md"
-        class="tab-strip"
       >
         <template #tab="{ item }">
           <v-tab
@@ -22,7 +18,7 @@
             class="border-s-sm border-e-sm border-t-sm mx-1 rounded-t-lg"
             :class="{
               'bg-white border-b-0': item.key === tab,
-              'bg-grey-lighten-4 border-b-md': item.key !== tab
+              'bg-surface-light border-b-md': item.key !== tab
             }"
             hide-slider
             min-width="120"
@@ -44,99 +40,92 @@
             </template>
           </v-tab>
         </template>
-      </v-tabs>
-    </div>
-
-    <!-- PANELS (full-width below tabs) -->
-    <div class="peer-content">
-      <v-window v-model="tab">
-        <!-- STUDENTS TAB -->
-        <v-window-item
-          :id="'peer-tab-panel-student'"
-          value="student"
-          :aria-labelledby="'peer-tab-student'"
-          role="tabpanel"
-          class="w-100"
-        >
-          <div class="px-4 py-6 mx-4">
-            <div class="d-flex align-center">
-              <span v-if="!isFetchingNotes" id="peer-tab-student-summary">
-                {{ studentPhrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
-              </span>
-              <span v-else>Searching Students...</span>
-              <span :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
-              <v-btn
-                class="text-anchor mx-1 px-1"
-                role="link"
-                variant="text"
-                :disabled="isFetchingNotes"
-                @click="clearResults"
-              >
-                Return to Home
-              </v-btn>
-            </div>
-            <PeerAdvisingStudentsTable
-              :sids-with-notes="sidsWithNotes"
-              :students="students"
-              :peer-advising-department-id="peerAdvisingDepartmentId"
-            />
-            <div class="my-3 text-center">
-              <v-btn
-                v-if="hasMoreStudents"
-                id="fetch-more-students"
-                text="Show additional students"
-                variant="text"
-                @click.prevent="showMoreStudents"
+        <template #item>
+          <v-tabs-window-item
+            :id="'peer-tab-panel-student'"
+            :aria-labelledby="'peer-tab-student'"
+            class="bg-surface h-100"
+            role="tabpanel"
+            value="student"
+          >
+            <div class="px-4 px-lg-8 py-6">
+              <div class="d-flex align-center px-3">
+                <h2 v-if="!isFetchingNotes" id="peer-tab-student-summary" class="text-body-1">
+                  {{ studentPhrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
+                </h2>
+                <span v-else>Searching Students...</span>
+                <span :aria-hidden="true" class="mx-3 text-medium-emphasis">|</span>
+                <v-btn
+                  class="text-anchor mx-1 px-1"
+                  role="link"
+                  variant="text"
+                  :disabled="isFetchingNotes"
+                  @click="clearResults"
+                >
+                  Return to Home
+                </v-btn>
+              </div>
+              <PeerAdvisingStudentsTable
+                :sids-with-notes="sidsWithNotes"
+                :students="students"
+                :peer-advising-department-id="peerAdvisingDepartmentId"
               />
-              <SectionSpinner v-if="size(notes)" :loading="isFetchingNotes" />
-            </div>
-          </div>
-        </v-window-item>
-
-        <!-- NOTES TAB -->
-        <v-window-item
-          :id="'peer-tab-panel-note'"
-          value="note"
-          :aria-labelledby="'peer-tab-note'"
-          role="tabpanel"
-          class="w-100"
-        >
-          <div class="px-12 py-4">
-            <div class="d-flex justify-space-between">
-              <div>
-                <div class="d-flex align-center">
-                  <span v-if="!isFetchingNotes && totalNoteCount >= 0" id="peer-tab-note-summary">
-                    {{ notePhrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
-                  </span>
-                  <span v-else>Searching Notes...</span>
-                  <span v-if="showMyNotesOnly || isFetchingNotes || notes.length" :aria-hidden="true" class="ml-3 mr-2 text-medium-emphasis">|</span>
-                  <ShowMyPeerAdvisingNotesToggle
-                    v-if="showMyNotesOnly || isFetchingNotes || notes.length"
-                    v-model="showMyNotesOnly"
-                    :is-fetching-notes="isFetchingNotes"
-                  />
-                </div>
+              <div class="my-3 text-center">
+                <v-btn
+                  v-if="hasMoreStudents"
+                  id="fetch-more-students"
+                  text="Show additional students"
+                  variant="text"
+                  @click.prevent="showMoreStudents"
+                />
+                <SectionSpinner v-if="size(notes)" :loading="isFetchingNotes" />
               </div>
             </div>
-            <PeerAdvisingNotesTable
-              class="mt-4"
-              :after-note-edit="afterNoteEdit"
-              :notes="notes"
-              :is-fetching-notes="isFetchingNotes"
-            />
-            <div class="my-3 text-center">
-              <v-btn
-                v-if="hasMoreNotes"
-                id="fetch-more-notes"
-                text="Show additional advising notes"
-                variant="text"
-                @click.prevent="showMoreNotes"
+          </v-tabs-window-item>
+          <v-tabs-window-item
+            :id="'peer-tab-panel-note'"
+            :aria-labelledby="'peer-tab-note'"
+            class="bg-surface w-100"
+            role="tabpanel"
+            value="note"
+          >
+            <div class="px-4 px-lg-8 py-6">
+              <div class="d-flex justify-space-between">
+                <div>
+                  <div class="d-flex align-center">
+                    <h2 v-if="!isFetchingNotes && totalNoteCount >= 0" id="peer-tab-note-summary" class="text-body-1">
+                      {{ notePhrase }} "<span class="font-weight-bold">{{ queryText }}</span>"
+                    </h2>
+                    <span v-else>Searching Notes...</span>
+                    <span v-if="showMyNotesOnly || isFetchingNotes || notes.length" :aria-hidden="true" class="mx-3 text-medium-emphasis">|</span>
+                    <ShowMyPeerAdvisingNotesToggle
+                      v-if="showMyNotesOnly || isFetchingNotes || notes.length"
+                      v-model="showMyNotesOnly"
+                      :is-fetching-notes="isFetchingNotes"
+                    />
+                  </div>
+                </div>
+              </div>
+              <PeerAdvisingNotesTable
+                class="mt-4"
+                :after-note-edit="afterNoteEdit"
+                :notes="notes"
+                :is-fetching-notes="isFetchingNotes"
               />
-              <SectionSpinner v-if="size(notes)" :loading="isFetchingNotes" />
+              <div class="my-3 text-center">
+                <v-btn
+                  v-if="hasMoreNotes"
+                  id="fetch-more-notes"
+                  text="Show additional advising notes"
+                  variant="text"
+                  @click.prevent="showMoreNotes"
+                />
+                <SectionSpinner v-if="size(notes)" :loading="isFetchingNotes" />
+              </div>
             </div>
-          </div>
-        </v-window-item>
-      </v-window>
+          </v-tabs-window-item>
+        </template>
+      </v-tabs>
     </div>
   </div>
 </template>
@@ -145,7 +134,6 @@
 import {findIndex, get, map, orderBy, size, uniq} from 'lodash'
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {useDisplay} from 'vuetify'
 import type {BoaUser, Note} from '@/lib/types'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
@@ -158,9 +146,6 @@ import {useContextStore} from '@/stores/context'
 import {peerAdvisorSearch} from '@/api/search'
 import {useSearchStore} from '@/stores/search'
 import PeerAdvisingStudentsTable from '@/components/peer/PeerAdvisingStudentsTable.vue'
-
-const {mdAndUp} = useDisplay()
-const tabsDirection = computed(() => (mdAndUp.value ? 'horizontal' : 'vertical'))
 
 const LIMIT_PER_FETCH = 50
 
@@ -317,13 +302,3 @@ const showMoreStudents = () => {
   search(false, true)
 }
 </script>
-
-<style scoped>
-.peer-header {
-  background-color: rgb(var(--v-theme-sky-blue)) !important;
-}
-
-.peer-content {
-  width: 100%;
-}
-</style>
