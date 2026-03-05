@@ -2,10 +2,10 @@
   <h2 :id="`${resultsType}-results-page-header`" class="font-size-18 font-weight-regular mr-2 py-1">
     <span v-if="countTotal">
       <span v-if="countTotal <= countInView">
-        Showing {{ pluralize(resultsType, countTotal, {1: 'one'}) }}.
+        Showing {{ pluralize(resultsType, countTotal, {1: 'one'}) }}
         <span v-if="searchPhrase">
           matching <strong class="font-weight-600">{{ searchPhrase }}</strong>.
-        </span>.
+        </span>
       </span>
       <span v-if="countTotal > countInView" class="font-size-18">
         Showing {{ resultsType }}s
