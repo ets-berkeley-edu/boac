@@ -56,7 +56,7 @@ class CreateNoteModal(Page):
 
     SAVE_AS_DRAFT_BUTTON = By.ID, 'save-as-draft-button'
     UPDATE_DRAFT_BUTTON = By.ID, 'update-draft-note-button'
-    EDIT_DRAFT_HEADING = By.XPATH, '//h3[contains(., "Edit Draft Note")]'
+    EDIT_DRAFT_HEADING = By.XPATH, '//h2[contains(., "Edit Draft Note")]'
 
     def click_save_as_draft(self):
         app.logger.info('Clicking the save-as-draft button')
