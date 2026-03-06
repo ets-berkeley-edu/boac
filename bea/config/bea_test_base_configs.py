@@ -231,7 +231,7 @@ class BEATestBaseConfigs(object):
     def get_no_canvas_advisor():
         users = boa_utils.get_authorized_users()
         return next(filter(
-            lambda a: len(a.depts) == 1 and a.can_access_advising_data and not a.can_access_canvas_data and a.is_active,
+            lambda a: len(a.depts) == 1 and a.can_access_advising_data and not a.can_access_canvas_data and a.is_active and not a.disabled_at,
             users))
 
     @staticmethod
@@ -239,7 +239,7 @@ class BEATestBaseConfigs(object):
         users = boa_utils.get_authorized_users()
         return next(filter(
             lambda a: len(
-                a.depts) == 1 and not a.can_access_advising_data and not a.can_access_canvas_data and a.is_active,
+                a.depts) == 1 and not a.can_access_advising_data and not a.can_access_canvas_data and a.is_active and not a.disabled_at,
             users))
 
     def set_students(self, students=None, opts=None):
