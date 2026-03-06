@@ -103,10 +103,7 @@ class CreateNoteModal(Page):
 
     # Topics
 
-    TOPIC_INPUT = By.ID, 'add-note-topic'
     ADD_TOPIC_SELECT = By.ID, 'add-topic-select-list'
-    TOPIC_OPTION = By.XPATH, '//select[@id="add-topic-select-list"]/option'
-    TOPIC_REMOVE_BUTTON = By.XPATH, '//li[contains(@id, "remove-note-")]'
 
     def topic_options(self):
         self.when_present(self.ADD_TOPIC_SELECT, 3)

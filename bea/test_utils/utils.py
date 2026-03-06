@@ -201,6 +201,10 @@ def formatted_units(units_as_num):
             return f"{float('{:.3f}'.format(units_as_num))}"
 
 
+def number_with_thousands_separator(num):
+    return f"{num:,}"
+
+
 def safe_key(parsed, key):
     try:
         return parsed[key]

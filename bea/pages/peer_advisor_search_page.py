@@ -53,11 +53,11 @@ class PeerAdvisorSearchPage(PeerAdvisingNoteTable):
 
     def assert_note_results_present(self):
         count = self.wait_for_note_search_result_count()
-        assert count != '0'
+        assert str(count) != '0'
         self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
         time.sleep(1)
-        app.logger.error(self.note_results_summary())
-        assert self.note_results_summary().startswith(f'Showing {count} results matching')
+        noun = 'results' if int(count) > 1 else 'result'
+        assert self.note_results_summary().startswith(f'Showing {count} {noun} matching')
 
     def assert_note_results_not_present(self):
         count = self.wait_for_note_search_result_count()
