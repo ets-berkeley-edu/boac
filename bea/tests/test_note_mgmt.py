@@ -349,7 +349,7 @@ class TestNoteMgmt:
         self.student_page.load_page(self.test_student)
         self.student_page.show_notes()
         self.student_page.expand_item(self.note_6)
-        assert not self.student_page.is_present(self.student_page.existing_note_attachment_input(self.note_6))
+        assert not self.student_page.element(self.student_page.existing_note_attachment_input(self.note_6)).is_enabled()
 
     def test_edit_note_remove_attachment(self):
         self.student_page.load_page(self.test_student)
