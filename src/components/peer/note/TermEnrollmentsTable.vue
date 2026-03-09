@@ -20,15 +20,16 @@
             <div class="mr-1">
               {{ enrollment.displayName }}
             </div>
-            <v-icon
-              v-if="enrollment.sections.some(s => s.isUncompletedPerGrade)"
-              :id="`student-${studentUid}-uncompleted-course-${termId}-${normalizeId(enrollment.displayName)}`"
-              :aria-label="`${enrollment.displayName} course was uncompleted by this student`"
-              color="warning"
-              :icon="mdiAlert"
-              size="20"
-              title="Uncompleted course"
-            />
+            <template v-if="enrollment.sections.some(s => s.isUncompletedPerGrade)">
+              <v-icon
+                :id="`student-${studentUid}-non-completed-course-${termId}-${normalizeId(enrollment.displayName)}`"
+                color="warning"
+                :icon="mdiAlert"
+                size="20"
+                title="Non-completed course"
+              />
+              <span class="sr-only">Not completed by this student</span>
+            </template>
           </div>
           <div
             v-if="getWaitlistedSections(enrollment).length"
