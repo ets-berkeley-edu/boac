@@ -26,6 +26,7 @@ export default {
     nextTick(() => {
       const chartDetails = first(el.querySelectorAll('[id^="highcharts-screen-reader-region-before"]'))
       const container = first(el.getElementsByClassName('highcharts-container'))
+      const exitAnchor = first(el.getElementsByClassName('highcharts-exit-anchor'))
 
       // prevent screen reader text from being announced as 'clickable' due to the attached mousedown handler
       el.setAttribute('role', 'presentation')
@@ -45,6 +46,9 @@ export default {
       if (container) {
         // make keyboard navigation work with JAWS
         container.setAttribute('role', 'application')
+      }
+      if (exitAnchor) {
+        exitAnchor.removeAttribute('tabindex')
       }
       setSvgAttributes(el, chartDetails)
     })
