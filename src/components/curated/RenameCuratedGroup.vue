@@ -4,7 +4,7 @@
       <v-text-field
         id="rename-curated-group-input"
         v-model="name"
-        aria-describedby="rename-curated-group-input-details"
+        :aria-describedby="`${errorMessage ? 'rename-curated-group-error' : ''} rename-curated-group-counter`"
         :aria-invalid="!!errorMessage"
         autocomplete="on"
         class="flex-1-1 mr-3 mb-3"

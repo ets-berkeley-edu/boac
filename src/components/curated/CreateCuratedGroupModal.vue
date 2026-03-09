@@ -19,7 +19,7 @@
             id="create-curated-group-input"
             ref="groupNameInput"
             v-model="name"
-            aria-describedby="create-curated-group-input-details"
+            :aria-describedby="`${errorMessage ? 'create-curated-group-name-error' : ''} create-curated-group-name-counter`"
             :aria-invalid="!!errorMessage"
             autocomplete="on"
             counter="255"

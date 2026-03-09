@@ -10,7 +10,7 @@
       <v-text-field
         id="create-degree-input"
         v-model="templateName"
-        aria-describedby="create-degree-input-details"
+        :aria-describedby="`${errorMessage ? 'create-degree-name-error' : ''} create-degree-name-counter`"
         :aria-invalid="!!errorMessage"
         autocomplete="on"
         class="mt-2"

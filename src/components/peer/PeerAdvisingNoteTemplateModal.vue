@@ -21,7 +21,7 @@
               <v-text-field
                 id="peer-advising-note-template-name"
                 v-model="templateName"
-                aria-describedby="peer-advising-note-template-name-details"
+                :aria-describedby="`${isValidName ? 'peer-advising-note-template-name-error' : ''} peer-advising-note-template-name-counter`"
                 :aria-invalid="!isValidName"
                 aria-required
                 autocomplete="on"

@@ -44,13 +44,13 @@
       <v-text-field
         id="edit-note-subject"
         aria-label="Note Subject"
+        autocomplete="on"
         bg-color="white"
         class="mt-1"
         density="comfortable"
         :disabled="isSaving || boaSessionExpired || (model.peerAdvisingDepartmentId && !model.subject)"
         hide-details
         maxlength="255"
-        autocomplete="on"
         :model-value="model.subject"
         required
         :rules="[value => (!!trim(value) || model.isDraft) || !!model.peerAdvisingDepartmentId || 'Subject is required']"

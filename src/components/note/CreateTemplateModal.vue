@@ -16,7 +16,7 @@
         <v-text-field
           id="template-title-input"
           v-model="title"
-          aria-describedby="template-title-input-details"
+          :aria-describedby="`${error ? 'template-title-error' : ''} template-name-counter`"
           :aria-invalid="!!error"
           autocomplete="on"
           class="my-3"

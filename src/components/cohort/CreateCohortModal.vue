@@ -19,7 +19,7 @@
             id="create-cohort-input"
             ref="cohortNameInput"
             v-model="name"
-            aria-describedby="create-cohort-input-details"
+            :aria-describedby="`${errorMessage ? 'create-cohort-name-error' : ''} create-cohort-name-counter`"
             :aria-invalid="!!errorMessage"
             autocomplete="on"
             counter="255"
