@@ -319,12 +319,14 @@
           class="font-weight-bold font-size-14"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
         />
-        <v-icon
-          v-if="isAlertGrade(item.enrollment.grade) && !currentUser.inDemoMode"
-          class="ml-1"
-          color="warning"
-          :icon="mdiAlert"
-        />
+        <template v-if="isAlertGrade(item.enrollment.grade) && !currentUser.inDemoMode">
+          <v-icon
+            class="ml-1"
+            color="warning"
+            :icon="mdiAlert"
+          />
+          <span class="sr-only">Non-passing grade</span>
+        </template>
         <span v-if="!item.enrollment.grade" class="cohort-grading-basis">
           {{ item.enrollment.gradingBasis }}
         </span>
