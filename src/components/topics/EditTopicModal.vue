@@ -17,7 +17,7 @@
             <v-text-field
               id="create-topic-input"
               v-model="topic"
-              aria-describedby="create-topic-input-details"
+              :aria-describedby="`${errorMessage ? 'create-topic-input-error' : ''} create-topic-name-counter`"
               :aria-invalid="errorMessage"
               autocomplete="on"
               :disabled="isSaving"

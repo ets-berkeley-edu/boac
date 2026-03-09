@@ -4,7 +4,7 @@
       <v-text-field
         id="rename-cohort-input"
         v-model="name"
-        aria-describedby="rename-cohort-input-details"
+        :aria-describedby="`${errorMessage ? 'rename-cohort-error' : ''} rename-cohort-counter`"
         :aria-invalid="!!errorMessage"
         autocomplete="on"
         class="flex-1-1 mr-3 mb-3"

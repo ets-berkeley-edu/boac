@@ -47,7 +47,7 @@
             <v-text-field
               id="rename-template-input"
               v-model="templateForEdit.name"
-              aria-describedby="rename-template-input-details"
+              :aria-describedby="`${errorMessage ? 'rename-template-input-error' : ''} rename-template-counter`"
               :aria-invalid="!templateForEdit.name"
               aria-required="true"
               autocomplete="on"
@@ -69,7 +69,7 @@
                 <CharacterCount
                   v-if="max"
                   :count="toInt(value || 0)"
-                  id-prefix="rename-cohort"
+                  id-prefix="rename-template"
                   :max="toInt(max)"
                 />
               </template>

@@ -129,7 +129,7 @@
             <v-text-field
               id="rename-template-input"
               v-model="updatedTemplateTitle"
-              aria-describedby="rename-template-input-details"
+              :aria-describedby="`${error ? 'rename-template-error' : ''} rename-template-counter`"
               :aria-invalid="!!error"
               autocomplete="on"
               counter="255"

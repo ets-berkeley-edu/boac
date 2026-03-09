@@ -19,7 +19,7 @@
           <v-text-field
             id="degree-name-input"
             v-model="name"
-            aria-describedby="degree-name-input-details"
+            :aria-describedby="`${errorMessage ? 'degree-name-input-error' : ''} degree-name-counter`"
             :aria-invalid="!!errorMessage"
             aria-labelledby="degree-name-input-label"
             autocomplete="on"

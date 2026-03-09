@@ -12,11 +12,12 @@
       :disabled="disabled"
     >
       <option
+        aria-label="choose degree check"
         class="font-weight-black"
         :selected="selectedTemplate === undefined"
         :value="undefined"
       >
-        Choose<span class="sr-only">&nbsp;degree check</span>...
+        Choose...
       </option>
       <option
         v-for="template in degreeTemplates"
