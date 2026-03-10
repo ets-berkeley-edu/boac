@@ -11,7 +11,7 @@
         <button
           id="header-dropdown-under-name"
           :aria-label="`${currentUser.firstName} quick links`"
-          class="v-btn button-menu header-button-menu bg-primary pr-3 text-body-1 text-white"
+          class="v-btn button-menu header-button-menu bg-primary px-1 px-sm-3 text-body-1 text-white"
           :class="{'button-menu-active': isMenuOpen}"
           :title="`User profile for ${currentUser.name || `UID ${currentUser.uid}` }`"
           v-bind="props"

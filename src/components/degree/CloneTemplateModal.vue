@@ -2,9 +2,15 @@
   <v-dialog
     v-model="showModal"
     aria-labelledby="modal-header"
+    class="modal-height-unset"
+    :fullscreen="$vuetify.display.xs"
     persistent
   >
-    <v-card class="modal-content" min-width="600">
+    <v-card
+      class="modal-content"
+      max-width="800"
+      width="90vw"
+    >
       <FocusLock @keydown.esc="cancel">
         <v-card-title>
           <ModalHeader text="Name Your Degree Copy" />

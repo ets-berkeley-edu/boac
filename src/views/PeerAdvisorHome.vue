@@ -1,14 +1,14 @@
 <template>
-  <div v-if="!contextStore.loading" class="pt-8 px-8 px-md-16">
+  <div v-if="!contextStore.loading" class="pt-8 px-4 px-sm-8 px-md-16">
     <div class="align-start d-flex flex-wrap justify-space-between">
       <div>
-        <h1 id="page-header" class="mb-0">Peer Advising Notes</h1>
+        <h1 id="page-header" class="mb-0 mr-4">Peer Advising Notes</h1>
         <div>{{ get(peerAdvisingDepartment, 'name') }}</div>
       </div>
-      <div v-if="!currentUser.isAdmin" class="d-flex align-end">
+      <div v-if="!currentUser.isAdmin" class="d-flex flex-grow-1">
         <v-btn
           id="peer-advisor-create-note-button"
-          class="px-10"
+          class="px-10 ml-auto"
           color="primary"
           :disabled="!!noteStore.mode"
           :prepend-icon="mdiFileDocument"

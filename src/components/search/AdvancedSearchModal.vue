@@ -6,16 +6,16 @@
           id="search-options-panel-toggle"
           v-bind="props"
           aria-label="Open Advanced Search dialog"
-          class="mx-1"
+          class="px-1"
           :class="{'border-0': !isFocusAdvSearchButton}"
           clearable
           color="white"
           :disabled="searchStore.isSearching"
           height="46"
           min-height="46"
-          min-width="46"
+          :min-width="$vuetify.display.xs ? 36 : 46"
           variant="text"
-          width="46"
+          :width="$vuetify.display.xs ? 36 : 46"
           @click="openAdvancedSearch"
           @focusin="() => isFocusAdvSearchButton = true"
           @focusout="() => isFocusAdvSearchButton = false"
@@ -27,17 +27,16 @@
     <v-dialog
       id="advanced-search-modal"
       aria-labelledby="advanced-search-header"
+      :fullscreen="$vuetify.display.width < 700"
+      :model-value="searchStore.showAdvancedSearch"
       persistent
       scrollable
-      :model-value="searchStore.showAdvancedSearch"
       @update:model-value="searchStore.setShowAdvancedSearch"
     >
       <v-card
         class="modal-content"
-        :class="{'modal-fullscreen': $vuetify.display.smAndDown}"
         max-width="800"
-        min-width="700"
-        width="80%"
+        width="80vw"
       >
         <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="cancel">
           <v-card-title>

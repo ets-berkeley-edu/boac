@@ -16,13 +16,16 @@
     <v-dialog
       v-model="showModal"
       aria-labelledby="modal-header"
+      :fullscreen="$vuetify.display.xs"
+      height="100vh"
       persistent
+      scrollable
       @update:model-value="onToggle"
     >
       <v-card
         class="modal-content"
-        :max-width="smAndDown ? 440 : undefined"
-        :min-width="mdAndUp ? 600 : undefined"
+        max-width="700"
+        width="90vw"
       >
         <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="() => cancel(false)">
           <v-card-title class="py-0 text-wrap">
@@ -144,7 +147,6 @@ import FocusLock from 'vue-focus-lock'
 import {computed, nextTick, onUnmounted, ref, watch} from 'vue'
 import {isEmpty as _isEmpty, trim} from 'lodash'
 import {mdiPlus} from '@mdi/js'
-import {useDisplay} from 'vuetify'
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect.vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import CharacterCount from '@/components/util/CharacterCount.vue'
@@ -181,7 +183,6 @@ const unitsErrorMessage = computed(() => {
   const isEmpty = _isEmpty(trim(units.value))
   return isEmpty ? null : validateUnitRange(units.value, undefined, 10).message
 })
-const {mdAndUp, smAndDown} = useDisplay()
 
 onUnmounted(() => {
   closeModal()

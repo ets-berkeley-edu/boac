@@ -118,9 +118,15 @@
       v-model="isRenameTemplateDialogOpen"
       :activator="templateToRename ? `btn-rename-note-template-${templateToRename.id}` : undefined"
       aria-labelledby="rename-template-dialog-header"
+      class="modal-height-unset"
+      :fullscreen="$vuetify.display.xs"
       persistent
     >
-      <v-card width="600" class="modal-content">
+      <v-card
+        class="modal-content"
+        max-width="700"
+        width="90vw"
+      >
         <FocusLock>
           <v-card-title>
             <ModalHeader header-id="rename-template-dialog-header" text="Rename Your Template" />

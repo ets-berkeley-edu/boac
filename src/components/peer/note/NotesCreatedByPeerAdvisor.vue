@@ -12,19 +12,20 @@
     </v-btn>
     <v-dialog
       v-model="isModalOpen"
-      class="overflow-y-hidden"
-      :fullscreen="$vuetify.display.smAndDown"
-      max-width="1100"
-      min-width="500"
+      :fullscreen="$vuetify.display.width < 750"
       persistent
-      width="90vw"
+      scrollable
       @keydown.esc="closeModal"
     >
-      <v-card class="peer-advising-notes-modal modal-content scrollbar-gutter-stable w-100">
-        <v-card-title class="pb-0">
+      <v-card
+        class="peer-advising-notes-modal modal-content scrollbar-gutter-stable w-100"
+        max-width="1100"
+        width="90vw"
+      >
+        <v-card-title>
           <div class="align-start d-flex justify-content-between w-100">
-            <ModalHeader :text="headerText" />
-            <div class="text-right w-100">
+            <ModalHeader class="text-wrap w-100" :text="headerText" />
+            <div class="text-right">
               <v-btn
                 id="header-close-modal"
                 aria-label="Close this modal"

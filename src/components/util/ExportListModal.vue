@@ -3,14 +3,14 @@
     v-model="showModalProxy"
     aria-describedby="export-list-body"
     aria-labelledby="modal-header"
+    :fullscreen="$vuetify.display.width < 750"
     persistent
-    scroll-strategy="reposition"
-    width="100%"
+    scrollable
   >
     <v-card
       class="modal-content"
-      min-width="500"
       max-width="800"
+      width="90vw"
     >
       <FocusLock @keydown.esc="cancel">
         <v-card-title>

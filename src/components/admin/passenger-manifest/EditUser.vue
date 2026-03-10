@@ -2,7 +2,7 @@
   <v-card
     class="modal-content"
     max-width="600"
-    min-width="600"
+    width="90vw"
   >
     <v-card-title class="pb-0">
       <div class="align-end d-flex flex-wrap justify-space-between">

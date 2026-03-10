@@ -306,9 +306,9 @@
   justify-content: flex-end !important;
   padding: 0 20px !important;
 }
-.modal-fullscreen {
-  min-width: 350px !important;
-  width: 100% !important;
+.modal-height-unset.v-dialog--fullscreen > .v-overlay__content {
+  height: unset !important;
+  top: unset !important;
 }
 .modal-open {
   overflow: hidden;
@@ -501,8 +501,8 @@
   max-width: inherit;
   width: inherit;
 }
-.v-dialog--fullscreen.overflow-y-hidden > .v-overlay__content {
-  overflow-y: hidden !important;
+.v-dialog--fullscreen.v-dialog--scrollable .v-overlay__content {
+  overflow-y: unset !important;
 }
 .v-table.no-scrollbar .v-table__wrapper {
   overflow: hidden;
@@ -555,6 +555,13 @@ hr {
   border: 0;
   border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
+html:has(body > .v-overlay-container > .v-overlay.v-overlay--active) {
+  overflow: hidden;
+}
+html:not(:has(body > .v-overlay-container > .v-overlay.v-overlay--active.v-dialog--fullscreen:not(.modal-height-unset))) {
+  scrollbar-gutter: stable !important;
+}
+
 table, th, td {
   border: none !important;
   border-spacing: 0;

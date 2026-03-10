@@ -12,6 +12,8 @@
     <v-dialog
       v-model="isCreatingNewUser"
       aria-labelledby="modal-header"
+      class="modal-height-unset"
+      :fullscreen="$vuetify.display.xs"
       persistent
     >
       <EditUser

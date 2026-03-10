@@ -4,19 +4,21 @@
       v-model="model"
       aria-labelledby="peer-advising-template-modal-header"
       attach="body"
-      class="overflow-y-hidden"
-      :fullscreen="$vuetify.display.xs"
-      max-width="1100"
-      min-width="400"
+      :class="{'modal-height-unset': action === 'copy'}"
+      :fullscreen="$vuetify.display.width < 700"
       persistent
-      width="90vw"
+      scrollable
     >
-      <v-card class="modal-content overflow-y-hidden">
+      <v-card
+        class="modal-content overflow-y-hidden"
+        max-width="1100"
+        width="90vw"
+      >
         <FocusLock @keydown.esc="cancel">
           <v-card-title>
             <ModalHeader header-id="peer-advising-template-modal-header" :text="title" />
           </v-card-title>
-          <v-card-text class="peer-advising-template-modal-content">
+          <v-card-text class="modal-body peer-advising-template-modal-content">
             <div class="py-3">
               <v-text-field
                 id="peer-advising-note-template-name"
@@ -272,5 +274,8 @@ const isExistingName = (name) => {
   height: calc(100vh - 215px);
   max-height: fit-content;
   overflow-y: auto;
+}
+.v-dialog--fullscreen .peer-advising-template-modal-content {
+  height: calc(100vh - 130px);
 }
 </style>

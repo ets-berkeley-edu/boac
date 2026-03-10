@@ -3,12 +3,14 @@
     v-model="showModalProxy"
     aria-describedby="ferpa-reminder-text"
     aria-labelledby="modal-header"
+    class="modal-height-unset"
+    :fullscreen="$vuetify.display.xs"
     persistent
   >
     <v-card
       class="modal-content"
-      min-width="400"
-      max-width="600"
+      max-width="900"
+      width="90vw"
     >
       <FocusLock @keydown.esc="cancel">
         <v-card-title>

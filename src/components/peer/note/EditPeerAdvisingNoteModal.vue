@@ -1,14 +1,16 @@
 <template>
   <v-dialog
     v-model="dialog"
-    class="peer-advising-note-modal"
     aria-labelledby="peer-advising-note-modal-header"
+    class="peer-advising-note-modal"
+    :fullscreen="$vuetify.display.width < 750"
     persistent
+    scrollable
   >
     <v-card
-      class="modal-content overflow-y-hidden pb-2"
-      :class="{'modal-fullscreen': mdAndDown}"
-      width="720"
+      class="modal-content pb-2"
+      max-width="1200"
+      width="90vw"
     >
       <FocusLock :disabled="noteStore.isFocusLockDisabled" @keydown.esc="closeModal">
         <v-card-title>
@@ -56,8 +58,9 @@
             :remove="removeAttachmentByIndex"
           />
         </v-card-text>
-        <v-card-actions class="justify-end py-0">
+        <v-card-actions class="justify-end">
           <CreateNoteFooter
+            class="pt-3"
             :discard="discardRequested"
             discard-button-label="Cancel"
             :exit="() => closeModal('Closing modal')"
@@ -81,7 +84,6 @@
 import {computed, onMounted, ref, watch} from 'vue'
 import {concat, get, size} from 'lodash'
 import {storeToRefs} from 'pinia'
-import {useDisplay} from 'vuetify'
 import FocusLock from 'vue-focus-lock'
 import type {BasicStudent, BasicStudentLabeled, NoteAttachment, NoteRecipients, NoteTemplate, NoteTopic} from '@/lib/types'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments.vue'
@@ -122,7 +124,6 @@ const student = ref<BasicStudent | undefined>()
 const studentName = computed(() => `${get(student.value, 'firstName')} ${get(student.value, 'lastName')}`)
 const topics = ref<NoteTopic[]>([])
 const {isSaving, model} = storeToRefs(noteStore)
-const {mdAndDown} = useDisplay()
 
 onMounted(() => {
   getPeerAdvisingTopics().then(data => {
@@ -220,8 +221,11 @@ const setTemplate = (template: NoteTemplate) => {
   --v-overlay-opacity: 0.9;
 }
 .peer-advising-note-modal-content {
-  height: calc(100vh - 205px);
+  height: calc(100vh - 225px);
   max-height: fit-content;
   overflow-y: auto;
+}
+.v-dialog--fullscreen .peer-advising-note-modal-content {
+  height: calc(100vh - 150px);
 }
 </style>
