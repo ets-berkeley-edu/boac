@@ -3,6 +3,8 @@
     v-model="model"
     aria-describedby="are-you-sure-text"
     aria-labelledby="are-you-sure-header"
+    class="modal-height-unset"
+    :fullscreen="$vuetify.display.xs"
     persistent
     role="alertdialog"
   >

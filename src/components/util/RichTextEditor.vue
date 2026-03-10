@@ -11,7 +11,6 @@
       <span :aria-hidden="true">(</span>
       <a
         id="link-to-advising-note-best-practices"
-        class="d-inline-block"
         href="https://advisingmatters.berkeley.edu/resources/shared-advising-notes"
         target="_blank"
         aria-label="Shared advising note best practices (opens in new tab)"

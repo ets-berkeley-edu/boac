@@ -2,13 +2,14 @@
   <v-dialog
     v-model="showModalProxy"
     aria-labelledby="modal-header"
+    class="modal-height-unset"
+    :fullscreen="$vuetify.display.xs"
     persistent
   >
     <v-card
-      class="modal-content"
-      min-width="400"
-      max-width="600"
-      width="100%"
+      class="modal-content my-auto"
+      max-width="700"
+      width="90vw"
     >
       <FocusLock @keydown.esc="cancel">
         <v-card-title>

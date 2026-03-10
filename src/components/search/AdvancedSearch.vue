@@ -1,11 +1,11 @@
 <template>
   <div class="align-center d-flex w-100 justify-center" role="search">
-    <div class="d-flex w-66 w-md-50">
+    <div class="d-flex w-66 w-sm-50">
       <label id="basic-search-input-label" class="sr-only">basic search</label>
       <AccessibleCombobox
         :key="searchStore.autocompleteInputResetKey"
         :aria-description="`${labelForSearchInput()}`"
-        class="d-flex on-surface mr-2 flex-grow-1"
+        class="d-flex on-surface mr-1 mr-sm-2 flex-grow-1"
         :clazz="{
           'basic-search ml-auto': true,
           'search-focus-in': shouldExpandInput,
@@ -29,10 +29,10 @@
         :set-value="v => queryTextModel = v"
       />
     </div>
-    <div class="d-flex w-33 w-md-50">
+    <div class="d-flex w-33 w-sm-50">
       <v-btn
         id="go-search"
-        class="btn-search mx-1"
+        class="btn-search ml-sm-1 mr-2 mr-sm-3"
         :disabled="isSearchDisabled"
         :icon="$vuetify.display.width < mobileBreakpoint ? mdiMagnify : false"
         :text="$vuetify.display.width >= mobileBreakpoint ? 'Search' : undefined"
@@ -68,7 +68,7 @@ const isSearchDisabled = computed(() => {
   const q = trim(searchStore.queryText)
   return searchStore.isSearching || isEmpty(q) || q === route.query.q
 })
-const mobileBreakpoint = 600
+const mobileBreakpoint = 650
 const queryTextModel = computed({
   get: () => searchStore.queryText || null,
   set: v => searchStore.setQueryText(v)

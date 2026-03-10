@@ -239,10 +239,8 @@ export function toggleModalBackgroundDisabled(isModalOpen: boolean) {
   const inactiveModals = document.querySelectorAll('.v-overlay:not(.v-overlay-active')
   useContextStore().setIsModalOpen(isModalOpen)
   if (isModalOpen) {
-    document.documentElement.classList.add('modal-open')
     inactiveModals.forEach(modal => modal.setAttribute('aria-hidden', 'true'))
   } else {
-    document.documentElement.classList.remove('modal-open')
     inactiveModals.forEach(modal => modal.removeAttribute('aria-hidden'))
   }
 }

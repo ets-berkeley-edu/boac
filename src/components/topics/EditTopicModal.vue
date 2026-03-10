@@ -2,53 +2,54 @@
   <v-dialog
     v-model="showEditTopicModal"
     aria-labelledby="modal-header"
+    class="modal-height-unset"
+    :fullscreen="$vuetify.display.xs"
     persistent
   >
     <v-card
       class="modal-content"
-      min-width="400"
+      max-width="600"
+      width="90vw"
     >
       <FocusLock @keydown.esc="cancel">
         <v-card-title>
           <ModalHeader text="Create Topic" />
         </v-card-title>
         <v-card-text class="modal-body">
-          <div class="text-field-width d-block">
-            <v-text-field
-              id="create-topic-input"
-              v-model="topic"
-              :aria-describedby="`${errorMessage ? 'create-topic-input-error' : ''} create-topic-name-counter`"
-              :aria-invalid="errorMessage"
-              autocomplete="on"
-              :disabled="isSaving"
-              :error="!!errorMessage"
-              :error-messages="errorMessage"
-              label="Topic name"
-              :maxlength="maxLabelLength"
-              persistent-counter
-              required
-              :rules="[validate]"
-              validate-on="lazy submit"
-              variant="outlined"
-              @keydown.enter="save"
-              @update:model-value="resetValidation"
-            >
-              <template #counter="{max, value}">
-                <CharacterCount :count="toInt(value)" id-prefix="create-topic-name" :max="toInt(max)" />
-              </template>
-              <template #message="{message}">
-                <v-alert
-                  id="create-topic-input-error"
-                  class="font-size-14 line-height-normal"
-                  density="compact"
-                  role="none"
-                  :text="message"
-                  type="error"
-                  variant="tonal"
-                />
-              </template>
-            </v-text-field>
-          </div>
+          <v-text-field
+            id="create-topic-input"
+            v-model="topic"
+            :aria-describedby="`${errorMessage ? 'create-topic-input-error' : ''} create-topic-name-counter`"
+            :aria-invalid="errorMessage"
+            autocomplete="on"
+            :disabled="isSaving"
+            :error="!!errorMessage"
+            :error-messages="errorMessage"
+            label="Topic name"
+            :maxlength="maxLabelLength"
+            persistent-counter
+            required
+            :rules="[validate]"
+            validate-on="lazy submit"
+            variant="outlined"
+            @keydown.enter="save"
+            @update:model-value="resetValidation"
+          >
+            <template #counter="{max, value}">
+              <CharacterCount :count="toInt(value)" id-prefix="create-topic-name" :max="toInt(max)" />
+            </template>
+            <template #message="{message}">
+              <v-alert
+                id="create-topic-input-error"
+                class="font-size-14 line-height-normal"
+                density="compact"
+                role="none"
+                :text="message"
+                type="error"
+                variant="tonal"
+              />
+            </template>
+          </v-text-field>
         </v-card-text>
         <hr>
         <v-card-actions class="modal-footer">
@@ -163,9 +164,3 @@ const validate = () => {
   }
 }
 </script>
-
-<style scoped>
-.text-field-width {
-  width: 350px;
-}
-</style>

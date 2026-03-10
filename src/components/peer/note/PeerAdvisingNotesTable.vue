@@ -99,7 +99,7 @@
                       :after-cancel="afterNoteEditCancel"
                       :after-saved="afterEditAdvisingNote"
                       initial-mode="editNote"
-                      wrapper-class="pl-10 w-100"
+                      wrapper-class="pl-md-10 w-100"
                       :note-id="note.id"
                     />
                   </div>
@@ -115,7 +115,7 @@
             }"
             class="td-created-date"
           >
-            <div class="grid-cell px-4 px-sm-8 px-md-2">
+            <div class="grid-cell px-4 px-md-2">
               <div
                 v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(note, currentUser)"
                 class="d-flex flex-column pl-5"
@@ -370,8 +370,9 @@ const toggleShowHide = (note: Note) => {
   .peer-advising-table-wrapper .td-created-date .created-date {
     position: absolute;
     right: 12px;
+    text-align: end;
     top: 12px;
-    width: 20% !important;
+    width: 10rem !important;
   }
   .peer-advising-table-wrapper .td-note .grid-cell.note-details {
     margin: 12px 0 !important;

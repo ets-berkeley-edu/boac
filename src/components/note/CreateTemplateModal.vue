@@ -2,12 +2,14 @@
   <v-dialog
     v-model="dialogModel"
     aria-labelledby="modal-header"
+    class="modal-height-unset"
+    :fullscreen="$vuetify.display.xs"
     persistent
   >
     <v-card
       class="modal-content"
-      min-width="400"
-      max-width="600"
+      max-width="700"
+      width="90vw"
     >
       <v-card-title>
         <ModalHeader text="Name Your Template" />

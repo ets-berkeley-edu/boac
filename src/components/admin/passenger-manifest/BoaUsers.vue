@@ -89,7 +89,9 @@
         <v-dialog
           v-model="dialogs[index]"
           aria-labelledby="modal-header"
+          :fullscreen="$vuetify.display.xs"
           persistent
+          scrollable
         >
           <EditUser
             v-if="editUserModel"

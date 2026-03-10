@@ -1,9 +1,9 @@
 <template>
   <div class="align-center d-flex flex-nowrap justify-space-between my-2 w-100">
-    <div class="font-size-16 header-text px-3">
+    <div class="font-size-16 header-text px-1 px-sm-3">
       <NavLink
         id="home-header"
-        class="text-no-wrap text-white"
+        class="text-no-wrap text-white mr-1"
         path="/home"
         aria-label="UC Berkeley Online Advising home page"
       >
@@ -18,8 +18,8 @@
         />
       </NavLink>
     </div>
-    <AdvancedSearch class="mx-3" />
-    <HeaderMenu class="mr-4" />
+    <AdvancedSearch class="px-md-3" />
+    <HeaderMenu class="mr-1 mr-sm-4" />
   </div>
 </template>
 

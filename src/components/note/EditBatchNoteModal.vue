@@ -5,6 +5,7 @@
       id="edit-batch-note-modal"
       v-model="dialogModel"
       aria-labelledby="dialog-header-note"
+      :fullscreen="$vuetify.display.width < 750"
       persistent
       scrollable
       @after-enter="afterModalShown"
@@ -12,9 +13,8 @@
       <v-card
         id="new-note-modal-container"
         class="modal-content"
-        :class="{'modal-fullscreen': $vuetify.display.mdAndDown}"
-        width="800"
-        max-width="90%"
+        max-width="1200"
+        width="90vw"
       >
         <div>
           <CreateNoteHeader :exit="discardRequested" />
@@ -216,8 +216,6 @@ const selectEscape = event => {
 
 watch(dialogModel, () => {
   if (dialogModel.value) {
-    // remove scrollbar for content behind the modal
-    document.documentElement.classList.add('modal-open')
     getMyNoteTemplates().then(noteStore.setNoteTemplates)
     noteStore.resetModel()
     init().then(note => {
@@ -239,7 +237,6 @@ watch(dialogModel, () => {
   } else {
     noteStore.setMode(null)
     noteStore.clearAutoSaveJob()
-    document.documentElement.classList.remove('modal-open')
     disableFocusLock()
     contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
   }
@@ -466,7 +463,6 @@ onBeforeUnmount(() => {
   noteStore.setIsCreateNoteModalOpen(false)
   noteStore.clearAutoSaveJob()
   noteStore.setMode(null)
-  document.documentElement.classList.remove('modal-open')
   contextStore.removeEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
 })
 </script>
