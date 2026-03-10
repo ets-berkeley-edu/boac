@@ -195,6 +195,7 @@
                 :chart-description="`${item.firstName} ${item.lastName}'s assignments submitted in ${canvasSite.courseCode}`"
                 :dataset="canvasSite.analytics.assignmentsSubmitted"
                 :numeric-id="`${item.uid}-${canvasSite.canvasCourseId}-assignments`"
+                :student-name="`${item.firstName} ${item.lastName}`"
               />
             </div>
             <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
@@ -243,6 +244,7 @@
                 :chart-description="`${item.firstName} ${item.lastName}'s assignment grades in ${canvasSite.courseCode}`"
                 :dataset="canvasSite.analytics.currentScore"
                 :numeric-id="`${item.uid}-${canvasSite.canvasCourseId}`"
+                :student-name="`${item.firstName} ${item.lastName}`"
               />
             </div>
             <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
