@@ -27,6 +27,7 @@
     </div>
     <div>
       <ul
+        v-if="size(topicsSelected)"
         id="note-topics-list"
         class="list-no-bullets mt-2 advising-note-pill-list"
         aria-labelledby="note-topics-label"

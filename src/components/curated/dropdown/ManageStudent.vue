@@ -57,7 +57,8 @@
         :aria-label="`${props.student.name}\'s ${domainLabel(true)} memberships`"
         class="pb-1"
         density="compact"
-        max-height="400"
+        max-height="90vh"
+        max-width="90vw"
         :model-value="selectedGroupIds"
         selectable
         variant="flat"

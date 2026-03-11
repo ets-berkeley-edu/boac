@@ -128,6 +128,7 @@
                 No {{ modeLabel.toLowerCase() }}s.
               </div>
               <ul
+                v-if="size((mode === 'cohort' ? user.cohorts : user.curatedGroups))"
                 :id="`${mode}s-of-user-${user.uid}`"
                 :aria-labelledby="`user-${user.uid}`"
                 class="mt-1"
@@ -151,7 +152,7 @@
 
 <script setup lang="ts">
 import {computed, onMounted, ref} from 'vue'
-import {filter as _filter, each, isEmpty, map, toString} from 'lodash'
+import {filter as _filter, each, isEmpty, map, size, toString} from 'lodash'
 import {mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
 import {useRoute} from 'vue-router'
 import type {Cohort} from '@/lib/types-cohorts'

@@ -38,7 +38,12 @@
             />
           </div>
         </v-alert-title>
-        <ul v-if="sids.length && sidsNotFound.length && (sidsNotFound.length <= magicNumber)" id="sids-not-found" class="mb-1 pl-6">
+        <ul
+          v-if="sids.length && sidsNotFound.length && (sidsNotFound.length <= magicNumber)"
+          id="sids-not-found"
+          aria-label="invalid S I D numbers"
+          class="mb-1 pl-6"
+        >
           <li v-for="sid in sidsNotFound" :key="sid">{{ sid }}</li>
         </ul>
       </v-alert>

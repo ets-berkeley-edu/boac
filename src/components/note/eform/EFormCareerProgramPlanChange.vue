@@ -36,9 +36,9 @@
       </dd>
     </div>
     <div v-if="eForm.overlapCourses.length" class="mt-3">
-      <dt class="font-weight-bold">Overlap Course{{ eForm.overlapCourses.length === 1 ? '' : 's' }}</dt>
+      <dt :id="`note-${noteId}-eform-overlap-label`" class="font-weight-bold">Overlap Course{{ eForm.overlapCourses.length === 1 ? '' : 's' }}</dt>
       <dd :id="`note-${noteId}-eform-overlap-courses`">
-        <ul class="ml-5">
+        <ul :aria-labelledby="`note-${noteId}-eform-overlap-label`" class="ml-5">
           <li
             v-for="(overlapCourse, index) in eForm.overlapCourses"
             :key="index"

@@ -1,7 +1,11 @@
 <template>
   <div>
     <div class="align-center d-flex">
-      <label id="units-input-label" :class="labelClass" :for="inputId">
+      <label
+        id="units-input-label"
+        :class="labelClass"
+        :for="showUnitsUpperInput ? `${inputId} upper-${inputId}` : inputId"
+      >
         {{ label }}
       </label>
       <div v-if="range" class="d-flex font-size-14 pb-1">
@@ -29,6 +33,7 @@
           :aria-describedby="`${inputId}-messages`"
           :aria-invalid="(required && !unitsLower) || !isValidUnits(unitsLower, max)"
           :aria-label="`Course Units${showUnitsUpperInput ? ', Start of Range' : ''}`"
+          :aria-labelledby="undefined"
           autocomplete="on"
           density="compact"
           :disabled="disable"
@@ -51,6 +56,7 @@
           v-model="unitsUpperModel"
           :aria-describedby="`${inputId}-messages`"
           :aria-invalid="!isValidUnits(unitsUpper, MAX_UNITS_ALLOWED)"
+          :aria-labelledby="undefined"
           aria-label="Course Units, End of Range"
           autocomplete="on"
           density="compact"

@@ -27,6 +27,7 @@
       </template>
       <v-list
         v-if="noteTemplates.length"
+        aria-label="note templates"
         variant="flat"
       >
         <v-list-item

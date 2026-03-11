@@ -34,8 +34,8 @@
         {{ srSearchResultsSummary }}
       </div>
       <div v-if="!hasSearchResults" id="page-header-no-results" class="my-4 px-5">
-        <h3>Suggestions</h3>
-        <ul class="mt-2">
+        <h2 id="search-results-suggestions" class="font-size-18"><span class="sr-only">Search </span>Suggestions</h2>
+        <ul aria-labelledby="search-results-suggestions" class="mt-2">
           <li class="font-size-15 pt-1">Keep your search term simple.</li>
           <li class="font-size-15 pt-1">Check your spelling and try again.</li>
           <li class="font-size-15 pt-1">Search classes by section title, e.g., <strong>AMERSTD 10</strong>.</li>

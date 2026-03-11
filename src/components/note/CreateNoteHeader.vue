@@ -41,7 +41,7 @@
         </div>
       </div>
     </div>
-    <SelectNoteTemplateForNote :exit="exit" />
+    <SelectNoteTemplateForNote />
     <v-btn
       v-if="noteStore.mode === 'editDraft'"
       id="close-btn-in-modal-header"

@@ -31,6 +31,7 @@
     </div>
     <div>
       <ul
+        v-if="size(note ? note.topics : noteStore.model.topics)"
         :id="`note-topics-list-${noteId}`"
         class="advising-note-pill-list list-no-bullets mt-2"
         :aria-labelledby="`note-topics-label-${noteId}`"
