@@ -75,13 +75,15 @@ class UniversityDeptMember(Base):
         ).first()
         if existing_membership:
             membership = existing_membership
-            membership.role = role
             membership.automate_membership = automate_membership
+            if role:
+                membership.role = role
         else:
             membership = cls(
                 university_dept_id=university_dept_id,
                 authorized_user_id=authorized_user_id,
-                role=role,
+                # New memberships get the advisor role by default.
+                role=role or 'advisor',
                 automate_membership=automate_membership,
             )
         db.session.add(membership)

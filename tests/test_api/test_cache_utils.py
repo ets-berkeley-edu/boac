@@ -329,6 +329,25 @@ class TestRefreshDepartmentMemberships:
         assert updated_user.created_by == '0'
         assert updated_user.department_memberships[0].university_dept_id == dept_ucls.id
 
+    def test_director_remains_director(self):
+        user = AuthorizedUser.find_by_uid('242881')
+        dept_ucls = UniversityDept.query.filter_by(dept_code='QCADVMAJ').first()
+        UniversityDeptMember.create_or_update_membership(
+            dept_ucls.id,
+            user.id,
+            role='director',
+            automate_membership=False,
+        )
+        std_commit(allow_test_environment=True)
+
+        from boac.api.cache_utils import refresh_department_memberships
+        refresh_department_memberships()
+        std_commit(allow_test_environment=True)
+
+        updated_user = AuthorizedUser.query.filter_by(uid='242881').first()
+        assert updated_user.department_memberships[0].university_dept_id == dept_ucls.id
+        assert updated_user.department_memberships[0].role == 'director'
+
     def test_peer_advising_roles(self):
         """The department_memberships refresh job does not drop Peer Advisors."""
         def _verify_expected_state(is_before_refresh):
