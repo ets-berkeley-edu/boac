@@ -19,13 +19,11 @@
           v-for="(note, index) in notes"
           :id="`tr-peer-advisor-note-${note.id}`"
           :key="index"
-          :aria-description="`Note ${getNotePosition(index)}`"
           :class="{
             'bg-sky-blue expanded border-b-sm': isExpanded(note),
             'bg-surface-light': (index % 2 === 0),
             'border-b-md': index === notes.length - 1
           }"
-          tabindex="-1"
         >
           <td
             :id="`td-note-${note.id}-student`"
@@ -47,10 +45,12 @@
             <div v-if="!isExpanded(note)" class="grid-cell">
               <button
                 :id="`open-peer-advising-${note.id}`"
+                aria-hidden="true"
                 :aria-expanded="false"
                 :aria-label="`Message ${getNoteLabel(note, index)}`"
                 class="align-center d-flex justify-start px-3 text-none text-primary toggle-note-btn v-btn w-100"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                tabindex="-1"
                 @click="() => toggleShowHide(note)"
               >
                 <span class="v-btn__overlay" />
@@ -63,6 +63,9 @@
                   <v-icon class="has-attachment-icon" :icon="mdiPaperclip" size="small" />
                 </span>
               </button>
+              <span class="sr-only">
+                {{ stripHtmlAndTrim(note.body || summarizeTopics(note.topics)) }}
+              </span>
             </div>
             <div v-if="isExpanded(note)" :class="{'d-contents': !smAndDown}">
               <div class="grid-cell">
@@ -70,6 +73,7 @@
                   <v-btn
                     v-if="editingNoteId !== note.id"
                     :id="`show-note-${note.id}-details`"
+                    aria-hidden="true"
                     :aria-expanded="true"
                     :aria-label="`Close message ${getNoteLabel(note, index)}`"
                     class="toggle-note-btn w-75 w-md-100"
@@ -77,6 +81,7 @@
                     :prepend-icon="mdiCloseCircle"
                     text="Close Message"
                     variant="text"
+                    tabindex="-1"
                     @click="toggleShowHide(note)"
                   />
                 </div>
@@ -116,6 +121,9 @@
             class="td-created-date"
           >
             <div class="grid-cell px-4 px-md-2">
+              <span class="sr-only">
+                {{ getNoteMetaForScreenReader(note) }}
+              </span>
               <div
                 v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(note, currentUser)"
                 class="d-flex flex-column pl-5"
@@ -329,7 +337,19 @@ const getNoteLabel = (note: Note, index: number) => {
   const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
   const createdDate = `${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}`
   const rowPosition = `${index + 1} of ${size(props.notes)}`
-  return `${rowPosition}, ${getStudentName(note)}, dated ${createdDate}${attachments}. ${truncate(stripHtmlAndSummarize(note.body))}`
+  return `${rowPosition}, ${getStudentName(note)}. ${truncate(stripHtmlAndSummarize(note.body))} dated ${createdDate}${attachments}.`
+}
+
+const getNoteMetaForScreenReader = (note: Note) => {
+  const date = DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)
+  const authorName = note.author.name
+  const role = note.author.role ? capitalizeAllWords(replace(note.author.role, '_', ' ')) : ''
+  const departments = size(note.author.departments)
+    ? note.author.departments.map(dept => dept.deptName).join(', ')
+    : ''
+  const rolePart = role ? `, ${role}` : ''
+  const deptPart = departments ? `, ${departments}` : ''
+  return `Dated ${date}${authorName ? `, created by ${authorName}` : ''}${rolePart}${deptPart}.`
 }
 
 const getNotePosition = (index: number) => `${index + 1} of ${size(props.notes) || 'unknown'}`
@@ -373,6 +393,14 @@ const toggleShowHide = (note: Note) => {
     text-align: end;
     top: 12px;
     width: 10rem !important;
+  }
+  .peer-advising-table-wrapper tr.expanded .td-created-date .created-date {
+    position: static;
+    right: auto;
+    top: auto;
+    width: 100% !important;
+    text-align: left;
+    margin-top: 8px;
   }
   .peer-advising-table-wrapper .td-note .grid-cell.note-details {
     margin: 12px 0 !important;
