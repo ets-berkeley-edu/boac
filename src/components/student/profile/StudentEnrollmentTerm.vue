@@ -6,12 +6,12 @@
     <div>
       <div class="pa-0">
         <div class="align-baseline d-flex font-weight-500">
-          <h3
+          <h4
             :id="`term-${term.termId}-header`"
             class="font-size-18 font-weight-500 text-surface-variant mb-0 mr-2"
           >
             {{ term.termName }}
-          </h3>
+          </h4>
           <span v-if="isConcurrent" class="font-size-14 text-medium-emphasis ml-1 mr-3">UCBX</span>
           <StudentAcademicStanding
             v-if="term.academicStanding"
