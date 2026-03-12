@@ -114,6 +114,9 @@ watch(showMyNotesOnly, async () => {
   isFetchingNotes.value = true
   // fetch fresh data filtered by the new switch state
   await fetchNotes()
+  const filterPhrase = showMyNotesOnly.value ? 'Showing Your Notes.' : 'Showing All Notes.'
+  alertScreenReader(`${filterPhrase} ${notesDescription.value}`)
+  putFocusNextTick('my-notes-only-toggle')
 })
 
 contextStore.loadingStart()
@@ -205,7 +208,13 @@ const onClickShowMore = () => {
   isFetchingNotes.value = true
   fetchNotes().then(() => {
     alertScreenReader(notesDescription.value)
-    putFocusNextTick(`tr-peer-advisor-note-${get(last(notes.value), 'id')}`)
+    if (totalNoteCount.value > notes.value.length) {
+      // Keep focus on the "Show additional advising notes" button while it remains available.
+      putFocusNextTick('fetch-more-notes')
+    } else {
+      // Once the button is gone (all notes are visible), move focus to the last note row.
+      putFocusNextTick(`tr-peer-advisor-note-${get(last(notes.value), 'id')}`)
+    }
     isFetchingNotes.value = false
   })
 }
