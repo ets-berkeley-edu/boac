@@ -100,7 +100,11 @@
             Sorry, you cannot delete this {{ domainLabel(false) }} until you have removed the filter from
             <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-bold">{{ referencingCohorts[0].name }}</span>.</span>
             <span v-if="referencingCohorts.length > 1">cohorts:</span>
-            <ul v-if="referencingCohorts.length > 1" class="mb-0 mt-2">
+            <ul
+              v-if="referencingCohorts.length > 1"
+              :aria-label="`cohorts in use by this ${domainLabel(false)}`"
+              class="mb-0 mt-2"
+            >
               <li v-for="cohort in referencingCohorts" :key="cohort.id">
                 <span class="font-weight-bold">{{ cohort.name }}</span>
               </li>

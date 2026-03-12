@@ -108,7 +108,7 @@
         <div v-if="size(sidsInError)">
           <ul
             id="sids-not-found"
-            aria-label="Students not found"
+            aria-label="invalid S I D numbers"
             class="mb-1 pl-6"
             :class="{'columns-list': size(sidsInError) > 5}"
           >

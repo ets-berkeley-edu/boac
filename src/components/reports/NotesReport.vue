@@ -160,7 +160,7 @@
                     <v-chip>{{ getYearlyTotal(annual) }}<span class="sr-only"> notes created</span></v-chip>
                   </v-card-title>
                   <v-card-text>
-                    <v-list>
+                    <v-list :aria-label="`${annual.year} note counts by month`">
                       <v-list-item
                         v-for="month in orderBy(annual.months, ['month'], 'desc')"
                         :key="`${annual.year}-${month.month}`"

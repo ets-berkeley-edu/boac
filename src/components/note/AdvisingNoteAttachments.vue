@@ -91,6 +91,7 @@
       </v-alert>
     </div>
     <ul
+      v-if="size(attachments)"
       :id="`${idPrefix}-attachments-list`"
       :aria-labelledby="`${idPrefix}-attachments-list-label`"
       class="list-no-bullets mt-2"

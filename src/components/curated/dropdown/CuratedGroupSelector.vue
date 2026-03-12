@@ -51,7 +51,8 @@
           :aria-label="`Select one or more ${domainLabel(true)}s`"
           class="pb-1"
           density="compact"
-          max-height="400"
+          max-height="90vh"
+          max-width="90vw"
           :model-value="selectedCuratedGroups"
           variant="flat"
         >
@@ -84,9 +85,9 @@
                   tabindex="-1"
                 >
                   <template #label>
-                    <span class="truncate-with-ellipsis ml-2">
+                    <div class="truncate-with-ellipsis ml-2">
                       {{ group.name }}
-                    </span>
+                    </div>
                   </template>
                 </v-checkbox-btn>
               </v-list-item-action>

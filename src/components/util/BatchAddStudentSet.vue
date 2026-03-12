@@ -33,7 +33,12 @@
         {{ object.name }}&nbsp;&nbsp;({{ pluralize('student', object.totalStudentCount) }})
       </option>
     </select>
-    <ul :id="`batch-degree-check-${objectType}-list`" :aria-label="`${header}s added to Degree Check`" class="mb-2 list-no-bullets pl-0 w-75">
+    <ul
+      v-if="size(added)"
+      :id="`batch-degree-check-${objectType}-list`"
+      :aria-label="`${header}s added to Degree Check`"
+      class="mb-2 list-no-bullets pl-0 w-75"
+    >
       <li
         v-for="(addedObject, index) in added"
         :key="index"
@@ -65,7 +70,7 @@
 <script setup>
 import {mdiCloseCircleOutline} from '@mdi/js'
 import {computed, nextTick, ref, watch} from 'vue'
-import {filter as _filter, includes, map} from 'lodash'
+import {filter as _filter, includes, map, size} from 'lodash'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({

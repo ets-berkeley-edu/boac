@@ -32,7 +32,7 @@
           </div>
         </button>
       </template>
-      <v-list>
+      <v-list aria-label="choose color code">
         <v-list-item
           v-for="item in items"
           :id="`color-code-option-${item.color || 'none'}`"

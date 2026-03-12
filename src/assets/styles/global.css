@@ -495,11 +495,16 @@
     width: 100%;
   }
 }
-.v-list-item-override .v-list-item__prepend,
-.v-list-item-override .v-input__control,
-.v-list-item-override .v-checkbox-btn {
-  max-width: inherit;
-  width: inherit;
+.v-list-item-override {
+  .v-list-item__prepend,
+  .v-input__control,
+  .v-checkbox-btn {
+    max-width: inherit;
+    width: inherit;
+  }
+  .v-label {
+    max-width: calc(100vw - 100px);
+  }
 }
 .v-dialog--fullscreen.v-dialog--scrollable .v-overlay__content {
   overflow-y: unset !important;

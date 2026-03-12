@@ -33,15 +33,13 @@
           </v-card-title>
           <v-card-text class="modal-body">
             <div>
-              <label
-                for="course-name-input"
-                class="font-weight-bold"
-              >
+              <label for="course-name-input" class="font-weight-bold">
                 <span class="sr-only">Course </span>Name
               </label>
               <v-text-field
                 id="course-name-input"
                 v-model="name"
+                :aria-labelledby="undefined"
                 autocomplete="on"
                 class="mt-1"
                 :disabled="isSaving"
@@ -63,13 +61,13 @@
                 id="course-grade-input"
                 v-model="grade"
                 :aria-autocomplete="false"
-                aria-labelledby="units-grade-label"
+                :aria-labelledby="undefined"
+                autocomplete="on"
                 class="grade-input mt-1"
                 density="compact"
                 :disabled="isSaving"
                 hide-details
                 maxlength="3"
-                autocomplete="on"
                 @keydown.enter="save"
               />
             </div>
@@ -100,11 +98,12 @@
                 <v-textarea
                   id="course-note-textarea"
                   v-model="note"
+                  :aria-labelledby="undefined"
+                  autocomplete="on"
                   density="compact"
                   :disabled="isSaving"
                   hide-details
                   rows="4"
-                  autocomplete="on"
                   variant="outlined"
                 />
               </div>

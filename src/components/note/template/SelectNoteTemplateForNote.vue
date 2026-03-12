@@ -29,6 +29,7 @@
         </template>
         <v-list
           v-if="noteStore.noteTemplates.length"
+          aria-label="note templates"
           class="scrollbar-gutter-stable"
           variant="flat"
         >

@@ -1,5 +1,6 @@
 <template>
   <v-list
+    aria-label="main navigation"
     class="pa-0 sidebar-list sidebar-parent-list"
     density="compact"
     lines="one"
@@ -8,7 +9,7 @@
     tag="ul"
   >
     <v-list-item aria-labelledby="sidebar-cohorts-header" class="pa-0 mt-2" role="listitem">
-      <div class="align-center d-flex font-size-18 font-weight-bold justify-space-between pretty-hover py-1">
+      <div class="align-center d-flex font-size-18 font-weight-bold justify-space-between pretty-hover my-1">
         <div id="sidebar-cohorts-header">
           Cohorts
         </div>
@@ -24,7 +25,7 @@
       <v-list
         v-if="myCohorts.length"
         aria-labelledby="sidebar-cohorts-header"
-        class="py-0 sidebar-list"
+        class="sidebar-list"
         density="compact"
         lines="one"
         tabindex="-1"
@@ -64,7 +65,7 @@
       role="listitem"
       tag="li"
     >
-      <div class="align-center d-flex font-weight-bold justify-space-between pretty-hover py-1">
+      <div class="align-center d-flex font-weight-bold justify-space-between pretty-hover my-1">
         <div id="sidebar-curated-groups-header" class="font-size-18">
           Curated Groups
         </div>
@@ -81,7 +82,7 @@
       <v-list
         v-if="myCuratedGroups.length"
         aria-labelledby="sidebar-curated-groups-header"
-        class="py-0 sidebar-list"
+        class="sidebar-list"
         density="compact"
         lines="one"
         tabindex="-1"
@@ -117,7 +118,6 @@
     </v-list-item>
     <v-list-item
       v-if="contextStore.currentUser.canAccessAdmittedStudents"
-      aria-labelledby="sidebar-admitted-students-header admitted-students-all"
       class="pa-0 sidebar-list-divided-section"
       role="listitem"
       tag="li"
@@ -125,7 +125,7 @@
       <div id="sidebar-admitted-students-header" class="font-size-18 font-weight-bold pl-3">
         Admitted Students
       </div>
-      <div class="align-center d-flex font-weight-bold justify-space-between pretty-hover py-1">
+      <div class="align-center d-flex font-weight-bold justify-space-between pretty-hover my-1">
         <NavLink
           id="admitted-students-all"
           path="/admit/students"
@@ -145,7 +145,7 @@
       <v-list
         v-if="myCohortsCE3.length"
         aria-labelledby="sidebar-admitted-students-header admitted-students-all"
-        class="py-0 sidebar-list"
+        class="sidebar-list"
         density="compact"
         lines="one"
         tabindex="-1"
@@ -181,13 +181,12 @@
     </v-list-item>
     <v-list-item
       v-if="contextStore.currentUser.canAccessAdmittedStudents"
-      aria-labelledby="sidebar-admitted-students-header sidebar-admit-curated-groups-header"
       class="pa-0"
       role="listitem"
       tag="li"
     >
       <div
-        class="align-center d-flex font-weight-bold justify-space-between pretty-hover py-1"
+        class="align-center d-flex font-weight-bold justify-space-between pretty-hover my-1"
         :class="{'mt-2': myCohortsCE3.length}"
       >
         <div id="sidebar-admit-curated-groups-header">
@@ -205,8 +204,8 @@
       </div>
       <v-list
         v-if="myCuratedGroupsCE3.length"
-        aria-labelledby="sidebar-admit-curated-groups-header"
-        class="py-0 sidebar-list"
+        aria-labelledby="sidebar-admitted-students-header sidebar-admit-curated-groups-header"
+        class="sidebar-list"
         density="compact"
         lines="one"
         role="list"
@@ -242,14 +241,14 @@
       </v-list>
     </v-list-item>
     <v-list-item class="pa-0 sidebar-list-divided-section" role="listitem" tag="li">
-      <div class="font-weight-medium mt-1 pretty-hover sub-item">
-        <NavLink id="cohorts-all" path="/all/cohorts">
+      <div class="font-weight-medium pretty-hover sub-item my-1">
+        <NavLink id="cohorts-all" class="w-100" path="/all/cohorts">
           Everyone's Cohorts
         </NavLink>
       </div>
     </v-list-item>
     <v-list-item class="pa-0" role="listitem" tag="li">
-      <div class="font-weight-medium mt-1 pretty-hover sub-item">
+      <div class="font-weight-medium pretty-hover sub-item my-1">
         <NavLink id="groups-all" path="/all/curated_groups">
           Everyone's Groups
         </NavLink>
@@ -289,27 +288,10 @@ const {mdAndUp} = useDisplay()
 </script>
 
 <style scoped>
-.sidebar-list {
-  background-color: var(--v-theme-primary);
-}
-.sidebar-list :deep(.v-list-item) {
-  min-height: 24px !important;
-}
-/* override when zero-height is present */
-.sidebar-list :deep(.v-list-item.zero-height) {
-  min-height: 6px !important;
-}
-:deep(.sidebar-list .v-list-item__content) {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-.sidebar-list-divided-section {
-  border-top: solid 1px rgb(var(--v-theme-primary));
-  padding-top: 12px !important;
-  margin-top: 12px !important;
-}
 .pretty-hover {
   border-left: 6px solid transparent;
+  margin: 1px 0;
+  min-height: 28px;
   padding: 2px 8px 2px 6px !important;
 }
 .pretty-hover:hover,
@@ -329,6 +311,7 @@ const {mdAndUp} = useDisplay()
   outline-color: rgba(var(--v-theme-category-alert));
   outline-offset: -0.1rem;
   outline-style: solid;
+  outline-width: 0.125rem;
   /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
   a {
     box-shadow: none;
@@ -345,5 +328,33 @@ const {mdAndUp} = useDisplay()
   text-decoration: none;
   border: 0;
   color: inherit;
+}
+.sidebar-list {
+  background-color: var(--v-theme-primary);
+  padding: 2px 0;
+}
+.sidebar-list-divided-section {
+  border-top: solid 1px rgb(var(--v-theme-primary));
+  padding-top: 12px !important;
+  margin-top: 12px !important;
+}
+</style>
+
+<style>
+.sidebar-list .v-list-item {
+  min-height: 28px;
+}
+/* override when zero-height is present */
+.sidebar-list .v-list-item.zero-height {
+  min-height: 6px !important;
+}
+.sidebar-list .v-list-item a {
+  display: inline-block;
+  margin: -1px 0;
+  min-height: 26px !important;
+}
+.sidebar-list .v-list-item__content {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 </style>

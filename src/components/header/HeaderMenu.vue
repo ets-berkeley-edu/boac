@@ -10,17 +10,16 @@
       <template #activator="{ props }">
         <button
           id="header-dropdown-under-name"
-          :aria-label="`${currentUser.firstName} quick links`"
+          :aria-label="`${currentUser.firstName || `UID ${currentUser.uid}`} quick links`"
           class="v-btn button-menu header-button-menu bg-primary px-1 px-sm-3 text-body-1 text-white"
           :class="{'button-menu-active': isMenuOpen}"
-          :title="`User profile for ${currentUser.name || `UID ${currentUser.uid}` }`"
           v-bind="props"
         >
           {{ currentUser.firstName || `UID:${currentUser.uid}` }}
           <v-icon :icon="mdiMenuDown" size="24" />
         </button>
       </template>
-      <v-list density="compact">
+      <v-list aria-labelledby="header-dropdown-under-name" density="compact">
         <v-list-item v-if="currentUser.canReadDegreeProgress" class="pa-0">
           <v-btn
             id="header-menu-degree-check"
