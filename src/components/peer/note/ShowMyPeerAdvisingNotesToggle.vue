@@ -18,6 +18,7 @@
         :disabled="isFetchingNotes"
         hide-details
         label="My Notes"
+        :aria-label="showMyNotesOnly ? 'Showing Your Notes' : 'Showing All Notes'"
       />
     </div>
     <SectionSpinner :loading="isFetchingNotes" />
