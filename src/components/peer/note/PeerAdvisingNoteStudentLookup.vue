@@ -92,10 +92,10 @@ onMounted(() => {
         if (s) {
           // Set the combobox's model so the value shows up
           student.value = s
-          // Mirror the "selected" behavior by disabling the input
           const input = getInputElement()
           if (input) {
-            input.setAttribute('disabled', 'true')
+            // Keep input focusable but non-editable
+            input.setAttribute('readonly', 'true')
           }
           return nextTick().then(() => selectStudent(s))
         }
@@ -121,7 +121,8 @@ const getInputElement = () => {
 const selectStudent = (selected: BasicStudentLabeled) => {
   const input = getInputElement()
   if (input) {
-    input.setAttribute('disabled', 'true')
+    // Keep input focusable but non-editable
+    input.setAttribute('readonly', 'true')
   }
   student.value = selected
   props.onSelectStudent(selected)
@@ -143,7 +144,7 @@ const onUpdateSearch = debounce((input: string) => {
 const resetAutocomplete = () => {
   const input = getInputElement()
   if (input) {
-    input.removeAttribute('disabled')
+    input.removeAttribute('readonly')
   }
   autoSuggestedStudents.value = []
   isFetchingStudents.value = false
