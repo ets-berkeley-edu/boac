@@ -155,7 +155,14 @@ import ManuallySetDate from '@/components/note/ManuallySetDate'
 import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import {addAttachments, createDraftNote, getNote, removeAttachment} from '@/api/notes'
-import {alertScreenReader, invokeIfAuthenticated, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
+import {
+  alertScreenReader,
+  invokeIfAuthenticated,
+  pluralize,
+  putFocusNextTick,
+  stripHtmlAndTrim,
+  toggleModalBackgroundDisabled
+} from '@/lib/utils'
 import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/note-templates'
 import {
   disableFocusLock,
@@ -215,6 +222,7 @@ const selectEscape = event => {
 }
 
 watch(dialogModel, () => {
+  toggleModalBackgroundDisabled(dialogModel.value)
   if (dialogModel.value) {
     getMyNoteTemplates().then(noteStore.setNoteTemplates)
     noteStore.resetModel()

@@ -46,11 +46,6 @@ export const ANONYMOUS_USER: BoaUser = {
 
 let $_screenReaderAlertExpiry: number
 
-const clearScreenReaderAlert = () => {
-  window.clearInterval($_screenReaderAlertExpiry)
-  useContextStore().setScreenReaderAlert({message: ''} as ScreenReaderAlert)
-}
-
 export function alertScreenReader(message: string, persistent?: boolean, politeness?: string) {
   clearScreenReaderAlert()
   nextTick(() => {
@@ -60,6 +55,11 @@ export function alertScreenReader(message: string, persistent?: boolean, politen
       $_screenReaderAlertExpiry = window.setInterval(clearScreenReaderAlert, 5000)
     }
   })
+}
+
+const clearScreenReaderAlert = () => {
+  window.clearInterval($_screenReaderAlertExpiry)
+  useContextStore().setScreenReaderAlert({message: ''} as ScreenReaderAlert)
 }
 
 export function capitalizeAllWords(words: string) {
@@ -186,16 +186,6 @@ export function scrollToTop() {
   scrollTo('content', 'start')
 }
 
-export function setComboboxAccessibleLabel(container: Element, label: string) {
-  // Vuetify puts a label on the <input> element inside the combobox, but the combobox itself
-  // is unlabeled. As a result, JAWS lists it as "Unlabeled1 edit combo {input label}". This
-  // workaround replaces "Unlabeled1" with the provided label.
-  const combobox = container.querySelector('[role="combobox"]')
-  if (combobox) {
-    combobox.setAttribute('aria-label', label)
-  }
-}
-
 export function sortComparator(a, b, nullFirst=true): number {
   let result: number
   if (isNil(a) || isNil(b)) {
@@ -239,9 +229,11 @@ export function toggleModalBackgroundDisabled(isModalOpen: boolean) {
   const inactiveModals = document.querySelectorAll('.v-overlay:not(.v-overlay-active')
   useContextStore().setIsModalOpen(isModalOpen)
   if (isModalOpen) {
+    inactiveModals.forEach(modal => modal.setAttribute('inert', 'true'))
     inactiveModals.forEach(modal => modal.setAttribute('aria-hidden', 'true'))
   } else {
     inactiveModals.forEach(modal => modal.removeAttribute('aria-hidden'))
+    inactiveModals.forEach(modal => modal.removeAttribute('inert'))
   }
 }
 

@@ -1,6 +1,7 @@
 <template>
   <div class="py-1">
     <label
+      id="create-note-add-student-label"
       for="create-note-add-student-input"
       class="font-size-16 font-weight-bold"
     >
@@ -20,7 +21,7 @@
         ref="addStudentInput"
         :key="vAutocompleteKey"
         aria-describedby="create-note-add-student-desc"
-        aria-label="Name or S I D lookup. Expect auto suggest."
+        aria-label="Student name or S I D lookup. Expect auto suggest."
         :aria-labelledby="undefined"
         autocomplete="off"
         base-color="primary"
@@ -38,7 +39,8 @@
         :items="autoSuggestedStudents"
         :menu-icon="null"
         :menu-props="{
-          'content-class': useContextStore().currentUser.inDemoMode ? 'demo-mode-blur' : ''
+          'content-class': useContextStore().currentUser.inDemoMode ? 'demo-mode-blur' : '',
+          eager: true
         }"
         type="search"
         validate-on="submit"
@@ -101,9 +103,9 @@ import {
   without
 } from 'lodash'
 import {mdiPlus} from '@mdi/js'
-import {nextTick, onMounted, onUpdated, ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import PillItem from '@/components/util/PillItem'
-import {alertScreenReader, putFocusNextTick, setComboboxAccessibleLabel} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/note-edit-session-utils'
 import {useContextStore} from '@/stores/context'
@@ -160,10 +162,7 @@ onMounted(() => {
       addedStudents.value = students
     })
   }
-})
-
-onUpdated(() => {
-  nextTick(() => setComboboxAccessibleLabel(addStudentInput.value.$el, 'Student'))
+  setComboboxAccessibleLabel()
 })
 
 const onClickAddButton = () => {
@@ -239,6 +238,15 @@ const removeStudent = student => {
     alertScreenReader(`${student.label} removed from batch note`)
   }
 }
+
+
+const setComboboxAccessibleLabel = () => {
+  const combobox = addStudentInput.value.$el.querySelector('[role="combobox"]')
+  if (combobox) {
+    combobox.setAttribute('aria-labelledby', 'create-note-add-student-label')
+  }
+}
+
 </script>
 
 <style>
