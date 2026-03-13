@@ -12,7 +12,11 @@
       max-width="1200"
       width="90vw"
     >
-      <FocusLock :disabled="noteStore.isFocusLockDisabled" @keydown.esc="closeModal">
+      <FocusLock
+        :disabled="noteStore.isFocusLockDisabled || isMainFocusLockDisabled"
+        data-no-autofocus="true"
+        @keydown.esc="closeModal"
+      >
         <v-card-title>
           <EditPeerAdvisingNoteHeader
             header-text="New Note"
@@ -116,6 +120,7 @@ const props = defineProps({
 })
 
 const isAreYouSureModalOpen = ref(false)
+const isMainFocusLockDisabled = ref(false)
 const noteStore = useNoteStore()
 const noteTemplates = ref<NoteTemplate[]>([])
 const isNoteTemplatesLoading = ref(false)
@@ -139,6 +144,10 @@ onMounted(() => {
 watch(dialog, isOpen => {
   toggleModalBackgroundDisabled(isOpen)
   putFocusNextTick(isOpen ? 'peer-advising-note-templates-button' : 'peer-advisor-create-note-button')
+})
+
+watch(isAreYouSureModalOpen, isOpen => {
+  isMainFocusLockDisabled.value = isOpen
 })
 
 const addNoteAttachments = (attachments: NoteAttachment[]) => {
@@ -167,6 +176,7 @@ const discardRequested = () => {
   const unsavedChanges = !model.value.id && !!(body || size(model.value.topics) || size(recipients.value.sids))
   if (unsavedChanges) {
     isAreYouSureModalOpen.value = true
+    putFocusNextTick('are-you-sure-confirm')
   } else {
     closeModal('Canceled')
   }
@@ -186,8 +196,8 @@ const onSelectStudent = (selectedStudent: BasicStudentLabeled | undefined) => {
     getBasicStudent(sid).then(data => {
       student.value = data
       setNoteRecipient(sid)
-      alertScreenReader(`${studentName.value} selected`)
-      putFocusNextTick('show-hide-student-enrollments')
+      alertScreenReader(`${studentName.value} selected. Course schedule displayed below.`)
+      putFocusNextTick('find-student-autocomplete-clear-btn')
     })
   } else {
     onClearSelectedStudent()

@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import {noop} from 'lodash'
 import {onMounted, ref} from 'vue'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader} from '@/lib/utils'
 import type {NoteTemplate} from '@/lib/types'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import SelectPeerAdvisingNoteTemplateForNote from '@/components/peer/note/SelectPeerAdvisingNoteTemplateForNote.vue'
@@ -53,6 +53,5 @@ onMounted(() => {
 const templateSelected = (template: NoteTemplate) => {
   emit('template-selected', template)
   alertScreenReader(`Using template ${template.title}.`)
-  putFocusNextTick('find-student-autocomplete-input')
 }
 </script>
