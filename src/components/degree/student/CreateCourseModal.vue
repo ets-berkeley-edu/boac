@@ -20,7 +20,6 @@
       height="100vh"
       persistent
       scrollable
-      @update:model-value="onToggle"
     >
       <v-card
         class="modal-content"
@@ -152,7 +151,7 @@ import CharacterCount from '@/components/util/CharacterCount.vue'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import UnitsInput from '@/components/degree/UnitsInput.vue'
-import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toInt, toggleModalBackgroundDisabled} from '@/lib/utils'
 import {createCourse} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {useDegreeStore} from '@/stores/degree-edit-session'
@@ -208,18 +207,13 @@ const closeModal = () => {
   note.value = ''
   showModal.value = false
   units.value = undefined
+  toggleModalBackgroundDisabled(false)
   degreeStore.setDisableButtons(false)
-}
-
-const onToggle = isOpen => {
-  if (!isOpen) {
-    closeModal()
-    putFocusNextTick(`create-course-under-parent-category-${props.parentCategory.id}`)
-  }
 }
 
 const openModal = () => {
   showModal.value = true
+  toggleModalBackgroundDisabled(true)
   degreeStore.setDisableButtons(true)
   putFocusNextTick('course-name-input')
 }

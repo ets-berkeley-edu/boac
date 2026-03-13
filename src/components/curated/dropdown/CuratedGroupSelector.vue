@@ -20,6 +20,7 @@
         :id="dropdownId"
         :close-on-content-click="false"
         :disabled="!size(sids) || isConfirming || isSaving"
+        eager
         @update:model-value="isOpen => isMenuOpen = isOpen"
       >
         <template #activator="{props: menuProps}">

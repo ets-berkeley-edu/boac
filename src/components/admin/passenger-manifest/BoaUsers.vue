@@ -178,7 +178,7 @@ import BoaUserFullName from '@/components/admin/passenger-manifest/BoaUserFullNa
 import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
 import SortableTableHeader from '@/components/util/SortableTableHeader'
 import {ADVISING_ROLE_TYPES, getDeptCodesPerRoles} from '@/lib/berkeley-department'
-import {alertScreenReader, normalizeId, pluralize, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, normalizeId, pluralize, putFocusNextTick, toggleModalBackgroundDisabled} from '@/lib/utils'
 import {becomeUser, getUserByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {useManifestStore} from '@/stores/manifest.js'
@@ -262,6 +262,7 @@ const handleSort = sortKeys => {
 
 const onCancelEditUser = index => {
   dialogs.value[index] = false
+  toggleModalBackgroundDisabled(false)
   putFocusNextTick(`edit-${editUserModel.value.uid}`)
   editUserModel.value = undefined
   alertScreenReader('Canceled')
@@ -270,10 +271,12 @@ const onCancelEditUser = index => {
 const onClickEditUser = (index, uid) => {
   editUserModel.value = cloneDeep(find(users.value, ['uid', uid]))
   dialogs.value[index] = true
+  toggleModalBackgroundDisabled(true)
 }
 
 const onUpdateUser = (index, uid) => {
   dialogs.value[index] = false
+  toggleModalBackgroundDisabled(false)
   editUserModel.value = undefined
   getUserByUid(uid, true).then(data => {
     manifestStore.onUpdateUser(data)

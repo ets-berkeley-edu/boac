@@ -31,6 +31,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
     isCreateNoteModalOpen: false,
     isFocusLockDisabled: false,
     isSaving: false,
+    isSecondModalOpen: false,
     noteTemplateId: undefined,
     isRecalculating: false,
     mode: undefined as string | undefined,
@@ -62,6 +63,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
       this.completeSidSet = new Set()
       this.isCreateNoteModalOpen = false
       this.isSaving = false
+      this.isSecondModalOpen = false
       this.mode = undefined
       this.model = getDefaultModel()
       this.originalModel = cloneDeep(this.model)
@@ -131,6 +133,9 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
     },
     setIsSaving(isSaving: boolean) {
       this.isSaving = isSaving
+    },
+    setIsSecondModalOpen(value: boolean) {
+      this.isSecondModalOpen = value
     },
     setMode(mode: string) {
       if (isNil(mode)) {

@@ -1,9 +1,9 @@
 <template>
   <div>
     <div>
-      <router-link v-if="linkToStudentProfile" :to="`/student/${student.uid}`">
+      <router-link v-if="linkToStudentProfile" id="student-name-header-link" :to="`/student/${student.uid}`">
         <h1
-          id="student-name-header"
+          id="page-header"
           class="mb-1"
           :class="{
             'demo-mode-blur': currentUser.inDemoMode,
@@ -15,7 +15,7 @@
       </router-link>
       <h1
         v-if="!linkToStudentProfile"
-        id="student-name-header"
+        id="page-header"
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
         class="mb-1 student-section-header"
         v-html="student.name"

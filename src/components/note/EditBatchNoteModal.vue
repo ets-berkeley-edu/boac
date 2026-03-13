@@ -4,8 +4,10 @@
       v-if="mode"
       id="edit-batch-note-modal"
       v-model="dialogModel"
+      :aria-hidden="noteStore.isSecondModalOpen"
       aria-labelledby="dialog-header-note"
       :fullscreen="$vuetify.display.width < 750"
+      :inert="noteStore.isSecondModalOpen"
       persistent
       scrollable
       @after-enter="afterModalShown"
@@ -434,6 +436,7 @@ const showAlert = (value, seconds=3) => {
 }
 
 const toggleFocusLock = isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
   isSecondModalOpen.value = isOpen
   if (dialogModel.value) {
     if (isSecondModalOpen.value) {

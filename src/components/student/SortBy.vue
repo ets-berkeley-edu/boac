@@ -21,7 +21,7 @@
       >
         <option
           v-for="option in options"
-          :id="`sort-by-option-${option.value}`"
+          :id="`sort-by-option-${kebabCase(option.value)}`"
           :key="option.value"
           :aria-label="option.label"
           :value="option.value"
@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import {each, find, get, includes} from 'lodash'
+import {each, find, get, includes, kebabCase} from 'lodash'
 import {nextTick, ref, watch} from 'vue'
 import {alertScreenReader} from '@/lib/utils'
 import {myDeptCodes} from '@/lib/berkeley-department'

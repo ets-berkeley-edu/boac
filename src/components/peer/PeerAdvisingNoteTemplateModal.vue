@@ -107,7 +107,7 @@ import ModalHeader from '@/components/util/ModalHeader'
 import PeerAdvisingNoteTopics from '@/components/peer/PeerAdvisingNoteTopics.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import RichTextEditor from '@/components/util/RichTextEditor.vue'
-import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils.js'
+import {alertScreenReader, putFocusNextTick, toInt, toggleModalBackgroundDisabled} from '@/lib/utils.js'
 import {createPeerAdvisingNoteTemplate, updatePeerAdvisingNoteTemplate} from '@/api/peer-advising-notes.js'
 
 const emit = defineEmits(['note-template-updated'])
@@ -173,6 +173,7 @@ const saveButtonText = computed(() => {
 })
 
 watch(model, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
   if (isOpen) {
     assignEditedNoteTemplateValues()
   }

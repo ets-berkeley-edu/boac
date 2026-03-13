@@ -49,7 +49,7 @@ import {noop} from 'lodash'
 import {ref, watch} from 'vue'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {putFocusNextTick} from '@/lib/utils'
+import {putFocusNextTick, toggleModalBackgroundDisabled} from '@/lib/utils'
 
 const props = defineProps({
   buttonLabelCancel: {
@@ -93,6 +93,7 @@ const isProcessing = ref(false)
 const model = defineModel({type: Boolean})
 
 watch(model, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
   if (isOpen) {
     setTimeout(() => focusLocked.value = isOpen, 500)
     putFocusNextTick('are-you-sure-confirm')

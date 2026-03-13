@@ -187,7 +187,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import ExportListModal from '@/components/util/ExportListModal.vue'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal.vue'
 import RenameCuratedGroup from '@/components/curated/RenameCuratedGroup.vue'
-import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick, toggleModalBackgroundDisabled} from '@/lib/utils'
 import {deleteCuratedGroup, downloadCuratedGroupCsv} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
@@ -208,11 +208,13 @@ const showExportAdmitsModal = ref(false)
 const showExportStudentsModal = ref(false)
 
 watch(showExportAdmitsModal, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
   if (isOpen) {
     putFocusNextTick('csv-column-options-0')
   }
 })
 watch(showExportStudentsModal, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
   if (isOpen) {
     putFocusNextTick('csv-column-options-0')
   }
