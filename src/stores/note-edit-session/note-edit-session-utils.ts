@@ -56,6 +56,7 @@ export function getDefaultModel(): NoteEditSessionModel {
     isPrivate: false,
     noteTemplateId: undefined,
     peerAdvisingDepartmentId: undefined,
+    peerAdvisingStudentRecipient: null,
     setDate: undefined,
     subject: undefined,
     topics: []
