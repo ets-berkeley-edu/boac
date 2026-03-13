@@ -7,7 +7,7 @@
       :disabled="manifestStore.disabled"
       :prepend-icon="mdiPlus"
       text="Add New User"
-      @click="() => manifestStore.setIsCreatingNewUser(true)"
+      @click="() => toggleModal(true)"
     />
     <v-dialog
       v-model="isCreatingNewUser"
@@ -32,7 +32,7 @@ import {nextTick, ref} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useManifestStore} from '@/stores/manifest'
 import EditUser from '@/components/admin/passenger-manifest/EditUser.vue'
-import {ANONYMOUS_USER, alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {ANONYMOUS_USER, alertScreenReader, putFocusNextTick, toggleModalBackgroundDisabled} from '@/lib/utils'
 import type {BoaUser} from '@/lib/types'
 
 const manifestStore = useManifestStore()
@@ -50,7 +50,7 @@ function getNewUserTemplate() {
 }
 
 const onCancelEditUser = () => {
-  manifestStore.setIsCreatingNewUser(false)
+  toggleModal(false)
   alertScreenReader('Canceled')
   nextTick(() => {
     newUser.value = getNewUserTemplate()
@@ -59,10 +59,15 @@ const onCancelEditUser = () => {
 }
 
 const onCreateUser = (name: string) => {
-  manifestStore.setIsCreatingNewUser(false)
   newUser.value = getNewUserTemplate()
   refreshUsers.value = true
+  toggleModal(false)
   alertScreenReader(`${name} has been added to BOA.`)
   putFocusNextTick('add-new-user-btn')
+}
+
+const toggleModal = isOpen => {
+  manifestStore.setIsCreatingNewUser(isOpen)
+  toggleModalBackgroundDisabled(isOpen)
 }
 </script>

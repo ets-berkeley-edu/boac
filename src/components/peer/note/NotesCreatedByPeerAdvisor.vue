@@ -94,6 +94,7 @@ import type {BoaUser, Note, PeerAdvisingDepartment} from '@/lib/types'
 import type {Month} from '@/lib/types-peer-advising'
 import ModalHeader from '@/components/util/ModalHeader.vue'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
+import {toggleModalBackgroundDisabled} from '@/lib/utils'
 import {getPeerAdvisingNotesAuthoredBy} from '@/api/peer-advising-notes'
 import {useContextStore} from '@/stores/context'
 
@@ -143,11 +144,13 @@ const afterNoteEdit = () => {
 }
 
 const closeModal = () => {
+  toggleModalBackgroundDisabled(false)
   isModalOpen.value = false
   notes.value = []
 }
 
 const showModal = () => {
+  toggleModalBackgroundDisabled(true)
   isModalOpen.value = true
   isFetchingNotes.value = true
   getPeerAdvisingNotesAuthoredBy(

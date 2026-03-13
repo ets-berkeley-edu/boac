@@ -7,8 +7,8 @@
     >
       {{ contextStore.screenReaderAlert.message }}
     </div>
-    <router-view :inert="contextStore.isModalOpen" />
-    <DismissibleFooterAlert :inert="contextStore.isModalOpen" />
+    <router-view :aria-hidden="contextStore.isModalOpen" :inert="contextStore.isModalOpen" />
+    <DismissibleFooterAlert :aria-hidden="contextStore.isModalOpen" :inert="contextStore.isModalOpen" />
   </div>
 </template>
 

@@ -84,7 +84,7 @@ import CharacterCount from '@/components/util/CharacterCount'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
-import {putFocusNextTick, toInt} from '@/lib/utils'
+import {putFocusNextTick, toInt, toggleModalBackgroundDisabled} from '@/lib/utils'
 import {validateCohortName} from '@/lib/cohort'
 
 const props = defineProps({
@@ -120,6 +120,7 @@ const showModalProxy = computed(() => {
 })
 
 watch(showModalProxy, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
   if (isOpen) {
     putFocusNextTick('create-curated-group-input')
   } else {

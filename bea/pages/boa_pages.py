@@ -75,7 +75,7 @@ class BoaPages(CreateNoteModal, SearchForm):
     PAX_MANIFEST_LINK = (By.ID, 'header-menu-passengers')
     PROFILE_LINK = (By.ID, 'header-menu-profile')
     LOG_OUT_LINK = (By.ID, 'header-menu-log-out')
-    STUDENT_NAME_HEADING = (By.ID, 'student-name-header')
+    STUDENT_NAME_HEADING = (By.ID, 'page-header')
 
     SERVICE_ALERT_BANNER = By.ID, 'service-announcement-banner'
     DISMISS_ALERT_BUTTON = By.ID, 'dismiss-service-announcement'

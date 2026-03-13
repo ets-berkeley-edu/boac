@@ -1,7 +1,7 @@
 <template>
   <div class="align-center d-flex w-100 justify-center" role="search">
     <div class="d-flex w-66 w-sm-50">
-      <label id="basic-search-input-label" class="sr-only">basic search</label>
+      <label id="basic-search-input-label" class="sr-only" for="basic-search-input">basic search</label>
       <AccessibleCombobox
         :key="searchStore.autocompleteInputResetKey"
         :aria-description="`${labelForSearchInput()}`"
@@ -20,8 +20,9 @@
         :items="searchStore.searchHistory"
         label="Search"
         list-label="Previous Searches"
-        :menu-props="{'location': 'bottom'}"
+        :menu-props="{attach: '#basic-search-container', 'location': 'bottom'}"
         :on-submit="search"
+        :on-toggle-menu="isOpen => isMenuOpen = isOpen"
         :on-update-focused="isFocused => searchStore.setIsFocusOnSearch(isFocused)"
         open-on-focus
         placeholder="/ to search"
@@ -46,7 +47,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, onUnmounted} from 'vue'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {get, isEmpty, trim} from 'lodash'
 import {mdiMagnify} from '@mdi/js'
 import {useDisplay} from 'vuetify'
@@ -64,6 +65,7 @@ import {isPeerAdvisor} from '@/lib/boa-user.js'
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const display = useDisplay()
+const isMenuOpen = ref(false)
 const isSearchDisabled = computed(() => {
   const q = trim(searchStore.queryText)
   return searchStore.isSearching || isEmpty(q) || q === route.query.q
@@ -76,7 +78,7 @@ const queryTextModel = computed({
 const route = useRoute()
 const router = useRouter()
 const searchStore = useSearchStore()
-const shouldExpandInput = computed(() => display.width.value >= mobileBreakpoint && (searchStore.isFocusOnSearch || searchStore.queryText))
+const shouldExpandInput = computed(() => display.width.value >= mobileBreakpoint && (isMenuOpen.value || searchStore.isFocusOnSearch || searchStore.queryText))
 
 onMounted(() => {
   document.addEventListener('keyup', onKeyUp, true)

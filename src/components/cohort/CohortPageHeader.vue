@@ -209,7 +209,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import ExportListModal from '@/components/util/ExportListModal.vue'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal.vue'
 import RenameCohort from '@/components/cohort/RenameCohort.vue'
-import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick, toggleModalBackgroundDisabled} from '@/lib/utils'
 import {deleteCohort} from '@/api/cohort'
 import {downloadCohortCsv, downloadCsv} from '@/api/cohort-csv'
 import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/lib/berkeley-utils'
@@ -248,11 +248,13 @@ watch(showDeleteModal, () => {
   putFocusNextTick('are-you-sure-cancel')
   error.value = undefined
 })
-watch(showExportAdmitsModal, () => {
+watch(showExportAdmitsModal, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
   putFocusNextTick('csv-column-options-0')
   error.value = undefined
 })
-watch(showExportStudentsModal, () => {
+watch(showExportStudentsModal, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
   putFocusNextTick('csv-column-options-0')
   error.value = undefined
 })

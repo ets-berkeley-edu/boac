@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    v-model="showModal"
+    v-model="showModalProxy"
     aria-labelledby="modal-header"
     class="modal-height-unset"
     :fullscreen="$vuetify.display.xs"
@@ -87,12 +87,12 @@
 
 <script setup>
 import FocusLock from 'vue-focus-lock'
-import {computed, onMounted, ref} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {trim} from 'lodash'
 import CharacterCount from '@/components/util/CharacterCount'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toInt, toggleModalBackgroundDisabled} from '@/lib/utils'
 import {cloneDegreeTemplate} from '@/api/degree'
 import {validateDegreeTemplateName} from '@/lib/degree-progress'
 
@@ -109,6 +109,10 @@ const props = defineProps({
     required: true,
     type: Array
   },
+  showModal: {
+    required: true,
+    type: Boolean
+  },
   templateToClone: {
     required: true,
     type: Object
@@ -118,18 +122,18 @@ const props = defineProps({
 const errorMessage = ref('')
 const isSaving = ref(false)
 const name = ref(props.templateToClone.name)
-const showModal = computed({
-  get() {
-    return !!props.templateToClone
-  },
-  set(value) {
-    if (!value) {
-      props.cancel()
-    }
-  }
+const showModalProxy = computed(() => {
+  return props.showModal
 })
 
-onMounted(() => putFocusNextTick('degree-name-input'))
+watch(showModalProxy, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
+  if (isOpen) {
+    putFocusNextTick('degree-name-input')
+  } else {
+    props.cancel()
+  }
+})
 
 const createClone = () => {
   isSaving.value = true

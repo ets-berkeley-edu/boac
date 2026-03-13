@@ -294,12 +294,14 @@ const onToggleTemplatesMenu = isOpen => {
 const openDeleteTemplateDialog = template => {
   templateToDelete.value = template
   disableFocusLock()
+  noteStore.setIsSecondModalOpen(true)
 }
 
 const openRenameTemplateDialog = template => {
   templateToRename.value = template
   updatedTemplateTitle.value = template.title
   disableFocusLock()
+  noteStore.setIsSecondModalOpen(true)
   putFocusNextTick('rename-template-input')
 }
 
@@ -337,6 +339,7 @@ const resetTemplate = (template, title) => {
   updatedTemplateTitle.value = undefined
   templateToDelete.value = undefined
   templateToRename.value = undefined
+  noteStore.setIsSecondModalOpen(false)
 }
 </script>
 

@@ -30,7 +30,7 @@
         <v-text-field
           :id="inputId"
           v-model="unitsLowerModel"
-          :aria-describedby="`${inputId}-messages`"
+          :aria-describedby="`${inputId}-details`"
           :aria-invalid="(required && !unitsLower) || !isValidUnits(unitsLower, max)"
           :aria-label="`Course Units${showUnitsUpperInput ? ', Start of Range' : ''}`"
           :aria-labelledby="undefined"
@@ -54,7 +54,7 @@
         <v-text-field
           :id="`upper-${inputId}`"
           v-model="unitsUpperModel"
-          :aria-describedby="`${inputId}-messages`"
+          :aria-describedby="`${inputId}-details`"
           :aria-invalid="!isValidUnits(unitsUpper, MAX_UNITS_ALLOWED)"
           :aria-labelledby="undefined"
           aria-label="Course Units, End of Range"
@@ -71,7 +71,7 @@
       </div>
     </div>
     <v-expand-transition>
-      <div class="v-input__details">
+      <div :id="`${inputId}-details`" class="v-input__details">
         <div class="v-messages opacity-100">
           <v-alert
             v-if="errorMessage"

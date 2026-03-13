@@ -258,6 +258,7 @@ onMounted(() => {
       input.setAttribute('aria-controls', `${props.idPrefix}-menu`)
       input.setAttribute('aria-expanded', false)
       input.setAttribute('aria-label', props.label)
+      input.removeAttribute('aria-labelledby')
     }
     mergedMenuProps.value = {
       id: `${props.idPrefix}-menu`,

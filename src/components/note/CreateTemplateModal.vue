@@ -82,7 +82,7 @@ import {trim} from 'lodash'
 import CharacterCount from '@/components/util/CharacterCount'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {putFocusNextTick, toInt} from '@/lib/utils'
+import {putFocusNextTick, toInt, toggleModalBackgroundDisabled} from '@/lib/utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
 
@@ -110,8 +110,14 @@ const validationRules = ref({
   maxLength: value => (!value || trim(value).length <= 255) || 'Template name cannot exceed 255 characters.',
 })
 
-watch(dialogModel, () => {
-  onToggle(dialogModel.value)
+watch(dialogModel, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
+  if (isOpen) {
+    putFocusNextTick('template-title-input')
+  } else {
+    reset()
+    props.onHidden()
+  }
 })
 
 watch(title, () => {
@@ -133,15 +139,6 @@ const createTemplate = () => {
   } else {
     isSaving.value = false
     putFocusNextTick('template-title-input')
-  }
-}
-
-const onToggle = isOpen => {
-  if (isOpen) {
-    putFocusNextTick('template-title-input')
-  } else {
-    reset()
-    props.onHidden()
   }
 }
 </script>

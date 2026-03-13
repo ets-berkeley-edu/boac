@@ -44,16 +44,20 @@
           </v-card-title>
           <v-card-text class="modal-body">
             <div class="pb-4">
-              <label for="advanced-search-input" class="sr-only">{{ labelForSearchInput() }}</label>
+              <label for="advanced-search-input" class="sr-only">
+                Search Terms
+              </label>
               <AccessibleCombobox
                 :key="searchStore.autocompleteInputResetKey"
                 id-prefix="advanced-search"
+                :aria-description="`${labelForSearchInput()}`"
                 clearable
                 :get-value="() => model.queryText"
                 input-type="search"
                 :items="searchStore.searchHistory"
-                label="Advanced Search"
+                label="Search Terms"
                 list-label="Previous Searches"
+                :menu-props="{attach: '#advanced-search-container'}"
                 :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
                 :on-submit="search"
                 :required="searchInputRequired"
@@ -217,6 +221,7 @@
                         label="Note Author Advisor"
                         list-label="Note Author Advisors List"
                         :maxlength="56"
+                        :menu-props="{attach: '#search-options-note-author-container'}"
                         min-width="12rem"
                         :on-clear="onClearAdvisorSearch"
                         :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
@@ -248,7 +253,10 @@
                         label="Note Students"
                         list-label="Note Student List"
                         :maxlength="56"
-                        :menu-props="{'content-class': currentUser.inDemoMode ? 'demo-mode-blur' : ''}"
+                        :menu-props="{
+                          attach: '#search-options-note-student',
+                          'content-class': currentUser.inDemoMode ? 'demo-mode-blur' : ''
+                        }"
                         min-width="12rem"
                         :on-clear="onClearStudentSearch"
                         :on-toggle-menu="isOpen => isFocusLockDisabled = isOpen"
@@ -257,9 +265,9 @@
                       />
                     </div>
                     <div class="pt-3">
-                      <label id="search-options-date-range-label" class="form-control-label">
+                      <div id="search-options-date-range-label" class="form-control-label">
                         <span class="sr-only">Search Notes by </span>Date Range
-                      </label>
+                      </div>
                       <div class="d-flex flex-wrap mt-1">
                         <div class="d-flex align-center justify-end pb-2">
                           <label
@@ -272,6 +280,7 @@
                             <span class="sr-only">Format: M M slash D D slash Y Y Y Y.</span>
                           </label>
                           <AccessibleDateInput
+                            aria-describedby="search-options-date-range-label"
                             aria-label="Begin date"
                             container-id="advanced-search-modal"
                             :get-value="() => model.fromDate"
@@ -291,6 +300,7 @@
                             <span class="sr-only">Format: M M slash D D slash Y Y Y Y.</span>
                           </label>
                           <AccessibleDateInput
+                            aria-describedby="search-options-date-range-label"
                             aria-label="End date"
                             container-id="advanced-search-modal"
                             :get-value="() => model.toDate"
@@ -352,7 +362,7 @@ import AccessibleDateInput from '@/components/util/AccessibleDateInput'
 import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
-import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop} from '@/lib/utils'
+import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop, toggleModalBackgroundDisabled} from '@/lib/utils'
 import {findStudentsByNameOrSid} from '@/api/student'
 import {labelForSearchInput} from '@/lib/search'
 import {useContextStore} from '@/stores/context'
@@ -416,6 +426,7 @@ const validDateRange = computed(() => {
 })
 
 watch(() => searchStore.showAdvancedSearch, show => {
+  toggleModalBackgroundDisabled(show)
   if (show) {
     model.value = {
       author: searchStore.author,

@@ -85,7 +85,7 @@ import CharacterCount from '@/components/util/CharacterCount'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {createTopic} from '@/api/topics'
-import {putFocusNextTick, toInt} from '@/lib/utils'
+import {putFocusNextTick, toInt, toggleModalBackgroundDisabled} from '@/lib/utils'
 
 const props = defineProps({
   afterSave: {
@@ -118,8 +118,9 @@ const isValidLabel = computed(() => {
   return trim(topic.value).length >= minLabelLength
 })
 
-watch(showEditTopicModal, () => {
-  if (showEditTopicModal.value) {
+watch(showEditTopicModal, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
+  if (isOpen) {
     putFocusNextTick('create-topic-input')
   }
 })

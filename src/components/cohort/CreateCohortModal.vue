@@ -83,7 +83,7 @@ import {computed, ref, watch} from 'vue'
 import CharacterCount from '@/components/util/CharacterCount'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, toInt, toggleModalBackgroundDisabled} from '@/lib/utils'
 import {validateCohortName} from '@/lib/cohort'
 
 const props = defineProps({
@@ -112,6 +112,7 @@ const showModalProxy = computed(() => {
 })
 
 watch(showModalProxy, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
   if (isOpen) {
     putFocusNextTick('create-cohort-input')
   } else {

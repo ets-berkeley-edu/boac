@@ -48,7 +48,7 @@ import {computed, watch} from 'vue'
 import FerpaReminder from '@/components/util/FerpaReminder'
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import {putFocusNextTick} from '@/lib/utils'
+import {putFocusNextTick, toggleModalBackgroundDisabled} from '@/lib/utils'
 
 const props = defineProps({
   cancel: {
@@ -74,6 +74,7 @@ const showModalProxy = computed(() => {
 })
 
 watch(showModalProxy, isOpen => {
+  toggleModalBackgroundDisabled(isOpen)
   if (isOpen) {
     putFocusNextTick('are-you-sure-confirm')
   } else {
