@@ -117,6 +117,7 @@
               density="compact"
               divided
               mandatory
+              role="group"
             >
               <v-btn
                 v-for="option in PAGINATION_OPTIONS"
