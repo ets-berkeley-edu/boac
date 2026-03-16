@@ -32,7 +32,8 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
     isFocusLockDisabled: false,
     isSaving: false,
     isSecondModalOpen: false,
-    noteTemplateId: undefined,
+    isUploadingAttachments: false,
+    noteTemplateId: undefined as number | undefined,
     isRecalculating: false,
     mode: undefined as string | undefined,
     model: getDefaultModel(),
@@ -64,6 +65,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
       this.isCreateNoteModalOpen = false
       this.isSaving = false
       this.isSecondModalOpen = false
+      this.isUploadingAttachments = false
       this.mode = undefined
       this.model = getDefaultModel()
       this.originalModel = cloneDeep(this.model)
@@ -137,6 +139,9 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
     setIsSecondModalOpen(value: boolean) {
       this.isSecondModalOpen = value
     },
+    setIsUploadingAttachments(value: boolean) {
+      this.isUploadingAttachments = value
+    },
     setMode(mode: string) {
       if (isNil(mode)) {
         this.mode = undefined
@@ -164,11 +169,12 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
           id: model.id,
           isDraft: model.isDraft,
           isPrivate: model.isPrivate,
+          noteTemplateId: model.noteTemplateId,
           peerAdvisingDepartmentId: model.peerAdvisingDepartmentId,
+          peerAdvisingStudentRecipient: model.peerAdvisingStudentRecipient,
           setDate: model.setDate,
           subject: model.subject,
-          topics: model.topics || [],
-          noteTemplateId: model.noteTemplateId
+          topics: model.topics || []
 
         }
       } else {
