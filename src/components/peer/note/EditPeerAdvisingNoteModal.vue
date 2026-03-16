@@ -73,7 +73,7 @@
           <AreYouSureModal
             v-if="isAreYouSureModalOpen"
             v-model="isAreYouSureModalOpen"
-            :function-cancel="() => isAreYouSureModalOpen = false"
+            :function-cancel="onCancelDiscard"
             :function-confirm="() => closeModal('Confirmed')"
             modal-header="Discard unsaved note?"
             text="Are you sure you want to discard unsaved changes?"
@@ -157,6 +157,11 @@ const addNoteAttachments = (attachments: NoteAttachment[]) => {
     alertScreenReader(`Added ${pluralized}`, false, 'assertive')
     resolve()
   })
+}
+
+const onCancelDiscard = () => {
+  isAreYouSureModalOpen.value = false
+  putFocusNextTick('create-note-cancel')
 }
 
 const closeModal = (srText?: string) => {

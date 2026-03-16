@@ -130,7 +130,7 @@
               >
                 <v-btn
                   :id="`edit-note-${note.id}-button`"
-                  :aria-label="`Edit ${getNoteLabel(note, index)}`"
+                  :aria-label="`Edit note ${getNotePosition(index)}`"
                   class="edit-note-button font-size-16 mb-2 w-md-100"
                   color="primary"
                   density="compact"
