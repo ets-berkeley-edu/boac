@@ -12,22 +12,22 @@
         class="note-attachment-inner-label font-size-16 align-center d-flex flex-wrap justify-center"
         :class="{
           'text-medium-emphasis': disabled,
-          'cursor-pointer': !(isAdding || disabled || attachmentLimitReached)
+          'cursor-pointer': !(isUploadingAttachments || disabled || attachmentLimitReached)
         }"
         :for="inputId"
       >
-        <div v-if="isAdding" class="text-medium-emphasis">
+        <div v-if="isUploadingAttachments" class="text-medium-emphasis">
           Adding attachments...
         </div>
-        <div v-if="!isAdding" class="mr-2">
+        <div v-if="!isUploadingAttachments" class="mr-2">
           Add attachment:
         </div>
         <v-btn
-          v-if="!isAdding"
+          v-if="!isUploadingAttachments"
           :id="`${inputId}-btn`"
           class="bg-white"
           color="black"
-          :disabled="isAdding || disabled || attachmentLimitReached"
+          :disabled="isUploadingAttachments || disabled || attachmentLimitReached"
           density="comfortable"
           tabindex="-1"
           type="file"
@@ -40,16 +40,16 @@
       <v-file-input
         :id="inputId"
         ref="attachmentFileInput"
-        :aria-busy="isAdding"
-        :aria-describedby="isAdding ? progressBarId : `${idPrefix}-attachment-details`"
+        :aria-busy="isUploadingAttachments"
+        :aria-describedby="isUploadingAttachments ? progressBarId : `${idPrefix}-attachment-details`"
         :aria-label="`Select file for attachment; ${pluralize('file', attachments.length)} attached.`"
         class="border-sm choose-file-for-note-attachment rounded"
         :class="{'border-md border-error': !!attachmentError}"
         :clearable="false"
-        :disabled="isAdding || disabled || attachmentLimitReached"
+        :disabled="isUploadingAttachments || disabled || attachmentLimitReached"
         flat
         hide-details
-        :loading="isAdding ? 'primary' : false"
+        :loading="isUploadingAttachments ? 'primary' : false"
         :model-value="attachments"
         multiple
         :prepend-icon="null"
@@ -126,6 +126,7 @@
 import {computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue'
 import {each, size} from 'lodash'
 import {mdiAlert, mdiPaperclip} from '@mdi/js'
+import {storeToRefs} from 'pinia'
 import PillItem from '@/components/util/PillItem'
 import {addFileDropEventListeners, canUserEditNote, validateAttachment} from '@/lib/note'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
@@ -192,18 +193,18 @@ const attachmentLimitReached = computed(() => {
 const canRemoveAttachments = ref(false)
 const currentUser = reactive(contextStore.currentUser)
 const inputId = `${props.idPrefix}-choose-file-for-note-attachment`
-const isAdding = ref(false)
 const isFocused = ref(false)
+const {isUploadingAttachments} = storeToRefs(noteStore)
 let progressBarAlert
 const progressBarId = `${props.idPrefix}-attachment-progress`
 
-watch(isAdding, v => {
+watch(isUploadingAttachments, v => {
+  const el = attachmentFileInput.value.$el
+  const progressBar = el && el.querySelector('.v-progress-linear')
   if (v) {
     progressBarAlert = setInterval(() => {
       alertScreenReader('Still uploading attachments')
     }, 10000)
-    const el = attachmentFileInput.value.$el
-    const progressBar = el && el.querySelector('.v-progress-linear')
     if (progressBar) {
       const id = progressBarId
       progressBar.removeAttribute('aria-valuemin')
@@ -222,6 +223,9 @@ watch(isAdding, v => {
     if (progressBarAlert) {
       clearInterval(progressBarAlert)
       putFocusNextTick(inputId)
+    }
+    if (progressBar) {
+      progressBar.removeAttribute('tabindex')
     }
   }
 })
@@ -256,7 +260,7 @@ const onAttachmentsInput = files => {
   if (size(files)) {
     const pluralized = pluralize('attachment', files.length)
     alertScreenReader(`Adding ${pluralized}`)
-    isAdding.value = true
+    noteStore.setIsUploadingAttachments(true)
     attachmentError.value = validateAttachment(files, props.attachments)
     if (!attachmentError.value) {
       const attachments = []
@@ -266,10 +270,10 @@ const onAttachmentsInput = files => {
       })
       props.add(attachments).then(() => {
         alertScreenReader(`Added ${pluralized}`)
-        isAdding.value = false
+        noteStore.setIsUploadingAttachments(false)
       })
     } else {
-      isAdding.value = false
+      noteStore.setIsUploadingAttachments(false)
     }
   }
 }

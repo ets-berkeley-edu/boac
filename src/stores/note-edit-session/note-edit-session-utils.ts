@@ -83,12 +83,16 @@ export function scheduleAutoSaveJob() {
     const model: NoteEditSessionModel = noteStore.model
     noteStore.clearAutoSaveJob()
     if (model.isDraft) {
-      noteStore.setIsAutoSavingDraftNote(true)
-      updateAdvisingNote().then((note: NoteEditSessionModel) => {
-        noteStore.setModelId(note.id)
-        setTimeout(() => noteStore.setIsAutoSavingDraftNote(false), 2000)
-        scheduleAutoSaveJob()
-      })
+      if (noteStore.isUploadingAttachments) {
+        setTimeout(scheduleAutoSaveJob, 2000)
+      } else {
+        noteStore.setIsAutoSavingDraftNote(true)
+        updateAdvisingNote().then((note: NoteEditSessionModel) => {
+          noteStore.setModelId(note.id)
+          setTimeout(() => noteStore.setIsAutoSavingDraftNote(false), 2000)
+          scheduleAutoSaveJob()
+        })
+      }
     }
   }
   const interval = useContextStore().config.notesDraftAutoSaveInterval
