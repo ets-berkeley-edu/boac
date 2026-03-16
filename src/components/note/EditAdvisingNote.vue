@@ -62,6 +62,7 @@
     </div>
     <div id="edit-note-details" class="bg-transparent mt-3">
       <RichTextEditor
+        id="edit-note-body"
         :disabled="isSaving || boaSessionExpired"
         :initial-value="model.body || ''"
         label="Note Details"
@@ -216,6 +217,15 @@ const showDraftSavedBadge = ref(false)
 const topics = ref([])
 const {boaSessionExpired, isSaving, mode, model} = storeToRefs(noteStore)
 
+const focusNoteField = () => {
+  if (model.value.peerAdvisingDepartmentId) {
+    // Peer advising notes have no subject field so this will focus the CKEditor's textarea.
+    putFocusNextTick('edit-note-body', {cssSelector: '.ck-editor__editable_inline'})
+  } else {
+    putFocusNextTick('edit-note-subject')
+  }
+}
+
 watch(isAutoSaveAlertPaused, paused => {
   alertScreenReader(paused ? 'Auto-save notifications paused.' : 'Auto-save notifications resumed.')
 })
@@ -241,7 +251,7 @@ onMounted(() => {
     fetchTopics.then(data => {
       topics.value = data
       noteStore.setMode('editNote')
-      putFocusNextTick('edit-note-subject')
+      focusNoteField()
       if (note.isDraft) {
         setTimeout(() => {
           alertScreenReader('You are editing a draft note.')
@@ -291,7 +301,7 @@ const cancelConfirmed = () => {
 const cancelTheCancel = () => {
   alertScreenReader('Canceled. Continue editing note.')
   showAreYouSureModal.value = false
-  putFocusNextTick('edit-note-subject')
+  focusNoteField()
 }
 
 const exit = revert => {
@@ -337,7 +347,7 @@ const save = isDraft => {
         isSavingDraft.value = false
         isPublishingNote.value = false
         noteStore.setIsSaving(false)
-        putFocusNextTick('edit-note-subject')
+        focusNoteField()
       }
     })
   }
