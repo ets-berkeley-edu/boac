@@ -25,6 +25,7 @@
         id: `tr-student-${data.item.uid}`
       }
     }"
+    tabindex="-1"
   >
     <template #headers="{columns}">
       <tr :class="{'sr-only': $vuetify.display.width <= mobileBreakpoint}">
