@@ -2,7 +2,7 @@
   <div>
     <label
       :id="`${ckElementId}-label`"
-      :for="ckElementId"
+      :for="`${ckElementId}-textbox`"
       class="font-size-16 font-weight-bold"
     >
       {{ label }}
@@ -20,9 +20,7 @@
     <div
       :id="ckElementId"
       aria-details="link-to-advising-note-best-practices"
-      :aria-labelledby="`${ckElementId}-label`"
       class="mt-2"
-      role="textbox"
     >
       <ckeditor
         :model-value="initialValue"
@@ -122,6 +120,16 @@ const abandonAttempt = () => {
   return false
 }
 
+const correctAttributes = (editor, toolbar) => {
+  const textbox = editor.querySelector('[role="textbox"]')
+  if (textbox) {
+    textbox.setAttribute('aria-multiline', true)
+    textbox.setAttribute('id', `${ckElementId.value}-textbox`)
+  }
+  toolbar.setAttribute('aria-label', `${props.label} editor`)
+  toolbar.setAttribute('aria-controls', `${ckElementId.value}-textbox`)
+}
+
 const correctTheDOM = () => {
   if (domFixAttemptCount.value >= 10) {
     // Abort after N tries.
@@ -130,8 +138,10 @@ const correctTheDOM = () => {
   }
   const editor = document.getElementById(ckElementId.value)
   if (!editor) return abandonAttempt()
-  const toolbar = editor.querySelector('.ck-editor__top')
+  const toolbar = editor.querySelector('[role="toolbar"]')
   if (!toolbar) return abandonAttempt()
+  correctAttributes(editor, toolbar)
+
   const popupsContainer = document.body.querySelector('.ck.ck-reset_all.ck-body.ck-rounded-corners')
   if (!popupsContainer) return abandonAttempt()
   const toolbarButtons = toolbar.querySelectorAll('button')
