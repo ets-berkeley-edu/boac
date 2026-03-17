@@ -221,9 +221,12 @@ const reload = (sectionId, termId) => {
   contextStore.loadingStart()
   return getSection(termId, sectionId, offset, limit, featured).then(
     data => {
-      section.value = data
       meetings.value = orderBy(data.meetings, ['startDate'])
-      const students = data.students.sort(s => s.uid === featured ? -1 : 0)
+      const students = data.students.sort(s => s.uid === featured ? -1 : 0).slice(0, itemsPerPage.value)
+      section.value = {
+        ...data,
+        students
+      }
       const displayName = data.displayName
       // Discrepancies in our loch-hosted SIS data dumps may occasionally result in students without enrollment
       // objects. A placeholder object keeps the front end from breaking.
