@@ -105,7 +105,7 @@ import {
 import {mdiPlus} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import PillItem from '@/components/util/PillItem'
-import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/note-edit-session-utils'
 import {useContextStore} from '@/stores/context'
@@ -215,6 +215,7 @@ const onUpdateSearch = input => {
           students = filter(students, s => !includes(existingSids, s.sid))
           autoSuggestedStudents.value = map(students, s => ({label: s.label, sid: s.sid}))
           isUpdatingStudentAutocomplete.value = false
+          alertScreenReader(pluralize('result', students.length))
         }).catch(() => putFocusNextTick('create-note-add-student-input'))
       }
     }
