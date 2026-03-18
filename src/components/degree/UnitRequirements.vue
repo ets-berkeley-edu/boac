@@ -21,7 +21,7 @@
         />
       </div>
     </div>
-    <div v-if="!isEditing" class="py-1" :class="{'border-b-sm': size(items) && !printable}">
+    <div class="py-1" :class="{'border-b-sm': size(items) && !printable}">
       <div
         v-if="!size(items)"
         id="unit-requirements-no-data"
