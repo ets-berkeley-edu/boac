@@ -4,12 +4,15 @@
       <v-menu
         v-if="noteStore.mode !== 'editTemplate'"
         id="templates-menu"
+        v-model="isTemplatesMenuOpen"
         absolute
         attach="#edit-note-header"
         :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
         left="100"
         location="bottom"
         max-width="1000"
+        :close-on-content-click="false"
+        :close-on-backdrop-click="false"
         no-click-animation
         :width="noteStore.noteTemplates.length ? 1000 : 350"
         @update:model-value="onToggleTemplatesMenu"
@@ -49,6 +52,8 @@
                     :disabled="isSaving"
                     :title="template.title"
                     @click="loadTemplate(template)"
+                    @keydown.enter.stop.prevent="loadTemplate(template)"
+                    @keydown.space.stop.prevent="loadTemplate(template)"
                     @focus="activeTemplateId = template.id"
                   >
                     <span class="v-btn__overlay" />
@@ -66,6 +71,8 @@
                       height="24"
                       variant="text"
                       @click.stop.prevent="openRenameTemplateDialog(template)"
+                      @keydown.enter.stop.prevent="openRenameTemplateDialog(template)"
+                      @keydown.space.stop.prevent="openRenameTemplateDialog(template)"
                       @focus="activeTemplateId = template.id"
                     >
                       Rename<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
@@ -82,6 +89,8 @@
                       height="24"
                       variant="text"
                       @click="editTemplate(template)"
+                      @keydown.enter.stop.prevent="editTemplate(template)"
+                      @keydown.space.stop.prevent="editTemplate(template)"
                       @focus="activeTemplateId = template.id"
                     >
                       Edit<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
@@ -98,6 +107,8 @@
                       height="24"
                       variant="text"
                       @click.stop="openDeleteTemplateDialog(template)"
+                      @keydown.enter.stop.prevent="openDeleteTemplateDialog(template)"
+                      @keydown.space.stop.prevent="openDeleteTemplateDialog(template)"
                       @focus="activeTemplateId = template.id"
                     >
                       Delete<span class="sr-only"> template &quot;{{ template.title }}&quot;</span>
@@ -120,7 +131,7 @@
       :activator="templateToRename ? `btn-rename-note-template-${templateToRename.id}` : undefined"
       aria-labelledby="rename-template-dialog-header"
       class="modal-height-unset"
-      :fullscreen="$vuetify.display.xs"
+      :fullscreen="xs"
       persistent
     >
       <v-card
@@ -190,7 +201,7 @@
               :disabled="isSaving"
               text="Cancel"
               variant="text"
-              @click="() => cancel(templateToRename)"
+              @click="cancelRenameTemplate"
             />
           </v-card-actions>
         </FocusLock>
@@ -199,7 +210,7 @@
     <AreYouSureModal
       v-model="isDeleteTemplateDialogOpen"
       button-label-confirm="Delete"
-      :function-cancel="() => cancel(templateToDelete)"
+      :function-cancel="cancelDeleteTemplate"
       :function-confirm="deleteTemplateConfirmed"
       modal-header="Delete Template"
     >
@@ -211,6 +222,7 @@
 <script setup lang="ts">
 import FocusLock from 'vue-focus-lock'
 import {computed, ref, watch} from 'vue'
+import {useDisplay} from 'vuetify'
 import {find, get, isUndefined, size, trim} from 'lodash'
 import {mdiMenuDown} from '@mdi/js'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
@@ -231,8 +243,13 @@ const isSaving = ref(false)
 const templateToDelete = ref<NoteTemplate | undefined>(undefined)
 const templateToRename = ref<NoteTemplate | undefined>(undefined)
 const updatedTemplateTitle = ref<string | undefined>(undefined)
+const isTemplatesMenuOpen = ref(false)
+const wasTemplatesMenuOpenBeforeSecondModal = ref(false)
+const suppressTemplatesMenuAlert = ref(false)
+const restoringTemplatesMenu = ref(false)
 
 const noteStore = useNoteStore()
+const {xs} = useDisplay()
 
 const isDeleteTemplateDialogOpen = computed(() => {
   return !!templateToDelete.value
@@ -246,10 +263,20 @@ watch(updatedTemplateTitle, () => {
   error.value = ''
 })
 
-const cancel = template => {
-  resetTemplate(template, template.title)
+const cancelRenameTemplate = () => {
+  const templateId = templateToRename.value?.id
+  const originalTitle = templateToRename.value?.title
+  resetTemplate(templateToRename.value, originalTitle)
   alertScreenReader('Canceled')
-  putFocusNextTick('my-templates-button')
+  putFocusNextTick(templateId ? `btn-rename-note-template-${templateId}` : 'my-templates-button')
+  enableFocusLock()
+}
+
+const cancelDeleteTemplate = () => {
+  const templateId = templateToDelete.value?.id
+  resetTemplate(templateToDelete.value, templateToDelete.value?.title)
+  alertScreenReader('Canceled')
+  putFocusNextTick(templateId ? `btn-delete-note-template-${templateId}` : 'my-templates-button')
   enableFocusLock()
 }
 
@@ -257,51 +284,93 @@ const deleteTemplateConfirmed = () => {
   isSaving.value = true
   if (isUndefined(templateToDelete.value)) {
     isSaving.value = false
-  } else {
-    const title = templateToDelete.value.title
-    deleteNoteTemplate(templateToDelete.value.id).then(() => {
-      isSaving.value = false
-      alertScreenReader(`Deleted template ${title}`)
-      resetTemplate(templateToDelete.value, title)
-      putFocusNextTick('my-templates-button')
-      enableFocusLock()
-    })
+    return
   }
+
+  const templatesBeforeDelete = [...noteStore.noteTemplates]
+  const deletedTemplateId = templateToDelete.value.id
+  const deletedIndex = templatesBeforeDelete.findIndex(t => t.id === deletedTemplateId)
+  const nextTemplate = deletedIndex >= 0 ? templatesBeforeDelete[deletedIndex + 1] : undefined
+  const prevTemplate = deletedIndex >= 1 ? templatesBeforeDelete[deletedIndex - 1] : undefined
+
+  const title = templateToDelete.value.title
+
+  deleteNoteTemplate(deletedTemplateId).then(() => {
+    isSaving.value = false
+    alertScreenReader(`Deleted template ${title}`)
+    resetTemplate(templateToDelete.value, title)
+
+    const focusId = nextTemplate
+      ? `load-note-template-${nextTemplate.id}`
+      : prevTemplate
+        ? `btn-delete-note-template-${prevTemplate.id}`
+        : 'my-templates-button'
+
+    putFocusNextTick(focusId)
+    enableFocusLock()
+  })
 }
 
 const editTemplate = template => {
+  isTemplatesMenuOpen.value = false
   noteStore.setModel(template)
   noteStore.setMode('editTemplate')
   putFocusNextTick('create-note-subject')
 }
 
 const loadTemplate = template => {
+  isTemplatesMenuOpen.value = false
   applyNoteTemplate(noteStore.model.id, template.id).then(data => {
     noteStore.setModel(data)
     alertScreenReader(`Using template ${template.title}.`)
-    putFocusNextTick('create-note-subject')
+    putFocusNextTick('my-templates-button')
   })
 }
 
 const onToggleTemplatesMenu = isOpen => {
-  if (isOpen) {
+  if (noteStore.isSecondModalOpen && !isOpen) {
+    isTemplatesMenuOpen.value = true
+    return
+  }
+
+  if (restoringTemplatesMenu.value && !isOpen) {
+    isTemplatesMenuOpen.value = true
+    return
+  }
+
+  isTemplatesMenuOpen.value = isOpen
+  if (isOpen && !noteStore.isSecondModalOpen && !suppressTemplatesMenuAlert.value) {
     const count = size(noteStore.noteTemplates)
     const suffix = count === 1 ? 'one saved template' : `${count || 'no'} saved templates`
     alertScreenReader(`You have ${suffix}.`)
   }
+
+  if (isOpen) {
+    suppressTemplatesMenuAlert.value = false
+  }
 }
 
 const openDeleteTemplateDialog = template => {
+  if (noteStore.isSecondModalOpen) {
+    return
+  }
   templateToDelete.value = template
-  disableFocusLock()
   noteStore.setIsSecondModalOpen(true)
+  wasTemplatesMenuOpenBeforeSecondModal.value = true
+  isTemplatesMenuOpen.value = true
+  disableFocusLock()
 }
 
 const openRenameTemplateDialog = template => {
+  if (noteStore.isSecondModalOpen) {
+    return
+  }
   templateToRename.value = template
   updatedTemplateTitle.value = template.title
-  disableFocusLock()
   noteStore.setIsSecondModalOpen(true)
+  wasTemplatesMenuOpenBeforeSecondModal.value = true
+  isTemplatesMenuOpen.value = true
+  disableFocusLock()
   putFocusNextTick('rename-template-input')
 }
 
@@ -327,19 +396,25 @@ const renameTemplate = () => {
         isSaving.value = false
         resetTemplate(template, templateTitle)
         alertScreenReader(`Template renamed "${template.title}".`)
-        putFocusNextTick('my-templates-button')
+        putFocusNextTick(`btn-rename-note-template-${template.id}`)
         enableFocusLock()
       })
     }
   }
 }
 
-const resetTemplate = (template, title) => {
-  template.title = title
+const resetTemplate = (template?: NoteTemplate, title?: string) => {
+  if (template && title !== undefined) {
+    template.title = title
+  }
   updatedTemplateTitle.value = undefined
   templateToDelete.value = undefined
   templateToRename.value = undefined
   noteStore.setIsSecondModalOpen(false)
+  suppressTemplatesMenuAlert.value = true
+  restoringTemplatesMenu.value = true
+  isTemplatesMenuOpen.value = wasTemplatesMenuOpenBeforeSecondModal.value
+  setTimeout(() => restoringTemplatesMenu.value = false, 200)
 }
 </script>
 
