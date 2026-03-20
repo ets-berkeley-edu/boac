@@ -23,44 +23,28 @@
       class="mt-2"
     >
       <ckeditor
-        :model-value="initialValue"
+        v-model="model"
         :disabled="disabled"
         :editor="ClassicEditor"
-        :config="editorConfig"
-        @input="onUpdate"
+        :config="config"
+        @input="onEditorInput"
+        @ready="onEditorReady"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+import {AutoLink, Bold, ClassicEditor, ContextualBalloon, Essentials, Italic, Link, List, Paragraph, StandardEditingMode, TextTransformation, Typing} from 'ckeditor5'
 import {each, isString} from 'lodash'
 import {mdiOpenInNew} from '@mdi/js'
 import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
+import {BoldCustom, ItalicCustom, ListBulletedCustom, ListNumberedCustom} from '@/plugins/ckeditor'
 
 const props = defineProps({
   disabled: {
     required: false,
     type: Boolean
-  },
-  editorConfig: {
-    required: false,
-    default: () => ({
-      link: {
-        addTargetToExternalLinks: true
-      },
-      toolbar: {
-        items: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
-        shouldNotGroupWhenFull: true
-      },
-      typing: {
-        transformations: {
-          remove: ['oneForth', 'oneHalf', 'oneThird', 'threeQuarters', 'twoThirds']
-        }
-      }
-    }),
-    type: Object
   },
   initialValue: {
     required: true,
@@ -86,10 +70,27 @@ const props = defineProps({
 })
 
 const ckElementId = ref('rich-text-editor')
+const config = {
+  link: {
+    addTargetToExternalLinks: true
+  },
+  plugins: [AutoLink, Bold, BoldCustom, ContextualBalloon, Essentials, Italic, ItalicCustom, Link, List, ListBulletedCustom, ListNumberedCustom, Paragraph, StandardEditingMode, TextTransformation, Typing],
+  toolbar: {
+    items: ['boldCustom', 'italicCustom', 'listBulletedCustom', 'listNumberedCustom', 'link'],
+    shouldNotGroupWhenFull: true
+  },
+  typing: {
+    transformations: {
+      remove: ['oneForth', 'oneHalf', 'oneThird', 'threeQuarters', 'twoThirds']
+    }
+  }
+}
 const domFixAttemptCount = ref(0)
 const domFixer = ref(undefined)
+const editor = ref()
 const editorLinkEventController = new AbortController()
 const isInModal = ref(false)
+const model = ref(props.initialValue)
 const popupButtonEventController = new AbortController()
 const popupFixer = ref(undefined)
 const toolbarButtonEventController = new AbortController()
@@ -111,7 +112,6 @@ onMounted(() => {
   nextTick(() => {
     // Is this instance inside a modal dialog?
     isInModal.value = !!document.querySelector(`.v-overlay-container #${ckElementId.value}`)
-    initDomFixer()
   })
 })
 
@@ -120,32 +120,31 @@ const abandonAttempt = () => {
   return false
 }
 
-const correctAttributes = (editor, toolbar) => {
-  const textbox = editor.querySelector('[role="textbox"]')
+const correctAttributes = (toolbar) => {
+  const textbox = editor.value.ui.view.editable.element
   if (textbox) {
     textbox.setAttribute('aria-multiline', true)
     textbox.setAttribute('id', `${ckElementId.value}-textbox`)
   }
   toolbar.setAttribute('aria-label', `${props.label} editor`)
   toolbar.setAttribute('aria-controls', `${ckElementId.value}-textbox`)
+  toolbar.setAttribute('tabindex', 0)
 }
 
 const correctTheDOM = () => {
-  if (domFixAttemptCount.value >= 10) {
+  if (domFixAttemptCount.value >= 5) {
     // Abort after N tries.
     clearInterval(domFixer.value)
     return false
   }
-  const editor = document.getElementById(ckElementId.value)
-  if (!editor) return abandonAttempt()
-  const toolbar = editor.querySelector('[role="toolbar"]')
+  const toolbar = editor.value.ui.view.element.querySelector('[role="toolbar"]')
   if (!toolbar) return abandonAttempt()
-  correctAttributes(editor, toolbar)
+  correctAttributes(toolbar)
 
   const popupsContainer = document.body.querySelector('.ck.ck-reset_all.ck-body.ck-rounded-corners')
   if (!popupsContainer) return abandonAttempt()
   const toolbarButtons = toolbar.querySelectorAll('button')
-  const linksInText = editor.querySelectorAll('[role="textbox"] a')
+  const linksInText = editor.value.ui.view.editable.element.querySelectorAll('a')
   each(linksInText, link => {
     link.addEventListener(
       'click',
@@ -154,23 +153,28 @@ const correctTheDOM = () => {
     )
   })
   if (isInModal.value) {
-    registerPopupListener(editor)
     // When embedded in a modal, the CKEditor toolbar popups are unreachable because they are attached to
     // the end of the DOM and outside the modal. We must move these "ck" elements. The user should not notice.
     toolbar.insertAdjacentElement('afterend', popupsContainer)
-    each(toolbarButtons, button => {
-      const buttonImage = button.querySelector('.ck-icon')
-      if (buttonImage) {
-        buttonImage.setAttribute('aria-hidden', 'true')
-      }
-      button.setAttribute('tabindex', 0)
-      if ('Link' === button.textContent) {
-        button.addEventListener(
-          'click',
-          () => makePopupAccessible(popupsContainer, toolbar, 'Create link'),
-          {signal: toolbarLinkButtonEventController.signal}
-        )
-      }
+  }
+  each(toolbarButtons, button => {
+    const buttonImage = button.querySelector('.ck-icon')
+    if (buttonImage) {
+      buttonImage.setAttribute('aria-hidden', true)
+    }
+    if ('Link' === button.textContent) {
+      button.addEventListener(
+        'click',
+        () => makePopupAccessible(popupsContainer, toolbar, 'Create link'),
+        {signal: toolbarLinkButtonEventController.signal}
+      )
+    } else {
+      button.addEventListener(
+        'click',
+        onButtonClick,
+      )
+    }
+    if (isInModal.value) {
       button.addEventListener(
         'mouseenter',
         () => {
@@ -179,21 +183,16 @@ const correctTheDOM = () => {
         },
         {signal: toolbarButtonEventController.signal}
       )
-    })
-    clearInterval(domFixer.value)
-  } else {
-    // We're not in a modal.
-    each(toolbarButtons, button => {
-      button.setAttribute('tabindex', 0)
-      if ('Link' === button.textContent) {
-        button.addEventListener(
-          'click',
-          () => makePopupAccessible(popupsContainer, toolbar, 'Create link'),
-          {signal: toolbarLinkButtonEventController.signal}
-        )
-      }
-    })
-    clearInterval(domFixer.value)
+    }
+  })
+  clearInterval(domFixer.value)
+}
+
+const onButtonClick = e => {
+  // If the button was pressed using a mouse or equivalent pointing device, move focus back to the textbox.
+  // Otherwise, the button was pressed using the keyboard and focus will stay on the button.
+  if (e.pointerType) {
+    editor.value.editing.view.focus()
   }
 }
 
@@ -250,23 +249,59 @@ const makePopupAccessible = (popupsContainer, toolbar, ariaLabel) => {
   }, 500)
 }
 
+const manageToolbarFocus = () => {
+  let lastFocusedButton
+
+  // When focus leaves the editor UI entirely, reset so Bold is the first focused button
+  editor.value.ui.focusTracker.on('change:isFocused', (e, data, isFocused) => {
+    if (!isFocused) {
+      lastFocusedButton = null
+    }
+  })
+  editor.value.ui.view.toolbar.focusTracker.on('change:focusedElement', e => {
+    const focusedElement = editor.value.ui.view.toolbar.focusTracker.focusedElement
+    if (focusedElement && 'button' === focusedElement.type && focusedElement !== lastFocusedButton) {
+      // Focus is landing on a toolbar button from another toolbar button or from the toolbar itself
+      lastFocusedButton = focusedElement
+      lastFocusedButton.focus()
+      editor.value.ui.view.toolbar.element.setAttribute('tabindex', '-1')
+    } else if (focusedElement) {
+      // Focus is landing on the toolbar itself from outside of the toolbar. When focus lands on the toolbar,
+      // we move it either to the previously focused button or the first button.
+      editor.value.ui.view.toolbar.element.setAttribute('tabindex', '-1')
+      if (!lastFocusedButton) {
+        lastFocusedButton = editor.value.ui.view.toolbar.focusTracker.elements[1]
+      }
+      lastFocusedButton.focus()
+    } else {
+      // Focus is leaving the toolbar
+      editor.value.ui.view.toolbar.element.setAttribute('tabindex', '0')
+    }
+    e.stop()
+    return false
+  })
+}
+
 const onChangePopoverVisible = (e, propertyName, newValue) => {
   props.onTogglePopover(newValue)
 }
 
-const onUpdate = event => {
+const onEditorInput = event => {
   props.onValueUpdate(isString(event) ? event : event.target.value)
 }
 
-const registerPopupListener = editor => {
-  const editable = editor.querySelector('.ck-editor__editable_inline')
-  if (editable) {
-    const editorInstance = editable.ckeditorInstance
-    const balloonInstance = editorInstance.plugins.get('ContextualBalloon')
-    const balloonPanelView = balloonInstance.view
-    balloonPanelView.off('change:isVisible', onChangePopoverVisible)
-    balloonPanelView.on('change:isVisible', onChangePopoverVisible)
-  }
+const onEditorReady = editorInstance => {
+  editor.value = editorInstance
+  initDomFixer()
+  registerPopupListener()
+  manageToolbarFocus()
+}
+
+const registerPopupListener = () => {
+  const balloonInstance = editor.value.plugins.get('ContextualBalloon')
+  const balloonPanelView = balloonInstance.view
+  balloonPanelView.off('change:isVisible', onChangePopoverVisible)
+  balloonPanelView.on('change:isVisible', onChangePopoverVisible)
 }
 </script>
 
@@ -281,6 +316,11 @@ const registerPopupListener = editor => {
 .ck.ck-balloon-panel.ck-powered-by-balloon {
   display: none !important;
 }
+.ck.ck-content.ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) {
+  border-style: solid !important;
+  border-width: 1px !important;
+  box-shadow: none !important;
+}
 .ck-content ul {
   padding-left: 25px !important;
 }
@@ -289,5 +329,18 @@ const registerPopupListener = editor => {
 }
 .ck.ck-sticky-panel .ck-sticky-panel__content_sticky {
   position: static !important;
+}
+.ck.ck-sticky-panel__content:focus-within,
+.ck.ck-editor:hover {
+  --ck-color-base-border: hsla(0, 0%, 0%, 1) !important;
+  transition: border-color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ck.ck-content.ck-editor__editable {
+  border-radius: 4px;
+  border-style: solid !important;
+  border-width: 1 !important;
+  &.text-error input {
+    color: rgb(var(--v-theme-error))
+  }
 }
 </style>

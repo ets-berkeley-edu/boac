@@ -19,17 +19,18 @@
   --ck-custom-white: hsl(0, 0%, 100%) !important;
   /* -- BOAC custom colors. ------------------------------------------------------------- */
   --boac-white: hsl(270, 1%, 29%);
-  --boac-color-button-default-background: hsl(0, 0%, 95%);
+  --boac-color-button-default-background: transparent;
   --boac-color-button-default-hover-background: hsl(0, 0%, 85%);
-  --boac-color-button-default-active-background: hsl(0, 0%, 90%);
+  --boac-color-button-default-active-background: hsl(0, 0%, 95%);
   --boac-color-button-default-active-shadow: hsl(0, 0%, 75%);
 
-  --boac-color-button-on-background: hsl(0, 0%, 85%);
+  --boac-color-button-on-background: hsl(0, 0%, 90%);
   --boac-color-button-on-hover-background: hsl(0, 0%, 75%);
   --boac-color-button-on-active-background: hsl(0, 0%, 80%);
   --boac-color-button-on-active-shadow: hsl(0, 0%, 50%);
   --boac-color-button-on-disabled-background: hsl(0, 0%, 85%);
   /* -- Overrides generic colors. ------------------------------------------------------------- */
+  --ck-color-base-border: hsla(0, 0%, 0%, 0.38) !important;
   --ck-color-base-foreground: var(--ck-custom-background);
   --ck-color-focus-border: hsl(202, 47% 44%);
   --ck-color-text: var(--boac-white);

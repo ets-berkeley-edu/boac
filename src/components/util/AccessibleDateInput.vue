@@ -18,7 +18,7 @@
       <template #default="{ inputValue, inputEvents }">
         <div
           class="custom-text-field w-100"
-          :class="{ 'error--text': !isValid(inputValue), disabled: disabled }"
+          :class="{ 'border-error': !isValid(inputValue), disabled: disabled }"
           :aria-invalid="!isValid(inputValue)"
         >
           <input
@@ -374,9 +374,6 @@ const onUpdateFocus = (hasFocus, inputEvents) => {
 }
 .custom-text-field input::placeholder {
   color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-}
-.custom-text-field.error--text {
-  border-color: rgb(var(--v-theme-error));
 }
 </style>
 
