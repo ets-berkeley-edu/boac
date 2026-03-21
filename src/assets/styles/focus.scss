@@ -21,6 +21,8 @@
   }
   .bg-primary:focus::after,
   .button-menu.bg-primary:focus,
+  .ck.ck-input:focus,
+  .ck.ck-toolbar .ck.ck-button:focus,
   .text-primary:focus::after,
   button.clear-button:focus {
     outline-color: rgba(var(--v-theme-primary)) !important;
@@ -38,6 +40,8 @@
   .text-tertiary:focus::after {
     outline-color: rgba(var(--v-theme-tertiary)) !important;
   }
+  .ck.ck-button:focus,
+  .ck.ck-input:focus,
   .checkbox-container:focus-within,
   .select-menu:focus,
   .vc-focus:focus,
@@ -58,6 +62,10 @@
     outline-offset: 0.125rem;
     outline-style: solid;
     outline-width: 0.125rem;
+  }
+  .ck.ck-button:focus {
+    box-shadow: inset 0 0 0.1rem 0.1rem white !important;
+    outline-offset: 0 !important;
   }
   .select-menu:focus,
   .v-chip:focus,
@@ -155,6 +163,8 @@
   }
   .bg-primary:focus-visible::after,
   .button-menu.bg-primary:focus-visible,
+  .ck.ck-input:focus-visible,
+  .ck.ck-toolbar .ck.ck-button:focus-visible,
   .text-primary:focus-visible::after,
   button.clear-button:focus-visible {
     outline-color: rgba(var(--v-theme-primary)) !important;
@@ -172,6 +182,8 @@
   .text-tertiary:focus-visible::after {
     outline-color: rgba(var(--v-theme-tertiary)) !important;
   }
+  .ck.ck-button:focus-visible,
+  .ck.ck-input:focus-visible,
   .checkbox-container:focus-within,
   .select-menu:focus-visible,
   .vc-focus:focus-visible,
@@ -192,6 +204,10 @@
     outline-offset: 0.125rem;
     outline-style: solid;
     outline-width: 0.125rem;
+  }
+  .ck.ck-button:focus-visible {
+    box-shadow: inset 0 0 0.125rem 0.125rem white !important;
+    outline-offset: 0 !important;
   }
   .select-menu:focus-visible,
   .v-chip:focus-visible,
@@ -265,6 +281,12 @@
   input[type="checkbox"]:focus-visible {
     outline: none;
   }
+}
+.ck.ck-editor:not(:has(.ck.ck-toolbar:focus-within)) .ck.ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) {
+  outline-color: rgba(var(--v-theme-primary)) !important;
+  outline-offset: -.125rem;
+  outline-style: solid;
+  outline-width: 0.125rem;
 }
 .v-input--focused.basic-search .v-field--focused {
   --v-theme-overlay-multiplier: 3;

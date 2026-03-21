@@ -226,7 +226,7 @@ export function toBoolean(value: string) {
 }
 
 export function toggleModalBackgroundDisabled(isModalOpen: boolean) {
-  const inactiveModals = document.querySelectorAll('.v-overlay:not(.v-overlay-active')
+  const inactiveModals = document.querySelectorAll('.v-overlay:not(.v-overlay--active')
   useContextStore().setIsModalOpen(isModalOpen)
   if (isModalOpen) {
     inactiveModals.forEach(modal => modal.setAttribute('inert', 'true'))
