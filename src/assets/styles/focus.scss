@@ -206,8 +206,8 @@
     outline-width: 0.125rem;
   }
   .ck.ck-button:focus-visible {
-    box-shadow: inset 0 0 0.125rem 0.125rem white !important;
-    outline-offset: 0 !important;
+    border-color: unset;
+    outline-offset: 0.075rem !important;
   }
   .select-menu:focus-visible,
   .v-chip:focus-visible,
