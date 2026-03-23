@@ -1,9 +1,8 @@
 <template>
   <v-container class="d-flex flex-column h-100" fluid>
-    <v-row align="stretch" class="v-row-override-margins">
+    <v-row class="v-row-override-margins">
       <v-col
-        align-self="center"
-        class="gpa ml-0 text-center"
+        class="align-self-stretch gpa ml-0 text-center"
       >
         <div id="cumulative-gpa" class="data-number">
           <span v-if="!isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
@@ -14,27 +13,26 @@
       </v-col>
       <v-col
         id="gpa-trends"
-        align-self="center"
-        class="border-s-sm gpa-trends"
+        class="align-self-stretch border-s-sm d-flex gpa-trends justify-center"
       >
         <div id="gpa-chart">
-          <h4 class="font-weight-bold font-size-12 text-medium-emphasis ml-6 mt-1 text-uppercase">
+          <h4 class="font-weight-bold font-size-12 text-medium-emphasis mb-1 ml-1 text-uppercase">
             GPA Trends
           </h4>
           <StudentGpaChart
             v-if="get(student, 'termGpa.length') > 1"
             :chart-description="`GPA of ${student.name} by academic term`"
-            class="ml-4 gpa-trends-chart"
+            class="gpa-trends-chart"
             :student="student"
           />
-          <div class="ml-6">
+          <div>
             <div v-if="isEmpty(student.termGpa)" class="font-size-12 text-medium-emphasis">
               GPA Not Yet Available
             </div>
             <div
               v-if="!isEmpty(student.termGpa)"
               id="current-term-gpa"
-              class="align-center d-flex flex-wrap"
+              class="align-center d-flex flex-wrap ml-1"
             >
               <div class="mr-2 text-no-wrap">
                 <span class="font-size-12 text-medium-emphasis text-uppercase mr-1">{{ student.termGpa[0].name }} GPA:</span>
@@ -138,8 +136,9 @@ const showTermGpa = ref(false)
   line-height: 1.4em;
 }
 .gpa {
+  align-content: center;
   font-weight: 700;
-  margin-left: 20px;
+  height: 130px;
   min-width: 150px;
   white-space: nowrap;
 }
@@ -156,7 +155,7 @@ const showTermGpa = ref(false)
   min-width: 225px;
 }
 .gpa-trends-chart {
-  min-width: 180px;
+  min-width: 200px;
 }
 .show-more-term-gpa-btn {
   font-size: 12px;
