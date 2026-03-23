@@ -1,4 +1,4 @@
-import {Plugin, icons} from 'ckeditor5'
+import {IconBulletedList, Plugin} from 'ckeditor5'
 import {createButton} from '@/plugins/ckeditor/utils'
 
 export default class ListBulletedCustom extends Plugin {
@@ -17,7 +17,7 @@ export default class ListBulletedCustom extends Plugin {
       editor,
       commandName: 'bulletedList',
       plugin: this,
-      icon: icons.bulletedList,
+      icon: IconBulletedList,
       label: t('Bulleted List')
     })
     editor.ui.componentFactory.add('listBulletedCustom', () => button)
