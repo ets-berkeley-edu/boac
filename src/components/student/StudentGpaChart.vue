@@ -7,24 +7,11 @@
       v-highchartsA11y
       :options="options"
     />
-    <v-btn
-      v-if="isChartLoaded"
-      :id="`student-chart-gpa-sonify-btn-${student.uid}`"
-      :aria-label="`Play chart audio, ${chartDescription}`"
-      class="text-primary d-flex"
-      density="compact"
-      :icon="isPlayingSound ? mdiStopCircle : mdiPlayCircle"
-      size="22"
-      title="Play chart audio"
-      variant="text"
-      @click="onClickPlay"
-    />
   </div>
 </template>
 
 <script setup>
-import {eachRight, first, get, last, round, size} from 'lodash'
-import {mdiPlayCircle, mdiStopCircle} from '@mdi/js'
+import {eachRight, first, get, last, size} from 'lodash'
 import {nextTick, onMounted, ref} from 'vue'
 import {useTheme} from 'vuetify'
 import {numFormat} from '@/lib/utils'
@@ -47,7 +34,6 @@ const props = defineProps({
 
 const highchartsRef = ref()
 const isChartLoaded = ref(false)
-const isPlayingSound = ref(false)
 const options = ref(undefined)
 
 onMounted(() => {
@@ -119,22 +105,6 @@ onMounted(() => {
         type: 'line'
       }
     ],
-    sonification: {
-      defaultInstrumentOptions: {
-        mapping: {
-          pitch: function(e) {
-            // Return a note number where 0 is c0.
-            // We add 2 octaves, making the lowest note c2 (0.0 GPA).
-            return (10 * round(e.point.y, 1)) + 24
-          }
-        }
-      },
-      duration: 2000,
-      events: {
-        onPlay: () => isPlayingSound.value = true,
-        onStop: () => isPlayingSound.value = false
-      }
-    },
     title: {
       style: {display: 'none'},
       text: props.chartDescription,
@@ -224,10 +194,5 @@ const generateGpaDataSeries = (currentTheme) => {
     }
   }
   return series
-}
-
-const onClickPlay = () => {
-  const {chart} = highchartsRef.value
-  chart.toggleSonify()
 }
 </script>
