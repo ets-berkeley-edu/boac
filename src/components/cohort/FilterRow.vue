@@ -155,7 +155,7 @@
           <v-btn
             v-if="!isUX('boolean')"
             :id="`edit-added-filter-${position}`"
-            :aria-label="`Edit Cohort Filter ${filter.name}`"
+            :aria-label="getFilterActionAriaLabel('Edit')"
             class="text-uppercase"
             color="primary"
             text="Edit"
@@ -165,7 +165,7 @@
           <div v-if="!isUX('boolean')" class="mb-1 mx-1">|</div>
           <v-btn
             :id="`remove-added-filter-${position}`"
-            :aria-label="`Remove Cohort Filter ${filter.name}`"
+            :aria-label="getFilterActionAriaLabel('Remove')"
             class="text-uppercase"
             color="primary"
             :disabled="!!cohortStore.editMode"
@@ -178,7 +178,7 @@
           <ProgressButton
             :id="`update-added-filter-${position}`"
             :action="onClickUpdateButton"
-            :aria-label="`Update Cohort Filter ${filter.name}`"
+            :aria-label="getFilterActionAriaLabel('Update')"
             density="comfortable"
             :disabled="disableUpdateButton || isUpdatingExistingFilter || ((isUX('options') || isUX('option_groups')) && !selectedOption)"
             :in-progress="isUpdatingExistingFilter"
@@ -187,7 +187,7 @@
           />
           <v-btn
             :id="`cancel-edit-added-filter-${position}`"
-            :aria-label="`Cancel Edit Cohort Filter ${filter.name}`"
+            :aria-label="getFilterActionAriaLabel('Cancel Edit')"
             class="font-size-14 text-uppercase ml-2"
             :disabled="isUpdatingExistingFilter"
             text="Cancel"
@@ -554,6 +554,28 @@ const setFilterName = () => {
   } else {
     filter.value.name = `number ${props.position}`
   }
+}
+
+const getFilterValueForAriaLabel = () => {
+  const ux = get(filter.value, 'type.ux')
+  if (ux === 'options' || ux === 'option_groups') {
+    return getLabelPerSelectedOption() || get(filter.value, 'value')
+  }
+  if (ux === 'range') {
+    return `${rangeMinLabel()} ${rangeMaxLabel()}`.trim()
+  }
+  if (ux === 'boolean') {
+    return get(filter.value, 'value') ? 'True' : 'False'
+  }
+  return undefined
+}
+
+const getFilterActionAriaLabel = action => {
+  const filterName = get(filter.value, 'name') || 'Unknown'
+  const filterValue = getFilterValueForAriaLabel()
+  return filterValue
+    ? `${action} Cohort Filter ${filterName}, ${filterValue}`
+    : `${action} Cohort Filter ${filterName}`
 }
 
 const updateRangeFilter = () => {
