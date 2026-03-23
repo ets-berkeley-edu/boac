@@ -1,4 +1,4 @@
-import {Plugin, icons} from 'ckeditor5'
+import {IconNumberedList, Plugin} from 'ckeditor5'
 import {createButton} from '@/plugins/ckeditor/utils'
 
 export default class ListNumberedCustom extends Plugin {
@@ -17,7 +17,7 @@ export default class ListNumberedCustom extends Plugin {
       editor,
       commandName: 'numberedList',
       plugin: this,
-      icon: icons.numberedList,
+      icon: IconNumberedList,
       label: t('Numbered List')
     })
     editor.ui.componentFactory.add('listNumberedCustom', () => button)

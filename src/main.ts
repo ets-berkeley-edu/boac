@@ -3,7 +3,7 @@ import 'highcharts/highcharts-more'
 import 'highcharts/modules/sonification'
 import 'highcharts/modules/accessibility'
 import axios from 'axios'
-import CKEditor from '@ckeditor/ckeditor5-vue'
+import {CkeditorPlugin} from '@ckeditor/ckeditor5-vue'
 import VueHighcharts from 'vue-highcharts'
 import {createApp} from 'vue'
 import {createPinia} from 'pinia'
@@ -26,7 +26,7 @@ const isVueAppDebugMode: boolean = trim(import.meta.env.VITE_APP_DEBUG).toLowerC
 const app = createApp(App)
 app.config.errorHandler = appErrorHandler
 app.use(axiosPlugin, {baseUrl: apiBaseUrl})
-  .use(CKEditor)
+  .use(CkeditorPlugin)
   .use(createPinia())
   .use(setupCalendar, {})
   .use(VueHighcharts, {Highcharts})

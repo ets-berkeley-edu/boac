@@ -1,4 +1,4 @@
-import {Plugin, icons} from 'ckeditor5'
+import {IconBold, Plugin} from 'ckeditor5'
 import {createButton} from '@/plugins/ckeditor/utils'
 
 export default class BoldCustom extends Plugin {
@@ -17,7 +17,7 @@ export default class BoldCustom extends Plugin {
       editor,
       commandName: 'bold',
       plugin: this,
-      icon: icons.bold,
+      icon: IconBold,
       label: t( 'Bold' ),
       keystroke: 'CTRL+B'
     })

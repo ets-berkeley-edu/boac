@@ -71,6 +71,7 @@ const props = defineProps({
 
 const ckElementId = ref('rich-text-editor')
 const config = {
+  licenseKey: 'GPL',
   link: {
     addTargetToExternalLinks: true
   },

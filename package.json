@@ -9,11 +9,11 @@
     "serve-vue": "vite --host --strictPort"
   },
   "dependencies": {
-    "ckeditor5": "43.3.1",
-    "@ckeditor/ckeditor5-vue": "5.1.0",
+    "ckeditor5": "47.6.1",
+    "@ckeditor/ckeditor5-vue": "7.3.1",
     "@mdi/js": "7.4.47",
     "@popperjs/core": "2.11.8",
-    "axios": "1.13.2",
+    "axios": "1.13.6",
     "core-js": "3.48.0",
     "highcharts": "12.5.0",
     "js-file-download": "0.4.12",
