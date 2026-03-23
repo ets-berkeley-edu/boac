@@ -1,10 +1,9 @@
 <template>
   <v-container class="d-flex h-100" fluid>
-    <v-row align="stretch" class="v-row-override-margins">
+    <v-row class="v-row-override-margins">
       <v-col
         id="cumulative-units"
-        align-self="center"
-        class="cumulative-units text-center units"
+        class="align-center align-self-stretch cumulative-units text-center units"
       >
         <div>
           <div v-if="cumulativeUnits" class="data-number">{{ cumulativeUnits }}</div>
@@ -15,11 +14,10 @@
       <v-col
         v-if="!isGraduate(student)"
         id="units-chart"
-        align-self="center"
-        class="border-s-sm d-flex align-center justify-center units-chart"
+        class="align-self-stretch border-s-sm d-flex justify-center units-chart"
       >
         <div class="d-flex flex-column pl-4">
-          <h4 class="units-label font-weight-bold mb-1 text-medium-emphasis text-uppercase">Unit Totals</h4>
+          <h4 class="units-label font-weight-bold mb-3 text-medium-emphasis text-uppercase">Unit Totals</h4>
           <StudentUnitsChart
             v-if="cumulativeUnits || currentEnrolledUnits"
             class="flex-grow-0 student-units-chart"
@@ -34,7 +32,7 @@
       </v-col>
       <v-col
         v-if="isGraduate(student)"
-        class="units text-center border-s-sm"
+        class="align-self-stretch units text-center border-s-sm"
       >
         <div id="units-currently-enrolled" class="data-number">{{ currentEnrolledUnits || '0' }}</div>
         <div class="cumulative-units-label text-medium-emphasis text-uppercase">Currently Enrolled Units</div>
@@ -88,7 +86,9 @@ onMounted(() => {
   min-width: 200px;
 }
 .units {
+  align-content: center;
   font-weight: 700;
+  height: 130px;
   white-space: nowrap;
 }
 .units-chart {
