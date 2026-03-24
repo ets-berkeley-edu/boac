@@ -104,6 +104,7 @@ watch(model, isOpen => {
 
 const confirm = () => {
   isProcessing.value = true
+  toggleModalBackgroundDisabled(false)
   props.functionConfirm()
 }
 </script>
