@@ -23,7 +23,7 @@
       class="mt-2"
     >
       <ckeditor
-        v-model="model"
+        :model-value="initialValue"
         :disabled="disabled"
         :editor="ClassicEditor"
         :config="config"
@@ -91,7 +91,6 @@ const domFixer = ref(undefined)
 const editor = ref()
 const editorLinkEventController = new AbortController()
 const isInModal = ref(false)
-const model = ref(props.initialValue)
 const popupButtonEventController = new AbortController()
 const popupFixer = ref(undefined)
 const toolbarButtonEventController = new AbortController()
