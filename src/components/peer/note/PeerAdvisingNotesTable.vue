@@ -134,6 +134,7 @@
                   class="edit-note-button font-size-16 mb-2 w-md-100"
                   color="primary"
                   density="compact"
+                  :disabled="!!editingNoteId"
                   text="Edit Note"
                   variant="text"
                   @click="() => editNote(note.id)"
