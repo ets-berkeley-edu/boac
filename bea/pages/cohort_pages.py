@@ -137,4 +137,4 @@ class CohortPages(BoaPages):
         self.wait_for_spinner()
 
     def sort_by_first_name(self):
-        self.sort_by('first_name')
+        self.sort_by('first-name')

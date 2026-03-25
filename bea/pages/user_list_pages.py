@@ -84,7 +84,7 @@ class UserListPages(BoaPages):
             xpath = self.filtered_cohort_xpath(cohort)
         else:
             xpath = ''
-        self.wait_for_element_and_click((By.XPATH, f'{xpath}//button[@id="students-sort-by-{option}-btn"]'))
+        self.wait_for_element_and_click((By.XPATH, f'{xpath}//button[contains(@id, "sort-col-{option}-btn")]'))
 
     def sort_by_name(self, cohort=None):
         self.sort_by_option('lastName', cohort)
@@ -93,13 +93,13 @@ class UserListPages(BoaPages):
         self.sort_by_option('sid', cohort)
 
     def sort_by_major(self, cohort=None):
-        self.sort_by_option('major', cohort)
+        self.sort_by_option('majors[0]', cohort)
 
     def sort_by_expected_grad(self, cohort=None):
-        self.sort_by_option('expectedGraduationTerm', cohort)
+        self.sort_by_option('expectedGraduationTerm.id', cohort)
 
     def sort_by_term_units(self, cohort=None):
-        self.sort_by_option('enrolledUnits', cohort)
+        self.sort_by_option('term.enrolledUnits', cohort)
 
     def sort_by_cumul_units(self, cohort=None):
         self.sort_by_option('cumulativeUnits', cohort)
