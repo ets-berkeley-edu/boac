@@ -68,7 +68,7 @@ import {size} from 'lodash'
 import {mdiClose, mdiMenuDown} from '@mdi/js'
 import {storeToRefs} from 'pinia'
 import type {NoteTemplate} from '@/lib/types'
-import {alertScreenReader} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const emit = defineEmits([
@@ -95,6 +95,7 @@ const {isSaving} = storeToRefs(noteStore)
 
 const loadTemplate = (template: NoteTemplate) => {
   emit('template-selected', template)
+  putFocusNextTick('peer-advising-note-templates-button')
 }
 
 const onToggleTemplatesMenu = (isOpen: boolean) => {

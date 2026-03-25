@@ -151,7 +151,7 @@
 
 <script setup>
 import {mdiAlert} from '@mdi/js'
-import {onBeforeMount, onMounted, ref, watch} from 'vue'
+import {nextTick, onBeforeMount, onMounted, ref, watch} from 'vue'
 import {size, trim} from 'lodash'
 import {storeToRefs} from 'pinia'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
@@ -293,15 +293,20 @@ const cancelRequested = () => {
 }
 
 const cancelConfirmed = () => {
-  props.afterCancel()
-  alertScreenReader('Note discarded.')
-  exit(true)
+  showAreYouSureModal.value = false
+  const editNoteButtonId = `edit-note-${props.noteId}-button`
+  nextTick(() => {
+    props.afterCancel()
+    alertScreenReader('Note discarded.')
+    exit(true)
+    putFocusNextTick(editNoteButtonId)
+  })
 }
 
 const cancelTheCancel = () => {
   alertScreenReader('Canceled. Continue editing note.')
   showAreYouSureModal.value = false
-  focusNoteField()
+  putFocusNextTick('cancel-edit-note-button')
 }
 
 const exit = revert => {
