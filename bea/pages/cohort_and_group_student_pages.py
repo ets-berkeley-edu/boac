@@ -269,21 +269,21 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
     # SORTING
 
     def sort_by_team(self):
-        self.sort_by('group_name')
+        self.sort_by('group-name')
 
     def sort_by_gpa_cumulative(self):
         self.sort_by('gpa')
 
     def sort_by_gpa_cumulative_desc(self):
-        self.sort_by('gpa desc')
+        self.sort_by('gpa-desc')
 
     def sort_by_last_term_gpa(self, term=None):
         term = term or utils.get_previous_term()
-        self.sort_by(f'term_gpa_{term.sis_id}')
+        self.sort_by(f'term-gpa-{term.sis_id}')
 
     def sort_by_last_term_gpa_desc(self, term=None):
         term = term or utils.get_previous_term()
-        self.sort_by(f'term_gpa_{term.sis_id} desc')
+        self.sort_by(f'term-gpa-{term.sis_id}-desc')
 
     def sort_by_level(self):
         self.sort_by('level')
@@ -292,25 +292,25 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         self.sort_by('major')
 
     def sort_by_entering_term(self):
-        self.sort_by('entering_term')
+        self.sort_by('entering-term')
 
     def sort_by_expected_graduation(self):
-        self.sort_by('expected_grad_term')
+        self.sort_by('expected-grad-term')
 
     def sort_by_terms_in_attend(self):
-        self.sort_by('terms_in_attendance')
+        self.sort_by('terms-in-attendance')
 
     def sort_by_terms_in_attend_desc(self):
-        self.sort_by('terms_in_attendance desc')
+        self.sort_by('terms-in-attendance-desc')
 
     def sort_by_units_in_progress(self):
-        self.sort_by('enrolled_units')
+        self.sort_by('enrolled-units')
 
     def sort_by_units_in_progress_desc(self):
-        self.sort_by('enrolled_units desc')
+        self.sort_by('enrolled-units-desc')
 
     def sort_by_units_completed(self):
         self.sort_by('units')
 
     def sort_by_units_completed_desc(self):
-        self.sort_by('units desc')
+        self.sort_by('units-desc')
