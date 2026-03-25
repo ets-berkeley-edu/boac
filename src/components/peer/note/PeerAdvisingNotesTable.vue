@@ -45,12 +45,11 @@
             <div v-if="!isExpanded(note)" class="grid-cell">
               <button
                 :id="`open-peer-advising-${note.id}`"
-                aria-hidden="true"
+                :aria-controls="`note-details-${note.id} note-actions-${note.id} note-dates-${note.id}`"
                 :aria-expanded="false"
                 :aria-label="`Message ${getNoteLabel(note, index)}`"
                 class="align-center d-flex justify-start px-3 text-none text-primary toggle-note-btn v-btn w-100"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                tabindex="-1"
                 @click="() => toggleShowHide(note)"
               >
                 <span class="v-btn__overlay" />
@@ -63,32 +62,27 @@
                   <v-icon class="has-attachment-icon" :icon="mdiPaperclip" size="small" />
                 </span>
               </button>
-              <span class="sr-only">
-                {{ stripHtmlAndTrim(note.body || summarizeTopics(note.topics)) }}
-              </span>
             </div>
-            <div v-if="isExpanded(note)" :class="{'d-contents': !smAndDown}">
-              <div class="grid-cell">
-                <div class="d-flex pl-4 pr-md-4">
-                  <v-btn
-                    v-if="editingNoteId !== note.id"
-                    :id="`show-note-${note.id}-details`"
-                    aria-hidden="true"
-                    :aria-expanded="true"
-                    :aria-label="`Close message ${getNoteLabel(note, index)}`"
-                    class="toggle-note-btn w-75 w-md-100"
-                    color="primary"
-                    :prepend-icon="mdiCloseCircle"
-                    text="Close Message"
-                    variant="text"
-                    tabindex="-1"
-                    @click="toggleShowHide(note)"
-                  />
+            <v-expand-transition>
+              <div v-show="isExpanded(note)" :id="`note-details-${note.id}`" :class="{'d-contents': !smAndDown}">
+                <div class="grid-cell">
+                  <div class="d-flex pl-4 pr-md-4">
+                    <v-btn
+                      v-if="isExpanded(note) && editingNoteId !== note.id"
+                      :id="`close-peer-advising-${note.id}`"
+                      :aria-controls="`note-details-${note.id} note-actions-${note.id} note-dates-${note.id}`"
+                      :aria-expanded="true"
+                      :aria-label="`Close message ${getNoteLabel(note, index)}`"
+                      class="toggle-note-btn w-75 w-md-100"
+                      color="primary"
+                      :prepend-icon="mdiCloseCircle"
+                      text="Close Message"
+                      variant="text"
+                      @click="toggleShowHide(note)"
+                    />
+                  </div>
                 </div>
-              </div>
-              <v-expand-transition>
                 <div
-                  v-if="isExpanded(note)"
                   :class="{'mb-3': !smAndDown}"
                   class="grid-cell note-details"
                 >
@@ -109,8 +103,8 @@
                     />
                   </div>
                 </div>
-              </v-expand-transition>
-            </div>
+              </div>
+            </v-expand-transition>
           </td>
           <td
             :id="`td-note-${note.id}-created-at`"
@@ -121,16 +115,25 @@
             class="td-created-date"
           >
             <div class="grid-cell px-4 px-md-2">
-              <span class="sr-only">
-                {{ getNoteMetaForScreenReader(note) }}
-              </span>
+              <div v-if="!isExpanded(note)" class="created-date text-no-wrap">
+                <TimelineDate
+                  :id="`collapsed-note-${note.id}-updated-at`"
+                  aria-hidden="true"
+                  :date="note.updatedAt || note.createdAt"
+                  :include-time-of-day="false"
+                  sr-prefix="Last updated on"
+                />
+              </div>
               <div
-                v-if="isExpanded(note) && editingNoteId !== note.id && canUserEditNote(note, currentUser)"
+                v-if="editingNoteId !== note.id && canUserEditNote(note, currentUser)"
+                v-show="isExpanded(note)"
+                :id="`note-actions-${note.id}`"
                 class="d-flex flex-column pl-5"
               >
                 <v-btn
+                  v-show="isExpanded(note)"
                   :id="`edit-note-${note.id}-button`"
-                  :aria-label="`Edit note ${getNotePosition(index)}`"
+                  :aria-label="`Edit note ${getNoteLabel(note, index)}`"
                   class="edit-note-button font-size-16 mb-2 w-md-100"
                   color="primary"
                   density="compact"
@@ -141,8 +144,9 @@
                 />
                 <v-btn
                   v-if="isPeerAdvisorManager(currentUser)"
+                  v-show="isExpanded(note)"
                   :id="`delete-note-button-${note.id}`"
-                  :aria-label="`Delete ${getNoteLabel(note, index)}`"
+                  :aria-label="`Delete note ${getNoteLabel(note, index)}`"
                   class="delete-note-button font-size-16 my-2 w-md-100"
                   color="primary"
                   density="compact"
@@ -152,76 +156,67 @@
                   @click="() => onClickDeleteNote(note)"
                 />
               </div>
-              <div v-if="!isExpanded(note)" class="created-date text-no-wrap">
-                <TimelineDate
-                  :id="`collapsed-note-${note.id}-updated-at`"
-                  :date="note.updatedAt || note.createdAt"
-                  :include-time-of-day="false"
-                  sr-prefix="Last updated on"
-                />
-              </div>
-              <div
-                v-if="isExpanded(note)"
-                class="created-date text-no-wrap"
-              >
-                <div>
-                  <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Created:</div>
-                  <TimelineDate
-                    :id="`expanded-note-${note.id}-created-at`"
-                    :date="note.createdAt"
-                    sr-prefix="Created on"
-                    :include-time-of-day="note.createdAt.length > 10"
-                  />
-                </div>
-                <div v-if="note.updatedAt" class="mt-2">
-                  <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Updated:</div>
-                  <TimelineDate
-                    :id="`expanded-note-${note.id}-updated-at`"
-                    :date="note.updatedAt"
-                    :include-time-of-day="note.updatedAt.length > 10"
-                    sr-prefix="Last updated on"
-                  />
-                </div>
-              </div>
               <v-expand-transition>
-                <div v-if="isExpanded(note)" :class="{'mt-4': !isExpanded(note)}">
-                  <div v-if="note.author.name || note.author.email" class="mt-2">
-                    <div class="font-size-15 text-medium-emphasis text-no-wrap">Created by:</div>
-                    <div v-if="note.author.uid && note.author.name">
-                      <router-link
-                        v-if="currentUser.isAdmin && note.peerAdvisingDepartmentId"
-                        :id="`note-${note.id}-link-to-peer-advisor-home`"
-                        :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                        :to="`/peer_advisor/${note.author.uid}/home`"
-                      >
-                        {{ note.author.name }}
-                      </router-link>
-                      <a
-                        v-if="!currentUser.isAdmin || !note.peerAdvisingDepartmentId"
-                        :id="`note-${note.id}-author-name`"
-                        :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                        :href="`https://www.berkeley.edu/directory/results?search-term=${note.author.name}`"
-                        target="_blank"
-                      >
-                        {{ note.author.name }} <span class="sr-only">&nbsp;UC Berkeley Directory page (opens in new tab)</span>
-                      </a>
+                <div v-show="isExpanded(note)" :id="`note-dates-${note.id}`">
+                  <div class="created-date text-no-wrap">
+                    <div>
+                      <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Created:</div>
+                      <TimelineDate
+                        :id="`expanded-note-${note.id}-created-at`"
+                        :date="note.createdAt"
+                        sr-prefix="Created on"
+                        :include-time-of-day="note.createdAt.length > 10"
+                      />
                     </div>
-                    <div :id="`note-${note.id}-author-role`" class="font-weight-550 mt-2">
-                      {{ capitalizeAllWords(replace(note.author.role, '_', ' ')) }}
+                    <div v-if="note.updatedAt" class="mt-2">
+                      <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Updated:</div>
+                      <TimelineDate
+                        :id="`expanded-note-${note.id}-updated-at`"
+                        :date="note.updatedAt"
+                        :include-time-of-day="note.updatedAt.length > 10"
+                        sr-prefix="Last updated on"
+                      />
                     </div>
                   </div>
-                  <div
-                    v-if="size(note.author.departments)"
-                    class="text-medium-emphasis"
-                  >
-                    <div v-for="(department, deptIndex) in note.author.departments" :key="deptIndex">
-                      <span :id="`note-${note.id}-author-dept-${deptIndex}`">{{ department.deptName }}</span>
+                  <div :class="{'mt-4': !isExpanded(note)}">
+                    <div v-if="note.author.name || note.author.email" class="mt-2">
+                      <div class="font-size-15 text-medium-emphasis text-no-wrap">Created by:</div>
+                      <div v-if="note.author.uid && note.author.name">
+                        <router-link
+                          v-if="currentUser.isAdmin && note.peerAdvisingDepartmentId"
+                          :id="`note-${note.id}-link-to-peer-advisor-home`"
+                          :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                          :to="`/peer_advisor/${note.author.uid}/home`"
+                        >
+                          {{ note.author.name }}
+                        </router-link>
+                        <a
+                          v-if="!currentUser.isAdmin || !note.peerAdvisingDepartmentId"
+                          :id="`note-${note.id}-author-name`"
+                          :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                          :href="`https://www.berkeley.edu/directory/results?search-term=${note.author.name}`"
+                          target="_blank"
+                        >
+                          {{ note.author.name }} <span class="sr-only">&nbsp;UC Berkeley Directory page (opens in new tab)</span>
+                        </a>
+                      </div>
+                      <div :id="`note-${note.id}-author-role`" class="font-weight-550 mt-2">
+                        {{ capitalizeAllWords(replace(note.author.role, '_', ' ')) }}
+                      </div>
                     </div>
+                    <div
+                      v-if="size(note.author.departments)"
+                      class="text-medium-emphasis"
+                    >
+                      <div v-for="(department, deptIndex) in note.author.departments" :key="deptIndex">
+                        <span :id="`note-${note.id}-author-dept-${deptIndex}`">{{ department.deptName }}</span>
+                      </div>
+                    </div>
+                    <PeerAdvisingDepartmentSummary
+                      :id-prefix="`note-${note.id}`"
+                      :peer-advising-department-id="note.peerAdvisingDepartmentId"
+                    />
                   </div>
-                  <PeerAdvisingDepartmentSummary
-                    :id-prefix="`note-${note.id}`"
-                    :peer-advising-department-id="note.peerAdvisingDepartmentId"
-                  />
                 </div>
               </v-expand-transition>
             </div>
@@ -244,7 +239,7 @@
         with subject "<span class="font-weight-bold text-medium-emphasis">{{ get(noteForDelete, 'subject') }}</span>"?
       </span>
       <span v-if="noteForDelete && !get(noteForDelete, 'subject')">
-        containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(noteForDelete.body), {length: 30}) }}</span>"?</span>
+        containing text "<span class="font-weight-bold text-medium-emphasis">{{ truncate(stripHtmlAndTrim(noteForDelete.body), {separator: ' '}) }}</span>"?</span>
     </AreYouSureModal>
   </div>
 </template>
@@ -334,15 +329,7 @@ const editNote = (noteId: number) => {
   putFocusNextTick('edit-note-subject')
 }
 
-const getNoteLabel = (note: Note, index: number) => {
-  const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
-  const createdDate = `${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}`
-  const rowPosition = `${index + 1} of ${size(props.notes)}`
-  return `${rowPosition}, ${getStudentName(note)}. ${truncate(stripHtmlAndSummarize(note.body))} dated ${createdDate}${attachments}.`
-}
-
-const getNoteMetaForScreenReader = (note: Note) => {
-  const date = DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)
+const getNoteAuthorLabel = (note: Note) => {
   const authorName = note.author.name
   const role = note.author.role ? capitalizeAllWords(replace(note.author.role, '_', ' ')) : ''
   const departments = size(note.author.departments)
@@ -350,7 +337,14 @@ const getNoteMetaForScreenReader = (note: Note) => {
     : ''
   const rolePart = role ? `, ${role}` : ''
   const deptPart = departments ? `, ${departments}` : ''
-  return `Dated ${date}${authorName ? `, created by ${authorName}` : ''}${rolePart}${deptPart}.`
+  return `${authorName ? `, created by ${authorName}` : ''}${rolePart}${deptPart}`
+}
+
+const getNoteLabel = (note: Note, index: number) => {
+  const attachments = note.attachments.length ? `, ${note.attachments.length} attachments` : ''
+  const createdDate = `${DateTime.fromISO(note.createdAt).toLocaleString(DateTime.DATE_FULL)}`
+  const rowPosition = `${index + 1} of ${size(props.notes)}`
+  return `${rowPosition}, ${getStudentName(note)}. ${truncate(stripHtmlAndSummarize(note.body), {length: 50, separator: ' '})} dated ${createdDate}${attachments}${getNoteAuthorLabel(note)}.`
 }
 
 const getNotePosition = (index: number) => `${index + 1} of ${size(props.notes) || 'unknown'}`
