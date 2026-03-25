@@ -11,15 +11,15 @@
       <a
         v-if="section.totalStudentCount > itemsPerPage"
         id="skip-to-pagination-widget"
-        href="#pagination-widget"
         class="sr-only sr-only-focusable"
+        href="#pagination-widget"
       >
-        Skip to pagination widget
+        Skip to pagination
       </a>
       <a
         id="skip-to-students-link"
-        href="#course-students"
         class="sr-only sr-only-focusable"
+        href="#course-students"
       >
         Skip to students
       </a>

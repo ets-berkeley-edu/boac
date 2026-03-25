@@ -22,16 +22,16 @@
       <a
         v-if="totalStudentCount > itemsPerPage"
         id="skip-to-pagination-link"
-        href="#pagination-container"
         class="sr-only sr-only-focusable"
+        href="#pagination-widget"
       >
         Skip to pagination
       </a>
       <a
         v-if="totalStudentCount"
         id="skip-to-students-link"
-        href="#curated-cohort-students"
         class="sr-only sr-only-focusable"
+        href="#curated-cohort-students"
       >
         Skip to students
       </a>
