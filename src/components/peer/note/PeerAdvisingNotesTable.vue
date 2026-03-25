@@ -302,7 +302,6 @@ const afterNoteUpdated = async (noteId: number, putFocusElementId?: string) => {
   putFocusNextTick(putFocusElementId || `show-note-${editingNoteId.value}-details`)
 }
 const afterNoteEditCancel = () => {
-  putFocusNextTick(`edit-note-${editingNoteId.value}-button`)
   editingNoteId.value = undefined
 }
 
