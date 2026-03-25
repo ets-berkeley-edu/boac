@@ -1,5 +1,5 @@
 <template>
-  <table id="cohort-admitted-students" class="w-100">
+  <table id="cohort-students" class="w-100" tabindex="-1">
     <thead>
       <tr>
         <th v-if="includeCuratedCheckbox || removeStudent" />

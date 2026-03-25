@@ -24,6 +24,7 @@
   .ck.ck-input:focus,
   .ck.ck-toolbar .ck.ck-button:focus,
   .text-primary:focus::after,
+  .v-pagination:focus,
   button.clear-button:focus {
     outline-color: rgba(var(--v-theme-primary)) !important;
   }
@@ -50,6 +51,7 @@
   .v-file-input.v-input--focused,
   .v-list-item:focus::after,
   .v-list-item:focus-within::after,
+  .v-pagination:focus,
   .v-selection-control--focus-visible .v-selection-control__input::before,
   a:not(.v-btn):focus,
   button:not(.v-btn):focus,
@@ -166,6 +168,7 @@
   .ck.ck-input:focus-visible,
   .ck.ck-toolbar .ck.ck-button:focus-visible,
   .text-primary:focus-visible::after,
+  .v-pagination:focus-visible,
   button.clear-button:focus-visible {
     outline-color: rgba(var(--v-theme-primary)) !important;
   }
@@ -192,6 +195,7 @@
   .v-file-input.v-input--focused,
   .v-list-item:focus-visible::after,
   .v-list-item:focus-within::after,
+  .v-pagination:focus-visible,
   .v-selection-control--focus-visible .v-selection-control__input::before,
   a:not(.v-btn):focus-visible,
   button:not(.v-btn):focus-visible,
