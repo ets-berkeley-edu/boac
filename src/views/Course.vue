@@ -107,11 +107,12 @@
             class="align-center d-flex font-size-16 ml-auto"
           >
             <div id="view-per-page-label" class="pr-2">
-              <span class="font-weight-medium">{{ section.totalStudentCount }} total students</span> &mdash; View per page:&nbsp;
+              <span class="font-weight-medium">{{ section.totalStudentCount }} total students</span><span aria-hidden="true"> &mdash; View per page:&nbsp;</span>
             </div>
             <v-btn-toggle
               v-model="itemsPerPage"
-              aria-labelledby="view-per-page-label"
+              aria-describedby="view-per-page-label"
+              aria-label="toggle students per page"
               class="border-sm"
               color="primary"
               density="compact"
@@ -123,7 +124,7 @@
                 v-for="option in PAGINATION_OPTIONS"
                 :id="`view-per-page-${option}`"
                 :key="option"
-                :aria-label="`Show ${option.toString()} students per page`"
+                :aria-label="`${option === itemsPerPage ? 'Showing' : 'Show'} ${option.toString()} students per page`"
                 :aria-pressed="option === itemsPerPage"
                 :class="{'border-color-primary font-weight-bold text-primary': option !== itemsPerPage}"
                 :text="option.toString()"
@@ -166,8 +167,8 @@ import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSele
 import ga from '@/lib/ga'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
-import {getSection} from '@/api/course'
 import {pluralize, putFocusNextTick, scrollToTop, setPageTitle, updateWindowLocationParam} from '@/lib/utils'
+import {getSection} from '@/api/course'
 import {useContextStore} from '@/stores/context'
 
 const DEFAULT_ITEMS_PER_PAGE = 50
