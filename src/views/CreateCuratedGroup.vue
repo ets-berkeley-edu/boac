@@ -47,11 +47,11 @@ const cancel = () => {
 }
 
 const create = name => {
+  showCreateModal.value = false
   isSaving.value = true
   createCuratedGroup(domain, name, sids.value).then(group => {
     alertScreenReader(`${describeCuratedGroupDomain(domain)} "${name}" created. It has ${sids.value.length} students.`)
     router.push(`/curated/${group.id}`).then(() => {
-      showCreateModal.value = false
       isSaving.value = false
     })
   })
