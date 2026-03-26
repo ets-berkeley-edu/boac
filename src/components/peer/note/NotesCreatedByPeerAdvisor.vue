@@ -131,7 +131,10 @@ onMounted(() => {
   })
 })
 
-onBeforeUnmount(() => contextStore.removeEventHandler('note-deleted'))
+onBeforeUnmount(() => {
+  toggleModalBackgroundDisabled(false)
+  contextStore.removeEventHandler('note-deleted')
+})
 
 const afterNoteEdit = () => {
   getPeerAdvisingNotesAuthoredBy(
