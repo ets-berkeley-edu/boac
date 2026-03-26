@@ -175,7 +175,6 @@ class TestNoteTemplate:
     def test_rename_template(self):
         self.template_1.title = f'S T {self.test.test_id}'
         self.student_page.rename_template(self.template_1)
-        self.student_page.click_templates_button()
         self.student_page.wait_for_template_option(self.template_1)
 
     # Student page template deletion
@@ -304,7 +303,6 @@ class TestNoteTemplate:
     def test_batch_rename_template(self):
         self.template_2.title = f'B T {self.test.test_id}'
         self.homepage.rename_template(self.template_2)
-        self.homepage.click_templates_button()
         self.homepage.wait_for_template_option(self.template_2)
 
     # Batch note template deletion
