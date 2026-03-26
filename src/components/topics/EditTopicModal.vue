@@ -142,12 +142,12 @@ const resetValidation = () => {
 
 const save = () => {
   if (validate() === true) {
+    showEditTopicModal.value = false
     isSaving.value = true
     topic.value = trim(topic.value)
     createTopic(topic.value).then(data => {
       props.afterSave(data)
       isSaving.value = false
-      showEditTopicModal.value = false
     })
   } else {
     putFocusNextTick('create-topic-input')
