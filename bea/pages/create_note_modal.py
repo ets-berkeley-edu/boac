@@ -87,7 +87,7 @@ class CreateNoteModal(Page):
 
     # Body
 
-    NOTE_BODY_TEXT_AREA = By.XPATH, '(//div[@role="textbox"])[2]'
+    NOTE_BODY_TEXT_AREA = By.XPATH, '(//div[@role="textbox" and contains(@class,"ck-content")])'
 
     def wait_for_note_body_editor(self):
         self.when_present(self.NOTE_BODY_TEXT_AREA, utils.get_short_timeout())
