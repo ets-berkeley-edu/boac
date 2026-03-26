@@ -48,7 +48,7 @@ class FlightDeckPage(BoaPages):
     EDIT_SERVICE_ALERT_HEADING = By.ID, 'edit-service-announcement'
     POST_SERVICE_ALERT_CHECKBOX = By.ID, 'checkbox-publish-service-announcement'
     POST_SERVICE_ALERT_LABEL = By.XPATH, '//label[@for="checkbox-publish-service-announcement"]'
-    UPDATE_SERVICE_ALERT_INPUT = By.XPATH, '(//div[@role="textbox"])[2]'
+    UPDATE_SERVICE_ALERT_INPUT = By.XPATH, '(//div[@role="textbox" and contains(@class, "ck-content")])'
     UPDATE_SERVICE_ALERT_BUTTON = By.ID, 'button-update-service-announcement'
 
     def service_alert_checkbox_label(self):
