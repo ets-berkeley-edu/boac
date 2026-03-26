@@ -219,6 +219,7 @@
       :text="deleteModalBody"
     />
     <CloneTemplateModal
+      v-if="!!templateToClone"
       :after-create="afterClone"
       :cancel="cloneCanceled"
       :existing-templates="degreeTemplates"
