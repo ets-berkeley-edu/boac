@@ -6,7 +6,7 @@
           {{ termNameForSisId(termId) }}
         </th>
         <th v-if="size(enrollments)" class="border-b-md pb-1 text-medium-emphasis text-right text-medium-emphasis w-33">
-          {{ totalUnits }} Units
+          {{ totalUnits }} Units <span class="sr-only">total</span>
         </th>
       </tr>
     </thead>
@@ -44,7 +44,7 @@
           </div>
         </td>
         <td :class="{'pt-1': index === 0}" class="text-right vertical-top">
-          {{ enrollment.units }}
+          {{ enrollment.units }} <span class="sr-only">units</span>
         </td>
       </tr>
     </tbody>
