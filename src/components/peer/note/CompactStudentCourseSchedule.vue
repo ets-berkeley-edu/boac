@@ -33,7 +33,7 @@
           v-for="(academicYear, label, index) of academicYears"
           :key="label"
         >
-          <h5 class="sr-only">{{ label }}</h5>
+          <h5 class="sr-only">{{ replace(label, '-', 'to') }}</h5>
           <div :class="{'mt-5': index}" class="align-start d-flex justify-space-between">
             <div
               v-for="(enrollments, termId) in academicYear"
@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {isNil} from 'lodash'
+import {isNil, replace} from 'lodash'
 import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {ref, watch} from 'vue'
 import type {BasicStudent, Enrollment} from '@/lib/types'
