@@ -97,6 +97,7 @@ import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTabl
 import {toggleModalBackgroundDisabled} from '@/lib/utils'
 import {getPeerAdvisingNotesAuthoredBy} from '@/api/peer-advising-notes'
 import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
   headerText: {
@@ -119,6 +120,7 @@ const props = defineProps({
 })
 
 const contextStore = useContextStore()
+const noteStore = useNoteStore()
 const isFetchingNotes = ref<boolean>(false)
 const isModalOpen = ref<boolean>(false)
 const notes = ref<Note[]>([])
@@ -133,6 +135,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   toggleModalBackgroundDisabled(false)
+  noteStore.exitSession()
   contextStore.removeEventHandler('note-deleted')
 })
 
@@ -148,6 +151,7 @@ const afterNoteEdit = () => {
 
 const closeModal = () => {
   toggleModalBackgroundDisabled(false)
+  noteStore.exitSession()
   isModalOpen.value = false
   notes.value = []
 }
