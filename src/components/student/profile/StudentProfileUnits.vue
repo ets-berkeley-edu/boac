@@ -17,7 +17,7 @@
         class="align-self-stretch border-s-sm d-flex justify-center units-chart"
       >
         <div class="d-flex flex-column pl-4">
-          <h4 class="units-label font-weight-bold mb-3 text-medium-emphasis text-uppercase">Unit Totals</h4>
+          <h2 class="units-label font-weight-bold mb-3 text-medium-emphasis text-uppercase">Unit Totals</h2>
           <StudentUnitsChart
             v-if="cumulativeUnits || currentEnrolledUnits"
             class="flex-grow-0 student-units-chart"

@@ -26,9 +26,9 @@
         <v-container fluid>
           <v-row>
             <v-col class="text-left" cols="4">
-              <h3 class="student-profile-h3">
+              <h2 class="student-profile-h3">
                 Advisor(s)
-              </h3>
+              </h2>
               <div v-if="size(student.advisors)" id="student-profile-advisors">
                 <div
                   v-for="(advisor, index) in orderBy(student.advisors, a => a.title && a.title.toLowerCase().includes('director') ? 1 : 0)"
@@ -55,9 +55,9 @@
             </v-col>
             <v-col class="text-left" cols="4">
               <div id="contact-information-outer">
-                <h3 class="student-profile-h3">
+                <h2 class="student-profile-h3">
                   Contact Information
-                </h3>
+                </h2>
                 <div v-if="student.sisProfile.emailAddressAlternate" id="student-profile-other-email-outer">
                   <div class="font-weight-bold">
                     Other Email (preferred)
@@ -82,9 +82,9 @@
                 id="additional-information-outer"
                 class="mt-5"
               >
-                <h3 class="student-profile-h3">
+                <h2 class="student-profile-h3">
                   Additional Information
-                </h3>
+                </h2>
                 <div class="text-medium-emphasis">
                   <div v-if="student.sisProfile.transfer" id="student-profile-transfer">
                     Transfer
@@ -125,8 +125,8 @@
             </v-col>
             <v-col class="text-left" cols="4">
               <div v-if="student.sisProfile.intendedMajors" id="student-details-intended-majors-outer">
-                <h3 v-if="isGraduate(student)" class="student-profile-h3">Intended Academic Plan</h3>
-                <h3 v-if="!isGraduate(student)" class="student-profile-h3">Intended Major</h3>
+                <h2 v-if="isGraduate(student)" class="student-profile-h3">Intended Academic Plan</h2>
+                <h2 v-if="!isGraduate(student)" class="student-profile-h3">Intended Major</h2>
                 <div id="student-details-intended-majors">
                   <div v-for="plan in student.sisProfile.intendedMajors" :key="plan.description">
                     <div class="font-weight-bold">
@@ -143,9 +143,9 @@
                 </div>
               </div>
               <div v-if="inactiveMajors.length" id="student-details-discontinued-majors-outer">
-                <h3 class="student-profile-h3">
+                <h2 class="student-profile-h3">
                   Discontinued Major(s)
-                </h3>
+                </h2>
                 <div id="student-details-discontinued-majors">
                   <StudentProfilePlan
                     v-for="plan in inactiveMajors"
@@ -156,9 +156,9 @@
                 </div>
               </div>
               <div v-if="inactiveMinors.length" id="student-details-discontinued-minors-outer">
-                <h3 class="student-profile-h3">
+                <h2 class="student-profile-h3">
                   Discontinued Minor(s)
-                </h3>
+                </h2>
                 <div id="student-details-discontinued-minors">
                   <StudentProfilePlan
                     v-for="plan in inactiveMinors"
@@ -169,7 +169,7 @@
                 </div>
               </div>
               <div v-if="inactiveSubplans.length" id="student-bio-subplans">
-                <h3 class="student-profile-h3">Discontinued Subplan(s)</h3>
+                <h2 class="student-profile-h3">Discontinued Subplan(s)</h2>
                 <div
                   v-for="(subplan, index) in inactiveSubplans"
                   :key="index"

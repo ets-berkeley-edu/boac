@@ -1,5 +1,5 @@
 <template>
-  <div aria-labelledby="page-header student-name-header-sr" class="d-flex flex-wrap mr-4 pb-2 pt-4" role="region">
+  <div aria-labelledby="page-header" class="d-flex flex-wrap mr-4 pb-2 pt-4" role="region">
     <div class="d-flex flex-row-reverse me-auto">
       <StudentProfileHeaderBio
         :compact="compact"
