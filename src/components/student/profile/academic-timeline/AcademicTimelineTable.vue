@@ -2,7 +2,7 @@
   <div>
     <v-expand-transition>
       <div v-if="isExpandAllAvailable" class="align-center d-flex flex-wrap font-size-14">
-        <h3 class="sr-only">Quick Links</h3>
+        <div class="sr-only">Quick Links</div>
         <div class="pb-2 pl-2 toggle-expand-all-container">
           <v-btn
             :id="`toggle-expand-all-${selectedFilter}s`"
@@ -109,11 +109,11 @@
       <span v-if="!selectedFilter">None</span>
     </div>
     <div v-if="searchResults" class="mb-4 ml-8 mt-2">
-      <h3 id="search-results-header" class="font-size-16 font-weight-500">
+      <div id="search-results-header" class="font-size-16 font-weight-500" role="status">
         {{ pluralize(`advising ${selectedFilter}`, searchResults.length, {1: 'One'}) }} for
         <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
         with '{{ trim(timelineQuery) }}'
-      </h3>
+      </div>
     </div>
     <div v-if="countPerActiveTab">
       <table

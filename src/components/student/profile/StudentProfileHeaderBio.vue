@@ -20,7 +20,6 @@
         class="mb-1 student-section-header"
         v-html="student.name"
       />
-      <h2 id="student-name-header-sr" class="sr-only">Profile</h2>
       <div
         v-if="student.sisProfile.preferredName !== student.name"
         id="student-preferred-name"
@@ -91,7 +90,7 @@
     </div>
     <template v-if="!(suppressGradPrograms && 'GRAD' === get(student, 'sisProfile.academicCareer'))">
       <div id="student-bio-level" :class="{'mt-2': !compact}">
-        <h3 class="sr-only">Level</h3>
+        <div class="sr-only">Level</div>
         <div class="font-weight-medium">{{ get(student, 'sisProfile.level.description') }}</div>
       </div>
       <div class="text-medium-emphasis">

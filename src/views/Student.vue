@@ -12,11 +12,11 @@
     >
       <v-row no-gutters>
         <v-col class="border-e-sm py-2">
-          <h3 class="sr-only">Units</h3>
+          <div class="sr-only">Units</div>
           <StudentProfileUnits :student="student" />
         </v-col>
         <v-col class="border-e-sm py-2">
-          <h3 class="sr-only">GPA</h3>
+          <div class="sr-only">GPA</div>
           <StudentProfileGPA :student="student" />
         </v-col>
       </v-row>

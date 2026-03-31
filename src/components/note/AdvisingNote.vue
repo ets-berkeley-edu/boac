@@ -1,7 +1,6 @@
 <template>
   <div :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
-    <component
-      :is="note.peerAdvisingDepartmentId ? 'div' : 'h3'"
+    <div
       :id="`note-${note.id}-is-closed`"
       class="d-flex w-100"
       :class="{
@@ -35,7 +34,7 @@
         <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
         <span class="sr-only">Has attachments</span>
       </div>
-    </component>
+    </div>
     <div
       :id="`note-${note.id}-is-open`"
       class="pb-4"

@@ -16,9 +16,9 @@
         class="align-self-stretch border-s-sm d-flex gpa-trends justify-center"
       >
         <div id="gpa-chart">
-          <h4 class="font-weight-bold font-size-12 text-medium-emphasis mb-1 ml-1 text-uppercase">
+          <h2 class="font-weight-bold font-size-12 text-medium-emphasis mb-1 ml-1 text-uppercase">
             GPA Trends
-          </h4>
+          </h2>
           <StudentGpaChart
             v-if="get(student, 'termGpa.length') > 1"
             :chart-description="`GPA of ${student.name} by academic term`"
