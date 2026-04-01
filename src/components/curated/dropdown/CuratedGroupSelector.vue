@@ -55,9 +55,10 @@
           max-height="90vh"
           max-width="90vw"
           :model-value="selectedCuratedGroups"
+          role="menu"
           variant="flat"
         >
-          <v-list-item v-if="!size(myCuratedGroups)" disabled>
+          <v-list-item v-if="!size(myCuratedGroups)" disabled role="none">
             <span class="px-3 py-1 text-no-wrap">You have no {{ domainLabel(false) }}s.</span>
           </v-list-item>
           <v-list-item
@@ -65,36 +66,28 @@
             :id="`${idFragment}-${group.id}`"
             :key="group.id"
             :aria-checked="!!find(selectedCuratedGroups, g => g.id === group.id)"
-            :aria-selected="undefined"
-            class="v-list-item-override py-0"
+            class="py-0"
             density="compact"
-            role="checkbox"
+            role="menuitemcheckbox"
             :value="group"
             @click.stop="() => onClickListItem(group)"
+            @keydown.space.prevent="() => onClickListItem(group)"
             @focus="scrollToItem(`${idFragment}-${group.id}`)"
           >
-            <template #prepend="{isSelected}">
-              <v-list-item-action start>
-                <v-checkbox-btn
-                  :id="`${idFragment}-${group.id}-checkbox`"
-                  :model-value="isSelected"
-                  class="mx-1 mr-7 w-100"
-                  color="primary"
-                  density="compact"
-                  hide-details
-                  role="presentation"
-                  tabindex="-1"
-                >
-                  <template #label>
-                    <div class="truncate-with-ellipsis ml-2">
-                      {{ group.name }}
-                    </div>
-                  </template>
-                </v-checkbox-btn>
-              </v-list-item-action>
+            <template #prepend>
+              <v-icon
+                aria-hidden="true"
+                class="mr-2"
+                color="primary"
+                :icon="find(selectedCuratedGroups, g => g.id === group.id) ? mdiCheckboxMarked : mdiCheckboxBlankOutline"
+                size="small"
+              />
             </template>
+            <v-list-item-title class="truncate-with-ellipsis">
+              {{ group.name }}
+            </v-list-item-title>
           </v-list-item>
-          <v-list-item class="px-3">
+          <v-list-item class="px-3" role="none">
             <v-btn
               :id="`submit-${idFragment}`"
               :aria-label="`Add students to selected ${domainLabel(true)}s`"
@@ -107,7 +100,7 @@
               @keydown.enter.stop="onSubmit"
             />
           </v-list-item>
-          <v-list-item class="curated-group-menu-item-create align-center border-t-sm pt-2 px-3" density="compact">
+          <v-list-item class="curated-group-menu-item-create align-center border-t-sm pt-2 px-3" density="compact" role="none">
             <v-btn
               :id="`create-${idFragment}`"
               :aria-label="`Create a new ${domainLabel(false)}`"
@@ -136,7 +129,7 @@
 <script setup>
 import {computed, onMounted, onUnmounted, reactive, ref} from 'vue'
 import {filter as _filter, each, find, findIndex, inRange, map, remove, size} from 'lodash'
-import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
+import {mdiCheckBold, mdiCheckboxBlankOutline, mdiCheckboxMarked, mdiMenuDown, mdiPlus} from '@mdi/js'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import {addStudentsToCuratedGroups, createCuratedGroup} from '@/api/curated'
 import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
