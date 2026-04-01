@@ -204,14 +204,6 @@
                         {{ capitalizeAllWords(replace(note.author.role, '_', ' ')) }}
                       </div>
                     </div>
-                    <div
-                      v-if="size(note.author.departments)"
-                      class="text-medium-emphasis"
-                    >
-                      <div v-for="(department, deptIndex) in note.author.departments" :key="deptIndex">
-                        <span :id="`note-${note.id}-author-dept-${deptIndex}`">{{ department.deptName }}</span>
-                      </div>
-                    </div>
                     <PeerAdvisingDepartmentSummary
                       :id-prefix="`note-${note.id}`"
                       :peer-advising-department-id="note.peerAdvisingDepartmentId"
@@ -254,6 +246,7 @@ import type {Note} from '@/lib/types'
 import {alertScreenReader, capitalizeAllWords, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {canUserEditNote, stripHtmlAndSummarize, summarizeTopics} from '@/lib/note'
 import {deleteNote} from '@/api/notes'
+import {getPeerAdvisingDepartmentById} from '@/lib/berkeley-department'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
@@ -328,12 +321,20 @@ const editNote = (noteId: number) => {
   putFocusNextTick('edit-note-subject')
 }
 
+const peerAdvisingDepartmentLabel = (note: Note): string => {
+  const pad = note.peerAdvisingDepartment ?? getPeerAdvisingDepartmentById(note.peerAdvisingDepartmentId)
+  if (!pad) {
+    return ''
+  }
+  const deptName = pad.deptName ?? ''
+  const name = pad.name ?? ''
+  return name !== deptName ? `${deptName}, ${name}` : deptName
+}
+
 const getNoteAuthorLabel = (note: Note) => {
   const authorName = note.author.name
   const role = note.author.role ? capitalizeAllWords(replace(note.author.role, '_', ' ')) : ''
-  const departments = size(note.author.departments)
-    ? note.author.departments.map(dept => dept.deptName).join(', ')
-    : ''
+  const departments = peerAdvisingDepartmentLabel(note)
   const rolePart = role ? `, ${role}` : ''
   const deptPart = departments ? `, ${departments}` : ''
   return `${authorName ? `, created by ${authorName}` : ''}${rolePart}${deptPart}`
