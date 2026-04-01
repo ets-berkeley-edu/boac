@@ -38,8 +38,12 @@ export function findMembership(department: BoaUserDepartment, role: DepartmentMe
   return membership
 }
 
+export function getPeerAdvisingDepartmentById(peerAdvisingDepartmentId: number): PeerAdvisingDepartment | undefined {
+  return find(useContextStore().allPeerAdvisingDepartments, ['id', peerAdvisingDepartmentId])
+}
+
 export function findPeerAdvisingDepartment(peerAdvisingDepartmentId: number): PeerAdvisingDepartment {
-  const peerAdvisingDepartment: PeerAdvisingDepartment | undefined = find(useContextStore().allPeerAdvisingDepartments, ['id', peerAdvisingDepartmentId])
+  const peerAdvisingDepartment = getPeerAdvisingDepartmentById(peerAdvisingDepartmentId)
   if (!peerAdvisingDepartment) {
     throw new TypeError(`No Peer Advising Department found with ID ${peerAdvisingDepartmentId}`)
   }
