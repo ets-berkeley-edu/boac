@@ -77,13 +77,13 @@ class CuratedAddSelector(BoaPages, CuratedModal):
     @staticmethod
     def group_checkbox_link_loc(group):
         if group.is_ce3:
-            return By.XPATH, f'//input[@id="admissions-group-{group.cohort_id}-checkbox"]'
+            return By.ID, f'admissions-group-{group.cohort_id}'
         else:
-            return By.XPATH, f'//input[@id="curated-group-{group.cohort_id}-checkbox"]'
+            return By.ID, f'curated-group-{group.cohort_id}'
 
     def is_group_selected(self, group):
         self.when_present(self.group_checkbox_link_loc(group), utils.get_short_timeout())
-        return self.element(self.group_checkbox_link_loc(group)).is_selected()
+        return self.element(self.group_checkbox_link_loc(group)).get_attribute('aria-checked') == 'true'
 
     def check_group(self, group):
         self.wait_for_page_and_click(self.group_checkbox_link_loc(group))
