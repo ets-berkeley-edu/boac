@@ -29,7 +29,7 @@
         <div :aria-hidden="true" class="pl-3 pb-2">|</div>
         <div class="align-center d-flex pb-2 pl-4">
           <label
-            :id="`timeline-${selectedFilter}s-query-label`"
+            :id="`timeline-${selectedFilter}s-query-input-label`"
             :for="`timeline-${selectedFilter}s-query-input`"
             :class="{'text-medium-emphasis': !messagesVisible.length}"
             class="font-weight-bold mb-0 mr-2 text-no-wrap v-btn--variant-plain"
@@ -39,6 +39,7 @@
           <v-text-field
             :id="`timeline-${selectedFilter}s-query-input`"
             v-model="timelineQuery"
+            :aria-labelledby="undefined"
             autocomplete="on"
             bg-color="pale-blue"
             class="academic-timeline-search-input"
@@ -51,10 +52,10 @@
         </div>
         <div v-if="['appointment', 'note'].includes(selectedFilter)" class="align-center d-flex pl-4">
           <div :aria-hidden="true" class="pb-2">|</div>
-          <div class="align-center d-flex flex-wrap font-weight-bold pb-2 pl-4 text-medium-emphasis">
-            <label aria-hidden="true" class="mr-2">
+          <div class="align-center d-flex flex-wrap pb-2 pl-4">
+            <span aria-hidden="true" class="font-weight-bold text-medium-emphasis mr-2">
               Show {{ selectedFilter }}s:
-            </label>
+            </span>
             <v-btn-toggle
               v-model="filterWithinTheTab"
               class="border-sm btn-toggle-showing-subset"
@@ -206,7 +207,7 @@
                         class="requirements-icon"
                         color="secondary"
                       />
-                      <div :id="`${message.type}-${message.id}-is-closed`" :class="{'truncate-with-ellipsis': !isExpanded(message)}">
+                      <div :id="`${message.type}-${message.id}-is-${isExpanded(message) ? 'open' : 'closed'}`" :class="{'truncate-with-ellipsis': !isExpanded(message)}">
                         <span class="sr-only">{{ message.status }}: {{ message.name }}</span>
                         <span :aria-hidden="true">{{ message.message }}</span>
                       </div>
@@ -225,7 +226,7 @@
                   <div :id="`${message.type}-${message.id}-message`" class="d-flex align-center w-100">
                     <div
                       v-if="!includes(['appointment', 'eForm', 'note'] , message.type)"
-                      :id="`${message.type}-${message.id}-is-closed`"
+                      :id="`${message.type}-${message.id}-is-${isExpanded(message) ? 'open' : 'closed'}`"
                       :class="{
                         'pb-4': isExpanded(message),
                         'truncate-with-ellipsis': !isExpanded(message),
@@ -355,7 +356,7 @@
                     :to="`#permalink-${message.type}-${message.id}`"
                     @click.prevent="scrollToPermalink(message)"
                   >
-                    Permalink <v-icon :icon="mdiLinkVariant" />
+                    Permalink <span class="sr-only">{{ getButtonAriaLabel(message) }}</span><v-icon :icon="mdiLinkVariant" />
                   </router-link>
                 </div>
               </div>

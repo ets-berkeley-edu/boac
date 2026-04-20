@@ -54,7 +54,7 @@
               Completed
             </th>
             <th
-              v-if="!degreeStore.sid && currentUser.canEditDegreeProgress && !props.printable"
+              v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable"
               id="th-unit-requirements-actions"
               class="px-0 th-actions th-height"
             >
@@ -190,7 +190,7 @@ import {useDegreeStore} from '@/stores/degree-edit-session'
 const contextStore = useContextStore()
 const degreeStore = useDegreeStore()
 
-const props = defineProps({
+defineProps({
   printable: {
     required: false,
     type: Boolean

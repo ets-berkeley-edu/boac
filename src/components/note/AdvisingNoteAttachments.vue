@@ -192,7 +192,7 @@ const attachmentLimitReached = computed(() => {
 })
 const canRemoveAttachments = ref(false)
 const currentUser = reactive(contextStore.currentUser)
-const inputId = `${props.idPrefix}-choose-file-for-note-attachment`
+const inputId = computed(() => `${props.idPrefix}-choose-file-for-note-attachment`)
 const isFocused = ref(false)
 const {isUploadingAttachments} = storeToRefs(noteStore)
 let progressBarAlert

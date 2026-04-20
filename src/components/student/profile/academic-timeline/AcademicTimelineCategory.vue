@@ -45,7 +45,7 @@ const categoryType = (() => {
 
 <style>
 .timeline-category {
-  margin-top: 8px;
+  margin: 8px 0;
   .v-badge__badge {
     border-radius: 4px !important;
   }
