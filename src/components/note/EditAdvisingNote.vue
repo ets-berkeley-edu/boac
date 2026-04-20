@@ -40,10 +40,12 @@
       </transition>
     </div>
     <div v-if="!isPeerAdvisor(currentUser) && !model.peerAdvisingDepartmentId" class="mt-1">
-      <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
+      <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">
+        <span class="sr-only">Note </span>Subject
+      </label>
       <v-text-field
         id="edit-note-subject"
-        aria-label="Note Subject"
+        :aria-labelledby="undefined"
         autocomplete="on"
         bg-color="white"
         class="mt-1"

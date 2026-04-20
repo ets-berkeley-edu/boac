@@ -17,7 +17,7 @@
             <th class="font-size-11 force-width-24 text-right truncate-with-ellipsis pr-2" title="Units">Units</th>
             <th v-if="!ignored" class="font-size-11 force-width-42">Term</th>
             <th class="th-note font-size-11 force-width-50">Note</th>
-            <th v-if="canEdit" class="force-width-20" />
+            <th v-if="canEdit" class="force-width-20"><span class="sr-only">course actions</span></th>
           </tr>
         </thead>
         <tbody>
@@ -127,14 +127,14 @@
                 <a
                   v-if="course.note && !isNoteVisible(course)"
                   :id="`course-${course.id}-note`"
-                  :aria-description="`Show note for ${course.name}`"
                   :aria-expanded="false"
                   :class="{'text-decoration-none text-white': degreeStore.draggingCourseId === course.id}"
                   href
                   role="button"
                   @click.prevent="showNote(course)"
-                  v-html="course.note"
-                />
+                >
+                  <span class="sr-only">show note: </span>{{ course.note }}
+                </a>
                 <div v-if="!course.note" :id="`course-${course.id}-note`">&mdash;</div>
               </td>
               <td

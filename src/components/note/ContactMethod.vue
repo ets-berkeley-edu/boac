@@ -21,6 +21,7 @@
       >
         <v-radio
           id="contact-option-none-radio-button"
+          :aria-label="undefined"
           label="None"
           :ripple="false"
           :value="null"
@@ -30,6 +31,7 @@
             v-if="isPeerAdvising ? contactType.isAvailableToPeerAdvisors : true"
             :id="`contact-option-${index}-radio-button`"
             :key="contactType.value"
+            :aria-label="undefined"
             :label="contactType.value"
             :ripple="false"
             :value="contactType.value"
