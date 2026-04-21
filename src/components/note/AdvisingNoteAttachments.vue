@@ -20,7 +20,8 @@
           Adding attachments...
         </div>
         <div v-if="!isUploadingAttachments" class="mr-2">
-          Add attachment:
+          <span aria-hidden="true">Add attachment:</span>
+          <span class="sr-only">Select file for attachment; {{ pluralize('file', attachments.length) }} attached.</span>
         </div>
         <v-btn
           v-if="!isUploadingAttachments"
@@ -42,7 +43,6 @@
         ref="attachmentFileInput"
         :aria-busy="isUploadingAttachments"
         :aria-describedby="isUploadingAttachments ? progressBarId : `${idPrefix}-attachment-details`"
-        :aria-label="`Select file for attachment; ${pluralize('file', attachments.length)} attached.`"
         class="border-sm choose-file-for-note-attachment rounded"
         :class="{'border-md border-error': !!attachmentError}"
         :clearable="false"
@@ -196,7 +196,7 @@ const inputId = computed(() => `${props.idPrefix}-choose-file-for-note-attachmen
 const isFocused = ref(false)
 const {isUploadingAttachments} = storeToRefs(noteStore)
 let progressBarAlert
-const progressBarId = `${props.idPrefix}-attachment-progress`
+const progressBarId = computed(() => `${props.idPrefix}-attachment-progress`)
 
 watch(isUploadingAttachments, v => {
   const el = attachmentFileInput.value.$el
@@ -206,7 +206,7 @@ watch(isUploadingAttachments, v => {
       alertScreenReader('Still uploading attachments')
     }, 10000)
     if (progressBar) {
-      const id = progressBarId
+      const id = progressBarId.value
       progressBar.removeAttribute('aria-valuemin')
       progressBar.removeAttribute('aria-valuemax')
       progressBar.removeAttribute('aria-hidden')
