@@ -146,6 +146,7 @@
               'cursor-pointer': !isExpanded(message),
               'message-row-read': message.read
             }"
+            role="row"
             :tabindex="isExpanded(message) ? -1 : 0"
             @click="onClickOpenMessage(message)"
             @keyup.enter="onClickOpenMessage(message)"

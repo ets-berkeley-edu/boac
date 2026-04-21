@@ -1,6 +1,6 @@
 <template>
   <transition name="drawer">
-    <div v-if="showAlert" id="fixed_bottom">
+    <div v-if="showAlert" id="fixed-bottom" role="complementary">
       <div id="fixed-warning-on-all-pages" class="align-center bg-primary d-flex fixed-bottom">
         <div class="flex-grow-1">
           <b class="sr-only">BOA {{ getBoaEnvLabel() }} Environment</b>

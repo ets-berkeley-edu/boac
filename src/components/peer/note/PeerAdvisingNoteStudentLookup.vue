@@ -20,7 +20,7 @@
       v-else
       :key="vAutocompleteKey"
       :id-prefix="idPrefix"
-      aria-description="Name, S I D, or email lookup. Expect auto suggest."
+      aria-label="Name, S I D, or email lookup. Expect auto suggest."
       :clazz="{'demo-mode-blur': currentUser.inDemoMode, 'mt-2': true}"
       :clearable="!isFetchingStudents && !isAddingStudent"
       color="primary"

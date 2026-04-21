@@ -1,10 +1,9 @@
 <template>
   <div class="align-center d-flex w-100 justify-center" role="search">
     <div class="d-flex w-66 w-sm-50">
-      <label id="basic-search-input-label" class="sr-only" for="basic-search-input">basic search</label>
       <AccessibleCombobox
         :key="searchStore.autocompleteInputResetKey"
-        :aria-description="`${labelForSearchInput()}`"
+        :aria-label="`${labelForSearchInput()}`"
         class="d-flex on-surface mr-1 mr-sm-2 flex-grow-1"
         :clazz="{
           'basic-search ml-auto': true,
@@ -18,7 +17,7 @@
         input-type="search"
         :is-busy="searchStore.isSearching"
         :items="searchStore.searchHistory"
-        label="Search"
+        label="Basic Search"
         list-label="Previous Searches"
         :menu-props="{attach: '#basic-search-container', 'location': 'bottom'}"
         :on-submit="search"

@@ -51,7 +51,7 @@
         hide-details
         :loading="isUploadingAttachments ? 'primary' : false"
         :model-value="attachments"
-        multiple
+        :multiple="true"
         :prepend-icon="null"
         variant="solo-filled"
         @click:control="onClickBrowseForAttachment"
