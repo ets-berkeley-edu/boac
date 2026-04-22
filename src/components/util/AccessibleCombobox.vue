@@ -6,7 +6,7 @@
       ref="container"
       v-model="model"
       :aria-describedby="undefined"
-      :aria-description="ariaDescription"
+      :aria-label="ariaLabel"
       :aria-required="required"
       :autocomplete="autocomplete"
       :base-color="color"
@@ -92,7 +92,7 @@ import {nextTick, onMounted, onUpdated, ref} from 'vue'
 import {alertScreenReader, escapeForRegExp, pluralize, putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({
-  ariaDescription: {
+  ariaLabel: {
     default: 'Expect auto-suggest.',
     required: false,
     type: String
@@ -257,7 +257,6 @@ onMounted(() => {
       input.setAttribute('aria-autocomplete', 'list')
       input.setAttribute('aria-controls', `${props.idPrefix}-menu`)
       input.setAttribute('aria-expanded', false)
-      input.setAttribute('aria-label', props.label)
       input.removeAttribute('aria-labelledby')
     }
     mergedMenuProps.value = {
@@ -359,6 +358,7 @@ const onToggleMenu = isOpen => {
       const listbox = menu && menu.querySelector('[role="listbox"]')
       if (listbox) {
         listbox.setAttribute('aria-label', props.listLabel)
+        listbox.removeAttribute('aria-labelledby')
       }
       input.setAttribute('aria-expanded', true)
     } else {

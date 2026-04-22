@@ -1,10 +1,17 @@
 <template>
   <div>
-    <v-tooltip location="bottom" text="Advanced search options">
+    <v-tooltip
+      id="advanced-search-btn-tooltip"
+      aria-hidden="true"
+      aria-roledescription="tooltip"
+      location="bottom"
+      text="Advanced search options"
+    >
       <template #activator="{props}">
         <v-btn
           id="search-options-panel-toggle"
           v-bind="props"
+          aria-describedby="advanced-search-btn-tooltip"
           aria-label="Open Advanced Search dialog"
           class="px-1"
           :class="{'border-0': !isFocusAdvSearchButton}"
@@ -50,7 +57,7 @@
               <AccessibleCombobox
                 :key="searchStore.autocompleteInputResetKey"
                 id-prefix="advanced-search"
-                :aria-description="`${labelForSearchInput()}`"
+                :aria-label="`${labelForSearchInput()}`"
                 clearable
                 :get-value="() => model.queryText"
                 input-type="search"
@@ -207,7 +214,7 @@
                       <label class="form-control-label" for="search-options-note-author-input">Advisor</label>
                       <AccessibleCombobox
                         id-prefix="search-options-note-author"
-                        aria-description="Advisor name or S I D lookup. Expect auto suggest."
+                        aria-label="Advisor name or S I D lookup. Expect auto suggest."
                         :clearable="!isFetchingAdvisors"
                         :clazz="{'mt-1 text-black': true}"
                         color="primary"
@@ -239,7 +246,7 @@
                       </label>
                       <AccessibleCombobox
                         id-prefix="search-options-note-student"
-                        aria-description="Student name or S I D lookup. Expect auto suggest."
+                        aria-label="Student name or S I D lookup. Expect auto suggest."
                         :clazz="{'mt-1 text-black': true, 'demo-mode-blur': currentUser.inDemoMode}"
                         :clearable="!isFetchingStudents"
                         color="primary"
