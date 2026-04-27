@@ -428,6 +428,7 @@ CREATE TABLE notes (
     is_draft BOOLEAN DEFAULT FALSE NOT NULL,
     is_private BOOLEAN DEFAULT FALSE NOT NULL,
     note_template_id INTEGER,
+    parent_note_id INTEGER,
     peer_advising_department_id INTEGER,
     set_date DATE,
     sid VARCHAR(80),
@@ -447,6 +448,7 @@ ALTER TABLE notes_id_seq OWNER TO boac;
 ALTER SEQUENCE notes_id_seq OWNED BY notes.id;
 ALTER TABLE ONLY notes ALTER COLUMN id SET DEFAULT nextval('notes_id_seq'::regclass);
 ALTER TABLE ONLY notes ADD CONSTRAINT notes_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY notes ADD CONSTRAINT notes_parent_note_id_fkey FOREIGN KEY (parent_note_id) REFERENCES notes(id) ON DELETE CASCADE;
 CREATE INDEX notes_author_uid_idx ON notes USING btree (author_uid);
 CREATE INDEX notes_deleted_at_idx ON notes (deleted_at);
 CREATE INDEX notes_is_private_idx ON notes (is_private);

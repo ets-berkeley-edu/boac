@@ -68,6 +68,7 @@ class Note(Base):
     is_draft = db.Column(db.Boolean, nullable=False, default=False)
     is_private = db.Column(db.Boolean, nullable=False, default=False)
     note_template_id = db.Column(db.Integer, db.ForeignKey('note_templates.id'), nullable=True)
+    parent_note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), nullable=True)
     peer_advising_department_id = db.Column(db.Integer, db.ForeignKey('peer_advising_departments.id'), nullable=True)
     set_date = db.Column(db.Date)
     sid = db.Column(db.String(80))
@@ -100,6 +101,7 @@ class Note(Base):
         is_private=False,
         set_date=None,
         note_template_id=None,
+        parent_note_id=None,
         peer_advising_department_id=None,
     ):
         _validate_sid(is_draft=is_draft, note_id=None, sid=sid)
@@ -112,6 +114,7 @@ class Note(Base):
         self.is_draft = is_draft
         self.is_private = is_private
         self.note_template_id = note_template_id
+        self.parent_note_id = parent_note_id
         self.peer_advising_department_id = peer_advising_department_id
         self.set_date = set_date
         self.sid = sid
