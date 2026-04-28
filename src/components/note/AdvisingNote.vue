@@ -1,12 +1,14 @@
 <template>
-  <div :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
+  <article :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
     <div
       :id="`note-${note.id}-is-closed`"
+      aria-level="3"
       class="d-flex w-100"
       :class="{
         'font-size-18': !note.peerAdvisingDepartmentId,
         'note-snippet-when-closed': !isOpen
       }"
+      role="heading"
     >
       <div v-if="note.isDraft" :id="`note-${note.id}-is-draft`" class="d-flex align-center">
         <v-badge
@@ -35,7 +37,7 @@
         <span class="sr-only">Has attachments</span>
       </div>
     </div>
-    <div
+    <section
       :id="`note-${note.id}-is-open`"
       class="pb-4"
       :class="{'sr-only': !isOpen}"
@@ -127,7 +129,13 @@
           :remove="removeAttachmentByIndex"
         />
       </div>
-    </div>
+    </section>
+    <AdvisingNoteComments
+      v-if="!note.legacySource && !note.eform && !note.peerAdvisingDepartmentId"
+      class="border-t-sm py-4"
+      :class="{'sr-only': !isOpen}"
+      :note="note"
+    />
     <AreYouSureModal
       v-model="showConfirmDeleteAttachment"
       button-label-confirm="Delete"
@@ -137,7 +145,7 @@
     >
       Are you sure you want to delete the <strong>'{{ displayName(note.attachments, deleteAttachmentIndex) }}'</strong> attachment?
     </AreYouSureModal>
-  </div>
+  </article>
 </template>
 
 <script setup>
@@ -146,6 +154,7 @@ import {get, isNil, isNumber, map, orderBy, replace, size} from 'lodash'
 import {mdiPaperclip} from '@mdi/js'
 import AdvisingEForm from '@/components/note/eform/AdvisingEForm'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
+import AdvisingNoteComments from '@/components/note/AdvisingNoteComments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
