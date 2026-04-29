@@ -22,7 +22,7 @@
         :selected-filter="selectedFilter"
         :filter-types="filterTypes"
         :messages="messages"
-        :on-create-new-note="onCreateNewNote"
+        :on-note-updated="onCreateOrUpdateNote"
         :student="student"
       />
     </div>
@@ -84,7 +84,6 @@ onMounted(() => {
   isTimelineLoading.value = false
   eventHandlers.value = {
     'note-deleted': onDeleteNoteEvent,
-    'note-updated': onNoteUpdated,
     'notes-batch-published': onPublishBatchNotes
   }
   each(eventHandlers.value, (handler, eventType) => {
@@ -92,19 +91,24 @@ onMounted(() => {
   })
 })
 
-const onCreateNewNote = note => {
-  if (note.sid === props.student.sid) {
-    const message = find(messages.value, ['id', note.id])
-    note.transientId = message ? message.transientId : note.id
-    if (message) {
-      const existingNoteIndex = findIndex(messages.value, {'id': note.id})
-      messages.value.splice(existingNoteIndex, 1, note)
+const onCreateOrUpdateNote = note => {
+  return new Promise(resolve => {
+    if (note.sid === props.student.sid) {
+      const message = find(messages.value, ['id', note.id])
+      note.transientId = message ? message.transientId : note.id
+      if (message) {
+        const existingNoteIndex = findIndex(messages.value, {'id': note.id})
+        messages.value.splice(existingNoteIndex, 1, note)
+      } else {
+        messages.value.push(note)
+        updateCountsPerType('note', countsPerType.value.note + 1)
+      }
+      sortMessages()
+      resolve()
     } else {
-      messages.value.push(note)
-      updateCountsPerType('note', countsPerType.value.note + 1)
+      resolve()
     }
-    sortMessages()
-  }
+  })
 }
 
 const onDeleteNoteEvent = noteId => {
@@ -115,19 +119,11 @@ const onDeleteNoteEvent = noteId => {
   }
 }
 
-const onNoteUpdated = note => {
-  if (note.sid === props.student.sid) {
-    getNote(note.id).then(note => {
-      onCreateNewNote(note)
-    })
-  }
-}
-
 const onPublishBatchNotes = noteIdsBySid => {
   const noteId = get(noteIdsBySid, props.student.sid)
   if (noteId) {
     getNote(noteId).then(note => {
-      onCreateNewNote(note)
+      onCreateOrUpdateNote(note)
     })
   }
 }

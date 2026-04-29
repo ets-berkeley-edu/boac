@@ -2,7 +2,7 @@
   <v-form
     :id="`note-${noteId}-edit-form`"
     ref="editNoteForm"
-    :class="wrapperClass"
+    class="edit-note-form"
     @submit.prevent="save"
   >
     <div v-if="model.isDraft" class="font-size-18 text-error pa-2">
@@ -197,11 +197,6 @@ const props = defineProps({
   noteId: {
     required: true,
     type: Number
-  },
-  wrapperClass: {
-    default: 'edit-note-form pl-2',
-    required: false,
-    type: String
   }
 })
 
@@ -382,8 +377,6 @@ const save = isDraft => {
 <style scoped>
 .edit-note-form {
   cursor: auto !important;
-  flex-basis: 100%;
-  width: 140%;
 }
 .edit-draft-text {
   position: relative;

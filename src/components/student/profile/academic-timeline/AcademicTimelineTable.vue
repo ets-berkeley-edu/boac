@@ -251,7 +251,7 @@
                       v-if="['eForm', 'note'].includes(message.type) && message.id === editModeNoteId"
                       :after-cancel="afterNoteEditCancel"
                       :after-saved="afterEditAdvisingNote"
-                      class="pt-2"
+                      class="timeline-message-full-width pt-8"
                       initial-mode="editDraft"
                       :note-id="message.id"
                     />
@@ -266,7 +266,10 @@
                 </div>
               </div>
             </td>
-            <td class="column-date vertical-top pr-4" :class="{'text-right': !isExpanded(message)}">
+            <td
+              class="column-date vertical-top pr-4"
+              :class="{'text-right': !(isExpanded(message) && ['appointment', 'eForm', 'note'].includes(message.type))}"
+            >
               <v-btn
                 v-if="!editModeNoteId && isEditable(message) && canUserEditNote(message, currentUser)"
                 :id="`edit-note-${message.id}-button`"
@@ -446,7 +449,7 @@ const props = defineProps({
     required: true,
     type: Array
   },
-  onCreateNewNote: {
+  onNoteUpdated: {
     required: true,
     type: Function
   },
@@ -521,7 +524,7 @@ onMounted(() => {
     eventHandlers.value = {
       'note-creation-is-starting': onNoteCreateStartEvent,
       'note-created': afterNoteCreated,
-      'note-updated': refreshNote,
+      'note-updated': note => props.onNoteUpdated(note).then(refreshSearchIndex),
       'notes-created': noteIdsBySid => {
         const noteId = noteIdsBySid[props.student.sid]
         if (noteId) {
@@ -564,9 +567,7 @@ const afterEditAdvisingNote = (updatedNote, putFocusId) => {
 
 const afterNoteCreated = note => {
   creatingNoteEvent.value = null
-  refreshNote(note)
-  props.onCreateNewNote(note)
-  refreshSearchIndex()
+  props.onNoteUpdated(note).then(refreshSearchIndex)
 }
 
 const afterNoteEditCancel = () => {
@@ -741,22 +742,6 @@ const open = message => {
   markRead(message)
   if (isExpandAllAvailable.value && openMessages.value.length === messagesPerType(props.selectedFilter).length) {
     allExpanded.value = true
-  }
-}
-
-const refreshNote = updatedNote => {
-  const note = get(updatedNote, 'id') ? find(props.messages, ['id', updatedNote.id]) : null
-  if (note) {
-    note.attachments = updatedNote.attachments
-    note.body = note.message = updatedNote.body
-    note.contactType = updatedNote.contactType
-    note.isDraft = updatedNote.isDraft
-    note.isPrivate = updatedNote.isPrivate
-    note.setDate = updatedNote.setDate
-    note.subject = updatedNote.subject
-    note.topics = updatedNote.topics
-    note.updatedAt = updatedNote.updatedAt
-    refreshSearchIndex()
   }
 }
 

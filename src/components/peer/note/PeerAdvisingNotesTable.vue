@@ -97,8 +97,8 @@
                     <EditAdvisingNote
                       :after-cancel="afterNoteEditCancel"
                       :after-saved="afterEditAdvisingNote"
+                      class="px-2 pl-md-10 pr-md-0 w-100"
                       initial-mode="editNote"
-                      wrapper-class="pl-md-10 w-100"
                       :note-id="note.id"
                     />
                   </div>
@@ -128,7 +128,7 @@
                 v-if="editingNoteId !== note.id && canUserEditNote(note, currentUser)"
                 v-show="isExpanded(note)"
                 :id="`note-actions-${note.id}`"
-                class="d-flex flex-column pl-5"
+                class="note-actions d-flex flex-column pl-md-5"
               >
                 <v-btn
                   v-show="isExpanded(note)"
@@ -178,9 +178,9 @@
                       />
                     </div>
                   </div>
-                  <div :class="{'mt-4': !isExpanded(note)}">
+                  <div class="mt-4">
                     <div v-if="note.author.name || note.author.email" class="mt-2">
-                      <div class="font-size-15 text-medium-emphasis text-no-wrap">Created by:</div>
+                      <div class="font-size-14 text-medium-emphasis text-no-wrap mb-1">Created by:</div>
                       <div v-if="note.author.uid && note.author.name">
                         <router-link
                           v-if="currentUser.isAdmin && note.peerAdvisingDepartmentId"
@@ -200,7 +200,7 @@
                           {{ note.author.name }} <span class="sr-only">&nbsp;UC Berkeley Directory page (opens in new tab)</span>
                         </a>
                       </div>
-                      <div :id="`note-${note.id}-author-role`" class="font-weight-550 mt-2">
+                      <div :id="`note-${note.id}-author-role`" class="font-weight-550 mt-1">
                         {{ capitalizeAllWords(replace(note.author.role, '_', ' ')) }}
                       </div>
                     </div>
@@ -372,6 +372,9 @@ const toggleShowHide = (note: Note) => {
 
 <style scoped>
 @media (max-width: 959px) {
+  .delete-note-button, .edit-note-button {
+    margin-left: 0 !important;
+  }
   .grid-cell {
     padding-bottom: 0 !important;
   }
@@ -379,8 +382,8 @@ const toggleShowHide = (note: Note) => {
     min-width: 300px;
     overflow: hidden; /* Prevent horizontal scrollbar */
   }
-  .peer-advising-table-wrapper .td-created-date {
-    width: calc(100% - 10rem) !important;
+  .peer-advising-table-wrapper .td-created-date .note-actions {
+    width: 12rem !important;
   }
   .peer-advising-table-wrapper .td-created-date .created-date {
     position: absolute;
@@ -399,7 +402,7 @@ const toggleShowHide = (note: Note) => {
   }
   .peer-advising-table-wrapper .td-note .grid-cell.note-details {
     margin: 12px 0 !important;
-    width: calc(100% - 10rem) !important;
+    width: 100% !important;
   }
   .peer-advising-table-wrapper table, tbody, tr {
     border-collapse: collapse;
@@ -439,6 +442,9 @@ const toggleShowHide = (note: Note) => {
 .peer-advising-table-wrapper .grid-cell {
   padding: 8px 12px;
 }
+.peer-advising-table-wrapper .expanded .grid-cell {
+  padding-bottom: 16px !important;
+}
 .peer-advising-table-wrapper .td-created-date .grid-cell {
   grid-area: 1 / 3 / 1 / 3;
 }
@@ -466,7 +472,7 @@ const toggleShowHide = (note: Note) => {
 .peer-advising-table-wrapper tr {
   display: grid;
   grid-auto-rows: min-content;
-  grid-template-columns: 20% 60% 20%;
+  grid-template-columns: 25% 50% 25%;
   width: 100%;
 }
 </style>
