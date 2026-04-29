@@ -242,6 +242,7 @@ export type Note = {
   attachments: NoteAttachment[],
   author: NoteAuthor,
   body: string,
+  comments: NoteComment[],
   contactType: string,
   createdAt: string,
   deletedAt: string,
@@ -274,6 +275,16 @@ export type NoteAuthor = {
   uid: string
 }
 
+export type NoteComment = {
+  id: number,
+  attachments: NoteAttachment[],
+  author: NoteAuthor,
+  body: string,
+  createdAt?: string,
+  deletedAt?: string,
+  updatedAt?: string
+}
+
 export type NoteContactType = {
   isAvailableToPeerAdvisors: boolean,
   value: string
@@ -283,6 +294,7 @@ export type NoteEditSessionModel = {
   attachments: Attachment[],
   author: object,
   body: string | undefined,
+  comments: NoteComment[],
   contactType: string | undefined,
   deleteAttachmentIds: number[],
   id: number,
