@@ -609,6 +609,7 @@ def note_to_compatible_json(
         'isPrivate': note.get('is_private') or False,
         'isDraft': note.get('is_draft'),
         'peerAdvisingDepartmentId': note.get('peer_advising_department_id'),
+        'parentNoteId': note.get('parent_note_id'),
         'read': bool(note_read),
         'setDate': safe_strftime(note.get('set_date'), '%Y-%m-%d'),
         'sid': note.get('sid'),

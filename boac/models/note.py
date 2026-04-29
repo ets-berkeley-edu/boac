@@ -289,6 +289,7 @@ class Note(Base):
             set_date=None,
             template_attachment_ids=(),
             note_template_id=None,
+            parent_note_id=None,
     ):
         _validate_sid(is_draft=is_draft, note_id=None, sid=sid)
 
@@ -307,6 +308,7 @@ class Note(Base):
                 sid=sid,
                 subject=subject,
                 note_template_id=note_template_id,
+                parent_note_id=parent_note_id,
             )
             db.session.add(note)
             std_commit()
@@ -341,6 +343,7 @@ class Note(Base):
                 attachments=attachments,
                 template_attachment_ids=template_attachment_ids,
                 note_template_id=note_template_id,
+                parent_note_id=parent_note_id,
             )
 
             def _get_note_id():
@@ -368,6 +371,7 @@ class Note(Base):
             topics=(),
             template_attachment_ids=(),
             note_template_id=None,
+            parent_note_id=None,
     ):
         sid_count = len(sids)
         benchmark = get_benchmarker('begin note creation' if sid_count == 1 else f'begin creation of {sid_count} notes')
@@ -385,6 +389,7 @@ class Note(Base):
             sids=sids,
             subject=subject,
             note_template_id=note_template_id,
+            parent_note_id=parent_note_id,
         )
         note_ids = list(ids_by_sid.values())
         benchmark('begin add 1 topic' if len(topics) == 1 else f'begin add {len(topics)} topics')
@@ -810,6 +815,7 @@ class Note(Base):
             'isDraft': self.is_draft,
             'isPrivate': self.is_private,
             'peerAdvisingDepartmentId': self.peer_advising_department_id,
+            'parentNoteId': self.parent_note_id,
             'setDate': safe_strftime(self.set_date, '%Y-%m-%d'),
             'sid': self.sid,
             'subject': self.subject,
@@ -835,6 +841,7 @@ class Note(Base):
             'is_draft': self.is_draft,
             'is_private': self.is_private,
             'peer_advising_department_id': self.peer_advising_department_id,
+            'parent_note_id': self.parent_note_id,
             'set_date': safe_strftime(self.set_date, '%Y-%m-%d'),
             'sid': self.sid,
             'subject': self.subject,
@@ -858,6 +865,7 @@ def _create_notes(
         sids,
         subject,
         note_template_id,
+        parent_note_id,
 ):
     ids_by_sid = {}
     now = utc_now().strftime('%Y-%m-%dT%H:%M:%S+00')
@@ -870,9 +878,10 @@ def _create_notes(
         sql = """
             INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private,
                                 peer_advising_department_id, set_date, sid, subject, created_at, updated_at,
-                                note_template_id)
+                                note_template_id, parent_note_id)
             SELECT author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private,
-                    peer_advising_department_id, set_date, sid, subject, created_at, updated_at, note_template_id
+                    peer_advising_department_id, set_date, sid, subject, created_at, updated_at, note_template_id,
+                    parent_note_id
             FROM json_populate_recordset(null::notes, :json_dumps)
             RETURNING id, sid;
         """
@@ -890,6 +899,7 @@ def _create_notes(
                 'is_private': is_private,
                 'peer_advising_department_id': peer_advising_department_id,
                 'note_template_id': note_template_id,
+                'parent_note_id': parent_note_id,
                 'set_date': set_date,
                 'created_at': now,
                 'updated_at': now,
