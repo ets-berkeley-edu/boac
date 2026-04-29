@@ -103,6 +103,38 @@ def create_draft_note():
     return tolerant_jsonify(get_boac_note_as_compatible_json(note, note_read=True))
 
 
+@app.route('/api/note/add_comment', methods=['POST'])
+@advising_data_access_required
+def add_note_comment():
+    params = request.form
+    parent_note_id = params.get('parentNoteId')
+    if not parent_note_id or not is_int(parent_note_id):
+        raise BadRequestError('Request has missing or invalid request parameters')
+    parent_note_id = int(parent_note_id)
+    parent_note = Note.find_by_id(note_id=parent_note_id)
+    if not parent_note or not can_current_user_edit_note(parent_note):
+        raise ResourceNotFoundError('Note not found')
+    body = process_input_from_rich_text_editor(params.get('body'))
+    if not body or not body.strip():
+        raise BadRequestError('Request has missing or invalid request parameters')
+    attachments = get_note_attachments_from_http_post(tolerate_none=True)
+    attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
+    if len(attachments) > attachment_limit:
+        raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
+    note = Note.create(
+        **get_note_author_profile_of_current_user(),
+        attachments=attachments,
+        body=body,
+        is_private=parent_note.is_private,
+        parent_note_id=parent_note_id,
+        peer_advising_department_id=parent_note.peer_advising_department_id,
+        sid=parent_note.sid,
+        subject='',
+    )
+    note_read = NoteRead.find_or_create(current_user.get_id(), note.id)
+    return tolerant_jsonify(get_boac_note_as_compatible_json(note=note, note_read=note_read))
+
+
 @app.route('/api/notes/update', methods=['POST'])
 @advising_data_access_required
 def update_note():
