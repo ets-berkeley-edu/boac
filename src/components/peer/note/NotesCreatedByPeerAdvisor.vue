@@ -14,11 +14,10 @@
       v-model="isModalOpen"
       :fullscreen="$vuetify.display.width < 750"
       persistent
-      scrollable
       @keydown.esc="closeModal"
     >
       <v-card
-        class="peer-advising-notes-modal modal-content scrollbar-gutter-stable w-100"
+        class="peer-advising-notes-modal modal-content pr-0 scrollbar-gutter-stable w-100"
         max-width="1100"
         width="90vw"
       >
